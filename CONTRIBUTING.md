@@ -11,7 +11,7 @@ Thank you for your interest! This guide explains how to set up the environment, 
 
 ## Environment
 
-Requirements: Rust 1.94+ (with `rustfmt` and `clippy`), Node.js 24, Docker with `docker compose` and GNU Make.
+Requirements: rustup (the Rust version is pinned in `rust-toolchain.toml` and installed automatically), Node.js 24, Docker with `docker compose` and GNU Make.
 
 ```bash
 cp .env.example .env   # fill in APP_ENCRYPTION_KEY with: openssl rand -base64 32

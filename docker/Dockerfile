@@ -1,7 +1,8 @@
 # syntax=docker/dockerfile:1
 
-FROM rust:1-bookworm AS modules
+FROM rust:1.99.0-bookworm AS modules
 WORKDIR /src
+COPY rust-toolchain.toml ./
 COPY Makefile ./
 COPY back/ back/
 COPY web/ web/
@@ -18,8 +19,9 @@ COPY --from=modules /src/web/src/modules.generated.ts ./src/modules.generated.ts
 COPY --from=modules /src/web/modules.aliases.json /src/web/tsconfig.modules.json ./
 RUN npm run build
 
-FROM rust:1-bookworm AS back
+FROM rust:1.99.0-bookworm AS back
 WORKDIR /src/back
+COPY rust-toolchain.toml /src/rust-toolchain.toml
 ENV SQLX_OFFLINE=true
 COPY back/ ./
 COPY --from=modules /src/back/app/Cargo.toml ./app/Cargo.toml

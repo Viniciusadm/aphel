@@ -6,7 +6,7 @@ Guide to running Aphel locally: Rust backend in `back/`, React frontend in `web/
 
 | Tool | Version |
 | --- | --- |
-| Rust | 1.94 or later (edition 2024), with `rustfmt` and `clippy` |
+| Rust | The version pinned in [`rust-toolchain.toml`](../rust-toolchain.toml) (edition 2024, with `rustfmt` and `clippy`); rustup installs it on the first `cargo` command. The minimum supported version for plugins stays `rust-version` in `back/Cargo.toml` |
 | Node.js | 24 (with npm) |
 | Docker | Recent Engine with the `docker compose` plugin |
 | GNU Make | any recent version |

@@ -113,7 +113,7 @@ Full list, with the effect of each one: [docs/configuration.md](docs/configurati
 
 ## Development
 
-Requirements: Rust 1.94+, Node.js 24, Docker and GNU Make.
+Requirements: rustup (the Rust version is pinned in `rust-toolchain.toml`), Node.js 24, Docker and GNU Make.
 
 ```bash
 cp .env.example .env   # fill in APP_ENCRYPTION_KEY with: openssl rand -base64 32

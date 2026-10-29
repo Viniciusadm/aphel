@@ -16,7 +16,7 @@ After installing, follow the [first access](#first-access) steps. For production
 | CPU and memory | 1 vCPU and 1 GB of RAM for a small team (MySQL included), using the published image or binary. Compiling needs much more: 3 GB of free RAM, about 10 GB of disk and 15 to 40 minutes with 2 vCPUs |
 | MySQL | 8.0 or later (the compose file uses 8.4) |
 | Docker | A recent Engine with the `docker compose` plugin (Docker path) |
-| Rust and Node.js | Rust 1.94+ and Node.js 24, only to [build from source](#building-from-source) |
+| Rust and Node.js | rustup (the Rust version is pinned in `rust-toolchain.toml`) and Node.js 24, only to [build from source](#building-from-source) |
 | SMTP | Optional, but required for invitations, password resets and email notifications |
 
 ## Docker Compose
@@ -213,7 +213,7 @@ server {
 
 ## Building from source
 
-Only needed to change the modules in the build (`back/aphel.modules.toml`, see [Modules](modules/README.md)) or to run a commit without a published release. On a machine with Rust 1.94+ and Node.js 24 (it can be another machine with the same architecture and a compatible glibc):
+Only needed to change the modules in the build (`back/aphel.modules.toml`, see [Modules](modules/README.md)) or to run a commit without a published release. On a machine with rustup and Node.js 24 (it can be another machine with the same architecture and a compatible glibc):
 
 ```bash
 git clone https://github.com/Viniciusadm/aphel.git aphel && cd aphel
