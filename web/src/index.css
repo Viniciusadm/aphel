@@ -130,6 +130,16 @@
     outline: 2px solid var(--color-ring);
     outline-offset: 2px;
   }
+
+  button,
+  [role='button'],
+  [role='tab'],
+  [role='option'],
+  [role='menuitem'],
+  a,
+  summary {
+    cursor: pointer;
+  }
 }
 
 @utility scroll-smooth-thin {
