@@ -266,7 +266,7 @@ async fn embed_script(
 }
 
 struct Failure {
-    form: Option<StoredForm>,
+    form: Option<Box<StoredForm>>,
     payload: Map<String, Value>,
     error: AppError,
 }
@@ -296,7 +296,7 @@ async fn process(
     .map_err(Failure::early)?;
     let form = resolve(ctx, public_id).await.map_err(Failure::early)?;
     let with_form = |error: AppError, payload: Map<String, Value>| Failure {
-        form: Some(form.clone()),
+        form: Some(Box::new(form.clone())),
         payload,
         error,
     };

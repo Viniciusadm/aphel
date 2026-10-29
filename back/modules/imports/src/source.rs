@@ -13,7 +13,7 @@ pub(crate) const MAX_IMPORT_ROWS: usize = 50_000;
 pub(crate) const MAX_IMPORT_COLUMNS: usize = 200;
 pub(crate) const MAX_CELL_LENGTH: usize = 10_000;
 pub(crate) const PREVIEW_ROWS: usize = 20;
-pub(crate) const DELIMITER_CANDIDATES: [u8; 4] = [b',', b';', b'\t', b'|'];
+pub(crate) const DELIMITER_CANDIDATES: [u8; 4] = *b",;\t|";
 
 pub(crate) const EMPTY_IMPORT: &str = "empty_import";
 pub(crate) const TOO_MANY_ROWS: &str = "too_many_rows";
