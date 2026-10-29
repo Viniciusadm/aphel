@@ -275,6 +275,8 @@ impl WidgetRegistry<MySqlDashboardPorts> {
     pub fn builtin() -> Self {
         crate::modules::app()
             .enabled_widgets()
+            .cloned()
+            .chain(crate::modules::runtime_extensions::widgets())
             .fold(Self::empty(), |registry, provider| {
                 let key = provider.key().to_owned();
                 registry

@@ -152,7 +152,7 @@ function SchemaProperty({ name, property, required, value, values, onChange, con
   const invalid = issues.length > 0
   const describedBy = invalid ? `${id}-issues` : undefined
   const type = typeOf(property)
-  const label = labels.propertyLabel(name)
+  const label = labels.propertyLabel(name, property.title)
   const hint = t(`hints.${name.replace(/[.:]/g, '_')}` as 'hints.due_in', { defaultValue: '' })
 
   if (type === 'boolean') {

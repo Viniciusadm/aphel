@@ -3,8 +3,8 @@ use serde_json::{Map, Value};
 use crate::bindings::aphel::plugin::host;
 use crate::bindings::aphel::plugin::types as wit;
 use crate::{
-    Actor, ActorKind, Change, Ctx, Event, FieldError, HookCall, HttpRequest, HttpResponse,
-    ListQuery, Page, Plugin, PluginError, Request,
+    ActionCall, Actor, ActorKind, Change, Ctx, Event, FieldError, HookCall, HttpRequest,
+    HttpResponse, ListQuery, Notification, Page, Plugin, PluginError, Request, WidgetRequest,
 };
 
 fn object(json: &str) -> Map<String, Value> {
@@ -153,6 +153,33 @@ pub(crate) fn http_fetch(request: HttpRequest) -> Result<HttpResponse, PluginErr
     })
 }
 
+pub(crate) fn notify(notification: Notification) -> Result<(), PluginError> {
+    Ok(host::notify(&wit::Notification {
+        kind: notification.kind,
+        recipient_user_id: notification.recipient_user_id,
+        title: notification.title,
+        body: notification.body,
+        record_type: notification.record_type,
+        record_id: notification.record_id,
+        link: notification.link,
+        data_json: Value::Object(notification.data).to_string(),
+        dedupe_key: notification.dedupe_key,
+    })?)
+}
+
+pub(crate) fn emit(
+    name: &str,
+    record: Option<(&str, &str)>,
+    payload: &Value,
+) -> Result<(), PluginError> {
+    Ok(host::emit(
+        name,
+        record.map(|(record_type, _)| record_type),
+        record.map(|(_, record_id)| record_id),
+        &payload.to_string(),
+    )?)
+}
+
 pub(crate) fn secret(key: &str) -> Result<Option<String>, PluginError> {
     Ok(host::secret(key)?)
 }
@@ -213,6 +240,36 @@ pub fn on_event<P: Plugin>(plugin: &P, event: wit::Event) -> Result<(), wit::Plu
 
 pub fn on_schedule<P: Plugin>(plugin: &P, name: &str, slot: &str) -> Result<(), wit::PluginError> {
     Ok(plugin.on_schedule(&Ctx::new(), name, slot)?)
+}
+
+pub fn on_action<P: Plugin>(plugin: &P, call: wit::ActionCall) -> Result<String, wit::PluginError> {
+    let call = ActionCall {
+        name: call.name,
+        input: object(&call.input_json),
+        record_type: call.record_type,
+        record_id: call.record_id,
+        record: value(&call.record_json),
+        automation_id: call.automation_id,
+        run_id: call.run_id,
+        actor: actor(call.actor),
+    };
+    Ok(plugin.on_action(&Ctx::new(), &call)?.to_string())
+}
+
+pub fn on_widget<P: Plugin>(
+    plugin: &P,
+    name: String,
+    request: wit::WidgetRequest,
+) -> Result<String, wit::PluginError> {
+    let request = WidgetRequest {
+        name,
+        settings: object(&request.settings_json),
+        period_from: request.period_from,
+        period_to: request.period_to,
+        timezone: request.timezone,
+        actor: actor(request.actor),
+    };
+    Ok(plugin.on_widget(&Ctx::new(), &request)?.to_string())
 }
 
 pub fn on_route<P: Plugin>(

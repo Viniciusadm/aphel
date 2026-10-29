@@ -17,8 +17,17 @@ pub const HOOK_DELETING: &str = "record.deleting";
 const HOOKS: &[&str] = &[HOOK_SAVING, HOOK_VALIDATING, HOOK_SAVED, HOOK_DELETING];
 const METHODS: &[&str] = &["GET", "POST", "PUT", "PATCH", "DELETE"];
 pub const SETTING_SECRET: &str = "secret";
+pub const PLUGIN_EVENT_PREFIX: &str = "plugin.";
 const SETTING_KINDS: &[&str] = &["number", "boolean", "text", SETTING_SECRET];
 const MAX_SCHEDULES: usize = 10;
+const MAX_ACTIONS: usize = 20;
+const MAX_EMITS: usize = 20;
+const MAX_INPUTS: usize = 20;
+pub const INPUT_KINDS: &[&str] = &["text", "number", "boolean", "select"];
+pub const NOTIFICATION_CHANNELS: &[&str] = &["in_app", "email", "push"];
+const WIDGET_SIZES: &[&str] = &["small", "medium", "large"];
+const MAX_NOTIFICATIONS: usize = 20;
+const MAX_WIDGETS: usize = 20;
 const MAX_ALLOWED_HOSTS: usize = 20;
 const MAX_KEY_LENGTH: usize = 32;
 const MAX_OBJECT_KEY_LENGTH: usize = 48;
@@ -54,7 +63,81 @@ pub struct PluginManifest {
     #[serde(default)]
     pub schedules: Vec<ScheduleSpec>,
     #[serde(default)]
+    pub actions: Vec<ActionSpec>,
+    #[serde(default)]
+    pub emits: Vec<EmitSpec>,
+    #[serde(default)]
+    pub notifications: Vec<NotificationSpec>,
+    #[serde(default)]
+    pub widgets: Vec<WidgetSpec>,
+    #[serde(default)]
     pub web: Option<WebSpec>,
+}
+
+#[derive(Debug, Clone, PartialEq, Serialize, Deserialize)]
+pub struct NotificationSpec {
+    pub name: String,
+    pub label: String,
+    #[serde(default)]
+    pub description: Option<String>,
+    #[serde(default = "all_channels")]
+    pub channels: Vec<String>,
+    #[serde(default)]
+    pub email_default: bool,
+    #[serde(default)]
+    pub push_default: bool,
+}
+
+#[derive(Debug, Clone, PartialEq, Serialize, Deserialize)]
+pub struct WidgetSpec {
+    pub name: String,
+    pub title: String,
+    #[serde(default = "default_widget_category")]
+    pub category: String,
+    #[serde(default)]
+    pub permission: Option<String>,
+    #[serde(default = "default_widget_size")]
+    pub size: String,
+    #[serde(default = "enabled")]
+    pub uses_period: bool,
+    #[serde(default = "empty_object")]
+    pub default_settings: Value,
+}
+
+#[derive(Debug, Clone, PartialEq, Serialize, Deserialize)]
+pub struct ActionSpec {
+    pub key: String,
+    pub label: String,
+    #[serde(default)]
+    pub description: Option<String>,
+    #[serde(default)]
+    pub record_types: Vec<String>,
+    #[serde(default)]
+    pub inputs: Vec<InputSpec>,
+    #[serde(default)]
+    pub retry_safe: bool,
+}
+
+#[derive(Debug, Clone, PartialEq, Serialize, Deserialize)]
+pub struct InputSpec {
+    pub key: String,
+    pub label: String,
+    #[serde(rename = "type", default = "default_input_kind")]
+    pub kind: String,
+    #[serde(default)]
+    pub required: bool,
+    #[serde(default)]
+    pub options: Vec<String>,
+}
+
+#[derive(Debug, Clone, PartialEq, Serialize, Deserialize)]
+pub struct EmitSpec {
+    pub name: String,
+    pub label: String,
+    #[serde(default)]
+    pub description: Option<String>,
+    #[serde(default)]
+    pub record_types: Vec<String>,
 }
 
 #[derive(Debug, Clone, PartialEq, Serialize, Deserialize)]
@@ -175,6 +258,29 @@ fn default_priority() -> i32 {
     50
 }
 
+fn all_channels() -> Vec<String> {
+    NOTIFICATION_CHANNELS
+        .iter()
+        .map(|channel| (*channel).to_owned())
+        .collect()
+}
+
+fn default_widget_category() -> String {
+    "plugins".to_owned()
+}
+
+fn default_widget_size() -> String {
+    "medium".to_owned()
+}
+
+fn empty_object() -> Value {
+    Value::Object(serde_json::Map::new())
+}
+
+fn default_input_kind() -> String {
+    "text".to_owned()
+}
+
 fn default_entry() -> String {
     "web/index.js".to_owned()
 }
@@ -229,6 +335,14 @@ impl PluginManifest {
                 Some(domain) => host.ends_with(&format!(".{domain}")),
                 None => *pattern == host,
             })
+    }
+
+    pub fn event_type(&self, name: &str) -> String {
+        format!("{PLUGIN_EVENT_PREFIX}{}.{name}", self.key)
+    }
+
+    pub fn action_key(&self, action: &str) -> String {
+        format!("{PLUGIN_EVENT_PREFIX}{}.{action}", self.key)
     }
 
     pub fn secret_settings(&self) -> impl Iterator<Item = &SettingSpec> {
@@ -430,6 +544,174 @@ impl PluginManifest {
                 violations.push(FieldViolation::new(
                     format!("http.allowed_hosts[{index}]"),
                     "must be a lowercase host name such as api.example.com or *.example.com",
+                ));
+            }
+        }
+        if self.actions.len() > MAX_ACTIONS {
+            violations.push(FieldViolation::new(
+                "actions",
+                format!("can list at most {MAX_ACTIONS} actions"),
+            ));
+        }
+        for (index, action) in self.actions.iter().enumerate() {
+            let path = format!("actions[{index}]");
+            if !is_key(&action.key, 64)
+                || self.actions[..index]
+                    .iter()
+                    .any(|previous| previous.key == action.key)
+            {
+                violations.push(FieldViolation::new(
+                    format!("{path}.key"),
+                    "must be a unique lowercase key",
+                ));
+            }
+            if action.label.trim().is_empty() || action.label.len() > 120 {
+                violations.push(FieldViolation::new(
+                    format!("{path}.label"),
+                    "must have between 1 and 120 characters",
+                ));
+            }
+            if action.inputs.len() > MAX_INPUTS {
+                violations.push(FieldViolation::new(
+                    format!("{path}.inputs"),
+                    format!("can list at most {MAX_INPUTS} inputs"),
+                ));
+            }
+            for (input_index, input) in action.inputs.iter().enumerate() {
+                let input_path = format!("{path}.inputs[{input_index}]");
+                if !is_key(&input.key, 64)
+                    || action.inputs[..input_index]
+                        .iter()
+                        .any(|previous| previous.key == input.key)
+                {
+                    violations.push(FieldViolation::new(
+                        format!("{input_path}.key"),
+                        "must be a unique lowercase key",
+                    ));
+                }
+                if !INPUT_KINDS.contains(&input.kind.as_str()) {
+                    violations.push(FieldViolation::new(
+                        format!("{input_path}.type"),
+                        format!("must be one of {}", INPUT_KINDS.join(", ")),
+                    ));
+                }
+                if input.kind == "select" && input.options.is_empty() {
+                    violations.push(FieldViolation::new(
+                        format!("{input_path}.options"),
+                        "is required for select inputs",
+                    ));
+                }
+            }
+        }
+        if self.emits.len() > MAX_EMITS {
+            violations.push(FieldViolation::new(
+                "emits",
+                format!("can list at most {MAX_EMITS} events"),
+            ));
+        }
+        for (index, emit) in self.emits.iter().enumerate() {
+            if !is_key(&emit.name, 64)
+                || self.emits[..index]
+                    .iter()
+                    .any(|previous| previous.name == emit.name)
+            {
+                violations.push(FieldViolation::new(
+                    format!("emits[{index}].name"),
+                    "must be a unique lowercase key",
+                ));
+            }
+            if emit.label.trim().is_empty() || emit.label.len() > 120 {
+                violations.push(FieldViolation::new(
+                    format!("emits[{index}].label"),
+                    "must have between 1 and 120 characters",
+                ));
+            }
+        }
+        if self.notifications.len() > MAX_NOTIFICATIONS {
+            violations.push(FieldViolation::new(
+                "notifications",
+                format!("can list at most {MAX_NOTIFICATIONS} notifications"),
+            ));
+        }
+        for (index, notification) in self.notifications.iter().enumerate() {
+            let path = format!("notifications[{index}]");
+            if !is_key(&notification.name, 48)
+                || self.notifications[..index]
+                    .iter()
+                    .any(|previous| previous.name == notification.name)
+            {
+                violations.push(FieldViolation::new(
+                    format!("{path}.name"),
+                    "must be a unique lowercase key",
+                ));
+            }
+            if notification.label.trim().is_empty() || notification.label.len() > 120 {
+                violations.push(FieldViolation::new(
+                    format!("{path}.label"),
+                    "must have between 1 and 120 characters",
+                ));
+            }
+            if notification.channels.is_empty()
+                || notification
+                    .channels
+                    .iter()
+                    .any(|channel| !NOTIFICATION_CHANNELS.contains(&channel.as_str()))
+            {
+                violations.push(FieldViolation::new(
+                    format!("{path}.channels"),
+                    format!("must list some of {}", NOTIFICATION_CHANNELS.join(", ")),
+                ));
+            }
+        }
+        if self.widgets.len() > MAX_WIDGETS {
+            violations.push(FieldViolation::new(
+                "widgets",
+                format!("can list at most {MAX_WIDGETS} widgets"),
+            ));
+        }
+        for (index, widget) in self.widgets.iter().enumerate() {
+            let path = format!("widgets[{index}]");
+            if !is_key(&widget.name, 48)
+                || self.widgets[..index]
+                    .iter()
+                    .any(|previous| previous.name == widget.name)
+            {
+                violations.push(FieldViolation::new(
+                    format!("{path}.name"),
+                    "must be a unique lowercase key",
+                ));
+            }
+            if widget.title.trim().is_empty() || widget.title.len() > 120 {
+                violations.push(FieldViolation::new(
+                    format!("{path}.title"),
+                    "must have between 1 and 120 characters",
+                ));
+            }
+            if !WIDGET_SIZES.contains(&widget.size.as_str()) {
+                violations.push(FieldViolation::new(
+                    format!("{path}.size"),
+                    format!("must be one of {}", WIDGET_SIZES.join(", ")),
+                ));
+            }
+            if !is_key(&widget.category, 64) {
+                violations.push(FieldViolation::new(
+                    format!("{path}.category"),
+                    "must be a lowercase key",
+                ));
+            }
+            if !widget.default_settings.is_object() {
+                violations.push(FieldViolation::new(
+                    format!("{path}.default_settings"),
+                    "must be a table",
+                ));
+            }
+            if let Some(permission) = &widget.permission
+                && !Permission::parse(permission.clone())
+                    .is_ok_and(|permission| self.allows(&permission))
+            {
+                violations.push(FieldViolation::new(
+                    format!("{path}.permission"),
+                    "must be one of the plugin's capabilities (requires, declared permissions or its entities)",
                 ));
             }
         }

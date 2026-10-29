@@ -1,6 +1,7 @@
 use serde_json::Value;
 use uuid::Uuid;
 
+use crate::registry::LoadedPlugin;
 use crate::runtime::aphel::plugin::host::Host;
 use crate::runtime::{CallState, to_plugin_error, wit};
 use crate::{net, store};
@@ -10,6 +11,7 @@ use aphel_kernel::application::query::{
     ArchivedFilter, Filter, RecordQuery, RecordQueryEngine, parse_sort,
 };
 use aphel_kernel::application::secrets::SecretKey;
+use aphel_kernel::application::shared::{Actor, DomainEvent, RecordRef};
 use aphel_kernel::domain::access::AccessScope;
 use aphel_kernel::errors::AppError;
 use aphel_kernel::records::RecordCtx;
@@ -21,6 +23,7 @@ const MAX_COLLECTION_LENGTH: usize = 64;
 const MAX_ITEM_LENGTH: usize = 128;
 
 const WRITE_IN_HOOK: &str = "plugin_write_in_hook";
+const MAX_EMIT_PAYLOAD_BYTES: usize = 64 * 1024;
 pub const SECRET_OWNER_TYPE: &str = "plugin";
 
 type HostResult<T> = Result<T, wit::PluginError>;
@@ -152,6 +155,69 @@ async fn delete(scope: &AccessScope, record_type: &str, id: &str) -> Result<(), 
         .await
 }
 
+async fn emit(
+    plugin: &LoadedPlugin,
+    scope: &AccessScope,
+    name: &str,
+    record_type: Option<String>,
+    record_id: Option<String>,
+    payload_json: &str,
+) -> Result<(), AppError> {
+    let Some(declared) = plugin.manifest.emits.iter().find(|emit| emit.name == name) else {
+        return Err(AppError::not_found_code(
+            "plugin_event_not_declared",
+            format!("the plugin does not declare the event {name} in [[emits]]"),
+        ));
+    };
+    if payload_json.len() > MAX_EMIT_PAYLOAD_BYTES {
+        return Err(AppError::Validation(format!(
+            "the event payload exceeds {MAX_EMIT_PAYLOAD_BYTES} bytes"
+        )));
+    }
+    let payload = parse(payload_json)?;
+    if !payload.is_object() {
+        return Err(AppError::Validation(
+            "the event payload must be a JSON object".to_owned(),
+        ));
+    }
+    let record = match (record_type, record_id) {
+        (None, None) => None,
+        (Some(record_type), Some(id)) => {
+            if !declared.record_types.is_empty() && !declared.record_types.contains(&record_type) {
+                return Err(AppError::Validation(format!(
+                    "the event {name} is not declared for {record_type}"
+                )));
+            }
+            if load(scope, &record_type, &id).await?.is_none() {
+                return Err(AppError::not_found_code(
+                    "record_not_found",
+                    "the record does not exist or the plugin cannot read it",
+                ));
+            }
+            Some(RecordRef::parse(&record_type, &id)?)
+        }
+        _ => {
+            return Err(AppError::Validation(
+                "record_type and record_id go together".to_owned(),
+            ));
+        }
+    };
+    let state = runtime_state()?;
+    let mut event = DomainEvent::new(
+        Actor::from_scope(scope),
+        plugin.manifest.event_type(name),
+        chrono::Utc::now(),
+    )
+    .with_payload(payload);
+    if let Some(record) = record {
+        event = event.with_record(record);
+    }
+    let mut tx = state.db()?.begin().await.map_err(AppError::from)?;
+    state.events.publish(&mut tx, event).await?;
+    tx.commit().await.map_err(AppError::from)?;
+    Ok(())
+}
+
 impl wit::Host for CallState {}
 
 impl Host for CallState {
@@ -266,6 +332,37 @@ impl Host for CallState {
     async fn http_fetch(&mut self, request: wit::HttpRequest) -> HostResult<wit::HttpResponse> {
         let plugin = self.plugin.clone();
         answer(net::fetch(&plugin, self.deadline, request).await)
+    }
+
+    async fn notify(&mut self, notification: wit::Notification) -> HostResult<()> {
+        let plugin = self.plugin.clone();
+        let scope = self.scope.clone();
+        answer(crate::notify::notify(&plugin, &scope, notification).await)
+    }
+
+    async fn emit(
+        &mut self,
+        name: String,
+        record_type: Option<String>,
+        record_id: Option<String>,
+        payload_json: String,
+    ) -> HostResult<()> {
+        if let Err(error) = outside_transaction(self) {
+            return answer(Err(error));
+        }
+        let plugin = self.plugin.clone();
+        let scope = self.scope.clone();
+        answer(
+            emit(
+                &plugin,
+                &scope,
+                &name,
+                record_type,
+                record_id,
+                &payload_json,
+            )
+            .await,
+        )
     }
 
     async fn secret(&mut self, key: String) -> HostResult<Option<String>> {

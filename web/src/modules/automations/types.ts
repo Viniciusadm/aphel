@@ -104,6 +104,7 @@ export interface JsonSchema {
   anyOf?: JsonSchema[]
   items?: JsonSchema
   format?: string
+  title?: string
   description?: string
   default?: unknown
   examples?: unknown[]

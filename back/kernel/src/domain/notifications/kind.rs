@@ -87,22 +87,26 @@ impl NotificationKind {
         crate::modules::app()
             .catalog()
             .notification_kinds()
+            .copied()
+            .chain(crate::modules::runtime_extensions::notification_kinds())
             .map(|definition| definition.kind)
             .collect()
     }
 
     pub fn parse(value: &str) -> Option<Self> {
+        Self::lookup(value).map(|definition| definition.kind)
+    }
+
+    fn lookup(value: &str) -> Option<NotificationKindDefinition> {
         crate::modules::app()
             .catalog()
             .notification_kind(value)
-            .map(|definition| definition.kind)
+            .copied()
+            .or_else(|| crate::modules::runtime_extensions::notification_kind(value))
     }
 
     fn definition(&self) -> Option<NotificationKindDefinition> {
-        crate::modules::app()
-            .catalog()
-            .notification_kind(self.0)
-            .copied()
+        Self::lookup(self.0)
     }
 
     pub fn channels(&self) -> &'static [NotificationChannel] {

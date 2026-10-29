@@ -8,9 +8,9 @@ pub mod templates;
 pub mod time;
 pub mod triggers;
 
-pub use actions::{ActionRegistry, AutomationAction};
+pub use actions::{ActionRegistry, AutomationAction, AutomationActionSource};
 pub use definition::*;
 pub use gateway::*;
 pub use gateway_impl::*;
 pub use operations::*;
-pub use triggers::{AutomationTrigger, TriggerRegistry};
+pub use triggers::{AutomationTrigger, AutomationTriggerSource, TriggerRegistry};

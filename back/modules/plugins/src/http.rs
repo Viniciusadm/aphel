@@ -157,6 +157,10 @@ pub(crate) struct PluginDeclarations {
     allowed_hosts: Vec<String>,
     schedules: Vec<String>,
     secrets: Vec<String>,
+    actions: Vec<String>,
+    emits: Vec<String>,
+    notifications: Vec<String>,
+    widgets: Vec<String>,
     has_web: bool,
 }
 
@@ -208,6 +212,26 @@ impl From<&PluginManifest> for PluginDeclarations {
             secrets: manifest
                 .secret_settings()
                 .map(|setting| setting.key.clone())
+                .collect(),
+            actions: manifest
+                .actions
+                .iter()
+                .map(|action| action.label.clone())
+                .collect(),
+            emits: manifest
+                .emits
+                .iter()
+                .map(|emit| emit.label.clone())
+                .collect(),
+            notifications: manifest
+                .notifications
+                .iter()
+                .map(|notification| notification.label.clone())
+                .collect(),
+            widgets: manifest
+                .widgets
+                .iter()
+                .map(|widget| widget.title.clone())
                 .collect(),
             has_web: manifest.web.is_some(),
         }

@@ -9,6 +9,7 @@ pub mod migrations;
 pub mod module;
 pub mod routes;
 pub mod runtime;
+pub mod runtime_extensions;
 pub mod services;
 pub mod settings;
 pub mod worker;

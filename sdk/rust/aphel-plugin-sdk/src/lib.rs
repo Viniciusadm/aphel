@@ -327,6 +327,14 @@ impl Ctx {
         Http { _ctx: self }
     }
 
+    pub fn notify(&self, notification: Notification) -> Result<()> {
+        adapter::notify(notification)
+    }
+
+    pub fn emit(&self, name: &str, record: Option<(&str, &str)>, payload: Value) -> Result<()> {
+        adapter::emit(name, record, &payload)
+    }
+
     pub fn secret(&self, key: &str) -> Result<Option<String>> {
         adapter::secret(key)
     }
@@ -480,6 +488,82 @@ impl Http<'_> {
     }
 }
 
+#[derive(Debug, Clone)]
+pub struct ActionCall {
+    pub name: String,
+    pub input: Map<String, Value>,
+    pub record_type: String,
+    pub record_id: String,
+    pub record: Value,
+    pub automation_id: String,
+    pub run_id: String,
+    pub actor: Actor,
+}
+
+impl ActionCall {
+    pub fn input<T: DeserializeOwned>(&self, key: &str) -> Option<T> {
+        self.input
+            .get(key)
+            .cloned()
+            .and_then(|value| serde_json::from_value(value).ok())
+    }
+}
+
+#[derive(Debug, Clone)]
+pub struct WidgetRequest {
+    pub name: String,
+    pub settings: Map<String, Value>,
+    pub period_from: String,
+    pub period_to: String,
+    pub timezone: String,
+    pub actor: Actor,
+}
+
+#[derive(Debug, Clone, Default)]
+pub struct Notification {
+    pub kind: String,
+    pub recipient_user_id: String,
+    pub title: String,
+    pub body: Option<String>,
+    pub record_type: Option<String>,
+    pub record_id: Option<String>,
+    pub link: Option<String>,
+    pub data: Map<String, Value>,
+    pub dedupe_key: Option<String>,
+}
+
+impl Notification {
+    pub fn new(kind: &str, recipient_user_id: &str, title: impl Into<String>) -> Self {
+        Self {
+            kind: kind.to_owned(),
+            recipient_user_id: recipient_user_id.to_owned(),
+            title: title.into(),
+            ..Self::default()
+        }
+    }
+
+    pub fn body(mut self, body: impl Into<String>) -> Self {
+        self.body = Some(body.into());
+        self
+    }
+
+    pub fn record(mut self, record_type: &str, record_id: &str) -> Self {
+        self.record_type = Some(record_type.to_owned());
+        self.record_id = Some(record_id.to_owned());
+        self
+    }
+
+    pub fn link(mut self, link: impl Into<String>) -> Self {
+        self.link = Some(link.into());
+        self
+    }
+
+    pub fn dedupe_key(mut self, key: impl Into<String>) -> Self {
+        self.dedupe_key = Some(key.into());
+        self
+    }
+}
+
 pub trait Plugin {
     fn on_hook(&self, _ctx: &Ctx, _call: &HookCall) -> Result<HookOutcome> {
         Ok(HookOutcome::default())
@@ -498,6 +582,20 @@ pub trait Plugin {
 
     fn on_schedule(&self, _ctx: &Ctx, _name: &str, _slot: &str) -> Result<()> {
         Ok(())
+    }
+
+    fn on_action(&self, _ctx: &Ctx, call: &ActionCall) -> Result<Value> {
+        Err(PluginError::not_found(
+            "action_not_found",
+            format!("no action {}", call.name),
+        ))
+    }
+
+    fn on_widget(&self, _ctx: &Ctx, request: &WidgetRequest) -> Result<Value> {
+        Err(PluginError::not_found(
+            "widget_not_found",
+            format!("no widget {}", request.name),
+        ))
     }
 }
 
@@ -530,6 +628,19 @@ macro_rules! export_plugin {
                 slot: ::std::string::String,
             ) -> ::std::result::Result<(), $crate::bindings::PluginError> {
                 $crate::adapter::on_schedule(&$plugin, &name, &slot)
+            }
+
+            fn on_action(
+                call: $crate::bindings::ActionCall,
+            ) -> ::std::result::Result<::std::string::String, $crate::bindings::PluginError> {
+                $crate::adapter::on_action(&$plugin, call)
+            }
+
+            fn on_widget(
+                name: ::std::string::String,
+                request: $crate::bindings::WidgetRequest,
+            ) -> ::std::result::Result<::std::string::String, $crate::bindings::PluginError> {
+                $crate::adapter::on_widget(&$plugin, name, request)
             }
         }
 

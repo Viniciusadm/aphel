@@ -178,8 +178,6 @@ pub(crate) fn lock_name(automation_id: Uuid, record_id: Uuid) -> String {
 #[derive(Clone)]
 pub(crate) struct AutomationRuntime {
     state: AppState,
-    triggers: TriggerRegistry,
-    actions: ActionRegistry,
     gateways: Arc<dyn AutomationGatewayFactory>,
     active_triggers: Arc<ActiveTriggers>,
 }
@@ -190,8 +188,6 @@ impl AutomationRuntime {
             active_triggers: Arc::new(ActiveTriggers::default()),
             gateways: automation_gateways(state.clone()),
             state,
-            triggers: TriggerRegistry::builtin(),
-            actions: ActionRegistry::builtin(),
         }
     }
 
@@ -213,8 +209,9 @@ impl AutomationRuntime {
         let record_event = event_type
             .split_once('.')
             .filter(|(_, suffix)| matches!(*suffix, "created" | "updated" | "deleted"));
+        let triggers = TriggerRegistry::builtin();
         pairs.iter().any(|(record_type, trigger_key)| {
-            let Some(trigger) = self.triggers.get(trigger_key) else {
+            let Some(trigger) = triggers.get(trigger_key) else {
                 return false;
             };
             if !trigger.listens_to(event_type) {
@@ -242,14 +239,15 @@ impl EventConsumer for AutomationTriggerConsumer {
         if event_type.starts_with(AUTOMATION_EVENT_PREFIX) {
             self.0.active_triggers.invalidate();
         }
-        self.0.triggers.listens_to(event_type) && self.0.has_active_trigger(event_type)
+        TriggerRegistry::builtin().listens_to(event_type) && self.0.has_active_trigger(event_type)
     }
 
     async fn consume(&self, event: &DomainEvent) -> Result<(), AppError> {
         let scope = AccessScope::system();
         let ctx = self.0.ctx(&scope).await?;
         let store = AutomationStore::of(&ctx);
-        for (trigger, candidate) in self.0.triggers.candidates(event) {
+        let triggers = TriggerRegistry::builtin();
+        for (trigger, candidate) in triggers.candidates(event) {
             let automations = store
                 .active_for(candidate.record.record_type.as_str(), trigger.key())
                 .await?;
@@ -520,10 +518,11 @@ impl AutomationRunHandler {
         );
         let previous = runs.steps(run.id).await?;
         let run_ctx = ctx.with_scope(&scope);
+        let actions = ActionRegistry::builtin();
         let input = EngineInput {
             ctx: &run_ctx,
             gateway: gateway.as_ref(),
-            actions: &self.0.actions,
+            actions: &actions,
             clock: automation_clock(),
             definition: &version.definition,
             record,

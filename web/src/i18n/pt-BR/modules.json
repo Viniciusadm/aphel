@@ -146,7 +146,11 @@
       "permissions": "Permissões que cria",
       "allowedHosts": "Acessa na internet",
       "schedules": "Rotinas agendadas",
-      "secrets": "Segredos"
+      "secrets": "Segredos",
+      "actions": "Ações de automação",
+      "emits": "Gatilhos de automação",
+      "notifications": "Notificações",
+      "widgets": "Widgets"
     },
     "checking": "Verificando o pacote…",
     "settings": "Configurações",

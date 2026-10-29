@@ -40,8 +40,11 @@ export function useAutomationLabels(catalog?: AutomationCatalog) {
   )
 
   const triggerDescription = useCallback(
-    (key: string) => translate(`triggers.${keyOf(key)}.description`, { defaultValue: '' }),
-    [translate],
+    (key: string) =>
+      translate(`triggers.${keyOf(key)}.description`, {
+        defaultValue: catalog?.triggers.find((item) => item.key === key)?.description ?? '',
+      }),
+    [catalog, translate],
   )
 
   const actionLabel = useCallback(
@@ -53,12 +56,16 @@ export function useAutomationLabels(catalog?: AutomationCatalog) {
   )
 
   const actionDescription = useCallback(
-    (key: string) => translate(`actions.${keyOf(key)}.description`, { defaultValue: '' }),
-    [translate],
+    (key: string) =>
+      translate(`actions.${keyOf(key)}.description`, {
+        defaultValue: catalog?.actions.find((item) => item.key === key)?.description ?? '',
+      }),
+    [catalog, translate],
   )
 
   const propertyLabel = useCallback(
-    (name: string) => translate(`properties.${keyOf(name)}`, { defaultValue: humanize(name) }),
+    (name: string, title?: string) =>
+      translate(`properties.${keyOf(name)}`, { defaultValue: title ?? humanize(name) }),
     [translate],
   )
 

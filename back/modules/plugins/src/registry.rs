@@ -7,8 +7,10 @@ use sqlx::MySqlPool;
 use tokio::sync::Mutex;
 
 use crate::manifest::PluginManifest;
-use crate::{runtime, store};
+use crate::widgets::PluginWidget;
+use crate::{notify, runtime, store};
 use aphel_kernel::errors::AppError;
+use aphel_kernel::modules::runtime_extensions;
 
 const CHECK_INTERVAL: Duration = Duration::from_secs(2);
 const REFRESH_INTERVAL: Duration = Duration::from_secs(5);
@@ -152,13 +154,44 @@ pub async fn current(pool: &MySqlPool) -> Result<Arc<Snapshot>, AppError> {
         version: Some(version),
         plugins,
     });
+    publish_extensions(&snapshot);
     if let Ok(mut published) = published().write() {
         *published = snapshot.clone();
     }
     Ok(snapshot)
 }
 
+fn publish_extensions(snapshot: &Snapshot) {
+    let mut kinds = Vec::new();
+    let mut widgets = Vec::new();
+    for plugin in &snapshot.plugins {
+        for spec in &plugin.manifest.notifications {
+            let has = |channel: &str| spec.channels.iter().any(|candidate| candidate == channel);
+            kinds.push(runtime_extensions::runtime_notification_kind(
+                &notify::kind_key(&plugin.key, &spec.name),
+                runtime_extensions::channel_set(has("in_app"), has("email"), has("push")),
+                spec.email_default,
+                spec.push_default,
+            ));
+        }
+        if plugin.backend.is_some() {
+            widgets.extend(
+                plugin
+                    .manifest
+                    .widgets
+                    .iter()
+                    .map(|spec| PluginWidget::shared(plugin, spec)),
+            );
+        }
+    }
+    runtime_extensions::set_notification_kinds(crate::KEY, kinds);
+    runtime_extensions::set_widgets(crate::KEY, widgets);
+}
+
 pub fn spawn_refresh(pool: MySqlPool) {
+    if tokio::runtime::Handle::try_current().is_err() {
+        return;
+    }
     static STARTED: OnceLock<()> = OnceLock::new();
     if STARTED.set(()).is_err() {
         return;

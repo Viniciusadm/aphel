@@ -17,6 +17,10 @@ export interface PluginDeclarations {
   allowed_hosts: string[]
   schedules: string[]
   secrets: string[]
+  actions: string[]
+  emits: string[]
+  notifications: string[]
+  widgets: string[]
   has_web: boolean
 }
 

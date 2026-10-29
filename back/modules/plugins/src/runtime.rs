@@ -28,6 +28,8 @@ pub const HOOK_TIMEOUT: Duration = Duration::from_secs(2);
 pub const ROUTE_TIMEOUT: Duration = Duration::from_secs(10);
 pub const EVENT_TIMEOUT: Duration = Duration::from_secs(30);
 pub const SCHEDULE_TIMEOUT: Duration = Duration::from_secs(60);
+pub const ACTION_TIMEOUT: Duration = Duration::from_secs(30);
+pub const WIDGET_TIMEOUT: Duration = Duration::from_secs(5);
 const TICK: Duration = Duration::from_millis(10);
 const MEMORY_LIMIT: usize = 64 * 1024 * 1024;
 const PLUGIN_FAILED: &str = "plugin_failed";
@@ -233,6 +235,35 @@ pub async fn on_schedule(
     let (mut store, bindings) = instantiate(plugin, scope, SCHEDULE_TIMEOUT, false).await?;
     bindings
         .call_on_schedule(&mut store, name, slot)
+        .await
+        .map_err(|error| failure(plugin, error))?
+        .map_err(plugin_error)
+}
+
+pub async fn on_action(
+    plugin: &Arc<LoadedPlugin>,
+    scope: &AccessScope,
+    call: &wit::ActionCall,
+) -> Result<String, AppError> {
+    let scope = capability_scope(plugin, scope);
+    let (mut store, bindings) = instantiate(plugin, scope, ACTION_TIMEOUT, false).await?;
+    bindings
+        .call_on_action(&mut store, call)
+        .await
+        .map_err(|error| failure(plugin, error))?
+        .map_err(plugin_error)
+}
+
+pub async fn on_widget(
+    plugin: &Arc<LoadedPlugin>,
+    scope: &AccessScope,
+    name: &str,
+    request: &wit::WidgetRequest,
+) -> Result<String, AppError> {
+    let scope = capability_scope(plugin, scope);
+    let (mut store, bindings) = instantiate(plugin, scope, WIDGET_TIMEOUT, false).await?;
+    bindings
+        .call_on_widget(&mut store, name, request)
         .await
         .map_err(|error| failure(plugin, error))?
         .map_err(plugin_error)

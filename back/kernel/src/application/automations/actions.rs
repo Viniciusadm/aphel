@@ -306,6 +306,10 @@ pub fn parent_record(context: &ActionContext<'_>) -> Option<RecordRef> {
     RecordRef::parse(record_type, record_id).ok()
 }
 
+pub trait AutomationActionSource: Send + Sync {
+    fn actions(&self) -> Vec<Arc<dyn AutomationAction>>;
+}
+
 #[derive(Clone, Default)]
 pub struct ActionRegistry {
     actions: Vec<Arc<dyn AutomationAction>>,
@@ -317,7 +321,15 @@ impl ActionRegistry {
     }
 
     pub fn builtin() -> Self {
-        Self::new().with_all(crate::modules::app().enabled_actions().cloned().collect())
+        let app = crate::modules::app();
+        Self::new()
+            .with_all(app.enabled_actions().cloned().collect())
+            .with_all(
+                app.contributions::<dyn AutomationActionSource>()
+                    .iter()
+                    .flat_map(|source| source.actions())
+                    .collect(),
+            )
     }
 
     pub fn with_all(self, actions: Vec<Arc<dyn AutomationAction>>) -> Self {

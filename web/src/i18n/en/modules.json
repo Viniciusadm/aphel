@@ -146,7 +146,11 @@
       "permissions": "Permissions it creates",
       "allowedHosts": "Internet access",
       "schedules": "Scheduled routines",
-      "secrets": "Secrets"
+      "secrets": "Secrets",
+      "actions": "Automation actions",
+      "emits": "Automation triggers",
+      "notifications": "Notifications",
+      "widgets": "Widgets"
     },
     "checking": "Checking the package…",
     "settings": "Settings",

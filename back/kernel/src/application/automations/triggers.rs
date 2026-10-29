@@ -191,6 +191,10 @@ pub fn string_list_schema(description: &str) -> Value {
     json!({ "type": "array", "items": { "type": "string" }, "description": description })
 }
 
+pub trait AutomationTriggerSource: Send + Sync {
+    fn triggers(&self) -> Vec<Arc<dyn AutomationTrigger>>;
+}
+
 #[derive(Clone, Default)]
 pub struct TriggerRegistry {
     triggers: Vec<Arc<dyn AutomationTrigger>>,
@@ -202,7 +206,15 @@ impl TriggerRegistry {
     }
 
     pub fn builtin() -> Self {
-        Self::new().with_all(crate::modules::app().enabled_triggers().cloned().collect())
+        let app = crate::modules::app();
+        Self::new()
+            .with_all(app.enabled_triggers().cloned().collect())
+            .with_all(
+                app.contributions::<dyn AutomationTriggerSource>()
+                    .iter()
+                    .flat_map(|source| source.triggers())
+                    .collect(),
+            )
     }
 
     pub fn with_all(self, triggers: Vec<Arc<dyn AutomationTrigger>>) -> Self {

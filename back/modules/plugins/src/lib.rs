@@ -1,18 +1,22 @@
+pub mod automation;
 pub mod events;
 pub mod hooks;
 pub mod host;
 pub mod http;
 pub mod manifest;
 pub mod net;
+pub mod notify;
 pub mod package;
 pub mod registry;
 pub mod runtime;
 pub mod schedule;
 pub mod schema;
 pub mod store;
+pub mod widgets;
 
 use std::sync::Arc;
 
+use aphel_kernel::application::automations::{AutomationActionSource, AutomationTriggerSource};
 use aphel_kernel::errors::AppError;
 use aphel_kernel::modules::builder::APHEL_VERSION;
 use aphel_kernel::modules::{AppBuilder, Manifest, Migration, Module};
@@ -57,8 +61,15 @@ impl Module for PluginsModule {
             http::TAG,
             "Runtime plugins: install, enable, disable, configure and uninstall .aphelplugin packages, and call their routes",
         )
-        .routes(|_| http::router())
+        .routes(|state| {
+            if let Ok(pool) = state.db() {
+                registry::spawn_refresh(pool);
+            }
+            http::router()
+        })
         .public_routes(|_| http::public_router());
+        app.contribute::<dyn AutomationActionSource>(Arc::new(automation::PluginActions))
+            .contribute::<dyn AutomationTriggerSource>(Arc::new(automation::PluginTriggers));
         Ok(())
     }
 }
