@@ -1,9 +1,8 @@
 use async_trait::async_trait;
-use serde_json::json;
 use sqlx::MySqlPool;
 
 use crate::registry;
-use crate::runtime::{EVENT_TIMEOUT, invoke};
+use crate::runtime::{on_event, wit};
 use aphel_kernel::application::shared::{DomainEvent, EventConsumer};
 use aphel_kernel::domain::access::AccessScope;
 use aphel_kernel::errors::AppError;
@@ -37,21 +36,23 @@ impl EventConsumer for PluginEventsConsumer {
         if consumers.is_empty() {
             return Ok(());
         }
-        let input = json!({
-            "kind": "event",
-            "event": {
-                "id": event.id.to_string(),
-                "type": event.event_type,
-                "record_type": event.record.as_ref().map(|record| record.record_type.as_str().to_owned()),
-                "record_id": event.record.as_ref().map(|record| record.record_id.to_string()),
-                "payload": event.payload,
-                "occurred_at": event.occurred_at.to_rfc3339(),
-            },
-        });
+        let input = wit::Event {
+            id: event.id.to_string(),
+            event_type: event.event_type.clone(),
+            record_type: event
+                .record
+                .as_ref()
+                .map(|record| record.record_type.as_str().to_owned()),
+            record_id: event
+                .record
+                .as_ref()
+                .map(|record| record.record_id.to_string()),
+            payload_json: event.payload.to_string(),
+        };
         let scope = AccessScope::system();
         let mut failed = None;
         for plugin in consumers {
-            if let Err(error) = invoke(&plugin, &scope, &input, EVENT_TIMEOUT).await {
+            if let Err(error) = on_event(&plugin, &scope, &input).await {
                 tracing::warn!(plugin = %plugin.key, event = %event.event_type, error = %error, "plugin event handler failed");
                 failed = Some(error);
             }

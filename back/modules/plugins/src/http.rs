@@ -14,7 +14,7 @@ use utoipa_axum::routes;
 use crate::manifest::{PluginManifest, match_route};
 use crate::package::{MAX_PACKAGE_BYTES, read_package};
 use crate::registry;
-use crate::runtime::{self, ROUTE_TIMEOUT};
+use crate::runtime::{self, wit};
 use crate::schema;
 use crate::store::{self, InstalledPlugin};
 use aphel_kernel::api::dto::common::{Data, ErrorEnvelope};
@@ -605,38 +605,28 @@ async fn dispatch(
         })?;
         tenant.scope.require(&permission)?;
     }
-    let body = if body.is_empty() {
-        Value::Null
+    let body_json = if body.is_empty() {
+        Value::Null.to_string()
     } else {
-        serde_json::from_slice(&body)
+        serde_json::from_slice::<Value>(&body)
             .map_err(|_| AppError::Validation("the body must be JSON".to_owned()))?
+            .to_string()
     };
-    let query: Map<String, Value> = query
-        .as_deref()
-        .map(|query| {
-            form_pairs(query)
-                .into_iter()
-                .map(|(name, value)| (name, Value::String(value)))
-                .collect()
-        })
-        .unwrap_or_default();
-    let input = json!({
-        "kind": "route",
-        "method": method.as_str(),
-        "path": format!("/{path}"),
-        "route": route.path,
-        "params": params,
-        "query": query,
-        "body": body,
-        "user_id": tenant.scope.user_id().as_str(),
-    });
-    let output = runtime::invoke(&plugin, &tenant.scope, &input, ROUTE_TIMEOUT).await?;
-    let status = output
-        .get("status")
-        .and_then(Value::as_u64)
-        .and_then(|status| StatusCode::from_u16(status as u16).ok())
-        .unwrap_or(StatusCode::OK);
-    let body = output.get("body").cloned().unwrap_or(Value::Null);
+    let request = wit::Request {
+        method: method.as_str().to_owned(),
+        path: format!("/{path}"),
+        route: route.path.clone(),
+        params: params
+            .into_iter()
+            .map(|(name, value)| (name, value.as_str().unwrap_or_default().to_owned()))
+            .collect(),
+        query: query.as_deref().map(form_pairs).unwrap_or_default(),
+        body_json,
+        user_id: Some(tenant.scope.user_id().as_str().to_owned()),
+    };
+    let response = runtime::on_route(&plugin, &tenant.scope, &request).await?;
+    let status = StatusCode::from_u16(response.status).unwrap_or(StatusCode::OK);
+    let body: Value = serde_json::from_str(&response.body_json).unwrap_or(Value::Null);
     Ok((status, Json(body)).into_response())
 }
 

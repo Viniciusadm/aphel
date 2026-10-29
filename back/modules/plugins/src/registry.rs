@@ -17,7 +17,7 @@ pub struct LoadedPlugin {
     pub key: String,
     pub manifest: PluginManifest,
     pub settings: Map<String, Value>,
-    pub module: Option<wasmtime::Module>,
+    pub backend: Option<runtime::Backend>,
 }
 
 #[derive(Default)]
@@ -35,7 +35,7 @@ impl Snapshot {
         let mut subscribers: Vec<(i32, &Arc<LoadedPlugin>)> = self
             .plugins
             .iter()
-            .filter(|plugin| plugin.module.is_some())
+            .filter(|plugin| plugin.backend.is_some())
             .filter_map(|plugin| {
                 plugin
                     .manifest
@@ -53,7 +53,7 @@ impl Snapshot {
     pub fn event_consumers(&self, event_type: &str) -> Vec<Arc<LoadedPlugin>> {
         self.plugins
             .iter()
-            .filter(|plugin| plugin.module.is_some() && plugin.manifest.consumes(event_type))
+            .filter(|plugin| plugin.backend.is_some() && plugin.manifest.consumes(event_type))
             .cloned()
             .collect()
     }
@@ -61,7 +61,7 @@ impl Snapshot {
 
 struct Cache {
     checked_at: Option<Instant>,
-    compiled: HashMap<String, (String, wasmtime::Module)>,
+    compiled: HashMap<String, (String, runtime::Backend)>,
 }
 
 fn cache() -> &'static Mutex<Cache> {
@@ -110,16 +110,16 @@ pub async fn current(pool: &MySqlPool) -> Result<Arc<Snapshot>, AppError> {
         if !installed.enabled {
             continue;
         }
-        let module = match cache.compiled.get(&installed.key) {
-            Some((checksum, module)) if checksum == &installed.checksum => Some(module.clone()),
+        let backend = match cache.compiled.get(&installed.key) {
+            Some((checksum, backend)) if checksum == &installed.checksum => Some(backend.clone()),
             _ => match store::backend(pool, &installed.key).await? {
                 Some(bytes) => {
-                    let module = runtime::compile(bytes).await?;
+                    let backend = runtime::compile(bytes).await?;
                     cache.compiled.insert(
                         installed.key.clone(),
-                        (installed.checksum.clone(), module.clone()),
+                        (installed.checksum.clone(), backend.clone()),
                     );
-                    Some(module)
+                    Some(backend)
                 }
                 None => None,
             },
@@ -128,7 +128,7 @@ pub async fn current(pool: &MySqlPool) -> Result<Arc<Snapshot>, AppError> {
             settings: installed.effective_settings(),
             key: installed.key,
             manifest: installed.manifest,
-            module,
+            backend,
         }));
     }
     let snapshot = Arc::new(Snapshot {

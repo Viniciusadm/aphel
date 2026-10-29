@@ -1,10 +1,8 @@
-use std::sync::Arc;
-
-use serde_json::{Value, json};
+use serde_json::Value;
 use uuid::Uuid;
 
-use crate::registry::LoadedPlugin;
-use crate::runtime::error_json;
+use crate::runtime::aphel::plugin::host::Host;
+use crate::runtime::{CallState, to_plugin_error, wit};
 use crate::store;
 use aphel_kernel::Ctx;
 use aphel_kernel::application::organization_admin::ListWindow;
@@ -18,170 +16,241 @@ use aphel_kernel::state::runtime_state;
 
 const MAX_PAGE_SIZE: u64 = 100;
 const MAX_KV_ITEMS: u32 = 500;
+const MAX_COLLECTION_LENGTH: usize = 64;
+const MAX_ITEM_LENGTH: usize = 128;
 
-pub async fn dispatch(plugin: &Arc<LoadedPlugin>, scope: &AccessScope, request: Value) -> Value {
-    match run(plugin, scope, &request).await {
-        Ok(value) => json!({ "ok": value }),
-        Err(error) => error_json(&error),
-    }
+type HostResult<T> = Result<T, wit::PluginError>;
+
+fn parse(json: &str) -> Result<Value, AppError> {
+    serde_json::from_str(json)
+        .map_err(|_| AppError::Validation("the plugin sent invalid JSON".to_owned()))
 }
 
-fn text<'a>(request: &'a Value, key: &str) -> Result<&'a str, AppError> {
-    request
-        .get(key)
-        .and_then(Value::as_str)
-        .ok_or_else(|| AppError::Validation(format!("the host call needs {key}")))
+fn record_id(id: &str) -> Result<Uuid, AppError> {
+    Uuid::parse_str(id).map_err(|_| AppError::Validation("the record id is invalid".to_owned()))
 }
 
-fn record_id(request: &Value) -> Result<Uuid, AppError> {
-    Uuid::parse_str(text(request, "id")?)
-        .map_err(|_| AppError::Validation("the host call needs a valid id".to_owned()))
-}
-
-async fn run(
-    plugin: &Arc<LoadedPlugin>,
-    scope: &AccessScope,
-    request: &Value,
-) -> Result<Value, AppError> {
-    let operation = text(request, "op")?;
-    match operation {
-        "log" => {
-            let message = request
-                .get("message")
-                .and_then(Value::as_str)
-                .unwrap_or_default();
-            match request.get("level").and_then(Value::as_str) {
-                Some("error") => tracing::error!(plugin = %plugin.key, "{message}"),
-                Some("warn") => tracing::warn!(plugin = %plugin.key, "{message}"),
-                Some("debug") => tracing::debug!(plugin = %plugin.key, "{message}"),
-                _ => tracing::info!(plugin = %plugin.key, "{message}"),
-            }
-            Ok(Value::Null)
-        }
-        "now" => Ok(json!(chrono::Utc::now().to_rfc3339())),
-        "settings.get" => Ok(Value::Object(plugin.settings.clone())),
-        "records.get" | "records.list" | "records.create" | "records.update" | "records.delete" => {
-            records(operation, scope, request).await
-        }
-        "kv.get" | "kv.set" | "kv.delete" | "kv.list" => kv(operation, plugin, request).await,
-        other => Err(AppError::Validation(format!("unknown host call {other}"))),
-    }
-}
-
-async fn records(operation: &str, scope: &AccessScope, request: &Value) -> Result<Value, AppError> {
-    let state = runtime_state()?;
-    let record_type = text(request, "record_type")?;
-    let registry = state.registry().await?;
-    let handler = registry.handler(record_type)?;
-    let ctx = RecordCtx::new(scope, &state);
-    let values = request.get("values").cloned().unwrap_or_else(|| json!({}));
-    match operation {
-        "records.get" => Ok(handler
-            .load(&ctx, record_id(request)?)
-            .await?
-            .unwrap_or(Value::Null)),
-        "records.create" => handler.create(&ctx, values).await,
-        "records.update" => handler.update(&ctx, record_id(request)?, values).await,
-        "records.delete" => {
-            handler.delete(&ctx, record_id(request)?).await?;
-            Ok(Value::Null)
-        }
-        _ => {
-            let per_page = request
-                .get("per_page")
-                .and_then(Value::as_u64)
-                .unwrap_or(25)
-                .clamp(1, MAX_PAGE_SIZE);
-            let page = request
-                .get("page")
-                .and_then(Value::as_u64)
-                .unwrap_or(1)
-                .max(1);
-            let filter = match request.get("filter") {
-                None | Some(Value::Null) => None,
-                Some(filter) => Some(serde_json::from_value::<Filter>(filter.clone()).map_err(
-                    |_| {
-                        AppError::Validation(
-                            "the filter must be a filter group or condition".to_owned(),
-                        )
-                    },
-                )?),
-            };
-            let query = RecordQuery {
-                filter,
-                sort: request
-                    .get("sort")
-                    .and_then(Value::as_str)
-                    .map(parse_sort)
-                    .unwrap_or_default(),
-                search: request
-                    .get("search")
-                    .and_then(Value::as_str)
-                    .map(str::to_owned),
-                archived: ArchivedFilter::Exclude,
-                window: ListWindow {
-                    offset: (page - 1) * per_page,
-                    limit: per_page,
-                },
-            };
-            let module_ctx = Ctx::from_state(&state, scope).await?;
-            let listing = RecordQueryEngine::new(&module_ctx.query())
-                .query(scope, record_type, query)
-                .await?;
-            let mut data = Vec::with_capacity(listing.items.len());
-            for id in listing.items {
-                if let Some(record) = handler.load(&ctx, id).await? {
-                    data.push(record);
-                }
-            }
-            Ok(json!({ "data": data, "total": listing.total }))
-        }
-    }
-}
-
-async fn kv(
-    operation: &str,
-    plugin: &Arc<LoadedPlugin>,
-    request: &Value,
-) -> Result<Value, AppError> {
-    let pool = runtime_state()?.db()?;
-    let collection = text(request, "collection")?;
-    if collection.is_empty() || collection.len() > 64 {
+fn checked<'a>(collection: &'a str, id: Option<&'a str>) -> Result<(), AppError> {
+    if collection.is_empty() || collection.len() > MAX_COLLECTION_LENGTH {
         return Err(AppError::Validation(
             "the collection must have 1 to 64 characters".to_owned(),
         ));
     }
-    match operation {
-        "kv.list" => {
-            let items = store::kv_list(&pool, &plugin.key, collection, MAX_KV_ITEMS).await?;
-            Ok(Value::Array(
-                items
-                    .into_iter()
-                    .map(|(id, value)| json!({ "id": id, "value": value }))
-                    .collect(),
-            ))
+    if id.is_some_and(|id| id.is_empty() || id.len() > MAX_ITEM_LENGTH) {
+        return Err(AppError::Validation(
+            "the id must have 1 to 128 characters".to_owned(),
+        ));
+    }
+    Ok(())
+}
+
+fn encode(value: &Value) -> String {
+    value.to_string()
+}
+
+fn answer<T>(result: Result<T, AppError>) -> HostResult<T> {
+    result.map_err(|error| to_plugin_error(&error))
+}
+
+async fn load(
+    scope: &AccessScope,
+    record_type: &str,
+    id: &str,
+) -> Result<Option<String>, AppError> {
+    let state = runtime_state()?;
+    let handler = state.registry().await?.handler(record_type)?;
+    let record = handler
+        .load(&RecordCtx::new(scope, &state), record_id(id)?)
+        .await?;
+    Ok(record.as_ref().map(encode))
+}
+
+async fn list(
+    scope: &AccessScope,
+    record_type: &str,
+    query: wit::ListQuery,
+) -> Result<wit::Page, AppError> {
+    let state = runtime_state()?;
+    let handler = state.registry().await?.handler(record_type)?;
+    let per_page = u64::from(query.per_page.unwrap_or(25)).clamp(1, MAX_PAGE_SIZE);
+    let page = u64::from(query.page.unwrap_or(1)).max(1);
+    let filter = match query.filter_json.as_deref() {
+        None => None,
+        Some(filter) => Some(
+            serde_json::from_value::<Filter>(parse(filter)?).map_err(|_| {
+                AppError::Validation("the filter must be a filter group or condition".to_owned())
+            })?,
+        ),
+    };
+    let record_query = RecordQuery {
+        filter,
+        sort: query.sort.as_deref().map(parse_sort).unwrap_or_default(),
+        search: query.search,
+        archived: ArchivedFilter::Exclude,
+        window: ListWindow {
+            offset: (page - 1) * per_page,
+            limit: per_page,
+        },
+    };
+    let ctx = Ctx::from_state(&state, scope).await?;
+    let listing = RecordQueryEngine::new(&ctx.query())
+        .query(scope, record_type, record_query)
+        .await?;
+    let record_ctx = RecordCtx::new(scope, &state);
+    let mut records = Vec::with_capacity(listing.items.len());
+    for id in listing.items {
+        if let Some(record) = handler.load(&record_ctx, id).await? {
+            records.push(encode(&record));
         }
-        _ => {
-            let item = text(request, "id")?;
-            if item.is_empty() || item.len() > 128 {
-                return Err(AppError::Validation(
-                    "the id must have 1 to 128 characters".to_owned(),
-                ));
-            }
-            match operation {
-                "kv.get" => Ok(store::kv_get(&pool, &plugin.key, collection, item)
+    }
+    Ok(wit::Page {
+        records_json: records,
+        total: listing.total,
+    })
+}
+
+async fn write(
+    scope: &AccessScope,
+    record_type: &str,
+    id: Option<&str>,
+    values_json: &str,
+) -> Result<String, AppError> {
+    let state = runtime_state()?;
+    let handler = state.registry().await?.handler(record_type)?;
+    let ctx = RecordCtx::new(scope, &state);
+    let values = parse(values_json)?;
+    let record = match id {
+        None => handler.create(&ctx, values).await?,
+        Some(id) => handler.update(&ctx, record_id(id)?, values).await?,
+    };
+    Ok(encode(&record))
+}
+
+async fn delete(scope: &AccessScope, record_type: &str, id: &str) -> Result<(), AppError> {
+    let state = runtime_state()?;
+    let handler = state.registry().await?.handler(record_type)?;
+    handler
+        .delete(&RecordCtx::new(scope, &state), record_id(id)?)
+        .await
+}
+
+impl wit::Host for CallState {}
+
+impl Host for CallState {
+    async fn get_record(&mut self, record_type: String, id: String) -> HostResult<Option<String>> {
+        let scope = self.scope.clone();
+        answer(load(&scope, &record_type, &id).await)
+    }
+
+    async fn list_records(
+        &mut self,
+        record_type: String,
+        query: wit::ListQuery,
+    ) -> HostResult<wit::Page> {
+        let scope = self.scope.clone();
+        answer(list(&scope, &record_type, query).await)
+    }
+
+    async fn create_record(
+        &mut self,
+        record_type: String,
+        values_json: String,
+    ) -> HostResult<String> {
+        let scope = self.scope.clone();
+        answer(write(&scope, &record_type, None, &values_json).await)
+    }
+
+    async fn update_record(
+        &mut self,
+        record_type: String,
+        id: String,
+        values_json: String,
+    ) -> HostResult<String> {
+        let scope = self.scope.clone();
+        answer(write(&scope, &record_type, Some(&id), &values_json).await)
+    }
+
+    async fn delete_record(&mut self, record_type: String, id: String) -> HostResult<()> {
+        let scope = self.scope.clone();
+        answer(delete(&scope, &record_type, &id).await)
+    }
+
+    async fn kv_get(&mut self, collection: String, id: String) -> HostResult<Option<String>> {
+        let plugin = self.plugin.key.clone();
+        answer(
+            async {
+                checked(&collection, Some(&id))?;
+                let pool = runtime_state()?.db()?;
+                Ok(store::kv_get(&pool, &plugin, &collection, &id)
                     .await?
-                    .unwrap_or(Value::Null)),
-                "kv.set" => {
-                    let value = request.get("value").cloned().unwrap_or(Value::Null);
-                    store::kv_set(&pool, &plugin.key, collection, item, &value).await?;
-                    Ok(Value::Null)
-                }
-                _ => {
-                    store::kv_delete(&pool, &plugin.key, collection, item).await?;
-                    Ok(Value::Null)
-                }
+                    .as_ref()
+                    .map(encode))
             }
+            .await,
+        )
+    }
+
+    async fn kv_set(
+        &mut self,
+        collection: String,
+        id: String,
+        value_json: String,
+    ) -> HostResult<()> {
+        let plugin = self.plugin.key.clone();
+        answer(
+            async {
+                checked(&collection, Some(&id))?;
+                let value = parse(&value_json)?;
+                let pool = runtime_state()?.db()?;
+                store::kv_set(&pool, &plugin, &collection, &id, &value).await
+            }
+            .await,
+        )
+    }
+
+    async fn kv_delete(&mut self, collection: String, id: String) -> HostResult<()> {
+        let plugin = self.plugin.key.clone();
+        answer(
+            async {
+                checked(&collection, Some(&id))?;
+                let pool = runtime_state()?.db()?;
+                store::kv_delete(&pool, &plugin, &collection, &id).await
+            }
+            .await,
+        )
+    }
+
+    async fn kv_list(&mut self, collection: String) -> HostResult<Vec<(String, String)>> {
+        let plugin = self.plugin.key.clone();
+        answer(
+            async {
+                checked(&collection, None)?;
+                let pool = runtime_state()?.db()?;
+                Ok(store::kv_list(&pool, &plugin, &collection, MAX_KV_ITEMS)
+                    .await?
+                    .into_iter()
+                    .map(|(id, value)| (id, encode(&value)))
+                    .collect())
+            }
+            .await,
+        )
+    }
+
+    async fn settings_json(&mut self) -> String {
+        Value::Object(self.plugin.settings.clone()).to_string()
+    }
+
+    async fn now(&mut self) -> String {
+        chrono::Utc::now().to_rfc3339()
+    }
+
+    async fn log(&mut self, level: String, message: String) {
+        let plugin = &self.plugin.key;
+        match level.as_str() {
+            "error" => tracing::error!(plugin = %plugin, "{message}"),
+            "warn" => tracing::warn!(plugin = %plugin, "{message}"),
+            "debug" => tracing::debug!(plugin = %plugin, "{message}"),
+            _ => tracing::info!(plugin = %plugin, "{message}"),
         }
     }
 }

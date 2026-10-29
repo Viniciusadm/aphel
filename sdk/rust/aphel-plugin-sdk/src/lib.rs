@@ -1,5 +1,16 @@
 #[doc(hidden)]
-pub mod abi;
+pub mod adapter;
+
+#[doc(hidden)]
+#[allow(clippy::too_many_arguments)]
+pub mod bindings {
+    wit_bindgen::generate!({
+        path: "../../../back/modules/plugins/wit",
+        world: "plugin",
+        pub_export_macro: true,
+        default_bindings_module: "aphel_plugin_sdk::bindings",
+    });
+}
 
 use serde::de::DeserializeOwned;
 use serde::{Deserialize, Serialize};
@@ -252,46 +263,34 @@ impl Ctx {
         Self { _private: () }
     }
 
-    fn call(&self, request: Value) -> Result<Value> {
-        abi::call_host(&request)
-    }
-
     pub fn records(&self) -> Records<'_> {
-        Records { ctx: self }
+        Records { _ctx: self }
     }
 
     pub fn kv(&self, collection: &str) -> Kv<'_> {
         Kv {
-            ctx: self,
+            _ctx: self,
             collection: collection.to_owned(),
         }
     }
 
     pub fn settings(&self) -> Result<Map<String, Value>> {
-        match self.call(json!({ "op": "settings.get" }))? {
-            Value::Object(settings) => Ok(settings),
-            _ => Ok(Map::new()),
-        }
+        Ok(adapter::settings())
     }
 
     pub fn setting<T: DeserializeOwned>(&self, key: &str) -> Result<Option<T>> {
-        Ok(self
-            .settings()?
+        Ok(adapter::settings()
             .get(key)
             .cloned()
             .and_then(|value| serde_json::from_value(value).ok()))
     }
 
     pub fn now(&self) -> Result<String> {
-        Ok(self
-            .call(json!({ "op": "now" }))?
-            .as_str()
-            .unwrap_or_default()
-            .to_owned())
+        Ok(adapter::now())
     }
 
     pub fn log(&self, level: &str, message: impl Into<String>) {
-        let _ = self.call(json!({ "op": "log", "level": level, "message": message.into() }));
+        adapter::log(level, &message.into());
     }
 
     pub fn info(&self, message: impl Into<String>) {
@@ -300,94 +299,56 @@ impl Ctx {
 }
 
 pub struct Records<'a> {
-    ctx: &'a Ctx,
+    _ctx: &'a Ctx,
 }
 
 impl Records<'_> {
     pub fn get(&self, record_type: &str, id: &str) -> Result<Option<Value>> {
-        let record = self
-            .ctx
-            .call(json!({ "op": "records.get", "record_type": record_type, "id": id }))?;
-        Ok((!record.is_null()).then_some(record))
+        adapter::get_record(record_type, id)
     }
 
     pub fn list(&self, record_type: &str, query: ListQuery) -> Result<Page> {
-        let mut request = serde_json::to_value(query).unwrap_or_else(|_| json!({}));
-        request["op"] = json!("records.list");
-        request["record_type"] = json!(record_type);
-        serde_json::from_value(self.ctx.call(request)?)
-            .map_err(|error| PluginError::internal(error.to_string()))
+        adapter::list_records(record_type, query)
     }
 
     pub fn create(&self, record_type: &str, values: Value) -> Result<Value> {
-        self.ctx
-            .call(json!({ "op": "records.create", "record_type": record_type, "values": values }))
+        adapter::create_record(record_type, &values)
     }
 
     pub fn update(&self, record_type: &str, id: &str, values: Value) -> Result<Value> {
-        self.ctx.call(json!({
-            "op": "records.update",
-            "record_type": record_type,
-            "id": id,
-            "values": values,
-        }))
+        adapter::update_record(record_type, id, &values)
     }
 
     pub fn delete(&self, record_type: &str, id: &str) -> Result<()> {
-        self.ctx
-            .call(json!({ "op": "records.delete", "record_type": record_type, "id": id }))
-            .map(|_| ())
+        adapter::delete_record(record_type, id)
     }
 }
 
 pub struct Kv<'a> {
-    ctx: &'a Ctx,
+    _ctx: &'a Ctx,
     collection: String,
 }
 
 impl Kv<'_> {
     pub fn get<T: DeserializeOwned>(&self, id: &str) -> Result<Option<T>> {
-        let value = self
-            .ctx
-            .call(json!({ "op": "kv.get", "collection": self.collection, "id": id }))?;
-        Ok(serde_json::from_value(value).ok())
+        Ok(adapter::kv_get(&self.collection, id)?
+            .and_then(|value| serde_json::from_value(value).ok()))
     }
 
     pub fn set(&self, id: &str, value: impl Serialize) -> Result<()> {
-        self.ctx
-            .call(json!({
-                "op": "kv.set",
-                "collection": self.collection,
-                "id": id,
-                "value": serde_json::to_value(value).unwrap_or(Value::Null),
-            }))
-            .map(|_| ())
+        adapter::kv_set(
+            &self.collection,
+            id,
+            &serde_json::to_value(value).unwrap_or(Value::Null),
+        )
     }
 
     pub fn delete(&self, id: &str) -> Result<()> {
-        self.ctx
-            .call(json!({ "op": "kv.delete", "collection": self.collection, "id": id }))
-            .map(|_| ())
+        adapter::kv_delete(&self.collection, id)
     }
 
     pub fn list(&self) -> Result<Vec<(String, Value)>> {
-        let items = self
-            .ctx
-            .call(json!({ "op": "kv.list", "collection": self.collection }))?;
-        Ok(items
-            .as_array()
-            .map(|items| {
-                items
-                    .iter()
-                    .filter_map(|item| {
-                        Some((
-                            item.get("id")?.as_str()?.to_owned(),
-                            item.get("value")?.clone(),
-                        ))
-                    })
-                    .collect()
-            })
-            .unwrap_or_default())
+        adapter::kv_list(&self.collection)
     }
 }
 
@@ -411,14 +372,28 @@ pub trait Plugin {
 #[macro_export]
 macro_rules! export_plugin {
     ($plugin:expr) => {
-        #[unsafe(no_mangle)]
-        pub extern "C" fn aphel_alloc(length: i32) -> i32 {
-            $crate::abi::alloc(length)
+        struct AphelPluginExport;
+
+        impl $crate::bindings::Guest for AphelPluginExport {
+            fn on_hook(
+                call: $crate::bindings::HookCall,
+            ) -> ::std::result::Result<$crate::bindings::HookOutcome, $crate::bindings::PluginError> {
+                $crate::adapter::on_hook(&$plugin, call)
+            }
+
+            fn on_event(
+                event: $crate::bindings::Event,
+            ) -> ::std::result::Result<(), $crate::bindings::PluginError> {
+                $crate::adapter::on_event(&$plugin, event)
+            }
+
+            fn on_route(
+                request: $crate::bindings::Request,
+            ) -> ::std::result::Result<$crate::bindings::Response, $crate::bindings::PluginError> {
+                $crate::adapter::on_route(&$plugin, request)
+            }
         }
 
-        #[unsafe(no_mangle)]
-        pub extern "C" fn aphel_call(pointer: i32, length: i32) -> i64 {
-            $crate::abi::call(&$plugin, pointer, length)
-        }
+        $crate::bindings::export!(AphelPluginExport with_types_in $crate::bindings);
     };
 }

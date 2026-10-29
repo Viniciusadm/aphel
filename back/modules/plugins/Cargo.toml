@@ -25,4 +25,5 @@ utoipa.workspace = true
 utoipa-axum.workspace = true
 uuid.workspace = true
 zip.workspace = true
-wasmtime = { version = "50", default-features = false, features = ["cranelift", "async", "runtime", "std", "parallel-compilation"] }
+wasmtime-wasi = { version = "50", default-features = false, features = ["p2"] }
+wasmtime = { version = "50", default-features = false, features = ["cranelift", "async", "runtime", "std", "parallel-compilation", "component-model"] }

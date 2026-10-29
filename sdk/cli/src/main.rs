@@ -5,7 +5,7 @@ use std::process::{Command, ExitCode};
 
 use zip::write::SimpleFileOptions;
 
-const WASM_TARGET: &str = "wasm32-unknown-unknown";
+const WASM_TARGET: &str = "wasm32-wasip2";
 const USAGE: &str = "usage:
   aphel-plugin new <key> [--sdk <path to aphel-plugin-sdk>]
   aphel-plugin build [dir]

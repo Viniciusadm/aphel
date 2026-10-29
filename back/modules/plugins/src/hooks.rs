@@ -1,12 +1,14 @@
-use serde_json::{Map, Value, json};
+use serde_json::{Map, Value};
 
 use crate::manifest::{HOOK_DELETING, HOOK_SAVED, HOOK_SAVING, HOOK_VALIDATING};
 use crate::registry;
-use crate::runtime::{HOOK_TIMEOUT, invoke};
+use crate::runtime::{on_hook, wit};
 use aphel_kernel::application::fields::WriteMode;
 use aphel_kernel::errors::AppError;
 use aphel_kernel::modules::HookCtx;
 use aphel_kernel::records::{ChangedRecord, RemovedRecord, SavingRecord};
+
+const EMPTY_OBJECT: &str = "{}";
 
 fn mode(mode: WriteMode) -> &'static str {
     match mode {
@@ -15,33 +17,44 @@ fn mode(mode: WriteMode) -> &'static str {
     }
 }
 
-fn changed_input(hook: &str, changed: &ChangedRecord) -> Value {
-    json!({
-        "kind": "hook",
-        "hook": hook,
-        "record_type": changed.record_type.as_str(),
-        "record_id": changed.record.record_id.to_string(),
-        "mode": mode(changed.mode),
-        "changes": changed
+fn changed_call(hook: &str, changed: &ChangedRecord) -> wit::HookCall {
+    wit::HookCall {
+        hook: hook.to_owned(),
+        record_type: changed.record_type.as_str().to_owned(),
+        record_id: changed.record.record_id.to_string(),
+        mode: Some(mode(changed.mode).to_owned()),
+        changes: changed
             .changes
             .iter()
-            .map(|change| json!({ "field": change.field, "old": change.old, "new": change.new }))
-            .collect::<Vec<_>>(),
-        "values": changed.values,
-    })
+            .map(|change| wit::Change {
+                field: change.field.clone(),
+                old_json: change.old.to_string(),
+                new_json: change.new.to_string(),
+            })
+            .collect(),
+        values_json: changed.values.to_string(),
+        custom_fields_json: EMPTY_OBJECT.to_owned(),
+    }
 }
 
 async fn notify(
     ctx: &mut HookCtx<'_>,
-    hook: &str,
     record_type: &str,
-    input: Value,
+    call: wit::HookCall,
 ) -> Result<(), AppError> {
     let snapshot = registry::current(ctx.pool).await?;
-    for plugin in snapshot.hook_subscribers(hook, record_type) {
-        invoke(&plugin, ctx.scope, &input, HOOK_TIMEOUT).await?;
+    for plugin in snapshot.hook_subscribers(&call.hook, record_type) {
+        on_hook(&plugin, ctx.scope, &call).await?;
     }
     Ok(())
+}
+
+fn merge(target: &mut Map<String, Value>, patch: &str) {
+    if let Ok(Value::Object(patch)) = serde_json::from_str::<Value>(patch) {
+        for (key, value) in patch {
+            target.insert(key, value);
+        }
+    }
 }
 
 pub(crate) async fn saving(
@@ -49,30 +62,21 @@ pub(crate) async fn saving(
     mut saving: SavingRecord,
 ) -> Result<SavingRecord, AppError> {
     let snapshot = registry::current(ctx.pool).await?;
-    let subscribers = snapshot.hook_subscribers(HOOK_SAVING, saving.record_type.as_str());
-    for plugin in subscribers {
-        let input = json!({
-            "kind": "hook",
-            "hook": HOOK_SAVING,
-            "record_type": saving.record_type.as_str(),
-            "record_id": saving.draft.record.record_id.to_string(),
-            "mode": mode(saving.draft.mode),
-            "values": saving.draft.values,
-            "custom_fields": saving.draft.custom_fields,
-        });
-        let output = invoke(&plugin, ctx.scope, &input, HOOK_TIMEOUT).await?;
-        merge(&mut saving.draft.values, output.get("values"));
-        merge(&mut saving.draft.custom_fields, output.get("custom_fields"));
+    for plugin in snapshot.hook_subscribers(HOOK_SAVING, saving.record_type.as_str()) {
+        let call = wit::HookCall {
+            hook: HOOK_SAVING.to_owned(),
+            record_type: saving.record_type.as_str().to_owned(),
+            record_id: saving.draft.record.record_id.to_string(),
+            mode: Some(mode(saving.draft.mode).to_owned()),
+            changes: Vec::new(),
+            values_json: Value::Object(saving.draft.values.clone()).to_string(),
+            custom_fields_json: Value::Object(saving.draft.custom_fields.clone()).to_string(),
+        };
+        let outcome = on_hook(&plugin, ctx.scope, &call).await?;
+        merge(&mut saving.draft.values, &outcome.values_json);
+        merge(&mut saving.draft.custom_fields, &outcome.custom_fields_json);
     }
     Ok(saving)
-}
-
-fn merge(target: &mut Map<String, Value>, patch: Option<&Value>) {
-    if let Some(Value::Object(patch)) = patch {
-        for (key, value) in patch {
-            target.insert(key.clone(), value.clone());
-        }
-    }
 }
 
 pub(crate) async fn validating(
@@ -81,9 +85,8 @@ pub(crate) async fn validating(
 ) -> Result<(), AppError> {
     notify(
         ctx,
-        HOOK_VALIDATING,
         changed.record_type.as_str(),
-        changed_input(HOOK_VALIDATING, changed),
+        changed_call(HOOK_VALIDATING, changed),
     )
     .await
 }
@@ -91,9 +94,8 @@ pub(crate) async fn validating(
 pub(crate) async fn saved(ctx: &mut HookCtx<'_>, changed: &ChangedRecord) -> Result<(), AppError> {
     notify(
         ctx,
-        HOOK_SAVED,
         changed.record_type.as_str(),
-        changed_input(HOOK_SAVED, changed),
+        changed_call(HOOK_SAVED, changed),
     )
     .await
 }
@@ -102,11 +104,14 @@ pub(crate) async fn deleting(
     ctx: &mut HookCtx<'_>,
     removed: &RemovedRecord,
 ) -> Result<(), AppError> {
-    let input = json!({
-        "kind": "hook",
-        "hook": HOOK_DELETING,
-        "record_type": removed.record_type.as_str(),
-        "record_id": removed.record.record_id.to_string(),
-    });
-    notify(ctx, HOOK_DELETING, removed.record_type.as_str(), input).await
+    let call = wit::HookCall {
+        hook: HOOK_DELETING.to_owned(),
+        record_type: removed.record_type.as_str().to_owned(),
+        record_id: removed.record.record_id.to_string(),
+        mode: None,
+        changes: Vec::new(),
+        values_json: EMPTY_OBJECT.to_owned(),
+        custom_fields_json: EMPTY_OBJECT.to_owned(),
+    };
+    notify(ctx, removed.record_type.as_str(), call).await
 }
