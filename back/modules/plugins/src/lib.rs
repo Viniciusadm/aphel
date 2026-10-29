@@ -1,4 +1,5 @@
 pub mod automation;
+pub mod compiled;
 pub mod events;
 pub mod hooks;
 pub mod host;
@@ -39,6 +40,11 @@ impl Module for PluginsModule {
                 1,
                 "create plugins",
                 include_str!("../migrations/0001_create_plugins.sql"),
+            ))
+            .migration(Migration::new(
+                2,
+                "create plugins compiled",
+                include_str!("../migrations/0002_create_plugins_compiled.sql"),
             ))
     }
 

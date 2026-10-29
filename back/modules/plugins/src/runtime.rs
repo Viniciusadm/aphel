@@ -1,11 +1,16 @@
 use std::collections::HashSet;
+use std::hash::{DefaultHasher, Hash, Hasher};
 use std::sync::{Arc, Mutex, OnceLock};
 use std::time::{Duration, Instant};
+
+use sha2::{Digest, Sha256};
+use sqlx::MySqlPool;
 
 use wasmtime::component::{Component, HasSelf, Linker, ResourceTable};
 use wasmtime::{Config, Engine, Store, StoreLimits, StoreLimitsBuilder};
 use wasmtime_wasi::{WasiCtx, WasiCtxBuilder, WasiCtxView, WasiView};
 
+use crate::compiled;
 use crate::registry::LoadedPlugin;
 use aphel_kernel::application::access::{AccessRepository, build_access_scope};
 use aphel_kernel::application::shared::Actor;
@@ -35,6 +40,8 @@ const MEMORY_LIMIT: usize = 64 * 1024 * 1024;
 const PLUGIN_FAILED: &str = "plugin_failed";
 const INVALID_BACKEND: &str = "plugin_backend_invalid";
 const PLUGIN_OWNER_INACTIVE: &str = "plugin_owner_inactive";
+const COMPILED_CACHE_SIZE: usize = 16;
+const MAX_STORED_ARTIFACT_BYTES: usize = 48 * 1024 * 1024;
 
 pub type Backend = PluginPre<CallState>;
 
@@ -107,15 +114,115 @@ fn invalid_backend(error: impl std::fmt::Display) -> AppError {
     )
 }
 
-pub async fn compile(bytes: Vec<u8>) -> Result<Backend, AppError> {
+pub fn backend_hash(bytes: &[u8]) -> String {
+    Sha256::digest(bytes)
+        .iter()
+        .map(|byte| format!("{byte:02x}"))
+        .collect()
+}
+
+fn engine_key() -> &'static str {
+    static KEY: OnceLock<String> = OnceLock::new();
+    KEY.get_or_init(|| {
+        let mut hasher = DefaultHasher::new();
+        engine().precompile_compatibility_hash().hash(&mut hasher);
+        format!("{:016x}", hasher.finish())
+    })
+}
+
+fn compiled_cache() -> &'static Mutex<Vec<(String, Backend)>> {
+    static CACHE: OnceLock<Mutex<Vec<(String, Backend)>>> = OnceLock::new();
+    CACHE.get_or_init(Default::default)
+}
+
+fn cached_backend(hash: &str) -> Option<Backend> {
+    compiled_cache()
+        .lock()
+        .ok()?
+        .iter()
+        .find(|(cached, _)| cached == hash)
+        .map(|(_, backend)| backend.clone())
+}
+
+fn remember_backend(hash: String, backend: Backend) {
+    if let Ok(mut cache) = compiled_cache().lock() {
+        cache.retain(|(cached, _)| *cached != hash);
+        cache.push((hash, backend));
+        if cache.len() > COMPILED_CACHE_SIZE {
+            cache.remove(0);
+        }
+    }
+}
+
+fn release_compile_memory() {
+    #[cfg(all(target_os = "linux", target_env = "gnu"))]
+    unsafe {
+        libc::malloc_trim(0);
+    }
+}
+
+async fn stored_component(pool: &MySqlPool, hash: &str) -> Option<Component> {
+    let artifact = match compiled::find(pool, hash, engine_key()).await {
+        Ok(artifact) => artifact?,
+        Err(error) => {
+            tracing::warn!(error = %error, "could not read a precompiled plugin backend");
+            return None;
+        }
+    };
+    tokio::task::spawn_blocking(move || unsafe { Component::deserialize(engine(), &artifact) }.ok())
+        .await
+        .ok()
+        .flatten()
+}
+
+async fn compile_component(
+    pool: Option<&MySqlPool>,
+    hash: &str,
+    bytes: Vec<u8>,
+) -> Result<Component, AppError> {
     let component = tokio::task::spawn_blocking(move || Component::new(engine(), &bytes))
         .await
         .map_err(|error| AppError::Internal(format!("plugin compilation panicked: {error}")))?
         .map_err(invalid_backend)?;
-    let pre = linker()
+    if let Some(pool) = pool {
+        match component.serialize() {
+            Ok(artifact) if artifact.len() <= MAX_STORED_ARTIFACT_BYTES => {
+                if let Err(error) = compiled::save(pool, hash, engine_key(), &artifact).await {
+                    tracing::warn!(error = %error, "could not store a precompiled plugin backend");
+                }
+            }
+            Ok(_) => {}
+            Err(error) => {
+                tracing::warn!(error = %error, "could not serialize a compiled plugin backend")
+            }
+        }
+    }
+    Ok(component)
+}
+
+pub async fn compile(bytes: Vec<u8>) -> Result<Backend, AppError> {
+    let hash = backend_hash(&bytes);
+    if let Some(backend) = cached_backend(&hash) {
+        return Ok(backend);
+    }
+    let pool = runtime_state().ok().and_then(|state| state.db().ok());
+    let stored = match &pool {
+        Some(pool) => stored_component(pool, &hash).await,
+        None => None,
+    };
+    let component = match stored {
+        Some(component) => component,
+        None => compile_component(pool.as_ref(), &hash, bytes).await?,
+    };
+    let backend = linker()
         .instantiate_pre(&component)
-        .map_err(invalid_backend)?;
-    PluginPre::new(pre).map_err(invalid_backend)
+        .map_err(invalid_backend)
+        .and_then(|pre| PluginPre::new(pre).map_err(invalid_backend));
+    drop(component);
+    release_compile_memory();
+    let backend = backend?;
+    remember_backend(hash, backend.clone());
+    Ok(backend)
 }
 
 pub async fn validate(bytes: Vec<u8>) -> Result<(), AppError> {

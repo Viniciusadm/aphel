@@ -14,6 +14,7 @@ use utoipa::{IntoParams, ToSchema};
 use utoipa_axum::router::{OpenApiRouter, UtoipaMethodRouterExt};
 use utoipa_axum::routes;
 
+use crate::compiled;
 use crate::host::secret_key;
 use crate::manifest::{PluginManifest, SETTING_SECRET, match_route};
 use crate::package::{MAX_PACKAGE_BYTES, read_package};
@@ -308,6 +309,17 @@ async fn respond(state: &AppState, plugin: InstalledPlugin) -> Result<PluginResp
     })
 }
 
+async fn prune_compiled(state: &AppState) -> Result<(), AppError> {
+    let pool = state.db()?;
+    let mut keep = Vec::new();
+    for plugin in store::list(&pool).await? {
+        if let Some(bytes) = store::backend(&pool, &plugin.key).await? {
+            keep.push(runtime::backend_hash(&bytes));
+        }
+    }
+    compiled::prune(&pool, &keep).await
+}
+
 fn permissions_owner(key: &str) -> String {
     format!("{PERMISSIONS_OWNER_PREFIX}{key}")
 }
@@ -430,6 +442,9 @@ async fn install_plugin(
         client.0.ip,
     )
     .await?;
+    if let Err(error) = prune_compiled(&state).await {
+        tracing::warn!(error = %error, "could not prune precompiled plugin backends");
+    }
     let plugin = installed(&state, &package.manifest.key).await?;
     if !plugin.enabled {
         schema::set_active(&state, &plugin.manifest, false).await?;
@@ -528,6 +543,9 @@ async fn uninstall_plugin(
         client.0.ip,
     )
     .await?;
+    if let Err(error) = prune_compiled(&state).await {
+        tracing::warn!(error = %error, "could not prune precompiled plugin backends");
+    }
     Ok(StatusCode::NO_CONTENT)
 }
 
