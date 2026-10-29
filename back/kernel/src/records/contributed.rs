@@ -147,6 +147,17 @@ fn normalize(field_type: FieldType, value: &Value) -> Result<Value, &'static str
         (FieldType::Number | FieldType::Currency, _) => Err("must be a number"),
         (FieldType::Checkbox, Value::Bool(_)) => Ok(value.clone()),
         (FieldType::Checkbox, _) => Err("must be true or false"),
+        (FieldType::Record | FieldType::User, Value::String(text)) => {
+            let text = text.trim();
+            if text.is_empty() {
+                Ok(Value::Null)
+            } else if Uuid::parse_str(text).is_ok() {
+                Ok(Value::String(text.to_owned()))
+            } else {
+                Err("must be a record id")
+            }
+        }
+        (FieldType::Record | FieldType::User, _) => Err("must be a record id"),
         (_, Value::String(text)) => {
             let text = text.trim();
             Ok(if text.is_empty() {

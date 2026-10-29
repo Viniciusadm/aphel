@@ -349,6 +349,7 @@ async fn create_deal(
         contract_start: None,
         contract_end: None,
         custom_fields: fields.custom,
+        contributed: Default::default(),
         expected_updated_at: None,
         ip,
     };

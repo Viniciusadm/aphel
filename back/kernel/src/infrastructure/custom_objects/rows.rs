@@ -10,7 +10,7 @@ use crate::infrastructure::repositories::mapper;
 use crate::infrastructure::repositories::mapper::{instant, optional_user};
 
 pub(crate) const OBJECT_COLUMNS: &str = "o.id, o.`key`, o.label_singular, o.label_plural, o.description, \
-     o.icon, o.color, o.title_field_key, o.owner_enabled, o.is_active, o.position, o.created_by, \
+     o.icon, o.color, o.title_field_key, o.owner_enabled, o.is_active, o.position, o.module_key, o.created_by, \
      o.created_at, o.updated_at";
 
 pub(crate) const RELATIONSHIP_COLUMNS: &str = "d.id, d.`key`, d.inverse_key, d.from_type, d.to_type, \
@@ -32,6 +32,7 @@ pub(crate) fn object_from_row(row: &MySqlRow) -> Result<CustomObject, AppError> 
             is_active: row.try_get("is_active")?,
         },
         position: row.try_get("position")?,
+        module_key: row.try_get("module_key")?,
         created_by: optional_user(row, "created_by")?,
         created_at: instant(row, "created_at")?,
         updated_at: instant(row, "updated_at")?,

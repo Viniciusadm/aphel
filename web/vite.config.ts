@@ -2,7 +2,7 @@ import { readFileSync } from 'node:fs'
 import { fileURLToPath } from 'node:url'
 import tailwindcss from '@tailwindcss/vite'
 import react from '@vitejs/plugin-react'
-import { defineConfig } from 'vite'
+import { defineConfig, type Plugin } from 'vite'
 import { serviceWorkerPlugin } from './scripts/pwa/vite-plugin.ts'
 
 const backendUrl = 'http://127.0.0.1:3001'
@@ -18,9 +18,45 @@ const moduleAliases = Object.entries(externalModules).map(([key, directory]) => 
   replacement: fromHere(directory),
 }))
 
+const sharedEntries: Record<string, { specifier: string; source: string }> = {
+  react: { specifier: 'react', source: 'runtime/react.js' },
+  'jsx-runtime': { specifier: 'react/jsx-runtime', source: 'runtime/jsx-runtime.js' },
+  'react-dom': { specifier: 'react-dom', source: 'runtime/react-dom.js' },
+  'react-router': { specifier: 'react-router', source: 'runtime/react-router.js' },
+  'react-query': { specifier: '@tanstack/react-query', source: 'runtime/react-query.js' },
+  'react-i18next': { specifier: 'react-i18next', source: 'runtime/react-i18next.js' },
+  sdk: { specifier: '@aphel/web-sdk', source: 'src/sdk/index.ts' },
+}
+
+function pluginImportMap(): Plugin {
+  let serving = false
+  return {
+    name: 'aphel-plugin-import-map',
+    configResolved(config) {
+      serving = config.command === 'serve'
+    },
+    transformIndexHtml() {
+      const imports = Object.fromEntries(
+        Object.entries(sharedEntries).map(([name, entry]) => [
+          entry.specifier,
+          serving ? `/${entry.source}` : `/shared/${name}.js`,
+        ]),
+      )
+      return [
+        {
+          tag: 'script',
+          attrs: { type: 'importmap' },
+          children: JSON.stringify({ imports }),
+          injectTo: 'head-prepend',
+        },
+      ]
+    },
+  }
+}
+
 // https://vite.dev/config/
 export default defineConfig({
-  plugins: [react(), tailwindcss(), serviceWorkerPlugin()],
+  plugins: [pluginImportMap(), react(), tailwindcss(), serviceWorkerPlugin()],
   resolve: {
     alias: [
       ...moduleAliases,
@@ -30,7 +66,15 @@ export default defineConfig({
   },
   build: {
     rolldownOptions: {
+      input: {
+        index: fromHere('./index.html'),
+        ...Object.fromEntries(
+          Object.entries(sharedEntries).map(([name, entry]) => [`shared/${name}`, fromHere(`./${entry.source}`)]),
+        ),
+      },
+      preserveEntrySignatures: 'exports-only',
       output: {
+        entryFileNames: (chunk) => (chunk.name.startsWith('shared/') ? '[name].js' : 'assets/[name]-[hash].js'),
         codeSplitting: {
           groups: [
             { name: 'ui-utils', test: /node_modules[\\/](clsx|tailwind-merge|class-variance-authority)[\\/]/, priority: 1 },

@@ -117,5 +117,28 @@
     "actionFailed": "The action could not be completed",
     "generic": "Could not save. Please try again."
   },
-  "applyUpdate": "Apply update"
+  "applyUpdate": "Apply update",
+  "plugins": {
+    "title": "Plugins",
+    "description": "Third-party extensions installed from an .aphelplugin package, without rebuilding or restarting Aphel. They run isolated and only reach what the plugin API allows.",
+    "upload": "Install plugin",
+    "uploading": "Installing…",
+    "installed": "Plugin {{name}} installed. Reloading…",
+    "updated": "Plugin updated. Reloading…",
+    "removed": "Plugin uninstalled. Reloading…",
+    "emptyTitle": "No plugins installed",
+    "emptyDescription": "Upload an .aphelplugin file to add entities, fields, rules and screens to Aphel.",
+    "enable": "Enable",
+    "disable": "Disable",
+    "uninstall": "Uninstall",
+    "uninstallTitle": "Uninstall {{name}}?",
+    "uninstallDescription": "The plugin, the entities it created (with their records) and the fields it added to other types will be removed.",
+    "declares": {
+      "entities": "Entities",
+      "extendedTypes": "Extends",
+      "hooks": "Rules",
+      "events": "Events",
+      "routes": "Routes"
+    }
+  }
 }

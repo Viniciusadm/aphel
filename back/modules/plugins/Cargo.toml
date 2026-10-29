@@ -1,0 +1,28 @@
+[package]
+name = "aphel-mod-plugins"
+version.workspace = true
+edition.workspace = true
+rust-version.workspace = true
+license.workspace = true
+publish = false
+
+[dependencies]
+aphel-kernel.workspace = true
+async-trait.workspace = true
+axum.workspace = true
+bytes.workspace = true
+chrono.workspace = true
+form_urlencoded.workspace = true
+semver.workspace = true
+serde.workspace = true
+serde_json.workspace = true
+sha2.workspace = true
+sqlx.workspace = true
+tokio.workspace = true
+toml.workspace = true
+tracing.workspace = true
+utoipa.workspace = true
+utoipa-axum.workspace = true
+uuid.workspace = true
+zip.workspace = true
+wasmtime = { version = "50", default-features = false, features = ["cranelift", "async", "runtime", "std", "parallel-compilation"] }

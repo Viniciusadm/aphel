@@ -59,6 +59,21 @@ const INVALID_OBJECT: &str = "invalid custom object";
 const INVALID_RELATIONSHIP: &str = "invalid relationship";
 const TITLE_FIELD_LABEL: &str = "Nome";
 
+pub const CUSTOM_OBJECT_MANAGED_BY_MODULE: &str = "custom_object_managed_by_module";
+
+pub fn ensure_unmanaged_object(object: &CustomObject) -> Result<(), AppError> {
+    match &object.module_key {
+        Some(module) => Err(AppError::conflict_code(
+            CUSTOM_OBJECT_MANAGED_BY_MODULE,
+            format!(
+                "the custom object {} is managed by the {module} module and cannot be changed here",
+                object.key
+            ),
+        )),
+        None => Ok(()),
+    }
+}
+
 pub fn custom_object_not_found() -> AppError {
     AppError::not_found_code(CUSTOM_OBJECT_NOT_FOUND, "custom object was not found")
 }
@@ -370,6 +385,7 @@ where
                 .map(|object| object.position)
                 .max()
                 .map_or(0, |position| position + 1),
+            module_key: None,
             created_by: Some(scope.user_id().clone()),
             created_at: now,
             updated_at: now,
@@ -439,6 +455,7 @@ where
     ) -> Result<ObjectView, AppError> {
         scope.require(&Permission::SETTINGS_MANAGE)?;
         let current = self.existing(key).await?;
+        ensure_unmanaged_object(&current)?;
         ensure_version(command.expected_updated_at, current.updated_at)?;
         let mut object = current.clone();
         let mut violations = Vec::new();
@@ -566,6 +583,7 @@ where
     ) -> Result<(), AppError> {
         scope.require(&Permission::SETTINGS_MANAGE)?;
         let object = self.existing(key).await?;
+        ensure_unmanaged_object(&object)?;
         let counts = self.ports.objects().record_counts().await?;
         if counts.get(&object.id).copied().unwrap_or_default() > 0 {
             return Err(AppError::conflict_code(

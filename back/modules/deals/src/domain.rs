@@ -90,27 +90,27 @@ pub struct DealRevenue {
 pub struct Deal {
     pub id: Uuid,
     pub owner_id: Option<UserId>,
-    pub(crate) pipeline_id: Uuid,
-    pub(crate) stage_id: Uuid,
+    pub pipeline_id: Uuid,
+    pub stage_id: Uuid,
     pub title: String,
     pub amount: Option<Decimal>,
     pub currency: String,
     pub revenue: DealRevenue,
-    pub(crate) probability: Option<u8>,
-    pub(crate) expected_close_date: Option<NaiveDate>,
+    pub probability: Option<u8>,
+    pub expected_close_date: Option<NaiveDate>,
     pub status: DealStatus,
     pub closed_at: Option<DateTime<Utc>>,
-    pub(crate) lost_reason_id: Option<Uuid>,
-    pub(crate) lost_reason_note: Option<String>,
+    pub lost_reason_id: Option<Uuid>,
+    pub lost_reason_note: Option<String>,
     pub source: Option<String>,
     pub contact_id: Option<Uuid>,
     pub company_id: Option<Uuid>,
-    pub(crate) stage_entered_at: DateTime<Utc>,
-    pub(crate) last_activity_at: Option<DateTime<Utc>>,
-    pub(crate) created_by: Option<UserId>,
-    pub(crate) archived_at: Option<DateTime<Utc>>,
-    pub(crate) created_at: DateTime<Utc>,
-    pub(crate) updated_at: DateTime<Utc>,
+    pub stage_entered_at: DateTime<Utc>,
+    pub last_activity_at: Option<DateTime<Utc>>,
+    pub created_by: Option<UserId>,
+    pub archived_at: Option<DateTime<Utc>>,
+    pub created_at: DateTime<Utc>,
+    pub updated_at: DateTime<Utc>,
 }
 
 #[derive(Debug, Clone, PartialEq, Eq)]
@@ -243,12 +243,12 @@ pub(crate) struct OwnerRef {
 }
 
 #[derive(Debug, Clone, PartialEq, Eq)]
-pub(crate) struct StageSummary {
-    pub(crate) id: Uuid,
-    pub(crate) name: String,
-    pub(crate) kind: StageKind,
-    pub(crate) probability: u8,
-    pub(crate) rotting_days: Option<u16>,
+pub struct StageSummary {
+    pub id: Uuid,
+    pub name: String,
+    pub kind: StageKind,
+    pub probability: u8,
+    pub rotting_days: Option<u16>,
 }
 
 #[derive(Debug, Clone, PartialEq, Eq)]
@@ -287,6 +287,7 @@ pub struct DealInput {
     pub contract_start: Option<Option<String>>,
     pub contract_end: Option<Option<String>>,
     pub custom_fields: Map<String, Value>,
+    pub contributed: Map<String, Value>,
     pub expected_updated_at: Option<DateTime<Utc>>,
     pub ip: Option<String>,
 }
@@ -417,6 +418,7 @@ pub(crate) struct BoardQuery {
 pub struct DealView {
     pub record: DealRecord,
     pub(crate) custom_fields: Map<String, Value>,
+    pub(crate) contributed: Map<String, Value>,
 }
 
 #[derive(Debug, Clone, PartialEq)]

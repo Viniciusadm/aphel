@@ -1,5 +1,7 @@
 # Modular Aphel: restructuring plan (WordPress style, compiled into the binary)
 
+> Third-party plugins no longer use this compiled mechanism: they are runtime `.aphelplugin` packages (WebAssembly backend + ES module web bundle) described in [`docs/plugins`](../plugins/README.md). This document describes the compiled modules of the core and official modules.
+
 ## Context
 
 Aphel has 251 thousand lines of backend code in one crate (`back/src`) and 106 thousand in the frontend. It **already has an extension system**: the `aphel-extension-api` crate, 10 extensions in `back/extensions/*` behind `ext-<key>` features, and `web/src/extensions`. That system, however, is a side door:

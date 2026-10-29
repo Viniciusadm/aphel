@@ -16,6 +16,24 @@ pub struct AcceptingQuote {
     pub(crate) acceptance: QuoteAcceptance,
 }
 
+impl AcceptingQuote {
+    pub fn quote_id(&self) -> Uuid {
+        self.quote.id
+    }
+
+    pub fn deal_id(&self) -> Uuid {
+        self.quote.deal_id
+    }
+
+    pub fn acceptor_name(&self) -> &str {
+        &self.acceptance.name
+    }
+
+    pub fn acceptor_email(&self) -> &str {
+        &self.acceptance.email
+    }
+}
+
 pub struct QuoteAccepting;
 
 impl Hook for QuoteAccepting {
@@ -30,6 +48,20 @@ pub struct PricedQuote {
     pub(crate) discount: QuoteDiscount,
     pub(crate) items: Vec<QuoteItemData>,
     pub(crate) totals: TotalsBreakdown,
+}
+
+impl PricedQuote {
+    pub fn quote_id(&self) -> Uuid {
+        self.quote_id
+    }
+
+    pub fn deal_id(&self) -> Uuid {
+        self.deal_id
+    }
+
+    pub fn currency(&self) -> &str {
+        &self.currency
+    }
 }
 
 pub struct QuoteTotals;

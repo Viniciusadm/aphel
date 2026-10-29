@@ -703,6 +703,8 @@ pub struct DealResponse {
     pub(crate) company: Option<DealNamedResponse>,
     pub(crate) owner: Option<DealOwnerResponse>,
     pub(crate) lost_reason: Option<DealNamedResponse>,
+    #[serde(flatten)]
+    pub(crate) contributed: Map<String, Value>,
 }
 
 impl From<DealView> for DealResponse {
@@ -753,6 +755,7 @@ impl From<DealView> for DealResponse {
             updated_at: instant(deal.updated_at),
             archived_at: deal.archived_at.map(instant),
             custom_fields: view.custom_fields,
+            contributed: view.contributed,
             stage: DealStageResponse {
                 id: record.stage.id.to_string(),
                 name: record.stage.name,
@@ -844,6 +847,8 @@ pub(crate) struct DealRequest {
     #[serde(default)]
     #[schema(value_type = Option<Object>)]
     pub(crate) custom_fields: Map<String, Value>,
+    #[serde(flatten)]
+    pub(crate) contributed: Map<String, Value>,
 }
 
 impl DealRequest {
@@ -872,6 +877,7 @@ impl DealRequest {
             contract_start: self.contract_start,
             contract_end: self.contract_end,
             custom_fields: self.custom_fields,
+            contributed: self.contributed,
             expected_updated_at,
             ip,
         }

@@ -22,6 +22,24 @@ pub struct StageChange {
     pub(crate) to: PipelineStage,
 }
 
+impl StageChange {
+    pub fn deal(&self) -> &Deal {
+        &self.deal
+    }
+
+    pub fn previous(&self) -> Option<&Deal> {
+        self.previous.as_ref()
+    }
+
+    pub fn from(&self) -> Option<&StageSummary> {
+        self.from.as_ref()
+    }
+
+    pub fn to(&self) -> &PipelineStage {
+        &self.to
+    }
+}
+
 pub struct DealStageChanging;
 
 impl Hook for DealStageChanging {
@@ -34,6 +52,24 @@ pub struct ClosingDeal {
     pub(crate) previous: Option<Deal>,
     pub(crate) stage: PipelineStage,
     pub(crate) lost_reason: Option<LostReason>,
+}
+
+impl ClosingDeal {
+    pub fn deal(&self) -> &Deal {
+        &self.deal
+    }
+
+    pub fn previous(&self) -> Option<&Deal> {
+        self.previous.as_ref()
+    }
+
+    pub fn stage(&self) -> &PipelineStage {
+        &self.stage
+    }
+
+    pub fn lost_reason(&self) -> Option<&LostReason> {
+        self.lost_reason.as_ref()
+    }
 }
 
 pub struct DealWinning;

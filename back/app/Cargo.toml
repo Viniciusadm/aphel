@@ -58,6 +58,7 @@ module-approvals = { package = "aphel-mod-approvals", path = "../modules/approva
 module-automations = { package = "aphel-mod-automations", path = "../modules/automations" }
 module-webhooks = { package = "aphel-mod-webhooks", path = "../modules/webhooks" }
 module-integrations = { package = "aphel-mod-integrations", path = "../modules/integrations" }
+module-plugins = { package = "aphel-mod-plugins", path = "../modules/plugins" }
 module-imports = { package = "aphel-mod-imports", path = "../modules/imports" }
 module-exports = { package = "aphel-mod-exports", path = "../modules/exports" }
 module-bulk-actions = { package = "aphel-mod-bulk-actions", path = "../modules/bulk_actions" }

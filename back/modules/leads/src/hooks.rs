@@ -57,6 +57,20 @@ pub struct DisqualifyingLead {
     pub(crate) note: Option<String>,
 }
 
+impl DisqualifyingLead {
+    pub fn lead(&self) -> &Lead {
+        &self.lead
+    }
+
+    pub fn reason_id(&self) -> Uuid {
+        self.reason.id
+    }
+
+    pub fn note(&self) -> Option<&str> {
+        self.note.as_deref()
+    }
+}
+
 pub struct LeadDisqualifying;
 
 impl Hook for LeadDisqualifying {
@@ -81,6 +95,20 @@ pub struct ConvertedLead {
     pub(crate) lead: Lead,
     pub(crate) deal_id: Uuid,
     pub(crate) company_id: Option<Uuid>,
+}
+
+impl ConvertedLead {
+    pub fn lead(&self) -> &Lead {
+        &self.lead
+    }
+
+    pub fn deal_id(&self) -> Uuid {
+        self.deal_id
+    }
+
+    pub fn company_id(&self) -> Option<Uuid> {
+        self.company_id
+    }
 }
 
 pub struct LeadConverted;

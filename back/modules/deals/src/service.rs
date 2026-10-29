@@ -27,6 +27,7 @@ use crate::store::DealStore;
 use aphel_kernel::Ctx;
 use aphel_kernel::application::access::Authorizer;
 use aphel_kernel::application::audit::{DiffOptions, diff_values};
+use aphel_kernel::application::fields::RecordTypeDefinition;
 use aphel_kernel::application::fields::permissions::check_record_writes;
 use aphel_kernel::application::fields::{
     CustomFieldPorts, CustomFieldReader, CustomFieldWriter, FieldSet, RecordDraft, RecordPipeline,
@@ -47,7 +48,10 @@ use aphel_kernel::domain::UserId;
 use aphel_kernel::domain::access::{Permission, RecordScopeFilter};
 use aphel_kernel::domain::fields::FieldType;
 use aphel_kernel::errors::{AppError, FieldViolation};
-use aphel_kernel::records::changes_payload;
+use aphel_kernel::records::{
+    InputValidator, changes_payload, contributed_input, is_writable_contributed, load_contributed,
+    merge_contributed, with_contributed, write_contributed,
+};
 use currencies::{
     CurrencyConverter,
     domain::{base_amount, currency_not_enabled},
@@ -196,8 +200,16 @@ async fn create_record(
 ) -> Result<DealView, AppError> {
     let scope = ctx.scope;
     scope.require(&Permission::DEALS_CREATE)?;
+    let registry = ctx.registry().clone();
+    let definition = registry.require(RecordType::DEAL.as_str())?;
+    let mut input = input;
+    split_contributed(definition, &mut input);
     let now = ctx.now();
     let mut violations = Vec::new();
+    let mut validator = InputValidator::new();
+    let contributed =
+        merge_contributed(definition, &Map::new(), &input.contributed, &mut validator);
+    violations.extend(validator.into_violations());
     let title = match input.title.as_deref() {
         Some(title) => normalize_title(title),
         None => None,
@@ -243,7 +255,7 @@ async fn create_record(
     apply_fields(ctx, &mut deal, &input, &mut violations).await?;
     let target = resolve_target(ctx, None, &deal, &input, &mut violations).await?;
     check("invalid deal", violations)?;
-    check_field_access(ctx, &input, &Value::Null, &deal_snapshot(&deal)).await?;
+    check_field_access(ctx, &input, &Value::Null, &deal_values(&deal, &contributed)).await?;
     let Some(target) = target else {
         return Err(AppError::Internal(
             "a new deal always resolves a stage".to_owned(),
@@ -273,7 +285,15 @@ async fn create_record(
     let record = RecordRef::new(RecordType::DEAL, deal.id);
     let mut tx = ctx.begin().await?;
     if !filtered
-        && let Some(input) = saving(ctx, &mut tx, &record, WriteMode::Create, &deal, &input).await?
+        && let Some(input) = saving(
+            ctx,
+            &mut tx,
+            &record,
+            WriteMode::Create,
+            (&deal, &contributed),
+            &input,
+        )
+        .await?
     {
         drop(tx);
         return Box::pin(create_record(ctx, input, revenue, true)).await;
@@ -287,8 +307,9 @@ async fn create_record(
     };
     before_moving(ctx, &mut tx, &moving).await?;
     DealStore::of(ctx).insert(&mut tx, &deal).await?;
+    write_contributed(&mut tx, definition, deal.id, &contributed).await?;
     after_moving(ctx, &mut tx, &moving).await?;
-    let values = deal_snapshot(&deal);
+    let values = deal_values(&deal, &contributed);
     let custom = CustomFieldWriter::new(&ctx.fields())
         .with_record_values(&values)
         .apply(
@@ -355,9 +376,28 @@ async fn update_record(
     let visibility = scope.record_filter(&Permission::DEALS_UPDATE)?;
     let current = require(ctx, &visibility, deal_id).await?;
     ensure_version(input.expected_updated_at, current.deal.updated_at)?;
+    let registry = ctx.registry().clone();
+    let definition = registry.require(RecordType::DEAL.as_str())?;
+    let mut input = input;
+    split_contributed(definition, &mut input);
+    let old_contributed = contributed_input(
+        definition,
+        &load_contributed(ctx.pool(), definition, &[current.deal.id])
+            .await?
+            .remove(&current.deal.id)
+            .unwrap_or_default(),
+    );
     let now = ctx.now();
     let mut deal = current.deal.clone();
     let mut violations = Vec::new();
+    let mut validator = InputValidator::new();
+    let contributed = merge_contributed(
+        definition,
+        &old_contributed,
+        &input.contributed,
+        &mut validator,
+    );
+    violations.extend(validator.into_violations());
     if let Some(title) = input.title.as_deref() {
         match normalize_title(title) {
             Some(title) => deal.title = title,
@@ -396,8 +436,8 @@ async fn update_record(
     check_field_access(
         ctx,
         &input,
-        &deal_snapshot(&current.deal),
-        &deal_snapshot(&deal),
+        &deal_values(&current.deal, &old_contributed),
+        &deal_values(&deal, &contributed),
     )
     .await?;
     convert_deal(ctx, Some(&current.deal), &mut deal).await?;
@@ -405,9 +445,9 @@ async fn update_record(
     deal.updated_at = now;
 
     let record = RecordRef::new(RecordType::DEAL, deal.id);
-    let values = deal_snapshot(&deal);
+    let values = deal_values(&deal, &contributed);
     let mut changes = diff_values(
-        &deal_snapshot(&current.deal),
+        &deal_values(&current.deal, &old_contributed),
         &values,
         &DiffOptions::default(),
     )?;
@@ -420,7 +460,15 @@ async fn update_record(
     )
     .await?;
     if !filtered
-        && let Some(input) = saving(ctx, &mut tx, &record, WriteMode::Update, &deal, &input).await?
+        && let Some(input) = saving(
+            ctx,
+            &mut tx,
+            &record,
+            WriteMode::Update,
+            (&deal, &contributed),
+            &input,
+        )
+        .await?
     {
         drop(tx);
         return Box::pin(update_record(ctx, deal_id, input, true)).await;
@@ -461,6 +509,9 @@ async fn update_record(
         before_moving(ctx, &mut tx, moving).await?;
     }
     DealStore::of(ctx).update(&mut tx, &deal).await?;
+    if contributed != old_contributed {
+        write_contributed(&mut tx, definition, deal.id, &contributed).await?;
+    }
     sync_converted_items(ctx, &mut tx, &current.deal, &deal).await?;
     if let Some(moving) = &moving {
         after_moving(ctx, &mut tx, moving).await?;
@@ -781,11 +832,13 @@ async fn check_field_access(
     new: &Value,
 ) -> Result<(), AppError> {
     let scope = ctx.scope;
+    let mut provided = input.provided_keys();
+    provided.extend(input.contributed.keys().map(String::as_str));
     check_record_writes(
         ctx.fields().definitions(),
         scope,
         &RecordType::DEAL,
-        &input.provided_keys(),
+        &provided,
         old,
         new,
     )
@@ -852,7 +905,16 @@ async fn transition(ctx: &Ctx<'_>, deal_id: &str, input: DealInput) -> Result<De
     }
     let record = RecordRef::new(RecordType::DEAL, deal.id);
     let mut tx = ctx.begin().await?;
-    if let Some(input) = saving(ctx, &mut tx, &record, WriteMode::Update, &deal, &input).await? {
+    if let Some(input) = saving(
+        ctx,
+        &mut tx,
+        &record,
+        WriteMode::Update,
+        (&deal, &Map::new()),
+        &input,
+    )
+    .await?
+    {
         drop(tx);
         return Box::pin(update_record(ctx, deal_id, input, true)).await;
     }
@@ -899,11 +961,11 @@ async fn saving(
     tx: &mut MySqlTx,
     record: &RecordRef,
     mode: WriteMode,
-    deal: &Deal,
+    (deal, contributed): (&Deal, &Map<String, Value>),
     input: &DealInput,
 ) -> Result<Option<DealInput>, AppError> {
     let scope = ctx.scope;
-    let values = deal_snapshot(deal);
+    let values = deal_values(deal, contributed);
     let draft = ctx
         .pipeline()
         .saving(
@@ -916,11 +978,37 @@ async fn saving(
     if changed.is_empty() && draft.custom_fields == input.custom_fields {
         return Ok(None);
     }
-    let input = DealInput {
+    let registry = ctx.registry().clone();
+    let definition = registry.require(RecordType::DEAL.as_str())?;
+    let mut input = DealInput {
         custom_fields: draft.custom_fields,
         ..input.clone()
     };
+    for (key, value) in &changed {
+        if is_writable_contributed(definition, key) {
+            input.contributed.insert(key.clone(), value.clone());
+        }
+    }
     Ok(Some(input.with_record_values(&changed)))
+}
+
+fn deal_values(deal: &Deal, contributed: &Map<String, Value>) -> Value {
+    with_contributed(deal_snapshot(deal), contributed)
+}
+
+fn split_contributed(definition: &RecordTypeDefinition, input: &mut DealInput) {
+    let moved: Vec<String> = input
+        .custom_fields
+        .keys()
+        .filter(|key| is_writable_contributed(definition, key))
+        .cloned()
+        .collect();
+    for key in moved {
+        if let Some(value) = input.custom_fields.remove(&key) {
+            input.contributed.insert(key, value);
+        }
+    }
+    input.contributed = contributed_input(definition, &input.contributed);
 }
 
 async fn set_archived(
@@ -1703,8 +1791,15 @@ async fn view(ctx: &Ctx<'_>, record: DealRecord) -> Result<DealView, AppError> {
     let mut custom = CustomFieldReader::new(&ctx.fields())
         .load(scope, &RecordType::DEAL, &[record.deal.id])
         .await?;
+    let mut contributed = load_contributed(
+        ctx.pool(),
+        ctx.registry().require(RecordType::DEAL.as_str())?,
+        &[record.deal.id],
+    )
+    .await?;
     Ok(DealView {
         custom_fields: custom.remove(&record.deal.id).unwrap_or_default(),
+        contributed: contributed.remove(&record.deal.id).unwrap_or_default(),
         record,
     })
 }
@@ -1723,11 +1818,18 @@ async fn views(ctx: &Ctx<'_>, ids: &[Uuid]) -> Result<Vec<DealView>, AppError> {
     let mut custom = CustomFieldReader::new(&ctx.fields())
         .load(scope, &RecordType::DEAL, ids)
         .await?;
+    let mut contributed = load_contributed(
+        ctx.pool(),
+        ctx.registry().require(RecordType::DEAL.as_str())?,
+        ids,
+    )
+    .await?;
     Ok(ids
         .iter()
         .filter_map(|id| {
             records.remove(id).map(|record| DealView {
                 custom_fields: custom.remove(id).unwrap_or_else(Map::new),
+                contributed: contributed.remove(id).unwrap_or_default(),
                 record,
             })
         })

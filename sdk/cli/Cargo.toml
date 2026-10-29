@@ -1,0 +1,13 @@
+[package]
+name = "aphel-plugin"
+version = "0.1.0"
+edition = "2024"
+license = "AGPL-3.0-only"
+description = "Create, build and pack Aphel runtime plugins"
+publish = false
+
+[dependencies]
+toml = "1"
+zip = { version = "9", default-features = false, features = ["deflate-flate2-zlib-rs"] }
+
+[workspace]

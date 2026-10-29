@@ -69,7 +69,7 @@ fn record_type_tables() -> Vec<&'static str> {
 }
 
 #[derive(Clone)]
-pub(crate) struct MySqlCustomObjectRepository {
+pub struct MySqlCustomObjectRepository {
     pool: MySqlPool,
 }
 
@@ -127,8 +127,8 @@ impl CustomObjectRepository for MySqlCustomObjectRepository {
         sqlx::query(
             "INSERT INTO custom_objects (id, `key`, label_singular, label_plural, \
              description, icon, color, title_field_key, owner_enabled, is_active, position, \
-             created_by, created_at, updated_at) \
-             VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)",
+             module_key, created_by, created_at, updated_at) \
+             VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)",
         )
         .bind(object.id.to_string())
         .bind(&object.key)
@@ -141,6 +141,7 @@ impl CustomObjectRepository for MySqlCustomObjectRepository {
         .bind(object.data.owner_enabled)
         .bind(object.data.is_active)
         .bind(object.position)
+        .bind(&object.module_key)
         .bind(
             object
                 .created_by
@@ -273,7 +274,7 @@ impl CustomObjectRepository for MySqlCustomObjectRepository {
 }
 
 #[derive(Clone)]
-pub(crate) struct MySqlRelationshipRepository {
+pub struct MySqlRelationshipRepository {
     pool: MySqlPool,
 }
 

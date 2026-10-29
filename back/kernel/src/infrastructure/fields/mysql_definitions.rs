@@ -199,8 +199,8 @@ impl FieldDefinitionRepository for MySqlFieldDefinitionRepository {
         sqlx::query(
             "INSERT INTO field_definitions (id, record_type, `key`, label, field_type, \
              is_system, column_name, is_required, is_unique, is_searchable, is_personal, is_sensitive, \
-             is_active, position, config) \
-             VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)",
+             is_active, position, config, module_key) \
+             VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)",
         )
         .bind(field.id.to_string())
         .bind(&field.record_type)
@@ -217,6 +217,7 @@ impl FieldDefinitionRepository for MySqlFieldDefinitionRepository {
         .bind(field.is_active)
         .bind(field.position)
         .bind(Json(config_to_json(&field.config)))
+        .bind(&field.module_key)
         .execute(&mut **tx)
         .await
         .map_err(unique_violation(FIELD_KEY_TAKEN, "a field with this key already exists"))?;
@@ -421,9 +422,24 @@ async fn release_undeclared_fields(
                 .map(|managed| (definition.record_type.as_str(), managed.spec.key.as_str()))
         })
         .collect();
-    let mut builder = QueryBuilder::new(
-        "UPDATE field_definitions SET module_key = NULL WHERE module_key IS NOT NULL",
-    );
+    let compiled: Vec<String> = crate::modules::try_app()
+        .map(|app| {
+            app.modules()
+                .iter()
+                .map(|module| module.manifest.key.to_owned())
+                .collect()
+        })
+        .unwrap_or_default();
+    if compiled.is_empty() {
+        return Ok(());
+    }
+    let mut builder =
+        QueryBuilder::new("UPDATE field_definitions SET module_key = NULL WHERE module_key IN (");
+    let mut keys = builder.separated(", ");
+    for key in compiled {
+        keys.push_bind(key);
+    }
+    builder.push(")");
     if !declared.is_empty() {
         builder.push(" AND (record_type, `key`) NOT IN (");
         let mut pairs = builder.separated(", ");

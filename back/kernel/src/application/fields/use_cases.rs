@@ -22,7 +22,6 @@ use crate::application::shared::{
     TransactionManager, ensure_version,
 };
 use crate::domain::access::{AccessScope, Permission};
-use crate::domain::custom_objects::is_custom_record_type;
 use crate::domain::fields::{
     FORMULA_FIELD_TYPE, FieldConfig, FieldDefinition, FieldKey, FieldOption, FieldType,
     resolve_declared_type, validate_value,
@@ -925,7 +924,7 @@ pub fn field_definition_violations(
         })
         .collect();
     if let Some(target) = &field.config.target_record_type
-        && (registry.require(target).is_err() || is_custom_record_type(target))
+        && registry.require(target).is_err()
     {
         violations.push(FieldViolation::new(
             "config.target_record_type",

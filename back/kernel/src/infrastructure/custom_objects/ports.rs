@@ -18,7 +18,7 @@ use crate::infrastructure::query::MySqlRecordQueryPorts;
 use crate::infrastructure::records::MySqlRecordAccessChecker;
 use crate::infrastructure::transactions::MySqlTransactionManager;
 
-pub(crate) struct MySqlCustomObjectAdminPorts {
+pub struct MySqlCustomObjectAdminPorts {
     registry: Arc<RecordTypeRegistry>,
     transactions: MySqlTransactionManager,
     objects: MySqlCustomObjectRepository,
@@ -29,7 +29,7 @@ pub(crate) struct MySqlCustomObjectAdminPorts {
 }
 
 impl MySqlCustomObjectAdminPorts {
-    pub(crate) fn new(
+    pub fn new(
         pool: MySqlPool,
         registry: Arc<RecordTypeRegistry>,
         events: SharedEventPublisher,

@@ -117,5 +117,28 @@
     "actionFailed": "Não foi possível concluir a ação",
     "generic": "Não foi possível salvar. Tente novamente."
   },
-  "applyUpdate": "Aplicar atualização"
+  "applyUpdate": "Aplicar atualização",
+  "plugins": {
+    "title": "Plugins",
+    "description": "Extensões de terceiros instaladas a partir de um pacote .aphelplugin, sem recompilar nem reiniciar o Aphel. Elas rodam isoladas e só acessam o que a API de plugins permite.",
+    "upload": "Instalar plugin",
+    "uploading": "Instalando…",
+    "installed": "Plugin {{name}} instalado. Recarregando…",
+    "updated": "Plugin atualizado. Recarregando…",
+    "removed": "Plugin desinstalado. Recarregando…",
+    "emptyTitle": "Nenhum plugin instalado",
+    "emptyDescription": "Envie um arquivo .aphelplugin para adicionar entidades, campos, regras e telas ao Aphel.",
+    "enable": "Ativar",
+    "disable": "Desativar",
+    "uninstall": "Desinstalar",
+    "uninstallTitle": "Desinstalar {{name}}?",
+    "uninstallDescription": "O plugin, as entidades que ele criou (com os registros) e os campos que ele adicionou a outros tipos serão removidos.",
+    "declares": {
+      "entities": "Entidades",
+      "extendedTypes": "Estende",
+      "hooks": "Regras",
+      "events": "Eventos",
+      "routes": "Rotas"
+    }
+  }
 }

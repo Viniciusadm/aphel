@@ -12,6 +12,7 @@ pub const REQUIRED: &[&str] = &[
     "timeline",
     "tags",
     "integrations",
+    "plugins",
     "exports",
     "org_export",
 ];
@@ -51,6 +52,7 @@ pub fn compiled() -> Vec<Box<dyn Module>> {
         Box::new(module_automations::AutomationsModule),
         Box::new(module_webhooks::WebhooksModule),
         Box::new(module_integrations::IntegrationsModule),
+        Box::new(module_plugins::PluginsModule),
         Box::new(module_imports::ImportsModule),
         Box::new(module_exports::ExportsModule),
         Box::new(module_bulk_actions::BulkActionsModule),
