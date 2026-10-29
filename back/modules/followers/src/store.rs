@@ -6,6 +6,7 @@ use crate::domain::{Follow, FollowOrigin, RecordFollower};
 use aphel_kernel::Ctx;
 use aphel_kernel::application::files::UserReference;
 use aphel_kernel::application::shared::RecordRef;
+use aphel_kernel::database::transaction::MySqlTx;
 use aphel_kernel::domain::UserId;
 use aphel_kernel::domain::users::UserStatus;
 use aphel_kernel::errors::AppError;
@@ -80,6 +81,7 @@ impl FollowerStore {
 
     pub(crate) async fn follow(
         &self,
+        tx: &mut MySqlTx,
         record: &RecordRef,
         user_id: &UserId,
         origin: FollowOrigin,
@@ -95,13 +97,14 @@ impl FollowerStore {
         .bind(user_id.as_str())
         .bind(origin.as_str())
         .bind(mapper::naive(at))
-        .execute(&self.pool)
+        .execute(&mut **tx)
         .await?;
         Ok(result.rows_affected() > 0)
     }
 
     pub(crate) async fn unfollow(
         &self,
+        tx: &mut MySqlTx,
         record: &RecordRef,
         user_id: &UserId,
     ) -> Result<bool, AppError> {
@@ -112,7 +115,7 @@ impl FollowerStore {
         .bind(record.record_type.as_str())
         .bind(record.record_id.to_string())
         .bind(user_id.as_str())
-        .execute(&self.pool)
+        .execute(&mut **tx)
         .await?;
         Ok(result.rows_affected() > 0)
     }

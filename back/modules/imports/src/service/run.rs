@@ -628,7 +628,9 @@ async fn distribute_owner(
         source: AssignmentSource::Import,
         idempotency_key: Some(format!("import:{}:{row_index}", job.id)),
     };
-    match lead_distribution::service::assign(ctx, request, |_| async { Ok(()) }).await {
+    match lead_distribution::service::assign(ctx, request, &lead_distribution::service::PickOnly)
+        .await
+    {
         Ok(outcome) => Ok(outcome.user_id().map(|user_id| user_id.as_str().to_owned())),
         Err(AppError::Coded { code, .. }) if code == RULE_NOT_FOUND => Ok(None),
         Err(error) => Err(error),

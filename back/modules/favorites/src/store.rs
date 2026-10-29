@@ -11,6 +11,7 @@ use crate::domain::{
 use aphel_kernel::Ctx;
 use aphel_kernel::application::fields::is_sql_identifier;
 use aphel_kernel::application::shared::RecordType;
+use aphel_kernel::database::transaction::MySqlTx;
 use aphel_kernel::domain::access::AccessScope;
 use aphel_kernel::errors::AppError;
 use aphel_kernel::infrastructure::query::compiler::{push_record_scope, quoted};
@@ -108,6 +109,7 @@ impl FavoriteStore {
 
     pub(crate) async fn insert(
         &self,
+        tx: &mut MySqlTx,
         scope: &AccessScope,
         favorite: &Favorite,
     ) -> Result<(), AppError> {
@@ -125,7 +127,7 @@ impl FavoriteStore {
         .bind(favorite.target_id.to_string())
         .bind(favorite.position)
         .bind(mapper::naive(favorite.created_at))
-        .execute(&self.pool)
+        .execute(&mut **tx)
         .await;
         match result {
             Ok(_) => Ok(()),
@@ -139,23 +141,24 @@ impl FavoriteStore {
 
     pub(crate) async fn delete(
         &self,
+        tx: &mut MySqlTx,
         scope: &AccessScope,
         favorite_id: Uuid,
     ) -> Result<bool, AppError> {
         let result = sqlx::query("DELETE FROM favorites WHERE user_id = ? AND id = ?")
             .bind(scope.user_id().as_str())
             .bind(favorite_id.to_string())
-            .execute(&self.pool)
+            .execute(&mut **tx)
             .await?;
         Ok(result.rows_affected() > 0)
     }
 
     pub(crate) async fn reorder(
         &self,
+        tx: &mut MySqlTx,
         scope: &AccessScope,
         ordered: &[Uuid],
     ) -> Result<(), AppError> {
-        let mut transaction = self.pool.begin().await?;
         for (position, id) in ordered.iter().enumerate() {
             sqlx::query(
                 "UPDATE favorites SET position = ? \
@@ -164,10 +167,9 @@ impl FavoriteStore {
             .bind(i32::try_from(position).unwrap_or(i32::MAX))
             .bind(scope.user_id().as_str())
             .bind(id.to_string())
-            .execute(&mut *transaction)
+            .execute(&mut **tx)
             .await?;
         }
-        transaction.commit().await?;
         Ok(())
     }
 

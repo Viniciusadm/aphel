@@ -49,8 +49,8 @@ use aphel_kernel::domain::access::{Permission, RecordScopeFilter};
 use aphel_kernel::domain::fields::FieldType;
 use aphel_kernel::errors::{AppError, FieldViolation};
 use aphel_kernel::records::{
-    InputValidator, changes_payload, contributed_input, is_writable_contributed, load_contributed,
-    merge_contributed, with_contributed, write_contributed,
+    InputValidator, PendingCommit, changes_payload, contributed_input, is_writable_contributed,
+    load_contributed, merge_contributed, with_contributed, write_contributed,
 };
 use currencies::{
     CurrencyConverter,
@@ -363,15 +363,42 @@ pub(crate) async fn update(
     deal_id: &str,
     input: DealInput,
 ) -> Result<DealView, AppError> {
-    update_record(ctx, deal_id, input, false).await
+    commit_update(ctx, deal_id, input, false).await
 }
 
-async fn update_record(
+pub(crate) async fn update_in_tx(
+    ctx: &Ctx<'_>,
+    tx: &mut MySqlTx,
+    deal_id: &str,
+    input: DealInput,
+) -> Result<Option<PendingCommit>, AppError> {
+    update_record(ctx, tx, deal_id, input, false).await
+}
+
+async fn commit_update(
     ctx: &Ctx<'_>,
     deal_id: &str,
     input: DealInput,
     filtered: bool,
 ) -> Result<DealView, AppError> {
+    let mut tx = ctx.begin().await?;
+    match update_record(ctx, &mut tx, deal_id, input, filtered).await? {
+        Some(pending) => {
+            tx.commit().await?;
+            pending.committed(ctx).await;
+        }
+        None => drop(tx),
+    }
+    get(ctx, deal_id).await
+}
+
+async fn update_record(
+    ctx: &Ctx<'_>,
+    tx: &mut MySqlTx,
+    deal_id: &str,
+    input: DealInput,
+    filtered: bool,
+) -> Result<Option<PendingCommit>, AppError> {
     let scope = ctx.scope;
     let visibility = scope.record_filter(&Permission::DEALS_UPDATE)?;
     let current = require(ctx, &visibility, deal_id).await?;
@@ -451,18 +478,12 @@ async fn update_record(
         &values,
         &DiffOptions::default(),
     )?;
-    let mut tx = ctx.begin().await?;
-    aphel_kernel::records::lock_version(
-        &mut tx,
-        "deals",
-        current.deal.id,
-        input.expected_updated_at,
-    )
-    .await?;
+    aphel_kernel::records::lock_version(tx, "deals", current.deal.id, input.expected_updated_at)
+        .await?;
     if !filtered
         && let Some(input) = saving(
             ctx,
-            &mut tx,
+            tx,
             &record,
             WriteMode::Update,
             (&deal, &contributed),
@@ -470,22 +491,15 @@ async fn update_record(
         )
         .await?
     {
-        drop(tx);
-        return Box::pin(update_record(ctx, deal_id, input, true)).await;
+        return Box::pin(update_record(ctx, tx, deal_id, input, true)).await;
     }
     let custom = CustomFieldWriter::new(&ctx.fields())
         .with_record_values(&values)
-        .apply(
-            &mut tx,
-            scope,
-            &record,
-            &input.custom_fields,
-            WriteMode::Update,
-        )
+        .apply(tx, scope, &record, &input.custom_fields, WriteMode::Update)
         .await?;
     changes.extend(custom);
     if changes.is_empty() {
-        return view(ctx, current).await;
+        return Ok(None);
     }
     let write = RecordWrite {
         record: &record,
@@ -494,7 +508,7 @@ async fn update_record(
         values: &values,
     };
     let pipeline = ctx.pipeline();
-    pipeline.validate(&mut tx, scope, &write).await?;
+    pipeline.validate(tx, scope, &write).await?;
     let moving = match (&target, &transition) {
         (Some(target), Some(transition)) => Some(Moving {
             previous: Some(&current),
@@ -506,17 +520,17 @@ async fn update_record(
         _ => None,
     };
     if let Some(moving) = &moving {
-        before_moving(ctx, &mut tx, moving).await?;
+        before_moving(ctx, tx, moving).await?;
     }
-    DealStore::of(ctx).update(&mut tx, &deal).await?;
+    DealStore::of(ctx).update(tx, &deal).await?;
     if contributed != old_contributed {
-        write_contributed(&mut tx, definition, deal.id, &contributed).await?;
+        write_contributed(tx, definition, deal.id, &contributed).await?;
     }
-    sync_converted_items(ctx, &mut tx, &current.deal, &deal).await?;
+    sync_converted_items(ctx, tx, &current.deal, &deal).await?;
     if let Some(moving) = &moving {
-        after_moving(ctx, &mut tx, moving).await?;
+        after_moving(ctx, tx, moving).await?;
     }
-    pipeline.saved(&mut tx, scope, &write).await?;
+    pipeline.saved(tx, scope, &write).await?;
 
     let mut events = Vec::new();
     let specific = field_events(ctx, &current, &deal, &changes).await?;
@@ -545,7 +559,7 @@ async fn update_record(
     events.extend(pipeline_event(ctx, &current, &deal).await?);
     finish(
         ctx,
-        &mut tx,
+        tx,
         &record,
         Outcome {
             action: DEAL_UPDATED,
@@ -555,9 +569,12 @@ async fn update_record(
         },
     )
     .await?;
-    tx.commit().await?;
-    pipeline.committed(scope, &write).await;
-    get(ctx, deal_id).await
+    Ok(Some(PendingCommit {
+        record,
+        mode: WriteMode::Update,
+        changes,
+        values,
+    }))
 }
 
 pub async fn move_to_stage(
@@ -916,7 +933,7 @@ async fn transition(ctx: &Ctx<'_>, deal_id: &str, input: DealInput) -> Result<De
     .await?
     {
         drop(tx);
-        return Box::pin(update_record(ctx, deal_id, input, true)).await;
+        return Box::pin(commit_update(ctx, deal_id, input, true)).await;
     }
     let values = deal_snapshot(&deal);
     let write = RecordWrite {

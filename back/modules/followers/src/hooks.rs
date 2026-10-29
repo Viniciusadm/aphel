@@ -10,6 +10,7 @@ use aphel_kernel::application::custom_objects::{CatalogEventConsumer, RecordType
 use aphel_kernel::application::fields::RecordTypeRegistry;
 use aphel_kernel::application::record_sharing::RecordDirectory;
 use aphel_kernel::application::shared::{DomainEvent, EventConsumer, RecordType};
+use aphel_kernel::database::receipt;
 use aphel_kernel::domain::access::{AccessScope, RecordScopeFilter};
 use aphel_kernel::domain::custom_objects::is_custom_record_type;
 use aphel_kernel::errors::AppError;
@@ -20,6 +21,7 @@ pub(crate) const FOLLOWERS_OWNERS_CONSUMER: &str = "followers.owners";
 const OWNER_ACTIONS: [&str; 3] = ["created", "updated", "owner_changed"];
 
 pub(crate) struct OwnerFollowConsumer {
+    pool: MySqlPool,
     registry: Arc<RecordTypeRegistry>,
     followers: FollowerStore,
     records: MySqlRecordDirectory,
@@ -30,7 +32,8 @@ impl OwnerFollowConsumer {
         Self {
             registry,
             followers: FollowerStore::new(pool.clone()),
-            records: MySqlRecordDirectory::new(pool),
+            records: MySqlRecordDirectory::new(pool.clone()),
+            pool,
         }
     }
 
@@ -112,9 +115,17 @@ impl EventConsumer for OwnerFollowConsumer {
         let Some(owner_id) = header.owner_id else {
             return Ok(());
         };
+        let mut tx = receipt::begin(&self.pool).await?;
         self.followers
-            .follow(record, &owner_id, FollowOrigin::Owner, event.occurred_at)
+            .follow(
+                &mut tx,
+                record,
+                &owner_id,
+                FollowOrigin::Owner,
+                event.occurred_at,
+            )
             .await?;
+        tx.commit().await?;
         Ok(())
     }
 }

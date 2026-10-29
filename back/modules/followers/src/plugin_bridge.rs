@@ -62,11 +62,13 @@ pub(crate) fn operations() -> Vec<Arc<PluginOperation>> {
             "followers.follow",
             "Make the acting user follow a record (needs a user actor): { record_type, record_id }",
             follow,
-        )),
+        )
+        .with_durable_mutations()),
         Arc::new(PluginOperation::write(
             "followers.unfollow",
             "Make the acting user stop following a record (needs a user actor): { record_type, record_id }",
             unfollow,
-        )),
+        )
+        .with_durable_mutations()),
     ]
 }

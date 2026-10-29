@@ -8,8 +8,11 @@ use crate::api::dto::custom_objects::{CustomRecordRequest, CustomRecordResponse}
 use crate::api::routes::v1::custom_objects::custom_record_use_cases;
 use crate::api::routes::v1::field_permissions::redacted;
 use crate::application::shared::RecordType;
+use crate::database::transaction::MySqlTx;
 use crate::errors::AppError;
-use crate::records::{RecordCtx, RecordTypeHandler, optional_record, values_request};
+use crate::records::{
+    PendingCommit, RecordCtx, RecordTypeHandler, optional_record, values_request,
+};
 
 pub struct CustomRecordHandler {
     record_type: RecordType,
@@ -66,6 +69,22 @@ impl RecordTypeHandler for CustomRecordHandler {
             .update(ctx.scope, &key, &id.to_string(), command)
             .await?;
         Self::response(ctx, details.into()).await
+    }
+
+    async fn update_in_tx(
+        &self,
+        ctx: &RecordCtx<'_>,
+        tx: &mut MySqlTx,
+        id: Uuid,
+        values: Value,
+    ) -> Result<Option<PendingCommit>, AppError> {
+        let key = self.object_key(ctx).await?;
+        let command = values_request::<CustomRecordRequest>(values)?.into_command(None, None);
+        let (_, pending) = custom_record_use_cases(ctx.state)
+            .await?
+            .update_in_tx(tx, ctx.scope, &key, &id.to_string(), command)
+            .await?;
+        Ok(pending)
     }
 
     async fn delete(&self, ctx: &RecordCtx<'_>, id: Uuid) -> Result<(), AppError> {

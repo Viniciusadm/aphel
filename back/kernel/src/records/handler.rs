@@ -6,7 +6,10 @@ use serde::de::DeserializeOwned;
 use serde_json::Value;
 use uuid::Uuid;
 
-use crate::application::shared::RecordType;
+use crate::Ctx;
+use crate::application::fields::{RecordPipeline, RecordWrite, WriteMode};
+use crate::application::shared::{FieldChange, RecordRef, RecordType};
+use crate::database::transaction::MySqlTx;
 use crate::domain::access::AccessScope;
 use crate::errors::{AppError, CodedKind};
 use crate::state::AppState;
@@ -56,6 +59,29 @@ pub fn operation_not_supported(record_type: &str, operation: &str) -> AppError {
     )
 }
 
+#[derive(Debug, Clone, PartialEq)]
+pub struct PendingCommit {
+    pub record: RecordRef,
+    pub mode: WriteMode,
+    pub changes: Vec<FieldChange>,
+    pub values: Value,
+}
+
+impl PendingCommit {
+    pub fn write(&self) -> RecordWrite<'_> {
+        RecordWrite {
+            record: &self.record,
+            mode: self.mode,
+            changes: &self.changes,
+            values: &self.values,
+        }
+    }
+
+    pub async fn committed(&self, ctx: &Ctx<'_>) {
+        ctx.pipeline().committed(ctx.scope, &self.write()).await;
+    }
+}
+
 #[async_trait]
 pub trait RecordTypeHandler: Send + Sync {
     fn record_type(&self) -> &str;
@@ -68,6 +94,19 @@ pub trait RecordTypeHandler: Send + Sync {
 
     async fn update(&self, ctx: &RecordCtx<'_>, id: Uuid, values: Value)
     -> Result<Value, AppError>;
+
+    async fn update_in_tx(
+        &self,
+        _ctx: &RecordCtx<'_>,
+        _tx: &mut MySqlTx,
+        _id: Uuid,
+        _values: Value,
+    ) -> Result<Option<PendingCommit>, AppError> {
+        Err(operation_not_supported(
+            self.record_type(),
+            "updates inside a transaction",
+        ))
+    }
 
     async fn delete(&self, ctx: &RecordCtx<'_>, id: Uuid) -> Result<(), AppError>;
 

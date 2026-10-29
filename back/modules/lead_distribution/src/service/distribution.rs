@@ -1,6 +1,6 @@
 use std::collections::{HashMap, HashSet};
-use std::future::Future;
 
+use async_trait::async_trait;
 use chrono::{DateTime, Utc};
 use serde_json::{Map, Value};
 use uuid::Uuid;
@@ -14,8 +14,11 @@ use aphel_kernel::Ctx;
 use aphel_kernel::application::automations::AutomationGateway;
 use aphel_kernel::application::automations::templates::CUSTOM_FIELDS_KEY;
 use aphel_kernel::application::shared::RecordRef;
+use aphel_kernel::database::transaction::MySqlTx;
 use aphel_kernel::domain::UserId;
+use aphel_kernel::domain::access::AccessScope;
 use aphel_kernel::errors::AppError;
+use aphel_kernel::records::PendingCommit;
 
 pub const RULE_NOT_FOUND: &str = "lead_distribution_rule_not_found";
 pub(crate) const RULE_INACTIVE: &str = "lead_distribution_rule_inactive";
@@ -344,15 +347,45 @@ pub(crate) async fn preview(
     simulate_rule(ctx, &rule, values, 1).await
 }
 
-pub async fn assign<F, Fut>(
+#[async_trait]
+pub trait OwnerWriter: Send + Sync {
+    async fn write(
+        &self,
+        tx: &mut MySqlTx,
+        user_id: UserId,
+    ) -> Result<Option<PendingCommit>, AppError>;
+}
+
+pub struct PickOnly;
+
+#[async_trait]
+impl OwnerWriter for PickOnly {
+    async fn write(
+        &self,
+        _tx: &mut MySqlTx,
+        _user_id: UserId,
+    ) -> Result<Option<PendingCommit>, AppError> {
+        Ok(None)
+    }
+}
+
+async fn commit(
+    ctx: &Ctx<'_>,
+    tx: MySqlTx,
+    pending: Option<PendingCommit>,
+) -> Result<(), AppError> {
+    tx.commit().await?;
+    if let Some(pending) = pending {
+        pending.committed(ctx).await;
+    }
+    Ok(())
+}
+
+pub async fn assign(
     ctx: &Ctx<'_>,
     request: AssignRequest<'_>,
-    apply: F,
-) -> Result<AssignOutcome, AppError>
-where
-    F: FnOnce(UserId) -> Fut + Send,
-    Fut: Future<Output = Result<(), AppError>> + Send,
-{
+    owner: &dyn OwnerWriter,
+) -> Result<AssignOutcome, AppError> {
     let rule_id = parse_rule_id(request.rule_id)?;
     let store = DistributionStore::of(ctx);
     let mut tx = ctx.begin().await?;
@@ -380,8 +413,8 @@ where
             .next()
             .map(|status| status.name)
             .unwrap_or_default();
-        apply(user_id.clone()).await?;
-        tx.commit().await?;
+        let pending = owner.write(&mut tx, user_id.clone()).await?;
+        commit(ctx, tx, pending).await?;
         return Ok(AssignOutcome::Assigned {
             recipient: Recipient { user_id, name },
             selection: RouteSelection::Members,
@@ -411,7 +444,7 @@ where
     let index = pick(rule.strategy, &mut candidates, next)
         .ok_or(AppError::Internal("no candidate was picked".to_owned()))?;
     let chosen = candidates[index].user_id.clone();
-    apply(chosen.clone()).await?;
+    let pending = owner.write(&mut tx, chosen.clone()).await?;
     let credits = if rule.strategy == DistributionStrategy::Weighted {
         candidates
             .iter()
@@ -435,7 +468,7 @@ where
             },
         )
         .await?;
-    tx.commit().await?;
+    commit(ctx, tx, pending).await?;
     Ok(AssignOutcome::Assigned {
         recipient: Recipient {
             name: pool.name_of(&chosen),
@@ -479,6 +512,29 @@ fn recipient(recipient: Option<Recipient>) -> (Option<String>, Option<String>) {
     }
 }
 
+struct AutomationOwner<'a> {
+    gateway: &'a dyn AutomationGateway,
+    scope: &'a AccessScope,
+    record: &'a RecordRef,
+    field: &'a str,
+}
+
+#[async_trait]
+impl OwnerWriter for AutomationOwner<'_> {
+    async fn write(
+        &self,
+        _tx: &mut MySqlTx,
+        user_id: UserId,
+    ) -> Result<Option<PendingCommit>, AppError> {
+        let mut values = Map::new();
+        values.insert(self.field.to_owned(), Value::String(user_id.into_inner()));
+        self.gateway
+            .update_record(self.scope, self.record, values)
+            .await?;
+        Ok(None)
+    }
+}
+
 pub(crate) async fn distribute(
     ctx: &Ctx<'_>,
     gateway: &dyn AutomationGateway,
@@ -501,9 +557,12 @@ pub(crate) async fn distribute(
             })
         }
         DistributionMode::Assign { idempotency_key } => {
-            let field = request.field.clone();
-            let record = request.record.clone();
-            let scope = ctx.scope;
+            let owner = AutomationOwner {
+                gateway,
+                scope: ctx.scope,
+                record: &request.record,
+                field: &request.field,
+            };
             let outcome = assign(
                 ctx,
                 AssignRequest {
@@ -514,11 +573,7 @@ pub(crate) async fn distribute(
                     source: AssignmentSource::Automation,
                     idempotency_key: Some(idempotency_key),
                 },
-                |user_id| async move {
-                    let mut values = Map::new();
-                    values.insert(field, Value::String(user_id.into_inner()));
-                    gateway.update_record(scope, &record, values).await
-                },
+                &owner,
             )
             .await?;
             Ok(match outcome {

@@ -55,6 +55,7 @@ pub(crate) fn operations() -> Vec<Arc<PluginOperation>> {
             "scheduling.cancel",
             "Cancel a booking as the host (the guest receives the cancellation): { id, reason? }",
             cancel,
-        )),
+        )
+        .with_durable_mutations()),
     ]
 }

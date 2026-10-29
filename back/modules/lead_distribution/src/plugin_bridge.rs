@@ -1,18 +1,24 @@
 use std::sync::Arc;
 
+use async_trait::async_trait;
 use serde::Deserialize;
 use serde_json::{Map, Value, json};
 use uuid::Uuid;
 
 use crate::domain::AssignmentSource;
-use crate::service::{self, AssignOutcome, AssignRequest, RuleListQuery, flatten_values};
+use crate::service::{
+    self, AssignOutcome, AssignRequest, OwnerWriter, RuleListQuery, flatten_values,
+};
 use aphel_kernel::Ctx;
 use aphel_kernel::application::organization_admin::ListWindow;
 use aphel_kernel::application::shared::{RecordRef, RecordType};
+use aphel_kernel::database::transaction::MySqlTx;
+use aphel_kernel::domain::UserId;
+use aphel_kernel::domain::access::AccessScope;
 use aphel_kernel::errors::{AppError, FieldViolation};
 use aphel_kernel::modules::{OperationFuture, PluginOperation, operation_input};
-use aphel_kernel::records::RecordCtx;
-use aphel_kernel::state::runtime_state;
+use aphel_kernel::records::{PendingCommit, RecordCtx, RecordTypeHandler};
+use aphel_kernel::state::{AppState, runtime_state};
 
 const OWNER_FIELD: &str = "owner_id";
 const PLUGIN_IDEMPOTENCY_PREFIX: &str = "plugin:";
@@ -61,6 +67,31 @@ async fn rule_for(ctx: &Ctx<'_>, record_type: &str) -> Result<String, AppError> 
     }
 }
 
+struct OwnerUpdate<'a> {
+    handler: &'a dyn RecordTypeHandler,
+    state: &'a AppState,
+    scope: &'a AccessScope,
+    record_id: Uuid,
+}
+
+#[async_trait]
+impl OwnerWriter for OwnerUpdate<'_> {
+    async fn write(
+        &self,
+        tx: &mut MySqlTx,
+        user_id: UserId,
+    ) -> Result<Option<PendingCommit>, AppError> {
+        self.handler
+            .update_in_tx(
+                &RecordCtx::new(self.scope, self.state),
+                tx,
+                self.record_id,
+                json!({ OWNER_FIELD: user_id.into_inner() }),
+            )
+            .await
+    }
+}
+
 fn assign<'a>(ctx: &'a Ctx<'_>, input: Value) -> OperationFuture<'a> {
     Box::pin(async move {
         let input: AssignInput = operation_input(input)?;
@@ -100,19 +131,11 @@ fn assign<'a>(ctx: &'a Ctx<'_>, input: Value) -> OperationFuture<'a> {
                 source: AssignmentSource::Plugin,
                 idempotency_key,
             },
-            |user_id| {
-                let handler = handler.clone();
-                let state = state.clone();
-                async move {
-                    handler
-                        .update(
-                            &RecordCtx::new(scope, &state),
-                            record_id,
-                            json!({ OWNER_FIELD: user_id.into_inner() }),
-                        )
-                        .await
-                        .map(|_| ())
-                }
+            &OwnerUpdate {
+                handler: handler.as_ref(),
+                state: &state,
+                scope,
+                record_id,
             },
         )
         .await?;
@@ -144,5 +167,6 @@ pub(crate) fn operations() -> Vec<Arc<PluginOperation>> {
         "lead_distribution.assign",
         "Pick the next owner of a record with a lead distribution rule and set its owner_id (needs update access to the record): { record_type, record_id, rule? (rule id; optional when exactly one active rule distributes the type), idempotency_key? } -> { rule_id, user_id, user_name, selection, route_index, reused, skipped }",
         assign,
-    ))]
+    )
+    .with_durable_mutations())]
 }

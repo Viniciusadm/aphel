@@ -26,7 +26,7 @@ use crate::domain::custom_objects::{
     CustomObject, CustomRecord, RelationSide, RelationshipDefinition, record_title,
 };
 use crate::errors::{AppError, FieldViolation};
-use crate::records::{InputValidator, Patch, check_owner, permission_denied};
+use crate::records::{InputValidator, Patch, PendingCommit, check_owner, permission_denied};
 
 pub const CUSTOM_RECORD_NOT_FOUND: &str = "custom_record_not_found";
 pub const MAX_RELATIONS_ON_CREATE: usize = 100;
@@ -323,6 +323,33 @@ where
         command: SaveCustomRecordCommand,
     ) -> Result<CustomRecordDetails, AppError> {
         let object = self.object(key)?.clone();
+        let mut tx = self.ports.transactions().begin().await?;
+        let (id, pending) = self
+            .update_in_tx(&mut tx, scope, key, record_id, command)
+            .await?;
+        match pending {
+            Some(pending) => {
+                self.ports.transactions().commit(tx).await?;
+                self.ports
+                    .fields()
+                    .pipeline()
+                    .committed(scope, &pending.write())
+                    .await;
+            }
+            None => drop(tx),
+        }
+        self.reload(scope, &object, id).await
+    }
+
+    pub async fn update_in_tx(
+        &self,
+        tx: &mut CustomRecordsTx<P>,
+        scope: &AccessScope,
+        key: &str,
+        record_id: &str,
+        command: SaveCustomRecordCommand,
+    ) -> Result<(Uuid, Option<PendingCommit>), AppError> {
+        let object = self.object(key)?.clone();
         let record_type = object.record_type();
         let current = self.allowed(scope, &object, record_id, "update").await?;
         ensure_version(command.expected_updated_at, current.updated_at)?;
@@ -359,10 +386,9 @@ where
         )
         .await?;
         let reference = RecordRef::new(RecordType::parse(record_type.as_str())?, record.id);
-        let mut tx = self.ports.transactions().begin().await?;
         let custom_fields = self
             .saving(
-                &mut tx,
+                tx,
                 scope,
                 &object,
                 &reference,
@@ -374,13 +400,7 @@ where
             .await?;
         let custom = CustomFieldWriter::new(self.ports.fields())
             .with_record_values(&custom_record_snapshot(&record))
-            .apply(
-                &mut tx,
-                scope,
-                &reference,
-                &custom_fields,
-                WriteMode::Update,
-            )
+            .apply(tx, scope, &reference, &custom_fields, WriteMode::Update)
             .await;
         let custom = crate::records::merge_violations(validator, custom, INVALID_RECORD)?;
         if let Some(title) = self.derived_title(&object, &custom) {
@@ -393,7 +413,7 @@ where
         )?;
         changes.extend(custom);
         if changes.is_empty() {
-            return self.details(scope, &object, current).await;
+            return Ok((current.id, None));
         }
         let record_values = custom_record_snapshot(&record);
         let write = RecordWrite {
@@ -403,12 +423,12 @@ where
             values: &record_values,
         };
         let pipeline = self.ports.fields().pipeline();
-        pipeline.validate(&mut tx, scope, &write).await?;
+        pipeline.validate(tx, scope, &write).await?;
         record.updated_at = self.ports.clock().now();
-        self.ports.records().update(&mut tx, &record).await?;
-        pipeline.saved(&mut tx, scope, &write).await?;
+        self.ports.records().update(tx, &record).await?;
+        pipeline.saved(tx, scope, &write).await?;
         self.publish(
-            &mut tx,
+            tx,
             scope,
             &reference,
             record_event(&record_type, "updated"),
@@ -417,9 +437,15 @@ where
             command.ip,
         )
         .await?;
-        self.ports.transactions().commit(tx).await?;
-        pipeline.committed(scope, &write).await;
-        self.reload(scope, &object, record.id).await
+        Ok((
+            record.id,
+            Some(PendingCommit {
+                record: reference,
+                mode: WriteMode::Update,
+                changes,
+                values: record_values,
+            }),
+        ))
     }
 
     pub async fn set_archived(

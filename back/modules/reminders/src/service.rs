@@ -103,9 +103,11 @@ pub(crate) async fn create(
         note,
         status: ReminderStatus::Pending,
     };
+    let mut tx = ctx.begin().await?;
     ReminderStore::of(ctx)
-        .insert(ctx.scope, id, &data, ctx.now())
+        .insert(&mut tx, ctx.scope, id, &data, ctx.now())
         .await?;
+    tx.commit().await?;
     find(ctx, &id.to_string()).await
 }
 
@@ -169,20 +171,27 @@ pub(crate) async fn update(
     if !violations.is_empty() {
         return Err(invalid(violations));
     }
+    let mut tx = ctx.begin().await?;
     if !ReminderStore::of(ctx)
-        .update(ctx.scope, current.id, &data, ctx.now())
+        .update(&mut tx, ctx.scope, current.id, &data, ctx.now())
         .await?
     {
         return Err(reminder_not_found());
     }
+    tx.commit().await?;
     find(ctx, id).await
 }
 
 pub(crate) async fn delete(ctx: &Ctx<'_>, id: &str) -> Result<(), AppError> {
     let current = find(ctx, id).await?;
-    if !ReminderStore::of(ctx).delete(ctx.scope, current.id).await? {
+    let mut tx = ctx.begin().await?;
+    if !ReminderStore::of(ctx)
+        .delete(&mut tx, ctx.scope, current.id)
+        .await?
+    {
         return Err(reminder_not_found());
     }
+    tx.commit().await?;
     Ok(())
 }
 

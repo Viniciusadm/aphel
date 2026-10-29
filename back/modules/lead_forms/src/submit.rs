@@ -558,7 +558,9 @@ async fn resolve_owner(
         source: AssignmentSource::LeadForm,
         idempotency_key: Some(format!("{KEY}:{submission_id}")),
     };
-    match lead_distribution::service::assign(ctx, request, |_| async { Ok(()) }).await {
+    match lead_distribution::service::assign(ctx, request, &lead_distribution::service::PickOnly)
+        .await
+    {
         Ok(outcome) => match outcome.user_id() {
             Some(user_id) => Some(user_id.as_str().to_owned()),
             None => {

@@ -10,6 +10,7 @@ use activities::store::{linked_record, record_title_sql};
 use aphel_kernel::Ctx;
 use aphel_kernel::application::organization_admin::{ListWindow, Listing};
 use aphel_kernel::application::shared::RecordRef;
+use aphel_kernel::database::transaction::MySqlTx;
 use aphel_kernel::domain::UserId;
 use aphel_kernel::domain::access::AccessScope;
 use aphel_kernel::domain::users::UserStatus;
@@ -131,6 +132,7 @@ impl ReminderStore {
 
     pub(crate) async fn insert(
         &self,
+        tx: &mut MySqlTx,
         scope: &AccessScope,
         id: Uuid,
         data: &ReminderData,
@@ -157,13 +159,14 @@ impl ReminderStore {
         .bind(data.status.as_str())
         .bind(mapper::naive(now))
         .bind(mapper::naive(now))
-        .execute(&self.pool)
+        .execute(&mut **tx)
         .await?;
         Ok(())
     }
 
     pub(crate) async fn update(
         &self,
+        tx: &mut MySqlTx,
         scope: &AccessScope,
         id: Uuid,
         data: &ReminderData,
@@ -183,16 +186,21 @@ impl ReminderStore {
         .bind(mapper::naive(now))
         .bind(scope.user_id().as_str())
         .bind(id.to_string())
-        .execute(&self.pool)
+        .execute(&mut **tx)
         .await?;
         Ok(result.rows_affected() == 1)
     }
 
-    pub(crate) async fn delete(&self, scope: &AccessScope, id: Uuid) -> Result<bool, AppError> {
+    pub(crate) async fn delete(
+        &self,
+        tx: &mut MySqlTx,
+        scope: &AccessScope,
+        id: Uuid,
+    ) -> Result<bool, AppError> {
         let result = sqlx::query("DELETE FROM reminders WHERE user_id = ? AND id = ?")
             .bind(scope.user_id().as_str())
             .bind(id.to_string())
-            .execute(&self.pool)
+            .execute(&mut **tx)
             .await?;
         Ok(result.rows_affected() == 1)
     }

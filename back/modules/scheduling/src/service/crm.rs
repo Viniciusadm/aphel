@@ -16,6 +16,7 @@ use aphel_kernel::domain::fields::FieldType;
 use aphel_kernel::errors::AppError;
 use aphel_kernel::infrastructure::fields::MySqlFieldDefinitionRepository;
 use aphel_kernel::infrastructure::repositories::mysql_access::MySqlAccessRepository;
+use aphel_kernel::records::PendingCommit;
 
 fn mappable_custom(field_type: FieldType) -> bool {
     matches!(
@@ -102,6 +103,22 @@ pub(crate) async fn update_activity(
     activities::service::update(&ctx.with_scope(scope), &activity_id.to_string(), command)
         .await
         .map(|_| ())
+}
+
+pub(crate) async fn update_activity_in_tx(
+    ctx: &Ctx<'_>,
+    tx: &mut MySqlTx,
+    scope: &AccessScope,
+    activity_id: Uuid,
+    command: UpdateActivityCommand,
+) -> Result<Option<PendingCommit>, AppError> {
+    activities::service::update_in_tx(
+        &ctx.with_scope(scope),
+        tx,
+        &activity_id.to_string(),
+        command,
+    )
+    .await
 }
 
 pub(crate) async fn contact_fields(ctx: &Ctx<'_>) -> Result<Vec<ContactFieldOption>, AppError> {

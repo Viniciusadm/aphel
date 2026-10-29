@@ -155,7 +155,9 @@ pub(crate) async fn create(
         position,
         created_at: ctx.now(),
     };
-    store.insert(ctx.scope, &favorite).await?;
+    let mut tx = ctx.begin().await?;
+    store.insert(&mut tx, ctx.scope, &favorite).await?;
+    tx.commit().await?;
     Ok(FavoriteEntry {
         favorite,
         title: Some(title),
@@ -222,11 +224,15 @@ async fn view_target(
 pub(crate) async fn delete(ctx: &Ctx<'_>, favorite_id: &str) -> Result<(), AppError> {
     let not_found = || AppError::not_found_code(FAVORITE_NOT_FOUND, "favorite not found");
     let id = Uuid::parse_str(favorite_id.trim()).map_err(|_| not_found())?;
-    if FavoriteStore::of(ctx).delete(ctx.scope, id).await? {
-        Ok(())
-    } else {
-        Err(not_found())
+    let mut tx = ctx.begin().await?;
+    if !FavoriteStore::of(ctx)
+        .delete(&mut tx, ctx.scope, id)
+        .await?
+    {
+        return Err(not_found());
     }
+    tx.commit().await?;
+    Ok(())
 }
 
 pub(crate) async fn reorder(ctx: &Ctx<'_>, ids: &[String]) -> Result<Vec<FavoriteEntry>, AppError> {
@@ -252,7 +258,9 @@ pub(crate) async fn reorder(ctx: &Ctx<'_>, ids: &[String]) -> Result<Vec<Favorit
     }
     let current: Vec<Uuid> = existing.iter().map(|favorite| favorite.id).collect();
     if current != ordered {
-        store.reorder(ctx.scope, &ordered).await?;
+        let mut tx = ctx.begin().await?;
+        store.reorder(&mut tx, ctx.scope, &ordered).await?;
+        tx.commit().await?;
     }
     list(ctx).await
 }

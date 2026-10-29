@@ -31,12 +31,15 @@ use aphel_kernel::api::routes::v1::field_permissions::{
 use aphel_kernel::api::routes::v1::members::window;
 use aphel_kernel::api::state::AppState;
 use aphel_kernel::application::shared::RecordType;
+use aphel_kernel::database::transaction::MySqlTx;
 use aphel_kernel::domain::access::AccessScope;
 use aphel_kernel::errors::AppError;
 use aphel_kernel::records::{
     AddressInput, merge_survivor, possible_duplicates, serialize_nested_records,
 };
-use aphel_kernel::records::{RecordCtx, RecordTypeHandler, optional_record, values_request};
+use aphel_kernel::records::{
+    PendingCommit, RecordCtx, RecordTypeHandler, optional_record, values_request,
+};
 use tags::dto::TagSummary;
 use tags::http::{RECORD_INCLUDES, record_tag_map};
 
@@ -912,6 +915,25 @@ impl RecordTypeHandler for ContactHandler {
             ContactResponse::from(details),
         )
         .await
+    }
+
+    async fn update_in_tx(
+        &self,
+        ctx: &RecordCtx<'_>,
+        tx: &mut MySqlTx,
+        id: Uuid,
+        values: Value,
+    ) -> Result<Option<PendingCommit>, AppError> {
+        let command =
+            values_request::<ContactRequest>(contact_body(values))?.into_command(None, None);
+        let (_, pending) = service::update_in_tx(
+            &Ctx::from_state(ctx.state, ctx.scope).await?,
+            tx,
+            &id.to_string(),
+            command,
+        )
+        .await?;
+        Ok(pending)
     }
 
     async fn delete(&self, ctx: &RecordCtx<'_>, id: Uuid) -> Result<(), AppError> {

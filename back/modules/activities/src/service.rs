@@ -50,6 +50,7 @@ use aphel_kernel::domain::access::{AccessScope, Permission};
 use aphel_kernel::domain::fields::FieldType;
 use aphel_kernel::errors::{AppError, FieldViolation};
 use aphel_kernel::infrastructure::records::MySqlRecordAccessChecker;
+use aphel_kernel::records::PendingCommit;
 
 pub fn record_access(ctx: &Ctx<'_>) -> MySqlRecordAccessChecker {
     MySqlRecordAccessChecker::new(ctx.pool().clone(), ctx.registry().clone())
@@ -81,6 +82,16 @@ struct NextOccurrence {
     data: ActivityData,
     type_key: String,
     custom_fields: Map<String, Value>,
+}
+
+struct PreparedUpdate {
+    current: ActivityView,
+    data: ActivityData,
+    type_key: String,
+    custom_fields: Map<String, Value>,
+    events: Vec<&'static str>,
+    effects: RecurrenceEffects,
+    ip: Option<String>,
 }
 
 #[derive(Default)]
@@ -561,6 +572,47 @@ pub async fn update(
     id: &str,
     command: UpdateActivityCommand,
 ) -> Result<ActivityRecord, AppError> {
+    let prepared = prepare_update(ctx, id, command).await?;
+    write_update(
+        ctx,
+        &prepared.current,
+        &prepared.data,
+        &prepared.type_key,
+        &prepared.custom_fields,
+        &prepared.events,
+        prepared.effects,
+        prepared.ip,
+    )
+    .await?;
+    require_record(ctx, prepared.current.id).await
+}
+
+pub async fn update_in_tx(
+    ctx: &Ctx<'_>,
+    tx: &mut MySqlTx,
+    id: &str,
+    command: UpdateActivityCommand,
+) -> Result<Option<PendingCommit>, AppError> {
+    let prepared = prepare_update(ctx, id, command).await?;
+    write_update_in_tx(
+        ctx,
+        tx,
+        &prepared.current,
+        &prepared.data,
+        &prepared.type_key,
+        &prepared.custom_fields,
+        &prepared.events,
+        prepared.effects,
+        prepared.ip,
+    )
+    .await
+}
+
+async fn prepare_update(
+    ctx: &Ctx<'_>,
+    id: &str,
+    command: UpdateActivityCommand,
+) -> Result<PreparedUpdate, AppError> {
     ctx.scope.require(&Permission::ACTIVITIES_UPDATE)?;
     let current = updatable(ctx, id).await?;
     ensure_version(command.expected_updated_at, current.updated_at)?;
@@ -767,18 +819,15 @@ pub async fn update(
     if completing && let Some(series) = &active_series {
         effects.next = prepare_next(ctx, current.id, &data, series).await?;
     }
-    write_update(
-        ctx,
-        &current,
-        &data,
-        &type_key,
-        &command.custom_fields,
-        &events,
+    Ok(PreparedUpdate {
+        current,
+        data,
+        type_key,
+        custom_fields: command.custom_fields,
+        events,
         effects,
-        command.ip,
-    )
-    .await?;
-    require_record(ctx, current.id).await
+        ip: command.ip,
+    })
 }
 
 pub(crate) async fn complete(
@@ -918,6 +967,19 @@ async fn check_field_access(
     .await
 }
 
+fn unchanged(
+    current: &ActivityView,
+    data: &ActivityData,
+    custom_fields: &Map<String, Value>,
+    effects: &RecurrenceEffects,
+) -> bool {
+    current.data() == *data
+        && effects.rule_change.is_none()
+        && custom_fields.is_empty()
+        && effects.save.is_none()
+        && effects.next.is_none()
+}
+
 #[allow(clippy::too_many_arguments)]
 async fn write_update(
     ctx: &Ctx<'_>,
@@ -929,6 +991,47 @@ async fn write_update(
     effects: RecurrenceEffects,
     ip: Option<String>,
 ) -> Result<bool, AppError> {
+    if unchanged(current, data, custom_fields, &effects) {
+        return Ok(false);
+    }
+    let mut tx = ctx.begin().await?;
+    match write_update_in_tx(
+        ctx,
+        &mut tx,
+        current,
+        data,
+        type_key,
+        custom_fields,
+        events,
+        effects,
+        ip,
+    )
+    .await?
+    {
+        Some(pending) => {
+            tx.commit().await?;
+            pending.committed(ctx).await;
+            Ok(true)
+        }
+        None => Ok(false),
+    }
+}
+
+#[allow(clippy::too_many_arguments)]
+async fn write_update_in_tx(
+    ctx: &Ctx<'_>,
+    tx: &mut MySqlTx,
+    current: &ActivityView,
+    data: &ActivityData,
+    type_key: &str,
+    custom_fields: &Map<String, Value>,
+    events: &[&'static str],
+    effects: RecurrenceEffects,
+    ip: Option<String>,
+) -> Result<Option<PendingCommit>, AppError> {
+    if unchanged(current, data, custom_fields, &effects) {
+        return Ok(None);
+    }
     let old = current.data();
     let RecurrenceEffects {
         save,
@@ -936,27 +1039,13 @@ async fn write_update(
         rule_change,
         discard_next,
     } = effects;
-    if old == *data
-        && rule_change.is_none()
-        && custom_fields.is_empty()
-        && save.is_none()
-        && next.is_none()
-    {
-        return Ok(false);
-    }
     let now = ctx.now();
     let record_ref = current.record_ref();
-    let mut tx = ctx.begin().await?;
-    aphel_kernel::records::lock_version(
-        &mut tx,
-        "activities",
-        current.id,
-        Some(current.updated_at),
-    )
-    .await?;
+    aphel_kernel::records::lock_version(tx, "activities", current.id, Some(current.updated_at))
+        .await?;
     if events.contains(&ACTIVITY_COMPLETED) {
         ctx.run_hook::<ActivityCompleting>(
-            &mut tx,
+            tx,
             KEY,
             &CompletingActivity {
                 id: current.id,
@@ -967,15 +1056,8 @@ async fn write_update(
         )
         .await?;
     }
-    let (data, custom_fields) = saving(
-        ctx,
-        &mut tx,
-        &record_ref,
-        WriteMode::Update,
-        data,
-        custom_fields,
-    )
-    .await?;
+    let (data, custom_fields) =
+        saving(ctx, tx, &record_ref, WriteMode::Update, data, custom_fields).await?;
     let data = &data;
     let values = activity_values(data);
     let mut system_changes = diff_changes(
@@ -986,17 +1068,17 @@ async fn write_update(
     system_changes.extend(rule_change);
     let data_changed = old != *data;
     if let Some(series) = &save {
-        RecurrenceStore::of(ctx).save(&mut tx, series, now).await?;
+        RecurrenceStore::of(ctx).save(tx, series, now).await?;
     }
     if data_changed {
         ActivityStore::of(ctx)
-            .update(&mut tx, current.id, data, now)
+            .update(tx, current.id, data, now)
             .await?;
     }
     let custom_changes = CustomFieldWriter::new(&ctx.fields())
         .with_record_values(&values)
         .apply(
-            &mut tx,
+            tx,
             ctx.scope,
             &record_ref,
             &custom_fields,
@@ -1006,7 +1088,7 @@ async fn write_update(
     let mut changes = system_changes;
     changes.extend(custom_changes);
     if changes.is_empty() && next.is_none() && save.is_none() {
-        return Ok(false);
+        return Ok(None);
     }
     let write = RecordWrite {
         record: &record_ref,
@@ -1015,12 +1097,12 @@ async fn write_update(
         values: &values,
     };
     let pipeline = ctx.pipeline();
-    pipeline.validate(&mut tx, ctx.scope, &write).await?;
-    pipeline.saved(&mut tx, ctx.scope, &write).await?;
+    pipeline.validate(tx, ctx.scope, &write).await?;
+    pipeline.saved(tx, ctx.scope, &write).await?;
     if !changes.is_empty() {
         publish(
             ctx,
-            &mut tx,
+            tx,
             current.id,
             data,
             type_key,
@@ -1031,14 +1113,17 @@ async fn write_update(
         .await?;
     }
     if discard_next && let Some(occurrence) = old.occurrence {
-        discard_untouched_occurrence(ctx, &mut tx, occurrence, now, ip.clone()).await?;
+        discard_untouched_occurrence(ctx, tx, occurrence, now, ip.clone()).await?;
     }
     if let Some(next) = next {
-        insert_occurrence(ctx, &mut tx, next, now, ip).await?;
+        insert_occurrence(ctx, tx, next, now, ip).await?;
     }
-    tx.commit().await?;
-    pipeline.committed(ctx.scope, &write).await;
-    Ok(true)
+    Ok(Some(PendingCommit {
+        record: record_ref,
+        mode: WriteMode::Update,
+        changes,
+        values,
+    }))
 }
 
 async fn discard_untouched_occurrence(

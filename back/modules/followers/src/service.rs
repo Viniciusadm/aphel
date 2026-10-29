@@ -35,14 +35,17 @@ pub(crate) async fn follow(
     record_id: &str,
 ) -> Result<RecordFollowers, AppError> {
     let record = readable(ctx, record_type, record_id).await?;
+    let mut tx = ctx.begin().await?;
     FollowerStore::of(ctx)
         .follow(
+            &mut tx,
             &record,
             ctx.scope.user_id(),
             FollowOrigin::Manual,
             ctx.now(),
         )
         .await?;
+    tx.commit().await?;
     summary(ctx, record).await
 }
 
@@ -54,9 +57,11 @@ pub(crate) async fn unfollow(
     let definition = ctx.registry().require(record_type)?;
     let id = Uuid::parse_str(record_id.trim()).map_err(|_| record_not_found())?;
     let record = RecordRef::new(definition.record_type.clone(), id);
+    let mut tx = ctx.begin().await?;
     FollowerStore::of(ctx)
-        .unfollow(&record, ctx.scope.user_id())
+        .unfollow(&mut tx, &record, ctx.scope.user_id())
         .await?;
+    tx.commit().await?;
     match readable(ctx, record_type, record_id).await {
         Ok(record) => summary(ctx, record).await,
         Err(_) => Ok(RecordFollowers {

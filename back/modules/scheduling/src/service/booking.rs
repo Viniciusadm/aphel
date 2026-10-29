@@ -28,7 +28,7 @@ use aphel_kernel::domain::access::{AccessScope, Permission, PermissionSet, RoleK
 use aphel_kernel::domain::organizations::ORGANIZATION_RECORD_ID;
 use aphel_kernel::domain::{Secret, UserId};
 use aphel_kernel::errors::{AppError, FieldViolation};
-use aphel_kernel::records::AddressInput;
+use aphel_kernel::records::{AddressInput, PendingCommit};
 use contacts::domain::{ContactInput, SaveContactCommand};
 use contacts::service::CreatedContact;
 use email::domain::normalize_address;
@@ -692,26 +692,79 @@ struct BookingRecords {
 }
 
 const CONTACT_SAVEPOINT: &str = "scheduling_contact";
+const ACTIVITY_SAVEPOINT: &str = "scheduling_activity";
+
+async fn savepoint(tx: &mut MySqlTx, name: &str) -> Result<(), AppError> {
+    sqlx::query(sqlx::AssertSqlSafe(format!("SAVEPOINT {name}")))
+        .execute(&mut **tx)
+        .await?;
+    Ok(())
+}
+
+async fn rollback_to_savepoint(tx: &mut MySqlTx, name: &str) -> Result<(), AppError> {
+    sqlx::query(sqlx::AssertSqlSafe(format!("ROLLBACK TO SAVEPOINT {name}")))
+        .execute(&mut **tx)
+        .await?;
+    Ok(())
+}
 
 async fn create_contact_attempt(
     ctx: &Ctx<'_>,
     tx: &mut MySqlTx,
     command: SaveContactCommand,
 ) -> Result<CreatedContact, AppError> {
-    sqlx::query(sqlx::AssertSqlSafe(format!(
-        "SAVEPOINT {CONTACT_SAVEPOINT}"
-    )))
-    .execute(&mut **tx)
-    .await?;
+    savepoint(tx, CONTACT_SAVEPOINT).await?;
     let created = contacts::service::create_in_tx(ctx, tx, command).await;
     if created.is_err() {
-        sqlx::query(sqlx::AssertSqlSafe(format!(
-            "ROLLBACK TO SAVEPOINT {CONTACT_SAVEPOINT}"
-        )))
-        .execute(&mut **tx)
-        .await?;
+        rollback_to_savepoint(tx, CONTACT_SAVEPOINT).await?;
     }
     created
+}
+
+struct CanceledActivity {
+    scope: AccessScope,
+    pending: PendingCommit,
+}
+
+async fn cancel_activity(
+    ctx: &Ctx<'_>,
+    tx: &mut MySqlTx,
+    booking: &Booking,
+    ip: Option<String>,
+) -> Result<Option<CanceledActivity>, AppError> {
+    let Some(activity_id) = booking.activity_id else {
+        return Ok(None);
+    };
+    let Some(host_scope) = crm::host_scope(ctx, &booking.host_user_id).await? else {
+        return Ok(None);
+    };
+    let acting = booking_scope(&host_scope);
+    let record_states = tx.record_states.clone();
+    savepoint(tx, ACTIVITY_SAVEPOINT).await?;
+    match crm::update_activity_in_tx(
+        ctx,
+        tx,
+        &acting,
+        activity_id,
+        UpdateActivityCommand {
+            status: Some("canceled".to_owned()),
+            ip,
+            ..UpdateActivityCommand::default()
+        },
+    )
+    .await
+    {
+        Ok(pending) => Ok(pending.map(|pending| CanceledActivity {
+            scope: acting,
+            pending,
+        })),
+        Err(error) => {
+            rollback_to_savepoint(tx, ACTIVITY_SAVEPOINT).await?;
+            tx.record_states = record_states;
+            tracing::warn!(%error, booking_id = %booking.id, "failed to cancel the meeting activity");
+            Ok(None)
+        }
+    }
 }
 
 async fn find_or_create_contact(
@@ -1044,25 +1097,13 @@ pub(crate) async fn cancel(
     )
     .await?;
     enqueue_emails(ctx, &mut tx, &canceled, "canceled").await?;
+    let activity = cancel_activity(ctx, &mut tx, &canceled, ip).await?;
     tx.commit().await?;
-    if let Some(activity_id) = canceled.activity_id {
-        let host_scope = crm::host_scope(ctx, &canceled.host_user_id).await?;
-        let acting = host_scope.map(|host_scope| booking_scope(&host_scope));
-        if let Some(acting) = acting
-            && let Err(error) = crm::update_activity(
-                ctx,
-                &acting,
-                activity_id,
-                UpdateActivityCommand {
-                    status: Some("canceled".to_owned()),
-                    ip,
-                    ..UpdateActivityCommand::default()
-                },
-            )
-            .await
-        {
-            tracing::warn!(%error, booking_id = %canceled.id, "failed to cancel the meeting activity");
-        }
+    if let Some(activity) = activity {
+        activity
+            .pending
+            .committed(&ctx.with_scope(&activity.scope))
+            .await;
     }
     Ok(canceled)
 }

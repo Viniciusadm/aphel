@@ -120,7 +120,8 @@ pub(crate) fn operations() -> Vec<Arc<PluginOperation>> {
             "quotes.submit",
             "Send a draft quote for approval (approved right away when no policy applies): { id, comment? }",
             submit,
-        )),
+        )
+        .with_durable_mutations()),
         Arc::new(PluginOperation::write(
             "quotes.send",
             "E-mail the quote link to the customer: { id, to?: [{ address, name? }], cc?: [{ address, name? }], subject?, body_html?, mailbox_id? }",
@@ -136,6 +137,7 @@ pub(crate) fn operations() -> Vec<Arc<PluginOperation>> {
             "quotes.new_version",
             "Create a new version of the current quote: { id }",
             new_version,
-        )),
+        )
+        .with_durable_mutations()),
     ]
 }

@@ -84,11 +84,13 @@ pub(crate) fn operations() -> Vec<Arc<PluginOperation>> {
             "reminders.create",
             "Create a reminder for the acting user (needs a user actor): { remind_at, note?, record_type?, record_id? }",
             create,
-        )),
+        )
+        .with_durable_mutations()),
         Arc::new(PluginOperation::write(
             "reminders.delete",
             "Delete a reminder of the acting user (needs a user actor): { id }",
             delete,
-        )),
+        )
+        .with_durable_mutations()),
     ]
 }

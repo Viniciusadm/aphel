@@ -29,9 +29,12 @@ use aphel_kernel::api::extractors::{
 use aphel_kernel::api::routes::v1::field_permissions::{record_redactor, redacted, redacted_items};
 use aphel_kernel::api::state::AppState;
 use aphel_kernel::application::shared::RecordType;
+use aphel_kernel::database::transaction::MySqlTx;
 use aphel_kernel::domain::UserId;
 use aphel_kernel::errors::{AppError, FieldViolation};
-use aphel_kernel::records::{RecordCtx, RecordTypeHandler, optional_record, values_request};
+use aphel_kernel::records::{
+    PendingCommit, RecordCtx, RecordTypeHandler, optional_record, values_request,
+};
 use pipelines::http::{PipelineStageResponse, PipelineSummaryResponse, StageKindSchema};
 use pipelines::rotting::RottingState;
 
@@ -1076,6 +1079,23 @@ impl RecordTypeHandler for DealHandler {
             ctx.scope,
             &RecordType::DEAL,
             DealResponse::from(view),
+        )
+        .await
+    }
+
+    async fn update_in_tx(
+        &self,
+        ctx: &RecordCtx<'_>,
+        tx: &mut MySqlTx,
+        id: Uuid,
+        values: Value,
+    ) -> Result<Option<PendingCommit>, AppError> {
+        let input = values_request::<DealRequest>(deal_body(values))?.into_input(None, None);
+        service::update_in_tx(
+            &Ctx::from_state(ctx.state, ctx.scope).await?,
+            tx,
+            &id.to_string(),
+            input,
         )
         .await
     }

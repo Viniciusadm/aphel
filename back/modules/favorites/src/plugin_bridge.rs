@@ -66,11 +66,13 @@ pub(crate) fn operations() -> Vec<Arc<PluginOperation>> {
             "favorites.add",
             "Add a favorite for the acting user (needs a user actor): { favorite_type: record|view, record_type?, record_id?, view_id? }",
             add,
-        )),
+        )
+        .with_durable_mutations()),
         Arc::new(PluginOperation::write(
             "favorites.remove",
             "Remove a favorite of the acting user (needs a user actor): { id }",
             remove,
-        )),
+        )
+        .with_durable_mutations()),
     ]
 }

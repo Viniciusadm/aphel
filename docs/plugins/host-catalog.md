@@ -62,17 +62,17 @@ Writing operations are refused inside hooks (409 `plugin_write_in_hook`). Each o
 | `esign.cancel` | esign | write | no | Cancel an open signature request (needs esign.send): { id } |
 | `esign.send` | esign | write | no | Send a PDF attached to a deal for electronic signature (needs esign.send): { deal_id, file_id, signers: [{ name, email, contact_id? }], message?, quote_id? } |
 | `exports.request` | exports | write | yes | Queue a CSV or XLSX export of records the actor can read (at most 100 000); the requester is notified when the file is ready: { record_type, format: csv\|xlsx, filter?, sort?, search?, archived?: exclude\|include\|only, columns? } -> { id, record_type, format, status, columns, file_id, row_count, failure_reason, requested_by, created_at, .. } |
-| `favorites.add` | favorites | write | no | Add a favorite for the acting user (needs a user actor): { favorite_type: record\|view, record_type?, record_id?, view_id? } |
+| `favorites.add` | favorites | write | yes | Add a favorite for the acting user (needs a user actor): { favorite_type: record\|view, record_type?, record_id?, view_id? } |
 | `favorites.list` | favorites | read | — | Favorites of the acting user in display order (needs a user actor): {} -> { data } |
-| `favorites.remove` | favorites | write | no | Remove a favorite of the acting user (needs a user actor): { id } |
-| `followers.follow` | followers | write | no | Make the acting user follow a record (needs a user actor): { record_type, record_id } |
+| `favorites.remove` | favorites | write | yes | Remove a favorite of the acting user (needs a user actor): { id } |
+| `followers.follow` | followers | write | yes | Make the acting user follow a record (needs a user actor): { record_type, record_id } |
 | `followers.list` | followers | read | — | Followers of a record the actor can read: { record_type, record_id } -> { record_type, record_id, following, total, followers } |
-| `followers.unfollow` | followers | write | no | Make the acting user stop following a record (needs a user actor): { record_type, record_id } |
+| `followers.unfollow` | followers | write | yes | Make the acting user stop following a record (needs a user actor): { record_type, record_id } |
 | `forecast.deals` | forecast | read | — | Open deals expected to close in a month, largest first: { month: YYYY-MM, category?: pipeline\|best_case\|commit, owner_id?, team_id?, page?, per_page? } -> { data, total } |
 | `forecast.summary` | forecast | read | — | Revenue forecast per month from the current month, within the actor's deals.read scope: { owner_id?, team_id?, months? (at most 18) } -> { currency, timezone, from, to, probability_source, settings, months: [..], totals } |
 | `goals.get` | goals | read | — | One goal with its progress: { id } |
 | `goals.list` | goals | read | — | Goals the actor reaches, newest period first, each with its progress: { owner_type?: user\|team\|organization, user_id?, team_id?, metric?, period?, active_on? (YYYY-MM-DD), current?, progress? (default true), page?, per_page? } -> { data, total } |
-| `lead_distribution.assign` | lead_distribution | write | no | Pick the next owner of a record with a lead distribution rule and set its owner_id (needs update access to the record): { record_type, record_id, rule? (rule id; optional when exactly one active rule distributes the type), idempotency_key? } -> { rule_id, user_id, user_name, selection, route_index, reused, skipped } |
+| `lead_distribution.assign` | lead_distribution | write | yes | Pick the next owner of a record with a lead distribution rule and set its owner_id (needs update access to the record): { record_type, record_id, rule? (rule id; optional when exactly one active rule distributes the type), idempotency_key? } -> { rule_id, user_id, user_name, selection, route_index, reused, skipped } |
 | `leads.convert` | leads | write | no | Convert an open lead into a deal: { contact_id, pipeline_id, stage_id?, title?, amount?, currency? } -> { contact_id, lifecycle_stage, deal_id } |
 | `leads.disqualify` | leads | write | yes | Disqualify an open lead with a reason: { contact_id, reason_id, note? } -> { contact_id, lifecycle_stage, deal_id } |
 | `leads.qualify` | leads | write | yes | Qualify a contact in the lead stage: { contact_id } -> { contact_id, lifecycle_stage, deal_id } |
@@ -88,18 +88,18 @@ Writing operations are refused inside hooks (409 `plugin_write_in_hook`). Each o
 | `price_lists.resolve` | price_lists | read | — | Unit price of a product from a price list (quantity tiers applied): { product_id, price_list_id? , currency? (required without price_list_id; picks the list for the company or the currency default), company_id?, quantity? (default 1), on? (YYYY-MM-DD, default today) } -> { price_list: { id, name, currency } \| null, unit_price (string) \| null, currency, quantity, on } |
 | `proposals.generate` | proposals | write | no | Generate a PDF proposal for a deal and attach it (needs proposals.generate and edit access to the deal; the default active template when none is given): { deal_id, template_id?, template_key?, quote_id? } |
 | `quotes.accept` | quotes | write | yes | Record the acceptance of a quote on behalf of the customer: { id, name?, email?, note? } |
-| `quotes.new_version` | quotes | write | no | Create a new version of the current quote: { id } |
+| `quotes.new_version` | quotes | write | yes | Create a new version of the current quote: { id } |
 | `quotes.send` | quotes | write | no | E-mail the quote link to the customer: { id, to?: [{ address, name? }], cc?: [{ address, name? }], subject?, body_html?, mailbox_id? } |
-| `quotes.submit` | quotes | write | no | Send a draft quote for approval (approved right away when no policy applies): { id, comment? } |
-| `records.archive` | plugins | write | yes | Archive a record: { record_type, id } |
-| `records.restore` | plugins | write | yes | Restore an archived record: { record_type, id } |
-| `reminders.create` | reminders | write | no | Create a reminder for the acting user (needs a user actor): { remind_at, note?, record_type?, record_id? } |
-| `reminders.delete` | reminders | write | no | Delete a reminder of the acting user (needs a user actor): { id } |
+| `quotes.submit` | quotes | write | yes | Send a draft quote for approval (approved right away when no policy applies): { id, comment? } |
+| `records.archive` | plugins | write | yes | Archive a record (hides it from default lists; not a deletion): { record_type, id }. Supported by contact, company, deal and custom object (co_*) records; other types fail with 422 record_operation_not_supported |
+| `records.restore` | plugins | write | yes | Unarchive an archived record (not a trash restore): { record_type, id }. Supported by contact, company, deal and custom object (co_*) records; other types fail with 422 record_operation_not_supported |
+| `reminders.create` | reminders | write | yes | Create a reminder for the acting user (needs a user actor): { remind_at, note?, record_type?, record_id? } |
+| `reminders.delete` | reminders | write | yes | Delete a reminder of the acting user (needs a user actor): { id } |
 | `reminders.list` | reminders | read | — | Reminders of the acting user sorted by remind_at (needs a user actor): { status?: pending\|sent\|dismissed, record_type?, record_id?, page?, per_page? } -> { data, total } |
 | `reports.list` | reports | read | — | Saved reports visible to the actor, ordered by name: { record_type?, page?, per_page? } -> { data, total } |
 | `reports.run` | reports | read | — | Run a saved report with the actor's read scope and field permissions: { id, preset?, from? (YYYY-MM-DD), to?, compare_to_previous? } -> { record_type, timezone, groups, metrics, rows, totals, period, previous_period } |
 | `scheduling.bookings` | scheduling | read | — | Meeting bookings of the hosts within the actor's scheduling.manage scope: { status?: confirmed\|canceled, meeting_type_id?, upcoming?, page?, per_page? } -> { data, total } |
-| `scheduling.cancel` | scheduling | write | no | Cancel a booking as the host (the guest receives the cancellation): { id, reason? } |
+| `scheduling.cancel` | scheduling | write | yes | Cancel a booking as the host (the guest receives the cancellation): { id, reason? } |
 | `scoring.scores` | scoring | read | — | Scores of a record in every active scoring model of its type, primary first: { record_type, record_id } -> [{ model_id, model_key, model_name, is_primary, score, band, warm_from, hot_from, explanation, calculated_at }] |
 | `scoring.signal` | scoring | write | no | Record a behavior signal on a record the actor can update and recalculate its scores; idempotent per record, signal and source: { record_type, record_id, signal: email_opened\|email_clicked\|email_replied\|meeting_booked\|form_submitted\|call_connected, source } -> { recorded } |
 | `segments.get` | segments | read | — | One segment with its member count: { id } |

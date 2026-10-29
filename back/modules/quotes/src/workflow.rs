@@ -19,6 +19,7 @@ use crate::token::generate_public_key;
 use crate::{AcceptingQuote, KEY, QUOTE, QuoteAccepting};
 use aphel_kernel::Ctx;
 use aphel_kernel::application::shared::{Actor, DomainEvent, FieldChange, Job, JobQueue};
+use aphel_kernel::database::transaction::MySqlTx;
 use aphel_kernel::domain::access::{AccessScope, Permission};
 use aphel_kernel::domain::fields::normalize_email;
 use aphel_kernel::errors::{AppError, FieldViolation};
@@ -92,7 +93,7 @@ pub(crate) async fn submit(
         .comment
         .map(|comment| comment.trim().chars().take(MAX_COMMENT_LENGTH).collect())
         .filter(|comment: &String| !comment.is_empty());
-    refresh_discount_flag(ctx, &quote).await?;
+    let discount_flag = discount_flag(ctx, &quote).await?;
     let record = quote_record(quote.id);
     let mut tx = ctx.begin().await?;
     let mut locked = QuoteStore::of(ctx)
@@ -103,6 +104,11 @@ pub(crate) async fn submit(
         return Err(invalid_transition(
             "only a draft quote can be sent for approval",
         ));
+    }
+    if let Some(exceeds) = discount_flag
+        && exceeds != locked.exceeds_discount_limit
+    {
+        store_discount_flag(ctx, &mut tx, &mut locked, exceeds).await?;
     }
     let outcome = QuoteApprovals::of(ctx)
         .submit(
@@ -603,7 +609,7 @@ pub(crate) async fn ensure_items(ctx: &Ctx<'_>, quote: &Quote) -> Result<(), App
     Ok(())
 }
 
-pub(crate) async fn refresh_discount_flag(ctx: &Ctx<'_>, quote: &Quote) -> Result<(), AppError> {
+pub(crate) async fn discount_flag(ctx: &Ctx<'_>, quote: &Quote) -> Result<Option<bool>, AppError> {
     let items = QuoteStore::of(ctx).items(quote.id).await?;
     let Ok(totals) = compute_totals(
         &items
@@ -612,18 +618,19 @@ pub(crate) async fn refresh_discount_flag(ctx: &Ctx<'_>, quote: &Quote) -> Resul
             .collect::<Vec<_>>(),
         quote.discount,
     ) else {
-        return Ok(());
+        return Ok(None);
     };
-    let exceeds = exceeds(ctx, quote, &totals).await?;
-    if exceeds == quote.exceeds_discount_limit {
-        return Ok(());
-    }
-    let mut tx = ctx.begin().await?;
-    let Some(mut locked) = QuoteStore::of(ctx).lock(&mut tx, quote.id).await? else {
-        return Err(quote_not_found());
-    };
+    Ok(Some(exceeds(ctx, quote, &totals).await?))
+}
+
+pub(crate) async fn store_discount_flag(
+    ctx: &Ctx<'_>,
+    tx: &mut MySqlTx,
+    locked: &mut Quote,
+    exceeds: bool,
+) -> Result<(), AppError> {
     locked.exceeds_discount_limit = exceeds;
-    QuoteStore::of(ctx).update(&mut tx, &locked).await?;
+    QuoteStore::of(ctx).update(tx, locked).await?;
     let changes = vec![FieldChange::new(
         "exceeds_discount_limit",
         json!(!exceeds),
@@ -631,8 +638,8 @@ pub(crate) async fn refresh_discount_flag(ctx: &Ctx<'_>, quote: &Quote) -> Resul
     )];
     record_system_event(
         ctx,
-        &mut tx,
-        &locked,
+        tx,
+        locked,
         SystemEvent {
             event_type: QUOTE_UPDATED,
             extra: aphel_kernel::records::changes_payload(&changes),
@@ -640,6 +647,20 @@ pub(crate) async fn refresh_discount_flag(ctx: &Ctx<'_>, quote: &Quote) -> Resul
             ip: None,
         },
     )
-    .await?;
+    .await
+}
+
+pub(crate) async fn refresh_discount_flag(ctx: &Ctx<'_>, quote: &Quote) -> Result<(), AppError> {
+    let Some(exceeds) = discount_flag(ctx, quote).await? else {
+        return Ok(());
+    };
+    if exceeds == quote.exceeds_discount_limit {
+        return Ok(());
+    }
+    let mut tx = ctx.begin().await?;
+    let Some(mut locked) = QuoteStore::of(ctx).lock(&mut tx, quote.id).await? else {
+        return Err(quote_not_found());
+    };
+    store_discount_flag(ctx, &mut tx, &mut locked, exceeds).await?;
     Ok(tx.commit().await?)
 }

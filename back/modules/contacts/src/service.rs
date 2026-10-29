@@ -25,7 +25,7 @@ use aphel_kernel::domain::access::{Permission, RecordScopeFilter};
 use aphel_kernel::domain::fields::FieldValueError;
 use aphel_kernel::errors::{AppError, FieldViolation};
 use aphel_kernel::records::{
-    InputValidator, RecordMutation, archive_change, changes_payload, check_owner,
+    InputValidator, PendingCommit, RecordMutation, archive_change, changes_payload, check_owner,
     contributed_input, is_writable_contributed, merge_contributed, merge_violations,
     normalize_search_term, parse_record_id, permission_denied, publish_mutation, with_contributed,
     write_contributed,
@@ -248,6 +248,24 @@ pub async fn update(
     contact_id: &str,
     command: SaveContactCommand,
 ) -> Result<ContactDetails, AppError> {
+    let mut tx = ctx.begin().await?;
+    let (id, pending) = update_in_tx(ctx, &mut tx, contact_id, command).await?;
+    match pending {
+        Some(pending) => {
+            tx.commit().await?;
+            pending.committed(ctx).await;
+        }
+        None => drop(tx),
+    }
+    reload(ctx, id).await
+}
+
+pub async fn update_in_tx(
+    ctx: &Ctx<'_>,
+    tx: &mut MySqlTx,
+    contact_id: &str,
+    command: SaveContactCommand,
+) -> Result<(Uuid, Option<PendingCommit>), AppError> {
     let scope = ctx.scope;
     let current = changeable(ctx, contact_id, &Permission::CONTACTS_UPDATE).await?;
     ensure_version(command.expected_updated_at, current.contact.updated_at)?;
@@ -284,9 +302,8 @@ pub async fn update(
     let record = RecordRef::new(RecordType::CONTACT, id);
     let fields = ctx.fields();
     let store = ContactStore::of(ctx);
-    let mut tx = ctx.begin().await?;
     aphel_kernel::records::lock_version(
-        &mut tx,
+        tx,
         "contacts",
         current.contact.id,
         command.expected_updated_at,
@@ -294,7 +311,7 @@ pub async fn update(
     .await?;
     let (data, contributed, custom_fields) = saving(
         ctx,
-        &mut tx,
+        tx,
         definition,
         &record,
         WriteMode::Update,
@@ -307,14 +324,14 @@ pub async fn update(
     let values = contact_values(&data, &contributed);
     let custom = CustomFieldWriter::new(&fields)
         .with_record_values(&values)
-        .apply(&mut tx, scope, &record, &custom_fields, WriteMode::Update)
+        .apply(tx, scope, &record, &custom_fields, WriteMode::Update)
         .await;
     let custom = merge_violations(validator, custom, INVALID_CONTACT)?;
     let mut changes = diff_values(&old_values, &values, &DiffOptions::default())?;
     let system_changed = !changes.is_empty();
     changes.extend(custom);
     if changes.is_empty() {
-        return details(ctx, current).await;
+        return Ok((id, None));
     }
     let write = RecordWrite {
         record: &record,
@@ -323,23 +340,23 @@ pub async fn update(
         values: &values,
     };
     let pipeline = fields.pipeline();
-    pipeline.validate(&mut tx, scope, &write).await?;
+    pipeline.validate(tx, scope, &write).await?;
 
     let now = ctx.now();
     if system_changed {
-        store.update(&mut tx, id, &data, now).await?;
-        write_contributed(&mut tx, definition, id, &contributed).await?;
+        store.update(tx, id, &data, now).await?;
+        write_contributed(tx, definition, id, &contributed).await?;
     }
     if let Some(company_id) = data.company_id
         && data.company_id != old.company_id
     {
-        store.delete_link(&mut tx, id, company_id).await?;
+        store.delete_link(tx, id, company_id).await?;
     }
-    pipeline.saved(&mut tx, scope, &write).await?;
+    pipeline.saved(tx, scope, &write).await?;
     publish_mutation(
         ctx.events(),
         ctx.audit(),
-        &mut tx,
+        tx,
         scope,
         now,
         RecordMutation {
@@ -351,9 +368,15 @@ pub async fn update(
         },
     )
     .await?;
-    tx.commit().await?;
-    pipeline.committed(scope, &write).await;
-    reload(ctx, id).await
+    Ok((
+        id,
+        Some(PendingCommit {
+            record,
+            mode: WriteMode::Update,
+            changes,
+            values,
+        }),
+    ))
 }
 
 async fn check_field_access(
