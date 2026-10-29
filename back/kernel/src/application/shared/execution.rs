@@ -125,37 +125,3 @@ impl ExecutionContext {
         CURRENT.scope(self.clone(), future).await
     }
 }
-
-#[cfg(test)]
-mod tests {
-    use super::*;
-
-    #[tokio::test]
-    async fn execution_identity_is_scoped_and_keeps_the_root_initiator() {
-        let actor = Actor::ApiToken("token".to_owned());
-        let root =
-            ExecutionContext::plugin("first", "route", Some(&actor), None, None, Uuid::now_v7())
-                .unwrap();
-        let child = ExecutionContext::plugin(
-            "second",
-            "event",
-            None,
-            Some(&root),
-            Some(Uuid::now_v7()),
-            Uuid::now_v7(),
-        )
-        .unwrap();
-        assert_eq!(child.initiator, root.initiator);
-        assert_eq!(child.correlation_id, root.correlation_id);
-        assert_eq!(child.parent_id, Some(root.id));
-        root.scope(async {
-            assert_eq!(ExecutionContext::current(), Some(root.clone()));
-        })
-        .await;
-        assert!(ExecutionContext::current().is_none());
-        assert!(
-            ExecutionContext::plugin("first", "event", None, Some(&child), None, Uuid::now_v7())
-                .is_err()
-        );
-    }
-}

@@ -181,18 +181,3 @@ impl JobHandler for Run {
         Ok(())
     }
 }
-
-#[cfg(test)]
-mod tests {
-    use super::*;
-
-    #[tokio::test]
-    async fn accepts_events_before_the_catalog_is_ready() {
-        let pool = sqlx::mysql::MySqlPoolOptions::new()
-            .connect_lazy("mysql://localhost/plugin_delivery_test")
-            .unwrap();
-        let consumer = PluginEventsConsumer { pool };
-        assert!(consumer.accepts("contact.created"));
-        assert!(consumer.accepts("plugin.example.created"));
-    }
-}

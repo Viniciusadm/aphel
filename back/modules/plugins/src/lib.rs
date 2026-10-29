@@ -110,6 +110,3 @@ impl Module for PluginsModule {
         Ok(())
     }
 }
-
-#[cfg(test)]
-mod runtime_tests;

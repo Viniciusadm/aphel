@@ -29,12 +29,3 @@ uuid.workspace = true
 zip.workspace = true
 wasmtime-wasi = { version = "50", default-features = false, features = ["p2"] }
 wasmtime = { version = "50", default-features = false, features = ["cranelift", "async", "runtime", "std", "parallel-compilation", "component-model"] }
-
-[dev-dependencies]
-contacts = { package = "aphel-mod-contacts", path = "../contacts" }
-companies = { package = "aphel-mod-companies", path = "../companies" }
-tags = { package = "aphel-mod-tags", path = "../tags" }
-deals = { package = "aphel-mod-deals", path = "../deals" }
-activities = { package = "aphel-mod-activities", path = "../activities" }
-currencies = { package = "aphel-mod-currencies", path = "../currencies" }
-pipelines = { package = "aphel-mod-pipelines", path = "../pipelines" }

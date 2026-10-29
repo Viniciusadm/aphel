@@ -1034,13 +1034,6 @@ name = "aphel-mod-plugins"
 version = "0.1.0"
 dependencies = [
  "aphel-kernel",
- "aphel-mod-activities",
- "aphel-mod-companies",
- "aphel-mod-contacts",
- "aphel-mod-currencies",
- "aphel-mod-deals",
- "aphel-mod-pipelines",
- "aphel-mod-tags",
  "async-trait",
  "axum",
  "bytes",
