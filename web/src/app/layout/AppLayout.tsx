@@ -6,6 +6,7 @@ import { useSettingsArea } from '@/features/settings/lib/area-handle'
 import { OrganizationTheme } from '@/features/settings/organization/OrganizationTheme'
 import { TwoFactorGate } from '@/features/settings/security/two-factor/TwoFactorGate'
 import { Slot } from '@/kernel/modules/Slot'
+import { cn } from '@/lib/utils'
 import { readStorage, writeStorage } from '@/lib/storage'
 import { OfflineShell } from '@/pwa/offline/OfflineShell'
 import { PwaShell } from '@/pwa/PwaShell'
@@ -39,7 +40,7 @@ export function AppLayout() {
 
   return (
     <CommandPaletteProvider>
-      <div className="flex h-full min-h-screen bg-background text-foreground">
+      <div className={cn('flex min-h-dvh bg-background text-foreground', !settingsArea && 'h-full')}>
         <OrganizationTheme />
         <Slot name="app.shell" props={{}} />
         <TwoFactorGate />
@@ -59,7 +60,7 @@ export function AppLayout() {
         />
         <div className="flex min-w-0 flex-1 flex-col">
           <Topbar onOpenMobileNav={() => setMobileNavOpen(true)} />
-          <main className="flex-1 overflow-y-auto p-4 pb-[calc(5.5rem+env(safe-area-inset-bottom))] md:p-6">
+          <main className={cn('flex-1 p-4 pb-[calc(5.5rem+env(safe-area-inset-bottom))] md:p-6', !settingsArea && 'overflow-y-auto')}>
             <Outlet />
           </main>
         </div>

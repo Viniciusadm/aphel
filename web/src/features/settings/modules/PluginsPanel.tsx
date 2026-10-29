@@ -2,14 +2,16 @@ import { PackagePlus, Plug, Power, PowerOff, Settings2, Trash2 } from 'lucide-re
 import { useRef, useState } from 'react'
 import { useTranslation } from 'react-i18next'
 import { useMutation, useQuery, useQueryClient } from '@tanstack/react-query'
-import { api } from '@/api'
-import { ConfirmDialog, notifyError, notifySuccess } from '@/components/feedback'
+import { api, isApiError } from '@/api'
+import { ConfirmDialog, errorMessage, notifyError, notifySuccess } from '@/components/feedback'
 import { Badge } from '@/components/ui/badge'
 import { Button } from '@/components/ui/button'
 import { EmptyState } from '@/components/ui/empty-state'
 import { ErrorState } from '@/components/ui/error-state'
 import { Skeleton } from '@/components/ui/skeleton'
 import { SectionHeader } from '@/features/settings/components/SectionHeader'
+import { RequirePermission } from '@/features/settings/components/RequirePermission'
+import { SYSTEM_MANAGE } from '@/features/settings/lib/permissions'
 import { PluginConsentDialog } from './plugins/PluginConsentDialog'
 import { PluginDeclarationList } from './plugins/PluginDeclarationList'
 import { PluginSettingsDialog } from './plugins/PluginSettingsDialog'
@@ -22,6 +24,19 @@ function reloadApp() {
 }
 
 export function PluginsPanel() {
+  return (
+    <RequirePermission permission={SYSTEM_MANAGE}>
+      <PluginsPanelContent />
+    </RequirePermission>
+  )
+}
+
+function loadErrorDescription(error: unknown) {
+  const message = errorMessage(error)
+  return isApiError(error) ? `${message} (${error.status}: ${error.code})` : message
+}
+
+function PluginsPanelContent() {
   const { t } = useTranslation('modules')
   const queryClient = useQueryClient()
   const input = useRef<HTMLInputElement>(null)
@@ -30,13 +45,13 @@ export function PluginsPanel() {
   const [pending, setPending] = useState<{ file: File; consent: PluginConsent } | null>(null)
   const readiness = useQuery({
     queryKey: [...pluginsKey, 'readiness'],
-    queryFn: () => api.get<{ data: { state: 'loading' | 'ready' | 'degraded'; version: number | null } }>(`${PLUGINS_PATH}/readiness`).then((response) => response.data),
+    queryFn: () => api.get<{ state: 'loading' | 'ready' | 'degraded'; version: number | null }>(`${PLUGINS_PATH}/readiness`),
     refetchInterval: (query) => query.state.data?.state === 'loading' ? 1000 : false,
   })
   const plugins = useQuery({
     queryKey: pluginsKey,
     enabled: readiness.data?.state === 'ready' || readiness.data?.state === 'degraded',
-    queryFn: () => api.get<{ data: InstalledPlugin[] }>(PLUGINS_PATH).then((response) => response.data),
+    queryFn: () => api.get<InstalledPlugin[]>(PLUGINS_PATH),
   })
   const changed = (message: string) => {
     notifySuccess(message)
@@ -51,16 +66,16 @@ export function PluginsPanel() {
   const review = useMutation({
     mutationFn: (file: File) =>
       api
-        .post<{ data: PluginConsent }>(`${PLUGINS_PATH}?dry_run=true`, packageForm(file))
-        .then((response) => ({ file, consent: response.data })),
+        .post<PluginConsent>(`${PLUGINS_PATH}?dry_run=true`, packageForm(file))
+        .then((consent) => ({ file, consent })),
     onSuccess: (result) => setPending(result),
     onError: (error) => notifyError(error),
   })
   const install = useMutation({
-    mutationFn: (file: File) => api.post<{ data: InstalledPlugin }>(PLUGINS_PATH, packageForm(file)),
+    mutationFn: (file: File) => api.post<InstalledPlugin>(PLUGINS_PATH, packageForm(file)),
     onSuccess: (response) => {
       setPending(null)
-      changed(t('plugins.installed', { name: response.data.name }))
+      changed(t('plugins.installed', { name: response.name }))
     },
     onError: (error) => notifyError(error),
   })
@@ -107,13 +122,13 @@ export function PluginsPanel() {
         {upload}
       </div>
       {readiness.isError ? (
-        <ErrorState onRetry={() => void readiness.refetch()} />
+        <ErrorState description={loadErrorDescription(readiness.error)} onRetry={() => void readiness.refetch()} />
       ) : readiness.isPending || readiness.data.state === 'loading' ? (
         <p role="status" className="text-sm text-muted-foreground">{t('plugins.catalogLoading')}</p>
       ) : plugins.isPending ? (
         <Skeleton className="h-32 w-full" />
       ) : plugins.isError ? (
-        <ErrorState onRetry={() => void plugins.refetch()} />
+        <ErrorState description={loadErrorDescription(plugins.error)} onRetry={() => void plugins.refetch()} />
       ) : plugins.data.length === 0 ? (
         <EmptyState icon={Plug} title={t('plugins.emptyTitle')} description={t('plugins.emptyDescription')} />
       ) : (
