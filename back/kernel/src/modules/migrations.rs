@@ -100,24 +100,6 @@ pub async fn revert(pool: &MySqlPool, entry: &LoadedModule) -> Result<bool, AppE
 }
 
 async fn sync_required(pool: &MySqlPool, app: &App) -> Result<(), AppError> {
-    for entry in app.modules().iter().filter(|entry| {
-        entry.manifest.enabled_by_default && !entry.manifest.required && entry.is_compatible()
-    }) {
-        let mut connection = pool.acquire().await?;
-        let inserted = sqlx::query(
-            "INSERT IGNORE INTO installed_modules (module_key, enabled, settings, installed_version, enabled_at) \
-             VALUES (?, TRUE, JSON_OBJECT(), ?, CURRENT_TIMESTAMP(6))",
-        )
-        .bind(entry.key())
-        .bind(entry.manifest.version)
-        .execute(&mut *connection)
-        .await?
-        .rows_affected()
-            > 0;
-        if inserted {
-            apply_grants(&mut connection, app, entry.key()).await?;
-        }
-    }
     for entry in app
         .modules()
         .iter()

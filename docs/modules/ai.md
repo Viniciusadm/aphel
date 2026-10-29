@@ -1,6 +1,6 @@
 # `ai` module — AI assistant
 
-Optional AI for Aphel: summaries of contacts, companies and deals, next-action suggestions, a writing assistant in the editors and natural-language queries that become a **validated filter**. It ships disabled (it does not use `enabled_by_default`) and does nothing until an administrator enables it and configures a provider.
+Optional AI for Aphel: summaries of contacts, companies and deals, next-action suggestions, a writing assistant in the editors and natural-language queries that become a **validated filter**. It ships disabled and does nothing until an administrator enables it and configures a provider.
 
 - Backend: crate `aphel-mod-ai` (`back/modules/ai`, struct `AiModule`, in the default build via `back/aphel.modules.toml`; `deals` and `activities` optional).
 - Web: `web/src/modules/ai` (**AI** tab on records, **AI assistant** button in the editors, **Ask AI** button on lists, `/ai` page, panel in the module settings).

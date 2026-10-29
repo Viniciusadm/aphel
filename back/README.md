@@ -31,6 +31,7 @@ The binary is a CLI ([`app/src/cli`](app/src/cli)); each subcommand lives in its
 | --- | --- |
 | `aphel` or `aphel serve` | Starts the HTTP server; runs pending migrations first unless `RUN_MIGRATIONS` is off |
 | `aphel migrate` | Applies pending migrations and exits (requires `DATABASE_URL`) |
+| `aphel db reset --confirm <database>` | Permanently deletes and recreates the database from `DATABASE_URL`, then applies core and compiled module migrations so the installer is available again. Stop the server and workers first; requires DROP and CREATE privileges. Stored files are kept |
 | `aphel openapi` | Prints the OpenAPI document as JSON to stdout |
 | `aphel worker` | Runs the background job worker and the scheduler until SIGTERM/CTRL+C (see [Background jobs](#background-jobs-worker-and-scheduler)) |
 | `aphel serve --with-worker` | HTTP server plus worker and scheduler in the same process, for simple installs |

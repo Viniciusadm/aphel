@@ -25,7 +25,7 @@ Open http://localhost:5173. On an empty database, the first access opens the set
 - `make up` starts MySQL and Mailpit and waits for the MySQL healthcheck.
 - `make dev-back` runs `cargo run -- serve` in `back/` (the `serve` subcommand is the default of the `aphel` binary). On the first run the web app is built, because `rust-embed` embeds `web/dist` at compile time.
 - `make dev-web` runs Vite with a proxy from `/api` to the backend.
-- `make down` tears down the environment without deleting the data. To wipe the database: `docker compose down -v`.
+- `make down` tears down the environment without deleting the data. To reset only the configured database, stop the Aphel server and workers and run `cargo run -- db reset --confirm aphel` from `back/` (replace `aphel` with the exact database name in `DATABASE_URL`). This permanently deletes the company, users, records and database secrets, recreates the database and applies all migrations; the next access opens `/install` again. It requires DROP and CREATE privileges and keeps files on disk or S3. To remove the infrastructure volumes instead: `docker compose down -v`.
 
 The Rust workspace has the kernel (`back/kernel`), one crate per module (`back/modules/<key>`), local plugins (`back/plugins/<key>`), the binary (`back/app`) and `back/xtask`; `cargo run` in `back/` runs the binary (default member).
 

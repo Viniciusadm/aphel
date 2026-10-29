@@ -17,6 +17,12 @@ pub struct FirstOrganization {
 pub trait InstallationRepository: Send + Sync {
     type Tx: Send;
 
+    async fn configure_modules(
+        &self,
+        tx: &mut Self::Tx,
+        modules: &[super::modules::PreparedModule],
+    ) -> Result<(), AppError>;
+
     async fn is_available(&self) -> Result<bool, AppError>;
     async fn claim(&self, tx: &mut Self::Tx) -> Result<bool, AppError>;
     async fn create_first_organization(
@@ -34,6 +40,7 @@ pub trait InstallerPorts: Send + Sync {
     type Audit: AuditLog<<Self::Transactions as TransactionManager>::Tx>;
     type Clock: Clock;
 
+    fn app(&self) -> &crate::modules::App;
     fn transactions(&self) -> &Self::Transactions;
     fn installation(&self) -> &Self::Installation;
     fn hasher(&self) -> &Self::Hasher;

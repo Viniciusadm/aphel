@@ -1,3 +1,4 @@
+mod db;
 mod doctor;
 mod healthcheck;
 mod migrate;
@@ -17,6 +18,7 @@ use tracing_subscriber::EnvFilter;
 
 use aphel_kernel::config::AppConfig;
 use aphel_kernel::modules::ModuleCommand;
+pub(crate) use db::DbCommand;
 pub(crate) use healthcheck::HealthcheckArgs;
 pub(crate) use modules::ModulesCommand;
 pub(crate) use search::SearchCommand;
@@ -51,6 +53,8 @@ pub(crate) enum Command {
     Worker,
     #[command(about = "Apply pending database migrations and exit")]
     Migrate,
+    #[command(subcommand, about = "Maintain the configured database")]
+    Db(DbCommand),
     #[command(about = "Print the OpenAPI document as JSON to stdout")]
     Openapi,
     #[command(subcommand, about = "Manage the encryption of stored secrets")]
@@ -119,6 +123,7 @@ pub(crate) async fn run() -> CliResult {
         Command::Serve(args) => serve::run(config, args).await,
         Command::Worker => worker::run(config).await,
         Command::Migrate => migrate::run(config).await,
+        Command::Db(command) => db::run(config, command).await,
         Command::Openapi => openapi::run(),
         Command::Secrets(command) => secrets::run(config, command).await,
         Command::Search(command) => search::run(config, command).await,

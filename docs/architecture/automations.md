@@ -4,7 +4,7 @@ Automations run **trigger → conditions/branches → actions** flows on any aut
 
 ## Pieces
 
-The engine is the `automations` module (`back/modules/automations`, `enabled_by_default`). The **contract** for triggers and actions belongs to the kernel, because the `AppBuilder` (`app.trigger`/`app.action`), the extension host and other modules depend on it: it lives in `back/kernel/src/application/automations` (the main session moves it to `back/kernel`). Each module registers its triggers and actions in its own `register`.
+The engine is the `automations` module (`back/modules/automations`, optional and selected during installation or enabled later in settings). The **contract** for triggers and actions belongs to the kernel, because the `AppBuilder` (`app.trigger`/`app.action`), the extension host and other modules depend on it: it lives in `back/kernel/src/application/automations` (the main session moves it to `back/kernel`). Each module registers its triggers and actions in its own `register`.
 
 | Piece | Where it lives | What it does |
 | --- | --- | --- |

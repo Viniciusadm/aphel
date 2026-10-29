@@ -71,7 +71,7 @@ Installing a plugin means adding the line and running `make build`; removing it 
 
 | Moment | What happens |
 | --- | --- |
-| `aphel migrate` / startup | Applies the core migrations and then those of **all compiled modules**, in load order (dependencies, then alphabetical), recording `module_migrations (module_key, version, checksum)`. `required` modules and the `enabled_by_default()` ones are enabled the first time |
+| `aphel migrate` / startup | Applies the core migrations and then those of **all compiled modules**, in load order (dependencies, then alphabetical), recording `module_migrations (module_key, version, checksum)`. `required` modules are enabled automatically; optional modules are selected in the installer or enabled later in settings |
 | Enable (`POST /api/v1/modules/{key}/enable`) | Requires enabled dependencies and required settings. Applies the permission grants (`grant_to`) and calls `Module::on_enable` |
 | Disable (`/disable`) | The module's routes respond 404 `module_disabled`; hooks, consumers, jobs, widgets, triggers/actions, typed contributions read with `contributions()`, fields contributed to the record type (they disappear from the schema, responses and filters; writes are ignored), services and decorators and the web package disappear. Nothing is deleted |
 | Configure (`PUT /settings`) | Validated by the manifest's `SettingField`s and by `Module::validate_settings`; secrets in the `SecretVault` |
@@ -144,7 +144,6 @@ impl Module for LeadPro {
             .depends_on(contacts::KEY, "*")
             .depends_on(leads::KEY, "*")
             .depends_on(deals::KEY, "*")
-            .enabled_by_default()
             .migration(Migration::new(1, "lead temperature and touches", include_str!("../migrations/0001_lead_pro.sql")))
             .uninstall_sql(include_str!("../migrations/uninstall.sql"))
             .setting(SettingField::new("hot_threshold", "Temperatura de lead quente", SettingKind::Number { min: Some(0), max: Some(100) }).default_value(json!(70)))

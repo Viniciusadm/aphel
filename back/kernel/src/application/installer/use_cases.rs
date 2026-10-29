@@ -43,6 +43,8 @@ where
 
     pub async fn install(&self, command: InstallCommand) -> Result<Installation, AppError> {
         self.status().await?;
+        let modules =
+            super::modules::prepare(self.ports.app(), &command.modules, &command.module_settings)?;
 
         let mut violations = Vec::new();
         let organization_name = validate_organization_name(
@@ -118,6 +120,7 @@ where
         let event = DomainEvent::new(actor.clone(), INSTALLATION_COMPLETED, now)
             .with_record(record.clone())
             .with_payload(json!({
+                "modules": modules.iter().map(|module| &module.key).collect::<Vec<_>>(),
                 "admin_user_id": user_id.as_str(),
                 "locale": preferences.locale,
                 "timezone": preferences.timezone,
@@ -126,6 +129,11 @@ where
         let entry = AuditEntry::new(actor, INSTALLATION_COMPLETED, now)
             .with_record(record)
             .with_changes(vec![
+                FieldChange::new(
+                    "modules",
+                    json!([]),
+                    json!(modules.iter().map(|module| &module.key).collect::<Vec<_>>()),
+                ),
                 FieldChange::new("name", json!(null), json!(organization_name)),
                 FieldChange::new("admin_email", json!(null), json!(email.as_str())),
                 FieldChange::new("locale", json!(null), json!(preferences.locale)),
@@ -164,6 +172,48 @@ where
                 }
                 other => other,
             })?;
+        self.ports
+            .installation()
+            .configure_modules(&mut tx, &modules)
+            .await?;
+        for module in modules.iter().filter(|module| {
+            self.ports
+                .app()
+                .module(&module.key)
+                .is_some_and(|entry| !entry.manifest.required)
+        }) {
+            let actor = Actor::User(user_id.clone());
+            let record = RecordRef::new(
+                crate::application::shared::RecordType::from_static("module"),
+                crate::application::module_admin::ModuleState::new(&module.key, "", now)
+                    .record_id(),
+            );
+            self.ports
+                .events()
+                .publish(
+                    &mut tx,
+                    DomainEvent::new(actor.clone(), "module.enabled", now)
+                        .with_record(record.clone())
+                        .with_payload(json!({ "key": module.key })),
+                )
+                .await?;
+            let mut changes = vec![FieldChange::new("enabled", json!(false), json!(true))];
+            changes.extend(module.values.iter().map(|(key, value)| {
+                FieldChange::new(format!("settings.{key}"), json!(null), value.clone())
+            }));
+            changes.extend(module.secrets.iter().map(|(key, _)| {
+                FieldChange::new(format!("settings.{key}"), json!(null), json!("[redacted]"))
+            }));
+            self.ports
+                .audit()
+                .record(
+                    &mut tx,
+                    AuditEntry::new(actor, "module.enabled", now)
+                        .with_record(record)
+                        .with_changes(changes),
+                )
+                .await?;
+        }
         self.ports.events().publish(&mut tx, event).await?;
         self.ports.audit().record(&mut tx, entry).await?;
         transactions.commit(tx).await?;

@@ -22,7 +22,9 @@ use crate::infrastructure::installer::MySqlInstallerPorts;
 pub const TAG: &str = "installer";
 
 pub fn router() -> OpenApiRouter<AppState> {
-    OpenApiRouter::new().routes(routes!(installer_status, install))
+    OpenApiRouter::new()
+        .routes(routes!(installer_status, install))
+        .routes(routes!(validate_modules))
 }
 
 #[utoipa::path(
@@ -30,7 +32,7 @@ pub fn router() -> OpenApiRouter<AppState> {
     path = "/installer",
     tag = TAG,
     operation_id = "installer_status",
-    description = "Tells whether the installation wizard is available: no organization exists and the installation was never completed.",
+    description = "Returns installer availability, compiled module metadata and profile recommendations. Only available before the company is installed. Secret values are never returned.",
     responses(
         (status = 200, description = "The installer is available", body = InstallerStatusResponse),
         (status = 404, description = "The instance is already installed (`not_found`)", body = ErrorEnvelope),
@@ -41,7 +43,43 @@ async fn installer_status(
     State(state): State<AppState>,
 ) -> Result<Json<InstallerStatusResponse>, ApiError> {
     use_cases(&state)?.status().await?;
-    Ok(Json(InstallerStatusResponse { available: true }))
+    Ok(Json(InstallerStatusResponse {
+        available: true,
+        modules: state
+            .app
+            .modules()
+            .iter()
+            .map(
+                |entry| crate::api::dto::installer::InstallerModuleResponse {
+                    key: entry.key().to_owned(),
+                    name: entry.manifest.name.to_owned(),
+                    description: entry.manifest.description.to_owned(),
+                    required: entry.manifest.required,
+                    compatible: entry.is_compatible(),
+                    dependencies: entry
+                        .manifest
+                        .dependencies
+                        .iter()
+                        .map(|dependency| dependency.key.to_owned())
+                        .collect(),
+                    settings_schema: entry
+                        .manifest
+                        .settings
+                        .iter()
+                        .map(|field| {
+                            let mut schema =
+                                crate::api::dto::modules::ModuleSettingFieldResponse::from(field);
+                            if field.is_secret() {
+                                schema.default = None;
+                            }
+                            schema
+                        })
+                        .collect(),
+                },
+            )
+            .collect(),
+        profiles: crate::application::installer::modules::profiles(),
+    }))
 }
 
 #[utoipa::path(
@@ -49,7 +87,7 @@ async fn installer_status(
     path = "/installer",
     tag = TAG,
     operation_id = "installer_install",
-    description = "Creates the organization with its administrator (email already verified), marks the instance as installed in the same transaction and starts a session (sets the `aphel_session` cookie). `public_base_url` is the address the browser used (its origin); it is saved as the public address used in email links and decides the `Secure` cookie flag, and stays editable in the settings. Works only once.",
+    description = "Creates the organization with its administrator (email already verified), marks the instance as installed in the same transaction and starts a session (sets the `aphel_session` cookie). `public_base_url` is the address the browser used (its origin); it is saved as the public address used in email links and decides the `Secure` cookie flag, and stays editable in the settings. Optional modules default to disabled. The selected modules, their transitive dependencies and validated settings are stored in the installation transaction; secret settings go to the secret vault. Works only once.",
     request_body = InstallRequest,
     responses(
         (status = 201, description = "Instance installed, session started", body = MeResponse),
@@ -57,7 +95,7 @@ async fn installer_status(
         (status = 404, description = "The instance is already installed (`not_found`)", body = ErrorEnvelope),
         (status = 409, description = "Email already registered (`email_taken`)", body = ErrorEnvelope),
         (status = 413, description = "Request body too large (`payload_too_large`)", body = ErrorEnvelope),
-        (status = 422, description = "Invalid fields (`validation_error` with `details.fields`: organization name, timezone, currency, locale, administrator name, email, password of 8 to 128 characters, public address)", body = ErrorEnvelope),
+        (status = 422, description = "Invalid fields (`validation_error` with `details.fields`: organization name, timezone, currency, locale, administrator name, email, password of 8 to 128 characters, public address, modules and module settings)", body = ErrorEnvelope),
         (status = 503, description = "Database is not configured (`configuration_error`)", body = ErrorEnvelope),
     )
 )]
@@ -69,6 +107,8 @@ async fn install(
     let password = Secret::new(request.admin_password);
     let installation = use_cases(&state)?
         .install(InstallCommand {
+            modules: request.modules,
+            module_settings: request.module_settings,
             organization_name: request.organization_name,
             timezone: request.timezone,
             currency: request.currency,
@@ -80,6 +120,33 @@ async fn install(
             ip: client.ip.clone(),
         })
         .await?;
+    state.app.enabled().refresh(&state.db()?).await?;
+    let pool = state.db()?;
+    let scope = crate::infrastructure::repositories::mysql_access::build_requester_scope(
+        &pool,
+        &installation.user_id,
+        None,
+    )
+    .await?
+    .ok_or_else(|| {
+        AppError::Internal("the installation administrator has no access scope".to_owned())
+    })?;
+    for entry in state
+        .app
+        .modules()
+        .iter()
+        .filter(|entry| !entry.manifest.required && state.app.is_enabled(entry.key()))
+    {
+        let mut context = crate::modules::ModuleCtx {
+            pool: &pool,
+            scope: &scope,
+            services: state.app.services(),
+            module: entry.key(),
+        };
+        if let Err(error) = entry.module.on_enable(&mut context).await {
+            tracing::error!(module = entry.key(), "on_enable failed: {error}");
+        }
+    }
     state.organization_config.refresh().await;
     let session = state
         .auth_use_cases()?
@@ -108,5 +175,32 @@ fn use_cases(state: &AppState) -> Result<InstallerUseCases<MySqlInstallerPorts>,
         state.record_types.builtin(),
         state.events.clone(),
         state.audit.clone(),
+        state.secrets.clone(),
     )))
+}
+
+#[utoipa::path(
+    post,
+    path = "/installer/modules/validate",
+    tag = TAG,
+    operation_id = "installer_validate_modules",
+    description = "Validates module selection, dependencies and settings without storing credentials or changing the installation.",
+    request_body = crate::api::dto::installer::InstallerModulesRequest,
+    responses(
+        (status = 204, description = "Module selection is valid"),
+        (status = 404, description = "The instance is already installed", body = ErrorEnvelope),
+        (status = 422, description = "Invalid modules or settings", body = ErrorEnvelope),
+    )
+)]
+async fn validate_modules(
+    State(state): State<AppState>,
+    JsonBody(request): JsonBody<crate::api::dto::installer::InstallerModulesRequest>,
+) -> Result<StatusCode, ApiError> {
+    use_cases(&state)?.status().await?;
+    crate::application::installer::modules::prepare(
+        &state.app,
+        &request.modules,
+        &request.module_settings,
+    )?;
+    Ok(StatusCode::NO_CONTENT)
 }

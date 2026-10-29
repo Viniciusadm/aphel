@@ -61,5 +61,51 @@
       "invalid": "Backup inválido: {{message}}",
       "generic": "Não foi possível restaurar o backup. Tente novamente."
     }
+  },
+  "selection": {
+    "profiles": "Escolha um perfil",
+    "profilesHint": "Use um perfil como ponto de partida e ajuste os módulos para sua empresa.",
+    "shelf": "Explore mais possibilidades",
+    "shelfHint": "Estes módulos precisam de configuração. Veja os benefícios e adicione apenas o que fizer sentido para você.",
+    "review": "Revise sua seleção",
+    "reviewHint": "Confira os módulos que estarão disponíveis. Você poderá alterar a seleção nas configurações depois.",
+    "custom": "Personalizado",
+    "personalized": "Perfil personalizado",
+    "clear": "Limpar seleção",
+    "showAll": "Mostrar também módulos de outros perfis",
+    "search": "Buscar módulos",
+    "partial": "Alguns módulos deste perfil não estão disponíveis neste build.",
+    "dependency": "Necessário para outro módulo selecionado.",
+    "recommended": "Recomendado para o seu perfil.",
+    "incompatible": "Indisponível: incompatível com este build.",
+    "configure": "Configurar módulo",
+    "required": "Base obrigatória — sempre ativa",
+    "none": "Nenhum módulo opcional selecionado.",
+    "configurationHint": "Configure este módulo e suas dependências. Os dados serão salvos ao concluir a instalação.",
+    "cancel": "Cancelar",
+    "add": "Confirmar configuração",
+    "validating": "Validando…",
+    "invalidConfiguration": "Confira a configuração dos módulos selecionados. Reabra os itens para corrigir os campos indicados.",
+    "invalidField": "Confira o valor deste campo.",
+    "selectOption": "Selecione uma opção",
+    "back": "Voltar",
+    "next": "Continuar",
+    "step": "Etapa {{current}} de {{total}}",
+    "profilesNames": {
+      "freelancer": "Freelancer",
+      "agency": "Agência",
+      "real_estate": "Imobiliária",
+      "consultancy": "Consultoria",
+      "saas": "SaaS",
+      "sales": "Equipe de vendas"
+    },
+    "profilesDescriptions": {
+      "freelancer": "Organize clientes, agenda e orçamentos no trabalho independente.",
+      "agency": "Acompanhe oportunidades, propostas e relacionamento com clientes.",
+      "real_estate": "Capture e distribua leads e acompanhe os contatos da equipe.",
+      "consultancy": "Organize reuniões, propostas e aprovações comerciais.",
+      "saas": "Acompanhe aquisição, qualificação, renovações e metas.",
+      "sales": "Gerencie prospecção, desempenho e previsão de vendas."
+    }
   }
 }

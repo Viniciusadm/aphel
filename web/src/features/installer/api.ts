@@ -1,7 +1,7 @@
 import { useQuery } from '@tanstack/react-query'
 import { api, isApiError, type components } from '@/api'
 
-export type InstallRequest = components['schemas']['InstallRequest'] & { public_base_url?: string | null }
+export type InstallRequest = components['schemas']['InstallRequest']
 export type InstallerMe = components['schemas']['MeResponse']
 
 const INSTALLER_PATH = '/v1/installer'

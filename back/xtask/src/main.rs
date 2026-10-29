@@ -87,6 +87,20 @@ fn back_dir() -> PathBuf {
 fn sync(check: bool) -> Result<bool, Failure> {
     let back = back_dir();
     let selection = read_selection(&back.join(SELECTION))?;
+    let profiles: Vec<Value> = serde_json::from_str(&fs::read_to_string(
+        back.join("kernel/src/application/installer/profiles.json"),
+    )?)?;
+    for module in selection.iter().filter(|module| !module.spec.required) {
+        if !profiles.iter().any(|profile| {
+            profile["modules"].as_array().is_some_and(|modules| {
+                modules
+                    .iter()
+                    .any(|key| key.as_str() == Some(module.key.as_str()))
+            })
+        }) {
+            return Err(format!("optional module {} has no installer profile", module.key).into());
+        }
+    }
     let manifest_path = back.join(APP_MANIFEST);
     let current_manifest = fs::read_to_string(&manifest_path)?;
     let manifest = app_manifest(&current_manifest, &dependency_lines(&back, &selection)?)?;

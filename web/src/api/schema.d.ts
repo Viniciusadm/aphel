@@ -3654,11 +3654,28 @@ export interface paths {
             path?: never;
             cookie?: never;
         };
-        /** @description Tells whether the installation wizard is available: no organization exists and the installation was never completed. */
+        /** @description Returns installer availability, compiled module metadata and profile recommendations. Only available before the company is installed. Secret values are never returned. */
         get: operations["installer_status"];
         put?: never;
-        /** @description Creates the organization with its administrator (email already verified), marks the instance as installed in the same transaction and starts a session (sets the `aphel_session` cookie). `public_base_url` is the address the browser used (its origin); it is saved as the public address used in email links and decides the `Secure` cookie flag, and stays editable in the settings. Works only once. */
+        /** @description Creates the organization with its administrator (email already verified), marks the instance as installed in the same transaction and starts a session (sets the `aphel_session` cookie). `public_base_url` is the address the browser used (its origin); it is saved as the public address used in email links and decides the `Secure` cookie flag, and stays editable in the settings. Optional modules default to disabled. The selected modules, their transitive dependencies and validated settings are stored in the installation transaction; secret settings go to the secret vault. Works only once. */
         post: operations["installer_install"];
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
+    "/api/v1/installer/modules/validate": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        get?: never;
+        put?: never;
+        /** @description Validates module selection, dependencies and settings without storing credentials or changing the installation. */
+        post: operations["installer_validate_modules"];
         delete?: never;
         options?: never;
         head?: never;
@@ -15905,6 +15922,12 @@ export interface components {
             currency: string;
             /** @example pt-BR */
             locale: string;
+            module_settings?: {
+                [key: string]: {
+                    [key: string]: unknown;
+                };
+            };
+            modules?: string[];
             /** @example Acme Realty */
             organization_name: string;
             /** @example https://crm.example.com */
@@ -15951,6 +15974,27 @@ export interface components {
             /** @example 1.0.0 */
             version: string;
         };
+        InstallerModuleResponse: {
+            compatible: boolean;
+            dependencies: string[];
+            description: string;
+            key: string;
+            name: string;
+            required: boolean;
+            settings_schema: components["schemas"]["ModuleSettingFieldResponse"][];
+        };
+        InstallerModulesRequest: {
+            module_settings?: {
+                [key: string]: {
+                    [key: string]: unknown;
+                };
+            };
+            modules?: string[];
+        };
+        InstallerProfile: {
+            key: string;
+            modules: string[];
+        };
         InstallerRestoreForm: {
             /** Format: binary */
             file: string;
@@ -15960,6 +16004,8 @@ export interface components {
         };
         InstallerStatusResponse: {
             available: boolean;
+            modules: components["schemas"]["InstallerModuleResponse"][];
+            profiles: components["schemas"]["InstallerProfile"][];
         };
         IntegrationErrorResponse: {
             /** @example 2026-10-21T13:45:00.000Z */
@@ -40932,7 +40978,7 @@ export interface operations {
                     "application/json": components["schemas"]["ErrorEnvelope"];
                 };
             };
-            /** @description Invalid fields (`validation_error` with `details.fields`: organization name, timezone, currency, locale, administrator name, email, password of 8 to 128 characters, public address) */
+            /** @description Invalid fields (`validation_error` with `details.fields`: organization name, timezone, currency, locale, administrator name, email, password of 8 to 128 characters, public address, modules and module settings) */
             422: {
                 headers: {
                     [name: string]: unknown;
@@ -40943,6 +40989,46 @@ export interface operations {
             };
             /** @description Database is not configured (`configuration_error`) */
             503: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["ErrorEnvelope"];
+                };
+            };
+        };
+    };
+    installer_validate_modules: {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        requestBody: {
+            content: {
+                "application/json": components["schemas"]["InstallerModulesRequest"];
+            };
+        };
+        responses: {
+            /** @description Module selection is valid */
+            204: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content?: never;
+            };
+            /** @description The instance is already installed */
+            404: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["ErrorEnvelope"];
+                };
+            };
+            /** @description Invalid modules or settings */
+            422: {
                 headers: {
                     [name: string]: unknown;
                 };

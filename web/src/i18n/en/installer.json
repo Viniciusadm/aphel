@@ -61,5 +61,51 @@
       "invalid": "Invalid backup: {{message}}",
       "generic": "Could not restore the backup. Try again."
     }
+  },
+  "selection": {
+    "profiles": "Choose a profile",
+    "profilesHint": "Use a profile as a starting point and adjust the modules for your company.",
+    "shelf": "Explore more possibilities",
+    "shelfHint": "These modules need configuration. Explore their benefits and add the ones that fit your needs.",
+    "review": "Review your selection",
+    "reviewHint": "Check the modules that will be available. You can change your selection in settings later.",
+    "custom": "Custom",
+    "personalized": "Customized profile",
+    "clear": "Clear selection",
+    "showAll": "Also show modules from other profiles",
+    "search": "Search modules",
+    "partial": "Some modules in this profile are unavailable in this build.",
+    "dependency": "Required by another selected module.",
+    "recommended": "Recommended for your profile.",
+    "incompatible": "Unavailable: incompatible with this build.",
+    "configure": "Configure module",
+    "required": "Required foundation — always active",
+    "none": "No optional modules selected.",
+    "configurationHint": "Configure this module and its dependencies. Values will be saved when installation completes.",
+    "cancel": "Cancel",
+    "add": "Confirm configuration",
+    "validating": "Validating…",
+    "invalidConfiguration": "Check the configuration of selected modules. Reopen the items to correct the highlighted fields.",
+    "invalidField": "Check this field’s value.",
+    "selectOption": "Select an option",
+    "back": "Back",
+    "next": "Continue",
+    "step": "Step {{current}} of {{total}}",
+    "profilesNames": {
+      "freelancer": "Freelancer",
+      "agency": "Agency",
+      "real_estate": "Real estate",
+      "consultancy": "Consultancy",
+      "saas": "SaaS",
+      "sales": "Sales team"
+    },
+    "profilesDescriptions": {
+      "freelancer": "Organize clients, appointments and quotes for independent work.",
+      "agency": "Track opportunities, proposals and client relationships.",
+      "real_estate": "Capture and distribute leads and coordinate team outreach.",
+      "consultancy": "Organize meetings, proposals and sales approvals.",
+      "saas": "Track acquisition, qualification, renewals and goals.",
+      "sales": "Manage prospecting, performance and sales forecasts."
+    }
   }
 }

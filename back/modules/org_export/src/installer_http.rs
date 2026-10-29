@@ -118,6 +118,7 @@ fn installer(state: &AppState) -> Result<InstallerUseCases<MySqlInstallerPorts>,
         state.record_types.builtin(),
         state.events.clone(),
         state.audit.clone(),
+        state.secrets.clone(),
     )))
 }
 

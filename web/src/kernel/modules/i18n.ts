@@ -128,6 +128,10 @@ export function syncModuleTranslations(): Promise<void> {
   return Promise.all(loads).then(() => undefined)
 }
 
+export function preloadInstallerTranslations(): Promise<void> {
+  return Promise.all(registeredModules().map((module) => load(module, localesFor()))).then(() => undefined)
+}
+
 export function preloadModuleTranslations(state: ModuleState): Promise<void> {
   const locales = localesFor()
   return Promise.all(activeModules(state).map((module) => load(module, locales))).then(() => undefined)

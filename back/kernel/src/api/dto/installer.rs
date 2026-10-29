@@ -4,6 +4,8 @@ use utoipa::ToSchema;
 #[derive(Debug, Serialize, ToSchema)]
 pub struct InstallerStatusResponse {
     pub available: bool,
+    pub modules: Vec<InstallerModuleResponse>,
+    pub profiles: Vec<crate::application::installer::modules::InstallerProfile>,
 }
 
 #[derive(Deserialize, ToSchema)]
@@ -24,4 +26,29 @@ pub struct InstallRequest {
     pub admin_password: String,
     #[schema(example = "https://crm.example.com")]
     pub public_base_url: Option<String>,
+    #[serde(default)]
+    pub modules: Vec<String>,
+    #[serde(default)]
+    pub module_settings:
+        std::collections::BTreeMap<String, serde_json::Map<String, serde_json::Value>>,
+}
+
+#[derive(Debug, Serialize, ToSchema)]
+pub struct InstallerModuleResponse {
+    pub key: String,
+    pub name: String,
+    pub description: String,
+    pub required: bool,
+    pub compatible: bool,
+    pub dependencies: Vec<String>,
+    pub settings_schema: Vec<super::modules::ModuleSettingFieldResponse>,
+}
+
+#[derive(Deserialize, ToSchema)]
+pub struct InstallerModulesRequest {
+    #[serde(default)]
+    pub modules: Vec<String>,
+    #[serde(default)]
+    pub module_settings:
+        std::collections::BTreeMap<String, serde_json::Map<String, serde_json::Value>>,
 }

@@ -5,3 +5,5 @@ pub mod use_cases;
 pub use commands::*;
 pub use ports::*;
 pub use use_cases::*;
+
+pub mod modules;

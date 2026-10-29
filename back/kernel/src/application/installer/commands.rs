@@ -1,6 +1,6 @@
 use crate::domain::{Secret, UserId};
 
-#[derive(Debug, Clone, PartialEq, Eq)]
+#[derive(Clone, PartialEq, Eq)]
 pub struct InstallCommand {
     pub organization_name: String,
     pub timezone: String,
@@ -11,6 +11,9 @@ pub struct InstallCommand {
     pub admin_password: Secret,
     pub public_base_url: Option<String>,
     pub ip: Option<String>,
+    pub modules: Vec<String>,
+    pub module_settings:
+        std::collections::BTreeMap<String, serde_json::Map<String, serde_json::Value>>,
 }
 
 #[derive(Debug, Clone, PartialEq, Eq)]
