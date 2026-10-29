@@ -23,6 +23,7 @@ interface InstalledPlugin {
   events: string[]
   routes: string[]
   has_web: boolean
+  backend_error: string | null
 }
 
 const PLUGINS_PATH = '/v1/plugins'
@@ -115,11 +116,20 @@ export function PluginsPanel() {
                     {plugin.key} · {t('version', { version: plugin.version })}
                   </span>
                 </div>
-                <Badge variant={plugin.enabled ? 'success' : 'secondary'}>
-                  {plugin.enabled ? t('status.enabled') : t('status.disabled')}
-                </Badge>
+                <div className="flex flex-wrap gap-1">
+                  {plugin.backend_error && <Badge variant="destructive">{t('plugins.backendFailed')}</Badge>}
+                  <Badge variant={plugin.enabled ? 'success' : 'secondary'}>
+                    {plugin.enabled ? t('status.enabled') : t('status.disabled')}
+                  </Badge>
+                </div>
               </div>
               {plugin.description && <p className="text-sm text-muted-foreground">{plugin.description}</p>}
+              {plugin.backend_error && (
+                <div role="alert" className="grid gap-1 rounded-md border border-destructive/50 p-3 text-sm">
+                  <p className="text-destructive">{t('plugins.backendFailedDescription')}</p>
+                  <p className="text-xs break-words text-muted-foreground">{plugin.backend_error}</p>
+                </div>
+              )}
               <dl className="grid gap-1 text-xs">
                 {(
                   [

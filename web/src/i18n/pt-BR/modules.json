@@ -126,6 +126,8 @@
     "installed": "Plugin {{name}} instalado. Recarregando…",
     "updated": "Plugin atualizado. Recarregando…",
     "removed": "Plugin desinstalado. Recarregando…",
+    "backendFailed": "Falha ao carregar",
+    "backendFailedDescription": "O backend deste plugin não carrega mais, então as gravações nos tipos de registro que ele observa estão bloqueadas. Reinstale o pacote do plugin para liberar.",
     "emptyTitle": "Nenhum plugin instalado",
     "emptyDescription": "Envie um arquivo .aphelplugin para adicionar entidades, campos, regras e telas ao Aphel.",
     "enable": "Ativar",

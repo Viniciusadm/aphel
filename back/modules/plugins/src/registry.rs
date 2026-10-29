@@ -18,6 +18,7 @@ pub struct LoadedPlugin {
     pub manifest: PluginManifest,
     pub settings: Map<String, Value>,
     pub backend: Option<runtime::Backend>,
+    pub backend_error: Option<String>,
 }
 
 #[derive(Default)]
@@ -31,11 +32,16 @@ impl Snapshot {
         self.plugins.iter().find(|plugin| plugin.key == key)
     }
 
+    pub fn backend_error(&self, key: &str) -> Option<String> {
+        self.plugin(key)
+            .and_then(|plugin| plugin.backend_error.clone())
+    }
+
     pub fn hook_subscribers(&self, hook: &str, record_type: &str) -> Vec<Arc<LoadedPlugin>> {
         let mut subscribers: Vec<(i32, &Arc<LoadedPlugin>)> = self
             .plugins
             .iter()
-            .filter(|plugin| plugin.backend.is_some())
+            .filter(|plugin| plugin.backend.is_some() || plugin.backend_error.is_some())
             .filter_map(|plugin| {
                 plugin
                     .manifest
@@ -59,9 +65,11 @@ impl Snapshot {
     }
 }
 
+type LoadedBackend = (Option<runtime::Backend>, Option<String>);
+
 struct Cache {
     checked_at: Option<Instant>,
-    compiled: HashMap<String, (String, Option<runtime::Backend>)>,
+    compiled: HashMap<String, (String, LoadedBackend)>,
 }
 
 fn cache() -> &'static Mutex<Cache> {
@@ -110,18 +118,18 @@ pub async fn current(pool: &MySqlPool) -> Result<Arc<Snapshot>, AppError> {
         if !installed.enabled {
             continue;
         }
-        let backend = match cache.compiled.get(&installed.key) {
-            Some((checksum, backend)) if checksum == &installed.checksum => backend.clone(),
+        let (backend, backend_error) = match cache.compiled.get(&installed.key) {
+            Some((checksum, loaded)) if checksum == &installed.checksum => loaded.clone(),
             _ => {
                 let backend = match store::backend(pool, &installed.key).await? {
                     Some(bytes) => match runtime::compile(bytes).await {
-                        Ok(backend) => Some(backend),
+                        Ok(backend) => (Some(backend), None),
                         Err(error) => {
-                            tracing::error!(plugin = %installed.key, error = %error, "the plugin backend could not be loaded; its hooks, events and routes are skipped");
-                            None
+                            tracing::error!(plugin = %installed.key, error = %error, "the plugin backend could not be loaded; writes to the record types it hooks are refused and its events and routes are skipped");
+                            (None, Some(error.client_message().to_owned()))
                         }
                     },
-                    None => None,
+                    None => (None, None),
                 };
                 cache.compiled.insert(
                     installed.key.clone(),
@@ -135,6 +143,7 @@ pub async fn current(pool: &MySqlPool) -> Result<Arc<Snapshot>, AppError> {
             key: installed.key,
             manifest: installed.manifest,
             backend,
+            backend_error,
         }));
     }
     let snapshot = Arc::new(Snapshot {

@@ -201,7 +201,7 @@ pub fn on_route<P: Plugin>(
         route: request.route,
         params: pairs(request.params),
         query: pairs(request.query),
-        headers: pairs(request.headers),
+        headers: request.headers,
         body: value(&request.body_json),
         actor: actor(request.actor),
     };

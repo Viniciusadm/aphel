@@ -126,6 +126,15 @@ async fn instantiate(
     timeout: Duration,
 ) -> Result<(Store<CallState>, Plugin), AppError> {
     let Some(backend) = &plugin.backend else {
+        if plugin.backend_error.is_some() {
+            return Err(AppError::unavailable_code(
+                PLUGIN_FAILED,
+                format!(
+                    "the plugin {} could not be loaded; an administrator must reinstall it",
+                    plugin.key
+                ),
+            ));
+        }
         return Err(AppError::Configuration(format!(
             "the plugin {} has no backend",
             plugin.key

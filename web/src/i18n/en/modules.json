@@ -126,6 +126,8 @@
     "installed": "Plugin {{name}} installed. Reloading…",
     "updated": "Plugin updated. Reloading…",
     "removed": "Plugin uninstalled. Reloading…",
+    "backendFailed": "Failed to load",
+    "backendFailedDescription": "This plugin's backend no longer loads, so writes to the record types it hooks are blocked. Reinstall the plugin package to unblock them.",
     "emptyTitle": "No plugins installed",
     "emptyDescription": "Upload an .aphelplugin file to add entities, fields, rules and screens to Aphel.",
     "enable": "Enable",

@@ -188,7 +188,7 @@ pub struct Request {
     #[serde(default)]
     pub query: Map<String, Value>,
     #[serde(default)]
-    pub headers: Map<String, Value>,
+    pub headers: Vec<(String, String)>,
     #[serde(default)]
     pub body: Value,
     pub actor: Actor,
@@ -209,8 +209,16 @@ impl Request {
 
     pub fn header(&self, name: &str) -> Option<&str> {
         self.headers
-            .get(&name.to_ascii_lowercase())
-            .and_then(Value::as_str)
+            .iter()
+            .find(|(header, _)| header.eq_ignore_ascii_case(name))
+            .map(|(_, value)| value.as_str())
+    }
+
+    pub fn header_values<'a>(&'a self, name: &'a str) -> impl Iterator<Item = &'a str> + 'a {
+        self.headers
+            .iter()
+            .filter(move |(header, _)| header.eq_ignore_ascii_case(name))
+            .map(|(_, value)| value.as_str())
     }
 
     pub fn body<T: DeserializeOwned>(&self) -> Result<T> {

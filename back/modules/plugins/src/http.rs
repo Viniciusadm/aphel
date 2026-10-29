@@ -130,6 +130,7 @@ pub(crate) struct PluginResponse {
     events: Vec<String>,
     routes: Vec<String>,
     has_web: bool,
+    backend_error: Option<String>,
     settings: Vec<PluginSettingResponse>,
     installed_at: String,
     updated_at: String,
@@ -160,6 +161,7 @@ impl From<InstalledPlugin> for PluginResponse {
                 .map(|route| format!("{} {}", route.method, route.path))
                 .collect(),
             has_web: manifest.web.is_some(),
+            backend_error: None,
             settings: manifest
                 .settings
                 .iter()
@@ -190,7 +192,7 @@ impl From<InstalledPlugin> for PluginResponse {
     tag = TAG,
     operation_id = "plugins_list",
     security(("session_cookie" = [])),
-    description = "Lists the plugins installed at runtime (permission `system.manage`), with what each one declares: entities, extended record types, hooks, consumed events, routes and settings.",
+    description = "Lists the plugins installed at runtime (permission `system.manage`), with what each one declares: entities, extended record types, hooks, consumed events, routes and settings. `backend_error` is set when the installed backend no longer loads: writes to the record types it hooks then fail with 503 `plugin_failed` until the plugin is reinstalled.",
     responses(
         (status = 200, description = "Installed plugins", body = Data<Vec<PluginResponse>>),
         (status = 401, description = "Missing or invalid credentials (`unauthorized`)", body = ErrorEnvelope),
@@ -202,9 +204,20 @@ async fn list_plugins(
     tenant: AuthContext,
 ) -> Result<Json<Data<Vec<PluginResponse>>>, ApiError> {
     tenant.scope.require(&Permission::SYSTEM_MANAGE)?;
-    let plugins = store::list(&state.db()?).await?;
+    let pool = state.db()?;
+    let snapshot = registry::current(&pool).await?;
+    let plugins = store::list(&pool).await?;
     Ok(Json(Data::new(
-        plugins.into_iter().map(Into::into).collect(),
+        plugins
+            .into_iter()
+            .map(|plugin| {
+                let backend_error = snapshot.backend_error(&plugin.key);
+                PluginResponse {
+                    backend_error,
+                    ..plugin.into()
+                }
+            })
+            .collect(),
     )))
 }
 
