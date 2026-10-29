@@ -18,6 +18,13 @@ pub struct WebhookNetworkPolicy {
 }
 
 impl WebhookNetworkPolicy {
+    pub fn new(allow_private_networks: bool, require_https: bool) -> Self {
+        Self {
+            allow_private_networks,
+            require_https,
+        }
+    }
+
     pub(crate) fn from_config(config: &WebhooksConfig) -> Self {
         Self {
             allow_private_networks: config.allow_private_networks,
@@ -83,10 +90,7 @@ fn not_allowed() -> UrlRejection {
     )
 }
 
-pub(crate) fn parse_webhook_url(
-    raw: &str,
-    policy: &WebhookNetworkPolicy,
-) -> Result<Url, UrlRejection> {
+pub fn parse_webhook_url(raw: &str, policy: &WebhookNetworkPolicy) -> Result<Url, UrlRejection> {
     let url = Url::parse(raw)
         .map_err(|_| UrlRejection::Invalid("must be an absolute http(s) URL".to_owned()))?;
     match url.scheme() {
@@ -196,7 +200,7 @@ pub struct GuardedResolver {
 }
 
 impl GuardedResolver {
-    pub(crate) fn shared(policy: WebhookNetworkPolicy) -> Arc<Self> {
+    pub fn shared(policy: WebhookNetworkPolicy) -> Arc<Self> {
         Arc::new(Self { policy })
     }
 }

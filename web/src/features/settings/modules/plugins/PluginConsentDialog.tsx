@@ -1,0 +1,60 @@
+import { useTranslation } from 'react-i18next'
+import { ConfirmDialog } from '@/components/feedback'
+import { PluginDeclarationList } from './PluginDeclarationList'
+import type { PluginConsent } from './types'
+
+interface PluginConsentDialogProps {
+  consent: PluginConsent | null
+  pending: boolean
+  onCancel: () => void
+  onConfirm: () => void
+}
+
+export function PluginConsentDialog({ consent, pending, onCancel, onConfirm }: PluginConsentDialogProps) {
+  const { t } = useTranslation('modules')
+  const title = !consent
+    ? ''
+    : consent.installed_version
+      ? t('plugins.consentUpgradeTitle', {
+          name: consent.name,
+          from: consent.installed_version,
+          version: consent.version,
+        })
+      : t('plugins.consentTitle', { name: consent.name, version: consent.version })
+  const asksNothing =
+    consent !== null &&
+    consent.requires.length === 0 &&
+    consent.allowed_hosts.length === 0 &&
+    consent.public_routes.length === 0
+  return (
+    <ConfirmDialog
+      open={consent !== null}
+      onOpenChange={(open) => {
+        if (!open) onCancel()
+      }}
+      title={title}
+      description={t('plugins.consentDescription')}
+      confirmLabel={t('plugins.consentConfirm')}
+      pending={pending}
+      onConfirm={onConfirm}
+    >
+      {consent && (
+        <div className="grid gap-3 text-sm">
+          {consent.description && <p className="text-muted-foreground">{consent.description}</p>}
+          {asksNothing && <p>{t('plugins.consentNothing')}</p>}
+          {consent.public_routes.length > 0 && (
+            <p role="note" className="text-warning">
+              {t('plugins.consentPublicWarning')}
+            </p>
+          )}
+          {consent.allowed_hosts.length > 0 && (
+            <p role="note" className="text-warning">
+              {t('plugins.consentHttpWarning')}
+            </p>
+          )}
+          <PluginDeclarationList plugin={consent} />
+        </div>
+      )}
+    </ConfirmDialog>
+  )
+}

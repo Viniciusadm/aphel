@@ -3,8 +3,8 @@ use serde_json::{Map, Value};
 use crate::bindings::aphel::plugin::host;
 use crate::bindings::aphel::plugin::types as wit;
 use crate::{
-    Actor, ActorKind, Change, Ctx, Event, FieldError, HookCall, ListQuery, Page, Plugin,
-    PluginError, Request,
+    Actor, ActorKind, Change, Ctx, Event, FieldError, HookCall, HttpRequest, HttpResponse,
+    ListQuery, Page, Plugin, PluginError, Request,
 };
 
 fn object(json: &str) -> Map<String, Value> {
@@ -24,7 +24,9 @@ fn actor(actor: wit::Actor) -> Actor {
             wit::ActorKind::User => ActorKind::User,
             wit::ActorKind::ApiToken => ActorKind::ApiToken,
             wit::ActorKind::Automation => ActorKind::Automation,
+            wit::ActorKind::Plugin => ActorKind::Plugin,
             wit::ActorKind::System => ActorKind::System,
+            wit::ActorKind::Anonymous => ActorKind::Anonymous,
         },
         id: actor.id,
         user_id: actor.user_id,
@@ -137,6 +139,24 @@ pub(crate) fn kv_list(collection: &str) -> Result<Vec<(String, Value)>, PluginEr
         .collect())
 }
 
+pub(crate) fn http_fetch(request: HttpRequest) -> Result<HttpResponse, PluginError> {
+    let response = host::http_fetch(&wit::HttpRequest {
+        method: request.method,
+        url: request.url,
+        headers: request.headers,
+        body: request.body,
+    })?;
+    Ok(HttpResponse {
+        status: response.status,
+        headers: response.headers,
+        body: response.body,
+    })
+}
+
+pub(crate) fn secret(key: &str) -> Result<Option<String>, PluginError> {
+    Ok(host::secret(key)?)
+}
+
 pub(crate) fn settings() -> Map<String, Value> {
     object(&host::settings_json())
 }
@@ -189,6 +209,10 @@ pub fn on_event<P: Plugin>(plugin: &P, event: wit::Event) -> Result<(), wit::Plu
         payload: value(&event.payload_json),
     };
     Ok(plugin.on_event(&Ctx::new(), &event)?)
+}
+
+pub fn on_schedule<P: Plugin>(plugin: &P, name: &str, slot: &str) -> Result<(), wit::PluginError> {
+    Ok(plugin.on_schedule(&Ctx::new(), name, slot)?)
 }
 
 pub fn on_route<P: Plugin>(

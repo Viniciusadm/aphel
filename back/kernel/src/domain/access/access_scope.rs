@@ -138,6 +138,7 @@ pub struct AccessScope {
     permissions: PermissionSet,
     api_token: Option<ApiTokenGrant>,
     automation_id: Option<String>,
+    plugin_key: Option<String>,
     enabled_modules: Vec<String>,
 }
 
@@ -161,6 +162,7 @@ impl AccessScope {
             permissions,
             api_token: None,
             automation_id: None,
+            plugin_key: None,
             enabled_modules: Vec::new(),
         }
     }
@@ -198,6 +200,20 @@ impl AccessScope {
 
     pub fn automation_id(&self) -> Option<&str> {
         self.automation_id.as_deref()
+    }
+
+    pub fn restricted(mut self, allows: impl Fn(&Permission) -> bool) -> Self {
+        self.permissions = self.permissions.restricted(allows);
+        self
+    }
+
+    pub fn through_plugin(mut self, plugin_key: impl Into<String>) -> Self {
+        self.plugin_key = Some(plugin_key.into());
+        self
+    }
+
+    pub fn plugin_key(&self) -> Option<&str> {
+        self.plugin_key.as_deref()
     }
 
     pub fn through_api_token(

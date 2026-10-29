@@ -63,7 +63,7 @@
     "inactiveOption": "Esta opção está inativa.",
     "tooManyOptions": "Selecione no máximo {{max}} opções.",
     "reference": "Selecione um item válido.",
-    "referenceNotFound": "O item selecionado não existe mais.",
+    "referenceNotFound": "O item selecionado não existe mais ou você não tem acesso a ele.",
     "unique": "Este valor já está em uso por outro registro.",
     "boolean": "Informe sim ou não.",
     "outOfRange": "O valor está fora do intervalo permitido.",

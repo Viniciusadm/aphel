@@ -140,7 +140,31 @@
       "extendedTypes": "Estende",
       "hooks": "Regras",
       "events": "Eventos",
-      "routes": "Rotas"
-    }
+      "routes": "Rotas",
+      "publicRoutes": "Rotas públicas",
+      "requires": "Permissões que usa",
+      "permissions": "Permissões que cria",
+      "allowedHosts": "Acessa na internet",
+      "schedules": "Rotinas agendadas",
+      "secrets": "Segredos"
+    },
+    "checking": "Verificando o pacote…",
+    "settings": "Configurações",
+    "settingsTitle": "Configurações de {{name}}",
+    "settingsDescription": "Valores usados pelo plugin. Segredos ficam criptografados e nunca são exibidos de novo.",
+    "settingsSaved": "Configurações salvas.",
+    "save": "Salvar",
+    "cancel": "Cancelar",
+    "secretConfigured": "Configurado. Deixe em branco para manter.",
+    "secretMissing": "Não configurado.",
+    "secretClear": "Remover segredo",
+    "secretWillClear": "O segredo será removido ao salvar.",
+    "consentTitle": "Instalar {{name}} {{version}}?",
+    "consentUpgradeTitle": "Atualizar {{name}} de {{from}} para {{version}}?",
+    "consentDescription": "Confira o que o plugin pede. Ele vai agir com essas permissões, limitadas às suas, inclusive em eventos, rotinas agendadas e rotas públicas.",
+    "consentConfirm": "Instalar",
+    "consentNothing": "O plugin não pede nenhuma permissão especial.",
+    "consentPublicWarning": "Rotas públicas podem ser chamadas por qualquer pessoa na internet, sem login.",
+    "consentHttpWarning": "O plugin poderá enviar dados do CRM para os endereços listados."
   }
 }

@@ -17,7 +17,9 @@ interface types {
     user,
     api-token,
     automation,
+    plugin,
     system,
+    anonymous,
   }
 
   record actor {
@@ -86,10 +88,23 @@ interface types {
     records-json: list<string>,
     total: u64,
   }
+
+  record http-request {
+    method: string,
+    url: string,
+    headers: list<tuple<string, string>>,
+    body: option<list<u8>>,
+  }
+
+  record http-response {
+    status: u16,
+    headers: list<tuple<string, string>>,
+    body: list<u8>,
+  }
 }
 
 interface host {
-  use types.{plugin-error, list-query, page};
+  use types.{plugin-error, list-query, page, http-request, http-response};
 
   get-record: func(record-type: string, id: string) -> result<option<string>, plugin-error>;
   list-records: func(record-type: string, query: list-query) -> result<page, plugin-error>;
@@ -102,7 +117,10 @@ interface host {
   kv-delete: func(collection: string, id: string) -> result<_, plugin-error>;
   kv-list: func(collection: string) -> result<list<tuple<string, string>>, plugin-error>;
 
+  http-fetch: func(request: http-request) -> result<http-response, plugin-error>;
+
   settings-json: func() -> string;
+  secret: func(key: string) -> result<option<string>, plugin-error>;
   now: func() -> string;
   log: func(level: string, message: string);
 }
@@ -115,4 +133,5 @@ world plugin {
   export on-hook: func(call: hook-call) -> result<hook-outcome, plugin-error>;
   export on-event: func(event: event) -> result<_, plugin-error>;
   export on-route: func(request: request) -> result<response, plugin-error>;
+  export on-schedule: func(name: string, slot: string) -> result<_, plugin-error>;
 }

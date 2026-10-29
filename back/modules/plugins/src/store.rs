@@ -21,6 +21,7 @@ pub struct InstalledPlugin {
     pub checksum: String,
     pub enabled: bool,
     pub settings: Map<String, Value>,
+    pub installed_by: Option<String>,
     pub installed_at: DateTime<Utc>,
     pub updated_at: DateTime<Utc>,
 }
@@ -34,7 +35,7 @@ impl InstalledPlugin {
 }
 
 const SELECT: &str = "SELECT plugin_key, name, version, description, manifest, checksum, enabled, \
-     settings, installed_at, updated_at FROM plugins_installed";
+     settings, installed_by, installed_at, updated_at FROM plugins_installed";
 
 fn from_row(row: &MySqlRow) -> Result<InstalledPlugin, AppError> {
     let Json(manifest): Json<PluginManifest> = row.try_get("manifest")?;
@@ -48,6 +49,7 @@ fn from_row(row: &MySqlRow) -> Result<InstalledPlugin, AppError> {
         checksum: row.try_get("checksum")?,
         enabled: row.try_get("enabled")?,
         settings,
+        installed_by: row.try_get("installed_by")?,
         installed_at: instant(row, "installed_at")?,
         updated_at: instant(row, "updated_at")?,
     })
@@ -98,7 +100,8 @@ pub async fn save(
          checksum, enabled, settings, installed_by) VALUES (?, ?, ?, ?, ?, ?, TRUE, JSON_OBJECT(), ?) \
          ON DUPLICATE KEY UPDATE name = VALUES(name), version = VALUES(version), \
          description = VALUES(description), manifest = VALUES(manifest), \
-         checksum = VALUES(checksum), updated_at = CURRENT_TIMESTAMP(6)",
+         checksum = VALUES(checksum), installed_by = VALUES(installed_by), \
+         updated_at = CURRENT_TIMESTAMP(6)",
     )
     .bind(&manifest.key)
     .bind(&manifest.name)

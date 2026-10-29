@@ -3,8 +3,7 @@ use sqlx::MySqlPool;
 
 use crate::registry;
 use crate::runtime::{event_actor, on_event, wit};
-use aphel_kernel::application::shared::{DomainEvent, EventConsumer};
-use aphel_kernel::domain::access::AccessScope;
+use aphel_kernel::application::shared::{Actor, DomainEvent, EventConsumer};
 use aphel_kernel::errors::AppError;
 
 pub(crate) const EVENTS_CONSUMER: &str = "plugins.events";
@@ -51,10 +50,12 @@ impl EventConsumer for PluginEventsConsumer {
             occurred_at: event.occurred_at.to_rfc3339(),
             payload_json: event.payload.to_string(),
         };
-        let scope = AccessScope::system();
         let mut failed = None;
         for plugin in consumers {
-            if let Err(error) = on_event(&plugin, &scope, &input).await {
+            if matches!(&event.actor, Actor::Plugin(key) if *key == plugin.key) {
+                continue;
+            }
+            if let Err(error) = on_event(&plugin, &input).await {
                 tracing::warn!(plugin = %plugin.key, event = %event.event_type, error = %error, "plugin event handler failed");
                 failed = Some(error);
             }

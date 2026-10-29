@@ -140,7 +140,31 @@
       "extendedTypes": "Extends",
       "hooks": "Rules",
       "events": "Events",
-      "routes": "Routes"
-    }
+      "routes": "Routes",
+      "publicRoutes": "Public routes",
+      "requires": "Permissions it uses",
+      "permissions": "Permissions it creates",
+      "allowedHosts": "Internet access",
+      "schedules": "Scheduled routines",
+      "secrets": "Secrets"
+    },
+    "checking": "Checking the package…",
+    "settings": "Settings",
+    "settingsTitle": "{{name}} settings",
+    "settingsDescription": "Values the plugin uses. Secrets are stored encrypted and are never shown again.",
+    "settingsSaved": "Settings saved.",
+    "save": "Save",
+    "cancel": "Cancel",
+    "secretConfigured": "Configured. Leave blank to keep it.",
+    "secretMissing": "Not configured.",
+    "secretClear": "Remove secret",
+    "secretWillClear": "The secret will be removed when you save.",
+    "consentTitle": "Install {{name}} {{version}}?",
+    "consentUpgradeTitle": "Upgrade {{name}} from {{from}} to {{version}}?",
+    "consentDescription": "Review what the plugin asks for. It will act with these permissions, limited to yours, including in events, scheduled routines and public routes.",
+    "consentConfirm": "Install",
+    "consentNothing": "The plugin does not ask for any special permission.",
+    "consentPublicWarning": "Public routes can be called by anyone on the internet, without signing in.",
+    "consentHttpWarning": "The plugin will be able to send CRM data to the listed addresses."
   }
 }

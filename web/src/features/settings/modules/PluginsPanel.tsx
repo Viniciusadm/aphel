@@ -1,4 +1,4 @@
-import { PackagePlus, Plug, Power, PowerOff, Trash2 } from 'lucide-react'
+import { PackagePlus, Plug, Power, PowerOff, Settings2, Trash2 } from 'lucide-react'
 import { useRef, useState } from 'react'
 import { useTranslation } from 'react-i18next'
 import { useMutation, useQuery, useQueryClient } from '@tanstack/react-query'
@@ -10,24 +10,11 @@ import { EmptyState } from '@/components/ui/empty-state'
 import { ErrorState } from '@/components/ui/error-state'
 import { Skeleton } from '@/components/ui/skeleton'
 import { SectionHeader } from '@/features/settings/components/SectionHeader'
+import { PluginConsentDialog } from './plugins/PluginConsentDialog'
+import { PluginDeclarationList } from './plugins/PluginDeclarationList'
+import { PluginSettingsDialog } from './plugins/PluginSettingsDialog'
+import { PLUGINS_PATH, pluginsKey, type InstalledPlugin, type PluginConsent } from './plugins/types'
 
-interface InstalledPlugin {
-  key: string
-  name: string
-  version: string
-  description: string | null
-  enabled: boolean
-  entities: string[]
-  extended_types: string[]
-  hooks: string[]
-  events: string[]
-  routes: string[]
-  has_web: boolean
-  backend_error: string | null
-}
-
-const PLUGINS_PATH = '/v1/plugins'
-const pluginsKey = ['plugins'] as const
 const PACKAGE_EXTENSION = '.aphelplugin'
 
 function reloadApp() {
@@ -39,6 +26,8 @@ export function PluginsPanel() {
   const queryClient = useQueryClient()
   const input = useRef<HTMLInputElement>(null)
   const [removing, setRemoving] = useState<InstalledPlugin | null>(null)
+  const [configuring, setConfiguring] = useState<InstalledPlugin | null>(null)
+  const [pending, setPending] = useState<{ file: File; consent: PluginConsent } | null>(null)
   const plugins = useQuery({
     queryKey: pluginsKey,
     queryFn: () => api.get<{ data: InstalledPlugin[] }>(PLUGINS_PATH).then((response) => response.data),
@@ -48,13 +37,25 @@ export function PluginsPanel() {
     void queryClient.invalidateQueries({ queryKey: pluginsKey })
     window.setTimeout(reloadApp, 800)
   }
+  const packageForm = (file: File) => {
+    const form = new FormData()
+    form.append('package', file)
+    return form
+  }
+  const review = useMutation({
+    mutationFn: (file: File) =>
+      api
+        .post<{ data: PluginConsent }>(`${PLUGINS_PATH}?dry_run=true`, packageForm(file))
+        .then((response) => ({ file, consent: response.data })),
+    onSuccess: (result) => setPending(result),
+    onError: (error) => notifyError(error),
+  })
   const install = useMutation({
-    mutationFn: (file: File) => {
-      const form = new FormData()
-      form.append('package', file)
-      return api.post<{ data: InstalledPlugin }>(PLUGINS_PATH, form)
+    mutationFn: (file: File) => api.post<{ data: InstalledPlugin }>(PLUGINS_PATH, packageForm(file)),
+    onSuccess: (response) => {
+      setPending(null)
+      changed(t('plugins.installed', { name: response.data.name }))
     },
-    onSuccess: (response) => changed(t('plugins.installed', { name: response.data.name })),
     onError: (error) => notifyError(error),
   })
   const toggle = useMutation({
@@ -82,13 +83,13 @@ export function PluginsPanel() {
         aria-label={t('plugins.upload')}
         onChange={(event) => {
           const file = event.target.files?.[0]
-          if (file) install.mutate(file)
+          if (file) review.mutate(file)
           event.target.value = ''
         }}
       />
-      <Button size="sm" onClick={() => input.current?.click()} disabled={install.isPending}>
+      <Button size="sm" onClick={() => input.current?.click()} disabled={review.isPending || install.isPending}>
         <PackagePlus aria-hidden="true" />
-        {install.isPending ? t('plugins.uploading') : t('plugins.upload')}
+        {review.isPending ? t('plugins.checking') : install.isPending ? t('plugins.uploading') : t('plugins.upload')}
       </Button>
     </>
   )
@@ -130,29 +131,18 @@ export function PluginsPanel() {
                   <p className="text-xs break-words text-muted-foreground">{plugin.backend_error}</p>
                 </div>
               )}
-              <dl className="grid gap-1 text-xs">
-                {(
-                  [
-                    ['entities', plugin.entities],
-                    ['extendedTypes', plugin.extended_types],
-                    ['hooks', plugin.hooks],
-                    ['events', plugin.events],
-                    ['routes', plugin.routes],
-                  ] as const
-                )
-                  .filter(([, values]) => values.length > 0)
-                  .map(([label, values]) => (
-                    <div key={label} className="flex flex-wrap gap-1">
-                      <dt className="font-medium">{t(`plugins.declares.${label}`)}:</dt>
-                      <dd className="text-muted-foreground">{values.join(', ')}</dd>
-                    </div>
-                  ))}
-              </dl>
+              <PluginDeclarationList plugin={plugin} />
               <div className="flex flex-wrap gap-2">
                 <Button size="sm" variant="outline" onClick={() => toggle.mutate(plugin)} disabled={toggle.isPending}>
                   {plugin.enabled ? <PowerOff aria-hidden="true" /> : <Power aria-hidden="true" />}
                   {plugin.enabled ? t('plugins.disable') : t('plugins.enable')}
                 </Button>
+                {plugin.settings.length > 0 && (
+                  <Button size="sm" variant="outline" onClick={() => setConfiguring(plugin)}>
+                    <Settings2 aria-hidden="true" />
+                    {t('plugins.settings')}
+                  </Button>
+                )}
                 <Button size="sm" variant="outline" onClick={() => setRemoving(plugin)}>
                   <Trash2 aria-hidden="true" />
                   {t('plugins.uninstall')}
@@ -161,6 +151,21 @@ export function PluginsPanel() {
             </li>
           ))}
         </ul>
+      )}
+      <PluginConsentDialog
+        consent={pending?.consent ?? null}
+        pending={install.isPending}
+        onCancel={() => setPending(null)}
+        onConfirm={() => {
+          if (pending) install.mutate(pending.file)
+        }}
+      />
+      {configuring && (
+        <PluginSettingsDialog
+          plugin={configuring}
+          onClose={() => setConfiguring(null)}
+          onSaved={() => queryClient.invalidateQueries({ queryKey: pluginsKey })}
+        />
       )}
       <ConfirmDialog
         open={removing !== null}

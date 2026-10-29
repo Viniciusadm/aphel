@@ -10,3 +10,4 @@ pub(crate) mod mysql_sessions;
 pub(crate) mod mysql_teams;
 pub(crate) mod mysql_user_tokens;
 pub mod mysql_users;
+pub mod runtime_permissions;

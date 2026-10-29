@@ -17,6 +17,7 @@ pub enum Actor {
     System,
     ApiToken(String),
     Automation(String),
+    Plugin(String),
 }
 
 impl Actor {
@@ -24,8 +25,12 @@ impl Actor {
     pub const SYSTEM: &'static str = "system";
     pub const API_TOKEN: &'static str = "api_token";
     pub const AUTOMATION: &'static str = "automation";
+    pub const PLUGIN: &'static str = "plugin";
 
     pub fn from_scope(scope: &AccessScope) -> Self {
+        if let Some(plugin_key) = scope.plugin_key() {
+            return Self::Plugin(plugin_key.to_owned());
+        }
         if let Some(automation_id) = scope.automation_id() {
             return Self::Automation(automation_id.to_owned());
         }
@@ -44,6 +49,7 @@ impl Actor {
             Self::System => Self::SYSTEM,
             Self::ApiToken(_) => Self::API_TOKEN,
             Self::Automation(_) => Self::AUTOMATION,
+            Self::Plugin(_) => Self::PLUGIN,
         }
     }
 
@@ -51,7 +57,7 @@ impl Actor {
         match self {
             Self::User(id) => Some(id.as_str()),
             Self::System => None,
-            Self::ApiToken(id) | Self::Automation(id) => Some(id),
+            Self::ApiToken(id) | Self::Automation(id) | Self::Plugin(id) => Some(id),
         }
     }
 
@@ -62,6 +68,7 @@ impl Actor {
             Self::SYSTEM => Ok(Self::System),
             Self::API_TOKEN => Ok(Self::ApiToken(id.ok_or_else(missing_id)?)),
             Self::AUTOMATION => Ok(Self::Automation(id.ok_or_else(missing_id)?)),
+            Self::PLUGIN => Ok(Self::Plugin(id.ok_or_else(missing_id)?)),
             other => Err(AppError::Internal(format!("unknown actor kind {other}"))),
         }
     }

@@ -63,7 +63,7 @@
     "inactiveOption": "This option is inactive.",
     "tooManyOptions": "Select at most {{max}} options.",
     "reference": "Select a valid item.",
-    "referenceNotFound": "The selected item no longer exists.",
+    "referenceNotFound": "The selected item no longer exists or you cannot access it.",
     "unique": "This value is already used by another record.",
     "boolean": "Choose yes or no.",
     "outOfRange": "The value is out of the allowed range.",

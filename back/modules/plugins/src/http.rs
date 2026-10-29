@@ -1,3 +1,6 @@
+use std::sync::LazyLock;
+use std::time::Duration;
+
 use axum::Json;
 use axum::body::{Body, Bytes};
 use axum::extract::multipart::MultipartRejection;
@@ -11,7 +14,8 @@ use utoipa::{IntoParams, ToSchema};
 use utoipa_axum::router::{OpenApiRouter, UtoipaMethodRouterExt};
 use utoipa_axum::routes;
 
-use crate::manifest::{PluginManifest, match_route};
+use crate::host::secret_key;
+use crate::manifest::{PluginManifest, SETTING_SECRET, match_route};
 use crate::package::{MAX_PACKAGE_BYTES, read_package};
 use crate::registry;
 use crate::runtime::{self, wit};
@@ -20,11 +24,19 @@ use crate::store::{self, InstalledPlugin};
 use aphel_kernel::api::dto::common::{Data, ErrorEnvelope};
 use aphel_kernel::api::error::ApiError;
 use aphel_kernel::api::extractors::{AuthContext, ClientInfo};
+use aphel_kernel::api::rate_limit::SharedRateLimiter;
 use aphel_kernel::api::state::AppState;
 use aphel_kernel::application::access::Authorizer;
+use aphel_kernel::application::secrets::MAX_SECRET_BYTES;
 use aphel_kernel::application::shared::{Actor, AuditEntry, DomainEvent, FieldChange};
+use aphel_kernel::database::transaction::MySqlTx;
+use aphel_kernel::domain::Secret;
 use aphel_kernel::domain::access::{AccessScope, Permission};
 use aphel_kernel::errors::{AppError, FieldViolation};
+use aphel_kernel::infrastructure::repositories::runtime_permissions::{
+    RuntimeGrant, remove_runtime_permissions, replace_runtime_permissions,
+    set_runtime_permissions_active,
+};
 use aphel_kernel::modules::builder::APHEL_VERSION;
 
 pub const TAG: &str = "plugins";
@@ -32,6 +44,11 @@ const PLUGIN_NOT_FOUND: &str = "plugin_not_found";
 const PLUGIN_ROUTE_NOT_FOUND: &str = "plugin_route_not_found";
 const INVALID_SETTINGS: &str = "plugin_settings_invalid";
 const WEB_PREFIX: &str = "web/";
+const PERMISSIONS_OWNER_PREFIX: &str = "plugin:";
+const REDACTED: &str = "[redacted]";
+const PUBLIC_PER_ADDRESS_LIMIT: u32 = 60;
+const PUBLIC_PER_PLUGIN_LIMIT: u32 = 600;
+const MINUTE: Duration = Duration::from_secs(60);
 const WITHHELD_HEADERS: [HeaderName; 3] = [
     header::AUTHORIZATION,
     header::COOKIE,
@@ -55,6 +72,7 @@ pub(crate) fn public_router() -> OpenApiRouter<AppState> {
     OpenApiRouter::new()
         .routes(routes!(web_plugins))
         .route("/public/plugins/{key}/{*path}", get(web_asset))
+        .route("/public/p/{key}/{*path}", any(public_dispatch))
 }
 
 fn not_found(key: &str) -> AppError {
@@ -115,37 +133,50 @@ pub(crate) struct PluginSettingResponse {
     max: Option<i64>,
     #[schema(value_type = Object)]
     value: Value,
+    configured: Option<bool>,
 }
 
 #[derive(Debug, Serialize, ToSchema)]
-pub(crate) struct PluginResponse {
+pub(crate) struct PluginPermissionResponse {
     key: String,
-    name: String,
-    version: String,
+    label: String,
     description: Option<String>,
-    enabled: bool,
+    grant_to: Vec<String>,
+}
+
+#[derive(Debug, Serialize, ToSchema)]
+pub(crate) struct PluginDeclarations {
     entities: Vec<String>,
     extended_types: Vec<String>,
     hooks: Vec<String>,
     events: Vec<String>,
     routes: Vec<String>,
+    public_routes: Vec<String>,
+    requires: Vec<String>,
+    permissions: Vec<PluginPermissionResponse>,
+    allowed_hosts: Vec<String>,
+    schedules: Vec<String>,
+    secrets: Vec<String>,
     has_web: bool,
-    backend_error: Option<String>,
-    settings: Vec<PluginSettingResponse>,
-    installed_at: String,
-    updated_at: String,
 }
 
-impl From<InstalledPlugin> for PluginResponse {
-    fn from(plugin: InstalledPlugin) -> Self {
-        let values = plugin.effective_settings();
-        let manifest = &plugin.manifest;
+impl From<&PluginManifest> for PluginDeclarations {
+    fn from(manifest: &PluginManifest) -> Self {
         let mut extended: Vec<String> = manifest
             .fields
             .iter()
             .map(|field| field.record_type.clone())
             .collect();
+        extended.sort();
         extended.dedup();
+        let routes = |public: bool| {
+            manifest
+                .routes
+                .iter()
+                .filter(|route| route.public == public)
+                .map(|route| format!("{} {}", route.method, route.path))
+                .collect()
+        };
         Self {
             entities: manifest.entity_record_types(),
             extended_types: extended,
@@ -155,35 +186,127 @@ impl From<InstalledPlugin> for PluginResponse {
                 .map(|hook| format!("{} ({})", hook.hook, hook.record_types.join(", ")))
                 .collect(),
             events: manifest.events.clone(),
-            routes: manifest
-                .routes
+            routes: routes(false),
+            public_routes: routes(true),
+            requires: manifest.requires.clone(),
+            permissions: manifest
+                .permissions
                 .iter()
-                .map(|route| format!("{} {}", route.method, route.path))
-                .collect(),
-            has_web: manifest.web.is_some(),
-            backend_error: None,
-            settings: manifest
-                .settings
-                .iter()
-                .map(|setting| PluginSettingResponse {
-                    key: setting.key.clone(),
-                    label: setting.label.clone(),
-                    kind: setting.kind.clone(),
-                    help: setting.help.clone(),
-                    min: setting.min,
-                    max: setting.max,
-                    value: values.get(&setting.key).cloned().unwrap_or(Value::Null),
+                .map(|permission| PluginPermissionResponse {
+                    key: permission.key.clone(),
+                    label: permission.label.clone(),
+                    description: permission.description.clone(),
+                    grant_to: permission.grant_to.clone(),
                 })
                 .collect(),
-            installed_at: plugin.installed_at.to_rfc3339(),
-            updated_at: plugin.updated_at.to_rfc3339(),
-            key: plugin.key,
-            name: plugin.name,
-            version: plugin.version,
-            description: plugin.description,
-            enabled: plugin.enabled,
+            allowed_hosts: manifest.http.allowed_hosts.clone(),
+            schedules: manifest
+                .schedules
+                .iter()
+                .map(|schedule| format!("{} ({})", schedule.name, schedule.cron))
+                .collect(),
+            secrets: manifest
+                .secret_settings()
+                .map(|setting| setting.key.clone())
+                .collect(),
+            has_web: manifest.web.is_some(),
         }
     }
+}
+
+#[derive(Debug, Serialize, ToSchema)]
+pub(crate) struct PluginResponse {
+    key: String,
+    name: String,
+    version: String,
+    description: Option<String>,
+    enabled: bool,
+    #[serde(flatten)]
+    declares: PluginDeclarations,
+    backend_error: Option<String>,
+    settings: Vec<PluginSettingResponse>,
+    installed_at: String,
+    updated_at: String,
+}
+
+#[derive(Debug, Serialize, ToSchema)]
+pub(crate) struct PluginConsentResponse {
+    key: String,
+    name: String,
+    version: String,
+    description: Option<String>,
+    installed_version: Option<String>,
+    #[serde(flatten)]
+    declares: PluginDeclarations,
+}
+
+async fn respond(state: &AppState, plugin: InstalledPlugin) -> Result<PluginResponse, AppError> {
+    let snapshot = registry::current(&state.db()?).await?;
+    let values = plugin.effective_settings();
+    let mut settings = Vec::with_capacity(plugin.manifest.settings.len());
+    for setting in &plugin.manifest.settings {
+        let configured = if setting.kind == SETTING_SECRET {
+            Some(
+                state
+                    .secrets
+                    .reveal(
+                        &AccessScope::system(),
+                        &secret_key(&plugin.key, &setting.key),
+                    )
+                    .await?
+                    .is_some(),
+            )
+        } else {
+            None
+        };
+        settings.push(PluginSettingResponse {
+            key: setting.key.clone(),
+            label: setting.label.clone(),
+            kind: setting.kind.clone(),
+            help: setting.help.clone(),
+            min: setting.min,
+            max: setting.max,
+            value: values.get(&setting.key).cloned().unwrap_or(Value::Null),
+            configured,
+        });
+    }
+    Ok(PluginResponse {
+        declares: PluginDeclarations::from(&plugin.manifest),
+        backend_error: snapshot.backend_error(&plugin.key),
+        settings,
+        installed_at: plugin.installed_at.to_rfc3339(),
+        updated_at: plugin.updated_at.to_rfc3339(),
+        key: plugin.key,
+        name: plugin.name,
+        version: plugin.version,
+        description: plugin.description,
+        enabled: plugin.enabled,
+    })
+}
+
+fn permissions_owner(key: &str) -> String {
+    format!("{PERMISSIONS_OWNER_PREFIX}{key}")
+}
+
+async fn sync_permissions(
+    tx: &mut MySqlTx,
+    manifest: &PluginManifest,
+    active: bool,
+) -> Result<(), AppError> {
+    let permissions: Vec<(Permission, Vec<String>)> = manifest
+        .permissions
+        .iter()
+        .map(|declared| {
+            Permission::parse(declared.key.clone())
+                .map(|permission| (permission, declared.grant_to.clone()))
+                .map_err(|_| AppError::Validation(format!("invalid permission {}", declared.key)))
+        })
+        .collect::<Result<_, _>>()?;
+    let grants: Vec<RuntimeGrant<'_>> = permissions
+        .iter()
+        .map(|(permission, roles)| RuntimeGrant { permission, roles })
+        .collect();
+    replace_runtime_permissions(tx, &permissions_owner(&manifest.key), &grants, active).await
 }
 
 #[utoipa::path(
@@ -204,21 +327,11 @@ async fn list_plugins(
     tenant: AuthContext,
 ) -> Result<Json<Data<Vec<PluginResponse>>>, ApiError> {
     tenant.scope.require(&Permission::SYSTEM_MANAGE)?;
-    let pool = state.db()?;
-    let snapshot = registry::current(&pool).await?;
-    let plugins = store::list(&pool).await?;
-    Ok(Json(Data::new(
-        plugins
-            .into_iter()
-            .map(|plugin| {
-                let backend_error = snapshot.backend_error(&plugin.key);
-                PluginResponse {
-                    backend_error,
-                    ..plugin.into()
-                }
-            })
-            .collect(),
-    )))
+    let mut plugins = Vec::new();
+    for plugin in store::list(&state.db()?).await? {
+        plugins.push(respond(&state, plugin).await?);
+    }
+    Ok(Json(Data::new(plugins)))
 }
 
 #[utoipa::path(
@@ -227,13 +340,15 @@ async fn list_plugins(
     tag = TAG,
     operation_id = "plugins_install",
     security(("session_cookie" = [])),
-    description = "Installs or upgrades a plugin from an `.aphelplugin` package sent as the multipart field `package` (permission `system.manage`). The package is a zip with `plugin.toml`, an optional `backend.wasm` built with aphel-plugin-sdk and an optional `web/` bundle. Declared entities become custom objects managed by the plugin, declared fields become managed custom fields, and hooks, events and routes start working without restarting Aphel. Publishes `plugin.installed`.",
+    description = "Installs or upgrades a plugin from an `.aphelplugin` package sent as the multipart field `package` (permission `system.manage`). The package is a zip with `plugin.toml`, an optional `backend.wasm` built with aphel-plugin-sdk and an optional `web/` bundle. Declared entities become custom objects managed by the plugin, declared fields become managed custom fields, declared permissions enter the role catalog, and hooks, events, schedules and routes start working without restarting Aphel. The plugin acts with what it `requires` intersected with the permissions of whoever installs it, so the installer gives consent: call first with `dry_run=true` to get what the package asks for (status 200, nothing is installed). Publishes `plugin.installed`.",
+    params(InstallParams),
     request_body(content_type = "multipart/form-data", description = "Field `package` with the .aphelplugin file"),
     responses(
+        (status = 200, description = "Dry run: what the package declares and asks for", body = Data<PluginConsentResponse>),
         (status = 201, description = "Plugin installed or upgraded", body = Data<PluginResponse>),
         (status = 401, description = "Missing or invalid credentials (`unauthorized`)", body = ErrorEnvelope),
         (status = 403, description = "Missing `system.manage` (`permission_denied`)", body = ErrorEnvelope),
-        (status = 409, description = "A custom object or field with the same key already exists (`plugin_object_conflict`, `plugin_field_conflict`)", body = ErrorEnvelope),
+        (status = 409, description = "A custom object, field or permission with the same key already exists (`plugin_object_conflict`, `plugin_field_conflict`, `permission_already_registered`)", body = ErrorEnvelope),
         (status = 422, description = "Invalid package, manifest or backend (`plugin_package_invalid`, `plugin_manifest_invalid`, `plugin_backend_invalid`)", body = ErrorEnvelope),
     )
 )]
@@ -241,8 +356,9 @@ async fn install_plugin(
     State(state): State<AppState>,
     tenant: AuthContext,
     client: ClientInfo,
+    Query(params): Query<InstallParams>,
     multipart: Result<Multipart, MultipartRejection>,
-) -> Result<(StatusCode, Json<Data<PluginResponse>>), ApiError> {
+) -> Result<Response, ApiError> {
     let scope = &tenant.scope;
     scope.require(&Permission::SYSTEM_MANAGE)?;
     let bytes = package_bytes(multipart).await?;
@@ -259,9 +375,23 @@ async fn install_plugin(
     }
     let pool = state.db()?;
     let previous = store::find(&pool, &package.manifest.key).await?;
+    if params.dry_run {
+        let manifest = &package.manifest;
+        let consent = PluginConsentResponse {
+            key: manifest.key.clone(),
+            name: manifest.name.clone(),
+            version: manifest.version.clone(),
+            description: manifest.description.clone(),
+            installed_version: previous.map(|plugin| plugin.version),
+            declares: PluginDeclarations::from(manifest),
+        };
+        return Ok(Json(Data::new(consent)).into_response());
+    }
     schema::apply(&state, scope, &package.manifest).await?;
+    let enabled = previous.as_ref().is_none_or(|plugin| plugin.enabled);
     let mut tx = pool.begin().await.map_err(AppError::from)?;
     store::save(&mut tx, &package, Some(scope.user_id())).await?;
+    sync_permissions(&mut tx, &package.manifest, enabled).await?;
     tx.commit().await.map_err(AppError::from)?;
     record(
         &state,
@@ -280,7 +410,17 @@ async fn install_plugin(
     if !plugin.enabled {
         schema::set_active(&state, &plugin.manifest, false).await?;
     }
-    Ok((StatusCode::CREATED, Json(Data::new(plugin.into()))))
+    Ok((
+        StatusCode::CREATED,
+        Json(Data::new(respond(&state, plugin).await?)),
+    )
+        .into_response())
+}
+
+#[derive(Debug, Deserialize, IntoParams)]
+pub(crate) struct InstallParams {
+    #[serde(default)]
+    dry_run: bool,
 }
 
 async fn package_bytes(
@@ -343,6 +483,13 @@ async fn uninstall_plugin(
     }
     let mut tx = state.db()?.begin().await.map_err(AppError::from)?;
     store::delete(&mut tx, &key).await?;
+    remove_runtime_permissions(&mut tx, &permissions_owner(&key)).await?;
+    for setting in plugin.manifest.secret_settings() {
+        state
+            .secrets
+            .remove(&mut tx, &tenant.scope, &secret_key(&key, &setting.key))
+            .await?;
+    }
     tx.commit().await.map_err(AppError::from)?;
     record(
         &state,
@@ -372,6 +519,7 @@ async fn toggle(
     if plugin.enabled != enabled {
         let mut tx = state.db()?.begin().await.map_err(AppError::from)?;
         store::set_enabled(&mut tx, key, enabled).await?;
+        set_runtime_permissions_active(&mut tx, &permissions_owner(key), enabled).await?;
         tx.commit().await?;
         schema::set_active(state, &plugin.manifest, enabled).await?;
         record(
@@ -388,7 +536,7 @@ async fn toggle(
         )
         .await?;
     }
-    Ok(installed(state, key).await?.into())
+    respond(state, installed(state, key).await?).await
 }
 
 #[utoipa::path(
@@ -452,6 +600,9 @@ fn validate_settings(
             violations.push(FieldViolation::new(key, "is not a setting of this plugin"));
             continue;
         };
+        if setting.kind == SETTING_SECRET {
+            continue;
+        }
         let valid = match setting.kind.as_str() {
             "number" => value.as_i64().is_some_and(|number| {
                 setting.min.is_none_or(|min| number >= min)
@@ -486,7 +637,7 @@ fn validate_settings(
     tag = TAG,
     operation_id = "plugins_update_settings",
     security(("session_cookie" = [])),
-    description = "Replaces the settings of a plugin (permission `system.manage`), validated against the settings it declares. `null` restores the default. Publishes `plugin.settings_updated`.",
+    description = "Replaces the settings of a plugin (permission `system.manage`), validated against the settings it declares. `null` restores the default. Secret settings are stored encrypted and never returned (only `configured`): a string sets the secret, `null` removes it and leaving the key out keeps it. Publishes `plugin.settings_updated`.",
     params(("key" = String, Path, description = "Plugin key")),
     request_body(content = Object, description = "Map of setting key to value"),
     responses(
@@ -507,23 +658,71 @@ async fn update_plugin_settings(
     let plugin = installed(&state, &key).await?;
     let mut settings = validate_settings(&plugin.manifest, &values)?;
     settings.retain(|_, value| !value.is_null());
+    let mut secrets = Vec::new();
+    let mut violations = Vec::new();
+    for setting in plugin.manifest.secret_settings() {
+        match values.get(&setting.key) {
+            None => {}
+            Some(Value::Null) => secrets.push((setting.key.clone(), None)),
+            Some(Value::String(text)) if !text.is_empty() && text.len() <= MAX_SECRET_BYTES => {
+                secrets.push((setting.key.clone(), Some(Secret::new(text.clone()))))
+            }
+            Some(_) => violations.push(FieldViolation::new(
+                &setting.key,
+                "must be a non-empty text or null",
+            )),
+        }
+    }
+    if !violations.is_empty() {
+        return Err(AppError::invalid_fields_code(
+            INVALID_SETTINGS,
+            "invalid plugin settings",
+            violations,
+        )
+        .into());
+    }
+    let mut changes = vec![FieldChange::new(
+        "settings",
+        Value::Object(plugin.settings),
+        Value::Object(settings.clone()),
+    )];
     let mut tx = state.db()?.begin().await.map_err(AppError::from)?;
     store::set_settings(&mut tx, &key, &settings).await?;
+    for (name, secret) in &secrets {
+        let secret_key = secret_key(&key, name);
+        match secret {
+            Some(secret) => {
+                state
+                    .secrets
+                    .store(&mut tx, &tenant.scope, &secret_key, secret)
+                    .await?
+            }
+            None => {
+                state
+                    .secrets
+                    .remove(&mut tx, &tenant.scope, &secret_key)
+                    .await?
+            }
+        }
+        changes.push(FieldChange::new(
+            format!("secrets.{name}"),
+            json!(REDACTED),
+            json!(REDACTED),
+        ));
+    }
     tx.commit().await.map_err(AppError::from)?;
     record(
         &state,
         &tenant.scope,
         "plugin.settings_updated",
         &key,
-        vec![FieldChange::new(
-            "settings",
-            Value::Object(plugin.settings),
-            Value::Object(settings),
-        )],
+        changes,
         client.0.ip,
     )
     .await?;
-    Ok(Json(Data::new(installed(&state, &key).await?.into())))
+    Ok(Json(Data::new(
+        respond(&state, installed(&state, &key).await?).await?,
+    )))
 }
 
 #[derive(Debug, Serialize, ToSchema)]
@@ -594,15 +793,28 @@ async fn web_asset(
     Ok(response)
 }
 
-async fn dispatch(
-    State(state): State<AppState>,
-    tenant: AuthContext,
+struct RouteCall {
     method: Method,
-    Path((key, path)): Path<(String, String)>,
-    RawQuery(query): RawQuery,
+    key: String,
+    path: String,
+    query: Option<String>,
     headers: HeaderMap,
     body: Bytes,
-) -> Result<Response, ApiError> {
+}
+
+async fn serve_route(
+    state: &AppState,
+    call: RouteCall,
+    caller: Option<&AccessScope>,
+) -> Result<Response, AppError> {
+    let RouteCall {
+        method,
+        key,
+        path,
+        query,
+        headers,
+        body,
+    } = call;
     let snapshot = registry::current(&state.db()?).await?;
     let plugin = snapshot.plugin(&key).cloned().ok_or_else(|| {
         AppError::not_found_code(
@@ -616,13 +828,18 @@ async fn dispatch(
             format!("the plugin {key} has no route {method} /{path}"),
         )
     };
-    let (route, params) =
-        match_route(&plugin.manifest.routes, method.as_str(), &path).ok_or_else(route_missing)?;
-    if let Some(permission) = &route.permission {
+    let (route, params) = match_route(
+        &plugin.manifest.routes,
+        caller.is_none(),
+        method.as_str(),
+        &path,
+    )
+    .ok_or_else(route_missing)?;
+    if let (Some(permission), Some(scope)) = (&route.permission, caller) {
         let permission = Permission::parse(permission.clone()).map_err(|_| {
             AppError::Configuration(format!("the plugin {key} declares an invalid permission"))
         })?;
-        tenant.scope.require(&permission)?;
+        scope.require(&permission)?;
     }
     let body_json = if body.is_empty() {
         Value::Null.to_string()
@@ -630,6 +847,16 @@ async fn dispatch(
         serde_json::from_slice::<Value>(&body)
             .map_err(|_| AppError::Validation("the body must be JSON".to_owned()))?
             .to_string()
+    };
+    let (actor, scope) = match caller {
+        Some(scope) => (
+            runtime::scope_actor(scope),
+            runtime::capability_scope(&plugin, scope),
+        ),
+        None => (
+            runtime::anonymous_actor(),
+            runtime::plugin_scope(&plugin).await?,
+        ),
     };
     let request = wit::Request {
         method: method.as_str().to_owned(),
@@ -642,12 +869,69 @@ async fn dispatch(
         query: query.as_deref().map(form_pairs).unwrap_or_default(),
         headers: forwarded_headers(&headers),
         body_json,
-        actor: runtime::scope_actor(&tenant.scope),
+        actor,
     };
-    let response = runtime::on_route(&plugin, &tenant.scope, &request).await?;
+    let response = runtime::on_route(&plugin, scope, &request).await?;
     let status = StatusCode::from_u16(response.status).unwrap_or(StatusCode::OK);
     let body: Value = serde_json::from_str(&response.body_json).unwrap_or(Value::Null);
     Ok((status, Json(body)).into_response())
+}
+
+async fn dispatch(
+    State(state): State<AppState>,
+    tenant: AuthContext,
+    method: Method,
+    Path((key, path)): Path<(String, String)>,
+    RawQuery(query): RawQuery,
+    headers: HeaderMap,
+    body: Bytes,
+) -> Result<Response, ApiError> {
+    let call = RouteCall {
+        method,
+        key,
+        path,
+        query,
+        headers,
+        body,
+    };
+    Ok(serve_route(&state, call, Some(&tenant.scope)).await?)
+}
+
+static PUBLIC_LIMITS: LazyLock<(SharedRateLimiter, SharedRateLimiter)> = LazyLock::new(|| {
+    (
+        SharedRateLimiter::new(
+            "plugins.public_per_address",
+            PUBLIC_PER_ADDRESS_LIMIT,
+            MINUTE,
+        ),
+        SharedRateLimiter::new("plugins.public_per_plugin", PUBLIC_PER_PLUGIN_LIMIT, MINUTE),
+    )
+});
+
+async fn public_dispatch(
+    State(state): State<AppState>,
+    client: ClientInfo,
+    method: Method,
+    Path((key, path)): Path<(String, String)>,
+    RawQuery(query): RawQuery,
+    headers: HeaderMap,
+    body: Bytes,
+) -> Result<Response, ApiError> {
+    let (per_address, per_plugin) = &*PUBLIC_LIMITS;
+    let message = "muitas requisições em sequência; aguarde um pouco e tente novamente";
+    per_address
+        .check(&format!("{key}:{}", client.ip_or_unknown()), message)
+        .await?;
+    per_plugin.check(&key, message).await?;
+    let call = RouteCall {
+        method,
+        key,
+        path,
+        query,
+        headers,
+        body,
+    };
+    Ok(serve_route(&state, call, None).await?)
 }
 
 fn forwarded_headers(headers: &HeaderMap) -> Vec<(String, String)> {

@@ -39,6 +39,7 @@ pub enum AuditActorTypeDto {
     System,
     ApiToken,
     Automation,
+    Plugin,
 }
 
 impl From<&Actor> for AuditActorTypeDto {
@@ -48,6 +49,7 @@ impl From<&Actor> for AuditActorTypeDto {
             Actor::System => Self::System,
             Actor::ApiToken(_) => Self::ApiToken,
             Actor::Automation(_) => Self::Automation,
+            Actor::Plugin(_) => Self::Plugin,
         }
     }
 }

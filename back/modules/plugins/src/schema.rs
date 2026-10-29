@@ -17,6 +17,7 @@ use aphel_kernel::state::AppState;
 const PLUGIN_FIELD_POSITION: i32 = 20_000;
 const FIELD_TAKEN: &str = "plugin_field_conflict";
 const OBJECT_TAKEN: &str = "plugin_object_conflict";
+const FIELD_TYPE_CHANGED: &str = "plugin_field_type_changed";
 
 async fn bump_schema(state: &AppState) -> Result<(), AppError> {
     sqlx::query(
@@ -43,6 +44,7 @@ pub async fn apply(
     manifest: &PluginManifest,
 ) -> Result<(), AppError> {
     let pool = state.db()?;
+    ensure_compatible(&pool, manifest).await?;
     for entity in &manifest.entities {
         let object_key = manifest.object_key(&entity.key);
         match object_owner(&pool, &object_key).await? {
@@ -96,22 +98,7 @@ pub async fn apply(
     }
     bump_schema(state).await?;
     let registry = state.registry().await?;
-    let mut fields: Vec<(String, &FieldDef)> = Vec::new();
-    for entity in &manifest.entities {
-        let record_type = manifest.entity_record_type(&entity.key);
-        fields.extend(
-            entity
-                .fields
-                .iter()
-                .map(|field| (record_type.clone(), field)),
-        );
-    }
-    fields.extend(
-        manifest
-            .fields
-            .iter()
-            .map(|extension| (extension.record_type.clone(), &extension.field)),
-    );
+    let fields = declared_fields(manifest);
     let repository = MySqlFieldDefinitionRepository::new(pool.clone());
     let mut tx = pool.begin().await?;
     for (index, (record_type, field)) in fields.into_iter().enumerate() {
@@ -152,6 +139,7 @@ pub async fn apply(
                     .execute(&mut *tx)
                     .await?;
                 }
+                deactivate_undeclared_options(&mut tx, &id, &definition.options).await?;
             }
             Some(_) => {
                 return Err(AppError::conflict_code(
@@ -162,7 +150,122 @@ pub async fn apply(
         }
     }
     tx.commit().await?;
+    deactivate_undeclared(&pool, manifest).await?;
     bump_schema(state).await
+}
+
+fn declared_fields(manifest: &PluginManifest) -> Vec<(String, &FieldDef)> {
+    let mut fields: Vec<(String, &FieldDef)> = Vec::new();
+    for entity in &manifest.entities {
+        let record_type = manifest.entity_record_type(&entity.key);
+        fields.extend(
+            entity
+                .fields
+                .iter()
+                .map(|field| (record_type.clone(), field)),
+        );
+    }
+    fields.extend(
+        manifest
+            .fields
+            .iter()
+            .map(|extension| (extension.record_type.clone(), &extension.field)),
+    );
+    fields
+}
+
+async fn ensure_compatible(pool: &MySqlPool, manifest: &PluginManifest) -> Result<(), AppError> {
+    let existing: Vec<(String, String, String)> = sqlx::query_as(
+        "SELECT record_type, `key`, field_type FROM field_definitions WHERE module_key = ?",
+    )
+    .bind(&manifest.key)
+    .fetch_all(pool)
+    .await?;
+    for (record_type, field) in declared_fields(manifest) {
+        let Some(new_type) = FieldType::parse(&field.field_type) else {
+            continue;
+        };
+        if let Some((_, _, old_type)) = existing
+            .iter()
+            .find(|(existing_type, key, _)| existing_type == &record_type && key == &field.key)
+            && old_type != new_type.as_str()
+        {
+            return Err(AppError::conflict_code(
+                FIELD_TYPE_CHANGED,
+                format!(
+                    "the field {} on {record_type} is {old_type} and the new version declares it as {}; the type of a field cannot change, declare a field with a new key",
+                    field.key,
+                    new_type.as_str()
+                ),
+            ));
+        }
+    }
+    Ok(())
+}
+
+async fn deactivate_undeclared_options(
+    tx: &mut sqlx::Transaction<'static, sqlx::MySql>,
+    field_id: &str,
+    options: &[FieldOption],
+) -> Result<(), AppError> {
+    let mut builder = sqlx::QueryBuilder::<sqlx::MySql>::new(
+        "UPDATE field_options SET is_active = FALSE WHERE field_id = ",
+    );
+    builder.push_bind(field_id.to_owned());
+    if !options.is_empty() {
+        builder.push(" AND value NOT IN (");
+        let mut values = builder.separated(", ");
+        for option in options {
+            values.push_bind(option.value.clone());
+        }
+        builder.push(")");
+    }
+    builder.build().execute(&mut **tx).await?;
+    Ok(())
+}
+
+async fn deactivate_undeclared(
+    pool: &MySqlPool,
+    manifest: &PluginManifest,
+) -> Result<(), AppError> {
+    let declared: Vec<(String, String)> = declared_fields(manifest)
+        .into_iter()
+        .map(|(record_type, field)| (record_type, field.key.clone()))
+        .collect();
+    let existing: Vec<(String, String, String)> = sqlx::query_as(
+        "SELECT id, record_type, `key` FROM field_definitions WHERE module_key = ? AND is_active = TRUE",
+    )
+    .bind(&manifest.key)
+    .fetch_all(pool)
+    .await?;
+    for (id, record_type, key) in existing {
+        if !declared.contains(&(record_type, key)) {
+            sqlx::query("UPDATE field_definitions SET is_active = FALSE WHERE id = ?")
+                .bind(&id)
+                .execute(pool)
+                .await?;
+        }
+    }
+    let objects: Vec<String> = manifest
+        .entities
+        .iter()
+        .map(|entity| manifest.object_key(&entity.key))
+        .collect();
+    let owned: Vec<String> = sqlx::query_scalar(
+        "SELECT `key` FROM custom_objects WHERE module_key = ? AND is_active = TRUE",
+    )
+    .bind(&manifest.key)
+    .fetch_all(pool)
+    .await?;
+    for key in owned {
+        if !objects.contains(&key) {
+            sqlx::query("UPDATE custom_objects SET is_active = FALSE WHERE `key` = ?")
+                .bind(&key)
+                .execute(pool)
+                .await?;
+        }
+    }
+    Ok(())
 }
 
 fn config_json(config: &FieldConfig) -> serde_json::Value {
@@ -257,6 +360,9 @@ pub async fn set_active(
     .bind(&manifest.key)
     .execute(&pool)
     .await?;
+    if active {
+        deactivate_undeclared(&pool, manifest).await?;
+    }
     bump_schema(state).await
 }
 

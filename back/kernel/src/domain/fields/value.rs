@@ -86,7 +86,9 @@ impl FieldValueError {
             Self::InactiveOption(value) => format!("option {value:?} is inactive"),
             Self::TooManyOptions(limit) => format!("must have at most {limit} options"),
             Self::InvalidReference => "must be a valid id".to_owned(),
-            Self::ReferenceNotFound => "references a record that does not exist".to_owned(),
+            Self::ReferenceNotFound => {
+                "references a record that does not exist or that you cannot read".to_owned()
+            }
             Self::NotUnique => "is already used by another record".to_owned(),
         }
     }

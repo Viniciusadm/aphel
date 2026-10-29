@@ -149,7 +149,9 @@ function ActorCell({ actor, onFilterActor }: { actor: AuditActor; onFilterActor:
         ? t('actor.system')
         : actor.type === 'api_token'
           ? t('actor.apiToken')
-          : t('actor.automation')
+          : actor.type === 'plugin'
+            ? t('actor.plugin', { key: actor.id })
+            : t('actor.automation')
 
   return (
     <div className="grid gap-0.5">

@@ -11,6 +11,7 @@ use crate::domain::{TeamId, UserId};
 use crate::errors::AppError;
 use crate::infrastructure::api_tokens::MySqlApiTokenRepository;
 use crate::infrastructure::repositories::mapper;
+use crate::infrastructure::repositories::runtime_permissions::active_runtime_permissions;
 
 #[derive(Clone)]
 pub struct MySqlAccessRepository {
@@ -89,7 +90,8 @@ impl AccessRepository for MySqlAccessRepository {
         .map(|id| mapper::typed_id(id, TeamId::new))
         .collect::<Result<Vec<_>, AppError>>()?;
 
-        let catalog_extension = custom_object_permissions(&self.pool).await?;
+        let mut catalog_extension = custom_object_permissions(&self.pool).await?;
+        catalog_extension.extend(active_runtime_permissions(&self.pool).await?);
         let enabled_modules = enabled_modules(&self.pool).await?;
         let modules = crate::modules::app();
         let grants = grants

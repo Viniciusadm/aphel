@@ -3,9 +3,11 @@ pub mod hooks;
 pub mod host;
 pub mod http;
 pub mod manifest;
+pub mod net;
 pub mod package;
 pub mod registry;
 pub mod runtime;
+pub mod schedule;
 pub mod schema;
 pub mod store;
 
@@ -48,6 +50,9 @@ impl Module for PluginsModule {
             Box::pin(hooks::deleting(ctx, removed))
         })
         .consumer(|env| Arc::new(events::PluginEventsConsumer::new(env.pool.clone())))
+        .job(|env| schedule::Tick::shared(env.pool.clone()))
+        .job(|env| schedule::Run::shared(env.pool.clone()))
+        .schedule(schedule::tick_schedule()?)
         .openapi_tag(
             http::TAG,
             "Runtime plugins: install, enable, disable, configure and uninstall .aphelplugin packages, and call their routes",

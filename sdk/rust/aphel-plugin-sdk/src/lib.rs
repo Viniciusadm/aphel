@@ -83,7 +83,9 @@ pub enum ActorKind {
     User,
     ApiToken,
     Automation,
+    Plugin,
     System,
+    Anonymous,
 }
 
 #[derive(Debug, Clone, Deserialize)]
@@ -321,6 +323,14 @@ impl Ctx {
             .and_then(|value| serde_json::from_value(value).ok()))
     }
 
+    pub fn http(&self) -> Http<'_> {
+        Http { _ctx: self }
+    }
+
+    pub fn secret(&self, key: &str) -> Result<Option<String>> {
+        adapter::secret(key)
+    }
+
     pub fn now(&self) -> Result<String> {
         Ok(adapter::now())
     }
@@ -388,6 +398,88 @@ impl Kv<'_> {
     }
 }
 
+#[derive(Debug, Clone, Default)]
+pub struct HttpRequest {
+    pub method: String,
+    pub url: String,
+    pub headers: Vec<(String, String)>,
+    pub body: Option<Vec<u8>>,
+}
+
+impl HttpRequest {
+    pub fn new(method: &str, url: impl Into<String>) -> Self {
+        Self {
+            method: method.to_owned(),
+            url: url.into(),
+            ..Self::default()
+        }
+    }
+
+    pub fn header(mut self, name: &str, value: impl Into<String>) -> Self {
+        self.headers.push((name.to_owned(), value.into()));
+        self
+    }
+
+    pub fn bearer(self, token: &str) -> Self {
+        self.header("authorization", format!("Bearer {token}"))
+    }
+
+    pub fn json(mut self, body: &impl Serialize) -> Result<Self> {
+        let bytes =
+            serde_json::to_vec(body).map_err(|error| PluginError::internal(error.to_string()))?;
+        self.body = Some(bytes);
+        Ok(self.header("content-type", "application/json"))
+    }
+
+    pub fn body(mut self, body: impl Into<Vec<u8>>) -> Self {
+        self.body = Some(body.into());
+        self
+    }
+}
+
+#[derive(Debug, Clone)]
+pub struct HttpResponse {
+    pub status: u16,
+    pub headers: Vec<(String, String)>,
+    pub body: Vec<u8>,
+}
+
+impl HttpResponse {
+    pub fn is_success(&self) -> bool {
+        (200..300).contains(&self.status)
+    }
+
+    pub fn header(&self, name: &str) -> Option<&str> {
+        self.headers
+            .iter()
+            .find(|(header, _)| header.eq_ignore_ascii_case(name))
+            .map(|(_, value)| value.as_str())
+    }
+
+    pub fn text(&self) -> String {
+        String::from_utf8_lossy(&self.body).into_owned()
+    }
+
+    pub fn json<T: DeserializeOwned>(&self) -> Result<T> {
+        serde_json::from_slice(&self.body)
+            .map_err(|error| PluginError::new("invalid_response", error.to_string()))
+    }
+}
+
+pub struct Http<'a> {
+    _ctx: &'a Ctx,
+}
+
+impl Http<'_> {
+    pub fn send(&self, request: HttpRequest) -> Result<HttpResponse> {
+        adapter::http_fetch(request)
+    }
+
+    pub fn get(&self, url: &str) -> Result<HttpResponse> {
+        self.send(HttpRequest::new("GET", url))
+    }
+}
+
 pub trait Plugin {
     fn on_hook(&self, _ctx: &Ctx, _call: &HookCall) -> Result<HookOutcome> {
         Ok(HookOutcome::default())
@@ -402,6 +494,10 @@ pub trait Plugin {
             "route_not_found",
             format!("no route for {} {}", request.method, request.path),
         ))
+    }
+
+    fn on_schedule(&self, _ctx: &Ctx, _name: &str, _slot: &str) -> Result<()> {
+        Ok(())
     }
 }
 
@@ -427,6 +523,13 @@ macro_rules! export_plugin {
                 request: $crate::bindings::Request,
             ) -> ::std::result::Result<$crate::bindings::Response, $crate::bindings::PluginError> {
                 $crate::adapter::on_route(&$plugin, request)
+            }
+
+            fn on_schedule(
+                name: ::std::string::String,
+                slot: ::std::string::String,
+            ) -> ::std::result::Result<(), $crate::bindings::PluginError> {
+                $crate::adapter::on_schedule(&$plugin, &name, &slot)
             }
         }
 

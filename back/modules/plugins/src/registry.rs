@@ -17,6 +17,7 @@ pub struct LoadedPlugin {
     pub key: String,
     pub manifest: PluginManifest,
     pub settings: Map<String, Value>,
+    pub installed_by: Option<String>,
     pub backend: Option<runtime::Backend>,
     pub backend_error: Option<String>,
 }
@@ -140,6 +141,7 @@ pub async fn current(pool: &MySqlPool) -> Result<Arc<Snapshot>, AppError> {
         };
         plugins.push(Arc::new(LoadedPlugin {
             settings: installed.effective_settings(),
+            installed_by: installed.installed_by,
             key: installed.key,
             manifest: installed.manifest,
             backend,

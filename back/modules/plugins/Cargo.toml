@@ -11,6 +11,7 @@ aphel-kernel.workspace = true
 async-trait.workspace = true
 axum.workspace = true
 bytes.workspace = true
+reqwest.workspace = true
 chrono.workspace = true
 form_urlencoded.workspace = true
 semver.workspace = true

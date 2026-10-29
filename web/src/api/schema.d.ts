@@ -5557,6 +5557,92 @@ export interface paths {
         patch?: never;
         trace?: never;
     };
+    "/api/v1/plugins": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        /** @description Lists the plugins installed at runtime (permission `system.manage`), with what each one declares: entities, extended record types, hooks, consumed events, routes and settings. `backend_error` is set when the installed backend no longer loads: writes to the record types it hooks then fail with 503 `plugin_failed` until the plugin is reinstalled. */
+        get: operations["plugins_list"];
+        put?: never;
+        /** @description Installs or upgrades a plugin from an `.aphelplugin` package sent as the multipart field `package` (permission `system.manage`). The package is a zip with `plugin.toml`, an optional `backend.wasm` built with aphel-plugin-sdk and an optional `web/` bundle. Declared entities become custom objects managed by the plugin, declared fields become managed custom fields, declared permissions enter the role catalog, and hooks, events, schedules and routes start working without restarting Aphel. The plugin acts with what it `requires` intersected with the permissions of whoever installs it, so the installer gives consent: call first with `dry_run=true` to get what the package asks for (status 200, nothing is installed). Publishes `plugin.installed`. */
+        post: operations["plugins_install"];
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
+    "/api/v1/plugins/{key}": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        get?: never;
+        put?: never;
+        post?: never;
+        /** @description Uninstalls a plugin (permission `system.manage`): its code, web bundle and key-value data are removed. With `purge=true` its entities (and their records) and its fields on other record types are deleted too; otherwise they are only deactivated and come back if the plugin is installed again. Publishes `plugin.uninstalled`. */
+        delete: operations["plugins_uninstall"];
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
+    "/api/v1/plugins/{key}/disable": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        get?: never;
+        put?: never;
+        /** @description Disables a plugin without removing anything (permission `system.manage`): its entities and fields are hidden and its hooks, events, routes and web bundle stop. Publishes `plugin.disabled`. */
+        post: operations["plugins_disable"];
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
+    "/api/v1/plugins/{key}/enable": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        get?: never;
+        put?: never;
+        /** @description Enables an installed plugin (permission `system.manage`): its entities, fields, hooks, events, routes and web bundle come back. Publishes `plugin.enabled`. */
+        post: operations["plugins_enable"];
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
+    "/api/v1/plugins/{key}/settings": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        get?: never;
+        /** @description Replaces the settings of a plugin (permission `system.manage`), validated against the settings it declares. `null` restores the default. Secret settings are stored encrypted and never returned (only `configured`): a string sets the secret, `null` removes it and leaving the key out keeps it. Publishes `plugin.settings_updated`. */
+        put: operations["plugins_update_settings"];
+        post?: never;
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
     "/api/v1/preferences": {
         parameters: {
             query?: never;
@@ -6274,6 +6360,23 @@ export interface paths {
             cookie?: never;
         };
         get: operations["oidc_public_login"];
+        put?: never;
+        post?: never;
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
+    "/api/v1/public/plugins": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        /** @description Lists the web bundles of the enabled plugins, loaded by the Aphel web app before it builds its routes. Public: plugin bundles are code, not data. */
+        get: operations["plugins_web"];
         put?: never;
         post?: never;
         delete?: never;
@@ -8727,7 +8830,7 @@ export interface components {
             type: components["schemas"]["AuditActorTypeDto"];
         };
         /** @enum {string} */
-        AuditActorTypeDto: "user" | "system" | "api_token" | "automation";
+        AuditActorTypeDto: "user" | "system" | "api_token" | "automation" | "plugin";
         AuditCausationResponse: {
             automation_id: string;
             chain: string[];
@@ -11144,6 +11247,8 @@ export interface components {
                 /** @example Acme onboarding */
                 title: string;
                 updated_at: string;
+            } & {
+                [key: string]: unknown;
             };
         };
         Data_DealTeamResponse: {
@@ -12321,6 +12426,28 @@ export interface components {
                  */
                 rotting_days?: number | null;
                 updated_at: string;
+            };
+        };
+        Data_PluginConsentResponse: {
+            data: components["schemas"]["PluginDeclarations"] & {
+                description?: string | null;
+                installed_version?: string | null;
+                key: string;
+                name: string;
+                version: string;
+            };
+        };
+        Data_PluginResponse: {
+            data: components["schemas"]["PluginDeclarations"] & {
+                backend_error?: string | null;
+                description?: string | null;
+                enabled: boolean;
+                installed_at: string;
+                key: string;
+                name: string;
+                settings: components["schemas"]["PluginSettingResponse"][];
+                updated_at: string;
+                version: string;
             };
         };
         Data_PreferencesResponse: {
@@ -13707,6 +13834,19 @@ export interface components {
                 updated_at: string;
             }[];
         };
+        Data_Vec_PluginResponse: {
+            data: (components["schemas"]["PluginDeclarations"] & {
+                backend_error?: string | null;
+                description?: string | null;
+                enabled: boolean;
+                installed_at: string;
+                key: string;
+                name: string;
+                settings: components["schemas"]["PluginSettingResponse"][];
+                updated_at: string;
+                version: string;
+            })[];
+        };
         Data_Vec_PriceListItemResponse: {
             data: {
                 id: string;
@@ -14072,6 +14212,14 @@ export interface components {
                 updated_by?: string | null;
             }[];
         };
+        Data_Vec_WebPluginResponse: {
+            data: {
+                entry: string;
+                key: string;
+                style?: string | null;
+                version: string;
+            }[];
+        };
         Data_VersionApplyResponse: {
             data: {
                 kept_local: string[];
@@ -14355,6 +14503,8 @@ export interface components {
             status?: null | components["schemas"]["DealStatus"];
             /** @example Acme onboarding */
             title?: string | null;
+        } & {
+            [key: string]: unknown;
         };
         DealResponse: {
             /** @example 15000.50 */
@@ -14405,6 +14555,8 @@ export interface components {
             /** @example Acme onboarding */
             title: string;
             updated_at: string;
+        } & {
+            [key: string]: unknown;
         };
         DealStageResponse: {
             id: string;
@@ -17495,7 +17647,7 @@ export interface components {
             meta: components["schemas"]["PageMeta"];
         };
         Page_DealResponse: {
-            data: {
+            data: ({
                 /** @example 15000.50 */
                 amount?: string | null;
                 amount_base?: string | null;
@@ -17544,7 +17696,9 @@ export interface components {
                 /** @example Acme onboarding */
                 title: string;
                 updated_at: string;
-            }[];
+            } & {
+                [key: string]: unknown;
+            })[];
             meta: components["schemas"]["PageMeta"];
         };
         Page_DirectoryUserResponse: {
@@ -18800,6 +18954,56 @@ export interface components {
             unchanged: number;
             /** Format: int64 */
             update: number;
+        };
+        PluginConsentResponse: components["schemas"]["PluginDeclarations"] & {
+            description?: string | null;
+            installed_version?: string | null;
+            key: string;
+            name: string;
+            version: string;
+        };
+        PluginDeclarations: {
+            allowed_hosts: string[];
+            entities: string[];
+            events: string[];
+            extended_types: string[];
+            has_web: boolean;
+            hooks: string[];
+            permissions: components["schemas"]["PluginPermissionResponse"][];
+            public_routes: string[];
+            requires: string[];
+            routes: string[];
+            schedules: string[];
+            secrets: string[];
+        };
+        PluginPermissionResponse: {
+            description?: string | null;
+            grant_to: string[];
+            key: string;
+            label: string;
+        };
+        PluginResponse: components["schemas"]["PluginDeclarations"] & {
+            backend_error?: string | null;
+            description?: string | null;
+            enabled: boolean;
+            installed_at: string;
+            key: string;
+            name: string;
+            settings: components["schemas"]["PluginSettingResponse"][];
+            updated_at: string;
+            version: string;
+        };
+        PluginSettingResponse: {
+            configured?: boolean | null;
+            help?: string | null;
+            key: string;
+            label: string;
+            /** Format: int64 */
+            max?: number | null;
+            /** Format: int64 */
+            min?: number | null;
+            type: string;
+            value: Record<string, never>;
         };
         PreferencesResponse: {
             keyboard_shortcuts: boolean;
@@ -21300,6 +21504,12 @@ export interface components {
         ViewType: "table" | "kanban" | "calendar";
         /** @enum {string} */
         ViewVisibility: "private" | "team" | "organization";
+        WebPluginResponse: {
+            entry: string;
+            key: string;
+            style?: string | null;
+            version: string;
+        };
         WebhookDeliveryDetailResponse: components["schemas"]["WebhookDeliveryResponse"] & {
             request_body: unknown;
         };
@@ -50898,6 +51108,393 @@ export interface operations {
             };
         };
     };
+    plugins_list: {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        requestBody?: never;
+        responses: {
+            /** @description Installed plugins */
+            200: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["Data_Vec_PluginResponse"];
+                };
+            };
+            /** @description Missing or invalid credentials (`unauthorized`) */
+            401: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["ErrorEnvelope"];
+                };
+            };
+            /** @description Missing `system.manage` (`permission_denied`) */
+            403: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["ErrorEnvelope"];
+                };
+            };
+            /** @description API token rate limit exceeded (`rate_limited`); see `Retry-After` and `X-RateLimit-*` */
+            429: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["ErrorEnvelope"];
+                };
+            };
+        };
+    };
+    plugins_install: {
+        parameters: {
+            query?: {
+                dry_run?: boolean;
+            };
+            header?: {
+                /** @description Up to 255 printable ASCII characters. The same key with the same request (method, path and body) within 24 hours answers the stored response with the same status and body plus `Idempotent-Replayed: true`. Scoped to the credential (session cookie or API token); ignored without a credential. 5xx and 429 responses are not stored */
+                "Idempotency-Key"?: string;
+            };
+            path?: never;
+            cookie?: never;
+        };
+        /** @description Field `package` with the .aphelplugin file */
+        requestBody?: {
+            content: {
+                "multipart/form-data": unknown;
+            };
+        };
+        responses: {
+            /** @description Dry run: what the package declares and asks for */
+            200: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["Data_PluginConsentResponse"];
+                };
+            };
+            /** @description Plugin installed or upgraded */
+            201: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["Data_PluginResponse"];
+                };
+            };
+            /** @description Missing or invalid credentials (`unauthorized`) */
+            401: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["ErrorEnvelope"];
+                };
+            };
+            /** @description Missing `system.manage` (`permission_denied`) */
+            403: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["ErrorEnvelope"];
+                };
+            };
+            /** @description A custom object, field or permission with the same key already exists (`plugin_object_conflict`, `plugin_field_conflict`, `permission_already_registered`). The first request with this `Idempotency-Key` is still being processed (`idempotency_key_in_progress`) */
+            409: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["ErrorEnvelope"];
+                };
+            };
+            /** @description Invalid package, manifest or backend (`plugin_package_invalid`, `plugin_manifest_invalid`, `plugin_backend_invalid`). `Idempotency-Key` already used with a different request (`idempotency_key_reused`) or longer than 255 characters (`validation_error`) */
+            422: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["ErrorEnvelope"];
+                };
+            };
+            /** @description API token rate limit exceeded (`rate_limited`); see `Retry-After` and `X-RateLimit-*` */
+            429: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["ErrorEnvelope"];
+                };
+            };
+        };
+    };
+    plugins_uninstall: {
+        parameters: {
+            query?: {
+                purge?: boolean;
+            };
+            header?: never;
+            path: {
+                /** @description Plugin key */
+                key: string;
+            };
+            cookie?: never;
+        };
+        requestBody?: never;
+        responses: {
+            /** @description Plugin uninstalled */
+            204: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content?: never;
+            };
+            /** @description Missing `system.manage` (`permission_denied`) */
+            403: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["ErrorEnvelope"];
+                };
+            };
+            /** @description Plugin not installed (`plugin_not_found`) */
+            404: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["ErrorEnvelope"];
+                };
+            };
+            /** @description API token rate limit exceeded (`rate_limited`); see `Retry-After` and `X-RateLimit-*` */
+            429: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["ErrorEnvelope"];
+                };
+            };
+        };
+    };
+    plugins_disable: {
+        parameters: {
+            query?: never;
+            header?: {
+                /** @description Up to 255 printable ASCII characters. The same key with the same request (method, path and body) within 24 hours answers the stored response with the same status and body plus `Idempotent-Replayed: true`. Scoped to the credential (session cookie or API token); ignored without a credential. 5xx and 429 responses are not stored */
+                "Idempotency-Key"?: string;
+            };
+            path: {
+                /** @description Plugin key */
+                key: string;
+            };
+            cookie?: never;
+        };
+        requestBody?: never;
+        responses: {
+            /** @description Plugin disabled */
+            200: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["Data_PluginResponse"];
+                };
+            };
+            /** @description Missing `system.manage` (`permission_denied`) */
+            403: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["ErrorEnvelope"];
+                };
+            };
+            /** @description Plugin not installed (`plugin_not_found`) */
+            404: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["ErrorEnvelope"];
+                };
+            };
+            /** @description The first request with this `Idempotency-Key` is still being processed (`idempotency_key_in_progress`) */
+            409: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["ErrorEnvelope"];
+                };
+            };
+            /** @description `Idempotency-Key` already used with a different request (`idempotency_key_reused`) or longer than 255 characters (`validation_error`) */
+            422: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["ErrorEnvelope"];
+                };
+            };
+            /** @description API token rate limit exceeded (`rate_limited`); see `Retry-After` and `X-RateLimit-*` */
+            429: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["ErrorEnvelope"];
+                };
+            };
+        };
+    };
+    plugins_enable: {
+        parameters: {
+            query?: never;
+            header?: {
+                /** @description Up to 255 printable ASCII characters. The same key with the same request (method, path and body) within 24 hours answers the stored response with the same status and body plus `Idempotent-Replayed: true`. Scoped to the credential (session cookie or API token); ignored without a credential. 5xx and 429 responses are not stored */
+                "Idempotency-Key"?: string;
+            };
+            path: {
+                /** @description Plugin key */
+                key: string;
+            };
+            cookie?: never;
+        };
+        requestBody?: never;
+        responses: {
+            /** @description Plugin enabled */
+            200: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["Data_PluginResponse"];
+                };
+            };
+            /** @description Missing `system.manage` (`permission_denied`) */
+            403: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["ErrorEnvelope"];
+                };
+            };
+            /** @description Plugin not installed (`plugin_not_found`) */
+            404: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["ErrorEnvelope"];
+                };
+            };
+            /** @description The first request with this `Idempotency-Key` is still being processed (`idempotency_key_in_progress`) */
+            409: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["ErrorEnvelope"];
+                };
+            };
+            /** @description `Idempotency-Key` already used with a different request (`idempotency_key_reused`) or longer than 255 characters (`validation_error`) */
+            422: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["ErrorEnvelope"];
+                };
+            };
+            /** @description API token rate limit exceeded (`rate_limited`); see `Retry-After` and `X-RateLimit-*` */
+            429: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["ErrorEnvelope"];
+                };
+            };
+        };
+    };
+    plugins_update_settings: {
+        parameters: {
+            query?: never;
+            header?: never;
+            path: {
+                /** @description Plugin key */
+                key: string;
+            };
+            cookie?: never;
+        };
+        /** @description Map of setting key to value */
+        requestBody: {
+            content: {
+                "application/json": Record<string, never>;
+            };
+        };
+        responses: {
+            /** @description Settings saved */
+            200: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["Data_PluginResponse"];
+                };
+            };
+            /** @description Missing `system.manage` (`permission_denied`) */
+            403: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["ErrorEnvelope"];
+                };
+            };
+            /** @description Plugin not installed (`plugin_not_found`) */
+            404: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["ErrorEnvelope"];
+                };
+            };
+            /** @description Invalid settings (`plugin_settings_invalid`) */
+            422: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["ErrorEnvelope"];
+                };
+            };
+            /** @description API token rate limit exceeded (`rate_limited`); see `Retry-After` and `X-RateLimit-*` */
+            429: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["ErrorEnvelope"];
+                };
+            };
+        };
+    };
     preferences_get: {
         parameters: {
             query?: never;
@@ -54767,6 +55364,26 @@ export interface operations {
                     [name: string]: unknown;
                 };
                 content?: never;
+            };
+        };
+    };
+    plugins_web: {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        requestBody?: never;
+        responses: {
+            /** @description Web bundles to load */
+            200: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["Data_Vec_WebPluginResponse"];
+                };
             };
         };
     };

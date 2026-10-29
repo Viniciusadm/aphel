@@ -3,12 +3,13 @@ use uuid::Uuid;
 
 use crate::runtime::aphel::plugin::host::Host;
 use crate::runtime::{CallState, to_plugin_error, wit};
-use crate::store;
+use crate::{net, store};
 use aphel_kernel::Ctx;
 use aphel_kernel::application::organization_admin::ListWindow;
 use aphel_kernel::application::query::{
     ArchivedFilter, Filter, RecordQuery, RecordQueryEngine, parse_sort,
 };
+use aphel_kernel::application::secrets::SecretKey;
 use aphel_kernel::domain::access::AccessScope;
 use aphel_kernel::errors::AppError;
 use aphel_kernel::records::RecordCtx;
@@ -19,7 +20,24 @@ const MAX_KV_ITEMS: u32 = 500;
 const MAX_COLLECTION_LENGTH: usize = 64;
 const MAX_ITEM_LENGTH: usize = 128;
 
+const WRITE_IN_HOOK: &str = "plugin_write_in_hook";
+pub const SECRET_OWNER_TYPE: &str = "plugin";
+
 type HostResult<T> = Result<T, wit::PluginError>;
+
+pub fn secret_key(plugin: &str, name: &str) -> SecretKey {
+    SecretKey::new(SECRET_OWNER_TYPE, plugin, name)
+}
+
+fn outside_transaction(state: &CallState) -> Result<(), AppError> {
+    if state.in_transaction {
+        return Err(AppError::conflict_code(
+            WRITE_IN_HOOK,
+            "plugins cannot create, update or delete records inside a record hook; do it when the matching event arrives",
+        ));
+    }
+    Ok(())
+}
 
 fn parse(json: &str) -> Result<Value, AppError> {
     serde_json::from_str(json)
@@ -156,6 +174,9 @@ impl Host for CallState {
         record_type: String,
         values_json: String,
     ) -> HostResult<String> {
+        if let Err(error) = outside_transaction(self) {
+            return answer(Err(error));
+        }
         let scope = self.scope.clone();
         answer(write(&scope, &record_type, None, &values_json).await)
     }
@@ -166,11 +187,17 @@ impl Host for CallState {
         id: String,
         values_json: String,
     ) -> HostResult<String> {
+        if let Err(error) = outside_transaction(self) {
+            return answer(Err(error));
+        }
         let scope = self.scope.clone();
         answer(write(&scope, &record_type, Some(&id), &values_json).await)
     }
 
     async fn delete_record(&mut self, record_type: String, id: String) -> HostResult<()> {
+        if let Err(error) = outside_transaction(self) {
+            return answer(Err(error));
+        }
         let scope = self.scope.clone();
         answer(delete(&scope, &record_type, &id).await)
     }
@@ -231,6 +258,36 @@ impl Host for CallState {
                     .into_iter()
                     .map(|(id, value)| (id, encode(&value)))
                     .collect())
+            }
+            .await,
+        )
+    }
+
+    async fn http_fetch(&mut self, request: wit::HttpRequest) -> HostResult<wit::HttpResponse> {
+        let plugin = self.plugin.clone();
+        answer(net::fetch(&plugin, self.deadline, request).await)
+    }
+
+    async fn secret(&mut self, key: String) -> HostResult<Option<String>> {
+        let plugin = self.plugin.clone();
+        answer(
+            async {
+                if !plugin
+                    .manifest
+                    .secret_settings()
+                    .any(|setting| setting.key == key)
+                {
+                    return Err(AppError::not_found_code(
+                        "plugin_secret_not_declared",
+                        format!("the plugin does not declare a secret setting {key}"),
+                    ));
+                }
+                let state = runtime_state()?;
+                Ok(state
+                    .secrets
+                    .reveal(&AccessScope::system(), &secret_key(&plugin.key, &key))
+                    .await?
+                    .map(|secret| secret.expose().to_owned()))
             }
             .await,
         )
