@@ -25,13 +25,13 @@ export function Sidebar({ collapsed, onToggleCollapsed, settingsArea, returnPath
       data-collapsed={collapsed}
       className={cn(
         'hidden shrink-0 flex-col border-r border-sidebar-border bg-sidebar transition-[width] duration-200 md:flex',
-        collapsed ? 'w-16' : 'w-60',
+        collapsed ? 'w-16' : 'w-64',
       )}
     >
       <div className={cn('flex h-14 items-center px-4', collapsed && 'justify-center px-2')}>
         <OrganizationBrand compact={collapsed} />
       </div>
-      <div className="flex-1 overflow-y-auto py-2">
+      <div className="scroll-smooth-thin flex-1 overflow-y-auto py-2">
         {settingsArea ? (
           <SettingsNav area={settingsArea} returnPath={returnPath} collapsed={collapsed} />
         ) : (
