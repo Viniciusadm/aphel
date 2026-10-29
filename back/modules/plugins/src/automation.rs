@@ -192,7 +192,7 @@ impl AutomationAction for PluginAction {
             run_id: context.run_id.to_string(),
             actor: runtime::scope_actor(context.scope),
         };
-        let output = runtime::on_action(&plugin, context.scope, &call).await?;
+        let output = runtime::on_action(&plugin, context.scope, &call, context.step_id).await?;
         Ok(serde_json::from_str(&output).unwrap_or(Value::Null))
     }
 }

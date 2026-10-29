@@ -153,6 +153,12 @@ interface host {
   notify: func(notification: notification) -> result<_, plugin-error>;
   emit: func(name: string, record-type: option<string>, record-id: option<string>, payload-json: string) -> result<_, plugin-error>;
 
+  invoke: func(operation: string, input-json: string) -> result<string, plugin-error>;
+
+  defer-effect: func(key: string, command-json: string) -> result<string, plugin-error>;
+  hook-state-json: func() -> string;
+  execution-context-json: func() -> string;
+
   settings-json: func() -> string;
   secret: func(key: string) -> result<option<string>, plugin-error>;
   now: func() -> string;

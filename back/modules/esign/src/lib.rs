@@ -1,5 +1,6 @@
 pub(crate) mod clicksign;
 pub(crate) mod http;
+pub(crate) mod plugin_bridge;
 pub(crate) mod provider;
 pub(crate) mod runtime;
 pub(crate) mod service;
@@ -218,6 +219,9 @@ impl Module for EsignModule {
             app.public_event(*definition);
         }
         app.permission(PermissionDefinition::administrative(VIEW));
+        for operation in plugin_bridge::operations() {
+            app.contribute::<aphel_kernel::modules::PluginOperation>(operation);
+        }
         Ok(())
     }
 

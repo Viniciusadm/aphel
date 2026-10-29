@@ -1,5 +1,6 @@
 pub mod domain;
 pub(crate) mod http;
+pub(crate) mod plugin_bridge;
 pub(crate) mod service;
 pub(crate) mod store;
 
@@ -25,6 +26,9 @@ impl Module for TimelineModule {
     fn register(&self, app: &mut AppBuilder) -> Result<(), AppError> {
         app.openapi_tag(http::TAG, "Unified timeline of a record")
             .routes(|_| http::router());
+        for operation in plugin_bridge::operations() {
+            app.contribute::<aphel_kernel::modules::PluginOperation>(operation);
+        }
         Ok(())
     }
 }

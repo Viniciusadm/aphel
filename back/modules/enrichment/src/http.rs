@@ -34,7 +34,7 @@ fn timestamp(value: DateTime<Utc>) -> String {
     value.to_rfc3339_opts(SecondsFormat::Secs, true)
 }
 
-fn parse_uuid(raw: &str, field: &str) -> Result<Uuid, AppError> {
+pub(crate) fn parse_uuid(raw: &str, field: &str) -> Result<Uuid, AppError> {
     Uuid::parse_str(raw.trim()).map_err(|_| {
         AppError::invalid_fields_code(
             INVALID_REQUEST,

@@ -5,6 +5,10 @@ export const hooks = Object.freeze({
   VALIDATING: 'record.validating',
   SAVED: 'record.saved',
   DELETING: 'record.deleting',
+  COMMITTED: 'record.committed',
+  DELETED: 'record.deleted',
+  RESTORED: 'record.restored',
+  PURGED: 'record.purged',
 })
 
 export class PluginError extends Error {
@@ -191,6 +195,18 @@ export const ctx = Object.freeze({
   },
   emit(name, record, payload) {
     call(() => host.emit(name, record?.type, record?.id, JSON.stringify(payload ?? {})))
+  },
+  deferEffect(key, command) {
+    return call(() => host.deferEffect(key, JSON.stringify(command)))
+  },
+  hookState() {
+    return parse(host.hookStateJson())
+  },
+  executionContext() {
+    return parse(host.executionContextJson())
+  },
+  invoke(operation, input) {
+    return JSON.parse(call(() => host.invoke(operation, JSON.stringify(input ?? {}))))
   },
   now() {
     return host.now()

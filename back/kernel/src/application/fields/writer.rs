@@ -365,21 +365,16 @@ where
         }
         for (target, references) in records {
             let path_of = |definition: &FieldDefinition| custom_field_path(definition.key.as_str());
-            let target_definition = self.ports.registry().require(&target).ok();
-            let visibility = target_definition
-                .and_then(|definition| scope.record_filter(&definition.read_permission).ok());
-            let existing: BTreeSet<Uuid> = match (target_definition, visibility) {
-                (Some(definition), Some(visibility)) => {
-                    let ids: Vec<Uuid> = references.iter().map(|(_, id)| *id).collect();
-                    self.ports
-                        .references()
-                        .existing_records(scope, definition, &visibility, &ids)
-                        .await?
-                        .into_iter()
-                        .collect()
-                }
-                _ => BTreeSet::new(),
-            };
+            let definition = self.ports.registry().require(&target)?;
+            let visibility = scope.record_filter(&definition.read_permission)?;
+            let ids: Vec<Uuid> = references.iter().map(|(_, id)| *id).collect();
+            let existing: BTreeSet<Uuid> = self
+                .ports
+                .references()
+                .existing_records(scope, definition, &visibility, &ids)
+                .await?
+                .into_iter()
+                .collect();
             for (definition, id) in references {
                 if !existing.contains(&id) {
                     violations.push(FieldViolation::new(

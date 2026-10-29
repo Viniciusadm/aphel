@@ -16,7 +16,7 @@ use utoipa_axum::routes;
 
 use crate::compiled;
 use crate::host::secret_key;
-use crate::manifest::{PluginManifest, SETTING_SECRET, match_route};
+use crate::manifest::{HostCatalog, PluginManifest, SETTING_SECRET, match_route};
 use crate::package::{MAX_PACKAGE_BYTES, read_package};
 use crate::registry;
 use crate::runtime::{self, wit};
@@ -66,6 +66,8 @@ pub(crate) fn router() -> OpenApiRouter<AppState> {
         .routes(routes!(enable_plugin))
         .routes(routes!(disable_plugin))
         .routes(routes!(update_plugin_settings))
+        .routes(routes!(host_catalog))
+        .routes(routes!(catalog_readiness))
         .route("/p/{key}/{*path}", any(dispatch))
 }
 
@@ -100,7 +102,9 @@ async fn record(
     let pool = state.db()?;
     let now = chrono::Utc::now();
     let actor = Actor::from_scope(scope);
-    let mut tx = pool.begin().await.map_err(AppError::from)?;
+    let mut tx = aphel_kernel::database::transaction::MySqlTx::from(
+        pool.begin().await.map_err(AppError::from)?,
+    );
     store::bump(&mut tx).await?;
     state
         .events
@@ -162,6 +166,7 @@ pub(crate) struct PluginDeclarations {
     emits: Vec<String>,
     notifications: Vec<String>,
     widgets: Vec<String>,
+    operations: Vec<String>,
     has_web: bool,
 }
 
@@ -234,6 +239,7 @@ impl From<&PluginManifest> for PluginDeclarations {
                 .iter()
                 .map(|widget| widget.title.clone())
                 .collect(),
+            operations: manifest.operations.clone(),
             has_web: manifest.web.is_some(),
         }
     }
@@ -377,6 +383,58 @@ async fn list_plugins(
 }
 
 #[utoipa::path(
+    get,
+    path = "/plugins/readiness",
+    tag = TAG,
+    operation_id = "plugins_readiness",
+    security(("session_cookie" = [])),
+    description = "Reports metadata catalog readiness independently of lazy backend compilation. Catalog failures return 503 rather than an empty catalog.",
+    responses(
+        (status = 200, description = "Catalog readiness", body = Data<registry::CatalogReadiness>),
+        (status = 503, description = "Catalog unavailable", body = ErrorEnvelope),
+    )
+)]
+async fn catalog_readiness(
+    State(state): State<AppState>,
+    tenant: AuthContext,
+) -> Result<Json<Data<registry::CatalogReadiness>>, ApiError> {
+    tenant.scope.require(&Permission::SYSTEM_MANAGE)?;
+    match tokio::time::timeout(Duration::from_millis(100), registry::current(&state.db()?)).await {
+        Ok(result) => {
+            result?;
+        }
+        Err(_) => {
+            return Ok(Json(Data::new(registry::CatalogReadiness {
+                state: "loading".to_owned(),
+                version: None,
+                backend_errors: vec![],
+            })));
+        }
+    }
+    Ok(Json(Data::new(registry::readiness())))
+}
+
+#[utoipa::path(
+    get,
+    path = "/plugins/host-catalog",
+    tag = TAG,
+    operation_id = "plugins_host_catalog",
+    security(("session_cookie" = [])),
+    description = "Lists what this Aphel offers to plugins (permission `system.manage`): the hooks a manifest can subscribe to in `hooks` (generic record hooks plus the domain hooks of compiled modules, with kind `veto`, `filter` or `action`) and the operations a plugin can call with `invoke` after declaring them in `operations`. `enabled` is false when the owning module is disabled: its hooks never fire and its operations answer 404 `plugin_operation_unknown`.",
+    responses(
+        (status = 200, description = "Hooks and operations offered to plugins", body = Data<crate::bridge::HostCatalogResponse>),
+        (status = 401, description = "Missing or invalid credentials (`unauthorized`)", body = ErrorEnvelope),
+        (status = 403, description = "Missing `system.manage` (`permission_denied`)", body = ErrorEnvelope),
+    )
+)]
+async fn host_catalog(
+    tenant: AuthContext,
+) -> Result<Json<Data<crate::bridge::HostCatalogResponse>>, ApiError> {
+    tenant.scope.require(&Permission::SYSTEM_MANAGE)?;
+    Ok(Json(Data::new(crate::bridge::host_catalog_response())))
+}
+
+#[utoipa::path(
     post,
     path = "/plugins",
     tag = TAG,
@@ -411,12 +469,28 @@ async fn install_plugin(
         .iter()
         .map(|module| module.manifest.key.to_owned())
         .collect();
-    package.manifest.validate(&compiled, APHEL_VERSION)?;
+    let catalog = crate::bridge::host_catalog();
+    package.manifest.validate(
+        &compiled,
+        APHEL_VERSION,
+        HostCatalog {
+            hooks: &catalog.hooks,
+            operations: &catalog.operations,
+        },
+    )?;
+    if package.manifest.needs_backend() && package.backend().is_none() {
+        return Err(AppError::validation_code(
+            "plugin_backend_missing",
+            "the plugin declares runtime callbacks but has no backend.wasm",
+        )
+        .into());
+    }
     if let Some(backend) = package.backend() {
         runtime::validate(backend.content.clone()).await?;
     }
     let pool = state.db()?;
     let previous = store::find(&pool, &package.manifest.key).await?;
+    schema::validate_dependencies(&state, &package.manifest).await?;
     if params.dry_run {
         let manifest = &package.manifest;
         let consent = PluginConsentResponse {
@@ -431,7 +505,9 @@ async fn install_plugin(
     }
     schema::apply(&state, scope, &package.manifest).await?;
     let enabled = previous.as_ref().is_none_or(|plugin| plugin.enabled);
-    let mut tx = pool.begin().await.map_err(AppError::from)?;
+    let mut tx = aphel_kernel::database::transaction::MySqlTx::from(
+        pool.begin().await.map_err(AppError::from)?,
+    );
     store::save(&mut tx, &package, Some(scope.user_id())).await?;
     sync_permissions(&mut tx, &package.manifest, enabled).await?;
     tx.commit().await.map_err(AppError::from)?;
@@ -526,7 +602,9 @@ async fn uninstall_plugin(
     } else {
         schema::set_active(&state, &plugin.manifest, false).await?;
     }
-    let mut tx = state.db()?.begin().await.map_err(AppError::from)?;
+    let mut tx = aphel_kernel::database::transaction::MySqlTx::from(
+        state.db()?.begin().await.map_err(AppError::from)?,
+    );
     store::delete(&mut tx, &key).await?;
     remove_runtime_permissions(&mut tx, &permissions_owner(&key)).await?;
     for setting in plugin.manifest.secret_settings() {
@@ -565,7 +643,9 @@ async fn toggle(
     tenant.scope.require(&Permission::SYSTEM_MANAGE)?;
     let plugin = installed(state, key).await?;
     if plugin.enabled != enabled {
-        let mut tx = state.db()?.begin().await.map_err(AppError::from)?;
+        let mut tx = aphel_kernel::database::transaction::MySqlTx::from(
+            state.db()?.begin().await.map_err(AppError::from)?,
+        );
         store::set_enabled(&mut tx, key, enabled).await?;
         set_runtime_permissions_active(&mut tx, &permissions_owner(key), enabled).await?;
         tx.commit().await?;
@@ -734,7 +814,9 @@ async fn update_plugin_settings(
         Value::Object(plugin.settings),
         Value::Object(settings.clone()),
     )];
-    let mut tx = state.db()?.begin().await.map_err(AppError::from)?;
+    let mut tx = aphel_kernel::database::transaction::MySqlTx::from(
+        state.db()?.begin().await.map_err(AppError::from)?,
+    );
     store::set_settings(&mut tx, &key, &settings).await?;
     for (name, secret) in &secrets {
         let secret_key = secret_key(&key, name);

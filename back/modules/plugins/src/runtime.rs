@@ -13,12 +13,13 @@ use wasmtime_wasi::{WasiCtx, WasiCtxBuilder, WasiCtxView, WasiView};
 use crate::compiled;
 use crate::registry::LoadedPlugin;
 use aphel_kernel::application::access::{AccessRepository, build_access_scope};
-use aphel_kernel::application::shared::Actor;
+use aphel_kernel::application::shared::{Actor, ExecutionContext};
 use aphel_kernel::domain::UserId;
 use aphel_kernel::domain::access::AccessScope;
 use aphel_kernel::errors::{AppError, CodedKind, FieldViolation};
 use aphel_kernel::infrastructure::repositories::mysql_access::MySqlAccessRepository;
 use aphel_kernel::state::runtime_state;
+use uuid::Uuid;
 
 wasmtime::component::bindgen!({
     path: "wit",
@@ -49,7 +50,11 @@ pub struct CallState {
     pub plugin: Arc<LoadedPlugin>,
     pub scope: AccessScope,
     pub in_transaction: bool,
+    pub read_only: bool,
+    pub retryable: bool,
+    pub hook_state: Option<serde_json::Value>,
     pub deadline: Instant,
+    pub effects: Vec<crate::effects::PendingEffect>,
     limits: StoreLimits,
     wasi: WasiCtx,
     table: ResourceTable,
@@ -130,8 +135,10 @@ fn engine_key() -> &'static str {
     })
 }
 
-fn compiled_cache() -> &'static Mutex<Vec<(String, Weak<PluginPre<CallState>>)>> {
-    static CACHE: OnceLock<Mutex<Vec<(String, Weak<PluginPre<CallState>>)>>> = OnceLock::new();
+type CompiledCache = Mutex<Vec<(String, Weak<PluginPre<CallState>>)>>;
+
+fn compiled_cache() -> &'static CompiledCache {
+    static CACHE: OnceLock<CompiledCache> = OnceLock::new();
     CACHE.get_or_init(Default::default)
 }
 
@@ -290,13 +297,18 @@ async fn instantiate(
             plugin.key
         )));
     };
+    let backend = backend.get().await?;
     let mut store = Store::new(
         engine(),
         CallState {
             plugin: plugin.clone(),
             scope,
             in_transaction,
+            read_only: false,
+            retryable: false,
+            hook_state: None,
             deadline: Instant::now() + timeout,
+            effects: Vec::new(),
             limits: StoreLimitsBuilder::new()
                 .memory_size(MEMORY_LIMIT)
                 .instances(16)
@@ -314,56 +326,239 @@ async fn instantiate(
     Ok((store, bindings))
 }
 
-pub async fn on_hook(
-    plugin: &Arc<LoadedPlugin>,
-    scope: &AccessScope,
-    call: &wit::HookCall,
-) -> Result<wit::HookOutcome, AppError> {
-    let scope = capability_scope(plugin, scope);
-    let (mut store, bindings) = instantiate(plugin, scope, HOOK_TIMEOUT, true).await?;
-    bindings
-        .call_on_hook(&mut store, call)
-        .await
-        .map_err(|error| failure(plugin, error))?
-        .map_err(plugin_error)
+fn execution_context(
+    plugin: &LoadedPlugin,
+    trigger: &str,
+    scope: Option<&AccessScope>,
+    parent: Option<&ExecutionContext>,
+    event_id: Option<Uuid>,
+) -> Result<ExecutionContext, AppError> {
+    if trigger == "hook" && parent.is_some_and(|parent| parent.executor == plugin.key) {
+        return Ok(parent.unwrap().clone());
+    }
+    let actor = scope
+        .map(Actor::from_scope)
+        .filter(|actor| !matches!(actor, Actor::Plugin(_) | Actor::System));
+    ExecutionContext::plugin(
+        &plugin.key,
+        trigger,
+        actor.as_ref(),
+        parent,
+        event_id,
+        Uuid::now_v7(),
+    )
 }
 
-pub async fn on_event(plugin: &Arc<LoadedPlugin>, event: &wit::Event) -> Result<(), AppError> {
+pub async fn on_hook(
+    plugin: &Arc<LoadedPlugin>,
+    ctx: &mut aphel_kernel::modules::HookCtx<'_>,
+    call: &wit::HookCall,
+) -> Result<wit::HookOutcome, AppError> {
+    let execution = execution_context(
+        plugin,
+        "hook",
+        Some(ctx.scope),
+        ExecutionContext::current().as_ref(),
+        None,
+    )?;
+    let reentry =
+        ExecutionContext::current().is_some_and(|parent| parent.chain.contains(&plugin.key));
+    let scope = if ctx.scope.is_system() {
+        plugin_scope(plugin).await?
+    } else {
+        capability_scope(plugin, ctx.scope)
+    };
+    let (mut store, bindings) = instantiate(plugin, scope, HOOK_TIMEOUT, true).await?;
+    store.data_mut().read_only = reentry && call.hook != "record.committed";
+    let record_id = Uuid::parse_str(&call.record_id).ok();
+    let mut state = record_id.and_then(|id| ctx.tx.record_states.get(&(call.record_type.clone(), id)).cloned())
+        .unwrap_or_else(|| serde_json::json!({"operation_id": ctx.tx.operation_id, "record_type": call.record_type,
+            "record_id": call.record_id, "before": null, "before_available": false, "proposed": null, "persisted": null}));
+    state["phase"] = serde_json::json!(call.hook);
+    state["effects_allowed"] = serde_json::json!(!store.data().read_only);
+    if call.hook == "record.saving" {
+        let values = serde_json::from_str(&call.values_json).unwrap_or_default();
+        let custom = serde_json::from_str(&call.custom_fields_json).unwrap_or_default();
+        state["proposed"] = aphel_kernel::records::snapshot::proposed(
+            state.get("before").filter(|value| !value.is_null()),
+            &values,
+            &custom,
+        );
+    }
+    let runtime = runtime_state()?;
+    let record_type = aphel_kernel::application::shared::RecordType::parse(&call.record_type)?;
+    let redaction = aphel_kernel::api::routes::v1::field_permissions::field_redaction(
+        &runtime,
+        &store.data().scope,
+        &record_type,
+    )
+    .await?;
+    for key in ["before", "proposed", "persisted"] {
+        if let Some(snapshot) = state.get_mut(key).filter(|value| value.is_object()) {
+            let mut flat = snapshot
+                .get("values")
+                .cloned()
+                .unwrap_or_else(|| serde_json::json!({}));
+            flat["custom_fields"] = snapshot
+                .get("custom_fields")
+                .cloned()
+                .unwrap_or_else(|| serde_json::json!({}));
+            redaction.redact_value(&mut flat);
+            snapshot["custom_fields"] = flat
+                .as_object_mut()
+                .and_then(|flat| flat.remove("custom_fields"))
+                .unwrap_or_else(|| serde_json::json!({}));
+            snapshot["values"] = flat;
+        }
+    }
+    let mut call = call.clone();
+    let mut values: serde_json::Value =
+        serde_json::from_str(&call.values_json).unwrap_or_else(|_| serde_json::json!({}));
+    values["custom_fields"] =
+        serde_json::from_str(&call.custom_fields_json).unwrap_or_else(|_| serde_json::json!({}));
+    redaction.redact_value(&mut values);
+    call.custom_fields_json = values
+        .as_object_mut()
+        .and_then(|values| values.remove("custom_fields"))
+        .unwrap_or_else(|| serde_json::json!({}))
+        .to_string();
+    call.values_json = values.to_string();
+    call.changes
+        .retain(|change| !redaction.hides_path(&change.field));
+    store.data_mut().hook_state = Some(state);
+    let outcome = execution
+        .scope(async {
+            bindings
+                .call_on_hook(&mut store, &call)
+                .await
+                .map_err(|error| failure(plugin, error))?
+                .map_err(plugin_error)
+        })
+        .await?;
+    if call.hook == "record.saving" {
+        let registry = runtime.registry().await?;
+        let fields = aphel_kernel::application::fields::FieldSet::for_scope(
+            &aphel_kernel::infrastructure::fields::MySqlFieldDefinitionRepository::new(
+                runtime.db()?,
+            ),
+            registry.require(&call.record_type)?,
+            &store.data().scope,
+        )
+        .await?;
+        for patch in [&outcome.values_json, &outcome.custom_fields_json] {
+            let patch: serde_json::Value = serde_json::from_str(patch).map_err(|_| {
+                AppError::validation_code(
+                    "plugin_hook_patch_invalid",
+                    "hook patches must be JSON objects",
+                )
+            })?;
+            let object = patch.as_object().ok_or_else(|| {
+                AppError::validation_code(
+                    "plugin_hook_patch_invalid",
+                    "hook patches must be JSON objects",
+                )
+            })?;
+            for key in object.keys() {
+                if !fields
+                    .find(key)
+                    .is_some_and(|field| field.definition.is_active && field.is_editable())
+                {
+                    return Err(AppError::forbidden_code(
+                        "plugin_field_not_writable",
+                        format!("the hook cannot change field {key}"),
+                    ));
+                }
+            }
+        }
+    }
+    let pending = std::mem::take(&mut store.data_mut().effects);
+    crate::effects::persist(ctx.tx, ctx.pool, pending).await?;
+    Ok(outcome)
+}
+
+pub async fn on_event(
+    plugin: &Arc<LoadedPlugin>,
+    event: &wit::Event,
+    execution: ExecutionContext,
+) -> Result<(), AppError> {
     let scope = plugin_scope(plugin).await?;
     let (mut store, bindings) = instantiate(plugin, scope, EVENT_TIMEOUT, false).await?;
-    bindings
-        .call_on_event(&mut store, event)
+    store.data_mut().retryable = true;
+    execution
+        .scope(async {
+            bindings
+                .call_on_event(&mut store, event)
+                .await
+                .map_err(|error| failure(plugin, error))?
+                .map_err(plugin_error)
+        })
         .await
-        .map_err(|error| failure(plugin, error))?
-        .map_err(plugin_error)
 }
 
 pub async fn on_schedule(
     plugin: &Arc<LoadedPlugin>,
     name: &str,
     slot: &str,
+    execution: ExecutionContext,
 ) -> Result<(), AppError> {
     let scope = plugin_scope(plugin).await?;
     let (mut store, bindings) = instantiate(plugin, scope, SCHEDULE_TIMEOUT, false).await?;
-    bindings
-        .call_on_schedule(&mut store, name, slot)
+    store.data_mut().retryable = true;
+    execution
+        .scope(async {
+            bindings
+                .call_on_schedule(&mut store, name, slot)
+                .await
+                .map_err(|error| failure(plugin, error))?
+                .map_err(plugin_error)
+        })
         .await
-        .map_err(|error| failure(plugin, error))?
-        .map_err(plugin_error)
 }
 
 pub async fn on_action(
     plugin: &Arc<LoadedPlugin>,
     scope: &AccessScope,
     call: &wit::ActionCall,
+    step_id: &str,
 ) -> Result<String, AppError> {
+    let mut execution = execution_context(
+        plugin,
+        "automation",
+        Some(scope),
+        ExecutionContext::current().as_ref(),
+        None,
+    )?;
+    execution.automation = Some(aphel_kernel::application::shared::AutomationExecution {
+        automation_id: call.automation_id.clone(),
+        run_id: call.run_id.clone(),
+        step_id: step_id.to_owned(),
+    });
+    let pool = runtime_state()?.db()?;
+    let source = format!(
+        "automation:{}",
+        backend_hash(format!("{}:{}:{step_id}", call.automation_id, call.run_id).as_bytes())
+    );
+    sqlx::query("INSERT IGNORE INTO plugins_executions (id, plugin_key, source_key, input, execution) VALUES (?, ?, ?, JSON_OBJECT(), ?)")
+        .bind(execution.id.to_string()).bind(&plugin.key).bind(&source).bind(sqlx::types::Json(&execution)).execute(&pool).await?;
+    let sqlx::types::Json(execution): sqlx::types::Json<ExecutionContext> = sqlx::query_scalar(
+        "SELECT execution FROM plugins_executions WHERE plugin_key = ? AND source_key = ?",
+    )
+    .bind(&plugin.key)
+    .bind(&source)
+    .fetch_one(&pool)
+    .await?;
     let scope = capability_scope(plugin, scope);
     let (mut store, bindings) = instantiate(plugin, scope, ACTION_TIMEOUT, false).await?;
-    bindings
-        .call_on_action(&mut store, call)
+    store.data_mut().retryable = true;
+    execution
+        .scope(async {
+            bindings
+                .call_on_action(&mut store, call)
+                .await
+                .map_err(|error| failure(plugin, error))?
+                .map_err(plugin_error)
+        })
         .await
-        .map_err(|error| failure(plugin, error))?
-        .map_err(plugin_error)
 }
 
 pub async fn on_widget(
@@ -372,13 +567,19 @@ pub async fn on_widget(
     name: &str,
     request: &wit::WidgetRequest,
 ) -> Result<String, AppError> {
+    let execution = execution_context(plugin, "widget", Some(scope), None, None)?;
     let scope = capability_scope(plugin, scope);
     let (mut store, bindings) = instantiate(plugin, scope, WIDGET_TIMEOUT, false).await?;
-    bindings
-        .call_on_widget(&mut store, name, request)
+    store.data_mut().read_only = true;
+    execution
+        .scope(async {
+            bindings
+                .call_on_widget(&mut store, name, request)
+                .await
+                .map_err(|error| failure(plugin, error))?
+                .map_err(plugin_error)
+        })
         .await
-        .map_err(|error| failure(plugin, error))?
-        .map_err(plugin_error)
 }
 
 pub async fn on_route(
@@ -386,12 +587,17 @@ pub async fn on_route(
     scope: AccessScope,
     request: &wit::Request,
 ) -> Result<wit::Response, AppError> {
+    let execution = execution_context(plugin, "route", Some(&scope), None, None)?;
     let (mut store, bindings) = instantiate(plugin, scope, ROUTE_TIMEOUT, false).await?;
-    bindings
-        .call_on_route(&mut store, request)
+    execution
+        .scope(async {
+            bindings
+                .call_on_route(&mut store, request)
+                .await
+                .map_err(|error| failure(plugin, error))?
+                .map_err(plugin_error)
+        })
         .await
-        .map_err(|error| failure(plugin, error))?
-        .map_err(plugin_error)
 }
 
 fn actor_parts(actor: &Actor) -> (wit::ActorKind, Option<String>) {

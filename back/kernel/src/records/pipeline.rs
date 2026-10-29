@@ -80,6 +80,28 @@ impl RecordPipeline for MySqlRecordPipeline {
         scope: &AccessScope,
         draft: RecordDraft,
     ) -> Result<RecordDraft, AppError> {
+        let key = (
+            draft.record.record_type.as_str().to_owned(),
+            draft.record.record_id,
+        );
+        let before = if matches!(draft.mode, crate::application::fields::WriteMode::Create) {
+            None
+        } else {
+            crate::records::snapshot::capture(tx, &self.pool, &self.registry, &draft.record).await?
+        };
+        let proposed = crate::records::snapshot::proposed(
+            before.as_ref(),
+            &draft.values,
+            &draft.custom_fields,
+        );
+        tx.record_states.insert(
+            key,
+            serde_json::json!({
+                "operation_id": tx.operation_id, "record_type": draft.record.record_type.as_str(),
+                "record_id": draft.record.record_id, "phase": "record.saving", "before": before,
+                "proposed": proposed, "before_available": true, "persisted": null,
+            }),
+        );
         let hooks = self.app.hooks();
         if !hooks.has::<RecordSaving>() {
             return Ok(draft);
@@ -99,6 +121,23 @@ impl RecordPipeline for MySqlRecordPipeline {
         scope: &AccessScope,
         write: &RecordWrite<'_>,
     ) -> Result<(), AppError> {
+        let stored =
+            crate::records::snapshot::capture(tx, &self.pool, &self.registry, write.record).await?;
+        let proposed = serde_json::json!({
+            "values": write.values,
+            "custom_fields": stored.as_ref().and_then(|value| value.get("custom_fields")).cloned().unwrap_or_else(|| serde_json::json!({})),
+        });
+        let key = (
+            write.record.record_type.as_str().to_owned(),
+            write.record.record_id,
+        );
+        let operation_id = tx.operation_id;
+        let state = tx.record_states.entry(key).or_insert_with(|| serde_json::json!({
+            "operation_id": operation_id, "record_type": write.record.record_type.as_str(),
+            "record_id": write.record.record_id, "before": null, "before_available": false, "persisted": null,
+        }));
+        state["proposed"] = proposed;
+        state["phase"] = serde_json::json!("record.validating");
         self.run::<RecordValidating>(tx, scope, &self.changed(write))
             .await
     }
@@ -109,6 +148,15 @@ impl RecordPipeline for MySqlRecordPipeline {
         scope: &AccessScope,
         write: &RecordWrite<'_>,
     ) -> Result<(), AppError> {
+        let proposed =
+            crate::records::snapshot::capture(tx, &self.pool, &self.registry, write.record).await?;
+        if let Some(state) = tx.record_states.get_mut(&(
+            write.record.record_type.as_str().to_owned(),
+            write.record.record_id,
+        )) {
+            state["proposed"] = proposed.unwrap_or(serde_json::Value::Null);
+            state["phase"] = serde_json::json!("record.saved");
+        }
         self.run::<RecordSaved>(tx, scope, &self.changed(write))
             .await
     }
@@ -119,7 +167,7 @@ impl RecordPipeline for MySqlRecordPipeline {
         }
         let args = self.changed(write);
         let outcome = async {
-            let mut tx = self.pool.begin().await?;
+            let mut tx = MySqlTx::from(self.pool.begin().await?);
             self.run::<RecordCommitted>(&mut tx, scope, &args).await?;
             tx.commit().await?;
             Ok::<(), AppError>(())
@@ -140,6 +188,16 @@ impl RecordPipeline for MySqlRecordPipeline {
         scope: &AccessScope,
         record: &RecordRef,
     ) -> Result<(), AppError> {
+        let before =
+            crate::records::snapshot::capture(tx, &self.pool, &self.registry, record).await?;
+        tx.record_states.insert(
+            (record.record_type.as_str().to_owned(), record.record_id),
+            serde_json::json!({
+                "operation_id": tx.operation_id, "record_type": record.record_type.as_str(),
+                "record_id": record.record_id, "phase": "record.deleting", "before": before,
+                "before_available": true, "proposed": null, "persisted": null,
+            }),
+        );
         self.run::<RecordDeleting>(tx, scope, &self.removed(record))
             .await
     }
@@ -235,7 +293,7 @@ async fn read_only<H: Hook>(
     if !hooks.has::<H>() {
         return Ok(value);
     }
-    let mut tx = pool.begin().await?;
+    let mut tx = MySqlTx::from(pool.begin().await?);
     let value = {
         let mut ctx = HookCtx::new(&mut tx, pool, scope, app.services(), KERNEL_MODULE);
         hooks.apply::<H>(&mut ctx, value).await?

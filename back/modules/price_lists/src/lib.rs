@@ -2,6 +2,7 @@ pub(crate) mod bundles;
 pub mod domain;
 pub(crate) mod hooks;
 pub(crate) mod http;
+pub(crate) mod plugin_bridge;
 pub(crate) mod public;
 pub(crate) mod section;
 pub mod service;
@@ -113,6 +114,9 @@ impl Module for PriceListsModule {
         .provide::<dyn BundleExpander>(Arc::new(CatalogBundleExpander));
         for definition in PUBLIC_EVENTS {
             app.public_event(*definition);
+        }
+        for operation in plugin_bridge::operations() {
+            app.contribute::<aphel_kernel::modules::PluginOperation>(operation);
         }
         app.contribute::<dyn aphel_kernel::application::public_events::PublicResourceLoader>(
             Arc::new(public::PriceListPublicResource),

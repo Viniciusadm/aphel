@@ -7,6 +7,7 @@ pub mod hooks;
 pub mod manifest;
 pub mod migrations;
 pub mod module;
+pub mod plugin_bridge;
 pub mod routes;
 pub mod runtime;
 pub mod runtime_extensions;
@@ -24,7 +25,14 @@ pub use hooks::{
 };
 pub use manifest::{ManifestBase, Migration, SettingField, SettingKind, SettingOption};
 pub use module::{Manifest, Module, ModuleCtx};
+pub use plugin_bridge::{
+    OperationFuture, OperationPage, PLUGIN_HOOK_PRIORITY, PluginHook, PluginHookCall,
+    PluginHookDispatcher, PluginHookKind, PluginOperation, forward_plugin_hook, operation_input,
+    operation_output,
+};
 pub use routes::{MODULE_DISABLED, module_disabled};
 pub use services::Services;
 pub use settings::{module_secret_key, module_settings};
 pub use worker::{WorkerEnv, WorkerParts};
+
+pub mod runtime_catalog;

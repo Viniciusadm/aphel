@@ -522,6 +522,10 @@ pub(crate) struct CompanyHandler;
 
 #[async_trait]
 impl RecordTypeHandler for CompanyHandler {
+    fn durable_mutations(&self) -> bool {
+        true
+    }
+
     fn record_type(&self) -> &str {
         "company"
     }

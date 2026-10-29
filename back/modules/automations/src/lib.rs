@@ -6,6 +6,7 @@ pub(crate) mod engine;
 pub(crate) mod hooks;
 pub(crate) mod http;
 pub(crate) mod model;
+pub(crate) mod plugin_bridge;
 pub(crate) mod runtime;
 pub(crate) mod section;
 pub(crate) mod service;
@@ -85,6 +86,10 @@ impl Module for AutomationsModule {
             &[aphel_kernel::modules::HookUsage::Veto, aphel_kernel::modules::HookUsage::Filter],
             "Before an automation action runs (dry run and execution; an error skips it) and, as a filter, the result recorded for the step",
         );
+        app.on::<crate::hooks::ActionRunning, _>(
+            aphel_kernel::modules::PLUGIN_HOOK_PRIORITY,
+            |ctx, running| Box::pin(plugin_bridge::action_running(ctx, running)),
+        );
         app.contribute(std::sync::Arc::new(aphel_kernel::infrastructure::config_packages::ConfigSectionFactory::new(
             165,
             |pool, registry| {
@@ -118,6 +123,9 @@ impl Module for AutomationsModule {
         .grant_to(["admin"]);
         for definition in NOTIFICATION_KINDS {
             app.notification_kind(*definition);
+        }
+        for hook in plugin_bridge::hooks() {
+            app.contribute::<aphel_kernel::modules::PluginHook>(hook);
         }
         Ok(())
     }

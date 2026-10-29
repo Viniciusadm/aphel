@@ -21,7 +21,7 @@ impl TransactionManager for MySqlTransactionManager {
     type Tx = MySqlTx;
 
     async fn begin(&self) -> Result<Self::Tx, AppError> {
-        Ok(self.pool.begin().await?)
+        crate::database::receipt::begin(&self.pool).await
     }
 
     async fn commit(&self, tx: Self::Tx) -> Result<(), AppError> {

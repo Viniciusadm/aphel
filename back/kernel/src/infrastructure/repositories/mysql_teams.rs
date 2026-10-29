@@ -2,7 +2,7 @@ use std::collections::BTreeMap;
 
 use async_trait::async_trait;
 use sqlx::mysql::MySqlRow;
-use sqlx::{MySql, MySqlPool, QueryBuilder, Row, Transaction};
+use sqlx::{MySql, MySqlPool, QueryBuilder, Row};
 
 use crate::application::organization_admin::{
     ListWindow, Listing, TeamDraft, TeamMemberView, TeamRepository, TeamView,
@@ -76,7 +76,7 @@ fn team_from_row(row: &MySqlRow) -> Result<TeamView, AppError> {
 }
 
 async fn ensure_parent(
-    transaction: &mut Transaction<'_, MySql>,
+    transaction: &mut sqlx::MySqlConnection,
     draft: &TeamDraft,
 ) -> Result<(), AppError> {
     let Some(parent) = &draft.parent_team_id else {
@@ -84,7 +84,7 @@ async fn ensure_parent(
     };
     let exists: bool = sqlx::query_scalar("SELECT EXISTS(SELECT 1 FROM teams WHERE id = ?)")
         .bind(parent.as_str())
-        .fetch_one(&mut **transaction)
+        .fetch_one(&mut *transaction)
         .await?;
     if !exists {
         return Err(AppError::NotFound("parent team was not found".to_owned()));
@@ -93,7 +93,7 @@ async fn ensure_parent(
 }
 
 async fn insert_members(
-    transaction: &mut Transaction<'_, MySql>,
+    transaction: &mut sqlx::MySqlConnection,
     team_id: &TeamId,
     draft: &TeamDraft,
 ) -> Result<(), AppError> {
@@ -105,7 +105,7 @@ async fn insert_members(
         .bind(team_id.as_str())
         .bind(member.is_manager)
         .bind(member.user_id.as_str())
-        .execute(&mut **transaction)
+        .execute(&mut *transaction)
         .await?;
         if inserted.rows_affected() != 1 {
             return Err(AppError::NotFound("team member was not found".to_owned()));

@@ -4,6 +4,7 @@ pub mod dto;
 pub(crate) mod hooks;
 pub mod http;
 pub(crate) mod operations;
+pub(crate) mod plugin_bridge;
 pub(crate) mod search;
 pub mod section;
 pub mod service;
@@ -60,6 +61,9 @@ impl Module for TagsModule {
             aphel_kernel::modules::DEFAULT_PRIORITY,
             |ctx, removed| Box::pin(crate::hooks::purge_record_taggings(ctx, removed)),
         );
+        for operation in plugin_bridge::operations() {
+            app.contribute::<aphel_kernel::modules::PluginOperation>(operation);
+        }
         app.contribute::<dyn aphel_kernel::application::search::SearchContentSource>(Arc::new(
             search::TagSearchContent,
         ));

@@ -4,6 +4,7 @@ pub mod hooks;
 pub mod http;
 pub(crate) mod notifications;
 pub(crate) mod operations;
+pub(crate) mod plugin_bridge;
 pub(crate) mod runtime;
 pub mod service;
 pub mod store;
@@ -304,6 +305,31 @@ impl Module for DealsModule {
             &[aphel_kernel::modules::HookUsage::Action],
             "After a deal was lost, inside the same transaction",
         );
+        app.on::<crate::hooks::DealStageChanging, _>(
+            aphel_kernel::modules::PLUGIN_HOOK_PRIORITY,
+            |ctx, change| Box::pin(plugin_bridge::stage_changing(ctx, change)),
+        )
+        .on::<crate::hooks::DealWinning, _>(
+            aphel_kernel::modules::PLUGIN_HOOK_PRIORITY,
+            |ctx, deal| Box::pin(plugin_bridge::closing(ctx, plugin_bridge::WINNING, deal)),
+        )
+        .on::<crate::hooks::DealLosing, _>(
+            aphel_kernel::modules::PLUGIN_HOOK_PRIORITY,
+            |ctx, deal| Box::pin(plugin_bridge::closing(ctx, plugin_bridge::LOSING, deal)),
+        )
+        .on::<crate::hooks::DealWon, _>(aphel_kernel::modules::PLUGIN_HOOK_PRIORITY, |ctx, deal| {
+            Box::pin(plugin_bridge::closing(ctx, plugin_bridge::WON, deal))
+        })
+        .on::<crate::hooks::DealLost, _>(
+            aphel_kernel::modules::PLUGIN_HOOK_PRIORITY,
+            |ctx, deal| Box::pin(plugin_bridge::closing(ctx, plugin_bridge::LOST, deal)),
+        );
+        for hook in plugin_bridge::hooks() {
+            app.contribute::<aphel_kernel::modules::PluginHook>(hook);
+        }
+        for operation in plugin_bridge::operations() {
+            app.contribute::<aphel_kernel::modules::PluginOperation>(operation);
+        }
         app.provide::<dyn aphel_kernel::application::automations::StageOperations>(
             std::sync::Arc::new(operations::AutomationStages),
         );

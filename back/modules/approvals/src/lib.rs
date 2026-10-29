@@ -4,6 +4,7 @@ pub(crate) mod engine;
 pub(crate) mod hooks;
 pub(crate) mod http;
 pub(crate) mod notifications;
+pub(crate) mod plugin_bridge;
 pub(crate) mod runtime;
 pub(crate) mod section;
 pub mod service;
@@ -130,6 +131,9 @@ impl Module for ApprovalsModule {
         }
         for definition in NOTIFICATION_KINDS {
             app.notification_kind(*definition);
+        }
+        for operation in plugin_bridge::operations() {
+            app.contribute::<aphel_kernel::modules::PluginOperation>(operation);
         }
         Ok(())
     }

@@ -24,3 +24,5 @@ pub use purge::purge_record_type_data;
 pub use runtime::{field_set, query_ports};
 pub use types::{RecordContributionInfo, RecordTypeExtension};
 pub use version::lock_version;
+
+pub mod snapshot;

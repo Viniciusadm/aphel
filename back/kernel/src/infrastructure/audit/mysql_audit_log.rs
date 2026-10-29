@@ -29,7 +29,13 @@ pub(crate) fn changes_to_json(changes: &[FieldChange]) -> Value {
 
 #[async_trait]
 impl AuditLog<MySqlTx> for MySqlAuditLog {
-    async fn record(&self, tx: &mut MySqlTx, entry: AuditEntry) -> Result<(), AppError> {
+    async fn record(&self, tx: &mut MySqlTx, mut entry: AuditEntry) -> Result<(), AppError> {
+        let execution = crate::application::shared::ExecutionContext::current();
+        if let Some(execution) = &execution
+            && execution.executor_kind == "plugin"
+        {
+            entry.actor = crate::application::shared::Actor::Plugin(execution.executor.clone());
+        }
         let (record_type, record_id) = match &entry.record {
             Some(record) => (
                 Some(record.record_type.as_str().to_owned()),
@@ -42,8 +48,8 @@ impl AuditLog<MySqlTx> for MySqlAuditLog {
             .as_deref()
             .map(|ip| ip.chars().take(MAX_IP_LENGTH).collect::<String>());
         sqlx::query(
-            "INSERT INTO audit_logs (id, action, record_type, record_id, actor_type, actor_id, changes, ip, causation, occurred_at) \
-             VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?)",
+            "INSERT INTO audit_logs (id, action, record_type, record_id, actor_type, actor_id, changes, ip, causation, execution, occurred_at) \
+             VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)",
         )
         .bind(entry.id.to_string())
         .bind(&entry.action)
@@ -54,6 +60,7 @@ impl AuditLog<MySqlTx> for MySqlAuditLog {
         .bind(Json(changes_to_json(&entry.changes)))
         .bind(ip)
         .bind(entry.causation.as_ref().map(Json))
+        .bind(execution.as_ref().map(Json))
         .bind(mapper::naive(entry.occurred_at))
         .execute(&mut **tx)
         .await?;

@@ -14,7 +14,20 @@ pub const HOOK_SAVING: &str = "record.saving";
 pub const HOOK_VALIDATING: &str = "record.validating";
 pub const HOOK_SAVED: &str = "record.saved";
 pub const HOOK_DELETING: &str = "record.deleting";
-const HOOKS: &[&str] = &[HOOK_SAVING, HOOK_VALIDATING, HOOK_SAVED, HOOK_DELETING];
+pub const HOOK_COMMITTED: &str = "record.committed";
+pub const HOOK_DELETED: &str = "record.deleted";
+pub const HOOK_RESTORED: &str = "record.restored";
+pub const HOOK_PURGED: &str = "record.purged";
+pub const RECORD_HOOKS: &[&str] = &[
+    HOOK_SAVING,
+    HOOK_VALIDATING,
+    HOOK_SAVED,
+    HOOK_DELETING,
+    HOOK_COMMITTED,
+    HOOK_DELETED,
+    HOOK_RESTORED,
+    HOOK_PURGED,
+];
 const METHODS: &[&str] = &["GET", "POST", "PUT", "PATCH", "DELETE"];
 pub const SETTING_SECRET: &str = "secret";
 pub const PLUGIN_EVENT_PREFIX: &str = "plugin.";
@@ -29,6 +42,7 @@ const WIDGET_SIZES: &[&str] = &["small", "medium", "large"];
 const MAX_NOTIFICATIONS: usize = 20;
 const MAX_WIDGETS: usize = 20;
 const MAX_ALLOWED_HOSTS: usize = 20;
+const MAX_OPERATIONS: usize = 100;
 const MAX_KEY_LENGTH: usize = 32;
 const MAX_OBJECT_KEY_LENGTH: usize = 48;
 
@@ -71,7 +85,15 @@ pub struct PluginManifest {
     #[serde(default)]
     pub widgets: Vec<WidgetSpec>,
     #[serde(default)]
+    pub operations: Vec<String>,
+    #[serde(default)]
     pub web: Option<WebSpec>,
+}
+
+#[derive(Debug, Clone, Copy)]
+pub struct HostCatalog<'a> {
+    pub hooks: &'a [&'a str],
+    pub operations: &'a [&'a str],
 }
 
 #[derive(Debug, Clone, PartialEq, Serialize, Deserialize)]
@@ -295,6 +317,15 @@ fn is_key(value: &str, max: usize) -> bool {
 }
 
 impl PluginManifest {
+    pub fn needs_backend(&self) -> bool {
+        !self.hooks.is_empty()
+            || !self.events.is_empty()
+            || !self.routes.is_empty()
+            || !self.schedules.is_empty()
+            || !self.actions.is_empty()
+            || !self.widgets.is_empty()
+    }
+
     pub fn parse(text: &str) -> Result<Self, AppError> {
         toml::from_str(text).map_err(|error| {
             AppError::validation_code(INVALID_MANIFEST, format!("plugin.toml is invalid: {error}"))
@@ -373,10 +404,15 @@ impl PluginManifest {
         })
     }
 
+    pub fn uses_operation(&self, operation: &str) -> bool {
+        self.operations.iter().any(|declared| declared == operation)
+    }
+
     pub fn validate(
         &self,
         compiled_modules: &[String],
         aphel_version: &str,
+        catalog: HostCatalog<'_>,
     ) -> Result<(), AppError> {
         let mut violations = Vec::new();
         if !is_key(&self.key, MAX_KEY_LENGTH) {
@@ -454,10 +490,10 @@ impl PluginManifest {
             self.validate_field(&path, &extension.field, &mut violations);
         }
         for (index, hook) in self.hooks.iter().enumerate() {
-            if !HOOKS.contains(&hook.hook.as_str()) {
+            if !catalog.hooks.contains(&hook.hook.as_str()) {
                 violations.push(FieldViolation::new(
                     format!("hooks[{index}].hook"),
-                    format!("must be one of {}", HOOKS.join(", ")),
+                    "must be a hook offered by this Aphel (see GET /api/v1/plugins/host-catalog)",
                 ));
             }
             if hook.record_types.is_empty() {
@@ -608,6 +644,22 @@ impl PluginManifest {
                 "emits",
                 format!("can list at most {MAX_EMITS} events"),
             ));
+        }
+        if self.operations.len() > MAX_OPERATIONS {
+            violations.push(FieldViolation::new(
+                "operations",
+                format!("can list at most {MAX_OPERATIONS} operations"),
+            ));
+        }
+        for (index, operation) in self.operations.iter().enumerate() {
+            if !catalog.operations.contains(&operation.as_str())
+                || self.operations[..index].contains(operation)
+            {
+                violations.push(FieldViolation::new(
+                    format!("operations[{index}]"),
+                    "must be a unique operation offered by this Aphel (see GET /api/v1/plugins/host-catalog)",
+                ));
+            }
         }
         for (index, emit) in self.emits.iter().enumerate() {
             if !is_key(&emit.name, 64)

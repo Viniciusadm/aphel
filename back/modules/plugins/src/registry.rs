@@ -20,8 +20,56 @@ pub struct LoadedPlugin {
     pub manifest: PluginManifest,
     pub settings: Map<String, Value>,
     pub installed_by: Option<String>,
-    pub backend: Option<runtime::Backend>,
+    pub backend: Option<Arc<BackendSlot>>,
     pub backend_error: Option<String>,
+}
+
+pub struct BackendSlot {
+    key: String,
+    checksum: String,
+    loaded: tokio::sync::OnceCell<Result<runtime::Backend, String>>,
+}
+
+impl BackendSlot {
+    pub async fn get(&self) -> Result<runtime::Backend, AppError> {
+        let loaded = self
+            .loaded
+            .get_or_try_init(|| async {
+                let pool = aphel_kernel::state::runtime_state()?.db()?;
+                let installed = store::find(&pool, &self.key)
+                    .await?
+                    .filter(|plugin| plugin.enabled && plugin.checksum == self.checksum)
+                    .ok_or_else(|| {
+                        AppError::unavailable_code(
+                            "plugin_catalog_changed",
+                            "the plugin changed while its backend was loading",
+                        )
+                    })?;
+                let bytes = store::backend(&pool, &installed.key)
+                    .await?
+                    .ok_or_else(|| {
+                        AppError::unavailable_code(
+                            "plugin_failed",
+                            "the declared backend is missing",
+                        )
+                    })?;
+                Ok::<_, AppError>(
+                    runtime::compile(bytes)
+                        .await
+                        .map_err(|error| error.client_message().to_owned()),
+                )
+            })
+            .await?;
+        loaded
+            .clone()
+            .map_err(|message| AppError::unavailable_code("plugin_failed", message))
+    }
+
+    fn error(&self) -> Option<String> {
+        self.loaded
+            .get()
+            .and_then(|result| result.as_ref().err().cloned())
+    }
 }
 
 #[derive(Default)]
@@ -36,8 +84,12 @@ impl Snapshot {
     }
 
     pub fn backend_error(&self, key: &str) -> Option<String> {
-        self.plugin(key)
-            .and_then(|plugin| plugin.backend_error.clone())
+        self.plugin(key).and_then(|plugin| {
+            plugin
+                .backend_error
+                .clone()
+                .or_else(|| plugin.backend.as_ref().and_then(|backend| backend.error()))
+        })
     }
 
     pub fn hook_subscribers(&self, hook: &str, record_type: &str) -> Vec<Arc<LoadedPlugin>> {
@@ -62,13 +114,13 @@ impl Snapshot {
     pub fn event_consumers(&self, event_type: &str) -> Vec<Arc<LoadedPlugin>> {
         self.plugins
             .iter()
-            .filter(|plugin| plugin.backend.is_some() && plugin.manifest.consumes(event_type))
+            .filter(|plugin| plugin.manifest.consumes(event_type))
             .cloned()
             .collect()
     }
 }
 
-type LoadedBackend = (Option<runtime::Backend>, Option<String>);
+type LoadedBackend = (Option<Arc<BackendSlot>>, Option<String>);
 
 struct Cache {
     checked_at: Option<Instant>,
@@ -90,6 +142,35 @@ fn published() -> &'static RwLock<Arc<Snapshot>> {
     PUBLISHED.get_or_init(|| RwLock::new(Arc::new(Snapshot::default())))
 }
 
+#[derive(serde::Serialize, utoipa::ToSchema)]
+pub struct CatalogReadiness {
+    pub state: String,
+    pub version: Option<u64>,
+    pub backend_errors: Vec<String>,
+}
+
+pub fn readiness() -> CatalogReadiness {
+    let snapshot = cached();
+    let backend_errors: Vec<_> = snapshot
+        .plugins
+        .iter()
+        .filter(|plugin| snapshot.backend_error(&plugin.key).is_some())
+        .map(|plugin| plugin.key.clone())
+        .collect();
+    CatalogReadiness {
+        state: if snapshot.version.is_none() {
+            "loading"
+        } else if backend_errors.is_empty() {
+            "ready"
+        } else {
+            "degraded"
+        }
+        .to_owned(),
+        version: snapshot.version,
+        backend_errors,
+    }
+}
+
 pub fn cached() -> Arc<Snapshot> {
     published()
         .read()
@@ -102,6 +183,16 @@ pub async fn invalidate() {
 }
 
 pub async fn current(pool: &MySqlPool) -> Result<Arc<Snapshot>, AppError> {
+    load(pool).await.map_err(|error| {
+        tracing::warn!(error = %error, "plugin catalog is unavailable");
+        AppError::unavailable_code(
+            "plugin_catalog_unavailable",
+            "the plugin catalog is not ready; retry the request",
+        )
+    })
+}
+
+async fn load(pool: &MySqlPool) -> Result<Arc<Snapshot>, AppError> {
     let mut cache = cache().lock().await;
     let snapshot = cached();
     if snapshot.version.is_some()
@@ -112,13 +203,15 @@ pub async fn current(pool: &MySqlPool) -> Result<Arc<Snapshot>, AppError> {
         return Ok(snapshot);
     }
     let version = store::version(pool).await?;
-    cache.checked_at = Some(Instant::now());
     if snapshot.version == Some(version) {
+        cache.checked_at = Some(Instant::now());
         return Ok(snapshot);
     }
     let installed_plugins = store::list(pool).await?;
     cache.compiled.retain(|key, _| {
-        installed_plugins.iter().any(|plugin| plugin.enabled && &plugin.key == key)
+        installed_plugins
+            .iter()
+            .any(|plugin| plugin.enabled && &plugin.key == key)
     });
     let mut plugins = Vec::new();
     for installed in installed_plugins {
@@ -128,16 +221,24 @@ pub async fn current(pool: &MySqlPool) -> Result<Arc<Snapshot>, AppError> {
         let (backend, backend_error) = match cache.compiled.get(&installed.key) {
             Some((checksum, loaded)) if checksum == &installed.checksum => loaded.clone(),
             _ => {
-                let backend = match store::backend(pool, &installed.key).await? {
-                    Some(bytes) => match runtime::compile(bytes).await {
-                        Ok(backend) => (Some(backend), None),
-                        Err(error) => {
-                            tracing::error!(plugin = %installed.key, error = %error, "the plugin backend could not be loaded; writes to the record types it hooks are refused and its events and routes are skipped");
-                            (None, Some(error.client_message().to_owned()))
-                        }
+                let present: i32 = sqlx::query_scalar("SELECT EXISTS(SELECT 1 FROM plugins_files WHERE plugin_key = ? AND path = 'backend.wasm')")
+                    .bind(&installed.key).fetch_one(pool).await?;
+                let backend = (
+                    if present != 0 {
+                        Some(Arc::new(BackendSlot {
+                            key: installed.key.clone(),
+                            checksum: installed.checksum.clone(),
+                            loaded: tokio::sync::OnceCell::new(),
+                        }))
+                    } else {
+                        None
                     },
-                    None => (None, None),
-                };
+                    if present == 0 && installed.manifest.needs_backend() {
+                        Some("the declared plugin backend is missing".to_owned())
+                    } else {
+                        None
+                    },
+                );
                 cache.compiled.insert(
                     installed.key.clone(),
                     (installed.checksum.clone(), backend.clone()),
@@ -154,6 +255,14 @@ pub async fn current(pool: &MySqlPool) -> Result<Arc<Snapshot>, AppError> {
             backend_error,
         }));
     }
+    if store::version(pool).await? != version {
+        cache.checked_at = None;
+        return Err(AppError::unavailable_code(
+            "plugin_catalog_changed",
+            "the plugin catalog changed while loading; retry the request",
+        ));
+    }
+    cache.checked_at = Some(Instant::now());
     let snapshot = Arc::new(Snapshot {
         version: Some(version),
         plugins,
@@ -203,9 +312,7 @@ fn publish_extensions(snapshot: &Snapshot) {
             );
         }
     }
-    runtime_extensions::set_notification_kinds(crate::KEY, kinds);
-    runtime_extensions::set_widgets(crate::KEY, widgets);
-    runtime_extensions::set_public_events(crate::KEY, events);
+    runtime_extensions::replace_catalog(crate::KEY, kinds, widgets, events);
 }
 
 pub fn spawn_refresh(pool: MySqlPool) {
@@ -235,6 +342,14 @@ impl aphel_kernel::application::public_events::RuntimePublicEventSource for Publ
     }
 
     async fn refresh(&self, pool: &MySqlPool) -> Result<(), AppError> {
+        current(pool).await?;
+        Ok(())
+    }
+}
+
+#[async_trait::async_trait]
+impl aphel_kernel::modules::runtime_catalog::RuntimeCatalogSource for PublicEvents {
+    async fn ensure_ready(&self, pool: &MySqlPool) -> Result<(), AppError> {
         current(pool).await?;
         Ok(())
     }

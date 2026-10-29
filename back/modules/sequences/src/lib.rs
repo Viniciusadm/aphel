@@ -6,6 +6,7 @@ pub(crate) mod exits;
 pub(crate) mod hooks;
 pub(crate) mod http;
 pub(crate) mod model;
+pub(crate) mod plugin_bridge;
 pub(crate) mod runner;
 pub(crate) mod runtime;
 pub(crate) mod section;
@@ -85,6 +86,10 @@ impl Module for SequencesModule {
             &[aphel_kernel::modules::HookUsage::Veto],
             "Before a sequence step runs; a definitive error removes the contact from the sequence, a transient one retries the job",
         );
+        app.on::<crate::hooks::StepRunning, _>(
+            aphel_kernel::modules::PLUGIN_HOOK_PRIORITY,
+            |ctx, step| Box::pin(plugin_bridge::step_running(ctx, step)),
+        );
         app.contribute(std::sync::Arc::new(
             aphel_kernel::infrastructure::config_packages::ConfigSectionFactory::new(
                 160,
@@ -113,6 +118,12 @@ impl Module for SequencesModule {
         .grant_to(["admin"]);
         for definition in PUBLIC_EVENTS {
             app.public_event(*definition);
+        }
+        for hook in plugin_bridge::hooks() {
+            app.contribute::<aphel_kernel::modules::PluginHook>(hook);
+        }
+        for operation in plugin_bridge::operations() {
+            app.contribute::<aphel_kernel::modules::PluginOperation>(operation);
         }
         Ok(())
     }

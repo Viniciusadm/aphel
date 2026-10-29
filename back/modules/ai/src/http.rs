@@ -282,7 +282,7 @@ fn page_param(params: &HashMap<String, String>, key: &str, default: u32) -> Resu
     operation_id = "ai_calls",
     security(("session_cookie" = [])),
     params(
-        ("feature" = Option<String>, Query, description = "summary, next_actions, compose or query"),
+        ("feature" = Option<String>, Query, description = "summary, next_actions, compose, query or plugin"),
         ("status" = Option<String>, Query, description = "success or error"),
         ("page" = Option<u32>, Query, description = "Page (from 1)"),
         ("per_page" = Option<u32>, Query, description = "Items per page (1 to 100, default 25)"),
@@ -308,7 +308,7 @@ async fn calls(
                 .ok_or_else(|| {
                     AppError::validation_code(
                         INVALID_CALLS_QUERY,
-                        "feature must be summary, next_actions, compose or query",
+                        "feature must be summary, next_actions, compose, query or plugin",
                     )
                 })?
                 .as_str()

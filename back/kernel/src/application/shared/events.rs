@@ -107,6 +107,7 @@ pub struct DomainEvent {
     pub payload: Value,
     pub causation: Option<EventCausation>,
     pub origin: Option<EventOrigin>,
+    pub execution: Option<crate::application::shared::ExecutionContext>,
     pub occurred_at: DateTime<Utc>,
 }
 
@@ -120,6 +121,7 @@ impl DomainEvent {
             payload: Value::Object(Default::default()),
             causation: None,
             origin: None,
+            execution: crate::application::shared::ExecutionContext::current(),
             occurred_at,
         }
     }

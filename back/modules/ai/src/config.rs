@@ -31,14 +31,16 @@ pub(crate) enum Feature {
     NextActions,
     Compose,
     Query,
+    Plugin,
 }
 
 impl Feature {
-    pub(crate) const ALL: [Feature; 4] = [
+    pub(crate) const ALL: [Feature; 5] = [
         Feature::Summary,
         Feature::NextActions,
         Feature::Compose,
         Feature::Query,
+        Feature::Plugin,
     ];
 
     pub(crate) fn as_str(&self) -> &'static str {
@@ -47,6 +49,7 @@ impl Feature {
             Self::NextActions => "next_actions",
             Self::Compose => "compose",
             Self::Query => "query",
+            Self::Plugin => "plugin",
         }
     }
 
@@ -62,6 +65,7 @@ impl Feature {
             Self::NextActions => "feature_next_actions",
             Self::Compose => "feature_compose",
             Self::Query => "feature_query",
+            Self::Plugin => "feature_plugin",
         }
     }
 }

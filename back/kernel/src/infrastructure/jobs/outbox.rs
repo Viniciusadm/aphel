@@ -27,10 +27,10 @@ pub(crate) const DEFAULT_OUTBOX_BATCH_SIZE: u32 = 100;
 pub(crate) const OUTBOX_DISPATCH_TIME_BUDGET: Duration = Duration::from_secs(20);
 const FOLLOW_UP_UNIQUE_KEY: &str = "outbox.dispatch:follow-up";
 
-const SELECT_UNDISPATCHED_EVENTS: &str = "SELECT id, event_type, record_type, record_id, actor_type, actor_id, payload, causation, origin_type, origin_id, occurred_at \
+const SELECT_UNDISPATCHED_EVENTS: &str = "SELECT id, event_type, record_type, record_id, actor_type, actor_id, payload, execution, causation, origin_type, origin_id, occurred_at \
      FROM domain_events WHERE dispatched_at IS NULL \
      ORDER BY occurred_at, id LIMIT ? FOR UPDATE SKIP LOCKED";
-const SELECT_EVENT_BY_ID: &str = "SELECT id, event_type, record_type, record_id, actor_type, actor_id, payload, causation, origin_type, origin_id, occurred_at \
+const SELECT_EVENT_BY_ID: &str = "SELECT id, event_type, record_type, record_id, actor_type, actor_id, payload, execution, causation, origin_type, origin_id, occurred_at \
      FROM domain_events WHERE id = ?";
 
 pub(crate) fn outbox_dispatch_schedule() -> ScheduledJobDefinition {
@@ -70,6 +70,9 @@ pub(crate) fn domain_event_from_row(row: &MySqlRow) -> Result<DomainEvent, AppEr
         payload,
         causation: causation_column(row)?,
         origin: origin_columns(row),
+        execution: row
+            .try_get::<Option<Json<crate::application::shared::ExecutionContext>>, _>("execution")?
+            .map(|Json(value)| value),
         occurred_at: mapper::utc(row.try_get::<NaiveDateTime, _>("occurred_at")?),
     })
 }

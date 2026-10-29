@@ -127,7 +127,7 @@ impl TwoFactorRepository for MySqlTwoFactorRepository {
         let encrypted = self
             .keyring
             .encrypt(secret.expose().as_bytes(), &context(user_id.as_str()))?;
-        let mut tx = self.pool.begin().await?;
+        let mut tx = MySqlTx::from(self.pool.begin().await?);
         sqlx::query("DELETE FROM user_two_factor WHERE user_id = ? AND enabled_at IS NULL")
             .bind(user_id.as_str())
             .execute(&mut *tx)
@@ -155,7 +155,7 @@ impl TwoFactorRepository for MySqlTwoFactorRepository {
         recovery_code_hashes: &[String],
         at: DateTime<Utc>,
     ) -> Result<bool, AppError> {
-        let mut tx = self.pool.begin().await?;
+        let mut tx = MySqlTx::from(self.pool.begin().await?);
         let updated = sqlx::query(
             "UPDATE user_two_factor SET enabled_at = ?, last_used_step = ?, updated_at = ? WHERE user_id = ? AND enabled_at IS NULL",
         )
@@ -212,7 +212,7 @@ impl TwoFactorRepository for MySqlTwoFactorRepository {
         code_hashes: &[String],
         at: DateTime<Utc>,
     ) -> Result<(), AppError> {
-        let mut tx = self.pool.begin().await?;
+        let mut tx = MySqlTx::from(self.pool.begin().await?);
         insert_recovery_codes(&mut tx, user_id, code_hashes, at).await?;
         tx.commit().await?;
         Ok(())
@@ -229,7 +229,7 @@ impl TwoFactorRepository for MySqlTwoFactorRepository {
     }
 
     async fn disable(&self, user_id: &UserId) -> Result<(), AppError> {
-        let mut tx = self.pool.begin().await?;
+        let mut tx = MySqlTx::from(self.pool.begin().await?);
         sqlx::query("DELETE FROM two_factor_recovery_codes WHERE user_id = ?")
             .bind(user_id.as_str())
             .execute(&mut *tx)

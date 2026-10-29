@@ -119,6 +119,7 @@
   },
   "applyUpdate": "Aplicar atualização",
   "plugins": {
+    "catalogLoading": "Carregando o catálogo de plugins…",
     "title": "Plugins",
     "description": "Extensões de terceiros instaladas a partir de um pacote .aphelplugin, sem recompilar nem reiniciar o Aphel. Elas rodam isoladas e só acessam o que a API de plugins permite.",
     "upload": "Instalar plugin",
@@ -146,6 +147,7 @@
       "permissions": "Permissões que cria",
       "allowedHosts": "Acessa na internet",
       "schedules": "Rotinas agendadas",
+      "operations": "Operações no sistema",
       "secrets": "Segredos",
       "actions": "Ações de automação",
       "emits": "Gatilhos de automação",

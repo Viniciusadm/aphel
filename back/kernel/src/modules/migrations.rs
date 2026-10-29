@@ -60,7 +60,15 @@ async fn run_module(pool: &MySqlPool, entry: &LoadedModule) -> Result<(), AppErr
             "applying module migration {key} {} ({})",
             migration.version, migration.description
         );
-        sqlx::raw_sql(migration.sql).execute(pool).await?;
+        sqlx::raw_sql(migration.sql)
+            .execute(pool)
+            .await
+            .map_err(|error| {
+                AppError::Persistence(format!(
+                    "module {key} migration {} failed: {error}",
+                    migration.version
+                ))
+            })?;
         sqlx::query(
             "INSERT INTO module_migrations (module_key, version, description, checksum) VALUES (?, ?, ?, ?)",
         )

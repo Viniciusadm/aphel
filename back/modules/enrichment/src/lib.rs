@@ -1,6 +1,7 @@
 mod automation;
 mod cnpj;
 mod http;
+mod plugin_bridge;
 mod service;
 mod sources;
 mod store;
@@ -267,6 +268,9 @@ impl Module for EnrichmentModule {
             .action(Arc::new(automation::EnrichCompanyAction))
             .trigger(Arc::new(automation::CompanyEnrichedTrigger));
         app.permission(PermissionDefinition::administrative(USE));
+        for operation in plugin_bridge::operations() {
+            app.contribute::<aphel_kernel::modules::PluginOperation>(operation);
+        }
         for definition in PUBLIC_EVENTS {
             app.public_event(*definition);
         }

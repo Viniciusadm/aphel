@@ -4,7 +4,10 @@ use sqlx::MySqlPool;
 use crate::registry;
 use crate::runtime::{event_actor, on_event, wit};
 use aphel_kernel::application::shared::{Actor, DomainEvent, EventConsumer};
+use aphel_kernel::application::shared::{ExecutionContext, JobContext, JobHandler};
 use aphel_kernel::errors::AppError;
+use sqlx::{Row, types::Json};
+use std::sync::Arc;
 
 pub(crate) const EVENTS_CONSUMER: &str = "plugins.events";
 
@@ -25,8 +28,8 @@ impl EventConsumer for PluginEventsConsumer {
         EVENTS_CONSUMER
     }
 
-    fn accepts(&self, event_type: &str) -> bool {
-        !registry::cached().event_consumers(event_type).is_empty()
+    fn accepts(&self, _event_type: &str) -> bool {
+        true
     }
 
     async fn consume(&self, event: &DomainEvent) -> Result<(), AppError> {
@@ -35,34 +38,161 @@ impl EventConsumer for PluginEventsConsumer {
         if consumers.is_empty() {
             return Ok(());
         }
-        let input = wit::Event {
-            id: event.id.to_string(),
-            event_type: event.event_type.clone(),
-            record_type: event
-                .record
-                .as_ref()
-                .map(|record| record.record_type.as_str().to_owned()),
-            record_id: event
-                .record
-                .as_ref()
-                .map(|record| record.record_id.to_string()),
-            actor: event_actor(&event.actor),
-            occurred_at: event.occurred_at.to_rfc3339(),
-            payload_json: event.payload.to_string(),
-        };
-        let mut failed = None;
+        let mut tx = aphel_kernel::database::transaction::MySqlTx::from(self.pool.begin().await?);
         for plugin in consumers {
-            if matches!(&event.actor, Actor::Plugin(key) if *key == plugin.key) {
+            if matches!(&event.actor, Actor::Plugin(key) if *key == plugin.key)
+                || event
+                    .execution
+                    .as_ref()
+                    .is_some_and(|execution| execution.chain.contains(&plugin.key))
+            {
                 continue;
             }
-            if let Err(error) = on_event(&plugin, &input).await {
-                tracing::warn!(plugin = %plugin.key, event = %event.event_type, error = %error, "plugin event handler failed");
-                failed = Some(error);
+            let origin = event
+                .execution
+                .clone()
+                .unwrap_or_else(|| ExecutionContext::event_origin(event.id, &event.actor));
+            let execution = ExecutionContext::plugin(
+                &plugin.key,
+                "event",
+                Some(&event.actor),
+                Some(&origin),
+                Some(event.id),
+                uuid::Uuid::now_v7(),
+            )?;
+            let input = serde_json::json!({
+                "id": event.id, "event_type": event.event_type,
+                "record_type": event.record.as_ref().map(|record| record.record_type.as_str()),
+                "record_id": event.record.as_ref().map(|record| record.record_id.to_string()),
+                "actor_type": event.actor.kind(), "actor_id": event.actor.id(),
+                "occurred_at": event.occurred_at.to_rfc3339(), "payload": event.payload,
+            });
+            sqlx::query("INSERT IGNORE INTO plugins_executions (id, plugin_key, source_key, input, execution) VALUES (?, ?, ?, ?, ?)")
+                .bind(execution.id.to_string()).bind(&plugin.key).bind(format!("event:{}", event.id))
+                .bind(sqlx::types::Json(input)).bind(sqlx::types::Json(&execution)).execute(&mut *tx).await?;
+            let id: String = sqlx::query_scalar(
+                "SELECT id FROM plugins_executions WHERE plugin_key = ? AND source_key = ?",
+            )
+            .bind(&plugin.key)
+            .bind(format!("event:{}", event.id))
+            .fetch_one(&mut *tx)
+            .await?;
+            use aphel_kernel::application::shared::JobQueue;
+            aphel_kernel::infrastructure::jobs::MySqlJobQueue::new(self.pool.clone())
+                .enqueue(
+                    &mut tx,
+                    aphel_kernel::application::shared::Job::new(
+                        RUN_JOB,
+                        serde_json::json!({"id": id}),
+                    )
+                    .with_unique_key(format!("plugin.event:{id}")),
+                )
+                .await?;
+        }
+        tx.commit().await?;
+        Ok(())
+    }
+}
+
+pub const RUN_JOB: &str = "plugin.event";
+
+pub struct Run {
+    pool: MySqlPool,
+}
+
+impl Run {
+    pub fn shared(pool: MySqlPool) -> Arc<dyn JobHandler> {
+        Arc::new(Self { pool })
+    }
+}
+
+#[async_trait]
+impl JobHandler for Run {
+    fn kind(&self) -> &str {
+        RUN_JOB
+    }
+
+    async fn handle(
+        &self,
+        _context: &JobContext,
+        payload: serde_json::Value,
+    ) -> Result<(), AppError> {
+        let id = payload
+            .get("id")
+            .and_then(serde_json::Value::as_str)
+            .ok_or_else(|| AppError::Validation("plugin.event requires an id".to_owned()))?;
+        let mut tx = aphel_kernel::database::transaction::MySqlTx::from(self.pool.begin().await?);
+        let row = sqlx::query("SELECT plugin_key, input, execution, status FROM plugins_executions WHERE id = ? FOR UPDATE")
+            .bind(id).fetch_one(&mut *tx).await?;
+        if row.try_get::<String, _>("status")? == "completed" {
+            return Ok(());
+        }
+        let key: String = row.try_get("plugin_key")?;
+        let snapshot = registry::current(&self.pool).await?;
+        let plugin = snapshot.plugin(&key).ok_or_else(|| {
+            AppError::unavailable_code("plugin_disabled", "the plugin is disabled or uninstalled")
+        })?;
+        let Json(input): Json<serde_json::Value> = row.try_get("input")?;
+        let Json(execution): Json<ExecutionContext> = row.try_get("execution")?;
+        let text = |key: &str| {
+            input
+                .get(key)
+                .and_then(serde_json::Value::as_str)
+                .unwrap_or_default()
+                .to_owned()
+        };
+        let actor = Actor::from_parts(
+            &text("actor_type"),
+            input
+                .get("actor_id")
+                .and_then(serde_json::Value::as_str)
+                .map(str::to_owned),
+        )?;
+        let call = wit::Event {
+            id: text("id"),
+            event_type: text("event_type"),
+            actor: event_actor(&actor),
+            record_type: input
+                .get("record_type")
+                .and_then(serde_json::Value::as_str)
+                .map(str::to_owned),
+            record_id: input
+                .get("record_id")
+                .and_then(serde_json::Value::as_str)
+                .map(str::to_owned),
+            occurred_at: text("occurred_at"),
+            payload_json: input["payload"].to_string(),
+        };
+        match on_event(plugin, &call, execution).await {
+            Ok(()) => {
+                sqlx::query("UPDATE plugins_executions SET status = 'completed', completed_at = UTC_TIMESTAMP(6), last_error = NULL WHERE id = ?").bind(id).execute(&mut *tx).await?;
+            }
+            Err(error) => {
+                sqlx::query("UPDATE plugins_executions SET last_error = ? WHERE id = ?")
+                    .bind(error.client_message())
+                    .bind(id)
+                    .execute(&mut *tx)
+                    .await?;
+                tx.commit().await?;
+                return Err(error);
             }
         }
-        match failed {
-            Some(error) => Err(error),
-            None => Ok(()),
-        }
+        tx.commit().await?;
+        Ok(())
+    }
+}
+
+#[cfg(test)]
+mod tests {
+    use super::*;
+
+    #[tokio::test]
+    async fn accepts_events_before_the_catalog_is_ready() {
+        let pool = sqlx::mysql::MySqlPoolOptions::new()
+            .connect_lazy("mysql://localhost/plugin_delivery_test")
+            .unwrap();
+        let consumer = PluginEventsConsumer { pool };
+        assert!(consumer.accepts("contact.created"));
+        assert!(consumer.accepts("plugin.example.created"));
     }
 }

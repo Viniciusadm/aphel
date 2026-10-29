@@ -98,7 +98,7 @@ pub(crate) struct EsignRequest {
     pub(crate) signers: Vec<EsignSigner>,
 }
 
-fn present(row: RequestRow, signers: Vec<SignerRow>) -> EsignRequest {
+pub(crate) fn present(row: RequestRow, signers: Vec<SignerRow>) -> EsignRequest {
     EsignRequest {
         id: row.id.to_string(),
         deal_id: row.deal_id.to_string(),
@@ -117,7 +117,10 @@ fn present(row: RequestRow, signers: Vec<SignerRow>) -> EsignRequest {
     }
 }
 
-async fn present_many(ctx: &Ctx<'_>, rows: Vec<RequestRow>) -> Result<Vec<EsignRequest>, AppError> {
+pub(crate) async fn present_many(
+    ctx: &Ctx<'_>,
+    rows: Vec<RequestRow>,
+) -> Result<Vec<EsignRequest>, AppError> {
     let ids: Vec<Uuid> = rows.iter().map(|row| row.id).collect();
     let mut signers = store::signers_of(ctx.pool(), &ids).await?;
     Ok(rows
@@ -162,6 +165,42 @@ pub(crate) struct CreateEsignRequest {
     pub(crate) signers: Vec<EsignSignerInput>,
     pub(crate) message: Option<String>,
     pub(crate) quote_id: Option<String>,
+}
+
+impl CreateEsignRequest {
+    pub(crate) fn into_input(self) -> Result<SendInput, AppError> {
+        let deal_id = parse_uuid(&self.deal_id, "deal_id")?;
+        let file_id = parse_uuid(&self.file_id, "file_id")?;
+        let quote_id = self
+            .quote_id
+            .as_deref()
+            .map(str::trim)
+            .filter(|raw| !raw.is_empty())
+            .map(|raw| parse_uuid(raw, "quote_id"))
+            .transpose()?;
+        let mut signers = Vec::with_capacity(self.signers.len());
+        for (index, signer) in self.signers.into_iter().enumerate() {
+            let contact_id = signer
+                .contact_id
+                .as_deref()
+                .map(str::trim)
+                .filter(|raw| !raw.is_empty())
+                .map(|raw| parse_uuid(raw, &format!("signers.{index}.contact_id")))
+                .transpose()?;
+            signers.push(SignerInput {
+                name: signer.name,
+                email: signer.email,
+                contact_id,
+            });
+        }
+        Ok(SendInput {
+            deal_id,
+            file_id,
+            signers,
+            message: self.message,
+            quote_id,
+        })
+    }
 }
 
 #[utoipa::path(
@@ -256,42 +295,7 @@ async fn create_request(
     scope.require(&SEND)?;
     scope.require(&Permission::DEALS_READ)?;
     let ctx = Ctx::from_state(&state, scope).await?;
-    let deal_id = parse_uuid(&request.deal_id, "deal_id")?;
-    let file_id = parse_uuid(&request.file_id, "file_id")?;
-    let quote_id = request
-        .quote_id
-        .as_deref()
-        .map(str::trim)
-        .filter(|raw| !raw.is_empty())
-        .map(|raw| parse_uuid(raw, "quote_id"))
-        .transpose()?;
-    let mut signers = Vec::with_capacity(request.signers.len());
-    for (index, signer) in request.signers.into_iter().enumerate() {
-        let contact_id = signer
-            .contact_id
-            .as_deref()
-            .map(str::trim)
-            .filter(|raw| !raw.is_empty())
-            .map(|raw| parse_uuid(raw, &format!("signers.{index}.contact_id")))
-            .transpose()?;
-        signers.push(SignerInput {
-            name: signer.name,
-            email: signer.email,
-            contact_id,
-        });
-    }
-    let (row, signer_rows) = service::send(
-        &ctx,
-        scope,
-        SendInput {
-            deal_id,
-            file_id,
-            signers,
-            message: request.message,
-            quote_id,
-        },
-    )
-    .await?;
+    let (row, signer_rows) = service::send(&ctx, scope, request.into_input()?).await?;
     Ok((
         StatusCode::CREATED,
         Json(Data {

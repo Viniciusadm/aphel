@@ -43,11 +43,56 @@ async fn object_owner(pool: &MySqlPool, key: &str) -> Result<Option<Option<Strin
     )
 }
 
+pub async fn validate_dependencies(
+    state: &AppState,
+    manifest: &PluginManifest,
+) -> Result<(), AppError> {
+    let registry = state.registry().await?;
+    for required in &manifest.requires {
+        let permission = aphel_kernel::domain::access::Permission::parse(required.clone())?;
+        if let Some(owner) = state.app.catalog().permission_owner(&permission)
+            && !state.app.is_enabled(owner)
+        {
+            return Err(AppError::validation_code(
+                "plugin_dependency_unavailable",
+                format!("permission {required} requires enabled module {owner}"),
+            ));
+        }
+    }
+    for (_, field) in declared_fields(manifest) {
+        if field.field_type != "record" {
+            continue;
+        }
+        let Some(target) = &field.target else {
+            continue;
+        };
+        if manifest
+            .entities
+            .iter()
+            .any(|entity| manifest.entity_record_type(&entity.key) == *target)
+        {
+            continue;
+        }
+        let definition = registry.require(target)?;
+        if !manifest.allows(&definition.read_permission) {
+            return Err(AppError::validation_code(
+                "plugin_reference_permission_required",
+                format!(
+                    "field {} references {target}; declare {} in requires",
+                    field.key, definition.read_permission
+                ),
+            ));
+        }
+    }
+    Ok(())
+}
+
 pub async fn apply(
     state: &AppState,
     scope: &AccessScope,
     manifest: &PluginManifest,
 ) -> Result<(), AppError> {
+    validate_dependencies(state, manifest).await?;
     let pool = state.db()?;
     ensure_compatible(&pool, manifest).await?;
     preflight(&pool, manifest).await?;
@@ -106,7 +151,7 @@ pub async fn apply(
     let registry = state.registry().await?;
     let fields = declared_fields(manifest);
     let repository = MySqlFieldDefinitionRepository::new(pool.clone());
-    let mut tx = pool.begin().await?;
+    let mut tx = aphel_kernel::database::transaction::MySqlTx::from(pool.begin().await?);
     for (index, (record_type, field)) in fields.into_iter().enumerate() {
         let definition = definition(&registry, &manifest.key, &record_type, field, index)?;
         let existing: Option<(String, Option<String>)> = sqlx::query_as(
@@ -289,7 +334,7 @@ async fn ensure_compatible(pool: &MySqlPool, manifest: &PluginManifest) -> Resul
 }
 
 async fn deactivate_undeclared_options(
-    tx: &mut sqlx::Transaction<'static, sqlx::MySql>,
+    tx: &mut aphel_kernel::database::transaction::MySqlTx,
     field_id: &str,
     options: &[FieldOption],
 ) -> Result<(), AppError> {
@@ -431,6 +476,9 @@ pub async fn set_active(
     manifest: &PluginManifest,
     active: bool,
 ) -> Result<(), AppError> {
+    if active {
+        validate_dependencies(state, manifest).await?;
+    }
     let pool = state.db()?;
     sqlx::query("UPDATE custom_objects SET is_active = ? WHERE module_key = ?")
         .bind(active)
@@ -453,7 +501,7 @@ pub async fn set_active(
 
 pub async fn purge(state: &AppState, manifest: &PluginManifest) -> Result<(), AppError> {
     let pool = state.db()?;
-    let mut tx = pool.begin().await?;
+    let mut tx = aphel_kernel::database::transaction::MySqlTx::from(pool.begin().await?);
     for record_type in manifest.entity_record_types() {
         for table in ["custom_field_values", "custom_field_multi_values"] {
             sqlx::query(sqlx::AssertSqlSafe(format!(

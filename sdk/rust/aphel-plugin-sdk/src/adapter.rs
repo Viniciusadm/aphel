@@ -180,6 +180,10 @@ pub(crate) fn emit(
     )?)
 }
 
+pub(crate) fn invoke(operation: &str, input: &Value) -> Result<Value, PluginError> {
+    Ok(value(&host::invoke(operation, &input.to_string())?))
+}
+
 pub(crate) fn secret(key: &str) -> Result<Option<String>, PluginError> {
     Ok(host::secret(key)?)
 }
@@ -291,4 +295,16 @@ pub fn on_route<P: Plugin>(
         status: response.status,
         body_json: response.body.to_string(),
     })
+}
+
+pub(crate) fn defer_effect(key: &str, command: &Value) -> Result<String, PluginError> {
+    Ok(host::defer_effect(key, &command.to_string())?)
+}
+
+pub(crate) fn execution_context() -> Value {
+    value(&host::execution_context_json())
+}
+
+pub(crate) fn hook_state() -> Value {
+    value(&host::hook_state_json())
 }

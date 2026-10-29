@@ -54,7 +54,7 @@ fn rate_exists() -> AppError {
     )
 }
 
-fn require_reader(scope: &AccessScope) -> Result<(), AppError> {
+pub(crate) fn require_reader(scope: &AccessScope) -> Result<(), AppError> {
     if scope.require(&Permission::SETTINGS_MANAGE).is_ok() {
         return Ok(());
     }

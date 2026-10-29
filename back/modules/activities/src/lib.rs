@@ -4,6 +4,7 @@ pub(crate) mod hooks;
 pub mod http;
 pub mod notifications;
 pub(crate) mod operations;
+pub(crate) mod plugin_bridge;
 pub(crate) mod recurrence;
 pub mod section;
 pub(crate) mod seed;
@@ -230,6 +231,10 @@ impl Module for ActivitiesModule {
             &[aphel_kernel::modules::HookUsage::Veto],
             "Before an activity is completed; an error blocks it",
         );
+        app.on::<crate::hooks::ActivityCompleting, _>(
+            aphel_kernel::modules::PLUGIN_HOOK_PRIORITY,
+            |ctx, completing| Box::pin(plugin_bridge::completing(ctx, completing)),
+        );
         app.contribute(Arc::new(CrmDefaultsSeed(|connection| {
             Box::pin(seed::seed_activity_types(connection))
         })));
@@ -280,6 +285,12 @@ impl Module for ActivitiesModule {
         }
         for definition in NOTIFICATION_KINDS {
             app.notification_kind(definition);
+        }
+        for hook in plugin_bridge::hooks() {
+            app.contribute::<aphel_kernel::modules::PluginHook>(hook);
+        }
+        for operation in plugin_bridge::operations() {
+            app.contribute::<aphel_kernel::modules::PluginOperation>(operation);
         }
         Ok(())
     }

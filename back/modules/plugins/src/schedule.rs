@@ -1,9 +1,11 @@
 use std::sync::Arc;
 
+use aphel_kernel::application::shared::ExecutionContext;
 use async_trait::async_trait;
 use chrono::{DateTime, Duration, SecondsFormat, Utc};
 use serde_json::{Value, json};
-use sqlx::MySqlPool;
+use sqlx::{MySqlPool, Row, types::Json};
+use uuid::Uuid;
 
 use crate::registry::{self, LoadedPlugin};
 use crate::runtime;
@@ -133,6 +135,38 @@ impl JobHandler for Run {
         {
             return Ok(());
         }
-        runtime::on_schedule(plugin, &name, &slot).await
+        let source = format!("schedule:{name}:{slot}");
+        let execution =
+            ExecutionContext::plugin(&key, "schedule", None, None, None, Uuid::now_v7())?;
+        let mut tx = aphel_kernel::database::transaction::MySqlTx::from(self.pool.begin().await?);
+        sqlx::query("INSERT IGNORE INTO plugins_executions (id, plugin_key, source_key, input, execution) VALUES (?, ?, ?, ?, ?)")
+            .bind(execution.id.to_string()).bind(&key).bind(&source).bind(Json(json!({"name": name, "slot": slot})))
+            .bind(Json(&execution)).execute(&mut *tx).await?;
+        tx.commit().await?;
+        let mut tx = aphel_kernel::database::transaction::MySqlTx::from(self.pool.begin().await?);
+        let row = sqlx::query("SELECT id, execution, status FROM plugins_executions WHERE plugin_key = ? AND source_key = ? FOR UPDATE")
+            .bind(&key).bind(&source).fetch_one(&mut *tx).await?;
+        if row.try_get::<String, _>("status")? == "completed" {
+            return Ok(());
+        }
+        let id: String = row.try_get("id")?;
+        let Json(execution): Json<ExecutionContext> = row.try_get("execution")?;
+        match runtime::on_schedule(plugin, &name, &slot, execution).await {
+            Ok(()) => {
+                sqlx::query("UPDATE plugins_executions SET status = 'completed', completed_at = UTC_TIMESTAMP(6), last_error = NULL WHERE id = ?")
+                .bind(id).execute(&mut *tx).await?;
+            }
+            Err(error) => {
+                sqlx::query("UPDATE plugins_executions SET last_error = ? WHERE id = ?")
+                    .bind(error.client_message())
+                    .bind(id)
+                    .execute(&mut *tx)
+                    .await?;
+                tx.commit().await?;
+                return Err(error);
+            }
+        }
+        tx.commit().await?;
+        Ok(())
     }
 }

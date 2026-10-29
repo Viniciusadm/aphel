@@ -28,8 +28,14 @@ export function PluginsPanel() {
   const [removing, setRemoving] = useState<InstalledPlugin | null>(null)
   const [configuring, setConfiguring] = useState<InstalledPlugin | null>(null)
   const [pending, setPending] = useState<{ file: File; consent: PluginConsent } | null>(null)
+  const readiness = useQuery({
+    queryKey: [...pluginsKey, 'readiness'],
+    queryFn: () => api.get<{ data: { state: 'loading' | 'ready' | 'degraded'; version: number | null } }>(`${PLUGINS_PATH}/readiness`).then((response) => response.data),
+    refetchInterval: (query) => query.state.data?.state === 'loading' ? 1000 : false,
+  })
   const plugins = useQuery({
     queryKey: pluginsKey,
+    enabled: readiness.data?.state === 'ready' || readiness.data?.state === 'degraded',
     queryFn: () => api.get<{ data: InstalledPlugin[] }>(PLUGINS_PATH).then((response) => response.data),
   })
   const changed = (message: string) => {
@@ -100,7 +106,11 @@ export function PluginsPanel() {
         <SectionHeader title={t('plugins.title')} description={t('plugins.description')} />
         {upload}
       </div>
-      {plugins.isPending ? (
+      {readiness.isError ? (
+        <ErrorState onRetry={() => void readiness.refetch()} />
+      ) : readiness.isPending || readiness.data.state === 'loading' ? (
+        <p role="status" className="text-sm text-muted-foreground">{t('plugins.catalogLoading')}</p>
+      ) : plugins.isPending ? (
         <Skeleton className="h-32 w-full" />
       ) : plugins.isError ? (
         <ErrorState onRetry={() => void plugins.refetch()} />

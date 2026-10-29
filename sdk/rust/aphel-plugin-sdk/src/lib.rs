@@ -1,3 +1,8 @@
+mod execution;
+pub use execution::{
+    AutomationExecution, EffectCommand, ExecutionActor, ExecutionContext, HookState, RecordSnapshot,
+};
+
 #[doc(hidden)]
 pub mod adapter;
 
@@ -145,6 +150,10 @@ pub mod hooks {
     pub const VALIDATING: &str = "record.validating";
     pub const SAVED: &str = "record.saved";
     pub const DELETING: &str = "record.deleting";
+    pub const COMMITTED: &str = "record.committed";
+    pub const DELETED: &str = "record.deleted";
+    pub const RESTORED: &str = "record.restored";
+    pub const PURGED: &str = "record.purged";
 }
 
 #[derive(Debug, Clone, Default)]
@@ -333,6 +342,29 @@ impl Ctx {
 
     pub fn emit(&self, name: &str, record: Option<(&str, &str)>, payload: Value) -> Result<()> {
         adapter::emit(name, record, &payload)
+    }
+
+    pub fn invoke<T: DeserializeOwned>(&self, operation: &str, input: impl Serialize) -> Result<T> {
+        let input = serde_json::to_value(input)
+            .map_err(|error| PluginError::new("invalid_input", error.to_string()))?;
+        serde_json::from_value(adapter::invoke(operation, &input)?)
+            .map_err(|error| PluginError::new("invalid_response", error.to_string()))
+    }
+
+    pub fn defer_effect(&self, key: &str, command: impl Serialize) -> Result<String> {
+        let command = serde_json::to_value(command)
+            .map_err(|error| PluginError::new("invalid_input", error.to_string()))?;
+        adapter::defer_effect(key, &command)
+    }
+
+    pub fn hook_state(&self) -> Result<Option<HookState>> {
+        serde_json::from_value(adapter::hook_state())
+            .map_err(|error| PluginError::new("invalid_hook_state", error.to_string()))
+    }
+
+    pub fn execution_context(&self) -> Result<Option<ExecutionContext>> {
+        serde_json::from_value(adapter::execution_context())
+            .map_err(|error| PluginError::new("invalid_execution_context", error.to_string()))
     }
 
     pub fn secret(&self, key: &str) -> Result<Option<String>> {

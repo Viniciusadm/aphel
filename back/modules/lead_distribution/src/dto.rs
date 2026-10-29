@@ -138,6 +138,7 @@ pub(crate) enum LeadDistributionAssignmentSourceSchema {
     Import,
     Scheduling,
     LeadForm,
+    Plugin,
 }
 
 impl From<AssignmentSource> for LeadDistributionAssignmentSourceSchema {
@@ -148,6 +149,7 @@ impl From<AssignmentSource> for LeadDistributionAssignmentSourceSchema {
             AssignmentSource::Import => Self::Import,
             AssignmentSource::Scheduling => Self::Scheduling,
             AssignmentSource::LeadForm => Self::LeadForm,
+            AssignmentSource::Plugin => Self::Plugin,
         }
     }
 }
@@ -160,6 +162,7 @@ impl From<LeadDistributionAssignmentSourceSchema> for AssignmentSource {
             LeadDistributionAssignmentSourceSchema::Import => Self::Import,
             LeadDistributionAssignmentSourceSchema::Scheduling => Self::Scheduling,
             LeadDistributionAssignmentSourceSchema::LeadForm => Self::LeadForm,
+            LeadDistributionAssignmentSourceSchema::Plugin => Self::Plugin,
         }
     }
 }

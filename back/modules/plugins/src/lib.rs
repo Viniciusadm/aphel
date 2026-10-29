@@ -1,5 +1,8 @@
 pub mod automation;
+pub mod bridge;
+pub mod committed;
 pub mod compiled;
+pub mod effects;
 pub mod events;
 pub mod hooks;
 pub mod host;
@@ -21,7 +24,11 @@ use aphel_kernel::application::automations::{AutomationActionSource, AutomationT
 use aphel_kernel::errors::AppError;
 use aphel_kernel::modules::builder::APHEL_VERSION;
 use aphel_kernel::modules::{AppBuilder, Manifest, Migration, Module};
-use aphel_kernel::records::{RecordDeleting, RecordSaved, RecordSaving, RecordValidating};
+use aphel_kernel::modules::{PluginHookDispatcher, PluginOperation};
+use aphel_kernel::records::{
+    RecordDeleted, RecordDeleting, RecordPurged, RecordRestored, RecordSaved, RecordSaving,
+    RecordValidating,
+};
 
 pub const KEY: &str = "plugins";
 
@@ -47,6 +54,7 @@ impl Module for PluginsModule {
                 include_str!("../migrations/0002_create_plugins_compiled.sql"),
             ))
             .migration(Migration::new(3, "populate permission metadata", include_str!("../migrations/0003_permission_metadata.sql")))
+            .migration(Migration::new(4, "durable plugin effects", include_str!("../migrations/0004_durable_effects.sql")))
     }
 
     fn register(&self, app: &mut AppBuilder) -> Result<(), AppError> {
@@ -60,7 +68,19 @@ impl Module for PluginsModule {
         .on::<RecordDeleting, _>(HOOK_PRIORITY, |ctx, removed| {
             Box::pin(hooks::deleting(ctx, removed))
         })
+        .on::<RecordDeleted, _>(HOOK_PRIORITY, |ctx, removed| {
+            Box::pin(hooks::removed(ctx, manifest::HOOK_DELETED, removed))
+        })
+        .on::<RecordRestored, _>(HOOK_PRIORITY, |ctx, removed| {
+            Box::pin(hooks::removed(ctx, manifest::HOOK_RESTORED, removed))
+        })
+        .on::<RecordPurged, _>(HOOK_PRIORITY, |ctx, removed| {
+            Box::pin(hooks::removed(ctx, manifest::HOOK_PURGED, removed))
+        })
         .consumer(|env| Arc::new(events::PluginEventsConsumer::new(env.pool.clone())))
+        .job(|env| committed::Run::shared(env.pool.clone()))
+        .job(|env| events::Run::shared(env.pool.clone()))
+        .job(|env| effects::Run::shared(env.pool.clone()))
         .job(|env| schedule::Tick::shared(env.pool.clone()))
         .job(|env| schedule::Run::shared(env.pool.clone()))
         .schedule(schedule::tick_schedule()?)
@@ -75,9 +95,21 @@ impl Module for PluginsModule {
             http::router()
         })
         .public_routes(|_| http::public_router());
-        app.contribute::<dyn aphel_kernel::application::public_events::RuntimePublicEventSource>(Arc::new(registry::PublicEvents));
+        app.contribute::<dyn aphel_kernel::modules::runtime_catalog::RuntimeCatalogSource>(
+            Arc::new(registry::PublicEvents),
+        );
+        app.contribute::<dyn aphel_kernel::application::public_events::RuntimePublicEventSource>(
+            Arc::new(registry::PublicEvents),
+        );
         app.contribute::<dyn AutomationActionSource>(Arc::new(automation::PluginActions))
-            .contribute::<dyn AutomationTriggerSource>(Arc::new(automation::PluginTriggers));
+            .contribute::<dyn AutomationTriggerSource>(Arc::new(automation::PluginTriggers))
+            .provide::<dyn PluginHookDispatcher>(Arc::new(bridge::Dispatcher));
+        for operation in bridge::record_operations() {
+            app.contribute::<PluginOperation>(operation);
+        }
         Ok(())
     }
 }
+
+#[cfg(test)]
+mod runtime_tests;

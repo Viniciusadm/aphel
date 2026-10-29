@@ -2,6 +2,7 @@ pub(crate) mod call;
 pub mod domain;
 pub(crate) mod hooks;
 pub(crate) mod http;
+pub(crate) mod plugin_bridge;
 pub(crate) mod service;
 pub(crate) mod store;
 pub(crate) mod telephony;
@@ -78,6 +79,9 @@ impl Module for CallsModule {
         });
         for definition in PUBLIC_EVENTS {
             app.public_event(*definition);
+        }
+        for operation in plugin_bridge::operations() {
+            app.contribute::<aphel_kernel::modules::PluginOperation>(operation);
         }
         Ok(())
     }

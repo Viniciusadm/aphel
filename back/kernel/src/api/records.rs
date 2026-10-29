@@ -35,6 +35,10 @@ impl CustomRecordHandler {
 
 #[async_trait]
 impl RecordTypeHandler for CustomRecordHandler {
+    fn durable_mutations(&self) -> bool {
+        true
+    }
+
     fn record_type(&self) -> &str {
         self.record_type.as_str()
     }

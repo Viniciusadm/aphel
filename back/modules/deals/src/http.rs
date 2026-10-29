@@ -1038,6 +1038,10 @@ pub(crate) struct DealHandler;
 
 #[async_trait]
 impl RecordTypeHandler for DealHandler {
+    fn durable_mutations(&self) -> bool {
+        true
+    }
+
     fn record_type(&self) -> &str {
         "deal"
     }

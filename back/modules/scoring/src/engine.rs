@@ -6,7 +6,8 @@ use uuid::Uuid;
 
 use crate::directory::ScoringDirectory;
 use crate::domain::{
-    RecordScore, ScoreBand, ScoringModel, band_changed_event, calculate_score, signal_hit,
+    BehaviorSignal, RecordScore, ScoreBand, ScoringModel, band_changed_event, calculate_score,
+    signal_hit,
 };
 use crate::store::{ModelStore, ScoreStore};
 use aphel_kernel::Ctx;
@@ -136,11 +137,56 @@ impl<'a> ScoringEngine<'a> {
                 contacts.push(record.record_id);
             }
         }
+        self.recalculate_affected(&scope, &active, affected, &contacts)
+            .await
+    }
+
+    pub(crate) async fn apply_signal(
+        &self,
+        record: &RecordRef,
+        signal: BehaviorSignal,
+        source_key: &str,
+        occurred_at: DateTime<Utc>,
+    ) -> Result<bool, AppError> {
+        let recorded = ScoreStore::of(self.ctx)
+            .record_signal(record, signal, source_key, None, occurred_at)
+            .await?;
+        if !recorded {
+            return Ok(false);
+        }
+        let scope = AccessScope::system();
+        let models = ModelStore::of(self.ctx).list(None).await?;
+        let active: Vec<&ScoringModel> = models.iter().filter(|model| model.is_active).collect();
+        if active.is_empty() {
+            return Ok(true);
+        }
+        let mut affected: BTreeMap<String, BTreeSet<Uuid>> = BTreeMap::new();
+        affected
+            .entry(record.record_type.as_str().to_owned())
+            .or_default()
+            .insert(record.record_id);
+        let contacts = if record.record_type == RecordType::CONTACT {
+            vec![record.record_id]
+        } else {
+            Vec::new()
+        };
+        self.recalculate_affected(&scope, &active, affected, &contacts)
+            .await?;
+        Ok(true)
+    }
+
+    async fn recalculate_affected(
+        &self,
+        scope: &AccessScope,
+        active: &[&ScoringModel],
+        mut affected: BTreeMap<String, BTreeSet<Uuid>>,
+        contacts: &[Uuid],
+    ) -> Result<(), AppError> {
         let company_type = RecordType::COMPANY;
         let company = company_type.as_str();
         if !contacts.is_empty() && active.iter().any(|model| model.record_type == company) {
             let companies = ScoringDirectory::of(self.ctx)
-                .companies_of_contacts(&contacts)
+                .companies_of_contacts(contacts)
                 .await?;
             affected
                 .entry(company.to_owned())
@@ -155,7 +201,7 @@ impl<'a> ScoringEngine<'a> {
                 continue;
             }
             let ids: Vec<Uuid> = ids.iter().copied().collect();
-            self.recalculate_records(&scope, model, &ids).await?;
+            self.recalculate_records(scope, model, &ids).await?;
         }
         Ok(())
     }

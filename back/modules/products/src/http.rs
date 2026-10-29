@@ -359,6 +359,10 @@ pub(crate) struct ProductHandler;
 
 #[async_trait]
 impl RecordTypeHandler for ProductHandler {
+    fn durable_mutations(&self) -> bool {
+        true
+    }
+
     fn record_type(&self) -> &str {
         "product"
     }

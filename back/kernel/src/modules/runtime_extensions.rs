@@ -60,6 +60,22 @@ pub fn runtime_notification_kind(
     }
 }
 
+pub fn replace_catalog(
+    owner: &str,
+    kinds: Vec<NotificationKindDefinition>,
+    widgets: Vec<DashboardWidget>,
+    events: Vec<crate::application::public_events::PublicEventDefinition>,
+) {
+    let mut extensions = extensions()
+        .write()
+        .unwrap_or_else(|poisoned| poisoned.into_inner());
+    extensions
+        .notification_kinds
+        .insert(owner.to_owned(), kinds);
+    extensions.widgets.insert(owner.to_owned(), widgets);
+    extensions.public_events.insert(owner.to_owned(), events);
+}
+
 pub fn set_notification_kinds(owner: &str, kinds: Vec<NotificationKindDefinition>) {
     if let Ok(mut extensions) = extensions().write() {
         if kinds.is_empty() {

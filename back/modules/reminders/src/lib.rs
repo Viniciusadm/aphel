@@ -2,6 +2,7 @@ pub(crate) mod delivery;
 pub(crate) mod domain;
 pub(crate) mod http;
 pub(crate) mod notifications;
+pub(crate) mod plugin_bridge;
 pub(crate) mod service;
 pub(crate) mod store;
 
@@ -56,6 +57,9 @@ impl Module for RemindersModule {
             push_default: true,
         })
         .worker(worker);
+        for operation in plugin_bridge::operations() {
+            app.contribute::<aphel_kernel::modules::PluginOperation>(operation);
+        }
         Ok(())
     }
 }

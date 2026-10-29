@@ -8,6 +8,7 @@ pub(crate) mod linking;
 pub mod mailboxes;
 pub(crate) mod model;
 pub(crate) mod payload;
+pub(crate) mod plugin_bridge;
 pub(crate) mod provider;
 pub(crate) mod reading;
 pub(crate) mod runtime;
@@ -142,6 +143,16 @@ impl Module for EmailModule {
         for permission in RECORD_PERMISSIONS {
             app.permission(PermissionDefinition::record(permission))
                 .grant_to(["admin", "manager", "member"]);
+        }
+        app.filter::<crate::hooks::OutgoingEmail, _>(
+            aphel_kernel::modules::PLUGIN_HOOK_PRIORITY,
+            |ctx, message| Box::pin(plugin_bridge::outgoing(ctx, message)),
+        );
+        for hook in plugin_bridge::hooks() {
+            app.contribute::<aphel_kernel::modules::PluginHook>(hook);
+        }
+        for operation in plugin_bridge::operations() {
+            app.contribute::<aphel_kernel::modules::PluginOperation>(operation);
         }
         Ok(())
     }

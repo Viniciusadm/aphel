@@ -367,7 +367,7 @@ pub(crate) async fn restore_installation(
     )?;
     let registry = env.registry().await?;
     let snapshot = InstallationSnapshot::capture(&env.pool).await?;
-    let mut tx = env.pool.begin().await?;
+    let mut tx = aphel_kernel::database::transaction::MySqlTx::from(env.pool.begin().await?);
     if !env
         .data
         .create_installation(&mut tx, &registration, &registry)

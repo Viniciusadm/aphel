@@ -54,7 +54,7 @@ impl CurrencyStore {
     }
 
     pub(crate) async fn begin(&self) -> Result<MySqlTx, AppError> {
-        Ok(self.pool.begin().await?)
+        aphel_kernel::database::receipt::begin(&self.pool).await
     }
 
     pub async fn find_context(&self) -> Result<Option<CurrencyContext>, AppError> {

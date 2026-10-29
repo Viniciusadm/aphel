@@ -164,7 +164,8 @@
       "incoming_webhook": "Incoming webhook",
       "lead_form": "Lead form",
       "import": "Import",
-      "scheduling": "Scheduling"
+      "scheduling": "Scheduling",
+      "plugin": "Plugin"
     }
   },
   "ruleSelect": {

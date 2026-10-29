@@ -869,6 +869,10 @@ pub(crate) struct ContactHandler;
 
 #[async_trait]
 impl RecordTypeHandler for ContactHandler {
+    fn durable_mutations(&self) -> bool {
+        true
+    }
+
     fn record_type(&self) -> &str {
         "contact"
     }

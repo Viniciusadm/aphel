@@ -21,6 +21,7 @@ export interface PluginDeclarations {
   emits: string[]
   notifications: string[]
   widgets: string[]
+  operations: string[]
   has_web: boolean
 }
 

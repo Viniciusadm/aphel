@@ -1431,6 +1431,10 @@ pub(crate) struct ActivityHandler;
 
 #[async_trait]
 impl RecordTypeHandler for ActivityHandler {
+    fn durable_mutations(&self) -> bool {
+        true
+    }
+
     fn record_type(&self) -> &str {
         "activity"
     }

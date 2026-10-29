@@ -58,7 +58,7 @@ pub(crate) fn router() -> OpenApiRouter<AppState> {
         .routes(routes!(session_finish))
 }
 
-async fn activity_json(
+pub(crate) async fn activity_json(
     state: &AppState,
     scope: &AccessScope,
     record: ActivityRecord,

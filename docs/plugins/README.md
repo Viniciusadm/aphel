@@ -65,10 +65,12 @@ label = "Cavalo negociado"
 type = "record"
 target = "co_equine_horse"
 
-[[hooks]]                      # record.saving | record.validating | record.saved | record.deleting
+[[hooks]]                      # record.* or a domain hook such as deal.winning (see the host catalog)
 hook = "record.validating"
 record_types = ["deal", "co_equine_horse"]
 priority = 25                  # order among plugins (lower first)
+
+operations = ["notes.create", "tags.apply"]   # module operations called with invoke
 
 [[routes]]                     # served at /api/v1/p/<key><path>
 method = "GET"
@@ -152,7 +154,8 @@ What the declarations become:
 | `fields` | Custom fields with `module_key = <key>` on existing types (`deal`, `contact`, …), locked like any managed field (409 `field_managed_by_module`) and written by every record API through `custom_fields` |
 | `requires` | Core permissions (or `co_*` permissions) the plugin may use. Unknown permissions make the manifest invalid |
 | `permissions` | Entries in the permission catalog and the role editor (grouped by plugin key), granted to `grant_to` on the first install, toggled with enable/disable and removed with their grants on uninstall. A key already used gives 409 `permission_already_registered` |
-| `hooks` | The backend is called inside the record transaction. An error vetoes the write (422 with the plugin code and fields), and `record.saving` may change `values`/`custom_fields` |
+| `hooks` | Generic record hooks or domain hooks of the modules (see [Module operations and domain hooks](#module-operations-and-domain-hooks)). The backend is called inside the transaction. An error from a veto hook blocks the write (422 with the plugin code and fields); `record.saving` and the filter hooks may change the values |
+| `operations` | Module operations the backend calls with `invoke` (see [Module operations and domain hooks](#module-operations-and-domain-hooks)). An operation not listed gives 403 `plugin_operation_not_declared`; an unknown one makes the manifest invalid |
 | `events` | The worker calls the backend after the transaction, at least once and with retries, as the plugin (see Capabilities). A plugin never receives the events it caused |
 | `routes` | `GET/POST/PUT/PATCH/DELETE /api/v1/p/<key>/…` with the caller's session or API token and the declared permission. Public routes (see below) |
 | `http` | Outbound HTTP allowed only to these hosts (see Outbound HTTP) |
@@ -191,11 +194,44 @@ Referencing a record counts as reading it. Writing a `record` field (for example
 `POST /api/v1/plugins?dry_run=true` with the package returns what the plugin declares and installs nothing:
 - entities and extended record types;
 - hooks, events and routes, including public routes;
+- the module operations it calls;
 - `requires` and declared permissions;
 - allowed hosts, schedules and secrets;
 - the currently installed version.
 
 The web app shows this as a consent dialog, with warnings for public routes and outbound HTTP, before the real install.
+
+## Module operations and domain hooks
+
+Besides records, a plugin reaches the modules through two generic channels. Both are open catalogs: each module contributes its own entries, so the WIT does not change when a module offers something new.
+
+**Operations.** `invoke(operation, input-json)` calls a use case of a module (`notes.create`, `tags.apply`, `deals.move_stage`, `email.send`, `sequences.enroll`, `ai.complete`, …). The operation runs the same service as the module's API, with the plugin's scope (see [Capabilities](#capabilities-and-scope)): permissions, events and audit apply, and the plugin needs the matching permissions in `requires` (`notes.create` needs `notes.create`). The plugin lists the operations it calls in `operations`, and the installer sees them in the consent.
+
+| Situation | Result |
+| --- | --- |
+| Operation not in `operations` | 403 `plugin_operation_not_declared` |
+| Operation unknown or its module disabled | 404 `plugin_operation_unknown` |
+| Writing operation inside a hook | 409 `plugin_write_in_hook` |
+| Operation slower than the remaining call time | 503 `plugin_operation_timeout` |
+
+Operations that act on the user's own data (favorites, reminders, following) need a user actor: they work from hooks and private routes and are refused from events and schedules, where the actor is the plugin.
+
+**Domain hooks.** Besides the `record.*` hooks, modules offer hooks for their own moments (`deal.winning`, `deal.won`, `lead.converting`, `quote.accepting`, `activity.completing`, `email.outgoing`, …). The plugin subscribes to them in `[[hooks]]` like the record hooks (`record_types` is the type in the catalog, or `*`). The `HookCall` carries the hook key, the record and the domain data in `values`:
+
+| Kind | Behaviour |
+| --- | --- |
+| `veto` | An error blocks the operation (the deal is not won, the quote is not accepted) |
+| `filter` | The returned `values` is merged into the data (for example the deal and company maps of a lead conversion, or the subject and body of an outgoing email) |
+| `action` | Runs inside the transaction after the change; an error rolls it back |
+
+Generic record hooks:
+- `record.saving` (filter), `record.validating` and `record.deleting` (veto) and `record.saved` (action) run inside the transaction.
+- `record.committed` runs after the commit; its errors are only logged.
+- `record.deleted`, `record.restored` and `record.purged` (action) run inside the transaction of the deletion, restore or purge.
+
+Read-path hooks (serialization, query filters, schema and search) are not offered: they run on every list and response, where WebAssembly would cost too much.
+
+`GET /api/v1/plugins/host-catalog` lists every hook and operation, with its input shape, its kind and whether its module is enabled. The full list is in [host-catalog.md](host-catalog.md).
 
 ## Backend in Rust
 
@@ -265,9 +301,13 @@ export_plugin!(Equine);
 | `ctx.http().send(HttpRequest::new(method, url).header(..).json(&body)?)`, `ctx.http().get(url)` | Outbound HTTP (see below) |
 | `ctx.emit(name, Some((record_type, record_id)), payload)` | Publishes `plugin.<key>.<name>` (declared in `[[emits]]`, record type in its `record_types`). Not allowed inside hooks (409 `plugin_write_in_hook`); 404 `plugin_event_not_declared` for an undeclared name |
 | `ctx.notify(Notification::new(kind, recipient_user_id, title).body(..).record(type, id).link(..).dedupe_key(..))` | Sends a declared notification kind (see Notifications) |
+| `ctx.invoke::<T>(operation, input)` | Calls a module operation declared in `operations` (see [Module operations and domain hooks](#module-operations-and-domain-hooks)). Writing operations are not allowed inside hooks (409 `plugin_write_in_hook`) |
+| `ctx.defer_effect(key, command)` | Requests a durable derived mutation. Returns an intention identifier, not a record result; keys are unique within an execution |
+| `ctx.hook_state()` | Explicit operation snapshots, phase, availability and effect permissions; null outside hooks |
+| `ctx.execution_context()` | Host-defined executor, initiator, trigger, parent and correlation identifiers |
 | `ctx.now()`, `ctx.log(level, message)` / `ctx.info(..)` | Clock and server log |
 
-**Writes inside hooks.** Hooks run inside the transaction of the record being written. Creating, updating or deleting records from a hook fails with 409 `plugin_write_in_hook`: a second transaction would not be atomic with the first and could deadlock on the same row. Do the write from an event instead. Reads inside a hook see the committed state, not the row being written; use the `values`/`changes` of the `HookCall` for the new values. `record.saving` receives the draft in `values`/`custom_fields` and may change it; the other hooks receive what changed in `changes` (custom fields as `custom_fields.<key>`, read with `call.custom_changed(key)`).
+**Writes inside hooks and retryable callbacks.** Use explicit durable effects rather than independent writes. A transactional hook persists its intentions and their jobs atomically with the original record; workers execute derived mutations with transactional receipts and reauthorize them at execution time. Immediate side effects remain refused in hooks, and retryable event, schedule, and automation callbacks require `defer-effect`. Read `ctx.hook_state()` / `ctx.hookState()` for explicit previous and proposed snapshots; ordinary record queries remain independent persisted reads. See [Durable execution and hook state](durable-execution.md) for guarantees, commands, migration instructions, causality, and catalog readiness.
 
 **Errors.** Plugin errors are built with:
 - `PluginError::new(code, message)` (422);
@@ -348,7 +388,7 @@ The backend is a [WebAssembly component](https://component-model.bytecodeallianc
 - It is defined in [`back/modules/plugins/wit/plugin.wit`](../../back/modules/plugins/wit/plugin.wit) and shipped inside the SDK crate as `sdk/rust/aphel-plugin-sdk/wit/plugin.wit`. The copies are kept in sync by `make modules` and checked by `make lint`.
 - It is also copied to `sdk/js/aphel-plugin-sdk/wit/plugin.wit` for the JavaScript SDK.
 - It exports `on-hook`, `on-event`, `on-route`, `on-schedule`, `on-action` and `on-widget`.
-- It imports the `host` interface: `get-record`, `list-records`, `create-record`, `update-record`, `delete-record`, `kv-get`, `kv-set`, `kv-delete`, `kv-list`, `http-fetch`, `notify`, `emit`, `settings-json`, `secret`, `now` and `log`.
+- It imports the `host` interface: `get-record`, `list-records`, `create-record`, `update-record`, `delete-record`, `kv-get`, `kv-set`, `kv-delete`, `kv-list`, `http-fetch`, `notify`, `emit`, `invoke`, `settings-json`, `secret`, `now` and `log`.
 - Record values travel as JSON strings inside the typed records, because record fields are dynamic (custom fields, custom objects).
 
 `aphel-plugin-sdk` wraps the bindings generated by `wit-bindgen` in the `Plugin` trait and `Ctx` above. Any language with component tooling (`wit-bindgen` for C, Go or C#; `componentize-js`; `componentize-py`) can implement the same world directly.
@@ -377,7 +417,7 @@ export default definePlugin({
     return {}
   },
   onEvent(ctx, event) {
-    if (event.type === 'deal.won') ctx.records.update('co_equine_horse', id, { custom_fields: { status: 'sold' } })
+    if (event.type === 'deal.won') ctx.deferEffect('mark-sold', { kind: 'update', record_type: 'co_equine_horse', id, values: { custom_fields: { status: 'sold' } } })
   },
   onRoute(ctx, request) {
     if (request.is('GET', '/horses/{id}/pedigree')) return ok({ id: request.params.id })
@@ -391,7 +431,7 @@ export default definePlugin({
 })
 ```
 
-The API mirrors the Rust SDK in camelCase. Host calls are synchronous: `ctx.records.get/list/create/update/delete`, `ctx.kv(collection)`, `ctx.settings()`, `ctx.setting(key)`, `ctx.secret(key)`, `ctx.http.send({ method, url, headers, json })`, `ctx.notify({ kind, recipientUserId, title, … })`, `ctx.emit(name, { type, id }, payload)`, `ctx.now()` and `ctx.log(level, message)`.
+The API mirrors the Rust SDK in camelCase. Host calls are synchronous: `ctx.records.get/list/create/update/delete`, `ctx.kv(collection)`, `ctx.settings()`, `ctx.setting(key)`, `ctx.secret(key)`, `ctx.http.send({ method, url, headers, json })`, `ctx.notify({ kind, recipientUserId, title, … })`, `ctx.emit(name, { type, id }, payload)`, `ctx.invoke(operation, input)`, `ctx.deferEffect(key, command)`, `ctx.hookState()`, `ctx.executionContext()`, `ctx.now()` and `ctx.log(level, message)`.
 - Throw a `PluginError` (`new PluginError(code, message, { status, fields })`, `PluginError.field`, `notFound`, `forbidden`) to veto or answer with an error. Any other exception becomes 422 `plugin_error`.
 - Host errors are thrown as `PluginError` with the host's code and status, so they can be caught or let through.
 - A route handler that returns nothing answers 404 `route_not_found`.
@@ -499,6 +539,7 @@ curl -H "Authorization: Bearer $TOKEN" -F package=@equine-2.0.0.aphelplugin http
 | `POST /api/v1/plugins/{key}/enable` · `/disable` | `system.manage` | Disabling hides entities, fields and permissions and stops hooks, events, schedules, routes and the web bundle; nothing is deleted |
 | `PUT /api/v1/plugins/{key}/settings` | `system.manage` | Validated against the declared settings; secrets set, removed (`null`) or kept (absent) |
 | `DELETE /api/v1/plugins/{key}?purge=true` | `system.manage` | Removes the plugin, its key-value data, secrets and permissions; with `purge` also its entities, records and fields |
+| `GET /api/v1/plugins/host-catalog` | `system.manage` | Hooks and operations this Aphel offers to plugins, with the owning module and whether it is enabled |
 | `GET /api/v1/public/plugins` | public | Web bundles of the enabled plugins |
 | `ANY /api/v1/p/{key}/{path}` | declared per route | Plugin routes |
 | `ANY /api/v1/public/p/{key}/{path}` | public, rate limited | Public plugin routes |

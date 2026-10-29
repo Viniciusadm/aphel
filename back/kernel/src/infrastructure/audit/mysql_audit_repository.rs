@@ -96,6 +96,9 @@ fn audit_log_from_row(row: &MySqlRow) -> Result<AuditLogView, AppError> {
         changes: changes_from_json(changes)?,
         ip: row.try_get("ip")?,
         causation: causation.map(|Json(causation)| causation),
+        execution: row
+            .try_get::<Option<Json<crate::application::shared::ExecutionContext>>, _>("execution")?
+            .map(|Json(value)| value),
         occurred_at: mapper::utc(row.try_get("occurred_at")?),
     })
 }
@@ -112,7 +115,7 @@ impl AuditRepository for MySqlAuditRepository {
         let total: i64 = count.build_query_scalar().fetch_one(&self.pool).await?;
 
         let mut select = QueryBuilder::<MySql>::new(
-            "SELECT a.id, a.action, a.record_type, a.record_id, a.actor_type, a.actor_id, a.changes, a.ip, a.causation, a.occurred_at, \
+            "SELECT a.id, a.action, a.record_type, a.record_id, a.actor_type, a.actor_id, a.changes, a.ip, a.causation, a.execution, a.occurred_at, \
              u.display_name AS actor_name, u.email AS actor_email \
              FROM audit_logs a \
              LEFT JOIN users u ON u.id = a.actor_id AND a.actor_type = ",

@@ -6,6 +6,7 @@ use crate::runtime::aphel::plugin::host::Host;
 use crate::runtime::{CallState, to_plugin_error, wit};
 use crate::{net, store};
 use aphel_kernel::Ctx;
+use aphel_kernel::application::access::Authorizer;
 use aphel_kernel::application::organization_admin::ListWindow;
 use aphel_kernel::application::query::{
     ArchivedFilter, Filter, RecordQuery, RecordQueryEngine, parse_sort,
@@ -33,10 +34,22 @@ pub fn secret_key(plugin: &str, name: &str) -> SecretKey {
 }
 
 fn outside_transaction(state: &CallState) -> Result<(), AppError> {
+    if state.read_only {
+        return Err(AppError::forbidden_code(
+            "plugin_read_only",
+            "this plugin execution cannot produce side effects",
+        ));
+    }
     if state.in_transaction {
         return Err(AppError::conflict_code(
             WRITE_IN_HOOK,
-            "plugins cannot create, update or delete records inside a record hook; do it when the matching event arrives",
+            "plugins cannot execute side effects inside a record hook; use a durable event handler",
+        ));
+    }
+    if state.retryable {
+        return Err(AppError::conflict_code(
+            "plugin_effect_required",
+            "retryable plugin handlers must use defer-effect for side effects",
         ));
     }
     Ok(())
@@ -79,7 +92,9 @@ async fn load(
     id: &str,
 ) -> Result<Option<String>, AppError> {
     let state = runtime_state()?;
-    let handler = state.registry().await?.handler(record_type)?;
+    let registry = state.registry().await?;
+    scope.require(&registry.require(record_type)?.read_permission)?;
+    let handler = registry.handler(record_type)?;
     let record = handler
         .load(&RecordCtx::new(scope, &state), record_id(id)?)
         .await?;
@@ -92,7 +107,9 @@ async fn list(
     query: wit::ListQuery,
 ) -> Result<wit::Page, AppError> {
     let state = runtime_state()?;
-    let handler = state.registry().await?.handler(record_type)?;
+    let registry = state.registry().await?;
+    scope.require(&registry.require(record_type)?.read_permission)?;
+    let handler = registry.handler(record_type)?;
     let per_page = u64::from(query.per_page.unwrap_or(25)).clamp(1, MAX_PAGE_SIZE);
     let page = u64::from(query.page.unwrap_or(1)).max(1);
     let filter = match query.filter_json.as_deref() {
@@ -130,7 +147,7 @@ async fn list(
     })
 }
 
-async fn write(
+pub(crate) async fn write(
     scope: &AccessScope,
     record_type: &str,
     id: Option<&str>,
@@ -147,7 +164,11 @@ async fn write(
     Ok(encode(&record))
 }
 
-async fn delete(scope: &AccessScope, record_type: &str, id: &str) -> Result<(), AppError> {
+pub(crate) async fn delete(
+    scope: &AccessScope,
+    record_type: &str,
+    id: &str,
+) -> Result<(), AppError> {
     let state = runtime_state()?;
     let handler = state.registry().await?.handler(record_type)?;
     handler
@@ -155,7 +176,7 @@ async fn delete(scope: &AccessScope, record_type: &str, id: &str) -> Result<(), 
         .await
 }
 
-async fn emit(
+pub(crate) async fn emit(
     plugin: &LoadedPlugin,
     scope: &AccessScope,
     name: &str,
@@ -212,8 +233,15 @@ async fn emit(
     if let Some(record) = record {
         event = event.with_record(record);
     }
-    let mut tx = state.db()?.begin().await.map_err(AppError::from)?;
+    let mut tx = aphel_kernel::database::receipt::begin(&state.db()?).await?;
+    let mut audit = aphel_kernel::application::shared::AuditEntry::new(
+        Actor::from_scope(scope),
+        event.event_type.clone(),
+        event.occurred_at,
+    );
+    audit.record = event.record.clone();
     state.events.publish(&mut tx, event).await?;
+    state.audit.record(&mut tx, audit).await?;
     tx.commit().await.map_err(AppError::from)?;
     Ok(())
 }
@@ -289,6 +317,9 @@ impl Host for CallState {
         id: String,
         value_json: String,
     ) -> HostResult<()> {
+        if let Err(error) = outside_transaction(self) {
+            return answer(Err(error));
+        }
         let plugin = self.plugin.key.clone();
         answer(
             async {
@@ -302,6 +333,9 @@ impl Host for CallState {
     }
 
     async fn kv_delete(&mut self, collection: String, id: String) -> HostResult<()> {
+        if let Err(error) = outside_transaction(self) {
+            return answer(Err(error));
+        }
         let plugin = self.plugin.key.clone();
         answer(
             async {
@@ -330,11 +364,17 @@ impl Host for CallState {
     }
 
     async fn http_fetch(&mut self, request: wit::HttpRequest) -> HostResult<wit::HttpResponse> {
+        if let Err(error) = outside_transaction(self) {
+            return answer(Err(error));
+        }
         let plugin = self.plugin.clone();
         answer(net::fetch(&plugin, self.deadline, request).await)
     }
 
     async fn notify(&mut self, notification: wit::Notification) -> HostResult<()> {
+        if let Err(error) = outside_transaction(self) {
+            return answer(Err(error));
+        }
         let plugin = self.plugin.clone();
         let scope = self.scope.clone();
         answer(crate::notify::notify(&plugin, &scope, notification).await)
@@ -365,6 +405,33 @@ impl Host for CallState {
         )
     }
 
+    async fn invoke(&mut self, operation: String, input_json: String) -> HostResult<String> {
+        if self.retryable
+            && aphel_kernel::modules::app()
+                .contributions::<aphel_kernel::modules::PluginOperation>()
+                .iter()
+                .any(|candidate| candidate.key == operation && candidate.writes)
+        {
+            return answer(Err(AppError::conflict_code(
+                "plugin_effect_required",
+                "retryable plugin handlers must defer writing operations",
+            )));
+        }
+        let plugin = self.plugin.clone();
+        let scope = self.scope.clone();
+        answer(
+            crate::bridge::invoke(
+                &plugin,
+                &scope,
+                self.in_transaction || self.read_only,
+                self.deadline,
+                &operation,
+                &input_json,
+            )
+            .await,
+        )
+    }
+
     async fn secret(&mut self, key: String) -> HostResult<Option<String>> {
         let plugin = self.plugin.clone();
         answer(
@@ -388,6 +455,22 @@ impl Host for CallState {
             }
             .await,
         )
+    }
+
+    async fn defer_effect(&mut self, key: String, command_json: String) -> HostResult<String> {
+        answer(crate::effects::defer(self, key, command_json).await)
+    }
+
+    async fn hook_state_json(&mut self) -> String {
+        self.hook_state
+            .as_ref()
+            .map(ToString::to_string)
+            .unwrap_or_else(|| "null".to_owned())
+    }
+
+    async fn execution_context_json(&mut self) -> String {
+        serde_json::to_string(&aphel_kernel::application::shared::ExecutionContext::current())
+            .unwrap_or_else(|_| "null".to_owned())
     }
 
     async fn settings_json(&mut self) -> String {

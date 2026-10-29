@@ -26,6 +26,7 @@ pub struct AuditLogView {
     pub changes: Vec<FieldChange>,
     pub ip: Option<String>,
     pub causation: Option<EventCausation>,
+    pub execution: Option<crate::application::shared::ExecutionContext>,
     pub occurred_at: DateTime<Utc>,
 }
 

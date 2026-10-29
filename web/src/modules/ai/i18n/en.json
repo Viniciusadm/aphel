@@ -50,6 +50,10 @@
     "feature_query": {
       "label": "Natural-language search",
       "help": "Turns questions into list filters"
+    },
+    "feature_plugin": {
+      "label": "Plugin use",
+      "help": "Lets installed plugins call the AI, counted in the same limits and log"
     }
   },
   "providers": {
@@ -60,7 +64,8 @@
     "summary": "Record summary",
     "next_actions": "Next actions",
     "compose": "Writing assistant",
-    "query": "Natural-language search"
+    "query": "Natural-language search",
+    "plugin": "Plugins"
   },
   "disclosure": {
     "title": "What is sent and where",

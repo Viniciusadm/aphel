@@ -50,6 +50,10 @@
     "feature_query": {
       "label": "Consulta em linguagem natural",
       "help": "Transforma perguntas em filtros de listagem"
+    },
+    "feature_plugin": {
+      "label": "Uso por plugins",
+      "help": "Permite que plugins instalados chamem a IA, contando nos mesmos limites e no registro"
     }
   },
   "providers": {
@@ -60,7 +64,8 @@
     "summary": "Resumo do registro",
     "next_actions": "Próximas ações",
     "compose": "Assistente de redação",
-    "query": "Consulta em linguagem natural"
+    "query": "Consulta em linguagem natural",
+    "plugin": "Plugins"
   },
   "disclosure": {
     "title": "O que é enviado e para onde",

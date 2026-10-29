@@ -82,7 +82,11 @@ pub async fn load_contributed(
     Ok(values)
 }
 
-fn decode(row: &MySqlRow, column: &str, field_type: FieldType) -> Result<Value, AppError> {
+pub(crate) fn decode(
+    row: &MySqlRow,
+    column: &str,
+    field_type: FieldType,
+) -> Result<Value, AppError> {
     Ok(match field_type {
         FieldType::Number | FieldType::Currency => {
             if let Ok(value) = row.try_get::<Option<i64>, _>(column) {

@@ -190,7 +190,8 @@ impl CurrencyRecalculateHandler {
                     .await?
                     .map(|rate| rate.rate)
             };
-            let mut tx = self.pool.begin().await?;
+            let mut tx =
+                aphel_kernel::database::transaction::MySqlTx::from(self.pool.begin().await?);
             updated += deals.apply_open_rate(&mut tx, &code, rate).await?;
             calculator.sync_currency_rate(&mut tx, &code, rate).await?;
             tx.commit().await?;

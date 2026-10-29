@@ -5,6 +5,7 @@ pub(crate) mod generated;
 pub(crate) mod http;
 pub(crate) mod model;
 pub mod notifications;
+pub(crate) mod plugin_bridge;
 pub(crate) mod runtime;
 pub mod service;
 pub(crate) mod store;
@@ -77,6 +78,9 @@ impl Module for ExportsModule {
         app.worker(|env| {
             WorkerParts::default().handler(Arc::new(ExportRunHandler::new(env.state())))
         });
+        for operation in plugin_bridge::operations() {
+            app.contribute::<aphel_kernel::modules::PluginOperation>(operation);
+        }
         Ok(())
     }
 }

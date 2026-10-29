@@ -5575,6 +5575,40 @@ export interface paths {
         patch?: never;
         trace?: never;
     };
+    "/api/v1/plugins/host-catalog": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        /** @description Lists what this Aphel offers to plugins (permission `system.manage`): the hooks a manifest can subscribe to in `hooks` (generic record hooks plus the domain hooks of compiled modules, with kind `veto`, `filter` or `action`) and the operations a plugin can call with `invoke` after declaring them in `operations`. `enabled` is false when the owning module is disabled: its hooks never fire and its operations answer 404 `plugin_operation_unknown`. */
+        get: operations["plugins_host_catalog"];
+        put?: never;
+        post?: never;
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
+    "/api/v1/plugins/readiness": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        /** @description Reports metadata catalog readiness independently of lazy backend compilation. Catalog failures return 503 rather than an empty catalog. */
+        get: operations["plugins_readiness"];
+        put?: never;
+        post?: never;
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
     "/api/v1/plugins/{key}": {
         parameters: {
             query?: never;
@@ -8849,6 +8883,7 @@ export interface components {
             actor: components["schemas"]["AuditActorResponse"];
             caused_by?: null | components["schemas"]["AuditCausationResponse"];
             changes: components["schemas"]["AuditFieldChangeResponse"][];
+            execution?: null | components["schemas"]["ExecutionContext"];
             id: string;
             ip?: string | null;
             /** Format: date-time */
@@ -8874,6 +8909,11 @@ export interface components {
             /** @example check_open */
             start?: string | null;
             steps: components["schemas"]["AutomationStep"][];
+        };
+        AutomationExecution: {
+            automation_id: string;
+            run_id: string;
+            step_id: string;
         };
         AutomationLimitsResponse: {
             /** Format: int32 */
@@ -9318,6 +9358,12 @@ export interface components {
             /** Format: int64 */
             size?: number | null;
             url: string;
+        };
+        CatalogReadiness: {
+            backend_errors: string[];
+            state: string;
+            /** Format: int64 */
+            version?: number | null;
         };
         CatalogResponse: {
             /** @example 0.1.0 */
@@ -10786,6 +10832,14 @@ export interface components {
                 view_id?: string | null;
             };
         };
+        Data_CatalogReadiness: {
+            data: {
+                backend_errors: string[];
+                state: string;
+                /** Format: int64 */
+                version?: number | null;
+            };
+        };
         Data_CatalogResponse: {
             data: {
                 /** @example 0.1.0 */
@@ -11682,6 +11736,12 @@ export interface components {
             data: {
                 request_id: string;
                 status: components["schemas"]["IncomingWebhookRequestStatus"];
+            };
+        };
+        Data_HostCatalogResponse: {
+            data: {
+                hooks: components["schemas"]["HookCatalogEntry"][];
+                operations: components["schemas"]["HostOperationResponse"][];
             };
         };
         Data_ImportJobResponse: {
@@ -13813,9 +13873,9 @@ export interface components {
             }[];
         };
         Data_Vec_PermissionDefinitionResponse: {
-            label: string | null;
-            description: string | null;
             data: {
+                description?: string | null;
+                label?: string | null;
                 /** @example contacts.read */
                 permission: string;
                 record_scoped: boolean;
@@ -15036,6 +15096,22 @@ export interface components {
             unchanged: string[];
             updated: string[];
         };
+        ExecutionActor: {
+            id?: string | null;
+            kind: string;
+        };
+        ExecutionContext: {
+            automation?: null | components["schemas"]["AutomationExecution"];
+            chain: string[];
+            correlation_id: string;
+            event_id?: string | null;
+            executor: string;
+            executor_kind?: string;
+            id: string;
+            initiator?: null | components["schemas"]["ExecutionActor"];
+            parent_id?: string | null;
+            trigger: string;
+        };
         /** @enum {string} */
         ExportFormatDto: "csv" | "xlsx";
         ExportJobResponse: {
@@ -15535,9 +15611,29 @@ export interface components {
             /** @example 12 */
             row: number;
         };
+        HookCatalogEntry: {
+            description: string;
+            enabled: boolean;
+            key: string;
+            kind: string;
+            module: string;
+            record_type: string;
+        };
         HookReceivedResponse: {
             request_id: string;
             status: components["schemas"]["IncomingWebhookRequestStatus"];
+        };
+        HostCatalogResponse: {
+            hooks: components["schemas"]["HookCatalogEntry"][];
+            operations: components["schemas"]["HostOperationResponse"][];
+        };
+        HostOperationResponse: {
+            description: string;
+            durable: boolean;
+            enabled: boolean;
+            key: string;
+            module: string;
+            writes: boolean;
         };
         ImportJobResponse: {
             created_at: string;
@@ -16022,7 +16118,7 @@ export interface components {
             user_name?: string | null;
         };
         /** @enum {string} */
-        LeadDistributionAssignmentSource: "automation" | "incoming_webhook" | "import" | "scheduling" | "lead_form";
+        LeadDistributionAssignmentSource: "automation" | "incoming_webhook" | "import" | "scheduling" | "lead_form" | "plugin";
         /** @enum {string} */
         LeadDistributionFallback: "members" | "none";
         LeadDistributionMemberRequest: {
@@ -17346,6 +17442,7 @@ export interface components {
                 actor: components["schemas"]["AuditActorResponse"];
                 caused_by?: null | components["schemas"]["AuditCausationResponse"];
                 changes: components["schemas"]["AuditFieldChangeResponse"][];
+                execution?: null | components["schemas"]["ExecutionContext"];
                 id: string;
                 ip?: string | null;
                 /** Format: date-time */
@@ -18842,8 +18939,8 @@ export interface components {
             previous?: null | components["schemas"]["PerformanceMetricsResponse"];
         };
         PermissionDefinitionResponse: {
-            label: string | null;
-            description: string | null;
+            description?: string | null;
+            label?: string | null;
             /** @example contacts.read */
             permission: string;
             record_scoped: boolean;
@@ -18976,6 +19073,7 @@ export interface components {
             has_web: boolean;
             hooks: string[];
             notifications: string[];
+            operations: string[];
             permissions: components["schemas"]["PluginPermissionResponse"][];
             public_routes: string[];
             requires: string[];
@@ -22847,7 +22945,7 @@ export interface operations {
     ai_calls: {
         parameters: {
             query?: {
-                /** @description summary, next_actions, compose or query */
+                /** @description summary, next_actions, compose, query or plugin */
                 feature?: string;
                 /** @description success or error */
                 status?: string;
@@ -51238,6 +51336,91 @@ export interface operations {
             };
             /** @description API token rate limit exceeded (`rate_limited`); see `Retry-After` and `X-RateLimit-*` */
             429: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["ErrorEnvelope"];
+                };
+            };
+        };
+    };
+    plugins_host_catalog: {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        requestBody?: never;
+        responses: {
+            /** @description Hooks and operations offered to plugins */
+            200: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["Data_HostCatalogResponse"];
+                };
+            };
+            /** @description Missing or invalid credentials (`unauthorized`) */
+            401: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["ErrorEnvelope"];
+                };
+            };
+            /** @description Missing `system.manage` (`permission_denied`) */
+            403: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["ErrorEnvelope"];
+                };
+            };
+            /** @description API token rate limit exceeded (`rate_limited`); see `Retry-After` and `X-RateLimit-*` */
+            429: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["ErrorEnvelope"];
+                };
+            };
+        };
+    };
+    plugins_readiness: {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        requestBody?: never;
+        responses: {
+            /** @description Catalog readiness */
+            200: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["Data_CatalogReadiness"];
+                };
+            };
+            /** @description API token rate limit exceeded (`rate_limited`); see `Retry-After` and `X-RateLimit-*` */
+            429: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["ErrorEnvelope"];
+                };
+            };
+            /** @description Catalog unavailable */
+            503: {
                 headers: {
                     [name: string]: unknown;
                 };

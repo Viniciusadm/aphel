@@ -15,7 +15,7 @@ use aphel_kernel::application::query::{
     resolve_query_related, validate_view_query_related,
 };
 use aphel_kernel::application::security::Clock;
-use aphel_kernel::domain::access::{AccessScope, RecordScopeFilter};
+use aphel_kernel::domain::access::{AccessScope, Permission, RecordScopeFilter};
 use aphel_kernel::errors::{AppError, FieldViolation};
 use aphel_kernel::infrastructure::query::compiler::{
     Projection, build_query, push_record_scope, quoted,
@@ -226,7 +226,18 @@ impl ScoringDirectory {
         definition: &RecordTypeDefinition,
         record_id: Uuid,
     ) -> Result<bool, AppError> {
-        let Ok(visibility) = scope.record_filter(&definition.read_permission) else {
+        self.record_accessible(scope, definition, &definition.read_permission, record_id)
+            .await
+    }
+
+    pub(crate) async fn record_accessible(
+        &self,
+        scope: &AccessScope,
+        definition: &RecordTypeDefinition,
+        permission: &Permission,
+        record_id: Uuid,
+    ) -> Result<bool, AppError> {
+        let Ok(visibility) = scope.record_filter(permission) else {
             return Ok(false);
         };
         let mut builder = QueryBuilder::<MySql>::new(format!(

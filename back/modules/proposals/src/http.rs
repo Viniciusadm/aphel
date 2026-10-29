@@ -40,11 +40,11 @@ fn timestamp(value: DateTime<Utc>) -> String {
     value.to_rfc3339_opts(SecondsFormat::Secs, true)
 }
 
-fn parse_id(raw: &str, not_found: fn() -> AppError) -> Result<Uuid, AppError> {
+pub(crate) fn parse_id(raw: &str, not_found: fn() -> AppError) -> Result<Uuid, AppError> {
     Uuid::parse_str(raw.trim()).map_err(|_| not_found())
 }
 
-fn optional_id(raw: Option<&str>, field: &str) -> Result<Option<Uuid>, AppError> {
+pub(crate) fn optional_id(raw: Option<&str>, field: &str) -> Result<Option<Uuid>, AppError> {
     raw.map(str::trim)
         .filter(|raw| !raw.is_empty())
         .map(|raw| {

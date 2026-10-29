@@ -3,6 +3,7 @@ pub(crate) mod guidance;
 pub(crate) mod hooks;
 pub mod http;
 pub(crate) mod lost_reason_section;
+pub(crate) mod plugin_bridge;
 pub(crate) mod requirements;
 pub mod rotting;
 pub mod section;
@@ -124,6 +125,9 @@ impl Module for PipelinesModule {
         .routes(|_| http::router().merge(guidance::http::router()));
         for definition in PUBLIC_EVENTS {
             app.public_event(*definition);
+        }
+        for operation in plugin_bridge::operations() {
+            app.contribute::<aphel_kernel::modules::PluginOperation>(operation);
         }
         Ok(())
     }

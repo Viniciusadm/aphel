@@ -2,7 +2,7 @@ use std::collections::BTreeMap;
 
 use async_trait::async_trait;
 use sqlx::mysql::MySqlRow;
-use sqlx::{MySql, MySqlPool, QueryBuilder, Row, Transaction};
+use sqlx::{MySql, MySqlPool, QueryBuilder, Row};
 
 use crate::application::organization_admin::{
     ListWindow, Listing, ROLE_IN_USE, ROLE_KEY_TAKEN, RoleChanges, RoleRepository, RoleSummary,
@@ -98,7 +98,7 @@ fn map_key_conflict(error: sqlx::Error) -> AppError {
 }
 
 async fn insert_grants(
-    transaction: &mut Transaction<'_, MySql>,
+    transaction: &mut sqlx::MySqlConnection,
     role_id: &RoleId,
     grants: &[PermissionGrant],
 ) -> Result<(), AppError> {
@@ -113,7 +113,7 @@ async fn insert_grants(
             .push_bind(grant.permission.as_str())
             .push_bind(grant.scope.as_str());
     });
-    builder.build().execute(&mut **transaction).await?;
+    builder.build().execute(&mut *transaction).await?;
     Ok(())
 }
 

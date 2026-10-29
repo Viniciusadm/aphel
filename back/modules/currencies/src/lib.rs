@@ -1,6 +1,7 @@
 pub mod domain;
 pub(crate) mod hooks;
 pub(crate) mod http;
+pub(crate) mod plugin_bridge;
 pub(crate) mod provider;
 pub(crate) mod public;
 pub(crate) mod runtime;
@@ -119,6 +120,9 @@ impl Module for CurrenciesModule {
         .consumer(|env| Arc::new(runtime::BaseCurrencyConsumer::new(env.pool.clone())));
         for definition in PUBLIC_EVENTS {
             app.public_event(*definition);
+        }
+        for operation in plugin_bridge::operations() {
+            app.contribute::<aphel_kernel::modules::PluginOperation>(operation);
         }
         app.contribute::<dyn aphel_kernel::application::public_events::PublicResourceLoader>(
             Arc::new(public::ExchangeRatePublicResource),

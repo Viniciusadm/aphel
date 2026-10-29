@@ -4,7 +4,7 @@ use async_trait::async_trait;
 use chrono::{DateTime, NaiveDateTime, Utc};
 use sqlx::mysql::MySqlRow;
 use sqlx::types::Json;
-use sqlx::{MySql, MySqlPool, QueryBuilder, Row, Transaction};
+use sqlx::{MySql, MySqlPool, QueryBuilder, Row};
 
 use crate::application::auth::{NewUserToken, UserTokenPurpose};
 use crate::application::organization_admin::{
@@ -99,7 +99,7 @@ fn is_unique_violation(error: &sqlx::Error) -> bool {
 }
 
 async fn insert_token(
-    transaction: &mut Transaction<'_, MySql>,
+    transaction: &mut sqlx::MySqlConnection,
     token: &NewUserToken,
 ) -> Result<(), AppError> {
     sqlx::query(
@@ -111,13 +111,13 @@ async fn insert_token(
     .bind(&token.token_hash)
     .bind(token.payload.clone().map(Json))
     .bind(mapper::naive(token.expires_at))
-    .execute(&mut **transaction)
+    .execute(&mut *transaction)
     .await?;
     Ok(())
 }
 
 async fn invalidate_invitation_tokens(
-    transaction: &mut Transaction<'_, MySql>,
+    transaction: &mut sqlx::MySqlConnection,
     user_id: &UserId,
     at: DateTime<Utc>,
 ) -> Result<(), AppError> {
@@ -127,25 +127,25 @@ async fn invalidate_invitation_tokens(
     .bind(mapper::naive(at))
     .bind(UserTokenPurpose::Invitation.as_str())
     .bind(user_id.as_str())
-    .execute(&mut **transaction)
+    .execute(&mut *transaction)
     .await?;
     Ok(())
 }
 
 async fn lock_status(
-    transaction: &mut Transaction<'_, MySql>,
+    transaction: &mut sqlx::MySqlConnection,
     user_id: &UserId,
 ) -> Result<Option<UserStatus>, AppError> {
     let status: Option<String> =
         sqlx::query_scalar("SELECT status FROM users WHERE id = ? FOR UPDATE")
             .bind(user_id.as_str())
-            .fetch_optional(&mut **transaction)
+            .fetch_optional(&mut *transaction)
             .await?;
     status.map(member_status).transpose()
 }
 
 async fn ensure_admin_remains(
-    transaction: &mut Transaction<'_, MySql>,
+    transaction: &mut sqlx::MySqlConnection,
     user_id: &UserId,
     keeps_admin: bool,
 ) -> Result<(), AppError> {
@@ -155,7 +155,7 @@ async fn ensure_admin_remains(
     )
     .bind(UserStatus::Active.as_str())
     .bind(RoleKey::ADMIN)
-    .fetch_all(&mut **transaction)
+    .fetch_all(&mut *transaction)
     .await?;
     let is_admin = admins.iter().any(|id| id == user_id.as_str());
     if is_admin && !keeps_admin && admins.len() <= 1 {
@@ -168,17 +168,17 @@ async fn ensure_admin_remains(
 }
 
 async fn revoke_sessions(
-    transaction: &mut Transaction<'_, MySql>,
+    transaction: &mut sqlx::MySqlConnection,
     user_id: &UserId,
     at: DateTime<Utc>,
 ) -> Result<(), AppError> {
     sqlx::query("UPDATE sessions SET revoked_at = ? WHERE user_id = ? AND revoked_at IS NULL")
         .bind(mapper::naive(at))
         .bind(user_id.as_str())
-        .execute(&mut **transaction)
+        .execute(&mut *transaction)
         .await?;
     crate::infrastructure::notifications::push::remove_user_push_subscriptions(
-        &mut **transaction,
+        &mut *transaction,
         user_id,
         None,
     )

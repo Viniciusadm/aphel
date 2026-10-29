@@ -19,6 +19,10 @@ export declare const hooks: {
   readonly VALIDATING: 'record.validating'
   readonly SAVED: 'record.saved'
   readonly DELETING: 'record.deleting'
+  readonly COMMITTED: 'record.committed'
+  readonly DELETED: 'record.deleted'
+  readonly RESTORED: 'record.restored'
+  readonly PURGED: 'record.purged'
 }
 
 export interface FieldError {
@@ -169,6 +173,46 @@ export interface Notification {
 
 export type LogLevel = 'trace' | 'debug' | 'info' | 'warn' | 'error'
 
+export interface RecordSnapshot {
+  values: JsonObject
+  custom_fields: JsonObject
+}
+
+export interface HookState {
+  operation_id: string
+  record_type: string
+  record_id: string
+  phase: string
+  before: RecordSnapshot | null
+  before_available: boolean
+  proposed: RecordSnapshot | null
+  persisted: RecordSnapshot | null
+  effects_allowed: boolean
+}
+
+export interface ExecutionContext {
+  id: string
+  correlation_id: string
+  parent_id: string | null
+  event_id: string | null
+  executor: string
+  executor_kind: string
+  automation: { automation_id: string; run_id: string; step_id: string } | null
+  initiator: { kind: string; id: string | null } | null
+  trigger: string
+  chain: string[]
+}
+
+export type EffectCommand =
+  | { kind: 'create'; record_type: string; values: JsonObject }
+  | { kind: 'update'; record_type: string; id: string; values: JsonObject }
+  | { kind: 'delete' | 'archive' | 'restore'; record_type: string; id: string }
+  | { kind: 'kv_set'; collection: string; id: string; value: Json }
+  | { kind: 'kv_delete'; collection: string; id: string }
+  | { kind: 'emit'; name: string; record_type?: string | null; record_id?: string | null; payload: JsonObject }
+  | { kind: 'notify'; name: string; recipient_user_id: string; title: string; body?: string | null; record_type?: string | null; record_id?: string | null; link?: string | null; data: JsonObject }
+  | { kind: 'invoke'; operation: string; input: JsonObject }
+
 export interface Ctx {
   readonly records: Records
   readonly http: Http
@@ -178,6 +222,10 @@ export interface Ctx {
   secret(key: string): string | null
   notify(notification: Notification): void
   emit(name: string, record: RecordRef | null | undefined, payload?: JsonObject): void
+  invoke<T extends Json = Json>(operation: string, input?: JsonObject): T
+  deferEffect(key: string, command: EffectCommand): string
+  hookState(): HookState | null
+  executionContext(): ExecutionContext | null
   now(): string
   log(level: LogLevel, message: string): void
   info(message: string): void

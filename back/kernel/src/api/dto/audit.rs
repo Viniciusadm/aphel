@@ -110,6 +110,7 @@ pub struct AuditLogResponse {
     pub changes: Vec<AuditFieldChangeResponse>,
     pub ip: Option<String>,
     pub caused_by: Option<AuditCausationResponse>,
+    pub execution: Option<crate::application::shared::ExecutionContext>,
     #[schema(format = DateTime)]
     pub occurred_at: String,
 }
@@ -137,6 +138,7 @@ impl From<AuditLogView> for AuditLogResponse {
             changes: view.changes.into_iter().map(Into::into).collect(),
             ip: view.ip,
             caused_by: view.causation.map(Into::into),
+            execution: view.execution,
             occurred_at: timestamp(view.occurred_at),
         }
     }

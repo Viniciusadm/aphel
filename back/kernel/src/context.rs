@@ -35,6 +35,7 @@ pub struct Ctx<'a> {
 
 impl<'a> Ctx<'a> {
     pub async fn from_state(state: &AppState, scope: &'a AccessScope) -> Result<Self, AppError> {
+        crate::modules::runtime_catalog::ensure_ready(&state.db()?).await?;
         Ok(Self {
             scope,
             pool: state.db()?,
@@ -160,7 +161,7 @@ impl<'a> Ctx<'a> {
     }
 
     pub async fn begin(&self) -> Result<MySqlTx, AppError> {
-        Ok(self.pool.begin().await?)
+        crate::database::receipt::begin(&self.pool).await
     }
 
     pub fn fields(&self) -> MySqlCustomFieldPorts {

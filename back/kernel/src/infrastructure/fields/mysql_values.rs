@@ -28,6 +28,79 @@ impl MySqlCustomFieldValueRepository {
     pub fn new(pool: MySqlPool) -> Self {
         Self { pool }
     }
+    pub async fn load_in_tx(
+        tx: &mut MySqlTx,
+        record_type: &RecordType,
+        fields: &[FieldDefinition],
+        record_ids: &[Uuid],
+    ) -> Result<Vec<StoredFieldValue>, AppError> {
+        if fields.is_empty() || record_ids.is_empty() {
+            return Ok(Vec::new());
+        }
+        let push_filters = |builder: &mut QueryBuilder<MySql>| {
+            builder
+                .push(" WHERE record_type = ")
+                .push_bind(record_type.as_str().to_owned())
+                .push(" AND record_id IN (");
+            let mut ids = builder.separated(", ");
+            for id in record_ids {
+                ids.push_bind(id.to_string());
+            }
+            builder.push(") AND field_id IN (");
+            let mut ids = builder.separated(", ");
+            for field in fields {
+                ids.push_bind(field.id.to_string());
+            }
+            builder.push(")");
+        };
+        let mut builder = QueryBuilder::new(
+            "SELECT record_id, field_id, value_text, value_long_text, value_number, value_date, \
+             value_datetime, value_bool, value_option_id, CAST(NULL AS CHAR(36) CHARACTER SET utf8mb4) COLLATE utf8mb4_unicode_ci AS multi_option_id \
+             FROM custom_field_values",
+        );
+        push_filters(&mut builder);
+        builder.push(
+            " UNION ALL SELECT record_id, field_id, NULL, NULL, NULL, NULL, NULL, NULL, NULL, option_id \
+             FROM custom_field_multi_values",
+        );
+        push_filters(&mut builder);
+        let rows = builder.build().fetch_all(&mut **tx).await?;
+
+        let mut values = Vec::new();
+        let mut multi: BTreeMap<(Uuid, Uuid), Vec<Uuid>> = BTreeMap::new();
+        for row in &rows {
+            let record_id = uuid_column(row, "record_id")?;
+            let field_id = uuid_column(row, "field_id")?;
+            let Some(field) = fields.iter().find(|field| field.id == field_id) else {
+                continue;
+            };
+            if let Some(option) = row.try_get::<Option<String>, _>("multi_option_id")? {
+                if field.field_type == FieldType::MultiSelect
+                    && let Ok(option) = Uuid::parse_str(&option)
+                {
+                    multi.entry((record_id, field_id)).or_default().push(option);
+                }
+                continue;
+            }
+            if let Some(value) = decode(field, row)? {
+                values.push(StoredFieldValue {
+                    record_id,
+                    field_id,
+                    value,
+                });
+            }
+        }
+        values.extend(
+            multi
+                .into_iter()
+                .map(|((record_id, field_id), options)| StoredFieldValue {
+                    record_id,
+                    field_id,
+                    value: FieldValue::Options(options),
+                }),
+        );
+        Ok(values)
+    }
 }
 
 #[derive(Default)]

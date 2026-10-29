@@ -60,6 +60,10 @@ pub fn operation_not_supported(record_type: &str, operation: &str) -> AppError {
 pub trait RecordTypeHandler: Send + Sync {
     fn record_type(&self) -> &str;
 
+    fn durable_mutations(&self) -> bool {
+        false
+    }
+
     async fn create(&self, ctx: &RecordCtx<'_>, values: Value) -> Result<Value, AppError>;
 
     async fn update(&self, ctx: &RecordCtx<'_>, id: Uuid, values: Value)

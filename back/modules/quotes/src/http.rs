@@ -1496,6 +1496,10 @@ pub(crate) struct QuoteHandler;
 
 #[async_trait]
 impl RecordTypeHandler for QuoteHandler {
+    fn durable_mutations(&self) -> bool {
+        true
+    }
+
     fn record_type(&self) -> &str {
         "quote"
     }

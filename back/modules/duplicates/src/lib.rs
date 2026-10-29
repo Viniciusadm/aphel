@@ -6,6 +6,7 @@ pub(crate) mod hooks;
 pub(crate) mod http;
 pub(crate) mod kinds;
 pub(crate) mod model;
+pub(crate) mod plugin_bridge;
 pub(crate) mod scan;
 pub(crate) mod service;
 pub(crate) mod store;
@@ -69,6 +70,9 @@ impl Module for DuplicatesModule {
                 )))
                 .schedule(duplicates_cleanup_schedule())
         });
+        for operation in plugin_bridge::operations() {
+            app.contribute::<aphel_kernel::modules::PluginOperation>(operation);
+        }
         Ok(())
     }
 }

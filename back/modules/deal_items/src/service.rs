@@ -122,6 +122,83 @@ pub async fn add(
     Ok(line(item))
 }
 
+pub(crate) async fn replace(
+    ctx: &Ctx<'_>,
+    deal_id: &str,
+    inputs: Vec<DealItemInput>,
+    ip: Option<String>,
+) -> Result<DealItemsSummary, AppError> {
+    let deal = deal_for(ctx, deal_id, &Permission::DEALS_UPDATE).await?;
+    if inputs.len() > MAX_ITEMS_PER_DEAL {
+        return Err(AppError::validation_code(
+            DEAL_ITEMS_LIMIT_REACHED,
+            format!("a deal has at most {MAX_ITEMS_PER_DEAL} items"),
+        ));
+    }
+    let mode = writable_mode(ctx).await?;
+    let mut resolved = Vec::with_capacity(inputs.len());
+    for input in inputs {
+        let data = resolve_input(ctx, None, input, &deal.deal.currency).await?;
+        let total = line_total(&data)?;
+        resolved.push((data, total));
+    }
+    let now = ctx.now();
+    let stamp = Stamp {
+        deal_id: deal.deal.id,
+        now,
+        ip,
+    };
+    let store = DealItemStore::of(ctx);
+    let mut tx = ctx.begin().await?;
+    let (locked, current) = lock(&store, &mut tx, deal.deal.id).await?;
+    for item in current {
+        store.delete(&mut tx, deal.deal.id, item.id).await?;
+        record(
+            ctx,
+            &mut tx,
+            &stamp,
+            DEAL_ITEM_REMOVED,
+            json!({ "item_id": item.id.to_string(), "name": item.data.name }),
+            item_changes(&item_snapshot(&item), &Value::Null)?,
+        )
+        .await?;
+    }
+    let mut items = Vec::with_capacity(resolved.len());
+    for (position, (data, total)) in (0_i32..).zip(resolved) {
+        let mut item = DealItem {
+            id: Uuid::now_v7(),
+            deal_id: deal.deal.id,
+            data,
+            total,
+            amount_base: None,
+            exchange_rate: None,
+            position,
+            created_by: Some(ctx.scope.user_id().clone()),
+            created_at: now,
+            updated_at: now,
+        };
+        convert_item(&mut item, deal.deal.revenue.exchange_rate);
+        store.insert(&mut tx, &item).await?;
+        let snapshot = item_snapshot(&item);
+        record(
+            ctx,
+            &mut tx,
+            &stamp,
+            DEAL_ITEM_ADDED,
+            json!({ "item_id": item.id.to_string(), "item": snapshot }),
+            item_changes(&Value::Null, &snapshot)?,
+        )
+        .await?;
+        items.push(item);
+    }
+    if mode == DealAmountMode::Items {
+        sync_amount(ctx, &store, &mut tx, &stamp, &locked, &items).await?;
+    }
+    sync_revenue(ctx, &store, &mut tx, &stamp, &items).await?;
+    tx.commit().await?;
+    summary(ctx, deal_id).await
+}
+
 pub(crate) async fn update(
     ctx: &Ctx<'_>,
     deal_id: &str,

@@ -1,6 +1,7 @@
 pub mod domain;
 pub(crate) mod hooks;
 pub mod http;
+pub(crate) mod plugin_bridge;
 pub(crate) mod recurring;
 pub(crate) mod section;
 pub mod service;
@@ -81,6 +82,9 @@ impl Module for DealItemsModule {
             55,
             |pool, _registry| Arc::new(section::DealItemsSection::new(pool.clone())),
         )));
+        for operation in plugin_bridge::operations() {
+            app.contribute::<aphel_kernel::modules::PluginOperation>(operation);
+        }
         Ok(())
     }
 }

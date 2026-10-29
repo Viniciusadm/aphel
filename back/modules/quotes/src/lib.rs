@@ -4,6 +4,7 @@ pub(crate) mod gateway;
 pub(crate) mod hooks;
 pub mod http;
 pub(crate) mod pdf;
+pub(crate) mod plugin_bridge;
 pub(crate) mod pricing;
 pub(crate) mod public;
 pub(crate) mod runtime;
@@ -248,6 +249,10 @@ impl Module for QuotesModule {
             &[aphel_kernel::modules::HookUsage::Veto],
             "Before a quote is accepted (on its public page or manually by a user); an error blocks the acceptance",
         );
+        app.on::<crate::hooks::QuoteAccepting, _>(
+            aphel_kernel::modules::PLUGIN_HOOK_PRIORITY,
+            |ctx, accepting| Box::pin(plugin_bridge::accepting(ctx, accepting)),
+        );
         app.declare_hook::<crate::hooks::QuoteTotals>(
             &[aphel_kernel::modules::HookUsage::Filter],
             "Totals of a quote (items, discounts and taxes) before they are saved",
@@ -268,6 +273,12 @@ impl Module for QuotesModule {
         }
         for definition in PUBLIC_EVENTS {
             app.public_event(*definition);
+        }
+        for hook in plugin_bridge::hooks() {
+            app.contribute::<aphel_kernel::modules::PluginHook>(hook);
+        }
+        for operation in plugin_bridge::operations() {
+            app.contribute::<aphel_kernel::modules::PluginOperation>(operation);
         }
         Ok(())
     }

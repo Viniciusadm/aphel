@@ -45,7 +45,7 @@ async fn notify(
 ) -> Result<(), AppError> {
     let snapshot = registry::current(ctx.pool).await?;
     for plugin in snapshot.hook_subscribers(&call.hook, record_type) {
-        on_hook(&plugin, ctx.scope, &call).await?;
+        on_hook(&plugin, ctx, &call).await?;
     }
     Ok(())
 }
@@ -74,7 +74,7 @@ pub(crate) async fn saving(
             values_json: Value::Object(saving.draft.values.clone()).to_string(),
             custom_fields_json: Value::Object(saving.draft.custom_fields.clone()).to_string(),
         };
-        let outcome = on_hook(&plugin, ctx.scope, &call).await?;
+        let outcome = on_hook(&plugin, ctx, &call).await?;
         merge(&mut saving.draft.values, &outcome.values_json);
         merge(&mut saving.draft.custom_fields, &outcome.custom_fields_json);
     }
@@ -99,15 +99,24 @@ pub(crate) async fn saved(ctx: &mut HookCtx<'_>, changed: &ChangedRecord) -> Res
         changed.record_type.as_str(),
         changed_call(HOOK_SAVED, scope_actor(ctx.scope), changed),
     )
-    .await
+    .await?;
+    crate::committed::enqueue(ctx, changed).await
 }
 
 pub(crate) async fn deleting(
     ctx: &mut HookCtx<'_>,
+    record: &RemovedRecord,
+) -> Result<(), AppError> {
+    removed(ctx, HOOK_DELETING, record).await
+}
+
+pub(crate) async fn removed(
+    ctx: &mut HookCtx<'_>,
+    hook: &str,
     removed: &RemovedRecord,
 ) -> Result<(), AppError> {
     let call = wit::HookCall {
-        hook: HOOK_DELETING.to_owned(),
+        hook: hook.to_owned(),
         record_type: removed.record_type.as_str().to_owned(),
         record_id: removed.record.record_id.to_string(),
         mode: None,

@@ -77,7 +77,7 @@ fn mask_location(metadata: &mut serde_json::Map<String, Value>, hidden: &BTreeSe
     }
 }
 
-async fn mask_timeline(
+pub(crate) async fn mask_timeline(
     state: &AppState,
     scope: &AccessScope,
     entries: &mut [TimelineEntry],

@@ -3,6 +3,7 @@ mod context;
 mod features;
 mod http;
 mod model;
+mod plugin_bridge;
 mod provider;
 mod query;
 mod records;
@@ -137,6 +138,10 @@ impl Module for AiModule {
                 Feature::Query,
                 "Consulta em linguagem natural",
             ))
+            .setting(feature_setting(
+                Feature::Plugin,
+                "Uso por plugins",
+            ))
             .migration(Migration::new(
                 1,
                 "create ai call log and daily usage",
@@ -152,6 +157,9 @@ impl Module for AiModule {
         .routes(|_| http::router());
         app.permission(PermissionDefinition::administrative(USE));
         app.permission(PermissionDefinition::administrative(VIEW_USAGE));
+        for operation in plugin_bridge::operations() {
+            app.contribute::<aphel_kernel::modules::PluginOperation>(operation);
+        }
         Ok(())
     }
 

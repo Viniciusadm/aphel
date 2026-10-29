@@ -1,6 +1,7 @@
 pub mod domain;
 pub mod hooks;
 pub(crate) mod http;
+pub(crate) mod plugin_bridge;
 pub(crate) mod section;
 pub mod service;
 pub mod store;
@@ -95,6 +96,22 @@ impl Module for LeadsModule {
             &[aphel_kernel::modules::HookUsage::Action],
             "After a lead was converted, inside the conversion transaction",
         );
+        app.on::<crate::hooks::LeadQualifying, _>(
+            aphel_kernel::modules::PLUGIN_HOOK_PRIORITY,
+            |ctx, lead| Box::pin(plugin_bridge::qualifying(ctx, lead)),
+        )
+        .on::<crate::hooks::LeadDisqualifying, _>(
+            aphel_kernel::modules::PLUGIN_HOOK_PRIORITY,
+            |ctx, args| Box::pin(plugin_bridge::disqualifying(ctx, args)),
+        )
+        .filter::<crate::hooks::LeadConverting, _>(
+            aphel_kernel::modules::PLUGIN_HOOK_PRIORITY,
+            |ctx, conversion| Box::pin(plugin_bridge::converting(ctx, conversion)),
+        )
+        .on::<crate::hooks::LeadConverted, _>(
+            aphel_kernel::modules::PLUGIN_HOOK_PRIORITY,
+            |ctx, converted| Box::pin(plugin_bridge::converted(ctx, converted)),
+        );
         app.contribute(std::sync::Arc::new(
             aphel_kernel::infrastructure::config_packages::ConfigSectionFactory::new(
                 180,
@@ -138,6 +155,12 @@ impl Module for LeadsModule {
         .grant_to(["admin"]);
         for definition in PUBLIC_EVENTS {
             app.public_event(*definition);
+        }
+        for hook in plugin_bridge::hooks() {
+            app.contribute::<aphel_kernel::modules::PluginHook>(hook);
+        }
+        for operation in plugin_bridge::operations() {
+            app.contribute::<aphel_kernel::modules::PluginOperation>(operation);
         }
         Ok(())
     }

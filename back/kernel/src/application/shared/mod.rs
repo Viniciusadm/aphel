@@ -1,6 +1,8 @@
 pub mod audit;
 pub mod concurrency;
 pub mod events;
+pub mod execution;
+pub use execution::{AutomationExecution, ExecutionActor, ExecutionContext};
 pub mod jobs;
 pub mod record_ref;
 pub mod storage;

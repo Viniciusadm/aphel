@@ -119,6 +119,7 @@
   },
   "applyUpdate": "Apply update",
   "plugins": {
+    "catalogLoading": "Loading the plugin catalog…",
     "title": "Plugins",
     "description": "Third-party extensions installed from an .aphelplugin package, without rebuilding or restarting Aphel. They run isolated and only reach what the plugin API allows.",
     "upload": "Install plugin",
@@ -146,6 +147,7 @@
       "permissions": "Permissions it creates",
       "allowedHosts": "Internet access",
       "schedules": "Scheduled routines",
+      "operations": "System operations",
       "secrets": "Secrets",
       "actions": "Automation actions",
       "emits": "Automation triggers",

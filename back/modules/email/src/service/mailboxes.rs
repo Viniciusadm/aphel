@@ -403,7 +403,7 @@ impl CredentialSink for VaultCredentialSink {
         mailbox_id: Uuid,
         credentials: &MailboxCredentials,
     ) -> Result<(), AppError> {
-        let mut tx = self.pool.begin().await?;
+        let mut tx = aphel_kernel::database::transaction::MySqlTx::from(self.pool.begin().await?);
         self.secrets
             .store(
                 &mut tx,

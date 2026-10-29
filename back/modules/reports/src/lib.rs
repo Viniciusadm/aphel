@@ -1,6 +1,7 @@
 pub(crate) mod domain;
 pub(crate) mod email;
 pub(crate) mod http;
+pub(crate) mod plugin_bridge;
 pub(crate) mod runtime;
 pub(crate) mod service;
 pub(crate) mod store;
@@ -70,6 +71,9 @@ impl Module for ReportsModule {
         .routes(|_| http::builtin::router().merge(http::custom::router()))
         .widget(Arc::new(SavedReportWidget))
         .worker(worker);
+        for operation in plugin_bridge::operations() {
+            app.contribute::<aphel_kernel::modules::PluginOperation>(operation);
+        }
         Ok(())
     }
 }

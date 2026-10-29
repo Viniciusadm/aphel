@@ -12,7 +12,7 @@ use crate::domain::{
     SCORING_MODEL_RECORD, SCORING_MODEL_UPDATED, SCORING_RECALCULATE_JOB, SCORING_RECORD_NOT_FOUND,
     ScoreBands, ScoringCriterion, ScoringModel, UpdateScoringModelCommand,
 };
-use crate::engine::is_scored_record_type;
+use crate::engine::{ScoringEngine, is_scored_record_type};
 use crate::store::{ModelStore, ScoreStore};
 use aphel_kernel::Ctx;
 use aphel_kernel::application::access::Authorizer;
@@ -557,6 +557,56 @@ pub(crate) async fn record_scores(
             .then_with(|| left.model.name.cmp(&right.model.name))
     });
     Ok(views)
+}
+
+pub(crate) const PLUGIN_SIGNAL_SOURCE_PREFIX: &str = "plugin:";
+const MAX_SIGNAL_SOURCE_LENGTH: usize = 90;
+
+pub(crate) async fn record_signal(
+    ctx: &Ctx<'_>,
+    record_type: &str,
+    record_id: &str,
+    signal: BehaviorSignal,
+    source_key: &str,
+) -> Result<bool, AppError> {
+    let scope = ctx.scope;
+    let definition = ctx.registry().require(record_type.trim())?;
+    if !is_scored_record_type(definition.record_type.as_str()) {
+        return Err(record_not_found());
+    }
+    let permission = definition.update_permission.clone().ok_or_else(|| {
+        AppError::forbidden_code(
+            "permission_denied",
+            "records of this type cannot be updated",
+        )
+    })?;
+    scope.require(&permission)?;
+    let record_id = Uuid::parse_str(record_id.trim()).map_err(|_| record_not_found())?;
+    if !ScoringDirectory::of(ctx)
+        .record_accessible(scope, definition, &permission, record_id)
+        .await?
+    {
+        return Err(record_not_found());
+    }
+    let source_key = source_key.trim();
+    if source_key.is_empty() || source_key.chars().count() > MAX_SIGNAL_SOURCE_LENGTH {
+        return Err(AppError::invalid_fields(
+            "invalid scoring signal",
+            vec![FieldViolation::new(
+                "source",
+                format!("must have between 1 and {MAX_SIGNAL_SOURCE_LENGTH} characters"),
+            )],
+        ));
+    }
+    let record = RecordRef::new(definition.record_type.clone(), record_id);
+    ScoringEngine::new(ctx)
+        .apply_signal(
+            &record,
+            signal,
+            &format!("{PLUGIN_SIGNAL_SOURCE_PREFIX}{source_key}"),
+            ctx.now(),
+        )
+        .await
 }
 
 async fn validated(

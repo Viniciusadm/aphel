@@ -8,6 +8,7 @@ const DECLARATIONS = [
   ['publicRoutes', (plugin: PluginDeclarations) => plugin.public_routes],
   ['schedules', (plugin: PluginDeclarations) => plugin.schedules],
   ['secrets', (plugin: PluginDeclarations) => plugin.secrets],
+  ['operations', (plugin: PluginDeclarations) => plugin.operations],
   ['actions', (plugin: PluginDeclarations) => plugin.actions],
   ['emits', (plugin: PluginDeclarations) => plugin.emits],
   ['notifications', (plugin: PluginDeclarations) => plugin.notifications],

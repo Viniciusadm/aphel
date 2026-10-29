@@ -281,15 +281,17 @@ pub enum AssignmentSource {
     Import,
     Scheduling,
     LeadForm,
+    Plugin,
 }
 
 impl AssignmentSource {
-    pub(crate) const ALL: [Self; 5] = [
+    pub(crate) const ALL: [Self; 6] = [
         Self::Automation,
         Self::IncomingWebhook,
         Self::Import,
         Self::Scheduling,
         Self::LeadForm,
+        Self::Plugin,
     ];
 
     pub(crate) fn parse(value: &str) -> Option<Self> {
@@ -305,6 +307,7 @@ impl AssignmentSource {
             Self::Import => "import",
             Self::Scheduling => "scheduling",
             Self::LeadForm => "lead_form",
+            Self::Plugin => "plugin",
         }
     }
 }

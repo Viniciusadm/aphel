@@ -17,7 +17,13 @@ impl MySqlEventPublisher {
 
 #[async_trait]
 impl EventPublisher<MySqlTx> for MySqlEventPublisher {
-    async fn publish(&self, tx: &mut MySqlTx, event: DomainEvent) -> Result<(), AppError> {
+    async fn publish(&self, tx: &mut MySqlTx, mut event: DomainEvent) -> Result<(), AppError> {
+        if let Some(execution) = crate::application::shared::ExecutionContext::current() {
+            if execution.executor_kind == "plugin" {
+                event.actor = crate::application::shared::Actor::Plugin(execution.executor.clone());
+            }
+            event.execution = Some(execution);
+        }
         let (record_type, record_id) = match &event.record {
             Some(record) => (
                 Some(record.record_type.as_str().to_owned()),
@@ -26,8 +32,8 @@ impl EventPublisher<MySqlTx> for MySqlEventPublisher {
             None => (None, None),
         };
         sqlx::query(
-            "INSERT INTO domain_events (id, event_type, record_type, record_id, actor_type, actor_id, payload, causation, origin_type, origin_id, occurred_at) \
-             VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)",
+            "INSERT INTO domain_events (id, event_type, record_type, record_id, actor_type, actor_id, payload, execution, causation, origin_type, origin_id, occurred_at) \
+             VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)",
         )
         .bind(event.id.to_string())
         .bind(&event.event_type)
@@ -36,6 +42,7 @@ impl EventPublisher<MySqlTx> for MySqlEventPublisher {
         .bind(event.actor.kind())
         .bind(event.actor.id())
         .bind(Json(&event.payload))
+        .bind(event.execution.as_ref().map(Json))
         .bind(event.causation.as_ref().map(Json))
         .bind(event.origin.as_ref().map(|origin| origin.kind.as_str()))
         .bind(event.origin.as_ref().and_then(|origin| origin.id.as_deref()))

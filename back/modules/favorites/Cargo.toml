@@ -11,6 +11,7 @@ aphel-kernel.workspace = true
 axum.workspace = true
 chrono.workspace = true
 serde.workspace = true
+serde_json.workspace = true
 sqlx.workspace = true
 utoipa.workspace = true
 utoipa-axum.workspace = true
