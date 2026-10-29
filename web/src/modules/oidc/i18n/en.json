@@ -1,0 +1,103 @@
+{
+  "name": "Single sign-on (OIDC)",
+  "description": "Single sign-on with any corporate OpenID Connect provider (Okta, Keycloak, Auth0, Entra ID…)",
+  "nav": "Single sign-on",
+  "page": {
+    "title": "Single sign-on (OIDC)",
+    "description": "Sign in with your company identity provider. Configure it in Settings › Modules."
+  },
+  "panel": {
+    "steps": [
+      "At the identity provider, create a \"web\" OpenID Connect application using the authorization code flow.",
+      "Register the callback URL above as a redirect URI.",
+      "Grant the openid, email and profile scopes and make sure the provider sends the email_verified = true claim.",
+      "Copy the Client ID and Client secret here and fill in the issuer or discovery URL.",
+      "Fill in the e-mail domains and, if you want, check \"Require single sign-on\"."
+    ]
+  },
+  "settings": {
+    "discovery_url": {
+      "label": "Issuer or discovery URL",
+      "help": "E.g. https://company.okta.com or https://sso.company.com/realms/main/.well-known/openid-configuration"
+    },
+    "button_label": {
+      "label": "Button label",
+      "help": "Text shown on the login screen button"
+    },
+    "client_id": {
+      "label": "Client ID",
+      "help": "Identifier of the application registered at the provider"
+    },
+    "client_secret": {
+      "label": "Client secret",
+      "help": "Application secret; stored encrypted and never shown again"
+    },
+    "domains": {
+      "label": "E-mail domains",
+      "help": "Domains that sign in through single sign-on, separated by commas (e.g. company.com). Empty = the button does not show on the login screen"
+    },
+    "require_sso": {
+      "label": "Require single sign-on",
+      "help": "Refuses password login for e-mails of these domains"
+    }
+  },
+  "shared": {
+    "callbackUrl": "Callback URL (redirect URI)",
+    "callbackHelp": "Register exactly this address at the provider. The same URL is used for sign-in and for the calendar connection.",
+    "copy": "Copy",
+    "copied": "Copied",
+    "statusUnavailable": "The status could not be loaded right now.",
+    "login": {
+      "title": "Single sign-on",
+      "description": "Users whose e-mail belongs to the domains below see the \"{{label}}\" button on the login screen. The account must already exist in Aphel and be a member of this organization.",
+      "configured": "Configured",
+      "notConfigured": "Client ID or secret missing",
+      "required": "Password login blocked for these domains",
+      "domains": "Domains",
+      "noDomains": "No domain configured: the button does not show on the login screen."
+    },
+    "calendar": {
+      "title": "{{provider}} calendar",
+      "description": "Your CRM meetings go to your {{provider}} calendar and calendar events with CRM contacts become meetings here. When both sides change, the latest change wins.",
+      "notConfigured": "An administrator must configure the module Client ID and Client secret before calendars can be connected.",
+      "disconnected": "Your {{provider}} calendar is not connected.",
+      "noPermission": "You are not allowed to connect the calendar.",
+      "connect": "Connect calendar",
+      "reconnect": "Reconnect calendar",
+      "disconnect": "Disconnect",
+      "syncNow": "Sync now",
+      "syncQueued": "Synchronization started; events show up in a few moments.",
+      "connectedToast": "Calendar connected. The first synchronization has started.",
+      "disconnectedToast": "Calendar disconnected",
+      "lastSync": "Last sync:",
+      "never": "not synced yet",
+      "counters": "Activity:",
+      "countersValue": "{{imported}} received · {{exported}} sent",
+      "confirmTitle": "Disconnect the {{provider}} calendar?",
+      "confirmDescription": "The stored access is deleted and synchronization stops. Meetings already in the CRM and in the calendar stay where they are.",
+      "states": {
+        "active": "Connected",
+        "error": "With errors",
+        "revoked": "Access revoked"
+      }
+    },
+    "calendarErrors": {
+      "generic": "The calendar could not be synchronized.",
+      "access_denied": "The authorization was canceled at the provider.",
+      "permission_denied": "You are not allowed to connect the calendar.",
+      "calendar_no_refresh_token": "The provider did not grant offline access. Connect again and accept every permission.",
+      "calendar_authorization_revoked": "The calendar access was revoked or expired. Reconnect the calendar.",
+      "calendar_not_connected": "The calendar is not connected.",
+      "calendar_member_unavailable": "The user is no longer an active member of the organization.",
+      "calendar_permission_revoked": "The permission to sync the calendar was removed from this user.",
+      "calendar_meeting_type_not_found": "The activity type configured for meetings does not exist or is inactive.",
+      "calendar_api_failed": "The provider refused the calendar operation.",
+      "sso_not_configured": "The module is not configured yet.",
+      "sso_disabled": "The module is disabled in this organization.",
+      "invalid_state": "The connection request expired. Try again.",
+      "token_exchange_failed": "The provider refused the authorization. Check the Client ID, the secret and the callback URL.",
+      "invalid_token": "The provider returned an invalid identity.",
+      "provider_unavailable": "The provider did not answer. Try again in a moment."
+    }
+  }
+}

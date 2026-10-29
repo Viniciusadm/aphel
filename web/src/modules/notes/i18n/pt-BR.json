@@ -1,0 +1,66 @@
+{
+  "tab": {
+    "title": "Notas",
+    "count_one": "{{count}} nota",
+    "count_other": "{{count}} notas",
+    "add": "Adicionar nota",
+    "listLabel": "Notas do registro",
+    "emptyTitle": "Nenhuma nota",
+    "emptyDescription": "Registre combinados, contexto e próximos passos. Notas privadas só você vê.",
+    "created": "Nota adicionada",
+    "updated": "Nota atualizada",
+    "deleted": "Nota excluída"
+  },
+  "editor": {
+    "label": "Nota",
+    "placeholder": "Escreva em Markdown: **negrito**, *itálico*, listas e links.",
+    "hint": "Aceita Markdown. Ctrl+Enter salva.",
+    "tooLong": "A nota pode ter no máximo 50.000 caracteres.",
+    "preview": "Visualizar",
+    "write": "Escrever",
+    "previewLabel": "Pré-visualização da nota",
+    "previewEmpty": "Nada para visualizar.",
+    "visibility": "Visibilidade",
+    "cancel": "Cancelar"
+  },
+  "visibility": {
+    "team": "Equipe",
+    "private": "Privada"
+  },
+  "card": {
+    "unknownAuthor": "Usuário removido",
+    "edited": "(editada)",
+    "pinned": "Fixada",
+    "privateHint": "Só você vê esta nota, nem administradores têm acesso.",
+    "pin": "Fixar nota",
+    "unpin": "Desafixar nota",
+    "edit": "Editar nota",
+    "delete": "Excluir nota",
+    "save": "Salvar",
+    "deleteTitle": "Excluir nota",
+    "deleteDescription": "A nota será excluída. Esta ação não pode ser desfeita."
+  },
+  "errors": {
+    "generic": "Não foi possível concluir a operação. Tente novamente.",
+    "forbidden": "Você não tem permissão para alterar esta nota.",
+    "notFound": "A nota não foi encontrada.",
+    "invalid": "Revise o conteúdo da nota."
+  },
+  "quickAdd": {
+    "options": {
+      "note": "Nota"
+    },
+    "titles": {
+      "note": "Nova nota"
+    },
+    "note": {
+      "body": "Nota",
+      "placeholder": "Escreva ou dite a nota",
+      "bodyRequired": "Escreva a nota.",
+      "recordRequired": "Escolha o registro da nota.",
+      "submit": "Salvar nota",
+      "created": "Nota salva em {{title}}.",
+      "outboxLabel": "Nota em {{title}}"
+    }
+  }
+}

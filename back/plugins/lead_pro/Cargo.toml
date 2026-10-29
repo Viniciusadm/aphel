@@ -1,0 +1,27 @@
+[package]
+name = "aphel-lead-pro"
+version = "1.0.0"
+edition.workspace = true
+rust-version.workspace = true
+license.workspace = true
+publish = false
+
+[package.metadata.aphel]
+module = "LeadPro"
+web = "../../../web/src/modules/lead_pro"
+
+[dependencies]
+aphel-kernel.workspace = true
+contacts = { package = "aphel-mod-contacts", path = "../../modules/contacts" }
+leads = { package = "aphel-mod-leads", path = "../../modules/leads" }
+deals = { package = "aphel-mod-deals", path = "../../modules/deals" }
+async-trait.workspace = true
+axum.workspace = true
+chrono.workspace = true
+serde.workspace = true
+serde_json.workspace = true
+sqlx.workspace = true
+tracing.workspace = true
+utoipa.workspace = true
+utoipa-axum.workspace = true
+uuid.workspace = true

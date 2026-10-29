@@ -1,0 +1,257 @@
+{
+  "name": "AI assistant",
+  "description": "Summaries, next-action suggestions, writing assistant and natural-language search with a configurable AI provider",
+  "nav": "AI assistant",
+  "settings": {
+    "provider": {
+      "label": "Provider",
+      "help": "Service that receives the data sent by the AI features",
+      "options": {
+        "anthropic": "Anthropic (Claude)",
+        "openai_compatible": "OpenAI-compatible (OpenAI, Ollama, LM Studio)"
+      }
+    },
+    "base_url": {
+      "label": "Provider URL",
+      "help": "Empty uses https://api.anthropic.com or https://api.openai.com/v1. For a local Ollama: http://localhost:11434/v1"
+    },
+    "model": {
+      "label": "Model",
+      "help": "E.g. claude-sonnet-5-5, claude-opus-5-5, claude-haiku-5-5, gpt-4o-mini, llama3.1"
+    },
+    "api_key": {
+      "label": "API key",
+      "help": "Optional for local OpenAI-compatible servers"
+    },
+    "daily_limit": {
+      "label": "Daily call limit",
+      "help": "Provider calls per organization per day"
+    },
+    "user_hourly_limit": {
+      "label": "Per-user hourly limit",
+      "help": "Provider calls per user per hour"
+    },
+    "send_personal_data": {
+      "label": "Send personal data",
+      "help": "When off, fields marked as personal data (name, e-mail, phone…) and people's names are not sent. Sensitive fields are never sent"
+    },
+    "feature_summary": {
+      "label": "Record summary",
+      "help": "Summarizes the history and data of contacts, companies and deals"
+    },
+    "feature_next_actions": {
+      "label": "Next-action suggestions",
+      "help": "Suggests the next activities from the record history"
+    },
+    "feature_compose": {
+      "label": "Writing assistant",
+      "help": "Helps write and revise e-mails and notes"
+    },
+    "feature_query": {
+      "label": "Natural-language search",
+      "help": "Turns questions into list filters"
+    }
+  },
+  "providers": {
+    "anthropic": "Anthropic (Claude)",
+    "openai_compatible": "OpenAI-compatible"
+  },
+  "features": {
+    "summary": "Record summary",
+    "next_actions": "Next actions",
+    "compose": "Writing assistant",
+    "query": "Natural-language search"
+  },
+  "disclosure": {
+    "title": "What is sent and where",
+    "intro": "The AI is only called when someone clicks an AI button. Data goes to the service below, always with the permissions of who asked: records, fields and notes that person cannot see are never sent.",
+    "provider": "Service",
+    "url": "Address",
+    "model": "Model",
+    "personalData": "Personal data",
+    "personalOn": "Sent (name, e-mail, phone and other fields marked as personal)",
+    "personalOff": "Not sent (personal fields and people's names are left out)",
+    "off": "Off",
+    "sends": {
+      "summary": "Sends the contact, company or deal fields, the 10 latest notes and 10 latest activities and, when relevant, up to 10 linked deals and contacts. Receives a summary text.",
+      "next_actions": "Sends the same data as the summary plus today's date. Receives task suggestions; nothing is created without your click.",
+      "compose": "Sends the instruction, the draft text and, if you tick it, the current record fields. Receives the suggested text; nothing is saved without your click.",
+      "query": "Sends the question and the list of filterable fields (key, name, type and options). No record data is sent. Receives a filter, which is validated and shown before applying."
+    },
+    "neverSensitive": "Fields marked as sensitive are never sent.",
+    "neverHidden": "Fields hidden from your role and records outside your visibility are never sent.",
+    "neverStored": "Aphel does not store the text sent or the answer: the call log only has metadata (who, feature, model, tokens, duration, error).",
+    "untrusted": "AI can be wrong. Review the text, suggestions and filter before using them."
+  },
+  "sources": {
+    "title": "Sources used: {{summary}}",
+    "count": "{{count}} {{type}}",
+    "types": {
+      "contact": "contact(s)",
+      "company": "company(ies)",
+      "deal": "deal(s)",
+      "note": "note(s)",
+      "activity": "activity(ies)"
+    }
+  },
+  "footer": {
+    "generatedBy": "AI generated ({{provider}} · {{model}}).",
+    "whatIsSent": "What is sent?"
+  },
+  "errors": {
+    "generic": "Could not reach the AI right now. Try again.",
+    "permission_denied": "You don't have permission for this.",
+    "ai_not_configured": "The AI is not configured yet. Ask an administrator to set up the provider in Settings › Modules.",
+    "ai_feature_disabled": "This AI feature is turned off for this organization.",
+    "ai_limit_reached": "The organization reached its daily AI call limit.",
+    "ai_user_limit_reached": "You reached your hourly AI call limit. Try again later.",
+    "ai_provider_error": "The AI provider failed. Try again in a moment.",
+    "ai_provider_auth_failed": "The AI provider rejected the configured key. Ask an administrator to review the configuration.",
+    "ai_provider_rate_limited": "The AI provider is rate limiting calls. Try again later.",
+    "ai_provider_timeout": "The AI provider took too long to answer.",
+    "ai_refused": "The AI model declined this request.",
+    "ai_empty_response": "The AI returned no text.",
+    "ai_invalid_response": "The AI answer came in an unexpected format. Try again.",
+    "ai_record_not_found": "Record not found.",
+    "ai_query_invalid": "The AI could not build a valid filter for this question.",
+    "ai_query_no_fields": "There are no filterable fields available to you on this record type.",
+    "ai_query_unanswerable": "This question cannot be turned into a filter."
+  },
+  "tab": {
+    "label": "AI",
+    "notConfiguredTitle": "AI not configured",
+    "notConfiguredDescription": "An administrator needs to choose the provider and model in Settings › Modules › AI assistant.",
+    "allOffTitle": "Features turned off",
+    "allOffDescription": "Summary and next-action suggestions are turned off for this organization."
+  },
+  "summary": {
+    "title": "Summary",
+    "description": {
+      "contact": "A summary of the contact, recent conversations and open business.",
+      "company": "A summary of the company, its people, recent conversations and business.",
+      "deal": "A summary of the deal, its progress and what needs attention."
+    },
+    "generate": "Generate summary",
+    "regenerate": "Generate again"
+  },
+  "actions": {
+    "title": "Suggested next actions",
+    "description": "Task suggestions based on the history. Each one only becomes a task when you click.",
+    "generate": "Suggest actions",
+    "regenerate": "Suggest again",
+    "empty": "The AI did not suggest any action.",
+    "created": "Task \"{{title}}\" created",
+    "dueToday": "Due today",
+    "dueIn_one": "In {{count}} day",
+    "dueIn_other": "In {{count}} days",
+    "createTask": "Create task",
+    "createdLabel": "Created"
+  },
+  "compose": {
+    "button": "AI assistant",
+    "title": "Writing assistant",
+    "description": {
+      "note": "Ask to write, improve or summarize the note. You review it before using.",
+      "email": "Ask to write, improve or reply to the e-mail. You review it before using.",
+      "message": "Ask to write, improve or reply to the message. You review it before using."
+    },
+    "shortcuts": "Shortcuts",
+    "shortcut": {
+      "improve": "Improve",
+      "formal": "More formal",
+      "friendly": "Friendlier",
+      "shorter": "Shorter",
+      "grammar": "Fix",
+      "summarize": "Summarize",
+      "reply": "Write reply"
+    },
+    "instructions": {
+      "improve": "Improve the clarity and flow of the text, keeping its meaning and language.",
+      "formal": "Rewrite the text in a more formal and professional tone.",
+      "friendly": "Rewrite the text in a warmer, friendlier tone.",
+      "shorter": "Make the text shorter and more direct without losing important information.",
+      "grammar": "Fix spelling, grammar and punctuation without changing the style.",
+      "summarize": "Summarize the text in a few bullet points.",
+      "reply": "Write a polite and objective reply to the customer based on the context."
+    },
+    "instruction": "What should the AI do?",
+    "placeholderDraft": "E.g. make it shorter and propose a meeting time",
+    "placeholderEmpty": "E.g. write a follow-up e-mail after yesterday's meeting",
+    "useRecord": "Use the record data as context",
+    "sendsDraft": "The instruction and the current editor text will be sent.",
+    "sendsInstruction": "The instruction will be sent.",
+    "preview": "Suggestion",
+    "cancel": "Cancel",
+    "insert": "Append",
+    "replace": "Replace text",
+    "use": "Use text",
+    "generate": "Generate",
+    "regenerate": "Generate again"
+  },
+  "query": {
+    "button": "Ask AI",
+    "title": "Ask AI",
+    "description": "Describe what you are looking for. The AI builds a filter with the list fields; you check it before applying.",
+    "question": "Question",
+    "placeholder": {
+      "default": "E.g. created in the last 30 days with no owner",
+      "contact": "E.g. contacts from São Paulo created this month without e-mail",
+      "company": "E.g. companies created this year that are mine",
+      "deal": "E.g. open deals above 10k expected to close this month"
+    },
+    "sends": "Only the question and the field list go to the AI; no record is sent.",
+    "generate": "Build filter",
+    "generatedFilter": "Generated filter",
+    "total_one": "{{count}} record found",
+    "total_other": "{{count}} records found",
+    "json": "View the filter as JSON",
+    "cancel": "Cancel",
+    "combine": "Combine with current filter",
+    "replace": "Replace filter",
+    "apply": "Apply filter",
+    "applied": "Filter applied"
+  },
+  "page": {
+    "title": "AI assistant",
+    "description": "Configured provider, today's usage and exactly what each feature sends.",
+    "noAccessTitle": "No access",
+    "noAccessDescription": "You need the permission to use the AI or to view AI usage.",
+    "status": "Status",
+    "configured": "Configured",
+    "notConfigured": "Not configured",
+    "notConfiguredHelp": "Choose the provider, model and API key in Settings › Modules › AI assistant.",
+    "usedToday": "Calls today",
+    "usage": "{{used}} of {{limit}}",
+    "userLimit_one": "Per-person limit: {{count}} call per hour.",
+    "userLimit_other": "Per-person limit: {{count}} calls per hour."
+  },
+  "log": {
+    "title": "Call log",
+    "description": "Metadata only: the text sent and the answer are not stored.",
+    "feature": "Feature",
+    "allFeatures": "All features",
+    "status": "Status",
+    "allStatuses": "All",
+    "statuses": {
+      "success": "Success",
+      "error": "Error"
+    },
+    "totals": {
+      "calls": "Calls (30 days)",
+      "errors": "Errors (30 days)",
+      "inputTokens": "Input tokens",
+      "outputTokens": "Output tokens"
+    },
+    "emptyTitle": "No calls",
+    "emptyDescription": "AI calls show up here.",
+    "unknownUser": "Removed user",
+    "tokens": "{{input}} → {{output}} tokens",
+    "duration": "{{seconds}} s",
+    "previous": "Previous page",
+    "next": "Next page",
+    "page": "{{page}} of {{pages}}"
+  },
+  "settingsPanel": {
+    "intro": "Before enabling, check what each feature sends to the chosen provider."
+  }
+}

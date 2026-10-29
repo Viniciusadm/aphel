@@ -1,0 +1,35 @@
+[package]
+name = "aphel-mod-demo"
+version.workspace = true
+edition.workspace = true
+rust-version.workspace = true
+license.workspace = true
+publish = false
+
+[dependencies]
+aphel-kernel.workspace = true
+activities = { package = "aphel-mod-activities", path = "../activities" }
+approvals = { package = "aphel-mod-approvals", path = "../approvals" }
+currencies = { package = "aphel-mod-currencies", path = "../currencies" }
+deal_items = { package = "aphel-mod-deal-items", path = "../deal_items" }
+pipelines = { package = "aphel-mod-pipelines", path = "../pipelines" }
+price_lists = { package = "aphel-mod-price-lists", path = "../price_lists" }
+products = { package = "aphel-mod-products", path = "../products" }
+quotes = { package = "aphel-mod-quotes", path = "../quotes" }
+companies = { package = "aphel-mod-companies", path = "../companies" }
+contacts = { package = "aphel-mod-contacts", path = "../contacts" }
+deals = { package = "aphel-mod-deals", path = "../deals" }
+notes = { package = "aphel-mod-notes", path = "../notes" }
+onboarding = { package = "aphel-mod-onboarding", path = "../onboarding" }
+privacy = { package = "aphel-mod-privacy", path = "../privacy" }
+axum.workspace = true
+async-trait.workspace = true
+chrono.workspace = true
+clap.workspace = true
+serde.workspace = true
+serde_json.workspace = true
+sqlx.workspace = true
+tracing.workspace = true
+utoipa.workspace = true
+utoipa-axum.workspace = true
+uuid.workspace = true

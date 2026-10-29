@@ -1,0 +1,125 @@
+{
+  "title": "Lead scoring",
+  "description": "Models that add points for the profile and the behavior of records and rank them as cold, warm or hot.",
+  "help": "The primary model of each type shows in the Score field of lists and details. Scores are recalculated on every event, when the model is saved and once a day to apply decay.",
+  "new": "New model",
+  "recordTypes": {
+    "contact": "Contacts",
+    "company": "Companies",
+    "deal": "Deals"
+  },
+  "bands": {
+    "cold": "Cold",
+    "warm": "Warm",
+    "hot": "Hot"
+  },
+  "kinds": {
+    "profile": "Profile",
+    "behavior": "Behavior"
+  },
+  "signals": {
+    "email_opened": "E-mail opened",
+    "email_clicked": "E-mail link clicked",
+    "email_replied": "E-mail replied",
+    "meeting_booked": "Meeting booked",
+    "form_submitted": "Form submitted",
+    "call_connected": "Call answered"
+  },
+  "empty": {
+    "title": "No scoring models",
+    "description": "Create a model to prioritize the most engaged records."
+  },
+  "list": {
+    "label": "Scoring models",
+    "primary": "Primary",
+    "inactive": "Inactive",
+    "criteria_one": "{{count}} criterion",
+    "criteria_other": "{{count}} criteria",
+    "bands": "Cold < {{warm}} ≤ Warm < {{hot}} ≤ Hot",
+    "recalculatedAt": "Recalculated on {{date}}",
+    "neverRecalculated": "Not recalculated yet",
+    "activate": "Activate",
+    "deactivate": "Deactivate",
+    "makePrimary": "Make primary",
+    "recalculate": "Recalculate",
+    "edit": "Edit {{name}}",
+    "remove": "Delete {{name}}"
+  },
+  "dialog": {
+    "newTitle": "New scoring model",
+    "editTitle": "Edit scoring model",
+    "description": "Define the criteria that add or remove points and the bands.",
+    "name": "Name",
+    "key": "Key",
+    "keyHint": "Stable identifier used by configuration packages and automations. Generated from the name when left empty.",
+    "descriptionLabel": "Description",
+    "recordType": "Record type",
+    "primary": "Primary model of the type (shown in the Score field)",
+    "active": "Active",
+    "bandsTitle": "Bands",
+    "warmFrom": "Warm from",
+    "hotFrom": "Hot from",
+    "bandsHint": "Below Warm the score is Cold.",
+    "criteriaTitle": "Criteria",
+    "criteriaHint": "Profile adds its points while the record matches the filter. Behavior adds its points on every occurrence, up to the cap, and each occurrence loses its points linearly until zero after the decay days.",
+    "addProfile": "Add profile criterion",
+    "addBehavior": "Add behavior criterion",
+    "noCriteria": "No criteria. Add at least one for the model to score.",
+    "criterionLabel": "Label",
+    "criterionKey": "Key",
+    "kind": "Type",
+    "points": "Points",
+    "pointsHint": "Use negative values to remove points.",
+    "signal": "Signal",
+    "maxPoints": "Points cap",
+    "maxPointsHint": "Empty = no cap.",
+    "decayDays": "Decay (days)",
+    "decayHint": "Empty = no decay.",
+    "filter": "Filter",
+    "removeCriterion": "Remove criterion {{label}}",
+    "moveUp": "Move criterion {{label}} up",
+    "moveDown": "Move criterion {{label}} down",
+    "cancel": "Cancel",
+    "save": "Save",
+    "saving": "Saving…",
+    "errors": {
+      "required": "Required field.",
+      "invalidKey": "Use lowercase letters, digits and underscores, starting with a letter.",
+      "points": "Enter a non-zero integer between -1000 and 1000.",
+      "cap": "Enter an integer between 1 and 100000.",
+      "decay": "Enter a number of days between 1 and 3650.",
+      "bands": "Must be greater than the start of the warm band.",
+      "filter": "Add at least one condition to the filter.",
+      "integer": "Enter an integer."
+    }
+  },
+  "removeDialog": {
+    "title": "Delete scoring model",
+    "description": "The model {{name}} and every score calculated by it will be removed.",
+    "confirm": "Delete"
+  },
+  "toasts": {
+    "created": "Model created. Scores will be calculated shortly.",
+    "updated": "Model updated.",
+    "removed": "Model deleted.",
+    "activated": "Model activated.",
+    "deactivated": "Model deactivated.",
+    "primary": "Model set as primary.",
+    "recalculating": "Recalculation started.",
+    "conflict": "Someone else changed the model. Close and open it again to edit.",
+    "error": "The model could not be saved."
+  },
+  "record": {
+    "tab": "Score",
+    "empty": "No active scoring model for this record type.",
+    "score": "Score",
+    "primary": "Primary",
+    "explanationTitle": "What made up the score",
+    "noContributions": "No criterion added points yet.",
+    "occurrences_one": "{{count}} occurrence",
+    "occurrences_other": "{{count}} occurrences",
+    "calculatedAt": "Calculated on {{date}}",
+    "notCalculated": "Not calculated yet",
+    "thresholds": "Warm from {{warm}}, hot from {{hot}}"
+  }
+}

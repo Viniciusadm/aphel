@@ -1,0 +1,157 @@
+{
+  "inbox": {
+    "title": "Lead inbox",
+    "description": "Contacts in the Lead stage. Qualify, disqualify with a reason or convert them into a deal.",
+    "qualified": "{{name}} was qualified"
+  },
+  "actions": {
+    "qualify": "Qualify",
+    "disqualify": "Disqualify",
+    "convert": "Convert",
+    "qualifyLabel": "Qualify {{name}}",
+    "disqualifyLabel": "Disqualify {{name}}",
+    "convertLabel": "Convert {{name}} into a deal",
+    "cancel": "Cancel"
+  },
+  "disqualify": {
+    "title": "Disqualify lead",
+    "description": "{{name}} leaves the lead inbox. The reason is kept in the history and the report.",
+    "reason": "Reason",
+    "reasonPlaceholder": "Choose a reason",
+    "reasonRequired": "Choose the reason.",
+    "noReasons": "No active reason. Add reasons in Settings > Lifecycle.",
+    "note": "Note (optional)",
+    "notePlaceholder": "Details for whoever checks this contact later",
+    "submit": "Disqualify",
+    "done": "{{name}} was disqualified"
+  },
+  "convert": {
+    "title": "Convert into a deal",
+    "description": "Creates a deal with {{name}} and the primary company of the contact, and moves the contact to the Opportunity stage.",
+    "pipeline": "Pipeline",
+    "pipelinePlaceholder": "Choose a pipeline",
+    "pipelineRequired": "Choose the pipeline.",
+    "stage": "Stage",
+    "firstStage": "First stage of the pipeline",
+    "dealTitle": "Deal title",
+    "amount": "Amount (optional)",
+    "amountPlaceholder": "0.00",
+    "submit": "Convert",
+    "done": "{{name}} was converted into a deal"
+  },
+  "history": {
+    "tab": "Lifecycle",
+    "title": "Lifecycle stage history",
+    "description": "Every stage change, who made it and how long the record stayed in each stage.",
+    "empty": "No stage change",
+    "emptyDescription": "The history starts when the lifecycle stage is set.",
+    "noStage": "No stage",
+    "current": "Current",
+    "entered": "Entered on {{date}}",
+    "left": "Left on {{date}}",
+    "days": "{{days}} days in stage",
+    "by": "By {{actor}}",
+    "system": "automatic rule",
+    "someone": "someone"
+  },
+  "report": {
+    "open": "Conversion report",
+    "back": "Lead inbox",
+    "title": "Lifecycle conversion",
+    "description": "How many records entered each stage in the period, how many moved forward and how long they stayed in each one. Only records you can see are counted.",
+    "recordType": "Records",
+    "recordTypes": {
+      "contact": "Contacts",
+      "company": "Companies"
+    },
+    "from": "From",
+    "to": "To",
+    "empty": "No stage configured",
+    "stagesTitle": "Stages",
+    "stagesDescription": "Current = records in the stage today. Entered = records that reached the stage in the period. Conversion counts those that later reached any following stage.",
+    "columns": {
+      "stage": "Stage",
+      "current": "Current",
+      "entered": "Entered in the period",
+      "conversion": "Conversion",
+      "averageDays": "Average time"
+    },
+    "conversion": "{{rate}} ({{converted}}) to {{next}} or beyond",
+    "days": "{{days}} days",
+    "disqualificationsTitle": "Disqualifications by reason",
+    "disqualificationsDescription": "Leads disqualified in the period.",
+    "disqualificationsEmpty": "No disqualification in the period."
+  },
+  "settings": {
+    "save": "Save rules",
+    "saved": "Lifecycle rules saved",
+    "rules": {
+      "title": "Automatic transitions",
+      "description": "Change the stage of the contact and the company of a deal when it is created, won or lost. A rule only changes records in the checked source stages, so it never demotes a customer unless you ask for it.",
+      "target": "Target stage",
+      "from": "Applies to records in",
+      "fromDescription": "Records in other stages stay as they are.",
+      "noStage": "No stage",
+      "triggers": {
+        "deal_created": {
+          "label": "Deal created or reopened",
+          "description": "When a deal is created (or reopened) for the contact or the company."
+        },
+        "deal_won": {
+          "label": "Deal won",
+          "description": "When a deal of the contact or the company is won."
+        },
+        "all_deals_lost": {
+          "label": "All deals lost",
+          "description": "When the last open deal is lost or deleted and the record has no won deal."
+        }
+      }
+    },
+    "disqualified": {
+      "title": "Stage of a disqualified lead",
+      "description": "Stage given to a contact disqualified in the lead inbox.",
+      "none": "No stage"
+    }
+  },
+  "reasons": {
+    "title": "Disqualification reasons",
+    "description": "Reasons to disqualify a lead in the lead inbox.",
+    "new": "New reason",
+    "newTitle": "New reason",
+    "editTitle": "Edit reason",
+    "dialogDescription": "The name shows in the disqualification and the report. The key is used by configuration packages and never changes.",
+    "name": "Name",
+    "nameRequired": "Enter the name.",
+    "save": "Save",
+    "saved": "Reason {{name}} saved",
+    "listLabel": "Disqualification reasons",
+    "editLabel": "Edit {{name}}",
+    "deleteLabel": "Delete {{name}}",
+    "deleteTitle": "Delete reason",
+    "deleteDescription": "Disqualifications with the reason {{name}} keep its name in the history.",
+    "deleteConfirm": "Delete",
+    "deleted": "Reason {{name}} deleted",
+    "inactive": "Inactive",
+    "activate": "Activate",
+    "deactivate": "Deactivate",
+    "empty": "No reason yet"
+  },
+  "errors": {
+    "generic": "The action could not be completed.",
+    "forbidden": "You are not allowed to do this.",
+    "notFound": "The record no longer exists.",
+    "pipelineNotFound": "The chosen pipeline no longer exists.",
+    "notLead": "This contact is no longer a lead. Reload the list.",
+    "keyTaken": "Another reason already uses this key.",
+    "versionConflict": "Someone changed these settings. Reload and try again.",
+    "invalid": "Check the data you entered.",
+    "invalidField": "{{field}}: {{message}}"
+  },
+  "quickFilter": {
+    "label": "Leads only",
+    "description": "Show only contacts in the lead stage"
+  },
+  "nav": {
+    "leads": "Leads"
+  }
+}

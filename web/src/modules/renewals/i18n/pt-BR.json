@@ -1,0 +1,36 @@
+{
+  "renewal": {
+    "title": "Renovação automática",
+    "description": "Cria uma oportunidade de renovação para cada oportunidade ganha deste funil antes do fim do contrato, com os itens recorrentes.",
+    "enabled": "Criar renovações automaticamente",
+    "enabledHint": "A renovação é criada uma única vez por oportunidade, com as permissões de quem salvou esta configuração.",
+    "daysBefore": "Dias antes do fim do contrato",
+    "daysBeforeHint": "Entre 0 e {{max}} dias.",
+    "targetPipeline": "Funil da renovação",
+    "targetStage": "Etapa da renovação",
+    "noStage": "Escolha uma etapa aberta",
+    "titlePrefix": "Prefixo do título",
+    "titlePrefixHint": "O título da renovação é o prefixo seguido do título da oportunidade original.",
+    "owner": "Responsável",
+    "ownerModes": {
+      "original": "Mesmo responsável da original",
+      "none": "Sem responsável"
+    },
+    "save": "Salvar renovação",
+    "saved": "Configuração de renovação salva"
+  },
+  "widgets": {
+    "hidden": "Oculto",
+    "renewals_due": {
+      "title": "Contratos a renovar",
+      "count": "A renovar em {{days}} dias",
+      "mrr": "MRR a renovar",
+      "listLabel": "Contratos a renovar",
+      "days": "Janela em dias",
+      "onlyMine": "Somente os meus",
+      "limit": "Quantidade na lista",
+      "contractEnd": "Fim do contrato: {{date}}",
+      "partial": "MRR na moeda base; contratos sem cotação ficaram de fora da soma."
+    }
+  }
+}

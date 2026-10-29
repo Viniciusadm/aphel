@@ -1,0 +1,47 @@
+{
+  "button": {
+    "follow": "Seguir",
+    "unfollow": "Deixar de seguir",
+    "count_one": "{{count}} seguidor",
+    "count_other": "{{count}} seguidores"
+  },
+  "list": {
+    "title": "Seguidores",
+    "empty": "Ninguém segue este registro ainda.",
+    "owner": "responsável"
+  },
+  "toast": {
+    "errorTitle": "Não foi possível alterar o acompanhamento"
+  },
+  "page": {
+    "title": "Registros que sigo",
+    "description": "Você recebe notificações de mudanças, atividades, notas e e-mails desses registros.",
+    "typeFilter": "Tipo",
+    "allTypes": "Todos os tipos",
+    "emptyTitle": "Você não segue nenhum registro",
+    "emptyDescription": "Use o botão Seguir no detalhe de um registro para acompanhá-lo.",
+    "untitled": "Sem título",
+    "since": "desde {{date}}"
+  },
+  "origin": {
+    "manual": "Seguido por você",
+    "owner": "Responsável"
+  },
+  "recordTypes": {
+    "contact": "Contato",
+    "company": "Empresa",
+    "deal": "Oportunidade",
+    "activity": "Atividade",
+    "product": "Produto",
+    "quote": "Cotação"
+  },
+  "pager": {
+    "label": "Paginação",
+    "summary": "Página {{page}} de {{pages}} · {{total}} registros",
+    "previous": "Anterior",
+    "next": "Próxima"
+  },
+  "nav": {
+    "following": "Registros que sigo"
+  }
+}

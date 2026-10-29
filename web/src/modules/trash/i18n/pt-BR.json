@@ -1,0 +1,48 @@
+{
+  "title": "Lixeira",
+  "description": "Registros excluídos (contatos, empresas, oportunidades, produtos, atividades, cotações e objetos personalizados) ficam aqui até a limpeza definitiva. Restaure para devolver o registro com seus vínculos.",
+  "search": "Buscar na lixeira",
+  "allTypes": "Todos os tipos",
+  "columns": {
+    "record": "Registro",
+    "type": "Tipo",
+    "deletedAt": "Excluído em",
+    "expiresAt": "Exclusão definitiva",
+    "actions": "Ações"
+  },
+  "restore": "Restaurar",
+  "restored": "{{name}} foi restaurado.",
+  "purge": "Excluir definitivamente",
+  "purgeTitle": "Excluir “{{name}}” definitivamente?",
+  "purgeDescription": "Os valores, notas, anexos e etiquetas do registro serão apagados. Esta ação não pode ser desfeita.",
+  "purged": "{{name}} foi excluído definitivamente.",
+  "emptyTitle": "A lixeira está vazia",
+  "emptyDescription": "Registros excluídos aparecem aqui até a limpeza definitiva.",
+  "emptyFiltered": "Nenhum registro excluído corresponde à busca.",
+  "retention": {
+    "title": "Tempo na lixeira",
+    "description": "Depois desse prazo, os registros excluídos são apagados definitivamente por uma rotina diária.",
+    "label": "Dias na lixeira",
+    "hint": "Entre 1 e 365 dias.",
+    "save": "Salvar",
+    "saved": "Prazo da lixeira atualizado.",
+    "invalid": "Informe um número entre 1 e 365."
+  },
+  "typeLabel": "Tipo de registro",
+  "recordType": {
+    "contact": "Contato",
+    "company": "Empresa",
+    "deal": "Oportunidade",
+    "product": "Produto",
+    "activity": "Atividade",
+    "quote": "Cotação"
+  },
+  "recordTypes": {
+    "contact": "Contatos",
+    "company": "Empresas",
+    "deal": "Oportunidades",
+    "product": "Produtos",
+    "activity": "Atividades",
+    "quote": "Cotações"
+  }
+}

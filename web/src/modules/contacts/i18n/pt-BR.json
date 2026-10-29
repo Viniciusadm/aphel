@@ -1,0 +1,80 @@
+{
+  "list": {
+    "title": "Contatos",
+    "description": "Pessoas com quem sua equipe se relaciona.",
+    "new": "Novo contato"
+  },
+  "dialog": {
+    "title": "Novo contato",
+    "description": "Preencha os dados principais. Os demais campos podem ser editados depois."
+  },
+  "detail": {
+    "back": "Voltar para contatos"
+  },
+  "companies": {
+    "title": "Empresas do contato",
+    "empty": "Este contato ainda não está vinculado a nenhuma empresa.",
+    "loadError": "Não foi possível carregar as empresas do contato.",
+    "primary": "Principal",
+    "noRole": "Sem papel definido",
+    "add": "Vincular empresa",
+    "adding": "Vinculando…",
+    "companyLabel": "Empresa",
+    "roleLabel": "Papel",
+    "roleNone": "Sem papel",
+    "linked": "Empresa vinculada.",
+    "alreadyLinked": "Esta empresa já está vinculada ao contato.",
+    "remove": "Remover vínculo com {{name}}",
+    "removeTitle": "Remover vínculo?",
+    "removeDescription": "O contato deixará de aparecer em {{name}}. A empresa não será excluída.",
+    "removeConfirm": "Remover vínculo",
+    "removed": "Vínculo removido."
+  },
+  "roles": {
+    "decision_maker": "Decisor",
+    "buyer": "Comprador",
+    "influencer": "Influenciador",
+    "user": "Usuário",
+    "other": "Outro"
+  },
+  "profile": {
+    "tabs": {
+      "contacts": "Contatos",
+      "companies": "Empresas"
+    },
+    "actions": {
+      "archive": "Arquivar",
+      "unarchive": "Desarquivar",
+      "delete": "Excluir",
+      "archived": "Registro arquivado.",
+      "unarchived": "Registro desarquivado.",
+      "deleted": "Registro excluído.",
+      "archivedBadge": "Arquivado",
+      "deleteTitle": "Excluir {{name}}?",
+      "deleteDescription": "O registro deixará de aparecer nas listas. Essa ação não pode ser desfeita pela interface."
+    }
+  },
+  "nav": {
+    "contacts": "Contatos"
+  },
+  "createAction": {
+    "label": "Novo contato"
+  },
+  "quickAdd": {
+    "options": {
+      "contact": "Contato"
+    },
+    "titles": {
+      "contact": "Novo contato"
+    },
+    "contact": {
+      "name": "Nome",
+      "nameRequired": "Informe o nome.",
+      "phone": "Telefone",
+      "email": "E-mail",
+      "submit": "Criar contato",
+      "created": "Contato {{name}} criado.",
+      "outboxLabel": "Contato {{name}}"
+    }
+  }
+}

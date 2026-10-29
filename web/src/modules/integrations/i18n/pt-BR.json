@@ -1,0 +1,5 @@
+{
+  "title": "Integrações",
+  "description": "Conecte o Aphel a outros serviços. Cada integração é configurada uma vez para toda a organização; senhas e chaves ficam criptografadas e nunca são exibidas de novo.",
+  "listLabel": "Integrações disponíveis"
+}

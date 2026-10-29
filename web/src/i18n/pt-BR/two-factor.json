@@ -1,0 +1,127 @@
+{
+  "title": "Autenticação em dois fatores",
+  "actions": {
+    "cancel": "Cancelar"
+  },
+  "fields": {
+    "password": "Senha da sua conta",
+    "code": "Código de verificação",
+    "codeHint": "Código de 6 dígitos do aplicativo autenticador ou um código de recuperação."
+  },
+  "errors": {
+    "required": "Preencha este campo.",
+    "totpFormat": "Informe os 6 dígitos mostrados no aplicativo.",
+    "invalidCode": "Código inválido, expirado ou já utilizado.",
+    "invalidPassword": "Senha incorreta."
+  },
+  "challenge": {
+    "title": "Verificação em duas etapas",
+    "description": "Abra o aplicativo autenticador e informe o código de 6 dígitos.",
+    "recoveryDescription": "Informe um dos seus códigos de recuperação. Cada código só pode ser usado uma vez.",
+    "codeLabel": "Código do aplicativo",
+    "recoveryLabel": "Código de recuperação",
+    "submit": "Verificar",
+    "submitting": "Verificando…",
+    "useRecoveryCode": "Usar um código de recuperação",
+    "useAuthenticator": "Usar o aplicativo autenticador",
+    "cancel": "Cancelar e voltar ao login",
+    "expiredTitle": "Entre novamente",
+    "expiredDescription": "A verificação expirou ou houve tentativas demais. Por segurança, informe sua senha outra vez.",
+    "backToLogin": "Voltar ao login",
+    "errors": {
+      "required": "Informe o código.",
+      "totpFormat": "Informe os 6 dígitos mostrados no aplicativo.",
+      "invalidCode": "Código inválido, expirado ou já utilizado.",
+      "rateLimited": "Muitas tentativas. Aguarde alguns minutos e tente novamente.",
+      "network": "Não foi possível conectar ao servidor. Verifique sua conexão.",
+      "generic": "Algo deu errado. Tente novamente."
+    }
+  },
+  "section": {
+    "title": "Autenticação em dois fatores",
+    "description": "Além da senha, peça um código do seu celular ao entrar."
+  },
+  "required": {
+    "title": "Ative a autenticação em dois fatores para continuar",
+    "description": "A organização {{organization}} exige a verificação em duas etapas. Ative-a abaixo para voltar a usar o Aphel."
+  },
+  "status": {
+    "authenticatorApp": "Aplicativo autenticador",
+    "enabled": "Ativa",
+    "disabled": "Inativa",
+    "enabledAt": "Ativada em {{date}}",
+    "recoveryCodesRemaining_one": "{{count}} código de recuperação disponível",
+    "recoveryCodesRemaining_other": "{{count}} códigos de recuperação disponíveis",
+    "disabledDescription": "Use um aplicativo como Google Authenticator, Microsoft Authenticator, 1Password ou Authy.",
+    "enable": "Ativar",
+    "regenerate": "Gerar novos códigos de recuperação",
+    "disable": "Desativar"
+  },
+  "setup": {
+    "title": "Ativar autenticação em dois fatores",
+    "description": "Vincule o Aphel ao seu aplicativo autenticador.",
+    "stepScan": "Escaneie o QR code com o aplicativo autenticador.",
+    "stepConfirm": "Digite o código de 6 dígitos que aparece no aplicativo.",
+    "qrAlt": "QR code para configurar o aplicativo autenticador",
+    "manualTitle": "Não consegue escanear?",
+    "manualDescription": "Adicione uma conta manualmente no aplicativo com esta chave (baseada em tempo):",
+    "secretLabel": "Chave de configuração",
+    "codeLabel": "Código de verificação",
+    "confirm": "Ativar",
+    "confirming": "Ativando…",
+    "enabled": "Autenticação em dois fatores ativada."
+  },
+  "recoveryCodes": {
+    "title": "Códigos de recuperação",
+    "saveNow": "Guarde estes códigos agora: eles não serão mostrados novamente.",
+    "description": "Use um destes códigos para entrar se perder acesso ao aplicativo autenticador. Cada código funciona uma única vez.",
+    "listLabel": "Códigos de recuperação",
+    "copy": "Copiar",
+    "copied": "Copiados",
+    "copyFailed": "Não foi possível copiar os códigos.",
+    "download": "Baixar .txt",
+    "fileHeading": "Códigos de recuperação do Aphel — {{email}}",
+    "done": "Já guardei os códigos"
+  },
+  "disable": {
+    "title": "Desativar autenticação em dois fatores",
+    "description": "Sua conta ficará protegida só pela senha. Confirme com a senha e um código.",
+    "submit": "Desativar",
+    "submitting": "Desativando…",
+    "done": "Autenticação em dois fatores desativada."
+  },
+  "regenerate": {
+    "title": "Gerar novos códigos de recuperação",
+    "description": "Os códigos atuais deixam de funcionar. Confirme sua identidade para continuar.",
+    "useCode": "Confirmar com um código de verificação",
+    "usePassword": "Confirmar com a senha",
+    "submit": "Gerar códigos",
+    "submitting": "Gerando…"
+  },
+  "policy": {
+    "title": "Exigência na organização",
+    "description": "Defina quem precisa usar a autenticação em dois fatores nesta organização.",
+    "legend": "Exigir autenticação em dois fatores de",
+    "options": {
+      "none": {
+        "label": "Ninguém",
+        "description": "Cada pessoa decide se ativa."
+      },
+      "admins": {
+        "label": "Administradores",
+        "description": "Quem tem o papel de administrador precisa ativar para usar a organização."
+      },
+      "everyone": {
+        "label": "Todos os membros",
+        "description": "Todos precisam ativar para usar a organização."
+      }
+    },
+    "membersWithout_one": "{{count}} membro coberto pela regra ainda não ativou e será levado à configuração.",
+    "membersWithout_other": "{{count}} membros cobertos pela regra ainda não ativaram e serão levados à configuração.",
+    "enableYourselfFirst": "Ative a autenticação em dois fatores na sua conta antes de exigi-la.",
+    "setupFirst": "Ative a autenticação em dois fatores na sua conta para gerenciar esta configuração.",
+    "save": "Salvar",
+    "saving": "Salvando…",
+    "saved": "Exigência de autenticação em dois fatores atualizada."
+  }
+}

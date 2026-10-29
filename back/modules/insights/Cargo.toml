@@ -1,0 +1,17 @@
+[package]
+name = "aphel-mod-insights"
+version.workspace = true
+edition.workspace = true
+rust-version.workspace = true
+license.workspace = true
+publish = false
+
+[dependencies]
+aphel-kernel.workspace = true
+activities = { package = "aphel-mod-activities", path = "../activities" }
+deals = { package = "aphel-mod-deals", path = "../deals" }
+async-trait.workspace = true
+chrono.workspace = true
+serde_json.workspace = true
+uuid.workspace = true
+rust_decimal.workspace = true

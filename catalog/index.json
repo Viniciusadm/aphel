@@ -1,0 +1,386 @@
+{
+  "$schema": "./schema/index.schema.json",
+  "format": "aphel-catalog",
+  "format_version": 1,
+  "name": "Official Aphel catalog",
+  "description": "Business templates and extensions maintained in the Aphel repository. Community contributions come in through pull requests (see catalog/README.md).",
+  "updated_at": "2026-10-21",
+  "entries": [
+    {
+      "id": "aphel.b2b",
+      "kind": "template",
+      "name": "Vendas B2B",
+      "description": "Funil consultivo para vender a outras empresas: qualificação, demonstração, proposta e negociação, com segmento, porte e faturamento das contas e indicadores de conversão.",
+      "author": "Aphel",
+      "version": "1.0.0",
+      "min_aphel_version": "0.1.0",
+      "license": "AGPL-3.0-or-later",
+      "tags": [
+        "vendas",
+        "b2b"
+      ],
+      "locale": "pt-BR",
+      "package": {
+        "url": "packages/aphel.b2b-1.0.0.json",
+        "sha256": "9a9581fb354aa58926066afb5a8d6de274147bf67da607fca4e30a3a26dfa3ef",
+        "size": 22173
+      }
+    },
+    {
+      "id": "aphel.b2b.en",
+      "kind": "template",
+      "name": "B2B Sales",
+      "description": "Consultative pipeline for selling to other businesses: qualification, demo, proposal and negotiation, with account industry, size and revenue, plus conversion metrics.",
+      "author": "Aphel",
+      "version": "1.0.0",
+      "min_aphel_version": "0.1.0",
+      "license": "AGPL-3.0-or-later",
+      "tags": [
+        "sales",
+        "b2b"
+      ],
+      "locale": "en",
+      "package": {
+        "url": "packages/aphel.b2b.en-1.0.0.json",
+        "sha256": "1112fa747b957f6a3380dc55ff9ad328868f984d8163733b71c84f6d67512334",
+        "size": 21981
+      }
+    },
+    {
+      "id": "aphel.agency",
+      "kind": "template",
+      "name": "Agência",
+      "description": "Para agências de marketing, design e desenvolvimento: novos projetos e renovações de contrato em funis separados, com escopo, serviços contratados, fee mensal e atividades de briefing e apresentação.",
+      "author": "Aphel",
+      "version": "1.0.0",
+      "min_aphel_version": "0.1.0",
+      "license": "AGPL-3.0-or-later",
+      "tags": [
+        "agência",
+        "serviços"
+      ],
+      "locale": "pt-BR",
+      "package": {
+        "url": "packages/aphel.agency-1.0.0.json",
+        "sha256": "0ad2121b1bf71205e6939c83b9d125767998514f808763384d44fe7c3895466e",
+        "size": 21177
+      }
+    },
+    {
+      "id": "aphel.agency.en",
+      "kind": "template",
+      "name": "Agency",
+      "description": "For marketing, design and development agencies: new projects and contract renewals in separate pipelines, with scope, contracted services, monthly retainer, and briefing and presentation activities.",
+      "author": "Aphel",
+      "version": "1.0.0",
+      "min_aphel_version": "0.1.0",
+      "license": "AGPL-3.0-or-later",
+      "tags": [
+        "agency",
+        "services"
+      ],
+      "locale": "en",
+      "package": {
+        "url": "packages/aphel.agency.en-1.0.0.json",
+        "sha256": "bf4281405316d42627df662a9ed1297755dd2c2ccd4478496d424fb8b7d87c48",
+        "size": 21015
+      }
+    },
+    {
+      "id": "aphel.freelancer",
+      "kind": "template",
+      "name": "Freelancer",
+      "description": "Funil enxuto para quem trabalha sozinho: do primeiro contato ao orçamento aprovado, com valor/hora, horas estimadas, prazo de entrega e condição de pagamento.",
+      "author": "Aphel",
+      "version": "1.1.0",
+      "min_aphel_version": "0.1.0",
+      "license": "AGPL-3.0-or-later",
+      "tags": [
+        "freelancer",
+        "serviços"
+      ],
+      "locale": "pt-BR",
+      "package": {
+        "url": "packages/aphel.freelancer-1.1.0.json",
+        "sha256": "7558ec178a62a431862c6ab7594070af104e7a7669829dceb47683f19012c590",
+        "size": 17217
+      }
+    },
+    {
+      "id": "aphel.freelancer.en",
+      "kind": "template",
+      "name": "Freelancer",
+      "description": "A lean pipeline for solo professionals: from first contact to approved quote, with hourly rate, estimated hours, delivery deadline and payment terms.",
+      "author": "Aphel",
+      "version": "1.1.0",
+      "min_aphel_version": "0.1.0",
+      "license": "AGPL-3.0-or-later",
+      "tags": [
+        "freelancer",
+        "services"
+      ],
+      "locale": "en",
+      "package": {
+        "url": "packages/aphel.freelancer.en-1.1.0.json",
+        "sha256": "32c3f0773bf54aaf9be6f4cff8077112442ce5a3ffdb8bf550e3053d750c1b4d",
+        "size": 17034
+      }
+    },
+    {
+      "id": "aphel.real_estate",
+      "kind": "template",
+      "name": "Imobiliária",
+      "description": "Para imobiliárias e corretores: funis de venda e de locação, dados do imóvel, campos de locação que só aparecem quando o negócio é locação, visitas, vistorias e etiquetas de perfil do cliente.",
+      "author": "Aphel",
+      "version": "1.0.0",
+      "min_aphel_version": "0.1.0",
+      "license": "AGPL-3.0-or-later",
+      "tags": [
+        "imobiliária",
+        "locação"
+      ],
+      "locale": "pt-BR",
+      "package": {
+        "url": "packages/aphel.real_estate-1.0.0.json",
+        "sha256": "fa6b8e3672229d1161a47d980466e9074859bc31446de7a31efadd08b7a88842",
+        "size": 27813
+      }
+    },
+    {
+      "id": "aphel.real_estate.en",
+      "kind": "template",
+      "name": "Real Estate",
+      "description": "For real estate agencies and agents: sales and rental pipelines, property details, rental fields that only appear when the deal is a rental, showings, inspections and client profile tags.",
+      "author": "Aphel",
+      "version": "1.0.0",
+      "min_aphel_version": "0.1.0",
+      "license": "AGPL-3.0-or-later",
+      "tags": [
+        "real estate",
+        "rentals"
+      ],
+      "locale": "en",
+      "package": {
+        "url": "packages/aphel.real_estate.en-1.0.0.json",
+        "sha256": "7771611cbcb922951c58e769f57e983107c15f521594ddc2efc2c2c0f7f21e0f",
+        "size": 27580
+      }
+    },
+    {
+      "id": "aphel.saas",
+      "kind": "template",
+      "name": "SaaS",
+      "description": "Para empresas de software por assinatura: do trial à assinatura fechada, com plano, MRR, número de usuários, fim do trial e data de renovação.",
+      "author": "Aphel",
+      "version": "1.0.0",
+      "min_aphel_version": "0.1.0",
+      "license": "AGPL-3.0-or-later",
+      "tags": [
+        "saas",
+        "assinatura"
+      ],
+      "locale": "pt-BR",
+      "package": {
+        "url": "packages/aphel.saas-1.0.0.json",
+        "sha256": "eb9630e004c743345a602a32fd3965330a5b72fa22e88c21e1a863b1f2e60334",
+        "size": 17596
+      }
+    },
+    {
+      "id": "aphel.saas.en",
+      "kind": "template",
+      "name": "SaaS",
+      "description": "For subscription software companies: from trial to closed subscription, with plan, MRR, number of seats, trial end and renewal date.",
+      "author": "Aphel",
+      "version": "1.0.0",
+      "min_aphel_version": "0.1.0",
+      "license": "AGPL-3.0-or-later",
+      "tags": [
+        "saas",
+        "subscription"
+      ],
+      "locale": "en",
+      "package": {
+        "url": "packages/aphel.saas.en-1.0.0.json",
+        "sha256": "e442ff41dacd60d2ec94f2320ccd2a0643d44e31ed59d161685afb75195703bb",
+        "size": 17458
+      }
+    },
+    {
+      "id": "aphel.module.ai",
+      "kind": "module",
+      "name": "AI assistant",
+      "description": "Summaries, next-step suggestions, a writing assistant and natural language queries with a configurable AI provider",
+      "author": "Aphel",
+      "version": "0.1.0",
+      "min_aphel_version": "0.1.0",
+      "license": "AGPL-3.0-or-later",
+      "tags": [
+        "ai"
+      ],
+      "module": {
+        "key": "ai",
+        "install_notes": "Já incluído no build padrão (back/aphel.modules.toml). Para um build enxuto, mantenha a linha `ai` nesse arquivo, rode make modules, compile e habilite em Configurações > Módulos."
+      }
+    },
+    {
+      "id": "aphel.module.enrichment",
+      "kind": "module",
+      "name": "CNPJ enrichment",
+      "description": "Looks up public company data by CNPJ (BrasilAPI and ReceitaWS) and fills the chosen fields, recording the source of each value. Always triggered manually unless the automation is enabled",
+      "author": "Aphel",
+      "version": "0.1.0",
+      "min_aphel_version": "0.1.0",
+      "license": "AGPL-3.0-or-later",
+      "tags": [
+        "companies",
+        "cnpj"
+      ],
+      "module": {
+        "key": "enrichment",
+        "install_notes": "Já incluído no build padrão (back/aphel.modules.toml). Para um build enxuto, mantenha a linha `enrichment` nesse arquivo, rode make modules, compile e habilite em Configurações > Módulos."
+      }
+    },
+    {
+      "id": "aphel.module.esign",
+      "kind": "module",
+      "name": "Electronic signature",
+      "description": "Sends PDFs attached to deals for electronic signature on Clicksign and tracks their status through webhooks. It has no legal validity of its own: validity comes from the provider",
+      "author": "Aphel",
+      "version": "0.1.0",
+      "min_aphel_version": "0.1.0",
+      "license": "AGPL-3.0-or-later",
+      "tags": [
+        "signature"
+      ],
+      "module": {
+        "key": "esign",
+        "install_notes": "Já incluído no build padrão (back/aphel.modules.toml). Para um build enxuto, mantenha a linha `esign` nesse arquivo, rode make modules, compile e habilite em Configurações > Módulos."
+      }
+    },
+    {
+      "id": "aphel.module.google",
+      "kind": "module",
+      "name": "Google",
+      "description": "Sign-in with Google and meeting sync with Google Calendar",
+      "author": "Aphel",
+      "version": "0.1.0",
+      "min_aphel_version": "0.1.0",
+      "license": "AGPL-3.0-or-later",
+      "tags": [
+        "calendar",
+        "login"
+      ],
+      "module": {
+        "key": "google",
+        "install_notes": "Já incluído no build padrão (back/aphel.modules.toml). Para um build enxuto, mantenha a linha `google` nesse arquivo, rode make modules, compile e habilite em Configurações > Módulos."
+      }
+    },
+    {
+      "id": "aphel.module.insights",
+      "kind": "module",
+      "name": "Extra widgets",
+      "description": "Additional dashboard widgets: deals by source, team activity ranking and birthdays of the month",
+      "author": "Aphel",
+      "version": "0.1.0",
+      "min_aphel_version": "0.1.0",
+      "license": "AGPL-3.0-or-later",
+      "tags": [
+        "dashboard"
+      ],
+      "module": {
+        "key": "insights",
+        "install_notes": "Já incluído no build padrão (back/aphel.modules.toml). Para um build enxuto, mantenha a linha `insights` nesse arquivo, rode make modules, compile e habilite em Configurações > Módulos."
+      }
+    },
+    {
+      "id": "aphel.module.lead-forms",
+      "kind": "module",
+      "name": "Lead forms",
+      "description": "Public forms that create contacts and deals",
+      "author": "Aphel",
+      "version": "0.1.0",
+      "min_aphel_version": "0.1.0",
+      "license": "AGPL-3.0-or-later",
+      "tags": [
+        "lead capture"
+      ],
+      "module": {
+        "key": "lead_forms",
+        "install_notes": "Já incluído no build padrão (back/aphel.modules.toml). Para um build enxuto, mantenha a linha `lead_forms` nesse arquivo, rode make modules, compile e habilite em Configurações > Módulos."
+      }
+    },
+    {
+      "id": "aphel.module.messaging",
+      "kind": "module",
+      "name": "Messaging channels",
+      "description": "Shared inbox for WhatsApp Cloud API and email (IMAP/SMTP), with conversations on the contact timeline",
+      "author": "Aphel",
+      "version": "0.1.0",
+      "min_aphel_version": "0.1.0",
+      "license": "AGPL-3.0-or-later",
+      "tags": [
+        "whatsapp",
+        "email"
+      ],
+      "module": {
+        "key": "messaging",
+        "install_notes": "Já incluído no build padrão (back/aphel.modules.toml). Para um build enxuto, mantenha a linha `messaging` nesse arquivo, rode make modules, compile e habilite em Configurações > Módulos."
+      }
+    },
+    {
+      "id": "aphel.module.microsoft",
+      "kind": "module",
+      "name": "Microsoft",
+      "description": "Sign-in with a Microsoft account (Entra ID) and meeting sync with Outlook",
+      "author": "Aphel",
+      "version": "0.1.0",
+      "min_aphel_version": "0.1.0",
+      "license": "AGPL-3.0-or-later",
+      "tags": [
+        "calendar",
+        "login"
+      ],
+      "module": {
+        "key": "microsoft",
+        "install_notes": "Já incluído no build padrão (back/aphel.modules.toml). Para um build enxuto, mantenha a linha `microsoft` nesse arquivo, rode make modules, compile e habilite em Configurações > Módulos."
+      }
+    },
+    {
+      "id": "aphel.module.oidc",
+      "kind": "module",
+      "name": "Single sign-on (OIDC)",
+      "description": "Single sign-on with any corporate OpenID Connect provider (Okta, Keycloak, Auth0, Entra ID…)",
+      "author": "Aphel",
+      "version": "0.1.0",
+      "min_aphel_version": "0.1.0",
+      "license": "AGPL-3.0-or-later",
+      "tags": [
+        "login",
+        "sso"
+      ],
+      "module": {
+        "key": "oidc",
+        "install_notes": "Já incluído no build padrão (back/aphel.modules.toml). Para um build enxuto, mantenha a linha `oidc` nesse arquivo, rode make modules, compile e habilite em Configurações > Módulos."
+      }
+    },
+    {
+      "id": "aphel.module.proposals",
+      "kind": "module",
+      "name": "Proposals",
+      "description": "Document templates and PDF proposals generated from deals",
+      "author": "Aphel",
+      "version": "0.1.0",
+      "min_aphel_version": "0.1.0",
+      "license": "AGPL-3.0-or-later",
+      "tags": [
+        "proposals",
+        "pdf"
+      ],
+      "module": {
+        "key": "proposals",
+        "install_notes": "Já incluído no build padrão (back/aphel.modules.toml). Para um build enxuto, mantenha a linha `proposals` nesse arquivo, rode make modules, compile e habilite em Configurações > Módulos."
+      }
+    }
+  ]
+}

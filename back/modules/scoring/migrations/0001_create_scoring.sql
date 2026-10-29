@@ -1,0 +1,68 @@
+CREATE TABLE scoring_models (
+  id CHAR(36) NOT NULL,
+  `key` VARCHAR(64) NOT NULL,
+  record_type VARCHAR(64) NOT NULL,
+  name VARCHAR(120) NOT NULL,
+  description VARCHAR(500) NULL,
+  is_primary BOOLEAN NOT NULL DEFAULT FALSE,
+  is_active BOOLEAN NOT NULL DEFAULT TRUE,
+  primary_record_type VARCHAR(64) AS (IF(is_primary, record_type, NULL)) STORED,
+  warm_from INT NOT NULL DEFAULT 30,
+  hot_from INT NOT NULL DEFAULT 70,
+  recalculated_at DATETIME(6) NULL,
+  created_by CHAR(36) NULL,
+  updated_by CHAR(36) NULL,
+  created_at DATETIME(6) NOT NULL DEFAULT CURRENT_TIMESTAMP(6),
+  updated_at DATETIME(6) NOT NULL DEFAULT CURRENT_TIMESTAMP(6),
+  PRIMARY KEY (id),
+  UNIQUE KEY scoring_models_key_unique (`key`),
+  UNIQUE KEY scoring_models_primary_unique (primary_record_type),
+  KEY scoring_models_record_type_index (record_type, is_active),
+  KEY scoring_models_created_by_fk_index (created_by),
+  KEY scoring_models_updated_by_fk_index (updated_by),
+  CONSTRAINT scoring_models_created_by_fk FOREIGN KEY (created_by) REFERENCES users (id) ON DELETE SET NULL,
+  CONSTRAINT scoring_models_updated_by_fk FOREIGN KEY (updated_by) REFERENCES users (id) ON DELETE SET NULL
+) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci;
+CREATE TABLE scoring_criteria (
+  id CHAR(36) NOT NULL,
+  model_id CHAR(36) NOT NULL,
+  `key` VARCHAR(64) NOT NULL,
+  label VARCHAR(120) NOT NULL,
+  kind VARCHAR(16) NOT NULL,
+  filter JSON NULL,
+  `signal` VARCHAR(64) NULL,
+  points INT NOT NULL,
+  max_points INT NULL,
+  decay_days INT NULL,
+  position INT NOT NULL DEFAULT 0,
+  PRIMARY KEY (id),
+  UNIQUE KEY scoring_criteria_key_unique (model_id, `key`),
+  KEY scoring_criteria_model_id_index (model_id, position),
+  CONSTRAINT scoring_criteria_model_fk FOREIGN KEY (model_id) REFERENCES scoring_models (id) ON DELETE CASCADE
+) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci;
+CREATE TABLE scoring_signals (
+  id CHAR(36) NOT NULL,
+  record_type VARCHAR(64) NOT NULL,
+  record_id CHAR(36) NOT NULL,
+  `signal` VARCHAR(64) NOT NULL,
+  source_key VARCHAR(100) NOT NULL,
+  event_id CHAR(36) NULL,
+  occurred_at DATETIME(6) NOT NULL,
+  created_at DATETIME(6) NOT NULL DEFAULT CURRENT_TIMESTAMP(6),
+  PRIMARY KEY (id),
+  UNIQUE KEY scoring_signals_source_unique (record_type, record_id, `signal`, source_key),
+  KEY scoring_signals_record_index (record_type, record_id, occurred_at)
+) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci;
+CREATE TABLE record_scores (
+  model_id CHAR(36) NOT NULL,
+  record_type VARCHAR(64) NOT NULL,
+  record_id CHAR(36) NOT NULL,
+  score INT NOT NULL DEFAULT 0,
+  band VARCHAR(16) NOT NULL,
+  explanation JSON NOT NULL,
+  calculated_at DATETIME(6) NOT NULL,
+  PRIMARY KEY (model_id, record_id),
+  KEY record_scores_record_index (record_type, record_id),
+  KEY record_scores_score_index (model_id, score),
+  CONSTRAINT record_scores_model_fk FOREIGN KEY (model_id) REFERENCES scoring_models (id) ON DELETE CASCADE
+) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci;

@@ -1,0 +1,81 @@
+[package]
+name = "aphel"
+version.workspace = true
+edition.workspace = true
+rust-version.workspace = true
+license.workspace = true
+publish = false
+
+[[bin]]
+name = "aphel"
+path = "src/main.rs"
+
+[dependencies]
+aphel-kernel.workspace = true
+axum.workspace = true
+chrono.workspace = true
+clap.workspace = true
+dotenvy.workspace = true
+serde_json.workspace = true
+sqlx.workspace = true
+tokio.workspace = true
+tracing.workspace = true
+tracing-subscriber.workspace = true
+uuid.workspace = true
+getrandom.workspace = true
+base64.workspace = true
+reqwest.workspace = true
+
+module-contacts = { package = "aphel-mod-contacts", path = "../modules/contacts" }
+module-companies = { package = "aphel-mod-companies", path = "../modules/companies" }
+module-leads = { package = "aphel-mod-leads", path = "../modules/leads" }
+module-scoring = { package = "aphel-mod-scoring", path = "../modules/scoring" }
+module-currencies = { package = "aphel-mod-currencies", path = "../modules/currencies" }
+module-pipelines = { package = "aphel-mod-pipelines", path = "../modules/pipelines" }
+module-deals = { package = "aphel-mod-deals", path = "../modules/deals" }
+module-deal-items = { package = "aphel-mod-deal-items", path = "../modules/deal_items" }
+module-renewals = { package = "aphel-mod-renewals", path = "../modules/renewals" }
+module-goals = { package = "aphel-mod-goals", path = "../modules/goals" }
+module-forecast = { package = "aphel-mod-forecast", path = "../modules/forecast" }
+module-activities = { package = "aphel-mod-activities", path = "../modules/activities" }
+module-notes = { package = "aphel-mod-notes", path = "../modules/notes" }
+module-reminders = { package = "aphel-mod-reminders", path = "../modules/reminders" }
+module-timeline = { package = "aphel-mod-timeline", path = "../modules/timeline" }
+module-favorites = { package = "aphel-mod-favorites", path = "../modules/favorites" }
+module-followers = { package = "aphel-mod-followers", path = "../modules/followers" }
+module-dashboard = { package = "aphel-mod-dashboard", path = "../modules/dashboard" }
+module-reports = { package = "aphel-mod-reports", path = "../modules/reports" }
+module-onboarding = { package = "aphel-mod-onboarding", path = "../modules/onboarding" }
+module-demo = { package = "aphel-mod-demo", path = "../modules/demo" }
+module-lead-distribution = { package = "aphel-mod-lead-distribution", path = "../modules/lead_distribution" }
+module-tags = { package = "aphel-mod-tags", path = "../modules/tags" }
+module-segments = { package = "aphel-mod-segments", path = "../modules/segments" }
+module-calls = { package = "aphel-mod-calls", path = "../modules/calls" }
+module-email = { package = "aphel-mod-email", path = "../modules/email" }
+module-sequences = { package = "aphel-mod-sequences", path = "../modules/sequences" }
+module-scheduling = { package = "aphel-mod-scheduling", path = "../modules/scheduling" }
+module-approvals = { package = "aphel-mod-approvals", path = "../modules/approvals" }
+module-automations = { package = "aphel-mod-automations", path = "../modules/automations" }
+module-webhooks = { package = "aphel-mod-webhooks", path = "../modules/webhooks" }
+module-integrations = { package = "aphel-mod-integrations", path = "../modules/integrations" }
+module-imports = { package = "aphel-mod-imports", path = "../modules/imports" }
+module-exports = { package = "aphel-mod-exports", path = "../modules/exports" }
+module-bulk-actions = { package = "aphel-mod-bulk-actions", path = "../modules/bulk_actions" }
+module-duplicates = { package = "aphel-mod-duplicates", path = "../modules/duplicates" }
+module-trash = { package = "aphel-mod-trash", path = "../modules/trash" }
+module-privacy = { package = "aphel-mod-privacy", path = "../modules/privacy" }
+module-org-export = { package = "aphel-mod-org-export", path = "../modules/org_export" }
+module-migrations-assistant = { package = "aphel-mod-migrations-assistant", path = "../modules/migrations_assistant" }
+module-products = { package = "aphel-mod-products", path = "../modules/products" }
+module-price-lists = { package = "aphel-mod-price-lists", path = "../modules/price_lists" }
+module-quotes = { package = "aphel-mod-quotes", path = "../modules/quotes" }
+module-proposals = { package = "aphel-mod-proposals", path = "../modules/proposals" }
+module-insights = { package = "aphel-mod-insights", path = "../modules/insights" }
+module-lead-forms = { package = "aphel-mod-lead-forms", path = "../modules/lead_forms" }
+module-ai = { package = "aphel-mod-ai", path = "../modules/ai" }
+module-oidc = { package = "aphel-mod-oidc", path = "../modules/oidc" }
+module-google = { package = "aphel-mod-google", path = "../modules/google" }
+module-microsoft = { package = "aphel-mod-microsoft", path = "../modules/microsoft" }
+module-esign = { package = "aphel-mod-esign", path = "../modules/esign" }
+module-enrichment = { package = "aphel-mod-enrichment", path = "../modules/enrichment" }
+module-messaging = { package = "aphel-mod-messaging", path = "../modules/messaging" }

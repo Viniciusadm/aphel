@@ -1,0 +1,41 @@
+{
+  "panel": {
+    "title": "Anexos",
+    "count_one": "{{count}} arquivo",
+    "count_other": "{{count}} arquivos",
+    "listLabel": "Arquivos anexados",
+    "upload": "Enviar arquivo",
+    "fileInput": "Selecionar arquivos para anexar",
+    "emptyTitle": "Nenhum anexo",
+    "emptyDescription": "Envie arquivos para mantê-los junto deste registro.",
+    "uploadedBy": "por {{name}}",
+    "unknownAuthor": "usuário removido",
+    "download": "Baixar {{name}}",
+    "remove": "Remover {{name}}"
+  },
+  "upload": {
+    "uploading": "Enviando {{name}}",
+    "progress": "Progresso do envio de {{name}}",
+    "failed": "Falha ao enviar {{name}}",
+    "dismiss": "Dispensar aviso de {{name}}",
+    "success": "{{name}} anexado"
+  },
+  "remove": {
+    "title": "Remover anexo",
+    "description": "O arquivo \"{{name}}\" deixará de aparecer neste registro.",
+    "confirm": "Remover",
+    "cancel": "Cancelar",
+    "success": "Anexo removido"
+  },
+  "errors": {
+    "generic": "Não foi possível concluir a operação. Tente novamente.",
+    "network": "Sem conexão com o servidor. Verifique sua internet.",
+    "fileTooLarge": "O arquivo excede o tamanho máximo permitido.",
+    "fileTypeNotAllowed": "Este tipo de arquivo não é permitido.",
+    "emptyFile": "O arquivo está vazio.",
+    "permissionDenied": "Você não tem permissão para alterar os anexos deste registro.",
+    "notFound": "O anexo não foi encontrado.",
+    "alreadyAttached": "Este arquivo já está anexado a este registro.",
+    "unsupportedRecordType": "Este tipo de registro não aceita anexos."
+  }
+}

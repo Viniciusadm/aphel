@@ -1,0 +1,84 @@
+pub(crate) mod call;
+pub mod domain;
+pub(crate) mod hooks;
+pub(crate) mod http;
+pub(crate) mod service;
+pub(crate) mod store;
+pub(crate) mod telephony;
+
+use std::sync::Arc;
+
+use aphel_kernel::modules::Migration;
+
+use aphel_kernel::application::public_events::{
+    PreviousValues, PublicEventDefinition, changed, event,
+};
+use aphel_kernel::errors::AppError;
+use aphel_kernel::infrastructure::crm::seed::CrmDefaultsSeed;
+use aphel_kernel::modules::builder::APHEL_VERSION;
+use aphel_kernel::modules::{AppBuilder, DEFAULT_PRIORITY, Manifest, Module};
+use aphel_kernel::records::RecordSerializing;
+
+pub(crate) use telephony::TelephonyRouter;
+
+pub(crate) const KEY: &str = "calls";
+
+const PUBLIC_EVENTS: &[PublicEventDefinition] = &[
+    event(
+        "call.logged",
+        activities::ACTIVITY_RESOURCE,
+        "A call was logged as an activity (details in `call`: direction, outcome, duration)",
+    ),
+    changed(
+        "call.updated",
+        activities::ACTIVITY_RESOURCE,
+        "The details of a logged call changed",
+        PreviousValues::Changes,
+    ),
+];
+
+pub struct CallsModule;
+
+impl Module for CallsModule {
+    fn manifest(&self) -> Manifest {
+        Manifest::new(KEY, "Calls", APHEL_VERSION)
+            .description("Call logging as activities, call outcomes, call sessions, telephony providers and the calls report")
+            .depends_on(activities::KEY, "*")
+            .enabled_by_default()
+            .owned_tables(&["activity_calls", "call_outcomes", "call_session_items", "call_sessions"])
+            .migration(Migration::new(
+                1,
+                "create call outcomes",
+                include_str!("../migrations/0001_create_call_outcomes.sql"),
+            ))
+            .migration(Migration::new(
+                2,
+                "create activity calls",
+                include_str!("../migrations/0002_create_activity_calls.sql"),
+            ))
+            .migration(Migration::new(
+                3,
+                "create call sessions",
+                include_str!("../migrations/0003_create_call_sessions.sql"),
+            ))
+    }
+
+    fn register(&self, app: &mut AppBuilder) -> Result<(), AppError> {
+        app.contribute(Arc::new(CrmDefaultsSeed(|connection| {
+            Box::pin(store::seed_call_outcomes(connection))
+        })));
+        app.openapi_tag(
+            http::TAG,
+            "Call logging as activities, call outcomes, call sessions over saved views and the calls report",
+        )
+        .routes(|_| http::router())
+        .provide::<dyn TelephonyRouter>(telephony::shared_router())
+        .filter::<RecordSerializing, _>(DEFAULT_PRIORITY, |ctx, records| {
+            Box::pin(hooks::attach_calls(ctx, records))
+        });
+        for definition in PUBLIC_EVENTS {
+            app.public_event(*definition);
+        }
+        Ok(())
+    }
+}

@@ -1,0 +1,26 @@
+{
+  "nav": {
+    "label": "Navegação principal",
+    "system": "Sistema",
+    "settings": "Configurações"
+  },
+  "sidebar": {
+    "collapse": "Recolher menu",
+    "expand": "Expandir menu",
+    "open": "Abrir menu",
+    "title": "Menu",
+    "backToApp": "Voltar ao app"
+  },
+  "search": {
+    "label": "Buscar",
+    "placeholder": "Buscar…"
+  },
+  "user": {
+    "menu": "Menu do usuário",
+    "account": "Minha conta"
+  },
+  "home": {
+    "emptyTitle": "Nenhuma página disponível",
+    "emptyDescription": "Nenhum módulo com página inicial está habilitado para você. Fale com o administrador."
+  }
+}

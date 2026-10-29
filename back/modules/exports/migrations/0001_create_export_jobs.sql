@@ -1,0 +1,20 @@
+CREATE TABLE export_jobs (
+  id CHAR(36) NOT NULL,
+  record_type VARCHAR(64) NOT NULL,
+  format VARCHAR(8) NOT NULL,
+  status VARCHAR(16) NOT NULL,
+  query JSON NOT NULL,
+  columns JSON NOT NULL,
+  file_id CHAR(36) NULL,
+  row_count INT UNSIGNED NULL,
+  failure_reason VARCHAR(500) NULL,
+  requested_by CHAR(36) NOT NULL,
+  created_at DATETIME(6) NOT NULL DEFAULT CURRENT_TIMESTAMP(6),
+  updated_at DATETIME(6) NOT NULL DEFAULT CURRENT_TIMESTAMP(6),
+  finished_at DATETIME(6) NULL,
+  PRIMARY KEY (id),
+  KEY export_jobs_requested_by_index (requested_by, created_at),
+  KEY export_jobs_file_fk_index (file_id),
+  CONSTRAINT export_jobs_file_fk FOREIGN KEY (file_id) REFERENCES files (id) ON DELETE SET NULL,
+  CONSTRAINT export_jobs_requested_by_fk FOREIGN KEY (requested_by) REFERENCES users (id) ON DELETE CASCADE
+) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci;

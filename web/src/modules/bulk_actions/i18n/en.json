@@ -1,0 +1,142 @@
+{
+  "actions": {
+    "assign_owner": "Assign owner",
+    "tags": "Tags",
+    "set_field": "Change field",
+    "move_stage": "Move stage",
+    "enroll_in_sequence": "Enroll in sequence",
+    "export": "Export",
+    "archive": "Archive",
+    "unarchive": "Restore archived",
+    "delete": "Delete",
+    "more": "More actions"
+  },
+  "titles": {
+    "assign_owner": "Assign owner",
+    "tags": "Add or remove tag",
+    "set_field": "Change field",
+    "move_stage": "Move to stage",
+    "enroll_in_sequence": "Enroll in sequence",
+    "export": "Export records",
+    "archive": "Archive records",
+    "unarchive": "Restore archived records",
+    "delete": "Delete records"
+  },
+  "scope": {
+    "selected_one": "The action applies to {{count}} selected record.",
+    "selected_other": "The action applies to {{count}} selected records.",
+    "allMatching_one": "The action applies to the record matching the current filter.",
+    "allMatching_other": "The action applies to all {{count}} records matching the current filter.",
+    "permissionNote": "Each record goes through the same validations and permissions as the individual action. Records that cannot be changed are skipped and listed in the report."
+  },
+  "confirm": {
+    "archive_one": "The record will be archived and hidden from lists by default.",
+    "archive_other": "{{count}} records will be archived and hidden from lists by default.",
+    "unarchive_one": "The record will appear in lists again.",
+    "unarchive_other": "{{count}} records will appear in lists again.",
+    "delete_one": "The record will be deleted. An administrator can recover it from the trash.",
+    "delete_other": "{{count}} records will be deleted. An administrator can recover them from the trash."
+  },
+  "owner": {
+    "label": "New owner",
+    "placeholder": "Choose a user"
+  },
+  "tags": {
+    "mode": "What to do",
+    "add_tag": "Add tag",
+    "remove_tag": "Remove tag",
+    "label": "Tag",
+    "placeholder": "Choose a tag",
+    "empty": "No tags available for this record type."
+  },
+  "field": {
+    "label": "Field",
+    "placeholder": "Choose a field",
+    "value": "New value",
+    "emptyHint": "Leave blank to clear the field."
+  },
+  "stage": {
+    "pipeline": "Pipeline",
+    "label": "Stage",
+    "placeholder": "Choose a stage",
+    "rulesHint": "Deals that do not meet the stage rules are skipped."
+  },
+  "sequence": {
+    "label": "Sequence",
+    "placeholder": "Choose an active sequence",
+    "empty": "No active sequence available.",
+    "hint": "E-mails go out from your mailbox. Contacts already enrolled, without e-mail or that objected are skipped."
+  },
+  "export": {
+    "format": "Format",
+    "tooMany": "Select up to {{max}} records or use \"all matching the filter\" to export more.",
+    "started": "Export started",
+    "startedDescription": "You will be notified when the file is ready."
+  },
+  "buttons": {
+    "cancel": "Cancel",
+    "apply": "Apply",
+    "applying": "Applying…",
+    "export": "Export",
+    "close": "Close",
+    "closeRunning": "Close (keeps running in the background)"
+  },
+  "result": {
+    "queued": "Queued to process {{total}} records…",
+    "running": "Processing {{processed}} of {{total}} records…",
+    "progress": "Bulk action progress",
+    "background": "You can close this window; the action keeps running in the background.",
+    "failed": "The bulk action could not be completed.",
+    "completed_one": "{{count}} record changed.",
+    "completed_other": "{{count}} records changed.",
+    "succeeded": "Changed",
+    "skipped": "Skipped",
+    "failedCount": "Failed",
+    "reportTitle": "Records not changed",
+    "moreIssues_one": "And {{count}} more record.",
+    "moreIssues_other": "And {{count}} more records.",
+    "loadMore": "Load more"
+  },
+  "reasons": {
+    "permissionDenied": "You are not allowed to change this record.",
+    "notFound": "The record no longer exists.",
+    "invalid": "Invalid value: {{message}}",
+    "tagNotAllowed": "The tag cannot be used on this record type.",
+    "internal": "Unexpected error while processing the record.",
+    "generic": "The record could not be changed.",
+    "sequenceAlreadyEnrolled": "The contact is already in this sequence.",
+    "sequenceWithoutEmail": "The contact has no e-mail.",
+    "sequenceObjected": "The contact objected to e-mail tracking.",
+    "noMailbox": "Connect a mailbox to enroll contacts."
+  },
+  "history": {
+    "title": "Bulk actions",
+    "menuDescription": "History of the bulk actions you ran, with each report.",
+    "description": "Bulk actions you ran on record lists.",
+    "empty": "No bulk actions yet",
+    "emptyDescription": "Select records in a list to apply a bulk action.",
+    "status": {
+      "queued": "Queued",
+      "running": "Processing",
+      "completed": "Completed",
+      "failed": "Failed"
+    },
+    "columns": {
+      "action": "Action",
+      "recordType": "Type",
+      "status": "Status",
+      "records": "Records",
+      "createdAt": "Started at",
+      "details": "Details"
+    },
+    "recordTypes": {
+      "contact": "Contacts",
+      "company": "Companies",
+      "deal": "Deals",
+      "product": "Products"
+    },
+    "counts": "{{succeeded}} changed, {{issues}} not changed of {{total}}",
+    "open": "View report",
+    "detailTitle": "Bulk action"
+  }
+}

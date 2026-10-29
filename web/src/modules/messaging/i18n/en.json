@@ -1,0 +1,264 @@
+{
+  "name": "Messaging channels",
+  "description": "Shared inbox with WhatsApp Cloud API and e-mail (IMAP/SMTP), with conversations on the contact timeline",
+  "settings": {
+    "create_unknown_contacts": {
+      "label": "Create a contact for unknown senders",
+      "help": "On: messages from phones or e-mails without a contact create the contact. Off: the conversation stays unlinked until someone links it."
+    },
+    "acting_user_email": {
+      "label": "Acting user",
+      "help": "E-mail of the user on whose behalf webhooks and mailbox reading look up and create contacts, when the channel does not set one. Empty: whoever created the channel."
+    }
+  },
+  "nav": {
+    "inbox": "Inbox",
+    "channels": "Messaging channels"
+  },
+  "actions": {
+    "cancel": "Cancel",
+    "save": "Save"
+  },
+  "kinds": {
+    "whatsapp": "WhatsApp",
+    "email": "E-mail"
+  },
+  "status": {
+    "open": "Open",
+    "pending": "Pending",
+    "resolved": "Resolved"
+  },
+  "channelStatus": {
+    "pending": "Not tested",
+    "active": "Working",
+    "error": "Error",
+    "inactive": "Inactive"
+  },
+  "messageStatus": {
+    "received": "Received",
+    "queued": "Queued",
+    "sending": "Sending",
+    "sent": "Sent",
+    "delivered": "Delivered",
+    "read": "Read",
+    "failed": "Failed"
+  },
+  "messageTypes": {
+    "text": "Empty message",
+    "email": "E-mail without text",
+    "image": "Image",
+    "video": "Video",
+    "audio": "Audio",
+    "document": "Document",
+    "sticker": "Sticker",
+    "location": "Location",
+    "contacts": "Shared contact",
+    "reaction": "Reaction",
+    "button": "Button reply",
+    "interactive": "Interactive reply",
+    "unsupported": "Unsupported message",
+    "too_large": "E-mail too large (over 10 MB); see it in the mailbox",
+    "other": "Content not shown"
+  },
+  "inbox": {
+    "title": "Inbox",
+    "description": "Team WhatsApp and e-mail conversations. Assign, reply and link them to the contact or deal.",
+    "manageChannels": "Channels",
+    "listLabel": "Conversations",
+    "search": "Search by name, phone, e-mail or text",
+    "filters": {
+      "status": "Status",
+      "allStatuses": "All statuses",
+      "assignee": "Assignee",
+      "assignees": {
+        "any": "All",
+        "me": "Mine",
+        "none": "Unassigned"
+      },
+      "channel": "Channel",
+      "allChannels": "All channels",
+      "unread": "Unread"
+    },
+    "emptyTitle": "No conversations",
+    "emptyDescription": "Messages arriving on an active channel show up here.",
+    "previous": "Previous",
+    "next": "Next",
+    "page": "Page {{page}} of {{pages}}",
+    "selectTitle": "Pick a conversation",
+    "selectDescription": "Select a conversation in the list to read and reply.",
+    "you": "You",
+    "unreadCount": "{{count}} unread",
+    "noAccessTitle": "No access to the inbox",
+    "noAccessDescription": "Ask an administrator for the permission to see conversations."
+  },
+  "panel": {
+    "title": "Conversation with {{name}}",
+    "back": "Back to the list",
+    "status": "Status",
+    "statusChanged": "Conversation marked as {{status}}",
+    "assignee": "Assignee",
+    "assigned": "Conversation assigned",
+    "unassigned": "Assignment removed",
+    "team": "Team",
+    "sendFailed": "Not sent: {{reason}}",
+    "olderHidden": "{{count}} older messages not shown",
+    "messages": "Messages"
+  },
+  "links": {
+    "contact": "Contact",
+    "deal": "Deal",
+    "none": "none",
+    "edit": "Link",
+    "title": "Link conversation",
+    "description": "Pick the contact and deal of this conversation. New messages show up on the timeline of the linked records.",
+    "saved": "Links saved",
+    "contactHidden": "Linked contact (no access)",
+    "dealHidden": "Linked deal (no access)",
+    "contactUntitled": "Unnamed contact",
+    "dealUntitled": "Untitled deal"
+  },
+  "composer": {
+    "readOnly": "You can read this conversation but cannot reply.",
+    "channelInactive": "The channel of this conversation is inactive; activate it to reply.",
+    "label": "Reply",
+    "placeholder": "Write the reply (Ctrl+Enter sends)",
+    "emailPlaceholder": "Write the reply e-mail (Ctrl+Enter sends)",
+    "windowUntil": "WhatsApp window until {{date}}",
+    "send": "Send"
+  },
+  "errors": {
+    "whatsapp_window_closed": "More than 24 hours passed since the customer's last message. WhatsApp only accepts approved template messages until the customer writes again.",
+    "messaging_channel_inactive": "The channel is inactive.",
+    "messaging_invalid_reply": "Write a message within the channel size limit.",
+    "messaging_invalid_assignee": "This user has no access to the inbox.",
+    "messaging_record_not_accessible": "The record does not exist or you cannot read it.",
+    "messaging_channel_in_use": "The channel has conversations. Deactivate it to keep the history.",
+    "messaging_channel_limit_reached": "The organization reached the limit of 50 channels.",
+    "messaging_acting_user_unavailable": "No active member can act for this channel; set the acting user.",
+    "messaging_channel_credentials_missing": "Channel credentials are missing.",
+    "messaging_provider_timeout": "The provider did not answer in time.",
+    "messaging_provider_unreachable": "Could not connect to the provider.",
+    "messaging_tls_error": "The secure (TLS) connection to the server failed.",
+    "whatsapp_auth_failed": "Meta rejected the access token.",
+    "whatsapp_provider_error": "Meta rejected the request.",
+    "imap_auth_failed": "The IMAP server rejected the user name or password.",
+    "imap_error": "The IMAP server returned an error.",
+    "smtp_auth_failed": "The SMTP server rejected the user name or password.",
+    "smtp_rejected": "The SMTP server rejected the message.",
+    "smtp_error": "The SMTP server could not take the message now."
+  },
+  "channels": {
+    "title": "Messaging channels",
+    "description": "Connect WhatsApp numbers (Meta's official Cloud API) and mailboxes (IMAP/SMTP). Credentials are encrypted and never shown back.",
+    "back": "Inbox",
+    "new": {
+      "whatsapp": "WhatsApp",
+      "email": "E-mail"
+    },
+    "listLabel": "Channels",
+    "emptyTitle": "No channels connected",
+    "emptyDescription": "Connect a WhatsApp number or a mailbox to receive messages.",
+    "created": "Channel \"{{name}}\" created",
+    "saved": "Channel \"{{name}}\" saved",
+    "deleted": "Channel \"{{name}}\" deleted",
+    "confirmDelete": {
+      "title": "Delete channel?",
+      "description": "The channel \"{{name}}\" and its credentials will be removed. Only channels without conversations can be deleted.",
+      "action": "Delete"
+    },
+    "test": "Test",
+    "testOk": "Connection working",
+    "testFailed": "The connection test failed",
+    "edit": "Edit",
+    "delete": "Delete",
+    "moreActions": "More actions for {{name}}",
+    "lastPolled": "Last read at {{date}}",
+    "lastChecked": "Last test at {{date}}",
+    "webhookUrl": "Callback URL (webhook) to set at Meta",
+    "copyWebhook": "Copy webhook URL",
+    "copied": "URL copied",
+    "verifyTokenConfigured": "Verify token configured: use the same value in Meta's \"Verify token\" field.",
+    "verifyTokenMissing": "Verify token not configured.",
+    "noAccessTitle": "No access to channels",
+    "noAccessDescription": "Ask an administrator for the permission to manage messaging channels."
+  },
+  "editor": {
+    "editTitle": "Edit {{name}}",
+    "newTitle": {
+      "whatsapp": "New WhatsApp channel",
+      "email": "New mailbox"
+    },
+    "help": {
+      "whatsapp": "Use the app data from Meta for Developers (WhatsApp > API Setup). After saving, set the webhook URL and verify token at Meta and subscribe to the \"messages\" field.",
+      "email": "Enter the IMAP (receive) and SMTP (send) servers. The mailbox is read every 2 minutes, INBOX only, starting with messages that arrive after connecting."
+    },
+    "name": "Channel name",
+    "actingUser": "Acting user",
+    "actingUserHint": "On whose behalf incoming messages look up and create contacts. Empty: module setting or whoever created the channel.",
+    "connection": "Connection",
+    "config": {
+      "phone_number_id": "Phone number ID",
+      "business_account_id": "WhatsApp Business Account ID",
+      "display_phone_number": "Displayed number",
+      "address": "E-mail address",
+      "display_name": "Sender name",
+      "imap_host": "IMAP server",
+      "imap_port": "IMAP port",
+      "imap_username": "IMAP user",
+      "smtp_host": "SMTP server",
+      "smtp_port": "SMTP port",
+      "smtp_username": "SMTP user",
+      "smtp_security": "SMTP security"
+    },
+    "hints": {
+      "phone_number_id": "Numeric id of the number, not the phone itself.",
+      "display_phone_number": "Optional, in international format (+1 555 000 0000).",
+      "imap_port": "993 (TLS).",
+      "imap_username": "Empty: the e-mail address.",
+      "smtp_port": "465 (TLS) or 587 (STARTTLS).",
+      "smtp_username": "Empty: the IMAP user.",
+      "access_token": "Permanent token of a system user with the whatsapp_business_messaging permission.",
+      "app_secret": "App secret (Settings > Basic), used to validate the webhook signature.",
+      "verify_token": "A random text you also enter at Meta when setting the webhook.",
+      "smtp_password": "Empty: uses the IMAP password."
+    },
+    "security": {
+      "tls": "TLS (port 465)",
+      "starttls": "STARTTLS (port 587)"
+    },
+    "credentials": "Credentials",
+    "credentialsHelp": "Encrypted on the server and never sent back. Leave empty to keep the current value.",
+    "secrets": {
+      "access_token": "Access token",
+      "app_secret": "App secret",
+      "verify_token": "Webhook verify token",
+      "imap_password": "IMAP password",
+      "smtp_password": "SMTP password"
+    },
+    "secretConfigured": "Configured. Fill in only to replace it.",
+    "keepSecret": "•••••••• (configured)",
+    "reuseImapPassword": "Remove the SMTP password and use the IMAP password",
+    "active": "Active channel (receives and sends messages)"
+  },
+  "tab": {
+    "label": "Conversations",
+    "title": "Conversations",
+    "description": {
+      "contact": "WhatsApp and e-mail conversations with this contact.",
+      "deal": "Conversations linked to this deal."
+    },
+    "emptyTitle": "No conversations",
+    "emptyDescription": "Linked conversations show up here."
+  },
+  "timeline": {
+    "received": "Message received from {{peer}} on {{channel}}",
+    "sent": "Reply sent to {{peer}} on {{channel}}",
+    "failed": "Failed to send a message to {{peer}} on {{channel}}",
+    "open": "Open conversation",
+    "conversation": {
+      "assigned": "Conversation with {{peer}} assigned",
+      "status_changed": "Conversation with {{peer}} marked as {{status}}",
+      "linked": "Conversation with {{peer}} linked"
+    }
+  }
+}

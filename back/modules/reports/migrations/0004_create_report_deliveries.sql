@@ -1,0 +1,20 @@
+CREATE TABLE report_deliveries (
+  id CHAR(36) NOT NULL,
+  schedule_id CHAR(36) NOT NULL,
+  report_id CHAR(36) NOT NULL,
+  user_id CHAR(36) NOT NULL,
+  scheduled_for DATETIME(6) NOT NULL,
+  status VARCHAR(16) NOT NULL,
+  row_count INT UNSIGNED NULL,
+  failure_reason VARCHAR(500) NULL,
+  created_at DATETIME(6) NOT NULL DEFAULT CURRENT_TIMESTAMP(6),
+  finished_at DATETIME(6) NULL,
+  PRIMARY KEY (id),
+  UNIQUE KEY report_deliveries_unique (schedule_id, user_id, scheduled_for),
+  KEY report_deliveries_schedule_index (schedule_id, created_at),
+  KEY report_deliveries_report_fk_index (report_id),
+  KEY report_deliveries_user_fk_index (user_id),
+  CONSTRAINT report_deliveries_schedule_fk FOREIGN KEY (schedule_id) REFERENCES report_schedules (id) ON DELETE CASCADE,
+  CONSTRAINT report_deliveries_report_fk FOREIGN KEY (report_id) REFERENCES reports (id) ON DELETE CASCADE,
+  CONSTRAINT report_deliveries_user_fk FOREIGN KEY (user_id) REFERENCES users (id) ON DELETE CASCADE
+) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci;

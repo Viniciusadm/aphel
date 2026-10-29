@@ -1,0 +1,174 @@
+{
+  "page": {
+    "title": "Configuração inicial",
+    "loading": "Carregando o assistente…",
+    "stepLabel": "Passo {{current}} de {{total}}",
+    "progressLabel": "Progresso do assistente",
+    "goToDashboard": "Ir para o painel"
+  },
+  "steps": {
+    "business": {
+      "title": "Qual é o seu tipo de negócio?",
+      "description": "Com algumas respostas rápidas, o Aphel sugere uma configuração inicial. Você pode mudar tudo depois."
+    },
+    "offering": {
+      "title": "O que você vende?",
+      "description": "Marque todas as opções que se aplicam."
+    },
+    "team": {
+      "title": "Quantas pessoas vão usar o Aphel?",
+      "description": "Considere quem atende clientes e acompanha as vendas."
+    },
+    "recommendation": {
+      "title": "Escolha um modelo para começar",
+      "description": "O modelo cria campos, funis, etiquetas e visualizações pensados para o seu tipo de negócio. Nenhum dado é apagado."
+    },
+    "preview": {
+      "title": "Confira o que será criado",
+      "description": "Revise a configuração antes de aplicar. Itens em conflito com o que já existe são pulados."
+    }
+  },
+  "businessTypes": {
+    "real_estate": {
+      "label": "Imobiliária",
+      "description": "Venda e locação de imóveis, corretores e captação."
+    },
+    "agency": {
+      "label": "Agência",
+      "description": "Marketing, design, desenvolvimento ou comunicação para clientes."
+    },
+    "consulting": {
+      "label": "Consultoria ou serviços profissionais",
+      "description": "Projetos, assessorias e serviços especializados."
+    },
+    "software": {
+      "label": "Software ou SaaS",
+      "description": "Produto digital vendido por assinatura ou licença."
+    },
+    "b2b_sales": {
+      "label": "Vendas para empresas",
+      "description": "Equipe comercial vendendo produtos ou serviços para outras empresas."
+    },
+    "other": {
+      "label": "Outro",
+      "description": "Nenhuma das opções acima descreve bem o seu negócio."
+    }
+  },
+  "offerings": {
+    "product": {
+      "label": "Produtos",
+      "description": "Itens físicos ou digitais vendidos por unidade."
+    },
+    "service": {
+      "label": "Serviços",
+      "description": "Projetos, horas ou entregas sob demanda."
+    },
+    "recurring": {
+      "label": "Recorrência",
+      "description": "Assinaturas, mensalidades ou contratos renovados."
+    }
+  },
+  "teamSizes": {
+    "solo": "Só eu",
+    "small": "2 a 10 pessoas",
+    "medium": "11 a 50 pessoas",
+    "large": "Mais de 50 pessoas"
+  },
+  "reasons": {
+    "business_real_estate": "Negócio imobiliário",
+    "business_agency": "Agência",
+    "business_consulting": "Consultoria e serviços",
+    "business_software": "Software ou SaaS",
+    "business_b2b_sales": "Vendas para empresas",
+    "business_other": "Configuração neutra",
+    "offering_product": "Vende produtos",
+    "offering_service": "Vende serviços",
+    "offering_recurring": "Receita recorrente",
+    "team_solo": "Trabalha sozinho",
+    "team_small": "Equipe pequena",
+    "team_medium": "Equipe média",
+    "team_large": "Equipe grande"
+  },
+  "recommendation": {
+    "choiceLabel": "Modelo de configuração",
+    "recommended": "Recomendado",
+    "reasonsLabel": "Por que recomendamos",
+    "scratch": {
+      "title": "Começar do zero",
+      "description": "Mantém a configuração padrão do Aphel. Você pode instalar um modelo depois em Pacotes de configuração."
+    }
+  },
+  "preview": {
+    "loading": "Preparando a pré-visualização…",
+    "nothing": "Nada novo a criar: a organização já tem tudo o que este modelo traz.",
+    "outdated": "A configuração da organização mudou desde a pré-visualização. Revise a nova versão e aplique de novo.",
+    "summary": {
+      "create": "A criar",
+      "update": "A atualizar",
+      "skip_conflict": "Conflitos",
+      "unchanged": "Sem mudança"
+    },
+    "actions": {
+      "create": "Criar",
+      "update": "Atualizar"
+    },
+    "conflicts": {
+      "title_one": "{{count}} item em conflito será pulado",
+      "title_other": "{{count}} itens em conflito serão pulados",
+      "description": "Já existe algo com a mesma chave e configuração diferente. O que já existe fica como está."
+    }
+  },
+  "actions": {
+    "skip": "Pular por enquanto",
+    "back": "Voltar",
+    "next": "Continuar",
+    "preview": "Pré-visualizar",
+    "finishScratch": "Concluir sem modelo",
+    "apply": "Aplicar modelo",
+    "applying": "Aplicando…",
+    "finish": "Concluir",
+    "reopen": "Reabrir assistente"
+  },
+  "done": {
+    "applied": "Modelo aplicado. Sua organização está pronta.",
+    "scratch": "Configuração inicial concluída."
+  },
+  "notPending": {
+    "completed": "O assistente de configuração inicial já foi concluído nesta organização.",
+    "skipped": "O assistente de configuração inicial foi pulado nesta organização.",
+    "dismissed": "Esta organização já estava em uso quando o assistente foi criado, por isso ele não foi exibido."
+  },
+  "noAccess": {
+    "title": "Sem permissão",
+    "description": "Só quem administra as configurações da organização pode usar o assistente inicial."
+  },
+  "status": {
+    "pending": "Pendente",
+    "completed": "Concluído",
+    "skipped": "Pulado",
+    "dismissed": "Não exibido"
+  },
+  "settings": {
+    "title": "Assistente inicial",
+    "description": "Perguntas rápidas sobre o seu negócio que sugerem um modelo de configuração para a organização.",
+    "statusLabel": "Situação",
+    "completedWithTemplate": "Concluído em {{when}} com o modelo {{template}}.",
+    "completedFromScratch": "Concluído em {{when}}, começando do zero.",
+    "skippedAt": "Pulado em {{when}}.",
+    "details": {
+      "pending": "O assistente ainda não foi respondido e aparece para administradores na próxima entrada.",
+      "completed": "O assistente foi concluído.",
+      "skipped": "O assistente foi pulado.",
+      "dismissed": "A organização já estava em uso quando o assistente foi criado, por isso ele não foi exibido."
+    },
+    "packagesHint": "Para instalar outros modelos ou exportar a configuração, use",
+    "packagesLink": "Pacotes de configuração"
+  },
+  "errors": {
+    "load": "Não foi possível carregar o assistente.",
+    "templates": "Não foi possível carregar os modelos disponíveis.",
+    "plan": "Não foi possível gerar a pré-visualização do modelo.",
+    "invalidTemplate": "Este modelo não pode ser instalado nesta versão do Aphel.",
+    "generic": "Algo deu errado. Tente novamente."
+  }
+}

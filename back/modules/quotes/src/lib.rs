@@ -1,0 +1,274 @@
+pub(crate) mod document;
+pub mod domain;
+pub(crate) mod gateway;
+pub(crate) mod hooks;
+pub mod http;
+pub(crate) mod pdf;
+pub(crate) mod pricing;
+pub(crate) mod public;
+pub(crate) mod runtime;
+pub mod service;
+pub(crate) mod store;
+pub(crate) mod sync;
+pub(crate) mod token;
+pub(crate) mod workflow;
+
+use std::sync::Arc;
+
+use aphel_kernel::modules::Migration;
+use utoipa_axum::router::OpenApiRouter;
+
+use crate::domain::QuoteStatus;
+use aphel_kernel::application::fields::builtin::{field, record_field};
+use aphel_kernel::application::fields::{
+    RecordCapabilities, RecordRelation, RecordTypeDefinition, SystemField,
+};
+use aphel_kernel::application::public_events::{
+    PreviousValues, PublicEventDefinition, PublicResource, changed, deleted, event,
+};
+use aphel_kernel::application::shared::RecordType;
+use aphel_kernel::domain::access::{Permission, PermissionDefinition};
+use aphel_kernel::domain::fields::FieldType;
+use aphel_kernel::errors::AppError;
+use aphel_kernel::infrastructure::crm::seed::CrmDefaultsSeed;
+use aphel_kernel::modules::builder::APHEL_VERSION;
+use aphel_kernel::modules::{AppBuilder, Manifest, Module};
+
+pub use hooks::{AcceptingQuote, DealItemsWriter, PricedQuote, QuoteAccepting, QuoteTotals};
+
+pub(crate) const QUOTE_RESOURCE: PublicResource =
+    PublicResource::new("quote", "QuoteDetailResponse");
+
+pub const KEY: &str = "quotes";
+
+const RECORD_PERMISSIONS: [Permission; 5] = [
+    Permission::QUOTES_READ,
+    Permission::QUOTES_CREATE,
+    Permission::QUOTES_UPDATE,
+    Permission::QUOTES_DELETE,
+    Permission::QUOTES_SEND,
+];
+
+const PUBLIC_EVENTS: &[PublicEventDefinition] = &[
+    event(
+        "quote.created",
+        QUOTE_RESOURCE,
+        "A quote was created for a deal",
+    ),
+    changed(
+        "quote.updated",
+        QUOTE_RESOURCE,
+        "Fields or items of a quote changed",
+        PreviousValues::Changes,
+    ),
+    deleted(
+        "quote.deleted",
+        QUOTE_RESOURCE,
+        "A quote version was deleted",
+    ),
+    event(
+        "quote.version_created",
+        QUOTE_RESOURCE,
+        "A new version of a quote was created from the current one",
+    ),
+    event(
+        "quote.submitted",
+        QUOTE_RESOURCE,
+        "A quote was sent for approval",
+    ),
+    event("quote.approved", QUOTE_RESOURCE, "A quote was approved"),
+    event(
+        "quote.returned_to_draft",
+        QUOTE_RESOURCE,
+        "An approval of the quote was rejected or cancelled and it went back to draft",
+    ),
+    event(
+        "quote.sent",
+        QUOTE_RESOURCE,
+        "A quote was sent to the customer by e-mail with its public link",
+    ),
+    event(
+        "quote.viewed",
+        QUOTE_RESOURCE,
+        "The customer opened the public link of the quote for the first time",
+    ),
+    event(
+        "quote.accepted",
+        QUOTE_RESOURCE,
+        "The quote was accepted: by the customer through its public link, or recorded manually by a user (`manual: true`)",
+    ),
+    event(
+        "quote.rejected",
+        QUOTE_RESOURCE,
+        "The customer rejected the quote through its public link",
+    ),
+    event(
+        "quote.expired",
+        QUOTE_RESOURCE,
+        "A sent quote passed its validity date",
+    ),
+    event(
+        "quote.deal_synced",
+        QUOTE_RESOURCE,
+        "The deal received the items and the amount of the accepted quote",
+    ),
+    event(
+        "quote.deal_sync_failed",
+        QUOTE_RESOURCE,
+        "The deal could not be fully updated after the quote was accepted",
+    ),
+];
+
+pub(crate) const QUOTE: RecordType = RecordType::from_static("quote");
+pub(crate) const QUOTES_TABLE: &str = "quotes";
+
+fn status_label(status: QuoteStatus) -> (&'static str, &'static str) {
+    match status {
+        QuoteStatus::Draft => ("Rascunho", "#6e7781"),
+        QuoteStatus::PendingApproval => ("Em aprovação", "#bf8700"),
+        QuoteStatus::Approved => ("Aprovada", "#1f6feb"),
+        QuoteStatus::Sent => ("Enviada", "#8250df"),
+        QuoteStatus::Accepted => ("Aceita", "#1a7f37"),
+        QuoteStatus::Rejected => ("Recusada", "#cf222e"),
+        QuoteStatus::Expired => ("Expirada", "#57606a"),
+    }
+}
+
+fn status_field() -> Result<SystemField, AppError> {
+    Ok(QuoteStatus::ALL.into_iter().fold(
+        field("status", "Situação", FieldType::Select)?,
+        |field, status| {
+            let (label, color) = status_label(status);
+            field.with_option(status.as_str(), label, Some(color))
+        },
+    ))
+}
+
+pub(crate) fn quote_definition() -> Result<RecordTypeDefinition, AppError> {
+    Ok(
+        RecordTypeDefinition::new(QUOTE, QUOTES_TABLE, Permission::QUOTES_READ)
+            .capabilities(RecordCapabilities::default().validation_rules())
+            .update_permission(Permission::QUOTES_UPDATE)
+            .title_field("title")
+            .owner_column("owner_id")
+            .soft_delete_column("deleted_at")
+            .system_field(
+                field("title", "Título", FieldType::Text)?
+                    .searchable()
+                    .required(),
+            )
+            .system_field(field("number", "Número", FieldType::Number)?)
+            .system_field(field("version", "Versão", FieldType::Number)?)
+            .system_field(field("is_current", "Versão atual", FieldType::Checkbox)?)
+            .system_field(status_field()?)
+            .system_field(record_field(
+                "deal_id",
+                "Oportunidade",
+                RecordType::DEAL.as_str(),
+            )?)
+            .system_field(record_field(
+                "contact_id",
+                "Contato",
+                RecordType::CONTACT.as_str(),
+            )?)
+            .system_field(record_field(
+                "company_id",
+                "Empresa",
+                RecordType::COMPANY.as_str(),
+            )?)
+            .system_field(field("owner_id", "Responsável", FieldType::User)?)
+            .system_field(field("currency", "Moeda", FieldType::Text)?)
+            .system_field(field("subtotal", "Subtotal", FieldType::Currency)?)
+            .system_field(field("discount_total", "Descontos", FieldType::Currency)?)
+            .system_field(field("tax_total", "Impostos", FieldType::Currency)?)
+            .system_field(field("total", "Total", FieldType::Currency)?)
+            .system_field(field("valid_until", "Válida até", FieldType::Date)?)
+            .system_field(field(
+                "exceeds_discount_limit",
+                "Desconto acima do limite",
+                FieldType::Checkbox,
+            )?)
+            .system_field(field("sent_at", "Enviada em", FieldType::DateTime)?)
+            .system_field(field("accepted_at", "Aceita em", FieldType::DateTime)?)
+            .system_field(field("rejected_at", "Recusada em", FieldType::DateTime)?)
+            .system_field(field("created_by", "Criada por", FieldType::User)?)
+            .system_field(field("created_at", "Criada em", FieldType::DateTime)?)
+            .system_field(field("updated_at", "Atualizada em", FieldType::DateTime)?)
+            .relation(RecordRelation::belongs_to(
+                "deal",
+                "Oportunidade",
+                RecordType::DEAL,
+                "deal_id",
+            ))
+            .relation(RecordRelation::belongs_to(
+                "contact",
+                "Contato",
+                RecordType::CONTACT,
+                "contact_id",
+            ))
+            .relation(RecordRelation::belongs_to(
+                "company",
+                "Empresa",
+                RecordType::COMPANY,
+                "company_id",
+            )),
+    )
+}
+
+pub struct QuotesModule;
+
+impl Module for QuotesModule {
+    fn manifest(&self) -> Manifest {
+        Manifest::new(KEY, "Quotes", APHEL_VERSION)
+            .description(
+                "Quotes of deals: versions, items, discounts and taxes, approval, sending, the signed public page and acceptance",
+            )
+            .depends_on(deals::KEY, "*")
+            .depends_on(products::KEY, "*")
+            .enabled_by_default()
+            .owned_tables(&["quotes", "quote_counters", "quote_items", "quote_settings"])
+            .optional(price_lists::KEY)
+            .optional(approvals::KEY)
+            .optional(companies::KEY)
+            .optional(contacts::KEY)
+            .migration(Migration::new(
+                1,
+                "create quotes",
+                include_str!("../migrations/0001_create_quotes.sql"),
+            ))
+            .migration(Migration::new(
+                2,
+                "add quote accepted_by",
+                include_str!("../migrations/0002_add_quote_accepted_by.sql"),
+            ))
+    }
+
+    fn register(&self, app: &mut AppBuilder) -> Result<(), AppError> {
+        app.declare_hook::<crate::hooks::QuoteAccepting>(
+            &[aphel_kernel::modules::HookUsage::Veto],
+            "Before a quote is accepted (on its public page or manually by a user); an error blocks the acceptance",
+        );
+        app.declare_hook::<crate::hooks::QuoteTotals>(
+            &[aphel_kernel::modules::HookUsage::Filter],
+            "Totals of a quote (items, discounts and taxes) before they are saved",
+        );
+        app.contribute(Arc::new(CrmDefaultsSeed(|connection| {
+            Box::pin(store::seed_quote_discount_policy(connection))
+        })));
+        app.record_type(quote_definition()?.handler(Arc::new(http::QuoteHandler)))
+            .openapi_tag(
+                http::TAG,
+                "Quotes of deals: versions, items, discounts and taxes, approval, sending, the signed public page and acceptance",
+            )
+            .routes(|_| OpenApiRouter::new().merge(http::router()).merge(http::public_router()))
+            .worker(runtime::quote_worker);
+        for permission in RECORD_PERMISSIONS {
+            app.permission(PermissionDefinition::record(permission))
+                .grant_to(["admin", "manager", "member"]);
+        }
+        for definition in PUBLIC_EVENTS {
+            app.public_event(*definition);
+        }
+        Ok(())
+    }
+}

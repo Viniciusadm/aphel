@@ -1,0 +1,157 @@
+{
+  "inbox": {
+    "title": "Caixa de leads",
+    "description": "Contatos no estágio Lead. Qualifique, desqualifique com um motivo ou converta em oportunidade.",
+    "qualified": "{{name}} foi qualificado"
+  },
+  "actions": {
+    "qualify": "Qualificar",
+    "disqualify": "Desqualificar",
+    "convert": "Converter",
+    "qualifyLabel": "Qualificar {{name}}",
+    "disqualifyLabel": "Desqualificar {{name}}",
+    "convertLabel": "Converter {{name}} em oportunidade",
+    "cancel": "Cancelar"
+  },
+  "disqualify": {
+    "title": "Desqualificar lead",
+    "description": "{{name}} sai da caixa de leads. O motivo fica registrado no histórico e no relatório.",
+    "reason": "Motivo",
+    "reasonPlaceholder": "Escolha um motivo",
+    "reasonRequired": "Escolha o motivo.",
+    "noReasons": "Nenhum motivo ativo. Cadastre motivos em Configurações > Ciclo de vida.",
+    "note": "Observação (opcional)",
+    "notePlaceholder": "Detalhes para quem consultar este contato depois",
+    "submit": "Desqualificar",
+    "done": "{{name}} foi desqualificado"
+  },
+  "convert": {
+    "title": "Converter em oportunidade",
+    "description": "Cria uma oportunidade com {{name}} e a empresa principal do contato, e muda o estágio do contato para Oportunidade.",
+    "pipeline": "Funil",
+    "pipelinePlaceholder": "Escolha um funil",
+    "pipelineRequired": "Escolha o funil.",
+    "stage": "Etapa",
+    "firstStage": "Primeira etapa do funil",
+    "dealTitle": "Título da oportunidade",
+    "amount": "Valor (opcional)",
+    "amountPlaceholder": "0,00",
+    "submit": "Converter",
+    "done": "{{name}} foi convertido em oportunidade"
+  },
+  "history": {
+    "tab": "Ciclo de vida",
+    "title": "Histórico do estágio do ciclo de vida",
+    "description": "Cada mudança de estágio, de quem fez e quanto tempo o registro ficou em cada um.",
+    "empty": "Nenhuma mudança de estágio",
+    "emptyDescription": "O histórico começa quando o estágio do ciclo de vida é definido.",
+    "noStage": "Sem estágio",
+    "current": "Atual",
+    "entered": "Entrou em {{date}}",
+    "left": "Saiu em {{date}}",
+    "days": "{{days}} dias no estágio",
+    "by": "Por {{actor}}",
+    "system": "regra automática",
+    "someone": "alguém"
+  },
+  "report": {
+    "open": "Relatório de conversão",
+    "back": "Caixa de leads",
+    "title": "Conversão do ciclo de vida",
+    "description": "Quantos registros entraram em cada estágio no período, quantos avançaram e quanto tempo ficaram em cada um. Considera só os registros que você pode ver.",
+    "recordType": "Registros",
+    "recordTypes": {
+      "contact": "Contatos",
+      "company": "Empresas"
+    },
+    "from": "De",
+    "to": "Até",
+    "empty": "Nenhum estágio configurado",
+    "stagesTitle": "Estágios",
+    "stagesDescription": "Atual = registros no estágio hoje. Entraram = registros que chegaram ao estágio no período. A conversão conta quem chegou a qualquer estágio seguinte depois.",
+    "columns": {
+      "stage": "Estágio",
+      "current": "Atual",
+      "entered": "Entraram no período",
+      "conversion": "Conversão",
+      "averageDays": "Tempo médio"
+    },
+    "conversion": "{{rate}} ({{converted}}) para {{next}} ou adiante",
+    "days": "{{days}} dias",
+    "disqualificationsTitle": "Desqualificações por motivo",
+    "disqualificationsDescription": "Leads desqualificados no período.",
+    "disqualificationsEmpty": "Nenhuma desqualificação no período."
+  },
+  "settings": {
+    "save": "Salvar regras",
+    "saved": "Regras do ciclo de vida salvas",
+    "rules": {
+      "title": "Transições automáticas",
+      "description": "Mudam o estágio do contato e da empresa de uma oportunidade quando ela é criada, ganha ou perdida. Uma regra só muda registros que estão nos estágios de origem marcados, então nunca rebaixa um cliente sem você pedir.",
+      "target": "Estágio de destino",
+      "from": "Aplica a registros em",
+      "fromDescription": "Registros em outros estágios ficam como estão.",
+      "noStage": "Sem estágio",
+      "triggers": {
+        "deal_created": {
+          "label": "Oportunidade criada ou reaberta",
+          "description": "Quando uma oportunidade é criada (ou reaberta) para o contato ou a empresa."
+        },
+        "deal_won": {
+          "label": "Oportunidade ganha",
+          "description": "Quando uma oportunidade do contato ou da empresa é ganha."
+        },
+        "all_deals_lost": {
+          "label": "Todas as oportunidades perdidas",
+          "description": "Quando a última oportunidade aberta é perdida ou excluída e o registro não tem nenhuma ganha."
+        }
+      }
+    },
+    "disqualified": {
+      "title": "Estágio do lead desqualificado",
+      "description": "Estágio dado ao contato desqualificado na caixa de leads.",
+      "none": "Sem estágio"
+    }
+  },
+  "reasons": {
+    "title": "Motivos de desqualificação",
+    "description": "Motivos para desqualificar um lead na caixa de leads.",
+    "new": "Novo motivo",
+    "newTitle": "Novo motivo",
+    "editTitle": "Editar motivo",
+    "dialogDescription": "O nome aparece na desqualificação e no relatório. A chave é usada nos pacotes de configuração e não muda.",
+    "name": "Nome",
+    "nameRequired": "Informe o nome.",
+    "save": "Salvar",
+    "saved": "Motivo {{name}} salvo",
+    "listLabel": "Motivos de desqualificação",
+    "editLabel": "Editar {{name}}",
+    "deleteLabel": "Excluir {{name}}",
+    "deleteTitle": "Excluir motivo",
+    "deleteDescription": "As desqualificações com o motivo {{name}} mantêm o nome no histórico.",
+    "deleteConfirm": "Excluir",
+    "deleted": "Motivo {{name}} excluído",
+    "inactive": "Inativo",
+    "activate": "Ativar",
+    "deactivate": "Desativar",
+    "empty": "Nenhum motivo cadastrado"
+  },
+  "errors": {
+    "generic": "Não foi possível concluir a ação.",
+    "forbidden": "Você não tem permissão para esta ação.",
+    "notFound": "O registro não existe mais.",
+    "pipelineNotFound": "O funil escolhido não existe mais.",
+    "notLead": "Este contato não está mais como lead. Recarregue a lista.",
+    "keyTaken": "Já existe um motivo com esta chave.",
+    "versionConflict": "Alguém alterou estas configurações. Recarregue e tente de novo.",
+    "invalid": "Confira os dados informados.",
+    "invalidField": "{{field}}: {{message}}"
+  },
+  "quickFilter": {
+    "label": "Somente leads",
+    "description": "Mostrar só contatos no estágio lead"
+  },
+  "nav": {
+    "leads": "Leads"
+  }
+}

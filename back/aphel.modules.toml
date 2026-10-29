@@ -1,0 +1,54 @@
+[modules]
+contacts = { path = "modules/contacts", required = true }
+companies = { path = "modules/companies", required = true }
+leads = { path = "modules/leads" }
+scoring = { path = "modules/scoring" }
+currencies = { path = "modules/currencies", required = true }
+pipelines = { path = "modules/pipelines", required = true }
+deals = { path = "modules/deals", required = true }
+deal_items = { path = "modules/deal_items" }
+renewals = { path = "modules/renewals" }
+goals = { path = "modules/goals" }
+forecast = { path = "modules/forecast" }
+activities = { path = "modules/activities", required = true }
+notes = { path = "modules/notes", required = true }
+reminders = { path = "modules/reminders" }
+timeline = { path = "modules/timeline", required = true }
+favorites = { path = "modules/favorites" }
+followers = { path = "modules/followers" }
+dashboard = { path = "modules/dashboard" }
+reports = { path = "modules/reports" }
+onboarding = { path = "modules/onboarding" }
+demo = { path = "modules/demo" }
+lead_distribution = { path = "modules/lead_distribution" }
+tags = { path = "modules/tags", required = true }
+segments = { path = "modules/segments" }
+calls = { path = "modules/calls" }
+email = { path = "modules/email" }
+sequences = { path = "modules/sequences" }
+scheduling = { path = "modules/scheduling" }
+approvals = { path = "modules/approvals" }
+automations = { path = "modules/automations" }
+webhooks = { path = "modules/webhooks" }
+integrations = { path = "modules/integrations", required = true }
+imports = { path = "modules/imports" }
+exports = { path = "modules/exports", required = true }
+bulk_actions = { path = "modules/bulk_actions" }
+duplicates = { path = "modules/duplicates" }
+trash = { path = "modules/trash" }
+privacy = { path = "modules/privacy" }
+org_export = { path = "modules/org_export", required = true }
+migrations_assistant = { path = "modules/migrations_assistant" }
+products = { path = "modules/products" }
+price_lists = { path = "modules/price_lists" }
+quotes = { path = "modules/quotes" }
+proposals = { path = "modules/proposals" }
+insights = { path = "modules/insights" }
+lead_forms = { path = "modules/lead_forms" }
+ai = { path = "modules/ai" }
+oidc = { path = "modules/oidc" }
+google = { path = "modules/google" }
+microsoft = { path = "modules/microsoft" }
+esign = { path = "modules/esign" }
+enrichment = { path = "modules/enrichment" }
+messaging = { path = "modules/messaging" }

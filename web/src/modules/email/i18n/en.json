@@ -1,0 +1,371 @@
+{
+  "actions": {
+    "cancel": "Cancel",
+    "edit": "Edit",
+    "remove": "Remove",
+    "save": "Save"
+  },
+  "common": {
+    "loading": "Loading…"
+  },
+  "fields": {
+    "subject": "Subject"
+  },
+  "recordTypes": {
+    "contact": "Contact",
+    "company": "Company",
+    "deal": "Deal"
+  },
+  "visibility": {
+    "private": {
+      "label": "Private",
+      "description": "Only you see these conversations. For the rest of the team they don't show up, not even in the timeline."
+    },
+    "metadata": {
+      "label": "Metadata only",
+      "description": "The team sees subject, participants and dates, but not the content, preview or attachments."
+    },
+    "shared": {
+      "label": "Shared",
+      "description": "Anyone who can see the linked record reads the full conversation, with content and attachments."
+    }
+  },
+  "mailboxStatus": {
+    "active": "Active",
+    "syncing": "Syncing",
+    "error": "Error",
+    "disconnected": "Disconnected"
+  },
+  "messageStatus": {
+    "received": "Received",
+    "draft": "Draft",
+    "scheduled": "Scheduled",
+    "sending": "Sending",
+    "sent": "Sent",
+    "failed": "Failed",
+    "cancelled": "Cancelled"
+  },
+  "messageKind": {
+    "message": "Message",
+    "bounce": "Bounce",
+    "auto_reply": "Auto-reply"
+  },
+  "direction": {
+    "inbound": "Received",
+    "outbound": "Sent"
+  },
+  "errors": {
+    "mail_provider_authentication": "The provider rejected the username or password",
+    "mail_provider_connection": "Could not connect to the mail server",
+    "mail_provider_rejected": "The mail server rejected the message",
+    "mail_provider_unsupported": "The provider does not support this feature",
+    "mail_provider_internal": "Mail provider error"
+  },
+  "mailboxes": {
+    "title": "Email mailboxes",
+    "description": "Connect your mailbox so messages exchanged with customers show up on records, and send emails from Aphel.",
+    "tabs": {
+      "mailboxes": "Mailboxes",
+      "templates": "Personal templates"
+    },
+    "connectSection": "Connect a mailbox",
+    "connectHint": "Use your Google or Microsoft account, or enter your provider's IMAP and SMTP servers.",
+    "connectWith": "Connect {{provider}}",
+    "noProviders": "No email provider is available in this organization.",
+    "connectedTitle": "Your mailboxes",
+    "emptyTitle": "No mailbox connected",
+    "emptyDescription": "Connect a mailbox to sync and send emails from records.",
+    "connectTitle": "Connect {{provider}}",
+    "connectDescription": "The password is stored encrypted and is never shown again.",
+    "editTitle": "Edit mailbox",
+    "connect": "Connect",
+    "connected": "Mailbox connected. The first sync has started.",
+    "updated": "Mailbox updated.",
+    "removed": "Mailbox removed.",
+    "removeTitle": "Remove the mailbox {{address}}?",
+    "removeDescription": "The synced conversations of this mailbox and its stored password will be deleted from Aphel. Nothing is deleted at your email provider.",
+    "removeConfirm": "Remove mailbox",
+    "test": "Test connection",
+    "testSucceeded": "Connection is working.",
+    "testFailed": "Connection failed",
+    "syncNow": "Sync now",
+    "syncQueued": "Sync started.",
+    "syncStarted": "Sync started at",
+    "lastSynced": "Last sync",
+    "never": "Never",
+    "historyDays": "Initial history",
+    "days_one": "{{count}} day",
+    "days_other": "{{count}} days",
+    "credentialsConfigured": "Credentials configured",
+    "passwordConfigured": "Password configured",
+    "oauthConnected": "{{provider}} mailbox connected.",
+    "oauthFailed": "Could not connect the mailbox",
+    "oauthErrors": {
+      "access_denied": "Authorization was cancelled at the provider.",
+      "invalid_state": "The connection session expired. Try again.",
+      "exchange_failed": "The provider did not confirm the authorization. Try again.",
+      "already_connected": "This mailbox is already connected.",
+      "generic": "The provider returned an error ({{code}})."
+    },
+    "security": {
+      "tls": "SSL/TLS",
+      "starttls": "STARTTLS",
+      "none": "No encryption"
+    },
+    "form": {
+      "displayName": "Display name",
+      "displayNamePlaceholder": "E.g.: Sales",
+      "historyDays": "Initial history (days)",
+      "historyHint": "How many days back to import on the first sync (up to {{max}}).",
+      "historyInvalid": "Enter a number from 1 to {{max}}.",
+      "imapLegend": "Incoming (IMAP)",
+      "smtpLegend": "Outgoing (SMTP)",
+      "host": "Server",
+      "port": "Port",
+      "portInvalid": "Invalid port.",
+      "security": "Security",
+      "credentials": "Access",
+      "username": "Username",
+      "password": "Password",
+      "passwordKeep": "Leave blank to keep the current one",
+      "required": "Required field.",
+      "defaultVisibility": "Default conversation visibility",
+      "visibilityHint": "Applies to the conversations of this mailbox. You can change it per conversation later."
+    }
+  },
+  "templates": {
+    "create": "New template",
+    "createTitle": "New email template",
+    "editTitle": "Edit email template",
+    "editorDescription": {
+      "organization": "Template available to the whole team.",
+      "personal": "Template visible only to you."
+    },
+    "scopeDescription": {
+      "organization": "Templates the whole team can use when writing an email.",
+      "personal": "Templates of your own, listed next to the organization ones when writing."
+    },
+    "emptyTitle": "No templates",
+    "emptyDescription": "Create templates so you don't rewrite the usual messages.",
+    "name": "Name",
+    "key": "Key",
+    "keyHint": "Stable identifier, used by configuration packages. Lowercase letters, numbers and _.",
+    "recordType": "Use on",
+    "anyRecordType": "Any record",
+    "editTab": "Edit",
+    "previewTab": "Preview",
+    "bodyHtml": "Body (HTML)",
+    "bodyHint": "Use simple HTML (paragraphs, bold, links). Variables such as {{example}} are replaced with the record data.",
+    "insertVariable": "Insert variable",
+    "searchVariables": "Search variable",
+    "noVariables": "No variables found.",
+    "variablesError": "Could not load the variables.",
+    "created": "Template created.",
+    "updated": "Template updated.",
+    "removed": "Template deleted.",
+    "removeTitle": "Delete the template {{name}}?",
+    "removeDescription": "Emails already sent with this template don't change.",
+    "updatedAt": "Updated on {{date}}"
+  },
+  "preview": {
+    "error": "Could not render the preview.",
+    "frameTitle": "Email preview",
+    "missingVariables": "Some variables have no value in the preview:"
+  },
+  "settings": {
+    "title": "Email",
+    "description": "Organization templates, addresses kept out of the CRM, tracking and contact capture.",
+    "tabs": {
+      "templates": "Templates",
+      "blocklist": "Blocklist",
+      "preferences": "Tracking and capture"
+    }
+  },
+  "blocklist": {
+    "description": "Messages from or to these domains and addresses are not synced or linked to records. Use it for personal and internal domains and newsletters.",
+    "kind": "Type",
+    "kinds": {
+      "domain": "Domain",
+      "address": "Address"
+    },
+    "value": "Value",
+    "placeholders": {
+      "domain": "example.com",
+      "address": "name@example.com"
+    },
+    "invalid": {
+      "domain": "Enter a valid domain, such as example.com.",
+      "address": "Enter a valid email address."
+    },
+    "reason": "Reason (optional)",
+    "reasonPlaceholder": "E.g.: newsletter",
+    "add": "Add",
+    "added": "Added to the blocklist.",
+    "remove": "Remove {{value}}",
+    "removed": "Removed from the blocklist.",
+    "removeTitle": "Remove {{value}} from the list?",
+    "removeDescription": "Upcoming messages from this sender will be synced again. Older ones are not recovered.",
+    "emptyTitle": "Empty list",
+    "emptyDescription": "No blocked domain or address."
+  },
+  "tracking": {
+    "title": "Tracking",
+    "description": "Know when emails sent from Aphel are opened and when their links are clicked.",
+    "opens": "Track opens",
+    "opensDescription": "Adds an invisible image to the message. Some email clients block images, so an open may not be counted.",
+    "clicks": "Track clicks",
+    "clicksDescription": "Links go through an Aphel redirect before reaching their destination.",
+    "defaultOn": "On by default for new emails",
+    "defaultOnDescription": "Senders can still turn tracking off for each email.",
+    "privacyNote": "Recipients who objected to data processing are never tracked.",
+    "saved": "Tracking preferences saved.",
+    "ownerOnly": "Tracking (only you see this)",
+    "disabledForMessage": "Tracking was off for this email.",
+    "opened_one": "Opened {{count}} time, last on {{date}}",
+    "opened_other": "Opened {{count}} times, last on {{date}}",
+    "notOpened": "Not opened yet",
+    "clicked_one": "{{count}} click, last on {{date}}",
+    "clicked_other": "{{count}} clicks, last on {{date}}",
+    "notClicked": "No clicks",
+    "replied": "Replied on {{date}}",
+    "bounced": "Bounced on {{date}}"
+  },
+  "capture": {
+    "title": "Contact capture",
+    "description": "What Aphel may create or link on its own from synced emails. Everything starts off.",
+    "createContacts": "Create contacts for unknown senders",
+    "createContactsDescription": "Only when messages were exchanged both ways with the address.",
+    "createCompanies": "Create companies from the domain",
+    "createCompaniesDescription": "Personal email domains and blocklisted ones are ignored.",
+    "linkOpenDeals": "Link to open deals",
+    "linkOpenDealsDescription": "The conversation also shows up on the contact's open deals.",
+    "initialHistoryDays": "Default initial history (days)",
+    "initialHistoryHint": "Suggested when new mailboxes are connected.",
+    "saved": "Capture preferences saved."
+  },
+  "tab": {
+    "label": "Emails",
+    "description": "Email conversations linked to this record.",
+    "compose": "New email",
+    "emptyTitle": "No conversations",
+    "emptyDescription": "When you exchange emails with this record, the conversations show up here.",
+    "emptyNoMailbox": "Connect your mailbox to see and send messages from here.",
+    "noMailboxTitle": "You haven't connected a mailbox yet",
+    "noMailboxDescription": "Connect it to sync your conversations and send emails from the record.",
+    "connectMailbox": "Connect mailbox"
+  },
+  "thread": {
+    "noSubject": "(no subject)",
+    "owner": "{{name}}'s mailbox",
+    "ownerMailbox": "{{name}}'s mailbox ({{address}})",
+    "messageCount_one": "{{count}} message",
+    "messageCount_other": "{{count}} messages",
+    "metadataOnly": "Metadata only"
+  },
+  "reader": {
+    "back": "Back to conversations",
+    "unknownSender": "Unknown sender",
+    "toLine": "To: {{names}}",
+    "ccLine": "Cc: {{names}}",
+    "bccLine": "Bcc: {{names}}",
+    "bodyTitle": "Email content",
+    "emptyBody": "Message without content.",
+    "metadataNotice": "{{name}} shares only the metadata of this conversation: subject, participants and dates.",
+    "remoteImagesBlocked": "Remote images blocked to protect your privacy.",
+    "showImages": "Show images",
+    "reply": "Reply",
+    "cancelScheduled": "Cancel sending",
+    "cancelTitle": "Cancel the scheduled email?",
+    "cancelDescription": "The message will not be sent. You can write another one later.",
+    "cancelled": "Sending cancelled.",
+    "visibilityLabel": "Visibility of this conversation",
+    "visibilityDefault": "Mailbox default",
+    "visibilityChanged": "Visibility updated."
+  },
+  "links": {
+    "linkedTo": "Linked to:",
+    "none": "no record",
+    "automatic": "automatic",
+    "automaticHint": "Linked automatically from the conversation participants.",
+    "add": "Link record",
+    "title": "Link to a record",
+    "description": "The conversation will show up in the Emails tab and in the timeline of the chosen record.",
+    "recordType": "Record type",
+    "record": "Record",
+    "alreadyLinked": "The conversation is already linked to this record.",
+    "submit": "Link",
+    "linked": "Conversation linked.",
+    "unlink": "Unlink",
+    "unlinkTitle": "Unlink the conversation from this record?",
+    "unlinkDescription": "The conversation no longer shows up on the record. It stays in your mailbox.",
+    "unlinked": "Conversation unlinked."
+  },
+  "composer": {
+    "title": "New email",
+    "replyTitle": "Reply",
+    "description": "The message is sent from your connected mailbox and linked to this record.",
+    "from": "From",
+    "to": "To",
+    "cc": "Cc",
+    "bcc": "Bcc",
+    "addCopies": "Add Cc and Bcc",
+    "suggestions": "Suggestions:",
+    "removeRecipient": "Remove {{address}}",
+    "invalidAddress": "Invalid address: {{value}}",
+    "recipientsRequired": "Enter at least one recipient.",
+    "subjectRequired": "Enter the subject.",
+    "template": "Template",
+    "noTemplate": "No template",
+    "personalTemplate": "{{name}} (personal)",
+    "write": "Write",
+    "preview": "Preview",
+    "format": "Body format",
+    "formats": {
+      "rich": "Formatted",
+      "text": "Text",
+      "html": "HTML"
+    },
+    "body": "Message",
+    "bodyPlaceholder": "Write your message…",
+    "htmlHint": "Simple HTML. Scripts and active content are removed when sending.",
+    "attach": "Attach files",
+    "uploading": "Uploading {{percent}}%",
+    "uploadFailed": "Upload failed",
+    "removeAttachment": "Remove {{name}}",
+    "schedule": "Schedule sending",
+    "scheduleAt": "Sending date and time",
+    "scheduleInvalid": "Pick a date and time in the future.",
+    "tracking": "Track opens and clicks",
+    "trackingHint": "Only you see the tracking results.",
+    "send": "Send",
+    "scheduleSubmit": "Schedule",
+    "sent": "Email sent.",
+    "scheduled": "Email scheduled for {{date}}.",
+    "editor": {
+      "toolbar": "Formatting",
+      "bold": "Bold",
+      "italic": "Italic",
+      "underline": "Underline",
+      "strike": "Strikethrough",
+      "bulletList": "Bulleted list",
+      "orderedList": "Numbered list",
+      "blockquote": "Quote",
+      "link": "Insert link",
+      "unlink": "Remove link",
+      "linkUrl": "Link address",
+      "applyLink": "Apply",
+      "cancelLink": "Cancel",
+      "undo": "Undo",
+      "redo": "Redo",
+      "loading": "Loading editor…"
+    }
+  },
+  "timeline": {
+    "received": "Email received from {{from}}",
+    "sent": "Email sent",
+    "opened": "Email opened",
+    "clicked": "Link clicked in email",
+    "bounced": "Email bounced",
+    "open": "Open conversation"
+  }
+}

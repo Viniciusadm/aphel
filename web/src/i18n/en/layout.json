@@ -1,0 +1,26 @@
+{
+  "nav": {
+    "label": "Main navigation",
+    "system": "System",
+    "settings": "Settings"
+  },
+  "sidebar": {
+    "collapse": "Collapse menu",
+    "expand": "Expand menu",
+    "open": "Open menu",
+    "title": "Menu",
+    "backToApp": "Back to app"
+  },
+  "search": {
+    "label": "Search",
+    "placeholder": "Search…"
+  },
+  "user": {
+    "menu": "User menu",
+    "account": "My account"
+  },
+  "home": {
+    "emptyTitle": "No page available",
+    "emptyDescription": "No module with a home page is enabled for you. Contact your administrator."
+  }
+}

@@ -1,0 +1,226 @@
+{
+  "page": {
+    "title": "Sequências",
+    "description": "Cadências de e-mails, ligações e tarefas que acompanham cada contato até ele responder.",
+    "new": "Nova sequência",
+    "search": "Buscar sequências",
+    "statusFilter": "Situação",
+    "allStatuses": "Todas",
+    "emptyTitle": "Nenhuma sequência ainda",
+    "emptyDescription": "Crie uma sequência com e-mails automáticos, tarefas e esperas em dias úteis e inscreva contatos nela.",
+    "noResultsTitle": "Nenhuma sequência encontrada",
+    "noResultsDescription": "Ajuste a busca ou o filtro.",
+    "noAccessTitle": "Sem acesso às sequências",
+    "noAccessDescription": "Peça a um administrador a permissão para ver sequências.",
+    "pausedCount_one": "(+{{count}} pausada)",
+    "pausedCount_other": "(+{{count}} pausadas)"
+  },
+  "columns": {
+    "name": "Nome",
+    "steps": "Passos",
+    "active": "Em andamento",
+    "completed": "Concluídas",
+    "exited": "Saíram",
+    "status": "Situação"
+  },
+  "status": {
+    "active": "Ativa",
+    "inactive": "Inativa"
+  },
+  "enrollmentStatus": {
+    "active": "Em andamento",
+    "paused": "Pausada",
+    "completed": "Concluída",
+    "exited": "Saiu"
+  },
+  "stepKinds": {
+    "auto_email": "E-mail automático",
+    "manual_email": "E-mail manual",
+    "call": "Ligação",
+    "linkedin": "LinkedIn",
+    "task": "Tarefa",
+    "wait": "Espera"
+  },
+  "stepHints": {
+    "auto_email": "Enviado pela caixa de quem inscreveu, dentro da janela de envio. E-mails seguintes respondem na mesma conversa.",
+    "manual_email": "Cria uma tarefa de e-mail para quem inscreveu, com o rascunho já preenchido para revisar e enviar.",
+    "call": "Cria uma tarefa de ligação para quem inscreveu.",
+    "linkedin": "Cria uma tarefa para um contato pelo LinkedIn.",
+    "task": "Cria uma tarefa genérica para quem inscreveu.",
+    "wait": "Espera os dias úteis informados, no fuso da organização, antes do próximo passo."
+  },
+  "exitReasons": {
+    "replied": "Respondeu",
+    "meeting_booked": "Agendou reunião",
+    "deal_won": "Oportunidade ganha",
+    "deal_lost": "Oportunidade perdida",
+    "bounced": "E-mail devolvido",
+    "objection": "Pediu oposição",
+    "contact_deleted": "Contato excluído",
+    "removed": "Removido manualmente",
+    "contact_unavailable": "Contato sem e-mail ou indisponível",
+    "enroller_unavailable": "Quem inscreveu saiu da organização",
+    "send_failed": "Falha no envio"
+  },
+  "sources": {
+    "manual": "Pelo registro",
+    "bulk": "Em massa",
+    "automation": "Por automação"
+  },
+  "editor": {
+    "titleNew": "Nova sequência",
+    "titleEdit": "Editar {{name}}",
+    "back": "Voltar",
+    "noAccessDescription": "Só quem gerencia sequências pode criá-las ou editá-las.",
+    "settings": "Configurações",
+    "name": "Nome",
+    "description": "Descrição",
+    "active": "Sequência ativa",
+    "activeHint": "Desativar segura todas as inscrições até reativar.",
+    "windowStart": "Início da janela de envio",
+    "windowEnd": "Fim da janela de envio",
+    "dailyLimit": "Máximo de envios por caixa por dia",
+    "windowHint": "Os e-mails automáticos saem só em dias úteis, dentro da janela e no fuso da organização. Um contato nunca recebe dois e-mails de sequência no mesmo dia; quando um limite é atingido, o envio passa para o próximo horário válido.",
+    "steps": "Passos",
+    "stepsHint": "Os passos rodam em ordem. Use esperas para espaçar os contatos.",
+    "noSteps": "A sequência ainda não tem passos.",
+    "kind": "Tipo do passo",
+    "moveUp": "Mover o passo {{number}} para cima",
+    "moveDown": "Mover o passo {{number}} para baixo",
+    "removeStep": "Remover o passo {{number}}",
+    "waitDays": "Dias úteis de espera",
+    "title": "Título da tarefa",
+    "titleOptional": "Padrão: o assunto do e-mail",
+    "template": "Modelo de e-mail",
+    "noTemplate": "Sem modelo (escrever abaixo)",
+    "templateHint": "Assunto e corpo preenchidos abaixo têm prioridade sobre os do modelo.",
+    "subject": "Assunto",
+    "subjectHint": "Aceita variáveis como {{example}}. Em e-mails seguintes, vazio responde com o assunto da conversa.",
+    "body": "Corpo (HTML)",
+    "bodyHint": "Aceita variáveis como {{examples}}.",
+    "addEmail": "E-mail",
+    "addWait": "Espera",
+    "addTask": "Tarefa",
+    "cancel": "Cancelar",
+    "save": "Salvar",
+    "saving": "Salvando…",
+    "created": "Sequência criada",
+    "saved": "Sequência salva"
+  },
+  "validation": {
+    "nameRequired": "Informe o nome.",
+    "nameLength": "Use até 200 caracteres.",
+    "descriptionLength": "Use até 1000 caracteres.",
+    "time": "Use o formato HH:MM.",
+    "window": "O fim da janela precisa ser depois do início.",
+    "dailyLimit": "Informe um número entre 1 e 2000.",
+    "tooManySteps": "Use até 30 passos.",
+    "waitDays": "Informe de 1 a 365 dias úteis.",
+    "bodyRequired": "Escreva o corpo ou escolha um modelo.",
+    "subjectRequired": "Informe o assunto ou escolha um modelo.",
+    "titleRequired": "Informe o título da tarefa."
+  },
+  "detail": {
+    "back": "Voltar para as sequências",
+    "edit": "Editar",
+    "delete": "Excluir",
+    "windowSummary": "E-mails em dias úteis das {{start}} às {{end}}, até {{limit}} por caixa por dia.",
+    "waitSummary_one": "Esperar {{count}} dia útil",
+    "waitSummary_other": "Esperar {{count}} dias úteis"
+  },
+  "metrics": {
+    "title": "Métricas por passo",
+    "description": "Enviados conta e-mails enviados e tarefas criadas; aberturas dependem do rastreio de e-mail; saídas são inscrições que deixaram a sequência logo depois do passo.",
+    "step": "Passo",
+    "sent": "Enviados",
+    "opened": "Abertos",
+    "replied": "Respondidos",
+    "bounced": "Devolvidos",
+    "exits": "Saídas"
+  },
+  "enrollments": {
+    "title": "Inscrições",
+    "description": "Contatos inscritos nesta sequência, do mais recente ao mais antigo.",
+    "statusFilter": "Situação da inscrição",
+    "allStatuses": "Todas as situações",
+    "emptyTitle": "Nenhuma inscrição",
+    "emptyDescription": "Inscreva contatos pela aba Sequências do contato, pela ação em massa da lista ou por uma automação.",
+    "contact": "Contato",
+    "status": "Situação",
+    "progress": "Andamento",
+    "enrolledBy": "Inscrito por",
+    "nextRun": "Próximo passo em",
+    "actions": "Ações",
+    "nextStep": "Passo {{number}}: {{step}}",
+    "finished": "Todos os passos concluídos",
+    "pause": "Pausar",
+    "resume": "Retomar",
+    "exit": "Remover da sequência",
+    "confirmExit": {
+      "title": "Remover {{name}} da sequência?",
+      "description": "Nenhum passo seguinte será executado. Para voltar, inscreva o contato de novo."
+    },
+    "toast": {
+      "pause": "Inscrição pausada",
+      "resume": "Inscrição retomada",
+      "exit": "Contato removido da sequência",
+      "failed": "Não foi possível alterar a inscrição"
+    }
+  },
+  "record": {
+    "tab": "Sequências",
+    "listLabel": "Sequências do contato",
+    "emptyTitle": "Fora de sequências",
+    "emptyDescription": "Inscreva o contato numa sequência para acompanhá-lo com e-mails e tarefas automáticas.",
+    "enroll": "Inscrever em sequência",
+    "enrolling": "Inscrevendo…",
+    "enrolled": "Contato inscrito na sequência",
+    "dialogTitle": "Inscrever em sequência",
+    "dialogDescription": "O contato sai sozinho da sequência quando responder, agendar reunião, tiver uma oportunidade ganha ou perdida, um e-mail devolvido ou pedir oposição.",
+    "sequence": "Sequência",
+    "chooseSequence": "Escolha uma sequência ativa",
+    "noSequences": "Nenhuma sequência ativa disponível.",
+    "openSequences": "Ver sequências",
+    "mailbox": "Enviar pela caixa",
+    "defaultMailbox": "Minha primeira caixa conectada",
+    "noMailbox": "Sequências com e-mail automático precisam de uma caixa conectada.",
+    "connectMailbox": "Conectar caixa",
+    "cancel": "Cancelar",
+    "enrolledBy": "Inscrito por {{name}}",
+    "nextRun": "Passo {{number}} em {{date}}",
+    "stepNumber": "Passo {{number}}",
+    "pausedDetail": "Pausada no passo {{number}}",
+    "completedAt": "Concluída em {{date}}"
+  },
+  "confirmDelete": {
+    "title": "Excluir {{name}}?",
+    "description": "As inscrições e o histórico de passos da sequência serão apagados. E-mails e tarefas já criados continuam."
+  },
+  "toast": {
+    "deleted": "Sequência excluída",
+    "errorTitle": "Algo deu errado"
+  },
+  "pager": {
+    "label": "Paginação",
+    "summary": "Página {{page}} de {{pages}} · {{total}} no total",
+    "previous": "Anterior",
+    "next": "Próxima"
+  },
+  "errors": {
+    "sequence_not_found": "A sequência não existe mais.",
+    "sequence_key_taken": "Já existe uma sequência com esse nome.",
+    "sequence_inactive": "A sequência está desativada.",
+    "sequence_empty": "A sequência não tem passos para executar.",
+    "sequence_already_enrolled": "O contato já está nesta sequência.",
+    "sequence_contact_without_email": "O contato não tem e-mail.",
+    "sequence_contact_objected": "O contato pediu oposição ao rastreio de e-mails.",
+    "sequence_enrollment_not_found": "A inscrição não existe mais.",
+    "sequence_enrollment_finished": "A inscrição já terminou ou mudou de situação.",
+    "no_mailbox_available": "Conecte uma caixa de e-mail antes de inscrever contatos.",
+    "mailbox_not_found": "A caixa escolhida não existe mais.",
+    "version_conflict": "A sequência foi alterada por outra pessoa. Recarregue a página e aplique a mudança de novo."
+  },
+  "nav": {
+    "sequences": "Sequências"
+  }
+}

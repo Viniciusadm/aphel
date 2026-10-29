@@ -1,0 +1,215 @@
+{
+  "list": {
+    "title": "Deals",
+    "description": "Track pipeline negotiations, move stages and record wins and losses.",
+    "new": "New deal",
+    "mode": "Display mode",
+    "board": "Kanban",
+    "table": "Table"
+  },
+  "dialog": {
+    "title": "New deal",
+    "description": "The deal starts in the first stage of the default pipeline."
+  },
+  "board": {
+    "label": "Kanban of the {{pipeline}} pipeline",
+    "pipeline": "Pipeline",
+    "loadError": "The Kanban could not be loaded.",
+    "noStages": "The pipeline has no active stages",
+    "noStagesDescription": "Activate or create stages in the pipeline settings.",
+    "dragInstructions": "To move a deal, press space or enter, use the arrow keys to choose the stage and press space or enter again. Escape cancels.",
+    "count_one": "{{count}} deal",
+    "count_other": "{{count}} deals",
+    "totalLabel": "Total amount of the stage",
+    "emptyColumn": "No deals in this stage",
+    "loadMore": "Load more ({{count}})"
+  },
+  "card": {
+    "moveMenu": "Move {{title}}",
+    "moveTo": "Move to",
+    "noOwner": "No owner",
+    "daysInStageTitle": "Time in the current stage",
+    "daysInStage_zero": "Today",
+    "daysInStage_one": "{{count}} day",
+    "daysInStage_other": "{{count}} days"
+  },
+  "lost": {
+    "title": "Mark as lost",
+    "description": "Choose the lost reason.",
+    "descriptionFor": "Choose why “{{title}}” was lost.",
+    "reason": "Lost reason",
+    "choose": "Select a reason",
+    "required": "Choose a reason to continue.",
+    "loadError": "The lost reasons could not be loaded.",
+    "note": "Note (optional)",
+    "confirm": "Mark as lost"
+  },
+  "actions": {
+    "cancel": "Cancel",
+    "save": "Save"
+  },
+  "detail": {
+    "back": "Deals",
+    "win": "Win",
+    "lose": "Lose",
+    "reopen": "Reopen",
+    "moveTo": "Move stage",
+    "archive": "Archive",
+    "unarchive": "Unarchive",
+    "delete": "Delete",
+    "deleteTitle": "Delete deal",
+    "deleteDescription": "The deal “{{title}}” will no longer show in lists and on the Kanban.",
+    "done": {
+      "win": "Deal won",
+      "lose": "Deal marked as lost",
+      "reopen": "Deal reopened",
+      "move": "Stage updated",
+      "archive": "Deal archived",
+      "unarchive": "Deal unarchived",
+      "delete": "Deal deleted"
+    }
+  },
+  "related": {
+    "title": "Deals of the record",
+    "new": "New deal",
+    "loadError": "The deals could not be loaded.",
+    "empty": "No deals yet",
+    "total_one": "{{count}} deal",
+    "total_other": "{{count}} deals",
+    "tab": "Deals"
+  },
+  "status": {
+    "open": "Open",
+    "won": "Won",
+    "lost": "Lost"
+  },
+  "kind": {
+    "open": "In progress",
+    "won": "Won",
+    "lost": "Lost"
+  },
+  "pipeline": {
+    "filter": {
+      "label": "Filter by pipeline",
+      "all": "All pipelines",
+      "inactive": "{{name}} (inactive)"
+    },
+    "move": {
+      "menu": "Move to another pipeline",
+      "title": "Move to another pipeline",
+      "description": "Choose the target pipeline and stage.",
+      "descriptionFor": "Choose the target pipeline and stage of “{{title}}”.",
+      "pipeline": "Pipeline",
+      "stage": "Stage",
+      "noTargets": "There is no other active pipeline available.",
+      "confirm": "Move"
+    },
+    "requirements": {
+      "title": "Fill in the stage fields",
+      "description": "The stage requires these fields.",
+      "descriptionFor": "The stage “{{stage}}” requires these fields.",
+      "required": "Fill in this field to continue.",
+      "unknownField": "Field unavailable.",
+      "confirm": "Save and move",
+      "inaccessible": "The stage requires empty fields that you cannot fill because they are hidden or read-only for you. Ask someone with access to fill them in.",
+      "close": "Close"
+    },
+    "actions": {
+      "cancel": "Cancel"
+    }
+  },
+  "team": {
+    "tab": "Team",
+    "title": "Deal team",
+    "description": "Who takes part in the sale and how much of the revenue each one gets. The owner keeps the credit not given to members.",
+    "loadError": "Could not load the team.",
+    "summary": {
+      "owner": "Owner",
+      "noOwner": "No owner",
+      "ownerShare": "{{percent}} of the revenue",
+      "allocated": "Members",
+      "remaining": "Remaining",
+      "unassigned": "Without an owner, {{percent}} of the revenue is not credited to anyone.",
+      "barLabel": "Credit split: {{owner}} for the owner and {{members}} for the members"
+    },
+    "columns": {
+      "member": "Member",
+      "role": "Role",
+      "credit": "Credit"
+    },
+    "empty": "No team members",
+    "emptyDescription": "Add the people taking part in the sale to split the revenue credit.",
+    "add": {
+      "open": "Add member",
+      "user": "User",
+      "role": "Role",
+      "credit": "Credit (%)",
+      "submit": "Add",
+      "cancel": "Cancel",
+      "available": "Available: {{percent}}",
+      "userRequired": "Choose a user."
+    },
+    "noRole": "No role",
+    "inactiveUser": "Inactive",
+    "ownerBadge": "Owner",
+    "roleLabel": "Role of {{name}}",
+    "creditLabel": "Credit of {{name}} (%)",
+    "removeLabel": "Remove {{name}} from the team",
+    "removeTitle": "Remove member",
+    "removeDescription": "{{name}} leaves the team and the credit goes back to the owner.",
+    "removeConfirm": "Remove",
+    "added": "{{name}} joined the team",
+    "removed": "{{name}} left the team",
+    "saved": "Team updated",
+    "errors": {
+      "generic": "Could not save the team.",
+      "forbidden": "You are not allowed to change the team of this deal.",
+      "notFound": "The deal or the member no longer exists.",
+      "exists": "This user is already on the team.",
+      "limit": "The deal already has the maximum of 50 members.",
+      "exceeds": "The credit goes over 100%. Available: {{available}}%.",
+      "invalid": "Check the user, the role and the credit (0 to 100, up to 2 decimals).",
+      "versionConflict": "Someone changed this member. Reload and try again.",
+      "roleKeyTaken": "A role with this key already exists."
+    },
+    "timeline": {
+      "added": "{{actor}} added {{user}} to the team",
+      "updated": "{{actor}} changed {{user}} on the team",
+      "removed": "{{actor}} removed {{user}} from the team",
+      "details": "{{role}} · {{percent}} credit",
+      "detailsNoRole": "{{percent}} credit",
+      "someone": "Someone",
+      "someUser": "a user"
+    },
+    "roles": {
+      "title": "Deal team roles",
+      "description": "Roles members can have on the team of a deal, such as pre-sales or specialist.",
+      "new": "New role",
+      "newTitle": "New role",
+      "editTitle": "Edit role",
+      "dialogDescription": "The name shows on deal teams. The key is used by configuration packages and never changes.",
+      "name": "Name",
+      "nameRequired": "Enter the name.",
+      "save": "Save",
+      "cancel": "Cancel",
+      "saved": "Role {{name}} saved",
+      "listLabel": "Deal team roles",
+      "editLabel": "Edit {{name}}",
+      "deleteLabel": "Delete {{name}}",
+      "deleteTitle": "Delete role",
+      "deleteDescription": "Members with the role {{name}} stay on their teams without a role.",
+      "deleteConfirm": "Delete",
+      "deleted": "Role {{name}} deleted",
+      "inactive": "Inactive",
+      "activate": "Activate",
+      "deactivate": "Deactivate",
+      "empty": "No roles yet"
+    }
+  },
+  "nav": {
+    "deals": "Deals"
+  },
+  "createAction": {
+    "label": "New deal"
+  }
+}

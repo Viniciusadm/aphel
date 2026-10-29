@@ -1,0 +1,55 @@
+{
+  "page": {
+    "title": "Community catalog",
+    "description": "Business templates and modules published in the index configured in this installation. Templates are installed and updated with versioning; modules are only listed with instructions.",
+    "refresh": "Refresh",
+    "source": "Index: {{source}} · this Aphel: {{version}}",
+    "unavailableTitle": "Could not read the catalog",
+    "disabledTitle": "Catalog turned off",
+    "disabledDescription": "The installation administrator turned the catalog off (CATALOG_INDEX_URL empty or off)."
+  },
+  "rejected": {
+    "title_one": "{{count}} index entry was ignored because it is invalid",
+    "title_other": "{{count}} index entries were ignored because they are invalid",
+    "item": "{{id}}: {{reason}}"
+  },
+  "entry": {
+    "incompatible": "Requires Aphel {{version}}",
+    "author": "Author: {{author}}",
+    "license": "License: {{license}}",
+    "minVersion": "Minimum Aphel: {{version}}",
+    "documentation": "Documentation"
+  },
+  "templates": {
+    "title": "Business templates",
+    "description": "Versioned configuration packages. Before installing, Aphel downloads the package, checks its SHA-256 and minimum version and shows the comparison with what already exists.",
+    "empty": "The index has no templates.",
+    "installed": "Installed: {{version}}",
+    "updateAvailable": "Update available: {{installed}} → {{version}}",
+    "checking": "Checking…",
+    "actions": {
+      "install": "Review and install",
+      "update": "Review update",
+      "review": "Compare again"
+    }
+  },
+  "modules": {
+    "title": "Modules",
+    "description": "Aphel never downloads or runs code from the catalog. A module is installed by declaring it in back/aphel.modules.toml, compiling the binary and enabling it in Integrations > Modules.",
+    "empty": "The index has no modules.",
+    "howTo": "To include it in the binary, add it to back/aphel.modules.toml and run make modules:",
+    "command": "{{key}} = { version = \"{{version}}\" }",
+    "repository": "Source code"
+  },
+  "outdated": "The organization changed since the comparison. We compared again; review before applying.",
+  "errors": {
+    "generic": "The operation could not be completed.",
+    "catalog_disabled": "The catalog is turned off in this installation.",
+    "catalog_unavailable": "The catalog did not answer or is invalid: {{detail}}",
+    "catalog_entry_not_found": "This entry is no longer in the catalog.",
+    "catalog_entry_not_installable": "Modules are not installed from the catalog; follow the build instructions.",
+    "aphel_too_old": "This template requires a newer Aphel: {{detail}}",
+    "checksum_mismatch": "The downloaded package does not match the catalog SHA-256 and was not installed.",
+    "catalog_package_mismatch": "The downloaded package does not match the catalog entry: {{detail}}"
+  }
+}

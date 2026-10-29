@@ -1,0 +1,41 @@
+{
+  "panel": {
+    "title": "Attachments",
+    "count_one": "{{count}} file",
+    "count_other": "{{count}} files",
+    "listLabel": "Attached files",
+    "upload": "Upload file",
+    "fileInput": "Select files to attach",
+    "emptyTitle": "No attachments",
+    "emptyDescription": "Upload files to keep them with this record.",
+    "uploadedBy": "by {{name}}",
+    "unknownAuthor": "removed user",
+    "download": "Download {{name}}",
+    "remove": "Remove {{name}}"
+  },
+  "upload": {
+    "uploading": "Uploading {{name}}",
+    "progress": "Upload progress of {{name}}",
+    "failed": "Could not upload {{name}}",
+    "dismiss": "Dismiss notice about {{name}}",
+    "success": "{{name}} attached"
+  },
+  "remove": {
+    "title": "Remove attachment",
+    "description": "The file \"{{name}}\" will no longer appear on this record.",
+    "confirm": "Remove",
+    "cancel": "Cancel",
+    "success": "Attachment removed"
+  },
+  "errors": {
+    "generic": "The operation could not be completed. Please try again.",
+    "network": "No connection to the server. Check your internet.",
+    "fileTooLarge": "The file exceeds the maximum allowed size.",
+    "fileTypeNotAllowed": "This file type is not allowed.",
+    "emptyFile": "The file is empty.",
+    "permissionDenied": "You are not allowed to change the attachments of this record.",
+    "notFound": "The attachment was not found.",
+    "alreadyAttached": "This file is already attached to this record.",
+    "unsupportedRecordType": "This record type does not accept attachments."
+  }
+}

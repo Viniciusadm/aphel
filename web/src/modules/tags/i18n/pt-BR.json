@@ -1,0 +1,55 @@
+{
+  "recordTypes": {
+    "contact": "Contatos",
+    "company": "Empresas",
+    "deal": "Oportunidades"
+  },
+  "chips": {
+    "remove": "Remover etiqueta {{name}}",
+    "more_one": "+{{count}}",
+    "more_other": "+{{count}}"
+  },
+  "record": {
+    "label": "Etiquetas do registro",
+    "manage": "Etiquetas",
+    "search": "Buscar etiqueta",
+    "loading": "Carregando etiquetas…",
+    "empty": "Nenhuma etiqueta disponível. Crie etiquetas em Configurações › Etiquetas.",
+    "available": "Etiquetas disponíveis"
+  },
+  "settings": {
+    "title": "Etiquetas",
+    "description": "Etiquetas marcam contatos, empresas e oportunidades e podem ser usadas em filtros, segmentos e ações em massa.",
+    "new": "Nova etiqueta",
+    "newTitle": "Nova etiqueta",
+    "editTitle": "Editar etiqueta",
+    "dialogDescription": "Escolha o nome, a cor e onde a etiqueta pode ser usada.",
+    "listLabel": "Etiquetas da organização",
+    "emptyTitle": "Nenhuma etiqueta ainda",
+    "emptyDescription": "Crie a primeira etiqueta para organizar seus registros.",
+    "allTypes": "Todos os tipos",
+    "usage_one": "{{count}} registro",
+    "usage_other": "{{count}} registros",
+    "editLabel": "Editar {{name}}",
+    "deleteLabel": "Excluir {{name}}",
+    "deleteTitle": "Excluir etiqueta",
+    "deleteDescription_one": "A etiqueta \"{{name}}\" será excluída e removida de {{count}} registro. Essa ação não pode ser desfeita.",
+    "deleteDescription_other": "A etiqueta \"{{name}}\" será excluída e removida de {{count}} registros. Essa ação não pode ser desfeita.",
+    "deleteConfirm": "Excluir",
+    "name": "Nome",
+    "nameRequired": "Informe um nome.",
+    "nameTaken": "Já existe uma etiqueta com esse nome.",
+    "color": "Cor",
+    "colorHex": "Cor em hexadecimal",
+    "recordTypes": "Onde pode ser usada",
+    "recordTypesHint": "Sem nenhuma marcação, a etiqueta vale para todos os tipos.",
+    "cancel": "Cancelar",
+    "save": "Salvar",
+    "created": "Etiqueta {{name}} criada",
+    "updated": "Etiqueta {{name}} atualizada",
+    "deleted": "Etiqueta {{name}} excluída"
+  },
+  "list": {
+    "field": "Etiquetas"
+  }
+}

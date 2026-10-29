@@ -1,0 +1,44 @@
+{
+  "timeline": {
+    "kinds": {
+      "activity": "Activities",
+      "note": "Notes",
+      "deal_stage": "Stages",
+      "deal_change": "Deal changes",
+      "record_change": "Changes",
+      "attachment": "Files",
+      "event": "Other events"
+    },
+    "relatedRecord": "Related record",
+    "recordChanged": "Record changed",
+    "records": {
+      "contact": {
+        "created": "Contact created",
+        "updated": "Contact updated",
+        "deleted": "Contact deleted",
+        "archived": "Contact archived",
+        "unarchived": "Contact unarchived"
+      },
+      "company": {
+        "created": "Company created",
+        "updated": "Company updated",
+        "deleted": "Company deleted",
+        "archived": "Company archived",
+        "unarchived": "Company unarchived"
+      },
+      "deal": {
+        "created": "Deal created",
+        "updated": "Deal updated",
+        "deleted": "Deal deleted",
+        "archived": "Deal archived",
+        "unarchived": "Deal unarchived"
+      }
+    },
+    "fieldChange": "{{field}}: {{from}} → {{to}}",
+    "moreChanges_one": "and {{count}} more change",
+    "moreChanges_other": "and {{count}} more changes",
+    "file": "file",
+    "attachmentAdded": "File attached: {{name}}",
+    "attachmentRemoved": "Attachment removed: {{name}}"
+  }
+}

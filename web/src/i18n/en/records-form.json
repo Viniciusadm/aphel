@@ -1,0 +1,88 @@
+{
+  "actions": {
+    "save": "Save",
+    "saving": "Saving…",
+    "create": "Create",
+    "creating": "Creating…",
+    "cancel": "Cancel",
+    "retry": "Try again",
+    "edit": "Edit {{field}}"
+  },
+  "form": {
+    "required": "required",
+    "noFields": "No fields available to fill in."
+  },
+  "dialog": {
+    "title": "New record",
+    "description": "Fill in the required fields. The others can be completed later.",
+    "created": "Record created",
+    "loadError": "Could not load the fields.",
+    "unavailable": "This record type is not available.",
+    "editTitle": "Edit record",
+    "editDescription": "Change the fields and save.",
+    "updated": "Record updated"
+  },
+  "inline": {
+    "save": "Save {{field}}",
+    "cancel": "Cancel editing",
+    "saving": "Saving…"
+  },
+  "input": {
+    "none": "None",
+    "placeholder": "Select…",
+    "search": "Search…",
+    "searchLabel": "Search options",
+    "noResults": "No results found.",
+    "loading": "Loading…",
+    "inactiveOption": "{{label}} (inactive)",
+    "country": "Country",
+    "countryOf": "{{field}} country",
+    "clear": "Clear",
+    "timezone": "Time zone: {{zone}}",
+    "unknownUser": "Unknown user",
+    "recordUnavailable": "Record type unavailable",
+    "loadError": "Could not load the options."
+  },
+  "validation": {
+    "required": "This field is required.",
+    "invalid": "Invalid value.",
+    "invalidNumber": "Enter a valid number.",
+    "min": "The minimum value is {{min}}.",
+    "max": "The maximum value is {{max}}.",
+    "decimals_one": "Use at most {{count}} decimal place.",
+    "decimals_other": "Use at most {{count}} decimal places.",
+    "integer": "Enter a whole number.",
+    "tooLong": "Use at most {{max}} characters.",
+    "pattern": "The value is not in the expected format.",
+    "email": "Enter a valid email address.",
+    "url": "Enter a valid web address.",
+    "phone": "Enter a valid phone number.",
+    "date": "Enter a valid date.",
+    "datetime": "Enter a valid date and time.",
+    "option": "Select a valid option.",
+    "inactiveOption": "This option is inactive.",
+    "tooManyOptions": "Select at most {{max}} options.",
+    "reference": "Select a valid item.",
+    "referenceNotFound": "The selected item no longer exists.",
+    "unique": "This value is already used by another record.",
+    "boolean": "Choose yes or no.",
+    "outOfRange": "The value is out of the allowed range.",
+    "unknownField": "Unknown field.",
+    "inactiveField": "This field is inactive.",
+    "notAccessible": "You do not have access to this field.",
+    "readOnlyField": "This field is read-only for your role."
+  },
+  "errors": {
+    "generic": "Could not save. Please try again.",
+    "network": "No connection to the server. Check your internet and try again.",
+    "permissionDenied": "You do not have permission to do this.",
+    "notFound": "The record was not found.",
+    "invalidFields": "Check the fields: {{fields}}",
+    "fieldMessage": "{{field}}: {{message}}"
+  },
+  "layout": {
+    "tabs": "Form tabs",
+    "untitledTab": "Tab {{number}}",
+    "untitledSection": "Section {{number}}"
+  }
+}

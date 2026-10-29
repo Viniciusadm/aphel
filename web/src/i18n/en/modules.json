@@ -1,0 +1,121 @@
+{
+  "title": "Modules",
+  "description": "Optional features built into Aphel. Enable only what your organization uses: disabling stops the module's screens and routines, but its data is kept.",
+  "listLabel": "Available modules",
+  "emptyTitle": "No modules available",
+  "emptyDescription": "This Aphel build includes no modules.",
+  "version": "Version {{version}}",
+  "minAphelVersion": "Requires Aphel {{version}} or later",
+  "status": {
+    "enabled": "Enabled",
+    "disabled": "Disabled"
+  },
+  "compatibility": {
+    "requires_aphel": "Requires another Aphel version",
+    "missing_dependency": "Missing dependency",
+    "incompatible_dependency": "Incompatible dependency",
+    "unknown": "Incompatible"
+  },
+  "updateAvailable": "Update pending",
+  "updateAvailableHint": "This organization runs version {{installed}}; Aphel ships version {{version}}.",
+  "enabledAt": "Enabled on {{date}}",
+  "disabledAt": "Disabled on {{date}}",
+  "dataExportedAt": "Data exported on {{date}}",
+  "dataPurgedAt": "Data removed on {{date}}",
+  "dependencies": {
+    "title": "Depends on",
+    "none": "No dependencies",
+    "requirement": "version {{requirement}}",
+    "state": {
+      "enabled": "enabled",
+      "disabled": "disabled",
+      "missing": "not installed"
+    }
+  },
+  "dependents": {
+    "title": "Used by",
+    "hint": "Disable the modules that depend on this one first: {{names}}."
+  },
+  "details": {
+    "summary": "Permissions and events",
+    "permissions": "Permissions it adds",
+    "noPermissions": "No permissions of its own",
+    "recordScoped": "per record",
+    "events": "Events it publishes",
+    "noEvents": "No events of its own"
+  },
+  "actions": {
+    "enable": "Enable",
+    "disable": "Disable",
+    "configure": "Configure",
+    "more": "More actions for {{name}}",
+    "export": "Export data",
+    "purge": "Remove data"
+  },
+  "disable": {
+    "title": "Disable {{name}}?",
+    "description": "The module's screens, menus, widgets and automatic routines stop working for the whole organization. No data is deleted: enabling it again restores everything.",
+    "confirm": "Disable"
+  },
+  "settings": {
+    "title": "Configure {{name}}",
+    "description": "Settings apply to the whole organization. Secrets are encrypted and never shown again.",
+    "noFields": "This module has no generic settings.",
+    "requiredHint": "Fill in the required fields to enable the module.",
+    "selectPlaceholder": "Select",
+    "fieldPlaceholder": "Select a field",
+    "noFieldOptions": "No compatible field",
+    "secretConfigured": "Already configured. Leave blank to keep the current value.",
+    "clearSecret": "Remove the saved value",
+    "extraPanel": "More options",
+    "extraPanelDisabled": "Enable the module to see the other options.",
+    "cancel": "Cancel",
+    "save": "Save"
+  },
+  "validation": {
+    "required": "Required field.",
+    "email": "Enter a valid email.",
+    "url": "Enter an address starting with http:// or https://.",
+    "number": "Enter a number.",
+    "range": "Enter a value between {{min}} and {{max}}.",
+    "invalid": "Invalid value.",
+    "tooLong": "Text is too long.",
+    "text": "Enter a text.",
+    "boolean": "Choose yes or no.",
+    "option": "Choose one of the options.",
+    "field": "Choose a valid field.",
+    "unknown": "This setting does not exist in this module."
+  },
+  "purge": {
+    "title": "Remove {{name}} data",
+    "description": "Permanently deletes all data stored by the module in this organization.",
+    "warning": "This cannot be undone. Removed data can only be recovered from the exported file.",
+    "exportStep": "Before removing, export the data to keep a copy.",
+    "exportDone": "Data exported on {{date}}.",
+    "exportAction": "Export data now",
+    "typeToConfirm": "Type <strong>{{key}}</strong> to confirm.",
+    "typeToConfirmLabel": "Module key",
+    "cancel": "Cancel",
+    "confirm": "Permanently remove data",
+    "pending": "Removing…"
+  },
+  "toast": {
+    "enabled": "{{name}} enabled.",
+    "disabled": "{{name}} disabled. Its data was kept.",
+    "saved": "{{name}} settings saved.",
+    "exported": "{{name}} data exported.",
+    "purged": "{{name}} data removed."
+  },
+  "errors": {
+    "module_incompatible": "This module is not compatible with the current Aphel version or its dependencies.",
+    "module_dependency_disabled": "Enable the modules this one depends on first.",
+    "module_settings_required": "Fill in the required settings before enabling.",
+    "module_required_by": "Other enabled modules depend on this one. Disable them first.",
+    "module_enabled": "Disable the module before removing its data.",
+    "module_export_required": "Export the data after disabling the module before removing it.",
+    "module_confirmation_required": "The typed key does not match.",
+    "actionFailed": "The action could not be completed",
+    "generic": "Could not save. Please try again."
+  },
+  "applyUpdate": "Apply update"
+}

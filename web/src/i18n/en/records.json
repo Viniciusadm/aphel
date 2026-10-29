@@ -1,0 +1,18 @@
+{
+  "values": {
+    "empty": "—",
+    "yes": "Yes",
+    "no": "No",
+    "unknownUser": "Removed user"
+  },
+  "dev": {
+    "title": "Demo records",
+    "notice": "Internal development page: the data comes from in-browser mocks (MSW) and disappears on reload.",
+    "starting": "Starting mocks…",
+    "mocksFailed": "Could not start the mocks",
+    "new": "New widget",
+    "back": "Back to the list",
+    "clearSelection_one": "Clear selection ({{count}})",
+    "clearSelection_other": "Clear selection ({{count}})"
+  }
+}

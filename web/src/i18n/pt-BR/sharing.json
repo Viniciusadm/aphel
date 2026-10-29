@@ -1,0 +1,51 @@
+{
+  "button": {
+    "share": "Compartilhar"
+  },
+  "dialog": {
+    "title": "Compartilhar registro",
+    "description": "Dê acesso a este registro para pessoas ou equipes além do que os papéis já permitem. Compartilhar nunca permite excluir nem compartilhar de novo.",
+    "empty": "Este registro ainda não foi compartilhado.",
+    "listLabel": "Compartilhamentos",
+    "readOnly": "Só o responsável pelo registro ou quem tem a permissão de compartilhar registros pode alterar os compartilhamentos."
+  },
+  "form": {
+    "granteeType": "Com",
+    "user": "Usuário",
+    "team": "Equipe",
+    "choose": "Escolha…",
+    "access": "Acesso",
+    "submit": "Compartilhar",
+    "teamsUnavailable": "Você não pode listar as equipes da organização.",
+    "accessFor": "Acesso de {{name}}",
+    "remove": "Remover compartilhamento com {{name}}"
+  },
+  "granteeTypes": {
+    "user": "Usuário",
+    "team": "Equipe"
+  },
+  "access": {
+    "read": "Leitura",
+    "edit": "Edição"
+  },
+  "accessHelp": {
+    "read": "Vê o registro em listas, busca, relatórios e exportações.",
+    "edit": "Também pode editar, mover e arquivar, se o papel permitir editar esse tipo."
+  },
+  "sharedBy": "compartilhado por {{name}}",
+  "unknownGrantee": "Destinatário removido",
+  "toast": {
+    "shared": "Registro compartilhado",
+    "removed": "Compartilhamento removido",
+    "errorTitle": "Não foi possível alterar o compartilhamento"
+  },
+  "errors": {
+    "generic": "Algo deu errado. Tente novamente.",
+    "forbidden": "Você não pode alterar os compartilhamentos deste registro.",
+    "notFound": "O registro ou o compartilhamento não existe mais.",
+    "exists": "O registro já está compartilhado com esse usuário ou equipe.",
+    "limit": "O registro atingiu o limite de compartilhamentos.",
+    "versionConflict": "O compartilhamento foi alterado por outra pessoa. Recarregue e tente de novo.",
+    "invalid": "Confira o destinatário e o acesso escolhidos."
+  }
+}

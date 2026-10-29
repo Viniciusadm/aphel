@@ -1,0 +1,21 @@
+CREATE TABLE field_definitions (
+  id CHAR(36) NOT NULL,
+  record_type VARCHAR(64) NOT NULL,
+  `key` VARCHAR(64) NOT NULL,
+  label VARCHAR(140) NOT NULL,
+  field_type VARCHAR(32) NOT NULL,
+  is_system BOOLEAN NOT NULL DEFAULT FALSE,
+  column_name VARCHAR(64) NULL,
+  is_required BOOLEAN NOT NULL DEFAULT FALSE,
+  is_unique BOOLEAN NOT NULL DEFAULT FALSE,
+  is_searchable BOOLEAN NOT NULL DEFAULT FALSE,
+  is_active BOOLEAN NOT NULL DEFAULT TRUE,
+  module_key VARCHAR(64) NULL,
+  position INT NOT NULL DEFAULT 0,
+  config JSON NOT NULL DEFAULT (JSON_OBJECT()),
+  created_at DATETIME(6) NOT NULL DEFAULT CURRENT_TIMESTAMP(6),
+  updated_at DATETIME(6) NOT NULL DEFAULT CURRENT_TIMESTAMP(6) ON UPDATE CURRENT_TIMESTAMP(6),
+  PRIMARY KEY (id),
+  UNIQUE KEY field_definitions_key_unique (record_type, `key`),
+  KEY field_definitions_position_index (record_type, position)
+) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci;

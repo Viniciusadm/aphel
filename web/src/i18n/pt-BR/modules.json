@@ -1,0 +1,121 @@
+{
+  "title": "Módulos",
+  "description": "Recursos opcionais compilados no Aphel. Habilite só o que a organização usa: ao desabilitar, as telas e rotinas do módulo param, mas os dados continuam guardados.",
+  "listLabel": "Módulos disponíveis",
+  "emptyTitle": "Nenhum módulo disponível",
+  "emptyDescription": "Este binário do Aphel não inclui módulos.",
+  "version": "Versão {{version}}",
+  "minAphelVersion": "Requer Aphel {{version}} ou superior",
+  "status": {
+    "enabled": "Habilitado",
+    "disabled": "Desabilitado"
+  },
+  "compatibility": {
+    "requires_aphel": "Requer outra versão do Aphel",
+    "missing_dependency": "Dependência ausente",
+    "incompatible_dependency": "Dependência incompatível",
+    "unknown": "Incompatível"
+  },
+  "updateAvailable": "Atualização pendente",
+  "updateAvailableHint": "Esta organização usa a versão {{installed}}; o Aphel inclui a versão {{version}}.",
+  "enabledAt": "Habilitado em {{date}}",
+  "disabledAt": "Desabilitado em {{date}}",
+  "dataExportedAt": "Dados exportados em {{date}}",
+  "dataPurgedAt": "Dados removidos em {{date}}",
+  "dependencies": {
+    "title": "Depende de",
+    "none": "Sem dependências",
+    "requirement": "versão {{requirement}}",
+    "state": {
+      "enabled": "habilitado",
+      "disabled": "desabilitado",
+      "missing": "não instalado"
+    }
+  },
+  "dependents": {
+    "title": "Usado por",
+    "hint": "Desabilite antes os módulos que dependem deste: {{names}}."
+  },
+  "details": {
+    "summary": "Permissões e eventos",
+    "permissions": "Permissões que adiciona",
+    "noPermissions": "Nenhuma permissão própria",
+    "recordScoped": "por registro",
+    "events": "Eventos que publica",
+    "noEvents": "Nenhum evento próprio"
+  },
+  "actions": {
+    "enable": "Habilitar",
+    "disable": "Desabilitar",
+    "configure": "Configurar",
+    "more": "Mais ações de {{name}}",
+    "export": "Exportar dados",
+    "purge": "Remover dados"
+  },
+  "disable": {
+    "title": "Desabilitar {{name}}?",
+    "description": "As telas, menus, widgets e rotinas automáticas do módulo deixam de funcionar para toda a organização. Nenhum dado é apagado: ao habilitar de novo, tudo volta como estava.",
+    "confirm": "Desabilitar"
+  },
+  "settings": {
+    "title": "Configurar {{name}}",
+    "description": "As configurações valem para toda a organização. Segredos ficam criptografados e nunca são exibidos de novo.",
+    "noFields": "Este módulo não tem configurações genéricas.",
+    "requiredHint": "Preencha os campos obrigatórios para habilitar o módulo.",
+    "selectPlaceholder": "Selecione",
+    "fieldPlaceholder": "Selecione um campo",
+    "noFieldOptions": "Nenhum campo compatível",
+    "secretConfigured": "Já configurado. Deixe em branco para manter o valor atual.",
+    "clearSecret": "Remover o valor salvo",
+    "extraPanel": "Mais opções",
+    "extraPanelDisabled": "Habilite o módulo para ver as demais opções.",
+    "cancel": "Cancelar",
+    "save": "Salvar"
+  },
+  "validation": {
+    "required": "Campo obrigatório.",
+    "email": "Informe um e-mail válido.",
+    "url": "Informe um endereço começando com http:// ou https://.",
+    "number": "Informe um número.",
+    "range": "Informe um valor entre {{min}} e {{max}}.",
+    "invalid": "Valor inválido.",
+    "tooLong": "Texto longo demais.",
+    "text": "Informe um texto.",
+    "boolean": "Informe sim ou não.",
+    "option": "Escolha uma das opções.",
+    "field": "Escolha um campo válido.",
+    "unknown": "Esta configuração não existe neste módulo."
+  },
+  "purge": {
+    "title": "Remover dados de {{name}}",
+    "description": "Apaga de forma definitiva todos os dados guardados pelo módulo nesta organização.",
+    "warning": "Esta ação não pode ser desfeita. Os dados removidos só podem ser recuperados a partir do arquivo exportado.",
+    "exportStep": "Antes de remover, exporte os dados para guardar uma cópia.",
+    "exportDone": "Dados exportados em {{date}}.",
+    "exportAction": "Exportar dados agora",
+    "typeToConfirm": "Digite <strong>{{key}}</strong> para confirmar.",
+    "typeToConfirmLabel": "Chave do módulo",
+    "cancel": "Cancelar",
+    "confirm": "Remover dados definitivamente",
+    "pending": "Removendo…"
+  },
+  "toast": {
+    "enabled": "{{name}} habilitado.",
+    "disabled": "{{name}} desabilitado. Os dados foram mantidos.",
+    "saved": "Configurações de {{name}} salvas.",
+    "exported": "Dados de {{name}} exportados.",
+    "purged": "Dados de {{name}} removidos."
+  },
+  "errors": {
+    "module_incompatible": "Este módulo não é compatível com a versão atual do Aphel ou das suas dependências.",
+    "module_dependency_disabled": "Habilite primeiro os módulos dos quais este depende.",
+    "module_settings_required": "Preencha as configurações obrigatórias antes de habilitar.",
+    "module_required_by": "Outros módulos habilitados dependem deste. Desabilite-os primeiro.",
+    "module_enabled": "Desabilite o módulo antes de remover os dados.",
+    "module_export_required": "Exporte os dados depois de desabilitar o módulo antes de removê-los.",
+    "module_confirmation_required": "A chave digitada não confere.",
+    "actionFailed": "Não foi possível concluir a ação",
+    "generic": "Não foi possível salvar. Tente novamente."
+  },
+  "applyUpdate": "Aplicar atualização"
+}

@@ -1,0 +1,100 @@
+{
+  "page": {
+    "title": "Revenue forecast",
+    "description": "Monthly estimate based on the amount, probability and expected close date of the open deals.",
+    "horizon": "Horizon",
+    "months_one": "{{count}} month",
+    "months_other": "{{count}} months",
+    "configure": "Configure",
+    "method": "Calculation: {{method}}.",
+    "stageFallback": "Since the deal probability is not visible to you, the stage probability was used.",
+    "currencyNote": "Amounts added up in {{currency}}, without currency conversion."
+  },
+  "methods": {
+    "stage_probability": "Stage probability",
+    "deal_probability": "Deal probability",
+    "commit_only": "Commit only"
+  },
+  "methodHints": {
+    "stage_probability": "Amount × probability of the stage the deal is in.",
+    "deal_probability": "Amount × probability set on the deal (or of the stage, when empty).",
+    "commit_only": "Adds up only the amount of the deals in the commit category."
+  },
+  "categories": {
+    "pipeline": "Pipeline",
+    "best_case": "Best case",
+    "commit": "Commit"
+  },
+  "summary": {
+    "open": "Open in the horizon",
+    "forecast": "Forecast",
+    "won": "Won in the horizon",
+    "deals_one": "{{count}} deal",
+    "deals_other": "{{count}} deals",
+    "unavailable": "Unavailable"
+  },
+  "chart": {
+    "title": "Forecast per month",
+    "label": "Bar chart with the open amount, the forecast and the amount won per month",
+    "open": "Open",
+    "forecast": "Forecast",
+    "won": "Won"
+  },
+  "table": {
+    "caption": "Forecast per month",
+    "month": "Month",
+    "open": "Open",
+    "forecast": "Forecast",
+    "won": "Won",
+    "total": "Total",
+    "drillDown": "See the deals of {{month}}",
+    "drillDownCategory": "See the deals of {{month}} in {{category}}"
+  },
+  "deals": {
+    "title": "Deals of {{month}}",
+    "titleCategory": "{{category}} in {{month}}",
+    "description": "Open deals expected to close in the month, largest first.",
+    "listLabel": "Deals",
+    "empty": "No deals in this month.",
+    "noAmount": "No amount",
+    "weighted": "{{probability}}% · {{amount}} in the forecast"
+  },
+  "states": {
+    "emptyTitle": "No deals in the horizon",
+    "emptyDescription": "Open deals expected to close in the next months show up here.",
+    "hiddenTitle": "Forecast unavailable",
+    "hiddenDescription": "Your role cannot see the amount or the expected close date of deals.",
+    "noAccessTitle": "No access to deals",
+    "noAccessDescription": "Ask an administrator for permission to see deals."
+  },
+  "settings": {
+    "title": "Forecast settings",
+    "description": "Choose how the revenue forecast is calculated for the whole organization.",
+    "method": "Calculation method",
+    "categories": "Forecast categories",
+    "categoriesEnabled": "Split the forecast in categories",
+    "categoriesHint": "Categories come from the probability used in the calculation. The \"commit only\" method always uses them.",
+    "bestCase": "Best case from (%)",
+    "commit": "Commit from (%)",
+    "rangesLabel": "Category ranges",
+    "ranges": {
+      "pipeline": "Pipeline: 0% to {{max}}%",
+      "best_case": "Best case: {{min}}% to {{max}}%",
+      "commit": "Commit: from {{min}}%"
+    },
+    "horizonTitle": "Horizon",
+    "horizon": "Months shown by default",
+    "horizonHint": "From the current month, in the organization timezone.",
+    "save": "Save",
+    "saved": "Forecast settings saved",
+    "errors": {
+      "percentage": "Enter a whole number between 1 and 100.",
+      "order": "Commit must start above best case.",
+      "conflict": "The settings were changed by someone else. Reload the page.",
+      "invalid": "Invalid value."
+    }
+  },
+  "nav": {
+    "forecast": "Forecast"
+  }
+}

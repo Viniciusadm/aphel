@@ -1,0 +1,174 @@
+{
+  "page": {
+    "title": "Initial setup",
+    "loading": "Loading the assistant…",
+    "stepLabel": "Step {{current}} of {{total}}",
+    "progressLabel": "Assistant progress",
+    "goToDashboard": "Go to dashboard"
+  },
+  "steps": {
+    "business": {
+      "title": "What kind of business do you run?",
+      "description": "With a few quick answers, Aphel suggests an initial setup. You can change everything later."
+    },
+    "offering": {
+      "title": "What do you sell?",
+      "description": "Check every option that applies."
+    },
+    "team": {
+      "title": "How many people will use Aphel?",
+      "description": "Count everyone who serves customers and follows sales."
+    },
+    "recommendation": {
+      "title": "Choose a template to start",
+      "description": "The template creates fields, pipelines, tags and views designed for your business. No data is deleted."
+    },
+    "preview": {
+      "title": "Review what will be created",
+      "description": "Check the setup before applying it. Items that conflict with what already exists are skipped."
+    }
+  },
+  "businessTypes": {
+    "real_estate": {
+      "label": "Real estate",
+      "description": "Property sales and rentals, brokers and listings."
+    },
+    "agency": {
+      "label": "Agency",
+      "description": "Marketing, design, development or communication for clients."
+    },
+    "consulting": {
+      "label": "Consulting or professional services",
+      "description": "Projects, advisory and specialized services."
+    },
+    "software": {
+      "label": "Software or SaaS",
+      "description": "Digital product sold by subscription or license."
+    },
+    "b2b_sales": {
+      "label": "Sales to companies",
+      "description": "A sales team selling products or services to other companies."
+    },
+    "other": {
+      "label": "Other",
+      "description": "None of the options above describes your business well."
+    }
+  },
+  "offerings": {
+    "product": {
+      "label": "Products",
+      "description": "Physical or digital items sold per unit."
+    },
+    "service": {
+      "label": "Services",
+      "description": "Projects, hours or on-demand deliveries."
+    },
+    "recurring": {
+      "label": "Recurring",
+      "description": "Subscriptions, monthly fees or renewed contracts."
+    }
+  },
+  "teamSizes": {
+    "solo": "Just me",
+    "small": "2 to 10 people",
+    "medium": "11 to 50 people",
+    "large": "More than 50 people"
+  },
+  "reasons": {
+    "business_real_estate": "Real estate business",
+    "business_agency": "Agency",
+    "business_consulting": "Consulting and services",
+    "business_software": "Software or SaaS",
+    "business_b2b_sales": "Sales to companies",
+    "business_other": "Neutral setup",
+    "offering_product": "Sells products",
+    "offering_service": "Sells services",
+    "offering_recurring": "Recurring revenue",
+    "team_solo": "Works alone",
+    "team_small": "Small team",
+    "team_medium": "Medium team",
+    "team_large": "Large team"
+  },
+  "recommendation": {
+    "choiceLabel": "Configuration template",
+    "recommended": "Recommended",
+    "reasonsLabel": "Why we recommend it",
+    "scratch": {
+      "title": "Start from scratch",
+      "description": "Keeps Aphel's default setup. You can install a template later in Configuration packages."
+    }
+  },
+  "preview": {
+    "loading": "Preparing the preview…",
+    "nothing": "Nothing new to create: the organization already has everything this template brings.",
+    "outdated": "The organization's setup changed since the preview. Review the new version and apply again.",
+    "summary": {
+      "create": "To create",
+      "update": "To update",
+      "skip_conflict": "Conflicts",
+      "unchanged": "Unchanged"
+    },
+    "actions": {
+      "create": "Create",
+      "update": "Update"
+    },
+    "conflicts": {
+      "title_one": "{{count}} conflicting item will be skipped",
+      "title_other": "{{count}} conflicting items will be skipped",
+      "description": "Something with the same key and a different setup already exists. What exists stays as it is."
+    }
+  },
+  "actions": {
+    "skip": "Skip for now",
+    "back": "Back",
+    "next": "Continue",
+    "preview": "Preview",
+    "finishScratch": "Finish without a template",
+    "apply": "Apply template",
+    "applying": "Applying…",
+    "finish": "Finish",
+    "reopen": "Reopen assistant"
+  },
+  "done": {
+    "applied": "Template applied. Your organization is ready.",
+    "scratch": "Initial setup finished."
+  },
+  "notPending": {
+    "completed": "The initial setup assistant was already completed in this organization.",
+    "skipped": "The initial setup assistant was skipped in this organization.",
+    "dismissed": "This organization was already in use when the assistant was created, so it was not shown."
+  },
+  "noAccess": {
+    "title": "No permission",
+    "description": "Only people who manage the organization settings can use the initial assistant."
+  },
+  "status": {
+    "pending": "Pending",
+    "completed": "Completed",
+    "skipped": "Skipped",
+    "dismissed": "Not shown"
+  },
+  "settings": {
+    "title": "Initial assistant",
+    "description": "Quick questions about your business that suggest a configuration template for the organization.",
+    "statusLabel": "Status",
+    "completedWithTemplate": "Completed on {{when}} with the {{template}} template.",
+    "completedFromScratch": "Completed on {{when}}, starting from scratch.",
+    "skippedAt": "Skipped on {{when}}.",
+    "details": {
+      "pending": "The assistant was not answered yet and shows up for administrators on their next visit.",
+      "completed": "The assistant was completed.",
+      "skipped": "The assistant was skipped.",
+      "dismissed": "The organization was already in use when the assistant was created, so it was not shown."
+    },
+    "packagesHint": "To install other templates or export the setup, use",
+    "packagesLink": "Configuration packages"
+  },
+  "errors": {
+    "load": "Could not load the assistant.",
+    "templates": "Could not load the available templates.",
+    "plan": "Could not build the template preview.",
+    "invalidTemplate": "This template cannot be installed in this Aphel version.",
+    "generic": "Something went wrong. Try again."
+  }
+}

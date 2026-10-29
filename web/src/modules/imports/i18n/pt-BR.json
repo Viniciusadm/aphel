@@ -1,0 +1,140 @@
+{
+  "recordTypes": {
+    "contact": "contatos",
+    "company": "empresas",
+    "deal": "oportunidades",
+    "activity": "atividades",
+    "product": "produtos"
+  },
+  "actions": {
+    "import": "Importar"
+  },
+  "wizard": {
+    "title": "Importar {{recordType}}",
+    "back": "Voltar para a lista",
+    "steps": {
+      "upload": "Arquivo",
+      "mapping": "Mapeamento",
+      "run": "Importação",
+      "result": "Resultado"
+    },
+    "stepsLabel": "Etapas da importação",
+    "unsupported": "Este tipo de registro não pode ser importado."
+  },
+  "upload": {
+    "title": "Envie um arquivo CSV ou uma planilha",
+    "description": "A primeira linha deve ter os nomes das colunas. Aceitamos CSV em UTF-8 ou Latin-1, separado por vírgula, ponto e vírgula, tabulação ou barra vertical, e planilhas XLSX, XLS ou ODS (só a primeira aba).",
+    "fileLabel": "Arquivo CSV ou planilha",
+    "submit": "Enviar e continuar",
+    "uploading": "Enviando…",
+    "required": "Escolha um arquivo para continuar."
+  },
+  "mapping": {
+    "title": "Relacione as colunas aos campos",
+    "description": "Sugerimos um campo para cada coluna pelo nome. Ajuste o que for preciso; colunas sem campo são ignoradas.",
+    "detected": "{{rows}} linhas · codificação {{encoding}} · separador {{delimiter}}",
+    "column": "Coluna",
+    "field": "Campo",
+    "sample": "Exemplo",
+    "ignore": "Ignorar coluna",
+    "fieldFor": "Campo para a coluna {{column}}",
+    "required": "obrigatório",
+    "custom": "personalizado",
+    "previewTitle": "Prévia das primeiras linhas",
+    "line": "Linha",
+    "options": "Duplicatas e relacionamentos",
+    "duplicateKey": "Identificar duplicatas por",
+    "duplicateStrategy": "Quando encontrar uma duplicata",
+    "createCompanies": "Criar empresas que não existirem",
+    "keys": {
+      "none": "Não verificar",
+      "email": "E-mail",
+      "phone": "Telefone",
+      "domain": "Domínio",
+      "name": "Nome"
+    },
+    "strategies": {
+      "skip": "Pular a linha",
+      "update": "Atualizar o registro existente",
+      "create": "Criar mesmo assim"
+    },
+    "validate": "Validar",
+    "validating": "Validando…",
+    "start": "Importar {{count}} linhas",
+    "starting": "Iniciando…",
+    "missingRequired": "Relacione os campos obrigatórios: {{fields}}.",
+    "saveFailed": "Não foi possível salvar o mapeamento.",
+    "multiple": "vários, separados por ;"
+  },
+  "validation": {
+    "title": "Resultado da validação",
+    "summary": "{{valid}} de {{total}} linhas válidas",
+    "invalid_one": "{{count}} linha com problema",
+    "invalid_other": "{{count}} linhas com problema",
+    "allValid": "Nenhum problema encontrado.",
+    "note": "Duplicatas e regras específicas são conferidas durante a importação.",
+    "lineLabel": "Linha {{line}}",
+    "more": "Mostrando as primeiras {{count}} linhas com problema."
+  },
+  "run": {
+    "title": "Importando…",
+    "queued": "Na fila para começar.",
+    "progress": "{{processed}} de {{total}} linhas processadas",
+    "progressLabel": "Progresso da importação",
+    "hint": "Você pode sair desta página; a importação continua e você será avisado ao terminar."
+  },
+  "result": {
+    "completed": "Importação concluída",
+    "failed": "A importação não foi concluída",
+    "totals": {
+      "total": "Linhas",
+      "imported": "Criados",
+      "updated": "Atualizados",
+      "skipped": "Ignorados",
+      "failed": "Com erro"
+    },
+    "downloadErrors": "Baixar CSV com os erros",
+    "fixHint": "Corrija o arquivo de erros e envie de novo: só as linhas com falha serão importadas, com o mesmo mapeamento.",
+    "reimport": "Reimportar arquivo corrigido",
+    "reimportLabel": "Arquivo corrigido",
+    "retry": "Tentar de novo as linhas com erro",
+    "retryHint": "Use quando o problema estava fora do arquivo, como um responsável que ainda não era membro.",
+    "errorsTitle": "Linhas com erro",
+    "goToList": "Ver {{recordType}}",
+    "newImport": "Nova importação"
+  },
+  "status": {
+    "draft": "Rascunho",
+    "queued": "Na fila",
+    "running": "Em andamento",
+    "completed": "Concluída",
+    "failed": "Falhou"
+  },
+  "errors": {
+    "load": "Não foi possível carregar a importação.",
+    "upload": "Não foi possível enviar o arquivo.",
+    "generic": "Algo deu errado. Tente novamente."
+  },
+  "history": {
+    "title": "Importações",
+    "menuDescription": "Histórico das importações de planilhas, com resultado e arquivo de erros.",
+    "description": "Acompanhe as importações que você fez, retome rascunhos e baixe as linhas com erro.",
+    "new": "Nova importação",
+    "empty": "Nenhuma importação ainda",
+    "emptyDescription": "Use o botão Importar em uma lista de registros para começar.",
+    "rows_one": "{{count}} linha",
+    "rows_other": "{{count}} linhas",
+    "totals": "{{imported}} criadas, {{updated}} atualizadas, {{failed}} com erro de {{total}}",
+    "errorFile": "Linhas com erro",
+    "continue": "Continuar",
+    "open": "Abrir",
+    "columns": {
+      "file": "Arquivo",
+      "recordType": "Tipo",
+      "status": "Situação",
+      "result": "Resultado",
+      "createdAt": "Criada em",
+      "actions": "Ações"
+    }
+  }
+}

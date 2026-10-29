@@ -1,0 +1,178 @@
+{
+  "title": "Distribuição de leads",
+  "description": "Regras que escolhem o responsável de novos registros por rodízio, peso, menor carga ou pelo valor de um campo. Use-as em automações (ação \"Distribuir pela regra\"), webhooks de entrada e importações.",
+  "create": "Nova regra",
+  "empty": "Nenhuma regra de distribuição ainda.",
+  "emptyDescription": "Crie uma regra para distribuir automaticamente os leads entre os vendedores.",
+  "columns": {
+    "name": "Regra",
+    "recordType": "Tipo",
+    "strategy": "Estratégia",
+    "members": "Membros",
+    "assignments": "Atribuições",
+    "status": "Situação",
+    "actions": "Ações"
+  },
+  "status": {
+    "active": "Ativa",
+    "inactive": "Inativa"
+  },
+  "membersSummary_one": "{{count}} membro",
+  "membersSummary_other": "{{count}} membros",
+  "awaySummary": "{{count}} ausente(s)",
+  "routed": "Com roteamento por {{field}}",
+  "lastAssigned": "Última: {{name}}",
+  "recordTypes": {
+    "contact": "Contatos",
+    "company": "Empresas",
+    "deal": "Oportunidades"
+  },
+  "strategies": {
+    "round_robin": "Rodízio",
+    "weighted": "Rodízio por peso",
+    "least_loaded": "Menor carga"
+  },
+  "strategyHints": {
+    "round_robin": "Recebe quem está há mais tempo sem receber.",
+    "weighted": "Cada membro recebe na proporção do seu peso (ex.: peso 3 recebe três vezes mais que peso 1).",
+    "least_loaded": "Recebe quem tem menos oportunidades abertas."
+  },
+  "actions": {
+    "edit": "Editar",
+    "delete": "Excluir",
+    "simulate": "Simular",
+    "cancel": "Cancelar",
+    "save": "Salvar",
+    "saving": "Salvando…",
+    "close": "Fechar",
+    "history": "Histórico"
+  },
+  "editor": {
+    "createTitle": "Nova regra de distribuição",
+    "editTitle": "Editar regra de distribuição",
+    "description": "Defina quem participa, como o próximo responsável é escolhido e, se quiser, rotas por valor de campo.",
+    "name": "Nome",
+    "key": "Chave",
+    "keyHint": "Identificador estável (letras minúsculas, números e _). Deixe em branco para gerar a partir do nome.",
+    "descriptionField": "Descrição",
+    "recordType": "Tipo de registro",
+    "strategy": "Estratégia",
+    "isActive": "Regra ativa",
+    "members": "Membros",
+    "membersHint": "Usuários suspensos ou fora da organização são pulados automaticamente.",
+    "addMember": "Adicionar membro",
+    "removeMember": "Remover membro",
+    "user": "Usuário",
+    "selectUser": "Selecione um usuário",
+    "weight": "Peso",
+    "away": "Ausente",
+    "awayFrom": "Ausente de",
+    "awayUntil": "Até",
+    "awayHint": "Sem datas, fica ausente até desmarcar.",
+    "noMembers": "Nenhum membro adicionado.",
+    "routing": "Roteamento por campo",
+    "routingHint": "Envia o registro para uma equipe ou para usuários conforme o valor de um campo (ex.: região, origem). A primeira rota que casar vence.",
+    "routingField": "Campo",
+    "selectField": "Selecione um campo",
+    "fallback": "Sem rota correspondente",
+    "fallbacks": {
+      "members": "Distribuir entre os membros da regra",
+      "none": "Deixar sem responsável"
+    },
+    "routes": "Rotas",
+    "addRoute": "Adicionar rota",
+    "removeRoute": "Remover rota",
+    "routeValues": "Valores",
+    "routeValuesHint": "Separe por vírgula. A comparação ignora maiúsculas.",
+    "routeTeam": "Equipe",
+    "noTeam": "Nenhuma equipe",
+    "routeUsers": "Usuários",
+    "routeLabel": "Rota {{index}}"
+  },
+  "validation": {
+    "nameRequired": "Informe o nome.",
+    "nameLength": "Use no máximo 140 caracteres.",
+    "key": "Use letras minúsculas, números e _, começando por letra.",
+    "recordTypeRequired": "Escolha o tipo de registro.",
+    "memberRequired": "Escolha o usuário.",
+    "memberRepeated": "Este usuário já está na lista.",
+    "membersRequired": "Adicione ao menos um membro (ou use rotas sem distribuição de reserva).",
+    "weight": "O peso vai de 1 a 100.",
+    "awayPeriod": "O fim da ausência deve ser depois do início.",
+    "routingField": "Escolha o campo do roteamento.",
+    "routesRequired": "Adicione ao menos uma rota.",
+    "routeValues": "Informe ao menos um valor.",
+    "routeTarget": "Escolha uma equipe ou ao menos um usuário."
+  },
+  "simulation": {
+    "title": "Simular: {{name}}",
+    "description": "Veja quem receberia os próximos registros a partir do estado atual do rodízio. Nada é gravado.",
+    "count": "Quantidade",
+    "value": "Valor de {{field}}",
+    "valuePlaceholder": "Ex.: sp",
+    "run": "Simular",
+    "running": "Simulando…",
+    "next": "Próximos {{count}} receberiam",
+    "nobody": "Ninguém receberia: não há membro disponível.",
+    "unassigned": "Nenhuma rota casou e a regra deixa o registro sem responsável.",
+    "selection": {
+      "members": "Usando os membros da regra.",
+      "route": "Usando a rota {{index}}.",
+      "fallback": "Nenhuma rota casou; usando os membros da regra.",
+      "unassigned": "Sem responsável."
+    },
+    "skipped": "Pulados",
+    "reasons": {
+      "away": "ausente",
+      "inactive": "inativo"
+    },
+    "inactiveRule": "A regra está inativa: a simulação mostra o que aconteceria se estivesse ativa."
+  },
+  "confirmDelete": {
+    "title": "Excluir a regra \"{{name}}\"?",
+    "description": "O estado do rodízio e o histórico de atribuições serão apagados. Automações, webhooks e importações que usam a regra deixam de atribuir."
+  },
+  "toast": {
+    "created": "Regra criada.",
+    "updated": "Regra atualizada.",
+    "deleted": "Regra excluída."
+  },
+  "errors": {
+    "generic": "Não foi possível concluir. Tente novamente.",
+    "keyTaken": "Outra regra já usa esta chave.",
+    "versionConflict": "A regra foi alterada por outra pessoa. Recarregue e tente de novo.",
+    "invalid": "Revise os campos destacados."
+  },
+  "history": {
+    "open": "Histórico de atribuições",
+    "title": "Histórico de atribuições",
+    "ruleTitle": "Histórico: {{name}}",
+    "description": "Quem recebeu cada registro distribuído, do mais recente ao mais antigo.",
+    "empty": "Nenhuma atribuição registrada ainda.",
+    "columns": {
+      "date": "Data",
+      "rule": "Regra",
+      "user": "Responsável",
+      "record": "Registro",
+      "source": "Origem"
+    },
+    "removedUser": "Usuário removido",
+    "openRecord": "Abrir registro",
+    "noRecord": "Sem registro",
+    "sources": {
+      "automation": "Automação",
+      "incoming_webhook": "Webhook de entrada",
+      "lead_form": "Formulário de captura",
+      "import": "Importação",
+      "scheduling": "Agendamento"
+    }
+  },
+  "ruleSelect": {
+    "label": "Regra de distribuição",
+    "none": "Nenhuma (manter o responsável informado)",
+    "inactive": "{{name}} (inativa)",
+    "unknown": "Regra indisponível",
+    "hint": "Quando escolhida, a regra define o responsável de cada registro criado.",
+    "empty": "Nenhuma regra ativa para este tipo de registro."
+  }
+}

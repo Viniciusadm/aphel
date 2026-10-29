@@ -1,0 +1,72 @@
+{
+  "title": "Regras de validação",
+  "description": "Condições que impedem salvar um registro com dados inconsistentes. Valem para formulários, edição inline, API, importação, automações e ações em massa.",
+  "recordType": "Tipo de registro",
+  "help": "A fórmula descreve a condição de erro: quando o resultado for verdadeiro, a gravação é bloqueada e a mensagem aparece para o usuário.",
+  "new": "Nova regra",
+  "empty": {
+    "title": "Nenhuma regra para este tipo de registro",
+    "description": "Crie uma regra para bloquear gravações que não atendem às regras do seu processo."
+  },
+  "list": {
+    "label": "Regras de validação",
+    "inactive": "Inativa",
+    "highlight": "Campo: {{field}}",
+    "moveUp": "Mover {{name}} para cima",
+    "moveDown": "Mover {{name}} para baixo",
+    "edit": "Editar {{name}}",
+    "remove": "Excluir {{name}}",
+    "activate": "Ativar",
+    "deactivate": "Desativar"
+  },
+  "timing": {
+    "always": "Na criação e na edição",
+    "create": "Só na criação",
+    "update": "Só na edição"
+  },
+  "dialog": {
+    "newTitle": "Nova regra de validação",
+    "editTitle": "Editar regra de validação",
+    "description": "Escreva a condição que torna o registro inválido e a mensagem que o usuário verá.",
+    "name": "Nome",
+    "key": "Chave",
+    "keyHint": "Identificador estável usado nos pacotes de configuração. Deixe em branco para gerar a partir do nome.",
+    "message": "Mensagem de erro",
+    "messageHint": "Texto mostrado ao usuário quando a regra bloquear a gravação.",
+    "field": "Campo destacado",
+    "fieldHint": "O erro aparece junto deste campo no formulário.",
+    "noField": "Nenhum (erro geral)",
+    "timing": "Quando aplicar",
+    "active": "Regra ativa",
+    "expression": "Condição de erro",
+    "expressionHint": "Fórmula booleana. Exemplo: amount > 10000 and is_blank(source)",
+    "save": "Salvar",
+    "cancel": "Cancelar",
+    "required": "Preencha este campo."
+  },
+  "test": {
+    "title": "Testar contra um registro",
+    "record": "Registro",
+    "recordHint": "Avalia a condição sobre os dados salvos do registro escolhido.",
+    "pick": "Escolha um registro para testar.",
+    "fails": "A regra bloquearia este registro.",
+    "passes": "Este registro passa na regra.",
+    "notEvaluated": "Corrija a condição para testar.",
+    "recordNotFound": "Registro não encontrado."
+  },
+  "toasts": {
+    "created": "Regra criada.",
+    "updated": "Regra atualizada.",
+    "removed": "Regra excluída.",
+    "activated": "Regra ativada.",
+    "deactivated": "Regra desativada.",
+    "reordered": "Ordem atualizada.",
+    "error": "Não foi possível salvar a regra.",
+    "conflict": "A regra foi alterada por outra pessoa. Recarregue e tente novamente."
+  },
+  "removeDialog": {
+    "title": "Excluir regra",
+    "description": "A regra \"{{name}}\" deixará de valer e será apagada. Para só suspendê-la, desative-a.",
+    "confirm": "Excluir"
+  }
+}

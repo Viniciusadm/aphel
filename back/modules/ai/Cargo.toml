@@ -1,0 +1,25 @@
+[package]
+name = "aphel-mod-ai"
+version.workspace = true
+edition.workspace = true
+rust-version.workspace = true
+license.workspace = true
+publish = false
+
+[dependencies]
+aphel-kernel.workspace = true
+activities = { package = "aphel-mod-activities", path = "../activities" }
+contacts = { package = "aphel-mod-contacts", path = "../contacts" }
+deals = { package = "aphel-mod-deals", path = "../deals" }
+notes = { package = "aphel-mod-notes", path = "../notes" }
+axum.workspace = true
+async-trait.workspace = true
+chrono.workspace = true
+serde.workspace = true
+serde_json.workspace = true
+sqlx.workspace = true
+utoipa.workspace = true
+utoipa-axum.workspace = true
+uuid.workspace = true
+chrono-tz.workspace = true
+reqwest.workspace = true

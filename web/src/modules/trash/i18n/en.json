@@ -1,0 +1,48 @@
+{
+  "title": "Trash",
+  "description": "Deleted records (contacts, companies, deals, products, activities, quotes and custom objects) stay here until they are purged. Restore one to bring it back with its links.",
+  "search": "Search the trash",
+  "allTypes": "All types",
+  "columns": {
+    "record": "Record",
+    "type": "Type",
+    "deletedAt": "Deleted on",
+    "expiresAt": "Permanent deletion",
+    "actions": "Actions"
+  },
+  "restore": "Restore",
+  "restored": "{{name}} was restored.",
+  "purge": "Delete permanently",
+  "purgeTitle": "Delete “{{name}}” permanently?",
+  "purgeDescription": "The record's values, notes, attachments and tags will be erased. This cannot be undone.",
+  "purged": "{{name}} was deleted permanently.",
+  "emptyTitle": "The trash is empty",
+  "emptyDescription": "Deleted records show up here until they are purged.",
+  "emptyFiltered": "No deleted record matches the search.",
+  "retention": {
+    "title": "Time in the trash",
+    "description": "After this period, deleted records are erased by a daily routine.",
+    "label": "Days in the trash",
+    "hint": "Between 1 and 365 days.",
+    "save": "Save",
+    "saved": "Trash period updated.",
+    "invalid": "Enter a number between 1 and 365."
+  },
+  "typeLabel": "Record type",
+  "recordType": {
+    "contact": "Contact",
+    "company": "Company",
+    "deal": "Deal",
+    "product": "Product",
+    "activity": "Activity",
+    "quote": "Quote"
+  },
+  "recordTypes": {
+    "contact": "Contacts",
+    "company": "Companies",
+    "deal": "Deals",
+    "product": "Products",
+    "activity": "Activities",
+    "quote": "Quotes"
+  }
+}

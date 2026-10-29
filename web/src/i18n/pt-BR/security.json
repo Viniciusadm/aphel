@@ -1,0 +1,132 @@
+{
+  "title": "Segurança da conta",
+  "unknownIp": "IP desconhecido",
+  "device": {
+    "browserOnOs": "{{browser}} no {{os}}",
+    "unknown": "Dispositivo desconhecido"
+  },
+  "password": {
+    "title": "Senha",
+    "description": "Ao trocar a senha, todas as outras sessões são encerradas e você recebe um aviso por e-mail.",
+    "current": "Senha atual",
+    "new": "Nova senha",
+    "confirmation": "Confirme a nova senha",
+    "hint": "Use pelo menos {{min}} caracteres.",
+    "submit": "Trocar senha",
+    "changed_one": "Senha alterada. {{count}} outra sessão foi encerrada.",
+    "changed_other": "Senha alterada. {{count}} outras sessões foram encerradas.",
+    "errors": {
+      "currentRequired": "Informe a senha atual.",
+      "length": "A nova senha deve ter entre {{min}} e {{max}} caracteres.",
+      "mismatch": "As senhas não conferem.",
+      "same": "A nova senha deve ser diferente da atual.",
+      "wrongCurrent": "A senha atual está incorreta."
+    }
+  },
+  "sessions": {
+    "title": "Sessões ativas",
+    "description": "Dispositivos conectados à sua conta. Encerre as sessões que você não reconhece.",
+    "listLabel": "Sessões ativas",
+    "empty": "Nenhuma sessão ativa.",
+    "current": "Esta sessão",
+    "ip": "IP {{ip}}",
+    "lastSeen": "último acesso em {{date}}",
+    "createdAt": "iniciada em {{date}}",
+    "revoke": "Encerrar",
+    "revokeLabel": "Encerrar a sessão de {{device}}",
+    "revokeTitle": "Encerrar sessão?",
+    "revokeDescription": "O dispositivo {{device}} será desconectado da sua conta.",
+    "revokeConfirm": "Encerrar sessão",
+    "revoked": "Sessão encerrada.",
+    "revokeOthers": "Encerrar todas as outras",
+    "revokeOthersTitle": "Encerrar as outras sessões?",
+    "revokeOthersDescription_one": "{{count}} outro dispositivo será desconectado. Esta sessão continua ativa.",
+    "revokeOthersDescription_other": "{{count}} outros dispositivos serão desconectados. Esta sessão continua ativa.",
+    "revokeOthersConfirm": "Encerrar as outras",
+    "revokedOthers_one": "{{count}} sessão encerrada.",
+    "revokedOthers_other": "{{count}} sessões encerradas."
+  },
+  "apiTokens": {
+    "title": "Seus tokens de API",
+    "description": "Tokens ativos que dão acesso à API em seu nome. Revogue os que não usa mais.",
+    "manage": "Gerenciar tokens",
+    "listLabel": "Seus tokens de API ativos",
+    "empty": "Você não tem tokens de API ativos.",
+    "lastUsed": "último uso em {{date}}",
+    "neverUsed": "nunca usado",
+    "expiresAt": "expira em {{date}}",
+    "neverExpires": "não expira",
+    "revoke": "Revogar",
+    "revokeLabel": "Revogar o token {{name}}",
+    "revokeTitle": "Revogar token?",
+    "revokeDescription": "As integrações que usam o token \"{{name}}\" vão parar de funcionar imediatamente. Esta ação não pode ser desfeita.",
+    "revokeConfirm": "Revogar token",
+    "revoked": "Token \"{{name}}\" revogado."
+  },
+  "kinds": {
+    "login_succeeded": "Login realizado",
+    "login_failed": "Falha de login",
+    "login_locked": "Login bloqueado",
+    "two_factor_enabled": "Verificação em duas etapas ativada",
+    "two_factor_disabled": "Verificação em duas etapas desativada",
+    "two_factor_challenge_failed": "Código de verificação incorreto",
+    "recovery_code_used": "Código de recuperação usado",
+    "recovery_codes_regenerated": "Códigos de recuperação gerados de novo",
+    "password_changed": "Senha alterada",
+    "session_revoked": "Sessão encerrada",
+    "api_token_created": "Token de API criado",
+    "api_token_revoked": "Token de API revogado",
+    "permission_changed": "Permissão alterada"
+  },
+  "log": {
+    "title": "Eventos de segurança",
+    "description": "Logins, falhas, bloqueios, alterações de senha e de verificação em duas etapas, sessões, tokens de API e permissões.",
+    "scopeLabel": "Eventos exibidos",
+    "scope": {
+      "mine": "Meus eventos",
+      "organization": "Da organização"
+    },
+    "invalidFilters": "Filtros inválidos. Confira o período informado.",
+    "empty": "Nenhum evento de segurança registrado.",
+    "emptyFiltered": "Nenhum evento encontrado com esses filtros.",
+    "noUser": "Sem usuário",
+    "columns": {
+      "occurredAt": "Data",
+      "event": "Evento",
+      "user": "Usuário",
+      "device": "Dispositivo e IP",
+      "details": "Detalhes"
+    },
+    "filters": {
+      "label": "Filtrar eventos de segurança",
+      "kind": "Tipo",
+      "allKinds": "Todos os tipos",
+      "from": "De",
+      "to": "Até",
+      "clear": "Limpar",
+      "apply": "Filtrar"
+    },
+    "details": {
+      "reasons": {
+        "unknown_account": "Conta inexistente",
+        "wrong_password": "Senha incorreta",
+        "inactive_account": "Conta desativada",
+        "invalid_two_factor_code": "Código de verificação incorreto"
+      },
+      "lockedUntil": "Bloqueado até {{date}}",
+      "sessionRevoked": "{{device}} (IP {{ip}})",
+      "sessionsRevoked_one": "{{count}} outra sessão encerrada",
+      "sessionsRevoked_other": "{{count}} outras sessões encerradas",
+      "passwordChanged_one": "{{count}} outra sessão encerrada",
+      "passwordChanged_other": "{{count}} outras sessões encerradas",
+      "apiToken": "Token \"{{name}}\" ({{prefix}}…)",
+      "memberRole": "Papel alterado de {{from}} para {{to}}",
+      "rolePermissions": "Permissões do papel {{role}} alteradas",
+      "recordShared": "Registro compartilhado com {{name}} ({{access}})",
+      "recordShareUpdated": "Compartilhamento com {{name}} alterado para {{access}}",
+      "recordUnshared": "Compartilhamento com {{name}} removido",
+      "shareAccessRead": "leitura",
+      "shareAccessEdit": "edição"
+    }
+  }
+}

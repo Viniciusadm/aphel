@@ -1,0 +1,33 @@
+{
+  "title": "Navigation and language",
+  "description": "Customize the sidebar, the home screen and the language. It applies only to you, in every organization.",
+  "language": {
+    "title": "Language",
+    "description": "Language of the interface and of the emails you receive. Date and number formats follow the language.",
+    "label": "Language",
+    "organization": "Follow the organization",
+    "options": {
+      "pt-BR": "Português (Brasil)",
+      "en": "English"
+    },
+    "saved": "Language updated"
+  },
+  "home": {
+    "title": "Home screen",
+    "description": "Where you land when you sign in to Aphel.",
+    "label": "Home screen",
+    "default": "Home (dashboard)"
+  },
+  "menu": {
+    "title": "Menu items",
+    "description": "Reorder and hide the items you can access. New items show up at the end.",
+    "moveUp": "Move {{label}} up",
+    "moveDown": "Move {{label}} down",
+    "visible": "Show {{label}} in the menu",
+    "alwaysVisible": "Always visible",
+    "reset": "Restore default"
+  },
+  "save": "Save navigation",
+  "saved": "Navigation saved",
+  "saveError": "Could not save the preferences"
+}

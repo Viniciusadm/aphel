@@ -1,0 +1,36 @@
+{
+  "page": {
+    "title": "Busca",
+    "description": "Encontre contatos, empresas, oportunidades e atividades por nome, e-mail, telefone e outros campos.",
+    "placeholder": "Buscar por nome, e-mail, telefone…",
+    "inputLabel": "Termo da busca",
+    "promptTitle": "O que você procura?",
+    "promptDescription": "Digite pelo menos 2 caracteres para buscar.",
+    "loading": "Buscando…",
+    "error": "Não foi possível concluir a busca. Tente novamente.",
+    "emptyTitle": "Nenhum resultado",
+    "emptyDescription": "Nada encontrado para “{{query}}”. Confira a grafia ou tente outro termo.",
+    "summary_one": "{{count}} resultado",
+    "summary_other": "{{count}} resultados"
+  },
+  "results": {
+    "total_one": "{{count}} resultado",
+    "total_other": "{{count}} resultados",
+    "more_one": "Mostrando {{shown}} de {{count}} resultado",
+    "more_other": "Mostrando {{shown}} de {{count}} resultados"
+  },
+  "recordTypes": {
+    "contact": "Contato",
+    "company": "Empresa",
+    "deal": "Oportunidade",
+    "activity": "Atividade",
+    "product": "Produto"
+  },
+  "recordTypesPlural": {
+    "contact": "Contatos",
+    "company": "Empresas",
+    "deal": "Oportunidades",
+    "activity": "Atividades",
+    "product": "Produtos"
+  }
+}

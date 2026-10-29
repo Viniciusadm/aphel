@@ -1,0 +1,23 @@
+CREATE TABLE validation_rules (
+  id CHAR(36) NOT NULL,
+  `key` VARCHAR(64) NOT NULL,
+  record_type VARCHAR(64) NOT NULL,
+  name VARCHAR(120) NOT NULL,
+  expression TEXT NOT NULL,
+  message VARCHAR(500) NOT NULL,
+  field_key VARCHAR(100) NULL,
+  applies_on VARCHAR(10) NOT NULL DEFAULT 'always',
+  is_active BOOLEAN NOT NULL DEFAULT TRUE,
+  position INT NOT NULL DEFAULT 0,
+  created_by CHAR(36) NULL,
+  updated_by CHAR(36) NULL,
+  created_at DATETIME(6) NOT NULL DEFAULT CURRENT_TIMESTAMP(6),
+  updated_at DATETIME(6) NOT NULL DEFAULT CURRENT_TIMESTAMP(6),
+  PRIMARY KEY (id),
+  UNIQUE KEY validation_rules_key_unique (`key`),
+  KEY validation_rules_lookup_index (record_type, is_active, position),
+  KEY validation_rules_created_by_fk_index (created_by),
+  KEY validation_rules_updated_by_fk_index (updated_by),
+  CONSTRAINT validation_rules_created_by_fk FOREIGN KEY (created_by) REFERENCES users (id) ON DELETE SET NULL,
+  CONSTRAINT validation_rules_updated_by_fk FOREIGN KEY (updated_by) REFERENCES users (id) ON DELETE SET NULL
+) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci;

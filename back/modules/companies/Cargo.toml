@@ -1,0 +1,21 @@
+[package]
+name = "aphel-mod-companies"
+version.workspace = true
+edition.workspace = true
+rust-version.workspace = true
+license.workspace = true
+publish = false
+
+[dependencies]
+aphel-kernel.workspace = true
+tags = { package = "aphel-mod-tags", path = "../tags" }
+axum.workspace = true
+async-trait.workspace = true
+chrono.workspace = true
+serde.workspace = true
+serde_json.workspace = true
+sqlx.workspace = true
+utoipa.workspace = true
+utoipa-axum.workspace = true
+uuid.workspace = true
+rust_decimal.workspace = true

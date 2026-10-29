@@ -1,0 +1,36 @@
+{
+  "renewal": {
+    "title": "Automatic renewal",
+    "description": "Creates a renewal deal for each won deal of this pipeline before the contract ends, with the recurring items.",
+    "enabled": "Create renewals automatically",
+    "enabledHint": "Each deal is renewed only once, with the permissions of whoever saved these settings.",
+    "daysBefore": "Days before the contract ends",
+    "daysBeforeHint": "Between 0 and {{max}} days.",
+    "targetPipeline": "Renewal pipeline",
+    "targetStage": "Renewal stage",
+    "noStage": "Choose an open stage",
+    "titlePrefix": "Title prefix",
+    "titlePrefixHint": "The renewal title is the prefix followed by the title of the original deal.",
+    "owner": "Owner",
+    "ownerModes": {
+      "original": "Same owner as the original",
+      "none": "No owner"
+    },
+    "save": "Save renewal",
+    "saved": "Renewal settings saved"
+  },
+  "widgets": {
+    "hidden": "Hidden",
+    "renewals_due": {
+      "title": "Contracts up for renewal",
+      "count": "Renewing in {{days}} days",
+      "mrr": "MRR up for renewal",
+      "listLabel": "Contracts up for renewal",
+      "days": "Window in days",
+      "onlyMine": "Only mine",
+      "limit": "Items in the list",
+      "contractEnd": "Contract ends: {{date}}",
+      "partial": "MRR in the base currency; contracts without an exchange rate were left out of the sum."
+    }
+  }
+}

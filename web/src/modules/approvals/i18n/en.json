@@ -1,0 +1,244 @@
+{
+  "nav": {
+    "pending_one": "{{count}} pending approval",
+    "pending_other": "{{count}} pending approvals",
+    "approvals": "Approvals"
+  },
+  "recordTypes": {
+    "contact": "Contact",
+    "company": "Company",
+    "deal": "Deal",
+    "activity": "Activity",
+    "product": "Product",
+    "quote": "Quote"
+  },
+  "status": {
+    "pending": "Pending",
+    "approved": "Approved",
+    "rejected": "Rejected",
+    "cancelled": "Cancelled"
+  },
+  "stepState": {
+    "waiting": "Waiting",
+    "active": "In progress",
+    "approved": "Approved",
+    "rejected": "Rejected",
+    "skipped": "Skipped"
+  },
+  "moments": {
+    "stage_change": "Stage change",
+    "quote_send": "Quote sending",
+    "on_demand": "On demand"
+  },
+  "approverKinds": {
+    "user": "User",
+    "role": "Role",
+    "owner_team_manager": "Owner's team manager"
+  },
+  "rules": {
+    "any": "Anyone approves",
+    "all": "Everyone must approve"
+  },
+  "conditionKinds": {
+    "always": "Always",
+    "filter": "When the record matches a filter",
+    "formula": "When the formula is true"
+  },
+  "decisions": {
+    "approved": "Approved",
+    "rejected": "Rejected",
+    "waiting": "Waiting for decision"
+  },
+  "actions": {
+    "approve": "Approve",
+    "reject": "Reject",
+    "cancel": "Cancel request",
+    "close": "Close"
+  },
+  "request": {
+    "steps": "Approval steps",
+    "stepNumber": "Step {{number}}",
+    "overdue": "Overdue",
+    "untitledRecord": "Untitled record",
+    "system": "System",
+    "moment": "Moment",
+    "requestedBy": "Requested by",
+    "dueAt": "Due",
+    "resolvedAt": "Resolved",
+    "comment": "Requester comment",
+    "resolutionComment": "Decision comment"
+  },
+  "decision": {
+    "comment": "Comment (optional)",
+    "commentRequired": "Rejection reason",
+    "commentMissing": "Enter a reason to reject.",
+    "approve": {
+      "title": "Approve request",
+      "description": "Your approval counts for the current step of \"{{name}}\".",
+      "confirm": "Approve"
+    },
+    "reject": {
+      "title": "Reject request",
+      "description": "Rejecting closes the request \"{{name}}\" and notifies the requester.",
+      "confirm": "Reject"
+    },
+    "cancel": {
+      "title": "Cancel request",
+      "description": "The request \"{{name}}\" will be closed without a decision and locked fields will be released.",
+      "confirm": "Cancel request"
+    },
+    "done": {
+      "approve": "Approval recorded",
+      "reject": "Request rejected",
+      "cancel": "Request cancelled"
+    }
+  },
+  "submit": {
+    "title": "This action requires approval",
+    "descriptions": {
+      "stage_change": "Moving the deal to this stage requires approval. Send a request to the approvers; once approved, repeat the stage change.",
+      "quote_send": "Sending this quote requires approval. Send a request to the approvers.",
+      "on_demand": "Send this record for approval according to the configured policies."
+    },
+    "comment": "Comment for the approvers (optional)",
+    "commentPlaceholder": "Explain the context of the request",
+    "confirm": "Request approval",
+    "outcomes": {
+      "pending": {
+        "title": "Request sent",
+        "description": "The approvers were notified. Follow the progress in My approvals."
+      },
+      "approved": {
+        "title": "Approved",
+        "description": "Approval has already been granted. You can repeat the action."
+      },
+      "not_required": {
+        "title": "Approval not required",
+        "description": "No policy requires approval in this case. You can go ahead with the action."
+      }
+    }
+  },
+  "gate": {
+    "pendingTitle": "Approval pending",
+    "pendingDescription": "This record has an approval request in progress that blocks this change."
+  },
+  "panel": {
+    "tab": "Approvals",
+    "title": "Approval requests",
+    "empty": "No approval requests for this record.",
+    "request": "Request approval"
+  },
+  "inbox": {
+    "title": "My approvals",
+    "description": "Requests awaiting your decision and the ones you requested.",
+    "boxes": {
+      "pending_for_me": "For me",
+      "requested_by_me": "Requested by me",
+      "all": "All"
+    },
+    "status": "Status",
+    "allStatuses": "All statuses",
+    "emptyTitle": "Nothing here",
+    "empty": {
+      "pending_for_me": "No requests are waiting for your decision.",
+      "requested_by_me": "You have no approval requests with this filter.",
+      "all": "No approval requests with this filter."
+    }
+  },
+  "columns": {
+    "record": "Record",
+    "policy": "Policy",
+    "requestedBy": "Requester",
+    "dueAt": "Due",
+    "status": "Status"
+  },
+  "pager": {
+    "label": "Pagination",
+    "summary": "Page {{page}} of {{pages}} · {{total}} total",
+    "previous": "Previous",
+    "next": "Next"
+  },
+  "detail": {
+    "back": "My approvals",
+    "notFoundTitle": "Request not found",
+    "notFoundDescription": "The request does not exist or you do not have access to it.",
+    "lockedFields": "Fields locked while pending: {{fields}}"
+  },
+  "settings": {
+    "title": "Approvals",
+    "description": "Policies that require approval before changing stage, sending quotes or on demand. The order sets the priority.",
+    "new": "New policy",
+    "listLabel": "Approval policies",
+    "emptyTitle": "No approval policies",
+    "emptyDescription": "Create a policy to require approval for important changes.",
+    "inactive": "Inactive",
+    "active": "Active",
+    "toggle": "Activate or deactivate {{name}}",
+    "edit": "Edit {{name}}",
+    "moveUp": "Move {{name}} up",
+    "moveDown": "Move {{name}} down",
+    "removeLabel": "Delete {{name}}",
+    "remove": "Delete",
+    "removeTitle": "Delete policy",
+    "removeDescription": "The policy \"{{name}}\" will be deleted. Requests already open keep their copy of the policy.",
+    "removed": "Policy deleted",
+    "created": "Policy created",
+    "updated": "Policy updated",
+    "stepsCount_one": "{{count}} step",
+    "stepsCount_other": "{{count}} steps"
+  },
+  "form": {
+    "createTitle": "New approval policy",
+    "editTitle": "Edit approval policy",
+    "description": "Define when approval is required, who approves and what stays locked while the request is pending.",
+    "name": "Name",
+    "key": "Key",
+    "keyLocked": "The key cannot change after creation.",
+    "descriptionField": "Description",
+    "recordType": "Record type",
+    "moment": "Moment",
+    "pipeline": "Pipeline",
+    "stage": "Target stage",
+    "choose": "Select",
+    "condition": "Condition",
+    "formula": "Formula",
+    "formulaPlaceholder": "E.g.: amount > 10000",
+    "formulaHint": "Use the same language as field formulas; the result must be true or false.",
+    "lockedFields": "Locked fields",
+    "lockedFieldsHint": "While the request is pending these fields cannot change. With none selected, the whole record is locked.",
+    "dueHours": "Due (hours)",
+    "dueHoursPlaceholder": "No due time",
+    "active": "Active policy",
+    "steps": "Approval steps",
+    "stepName": "Step name",
+    "stepNamePlaceholder": "Optional",
+    "approverKind": "Approver",
+    "approverUser": "Approver user",
+    "approverRole": "Approver role",
+    "ownerTeamManagerHint": "The manager of the record owner's team approves. Without a manager, approval administrators approve.",
+    "rule": "Rule",
+    "addStep": "Add step",
+    "removeStep": "Remove step",
+    "moveStepUp": "Move step up",
+    "moveStepDown": "Move step down",
+    "save": "Save",
+    "errors": {
+      "required": "Required field.",
+      "invalidKey": "Use lowercase letters, numbers and _ starting with a letter.",
+      "dueRange": "Enter a whole number from 1 to 2160."
+    }
+  },
+  "errors": {
+    "approval_policy_not_found": "Approval policy not found.",
+    "approval_policy_key_taken": "A policy with this key already exists.",
+    "approval_request_not_found": "Approval request not found.",
+    "approval_not_approver": "You are not an approver of the current step of this request.",
+    "approval_not_pending": "This request is no longer pending.",
+    "approval_required": "This action requires approval.",
+    "approval_no_approver": "No eligible approver for a step of the policy (besides the requester). Adjust the policy approvers or give the manage approvals permission to someone else.",
+    "approval_pending": "There is a pending approval for this record.",
+    "version_conflict": "The policy was changed by someone else. Reload and try again.",
+    "validation_error": "Check the information provided.",
+    "generic": "The operation could not be completed."
+  }
+}

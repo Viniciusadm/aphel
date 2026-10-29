@@ -1,0 +1,51 @@
+{
+  "button": {
+    "share": "Share"
+  },
+  "dialog": {
+    "title": "Share record",
+    "description": "Give people or teams access to this record beyond what their roles allow. Sharing never allows deleting nor sharing again.",
+    "empty": "This record has not been shared yet.",
+    "listLabel": "Shares",
+    "readOnly": "Only the owner of the record or someone allowed to share records can change the shares."
+  },
+  "form": {
+    "granteeType": "With",
+    "user": "User",
+    "team": "Team",
+    "choose": "Choose…",
+    "access": "Access",
+    "submit": "Share",
+    "teamsUnavailable": "You cannot list the teams of the organization.",
+    "accessFor": "Access of {{name}}",
+    "remove": "Remove share with {{name}}"
+  },
+  "granteeTypes": {
+    "user": "User",
+    "team": "Team"
+  },
+  "access": {
+    "read": "Read",
+    "edit": "Edit"
+  },
+  "accessHelp": {
+    "read": "Sees the record in lists, search, reports and exports.",
+    "edit": "Can also edit, move and archive it when the role allows editing this type."
+  },
+  "sharedBy": "shared by {{name}}",
+  "unknownGrantee": "Removed grantee",
+  "toast": {
+    "shared": "Record shared",
+    "removed": "Share removed",
+    "errorTitle": "Could not change the share"
+  },
+  "errors": {
+    "generic": "Something went wrong. Try again.",
+    "forbidden": "You cannot change the shares of this record.",
+    "notFound": "The record or the share no longer exists.",
+    "exists": "The record is already shared with this user or team.",
+    "limit": "The record reached the share limit.",
+    "versionConflict": "The share was changed by someone else. Reload and try again.",
+    "invalid": "Check the chosen grantee and access."
+  }
+}

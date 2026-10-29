@@ -1,0 +1,48 @@
+{
+  "page": {
+    "title": "Exportação completa",
+    "description": "Gere um pacote com todos os dados da organização para backup, auditoria ou para levar a outra instalação do Aphel."
+  },
+  "request": {
+    "title": "Nova exportação",
+    "description": "O pacote é montado em segundo plano. Você recebe uma notificação quando ele estiver pronto para baixar.",
+    "includeFiles": "Incluir arquivos anexos",
+    "includeFilesHint": "Os anexos entram no zip com o conteúdo original. Desmarque para gerar um pacote menor só com os dados.",
+    "privacyNote": "O arquivo reúne dados pessoais de todos os registros. Guarde-o em local seguro e apague cópias que não forem mais necessárias.",
+    "submit": "Gerar exportação",
+    "waiting": "Exportação em andamento",
+    "queued": "Exportação solicitada. Avisaremos quando terminar.",
+    "inProgress": "Já existe uma exportação em andamento"
+  },
+  "contents": {
+    "records": "Registros de todos os tipos, inclusive objetos personalizados, em JSON Lines, com campos personalizados pela chave",
+    "relations": "Vínculos entre registros: contatos e empresas, relacionamentos personalizados, etiquetas e anexos",
+    "history": "Notas, histórico de etapas e eventos da linha do tempo",
+    "files": "Arquivos anexados aos registros",
+    "config": "Pacote de configuração (campos, funis, layouts, visualizações, automações e demais seções)",
+    "manifest": "Manifesto com versão do formato, versão do Aphel, contagens e checksums SHA-256"
+  },
+  "restore": {
+    "title": "Restaurar em outra instalação",
+    "description": "A restauração é feita pela linha de comando do servidor, numa organização já criada:",
+    "empty": "A organização de destino precisa estar vazia (sem registros). A configuração do pacote é aplicada antes dos dados e os ids originais são mantidos quando possível.",
+    "members": "Usuários são associados pelo e-mail aos membros da organização de destino; quem não for membro fica sem responsável."
+  },
+  "history": {
+    "title": "Exportações anteriores",
+    "empty": "Nenhuma exportação ainda",
+    "emptyDescription": "As exportações geradas aparecem aqui para download.",
+    "requestedBy": "Solicitada por {{name}}",
+    "summary": "{{records}} registros · {{files}} arquivos · {{size}}",
+    "missingFiles_one": "{{count}} arquivo não pôde ser lido",
+    "missingFiles_other": "{{count}} arquivos não puderam ser lidos",
+    "withoutFiles": "Sem anexos",
+    "download": "Baixar"
+  },
+  "status": {
+    "queued": "Na fila",
+    "running": "Gerando",
+    "completed": "Pronta",
+    "failed": "Falhou"
+  }
+}

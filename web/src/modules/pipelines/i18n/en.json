@@ -1,0 +1,213 @@
+{
+  "settings": {
+    "title": "Pipelines and lost reasons",
+    "description": "Create a pipeline for each process, choose which teams see each one, and organize stages and lost reasons."
+  },
+  "actions": {
+    "cancel": "Cancel",
+    "makeDefault": "Make default",
+    "activate": "Reactivate",
+    "deactivate": "Deactivate",
+    "remove": "Delete"
+  },
+  "list": {
+    "title": "Pipelines",
+    "description": "The default pipeline opens first in the Kanban and receives deals created without a pipeline.",
+    "new": "New pipeline",
+    "select": "Edit the pipeline {{name}}",
+    "moveUp": "Move the pipeline {{name}} up",
+    "moveDown": "Move the pipeline {{name}} down",
+    "stages_one": "{{count}} stage",
+    "stages_other": "{{count}} stages"
+  },
+  "badges": {
+    "default": "Default",
+    "inactive": "Inactive",
+    "restricted_one": "{{count}} team",
+    "restricted_other": "{{count}} teams"
+  },
+  "fields": {
+    "name": "Pipeline name",
+    "nameRequired": "Enter the pipeline name."
+  },
+  "create": {
+    "title": "New pipeline",
+    "description": "The pipeline starts with the default stages, which you can adjust later.",
+    "confirm": "Create pipeline",
+    "done": "Pipeline created"
+  },
+  "done": {
+    "default": "Default pipeline changed",
+    "activate": "Pipeline reactivated",
+    "deactivate": "Pipeline deactivated",
+    "remove": "Pipeline deleted"
+  },
+  "teams": {
+    "legend": "Teams with access",
+    "description": "With no team selected, everyone sees the pipeline. Administrators always see every pipeline.",
+    "empty": "No teams yet.",
+    "loadError": "Could not load the teams.",
+    "save": "Save teams",
+    "saved": "Pipeline teams updated"
+  },
+  "remove": {
+    "title": "Delete the pipeline {{name}}",
+    "description": "The pipeline and its stages will be permanently deleted.",
+    "withDeals_one": "The pipeline has {{count}} deal. Choose the pipeline and stages that will receive it.",
+    "withDeals_other": "The pipeline has {{count}} deals. Choose the pipeline and stages that will receive them.",
+    "noTarget": "There is no other active pipeline to receive the deals. Create or reactivate one first.",
+    "target": "Move deals to the pipeline",
+    "mapping": "Target stage",
+    "stageLabel_one": "{{name}} ({{count}} deal)",
+    "stageLabel_other": "{{name}} ({{count}} deals)",
+    "noCompatible": "No stage of the same kind",
+    "confirm": "Delete pipeline"
+  },
+  "rules": {
+    "entry": "Fields required to enter",
+    "entryDescription": "A deal only enters this stage with these fields filled in.",
+    "exit": "Fields required to leave",
+    "exitDescription": "A deal only leaves this stage with these fields filled in.",
+    "noFields": "No fields available.",
+    "badge_one": "{{count}} rule",
+    "badge_other": "{{count}} rules"
+  },
+  "errors": {
+    "defaultPipelineRequired": "The default pipeline cannot be deactivated or deleted, and an inactive pipeline cannot be the default. Choose another default pipeline first.",
+    "pipelineHasDeals": "The pipeline has deals. Choose a target pipeline to move them to.",
+    "pipelineLimitReached": "The organization reached the pipeline limit."
+  },
+  "editor": {
+    "settings": {
+      "title": "Pipeline and lost reasons",
+      "description": "Organize the stages of the sales pipeline and the reasons used when a deal is lost.",
+      "inactive": "Inactive",
+      "moveUp": "Move {{name}} up",
+      "moveDown": "Move {{name}} down",
+      "errors": {
+        "title": "The change could not be made",
+        "stageHasDeals": "The stage has deals. Choose a target stage to move them to.",
+        "closingStagesRequired": "The pipeline must keep at least one active open, won and lost stage.",
+        "lastLostReason": "Keep at least one lost reason active."
+      },
+      "pipeline": {
+        "name": "Pipeline name",
+        "renamed": "Pipeline renamed"
+      },
+      "stages": {
+        "title": "Stages",
+        "description": "Stages show in this order on the Kanban. Won and lost stages close the deal.",
+        "new": "New stage",
+        "newTitle": "New stage",
+        "editTitle": "Edit stage",
+        "dialogDescription": "Set the name, the close probability and the kind of the stage.",
+        "name": "Name",
+        "nameRequired": "Enter the stage name.",
+        "probability": "Probability (%)",
+        "probabilityInvalid": "Use a whole number between 0 and 100.",
+        "kind": "Kind",
+        "kindLocked": "The kind cannot change while the stage has deals.",
+        "created": "Stage created",
+        "updated": "Stage updated",
+        "activated": "Stage reactivated",
+        "deactivated": "Stage deactivated",
+        "deleted": "Stage deleted",
+        "summary_one": "{{probability}}% · {{count}} deal",
+        "summary_other": "{{probability}}% · {{count}} deals",
+        "edit": "Edit {{name}}",
+        "deactivate": "Deactivate {{name}}",
+        "activate": "Reactivate {{name}}",
+        "delete": "Delete {{name}}"
+      },
+      "removal": {
+        "deactivateTitle": "Deactivate the {{name}} stage",
+        "deleteTitle": "Delete the {{name}} stage",
+        "deactivateDescription": "The stage leaves the Kanban and can be reactivated later.",
+        "deleteDescription": "The stage will be deleted for good.",
+        "withDeals_one": "The stage has {{count}} deal. Choose the stage it moves to.",
+        "withDeals_other": "The stage has {{count}} deals. Choose the stage they move to.",
+        "noTarget": "There is no other active stage of the same kind to receive the deals. Create one first.",
+        "target": "Move deals to",
+        "deactivateConfirm": "Deactivate",
+        "deleteConfirm": "Delete"
+      },
+      "lostReasons": {
+        "title": "Lost reasons",
+        "description": "Reasons offered when a deal is marked as lost. Deactivate the ones you no longer use.",
+        "new": "New reason",
+        "add": "Add",
+        "name": "Reason name",
+        "created": "Reason created",
+        "edit": "Rename {{name}}",
+        "deactivate": "Deactivate {{name}}",
+        "activate": "Reactivate {{name}}"
+      }
+    },
+    "kind": {
+      "open": "In progress",
+      "won": "Won",
+      "lost": "Lost"
+    },
+    "actions": {
+      "cancel": "Cancel",
+      "save": "Save"
+    }
+  },
+  "guidance": {
+    "editor": {
+      "title": "Stage guidance",
+      "description": "Guidance for the salesperson and the stage checklist. Required items must be done before the deal advances from this stage or is won.",
+      "guidance": "Guidance",
+      "guidanceHint": "Supports markdown: **bold**, _italic_, lists and links.",
+      "items": "Checklist",
+      "noItems": "No checklist items.",
+      "addItem": "Add item",
+      "itemLabel": "Item {{index}}",
+      "required": "Required to advance",
+      "removeItem": "Remove item {{index}}",
+      "moveUp": "Move item {{index}} up",
+      "moveDown": "Move item {{index}} down",
+      "save": "Save guidance",
+      "saved": "Stage guidance saved.",
+      "error": "Could not save the stage guidance.",
+      "conflict": "The guidance was changed by someone else. Close and open the stage again.",
+      "labelRequired": "Fill in the text of every item."
+    },
+    "panel": {
+      "tab": "Stage guidance",
+      "title": "Guidance for {{stage}}",
+      "empty": "This stage has no guidance or checklist.",
+      "progress": "{{done}} of {{total}} items done",
+      "requiredPending_one": "{{count}} required item pending to advance.",
+      "requiredPending_other": "{{count}} required items pending to advance.",
+      "required": "Required",
+      "doneBy": "Done by {{name}} on {{date}}",
+      "doneAt": "Done on {{date}}",
+      "error": "Could not update the checklist."
+    },
+    "errors": {
+      "checklistIncomplete": "Complete the required items of the stage guidance before advancing: {{items}}."
+    }
+  },
+  "rotting": {
+    "stage": {
+      "label": "Days before rotting",
+      "description": "Open deals that stay longer than this in the stage show up as rotting. Leave it empty for no limit.",
+      "invalid": "Enter a whole number between 1 and 3650 or leave it empty.",
+      "openOnly": "Only applies to open stages.",
+      "summary_one": "Rotting after {{count}} day",
+      "summary_other": "Rotting after {{count}} days"
+    },
+    "badge": {
+      "label_one": "Rotting for {{count}} day",
+      "label_other": "Rotting for {{count}} days",
+      "title": "Past the stage limit of {{limit}} days",
+      "daysInStage_one": "{{count}} day in stage",
+      "daysInStage_other": "{{count}} days in stage"
+    },
+    "filter": {
+      "label": "Rotting",
+      "description": "Show only deals rotting in their stage"
+    }
+  }
+}

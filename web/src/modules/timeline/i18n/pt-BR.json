@@ -1,0 +1,44 @@
+{
+  "timeline": {
+    "kinds": {
+      "activity": "Atividades",
+      "note": "Notas",
+      "deal_stage": "Etapas",
+      "deal_change": "Negociação",
+      "record_change": "Alterações",
+      "attachment": "Arquivos",
+      "event": "Outros eventos"
+    },
+    "relatedRecord": "Registro relacionado",
+    "recordChanged": "Registro alterado",
+    "records": {
+      "contact": {
+        "created": "Contato criado",
+        "updated": "Contato atualizado",
+        "deleted": "Contato excluído",
+        "archived": "Contato arquivado",
+        "unarchived": "Contato desarquivado"
+      },
+      "company": {
+        "created": "Empresa criada",
+        "updated": "Empresa atualizada",
+        "deleted": "Empresa excluída",
+        "archived": "Empresa arquivada",
+        "unarchived": "Empresa desarquivada"
+      },
+      "deal": {
+        "created": "Oportunidade criada",
+        "updated": "Oportunidade atualizada",
+        "deleted": "Oportunidade excluída",
+        "archived": "Oportunidade arquivada",
+        "unarchived": "Oportunidade desarquivada"
+      }
+    },
+    "fieldChange": "{{field}}: {{from}} → {{to}}",
+    "moreChanges_one": "e mais {{count}} alteração",
+    "moreChanges_other": "e mais {{count}} alterações",
+    "file": "arquivo",
+    "attachmentAdded": "Arquivo anexado: {{name}}",
+    "attachmentRemoved": "Anexo removido: {{name}}"
+  }
+}

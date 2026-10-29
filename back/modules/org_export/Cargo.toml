@@ -1,0 +1,28 @@
+[package]
+name = "aphel-mod-org-export"
+version.workspace = true
+edition.workspace = true
+rust-version.workspace = true
+license.workspace = true
+publish = false
+
+[dependencies]
+aphel-kernel.workspace = true
+exports = { package = "aphel-mod-exports", path = "../exports" }
+pipelines = { package = "aphel-mod-pipelines", path = "../pipelines" }
+axum.workspace = true
+async-trait.workspace = true
+chrono.workspace = true
+clap.workspace = true
+serde.workspace = true
+serde_json.workspace = true
+sqlx.workspace = true
+tokio.workspace = true
+tracing.workspace = true
+utoipa.workspace = true
+utoipa-axum.workspace = true
+uuid.workspace = true
+sha2.workspace = true
+bytes.workspace = true
+futures.workspace = true
+zip.workspace = true

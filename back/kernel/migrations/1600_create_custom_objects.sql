@@ -1,0 +1,21 @@
+CREATE TABLE custom_objects (
+  id CHAR(36) NOT NULL,
+  `key` VARCHAR(48) NOT NULL,
+  label_singular VARCHAR(80) NOT NULL,
+  label_plural VARCHAR(80) NOT NULL,
+  description VARCHAR(500) NULL,
+  icon VARCHAR(48) NULL,
+  color CHAR(7) NULL,
+  title_field_key VARCHAR(64) NOT NULL DEFAULT 'name',
+  owner_enabled BOOLEAN NOT NULL DEFAULT TRUE,
+  is_active BOOLEAN NOT NULL DEFAULT TRUE,
+  position INT NOT NULL DEFAULT 0,
+  created_by CHAR(36) NULL,
+  created_at DATETIME(6) NOT NULL DEFAULT CURRENT_TIMESTAMP(6),
+  updated_at DATETIME(6) NOT NULL DEFAULT CURRENT_TIMESTAMP(6),
+  PRIMARY KEY (id),
+  UNIQUE KEY custom_objects_key_unique (`key`),
+  KEY custom_objects_position_index (position),
+  KEY custom_objects_created_by_fk_index (created_by),
+  CONSTRAINT custom_objects_created_by_fk FOREIGN KEY (created_by) REFERENCES users (id) ON DELETE SET NULL
+) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci;

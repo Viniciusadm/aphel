@@ -1,0 +1,139 @@
+{
+  "page": {
+    "title": "Migrate from another CRM",
+    "description": "Bring companies, people, deals (with their won or lost status), activities and notes exported from another CRM. The assistant recognizes the export columns, converts dates, amounts and phone numbers and prepares the imports already mapped.",
+    "inferredHeaders": "The recognized column names come from the public documentation of each tool and may vary with the account language and version. Columns that are not recognized can be mapped by hand when reviewing the import."
+  },
+  "source": {
+    "title": "Which tool are you coming from?",
+    "format": {
+      "day_first": "Dates day/month/year",
+      "month_first": "Dates month/day/year"
+    },
+    "decimal": {
+      "comma": "comma decimals",
+      "dot": "dot decimals"
+    }
+  },
+  "steps": {
+    "title": "Import in this order from {{source}}",
+    "description": "Each step creates a draft import. Review the mapping and start it before moving to the next one, so links find the records already imported.",
+    "companies": {
+      "title": "Companies",
+      "description": "Upload the companies (organizations) CSV, usually {{file}}.",
+      "links": "Companies come first so people and deals can be linked to them."
+    },
+    "contacts": {
+      "title": "People",
+      "description": "Upload the people (contacts) CSV, usually {{file}}.",
+      "links": "Each person is linked to the company by name; missing companies are created."
+    },
+    "deals": {
+      "title": "Deals",
+      "description": "Upload the deals (opportunities) CSV, usually {{file}}.",
+      "links": "Each deal is linked to the company and the person by name, and to the stages and pipelines you choose below."
+    },
+    "activities": {
+      "title": "Activities",
+      "description": "Upload the activities or tasks CSV, usually {{file}}.",
+      "links": "Import companies, people and deals first: each activity is linked to the deal by title, to the person by e-mail or name and to the company by name. Types are matched by name and done tasks keep their date."
+    },
+    "notes": {
+      "title": "Notes",
+      "description": "Upload the notes CSV, usually {{file}}.",
+      "links": "Each note is linked to the deal, person or company already imported; notes without a matching record are listed in the error report. Attachments are not part of CSV exports and are not migrated."
+    }
+  },
+  "upload": {
+    "label": "Exported CSV file",
+    "analyzing": "Analyzing the file…",
+    "create": "Create import"
+  },
+  "preview": {
+    "summary": "{{rows}} rows · {{recognized}} of {{total}} columns recognized · {{changed}} values converted",
+    "recognized": "Recognized columns",
+    "unrecognized": "Columns not recognized",
+    "unrecognizedHint": "They stay in the file and can be linked to custom fields when reviewing the import.",
+    "issue_one": "{{field}}: {{count}} value could not be converted",
+    "issue_other": "{{field}}: {{count}} values could not be converted",
+    "sample": "First converted rows"
+  },
+  "maps": {
+    "title": "Matching for {{field}}",
+    "keep": "Keep the value of the file",
+    "hint": {
+      "pipeline_id": "Pick the Aphel pipeline for each pipeline of the source tool.",
+      "stage_id": "Pick the Aphel stage for each stage of the source tool. Stages without a match must exist in Aphel with the same name.",
+      "owner_id": "Owners are matched by the name or email of the members. Pick the member when the name differs; without a match the record has no owner."
+    }
+  },
+  "columns": {
+    "reference": "Columns recognized in this step"
+  },
+  "import": {
+    "loading": "Loading import…",
+    "missing": "The import created in this step is no longer available.",
+    "totals": "{{total}} rows · {{imported}} imported · {{skipped}} skipped · {{failed}} with errors",
+    "review": "Review and start",
+    "open": "Open import",
+    "another": "Import another file",
+    "status": {
+      "draft": "Draft",
+      "queued": "Queued",
+      "running": "Importing",
+      "completed": "Completed",
+      "failed": "Failed"
+    }
+  },
+  "targets": {
+    "name": "Name",
+    "first_name": "First name",
+    "last_name": "Last name",
+    "email": "Email",
+    "phone": "Phone",
+    "mobile": "Mobile",
+    "job_title": "Job title",
+    "company_id": "Company",
+    "contact_id": "Contact",
+    "owner_id": "Owner",
+    "domain": "Domain",
+    "website": "Website",
+    "industry": "Industry",
+    "size_range": "Company size",
+    "address_street": "Street",
+    "address_number": "Number",
+    "address_complement": "Complement",
+    "address_district": "District",
+    "address_city": "City",
+    "address_state": "State",
+    "address_postal_code": "Postal code",
+    "description": "Description",
+    "notes": "Notes",
+    "source": "Source",
+    "title": "Title",
+    "amount": "Amount",
+    "currency": "Currency",
+    "pipeline_id": "Pipeline",
+    "stage_id": "Stage",
+    "expected_close_date": "Expected close date",
+    "probability": "Probability",
+    "activity_type": "Type",
+    "due_at": "Date",
+    "done": "Done",
+    "body": "Text",
+    "deal": "Deal",
+    "contact": "Person",
+    "contact_email": "Person e-mail",
+    "company": "Company",
+    "status": "Status",
+    "lost_reason_id": "Lost reason"
+  },
+  "history": {
+    "migrate": "Migrate now",
+    "migrating": "Migrating…",
+    "report": "{{total}} rows · {{created}} created · {{skipped}} skipped · {{failed}} with errors",
+    "errors": "Rows with errors",
+    "row": "Row {{row}}: {{message}}",
+    "another": "Migrate another file"
+  }
+}

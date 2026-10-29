@@ -1,0 +1,7 @@
+{
+  "banner": {
+    "label": "Ambiente de demonstração",
+    "message": "Os dados são fictícios e voltam ao estado inicial todo dia às {{time}} (UTC). E-mails não são enviados.",
+    "credentials": "Entre com {{email}} e a senha {{password}}."
+  }
+}

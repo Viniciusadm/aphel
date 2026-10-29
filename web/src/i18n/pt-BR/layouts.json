@@ -1,0 +1,118 @@
+{
+  "title": "Layouts de formulário",
+  "description": "Organize os campos em abas, seções e colunas e defina quando cada campo aparece ou se torna obrigatório.",
+  "recordTypes": {
+    "label": "Tipo de registro",
+    "contact": "Contatos",
+    "company": "Empresas",
+    "deal": "Oportunidades",
+    "activity": "Tarefas",
+    "product": "Produtos"
+  },
+  "contexts": {
+    "label": "Formulário",
+    "create": "Criação",
+    "edit": "Edição",
+    "view": "Visualização",
+    "createHint": "Usado ao criar registros. Campos obrigatórios entram automaticamente.",
+    "editHint": "Usado ao editar registros. Sem layout de edição, as regras do layout de criação continuam valendo nas edições.",
+    "viewHint": "Usado na lateral da página do registro. Aceita apenas regras de visibilidade."
+  },
+  "status": {
+    "custom": "Layout personalizado",
+    "default": "Layout padrão gerado a partir dos campos"
+  },
+  "palette": {
+    "title": "Campos disponíveis",
+    "empty": "Todos os campos já estão no layout.",
+    "hint": "Arraste um campo para uma coluna ou use o seletor de cada coluna."
+  },
+  "tabs": {
+    "label": "Abas",
+    "add": "Adicionar aba",
+    "newLabel": "Nova aba",
+    "name": "Nome da aba",
+    "untitled": "Aba {{number}}",
+    "remove": "Remover aba",
+    "moveLeft": "Mover aba para a esquerda",
+    "moveRight": "Mover aba para a direita"
+  },
+  "sections": {
+    "add": "Adicionar seção",
+    "newLabel": "Nova seção",
+    "name": "Nome da seção",
+    "namePlaceholder": "Sem título",
+    "remove": "Remover seção",
+    "moveUp": "Mover seção para cima",
+    "moveDown": "Mover seção para baixo",
+    "columns": "Colunas",
+    "columnLabel": "Coluna {{number}}",
+    "emptyColumn": "Solte campos aqui"
+  },
+  "fields": {
+    "add": "Adicionar campo",
+    "addTo": "Adicionar campo à coluna {{number}}",
+    "moveUp": "Mover {{field}} para cima",
+    "moveDown": "Mover {{field}} para baixo",
+    "remove": "Remover {{field}} do layout",
+    "rules": "Regras de {{field}}",
+    "drag": "Arrastar {{field}}",
+    "required": "Obrigatório",
+    "locked": "Campo obrigatório: fica sempre no formulário de criação.",
+    "visibleRule": "Condicional",
+    "requiredRule": "Obrigatório condicional"
+  },
+  "rules": {
+    "title": "Regras de {{field}}",
+    "description": "As condições usam os valores preenchidos no formulário. Só campos que estão no layout podem ser usados.",
+    "visibleWhen": "Mostrar somente quando",
+    "requiredWhen": "Obrigatório quando",
+    "alwaysVisible": "Campos obrigatórios estão sempre visíveis.",
+    "noRequiredInView": "Layouts de visualização não usam obrigatoriedade.",
+    "hiddenNotRequired": "Um campo escondido nunca é exigido.",
+    "none": "Sem condição",
+    "addCondition": "Adicionar condição",
+    "clear": "Remover condição",
+    "apply": "Aplicar",
+    "cancel": "Cancelar",
+    "alreadyRequired": "Este campo já é sempre obrigatório."
+  },
+  "reorder": {
+    "picked": "{{label}} selecionado.",
+    "over": "{{label}} sobre {{target}}.",
+    "dropped": "{{label}} solto em {{target}}.",
+    "cancelled": "Movimento de {{label}} cancelado.",
+    "palette": "campos disponíveis",
+    "column": "coluna {{number}} de {{section}}"
+  },
+  "actions": {
+    "save": "Salvar layout",
+    "saving": "Salvando…",
+    "preview": "Pré-visualizar",
+    "reset": "Restaurar padrão",
+    "discard": "Descartar alterações"
+  },
+  "preview": {
+    "title": "Pré-visualização",
+    "description": "Teste as regras preenchendo os campos. Nada é salvo.",
+    "submitted": "Pré-visualização: o formulário seria enviado.",
+    "close": "Fechar"
+  },
+  "confirmReset": {
+    "title": "Restaurar o layout padrão?",
+    "description": "O layout personalizado de {{form}} será removido e o formulário volta a ser gerado a partir dos campos.",
+    "confirm": "Restaurar"
+  },
+  "toast": {
+    "saved": "Layout salvo",
+    "reset": "Layout padrão restaurado",
+    "error": "Não foi possível salvar o layout."
+  },
+  "errors": {
+    "load": "Não foi possível carregar o layout.",
+    "invalid": "Corrija o layout antes de salvar:",
+    "field": "{{field}}: {{message}}",
+    "unavailable": "Este tipo de registro não está disponível.",
+    "retry": "Tentar novamente"
+  }
+}

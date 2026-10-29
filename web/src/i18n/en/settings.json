@@ -1,0 +1,541 @@
+{
+  "tabs": {
+    "modules": "Modules",
+    "orgExport": "Full export",
+    "migrationAssistant": "Migrate from another CRM",
+    "label": "Settings sections",
+    "layouts": "Layouts",
+    "users": "Users",
+    "roles": "Roles",
+    "organization": "Organization",
+    "teams": "Teams",
+    "fields": "Fields",
+    "pipelines": "Sales pipelines",
+    "audit": "Audit log",
+    "activityTypes": "Activity types",
+    "tags": "Tags",
+    "notifications": "Notifications",
+    "preferences": "Preferences",
+    "duplicates": "Duplicates",
+    "trash": "Trash",
+    "configPackages": "Configuration packages",
+    "onboarding": "Setup assistant",
+    "apiTokens": "API tokens",
+    "webhooks": "Outgoing webhooks",
+    "incomingWebhooks": "Incoming webhooks",
+    "integrations": "Integrations",
+    "security": "Account security",
+    "securityLog": "Security events",
+    "privacy": "Privacy",
+    "leadDistribution": "Lead distribution",
+    "forecast": "Revenue forecast",
+    "dealTeamRoles": "Deal team roles",
+    "products": "Products and items",
+    "quotes": "Quotes",
+    "currencies": "Currencies and exchange rates",
+    "approvals": "Approvals",
+    "lifecycle": "Lifecycle",
+    "validationRules": "Validation rules",
+    "scoring": "Lead scoring",
+    "objects": "Custom objects",
+    "navigation": "Navigation and language",
+    "catalog": "Community catalog",
+    "mailboxes": "Email mailboxes",
+    "email": "Email",
+    "general": "General",
+    "outgoingEmail": "Outgoing email",
+    "storage": "File storage"
+  },
+  "noAccess": {
+    "title": "No permission",
+    "description": "You are not allowed to manage users, roles or teams of this organization."
+  },
+  "pagination": {
+    "summary": "Page {{page}} of {{pages}} · {{total}} in total",
+    "previous": "Previous",
+    "next": "Next"
+  },
+  "actions": {
+    "save": "Save",
+    "saving": "Saving…",
+    "cancel": "Cancel",
+    "delete": "Delete",
+    "edit": "Edit",
+    "more": "More actions"
+  },
+  "errors": {
+    "generic": "The action could not be completed. Please try again.",
+    "network": "No connection to the server. Check your internet and try again.",
+    "permissionDenied": "You are not allowed to do this.",
+    "notFound": "The record was not found. Refresh the page.",
+    "alreadyMember": "This email already belongs to a member or guest of the organization.",
+    "lastAdmin": "The organization needs at least one active administrator.",
+    "roleInUse": "This role is assigned to members. Change their role before deleting it.",
+    "roleKeyTaken": "Another role already uses this key.",
+    "systemRoleLocked": "System roles cannot be deleted or have their key changed, and the administrator always has full access.",
+    "teamCycle": "A team cannot be placed under itself or one of its sub-teams.",
+    "notInvited": "This member has no pending invitation.",
+    "invalidMemberStatus": "The status of this member changed. Refresh the page.",
+    "invalidPermissions": "The matrix has invalid permissions.",
+    "invalidMembers": "A selected member no longer belongs to the organization.",
+    "versionConflict": "This record was changed by someone else since you opened it. Reload the page and apply your change again."
+  },
+  "validation": {
+    "email": "Enter a valid email.",
+    "required": "Fill in this field.",
+    "name": "Use between 1 and 140 characters.",
+    "roleKey": "Use up to 64 lowercase letters, digits or _.",
+    "role": "Choose a role."
+  },
+  "users": {
+    "title": "Users",
+    "description": "Members of the organization and pending invitations.",
+    "invite": "Invite user",
+    "empty": "No members found.",
+    "columns": {
+      "name": "Name",
+      "role": "Role",
+      "status": "Status",
+      "teams": "Teams",
+      "actions": "Actions"
+    },
+    "status": {
+      "invited": "Invitation pending",
+      "active": "Active",
+      "deactivated": "Deactivated"
+    },
+    "you": "you",
+    "noTeams": "—",
+    "menu": {
+      "changeRole": "Change role",
+      "resend": "Resend invitation",
+      "cancelInvitation": "Cancel invitation",
+      "suspend": "Deactivate",
+      "reactivate": "Reactivate",
+      "resetPassword": "Generate password reset"
+    },
+    "inviteDialog": {
+      "title": "Invite user",
+      "description": "We will email a link so the person can join the organization. The link is valid for 7 days.",
+      "email": "Email",
+      "role": "Role",
+      "rolePlaceholder": "Choose a role",
+      "submit": "Send invitation"
+    },
+    "roleDialog": {
+      "title": "Change role",
+      "description": "Choose the new role of {{name}}.",
+      "role": "Role"
+    },
+    "confirm": {
+      "suspendTitle": "Deactivate {{name}}?",
+      "suspendDescription": "The person loses access and every open session is ended. You can reactivate them later.",
+      "cancelTitle": "Cancel the invitation of {{email}}?",
+      "cancelDescription": "The link sent by email stops working."
+    },
+    "toast": {
+      "invited": "Invitation sent to {{email}}.",
+      "resent": "Invitation sent again to {{email}}.",
+      "cancelled": "Invitation cancelled.",
+      "roleChanged": "Role changed.",
+      "suspended": "Member deactivated.",
+      "reactivated": "Member reactivated.",
+      "resetEmailed": "Reset link sent to {{email}}.",
+      "resetUnavailable": "This member signs in only through single sign-on and has no password to reset."
+    },
+    "linkDialog": {
+      "invitationTitle": "Invitation created for {{email}}",
+      "invitationDescription": "No outgoing email is configured, so the invitation was not sent. Copy the link and hand it to the person.",
+      "resetTitle": "Password reset for {{name}}",
+      "resetDescription": "No outgoing email is configured. Copy the link and hand it to the person; it is valid for 1 hour.",
+      "label": "Link",
+      "hint": "Anyone with this link can use it. Share it through a trusted channel.",
+      "close": "Close"
+    }
+  },
+  "roles": {
+    "title": "Roles",
+    "description": "Define what each role can do and in which scope.",
+    "create": "New role",
+    "empty": "No roles yet.",
+    "system": "System",
+    "members_zero": "No members",
+    "members_one": "{{count}} member",
+    "members_other": "{{count}} members",
+    "permissionsCount_zero": "No permissions",
+    "permissionsCount_one": "{{count}} permission",
+    "permissionsCount_other": "{{count}} permissions",
+    "fullAccess": "Full access",
+    "editor": {
+      "createTitle": "New role",
+      "editTitle": "Edit role",
+      "description": "For each permission, choose how far the role can see records.",
+      "name": "Name",
+      "key": "Key",
+      "keyHint": "Optional. Generated from the name when empty.",
+      "systemKeyHint": "The key of system roles cannot be changed.",
+      "adminNotice": "The administrator has full access to the organization, including permissions created in the future.",
+      "matrixCaption": "Role permissions"
+    },
+    "confirmDelete": {
+      "title": "Delete the role {{name}}?",
+      "description": "This action cannot be undone."
+    },
+    "toast": {
+      "created": "Role created.",
+      "updated": "Role updated.",
+      "deleted": "Role deleted."
+    }
+  },
+  "permissions": {
+    "columns": {
+      "permission": "Permission",
+      "none": "None",
+      "own": "Own",
+      "team": "Team",
+      "organization": "Organization",
+      "granted": "Granted"
+    },
+    "modules": {
+      "contacts": "Contacts",
+      "companies": "Companies",
+      "deals": "Deals",
+      "activities": "Tasks and activities",
+      "notes": "Notes",
+      "administration": "Administration",
+      "goals": "Goals",
+      "products": "Products and services",
+      "quotes": "Quotes",
+      "emails": "Emails",
+      "sequences": "Sequences",
+      "scheduling": "Scheduling"
+    },
+    "actions": {
+      "read": "View",
+      "create": "Create",
+      "update": "Edit",
+      "delete": "Delete",
+      "export": "Export",
+      "archive": "Archive",
+      "manage": "Manage",
+      "send": "Send",
+      "enroll": "Enroll"
+    },
+    "administrative": {
+      "settingsManage": "Manage settings, roles and teams",
+      "usersManage": "Manage users and invitations",
+      "auditRead": "Read the audit log",
+      "systemManage": "Administer the system (job queue and maintenance)",
+      "privacyManage": "Manage privacy (LGPD) and data retention",
+      "automationsManage": "Manage automations",
+      "leadDistributionManage": "Manage lead distribution rules",
+      "organizationExport": "Export all organization data",
+      "sequencesManage": "Manage sequences",
+      "recordsShare": "Share any record",
+      "scoringManage": "Manage lead scoring",
+      "lifecycleManage": "Configure the lifecycle"
+    },
+    "notApplicable": "Not applicable"
+  },
+  "teams": {
+    "title": "Teams",
+    "description": "Organize people in teams, with managers and hierarchy.",
+    "create": "New team",
+    "empty": "No teams yet.",
+    "columns": {
+      "name": "Team",
+      "parent": "Parent team",
+      "managers": "Managers",
+      "members": "Members",
+      "actions": "Actions"
+    },
+    "noParent": "—",
+    "membersCount_zero": "Nobody",
+    "membersCount_one": "{{count}} person",
+    "membersCount_other": "{{count}} people",
+    "editor": {
+      "createTitle": "New team",
+      "editTitle": "Edit team",
+      "description": "Choose the name, the parent team and who is part of the team.",
+      "name": "Name",
+      "parent": "Parent team",
+      "noParent": "None (top-level team)",
+      "members": "Members",
+      "member": "In the team",
+      "manager": "Manager",
+      "noMembers": "There are no members in the organization yet.",
+      "search": "Search members",
+      "noMatches": "No members found.",
+      "selectedCount": "{{count}} selected"
+    },
+    "confirmDelete": {
+      "title": "Delete the team {{name}}?",
+      "description": "Its sub-teams become top-level teams. This action cannot be undone."
+    },
+    "toast": {
+      "created": "Team created.",
+      "updated": "Team updated.",
+      "deleted": "Team deleted."
+    }
+  },
+  "search": {
+    "label": "Search settings",
+    "placeholder": "Search settings…",
+    "empty": "No settings found."
+  },
+  "groups": {
+    "profile": "Profile and preferences",
+    "accountSecurity": "Security",
+    "organization": "Organization and access",
+    "records": "Fields and records",
+    "sales": "Sales",
+    "connections": "Connections",
+    "webhooks": "Webhooks",
+    "transfer": "Import, export and templates",
+    "compliance": "Quality and compliance",
+    "communication": "Email and communication"
+  },
+  "items": {
+    "preferences": {
+      "description": "Shortcuts and interface behavior for you."
+    },
+    "navigation": {
+      "description": "Language, home screen and sidebar items."
+    },
+    "notifications": {
+      "description": "Which alerts you get in Aphel and by email."
+    },
+    "security": {
+      "description": "Password, two-step verification and open sessions."
+    },
+    "securityLog": {
+      "description": "Sign-ins and security changes on your account."
+    },
+    "apiTokens": {
+      "description": "Keys to access the API on your behalf."
+    },
+    "organization": {
+      "description": "Name, logo, colors, currency and time zone."
+    },
+    "users": {
+      "description": "Invite people and manage who has access."
+    },
+    "teams": {
+      "description": "Group users to split portfolios and goals."
+    },
+    "roles": {
+      "description": "Define what each role can see and do."
+    },
+    "fields": {
+      "description": "Custom fields for contacts, companies and deals."
+    },
+    "layouts": {
+      "description": "Arrange fields on each record screen."
+    },
+    "objects": {
+      "description": "Create your own record types and relationships."
+    },
+    "tags": {
+      "description": "Tags to classify records."
+    },
+    "activityTypes": {
+      "description": "Activity types such as call, meeting and task."
+    },
+    "pipelines": {
+      "description": "Pipelines and stages deals move through."
+    },
+    "forecast": {
+      "description": "How the revenue forecast is calculated."
+    },
+    "dealTeamRoles": {
+      "description": "Roles of the members of deal teams."
+    },
+    "products": {
+      "description": "Catalog of products and items used in deals."
+    },
+    "quotes": {
+      "description": "Default validity and terms of quotes and the deal stage on acceptance."
+    },
+    "currencies": {
+      "description": "Enabled currencies and exchange rates to the base currency."
+    },
+    "approvals": {
+      "description": "Approval policies for stages, quotes and on-demand requests."
+    },
+    "lifecycle": {
+      "description": "Automatic lifecycle stage transitions and lead disqualification reasons."
+    },
+    "scoring": {
+      "description": "Scoring models by profile and behavior, with cold, warm and hot bands."
+    },
+    "validationRules": {
+      "description": "Conditions that block record writes with a custom message."
+    },
+    "mailboxes": {
+      "description": "Connect your mailbox, follow its sync status and create your templates."
+    },
+    "email": {
+      "description": "Organization templates, blocklist, tracking and contact capture."
+    },
+    "leadDistribution": {
+      "description": "Rules to distribute new leads across the team."
+    },
+    "integrations": {
+      "description": "Connect email, calendar and other services."
+    },
+    "modules": {
+      "description": "Enable additional features for the organization."
+    },
+    "webhooks": {
+      "description": "Send Aphel events to other systems."
+    },
+    "incomingWebhooks": {
+      "description": "Receive data from other systems in Aphel."
+    },
+    "duplicates": {
+      "description": "Find and merge duplicate records."
+    },
+    "trash": {
+      "description": "Restore or permanently delete removed records."
+    },
+    "privacy": {
+      "description": "Personal data, data subject requests and retention."
+    },
+    "audit": {
+      "description": "History of who changed what in the organization."
+    },
+    "onboarding": {
+      "description": "Run the initial setup walkthrough again."
+    },
+    "configPackages": {
+      "description": "Export or install ready-made configuration between organizations."
+    },
+    "catalog": {
+      "description": "Configuration templates shared by the community."
+    },
+    "migrationAssistant": {
+      "description": "Import data from another CRM."
+    },
+    "orgExport": {
+      "description": "Download a full copy of the organization data."
+    },
+    "general": {
+      "description": "Public address and maximum upload size."
+    },
+    "outgoingEmail": {
+      "description": "SMTP server used for every email the system sends."
+    },
+    "storage": {
+      "description": "Local disk or S3 compatible storage for attachments and exports."
+    }
+  },
+  "areas": {
+    "account": {
+      "title": "My account",
+      "description": "Your preferences, notifications and sign-in security."
+    },
+    "organization": {
+      "title": "Settings",
+      "description": "How your organization works: access, record structure and sales."
+    },
+    "integrations": {
+      "title": "Integrations",
+      "description": "Connect Aphel to other services and systems."
+    },
+    "data": {
+      "title": "Data",
+      "description": "Import, export and take care of data quality and privacy."
+    }
+  },
+  "otherAreas": "Other areas",
+  "configuration": {
+    "loadError": "Could not load the settings.",
+    "save": "Save",
+    "saving": "Saving…",
+    "saved": "Settings saved.",
+    "errors": {
+      "url": "Enter a valid http(s) address.",
+      "uploadRange": "Use a value between 1 and 4096 MB.",
+      "required": "Fill in this field.",
+      "range": "Use a value between {{min}} and {{max}}.",
+      "timeout": "Use a value between 1 and 120 seconds.",
+      "catalogUrl": "Enter an https URL (http only with the development option)."
+    },
+    "general": {
+      "title": "General",
+      "description": "Installation settings that apply to everyone, without restarting the server.",
+      "publicBaseUrl": "Public address",
+      "publicBaseUrlHint": "The address people use to reach Aphel. It is the base of every link sent by email (invitations, password resets, notifications). With https, the session cookie is marked as secure.",
+      "insecureWarning": "The address uses http: the session cookie is not marked as secure. Use https in production.",
+      "maxUploadMb": "Maximum upload size (MB)",
+      "maxUploadMbHint": "Applies to attachments, imports and emails. Also adjust the reverse proxy limit."
+    },
+    "mail": {
+      "title": "Outgoing email",
+      "description": "SMTP server used for invitations, password resets, notifications and reports. The password is kept in the secret vault and is never shown.",
+      "notConfiguredTitle": "Outgoing email is not configured",
+      "notConfiguredDescription": "System emails are not being sent. Invitations and password resets show a link to copy until SMTP is configured.",
+      "configure": "Set up outgoing email",
+      "unavailable": "The SMTP provider is not available in this installation.",
+      "testHint": "Use \"Test\" with sending an email checked to receive a test message at your own address. On errors, the server message (authentication, TLS or connection) appears in the result.",
+      "copyableLinkLabel": "Link to copy",
+      "copyableLinkDescription": "Outgoing email is not configured. Copy the link and hand it over through another channel.",
+      "copy": "Copy",
+      "copied": "Copied"
+    },
+    "storage": {
+      "title": "File storage",
+      "description": "Where attachments, exports and backups are kept. Downloads always go through Aphel, with permission checks.",
+      "driver": "Type",
+      "drivers": {
+        "local": "Local disk",
+        "s3": "S3 compatible (AWS, MinIO, R2, B2…)"
+      },
+      "driverChangeWarning": "Changing the type does not copy existing files: they stay in the previous storage.",
+      "path": "Folder",
+      "pathHint": "Relative to the server working directory. Server and worker must see the same folder.",
+      "bucket": "Bucket",
+      "region": "Region",
+      "endpoint": "Endpoint",
+      "endpointHint": "For compatible services (MinIO, SeaweedFS, Cloudflare R2, Backblaze B2). Empty uses AWS.",
+      "accessKeyId": "Access key",
+      "secretAccessKey": "Secret key",
+      "secretConfigured": "Configured. Leave blank to keep it.",
+      "secretMissing": "Not configured.",
+      "clearSecret": "Remove the stored secret key",
+      "forcePathStyle": "Address the bucket in the path (MinIO, SeaweedFS)",
+      "allowHttp": "Allow http endpoint (local S3 only)",
+      "test": "Test connection",
+      "testing": "Testing…",
+      "testOk": "Connection works: the test file was written, read and deleted.",
+      "testFailed": "Test failed: {{message}}"
+    },
+    "webhooks": {
+      "title": "Delivery",
+      "description": "How Aphel delivers outgoing webhooks. Applies to new deliveries, without restarting.",
+      "timeout": "Maximum time per delivery (s)",
+      "disableAfterFailures": "Consecutive failures before disabling",
+      "retentionDays": "Days of delivery history",
+      "requireHttps": "Require https in endpoint URLs"
+    },
+    "apiTokens": {
+      "title": "API token limits",
+      "description": "Requests accepted per token in a sliding window. Applies to every token of the installation.",
+      "limit": "Requests per window",
+      "window": "Window (s)"
+    },
+    "catalog": {
+      "title": "Community catalog",
+      "description": "Where the catalog templates and modules come from.",
+      "mode": "Source",
+      "modes": {
+        "builtin": "Built-in catalog (no internet)",
+        "remote": "Remote index",
+        "off": "Off"
+      },
+      "indexUrl": "Index URL",
+      "allowHttp": "Allow http (development only)",
+      "timeout": "Maximum fetch time (s)"
+    }
+  }
+}

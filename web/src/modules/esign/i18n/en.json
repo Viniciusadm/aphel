@@ -1,0 +1,102 @@
+{
+  "name": "Electronic signature",
+  "description": "Sends PDFs attached to deals for electronic signature in Clicksign and tracks the status through webhooks. No legal validity of its own: the validity is the provider's.",
+  "tab": "Signatures",
+  "legalNotice": "Aphel has no legal validity of its own for signatures: the validity is Clicksign's, which collects the signatures and the evidence.",
+  "settings": {
+    "environment": { "label": "Environment", "help": "Sandbox for testing; production for real signatures" },
+    "access_token": { "label": "Clicksign access token", "help": "Generated in Settings → API in Clicksign; stored encrypted and never shown" },
+    "webhook_secret": { "label": "Webhook HMAC secret", "help": "HMAC SHA256 key of the webhook registered in Clicksign (Content-Hmac header)" },
+    "attach_signed_document": { "label": "Attach the signed PDF to the deal", "help": "When completed, downloads the signed document and attaches it to the deal" }
+  },
+  "settingsPanel": {
+    "stepToken": "In Clicksign, generate an API access token and paste it into \"Access token\".",
+    "stepWebhook": "Register a webhook in Clicksign pointing to the address below.",
+    "stepSecret": "Copy the webhook HMAC SHA256 key into \"Webhook HMAC secret\".",
+    "webhookUrl": "Webhook address",
+    "copy": "Copy webhook address",
+    "copied": "Address copied",
+    "configured": "Access token configured.",
+    "notConfigured": "Access token not configured yet.",
+    "enableFirst": "Enable the module to see the webhook address."
+  },
+  "deal": {
+    "title": "Signatures",
+    "description": "Send PDFs attached to this deal (such as generated proposals) for electronic signature and track the status.",
+    "send": "Send for signature",
+    "notConfigured": "Configure the Clicksign access token in the module settings to send documents.",
+    "sandbox": "Test environment (sandbox): signatures have no real effect.",
+    "emptyTitle": "No signature requests",
+    "emptyDescription": "Choose an attached PDF and the signers to send.",
+    "sentAt": "Sent on {{date}}",
+    "completedAt": "completed on {{date}}",
+    "signers": "Signers",
+    "original": "Original",
+    "signedFile": "Signed PDF",
+    "cancel": "Cancel",
+    "cancelled": "Signature request cancelled",
+    "sent": "Document sent for signature"
+  },
+  "confirmCancel": {
+    "title": "Cancel signature request?",
+    "description": "\"{{name}}\" will be cancelled in Clicksign and the signers will no longer be able to sign.",
+    "confirm": "Cancel request"
+  },
+  "dialog": {
+    "title": "Send for signature",
+    "description": "The PDF and the signers' data (name and email) will be sent to Clicksign.",
+    "file": "Document (attached PDF)",
+    "filePlaceholder": "Choose the PDF",
+    "noPdf": "No PDF attached to this deal. Attach a file or generate a proposal first.",
+    "signers": "Signers",
+    "noSigners": "Add at least one signer.",
+    "signerName": "Signer {{index}} name",
+    "signerEmail": "Signer {{index}} email",
+    "namePlaceholder": "Full name",
+    "emailPlaceholder": "email@company.com",
+    "removeSigner": "Remove signer {{index}}",
+    "addContact": "Add {{name}}",
+    "addSigner": "Add signer",
+    "message": "Message (optional)",
+    "messagePlaceholder": "Message sent to the signers with the invitation",
+    "privacy": "Each signer gets the invitation by email and confirms their identity with a code sent to the email.",
+    "close": "Close",
+    "confirm": "Send",
+    "sending": "Sending…"
+  },
+  "status": {
+    "sent": "Waiting",
+    "completed": "Completed",
+    "refused": "Refused",
+    "cancelled": "Cancelled",
+    "expired": "Expired"
+  },
+  "signerStatus": {
+    "pending": "Pending",
+    "signed": "Signed",
+    "refused": "Refused"
+  },
+  "timeline": {
+    "sent": "Document sent for signature",
+    "signed": "{{name}} signed the document",
+    "refused": "{{name}} refused the document",
+    "cancelled": "Signature request cancelled",
+    "completed": "Signature completed by all signers",
+    "expired": "Signature request expired",
+    "signed_file_attached": "Signed PDF attached to the deal",
+    "signers": "Signers: {{names}}",
+    "byProvider": "Cancelled in Clicksign"
+  },
+  "errors": {
+    "esign_not_configured": "Configure the Clicksign access token",
+    "esign_file_not_attached": "The file is not attached to this deal",
+    "esign_file_not_pdf": "Only PDFs can be sent",
+    "esign_file_too_large": "The PDF is larger than 20 MB",
+    "esign_provider_rejected": "Clicksign refused the request",
+    "esign_provider_unauthorized": "Clicksign refused the access token",
+    "esign_provider_unavailable": "Clicksign is unavailable right now",
+    "esign_request_closed": "This request is already closed",
+    "deal_not_found": "Deal not found",
+    "permission_denied": "You are not allowed to do this"
+  }
+}

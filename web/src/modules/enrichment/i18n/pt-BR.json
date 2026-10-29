@@ -1,0 +1,150 @@
+{
+  "name": "Enriquecimento por CNPJ",
+  "description": "Consulta dados públicos de empresas pelo CNPJ (BrasilAPI e ReceitaWS) e preenche os campos escolhidos, registrando a fonte de cada valor.",
+  "tab": "Enriquecimento",
+  "settings": {
+    "source": {
+      "label": "Fonte de dados",
+      "help": "BrasilAPI é a principal; a ReceitaWS aceita só 3 consultas por minuto"
+    },
+    "cnpj_field": {
+      "label": "Campo do CNPJ",
+      "help": "Campo de texto da empresa que guarda o CNPJ; sem ele, o CNPJ é digitado na consulta"
+    },
+    "automatic": {
+      "label": "Permitir enriquecimento automático",
+      "help": "Só com esta opção ligada a ação de automação \"Enriquecer empresa pelo CNPJ\" preenche campos sem clique"
+    },
+    "field_legal_name": {
+      "label": "Campo para: Razão social",
+      "help": "Campo da empresa que recebe este dado; vazio = não preencher"
+    },
+    "field_trade_name": {
+      "label": "Campo para: Nome fantasia",
+      "help": "Campo da empresa que recebe este dado; vazio = não preencher"
+    },
+    "field_activity": {
+      "label": "Campo para: Atividade principal (CNAE)",
+      "help": "Campo da empresa que recebe este dado; vazio = não preencher"
+    },
+    "field_size": {
+      "label": "Campo para: Porte",
+      "help": "Campo da empresa que recebe este dado; vazio = não preencher"
+    },
+    "field_registration_status": {
+      "label": "Campo para: Situação cadastral",
+      "help": "Campo da empresa que recebe este dado; vazio = não preencher"
+    },
+    "field_opened_on": {
+      "label": "Campo para: Data de abertura",
+      "help": "Campo da empresa que recebe este dado; vazio = não preencher"
+    },
+    "field_address": {
+      "label": "Campo para: Endereço completo",
+      "help": "Campo da empresa que recebe este dado; vazio = não preencher"
+    },
+    "field_address_street": {
+      "label": "Campo para: Logradouro",
+      "help": "Campo da empresa que recebe este dado; vazio = não preencher"
+    },
+    "field_address_number": {
+      "label": "Campo para: Número",
+      "help": "Campo da empresa que recebe este dado; vazio = não preencher"
+    },
+    "field_address_complement": {
+      "label": "Campo para: Complemento",
+      "help": "Campo da empresa que recebe este dado; vazio = não preencher"
+    },
+    "field_address_district": {
+      "label": "Campo para: Bairro",
+      "help": "Campo da empresa que recebe este dado; vazio = não preencher"
+    },
+    "field_address_city": {
+      "label": "Campo para: Cidade",
+      "help": "Campo da empresa que recebe este dado; vazio = não preencher"
+    },
+    "field_address_state": {
+      "label": "Campo para: Estado (UF)",
+      "help": "Campo da empresa que recebe este dado; vazio = não preencher"
+    },
+    "field_address_postal_code": {
+      "label": "Campo para: CEP",
+      "help": "Campo da empresa que recebe este dado; vazio = não preencher"
+    },
+    "field_phone": {
+      "label": "Campo para: Telefone",
+      "help": "Campo da empresa que recebe este dado; vazio = não preencher"
+    },
+    "field_email": {
+      "label": "Campo para: E-mail",
+      "help": "Campo da empresa que recebe este dado; vazio = não preencher"
+    }
+  },
+  "company": {
+    "title": "Enriquecimento por CNPJ",
+    "description": "Consulte os dados públicos da empresa na Receita Federal (via BrasilAPI ou ReceitaWS), compare com os valores atuais e escolha o que aplicar. Nada é preenchido sem a sua confirmação.",
+    "cnpj": "CNPJ",
+    "search": "Consultar",
+    "searching": "Consultando…",
+    "invalidCnpj": "CNPJ inválido: confira os dígitos.",
+    "dataNotice": "Só o CNPJ é enviado à fonte pública consultada."
+  },
+  "lookup": {
+    "title": "Dados do CNPJ {{cnpj}}",
+    "target": "→ {{field}}",
+    "unmapped": "(sem campo mapeado nas configurações)",
+    "same": "igual ao atual",
+    "discard": "Descartar",
+    "apply_one": "Aplicar {{count}} campo",
+    "apply_other": "Aplicar {{count}} campos"
+  },
+  "applied_one": "{{count}} campo preenchido",
+  "applied_other": "{{count}} campos preenchidos",
+  "history": {
+    "title": "Campos preenchidos pelo enriquecimento",
+    "emptyTitle": "Nenhum campo enriquecido ainda",
+    "emptyDescription": "Os campos aplicados a partir do CNPJ aparecem aqui com a fonte e a data.",
+    "source": "{{source}} · CNPJ {{cnpj}} · {{date}}"
+  },
+  "items": {
+    "cnpj": "CNPJ",
+    "legal_name": "Razão social",
+    "trade_name": "Nome fantasia",
+    "activity": "Atividade principal (CNAE)",
+    "size": "Porte",
+    "registration_status": "Situação cadastral",
+    "opened_on": "Data de abertura",
+    "address": "Endereço completo",
+    "address_street": "Logradouro",
+    "address_number": "Número",
+    "address_complement": "Complemento",
+    "address_district": "Bairro",
+    "address_city": "Cidade",
+    "address_state": "Estado (UF)",
+    "address_postal_code": "CEP",
+    "phone": "Telefone",
+    "email": "E-mail"
+  },
+  "sources": {
+    "brasilapi": "BrasilAPI",
+    "receitaws": "ReceitaWS"
+  },
+  "timeline": {
+    "enriched_one": "{{count}} campo preenchido com dados do CNPJ",
+    "enriched_other": "{{count}} campos preenchidos com dados do CNPJ",
+    "detail": "Fonte: {{source}} · CNPJ {{cnpj}}"
+  },
+  "errors": {
+    "enrichment_cnpj_missing": "Informe o CNPJ da empresa",
+    "enrichment_invalid_cnpj": "CNPJ inválido",
+    "enrichment_cnpj_not_found": "CNPJ não encontrado na fonte",
+    "enrichment_source_rate_limited": "A fonte limitou as consultas; tente em alguns minutos",
+    "enrichment_source_unavailable": "A fonte de dados não está disponível agora",
+    "enrichment_lookup_expired": "A consulta expirou; consulte de novo",
+    "enrichment_lookup_not_found": "Consulta não encontrada",
+    "enrichment_nothing_to_apply": "Nada para aplicar",
+    "company_not_found": "Empresa não encontrada",
+    "rate_limited": "Muitas consultas seguidas; aguarde um minuto",
+    "permission_denied": "Você não tem permissão para esta ação"
+  }
+}

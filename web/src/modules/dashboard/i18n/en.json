@@ -1,0 +1,150 @@
+{
+  "title": "Welcome to Aphel",
+  "description": "Summary of your sales, pending work and activities.",
+  "period": {
+    "label": "Period",
+    "presets": {
+      "today": "Today",
+      "last_7_days": "Last 7 days",
+      "month": "This month",
+      "quarter": "This quarter",
+      "custom": "Custom",
+      "yesterday": "Yesterday",
+      "last_30_days": "Last 30 days",
+      "week": "This week",
+      "last_week": "Last week",
+      "last_month": "Last month",
+      "last_quarter": "Last quarter",
+      "year": "This year",
+      "last_year": "Last year"
+    },
+    "from": "From",
+    "to": "To",
+    "apply": "Apply",
+    "invalid": "Enter valid dates, with the start before the end.",
+    "range": "{{from}} to {{to}}"
+  },
+  "actions": {
+    "customize": "Customize",
+    "done": "Done",
+    "addWidget": "Add widget",
+    "noMoreWidgets": "Every available widget is already on the dashboard",
+    "remove": "Remove {{title}}",
+    "move": "Move {{title}}",
+    "settings": "Configure {{title}}",
+    "size": "Size of {{title}}",
+    "reset": "Restore default",
+    "resetTitle": "Restore the default dashboard?",
+    "resetDescription": "The chosen widgets and period will be replaced by the default layout.",
+    "save": "Save",
+    "cancel": "Cancel"
+  },
+  "sizes": {
+    "small": "Small",
+    "medium": "Medium",
+    "large": "Large"
+  },
+  "states": {
+    "emptyLayoutTitle": "Your dashboard is empty",
+    "emptyLayoutDescription": "Add widgets to follow sales, pending work and activities.",
+    "widgetEmpty": "Nothing here for the period.",
+    "widgetError": "This widget could not be loaded.",
+    "unsupported": "This widget cannot be shown in this version.",
+    "saveError": "The dashboard could not be saved.",
+    "noData": "—"
+  },
+  "widgets": {
+    "sales_indicators": {
+      "title": "Sales indicators",
+      "openCount": "Open deals",
+      "pipelineAmount": "Pipeline value",
+      "forecastAmount": "Forecast revenue",
+      "forecastHint": "Value × probability",
+      "won": "Won in the period",
+      "lost": "Lost in the period",
+      "conversionRate": "Conversion rate",
+      "wonAmount": "{{amount}} won"
+    },
+    "pending_center": {
+      "title": "Pending work",
+      "overdue": "Overdue tasks",
+      "dueToday": "Due today",
+      "dueTomorrow": "Due tomorrow",
+      "staleDeals": "No update for {{count}} days",
+      "staleDealsNoPermission": "No access to deals",
+      "noItems": "None",
+      "more": "and {{count}} more",
+      "staleDays": "Days without update",
+      "onlyMine": "Only mine",
+      "dueAt": "Due: {{date}}",
+      "lastTouched": "Last update: {{date}}",
+      "allClear": "All clear! Nothing pending."
+    },
+    "recent_activity": {
+      "title": "Recent activity",
+      "someone": "Someone",
+      "limit": "Number of items"
+    },
+    "report_totals": {
+      "title": "Summary report",
+      "contactsTotal": "Contacts",
+      "openDeals": "Open deals",
+      "wonDeals": "Won in the period",
+      "lostDeals": "Lost in the period",
+      "pendingTasks": "Pending tasks",
+      "completedActivities": "Activities done in the period"
+    },
+    "deals_by_stage": {
+      "title": "Deals by stage",
+      "chartLabel": "Deals by stage of the {{pipeline}} pipeline",
+      "count": "Count",
+      "amount": "Value",
+      "deals_one": "{{count}} deal",
+      "deals_other": "{{count}} deals",
+      "noPipeline": "No pipeline found."
+    }
+  },
+  "events": {
+    "contact": {
+      "created": "created the contact"
+    },
+    "company": {
+      "created": "created the company"
+    },
+    "deal": {
+      "created": "created the deal",
+      "stage_changed": "moved the deal",
+      "won": "won the deal",
+      "lost": "lost the deal",
+      "reopened": "reopened the deal",
+      "owner_changed": "changed the owner of the deal"
+    },
+    "activity": {
+      "created": "created the activity",
+      "completed": "completed the activity"
+    },
+    "note": {
+      "created": "added a note to"
+    },
+    "fallback": "recorded an event on",
+    "stageChange": "{{from}} → {{to}}"
+  },
+  "subject": {
+    "label": "Results of",
+    "all": {
+      "own": "My results",
+      "team": "My teams",
+      "organization": "Whole organization"
+    },
+    "teams": "Teams",
+    "users": "People",
+    "unnamed": "No name"
+  },
+  "compare": {
+    "label": "Compare with the previous period",
+    "against": "Compared with {{range}}"
+  },
+  "nav": {
+    "home": "Home"
+  }
+}

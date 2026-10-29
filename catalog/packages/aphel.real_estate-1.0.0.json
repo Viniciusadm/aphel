@@ -1,0 +1,1049 @@
+{
+  "format": "aphel-config",
+  "format_version": 1,
+  "min_aphel_version": "0.1.0",
+  "id": "aphel.real_estate",
+  "version": "1.0.0",
+  "name": "Imobiliária",
+  "description": "Para imobiliárias e corretores: funis de venda e de locação, dados do imóvel, campos de locação que só aparecem quando o negócio é locação, visitas, vistorias e etiquetas de perfil do cliente.",
+  "author": "Aphel",
+  "locale": "pt-BR",
+  "sections": {
+    "fields": [
+      {
+        "record_type": "deal",
+        "key": "business_type",
+        "label": "Tipo de negócio",
+        "type": "select",
+        "options": [
+          {
+            "value": "sale",
+            "label": "Venda",
+            "color": "#1f6feb"
+          },
+          {
+            "value": "rental",
+            "label": "Locação",
+            "color": "#1a7f37"
+          }
+        ]
+      },
+      {
+        "record_type": "deal",
+        "key": "property_type",
+        "label": "Tipo de imóvel",
+        "type": "select",
+        "options": [
+          {
+            "value": "apartment",
+            "label": "Apartamento",
+            "color": "#1f6feb"
+          },
+          {
+            "value": "house",
+            "label": "Casa",
+            "color": "#1a7f37"
+          },
+          {
+            "value": "condo_house",
+            "label": "Casa em condomínio",
+            "color": "#0f766e"
+          },
+          {
+            "value": "land",
+            "label": "Terreno",
+            "color": "#bf8700"
+          },
+          {
+            "value": "commercial",
+            "label": "Comercial",
+            "color": "#8250df"
+          },
+          {
+            "value": "rural",
+            "label": "Rural",
+            "color": "#4d7c0f"
+          }
+        ]
+      },
+      {
+        "record_type": "deal",
+        "key": "property_code",
+        "label": "Código do imóvel",
+        "type": "text",
+        "searchable": true
+      },
+      {
+        "record_type": "deal",
+        "key": "neighborhood",
+        "label": "Bairro",
+        "type": "text"
+      },
+      {
+        "record_type": "deal",
+        "key": "payment_method",
+        "label": "Forma de pagamento",
+        "type": "select",
+        "options": [
+          {
+            "value": "cash",
+            "label": "À vista",
+            "color": "#1a7f37"
+          },
+          {
+            "value": "financing",
+            "label": "Financiamento",
+            "color": "#1f6feb"
+          },
+          {
+            "value": "fgts",
+            "label": "Financiamento com FGTS",
+            "color": "#0f766e"
+          },
+          {
+            "value": "consortium",
+            "label": "Consórcio",
+            "color": "#8250df"
+          },
+          {
+            "value": "exchange",
+            "label": "Permuta",
+            "color": "#d1631a"
+          }
+        ]
+      },
+      {
+        "record_type": "deal",
+        "key": "financing_approved",
+        "label": "Crédito aprovado",
+        "type": "checkbox"
+      },
+      {
+        "record_type": "deal",
+        "key": "rent_amount",
+        "label": "Valor do aluguel",
+        "type": "currency",
+        "config": {
+          "currency": "BRL"
+        }
+      },
+      {
+        "record_type": "deal",
+        "key": "condo_fee",
+        "label": "Condomínio + IPTU (mensal)",
+        "type": "currency",
+        "config": {
+          "currency": "BRL"
+        }
+      },
+      {
+        "record_type": "deal",
+        "key": "rental_guarantee",
+        "label": "Garantia locatícia",
+        "type": "select",
+        "options": [
+          {
+            "value": "guarantor",
+            "label": "Fiador",
+            "color": "#1f6feb"
+          },
+          {
+            "value": "bail_insurance",
+            "label": "Seguro fiança",
+            "color": "#1a7f37"
+          },
+          {
+            "value": "deposit",
+            "label": "Caução",
+            "color": "#bf8700"
+          },
+          {
+            "value": "capitalization",
+            "label": "Título de capitalização",
+            "color": "#8250df"
+          },
+          {
+            "value": "none",
+            "label": "Sem garantia",
+            "color": "#6e7781"
+          }
+        ]
+      },
+      {
+        "record_type": "deal",
+        "key": "contract_months",
+        "label": "Prazo do contrato (meses)",
+        "type": "number",
+        "config": {
+          "min": 1,
+          "decimals": 0
+        }
+      },
+      {
+        "record_type": "deal",
+        "key": "move_in_date",
+        "label": "Data de entrada no imóvel",
+        "type": "date"
+      },
+      {
+        "record_type": "contact",
+        "key": "client_profile",
+        "label": "Perfil do cliente",
+        "type": "select",
+        "options": [
+          {
+            "value": "buyer",
+            "label": "Comprador",
+            "color": "#1f6feb"
+          },
+          {
+            "value": "tenant",
+            "label": "Locatário",
+            "color": "#1a7f37"
+          },
+          {
+            "value": "owner",
+            "label": "Proprietário",
+            "color": "#8250df"
+          }
+        ]
+      },
+      {
+        "record_type": "contact",
+        "key": "max_budget",
+        "label": "Orçamento máximo",
+        "type": "currency",
+        "config": {
+          "currency": "BRL"
+        }
+      },
+      {
+        "record_type": "contact",
+        "key": "desired_neighborhoods",
+        "label": "Bairros de interesse",
+        "type": "text"
+      },
+      {
+        "record_type": "contact",
+        "key": "bedrooms",
+        "label": "Dormitórios desejados",
+        "type": "number",
+        "config": {
+          "min": 0,
+          "decimals": 0
+        }
+      }
+    ],
+    "pipelines": [
+      {
+        "key": "venda",
+        "name": "Venda",
+        "default": true,
+        "stages": [
+          {
+            "key": "prospeccao",
+            "name": "Atendimento",
+            "kind": "open",
+            "probability": 10
+          },
+          {
+            "key": "qualificacao",
+            "name": "Visita",
+            "kind": "open",
+            "probability": 25
+          },
+          {
+            "key": "proposta",
+            "name": "Proposta",
+            "kind": "open",
+            "probability": 50,
+            "entry_required_fields": [
+              "amount"
+            ]
+          },
+          {
+            "key": "negociacao",
+            "name": "Negociação",
+            "kind": "open",
+            "probability": 70
+          },
+          {
+            "key": "documentacao",
+            "name": "Documentação e financiamento",
+            "kind": "open",
+            "probability": 90,
+            "entry_required_fields": [
+              "payment_method"
+            ]
+          },
+          {
+            "key": "ganho",
+            "name": "Vendido",
+            "kind": "won",
+            "probability": 100
+          },
+          {
+            "key": "perdido",
+            "name": "Perdido",
+            "kind": "lost",
+            "probability": 0
+          }
+        ]
+      },
+      {
+        "key": "locacao",
+        "name": "Locação",
+        "stages": [
+          {
+            "key": "atendimento",
+            "name": "Atendimento",
+            "kind": "open",
+            "probability": 10
+          },
+          {
+            "key": "visita",
+            "name": "Visita",
+            "kind": "open",
+            "probability": 30
+          },
+          {
+            "key": "analise_cadastral",
+            "name": "Análise cadastral",
+            "kind": "open",
+            "probability": 60,
+            "entry_required_fields": [
+              "rent_amount",
+              "rental_guarantee"
+            ]
+          },
+          {
+            "key": "contrato",
+            "name": "Contrato",
+            "kind": "open",
+            "probability": 85,
+            "entry_required_fields": [
+              "contract_months",
+              "move_in_date"
+            ]
+          },
+          {
+            "key": "alugado",
+            "name": "Alugado",
+            "kind": "won",
+            "probability": 100
+          },
+          {
+            "key": "perdido",
+            "name": "Perdido",
+            "kind": "lost",
+            "probability": 0
+          }
+        ]
+      }
+    ],
+    "lost_reasons": [
+      {
+        "key": "preco",
+        "name": "Preço"
+      },
+      {
+        "key": "escolheu_um_concorrente",
+        "name": "Escolheu um concorrente"
+      },
+      {
+        "key": "sem_orcamento",
+        "name": "Sem orçamento"
+      },
+      {
+        "key": "sem_resposta",
+        "name": "Sem resposta"
+      },
+      {
+        "key": "momento_inadequado",
+        "name": "Momento inadequado"
+      },
+      {
+        "key": "outro",
+        "name": "Outro"
+      },
+      {
+        "key": "credito_reprovado",
+        "name": "Crédito ou cadastro reprovado"
+      },
+      {
+        "key": "imovel_indisponivel",
+        "name": "Imóvel já negociado"
+      },
+      {
+        "key": "desistiu_do_imovel",
+        "name": "Desistiu após a visita"
+      }
+    ],
+    "activity_types": [
+      {
+        "key": "visit",
+        "name": "Visita",
+        "icon": "map-pin",
+        "color": "#bf8700"
+      },
+      {
+        "key": "inspection",
+        "name": "Vistoria",
+        "icon": "flag",
+        "color": "#d1631a"
+      },
+      {
+        "key": "contract_signing",
+        "name": "Assinatura de contrato",
+        "icon": "handshake",
+        "color": "#1a7f37"
+      }
+    ],
+    "tags": [
+      {
+        "key": "investidor",
+        "name": "Investidor",
+        "color": "#f59e0b",
+        "record_types": [
+          "contact",
+          "deal"
+        ]
+      },
+      {
+        "key": "primeira_compra",
+        "name": "Primeira compra",
+        "color": "#16a34a",
+        "record_types": [
+          "contact",
+          "deal"
+        ]
+      },
+      {
+        "key": "permuta",
+        "name": "Aceita permuta",
+        "color": "#8250df",
+        "record_types": [
+          "contact",
+          "deal"
+        ]
+      }
+    ],
+    "layouts": [
+      {
+        "record_type": "deal",
+        "context": "create",
+        "layout": {
+          "tabs": [
+            {
+              "id": "main",
+              "label": "Dados",
+              "sections": [
+                {
+                  "id": "deal",
+                  "label": "Negócio",
+                  "columns": [
+                    {
+                      "fields": [
+                        {
+                          "key": "title"
+                        },
+                        {
+                          "key": "business_type"
+                        },
+                        {
+                          "key": "contact_id"
+                        }
+                      ]
+                    },
+                    {
+                      "fields": [
+                        {
+                          "key": "owner_id"
+                        },
+                        {
+                          "key": "expected_close_date"
+                        }
+                      ]
+                    }
+                  ]
+                },
+                {
+                  "id": "property",
+                  "label": "Imóvel",
+                  "columns": [
+                    {
+                      "fields": [
+                        {
+                          "key": "property_type"
+                        },
+                        {
+                          "key": "property_code"
+                        }
+                      ]
+                    },
+                    {
+                      "fields": [
+                        {
+                          "key": "neighborhood"
+                        },
+                        {
+                          "key": "amount"
+                        }
+                      ]
+                    }
+                  ]
+                },
+                {
+                  "id": "sale",
+                  "label": "Dados da venda",
+                  "columns": [
+                    {
+                      "fields": [
+                        {
+                          "key": "payment_method",
+                          "visible_when": {
+                            "field": "business_type",
+                            "operator": "eq",
+                            "value": "sale"
+                          }
+                        }
+                      ]
+                    },
+                    {
+                      "fields": [
+                        {
+                          "key": "financing_approved",
+                          "visible_when": {
+                            "field": "business_type",
+                            "operator": "eq",
+                            "value": "sale"
+                          }
+                        }
+                      ]
+                    }
+                  ]
+                },
+                {
+                  "id": "rental",
+                  "label": "Dados da locação",
+                  "columns": [
+                    {
+                      "fields": [
+                        {
+                          "key": "rent_amount",
+                          "visible_when": {
+                            "field": "business_type",
+                            "operator": "eq",
+                            "value": "rental"
+                          },
+                          "required_when": {
+                            "field": "business_type",
+                            "operator": "eq",
+                            "value": "rental"
+                          }
+                        },
+                        {
+                          "key": "condo_fee",
+                          "visible_when": {
+                            "field": "business_type",
+                            "operator": "eq",
+                            "value": "rental"
+                          }
+                        },
+                        {
+                          "key": "rental_guarantee",
+                          "visible_when": {
+                            "field": "business_type",
+                            "operator": "eq",
+                            "value": "rental"
+                          }
+                        }
+                      ]
+                    },
+                    {
+                      "fields": [
+                        {
+                          "key": "contract_months",
+                          "visible_when": {
+                            "field": "business_type",
+                            "operator": "eq",
+                            "value": "rental"
+                          }
+                        },
+                        {
+                          "key": "move_in_date",
+                          "visible_when": {
+                            "field": "business_type",
+                            "operator": "eq",
+                            "value": "rental"
+                          }
+                        }
+                      ]
+                    }
+                  ]
+                }
+              ]
+            }
+          ]
+        }
+      },
+      {
+        "record_type": "deal",
+        "context": "edit",
+        "layout": {
+          "tabs": [
+            {
+              "id": "main",
+              "label": "Dados",
+              "sections": [
+                {
+                  "id": "deal",
+                  "label": "Negócio",
+                  "columns": [
+                    {
+                      "fields": [
+                        {
+                          "key": "title"
+                        },
+                        {
+                          "key": "business_type"
+                        },
+                        {
+                          "key": "contact_id"
+                        }
+                      ]
+                    },
+                    {
+                      "fields": [
+                        {
+                          "key": "owner_id"
+                        },
+                        {
+                          "key": "expected_close_date"
+                        }
+                      ]
+                    }
+                  ]
+                },
+                {
+                  "id": "property",
+                  "label": "Imóvel",
+                  "columns": [
+                    {
+                      "fields": [
+                        {
+                          "key": "property_type"
+                        },
+                        {
+                          "key": "property_code"
+                        }
+                      ]
+                    },
+                    {
+                      "fields": [
+                        {
+                          "key": "neighborhood"
+                        },
+                        {
+                          "key": "amount"
+                        }
+                      ]
+                    }
+                  ]
+                },
+                {
+                  "id": "sale",
+                  "label": "Dados da venda",
+                  "columns": [
+                    {
+                      "fields": [
+                        {
+                          "key": "payment_method",
+                          "visible_when": {
+                            "field": "business_type",
+                            "operator": "eq",
+                            "value": "sale"
+                          }
+                        }
+                      ]
+                    },
+                    {
+                      "fields": [
+                        {
+                          "key": "financing_approved",
+                          "visible_when": {
+                            "field": "business_type",
+                            "operator": "eq",
+                            "value": "sale"
+                          }
+                        }
+                      ]
+                    }
+                  ]
+                },
+                {
+                  "id": "rental",
+                  "label": "Dados da locação",
+                  "columns": [
+                    {
+                      "fields": [
+                        {
+                          "key": "rent_amount",
+                          "visible_when": {
+                            "field": "business_type",
+                            "operator": "eq",
+                            "value": "rental"
+                          },
+                          "required_when": {
+                            "field": "business_type",
+                            "operator": "eq",
+                            "value": "rental"
+                          }
+                        },
+                        {
+                          "key": "condo_fee",
+                          "visible_when": {
+                            "field": "business_type",
+                            "operator": "eq",
+                            "value": "rental"
+                          }
+                        },
+                        {
+                          "key": "rental_guarantee",
+                          "visible_when": {
+                            "field": "business_type",
+                            "operator": "eq",
+                            "value": "rental"
+                          }
+                        }
+                      ]
+                    },
+                    {
+                      "fields": [
+                        {
+                          "key": "contract_months",
+                          "visible_when": {
+                            "field": "business_type",
+                            "operator": "eq",
+                            "value": "rental"
+                          }
+                        },
+                        {
+                          "key": "move_in_date",
+                          "visible_when": {
+                            "field": "business_type",
+                            "operator": "eq",
+                            "value": "rental"
+                          }
+                        }
+                      ]
+                    }
+                  ]
+                }
+              ]
+            }
+          ]
+        }
+      },
+      {
+        "record_type": "contact",
+        "context": "create",
+        "layout": {
+          "tabs": [
+            {
+              "id": "main",
+              "label": "Dados",
+              "sections": [
+                {
+                  "id": "contact",
+                  "label": "Cliente",
+                  "columns": [
+                    {
+                      "fields": [
+                        {
+                          "key": "first_name"
+                        },
+                        {
+                          "key": "last_name"
+                        },
+                        {
+                          "key": "client_profile"
+                        }
+                      ]
+                    },
+                    {
+                      "fields": [
+                        {
+                          "key": "email"
+                        },
+                        {
+                          "key": "phone"
+                        },
+                        {
+                          "key": "mobile"
+                        },
+                        {
+                          "key": "owner_id"
+                        }
+                      ]
+                    }
+                  ]
+                },
+                {
+                  "id": "interest",
+                  "label": "Interesse",
+                  "columns": [
+                    {
+                      "fields": [
+                        {
+                          "key": "max_budget"
+                        },
+                        {
+                          "key": "bedrooms"
+                        }
+                      ]
+                    },
+                    {
+                      "fields": [
+                        {
+                          "key": "desired_neighborhoods"
+                        }
+                      ]
+                    }
+                  ]
+                }
+              ]
+            }
+          ]
+        }
+      },
+      {
+        "record_type": "contact",
+        "context": "edit",
+        "layout": {
+          "tabs": [
+            {
+              "id": "main",
+              "label": "Dados",
+              "sections": [
+                {
+                  "id": "contact",
+                  "label": "Cliente",
+                  "columns": [
+                    {
+                      "fields": [
+                        {
+                          "key": "first_name"
+                        },
+                        {
+                          "key": "last_name"
+                        },
+                        {
+                          "key": "client_profile"
+                        }
+                      ]
+                    },
+                    {
+                      "fields": [
+                        {
+                          "key": "email"
+                        },
+                        {
+                          "key": "phone"
+                        },
+                        {
+                          "key": "mobile"
+                        },
+                        {
+                          "key": "owner_id"
+                        }
+                      ]
+                    }
+                  ]
+                },
+                {
+                  "id": "interest",
+                  "label": "Interesse",
+                  "columns": [
+                    {
+                      "fields": [
+                        {
+                          "key": "max_budget"
+                        },
+                        {
+                          "key": "bedrooms"
+                        }
+                      ]
+                    },
+                    {
+                      "fields": [
+                        {
+                          "key": "desired_neighborhoods"
+                        }
+                      ]
+                    }
+                  ]
+                }
+              ]
+            }
+          ]
+        }
+      }
+    ],
+    "views": [
+      {
+        "key": "vendas_em_aberto",
+        "record_type": "deal",
+        "name": "Vendas em aberto",
+        "view_type": "table",
+        "filter": {
+          "op": "and",
+          "conditions": [
+            {
+              "field": "status",
+              "operator": "eq",
+              "value": "open"
+            },
+            {
+              "field": "business_type",
+              "operator": "eq",
+              "value": "sale"
+            }
+          ]
+        },
+        "sort": [
+          {
+            "field": "expected_close_date",
+            "direction": "asc"
+          }
+        ],
+        "columns": [
+          "title",
+          "contact_id",
+          "property_code",
+          "amount",
+          "stage_id",
+          "owner_id"
+        ]
+      },
+      {
+        "key": "locacoes_em_aberto",
+        "record_type": "deal",
+        "name": "Locações em aberto",
+        "view_type": "table",
+        "filter": {
+          "op": "and",
+          "conditions": [
+            {
+              "field": "status",
+              "operator": "eq",
+              "value": "open"
+            },
+            {
+              "field": "business_type",
+              "operator": "eq",
+              "value": "rental"
+            }
+          ]
+        },
+        "sort": [
+          {
+            "field": "expected_close_date",
+            "direction": "asc"
+          }
+        ],
+        "columns": [
+          "title",
+          "contact_id",
+          "property_code",
+          "rent_amount",
+          "rental_guarantee",
+          "stage_id",
+          "owner_id"
+        ]
+      },
+      {
+        "key": "entradas_proximas",
+        "record_type": "deal",
+        "name": "Entradas nos próximos 30 dias",
+        "view_type": "table",
+        "filter": {
+          "op": "and",
+          "conditions": [
+            {
+              "field": "business_type",
+              "operator": "eq",
+              "value": "rental"
+            },
+            {
+              "field": "move_in_date",
+              "operator": "within_next_days",
+              "value": 30
+            }
+          ]
+        },
+        "sort": [
+          {
+            "field": "move_in_date",
+            "direction": "asc"
+          }
+        ],
+        "columns": [
+          "title",
+          "contact_id",
+          "property_code",
+          "move_in_date",
+          "owner_id"
+        ]
+      },
+      {
+        "key": "proprietarios",
+        "record_type": "contact",
+        "name": "Proprietários",
+        "view_type": "table",
+        "filter": {
+          "field": "client_profile",
+          "operator": "eq",
+          "value": "owner"
+        },
+        "columns": [
+          "name",
+          "phone",
+          "email",
+          "owner_id"
+        ]
+      }
+    ],
+    "dashboard": {
+      "widgets": [
+        {
+          "key": "sales_indicators",
+          "size": "large"
+        },
+        {
+          "key": "deals_by_stage",
+          "size": "medium",
+          "settings": {
+            "pipeline": "venda"
+          }
+        },
+        {
+          "key": "deals_by_stage",
+          "size": "medium",
+          "settings": {
+            "pipeline": "locacao"
+          }
+        },
+        {
+          "key": "pending_center",
+          "size": "medium"
+        },
+        {
+          "key": "recent_activity",
+          "size": "medium"
+        }
+      ],
+      "period": "month"
+    }
+  }
+}

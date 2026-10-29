@@ -1,0 +1,20 @@
+CREATE TABLE reports (
+  id CHAR(36) NOT NULL,
+  record_type VARCHAR(64) NOT NULL,
+  name VARCHAR(140) NOT NULL,
+  description VARCHAR(1000) NULL,
+  owner_id CHAR(36) NULL,
+  visibility VARCHAR(16) NOT NULL,
+  team_id CHAR(36) NULL,
+  visualization VARCHAR(16) NOT NULL,
+  definition JSON NOT NULL,
+  settings JSON NOT NULL DEFAULT (JSON_OBJECT()),
+  created_at DATETIME(6) NOT NULL DEFAULT CURRENT_TIMESTAMP(6),
+  updated_at DATETIME(6) NOT NULL DEFAULT CURRENT_TIMESTAMP(6),
+  PRIMARY KEY (id),
+  KEY reports_record_type_index (record_type, name),
+  KEY reports_owner_index (owner_id),
+  KEY reports_team_index (team_id),
+  CONSTRAINT reports_owner_fk FOREIGN KEY (owner_id) REFERENCES users (id) ON DELETE SET NULL,
+  CONSTRAINT reports_team_fk FOREIGN KEY (team_id) REFERENCES teams (id) ON DELETE SET NULL
+) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci;

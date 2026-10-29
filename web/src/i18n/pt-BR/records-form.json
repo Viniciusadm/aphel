@@ -1,0 +1,88 @@
+{
+  "actions": {
+    "save": "Salvar",
+    "saving": "Salvando…",
+    "create": "Criar",
+    "creating": "Criando…",
+    "cancel": "Cancelar",
+    "retry": "Tentar novamente",
+    "edit": "Editar {{field}}"
+  },
+  "form": {
+    "required": "obrigatório",
+    "noFields": "Nenhum campo disponível para preencher."
+  },
+  "dialog": {
+    "title": "Novo registro",
+    "description": "Preencha os campos obrigatórios. Os demais podem ser completados depois.",
+    "created": "Registro criado",
+    "loadError": "Não foi possível carregar os campos.",
+    "unavailable": "Este tipo de registro não está disponível.",
+    "editTitle": "Editar registro",
+    "editDescription": "Altere os campos e salve.",
+    "updated": "Registro atualizado"
+  },
+  "inline": {
+    "save": "Salvar {{field}}",
+    "cancel": "Cancelar edição",
+    "saving": "Salvando…"
+  },
+  "input": {
+    "none": "Nenhum",
+    "placeholder": "Selecione…",
+    "search": "Buscar…",
+    "searchLabel": "Buscar opções",
+    "noResults": "Nenhum resultado encontrado.",
+    "loading": "Carregando…",
+    "inactiveOption": "{{label}} (inativa)",
+    "country": "País",
+    "countryOf": "País de {{field}}",
+    "clear": "Limpar",
+    "timezone": "Fuso: {{zone}}",
+    "unknownUser": "Usuário desconhecido",
+    "recordUnavailable": "Tipo de registro indisponível",
+    "loadError": "Não foi possível carregar as opções."
+  },
+  "validation": {
+    "required": "Campo obrigatório.",
+    "invalid": "Valor inválido.",
+    "invalidNumber": "Informe um número válido.",
+    "min": "O valor mínimo é {{min}}.",
+    "max": "O valor máximo é {{max}}.",
+    "decimals_one": "Use no máximo {{count}} casa decimal.",
+    "decimals_other": "Use no máximo {{count}} casas decimais.",
+    "integer": "Informe um número inteiro.",
+    "tooLong": "Use no máximo {{max}} caracteres.",
+    "pattern": "O valor não está no formato esperado.",
+    "email": "Informe um e-mail válido.",
+    "url": "Informe um endereço web válido.",
+    "phone": "Informe um telefone válido.",
+    "date": "Informe uma data válida.",
+    "datetime": "Informe uma data e hora válidas.",
+    "option": "Selecione uma opção válida.",
+    "inactiveOption": "Esta opção está inativa.",
+    "tooManyOptions": "Selecione no máximo {{max}} opções.",
+    "reference": "Selecione um item válido.",
+    "referenceNotFound": "O item selecionado não existe mais.",
+    "unique": "Este valor já está em uso por outro registro.",
+    "boolean": "Informe sim ou não.",
+    "outOfRange": "O valor está fora do intervalo permitido.",
+    "unknownField": "Campo desconhecido.",
+    "inactiveField": "Este campo está inativo.",
+    "notAccessible": "Você não tem acesso a este campo.",
+    "readOnlyField": "Este campo é somente leitura para o seu papel."
+  },
+  "errors": {
+    "generic": "Não foi possível salvar. Tente novamente.",
+    "network": "Sem conexão com o servidor. Verifique sua internet e tente novamente.",
+    "permissionDenied": "Você não tem permissão para fazer isso.",
+    "notFound": "O registro não foi encontrado.",
+    "invalidFields": "Verifique os campos: {{fields}}",
+    "fieldMessage": "{{field}}: {{message}}"
+  },
+  "layout": {
+    "tabs": "Abas do formulário",
+    "untitledTab": "Aba {{number}}",
+    "untitledSection": "Seção {{number}}"
+  }
+}

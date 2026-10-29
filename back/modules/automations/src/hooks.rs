@@ -1,0 +1,48 @@
+use serde_json::Value;
+use uuid::Uuid;
+
+use crate::KEY;
+use aphel_kernel::Ctx;
+use aphel_kernel::application::shared::RecordRef;
+use aphel_kernel::errors::AppError;
+use aphel_kernel::modules::Hook;
+
+#[derive(Debug, Clone, PartialEq)]
+pub(crate) struct RunningAction {
+    pub(crate) automation_id: Uuid,
+    pub(crate) run_id: Uuid,
+    pub(crate) step_id: String,
+    pub(crate) action: String,
+    pub(crate) record: RecordRef,
+    pub(crate) config: Value,
+    pub(crate) dry_run: bool,
+    pub(crate) output: Option<Value>,
+}
+
+pub(crate) struct ActionRunning;
+
+impl Hook for ActionRunning {
+    type Args = RunningAction;
+}
+
+pub(crate) async fn before_action(ctx: &Ctx<'_>, running: &RunningAction) -> Result<(), AppError> {
+    if !ctx.app().hooks().has::<ActionRunning>() {
+        return Ok(());
+    }
+    let mut tx = ctx.begin().await?;
+    ctx.run_hook::<ActionRunning>(&mut tx, KEY, running).await?;
+    tx.commit().await?;
+    Ok(())
+}
+
+pub(crate) async fn after_action(ctx: &Ctx<'_>, running: RunningAction) -> Result<Value, AppError> {
+    if !ctx.app().hooks().has::<ActionRunning>() {
+        return Ok(running.output.unwrap_or(Value::Null));
+    }
+    let mut tx = ctx.begin().await?;
+    let filtered = ctx
+        .apply_hook::<ActionRunning>(&mut tx, KEY, running)
+        .await?;
+    tx.commit().await?;
+    Ok(filtered.output.unwrap_or(Value::Null))
+}

@@ -1,0 +1,33 @@
+{
+  "title": "Navegação e idioma",
+  "description": "Personalize o menu lateral, a tela inicial e o idioma. Vale só para você, em todas as organizações.",
+  "language": {
+    "title": "Idioma",
+    "description": "Idioma da interface e dos e-mails que você recebe. Formatos de data e número acompanham o idioma.",
+    "label": "Idioma",
+    "organization": "Seguir a organização",
+    "options": {
+      "pt-BR": "Português (Brasil)",
+      "en": "English"
+    },
+    "saved": "Idioma atualizado"
+  },
+  "home": {
+    "title": "Tela inicial",
+    "description": "Para onde você vai ao entrar no Aphel.",
+    "label": "Tela inicial",
+    "default": "Início (painel)"
+  },
+  "menu": {
+    "title": "Itens do menu",
+    "description": "Reordene e esconda os itens que você pode acessar. Itens novos aparecem no fim.",
+    "moveUp": "Mover {{label}} para cima",
+    "moveDown": "Mover {{label}} para baixo",
+    "visible": "Mostrar {{label}} no menu",
+    "alwaysVisible": "Sempre visível",
+    "reset": "Restaurar padrão"
+  },
+  "save": "Salvar navegação",
+  "saved": "Navegação salva",
+  "saveError": "Não foi possível salvar as preferências"
+}

@@ -1,0 +1,204 @@
+import { ShieldCheck } from 'lucide-react'
+import { useId, useState } from 'react'
+import { useTranslation } from 'react-i18next'
+import { Link } from 'react-router'
+import { useSession } from '@/app/session/session-context'
+import { Button } from '@/components/ui/button'
+import { EmptyState } from '@/components/ui/empty-state'
+import { ErrorState } from '@/components/ui/error-state'
+import { Label } from '@/components/ui/label'
+import { Skeleton } from '@/components/ui/skeleton'
+import { Tabs, TabsList, TabsTrigger } from '@/components/ui/tabs'
+import { NativeSelect } from '@/features/records/filters/NativeSelect'
+import { formatDateTime, useRecordFormatting } from '@/features/records/formatting'
+import { cn } from '@/lib/utils'
+import { useApprovalInbox } from './api'
+import { ApprovalStatusBadge } from './components/StatusBadge'
+import {
+  APPROVAL_BOXES,
+  APPROVAL_STATUSES,
+  APPROVALS_MANAGE_PERMISSION,
+  APPROVALS_PER_PAGE,
+  approvalPath,
+} from './constants'
+import { useRecordTypeLabel } from './lib/labels'
+import { recordPath } from './lib/record-link'
+import type { ApprovalBox, ApprovalRequest, ApprovalStatus } from './types'
+
+export function ApprovalsPage() {
+  const { t } = useTranslation('approvals')
+  const { hasPermission } = useSession()
+  const statusId = useId()
+  const canManage = hasPermission(APPROVALS_MANAGE_PERMISSION)
+  const boxes = APPROVAL_BOXES.filter((box) => box !== 'all' || canManage)
+  const [box, setBox] = useState<ApprovalBox>('pending_for_me')
+  const [status, setStatus] = useState<ApprovalStatus | ''>('pending')
+  const [page, setPage] = useState(1)
+  const inbox = useApprovalInbox({ box, status: status || undefined, page })
+
+  let body
+  if (inbox.isPending) {
+    body = (
+      <div className="grid gap-2" aria-busy="true">
+        <Skeleton className="h-14 w-full" />
+        <Skeleton className="h-14 w-full" />
+        <Skeleton className="h-14 w-full" />
+      </div>
+    )
+  } else if (inbox.isError) {
+    body = <ErrorState onRetry={() => void inbox.refetch()} />
+  } else if (inbox.data.data.length === 0) {
+    body = <EmptyState icon={ShieldCheck} title={t('inbox.emptyTitle')} description={t(`inbox.empty.${box}`)} />
+  } else {
+    const pages = Math.max(1, Math.ceil(inbox.data.meta.total / APPROVALS_PER_PAGE))
+    body = (
+      <>
+        <RequestsTable requests={inbox.data.data} />
+        {pages > 1 && (
+          <nav
+            aria-label={t('pager.label')}
+            className="flex flex-wrap items-center justify-between gap-2 text-sm text-muted-foreground"
+          >
+            <span>
+              {t('pager.summary', {
+                page,
+                pages,
+                total: inbox.data.meta.total,
+              })}
+            </span>
+            <div className="flex gap-2">
+              <Button variant="outline" size="sm" onClick={() => setPage(page - 1)} disabled={page <= 1}>
+                {t('pager.previous')}
+              </Button>
+              <Button variant="outline" size="sm" onClick={() => setPage(page + 1)} disabled={page >= pages}>
+                {t('pager.next')}
+              </Button>
+            </div>
+          </nav>
+        )}
+      </>
+    )
+  }
+
+  return (
+    <div className="flex w-full flex-col gap-4">
+      <div className="grid gap-1">
+        <h1 className="text-xl font-semibold">{t('inbox.title')}</h1>
+        <p className="text-sm text-muted-foreground">{t('inbox.description')}</p>
+      </div>
+      <div className="flex flex-wrap items-center justify-between gap-3">
+        <Tabs
+          value={box}
+          onValueChange={(value) => {
+            setBox(value as ApprovalBox)
+            setPage(1)
+          }}
+        >
+          <TabsList>
+            {boxes.map((item) => (
+              <TabsTrigger key={item} value={item}>
+                {t(`inbox.boxes.${item}`)}
+              </TabsTrigger>
+            ))}
+          </TabsList>
+        </Tabs>
+        <div className="flex items-center gap-2">
+          <Label htmlFor={statusId} className="text-sm text-muted-foreground">
+            {t('inbox.status')}
+          </Label>
+          <NativeSelect
+            id={statusId}
+            className="w-44"
+            value={status}
+            onChange={(event) => {
+              setStatus(event.target.value as ApprovalStatus | '')
+              setPage(1)
+            }}
+          >
+            <option value="">{t('inbox.allStatuses')}</option>
+            {APPROVAL_STATUSES.map((item) => (
+              <option key={item} value={item}>
+                {t(`status.${item}`)}
+              </option>
+            ))}
+          </NativeSelect>
+        </div>
+      </div>
+      {body}
+    </div>
+  )
+}
+
+function RequestsTable({ requests }: { requests: ApprovalRequest[] }) {
+  const { t } = useTranslation('approvals')
+  const formatting = useRecordFormatting()
+  const recordTypeLabel = useRecordTypeLabel()
+  return (
+    <div className="relative overflow-x-auto rounded-lg border">
+      <table className="w-full text-sm">
+        <thead className="bg-muted/50 text-left text-muted-foreground">
+          <tr>
+            <th scope="col" className="px-4 py-2 font-medium">
+              {t('columns.record')}
+            </th>
+            <th scope="col" className="px-4 py-2 font-medium">
+              {t('columns.policy')}
+            </th>
+            <th scope="col" className="hidden px-4 py-2 font-medium md:table-cell">
+              {t('columns.requestedBy')}
+            </th>
+            <th scope="col" className="hidden px-4 py-2 font-medium sm:table-cell">
+              {t('columns.dueAt')}
+            </th>
+            <th scope="col" className="px-4 py-2 font-medium">
+              {t('columns.status')}
+            </th>
+          </tr>
+        </thead>
+        <tbody>
+          {requests.map((request) => {
+            const link = recordPath(request.record_type, request.record_id)
+            const title = request.record_title?.trim() || t('request.untitledRecord')
+            const overdue = request.is_overdue && request.status === 'pending'
+            return (
+              <tr key={request.id} className="border-t align-top">
+                <td className="px-4 py-3">
+                  {link ? (
+                    <Link to={link} className="font-medium hover:underline">
+                      {title}
+                    </Link>
+                  ) : (
+                    <span className="font-medium">{title}</span>
+                  )}
+                  <div className="text-xs text-muted-foreground">{recordTypeLabel(request.record_type)}</div>
+                </td>
+                <td className="px-4 py-3">
+                  <Link to={approvalPath(request.id)} className="hover:underline">
+                    {request.policy_name}
+                  </Link>
+                  <div className="text-xs text-muted-foreground">
+                    {t(`moments.${request.moment}`)}
+                    {request.target_name && ` · ${request.target_name}`}
+                  </div>
+                </td>
+                <td className="hidden px-4 py-3 md:table-cell">
+                  {request.requested_by?.display_name ?? t('request.system')}
+                  <div className="text-xs text-muted-foreground">
+                    {formatDateTime(request.requested_at, formatting)}
+                  </div>
+                </td>
+                <td className={cn('hidden px-4 py-3 sm:table-cell', overdue && 'font-medium text-destructive')}>
+                  {request.due_at ? formatDateTime(request.due_at, formatting) : '—'}
+                  {overdue && <div className="text-xs">{t('request.overdue')}</div>}
+                </td>
+                <td className="px-4 py-3">
+                  <ApprovalStatusBadge status={request.status} />
+                </td>
+              </tr>
+            )
+          })}
+        </tbody>
+      </table>
+    </div>
+  )
+}

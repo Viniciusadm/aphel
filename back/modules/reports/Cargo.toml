@@ -1,0 +1,28 @@
+[package]
+name = "aphel-mod-reports"
+version.workspace = true
+edition.workspace = true
+rust-version.workspace = true
+license.workspace = true
+publish = false
+
+[dependencies]
+aphel-kernel.workspace = true
+currencies = { package = "aphel-mod-currencies", path = "../currencies" }
+dashboard = { package = "aphel-mod-dashboard", path = "../dashboard" }
+deals = { package = "aphel-mod-deals", path = "../deals" }
+exports = { package = "aphel-mod-exports", path = "../exports" }
+pipelines = { package = "aphel-mod-pipelines", path = "../pipelines" }
+axum.workspace = true
+async-trait.workspace = true
+chrono.workspace = true
+serde.workspace = true
+serde_json.workspace = true
+sqlx.workspace = true
+utoipa.workspace = true
+utoipa-axum.workspace = true
+uuid.workspace = true
+bytes.workspace = true
+rust_decimal.workspace = true
+chrono-tz.workspace = true
+tracing.workspace = true

@@ -1,0 +1,123 @@
+{
+  "settings": {
+    "title": "Formula",
+    "description": "The value is calculated automatically from the record's other fields and cannot be edited by hand.",
+    "resultType": "Result type",
+    "resultTypeHint": "Defines how the value is stored, shown and filtered.",
+    "decimals": "Decimal places",
+    "decimalsHint": "From 0 to 6. Empty keeps the calculated value.",
+    "currency": "Currency",
+    "currencyHint": "3-letter ISO code. Empty uses BRL."
+  },
+  "resultTypes": {
+    "number": "Number",
+    "currency": "Currency",
+    "date": "Date",
+    "text": "Text",
+    "boolean": "Yes/no"
+  },
+  "kinds": {
+    "number": "number",
+    "text": "text",
+    "date": "date",
+    "boolean": "yes/no"
+  },
+  "editor": {
+    "label": "Expression",
+    "placeholder": "days_until(renewal_date)",
+    "hint": "Use field keys, operators (+ - * /, = != < <= > >=, and, or, not) and functions. Click the items beside to insert them.",
+    "length": "{{count}} of {{max}} characters",
+    "validating": "Validating…",
+    "valid": "Valid expression",
+    "invalid": "The expression has problems",
+    "inferredKind": "Detected result: {{kind}}",
+    "position": "Position {{position}}",
+    "errorsLabel": "Expression problems",
+    "checkFailed": "The expression could not be validated right now.",
+    "serverError": "Save error: {{message}}"
+  },
+  "dependencies": {
+    "title": "Dependencies",
+    "fields": "Fields used",
+    "aggregates": "Aggregates",
+    "today": "Uses today's date: the value is recalculated every day.",
+    "none": "The expression does not use other fields."
+  },
+  "catalog": {
+    "title": "Insert into the expression",
+    "fields": "Fields",
+    "relations": "Relations",
+    "functions": "Functions",
+    "search": "Filter items",
+    "empty": "No items found.",
+    "loading": "Loading items…",
+    "loadError": "The fields and functions could not be loaded.",
+    "formula": "formula",
+    "count": "Count records",
+    "insert": "Insert {{item}}",
+    "relationFields": "Sum or average a field of {{relation}}",
+    "noRelations": "This record type has no relations that can be aggregated.",
+    "categories": {
+      "date": "Dates",
+      "logic": "Logic",
+      "text": "Text",
+      "number": "Numbers",
+      "aggregate": "Aggregates"
+    }
+  },
+  "functions": {
+    "today": "Today's date.",
+    "days_between": "Days between two dates (end minus start).",
+    "days_until": "Days left until the date.",
+    "days_since": "Days elapsed since the date.",
+    "add_days": "Adds (or subtracts) days to a date.",
+    "if": "Returns the second value when the condition is true, otherwise the third.",
+    "coalesce": "First value that is not empty.",
+    "is_empty": "True when the value is empty.",
+    "concat": "Joins texts and values into a single text.",
+    "upper": "Text in upper case.",
+    "lower": "Text in lower case.",
+    "len": "Number of characters of the text.",
+    "round": "Rounds the number to the given decimal places.",
+    "abs": "Absolute value (no sign).",
+    "floor": "Rounds down.",
+    "ceil": "Rounds up.",
+    "min": "Smallest of the values, or the smallest value of a related field.",
+    "max": "Largest of the values, or the largest value of a related field.",
+    "count": "Number of related records.",
+    "sum": "Sum of a field of the related records.",
+    "avg": "Average of a field of the related records."
+  },
+  "preview": {
+    "title": "Preview",
+    "record": "Sample record",
+    "recordHint": "Choose a record to see the value the formula calculates for it.",
+    "value": "Calculated value",
+    "empty": "Empty",
+    "pickRecord": "No record chosen.",
+    "notEvaluated": "Fix the expression to calculate the value.",
+    "recordNotFound": "The chosen record was not found or you have no access to it.",
+    "yes": "Yes",
+    "no": "No"
+  },
+  "errors": {
+    "unexpected_character": "Unexpected character.",
+    "unterminated_string": "Text without closing quotes.",
+    "invalid_number": "Invalid number.",
+    "unexpected_token": "Unexpected symbol at this position.",
+    "unexpected_end": "The expression ends earlier than expected.",
+    "expression_too_long": "The expression is too long (2000 characters at most).",
+    "expression_too_complex": "The expression is too complex. Simplify it.",
+    "empty_expression": "Write an expression.",
+    "unknown_field": "Unknown field.",
+    "unknown_relation": "Unknown relation.",
+    "unknown_function": "Unknown function.",
+    "unsupported_field": "This field cannot be used in formulas.",
+    "wrong_arguments": "Wrong number or type of arguments for the function.",
+    "type_mismatch": "The value types do not match in this operation.",
+    "related_outside_aggregate": "Related record fields can only be used inside count, sum, avg, min or max.",
+    "incompatible_result": "The expression result does not match the chosen result type.",
+    "formula_cycle": "The formula creates a circular dependency between fields.",
+    "field_not_accessible": "You have no access to this field."
+  }
+}

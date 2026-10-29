@@ -1,0 +1,28 @@
+[package]
+name = "aphel-mod-messaging"
+version.workspace = true
+edition.workspace = true
+rust-version.workspace = true
+license.workspace = true
+publish = false
+
+[dependencies]
+aphel-kernel.workspace = true
+activities = { package = "aphel-mod-activities", path = "../activities" }
+contacts = { package = "aphel-mod-contacts", path = "../contacts" }
+deals = { package = "aphel-mod-deals", path = "../deals" }
+email = { package = "aphel-mod-email", path = "../email" }
+axum.workspace = true
+async-trait.workspace = true
+chrono.workspace = true
+serde.workspace = true
+serde_json.workspace = true
+sqlx.workspace = true
+tokio.workspace = true
+tracing.workspace = true
+utoipa.workspace = true
+utoipa-axum.workspace = true
+uuid.workspace = true
+sha2.workspace = true
+hmac.workspace = true
+reqwest.workspace = true

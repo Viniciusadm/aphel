@@ -1,0 +1,52 @@
+name: Sugerir funcionalidade
+description: Uma ideia nova ou melhoria para o Aphel.
+title: "feat: "
+labels: ["enhancement"]
+body:
+  - type: markdown
+    attributes:
+      value: |
+        Obrigado pela sugestão! Confira antes se ela já existe nas issues.
+  - type: textarea
+    id: problem
+    attributes:
+      label: Qual problema isso resolve
+      description: Descreva a necessidade ou a dor, não só a solução. Quem é afetado e com que frequência?
+      placeholder: Na minha imobiliária, os corretores precisam...
+    validations:
+      required: true
+  - type: textarea
+    id: solution
+    attributes:
+      label: Solução proposta
+      description: Como você imagina que funcione.
+    validations:
+      required: true
+  - type: textarea
+    id: alternatives
+    attributes:
+      label: Alternativas consideradas
+      description: Outras formas de resolver, inclusive o que você faz hoje.
+  - type: dropdown
+    id: area
+    attributes:
+      label: Área
+      multiple: true
+      options:
+        - Contatos e empresas
+        - Oportunidades e funil
+        - Tarefas e atividades
+        - Campos personalizados e visualizações
+        - Dashboard e relatórios
+        - Notificações
+        - Importação e exportação
+        - Usuários, equipes e permissões
+        - API e integrações
+        - Instalação e administração
+        - Outra
+  - type: checkboxes
+    id: contribution
+    attributes:
+      label: Contribuição
+      options:
+        - label: Tenho interesse em implementar esta funcionalidade

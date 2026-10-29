@@ -1,0 +1,468 @@
+{
+  "page": {
+    "title": "Tasks",
+    "description": "Tasks and logged activities with contacts, companies and deals.",
+    "sections": "Task sections",
+    "mine": "My tasks",
+    "all": "All activities"
+  },
+  "mine": {
+    "emptyTitle": "No open tasks",
+    "emptyDescription": "You are all caught up. Create a task to plan the next step.",
+    "groups": {
+      "overdue": "Overdue",
+      "today": "Today",
+      "upcoming": "Upcoming",
+      "none": "No due date"
+    },
+    "shown": "Showing {{shown}} of {{total}} open tasks.",
+    "loadMore": "Load more",
+    "loadingMore": "Loading…"
+  },
+  "all": {
+    "completeSelected_one": "Complete {{count}} selected",
+    "completeSelected_other": "Complete {{count}} selected",
+    "completed_one": "{{count}} activity completed",
+    "completed_other": "{{count}} activities completed",
+    "completeFailed_one": "{{count}} activity could not be completed",
+    "completeFailed_other": "{{count}} activities could not be completed"
+  },
+  "tab": {
+    "title": "Tasks and activities",
+    "openCount_one": "{{count}} open",
+    "openCount_other": "{{count}} open",
+    "newTask": "New task",
+    "log": "Log activity",
+    "emptyTitle": "No activities",
+    "emptyDescription": "Create a task or log a call, meeting or visit with this record.",
+    "openList": "Open activities",
+    "doneList": "Completed activities",
+    "noOpen": "No open tasks.",
+    "doneToggle_one": "{{count}} completed or canceled",
+    "doneToggle_other": "{{count}} completed or canceled",
+    "completedToast": "“{{title}}” completed",
+    "reopenedToast": "“{{title}}” reopened"
+  },
+  "row": {
+    "complete": "Complete “{{title}}”",
+    "reopen": "Reopen “{{title}}”",
+    "due": "Due: {{date}}",
+    "overdue": "Overdue since {{date}}",
+    "completedAt": "Completed on {{date}}",
+    "relatedRecord": "Linked record",
+    "recurring": "Recurring task",
+    "reminder": "Has a reminder"
+  },
+  "priority": {
+    "low": "Low",
+    "normal": "Normal",
+    "high": "High",
+    "urgent": "Urgent"
+  },
+  "status": {
+    "open": "Open",
+    "done": "Done",
+    "canceled": "Canceled"
+  },
+  "form": {
+    "taskTitle": "New task",
+    "taskDescription": "Plan the next step with a due date and an owner.",
+    "logTitle": "Log activity",
+    "logDescription": "Log something that already happened, such as a call.",
+    "title": "Title",
+    "taskPlaceholder": "E.g.: Send proposal",
+    "logPlaceholder": "E.g.: Intro call",
+    "titleRequired": "Enter a title up to 255 characters.",
+    "type": "Type",
+    "typeRequired": "Choose an activity type.",
+    "priority": "Priority",
+    "dueAt": "Due",
+    "completedAt": "When it happened",
+    "completedAtHint": "Leave empty to log it now.",
+    "owner": "Owner",
+    "ownerMe": "{{name}} (me)",
+    "duration": "Duration (minutes)",
+    "durationInvalid": "Enter a whole number from 0 to 10080.",
+    "description": "Description",
+    "cancel": "Cancel",
+    "submitTask": "Create task",
+    "submitLog": "Log",
+    "createdToast": "Task created",
+    "loggedToast": "Activity logged"
+  },
+  "detail": {
+    "back": "Tasks",
+    "complete": "Complete",
+    "reopen": "Reopen",
+    "delete": "Delete",
+    "deleteTitle": "Delete activity",
+    "deleteDescription": "The activity “{{title}}” will be deleted. This cannot be undone.",
+    "deleted": "Activity deleted",
+    "notesTab": "Notes",
+    "filesTab": "Files"
+  },
+  "types": {
+    "title": "Activity types",
+    "description": "Types used when creating tasks and logging activities. Drag to reorder; deactivate instead of deleting.",
+    "new": "New type",
+    "listLabel": "Activity types",
+    "system": "Default",
+    "inactive": "Inactive",
+    "editLabel": "Edit {{name}}",
+    "activate": "Activate",
+    "deactivate": "Deactivate",
+    "activated": "{{name}} activated",
+    "deactivated": "{{name}} deactivated",
+    "created": "Type {{name}} created",
+    "updated": "Type {{name}} updated",
+    "newTitle": "New activity type",
+    "editTitle": "Edit activity type",
+    "dialogDescription": "Choose the name, icon and color shown on tasks and on the timeline.",
+    "name": "Name",
+    "nameRequired": "Enter a name.",
+    "keyHint": "Key: {{key}} (never changes)",
+    "icon": "Icon",
+    "color": "Color",
+    "colorHex": "Hex color",
+    "save": "Save"
+  },
+  "errors": {
+    "generic": "The operation could not be completed. Try again.",
+    "forbidden": "You are not allowed to do this.",
+    "notFound": "The activity was not found.",
+    "alreadyCompleted": "The activity was already done.",
+    "alreadyOpen": "The activity was already open.",
+    "invalid": "Check the information you entered.",
+    "keyTaken": "Another type already uses this key.",
+    "lastActiveType": "Keep at least one activity type active.",
+    "versionConflict": "Someone else changed this activity. Reload the page and try again."
+  },
+  "timeline": {
+    "activityCreated": "Activity created",
+    "note": "Note",
+    "privateNote": "Private",
+    "pinnedNote": "Pinned",
+    "stageChanged": "Stage changed from {{from}} to {{to}}",
+    "stageSet": "Stage changed to {{to}}",
+    "stageChangedGeneric": "Stage changed",
+    "empty": "empty",
+    "amountChanged": "Amount changed from {{from}} to {{to}}",
+    "ownerChanged": "Owner changed to {{name}}",
+    "ownerRemoved": "Owner removed",
+    "closeDateChanged": "Expected close date changed from {{from}} to {{to}}",
+    "dealWon": "Deal won",
+    "dealWonAmount": "Deal won for {{amount}}",
+    "dealLost": "Deal lost",
+    "dealLostReason": "Deal lost: {{reason}}",
+    "dealReopened": "Deal reopened",
+    "dealChanged": "Deal changed"
+  },
+  "reminder": {
+    "label": "Reminder",
+    "none": "None",
+    "atTime": "At the due time",
+    "minutes_one": "{{count}} minute before",
+    "minutes_other": "{{count}} minutes before",
+    "hours_one": "{{count}} hour before",
+    "hours_other": "{{count}} hours before",
+    "days_one": "{{count}} day before",
+    "days_other": "{{count}} days before"
+  },
+  "recurrence": {
+    "label": "Repeat",
+    "none": "Does not repeat",
+    "frequency": {
+      "daily": "Daily",
+      "weekly": "Weekly",
+      "monthly": "Monthly",
+      "yearly": "Yearly"
+    },
+    "interval": {
+      "daily": "Every how many days",
+      "weekly": "Every how many weeks",
+      "monthly": "Every how many months",
+      "yearly": "Every how many years"
+    },
+    "weekdaysLabel": "Weekdays",
+    "weekdaysHint": "With no day selected, it repeats on the weekday of the due date.",
+    "weekdaysShort": {
+      "mo": "Mon",
+      "tu": "Tue",
+      "we": "Wed",
+      "th": "Thu",
+      "fr": "Fri",
+      "sa": "Sat",
+      "su": "Sun"
+    },
+    "monthDay": "Day of the month",
+    "monthDayHint": "Shorter months use their last day. Leave blank to use the due date day.",
+    "endLabel": "Ends",
+    "end": {
+      "never": "Never",
+      "until": "On a date",
+      "count": "After a number of times"
+    },
+    "untilLabel": "Until",
+    "countLabel": "Number of occurrences",
+    "errors": {
+      "dueRequired": "Set a due date to repeat the task.",
+      "interval": "Enter an interval between 1 and 365.",
+      "monthDay": "Enter a day between 1 and 31.",
+      "until": "Choose the end date.",
+      "count": "Enter a number between 1 and 1000."
+    },
+    "describe": {
+      "daily_one": "Repeats every day",
+      "daily_other": "Repeats every {{count}} days",
+      "weekly_one": "Repeats every week",
+      "weekly_other": "Repeats every {{count}} weeks",
+      "monthly_one": "Repeats every month",
+      "monthly_other": "Repeats every {{count}} months",
+      "yearly_one": "Repeats every year",
+      "yearly_other": "Repeats every {{count}} years",
+      "onWeekdays": "on {{days}}",
+      "onMonthDay": "on day {{day}}",
+      "until": "until {{date}}",
+      "count_one": "{{count}} time",
+      "count_other": "{{count}} times"
+    }
+  },
+  "schedule": {
+    "open": "Schedule",
+    "title": "Schedule",
+    "description": "Due date, reminder and repetition of “{{title}}”.",
+    "occurrence": "Occurrence {{index}}",
+    "applyTo": "Apply to",
+    "applyToOptions": {
+      "this": "This occurrence",
+      "following": "This and following"
+    },
+    "applyToHints": {
+      "this": "The next occurrences keep following the series as it is.",
+      "following": "The next occurrences use these changes."
+    },
+    "endRecurrence": "End recurrence",
+    "save": "Save",
+    "saved": "Schedule updated",
+    "ended": "Recurrence ended"
+  },
+  "calendar": {
+    "page": {
+      "title": "Calendar",
+      "description": "Tasks with due dates and meetings by month, week or day."
+    },
+    "nav": {
+      "today": "Today",
+      "previous": "Previous",
+      "next": "Next"
+    },
+    "views": {
+      "label": "View",
+      "month": "Month",
+      "week": "Week",
+      "day": "Day"
+    },
+    "filters": {
+      "owner": "Owner",
+      "allOwners": "All owners",
+      "me": "{{name}} (me)",
+      "team": "Team",
+      "allTeams": "All teams",
+      "type": "Type",
+      "allTypes": "All types"
+    },
+    "grid": {
+      "month": "Month calendar",
+      "more_one": "+{{count}} more",
+      "more_other": "+{{count}} more",
+      "less": "Show less",
+      "empty": "Nothing scheduled in this period."
+    },
+    "event": {
+      "label": "{{title}}, {{time}}",
+      "open": "Open",
+      "reschedule": "Reschedule",
+      "duration_one": "{{count}} minute",
+      "duration_other": "{{count}} minutes"
+    },
+    "status": {
+      "open": "Open",
+      "done": "Done",
+      "canceled": "Canceled"
+    },
+    "create": {
+      "onDay": "New task on {{day}}",
+      "hint": "Click an empty time slot to create a task."
+    },
+    "reschedule": {
+      "title": "Reschedule activity",
+      "description": "Choose the new due date of “{{title}}”.",
+      "dueAt": "New due date",
+      "cancel": "Cancel",
+      "save": "Reschedule",
+      "done": "“{{title}}” rescheduled",
+      "failed": "The activity could not be rescheduled.",
+      "conflict": "The activity changed while you were editing. The data was reloaded; try again."
+    },
+    "truncated": "Showing {{shown}} of {{total}} activities in this period. Use the filters to see the rest.",
+    "dragHint": "Drag an activity to another day or time to reschedule it."
+  },
+  "inbox": {
+    "page": {
+      "title": "Inbox",
+      "description": "Your open activities by priority: overdue, today, upcoming and without a due date."
+    },
+    "filters": {
+      "owner": "Activities of",
+      "team": "Team",
+      "myTeams": "My teams",
+      "sort": "Sort by"
+    },
+    "owner": {
+      "me": "Mine",
+      "team": "Team",
+      "all": "All"
+    },
+    "sort": {
+      "due": "Due date",
+      "priority": "Priority",
+      "value": "Deal value"
+    },
+    "groups": {
+      "overdue": "Overdue",
+      "today": "Today",
+      "upcoming": "Upcoming",
+      "no_due": "No due date"
+    },
+    "priority": {
+      "low": "Low",
+      "normal": "Normal",
+      "high": "High",
+      "urgent": "Urgent"
+    },
+    "item": {
+      "due": "Due: {{date}}",
+      "overdue": "Overdue since {{date}}",
+      "relatedRecord": "Linked record"
+    },
+    "actions": {
+      "complete": "Complete",
+      "completeLabel": "Complete “{{title}}”",
+      "postponeDay": "Postpone 1 day",
+      "postponeWeek": "Postpone 1 week",
+      "reassign": "Reassign",
+      "menu": "Actions for “{{title}}”"
+    },
+    "reassign": {
+      "title": "Reassign activity",
+      "description": "Choose the new owner of “{{title}}”.",
+      "owner": "Owner",
+      "choose": "Choose a person",
+      "cancel": "Cancel",
+      "confirm": "Reassign"
+    },
+    "toast": {
+      "completed": "“{{title}}” completed",
+      "postponedDay": "“{{title}}” postponed by 1 day",
+      "postponedWeek": "“{{title}}” postponed by 1 week",
+      "reassigned": "“{{title}}” reassigned",
+      "undone": "Change undone"
+    },
+    "undo": {
+      "action": "Undo",
+      "dismiss": "Dismiss"
+    },
+    "errors": {
+      "generic": "Could not update the activity. Try again.",
+      "conflict": "The activity was changed by someone else. The list was refreshed."
+    },
+    "empty": {
+      "me": {
+        "title": "Nothing pending",
+        "description": "You have no open activities. A good time to plan your next step."
+      },
+      "team": {
+        "title": "No team activities",
+        "description": "Nobody in the team has open activities."
+      },
+      "all": {
+        "title": "No open activities",
+        "description": "There are no open activities you can see."
+      }
+    },
+    "truncated": "Showing {{shown}} of {{total}} open activities. Complete or filter to see the rest."
+  },
+  "nav": {
+    "tasks": "Tasks",
+    "inbox": "Inbox",
+    "calendar": "Calendar"
+  },
+  "createAction": {
+    "label": "New task",
+    "linked": "New task linked to this record"
+  },
+  "quickAdd": {
+    "options": {
+      "checkin": "Check-in",
+      "activity": "Activity"
+    },
+    "titles": {
+      "checkin": "Visit check-in",
+      "activity": "New activity"
+    },
+    "activity": {
+      "title": "Title",
+      "titleRequired": "Enter the title.",
+      "type": "Type",
+      "when": "When",
+      "whenOptions": {
+        "due": "Schedule",
+        "done": "Already happened"
+      },
+      "dueAt": "Due date",
+      "description": "Description",
+      "submit": "Save activity",
+      "created": "Activity {{title}} saved."
+    },
+    "checkIn": {
+      "button": "Check in",
+      "location": "Location",
+      "capturing": "Getting your location...",
+      "captured": "Location captured ({{accuracy}} m accuracy)",
+      "capturedNoAccuracy": "Location captured",
+      "withoutLocation": "The check-in will be saved without a location.",
+      "capture": "Use location",
+      "retry": "Try again",
+      "removeLocation": "Don't use",
+      "viewOnMap": "View on map",
+      "failure": {
+        "unsupported": "This browser does not provide a location. The check-in will be saved without it.",
+        "denied": "Location permission denied. The check-in will be saved without it.",
+        "unavailable": "Location unavailable right now. The check-in will be saved without it.",
+        "timeout": "Getting the location took too long. The check-in will be saved without it."
+      },
+      "title": "Title",
+      "defaultTitle": "Visit",
+      "defaultTitleWithRecord": "Visit · {{title}}",
+      "notes": "Notes",
+      "noType": "No active activity type to log the visit.",
+      "submit": "Check in",
+      "created": "Check-in logged."
+    }
+  },
+  "today": {
+    "title": "Today",
+    "agenda": "Today's agenda",
+    "agendaEmpty": "Nothing scheduled for today.",
+    "tasks": "Open tasks",
+    "tasksEmpty": "All caught up",
+    "tasksEmptyDescription": "You have no overdue tasks and none due today.",
+    "overdue": "Overdue",
+    "overdueSince": "Was due {{date}}",
+    "dueAt": "Due {{date}}",
+    "complete": "Complete {{title}}",
+    "reopen": "Reopen {{title}}",
+    "fromCache": "Offline: showing the last version saved on this device.",
+    "seeInbox": "See all in the activity inbox"
+  }
+}

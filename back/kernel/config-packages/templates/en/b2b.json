@@ -1,0 +1,868 @@
+{
+  "format": "aphel-config",
+  "format_version": 1,
+  "min_aphel_version": "0.1.0",
+  "name": "B2B Sales",
+  "description": "Consultative pipeline for selling to other businesses: qualification, demo, proposal and negotiation, with account industry, size and revenue, plus conversion metrics.",
+  "author": "Aphel",
+  "locale": "en",
+  "sections": {
+    "fields": [
+      {
+        "record_type": "company",
+        "key": "sector",
+        "label": "Industry",
+        "type": "select",
+        "options": [
+          {
+            "value": "industry",
+            "label": "Manufacturing",
+            "color": "#1f6feb"
+          },
+          {
+            "value": "retail",
+            "label": "Retail",
+            "color": "#d1631a"
+          },
+          {
+            "value": "services",
+            "label": "Services",
+            "color": "#8250df"
+          },
+          {
+            "value": "technology",
+            "label": "Technology",
+            "color": "#4f46e5"
+          },
+          {
+            "value": "healthcare",
+            "label": "Healthcare",
+            "color": "#1a7f37"
+          },
+          {
+            "value": "education",
+            "label": "Education",
+            "color": "#bf8700"
+          },
+          {
+            "value": "financial",
+            "label": "Financial services",
+            "color": "#0f766e"
+          },
+          {
+            "value": "agribusiness",
+            "label": "Agribusiness",
+            "color": "#4d7c0f"
+          },
+          {
+            "value": "public_sector",
+            "label": "Public sector",
+            "color": "#6e7781"
+          },
+          {
+            "value": "other",
+            "label": "Other",
+            "color": "#6e7781"
+          }
+        ]
+      },
+      {
+        "record_type": "company",
+        "key": "annual_revenue",
+        "label": "Annual revenue",
+        "type": "select",
+        "options": [
+          {
+            "value": "up_to_360k",
+            "label": "Up to 360K",
+            "color": "#6e7781"
+          },
+          {
+            "value": "up_to_4_8m",
+            "label": "360K to 4.8M",
+            "color": "#1f6feb"
+          },
+          {
+            "value": "up_to_30m",
+            "label": "4.8M to 30M",
+            "color": "#0f766e"
+          },
+          {
+            "value": "up_to_300m",
+            "label": "30M to 300M",
+            "color": "#8250df"
+          },
+          {
+            "value": "above_300m",
+            "label": "Over 300M",
+            "color": "#1a7f37"
+          }
+        ]
+      },
+      {
+        "record_type": "company",
+        "key": "account_tier",
+        "label": "Account tier",
+        "type": "select",
+        "options": [
+          {
+            "value": "strategic",
+            "label": "Strategic",
+            "color": "#cf222e"
+          },
+          {
+            "value": "key",
+            "label": "Key account",
+            "color": "#d1631a"
+          },
+          {
+            "value": "standard",
+            "label": "Standard",
+            "color": "#1f6feb"
+          }
+        ]
+      },
+      {
+        "record_type": "contact",
+        "key": "buying_role",
+        "label": "Buying role",
+        "type": "select",
+        "options": [
+          {
+            "value": "decision_maker",
+            "label": "Decision maker",
+            "color": "#cf222e"
+          },
+          {
+            "value": "influencer",
+            "label": "Influencer",
+            "color": "#d1631a"
+          },
+          {
+            "value": "champion",
+            "label": "Champion",
+            "color": "#1a7f37"
+          },
+          {
+            "value": "technical",
+            "label": "Technical evaluator",
+            "color": "#1f6feb"
+          },
+          {
+            "value": "finance",
+            "label": "Finance/procurement",
+            "color": "#8250df"
+          },
+          {
+            "value": "user",
+            "label": "End user",
+            "color": "#6e7781"
+          }
+        ]
+      },
+      {
+        "record_type": "deal",
+        "key": "deal_type",
+        "label": "Deal type",
+        "type": "select",
+        "options": [
+          {
+            "value": "new_business",
+            "label": "New business",
+            "color": "#1f6feb"
+          },
+          {
+            "value": "expansion",
+            "label": "Expansion",
+            "color": "#1a7f37"
+          },
+          {
+            "value": "renewal",
+            "label": "Renewal",
+            "color": "#8250df"
+          }
+        ]
+      },
+      {
+        "record_type": "deal",
+        "key": "decision_maker_confirmed",
+        "label": "Decision maker identified",
+        "type": "checkbox"
+      },
+      {
+        "record_type": "deal",
+        "key": "competitors",
+        "label": "Competitors involved",
+        "type": "text"
+      },
+      {
+        "record_type": "deal",
+        "key": "next_step",
+        "label": "Next step",
+        "type": "text"
+      },
+      {
+        "record_type": "deal",
+        "key": "demo_date",
+        "label": "Demo date",
+        "type": "date"
+      }
+    ],
+    "pipelines": [
+      {
+        "key": "vendas_b2b",
+        "name": "B2B Sales",
+        "default": true,
+        "stages": [
+          {
+            "key": "prospeccao",
+            "name": "Prospecting",
+            "kind": "open",
+            "probability": 10
+          },
+          {
+            "key": "qualificacao",
+            "name": "Qualification",
+            "kind": "open",
+            "probability": 20,
+            "exit_required_fields": [
+              "company_id",
+              "contact_id"
+            ]
+          },
+          {
+            "key": "demonstracao",
+            "name": "Demo",
+            "kind": "open",
+            "probability": 35
+          },
+          {
+            "key": "proposta",
+            "name": "Proposal",
+            "kind": "open",
+            "probability": 50,
+            "entry_required_fields": [
+              "amount",
+              "expected_close_date"
+            ]
+          },
+          {
+            "key": "negociacao",
+            "name": "Negotiation",
+            "kind": "open",
+            "probability": 75,
+            "entry_required_fields": [
+              "amount"
+            ]
+          },
+          {
+            "key": "ganho",
+            "name": "Won",
+            "kind": "won",
+            "probability": 100
+          },
+          {
+            "key": "perdido",
+            "name": "Lost",
+            "kind": "lost",
+            "probability": 0
+          }
+        ]
+      }
+    ],
+    "lost_reasons": [
+      {
+        "key": "preco",
+        "name": "Price"
+      },
+      {
+        "key": "escolheu_um_concorrente",
+        "name": "Chose a competitor"
+      },
+      {
+        "key": "sem_orcamento",
+        "name": "No budget"
+      },
+      {
+        "key": "sem_resposta",
+        "name": "No response"
+      },
+      {
+        "key": "momento_inadequado",
+        "name": "Bad timing"
+      },
+      {
+        "key": "outro",
+        "name": "Other"
+      },
+      {
+        "key": "sem_fit",
+        "name": "Product doesn't fit the need"
+      },
+      {
+        "key": "decisor_nao_engajado",
+        "name": "Decision maker not engaged"
+      },
+      {
+        "key": "projeto_cancelado",
+        "name": "Project canceled by customer"
+      }
+    ],
+    "activity_types": [
+      {
+        "key": "demo",
+        "name": "Demo",
+        "icon": "presentation",
+        "color": "#8250df"
+      }
+    ],
+    "layouts": [
+      {
+        "record_type": "deal",
+        "context": "create",
+        "layout": {
+          "tabs": [
+            {
+              "id": "main",
+              "label": "Details",
+              "sections": [
+                {
+                  "id": "deal",
+                  "label": "Deal",
+                  "columns": [
+                    {
+                      "fields": [
+                        {
+                          "key": "title"
+                        },
+                        {
+                          "key": "deal_type"
+                        },
+                        {
+                          "key": "amount"
+                        },
+                        {
+                          "key": "expected_close_date"
+                        }
+                      ]
+                    },
+                    {
+                      "fields": [
+                        {
+                          "key": "company_id"
+                        },
+                        {
+                          "key": "contact_id"
+                        },
+                        {
+                          "key": "owner_id"
+                        }
+                      ]
+                    }
+                  ]
+                },
+                {
+                  "id": "qualification",
+                  "label": "Qualification",
+                  "columns": [
+                    {
+                      "fields": [
+                        {
+                          "key": "decision_maker_confirmed"
+                        },
+                        {
+                          "key": "competitors"
+                        }
+                      ]
+                    },
+                    {
+                      "fields": [
+                        {
+                          "key": "next_step"
+                        },
+                        {
+                          "key": "demo_date"
+                        }
+                      ]
+                    }
+                  ]
+                }
+              ]
+            }
+          ]
+        }
+      },
+      {
+        "record_type": "deal",
+        "context": "edit",
+        "layout": {
+          "tabs": [
+            {
+              "id": "main",
+              "label": "Details",
+              "sections": [
+                {
+                  "id": "deal",
+                  "label": "Deal",
+                  "columns": [
+                    {
+                      "fields": [
+                        {
+                          "key": "title"
+                        },
+                        {
+                          "key": "deal_type"
+                        },
+                        {
+                          "key": "amount"
+                        },
+                        {
+                          "key": "expected_close_date"
+                        }
+                      ]
+                    },
+                    {
+                      "fields": [
+                        {
+                          "key": "company_id"
+                        },
+                        {
+                          "key": "contact_id"
+                        },
+                        {
+                          "key": "owner_id"
+                        }
+                      ]
+                    }
+                  ]
+                },
+                {
+                  "id": "qualification",
+                  "label": "Qualification",
+                  "columns": [
+                    {
+                      "fields": [
+                        {
+                          "key": "decision_maker_confirmed"
+                        },
+                        {
+                          "key": "competitors"
+                        }
+                      ]
+                    },
+                    {
+                      "fields": [
+                        {
+                          "key": "next_step"
+                        },
+                        {
+                          "key": "demo_date"
+                        }
+                      ]
+                    }
+                  ]
+                }
+              ]
+            }
+          ]
+        }
+      },
+      {
+        "record_type": "company",
+        "context": "create",
+        "layout": {
+          "tabs": [
+            {
+              "id": "main",
+              "label": "Details",
+              "sections": [
+                {
+                  "id": "company",
+                  "label": "Company",
+                  "columns": [
+                    {
+                      "fields": [
+                        {
+                          "key": "name"
+                        },
+                        {
+                          "key": "website"
+                        },
+                        {
+                          "key": "sector"
+                        }
+                      ]
+                    },
+                    {
+                      "fields": [
+                        {
+                          "key": "size_range"
+                        },
+                        {
+                          "key": "annual_revenue"
+                        },
+                        {
+                          "key": "account_tier"
+                        }
+                      ]
+                    }
+                  ]
+                },
+                {
+                  "id": "contact_info",
+                  "label": "Contact",
+                  "columns": [
+                    {
+                      "fields": [
+                        {
+                          "key": "phone"
+                        },
+                        {
+                          "key": "email"
+                        }
+                      ]
+                    },
+                    {
+                      "fields": [
+                        {
+                          "key": "owner_id"
+                        }
+                      ]
+                    }
+                  ]
+                }
+              ]
+            }
+          ]
+        }
+      },
+      {
+        "record_type": "company",
+        "context": "edit",
+        "layout": {
+          "tabs": [
+            {
+              "id": "main",
+              "label": "Details",
+              "sections": [
+                {
+                  "id": "company",
+                  "label": "Company",
+                  "columns": [
+                    {
+                      "fields": [
+                        {
+                          "key": "name"
+                        },
+                        {
+                          "key": "website"
+                        },
+                        {
+                          "key": "sector"
+                        }
+                      ]
+                    },
+                    {
+                      "fields": [
+                        {
+                          "key": "size_range"
+                        },
+                        {
+                          "key": "annual_revenue"
+                        },
+                        {
+                          "key": "account_tier"
+                        }
+                      ]
+                    }
+                  ]
+                },
+                {
+                  "id": "contact_info",
+                  "label": "Contact",
+                  "columns": [
+                    {
+                      "fields": [
+                        {
+                          "key": "phone"
+                        },
+                        {
+                          "key": "email"
+                        }
+                      ]
+                    },
+                    {
+                      "fields": [
+                        {
+                          "key": "owner_id"
+                        }
+                      ]
+                    }
+                  ]
+                }
+              ]
+            }
+          ]
+        }
+      },
+      {
+        "record_type": "contact",
+        "context": "create",
+        "layout": {
+          "tabs": [
+            {
+              "id": "main",
+              "label": "Details",
+              "sections": [
+                {
+                  "id": "contact",
+                  "label": "Contact",
+                  "columns": [
+                    {
+                      "fields": [
+                        {
+                          "key": "first_name"
+                        },
+                        {
+                          "key": "last_name"
+                        },
+                        {
+                          "key": "job_title"
+                        },
+                        {
+                          "key": "company_id"
+                        }
+                      ]
+                    },
+                    {
+                      "fields": [
+                        {
+                          "key": "email"
+                        },
+                        {
+                          "key": "phone"
+                        },
+                        {
+                          "key": "mobile"
+                        },
+                        {
+                          "key": "owner_id"
+                        }
+                      ]
+                    }
+                  ]
+                },
+                {
+                  "id": "decision",
+                  "label": "Decision process",
+                  "columns": [
+                    {
+                      "fields": [
+                        {
+                          "key": "buying_role"
+                        }
+                      ]
+                    }
+                  ]
+                }
+              ]
+            }
+          ]
+        }
+      },
+      {
+        "record_type": "contact",
+        "context": "edit",
+        "layout": {
+          "tabs": [
+            {
+              "id": "main",
+              "label": "Details",
+              "sections": [
+                {
+                  "id": "contact",
+                  "label": "Contact",
+                  "columns": [
+                    {
+                      "fields": [
+                        {
+                          "key": "first_name"
+                        },
+                        {
+                          "key": "last_name"
+                        },
+                        {
+                          "key": "job_title"
+                        },
+                        {
+                          "key": "company_id"
+                        }
+                      ]
+                    },
+                    {
+                      "fields": [
+                        {
+                          "key": "email"
+                        },
+                        {
+                          "key": "phone"
+                        },
+                        {
+                          "key": "mobile"
+                        },
+                        {
+                          "key": "owner_id"
+                        }
+                      ]
+                    }
+                  ]
+                },
+                {
+                  "id": "decision",
+                  "label": "Decision process",
+                  "columns": [
+                    {
+                      "fields": [
+                        {
+                          "key": "buying_role"
+                        }
+                      ]
+                    }
+                  ]
+                }
+              ]
+            }
+          ]
+        }
+      }
+    ],
+    "views": [
+      {
+        "key": "negocios_em_aberto",
+        "record_type": "deal",
+        "name": "Open deals",
+        "view_type": "table",
+        "filter": {
+          "field": "status",
+          "operator": "eq",
+          "value": "open"
+        },
+        "sort": [
+          {
+            "field": "expected_close_date",
+            "direction": "asc"
+          }
+        ],
+        "columns": [
+          "title",
+          "company_id",
+          "amount",
+          "stage_id",
+          "expected_close_date",
+          "owner_id"
+        ]
+      },
+      {
+        "key": "fechamento_este_mes",
+        "record_type": "deal",
+        "name": "Expected to close this month",
+        "view_type": "table",
+        "filter": {
+          "op": "and",
+          "conditions": [
+            {
+              "field": "status",
+              "operator": "eq",
+              "value": "open"
+            },
+            {
+              "field": "expected_close_date",
+              "operator": "this_month"
+            }
+          ]
+        },
+        "sort": [
+          {
+            "field": "amount",
+            "direction": "desc"
+          }
+        ],
+        "columns": [
+          "title",
+          "company_id",
+          "amount",
+          "stage_id",
+          "probability",
+          "owner_id"
+        ]
+      },
+      {
+        "key": "contas_estrategicas",
+        "record_type": "company",
+        "name": "Strategic accounts",
+        "view_type": "table",
+        "filter": {
+          "field": "account_tier",
+          "operator": "in",
+          "value": [
+            "strategic",
+            "key"
+          ]
+        },
+        "columns": [
+          "name",
+          "sector",
+          "size_range",
+          "annual_revenue",
+          "owner_id"
+        ]
+      },
+      {
+        "key": "decisores",
+        "record_type": "contact",
+        "name": "Decision makers",
+        "view_type": "table",
+        "filter": {
+          "field": "buying_role",
+          "operator": "eq",
+          "value": "decision_maker"
+        },
+        "columns": [
+          "name",
+          "job_title",
+          "company_id",
+          "email",
+          "phone"
+        ]
+      }
+    ],
+    "dashboard": {
+      "widgets": [
+        {
+          "key": "sales_indicators",
+          "size": "large"
+        },
+        {
+          "key": "deals_by_stage",
+          "size": "large",
+          "settings": {
+            "pipeline": "vendas_b2b"
+          }
+        },
+        {
+          "key": "report_totals",
+          "size": "medium"
+        },
+        {
+          "key": "pending_center",
+          "size": "medium"
+        },
+        {
+          "key": "recent_activity",
+          "size": "medium"
+        }
+      ],
+      "period": "month"
+    }
+  }
+}

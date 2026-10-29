@@ -1,0 +1,824 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "$id": "https://aphel-crm.dev/schemas/aphel-config/v1.json",
+  "title": "Aphel configuration package (aphel-config)",
+  "description": "Describes how an organization works: custom objects and relationships, fields, options, pipelines, stages and stage rules, lost reasons, activity types, tags, form layouts, views and the default dashboard. Items reference each other by stable key, never by id.",
+  "type": "object",
+  "additionalProperties": false,
+  "required": ["format", "format_version", "min_aphel_version", "name", "locale"],
+  "properties": {
+    "format": { "const": "aphel-config" },
+    "format_version": { "type": "integer", "minimum": 1, "maximum": 1 },
+    "min_aphel_version": { "type": "string", "pattern": "^\\d+\\.\\d+\\.\\d+$" },
+    "id": {
+      "type": "string",
+      "maxLength": 128,
+      "pattern": "^[a-z0-9]+([._-][a-z0-9]+)*$",
+      "description": "Stable package identity (e.g. aphel.b2b). Optional; together with version, it allows installing and updating through versioning (Settings > Packages > Versions) and through the catalog."
+    },
+    "version": {
+      "type": "string",
+      "maxLength": 64,
+      "pattern": "^(0|[1-9]\\d*)\\.(0|[1-9]\\d*)\\.(0|[1-9]\\d*)(-[0-9A-Za-z.-]+)?(\\+[0-9A-Za-z.-]+)?$",
+      "description": "Semantic version of the package (e.g. 1.2.0). Aphel compares it with the installed version and shows conflicts with local changes."
+    },
+    "name": { "type": "string", "minLength": 1, "maxLength": 140 },
+    "description": { "type": ["string", "null"], "maxLength": 2000 },
+    "author": { "type": ["string", "null"], "maxLength": 140 },
+    "locale": { "enum": ["pt-BR", "en"] },
+    "sections": {
+      "type": "object",
+      "additionalProperties": false,
+      "properties": {
+        "custom_objects": { "$ref": "#/$defs/customObjects" },
+        "fields": { "type": "array", "items": { "$ref": "#/$defs/field" } },
+        "pipelines": { "type": "array", "maxItems": 50, "items": { "$ref": "#/$defs/pipeline" } },
+        "lost_reasons": { "type": "array", "maxItems": 100, "items": { "$ref": "#/$defs/lostReason" } },
+        "pipeline_renewals": { "type": "array", "items": { "$ref": "#/$defs/pipelineRenewal" } },
+        "activity_types": { "type": "array", "maxItems": 100, "items": { "$ref": "#/$defs/activityType" } },
+        "deal_member_roles": { "type": "array", "maxItems": 50, "items": { "$ref": "#/$defs/dealMemberRole" } },
+        "lifecycle": { "$ref": "#/$defs/lifecycle" },
+        "validation_rules": { "type": "array", "maxItems": 500, "items": { "$ref": "#/$defs/validationRule" } },
+        "stage_guidance": { "type": "array", "items": { "$ref": "#/$defs/stageGuidance" } },
+        "currencies": { "type": "array", "maxItems": 30, "uniqueItems": true, "items": { "type": "string", "pattern": "^[A-Za-z]{3}$" } },
+        "deal_items": {
+          "type": "object",
+          "additionalProperties": false,
+          "description": "Deal item settings (module deal_items); an omitted `amount_mode` keeps the current value",
+          "properties": {
+            "amount_mode": { "enum": ["manual", "items"] }
+          }
+        },
+        "price_lists": { "type": "array", "maxItems": 500, "items": { "$ref": "#/$defs/priceList" } },
+        "discount_limits": { "type": "array", "items": { "$ref": "#/$defs/discountLimit" } },
+        "tags": { "type": "array", "maxItems": 200, "items": { "$ref": "#/$defs/tag" } },
+        "layouts": { "type": "array", "items": { "$ref": "#/$defs/layoutEntry" } },
+        "views": { "type": "array", "maxItems": 200, "items": { "$ref": "#/$defs/view" } },
+        "dashboard": { "$ref": "#/$defs/dashboard" },
+        "forecast": {
+          "type": "object",
+          "additionalProperties": false,
+          "description": "Organization revenue forecast settings (module forecast); omitted properties keep the current value",
+          "properties": {
+            "method": { "enum": ["stage_probability", "deal_probability", "commit_only"] },
+            "categories_enabled": { "type": "boolean" },
+            "best_case_min_probability": { "type": "integer", "minimum": 1, "maximum": 100 },
+            "commit_min_probability": { "type": "integer", "minimum": 1, "maximum": 100 },
+            "horizon_months": { "type": "integer", "minimum": 1, "maximum": 18 }
+          }
+        },
+        "automations": { "type": "array", "maxItems": 200, "items": { "$ref": "#/$defs/automation" } },
+        "email_templates": { "type": "array", "maxItems": 200, "items": { "$ref": "#/$defs/emailTemplate" } },
+        "sequences": { "type": "array", "maxItems": 100, "items": { "$ref": "#/$defs/sequence" } },
+        "approval_policies": { "type": "array", "maxItems": 100, "items": { "$ref": "#/$defs/approvalPolicy" } },
+        "scoring_models": { "type": "array", "maxItems": 50, "items": { "$ref": "#/$defs/scoringModel" } },
+        "lead_distribution_rules": { "type": "array", "maxItems": 100, "items": { "$ref": "#/$defs/leadDistributionRule" } },
+        "proposals.templates": {
+          "type": "object",
+          "description": "Proposal templates of the proposals module, reconciled by key; installing creates or updates and never deletes templates",
+          "additionalProperties": false,
+          "properties": {
+            "templates": { "type": "array", "items": { "$ref": "#/$defs/proposalTemplate" } }
+          }
+        }
+      }
+    }
+  },
+  "$defs": {
+    "proposalTemplate": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": ["key", "name", "body"],
+      "properties": {
+        "key": { "type": "string", "pattern": "^[a-z][a-z0-9_]{0,63}$" },
+        "name": { "type": "string", "minLength": 1, "maxLength": 160 },
+        "description": { "type": ["string", "null"], "maxLength": 500 },
+        "body": { "type": "string", "minLength": 1, "maxLength": 100000, "description": "Markdown with variables such as {{deal.title}}, {{company.name}}, {{contact.name}} and {{items_table}}" },
+        "is_active": { "type": "boolean", "default": true },
+        "is_default": { "type": "boolean", "default": false }
+      }
+    },
+    "leadDistributionRule": {
+      "type": "object",
+      "description": "Lead distribution rule reconciled by key; installing creates or updates (keeping the rotation state and the absences of members that remain) and never deletes. Members and route users by email, team by name. Emails and teams that do not exist in the organization become the resolvable conflict `lead_distribution_members_missing`: when applied, they are left out; with no members at all (and fallback `members`), the rule is installed inactive",
+      "additionalProperties": false,
+      "required": ["key", "name", "record_type", "strategy"],
+      "properties": {
+        "key": { "$ref": "#/$defs/key" },
+        "name": { "type": "string", "minLength": 1, "maxLength": 140 },
+        "description": { "type": "string", "maxLength": 2000 },
+        "record_type": {
+          "anyOf": [
+            { "enum": ["contact", "company", "deal"] },
+            { "type": "string", "pattern": "^co_[a-z](?:[a-z_]*[a-z])?$", "description": "Custom object with an owner" }
+          ]
+        },
+        "strategy": { "enum": ["round_robin", "weighted", "least_loaded"] },
+        "is_active": { "type": "boolean", "default": true },
+        "members": {
+          "type": "array",
+          "maxItems": 200,
+          "description": "Required (at least one) without `routing` or with `routing.fallback` = `members`",
+          "items": {
+            "type": "object",
+            "additionalProperties": false,
+            "required": ["email"],
+            "properties": {
+              "email": { "type": "string", "format": "email" },
+              "weight": { "type": "integer", "minimum": 1, "maximum": 100, "default": 1 }
+            }
+          }
+        },
+        "routing": {
+          "type": "object",
+          "additionalProperties": false,
+          "required": ["field", "routes"],
+          "properties": {
+            "field": { "type": "string", "minLength": 1, "description": "Key of the record type field used for routing" },
+            "fallback": { "enum": ["members", "none"], "default": "members" },
+            "routes": {
+              "type": "array",
+              "maxItems": 50,
+              "items": {
+                "type": "object",
+                "additionalProperties": false,
+                "required": ["values"],
+                "anyOf": [{ "required": ["team"] }, { "required": ["users"] }],
+                "properties": {
+                  "values": { "type": "array", "minItems": 1, "maxItems": 50, "items": { "type": "string", "minLength": 1, "maxLength": 255 } },
+                  "team": { "type": "string", "minLength": 1, "description": "Team name (compared case-insensitively)" },
+                  "users": { "type": "array", "maxItems": 100, "items": { "type": "string", "format": "email" } }
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "approvalPolicy": {
+      "type": "object",
+      "description": "Approval policy reconciled by key; installing creates or updates and never deletes nor touches requests already open. Target stage by `<pipeline key>.<stage key>`, role by key and user by email",
+      "additionalProperties": false,
+      "required": ["key", "name", "record_type", "moment", "steps"],
+      "properties": {
+        "key": { "type": "string", "pattern": "^[a-z][a-z0-9]*(_[a-z0-9]+)*$", "maxLength": 64 },
+        "name": { "type": "string", "minLength": 1, "maxLength": 140 },
+        "description": { "type": "string", "maxLength": 2000 },
+        "record_type": { "type": "string", "description": "Record type (`deal`, `quote`, `co_<key>`...)" },
+        "moment": { "enum": ["stage_change", "quote_send", "on_demand"] },
+        "target_stage": { "type": "string", "description": "Required for `stage_change`: `<pipeline key>.<stage key>` from the package or the organization" },
+        "condition_kind": { "enum": ["always", "filter", "formula"], "default": "always" },
+        "condition_filter": { "type": "object", "description": "Filter in the view format (`{ op, conditions }` or `{ field, operator, value }`), validated against the type's fields" },
+        "condition_formula": { "type": "string", "maxLength": 2000, "description": "Boolean formula in the field formula language" },
+        "locked_fields": { "type": "array", "maxItems": 100, "items": { "type": "string" }, "description": "Fields locked while pending (`custom_fields.<key>` for custom fields); empty = the whole record" },
+        "due_hours": { "type": "integer", "minimum": 1, "maximum": 2160 },
+        "is_active": { "type": "boolean", "default": true },
+        "steps": {
+          "type": "array",
+          "minItems": 1,
+          "maxItems": 10,
+          "items": {
+            "type": "object",
+            "additionalProperties": false,
+            "required": ["approver"],
+            "properties": {
+              "name": { "type": "string", "maxLength": 140 },
+              "approver": { "enum": ["user", "role", "owner_team_manager"] },
+              "user_email": { "type": "string", "description": "Required with `user`: email of an organization member" },
+              "role_key": { "type": "string", "description": "Required with `role`: key of an organization role" },
+              "rule": { "enum": ["any", "all"], "default": "any" }
+            }
+          }
+        }
+      }
+    },
+    "sequence": {
+      "type": "object",
+      "description": "Sequence (cadence) reconciled by key; installing creates or updates and never deletes nor touches enrollments",
+      "additionalProperties": false,
+      "required": ["key", "name"],
+      "properties": {
+        "key": { "$ref": "#/$defs/key" },
+        "name": { "type": "string", "minLength": 1, "maxLength": 200 },
+        "description": { "type": "string", "maxLength": 1000 },
+        "is_active": { "type": "boolean", "default": true },
+        "window_start": { "type": "string", "pattern": "^\\d{1,2}:\\d{2}$", "description": "Start of the sending window (HH:MM, organization time zone), default 08:00" },
+        "window_end": { "type": "string", "pattern": "^\\d{1,2}:\\d{2}$", "description": "End of the sending window (HH:MM), default 18:00" },
+        "daily_limit": { "type": "integer", "minimum": 1, "maximum": 2000, "description": "Maximum sequence emails per mailbox per day, default 50" },
+        "steps": { "type": "array", "maxItems": 30, "items": { "$ref": "#/$defs/sequenceStep" } }
+      }
+    },
+    "sequenceStep": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": ["kind"],
+      "properties": {
+        "kind": { "enum": ["auto_email", "manual_email", "call", "linkedin", "task", "wait"] },
+        "wait_days": { "type": "integer", "minimum": 1, "maximum": 365, "description": "Business days to wait (wait only)" },
+        "template_key": { "type": "string", "description": "Key of an organization email template or of one in the package's email_templates section" },
+        "subject": { "type": "string", "maxLength": 998 },
+        "body_html": { "type": "string", "description": "HTML (sanitized on install), up to 512 KB" },
+        "title": { "type": "string", "maxLength": 200, "description": "Task title (required for call, linkedin and task)" }
+      }
+    },
+    "emailTemplate": {
+      "type": "object",
+      "description": "Organization email template (personal templates are not included in packages). Variables {{contact.first_name}}, {{company.name}}, {{deal.title}}, {{record.<field>}}, {{user.display_name}}, {{user.email}}",
+      "additionalProperties": false,
+      "required": ["key", "name"],
+      "properties": {
+        "key": { "$ref": "#/$defs/key" },
+        "name": { "type": "string", "minLength": 1, "maxLength": 200 },
+        "record_type": { "type": "string", "description": "contact, company, deal or co_<key>; absent = any record" },
+        "subject": { "type": "string", "maxLength": 998 },
+        "body_html": { "type": "string", "description": "HTML (sanitized on install), up to 512 KB" }
+      }
+    },
+    "key": {
+      "type": "string",
+      "description": "snake_case: lowercase letters, digits and single underscores, starting with a letter",
+      "pattern": "^[a-z](?:[a-z0-9]|_(?!_))*(?<!_)$",
+      "maxLength": 64
+    },
+    "color": { "type": "string", "pattern": "^#[0-9a-fA-F]{6}$" },
+    "recordType": {
+      "anyOf": [
+        { "enum": ["contact", "company", "deal", "activity", "product"] },
+        { "type": "string", "pattern": "^co_[a-z](?:[a-z_]*[a-z])?$", "description": "Custom object declared in custom_objects or already existing in the organization" }
+      ]
+    },
+    "customObjects": {
+      "type": "object",
+      "additionalProperties": false,
+      "description": "Installed before fields: fields, layouts and views in the same package can use the co_<key> types declared here. Objects and relationships are matched by key; installing never deletes anything.",
+      "properties": {
+        "objects": { "type": "array", "maxItems": 50, "items": { "$ref": "#/$defs/customObject" } },
+        "relationships": { "type": "array", "maxItems": 200, "items": { "$ref": "#/$defs/relationship" } }
+      }
+    },
+    "customObject": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": ["key", "label_singular", "label_plural"],
+      "properties": {
+        "key": { "type": "string", "pattern": "^[a-z](?:[a-z_]*[a-z])?$", "maxLength": 40, "description": "Stable key; becomes the record type co_<key>" },
+        "label_singular": { "type": "string", "minLength": 1, "maxLength": 80 },
+        "label_plural": { "type": "string", "minLength": 1, "maxLength": 80 },
+        "description": { "type": "string", "maxLength": 500 },
+        "icon": { "type": "string", "maxLength": 48 },
+        "color": { "$ref": "#/$defs/color" },
+        "owner_enabled": { "type": "boolean", "default": true },
+        "title_field_key": { "type": "string", "default": "name", "description": "Custom text field used as the title; only changed if the field already exists in the organization" }
+      }
+    },
+    "relationship": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": ["key", "inverse_key", "from_type", "to_type", "cardinality", "from_label", "to_label"],
+      "properties": {
+        "key": { "type": "string", "pattern": "^[a-z_][a-z0-9_]*$", "maxLength": 48, "description": "Stable key of the relationship and name of the relation on the from type" },
+        "inverse_key": { "type": "string", "pattern": "^[a-z_][a-z0-9_]*$", "maxLength": 48, "description": "Name of the relation on the to type" },
+        "from_type": { "type": "string", "description": "company, contact, deal, product or co_<key>" },
+        "to_type": { "type": "string", "description": "company, contact, deal, product or co_<key>" },
+        "cardinality": { "enum": ["one_to_one", "one_to_many", "many_to_many"] },
+        "from_label": { "type": "string", "minLength": 1, "maxLength": 80 },
+        "to_label": { "type": "string", "minLength": 1, "maxLength": 80 },
+        "required": { "type": "boolean", "default": false },
+        "on_delete": { "enum": ["restrict", "unlink"], "default": "restrict" }
+      }
+    },
+    "field": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": ["record_type", "key", "label", "type"],
+      "properties": {
+        "record_type": { "$ref": "#/$defs/recordType" },
+        "key": { "$ref": "#/$defs/key" },
+        "label": { "type": "string", "minLength": 1, "maxLength": 140 },
+        "type": {
+          "enum": ["text", "long_text", "number", "currency", "date", "datetime", "select", "multi_select", "checkbox", "url", "email", "phone", "user", "record", "formula"],
+          "description": "\"formula\" is a computed field: requires config.expression and config.result_type"
+        },
+        "required": { "type": "boolean", "default": false },
+        "unique": { "type": "boolean", "default": false },
+        "searchable": { "type": "boolean", "default": false },
+        "config": {
+          "type": "object",
+          "additionalProperties": false,
+          "properties": {
+            "min": { "type": ["number", "string"] },
+            "max": { "type": ["number", "string"] },
+            "decimals": { "type": "integer", "minimum": 0, "maximum": 6 },
+            "currency": { "type": "string", "pattern": "^[A-Z]{3}$" },
+            "max_length": { "type": "integer", "minimum": 1 },
+            "pattern": { "type": "string", "maxLength": 500 },
+            "default_country": { "type": "string", "pattern": "^[A-Z]{2}$" },
+            "target_record_type": { "$ref": "#/$defs/recordType" },
+            "default_value": {},
+            "expression": { "type": "string", "maxLength": 2000, "description": "Formula expression (only with type = formula). Validation compiles it against the package and organization fields (syntax, result type and cycles); values are recalculated right after installing (job formulas.recalculate)" },
+            "result_type": { "enum": ["number", "currency", "date", "text", "boolean"], "description": "Formula result type (only with type = formula)" }
+          }
+        },
+        "options": {
+          "type": "array",
+          "maxItems": 500,
+          "items": {
+            "type": "object",
+            "additionalProperties": false,
+            "required": ["value", "label"],
+            "properties": {
+              "value": { "$ref": "#/$defs/key" },
+              "label": { "type": "string", "minLength": 1, "maxLength": 140 },
+              "color": { "$ref": "#/$defs/color" }
+            }
+          }
+        }
+      }
+    },
+    "pipeline": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": ["key", "name", "stages"],
+      "properties": {
+        "key": { "$ref": "#/$defs/key" },
+        "name": { "type": "string", "minLength": 1, "maxLength": 140 },
+        "default": {
+          "type": "boolean",
+          "default": false,
+          "description": "On install, a default pipeline with no matching key reuses the organization's default pipeline (if it does not have its own key yet). Never changes the organization's default pipeline."
+        },
+        "stages": {
+          "type": "array",
+          "minItems": 3,
+          "maxItems": 50,
+          "description": "Requires at least one open, one won and one lost stage",
+          "items": { "$ref": "#/$defs/stage" }
+        }
+      }
+    },
+    "stage": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": ["key", "name", "kind", "probability"],
+      "properties": {
+        "key": { "$ref": "#/$defs/key" },
+        "name": { "type": "string", "minLength": 1, "maxLength": 140 },
+        "kind": { "enum": ["open", "won", "lost"] },
+        "probability": { "type": "integer", "minimum": 0, "maximum": 100 },
+        "rotting_days": {
+          "type": "integer",
+          "minimum": 1,
+          "maximum": 3650,
+          "description": "Days in the stage after which an open deal becomes rotting (open stages only). Absent keeps the organization's current value"
+        },
+        "entry_required_fields": {
+          "type": "array",
+          "maxItems": 30,
+          "description": "Keys of deal fields (system fields or custom fields from the package/organization) required to enter the stage",
+          "items": { "type": "string" }
+        },
+        "exit_required_fields": {
+          "type": "array",
+          "maxItems": 30,
+          "items": { "type": "string" }
+        }
+      }
+    },
+    "pipelineRenewal": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": ["pipeline", "target_pipeline", "target_stage"],
+      "description": "Automatic renewal of a pipeline's won deals",
+      "properties": {
+        "pipeline": { "type": "string", "description": "Key of the source pipeline (from the package or the organization)" },
+        "enabled": { "type": "boolean", "default": true },
+        "days_before": { "type": "integer", "minimum": 0, "maximum": 365, "default": 30, "description": "Days before contract_end when the renewal is created" },
+        "target_pipeline": { "type": "string", "description": "Key of the renewal pipeline" },
+        "target_stage": { "type": "string", "description": "Key of an open, active stage of the renewal pipeline" },
+        "title_prefix": { "type": "string", "maxLength": 60, "default": "Renovação: " },
+        "owner": { "enum": ["original", "none"], "default": "original" }
+      }
+    },
+    "validationRule": {
+      "type": "object",
+      "description": "Validation rule reconciled by key; installing creates or updates (including active/inactive) and never deletes. The condition is compiled when records are saved; a rule whose condition does not compile is ignored (with a warning in the log)",
+      "additionalProperties": false,
+      "required": ["key", "record_type", "name", "expression", "message"],
+      "properties": {
+        "key": { "$ref": "#/$defs/key" },
+        "record_type": { "type": "string", "description": "contact, company, deal, activity, product, quote or co_<key>" },
+        "name": { "type": "string", "minLength": 1, "maxLength": 120 },
+        "expression": { "type": "string", "minLength": 1, "maxLength": 2000, "description": "Boolean formula of the error condition: true blocks the save" },
+        "message": { "type": "string", "minLength": 1, "maxLength": 500 },
+        "field": { "type": "string", "description": "Key of the field highlighted in the error" },
+        "applies_on": { "enum": ["always", "create", "update"], "default": "always" },
+        "active": { "type": "boolean", "default": true }
+      }
+    },
+    "scoringModel": {
+      "type": "object",
+      "description": "Scoring model reconciled by key; installing creates or updates (criteria by key, without removing criteria not in the package) and enqueues score recalculation. Never deletes models",
+      "additionalProperties": false,
+      "required": ["key", "record_type", "name"],
+      "properties": {
+        "key": { "$ref": "#/$defs/key" },
+        "record_type": { "type": "string", "description": "contact, company, deal or co_<key>" },
+        "name": { "type": "string", "minLength": 1, "maxLength": 120 },
+        "description": { "type": "string", "maxLength": 500 },
+        "primary": { "type": "boolean", "default": false, "description": "Primary model of the type, exposed in the score system field; setting it unsets the previous one" },
+        "active": { "type": "boolean", "default": true },
+        "warm_from": { "type": "integer", "default": 30, "description": "Score from which the band is warm" },
+        "hot_from": { "type": "integer", "default": 70, "description": "Score from which the band is hot; greater than warm_from" },
+        "criteria": {
+          "type": "array",
+          "maxItems": 50,
+          "items": {
+            "type": "object",
+            "additionalProperties": false,
+            "required": ["key", "label", "kind", "points"],
+            "properties": {
+              "key": { "$ref": "#/$defs/key" },
+              "label": { "type": "string", "minLength": 1, "maxLength": 120 },
+              "kind": { "enum": ["profile", "behavior"] },
+              "filter": { "$ref": "#/$defs/filter", "description": "Required for profile: condition on the type's fields" },
+              "signal": { "enum": ["email_opened", "email_clicked", "email_replied", "meeting_booked", "form_submitted", "call_connected"], "description": "Required for behavior" },
+              "points": { "type": "integer", "minimum": -1000, "maximum": 1000, "not": { "const": 0 } },
+              "max_points": { "type": "integer", "minimum": 1, "maximum": 100000, "description": "Behavior only: cap on the criterion's total" },
+              "decay_days": { "type": "integer", "minimum": 1, "maximum": 3650, "description": "Behavior only: each occurrence loses its points linearly until reaching zero after this number of days" }
+            }
+          }
+        }
+      }
+    },
+    "stageGuidance": {
+      "type": "object",
+      "description": "Stage guide (guidance and checklist) by pipeline and stage key; installing creates or updates items by key and never deletes items or deal progress",
+      "additionalProperties": false,
+      "required": ["pipeline", "stage"],
+      "properties": {
+        "pipeline": { "type": "string", "description": "Pipeline key (from the package or the organization)" },
+        "stage": { "type": "string", "description": "Pipeline stage key" },
+        "guidance": { "type": "string", "maxLength": 20000, "description": "Guidance in Markdown" },
+        "items": {
+          "type": "array",
+          "maxItems": 30,
+          "items": {
+            "type": "object",
+            "additionalProperties": false,
+            "required": ["key", "label"],
+            "properties": {
+              "key": { "$ref": "#/$defs/key" },
+              "label": { "type": "string", "minLength": 1, "maxLength": 200 },
+              "required": { "type": "boolean", "default": false, "description": "Must be done to move the deal forward from the stage" }
+            }
+          }
+        }
+      }
+    },
+    "lifecycle": {
+      "type": "object",
+      "description": "Lifecycle: lead disqualification reasons (reconciled by key; installing creates or updates and reactivates, never deletes) and automatic transition rules per trigger, plus the disqualified lead stage (these replace the organization's when provided)",
+      "additionalProperties": false,
+      "properties": {
+        "disqualification_reasons": {
+          "type": "array",
+          "maxItems": 50,
+          "items": {
+            "type": "object",
+            "additionalProperties": false,
+            "required": ["key", "name"],
+            "properties": {
+              "key": { "$ref": "#/$defs/key" },
+              "name": { "type": "string", "minLength": 1, "maxLength": 140 }
+            }
+          }
+        },
+        "transitions": {
+          "type": "array",
+          "maxItems": 3,
+          "items": {
+            "type": "object",
+            "additionalProperties": false,
+            "required": ["trigger", "enabled", "target_stage"],
+            "properties": {
+              "trigger": { "enum": ["deal_created", "deal_won", "all_deals_lost"] },
+              "enabled": { "type": "boolean" },
+              "target_stage": { "type": "string", "minLength": 1, "maxLength": 64 },
+              "from_stages": { "type": "array", "items": { "type": "string", "minLength": 1, "maxLength": 64 } },
+              "from_empty": { "type": "boolean" }
+            }
+          }
+        },
+        "disqualified_stage": { "type": ["string", "null"], "maxLength": 64 }
+      }
+    },
+    "dealMemberRole": {
+      "type": "object",
+      "description": "Deal team member role reconciled by key; installing creates or updates (and reactivates) and never deletes nor touches members",
+      "additionalProperties": false,
+      "required": ["key", "name"],
+      "properties": {
+        "key": { "$ref": "#/$defs/key" },
+        "name": { "type": "string", "minLength": 1, "maxLength": 140 }
+      }
+    },
+    "priceList": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": ["key", "name", "currency"],
+      "properties": {
+        "key": { "$ref": "#/$defs/key" },
+        "name": { "type": "string", "minLength": 1, "maxLength": 140 },
+        "description": { "type": "string", "maxLength": 2000 },
+        "currency": { "type": "string", "pattern": "^[A-Za-z]{3}$" },
+        "valid_from": { "type": "string", "format": "date" },
+        "valid_to": { "type": "string", "format": "date" },
+        "is_active": { "type": "boolean", "default": true },
+        "is_default": { "type": "boolean", "default": false },
+        "items": {
+          "type": "array",
+          "maxItems": 5000,
+          "items": {
+            "type": "object",
+            "additionalProperties": false,
+            "required": ["product_code", "unit_price"],
+            "properties": {
+              "product_code": { "type": "string", "minLength": 1, "maxLength": 64 },
+              "unit_price": { "type": "string", "pattern": "^[0-9]+(\\.[0-9]{1,2})?$" },
+              "min_quantity": { "type": "string", "pattern": "^[0-9]+(\\.[0-9]{1,4})?$" }
+            }
+          }
+        }
+      }
+    },
+    "discountLimit": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": ["role", "max_discount_percent"],
+      "properties": {
+        "role": { "type": "string", "minLength": 1, "maxLength": 64 },
+        "max_discount_percent": { "type": ["string", "null"], "pattern": "^[0-9]{1,3}(\\.[0-9]{1,2})?$" }
+      }
+    },
+    "lostReason": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": ["key", "name"],
+      "properties": {
+        "key": { "$ref": "#/$defs/key" },
+        "name": { "type": "string", "minLength": 1, "maxLength": 140 }
+      }
+    },
+    "activityType": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": ["key", "name"],
+      "properties": {
+        "key": { "$ref": "#/$defs/key" },
+        "name": { "type": "string", "minLength": 1, "maxLength": 140 },
+        "icon": { "type": "string", "pattern": "^[a-z][a-z0-9-]*$", "maxLength": 64 },
+        "color": { "$ref": "#/$defs/color" }
+      }
+    },
+    "tag": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": ["key", "name", "color"],
+      "properties": {
+        "key": { "$ref": "#/$defs/key" },
+        "name": { "type": "string", "minLength": 1, "maxLength": 60 },
+        "color": { "$ref": "#/$defs/color" },
+        "record_types": {
+          "type": "array",
+          "description": "Empty = applies to contacts, companies and deals",
+          "items": { "enum": ["contact", "company", "deal"] }
+        }
+      }
+    },
+    "filter": {
+      "description": "Query engine filter AST (the same one used by views and conditional rules)",
+      "oneOf": [
+        {
+          "type": "object",
+          "additionalProperties": false,
+          "required": ["op", "conditions"],
+          "properties": {
+            "op": { "enum": ["and", "or"] },
+            "conditions": { "type": "array", "items": { "$ref": "#/$defs/filter" } }
+          }
+        },
+        {
+          "type": "object",
+          "additionalProperties": false,
+          "required": ["field", "operator"],
+          "properties": {
+            "field": { "type": "string" },
+            "operator": { "type": "string" },
+            "value": {}
+          }
+        }
+      ]
+    },
+    "layoutField": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": ["key"],
+      "properties": {
+        "key": { "type": "string" },
+        "visible_when": { "$ref": "#/$defs/filter" },
+        "required_when": { "$ref": "#/$defs/filter" }
+      }
+    },
+    "layoutEntry": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": ["record_type", "context", "layout"],
+      "properties": {
+        "record_type": { "$ref": "#/$defs/recordType" },
+        "context": { "enum": ["create", "edit", "view"] },
+        "layout": {
+          "type": "object",
+          "additionalProperties": false,
+          "required": ["tabs"],
+          "properties": {
+            "tabs": {
+              "type": "array",
+              "minItems": 1,
+              "maxItems": 10,
+              "items": {
+                "type": "object",
+                "additionalProperties": false,
+                "required": ["id", "sections"],
+                "properties": {
+                  "id": { "type": "string", "maxLength": 64 },
+                  "label": { "type": "string", "maxLength": 80 },
+                  "sections": {
+                    "type": "array",
+                    "minItems": 1,
+                    "maxItems": 20,
+                    "items": {
+                      "type": "object",
+                      "additionalProperties": false,
+                      "required": ["id", "columns"],
+                      "properties": {
+                        "id": { "type": "string", "maxLength": 64 },
+                        "label": { "type": "string", "maxLength": 80 },
+                        "columns": {
+                          "type": "array",
+                          "minItems": 1,
+                          "maxItems": 3,
+                          "items": {
+                            "type": "object",
+                            "additionalProperties": false,
+                            "properties": {
+                              "fields": { "type": "array", "items": { "$ref": "#/$defs/layoutField" } }
+                            }
+                          }
+                        }
+                      }
+                    }
+                  }
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "view": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": ["key", "record_type", "name"],
+      "properties": {
+        "key": { "$ref": "#/$defs/key" },
+        "record_type": { "$ref": "#/$defs/recordType" },
+        "name": { "type": "string", "minLength": 1, "maxLength": 140 },
+        "view_type": { "enum": ["table", "kanban", "calendar"], "default": "table" },
+        "filter": { "$ref": "#/$defs/filter" },
+        "sort": {
+          "type": "array",
+          "maxItems": 3,
+          "items": {
+            "type": "object",
+            "additionalProperties": false,
+            "required": ["field"],
+            "properties": {
+              "field": { "type": "string" },
+              "direction": { "enum": ["asc", "desc"] }
+            }
+          }
+        },
+        "columns": { "type": "array", "maxItems": 100, "items": { "type": "string" } },
+        "settings": { "type": "object" },
+        "default": { "type": "boolean", "default": false, "description": "Organization's default view for the record type" }
+      }
+    },
+    "dashboard": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": ["widgets"],
+      "description": "Organization's default dashboard (used by anyone who has not customized their own)",
+      "properties": {
+        "widgets": {
+          "type": "array",
+          "maxItems": 24,
+          "items": {
+            "type": "object",
+            "additionalProperties": false,
+            "required": ["key", "size"],
+            "properties": {
+              "key": { "enum": ["sales_indicators", "pending_center", "recent_activity", "report_totals", "deals_by_stage"] },
+              "size": { "enum": ["small", "medium", "large"] },
+              "settings": {
+                "type": "object",
+                "description": "Widget configuration; a pipeline is referenced by key in `pipeline`",
+                "properties": {
+                  "pipeline": { "type": ["string", "null"] }
+                }
+              }
+            }
+          }
+        },
+        "period": { "enum": ["today", "last_7_days", "month", "quarter"], "default": "month" }
+      }
+    },
+    "automation": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": ["key", "name", "record_type", "trigger", "definition"],
+      "description": "Automation installed as a draft; configuration references by key (tag, stage as <pipeline>.<stage>, activity_type, sequence, from_stage/to_stage, segment and the value of in_segment conditions as <record_type>/<segment name>) and no secrets",
+      "properties": {
+        "key": { "type": "string", "pattern": "^[a-z][a-z0-9_]{0,63}$" },
+        "name": { "type": "string", "minLength": 1, "maxLength": 140 },
+        "description": { "type": "string", "maxLength": 1000 },
+        "record_type": {
+          "anyOf": [
+            { "enum": ["contact", "company", "deal", "activity"] },
+            { "type": "string", "pattern": "^co_[a-z](?:[a-z_]*[a-z])?$", "description": "Custom object declared in custom_objects or already existing in the organization" }
+          ]
+        },
+        "trigger": {
+          "type": "object",
+          "required": ["type"],
+          "description": "Trigger (`type` + trigger options); for deal.stage_changed the stages go in from_stage/to_stage as <pipeline>.<stage>; for time.schedule the segment goes in segment as <record_type>/<segment name>",
+          "properties": {
+            "type": { "type": "string" },
+            "from_stage": { "type": "string", "pattern": "^[a-z][a-z0-9_]*\\.[a-z][a-z0-9_]*$" },
+            "to_stage": { "type": "string", "pattern": "^[a-z][a-z0-9_]*\\.[a-z][a-z0-9_]*$" },
+            "segment": { "type": "string", "description": "time.schedule: segment as <record_type>/<segment name> (instead of segment_id); segments are not part of packages and must exist in the organization before installing" },
+            "incoming_webhook_id": { "type": "string", "format": "uuid", "description": "Not portable: becomes a non_portable_reference conflict" }
+          }
+        },
+        "definition": {
+          "type": "object",
+          "additionalProperties": false,
+          "properties": {
+            "start": { "type": "string" },
+            "steps": {
+              "type": "array",
+              "maxItems": 50,
+              "items": {
+                "type": "object",
+                "required": ["id", "type"],
+                "properties": {
+                  "id": { "type": "string", "pattern": "^[A-Za-z0-9_-]{1,64}$" },
+                  "label": { "type": "string" },
+                  "type": { "enum": ["condition", "branch", "action"] },
+                  "filter": { "$ref": "#/$defs/filter" },
+                  "next": { "type": "string" },
+                  "cases": {
+                    "type": "array",
+                    "maxItems": 10,
+                    "items": {
+                      "type": "object",
+                      "required": ["key", "filter"],
+                      "properties": {
+                        "key": { "type": "string" },
+                        "label": { "type": "string" },
+                        "filter": { "$ref": "#/$defs/filter" },
+                        "next": { "type": "string" }
+                      }
+                    }
+                  },
+                  "default": { "type": "string" },
+                  "action": { "type": "string", "description": "Key of an action from the catalog (GET /automations/catalog) of the enabled modules, such as create_task, update_fields, assign_owner, add_tag, remove_tag, move_stage, create_note, send_notification, send_email, call_webhook, create_related_record or enroll_in_sequence" },
+                  "config": {
+                    "type": "object",
+                    "description": "Action configuration; tag, stage (<pipeline>.<stage>), activity_type and sequence by key; signing_secret and signing_secret_configured are forbidden",
+                    "properties": {
+                      "tag": { "$ref": "#/$defs/key" },
+                      "stage": { "type": "string", "pattern": "^[a-z][a-z0-9_]*\\.[a-z][a-z0-9_]*$" },
+                      "activity_type": { "$ref": "#/$defs/key" },
+                      "sequence": { "type": "string", "description": "enroll_in_sequence: sequence key (instead of sequence_id), from the package's sequences section or already existing in the organization" }
+                    },
+                    "not": { "anyOf": [{ "required": ["signing_secret"] }, { "required": ["signing_secret_configured"] }] }
+                  }
+                }
+              }
+            }
+          }
+        }
+      }
+    }
+  }
+}

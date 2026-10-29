@@ -1,0 +1,119 @@
+{
+  "status": {
+    "not_configured": "Not configured",
+    "inactive": "Inactive",
+    "active": "Active",
+    "error": "Error",
+    "available": "Available"
+  },
+  "lastTestOk": "Last test succeeded on {{date}}",
+  "lastTestFailed": "Last test failed on {{date}}",
+  "neverTested": "Connection not tested yet",
+  "lastError": "Last error on {{date}}",
+  "recentErrors": "Recent errors ({{count}})",
+  "errorSource": {
+    "test": "test",
+    "activation": "activation",
+    "delivery": "delivery"
+  },
+  "actions": {
+    "configure": "Configure",
+    "edit": "Edit configuration",
+    "test": "Test connection",
+    "activate": "Activate",
+    "deactivate": "Deactivate",
+    "remove": "Remove configuration",
+    "open": "Open"
+  },
+  "toast": {
+    "saved": "{{name}} configuration saved.",
+    "activated": "{{name}} activated.",
+    "deactivated": "{{name}} deactivated.",
+    "removed": "{{name}} configuration removed.",
+    "testOk": "Connection to {{name}} is working.",
+    "testOkEmail": "Connection is working. We sent a test email to {{email}}.",
+    "testFailed": "The connection test failed",
+    "activationFailed": "Could not activate {{name}}"
+  },
+  "removeTitle": "Remove configuration?",
+  "removeDescription": "The configuration and saved passwords for {{name}} will be deleted and the integration will stop working.",
+  "removeConfirm": "Remove",
+  "deactivateTitle": "Deactivate integration?",
+  "deactivateDescription": "{{name}} will not be used until it is activated again. The configuration is kept.",
+  "deactivateConfirm": "Deactivate",
+  "test": {
+    "title": "Test connection",
+    "description": "The test uses the saved configuration. Save your changes before testing.",
+    "sendEmail": "Also send a test email to me",
+    "submit": "Test",
+    "cancel": "Cancel"
+  },
+  "form": {
+    "title": "Configure {{name}}",
+    "description": "Fields marked with * are required.",
+    "secretConfigured": "Already configured. Leave blank to keep the current value.",
+    "clearSecret": "Remove the saved value",
+    "selectPlaceholder": "Select",
+    "save": "Save",
+    "cancel": "Cancel"
+  },
+  "validation": {
+    "required": "Fill in this field.",
+    "email": "Enter a valid email.",
+    "url": "Enter a URL starting with http:// or https://.",
+    "number": "Enter a whole number.",
+    "range": "Enter a number between {{min}} and {{max}}.",
+    "invalid": "Invalid value."
+  },
+  "errors": {
+    "generic": "The action could not be completed. Please try again.",
+    "versionConflict": "The configuration was changed by someone else. Close and reopen it to see the current version.",
+    "notConfigured": "Complete the configuration before continuing.",
+    "encryptionMissing": "The server has no encryption key configured (APP_ENCRYPTION_KEY), so passwords cannot be saved."
+  },
+  "providers": {
+    "smtp": {
+      "name": "Organization SMTP",
+      "description": "Send the organization's emails (notifications and invitations) through your own SMTP server instead of Aphel's default server. Sign-in and password recovery emails still go through the default server.",
+      "fields": {
+        "host": {
+          "label": "Server",
+          "help": "SMTP server address, for example smtp.yourcompany.com."
+        },
+        "port": {
+          "label": "Port",
+          "help": "Usually 587 (STARTTLS), 465 (TLS) or 25."
+        },
+        "security": {
+          "label": "Security",
+          "help": "Use STARTTLS on port 587 and TLS on port 465. None only for internal servers.",
+          "options": {
+            "none": "None",
+            "starttls": "STARTTLS",
+            "tls": "TLS"
+          }
+        },
+        "username": {
+          "label": "Username",
+          "help": "Leave blank if the server does not require authentication."
+        },
+        "password": {
+          "label": "Password",
+          "help": "Stored encrypted and never shown again."
+        },
+        "from_email": {
+          "label": "Sender email",
+          "help": "Address shown as the sender. The server must allow sending from it."
+        },
+        "from_name": {
+          "label": "Sender name",
+          "help": "Optional, for example your company name."
+        }
+      }
+    },
+    "webhook": {
+      "name": "Generic webhook",
+      "description": "Send CRM events to any HTTPS address. Endpoints are managed on the webhooks screen."
+    }
+  }
+}

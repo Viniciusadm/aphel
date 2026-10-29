@@ -1,0 +1,5 @@
+{
+  "title": "Integrations",
+  "description": "Connect Aphel to other services. Each integration is configured once for the whole organization; passwords and keys are encrypted and never shown again.",
+  "listLabel": "Available integrations"
+}

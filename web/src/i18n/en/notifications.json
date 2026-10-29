@@ -1,0 +1,87 @@
+{
+  "bell": {
+    "label": "Notifications",
+    "labelWithCount_one": "Notifications ({{count}} unread)",
+    "labelWithCount_other": "Notifications ({{count}} unread)"
+  },
+  "panel": {
+    "title": "Notifications",
+    "markAll": "Mark all as read",
+    "markError": "Could not mark the notifications as read.",
+    "filter": "Filter notifications",
+    "all": "All",
+    "unread": "Unread",
+    "unreadMark": "Unread",
+    "empty": "No notifications yet.",
+    "emptyUnread": "You are all caught up.",
+    "error": "Could not load the notifications.",
+    "retry": "Try again",
+    "loadMore": "Load more",
+    "settings": "Notification preferences"
+  },
+  "someone": "Someone",
+  "restrictedRecord": "On a record you cannot access",
+  "headline": {
+    "task_assigned": "{{actor}} assigned you a task",
+    "task_due_soon": "Task due within 1 hour",
+    "task_due_today": "Task due today",
+    "deal_assigned": "{{actor}} assigned you a deal",
+    "deal_stage_changed": "{{actor}} moved one of your deals",
+    "note_mention": "{{actor}} mentioned you in a note",
+    "daily_digest": "Your tasks for today",
+    "export_ready": "Your export is ready",
+    "export_failed": "Your export failed",
+    "import_finished": "Your import finished",
+    "import_failed": "Your import failed",
+    "webhook_endpoint_disabled": "A webhook was disabled after repeated failures",
+    "task_reminder": "Task reminder",
+    "reminder": "Reminder",
+    "automation_message": "Automation notice",
+    "automation_email": "Automation email",
+    "automation_skipped": "An automation was stopped by the loop protection",
+    "approval_requested": "An approval request is waiting for your decision",
+    "approval_decided": "Your approval request was decided",
+    "approval_overdue": "An approval request is overdue",
+    "followed_record_activity": "News on a record you follow"
+  },
+  "kinds": {
+    "task_assigned": { "label": "Task assigned to me", "description": "When someone creates or hands you an open task." },
+    "task_due": { "label": "Task due", "description": "Your tasks due within 1 hour and the ones due today (at 8 am)." },
+    "deal_assigned": { "label": "Deal assigned to me", "description": "When someone creates or hands you a deal." },
+    "deal_stage_changed": { "label": "Stage change", "description": "When someone else moves one of your deals." },
+    "note_mention": { "label": "Mention in a note", "description": "When someone mentions you with @ in a team note." },
+    "daily_digest": { "label": "Daily digest", "description": "Email at 8 am with the tasks due today." },
+    "export_ready": { "label": "Export ready", "description": "When the file of your export is available." },
+    "export_failed": { "label": "Export failed", "description": "When your export could not be finished." },
+    "import_finished": { "label": "Import finished", "description": "When your import finishes." },
+    "import_failed": { "label": "Import failed", "description": "When your import could not be finished." },
+    "webhook_endpoint_disabled": { "label": "Webhook disabled", "description": "When an outgoing webhook is disabled automatically after repeated failed deliveries (only for people who manage settings)." },
+    "reminder": { "label": "Reminder", "description": "Personal reminders you created, at the time you chose." },
+    "automation_message": { "label": "Automation notice", "description": "Notifications sent to you by automations of the organization." },
+    "automation_email": { "label": "Automation email", "description": "Emails sent to you by automations of the organization." },
+    "automation_skipped": { "label": "Automation stopped", "description": "When an automation you created is stopped by the loop protection or by the run limit." },
+    "approval_requested": { "label": "Approval request", "description": "When an approval request reaches a step where you are an approver." },
+    "approval_decided": { "label": "Approval decided", "description": "When an approval request of yours is approved, rejected or cancelled." },
+    "approval_overdue": { "label": "Approval overdue", "description": "When an approval request waiting for you passes its due time." },
+    "followed_record_activity": { "label": "Records I follow", "description": "Changes, new activities, notes and emails on records you follow (while you can read them)." }
+  },
+  "channels": {
+    "in_app": "In Aphel",
+    "email": "Email",
+    "push": "Push"
+  },
+  "settings": {
+    "title": "Notifications",
+    "description": "Choose how you want to be notified. Preferences apply only to you in this organization.",
+    "caption": "Preferences by notification kind and channel",
+    "kind": "Notification",
+    "unsupported": "Channel not available for this notification",
+    "saveError": "Could not save the preference",
+    "footnote": "Times follow the organization time zone. You are never notified about your own actions."
+  },
+  "mention": {
+    "listLabel": "Mention someone",
+    "empty": "Nobody found",
+    "loading": "Loading people…"
+  }
+}

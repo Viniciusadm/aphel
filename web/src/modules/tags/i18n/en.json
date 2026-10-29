@@ -1,0 +1,55 @@
+{
+  "recordTypes": {
+    "contact": "Contacts",
+    "company": "Companies",
+    "deal": "Deals"
+  },
+  "chips": {
+    "remove": "Remove tag {{name}}",
+    "more_one": "+{{count}}",
+    "more_other": "+{{count}}"
+  },
+  "record": {
+    "label": "Record tags",
+    "manage": "Tags",
+    "search": "Search tags",
+    "loading": "Loading tags…",
+    "empty": "No tags available. Create tags in Settings › Tags.",
+    "available": "Available tags"
+  },
+  "settings": {
+    "title": "Tags",
+    "description": "Tags label contacts, companies and deals and can be used in filters, segments and bulk actions.",
+    "new": "New tag",
+    "newTitle": "New tag",
+    "editTitle": "Edit tag",
+    "dialogDescription": "Choose the name, the color and where the tag can be used.",
+    "listLabel": "Organization tags",
+    "emptyTitle": "No tags yet",
+    "emptyDescription": "Create the first tag to organize your records.",
+    "allTypes": "All types",
+    "usage_one": "{{count}} record",
+    "usage_other": "{{count}} records",
+    "editLabel": "Edit {{name}}",
+    "deleteLabel": "Delete {{name}}",
+    "deleteTitle": "Delete tag",
+    "deleteDescription_one": "The tag \"{{name}}\" will be deleted and removed from {{count}} record. This action cannot be undone.",
+    "deleteDescription_other": "The tag \"{{name}}\" will be deleted and removed from {{count}} records. This action cannot be undone.",
+    "deleteConfirm": "Delete",
+    "name": "Name",
+    "nameRequired": "Enter a name.",
+    "nameTaken": "A tag with this name already exists.",
+    "color": "Color",
+    "colorHex": "Hex color",
+    "recordTypes": "Where it can be used",
+    "recordTypesHint": "With nothing selected, the tag applies to all types.",
+    "cancel": "Cancel",
+    "save": "Save",
+    "created": "Tag {{name}} created",
+    "updated": "Tag {{name}} updated",
+    "deleted": "Tag {{name}} deleted"
+  },
+  "list": {
+    "field": "Tags"
+  }
+}

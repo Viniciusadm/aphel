@@ -1,0 +1,103 @@
+{
+  "name": "Login único (OIDC)",
+  "description": "Login único com qualquer provedor OpenID Connect corporativo (Okta, Keycloak, Auth0, Entra ID…)",
+  "nav": "Login único",
+  "page": {
+    "title": "Login único (OIDC)",
+    "description": "Login com o provedor de identidade da sua empresa. Configure em Configurações › Módulos."
+  },
+  "panel": {
+    "steps": [
+      "No provedor de identidade, crie um aplicativo OpenID Connect do tipo \"web\" com fluxo authorization code.",
+      "Cadastre a URL de retorno acima como redirect URI.",
+      "Libere os escopos openid, email e profile e garanta que o provedor envie a claim email_verified = true.",
+      "Copie o Client ID e o Client secret para esta tela e informe o emissor (issuer) ou a URL de descoberta.",
+      "Informe os domínios de e-mail e, se quiser, marque \"Exigir login único\"."
+    ]
+  },
+  "settings": {
+    "discovery_url": {
+      "label": "Emissor (issuer) ou URL de descoberta",
+      "help": "Ex.: https://empresa.okta.com ou https://sso.empresa.com/realms/main/.well-known/openid-configuration"
+    },
+    "button_label": {
+      "label": "Rótulo do botão",
+      "help": "Texto exibido no botão da tela de login"
+    },
+    "client_id": {
+      "label": "Client ID",
+      "help": "Identificador do aplicativo cadastrado no provedor"
+    },
+    "client_secret": {
+      "label": "Client secret",
+      "help": "Segredo do aplicativo; fica cifrado e nunca é exibido de novo"
+    },
+    "domains": {
+      "label": "Domínios de e-mail",
+      "help": "Domínios que entram pelo login único, separados por vírgula (ex.: empresa.com.br). Vazio = o botão não aparece no login"
+    },
+    "require_sso": {
+      "label": "Exigir login único",
+      "help": "Recusa o login por senha de e-mails desses domínios"
+    }
+  },
+  "shared": {
+    "callbackUrl": "URL de retorno (redirect URI)",
+    "callbackHelp": "Cadastre exatamente este endereço no provedor. A mesma URL serve para o login e para a conexão da agenda.",
+    "copy": "Copiar",
+    "copied": "Copiado",
+    "statusUnavailable": "Não foi possível carregar o status agora.",
+    "login": {
+      "title": "Login único",
+      "description": "Usuários com e-mail dos domínios abaixo veem o botão \"{{label}}\" na tela de login. A conta precisa já existir no Aphel e ser membro desta organização.",
+      "configured": "Configurado",
+      "notConfigured": "Client ID ou secret pendente",
+      "required": "Login por senha bloqueado para esses domínios",
+      "domains": "Domínios",
+      "noDomains": "Nenhum domínio informado: o botão não aparece na tela de login."
+    },
+    "calendar": {
+      "title": "Agenda do {{provider}}",
+      "description": "Suas reuniões do CRM vão para a sua agenda do {{provider}} e os eventos da agenda com contatos do CRM viram reuniões aqui. Quando os dois lados mudam, vale a alteração mais recente.",
+      "notConfigured": "Um administrador precisa configurar o Client ID e o Client secret do módulo antes de conectar a agenda.",
+      "disconnected": "Sua agenda do {{provider}} não está conectada.",
+      "noPermission": "Você não tem permissão para conectar a agenda.",
+      "connect": "Conectar agenda",
+      "reconnect": "Reconectar agenda",
+      "disconnect": "Desconectar",
+      "syncNow": "Sincronizar agora",
+      "syncQueued": "Sincronização iniciada; os eventos aparecem em alguns instantes.",
+      "connectedToast": "Agenda conectada. A primeira sincronização já começou.",
+      "disconnectedToast": "Agenda desconectada",
+      "lastSync": "Última sincronização:",
+      "never": "ainda não sincronizou",
+      "counters": "Movimento:",
+      "countersValue": "{{imported}} recebidos · {{exported}} enviados",
+      "confirmTitle": "Desconectar a agenda do {{provider}}?",
+      "confirmDescription": "O acesso guardado é apagado e a sincronização para. As reuniões que já estão no CRM e na agenda continuam onde estão.",
+      "states": {
+        "active": "Conectada",
+        "error": "Com erro",
+        "revoked": "Acesso revogado"
+      }
+    },
+    "calendarErrors": {
+      "generic": "Não foi possível sincronizar a agenda.",
+      "access_denied": "A autorização foi cancelada no provedor.",
+      "permission_denied": "Você não tem permissão para conectar a agenda.",
+      "calendar_no_refresh_token": "O provedor não liberou o acesso offline. Tente conectar de novo e aceite todas as permissões.",
+      "calendar_authorization_revoked": "O acesso à agenda foi revogado ou expirou. Reconecte a agenda.",
+      "calendar_not_connected": "A agenda não está conectada.",
+      "calendar_member_unavailable": "O usuário não é mais membro ativo da organização.",
+      "calendar_permission_revoked": "A permissão de sincronizar a agenda foi retirada deste usuário.",
+      "calendar_meeting_type_not_found": "O tipo de atividade configurado para reuniões não existe ou está inativo.",
+      "calendar_api_failed": "O provedor recusou a operação na agenda.",
+      "sso_not_configured": "O módulo ainda não está configurado.",
+      "sso_disabled": "O módulo está desabilitado nesta organização.",
+      "invalid_state": "O pedido de conexão expirou. Tente de novo.",
+      "token_exchange_failed": "O provedor recusou a autorização. Confira o Client ID, o secret e a URL de retorno.",
+      "invalid_token": "O provedor devolveu uma identidade inválida.",
+      "provider_unavailable": "O provedor não respondeu. Tente de novo em instantes."
+    }
+  }
+}

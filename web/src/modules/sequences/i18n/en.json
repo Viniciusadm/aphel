@@ -1,0 +1,226 @@
+{
+  "page": {
+    "title": "Sequences",
+    "description": "Cadences of e-mails, calls and tasks that follow each contact until they reply.",
+    "new": "New sequence",
+    "search": "Search sequences",
+    "statusFilter": "Status",
+    "allStatuses": "All",
+    "emptyTitle": "No sequences yet",
+    "emptyDescription": "Create a sequence with automatic e-mails, tasks and business-day waits and enroll contacts in it.",
+    "noResultsTitle": "No sequences found",
+    "noResultsDescription": "Adjust the search or the filter.",
+    "noAccessTitle": "No access to sequences",
+    "noAccessDescription": "Ask an administrator for the permission to view sequences.",
+    "pausedCount_one": "(+{{count}} paused)",
+    "pausedCount_other": "(+{{count}} paused)"
+  },
+  "columns": {
+    "name": "Name",
+    "steps": "Steps",
+    "active": "In progress",
+    "completed": "Completed",
+    "exited": "Exited",
+    "status": "Status"
+  },
+  "status": {
+    "active": "Active",
+    "inactive": "Inactive"
+  },
+  "enrollmentStatus": {
+    "active": "In progress",
+    "paused": "Paused",
+    "completed": "Completed",
+    "exited": "Exited"
+  },
+  "stepKinds": {
+    "auto_email": "Automatic e-mail",
+    "manual_email": "Manual e-mail",
+    "call": "Call",
+    "linkedin": "LinkedIn",
+    "task": "Task",
+    "wait": "Wait"
+  },
+  "stepHints": {
+    "auto_email": "Sent from the mailbox of whoever enrolled the contact, inside the sending window. Later e-mails reply in the same conversation.",
+    "manual_email": "Creates an e-mail task for whoever enrolled the contact, with the draft ready to review and send.",
+    "call": "Creates a call task for whoever enrolled the contact.",
+    "linkedin": "Creates a task to reach the contact on LinkedIn.",
+    "task": "Creates a generic task for whoever enrolled the contact.",
+    "wait": "Waits the given business days, in the organization timezone, before the next step."
+  },
+  "exitReasons": {
+    "replied": "Replied",
+    "meeting_booked": "Booked a meeting",
+    "deal_won": "Deal won",
+    "deal_lost": "Deal lost",
+    "bounced": "E-mail bounced",
+    "objection": "Objected",
+    "contact_deleted": "Contact deleted",
+    "removed": "Removed manually",
+    "contact_unavailable": "Contact without e-mail or unavailable",
+    "enroller_unavailable": "The enroller left the organization",
+    "send_failed": "Sending failed"
+  },
+  "sources": {
+    "manual": "From the record",
+    "bulk": "In bulk",
+    "automation": "By an automation"
+  },
+  "editor": {
+    "titleNew": "New sequence",
+    "titleEdit": "Edit {{name}}",
+    "back": "Back",
+    "noAccessDescription": "Only people who manage sequences can create or edit them.",
+    "settings": "Settings",
+    "name": "Name",
+    "description": "Description",
+    "active": "Active sequence",
+    "activeHint": "Deactivating holds every enrollment until it is active again.",
+    "windowStart": "Sending window start",
+    "windowEnd": "Sending window end",
+    "dailyLimit": "Maximum e-mails per mailbox per day",
+    "windowHint": "Automatic e-mails go out only on business days, inside the window and in the organization timezone. A contact never gets two sequence e-mails on the same day; when a limit is reached, the e-mail moves to the next valid time.",
+    "steps": "Steps",
+    "stepsHint": "Steps run in order. Use waits to space the touches.",
+    "noSteps": "The sequence has no steps yet.",
+    "kind": "Step type",
+    "moveUp": "Move step {{number}} up",
+    "moveDown": "Move step {{number}} down",
+    "removeStep": "Remove step {{number}}",
+    "waitDays": "Business days to wait",
+    "title": "Task title",
+    "titleOptional": "Default: the e-mail subject",
+    "template": "E-mail template",
+    "noTemplate": "No template (write below)",
+    "templateHint": "Subject and body filled below take precedence over the template.",
+    "subject": "Subject",
+    "subjectHint": "Accepts variables such as {{example}}. In later e-mails, empty replies with the conversation subject.",
+    "body": "Body (HTML)",
+    "bodyHint": "Accepts variables such as {{examples}}.",
+    "addEmail": "E-mail",
+    "addWait": "Wait",
+    "addTask": "Task",
+    "cancel": "Cancel",
+    "save": "Save",
+    "saving": "Saving…",
+    "created": "Sequence created",
+    "saved": "Sequence saved"
+  },
+  "validation": {
+    "nameRequired": "Enter the name.",
+    "nameLength": "Use up to 200 characters.",
+    "descriptionLength": "Use up to 1000 characters.",
+    "time": "Use the HH:MM format.",
+    "window": "The window must end after it starts.",
+    "dailyLimit": "Enter a number between 1 and 2000.",
+    "tooManySteps": "Use up to 30 steps.",
+    "waitDays": "Enter 1 to 365 business days.",
+    "bodyRequired": "Write the body or choose a template.",
+    "subjectRequired": "Enter the subject or choose a template.",
+    "titleRequired": "Enter the task title."
+  },
+  "detail": {
+    "back": "Back to sequences",
+    "edit": "Edit",
+    "delete": "Delete",
+    "windowSummary": "E-mails on business days from {{start}} to {{end}}, up to {{limit}} per mailbox per day.",
+    "waitSummary_one": "Wait {{count}} business day",
+    "waitSummary_other": "Wait {{count}} business days"
+  },
+  "metrics": {
+    "title": "Metrics per step",
+    "description": "Sent counts e-mails sent and tasks created; opens depend on e-mail tracking; exits are enrollments that left the sequence right after the step.",
+    "step": "Step",
+    "sent": "Sent",
+    "opened": "Opened",
+    "replied": "Replied",
+    "bounced": "Bounced",
+    "exits": "Exits"
+  },
+  "enrollments": {
+    "title": "Enrollments",
+    "description": "Contacts enrolled in this sequence, newest first.",
+    "statusFilter": "Enrollment status",
+    "allStatuses": "All statuses",
+    "emptyTitle": "No enrollments",
+    "emptyDescription": "Enroll contacts from the Sequences tab of the contact, the bulk action of the list or an automation.",
+    "contact": "Contact",
+    "status": "Status",
+    "progress": "Progress",
+    "enrolledBy": "Enrolled by",
+    "nextRun": "Next step at",
+    "actions": "Actions",
+    "nextStep": "Step {{number}}: {{step}}",
+    "finished": "All steps done",
+    "pause": "Pause",
+    "resume": "Resume",
+    "exit": "Remove from sequence",
+    "confirmExit": {
+      "title": "Remove {{name}} from the sequence?",
+      "description": "No further step will run. To start again, enroll the contact once more."
+    },
+    "toast": {
+      "pause": "Enrollment paused",
+      "resume": "Enrollment resumed",
+      "exit": "Contact removed from the sequence",
+      "failed": "Could not change the enrollment"
+    }
+  },
+  "record": {
+    "tab": "Sequences",
+    "listLabel": "Sequences of the contact",
+    "emptyTitle": "Not in any sequence",
+    "emptyDescription": "Enroll the contact in a sequence to follow up with automatic e-mails and tasks.",
+    "enroll": "Enroll in sequence",
+    "enrolling": "Enrolling…",
+    "enrolled": "Contact enrolled in the sequence",
+    "dialogTitle": "Enroll in sequence",
+    "dialogDescription": "The contact leaves the sequence automatically after replying, booking a meeting, having a deal won or lost, a bounced e-mail or an objection.",
+    "sequence": "Sequence",
+    "chooseSequence": "Choose an active sequence",
+    "noSequences": "No active sequence available.",
+    "openSequences": "See sequences",
+    "mailbox": "Send from mailbox",
+    "defaultMailbox": "My first connected mailbox",
+    "noMailbox": "Sequences with automatic e-mails need a connected mailbox.",
+    "connectMailbox": "Connect mailbox",
+    "cancel": "Cancel",
+    "enrolledBy": "Enrolled by {{name}}",
+    "nextRun": "Step {{number}} at {{date}}",
+    "stepNumber": "Step {{number}}",
+    "pausedDetail": "Paused at step {{number}}",
+    "completedAt": "Completed on {{date}}"
+  },
+  "confirmDelete": {
+    "title": "Delete {{name}}?",
+    "description": "The enrollments and step history of the sequence will be removed. E-mails and tasks already created stay."
+  },
+  "toast": {
+    "deleted": "Sequence deleted",
+    "errorTitle": "Something went wrong"
+  },
+  "pager": {
+    "label": "Pagination",
+    "summary": "Page {{page}} of {{pages}} · {{total}} in total",
+    "previous": "Previous",
+    "next": "Next"
+  },
+  "errors": {
+    "sequence_not_found": "The sequence no longer exists.",
+    "sequence_key_taken": "There is already a sequence with this name.",
+    "sequence_inactive": "The sequence is inactive.",
+    "sequence_empty": "The sequence has no steps to run.",
+    "sequence_already_enrolled": "The contact is already in this sequence.",
+    "sequence_contact_without_email": "The contact has no e-mail.",
+    "sequence_contact_objected": "The contact objected to e-mail tracking.",
+    "sequence_enrollment_not_found": "The enrollment no longer exists.",
+    "sequence_enrollment_finished": "The enrollment already finished or changed status.",
+    "no_mailbox_available": "Connect a mailbox before enrolling contacts.",
+    "mailbox_not_found": "The chosen mailbox no longer exists.",
+    "version_conflict": "Someone else changed the sequence. Reload the page and apply the change again."
+  },
+  "nav": {
+    "sequences": "Sequences"
+  }
+}

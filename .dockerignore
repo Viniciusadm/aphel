@@ -1,0 +1,10 @@
+**/target
+**/node_modules
+web/dist
+sdk/typescript/dist
+.git
+.github
+.claude
+**/.env
+storage
+back/storage

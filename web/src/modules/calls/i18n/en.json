@@ -1,0 +1,177 @@
+{
+  "page": {
+    "title": "Calls",
+    "description": "Call sessions from saved views, call outcomes and the team report.",
+    "sections": "Call sections",
+    "sessions": "Sessions",
+    "report": "Report",
+    "outcomes": "Outcomes"
+  },
+  "direction": {
+    "inbound": "Inbound",
+    "outbound": "Outbound"
+  },
+  "form": {
+    "direction": "Direction",
+    "outcome": "Outcome",
+    "outcomeRequired": "Pick the call outcome.",
+    "duration": "Duration",
+    "minutes": "Minutes",
+    "minutesShort": "min",
+    "seconds": "Seconds",
+    "secondsShort": "sec",
+    "startTimer": "Start timer",
+    "stopTimer": "Stop ({{time}})",
+    "notes": "Notes",
+    "notesPlaceholder": "What was discussed, next steps…",
+    "cancel": "Cancel"
+  },
+  "log": {
+    "title": "Log call",
+    "description": "Fill in how the call went.",
+    "descriptionWith": "Call to {{name}} {{phone}}",
+    "submit": "Log call",
+    "logged": "Call logged"
+  },
+  "phone": {
+    "callAndLog": "Call and log the call"
+  },
+  "summary": {
+    "duration": "Duration {{duration}}",
+    "loggedAt": "Logged on {{date}}",
+    "relatedRecord": "Related record",
+    "title": "Call",
+    "phone": "Number: {{phone}}"
+  },
+  "errors": {
+    "generic": "Something went wrong. Try again.",
+    "forbidden": "You are not allowed to do this.",
+    "notFound": "Not found.",
+    "invalid": "Check the fields.",
+    "keyTaken": "Another outcome already uses this key.",
+    "lastActiveOutcome": "The organization needs at least one active outcome.",
+    "versionConflict": "Someone else changed this. Reload and try again.",
+    "sessionCompleted": "This session is already finished.",
+    "sessionEmpty": "The view has no contacts to call.",
+    "viewNotFound": "Contact view not found.",
+    "providerNotFound": "The telephony provider is not available.",
+    "noCallType": "The organization has no active Call activity type."
+  },
+  "start": {
+    "title": "New call session",
+    "description": "Pick a saved view of contacts: its contacts become the session queue.",
+    "view": "Contact view",
+    "pickView": "Pick a view",
+    "viewRequired": "Pick the contact view.",
+    "viewHint": "Uses the view filter and sort, up to 500 contacts.",
+    "name": "Session name",
+    "script": "Script",
+    "scriptPlaceholder": "Talking points shown during the calls",
+    "submit": "Start session"
+  },
+  "sessions": {
+    "title": "My sessions",
+    "emptyTitle": "No sessions yet",
+    "emptyDescription": "Start a session to call the contacts of a view one after another.",
+    "startedAt": "Started on {{date}}",
+    "contacts_one": "{{count}} contact",
+    "contacts_other": "{{count}} contacts",
+    "status": {
+      "active": "In progress",
+      "completed": "Finished"
+    }
+  },
+  "session": {
+    "back": "Back to calls",
+    "progress": "{{done}} of {{total}} contacts",
+    "counts": "{{logged}} logged, {{skipped}} skipped",
+    "finish": "Finish session",
+    "finishTitle": "Finish the session?",
+    "finishDescription": "The {{pending}} pending contacts are left without a call in this session.",
+    "completedTitle": "Session finished",
+    "completedDescription": "{{logged}} calls logged and {{skipped}} contacts skipped.",
+    "backToSessions": "See sessions",
+    "position": "Contact {{position}} of {{total}}",
+    "unknownContact": "Contact unavailable",
+    "contactUnavailable": "Could not load the contact.",
+    "noPhone": "This contact has no phone.",
+    "call": "Call {{phone}}",
+    "script": "Script",
+    "logAndNext": "Log and next",
+    "skip": "Skip",
+    "previous": "Previous",
+    "history": "History",
+    "queue": "Queue",
+    "logged": "Call to {{name}} logged",
+    "itemStatus": {
+      "pending": "Pending",
+      "logged": "Logged",
+      "skipped": "Skipped"
+    }
+  },
+  "report": {
+    "from": "From",
+    "to": "To",
+    "owner": "Owner",
+    "everyone": "Everyone I can see",
+    "mine": "Only mine",
+    "calls": "Calls",
+    "connected": "Connected",
+    "rate": "Connect rate",
+    "duration": "Total duration",
+    "emptyTitle": "No calls in the period",
+    "emptyDescription": "Logged calls show up here by user and outcome.",
+    "caption": "Calls by user and outcome",
+    "user": "User",
+    "noOwner": "No owner"
+  },
+  "outcomes": {
+    "title": "Call outcomes",
+    "description": "Options to log how each call ended. Drag to reorder.",
+    "new": "New outcome",
+    "listLabel": "Call outcomes",
+    "connected": "Connected",
+    "system": "Default",
+    "inactive": "Inactive",
+    "editLabel": "Edit {{name}}",
+    "activate": "Activate",
+    "deactivate": "Deactivate",
+    "newTitle": "New outcome",
+    "editTitle": "Edit outcome",
+    "dialogDescription": "Connected outcomes count as answered calls in the report.",
+    "name": "Name",
+    "nameRequired": "Enter the name.",
+    "keyHint": "Key: {{key}}",
+    "isConnected": "Counts as connected",
+    "isConnectedHint": "Check when the person was reached.",
+    "save": "Save",
+    "saved": "Outcome {{name}} saved"
+  },
+  "nav": {
+    "calls": "Calls"
+  },
+  "quickAdd": {
+    "options": {
+      "call": "Call"
+    },
+    "titles": {
+      "call": "Completed call"
+    },
+    "call": {
+      "direction": "Direction",
+      "directions": {
+        "outbound": "Made",
+        "inbound": "Received"
+      },
+      "outcome": "Outcome",
+      "outcomeRequired": "Choose the outcome.",
+      "minutes": "Duration (minutes)",
+      "minutesInvalid": "Enter between 0 and 1440 minutes.",
+      "notes": "Notes",
+      "submit": "Log call",
+      "created": "Call logged.",
+      "outboxLabel": "Call",
+      "outboxLabelFor": "Call with {{title}}"
+    }
+  }
+}

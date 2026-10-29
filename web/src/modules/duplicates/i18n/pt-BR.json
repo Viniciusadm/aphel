@@ -1,0 +1,84 @@
+{
+  "recordTypes": {
+    "contact": "Contatos",
+    "company": "Empresas",
+    "deal": "Oportunidades",
+    "product": "Produtos"
+  },
+  "recordType": {
+    "contact": "Contato",
+    "company": "Empresa",
+    "deal": "Oportunidade",
+    "product": "Produto"
+  },
+  "rules": {
+    "email": "Mesmo e-mail",
+    "phone": "Mesmo telefone",
+    "name_company": "Nome parecido e mesma empresa",
+    "domain": "Mesmo domínio",
+    "name": "Nome parecido",
+    "identifier": "Mesmo identificador (ex.: código)"
+  },
+  "queue": {
+    "title": "Duplicatas",
+    "description": "Registros que as regras de detecção consideram possíveis duplicatas. Compare lado a lado e mescle, ou marque que não são duplicatas.",
+    "scan": "Verificar agora",
+    "scanQueued": "Verificação de duplicatas iniciada. A lista é atualizada em alguns instantes.",
+    "typeLabel": "Tipo de registro",
+    "statusLabel": "Situação",
+    "status": {
+      "pending": "Pendentes",
+      "dismissed": "Não são duplicatas",
+      "merged": "Mescladas"
+    },
+    "pairLabel": "{{first}} e {{second}}",
+    "detectedAt": "Detectada em {{date}}",
+    "compare": "Comparar e mesclar",
+    "dismiss": "Não é duplicata",
+    "dismissed": "Par marcado como não duplicado.",
+    "emptyTitle": "Nenhuma duplicata por aqui",
+    "emptyDescription": "Quando as regras encontrarem registros parecidos, eles aparecem nesta fila.",
+    "emptyFiltered": "Nenhum par nesta situação.",
+    "noTypes": "Nenhum tipo de registro com detecção de duplicatas disponível."
+  },
+  "settings": {
+    "title": "Regras de detecção",
+    "description": "Escolha quais critérios indicam uma possível duplicata. A verificação roda todos os dias e também ao criar um registro.",
+    "save": "Salvar regras",
+    "saved": "Regras de detecção salvas."
+  },
+  "merge": {
+    "title": "Mesclar registros",
+    "description": "Escolha, campo a campo, qual valor fica. Atividades, notas, anexos, etiquetas, oportunidades e vínculos do registro mesclado passam para o principal, e o histórico dele aparece na linha do tempo do principal.",
+    "back": "Voltar para duplicatas",
+    "primary": "Principal (fica)",
+    "duplicate": "Duplicata (será mesclada)",
+    "swap": "Trocar principal",
+    "field": "Campo",
+    "keepPrimary": "Manter o valor do principal em {{field}}",
+    "keepDuplicate": "Usar o valor da duplicata em {{field}}",
+    "same": "Igual nos dois",
+    "empty": "vazio",
+    "submit": "Mesclar",
+    "confirmTitle": "Mesclar “{{duplicate}}” em “{{primary}}”?",
+    "confirmDescription": "O registro mesclado vai para a lixeira e o endereço dele passa a abrir o principal. Esta ação não pode ser desfeita.",
+    "success": "Registros mesclados. {{count}} vínculos foram movidos para o principal.",
+    "missing": "Um dos registros não foi encontrado ou já foi mesclado.",
+    "invalid": "Escolha dois registros diferentes para mesclar.",
+    "noPermission": "Você precisa de permissão para editar o principal e excluir a duplicata."
+  },
+  "warning": {
+    "title": "Possível duplicata",
+    "description_one": "Já existe um registro parecido: {{names}}. Confira em Dados › Duplicatas.",
+    "description_other": "Já existem {{count}} registros parecidos: {{names}}. Confira em Dados › Duplicatas.",
+    "merge": "Mesclar",
+    "review": "Ver duplicatas"
+  },
+  "mergeWith": {
+    "action": "Mesclar com…",
+    "title": "Mesclar com outro registro",
+    "description": "Escolha o registro duplicado deste. Na próxima tela você decide, campo a campo, quais valores ficam.",
+    "label": "Registro duplicado",
+    "submit": "Comparar e mesclar"
+  }
+}

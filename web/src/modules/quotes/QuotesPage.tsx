@@ -1,0 +1,125 @@
+import { FileText, Search } from 'lucide-react'
+import { useState } from 'react'
+import { useTranslation } from 'react-i18next'
+import { Link } from 'react-router'
+import { Button } from '@/components/ui/button'
+import { EmptyState } from '@/components/ui/empty-state'
+import { ErrorState } from '@/components/ui/error-state'
+import { Input } from '@/components/ui/input'
+import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/components/ui/select'
+import { Skeleton } from '@/components/ui/skeleton'
+import { formatCurrency, formatDate, useRecordFormatting } from '@/features/records/formatting'
+import { QUOTES_PER_PAGE, quotePath, useQuotes } from './api'
+import { QuoteStatusBadge } from './QuoteStatusBadge'
+import type { QuoteStatus } from './types'
+
+const ALL = '__all__'
+const STATUSES: QuoteStatus[] = ['draft', 'pending_approval', 'approved', 'sent', 'accepted', 'rejected', 'expired']
+
+export function QuotesPage() {
+  const { t } = useTranslation('quotes')
+  const formatting = useRecordFormatting()
+  const [page, setPage] = useState(1)
+  const [search, setSearch] = useState('')
+  const [status, setStatus] = useState('')
+  const query = useQuotes(page, search.trim(), status)
+  const total = query.data?.meta.total ?? 0
+  const pages = Math.max(1, Math.ceil(total / QUOTES_PER_PAGE))
+
+  return (
+    <div className="flex flex-col gap-6">
+      <div className="grid gap-1">
+        <h1 className="text-2xl font-semibold tracking-tight">{t('title')}</h1>
+        <p className="text-sm text-muted-foreground">{t('description')}</p>
+      </div>
+      <div className="flex flex-wrap gap-2">
+        <div className="relative w-full max-w-xs">
+          <Search className="absolute top-1/2 left-2.5 size-4 -translate-y-1/2 text-muted-foreground" aria-hidden="true" />
+          <Input
+            className="pl-8"
+            placeholder={t('list.search')}
+            aria-label={t('list.search')}
+            value={search}
+            onChange={(event) => {
+              setSearch(event.target.value)
+              setPage(1)
+            }}
+          />
+        </div>
+        <Select
+          value={status || ALL}
+          onValueChange={(value) => {
+            setStatus(value === ALL ? '' : value)
+            setPage(1)
+          }}
+        >
+          <SelectTrigger className="w-48" aria-label={t('list.columns.status')}>
+            <SelectValue />
+          </SelectTrigger>
+          <SelectContent>
+            <SelectItem value={ALL}>{t('list.allStatuses')}</SelectItem>
+            {STATUSES.map((value) => (
+              <SelectItem key={value} value={value}>
+                {t(`status.${value}`)}
+              </SelectItem>
+            ))}
+          </SelectContent>
+        </Select>
+      </div>
+      {query.isPending ? (
+        <div className="grid gap-2" aria-busy="true">
+          <Skeleton className="h-12 w-full" />
+          <Skeleton className="h-12 w-full" />
+        </div>
+      ) : query.isError ? (
+        <ErrorState title={t('list.loadError')} onRetry={() => void query.refetch()} />
+      ) : query.data.data.length === 0 ? (
+        <EmptyState icon={FileText} title={t('list.empty')} />
+      ) : (
+        <div className="overflow-x-auto rounded-lg border">
+          <table className="w-full text-sm">
+            <thead className="bg-muted/50 text-left text-xs text-muted-foreground">
+              <tr>
+                <th className="px-3 py-2 font-medium">{t('list.columns.number')}</th>
+                <th className="px-3 py-2 font-medium">{t('list.columns.title')}</th>
+                <th className="px-3 py-2 font-medium">{t('list.columns.status')}</th>
+                <th className="px-3 py-2 text-right font-medium">{t('list.columns.total')}</th>
+                <th className="px-3 py-2 font-medium">{t('list.columns.validUntil')}</th>
+                <th className="px-3 py-2 font-medium">{t('list.columns.updatedAt')}</th>
+              </tr>
+            </thead>
+            <tbody>
+              {query.data.data.map((quote) => (
+                <tr key={quote.id} className="border-t">
+                  <td className="px-3 py-2 tabular-nums">{t('numberVersion', { number: quote.number, version: quote.version })}</td>
+                  <td className="px-3 py-2">
+                    <Link to={quotePath(quote.id)} className="font-medium hover:underline">
+                      {quote.title}
+                    </Link>
+                  </td>
+                  <td className="px-3 py-2">
+                    <QuoteStatusBadge status={quote.status} />
+                  </td>
+                  <td className="px-3 py-2 text-right tabular-nums">{formatCurrency(quote.total, formatting, quote.currency)}</td>
+                  <td className="px-3 py-2">{quote.valid_until ? formatDate(quote.valid_until, formatting) : '—'}</td>
+                  <td className="px-3 py-2">{formatDate(quote.updated_at, formatting)}</td>
+                </tr>
+              ))}
+            </tbody>
+          </table>
+        </div>
+      )}
+      {pages > 1 && (
+        <div className="flex items-center justify-end gap-2 text-sm">
+          <Button size="sm" variant="outline" disabled={page <= 1} onClick={() => setPage(page - 1)}>
+            {t('list.previous')}
+          </Button>
+          <span>{t('list.page', { page, pages })}</span>
+          <Button size="sm" variant="outline" disabled={page >= pages} onClick={() => setPage(page + 1)}>
+            {t('list.next')}
+          </Button>
+        </div>
+      )}
+    </div>
+  )
+}

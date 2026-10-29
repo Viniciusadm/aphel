@@ -1,0 +1,118 @@
+{
+  "page": {
+    "title": "Goals",
+    "description": "Track goals per user, team or organization based on the recorded results.",
+    "new": "New goal",
+    "viewLabel": "Goal period",
+    "views": {
+      "current": "Current period",
+      "all": "All"
+    },
+    "ownerFilter": "Owner",
+    "allOwners": "All",
+    "listLabel": "Goals",
+    "emptyCurrentTitle": "No goals in the current period",
+    "emptyTitle": "No goals yet",
+    "emptyDescription": "Set a goal to track the progress of the team.",
+    "emptyReadOnly": "Goals for you, your teams or the organization show up here."
+  },
+  "metrics": {
+    "won_amount": "Amount won",
+    "won_count": "Deals won",
+    "activities_done": "Activities completed",
+    "new_contacts": "New contacts"
+  },
+  "periods": {
+    "month": "Month",
+    "quarter": "Quarter",
+    "year": "Year"
+  },
+  "periodLabel": {
+    "quarter": "Q{{quarter}} {{year}}",
+    "year": "Year {{year}}"
+  },
+  "ownerTypes": {
+    "user": "User",
+    "team": "Team",
+    "organization": "Organization"
+  },
+  "owner": {
+    "organization": "Organization",
+    "unknown": "Removed owner"
+  },
+  "status": {
+    "upcoming": "Not started",
+    "on_track": "On track",
+    "behind": "Behind",
+    "achieved": "Achieved",
+    "missed": "Missed"
+  },
+  "progress": {
+    "percent": "{{percent}}% of the goal",
+    "expected": "Expected by today: {{percent}}%",
+    "valueText": "{{percent}}% of the goal",
+    "unavailable": "You cannot access the data used to compute this goal.",
+    "noValue": "—"
+  },
+  "card": {
+    "label": "{{metric}} goal of {{owner}}",
+    "target": "Target: {{target}}",
+    "edit": "Edit {{metric}} goal of {{owner}}",
+    "delete": "Delete {{metric}} goal of {{owner}}"
+  },
+  "dialog": {
+    "newTitle": "New goal",
+    "editTitle": "Edit goal",
+    "description": "Progress is computed from the records of the period, respecting what each person can see.",
+    "ownerType": "Goal for",
+    "user": "User",
+    "team": "Team",
+    "choose": "Select",
+    "metric": "Metric",
+    "period": "Period",
+    "month": "Reference month",
+    "periodHint": "The goal covers: {{period}}",
+    "targetAmount": "Target amount",
+    "targetCount": "Target quantity",
+    "cancel": "Cancel",
+    "save": "Save",
+    "errors": {
+      "user": "Select the user.",
+      "team": "Select the team.",
+      "month": "Enter the reference month.",
+      "target": "Enter a value greater than zero.",
+      "targetInteger": "Enter a whole number.",
+      "duplicate": "A goal with this owner, metric and period already exists.",
+      "conflict": "The goal was changed by someone else. Close and open it again.",
+      "invalid": "Invalid value."
+    }
+  },
+  "deleteDialog": {
+    "title": "Delete goal?",
+    "description": "The goal will no longer be tracked. Records are not changed.",
+    "confirm": "Delete"
+  },
+  "toast": {
+    "created": "Goal created",
+    "updated": "Goal updated",
+    "deleted": "Goal deleted"
+  },
+  "widget": {
+    "emptyTitle": "No goals in the current period",
+    "emptyDescription": "Set goals on the goals page to track them here.",
+    "listLabel": "Goals of the current period",
+    "seeAll_one": "See the goal",
+    "seeAll_other": "See all {{count}} goals",
+    "onlyMine": "Only my goals",
+    "limit": "Number of goals"
+  },
+  "creditMode": {
+    "label": "Revenue credit",
+    "owner": "Whole amount for the owner",
+    "split": "Split by the deal team",
+    "hint": "With the split, each user adds the amount of the won deals times their credit on the team."
+  },
+  "nav": {
+    "goals": "Goals"
+  }
+}

@@ -1,0 +1,40 @@
+{
+  "nav": "Hot leads",
+  "tab": "Temperature",
+  "bands": {
+    "cold": "Cold",
+    "warm": "Warm",
+    "hot": "Hot"
+  },
+  "board": {
+    "title": "Hot leads",
+    "description": "Contacts with a temperature of {{threshold}} or more, hottest first.",
+    "loading": "Loading the lead temperatures…",
+    "empty": "No hot leads",
+    "emptyDescription": "Touches on contacts (activities, notes, e-mails and meetings) raise the temperature.",
+    "noAccess": "No access to hot leads",
+    "noAccessDescription": "Ask an administrator for the permission to see Lead Pro."
+  },
+  "temperature": {
+    "title": "Lead temperature",
+    "threshold": "Qualifying needs a temperature of at least {{threshold}}. Without touches, the lead cools down every day."
+  },
+  "touches": {
+    "title": "Latest touches",
+    "empty": "No touches yet",
+    "emptyDescription": "Activities, notes, e-mails, meetings and the Heat up button raise the temperature.",
+    "kinds": {
+      "activity_created": "Activity",
+      "note_created": "Note",
+      "email_received": "E-mail received",
+      "email_sent": "E-mail sent",
+      "meeting_booked": "Meeting booked",
+      "manual": "Touch registered",
+      "lead_converted": "Lead converted"
+    }
+  },
+  "touch": {
+    "action": "Heat up",
+    "done": "Touch registered. Temperature: {{temperature}}."
+  }
+}

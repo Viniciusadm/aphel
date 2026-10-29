@@ -1,0 +1,264 @@
+{
+  "name": "Canais de mensagem",
+  "description": "Caixa de entrada compartilhada com WhatsApp Cloud API e e-mail (IMAP/SMTP), com as conversas na timeline do contato",
+  "settings": {
+    "create_unknown_contacts": {
+      "label": "Criar contato para remetente desconhecido",
+      "help": "Ligado: mensagens de telefones ou e-mails sem contato criam o contato automaticamente. Desligado: a conversa fica sem vínculo até alguém vincular."
+    },
+    "acting_user_email": {
+      "label": "Usuário de execução",
+      "help": "E-mail do usuário em nome de quem os webhooks e a leitura de e-mails buscam e criam contatos, quando o canal não define um. Vazio: quem criou o canal."
+    }
+  },
+  "nav": {
+    "inbox": "Caixa de entrada",
+    "channels": "Canais de mensagem"
+  },
+  "actions": {
+    "cancel": "Cancelar",
+    "save": "Salvar"
+  },
+  "kinds": {
+    "whatsapp": "WhatsApp",
+    "email": "E-mail"
+  },
+  "status": {
+    "open": "Aberta",
+    "pending": "Pendente",
+    "resolved": "Resolvida"
+  },
+  "channelStatus": {
+    "pending": "Não testado",
+    "active": "Funcionando",
+    "error": "Com erro",
+    "inactive": "Inativo"
+  },
+  "messageStatus": {
+    "received": "Recebida",
+    "queued": "Na fila",
+    "sending": "Enviando",
+    "sent": "Enviada",
+    "delivered": "Entregue",
+    "read": "Lida",
+    "failed": "Falhou"
+  },
+  "messageTypes": {
+    "text": "Mensagem vazia",
+    "email": "E-mail sem texto",
+    "image": "Imagem",
+    "video": "Vídeo",
+    "audio": "Áudio",
+    "document": "Documento",
+    "sticker": "Figurinha",
+    "location": "Localização",
+    "contacts": "Contato compartilhado",
+    "reaction": "Reação",
+    "button": "Resposta de botão",
+    "interactive": "Resposta interativa",
+    "unsupported": "Mensagem não suportada",
+    "too_large": "E-mail grande demais (acima de 10 MB); veja na caixa de e-mail",
+    "other": "Conteúdo não exibido"
+  },
+  "inbox": {
+    "title": "Caixa de entrada",
+    "description": "Conversas de WhatsApp e e-mail da equipe. Atribua, responda e vincule ao contato ou à oportunidade.",
+    "manageChannels": "Canais",
+    "listLabel": "Conversas",
+    "search": "Buscar por nome, telefone, e-mail ou texto",
+    "filters": {
+      "status": "Status",
+      "allStatuses": "Todos os status",
+      "assignee": "Responsável",
+      "assignees": {
+        "any": "Todas",
+        "me": "Minhas",
+        "none": "Não atribuídas"
+      },
+      "channel": "Canal",
+      "allChannels": "Todos os canais",
+      "unread": "Não lidas"
+    },
+    "emptyTitle": "Nenhuma conversa",
+    "emptyDescription": "Quando chegar uma mensagem por um canal ativo, ela aparece aqui.",
+    "previous": "Anterior",
+    "next": "Próxima",
+    "page": "Página {{page}} de {{pages}}",
+    "selectTitle": "Escolha uma conversa",
+    "selectDescription": "Selecione uma conversa na lista para ler e responder.",
+    "you": "Você",
+    "unreadCount": "{{count}} não lidas",
+    "noAccessTitle": "Sem acesso à caixa de entrada",
+    "noAccessDescription": "Peça a um administrador a permissão para ver as conversas."
+  },
+  "panel": {
+    "title": "Conversa com {{name}}",
+    "back": "Voltar para a lista",
+    "status": "Status",
+    "statusChanged": "Conversa marcada como {{status}}",
+    "assignee": "Responsável",
+    "assigned": "Conversa atribuída",
+    "unassigned": "Atribuição removida",
+    "team": "Equipe",
+    "sendFailed": "Não enviada: {{reason}}",
+    "olderHidden": "{{count}} mensagens mais antigas não exibidas",
+    "messages": "Mensagens"
+  },
+  "links": {
+    "contact": "Contato",
+    "deal": "Oportunidade",
+    "none": "nenhum",
+    "edit": "Vincular",
+    "title": "Vincular conversa",
+    "description": "Escolha o contato e a oportunidade desta conversa. As mensagens novas aparecem na timeline dos registros vinculados.",
+    "saved": "Vínculos salvos",
+    "contactHidden": "Contato vinculado (sem acesso)",
+    "dealHidden": "Oportunidade vinculada (sem acesso)",
+    "contactUntitled": "Contato sem nome",
+    "dealUntitled": "Oportunidade sem título"
+  },
+  "composer": {
+    "readOnly": "Você pode ler esta conversa, mas não tem permissão para responder.",
+    "channelInactive": "O canal desta conversa está inativo; ative-o para responder.",
+    "label": "Resposta",
+    "placeholder": "Escreva a resposta (Ctrl+Enter envia)",
+    "emailPlaceholder": "Escreva o e-mail de resposta (Ctrl+Enter envia)",
+    "windowUntil": "Janela do WhatsApp até {{date}}",
+    "send": "Enviar"
+  },
+  "errors": {
+    "whatsapp_window_closed": "Passaram mais de 24 horas desde a última mensagem do cliente. O WhatsApp só aceita mensagens de modelo aprovadas até o cliente escrever de novo.",
+    "messaging_channel_inactive": "O canal está inativo.",
+    "messaging_invalid_reply": "Escreva uma mensagem dentro do limite de tamanho do canal.",
+    "messaging_invalid_assignee": "Esse usuário não tem acesso à caixa de entrada.",
+    "messaging_record_not_accessible": "O registro não existe ou você não tem acesso a ele.",
+    "messaging_channel_in_use": "O canal tem conversas. Desative-o para manter o histórico.",
+    "messaging_channel_limit_reached": "A organização atingiu o limite de 50 canais.",
+    "messaging_acting_user_unavailable": "Nenhum membro ativo pode agir por este canal; defina o usuário de execução.",
+    "messaging_channel_credentials_missing": "Faltam credenciais do canal.",
+    "messaging_provider_timeout": "O provedor não respondeu a tempo.",
+    "messaging_provider_unreachable": "Não foi possível conectar ao provedor.",
+    "messaging_tls_error": "Falha na conexão segura (TLS) com o servidor.",
+    "whatsapp_auth_failed": "A Meta recusou o token de acesso.",
+    "whatsapp_provider_error": "A Meta recusou a solicitação.",
+    "imap_auth_failed": "O servidor IMAP recusou usuário ou senha.",
+    "imap_error": "O servidor IMAP retornou um erro.",
+    "smtp_auth_failed": "O servidor SMTP recusou usuário ou senha.",
+    "smtp_rejected": "O servidor SMTP recusou a mensagem.",
+    "smtp_error": "O servidor SMTP não aceitou a mensagem agora."
+  },
+  "channels": {
+    "title": "Canais de mensagem",
+    "description": "Conecte números do WhatsApp (Cloud API oficial da Meta) e caixas de e-mail (IMAP/SMTP). As credenciais ficam cifradas e nunca são exibidas de volta.",
+    "back": "Caixa de entrada",
+    "new": {
+      "whatsapp": "WhatsApp",
+      "email": "E-mail"
+    },
+    "listLabel": "Canais",
+    "emptyTitle": "Nenhum canal conectado",
+    "emptyDescription": "Conecte um número do WhatsApp ou uma caixa de e-mail para receber mensagens.",
+    "created": "Canal \"{{name}}\" criado",
+    "saved": "Canal \"{{name}}\" salvo",
+    "deleted": "Canal \"{{name}}\" excluído",
+    "confirmDelete": {
+      "title": "Excluir canal?",
+      "description": "O canal \"{{name}}\" e as credenciais dele serão removidos. Só é possível excluir canais sem conversas.",
+      "action": "Excluir"
+    },
+    "test": "Testar",
+    "testOk": "Conexão funcionando",
+    "testFailed": "O teste de conexão falhou",
+    "edit": "Editar",
+    "delete": "Excluir",
+    "moreActions": "Mais ações para {{name}}",
+    "lastPolled": "Última leitura em {{date}}",
+    "lastChecked": "Último teste em {{date}}",
+    "webhookUrl": "URL de retorno (webhook) para configurar na Meta",
+    "copyWebhook": "Copiar URL do webhook",
+    "copied": "URL copiada",
+    "verifyTokenConfigured": "Token de verificação configurado: use o mesmo valor no campo \"Verify token\" da Meta.",
+    "verifyTokenMissing": "Token de verificação não configurado.",
+    "noAccessTitle": "Sem acesso aos canais",
+    "noAccessDescription": "Peça a um administrador a permissão para gerenciar canais de mensagem."
+  },
+  "editor": {
+    "editTitle": "Editar {{name}}",
+    "newTitle": {
+      "whatsapp": "Novo canal de WhatsApp",
+      "email": "Nova caixa de e-mail"
+    },
+    "help": {
+      "whatsapp": "Use os dados do app na Meta for Developers (WhatsApp > Configuração da API). Depois de salvar, configure a URL do webhook e o token de verificação na Meta e assine o campo \"messages\".",
+      "email": "Informe os servidores IMAP (para receber) e SMTP (para enviar). A caixa é lida a cada 2 minutos, só a INBOX, a partir das mensagens que chegarem depois de conectar."
+    },
+    "name": "Nome do canal",
+    "actingUser": "Usuário de execução",
+    "actingUserHint": "Em nome de quem as mensagens recebidas buscam e criam contatos. Vazio: configuração do módulo ou quem criou o canal.",
+    "connection": "Conexão",
+    "config": {
+      "phone_number_id": "Phone number ID",
+      "business_account_id": "WhatsApp Business Account ID",
+      "display_phone_number": "Número exibido",
+      "address": "Endereço de e-mail",
+      "display_name": "Nome do remetente",
+      "imap_host": "Servidor IMAP",
+      "imap_port": "Porta IMAP",
+      "imap_username": "Usuário IMAP",
+      "smtp_host": "Servidor SMTP",
+      "smtp_port": "Porta SMTP",
+      "smtp_username": "Usuário SMTP",
+      "smtp_security": "Segurança SMTP"
+    },
+    "hints": {
+      "phone_number_id": "Identificador numérico do número, não o telefone.",
+      "display_phone_number": "Opcional, em formato internacional (+55 11 99999-0000).",
+      "imap_port": "993 (TLS).",
+      "imap_username": "Vazio: o endereço de e-mail.",
+      "smtp_port": "465 (TLS) ou 587 (STARTTLS).",
+      "smtp_username": "Vazio: o usuário IMAP.",
+      "access_token": "Token permanente de um usuário do sistema com a permissão whatsapp_business_messaging.",
+      "app_secret": "Chave secreta do app (Configurações > Básico), usada para validar a assinatura do webhook.",
+      "verify_token": "Um texto aleatório que você também informa na Meta ao configurar o webhook.",
+      "smtp_password": "Vazio: usa a senha IMAP."
+    },
+    "security": {
+      "tls": "TLS (porta 465)",
+      "starttls": "STARTTLS (porta 587)"
+    },
+    "credentials": "Credenciais",
+    "credentialsHelp": "Ficam cifradas no servidor e nunca voltam para a tela. Deixe em branco para manter o valor atual.",
+    "secrets": {
+      "access_token": "Token de acesso",
+      "app_secret": "App secret",
+      "verify_token": "Token de verificação do webhook",
+      "imap_password": "Senha IMAP",
+      "smtp_password": "Senha SMTP"
+    },
+    "secretConfigured": "Configurado. Preencha só para trocar.",
+    "keepSecret": "•••••••• (configurado)",
+    "reuseImapPassword": "Remover a senha SMTP e usar a senha IMAP",
+    "active": "Canal ativo (recebe e envia mensagens)"
+  },
+  "tab": {
+    "label": "Conversas",
+    "title": "Conversas",
+    "description": {
+      "contact": "Conversas de WhatsApp e e-mail com este contato.",
+      "deal": "Conversas vinculadas a esta oportunidade."
+    },
+    "emptyTitle": "Nenhuma conversa",
+    "emptyDescription": "As conversas vinculadas aparecem aqui."
+  },
+  "timeline": {
+    "received": "Mensagem recebida de {{peer}} por {{channel}}",
+    "sent": "Resposta enviada para {{peer}} por {{channel}}",
+    "failed": "Falha ao enviar mensagem para {{peer}} por {{channel}}",
+    "open": "Abrir conversa",
+    "conversation": {
+      "assigned": "Conversa com {{peer}} atribuída",
+      "status_changed": "Conversa com {{peer}} marcada como {{status}}",
+      "linked": "Conversa com {{peer}} vinculada"
+    }
+  }
+}

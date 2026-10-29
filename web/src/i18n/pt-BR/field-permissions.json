@@ -1,0 +1,62 @@
+{
+  "title": "Permissões de campos",
+  "description": "Defina, por papel, quais campos de {{recordType}} ficam ocultos, somente leitura ou editáveis. A regra vale em toda a aplicação, na API, nas exportações e nos webhooks.",
+  "link": "Permissões",
+  "back": "Voltar aos campos",
+  "recordTypesLabel": "Tipos de registro",
+  "access": {
+    "hidden": "Oculto",
+    "read_only": "Somente leitura",
+    "editable": "Editável"
+  },
+  "legend": {
+    "title": "Como funciona",
+    "hidden": "Oculto: o campo some de listas, formulários, filtros, exportações e webhooks; filtrar ou ordenar por ele é recusado.",
+    "read_only": "Somente leitura: o campo aparece, mas não pode ser alterado (nem por importação ou ações em massa).",
+    "editable": "Editável: comportamento padrão.",
+    "locked": "Campos obrigatórios e estruturais (nome, título, responsável, datas de sistema, funil, etapa e situação) são sempre editáveis.",
+    "admin": "O papel Administrador sempre edita todos os campos."
+  },
+  "table": {
+    "caption": "Acesso aos campos de {{recordType}} por papel",
+    "field": "Campo",
+    "cell": "{{field}} para {{role}}",
+    "applyToColumn": "Aplicar à coluna",
+    "applyToColumnLabel": "Aplicar a todos os campos do papel {{role}}",
+    "applyPlaceholder": "Aplicar a todos…",
+    "admin": "Sempre editável",
+    "locked": "Campo sempre editável",
+    "lockedHint": "Obrigatório ou estrutural",
+    "system": "Sistema",
+    "inactive": "Inativo",
+    "sensitive": "Sensível",
+    "personal": "Dado pessoal",
+    "changed": "Alterado"
+  },
+  "showInactive": "Mostrar campos inativos",
+  "noRoles": "Não há papéis configuráveis além do Administrador. Crie papéis em Papéis para restringir campos.",
+  "empty": "Nenhum campo para exibir.",
+  "pending_one": "{{count}} alteração não salva",
+  "pending_other": "{{count}} alterações não salvas",
+  "noChanges": "Nenhuma alteração",
+  "discard": "Descartar",
+  "save": "Salvar permissões",
+  "saving": "Salvando…",
+  "confirm": {
+    "title": "Salvar permissões de campos?",
+    "description_one": "{{count}} célula será alterada. Usuários dos papéis afetados passam a ver e editar os campos conforme a nova regra imediatamente, inclusive pela API e em webhooks.",
+    "description_other": "{{count}} células serão alteradas. Usuários dos papéis afetados passam a ver e editar os campos conforme a nova regra imediatamente, inclusive pela API e em webhooks.",
+    "confirm": "Salvar"
+  },
+  "saved": "Permissões de campos salvas.",
+  "conflict": {
+    "title": "As permissões foram alteradas por outra pessoa.",
+    "description": "Recarregue para ver a versão atual. Suas alterações não salvas serão descartadas.",
+    "reload": "Recarregar"
+  },
+  "errors": {
+    "locked": "Um ou mais campos não podem ser restringidos.",
+    "invalid": "Algumas permissões são inválidas. Recarregue a página e tente novamente.",
+    "generic": "Não foi possível salvar as permissões."
+  }
+}

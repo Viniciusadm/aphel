@@ -1,0 +1,401 @@
+{
+  "title": "Relatórios",
+  "description": "Acompanhe conversão, desempenho e relatórios montados pela equipe.",
+  "tabs": {
+    "label": "Seções de relatórios",
+    "conversion": "Conversão",
+    "performance": "Desempenho",
+    "saved": "Meus relatórios"
+  },
+  "noAccess": {
+    "title": "Sem acesso a relatórios",
+    "description": "Seu papel não permite ler os registros usados nos relatórios."
+  },
+  "granularity": {
+    "day": "Dia",
+    "week": "Semana",
+    "month": "Mês",
+    "quarter": "Trimestre",
+    "year": "Ano"
+  },
+  "functions": {
+    "count": "Quantidade",
+    "sum": "Soma",
+    "avg": "Média",
+    "min": "Mínimo",
+    "max": "Máximo"
+  },
+  "durationUnits": {
+    "days": "dias",
+    "hours": "horas"
+  },
+  "durationLabel": "{{fn}} · {{from}} → {{to}} ({{unit}})",
+  "comparison": {
+    "previous": "Período anterior",
+    "variation": "Variação"
+  },
+  "empty": "Sem valor",
+  "builder": {
+    "list": {
+      "title": "Relatórios salvos",
+      "description": "Relatórios montados pela equipe, calculados sempre com as suas permissões.",
+      "filter": "Módulo",
+      "allModules": "Todos os módulos",
+      "create": "Novo relatório",
+      "emptyTitle": "Nenhum relatório salvo",
+      "emptyDescription": "Monte um relatório escolhendo módulo, agrupamentos, métricas e filtros.",
+      "meta": "{{module}} · {{visualization}} · atualizado em {{date}}"
+    },
+    "builder": {
+      "title": "Construtor de relatórios",
+      "newTitle": "Novo relatório",
+      "back": "Voltar para relatórios",
+      "notFound": {
+        "title": "Relatório não encontrado",
+        "description": "Ele pode ter sido excluído ou não estar compartilhado com você."
+      },
+      "nameRequired": "Informe um nome.",
+      "nameTooLong": "Use no máximo {{max}} caracteres.",
+      "teamRequired": "Escolha uma equipe.",
+      "saved": "Relatório salvo",
+      "addedToDashboard": "Relatório adicionado ao seu painel",
+      "deleted": "Relatório excluído",
+      "noModules": {
+        "title": "Sem módulos disponíveis",
+        "description": "Seu papel não permite ler os registros usados em relatórios."
+      },
+      "export": "Exportar",
+      "exportXlsx": "Planilha (XLSX)",
+      "exportCsv": "CSV",
+      "addToDashboard": "Adicionar ao painel",
+      "delete": "Excluir",
+      "readOnly": "Você pode ver e exportar este relatório, mas só o dono ou quem gerencia as configurações pode alterá-lo.",
+      "deleteTitle": "Excluir relatório?",
+      "deleteDescription": "O relatório e os envios programados dele serão excluídos. Widgets do painel que o usam deixarão de mostrar dados."
+    },
+    "common": {
+      "choose": "Escolha…",
+      "remove": "Remover",
+      "loading": "Carregando…",
+      "saving": "Salvando…",
+      "save": "Salvar"
+    },
+    "sections": {
+      "details": {
+        "title": "Identificação",
+        "name": "Nome",
+        "namePlaceholder": "Ex.: Valor ganho por mês por vendedor",
+        "description": "Descrição",
+        "visibility": "Compartilhamento",
+        "team": "Equipe"
+      },
+      "module": {
+        "title": "Módulo",
+        "description": "Tipo de registro que o relatório analisa."
+      },
+      "groups": {
+        "title": "Agrupamentos",
+        "description": "Até 3 campos; datas aceitam granularidade.",
+        "empty": "Sem agrupamento: o relatório mostra apenas os totais.",
+        "field": "Campo do agrupamento {{position}}",
+        "granularity": "Granularidade",
+        "add": "Adicionar agrupamento"
+      },
+      "metrics": {
+        "title": "Métricas",
+        "description": "Quantidade de registros, soma, média, mínimo e máximo de campos numéricos ou a duração entre duas datas.",
+        "function": "Função da métrica {{position}}",
+        "field": "Campo da métrica {{position}}",
+        "records": "Registros",
+        "add": "Adicionar métrica",
+        "measure": "O que a métrica {{position}} mede",
+        "measureValue": "Valor do campo",
+        "measureDuration": "Duração entre datas",
+        "from": "Data inicial da métrica {{position}}",
+        "to": "Data final da métrica {{position}}",
+        "unit": "Unidade da métrica {{position}}",
+        "fromPlaceholder": "Data inicial",
+        "toPlaceholder": "Data final"
+      },
+      "filters": {
+        "title": "Filtros",
+        "description": "Só os registros que atendem às condições entram no relatório."
+      },
+      "period": {
+        "title": "Período",
+        "description": "Limita um campo de data e permite comparar com o período anterior.",
+        "enabled": "Limitar por período",
+        "field": "Campo de data",
+        "preset": "Período",
+        "from": "De",
+        "to": "Até",
+        "compare": "Comparar com o período anterior",
+        "noFields": "Este módulo não tem campos de data disponíveis."
+      },
+      "sort": {
+        "title": "Ordenação",
+        "description": "Por padrão, os grupos aparecem em ordem crescente.",
+        "key": "Critério de ordenação {{position}}",
+        "asc": "Crescente",
+        "desc": "Decrescente",
+        "add": "Adicionar ordenação",
+        "limit": "Máximo de linhas"
+      },
+      "visualization": {
+        "title": "Visualização",
+        "metric": "Métrica do gráfico"
+      }
+    },
+    "visualizations": {
+      "table": "Tabela",
+      "bar": "Barras",
+      "line": "Linhas",
+      "pie": "Pizza",
+      "number": "Número"
+    },
+    "visibility": {
+      "private": "Somente eu",
+      "team": "Minha equipe",
+      "organization": "Toda a organização"
+    },
+    "modules": {
+      "deal": "Oportunidades",
+      "contact": "Contatos",
+      "company": "Empresas",
+      "activity": "Atividades"
+    },
+    "presets": {
+      "today": "Hoje",
+      "yesterday": "Ontem",
+      "last_7_days": "Últimos 7 dias",
+      "last_30_days": "Últimos 30 dias",
+      "week": "Esta semana",
+      "last_week": "Semana passada",
+      "month": "Este mês",
+      "last_month": "Mês passado",
+      "quarter": "Este trimestre",
+      "last_quarter": "Trimestre passado",
+      "year": "Este ano",
+      "last_year": "Ano passado",
+      "custom": "Personalizado"
+    },
+    "preview": {
+      "title": "Prévia",
+      "description": "Calculada ao vivo com as suas permissões.",
+      "incomplete": "Complete os agrupamentos, as métricas e o período para ver a prévia.",
+      "error": "Não foi possível calcular o relatório.",
+      "emptyTitle": "Nenhum registro encontrado",
+      "emptyDescription": "Ajuste os filtros ou o período.",
+      "truncated": "Há mais grupos do que o limite de linhas; aumente o limite ou refine os filtros."
+    },
+    "result": {
+      "yes": "Sim",
+      "no": "Não",
+      "total": "Total",
+      "other": "Outros",
+      "chartLabel": "Gráfico de {{metric}}",
+      "showTable": "Ver dados em tabela"
+    },
+    "schedules": {
+      "title": "Envio por e-mail",
+      "description": "Cada destinatário recebe os números calculados com as próprias permissões.",
+      "loadError": "Não foi possível carregar os envios programados.",
+      "empty": "Nenhum envio programado.",
+      "inactive": "Pausado",
+      "recipientsList": "Para: {{names}}",
+      "nextRun": "Próximo envio: {{date}}",
+      "edit": "Editar envio",
+      "remove": "Excluir envio",
+      "add": "Programar envio",
+      "editTitle": "Editar envio programado",
+      "createTitle": "Programar envio",
+      "formDescription": "O horário segue o fuso da organização.",
+      "removeTitle": "Excluir envio programado?",
+      "removeDescription": "Os destinatários deixarão de receber este relatório.",
+      "removed": "Envio excluído",
+      "saved": "Envio salvo",
+      "form": {
+        "frequency": "Frequência",
+        "weekday": "Dia da semana",
+        "dayOfMonth": "Dia do mês",
+        "time": "Horário",
+        "period": "Período do envio",
+        "periodAsSaved": "O mesmo do relatório",
+        "recipients": "Destinatários",
+        "recipientsHint": "Só membros ativos que podem ver o relatório.",
+        "searchUsers": "Buscar usuários",
+        "noUsers": "Nenhum usuário encontrado.",
+        "recipientsRequired": "Escolha ao menos um destinatário.",
+        "active": "Envio ativo"
+      },
+      "frequency": {
+        "daily": "Diária",
+        "weekly": "Semanal",
+        "monthly": "Mensal"
+      },
+      "weekdays": {
+        "1": "Segunda-feira",
+        "2": "Terça-feira",
+        "3": "Quarta-feira",
+        "4": "Quinta-feira",
+        "5": "Sexta-feira",
+        "6": "Sábado",
+        "7": "Domingo"
+      },
+      "summary": {
+        "daily": "Todos os dias às {{time}}",
+        "weekly": "Toda {{weekday}} às {{time}}",
+        "monthly": "Todo dia {{day}} às {{time}}"
+      },
+      "deliveries": {
+        "show": "Ver últimos envios",
+        "hide": "Ocultar envios",
+        "empty": "Nenhum envio realizado ainda.",
+        "error": "Não foi possível carregar os envios.",
+        "status": {
+          "sent": "Enviado",
+          "sending": "Enviando",
+          "failed": "Falhou"
+        }
+      }
+    },
+    "widget": {
+      "noReport": "Nenhum relatório escolhido. Use “Adicionar ao painel” em um relatório salvo.",
+      "openReports": "Abrir relatórios",
+      "unavailable": "Este relatório não existe mais ou não está compartilhado com você.",
+      "error": "Não foi possível carregar o relatório.",
+      "useDashboardPeriod": "Usar o período do painel"
+    }
+  },
+  "builtin": {
+    "conversion": {
+      "title": "Relatório de conversão",
+      "cohort": "Oportunidades do funil {{pipeline}} criadas de {{range}}.",
+      "summary": {
+        "created": "Criadas no período",
+        "won": "Ganhas",
+        "lost": "Perdidas",
+        "open_one": "{{value}} ainda em aberto",
+        "open_other": "{{value}} ainda em aberto",
+        "conversionRate": "Taxa de conversão",
+        "winRate": "Taxa de ganho: {{value}}",
+        "averageCycle": "Ciclo médio de venda",
+        "averageCycleHint": "Da criação ao ganho das oportunidades ganhas"
+      },
+      "funnel": {
+        "title": "Funil de conversão",
+        "description": "Quantas oportunidades chegaram a cada etapa (ou além) e quantas avançaram para a seguinte.",
+        "chartLabel": "Oportunidades que chegaram a cada etapa do funil",
+        "won": "Ganhas",
+        "current": "Período",
+        "previous": "Período anterior",
+        "deals_one": "{{count}} oportunidade",
+        "deals_other": "{{count}} oportunidades",
+        "previousDeals_one": "{{count}} no período anterior",
+        "previousDeals_other": "{{count}} no período anterior"
+      },
+      "stages": {
+        "caption": "Conversão e tempo por etapa",
+        "stage": "Etapa",
+        "reached": "Chegaram",
+        "passage": "Passagem",
+        "advanced": "{{value}} avançaram",
+        "lost": "Perdidas aqui",
+        "averageTime": "Tempo médio",
+        "openNow": "Na etapa agora",
+        "visits_one": "{{count}} passagem concluída",
+        "visits_other": "{{count}} passagens concluídas",
+        "openFor": "há {{value}} em média"
+      },
+      "losses": {
+        "byStage": "Onde mais se perde",
+        "byStageHint": "Oportunidades perdidas pela última etapa em aberto antes da perda.",
+        "byReason": "Motivos de perda",
+        "byReasonHint": "Oportunidades perdidas do período por motivo.",
+        "unattributed": "Sem etapa registrada",
+        "unknownStage": "Etapa removida",
+        "noReason": "Sem motivo",
+        "hiddenReason": "Motivo sem acesso",
+        "none": "Nenhuma oportunidade perdida no período."
+      },
+      "noPipeline": {
+        "title": "Nenhum funil ativo",
+        "description": "Crie ou ative um funil para acompanhar a conversão."
+      },
+      "empty": {
+        "title": "Sem oportunidades no período",
+        "description": "Nenhuma oportunidade deste funil foi criada no período escolhido."
+      },
+      "footnote": "Os tempos por etapa consideram as passagens que começaram no período. Os números respeitam o que você pode ver."
+    },
+    "performance": {
+      "title": "Relatório de desempenho",
+      "summary": "Resultados por {{dimension}} de {{range}}.",
+      "metrics": {
+        "created": "Criadas",
+        "won": "Ganhas",
+        "wonAmount": "Valor ganho",
+        "lost": "Perdidas",
+        "lostHint": "{{value}} perdidas",
+        "conversion": "Conversão",
+        "cycle": "Ciclo médio",
+        "activities": "Atividades realizadas"
+      },
+      "chart": {
+        "amountTitle": "Valor ganho",
+        "countTitle": "Oportunidades ganhas",
+        "amountLabel": "Valor ganho por grupo",
+        "countLabel": "Oportunidades ganhas por grupo",
+        "description_one": "O primeiro grupo do ranking.",
+        "description_other": "Os {{count}} primeiros do ranking.",
+        "current": "Período",
+        "previous": "Período anterior"
+      },
+      "table": {
+        "title": "Comparativo",
+        "description": "Ganhas, perdidas e ciclo consideram a data de fechamento; criadas, a data de criação.",
+        "caption": "Desempenho por grupo"
+      },
+      "empty": {
+        "owner": "Sem responsável",
+        "team": "Sem equipe",
+        "source": "Sem origem",
+        "pipeline": "Sem funil"
+      },
+      "hidden": "Sem acesso",
+      "emptyState": {
+        "title": "Sem resultados no período",
+        "description": "Nenhuma oportunidade criada ou fechada e nenhuma atividade concluída no período."
+      },
+      "truncated": "Há mais grupos do que os exibidos."
+    },
+    "filters": {
+      "dimension": "Agrupar por",
+      "pipeline": "Funil",
+      "allPipelines": "Todos os funis",
+      "defaultPipeline": "Funil padrão"
+    },
+    "dimensions": {
+      "owner": "Vendedor",
+      "team": "Equipe",
+      "source": "Origem",
+      "pipeline": "Funil"
+    },
+    "duration": {
+      "minutes_one": "{{value}} minuto",
+      "minutes_other": "{{value}} minutos",
+      "hours_one": "{{value}} hora",
+      "hours_other": "{{value}} horas",
+      "days_one": "{{value}} dia",
+      "days_other": "{{value}} dias"
+    },
+    "states": {
+      "noData": "—"
+    },
+    "periodRange": "{{from}} a {{to}}",
+    "comparedWith": "Comparado a {{range}}."
+  },
+  "nav": {
+    "reports": "Relatórios"
+  }
+}

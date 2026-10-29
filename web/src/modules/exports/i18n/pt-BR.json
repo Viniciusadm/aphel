@@ -1,0 +1,51 @@
+{
+  "recordTypes": {
+    "contact": "contatos",
+    "company": "empresas",
+    "deal": "oportunidades",
+    "activity": "atividades",
+    "product": "produtos"
+  },
+  "action": "Exportar",
+  "title": "Exportar {{recordType}}",
+  "description": "O arquivo usa o filtro, a busca e a ordenação atuais da lista e respeita os registros que você pode ver.",
+  "format": "Formato",
+  "formats": {
+    "csv": "CSV",
+    "xlsx": "Excel (XLSX)"
+  },
+  "columns": "Colunas",
+  "selectAll": "Todas",
+  "selectNone": "Nenhuma",
+  "includeId": "ID do registro",
+  "noColumns": "Escolha ao menos uma coluna.",
+  "submit": "Gerar arquivo",
+  "submitting": "Solicitando…",
+  "processing": "Gerando o arquivo… Você pode fechar esta janela; avisaremos quando terminar.",
+  "ready_one": "Arquivo pronto com {{count}} registro.",
+  "ready_other": "Arquivo pronto com {{count}} registros.",
+  "download": "Baixar arquivo",
+  "failed": "Não foi possível gerar o arquivo.",
+  "close": "Fechar",
+  "history": {
+    "title": "Exportações",
+    "menuDescription": "Arquivos exportados das listas de registros, prontos para baixar de novo.",
+    "description": "Arquivos que você exportou das listas de registros.",
+    "empty": "Nenhuma exportação ainda",
+    "emptyDescription": "Use o botão Exportar em uma lista de registros para gerar um arquivo.",
+    "status": {
+      "queued": "Na fila",
+      "running": "Gerando",
+      "completed": "Pronta",
+      "failed": "Falhou"
+    },
+    "columns": {
+      "recordType": "Tipo",
+      "format": "Formato",
+      "status": "Situação",
+      "rows": "Registros",
+      "createdAt": "Solicitada em",
+      "actions": "Ações"
+    }
+  }
+}

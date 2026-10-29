@@ -1,0 +1,135 @@
+{
+  "page": {
+    "title": "Sistema",
+    "description": "Saúde da instalação, filas de jobs, falhas recentes, versão e migrations. Visível só para administradores da instalação, sem dados de negócio.",
+    "refresh": "Atualizar"
+  },
+  "forbidden": {
+    "title": "Acesso restrito",
+    "description": "Esta área exige a permissão de gerenciar o sistema.",
+    "twoFactor": "Ative a verificação em duas etapas para acessar esta área."
+  },
+  "status": {
+    "title": "Estado",
+    "ready": "Pronto",
+    "notReady": "Com problemas",
+    "checkedAt": "Verificado em {{date}}",
+    "version": "Versão do Aphel",
+    "platform": "Sistema / arquitetura",
+    "checksLabel": "Verificações de prontidão"
+  },
+  "checks": {
+    "names": {
+      "database": "Banco de dados",
+      "storage": "Armazenamento de arquivos",
+      "worker": "Worker",
+      "scheduler": "Agendador",
+      "queue": "Atraso da fila"
+    },
+    "status": {
+      "ok": "OK",
+      "fail": "Falhou",
+      "skipped": "Ignorada"
+    },
+    "reasons": {
+      "unreachable": "Sem conexão com o banco.",
+      "unavailable": "Não foi possível gravar um arquivo de teste.",
+      "database_unreachable": "Depende do banco de dados.",
+      "query_failed": "A consulta falhou.",
+      "no_heartbeat": "Nenhum worker enviou sinal de vida.",
+      "heartbeat_stale": "O último sinal de vida do worker está atrasado.",
+      "never_started": "O agendador nunca rodou.",
+      "schedules_overdue": "Há agendamentos recorrentes atrasados.",
+      "backlog_delayed": "Há jobs prontos esperando além do limite.",
+      "disabled": "Verificação desligada nesta instalação."
+    },
+    "age": "{{age}} (limite {{limit}})"
+  },
+  "workers": {
+    "title": "Workers",
+    "empty": "Nenhum worker ativo. Rode `aphel worker` ou `aphel serve --with-worker`.",
+    "lastSeen": "Último sinal {{date}}",
+    "startedAt": "Iniciado em {{date}}"
+  },
+  "queue": {
+    "title": "Fila de jobs",
+    "pending": "Prontos",
+    "scheduled": "Agendados",
+    "running": "Em execução",
+    "failed": "Falhos",
+    "oldest": "Job pronto mais antigo esperando há {{age}}.",
+    "empty": "A fila está vazia.",
+    "byKind": "Por tipo",
+    "columns": {
+      "queue": "Fila",
+      "kind": "Tipo"
+    }
+  },
+  "failedJobs": {
+    "title": "Jobs falhos",
+    "description": "Jobs que esgotaram as tentativas. Reprocessar zera as tentativas e devolve o job à fila; descartar apaga o job. As duas ações ficam registradas.",
+    "filter": "Tipo",
+    "allKinds": "Todos os tipos",
+    "empty": "Nenhum job falho.",
+    "attempts": "{{attempts}}/{{max}} tentativas",
+    "columns": {
+      "kind": "Tipo",
+      "error": "Último erro",
+      "failedAt": "Falhou em",
+      "actions": "Ações"
+    },
+    "retry": "Reprocessar",
+    "discard": "Descartar",
+    "retried": "Job devolvido à fila.",
+    "discarded": "Job descartado.",
+    "discardTitle": "Descartar este job?",
+    "discardDescription": "O job {{kind}} será apagado e não será executado de novo."
+  },
+  "failures": {
+    "title": "Falhas recentes",
+    "description": "Últimos {{days}} dias. Só metadados: tipo, erro e data.",
+    "tabs": {
+      "automations": "Automações",
+      "webhooks": "Webhooks de saída",
+      "integrations": "Integrações"
+    },
+    "empty": "Nenhuma falha no período.",
+    "columns": {
+      "kind": "Tipo",
+      "error": "Erro",
+      "status": "HTTP",
+      "occurredAt": "Quando"
+    }
+  },
+  "migrations": {
+    "title": "Migrations",
+    "summary": "{{applied}} de {{known}} migrations do núcleo aplicadas (última: {{latest}}).",
+    "upToDate": "Banco atualizado.",
+    "pending": "{{count}} migration(s) pendente(s). Rode `aphel upgrade` com um backup recente.",
+    "problems": "Problemas no histórico",
+    "pendingList": "Pendentes",
+    "none": "nenhuma"
+  },
+  "modules": {
+    "title": "Módulos compilados",
+    "empty": "Nenhum módulo compilado neste binário.",
+    "columns": {
+      "module": "Módulo",
+      "version": "Versão",
+      "compatibility": "Compatibilidade",
+      "migrations": "Migrations",
+      "enabled": "Habilitado"
+    },
+    "compatible": "Compatível",
+    "incompatible": "Incompatível",
+    "migrationsCount": "{{applied}} aplicadas, {{pending}} pendentes",
+    "enabled": "Habilitado",
+    "disabled": "Desabilitado"
+  },
+  "duration": {
+    "seconds": "{{count}} s",
+    "minutes": "{{count}} min",
+    "hours": "{{count}} h",
+    "days": "{{count}} d"
+  }
+}

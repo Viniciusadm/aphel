@@ -1,0 +1,21 @@
+CREATE TABLE relationship_definitions (
+  id CHAR(36) NOT NULL,
+  `key` VARCHAR(48) NOT NULL,
+  inverse_key VARCHAR(48) NOT NULL,
+  from_type VARCHAR(64) NOT NULL,
+  to_type VARCHAR(64) NOT NULL,
+  cardinality VARCHAR(16) NOT NULL,
+  from_label VARCHAR(80) NOT NULL,
+  to_label VARCHAR(80) NOT NULL,
+  is_required BOOLEAN NOT NULL DEFAULT FALSE,
+  on_delete VARCHAR(16) NOT NULL DEFAULT 'restrict',
+  created_by CHAR(36) NULL,
+  created_at DATETIME(6) NOT NULL DEFAULT CURRENT_TIMESTAMP(6),
+  updated_at DATETIME(6) NOT NULL DEFAULT CURRENT_TIMESTAMP(6),
+  PRIMARY KEY (id),
+  UNIQUE KEY relationship_definitions_key_unique (`key`),
+  KEY relationship_definitions_from_index (from_type),
+  KEY relationship_definitions_to_index (to_type),
+  KEY relationship_definitions_created_by_fk_index (created_by),
+  CONSTRAINT relationship_definitions_created_by_fk FOREIGN KEY (created_by) REFERENCES users (id) ON DELETE SET NULL
+) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci;

@@ -1,0 +1,15 @@
+use aphel_kernel::errors::AppError;
+use aphel_kernel::modules::HookCtx;
+use aphel_kernel::records::RemovedRecord;
+
+pub(crate) async fn purge_record_taggings(
+    ctx: &mut HookCtx<'_>,
+    removed: &RemovedRecord,
+) -> Result<(), AppError> {
+    sqlx::query("DELETE FROM taggings WHERE record_type = ? AND record_id = ?")
+        .bind(removed.record_type.as_str())
+        .bind(removed.record.record_id.to_string())
+        .execute(&mut **ctx.tx)
+        .await?;
+    Ok(())
+}

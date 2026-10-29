@@ -1,0 +1,29 @@
+[package]
+name = "aphel-mod-imports"
+version.workspace = true
+edition.workspace = true
+rust-version.workspace = true
+license.workspace = true
+publish = false
+
+[dependencies]
+aphel-kernel.workspace = true
+exports = { package = "aphel-mod-exports", path = "../exports" }
+lead_distribution = { package = "aphel-mod-lead-distribution", path = "../lead_distribution" }
+axum.workspace = true
+async-trait.workspace = true
+chrono.workspace = true
+serde.workspace = true
+serde_json.workspace = true
+sqlx.workspace = true
+tracing.workspace = true
+utoipa.workspace = true
+utoipa-axum.workspace = true
+uuid.workspace = true
+bytes.workspace = true
+futures.workspace = true
+chrono-tz.workspace = true
+csv.workspace = true
+encoding_rs.workspace = true
+tokio.workspace = true
+calamine = { version = "0.37", features = ["chrono"] }

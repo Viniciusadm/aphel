@@ -1,0 +1,41 @@
+{
+  "sidebar": {
+    "title": "Favorites",
+    "label": "Favorites",
+    "empty": "Pin records and views with the star to reach them from here.",
+    "unavailable": "Unavailable item",
+    "unavailableHint": "The record was deleted or you no longer have access to it.",
+    "actions": "Actions for {{label}}",
+    "moveUp": "Move up",
+    "moveDown": "Move down",
+    "remove": "Remove from favorites",
+    "collapse": "Collapse favorites",
+    "expand": "Expand favorites"
+  },
+  "reorder": {
+    "handle": "Reorder {{label}}",
+    "instructions": "Press space or Enter to pick up the favorite, use the arrow keys to move it and space or Enter again to drop it. Esc cancels.",
+    "picked": "Picked up {{label}}.",
+    "over": "{{label}} is at position {{position}} of {{total}}.",
+    "dropped": "{{label}} dropped at position {{position}} of {{total}}.",
+    "cancelled": "Reordering of {{label}} cancelled."
+  },
+  "button": {
+    "add": "Add to favorites",
+    "remove": "Remove from favorites",
+    "addView": "Pin view to favorites",
+    "removeView": "Remove view from favorites"
+  },
+  "toast": {
+    "added": "Added to favorites",
+    "removed": "Removed from favorites",
+    "limit": "You reached the limit of 50 favorites. Remove one to add another.",
+    "error": "Could not update the favorites",
+    "reorderError": "Could not reorder the favorites"
+  },
+  "commands": {
+    "favorite": "Add to favorites",
+    "unfavorite": "Remove from favorites",
+    "group": "Favorites"
+  }
+}

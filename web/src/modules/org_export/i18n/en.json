@@ -1,0 +1,48 @@
+{
+  "page": {
+    "title": "Full export",
+    "description": "Build a package with all the data of the organization for backup, auditing or to move it to another Aphel installation."
+  },
+  "request": {
+    "title": "New export",
+    "description": "The package is built in the background. You get a notification when it is ready to download.",
+    "includeFiles": "Include attached files",
+    "includeFilesHint": "Attachments go into the zip with their original content. Uncheck it for a smaller package with data only.",
+    "privacyNote": "The file gathers the personal data of every record. Keep it somewhere safe and delete copies you no longer need.",
+    "submit": "Build export",
+    "waiting": "Export in progress",
+    "queued": "Export requested. We will let you know when it is done.",
+    "inProgress": "An export is already in progress"
+  },
+  "contents": {
+    "records": "Records of every type, including custom objects, as JSON Lines, with custom fields by key",
+    "relations": "Links between records: contacts and companies, custom relationships, tags and attachments",
+    "history": "Notes, stage history and timeline events",
+    "files": "Files attached to records",
+    "config": "Configuration package (fields, pipelines, layouts, views, automations and the other sections)",
+    "manifest": "Manifest with format version, Aphel version, counts and SHA-256 checksums"
+  },
+  "restore": {
+    "title": "Restore in another installation",
+    "description": "Restoring runs from the server command line, into an organization that already exists:",
+    "empty": "The destination organization must be empty (no records). The configuration package is applied before the data and the original ids are kept when possible.",
+    "members": "Users are matched by email to the members of the destination organization; anyone who is not a member is left without an owner."
+  },
+  "history": {
+    "title": "Previous exports",
+    "empty": "No exports yet",
+    "emptyDescription": "Exports you build show up here to download.",
+    "requestedBy": "Requested by {{name}}",
+    "summary": "{{records}} records · {{files}} files · {{size}}",
+    "missingFiles_one": "{{count}} file could not be read",
+    "missingFiles_other": "{{count}} files could not be read",
+    "withoutFiles": "Without attachments",
+    "download": "Download"
+  },
+  "status": {
+    "queued": "Queued",
+    "running": "Building",
+    "completed": "Ready",
+    "failed": "Failed"
+  }
+}

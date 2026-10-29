@@ -1,0 +1,244 @@
+{
+  "nav": {
+    "pending_one": "{{count}} aprovação pendente",
+    "pending_other": "{{count}} aprovações pendentes",
+    "approvals": "Aprovações"
+  },
+  "recordTypes": {
+    "contact": "Contato",
+    "company": "Empresa",
+    "deal": "Oportunidade",
+    "activity": "Atividade",
+    "product": "Produto",
+    "quote": "Cotação"
+  },
+  "status": {
+    "pending": "Pendente",
+    "approved": "Aprovada",
+    "rejected": "Rejeitada",
+    "cancelled": "Cancelada"
+  },
+  "stepState": {
+    "waiting": "Aguardando",
+    "active": "Em andamento",
+    "approved": "Aprovada",
+    "rejected": "Rejeitada",
+    "skipped": "Ignorada"
+  },
+  "moments": {
+    "stage_change": "Mudança de etapa",
+    "quote_send": "Envio de cotação",
+    "on_demand": "Sob demanda"
+  },
+  "approverKinds": {
+    "user": "Usuário",
+    "role": "Papel",
+    "owner_team_manager": "Gestor da equipe do responsável"
+  },
+  "rules": {
+    "any": "Qualquer um aprova",
+    "all": "Todos precisam aprovar"
+  },
+  "conditionKinds": {
+    "always": "Sempre",
+    "filter": "Quando o registro atende a um filtro",
+    "formula": "Quando a fórmula for verdadeira"
+  },
+  "decisions": {
+    "approved": "Aprovou",
+    "rejected": "Rejeitou",
+    "waiting": "Aguardando decisão"
+  },
+  "actions": {
+    "approve": "Aprovar",
+    "reject": "Rejeitar",
+    "cancel": "Cancelar pedido",
+    "close": "Fechar"
+  },
+  "request": {
+    "steps": "Etapas da aprovação",
+    "stepNumber": "Etapa {{number}}",
+    "overdue": "Vencida",
+    "untitledRecord": "Registro sem título",
+    "system": "Sistema",
+    "moment": "Momento",
+    "requestedBy": "Solicitada por",
+    "dueAt": "Prazo",
+    "resolvedAt": "Resolvida",
+    "comment": "Comentário do solicitante",
+    "resolutionComment": "Comentário da decisão"
+  },
+  "decision": {
+    "comment": "Comentário (opcional)",
+    "commentRequired": "Motivo da rejeição",
+    "commentMissing": "Informe o motivo para rejeitar.",
+    "approve": {
+      "title": "Aprovar pedido",
+      "description": "Sua aprovação vale para a etapa atual de \"{{name}}\".",
+      "confirm": "Aprovar"
+    },
+    "reject": {
+      "title": "Rejeitar pedido",
+      "description": "A rejeição encerra o pedido \"{{name}}\" e avisa quem solicitou.",
+      "confirm": "Rejeitar"
+    },
+    "cancel": {
+      "title": "Cancelar pedido",
+      "description": "O pedido \"{{name}}\" será encerrado sem decisão e os campos bloqueados serão liberados.",
+      "confirm": "Cancelar pedido"
+    },
+    "done": {
+      "approve": "Aprovação registrada",
+      "reject": "Pedido rejeitado",
+      "cancel": "Pedido cancelado"
+    }
+  },
+  "submit": {
+    "title": "Esta ação exige aprovação",
+    "descriptions": {
+      "stage_change": "Mover a oportunidade para esta etapa exige aprovação. Envie um pedido aos aprovadores; quando aprovado, repita a mudança de etapa.",
+      "quote_send": "O envio desta cotação exige aprovação. Envie um pedido aos aprovadores.",
+      "on_demand": "Envie este registro para aprovação conforme as políticas configuradas."
+    },
+    "comment": "Comentário para os aprovadores (opcional)",
+    "commentPlaceholder": "Explique o contexto do pedido",
+    "confirm": "Solicitar aprovação",
+    "outcomes": {
+      "pending": {
+        "title": "Pedido enviado",
+        "description": "Os aprovadores foram avisados. Você acompanha o andamento em Minhas aprovações."
+      },
+      "approved": {
+        "title": "Aprovado",
+        "description": "A aprovação já foi concedida. Você pode repetir a ação."
+      },
+      "not_required": {
+        "title": "Aprovação não necessária",
+        "description": "Nenhuma política exige aprovação neste caso. Você pode seguir com a ação."
+      }
+    }
+  },
+  "gate": {
+    "pendingTitle": "Aprovação pendente",
+    "pendingDescription": "Este registro tem um pedido de aprovação em andamento que bloqueia esta alteração."
+  },
+  "panel": {
+    "tab": "Aprovações",
+    "title": "Pedidos de aprovação",
+    "empty": "Nenhum pedido de aprovação para este registro.",
+    "request": "Solicitar aprovação"
+  },
+  "inbox": {
+    "title": "Minhas aprovações",
+    "description": "Pedidos que aguardam sua decisão e os que você solicitou.",
+    "boxes": {
+      "pending_for_me": "Para mim",
+      "requested_by_me": "Solicitadas por mim",
+      "all": "Todas"
+    },
+    "status": "Situação",
+    "allStatuses": "Todas as situações",
+    "emptyTitle": "Nada por aqui",
+    "empty": {
+      "pending_for_me": "Nenhum pedido aguarda a sua decisão.",
+      "requested_by_me": "Você não tem pedidos de aprovação com este filtro.",
+      "all": "Nenhum pedido de aprovação com este filtro."
+    }
+  },
+  "columns": {
+    "record": "Registro",
+    "policy": "Política",
+    "requestedBy": "Solicitante",
+    "dueAt": "Prazo",
+    "status": "Situação"
+  },
+  "pager": {
+    "label": "Paginação",
+    "summary": "Página {{page}} de {{pages}} · {{total}} no total",
+    "previous": "Anterior",
+    "next": "Próxima"
+  },
+  "detail": {
+    "back": "Minhas aprovações",
+    "notFoundTitle": "Pedido não encontrado",
+    "notFoundDescription": "O pedido não existe ou você não tem acesso a ele.",
+    "lockedFields": "Campos bloqueados enquanto pendente: {{fields}}"
+  },
+  "settings": {
+    "title": "Aprovações",
+    "description": "Políticas que exigem aprovação antes de mudar de etapa, enviar cotações ou sob demanda. A ordem define a prioridade.",
+    "new": "Nova política",
+    "listLabel": "Políticas de aprovação",
+    "emptyTitle": "Nenhuma política de aprovação",
+    "emptyDescription": "Crie uma política para exigir aprovação em mudanças importantes.",
+    "inactive": "Inativa",
+    "active": "Ativa",
+    "toggle": "Ativar ou desativar {{name}}",
+    "edit": "Editar {{name}}",
+    "moveUp": "Subir {{name}}",
+    "moveDown": "Descer {{name}}",
+    "removeLabel": "Excluir {{name}}",
+    "remove": "Excluir",
+    "removeTitle": "Excluir política",
+    "removeDescription": "A política \"{{name}}\" será excluída. Pedidos já abertos continuam com a cópia da política.",
+    "removed": "Política excluída",
+    "created": "Política criada",
+    "updated": "Política atualizada",
+    "stepsCount_one": "{{count}} etapa",
+    "stepsCount_other": "{{count}} etapas"
+  },
+  "form": {
+    "createTitle": "Nova política de aprovação",
+    "editTitle": "Editar política de aprovação",
+    "description": "Defina quando a aprovação é exigida, quem aprova e o que fica bloqueado enquanto o pedido está pendente.",
+    "name": "Nome",
+    "key": "Chave",
+    "keyLocked": "A chave não muda depois de criada.",
+    "descriptionField": "Descrição",
+    "recordType": "Tipo de registro",
+    "moment": "Momento",
+    "pipeline": "Funil",
+    "stage": "Etapa de destino",
+    "choose": "Selecione",
+    "condition": "Condição",
+    "formula": "Fórmula",
+    "formulaPlaceholder": "Ex.: amount > 10000",
+    "formulaHint": "Use a mesma linguagem das fórmulas de campos; o resultado precisa ser verdadeiro ou falso.",
+    "lockedFields": "Campos bloqueados",
+    "lockedFieldsHint": "Enquanto o pedido estiver pendente, estes campos não podem ser alterados. Sem nenhum marcado, o registro inteiro fica bloqueado.",
+    "dueHours": "Prazo (horas)",
+    "dueHoursPlaceholder": "Sem prazo",
+    "active": "Política ativa",
+    "steps": "Etapas de aprovação",
+    "stepName": "Nome da etapa",
+    "stepNamePlaceholder": "Opcional",
+    "approverKind": "Aprovador",
+    "approverUser": "Usuário aprovador",
+    "approverRole": "Papel aprovador",
+    "ownerTeamManagerHint": "Aprova o gestor da equipe do responsável pelo registro. Sem gestor, aprovam os administradores de aprovações.",
+    "rule": "Regra",
+    "addStep": "Adicionar etapa",
+    "removeStep": "Remover etapa",
+    "moveStepUp": "Subir etapa",
+    "moveStepDown": "Descer etapa",
+    "save": "Salvar",
+    "errors": {
+      "required": "Campo obrigatório.",
+      "invalidKey": "Use letras minúsculas, números e _ começando com letra.",
+      "dueRange": "Informe um número inteiro de 1 a 2160."
+    }
+  },
+  "errors": {
+    "approval_policy_not_found": "Política de aprovação não encontrada.",
+    "approval_policy_key_taken": "Já existe uma política com esta chave.",
+    "approval_request_not_found": "Pedido de aprovação não encontrado.",
+    "approval_not_approver": "Você não é aprovador da etapa atual deste pedido.",
+    "approval_not_pending": "Este pedido não está mais pendente.",
+    "approval_required": "Esta ação exige aprovação.",
+    "approval_no_approver": "Nenhum aprovador elegível para uma etapa da política (além de quem pediu). Ajuste os aprovadores da política ou dê a permissão de gerenciar aprovações a outra pessoa.",
+    "approval_pending": "Há uma aprovação pendente para este registro.",
+    "version_conflict": "A política foi alterada por outra pessoa. Recarregue e tente de novo.",
+    "validation_error": "Revise os dados informados.",
+    "generic": "Não foi possível concluir a operação."
+  }
+}

@@ -1,0 +1,91 @@
+{
+  "title": "Currencies and exchange rates",
+  "description": "Enable the currencies used on deals and record exchange rates to convert amounts to the base currency in reports, forecast, goals and dashboards.",
+  "enabled": {
+    "title": "Enabled currencies",
+    "description": "{{base}} is the base currency of the organization and is always enabled. Deals and items can only use enabled currencies.",
+    "listLabel": "Enabled currencies",
+    "base": "Base currency",
+    "currentRate": "1 = {{rate}} {{base}} since {{date}}",
+    "noRate": "No rate",
+    "code": "ISO code",
+    "add": "Enable currency",
+    "added": "{{code}} enabled",
+    "remove": "Disable {{code}}",
+    "removed": "{{code}} disabled",
+    "invalidCode": "Enter a three-letter ISO 4217 code, such as USD."
+  },
+  "rates": {
+    "title": "Exchange rates",
+    "description": "Value of one unit of the currency in {{base}}. The latest rate dated up to today applies; open deals are recalculated when a rate changes, while won or lost deals keep the rate of when they closed.",
+    "filter": "Filter by currency",
+    "allCurrencies": "All currencies",
+    "new": "New rate",
+    "newTitle": "New exchange rate",
+    "editTitle": "Edit exchange rate",
+    "dialogDescription": "The rate applies from the given date.",
+    "rateLabel": "Rate of 1 {{currency}}",
+    "rateHint": "A number greater than zero with up to 10 decimal places.",
+    "invalidRate": "Enter a number greater than zero with up to 10 decimal places.",
+    "save": "Save",
+    "cancel": "Cancel",
+    "edit": "Edit rate",
+    "delete": "Delete rate",
+    "deleteTitle": "Delete exchange rate?",
+    "deleteDescription": "Open deals go back to the previous rate of the currency, if any.",
+    "created": "Exchange rate created",
+    "updated": "Exchange rate updated",
+    "deleted": "Exchange rate deleted",
+    "empty": "No exchange rates",
+    "emptyHint": "Record the rate of the enabled currencies to convert amounts.",
+    "emptyNoCurrencies": "Enable a currency besides the base one to record rates.",
+    "previous": "Previous",
+    "next": "Next",
+    "page": "Page {{page}} of {{total}}",
+    "columns": {
+      "date": "Date",
+      "currency": "Currency",
+      "rate": "Rate ({{base}})",
+      "source": "Source",
+      "actions": "Actions"
+    },
+    "sources": {
+      "manual": "Manual",
+      "integration": "Integration"
+    }
+  },
+  "deal": {
+    "currency": "Deal currency",
+    "converted": "≈ {{amount}} (rate {{rate}})",
+    "notConverted": "No rate to {{base}}"
+  },
+  "errors": {
+    "currency_not_enabled": "The currency is not enabled for the organization.",
+    "exchange_rate_exists": "The currency already has a rate on this date.",
+    "exchange_rate_not_found": "The exchange rate no longer exists.",
+    "version_conflict": "Someone else changed the rate. Reload and try again.",
+    "exchange_rate_provider_not_configured": "Choose a rate source before updating.",
+    "exchange_rate_provider_unavailable": "The rate provider did not answer. Try again later.",
+    "generic": "The operation could not be completed."
+  },
+  "provider": {
+    "title": "Automatic update",
+    "description": "Fetch the rates of the enabled currencies every day from a public source, without an access key. Rates entered by hand on the same date are kept.",
+    "label": "Rate source",
+    "options": {
+      "manual": "Manual (no automatic fetching)",
+      "frankfurter": "Frankfurter (European Central Bank)"
+    },
+    "urlLabel": "Service address",
+    "urlHint": "Optional. Empty uses https://api.frankfurter.app; enter the address of a self-hosted Frankfurter instance.",
+    "invalidUrl": "Enter an http(s) address.",
+    "save": "Save source",
+    "saved": "Rate source saved",
+    "syncNow": "Update now",
+    "synced": "Rates updated",
+    "syncedSummary": "{{created}} new, {{updated}} changed, {{unchanged}} unchanged",
+    "syncFailed": "No rate from the provider for: {{currencies}}",
+    "lastSynced": "Last update: {{date}}",
+    "neverSynced": "Not updated yet"
+  }
+}

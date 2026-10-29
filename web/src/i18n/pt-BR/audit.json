@@ -1,0 +1,63 @@
+{
+  "title": "Auditoria",
+  "description": "Histórico de alterações feitas na organização: quem mudou o quê e quando.",
+  "filters": {
+    "label": "Filtros da auditoria",
+    "recordType": "Tipo de registro",
+    "recordTypePlaceholder": "Ex.: member",
+    "recordId": "ID do registro",
+    "recordIdPlaceholder": "UUID do registro",
+    "actor": "Ator",
+    "actorPlaceholder": "ID do usuário",
+    "from": "De",
+    "to": "Até",
+    "apply": "Filtrar",
+    "clear": "Limpar filtros"
+  },
+  "columns": {
+    "occurredAt": "Data e hora",
+    "actor": "Ator",
+    "action": "Ação",
+    "record": "Registro",
+    "changes": "Alterações"
+  },
+  "actor": {
+    "system": "Sistema",
+    "apiToken": "Token de API",
+    "automation": "Automação",
+    "unknownUser": "Usuário removido",
+    "filterBy": "Filtrar por este ator"
+  },
+  "record": {
+    "none": "—"
+  },
+  "recordTypes": {
+    "contact": "Contato",
+    "company": "Empresa",
+    "deal": "Oportunidade",
+    "activity": "Atividade",
+    "product": "Produto",
+    "note": "Nota",
+    "file": "Arquivo",
+    "member": "Membro",
+    "role": "Papel",
+    "team": "Equipe",
+    "organization": "Organização"
+  },
+  "changes": {
+    "label": "Campos alterados",
+    "none": "Sem alterações de campos",
+    "empty": "vazio",
+    "redacted": "oculto",
+    "redactedHint": "Valor sensível, não registrado na auditoria",
+    "to": "para"
+  },
+  "empty": {
+    "title": "Nenhum registro de auditoria",
+    "description": "As alterações feitas na organização aparecerão aqui.",
+    "filtered": "Nenhum registro encontrado com estes filtros"
+  },
+  "errors": {
+    "invalidFilters": "Filtros inválidos. Confira o ID do registro, o ator e o intervalo de datas."
+  }
+}

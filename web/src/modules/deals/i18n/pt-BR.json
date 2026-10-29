@@ -1,0 +1,215 @@
+{
+  "list": {
+    "title": "Oportunidades",
+    "description": "Acompanhe as negociações do funil, mova etapas e registre ganhos e perdas.",
+    "new": "Nova oportunidade",
+    "mode": "Modo de exibição",
+    "board": "Kanban",
+    "table": "Tabela"
+  },
+  "dialog": {
+    "title": "Nova oportunidade",
+    "description": "A oportunidade entra na primeira etapa do funil padrão."
+  },
+  "board": {
+    "label": "Kanban do funil {{pipeline}}",
+    "pipeline": "Funil",
+    "loadError": "Não foi possível carregar o Kanban.",
+    "noStages": "O funil não tem etapas ativas",
+    "noStagesDescription": "Ative ou crie etapas nas configurações de funis.",
+    "dragInstructions": "Para mover uma oportunidade, pressione espaço ou enter, use as setas para escolher a etapa e pressione espaço ou enter de novo. Esc cancela.",
+    "count_one": "{{count}} oportunidade",
+    "count_other": "{{count}} oportunidades",
+    "totalLabel": "Valor total da etapa",
+    "emptyColumn": "Nenhuma oportunidade nesta etapa",
+    "loadMore": "Carregar mais ({{count}})"
+  },
+  "card": {
+    "moveMenu": "Mover {{title}}",
+    "moveTo": "Mover para",
+    "noOwner": "Sem responsável",
+    "daysInStageTitle": "Tempo na etapa atual",
+    "daysInStage_zero": "Hoje",
+    "daysInStage_one": "{{count}} dia",
+    "daysInStage_other": "{{count}} dias"
+  },
+  "lost": {
+    "title": "Marcar como perdida",
+    "description": "Escolha o motivo da perda.",
+    "descriptionFor": "Escolha o motivo da perda de “{{title}}”.",
+    "reason": "Motivo da perda",
+    "choose": "Selecione um motivo",
+    "required": "Escolha um motivo para continuar.",
+    "loadError": "Não foi possível carregar os motivos de perda.",
+    "note": "Observação (opcional)",
+    "confirm": "Marcar como perdida"
+  },
+  "actions": {
+    "cancel": "Cancelar",
+    "save": "Salvar"
+  },
+  "detail": {
+    "back": "Oportunidades",
+    "win": "Ganhar",
+    "lose": "Perder",
+    "reopen": "Reabrir",
+    "moveTo": "Mover etapa",
+    "archive": "Arquivar",
+    "unarchive": "Desarquivar",
+    "delete": "Excluir",
+    "deleteTitle": "Excluir oportunidade",
+    "deleteDescription": "A oportunidade “{{title}}” deixará de aparecer nas listas e no Kanban.",
+    "done": {
+      "win": "Oportunidade ganha",
+      "lose": "Oportunidade marcada como perdida",
+      "reopen": "Oportunidade reaberta",
+      "move": "Etapa atualizada",
+      "archive": "Oportunidade arquivada",
+      "unarchive": "Oportunidade desarquivada",
+      "delete": "Oportunidade excluída"
+    }
+  },
+  "related": {
+    "title": "Oportunidades do registro",
+    "new": "Nova oportunidade",
+    "loadError": "Não foi possível carregar as oportunidades.",
+    "empty": "Nenhuma oportunidade ainda",
+    "total_one": "{{count}} oportunidade",
+    "total_other": "{{count}} oportunidades",
+    "tab": "Oportunidades"
+  },
+  "status": {
+    "open": "Em aberto",
+    "won": "Ganha",
+    "lost": "Perdida"
+  },
+  "kind": {
+    "open": "Em andamento",
+    "won": "Ganho",
+    "lost": "Perda"
+  },
+  "pipeline": {
+    "filter": {
+      "label": "Filtrar por funil",
+      "all": "Todos os funis",
+      "inactive": "{{name}} (inativo)"
+    },
+    "move": {
+      "menu": "Mover para outro funil",
+      "title": "Mover para outro funil",
+      "description": "Escolha o funil e a etapa de destino.",
+      "descriptionFor": "Escolha o funil e a etapa de destino de “{{title}}”.",
+      "pipeline": "Funil",
+      "stage": "Etapa",
+      "noTargets": "Não há outro funil ativo disponível.",
+      "confirm": "Mover"
+    },
+    "requirements": {
+      "title": "Preencha os campos da etapa",
+      "description": "A etapa exige estes campos.",
+      "descriptionFor": "A etapa “{{stage}}” exige estes campos.",
+      "required": "Preencha este campo para continuar.",
+      "unknownField": "Campo indisponível.",
+      "confirm": "Salvar e mover",
+      "inaccessible": "A etapa exige campos vazios que você não pode preencher porque estão ocultos ou são somente leitura para você. Peça a quem tem acesso para preenchê-los.",
+      "close": "Fechar"
+    },
+    "actions": {
+      "cancel": "Cancelar"
+    }
+  },
+  "team": {
+    "tab": "Equipe",
+    "title": "Equipe da oportunidade",
+    "description": "Quem participa da venda e quanto da receita cada um recebe. O responsável fica com o crédito que não foi dado aos membros.",
+    "loadError": "Não foi possível carregar a equipe.",
+    "summary": {
+      "owner": "Responsável",
+      "noOwner": "Sem responsável",
+      "ownerShare": "{{percent}} da receita",
+      "allocated": "Membros",
+      "remaining": "Restante",
+      "unassigned": "Sem responsável, {{percent}} da receita não é atribuído a ninguém.",
+      "barLabel": "Divisão do crédito: {{owner}} para o responsável e {{members}} para os membros"
+    },
+    "columns": {
+      "member": "Membro",
+      "role": "Papel",
+      "credit": "Crédito"
+    },
+    "empty": "Nenhum membro na equipe",
+    "emptyDescription": "Adicione quem participa da venda para dividir o crédito da receita.",
+    "add": {
+      "open": "Adicionar membro",
+      "user": "Usuário",
+      "role": "Papel",
+      "credit": "Crédito (%)",
+      "submit": "Adicionar",
+      "cancel": "Cancelar",
+      "available": "Disponível: {{percent}}",
+      "userRequired": "Escolha um usuário."
+    },
+    "noRole": "Sem papel",
+    "inactiveUser": "Inativo",
+    "ownerBadge": "Responsável",
+    "roleLabel": "Papel de {{name}}",
+    "creditLabel": "Crédito de {{name}} (%)",
+    "removeLabel": "Remover {{name}} da equipe",
+    "removeTitle": "Remover membro",
+    "removeDescription": "{{name}} sai da equipe e o crédito volta para o responsável.",
+    "removeConfirm": "Remover",
+    "added": "{{name}} entrou na equipe",
+    "removed": "{{name}} saiu da equipe",
+    "saved": "Equipe atualizada",
+    "errors": {
+      "generic": "Não foi possível salvar a equipe.",
+      "forbidden": "Você não tem permissão para alterar a equipe desta oportunidade.",
+      "notFound": "A oportunidade ou o membro não existe mais.",
+      "exists": "Este usuário já está na equipe.",
+      "limit": "A oportunidade já tem o máximo de 50 membros.",
+      "exceeds": "O crédito passa de 100%. Disponível: {{available}}%.",
+      "invalid": "Confira o usuário, o papel e o crédito (0 a 100, até 2 casas decimais).",
+      "versionConflict": "Alguém alterou este membro. Recarregue e tente de novo.",
+      "roleKeyTaken": "Já existe um papel com esta chave."
+    },
+    "timeline": {
+      "added": "{{actor}} adicionou {{user}} à equipe",
+      "updated": "{{actor}} alterou {{user}} na equipe",
+      "removed": "{{actor}} removeu {{user}} da equipe",
+      "details": "{{role}} · {{percent}} de crédito",
+      "detailsNoRole": "{{percent}} de crédito",
+      "someone": "Alguém",
+      "someUser": "um usuário"
+    },
+    "roles": {
+      "title": "Papéis na equipe da oportunidade",
+      "description": "Papéis que os membros podem ter na equipe de uma oportunidade, como pré-vendas ou especialista.",
+      "new": "Novo papel",
+      "newTitle": "Novo papel",
+      "editTitle": "Editar papel",
+      "dialogDescription": "O nome aparece na equipe das oportunidades. A chave é usada nos pacotes de configuração e não muda.",
+      "name": "Nome",
+      "nameRequired": "Informe o nome.",
+      "save": "Salvar",
+      "cancel": "Cancelar",
+      "saved": "Papel {{name}} salvo",
+      "listLabel": "Papéis na equipe",
+      "editLabel": "Editar {{name}}",
+      "deleteLabel": "Excluir {{name}}",
+      "deleteTitle": "Excluir papel",
+      "deleteDescription": "Os membros com o papel {{name}} continuam na equipe, sem papel.",
+      "deleteConfirm": "Excluir",
+      "deleted": "Papel {{name}} excluído",
+      "inactive": "Inativo",
+      "activate": "Ativar",
+      "deactivate": "Desativar",
+      "empty": "Nenhum papel cadastrado"
+    }
+  },
+  "nav": {
+    "deals": "Oportunidades"
+  },
+  "createAction": {
+    "label": "Nova oportunidade"
+  }
+}

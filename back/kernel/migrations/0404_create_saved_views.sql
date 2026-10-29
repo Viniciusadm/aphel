@@ -1,0 +1,23 @@
+CREATE TABLE saved_views (
+  id CHAR(36) NOT NULL,
+  record_type VARCHAR(64) NOT NULL,
+  name VARCHAR(140) NOT NULL,
+  owner_id CHAR(36) NULL,
+  visibility VARCHAR(16) NOT NULL,
+  team_id CHAR(36) NULL,
+  view_type VARCHAR(16) NOT NULL,
+  filter JSON NULL,
+  sort JSON NOT NULL DEFAULT (JSON_ARRAY()),
+  columns JSON NOT NULL DEFAULT (JSON_ARRAY()),
+  settings JSON NOT NULL DEFAULT (JSON_OBJECT()),
+  is_default BOOLEAN NOT NULL DEFAULT FALSE,
+  position INT NOT NULL DEFAULT 0,
+  created_at DATETIME(6) NOT NULL DEFAULT CURRENT_TIMESTAMP(6),
+  updated_at DATETIME(6) NOT NULL DEFAULT CURRENT_TIMESTAMP(6) ON UPDATE CURRENT_TIMESTAMP(6),
+  PRIMARY KEY (id),
+  KEY saved_views_record_type_index (record_type, position),
+  KEY saved_views_owner_index (owner_id),
+  KEY saved_views_team_index (team_id),
+  CONSTRAINT saved_views_owner_fk FOREIGN KEY (owner_id) REFERENCES users (id) ON DELETE SET NULL,
+  CONSTRAINT saved_views_team_fk FOREIGN KEY (team_id) REFERENCES teams (id) ON DELETE SET NULL
+) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci;

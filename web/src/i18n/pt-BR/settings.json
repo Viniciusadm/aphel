@@ -1,0 +1,541 @@
+{
+  "tabs": {
+    "modules": "Módulos",
+    "orgExport": "Exportação completa",
+    "migrationAssistant": "Migrar de outro CRM",
+    "label": "Seções das configurações",
+    "layouts": "Layouts",
+    "users": "Usuários",
+    "roles": "Papéis",
+    "organization": "Organização",
+    "teams": "Equipes",
+    "fields": "Campos",
+    "pipelines": "Funis de venda",
+    "audit": "Auditoria",
+    "activityTypes": "Tipos de atividade",
+    "tags": "Etiquetas",
+    "notifications": "Notificações",
+    "preferences": "Preferências",
+    "duplicates": "Duplicatas",
+    "trash": "Lixeira",
+    "configPackages": "Pacotes de configuração",
+    "onboarding": "Assistente inicial",
+    "apiTokens": "Tokens de API",
+    "webhooks": "Webhooks de saída",
+    "incomingWebhooks": "Webhooks de entrada",
+    "integrations": "Integrações",
+    "security": "Segurança da conta",
+    "securityLog": "Eventos de segurança",
+    "privacy": "Privacidade",
+    "leadDistribution": "Distribuição de leads",
+    "forecast": "Previsão de receita",
+    "dealTeamRoles": "Papéis na equipe",
+    "products": "Produtos e itens",
+    "quotes": "Cotações",
+    "currencies": "Moedas e câmbio",
+    "approvals": "Aprovações",
+    "lifecycle": "Ciclo de vida",
+    "validationRules": "Regras de validação",
+    "scoring": "Pontuação de leads",
+    "objects": "Objetos personalizados",
+    "navigation": "Navegação e idioma",
+    "catalog": "Catálogo da comunidade",
+    "mailboxes": "Caixas de e-mail",
+    "email": "E-mail",
+    "general": "Geral",
+    "outgoingEmail": "E-mail de envio",
+    "storage": "Armazenamento de arquivos"
+  },
+  "noAccess": {
+    "title": "Sem permissão",
+    "description": "Você não tem permissão para gerenciar usuários, papéis ou equipes desta organização."
+  },
+  "pagination": {
+    "summary": "Página {{page}} de {{pages}} · {{total}} no total",
+    "previous": "Anterior",
+    "next": "Próxima"
+  },
+  "actions": {
+    "save": "Salvar",
+    "saving": "Salvando…",
+    "cancel": "Cancelar",
+    "delete": "Excluir",
+    "edit": "Editar",
+    "more": "Mais ações"
+  },
+  "errors": {
+    "generic": "Não foi possível concluir a ação. Tente novamente.",
+    "network": "Sem conexão com o servidor. Verifique sua internet e tente novamente.",
+    "permissionDenied": "Você não tem permissão para esta ação.",
+    "notFound": "O registro não foi encontrado. Atualize a página.",
+    "alreadyMember": "Este e-mail já pertence a um membro ou convidado da organização.",
+    "lastAdmin": "A organização precisa de pelo menos um administrador ativo.",
+    "roleInUse": "Este papel está atribuído a membros. Troque o papel deles antes de excluir.",
+    "roleKeyTaken": "Já existe um papel com esta chave.",
+    "systemRoleLocked": "Papéis de sistema não podem ser excluídos nem ter a chave alterada, e o administrador sempre tem acesso total.",
+    "teamCycle": "Uma equipe não pode ficar abaixo dela mesma ou de uma das suas subequipes.",
+    "notInvited": "Este membro não tem convite pendente.",
+    "invalidMemberStatus": "O status deste membro mudou. Atualize a página.",
+    "invalidPermissions": "Há permissões inválidas na matriz.",
+    "invalidMembers": "Algum membro selecionado não pertence mais à organização.",
+    "versionConflict": "Este registro foi alterado por outra pessoa desde que você o abriu. Atualize a página e refaça a alteração."
+  },
+  "validation": {
+    "email": "Informe um e-mail válido.",
+    "required": "Preencha este campo.",
+    "name": "Use entre 1 e 140 caracteres.",
+    "roleKey": "Use até 64 letras minúsculas, números ou _.",
+    "role": "Escolha um papel."
+  },
+  "users": {
+    "title": "Usuários",
+    "description": "Membros da organização e convites pendentes.",
+    "invite": "Convidar usuário",
+    "empty": "Nenhum membro encontrado.",
+    "columns": {
+      "name": "Nome",
+      "role": "Papel",
+      "status": "Status",
+      "teams": "Equipes",
+      "actions": "Ações"
+    },
+    "status": {
+      "invited": "Convite pendente",
+      "active": "Ativo",
+      "deactivated": "Desativado"
+    },
+    "you": "você",
+    "noTeams": "—",
+    "menu": {
+      "changeRole": "Alterar papel",
+      "resend": "Reenviar convite",
+      "cancelInvitation": "Cancelar convite",
+      "suspend": "Desativar",
+      "reactivate": "Reativar",
+      "resetPassword": "Gerar redefinição de senha"
+    },
+    "inviteDialog": {
+      "title": "Convidar usuário",
+      "description": "Enviaremos um e-mail com o link para a pessoa entrar na organização. O link vale por 7 dias.",
+      "email": "E-mail",
+      "role": "Papel",
+      "rolePlaceholder": "Escolha um papel",
+      "submit": "Enviar convite"
+    },
+    "roleDialog": {
+      "title": "Alterar papel",
+      "description": "Escolha o novo papel de {{name}}.",
+      "role": "Papel"
+    },
+    "confirm": {
+      "suspendTitle": "Desativar {{name}}?",
+      "suspendDescription": "A pessoa perde o acesso e todas as sessões abertas são encerradas. Você pode reativar depois.",
+      "cancelTitle": "Cancelar o convite de {{email}}?",
+      "cancelDescription": "O link enviado por e-mail deixa de funcionar."
+    },
+    "toast": {
+      "invited": "Convite enviado para {{email}}.",
+      "resent": "Convite reenviado para {{email}}.",
+      "cancelled": "Convite cancelado.",
+      "roleChanged": "Papel alterado.",
+      "suspended": "Membro desativado.",
+      "reactivated": "Membro reativado.",
+      "resetEmailed": "Link de redefinição enviado para {{email}}.",
+      "resetUnavailable": "Este membro entra só por login único e não tem senha para redefinir."
+    },
+    "linkDialog": {
+      "invitationTitle": "Convite criado para {{email}}",
+      "invitationDescription": "Não há e-mail de envio configurado, então o convite não foi enviado. Copie o link e entregue à pessoa.",
+      "resetTitle": "Redefinição de senha de {{name}}",
+      "resetDescription": "Não há e-mail de envio configurado. Copie o link e entregue à pessoa; ele vale por 1 hora.",
+      "label": "Link",
+      "hint": "Qualquer pessoa com este link consegue usá-lo. Entregue por um canal confiável.",
+      "close": "Fechar"
+    }
+  },
+  "roles": {
+    "title": "Papéis",
+    "description": "Defina o que cada papel pode fazer e em qual escopo.",
+    "create": "Novo papel",
+    "empty": "Nenhum papel cadastrado.",
+    "system": "Sistema",
+    "members_zero": "Nenhum membro",
+    "members_one": "{{count}} membro",
+    "members_other": "{{count}} membros",
+    "permissionsCount_zero": "Nenhuma permissão",
+    "permissionsCount_one": "{{count}} permissão",
+    "permissionsCount_other": "{{count}} permissões",
+    "fullAccess": "Acesso total",
+    "editor": {
+      "createTitle": "Novo papel",
+      "editTitle": "Editar papel",
+      "description": "Marque, para cada permissão, até onde o papel enxerga os registros.",
+      "name": "Nome",
+      "key": "Chave",
+      "keyHint": "Opcional. Gerada a partir do nome quando vazia.",
+      "systemKeyHint": "A chave de papéis de sistema não pode ser alterada.",
+      "adminNotice": "O administrador tem acesso total à organização, inclusive a permissões criadas no futuro.",
+      "matrixCaption": "Permissões do papel"
+    },
+    "confirmDelete": {
+      "title": "Excluir o papel {{name}}?",
+      "description": "Esta ação não pode ser desfeita."
+    },
+    "toast": {
+      "created": "Papel criado.",
+      "updated": "Papel atualizado.",
+      "deleted": "Papel excluído."
+    }
+  },
+  "permissions": {
+    "columns": {
+      "permission": "Permissão",
+      "none": "Nenhum",
+      "own": "Próprios",
+      "team": "Equipe",
+      "organization": "Organização",
+      "granted": "Concedida"
+    },
+    "modules": {
+      "contacts": "Contatos",
+      "companies": "Empresas",
+      "deals": "Oportunidades",
+      "activities": "Tarefas e atividades",
+      "notes": "Notas",
+      "administration": "Administração",
+      "goals": "Metas",
+      "products": "Produtos e serviços",
+      "quotes": "Cotações",
+      "emails": "E-mails",
+      "sequences": "Sequências",
+      "scheduling": "Agendamento"
+    },
+    "actions": {
+      "read": "Visualizar",
+      "create": "Criar",
+      "update": "Editar",
+      "delete": "Excluir",
+      "export": "Exportar",
+      "archive": "Arquivar",
+      "manage": "Gerenciar",
+      "send": "Enviar",
+      "enroll": "Inscrever"
+    },
+    "administrative": {
+      "settingsManage": "Gerenciar configurações, papéis e equipes",
+      "usersManage": "Gerenciar usuários e convites",
+      "auditRead": "Consultar o log de auditoria",
+      "systemManage": "Administrar o sistema (fila de jobs e manutenção)",
+      "privacyManage": "Gerenciar privacidade (LGPD) e retenção de dados",
+      "automationsManage": "Gerenciar automações",
+      "leadDistributionManage": "Gerenciar regras de distribuição de leads",
+      "organizationExport": "Exportar todos os dados da organização",
+      "sequencesManage": "Gerenciar sequências",
+      "recordsShare": "Compartilhar qualquer registro",
+      "scoringManage": "Gerenciar a pontuação de leads",
+      "lifecycleManage": "Configurar o ciclo de vida"
+    },
+    "notApplicable": "Não se aplica"
+  },
+  "teams": {
+    "title": "Equipes",
+    "description": "Organize as pessoas em equipes, com gestores e hierarquia.",
+    "create": "Nova equipe",
+    "empty": "Nenhuma equipe cadastrada.",
+    "columns": {
+      "name": "Equipe",
+      "parent": "Equipe-pai",
+      "managers": "Gestores",
+      "members": "Membros",
+      "actions": "Ações"
+    },
+    "noParent": "—",
+    "membersCount_zero": "Ninguém",
+    "membersCount_one": "{{count}} pessoa",
+    "membersCount_other": "{{count}} pessoas",
+    "editor": {
+      "createTitle": "Nova equipe",
+      "editTitle": "Editar equipe",
+      "description": "Escolha o nome, a equipe-pai e quem faz parte da equipe.",
+      "name": "Nome",
+      "parent": "Equipe-pai",
+      "noParent": "Nenhuma (equipe principal)",
+      "members": "Membros",
+      "member": "Na equipe",
+      "manager": "Gestor",
+      "noMembers": "Ainda não há membros na organização.",
+      "search": "Buscar membros",
+      "noMatches": "Nenhum membro encontrado.",
+      "selectedCount": "{{count}} selecionado(s)"
+    },
+    "confirmDelete": {
+      "title": "Excluir a equipe {{name}}?",
+      "description": "As subequipes passam a ser equipes principais. Esta ação não pode ser desfeita."
+    },
+    "toast": {
+      "created": "Equipe criada.",
+      "updated": "Equipe atualizada.",
+      "deleted": "Equipe excluída."
+    }
+  },
+  "search": {
+    "label": "Buscar configurações",
+    "placeholder": "Buscar configuração…",
+    "empty": "Nenhuma configuração encontrada."
+  },
+  "groups": {
+    "profile": "Perfil e preferências",
+    "accountSecurity": "Segurança",
+    "organization": "Organização e acesso",
+    "records": "Campos e registros",
+    "sales": "Vendas",
+    "connections": "Conexões",
+    "webhooks": "Webhooks",
+    "transfer": "Importação, exportação e modelos",
+    "compliance": "Qualidade e conformidade",
+    "communication": "E-mail e comunicação"
+  },
+  "items": {
+    "preferences": {
+      "description": "Atalhos e comportamento da interface para você."
+    },
+    "navigation": {
+      "description": "Idioma, tela inicial e itens do menu lateral."
+    },
+    "notifications": {
+      "description": "Quais avisos você recebe no Aphel e por e-mail."
+    },
+    "security": {
+      "description": "Senha, verificação em duas etapas e sessões abertas."
+    },
+    "securityLog": {
+      "description": "Logins e alterações de segurança da sua conta."
+    },
+    "apiTokens": {
+      "description": "Chaves para acessar a API em seu nome."
+    },
+    "organization": {
+      "description": "Nome, logotipo, cores, moeda e fuso horário."
+    },
+    "users": {
+      "description": "Convide pessoas e gerencie quem tem acesso."
+    },
+    "teams": {
+      "description": "Agrupe usuários para dividir carteiras e metas."
+    },
+    "roles": {
+      "description": "Defina o que cada perfil pode ver e fazer."
+    },
+    "fields": {
+      "description": "Campos personalizados de contatos, empresas e negócios."
+    },
+    "layouts": {
+      "description": "Organize os campos nas telas de cada registro."
+    },
+    "objects": {
+      "description": "Crie tipos de registro próprios e seus relacionamentos."
+    },
+    "tags": {
+      "description": "Etiquetas para classificar registros."
+    },
+    "activityTypes": {
+      "description": "Tipos de atividade, como ligação, reunião e tarefa."
+    },
+    "pipelines": {
+      "description": "Funis e etapas pelos quais os negócios passam."
+    },
+    "forecast": {
+      "description": "Como a previsão de receita é calculada."
+    },
+    "dealTeamRoles": {
+      "description": "Papéis dos membros da equipe das oportunidades."
+    },
+    "products": {
+      "description": "Catálogo de produtos e itens usados nos negócios."
+    },
+    "quotes": {
+      "description": "Validade e condições padrão das cotações e etapa da oportunidade no aceite."
+    },
+    "currencies": {
+      "description": "Moedas habilitadas e cotações para a moeda base."
+    },
+    "approvals": {
+      "description": "Políticas de aprovação para etapas, cotações e pedidos sob demanda."
+    },
+    "lifecycle": {
+      "description": "Transições automáticas do estágio do ciclo de vida e motivos de desqualificação de leads."
+    },
+    "scoring": {
+      "description": "Modelos de pontuação por perfil e comportamento, com faixas frio, morno e quente."
+    },
+    "validationRules": {
+      "description": "Condições que bloqueiam gravações de registros com uma mensagem personalizada."
+    },
+    "mailboxes": {
+      "description": "Conecte sua caixa de e-mail, acompanhe a sincronização e crie seus modelos."
+    },
+    "email": {
+      "description": "Modelos da organização, lista de bloqueio, rastreio e captura de contatos."
+    },
+    "leadDistribution": {
+      "description": "Regras para distribuir novos leads entre a equipe."
+    },
+    "integrations": {
+      "description": "Conecte e-mail, calendário e outros serviços."
+    },
+    "modules": {
+      "description": "Ative recursos adicionais para a organização."
+    },
+    "webhooks": {
+      "description": "Envie eventos do Aphel para outros sistemas."
+    },
+    "incomingWebhooks": {
+      "description": "Receba dados de outros sistemas no Aphel."
+    },
+    "duplicates": {
+      "description": "Encontre e mescle registros duplicados."
+    },
+    "trash": {
+      "description": "Restaure ou apague de vez registros excluídos."
+    },
+    "privacy": {
+      "description": "Dados pessoais, solicitações de titulares e retenção (LGPD)."
+    },
+    "audit": {
+      "description": "Histórico de quem alterou o quê na organização."
+    },
+    "onboarding": {
+      "description": "Refaça o passo a passo de configuração inicial."
+    },
+    "configPackages": {
+      "description": "Exporte ou instale configurações prontas entre organizações."
+    },
+    "catalog": {
+      "description": "Modelos de configuração compartilhados pela comunidade."
+    },
+    "migrationAssistant": {
+      "description": "Importe dados de outro CRM."
+    },
+    "orgExport": {
+      "description": "Baixe uma cópia completa dos dados da organização."
+    },
+    "general": {
+      "description": "Endereço público e tamanho máximo de upload."
+    },
+    "outgoingEmail": {
+      "description": "Servidor SMTP usado em todos os e-mails do sistema."
+    },
+    "storage": {
+      "description": "Disco local ou S3 compatível para anexos e exportações."
+    }
+  },
+  "areas": {
+    "account": {
+      "title": "Minha conta",
+      "description": "Suas preferências, notificações e a segurança do seu acesso."
+    },
+    "organization": {
+      "title": "Configurações",
+      "description": "Como a organização trabalha: acesso, estrutura dos registros e vendas."
+    },
+    "integrations": {
+      "title": "Integrações",
+      "description": "Conecte o Aphel a outros serviços e sistemas."
+    },
+    "data": {
+      "title": "Dados",
+      "description": "Importe, exporte e cuide da qualidade e da privacidade dos dados."
+    }
+  },
+  "otherAreas": "Outras áreas",
+  "configuration": {
+    "loadError": "Não foi possível carregar as configurações.",
+    "save": "Salvar",
+    "saving": "Salvando…",
+    "saved": "Configurações salvas.",
+    "errors": {
+      "url": "Informe um endereço http(s) válido.",
+      "uploadRange": "Use um valor entre 1 e 4096 MB.",
+      "required": "Preencha este campo.",
+      "range": "Use um valor entre {{min}} e {{max}}.",
+      "timeout": "Use um valor entre 1 e 120 segundos.",
+      "catalogUrl": "Informe uma URL https (http só com a opção de desenvolvimento)."
+    },
+    "general": {
+      "title": "Geral",
+      "description": "Ajustes da instalação que valem para todos, sem reiniciar o servidor.",
+      "publicBaseUrl": "Endereço público",
+      "publicBaseUrlHint": "Endereço pelo qual as pessoas acessam o Aphel. É a base de todos os links enviados por e-mail (convites, redefinição de senha, notificações). Com https, o cookie de sessão é marcado como seguro.",
+      "insecureWarning": "O endereço usa http: o cookie de sessão não é marcado como seguro. Em produção, use https.",
+      "maxUploadMb": "Tamanho máximo de upload (MB)",
+      "maxUploadMbHint": "Vale para anexos, importações e e-mails. Ajuste também o limite do proxy reverso."
+    },
+    "mail": {
+      "title": "E-mail de envio",
+      "description": "Servidor SMTP usado em convites, redefinição de senha, notificações e relatórios. A senha fica no cofre de segredos e nunca é exibida.",
+      "notConfiguredTitle": "E-mail de envio não configurado",
+      "notConfiguredDescription": "Os e-mails do sistema não estão sendo enviados. Convites e redefinições de senha mostram um link para copiar até o SMTP ser configurado.",
+      "configure": "Configurar e-mail de envio",
+      "unavailable": "O provedor SMTP não está disponível nesta instalação.",
+      "testHint": "Use \"Testar\" com o envio de e-mail marcado para receber uma mensagem de teste no seu próprio e-mail. Em caso de erro, a mensagem do servidor (autenticação, TLS ou conexão) aparece no resultado.",
+      "copyableLinkLabel": "Link para copiar",
+      "copyableLinkDescription": "O e-mail de envio não está configurado. Copie o link e entregue à pessoa por outro canal.",
+      "copy": "Copiar",
+      "copied": "Copiado"
+    },
+    "storage": {
+      "title": "Armazenamento de arquivos",
+      "description": "Onde ficam anexos, exportações e backups. Os downloads sempre passam pelo Aphel, com verificação de permissão.",
+      "driver": "Tipo",
+      "drivers": {
+        "local": "Disco local",
+        "s3": "S3 compatível (AWS, MinIO, R2, B2…)"
+      },
+      "driverChangeWarning": "Trocar o tipo não copia os arquivos existentes: eles continuam no armazenamento anterior.",
+      "path": "Pasta",
+      "pathHint": "Relativa à pasta de execução do servidor. Servidor e worker precisam ver a mesma pasta.",
+      "bucket": "Bucket",
+      "region": "Região",
+      "endpoint": "Endpoint",
+      "endpointHint": "Para serviços compatíveis (MinIO, SeaweedFS, Cloudflare R2, Backblaze B2). Vazio usa a AWS.",
+      "accessKeyId": "Chave de acesso",
+      "secretAccessKey": "Chave secreta",
+      "secretConfigured": "Configurada. Deixe em branco para manter.",
+      "secretMissing": "Não configurada.",
+      "clearSecret": "Remover a chave secreta salva",
+      "forcePathStyle": "Endereçar o bucket no caminho (MinIO, SeaweedFS)",
+      "allowHttp": "Permitir endpoint http (só S3 local)",
+      "test": "Testar conexão",
+      "testing": "Testando…",
+      "testOk": "Conexão funcionando: o arquivo de teste foi gravado, lido e apagado.",
+      "testFailed": "Falha no teste: {{message}}"
+    },
+    "webhooks": {
+      "title": "Entrega",
+      "description": "Como o Aphel entrega os webhooks de saída. Vale para novas entregas, sem reiniciar.",
+      "timeout": "Tempo máximo por entrega (s)",
+      "disableAfterFailures": "Falhas seguidas até desativar",
+      "retentionDays": "Dias de histórico de entregas",
+      "requireHttps": "Exigir https nas URLs dos endpoints"
+    },
+    "apiTokens": {
+      "title": "Limites dos tokens de API",
+      "description": "Quantidade de requisições aceitas por token em uma janela deslizante. Vale para todos os tokens da instalação.",
+      "limit": "Requisições por janela",
+      "window": "Janela (s)"
+    },
+    "catalog": {
+      "title": "Catálogo comunitário",
+      "description": "De onde vêm os modelos e módulos do catálogo.",
+      "mode": "Origem",
+      "modes": {
+        "builtin": "Catálogo embutido (sem internet)",
+        "remote": "Índice remoto",
+        "off": "Desligado"
+      },
+      "indexUrl": "URL do índice",
+      "allowHttp": "Permitir http (só desenvolvimento)",
+      "timeout": "Tempo máximo de busca (s)"
+    }
+  }
+}

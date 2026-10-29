@@ -1,0 +1,468 @@
+{
+  "page": {
+    "title": "Tarefas",
+    "description": "Tarefas e atividades registradas com contatos, empresas e oportunidades.",
+    "sections": "Seções de tarefas",
+    "mine": "Minhas tarefas",
+    "all": "Todas as atividades"
+  },
+  "mine": {
+    "emptyTitle": "Nenhuma tarefa em aberto",
+    "emptyDescription": "Você está em dia. Crie uma tarefa para planejar o próximo passo.",
+    "groups": {
+      "overdue": "Atrasadas",
+      "today": "Para hoje",
+      "upcoming": "Próximas",
+      "none": "Sem prazo"
+    },
+    "shown": "Mostrando {{shown}} de {{total}} tarefas abertas.",
+    "loadMore": "Carregar mais",
+    "loadingMore": "Carregando…"
+  },
+  "all": {
+    "completeSelected_one": "Concluir {{count}} selecionada",
+    "completeSelected_other": "Concluir {{count}} selecionadas",
+    "completed_one": "{{count}} atividade concluída",
+    "completed_other": "{{count}} atividades concluídas",
+    "completeFailed_one": "{{count}} atividade não pôde ser concluída",
+    "completeFailed_other": "{{count}} atividades não puderam ser concluídas"
+  },
+  "tab": {
+    "title": "Tarefas e atividades",
+    "openCount_one": "{{count}} em aberto",
+    "openCount_other": "{{count}} em aberto",
+    "newTask": "Nova tarefa",
+    "log": "Registrar atividade",
+    "emptyTitle": "Nenhuma atividade",
+    "emptyDescription": "Crie uma tarefa ou registre uma ligação, reunião ou visita feita com este registro.",
+    "openList": "Atividades em aberto",
+    "doneList": "Atividades concluídas",
+    "noOpen": "Nenhuma tarefa em aberto.",
+    "doneToggle_one": "{{count}} concluída ou cancelada",
+    "doneToggle_other": "{{count}} concluídas ou canceladas",
+    "completedToast": "“{{title}}” concluída",
+    "reopenedToast": "“{{title}}” reaberta"
+  },
+  "row": {
+    "complete": "Concluir “{{title}}”",
+    "reopen": "Reabrir “{{title}}”",
+    "due": "Prazo: {{date}}",
+    "overdue": "Atrasada desde {{date}}",
+    "completedAt": "Concluída em {{date}}",
+    "relatedRecord": "Registro vinculado",
+    "recurring": "Tarefa recorrente",
+    "reminder": "Com lembrete"
+  },
+  "priority": {
+    "low": "Baixa",
+    "normal": "Normal",
+    "high": "Alta",
+    "urgent": "Urgente"
+  },
+  "status": {
+    "open": "Aberta",
+    "done": "Concluída",
+    "canceled": "Cancelada"
+  },
+  "form": {
+    "taskTitle": "Nova tarefa",
+    "taskDescription": "Planeje o próximo passo com prazo e responsável.",
+    "logTitle": "Registrar atividade",
+    "logDescription": "Registre uma atividade que já aconteceu, como uma ligação feita.",
+    "title": "Título",
+    "taskPlaceholder": "Ex.: Enviar proposta",
+    "logPlaceholder": "Ex.: Ligação de apresentação",
+    "titleRequired": "Informe um título de até 255 caracteres.",
+    "type": "Tipo",
+    "typeRequired": "Escolha um tipo de atividade.",
+    "priority": "Prioridade",
+    "dueAt": "Prazo",
+    "completedAt": "Quando aconteceu",
+    "completedAtHint": "Deixe em branco para registrar agora.",
+    "owner": "Responsável",
+    "ownerMe": "{{name}} (eu)",
+    "duration": "Duração (minutos)",
+    "durationInvalid": "Informe um número inteiro de 0 a 10080.",
+    "description": "Descrição",
+    "cancel": "Cancelar",
+    "submitTask": "Criar tarefa",
+    "submitLog": "Registrar",
+    "createdToast": "Tarefa criada",
+    "loggedToast": "Atividade registrada"
+  },
+  "detail": {
+    "back": "Tarefas",
+    "complete": "Concluir",
+    "reopen": "Reabrir",
+    "delete": "Excluir",
+    "deleteTitle": "Excluir atividade",
+    "deleteDescription": "A atividade “{{title}}” será excluída. Esta ação não pode ser desfeita.",
+    "deleted": "Atividade excluída",
+    "notesTab": "Notas",
+    "filesTab": "Arquivos"
+  },
+  "types": {
+    "title": "Tipos de atividade",
+    "description": "Tipos usados ao criar tarefas e registrar atividades. Arraste para reordenar; desative em vez de apagar.",
+    "new": "Novo tipo",
+    "listLabel": "Tipos de atividade",
+    "system": "Padrão",
+    "inactive": "Inativo",
+    "editLabel": "Editar {{name}}",
+    "activate": "Ativar",
+    "deactivate": "Desativar",
+    "activated": "{{name}} ativado",
+    "deactivated": "{{name}} desativado",
+    "created": "Tipo {{name}} criado",
+    "updated": "Tipo {{name}} atualizado",
+    "newTitle": "Novo tipo de atividade",
+    "editTitle": "Editar tipo de atividade",
+    "dialogDescription": "Escolha o nome, o ícone e a cor exibidos nas tarefas e na linha do tempo.",
+    "name": "Nome",
+    "nameRequired": "Informe um nome.",
+    "keyHint": "Chave: {{key}} (não muda)",
+    "icon": "Ícone",
+    "color": "Cor",
+    "colorHex": "Cor em hexadecimal",
+    "save": "Salvar"
+  },
+  "errors": {
+    "generic": "Não foi possível concluir a operação. Tente novamente.",
+    "forbidden": "Você não tem permissão para fazer isso.",
+    "notFound": "A atividade não foi encontrada.",
+    "alreadyCompleted": "A atividade já estava concluída.",
+    "alreadyOpen": "A atividade já estava aberta.",
+    "invalid": "Revise os dados informados.",
+    "keyTaken": "Já existe um tipo com essa chave.",
+    "lastActiveType": "Mantenha pelo menos um tipo de atividade ativo.",
+    "versionConflict": "A atividade foi alterada por outra pessoa. Recarregue a página e tente de novo."
+  },
+  "timeline": {
+    "activityCreated": "Atividade criada",
+    "note": "Nota",
+    "privateNote": "Privada",
+    "pinnedNote": "Fixada",
+    "stageChanged": "Etapa alterada de {{from}} para {{to}}",
+    "stageSet": "Etapa alterada para {{to}}",
+    "stageChangedGeneric": "Etapa alterada",
+    "empty": "vazio",
+    "amountChanged": "Valor alterado de {{from}} para {{to}}",
+    "ownerChanged": "Responsável alterado para {{name}}",
+    "ownerRemoved": "Responsável removido",
+    "closeDateChanged": "Previsão de fechamento alterada de {{from}} para {{to}}",
+    "dealWon": "Oportunidade ganha",
+    "dealWonAmount": "Oportunidade ganha por {{amount}}",
+    "dealLost": "Oportunidade perdida",
+    "dealLostReason": "Oportunidade perdida: {{reason}}",
+    "dealReopened": "Oportunidade reaberta",
+    "dealChanged": "Oportunidade alterada"
+  },
+  "reminder": {
+    "label": "Lembrete",
+    "none": "Nenhum",
+    "atTime": "Na hora do prazo",
+    "minutes_one": "{{count}} minuto antes",
+    "minutes_other": "{{count}} minutos antes",
+    "hours_one": "{{count}} hora antes",
+    "hours_other": "{{count}} horas antes",
+    "days_one": "{{count}} dia antes",
+    "days_other": "{{count}} dias antes"
+  },
+  "recurrence": {
+    "label": "Repetir",
+    "none": "Não repete",
+    "frequency": {
+      "daily": "Diariamente",
+      "weekly": "Semanalmente",
+      "monthly": "Mensalmente",
+      "yearly": "Anualmente"
+    },
+    "interval": {
+      "daily": "A cada quantos dias",
+      "weekly": "A cada quantas semanas",
+      "monthly": "A cada quantos meses",
+      "yearly": "A cada quantos anos"
+    },
+    "weekdaysLabel": "Dias da semana",
+    "weekdaysHint": "Sem dias marcados, repete no mesmo dia da semana do prazo.",
+    "weekdaysShort": {
+      "mo": "Seg",
+      "tu": "Ter",
+      "we": "Qua",
+      "th": "Qui",
+      "fr": "Sex",
+      "sa": "Sáb",
+      "su": "Dom"
+    },
+    "monthDay": "Dia do mês",
+    "monthDayHint": "Em meses mais curtos, usa o último dia. Em branco, usa o dia do prazo.",
+    "endLabel": "Termina",
+    "end": {
+      "never": "Nunca",
+      "until": "Em uma data",
+      "count": "Após um número de vezes"
+    },
+    "untilLabel": "Até",
+    "countLabel": "Número de ocorrências",
+    "errors": {
+      "dueRequired": "Defina um prazo para repetir a tarefa.",
+      "interval": "Informe um intervalo entre 1 e 365.",
+      "monthDay": "Informe um dia entre 1 e 31.",
+      "until": "Escolha a data final.",
+      "count": "Informe um número entre 1 e 1000."
+    },
+    "describe": {
+      "daily_one": "Repete todo dia",
+      "daily_other": "Repete a cada {{count}} dias",
+      "weekly_one": "Repete toda semana",
+      "weekly_other": "Repete a cada {{count}} semanas",
+      "monthly_one": "Repete todo mês",
+      "monthly_other": "Repete a cada {{count}} meses",
+      "yearly_one": "Repete todo ano",
+      "yearly_other": "Repete a cada {{count}} anos",
+      "onWeekdays": "em {{days}}",
+      "onMonthDay": "no dia {{day}}",
+      "until": "até {{date}}",
+      "count_one": "{{count}} vez",
+      "count_other": "{{count}} vezes"
+    }
+  },
+  "schedule": {
+    "open": "Agendamento",
+    "title": "Agendamento",
+    "description": "Prazo, lembrete e repetição de “{{title}}”.",
+    "occurrence": "Ocorrência {{index}}",
+    "applyTo": "Aplicar a",
+    "applyToOptions": {
+      "this": "Esta ocorrência",
+      "following": "Esta e as próximas"
+    },
+    "applyToHints": {
+      "this": "As próximas ocorrências seguem a série como está.",
+      "following": "As próximas ocorrências usam estas alterações."
+    },
+    "endRecurrence": "Encerrar recorrência",
+    "save": "Salvar",
+    "saved": "Agendamento atualizado",
+    "ended": "Recorrência encerrada"
+  },
+  "calendar": {
+    "page": {
+      "title": "Calendário",
+      "description": "Tarefas com prazo e reuniões por mês, semana ou dia."
+    },
+    "nav": {
+      "today": "Hoje",
+      "previous": "Anterior",
+      "next": "Próximo"
+    },
+    "views": {
+      "label": "Visualização",
+      "month": "Mês",
+      "week": "Semana",
+      "day": "Dia"
+    },
+    "filters": {
+      "owner": "Responsável",
+      "allOwners": "Todos os responsáveis",
+      "me": "{{name}} (eu)",
+      "team": "Equipe",
+      "allTeams": "Todas as equipes",
+      "type": "Tipo",
+      "allTypes": "Todos os tipos"
+    },
+    "grid": {
+      "month": "Calendário do mês",
+      "more_one": "+{{count}} mais",
+      "more_other": "+{{count}} mais",
+      "less": "Mostrar menos",
+      "empty": "Nada agendado neste período."
+    },
+    "event": {
+      "label": "{{title}}, {{time}}",
+      "open": "Abrir",
+      "reschedule": "Remarcar",
+      "duration_one": "{{count}} minuto",
+      "duration_other": "{{count}} minutos"
+    },
+    "status": {
+      "open": "Aberta",
+      "done": "Concluída",
+      "canceled": "Cancelada"
+    },
+    "create": {
+      "onDay": "Nova tarefa em {{day}}",
+      "hint": "Clique em um horário vazio para criar uma tarefa."
+    },
+    "reschedule": {
+      "title": "Remarcar atividade",
+      "description": "Escolha o novo prazo de “{{title}}”.",
+      "dueAt": "Novo prazo",
+      "cancel": "Cancelar",
+      "save": "Remarcar",
+      "done": "“{{title}}” remarcada",
+      "failed": "Não foi possível remarcar a atividade.",
+      "conflict": "A atividade mudou enquanto você editava. Os dados foram recarregados; tente de novo."
+    },
+    "truncated": "Mostrando {{shown}} de {{total}} atividades neste período. Use os filtros para ver o restante.",
+    "dragHint": "Arraste uma atividade para outro dia ou horário para remarcar."
+  },
+  "inbox": {
+    "page": {
+      "title": "Caixa de entrada",
+      "description": "Suas atividades em aberto em ordem de prioridade: atrasadas, de hoje, próximas e sem prazo."
+    },
+    "filters": {
+      "owner": "Atividades de",
+      "team": "Equipe",
+      "myTeams": "Minhas equipes",
+      "sort": "Ordenar por"
+    },
+    "owner": {
+      "me": "Minhas",
+      "team": "Equipe",
+      "all": "Todas"
+    },
+    "sort": {
+      "due": "Prazo",
+      "priority": "Prioridade",
+      "value": "Valor da oportunidade"
+    },
+    "groups": {
+      "overdue": "Atrasadas",
+      "today": "Hoje",
+      "upcoming": "Próximas",
+      "no_due": "Sem prazo"
+    },
+    "priority": {
+      "low": "Baixa",
+      "normal": "Normal",
+      "high": "Alta",
+      "urgent": "Urgente"
+    },
+    "item": {
+      "due": "Prazo: {{date}}",
+      "overdue": "Atrasada desde {{date}}",
+      "relatedRecord": "Registro vinculado"
+    },
+    "actions": {
+      "complete": "Concluir",
+      "completeLabel": "Concluir “{{title}}”",
+      "postponeDay": "Adiar 1 dia",
+      "postponeWeek": "Adiar 1 semana",
+      "reassign": "Reatribuir",
+      "menu": "Ações de “{{title}}”"
+    },
+    "reassign": {
+      "title": "Reatribuir atividade",
+      "description": "Escolha o novo responsável por “{{title}}”.",
+      "owner": "Responsável",
+      "choose": "Escolha uma pessoa",
+      "cancel": "Cancelar",
+      "confirm": "Reatribuir"
+    },
+    "toast": {
+      "completed": "“{{title}}” concluída",
+      "postponedDay": "“{{title}}” adiada em 1 dia",
+      "postponedWeek": "“{{title}}” adiada em 1 semana",
+      "reassigned": "“{{title}}” reatribuída",
+      "undone": "Alteração desfeita"
+    },
+    "undo": {
+      "action": "Desfazer",
+      "dismiss": "Fechar aviso"
+    },
+    "errors": {
+      "generic": "Não foi possível atualizar a atividade. Tente novamente.",
+      "conflict": "A atividade foi alterada por outra pessoa. A lista foi atualizada."
+    },
+    "empty": {
+      "me": {
+        "title": "Nada pendente",
+        "description": "Você não tem atividades em aberto. Aproveite para planejar o próximo passo."
+      },
+      "team": {
+        "title": "Nenhuma atividade da equipe",
+        "description": "Ninguém da equipe tem atividades em aberto."
+      },
+      "all": {
+        "title": "Nenhuma atividade em aberto",
+        "description": "Não há atividades em aberto que você possa ver."
+      }
+    },
+    "truncated": "Mostrando {{shown}} de {{total}} atividades em aberto. Conclua ou filtre para ver o restante."
+  },
+  "nav": {
+    "tasks": "Tarefas",
+    "inbox": "Caixa de entrada",
+    "calendar": "Calendário"
+  },
+  "createAction": {
+    "label": "Nova tarefa",
+    "linked": "Nova tarefa vinculada a este registro"
+  },
+  "quickAdd": {
+    "options": {
+      "checkin": "Check-in",
+      "activity": "Atividade"
+    },
+    "titles": {
+      "checkin": "Check-in de visita",
+      "activity": "Nova atividade"
+    },
+    "activity": {
+      "title": "Título",
+      "titleRequired": "Informe o título.",
+      "type": "Tipo",
+      "when": "Quando",
+      "whenOptions": {
+        "due": "Agendar",
+        "done": "Já aconteceu"
+      },
+      "dueAt": "Prazo",
+      "description": "Descrição",
+      "submit": "Salvar atividade",
+      "created": "Atividade {{title}} salva."
+    },
+    "checkIn": {
+      "button": "Check-in",
+      "location": "Localização",
+      "capturing": "Obtendo sua localização...",
+      "captured": "Localização obtida (precisão de {{accuracy}} m)",
+      "capturedNoAccuracy": "Localização obtida",
+      "withoutLocation": "O check-in será salvo sem localização.",
+      "capture": "Usar localização",
+      "retry": "Tentar de novo",
+      "removeLocation": "Não usar",
+      "viewOnMap": "Ver no mapa",
+      "failure": {
+        "unsupported": "Este navegador não informa a localização. O check-in será salvo sem ela.",
+        "denied": "Permissão de localização negada. O check-in será salvo sem ela.",
+        "unavailable": "Localização indisponível agora. O check-in será salvo sem ela.",
+        "timeout": "A localização demorou demais. O check-in será salvo sem ela."
+      },
+      "title": "Título",
+      "defaultTitle": "Visita",
+      "defaultTitleWithRecord": "Visita · {{title}}",
+      "notes": "Anotações",
+      "noType": "Nenhum tipo de atividade ativo para registrar a visita.",
+      "submit": "Fazer check-in",
+      "created": "Check-in registrado."
+    }
+  },
+  "today": {
+    "title": "Hoje",
+    "agenda": "Agenda do dia",
+    "agendaEmpty": "Nada agendado para hoje.",
+    "tasks": "Tarefas abertas",
+    "tasksEmpty": "Tudo em dia",
+    "tasksEmptyDescription": "Você não tem tarefas atrasadas nem para hoje.",
+    "overdue": "Atrasada",
+    "overdueSince": "Venceu em {{date}}",
+    "dueAt": "Prazo: {{date}}",
+    "complete": "Concluir {{title}}",
+    "reopen": "Reabrir {{title}}",
+    "fromCache": "Sem conexão: mostrando a última versão salva neste aparelho.",
+    "seeInbox": "Ver todas na caixa de atividades"
+  }
+}

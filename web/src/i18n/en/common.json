@@ -1,0 +1,29 @@
+{
+  "appName": "Aphel",
+  "actions": {
+    "retry": "Try again",
+    "close": "Close",
+    "cancel": "Cancel",
+    "confirm": "Confirm"
+  },
+  "states": {
+    "loading": "Loading…",
+    "emptyTitle": "Nothing here yet",
+    "errorTitle": "Something went wrong",
+    "errorDescription": "Could not load the information. Please try again."
+  },
+  "toast": {
+    "label": "Notice",
+    "viewport": "Notifications ({hotkey})"
+  },
+  "notFound": {
+    "code": "404",
+    "title": "Page not found",
+    "description": "The address you accessed does not exist or has been moved.",
+    "backHome": "Back to home"
+  },
+  "delta": {
+    "previousValue": "before: {{value}}",
+    "points": "{{value}} pp"
+  }
+}

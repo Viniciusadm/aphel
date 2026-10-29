@@ -1,0 +1,89 @@
+{
+  "header": {
+    "owner": "Owner",
+    "back": "Back",
+    "edit": "Edit"
+  },
+  "fields": {
+    "title": "Details",
+    "empty": "No fields to show.",
+    "label": "Record fields"
+  },
+  "tabs": {
+    "label": "Record sections",
+    "timeline": "Timeline",
+    "tasks": "Tasks",
+    "notes": "Notes",
+    "files": "Files",
+    "related": "Related"
+  },
+  "placeholders": {
+    "timeline": "This record's timeline will appear here.",
+    "tasks": "This record's tasks will appear here.",
+    "notes": "This record's notes will appear here.",
+    "related": "Related records will appear here.",
+    "soon": "Coming soon"
+  },
+  "states": {
+    "notFoundTitle": "Record not found",
+    "notFoundDescription": "The record does not exist, was deleted or you do not have access to it.",
+    "errorTitle": "Could not load the record",
+    "loading": "Loading…"
+  },
+  "timeline": {
+    "label": "Timeline",
+    "today": "Today",
+    "yesterday": "Yesterday",
+    "all": "All",
+    "filterLabel": "Filter by type",
+    "loadMore": "Load more",
+    "loadingMore": "Loading…",
+    "end": "No more items.",
+    "emptyTitle": "No activity yet",
+    "emptyDescription": "Events for this record will appear here.",
+    "emptyFiltered": "No items match the selected filter.",
+    "errorTitle": "Could not load the timeline",
+    "system": "System",
+    "relatedRecord": "Related record"
+  },
+  "confirm": {
+    "cancel": "Cancel",
+    "confirm": "Confirm",
+    "delete": "Delete",
+    "pending": "Please wait…",
+    "typeToConfirm": "To confirm, type <strong>{{name}}</strong> below.",
+    "typeToConfirmLabel": "Item name"
+  },
+  "unsaved": {
+    "title": "Discard changes?",
+    "description": "You have unsaved changes. If you leave now, they will be lost.",
+    "stay": "Keep editing",
+    "leave": "Leave without saving"
+  },
+  "errorBoundary": {
+    "title": "Something went wrong",
+    "description": "An unexpected error occurred while showing this part of the page.",
+    "routeDescription": "An unexpected error occurred while opening this page.",
+    "retry": "Try again",
+    "home": "Go to home",
+    "notFoundTitle": "Page not found",
+    "notFoundDescription": "The address does not exist or was moved."
+  },
+  "notify": {
+    "successTitle": "Done",
+    "errorTitle": "Could not complete",
+    "errors": {
+      "network": "No connection to the server. Check your internet and try again.",
+      "unauthorized": "Your session expired. Sign in again to continue.",
+      "forbidden": "You do not have permission to perform this action.",
+      "notFound": "The item was not found. It may have been deleted.",
+      "conflict": "This item was changed by someone else. Reload and try again.",
+      "validation": "Some data is invalid. Review it and try again.",
+      "tooLarge": "The submitted content is too large.",
+      "rateLimited": "Too many attempts. Wait a moment and try again.",
+      "server": "The server ran into a problem. Try again shortly.",
+      "generic": "An unexpected error occurred. Try again."
+    }
+  },
+  "pageLoader": "Loading page…"
+}

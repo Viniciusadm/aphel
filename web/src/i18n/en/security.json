@@ -1,0 +1,132 @@
+{
+  "title": "Account security",
+  "unknownIp": "Unknown IP",
+  "device": {
+    "browserOnOs": "{{browser}} on {{os}}",
+    "unknown": "Unknown device"
+  },
+  "password": {
+    "title": "Password",
+    "description": "Changing your password signs out every other session and sends you an email notice.",
+    "current": "Current password",
+    "new": "New password",
+    "confirmation": "Confirm the new password",
+    "hint": "Use at least {{min}} characters.",
+    "submit": "Change password",
+    "changed_one": "Password changed. {{count}} other session was signed out.",
+    "changed_other": "Password changed. {{count}} other sessions were signed out.",
+    "errors": {
+      "currentRequired": "Enter your current password.",
+      "length": "The new password must have between {{min}} and {{max}} characters.",
+      "mismatch": "The passwords do not match.",
+      "same": "The new password must be different from the current one.",
+      "wrongCurrent": "The current password is incorrect."
+    }
+  },
+  "sessions": {
+    "title": "Active sessions",
+    "description": "Devices signed in to your account. Sign out the sessions you do not recognize.",
+    "listLabel": "Active sessions",
+    "empty": "No active sessions.",
+    "current": "This session",
+    "ip": "IP {{ip}}",
+    "lastSeen": "last active {{date}}",
+    "createdAt": "started {{date}}",
+    "revoke": "Sign out",
+    "revokeLabel": "Sign out the session on {{device}}",
+    "revokeTitle": "Sign out session?",
+    "revokeDescription": "{{device}} will be signed out of your account.",
+    "revokeConfirm": "Sign out session",
+    "revoked": "Session signed out.",
+    "revokeOthers": "Sign out all others",
+    "revokeOthersTitle": "Sign out the other sessions?",
+    "revokeOthersDescription_one": "{{count}} other device will be signed out. This session stays active.",
+    "revokeOthersDescription_other": "{{count}} other devices will be signed out. This session stays active.",
+    "revokeOthersConfirm": "Sign out others",
+    "revokedOthers_one": "{{count}} session signed out.",
+    "revokedOthers_other": "{{count}} sessions signed out."
+  },
+  "apiTokens": {
+    "title": "Your API tokens",
+    "description": "Active tokens that access the API on your behalf. Revoke the ones you no longer use.",
+    "manage": "Manage tokens",
+    "listLabel": "Your active API tokens",
+    "empty": "You have no active API tokens.",
+    "lastUsed": "last used {{date}}",
+    "neverUsed": "never used",
+    "expiresAt": "expires {{date}}",
+    "neverExpires": "never expires",
+    "revoke": "Revoke",
+    "revokeLabel": "Revoke the token {{name}}",
+    "revokeTitle": "Revoke token?",
+    "revokeDescription": "Integrations using the token \"{{name}}\" will stop working immediately. This cannot be undone.",
+    "revokeConfirm": "Revoke token",
+    "revoked": "Token \"{{name}}\" revoked."
+  },
+  "kinds": {
+    "login_succeeded": "Signed in",
+    "login_failed": "Failed sign-in",
+    "login_locked": "Sign-in locked",
+    "two_factor_enabled": "Two-step verification enabled",
+    "two_factor_disabled": "Two-step verification disabled",
+    "two_factor_challenge_failed": "Wrong verification code",
+    "recovery_code_used": "Recovery code used",
+    "recovery_codes_regenerated": "Recovery codes regenerated",
+    "password_changed": "Password changed",
+    "session_revoked": "Session signed out",
+    "api_token_created": "API token created",
+    "api_token_revoked": "API token revoked",
+    "permission_changed": "Permission changed"
+  },
+  "log": {
+    "title": "Security events",
+    "description": "Sign-ins, failures, lockouts, password and two-step verification changes, sessions, API tokens and permissions.",
+    "scopeLabel": "Events shown",
+    "scope": {
+      "mine": "My events",
+      "organization": "Organization"
+    },
+    "invalidFilters": "Invalid filters. Check the selected period.",
+    "empty": "No security events recorded.",
+    "emptyFiltered": "No events match these filters.",
+    "noUser": "No user",
+    "columns": {
+      "occurredAt": "Date",
+      "event": "Event",
+      "user": "User",
+      "device": "Device and IP",
+      "details": "Details"
+    },
+    "filters": {
+      "label": "Filter security events",
+      "kind": "Type",
+      "allKinds": "All types",
+      "from": "From",
+      "to": "To",
+      "clear": "Clear",
+      "apply": "Filter"
+    },
+    "details": {
+      "reasons": {
+        "unknown_account": "Unknown account",
+        "wrong_password": "Wrong password",
+        "inactive_account": "Account disabled",
+        "invalid_two_factor_code": "Wrong verification code"
+      },
+      "lockedUntil": "Locked until {{date}}",
+      "sessionRevoked": "{{device}} (IP {{ip}})",
+      "sessionsRevoked_one": "{{count}} other session signed out",
+      "sessionsRevoked_other": "{{count}} other sessions signed out",
+      "passwordChanged_one": "{{count}} other session signed out",
+      "passwordChanged_other": "{{count}} other sessions signed out",
+      "apiToken": "Token \"{{name}}\" ({{prefix}}…)",
+      "memberRole": "Role changed from {{from}} to {{to}}",
+      "recordShared": "Record shared with {{name}} ({{access}})",
+      "recordShareUpdated": "Share with {{name}} changed to {{access}}",
+      "recordUnshared": "Share with {{name}} removed",
+      "shareAccessRead": "read",
+      "shareAccessEdit": "edit",
+      "rolePermissions": "Permissions of the role {{role}} changed"
+    }
+  }
+}

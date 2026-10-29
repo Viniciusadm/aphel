@@ -1,0 +1,22 @@
+CREATE TABLE report_schedules (
+  id CHAR(36) NOT NULL,
+  report_id CHAR(36) NOT NULL,
+  created_by CHAR(36) NULL,
+  frequency VARCHAR(16) NOT NULL,
+  weekday TINYINT UNSIGNED NULL,
+  day_of_month TINYINT UNSIGNED NULL,
+  hour TINYINT UNSIGNED NOT NULL,
+  minute TINYINT UNSIGNED NOT NULL,
+  period_preset VARCHAR(32) NULL,
+  is_active BOOLEAN NOT NULL DEFAULT TRUE,
+  next_run_at DATETIME(6) NOT NULL,
+  last_run_at DATETIME(6) NULL,
+  created_at DATETIME(6) NOT NULL DEFAULT CURRENT_TIMESTAMP(6),
+  updated_at DATETIME(6) NOT NULL DEFAULT CURRENT_TIMESTAMP(6),
+  PRIMARY KEY (id),
+  KEY report_schedules_due_index (is_active, next_run_at),
+  KEY report_schedules_report_fk_index (report_id),
+  KEY report_schedules_created_by_index (created_by),
+  CONSTRAINT report_schedules_report_fk FOREIGN KEY (report_id) REFERENCES reports (id) ON DELETE CASCADE,
+  CONSTRAINT report_schedules_created_by_fk FOREIGN KEY (created_by) REFERENCES users (id) ON DELETE SET NULL
+) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci;

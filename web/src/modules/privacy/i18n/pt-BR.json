@@ -1,0 +1,271 @@
+{
+  "page": {
+    "title": "Privacidade e LGPD",
+    "description": "Localize os dados de um titular, atenda solicitações (exportar, anonimizar, excluir) e defina por quanto tempo os dados ficam guardados. A conformidade com a LGPD depende também dos processos da sua empresa.",
+    "tabsLabel": "Seções de privacidade"
+  },
+  "tabs": {
+    "subjects": "Localizar titular",
+    "requests": "Solicitações",
+    "retention": "Retenção"
+  },
+  "recordTypes": {
+    "contact": "Contato",
+    "company": "Empresa",
+    "deal": "Oportunidade",
+    "activity": "Atividade"
+  },
+  "recordTypesPlural": {
+    "contact": "contatos",
+    "company": "empresas",
+    "deal": "oportunidades"
+  },
+  "subjectKinds": {
+    "email": "e-mail",
+    "phone": "telefone",
+    "document": "documento",
+    "text": "texto"
+  },
+  "search": {
+    "label": "E-mail, telefone ou documento do titular",
+    "placeholder": "maria@exemplo.com ou (11) 98765-4321",
+    "hint": "A busca considera os campos marcados como dados pessoais, notas, anexos, atividades e linhas de importação. O termo pesquisado não fica salvo; a busca é registrada na auditoria.",
+    "submit": "Buscar",
+    "searching": "Buscando…",
+    "introTitle": "Localize os dados de um titular",
+    "intro": "Informe um e-mail, telefone ou documento para ver onde os dados da pessoa aparecem e registrar uma solicitação.",
+    "empty": "Nenhum dado encontrado para este titular",
+    "emptyDescription": "Confira a grafia ou tente outro identificador (e-mail, telefone ou documento).",
+    "summary": "Resultados para {{label}} ({{kind}})",
+    "selectAll": "Selecionar tudo",
+    "selectNone": "Limpar seleção",
+    "groups": {
+      "records": "Registros",
+      "activities": "Atividades",
+      "notes": "Notas",
+      "attachments": "Anexos",
+      "importRows": "Linhas de importação"
+    },
+    "archived": "Arquivado",
+    "deleted": "Na lixeira",
+    "matched": "Encontrado em: {{fields}}",
+    "reason": {
+      "mention": "Menciona o termo",
+      "record": "Ligada a um registro encontrado"
+    },
+    "attachmentsNote": "Os anexos acompanham os registros selecionados.",
+    "row": "Linha {{row}}",
+    "selected_one": "{{count}} item selecionado",
+    "selected_other": "{{count}} itens selecionados",
+    "createRequest": "Criar solicitação"
+  },
+  "create": {
+    "title": "Nova solicitação do titular",
+    "description_one": "{{count}} item selecionado entra na solicitação.",
+    "description_other": "{{count}} itens selecionados entram na solicitação.",
+    "kind": "O que o titular pediu?",
+    "dueAt": "Prazo de resposta",
+    "dueHint": "Padrão de 15 dias (LGPD, art. 19). Solicitações abertas depois do prazo aparecem como atrasadas.",
+    "notice": "A solicitação fica pendente até ser executada na aba Solicitações. Só guardamos um resumo mascarado do identificador pesquisado.",
+    "submit": "Registrar solicitação",
+    "created": "Solicitação registrada"
+  },
+  "kinds": {
+    "export": "Exportar dados",
+    "anonymize": "Anonimizar",
+    "delete": "Excluir definitivamente"
+  },
+  "kindDescriptions": {
+    "export": "Gera um arquivo .zip com os dados dos registros, notas, atividades e anexos.",
+    "anonymize": "Troca os dados pessoais por valores neutros e remove notas e anexos. Oportunidades, valores, etapas e datas continuam no histórico de vendas.",
+    "delete": "Apaga os registros, valores personalizados, notas, anexos e arquivos. Não pode ser desfeito."
+  },
+  "status": {
+    "pending": "Pendente",
+    "processing": "Em processamento",
+    "completed": "Concluída",
+    "failed": "Falhou",
+    "cancelled": "Cancelada",
+    "queued": "Na fila",
+    "running": "Em execução"
+  },
+  "requests": {
+    "filterLabel": "Situação",
+    "allStatuses": "Todas",
+    "empty": "Nenhuma solicitação registrada",
+    "emptyFiltered": "Nenhuma solicitação nesta situação.",
+    "emptyDescription": "Localize um titular e registre a solicitação a partir dos resultados.",
+    "overdue": "Atrasada",
+    "subject": "Titular: {{label}}",
+    "items_one": "{{count}} item",
+    "items_other": "{{count}} itens",
+    "due": "Prazo: {{date}}"
+  },
+  "detail": {
+    "title": "Solicitação do titular",
+    "description": "Acompanhe a execução e o resultado da solicitação.",
+    "kind": "Tipo",
+    "status": "Situação",
+    "subject": "Titular",
+    "dueAt": "Prazo",
+    "requestedBy": "Registrada por",
+    "executedBy": "Executada por",
+    "finishedAt": "Concluída em",
+    "unknownUser": "Usuário removido",
+    "failure": "A execução não foi concluída. Confira o relatório e, se necessário, registre uma nova solicitação para o que faltou.",
+    "targets": "Itens da solicitação",
+    "noTargets": "Nenhum item.",
+    "removedRecord": "Registro já removido",
+    "notes_one": "{{count}} nota",
+    "notes_other": "{{count}} notas",
+    "importRows_one": "{{count}} linha de importação",
+    "importRows_other": "{{count}} linhas de importação",
+    "report": "Relatório",
+    "executed": "Execução iniciada. Você será avisado quando terminar.",
+    "cancelled": "Solicitação cancelada",
+    "cancelConfirm": "A solicitação deixa de ser atendida e não poderá ser executada depois."
+  },
+  "execute": {
+    "export": "Gerar exportação",
+    "anonymize": "Anonimizar dados",
+    "delete": "Excluir definitivamente"
+  },
+  "executeConfirm": {
+    "export": "O arquivo será gerado em segundo plano e ficará disponível para download por 30 dias.",
+    "anonymize": "Os dados pessoais dos itens serão substituídos por valores neutros e as notas e anexos serão apagados, inclusive do armazenamento. O histórico de vendas é mantido. Não pode ser desfeito.",
+    "delete": "Os registros, notas, anexos e arquivos serão apagados para sempre e os dados pessoais saem do histórico. Não pode ser desfeito."
+  },
+  "confirmWords": {
+    "anonymize": "ANONIMIZAR",
+    "delete": "EXCLUIR"
+  },
+  "report": {
+    "records": "Registros",
+    "notes": "Notas",
+    "attachments": "Anexos",
+    "files": "Arquivos",
+    "activities": "Atividades",
+    "import_rows": "Linhas de importação",
+    "history_entries": "Entradas do histórico",
+    "skipped": "Ignorados",
+    "errors": "Erros"
+  },
+  "retention": {
+    "title": "Políticas de retenção",
+    "description": "Arquive ou apague dados antigos automaticamente. As políticas rodam todo dia às 04:00 (UTC) e nascem desativadas: confira a pré-visualização antes de ativar. A lixeira tem retenção própria em Dados › Lixeira.",
+    "create": "Nova política",
+    "empty": "Nenhuma política de retenção",
+    "emptyDescription": "Crie uma política para arquivar registros sem atividade ou limpar históricos antigos.",
+    "active": "Ativa",
+    "inactive": "Desativada",
+    "lastRun": "Última execução: {{date}}",
+    "neverRun": "Ainda não executada",
+    "lastPreview_one": "pré-visualização: {{count}} item em {{date}}",
+    "lastPreview_other": "pré-visualização: {{count}} itens em {{date}}",
+    "previewTitle": "Pré-visualização",
+    "previewResult": {
+      "archive_inactive_one": "Isto arquivaria {{count}} registro hoje.",
+      "archive_inactive_other": "Isto arquivaria {{count}} registros hoje.",
+      "purge_archived_one": "Isto excluiria definitivamente {{count}} registro hoje.",
+      "purge_archived_other": "Isto excluiria definitivamente {{count}} registros hoje.",
+      "purge_audit_logs_one": "Isto apagaria {{count}} registro de auditoria hoje.",
+      "purge_audit_logs_other": "Isto apagaria {{count}} registros de auditoria hoje.",
+      "purge_security_events_one": "Isto apagaria {{count}} evento de segurança hoje.",
+      "purge_security_events_other": "Isto apagaria {{count}} eventos de segurança hoje.",
+      "purge_domain_events_one": "Isto apagaria {{count}} evento interno hoje.",
+      "purge_domain_events_other": "Isto apagaria {{count}} eventos internos hoje.",
+      "purge_orphan_files_one": "Isto apagaria {{count}} arquivo sem uso hoje.",
+      "purge_orphan_files_other": "Isto apagaria {{count}} arquivos sem uso hoje."
+    },
+    "enableTitle": "Ativar política",
+    "runTitle": "Executar agora",
+    "enableNotice": "A partir de agora a política roda todo dia às 04:00 (UTC).",
+    "runNotice": "A execução começa em segundo plano e aparece no histórico.",
+    "enabled": "Política {{name}} ativada",
+    "disabled": "Política {{name}} desativada",
+    "runQueued": "Execução de {{name}} iniciada",
+    "deleted": "Política {{name}} excluída",
+    "deleteTitle": "Excluir política",
+    "deleteDescription": "A política {{name}} deixa de rodar. O histórico de execuções é mantido."
+  },
+  "actionSummaries": {
+    "archive_inactive": "Arquivar {{target}} sem atividade há {{days}} dias",
+    "purge_archived": "Excluir definitivamente {{target}} arquivados há {{days}} dias",
+    "purge_audit_logs": "Apagar registros de auditoria com mais de {{days}} dias",
+    "purge_security_events": "Apagar eventos de segurança com mais de {{days}} dias",
+    "purge_domain_events": "Apagar eventos internos já processados com mais de {{days}} dias",
+    "purge_orphan_files": "Apagar arquivos sem uso há mais de {{days}} dias"
+  },
+  "retentionActions": {
+    "archive_inactive": "Arquivar registros sem atividade",
+    "purge_archived": "Excluir definitivamente registros arquivados",
+    "purge_audit_logs": "Limpar auditoria antiga",
+    "purge_security_events": "Limpar eventos de segurança antigos",
+    "purge_domain_events": "Limpar eventos internos antigos",
+    "purge_orphan_files": "Limpar arquivos sem uso"
+  },
+  "actionHints": {
+    "archive_inactive": "Considera a última alteração do registro, de suas atividades e notas.",
+    "purge_archived": "Apaga o registro, valores personalizados, notas, anexos e arquivos. Não pode ser desfeito.",
+    "purge_audit_logs": "O histórico de alterações mais antigo deixa de aparecer na auditoria.",
+    "purge_security_events": "Logins, trocas de senha e outros eventos de segurança da organização.",
+    "purge_domain_events": "A linha do tempo dos registros perde os eventos apagados.",
+    "purge_orphan_files": "Arquivos que não estão anexados nem são usados por exportações, importações ou pela organização. Saem também do armazenamento."
+  },
+  "policyForm": {
+    "createTitle": "Nova política de retenção",
+    "editTitle": "Editar política",
+    "description": "A política é criada desativada. Depois, use a pré-visualização para conferir quantos itens seriam afetados antes de ativar.",
+    "name": "Nome",
+    "action": "Ação",
+    "recordType": "Tipo de registro",
+    "days": "Prazo em dias",
+    "daysHint": "Por exemplo, 1095 para cerca de 3 anos ou 1825 para cerca de 5 anos.",
+    "daysHintEdit": "Trocar o prazo desativa a política até uma nova pré-visualização ser confirmada.",
+    "nameInvalid": "Informe um nome com até 140 caracteres.",
+    "daysInvalid": "Informe um número inteiro de {{min}} a {{max}}.",
+    "created": "Política criada",
+    "updated": "Política atualizada"
+  },
+  "runs": {
+    "title": "Histórico de execuções",
+    "description": "Execuções agendadas e manuais com a quantidade de itens afetados.",
+    "empty": "Nenhuma execução ainda",
+    "triggers": {
+      "schedule": "Agendada",
+      "manual": "Manual"
+    },
+    "summary": "{{affected}} itens afetados · {{files}} arquivos removidos · {{errors}} erros",
+    "failed": "A execução falhou. Tente novamente mais tarde.",
+    "partial": "Alguns itens não puderam ser processados."
+  },
+  "actions": {
+    "details": "Detalhes",
+    "cancel": "Cancelar",
+    "saving": "Salvando…",
+    "save": "Salvar",
+    "close": "Fechar",
+    "download": "Baixar arquivo",
+    "cancelRequest": "Cancelar solicitação",
+    "preview": "Pré-visualizar",
+    "enable": "Ativar",
+    "disable": "Desativar",
+    "runNow": "Executar agora",
+    "edit": "Editar",
+    "delete": "Excluir",
+    "moreFor": "Mais ações para {{name}}"
+  },
+  "errors": {
+    "title": "Não foi possível concluir",
+    "codes": {
+      "invalid_subject_term": "Informe de 3 a 255 caracteres para buscar.",
+      "privacy_targets_empty": "Nenhum dos itens selecionados existe mais. Faça uma nova busca.",
+      "privacy_request_not_found": "A solicitação não foi encontrada.",
+      "privacy_request_not_pending": "Só solicitações pendentes podem ser executadas ou canceladas.",
+      "privacy_export_unavailable": "O arquivo desta solicitação não está mais disponível.",
+      "retention_policy_not_found": "A política não foi encontrada.",
+      "retention_preview_required": "Faça uma nova pré-visualização antes de continuar.",
+      "retention_policy_limit": "A organização já tem o número máximo de políticas (50)."
+    }
+  }
+}

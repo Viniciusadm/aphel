@@ -1,0 +1,49 @@
+{
+  "name": "Microsoft",
+  "description": "Login com conta Microsoft (Entra ID) e sincronização das reuniões com o Outlook",
+  "nav": "Microsoft",
+  "page": {
+    "title": "Microsoft",
+    "description": "Login com Microsoft Entra ID e sincronização das suas reuniões com o calendário do Outlook."
+  },
+  "panel": {
+    "steps": [
+      "No portal do Microsoft Entra ID, em \"Registros de aplicativo\", registre um novo aplicativo.",
+      "Em \"Autenticação\", adicione a plataforma \"Web\" com a URL de retorno acima.",
+      "Em \"Certificados e segredos\", crie um segredo do cliente e copie o valor (não o ID) para esta tela, junto com o ID do aplicativo (cliente).",
+      "Em \"Permissões de API\", adicione as permissões delegadas do Microsoft Graph: openid, email, profile, offline_access e Calendars.ReadWrite.",
+      "Opcional: em \"Configuração de token\", adicione a claim opcional xms_edov; sem ela, o login só aceita contas dos domínios informados.",
+      "Informe o tenant (ID do diretório) para aceitar só a sua empresa."
+    ]
+  },
+  "settings": {
+    "tenant": {
+      "label": "Tenant (locatário)",
+      "help": "ID do diretório (GUID) para aceitar só a sua empresa, ou organizations para qualquer conta corporativa"
+    },
+    "client_id": {
+      "label": "Client ID",
+      "help": "Identificador do aplicativo cadastrado no provedor"
+    },
+    "client_secret": {
+      "label": "Client secret",
+      "help": "Segredo do aplicativo; fica cifrado e nunca é exibido de novo"
+    },
+    "domains": {
+      "label": "Domínios de e-mail",
+      "help": "Domínios que entram pelo login único, separados por vírgula (ex.: empresa.com.br). Vazio = o botão não aparece no login"
+    },
+    "require_sso": {
+      "label": "Exigir login único",
+      "help": "Recusa o login por senha de e-mails desses domínios"
+    },
+    "meeting_type": {
+      "label": "Tipo de atividade das reuniões",
+      "help": "Chave do tipo de atividade usado para reuniões sincronizadas (padrão: meeting)"
+    },
+    "import_scope": {
+      "label": "Eventos importados da agenda",
+      "help": "Por padrão só entram eventos com algum participante que já é contato do CRM"
+    }
+  }
+}

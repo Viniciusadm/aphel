@@ -1,0 +1,401 @@
+{
+  "title": "Reports",
+  "description": "Track conversion, performance and reports built by the team.",
+  "tabs": {
+    "label": "Report sections",
+    "conversion": "Conversion",
+    "performance": "Performance",
+    "saved": "My reports"
+  },
+  "noAccess": {
+    "title": "No access to reports",
+    "description": "Your role cannot read the records used by reports."
+  },
+  "granularity": {
+    "day": "Day",
+    "week": "Week",
+    "month": "Month",
+    "quarter": "Quarter",
+    "year": "Year"
+  },
+  "functions": {
+    "count": "Count",
+    "sum": "Sum",
+    "avg": "Average",
+    "min": "Minimum",
+    "max": "Maximum"
+  },
+  "durationUnits": {
+    "days": "days",
+    "hours": "hours"
+  },
+  "durationLabel": "{{fn}} · {{from}} → {{to}} ({{unit}})",
+  "comparison": {
+    "previous": "Previous period",
+    "variation": "Change"
+  },
+  "empty": "No value",
+  "builder": {
+    "list": {
+      "title": "Saved reports",
+      "description": "Reports built by the team, always computed with your permissions.",
+      "filter": "Module",
+      "allModules": "All modules",
+      "create": "New report",
+      "emptyTitle": "No saved reports",
+      "emptyDescription": "Build a report by choosing a module, groups, metrics and filters.",
+      "meta": "{{module}} · {{visualization}} · updated {{date}}"
+    },
+    "builder": {
+      "title": "Report builder",
+      "newTitle": "New report",
+      "back": "Back to reports",
+      "notFound": {
+        "title": "Report not found",
+        "description": "It may have been deleted or is not shared with you."
+      },
+      "nameRequired": "Enter a name.",
+      "nameTooLong": "Use at most {{max}} characters.",
+      "teamRequired": "Choose a team.",
+      "saved": "Report saved",
+      "addedToDashboard": "Report added to your dashboard",
+      "deleted": "Report deleted",
+      "noModules": {
+        "title": "No modules available",
+        "description": "Your role cannot read the records used in reports."
+      },
+      "export": "Export",
+      "exportXlsx": "Spreadsheet (XLSX)",
+      "exportCsv": "CSV",
+      "addToDashboard": "Add to dashboard",
+      "delete": "Delete",
+      "readOnly": "You can view and export this report, but only its owner or someone who manages settings can change it.",
+      "deleteTitle": "Delete report?",
+      "deleteDescription": "The report and its email schedules will be deleted. Dashboard widgets using it will stop showing data."
+    },
+    "common": {
+      "choose": "Choose…",
+      "remove": "Remove",
+      "loading": "Loading…",
+      "saving": "Saving…",
+      "save": "Save"
+    },
+    "sections": {
+      "details": {
+        "title": "Details",
+        "name": "Name",
+        "namePlaceholder": "E.g. Won amount per month per seller",
+        "description": "Description",
+        "visibility": "Sharing",
+        "team": "Team"
+      },
+      "module": {
+        "title": "Module",
+        "description": "Record type the report analyzes."
+      },
+      "groups": {
+        "title": "Groups",
+        "description": "Up to 3 fields; dates accept a granularity.",
+        "empty": "No groups: the report shows only the totals.",
+        "field": "Field of group {{position}}",
+        "granularity": "Granularity",
+        "add": "Add group"
+      },
+      "metrics": {
+        "title": "Metrics",
+        "description": "Record count, sum, average, minimum and maximum of numeric fields or the duration between two dates.",
+        "function": "Function of metric {{position}}",
+        "field": "Field of metric {{position}}",
+        "records": "Records",
+        "add": "Add metric",
+        "measure": "What metric {{position}} measures",
+        "measureValue": "Field value",
+        "measureDuration": "Duration between dates",
+        "from": "Start date of metric {{position}}",
+        "to": "End date of metric {{position}}",
+        "unit": "Unit of metric {{position}}",
+        "fromPlaceholder": "Start date",
+        "toPlaceholder": "End date"
+      },
+      "filters": {
+        "title": "Filters",
+        "description": "Only records matching the conditions enter the report."
+      },
+      "period": {
+        "title": "Period",
+        "description": "Limits a date field and allows comparing with the previous period.",
+        "enabled": "Limit by period",
+        "field": "Date field",
+        "preset": "Period",
+        "from": "From",
+        "to": "To",
+        "compare": "Compare with the previous period",
+        "noFields": "This module has no date fields available."
+      },
+      "sort": {
+        "title": "Sorting",
+        "description": "By default, groups are shown in ascending order.",
+        "key": "Sort criterion {{position}}",
+        "asc": "Ascending",
+        "desc": "Descending",
+        "add": "Add sorting",
+        "limit": "Maximum rows"
+      },
+      "visualization": {
+        "title": "Visualization",
+        "metric": "Chart metric"
+      }
+    },
+    "visualizations": {
+      "table": "Table",
+      "bar": "Bars",
+      "line": "Lines",
+      "pie": "Pie",
+      "number": "Number"
+    },
+    "visibility": {
+      "private": "Only me",
+      "team": "My team",
+      "organization": "Whole organization"
+    },
+    "modules": {
+      "deal": "Deals",
+      "contact": "Contacts",
+      "company": "Companies",
+      "activity": "Activities"
+    },
+    "presets": {
+      "today": "Today",
+      "yesterday": "Yesterday",
+      "last_7_days": "Last 7 days",
+      "last_30_days": "Last 30 days",
+      "week": "This week",
+      "last_week": "Last week",
+      "month": "This month",
+      "last_month": "Last month",
+      "quarter": "This quarter",
+      "last_quarter": "Last quarter",
+      "year": "This year",
+      "last_year": "Last year",
+      "custom": "Custom"
+    },
+    "preview": {
+      "title": "Preview",
+      "description": "Computed live with your permissions.",
+      "incomplete": "Complete the groups, metrics and period to see the preview.",
+      "error": "The report could not be computed.",
+      "emptyTitle": "No records found",
+      "emptyDescription": "Adjust the filters or the period.",
+      "truncated": "There are more groups than the row limit; raise the limit or refine the filters."
+    },
+    "result": {
+      "yes": "Yes",
+      "no": "No",
+      "total": "Total",
+      "other": "Other",
+      "chartLabel": "Chart of {{metric}}",
+      "showTable": "View data as a table"
+    },
+    "schedules": {
+      "title": "Email delivery",
+      "description": "Each recipient gets the numbers computed with their own permissions.",
+      "loadError": "The schedules could not be loaded.",
+      "empty": "No scheduled deliveries.",
+      "inactive": "Paused",
+      "recipientsList": "To: {{names}}",
+      "nextRun": "Next delivery: {{date}}",
+      "edit": "Edit schedule",
+      "remove": "Delete schedule",
+      "add": "Schedule delivery",
+      "editTitle": "Edit scheduled delivery",
+      "createTitle": "Schedule delivery",
+      "formDescription": "The time follows the organization time zone.",
+      "removeTitle": "Delete scheduled delivery?",
+      "removeDescription": "The recipients will stop receiving this report.",
+      "removed": "Schedule deleted",
+      "saved": "Schedule saved",
+      "form": {
+        "frequency": "Frequency",
+        "weekday": "Weekday",
+        "dayOfMonth": "Day of month",
+        "time": "Time",
+        "period": "Delivery period",
+        "periodAsSaved": "Same as the report",
+        "recipients": "Recipients",
+        "recipientsHint": "Only active members who can see the report.",
+        "searchUsers": "Search users",
+        "noUsers": "No users found.",
+        "recipientsRequired": "Choose at least one recipient.",
+        "active": "Delivery active"
+      },
+      "frequency": {
+        "daily": "Daily",
+        "weekly": "Weekly",
+        "monthly": "Monthly"
+      },
+      "weekdays": {
+        "1": "Monday",
+        "2": "Tuesday",
+        "3": "Wednesday",
+        "4": "Thursday",
+        "5": "Friday",
+        "6": "Saturday",
+        "7": "Sunday"
+      },
+      "summary": {
+        "daily": "Every day at {{time}}",
+        "weekly": "Every {{weekday}} at {{time}}",
+        "monthly": "Every month on day {{day}} at {{time}}"
+      },
+      "deliveries": {
+        "show": "Show latest deliveries",
+        "hide": "Hide deliveries",
+        "empty": "No deliveries yet.",
+        "error": "The deliveries could not be loaded.",
+        "status": {
+          "sent": "Sent",
+          "sending": "Sending",
+          "failed": "Failed"
+        }
+      }
+    },
+    "widget": {
+      "noReport": "No report chosen. Use “Add to dashboard” on a saved report.",
+      "openReports": "Open reports",
+      "unavailable": "This report no longer exists or is not shared with you.",
+      "error": "The report could not be loaded.",
+      "useDashboardPeriod": "Use the dashboard period"
+    }
+  },
+  "builtin": {
+    "conversion": {
+      "title": "Conversion report",
+      "cohort": "Deals of the {{pipeline}} pipeline created from {{range}}.",
+      "summary": {
+        "created": "Created in the period",
+        "won": "Won",
+        "lost": "Lost",
+        "open_one": "{{value}} still open",
+        "open_other": "{{value}} still open",
+        "conversionRate": "Conversion rate",
+        "winRate": "Win rate: {{value}}",
+        "averageCycle": "Average sales cycle",
+        "averageCycleHint": "From creation to closing of the won deals"
+      },
+      "funnel": {
+        "title": "Conversion funnel",
+        "description": "How many deals reached each stage (or beyond) and how many moved on to the next one.",
+        "chartLabel": "Deals that reached each stage of the pipeline",
+        "won": "Won",
+        "current": "Period",
+        "previous": "Previous period",
+        "deals_one": "{{count}} deal",
+        "deals_other": "{{count}} deals",
+        "previousDeals_one": "{{count}} in the previous period",
+        "previousDeals_other": "{{count}} in the previous period"
+      },
+      "stages": {
+        "caption": "Conversion and time per stage",
+        "stage": "Stage",
+        "reached": "Reached",
+        "passage": "Passage",
+        "advanced": "{{value}} moved on",
+        "lost": "Lost here",
+        "averageTime": "Average time",
+        "openNow": "In the stage now",
+        "visits_one": "{{count}} finished visit",
+        "visits_other": "{{count}} finished visits",
+        "openFor": "for {{value}} on average"
+      },
+      "losses": {
+        "byStage": "Where deals are lost",
+        "byStageHint": "Lost deals by the last open stage before the loss.",
+        "byReason": "Loss reasons",
+        "byReasonHint": "Lost deals of the period by reason.",
+        "unattributed": "No recorded stage",
+        "unknownStage": "Removed stage",
+        "noReason": "No reason",
+        "hiddenReason": "Reason not accessible",
+        "none": "No deal was lost in the period."
+      },
+      "noPipeline": {
+        "title": "No active pipeline",
+        "description": "Create or activate a pipeline to follow the conversion."
+      },
+      "empty": {
+        "title": "No deals in the period",
+        "description": "No deal of this pipeline was created in the selected period."
+      },
+      "footnote": "Stage times consider the visits that started in the period. Numbers follow what you can see."
+    },
+    "performance": {
+      "title": "Performance report",
+      "summary": "Results by {{dimension}} from {{range}}.",
+      "metrics": {
+        "created": "Created",
+        "won": "Won",
+        "wonAmount": "Won amount",
+        "lost": "Lost",
+        "lostHint": "{{value}} lost",
+        "conversion": "Conversion",
+        "cycle": "Average cycle",
+        "activities": "Completed activities"
+      },
+      "chart": {
+        "amountTitle": "Won amount",
+        "countTitle": "Won deals",
+        "amountLabel": "Won amount per group",
+        "countLabel": "Won deals per group",
+        "description_one": "The top group of the ranking.",
+        "description_other": "The top {{count}} of the ranking.",
+        "current": "Period",
+        "previous": "Previous period"
+      },
+      "table": {
+        "title": "Comparison",
+        "description": "Won, lost and cycle use the closing date; created uses the creation date.",
+        "caption": "Performance per group"
+      },
+      "empty": {
+        "owner": "No owner",
+        "team": "No team",
+        "source": "No source",
+        "pipeline": "No pipeline"
+      },
+      "hidden": "Not accessible",
+      "emptyState": {
+        "title": "No results in the period",
+        "description": "No deal was created or closed and no activity was completed in the period."
+      },
+      "truncated": "There are more groups than the ones shown."
+    },
+    "filters": {
+      "dimension": "Group by",
+      "pipeline": "Pipeline",
+      "allPipelines": "All pipelines",
+      "defaultPipeline": "Default pipeline"
+    },
+    "dimensions": {
+      "owner": "Salesperson",
+      "team": "Team",
+      "source": "Source",
+      "pipeline": "Pipeline"
+    },
+    "duration": {
+      "minutes_one": "{{value}} minute",
+      "minutes_other": "{{value}} minutes",
+      "hours_one": "{{value}} hour",
+      "hours_other": "{{value}} hours",
+      "days_one": "{{value}} day",
+      "days_other": "{{value}} days"
+    },
+    "states": {
+      "noData": "—"
+    },
+    "periodRange": "{{from}} to {{to}}",
+    "comparedWith": "Compared with {{range}}."
+  },
+  "nav": {
+    "reports": "Reports"
+  }
+}

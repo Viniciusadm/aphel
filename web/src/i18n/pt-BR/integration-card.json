@@ -1,0 +1,119 @@
+{
+  "status": {
+    "not_configured": "Não configurada",
+    "inactive": "Inativa",
+    "active": "Ativa",
+    "error": "Com erro",
+    "available": "Disponível"
+  },
+  "lastTestOk": "Último teste bem-sucedido em {{date}}",
+  "lastTestFailed": "Último teste falhou em {{date}}",
+  "neverTested": "Conexão ainda não testada",
+  "lastError": "Último erro em {{date}}",
+  "recentErrors": "Erros recentes ({{count}})",
+  "errorSource": {
+    "test": "teste",
+    "activation": "ativação",
+    "delivery": "envio"
+  },
+  "actions": {
+    "configure": "Configurar",
+    "edit": "Editar configuração",
+    "test": "Testar conexão",
+    "activate": "Ativar",
+    "deactivate": "Desativar",
+    "remove": "Remover configuração",
+    "open": "Abrir"
+  },
+  "toast": {
+    "saved": "Configuração de {{name}} salva.",
+    "activated": "{{name}} ativada.",
+    "deactivated": "{{name}} desativada.",
+    "removed": "Configuração de {{name}} removida.",
+    "testOk": "Conexão com {{name}} funcionando.",
+    "testOkEmail": "Conexão funcionando. Enviamos um e-mail de teste para {{email}}.",
+    "testFailed": "O teste de conexão falhou",
+    "activationFailed": "Não foi possível ativar {{name}}"
+  },
+  "removeTitle": "Remover configuração?",
+  "removeDescription": "A configuração e as senhas salvas de {{name}} serão apagadas e a integração deixará de funcionar.",
+  "removeConfirm": "Remover",
+  "deactivateTitle": "Desativar integração?",
+  "deactivateDescription": "{{name}} deixará de ser usada até ser ativada de novo. A configuração é mantida.",
+  "deactivateConfirm": "Desativar",
+  "test": {
+    "title": "Testar conexão",
+    "description": "O teste usa a configuração salva. Salve as alterações antes de testar.",
+    "sendEmail": "Enviar também um e-mail de teste para mim",
+    "submit": "Testar",
+    "cancel": "Cancelar"
+  },
+  "form": {
+    "title": "Configurar {{name}}",
+    "description": "Os campos marcados com * são obrigatórios.",
+    "secretConfigured": "Já configurada.",
+    "clearSecret": "Remover o valor salvo",
+    "selectPlaceholder": "Selecione",
+    "save": "Salvar",
+    "cancel": "Cancelar"
+  },
+  "validation": {
+    "required": "Preencha este campo.",
+    "email": "Informe um e-mail válido.",
+    "url": "Informe uma URL que comece com http:// ou https://.",
+    "number": "Informe um número inteiro.",
+    "range": "Informe um número entre {{min}} e {{max}}.",
+    "invalid": "Valor inválido."
+  },
+  "errors": {
+    "generic": "Não foi possível concluir a ação. Tente novamente.",
+    "versionConflict": "A configuração foi alterada por outra pessoa. Feche e abra de novo para ver a versão atual.",
+    "notConfigured": "Complete a configuração antes de continuar.",
+    "encryptionMissing": "O servidor não tem uma chave de criptografia configurada (APP_ENCRYPTION_KEY), então não é possível salvar senhas."
+  },
+  "providers": {
+    "smtp": {
+      "name": "SMTP da organização",
+      "description": "Envie os e-mails da organização (notificações e convites) pelo seu próprio servidor SMTP, no lugar do servidor padrão do Aphel. E-mails de login e recuperação de senha continuam saindo pelo servidor padrão.",
+      "fields": {
+        "host": {
+          "label": "Servidor",
+          "help": "Endereço do servidor SMTP, por exemplo smtp.suaempresa.com.br."
+        },
+        "port": {
+          "label": "Porta",
+          "help": "Normalmente 587 (STARTTLS), 465 (TLS) ou 25."
+        },
+        "security": {
+          "label": "Segurança",
+          "help": "Use STARTTLS na porta 587 e TLS na porta 465. Nenhuma só para servidores internos.",
+          "options": {
+            "none": "Nenhuma",
+            "starttls": "STARTTLS",
+            "tls": "TLS"
+          }
+        },
+        "username": {
+          "label": "Usuário",
+          "help": "Deixe em branco se o servidor não exige autenticação."
+        },
+        "password": {
+          "label": "Senha",
+          "help": "Fica guardada cifrada e nunca é exibida de novo."
+        },
+        "from_email": {
+          "label": "E-mail do remetente",
+          "help": "Endereço que aparece como remetente. O servidor precisa permitir o envio por ele."
+        },
+        "from_name": {
+          "label": "Nome do remetente",
+          "help": "Opcional, por exemplo o nome da sua empresa."
+        }
+      }
+    },
+    "webhook": {
+      "name": "Webhook genérico",
+      "description": "Envie eventos do CRM para qualquer endereço HTTPS. Os endpoints são gerenciados na tela de webhooks."
+    }
+  }
+}

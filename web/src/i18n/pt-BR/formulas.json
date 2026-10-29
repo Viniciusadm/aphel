@@ -1,0 +1,123 @@
+{
+  "settings": {
+    "title": "Fórmula",
+    "description": "O valor é calculado automaticamente a partir dos outros campos do registro e não pode ser editado à mão.",
+    "resultType": "Tipo do resultado",
+    "resultTypeHint": "Define como o valor é guardado, exibido e filtrado.",
+    "decimals": "Casas decimais",
+    "decimalsHint": "De 0 a 6. Vazio mantém o valor calculado.",
+    "currency": "Moeda",
+    "currencyHint": "Código ISO de 3 letras. Vazio usa BRL."
+  },
+  "resultTypes": {
+    "number": "Número",
+    "currency": "Moeda",
+    "date": "Data",
+    "text": "Texto",
+    "boolean": "Sim/não"
+  },
+  "kinds": {
+    "number": "número",
+    "text": "texto",
+    "date": "data",
+    "boolean": "sim/não"
+  },
+  "editor": {
+    "label": "Expressão",
+    "placeholder": "days_until(renewal_date)",
+    "hint": "Use chaves de campos, operadores (+ - * /, = != < <= > >=, and, or, not) e funções. Clique nos itens ao lado para inserir.",
+    "length": "{{count}} de {{max}} caracteres",
+    "validating": "Validando…",
+    "valid": "Expressão válida",
+    "invalid": "A expressão tem problemas",
+    "inferredKind": "Resultado detectado: {{kind}}",
+    "position": "Posição {{position}}",
+    "errorsLabel": "Problemas na expressão",
+    "checkFailed": "Não foi possível validar a expressão agora.",
+    "serverError": "Erro ao salvar: {{message}}"
+  },
+  "dependencies": {
+    "title": "Dependências",
+    "fields": "Campos usados",
+    "aggregates": "Agregações",
+    "today": "Usa a data de hoje: o valor é recalculado todos os dias.",
+    "none": "A expressão não usa outros campos."
+  },
+  "catalog": {
+    "title": "Inserir na expressão",
+    "fields": "Campos",
+    "relations": "Relações",
+    "functions": "Funções",
+    "search": "Filtrar itens",
+    "empty": "Nenhum item encontrado.",
+    "loading": "Carregando itens…",
+    "loadError": "Não foi possível carregar os campos e funções.",
+    "formula": "fórmula",
+    "count": "Contar registros",
+    "insert": "Inserir {{item}}",
+    "relationFields": "Somar ou calcular a média de um campo de {{relation}}",
+    "noRelations": "Este tipo de registro não tem relações que possam ser agregadas.",
+    "categories": {
+      "date": "Datas",
+      "logic": "Lógica",
+      "text": "Texto",
+      "number": "Números",
+      "aggregate": "Agregações"
+    }
+  },
+  "functions": {
+    "today": "Data de hoje.",
+    "days_between": "Dias entre duas datas (fim menos início).",
+    "days_until": "Dias que faltam até a data.",
+    "days_since": "Dias que se passaram desde a data.",
+    "add_days": "Soma (ou subtrai) dias de uma data.",
+    "if": "Retorna o segundo valor se a condição for verdadeira, senão o terceiro.",
+    "coalesce": "Primeiro valor que não estiver vazio.",
+    "is_empty": "Verdadeiro quando o valor está vazio.",
+    "concat": "Junta textos e valores em um só texto.",
+    "upper": "Texto em letras maiúsculas.",
+    "lower": "Texto em letras minúsculas.",
+    "len": "Quantidade de caracteres do texto.",
+    "round": "Arredonda o número para as casas decimais informadas.",
+    "abs": "Valor absoluto (sem sinal).",
+    "floor": "Arredonda para baixo.",
+    "ceil": "Arredonda para cima.",
+    "min": "Menor entre os valores, ou o menor valor de um campo relacionado.",
+    "max": "Maior entre os valores, ou o maior valor de um campo relacionado.",
+    "count": "Quantidade de registros relacionados.",
+    "sum": "Soma de um campo dos registros relacionados.",
+    "avg": "Média de um campo dos registros relacionados."
+  },
+  "preview": {
+    "title": "Pré-visualização",
+    "record": "Registro de exemplo",
+    "recordHint": "Escolha um registro para ver o valor que a fórmula calcula para ele.",
+    "value": "Valor calculado",
+    "empty": "Vazio",
+    "pickRecord": "Nenhum registro escolhido.",
+    "notEvaluated": "Corrija a expressão para calcular o valor.",
+    "recordNotFound": "O registro escolhido não foi encontrado ou você não tem acesso a ele.",
+    "yes": "Sim",
+    "no": "Não"
+  },
+  "errors": {
+    "unexpected_character": "Caractere inesperado.",
+    "unterminated_string": "Texto sem aspas de fechamento.",
+    "invalid_number": "Número inválido.",
+    "unexpected_token": "Símbolo inesperado nesta posição.",
+    "unexpected_end": "A expressão termina antes do esperado.",
+    "expression_too_long": "A expressão é longa demais (máximo de 2000 caracteres).",
+    "expression_too_complex": "A expressão é complexa demais. Simplifique-a.",
+    "empty_expression": "Escreva uma expressão.",
+    "unknown_field": "Campo desconhecido.",
+    "unknown_relation": "Relação desconhecida.",
+    "unknown_function": "Função desconhecida.",
+    "unsupported_field": "Este campo não pode ser usado em fórmulas.",
+    "wrong_arguments": "Quantidade ou tipo de argumentos incorretos para a função.",
+    "type_mismatch": "Os tipos dos valores não combinam nesta operação.",
+    "related_outside_aggregate": "Campos de registros relacionados só podem ser usados dentro de count, sum, avg, min ou max.",
+    "incompatible_result": "O resultado da expressão não combina com o tipo de resultado escolhido.",
+    "formula_cycle": "A fórmula cria uma dependência circular entre campos.",
+    "field_not_accessible": "Você não tem acesso a este campo."
+  }
+}

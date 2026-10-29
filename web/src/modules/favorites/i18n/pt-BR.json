@@ -1,0 +1,41 @@
+{
+  "sidebar": {
+    "title": "Favoritos",
+    "label": "Favoritos",
+    "empty": "Fixe registros e visualizações com a estrela para acessá-los daqui.",
+    "unavailable": "Item indisponível",
+    "unavailableHint": "O registro foi excluído ou você não tem mais acesso a ele.",
+    "actions": "Ações de {{label}}",
+    "moveUp": "Mover para cima",
+    "moveDown": "Mover para baixo",
+    "remove": "Remover dos favoritos",
+    "collapse": "Recolher favoritos",
+    "expand": "Expandir favoritos"
+  },
+  "reorder": {
+    "handle": "Reordenar {{label}}",
+    "instructions": "Pressione espaço ou Enter para pegar o favorito, use as setas para mover e espaço ou Enter de novo para soltar. Esc cancela.",
+    "picked": "{{label}} selecionado.",
+    "over": "{{label}} na posição {{position}} de {{total}}.",
+    "dropped": "{{label}} solto na posição {{position}} de {{total}}.",
+    "cancelled": "Reordenação de {{label}} cancelada."
+  },
+  "button": {
+    "add": "Adicionar aos favoritos",
+    "remove": "Remover dos favoritos",
+    "addView": "Fixar visualização nos favoritos",
+    "removeView": "Remover visualização dos favoritos"
+  },
+  "toast": {
+    "added": "Adicionado aos favoritos",
+    "removed": "Removido dos favoritos",
+    "limit": "Você atingiu o limite de 50 favoritos. Remova algum para adicionar outro.",
+    "error": "Não foi possível atualizar os favoritos",
+    "reorderError": "Não foi possível reordenar os favoritos"
+  },
+  "commands": {
+    "favorite": "Adicionar aos favoritos",
+    "unfavorite": "Remover dos favoritos",
+    "group": "Favoritos"
+  }
+}

@@ -1,0 +1,63 @@
+name: Relatar bug
+description: Algo não funciona como deveria.
+title: "fix: "
+labels: ["bug"]
+body:
+  - type: markdown
+    attributes:
+      value: |
+        Obrigado por relatar! Antes de enviar, procure nas issues abertas e fechadas se o problema já foi relatado.
+        Vulnerabilidades de segurança não devem ser abertas aqui: veja o SECURITY.md.
+  - type: textarea
+    id: description
+    attributes:
+      label: O que aconteceu
+      description: Descreva o problema com clareza.
+    validations:
+      required: true
+  - type: textarea
+    id: steps
+    attributes:
+      label: Passos para reproduzir
+      placeholder: |
+        1. Acesse Oportunidades no modo Kanban
+        2. Arraste um cartão para a etapa "Proposta"
+        3. Recarregue a página
+    validations:
+      required: true
+  - type: textarea
+    id: expected
+    attributes:
+      label: O que era esperado
+    validations:
+      required: true
+  - type: input
+    id: version
+    attributes:
+      label: Versão do Aphel
+      description: Saída de `aphel --version` ou a tag/commit usado.
+      placeholder: aphel 0.1.0
+    validations:
+      required: true
+  - type: dropdown
+    id: install
+    attributes:
+      label: Forma de instalação
+      options:
+        - Docker Compose (docker-compose.prod.yml)
+        - Instalação manual (binário)
+        - Ambiente de desenvolvimento
+    validations:
+      required: true
+  - type: input
+    id: environment
+    attributes:
+      label: Ambiente
+      description: Navegador e versão, sistema operacional, versão do MySQL, armazenamento (disco ou S3).
+      placeholder: Chrome 140, Ubuntu 24.04, MySQL 8.4, disco local
+  - type: textarea
+    id: logs
+    attributes:
+      label: Logs e capturas de tela
+      description: Trechos relevantes dos logs do app/worker e mensagens de erro. Remova senhas, tokens e dados pessoais.
+      render: shell

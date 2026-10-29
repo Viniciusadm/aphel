@@ -1,0 +1,32 @@
+{
+  "nav": {
+    "today": "Today",
+    "previous": "Previous",
+    "next": "Next"
+  },
+  "views": {
+    "label": "View",
+    "month": "Month",
+    "week": "Week",
+    "day": "Day"
+  },
+  "grid": {
+    "month": "Month calendar",
+    "more_one": "+{{count}} more",
+    "more_other": "+{{count}} more",
+    "less": "Show less",
+    "empty": "Nothing scheduled in this period.",
+    "week": "Week calendar"
+  },
+  "layout": {
+    "label": "Display mode",
+    "table": "Table",
+    "calendar": "Calendar",
+    "field": "Calendar date field"
+  },
+  "records": {
+    "byField": "By {{field}}",
+    "truncated": "Showing {{shown}} of {{total}} records in this period. Refine the filters to see the rest.",
+    "empty": "No records in this period."
+  }
+}

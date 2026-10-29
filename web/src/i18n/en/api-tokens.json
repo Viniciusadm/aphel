@@ -1,0 +1,71 @@
+{
+  "title": "API tokens",
+  "description": "Personal tokens that let integrations access the API on your behalf. Each token can only do what the chosen scopes and your current permissions allow.",
+  "new": "New token",
+  "showAll": "Show tokens from all members",
+  "listLabel": "API tokens",
+  "emptyTitle": "No tokens created",
+  "emptyDescription": "Create a token to connect another system to the Aphel API.",
+  "status": {
+    "active": "Active",
+    "revoked": "Revoked",
+    "expired": "Expired"
+  },
+  "createdBy": "Created by {{name}}",
+  "createdAt": "created on {{date}}",
+  "expiresAt": "expires on {{date}}",
+  "neverExpires": "never expires",
+  "lastUsed": "last used on {{date}} ({{ip}})",
+  "neverUsed": "never used",
+  "unknownIp": "unknown IP",
+  "revoke": "Revoke",
+  "revokeLabel": "Revoke the token {{name}}",
+  "revokeTitle": "Revoke token?",
+  "revokeDescription": "Integrations using the token \"{{name}}\" will stop working immediately. This action cannot be undone.",
+  "revokeConfirm": "Revoke token",
+  "revoked": "Token \"{{name}}\" revoked.",
+  "form": {
+    "title": "New API token",
+    "description": "Choose a name that identifies the integration and only the scopes it needs.",
+    "name": "Name",
+    "namePlaceholder": "E.g.: Website form",
+    "nameRequired": "Enter a name.",
+    "scopes": "Scopes",
+    "scopesRequired": "Choose at least one scope.",
+    "expiration": "Expiration",
+    "expirationOptions": {
+      "30": "In 30 days",
+      "90": "In 90 days",
+      "365": "In 1 year",
+      "never": "Never"
+    },
+    "cancel": "Cancel",
+    "submit": "Create token"
+  },
+  "access": {
+    "read": "Read",
+    "write": "Write"
+  },
+  "resources": {
+    "contacts": "Contacts",
+    "companies": "Companies",
+    "deals": "Deals",
+    "activities": "Activities",
+    "notes": "Notes",
+    "emails": "Emails",
+    "sequences": "Sequences",
+    "scheduling": "Scheduling",
+    "settings": "Settings",
+    "users": "Users",
+    "audit": "Audit",
+    "system": "System"
+  },
+  "secret": {
+    "title": "Token \"{{name}}\" created",
+    "description": "Copy the token now. For security reasons, it will not be shown again.",
+    "copy": "Copy token",
+    "copied": "Copied",
+    "copyFailed": "Could not copy. Select the text and copy it manually.",
+    "done": "Done"
+  }
+}

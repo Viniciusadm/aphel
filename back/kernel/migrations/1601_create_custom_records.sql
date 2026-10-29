@@ -1,0 +1,20 @@
+CREATE TABLE custom_records (
+  id CHAR(36) NOT NULL,
+  object_id CHAR(36) NOT NULL,
+  owner_id CHAR(36) NULL,
+  title VARCHAR(255) NOT NULL DEFAULT '',
+  created_by CHAR(36) NULL,
+  archived_at DATETIME(6) NULL,
+  deleted_at DATETIME(6) NULL,
+  created_at DATETIME(6) NOT NULL DEFAULT CURRENT_TIMESTAMP(6),
+  updated_at DATETIME(6) NOT NULL DEFAULT CURRENT_TIMESTAMP(6),
+  PRIMARY KEY (id),
+  KEY custom_records_title_index (object_id, title),
+  KEY custom_records_created_index (object_id, created_at),
+  KEY custom_records_owner_index (object_id, owner_id),
+  KEY custom_records_owner_fk_index (owner_id),
+  KEY custom_records_created_by_fk_index (created_by),
+  CONSTRAINT custom_records_object_fk FOREIGN KEY (object_id) REFERENCES custom_objects (id) ON DELETE CASCADE,
+  CONSTRAINT custom_records_owner_fk FOREIGN KEY (owner_id) REFERENCES users (id) ON DELETE SET NULL,
+  CONSTRAINT custom_records_created_by_fk FOREIGN KEY (created_by) REFERENCES users (id) ON DELETE SET NULL
+) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci;

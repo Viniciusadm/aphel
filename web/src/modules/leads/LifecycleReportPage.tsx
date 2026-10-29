@@ -1,0 +1,221 @@
+import { ArrowLeft } from 'lucide-react'
+import { useMemo, useState } from 'react'
+import { useTranslation } from 'react-i18next'
+import { Link } from 'react-router'
+import { Button } from '@/components/ui/button'
+import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card'
+import { EmptyState } from '@/components/ui/empty-state'
+import { ErrorState } from '@/components/ui/error-state'
+import { Input } from '@/components/ui/input'
+import { Label } from '@/components/ui/label'
+import { Skeleton } from '@/components/ui/skeleton'
+import { NativeSelect } from '@/features/records/filters/NativeSelect'
+import { useLifecycleReport } from './api'
+import { DEFAULT_REPORT_DAYS, LEADS_PATH } from './constants'
+import type { LifecycleRecordType, LifecycleReport, LifecycleStageReport } from './types'
+
+function isoDate(date: Date): string {
+  return date.toISOString().slice(0, 10)
+}
+
+function defaultPeriod(): { from: string; to: string } {
+  const to = new Date()
+  const from = new Date(to.getTime() - (DEFAULT_REPORT_DAYS - 1) * 86_400_000)
+  return { from: isoDate(from), to: isoDate(to) }
+}
+
+export function LifecycleReportPage() {
+  const { t } = useTranslation('leads')
+  const [recordType, setRecordType] = useState<LifecycleRecordType>('contact')
+  const [period, setPeriod] = useState(defaultPeriod)
+  const query = useMemo(() => ({ record_type: recordType, ...period }), [recordType, period])
+  const report = useLifecycleReport(query)
+
+  return (
+    <div className="flex flex-col gap-4">
+      <div className="grid gap-1">
+        <Button asChild variant="ghost" size="sm" className="w-fit px-2">
+          <Link to={LEADS_PATH}>
+            <ArrowLeft aria-hidden="true" />
+            {t('report.back')}
+          </Link>
+        </Button>
+        <h1 className="text-xl font-semibold">{t('report.title')}</h1>
+        <p className="text-sm text-muted-foreground">{t('report.description')}</p>
+      </div>
+      <div className="flex flex-wrap items-end gap-3">
+        <div className="grid gap-1.5">
+          <Label htmlFor="lifecycle-report-type">{t('report.recordType')}</Label>
+          <NativeSelect
+            id="lifecycle-report-type"
+            value={recordType}
+            onChange={(event) => setRecordType(event.target.value as LifecycleRecordType)}
+          >
+            <option value="contact">{t('report.recordTypes.contact')}</option>
+            <option value="company">{t('report.recordTypes.company')}</option>
+          </NativeSelect>
+        </div>
+        <div className="grid gap-1.5">
+          <Label htmlFor="lifecycle-report-from">{t('report.from')}</Label>
+          <Input
+            id="lifecycle-report-from"
+            type="date"
+            value={period.from}
+            max={period.to}
+            onChange={(event) => event.target.value && setPeriod((current) => ({ ...current, from: event.target.value }))}
+          />
+        </div>
+        <div className="grid gap-1.5">
+          <Label htmlFor="lifecycle-report-to">{t('report.to')}</Label>
+          <Input
+            id="lifecycle-report-to"
+            type="date"
+            value={period.to}
+            min={period.from}
+            onChange={(event) => event.target.value && setPeriod((current) => ({ ...current, to: event.target.value }))}
+          />
+        </div>
+      </div>
+      {report.isPending ? (
+        <div className="grid gap-2" aria-busy="true">
+          <Skeleton className="h-40 w-full" />
+          <Skeleton className="h-24 w-full" />
+        </div>
+      ) : report.isError ? (
+        <ErrorState onRetry={() => void report.refetch()} />
+      ) : (
+        <ReportContent report={report.data} />
+      )}
+    </div>
+  )
+}
+
+function ReportContent({ report }: { report: LifecycleReport }) {
+  const { t, i18n } = useTranslation('leads')
+  const percent = useMemo(
+    () => new Intl.NumberFormat(i18n.language, { style: 'percent', maximumFractionDigits: 1 }),
+    [i18n.language],
+  )
+  const decimal = useMemo(() => new Intl.NumberFormat(i18n.language, { maximumFractionDigits: 1 }), [i18n.language])
+  const labels = new Map(report.stages.map((stage) => [stage.stage, stage.label]))
+  const maxEntered = Math.max(1, ...report.stages.map((stage) => stage.entered))
+
+  if (report.stages.length === 0) return <EmptyState title={t('report.empty')} />
+
+  return (
+    <>
+      <Card>
+        <CardHeader>
+          <CardTitle>{t('report.stagesTitle')}</CardTitle>
+          <CardDescription>{t('report.stagesDescription')}</CardDescription>
+        </CardHeader>
+        <CardContent className="overflow-x-auto">
+          <table className="w-full min-w-[640px] text-sm">
+            <thead className="text-left text-xs text-muted-foreground">
+              <tr>
+                <th className="py-2 pr-3 font-medium">{t('report.columns.stage')}</th>
+                <th className="py-2 pr-3 text-right font-medium">{t('report.columns.current')}</th>
+                <th className="py-2 pr-3 font-medium">{t('report.columns.entered')}</th>
+                <th className="py-2 pr-3 font-medium">{t('report.columns.conversion')}</th>
+                <th className="py-2 text-right font-medium">{t('report.columns.averageDays')}</th>
+              </tr>
+            </thead>
+            <tbody>
+              {report.stages.map((stage) => (
+                <StageRow
+                  key={stage.stage}
+                  stage={stage}
+                  nextLabel={stage.next_stage ? (labels.get(stage.next_stage) ?? stage.next_stage) : null}
+                  maxEntered={maxEntered}
+                  percent={percent}
+                  decimal={decimal}
+                />
+              ))}
+            </tbody>
+          </table>
+        </CardContent>
+      </Card>
+      {report.record_type === 'contact' && (
+        <Card>
+          <CardHeader>
+            <CardTitle>{t('report.disqualificationsTitle')}</CardTitle>
+            <CardDescription>{t('report.disqualificationsDescription')}</CardDescription>
+          </CardHeader>
+          <CardContent>
+            {report.disqualifications.length === 0 ? (
+              <p className="text-sm text-muted-foreground">{t('report.disqualificationsEmpty')}</p>
+            ) : (
+              <ul className="grid gap-1 text-sm">
+                {report.disqualifications.map((item) => (
+                  <li key={item.reason_id ?? item.reason_name} className="flex justify-between gap-3">
+                    <span>{item.reason_name}</span>
+                    <span className="tabular-nums text-muted-foreground">{item.count}</span>
+                  </li>
+                ))}
+              </ul>
+            )}
+          </CardContent>
+        </Card>
+      )}
+    </>
+  )
+}
+
+function StageRow({
+  stage,
+  nextLabel,
+  maxEntered,
+  percent,
+  decimal,
+}: {
+  stage: LifecycleStageReport
+  nextLabel: string | null
+  maxEntered: number
+  percent: Intl.NumberFormat
+  decimal: Intl.NumberFormat
+}) {
+  const { t } = useTranslation('leads')
+  const width = `${Math.round((stage.entered / maxEntered) * 100)}%`
+  return (
+    <tr className="border-t align-middle">
+      <td className="py-2 pr-3">
+        <span className="inline-flex items-center gap-2 font-medium">
+          <span
+            aria-hidden="true"
+            className="size-2.5 rounded-full bg-muted-foreground"
+            style={stage.color ? { backgroundColor: stage.color } : undefined}
+          />
+          {stage.label}
+        </span>
+      </td>
+      <td className="py-2 pr-3 text-right tabular-nums">{stage.current}</td>
+      <td className="py-2 pr-3">
+        <div className="flex items-center gap-2">
+          <div className="h-2 w-32 overflow-hidden rounded bg-muted" aria-hidden="true">
+            <div
+              className="h-full rounded bg-primary"
+              style={{ width, ...(stage.color ? { backgroundColor: stage.color } : {}) }}
+            />
+          </div>
+          <span className="tabular-nums">{stage.entered}</span>
+        </div>
+      </td>
+      <td className="py-2 pr-3">
+        {stage.conversion_rate == null || !nextLabel ? (
+          <span className="text-muted-foreground">—</span>
+        ) : (
+          <span>
+            {t('report.conversion', {
+              rate: percent.format(stage.conversion_rate),
+              converted: stage.converted,
+              next: nextLabel,
+            })}
+          </span>
+        )}
+      </td>
+      <td className="py-2 text-right tabular-nums">
+        {stage.average_days == null ? '—' : t('report.days', { days: decimal.format(stage.average_days) })}
+      </td>
+    </tr>
+  )
+}

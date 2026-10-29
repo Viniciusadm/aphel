@@ -1,0 +1,257 @@
+{
+  "name": "Assistente de IA",
+  "description": "Resumos, sugestões de próximas ações, assistente de redação e consulta em linguagem natural com um provedor de IA configurável",
+  "nav": "Assistente de IA",
+  "settings": {
+    "provider": {
+      "label": "Provedor",
+      "help": "Serviço que recebe os dados enviados pela IA",
+      "options": {
+        "anthropic": "Anthropic (Claude)",
+        "openai_compatible": "Compatível com OpenAI (OpenAI, Ollama, LM Studio)"
+      }
+    },
+    "base_url": {
+      "label": "URL do provedor",
+      "help": "Vazio usa https://api.anthropic.com ou https://api.openai.com/v1. Para Ollama local: http://localhost:11434/v1"
+    },
+    "model": {
+      "label": "Modelo",
+      "help": "Ex.: claude-sonnet-5-5, claude-opus-5-5, claude-haiku-5-5, gpt-4o-mini, llama3.1"
+    },
+    "api_key": {
+      "label": "Chave de API",
+      "help": "Opcional para servidores locais compatíveis com OpenAI"
+    },
+    "daily_limit": {
+      "label": "Limite diário de chamadas",
+      "help": "Chamadas ao provedor por organização por dia"
+    },
+    "user_hourly_limit": {
+      "label": "Limite por usuário por hora",
+      "help": "Chamadas ao provedor por usuário a cada hora"
+    },
+    "send_personal_data": {
+      "label": "Enviar dados pessoais",
+      "help": "Desligado, campos marcados como dados pessoais (nome, e-mail, telefone…) e nomes de pessoas não são enviados. Campos sensíveis nunca são enviados"
+    },
+    "feature_summary": {
+      "label": "Resumo do registro",
+      "help": "Resume o histórico e os dados de contatos, empresas e oportunidades"
+    },
+    "feature_next_actions": {
+      "label": "Sugestões de próximas ações",
+      "help": "Sugere as próximas atividades a partir do histórico do registro"
+    },
+    "feature_compose": {
+      "label": "Assistente de redação",
+      "help": "Ajuda a escrever e revisar e-mails e notas"
+    },
+    "feature_query": {
+      "label": "Consulta em linguagem natural",
+      "help": "Transforma perguntas em filtros de listagem"
+    }
+  },
+  "providers": {
+    "anthropic": "Anthropic (Claude)",
+    "openai_compatible": "Compatível com OpenAI"
+  },
+  "features": {
+    "summary": "Resumo do registro",
+    "next_actions": "Próximas ações",
+    "compose": "Assistente de redação",
+    "query": "Consulta em linguagem natural"
+  },
+  "disclosure": {
+    "title": "O que é enviado e para onde",
+    "intro": "A IA só é chamada quando alguém clica em um botão de IA. Os dados vão para o serviço abaixo, sempre com as permissões de quem pediu: registros, campos e notas que a pessoa não pode ver nunca são enviados.",
+    "provider": "Serviço",
+    "url": "Endereço",
+    "model": "Modelo",
+    "personalData": "Dados pessoais",
+    "personalOn": "Enviados (nome, e-mail, telefone e outros campos marcados como pessoais)",
+    "personalOff": "Não enviados (campos pessoais e nomes de pessoas ficam de fora)",
+    "off": "Desligado",
+    "sends": {
+      "summary": "Envia os campos do contato, empresa ou oportunidade, as 10 notas e 10 atividades mais recentes e, conforme o caso, até 10 oportunidades e contatos ligados. Recebe um texto de resumo.",
+      "next_actions": "Envia os mesmos dados do resumo e a data de hoje. Recebe sugestões de tarefas; nada é criado sem o seu clique.",
+      "compose": "Envia a instrução, o texto do rascunho e, se você marcar, os campos do registro atual. Recebe o texto sugerido; nada é salvo sem o seu clique.",
+      "query": "Envia a pergunta e a lista de campos filtráveis (chave, nome, tipo e opções). Nenhum dado de registro é enviado. Recebe um filtro, que é validado e mostrado antes de aplicar."
+    },
+    "neverSensitive": "Campos marcados como sensíveis nunca são enviados.",
+    "neverHidden": "Campos ocultos para o seu papel e registros fora da sua visibilidade nunca são enviados.",
+    "neverStored": "O Aphel não guarda o texto enviado nem a resposta: o registro de chamadas tem só metadados (quem, recurso, modelo, tokens, duração, erro).",
+    "untrusted": "A IA pode errar. Revise o texto, as sugestões e o filtro antes de usar."
+  },
+  "sources": {
+    "title": "Fontes usadas: {{summary}}",
+    "count": "{{count}} {{type}}",
+    "types": {
+      "contact": "contato(s)",
+      "company": "empresa(s)",
+      "deal": "oportunidade(s)",
+      "note": "nota(s)",
+      "activity": "atividade(s)"
+    }
+  },
+  "footer": {
+    "generatedBy": "Gerado por IA ({{provider}} · {{model}}).",
+    "whatIsSent": "O que é enviado?"
+  },
+  "errors": {
+    "generic": "Não foi possível falar com a IA agora. Tente de novo.",
+    "permission_denied": "Você não tem permissão para isso.",
+    "ai_not_configured": "A IA ainda não foi configurada. Peça a um administrador para configurar o provedor em Configurações › Módulos.",
+    "ai_feature_disabled": "Este recurso de IA está desligado nesta organização.",
+    "ai_limit_reached": "A organização atingiu o limite diário de chamadas de IA.",
+    "ai_user_limit_reached": "Você atingiu seu limite de chamadas de IA por hora. Tente mais tarde.",
+    "ai_provider_error": "O provedor de IA falhou. Tente de novo em instantes.",
+    "ai_provider_auth_failed": "O provedor de IA recusou a chave configurada. Peça a um administrador para revisar a configuração.",
+    "ai_provider_rate_limited": "O provedor de IA está limitando as chamadas. Tente mais tarde.",
+    "ai_provider_timeout": "O provedor de IA demorou demais para responder.",
+    "ai_refused": "O modelo de IA recusou este pedido.",
+    "ai_empty_response": "A IA não devolveu nenhum texto.",
+    "ai_invalid_response": "A resposta da IA veio num formato inesperado. Tente de novo.",
+    "ai_record_not_found": "Registro não encontrado.",
+    "ai_query_invalid": "A IA não conseguiu montar um filtro válido para essa pergunta.",
+    "ai_query_no_fields": "Não há campos filtráveis disponíveis para você neste tipo de registro.",
+    "ai_query_unanswerable": "Essa pergunta não pode virar um filtro."
+  },
+  "tab": {
+    "label": "IA",
+    "notConfiguredTitle": "IA não configurada",
+    "notConfiguredDescription": "Um administrador precisa escolher o provedor e o modelo em Configurações › Módulos › Assistente de IA.",
+    "allOffTitle": "Recursos desligados",
+    "allOffDescription": "O resumo e as sugestões de próximas ações estão desligados nesta organização."
+  },
+  "summary": {
+    "title": "Resumo",
+    "description": {
+      "contact": "Um resumo do contato, das conversas recentes e dos negócios em aberto.",
+      "company": "Um resumo da empresa, das pessoas, das conversas recentes e dos negócios.",
+      "deal": "Um resumo da oportunidade, do andamento e do que precisa de atenção."
+    },
+    "generate": "Gerar resumo",
+    "regenerate": "Gerar de novo"
+  },
+  "actions": {
+    "title": "Próximas ações sugeridas",
+    "description": "Sugestões de tarefas com base no histórico. Cada uma só vira tarefa quando você clica.",
+    "generate": "Sugerir ações",
+    "regenerate": "Sugerir de novo",
+    "empty": "A IA não sugeriu nenhuma ação.",
+    "created": "Tarefa \"{{title}}\" criada",
+    "dueToday": "Para hoje",
+    "dueIn_one": "Em {{count}} dia",
+    "dueIn_other": "Em {{count}} dias",
+    "createTask": "Criar tarefa",
+    "createdLabel": "Criada"
+  },
+  "compose": {
+    "button": "Assistente IA",
+    "title": "Assistente de redação",
+    "description": {
+      "note": "Peça para escrever, melhorar ou resumir a nota. Você revisa antes de usar.",
+      "email": "Peça para escrever, melhorar ou responder o e-mail. Você revisa antes de usar.",
+      "message": "Peça para escrever, melhorar ou responder a mensagem. Você revisa antes de usar."
+    },
+    "shortcuts": "Atalhos",
+    "shortcut": {
+      "improve": "Melhorar",
+      "formal": "Mais formal",
+      "friendly": "Mais amigável",
+      "shorter": "Mais curto",
+      "grammar": "Corrigir",
+      "summarize": "Resumir",
+      "reply": "Escrever resposta"
+    },
+    "instructions": {
+      "improve": "Melhore a clareza e a fluidez do texto, mantendo o sentido e o idioma.",
+      "formal": "Reescreva o texto num tom mais formal e profissional.",
+      "friendly": "Reescreva o texto num tom mais próximo e amigável.",
+      "shorter": "Deixe o texto mais curto e direto, sem perder informação importante.",
+      "grammar": "Corrija ortografia, gramática e pontuação sem mudar o estilo.",
+      "summarize": "Resuma o texto em poucos tópicos.",
+      "reply": "Escreva uma resposta cordial e objetiva ao cliente com base no contexto."
+    },
+    "instruction": "O que a IA deve fazer?",
+    "placeholderDraft": "Ex.: deixe mais curto e inclua uma proposta de horário",
+    "placeholderEmpty": "Ex.: escreva um e-mail de follow-up após a reunião de ontem",
+    "useRecord": "Usar os dados do registro como contexto",
+    "sendsDraft": "Serão enviados a instrução e o texto atual do editor.",
+    "sendsInstruction": "Será enviada a instrução.",
+    "preview": "Sugestão",
+    "cancel": "Cancelar",
+    "insert": "Inserir no fim",
+    "replace": "Substituir texto",
+    "use": "Usar texto",
+    "generate": "Gerar",
+    "regenerate": "Gerar de novo"
+  },
+  "query": {
+    "button": "Perguntar à IA",
+    "title": "Perguntar à IA",
+    "description": "Descreva o que você procura. A IA monta um filtro com os campos da lista; você confere antes de aplicar.",
+    "question": "Pergunta",
+    "placeholder": {
+      "default": "Ex.: criados nos últimos 30 dias e sem responsável",
+      "contact": "Ex.: contatos de São Paulo criados este mês sem e-mail",
+      "company": "Ex.: empresas criadas este ano que são minhas",
+      "deal": "Ex.: oportunidades abertas acima de 10 mil com fechamento previsto este mês"
+    },
+    "sends": "Só a pergunta e a lista de campos vão para a IA; nenhum registro é enviado.",
+    "generate": "Gerar filtro",
+    "generatedFilter": "Filtro gerado",
+    "total_one": "{{count}} registro encontrado",
+    "total_other": "{{count}} registros encontrados",
+    "json": "Ver o filtro em JSON",
+    "cancel": "Cancelar",
+    "combine": "Combinar com o filtro atual",
+    "replace": "Substituir filtro",
+    "apply": "Aplicar filtro",
+    "applied": "Filtro aplicado"
+  },
+  "page": {
+    "title": "Assistente de IA",
+    "description": "Provedor configurado, uso do dia e o que exatamente cada recurso envia.",
+    "noAccessTitle": "Sem acesso",
+    "noAccessDescription": "Você precisa da permissão de usar a IA ou de ver o uso da IA.",
+    "status": "Situação",
+    "configured": "Configurada",
+    "notConfigured": "Não configurada",
+    "notConfiguredHelp": "Escolha o provedor, o modelo e a chave de API em Configurações › Módulos › Assistente de IA.",
+    "usedToday": "Chamadas hoje",
+    "usage": "{{used}} de {{limit}}",
+    "userLimit_one": "Limite por pessoa: {{count}} chamada por hora.",
+    "userLimit_other": "Limite por pessoa: {{count}} chamadas por hora."
+  },
+  "log": {
+    "title": "Registro de chamadas",
+    "description": "Só metadados: o texto enviado e a resposta não são guardados.",
+    "feature": "Recurso",
+    "allFeatures": "Todos os recursos",
+    "status": "Situação",
+    "allStatuses": "Todas",
+    "statuses": {
+      "success": "Sucesso",
+      "error": "Erro"
+    },
+    "totals": {
+      "calls": "Chamadas (30 dias)",
+      "errors": "Erros (30 dias)",
+      "inputTokens": "Tokens de entrada",
+      "outputTokens": "Tokens de saída"
+    },
+    "emptyTitle": "Nenhuma chamada",
+    "emptyDescription": "As chamadas à IA aparecem aqui.",
+    "unknownUser": "Usuário removido",
+    "tokens": "{{input}} → {{output}} tokens",
+    "duration": "{{seconds}} s",
+    "previous": "Página anterior",
+    "next": "Próxima página",
+    "page": "{{page}} de {{pages}}"
+  },
+  "settingsPanel": {
+    "intro": "Antes de habilitar, confira o que cada recurso envia ao provedor escolhido."
+  }
+}

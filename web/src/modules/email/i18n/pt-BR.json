@@ -1,0 +1,371 @@
+{
+  "actions": {
+    "cancel": "Cancelar",
+    "edit": "Editar",
+    "remove": "Remover",
+    "save": "Salvar"
+  },
+  "common": {
+    "loading": "Carregando…"
+  },
+  "fields": {
+    "subject": "Assunto"
+  },
+  "recordTypes": {
+    "contact": "Contato",
+    "company": "Empresa",
+    "deal": "Oportunidade"
+  },
+  "visibility": {
+    "private": {
+      "label": "Privada",
+      "description": "Só você vê estas conversas. Para o resto da equipe, elas não aparecem nem na timeline."
+    },
+    "metadata": {
+      "label": "Só metadados",
+      "description": "A equipe vê assunto, participantes e datas, mas não o conteúdo, a prévia ou os anexos."
+    },
+    "shared": {
+      "label": "Compartilhada",
+      "description": "Quem pode ver o registro ligado lê a conversa completa, com conteúdo e anexos."
+    }
+  },
+  "mailboxStatus": {
+    "active": "Ativa",
+    "syncing": "Sincronizando",
+    "error": "Com erro",
+    "disconnected": "Desconectada"
+  },
+  "messageStatus": {
+    "received": "Recebida",
+    "draft": "Rascunho",
+    "scheduled": "Agendada",
+    "sending": "Enviando",
+    "sent": "Enviada",
+    "failed": "Falhou",
+    "cancelled": "Cancelada"
+  },
+  "messageKind": {
+    "message": "Mensagem",
+    "bounce": "Devolução",
+    "auto_reply": "Resposta automática"
+  },
+  "direction": {
+    "inbound": "Recebida",
+    "outbound": "Enviada"
+  },
+  "errors": {
+    "mail_provider_authentication": "O provedor recusou o usuário ou a senha",
+    "mail_provider_connection": "Não foi possível conectar ao servidor de e-mail",
+    "mail_provider_rejected": "O servidor de e-mail recusou a mensagem",
+    "mail_provider_unsupported": "O provedor não oferece este recurso",
+    "mail_provider_internal": "Erro no provedor de e-mail"
+  },
+  "mailboxes": {
+    "title": "Caixas de e-mail",
+    "description": "Conecte sua caixa para que as mensagens trocadas com clientes apareçam nos registros e para enviar e-mails pelo Aphel.",
+    "tabs": {
+      "mailboxes": "Caixas",
+      "templates": "Modelos pessoais"
+    },
+    "connectSection": "Conectar uma caixa",
+    "connectHint": "Use a conta Google ou Microsoft, ou informe os servidores IMAP e SMTP do seu provedor.",
+    "connectWith": "Conectar {{provider}}",
+    "noProviders": "Nenhum provedor de e-mail está disponível nesta organização.",
+    "connectedTitle": "Suas caixas",
+    "emptyTitle": "Nenhuma caixa conectada",
+    "emptyDescription": "Conecte uma caixa para sincronizar e enviar e-mails pelos registros.",
+    "connectTitle": "Conectar {{provider}}",
+    "connectDescription": "A senha fica guardada cifrada e nunca é exibida de novo.",
+    "editTitle": "Editar caixa",
+    "connect": "Conectar",
+    "connected": "Caixa conectada. A primeira sincronização já começou.",
+    "updated": "Caixa atualizada.",
+    "removed": "Caixa removida.",
+    "removeTitle": "Remover a caixa {{address}}?",
+    "removeDescription": "As conversas sincronizadas desta caixa e a senha guardada serão apagadas do Aphel. Nada é apagado no seu provedor de e-mail.",
+    "removeConfirm": "Remover caixa",
+    "test": "Testar conexão",
+    "testSucceeded": "Conexão funcionando.",
+    "testFailed": "A conexão falhou",
+    "syncNow": "Sincronizar agora",
+    "syncQueued": "Sincronização iniciada.",
+    "syncStarted": "Sincronização iniciada em",
+    "lastSynced": "Última sincronização",
+    "never": "Nunca",
+    "historyDays": "Histórico inicial",
+    "days_one": "{{count}} dia",
+    "days_other": "{{count}} dias",
+    "credentialsConfigured": "Credenciais configuradas",
+    "passwordConfigured": "Senha configurada",
+    "oauthConnected": "Caixa {{provider}} conectada.",
+    "oauthFailed": "Não foi possível conectar a caixa",
+    "oauthErrors": {
+      "access_denied": "A autorização foi cancelada no provedor.",
+      "invalid_state": "A sessão de conexão expirou. Tente de novo.",
+      "exchange_failed": "O provedor não confirmou a autorização. Tente de novo.",
+      "already_connected": "Esta caixa já está conectada.",
+      "generic": "O provedor devolveu um erro ({{code}})."
+    },
+    "security": {
+      "tls": "SSL/TLS",
+      "starttls": "STARTTLS",
+      "none": "Sem criptografia"
+    },
+    "form": {
+      "displayName": "Nome de exibição",
+      "displayNamePlaceholder": "Ex.: Comercial",
+      "historyDays": "Histórico inicial (dias)",
+      "historyHint": "Quantos dias para trás importar na primeira sincronização (até {{max}}).",
+      "historyInvalid": "Informe um número de 1 a {{max}}.",
+      "imapLegend": "Recebimento (IMAP)",
+      "smtpLegend": "Envio (SMTP)",
+      "host": "Servidor",
+      "port": "Porta",
+      "portInvalid": "Porta inválida.",
+      "security": "Segurança",
+      "credentials": "Acesso",
+      "username": "Usuário",
+      "password": "Senha",
+      "passwordKeep": "Deixe em branco para manter a atual",
+      "required": "Campo obrigatório.",
+      "defaultVisibility": "Visibilidade padrão das conversas",
+      "visibilityHint": "Vale para as conversas desta caixa. Você pode mudar conversa por conversa depois."
+    }
+  },
+  "templates": {
+    "create": "Novo modelo",
+    "createTitle": "Novo modelo de e-mail",
+    "editTitle": "Editar modelo de e-mail",
+    "editorDescription": {
+      "organization": "Modelo disponível para toda a equipe.",
+      "personal": "Modelo visível só para você."
+    },
+    "scopeDescription": {
+      "organization": "Modelos que toda a equipe pode usar ao escrever um e-mail.",
+      "personal": "Modelos só seus, que aparecem junto com os da organização ao escrever."
+    },
+    "emptyTitle": "Nenhum modelo",
+    "emptyDescription": "Crie modelos para não reescrever as mensagens de sempre.",
+    "name": "Nome",
+    "key": "Chave",
+    "keyHint": "Identificador estável, usado nos pacotes de configuração. Letras minúsculas, números e _.",
+    "recordType": "Usar em",
+    "anyRecordType": "Qualquer registro",
+    "editTab": "Editar",
+    "previewTab": "Prévia",
+    "bodyHtml": "Corpo (HTML)",
+    "bodyHint": "Use HTML simples (parágrafos, negrito, links). Variáveis como {{example}} são trocadas pelos dados do registro.",
+    "insertVariable": "Inserir variável",
+    "searchVariables": "Buscar variável",
+    "noVariables": "Nenhuma variável encontrada.",
+    "variablesError": "Não foi possível carregar as variáveis.",
+    "created": "Modelo criado.",
+    "updated": "Modelo atualizado.",
+    "removed": "Modelo excluído.",
+    "removeTitle": "Excluir o modelo {{name}}?",
+    "removeDescription": "Os e-mails já enviados com este modelo não mudam.",
+    "updatedAt": "Atualizado em {{date}}"
+  },
+  "preview": {
+    "error": "Não foi possível gerar a prévia.",
+    "frameTitle": "Prévia do e-mail",
+    "missingVariables": "Algumas variáveis ficaram sem valor na prévia:"
+  },
+  "settings": {
+    "title": "E-mail",
+    "description": "Modelos da organização, endereços que não entram no CRM, rastreio e captura de contatos.",
+    "tabs": {
+      "templates": "Modelos",
+      "blocklist": "Lista de bloqueio",
+      "preferences": "Rastreio e captura"
+    }
+  },
+  "blocklist": {
+    "description": "Mensagens de ou para estes domínios e endereços não são sincronizadas nem ligadas a registros. Use para domínios pessoais, internos e newsletters.",
+    "kind": "Tipo",
+    "kinds": {
+      "domain": "Domínio",
+      "address": "Endereço"
+    },
+    "value": "Valor",
+    "placeholders": {
+      "domain": "exemplo.com",
+      "address": "nome@exemplo.com"
+    },
+    "invalid": {
+      "domain": "Informe um domínio válido, como exemplo.com.",
+      "address": "Informe um endereço de e-mail válido."
+    },
+    "reason": "Motivo (opcional)",
+    "reasonPlaceholder": "Ex.: newsletter",
+    "add": "Adicionar",
+    "added": "Adicionado à lista de bloqueio.",
+    "remove": "Remover {{value}}",
+    "removed": "Removido da lista de bloqueio.",
+    "removeTitle": "Remover {{value}} da lista?",
+    "removeDescription": "As próximas mensagens deste remetente voltam a ser sincronizadas. As antigas não são recuperadas.",
+    "emptyTitle": "Lista vazia",
+    "emptyDescription": "Nenhum domínio ou endereço bloqueado."
+  },
+  "tracking": {
+    "title": "Rastreio",
+    "description": "Saiba quando os e-mails enviados pelo Aphel são abertos e quando os links são clicados.",
+    "opens": "Rastrear aberturas",
+    "opensDescription": "Adiciona uma imagem invisível à mensagem. Alguns clientes de e-mail bloqueiam imagens e a abertura pode não ser contada.",
+    "clicks": "Rastrear cliques",
+    "clicksDescription": "Os links passam por um redirecionamento do Aphel antes de chegar ao destino.",
+    "defaultOn": "Ligado por padrão em novos e-mails",
+    "defaultOnDescription": "Quem escreve ainda pode desligar o rastreio em cada envio.",
+    "privacyNote": "Destinatários que pediram oposição ao tratamento de dados nunca são rastreados.",
+    "saved": "Preferências de rastreio salvas.",
+    "ownerOnly": "Rastreio (só você vê)",
+    "disabledForMessage": "Rastreio desligado neste envio.",
+    "opened_one": "Aberto {{count}} vez, por último em {{date}}",
+    "opened_other": "Aberto {{count}} vezes, por último em {{date}}",
+    "notOpened": "Ainda não aberto",
+    "clicked_one": "{{count}} clique, por último em {{date}}",
+    "clicked_other": "{{count}} cliques, por último em {{date}}",
+    "notClicked": "Nenhum clique",
+    "replied": "Respondido em {{date}}",
+    "bounced": "Devolvido em {{date}}"
+  },
+  "capture": {
+    "title": "Captura de contatos",
+    "description": "O que o Aphel pode criar ou ligar sozinho a partir dos e-mails sincronizados. Tudo vem desligado.",
+    "createContacts": "Criar contatos para remetentes desconhecidos",
+    "createContactsDescription": "Só quando houve troca de mensagens nos dois sentidos com o endereço.",
+    "createCompanies": "Criar empresas pelo domínio",
+    "createCompaniesDescription": "Domínios de e-mail pessoal e os da lista de bloqueio são ignorados.",
+    "linkOpenDeals": "Ligar às oportunidades abertas",
+    "linkOpenDealsDescription": "A conversa também aparece nas oportunidades em andamento do contato.",
+    "initialHistoryDays": "Histórico inicial padrão (dias)",
+    "initialHistoryHint": "Sugerido ao conectar novas caixas.",
+    "saved": "Preferências de captura salvas."
+  },
+  "tab": {
+    "label": "E-mails",
+    "description": "Conversas de e-mail ligadas a este registro.",
+    "compose": "Novo e-mail",
+    "emptyTitle": "Nenhuma conversa",
+    "emptyDescription": "Quando você trocar e-mails com este registro, as conversas aparecem aqui.",
+    "emptyNoMailbox": "Conecte sua caixa de e-mail para ver e enviar mensagens por aqui.",
+    "noMailboxTitle": "Você ainda não conectou uma caixa de e-mail",
+    "noMailboxDescription": "Conecte para sincronizar suas conversas e enviar e-mails a partir do registro.",
+    "connectMailbox": "Conectar caixa"
+  },
+  "thread": {
+    "noSubject": "(sem assunto)",
+    "owner": "Caixa de {{name}}",
+    "ownerMailbox": "Caixa de {{name}} ({{address}})",
+    "messageCount_one": "{{count}} mensagem",
+    "messageCount_other": "{{count}} mensagens",
+    "metadataOnly": "Só metadados"
+  },
+  "reader": {
+    "back": "Voltar às conversas",
+    "unknownSender": "Remetente desconhecido",
+    "toLine": "Para: {{names}}",
+    "ccLine": "Cc: {{names}}",
+    "bccLine": "Cco: {{names}}",
+    "bodyTitle": "Conteúdo do e-mail",
+    "emptyBody": "Mensagem sem conteúdo.",
+    "metadataNotice": "{{name}} compartilha só os metadados desta conversa: assunto, participantes e datas.",
+    "remoteImagesBlocked": "Imagens externas bloqueadas para proteger sua privacidade.",
+    "showImages": "Mostrar imagens",
+    "reply": "Responder",
+    "cancelScheduled": "Cancelar envio",
+    "cancelTitle": "Cancelar o envio agendado?",
+    "cancelDescription": "A mensagem não será enviada. Você pode escrever outra depois.",
+    "cancelled": "Envio cancelado.",
+    "visibilityLabel": "Visibilidade desta conversa",
+    "visibilityDefault": "Padrão da caixa",
+    "visibilityChanged": "Visibilidade atualizada."
+  },
+  "links": {
+    "linkedTo": "Ligada a:",
+    "none": "nenhum registro",
+    "automatic": "automático",
+    "automaticHint": "Ligado automaticamente pelos participantes da conversa.",
+    "add": "Vincular registro",
+    "title": "Vincular a um registro",
+    "description": "A conversa passa a aparecer na aba E-mails e na timeline do registro escolhido.",
+    "recordType": "Tipo de registro",
+    "record": "Registro",
+    "alreadyLinked": "A conversa já está ligada a este registro.",
+    "submit": "Vincular",
+    "linked": "Conversa vinculada.",
+    "unlink": "Desvincular",
+    "unlinkTitle": "Desvincular a conversa deste registro?",
+    "unlinkDescription": "A conversa deixa de aparecer no registro. Ela continua na sua caixa.",
+    "unlinked": "Conversa desvinculada."
+  },
+  "composer": {
+    "title": "Novo e-mail",
+    "replyTitle": "Responder",
+    "description": "A mensagem sai pela sua caixa conectada e fica ligada a este registro.",
+    "from": "De",
+    "to": "Para",
+    "cc": "Cc",
+    "bcc": "Cco",
+    "addCopies": "Adicionar Cc e Cco",
+    "suggestions": "Sugestões:",
+    "removeRecipient": "Remover {{address}}",
+    "invalidAddress": "Endereço inválido: {{value}}",
+    "recipientsRequired": "Informe pelo menos um destinatário.",
+    "subjectRequired": "Informe o assunto.",
+    "template": "Modelo",
+    "noTemplate": "Sem modelo",
+    "personalTemplate": "{{name}} (pessoal)",
+    "write": "Escrever",
+    "preview": "Prévia",
+    "format": "Formato do corpo",
+    "formats": {
+      "rich": "Formatado",
+      "text": "Texto",
+      "html": "HTML"
+    },
+    "body": "Mensagem",
+    "bodyPlaceholder": "Escreva sua mensagem…",
+    "htmlHint": "HTML simples. Scripts e conteúdo ativo são removidos no envio.",
+    "attach": "Anexar arquivos",
+    "uploading": "Enviando {{percent}}%",
+    "uploadFailed": "Falha no envio",
+    "removeAttachment": "Remover {{name}}",
+    "schedule": "Agendar envio",
+    "scheduleAt": "Data e hora do envio",
+    "scheduleInvalid": "Escolha uma data e hora no futuro.",
+    "tracking": "Rastrear aberturas e cliques",
+    "trackingHint": "Só você vê o resultado do rastreio.",
+    "send": "Enviar",
+    "scheduleSubmit": "Agendar",
+    "sent": "E-mail enviado.",
+    "scheduled": "E-mail agendado para {{date}}.",
+    "editor": {
+      "toolbar": "Formatação",
+      "bold": "Negrito",
+      "italic": "Itálico",
+      "underline": "Sublinhado",
+      "strike": "Tachado",
+      "bulletList": "Lista com marcadores",
+      "orderedList": "Lista numerada",
+      "blockquote": "Citação",
+      "link": "Inserir link",
+      "unlink": "Remover link",
+      "linkUrl": "Endereço do link",
+      "applyLink": "Aplicar",
+      "cancelLink": "Cancelar",
+      "undo": "Desfazer",
+      "redo": "Refazer",
+      "loading": "Carregando editor…"
+    }
+  },
+  "timeline": {
+    "received": "E-mail recebido de {{from}}",
+    "sent": "E-mail enviado",
+    "opened": "E-mail aberto",
+    "clicked": "Link clicado no e-mail",
+    "bounced": "E-mail devolvido",
+    "open": "Abrir conversa"
+  }
+}

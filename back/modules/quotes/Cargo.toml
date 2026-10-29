@@ -1,0 +1,34 @@
+[package]
+name = "aphel-mod-quotes"
+version.workspace = true
+edition.workspace = true
+rust-version.workspace = true
+license.workspace = true
+publish = false
+
+[dependencies]
+aphel-kernel.workspace = true
+approvals = { package = "aphel-mod-approvals", path = "../approvals" }
+companies = { package = "aphel-mod-companies", path = "../companies" }
+contacts = { package = "aphel-mod-contacts", path = "../contacts" }
+deals = { package = "aphel-mod-deals", path = "../deals" }
+email = { package = "aphel-mod-email", path = "../email" }
+price_lists = { package = "aphel-mod-price-lists", path = "../price_lists" }
+products = { package = "aphel-mod-products", path = "../products" }
+scheduling = { package = "aphel-mod-scheduling", path = "../scheduling" }
+axum.workspace = true
+async-trait.workspace = true
+chrono.workspace = true
+serde.workspace = true
+serde_json.workspace = true
+sqlx.workspace = true
+tracing.workspace = true
+utoipa.workspace = true
+utoipa-axum.workspace = true
+uuid.workspace = true
+sha2.workspace = true
+getrandom.workspace = true
+rust_decimal.workspace = true
+chrono-tz.workspace = true
+base64.workspace = true
+hmac.workspace = true

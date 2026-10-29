@@ -1,0 +1,140 @@
+{
+  "recordTypes": {
+    "contact": "contacts",
+    "company": "companies",
+    "deal": "deals",
+    "activity": "activities",
+    "product": "products"
+  },
+  "actions": {
+    "import": "Import"
+  },
+  "wizard": {
+    "title": "Import {{recordType}}",
+    "back": "Back to the list",
+    "steps": {
+      "upload": "File",
+      "mapping": "Mapping",
+      "run": "Import",
+      "result": "Result"
+    },
+    "stepsLabel": "Import steps",
+    "unsupported": "This record type cannot be imported."
+  },
+  "upload": {
+    "title": "Upload a CSV file or a spreadsheet",
+    "description": "The first line must hold the column names. CSV files in UTF-8 or Latin-1, separated by comma, semicolon, tab or pipe, and XLSX, XLS or ODS spreadsheets (first sheet only) are accepted.",
+    "fileLabel": "CSV file or spreadsheet",
+    "submit": "Upload and continue",
+    "uploading": "Uploading…",
+    "required": "Choose a file to continue."
+  },
+  "mapping": {
+    "title": "Match columns to fields",
+    "description": "We suggested a field for each column by its name. Adjust as needed; columns without a field are ignored.",
+    "detected": "{{rows}} rows · encoding {{encoding}} · separator {{delimiter}}",
+    "column": "Column",
+    "field": "Field",
+    "sample": "Sample",
+    "ignore": "Ignore column",
+    "fieldFor": "Field for column {{column}}",
+    "required": "required",
+    "custom": "custom",
+    "previewTitle": "Preview of the first rows",
+    "line": "Line",
+    "options": "Duplicates and relationships",
+    "duplicateKey": "Find duplicates by",
+    "duplicateStrategy": "When a duplicate is found",
+    "createCompanies": "Create companies that do not exist",
+    "keys": {
+      "none": "Do not check",
+      "email": "Email",
+      "phone": "Phone",
+      "domain": "Domain",
+      "name": "Name"
+    },
+    "strategies": {
+      "skip": "Skip the row",
+      "update": "Update the existing record",
+      "create": "Create anyway"
+    },
+    "validate": "Validate",
+    "validating": "Validating…",
+    "start": "Import {{count}} rows",
+    "starting": "Starting…",
+    "missingRequired": "Match the required fields: {{fields}}.",
+    "saveFailed": "The mapping could not be saved.",
+    "multiple": "several, separated by ;"
+  },
+  "validation": {
+    "title": "Validation result",
+    "summary": "{{valid}} of {{total}} rows are valid",
+    "invalid_one": "{{count}} row with problems",
+    "invalid_other": "{{count}} rows with problems",
+    "allValid": "No problems found.",
+    "note": "Duplicates and module rules are checked while importing.",
+    "lineLabel": "Line {{line}}",
+    "more": "Showing the first {{count}} rows with problems."
+  },
+  "run": {
+    "title": "Importing…",
+    "queued": "Waiting in the queue.",
+    "progress": "{{processed}} of {{total}} rows processed",
+    "progressLabel": "Import progress",
+    "hint": "You can leave this page; the import keeps running and you will be notified when it ends."
+  },
+  "result": {
+    "completed": "Import completed",
+    "failed": "The import did not finish",
+    "totals": {
+      "total": "Rows",
+      "imported": "Created",
+      "updated": "Updated",
+      "skipped": "Skipped",
+      "failed": "Failed"
+    },
+    "downloadErrors": "Download CSV with errors",
+    "fixHint": "Fix the error file and upload it again: only the failed rows are imported, with the same mapping.",
+    "reimport": "Reimport fixed file",
+    "reimportLabel": "Fixed file",
+    "retry": "Retry the failed rows",
+    "retryHint": "Use it when the cause was outside the file, such as an owner who was not a member yet.",
+    "errorsTitle": "Failed rows",
+    "goToList": "See {{recordType}}",
+    "newImport": "New import"
+  },
+  "status": {
+    "draft": "Draft",
+    "queued": "Queued",
+    "running": "Running",
+    "completed": "Completed",
+    "failed": "Failed"
+  },
+  "errors": {
+    "load": "The import could not be loaded.",
+    "upload": "The file could not be uploaded.",
+    "generic": "Something went wrong. Try again."
+  },
+  "history": {
+    "title": "Imports",
+    "menuDescription": "History of spreadsheet imports, with results and error files.",
+    "description": "Track your imports, resume drafts and download the rows that failed.",
+    "new": "New import",
+    "empty": "No imports yet",
+    "emptyDescription": "Use the Import button on a record list to get started.",
+    "rows_one": "{{count}} row",
+    "rows_other": "{{count}} rows",
+    "totals": "{{imported}} created, {{updated}} updated, {{failed}} failed of {{total}}",
+    "errorFile": "Failed rows",
+    "continue": "Continue",
+    "open": "Open",
+    "columns": {
+      "file": "File",
+      "recordType": "Type",
+      "status": "Status",
+      "result": "Result",
+      "createdAt": "Created at",
+      "actions": "Actions"
+    }
+  }
+}

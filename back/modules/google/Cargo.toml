@@ -1,0 +1,21 @@
+[package]
+name = "aphel-mod-google"
+version.workspace = true
+edition.workspace = true
+rust-version.workspace = true
+license.workspace = true
+publish = false
+
+[dependencies]
+aphel-kernel.workspace = true
+email = { package = "aphel-mod-email", path = "../email" }
+oidc = { package = "aphel-mod-oidc", path = "../oidc" }
+scheduling = { package = "aphel-mod-scheduling", path = "../scheduling" }
+axum.workspace = true
+async-trait.workspace = true
+chrono.workspace = true
+serde.workspace = true
+serde_json.workspace = true
+tracing.workspace = true
+utoipa.workspace = true
+utoipa-axum.workspace = true

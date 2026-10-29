@@ -1,0 +1,21 @@
+CREATE TABLE jobs (
+  id CHAR(36) NOT NULL,
+  queue VARCHAR(64) NOT NULL,
+  kind VARCHAR(150) NOT NULL,
+  payload JSON NOT NULL,
+  attempts INT UNSIGNED NOT NULL DEFAULT 0,
+  max_attempts INT UNSIGNED NOT NULL,
+  run_at DATETIME(6) NOT NULL,
+  locked_at DATETIME(6) NULL,
+  locked_by VARCHAR(128) NULL,
+  last_error TEXT NULL,
+  unique_key VARCHAR(191) NULL,
+  finished_at DATETIME(6) NULL,
+  failed_at DATETIME(6) NULL,
+  created_at DATETIME(6) NOT NULL DEFAULT CURRENT_TIMESTAMP(6),
+  PRIMARY KEY (id),
+  UNIQUE KEY jobs_unique_key_unique (unique_key),
+  KEY jobs_polling_index (finished_at, failed_at, locked_at, run_at),
+  KEY jobs_queue_polling_index (queue, finished_at, failed_at, locked_at, run_at),
+  KEY jobs_failed_index (failed_at)
+) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci;

@@ -1,0 +1,118 @@
+{
+  "page": {
+    "title": "Metas",
+    "description": "Acompanhe as metas por usuário, equipe ou organização com base nos resultados registrados.",
+    "new": "Nova meta",
+    "viewLabel": "Período das metas",
+    "views": {
+      "current": "Período atual",
+      "all": "Todas"
+    },
+    "ownerFilter": "Responsável",
+    "allOwners": "Todos",
+    "listLabel": "Metas",
+    "emptyCurrentTitle": "Nenhuma meta no período atual",
+    "emptyTitle": "Nenhuma meta cadastrada",
+    "emptyDescription": "Defina uma meta para acompanhar o progresso da equipe.",
+    "emptyReadOnly": "Quando houver metas para você, sua equipe ou a organização, elas aparecem aqui."
+  },
+  "metrics": {
+    "won_amount": "Valor ganho",
+    "won_count": "Oportunidades ganhas",
+    "activities_done": "Atividades realizadas",
+    "new_contacts": "Novos contatos"
+  },
+  "periods": {
+    "month": "Mês",
+    "quarter": "Trimestre",
+    "year": "Ano"
+  },
+  "periodLabel": {
+    "quarter": "{{quarter}}º trimestre de {{year}}",
+    "year": "Ano de {{year}}"
+  },
+  "ownerTypes": {
+    "user": "Usuário",
+    "team": "Equipe",
+    "organization": "Organização"
+  },
+  "owner": {
+    "organization": "Organização",
+    "unknown": "Responsável removido"
+  },
+  "status": {
+    "upcoming": "Não iniciada",
+    "on_track": "No ritmo",
+    "behind": "Abaixo do ritmo",
+    "achieved": "Atingida",
+    "missed": "Não atingida"
+  },
+  "progress": {
+    "percent": "{{percent}}% da meta",
+    "expected": "Esperado até hoje: {{percent}}%",
+    "valueText": "{{percent}}% da meta",
+    "unavailable": "Você não tem acesso aos dados usados para calcular esta meta.",
+    "noValue": "—"
+  },
+  "card": {
+    "label": "Meta de {{metric}} de {{owner}}",
+    "target": "Meta: {{target}}",
+    "edit": "Editar meta de {{metric}} de {{owner}}",
+    "delete": "Excluir meta de {{metric}} de {{owner}}"
+  },
+  "dialog": {
+    "newTitle": "Nova meta",
+    "editTitle": "Editar meta",
+    "description": "O progresso é calculado a partir dos registros do período, respeitando o que cada pessoa pode ver.",
+    "ownerType": "Meta de",
+    "user": "Usuário",
+    "team": "Equipe",
+    "choose": "Selecione",
+    "metric": "Métrica",
+    "period": "Período",
+    "month": "Mês de referência",
+    "periodHint": "A meta vale para: {{period}}",
+    "targetAmount": "Valor da meta",
+    "targetCount": "Quantidade da meta",
+    "cancel": "Cancelar",
+    "save": "Salvar",
+    "errors": {
+      "user": "Selecione o usuário.",
+      "team": "Selecione a equipe.",
+      "month": "Informe o mês de referência.",
+      "target": "Informe um valor maior que zero.",
+      "targetInteger": "Informe um número inteiro.",
+      "duplicate": "Já existe uma meta com este responsável, métrica e período.",
+      "conflict": "A meta foi alterada por outra pessoa. Feche e abra novamente.",
+      "invalid": "Valor inválido."
+    }
+  },
+  "deleteDialog": {
+    "title": "Excluir meta?",
+    "description": "A meta deixará de ser acompanhada. Os registros não são alterados.",
+    "confirm": "Excluir"
+  },
+  "toast": {
+    "created": "Meta criada",
+    "updated": "Meta atualizada",
+    "deleted": "Meta excluída"
+  },
+  "widget": {
+    "emptyTitle": "Nenhuma meta no período atual",
+    "emptyDescription": "Defina metas na tela de metas para acompanhá-las aqui.",
+    "listLabel": "Metas do período atual",
+    "seeAll_one": "Ver a meta",
+    "seeAll_other": "Ver todas as {{count}} metas",
+    "onlyMine": "Somente minhas metas",
+    "limit": "Quantidade de metas"
+  },
+  "creditMode": {
+    "label": "Crédito da receita",
+    "owner": "Valor inteiro para o responsável",
+    "split": "Dividido pela equipe da oportunidade",
+    "hint": "Com a divisão, cada usuário soma o valor das oportunidades ganhas multiplicado pelo seu crédito na equipe."
+  },
+  "nav": {
+    "goals": "Metas"
+  }
+}

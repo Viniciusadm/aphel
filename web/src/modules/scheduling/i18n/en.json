@@ -1,0 +1,264 @@
+{
+  "page": {
+    "title": "Scheduling",
+    "description": "Public links for your clients to book meetings in the free times of your calendar."
+  },
+  "tabs": {
+    "meetingTypes": "Meeting types",
+    "availability": "My availability",
+    "bookings": "Bookings"
+  },
+  "actions": {
+    "save": "Save",
+    "saving": "Saving...",
+    "cancel": "Cancel",
+    "back": "Back"
+  },
+  "errors": {
+    "generic": "Could not save. Please try again.",
+    "versionConflict": "Someone else changed this item. Reload the page and try again.",
+    "invalid": "Check the highlighted fields.",
+    "slugTaken": "This address is already in use."
+  },
+  "validation": {
+    "time": "Use the HH:MM format.",
+    "intervalOrder": "The end must be after the start.",
+    "overlap": "This interval overlaps another one on the same day.",
+    "tooManyIntervals": "Use at most 28 intervals per week.",
+    "timezone": "Enter a valid time zone.",
+    "minNotice": "Enter a value between 0 and 43200 minutes.",
+    "maxPerDay": "Enter a value between 1 and 50 or leave it empty.",
+    "buffer": "Enter a value between 0 and 240 minutes.",
+    "horizon": "Enter a value between 1 and 365 days.",
+    "questionLabel": "Enter the question (up to 200 characters).",
+    "nameRequired": "Enter the name.",
+    "nameLength": "Use at most 140 characters.",
+    "duration": "Enter a duration between 5 and 480 minutes.",
+    "slotInterval": "Enter an interval between 5 and 240 minutes.",
+    "tooManyQuestions": "Use at most 10 questions.",
+    "slug": "Use only lowercase letters, numbers and hyphens.",
+    "locationValue": "Enter the meeting location."
+  },
+  "weekdays": {
+    "1": "Monday",
+    "2": "Tuesday",
+    "3": "Wednesday",
+    "4": "Thursday",
+    "5": "Friday",
+    "6": "Saturday",
+    "7": "Sunday"
+  },
+  "kinds": {
+    "personal": "Personal",
+    "team": "Team"
+  },
+  "locationKinds": {
+    "none": "No location",
+    "video": "Video call",
+    "address": "Address",
+    "phone": "Phone"
+  },
+  "locationValueLabels": {
+    "video": "Video call link",
+    "address": "Address",
+    "phone": "Phone"
+  },
+  "questionKinds": {
+    "text": "Short text",
+    "long_text": "Long text"
+  },
+  "bookingStatus": {
+    "confirmed": "Confirmed",
+    "canceled": "Canceled"
+  },
+  "availability": {
+    "user": "Availability of",
+    "me": "Me",
+    "forbidden": "You are not allowed to see this user's availability.",
+    "saved": "Availability saved",
+    "notConfigured": "Not configured",
+    "notConfiguredHint": "These are the default values. Save to start receiving bookings.",
+    "timezone": "Time zone",
+    "weeklyHours": "Weekly hours",
+    "weeklyHoursHint": "Set the intervals in which you accept meetings. Days without intervals are unavailable.",
+    "unavailable": "Unavailable",
+    "start": "Start",
+    "end": "End",
+    "until": "to",
+    "addInterval": "Add interval",
+    "removeInterval": "Remove interval",
+    "minNotice": "Minimum notice (minutes)",
+    "minNoticeHint": "Minimum time between booking and the start of the meeting.",
+    "maxPerDay": "Maximum meetings per day",
+    "maxPerDayHint": "Leave empty for no limit.",
+    "noLimit": "No limit",
+    "horizon": "Booking window (days)",
+    "horizonHint": "How many days ahead people can book.",
+    "bufferBefore": "Buffer before (minutes)",
+    "bufferAfter": "Buffer after (minutes)",
+    "bufferHint": "Free time reserved around each meeting."
+  },
+  "meetingTypes": {
+    "description": "Each meeting type has its own public link.",
+    "create": "New meeting type",
+    "emptyTitle": "No meeting types",
+    "emptyDescription": "Create a meeting type to get a booking link.",
+    "active": "Active",
+    "inactive": "Inactive",
+    "duration": "Duration",
+    "minutes_one": "{{count}} minute",
+    "minutes_other": "{{count}} minutes",
+    "owner": "Owner",
+    "distributionRule": "Distribution",
+    "copyLink": "Copy link",
+    "linkCopied": "Link copied",
+    "openLink": "Open",
+    "edit": "Edit",
+    "remove": "Delete",
+    "removeTitle": "Delete meeting type?",
+    "removeDescription": "The link of \"{{name}}\" will stop working. Existing bookings are kept.",
+    "toast": {
+      "created": "Meeting type created",
+      "updated": "Meeting type updated",
+      "removed": "Meeting type deleted"
+    },
+    "form": {
+      "createTitle": "New meeting type",
+      "editTitle": "Edit meeting type",
+      "description": "Configure how the meeting appears on the public booking page.",
+      "name": "Name",
+      "slug": "Link address",
+      "slugPlaceholder": "generated from the name",
+      "slugHint": "Lowercase letters, numbers and hyphens. Changing it breaks the old link.",
+      "descriptionLabel": "Description",
+      "duration": "Duration (minutes)",
+      "slotInterval": "Interval between times (minutes)",
+      "slotIntervalHint": "How often times are offered.",
+      "locationKind": "Location",
+      "locationValueHint": "Shown to the guest only after booking.",
+      "spamProtection": "Spam protection (honeypot and attempt limit)",
+      "active": "Active (accepts new bookings)",
+      "team": "Team link",
+      "teamHint": "Pick a distribution rule so the booking is assigned to a team member.",
+      "distributionRule": "Distribution rule",
+      "personalLink": "None (personal link)",
+      "questions": "Questions",
+      "questionsHint": "Extra questions for the guest (up to 10). Answers can fill contact fields.",
+      "noQuestions": "No extra questions.",
+      "questionLabel": "Question",
+      "questionKind": "Answer type",
+      "contactField": "Fill contact field",
+      "noContactField": "Do not fill",
+      "required": "Required",
+      "addQuestion": "Add question",
+      "removeQuestion": "Remove question"
+    }
+  },
+  "bookings": {
+    "status": "Status",
+    "allStatuses": "All",
+    "meetingType": "Meeting type",
+    "allMeetingTypes": "All",
+    "upcomingOnly": "Upcoming only",
+    "emptyTitle": "No bookings",
+    "emptyDescription": "Bookings made through your links show up here.",
+    "host": "With {{name}}",
+    "cancelReason": "Reason: {{reason}}",
+    "cancel": "Cancel",
+    "cancelTitle": "Cancel booking?",
+    "cancelDescription": "{{name}} will be notified of the cancellation.",
+    "cancelConfirm": "Cancel booking",
+    "reason": "Reason (optional)",
+    "canceled": "Booking canceled",
+    "notChangeable": "This booking can no longer be changed."
+  },
+  "pagination": {
+    "previous": "Previous page",
+    "next": "Next page",
+    "page": "Page {{page}} of {{total}}"
+  },
+  "public": {
+    "poweredBy": "Scheduling by Aphel",
+    "invalid": {
+      "title": "Invalid or expired link",
+      "description": "This booking link no longer exists. Ask whoever sent it for a new one."
+    },
+    "details": {
+      "duration_one": "{{count}} minute",
+      "duration_other": "{{count}} minutes"
+    },
+    "locationKinds": {
+      "none": "Location to be defined",
+      "video": "Video call",
+      "address": "In person",
+      "phone": "Phone"
+    },
+    "status": {
+      "confirmed": "Confirmed",
+      "canceled": "Canceled"
+    },
+    "actions": {
+      "cancel": "Cancel",
+      "back": "Back"
+    },
+    "timezone": {
+      "current": "Times in {{timezone}}",
+      "change": "Change",
+      "label": "Time zone",
+      "apply": "Apply"
+    },
+    "slots": {
+      "title": "Pick a time",
+      "days": "Days of the week",
+      "previousWeek": "Previous week",
+      "nextWeek": "Next week",
+      "loadError": "Could not load the available times.",
+      "emptyTitle": "No free times this week",
+      "emptyDescription": "Try next week."
+    },
+    "form": {
+      "title": "Your details",
+      "changeTime": "Pick another time",
+      "name": "Name",
+      "email": "E-mail",
+      "website": "Website",
+      "submit": "Confirm booking",
+      "submitting": "Booking...",
+      "errors": {
+        "name": "Enter your name.",
+        "email": "Enter a valid e-mail.",
+        "required": "This answer is required.",
+        "answerLength": "Use at most 2000 characters.",
+        "invalid": "Invalid value."
+      }
+    },
+    "errors": {
+      "slotUnavailable": "This time was just taken. Please pick another time.",
+      "rateLimited": "Too many attempts. Wait a few minutes and try again.",
+      "rejected": "The booking could not be completed.",
+      "invalid": "Check the highlighted fields.",
+      "notChangeable": "This booking can no longer be changed.",
+      "generic": "Something went wrong. Please try again."
+    },
+    "manage": {
+      "confirmedTitle": "Booking confirmed",
+      "confirmedDescription": "We sent the details to {{email}}. Keep this link to reschedule or cancel.",
+      "canceledTitle": "This booking was canceled",
+      "bookAgain": "Book again",
+      "cancelReason": "Cancellation reason: {{reason}}",
+      "reschedule": "Reschedule",
+      "rescheduleTitle": "Pick a new time",
+      "rescheduleConfirm": "Confirm new time",
+      "rescheduling": "Rescheduling...",
+      "cancel": "Cancel booking",
+      "cancelTitle": "Cancel booking?",
+      "cancelDescription": "The organizer will be notified of the cancellation.",
+      "cancelConfirm": "Cancel booking",
+      "reason": "Reason (optional)",
+      "locked": "This booking can no longer be rescheduled or canceled here."
+    }
+  },
+  "nav": {
+    "scheduling": "Scheduling"
+  }
+}

@@ -1,0 +1,29 @@
+{
+  "update": {
+    "title": "A new version of Aphel is available",
+    "description": "Update to load the latest improvements. Anything unsaved on this screen may be lost.",
+    "action": "Update",
+    "updating": "Updating…",
+    "later": "Later",
+    "dismiss": "Dismiss"
+  },
+  "install": {
+    "action": "Install Aphel"
+  },
+  "push": {
+    "title": "Push notifications on this device",
+    "enabledDescription": "On: you get the notices checked in the Push column even when Aphel is closed.",
+    "disabledDescription": "Get the notices checked in the Push column even when Aphel is closed. Applies only to this browser and is turned off when you sign out.",
+    "blocked": "Notifications for this site are blocked in the browser settings. Allow them there to turn this on.",
+    "enable": "Turn on for this device",
+    "disable": "Turn off for this device",
+    "enabled": "Push notifications turned on for this device",
+    "enableError": "Could not turn on push notifications",
+    "disableError": "Could not turn off push notifications",
+    "support": {
+      "unsupported": "This browser does not support push notifications.",
+      "ios-needs-install": "On iPhone and iPad, notifications only work with Aphel installed: tap Share → Add to Home Screen, open Aphel from the icon and turn them on here.",
+      "development": "Push notifications only work in the built version of Aphel (not on the development server)."
+    }
+  }
+}

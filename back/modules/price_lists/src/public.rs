@@ -1,0 +1,24 @@
+use async_trait::async_trait;
+use serde_json::Value;
+use uuid::Uuid;
+
+use aphel_kernel::Ctx;
+use aphel_kernel::application::public_events::{PublicResource, PublicResourceLoader};
+use aphel_kernel::errors::AppError;
+
+use crate::http::PriceListResponse;
+
+pub(crate) struct PriceListPublicResource;
+
+#[async_trait]
+impl PublicResourceLoader for PriceListPublicResource {
+    fn resource(&self) -> PublicResource {
+        crate::PRICE_LIST_RESOURCE
+    }
+
+    async fn load(&self, ctx: &Ctx<'_>, id: Uuid) -> Result<Value, AppError> {
+        let resource = PriceListResponse::from(crate::service::get(ctx, &id.to_string()).await?);
+        serde_json::to_value(resource)
+            .map_err(|error| AppError::Internal(format!("failed to render public event: {error}")))
+    }
+}

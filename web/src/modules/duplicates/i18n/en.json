@@ -1,0 +1,84 @@
+{
+  "recordTypes": {
+    "contact": "Contacts",
+    "company": "Companies",
+    "deal": "Deals",
+    "product": "Products"
+  },
+  "recordType": {
+    "contact": "Contact",
+    "company": "Company",
+    "deal": "Deal",
+    "product": "Product"
+  },
+  "rules": {
+    "email": "Same email",
+    "phone": "Same phone",
+    "name_company": "Similar name and same company",
+    "domain": "Same domain",
+    "name": "Similar name",
+    "identifier": "Same identifier (e.g. code)"
+  },
+  "queue": {
+    "title": "Duplicates",
+    "description": "Records that the detection rules consider possible duplicates. Compare them side by side and merge, or mark them as not duplicates.",
+    "scan": "Check now",
+    "scanQueued": "Duplicate check started. The list updates in a few moments.",
+    "typeLabel": "Record type",
+    "statusLabel": "Status",
+    "status": {
+      "pending": "Pending",
+      "dismissed": "Not duplicates",
+      "merged": "Merged"
+    },
+    "pairLabel": "{{first}} and {{second}}",
+    "detectedAt": "Detected on {{date}}",
+    "compare": "Compare and merge",
+    "dismiss": "Not a duplicate",
+    "dismissed": "Pair marked as not a duplicate.",
+    "emptyTitle": "No duplicates here",
+    "emptyDescription": "When the rules find similar records, they show up in this queue.",
+    "emptyFiltered": "No pair with this status.",
+    "noTypes": "No record type with duplicate detection is available."
+  },
+  "settings": {
+    "title": "Detection rules",
+    "description": "Choose which criteria indicate a possible duplicate. The check runs every day and when a record is created.",
+    "save": "Save rules",
+    "saved": "Detection rules saved."
+  },
+  "merge": {
+    "title": "Merge records",
+    "description": "Choose, field by field, which value stays. Activities, notes, attachments, tags, deals and links of the merged record move to the primary one, and its history shows up in the primary timeline.",
+    "back": "Back to duplicates",
+    "primary": "Primary (kept)",
+    "duplicate": "Duplicate (merged)",
+    "swap": "Swap primary",
+    "field": "Field",
+    "keepPrimary": "Keep the primary value of {{field}}",
+    "keepDuplicate": "Use the duplicate value of {{field}}",
+    "same": "Same on both",
+    "empty": "empty",
+    "submit": "Merge",
+    "confirmTitle": "Merge “{{duplicate}}” into “{{primary}}”?",
+    "confirmDescription": "The merged record goes to the trash and its address opens the primary one. This cannot be undone.",
+    "success": "Records merged. {{count}} links moved to the primary record.",
+    "missing": "One of the records was not found or was already merged.",
+    "invalid": "Choose two different records to merge.",
+    "noPermission": "You need permission to edit the primary record and delete the duplicate."
+  },
+  "warning": {
+    "title": "Possible duplicate",
+    "description_one": "A similar record already exists: {{names}}. Check Data › Duplicates.",
+    "description_other": "{{count}} similar records already exist: {{names}}. Check Data › Duplicates.",
+    "merge": "Merge",
+    "review": "Review duplicates"
+  },
+  "mergeWith": {
+    "action": "Merge with…",
+    "title": "Merge with another record",
+    "description": "Pick the record that duplicates this one. On the next screen you choose, field by field, which values stay.",
+    "label": "Duplicate record",
+    "submit": "Compare and merge"
+  }
+}

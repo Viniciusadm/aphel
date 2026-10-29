@@ -1,0 +1,135 @@
+{
+  "page": {
+    "title": "System",
+    "description": "Installation health, job queues, recent failures, version and migrations. Visible only to installation administrators, with no business data.",
+    "refresh": "Refresh"
+  },
+  "forbidden": {
+    "title": "Restricted area",
+    "description": "This area requires the manage system permission.",
+    "twoFactor": "Turn on two-step verification to access this area."
+  },
+  "status": {
+    "title": "Status",
+    "ready": "Ready",
+    "notReady": "Degraded",
+    "checkedAt": "Checked at {{date}}",
+    "version": "Aphel version",
+    "platform": "OS / architecture",
+    "checksLabel": "Readiness checks"
+  },
+  "checks": {
+    "names": {
+      "database": "Database",
+      "storage": "File storage",
+      "worker": "Worker",
+      "scheduler": "Scheduler",
+      "queue": "Queue delay"
+    },
+    "status": {
+      "ok": "OK",
+      "fail": "Failed",
+      "skipped": "Skipped"
+    },
+    "reasons": {
+      "unreachable": "Cannot reach the database.",
+      "unavailable": "Could not write a probe file.",
+      "database_unreachable": "Depends on the database.",
+      "query_failed": "The query failed.",
+      "no_heartbeat": "No worker has reported in.",
+      "heartbeat_stale": "The last worker heartbeat is late.",
+      "never_started": "The scheduler has never run.",
+      "schedules_overdue": "Recurring schedules are overdue.",
+      "backlog_delayed": "Ready jobs are waiting longer than the limit.",
+      "disabled": "This check is turned off for this installation."
+    },
+    "age": "{{age}} (limit {{limit}})"
+  },
+  "workers": {
+    "title": "Workers",
+    "empty": "No active worker. Run `aphel worker` or `aphel serve --with-worker`.",
+    "lastSeen": "Last seen {{date}}",
+    "startedAt": "Started {{date}}"
+  },
+  "queue": {
+    "title": "Job queue",
+    "pending": "Ready",
+    "scheduled": "Scheduled",
+    "running": "Running",
+    "failed": "Failed",
+    "oldest": "Oldest ready job has been waiting for {{age}}.",
+    "empty": "The queue is empty.",
+    "byKind": "By kind",
+    "columns": {
+      "queue": "Queue",
+      "kind": "Kind"
+    }
+  },
+  "failedJobs": {
+    "title": "Failed jobs",
+    "description": "Jobs that exhausted their attempts. Retrying resets the attempts and puts the job back in the queue; discarding deletes it. Both actions are recorded.",
+    "filter": "Kind",
+    "allKinds": "All kinds",
+    "empty": "No failed jobs.",
+    "attempts": "{{attempts}}/{{max}} attempts",
+    "columns": {
+      "kind": "Kind",
+      "error": "Last error",
+      "failedAt": "Failed at",
+      "actions": "Actions"
+    },
+    "retry": "Retry",
+    "discard": "Discard",
+    "retried": "Job put back in the queue.",
+    "discarded": "Job discarded.",
+    "discardTitle": "Discard this job?",
+    "discardDescription": "The {{kind}} job will be deleted and will not run again."
+  },
+  "failures": {
+    "title": "Recent failures",
+    "description": "Last {{days}} days. Metadata only: kind, error and date.",
+    "tabs": {
+      "automations": "Automations",
+      "webhooks": "Outgoing webhooks",
+      "integrations": "Integrations"
+    },
+    "empty": "No failures in this period.",
+    "columns": {
+      "kind": "Kind",
+      "error": "Error",
+      "status": "HTTP",
+      "occurredAt": "When"
+    }
+  },
+  "migrations": {
+    "title": "Migrations",
+    "summary": "{{applied}} of {{known}} core migrations applied (latest: {{latest}}).",
+    "upToDate": "Database is up to date.",
+    "pending": "{{count}} pending migration(s). Run `aphel upgrade` with a recent backup.",
+    "problems": "Problems in the history",
+    "pendingList": "Pending",
+    "none": "none"
+  },
+  "modules": {
+    "title": "Compiled modules",
+    "empty": "No module is compiled into this binary.",
+    "columns": {
+      "module": "Module",
+      "version": "Version",
+      "compatibility": "Compatibility",
+      "migrations": "Migrations",
+      "enabled": "Enabled"
+    },
+    "compatible": "Compatible",
+    "incompatible": "Incompatible",
+    "migrationsCount": "{{applied}} applied, {{pending}} pending",
+    "enabled": "Enabled",
+    "disabled": "Disabled"
+  },
+  "duration": {
+    "seconds": "{{count}} s",
+    "minutes": "{{count}} min",
+    "hours": "{{count}} h",
+    "days": "{{count}} d"
+  }
+}

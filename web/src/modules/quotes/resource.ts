@@ -1,0 +1,11 @@
+import { registerRecordResource } from '@/features/records/resources'
+import { quotePath } from './api'
+
+export const QUOTE_RECORD_TYPE = 'quote'
+
+export const quoteResource = registerRecordResource({
+  recordType: QUOTE_RECORD_TYPE,
+  basePath: '/v1/quotes',
+  titleField: 'title',
+  detailPath: quotePath,
+})

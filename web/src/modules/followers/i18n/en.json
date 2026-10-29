@@ -1,0 +1,47 @@
+{
+  "button": {
+    "follow": "Follow",
+    "unfollow": "Unfollow",
+    "count_one": "{{count}} follower",
+    "count_other": "{{count}} followers"
+  },
+  "list": {
+    "title": "Followers",
+    "empty": "Nobody follows this record yet.",
+    "owner": "owner"
+  },
+  "toast": {
+    "errorTitle": "Could not change following"
+  },
+  "page": {
+    "title": "Records I follow",
+    "description": "You are notified of changes, activities, notes and emails of these records.",
+    "typeFilter": "Type",
+    "allTypes": "All types",
+    "emptyTitle": "You do not follow any record",
+    "emptyDescription": "Use the Follow button on the detail of a record to keep track of it.",
+    "untitled": "Untitled",
+    "since": "since {{date}}"
+  },
+  "origin": {
+    "manual": "Followed by you",
+    "owner": "Owner"
+  },
+  "recordTypes": {
+    "contact": "Contact",
+    "company": "Company",
+    "deal": "Deal",
+    "activity": "Activity",
+    "product": "Product",
+    "quote": "Quote"
+  },
+  "pager": {
+    "label": "Pagination",
+    "summary": "Page {{page}} of {{pages}} · {{total}} records",
+    "previous": "Previous",
+    "next": "Next"
+  },
+  "nav": {
+    "following": "Records I follow"
+  }
+}

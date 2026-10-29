@@ -1,0 +1,84 @@
+{
+  "trigger": {
+    "label": "Abrir a paleta de comandos",
+    "placeholder": "Buscar ou executar…"
+  },
+  "dialog": {
+    "title": "Paleta de comandos",
+    "description": "Busque registros, navegue pelas páginas e execute ações. Use as setas para escolher e Enter para confirmar.",
+    "placeholder": "Busque por nome, e-mail, telefone ou digite um comando…",
+    "createPlaceholder": "O que você quer criar?",
+    "inputLabel": "Buscar ou executar comando",
+    "listLabel": "Resultados",
+    "empty": "Nada encontrado para “{{query}}”.",
+    "searching": "Buscando…",
+    "searchError": "Não foi possível buscar agora.",
+    "minLength": "Digite ao menos {{count}} caracteres para buscar registros.",
+    "back": "Voltar",
+    "hint": {
+      "navigate": "navegar",
+      "select": "abrir",
+      "close": "fechar"
+    }
+  },
+  "groups": {
+    "context": "Nesta página",
+    "create": "Criar",
+    "navigation": "Ir para",
+    "favorites": "Favoritos",
+    "general": "Geral",
+    "results": "Resultados: {{type}}",
+    "search": "Busca"
+  },
+  "recordTypes": {
+    "contact": "Contatos",
+    "company": "Empresas",
+    "deal": "Oportunidades",
+    "activity": "Tarefas",
+    "product": "Produtos",
+    "note": "Notas"
+  },
+  "create": {
+    "menu": "Criar novo"
+  },
+  "commands": {
+    "goTo": "Ir para {{page}}",
+    "shortcuts": "Ver atalhos de teclado",
+    "preferences": "Preferências pessoais",
+    "openFavorite": "Abrir favorito",
+    "addNote": "Adicionar nota",
+    "openTab": "Abrir aba {{tab}}",
+    "copyLink": "Copiar link deste registro",
+    "linkCopied": "Link copiado",
+    "allResults": "Ver todos os resultados para “{{query}}”"
+  },
+  "help": {
+    "title": "Atalhos de teclado",
+    "description": "Os atalhos de uma tecla não funcionam enquanto você digita em um campo.",
+    "disabled": "Os atalhos de uma tecla estão desligados nas suas preferências. Ctrl+K continua funcionando.",
+    "manage": "Gerenciar nas preferências",
+    "then": "depois",
+    "sections": {
+      "general": "Geral",
+      "navigation": "Navegação"
+    },
+    "items": {
+      "palette": "Abrir ou fechar a paleta de comandos",
+      "create": "Criar no contexto da página (ou abrir o menu de criação)",
+      "help": "Mostrar esta lista de atalhos",
+      "go": "Ir para {{page}}"
+    }
+  },
+  "preferences": {
+    "tab": "Preferências",
+    "title": "Preferências pessoais",
+    "description": "Ajustes que valem só para você, em todas as organizações.",
+    "shortcuts": {
+      "label": "Atalhos de teclado",
+      "description": "Atalhos de uma tecla, como “g c” para contatos, “c” para criar e “?” para a ajuda. Ctrl+K (ou Cmd+K) continua abrindo a paleta mesmo com eles desligados.",
+      "showList": "Ver a lista de atalhos"
+    },
+    "saved": "Preferências salvas",
+    "saveError": "Não foi possível salvar as preferências"
+  }
+}

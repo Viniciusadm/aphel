@@ -1,0 +1,43 @@
+{
+  "nav": {
+    "label": "Main navigation",
+    "today": "Today",
+    "search": "Search",
+    "add": "Add",
+    "inbox": "Inbox",
+    "more": "More"
+  },
+  "quickAdd": {
+    "description": "Log it in a few taps.",
+    "linkedTo": "Linked to {{title}}",
+    "back": "Back",
+    "saving": "Saving...",
+    "queued": "Saved on this device. It will be sent when you reconnect.",
+    "titles": {
+      "menu": "Add"
+    }
+  },
+  "picker": {
+    "label": "Link to a record (optional)",
+    "labelRequired": "Record",
+    "placeholder": "Search contacts, companies or deals",
+    "results": "Search results",
+    "searching": "Searching...",
+    "empty": "No records found.",
+    "clear": "Remove link"
+  },
+  "dictation": {
+    "start": "Dictate",
+    "stop": "Stop",
+    "listening": "Listening...",
+    "unsupported": "Dictation is not available in this browser",
+    "failure": {
+      "denied": "Allow microphone access to dictate.",
+      "no_speech": "We did not hear anything. Try again.",
+      "failed": "Dictation could not be used."
+    }
+  },
+  "checkIn": {
+    "viewOnMap": "View on map"
+  }
+}

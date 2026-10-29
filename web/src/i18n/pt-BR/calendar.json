@@ -1,0 +1,32 @@
+{
+  "nav": {
+    "today": "Hoje",
+    "previous": "Anterior",
+    "next": "Próximo"
+  },
+  "views": {
+    "label": "Visualização",
+    "month": "Mês",
+    "week": "Semana",
+    "day": "Dia"
+  },
+  "grid": {
+    "month": "Calendário do mês",
+    "more_one": "+{{count}} mais",
+    "more_other": "+{{count}} mais",
+    "less": "Mostrar menos",
+    "empty": "Nada agendado neste período.",
+    "week": "Calendário da semana"
+  },
+  "layout": {
+    "label": "Modo de exibição",
+    "table": "Tabela",
+    "calendar": "Calendário",
+    "field": "Campo de data do calendário"
+  },
+  "records": {
+    "byField": "Por {{field}}",
+    "truncated": "Mostrando {{shown}} de {{total}} registros neste período. Refine os filtros para ver o restante.",
+    "empty": "Nenhum registro neste período."
+  }
+}

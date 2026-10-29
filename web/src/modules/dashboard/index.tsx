@@ -1,0 +1,20 @@
+import { House } from 'lucide-react'
+import { defineModule } from '@/kernel/modules/define'
+import { DASHBOARD_WIDGETS } from './widgets/registry'
+
+const dashboardModule = defineModule({
+  key: 'dashboard',
+  translations: { 'pt-BR': () => import('./i18n/pt-BR.json'), en: () => import('./i18n/en.json') },
+  register(app) {
+    app.routes([
+      {
+        index: true,
+        lazy: async () => ({ Component: (await import('./DashboardPage')).DashboardPage }),
+      },
+    ])
+    app.nav({ to: '/', label: 'nav.home', icon: House, end: true, order: 10 })
+    for (const [key, renderer] of Object.entries(DASHBOARD_WIDGETS)) app.widget(key, renderer)
+  },
+})
+
+export default dashboardModule

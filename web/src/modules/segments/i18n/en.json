@@ -1,0 +1,66 @@
+{
+  "recordTypes": {
+    "contact": "Contacts",
+    "company": "Companies",
+    "deal": "Deals"
+  },
+  "page": {
+    "title": "Segments",
+    "description": "Segments are named saved filters. Members are calculated on the fly, respecting what you can see.",
+    "typesLabel": "Record type",
+    "listLabel": "Segments",
+    "new": "New segment",
+    "emptyTitle": "No segments yet",
+    "emptyDescription": "Create a segment to track a group of records that match a filter.",
+    "noAccessTitle": "No access",
+    "noAccessDescription": "You are not allowed to view contacts, companies or deals.",
+    "count_one": "{{count}} record",
+    "count_other": "{{count}} records",
+    "countUnavailable": "Invalid filter",
+    "editLabel": "Edit {{name}}",
+    "deleteLabel": "Delete {{name}}"
+  },
+  "dialog": {
+    "newTitle": "New segment",
+    "editTitle": "Edit segment",
+    "description": "Name the segment and define the conditions records must meet.",
+    "name": "Name",
+    "nameRequired": "Enter a name.",
+    "nameTaken": "A segment with this name already exists.",
+    "descriptionLabel": "Description (optional)",
+    "filter": "Conditions",
+    "filterHint": "The segment is recalculated every time it is used.",
+    "filterRequired": "Add at least one complete condition.",
+    "filterInvalid": "The conditions are invalid. Review the fields and values.",
+    "cancel": "Cancel",
+    "save": "Save"
+  },
+  "detail": {
+    "back": "Back to segments",
+    "loading": "Counting…",
+    "membersLabel": "Segment records",
+    "emptyTitle": "No records in the segment",
+    "emptyDescription": "No records visible to you meet this segment's conditions.",
+    "invalid": "This segment's filter is no longer valid. Edit the segment to fix it."
+  },
+  "deleteDialog": {
+    "title": "Delete segment",
+    "description": "The segment \"{{name}}\" will be deleted. Records are not affected.",
+    "confirm": "Delete"
+  },
+  "toast": {
+    "created": "Segment {{name}} created",
+    "updated": "Segment {{name}} updated",
+    "deleted": "Segment {{name}} deleted"
+  },
+  "nav": {
+    "segments": "Segments"
+  },
+  "filter": {
+    "field": "Segment",
+    "choose": "Choose a segment",
+    "loading": "Loading segments…",
+    "unknown": "unavailable segment",
+    "summary": "{{field}}: {{name}}"
+  }
+}

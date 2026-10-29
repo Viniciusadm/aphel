@@ -1,0 +1,22 @@
+CREATE TABLE custom_field_values (
+  record_type VARCHAR(64) NOT NULL,
+  record_id CHAR(36) NOT NULL,
+  field_id CHAR(36) NOT NULL,
+  value_text VARCHAR(1024) NULL,
+  value_long_text TEXT NULL,
+  value_number DECIMAL(24,6) NULL,
+  value_date DATE NULL,
+  value_datetime DATETIME(6) NULL,
+  value_bool BOOLEAN NULL,
+  value_option_id CHAR(36) NULL,
+  updated_at DATETIME(6) NOT NULL DEFAULT CURRENT_TIMESTAMP(6) ON UPDATE CURRENT_TIMESTAMP(6),
+  PRIMARY KEY (record_type, record_id, field_id),
+  KEY custom_field_values_text_index (field_id, value_text(255)),
+  KEY custom_field_values_number_index (field_id, value_number),
+  KEY custom_field_values_date_index (field_id, value_date),
+  KEY custom_field_values_datetime_index (field_id, value_datetime),
+  KEY custom_field_values_bool_index (field_id, value_bool),
+  KEY custom_field_values_option_index (field_id, value_option_id),
+  CONSTRAINT custom_field_values_field_fk FOREIGN KEY (field_id) REFERENCES field_definitions (id) ON DELETE CASCADE,
+  CONSTRAINT custom_field_values_option_fk FOREIGN KEY (value_option_id) REFERENCES field_options (id)
+) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci;

@@ -1,0 +1,36 @@
+{
+  "page": {
+    "title": "Search",
+    "description": "Find contacts, companies, deals and activities by name, email, phone and other fields.",
+    "placeholder": "Search by name, email, phone…",
+    "inputLabel": "Search term",
+    "promptTitle": "What are you looking for?",
+    "promptDescription": "Type at least 2 characters to search.",
+    "loading": "Searching…",
+    "error": "The search could not be completed. Try again.",
+    "emptyTitle": "No results",
+    "emptyDescription": "Nothing found for “{{query}}”. Check the spelling or try another term.",
+    "summary_one": "{{count}} result",
+    "summary_other": "{{count}} results"
+  },
+  "results": {
+    "total_one": "{{count}} result",
+    "total_other": "{{count}} results",
+    "more_one": "Showing {{shown}} of {{count}} result",
+    "more_other": "Showing {{shown}} of {{count}} results"
+  },
+  "recordTypes": {
+    "contact": "Contact",
+    "company": "Company",
+    "deal": "Deal",
+    "activity": "Activity",
+    "product": "Product"
+  },
+  "recordTypesPlural": {
+    "contact": "Contacts",
+    "company": "Companies",
+    "deal": "Deals",
+    "activity": "Activities",
+    "product": "Products"
+  }
+}

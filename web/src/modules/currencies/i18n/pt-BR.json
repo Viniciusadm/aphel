@@ -1,0 +1,91 @@
+{
+  "title": "Moedas e câmbio",
+  "description": "Habilite as moedas usadas nas oportunidades e cadastre as cotações para converter os valores à moeda base nos relatórios, previsão, metas e painéis.",
+  "enabled": {
+    "title": "Moedas habilitadas",
+    "description": "{{base}} é a moeda base da organização e está sempre habilitada. Oportunidades e itens só podem usar moedas habilitadas.",
+    "listLabel": "Moedas habilitadas",
+    "base": "Moeda base",
+    "currentRate": "1 = {{rate}} {{base}} desde {{date}}",
+    "noRate": "Sem cotação",
+    "code": "Código ISO",
+    "add": "Habilitar moeda",
+    "added": "{{code}} habilitada",
+    "remove": "Desabilitar {{code}}",
+    "removed": "{{code}} desabilitada",
+    "invalidCode": "Informe um código ISO 4217 de três letras, como USD."
+  },
+  "rates": {
+    "title": "Cotações",
+    "description": "Valor de uma unidade da moeda em {{base}}. Vale a cotação mais recente com data até hoje; oportunidades abertas são recalculadas quando uma cotação muda, e as ganhas ou perdidas mantêm a cotação do fechamento.",
+    "filter": "Filtrar por moeda",
+    "allCurrencies": "Todas as moedas",
+    "new": "Nova cotação",
+    "newTitle": "Nova cotação",
+    "editTitle": "Editar cotação",
+    "dialogDescription": "A cotação passa a valer na data informada.",
+    "rateLabel": "Cotação de 1 {{currency}}",
+    "rateHint": "Número maior que zero, com até 10 casas decimais.",
+    "invalidRate": "Informe um número maior que zero, com até 10 casas decimais.",
+    "save": "Salvar",
+    "cancel": "Cancelar",
+    "edit": "Editar cotação",
+    "delete": "Excluir cotação",
+    "deleteTitle": "Excluir cotação?",
+    "deleteDescription": "As oportunidades abertas voltam a usar a cotação anterior da moeda, se houver.",
+    "created": "Cotação cadastrada",
+    "updated": "Cotação atualizada",
+    "deleted": "Cotação excluída",
+    "empty": "Nenhuma cotação",
+    "emptyHint": "Cadastre a cotação das moedas habilitadas para converter os valores.",
+    "emptyNoCurrencies": "Habilite uma moeda além da base para cadastrar cotações.",
+    "previous": "Anterior",
+    "next": "Próxima",
+    "page": "Página {{page}} de {{total}}",
+    "columns": {
+      "date": "Data",
+      "currency": "Moeda",
+      "rate": "Cotação ({{base}})",
+      "source": "Origem",
+      "actions": "Ações"
+    },
+    "sources": {
+      "manual": "Manual",
+      "integration": "Integração"
+    }
+  },
+  "deal": {
+    "currency": "Moeda da oportunidade",
+    "converted": "≈ {{amount}} (cotação {{rate}})",
+    "notConverted": "Sem cotação para {{base}}"
+  },
+  "errors": {
+    "currency_not_enabled": "A moeda não está habilitada na organização.",
+    "exchange_rate_exists": "Já existe uma cotação dessa moeda nessa data.",
+    "exchange_rate_not_found": "A cotação não existe mais.",
+    "version_conflict": "A cotação foi alterada por outra pessoa. Recarregue e tente de novo.",
+    "exchange_rate_provider_not_configured": "Escolha uma fonte de cotações antes de atualizar.",
+    "exchange_rate_provider_unavailable": "O provedor de cotações não respondeu. Tente de novo mais tarde.",
+    "generic": "Não foi possível concluir a operação."
+  },
+  "provider": {
+    "title": "Atualização automática",
+    "description": "Busque todo dia as cotações das moedas habilitadas em uma fonte pública, sem chave de acesso. Cotações lançadas à mão na mesma data são mantidas.",
+    "label": "Fonte das cotações",
+    "options": {
+      "manual": "Manual (sem busca automática)",
+      "frankfurter": "Frankfurter (Banco Central Europeu)"
+    },
+    "urlLabel": "Endereço do serviço",
+    "urlHint": "Opcional. Vazio usa https://api.frankfurter.app; informe o endereço de uma instalação própria do Frankfurter.",
+    "invalidUrl": "Informe um endereço http(s).",
+    "save": "Salvar fonte",
+    "saved": "Fonte das cotações salva",
+    "syncNow": "Atualizar agora",
+    "synced": "Cotações atualizadas",
+    "syncedSummary": "{{created}} novas, {{updated}} alteradas, {{unchanged}} sem mudança",
+    "syncFailed": "Sem cotação no provedor para: {{currencies}}",
+    "lastSynced": "Última atualização: {{date}}",
+    "neverSynced": "Ainda não atualizado"
+  }
+}

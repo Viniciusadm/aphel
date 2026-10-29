@@ -1,0 +1,43 @@
+{
+  "nav": {
+    "label": "Navegação principal",
+    "today": "Hoje",
+    "search": "Busca",
+    "add": "Adicionar",
+    "inbox": "Caixa",
+    "more": "Mais"
+  },
+  "quickAdd": {
+    "description": "Registre em poucos toques.",
+    "linkedTo": "Vinculado a {{title}}",
+    "back": "Voltar",
+    "saving": "Salvando...",
+    "queued": "Salvo neste aparelho. Será enviado ao reconectar.",
+    "titles": {
+      "menu": "Adicionar"
+    }
+  },
+  "picker": {
+    "label": "Vincular a um registro (opcional)",
+    "labelRequired": "Registro",
+    "placeholder": "Buscar contato, empresa ou oportunidade",
+    "results": "Resultados da busca",
+    "searching": "Buscando...",
+    "empty": "Nenhum registro encontrado.",
+    "clear": "Remover vínculo"
+  },
+  "dictation": {
+    "start": "Ditar",
+    "stop": "Parar",
+    "listening": "Ouvindo...",
+    "unsupported": "Ditado indisponível neste navegador",
+    "failure": {
+      "denied": "Permita o uso do microfone para ditar.",
+      "no_speech": "Não ouvimos nada. Tente de novo.",
+      "failed": "Não foi possível usar o ditado."
+    }
+  },
+  "checkIn": {
+    "viewOnMap": "Ver no mapa"
+  }
+}

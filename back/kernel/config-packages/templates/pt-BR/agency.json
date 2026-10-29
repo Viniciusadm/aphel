@@ -1,0 +1,813 @@
+{
+  "format": "aphel-config",
+  "format_version": 1,
+  "min_aphel_version": "0.1.0",
+  "name": "Agência",
+  "description": "Para agências de marketing, design e desenvolvimento: novos projetos e renovações de contrato em funis separados, com escopo, serviços contratados, fee mensal e atividades de briefing e apresentação.",
+  "author": "Aphel",
+  "locale": "pt-BR",
+  "sections": {
+    "fields": [
+      {
+        "record_type": "deal",
+        "key": "services",
+        "label": "Serviços",
+        "type": "multi_select",
+        "options": [
+          {
+            "value": "website",
+            "label": "Site",
+            "color": "#1f6feb"
+          },
+          {
+            "value": "branding",
+            "label": "Identidade visual",
+            "color": "#8250df"
+          },
+          {
+            "value": "social_media",
+            "label": "Redes sociais",
+            "color": "#bf3989"
+          },
+          {
+            "value": "paid_media",
+            "label": "Mídia paga",
+            "color": "#d1631a"
+          },
+          {
+            "value": "seo",
+            "label": "SEO",
+            "color": "#1a7f37"
+          },
+          {
+            "value": "content",
+            "label": "Conteúdo",
+            "color": "#0f766e"
+          },
+          {
+            "value": "video",
+            "label": "Vídeo",
+            "color": "#cf222e"
+          },
+          {
+            "value": "software",
+            "label": "Desenvolvimento de sistema",
+            "color": "#4f46e5"
+          }
+        ]
+      },
+      {
+        "record_type": "deal",
+        "key": "billing_model",
+        "label": "Modelo de contratação",
+        "type": "select",
+        "options": [
+          {
+            "value": "project",
+            "label": "Projeto fechado",
+            "color": "#1f6feb"
+          },
+          {
+            "value": "retainer",
+            "label": "Fee mensal",
+            "color": "#1a7f37"
+          },
+          {
+            "value": "hourly",
+            "label": "Banco de horas",
+            "color": "#bf8700"
+          }
+        ]
+      },
+      {
+        "record_type": "deal",
+        "key": "monthly_fee",
+        "label": "Fee mensal",
+        "type": "currency",
+        "config": {
+          "currency": "BRL"
+        }
+      },
+      {
+        "record_type": "deal",
+        "key": "contract_months",
+        "label": "Duração do contrato (meses)",
+        "type": "number",
+        "config": {
+          "min": 1,
+          "decimals": 0
+        }
+      },
+      {
+        "record_type": "deal",
+        "key": "scope",
+        "label": "Escopo",
+        "type": "long_text"
+      },
+      {
+        "record_type": "deal",
+        "key": "briefing_url",
+        "label": "Link do briefing",
+        "type": "url"
+      },
+      {
+        "record_type": "deal",
+        "key": "delivery_date",
+        "label": "Prazo de entrega",
+        "type": "date"
+      },
+      {
+        "record_type": "deal",
+        "key": "contract_end_date",
+        "label": "Fim do contrato",
+        "type": "date"
+      },
+      {
+        "record_type": "company",
+        "key": "client_since",
+        "label": "Cliente desde",
+        "type": "date"
+      },
+      {
+        "record_type": "company",
+        "key": "account_manager",
+        "label": "Atendimento responsável",
+        "type": "user"
+      },
+      {
+        "record_type": "company",
+        "key": "channels",
+        "label": "Canais ativos",
+        "type": "multi_select",
+        "options": [
+          {
+            "value": "instagram",
+            "label": "Instagram",
+            "color": "#bf3989"
+          },
+          {
+            "value": "facebook",
+            "label": "Facebook",
+            "color": "#1f6feb"
+          },
+          {
+            "value": "linkedin",
+            "label": "LinkedIn",
+            "color": "#4f46e5"
+          },
+          {
+            "value": "tiktok",
+            "label": "TikTok",
+            "color": "#6e7781"
+          },
+          {
+            "value": "youtube",
+            "label": "YouTube",
+            "color": "#cf222e"
+          },
+          {
+            "value": "google",
+            "label": "Google",
+            "color": "#1a7f37"
+          }
+        ]
+      }
+    ],
+    "pipelines": [
+      {
+        "key": "novos_projetos",
+        "name": "Novos projetos",
+        "default": true,
+        "stages": [
+          {
+            "key": "prospeccao",
+            "name": "Contato inicial",
+            "kind": "open",
+            "probability": 10
+          },
+          {
+            "key": "qualificacao",
+            "name": "Briefing",
+            "kind": "open",
+            "probability": 25,
+            "exit_required_fields": [
+              "services"
+            ]
+          },
+          {
+            "key": "proposta",
+            "name": "Proposta enviada",
+            "kind": "open",
+            "probability": 50,
+            "entry_required_fields": [
+              "amount",
+              "scope"
+            ]
+          },
+          {
+            "key": "negociacao",
+            "name": "Negociação",
+            "kind": "open",
+            "probability": 75
+          },
+          {
+            "key": "ganho",
+            "name": "Fechado",
+            "kind": "won",
+            "probability": 100
+          },
+          {
+            "key": "perdido",
+            "name": "Perdido",
+            "kind": "lost",
+            "probability": 0
+          }
+        ]
+      },
+      {
+        "key": "renovacoes",
+        "name": "Renovações",
+        "stages": [
+          {
+            "key": "contrato_a_vencer",
+            "name": "Contrato a vencer",
+            "kind": "open",
+            "probability": 50,
+            "exit_required_fields": [
+              "contract_end_date"
+            ]
+          },
+          {
+            "key": "apresentacao_resultados",
+            "name": "Apresentação de resultados",
+            "kind": "open",
+            "probability": 65
+          },
+          {
+            "key": "proposta_renovacao",
+            "name": "Proposta de renovação",
+            "kind": "open",
+            "probability": 80,
+            "entry_required_fields": [
+              "amount"
+            ]
+          },
+          {
+            "key": "renovado",
+            "name": "Renovado",
+            "kind": "won",
+            "probability": 100
+          },
+          {
+            "key": "nao_renovado",
+            "name": "Não renovado",
+            "kind": "lost",
+            "probability": 0
+          }
+        ]
+      }
+    ],
+    "lost_reasons": [
+      {
+        "key": "preco",
+        "name": "Preço"
+      },
+      {
+        "key": "escolheu_um_concorrente",
+        "name": "Escolheu um concorrente"
+      },
+      {
+        "key": "sem_orcamento",
+        "name": "Sem orçamento"
+      },
+      {
+        "key": "sem_resposta",
+        "name": "Sem resposta"
+      },
+      {
+        "key": "momento_inadequado",
+        "name": "Momento inadequado"
+      },
+      {
+        "key": "outro",
+        "name": "Outro"
+      },
+      {
+        "key": "escopo_fora_do_perfil",
+        "name": "Escopo fora do nosso perfil"
+      },
+      {
+        "key": "prazo_inviavel",
+        "name": "Prazo inviável"
+      },
+      {
+        "key": "levou_para_dentro_de_casa",
+        "name": "Cliente internalizou o serviço"
+      }
+    ],
+    "activity_types": [
+      {
+        "key": "briefing",
+        "name": "Briefing",
+        "icon": "file-text",
+        "color": "#0f766e"
+      },
+      {
+        "key": "presentation",
+        "name": "Apresentação",
+        "icon": "presentation",
+        "color": "#8250df"
+      },
+      {
+        "key": "delivery",
+        "name": "Entrega",
+        "icon": "send",
+        "color": "#1a7f37"
+      }
+    ],
+    "layouts": [
+      {
+        "record_type": "deal",
+        "context": "create",
+        "layout": {
+          "tabs": [
+            {
+              "id": "main",
+              "label": "Dados",
+              "sections": [
+                {
+                  "id": "deal",
+                  "label": "Oportunidade",
+                  "columns": [
+                    {
+                      "fields": [
+                        {
+                          "key": "title"
+                        },
+                        {
+                          "key": "company_id"
+                        },
+                        {
+                          "key": "contact_id"
+                        }
+                      ]
+                    },
+                    {
+                      "fields": [
+                        {
+                          "key": "amount"
+                        },
+                        {
+                          "key": "expected_close_date"
+                        },
+                        {
+                          "key": "owner_id"
+                        }
+                      ]
+                    }
+                  ]
+                },
+                {
+                  "id": "scope",
+                  "label": "Escopo e contratação",
+                  "columns": [
+                    {
+                      "fields": [
+                        {
+                          "key": "services"
+                        },
+                        {
+                          "key": "billing_model"
+                        },
+                        {
+                          "key": "monthly_fee",
+                          "visible_when": {
+                            "field": "billing_model",
+                            "operator": "eq",
+                            "value": "retainer"
+                          },
+                          "required_when": {
+                            "field": "billing_model",
+                            "operator": "eq",
+                            "value": "retainer"
+                          }
+                        },
+                        {
+                          "key": "contract_months",
+                          "visible_when": {
+                            "field": "billing_model",
+                            "operator": "eq",
+                            "value": "retainer"
+                          }
+                        }
+                      ]
+                    },
+                    {
+                      "fields": [
+                        {
+                          "key": "delivery_date"
+                        },
+                        {
+                          "key": "contract_end_date"
+                        },
+                        {
+                          "key": "briefing_url"
+                        }
+                      ]
+                    }
+                  ]
+                },
+                {
+                  "id": "details",
+                  "label": "Detalhamento",
+                  "columns": [
+                    {
+                      "fields": [
+                        {
+                          "key": "scope"
+                        }
+                      ]
+                    }
+                  ]
+                }
+              ]
+            }
+          ]
+        }
+      },
+      {
+        "record_type": "deal",
+        "context": "edit",
+        "layout": {
+          "tabs": [
+            {
+              "id": "main",
+              "label": "Dados",
+              "sections": [
+                {
+                  "id": "deal",
+                  "label": "Oportunidade",
+                  "columns": [
+                    {
+                      "fields": [
+                        {
+                          "key": "title"
+                        },
+                        {
+                          "key": "company_id"
+                        },
+                        {
+                          "key": "contact_id"
+                        }
+                      ]
+                    },
+                    {
+                      "fields": [
+                        {
+                          "key": "amount"
+                        },
+                        {
+                          "key": "expected_close_date"
+                        },
+                        {
+                          "key": "owner_id"
+                        }
+                      ]
+                    }
+                  ]
+                },
+                {
+                  "id": "scope",
+                  "label": "Escopo e contratação",
+                  "columns": [
+                    {
+                      "fields": [
+                        {
+                          "key": "services"
+                        },
+                        {
+                          "key": "billing_model"
+                        },
+                        {
+                          "key": "monthly_fee",
+                          "visible_when": {
+                            "field": "billing_model",
+                            "operator": "eq",
+                            "value": "retainer"
+                          },
+                          "required_when": {
+                            "field": "billing_model",
+                            "operator": "eq",
+                            "value": "retainer"
+                          }
+                        },
+                        {
+                          "key": "contract_months",
+                          "visible_when": {
+                            "field": "billing_model",
+                            "operator": "eq",
+                            "value": "retainer"
+                          }
+                        }
+                      ]
+                    },
+                    {
+                      "fields": [
+                        {
+                          "key": "delivery_date"
+                        },
+                        {
+                          "key": "contract_end_date"
+                        },
+                        {
+                          "key": "briefing_url"
+                        }
+                      ]
+                    }
+                  ]
+                },
+                {
+                  "id": "details",
+                  "label": "Detalhamento",
+                  "columns": [
+                    {
+                      "fields": [
+                        {
+                          "key": "scope"
+                        }
+                      ]
+                    }
+                  ]
+                }
+              ]
+            }
+          ]
+        }
+      },
+      {
+        "record_type": "company",
+        "context": "create",
+        "layout": {
+          "tabs": [
+            {
+              "id": "main",
+              "label": "Dados",
+              "sections": [
+                {
+                  "id": "company",
+                  "label": "Cliente",
+                  "columns": [
+                    {
+                      "fields": [
+                        {
+                          "key": "name"
+                        },
+                        {
+                          "key": "website"
+                        },
+                        {
+                          "key": "industry"
+                        }
+                      ]
+                    },
+                    {
+                      "fields": [
+                        {
+                          "key": "phone"
+                        },
+                        {
+                          "key": "email"
+                        },
+                        {
+                          "key": "owner_id"
+                        }
+                      ]
+                    }
+                  ]
+                },
+                {
+                  "id": "account",
+                  "label": "Atendimento",
+                  "columns": [
+                    {
+                      "fields": [
+                        {
+                          "key": "client_since"
+                        },
+                        {
+                          "key": "account_manager"
+                        }
+                      ]
+                    },
+                    {
+                      "fields": [
+                        {
+                          "key": "channels"
+                        }
+                      ]
+                    }
+                  ]
+                }
+              ]
+            }
+          ]
+        }
+      },
+      {
+        "record_type": "company",
+        "context": "edit",
+        "layout": {
+          "tabs": [
+            {
+              "id": "main",
+              "label": "Dados",
+              "sections": [
+                {
+                  "id": "company",
+                  "label": "Cliente",
+                  "columns": [
+                    {
+                      "fields": [
+                        {
+                          "key": "name"
+                        },
+                        {
+                          "key": "website"
+                        },
+                        {
+                          "key": "industry"
+                        }
+                      ]
+                    },
+                    {
+                      "fields": [
+                        {
+                          "key": "phone"
+                        },
+                        {
+                          "key": "email"
+                        },
+                        {
+                          "key": "owner_id"
+                        }
+                      ]
+                    }
+                  ]
+                },
+                {
+                  "id": "account",
+                  "label": "Atendimento",
+                  "columns": [
+                    {
+                      "fields": [
+                        {
+                          "key": "client_since"
+                        },
+                        {
+                          "key": "account_manager"
+                        }
+                      ]
+                    },
+                    {
+                      "fields": [
+                        {
+                          "key": "channels"
+                        }
+                      ]
+                    }
+                  ]
+                }
+              ]
+            }
+          ]
+        }
+      }
+    ],
+    "views": [
+      {
+        "key": "projetos_em_aberto",
+        "record_type": "deal",
+        "name": "Projetos em negociação",
+        "view_type": "table",
+        "filter": {
+          "field": "status",
+          "operator": "eq",
+          "value": "open"
+        },
+        "sort": [
+          {
+            "field": "expected_close_date",
+            "direction": "asc"
+          }
+        ],
+        "columns": [
+          "title",
+          "company_id",
+          "services",
+          "amount",
+          "stage_id",
+          "owner_id"
+        ]
+      },
+      {
+        "key": "contratos_vencendo",
+        "record_type": "deal",
+        "name": "Contratos vencendo em 60 dias",
+        "view_type": "table",
+        "filter": {
+          "op": "and",
+          "conditions": [
+            {
+              "field": "status",
+              "operator": "eq",
+              "value": "won"
+            },
+            {
+              "field": "contract_end_date",
+              "operator": "within_next_days",
+              "value": 60
+            }
+          ]
+        },
+        "sort": [
+          {
+            "field": "contract_end_date",
+            "direction": "asc"
+          }
+        ],
+        "columns": [
+          "title",
+          "company_id",
+          "monthly_fee",
+          "contract_end_date",
+          "owner_id"
+        ]
+      },
+      {
+        "key": "entregas_proximas",
+        "record_type": "deal",
+        "name": "Entregas dos próximos 15 dias",
+        "view_type": "table",
+        "filter": {
+          "op": "and",
+          "conditions": [
+            {
+              "field": "status",
+              "operator": "eq",
+              "value": "won"
+            },
+            {
+              "field": "delivery_date",
+              "operator": "within_next_days",
+              "value": 15
+            }
+          ]
+        },
+        "sort": [
+          {
+            "field": "delivery_date",
+            "direction": "asc"
+          }
+        ],
+        "columns": [
+          "title",
+          "company_id",
+          "services",
+          "delivery_date",
+          "owner_id"
+        ]
+      }
+    ],
+    "dashboard": {
+      "widgets": [
+        {
+          "key": "sales_indicators",
+          "size": "large"
+        },
+        {
+          "key": "deals_by_stage",
+          "size": "medium",
+          "settings": {
+            "pipeline": "novos_projetos"
+          }
+        },
+        {
+          "key": "deals_by_stage",
+          "size": "medium",
+          "settings": {
+            "pipeline": "renovacoes"
+          }
+        },
+        {
+          "key": "pending_center",
+          "size": "medium"
+        },
+        {
+          "key": "recent_activity",
+          "size": "medium"
+        }
+      ],
+      "period": "month"
+    }
+  }
+}

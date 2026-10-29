@@ -1,0 +1,63 @@
+{
+  "title": "Audit log",
+  "description": "History of changes made in the organization: who changed what and when.",
+  "filters": {
+    "label": "Audit log filters",
+    "recordType": "Record type",
+    "recordTypePlaceholder": "E.g. member",
+    "recordId": "Record ID",
+    "recordIdPlaceholder": "Record UUID",
+    "actor": "Actor",
+    "actorPlaceholder": "User ID",
+    "from": "From",
+    "to": "To",
+    "apply": "Filter",
+    "clear": "Clear filters"
+  },
+  "columns": {
+    "occurredAt": "Date and time",
+    "actor": "Actor",
+    "action": "Action",
+    "record": "Record",
+    "changes": "Changes"
+  },
+  "actor": {
+    "system": "System",
+    "apiToken": "API token",
+    "automation": "Automation",
+    "unknownUser": "Removed user",
+    "filterBy": "Filter by this actor"
+  },
+  "record": {
+    "none": "—"
+  },
+  "recordTypes": {
+    "contact": "Contact",
+    "company": "Company",
+    "deal": "Deal",
+    "activity": "Activity",
+    "product": "Product",
+    "note": "Note",
+    "file": "File",
+    "member": "Member",
+    "role": "Role",
+    "team": "Team",
+    "organization": "Organization"
+  },
+  "changes": {
+    "label": "Changed fields",
+    "none": "No field changes",
+    "empty": "empty",
+    "redacted": "hidden",
+    "redactedHint": "Sensitive value, not stored in the audit log",
+    "to": "to"
+  },
+  "empty": {
+    "title": "No audit entries",
+    "description": "Changes made in the organization will show up here.",
+    "filtered": "No entries match these filters"
+  },
+  "errors": {
+    "invalidFilters": "Invalid filters. Check the record ID, the actor and the date range."
+  }
+}

@@ -1,0 +1,49 @@
+{
+  "indicator": {
+    "open": "Ver envios pendentes",
+    "offline": "Sem conexão",
+    "pending_one": "{{count}} pendente",
+    "pending_other": "{{count}} pendentes",
+    "conflicts_one": "{{count}} com problema",
+    "conflicts_other": "{{count}} com problema"
+  },
+  "toast": {
+    "sent": "Enviado: {{label}}"
+  },
+  "kinds": {
+    "activity": "Atividade",
+    "note": "Nota",
+    "contact": "Contato",
+    "call": "Ligação"
+  },
+  "dialog": {
+    "title": "Envios pendentes",
+    "offlineDescription": "Você está sem conexão. Notas e atividades criadas ficam salvas neste aparelho e são enviadas quando a conexão voltar.",
+    "onlineDescription": "Notas e atividades criadas sem conexão são enviadas automaticamente, uma única vez.",
+    "empty": "Nada pendente."
+  },
+  "pending": {
+    "title": "Aguardando envio",
+    "createdAt": "criada em {{date}}",
+    "nextAttempt": "Nova tentativa a partir de {{date}}",
+    "sendNow": "Enviar agora"
+  },
+  "conflicts": {
+    "title": "Não foi possível enviar",
+    "description": "O servidor recusou estes itens. Corrija o que for preciso e tente de novo, ou descarte.",
+    "retry": "Tentar de novo",
+    "copy": "Copiar texto",
+    "copied": "Texto copiado",
+    "discard": "Descartar",
+    "discardTitle": "Descartar item?",
+    "discardDescription": "\"{{label}}\" será apagado deste aparelho e não será enviado.",
+    "reasons": {
+      "expired": "Ficou tempo demais sem confirmação do servidor. Confira se já foi criado antes de tentar de novo.",
+      "validation": "Os dados foram recusados pela validação.",
+      "forbidden": "Você não tem mais permissão para criar este item.",
+      "notFound": "O registro vinculado não existe mais.",
+      "conflict": "Houve um conflito com outra alteração.",
+      "generic": "O servidor recusou o envio."
+    }
+  }
+}

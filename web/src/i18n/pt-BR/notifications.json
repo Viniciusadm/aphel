@@ -1,0 +1,87 @@
+{
+  "bell": {
+    "label": "Notificações",
+    "labelWithCount_one": "Notificações ({{count}} não lida)",
+    "labelWithCount_other": "Notificações ({{count}} não lidas)"
+  },
+  "panel": {
+    "title": "Notificações",
+    "markAll": "Marcar todas como lidas",
+    "markError": "Não foi possível marcar as notificações como lidas.",
+    "filter": "Filtrar notificações",
+    "all": "Todas",
+    "unread": "Não lidas",
+    "unreadMark": "Não lida",
+    "empty": "Nenhuma notificação por aqui.",
+    "emptyUnread": "Tudo lido por aqui.",
+    "error": "Não foi possível carregar as notificações.",
+    "retry": "Tentar novamente",
+    "loadMore": "Carregar mais",
+    "settings": "Preferências de notificação"
+  },
+  "someone": "Alguém",
+  "restrictedRecord": "Em um registro que você não pode acessar",
+  "headline": {
+    "task_assigned": "{{actor}} atribuiu uma tarefa a você",
+    "task_due_soon": "Tarefa vence em até 1 hora",
+    "task_due_today": "Tarefa vence hoje",
+    "deal_assigned": "{{actor}} atribuiu uma oportunidade a você",
+    "deal_stage_changed": "{{actor}} mudou a etapa de uma oportunidade sua",
+    "note_mention": "{{actor}} mencionou você em uma nota",
+    "daily_digest": "Resumo das suas tarefas de hoje",
+    "export_ready": "Sua exportação está pronta",
+    "export_failed": "Sua exportação falhou",
+    "import_finished": "Sua importação foi concluída",
+    "import_failed": "Sua importação falhou",
+    "webhook_endpoint_disabled": "Um webhook foi desativado após falhas seguidas",
+    "task_reminder": "Lembrete de tarefa",
+    "reminder": "Lembrete",
+    "automation_message": "Aviso de automação",
+    "automation_email": "E-mail de automação",
+    "automation_skipped": "Uma automação foi interrompida pela proteção contra ciclos",
+    "approval_requested": "Um pedido de aprovação aguarda sua decisão",
+    "approval_decided": "Seu pedido de aprovação foi decidido",
+    "approval_overdue": "Um pedido de aprovação está vencido",
+    "followed_record_activity": "Novidade em um registro que você segue"
+  },
+  "kinds": {
+    "task_assigned": { "label": "Tarefa atribuída a mim", "description": "Quando alguém cria ou passa uma tarefa aberta para você." },
+    "task_due": { "label": "Prazo de tarefa", "description": "Tarefas suas que vencem em até 1 hora e as que vencem no dia (às 8h)." },
+    "deal_assigned": { "label": "Oportunidade atribuída a mim", "description": "Quando alguém cria ou passa uma oportunidade para você." },
+    "deal_stage_changed": { "label": "Mudança de etapa", "description": "Quando outra pessoa move uma oportunidade sua de etapa." },
+    "note_mention": { "label": "Menção em nota", "description": "Quando alguém menciona você com @ em uma nota da equipe." },
+    "daily_digest": { "label": "Resumo diário", "description": "E-mail às 8h com as tarefas que vencem no dia." },
+    "export_ready": { "label": "Exportação pronta", "description": "Quando o arquivo de uma exportação sua fica disponível." },
+    "export_failed": { "label": "Exportação com falha", "description": "Quando uma exportação sua não pode ser concluída." },
+    "import_finished": { "label": "Importação concluída", "description": "Quando uma importação sua termina." },
+    "import_failed": { "label": "Importação com falha", "description": "Quando uma importação sua não pode ser concluída." },
+    "webhook_endpoint_disabled": { "label": "Webhook desativado", "description": "Quando um webhook de saída é desativado automaticamente depois de várias entregas com falha (só para quem gerencia configurações)." },
+    "reminder": { "label": "Lembrete", "description": "Lembretes avulsos que você criou, no horário escolhido." },
+    "automation_message": { "label": "Aviso de automação", "description": "Notificações enviadas a você por automações da organização." },
+    "automation_email": { "label": "E-mail de automação", "description": "E-mails enviados a você por automações da organização." },
+    "automation_skipped": { "label": "Automação interrompida", "description": "Quando uma automação que você criou é interrompida pela proteção contra ciclos ou pelo limite de execuções." },
+    "approval_requested": { "label": "Pedido de aprovação", "description": "Quando um pedido de aprovação chega à etapa em que você é aprovador." },
+    "approval_decided": { "label": "Aprovação decidida", "description": "Quando um pedido de aprovação seu é aprovado, rejeitado ou cancelado." },
+    "approval_overdue": { "label": "Aprovação vencida", "description": "Quando um pedido de aprovação que aguarda você passa do prazo." },
+    "followed_record_activity": { "label": "Registros que sigo", "description": "Mudanças, novas atividades, notas e e-mails em registros que você segue (enquanto puder lê-los)." }
+  },
+  "channels": {
+    "in_app": "No Aphel",
+    "email": "E-mail",
+    "push": "Push"
+  },
+  "settings": {
+    "title": "Notificações",
+    "description": "Escolha como você quer ser avisado. As preferências valem só para você nesta organização.",
+    "caption": "Preferências por tipo de aviso e canal",
+    "kind": "Aviso",
+    "unsupported": "Canal indisponível para este aviso",
+    "saveError": "Não foi possível salvar a preferência",
+    "footnote": "Horários seguem o fuso da organização. Você nunca é avisado sobre o que você mesmo fez."
+  },
+  "mention": {
+    "listLabel": "Mencionar pessoa",
+    "empty": "Ninguém encontrado",
+    "loading": "Carregando pessoas…"
+  }
+}

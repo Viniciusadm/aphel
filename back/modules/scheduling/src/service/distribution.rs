@@ -1,0 +1,129 @@
+use std::collections::HashMap;
+
+use chrono::{DateTime, Utc};
+use serde_json::Map;
+use uuid::Uuid;
+
+use aphel_kernel::Ctx;
+use aphel_kernel::application::organization_admin::ListWindow;
+use aphel_kernel::database::transaction::MySqlTx;
+use aphel_kernel::domain::UserId;
+use aphel_kernel::errors::AppError;
+use lead_distribution::domain::{Candidate, DistributionStrategy, pick};
+use lead_distribution::{
+    AssignmentSource, DistributionRule, DistributionStore, PickRecord, Pool, RuleListFilter,
+    resolve_pool,
+};
+
+fn rules(ctx: &Ctx<'_>) -> DistributionStore {
+    DistributionStore::of(ctx)
+}
+
+pub(crate) async fn find_rule(
+    ctx: &Ctx<'_>,
+    rule_id: Uuid,
+) -> Result<Option<DistributionRule>, AppError> {
+    rules(ctx).find(rule_id).await
+}
+
+pub(crate) async fn active_rules(ctx: &Ctx<'_>) -> Result<Vec<DistributionRule>, AppError> {
+    Ok(rules(ctx)
+        .list(&RuleListFilter {
+            record_type: None,
+            active: Some(true),
+            window: ListWindow {
+                offset: 0,
+                limit: 200,
+            },
+        })
+        .await?
+        .items)
+}
+
+pub(crate) async fn rule_pool(
+    ctx: &Ctx<'_>,
+    rule: &DistributionRule,
+    at: DateTime<Utc>,
+) -> Result<Pool, AppError> {
+    resolve_pool(&rules(ctx), rule, &Map::new(), at).await
+}
+
+pub(crate) enum HostPick {
+    Untracked,
+    Unavailable,
+    Picked(UserId),
+}
+
+pub(crate) struct WeightedHost {
+    pub(crate) user_id: UserId,
+    pub(crate) weight: u32,
+}
+
+pub(crate) async fn pick_user(
+    ctx: &Ctx<'_>,
+    tx: &mut MySqlTx,
+    rule_id: Uuid,
+    hosts: &[WeightedHost],
+) -> Result<HostPick, AppError> {
+    let rules = rules(ctx);
+    let Some(sequence) = rules.lock_state(tx, rule_id).await? else {
+        return Ok(HostPick::Untracked);
+    };
+    let Some(rule) = rules.find(rule_id).await? else {
+        return Ok(HostPick::Unavailable);
+    };
+    let users: Vec<UserId> = hosts.iter().map(|host| host.user_id.clone()).collect();
+    let counters: HashMap<UserId, (u64, i64)> = rules
+        .locked_counters(tx, rule_id, &users)
+        .await?
+        .into_iter()
+        .map(|counter| (counter.user_id, (counter.last_sequence, counter.credit)))
+        .collect();
+    let loads = if rule.strategy == DistributionStrategy::LeastLoaded {
+        rules.open_deals(&users).await?
+    } else {
+        HashMap::new()
+    };
+    let mut options: Vec<Candidate> = hosts
+        .iter()
+        .map(|host| {
+            let (last_sequence, credit) = counters.get(&host.user_id).copied().unwrap_or((0, 0));
+            Candidate {
+                user_id: host.user_id.clone(),
+                weight: host.weight,
+                last_sequence,
+                credit,
+                load: loads.get(&host.user_id).copied().unwrap_or(0),
+            }
+        })
+        .collect();
+    let next = sequence + 1;
+    let Some(index) = pick(rule.strategy, &mut options, next) else {
+        return Ok(HostPick::Unavailable);
+    };
+    let chosen = options[index].user_id.clone();
+    let credits = if rule.strategy == DistributionStrategy::Weighted {
+        options
+            .iter()
+            .map(|option| (option.user_id.clone(), option.credit))
+            .collect()
+    } else {
+        Vec::new()
+    };
+    rules
+        .record_pick(
+            tx,
+            &PickRecord {
+                rule_id,
+                sequence: next,
+                user_id: chosen.clone(),
+                credits,
+                record: None,
+                source: AssignmentSource::Scheduling,
+                idempotency_key: None,
+                at: ctx.now(),
+            },
+        )
+        .await?;
+    Ok(HostPick::Picked(chosen))
+}

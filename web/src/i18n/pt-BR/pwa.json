@@ -1,0 +1,29 @@
+{
+  "update": {
+    "title": "Nova versão do Aphel disponível",
+    "description": "Atualize para carregar as melhorias mais recentes. O que você não salvou nesta tela pode se perder.",
+    "action": "Atualizar",
+    "updating": "Atualizando…",
+    "later": "Depois",
+    "dismiss": "Fechar aviso"
+  },
+  "install": {
+    "action": "Instalar o Aphel"
+  },
+  "push": {
+    "title": "Notificações push neste dispositivo",
+    "enabledDescription": "Ativadas: você recebe os avisos marcados na coluna Push mesmo com o Aphel fechado.",
+    "disabledDescription": "Receba os avisos marcados na coluna Push mesmo com o Aphel fechado. Vale só para este navegador e é desligado ao sair da conta.",
+    "blocked": "As notificações deste site estão bloqueadas nas configurações do navegador. Libere-as por lá para ativar.",
+    "enable": "Ativar neste dispositivo",
+    "disable": "Desativar neste dispositivo",
+    "enabled": "Notificações push ativadas neste dispositivo",
+    "enableError": "Não foi possível ativar as notificações push",
+    "disableError": "Não foi possível desativar as notificações push",
+    "support": {
+      "unsupported": "Este navegador não oferece notificações push.",
+      "ios-needs-install": "No iPhone e no iPad, as notificações só funcionam com o Aphel instalado: toque em Compartilhar → Adicionar à Tela de Início, abra o Aphel pelo ícone e ative aqui.",
+      "development": "As notificações push só funcionam na versão compilada do Aphel (não no servidor de desenvolvimento)."
+    }
+  }
+}

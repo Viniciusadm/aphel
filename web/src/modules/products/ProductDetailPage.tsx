@@ -1,0 +1,37 @@
+import { useCallback, useMemo } from 'react'
+import { useTranslation } from 'react-i18next'
+import { useParams } from 'react-router'
+import { useSession } from '@/app/session/session-context'
+import { recordTimelineSource } from '@/modules/timeline'
+import { RecordDetailPage, type RecordTab } from '@/features/records/detail'
+import { ProductActions } from './ProductActions'
+import { PRODUCT_READ_ONLY_KEYS, PRODUCT_RECORD_TYPE, PRODUCTS_PATH } from './resource'
+
+const PRODUCT_TABS = ['timeline', 'notes', 'files']
+
+export function ProductDetailPage() {
+  const { t } = useTranslation('products')
+  const { id = '' } = useParams()
+  const { hasPermission } = useSession()
+  const timeline = useMemo(() => recordTimelineSource(PRODUCT_RECORD_TYPE, id), [id])
+  const readOnly = !hasPermission('products.update')
+
+  const tabs = useCallback(
+    (defaults: RecordTab[]): RecordTab[] => defaults.filter((tab) => PRODUCT_TABS.includes(tab.key)),
+    [],
+  )
+
+  return (
+    <RecordDetailPage
+      key={id}
+      recordType={PRODUCT_RECORD_TYPE}
+      recordId={id}
+      back={{ to: PRODUCTS_PATH, label: t('detail.back') }}
+      readOnly={readOnly}
+      readOnlyFieldKeys={PRODUCT_READ_ONLY_KEYS}
+      timeline={timeline}
+      tabs={tabs}
+      actions={(record) => <ProductActions record={record} />}
+    />
+  )
+}

@@ -1,0 +1,18 @@
+{
+  "values": {
+    "empty": "—",
+    "yes": "Sim",
+    "no": "Não",
+    "unknownUser": "Usuário removido"
+  },
+  "dev": {
+    "title": "Registros de demonstração",
+    "notice": "Página interna de desenvolvimento: os dados vêm de mocks no navegador (MSW) e somem ao recarregar.",
+    "starting": "Iniciando mocks…",
+    "mocksFailed": "Não foi possível iniciar os mocks",
+    "new": "Novo widget",
+    "back": "Voltar para a lista",
+    "clearSelection_one": "Limpar seleção ({{count}})",
+    "clearSelection_other": "Limpar seleção ({{count}})"
+  }
+}

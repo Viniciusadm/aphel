@@ -1,0 +1,113 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "$id": "https://aphel-crm.dev/schemas/aphel-catalog/v1.json",
+  "title": "Aphel community catalog index (aphel-catalog)",
+  "description": "Lists business templates (versioned configuration packages, installable from the Catalog screen) and modules (listed only, with build instructions). Aphel reads the index from CATALOG_INDEX_URL, validates each entry and rejects invalid ones without affecting the rest.",
+  "type": "object",
+  "additionalProperties": false,
+  "required": ["format", "format_version", "name", "entries"],
+  "properties": {
+    "$schema": { "type": "string" },
+    "format": { "const": "aphel-catalog" },
+    "format_version": { "type": "integer", "minimum": 1, "maximum": 1 },
+    "name": { "type": "string", "minLength": 1, "maxLength": 140 },
+    "description": { "type": "string", "maxLength": 2000 },
+    "homepage": { "$ref": "#/$defs/url" },
+    "updated_at": { "type": "string", "format": "date" },
+    "entries": {
+      "type": "array",
+      "maxItems": 1000,
+      "items": { "$ref": "#/$defs/entry" }
+    }
+  },
+  "$defs": {
+    "url": {
+      "type": "string",
+      "maxLength": 2048,
+      "pattern": "^https://[^\\s/][^\\s]*$"
+    },
+    "relative_path": {
+      "type": "string",
+      "maxLength": 2048,
+      "pattern": "^[A-Za-z0-9_-][A-Za-z0-9._-]*(/[A-Za-z0-9_-][A-Za-z0-9._-]*)*$"
+    },
+    "id": {
+      "type": "string",
+      "maxLength": 128,
+      "pattern": "^[a-z0-9]+([._-][a-z0-9]+)*$",
+      "description": "Stable identifier, unique within the catalog. For templates, it is the same `id` as the package manifest (e.g. aphel.b2b)."
+    },
+    "semver": {
+      "type": "string",
+      "maxLength": 64,
+      "pattern": "^(0|[1-9]\\d*)\\.(0|[1-9]\\d*)\\.(0|[1-9]\\d*)(-[0-9A-Za-z.-]+)?(\\+[0-9A-Za-z.-]+)?$"
+    },
+    "entry": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": ["id", "kind", "name", "author", "version", "min_aphel_version", "license"],
+      "properties": {
+        "id": { "$ref": "#/$defs/id" },
+        "kind": { "enum": ["template", "module"] },
+        "name": { "type": "string", "minLength": 1, "maxLength": 140 },
+        "description": { "type": "string", "maxLength": 2000 },
+        "author": { "type": "string", "minLength": 1, "maxLength": 140 },
+        "version": { "$ref": "#/$defs/semver" },
+        "min_aphel_version": {
+          "type": "string",
+          "pattern": "^\\d+\\.\\d+\\.\\d+$",
+          "description": "Minimum Aphel version. Entries that require a newer version are shown as incompatible and cannot be installed."
+        },
+        "license": {
+          "type": "string",
+          "minLength": 1,
+          "maxLength": 140,
+          "description": "SPDX identifier, e.g. AGPL-3.0-or-later, MIT, CC-BY-4.0."
+        },
+        "homepage": { "$ref": "#/$defs/url" },
+        "documentation_url": { "$ref": "#/$defs/url" },
+        "tags": {
+          "type": "array",
+          "maxItems": 20,
+          "items": { "type": "string", "minLength": 1, "maxLength": 40 }
+        },
+        "locale": { "enum": ["pt-BR", "en"] },
+        "package": {
+          "type": "object",
+          "additionalProperties": false,
+          "required": ["url", "sha256"],
+          "description": "Templates only: where to download the aphel-config package and the SHA-256 of the file's exact bytes.",
+          "properties": {
+            "url": {
+              "description": "HTTPS URL of the package or a path relative to the index (e.g. packages/aphel.b2b-1.0.0.json), resolved against the index URL or against the embedded catalog.",
+              "anyOf": [{ "$ref": "#/$defs/url" }, { "$ref": "#/$defs/relative_path" }]
+            },
+            "sha256": { "type": "string", "pattern": "^[0-9a-f]{64}$" },
+            "size": { "type": "integer", "minimum": 1, "maximum": 2097152 }
+          }
+        },
+        "module": {
+          "type": "object",
+          "additionalProperties": false,
+          "required": ["key"],
+          "description": "Modules only: Aphel never downloads or runs code; installing means declaring the module in back/aphel.modules.toml and building the binary.",
+          "properties": {
+            "key": { "type": "string", "pattern": "^[a-z0-9_]{1,64}$" },
+            "repository": { "$ref": "#/$defs/url" },
+            "install_notes": { "type": "string", "maxLength": 2000 }
+          }
+        }
+      },
+      "allOf": [
+        {
+          "if": { "properties": { "kind": { "const": "template" } } },
+          "then": { "required": ["package"], "not": { "required": ["module"] } }
+        },
+        {
+          "if": { "properties": { "kind": { "const": "module" } } },
+          "then": { "required": ["module"], "not": { "required": ["package"] } }
+        }
+      ]
+    }
+  }
+}

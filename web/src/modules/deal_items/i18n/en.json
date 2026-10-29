@@ -1,0 +1,113 @@
+{
+  "items": {
+    "tab": "Items",
+    "title": "Deal items",
+    "addProduct": "Add from catalog",
+    "addFree": "Free item",
+    "add": "Add",
+    "cancel": "Cancel",
+    "freeNamePlaceholder": "Item description",
+    "searchPlaceholder": "Search products by name or code",
+    "catalog": "Catalog products",
+    "catalogEmpty": "No active product found.",
+    "catalogError": "Could not load the catalog.",
+    "otherCurrency": "Priced in {{currency}}: different from the deal currency",
+    "fromCatalog": "Catalog item",
+    "unitPriceHint": "{{price}} per unit",
+    "empty": "No items in this deal",
+    "emptyDescription": "Add catalog products or free items with quantity, price and discount.",
+    "loadError": "Could not load the items.",
+    "noAccessTitle": "Restricted amounts",
+    "noAccessDescription": "Your role cannot see deal amounts, so the items are hidden.",
+    "columns": {
+      "item": "Item",
+      "quantity": "Qty",
+      "unitPrice": "Unit price",
+      "discount": "Discount",
+      "total": "Total"
+    },
+    "discountType": "Discount type",
+    "discountValue": "Discount value",
+    "discountTypes": {
+      "none": "No discount",
+      "percent": "%",
+      "amount": "Amount"
+    },
+    "moveUp": "Move up",
+    "moveDown": "Move down",
+    "remove": "Remove {{name}}",
+    "removeTitle": "Remove item?",
+    "removeDescription": "{{name}} will be removed from the deal.",
+    "removeConfirm": "Remove",
+    "subtotal": "Subtotal",
+    "discounts": "Discounts",
+    "total": "Total",
+    "autoNotice": "The amount of this deal is the sum of its items and cannot be edited directly.",
+    "autoNoticeEmpty": "Once it has items, the deal amount becomes their sum.",
+    "manualNotice": "Items are informative: the deal amount stays manual.",
+    "amountDiffers": "Deal amount: {{amount}}. Items total: {{total}}.",
+    "noAmount": "no amount",
+    "applyTotal": "Use total as amount",
+    "applied": "Deal amount updated."
+  },
+  "recurrences": {
+    "none": "One-time",
+    "monthly": "Monthly",
+    "quarterly": "Quarterly",
+    "yearly": "Yearly"
+  },
+  "item": {
+    "recurrence": "Billing frequency",
+    "term": "Term",
+    "termLabel": "Term in months",
+    "termPlaceholder": "12",
+    "months": "months",
+    "monthly": "{{amount}}/month"
+  },
+  "panel": {
+    "tab": "Revenue",
+    "mrr": "MRR",
+    "arr": "ARR",
+    "tcv": "Total contract value (TCV)",
+    "contractStart": "Contract start",
+    "contractEnd": "Contract end",
+    "empty": "—",
+    "hint": "MRR, ARR and TCV come from the recurring items. The contract ends on the start plus the longest item term (12 months when an item has no term), minus one day.",
+    "emptyTitle": "No recurring revenue",
+    "emptyDescription": "Set the billing frequency of the items to calculate MRR, ARR and the contract period.",
+    "renewalOf": "Renewal of",
+    "renewedBy": "Renewed in"
+  },
+  "widgets": {
+    "hidden": "Hidden",
+    "recurring_revenue": {
+      "title": "Won recurring revenue",
+      "mrr": "Won MRR",
+      "arr": "Won ARR",
+      "tcv": "Won TCV",
+      "wonCount": "Recurring contracts won",
+      "partial": "Amounts in the base currency; deals without an exchange rate were left out of the sum."
+    }
+  },
+  "timeline": {
+    "someone": "Someone",
+    "someItem": "an item",
+    "added": "{{actor}} added the item {{name}}",
+    "updated": "{{actor}} changed the item {{name}}",
+    "removed": "{{actor}} removed the item {{name}}",
+    "reordered": "{{actor}} reordered the items",
+    "changedFields": "Changed fields: {{fields}}",
+    "fields": {
+      "name": "description",
+      "product": "product",
+      "unit": "unit",
+      "quantity": "quantity",
+      "unitPrice": "unit price",
+      "discountType": "discount type",
+      "discountValue": "discount",
+      "recurrence": "billing frequency",
+      "term": "term",
+      "total": "total"
+    }
+  }
+}

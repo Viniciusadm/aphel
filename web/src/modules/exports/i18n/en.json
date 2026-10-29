@@ -1,0 +1,51 @@
+{
+  "recordTypes": {
+    "contact": "contacts",
+    "company": "companies",
+    "deal": "deals",
+    "activity": "activities",
+    "product": "products"
+  },
+  "action": "Export",
+  "title": "Export {{recordType}}",
+  "description": "The file uses the current filter, search and sort of the list and includes only the records you can see.",
+  "format": "Format",
+  "formats": {
+    "csv": "CSV",
+    "xlsx": "Excel (XLSX)"
+  },
+  "columns": "Columns",
+  "selectAll": "All",
+  "selectNone": "None",
+  "includeId": "Record ID",
+  "noColumns": "Choose at least one column.",
+  "submit": "Generate file",
+  "submitting": "Requesting…",
+  "processing": "Generating the file… You can close this window; we will let you know when it is ready.",
+  "ready_one": "File ready with {{count}} record.",
+  "ready_other": "File ready with {{count}} records.",
+  "download": "Download file",
+  "failed": "The file could not be generated.",
+  "close": "Close",
+  "history": {
+    "title": "Exports",
+    "menuDescription": "Files exported from record lists, ready to download again.",
+    "description": "Files you exported from record lists.",
+    "empty": "No exports yet",
+    "emptyDescription": "Use the Export button on a record list to generate a file.",
+    "status": {
+      "queued": "Queued",
+      "running": "Generating",
+      "completed": "Ready",
+      "failed": "Failed"
+    },
+    "columns": {
+      "recordType": "Type",
+      "format": "Format",
+      "status": "Status",
+      "rows": "Records",
+      "createdAt": "Requested at",
+      "actions": "Actions"
+    }
+  }
+}

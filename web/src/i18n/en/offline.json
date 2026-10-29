@@ -1,0 +1,49 @@
+{
+  "indicator": {
+    "open": "View pending uploads",
+    "offline": "Offline",
+    "pending_one": "{{count}} pending",
+    "pending_other": "{{count}} pending",
+    "conflicts_one": "{{count}} failed",
+    "conflicts_other": "{{count}} failed"
+  },
+  "toast": {
+    "sent": "Sent: {{label}}"
+  },
+  "kinds": {
+    "activity": "Activity",
+    "note": "Note",
+    "contact": "Contact",
+    "call": "Call"
+  },
+  "dialog": {
+    "title": "Pending uploads",
+    "offlineDescription": "You are offline. Notes and activities you create are saved on this device and sent when the connection is back.",
+    "onlineDescription": "Notes and activities created offline are sent automatically, only once.",
+    "empty": "Nothing pending."
+  },
+  "pending": {
+    "title": "Waiting to send",
+    "createdAt": "created at {{date}}",
+    "nextAttempt": "Next attempt from {{date}}",
+    "sendNow": "Send now"
+  },
+  "conflicts": {
+    "title": "Could not send",
+    "description": "The server rejected these items. Fix what is needed and try again, or discard them.",
+    "retry": "Try again",
+    "copy": "Copy text",
+    "copied": "Text copied",
+    "discard": "Discard",
+    "discardTitle": "Discard item?",
+    "discardDescription": "\"{{label}}\" will be removed from this device and will not be sent.",
+    "reasons": {
+      "expired": "The server did not confirm it for too long. Check whether it was already created before trying again.",
+      "validation": "The data was rejected by validation.",
+      "forbidden": "You are no longer allowed to create this item.",
+      "notFound": "The linked record no longer exists.",
+      "conflict": "It conflicted with another change.",
+      "generic": "The server rejected it."
+    }
+  }
+}

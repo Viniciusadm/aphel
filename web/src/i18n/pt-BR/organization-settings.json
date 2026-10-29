@@ -1,0 +1,58 @@
+{
+  "title": "Organização",
+  "description": "Nome, identidade visual e preferências regionais usadas em datas, valores e relatórios.",
+  "loadError": "Não foi possível carregar as configurações da organização.",
+  "readOnly": "Você pode ver estas configurações, mas só quem tem permissão de configurações pode alterá-las.",
+  "sections": {
+    "identity": "Identidade visual",
+    "regional": "Preferências regionais"
+  },
+  "fields": {
+    "name": "Nome da organização",
+    "logo": "Logotipo",
+    "primaryColor": "Cor principal (hexadecimal)",
+    "primaryColorPicker": "Escolher cor principal",
+    "locale": "Idioma",
+    "timezone": "Fuso horário",
+    "currency": "Moeda"
+  },
+  "hints": {
+    "timezone": "Usado em datas, lembretes, filtros relativos e relatórios.",
+    "currency": "Moeda padrão de novas oportunidades e dos totais."
+  },
+  "locales": {
+    "pt-BR": "Português (Brasil)",
+    "en": "English"
+  },
+  "logo": {
+    "upload": "Enviar logotipo",
+    "replace": "Trocar logotipo",
+    "remove": "Remover logotipo",
+    "uploading": "Enviando…",
+    "hint": "PNG, JPEG, WebP ou GIF de até 2 MB. Aparece no menu lateral para todos os membros.",
+    "alt": "Logotipo de {{name}}",
+    "invalidType": "Envie uma imagem PNG, JPEG, WebP ou GIF.",
+    "tooLarge": "O logotipo deve ter no máximo 2 MB.",
+    "uploadFailed": "Não foi possível enviar o logotipo. Tente novamente."
+  },
+  "color": {
+    "hint": "Usada em botões, links e destaques. Deixe em branco para usar a cor padrão do Aphel.",
+    "default": "Usar cor padrão",
+    "preview": "Prévia",
+    "sampleButton": "Botão de exemplo",
+    "contrast": "Contraste do texto: {{ratio}}:1.",
+    "contrastOk": "Boa legibilidade.",
+    "adjusted": "Ajustamos o tom da cor nos botões para manter o texto legível."
+  },
+  "errors": {
+    "nameRequired": "Informe o nome da organização.",
+    "nameLength": "O nome deve ter entre 1 e 140 caracteres.",
+    "color": "Use uma cor no formato #4f46e5.",
+    "locale": "Escolha um idioma disponível.",
+    "timezone": "Escolha um fuso horário válido.",
+    "currency": "Escolha uma moeda válida."
+  },
+  "save": "Salvar alterações",
+  "saving": "Salvando…",
+  "saved": "Configurações da organização salvas."
+}

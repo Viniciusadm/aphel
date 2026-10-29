@@ -1,0 +1,44 @@
+{
+  "name": "Google",
+  "description": "Sign in with Google and sync meetings with Google Calendar",
+  "nav": "Google",
+  "page": {
+    "title": "Google",
+    "description": "Sign in with Google Workspace and sync your meetings with Google Calendar."
+  },
+  "panel": {
+    "steps": [
+      "In the Google Cloud Console, enable the Google Calendar API and configure the OAuth consent screen.",
+      "Create an \"OAuth client ID\" credential of type \"Web application\".",
+      "Under \"Authorized redirect URIs\", register the callback URL above.",
+      "Copy the Client ID and Client secret here.",
+      "For single sign-on, fill in the Google Workspace domains; for the calendar, each user connects their own account in the Google menu item."
+    ]
+  },
+  "settings": {
+    "client_id": {
+      "label": "Client ID",
+      "help": "Identifier of the application registered at the provider"
+    },
+    "client_secret": {
+      "label": "Client secret",
+      "help": "Application secret; stored encrypted and never shown again"
+    },
+    "domains": {
+      "label": "E-mail domains",
+      "help": "Domains that sign in through single sign-on, separated by commas (e.g. company.com). Empty = the button does not show on the login screen"
+    },
+    "require_sso": {
+      "label": "Require single sign-on",
+      "help": "Refuses password login for e-mails of these domains"
+    },
+    "meeting_type": {
+      "label": "Meeting activity type",
+      "help": "Key of the activity type used for synced meetings (default: meeting)"
+    },
+    "import_scope": {
+      "label": "Calendar events imported",
+      "help": "By default only events with a participant who is already a CRM contact are imported"
+    }
+  }
+}

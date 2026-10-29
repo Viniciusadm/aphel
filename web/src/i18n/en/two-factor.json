@@ -1,0 +1,127 @@
+{
+  "title": "Two-factor authentication",
+  "actions": {
+    "cancel": "Cancel"
+  },
+  "fields": {
+    "password": "Your account password",
+    "code": "Verification code",
+    "codeHint": "6-digit code from your authenticator app or a recovery code."
+  },
+  "errors": {
+    "required": "Fill in this field.",
+    "totpFormat": "Enter the 6 digits shown in the app.",
+    "invalidCode": "Invalid, expired or already used code.",
+    "invalidPassword": "Wrong password."
+  },
+  "challenge": {
+    "title": "Two-step verification",
+    "description": "Open your authenticator app and enter the 6-digit code.",
+    "recoveryDescription": "Enter one of your recovery codes. Each code works only once.",
+    "codeLabel": "App code",
+    "recoveryLabel": "Recovery code",
+    "submit": "Verify",
+    "submitting": "Verifying…",
+    "useRecoveryCode": "Use a recovery code",
+    "useAuthenticator": "Use the authenticator app",
+    "cancel": "Cancel and go back to sign in",
+    "expiredTitle": "Sign in again",
+    "expiredDescription": "The verification expired or there were too many attempts. For your security, enter your password again.",
+    "backToLogin": "Back to sign in",
+    "errors": {
+      "required": "Enter the code.",
+      "totpFormat": "Enter the 6 digits shown in the app.",
+      "invalidCode": "Invalid, expired or already used code.",
+      "rateLimited": "Too many attempts. Wait a few minutes and try again.",
+      "network": "Could not reach the server. Check your connection.",
+      "generic": "Something went wrong. Try again."
+    }
+  },
+  "section": {
+    "title": "Two-factor authentication",
+    "description": "Besides your password, ask for a code from your phone when signing in."
+  },
+  "required": {
+    "title": "Enable two-factor authentication to continue",
+    "description": "The organization {{organization}} requires two-step verification. Enable it below to keep using Aphel."
+  },
+  "status": {
+    "authenticatorApp": "Authenticator app",
+    "enabled": "Enabled",
+    "disabled": "Disabled",
+    "enabledAt": "Enabled on {{date}}",
+    "recoveryCodesRemaining_one": "{{count}} recovery code left",
+    "recoveryCodesRemaining_other": "{{count}} recovery codes left",
+    "disabledDescription": "Use an app such as Google Authenticator, Microsoft Authenticator, 1Password or Authy.",
+    "enable": "Enable",
+    "regenerate": "Generate new recovery codes",
+    "disable": "Disable"
+  },
+  "setup": {
+    "title": "Enable two-factor authentication",
+    "description": "Link Aphel to your authenticator app.",
+    "stepScan": "Scan the QR code with your authenticator app.",
+    "stepConfirm": "Type the 6-digit code shown in the app.",
+    "qrAlt": "QR code to set up the authenticator app",
+    "manualTitle": "Can't scan it?",
+    "manualDescription": "Add an account manually in the app with this time-based key:",
+    "secretLabel": "Setup key",
+    "codeLabel": "Verification code",
+    "confirm": "Enable",
+    "confirming": "Enabling…",
+    "enabled": "Two-factor authentication enabled."
+  },
+  "recoveryCodes": {
+    "title": "Recovery codes",
+    "saveNow": "Save these codes now: they will not be shown again.",
+    "description": "Use one of these codes to sign in if you lose access to your authenticator app. Each code works only once.",
+    "listLabel": "Recovery codes",
+    "copy": "Copy",
+    "copied": "Copied",
+    "copyFailed": "Could not copy the codes.",
+    "download": "Download .txt",
+    "fileHeading": "Aphel recovery codes — {{email}}",
+    "done": "I saved the codes"
+  },
+  "disable": {
+    "title": "Disable two-factor authentication",
+    "description": "Your account will be protected by your password only. Confirm with your password and a code.",
+    "submit": "Disable",
+    "submitting": "Disabling…",
+    "done": "Two-factor authentication disabled."
+  },
+  "regenerate": {
+    "title": "Generate new recovery codes",
+    "description": "Your current codes stop working. Confirm your identity to continue.",
+    "useCode": "Confirm with a verification code",
+    "usePassword": "Confirm with your password",
+    "submit": "Generate codes",
+    "submitting": "Generating…"
+  },
+  "policy": {
+    "title": "Organization requirement",
+    "description": "Choose who must use two-factor authentication in this organization.",
+    "legend": "Require two-factor authentication from",
+    "options": {
+      "none": {
+        "label": "Nobody",
+        "description": "Each person decides whether to enable it."
+      },
+      "admins": {
+        "label": "Administrators",
+        "description": "Members with the administrator role must enable it to use the organization."
+      },
+      "everyone": {
+        "label": "All members",
+        "description": "Everyone must enable it to use the organization."
+      }
+    },
+    "membersWithout_one": "{{count}} member covered by the rule has not enabled it yet and will be taken to the setup.",
+    "membersWithout_other": "{{count}} members covered by the rule have not enabled it yet and will be taken to the setup.",
+    "enableYourselfFirst": "Enable two-factor authentication on your account before requiring it.",
+    "setupFirst": "Enable two-factor authentication on your account to manage this setting.",
+    "save": "Save",
+    "saving": "Saving…",
+    "saved": "Two-factor requirement updated."
+  }
+}

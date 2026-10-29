@@ -1,0 +1,58 @@
+{
+  "title": "Organization",
+  "description": "Name, branding and regional preferences used in dates, amounts and reports.",
+  "loadError": "Could not load the organization settings.",
+  "readOnly": "You can view these settings, but only people with the settings permission can change them.",
+  "sections": {
+    "identity": "Branding",
+    "regional": "Regional preferences"
+  },
+  "fields": {
+    "name": "Organization name",
+    "logo": "Logo",
+    "primaryColor": "Primary color (hex)",
+    "primaryColorPicker": "Choose primary color",
+    "locale": "Language",
+    "timezone": "Time zone",
+    "currency": "Currency"
+  },
+  "hints": {
+    "timezone": "Used in dates, reminders, relative filters and reports.",
+    "currency": "Default currency for new deals and totals."
+  },
+  "locales": {
+    "pt-BR": "Português (Brasil)",
+    "en": "English"
+  },
+  "logo": {
+    "upload": "Upload logo",
+    "replace": "Replace logo",
+    "remove": "Remove logo",
+    "uploading": "Uploading…",
+    "hint": "PNG, JPEG, WebP or GIF up to 2 MB. Shown in the sidebar for all members.",
+    "alt": "{{name}} logo",
+    "invalidType": "Upload a PNG, JPEG, WebP or GIF image.",
+    "tooLarge": "The logo must be 2 MB or smaller.",
+    "uploadFailed": "Could not upload the logo. Please try again."
+  },
+  "color": {
+    "hint": "Used on buttons, links and highlights. Leave blank to use Aphel's default color.",
+    "default": "Use default color",
+    "preview": "Preview",
+    "sampleButton": "Sample button",
+    "contrast": "Text contrast: {{ratio}}:1.",
+    "contrastOk": "Good readability.",
+    "adjusted": "The button shade was adjusted to keep text readable."
+  },
+  "errors": {
+    "nameRequired": "Enter the organization name.",
+    "nameLength": "The name must be between 1 and 140 characters.",
+    "color": "Use a color in the #4f46e5 format.",
+    "locale": "Choose an available language.",
+    "timezone": "Choose a valid time zone.",
+    "currency": "Choose a valid currency."
+  },
+  "save": "Save changes",
+  "saving": "Saving…",
+  "saved": "Organization settings saved."
+}

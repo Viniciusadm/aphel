@@ -1,0 +1,44 @@
+{
+  "name": "Google",
+  "description": "Login com Google e sincronização das reuniões com o Google Agenda",
+  "nav": "Google",
+  "page": {
+    "title": "Google",
+    "description": "Login com Google Workspace e sincronização das suas reuniões com o Google Agenda."
+  },
+  "panel": {
+    "steps": [
+      "No Google Cloud Console, ative a Google Calendar API e configure a tela de consentimento OAuth.",
+      "Crie uma credencial \"ID do cliente OAuth\" do tipo \"Aplicativo da Web\".",
+      "Em \"URIs de redirecionamento autorizados\", cadastre a URL de retorno acima.",
+      "Copie o Client ID e o Client secret para esta tela.",
+      "Para o login único, informe os domínios do Google Workspace; para a agenda, cada usuário conecta a própria conta em Google no menu."
+    ]
+  },
+  "settings": {
+    "client_id": {
+      "label": "Client ID",
+      "help": "Identificador do aplicativo cadastrado no provedor"
+    },
+    "client_secret": {
+      "label": "Client secret",
+      "help": "Segredo do aplicativo; fica cifrado e nunca é exibido de novo"
+    },
+    "domains": {
+      "label": "Domínios de e-mail",
+      "help": "Domínios que entram pelo login único, separados por vírgula (ex.: empresa.com.br). Vazio = o botão não aparece no login"
+    },
+    "require_sso": {
+      "label": "Exigir login único",
+      "help": "Recusa o login por senha de e-mails desses domínios"
+    },
+    "meeting_type": {
+      "label": "Tipo de atividade das reuniões",
+      "help": "Chave do tipo de atividade usado para reuniões sincronizadas (padrão: meeting)"
+    },
+    "import_scope": {
+      "label": "Eventos importados da agenda",
+      "help": "Por padrão só entram eventos com algum participante que já é contato do CRM"
+    }
+  }
+}

@@ -1,0 +1,72 @@
+{
+  "title": "Validation rules",
+  "description": "Conditions that prevent saving a record with inconsistent data. They apply to forms, inline editing, API, imports, automations and bulk actions.",
+  "recordType": "Record type",
+  "help": "The formula describes the error condition: when it results in true, the write is blocked and the message is shown to the user.",
+  "new": "New rule",
+  "empty": {
+    "title": "No rules for this record type",
+    "description": "Create a rule to block writes that do not follow your process."
+  },
+  "list": {
+    "label": "Validation rules",
+    "inactive": "Inactive",
+    "highlight": "Field: {{field}}",
+    "moveUp": "Move {{name}} up",
+    "moveDown": "Move {{name}} down",
+    "edit": "Edit {{name}}",
+    "remove": "Delete {{name}}",
+    "activate": "Activate",
+    "deactivate": "Deactivate"
+  },
+  "timing": {
+    "always": "On create and update",
+    "create": "On create only",
+    "update": "On update only"
+  },
+  "dialog": {
+    "newTitle": "New validation rule",
+    "editTitle": "Edit validation rule",
+    "description": "Write the condition that makes the record invalid and the message the user will see.",
+    "name": "Name",
+    "key": "Key",
+    "keyHint": "Stable identifier used by configuration packages. Leave blank to generate it from the name.",
+    "message": "Error message",
+    "messageHint": "Text shown to the user when the rule blocks the write.",
+    "field": "Highlighted field",
+    "fieldHint": "The error is shown next to this field in the form.",
+    "noField": "None (general error)",
+    "timing": "When to apply",
+    "active": "Active rule",
+    "expression": "Error condition",
+    "expressionHint": "Boolean formula. Example: amount > 10000 and is_blank(source)",
+    "save": "Save",
+    "cancel": "Cancel",
+    "required": "Fill in this field."
+  },
+  "test": {
+    "title": "Test against a record",
+    "record": "Record",
+    "recordHint": "Evaluates the condition over the saved data of the chosen record.",
+    "pick": "Pick a record to test.",
+    "fails": "The rule would block this record.",
+    "passes": "This record passes the rule.",
+    "notEvaluated": "Fix the condition to test it.",
+    "recordNotFound": "Record not found."
+  },
+  "toasts": {
+    "created": "Rule created.",
+    "updated": "Rule updated.",
+    "removed": "Rule deleted.",
+    "activated": "Rule activated.",
+    "deactivated": "Rule deactivated.",
+    "reordered": "Order updated.",
+    "error": "Could not save the rule.",
+    "conflict": "The rule was changed by someone else. Reload and try again."
+  },
+  "removeDialog": {
+    "title": "Delete rule",
+    "description": "The rule \"{{name}}\" will stop applying and will be deleted. To only suspend it, deactivate it.",
+    "confirm": "Delete"
+  }
+}

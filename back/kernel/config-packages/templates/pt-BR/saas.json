@@ -1,0 +1,703 @@
+{
+  "format": "aphel-config",
+  "format_version": 1,
+  "min_aphel_version": "0.1.0",
+  "name": "SaaS",
+  "description": "Para empresas de software por assinatura: do trial à assinatura fechada, com plano, MRR, número de usuários, fim do trial e data de renovação.",
+  "author": "Aphel",
+  "locale": "pt-BR",
+  "sections": {
+    "fields": [
+      {
+        "record_type": "deal",
+        "key": "plan",
+        "label": "Plano",
+        "type": "select",
+        "options": [
+          {
+            "value": "starter",
+            "label": "Starter",
+            "color": "#6e7781"
+          },
+          {
+            "value": "pro",
+            "label": "Pro",
+            "color": "#1f6feb"
+          },
+          {
+            "value": "business",
+            "label": "Business",
+            "color": "#8250df"
+          },
+          {
+            "value": "enterprise",
+            "label": "Enterprise",
+            "color": "#cf222e"
+          }
+        ]
+      },
+      {
+        "record_type": "deal",
+        "key": "billing_cycle",
+        "label": "Ciclo de cobrança",
+        "type": "select",
+        "options": [
+          {
+            "value": "monthly",
+            "label": "Mensal",
+            "color": "#1f6feb"
+          },
+          {
+            "value": "yearly",
+            "label": "Anual",
+            "color": "#1a7f37"
+          }
+        ]
+      },
+      {
+        "record_type": "deal",
+        "key": "mrr",
+        "label": "MRR",
+        "type": "currency",
+        "config": {
+          "currency": "BRL"
+        }
+      },
+      {
+        "record_type": "deal",
+        "key": "seats",
+        "label": "Número de usuários",
+        "type": "number",
+        "config": {
+          "min": 1,
+          "decimals": 0
+        }
+      },
+      {
+        "record_type": "deal",
+        "key": "trial_ends_on",
+        "label": "Fim do trial",
+        "type": "date"
+      },
+      {
+        "record_type": "deal",
+        "key": "renewal_date",
+        "label": "Data de renovação",
+        "type": "date"
+      },
+      {
+        "record_type": "deal",
+        "key": "trial_engagement",
+        "label": "Engajamento no trial",
+        "type": "select",
+        "options": [
+          {
+            "value": "high",
+            "label": "Alto",
+            "color": "#1a7f37"
+          },
+          {
+            "value": "medium",
+            "label": "Médio",
+            "color": "#bf8700"
+          },
+          {
+            "value": "low",
+            "label": "Baixo",
+            "color": "#cf222e"
+          }
+        ]
+      },
+      {
+        "record_type": "company",
+        "key": "customer_stage",
+        "label": "Estágio do cliente",
+        "type": "select",
+        "options": [
+          {
+            "value": "trial",
+            "label": "Em trial",
+            "color": "#bf8700"
+          },
+          {
+            "value": "customer",
+            "label": "Cliente",
+            "color": "#1a7f37"
+          },
+          {
+            "value": "churned",
+            "label": "Cancelou",
+            "color": "#cf222e"
+          }
+        ]
+      },
+      {
+        "record_type": "company",
+        "key": "current_tool",
+        "label": "Ferramenta atual",
+        "type": "text"
+      },
+      {
+        "record_type": "company",
+        "key": "use_case",
+        "label": "Caso de uso principal",
+        "type": "text"
+      }
+    ],
+    "pipelines": [
+      {
+        "key": "assinaturas",
+        "name": "Assinaturas",
+        "default": true,
+        "stages": [
+          {
+            "key": "prospeccao",
+            "name": "Trial",
+            "kind": "open",
+            "probability": 15,
+            "exit_required_fields": [
+              "trial_ends_on"
+            ]
+          },
+          {
+            "key": "qualificacao",
+            "name": "Demo",
+            "kind": "open",
+            "probability": 35
+          },
+          {
+            "key": "proposta",
+            "name": "Proposta",
+            "kind": "open",
+            "probability": 60,
+            "entry_required_fields": [
+              "plan",
+              "seats",
+              "mrr"
+            ]
+          },
+          {
+            "key": "negociacao",
+            "name": "Negociação",
+            "kind": "open",
+            "probability": 80
+          },
+          {
+            "key": "ganho",
+            "name": "Fechado",
+            "kind": "won",
+            "probability": 100,
+            "entry_required_fields": [
+              "plan",
+              "mrr",
+              "renewal_date"
+            ]
+          },
+          {
+            "key": "perdido",
+            "name": "Perdido",
+            "kind": "lost",
+            "probability": 0
+          }
+        ]
+      }
+    ],
+    "lost_reasons": [
+      {
+        "key": "preco",
+        "name": "Preço"
+      },
+      {
+        "key": "escolheu_um_concorrente",
+        "name": "Escolheu um concorrente"
+      },
+      {
+        "key": "sem_orcamento",
+        "name": "Sem orçamento"
+      },
+      {
+        "key": "sem_resposta",
+        "name": "Sem resposta"
+      },
+      {
+        "key": "momento_inadequado",
+        "name": "Momento inadequado"
+      },
+      {
+        "key": "outro",
+        "name": "Outro"
+      },
+      {
+        "key": "nao_usou_o_trial",
+        "name": "Não usou o trial"
+      },
+      {
+        "key": "faltou_funcionalidade",
+        "name": "Faltou funcionalidade"
+      },
+      {
+        "key": "faltou_integracao",
+        "name": "Faltou integração"
+      }
+    ],
+    "activity_types": [
+      {
+        "key": "demo",
+        "name": "Demo",
+        "icon": "video",
+        "color": "#8250df"
+      },
+      {
+        "key": "onboarding",
+        "name": "Onboarding",
+        "icon": "flag",
+        "color": "#1a7f37"
+      }
+    ],
+    "layouts": [
+      {
+        "record_type": "deal",
+        "context": "create",
+        "layout": {
+          "tabs": [
+            {
+              "id": "main",
+              "label": "Dados",
+              "sections": [
+                {
+                  "id": "deal",
+                  "label": "Oportunidade",
+                  "columns": [
+                    {
+                      "fields": [
+                        {
+                          "key": "title"
+                        },
+                        {
+                          "key": "company_id"
+                        },
+                        {
+                          "key": "contact_id"
+                        }
+                      ]
+                    },
+                    {
+                      "fields": [
+                        {
+                          "key": "owner_id"
+                        },
+                        {
+                          "key": "expected_close_date"
+                        }
+                      ]
+                    }
+                  ]
+                },
+                {
+                  "id": "subscription",
+                  "label": "Assinatura",
+                  "columns": [
+                    {
+                      "fields": [
+                        {
+                          "key": "plan"
+                        },
+                        {
+                          "key": "billing_cycle"
+                        },
+                        {
+                          "key": "seats"
+                        }
+                      ]
+                    },
+                    {
+                      "fields": [
+                        {
+                          "key": "mrr"
+                        },
+                        {
+                          "key": "amount"
+                        },
+                        {
+                          "key": "renewal_date",
+                          "required_when": {
+                            "field": "billing_cycle",
+                            "operator": "eq",
+                            "value": "yearly"
+                          }
+                        }
+                      ]
+                    }
+                  ]
+                },
+                {
+                  "id": "trial",
+                  "label": "Trial",
+                  "columns": [
+                    {
+                      "fields": [
+                        {
+                          "key": "trial_ends_on"
+                        }
+                      ]
+                    },
+                    {
+                      "fields": [
+                        {
+                          "key": "trial_engagement"
+                        }
+                      ]
+                    }
+                  ]
+                }
+              ]
+            }
+          ]
+        }
+      },
+      {
+        "record_type": "deal",
+        "context": "edit",
+        "layout": {
+          "tabs": [
+            {
+              "id": "main",
+              "label": "Dados",
+              "sections": [
+                {
+                  "id": "deal",
+                  "label": "Oportunidade",
+                  "columns": [
+                    {
+                      "fields": [
+                        {
+                          "key": "title"
+                        },
+                        {
+                          "key": "company_id"
+                        },
+                        {
+                          "key": "contact_id"
+                        }
+                      ]
+                    },
+                    {
+                      "fields": [
+                        {
+                          "key": "owner_id"
+                        },
+                        {
+                          "key": "expected_close_date"
+                        }
+                      ]
+                    }
+                  ]
+                },
+                {
+                  "id": "subscription",
+                  "label": "Assinatura",
+                  "columns": [
+                    {
+                      "fields": [
+                        {
+                          "key": "plan"
+                        },
+                        {
+                          "key": "billing_cycle"
+                        },
+                        {
+                          "key": "seats"
+                        }
+                      ]
+                    },
+                    {
+                      "fields": [
+                        {
+                          "key": "mrr"
+                        },
+                        {
+                          "key": "amount"
+                        },
+                        {
+                          "key": "renewal_date",
+                          "required_when": {
+                            "field": "billing_cycle",
+                            "operator": "eq",
+                            "value": "yearly"
+                          }
+                        }
+                      ]
+                    }
+                  ]
+                },
+                {
+                  "id": "trial",
+                  "label": "Trial",
+                  "columns": [
+                    {
+                      "fields": [
+                        {
+                          "key": "trial_ends_on"
+                        }
+                      ]
+                    },
+                    {
+                      "fields": [
+                        {
+                          "key": "trial_engagement"
+                        }
+                      ]
+                    }
+                  ]
+                }
+              ]
+            }
+          ]
+        }
+      },
+      {
+        "record_type": "company",
+        "context": "create",
+        "layout": {
+          "tabs": [
+            {
+              "id": "main",
+              "label": "Dados",
+              "sections": [
+                {
+                  "id": "company",
+                  "label": "Empresa",
+                  "columns": [
+                    {
+                      "fields": [
+                        {
+                          "key": "name"
+                        },
+                        {
+                          "key": "website"
+                        },
+                        {
+                          "key": "size_range"
+                        }
+                      ]
+                    },
+                    {
+                      "fields": [
+                        {
+                          "key": "customer_stage"
+                        },
+                        {
+                          "key": "owner_id"
+                        }
+                      ]
+                    }
+                  ]
+                },
+                {
+                  "id": "context",
+                  "label": "Contexto",
+                  "columns": [
+                    {
+                      "fields": [
+                        {
+                          "key": "current_tool"
+                        }
+                      ]
+                    },
+                    {
+                      "fields": [
+                        {
+                          "key": "use_case"
+                        }
+                      ]
+                    }
+                  ]
+                }
+              ]
+            }
+          ]
+        }
+      },
+      {
+        "record_type": "company",
+        "context": "edit",
+        "layout": {
+          "tabs": [
+            {
+              "id": "main",
+              "label": "Dados",
+              "sections": [
+                {
+                  "id": "company",
+                  "label": "Empresa",
+                  "columns": [
+                    {
+                      "fields": [
+                        {
+                          "key": "name"
+                        },
+                        {
+                          "key": "website"
+                        },
+                        {
+                          "key": "size_range"
+                        }
+                      ]
+                    },
+                    {
+                      "fields": [
+                        {
+                          "key": "customer_stage"
+                        },
+                        {
+                          "key": "owner_id"
+                        }
+                      ]
+                    }
+                  ]
+                },
+                {
+                  "id": "context",
+                  "label": "Contexto",
+                  "columns": [
+                    {
+                      "fields": [
+                        {
+                          "key": "current_tool"
+                        }
+                      ]
+                    },
+                    {
+                      "fields": [
+                        {
+                          "key": "use_case"
+                        }
+                      ]
+                    }
+                  ]
+                }
+              ]
+            }
+          ]
+        }
+      }
+    ],
+    "views": [
+      {
+        "key": "trials_vencendo",
+        "record_type": "deal",
+        "name": "Trials vencendo",
+        "view_type": "table",
+        "filter": {
+          "op": "and",
+          "conditions": [
+            {
+              "field": "status",
+              "operator": "eq",
+              "value": "open"
+            },
+            {
+              "field": "trial_ends_on",
+              "operator": "within_next_days",
+              "value": 7
+            }
+          ]
+        },
+        "sort": [
+          {
+            "field": "trial_ends_on",
+            "direction": "asc"
+          }
+        ],
+        "columns": [
+          "title",
+          "company_id",
+          "plan",
+          "trial_engagement",
+          "trial_ends_on",
+          "owner_id"
+        ]
+      },
+      {
+        "key": "renovacoes_proximas",
+        "record_type": "deal",
+        "name": "Renovações nos próximos 60 dias",
+        "view_type": "table",
+        "filter": {
+          "op": "and",
+          "conditions": [
+            {
+              "field": "status",
+              "operator": "eq",
+              "value": "won"
+            },
+            {
+              "field": "renewal_date",
+              "operator": "within_next_days",
+              "value": 60
+            }
+          ]
+        },
+        "sort": [
+          {
+            "field": "renewal_date",
+            "direction": "asc"
+          }
+        ],
+        "columns": [
+          "title",
+          "company_id",
+          "plan",
+          "mrr",
+          "seats",
+          "renewal_date"
+        ]
+      },
+      {
+        "key": "clientes_ativos",
+        "record_type": "company",
+        "name": "Clientes ativos",
+        "view_type": "table",
+        "filter": {
+          "field": "customer_stage",
+          "operator": "eq",
+          "value": "customer"
+        },
+        "columns": [
+          "name",
+          "size_range",
+          "current_tool",
+          "owner_id"
+        ]
+      }
+    ],
+    "dashboard": {
+      "widgets": [
+        {
+          "key": "sales_indicators",
+          "size": "large"
+        },
+        {
+          "key": "deals_by_stage",
+          "size": "large",
+          "settings": {
+            "pipeline": "assinaturas"
+          }
+        },
+        {
+          "key": "report_totals",
+          "size": "medium"
+        },
+        {
+          "key": "pending_center",
+          "size": "medium"
+        },
+        {
+          "key": "recent_activity",
+          "size": "medium"
+        }
+      ],
+      "period": "month"
+    }
+  }
+}

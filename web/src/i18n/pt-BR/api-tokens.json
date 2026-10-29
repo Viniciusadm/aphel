@@ -1,0 +1,71 @@
+{
+  "title": "Tokens de API",
+  "description": "Tokens pessoais para integrações acessarem a API em seu nome. Cada token só faz o que os escopos escolhidos e as suas permissões atuais permitem.",
+  "new": "Novo token",
+  "showAll": "Mostrar os tokens de todos os membros",
+  "listLabel": "Tokens de API",
+  "emptyTitle": "Nenhum token criado",
+  "emptyDescription": "Crie um token para conectar outro sistema à API do Aphel.",
+  "status": {
+    "active": "Ativo",
+    "revoked": "Revogado",
+    "expired": "Expirado"
+  },
+  "createdBy": "Criado por {{name}}",
+  "createdAt": "criado em {{date}}",
+  "expiresAt": "expira em {{date}}",
+  "neverExpires": "não expira",
+  "lastUsed": "último uso em {{date}} ({{ip}})",
+  "neverUsed": "nunca usado",
+  "unknownIp": "IP desconhecido",
+  "revoke": "Revogar",
+  "revokeLabel": "Revogar o token {{name}}",
+  "revokeTitle": "Revogar token?",
+  "revokeDescription": "As integrações que usam o token \"{{name}}\" vão parar de funcionar imediatamente. Esta ação não pode ser desfeita.",
+  "revokeConfirm": "Revogar token",
+  "revoked": "Token \"{{name}}\" revogado.",
+  "form": {
+    "title": "Novo token de API",
+    "description": "Escolha um nome que identifique a integração e só os escopos de que ela precisa.",
+    "name": "Nome",
+    "namePlaceholder": "Ex.: Formulário do site",
+    "nameRequired": "Informe um nome.",
+    "scopes": "Escopos",
+    "scopesRequired": "Escolha ao menos um escopo.",
+    "expiration": "Expiração",
+    "expirationOptions": {
+      "30": "Em 30 dias",
+      "90": "Em 90 dias",
+      "365": "Em 1 ano",
+      "never": "Nunca"
+    },
+    "cancel": "Cancelar",
+    "submit": "Criar token"
+  },
+  "access": {
+    "read": "Ler",
+    "write": "Escrever"
+  },
+  "resources": {
+    "contacts": "Contatos",
+    "companies": "Empresas",
+    "deals": "Oportunidades",
+    "activities": "Atividades",
+    "notes": "Notas",
+    "emails": "E-mails",
+    "sequences": "Sequências",
+    "scheduling": "Agendamento",
+    "settings": "Configurações",
+    "users": "Usuários",
+    "audit": "Auditoria",
+    "system": "Sistema"
+  },
+  "secret": {
+    "title": "Token \"{{name}}\" criado",
+    "description": "Copie o token agora. Por segurança, ele não será exibido de novo.",
+    "copy": "Copiar token",
+    "copied": "Copiado",
+    "copyFailed": "Não foi possível copiar. Selecione o texto e copie manualmente.",
+    "done": "Concluir"
+  }
+}

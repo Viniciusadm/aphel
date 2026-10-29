@@ -1,0 +1,132 @@
+name: CI
+
+on:
+  push:
+    branches: [main, master]
+  pull_request:
+
+concurrency:
+  group: ci-${{ github.ref }}
+  cancel-in-progress: true
+
+env:
+  CARGO_TERM_COLOR: always
+
+jobs:
+  backend:
+    name: Backend
+    runs-on: ubuntu-latest
+    services:
+      mysql:
+        image: mysql:8.4
+        env:
+          MYSQL_ROOT_PASSWORD: root
+          MYSQL_DATABASE: aphel
+          MYSQL_USER: aphel
+          MYSQL_PASSWORD: aphel
+        ports:
+          - 3306:3306
+        options: >-
+          --health-cmd="mysqladmin ping -h 127.0.0.1 -uroot -proot"
+          --health-interval=5s
+          --health-timeout=5s
+          --health-retries=30
+    env:
+      DATABASE_URL: mysql://aphel:aphel@127.0.0.1:3306/aphel
+    steps:
+      - uses: actions/checkout@v4
+
+      - name: Grant database creation to the aphel user
+        run: mysql -h 127.0.0.1 -P 3306 -uroot -proot -e "GRANT ALL PRIVILEGES ON *.* TO 'aphel'@'%'; FLUSH PRIVILEGES;"
+
+      - uses: actions/setup-node@v4
+        with:
+          node-version: 24
+          cache: npm
+          cache-dependency-path: web/package-lock.json
+
+      - name: Build web
+        run: |
+          npm --prefix web ci
+          npm --prefix web run build
+
+      - uses: dtolnay/rust-toolchain@stable
+        with:
+          components: rustfmt, clippy
+
+      - uses: Swatinem/rust-cache@v2
+        with:
+          workspaces: back
+
+      - name: Module registries are up to date
+        run: cargo run -q --manifest-path back/Cargo.toml -p xtask -- modules sync --check
+
+      - name: Format
+        run: cargo fmt --manifest-path back/Cargo.toml --all --check
+
+      - name: Clippy
+        run: cargo clippy --manifest-path back/Cargo.toml --workspace --all-targets -- -D warnings
+
+      - name: Example plugin (lead_pro) compiles and passes clippy
+        run: |
+          cp back/aphel.modules.toml "$RUNNER_TEMP/aphel.modules.toml"
+          echo 'lead_pro = { path = "plugins/lead_pro" }' >> back/aphel.modules.toml
+          cargo run -q --manifest-path back/Cargo.toml -p xtask -- modules sync
+          cargo clippy --manifest-path back/Cargo.toml -p aphel-lead-pro -p aphel -- -D warnings
+          cp "$RUNNER_TEMP/aphel.modules.toml" back/aphel.modules.toml
+          cargo run -q --manifest-path back/Cargo.toml -p xtask -- modules sync
+
+      - name: Export OpenAPI document
+        run: cargo run -q --manifest-path back/Cargo.toml -p aphel -- openapi > openapi.generated.json
+
+      - name: Upload OpenAPI document
+        uses: actions/upload-artifact@v4
+        with:
+          name: openapi
+          path: openapi.generated.json
+
+      - name: Committed OpenAPI document is up to date
+        run: |
+          if ! diff -u back/openapi.json openapi.generated.json; then
+            echo "::error file=back/openapi.json::back/openapi.json is stale; run 'cargo run -q -- openapi > openapi.json' in back/"
+            exit 1
+          fi
+
+  frontend:
+    name: Frontend
+    runs-on: ubuntu-latest
+    defaults:
+      run:
+        working-directory: web
+    steps:
+      - uses: actions/checkout@v4
+
+      - uses: actions/setup-node@v4
+        with:
+          node-version: 24
+          cache: npm
+          cache-dependency-path: web/package-lock.json
+
+      - run: npm ci
+      - run: npm run lint
+      - run: npm run typecheck
+      - run: npm run build
+
+  sdk:
+    name: TypeScript SDK
+    runs-on: ubuntu-latest
+    defaults:
+      run:
+        working-directory: sdk/typescript
+    steps:
+      - uses: actions/checkout@v4
+
+      - uses: actions/setup-node@v4
+        with:
+          node-version: 24
+          cache: npm
+          cache-dependency-path: sdk/typescript/package-lock.json
+
+      - run: npm ci
+      - run: npm run generate
+      - run: npm run build

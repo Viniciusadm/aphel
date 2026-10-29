@@ -1,0 +1,271 @@
+{
+  "page": {
+    "title": "Privacy and LGPD",
+    "description": "Find a data subject's data, handle requests (export, anonymize, delete) and define how long data is kept. LGPD compliance also depends on your company's processes.",
+    "tabsLabel": "Privacy sections"
+  },
+  "tabs": {
+    "subjects": "Find data subject",
+    "requests": "Requests",
+    "retention": "Retention"
+  },
+  "recordTypes": {
+    "contact": "Contact",
+    "company": "Company",
+    "deal": "Deal",
+    "activity": "Activity"
+  },
+  "recordTypesPlural": {
+    "contact": "contacts",
+    "company": "companies",
+    "deal": "deals"
+  },
+  "subjectKinds": {
+    "email": "email",
+    "phone": "phone",
+    "document": "document",
+    "text": "text"
+  },
+  "search": {
+    "label": "Data subject's email, phone or document",
+    "placeholder": "maria@example.com or +55 11 98765-4321",
+    "hint": "The search covers fields marked as personal data, notes, attachments, activities and import rows. The searched term is not stored; the search is recorded in the audit log.",
+    "submit": "Search",
+    "searching": "Searching…",
+    "introTitle": "Find a data subject's data",
+    "intro": "Enter an email, phone or document to see where the person's data appears and register a request.",
+    "empty": "No data found for this data subject",
+    "emptyDescription": "Check the spelling or try another identifier (email, phone or document).",
+    "summary": "Results for {{label}} ({{kind}})",
+    "selectAll": "Select all",
+    "selectNone": "Clear selection",
+    "groups": {
+      "records": "Records",
+      "activities": "Activities",
+      "notes": "Notes",
+      "attachments": "Attachments",
+      "importRows": "Import rows"
+    },
+    "archived": "Archived",
+    "deleted": "In the trash",
+    "matched": "Found in: {{fields}}",
+    "reason": {
+      "mention": "Mentions the term",
+      "record": "Linked to a found record"
+    },
+    "attachmentsNote": "Attachments follow the selected records.",
+    "row": "Row {{row}}",
+    "selected_one": "{{count}} item selected",
+    "selected_other": "{{count}} items selected",
+    "createRequest": "Create request"
+  },
+  "create": {
+    "title": "New data subject request",
+    "description_one": "{{count}} selected item goes into the request.",
+    "description_other": "{{count}} selected items go into the request.",
+    "kind": "What did the data subject ask for?",
+    "dueAt": "Response deadline",
+    "dueHint": "Defaults to 15 days (LGPD, art. 19). Open requests past the deadline are shown as overdue.",
+    "notice": "The request stays pending until it is executed in the Requests tab. Only a masked summary of the searched identifier is stored.",
+    "submit": "Register request",
+    "created": "Request registered"
+  },
+  "kinds": {
+    "export": "Export data",
+    "anonymize": "Anonymize",
+    "delete": "Delete permanently"
+  },
+  "kindDescriptions": {
+    "export": "Builds a .zip file with the data of the records, notes, activities and attachments.",
+    "anonymize": "Replaces personal data with neutral values and removes notes and attachments. Deals, amounts, stages and dates stay in the sales history.",
+    "delete": "Deletes the records, custom values, notes, attachments and files. Cannot be undone."
+  },
+  "status": {
+    "pending": "Pending",
+    "processing": "Processing",
+    "completed": "Completed",
+    "failed": "Failed",
+    "cancelled": "Cancelled",
+    "queued": "Queued",
+    "running": "Running"
+  },
+  "requests": {
+    "filterLabel": "Status",
+    "allStatuses": "All",
+    "empty": "No requests registered",
+    "emptyFiltered": "No requests with this status.",
+    "emptyDescription": "Find a data subject and register the request from the results.",
+    "overdue": "Overdue",
+    "subject": "Data subject: {{label}}",
+    "items_one": "{{count}} item",
+    "items_other": "{{count}} items",
+    "due": "Due: {{date}}"
+  },
+  "detail": {
+    "title": "Data subject request",
+    "description": "Follow the execution and the result of the request.",
+    "kind": "Kind",
+    "status": "Status",
+    "subject": "Data subject",
+    "dueAt": "Due",
+    "requestedBy": "Registered by",
+    "executedBy": "Executed by",
+    "finishedAt": "Finished at",
+    "unknownUser": "Removed user",
+    "failure": "The execution did not finish. Check the report and, if needed, register a new request for what is left.",
+    "targets": "Request items",
+    "noTargets": "No items.",
+    "removedRecord": "Record already removed",
+    "notes_one": "{{count}} note",
+    "notes_other": "{{count}} notes",
+    "importRows_one": "{{count}} import row",
+    "importRows_other": "{{count}} import rows",
+    "report": "Report",
+    "executed": "Execution started. You will be notified when it finishes.",
+    "cancelled": "Request cancelled",
+    "cancelConfirm": "The request will no longer be handled and cannot be executed later."
+  },
+  "execute": {
+    "export": "Build export",
+    "anonymize": "Anonymize data",
+    "delete": "Delete permanently"
+  },
+  "executeConfirm": {
+    "export": "The file is built in the background and stays available for download for 30 days.",
+    "anonymize": "The personal data of the items will be replaced with neutral values and notes and attachments will be deleted, including from the storage. The sales history is kept. Cannot be undone.",
+    "delete": "The records, notes, attachments and files will be deleted forever and personal data leaves the history. Cannot be undone."
+  },
+  "confirmWords": {
+    "anonymize": "ANONYMIZE",
+    "delete": "DELETE"
+  },
+  "report": {
+    "records": "Records",
+    "notes": "Notes",
+    "attachments": "Attachments",
+    "files": "Files",
+    "activities": "Activities",
+    "import_rows": "Import rows",
+    "history_entries": "History entries",
+    "skipped": "Skipped",
+    "errors": "Errors"
+  },
+  "retention": {
+    "title": "Retention policies",
+    "description": "Archive or delete old data automatically. Policies run every day at 04:00 (UTC) and start disabled: check the preview before enabling. The trash has its own retention in Data › Trash.",
+    "create": "New policy",
+    "empty": "No retention policies",
+    "emptyDescription": "Create a policy to archive records without activity or clean old history.",
+    "active": "Enabled",
+    "inactive": "Disabled",
+    "lastRun": "Last run: {{date}}",
+    "neverRun": "Not run yet",
+    "lastPreview_one": "preview: {{count}} item on {{date}}",
+    "lastPreview_other": "preview: {{count}} items on {{date}}",
+    "previewTitle": "Preview",
+    "previewResult": {
+      "archive_inactive_one": "This would archive {{count}} record today.",
+      "archive_inactive_other": "This would archive {{count}} records today.",
+      "purge_archived_one": "This would permanently delete {{count}} record today.",
+      "purge_archived_other": "This would permanently delete {{count}} records today.",
+      "purge_audit_logs_one": "This would delete {{count}} audit entry today.",
+      "purge_audit_logs_other": "This would delete {{count}} audit entries today.",
+      "purge_security_events_one": "This would delete {{count}} security event today.",
+      "purge_security_events_other": "This would delete {{count}} security events today.",
+      "purge_domain_events_one": "This would delete {{count}} internal event today.",
+      "purge_domain_events_other": "This would delete {{count}} internal events today.",
+      "purge_orphan_files_one": "This would delete {{count}} unused file today.",
+      "purge_orphan_files_other": "This would delete {{count}} unused files today."
+    },
+    "enableTitle": "Enable policy",
+    "runTitle": "Run now",
+    "enableNotice": "From now on the policy runs every day at 04:00 (UTC).",
+    "runNotice": "The run starts in the background and shows up in the history.",
+    "enabled": "Policy {{name}} enabled",
+    "disabled": "Policy {{name}} disabled",
+    "runQueued": "Run of {{name}} started",
+    "deleted": "Policy {{name}} deleted",
+    "deleteTitle": "Delete policy",
+    "deleteDescription": "Policy {{name}} stops running. The run history is kept."
+  },
+  "actionSummaries": {
+    "archive_inactive": "Archive {{target}} without activity for {{days}} days",
+    "purge_archived": "Permanently delete {{target}} archived {{days}} days ago",
+    "purge_audit_logs": "Delete audit entries older than {{days}} days",
+    "purge_security_events": "Delete security events older than {{days}} days",
+    "purge_domain_events": "Delete processed internal events older than {{days}} days",
+    "purge_orphan_files": "Delete files unused for more than {{days}} days"
+  },
+  "retentionActions": {
+    "archive_inactive": "Archive records without activity",
+    "purge_archived": "Permanently delete archived records",
+    "purge_audit_logs": "Clean old audit entries",
+    "purge_security_events": "Clean old security events",
+    "purge_domain_events": "Clean old internal events",
+    "purge_orphan_files": "Clean unused files"
+  },
+  "actionHints": {
+    "archive_inactive": "Uses the last change of the record, its activities and notes.",
+    "purge_archived": "Deletes the record, custom values, notes, attachments and files. Cannot be undone.",
+    "purge_audit_logs": "The oldest change history no longer shows in the audit log.",
+    "purge_security_events": "Logins, password changes and other security events of the organization.",
+    "purge_domain_events": "Record timelines lose the deleted events.",
+    "purge_orphan_files": "Files that are not attached nor used by exports, imports or the organization. They are also removed from the storage."
+  },
+  "policyForm": {
+    "createTitle": "New retention policy",
+    "editTitle": "Edit policy",
+    "description": "The policy is created disabled. Then use the preview to check how many items would be affected before enabling it.",
+    "name": "Name",
+    "action": "Action",
+    "recordType": "Record type",
+    "days": "Threshold in days",
+    "daysHint": "For example, 1095 for about 3 years or 1825 for about 5 years.",
+    "daysHintEdit": "Changing the threshold disables the policy until a new preview is confirmed.",
+    "nameInvalid": "Enter a name with up to 140 characters.",
+    "daysInvalid": "Enter a whole number from {{min}} to {{max}}.",
+    "created": "Policy created",
+    "updated": "Policy updated"
+  },
+  "runs": {
+    "title": "Run history",
+    "description": "Scheduled and manual runs with the number of affected items.",
+    "empty": "No runs yet",
+    "triggers": {
+      "schedule": "Scheduled",
+      "manual": "Manual"
+    },
+    "summary": "{{affected}} items affected · {{files}} files removed · {{errors}} errors",
+    "failed": "The run failed. Try again later.",
+    "partial": "Some items could not be processed."
+  },
+  "actions": {
+    "details": "Details",
+    "cancel": "Cancel",
+    "saving": "Saving…",
+    "save": "Save",
+    "close": "Close",
+    "download": "Download file",
+    "cancelRequest": "Cancel request",
+    "preview": "Preview",
+    "enable": "Enable",
+    "disable": "Disable",
+    "runNow": "Run now",
+    "edit": "Edit",
+    "delete": "Delete",
+    "moreFor": "More actions for {{name}}"
+  },
+  "errors": {
+    "title": "Could not complete",
+    "codes": {
+      "invalid_subject_term": "Enter 3 to 255 characters to search.",
+      "privacy_targets_empty": "None of the selected items exists anymore. Run a new search.",
+      "privacy_request_not_found": "The request was not found.",
+      "privacy_request_not_pending": "Only pending requests can be executed or cancelled.",
+      "privacy_export_unavailable": "The file of this request is no longer available.",
+      "retention_policy_not_found": "The policy was not found.",
+      "retention_preview_required": "Run a new preview before continuing.",
+      "retention_policy_limit": "The organization already has the maximum number of policies (50)."
+    }
+  }
+}

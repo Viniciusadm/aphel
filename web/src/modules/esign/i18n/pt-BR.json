@@ -1,0 +1,102 @@
+{
+  "name": "Assinatura eletrônica",
+  "description": "Envia PDFs anexados às oportunidades para assinatura eletrônica na Clicksign e acompanha o status por webhook. Sem validade jurídica própria: a validade é a do provedor.",
+  "tab": "Assinaturas",
+  "legalNotice": "O Aphel não tem validade jurídica própria para assinaturas: a validade é a da Clicksign, que coleta as assinaturas e as evidências.",
+  "settings": {
+    "environment": { "label": "Ambiente", "help": "Sandbox para testes; produção para assinaturas reais" },
+    "access_token": { "label": "Token de acesso da Clicksign", "help": "Gerado em Configurações → API na Clicksign; guardado cifrado e nunca exibido" },
+    "webhook_secret": { "label": "Segredo HMAC do webhook", "help": "Chave HMAC SHA256 do webhook cadastrado na Clicksign (cabeçalho Content-Hmac)" },
+    "attach_signed_document": { "label": "Anexar o PDF assinado à oportunidade", "help": "Ao concluir, baixa o documento assinado e anexa à oportunidade" }
+  },
+  "settingsPanel": {
+    "stepToken": "Na Clicksign, gere um token de acesso da API e cole no campo \"Token de acesso\".",
+    "stepWebhook": "Cadastre um webhook na Clicksign apontando para o endereço abaixo.",
+    "stepSecret": "Copie a chave HMAC SHA256 do webhook para o campo \"Segredo HMAC do webhook\".",
+    "webhookUrl": "Endereço do webhook",
+    "copy": "Copiar endereço do webhook",
+    "copied": "Endereço copiado",
+    "configured": "Token de acesso configurado.",
+    "notConfigured": "Token de acesso ainda não configurado.",
+    "enableFirst": "Habilite o módulo para ver o endereço do webhook."
+  },
+  "deal": {
+    "title": "Assinaturas",
+    "description": "Envie PDFs anexados a esta oportunidade (como as propostas geradas) para assinatura eletrônica e acompanhe o status.",
+    "send": "Enviar para assinatura",
+    "notConfigured": "Configure o token de acesso da Clicksign nas configurações do módulo para enviar documentos.",
+    "sandbox": "Ambiente de testes (sandbox): as assinaturas não têm efeito real.",
+    "emptyTitle": "Nenhuma solicitação de assinatura",
+    "emptyDescription": "Escolha um PDF anexado e os signatários para enviar.",
+    "sentAt": "Enviado em {{date}}",
+    "completedAt": "concluído em {{date}}",
+    "signers": "Signatários",
+    "original": "Original",
+    "signedFile": "PDF assinado",
+    "cancel": "Cancelar",
+    "cancelled": "Solicitação de assinatura cancelada",
+    "sent": "Documento enviado para assinatura"
+  },
+  "confirmCancel": {
+    "title": "Cancelar solicitação de assinatura?",
+    "description": "\"{{name}}\" será cancelado na Clicksign e os signatários não poderão mais assinar.",
+    "confirm": "Cancelar solicitação"
+  },
+  "dialog": {
+    "title": "Enviar para assinatura",
+    "description": "O PDF e os dados dos signatários (nome e e-mail) serão enviados à Clicksign.",
+    "file": "Documento (PDF anexado)",
+    "filePlaceholder": "Escolha o PDF",
+    "noPdf": "Nenhum PDF anexado a esta oportunidade. Anexe um arquivo ou gere uma proposta primeiro.",
+    "signers": "Signatários",
+    "noSigners": "Adicione pelo menos um signatário.",
+    "signerName": "Nome do signatário {{index}}",
+    "signerEmail": "E-mail do signatário {{index}}",
+    "namePlaceholder": "Nome completo",
+    "emailPlaceholder": "email@empresa.com",
+    "removeSigner": "Remover signatário {{index}}",
+    "addContact": "Adicionar {{name}}",
+    "addSigner": "Adicionar signatário",
+    "message": "Mensagem (opcional)",
+    "messagePlaceholder": "Mensagem enviada aos signatários junto com o convite",
+    "privacy": "Cada signatário recebe o convite por e-mail e confirma a identidade por um código enviado ao e-mail.",
+    "close": "Fechar",
+    "confirm": "Enviar",
+    "sending": "Enviando…"
+  },
+  "status": {
+    "sent": "Aguardando",
+    "completed": "Concluída",
+    "refused": "Recusada",
+    "cancelled": "Cancelada",
+    "expired": "Expirada"
+  },
+  "signerStatus": {
+    "pending": "Pendente",
+    "signed": "Assinou",
+    "refused": "Recusou"
+  },
+  "timeline": {
+    "sent": "Documento enviado para assinatura",
+    "signed": "{{name}} assinou o documento",
+    "refused": "{{name}} recusou o documento",
+    "cancelled": "Solicitação de assinatura cancelada",
+    "completed": "Assinatura concluída por todos os signatários",
+    "expired": "Solicitação de assinatura expirou",
+    "signed_file_attached": "PDF assinado anexado à oportunidade",
+    "signers": "Signatários: {{names}}",
+    "byProvider": "Cancelada na Clicksign"
+  },
+  "errors": {
+    "esign_not_configured": "Configure o token de acesso da Clicksign",
+    "esign_file_not_attached": "O arquivo não está anexado a esta oportunidade",
+    "esign_file_not_pdf": "Só é possível enviar PDFs",
+    "esign_file_too_large": "O PDF passa de 20 MB",
+    "esign_provider_rejected": "A Clicksign recusou a solicitação",
+    "esign_provider_unauthorized": "A Clicksign recusou o token de acesso",
+    "esign_provider_unavailable": "A Clicksign não está disponível agora",
+    "esign_request_closed": "Esta solicitação já foi encerrada",
+    "deal_not_found": "Oportunidade não encontrada",
+    "permission_denied": "Você não tem permissão para esta ação"
+  }
+}

@@ -1,0 +1,100 @@
+{
+  "page": {
+    "title": "Previsão de receita",
+    "description": "Estimativa por mês com base no valor, na probabilidade e na data prevista das oportunidades abertas.",
+    "horizon": "Horizonte",
+    "months_one": "{{count}} mês",
+    "months_other": "{{count}} meses",
+    "configure": "Configurar",
+    "method": "Cálculo: {{method}}.",
+    "stageFallback": "Como a probabilidade das oportunidades não está visível para você, a probabilidade da etapa foi usada.",
+    "currencyNote": "Valores somados em {{currency}}, sem conversão entre moedas."
+  },
+  "methods": {
+    "stage_probability": "Probabilidade da etapa",
+    "deal_probability": "Probabilidade da oportunidade",
+    "commit_only": "Somente commit"
+  },
+  "methodHints": {
+    "stage_probability": "Valor × probabilidade da etapa em que a oportunidade está.",
+    "deal_probability": "Valor × probabilidade informada na oportunidade (ou da etapa, quando vazia).",
+    "commit_only": "Soma apenas o valor das oportunidades na categoria commit."
+  },
+  "categories": {
+    "pipeline": "Pipeline",
+    "best_case": "Melhor cenário",
+    "commit": "Commit"
+  },
+  "summary": {
+    "open": "Em aberto no horizonte",
+    "forecast": "Previsão",
+    "won": "Ganho no horizonte",
+    "deals_one": "{{count}} oportunidade",
+    "deals_other": "{{count}} oportunidades",
+    "unavailable": "Indisponível"
+  },
+  "chart": {
+    "title": "Previsão por mês",
+    "label": "Gráfico de barras com o valor em aberto, a previsão e o valor ganho por mês",
+    "open": "Em aberto",
+    "forecast": "Previsão",
+    "won": "Ganho"
+  },
+  "table": {
+    "caption": "Previsão por mês",
+    "month": "Mês",
+    "open": "Em aberto",
+    "forecast": "Previsão",
+    "won": "Ganho",
+    "total": "Total",
+    "drillDown": "Ver oportunidades de {{month}}",
+    "drillDownCategory": "Ver oportunidades de {{month}} em {{category}}"
+  },
+  "deals": {
+    "title": "Oportunidades de {{month}}",
+    "titleCategory": "{{category}} em {{month}}",
+    "description": "Oportunidades abertas com fechamento previsto no mês, da maior para a menor.",
+    "listLabel": "Oportunidades",
+    "empty": "Nenhuma oportunidade neste mês.",
+    "noAmount": "Sem valor",
+    "weighted": "{{probability}}% · {{amount}} na previsão"
+  },
+  "states": {
+    "emptyTitle": "Nenhuma oportunidade no horizonte",
+    "emptyDescription": "Oportunidades abertas com data prevista de fechamento nos próximos meses aparecem aqui.",
+    "hiddenTitle": "Previsão indisponível",
+    "hiddenDescription": "Seu papel não tem acesso ao valor ou à data prevista das oportunidades.",
+    "noAccessTitle": "Sem acesso às oportunidades",
+    "noAccessDescription": "Peça a um administrador permissão para ver oportunidades."
+  },
+  "settings": {
+    "title": "Configuração da previsão",
+    "description": "Defina como a previsão de receita é calculada para toda a organização.",
+    "method": "Método de cálculo",
+    "categories": "Categorias de previsão",
+    "categoriesEnabled": "Separar a previsão em categorias",
+    "categoriesHint": "As categorias são definidas pela probabilidade usada no cálculo. O método \"somente commit\" sempre usa as categorias.",
+    "bestCase": "Melhor cenário a partir de (%)",
+    "commit": "Commit a partir de (%)",
+    "rangesLabel": "Faixas das categorias",
+    "ranges": {
+      "pipeline": "Pipeline: de 0% a {{max}}%",
+      "best_case": "Melhor cenário: de {{min}}% a {{max}}%",
+      "commit": "Commit: a partir de {{min}}%"
+    },
+    "horizonTitle": "Horizonte",
+    "horizon": "Meses exibidos por padrão",
+    "horizonHint": "A partir do mês atual, no fuso da organização.",
+    "save": "Salvar",
+    "saved": "Configuração da previsão salva",
+    "errors": {
+      "percentage": "Informe um número inteiro entre 1 e 100.",
+      "order": "Commit deve começar acima do melhor cenário.",
+      "conflict": "A configuração foi alterada por outra pessoa. Recarregue a página.",
+      "invalid": "Valor inválido."
+    }
+  },
+  "nav": {
+    "forecast": "Previsão"
+  }
+}

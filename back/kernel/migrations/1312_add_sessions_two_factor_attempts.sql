@@ -1,0 +1,2 @@
+ALTER TABLE sessions
+  ADD COLUMN two_factor_attempts INT UNSIGNED NOT NULL DEFAULT 0 AFTER stage;

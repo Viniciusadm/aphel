@@ -1,0 +1,51 @@
+name: aphel
+
+services:
+  mysql:
+    image: mysql:8.4
+    restart: unless-stopped
+    environment:
+      MYSQL_ROOT_PASSWORD: "${MYSQL_ROOT_PASSWORD:?set MYSQL_ROOT_PASSWORD in .env (cp .env.example .env)}"
+      MYSQL_DATABASE: aphel
+      MYSQL_USER: aphel
+      MYSQL_PASSWORD: aphel
+    ports:
+      - "${MYSQL_PORT:-3306}:3306"
+    volumes:
+      - mysql-data:/var/lib/mysql
+      - ./docker/mysql/init:/docker-entrypoint-initdb.d:ro
+    healthcheck:
+      test: ["CMD", "mysqladmin", "ping", "-h", "127.0.0.1", "-uaphel", "-paphel"]
+      interval: 5s
+      timeout: 5s
+      retries: 30
+      start_period: 20s
+
+  mailpit:
+    image: axllent/mailpit:latest
+    restart: unless-stopped
+    ports:
+      - "${MAILPIT_PORT:-1025}:1025"
+      - "${MAILPIT_UI_PORT:-8025}:8025"
+
+  s3:
+    image: chrislusf/seaweedfs:latest
+    profiles: ["s3", "minio"]
+    restart: unless-stopped
+    command: server -s3 -dir=/data
+    ports:
+      - "${OBJECT_STORE_PORT:-8333}:8333"
+    volumes:
+      - s3-data:/data
+
+  s3-bucket:
+    image: curlimages/curl:latest
+    profiles: ["s3", "minio"]
+    depends_on:
+      - s3
+    entrypoint: >
+      /bin/sh -c "until curl -fsS -o /dev/null -X PUT http://s3:8333/${OBJECT_STORE_BUCKET:-aphel}; do sleep 2; done"
+
+volumes:
+  mysql-data:
+  s3-data:

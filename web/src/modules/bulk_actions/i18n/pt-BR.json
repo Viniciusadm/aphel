@@ -1,0 +1,142 @@
+{
+  "actions": {
+    "assign_owner": "Atribuir responsável",
+    "tags": "Etiquetas",
+    "set_field": "Alterar campo",
+    "move_stage": "Mover etapa",
+    "enroll_in_sequence": "Inscrever em sequência",
+    "export": "Exportar",
+    "archive": "Arquivar",
+    "unarchive": "Restaurar arquivados",
+    "delete": "Excluir",
+    "more": "Mais ações"
+  },
+  "titles": {
+    "assign_owner": "Atribuir responsável",
+    "tags": "Adicionar ou remover etiqueta",
+    "set_field": "Alterar campo",
+    "move_stage": "Mover para etapa",
+    "enroll_in_sequence": "Inscrever em sequência",
+    "export": "Exportar registros",
+    "archive": "Arquivar registros",
+    "unarchive": "Restaurar registros arquivados",
+    "delete": "Excluir registros"
+  },
+  "scope": {
+    "selected_one": "A ação vale para {{count}} registro selecionado.",
+    "selected_other": "A ação vale para {{count}} registros selecionados.",
+    "allMatching_one": "A ação vale para o registro que atende ao filtro atual.",
+    "allMatching_other": "A ação vale para todos os {{count}} registros que atendem ao filtro atual.",
+    "permissionNote": "Cada registro passa pelas mesmas validações e permissões da ação individual. Os que não puderem ser alterados são pulados e aparecem no relatório."
+  },
+  "confirm": {
+    "archive_one": "O registro será arquivado e deixará de aparecer nas listas por padrão.",
+    "archive_other": "{{count}} registros serão arquivados e deixarão de aparecer nas listas por padrão.",
+    "unarchive_one": "O registro voltará a aparecer nas listas.",
+    "unarchive_other": "{{count}} registros voltarão a aparecer nas listas.",
+    "delete_one": "O registro será excluído. Um administrador pode recuperá-lo na lixeira.",
+    "delete_other": "{{count}} registros serão excluídos. Um administrador pode recuperá-los na lixeira."
+  },
+  "owner": {
+    "label": "Novo responsável",
+    "placeholder": "Escolha um usuário"
+  },
+  "tags": {
+    "mode": "O que fazer",
+    "add_tag": "Adicionar etiqueta",
+    "remove_tag": "Remover etiqueta",
+    "label": "Etiqueta",
+    "placeholder": "Escolha uma etiqueta",
+    "empty": "Nenhuma etiqueta disponível para este tipo de registro."
+  },
+  "field": {
+    "label": "Campo",
+    "placeholder": "Escolha um campo",
+    "value": "Novo valor",
+    "emptyHint": "Deixe em branco para limpar o campo."
+  },
+  "stage": {
+    "pipeline": "Funil",
+    "label": "Etapa",
+    "placeholder": "Escolha uma etapa",
+    "rulesHint": "Oportunidades que não atendem às regras da etapa são puladas."
+  },
+  "sequence": {
+    "label": "Sequência",
+    "placeholder": "Escolha uma sequência ativa",
+    "empty": "Nenhuma sequência ativa disponível.",
+    "hint": "Os e-mails saem pela sua caixa. Contatos já inscritos, sem e-mail ou com oposição são pulados."
+  },
+  "export": {
+    "format": "Formato",
+    "tooMany": "Selecione até {{max}} registros ou use \"todos do filtro\" para exportar mais.",
+    "started": "Exportação iniciada",
+    "startedDescription": "Você será avisado quando o arquivo estiver pronto."
+  },
+  "buttons": {
+    "cancel": "Cancelar",
+    "apply": "Aplicar",
+    "applying": "Aplicando…",
+    "export": "Exportar",
+    "close": "Fechar",
+    "closeRunning": "Fechar (continua em segundo plano)"
+  },
+  "result": {
+    "queued": "Na fila para processar {{total}} registros…",
+    "running": "Processando {{processed}} de {{total}} registros…",
+    "progress": "Progresso da ação em massa",
+    "background": "Você pode fechar esta janela; a ação continua em segundo plano.",
+    "failed": "A ação em massa não pôde ser concluída.",
+    "completed_one": "{{count}} registro alterado.",
+    "completed_other": "{{count}} registros alterados.",
+    "succeeded": "Alterados",
+    "skipped": "Pulados",
+    "failedCount": "Com erro",
+    "reportTitle": "Registros não alterados",
+    "moreIssues_one": "E mais {{count}} registro.",
+    "moreIssues_other": "E mais {{count}} registros.",
+    "loadMore": "Carregar mais"
+  },
+  "reasons": {
+    "permissionDenied": "Você não tem permissão para alterar este registro.",
+    "notFound": "O registro não existe mais.",
+    "invalid": "Valor inválido: {{message}}",
+    "tagNotAllowed": "A etiqueta não pode ser usada neste tipo de registro.",
+    "internal": "Erro inesperado ao processar o registro.",
+    "generic": "O registro não pôde ser alterado.",
+    "sequenceAlreadyEnrolled": "O contato já está nesta sequência.",
+    "sequenceWithoutEmail": "O contato não tem e-mail.",
+    "sequenceObjected": "O contato pediu oposição ao rastreio de e-mails.",
+    "noMailbox": "Conecte uma caixa de e-mail para inscrever contatos."
+  },
+  "history": {
+    "title": "Ações em massa",
+    "menuDescription": "Histórico das ações em massa que você executou, com o relatório de cada uma.",
+    "description": "Ações em massa que você executou nas listas de registros.",
+    "empty": "Nenhuma ação em massa ainda",
+    "emptyDescription": "Selecione registros em uma lista para aplicar uma ação em massa.",
+    "status": {
+      "queued": "Na fila",
+      "running": "Processando",
+      "completed": "Concluída",
+      "failed": "Falhou"
+    },
+    "columns": {
+      "action": "Ação",
+      "recordType": "Tipo",
+      "status": "Situação",
+      "records": "Registros",
+      "createdAt": "Iniciada em",
+      "details": "Detalhes"
+    },
+    "recordTypes": {
+      "contact": "Contatos",
+      "company": "Empresas",
+      "deal": "Oportunidades",
+      "product": "Produtos"
+    },
+    "counts": "{{succeeded}} alterados, {{issues}} não alterados de {{total}}",
+    "open": "Ver relatório",
+    "detailTitle": "Ação em massa"
+  }
+}

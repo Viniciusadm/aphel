@@ -1,0 +1,66 @@
+{
+  "recordTypes": {
+    "contact": "Contatos",
+    "company": "Empresas",
+    "deal": "Oportunidades"
+  },
+  "page": {
+    "title": "Segmentos",
+    "description": "Segmentos são filtros salvos com nome. Os membros são calculados na hora, respeitando o que você pode ver.",
+    "typesLabel": "Tipo de registro",
+    "listLabel": "Segmentos",
+    "new": "Novo segmento",
+    "emptyTitle": "Nenhum segmento ainda",
+    "emptyDescription": "Crie um segmento para acompanhar um grupo de registros que atende a um filtro.",
+    "noAccessTitle": "Sem acesso",
+    "noAccessDescription": "Você não tem permissão para ver contatos, empresas ou oportunidades.",
+    "count_one": "{{count}} registro",
+    "count_other": "{{count}} registros",
+    "countUnavailable": "Filtro inválido",
+    "editLabel": "Editar {{name}}",
+    "deleteLabel": "Excluir {{name}}"
+  },
+  "dialog": {
+    "newTitle": "Novo segmento",
+    "editTitle": "Editar segmento",
+    "description": "Dê um nome ao segmento e defina as condições que os registros precisam atender.",
+    "name": "Nome",
+    "nameRequired": "Informe um nome.",
+    "nameTaken": "Já existe um segmento com esse nome.",
+    "descriptionLabel": "Descrição (opcional)",
+    "filter": "Condições",
+    "filterHint": "O segmento é recalculado sempre que é usado.",
+    "filterRequired": "Adicione pelo menos uma condição completa.",
+    "filterInvalid": "As condições são inválidas. Revise os campos e valores.",
+    "cancel": "Cancelar",
+    "save": "Salvar"
+  },
+  "detail": {
+    "back": "Voltar para segmentos",
+    "loading": "Contando…",
+    "membersLabel": "Registros do segmento",
+    "emptyTitle": "Nenhum registro no segmento",
+    "emptyDescription": "Nenhum registro visível para você atende às condições deste segmento.",
+    "invalid": "O filtro deste segmento não é mais válido. Edite o segmento para corrigi-lo."
+  },
+  "deleteDialog": {
+    "title": "Excluir segmento",
+    "description": "O segmento \"{{name}}\" será excluído. Os registros não são afetados.",
+    "confirm": "Excluir"
+  },
+  "toast": {
+    "created": "Segmento {{name}} criado",
+    "updated": "Segmento {{name}} atualizado",
+    "deleted": "Segmento {{name}} excluído"
+  },
+  "nav": {
+    "segments": "Segmentos"
+  },
+  "filter": {
+    "field": "Segmento",
+    "choose": "Escolha um segmento",
+    "loading": "Carregando segmentos…",
+    "unknown": "segmento indisponível",
+    "summary": "{{field}}: {{name}}"
+  }
+}

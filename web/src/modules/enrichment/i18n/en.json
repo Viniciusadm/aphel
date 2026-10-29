@@ -1,0 +1,150 @@
+{
+  "name": "CNPJ enrichment",
+  "description": "Looks up public company data by CNPJ (BrasilAPI and ReceitaWS) and fills the chosen fields, recording the source of each value.",
+  "tab": "Enrichment",
+  "settings": {
+    "source": {
+      "label": "Data source",
+      "help": "BrasilAPI is the main one; ReceitaWS allows only 3 lookups per minute"
+    },
+    "cnpj_field": {
+      "label": "CNPJ field",
+      "help": "Company text field holding the CNPJ; without it, the CNPJ is typed on lookup"
+    },
+    "automatic": {
+      "label": "Allow automatic enrichment",
+      "help": "Only with this on can the automation action \"Enrich company by CNPJ\" fill fields without a click"
+    },
+    "field_legal_name": {
+      "label": "Field for: Legal name",
+      "help": "Company field that receives this data; empty = do not fill"
+    },
+    "field_trade_name": {
+      "label": "Field for: Trade name",
+      "help": "Company field that receives this data; empty = do not fill"
+    },
+    "field_activity": {
+      "label": "Field for: Main activity (CNAE)",
+      "help": "Company field that receives this data; empty = do not fill"
+    },
+    "field_size": {
+      "label": "Field for: Company size",
+      "help": "Company field that receives this data; empty = do not fill"
+    },
+    "field_registration_status": {
+      "label": "Field for: Registration status",
+      "help": "Company field that receives this data; empty = do not fill"
+    },
+    "field_opened_on": {
+      "label": "Field for: Opening date",
+      "help": "Company field that receives this data; empty = do not fill"
+    },
+    "field_address": {
+      "label": "Field for: Full address",
+      "help": "Company field that receives this data; empty = do not fill"
+    },
+    "field_address_street": {
+      "label": "Field for: Street",
+      "help": "Company field that receives this data; empty = do not fill"
+    },
+    "field_address_number": {
+      "label": "Field for: Number",
+      "help": "Company field that receives this data; empty = do not fill"
+    },
+    "field_address_complement": {
+      "label": "Field for: Complement",
+      "help": "Company field that receives this data; empty = do not fill"
+    },
+    "field_address_district": {
+      "label": "Field for: District",
+      "help": "Company field that receives this data; empty = do not fill"
+    },
+    "field_address_city": {
+      "label": "Field for: City",
+      "help": "Company field that receives this data; empty = do not fill"
+    },
+    "field_address_state": {
+      "label": "Field for: State",
+      "help": "Company field that receives this data; empty = do not fill"
+    },
+    "field_address_postal_code": {
+      "label": "Field for: Postal code",
+      "help": "Company field that receives this data; empty = do not fill"
+    },
+    "field_phone": {
+      "label": "Field for: Phone",
+      "help": "Company field that receives this data; empty = do not fill"
+    },
+    "field_email": {
+      "label": "Field for: Email",
+      "help": "Company field that receives this data; empty = do not fill"
+    }
+  },
+  "company": {
+    "title": "CNPJ enrichment",
+    "description": "Look up the company's public data from the Brazilian Federal Revenue (through BrasilAPI or ReceitaWS), compare with the current values and choose what to apply. Nothing is filled without your confirmation.",
+    "cnpj": "CNPJ",
+    "search": "Look up",
+    "searching": "Looking up…",
+    "invalidCnpj": "Invalid CNPJ: check the digits.",
+    "dataNotice": "Only the CNPJ is sent to the public source."
+  },
+  "lookup": {
+    "title": "CNPJ {{cnpj}} data",
+    "target": "→ {{field}}",
+    "unmapped": "(no field mapped in the settings)",
+    "same": "same as current",
+    "discard": "Discard",
+    "apply_one": "Apply {{count}} field",
+    "apply_other": "Apply {{count}} fields"
+  },
+  "applied_one": "{{count}} field filled",
+  "applied_other": "{{count}} fields filled",
+  "history": {
+    "title": "Fields filled by enrichment",
+    "emptyTitle": "No enriched fields yet",
+    "emptyDescription": "Fields applied from the CNPJ appear here with the source and date.",
+    "source": "{{source}} · CNPJ {{cnpj}} · {{date}}"
+  },
+  "items": {
+    "cnpj": "CNPJ",
+    "legal_name": "Legal name",
+    "trade_name": "Trade name",
+    "activity": "Main activity (CNAE)",
+    "size": "Company size",
+    "registration_status": "Registration status",
+    "opened_on": "Opening date",
+    "address": "Full address",
+    "address_street": "Street",
+    "address_number": "Number",
+    "address_complement": "Complement",
+    "address_district": "District",
+    "address_city": "City",
+    "address_state": "State",
+    "address_postal_code": "Postal code",
+    "phone": "Phone",
+    "email": "Email"
+  },
+  "sources": {
+    "brasilapi": "BrasilAPI",
+    "receitaws": "ReceitaWS"
+  },
+  "timeline": {
+    "enriched_one": "{{count}} field filled with CNPJ data",
+    "enriched_other": "{{count}} fields filled with CNPJ data",
+    "detail": "Source: {{source}} · CNPJ {{cnpj}}"
+  },
+  "errors": {
+    "enrichment_cnpj_missing": "Enter the company CNPJ",
+    "enrichment_invalid_cnpj": "Invalid CNPJ",
+    "enrichment_cnpj_not_found": "CNPJ not found in the source",
+    "enrichment_source_rate_limited": "The source limited lookups; try again in a few minutes",
+    "enrichment_source_unavailable": "The data source is unavailable right now",
+    "enrichment_lookup_expired": "The lookup expired; look up again",
+    "enrichment_lookup_not_found": "Lookup not found",
+    "enrichment_nothing_to_apply": "Nothing to apply",
+    "company_not_found": "Company not found",
+    "rate_limited": "Too many lookups in a row; wait a minute",
+    "permission_denied": "You are not allowed to do this"
+  }
+}

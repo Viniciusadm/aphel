@@ -1,0 +1,8 @@
+CREATE TABLE dashboard_default_layouts (
+  id TINYINT UNSIGNED NOT NULL,
+  layout JSON NOT NULL,
+  created_at DATETIME(6) NOT NULL DEFAULT CURRENT_TIMESTAMP(6),
+  updated_at DATETIME(6) NOT NULL DEFAULT CURRENT_TIMESTAMP(6) ON UPDATE CURRENT_TIMESTAMP(6),
+  PRIMARY KEY (id),
+  CONSTRAINT dashboard_default_layouts_single_row CHECK (id = 1)
+) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci;

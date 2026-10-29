@@ -1,0 +1,96 @@
+{
+  "tab": "Versions",
+  "status": {
+    "added": "New in the package",
+    "changed": "Changed in the package",
+    "removed": "Removed from the package",
+    "unchanged": "Same as the installed version"
+  },
+  "relation": {
+    "install": "First installation",
+    "upgrade": "Upgrade",
+    "reinstall": "Same version",
+    "downgrade": "Older version"
+  },
+  "resolutions": {
+    "keep_local": "Keep the local version",
+    "accept_package": "Accept the package version"
+  },
+  "summary": {
+    "added": "New",
+    "changed": "Changed",
+    "removed": "Removed",
+    "unchanged": "Same",
+    "locally_modified": "Changed locally",
+    "conflicts": "Conflicts"
+  },
+  "item": {
+    "locallyModified": "Changed locally",
+    "conflict": "Conflict",
+    "removedHint": "The new package no longer has this item. Installing never deletes anything: it stays in the organization.",
+    "packageChanges": "What changed in the package",
+    "localChanges": "What changes in your organization",
+    "before": "Before:",
+    "after": "After:",
+    "resolutionLegend": "How to resolve {{name}}",
+    "conflictHint": "The package changed this item and it was also changed here after the installation. Choose which version stays.",
+    "planConflictHint": "This item conflicts with the current configuration. Choose whether the package should overwrite it."
+  },
+  "comparison": {
+    "back": "Back",
+    "title": "{{name}} {{version}}",
+    "untitled": "Package",
+    "packageId": "Identifier: {{id}}",
+    "author": "Author: {{author}}",
+    "installedVersion": "Installed version: {{version}} on {{date}}",
+    "notInstalled": "Not installed in this organization yet",
+    "downgradeWarning": "This version is older than the installed one. Check the changes before applying.",
+    "refreshing": "Comparing again…",
+    "outdated": "The organization changed since the comparison. We compared again; review before applying.",
+    "invalidTitle": "The package cannot be installed",
+    "issuesLabel": "Problems found",
+    "rootPath": "(package)",
+    "conflictsNotice_one": "{{count}} item was changed in the package and also locally. By default, the local version is kept.",
+    "conflictsNotice_other": "{{count}} items were changed in the package and also locally. By default, the local versions are kept.",
+    "unchangedCount_one": "{{count}} unchanged item",
+    "unchangedCount_other": "{{count}} unchanged items",
+    "ready_zero": "No pending decisions.",
+    "ready_one": "{{count}} item depends on your choice.",
+    "ready_other": "{{count}} items depend on your choice.",
+    "cannotApply": "Fix the package before applying.",
+    "cancel": "Cancel",
+    "install": "Install",
+    "update": "Apply update",
+    "summaryLabel": "Comparison summary"
+  },
+  "apply": {
+    "confirmTitle": "Apply {{name}} {{version}}?",
+    "confirmDescription": "Conflicting items: {{keep}} kept as they are and {{accept}} replaced by the package. Nothing is deleted and no business record is changed.",
+    "confirm": "Apply",
+    "success": "{{name}} {{version}} applied",
+    "summary": "{{create}} created, {{update}} updated, {{kept}} kept in the local version."
+  },
+  "upload": {
+    "title": "Install or update a versioned package",
+    "description": "Upload an aphel-config file with id and version. Aphel compares it with the installed version and shows the conflicts with what was changed here.",
+    "choose": "Choose file",
+    "comparing": "Comparing…",
+    "catalogLink": "Open the catalog",
+    "errors": {
+      "tooLarge": "The file is larger than 2 MB.",
+      "invalidJson": "The file is not valid JSON.",
+      "notObject": "The file is not an aphel-config package."
+    }
+  },
+  "installed": {
+    "title": "Installed versioned packages",
+    "emptyTitle": "No versioned package installed",
+    "emptyDescription": "Packages installed here or from the catalog show up in this list with their version and history.",
+    "installedAt": "Installed on {{date}} by {{name}}",
+    "unknownUser": "removed user",
+    "origin": "Origin: {{origin}}",
+    "history_one": "{{count}} previous version",
+    "history_other": "{{count}} previous versions",
+    "historyItem": "{{version}} on {{date}}"
+  }
+}

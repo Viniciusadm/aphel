@@ -1,0 +1,62 @@
+{
+  "title": "Field permissions",
+  "description": "Choose, per role, which {{recordType}} fields are hidden, read-only or editable. The rule applies across the app, the API, exports and webhooks.",
+  "link": "Permissions",
+  "back": "Back to fields",
+  "recordTypesLabel": "Record types",
+  "access": {
+    "hidden": "Hidden",
+    "read_only": "Read-only",
+    "editable": "Editable"
+  },
+  "legend": {
+    "title": "How it works",
+    "hidden": "Hidden: the field disappears from lists, forms, filters, exports and webhooks; filtering or sorting by it is refused.",
+    "read_only": "Read-only: the field is shown but cannot be changed (not even by imports or bulk actions).",
+    "editable": "Editable: default behavior.",
+    "locked": "Required and structural fields (name, title, owner, system dates, pipeline, stage and status) are always editable.",
+    "admin": "The Administrator role always edits every field."
+  },
+  "table": {
+    "caption": "Access to {{recordType}} fields per role",
+    "field": "Field",
+    "cell": "{{field}} for {{role}}",
+    "applyToColumn": "Apply to column",
+    "applyToColumnLabel": "Apply to every field of the {{role}} role",
+    "applyPlaceholder": "Apply to all…",
+    "admin": "Always editable",
+    "locked": "Always editable field",
+    "lockedHint": "Required or structural",
+    "system": "System",
+    "inactive": "Inactive",
+    "sensitive": "Sensitive",
+    "personal": "Personal data",
+    "changed": "Changed"
+  },
+  "showInactive": "Show inactive fields",
+  "noRoles": "There are no configurable roles besides Administrator. Create roles under Roles to restrict fields.",
+  "empty": "No fields to show.",
+  "pending_one": "{{count}} unsaved change",
+  "pending_other": "{{count}} unsaved changes",
+  "noChanges": "No changes",
+  "discard": "Discard",
+  "save": "Save permissions",
+  "saving": "Saving…",
+  "confirm": {
+    "title": "Save field permissions?",
+    "description_one": "{{count}} cell will change. Users of the affected roles see and edit the fields under the new rule right away, including through the API and webhooks.",
+    "description_other": "{{count}} cells will change. Users of the affected roles see and edit the fields under the new rule right away, including through the API and webhooks.",
+    "confirm": "Save"
+  },
+  "saved": "Field permissions saved.",
+  "conflict": {
+    "title": "Someone else changed these permissions.",
+    "description": "Reload to see the current version. Your unsaved changes will be discarded.",
+    "reload": "Reload"
+  },
+  "errors": {
+    "locked": "One or more fields cannot be restricted.",
+    "invalid": "Some permissions are invalid. Reload the page and try again.",
+    "generic": "Could not save the permissions."
+  }
+}

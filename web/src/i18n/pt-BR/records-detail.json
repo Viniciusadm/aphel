@@ -1,0 +1,89 @@
+{
+  "header": {
+    "owner": "Responsável",
+    "back": "Voltar",
+    "edit": "Editar"
+  },
+  "fields": {
+    "title": "Detalhes",
+    "empty": "Nenhum campo para exibir.",
+    "label": "Campos do registro"
+  },
+  "tabs": {
+    "label": "Seções do registro",
+    "timeline": "Linha do tempo",
+    "tasks": "Tarefas",
+    "notes": "Notas",
+    "files": "Arquivos",
+    "related": "Relacionados"
+  },
+  "placeholders": {
+    "timeline": "A linha do tempo deste registro aparecerá aqui.",
+    "tasks": "As tarefas deste registro aparecerão aqui.",
+    "notes": "As notas deste registro aparecerão aqui.",
+    "related": "Os registros relacionados aparecerão aqui.",
+    "soon": "Em breve"
+  },
+  "states": {
+    "notFoundTitle": "Registro não encontrado",
+    "notFoundDescription": "O registro não existe, foi excluído ou você não tem acesso a ele.",
+    "errorTitle": "Não foi possível carregar o registro",
+    "loading": "Carregando…"
+  },
+  "timeline": {
+    "label": "Linha do tempo",
+    "today": "Hoje",
+    "yesterday": "Ontem",
+    "all": "Todos",
+    "filterLabel": "Filtrar por tipo",
+    "loadMore": "Carregar mais",
+    "loadingMore": "Carregando…",
+    "end": "Não há mais itens.",
+    "emptyTitle": "Nenhuma atividade ainda",
+    "emptyDescription": "Os acontecimentos deste registro aparecerão aqui.",
+    "emptyFiltered": "Nenhum item corresponde ao filtro selecionado.",
+    "errorTitle": "Não foi possível carregar a linha do tempo",
+    "system": "Sistema",
+    "relatedRecord": "Registro relacionado"
+  },
+  "confirm": {
+    "cancel": "Cancelar",
+    "confirm": "Confirmar",
+    "delete": "Excluir",
+    "pending": "Aguarde…",
+    "typeToConfirm": "Para confirmar, digite <strong>{{name}}</strong> abaixo.",
+    "typeToConfirmLabel": "Nome do item"
+  },
+  "unsaved": {
+    "title": "Descartar alterações?",
+    "description": "Você tem alterações que não foram salvas. Se sair agora, elas serão perdidas.",
+    "stay": "Continuar editando",
+    "leave": "Sair sem salvar"
+  },
+  "errorBoundary": {
+    "title": "Algo deu errado",
+    "description": "Ocorreu um erro inesperado ao exibir esta parte da página.",
+    "routeDescription": "Ocorreu um erro inesperado ao abrir esta página.",
+    "retry": "Tentar novamente",
+    "home": "Ir para o início",
+    "notFoundTitle": "Página não encontrada",
+    "notFoundDescription": "O endereço acessado não existe ou foi movido."
+  },
+  "notify": {
+    "successTitle": "Pronto",
+    "errorTitle": "Não foi possível concluir",
+    "errors": {
+      "network": "Sem conexão com o servidor. Verifique sua internet e tente novamente.",
+      "unauthorized": "Sua sessão expirou. Entre novamente para continuar.",
+      "forbidden": "Você não tem permissão para realizar esta ação.",
+      "notFound": "O item não foi encontrado. Ele pode ter sido excluído.",
+      "conflict": "Este item foi alterado por outra pessoa. Recarregue e tente novamente.",
+      "validation": "Alguns dados são inválidos. Revise e tente novamente.",
+      "tooLarge": "O conteúdo enviado é grande demais.",
+      "rateLimited": "Muitas tentativas em pouco tempo. Aguarde um instante e tente novamente.",
+      "server": "O servidor encontrou um problema. Tente novamente em instantes.",
+      "generic": "Ocorreu um erro inesperado. Tente novamente."
+    }
+  },
+  "pageLoader": "Carregando página…"
+}

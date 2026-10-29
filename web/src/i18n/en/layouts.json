@@ -1,0 +1,118 @@
+{
+  "title": "Form layouts",
+  "description": "Arrange fields in tabs, sections and columns and define when each field shows up or becomes required.",
+  "recordTypes": {
+    "label": "Record type",
+    "contact": "Contacts",
+    "company": "Companies",
+    "deal": "Deals",
+    "activity": "Tasks",
+    "product": "Products"
+  },
+  "contexts": {
+    "label": "Form",
+    "create": "Create",
+    "edit": "Edit",
+    "view": "View",
+    "createHint": "Used when creating records. Required fields are always added.",
+    "editHint": "Used when editing records. Without an edit layout, the rules of the create layout also apply to edits.",
+    "viewHint": "Used in the side panel of the record page. Only visibility rules are accepted."
+  },
+  "status": {
+    "custom": "Custom layout",
+    "default": "Default layout generated from the fields"
+  },
+  "palette": {
+    "title": "Available fields",
+    "empty": "Every field is already in the layout.",
+    "hint": "Drag a field to a column or use the picker of each column."
+  },
+  "tabs": {
+    "label": "Tabs",
+    "add": "Add tab",
+    "newLabel": "New tab",
+    "name": "Tab name",
+    "untitled": "Tab {{number}}",
+    "remove": "Remove tab",
+    "moveLeft": "Move tab left",
+    "moveRight": "Move tab right"
+  },
+  "sections": {
+    "add": "Add section",
+    "newLabel": "New section",
+    "name": "Section name",
+    "namePlaceholder": "Untitled",
+    "remove": "Remove section",
+    "moveUp": "Move section up",
+    "moveDown": "Move section down",
+    "columns": "Columns",
+    "columnLabel": "Column {{number}}",
+    "emptyColumn": "Drop fields here"
+  },
+  "fields": {
+    "add": "Add field",
+    "addTo": "Add field to column {{number}}",
+    "moveUp": "Move {{field}} up",
+    "moveDown": "Move {{field}} down",
+    "remove": "Remove {{field}} from the layout",
+    "rules": "Rules of {{field}}",
+    "drag": "Drag {{field}}",
+    "required": "Required",
+    "locked": "Required field: always part of the create form.",
+    "visibleRule": "Conditional",
+    "requiredRule": "Conditionally required"
+  },
+  "rules": {
+    "title": "Rules of {{field}}",
+    "description": "Conditions use the values filled in the form. Only fields in the layout can be used.",
+    "visibleWhen": "Show only when",
+    "requiredWhen": "Required when",
+    "alwaysVisible": "Required fields are always visible.",
+    "noRequiredInView": "View layouts do not use required rules.",
+    "hiddenNotRequired": "A hidden field is never required.",
+    "none": "No condition",
+    "addCondition": "Add condition",
+    "clear": "Remove condition",
+    "apply": "Apply",
+    "cancel": "Cancel",
+    "alreadyRequired": "This field is always required."
+  },
+  "reorder": {
+    "picked": "Picked {{label}}.",
+    "over": "{{label}} over {{target}}.",
+    "dropped": "{{label}} dropped on {{target}}.",
+    "cancelled": "Moving {{label}} was cancelled.",
+    "palette": "available fields",
+    "column": "column {{number}} of {{section}}"
+  },
+  "actions": {
+    "save": "Save layout",
+    "saving": "Saving…",
+    "preview": "Preview",
+    "reset": "Restore default",
+    "discard": "Discard changes"
+  },
+  "preview": {
+    "title": "Preview",
+    "description": "Try the rules by filling in the fields. Nothing is saved.",
+    "submitted": "Preview: the form would be submitted.",
+    "close": "Close"
+  },
+  "confirmReset": {
+    "title": "Restore the default layout?",
+    "description": "The custom {{form}} layout will be removed and the form is generated from the fields again.",
+    "confirm": "Restore"
+  },
+  "toast": {
+    "saved": "Layout saved",
+    "reset": "Default layout restored",
+    "error": "The layout could not be saved."
+  },
+  "errors": {
+    "load": "The layout could not be loaded.",
+    "invalid": "Fix the layout before saving:",
+    "field": "{{field}}: {{message}}",
+    "unavailable": "This record type is not available.",
+    "retry": "Try again"
+  }
+}

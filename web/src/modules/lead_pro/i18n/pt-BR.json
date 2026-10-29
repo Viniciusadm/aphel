@@ -1,0 +1,40 @@
+{
+  "nav": "Leads quentes",
+  "tab": "Temperatura",
+  "bands": {
+    "cold": "Frio",
+    "warm": "Morno",
+    "hot": "Quente"
+  },
+  "board": {
+    "title": "Leads quentes",
+    "description": "Contatos com temperatura a partir de {{threshold}}, do mais quente para o menos quente.",
+    "loading": "Carregando a temperatura dos leads…",
+    "empty": "Nenhum lead quente",
+    "emptyDescription": "Interações com os contatos (atividades, notas, e-mails e reuniões) aumentam a temperatura.",
+    "noAccess": "Sem acesso aos leads quentes",
+    "noAccessDescription": "Peça a um administrador a permissão de ver o Lead Pro."
+  },
+  "temperature": {
+    "title": "Temperatura do lead",
+    "threshold": "A qualificação exige temperatura de pelo menos {{threshold}}. Sem interações, o lead esfria todo dia."
+  },
+  "touches": {
+    "title": "Últimas interações",
+    "empty": "Nenhuma interação ainda",
+    "emptyDescription": "Atividades, notas, e-mails, reuniões e o botão Esquentar aumentam a temperatura.",
+    "kinds": {
+      "activity_created": "Atividade",
+      "note_created": "Nota",
+      "email_received": "E-mail recebido",
+      "email_sent": "E-mail enviado",
+      "meeting_booked": "Reunião agendada",
+      "manual": "Interação registrada",
+      "lead_converted": "Lead convertido"
+    }
+  },
+  "touch": {
+    "action": "Esquentar",
+    "done": "Interação registrada. Temperatura: {{temperature}}."
+  }
+}

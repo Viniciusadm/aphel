@@ -1,0 +1,48 @@
+pub(crate) mod domain;
+pub(crate) mod dto;
+pub(crate) mod hooks;
+pub(crate) mod http;
+pub(crate) mod service;
+pub(crate) mod store;
+
+use std::sync::Arc;
+
+use aphel_kernel::modules::Migration;
+
+use aphel_kernel::application::query::SegmentSourceResolver;
+use aphel_kernel::errors::AppError;
+use aphel_kernel::modules::builder::APHEL_VERSION;
+use aphel_kernel::modules::{AppBuilder, Manifest, Module};
+
+pub const KEY: &str = "segments";
+
+pub struct SegmentsModule;
+
+impl Module for SegmentsModule {
+    fn manifest(&self) -> Manifest {
+        Manifest::new(KEY, "Segments", APHEL_VERSION)
+            .description(
+                "Named dynamic filters of records, usable as the in_segment filter condition",
+            )
+            .enabled_by_default()
+            .owned_tables(&["segments"])
+            .migration(Migration::new(
+                1,
+                "create segments",
+                include_str!("../migrations/0001_create_segments.sql"),
+            ))
+    }
+
+    fn register(&self, app: &mut AppBuilder) -> Result<(), AppError> {
+        app.contribute(std::sync::Arc::new(
+            aphel_kernel::infrastructure::custom_objects::RecordTypeScopedTable("segments"),
+        ));
+        app.openapi_tag(
+            http::TAG,
+            "Segments: named dynamic filters with member count, usable as the `in_segment` filter condition",
+        )
+        .routes(|_| http::router());
+        app.provide::<dyn SegmentSourceResolver>(Arc::new(hooks::StoredSegmentSources));
+        Ok(())
+    }
+}

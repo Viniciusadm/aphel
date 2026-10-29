@@ -1,0 +1,145 @@
+import { zodResolver } from '@hookform/resolvers/zod'
+import { useId } from 'react'
+import { useForm } from 'react-hook-form'
+import { useTranslation } from 'react-i18next'
+import { z } from 'zod'
+import { isApiError } from '@/api'
+import { notifyError, notifySuccess } from '@/components/feedback'
+import { Button } from '@/components/ui/button'
+import { Input } from '@/components/ui/input'
+import { Label } from '@/components/ui/label'
+import { SectionHeader } from '@/features/settings/components/SectionHeader'
+import {
+  MAX_PASSWORD_LENGTH,
+  MIN_PASSWORD_LENGTH,
+  securitySessionsApi,
+  useInvalidateSecuritySessions,
+} from './api'
+
+const passwordSchema = z
+  .object({
+    currentPassword: z.string().min(1, 'password.errors.currentRequired'),
+    newPassword: z
+      .string()
+      .min(MIN_PASSWORD_LENGTH, 'password.errors.length')
+      .max(MAX_PASSWORD_LENGTH, 'password.errors.length'),
+    confirmation: z.string(),
+  })
+  .refine((values) => values.newPassword === values.confirmation, {
+    path: ['confirmation'],
+    message: 'password.errors.mismatch',
+  })
+  .refine((values) => values.newPassword !== values.currentPassword, {
+    path: ['newPassword'],
+    message: 'password.errors.same',
+  })
+
+type PasswordValues = z.infer<typeof passwordSchema>
+type PasswordMessageKey =
+  | 'password.errors.currentRequired'
+  | 'password.errors.length'
+  | 'password.errors.mismatch'
+  | 'password.errors.same'
+  | 'password.errors.wrongCurrent'
+
+const EMPTY_VALUES: PasswordValues = { currentPassword: '', newPassword: '', confirmation: '' }
+
+export function PasswordSection() {
+  const { t } = useTranslation('security')
+  const formId = useId()
+  const invalidateSessions = useInvalidateSecuritySessions()
+  const {
+    register,
+    handleSubmit,
+    reset,
+    setError,
+    formState: { errors, isSubmitting },
+  } = useForm<PasswordValues>({ resolver: zodResolver(passwordSchema), defaultValues: EMPTY_VALUES })
+
+  const onSubmit = handleSubmit(async (values) => {
+    try {
+      const result = await securitySessionsApi.changePassword({
+        current_password: values.currentPassword,
+        new_password: values.newPassword,
+      })
+      reset(EMPTY_VALUES)
+      await invalidateSessions()
+      notifySuccess(t('password.changed', { count: result.revoked_sessions }))
+    } catch (error) {
+      if (isApiError(error) && error.code === 'invalid_current_password') {
+        setError('currentPassword', { message: 'password.errors.wrongCurrent' }, { shouldFocus: true })
+        return
+      }
+      if (isApiError(error) && error.status === 422) {
+        setError('newPassword', { message: 'password.errors.length' }, { shouldFocus: true })
+        return
+      }
+      notifyError(error)
+    }
+  })
+
+  const fieldError = (name: keyof PasswordValues) => {
+    const message = errors[name]?.message as PasswordMessageKey | undefined
+    if (!message) return null
+    return (
+      <p id={`${formId}-${name}-error`} className="text-xs text-destructive">
+        {t(message, { min: MIN_PASSWORD_LENGTH, max: MAX_PASSWORD_LENGTH })}
+      </p>
+    )
+  }
+
+  const describedBy = (name: keyof PasswordValues) => (errors[name] ? `${formId}-${name}-error` : undefined)
+
+  return (
+    <section className="flex flex-col gap-4">
+      <SectionHeader title={t('password.title')} description={t('password.description')} />
+      <form className="grid max-w-md gap-4" noValidate onSubmit={(event) => void onSubmit(event)}>
+        <div className="grid gap-1.5">
+          <Label htmlFor={`${formId}-currentPassword`}>{t('password.current')}</Label>
+          <Input
+            id={`${formId}-currentPassword`}
+            type="password"
+            autoComplete="current-password"
+            aria-invalid={errors.currentPassword ? true : undefined}
+            aria-describedby={describedBy('currentPassword')}
+            {...register('currentPassword')}
+          />
+          {fieldError('currentPassword')}
+        </div>
+        <div className="grid gap-1.5">
+          <Label htmlFor={`${formId}-newPassword`}>{t('password.new')}</Label>
+          <Input
+            id={`${formId}-newPassword`}
+            type="password"
+            autoComplete="new-password"
+            maxLength={MAX_PASSWORD_LENGTH}
+            aria-invalid={errors.newPassword ? true : undefined}
+            aria-describedby={describedBy('newPassword') ?? `${formId}-newPassword-hint`}
+            {...register('newPassword')}
+          />
+          {fieldError('newPassword') ?? (
+            <p id={`${formId}-newPassword-hint`} className="text-xs text-muted-foreground">
+              {t('password.hint', { min: MIN_PASSWORD_LENGTH })}
+            </p>
+          )}
+        </div>
+        <div className="grid gap-1.5">
+          <Label htmlFor={`${formId}-confirmation`}>{t('password.confirmation')}</Label>
+          <Input
+            id={`${formId}-confirmation`}
+            type="password"
+            autoComplete="new-password"
+            maxLength={MAX_PASSWORD_LENGTH}
+            aria-invalid={errors.confirmation ? true : undefined}
+            aria-describedby={describedBy('confirmation')}
+            {...register('confirmation')}
+          />
+          {fieldError('confirmation')}
+        </div>
+        <Button type="submit" className="justify-self-start" disabled={isSubmitting}>
+          {t('password.submit')}
+        </Button>
+      </form>
+    </section>
+  )
+}

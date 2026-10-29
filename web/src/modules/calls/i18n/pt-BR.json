@@ -1,0 +1,177 @@
+{
+  "page": {
+    "title": "Ligações",
+    "description": "Sessões de ligações a partir de visões salvas, registro de resultados e relatório da equipe.",
+    "sections": "Seções de ligações",
+    "sessions": "Sessões",
+    "report": "Relatório",
+    "outcomes": "Resultados"
+  },
+  "direction": {
+    "inbound": "Recebida",
+    "outbound": "Realizada"
+  },
+  "form": {
+    "direction": "Direção",
+    "outcome": "Resultado",
+    "outcomeRequired": "Escolha o resultado da ligação.",
+    "duration": "Duração",
+    "minutes": "Minutos",
+    "minutesShort": "min",
+    "seconds": "Segundos",
+    "secondsShort": "seg",
+    "startTimer": "Cronometrar",
+    "stopTimer": "Parar ({{time}})",
+    "notes": "Anotações",
+    "notesPlaceholder": "O que foi conversado, próximos passos…",
+    "cancel": "Cancelar"
+  },
+  "log": {
+    "title": "Registrar ligação",
+    "description": "Preencha o resultado da ligação.",
+    "descriptionWith": "Ligação para {{name}} {{phone}}",
+    "submit": "Registrar ligação",
+    "logged": "Ligação registrada"
+  },
+  "phone": {
+    "callAndLog": "Ligar e registrar a ligação"
+  },
+  "summary": {
+    "duration": "Duração {{duration}}",
+    "loggedAt": "Registrada em {{date}}",
+    "relatedRecord": "Registro relacionado",
+    "title": "Ligação",
+    "phone": "Número: {{phone}}"
+  },
+  "errors": {
+    "generic": "Não foi possível concluir. Tente novamente.",
+    "forbidden": "Você não tem permissão para isso.",
+    "notFound": "Não encontrado.",
+    "invalid": "Confira os campos informados.",
+    "keyTaken": "Já existe um resultado com essa chave.",
+    "lastActiveOutcome": "A organização precisa de pelo menos um resultado ativo.",
+    "versionConflict": "Isso foi alterado por outra pessoa. Recarregue e tente de novo.",
+    "sessionCompleted": "Esta sessão já foi encerrada.",
+    "sessionEmpty": "A visão não tem contatos para ligar.",
+    "viewNotFound": "Visão de contatos não encontrada.",
+    "providerNotFound": "O provedor de telefonia não está disponível.",
+    "noCallType": "A organização não tem o tipo de atividade Ligação ativo."
+  },
+  "start": {
+    "title": "Nova sessão de ligações",
+    "description": "Escolha uma visão salva de contatos: os contatos dela viram a fila da sessão.",
+    "view": "Visão de contatos",
+    "pickView": "Escolha uma visão",
+    "viewRequired": "Escolha a visão de contatos.",
+    "viewHint": "Usa o filtro e a ordenação da visão, até 500 contatos.",
+    "name": "Nome da sessão",
+    "script": "Roteiro",
+    "scriptPlaceholder": "Texto de apoio exibido durante as ligações",
+    "submit": "Iniciar sessão"
+  },
+  "sessions": {
+    "title": "Minhas sessões",
+    "emptyTitle": "Nenhuma sessão ainda",
+    "emptyDescription": "Inicie uma sessão para ligar para os contatos de uma visão, um após o outro.",
+    "startedAt": "Iniciada em {{date}}",
+    "contacts_one": "{{count}} contato",
+    "contacts_other": "{{count}} contatos",
+    "status": {
+      "active": "Em andamento",
+      "completed": "Encerrada"
+    }
+  },
+  "session": {
+    "back": "Voltar para ligações",
+    "progress": "{{done}} de {{total}} contatos",
+    "counts": "{{logged}} registrados, {{skipped}} pulados",
+    "finish": "Encerrar sessão",
+    "finishTitle": "Encerrar a sessão?",
+    "finishDescription": "Os {{pending}} contatos pendentes ficam sem ligação nesta sessão.",
+    "completedTitle": "Sessão encerrada",
+    "completedDescription": "{{logged}} ligações registradas e {{skipped}} contatos pulados.",
+    "backToSessions": "Ver sessões",
+    "position": "Contato {{position}} de {{total}}",
+    "unknownContact": "Contato indisponível",
+    "contactUnavailable": "Não foi possível carregar o contato.",
+    "noPhone": "Este contato não tem telefone.",
+    "call": "Ligar {{phone}}",
+    "script": "Roteiro",
+    "logAndNext": "Registrar e avançar",
+    "skip": "Pular",
+    "previous": "Anterior",
+    "history": "Histórico",
+    "queue": "Fila",
+    "logged": "Ligação para {{name}} registrada",
+    "itemStatus": {
+      "pending": "Pendente",
+      "logged": "Registrado",
+      "skipped": "Pulado"
+    }
+  },
+  "report": {
+    "from": "De",
+    "to": "Até",
+    "owner": "Responsável",
+    "everyone": "Todos que posso ver",
+    "mine": "Só as minhas",
+    "calls": "Ligações",
+    "connected": "Conectadas",
+    "rate": "Taxa de conexão",
+    "duration": "Duração total",
+    "emptyTitle": "Nenhuma ligação no período",
+    "emptyDescription": "As ligações registradas aparecem aqui por usuário e resultado.",
+    "caption": "Ligações por usuário e resultado",
+    "user": "Usuário",
+    "noOwner": "Sem responsável"
+  },
+  "outcomes": {
+    "title": "Resultados de ligação",
+    "description": "Opções para registrar como terminou cada ligação. Arraste para reordenar.",
+    "new": "Novo resultado",
+    "listLabel": "Resultados de ligação",
+    "connected": "Conectada",
+    "system": "Padrão",
+    "inactive": "Inativo",
+    "editLabel": "Editar {{name}}",
+    "activate": "Ativar",
+    "deactivate": "Desativar",
+    "newTitle": "Novo resultado",
+    "editTitle": "Editar resultado",
+    "dialogDescription": "Resultados conectados contam como ligação atendida no relatório.",
+    "name": "Nome",
+    "nameRequired": "Informe o nome.",
+    "keyHint": "Chave: {{key}}",
+    "isConnected": "Conta como conectada",
+    "isConnectedHint": "Marque quando a pessoa foi alcançada.",
+    "save": "Salvar",
+    "saved": "Resultado {{name}} salvo"
+  },
+  "nav": {
+    "calls": "Ligações"
+  },
+  "quickAdd": {
+    "options": {
+      "call": "Ligação"
+    },
+    "titles": {
+      "call": "Ligação concluída"
+    },
+    "call": {
+      "direction": "Direção",
+      "directions": {
+        "outbound": "Feita",
+        "inbound": "Recebida"
+      },
+      "outcome": "Resultado",
+      "outcomeRequired": "Escolha o resultado.",
+      "minutes": "Duração (minutos)",
+      "minutesInvalid": "Informe entre 0 e 1440 minutos.",
+      "notes": "Anotações",
+      "submit": "Registrar ligação",
+      "created": "Ligação registrada.",
+      "outboxLabel": "Ligação",
+      "outboxLabelFor": "Ligação com {{title}}"
+    }
+  }
+}

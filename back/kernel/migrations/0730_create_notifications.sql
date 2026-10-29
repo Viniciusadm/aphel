@@ -1,0 +1,23 @@
+CREATE TABLE notifications (
+  id CHAR(36) NOT NULL,
+  user_id CHAR(36) NOT NULL,
+  kind VARCHAR(64) NOT NULL,
+  title VARCHAR(255) NOT NULL,
+  body TEXT NULL,
+  record_type VARCHAR(64) NULL,
+  record_id CHAR(36) NULL,
+  actor_id CHAR(36) NULL,
+  link VARCHAR(500) NULL,
+  data JSON NOT NULL,
+  dedupe_key VARCHAR(191) NOT NULL,
+  in_app TINYINT(1) NOT NULL DEFAULT 1,
+  read_at DATETIME(6) NULL,
+  emailed_at DATETIME(6) NULL,
+  created_at DATETIME(6) NOT NULL DEFAULT CURRENT_TIMESTAMP(6),
+  PRIMARY KEY (id),
+  UNIQUE KEY notifications_dedupe_unique (user_id, dedupe_key),
+  KEY notifications_inbox_index (user_id, in_app, read_at, created_at),
+  KEY notifications_actor_fk_index (actor_id),
+  CONSTRAINT notifications_user_fk FOREIGN KEY (user_id) REFERENCES users (id) ON DELETE CASCADE,
+  CONSTRAINT notifications_actor_fk FOREIGN KEY (actor_id) REFERENCES users (id) ON DELETE SET NULL
+) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci;

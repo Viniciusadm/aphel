@@ -1,0 +1,264 @@
+{
+  "page": {
+    "title": "Agendamentos",
+    "description": "Links públicos para seus clientes marcarem reuniões nos horários livres da sua agenda."
+  },
+  "tabs": {
+    "meetingTypes": "Tipos de reunião",
+    "availability": "Minha disponibilidade",
+    "bookings": "Agendamentos"
+  },
+  "actions": {
+    "save": "Salvar",
+    "saving": "Salvando...",
+    "cancel": "Cancelar",
+    "back": "Voltar"
+  },
+  "errors": {
+    "generic": "Não foi possível salvar. Tente novamente.",
+    "versionConflict": "Outra pessoa alterou este item. Recarregue a página e tente de novo.",
+    "invalid": "Revise os campos destacados.",
+    "slugTaken": "Este endereço já está em uso."
+  },
+  "validation": {
+    "time": "Use o formato HH:MM.",
+    "intervalOrder": "O fim precisa ser depois do início.",
+    "overlap": "Este intervalo se sobrepõe a outro do mesmo dia.",
+    "tooManyIntervals": "Use no máximo 28 intervalos por semana.",
+    "timezone": "Informe um fuso horário válido.",
+    "minNotice": "Informe um valor entre 0 e 43200 minutos.",
+    "maxPerDay": "Informe um valor entre 1 e 50 ou deixe vazio.",
+    "buffer": "Informe um valor entre 0 e 240 minutos.",
+    "horizon": "Informe um valor entre 1 e 365 dias.",
+    "questionLabel": "Informe a pergunta (até 200 caracteres).",
+    "nameRequired": "Informe o nome.",
+    "nameLength": "Use no máximo 140 caracteres.",
+    "duration": "Informe uma duração entre 5 e 480 minutos.",
+    "slotInterval": "Informe um intervalo entre 5 e 240 minutos.",
+    "tooManyQuestions": "Use no máximo 10 perguntas.",
+    "slug": "Use apenas letras minúsculas, números e hífens.",
+    "locationValue": "Informe o local da reunião."
+  },
+  "weekdays": {
+    "1": "Segunda-feira",
+    "2": "Terça-feira",
+    "3": "Quarta-feira",
+    "4": "Quinta-feira",
+    "5": "Sexta-feira",
+    "6": "Sábado",
+    "7": "Domingo"
+  },
+  "kinds": {
+    "personal": "Pessoal",
+    "team": "Equipe"
+  },
+  "locationKinds": {
+    "none": "Sem local definido",
+    "video": "Videochamada",
+    "address": "Endereço",
+    "phone": "Telefone"
+  },
+  "locationValueLabels": {
+    "video": "Link da videochamada",
+    "address": "Endereço",
+    "phone": "Telefone"
+  },
+  "questionKinds": {
+    "text": "Texto curto",
+    "long_text": "Texto longo"
+  },
+  "bookingStatus": {
+    "confirmed": "Confirmado",
+    "canceled": "Cancelado"
+  },
+  "availability": {
+    "user": "Disponibilidade de",
+    "me": "Eu",
+    "forbidden": "Você não tem permissão para ver a disponibilidade deste usuário.",
+    "saved": "Disponibilidade salva",
+    "notConfigured": "Não configurada",
+    "notConfiguredHint": "Estes são os valores padrão. Salve para começar a receber agendamentos.",
+    "timezone": "Fuso horário",
+    "weeklyHours": "Horários da semana",
+    "weeklyHoursHint": "Defina os intervalos em que você aceita reuniões. Dias sem intervalo ficam indisponíveis.",
+    "unavailable": "Indisponível",
+    "start": "Início",
+    "end": "Fim",
+    "until": "até",
+    "addInterval": "Adicionar intervalo",
+    "removeInterval": "Remover intervalo",
+    "minNotice": "Antecedência mínima (minutos)",
+    "minNoticeHint": "Tempo mínimo entre o agendamento e o início da reunião.",
+    "maxPerDay": "Máximo de reuniões por dia",
+    "maxPerDayHint": "Deixe vazio para não limitar.",
+    "noLimit": "Sem limite",
+    "horizon": "Janela de agendamento (dias)",
+    "horizonHint": "Até quantos dias à frente é possível agendar.",
+    "bufferBefore": "Intervalo antes (minutos)",
+    "bufferAfter": "Intervalo depois (minutos)",
+    "bufferHint": "Tempo livre reservado em volta de cada reunião."
+  },
+  "meetingTypes": {
+    "description": "Cada tipo de reunião tem um link público próprio.",
+    "create": "Novo tipo de reunião",
+    "emptyTitle": "Nenhum tipo de reunião",
+    "emptyDescription": "Crie um tipo de reunião para gerar um link de agendamento.",
+    "active": "Ativo",
+    "inactive": "Inativo",
+    "duration": "Duração",
+    "minutes_one": "{{count}} minuto",
+    "minutes_other": "{{count}} minutos",
+    "owner": "Responsável",
+    "distributionRule": "Distribuição",
+    "copyLink": "Copiar link",
+    "linkCopied": "Link copiado",
+    "openLink": "Abrir",
+    "edit": "Editar",
+    "remove": "Excluir",
+    "removeTitle": "Excluir tipo de reunião?",
+    "removeDescription": "O link de \"{{name}}\" deixará de funcionar. Os agendamentos já feitos são mantidos.",
+    "toast": {
+      "created": "Tipo de reunião criado",
+      "updated": "Tipo de reunião atualizado",
+      "removed": "Tipo de reunião excluído"
+    },
+    "form": {
+      "createTitle": "Novo tipo de reunião",
+      "editTitle": "Editar tipo de reunião",
+      "description": "Configure como a reunião aparece na página pública de agendamento.",
+      "name": "Nome",
+      "slug": "Endereço do link",
+      "slugPlaceholder": "gerado a partir do nome",
+      "slugHint": "Letras minúsculas, números e hífens. Ao alterar, o link antigo deixa de funcionar.",
+      "descriptionLabel": "Descrição",
+      "duration": "Duração (minutos)",
+      "slotInterval": "Intervalo entre horários (minutos)",
+      "slotIntervalHint": "De quanto em quanto tempo os horários são oferecidos.",
+      "locationKind": "Local",
+      "locationValueHint": "Mostrado ao convidado somente depois do agendamento.",
+      "spamProtection": "Proteção contra spam (honeypot e limite de tentativas)",
+      "active": "Ativo (aceita novos agendamentos)",
+      "team": "Link de equipe",
+      "teamHint": "Escolha uma regra de distribuição para que o horário seja atribuído a um membro da equipe.",
+      "distributionRule": "Regra de distribuição",
+      "personalLink": "Nenhuma (link pessoal)",
+      "questions": "Perguntas",
+      "questionsHint": "Perguntas extras para o convidado (até 10). As respostas podem preencher campos do contato.",
+      "noQuestions": "Nenhuma pergunta extra.",
+      "questionLabel": "Pergunta",
+      "questionKind": "Tipo de resposta",
+      "contactField": "Preencher campo do contato",
+      "noContactField": "Não preencher",
+      "required": "Obrigatória",
+      "addQuestion": "Adicionar pergunta",
+      "removeQuestion": "Remover pergunta"
+    }
+  },
+  "bookings": {
+    "status": "Situação",
+    "allStatuses": "Todas",
+    "meetingType": "Tipo de reunião",
+    "allMeetingTypes": "Todos",
+    "upcomingOnly": "Somente próximos",
+    "emptyTitle": "Nenhum agendamento",
+    "emptyDescription": "Os agendamentos feitos pelos seus links aparecem aqui.",
+    "host": "Com {{name}}",
+    "cancelReason": "Motivo: {{reason}}",
+    "cancel": "Cancelar",
+    "cancelTitle": "Cancelar agendamento?",
+    "cancelDescription": "{{name}} será avisado do cancelamento.",
+    "cancelConfirm": "Cancelar agendamento",
+    "reason": "Motivo (opcional)",
+    "canceled": "Agendamento cancelado",
+    "notChangeable": "Este agendamento não pode mais ser alterado."
+  },
+  "pagination": {
+    "previous": "Página anterior",
+    "next": "Próxima página",
+    "page": "Página {{page}} de {{total}}"
+  },
+  "public": {
+    "poweredBy": "Agendamento feito com Aphel",
+    "invalid": {
+      "title": "Link inválido ou expirado",
+      "description": "Este link de agendamento não existe mais. Peça um novo link a quem o enviou."
+    },
+    "details": {
+      "duration_one": "{{count}} minuto",
+      "duration_other": "{{count}} minutos"
+    },
+    "locationKinds": {
+      "none": "Local a combinar",
+      "video": "Videochamada",
+      "address": "Presencial",
+      "phone": "Telefone"
+    },
+    "status": {
+      "confirmed": "Confirmado",
+      "canceled": "Cancelado"
+    },
+    "actions": {
+      "cancel": "Cancelar",
+      "back": "Voltar"
+    },
+    "timezone": {
+      "current": "Horários em {{timezone}}",
+      "change": "Alterar",
+      "label": "Fuso horário",
+      "apply": "Aplicar"
+    },
+    "slots": {
+      "title": "Escolha um horário",
+      "days": "Dias da semana",
+      "previousWeek": "Semana anterior",
+      "nextWeek": "Próxima semana",
+      "loadError": "Não foi possível carregar os horários.",
+      "emptyTitle": "Nenhum horário livre nesta semana",
+      "emptyDescription": "Tente a próxima semana."
+    },
+    "form": {
+      "title": "Seus dados",
+      "changeTime": "Escolher outro horário",
+      "name": "Nome",
+      "email": "E-mail",
+      "website": "Site",
+      "submit": "Confirmar agendamento",
+      "submitting": "Agendando...",
+      "errors": {
+        "name": "Informe seu nome.",
+        "email": "Informe um e-mail válido.",
+        "required": "Resposta obrigatória.",
+        "answerLength": "Use no máximo 2000 caracteres.",
+        "invalid": "Valor inválido."
+      }
+    },
+    "errors": {
+      "slotUnavailable": "Este horário acabou de ser ocupado. Escolha outro horário.",
+      "rateLimited": "Muitas tentativas. Aguarde alguns minutos e tente de novo.",
+      "rejected": "Não foi possível concluir o agendamento.",
+      "invalid": "Revise os campos destacados.",
+      "notChangeable": "Este agendamento não pode mais ser alterado.",
+      "generic": "Algo deu errado. Tente novamente."
+    },
+    "manage": {
+      "confirmedTitle": "Agendamento confirmado",
+      "confirmedDescription": "Enviamos os detalhes para {{email}}. Guarde este link para remarcar ou cancelar.",
+      "canceledTitle": "Este agendamento foi cancelado",
+      "bookAgain": "Agendar novamente",
+      "cancelReason": "Motivo do cancelamento: {{reason}}",
+      "reschedule": "Remarcar",
+      "rescheduleTitle": "Escolha um novo horário",
+      "rescheduleConfirm": "Confirmar novo horário",
+      "rescheduling": "Remarcando...",
+      "cancel": "Cancelar agendamento",
+      "cancelTitle": "Cancelar agendamento?",
+      "cancelDescription": "O organizador será avisado do cancelamento.",
+      "cancelConfirm": "Cancelar agendamento",
+      "reason": "Motivo (opcional)",
+      "locked": "Este agendamento não pode mais ser remarcado ou cancelado por aqui."
+    }
+  },
+  "nav": {
+    "scheduling": "Agendamento"
+  }
+}
