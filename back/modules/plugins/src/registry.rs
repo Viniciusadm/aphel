@@ -116,8 +116,12 @@ pub async fn current(pool: &MySqlPool) -> Result<Arc<Snapshot>, AppError> {
     if snapshot.version == Some(version) {
         return Ok(snapshot);
     }
+    let installed_plugins = store::list(pool).await?;
+    cache.compiled.retain(|key, _| {
+        installed_plugins.iter().any(|plugin| plugin.enabled && &plugin.key == key)
+    });
     let mut plugins = Vec::new();
-    for installed in store::list(pool).await? {
+    for installed in installed_plugins {
         if !installed.enabled {
             continue;
         }

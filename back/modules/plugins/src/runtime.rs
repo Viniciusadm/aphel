@@ -1,6 +1,6 @@
 use std::collections::HashSet;
 use std::hash::{DefaultHasher, Hash, Hasher};
-use std::sync::{Arc, Mutex, OnceLock};
+use std::sync::{Arc, Mutex, OnceLock, Weak};
 use std::time::{Duration, Instant};
 
 use sha2::{Digest, Sha256};
@@ -43,7 +43,7 @@ const PLUGIN_OWNER_INACTIVE: &str = "plugin_owner_inactive";
 const COMPILED_CACHE_SIZE: usize = 16;
 const MAX_STORED_ARTIFACT_BYTES: usize = 48 * 1024 * 1024;
 
-pub type Backend = PluginPre<CallState>;
+pub type Backend = Arc<PluginPre<CallState>>;
 
 pub struct CallState {
     pub plugin: Arc<LoadedPlugin>,
@@ -130,8 +130,8 @@ fn engine_key() -> &'static str {
     })
 }
 
-fn compiled_cache() -> &'static Mutex<Vec<(String, Backend)>> {
-    static CACHE: OnceLock<Mutex<Vec<(String, Backend)>>> = OnceLock::new();
+fn compiled_cache() -> &'static Mutex<Vec<(String, Weak<PluginPre<CallState>>)>> {
+    static CACHE: OnceLock<Mutex<Vec<(String, Weak<PluginPre<CallState>>)>>> = OnceLock::new();
     CACHE.get_or_init(Default::default)
 }
 
@@ -141,13 +141,13 @@ fn cached_backend(hash: &str) -> Option<Backend> {
         .ok()?
         .iter()
         .find(|(cached, _)| cached == hash)
-        .map(|(_, backend)| backend.clone())
+        .and_then(|(_, backend)| backend.upgrade())
 }
 
 fn remember_backend(hash: String, backend: Backend) {
     if let Ok(mut cache) = compiled_cache().lock() {
-        cache.retain(|(cached, _)| *cached != hash);
-        cache.push((hash, backend));
+        cache.retain(|(cached, backend)| *cached != hash && backend.strong_count() > 0);
+        cache.push((hash, Arc::downgrade(&backend)));
         if cache.len() > COMPILED_CACHE_SIZE {
             cache.remove(0);
         }
@@ -205,6 +205,11 @@ pub async fn compile(bytes: Vec<u8>) -> Result<Backend, AppError> {
     if let Some(backend) = cached_backend(&hash) {
         return Ok(backend);
     }
+    static COMPILATION: tokio::sync::Mutex<()> = tokio::sync::Mutex::const_new(());
+    let _compilation = COMPILATION.lock().await;
+    if let Some(backend) = cached_backend(&hash) {
+        return Ok(backend);
+    }
     let pool = runtime_state().ok().and_then(|state| state.db().ok());
     let stored = match &pool {
         Some(pool) => stored_component(pool, &hash).await,
@@ -220,7 +225,7 @@ pub async fn compile(bytes: Vec<u8>) -> Result<Backend, AppError> {
         .and_then(|pre| PluginPre::new(pre).map_err(invalid_backend));
     drop(component);
     release_compile_memory();
-    let backend = backend?;
+    let backend = Arc::new(backend?);
     remember_backend(hash, backend.clone());
     Ok(backend)
 }
