@@ -61,7 +61,7 @@ impl Snapshot {
 
 struct Cache {
     checked_at: Option<Instant>,
-    compiled: HashMap<String, (String, runtime::Backend)>,
+    compiled: HashMap<String, (String, Option<runtime::Backend>)>,
 }
 
 fn cache() -> &'static Mutex<Cache> {
@@ -111,18 +111,24 @@ pub async fn current(pool: &MySqlPool) -> Result<Arc<Snapshot>, AppError> {
             continue;
         }
         let backend = match cache.compiled.get(&installed.key) {
-            Some((checksum, backend)) if checksum == &installed.checksum => Some(backend.clone()),
-            _ => match store::backend(pool, &installed.key).await? {
-                Some(bytes) => {
-                    let backend = runtime::compile(bytes).await?;
-                    cache.compiled.insert(
-                        installed.key.clone(),
-                        (installed.checksum.clone(), backend.clone()),
-                    );
-                    Some(backend)
-                }
-                None => None,
-            },
+            Some((checksum, backend)) if checksum == &installed.checksum => backend.clone(),
+            _ => {
+                let backend = match store::backend(pool, &installed.key).await? {
+                    Some(bytes) => match runtime::compile(bytes).await {
+                        Ok(backend) => Some(backend),
+                        Err(error) => {
+                            tracing::error!(plugin = %installed.key, error = %error, "the plugin backend could not be loaded; its hooks, events and routes are skipped");
+                            None
+                        }
+                    },
+                    None => None,
+                };
+                cache.compiled.insert(
+                    installed.key.clone(),
+                    (installed.checksum.clone(), backend.clone()),
+                );
+                backend
+            }
         };
         plugins.push(Arc::new(LoadedPlugin {
             settings: installed.effective_settings(),

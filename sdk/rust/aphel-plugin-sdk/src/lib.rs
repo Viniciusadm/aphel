@@ -5,7 +5,7 @@ pub mod adapter;
 #[allow(clippy::too_many_arguments)]
 pub mod bindings {
     wit_bindgen::generate!({
-        path: "../../../back/modules/plugins/wit",
+        path: "wit",
         world: "plugin",
         pub_export_macro: true,
         default_bindings_module: "aphel_plugin_sdk::bindings",
@@ -77,6 +77,24 @@ impl PluginError {
     }
 }
 
+#[derive(Debug, Clone, Copy, PartialEq, Eq, Deserialize)]
+#[serde(rename_all = "snake_case")]
+pub enum ActorKind {
+    User,
+    ApiToken,
+    Automation,
+    System,
+}
+
+#[derive(Debug, Clone, Deserialize)]
+pub struct Actor {
+    pub kind: ActorKind,
+    #[serde(default)]
+    pub id: Option<String>,
+    #[serde(default)]
+    pub user_id: Option<String>,
+}
+
 #[derive(Debug, Clone, Deserialize)]
 pub struct Change {
     pub field: String,
@@ -93,6 +111,7 @@ pub struct HookCall {
     pub record_id: String,
     #[serde(default)]
     pub mode: Option<String>,
+    pub actor: Actor,
     #[serde(default)]
     pub changes: Vec<Change>,
     #[serde(default)]
@@ -153,6 +172,8 @@ pub struct Event {
     pub record_type: Option<String>,
     #[serde(default)]
     pub record_id: Option<String>,
+    pub actor: Actor,
+    pub occurred_at: String,
     #[serde(default)]
     pub payload: Value,
 }
@@ -167,9 +188,10 @@ pub struct Request {
     #[serde(default)]
     pub query: Map<String, Value>,
     #[serde(default)]
-    pub body: Value,
+    pub headers: Map<String, Value>,
     #[serde(default)]
-    pub user_id: Option<String>,
+    pub body: Value,
+    pub actor: Actor,
 }
 
 impl Request {
@@ -183,6 +205,12 @@ impl Request {
 
     pub fn query(&self, name: &str) -> Option<&str> {
         self.query.get(name).and_then(Value::as_str)
+    }
+
+    pub fn header(&self, name: &str) -> Option<&str> {
+        self.headers
+            .get(&name.to_ascii_lowercase())
+            .and_then(Value::as_str)
     }
 
     pub fn body<T: DeserializeOwned>(&self) -> Result<T> {

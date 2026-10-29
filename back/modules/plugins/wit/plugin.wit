@@ -13,6 +13,19 @@ interface types {
     fields: list<field-error>,
   }
 
+  enum actor-kind {
+    user,
+    api-token,
+    automation,
+    system,
+  }
+
+  record actor {
+    kind: actor-kind,
+    id: option<string>,
+    user-id: option<string>,
+  }
+
   record change {
     field: string,
     old-json: string,
@@ -24,6 +37,7 @@ interface types {
     record-type: string,
     record-id: string,
     mode: option<string>,
+    actor: actor,
     changes: list<change>,
     values-json: string,
     custom-fields-json: string,
@@ -39,6 +53,8 @@ interface types {
     event-type: string,
     record-type: option<string>,
     record-id: option<string>,
+    actor: actor,
+    occurred-at: string,
     payload-json: string,
   }
 
@@ -48,8 +64,9 @@ interface types {
     route: string,
     params: list<tuple<string, string>>,
     query: list<tuple<string, string>>,
+    headers: list<tuple<string, string>>,
     body-json: string,
-    user-id: option<string>,
+    actor: actor,
   }
 
   record response {

@@ -2,7 +2,7 @@ use serde_json::{Map, Value};
 
 use crate::manifest::{HOOK_DELETING, HOOK_SAVED, HOOK_SAVING, HOOK_VALIDATING};
 use crate::registry;
-use crate::runtime::{on_hook, wit};
+use crate::runtime::{on_hook, scope_actor, wit};
 use aphel_kernel::application::fields::WriteMode;
 use aphel_kernel::errors::AppError;
 use aphel_kernel::modules::HookCtx;
@@ -17,12 +17,13 @@ fn mode(mode: WriteMode) -> &'static str {
     }
 }
 
-fn changed_call(hook: &str, changed: &ChangedRecord) -> wit::HookCall {
+fn changed_call(hook: &str, actor: wit::Actor, changed: &ChangedRecord) -> wit::HookCall {
     wit::HookCall {
         hook: hook.to_owned(),
         record_type: changed.record_type.as_str().to_owned(),
         record_id: changed.record.record_id.to_string(),
         mode: Some(mode(changed.mode).to_owned()),
+        actor,
         changes: changed
             .changes
             .iter()
@@ -68,6 +69,7 @@ pub(crate) async fn saving(
             record_type: saving.record_type.as_str().to_owned(),
             record_id: saving.draft.record.record_id.to_string(),
             mode: Some(mode(saving.draft.mode).to_owned()),
+            actor: scope_actor(ctx.scope),
             changes: Vec::new(),
             values_json: Value::Object(saving.draft.values.clone()).to_string(),
             custom_fields_json: Value::Object(saving.draft.custom_fields.clone()).to_string(),
@@ -86,7 +88,7 @@ pub(crate) async fn validating(
     notify(
         ctx,
         changed.record_type.as_str(),
-        changed_call(HOOK_VALIDATING, changed),
+        changed_call(HOOK_VALIDATING, scope_actor(ctx.scope), changed),
     )
     .await
 }
@@ -95,7 +97,7 @@ pub(crate) async fn saved(ctx: &mut HookCtx<'_>, changed: &ChangedRecord) -> Res
     notify(
         ctx,
         changed.record_type.as_str(),
-        changed_call(HOOK_SAVED, changed),
+        changed_call(HOOK_SAVED, scope_actor(ctx.scope), changed),
     )
     .await
 }
@@ -109,6 +111,7 @@ pub(crate) async fn deleting(
         record_type: removed.record_type.as_str().to_owned(),
         record_id: removed.record.record_id.to_string(),
         mode: None,
+        actor: scope_actor(ctx.scope),
         changes: Vec::new(),
         values_json: EMPTY_OBJECT.to_owned(),
         custom_fields_json: EMPTY_OBJECT.to_owned(),

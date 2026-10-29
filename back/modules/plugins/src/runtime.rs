@@ -7,6 +7,7 @@ use wasmtime::{Config, Engine, Store, StoreLimits, StoreLimitsBuilder};
 use wasmtime_wasi::{WasiCtx, WasiCtxBuilder, WasiCtxView, WasiView};
 
 use crate::registry::LoadedPlugin;
+use aphel_kernel::application::shared::Actor;
 use aphel_kernel::domain::access::AccessScope;
 use aphel_kernel::errors::{AppError, FieldViolation};
 
@@ -189,6 +190,32 @@ pub async fn on_route(
         .await
         .map_err(|error| failure(plugin, error))?
         .map_err(plugin_error)
+}
+
+fn actor_parts(actor: &Actor) -> (wit::ActorKind, Option<String>) {
+    match actor {
+        Actor::User(user_id) => (wit::ActorKind::User, Some(user_id.as_str().to_owned())),
+        Actor::ApiToken(token_id) => (wit::ActorKind::ApiToken, Some(token_id.clone())),
+        Actor::Automation(automation_id) => {
+            (wit::ActorKind::Automation, Some(automation_id.clone()))
+        }
+        Actor::System => (wit::ActorKind::System, None),
+    }
+}
+
+pub fn scope_actor(scope: &AccessScope) -> wit::Actor {
+    let (kind, id) = actor_parts(&Actor::from_scope(scope));
+    let user_id = (!scope.is_system()).then(|| scope.user_id().as_str().to_owned());
+    wit::Actor { kind, id, user_id }
+}
+
+pub fn event_actor(actor: &Actor) -> wit::Actor {
+    let (kind, id) = actor_parts(actor);
+    let user_id = match actor {
+        Actor::User(user_id) => Some(user_id.as_str().to_owned()),
+        _ => None,
+    };
+    wit::Actor { kind, id, user_id }
 }
 
 fn intern(code: &str) -> &'static str {

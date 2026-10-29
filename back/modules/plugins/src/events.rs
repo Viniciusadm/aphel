@@ -2,7 +2,7 @@ use async_trait::async_trait;
 use sqlx::MySqlPool;
 
 use crate::registry;
-use crate::runtime::{on_event, wit};
+use crate::runtime::{event_actor, on_event, wit};
 use aphel_kernel::application::shared::{DomainEvent, EventConsumer};
 use aphel_kernel::domain::access::AccessScope;
 use aphel_kernel::errors::AppError;
@@ -47,6 +47,8 @@ impl EventConsumer for PluginEventsConsumer {
                 .record
                 .as_ref()
                 .map(|record| record.record_id.to_string()),
+            actor: event_actor(&event.actor),
+            occurred_at: event.occurred_at.to_rfc3339(),
             payload_json: event.payload.to_string(),
         };
         let scope = AccessScope::system();

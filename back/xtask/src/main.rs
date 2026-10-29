@@ -17,6 +17,8 @@ const WEB_ALIASES: &str = "modules.aliases.json";
 const WEB_TSCONFIG: &str = "tsconfig.modules.json";
 const DEPENDENCY_PREFIX: &str = "module-";
 const KERNEL_MODULE: &str = "kernel";
+const PLUGIN_WIT: &str = "modules/plugins/wit/plugin.wit";
+const SDK_PLUGIN_WIT: &str = "../sdk/rust/aphel-plugin-sdk/wit/plugin.wit";
 
 type Failure = Box<dyn std::error::Error>;
 
@@ -447,7 +449,7 @@ fn camel_case(key: &str) -> String {
 
 fn generated_files(back: &Path, modules: &[ResolvedModule]) -> Result<Vec<Generated>, Failure> {
     let web = normalize(&back.join(WEB_DIR));
-    Ok(vec![
+    let mut generated = vec![
         Generated {
             path: back.join(APP_REGISTRY),
             content: rust_registry(modules),
@@ -464,7 +466,19 @@ fn generated_files(back: &Path, modules: &[ResolvedModule]) -> Result<Vec<Genera
             path: web.join(WEB_TSCONFIG),
             content: web_tsconfig(&web, modules)?,
         },
-    ])
+    ];
+    let sdk = normalize(&back.join(SDK_PLUGIN_WIT));
+    if sdk
+        .parent()
+        .and_then(Path::parent)
+        .is_some_and(Path::exists)
+    {
+        generated.push(Generated {
+            path: sdk,
+            content: fs::read_to_string(back.join(PLUGIN_WIT))?,
+        });
+    }
+    Ok(generated)
 }
 
 fn rust_registry(modules: &[ResolvedModule]) -> String {

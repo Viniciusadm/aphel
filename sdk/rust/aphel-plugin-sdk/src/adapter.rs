@@ -3,7 +3,8 @@ use serde_json::{Map, Value};
 use crate::bindings::aphel::plugin::host;
 use crate::bindings::aphel::plugin::types as wit;
 use crate::{
-    Change, Ctx, Event, FieldError, HookCall, ListQuery, Page, Plugin, PluginError, Request,
+    Actor, ActorKind, Change, Ctx, Event, FieldError, HookCall, ListQuery, Page, Plugin,
+    PluginError, Request,
 };
 
 fn object(json: &str) -> Map<String, Value> {
@@ -15,6 +16,19 @@ fn object(json: &str) -> Map<String, Value> {
 
 fn value(json: &str) -> Value {
     serde_json::from_str(json).unwrap_or(Value::Null)
+}
+
+fn actor(actor: wit::Actor) -> Actor {
+    Actor {
+        kind: match actor.kind {
+            wit::ActorKind::User => ActorKind::User,
+            wit::ActorKind::ApiToken => ActorKind::ApiToken,
+            wit::ActorKind::Automation => ActorKind::Automation,
+            wit::ActorKind::System => ActorKind::System,
+        },
+        id: actor.id,
+        user_id: actor.user_id,
+    }
 }
 
 fn pairs(pairs: Vec<(String, String)>) -> Map<String, Value> {
@@ -144,6 +158,7 @@ pub fn on_hook<P: Plugin>(
         record_type: call.record_type,
         record_id: call.record_id,
         mode: call.mode,
+        actor: actor(call.actor),
         changes: call
             .changes
             .into_iter()
@@ -169,6 +184,8 @@ pub fn on_event<P: Plugin>(plugin: &P, event: wit::Event) -> Result<(), wit::Plu
         event_type: event.event_type,
         record_type: event.record_type,
         record_id: event.record_id,
+        actor: actor(event.actor),
+        occurred_at: event.occurred_at,
         payload: value(&event.payload_json),
     };
     Ok(plugin.on_event(&Ctx::new(), &event)?)
@@ -184,8 +201,9 @@ pub fn on_route<P: Plugin>(
         route: request.route,
         params: pairs(request.params),
         query: pairs(request.query),
+        headers: pairs(request.headers),
         body: value(&request.body_json),
-        user_id: request.user_id,
+        actor: actor(request.actor),
     };
     let response = plugin.on_route(&Ctx::new(), &request)?;
     Ok(wit::Response {

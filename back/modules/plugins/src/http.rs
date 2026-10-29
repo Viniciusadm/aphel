@@ -2,7 +2,7 @@ use axum::Json;
 use axum::body::{Body, Bytes};
 use axum::extract::multipart::MultipartRejection;
 use axum::extract::{DefaultBodyLimit, Multipart, Path, Query, RawQuery, State};
-use axum::http::{HeaderValue, Method, StatusCode, header};
+use axum::http::{HeaderMap, HeaderName, HeaderValue, Method, StatusCode, header};
 use axum::response::{IntoResponse, Response};
 use axum::routing::{any, get};
 use serde::{Deserialize, Serialize};
@@ -32,6 +32,11 @@ const PLUGIN_NOT_FOUND: &str = "plugin_not_found";
 const PLUGIN_ROUTE_NOT_FOUND: &str = "plugin_route_not_found";
 const INVALID_SETTINGS: &str = "plugin_settings_invalid";
 const WEB_PREFIX: &str = "web/";
+const WITHHELD_HEADERS: [HeaderName; 3] = [
+    header::AUTHORIZATION,
+    header::COOKIE,
+    header::PROXY_AUTHORIZATION,
+];
 
 pub(crate) fn router() -> OpenApiRouter<AppState> {
     OpenApiRouter::new()
@@ -582,6 +587,7 @@ async fn dispatch(
     method: Method,
     Path((key, path)): Path<(String, String)>,
     RawQuery(query): RawQuery,
+    headers: HeaderMap,
     body: Bytes,
 ) -> Result<Response, ApiError> {
     let snapshot = registry::current(&state.db()?).await?;
@@ -621,13 +627,27 @@ async fn dispatch(
             .map(|(name, value)| (name, value.as_str().unwrap_or_default().to_owned()))
             .collect(),
         query: query.as_deref().map(form_pairs).unwrap_or_default(),
+        headers: forwarded_headers(&headers),
         body_json,
-        user_id: Some(tenant.scope.user_id().as_str().to_owned()),
+        actor: runtime::scope_actor(&tenant.scope),
     };
     let response = runtime::on_route(&plugin, &tenant.scope, &request).await?;
     let status = StatusCode::from_u16(response.status).unwrap_or(StatusCode::OK);
     let body: Value = serde_json::from_str(&response.body_json).unwrap_or(Value::Null);
     Ok((status, Json(body)).into_response())
+}
+
+fn forwarded_headers(headers: &HeaderMap) -> Vec<(String, String)> {
+    headers
+        .iter()
+        .filter(|(name, _)| !WITHHELD_HEADERS.contains(name))
+        .filter_map(|(name, value)| {
+            value
+                .to_str()
+                .ok()
+                .map(|value| (name.as_str().to_owned(), value.to_owned()))
+        })
+        .collect()
 }
 
 fn form_pairs(query: &str) -> Vec<(String, String)> {

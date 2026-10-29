@@ -1,0 +1,118 @@
+package aphel:plugin@1.0.0;
+
+interface types {
+  record field-error {
+    field: string,
+    message: string,
+  }
+
+  record plugin-error {
+    code: string,
+    message: string,
+    status: option<u16>,
+    fields: list<field-error>,
+  }
+
+  enum actor-kind {
+    user,
+    api-token,
+    automation,
+    system,
+  }
+
+  record actor {
+    kind: actor-kind,
+    id: option<string>,
+    user-id: option<string>,
+  }
+
+  record change {
+    field: string,
+    old-json: string,
+    new-json: string,
+  }
+
+  record hook-call {
+    hook: string,
+    record-type: string,
+    record-id: string,
+    mode: option<string>,
+    actor: actor,
+    changes: list<change>,
+    values-json: string,
+    custom-fields-json: string,
+  }
+
+  record hook-outcome {
+    values-json: string,
+    custom-fields-json: string,
+  }
+
+  record event {
+    id: string,
+    event-type: string,
+    record-type: option<string>,
+    record-id: option<string>,
+    actor: actor,
+    occurred-at: string,
+    payload-json: string,
+  }
+
+  record request {
+    method: string,
+    path: string,
+    route: string,
+    params: list<tuple<string, string>>,
+    query: list<tuple<string, string>>,
+    headers: list<tuple<string, string>>,
+    body-json: string,
+    actor: actor,
+  }
+
+  record response {
+    status: u16,
+    body-json: string,
+  }
+
+  record list-query {
+    filter-json: option<string>,
+    sort: option<string>,
+    search: option<string>,
+    page: option<u32>,
+    per-page: option<u32>,
+  }
+
+  record page {
+    records-json: list<string>,
+    total: u64,
+  }
+}
+
+interface host {
+  use types.{plugin-error, list-query, page};
+
+  get-record: func(record-type: string, id: string) -> result<option<string>, plugin-error>;
+  list-records: func(record-type: string, query: list-query) -> result<page, plugin-error>;
+  create-record: func(record-type: string, values-json: string) -> result<string, plugin-error>;
+  update-record: func(record-type: string, id: string, values-json: string) -> result<string, plugin-error>;
+  delete-record: func(record-type: string, id: string) -> result<_, plugin-error>;
+
+  kv-get: func(collection: string, id: string) -> result<option<string>, plugin-error>;
+  kv-set: func(collection: string, id: string, value-json: string) -> result<_, plugin-error>;
+  kv-delete: func(collection: string, id: string) -> result<_, plugin-error>;
+  kv-list: func(collection: string) -> result<list<tuple<string, string>>, plugin-error>;
+
+  settings-json: func() -> string;
+  now: func() -> string;
+  log: func(level: string, message: string);
+}
+
+world plugin {
+  use types.{plugin-error, hook-call, hook-outcome, event, request, response};
+
+  import host;
+
+  export on-hook: func(call: hook-call) -> result<hook-outcome, plugin-error>;
+  export on-event: func(event: event) -> result<_, plugin-error>;
+  export on-route: func(request: request) -> result<response, plugin-error>;
+}
