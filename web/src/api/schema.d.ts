@@ -18963,18 +18963,22 @@ export interface components {
             version: string;
         };
         PluginDeclarations: {
+            actions: string[];
             allowed_hosts: string[];
+            emits: string[];
             entities: string[];
             events: string[];
             extended_types: string[];
             has_web: boolean;
             hooks: string[];
+            notifications: string[];
             permissions: components["schemas"]["PluginPermissionResponse"][];
             public_routes: string[];
             requires: string[];
             routes: string[];
             schedules: string[];
             secrets: string[];
+            widgets: string[];
         };
         PluginPermissionResponse: {
             description?: string | null;

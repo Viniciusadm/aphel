@@ -6,8 +6,9 @@ use std::process::{Command, ExitCode};
 use zip::write::SimpleFileOptions;
 
 const WASM_TARGET: &str = "wasm32-wasip2";
+const JS_BUILD_SCRIPT: &str = "build:backend";
 const USAGE: &str = "usage:
-  aphel-plugin new <key> [--sdk <path to aphel-plugin-sdk>]
+  aphel-plugin new <key> [--js] [--sdk <path to aphel-plugin-sdk>]
   aphel-plugin build [dir]
   aphel-plugin pack [dir] [-o file.aphelplugin]";
 
@@ -75,9 +76,26 @@ fn crate_name(dir: &Path) -> Result<Option<String>, Failure> {
         .map(|name| name.replace('-', "_")))
 }
 
+fn npm_script(dir: &Path, script: &str) -> Result<bool, Failure> {
+    let path = dir.join("package.json");
+    if !path.exists() {
+        return Ok(false);
+    }
+    Ok(fs::read_to_string(path)?.contains(&format!("\"{script}\"")))
+}
+
+fn npm(dir: &Path, script: &str) -> Result<(), Failure> {
+    if !dir.join("node_modules").exists() {
+        run(Command::new("npm").current_dir(dir).arg("install"))?;
+    }
+    run(Command::new("npm").current_dir(dir).args(["run", script]))
+}
+
 fn build(dir: &Path) -> Result<(), Failure> {
     manifest(dir)?;
-    if let Some(name) = crate_name(dir)? {
+    if npm_script(dir, JS_BUILD_SCRIPT)? {
+        npm(dir, JS_BUILD_SCRIPT)?;
+    } else if let Some(name) = crate_name(dir)? {
         run(Command::new("cargo").current_dir(dir).args([
             "build",
             "--release",
@@ -93,11 +111,8 @@ fn build(dir: &Path) -> Result<(), Failure> {
             .map_err(|error| format!("could not copy {}: {error}", wasm.display()))?;
     }
     let web = dir.join("web");
-    if web.join("package.json").exists() {
-        if !web.join("node_modules").exists() {
-            run(Command::new("npm").current_dir(&web).arg("install"))?;
-        }
-        run(Command::new("npm").current_dir(&web).args(["run", "build"]))?;
+    if npm_script(&web, "build")? {
+        npm(&web, "build")?;
     }
     Ok(())
 }
@@ -152,11 +167,19 @@ fn pack(dir: &Path, output: Option<PathBuf>) -> Result<(), Failure> {
 
 fn new(args: &[String]) -> Result<(), Failure> {
     let key = args.first().ok_or(USAGE)?;
+    let js = args.iter().any(|arg| arg == "--js");
     let sdk = args
         .windows(2)
         .find(|pair| pair[0] == "--sdk")
         .map(|pair| pair[1].clone())
-        .unwrap_or_else(|| "../aphel/sdk/rust/aphel-plugin-sdk".to_owned());
+        .unwrap_or_else(|| {
+            if js {
+                "../aphel/sdk/js/aphel-plugin-sdk"
+            } else {
+                "../aphel/sdk/rust/aphel-plugin-sdk"
+            }
+            .to_owned()
+        });
     let dir = PathBuf::from(format!("aphel-{}", key.replace('_', "-")));
     if dir.exists() {
         return Err(format!("{} already exists", dir.display()).into());
@@ -168,17 +191,35 @@ fn new(args: &[String]) -> Result<(), Failure> {
             "key = \"{key}\"\nname = \"{key}\"\nversion = \"0.1.0\"\napi = 1\nrequires_aphel = \">=0.1.0\"\n\n[[routes]]\nmethod = \"GET\"\npath = \"/ping\"\n"
         ),
     )?;
-    fs::write(
-        dir.join("Cargo.toml"),
-        format!(
-            "[package]\nname = \"aphel-plugin-{}\"\nversion = \"0.1.0\"\nedition = \"2024\"\npublish = false\n\n[lib]\ncrate-type = [\"cdylib\"]\n\n[dependencies]\naphel-plugin-sdk = {{ path = \"{sdk}\" }}\n\n[profile.release]\nopt-level = \"s\"\nlto = true\n\n[workspace]\n",
-            key.replace('_', "-")
-        ),
-    )?;
-    fs::write(
-        dir.join("src").join("lib.rs"),
-        "use aphel_plugin_sdk::{Ctx, Plugin, Request, Response, Result, export_plugin, json};\n\nstruct App;\n\nimpl Plugin for App {\n    fn on_route(&self, _ctx: &Ctx, request: &Request) -> Result<Response> {\n        Ok(Response::ok(json!({ \"pong\": request.path })))\n    }\n}\n\nexport_plugin!(App);\n",
-    )?;
+    if js {
+        fs::write(
+            dir.join("package.json"),
+            format!(
+                "{{\n  \"name\": \"aphel-plugin-{}\",\n  \"private\": true,\n  \"type\": \"module\",\n  \"scripts\": {{\n    \"{JS_BUILD_SCRIPT}\": \"aphel-plugin-js src/plugin.js -o backend.wasm\"\n  }},\n  \"devDependencies\": {{\n    \"@aphel/plugin-sdk\": \"file:{sdk}\"\n  }}\n}}\n",
+                key.replace('_', "-")
+            ),
+        )?;
+        fs::write(
+            dir.join(".gitignore"),
+            "node_modules/\nbackend.wasm\n*.aphelplugin\n",
+        )?;
+        fs::write(
+            dir.join("src").join("plugin.js"),
+            "import { definePlugin, ok } from '@aphel/plugin-sdk'\n\nexport const { onHook, onEvent, onRoute, onSchedule, onAction, onWidget } = definePlugin({\n  onRoute(ctx, request) {\n    if (request.is('GET', '/ping')) return ok({ pong: request.path })\n  },\n})\n",
+        )?;
+    } else {
+        fs::write(
+            dir.join("Cargo.toml"),
+            format!(
+                "[package]\nname = \"aphel-plugin-{}\"\nversion = \"0.1.0\"\nedition = \"2024\"\npublish = false\n\n[lib]\ncrate-type = [\"cdylib\"]\n\n[dependencies]\naphel-plugin-sdk = {{ path = \"{sdk}\" }}\n\n[profile.release]\nopt-level = \"s\"\nlto = true\n\n[workspace]\n",
+                key.replace('_', "-")
+            ),
+        )?;
+        fs::write(
+            dir.join("src").join("lib.rs"),
+            "use aphel_plugin_sdk::{Ctx, Plugin, Request, Response, Result, export_plugin, json};\n\nstruct App;\n\nimpl Plugin for App {\n    fn on_route(&self, _ctx: &Ctx, request: &Request) -> Result<Response> {\n        Ok(Response::ok(json!({ \"pong\": request.path })))\n    }\n}\n\nexport_plugin!(App);\n",
+        )?;
+    }
     println!("created {}", dir.display());
     Ok(())
 }

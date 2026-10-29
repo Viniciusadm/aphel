@@ -1,0 +1,173 @@
+package aphel:plugin@1.0.0;
+
+interface types {
+  record field-error {
+    field: string,
+    message: string,
+  }
+
+  record plugin-error {
+    code: string,
+    message: string,
+    status: option<u16>,
+    fields: list<field-error>,
+  }
+
+  enum actor-kind {
+    user,
+    api-token,
+    automation,
+    plugin,
+    system,
+    anonymous,
+  }
+
+  record actor {
+    kind: actor-kind,
+    id: option<string>,
+    user-id: option<string>,
+  }
+
+  record change {
+    field: string,
+    old-json: string,
+    new-json: string,
+  }
+
+  record hook-call {
+    hook: string,
+    record-type: string,
+    record-id: string,
+    mode: option<string>,
+    actor: actor,
+    changes: list<change>,
+    values-json: string,
+    custom-fields-json: string,
+  }
+
+  record hook-outcome {
+    values-json: string,
+    custom-fields-json: string,
+  }
+
+  record event {
+    id: string,
+    event-type: string,
+    record-type: option<string>,
+    record-id: option<string>,
+    actor: actor,
+    occurred-at: string,
+    payload-json: string,
+  }
+
+  record request {
+    method: string,
+    path: string,
+    route: string,
+    params: list<tuple<string, string>>,
+    query: list<tuple<string, string>>,
+    headers: list<tuple<string, string>>,
+    body-json: string,
+    actor: actor,
+  }
+
+  record response {
+    status: u16,
+    body-json: string,
+  }
+
+  record list-query {
+    filter-json: option<string>,
+    sort: option<string>,
+    search: option<string>,
+    page: option<u32>,
+    per-page: option<u32>,
+  }
+
+  record page {
+    records-json: list<string>,
+    total: u64,
+  }
+
+  record action-call {
+    name: string,
+    input-json: string,
+    record-type: string,
+    record-id: string,
+    record-json: string,
+    automation-id: string,
+    run-id: string,
+    actor: actor,
+  }
+
+  record notification {
+    kind: string,
+    recipient-user-id: string,
+    title: string,
+    body: option<string>,
+    record-type: option<string>,
+    record-id: option<string>,
+    link: option<string>,
+    data-json: string,
+    dedupe-key: option<string>,
+  }
+
+  record widget-request {
+    settings-json: string,
+    period-from: string,
+    period-to: string,
+    timezone: string,
+    actor: actor,
+  }
+
+  record http-request {
+    method: string,
+    url: string,
+    headers: list<tuple<string, string>>,
+    body: option<list<u8>>,
+  }
+
+  record http-response {
+    status: u16,
+    headers: list<tuple<string, string>>,
+    body: list<u8>,
+  }
+}
+
+interface host {
+  use types.{plugin-error, list-query, page, http-request, http-response, notification};
+
+  get-record: func(record-type: string, id: string) -> result<option<string>, plugin-error>;
+  list-records: func(record-type: string, query: list-query) -> result<page, plugin-error>;
+  create-record: func(record-type: string, values-json: string) -> result<string, plugin-error>;
+  update-record: func(record-type: string, id: string, values-json: string) -> result<string, plugin-error>;
+  delete-record: func(record-type: string, id: string) -> result<_, plugin-error>;
+
+  kv-get: func(collection: string, id: string) -> result<option<string>, plugin-error>;
+  kv-set: func(collection: string, id: string, value-json: string) -> result<_, plugin-error>;
+  kv-delete: func(collection: string, id: string) -> result<_, plugin-error>;
+  kv-list: func(collection: string) -> result<list<tuple<string, string>>, plugin-error>;
+
+  http-fetch: func(request: http-request) -> result<http-response, plugin-error>;
+
+  notify: func(notification: notification) -> result<_, plugin-error>;
+  emit: func(name: string, record-type: option<string>, record-id: option<string>, payload-json: string) -> result<_, plugin-error>;
+
+  settings-json: func() -> string;
+  secret: func(key: string) -> result<option<string>, plugin-error>;
+  now: func() -> string;
+  log: func(level: string, message: string);
+}
+
+world plugin {
+  use types.{plugin-error, hook-call, hook-outcome, event, request, response, action-call, widget-request};
+
+  import host;
+
+  export on-hook: func(call: hook-call) -> result<hook-outcome, plugin-error>;
+  export on-event: func(event: event) -> result<_, plugin-error>;
+  export on-route: func(request: request) -> result<response, plugin-error>;
+  export on-schedule: func(name: string, slot: string) -> result<_, plugin-error>;
+  export on-action: func(call: action-call) -> result<string, plugin-error>;
+  export on-widget: func(name: string, request: widget-request) -> result<string, plugin-error>;
+}

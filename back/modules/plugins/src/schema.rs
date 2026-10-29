@@ -3,9 +3,14 @@ use sqlx::MySqlPool;
 use uuid::Uuid;
 
 use crate::manifest::{FieldDef, PluginManifest};
-use aphel_kernel::application::custom_objects::{CreateObjectCommand, CustomObjectAdminUseCases};
+use aphel_kernel::application::custom_objects::{
+    CreateObjectCommand, CustomObjectAdminUseCases, custom_record_definition,
+};
 use aphel_kernel::application::fields::{FieldDefinitionRepository, RecordTypeRegistry};
 use aphel_kernel::domain::access::AccessScope;
+use aphel_kernel::domain::custom_objects::{
+    CustomObject, CustomObjectData, DEFAULT_TITLE_FIELD_KEY,
+};
 use aphel_kernel::domain::fields::{
     FieldConfig, FieldDefinition, FieldKey, FieldOption, FieldType,
 };
@@ -45,6 +50,7 @@ pub async fn apply(
 ) -> Result<(), AppError> {
     let pool = state.db()?;
     ensure_compatible(&pool, manifest).await?;
+    preflight(&pool, manifest).await?;
     for entity in &manifest.entities {
         let object_key = manifest.object_key(&entity.key);
         match object_owner(&pool, &object_key).await? {
@@ -152,6 +158,85 @@ pub async fn apply(
     tx.commit().await?;
     deactivate_undeclared(&pool, manifest).await?;
     bump_schema(state).await
+}
+
+fn reserved_keys(manifest: &PluginManifest, entity_key: &str) -> Result<Vec<String>, AppError> {
+    let Some(entity) = manifest
+        .entities
+        .iter()
+        .find(|entity| entity.key == entity_key)
+    else {
+        return Ok(Vec::new());
+    };
+    let now = chrono::Utc::now();
+    let object = CustomObject {
+        id: Uuid::nil(),
+        key: manifest.object_key(&entity.key),
+        data: CustomObjectData {
+            label_singular: entity.label.clone(),
+            label_plural: entity.label_plural.clone(),
+            description: None,
+            icon: None,
+            color: None,
+            title_field_key: DEFAULT_TITLE_FIELD_KEY.to_owned(),
+            owner_enabled: entity.owner_enabled,
+            is_active: true,
+        },
+        position: 0,
+        module_key: Some(manifest.key.clone()),
+        created_by: None,
+        created_at: now,
+        updated_at: now,
+    };
+    let mut keys: Vec<String> = custom_record_definition(&object)?
+        .system_fields
+        .iter()
+        .map(|field| field.key.as_str().to_owned())
+        .collect();
+    keys.push(DEFAULT_TITLE_FIELD_KEY.to_owned());
+    Ok(keys)
+}
+
+async fn preflight(pool: &MySqlPool, manifest: &PluginManifest) -> Result<(), AppError> {
+    let mut new_entities = Vec::new();
+    for entity in &manifest.entities {
+        let object_key = manifest.object_key(&entity.key);
+        match object_owner(pool, &object_key).await? {
+            Some(Some(owner)) if owner == manifest.key => {}
+            Some(_) => {
+                return Err(AppError::conflict_code(
+                    OBJECT_TAKEN,
+                    format!("a custom object with the key {object_key} already exists"),
+                ));
+            }
+            None => new_entities.push((manifest.entity_record_type(&entity.key), &entity.key)),
+        }
+    }
+    for (record_type, field) in declared_fields(manifest) {
+        let taken = match new_entities
+            .iter()
+            .find(|(entity_type, _)| entity_type == &record_type)
+        {
+            Some((_, entity_key)) => reserved_keys(manifest, entity_key)?.contains(&field.key),
+            None => {
+                let owner: Option<Option<String>> = sqlx::query_scalar(
+                    "SELECT module_key FROM field_definitions WHERE record_type = ? AND `key` = ?",
+                )
+                .bind(&record_type)
+                .bind(&field.key)
+                .fetch_optional(pool)
+                .await?;
+                owner.is_some_and(|owner| owner.as_deref() != Some(manifest.key.as_str()))
+            }
+        };
+        if taken {
+            return Err(AppError::conflict_code(
+                FIELD_TAKEN,
+                format!("the field {} already exists on {record_type}", field.key),
+            ));
+        }
+    }
+    Ok(())
 }
 
 fn declared_fields(manifest: &PluginManifest) -> Vec<(String, &FieldDef)> {

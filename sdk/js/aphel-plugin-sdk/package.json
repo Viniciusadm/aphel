@@ -1,0 +1,21 @@
+{
+  "name": "@aphel/plugin-sdk",
+  "version": "0.1.0",
+  "description": "Write Aphel runtime plugins in JavaScript or TypeScript (WebAssembly components of the aphel:plugin world)",
+  "license": "AGPL-3.0-only",
+  "type": "module",
+  "main": "src/index.js",
+  "types": "src/index.d.ts",
+  "bin": {
+    "aphel-plugin-js": "bin/build.js"
+  },
+  "files": [
+    "src",
+    "bin",
+    "wit"
+  ],
+  "dependencies": {
+    "@bytecodealliance/componentize-js": "0.23.0",
+    "esbuild": "0.25.12"
+  }
+}

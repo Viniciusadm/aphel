@@ -18,7 +18,10 @@ const WEB_TSCONFIG: &str = "tsconfig.modules.json";
 const DEPENDENCY_PREFIX: &str = "module-";
 const KERNEL_MODULE: &str = "kernel";
 const PLUGIN_WIT: &str = "modules/plugins/wit/plugin.wit";
-const SDK_PLUGIN_WIT: &str = "../sdk/rust/aphel-plugin-sdk/wit/plugin.wit";
+const SDK_PLUGIN_WITS: [&str; 2] = [
+    "../sdk/rust/aphel-plugin-sdk/wit/plugin.wit",
+    "../sdk/js/aphel-plugin-sdk/wit/plugin.wit",
+];
 
 type Failure = Box<dyn std::error::Error>;
 
@@ -467,16 +470,18 @@ fn generated_files(back: &Path, modules: &[ResolvedModule]) -> Result<Vec<Genera
             content: web_tsconfig(&web, modules)?,
         },
     ];
-    let sdk = normalize(&back.join(SDK_PLUGIN_WIT));
-    if sdk
-        .parent()
-        .and_then(Path::parent)
-        .is_some_and(Path::exists)
-    {
-        generated.push(Generated {
-            path: sdk,
-            content: fs::read_to_string(back.join(PLUGIN_WIT))?,
-        });
+    for sdk_wit in SDK_PLUGIN_WITS {
+        let sdk = normalize(&back.join(sdk_wit));
+        if sdk
+            .parent()
+            .and_then(Path::parent)
+            .is_some_and(Path::exists)
+        {
+            generated.push(Generated {
+                path: sdk,
+                content: fs::read_to_string(back.join(PLUGIN_WIT))?,
+            });
+        }
     }
     Ok(generated)
 }

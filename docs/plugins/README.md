@@ -6,13 +6,14 @@ A runtime plugin is a `.aphelplugin` package that an administrator uploads in **
 | --- | --- | --- |
 | Who | Aphel core and official modules | Third parties |
 | Install | Line in `back/aphel.modules.toml` + rebuild | Upload of a `.aphelplugin` file, after a consent screen |
-| Backend | Rust with full access (`Ctx`, SQL, every hook) | A WebAssembly component (Rust via the SDK, or any language with component tooling), sandboxed, restricted to the permissions it declares |
+| Backend | Rust with full access (`Ctx`, SQL, every hook) | A WebAssembly component (Rust or JavaScript/TypeScript through the SDKs, or any language with component tooling), sandboxed, restricted to the permissions it declares |
 | Data | Own tables and migrations | Entities (managed custom objects), managed fields, key-value storage and secrets |
 | Web | Built with the Aphel web app | Prebuilt ES module loaded at runtime through an import map |
 
 Reference plugins, kept in their own repositories next to Aphel:
 - `aphel-equine`, a stud farm. It adds horses with pedigree and sanitary exams, plus a field on deals. A rule blocks winning a deal with expired exams, and a reaction transfers the horse when the deal is won.
 - `aphel-probe`, which exercises every host call and hook kind. It is used as an end-to-end check of the platform.
+- `aphel-hello-js`, the same contract written in JavaScript: hooks, routes, events, an automation action and a widget.
 
 ## Package
 
@@ -105,6 +106,39 @@ key = "api_token"
 label = "Token da associação"
 type = "secret"                # stored encrypted, never returned by the API (no default)
 
+[[actions]]                    # automation actions "plugin.<key>.<action>"
+key = "request_exam"
+label = "Solicitar exame"
+description = "Pede um exame ao laboratório"
+record_types = ["co_equine_horse"]   # record types the action runs on (empty = any)
+retry_safe = true              # the automation may retry it after a failure
+inputs = [
+  { key = "exam", label = "Exame", type = "select", options = ["aie", "mormo"], required = true },
+  { key = "note", label = "Observação", type = "text" },   # text | number | boolean | select
+]
+
+[[emits]]                      # events the plugin publishes: "plugin.<key>.<name>", usable as automation triggers
+name = "exam_expired"
+label = "Exame vencido"
+record_types = ["co_equine_horse"]
+
+[[notifications]]              # notification kinds "<key>_<name>" in every user's preferences
+name = "exam_expiring"
+label = "Exame vencendo"
+description = "Um exame do cavalo vence em breve"
+channels = ["in_app", "email"] # in_app | email | push
+email_default = false
+push_default = false
+
+[[widgets]]                    # dashboard widgets "<key>_<name>"
+name = "horses_for_sale"
+title = "Cavalos à venda"
+category = "equine"            # optional, default "plugins"
+permission = "co_equine_horse.read"     # optional: the viewer needs it
+size = "medium"                # small | medium | large
+uses_period = false            # default true: the dashboard period is passed
+default_settings = { limit = 5 }
+
 [web]
 entry = "web/index.js"
 style = "web/style.css"        # optional
@@ -124,6 +158,12 @@ What the declarations become:
 | `http` | Outbound HTTP allowed only to these hosts (see Outbound HTTP) |
 | `schedules` | The worker calls `on-schedule(name, slot)` once per due slot (see Schedules) |
 | `settings` | Shown in the plugin settings dialog; `PUT /api/v1/plugins/<key>/settings` |
+| `actions` | Automation actions `plugin.<key>.<action>` in the automation editor, with a form built from `inputs` (see Automations) |
+| `emits` | Events `plugin.<key>.<name>` the backend publishes with `emit`, available as automation triggers |
+| `notifications` | Notification kinds `<key>_<name>` in the preferences, sent with `notify` (see Notifications) |
+| `widgets` | Dashboard widgets `<key>_<name>` whose data comes from `on-widget` (see Dashboard widgets) |
+
+Entity field keys cannot reuse the keys every custom object already has: `name`, `title`, `owner_id`, `created_by`, `created_at` and `updated_at`. Any key conflict (an object or field that already exists and is not the plugin's) is refused with 409 `plugin_object_conflict` or `plugin_field_conflict` before anything is written.
 
 ## Capabilities and scope
 
@@ -138,6 +178,8 @@ A plugin never gets more than it declared, and never more than the person behind
 | --- | --- | --- |
 | Hooks | Whoever writes the record (user, API token, automation) | Their permissions ∩ capabilities |
 | Private routes | The caller (session or API token) | Their permissions ∩ capabilities |
+| Automation actions | The automation (`Actor::Automation`) | The permissions of whoever published the automation ∩ capabilities |
+| Widgets | The viewer | Their permissions ∩ capabilities |
 | Events, schedules, public routes | The plugin itself (`Actor::Plugin(key)`, shown as "Plugin <key>" in the audit) | The installer's permissions ∩ capabilities (`through_plugin`) |
 
 The installer is the administrator who installed the plugin; an upgrade makes the upgrading administrator the installer, because they give the consent again. If the installer is deactivated, events, schedules and public routes fail with 503 `plugin_owner_inactive` until someone reinstalls the plugin.
@@ -167,7 +209,7 @@ aphel-plugin-sdk = { git = "https://github.com/Viniciusadm/aphel", tag = "v0.1.0
 ```
 
 ```rust
-use aphel_plugin_sdk::{Ctx, Event, HookCall, HookOutcome, Plugin, PluginError, Request, Response, Result, export_plugin, hooks, json};
+use aphel_plugin_sdk::{ActionCall, Ctx, Event, HookCall, HookOutcome, Plugin, PluginError, Request, Response, Result, Value, WidgetRequest, export_plugin, hooks, json};
 
 struct Equine;
 
@@ -197,6 +239,16 @@ impl Plugin for Equine {
         }
         Err(PluginError::not_found("route_not_found", "no such route"))
     }
+
+    fn on_action(&self, ctx: &Ctx, call: &ActionCall) -> Result<Value> {
+        // call.name == "request_exam": call.input::<String>("exam"), call.record_id, call.record
+        Ok(json!({ "requested": true }))
+    }
+
+    fn on_widget(&self, ctx: &Ctx, request: &WidgetRequest) -> Result<Value> {
+        // request.name == "horses_for_sale": request.settings, request.period_from/period_to, request.timezone
+        Ok(json!({ "horses": [] }))
+    }
 }
 
 export_plugin!(Equine);
@@ -211,9 +263,11 @@ export_plugin!(Equine);
 | `ctx.settings()`, `ctx.setting::<T>(key)` | Settings with defaults applied (secrets are left out) |
 | `ctx.secret(name)` | A `secret` setting, or `None` when it is not configured; an undeclared name gives 404 `plugin_secret_not_declared` |
 | `ctx.http().send(HttpRequest::new(method, url).header(..).json(&body)?)`, `ctx.http().get(url)` | Outbound HTTP (see below) |
+| `ctx.emit(name, Some((record_type, record_id)), payload)` | Publishes `plugin.<key>.<name>` (declared in `[[emits]]`, record type in its `record_types`). Not allowed inside hooks (409 `plugin_write_in_hook`); 404 `plugin_event_not_declared` for an undeclared name |
+| `ctx.notify(Notification::new(kind, recipient_user_id, title).body(..).record(type, id).link(..).dedupe_key(..))` | Sends a declared notification kind (see Notifications) |
 | `ctx.now()`, `ctx.log(level, message)` / `ctx.info(..)` | Clock and server log |
 
-**Writes inside hooks.** Hooks run inside the transaction of the record being written. Creating, updating or deleting records from a hook fails with 409 `plugin_write_in_hook`: a second transaction would not be atomic with the first and could deadlock on the same row. Do the write from an event instead. Reads inside a hook see the committed state, not the row being written; use the `values`/`changes` of the `HookCall` for the new values.
+**Writes inside hooks.** Hooks run inside the transaction of the record being written. Creating, updating or deleting records from a hook fails with 409 `plugin_write_in_hook`: a second transaction would not be atomic with the first and could deadlock on the same row. Do the write from an event instead. Reads inside a hook see the committed state, not the row being written; use the `values`/`changes` of the `HookCall` for the new values. `record.saving` receives the draft in `values`/`custom_fields` and may change it; the other hooks receive what changed in `changes` (custom fields as `custom_fields.<key>`, read with `call.custom_changed(key)`).
 
 **Errors.** Plugin errors are built with:
 - `PluginError::new(code, message)` (422);
@@ -271,12 +325,30 @@ A veto is never silently bypassed.
 
 **Build.** Run `cargo build --release --target wasm32-wasip2` (after `rustup target add wasm32-wasip2`); the output is already a component.
 
+**Automations.** Each `[[actions]]` entry is an action `plugin.<key>.<action>` in the automation editor, with a form built from its `inputs`:
+- An automation with a missing required input or an invalid select value is refused (422) when it is created or published.
+- At run time the templates in the inputs (`{{record.custom_fields.x}}`) are rendered first, then `on-action` receives the input, the record, the automation and run ids and the actor. The JSON it returns is the step output in the run log.
+- Each `[[emits]]` entry is a trigger `plugin.<key>.<name>`: the automations listening to it run when the backend calls `emit`.
+- Emitted events are not part of the public event catalog, so webhooks do not receive them yet.
+
+**Notifications.** `notify` sends a declared kind to a user:
+- The recipient must be an active user, and must be able to read the record when one is attached (403 `plugin_notification_record_not_readable`).
+- The title has up to 200 characters and the body up to 2000. The link must be a path inside Aphel (`/deals/<id>`).
+- The person behind the call is not notified about their own action. `dedupe_key` makes repeated sends idempotent.
+- Delivery follows the user's preferences for `<key>_<name>`, through the same in-app, email and push channels as the core notifications.
+- The preferences screen shows the kind key unless the web bundle labels it (see Web in React).
+
+**Dashboard widgets.** Each `[[widgets]]` entry is a widget `<key>_<name>` in the dashboard catalog:
+- `on-widget` receives the saved settings (a JSON object up to 16 KB, `default_settings` when empty), the period, the time zone and the viewer, and returns any JSON. It runs with the viewer's scope and a 5 s limit.
+- The web bundle renders that JSON with `app.widget('<key>_<name>', { render })`; without a renderer the card shows "unsupported".
+
 ### The contract (WIT)
 
 The backend is a [WebAssembly component](https://component-model.bytecodealliance.org) of the world `aphel:plugin@1.0.0`:
-- It is defined in [`back/modules/plugins/wit/plugin.wit`](../../back/modules/plugins/wit/plugin.wit) and shipped inside the SDK crate as `sdk/rust/aphel-plugin-sdk/wit/plugin.wit`. That copy is kept in sync by `make modules` and checked by `make lint`.
-- It exports `on-hook`, `on-event`, `on-route` and `on-schedule`.
-- It imports the `host` interface: `get-record`, `list-records`, `create-record`, `update-record`, `delete-record`, `kv-get`, `kv-set`, `kv-delete`, `kv-list`, `http-fetch`, `settings-json`, `secret`, `now` and `log`.
+- It is defined in [`back/modules/plugins/wit/plugin.wit`](../../back/modules/plugins/wit/plugin.wit) and shipped inside the SDK crate as `sdk/rust/aphel-plugin-sdk/wit/plugin.wit`. The copies are kept in sync by `make modules` and checked by `make lint`.
+- It is also copied to `sdk/js/aphel-plugin-sdk/wit/plugin.wit` for the JavaScript SDK.
+- It exports `on-hook`, `on-event`, `on-route`, `on-schedule`, `on-action` and `on-widget`.
+- It imports the `host` interface: `get-record`, `list-records`, `create-record`, `update-record`, `delete-record`, `kv-get`, `kv-set`, `kv-delete`, `kv-list`, `http-fetch`, `notify`, `emit`, `settings-json`, `secret`, `now` and `log`.
 - Record values travel as JSON strings inside the typed records, because record fields are dynamic (custom fields, custom objects).
 
 `aphel-plugin-sdk` wraps the bindings generated by `wit-bindgen` in the `Plugin` trait and `Ctx` above. Any language with component tooling (`wit-bindgen` for C, Go or C#; `componentize-js`; `componentize-py`) can implement the same world directly.
@@ -284,6 +356,49 @@ The backend is a [WebAssembly component](https://component-model.bytecodeallianc
 **Versioning.** `1.0.0` has not been released yet. From its first release on, `1.x` only accepts additions that do not change existing types: new host functions, new interfaces and new optional exports. The shape of an existing `record`, `enum` or function signature is frozen, because a component compiled against it no longer links if a field is added, removed or reordered. Such a change needs `aphel:plugin@2.0.0`. Serving two major versions at the same time is not implemented: the host binds a single world, so introducing `2.0.0` also means adding a second set of bindings to the host.
 
 The standard library of `wasm32-wasip2` imports WASI interfaces. The host provides them with an empty sandbox (no filesystem, no environment, no stdio, no sockets), so only clocks and randomness work; outbound HTTP goes through `http-fetch`.
+
+## Backend in JavaScript or TypeScript
+
+`sdk/js/aphel-plugin-sdk` (`@aphel/plugin-sdk`) builds the same component from JavaScript or TypeScript. The bundle is made with esbuild and turned into a component with [`componentize-js`](https://github.com/bytecodealliance/ComponentizeJS), which embeds the SpiderMonkey engine.
+
+```bash
+aphel-plugin new equine --js --sdk ../aphel/sdk/js/aphel-plugin-sdk   # package.json + src/plugin.js
+aphel-plugin pack aphel-equine                                       # npm run build:backend → backend.wasm, then zip
+```
+
+```js
+import { PluginError, definePlugin, hooks, ok } from '@aphel/plugin-sdk'
+
+export default definePlugin({
+  onHook(ctx, call) {
+    if (call.is(hooks.VALIDATING, 'deal') && call.changed('status')?.new === 'won') {
+      throw new PluginError('equine_exam_expired', 'exames vencidos')
+    }
+    return {}
+  },
+  onEvent(ctx, event) {
+    if (event.type === 'deal.won') ctx.records.update('co_equine_horse', id, { custom_fields: { status: 'sold' } })
+  },
+  onRoute(ctx, request) {
+    if (request.is('GET', '/horses/{id}/pedigree')) return ok({ id: request.params.id })
+  },
+  onAction(ctx, call) {
+    return { requested: call.input.exam }
+  },
+  onWidget(ctx, request) {
+    return { total: ctx.records.list('co_equine_horse', { perPage: 1 }).total }
+  },
+})
+```
+
+The API mirrors the Rust SDK in camelCase. Host calls are synchronous: `ctx.records.get/list/create/update/delete`, `ctx.kv(collection)`, `ctx.settings()`, `ctx.setting(key)`, `ctx.secret(key)`, `ctx.http.send({ method, url, headers, json })`, `ctx.notify({ kind, recipientUserId, title, … })`, `ctx.emit(name, { type, id }, payload)`, `ctx.now()` and `ctx.log(level, message)`.
+- Throw a `PluginError` (`new PluginError(code, message, { status, fields })`, `PluginError.field`, `notFound`, `forbidden`) to veto or answer with an error. Any other exception becomes 422 `plugin_error`.
+- Host errors are thrown as `PluginError` with the host's code and status, so they can be caught or let through.
+- A route handler that returns nothing answers 404 `route_not_found`.
+- Types ship in `src/index.d.ts`; a `.ts` entry is compiled by esbuild.
+- The scaffold's `package.json` runs `aphel-plugin-js src/plugin.js -o backend.wasm` as `build:backend`; `aphel-plugin build` runs that script when it exists, otherwise `cargo`.
+
+Cost compared with Rust: the component is about 12 MB, because it carries the JavaScript engine. A call takes a few milliseconds more, and compiling it on install takes a few seconds and a few hundred MB of temporary memory. After that, the compiled artifact is cached (see How it works), and a loaded JavaScript plugin costs about 45 MB, like a Rust one.
 
 ## Upgrades
 
@@ -339,6 +454,23 @@ For types, point `@aphel/web-sdk` and `@/*` to an Aphel checkout in the plugin `
 }
 ```
 
+Labels for the plugin's notification kinds go in the `notifications` namespace, through `namespaces` (merged into the built-in translations):
+
+```tsx
+export default defineModule({
+  key: 'equine',
+  namespaces: {
+    notifications: {
+      'pt-BR': { kinds: { equine_exam_expiring: { label: 'Exame vencendo', description: 'Um exame do cavalo vence em breve' } } },
+      en: { kinds: { equine_exam_expiring: { label: 'Exam expiring', description: 'A horse exam expires soon' } } },
+    },
+  },
+  register(app) {
+    app.widget('equine_horses_for_sale', { render: (data) => <HorsesForSale data={data} /> })
+  },
+})
+```
+
 The web app loads `GET /api/v1/public/plugins` before it builds its routes, and imports each enabled bundle from `/api/v1/public/plugins/<key>/web/…` (public, cached by version). Installing, enabling or disabling a plugin reloads the page.
 
 ## Tools
@@ -347,8 +479,8 @@ The web app loads `GET /api/v1/public/plugins` before it builds its routes, and 
 
 | Command | What it does |
 | --- | --- |
-| `aphel-plugin new <key> --sdk <path to aphel-plugin-sdk>` | Creates `aphel-<key>/` with `plugin.toml`, the crate and a `/ping` route |
-| `aphel-plugin build [dir]` | `cargo build --release --target wasm32-wasip2` → `backend.wasm`, and `npm run build` in `web/` when it has a `package.json` |
+| `aphel-plugin new <key> [--js] --sdk <path to the SDK>` | Creates `aphel-<key>/` with `plugin.toml`, a `/ping` route and either the crate or (`--js`) `package.json` + `src/plugin.js` |
+| `aphel-plugin build [dir]` | `npm run build:backend` when `package.json` has that script, otherwise `cargo build --release --target wasm32-wasip2` → `backend.wasm`; then `npm run build` in `web/` when it has that script |
 | `aphel-plugin pack [dir] [-o file]` | Builds and zips `plugin.toml`, `backend.wasm` and `web/dist/*` (as `web/*`) into `<key>-<version>.aphelplugin` |
 
 Install from the command line with an API token that has `system.manage`:
@@ -377,13 +509,15 @@ Every change publishes `plugin.installed|enabled|disabled|settings_updated|unins
 
 The compiled module `plugins` ([`back/modules/plugins`](../../back/modules/plugins)) is the host:
 
-- **Storage.** The tables are `plugins_installed` (with `installed_by`), `plugins_files` (package files), `plugins_data` (key-value) and `plugins_state.version`. Declared permissions live in the kernel table `runtime_permissions` (owner `plugin:<key>`). The version is bumped on every change, and every `serve` and `worker` process rechecks it at most every 2 s. Only the plugins whose checksum changed are recompiled.
+- **Storage.** The tables are `plugins_installed` (with `installed_by`), `plugins_files` (package files), `plugins_data` (key-value), `plugins_compiled` and `plugins_state.version`. Declared permissions live in the kernel table `runtime_permissions` (owner `plugin:<key>`). The version is bumped on every change, and every `serve` and `worker` process rechecks it at most every 2 s. Only the plugins whose checksum changed are recompiled.
 - **Runtime.** [`wasmtime`](https://wasmtime.dev) with the Component Model, Cranelift, epoch interruption and per-instance memory limits.
   - Host bindings come from `wasmtime::component::bindgen!` over the WIT file.
   - Each plugin is compiled once into a `PluginPre` (imports already resolved), so a call only instantiates and runs.
+  - Compiled code is cached by the SHA-256 of `backend.wasm`: in the process (so install and load share one compile) and in `plugins_compiled`, keyed also by the engine's compatibility hash. Other processes and restarts deserialize it instead of compiling. Artifacts of backends no longer installed are pruned on install and uninstall, and freed compile memory is returned to the OS.
   - WASI comes from `wasmtime-wasi` with an empty sandbox.
 - **Hooks.** The host registers one handler per record hook (`RecordSaving`, `RecordValidating`, `RecordSaved`, `RecordDeleting`). It forwards to the enabled plugins that subscribed to that hook and record type, flagging the call as in-transaction.
 - **Events.** The consumer `plugins.events` accepts the event types that some enabled plugin consumes. It skips events whose actor is the plugin itself.
 - **Schedules.** The jobs `plugins.tick` and `plugin.schedule` live in `schedule.rs`.
+- **Automations, notifications and widgets.** `automation.rs` contributes the plugin actions and triggers to the automation registries (`AutomationActionSource`/`AutomationTriggerSource`). Notification kinds and widgets are published to the kernel's runtime extension registry (`kernel/modules/runtime_extensions.rs`), which the notification catalog and `WidgetRegistry::builtin()` read next to the compiled ones (`notify.rs`, `widgets.rs`).
 - **Routes.** Two generic routes dispatch `/api/v1/p/{key}/…` and `/api/v1/public/p/{key}/…` to the plugin, after matching the declared route and checking its permission or rate limit.
 - **Schema.** Entities are created through the custom object use cases and locked with `custom_objects.module_key`. Fields are written to `field_definitions` with `module_key`, and the boot sync only releases fields of compiled modules. `schema.rs` reconciles upgrades as described in [Upgrades](#upgrades).
