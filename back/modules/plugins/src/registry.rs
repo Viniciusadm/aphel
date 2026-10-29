@@ -354,3 +354,28 @@ impl aphel_kernel::modules::runtime_catalog::RuntimeCatalogSource for PublicEven
         Ok(())
     }
 }
+
+pub(crate) struct DeferredPluginPolicy;
+
+#[async_trait::async_trait]
+impl aphel_kernel::infrastructure::deferred_authority::DeferredPluginPolicy
+    for DeferredPluginPolicy
+{
+    async fn reauthorize(
+        &self,
+        pool: &MySqlPool,
+        key: &str,
+        scope: aphel_kernel::domain::access::AccessScope,
+    ) -> Result<aphel_kernel::domain::access::AccessScope, AppError> {
+        let snapshot = current(pool).await?;
+        let plugin = snapshot.plugin(key).ok_or_else(|| {
+            AppError::forbidden_code(
+                "plugin_disabled",
+                "the originating plugin is disabled or uninstalled",
+            )
+        })?;
+        Ok(scope
+            .restricted(|permission| plugin.manifest.allows(permission))
+            .through_plugin(key))
+    }
+}

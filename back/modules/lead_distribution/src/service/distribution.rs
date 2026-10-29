@@ -513,7 +513,7 @@ fn recipient(recipient: Option<Recipient>) -> (Option<String>, Option<String>) {
 }
 
 struct AutomationOwner<'a> {
-    gateway: &'a dyn AutomationGateway,
+    ctx: &'a Ctx<'a>,
     scope: &'a AccessScope,
     record: &'a RecordRef,
     field: &'a str,
@@ -523,21 +523,27 @@ struct AutomationOwner<'a> {
 impl OwnerWriter for AutomationOwner<'_> {
     async fn write(
         &self,
-        _tx: &mut MySqlTx,
+        tx: &mut MySqlTx,
         user_id: UserId,
     ) -> Result<Option<PendingCommit>, AppError> {
         let mut values = Map::new();
         values.insert(self.field.to_owned(), Value::String(user_id.into_inner()));
-        self.gateway
-            .update_record(self.scope, self.record, values)
-            .await?;
-        Ok(None)
+        self.ctx
+            .registry()
+            .handler(self.record.record_type.as_str())?
+            .update_in_tx(
+                &aphel_kernel::records::RecordCtx::new(self.scope, &self.ctx.state()),
+                tx,
+                self.record.record_id,
+                Value::Object(values),
+            )
+            .await
     }
 }
 
 pub(crate) async fn distribute(
     ctx: &Ctx<'_>,
-    gateway: &dyn AutomationGateway,
+    _gateway: &dyn AutomationGateway,
     request: DistributionRequest,
 ) -> Result<DistributionOutcome, AppError> {
     let record_type = request.record.record_type.as_str().to_owned();
@@ -558,7 +564,7 @@ pub(crate) async fn distribute(
         }
         DistributionMode::Assign { idempotency_key } => {
             let owner = AutomationOwner {
-                gateway,
+                ctx,
                 scope: ctx.scope,
                 record: &request.record,
                 field: &request.field,

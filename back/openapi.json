@@ -1742,7 +1742,7 @@
           {
             "name": "feature",
             "in": "query",
-            "description": "summary, next_actions, compose or query",
+            "description": "summary, next_actions, compose, query or plugin",
             "required": false,
             "schema": {
               "type": "string"
@@ -20321,7 +20321,7 @@
         "tags": [
           "emails"
         ],
-        "description": "Sends an e-mail from one of the user's own mailboxes (`mailbox_id`, or the first active one). `record` links the conversation to a contact, company, deal or custom object (read access required) and fills the `{{contact.first_name}}`-style variables of `subject`/`body_html`/`template_id`; recipients that are contacts are linked too. `reply_to_message_id` keeps the conversation (`In-Reply-To`, `References`, `Re:` subject). `attachment_file_ids` are files the user can download (`/api/v1/files`). A future `scheduled_at` stores the e-mail as `scheduled` and sends it from the worker (`email.send_scheduled`). `tracking` asks for open/click tracking when the organization allows it (default from `/email-settings/tracking`); it is always off when a recipient objected. Publishes `email.sent` once per linked record.",
+        "description": "Queues an e-mail from one of the user's own mailboxes (`mailbox_id`, or the first active one). `record` links the conversation to a contact, company, deal or custom object (read access required) and fills the `{{contact.first_name}}`-style variables of `subject`/`body_html`/`template_id`; recipients that are contacts are linked too. `reply_to_message_id` keeps the conversation (`In-Reply-To`, `References`, `Re:` subject). `attachment_file_ids` are files the user can download (`/api/v1/files`). Every e-mail is stored as `scheduled` and delivered by the worker (`email.send_scheduled`); a future `scheduled_at` delays delivery. `tracking` asks for open/click tracking when the organization allows it (default from `/email-settings/tracking`); it is always off when a recipient objected. Queue acceptance publishes `email.scheduled`; delivery publishes `email.sent` once per linked record.",
         "operationId": "emails_send",
         "parameters": [
           {
@@ -20347,7 +20347,7 @@
         },
         "responses": {
           "201": {
-            "description": "E-mail sent (`status = sent`) or scheduled (`status = scheduled`)",
+            "description": "E-mail queued (`status = scheduled`)",
             "content": {
               "application/json": {
                 "schema": {
@@ -21021,7 +21021,7 @@
         "tags": [
           "esign"
         ],
-        "description": "Sends a PDF attached to the deal to Clicksign for electronic signature (creates the envelope, uploads the document, adds the signers with email authentication, activates and notifies), stores the request and publishes `esign.sent` on the deal. `quote_id` (optional) ties the request to a quote version of the deal (usually the PDF generated from it by the proposals module) and goes in the event payload. Requires `esign.send` and access to the deal and the file. No legal validity of its own: the validity is the provider's.",
+        "description": "Queues a PDF attached to the deal for electronic signature and publishes `esign.queued`. The worker reauthorizes the request, sends it to Clicksign and publishes `esign.sent` after confirmation. The initial status is `queued`; `delivery_unknown` means provider confirmation is pending or uncertain and must be checked before submitting another request. `quote_id` (optional) ties the request to a quote version of the deal (usually the PDF generated from it by the proposals module) and goes in the event payload. Requires `esign.send` and access to the deal and the file. No legal validity of its own: the validity is the provider's.",
         "operationId": "esign_requests_create",
         "parameters": [
           {
@@ -21047,7 +21047,7 @@
         },
         "responses": {
           "201": {
-            "description": "Request sent",
+            "description": "Request queued",
             "content": {
               "application/json": {
                 "schema": {
@@ -21201,7 +21201,7 @@
         "tags": [
           "esign"
         ],
-        "description": "Cancels an open request in Clicksign and publishes `esign.cancelled`. Requires `esign.send`.",
+        "description": "Cancels a queued request locally or queues cancellation of a sent request (`cancel_pending`, `esign.cancel_queued`). The worker publishes `esign.cancelled` after Clicksign confirms it. Requires `esign.send`.",
         "operationId": "esign_requests_cancel",
         "parameters": [
           {
@@ -21226,7 +21226,7 @@
         ],
         "responses": {
           "200": {
-            "description": "Request cancelled",
+            "description": "Request cancelled locally or cancellation queued",
             "content": {
               "application/json": {
                 "schema": {
@@ -41215,6 +41215,648 @@
         ]
       }
     },
+    "/api/v1/plugins": {
+      "get": {
+        "tags": [
+          "plugins"
+        ],
+        "description": "Lists the plugins installed at runtime (permission `system.manage`), with what each one declares: entities, extended record types, hooks, consumed events, routes and settings. `backend_error` is set when the installed backend no longer loads: writes to the record types it hooks then fail with 503 `plugin_failed` until the plugin is reinstalled.",
+        "operationId": "plugins_list",
+        "responses": {
+          "200": {
+            "description": "Installed plugins",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/Data_Vec_PluginResponse"
+                }
+              }
+            }
+          },
+          "401": {
+            "description": "Missing or invalid credentials (`unauthorized`)",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ErrorEnvelope"
+                }
+              }
+            }
+          },
+          "403": {
+            "description": "Missing `system.manage` (`permission_denied`)",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ErrorEnvelope"
+                }
+              }
+            }
+          },
+          "429": {
+            "description": "API token rate limit exceeded (`rate_limited`); see `Retry-After` and `X-RateLimit-*`",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ErrorEnvelope"
+                }
+              }
+            }
+          }
+        },
+        "security": [
+          {
+            "session_cookie": []
+          },
+          {
+            "api_token": []
+          }
+        ]
+      },
+      "post": {
+        "tags": [
+          "plugins"
+        ],
+        "description": "Installs or upgrades a plugin from an `.aphelplugin` package sent as the multipart field `package` (permission `system.manage`). The package is a zip with `plugin.toml`, an optional `backend.wasm` built with aphel-plugin-sdk and an optional `web/` bundle. Declared entities become custom objects managed by the plugin, declared fields become managed custom fields, declared permissions enter the role catalog, and hooks, events, schedules and routes start working without restarting Aphel. The plugin acts with what it `requires` intersected with the permissions of whoever installs it, so the installer gives consent: call first with `dry_run=true` to get what the package asks for (status 200, nothing is installed). Publishes `plugin.installed`.",
+        "operationId": "plugins_install",
+        "parameters": [
+          {
+            "name": "dry_run",
+            "in": "query",
+            "required": false,
+            "schema": {
+              "type": "boolean"
+            }
+          },
+          {
+            "name": "Idempotency-Key",
+            "in": "header",
+            "description": "Up to 255 printable ASCII characters. The same key with the same request (method, path and body) within 24 hours answers the stored response with the same status and body plus `Idempotent-Replayed: true`. Scoped to the credential (session cookie or API token); ignored without a credential. 5xx and 429 responses are not stored",
+            "required": false,
+            "schema": {
+              "type": "string",
+              "maxLength": 255
+            }
+          }
+        ],
+        "requestBody": {
+          "description": "Field `package` with the .aphelplugin file",
+          "content": {
+            "multipart/form-data": {}
+          }
+        },
+        "responses": {
+          "200": {
+            "description": "Dry run: what the package declares and asks for",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/Data_PluginConsentResponse"
+                }
+              }
+            }
+          },
+          "201": {
+            "description": "Plugin installed or upgraded",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/Data_PluginResponse"
+                }
+              }
+            }
+          },
+          "401": {
+            "description": "Missing or invalid credentials (`unauthorized`)",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ErrorEnvelope"
+                }
+              }
+            }
+          },
+          "403": {
+            "description": "Missing `system.manage` (`permission_denied`)",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ErrorEnvelope"
+                }
+              }
+            }
+          },
+          "409": {
+            "description": "A custom object, field or permission with the same key already exists (`plugin_object_conflict`, `plugin_field_conflict`, `permission_already_registered`). The first request with this `Idempotency-Key` is still being processed (`idempotency_key_in_progress`)",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ErrorEnvelope"
+                }
+              }
+            }
+          },
+          "422": {
+            "description": "Invalid package, manifest or backend (`plugin_package_invalid`, `plugin_manifest_invalid`, `plugin_backend_invalid`). `Idempotency-Key` already used with a different request (`idempotency_key_reused`) or longer than 255 characters (`validation_error`)",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ErrorEnvelope"
+                }
+              }
+            }
+          },
+          "429": {
+            "description": "API token rate limit exceeded (`rate_limited`); see `Retry-After` and `X-RateLimit-*`",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ErrorEnvelope"
+                }
+              }
+            }
+          }
+        },
+        "security": [
+          {
+            "session_cookie": []
+          },
+          {
+            "api_token": []
+          }
+        ]
+      }
+    },
+    "/api/v1/plugins/host-catalog": {
+      "get": {
+        "tags": [
+          "plugins"
+        ],
+        "description": "Lists what this Aphel offers to plugins (permission `system.manage`): the hooks a manifest can subscribe to in `hooks` (generic record hooks plus the domain hooks of compiled modules, with kind `veto`, `filter` or `action`) and the operations a plugin can call with `invoke` after declaring them in `operations`. `enabled` is false when the owning module is disabled: its hooks never fire and its operations answer 404 `plugin_operation_unknown`.",
+        "operationId": "plugins_host_catalog",
+        "responses": {
+          "200": {
+            "description": "Hooks and operations offered to plugins",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/Data_HostCatalogResponse"
+                }
+              }
+            }
+          },
+          "401": {
+            "description": "Missing or invalid credentials (`unauthorized`)",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ErrorEnvelope"
+                }
+              }
+            }
+          },
+          "403": {
+            "description": "Missing `system.manage` (`permission_denied`)",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ErrorEnvelope"
+                }
+              }
+            }
+          },
+          "429": {
+            "description": "API token rate limit exceeded (`rate_limited`); see `Retry-After` and `X-RateLimit-*`",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ErrorEnvelope"
+                }
+              }
+            }
+          }
+        },
+        "security": [
+          {
+            "session_cookie": []
+          },
+          {
+            "api_token": []
+          }
+        ]
+      }
+    },
+    "/api/v1/plugins/readiness": {
+      "get": {
+        "tags": [
+          "plugins"
+        ],
+        "description": "Reports metadata catalog readiness independently of lazy backend compilation. Catalog failures return 503 rather than an empty catalog.",
+        "operationId": "plugins_readiness",
+        "responses": {
+          "200": {
+            "description": "Catalog readiness",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/Data_CatalogReadiness"
+                }
+              }
+            }
+          },
+          "429": {
+            "description": "API token rate limit exceeded (`rate_limited`); see `Retry-After` and `X-RateLimit-*`",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ErrorEnvelope"
+                }
+              }
+            }
+          },
+          "503": {
+            "description": "Catalog unavailable",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ErrorEnvelope"
+                }
+              }
+            }
+          }
+        },
+        "security": [
+          {
+            "session_cookie": []
+          },
+          {
+            "api_token": []
+          }
+        ]
+      }
+    },
+    "/api/v1/plugins/{key}": {
+      "delete": {
+        "tags": [
+          "plugins"
+        ],
+        "description": "Uninstalls a plugin (permission `system.manage`): its code, web bundle and key-value data are removed. With `purge=true` its entities (and their records) and its fields on other record types are deleted too; otherwise they are only deactivated and come back if the plugin is installed again. Publishes `plugin.uninstalled`.",
+        "operationId": "plugins_uninstall",
+        "parameters": [
+          {
+            "name": "key",
+            "in": "path",
+            "description": "Plugin key",
+            "required": true,
+            "schema": {
+              "type": "string"
+            }
+          },
+          {
+            "name": "purge",
+            "in": "query",
+            "required": false,
+            "schema": {
+              "type": "boolean"
+            }
+          }
+        ],
+        "responses": {
+          "204": {
+            "description": "Plugin uninstalled"
+          },
+          "403": {
+            "description": "Missing `system.manage` (`permission_denied`)",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ErrorEnvelope"
+                }
+              }
+            }
+          },
+          "404": {
+            "description": "Plugin not installed (`plugin_not_found`)",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ErrorEnvelope"
+                }
+              }
+            }
+          },
+          "429": {
+            "description": "API token rate limit exceeded (`rate_limited`); see `Retry-After` and `X-RateLimit-*`",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ErrorEnvelope"
+                }
+              }
+            }
+          }
+        },
+        "security": [
+          {
+            "session_cookie": []
+          },
+          {
+            "api_token": []
+          }
+        ]
+      }
+    },
+    "/api/v1/plugins/{key}/disable": {
+      "post": {
+        "tags": [
+          "plugins"
+        ],
+        "description": "Disables a plugin without removing anything (permission `system.manage`): its entities and fields are hidden and its hooks, events, routes and web bundle stop. Publishes `plugin.disabled`.",
+        "operationId": "plugins_disable",
+        "parameters": [
+          {
+            "name": "key",
+            "in": "path",
+            "description": "Plugin key",
+            "required": true,
+            "schema": {
+              "type": "string"
+            }
+          },
+          {
+            "name": "Idempotency-Key",
+            "in": "header",
+            "description": "Up to 255 printable ASCII characters. The same key with the same request (method, path and body) within 24 hours answers the stored response with the same status and body plus `Idempotent-Replayed: true`. Scoped to the credential (session cookie or API token); ignored without a credential. 5xx and 429 responses are not stored",
+            "required": false,
+            "schema": {
+              "type": "string",
+              "maxLength": 255
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "Plugin disabled",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/Data_PluginResponse"
+                }
+              }
+            }
+          },
+          "403": {
+            "description": "Missing `system.manage` (`permission_denied`)",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ErrorEnvelope"
+                }
+              }
+            }
+          },
+          "404": {
+            "description": "Plugin not installed (`plugin_not_found`)",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ErrorEnvelope"
+                }
+              }
+            }
+          },
+          "409": {
+            "description": "The first request with this `Idempotency-Key` is still being processed (`idempotency_key_in_progress`)",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ErrorEnvelope"
+                }
+              }
+            }
+          },
+          "422": {
+            "description": "`Idempotency-Key` already used with a different request (`idempotency_key_reused`) or longer than 255 characters (`validation_error`)",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ErrorEnvelope"
+                }
+              }
+            }
+          },
+          "429": {
+            "description": "API token rate limit exceeded (`rate_limited`); see `Retry-After` and `X-RateLimit-*`",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ErrorEnvelope"
+                }
+              }
+            }
+          }
+        },
+        "security": [
+          {
+            "session_cookie": []
+          },
+          {
+            "api_token": []
+          }
+        ]
+      }
+    },
+    "/api/v1/plugins/{key}/enable": {
+      "post": {
+        "tags": [
+          "plugins"
+        ],
+        "description": "Enables an installed plugin (permission `system.manage`): its entities, fields, hooks, events, routes and web bundle come back. Publishes `plugin.enabled`.",
+        "operationId": "plugins_enable",
+        "parameters": [
+          {
+            "name": "key",
+            "in": "path",
+            "description": "Plugin key",
+            "required": true,
+            "schema": {
+              "type": "string"
+            }
+          },
+          {
+            "name": "Idempotency-Key",
+            "in": "header",
+            "description": "Up to 255 printable ASCII characters. The same key with the same request (method, path and body) within 24 hours answers the stored response with the same status and body plus `Idempotent-Replayed: true`. Scoped to the credential (session cookie or API token); ignored without a credential. 5xx and 429 responses are not stored",
+            "required": false,
+            "schema": {
+              "type": "string",
+              "maxLength": 255
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "Plugin enabled",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/Data_PluginResponse"
+                }
+              }
+            }
+          },
+          "403": {
+            "description": "Missing `system.manage` (`permission_denied`)",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ErrorEnvelope"
+                }
+              }
+            }
+          },
+          "404": {
+            "description": "Plugin not installed (`plugin_not_found`)",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ErrorEnvelope"
+                }
+              }
+            }
+          },
+          "409": {
+            "description": "The first request with this `Idempotency-Key` is still being processed (`idempotency_key_in_progress`)",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ErrorEnvelope"
+                }
+              }
+            }
+          },
+          "422": {
+            "description": "`Idempotency-Key` already used with a different request (`idempotency_key_reused`) or longer than 255 characters (`validation_error`)",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ErrorEnvelope"
+                }
+              }
+            }
+          },
+          "429": {
+            "description": "API token rate limit exceeded (`rate_limited`); see `Retry-After` and `X-RateLimit-*`",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ErrorEnvelope"
+                }
+              }
+            }
+          }
+        },
+        "security": [
+          {
+            "session_cookie": []
+          },
+          {
+            "api_token": []
+          }
+        ]
+      }
+    },
+    "/api/v1/plugins/{key}/settings": {
+      "put": {
+        "tags": [
+          "plugins"
+        ],
+        "description": "Replaces the settings of a plugin (permission `system.manage`), validated against the settings it declares. `null` restores the default. Secret settings are stored encrypted and never returned (only `configured`): a string sets the secret, `null` removes it and leaving the key out keeps it. Publishes `plugin.settings_updated`.",
+        "operationId": "plugins_update_settings",
+        "parameters": [
+          {
+            "name": "key",
+            "in": "path",
+            "description": "Plugin key",
+            "required": true,
+            "schema": {
+              "type": "string"
+            }
+          }
+        ],
+        "requestBody": {
+          "description": "Map of setting key to value",
+          "content": {
+            "application/json": {
+              "schema": {
+                "type": "object"
+              }
+            }
+          },
+          "required": true
+        },
+        "responses": {
+          "200": {
+            "description": "Settings saved",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/Data_PluginResponse"
+                }
+              }
+            }
+          },
+          "403": {
+            "description": "Missing `system.manage` (`permission_denied`)",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ErrorEnvelope"
+                }
+              }
+            }
+          },
+          "404": {
+            "description": "Plugin not installed (`plugin_not_found`)",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ErrorEnvelope"
+                }
+              }
+            }
+          },
+          "422": {
+            "description": "Invalid settings (`plugin_settings_invalid`)",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ErrorEnvelope"
+                }
+              }
+            }
+          },
+          "429": {
+            "description": "API token rate limit exceeded (`rate_limited`); see `Retry-After` and `X-RateLimit-*`",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ErrorEnvelope"
+                }
+              }
+            }
+          }
+        },
+        "security": [
+          {
+            "session_cookie": []
+          },
+          {
+            "api_token": []
+          }
+        ]
+      }
+    },
     "/api/v1/preferences": {
       "get": {
         "tags": [
@@ -46569,6 +47211,27 @@
         }
       }
     },
+    "/api/v1/public/plugins": {
+      "get": {
+        "tags": [
+          "plugins"
+        ],
+        "description": "Lists the web bundles of the enabled plugins, loaded by the Aphel web app before it builds its routes. Public: plugin bundles are code, not data.",
+        "operationId": "plugins_web",
+        "responses": {
+          "200": {
+            "description": "Web bundles to load",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/Data_Vec_WebPluginResponse"
+                }
+              }
+            }
+          }
+        }
+      }
+    },
     "/api/v1/public/quotes/{token}": {
       "get": {
         "tags": [
@@ -47791,7 +48454,7 @@
         "tags": [
           "quotes"
         ],
-        "description": "Sends the quote by e-mail from the caller's mailbox (permissions `quotes.send` and `emails.send`), linked to the deal, with the signed public link in the body (`{{quote_link}}` marks where; otherwise it is appended). Without `to`, the deal contact receives it. A `draft` or `approved` quote passes the approval checkpoint of `quote_send` first: a quote that needs approval cannot be sent before it (`approval_required`), and the granted approval is consumed. A `sent` quote can be sent again. The status becomes `sent` and `quote.sent` is published (also `deal.quote_sent` on the deal timeline).",
+        "description": "Queues the quote e-mail from the caller's mailbox (permissions `quotes.send` and `emails.send`), linked to the deal, with the signed public link in the body (`{{quote_link}}` marks where; otherwise it is appended). Without `to`, the deal contact receives it. A `draft` or `approved` quote passes the approval checkpoint of `quote_send` first: a quote that needs approval cannot be sent before it (`approval_required`), and the granted approval is consumed. A `sent` quote can be sent again. Queue acceptance changes the status to `sent` and publishes `quote.sent` (also `deal.quote_sent` on the deal timeline); the delivery job sends the e-mail afterwards.",
         "operationId": "quotes_send",
         "parameters": [
           {
@@ -47826,7 +48489,7 @@
         },
         "responses": {
           "200": {
-            "description": "Quote sent",
+            "description": "Quote e-mail queued",
             "content": {
               "application/json": {
                 "schema": {
@@ -64330,7 +64993,8 @@
           "user",
           "system",
           "api_token",
-          "automation"
+          "automation",
+          "plugin"
         ]
       },
       "AuditCausationResponse": {
@@ -64408,6 +65072,16 @@
             "items": {
               "$ref": "#/components/schemas/AuditFieldChangeResponse"
             }
+          },
+          "execution": {
+            "oneOf": [
+              {
+                "type": "null"
+              },
+              {
+                "$ref": "#/components/schemas/ExecutionContext"
+              }
+            ]
           },
           "id": {
             "type": "string"
@@ -64530,6 +65204,25 @@
             "items": {
               "$ref": "#/components/schemas/AutomationStep"
             }
+          }
+        }
+      },
+      "AutomationExecution": {
+        "type": "object",
+        "required": [
+          "automation_id",
+          "run_id",
+          "step_id"
+        ],
+        "properties": {
+          "automation_id": {
+            "type": "string"
+          },
+          "run_id": {
+            "type": "string"
+          },
+          "step_id": {
+            "type": "string"
           }
         }
       },
@@ -66363,6 +67056,32 @@
           },
           "url": {
             "type": "string"
+          }
+        }
+      },
+      "CatalogReadiness": {
+        "type": "object",
+        "required": [
+          "state",
+          "backend_errors"
+        ],
+        "properties": {
+          "backend_errors": {
+            "type": "array",
+            "items": {
+              "type": "string"
+            }
+          },
+          "state": {
+            "type": "string"
+          },
+          "version": {
+            "type": [
+              "integer",
+              "null"
+            ],
+            "format": "int64",
+            "minimum": 0
           }
         }
       },
@@ -72150,6 +72869,40 @@
           }
         }
       },
+      "Data_CatalogReadiness": {
+        "type": "object",
+        "required": [
+          "data"
+        ],
+        "properties": {
+          "data": {
+            "type": "object",
+            "required": [
+              "state",
+              "backend_errors"
+            ],
+            "properties": {
+              "backend_errors": {
+                "type": "array",
+                "items": {
+                  "type": "string"
+                }
+              },
+              "state": {
+                "type": "string"
+              },
+              "version": {
+                "type": [
+                  "integer",
+                  "null"
+                ],
+                "format": "int64",
+                "minimum": 0
+              }
+            }
+          }
+        }
+      },
       "Data_CatalogResponse": {
         "type": "object",
         "required": [
@@ -74111,7 +74864,8 @@
               "updated_at": {
                 "type": "string"
               }
-            }
+            },
+            "additionalProperties": {}
           }
         }
       },
@@ -75809,6 +76563,35 @@
               },
               "status": {
                 "$ref": "#/components/schemas/IncomingWebhookRequestStatus"
+              }
+            }
+          }
+        }
+      },
+      "Data_HostCatalogResponse": {
+        "type": "object",
+        "required": [
+          "data"
+        ],
+        "properties": {
+          "data": {
+            "type": "object",
+            "required": [
+              "hooks",
+              "operations"
+            ],
+            "properties": {
+              "hooks": {
+                "type": "array",
+                "items": {
+                  "$ref": "#/components/schemas/HookCatalogEntry"
+                }
+              },
+              "operations": {
+                "type": "array",
+                "items": {
+                  "$ref": "#/components/schemas/HostOperationResponse"
+                }
               }
             }
           }
@@ -78688,6 +79471,117 @@
                 "type": "string"
               }
             }
+          }
+        }
+      },
+      "Data_PluginConsentResponse": {
+        "type": "object",
+        "required": [
+          "data"
+        ],
+        "properties": {
+          "data": {
+            "allOf": [
+              {
+                "$ref": "#/components/schemas/PluginDeclarations"
+              },
+              {
+                "type": "object",
+                "required": [
+                  "key",
+                  "name",
+                  "version"
+                ],
+                "properties": {
+                  "description": {
+                    "type": [
+                      "string",
+                      "null"
+                    ]
+                  },
+                  "installed_version": {
+                    "type": [
+                      "string",
+                      "null"
+                    ]
+                  },
+                  "key": {
+                    "type": "string"
+                  },
+                  "name": {
+                    "type": "string"
+                  },
+                  "version": {
+                    "type": "string"
+                  }
+                }
+              }
+            ]
+          }
+        }
+      },
+      "Data_PluginResponse": {
+        "type": "object",
+        "required": [
+          "data"
+        ],
+        "properties": {
+          "data": {
+            "allOf": [
+              {
+                "$ref": "#/components/schemas/PluginDeclarations"
+              },
+              {
+                "type": "object",
+                "required": [
+                  "key",
+                  "name",
+                  "version",
+                  "enabled",
+                  "settings",
+                  "installed_at",
+                  "updated_at"
+                ],
+                "properties": {
+                  "backend_error": {
+                    "type": [
+                      "string",
+                      "null"
+                    ]
+                  },
+                  "description": {
+                    "type": [
+                      "string",
+                      "null"
+                    ]
+                  },
+                  "enabled": {
+                    "type": "boolean"
+                  },
+                  "installed_at": {
+                    "type": "string"
+                  },
+                  "key": {
+                    "type": "string"
+                  },
+                  "name": {
+                    "type": "string"
+                  },
+                  "settings": {
+                    "type": "array",
+                    "items": {
+                      "$ref": "#/components/schemas/PluginSettingResponse"
+                    }
+                  },
+                  "updated_at": {
+                    "type": "string"
+                  },
+                  "version": {
+                    "type": "string"
+                  }
+                }
+              }
+            ]
           }
         }
       },
@@ -83986,6 +84880,18 @@
                 "record_scoped"
               ],
               "properties": {
+                "description": {
+                  "type": [
+                    "string",
+                    "null"
+                  ]
+                },
+                "label": {
+                  "type": [
+                    "string",
+                    "null"
+                  ]
+                },
                 "permission": {
                   "type": "string",
                   "example": "contacts.read"
@@ -84056,6 +84962,74 @@
                   "type": "string"
                 }
               }
+            }
+          }
+        }
+      },
+      "Data_Vec_PluginResponse": {
+        "type": "object",
+        "required": [
+          "data"
+        ],
+        "properties": {
+          "data": {
+            "type": "array",
+            "items": {
+              "allOf": [
+                {
+                  "$ref": "#/components/schemas/PluginDeclarations"
+                },
+                {
+                  "type": "object",
+                  "required": [
+                    "key",
+                    "name",
+                    "version",
+                    "enabled",
+                    "settings",
+                    "installed_at",
+                    "updated_at"
+                  ],
+                  "properties": {
+                    "backend_error": {
+                      "type": [
+                        "string",
+                        "null"
+                      ]
+                    },
+                    "description": {
+                      "type": [
+                        "string",
+                        "null"
+                      ]
+                    },
+                    "enabled": {
+                      "type": "boolean"
+                    },
+                    "installed_at": {
+                      "type": "string"
+                    },
+                    "key": {
+                      "type": "string"
+                    },
+                    "name": {
+                      "type": "string"
+                    },
+                    "settings": {
+                      "type": "array",
+                      "items": {
+                        "$ref": "#/components/schemas/PluginSettingResponse"
+                      }
+                    },
+                    "updated_at": {
+                      "type": "string"
+                    },
+                    "version": {
+                      "type": "string"
+                    }
+                  }
+                }
+              ]
             }
           }
         }
@@ -85374,6 +86348,42 @@
           }
         }
       },
+      "Data_Vec_WebPluginResponse": {
+        "type": "object",
+        "required": [
+          "data"
+        ],
+        "properties": {
+          "data": {
+            "type": "array",
+            "items": {
+              "type": "object",
+              "required": [
+                "key",
+                "version",
+                "entry"
+              ],
+              "properties": {
+                "entry": {
+                  "type": "string"
+                },
+                "key": {
+                  "type": "string"
+                },
+                "style": {
+                  "type": [
+                    "string",
+                    "null"
+                  ]
+                },
+                "version": {
+                  "type": "string"
+                }
+              }
+            }
+          }
+        }
+      },
       "Data_VersionApplyResponse": {
         "type": "object",
         "required": [
@@ -86452,7 +87462,8 @@
             ],
             "example": "Acme onboarding"
           }
-        }
+        },
+        "additionalProperties": {}
       },
       "DealResponse": {
         "type": "object",
@@ -86691,7 +87702,8 @@
           "updated_at": {
             "type": "string"
           }
-        }
+        },
+        "additionalProperties": {}
       },
       "DealStageResponse": {
         "type": "object",
@@ -88482,6 +89494,88 @@
             "items": {
               "type": "string"
             }
+          }
+        }
+      },
+      "ExecutionActor": {
+        "type": "object",
+        "required": [
+          "kind"
+        ],
+        "properties": {
+          "id": {
+            "type": [
+              "string",
+              "null"
+            ]
+          },
+          "kind": {
+            "type": "string"
+          }
+        }
+      },
+      "ExecutionContext": {
+        "type": "object",
+        "required": [
+          "id",
+          "correlation_id",
+          "executor",
+          "trigger",
+          "chain"
+        ],
+        "properties": {
+          "automation": {
+            "oneOf": [
+              {
+                "type": "null"
+              },
+              {
+                "$ref": "#/components/schemas/AutomationExecution"
+              }
+            ]
+          },
+          "chain": {
+            "type": "array",
+            "items": {
+              "type": "string"
+            }
+          },
+          "correlation_id": {
+            "type": "string"
+          },
+          "event_id": {
+            "type": [
+              "string",
+              "null"
+            ]
+          },
+          "executor": {
+            "type": "string"
+          },
+          "executor_kind": {
+            "type": "string"
+          },
+          "id": {
+            "type": "string"
+          },
+          "initiator": {
+            "oneOf": [
+              {
+                "type": "null"
+              },
+              {
+                "$ref": "#/components/schemas/ExecutionActor"
+              }
+            ]
+          },
+          "parent_id": {
+            "type": [
+              "string",
+              "null"
+            ]
+          },
+          "trigger": {
+            "type": "string"
           }
         }
       },
@@ -90366,6 +91460,37 @@
           }
         }
       },
+      "HookCatalogEntry": {
+        "type": "object",
+        "required": [
+          "key",
+          "module",
+          "record_type",
+          "kind",
+          "description",
+          "enabled"
+        ],
+        "properties": {
+          "description": {
+            "type": "string"
+          },
+          "enabled": {
+            "type": "boolean"
+          },
+          "key": {
+            "type": "string"
+          },
+          "kind": {
+            "type": "string"
+          },
+          "module": {
+            "type": "string"
+          },
+          "record_type": {
+            "type": "string"
+          }
+        }
+      },
       "HookReceivedResponse": {
         "type": "object",
         "required": [
@@ -90378,6 +91503,62 @@
           },
           "status": {
             "$ref": "#/components/schemas/IncomingWebhookRequestStatus"
+          }
+        }
+      },
+      "HostCatalogResponse": {
+        "type": "object",
+        "required": [
+          "hooks",
+          "operations"
+        ],
+        "properties": {
+          "hooks": {
+            "type": "array",
+            "items": {
+              "$ref": "#/components/schemas/HookCatalogEntry"
+            }
+          },
+          "operations": {
+            "type": "array",
+            "items": {
+              "$ref": "#/components/schemas/HostOperationResponse"
+            }
+          }
+        }
+      },
+      "HostOperationResponse": {
+        "type": "object",
+        "required": [
+          "key",
+          "module",
+          "description",
+          "writes",
+          "durable",
+          "external_query",
+          "enabled"
+        ],
+        "properties": {
+          "description": {
+            "type": "string"
+          },
+          "durable": {
+            "type": "boolean"
+          },
+          "enabled": {
+            "type": "boolean"
+          },
+          "external_query": {
+            "type": "boolean"
+          },
+          "key": {
+            "type": "string"
+          },
+          "module": {
+            "type": "string"
+          },
+          "writes": {
+            "type": "boolean"
           }
         }
       },
@@ -92137,7 +93318,8 @@
           "incoming_webhook",
           "import",
           "scheduling",
-          "lead_form"
+          "lead_form",
+          "plugin"
         ]
       },
       "LeadDistributionFallback": {
@@ -97267,6 +98449,16 @@
                     "$ref": "#/components/schemas/AuditFieldChangeResponse"
                   }
                 },
+                "execution": {
+                  "oneOf": [
+                    {
+                      "type": "null"
+                    },
+                    {
+                      "$ref": "#/components/schemas/ExecutionContext"
+                    }
+                  ]
+                },
                 "id": {
                   "type": "string"
                 },
@@ -98894,7 +100086,8 @@
                 "updated_at": {
                   "type": "string"
                 }
-              }
+              },
+              "additionalProperties": {}
             }
           },
           "meta": {
@@ -103334,17 +104527,14 @@
         "type": "object",
         "required": [
           "permission",
-          "record_scoped",
-          "label",
-          "description"
+          "record_scoped"
         ],
         "properties": {
-          "permission": {
-            "type": "string",
-            "example": "contacts.read"
-          },
-          "record_scoped": {
-            "type": "boolean"
+          "description": {
+            "type": [
+              "string",
+              "null"
+            ]
           },
           "label": {
             "type": [
@@ -103352,11 +104542,12 @@
               "null"
             ]
           },
-          "description": {
-            "type": [
-              "string",
-              "null"
-            ]
+          "permission": {
+            "type": "string",
+            "example": "contacts.read"
+          },
+          "record_scoped": {
+            "type": "boolean"
           }
         }
       },
@@ -103717,6 +104908,301 @@
             "type": "integer",
             "format": "int64",
             "minimum": 0
+          }
+        }
+      },
+      "PluginConsentResponse": {
+        "allOf": [
+          {
+            "$ref": "#/components/schemas/PluginDeclarations"
+          },
+          {
+            "type": "object",
+            "required": [
+              "key",
+              "name",
+              "version"
+            ],
+            "properties": {
+              "description": {
+                "type": [
+                  "string",
+                  "null"
+                ]
+              },
+              "installed_version": {
+                "type": [
+                  "string",
+                  "null"
+                ]
+              },
+              "key": {
+                "type": "string"
+              },
+              "name": {
+                "type": "string"
+              },
+              "version": {
+                "type": "string"
+              }
+            }
+          }
+        ]
+      },
+      "PluginDeclarations": {
+        "type": "object",
+        "required": [
+          "entities",
+          "extended_types",
+          "hooks",
+          "events",
+          "routes",
+          "public_routes",
+          "requires",
+          "permissions",
+          "allowed_hosts",
+          "schedules",
+          "secrets",
+          "actions",
+          "emits",
+          "notifications",
+          "widgets",
+          "operations",
+          "has_web"
+        ],
+        "properties": {
+          "actions": {
+            "type": "array",
+            "items": {
+              "type": "string"
+            }
+          },
+          "allowed_hosts": {
+            "type": "array",
+            "items": {
+              "type": "string"
+            }
+          },
+          "emits": {
+            "type": "array",
+            "items": {
+              "type": "string"
+            }
+          },
+          "entities": {
+            "type": "array",
+            "items": {
+              "type": "string"
+            }
+          },
+          "events": {
+            "type": "array",
+            "items": {
+              "type": "string"
+            }
+          },
+          "extended_types": {
+            "type": "array",
+            "items": {
+              "type": "string"
+            }
+          },
+          "has_web": {
+            "type": "boolean"
+          },
+          "hooks": {
+            "type": "array",
+            "items": {
+              "type": "string"
+            }
+          },
+          "notifications": {
+            "type": "array",
+            "items": {
+              "type": "string"
+            }
+          },
+          "operations": {
+            "type": "array",
+            "items": {
+              "type": "string"
+            }
+          },
+          "permissions": {
+            "type": "array",
+            "items": {
+              "$ref": "#/components/schemas/PluginPermissionResponse"
+            }
+          },
+          "public_routes": {
+            "type": "array",
+            "items": {
+              "type": "string"
+            }
+          },
+          "requires": {
+            "type": "array",
+            "items": {
+              "type": "string"
+            }
+          },
+          "routes": {
+            "type": "array",
+            "items": {
+              "type": "string"
+            }
+          },
+          "schedules": {
+            "type": "array",
+            "items": {
+              "type": "string"
+            }
+          },
+          "secrets": {
+            "type": "array",
+            "items": {
+              "type": "string"
+            }
+          },
+          "widgets": {
+            "type": "array",
+            "items": {
+              "type": "string"
+            }
+          }
+        }
+      },
+      "PluginPermissionResponse": {
+        "type": "object",
+        "required": [
+          "key",
+          "label",
+          "grant_to"
+        ],
+        "properties": {
+          "description": {
+            "type": [
+              "string",
+              "null"
+            ]
+          },
+          "grant_to": {
+            "type": "array",
+            "items": {
+              "type": "string"
+            }
+          },
+          "key": {
+            "type": "string"
+          },
+          "label": {
+            "type": "string"
+          }
+        }
+      },
+      "PluginResponse": {
+        "allOf": [
+          {
+            "$ref": "#/components/schemas/PluginDeclarations"
+          },
+          {
+            "type": "object",
+            "required": [
+              "key",
+              "name",
+              "version",
+              "enabled",
+              "settings",
+              "installed_at",
+              "updated_at"
+            ],
+            "properties": {
+              "backend_error": {
+                "type": [
+                  "string",
+                  "null"
+                ]
+              },
+              "description": {
+                "type": [
+                  "string",
+                  "null"
+                ]
+              },
+              "enabled": {
+                "type": "boolean"
+              },
+              "installed_at": {
+                "type": "string"
+              },
+              "key": {
+                "type": "string"
+              },
+              "name": {
+                "type": "string"
+              },
+              "settings": {
+                "type": "array",
+                "items": {
+                  "$ref": "#/components/schemas/PluginSettingResponse"
+                }
+              },
+              "updated_at": {
+                "type": "string"
+              },
+              "version": {
+                "type": "string"
+              }
+            }
+          }
+        ]
+      },
+      "PluginSettingResponse": {
+        "type": "object",
+        "required": [
+          "key",
+          "label",
+          "type",
+          "value"
+        ],
+        "properties": {
+          "configured": {
+            "type": [
+              "boolean",
+              "null"
+            ]
+          },
+          "help": {
+            "type": [
+              "string",
+              "null"
+            ]
+          },
+          "key": {
+            "type": "string"
+          },
+          "label": {
+            "type": "string"
+          },
+          "max": {
+            "type": [
+              "integer",
+              "null"
+            ],
+            "format": "int64"
+          },
+          "min": {
+            "type": [
+              "integer",
+              "null"
+            ],
+            "format": "int64"
+          },
+          "type": {
+            "type": "string"
+          },
+          "value": {
+            "type": "object"
           }
         }
       },
@@ -113571,6 +115057,31 @@
           "organization"
         ]
       },
+      "WebPluginResponse": {
+        "type": "object",
+        "required": [
+          "key",
+          "version",
+          "entry"
+        ],
+        "properties": {
+          "entry": {
+            "type": "string"
+          },
+          "key": {
+            "type": "string"
+          },
+          "style": {
+            "type": [
+              "string",
+              "null"
+            ]
+          },
+          "version": {
+            "type": "string"
+          }
+        }
+      },
       "WebhookDeliveryDetailResponse": {
         "allOf": [
           {
@@ -114261,6 +115772,10 @@
     {
       "name": "messaging",
       "description": "Shared inbox for WhatsApp Cloud API and email (IMAP/SMTP)"
+    },
+    {
+      "name": "plugins",
+      "description": "Runtime plugins: install, enable, disable, configure and uninstall .aphelplugin packages, and call their routes"
     },
     {
       "name": "products",

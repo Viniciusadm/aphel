@@ -72,6 +72,36 @@ where
         scope: &AccessScope,
         command: UploadFileCommand,
     ) -> Result<UploadedFile, AppError> {
+        let file = self.prepare_upload(scope, &command).await?;
+        let attachment = match self
+            .record_upload(scope, &file, command.attach_to, command.ip)
+            .await
+        {
+            Ok(attachment) => attachment,
+            Err(error) => {
+                if let Err(cleanup) = self.ports.storage().delete(&file.storage_key).await {
+                    tracing::warn!(error = %cleanup, "failed to remove orphan upload");
+                }
+                return Err(error);
+            }
+        };
+
+        let stored = self.require_file(file.id).await?;
+        let attachment = match attachment {
+            Some(attachment) => Some(self.require_attachment(attachment.id).await?),
+            None => None,
+        };
+        Ok(UploadedFile {
+            file: stored,
+            attachment,
+        })
+    }
+
+    pub async fn prepare_upload(
+        &self,
+        scope: &AccessScope,
+        command: &UploadFileCommand,
+    ) -> Result<NewFile, AppError> {
         if let Some(record) = &command.attach_to {
             self.require_update(scope, record).await?;
         }
@@ -109,30 +139,9 @@ where
 
         self.ports
             .storage()
-            .put(&file.storage_key, command.content)
+            .put(&file.storage_key, command.content.clone())
             .await?;
-        let attachment = match self
-            .record_upload(scope, &file, command.attach_to, command.ip)
-            .await
-        {
-            Ok(attachment) => attachment,
-            Err(error) => {
-                if let Err(cleanup) = self.ports.storage().delete(&file.storage_key).await {
-                    tracing::warn!(error = %cleanup, "failed to remove orphan upload");
-                }
-                return Err(error);
-            }
-        };
-
-        let stored = self.require_file(file_id).await?;
-        let attachment = match attachment {
-            Some(attachment) => Some(self.require_attachment(attachment.id).await?),
-            None => None,
-        };
-        Ok(UploadedFile {
-            file: stored,
-            attachment,
-        })
+        Ok(file)
     }
 
     pub async fn download(
@@ -252,14 +261,29 @@ where
         attach_to: Option<RecordRef>,
         ip: Option<String>,
     ) -> Result<Option<NewAttachment>, AppError> {
+        let mut tx = self.ports.transactions().begin().await?;
+        let attachment = self
+            .record_upload_in_tx(&mut tx, scope, file, attach_to, ip)
+            .await?;
+        self.ports.transactions().commit(tx).await?;
+        Ok(attachment)
+    }
+
+    pub async fn record_upload_in_tx(
+        &self,
+        tx: &mut FilesTx<P>,
+        scope: &AccessScope,
+        file: &NewFile,
+        attach_to: Option<RecordRef>,
+        ip: Option<String>,
+    ) -> Result<Option<NewAttachment>, AppError> {
         let actor = Actor::from_scope(scope);
         let file_record = RecordRef::new(RecordType::FILE, file.id);
-        let mut tx = self.ports.transactions().begin().await?;
-        self.ports.files().insert_file(&mut tx, file).await?;
+        self.ports.files().insert_file(tx, file).await?;
         self.ports
             .events()
             .publish(
-                &mut tx,
+                tx,
                 DomainEvent::new(actor.clone(), FILE_UPLOADED, file.created_at)
                     .with_record(file_record.clone())
                     .with_payload(json!({
@@ -274,7 +298,7 @@ where
         self.ports
             .audit()
             .record(
-                &mut tx,
+                tx,
                 AuditEntry::new(actor, FILE_UPLOADED, file.created_at)
                     .with_record(file_record)
                     .with_changes(vec![FieldChange::new(
@@ -295,13 +319,12 @@ where
                     created_by: file.uploaded_by.clone(),
                     created_at: file.created_at,
                 };
-                self.add_attachment(&mut tx, scope, &attachment, FileSummary::of_new(file), ip)
+                self.add_attachment(tx, scope, &attachment, FileSummary::of_new(file), ip)
                     .await?;
                 Some(attachment)
             }
             None => None,
         };
-        self.ports.transactions().commit(tx).await?;
         Ok(attachment)
     }
 

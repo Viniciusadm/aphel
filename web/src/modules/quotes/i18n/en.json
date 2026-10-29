@@ -148,7 +148,7 @@
     "defaultBody": "Hello,\n\nHere is our quote. You can see the details, accept or reject it through the link below:\n\n{{link}}\n\nBest regards.",
     "linkHint": "The text {{placeholder}} becomes the quote link; without it, the link goes at the end.",
     "submit": "Send",
-    "sent": "Quote sent."
+    "sent": "Quote e-mail queued for delivery."
   },
   "signature": {
     "title": "Send for signature",
@@ -159,7 +159,7 @@
     "signerEmail": "Signer e-mail",
     "message": "Message (optional)",
     "submit": "Send",
-    "sent": "Document sent for signature.",
+    "sent": "Document queued for signature.",
     "needsProposals": "Enable the Proposals module to generate the quote PDF."
   },
   "errors": {

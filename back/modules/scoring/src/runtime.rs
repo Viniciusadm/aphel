@@ -94,6 +94,16 @@ impl JobHandler for ScoringRecalculateHandler {
     }
 
     async fn handle(&self, _context: &JobContext, payload: Value) -> Result<(), AppError> {
+        if let (Some(record_type), Some(record_id)) = (
+            payload.get("record_type").and_then(Value::as_str),
+            payload.get("record_id").and_then(Value::as_str),
+        ) {
+            let record =
+                aphel_kernel::application::shared::RecordRef::parse(record_type, record_id)?;
+            let scope = AccessScope::system();
+            let ctx = self.0.ctx(&scope).await?;
+            return ScoringEngine::new(&ctx).recalculate_signal(&record).await;
+        }
         let model_id = payload
             .get("model_id")
             .and_then(Value::as_str)

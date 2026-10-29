@@ -148,7 +148,7 @@
     "defaultBody": "Olá,\n\nSegue a nossa cotação. Você pode ver os detalhes, aceitar ou recusar pelo link abaixo:\n\n{{link}}\n\nFicamos à disposição.",
     "linkHint": "O texto {{placeholder}} vira o link da cotação; sem ele, o link vai ao final.",
     "submit": "Enviar",
-    "sent": "Cotação enviada."
+    "sent": "E-mail da cotação na fila para envio."
   },
   "signature": {
     "title": "Enviar para assinatura",
@@ -159,7 +159,7 @@
     "signerEmail": "E-mail do signatário",
     "message": "Mensagem (opcional)",
     "submit": "Enviar",
-    "sent": "Documento enviado para assinatura.",
+    "sent": "Documento na fila para assinatura.",
     "needsProposals": "Habilite o módulo Propostas para gerar o PDF da cotação."
   },
   "errors": {

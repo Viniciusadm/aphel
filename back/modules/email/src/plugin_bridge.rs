@@ -29,19 +29,8 @@ struct LinkInput {
     request: LinkEmailThreadRequest,
 }
 
-fn require_user_actor(ctx: &Ctx<'_>) -> Result<(), AppError> {
-    if ctx.scope.plugin_key().is_some() {
-        return Err(AppError::Validation(
-            "this operation needs a user actor: call it from a hook or an authenticated route"
-                .into(),
-        ));
-    }
-    Ok(())
-}
-
 fn send<'a>(ctx: &'a Ctx<'_>, input: Value) -> OperationFuture<'a> {
     Box::pin(async move {
-        require_user_actor(ctx)?;
         let request: SendEmailRequest = operation_input(input)?;
         let email = compose::send(ctx, request.into_command(None)).await?;
         operation_output(EmailMessageResponse::from(email))
@@ -82,9 +71,9 @@ pub(crate) fn operations() -> Vec<Arc<PluginOperation>> {
     vec![
         Arc::new(PluginOperation::write(
             "email.send",
-            "Send (or schedule) an e-mail from one of the acting user's mailboxes (needs a user actor): { to: [{ address, name? }], cc?, bcc?, mailbox_id?, subject?, body_html?, body_text?, template_id?, record?: { record_type, record_id }, reply_to_message_id?, attachment_file_ids?, scheduled_at?, tracking? }",
+            "Send (or schedule) an e-mail from one of the acting user's mailboxes through the delivery queue: { to: [{ address, name? }], cc?, bcc?, mailbox_id?, subject?, body_html?, body_text?, template_id?, record?: { record_type, record_id }, reply_to_message_id?, attachment_file_ids?, scheduled_at?, tracking? }",
             send,
-        )),
+        ).with_durable_mutations()),
         Arc::new(PluginOperation::write(
             "email.link",
             "Link an e-mail conversation to a record by hand: { thread_id, record_type, record_id }",

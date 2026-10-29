@@ -4,10 +4,22 @@
   "tab": "Signatures",
   "legalNotice": "Aphel has no legal validity of its own for signatures: the validity is Clicksign's, which collects the signatures and the evidence.",
   "settings": {
-    "environment": { "label": "Environment", "help": "Sandbox for testing; production for real signatures" },
-    "access_token": { "label": "Clicksign access token", "help": "Generated in Settings → API in Clicksign; stored encrypted and never shown" },
-    "webhook_secret": { "label": "Webhook HMAC secret", "help": "HMAC SHA256 key of the webhook registered in Clicksign (Content-Hmac header)" },
-    "attach_signed_document": { "label": "Attach the signed PDF to the deal", "help": "When completed, downloads the signed document and attaches it to the deal" }
+    "environment": {
+      "label": "Environment",
+      "help": "Sandbox for testing; production for real signatures"
+    },
+    "access_token": {
+      "label": "Clicksign access token",
+      "help": "Generated in Settings → API in Clicksign; stored encrypted and never shown"
+    },
+    "webhook_secret": {
+      "label": "Webhook HMAC secret",
+      "help": "HMAC SHA256 key of the webhook registered in Clicksign (Content-Hmac header)"
+    },
+    "attach_signed_document": {
+      "label": "Attach the signed PDF to the deal",
+      "help": "When completed, downloads the signed document and attaches it to the deal"
+    }
   },
   "settingsPanel": {
     "stepToken": "In Clicksign, generate an API access token and paste it into \"Access token\".",
@@ -28,14 +40,15 @@
     "sandbox": "Test environment (sandbox): signatures have no real effect.",
     "emptyTitle": "No signature requests",
     "emptyDescription": "Choose an attached PDF and the signers to send.",
-    "sentAt": "Sent on {{date}}",
+    "sentAt": "Created on {{date}}",
     "completedAt": "completed on {{date}}",
     "signers": "Signers",
     "original": "Original",
     "signedFile": "Signed PDF",
     "cancel": "Cancel",
-    "cancelled": "Signature request cancelled",
-    "sent": "Document sent for signature"
+    "cancelled": "Cancellation requested",
+    "sent": "Document queued for signature",
+    "deliveryUnknown": "Delivery is awaiting confirmation. If the job fails, check the request in Clicksign before creating another one."
   },
   "confirmCancel": {
     "title": "Cancel signature request?",
@@ -69,7 +82,13 @@
     "completed": "Completed",
     "refused": "Refused",
     "cancelled": "Cancelled",
-    "expired": "Expired"
+    "expired": "Expired",
+    "queued": "Queued",
+    "sending": "Sending",
+    "cancel_pending": "Cancellation queued",
+    "cancelling": "Cancelling",
+    "failed": "Failed",
+    "delivery_unknown": "Check with provider"
   },
   "signerStatus": {
     "pending": "Pending",
@@ -85,7 +104,10 @@
     "expired": "Signature request expired",
     "signed_file_attached": "Signed PDF attached to the deal",
     "signers": "Signers: {{names}}",
-    "byProvider": "Cancelled in Clicksign"
+    "byProvider": "Cancelled in Clicksign",
+    "queued": "Signature delivery queued",
+    "cancel_queued": "Signature cancellation queued",
+    "failed": "Signature delivery could not be confirmed"
   },
   "errors": {
     "esign_not_configured": "Configure the Clicksign access token",

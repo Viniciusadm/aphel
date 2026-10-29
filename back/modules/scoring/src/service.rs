@@ -12,7 +12,7 @@ use crate::domain::{
     SCORING_MODEL_RECORD, SCORING_MODEL_UPDATED, SCORING_RECALCULATE_JOB, SCORING_RECORD_NOT_FOUND,
     ScoreBands, ScoringCriterion, ScoringModel, UpdateScoringModelCommand,
 };
-use crate::engine::{ScoringEngine, is_scored_record_type};
+use crate::engine::is_scored_record_type;
 use crate::store::{ModelStore, ScoreStore};
 use aphel_kernel::Ctx;
 use aphel_kernel::application::access::Authorizer;
@@ -599,14 +599,49 @@ pub(crate) async fn record_signal(
         ));
     }
     let record = RecordRef::new(definition.record_type.clone(), record_id);
-    ScoringEngine::new(ctx)
-        .apply_signal(
+    let mut tx = ctx.begin().await?;
+    let recorded = crate::store::ScoreStore::of(ctx)
+        .record_signal_in_tx(
+            &mut tx,
             &record,
             signal,
             &format!("{PLUGIN_SIGNAL_SOURCE_PREFIX}{source_key}"),
+            None,
             ctx.now(),
         )
-        .await
+        .await?;
+    if recorded {
+        publish_mutation(
+            ctx.events(),
+            ctx.audit(),
+            &mut tx,
+            scope,
+            ctx.now(),
+            RecordMutation {
+                record: record.clone(),
+                event_type: "scoring.signal_recorded",
+                payload: json!({ "signal": signal.as_str(), "source": source_key }),
+                changes: vec![FieldChange::new(
+                    "signal",
+                    Value::Null,
+                    json!(signal.as_str()),
+                )],
+                ip: None,
+            },
+        )
+        .await?;
+        ctx.jobs()
+            .enqueue(
+                &mut tx,
+                aphel_kernel::application::shared::Job::new(
+                    crate::domain::SCORING_RECALCULATE_JOB,
+                    json!({ "record_type": record.record_type.as_str(), "record_id": record_id }),
+                ),
+            )
+            .await?;
+    }
+    tx.commit().await?;
+    Ok(recorded)
 }
 
 async fn validated(

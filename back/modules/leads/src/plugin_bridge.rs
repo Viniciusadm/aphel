@@ -202,6 +202,6 @@ pub(crate) fn operations() -> Vec<Arc<PluginOperation>> {
             "leads.convert",
             "Convert an open lead into a deal: { contact_id, pipeline_id, stage_id?, title?, amount?, currency? } -> { contact_id, lifecycle_stage, deal_id }",
             convert,
-        )),
+        ).with_durable_mutations()),
     ]
 }

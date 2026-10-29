@@ -17,17 +17,15 @@ use aphel_kernel::errors::{AppError, CodedKind, FieldViolation};
 use aphel_kernel::records::RecordCtx;
 
 use crate::clicksign::Clicksign;
-use crate::provider::{
-    EnvelopeRequest, EnvelopeSigner, NoticeKind, SignatureProvider, WebhookNotice,
-};
+use crate::provider::{NoticeKind, SignatureProvider, WebhookNotice};
 use crate::store::{
     self, RequestRow, SIGNER_PENDING, SIGNER_REFUSED, SIGNER_SIGNED, STATUS_CANCELLED,
     STATUS_COMPLETED, STATUS_EXPIRED, STATUS_REFUSED, STATUS_SENT, SignerRow,
 };
 use crate::{
     ACCESS_TOKEN_SETTING, ATTACH_SIGNED_SETTING, CANCELLED, COMPLETED, DEAL, ENVIRONMENT_SETTING,
-    EXPIRED, PRODUCTION, REFUSED, SANDBOX, SENT, SIGNED, SIGNED_FILE_ATTACHED, job_kind,
-    job_unique_key, secret, settings, user_uuid,
+    EXPIRED, PRODUCTION, REFUSED, SANDBOX, SIGNED, SIGNED_FILE_ATTACHED, job_kind, job_unique_key,
+    secret, settings, user_uuid,
 };
 
 pub(crate) const NOT_CONFIGURED: &str = "esign_not_configured";
@@ -92,7 +90,7 @@ fn is_missing(error: &AppError) -> bool {
     )
 }
 
-async fn ensure_quote(
+pub(crate) async fn ensure_quote(
     ctx: &Ctx<'_>,
     scope: &AccessScope,
     quote_id: Uuid,
@@ -167,7 +165,7 @@ pub(crate) async fn load_deal(
         .ok_or_else(deal_not_found)
 }
 
-async fn ensure_attached(
+pub(crate) async fn ensure_attached(
     ctx: &Ctx<'_>,
     scope: &AccessScope,
     deal_id: Uuid,
@@ -205,13 +203,13 @@ async fn ensure_attached(
     ))
 }
 
-struct FileContent {
-    file_name: String,
-    mime_type: String,
-    content: Vec<u8>,
+pub(crate) struct FileContent {
+    pub(crate) file_name: String,
+    pub(crate) mime_type: String,
+    pub(crate) content: Vec<u8>,
 }
 
-async fn read_file(
+pub(crate) async fn read_file(
     ctx: &Ctx<'_>,
     scope: &AccessScope,
     file_id: Uuid,
@@ -239,7 +237,7 @@ async fn read_file(
     })
 }
 
-async fn record_event(
+pub(crate) async fn record_event(
     ctx: &Ctx<'_>,
     tx: &mut MySqlTx,
     scope: &AccessScope,
@@ -359,7 +357,7 @@ fn signer_summary(signers: &[SignerRow]) -> Value {
     )
 }
 
-fn event_payload(request: &RequestRow, signers: &[SignerRow], extra: Value) -> Value {
+pub(crate) fn event_payload(request: &RequestRow, signers: &[SignerRow], extra: Value) -> Value {
     let mut payload = json!({
         "request_id": request.id,
         "deal_id": request.deal_id,
@@ -381,7 +379,7 @@ pub(crate) async fn send(
     input: SendInput,
 ) -> Result<(RequestRow, Vec<SignerRow>), AppError> {
     let (signers, message) = validate(&input)?;
-    let deal = load_deal(ctx, scope, input.deal_id).await?;
+    load_deal(ctx, scope, input.deal_id).await?;
     if let Some(quote_id) = input.quote_id {
         ensure_quote(ctx, scope, quote_id, input.deal_id).await?;
     }
@@ -416,31 +414,6 @@ pub(crate) async fn send(
             "o PDF passa do limite de 20 MB do envio para assinatura",
         ));
     }
-    let deal_title = deal
-        .get("title")
-        .and_then(Value::as_str)
-        .unwrap_or_default()
-        .to_owned();
-    let envelope_name = if deal_title.is_empty() {
-        file.file_name.clone()
-    } else {
-        format!("{deal_title} - {}", file.file_name)
-    };
-    let sent = provider
-        .send(&EnvelopeRequest {
-            name: envelope_name.chars().take(200).collect(),
-            file_name: file.file_name.clone(),
-            content: file.content,
-            signers: signers
-                .iter()
-                .map(|signer| EnvelopeSigner {
-                    name: signer.name.clone(),
-                    email: signer.email.clone(),
-                })
-                .collect(),
-            message: message.clone(),
-        })
-        .await?;
     let now = Utc::now();
     let request = RequestRow {
         id: Uuid::now_v7(),
@@ -449,9 +422,9 @@ pub(crate) async fn send(
         file_name: file.file_name.chars().take(255).collect(),
         provider: provider.key().to_owned(),
         environment,
-        provider_envelope_id: sent.envelope_id,
-        provider_document_id: Some(sent.document_id),
-        status: STATUS_SENT.to_owned(),
+        provider_envelope_id: String::new(),
+        provider_document_id: None,
+        status: "queued".to_owned(),
         message,
         signed_file_id: None,
         created_by: user_uuid(scope)?,
@@ -469,7 +442,7 @@ pub(crate) async fn send(
             contact_id: signer.contact_id,
             name: signer.name,
             email: signer.email,
-            provider_signer_id: sent.signer_ids.get(index).cloned(),
+            provider_signer_id: None,
             status: SIGNER_PENDING.to_owned(),
             signed_at: None,
             refused_at: None,
@@ -481,7 +454,7 @@ pub(crate) async fn send(
         ctx,
         &mut tx,
         scope,
-        SENT,
+        crate::QUEUED,
         request.deal_id,
         event_payload(
             &request,
@@ -493,10 +466,14 @@ pub(crate) async fn send(
             FieldChange::new("file_id", Value::Null, json!(request.file_id)),
             FieldChange::new("signers", Value::Null, json!(rows.len())),
             FieldChange::new("quote_id", Value::Null, json!(input.quote_id)),
-            FieldChange::new("status", Value::Null, json!(STATUS_SENT)),
+            FieldChange::new("status", Value::Null, json!("queued")),
         ],
     )
     .await?;
+    ctx.jobs().enqueue(&mut tx, Job::new("esign.deliver", json!({
+        "request_id": request.id, "quote_id": input.quote_id,
+        "authority": aphel_kernel::infrastructure::deferred_authority::DeferredAuthority::capture(scope),
+    })).with_max_attempts(1).with_unique_key(format!("esign.deliver:{}", request.id))).await?;
     tx.commit().await?;
     Ok((request, rows))
 }
@@ -510,7 +487,61 @@ pub(crate) async fn cancel(
         .await?
         .ok_or_else(request_not_found)?;
     load_deal(ctx, scope, current.deal_id).await?;
-    if !current.is_open() {
+    let mut tx = ctx.begin().await?;
+    let mut request = store::lock_request(&mut tx, request_id)
+        .await?
+        .ok_or_else(request_not_found)?;
+    let previous = request.status.clone();
+    match request.status.as_str() {
+        "queued" => request.status = STATUS_CANCELLED.to_owned(),
+        STATUS_SENT => {
+            request.status = "cancel_pending".to_owned();
+            ctx.jobs().enqueue(&mut tx, Job::new("esign.deliver", json!({
+                "request_id": request.id, "cancel": true,
+                "authority": aphel_kernel::infrastructure::deferred_authority::DeferredAuthority::capture(scope),
+            })).with_max_attempts(1).with_unique_key(format!("esign.cancel:{}", request.id))).await?;
+        }
+        _ => {
+            return Err(AppError::conflict_code(
+                REQUEST_CLOSED,
+                "this signature request cannot be cancelled",
+            ));
+        }
+    }
+    store::set_request_status(&mut tx, request.id, &request.status, Utc::now()).await?;
+    let signers = store::signers_in_tx(&mut tx, request.id).await?;
+    record_event(
+        ctx,
+        &mut tx,
+        scope,
+        if request.status == STATUS_CANCELLED {
+            CANCELLED
+        } else {
+            crate::CANCEL_QUEUED
+        },
+        request.deal_id,
+        event_payload(&request, &signers, json!({ "source": "user" })),
+        vec![FieldChange::new(
+            "status",
+            json!(previous),
+            json!(request.status),
+        )],
+    )
+    .await?;
+    tx.commit().await?;
+    Ok(request)
+}
+
+pub(crate) async fn deliver_cancel(
+    ctx: &Ctx<'_>,
+    scope: &AccessScope,
+    request_id: Uuid,
+) -> Result<RequestRow, AppError> {
+    let current = store::find_request(ctx.pool(), request_id)
+        .await?
+        .ok_or_else(request_not_found)?;
+    load_deal(ctx, scope, current.deal_id).await?;
+    if current.status != "delivery_unknown" {
         return Err(AppError::conflict_code(
             REQUEST_CLOSED,
             "esta solicitação de assinatura já foi encerrada",
@@ -523,7 +554,7 @@ pub(crate) async fn cancel(
     let mut request = store::lock_request(&mut tx, request_id)
         .await?
         .ok_or_else(request_not_found)?;
-    if !request.is_open() {
+    if request.status != "delivery_unknown" {
         return Err(AppError::conflict_code(
             REQUEST_CLOSED,
             "esta solicitação de assinatura já foi encerrada",

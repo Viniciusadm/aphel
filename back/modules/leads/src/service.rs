@@ -913,6 +913,18 @@ pub(crate) async fn convert_lead(
     if !lead.is_open() {
         return Err(not_lead());
     }
+    let mut tx = ctx.begin().await?;
+    let updated_at: chrono::NaiveDateTime = sqlx::query_scalar(
+        "SELECT updated_at FROM contacts WHERE id = ? AND deleted_at IS NULL FOR UPDATE",
+    )
+    .bind(lead.id().to_string())
+    .fetch_optional(&mut *tx)
+    .await?
+    .ok_or_else(not_lead)?;
+    aphel_kernel::application::shared::ensure_version(
+        Some(lead.contact.contact.updated_at()),
+        updated_at.and_utc(),
+    )?;
     let to_stage = SettingsStore::new(ctx.pool().clone())
         .get()
         .await?
@@ -920,12 +932,12 @@ pub(crate) async fn convert_lead(
     let conversion = ctx
         .services()
         .require::<dyn LeadConverter>()?
-        .convert(ctx, &lead, &command)
+        .convert(ctx, &mut tx, &lead, &command)
         .await?;
-    let lead = self::lead(ctx, contact_id).await?;
     let contact_id = lead.id();
-    move_stage(
+    let pending = move_stage_in_tx(
         ctx,
+        &mut tx,
         StageMove {
             lead: lead.clone(),
             to_stage: Some(to_stage.clone()),
@@ -940,6 +952,13 @@ pub(crate) async fn convert_lead(
         },
     )
     .await?;
+    tx.commit().await?;
+    for created in conversion.pending {
+        created.committed(ctx).await;
+    }
+    if let Some(pending) = pending {
+        pending.committed(ctx).await;
+    }
     Ok(LeadActionResult {
         contact_id,
         lifecycle_stage: Some(to_stage),
@@ -948,6 +967,20 @@ pub(crate) async fn convert_lead(
 }
 
 async fn move_stage(ctx: &Ctx<'_>, stage_move: StageMove) -> Result<(), AppError> {
+    let mut tx = ctx.begin().await?;
+    let pending = move_stage_in_tx(ctx, &mut tx, stage_move).await?;
+    tx.commit().await?;
+    if let Some(pending) = pending {
+        pending.committed(ctx).await;
+    }
+    Ok(())
+}
+
+async fn move_stage_in_tx(
+    ctx: &Ctx<'_>,
+    tx: &mut aphel_kernel::database::transaction::MySqlTx,
+    stage_move: StageMove,
+) -> Result<Option<aphel_kernel::records::PendingCommit>, AppError> {
     let scope = ctx.scope;
     let view = &stage_move.lead.contact;
     let registry = ctx.registry().clone();
@@ -962,14 +995,13 @@ async fn move_stage(ctx: &Ctx<'_>, stage_move: StageMove) -> Result<(), AppError
     let record = RecordRef::new(RecordType::CONTACT, view.contact.id);
     let fields = ctx.fields();
     let pipeline = fields.pipeline();
-    let mut tx = ctx.begin().await?;
     match &stage_move.action {
         StageAction::Qualify => {
-            ctx.run_hook::<LeadQualifying>(&mut tx, super::KEY, &stage_move.lead)
+            ctx.run_hook::<LeadQualifying>(tx, super::KEY, &stage_move.lead)
                 .await?
         }
         StageAction::Disqualify(_, args) => {
-            ctx.run_hook::<LeadDisqualifying>(&mut tx, super::KEY, args)
+            ctx.run_hook::<LeadDisqualifying>(tx, super::KEY, args)
                 .await?
         }
         StageAction::Convert(_) => {}
@@ -977,7 +1009,7 @@ async fn move_stage(ctx: &Ctx<'_>, stage_move: StageMove) -> Result<(), AppError
     let values = contact_values(&data, &contributed);
     let draft = pipeline
         .saving(
-            &mut tx,
+            tx,
             scope,
             RecordDraft::new(record.clone(), WriteMode::Update, &values, Map::new()),
         )
@@ -1013,13 +1045,7 @@ async fn move_stage(ctx: &Ctx<'_>, stage_move: StageMove) -> Result<(), AppError
     changes.extend(
         CustomFieldWriter::new(&fields)
             .with_record_values(&new_snapshot)
-            .apply(
-                &mut tx,
-                scope,
-                &record,
-                &draft.custom_fields,
-                WriteMode::Update,
-            )
+            .apply(tx, scope, &record, &draft.custom_fields, WriteMode::Update)
             .await?,
     );
     let now = ctx.now();
@@ -1031,16 +1057,16 @@ async fn move_stage(ctx: &Ctx<'_>, stage_move: StageMove) -> Result<(), AppError
         values: &new_snapshot,
     };
     if !changes.is_empty() {
-        pipeline.validate(&mut tx, scope, &write).await?;
+        pipeline.validate(tx, scope, &write).await?;
         ContactStore::of(ctx)
-            .update(&mut tx, view.contact.id, &data, now)
+            .update(tx, view.contact.id, &data, now)
             .await?;
-        write_contributed(&mut tx, definition, view.contact.id, &contributed).await?;
-        pipeline.saved(&mut tx, scope, &write).await?;
+        write_contributed(tx, definition, view.contact.id, &contributed).await?;
+        pipeline.saved(tx, scope, &write).await?;
         publish_mutation(
             ctx.events(),
             ctx.audit(),
-            &mut tx,
+            tx,
             scope,
             now,
             RecordMutation {
@@ -1082,7 +1108,7 @@ async fn move_stage(ctx: &Ctx<'_>, stage_move: StageMove) -> Result<(), AppError
     }
     ctx.events()
         .publish(
-            &mut tx,
+            tx,
             DomainEvent::new(actor.clone(), stage_move.event_type, now)
                 .with_record(record.clone())
                 .with_payload(payload.clone()),
@@ -1090,7 +1116,7 @@ async fn move_stage(ctx: &Ctx<'_>, stage_move: StageMove) -> Result<(), AppError
         .await?;
     ctx.audit()
         .record(
-            &mut tx,
+            tx,
             AuditEntry::new(actor, stage_move.event_type, now)
                 .with_record(record.clone())
                 .with_changes(audit_changes)
@@ -1100,20 +1126,23 @@ async fn move_stage(ctx: &Ctx<'_>, stage_move: StageMove) -> Result<(), AppError
     match &stage_move.action {
         StageAction::Disqualify(disqualification, _) => {
             ReasonStore::new(ctx.pool().clone())
-                .record_disqualification(&mut tx, disqualification)
+                .record_disqualification(tx, disqualification)
                 .await?
         }
         StageAction::Convert(converted) => {
-            ctx.run_hook::<LeadConverted>(&mut tx, super::KEY, converted)
+            ctx.run_hook::<LeadConverted>(tx, super::KEY, converted)
                 .await?
         }
         StageAction::Qualify => {}
     }
-    tx.commit().await?;
-    if !changes.is_empty() {
-        pipeline.committed(scope, &write).await;
-    }
-    Ok(())
+    Ok(
+        (!changes.is_empty()).then_some(aphel_kernel::records::PendingCommit {
+            record,
+            mode: WriteMode::Update,
+            changes,
+            values: new_snapshot,
+        }),
+    )
 }
 
 pub(crate) const LIFECYCLE_TRANSITIONS_CONSUMER: &str = "lifecycle.transitions";

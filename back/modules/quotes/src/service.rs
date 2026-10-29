@@ -986,7 +986,7 @@ async fn filter_totals(
     items: &[QuoteItemData],
     totals: TotalsBreakdown,
 ) -> Result<TotalsBreakdown, AppError> {
-    if !ctx.app().hooks().has::<QuoteTotals>() {
+    if !ctx.app().hooks().has_filters_except::<QuoteTotals>(None) {
         return Ok(totals);
     }
     let lines = totals.lines.len();
@@ -1241,25 +1241,24 @@ pub(crate) async fn existing_token_key(ctx: &Ctx<'_>) -> Result<Option<Vec<u8>>,
         .and_then(|secret| decode_key(secret.expose())))
 }
 
-pub(crate) async fn token_key(ctx: &Ctx<'_>) -> Result<Vec<u8>, AppError> {
-    let scope = ctx.scope;
+pub(crate) async fn token_key(ctx: &Ctx<'_>, tx: &mut MySqlTx) -> Result<Vec<u8>, AppError> {
     if let Some(key) = existing_token_key(ctx).await? {
         return Ok(key);
     }
-    let mut tx = ctx.begin().await?;
+    sqlx::query("SELECT id FROM organization_settings WHERE id = 1 FOR UPDATE")
+        .fetch_one(&mut **tx)
+        .await?;
+    if let Some(key) = existing_token_key(ctx).await? {
+        return Ok(key);
+    }
+    let encoded = generate_key()?;
+    let key = decode_key(&encoded)
+        .ok_or_else(|| AppError::Internal("generated quote link key is invalid".to_owned()))?;
     ctx.state()
         .secrets
-        .store(
-            &mut tx,
-            scope,
-            &key_reference(),
-            &Secret::new(generate_key()?),
-        )
+        .store(tx, ctx.scope, &key_reference(), &Secret::new(encoded))
         .await?;
-    tx.commit().await?;
-    existing_token_key(ctx)
-        .await?
-        .ok_or_else(|| AppError::Internal("quote link key was not stored".to_owned()))
+    Ok(key)
 }
 
 pub(crate) fn link_url(ctx: &Ctx<'_>, public_key: &str, key: &[u8]) -> Result<String, AppError> {

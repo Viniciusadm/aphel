@@ -43,13 +43,13 @@ pub(crate) fn operations() -> Vec<Arc<PluginOperation>> {
     vec![
         Arc::new(PluginOperation::write(
             "esign.send",
-            "Send a PDF attached to a deal for electronic signature (needs esign.send): { deal_id, file_id, signers: [{ name, email, contact_id? }], message?, quote_id? }",
+            "Queue a PDF attached to a deal for electronic signature (needs esign.send): { deal_id, file_id, signers: [{ name, email, contact_id? }], message?, quote_id? }",
             send,
-        )),
+        ).with_durable_mutations()),
         Arc::new(PluginOperation::write(
             "esign.cancel",
-            "Cancel an open signature request (needs esign.send): { id }",
+            "Queue cancellation of an open signature request (needs esign.send): { id }",
             cancel,
-        )),
+        ).with_durable_mutations()),
     ]
 }

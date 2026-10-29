@@ -27,11 +27,11 @@ pub(crate) fn router() -> OpenApiRouter<AppState> {
     path = "/emails",
     tag = TAG,
     operation_id = "emails_send",
-    description = "Sends an e-mail from one of the user's own mailboxes (`mailbox_id`, or the first active one). `record` links the conversation to a contact, company, deal or custom object (read access required) and fills the `{{contact.first_name}}`-style variables of `subject`/`body_html`/`template_id`; recipients that are contacts are linked too. `reply_to_message_id` keeps the conversation (`In-Reply-To`, `References`, `Re:` subject). `attachment_file_ids` are files the user can download (`/api/v1/files`). A future `scheduled_at` stores the e-mail as `scheduled` and sends it from the worker (`email.send_scheduled`). `tracking` asks for open/click tracking when the organization allows it (default from `/email-settings/tracking`); it is always off when a recipient objected. Publishes `email.sent` once per linked record.",
+    description = "Queues an e-mail from one of the user's own mailboxes (`mailbox_id`, or the first active one). `record` links the conversation to a contact, company, deal or custom object (read access required) and fills the `{{contact.first_name}}`-style variables of `subject`/`body_html`/`template_id`; recipients that are contacts are linked too. `reply_to_message_id` keeps the conversation (`In-Reply-To`, `References`, `Re:` subject). `attachment_file_ids` are files the user can download (`/api/v1/files`). Every e-mail is stored as `scheduled` and delivered by the worker (`email.send_scheduled`); a future `scheduled_at` delays delivery. `tracking` asks for open/click tracking when the organization allows it (default from `/email-settings/tracking`); it is always off when a recipient objected. Queue acceptance publishes `email.scheduled`; delivery publishes `email.sent` once per linked record.",
     security(("session_cookie" = [])),
     request_body = SendEmailRequest,
     responses(
-        (status = 201, description = "E-mail sent (`status = sent`) or scheduled (`status = scheduled`)", body = Data<EmailMessageResponse>),
+        (status = 201, description = "E-mail queued (`status = scheduled`)", body = Data<EmailMessageResponse>),
         (status = 401, description = "Missing or invalid credentials (`unauthorized`, `invalid_api_token`)", body = ErrorEnvelope),
         (status = 403, description = "Missing `emails.send` or read access to the record (`permission_denied`, `insufficient_scope`)", body = ErrorEnvelope),
         (status = 404, description = "Unknown mailbox, replied message or template (`mailbox_not_found`, `email_not_found`, `email_template_not_found`, `file_not_found`)", body = ErrorEnvelope),

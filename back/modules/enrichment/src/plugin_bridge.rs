@@ -57,13 +57,13 @@ pub(crate) fn operations() -> Vec<Arc<PluginOperation>> {
     vec![
         Arc::new(PluginOperation::write(
             "enrichment.lookup",
-            "Look up a company's CNPJ in the configured public source and return the field-by-field proposal (nothing is written): { company_id, cnpj? } -> { id, company_id, cnpj, source, fetched_at, items: [{ data_key, label, field_key, current, proposed, changed }] }",
+            "Look up a company's CNPJ in the configured public source and cache the field-by-field proposal without changing the company: { company_id, cnpj? } -> { id, company_id, cnpj, source, fetched_at, items: [{ data_key, label, field_key, current, proposed, changed }] }",
             lookup,
-        )),
+        ).with_external_query()),
         Arc::new(PluginOperation::write(
             "enrichment.apply",
             "Apply chosen items of a lookup (within 60 minutes) to the company: { lookup_id, items: [data_key], only_blank? } -> { company_id, source, cnpj, fields }",
             apply,
-        )),
+        ).with_durable_mutations()),
     ]
 }

@@ -284,22 +284,30 @@ impl DealStore {
             .unwrap_or_else(|| aphel_kernel::domain::organizations::DEFAULT_CURRENCY.to_owned()))
     }
 
-    pub(crate) async fn contact_name(&self, contact_id: Uuid) -> Result<Option<String>, AppError> {
+    pub(crate) async fn contact_name(
+        &self,
+        tx: &mut MySqlTx,
+        contact_id: Uuid,
+    ) -> Result<Option<String>, AppError> {
         Ok(
             sqlx::query_scalar(
                 "SELECT full_name FROM contacts WHERE id = ? AND deleted_at IS NULL",
             )
             .bind(contact_id.to_string())
-            .fetch_optional(&self.pool)
+            .fetch_optional(&mut **tx)
             .await?,
         )
     }
 
-    pub(crate) async fn company_name(&self, company_id: Uuid) -> Result<Option<String>, AppError> {
+    pub(crate) async fn company_name(
+        &self,
+        tx: &mut MySqlTx,
+        company_id: Uuid,
+    ) -> Result<Option<String>, AppError> {
         Ok(
             sqlx::query_scalar("SELECT name FROM companies WHERE id = ? AND deleted_at IS NULL")
                 .bind(company_id.to_string())
-                .fetch_optional(&self.pool)
+                .fetch_optional(&mut **tx)
                 .await?,
         )
     }

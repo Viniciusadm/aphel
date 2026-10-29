@@ -92,6 +92,18 @@ pub trait RecordTypeHandler: Send + Sync {
 
     async fn create(&self, ctx: &RecordCtx<'_>, values: Value) -> Result<Value, AppError>;
 
+    async fn create_in_tx(
+        &self,
+        _ctx: &RecordCtx<'_>,
+        _tx: &mut MySqlTx,
+        _values: Value,
+    ) -> Result<PendingCommit, AppError> {
+        Err(operation_not_supported(
+            self.record_type(),
+            "creation inside a transaction",
+        ))
+    }
+
     async fn update(&self, ctx: &RecordCtx<'_>, id: Uuid, values: Value)
     -> Result<Value, AppError>;
 

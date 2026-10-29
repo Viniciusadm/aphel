@@ -47,5 +47,5 @@ pub(crate) fn operations() -> Vec<Arc<PluginOperation>> {
         "proposals.generate",
         "Generate a PDF proposal for a deal and attach it (needs proposals.generate and edit access to the deal; the default active template when none is given): { deal_id, template_id?, template_key?, quote_id? }",
         generate,
-    ))]
+    ).with_durable_mutations())]
 }

@@ -113,6 +113,10 @@ pub struct Contact {
 }
 
 impl Contact {
+    pub fn updated_at(&self) -> DateTime<Utc> {
+        self.updated_at
+    }
+
     pub fn full_name(&self) -> String {
         self.data.full_name()
     }

@@ -56,6 +56,12 @@ const KNOWN_ERRORS = [
 ]
 
 const REQUEST_VARIANTS: Record<EsignRequestStatus, BadgeProps['variant']> = {
+  queued: 'outline',
+  sending: 'secondary',
+  cancel_pending: 'warning',
+  cancelling: 'warning',
+  failed: 'destructive',
+  delivery_unknown: 'warning',
   sent: 'secondary',
   completed: 'success',
   refused: 'destructive',
@@ -159,6 +165,7 @@ function RequestRow({ request, canCancel }: { request: EsignRequest; canCancel: 
         <p className="min-w-0 flex-1 truncate text-sm font-medium">{request.file_name}</p>
         <Badge variant={REQUEST_VARIANTS[request.status]}>{t(`status.${request.status}`)}</Badge>
       </div>
+      {request.status === 'delivery_unknown' && <p className="text-xs text-muted-foreground">{t('deal.deliveryUnknown')}</p>}
       <p className="text-xs text-muted-foreground">
         {t('deal.sentAt', { date: formatDateTime(request.created_at, formatting) })}
         {request.completed_at && ` · ${t('deal.completedAt', { date: formatDateTime(request.completed_at, formatting) })}`}
@@ -189,7 +196,7 @@ function RequestRow({ request, canCancel }: { request: EsignRequest; canCancel: 
             </a>
           </Button>
         )}
-        {canCancel && request.status === 'sent' && (
+        {canCancel && ['sent', 'queued'].includes(request.status) && (
           <Button size="sm" variant="outline" onClick={() => setConfirming(true)}>
             {t('deal.cancel')}
           </Button>

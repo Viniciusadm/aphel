@@ -5,7 +5,7 @@ export const ESIGN_KEY = 'esign'
 export const SEND_PERMISSION = 'esign.send'
 export const VIEW_PERMISSION = 'esign.view'
 
-export type EsignRequestStatus = 'sent' | 'completed' | 'refused' | 'cancelled' | 'expired'
+export type EsignRequestStatus = 'queued' | 'sending' | 'cancel_pending' | 'cancelling' | 'failed' | 'delivery_unknown' | 'sent' | 'completed' | 'refused' | 'cancelled' | 'expired'
 export type EsignSignerStatus = 'pending' | 'signed' | 'refused'
 
 export interface EsignSigner {
@@ -76,7 +76,7 @@ export function useEsignStatus(enabled = true) {
 }
 
 export function useEsignRequests(dealId: string) {
-  return useQuery({ queryKey: esignKeys.requests(dealId), queryFn: () => esignApi.requests(dealId) })
+  return useQuery({ queryKey: esignKeys.requests(dealId), queryFn: () => esignApi.requests(dealId), refetchInterval: (query) => query.state.data?.some((request) => ['queued', 'sending', 'cancel_pending', 'cancelling', 'delivery_unknown'].includes(request.status) && Date.now() - Date.parse(request.updated_at) < 10 * 60_000) ? 3000 : false })
 }
 
 export function useInvalidateEsign() {

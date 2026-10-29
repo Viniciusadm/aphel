@@ -521,7 +521,8 @@ pub(crate) async fn generate(
         None => None,
     };
     let catalog = variables::catalog(ctx).await?;
-    let number = store::next_number(ctx.pool()).await?;
+    let mut tx = ctx.begin().await?;
+    let number = store::next_number(&mut tx).await?;
     let data = render_data(ctx, Some(deal_id), quote, &template.name, Some(number)).await?;
     let blocks = render::render(&markup::parse(&template.body), &data, &catalog);
     let content = pdf::document(
@@ -537,13 +538,19 @@ pub(crate) async fn generate(
         },
         &blocks,
     );
-    let file = records::upload(
-        ctx,
-        file_name(number, &data.deal),
-        content,
-        RecordRef::new(RecordType::DEAL, deal_id),
-    )
-    .await?;
+    let attach_to = RecordRef::new(RecordType::DEAL, deal_id);
+    let files = aphel_kernel::api::routes::v1::files::file_use_cases(&ctx.state()).await?;
+    let file = files
+        .prepare_upload(
+            ctx.scope,
+            &aphel_kernel::application::files::UploadFileCommand {
+                file_name: file_name(number, &data.deal),
+                content: bytes::Bytes::from(content),
+                attach_to: Some(attach_to.clone()),
+                ip: None,
+            },
+        )
+        .await?;
     let document = DocumentRow {
         id: Uuid::now_v7(),
         deal_id,
@@ -551,23 +558,33 @@ pub(crate) async fn generate(
         template_name: template.name.clone(),
         number,
         file_id: file.id,
-        file_name: file.file_name.clone(),
+        file_name: file.original_name.clone(),
         file_size: file.size,
         generated_by: Some(actor_id(ctx.scope)),
         generated_by_name: data.user_name.clone(),
         created_at: Utc::now(),
     };
-    match record_document(ctx, &document, &template, quote_id).await {
-        Ok(()) => Ok(document),
-        Err(error) => {
-            records::discard_upload(ctx, &file).await;
-            Err(error)
-        }
+    let saved = async {
+        files
+            .record_upload_in_tx(&mut tx, ctx.scope, &file, Some(attach_to), None)
+            .await?;
+        record_document(ctx, &mut tx, &document, &template, quote_id).await
     }
+    .await;
+    if let Err(error) = saved {
+        tx.rollback().await?;
+        if let Err(cleanup) = ctx.storage()?.delete(&file.storage_key).await {
+            tracing::warn!(%cleanup, file_id = %file.id, "failed to remove unused proposal file");
+        }
+        return Err(error);
+    }
+    tx.commit().await?;
+    Ok(document)
 }
 
 async fn record_document(
     ctx: &Ctx<'_>,
+    tx: &mut MySqlTx,
     document: &DocumentRow,
     template: &TemplateRow,
     quote_id: Option<Uuid>,
@@ -577,11 +594,10 @@ async fn record_document(
     let deal_ref = RecordRef::new(RecordType::DEAL, deal_id);
     let actor = Actor::from_scope(ctx.scope);
     let now = Utc::now();
-    let mut tx = ctx.begin().await?;
-    store::insert_document(&mut tx, document, actor_kind(ctx.scope)).await?;
+    store::insert_document(tx, document, actor_kind(ctx.scope)).await?;
     ctx.events()
         .publish(
-            &mut tx,
+            tx,
             DomainEvent::new(actor.clone(), PROPOSAL_GENERATED, now)
                 .with_record(deal_ref.clone())
                 .with_payload(json!({
@@ -599,7 +615,7 @@ async fn record_document(
         .await?;
     ctx.audit()
         .record(
-            &mut tx,
+            tx,
             AuditEntry::new(actor, PROPOSAL_GENERATED, now)
                 .with_record(deal_ref)
                 .with_changes(vec![
@@ -609,7 +625,6 @@ async fn record_document(
                 ]),
         )
         .await?;
-    tx.commit().await?;
     Ok(())
 }
 

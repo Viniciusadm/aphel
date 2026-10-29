@@ -1061,6 +1061,22 @@ impl RecordTypeHandler for DealHandler {
         .await
     }
 
+    async fn create_in_tx(
+        &self,
+        ctx: &RecordCtx<'_>,
+        tx: &mut MySqlTx,
+        values: Value,
+    ) -> Result<PendingCommit, AppError> {
+        let command = values_request::<DealRequest>(deal_body(values))?.into_input(None, None);
+        service::create_in_tx(
+            &Ctx::from_state(ctx.state, ctx.scope).await?,
+            tx,
+            command,
+            Default::default(),
+        )
+        .await
+    }
+
     async fn update(
         &self,
         ctx: &RecordCtx<'_>,

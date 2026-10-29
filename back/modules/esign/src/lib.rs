@@ -1,4 +1,5 @@
 pub(crate) mod clicksign;
+pub(crate) mod delivery;
 pub(crate) mod http;
 pub(crate) mod plugin_bridge;
 pub(crate) mod provider;
@@ -31,6 +32,9 @@ pub(crate) const KEY: &str = "esign";
 pub(crate) const TAG: &str = "esign";
 pub(crate) const SEND: Permission = Permission::from_static("esign.send");
 pub(crate) const VIEW: Permission = Permission::from_static("esign.view");
+pub(crate) const QUEUED: &str = "esign.queued";
+pub(crate) const CANCEL_QUEUED: &str = "esign.cancel_queued";
+pub(crate) const FAILED: &str = "esign.failed";
 pub(crate) const SENT: &str = "esign.sent";
 pub(crate) const SIGNED: &str = "esign.signed";
 pub(crate) const REFUSED: &str = "esign.refused";
@@ -40,6 +44,21 @@ pub(crate) const EXPIRED: &str = "esign.expired";
 pub(crate) const SIGNED_FILE_ATTACHED: &str = "esign.signed_file_attached";
 
 const PUBLIC_EVENTS: &[PublicEventDefinition] = &[
+    event(
+        QUEUED,
+        deals::DEAL_RESOURCE,
+        "A signature request was queued for delivery",
+    ),
+    event(
+        CANCEL_QUEUED,
+        deals::DEAL_RESOURCE,
+        "A signature cancellation was queued",
+    ),
+    event(
+        FAILED,
+        deals::DEAL_RESOURCE,
+        "A signature delivery could not be confirmed",
+    ),
     event(
         SENT,
         deals::DEAL_RESOURCE,

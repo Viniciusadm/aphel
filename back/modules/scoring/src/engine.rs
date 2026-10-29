@@ -6,8 +6,7 @@ use uuid::Uuid;
 
 use crate::directory::ScoringDirectory;
 use crate::domain::{
-    BehaviorSignal, RecordScore, ScoreBand, ScoringModel, band_changed_event, calculate_score,
-    signal_hit,
+    RecordScore, ScoreBand, ScoringModel, band_changed_event, calculate_score, signal_hit,
 };
 use crate::store::{ModelStore, ScoreStore};
 use aphel_kernel::Ctx;
@@ -141,24 +140,12 @@ impl<'a> ScoringEngine<'a> {
             .await
     }
 
-    pub(crate) async fn apply_signal(
-        &self,
-        record: &RecordRef,
-        signal: BehaviorSignal,
-        source_key: &str,
-        occurred_at: DateTime<Utc>,
-    ) -> Result<bool, AppError> {
-        let recorded = ScoreStore::of(self.ctx)
-            .record_signal(record, signal, source_key, None, occurred_at)
-            .await?;
-        if !recorded {
-            return Ok(false);
-        }
+    pub(crate) async fn recalculate_signal(&self, record: &RecordRef) -> Result<(), AppError> {
         let scope = AccessScope::system();
         let models = ModelStore::of(self.ctx).list(None).await?;
         let active: Vec<&ScoringModel> = models.iter().filter(|model| model.is_active).collect();
         if active.is_empty() {
-            return Ok(true);
+            return Ok(());
         }
         let mut affected: BTreeMap<String, BTreeSet<Uuid>> = BTreeMap::new();
         affected
@@ -172,7 +159,7 @@ impl<'a> ScoringEngine<'a> {
         };
         self.recalculate_affected(&scope, &active, affected, &contacts)
             .await?;
-        Ok(true)
+        Ok(())
     }
 
     async fn recalculate_affected(

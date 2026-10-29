@@ -345,11 +345,11 @@ async fn submit_quote(
     tag = TAG,
     operation_id = "quotes_send",
     security(("session_cookie" = [])),
-    description = "Sends the quote by e-mail from the caller's mailbox (permissions `quotes.send` and `emails.send`), linked to the deal, with the signed public link in the body (`{{quote_link}}` marks where; otherwise it is appended). Without `to`, the deal contact receives it. A `draft` or `approved` quote passes the approval checkpoint of `quote_send` first: a quote that needs approval cannot be sent before it (`approval_required`), and the granted approval is consumed. A `sent` quote can be sent again. The status becomes `sent` and `quote.sent` is published (also `deal.quote_sent` on the deal timeline).",
+    description = "Queues the quote e-mail from the caller's mailbox (permissions `quotes.send` and `emails.send`), linked to the deal, with the signed public link in the body (`{{quote_link}}` marks where; otherwise it is appended). Without `to`, the deal contact receives it. A `draft` or `approved` quote passes the approval checkpoint of `quote_send` first: a quote that needs approval cannot be sent before it (`approval_required`), and the granted approval is consumed. A `sent` quote can be sent again. Queue acceptance changes the status to `sent` and publishes `quote.sent` (also `deal.quote_sent` on the deal timeline); the delivery job sends the e-mail afterwards.",
     params(("quote_id" = String, Path, description = "Quote id")),
     request_body = SendQuoteRequest,
     responses(
-        (status = 200, description = "Quote sent", body = Data<QuoteDetailResponse>),
+        (status = 200, description = "Quote e-mail queued", body = Data<QuoteDetailResponse>),
         (status = 401, description = "Missing or invalid credentials (`unauthorized`, `invalid_api_token`)", body = ErrorEnvelope),
         (status = 403, description = "Missing `quotes.send` or `emails.send` (`permission_denied`, `insufficient_scope`)", body = ErrorEnvelope),
         (status = 404, description = "Quote not found (`quote_not_found`)", body = ErrorEnvelope),

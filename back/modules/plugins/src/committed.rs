@@ -117,7 +117,11 @@ impl JobHandler for Run {
         let Json(execution): Json<ExecutionContext> = row.try_get("execution")?;
         let authority: Authority = serde_json::from_value(input["authority"].clone())
             .map_err(|error| AppError::Internal(error.to_string()))?;
-        let scope = authority.resolve(&self.pool, plugin).await?;
+        let scope = authority
+            .resolve(&self.pool)
+            .await?
+            .restricted(|permission| plugin.manifest.allows(permission))
+            .through_plugin(&plugin.key);
         let text = |key: &str| {
             input
                 .get(key)

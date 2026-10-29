@@ -189,15 +189,30 @@ pub async fn create_with_revenue(
     input: DealInput,
     revenue: DealRevenue,
 ) -> Result<DealView, AppError> {
-    create_record(ctx, input, revenue, false).await
+    let mut tx = ctx.begin().await?;
+    let pending = create_in_tx(ctx, &mut tx, input, revenue).await?;
+    tx.commit().await?;
+    pending.committed(ctx).await;
+    get(ctx, &pending.record.record_id.to_string()).await
+}
+
+pub(crate) async fn create_in_tx(
+    ctx: &Ctx<'_>,
+    tx: &mut MySqlTx,
+    input: DealInput,
+    revenue: DealRevenue,
+) -> Result<PendingCommit, AppError> {
+    create_record(ctx, tx, input, revenue, Uuid::now_v7(), false).await
 }
 
 async fn create_record(
     ctx: &Ctx<'_>,
+    tx: &mut MySqlTx,
     input: DealInput,
     revenue: DealRevenue,
+    record_id: Uuid,
     filtered: bool,
-) -> Result<DealView, AppError> {
+) -> Result<PendingCommit, AppError> {
     let scope = ctx.scope;
     scope.require(&Permission::DEALS_CREATE)?;
     let registry = ctx.registry().clone();
@@ -225,7 +240,7 @@ async fn create_record(
         None => DealStore::of(ctx).organization_currency().await?,
     };
     let mut deal = Deal {
-        id: Uuid::now_v7(),
+        id: record_id,
         owner_id: Some(scope.user_id().clone()),
         pipeline_id: Uuid::nil(),
         stage_id: Uuid::nil(),
@@ -252,7 +267,7 @@ async fn create_record(
     if let Some(currency) = input.currency.as_deref() {
         apply_currency(&mut deal, currency, &mut violations);
     }
-    apply_fields(ctx, &mut deal, &input, &mut violations).await?;
+    apply_fields(ctx, tx, &mut deal, &input, &mut violations).await?;
     let target = resolve_target(ctx, None, &deal, &input, &mut violations).await?;
     check("invalid deal", violations)?;
     check_field_access(ctx, &input, &Value::Null, &deal_values(&deal, &contributed)).await?;
@@ -283,11 +298,10 @@ async fn create_record(
     convert_deal(ctx, None, &mut deal).await?;
 
     let record = RecordRef::new(RecordType::DEAL, deal.id);
-    let mut tx = ctx.begin().await?;
     if !filtered
         && let Some(input) = saving(
             ctx,
-            &mut tx,
+            tx,
             &record,
             WriteMode::Create,
             (&deal, &contributed),
@@ -295,8 +309,7 @@ async fn create_record(
         )
         .await?
     {
-        drop(tx);
-        return Box::pin(create_record(ctx, input, revenue, true)).await;
+        return Box::pin(create_record(ctx, tx, input, revenue, record_id, true)).await;
     }
     let moving = Moving {
         previous: None,
@@ -305,20 +318,14 @@ async fn create_record(
         stage_changed: true,
         status_changed: deal.status != DealStatus::Open,
     };
-    before_moving(ctx, &mut tx, &moving).await?;
-    DealStore::of(ctx).insert(&mut tx, &deal).await?;
-    write_contributed(&mut tx, definition, deal.id, &contributed).await?;
-    after_moving(ctx, &mut tx, &moving).await?;
+    before_moving(ctx, tx, &moving).await?;
+    DealStore::of(ctx).insert(tx, &deal).await?;
+    write_contributed(tx, definition, deal.id, &contributed).await?;
+    after_moving(ctx, tx, &moving).await?;
     let values = deal_values(&deal, &contributed);
     let custom = CustomFieldWriter::new(&ctx.fields())
         .with_record_values(&values)
-        .apply(
-            &mut tx,
-            scope,
-            &record,
-            &input.custom_fields,
-            WriteMode::Create,
-        )
+        .apply(tx, scope, &record, &input.custom_fields, WriteMode::Create)
         .await?;
     let mut changes = diff_values(&Value::Null, &values, &DiffOptions::default())?;
     changes.extend(custom);
@@ -329,8 +336,8 @@ async fn create_record(
         values: &values,
     };
     let pipeline = ctx.pipeline();
-    pipeline.validate(&mut tx, scope, &write).await?;
-    pipeline.saved(&mut tx, scope, &write).await?;
+    pipeline.validate(tx, scope, &write).await?;
+    pipeline.saved(tx, scope, &write).await?;
     let mut events = vec![(
         DEAL_CREATED,
         json!({
@@ -343,7 +350,7 @@ async fn create_record(
     events.extend(closing_events(&deal, &target, now));
     finish(
         ctx,
-        &mut tx,
+        tx,
         &record,
         Outcome {
             action: DEAL_CREATED,
@@ -353,9 +360,12 @@ async fn create_record(
         },
     )
     .await?;
-    tx.commit().await?;
-    pipeline.committed(scope, &write).await;
-    get(ctx, &deal.id.to_string()).await
+    Ok(PendingCommit {
+        record,
+        mode: WriteMode::Create,
+        changes,
+        values,
+    })
 }
 
 pub(crate) async fn update(
@@ -437,7 +447,7 @@ async fn update_record(
     if let Some(currency) = input.currency.as_deref() {
         apply_currency(&mut deal, currency, &mut violations);
     }
-    apply_fields(ctx, &mut deal, &input, &mut violations).await?;
+    apply_fields(ctx, tx, &mut deal, &input, &mut violations).await?;
     if deal.amount != current.deal.amount && calculator(ctx)?.amount_locked(ctx, deal.id).await? {
         return Err(AppError::invalid_fields_code(
             DEAL_AMOUNT_MANAGED_BY_ITEMS,
@@ -1084,6 +1094,7 @@ fn apply_currency(deal: &mut Deal, currency: &str, violations: &mut Vec<FieldVio
 
 async fn apply_fields(
     ctx: &Ctx<'_>,
+    tx: &mut MySqlTx,
     deal: &mut Deal,
     input: &DealInput,
     violations: &mut Vec<FieldViolation>,
@@ -1145,7 +1156,7 @@ async fn apply_fields(
             Some(value) => match parse_reference(value, "contact_id", violations) {
                 Some(id) if id == deal.contact_id.unwrap_or_default() => Some(id),
                 Some(id) => {
-                    if DealStore::of(ctx).contact_name(id).await?.is_none() {
+                    if DealStore::of(ctx).contact_name(tx, id).await?.is_none() {
                         violations.push(FieldViolation::new("contact_id", "contact was not found"));
                     }
                     Some(id)
@@ -1160,7 +1171,7 @@ async fn apply_fields(
             Some(value) => match parse_reference(value, "company_id", violations) {
                 Some(id) if id == deal.company_id.unwrap_or_default() => Some(id),
                 Some(id) => {
-                    if DealStore::of(ctx).company_name(id).await?.is_none() {
+                    if DealStore::of(ctx).company_name(tx, id).await?.is_none() {
                         violations.push(FieldViolation::new("company_id", "company was not found"));
                     }
                     Some(id)

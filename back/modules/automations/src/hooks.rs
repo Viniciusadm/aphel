@@ -26,7 +26,16 @@ impl Hook for ActionRunning {
 }
 
 pub(crate) async fn before_action(ctx: &Ctx<'_>, running: &RunningAction) -> Result<(), AppError> {
-    if !ctx.app().hooks().has::<ActionRunning>() {
+    if !ctx
+        .app()
+        .hooks()
+        .has_actions_except::<ActionRunning>(Some(KEY))
+        && !aphel_kernel::modules::plugin_bridge::plugin_hook_subscribed(
+            ctx,
+            crate::plugin_bridge::ACTION_RUNNING,
+            running.record.record_type.as_str(),
+        )
+    {
         return Ok(());
     }
     let mut tx = ctx.begin().await?;
@@ -36,7 +45,7 @@ pub(crate) async fn before_action(ctx: &Ctx<'_>, running: &RunningAction) -> Res
 }
 
 pub(crate) async fn after_action(ctx: &Ctx<'_>, running: RunningAction) -> Result<Value, AppError> {
-    if !ctx.app().hooks().has::<ActionRunning>() {
+    if !ctx.app().hooks().has_filters_except::<ActionRunning>(None) {
         return Ok(running.output.unwrap_or(Value::Null));
     }
     let mut tx = ctx.begin().await?;

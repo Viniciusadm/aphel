@@ -36,7 +36,10 @@ pub(crate) struct RequestRow {
 
 impl RequestRow {
     pub(crate) fn is_open(&self) -> bool {
-        self.status == STATUS_SENT
+        matches!(
+            self.status.as_str(),
+            STATUS_SENT | "cancel_pending" | "cancelling" | "delivery_unknown"
+        )
     }
 }
 

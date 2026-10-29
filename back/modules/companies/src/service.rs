@@ -70,6 +70,18 @@ pub async fn create(
     ctx: &Ctx<'_>,
     command: SaveCompanyCommand,
 ) -> Result<CompanyDetails, AppError> {
+    let mut tx = ctx.begin().await?;
+    let pending = create_in_tx(ctx, &mut tx, command).await?;
+    tx.commit().await?;
+    pending.committed(ctx).await;
+    reload(ctx, pending.record.record_id).await
+}
+
+pub async fn create_in_tx(
+    ctx: &Ctx<'_>,
+    tx: &mut MySqlTx,
+    command: SaveCompanyCommand,
+) -> Result<PendingCommit, AppError> {
     let scope = ctx.scope;
     scope.require(&Permission::COMPANIES_CREATE)?;
     let registry = ctx.registry().clone();
@@ -101,10 +113,9 @@ pub async fn create(
     let record = RecordRef::new(RecordType::COMPANY, Uuid::now_v7());
     let fields = ctx.fields();
     let store = CompanyStore::of(ctx);
-    let mut tx = ctx.begin().await?;
     let (data, contributed, custom_fields) = saving(
         ctx,
-        &mut tx,
+        tx,
         definition,
         &record,
         WriteMode::Create,
@@ -128,7 +139,7 @@ pub async fn create(
     check_parent(
         &HierarchyStore::of(ctx),
         &store,
-        &mut tx,
+        tx,
         scope,
         company.id,
         company.data.parent_company_id,
@@ -137,11 +148,11 @@ pub async fn create(
     let values = company_values(&company.data, &contributed);
     let custom = CustomFieldWriter::new(&fields)
         .with_record_values(&values)
-        .apply(&mut tx, scope, &record, &custom_fields, WriteMode::Create)
+        .apply(tx, scope, &record, &custom_fields, WriteMode::Create)
         .await;
     let custom = merge_violations(validator, custom, INVALID_COMPANY)?;
-    store.insert(&mut tx, &company).await?;
-    write_contributed(&mut tx, definition, company.id, &contributed).await?;
+    store.insert(tx, &company).await?;
+    write_contributed(tx, definition, company.id, &contributed).await?;
     let mut changes = diff_values(&Value::Null, &values, &DiffOptions::default())?;
     changes.extend(custom);
     let write = RecordWrite {
@@ -151,12 +162,12 @@ pub async fn create(
         values: &values,
     };
     let pipeline = fields.pipeline();
-    pipeline.validate(&mut tx, scope, &write).await?;
-    pipeline.saved(&mut tx, scope, &write).await?;
+    pipeline.validate(tx, scope, &write).await?;
+    pipeline.saved(tx, scope, &write).await?;
     publish_mutation(
         ctx.events(),
         ctx.audit(),
-        &mut tx,
+        tx,
         scope,
         now,
         RecordMutation {
@@ -168,9 +179,12 @@ pub async fn create(
         },
     )
     .await?;
-    tx.commit().await?;
-    pipeline.committed(scope, &write).await;
-    reload(ctx, company.id).await
+    Ok(PendingCommit {
+        record,
+        mode: WriteMode::Create,
+        changes,
+        values,
+    })
 }
 
 #[allow(clippy::too_many_arguments)]

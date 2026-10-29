@@ -34,3 +34,5 @@ pub mod two_factor;
 pub(crate) mod user_preferences;
 pub mod views;
 pub mod webhooks;
+
+pub mod deferred_authority;

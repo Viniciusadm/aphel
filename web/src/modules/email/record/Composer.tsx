@@ -248,9 +248,9 @@ function ComposerForm({ record, mailboxes, reply, onDirtyChange, onCancel, onSen
     onSuccess: async (message) => {
       onDirtyChange(false)
       notifySuccess(
-        message.status === 'scheduled' && message.scheduled_at
+        scheduled && message.status === 'scheduled' && message.scheduled_at
           ? t('composer.scheduled', { date: formatDateTime(message.scheduled_at, formatting) })
-          : t('composer.sent'),
+          : t('composer.queued'),
       )
       await invalidateThreads()
       onSent()

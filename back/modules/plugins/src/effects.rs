@@ -8,20 +8,15 @@ use uuid::Uuid;
 
 use crate::registry::{self, LoadedPlugin};
 use crate::runtime::CallState;
-use aphel_kernel::application::access::{AccessRepository, build_access_scope};
 use aphel_kernel::application::shared::{ExecutionContext, Job, JobContext, JobHandler, JobQueue};
 use aphel_kernel::database::{
     receipt::{self, MutationReceipt},
     transaction::MySqlTx,
 };
-use aphel_kernel::domain::{
-    UserId,
-    access::{AccessScope, Permission, PermissionGrant, PermissionSet, RecordScope},
-};
+use aphel_kernel::domain::access::AccessScope;
 use aphel_kernel::errors::AppError;
-use aphel_kernel::infrastructure::{
-    jobs::MySqlJobQueue, repositories::mysql_access::MySqlAccessRepository,
-};
+pub use aphel_kernel::infrastructure::deferred_authority::DeferredAuthority as Authority;
+use aphel_kernel::infrastructure::jobs::MySqlJobQueue;
 use aphel_kernel::records::RecordCtx;
 use aphel_kernel::state::runtime_state;
 
@@ -80,98 +75,6 @@ pub enum Command {
         link: Option<String>,
         data: Value,
     },
-}
-
-#[derive(Debug, Clone, Serialize, Deserialize)]
-pub struct Authority {
-    user_id: String,
-    token_id: Option<String>,
-    permissions: Vec<(String, String)>,
-    teams: Vec<String>,
-}
-
-impl Authority {
-    pub(crate) fn capture(scope: &AccessScope) -> Self {
-        Self {
-            user_id: scope.user_id().as_str().to_owned(),
-            token_id: scope.api_token_id().map(str::to_owned),
-            permissions: scope
-                .permissions()
-                .restricted(|_| true)
-                .grants()
-                .map(|grant| {
-                    (
-                        grant.permission.to_string(),
-                        grant.scope.as_str().to_owned(),
-                    )
-                })
-                .collect(),
-            teams: scope
-                .team_ids()
-                .iter()
-                .map(|id| id.as_str().to_owned())
-                .collect(),
-        }
-    }
-
-    pub(crate) async fn resolve(
-        &self,
-        pool: &MySqlPool,
-        plugin: &LoadedPlugin,
-    ) -> Result<AccessScope, AppError> {
-        let user = UserId::new(self.user_id.clone())?;
-        let access = MySqlAccessRepository::new(pool.clone())
-            .load_access(&user)
-            .await?
-            .ok_or_else(|| {
-                AppError::forbidden_code(
-                    "plugin_authority_inactive",
-                    "the original authority is no longer active",
-                )
-            })?;
-        let current = build_access_scope(user.clone(), access);
-        let grants = self.permissions.iter().filter_map(|(key, ceiling)| {
-            let permission = Permission::parse(key.clone()).ok()?;
-            if !plugin.manifest.allows(&permission) {
-                return None;
-            }
-            let current_scope = current.scope_for(&permission)?;
-            Some(PermissionGrant {
-                permission,
-                scope: current_scope.min(RecordScope::parse(ceiling)?),
-            })
-        });
-        let mut scope = AccessScope::new(
-            user,
-            current.role_key().clone(),
-            current
-                .team_ids()
-                .iter()
-                .filter(|id| self.teams.iter().any(|saved| saved == id.as_str()))
-                .cloned()
-                .collect(),
-            PermissionSet::from_grants(grants),
-        )
-        .with_enabled_modules(current.enabled_modules().to_vec())
-        .through_plugin(&plugin.key);
-        if let Some(token) = &self.token_id {
-            let scopes: Option<Json<Vec<String>>> = sqlx::query_scalar("SELECT scopes FROM api_tokens WHERE id = ? AND created_by = ? AND revoked_at IS NULL AND (expires_at IS NULL OR expires_at > UTC_TIMESTAMP(6))")
-                .bind(token).bind(&self.user_id).fetch_optional(pool).await?;
-            let Json(scopes) = scopes.ok_or_else(|| {
-                AppError::forbidden_code(
-                    "plugin_authority_inactive",
-                    "the original API token is revoked or expired",
-                )
-            })?;
-            scope = scope.through_api_token(
-                token,
-                aphel_kernel::domain::api_tokens::ApiTokenScopes::parse(
-                    scopes.iter().map(String::as_str),
-                )?,
-            );
-        }
-        Ok(scope)
-    }
 }
 
 pub struct PendingEffect {
@@ -396,7 +299,11 @@ impl JobHandler for Run {
         let Json(command): Json<Command> = row.try_get("command")?;
         validate(plugin, &command).await?;
         let Json(authority): Json<Authority> = row.try_get("authority")?;
-        let scope = authority.resolve(&self.pool, plugin).await?;
+        let scope = authority
+            .resolve(&self.pool)
+            .await?
+            .restricted(|permission| plugin.manifest.allows(permission))
+            .through_plugin(&plugin.key);
         let Json(execution): Json<ExecutionContext> = row.try_get("execution")?;
         let result = execution
             .scope(MutationReceipt::scope(

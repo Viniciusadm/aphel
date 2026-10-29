@@ -1,21 +1,17 @@
 use std::str::FromStr;
 
-use bytes::Bytes;
 use chrono_tz::Tz;
 use serde_json::Value;
 use uuid::Uuid;
 
-use aphel_kernel::api::routes::v1::files::file_use_cases;
 use aphel_kernel::application::auth::UserRepository;
-use aphel_kernel::application::files::UploadFileCommand;
-use aphel_kernel::application::shared::{Actor, RecordRef};
+use aphel_kernel::application::shared::Actor;
 use aphel_kernel::context::Ctx;
 use aphel_kernel::domain::UserId;
 use aphel_kernel::domain::access::AccessScope;
 use aphel_kernel::errors::{AppError, CodedKind};
 use aphel_kernel::infrastructure::repositories::mysql_organizations::find_organization;
 use aphel_kernel::infrastructure::repositories::mysql_users::MySqlUserRepository;
-use aphel_kernel::infrastructure::storage::references::delete_unreferenced_files;
 use aphel_kernel::records::{RecordCtx, field_set};
 use deal_items::http::DealItemsResponse;
 
@@ -32,13 +28,6 @@ pub(crate) struct OrganizationInfo {
     pub(crate) timezone: Tz,
     pub(crate) currency: String,
     pub(crate) locale: Locale,
-}
-
-pub(crate) struct UploadedFile {
-    pub(crate) id: Uuid,
-    pub(crate) attachment_id: Option<Uuid>,
-    pub(crate) file_name: String,
-    pub(crate) size: u64,
 }
 
 pub(crate) fn is_tolerated(error: &AppError) -> bool {
@@ -159,53 +148,4 @@ pub(crate) async fn deal_items(ctx: &Ctx<'_>, deal_id: Uuid) -> Result<Value, Ap
     let summary = deal_items::service::summary(ctx, &deal_id.to_string()).await?;
     serde_json::to_value(DealItemsResponse::from(summary))
         .map_err(|error| AppError::Internal(error.to_string()))
-}
-
-pub(crate) async fn upload(
-    ctx: &Ctx<'_>,
-    file_name: String,
-    content: Vec<u8>,
-    attach_to: RecordRef,
-) -> Result<UploadedFile, AppError> {
-    let uploaded = file_use_cases(&ctx.state())
-        .await?
-        .upload(
-            ctx.scope,
-            UploadFileCommand {
-                file_name,
-                content: Bytes::from(content),
-                attach_to: Some(attach_to),
-                ip: None,
-            },
-        )
-        .await?;
-    Ok(UploadedFile {
-        id: uploaded.file.id,
-        attachment_id: uploaded.attachment.as_ref().map(|attachment| attachment.id),
-        file_name: uploaded.file.original_name,
-        size: uploaded.file.size,
-    })
-}
-
-pub(crate) async fn discard_upload(ctx: &Ctx<'_>, file: &UploadedFile) {
-    if let Err(error) = try_discard_upload(ctx, file).await {
-        tracing::warn!(%error, file_id = %file.id, "could not discard an unused proposal file");
-    }
-}
-
-async fn try_discard_upload(ctx: &Ctx<'_>, file: &UploadedFile) -> Result<(), AppError> {
-    if let Some(attachment_id) = file.attachment_id {
-        file_use_cases(&ctx.state())
-            .await?
-            .remove_attachment(ctx.scope, &attachment_id.to_string(), None)
-            .await?;
-    }
-    let mut tx = ctx.begin().await?;
-    let storage_keys = delete_unreferenced_files(&mut tx, &[file.id]).await?;
-    tx.commit().await?;
-    let storage = ctx.storage()?;
-    for key in storage_keys {
-        storage.delete(&key).await?;
-    }
-    Ok(())
 }

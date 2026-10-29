@@ -75,12 +75,13 @@ pub(crate) async fn fields(ctx: &Ctx<'_>, record_type: &str) -> Result<FieldSet,
     field_set(&ctx.state(), ctx.scope, record_type).await
 }
 
-pub(crate) async fn update_record(
+pub(crate) async fn update_record_in_tx(
     ctx: &Ctx<'_>,
+    tx: &mut aphel_kernel::database::transaction::MySqlTx,
     record_type: &str,
     id: Uuid,
     values: Map<String, Value>,
-) -> Result<(), AppError> {
+) -> Result<Option<aphel_kernel::records::PendingCommit>, AppError> {
     let fields = fields(ctx, record_type).await?;
     let mut body = Map::new();
     let mut custom = Map::new();
@@ -105,7 +106,11 @@ pub(crate) async fn update_record(
     let handler = ctx.registry().handler(record_type)?;
     let state = ctx.state();
     handler
-        .update(&RecordCtx::new(ctx.scope, &state), id, Value::Object(body))
+        .update_in_tx(
+            &RecordCtx::new(ctx.scope, &state),
+            tx,
+            id,
+            Value::Object(body),
+        )
         .await
-        .map(|_| ())
 }

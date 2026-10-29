@@ -95,3 +95,17 @@ Metadata refreshes are serialized. A generation changed during loading is reject
 ## External effects
 
 There is no deferred outbound HTTP command. The host cannot guarantee a single external side effect without a cooperating recipient. A future HTTP delivery API must include recipient-side idempotency and account for a crash after the remote response but before the local receipt. Do not use HTTP from transactional hooks.
+
+## Queued module delivery
+
+`email.send`, `quotes.send`, `esign.send` and `esign.cancel` commit their delivery intention and job in the mutation transaction. The receipt covers queue acceptance, not delivery by the external provider. E-mails return `scheduled`; signature requests return `queued` or `cancel_pending`. Completion is reported by the existing sent/cancelled events. Workers retain the original authority ceiling and execution context, rechecking the active user, API token, teams, permissions, module enablement and plugin capabilities before delivery.
+
+Signature workers claim a request before contacting Clicksign and persist `delivery_unknown` until confirmation is saved. They do not repeat an uncertain provider call automatically. After a crash or timeout, check Clicksign before submitting another request. A resumed e-mail delivery found in `sending` becomes failed with an explicit unknown-outcome reason instead of sending again. Provider errors known to be retryable retain the existing e-mail retry policy. Queue durability cannot guarantee exactly-once SMTP or Clicksign delivery.
+
+`scoring.signal` commits its signal and a recalculation job together. Scores update asynchronously. Quote-to-deal item replacement validates all items before replacing them in one transaction. Lead conversion creates its optional company, deal and lifecycle transition atomically; record committed hooks run only after the shared commit. Automation distribution changes the owner in the assignment transaction. Rescheduling updates its activity in the booking transaction, using the same savepoint policy as cancellation.
+
+## External queries
+
+`ai.complete`, `ai.summary`, `ai.next_actions`, `ai.compose` and `enrichment.lookup` use `PluginOperation::with_external_query()`. They can be invoked synchronously from event, schedule and automation callbacks as well as private routes. They remain forbidden inside transactional hooks and read-only widgets and do not qualify as deferred mutations.
+
+The host persists a claim before running an external query. A completed result is reused for identical operation/input pairs within the same logical plugin execution. Input hashes are stored instead of prompts; result JSON is retained with the plugin and deleted on uninstall. Replays with a changed authority fingerprint are refused. A query that started without a completed result is not repeated automatically (`plugin_query_outcome_unknown`); a new execution is required after checking the outcome. This prevents retries from silently making another provider call or charging another AI request. It does not recover an external response lost before local persistence.

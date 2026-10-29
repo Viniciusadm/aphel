@@ -45,10 +45,14 @@ impl JobHandler for AttachSignedDocument {
 }
 
 pub(crate) fn esign_worker(env: &WorkerEnv) -> WorkerParts {
-    WorkerParts::default().handler(Arc::new(AttachSignedDocument {
-        state: env.runtime_state(),
-        kind: job_kind(ATTACH_JOB),
-    }))
+    WorkerParts::default()
+        .handler(Arc::new(crate::delivery::Deliver {
+            state: env.runtime_state(),
+        }))
+        .handler(Arc::new(AttachSignedDocument {
+            state: env.runtime_state(),
+            kind: job_kind(ATTACH_JOB),
+        }))
 }
 
 pub(crate) async fn acting_scope(

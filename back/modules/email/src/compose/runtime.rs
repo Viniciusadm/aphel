@@ -53,6 +53,25 @@ impl JobHandler for ScheduledEmailHandler {
     }
 
     async fn handle(&self, context: &JobContext, payload: Value) -> Result<(), AppError> {
+        let authority = payload
+            .get("authority")
+            .map(|value| {
+                serde_json::from_value::<
+                    aphel_kernel::infrastructure::deferred_authority::DeferredAuthority,
+                >(value.clone())
+            })
+            .transpose()
+            .map_err(|error| AppError::Validation(error.to_string()))?;
+        let delivery = self.deliver(context, payload);
+        match authority {
+            Some(authority) => authority.run(delivery).await,
+            None => delivery.await,
+        }
+    }
+}
+
+impl ScheduledEmailHandler {
+    async fn deliver(&self, context: &JobContext, payload: Value) -> Result<(), AppError> {
         let Some(email_id) = uuid_field(&payload, "email_id") else {
             return Ok(());
         };
@@ -60,13 +79,26 @@ impl JobHandler for ScheduledEmailHandler {
             .get("requested_by")
             .and_then(Value::as_str)
             .and_then(|value| UserId::new(value).ok());
-        let author_scope = match &author {
-            Some(author) => member_scope(&self.state, author).await?,
-            None => None,
+        let author_scope = if let Some(authority) = payload.get("authority") {
+            let authority: aphel_kernel::infrastructure::deferred_authority::DeferredAuthority =
+                serde_json::from_value(authority.clone())
+                    .map_err(|error| AppError::Validation(error.to_string()))?;
+            match authority.resolve(&self.state.db()?).await {
+                Ok(scope) => Some(scope),
+                Err(error) => {
+                    tracing::warn!(%error, email_id = %email_id, "queued e-mail authority is no longer valid");
+                    None
+                }
+            }
+        } else {
+            match &author {
+                Some(author) => member_scope(&self.state, author).await?,
+                None => None,
+            }
         };
-        let Some(scope) =
-            author_scope.filter(|scope| scope.require(&Permission::EMAILS_SEND).is_ok())
-        else {
+        let Some(scope) = author_scope.filter(|scope| {
+            scope.module_enabled(crate::KEY) && scope.require(&Permission::EMAILS_SEND).is_ok()
+        }) else {
             let scope = tracking_scope();
             let ctx = Ctx::from_state(&self.state, &scope).await?;
             return compose::fail_scheduled(
@@ -81,9 +113,15 @@ impl JobHandler for ScheduledEmailHandler {
             .await?
         {
             DeliveryOutcome::Retry(error) => Err(error),
-            DeliveryOutcome::Sent(_) | DeliveryOutcome::Failed(_) | DeliveryOutcome::Skipped => {
+            DeliveryOutcome::Sent(message) => {
+                tracing::debug!(email_id = %message.id, "queued e-mail delivered");
                 Ok(())
             }
+            DeliveryOutcome::Failed(error) => {
+                tracing::warn!(%error, email_id = %email_id, "queued e-mail delivery failed");
+                Ok(())
+            }
+            DeliveryOutcome::Skipped => Ok(()),
         }
     }
 }

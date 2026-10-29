@@ -343,11 +343,12 @@ pub(crate) async fn apply(
             "nenhum campo para preencher: escolha dados com campo mapeado e valor diferente do atual",
         ));
     }
-    support::update_record(ctx, COMPANY, lookup.record_id, values).await?;
+    let mut tx = ctx.begin().await?;
+    let pending =
+        support::update_record_in_tx(ctx, &mut tx, COMPANY, lookup.record_id, values).await?;
     let company = RecordRef::new(RecordType::COMPANY, lookup.record_id);
     let now = Utc::now();
     let applied_by = actor_id(ctx.scope);
-    let mut tx = ctx.begin().await?;
     for (data_key, field_key, value) in &applied {
         store::upsert_field_source(
             &mut tx,
@@ -407,6 +408,9 @@ pub(crate) async fn apply(
         )
         .await?;
     tx.commit().await?;
+    if let Some(pending) = pending {
+        pending.committed(ctx).await;
+    }
     Ok(Applied {
         company_id: lookup.record_id,
         source: lookup.source,

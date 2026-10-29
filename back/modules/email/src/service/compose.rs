@@ -22,7 +22,7 @@ use crate::domain::{
     EmailDirection, EmailKind, EmailStatus, LinkOrigin, MailboxStatus, ParticipantRole,
     email_preview, normalize_address, normalize_message_id, reply_subject,
 };
-use crate::hooks::{OutgoingMessage, apply_outgoing};
+use crate::hooks::OutgoingMessage;
 use crate::service::records::{self, can_read};
 use crate::service::templates::{find_visible_template, load_variable_values};
 use crate::service::tracking::tracking_key;
@@ -44,6 +44,7 @@ use aphel_kernel::application::shared::{
     Actor, AuditEntry, AuditLog, DomainEvent, EventPublisher, FieldChange, Job, JobQueue,
     RecordRef, RecordType,
 };
+use aphel_kernel::database::transaction::MySqlTx;
 use aphel_kernel::domain::UserId;
 use aphel_kernel::domain::access::Permission;
 use aphel_kernel::errors::{AppError, FieldViolation};
@@ -122,6 +123,44 @@ pub(crate) async fn send(
     ctx.scope.require(&Permission::EMAILS_SEND)?;
     let sender = ctx.scope.user_id().clone();
     compose(ctx, &sender, command).await
+}
+
+pub async fn enqueue_in_tx(
+    ctx: &Ctx<'_>,
+    tx: &mut MySqlTx,
+    mut command: SendEmailCommand,
+) -> Result<Uuid, AppError> {
+    ctx.scope.require(&Permission::EMAILS_SEND)?;
+    let sender = ctx.scope.user_id();
+    command.scheduled_at.get_or_insert_with(|| ctx.now());
+    let draft = draft(ctx, sender, command.clone()).await?;
+    let draft = filter_outgoing_in_tx(ctx, tx, sender, draft).await?;
+    let message_id = generate_message_id(&draft.mailbox.address);
+    let recipients: Vec<String> = draft
+        .to
+        .iter()
+        .chain(&draft.cc)
+        .chain(&draft.bcc)
+        .map(|recipient| recipient.address.clone())
+        .collect();
+    let contacts = OutboundStore::of(ctx)
+        .contacts_by_address(&recipients)
+        .await?;
+    let body_file = store_body(ctx, sender, &draft.body).await?;
+    let id = Uuid::now_v7();
+    persist_draft_in_tx(
+        ctx,
+        tx,
+        sender,
+        &draft,
+        id,
+        &message_id,
+        &body_file,
+        &contacts,
+        command.ip,
+    )
+    .await?;
+    Ok(id)
 }
 
 pub(crate) async fn send_as_owner(
@@ -218,6 +257,16 @@ pub(crate) async fn send_scheduled(
         .await?;
     tx.commit().await?;
     if !claimed {
+        if let Some(message) = MessageStore::of(ctx).find_message(email_id).await?
+            && message.status == EmailStatus::Sending
+        {
+            let error = AppError::conflict_code(
+                "email_delivery_unknown",
+                "the previous send has an unknown outcome; confirm delivery with the provider before sending again",
+            );
+            record_failure(ctx, &message, &Actor::System, None, error.client_message()).await?;
+            return Ok(DeliveryOutcome::Failed(error));
+        }
         return Ok(DeliveryOutcome::Skipped);
     }
     let requested_by = ctx.scope.user_id().clone();
@@ -286,8 +335,11 @@ async fn compose(
     sender: &UserId,
     command: SendEmailCommand,
 ) -> Result<ComposedEmail, AppError> {
+    let mut command = command;
+    command.scheduled_at.get_or_insert_with(|| ctx.now());
     let draft = draft(ctx, sender, command.clone()).await?;
-    let draft = filter_outgoing(ctx, sender, draft).await?;
+    let mut tx = ctx.begin().await?;
+    let draft = filter_outgoing_in_tx(ctx, &mut tx, sender, draft).await?;
     let message_id = generate_message_id(&draft.mailbox.address);
     let recipients: Vec<String> = draft
         .to
@@ -301,9 +353,9 @@ async fn compose(
         .await?;
     let body_file = store_body(ctx, sender, &draft.body).await?;
     let email_id = Uuid::now_v7();
-    let scheduled = draft.scheduled_at.is_some();
-    let result = persist_draft(
+    let result = persist_draft_in_tx(
         ctx,
+        &mut tx,
         sender,
         &draft,
         email_id,
@@ -314,51 +366,45 @@ async fn compose(
     )
     .await;
     if let Err(error) = result {
+        tx.rollback().await?;
         if let Err(cleanup) = ctx.storage()?.delete(&body_file.storage_key).await {
             tracing::warn!(error = %cleanup, "failed to remove orphan e-mail body");
         }
         return Err(error);
     }
-    if scheduled {
-        return composed(ctx, email_id).await;
-    }
-    let actor = Actor::from_scope(ctx.scope);
-    match deliver(ctx, email_id, actor, Some(sender.clone()), false).await? {
-        DeliveryOutcome::Sent(message) => Ok(ComposedEmail {
-            message: *message,
-            body: draft.body,
-        }),
-        DeliveryOutcome::Retry(error) | DeliveryOutcome::Failed(error) => Err(error),
-        DeliveryOutcome::Skipped => Err(email_not_found()),
-    }
+    tx.commit().await?;
+    composed(ctx, email_id).await
 }
 
-async fn filter_outgoing(
+async fn filter_outgoing_in_tx(
     ctx: &Ctx<'_>,
+    tx: &mut MySqlTx,
     sender: &UserId,
     mut draft: Draft,
 ) -> Result<Draft, AppError> {
-    let message = apply_outgoing(
-        ctx,
-        OutgoingMessage {
-            mailbox_id: draft.mailbox.id,
-            sender_id: sender.clone(),
-            from: EmailAddress {
-                address: draft.mailbox.address.clone(),
-                name: draft.mailbox.display_name.clone(),
+    let message = ctx
+        .apply_hook::<crate::hooks::OutgoingEmail>(
+            tx,
+            crate::KEY,
+            OutgoingMessage {
+                mailbox_id: draft.mailbox.id,
+                sender_id: sender.clone(),
+                from: EmailAddress {
+                    address: draft.mailbox.address.clone(),
+                    name: draft.mailbox.display_name.clone(),
+                },
+                to: draft.to.clone(),
+                cc: draft.cc.clone(),
+                bcc: draft.bcc.clone(),
+                subject: draft.subject.clone(),
+                body: draft.body.clone(),
+                record: draft.record.clone(),
+                thread_id: draft.thread_id,
+                scheduled: draft.scheduled_at.is_some(),
+                tracking: draft.tracking,
             },
-            to: draft.to.clone(),
-            cc: draft.cc.clone(),
-            bcc: draft.bcc.clone(),
-            subject: draft.subject.clone(),
-            body: draft.body.clone(),
-            record: draft.record.clone(),
-            thread_id: draft.thread_id,
-            scheduled: draft.scheduled_at.is_some(),
-            tracking: draft.tracking,
-        },
-    )
-    .await?;
+        )
+        .await?;
     if message.to.is_empty() {
         return Err(invalid("to", "must have at least one recipient"));
     }
@@ -500,7 +546,7 @@ async fn draft(
             }
             Some(at)
         }
-        _ => None,
+        _ => Some(now),
     };
 
     let template = match command
@@ -724,8 +770,9 @@ async fn store_body(ctx: &Ctx<'_>, sender: &UserId, body: &EmailBody) -> Result<
 }
 
 #[allow(clippy::too_many_arguments)]
-async fn persist_draft(
+async fn persist_draft_in_tx(
     ctx: &Ctx<'_>,
+    tx: &mut MySqlTx,
     sender: &UserId,
     draft: &Draft,
     email_id: Uuid,
@@ -766,14 +813,13 @@ async fn persist_draft(
     } else {
         EmailStatus::Sending
     };
-    let mut tx = ctx.begin().await?;
     let thread_id = match draft.thread_id {
         Some(thread_id) => thread_id,
         None => {
             let thread_id = Uuid::now_v7();
             emails
                 .insert_thread(
-                    &mut tx,
+                    tx,
                     &NewThread {
                         id: thread_id,
                         mailbox_id: draft.mailbox.id,
@@ -787,11 +833,11 @@ async fn persist_draft(
         }
     };
     MySqlFileRepository::new(ctx.pool().clone())
-        .insert_file(&mut tx, body_file)
+        .insert_file(tx, body_file)
         .await?;
     let inserted = emails
         .insert_message(
-            &mut tx,
+            tx,
             &NewEmailMessage {
                 id: email_id,
                 mailbox_id: draft.mailbox.id,
@@ -837,7 +883,7 @@ async fn persist_draft(
     for record in linked {
         links
             .link(
-                &mut tx,
+                tx,
                 &NewRecordLink {
                     thread_id,
                     record,
@@ -848,15 +894,15 @@ async fn persist_draft(
             )
             .await?;
     }
-    emails.refresh_thread(&mut tx, thread_id, now).await?;
+    emails.refresh_thread(tx, thread_id, now).await?;
     if let Some(run_at) = draft.scheduled_at {
         let actor = Actor::from_scope(scope);
         ctx.jobs()
             .enqueue(
-                &mut tx,
+                tx,
                 Job::new(
                     SEND_SCHEDULED_JOB,
-                    json!({ "email_id": email_id, "requested_by": sender.as_str() }),
+                    json!({ "email_id": email_id, "requested_by": sender.as_str(), "authority": aphel_kernel::infrastructure::deferred_authority::DeferredAuthority::capture(scope) }),
                 )
                 .run_at(run_at)
                 .with_unique_key(format!("{SEND_SCHEDULED_JOB}:{email_id}")),
@@ -864,7 +910,7 @@ async fn persist_draft(
             .await?;
         ctx.events()
             .publish(
-                &mut tx,
+                tx,
                 DomainEvent::new(actor.clone(), EMAIL_SCHEDULED, now).with_payload(json!({
                     "email_id": email_id,
                     "thread_id": thread_id,
@@ -876,7 +922,7 @@ async fn persist_draft(
             .await?;
         ctx.audit()
             .record(
-                &mut tx,
+                tx,
                 AuditEntry::new(actor, EMAIL_SCHEDULED, now)
                     .with_record(RecordRef::new(EMAIL_MESSAGE_RECORD, email_id))
                     .with_changes(draft_changes(draft, Some(run_at)))
@@ -884,7 +930,6 @@ async fn persist_draft(
             )
             .await?;
     }
-    tx.commit().await?;
     Ok(())
 }
 

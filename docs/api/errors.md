@@ -448,3 +448,13 @@ Whoever creates a new code adds the row to this table and cites it in the respon
 | `retention_policy_not_found` | 404 | privacy |
 | `retention_preview_required` | 409 | privacy |
 | `mail_attachments_unsupported` | 422 | mail (the configured email transport does not send attachments) |
+
+### Durable module delivery
+
+| Code | HTTP | Meaning |
+| --- | --- | --- |
+| `email_delivery_unknown` | 409 | A previous queued send has an uncertain outcome and will not be repeated automatically |
+| `esign_delivery_unknown` | 409 | Reconcile the previous signature provider call before submitting another request |
+| `esign_delivery_claimed` | 409 | The signature request is no longer pending delivery |
+| `plugin_query_outcome_unknown` | 409 | An external query started without a completed result; automatic repetition is refused |
+| `plugin_query_authority_changed` | 403 | The authority fingerprint changed since the external query was claimed |

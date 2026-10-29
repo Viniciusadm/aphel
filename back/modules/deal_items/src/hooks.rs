@@ -69,19 +69,23 @@ impl DealItemsWriter for QuoteDealItemsWriter {
     ) -> Result<DealItemsOutcome, AppError> {
         let ctx = ctx.with_scope(scope);
         let deal = deal_id.to_string();
-        for line in service::summary(&ctx, &deal).await?.items {
-            service::remove(&ctx, &deal, &line.item.id.to_string(), None).await?;
-        }
+        let currency = service::summary(&ctx, &deal).await?.currency;
+        let mut inputs = Vec::with_capacity(items.len());
         for item in &items {
-            if service::add(&ctx, &deal, item_command(item, true))
-                .await
-                .is_err()
-            {
-                service::add(&ctx, &deal, item_command(item, false)).await?;
-            }
+            let with_product = match item.product_id {
+                Some(id) => products::store::ProductStore::of(&ctx)
+                    .find(id)
+                    .await?
+                    .is_some_and(|product| {
+                        product.data.is_active && product.data.currency == currency
+                    }),
+                None => false,
+            };
+            inputs.push(item_command(item, with_product).input);
         }
+        let summary = service::replace(&ctx, &deal, inputs, None).await?;
         Ok(DealItemsOutcome {
-            amount_managed: service::summary(&ctx, &deal).await?.amount_managed,
+            amount_managed: summary.amount_managed,
         })
     }
 }

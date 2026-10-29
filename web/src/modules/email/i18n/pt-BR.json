@@ -340,6 +340,7 @@
     "send": "Enviar",
     "scheduleSubmit": "Agendar",
     "sent": "E-mail enviado.",
+    "queued": "E-mail na fila para envio.",
     "scheduled": "E-mail agendado para {{date}}.",
     "editor": {
       "toolbar": "Formatação",

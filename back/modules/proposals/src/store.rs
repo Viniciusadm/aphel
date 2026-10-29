@@ -260,17 +260,15 @@ fn key_conflict(error: sqlx::Error) -> AppError {
     }
 }
 
-pub(crate) async fn next_number(pool: &MySqlPool) -> Result<u32, AppError> {
-    let mut tx = pool.begin().await?;
+pub(crate) async fn next_number(tx: &mut MySqlTx) -> Result<u32, AppError> {
     sqlx::query(
         "INSERT INTO proposals_counters (id, last_number) VALUES (1, 1) ON DUPLICATE KEY UPDATE last_number = last_number + 1",
     )
-    .execute(&mut *tx)
+    .execute(&mut **tx)
     .await?;
     let number: u32 = sqlx::query_scalar("SELECT last_number FROM proposals_counters WHERE id = 1")
-        .fetch_one(&mut *tx)
+        .fetch_one(&mut **tx)
         .await?;
-    tx.commit().await?;
     Ok(number)
 }
 

@@ -9,8 +9,10 @@ use crate::domain::{
 use crate::store::{HistoryStore, LeadRecords};
 use aphel_kernel::Ctx;
 use aphel_kernel::application::shared::{Actor, RecordType};
+use aphel_kernel::database::transaction::MySqlTx;
 use aphel_kernel::errors::{AppError, FieldViolation};
 use aphel_kernel::modules::{Hook, HookCtx};
+use aphel_kernel::records::PendingCommit;
 use aphel_kernel::records::{ChangedRecord, RecordCtx, RemovedRecord};
 use contacts::domain::ContactView;
 
@@ -127,10 +129,11 @@ pub struct ConvertLeadCommand {
     pub(crate) ip: Option<String>,
 }
 
-#[derive(Debug, Clone, Copy, PartialEq, Eq)]
+#[derive(Debug, Clone, PartialEq)]
 pub struct Conversion {
     pub(crate) deal_id: Uuid,
     pub(crate) company_id: Option<Uuid>,
+    pub(crate) pending: Vec<PendingCommit>,
 }
 
 #[async_trait]
@@ -138,20 +141,13 @@ pub trait LeadConverter: Send + Sync {
     async fn convert(
         &self,
         ctx: &Ctx<'_>,
+        tx: &mut MySqlTx,
         lead: &Lead,
         command: &ConvertLeadCommand,
     ) -> Result<Conversion, AppError>;
 }
 
 pub struct DealLeadConverter;
-
-fn created_id(record: &Value, record_type: &str) -> Result<Uuid, AppError> {
-    record
-        .get("id")
-        .and_then(Value::as_str)
-        .and_then(|id| Uuid::parse_str(id).ok())
-        .ok_or_else(|| AppError::Internal(format!("the created {record_type} has no id")))
-}
 
 pub(crate) fn deal_values(lead: &Lead, command: &ConvertLeadCommand) -> Map<String, Value> {
     let data = &lead.contact.contact.data;
@@ -188,6 +184,7 @@ impl LeadConverter for DealLeadConverter {
     async fn convert(
         &self,
         ctx: &Ctx<'_>,
+        tx: &mut MySqlTx,
         lead: &Lead,
         command: &ConvertLeadCommand,
     ) -> Result<Conversion, AppError> {
@@ -196,34 +193,37 @@ impl LeadConverter for DealLeadConverter {
             deal: deal_values(lead, command),
             company: None,
         };
-        let mut tx = ctx.begin().await?;
         let conversion = ctx
-            .apply_hook::<LeadConverting>(&mut tx, super::KEY, conversion)
+            .apply_hook::<LeadConverting>(tx, super::KEY, conversion)
             .await?;
-        tx.commit().await?;
         let state = ctx.state();
         let record_ctx = RecordCtx::new(ctx.scope, &state);
         let registry = ctx.registry();
         let mut deal = conversion.deal;
         let mut company_id = None;
+        let mut pending = Vec::new();
         if let Some(company) = conversion.company
             && lead.contact.contact.data.company_id.is_none()
         {
             let created = registry
                 .handler(RecordType::COMPANY.as_str())?
-                .create(&record_ctx, Value::Object(company))
+                .create_in_tx(&record_ctx, tx, Value::Object(company))
                 .await?;
-            let id = created_id(&created, RecordType::COMPANY.as_str())?;
+            let id = created.record.record_id;
+            pending.push(created);
             deal.insert("company_id".to_owned(), json!(id.to_string()));
             company_id = Some(id);
         }
         let created = registry
             .handler(RecordType::DEAL.as_str())?
-            .create(&record_ctx, Value::Object(deal))
+            .create_in_tx(&record_ctx, tx, Value::Object(deal))
             .await?;
+        let deal_id = created.record.record_id;
+        pending.push(created);
         Ok(Conversion {
-            deal_id: created_id(&created, RecordType::DEAL.as_str())?,
+            deal_id,
             company_id,
+            pending,
         })
     }
 }

@@ -2746,7 +2746,7 @@ export interface paths {
         };
         get?: never;
         put?: never;
-        /** @description Sends an e-mail from one of the user's own mailboxes (`mailbox_id`, or the first active one). `record` links the conversation to a contact, company, deal or custom object (read access required) and fills the `{{contact.first_name}}`-style variables of `subject`/`body_html`/`template_id`; recipients that are contacts are linked too. `reply_to_message_id` keeps the conversation (`In-Reply-To`, `References`, `Re:` subject). `attachment_file_ids` are files the user can download (`/api/v1/files`). A future `scheduled_at` stores the e-mail as `scheduled` and sends it from the worker (`email.send_scheduled`). `tracking` asks for open/click tracking when the organization allows it (default from `/email-settings/tracking`); it is always off when a recipient objected. Publishes `email.sent` once per linked record. */
+        /** @description Queues an e-mail from one of the user's own mailboxes (`mailbox_id`, or the first active one). `record` links the conversation to a contact, company, deal or custom object (read access required) and fills the `{{contact.first_name}}`-style variables of `subject`/`body_html`/`template_id`; recipients that are contacts are linked too. `reply_to_message_id` keeps the conversation (`In-Reply-To`, `References`, `Re:` subject). `attachment_file_ids` are files the user can download (`/api/v1/files`). Every e-mail is stored as `scheduled` and delivered by the worker (`email.send_scheduled`); a future `scheduled_at` delays delivery. `tracking` asks for open/click tracking when the organization allows it (default from `/email-settings/tracking`); it is always off when a recipient objected. Queue acceptance publishes `email.scheduled`; delivery publishes `email.sent` once per linked record. */
         post: operations["emails_send"];
         delete?: never;
         options?: never;
@@ -2849,7 +2849,7 @@ export interface paths {
         /** @description Signature requests of a deal, newest first (up to 100). Requires `esign.view` (or `esign.send`) and `deals.read` on the deal. */
         get: operations["esign_requests_list"];
         put?: never;
-        /** @description Sends a PDF attached to the deal to Clicksign for electronic signature (creates the envelope, uploads the document, adds the signers with email authentication, activates and notifies), stores the request and publishes `esign.sent` on the deal. `quote_id` (optional) ties the request to a quote version of the deal (usually the PDF generated from it by the proposals module) and goes in the event payload. Requires `esign.send` and access to the deal and the file. No legal validity of its own: the validity is the provider's. */
+        /** @description Queues a PDF attached to the deal for electronic signature and publishes `esign.queued`. The worker reauthorizes the request, sends it to Clicksign and publishes `esign.sent` after confirmation. The initial status is `queued`; `delivery_unknown` means provider confirmation is pending or uncertain and must be checked before submitting another request. `quote_id` (optional) ties the request to a quote version of the deal (usually the PDF generated from it by the proposals module) and goes in the event payload. Requires `esign.send` and access to the deal and the file. No legal validity of its own: the validity is the provider's. */
         post: operations["esign_requests_create"];
         delete?: never;
         options?: never;
@@ -2882,7 +2882,7 @@ export interface paths {
         };
         get?: never;
         put?: never;
-        /** @description Cancels an open request in Clicksign and publishes `esign.cancelled`. Requires `esign.send`. */
+        /** @description Cancels a queued request locally or queues cancellation of a sent request (`cancel_pending`, `esign.cancel_queued`). The worker publishes `esign.cancelled` after Clicksign confirms it. Requires `esign.send`. */
         post: operations["esign_requests_cancel"];
         delete?: never;
         options?: never;
@@ -6584,7 +6584,7 @@ export interface paths {
         };
         get?: never;
         put?: never;
-        /** @description Sends the quote by e-mail from the caller's mailbox (permissions `quotes.send` and `emails.send`), linked to the deal, with the signed public link in the body (`{{quote_link}}` marks where; otherwise it is appended). Without `to`, the deal contact receives it. A `draft` or `approved` quote passes the approval checkpoint of `quote_send` first: a quote that needs approval cannot be sent before it (`approval_required`), and the granted approval is consumed. A `sent` quote can be sent again. The status becomes `sent` and `quote.sent` is published (also `deal.quote_sent` on the deal timeline). */
+        /** @description Queues the quote e-mail from the caller's mailbox (permissions `quotes.send` and `emails.send`), linked to the deal, with the signed public link in the body (`{{quote_link}}` marks where; otherwise it is appended). Without `to`, the deal contact receives it. A `draft` or `approved` quote passes the approval checkpoint of `quote_send` first: a quote that needs approval cannot be sent before it (`approval_required`), and the granted approval is consumed. A `sent` quote can be sent again. Queue acceptance changes the status to `sent` and publishes `quote.sent` (also `deal.quote_sent` on the deal timeline); the delivery job sends the e-mail afterwards. */
         post: operations["quotes_send"];
         delete?: never;
         options?: never;
@@ -15631,6 +15631,7 @@ export interface components {
             description: string;
             durable: boolean;
             enabled: boolean;
+            external_query: boolean;
             key: string;
             module: string;
             writes: boolean;
@@ -36214,7 +36215,7 @@ export interface operations {
             };
         };
         responses: {
-            /** @description E-mail sent (`status = sent`) or scheduled (`status = scheduled`) */
+            /** @description E-mail queued (`status = scheduled`) */
             201: {
                 headers: {
                     [name: string]: unknown;
@@ -36720,7 +36721,7 @@ export interface operations {
             };
         };
         responses: {
-            /** @description Request sent */
+            /** @description Request queued */
             201: {
                 headers: {
                     [name: string]: unknown;
@@ -36850,7 +36851,7 @@ export interface operations {
         };
         requestBody?: never;
         responses: {
-            /** @description Request cancelled */
+            /** @description Request cancelled locally or cancellation queued */
             200: {
                 headers: {
                     [name: string]: unknown;
@@ -56459,7 +56460,7 @@ export interface operations {
             };
         };
         responses: {
-            /** @description Quote sent */
+            /** @description Quote e-mail queued */
             200: {
                 headers: {
                     [name: string]: unknown;

@@ -161,29 +161,30 @@ impl<'a, 'b> QuoteGateway<'a, 'b> {
 
     pub(crate) async fn send_email(
         &self,
+        tx: &mut MySqlTx,
         scope: &AccessScope,
         email: QuoteEmail,
     ) -> Result<(), AppError> {
         let ctx = self.ctx.with_scope(scope);
-        email::service::sender()
-            .send(
-                &ctx,
-                SendEmailCommand {
-                    mailbox_id: email.mailbox_id,
-                    to: email.to,
-                    cc: email.cc,
-                    subject: Some(email.subject),
-                    body_html: Some(email.body_html),
-                    record: Some(RecordInput {
-                        record_type: RecordType::DEAL.as_str().to_owned(),
-                        record_id: email.deal_id.to_string(),
-                    }),
-                    ip: email.ip,
-                    ..SendEmailCommand::default()
-                },
-            )
-            .await
-            .map(|_| ())
+        email::service::compose::enqueue_in_tx(
+            &ctx,
+            tx,
+            SendEmailCommand {
+                mailbox_id: email.mailbox_id,
+                to: email.to,
+                cc: email.cc,
+                subject: Some(email.subject),
+                body_html: Some(email.body_html),
+                record: Some(RecordInput {
+                    record_type: RecordType::DEAL.as_str().to_owned(),
+                    record_id: email.deal_id.to_string(),
+                }),
+                ip: email.ip,
+                ..SendEmailCommand::default()
+            },
+        )
+        .await
+        .map(|_| ())
     }
 
     pub(crate) async fn replace_deal_items(

@@ -18,6 +18,7 @@ pub struct PluginOperation {
     pub description: &'static str,
     pub writes: bool,
     pub durable: bool,
+    pub external_query: bool,
     pub run: OperationFn,
 }
 
@@ -28,6 +29,7 @@ impl PluginOperation {
             description,
             writes: false,
             durable: false,
+            external_query: false,
             run,
         }
     }
@@ -37,12 +39,18 @@ impl PluginOperation {
         self
     }
 
+    pub const fn with_external_query(mut self) -> Self {
+        self.external_query = true;
+        self
+    }
+
     pub const fn write(key: &'static str, description: &'static str, run: OperationFn) -> Self {
         Self {
             key,
             description,
             writes: true,
             durable: false,
+            external_query: false,
             run,
         }
     }
@@ -108,6 +116,12 @@ pub trait PluginHookDispatcher: Send + Sync {
 
 fn dispatcher(ctx: &HookCtx<'_>) -> Option<Arc<dyn PluginHookDispatcher>> {
     ctx.services.get::<dyn PluginHookDispatcher>()
+}
+
+pub fn plugin_hook_subscribed(ctx: &Ctx<'_>, hook: &str, record_type: &str) -> bool {
+    ctx.services()
+        .get::<dyn PluginHookDispatcher>()
+        .is_some_and(|dispatcher| dispatcher.subscribed(hook, record_type))
 }
 
 pub async fn forward_plugin_hook(

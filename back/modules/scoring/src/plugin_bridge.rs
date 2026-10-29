@@ -55,8 +55,8 @@ pub(crate) fn operations() -> Vec<Arc<PluginOperation>> {
         )),
         Arc::new(PluginOperation::write(
             "scoring.signal",
-            "Record a behavior signal on a record the actor can update and recalculate its scores; idempotent per record, signal and source: { record_type, record_id, signal: email_opened|email_clicked|email_replied|meeting_booked|form_submitted|call_connected, source } -> { recorded }",
+            "Record a behavior signal on a record the actor can update and queue score recalculation; idempotent per record, signal and source: { record_type, record_id, signal: email_opened|email_clicked|email_replied|meeting_booked|form_submitted|call_connected, source } -> { recorded }",
             signal,
-        )),
+        ).with_durable_mutations()),
     ]
 }

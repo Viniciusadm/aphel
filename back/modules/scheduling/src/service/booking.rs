@@ -721,9 +721,15 @@ async fn create_contact_attempt(
     created
 }
 
-struct CanceledActivity {
+struct UpdatedActivity {
     scope: AccessScope,
     pending: PendingCommit,
+}
+
+impl UpdatedActivity {
+    async fn committed(self, ctx: &Ctx<'_>) {
+        self.pending.committed(&ctx.with_scope(&self.scope)).await;
+    }
 }
 
 async fn cancel_activity(
@@ -731,7 +737,7 @@ async fn cancel_activity(
     tx: &mut MySqlTx,
     booking: &Booking,
     ip: Option<String>,
-) -> Result<Option<CanceledActivity>, AppError> {
+) -> Result<Option<UpdatedActivity>, AppError> {
     let Some(activity_id) = booking.activity_id else {
         return Ok(None);
     };
@@ -739,12 +745,10 @@ async fn cancel_activity(
         return Ok(None);
     };
     let acting = booking_scope(&host_scope);
-    let record_states = tx.record_states.clone();
-    savepoint(tx, ACTIVITY_SAVEPOINT).await?;
-    match crm::update_activity_in_tx(
+    let updated = update_activity_attempt(
         ctx,
         tx,
-        &acting,
+        acting,
         activity_id,
         UpdateActivityCommand {
             status: Some("canceled".to_owned()),
@@ -752,17 +756,67 @@ async fn cancel_activity(
             ..UpdateActivityCommand::default()
         },
     )
-    .await
-    {
-        Ok(pending) => Ok(pending.map(|pending| CanceledActivity {
+    .await?;
+    match updated {
+        Ok(updated) => Ok(updated),
+        Err(error) => {
+            tracing::warn!(%error, booking_id = %booking.id, "failed to cancel the meeting activity");
+            Ok(None)
+        }
+    }
+}
+
+async fn move_activity(
+    ctx: &Ctx<'_>,
+    tx: &mut MySqlTx,
+    booking: &Booking,
+    host: &Host,
+    duration_minutes: u32,
+    ip: Option<String>,
+) -> Result<Option<UpdatedActivity>, AppError> {
+    let Some(activity_id) = booking.activity_id else {
+        return Ok(None);
+    };
+    let updated = update_activity_attempt(
+        ctx,
+        tx,
+        booking_scope(&host.scope),
+        activity_id,
+        UpdateActivityCommand {
+            due_at: Some(Some(instant_text(booking.starts_at))),
+            duration_minutes: Some(Some(i64::from(duration_minutes))),
+            ip,
+            ..UpdateActivityCommand::default()
+        },
+    )
+    .await?;
+    match updated {
+        Ok(updated) => Ok(updated),
+        Err(error) => {
+            tracing::warn!(%error, booking_id = %booking.id, "failed to move the meeting activity");
+            Ok(None)
+        }
+    }
+}
+
+async fn update_activity_attempt(
+    ctx: &Ctx<'_>,
+    tx: &mut MySqlTx,
+    acting: AccessScope,
+    activity_id: Uuid,
+    command: UpdateActivityCommand,
+) -> Result<Result<Option<UpdatedActivity>, AppError>, AppError> {
+    let record_states = tx.record_states.clone();
+    savepoint(tx, ACTIVITY_SAVEPOINT).await?;
+    match crm::update_activity_in_tx(ctx, tx, &acting, activity_id, command).await {
+        Ok(pending) => Ok(Ok(pending.map(|pending| UpdatedActivity {
             scope: acting,
             pending,
-        })),
+        }))),
         Err(error) => {
             rollback_to_savepoint(tx, ACTIVITY_SAVEPOINT).await?;
             tx.record_states = record_states;
-            tracing::warn!(%error, booking_id = %booking.id, "failed to cancel the meeting activity");
-            Ok(None)
+            Ok(Err(error))
         }
     }
 }
@@ -1018,24 +1072,18 @@ pub(crate) async fn reschedule(
     )
     .await?;
     enqueue_emails(ctx, &mut tx, &moved, "rescheduled").await?;
+    let activity = move_activity(
+        ctx,
+        &mut tx,
+        &moved,
+        &host,
+        meeting_type.duration_minutes,
+        ip,
+    )
+    .await?;
     tx.commit().await?;
-    if let Some(activity_id) = moved.activity_id {
-        let acting = booking_scope(&host.scope);
-        if let Err(error) = crm::update_activity(
-            ctx,
-            &acting,
-            activity_id,
-            UpdateActivityCommand {
-                due_at: Some(Some(instant_text(moved.starts_at))),
-                duration_minutes: Some(Some(i64::from(meeting_type.duration_minutes))),
-                ip,
-                ..UpdateActivityCommand::default()
-            },
-        )
-        .await
-        {
-            tracing::warn!(%error, booking_id = %moved.id, "failed to move the meeting activity");
-        }
+    if let Some(activity) = activity {
+        activity.committed(ctx).await;
     }
     public_view(ctx, moved, &key).await
 }
@@ -1100,10 +1148,7 @@ pub(crate) async fn cancel(
     let activity = cancel_activity(ctx, &mut tx, &canceled, ip).await?;
     tx.commit().await?;
     if let Some(activity) = activity {
-        activity
-            .pending
-            .committed(&ctx.with_scope(&activity.scope))
-            .await;
+        activity.committed(ctx).await;
     }
     Ok(canceled)
 }

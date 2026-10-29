@@ -433,6 +433,23 @@ impl ScoreStore {
         event_id: Option<Uuid>,
         occurred_at: DateTime<Utc>,
     ) -> Result<bool, AppError> {
+        let mut tx = aphel_kernel::database::receipt::begin(&self.pool).await?;
+        let recorded = self
+            .record_signal_in_tx(&mut tx, record, signal, source_key, event_id, occurred_at)
+            .await?;
+        tx.commit().await?;
+        Ok(recorded)
+    }
+
+    pub(crate) async fn record_signal_in_tx(
+        &self,
+        tx: &mut MySqlTx,
+        record: &RecordRef,
+        signal: BehaviorSignal,
+        source_key: &str,
+        event_id: Option<Uuid>,
+        occurred_at: DateTime<Utc>,
+    ) -> Result<bool, AppError> {
         let source_key: String = source_key.chars().take(100).collect();
         let result = sqlx::query(
             "INSERT IGNORE INTO scoring_signals (id, record_type, record_id, \
@@ -445,7 +462,7 @@ impl ScoreStore {
         .bind(source_key)
         .bind(event_id.map(|id| id.to_string()))
         .bind(naive(occurred_at))
-        .execute(&self.pool)
+        .execute(&mut **tx)
         .await?;
         Ok(result.rows_affected() > 0)
     }

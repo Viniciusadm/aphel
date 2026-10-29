@@ -55,9 +55,13 @@ impl Module for PluginsModule {
             ))
             .migration(Migration::new(3, "populate permission metadata", include_str!("../migrations/0003_permission_metadata.sql")))
             .migration(Migration::new(4, "durable plugin effects", include_str!("../migrations/0004_durable_effects.sql")))
+            .migration(Migration::new(5, "external operation query results", include_str!("../migrations/0005_external_queries.sql")))
     }
 
     fn register(&self, app: &mut AppBuilder) -> Result<(), AppError> {
+        app.provide::<dyn aphel_kernel::infrastructure::deferred_authority::DeferredPluginPolicy>(
+            std::sync::Arc::new(registry::DeferredPluginPolicy),
+        );
         app.filter::<RecordSaving, _>(HOOK_PRIORITY, |ctx, saving| {
             Box::pin(hooks::saving(ctx, saving))
         })

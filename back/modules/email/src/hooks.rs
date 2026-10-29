@@ -50,13 +50,6 @@ impl Hook for InboundLinking {
     type Args = LinkingEmail;
 }
 
-pub(crate) async fn apply_outgoing(
-    ctx: &Ctx<'_>,
-    message: OutgoingMessage,
-) -> Result<OutgoingMessage, AppError> {
-    apply::<OutgoingEmail>(ctx, message).await
-}
-
 pub(crate) async fn apply_linking(
     ctx: &Ctx<'_>,
     email: LinkingEmail,
@@ -65,7 +58,7 @@ pub(crate) async fn apply_linking(
 }
 
 async fn apply<H: Hook>(ctx: &Ctx<'_>, args: H::Args) -> Result<H::Args, AppError> {
-    if !ctx.app().hooks().has::<H>() {
+    if !ctx.app().hooks().has_filters_except::<H>(None) {
         return Ok(args);
     }
     let mut tx = ctx.begin().await?;

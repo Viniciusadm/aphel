@@ -62,6 +62,7 @@ pub struct HostOperationResponse {
     pub description: &'static str,
     pub writes: bool,
     pub durable: bool,
+    pub external_query: bool,
     pub enabled: bool,
 }
 
@@ -105,6 +106,7 @@ pub fn host_catalog_response() -> HostCatalogResponse {
             description: operation.description,
             writes: operation.writes,
             durable: operation.durable,
+            external_query: operation.external_query,
             enabled: app.is_enabled(module),
         })
         .collect();
@@ -159,6 +161,9 @@ pub(crate) async fn invoke(
     let state = runtime_state()?;
     let ctx = Ctx::from_state(&state, scope).await?;
     let remaining = deadline.saturating_duration_since(Instant::now());
+    if found.external_query {
+        return external_query(plugin, &ctx, &found, input, remaining).await;
+    }
     let output = tokio::time::timeout(remaining, (found.run)(&ctx, input))
         .await
         .map_err(|_| {
@@ -269,4 +274,62 @@ pub fn record_operations() -> Vec<Arc<PluginOperation>> {
             .with_durable_mutations(),
         ),
     ]
+}
+
+async fn external_query(
+    plugin: &LoadedPlugin,
+    ctx: &Ctx<'_>,
+    operation: &PluginOperation,
+    input: Value,
+    remaining: std::time::Duration,
+) -> Result<String, AppError> {
+    use aphel_kernel::application::shared::ExecutionContext;
+    use sqlx::{Row, types::Json};
+    let execution = ExecutionContext::current().ok_or_else(|| {
+        AppError::Internal("external plugin queries require an execution context".to_owned())
+    })?;
+    let hash = aphel_kernel::application::files::sha256_hex(input.to_string().as_bytes());
+    let authority_hash =
+        aphel_kernel::application::files::sha256_hex(format!("{:?}", ctx.scope).as_bytes());
+    let execution_id = execution.id.to_string();
+    let inserted = sqlx::query("INSERT IGNORE INTO plugins_external_queries (plugin_key, execution_id, operation, input_hash, authority_hash) VALUES (?, ?, ?, ?, ?)")
+        .bind(&plugin.key).bind(&execution_id).bind(operation.key).bind(&hash).bind(&authority_hash).execute(ctx.pool()).await?.rows_affected();
+    if inserted == 0 {
+        let row = sqlx::query("SELECT status, output, authority_hash FROM plugins_external_queries WHERE plugin_key = ? AND execution_id = ? AND operation = ? AND input_hash = ?")
+            .bind(&plugin.key).bind(&execution_id).bind(operation.key).bind(&hash).fetch_one(ctx.pool()).await?;
+        if row.try_get::<String, _>("authority_hash")? != authority_hash {
+            return Err(AppError::forbidden_code(
+                "plugin_query_authority_changed",
+                "the authority of the cached external query has changed",
+            ));
+        }
+        if row.try_get::<String, _>("status")? == "completed" {
+            let Json(output): Json<Value> = row.try_get("output")?;
+            return Ok(output.to_string());
+        }
+        return Err(AppError::conflict_code(
+            "plugin_query_outcome_unknown",
+            "the external query already started and has no completed result; it will not be called again automatically",
+        ));
+    }
+    let result = tokio::time::timeout(remaining, (operation.run)(ctx, input))
+        .await
+        .map_err(|_| {
+            AppError::unavailable_code(
+                OPERATION_TIMEOUT,
+                "the external query exceeded the plugin call time",
+            )
+        })?;
+    match result {
+        Ok(output) => {
+            sqlx::query("UPDATE plugins_external_queries SET status = 'completed', output = ?, completed_at = UTC_TIMESTAMP(6) WHERE plugin_key = ? AND execution_id = ? AND operation = ? AND input_hash = ?")
+                .bind(Json(&output)).bind(&plugin.key).bind(&execution_id).bind(operation.key).bind(&hash).execute(ctx.pool()).await?;
+            Ok(output.to_string())
+        }
+        Err(error) => {
+            sqlx::query("UPDATE plugins_external_queries SET status = 'failed', completed_at = UTC_TIMESTAMP(6) WHERE plugin_key = ? AND execution_id = ? AND operation = ? AND input_hash = ?")
+                .bind(&plugin.key).bind(&execution_id).bind(operation.key).bind(&hash).execute(ctx.pool()).await?;
+            Err(error)
+        }
+    }
 }

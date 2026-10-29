@@ -204,8 +204,9 @@ pub(crate) async fn send(
             vec![FieldViolation::new("to", "add at least one recipient")],
         ));
     }
-    refresh_discount_flag(ctx, &quote).await?;
-    let key = token_key(ctx).await?;
+    let discount_flag = discount_flag(ctx, &quote).await?;
+    let mut tx = ctx.begin().await?;
+    let key = token_key(ctx, &mut tx).await?;
     let public_key = match &quote.public_key {
         Some(public_key) => public_key.clone(),
         None => generate_public_key()?,
@@ -231,13 +232,17 @@ pub(crate) async fn send(
         .map(|address: &EmailAddress| address.address.clone())
         .collect();
     let record = quote_record(quote.id);
-    let mut tx = ctx.begin().await?;
     let mut locked = QuoteStore::of(ctx)
         .lock(&mut tx, quote.id)
         .await?
         .ok_or_else(quote_not_found)?;
     if !locked.is_current || !locked.status.can_send() {
         return Err(invalid_transition("this quote can no longer be sent"));
+    }
+    if let Some(exceeds) = discount_flag
+        && exceeds != locked.exceeds_discount_limit
+    {
+        store_discount_flag(ctx, &mut tx, &mut locked, exceeds).await?;
     }
     let previous = locked.status;
     if previous != QuoteStatus::Sent {
@@ -281,7 +286,9 @@ pub(crate) async fn send(
         extra,
     )
     .await?;
-    QuoteGateway::of(ctx).send_email(scope, email).await?;
+    QuoteGateway::of(ctx)
+        .send_email(&mut tx, scope, email)
+        .await?;
     tx.commit().await?;
     reload(ctx, quote.id).await
 }
@@ -648,19 +655,4 @@ pub(crate) async fn store_discount_flag(
         },
     )
     .await
-}
-
-pub(crate) async fn refresh_discount_flag(ctx: &Ctx<'_>, quote: &Quote) -> Result<(), AppError> {
-    let Some(exceeds) = discount_flag(ctx, quote).await? else {
-        return Ok(());
-    };
-    if exceeds == quote.exceeds_discount_limit {
-        return Ok(());
-    }
-    let mut tx = ctx.begin().await?;
-    let Some(mut locked) = QuoteStore::of(ctx).lock(&mut tx, quote.id).await? else {
-        return Err(quote_not_found());
-    };
-    store_discount_flag(ctx, &mut tx, &mut locked, exceeds).await?;
-    Ok(tx.commit().await?)
 }

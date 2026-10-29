@@ -124,9 +124,9 @@ pub(crate) fn operations() -> Vec<Arc<PluginOperation>> {
         .with_durable_mutations()),
         Arc::new(PluginOperation::write(
             "quotes.send",
-            "E-mail the quote link to the customer: { id, to?: [{ address, name? }], cc?: [{ address, name? }], subject?, body_html?, mailbox_id? }",
+            "Queue the quote link e-mail to the customer: { id, to?: [{ address, name? }], cc?: [{ address, name? }], subject?, body_html?, mailbox_id? }",
             send,
-        )),
+        ).with_durable_mutations()),
         Arc::new(PluginOperation::write(
             "quotes.accept",
             "Record the acceptance of a quote on behalf of the customer: { id, name?, email?, note? }",

@@ -217,8 +217,29 @@ impl HookBus {
     }
 
     pub fn has<H: Hook>(&self) -> bool {
-        self.handlers::<H>()
-            .is_some_and(|handlers| !handlers.actions.is_empty() || !handlers.filters.is_empty())
+        self.has_except::<H>(None)
+    }
+
+    pub fn has_except<H: Hook>(&self, excluded_module: Option<&str>) -> bool {
+        self.has_kind::<H>(excluded_module, HookKind::Action)
+            || self.has_kind::<H>(excluded_module, HookKind::Filter)
+    }
+
+    pub fn has_actions_except<H: Hook>(&self, excluded_module: Option<&str>) -> bool {
+        self.has_kind::<H>(excluded_module, HookKind::Action)
+    }
+
+    pub fn has_filters_except<H: Hook>(&self, excluded_module: Option<&str>) -> bool {
+        self.has_kind::<H>(excluded_module, HookKind::Filter)
+    }
+
+    fn has_kind<H: Hook>(&self, excluded_module: Option<&str>, kind: HookKind) -> bool {
+        self.registered.iter().any(|entry| {
+            entry.hook == type_name::<H>()
+                && entry.kind == kind
+                && excluded_module != Some(entry.module)
+                && self.enabled.is_enabled(entry.module)
+        })
     }
 
     pub async fn run<H: Hook>(

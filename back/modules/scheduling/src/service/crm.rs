@@ -94,17 +94,6 @@ pub(crate) async fn create_activity_in_tx(
     Ok(prepared.id)
 }
 
-pub(crate) async fn update_activity(
-    ctx: &Ctx<'_>,
-    scope: &AccessScope,
-    activity_id: Uuid,
-    command: UpdateActivityCommand,
-) -> Result<(), AppError> {
-    activities::service::update(&ctx.with_scope(scope), &activity_id.to_string(), command)
-        .await
-        .map(|_| ())
-}
-
 pub(crate) async fn update_activity_in_tx(
     ctx: &Ctx<'_>,
     tx: &mut MySqlTx,

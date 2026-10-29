@@ -13,7 +13,7 @@ const eventRenderer: TimelineRenderer = {
   render: (item) => <EsignEventContent item={item} />,
 }
 
-const EVENTS = ['sent', 'signed', 'refused', 'cancelled', 'completed', 'expired', 'signed_file_attached']
+const EVENTS = ['queued', 'cancel_queued', 'failed', 'sent', 'signed', 'refused', 'cancelled', 'completed', 'expired', 'signed_file_attached']
 
 const esignModule = defineModule({
   key: ESIGN_KEY,

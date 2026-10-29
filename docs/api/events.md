@@ -115,6 +115,9 @@ Records that stopped being visible before processing (e.g. private notes, record
 | `score.band_changed` | Contact whose score crossed into another band (cold, warm, hot) of a scoring model. Deals and custom objects only produce the internal event and the automation trigger | `{ score_band: <old band> }` |
 | `score.company_band_changed` | Company whose score crossed into another band (cold, warm, hot) of a scoring model | `{ score_band: <old band> }` |
 | `proposal.generated` | Deal whose PDF proposal was generated and attached (`proposals` module) | — |
+| `esign.queued` | Deal whose signature request was queued for delivery | — |
+| `esign.cancel_queued` | Deal whose signature cancellation was queued | — |
+| `esign.failed` | Deal whose signature delivery failed or could not be confirmed | — |
 | `esign.sent` | Deal whose document was sent for electronic signature (`esign` module) | — |
 | `esign.signed` | Deal whose document was signed by a signer | — |
 | `esign.refused` | Deal whose document was refused by a signer | — |

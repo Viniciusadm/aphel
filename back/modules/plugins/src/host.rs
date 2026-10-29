@@ -410,7 +410,9 @@ impl Host for CallState {
             && aphel_kernel::modules::app()
                 .contributions::<aphel_kernel::modules::PluginOperation>()
                 .iter()
-                .any(|candidate| candidate.key == operation && candidate.writes)
+                .any(|candidate| {
+                    candidate.key == operation && candidate.writes && !candidate.external_query
+                })
         {
             return answer(Err(AppError::conflict_code(
                 "plugin_effect_required",
