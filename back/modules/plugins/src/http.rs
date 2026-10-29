@@ -340,7 +340,13 @@ async fn sync_permissions(
         .collect::<Result<_, _>>()?;
     let grants: Vec<RuntimeGrant<'_>> = permissions
         .iter()
-        .map(|(permission, roles)| RuntimeGrant { permission, roles })
+        .zip(&manifest.permissions)
+        .map(|((permission, roles), declared)| RuntimeGrant {
+            permission,
+            roles,
+            label: &declared.label,
+            description: declared.description.as_deref(),
+        })
         .collect();
     replace_runtime_permissions(tx, &permissions_owner(&manifest.key), &grants, active).await
 }

@@ -46,13 +46,14 @@ export function PermissionMatrix({ catalog, value, readOnly = false, onChange }:
               </tr>
               {group.definitions.map((definition) => {
                 const rowLabel = `${labelText(moduleLabel(group.module))} · ${labelText(
-                  permissionLabel(definition.permission, definition.record_scoped),
+                  permissionLabel(definition.permission, definition.record_scoped, definition.label),
                 )}`
                 const current = value[definition.permission] ?? null
                 return (
                   <tr key={definition.permission} className="border-t">
                     <th scope="row" className="px-3 py-2 text-left font-normal">
-                      {labelText(permissionLabel(definition.permission, definition.record_scoped))}
+                      {labelText(permissionLabel(definition.permission, definition.record_scoped, definition.label))}
+                    {definition.description?.trim() && <div className="mt-1 text-xs text-muted-foreground">{definition.description}</div>}
                     </th>
                     {[null, ...MATRIX_SCOPES].map((scope) => {
                       const applicable = definition.record_scoped || scope === null || scope === 'organization'

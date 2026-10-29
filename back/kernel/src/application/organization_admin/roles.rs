@@ -314,16 +314,7 @@ fn fold_accent(character: char) -> char {
 pub fn organization_catalog(scope: &AccessScope) -> Vec<PermissionDefinition> {
     permission_catalog()
         .into_iter()
-        .chain(
-            scope
-                .permissions()
-                .catalog_extension()
-                .iter()
-                .map(|permission| PermissionDefinition {
-                    permission: permission.clone(),
-                    record_scoped: true,
-                }),
-        )
+        .chain(scope.permissions().catalog_extension().iter().cloned())
         .collect()
 }
 

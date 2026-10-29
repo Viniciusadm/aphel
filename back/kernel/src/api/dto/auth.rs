@@ -188,7 +188,13 @@ impl From<AccountOverview> for MeResponse {
             permission_catalog()
                 .into_iter()
                 .map(|definition| definition.permission)
-                .chain(scope.permissions().catalog_extension().iter().cloned())
+                .chain(
+                    scope
+                        .permissions()
+                        .catalog_extension()
+                        .iter()
+                        .map(|definition| definition.permission.clone()),
+                )
                 .map(|permission| PermissionGrantDto {
                     permission: permission.as_str().to_owned(),
                     scope: RecordScopeDto::Organization,

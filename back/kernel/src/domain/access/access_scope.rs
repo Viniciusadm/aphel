@@ -1,7 +1,7 @@
 use std::collections::BTreeMap;
 
 use crate::domain::access::{
-    Permission, PermissionGrant, RecordScope, RoleKey, permission_catalog,
+    Permission, PermissionDefinition, PermissionGrant, RecordScope, RoleKey, permission_catalog,
 };
 use crate::domain::api_tokens::ApiTokenScopes;
 use crate::domain::{TeamId, UserId};
@@ -10,7 +10,7 @@ use crate::domain::{TeamId, UserId};
 pub struct PermissionSet {
     grants: BTreeMap<Permission, RecordScope>,
     grants_everything: bool,
-    catalog_extension: Vec<Permission>,
+    catalog_extension: Vec<PermissionDefinition>,
 }
 
 impl PermissionSet {
@@ -30,12 +30,12 @@ impl PermissionSet {
         }
     }
 
-    pub fn with_catalog_extension(mut self, permissions: Vec<Permission>) -> Self {
+    pub fn with_catalog_extension(mut self, permissions: Vec<PermissionDefinition>) -> Self {
         self.catalog_extension = permissions;
         self
     }
 
-    pub fn catalog_extension(&self) -> &[Permission] {
+    pub fn catalog_extension(&self) -> &[PermissionDefinition] {
         &self.catalog_extension
     }
 
@@ -62,7 +62,11 @@ impl PermissionSet {
             permission_catalog()
                 .into_iter()
                 .map(|definition| definition.permission)
-                .chain(self.catalog_extension.iter().cloned())
+                .chain(
+                    self.catalog_extension
+                        .iter()
+                        .map(|definition| definition.permission.clone()),
+                )
                 .map(|permission| PermissionGrant {
                     permission,
                     scope: RecordScope::Organization,
@@ -282,6 +286,6 @@ pub struct AccessGrantView {
     pub role_is_system: bool,
     pub grants: Vec<PermissionGrant>,
     pub team_ids: Vec<TeamId>,
-    pub catalog_extension: Vec<Permission>,
+    pub catalog_extension: Vec<PermissionDefinition>,
     pub enabled_modules: Vec<String>,
 }

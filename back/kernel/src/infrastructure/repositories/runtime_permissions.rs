@@ -1,23 +1,36 @@
 use sqlx::MySqlPool;
 
 use crate::database::transaction::MySqlTx;
-use crate::domain::access::Permission;
+use crate::domain::access::{Permission, PermissionDefinition};
 use crate::errors::AppError;
 
 pub struct RuntimeGrant<'a> {
     pub permission: &'a Permission,
     pub roles: &'a [String],
+    pub label: &'a str,
+    pub description: Option<&'a str>,
 }
 
-pub async fn active_runtime_permissions(pool: &MySqlPool) -> Result<Vec<Permission>, AppError> {
-    let keys: Vec<String> = sqlx::query_scalar(
-        "SELECT permission FROM runtime_permissions WHERE is_active ORDER BY permission",
+pub async fn active_runtime_permissions(
+    pool: &MySqlPool,
+) -> Result<Vec<PermissionDefinition>, AppError> {
+    let keys: Vec<(String, Option<String>, Option<String>)> = sqlx::query_as(
+        "SELECT permission, label, description FROM runtime_permissions WHERE is_active ORDER BY permission",
     )
     .fetch_all(pool)
     .await?;
     Ok(keys
         .into_iter()
-        .filter_map(|key| Permission::parse(key).ok())
+        .filter_map(|(key, label, description)| {
+            Permission::parse(key)
+                .ok()
+                .map(|permission| PermissionDefinition {
+                    permission,
+                    record_scoped: true,
+                    label,
+                    description,
+                })
+        })
         .collect())
 }
 
@@ -62,11 +75,13 @@ pub async fn replace_runtime_permissions(
             ));
         }
         sqlx::query(
-            "INSERT INTO runtime_permissions (permission, owner, is_active) VALUES (?, ?, ?)",
+            "INSERT INTO runtime_permissions (permission, owner, is_active, label, description) VALUES (?, ?, ?, ?, ?)",
         )
         .bind(grant.permission.as_str())
         .bind(owner)
         .bind(active)
+        .bind(grant.label)
+        .bind(grant.description)
         .execute(&mut **tx)
         .await?;
         let newly_registered = !previous

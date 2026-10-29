@@ -206,7 +206,7 @@ fn with_extension(mut response: RoleResponse, scope: &AccessScope) -> RoleRespon
                     .catalog_extension()
                     .iter()
                     .map(|permission| PermissionGrantDto {
-                        permission: permission.as_str().to_owned(),
+                        permission: permission.permission.as_str().to_owned(),
                         scope: RecordScopeDto::Organization,
                     }),
             );

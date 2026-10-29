@@ -90,7 +90,11 @@ impl AccessRepository for MySqlAccessRepository {
         .map(|id| mapper::typed_id(id, TeamId::new))
         .collect::<Result<Vec<_>, AppError>>()?;
 
-        let mut catalog_extension = custom_object_permissions(&self.pool).await?;
+        let mut catalog_extension: Vec<_> = custom_object_permissions(&self.pool)
+            .await?
+            .into_iter()
+            .map(crate::domain::access::PermissionDefinition::record)
+            .collect();
         catalog_extension.extend(active_runtime_permissions(&self.pool).await?);
         let enabled_modules = enabled_modules(&self.pool).await?;
         let modules = crate::modules::app();

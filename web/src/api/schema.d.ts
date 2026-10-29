@@ -13813,6 +13813,8 @@ export interface components {
             }[];
         };
         Data_Vec_PermissionDefinitionResponse: {
+            label: string | null;
+            description: string | null;
             data: {
                 /** @example contacts.read */
                 permission: string;
@@ -18840,6 +18842,8 @@ export interface components {
             previous?: null | components["schemas"]["PerformanceMetricsResponse"];
         };
         PermissionDefinitionResponse: {
+            label: string | null;
+            description: string | null;
             /** @example contacts.read */
             permission: string;
             record_scoped: boolean;

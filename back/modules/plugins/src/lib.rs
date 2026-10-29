@@ -46,6 +46,7 @@ impl Module for PluginsModule {
                 "create plugins compiled",
                 include_str!("../migrations/0002_create_plugins_compiled.sql"),
             ))
+            .migration(Migration::new(3, "populate permission metadata", include_str!("../migrations/0003_permission_metadata.sql")))
     }
 
     fn register(&self, app: &mut AppBuilder) -> Result<(), AppError> {

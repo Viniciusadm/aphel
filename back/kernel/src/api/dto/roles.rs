@@ -14,6 +14,8 @@ pub struct PermissionDefinitionResponse {
     #[schema(example = "contacts.read")]
     pub permission: String,
     pub record_scoped: bool,
+    pub label: Option<String>,
+    pub description: Option<String>,
 }
 
 impl From<PermissionDefinition> for PermissionDefinitionResponse {
@@ -21,6 +23,8 @@ impl From<PermissionDefinition> for PermissionDefinitionResponse {
         Self {
             permission: definition.permission.as_str().to_owned(),
             record_scoped: definition.record_scoped,
+            label: definition.label,
+            description: definition.description,
         }
     }
 }

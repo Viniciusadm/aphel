@@ -105,7 +105,13 @@ fn creator_scopes(scope: &AccessScope) -> Vec<ApiTokenScope> {
     let mut scopes: Vec<ApiTokenScope> = permission_catalog()
         .into_iter()
         .map(|definition| definition.permission)
-        .chain(scope.permissions().catalog_extension().iter().cloned())
+        .chain(
+            scope
+                .permissions()
+                .catalog_extension()
+                .iter()
+                .map(|definition| definition.permission.clone()),
+        )
         .chain(
             scope
                 .permissions()

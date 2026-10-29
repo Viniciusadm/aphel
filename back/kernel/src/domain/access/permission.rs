@@ -109,6 +109,8 @@ impl fmt::Display for Permission {
 pub struct PermissionDefinition {
     pub permission: Permission,
     pub record_scoped: bool,
+    pub label: Option<String>,
+    pub description: Option<String>,
 }
 
 pub fn builtin_permission_catalog() -> Vec<PermissionDefinition> {
@@ -126,6 +128,8 @@ pub fn builtin_permission_catalog() -> Vec<PermissionDefinition> {
         .map(|permission| PermissionDefinition {
             permission,
             record_scoped: true,
+            label: None,
+            description: None,
         })
         .chain(
             administrative
@@ -133,6 +137,8 @@ pub fn builtin_permission_catalog() -> Vec<PermissionDefinition> {
                 .map(|permission| PermissionDefinition {
                     permission,
                     record_scoped: false,
+                    label: None,
+                    description: None,
                 }),
         )
         .collect()
@@ -143,6 +149,8 @@ impl PermissionDefinition {
         Self {
             permission,
             record_scoped: true,
+            label: None,
+            description: None,
         }
     }
 
@@ -150,6 +158,8 @@ impl PermissionDefinition {
         Self {
             permission,
             record_scoped: false,
+            label: None,
+            description: None,
         }
     }
 }

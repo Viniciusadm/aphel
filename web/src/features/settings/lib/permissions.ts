@@ -73,8 +73,8 @@ export function moduleLabel(module: string): PermissionLabel {
   return { key: moduleLabels[module], fallback: module }
 }
 
-export function permissionLabel(permission: string, recordScoped: boolean): PermissionLabel {
-  if (!recordScoped) return { key: administrativeLabels[permission], fallback: permission }
+export function permissionLabel(permission: string, recordScoped: boolean, label?: string | null): PermissionLabel {
+  if (!recordScoped) return { key: administrativeLabels[permission], fallback: label?.trim() || permission }
   const action = permission.split('.').slice(1).join('.')
-  return { key: actionLabels[action], fallback: action || permission }
+  return { key: actionLabels[action], fallback: label?.trim() || action || permission }
 }
