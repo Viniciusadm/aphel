@@ -73,7 +73,7 @@ where
 
 pub type SharedPublicEventRenderer = Arc<dyn PublicEventRenderer>;
 
-pub fn public_definition_for(event: &DomainEvent) -> Option<&'static PublicEventDefinition> {
+pub fn public_definition_for(event: &DomainEvent) -> Option<PublicEventDefinition> {
     let definition = find_public_event(&event.event_type)?;
     if !definition.resource.has_record() {
         return Some(definition);

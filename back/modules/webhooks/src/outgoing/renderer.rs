@@ -69,10 +69,13 @@ fn is_not_found(error: &AppError) -> bool {
 #[async_trait]
 impl PublicEventRenderer for ApiPublicEventRenderer {
     async fn render(&self, event: &DomainEvent) -> Result<Option<PublicEvent>, AppError> {
+        aphel_kernel::application::public_events::refresh_public_events(&self.state.db()?).await?;
         let Some(definition) = public_definition_for(event) else {
             return Ok(None);
         };
-        let data = if !definition.resource.has_record() {
+        let data = if definition.verbatim_payload {
+            event.payload.clone()
+        } else if !definition.resource.has_record() {
             payload_resource_data(event)
         } else if definition.deleted {
             deleted_resource_data(event)
@@ -101,7 +104,7 @@ impl PublicEventRenderer for ApiPublicEventRenderer {
             actor: event.actor.clone(),
             occurred_at: event.occurred_at,
             data,
-            previous: previous_values(definition, &event.payload),
+            previous: previous_values(&definition, &event.payload),
             context: public_context(definition.context, &event.payload),
         }))
     }
@@ -118,7 +121,7 @@ impl PublicEventRenderer for ApiPublicEventRenderer {
             return Ok(event.clone());
         }
         let pool = self.state.db()?;
-        let record_type = public_record_type(&event.event_type, definition);
+        let record_type = public_record_type(&event.event_type, &definition);
         let redaction = user_field_redaction(&pool, viewer, &record_type).await?;
         let mut restricted = event.clone();
         redaction.redact_value(&mut restricted.data);

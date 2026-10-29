@@ -32,7 +32,10 @@ pub(crate) fn router() -> OpenApiRouter<AppState> {
 async fn event_catalog(
     State(state): State<AppState>,
 ) -> Result<Json<Data<Vec<PublicEventTypeResponse>>>, ApiError> {
-    let mut events: Vec<PublicEventTypeResponse> = public_event_catalog().map(Into::into).collect();
+    aphel_kernel::application::public_events::refresh_public_events(&state.db()?).await?;
+    let mut events: Vec<PublicEventTypeResponse> = public_event_catalog()
+        .map(|definition| (&definition).into())
+        .collect();
     {
         let registry = state.registry().await?;
         for object in registry

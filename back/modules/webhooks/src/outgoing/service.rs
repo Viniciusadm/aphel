@@ -270,6 +270,7 @@ pub(crate) async fn create(
     let mut violations = Vec::new();
     let description = clean_description(command.description);
     validate_description(&description, &mut violations);
+    aphel_kernel::application::public_events::refresh_public_events(ctx.pool()).await?;
     let events = validate_events(&command.events, &mut violations);
     if !violations.is_empty() {
         return Err(AppError::invalid_fields(
@@ -355,6 +356,7 @@ pub(crate) async fn update(
         validate_description(&updated.description, &mut violations);
     }
     if let Some(events) = &command.events {
+        aphel_kernel::application::public_events::refresh_public_events(ctx.pool()).await?;
         updated.events = validate_events(events, &mut violations);
     }
     if !violations.is_empty() {

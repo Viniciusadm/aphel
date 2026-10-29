@@ -74,6 +74,7 @@ impl Module for PluginsModule {
             http::router()
         })
         .public_routes(|_| http::public_router());
+        app.contribute::<dyn aphel_kernel::application::public_events::RuntimePublicEventSource>(Arc::new(registry::PublicEvents));
         app.contribute::<dyn AutomationActionSource>(Arc::new(automation::PluginActions))
             .contribute::<dyn AutomationTriggerSource>(Arc::new(automation::PluginTriggers));
         Ok(())

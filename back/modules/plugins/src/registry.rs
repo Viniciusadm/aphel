@@ -162,9 +162,24 @@ pub async fn current(pool: &MySqlPool) -> Result<Arc<Snapshot>, AppError> {
 }
 
 fn publish_extensions(snapshot: &Snapshot) {
+    let mut events = Vec::new();
     let mut kinds = Vec::new();
     let mut widgets = Vec::new();
     for plugin in &snapshot.plugins {
+        for spec in &plugin.manifest.emits {
+            use aphel_kernel::application::public_events::{PublicResource, event};
+            events.push(
+                event(
+                    runtime_extensions::intern(&plugin.manifest.event_type(&spec.name)),
+                    PublicResource::payload(runtime_extensions::intern(&format!(
+                        "plugin.{}",
+                        plugin.key
+                    ))),
+                    runtime_extensions::intern(spec.description.as_deref().unwrap_or(&spec.label)),
+                )
+                .with_verbatim_payload(),
+            );
+        }
         for spec in &plugin.manifest.notifications {
             let has = |channel: &str| spec.channels.iter().any(|candidate| candidate == channel);
             kinds.push(runtime_extensions::runtime_notification_kind(
@@ -186,6 +201,7 @@ fn publish_extensions(snapshot: &Snapshot) {
     }
     runtime_extensions::set_notification_kinds(crate::KEY, kinds);
     runtime_extensions::set_widgets(crate::KEY, widgets);
+    runtime_extensions::set_public_events(crate::KEY, events);
 }
 
 pub fn spawn_refresh(pool: MySqlPool) {
@@ -204,4 +220,18 @@ pub fn spawn_refresh(pool: MySqlPool) {
             tokio::time::sleep(REFRESH_INTERVAL).await;
         }
     });
+}
+
+pub struct PublicEvents;
+
+#[async_trait::async_trait]
+impl aphel_kernel::application::public_events::RuntimePublicEventSource for PublicEvents {
+    fn recognizes(&self, event_type: &str) -> bool {
+        event_type.starts_with("plugin.")
+    }
+
+    async fn refresh(&self, pool: &MySqlPool) -> Result<(), AppError> {
+        current(pool).await?;
+        Ok(())
+    }
 }

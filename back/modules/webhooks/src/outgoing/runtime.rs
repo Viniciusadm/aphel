@@ -48,7 +48,7 @@ impl EventConsumer for WebhookFanOutConsumer {
     }
 
     fn accepts(&self, event_type: &str) -> bool {
-        is_public_event(event_type)
+        is_public_event(event_type) || aphel_kernel::modules::app().contributions::<dyn aphel_kernel::application::public_events::RuntimePublicEventSource>().iter().any(|source| source.recognizes(event_type))
     }
 
     async fn consume(&self, event: &DomainEvent) -> Result<(), AppError> {

@@ -9,6 +9,7 @@ use crate::modules::builder::DashboardWidget;
 #[derive(Default)]
 struct Extensions {
     notification_kinds: BTreeMap<String, Vec<NotificationKindDefinition>>,
+    public_events: BTreeMap<String, Vec<crate::application::public_events::PublicEventDefinition>>,
     widgets: BTreeMap<String, Vec<DashboardWidget>>,
 }
 
@@ -110,5 +111,28 @@ pub fn widgets() -> Vec<DashboardWidget> {
     extensions()
         .read()
         .map(|extensions| extensions.widgets.values().flatten().cloned().collect())
+        .unwrap_or_default()
+}
+
+pub fn set_public_events(
+    owner: &str,
+    events: Vec<crate::application::public_events::PublicEventDefinition>,
+) {
+    if let Ok(mut extensions) = extensions().write() {
+        extensions.public_events.insert(owner.to_owned(), events);
+    }
+}
+
+pub fn public_events() -> Vec<crate::application::public_events::PublicEventDefinition> {
+    extensions()
+        .read()
+        .map(|extensions| {
+            extensions
+                .public_events
+                .values()
+                .flatten()
+                .copied()
+                .collect()
+        })
         .unwrap_or_default()
 }

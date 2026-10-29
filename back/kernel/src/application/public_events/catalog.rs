@@ -68,10 +68,16 @@ pub struct PublicEventDefinition {
     pub description: &'static str,
     pub previous: PreviousValues,
     pub deleted: bool,
+    pub verbatim_payload: bool,
     pub context: &'static [&'static str],
 }
 
 impl PublicEventDefinition {
+    pub fn with_verbatim_payload(mut self) -> Self {
+        self.verbatim_payload = true;
+        self
+    }
+
     pub const fn with_context(mut self, keys: &'static [&'static str]) -> Self {
         self.context = keys;
         self
@@ -89,6 +95,7 @@ pub const fn event(
         description,
         previous: PreviousValues::None,
         deleted: false,
+        verbatim_payload: false,
         context: &[],
     }
 }
@@ -105,6 +112,7 @@ pub const fn changed(
         description,
         previous,
         deleted: false,
+        verbatim_payload: false,
         context: &[],
     }
 }
@@ -120,6 +128,7 @@ pub const fn deleted(
         description,
         previous: PreviousValues::None,
         deleted: true,
+        verbatim_payload: false,
         context: &[],
     }
 }
@@ -155,8 +164,12 @@ const CUSTOM_CATALOG: &[PublicEventDefinition] = &[
     ),
 ];
 
-pub fn public_event_catalog() -> impl Iterator<Item = &'static PublicEventDefinition> {
-    crate::modules::app().catalog().public_events()
+pub fn public_event_catalog() -> impl Iterator<Item = PublicEventDefinition> {
+    crate::modules::app()
+        .catalog()
+        .public_events()
+        .copied()
+        .chain(crate::modules::runtime_extensions::public_events())
 }
 
 pub fn custom_public_events() -> &'static [PublicEventDefinition] {
@@ -170,7 +183,7 @@ pub fn custom_event_record_type(event_type: &str) -> Option<&str> {
         .filter(|prefix| is_custom_record_type(prefix))
 }
 
-pub fn find_public_event(event_type: &str) -> Option<&'static PublicEventDefinition> {
+pub fn find_public_event(event_type: &str) -> Option<PublicEventDefinition> {
     if let Some(definition) =
         public_event_catalog().find(|definition| definition.event_type == event_type)
     {
@@ -178,7 +191,7 @@ pub fn find_public_event(event_type: &str) -> Option<&'static PublicEventDefinit
     }
     let (_, action) = event_type.split_once('.')?;
     custom_event_record_type(event_type)?;
-    CUSTOM_CATALOG.iter().find(|definition| {
+    CUSTOM_CATALOG.iter().copied().find(|definition| {
         definition
             .event_type
             .split_once('.')
@@ -188,4 +201,17 @@ pub fn find_public_event(event_type: &str) -> Option<&'static PublicEventDefinit
 
 pub fn is_public_event(event_type: &str) -> bool {
     find_public_event(event_type).is_some()
+}
+
+#[async_trait::async_trait]
+pub trait RuntimePublicEventSource: Send + Sync {
+    fn recognizes(&self, event_type: &str) -> bool;
+    async fn refresh(&self, pool: &sqlx::MySqlPool) -> Result<(), crate::errors::AppError>;
+}
+
+pub async fn refresh_public_events(pool: &sqlx::MySqlPool) -> Result<(), crate::errors::AppError> {
+    for source in crate::modules::app().contributions::<dyn RuntimePublicEventSource>() {
+        source.refresh(pool).await?;
+    }
+    Ok(())
 }
