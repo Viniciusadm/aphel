@@ -89,12 +89,14 @@ pub(crate) fn operations() -> Vec<Arc<PluginOperation>> {
             "email.link",
             "Link an e-mail conversation to a record by hand: { thread_id, record_type, record_id }",
             link,
-        )),
+        )
+        .with_durable_mutations()),
         Arc::new(PluginOperation::write(
             "email.unlink",
             "Remove the link between an e-mail conversation and a record: { thread_id, record_type, record_id }",
             unlink,
-        )),
+        )
+        .with_durable_mutations()),
     ]
 }
 

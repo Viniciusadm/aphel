@@ -20,5 +20,6 @@ pub(crate) fn operations() -> Vec<Arc<PluginOperation>> {
         "exports.request",
         "Queue a CSV or XLSX export of records the actor can read (at most 100 000); the requester is notified when the file is ready: { record_type, format: csv|xlsx, filter?, sort?, search?, archived?: exclude|include|only, columns? } -> { id, record_type, format, status, columns, file_id, row_count, failure_reason, requested_by, created_at, .. }",
         request,
-    ))]
+    )
+        .with_durable_mutations())]
 }

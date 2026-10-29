@@ -87,11 +87,13 @@ pub(crate) fn operations() -> Vec<Arc<PluginOperation>> {
             "tags.apply",
             "Tag a record the actor can edit: { record_type, record_id, tag_id } -> { changed, tags }",
             apply,
-        )),
+        )
+        .with_durable_mutations()),
         Arc::new(PluginOperation::write(
             "tags.remove",
             "Remove a tag from a record the actor can edit: { record_type, record_id, tag_id } -> { changed, tags }",
             remove,
-        )),
+        )
+        .with_durable_mutations()),
     ]
 }

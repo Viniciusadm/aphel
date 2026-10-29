@@ -93,9 +93,12 @@ fn complete<'a>(ctx: &'a Ctx<'_>, input: Value) -> OperationFuture<'a> {
 }
 
 pub(crate) fn operations() -> Vec<Arc<PluginOperation>> {
-    vec![Arc::new(PluginOperation::write(
-        "activities.complete",
-        "Mark an open activity as done now: { id }",
-        complete,
-    ))]
+    vec![Arc::new(
+        PluginOperation::write(
+            "activities.complete",
+            "Mark an open activity as done now: { id }",
+            complete,
+        )
+        .with_durable_mutations(),
+    )]
 }

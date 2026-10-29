@@ -120,21 +120,25 @@ pub(crate) fn operations() -> Vec<Arc<PluginOperation>> {
             "approvals.submit",
             "Ask for the approvals a record needs at a moment (needs edit access): { record_type, record_id, moment: on_demand|stage_change|quote_send, target_id?, comment?, policy_key? } -> { outcome, requests }",
             submit,
-        )),
+        )
+        .with_durable_mutations()),
         Arc::new(PluginOperation::write(
             "approvals.approve",
             "Approve a request as an approver of its current step (needs a user actor): { id, comment? }",
             approve,
-        )),
+        )
+        .with_durable_mutations()),
         Arc::new(PluginOperation::write(
             "approvals.reject",
             "Reject a request as an approver of its current step (needs a user actor): { id, comment }",
             reject,
-        )),
+        )
+        .with_durable_mutations()),
         Arc::new(PluginOperation::write(
             "approvals.cancel",
             "Cancel a pending request (needs a user actor): { id, comment? }",
             cancel,
-        )),
+        )
+        .with_durable_mutations()),
     ]
 }

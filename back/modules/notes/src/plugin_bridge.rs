@@ -105,21 +105,25 @@ pub(crate) fn operations() -> Vec<Arc<PluginOperation>> {
             "notes.create",
             "Create a note on a record: { record_type, record_id, body, visibility?: team|private, pinned? }",
             create,
-        )),
+        )
+        .with_durable_mutations()),
         Arc::new(PluginOperation::write(
             "notes.update",
             "Edit a note: { id, body?, visibility?, pinned? }",
             update,
-        )),
+        )
+        .with_durable_mutations()),
         Arc::new(PluginOperation::write(
             "notes.pin",
             "Pin or unpin a note: { id, pinned }",
             pin,
-        )),
+        )
+        .with_durable_mutations()),
         Arc::new(PluginOperation::write(
             "notes.delete",
             "Delete a note: { id }",
             delete,
-        )),
+        )
+        .with_durable_mutations()),
     ]
 }

@@ -190,12 +190,14 @@ pub(crate) fn operations() -> Vec<Arc<PluginOperation>> {
             "leads.qualify",
             "Qualify a contact in the lead stage: { contact_id } -> { contact_id, lifecycle_stage, deal_id }",
             qualify,
-        )),
+        )
+        .with_durable_mutations()),
         Arc::new(PluginOperation::write(
             "leads.disqualify",
             "Disqualify an open lead with a reason: { contact_id, reason_id, note? } -> { contact_id, lifecycle_stage, deal_id }",
             disqualify,
-        )),
+        )
+        .with_durable_mutations()),
         Arc::new(PluginOperation::write(
             "leads.convert",
             "Convert an open lead into a deal: { contact_id, pipeline_id, stage_id?, title?, amount?, currency? } -> { contact_id, lifecycle_stage, deal_id }",

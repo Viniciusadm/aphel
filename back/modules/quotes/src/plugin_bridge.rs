@@ -130,7 +130,8 @@ pub(crate) fn operations() -> Vec<Arc<PluginOperation>> {
             "quotes.accept",
             "Record the acceptance of a quote on behalf of the customer: { id, name?, email?, note? }",
             accept,
-        )),
+        )
+        .with_durable_mutations()),
         Arc::new(PluginOperation::write(
             "quotes.new_version",
             "Create a new version of the current quote: { id }",

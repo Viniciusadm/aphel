@@ -186,11 +186,13 @@ pub(crate) fn operations() -> Vec<Arc<PluginOperation>> {
             "deals.move_stage",
             "Move a deal to a stage (a won/lost stage wins/loses it): { id, stage_id, lost_reason_id?, lost_reason_note?, fields? }",
             move_stage,
-        )),
+        )
+        .with_durable_mutations()),
         Arc::new(PluginOperation::write(
             "deals.move_pipeline",
             "Move a deal to another pipeline: { id, pipeline_id, stage_id?, lost_reason_id?, lost_reason_note?, fields? }",
             move_pipeline,
-        )),
+        )
+        .with_durable_mutations()),
     ]
 }

@@ -53,6 +53,7 @@ pub(crate) fn operations() -> Vec<Arc<PluginOperation>> {
             "deal_items.replace",
             "Replace all line items of a deal: { deal_id, items: [{ product_id?, name?, unit?, quantity?, unit_price?, discount_type?: none|percent|amount, discount_value?, recurrence?: none|monthly|quarterly|yearly, term_months? }] }",
             replace,
-        )),
+        )
+        .with_durable_mutations()),
     ]
 }

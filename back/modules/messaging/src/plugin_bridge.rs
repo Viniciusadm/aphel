@@ -38,5 +38,6 @@ pub(crate) fn operations() -> Vec<Arc<PluginOperation>> {
         "messaging.reply",
         "Queue a reply in a shared inbox conversation (needs messaging view and reply permissions): { conversation_id, body }",
         reply,
-    ))]
+    )
+        .with_durable_mutations())]
 }

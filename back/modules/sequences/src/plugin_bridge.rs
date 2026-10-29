@@ -133,25 +133,37 @@ pub(crate) fn operations() -> Vec<Arc<PluginOperation>> {
             "Sequences with their steps and enrollment counts: { active?, search?, page?, per_page? } -> { data, total }",
             list,
         )),
-        Arc::new(PluginOperation::write(
-            "sequences.enroll",
-            "Enroll a contact in a sequence: { sequence_id, contact_id, mailbox_id? }",
-            enroll,
-        )),
-        Arc::new(PluginOperation::write(
-            "sequences.pause",
-            "Pause an active enrollment: { id }",
-            pause,
-        )),
-        Arc::new(PluginOperation::write(
-            "sequences.resume",
-            "Resume a paused enrollment: { id }",
-            resume,
-        )),
-        Arc::new(PluginOperation::write(
-            "sequences.exit",
-            "Remove a contact from a sequence (ends a live enrollment): { id }",
-            exit,
-        )),
+        Arc::new(
+            PluginOperation::write(
+                "sequences.enroll",
+                "Enroll a contact in a sequence: { sequence_id, contact_id, mailbox_id? }",
+                enroll,
+            )
+            .with_durable_mutations(),
+        ),
+        Arc::new(
+            PluginOperation::write(
+                "sequences.pause",
+                "Pause an active enrollment: { id }",
+                pause,
+            )
+            .with_durable_mutations(),
+        ),
+        Arc::new(
+            PluginOperation::write(
+                "sequences.resume",
+                "Resume a paused enrollment: { id }",
+                resume,
+            )
+            .with_durable_mutations(),
+        ),
+        Arc::new(
+            PluginOperation::write(
+                "sequences.exit",
+                "Remove a contact from a sequence (ends a live enrollment): { id }",
+                exit,
+            )
+            .with_durable_mutations(),
+        ),
     ]
 }

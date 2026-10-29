@@ -263,7 +263,7 @@ pub fn record_operations() -> Vec<Arc<PluginOperation>> {
         Arc::new(
             PluginOperation::write(
                 "records.restore",
-                "Restore an archived or deleted record: { record_type, id }",
+                "Restore an archived record: { record_type, id }",
                 restore,
             )
             .with_durable_mutations(),

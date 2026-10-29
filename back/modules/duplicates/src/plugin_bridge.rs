@@ -66,11 +66,13 @@ pub(crate) fn operations() -> Vec<Arc<PluginOperation>> {
             "duplicates.merge",
             "Merge duplicate_id into primary_id (the duplicate goes to the trash): { record_type, primary_id, duplicate_id, fields?: { field_key: primary|duplicate }, expected_updated_at? (primary's updated_at, ISO-8601) } -> { record_type, survivor_id, merged_id, moved }",
             merge,
-        )),
+        )
+        .with_durable_mutations()),
         Arc::new(PluginOperation::write(
             "duplicates.dismiss",
             "Mark a duplicate candidate as not a duplicate: { id } -> candidate",
             dismiss,
-        )),
+        )
+        .with_durable_mutations()),
     ]
 }

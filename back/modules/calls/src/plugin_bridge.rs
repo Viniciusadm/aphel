@@ -20,5 +20,6 @@ pub(crate) fn operations() -> Vec<Arc<PluginOperation>> {
         "calls.log",
         "Log a call as an activity: { outcome_key, record_type?, record_id?, direction?: inbound|outbound, duration_seconds?, phone_number?, recording_url?, title?, notes?, occurred_at?, provider?, provider_call_id?, custom_fields? } -> the activity",
         log,
-    ))]
+    )
+        .with_durable_mutations())]
 }
