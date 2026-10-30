@@ -1,0 +1,1 @@
+ALTER TABLE audit_logs ADD COLUMN reason VARCHAR(500) NULL AFTER ip;

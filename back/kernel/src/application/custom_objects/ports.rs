@@ -13,7 +13,7 @@ use crate::application::query::RecordQueryPorts;
 use crate::application::security::Clock;
 use crate::application::shared::{AuditLog, EventPublisher, RecordRef, TransactionManager};
 use crate::domain::UserId;
-use crate::domain::access::{AccessScope, RecordScopeFilter};
+use crate::domain::access::{AccessScope, RecordScope, RecordScopeFilter};
 use crate::domain::custom_objects::{CustomObject, CustomRecord, RelationshipDefinition};
 use crate::errors::AppError;
 
@@ -42,6 +42,7 @@ pub trait CustomObjectRepository: Send + Sync {
         &self,
         tx: &mut Self::Tx,
         record_type: &str,
+        scope: Option<RecordScope>,
     ) -> Result<(), AppError>;
     async fn seed_system_fields(
         &self,
@@ -185,6 +186,9 @@ pub trait CustomRecordRepository: Send + Sync {
         record_id: Uuid,
         deleted_at: DateTime<Utc>,
     ) -> Result<(), AppError>;
+    async fn lock(&self, _tx: &mut Self::Tx, _record_id: Uuid) -> Result<(), AppError> {
+        Ok(())
+    }
 }
 
 pub type RelationsTx<P> = <<P as RelationPorts>::Transactions as TransactionManager>::Tx;

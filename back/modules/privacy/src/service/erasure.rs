@@ -8,7 +8,9 @@ use crate::domain::{
 };
 use crate::service::requests::ExecutionOutcome;
 use crate::service::subject::Redaction;
-use crate::service::{Mutation, definition, personal_fields, publish, remove_stored_files};
+use crate::service::{
+    Mutation, definition, personal_fields, publish, remove_stored_files, run_external_sources,
+};
 use crate::store::{ColumnAssignment, PrivacyStore, free_text_columns};
 use aphel_kernel::Ctx;
 use aphel_kernel::application::fields::{
@@ -122,6 +124,7 @@ pub(crate) async fn erase(
     request: &PrivacyRequest,
 ) -> Result<ExecutionOutcome, AppError> {
     let mut report = RunReport::default();
+    run_external_sources(ctx, request, &mut report).await;
     for record in &request.targets.records {
         match erase_record(ctx, request, record).await {
             Ok(Some(erased)) => {

@@ -71,6 +71,21 @@ impl RecordTypeHandler for CustomRecordHandler {
         Self::response(ctx, details.into()).await
     }
 
+    async fn create_in_tx(
+        &self,
+        ctx: &RecordCtx<'_>,
+        tx: &mut MySqlTx,
+        values: Value,
+    ) -> Result<PendingCommit, AppError> {
+        let key = self.object_key(ctx).await?;
+        let command = values_request::<CustomRecordRequest>(values)?.into_command(None, None);
+        let (_, pending) = custom_record_use_cases(ctx.state)
+            .await?
+            .create_in_tx(tx, ctx.scope, &key, command)
+            .await?;
+        Ok(pending)
+    }
+
     async fn update_in_tx(
         &self,
         ctx: &RecordCtx<'_>,

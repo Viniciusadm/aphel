@@ -14,7 +14,7 @@
   "errors": {
     "title": "Não foi possível concluir",
     "customObjectKeyTaken": "Já existe um objeto com essa chave. Escolha outra.",
-    "tooManyCustomObjects": "O limite de objetos personalizados desta organização foi atingido.",
+    "tooManyCustomObjects": "O limite de objetos personalizados desta organização foi atingido. Objetos criados por módulos e plugins não entram na conta.",
     "customObjectHasRecords": "Este objeto tem registros e não pode ser excluído. Desative-o para escondê-lo.",
     "tooManyRelationships": "O limite de relacionamentos foi atingido.",
     "versionConflict": "Outra pessoa alterou este item enquanto você editava. Feche e abra novamente para ver a versão atual.",

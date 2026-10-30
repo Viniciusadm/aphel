@@ -152,7 +152,10 @@
       "actions": "Automation actions",
       "emits": "Automation triggers",
       "notifications": "Notifications",
-      "widgets": "Widgets"
+      "widgets": "Widgets",
+      "rolePresets": "Role presets",
+      "entityScopes": "Default visibility",
+      "uniqueFields": "Unique fields"
     },
     "checking": "Checking the package…",
     "settings": "Settings",
@@ -171,6 +174,17 @@
     "consentConfirm": "Install",
     "consentNothing": "The plugin does not ask for any special permission.",
     "consentPublicWarning": "Public routes can be called by anyone on the internet, without signing in.",
-    "consentHttpWarning": "The plugin will be able to send CRM data to the listed addresses."
+    "consentHttpWarning": "The plugin will be able to send CRM data to the listed addresses.",
+    "presetsTitle": "Roles to create",
+    "presetsDescription": "Select the roles the plugin should create with its suggested permissions. Nothing is selected by default; existing roles only receive missing grants.",
+    "presetExists": "Role already exists",
+    "presetPermissions_one": "{{count}} permission",
+    "presetPermissions_other": "{{count}} permissions",
+    "grantsTitle": "Role grants",
+    "grantsCount": "{{role}}: {{granted}} of {{expected}} permissions granted",
+    "grantsRoleMissing": "{{role}}: role does not exist",
+    "grantsIncomplete": "Some roles are missing or do not have every permission the plugin expects. Create the roles in Settings › Roles and reapply the grants.",
+    "reapplyGrants": "Reapply grants",
+    "grantsReapplied": "Grants reapplied."
   }
 }

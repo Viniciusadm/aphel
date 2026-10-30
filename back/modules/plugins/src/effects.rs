@@ -75,6 +75,60 @@ pub enum Command {
         link: Option<String>,
         data: Value,
     },
+    Email {
+        to: String,
+        #[serde(default)]
+        to_name: Option<String>,
+        subject: String,
+        text: String,
+        #[serde(default)]
+        html: Option<String>,
+        #[serde(default = "transactional")]
+        purpose: String,
+    },
+    Http {
+        method: String,
+        url: String,
+        #[serde(default)]
+        headers: Vec<(String, String)>,
+        #[serde(default)]
+        body: Option<String>,
+    },
+}
+
+fn transactional() -> String {
+    "transactional".to_owned()
+}
+
+const MAX_EMAIL_SUBJECT: usize = 200;
+const MAX_EMAIL_BODY: usize = 100 * 1024;
+const EMAIL_PER_MINUTE: u32 = 120;
+const HTTP_EFFECT_TIMEOUT: std::time::Duration = std::time::Duration::from_secs(30);
+
+static EMAIL_LIMIT: std::sync::LazyLock<aphel_kernel::api::rate_limit::SharedRateLimiter> =
+    std::sync::LazyLock::new(|| {
+        aphel_kernel::api::rate_limit::SharedRateLimiter::new(
+            "plugins.email",
+            EMAIL_PER_MINUTE,
+            std::time::Duration::from_secs(60),
+        )
+    });
+
+fn url_host(url: &str) -> Option<String> {
+    let rest = url
+        .strip_prefix("https://")
+        .or_else(|| url.strip_prefix("http://"))?;
+    let authority = rest.split(['/', '?', '#']).next()?;
+    let host = authority.rsplit('@').next()?.split(':').next()?;
+    (!host.is_empty()).then(|| host.to_ascii_lowercase())
+}
+
+fn escape_html(text: &str) -> String {
+    text.replace('&', "&amp;")
+        .replace('<', "&lt;")
+        .replace('>', "&gt;")
+        .replace('"', "&quot;")
+        .replace('\n', "<br>")
 }
 
 pub struct PendingEffect {
@@ -188,6 +242,61 @@ async fn validate(plugin: &LoadedPlugin, command: &Command) -> Result<(), AppErr
                 return Err(AppError::forbidden_code(
                     "plugin_notification_not_declared",
                     "the notification must be declared",
+                ));
+            }
+        }
+        Command::Email {
+            to,
+            subject,
+            text,
+            html,
+            purpose,
+            ..
+        } => {
+            if !plugin
+                .manifest
+                .allows(&aphel_kernel::domain::access::Permission::EMAILS_SEND)
+            {
+                return Err(AppError::forbidden_code(
+                    "plugin_email_not_allowed",
+                    "declare emails.send in requires to send e-mail",
+                ));
+            }
+            aphel_kernel::application::communication::normalize_address(to)?;
+            if aphel_kernel::application::communication::Purpose::parse(purpose).is_none() {
+                return Err(AppError::validation_code(
+                    "plugin_effect_invalid",
+                    "purpose must be transactional or marketing",
+                ));
+            }
+            if subject.trim().is_empty()
+                || subject.contains(['\r', '\n'])
+                || subject.chars().count() > MAX_EMAIL_SUBJECT
+                || text.len() > MAX_EMAIL_BODY
+                || html
+                    .as_ref()
+                    .is_some_and(|html| html.len() > MAX_EMAIL_BODY)
+            {
+                return Err(AppError::validation_code(
+                    "plugin_effect_invalid",
+                    "the subject must be one line of up to 200 characters and the bodies up to 100 KiB",
+                ));
+            }
+        }
+        Command::Http { method, url, .. } => {
+            if !["GET", "POST", "PUT", "PATCH", "DELETE"].contains(&method.as_str()) {
+                return Err(AppError::validation_code(
+                    "plugin_effect_invalid",
+                    "the HTTP method must be GET, POST, PUT, PATCH or DELETE",
+                ));
+            }
+            let host = url_host(url).ok_or_else(|| {
+                AppError::validation_code("plugin_effect_invalid", "the URL is invalid")
+            })?;
+            if !plugin.manifest.host_allowed(&host) {
+                return Err(AppError::forbidden_code(
+                    "plugin_host_not_allowed",
+                    format!("{host} is not in [http] allowed_hosts"),
                 ));
             }
         }
@@ -308,7 +417,7 @@ impl JobHandler for Run {
         let result = execution
             .scope(MutationReceipt::scope(
                 id,
-                execute(&self.pool, plugin, &scope, command),
+                execute(&self.pool, plugin, &scope, id, command),
             ))
             .await;
         if receipt::applied(&self.pool, id).await? {
@@ -336,9 +445,78 @@ async fn execute(
     pool: &MySqlPool,
     plugin: &LoadedPlugin,
     scope: &AccessScope,
+    effect_id: Uuid,
     command: Command,
 ) -> Result<(), AppError> {
     match command {
+        Command::Email {
+            to,
+            to_name: _,
+            subject,
+            text,
+            html,
+            purpose,
+        } => {
+            use aphel_kernel::application::access::Authorizer;
+            use aphel_kernel::application::communication::{Purpose, opted_out_error};
+            scope.require(&aphel_kernel::domain::access::Permission::EMAILS_SEND)?;
+            let purpose = Purpose::parse(&purpose).unwrap_or(Purpose::Transactional);
+            if aphel_kernel::infrastructure::communication::opted_out(pool, &to, purpose).await? {
+                let refusal = opted_out_error(&to);
+                sqlx::query("UPDATE plugins_effects SET last_error = ? WHERE id = ?")
+                    .bind(refusal.client_message())
+                    .bind(effect_id.to_string())
+                    .execute(pool)
+                    .await?;
+            } else {
+                EMAIL_LIMIT
+                    .check(
+                        &plugin.key,
+                        "the plugin is sending too many e-mails; retrying later",
+                    )
+                    .await?;
+                let html = html.unwrap_or_else(|| format!("<p>{}</p>", escape_html(&text)));
+                runtime_state()?
+                    .mailer()
+                    .send(aphel_kernel::application::mail::EmailMessage {
+                        to,
+                        subject,
+                        html,
+                        text,
+                        calendar: None,
+                    })
+                    .await?;
+            }
+        }
+        Command::Http {
+            method,
+            url,
+            mut headers,
+            body,
+        } => {
+            headers.retain(|(name, _)| !name.eq_ignore_ascii_case("idempotency-key"));
+            headers.push(("Idempotency-Key".to_owned(), effect_id.to_string()));
+            let response = crate::net::fetch(
+                plugin,
+                std::time::Instant::now() + HTTP_EFFECT_TIMEOUT,
+                crate::runtime::wit::HttpRequest {
+                    method,
+                    url,
+                    headers,
+                    body: body.map(String::into_bytes),
+                },
+            )
+            .await?;
+            if !(200..300).contains(&response.status) {
+                return Err(AppError::unavailable_code(
+                    "plugin_http_effect_failed",
+                    format!(
+                        "the remote service answered {}; the request will be retried with the same Idempotency-Key",
+                        response.status
+                    ),
+                ));
+            }
+        }
         Command::Create {
             record_type,
             values,

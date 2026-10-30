@@ -10,9 +10,12 @@ use std::borrow::Cow;
 use chrono::{DateTime, Utc};
 use serde_json::Value;
 
-use crate::domain::{FieldSource, PersonalField};
+use crate::domain::{FieldSource, PersonalField, PrivacyRequest, PrivacyRequestKind, RunReport};
 use aphel_kernel::Ctx;
 use aphel_kernel::application::access::Authorizer;
+use aphel_kernel::application::data_subject::{
+    DataSubjectAction, DataSubjectRequest, DataSubjectSource, affected_items,
+};
 use aphel_kernel::application::fields::{
     CustomFieldPorts, FieldDefinitionRepository, RecordTypeDefinition,
 };
@@ -48,6 +51,43 @@ pub(crate) struct Mutation {
     pub(crate) changes: Vec<FieldChange>,
     pub(crate) now: DateTime<Utc>,
     pub(crate) ip: Option<String>,
+}
+
+pub(crate) async fn run_external_sources(
+    ctx: &Ctx<'_>,
+    request: &PrivacyRequest,
+    report: &mut RunReport,
+) -> Vec<(String, Value)> {
+    let action = match request.kind {
+        PrivacyRequestKind::Export => DataSubjectAction::Export,
+        PrivacyRequestKind::Anonymize => DataSubjectAction::Anonymize,
+        PrivacyRequestKind::Delete => DataSubjectAction::Delete,
+    };
+    let subject = DataSubjectRequest {
+        id: request.id,
+        action,
+        records: &request.targets.records,
+    };
+    let mut sections = Vec::new();
+    for source in ctx.app().contributions::<dyn DataSubjectSource>() {
+        for outcome in source.run(&subject).await {
+            match outcome.result {
+                Ok(data) => {
+                    report.external_items += affected_items(&data);
+                    sections.push((outcome.source, data));
+                }
+                Err(error) => {
+                    tracing::warn!(
+                        error = %error,
+                        source = %outcome.source,
+                        "an external source of a privacy request could not be processed"
+                    );
+                    report.errors += 1;
+                }
+            }
+        }
+    }
+    sections
 }
 
 pub(crate) fn definition(

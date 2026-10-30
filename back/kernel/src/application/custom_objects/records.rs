@@ -182,6 +182,25 @@ where
         command: SaveCustomRecordCommand,
     ) -> Result<CustomRecordDetails, AppError> {
         let object = self.object(key)?.clone();
+        let mut tx = self.ports.transactions().begin().await?;
+        let (id, pending) = self.create_in_tx(&mut tx, scope, key, command).await?;
+        self.ports.transactions().commit(tx).await?;
+        self.ports
+            .fields()
+            .pipeline()
+            .committed(scope, &pending.write())
+            .await;
+        self.reload(scope, &object, id).await
+    }
+
+    pub async fn create_in_tx(
+        &self,
+        tx: &mut CustomRecordsTx<P>,
+        scope: &AccessScope,
+        key: &str,
+        command: SaveCustomRecordCommand,
+    ) -> Result<(Uuid, PendingCommit), AppError> {
+        let object = self.object(key)?.clone();
         let record_type = object.record_type();
         let permission = object
             .permission("create")
@@ -226,10 +245,9 @@ where
             .pending_links(scope, &object, &command.relations, &mut validator)
             .await?;
         let reference = RecordRef::new(RecordType::parse(record_type.as_str())?, record.id);
-        let mut tx = self.ports.transactions().begin().await?;
         let custom_fields = self
             .saving(
-                &mut tx,
+                tx,
                 scope,
                 &object,
                 &reference,
@@ -241,27 +259,21 @@ where
             .await?;
         let custom = CustomFieldWriter::new(self.ports.fields())
             .with_record_values(&custom_record_snapshot(&record))
-            .apply(
-                &mut tx,
-                scope,
-                &reference,
-                &custom_fields,
-                WriteMode::Create,
-            )
+            .apply(tx, scope, &reference, &custom_fields, WriteMode::Create)
             .await;
         let mut changes = crate::records::merge_violations(validator, custom, INVALID_RECORD)?;
         record.title = self.derived_title(&object, &changes).unwrap_or_default();
-        self.ports.records().insert(&mut tx, &record).await?;
+        self.ports.records().insert(tx, &record).await?;
         for link in &links {
             let (from_id, to_id) = match link.side {
                 RelationSide::From => (record.id, link.target.record_id),
                 RelationSide::To => (link.target.record_id, record.id),
             };
-            self.check_capacity(&mut tx, link, from_id, to_id).await?;
+            self.check_capacity(tx, link, from_id, to_id).await?;
             self.ports
                 .links()
                 .insert(
-                    &mut tx,
+                    tx,
                     &RecordLink {
                         relationship_id: link.relationship.id,
                         from_id,
@@ -294,10 +306,10 @@ where
             values: &record_values,
         };
         let pipeline = self.ports.fields().pipeline();
-        pipeline.validate(&mut tx, scope, &write).await?;
-        pipeline.saved(&mut tx, scope, &write).await?;
+        pipeline.validate(tx, scope, &write).await?;
+        pipeline.saved(tx, scope, &write).await?;
         self.publish(
-            &mut tx,
+            tx,
             scope,
             &reference,
             record_event(&record_type, "created"),
@@ -310,9 +322,15 @@ where
             command.ip,
         )
         .await?;
-        self.ports.transactions().commit(tx).await?;
-        pipeline.committed(scope, &write).await;
-        self.reload(scope, &object, record.id).await
+        Ok((
+            record.id,
+            PendingCommit {
+                record: reference,
+                mode: WriteMode::Create,
+                changes: all_changes,
+                values: record_values,
+            },
+        ))
     }
 
     pub async fn update(
@@ -351,6 +369,9 @@ where
     ) -> Result<(Uuid, Option<PendingCommit>), AppError> {
         let object = self.object(key)?.clone();
         let record_type = object.record_type();
+        if let Ok(id) = Uuid::parse_str(record_id.trim()) {
+            self.ports.records().lock(tx, id).await?;
+        }
         let current = self.allowed(scope, &object, record_id, "update").await?;
         ensure_version(command.expected_updated_at, current.updated_at)?;
         let mut validator = InputValidator::new();

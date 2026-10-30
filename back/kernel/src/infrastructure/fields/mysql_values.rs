@@ -13,9 +13,11 @@ use crate::application::fields::{
 use crate::application::shared::{RecordRef, RecordType};
 use crate::database::transaction::MySqlTx;
 use crate::domain::UserId;
+use crate::domain::access::{AccessScope, RecordScopeFilter};
 use crate::domain::fields::{FieldDefinition, FieldType, FieldValue, ValueColumn};
 use crate::errors::AppError;
 use crate::infrastructure::fields::mysql_definitions::uuid_column;
+use crate::infrastructure::fields::unique_values;
 use crate::infrastructure::query::compiler::quoted;
 use crate::infrastructure::repositories::mapper;
 
@@ -348,6 +350,7 @@ impl CustomFieldValueRepository for MySqlCustomFieldValueRepository {
     }
 
     async fn delete_record(&self, tx: &mut MySqlTx, record: &RecordRef) -> Result<(), AppError> {
+        unique_values::release_record(tx, record).await?;
         for table in ["custom_field_values", "custom_field_multi_values"] {
             sqlx::query(sqlx::AssertSqlSafe(format!(
                 "DELETE FROM {table} WHERE record_type = ? AND record_id = ?"
@@ -417,6 +420,50 @@ impl CustomFieldValueRepository for MySqlCustomFieldValueRepository {
         builder.push(format!(" GROUP BY v.{column} HAVING COUNT(*) > 1)"));
         let duplicated: bool = builder.build_query_scalar().fetch_one(&self.pool).await?;
         Ok(duplicated)
+    }
+
+    async fn reserve_unique(
+        &self,
+        tx: &mut MySqlTx,
+        definition: &RecordTypeDefinition,
+        record: &RecordRef,
+        field: &FieldDefinition,
+    ) -> Result<(), AppError> {
+        unique_values::reserve(tx, definition, record, field).await
+    }
+
+    async fn release_unique(
+        &self,
+        tx: &mut MySqlTx,
+        record: &RecordRef,
+        field_id: Uuid,
+    ) -> Result<(), AppError> {
+        unique_values::release(tx, record, field_id).await
+    }
+
+    async fn existing_records_in(
+        &self,
+        tx: &mut MySqlTx,
+        scope: &AccessScope,
+        target: &RecordTypeDefinition,
+        visibility: &RecordScopeFilter,
+        record_ids: &[Uuid],
+    ) -> Result<Option<Vec<Uuid>>, AppError> {
+        Ok(Some(
+            crate::infrastructure::fields::mysql_references::existing_records_in(
+                tx, scope, target, visibility, record_ids,
+            )
+            .await?,
+        ))
+    }
+
+    async fn rebuild_unique(
+        &self,
+        tx: &mut MySqlTx,
+        definition: &RecordTypeDefinition,
+        field: &FieldDefinition,
+    ) -> Result<(), AppError> {
+        unique_values::rebuild(tx, definition, field).await
     }
 }
 

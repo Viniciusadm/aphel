@@ -823,7 +823,7 @@ where
                             .await?;
                     }
                     self.objects
-                        .grant_default_permissions(tx, &object.record_type())
+                        .grant_default_permissions(tx, &object.record_type(), None)
                         .await?;
                     context.resolve(OBJECT_KIND, &object.key, object.id);
                     changed = true;

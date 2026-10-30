@@ -298,6 +298,7 @@ pub(crate) struct PrivacyReportResponse {
     pub(crate) activities: u64,
     pub(crate) import_rows: u64,
     pub(crate) history_entries: u64,
+    pub(crate) external_items: u64,
     pub(crate) skipped: u64,
     pub(crate) errors: u64,
 }
@@ -313,6 +314,7 @@ impl From<&Value> for PrivacyReportResponse {
             activities: number("activities"),
             import_rows: number("import_rows"),
             history_entries: number("history_entries"),
+            external_items: number("external_items"),
             skipped: number("skipped"),
             errors: number("errors"),
         }

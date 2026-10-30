@@ -66,6 +66,21 @@ fn definition_from_row(row: &MySqlRow) -> Result<FieldDefinition, AppError> {
     })
 }
 
+pub(crate) async fn unique_fields(
+    tx: &mut MySqlTx,
+    record_type: &str,
+) -> Result<Vec<FieldDefinition>, AppError> {
+    let rows = sqlx::query(
+        "SELECT id, record_type, `key`, label, field_type, is_system, column_name, is_required, \
+         is_unique, is_searchable, is_personal, is_sensitive, is_active, position, config, module_key \
+         FROM field_definitions WHERE record_type = ? AND is_unique = 1 AND is_active = 1",
+    )
+    .bind(record_type)
+    .fetch_all(&mut **tx)
+    .await?;
+    rows.iter().map(definition_from_row).collect()
+}
+
 fn option_from_row(row: &MySqlRow) -> Result<FieldOption, AppError> {
     Ok(FieldOption {
         id: uuid_column(row, "id")?,

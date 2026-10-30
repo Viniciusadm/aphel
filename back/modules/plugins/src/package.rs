@@ -9,6 +9,7 @@ pub const MANIFEST_FILE: &str = "plugin.toml";
 pub const BACKEND_FILE: &str = "backend.wasm";
 pub const MAX_PACKAGE_BYTES: usize = 50 * 1024 * 1024;
 const MAX_FILES: usize = 500;
+pub const PUBLIC_APP_INDEX: &str = "index.html";
 const INVALID_PACKAGE: &str = "plugin_package_invalid";
 
 #[derive(Debug, Clone)]
@@ -41,9 +42,13 @@ pub fn content_type(path: &str) -> &'static str {
         "css" => "text/css; charset=utf-8",
         "json" => "application/json",
         "wasm" => "application/wasm",
+        "html" => "text/html; charset=utf-8",
         "svg" => "image/svg+xml",
         "png" => "image/png",
         "jpg" | "jpeg" => "image/jpeg",
+        "webp" => "image/webp",
+        "ico" => "image/x-icon",
+        "txt" => "text/plain; charset=utf-8",
         "woff2" => "font/woff2",
         "toml" => "text/plain; charset=utf-8",
         _ => "application/octet-stream",
@@ -119,6 +124,14 @@ pub fn read_package(bytes: &[u8]) -> Result<PluginPackage, AppError> {
         && !files.iter().any(|file| file.path == web.entry)
     {
         return Err(invalid(format!("the web entry {} is missing", web.entry)));
+    }
+    if let Some(public) = manifest.web.as_ref().and_then(|web| web.public.as_deref()) {
+        let index = format!("{}/{PUBLIC_APP_INDEX}", public.trim_end_matches('/'));
+        if !public.starts_with("web/") || !files.iter().any(|file| file.path == index) {
+            return Err(invalid(format!(
+                "the public web app needs {index}, inside web/"
+            )));
+        }
     }
     Ok(PluginPackage {
         manifest,

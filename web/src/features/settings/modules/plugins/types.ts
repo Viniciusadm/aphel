@@ -5,6 +5,29 @@ export interface PluginPermission {
   grant_to: string[]
 }
 
+export interface PluginRolePreset {
+  key: string
+  label: string
+  description: string | null
+  permissions: string[]
+  scope: 'own' | 'team' | 'organization'
+}
+
+export interface PluginEntityScope {
+  record_type: string
+  permission_scope: 'own' | 'team' | 'organization'
+}
+
+export interface RoleGrantStatus {
+  role: string
+  label: string | null
+  preset: boolean
+  role_exists: boolean
+  expected: number
+  granted: number
+  missing: string[]
+}
+
 export interface PluginDeclarations {
   entities: string[]
   extended_types: string[]
@@ -22,6 +45,9 @@ export interface PluginDeclarations {
   notifications: string[]
   widgets: string[]
   operations: string[]
+  role_presets: PluginRolePreset[]
+  entity_scopes: PluginEntityScope[]
+  unique_fields: string[]
   has_web: boolean
 }
 
@@ -44,6 +70,8 @@ export interface InstalledPlugin extends PluginDeclarations {
   enabled: boolean
   backend_error: string | null
   settings: PluginSetting[]
+  grants: RoleGrantStatus[]
+  ungranted_roles: string[]
 }
 
 export interface PluginConsent extends PluginDeclarations {
@@ -52,6 +80,7 @@ export interface PluginConsent extends PluginDeclarations {
   version: string
   description: string | null
   installed_version: string | null
+  grants: RoleGrantStatus[]
 }
 
 export const PLUGINS_PATH = '/v1/plugins'

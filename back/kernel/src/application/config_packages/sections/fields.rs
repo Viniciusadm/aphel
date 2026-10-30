@@ -604,7 +604,7 @@ impl<D, V, J, Tx> ConfigSection<Tx> for FieldsSection<D, V, J>
 where
     Tx: Send,
     D: FieldDefinitionRepository<Tx = Tx>,
-    V: CustomFieldValueRepository,
+    V: CustomFieldValueRepository<Tx = Tx>,
     J: JobQueue<Tx>,
 {
     fn key(&self) -> &'static str {
@@ -771,6 +771,11 @@ where
                         recalculate.insert(updated.record_type.clone());
                     }
                     self.definitions.update(tx, &updated).await?;
+                    if updated.field_type.supports_unique() {
+                        self.values
+                            .rebuild_unique(tx, registry.require(&updated.record_type)?, &updated)
+                            .await?;
+                    }
                     for option in &new_options {
                         self.definitions
                             .insert_option(tx, updated.id, option)

@@ -458,3 +458,18 @@ Whoever creates a new code adds the row to this table and cites it in the respon
 | `esign_delivery_claimed` | 409 | The signature request is no longer pending delivery |
 | `plugin_query_outcome_unknown` | 409 | An external query started without a completed result; automatic repetition is refused |
 | `plugin_query_authority_changed` | 403 | The authority fingerprint changed since the external query was claimed |
+
+### Runtime plugin schema, batches and grants
+
+| Code | HTTP | Meaning |
+| --- | --- | --- |
+| `plugin_field_unique_conflict` | 409 | Existing records share values of a field the plugin declares as `unique`; `details.conflicts` lists the record ids |
+| `plugin_batch_invalid` | 422 | An `apply-records` batch is empty, has more than 100 mutations or more than 1 MiB of values, or a mutation failed validation (fields prefixed with `mutations[n].`) |
+| `plugin_role_preset_unknown` | 422 | The install form selected a role preset the package does not declare |
+| `plugin_raw_body_invalid` | 422 | `respond-bytes` received a content type outside the allowed list |
+| `plugin_raw_body_outside_route` | 409 | `respond-bytes` was called outside a route |
+| `plugin_raw_body_too_large` | 413 | A raw route body is larger than 10 MB |
+| `plugin_file_too_large` | 413 | `read-file` was called on a file larger than 10 MB |
+| `plugin_directory_unavailable` | 403 | `list-users` was called with neither a signed-in actor nor the plugin installer |
+| `plugin_kv_not_a_counter` | 409 | `kv-increment` found a value that is not an integer |
+| `duplicated_values` | 409 | Existing records share values of a field being made unique |

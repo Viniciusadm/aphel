@@ -9,7 +9,10 @@ pub mod storage;
 pub mod transactions;
 pub mod values;
 
-pub use audit::{AuditEntry, AuditLog, CausedAuditLog, FieldChange, REDACTED};
+pub use audit::{
+    AuditEntry, AuditLog, CausedAuditLog, FieldChange, MAX_AUDIT_REASON_LENGTH, REDACTED,
+    current_audit_reason, with_audit_reason,
+};
 pub use concurrency::{VERSION_CONFLICT, ensure_version};
 pub use events::{
     Actor, CausedEventPublisher, DomainEvent, EventCausation, EventConsumer, EventOrigin,

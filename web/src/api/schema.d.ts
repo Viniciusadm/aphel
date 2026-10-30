@@ -1326,6 +1326,41 @@ export interface paths {
         patch?: never;
         trace?: never;
     };
+    "/api/v1/communication/opt-outs": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        /** @description Addresses that asked not to be contacted (permission `privacy.manage`). Scope `all` blocks every message sent by the platform on behalf of plugins and modules that check consent; `marketing` blocks only marketing messages. */
+        get: operations["communication_opt_outs_list"];
+        put?: never;
+        /** @description Records that an address does not want to be contacted (permission `privacy.manage`). Publishes `communication.opted_out` with audit. */
+        post: operations["communication_opt_outs_create"];
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
+    "/api/v1/communication/opt-outs/{id}": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        get?: never;
+        put?: never;
+        post?: never;
+        /** @description Removes an opt-out, for example after the person consents again (permission `privacy.manage`). Publishes `communication.opt_out_removed` with audit. */
+        delete: operations["communication_opt_outs_delete"];
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
     "/api/v1/companies": {
         parameters: {
             query?: never;
@@ -5643,6 +5678,40 @@ export interface paths {
         patch?: never;
         trace?: never;
     };
+    "/api/v1/plugins/{key}/changes": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        /** @description Change feed of a plugin: every create, update, delete, archive and restore of its entities and every `plugin.<key>.*` event, in commit order, with a monotonic `seq`. Pass the last `next` as `since`. Entries of record types the caller cannot read are skipped (the cursor still advances). `fields` lists the changed field names, never their values; read the record to get them. The feed keeps 24 hours; `reset = true` means entries after `since` were pruned and the client must reload its state. */
+        get: operations["plugins_changes"];
+        put?: never;
+        post?: never;
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
+    "/api/v1/plugins/{key}/changes/stream": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        /** @description The change feed as Server-Sent Events: each entry is an event `change` with the JSON of `GET /plugins/{key}/changes` and `id` = `seq`; `reset` asks the client to reload. Resumes from `since` or the `Last-Event-ID` header. The server closes the stream after 5 minutes; `EventSource` reconnects with `Last-Event-ID`. */
+        get: operations["plugins_change_stream"];
+        put?: never;
+        post?: never;
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
     "/api/v1/plugins/{key}/disable": {
         parameters: {
             query?: never;
@@ -5671,6 +5740,23 @@ export interface paths {
         put?: never;
         /** @description Enables an installed plugin (permission `system.manage`): its entities, fields, hooks, events, routes and web bundle come back. Publishes `plugin.enabled`. */
         post: operations["plugins_enable"];
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
+    "/api/v1/plugins/{key}/grants": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        get?: never;
+        put?: never;
+        /** @description Reapplies the plugin's declared grants (permission `system.manage`): permissions with `grant_to`, role presets and entity `permission_scope` defaults are granted again to the roles that exist now. Roles are never created here; only grants missing from existing preset roles are added. Publishes `plugin.grants_reapplied` with an audit entry in the same transaction as the permission writes. The response reports, per role, how many of the expected permissions are granted. */
+        post: operations["plugins_reapply_grants"];
         delete?: never;
         options?: never;
         head?: never;
@@ -8905,6 +8991,7 @@ export interface components {
             ip?: string | null;
             /** Format: date-time */
             occurred_at: string;
+            reason?: string | null;
             record_id?: string | null;
             record_type?: string | null;
         };
@@ -9421,6 +9508,21 @@ export interface components {
             current_password: string;
             /** @example a-long-new-password */
             new_password: string;
+        };
+        ChangeResponse: {
+            event_type: string;
+            fields: string[];
+            occurred_at: string;
+            record_id?: string | null;
+            record_type?: string | null;
+            /** Format: int64 */
+            seq: number;
+        };
+        ChangesPage: {
+            data: components["schemas"]["ChangeResponse"][];
+            /** Format: int64 */
+            next: number;
+            reset: boolean;
         };
         /** @enum {string} */
         ChannelKind: "whatsapp" | "email";
@@ -10371,7 +10473,7 @@ export interface components {
             record_type: string;
             /** @example Contract 2026-001 */
             title: string;
-            /** @example 2026-10-20T13:45:00Z */
+            /** @example 2026-10-20T13:45:00.123456Z */
             updated_at: string;
         };
         DashboardLayoutPeriod: {
@@ -11157,7 +11259,7 @@ export interface components {
                 record_type: string;
                 /** @example Contract 2026-001 */
                 title: string;
-                /** @example 2026-10-20T13:45:00Z */
+                /** @example 2026-10-20T13:45:00.123456Z */
                 updated_at: string;
             };
         };
@@ -12367,6 +12469,18 @@ export interface components {
                 updated_at?: string | null;
             };
         };
+        Data_OptOutResponse: {
+            data: {
+                address: string;
+                created_at: string;
+                created_by?: string | null;
+                id: string;
+                reason?: string | null;
+                /** @example all */
+                scope: string;
+                source: string;
+            };
+        };
         Data_Option_ProductBundleResponse: {
             data: null | {
                 components: components["schemas"]["BundleComponentResponse"][];
@@ -12528,6 +12642,7 @@ export interface components {
         Data_PluginConsentResponse: {
             data: components["schemas"]["PluginDeclarations"] & {
                 description?: string | null;
+                grants: components["schemas"]["RoleGrantStatus"][];
                 installed_version?: string | null;
                 key: string;
                 name: string;
@@ -12539,10 +12654,12 @@ export interface components {
                 backend_error?: string | null;
                 description?: string | null;
                 enabled: boolean;
+                grants: components["schemas"]["RoleGrantStatus"][];
                 installed_at: string;
                 key: string;
                 name: string;
                 settings: components["schemas"]["PluginSettingResponse"][];
+                ungranted_roles: string[];
                 updated_at: string;
                 version: string;
             };
@@ -13938,10 +14055,12 @@ export interface components {
                 backend_error?: string | null;
                 description?: string | null;
                 enabled: boolean;
+                grants: components["schemas"]["RoleGrantStatus"][];
                 installed_at: string;
                 key: string;
                 name: string;
                 settings: components["schemas"]["PluginSettingResponse"][];
+                ungranted_roles: string[];
                 updated_at: string;
                 version: string;
             })[];
@@ -17193,6 +17312,22 @@ export interface components {
             operand: components["schemas"]["OperandKind"];
             operator: components["schemas"]["FilterOperator"];
         };
+        OptOutRequest: {
+            address: string;
+            reason?: string | null;
+            /** @example all */
+            scope: string;
+        };
+        OptOutResponse: {
+            address: string;
+            created_at: string;
+            created_by?: string | null;
+            id: string;
+            reason?: string | null;
+            /** @example all */
+            scope: string;
+            source: string;
+        };
         OrgExportRequest: {
             /** @example true */
             include_files?: boolean | null;
@@ -17522,6 +17657,7 @@ export interface components {
                 ip?: string | null;
                 /** Format: date-time */
                 occurred_at: string;
+                reason?: string | null;
                 record_id?: string | null;
                 record_type?: string | null;
             }[];
@@ -17815,7 +17951,7 @@ export interface components {
                 record_type: string;
                 /** @example Contract 2026-001 */
                 title: string;
-                /** @example 2026-10-20T13:45:00Z */
+                /** @example 2026-10-20T13:45:00.123456Z */
                 updated_at: string;
             }[];
             meta: components["schemas"]["PageMeta"];
@@ -18372,6 +18508,19 @@ export interface components {
                 record_type: string;
                 updated_at: string;
                 visibility: components["schemas"]["NoteVisibility"];
+            }[];
+            meta: components["schemas"]["PageMeta"];
+        };
+        Page_OptOutResponse: {
+            data: {
+                address: string;
+                created_at: string;
+                created_by?: string | null;
+                id: string;
+                reason?: string | null;
+                /** @example all */
+                scope: string;
+                source: string;
             }[];
             meta: components["schemas"]["PageMeta"];
         };
@@ -19133,6 +19282,7 @@ export interface components {
         };
         PluginConsentResponse: components["schemas"]["PluginDeclarations"] & {
             description?: string | null;
+            grants: components["schemas"]["RoleGrantStatus"][];
             installed_version?: string | null;
             key: string;
             name: string;
@@ -19143,6 +19293,7 @@ export interface components {
             allowed_hosts: string[];
             emits: string[];
             entities: string[];
+            entity_scopes: components["schemas"]["PluginEntityScopeResponse"][];
             events: string[];
             extended_types: string[];
             has_web: boolean;
@@ -19152,10 +19303,16 @@ export interface components {
             permissions: components["schemas"]["PluginPermissionResponse"][];
             public_routes: string[];
             requires: string[];
+            role_presets: components["schemas"]["PluginRolePresetResponse"][];
             routes: string[];
             schedules: string[];
             secrets: string[];
+            unique_fields: string[];
             widgets: string[];
+        };
+        PluginEntityScopeResponse: {
+            permission_scope: string;
+            record_type: string;
         };
         PluginPermissionResponse: {
             description?: string | null;
@@ -19167,12 +19324,21 @@ export interface components {
             backend_error?: string | null;
             description?: string | null;
             enabled: boolean;
+            grants: components["schemas"]["RoleGrantStatus"][];
             installed_at: string;
             key: string;
             name: string;
             settings: components["schemas"]["PluginSettingResponse"][];
+            ungranted_roles: string[];
             updated_at: string;
             version: string;
+        };
+        PluginRolePresetResponse: {
+            description?: string | null;
+            key: string;
+            label: string;
+            permissions: string[];
+            scope: string;
         };
         PluginSettingResponse: {
             configured?: boolean | null;
@@ -19287,6 +19453,8 @@ export interface components {
             attachments: number;
             /** Format: int64 */
             errors: number;
+            /** Format: int64 */
+            external_items: number;
             /** Format: int64 */
             files: number;
             /** Format: int64 */
@@ -20302,6 +20470,17 @@ export interface components {
              * @example 2
              */
             revoked: number;
+        };
+        RoleGrantStatus: {
+            /** Format: int64 */
+            expected: number;
+            /** Format: int64 */
+            granted: number;
+            label?: string | null;
+            missing: string[];
+            preset: boolean;
+            role: string;
+            role_exists: boolean;
         };
         RoleReferenceResponse: {
             id: string;
@@ -28361,6 +28540,159 @@ export interface operations {
             };
             /** @description Module entry (`catalog_entry_not_installable`), Aphel too old (`aphel_too_old`), checksum mismatch (`checksum_mismatch`), package that does not match the entry (`catalog_package_mismatch`) or download failure (`catalog_unavailable`). `Idempotency-Key` already used with a different request (`idempotency_key_reused`) or longer than 255 characters (`validation_error`) */
             422: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["ErrorEnvelope"];
+                };
+            };
+            /** @description API token rate limit exceeded (`rate_limited`); see `Retry-After` and `X-RateLimit-*` */
+            429: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["ErrorEnvelope"];
+                };
+            };
+        };
+    };
+    communication_opt_outs_list: {
+        parameters: {
+            query?: {
+                search?: string;
+                page?: number;
+                per_page?: number;
+            };
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        requestBody?: never;
+        responses: {
+            /** @description Opt-outs, newest first */
+            200: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["Page_OptOutResponse"];
+                };
+            };
+            /** @description Missing `privacy.manage` (`permission_denied`) */
+            403: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["ErrorEnvelope"];
+                };
+            };
+            /** @description API token rate limit exceeded (`rate_limited`); see `Retry-After` and `X-RateLimit-*` */
+            429: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["ErrorEnvelope"];
+                };
+            };
+        };
+    };
+    communication_opt_outs_create: {
+        parameters: {
+            query?: never;
+            header?: {
+                /** @description Up to 255 printable ASCII characters. The same key with the same request (method, path and body) within 24 hours answers the stored response with the same status and body plus `Idempotent-Replayed: true`. Scoped to the credential (session cookie or API token); ignored without a credential. 5xx and 429 responses are not stored */
+                "Idempotency-Key"?: string;
+            };
+            path?: never;
+            cookie?: never;
+        };
+        requestBody: {
+            content: {
+                "application/json": components["schemas"]["OptOutRequest"];
+            };
+        };
+        responses: {
+            /** @description Opt-out recorded */
+            201: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["Data_OptOutResponse"];
+                };
+            };
+            /** @description Missing `privacy.manage` (`permission_denied`) */
+            403: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["ErrorEnvelope"];
+                };
+            };
+            /** @description The address already has an opt-out (`communication_opt_out_exists`). The first request with this `Idempotency-Key` is still being processed (`idempotency_key_in_progress`) */
+            409: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["ErrorEnvelope"];
+                };
+            };
+            /** @description Invalid address, scope or reason (`validation_error`). `Idempotency-Key` already used with a different request (`idempotency_key_reused`) or longer than 255 characters (`validation_error`) */
+            422: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["ErrorEnvelope"];
+                };
+            };
+            /** @description API token rate limit exceeded (`rate_limited`); see `Retry-After` and `X-RateLimit-*` */
+            429: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["ErrorEnvelope"];
+                };
+            };
+        };
+    };
+    communication_opt_outs_delete: {
+        parameters: {
+            query?: never;
+            header?: never;
+            path: {
+                /** @description Opt-out id */
+                id: string;
+            };
+            cookie?: never;
+        };
+        requestBody?: never;
+        responses: {
+            /** @description Opt-out removed */
+            204: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content?: never;
+            };
+            /** @description Missing `privacy.manage` (`permission_denied`) */
+            403: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["ErrorEnvelope"];
+                };
+            };
+            /** @description Unknown opt-out (`communication_opt_out_not_found`) */
+            404: {
                 headers: {
                     [name: string]: unknown;
                 };
@@ -51595,6 +51927,92 @@ export interface operations {
             };
         };
     };
+    plugins_changes: {
+        parameters: {
+            query?: {
+                since?: number;
+                limit?: number | null;
+            };
+            header?: never;
+            path: {
+                /** @description Plugin key */
+                key: string;
+            };
+            cookie?: never;
+        };
+        requestBody?: never;
+        responses: {
+            /** @description Changes after `since` */
+            200: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["ChangesPage"];
+                };
+            };
+            /** @description Plugin not installed or disabled (`plugin_not_found`) */
+            404: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["ErrorEnvelope"];
+                };
+            };
+            /** @description API token rate limit exceeded (`rate_limited`); see `Retry-After` and `X-RateLimit-*` */
+            429: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["ErrorEnvelope"];
+                };
+            };
+        };
+    };
+    plugins_change_stream: {
+        parameters: {
+            query?: {
+                since?: number;
+                limit?: number | null;
+            };
+            header?: never;
+            path: {
+                /** @description Plugin key */
+                key: string;
+            };
+            cookie?: never;
+        };
+        requestBody?: never;
+        responses: {
+            /** @description text/event-stream of changes */
+            200: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content?: never;
+            };
+            /** @description Plugin not installed or disabled (`plugin_not_found`) */
+            404: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["ErrorEnvelope"];
+                };
+            };
+            /** @description API token rate limit exceeded (`rate_limited`); see `Retry-After` and `X-RateLimit-*` */
+            429: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["ErrorEnvelope"];
+                };
+            };
+        };
+    };
     plugins_disable: {
         parameters: {
             query?: never;
@@ -51682,6 +52100,77 @@ export interface operations {
         requestBody?: never;
         responses: {
             /** @description Plugin enabled */
+            200: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["Data_PluginResponse"];
+                };
+            };
+            /** @description Missing `system.manage` (`permission_denied`) */
+            403: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["ErrorEnvelope"];
+                };
+            };
+            /** @description Plugin not installed (`plugin_not_found`) */
+            404: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["ErrorEnvelope"];
+                };
+            };
+            /** @description The first request with this `Idempotency-Key` is still being processed (`idempotency_key_in_progress`) */
+            409: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["ErrorEnvelope"];
+                };
+            };
+            /** @description `Idempotency-Key` already used with a different request (`idempotency_key_reused`) or longer than 255 characters (`validation_error`) */
+            422: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["ErrorEnvelope"];
+                };
+            };
+            /** @description API token rate limit exceeded (`rate_limited`); see `Retry-After` and `X-RateLimit-*` */
+            429: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["ErrorEnvelope"];
+                };
+            };
+        };
+    };
+    plugins_reapply_grants: {
+        parameters: {
+            query?: never;
+            header?: {
+                /** @description Up to 255 printable ASCII characters. The same key with the same request (method, path and body) within 24 hours answers the stored response with the same status and body plus `Idempotent-Replayed: true`. Scoped to the credential (session cookie or API token); ignored without a credential. 5xx and 429 responses are not stored */
+                "Idempotency-Key"?: string;
+            };
+            path: {
+                /** @description Plugin key */
+                key: string;
+            };
+            cookie?: never;
+        };
+        requestBody?: never;
+        responses: {
+            /** @description Grants reapplied */
             200: {
                 headers: {
                     [name: string]: unknown;

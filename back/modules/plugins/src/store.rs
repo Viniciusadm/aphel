@@ -267,3 +267,70 @@ pub async fn kv_list(
         })
         .collect()
 }
+
+pub async fn kv_increment(
+    pool: &MySqlPool,
+    key: &str,
+    collection: &str,
+    item: &str,
+    delta: i64,
+) -> Result<i64, AppError> {
+    let mut tx = pool.begin().await?;
+    sqlx::query(
+        "INSERT IGNORE INTO plugins_data (plugin_key, collection, item_id, value) VALUES (?, ?, ?, ?)",
+    )
+    .bind(key)
+    .bind(collection)
+    .bind(item)
+    .bind(Json(Value::from(0)))
+    .execute(&mut *tx)
+    .await?;
+    let Json(current): Json<Value> = sqlx::query_scalar(
+        "SELECT value FROM plugins_data WHERE plugin_key = ? AND collection = ? AND item_id = ? FOR UPDATE",
+    )
+    .bind(key)
+    .bind(collection)
+    .bind(item)
+    .fetch_one(&mut *tx)
+    .await?;
+    let current = current.as_i64().ok_or_else(|| {
+        AppError::conflict_code(
+            "plugin_kv_not_a_counter",
+            "the stored value is not an integer, so it cannot be incremented",
+        )
+    })?;
+    let next = current
+        .checked_add(delta)
+        .ok_or_else(|| AppError::Validation("the counter would overflow".to_owned()))?;
+    sqlx::query(
+        "UPDATE plugins_data SET value = ? WHERE plugin_key = ? AND collection = ? AND item_id = ?",
+    )
+    .bind(Json(Value::from(next)))
+    .bind(key)
+    .bind(collection)
+    .bind(item)
+    .execute(&mut *tx)
+    .await?;
+    tx.commit().await?;
+    Ok(next)
+}
+
+pub async fn kv_set_if_absent(
+    pool: &MySqlPool,
+    key: &str,
+    collection: &str,
+    item: &str,
+    value: &Value,
+) -> Result<bool, AppError> {
+    Ok(sqlx::query(
+        "INSERT IGNORE INTO plugins_data (plugin_key, collection, item_id, value) VALUES (?, ?, ?, ?)",
+    )
+    .bind(key)
+    .bind(collection)
+    .bind(item)
+    .bind(Json(value))
+    .execute(pool)
+    .await?
+    .rows_affected()
+        == 1)
+}

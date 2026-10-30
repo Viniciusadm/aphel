@@ -97,6 +97,24 @@ class Kv {
   list() {
     return call(() => host.kvList(this.collection)).map(([id, value]) => ({ id, value: parse(value) }))
   }
+
+  increment(id, delta = 1) {
+    return Number(call(() => host.kvIncrement(this.collection, id, BigInt(delta))))
+  }
+
+  setIfAbsent(id, value) {
+    return call(() => host.kvSetIfAbsent(this.collection, id, JSON.stringify(value ?? null)))
+  }
+}
+
+function listQuery({ filter, sort, search, page, perPage } = {}) {
+  return {
+    filterJson: filter === undefined ? undefined : JSON.stringify(filter),
+    sort,
+    search,
+    page,
+    perPage,
+  }
 }
 
 const records = Object.freeze({
@@ -104,16 +122,8 @@ const records = Object.freeze({
     const record = call(() => host.getRecord(recordType, id))
     return record === undefined || record === null ? null : parse(record)
   },
-  list(recordType, { filter, sort, search, page, perPage } = {}) {
-    const result = call(() =>
-      host.listRecords(recordType, {
-        filterJson: filter === undefined ? undefined : JSON.stringify(filter),
-        sort,
-        search,
-        page,
-        perPage,
-      }),
-    )
+  list(recordType, options) {
+    const result = call(() => host.listRecords(recordType, listQuery(options)))
     return { data: result.recordsJson.map((json) => parse(json)), total: Number(result.total) }
   },
   create(recordType, values) {
@@ -124,6 +134,30 @@ const records = Object.freeze({
   },
   delete(recordType, id) {
     call(() => host.deleteRecord(recordType, id))
+  },
+  updateIf(recordType, id, expectedUpdatedAt, values) {
+    return parse(
+      call(() => host.updateRecordIf(recordType, id, expectedUpdatedAt, JSON.stringify(values ?? {}))),
+    )
+  },
+  apply(mutations) {
+    const list = mutations.map(({ recordType, id, expectedUpdatedAt, values }) => ({
+      recordType,
+      id: id ?? undefined,
+      expectedUpdatedAt: expectedUpdatedAt ?? undefined,
+      valuesJson: JSON.stringify(values ?? {}),
+    }))
+    return call(() => host.applyRecords(list)).map((json) => parse(json))
+  },
+  aggregate(query) {
+    return parse(call(() => host.aggregateRecords(JSON.stringify(query))))
+  },
+  iterate(recordType, options, cursor) {
+    const [list, next] = call(() => host.iterateRecords(recordType, listQuery(options), cursor ?? undefined))
+    return { data: list.map((json) => parse(json)), cursor: next ?? null }
+  },
+  ref(index) {
+    return { $ref: index }
   },
 })
 
@@ -178,6 +212,12 @@ export const ctx = Object.freeze({
   secret(key) {
     return call(() => host.secret(key)) ?? null
   },
+  can(permission) {
+    return host.can(permission)
+  },
+  permissions() {
+    return host.permissions()
+  },
   notify({ kind, recipientUserId, title, body, record, link, data, dedupeKey }) {
     call(() =>
       host.notify({
@@ -198,6 +238,36 @@ export const ctx = Object.freeze({
   },
   deferEffect(key, command) {
     return call(() => host.deferEffect(key, JSON.stringify(command)))
+  },
+  nextNumber(sequence) {
+    return Number(call(() => host.nextNumber(sequence)))
+  },
+  setAuditReason(reason) {
+    host.setAuditReason(reason ?? undefined)
+  },
+  uploadFile(recordType, recordId, filename, body) {
+    const bytes = typeof body === 'string' ? encoder.encode(body) : body
+    return parse(call(() => host.uploadFile(recordType, recordId, filename, bytes)))
+  },
+  readFile(fileId) {
+    const [file, body] = call(() => host.readFile(fileId))
+    return { file: parse(file), body: new Uint8Array(body) }
+  },
+  respondBytes(contentType, filename, body) {
+    const bytes = typeof body === 'string' ? encoder.encode(body) : body
+    call(() => host.respondBytes(contentType, filename ?? undefined, bytes))
+  },
+  organization() {
+    return parse(call(() => host.organizationJson()))
+  },
+  listUsers(query) {
+    return parse(call(() => host.listUsers(JSON.stringify(query ?? {}))))
+  },
+  listRoles() {
+    return parse(call(() => host.listRoles()))
+  },
+  listTeams() {
+    return parse(call(() => host.listTeams()))
   },
   hookState() {
     return parse(host.hookStateJson())

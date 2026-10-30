@@ -45,7 +45,25 @@ pub struct AuditEntry {
     pub changes: Vec<FieldChange>,
     pub ip: Option<String>,
     pub causation: Option<EventCausation>,
+    pub reason: Option<String>,
     pub occurred_at: DateTime<Utc>,
+}
+
+pub const MAX_AUDIT_REASON_LENGTH: usize = 500;
+
+tokio::task_local! {
+    static AUDIT_REASON: Option<String>;
+}
+
+pub async fn with_audit_reason<F: std::future::Future>(
+    reason: Option<String>,
+    future: F,
+) -> F::Output {
+    AUDIT_REASON.scope(reason, future).await
+}
+
+pub fn current_audit_reason() -> Option<String> {
+    AUDIT_REASON.try_with(Clone::clone).ok().flatten()
 }
 
 impl AuditEntry {
@@ -58,8 +76,14 @@ impl AuditEntry {
             changes: Vec::new(),
             ip: None,
             causation: None,
+            reason: None,
             occurred_at,
         }
+    }
+
+    pub fn with_reason(mut self, reason: Option<String>) -> Self {
+        self.reason = reason;
+        self
     }
 
     pub fn with_record(mut self, record: RecordRef) -> Self {

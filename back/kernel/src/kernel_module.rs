@@ -26,6 +26,10 @@ use crate::modules::{AppBuilder, HookUsage, Manifest, Module, WorkerEnv, WorkerP
 use crate::records::{RecordDeleting, RecordValidating};
 
 const TAGS: &[(&str, &str)] = &[
+    (
+        "communication",
+        "Communication opt-outs: addresses that must not receive messages sent on behalf of plugins and modules",
+    ),
     ("auth", "Authentication, sessions and invitations"),
     (
         "api-tokens",
@@ -181,6 +185,7 @@ fn routes() -> OpenApiRouter<AppState> {
         .merge(v1::views::router())
         .merge(v1::layouts::router())
         .merge(v1::directory::router())
+        .merge(v1::communication::router())
         .merge(v1::notifications::router())
         .merge(v1::push::router())
         .merge(v1::custom_objects::router())

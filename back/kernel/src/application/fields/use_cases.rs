@@ -461,6 +461,16 @@ where
         }
         let mut tx = self.ports.transactions().begin().await?;
         self.ports.definitions().update(&mut tx, &updated).await?;
+        if updated.is_unique != current.definition.is_unique {
+            self.ports
+                .values()
+                .rebuild_unique(
+                    &mut tx,
+                    self.ports.registry().require(&updated.record_type)?,
+                    &updated,
+                )
+                .await?;
+        }
         self.record(
             &mut tx,
             scope,

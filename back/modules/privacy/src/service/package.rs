@@ -9,8 +9,8 @@ use zip::write::SimpleFileOptions;
 use crate::domain::{
     ActivityData, MAX_EXPORT_ATTACHMENT_BYTES, NoteData, PrivacyRequest, RunReport,
 };
-use crate::service::definition;
 use crate::service::requests::ExecutionOutcome;
+use crate::service::{definition, run_external_sources};
 use crate::store::PrivacyStore;
 use aphel_kernel::Ctx;
 use aphel_kernel::application::fields::CustomFieldReader;
@@ -217,6 +217,11 @@ pub(crate) async fn build_export(
         .collect();
     report.import_rows = import_rows.len() as u64;
 
+    let external: serde_json::Map<String, Value> = run_external_sources(ctx, request, &mut report)
+        .await
+        .into_iter()
+        .collect();
+
     let now = ctx.now();
     let document = json!({
         "format": EXPORT_FORMAT,
@@ -229,6 +234,7 @@ pub(crate) async fn build_export(
         "records": exported,
         "mentioned_notes": mentioned,
         "import_rows": import_rows,
+        "external": external,
     });
     let data = serde_json::to_vec_pretty(&document)
         .map_err(|error| AppError::Internal(format!("cannot encode the export: {error}")))?;

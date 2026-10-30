@@ -19,6 +19,8 @@ pub(crate) const RUN_JOB: &str = "plugin.schedule";
 const TICK_CRON: &str = "0 * * * * *";
 const LOOKBACK_MINUTES: i64 = 5;
 const MAX_SLOTS_PER_TICK: usize = 60;
+const AHEAD_SECONDS: i64 = 60;
+const MAX_AHEAD_SLOTS: usize = 12;
 const RUN_MAX_ATTEMPTS: u32 = 3;
 
 pub(crate) fn tick_schedule() -> Result<ScheduledJobDefinition, AppError> {
@@ -34,6 +36,20 @@ fn due_slots(cron: &CronSchedule, now: DateTime<Utc>) -> Vec<DateTime<Utc>> {
     let mut cursor = now - Duration::minutes(LOOKBACK_MINUTES);
     while let Some(next) = cron.next_after(cursor) {
         if next > now || slots.len() >= MAX_SLOTS_PER_TICK {
+            break;
+        }
+        slots.push(next);
+        cursor = next;
+    }
+    slots
+}
+
+fn upcoming_slots(cron: &CronSchedule, now: DateTime<Utc>) -> Vec<DateTime<Utc>> {
+    let mut slots = Vec::new();
+    let horizon = now + Duration::seconds(AHEAD_SECONDS);
+    let mut cursor = now;
+    while let Some(next) = cron.next_after(cursor) {
+        if next > horizon || slots.len() >= MAX_AHEAD_SLOTS {
             break;
         }
         slots.push(next);
@@ -73,6 +89,9 @@ impl JobHandler for Tick {
     }
 
     async fn handle(&self, _context: &JobContext, _payload: Value) -> Result<(), AppError> {
+        if let Err(error) = crate::changes::prune(&self.pool).await {
+            tracing::warn!(error = %error, "could not prune the plugin change feed");
+        }
         let snapshot = registry::current(&self.pool).await?;
         let now = Utc::now();
         for plugin in &snapshot.plugins {
@@ -90,6 +109,11 @@ impl JobHandler for Tick {
                 for slot in due_slots(&cron, now) {
                     self.queue
                         .enqueue_now(run_job(plugin, &schedule.name, slot))
+                        .await?;
+                }
+                for slot in upcoming_slots(&cron, now) {
+                    self.queue
+                        .enqueue_now(run_job(plugin, &schedule.name, slot).run_at(slot))
                         .await?;
                 }
             }

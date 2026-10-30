@@ -9286,6 +9286,240 @@
         ]
       }
     },
+    "/api/v1/communication/opt-outs": {
+      "get": {
+        "tags": [
+          "communication"
+        ],
+        "description": "Addresses that asked not to be contacted (permission `privacy.manage`). Scope `all` blocks every message sent by the platform on behalf of plugins and modules that check consent; `marketing` blocks only marketing messages.",
+        "operationId": "communication_opt_outs_list",
+        "parameters": [
+          {
+            "name": "search",
+            "in": "query",
+            "required": false,
+            "schema": {
+              "type": "string"
+            }
+          },
+          {
+            "name": "page",
+            "in": "query",
+            "required": false,
+            "schema": {
+              "type": "integer",
+              "format": "int32",
+              "default": 1,
+              "minimum": 1
+            }
+          },
+          {
+            "name": "per_page",
+            "in": "query",
+            "required": false,
+            "schema": {
+              "type": "integer",
+              "format": "int32",
+              "default": 25,
+              "maximum": 100,
+              "minimum": 1
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "Opt-outs, newest first",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/Page_OptOutResponse"
+                }
+              }
+            }
+          },
+          "403": {
+            "description": "Missing `privacy.manage` (`permission_denied`)",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ErrorEnvelope"
+                }
+              }
+            }
+          },
+          "429": {
+            "description": "API token rate limit exceeded (`rate_limited`); see `Retry-After` and `X-RateLimit-*`",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ErrorEnvelope"
+                }
+              }
+            }
+          }
+        },
+        "security": [
+          {
+            "session_cookie": []
+          },
+          {
+            "api_token": []
+          }
+        ]
+      },
+      "post": {
+        "tags": [
+          "communication"
+        ],
+        "description": "Records that an address does not want to be contacted (permission `privacy.manage`). Publishes `communication.opted_out` with audit.",
+        "operationId": "communication_opt_outs_create",
+        "parameters": [
+          {
+            "name": "Idempotency-Key",
+            "in": "header",
+            "description": "Up to 255 printable ASCII characters. The same key with the same request (method, path and body) within 24 hours answers the stored response with the same status and body plus `Idempotent-Replayed: true`. Scoped to the credential (session cookie or API token); ignored without a credential. 5xx and 429 responses are not stored",
+            "required": false,
+            "schema": {
+              "type": "string",
+              "maxLength": 255
+            }
+          }
+        ],
+        "requestBody": {
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/OptOutRequest"
+              }
+            }
+          },
+          "required": true
+        },
+        "responses": {
+          "201": {
+            "description": "Opt-out recorded",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/Data_OptOutResponse"
+                }
+              }
+            }
+          },
+          "403": {
+            "description": "Missing `privacy.manage` (`permission_denied`)",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ErrorEnvelope"
+                }
+              }
+            }
+          },
+          "409": {
+            "description": "The address already has an opt-out (`communication_opt_out_exists`). The first request with this `Idempotency-Key` is still being processed (`idempotency_key_in_progress`)",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ErrorEnvelope"
+                }
+              }
+            }
+          },
+          "422": {
+            "description": "Invalid address, scope or reason (`validation_error`). `Idempotency-Key` already used with a different request (`idempotency_key_reused`) or longer than 255 characters (`validation_error`)",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ErrorEnvelope"
+                }
+              }
+            }
+          },
+          "429": {
+            "description": "API token rate limit exceeded (`rate_limited`); see `Retry-After` and `X-RateLimit-*`",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ErrorEnvelope"
+                }
+              }
+            }
+          }
+        },
+        "security": [
+          {
+            "session_cookie": []
+          },
+          {
+            "api_token": []
+          }
+        ]
+      }
+    },
+    "/api/v1/communication/opt-outs/{id}": {
+      "delete": {
+        "tags": [
+          "communication"
+        ],
+        "description": "Removes an opt-out, for example after the person consents again (permission `privacy.manage`). Publishes `communication.opt_out_removed` with audit.",
+        "operationId": "communication_opt_outs_delete",
+        "parameters": [
+          {
+            "name": "id",
+            "in": "path",
+            "description": "Opt-out id",
+            "required": true,
+            "schema": {
+              "type": "string"
+            }
+          }
+        ],
+        "responses": {
+          "204": {
+            "description": "Opt-out removed"
+          },
+          "403": {
+            "description": "Missing `privacy.manage` (`permission_denied`)",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ErrorEnvelope"
+                }
+              }
+            }
+          },
+          "404": {
+            "description": "Unknown opt-out (`communication_opt_out_not_found`)",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ErrorEnvelope"
+                }
+              }
+            }
+          },
+          "429": {
+            "description": "API token rate limit exceeded (`rate_limited`); see `Retry-After` and `X-RateLimit-*`",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ErrorEnvelope"
+                }
+              }
+            }
+          }
+        },
+        "security": [
+          {
+            "session_cookie": []
+          },
+          {
+            "api_token": []
+          }
+        ]
+      }
+    },
     "/api/v1/companies": {
       "get": {
         "tags": [
@@ -41610,6 +41844,165 @@
         ]
       }
     },
+    "/api/v1/plugins/{key}/changes": {
+      "get": {
+        "tags": [
+          "plugins"
+        ],
+        "description": "Change feed of a plugin: every create, update, delete, archive and restore of its entities and every `plugin.<key>.*` event, in commit order, with a monotonic `seq`. Pass the last `next` as `since`. Entries of record types the caller cannot read are skipped (the cursor still advances). `fields` lists the changed field names, never their values; read the record to get them. The feed keeps 24 hours; `reset = true` means entries after `since` were pruned and the client must reload its state.",
+        "operationId": "plugins_changes",
+        "parameters": [
+          {
+            "name": "key",
+            "in": "path",
+            "description": "Plugin key",
+            "required": true,
+            "schema": {
+              "type": "string"
+            }
+          },
+          {
+            "name": "since",
+            "in": "query",
+            "required": false,
+            "schema": {
+              "type": "integer",
+              "format": "int64",
+              "minimum": 0
+            }
+          },
+          {
+            "name": "limit",
+            "in": "query",
+            "required": false,
+            "schema": {
+              "type": [
+                "integer",
+                "null"
+              ],
+              "format": "int32",
+              "minimum": 0
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "Changes after `since`",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ChangesPage"
+                }
+              }
+            }
+          },
+          "404": {
+            "description": "Plugin not installed or disabled (`plugin_not_found`)",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ErrorEnvelope"
+                }
+              }
+            }
+          },
+          "429": {
+            "description": "API token rate limit exceeded (`rate_limited`); see `Retry-After` and `X-RateLimit-*`",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ErrorEnvelope"
+                }
+              }
+            }
+          }
+        },
+        "security": [
+          {
+            "session_cookie": []
+          },
+          {
+            "api_token": []
+          }
+        ]
+      }
+    },
+    "/api/v1/plugins/{key}/changes/stream": {
+      "get": {
+        "tags": [
+          "plugins"
+        ],
+        "description": "The change feed as Server-Sent Events: each entry is an event `change` with the JSON of `GET /plugins/{key}/changes` and `id` = `seq`; `reset` asks the client to reload. Resumes from `since` or the `Last-Event-ID` header. The server closes the stream after 5 minutes; `EventSource` reconnects with `Last-Event-ID`.",
+        "operationId": "plugins_change_stream",
+        "parameters": [
+          {
+            "name": "key",
+            "in": "path",
+            "description": "Plugin key",
+            "required": true,
+            "schema": {
+              "type": "string"
+            }
+          },
+          {
+            "name": "since",
+            "in": "query",
+            "required": false,
+            "schema": {
+              "type": "integer",
+              "format": "int64",
+              "minimum": 0
+            }
+          },
+          {
+            "name": "limit",
+            "in": "query",
+            "required": false,
+            "schema": {
+              "type": [
+                "integer",
+                "null"
+              ],
+              "format": "int32",
+              "minimum": 0
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "text/event-stream of changes"
+          },
+          "404": {
+            "description": "Plugin not installed or disabled (`plugin_not_found`)",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ErrorEnvelope"
+                }
+              }
+            }
+          },
+          "429": {
+            "description": "API token rate limit exceeded (`rate_limited`); see `Retry-After` and `X-RateLimit-*`",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ErrorEnvelope"
+                }
+              }
+            }
+          }
+        },
+        "security": [
+          {
+            "session_cookie": []
+          },
+          {
+            "api_token": []
+          }
+        ]
+      }
+    },
     "/api/v1/plugins/{key}/disable": {
       "post": {
         "tags": [
@@ -41741,6 +42134,106 @@
         "responses": {
           "200": {
             "description": "Plugin enabled",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/Data_PluginResponse"
+                }
+              }
+            }
+          },
+          "403": {
+            "description": "Missing `system.manage` (`permission_denied`)",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ErrorEnvelope"
+                }
+              }
+            }
+          },
+          "404": {
+            "description": "Plugin not installed (`plugin_not_found`)",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ErrorEnvelope"
+                }
+              }
+            }
+          },
+          "409": {
+            "description": "The first request with this `Idempotency-Key` is still being processed (`idempotency_key_in_progress`)",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ErrorEnvelope"
+                }
+              }
+            }
+          },
+          "422": {
+            "description": "`Idempotency-Key` already used with a different request (`idempotency_key_reused`) or longer than 255 characters (`validation_error`)",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ErrorEnvelope"
+                }
+              }
+            }
+          },
+          "429": {
+            "description": "API token rate limit exceeded (`rate_limited`); see `Retry-After` and `X-RateLimit-*`",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ErrorEnvelope"
+                }
+              }
+            }
+          }
+        },
+        "security": [
+          {
+            "session_cookie": []
+          },
+          {
+            "api_token": []
+          }
+        ]
+      }
+    },
+    "/api/v1/plugins/{key}/grants": {
+      "post": {
+        "tags": [
+          "plugins"
+        ],
+        "description": "Reapplies the plugin's declared grants (permission `system.manage`): permissions with `grant_to`, role presets and entity `permission_scope` defaults are granted again to the roles that exist now. Roles are never created here; only grants missing from existing preset roles are added. Publishes `plugin.grants_reapplied` with an audit entry in the same transaction as the permission writes. The response reports, per role, how many of the expected permissions are granted.",
+        "operationId": "plugins_reapply_grants",
+        "parameters": [
+          {
+            "name": "key",
+            "in": "path",
+            "description": "Plugin key",
+            "required": true,
+            "schema": {
+              "type": "string"
+            }
+          },
+          {
+            "name": "Idempotency-Key",
+            "in": "header",
+            "description": "Up to 255 printable ASCII characters. The same key with the same request (method, path and body) within 24 hours answers the stored response with the same status and body plus `Idempotent-Replayed: true`. Scoped to the credential (session cookie or API token); ignored without a credential. 5xx and 429 responses are not stored",
+            "required": false,
+            "schema": {
+              "type": "string",
+              "maxLength": 255
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "Grants reapplied",
             "content": {
               "application/json": {
                 "schema": {
@@ -65140,6 +65633,12 @@
             "type": "string",
             "format": "date-time"
           },
+          "reason": {
+            "type": [
+              "string",
+              "null"
+            ]
+          },
           "record_id": {
             "type": [
               "string",
@@ -67269,6 +67768,70 @@
           "new_password": {
             "type": "string",
             "example": "a-long-new-password"
+          }
+        }
+      },
+      "ChangeResponse": {
+        "type": "object",
+        "required": [
+          "seq",
+          "event_type",
+          "fields",
+          "occurred_at"
+        ],
+        "properties": {
+          "event_type": {
+            "type": "string"
+          },
+          "fields": {
+            "type": "array",
+            "items": {
+              "type": "string"
+            }
+          },
+          "occurred_at": {
+            "type": "string"
+          },
+          "record_id": {
+            "type": [
+              "string",
+              "null"
+            ]
+          },
+          "record_type": {
+            "type": [
+              "string",
+              "null"
+            ]
+          },
+          "seq": {
+            "type": "integer",
+            "format": "int64",
+            "minimum": 0
+          }
+        }
+      },
+      "ChangesPage": {
+        "type": "object",
+        "required": [
+          "data",
+          "next",
+          "reset"
+        ],
+        "properties": {
+          "data": {
+            "type": "array",
+            "items": {
+              "$ref": "#/components/schemas/ChangeResponse"
+            }
+          },
+          "next": {
+            "type": "integer",
+            "format": "int64",
+            "minimum": 0
+          },
+          "reset": {
+            "type": "boolean"
           }
         }
       },
@@ -70950,7 +71513,7 @@
           },
           "updated_at": {
             "type": "string",
-            "example": "2026-10-20T13:45:00Z"
+            "example": "2026-10-20T13:45:00.123456Z"
           }
         }
       },
@@ -74247,7 +74810,7 @@
               },
               "updated_at": {
                 "type": "string",
-                "example": "2026-10-20T13:45:00Z"
+                "example": "2026-10-20T13:45:00.123456Z"
               }
             }
           }
@@ -78983,6 +79546,54 @@
           }
         }
       },
+      "Data_OptOutResponse": {
+        "type": "object",
+        "required": [
+          "data"
+        ],
+        "properties": {
+          "data": {
+            "type": "object",
+            "required": [
+              "id",
+              "address",
+              "scope",
+              "source",
+              "created_at"
+            ],
+            "properties": {
+              "address": {
+                "type": "string"
+              },
+              "created_at": {
+                "type": "string"
+              },
+              "created_by": {
+                "type": [
+                  "string",
+                  "null"
+                ]
+              },
+              "id": {
+                "type": "string"
+              },
+              "reason": {
+                "type": [
+                  "string",
+                  "null"
+                ]
+              },
+              "scope": {
+                "type": "string",
+                "example": "all"
+              },
+              "source": {
+                "type": "string"
+              }
+            }
+          }
+        }
+      },
       "Data_Option_ProductBundleResponse": {
         "type": "object",
         "required": [
@@ -79580,7 +80191,8 @@
                 "required": [
                   "key",
                   "name",
-                  "version"
+                  "version",
+                  "grants"
                 ],
                 "properties": {
                   "description": {
@@ -79588,6 +80200,12 @@
                       "string",
                       "null"
                     ]
+                  },
+                  "grants": {
+                    "type": "array",
+                    "items": {
+                      "$ref": "#/components/schemas/RoleGrantStatus"
+                    }
                   },
                   "installed_version": {
                     "type": [
@@ -79629,6 +80247,8 @@
                   "version",
                   "enabled",
                   "settings",
+                  "grants",
+                  "ungranted_roles",
                   "installed_at",
                   "updated_at"
                 ],
@@ -79648,6 +80268,12 @@
                   "enabled": {
                     "type": "boolean"
                   },
+                  "grants": {
+                    "type": "array",
+                    "items": {
+                      "$ref": "#/components/schemas/RoleGrantStatus"
+                    }
+                  },
                   "installed_at": {
                     "type": "string"
                   },
@@ -79661,6 +80287,12 @@
                     "type": "array",
                     "items": {
                       "$ref": "#/components/schemas/PluginSettingResponse"
+                    }
+                  },
+                  "ungranted_roles": {
+                    "type": "array",
+                    "items": {
+                      "type": "string"
                     }
                   },
                   "updated_at": {
@@ -85077,6 +85709,8 @@
                     "version",
                     "enabled",
                     "settings",
+                    "grants",
+                    "ungranted_roles",
                     "installed_at",
                     "updated_at"
                   ],
@@ -85096,6 +85730,12 @@
                     "enabled": {
                       "type": "boolean"
                     },
+                    "grants": {
+                      "type": "array",
+                      "items": {
+                        "$ref": "#/components/schemas/RoleGrantStatus"
+                      }
+                    },
                     "installed_at": {
                       "type": "string"
                     },
@@ -85109,6 +85749,12 @@
                       "type": "array",
                       "items": {
                         "$ref": "#/components/schemas/PluginSettingResponse"
+                      }
+                    },
+                    "ungranted_roles": {
+                      "type": "array",
+                      "items": {
+                        "type": "string"
                       }
                     },
                     "updated_at": {
@@ -97445,6 +98091,68 @@
           }
         }
       },
+      "OptOutRequest": {
+        "type": "object",
+        "required": [
+          "address",
+          "scope"
+        ],
+        "properties": {
+          "address": {
+            "type": "string"
+          },
+          "reason": {
+            "type": [
+              "string",
+              "null"
+            ]
+          },
+          "scope": {
+            "type": "string",
+            "example": "all"
+          }
+        }
+      },
+      "OptOutResponse": {
+        "type": "object",
+        "required": [
+          "id",
+          "address",
+          "scope",
+          "source",
+          "created_at"
+        ],
+        "properties": {
+          "address": {
+            "type": "string"
+          },
+          "created_at": {
+            "type": "string"
+          },
+          "created_by": {
+            "type": [
+              "string",
+              "null"
+            ]
+          },
+          "id": {
+            "type": "string"
+          },
+          "reason": {
+            "type": [
+              "string",
+              "null"
+            ]
+          },
+          "scope": {
+            "type": "string",
+            "example": "all"
+          },
+          "source": {
+            "type": "string"
+          }
+        }
+      },
       "OrgExportRequest": {
         "type": "object",
         "properties": {
@@ -98705,6 +99413,12 @@
                 "occurred_at": {
                   "type": "string",
                   "format": "date-time"
+                },
+                "reason": {
+                  "type": [
+                    "string",
+                    "null"
+                  ]
                 },
                 "record_id": {
                   "type": [
@@ -100064,7 +100778,7 @@
                 },
                 "updated_at": {
                   "type": "string",
-                  "example": "2026-10-20T13:45:00Z"
+                  "example": "2026-10-20T13:45:00.123456Z"
                 }
               }
             }
@@ -102313,6 +103027,61 @@
                 },
                 "visibility": {
                   "$ref": "#/components/schemas/NoteVisibility"
+                }
+              }
+            }
+          },
+          "meta": {
+            "$ref": "#/components/schemas/PageMeta"
+          }
+        }
+      },
+      "Page_OptOutResponse": {
+        "type": "object",
+        "required": [
+          "data",
+          "meta"
+        ],
+        "properties": {
+          "data": {
+            "type": "array",
+            "items": {
+              "type": "object",
+              "required": [
+                "id",
+                "address",
+                "scope",
+                "source",
+                "created_at"
+              ],
+              "properties": {
+                "address": {
+                  "type": "string"
+                },
+                "created_at": {
+                  "type": "string"
+                },
+                "created_by": {
+                  "type": [
+                    "string",
+                    "null"
+                  ]
+                },
+                "id": {
+                  "type": "string"
+                },
+                "reason": {
+                  "type": [
+                    "string",
+                    "null"
+                  ]
+                },
+                "scope": {
+                  "type": "string",
+                  "example": "all"
+                },
+                "source": {
+                  "type": "string"
                 }
               }
             }
@@ -105155,7 +105924,8 @@
             "required": [
               "key",
               "name",
-              "version"
+              "version",
+              "grants"
             ],
             "properties": {
               "description": {
@@ -105163,6 +105933,12 @@
                   "string",
                   "null"
                 ]
+              },
+              "grants": {
+                "type": "array",
+                "items": {
+                  "$ref": "#/components/schemas/RoleGrantStatus"
+                }
               },
               "installed_version": {
                 "type": [
@@ -105202,6 +105978,9 @@
           "notifications",
           "widgets",
           "operations",
+          "role_presets",
+          "entity_scopes",
+          "unique_fields",
           "has_web"
         ],
         "properties": {
@@ -105227,6 +106006,12 @@
             "type": "array",
             "items": {
               "type": "string"
+            }
+          },
+          "entity_scopes": {
+            "type": "array",
+            "items": {
+              "$ref": "#/components/schemas/PluginEntityScopeResponse"
             }
           },
           "events": {
@@ -105280,6 +106065,12 @@
               "type": "string"
             }
           },
+          "role_presets": {
+            "type": "array",
+            "items": {
+              "$ref": "#/components/schemas/PluginRolePresetResponse"
+            }
+          },
           "routes": {
             "type": "array",
             "items": {
@@ -105298,11 +106089,32 @@
               "type": "string"
             }
           },
+          "unique_fields": {
+            "type": "array",
+            "items": {
+              "type": "string"
+            }
+          },
           "widgets": {
             "type": "array",
             "items": {
               "type": "string"
             }
+          }
+        }
+      },
+      "PluginEntityScopeResponse": {
+        "type": "object",
+        "required": [
+          "record_type",
+          "permission_scope"
+        ],
+        "properties": {
+          "permission_scope": {
+            "type": "string"
+          },
+          "record_type": {
+            "type": "string"
           }
         }
       },
@@ -105347,6 +106159,8 @@
               "version",
               "enabled",
               "settings",
+              "grants",
+              "ungranted_roles",
               "installed_at",
               "updated_at"
             ],
@@ -105366,6 +106180,12 @@
               "enabled": {
                 "type": "boolean"
               },
+              "grants": {
+                "type": "array",
+                "items": {
+                  "$ref": "#/components/schemas/RoleGrantStatus"
+                }
+              },
               "installed_at": {
                 "type": "string"
               },
@@ -105381,6 +106201,12 @@
                   "$ref": "#/components/schemas/PluginSettingResponse"
                 }
               },
+              "ungranted_roles": {
+                "type": "array",
+                "items": {
+                  "type": "string"
+                }
+              },
               "updated_at": {
                 "type": "string"
               },
@@ -105390,6 +106216,38 @@
             }
           }
         ]
+      },
+      "PluginRolePresetResponse": {
+        "type": "object",
+        "required": [
+          "key",
+          "label",
+          "permissions",
+          "scope"
+        ],
+        "properties": {
+          "description": {
+            "type": [
+              "string",
+              "null"
+            ]
+          },
+          "key": {
+            "type": "string"
+          },
+          "label": {
+            "type": "string"
+          },
+          "permissions": {
+            "type": "array",
+            "items": {
+              "type": "string"
+            }
+          },
+          "scope": {
+            "type": "string"
+          }
+        }
       },
       "PluginSettingResponse": {
         "type": "object",
@@ -105832,6 +106690,7 @@
           "activities",
           "import_rows",
           "history_entries",
+          "external_items",
           "skipped",
           "errors"
         ],
@@ -105847,6 +106706,11 @@
             "minimum": 0
           },
           "errors": {
+            "type": "integer",
+            "format": "int64",
+            "minimum": 0
+          },
+          "external_items": {
             "type": "integer",
             "format": "int64",
             "minimum": 0
@@ -109815,6 +110679,50 @@
             "format": "int64",
             "example": 2,
             "minimum": 0
+          }
+        }
+      },
+      "RoleGrantStatus": {
+        "type": "object",
+        "required": [
+          "role",
+          "preset",
+          "role_exists",
+          "expected",
+          "granted",
+          "missing"
+        ],
+        "properties": {
+          "expected": {
+            "type": "integer",
+            "format": "int64",
+            "minimum": 0
+          },
+          "granted": {
+            "type": "integer",
+            "format": "int64",
+            "minimum": 0
+          },
+          "label": {
+            "type": [
+              "string",
+              "null"
+            ]
+          },
+          "missing": {
+            "type": "array",
+            "items": {
+              "type": "string"
+            }
+          },
+          "preset": {
+            "type": "boolean"
+          },
+          "role": {
+            "type": "string"
+          },
+          "role_exists": {
+            "type": "boolean"
           }
         }
       },
@@ -115730,6 +116638,10 @@
     {
       "name": "modules",
       "description": "Modules compiled into this build: manifest, compatibility, enabling, settings and data removal"
+    },
+    {
+      "name": "communication",
+      "description": "Communication opt-outs: addresses that must not receive messages sent on behalf of plugins and modules"
     },
     {
       "name": "auth",

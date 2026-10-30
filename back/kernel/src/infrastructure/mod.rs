@@ -2,6 +2,7 @@ pub(crate) mod api_tokens;
 pub mod audit;
 pub mod auth;
 pub(crate) mod catalog;
+pub mod communication;
 pub mod config_packages;
 pub mod crm;
 pub mod custom_objects;

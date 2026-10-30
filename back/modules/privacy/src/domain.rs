@@ -653,6 +653,7 @@ pub(crate) struct RunReport {
     pub(crate) activities: u64,
     pub(crate) import_rows: u64,
     pub(crate) history_entries: u64,
+    pub(crate) external_items: u64,
     pub(crate) skipped: u64,
     pub(crate) errors: u64,
 }
@@ -667,6 +668,7 @@ impl RunReport {
             "activities": self.activities,
             "import_rows": self.import_rows,
             "history_entries": self.history_entries,
+            "external_items": self.external_items,
             "skipped": self.skipped,
             "errors": self.errors,
         })

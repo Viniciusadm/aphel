@@ -357,6 +357,53 @@ impl Ctx {
         adapter::defer_effect(key, &command)
     }
 
+    pub fn next_number(&self, sequence: &str) -> Result<u64> {
+        adapter::next_number(sequence)
+    }
+
+    pub fn set_audit_reason(&self, reason: Option<&str>) {
+        adapter::set_audit_reason(reason);
+    }
+
+    pub fn upload_file(
+        &self,
+        record_type: &str,
+        record_id: &str,
+        filename: &str,
+        body: &[u8],
+    ) -> Result<Value> {
+        adapter::upload_file(record_type, record_id, filename, body)
+    }
+
+    pub fn read_file(&self, file_id: &str) -> Result<(Value, Vec<u8>)> {
+        adapter::read_file(file_id)
+    }
+
+    pub fn respond_bytes(
+        &self,
+        content_type: &str,
+        filename: Option<&str>,
+        body: &[u8],
+    ) -> Result<()> {
+        adapter::respond_bytes(content_type, filename, body)
+    }
+
+    pub fn organization(&self) -> Result<Value> {
+        adapter::organization()
+    }
+
+    pub fn list_users(&self, query: Value) -> Result<Value> {
+        adapter::list_users(&query)
+    }
+
+    pub fn list_roles(&self) -> Result<Value> {
+        adapter::list_roles()
+    }
+
+    pub fn list_teams(&self) -> Result<Value> {
+        adapter::list_teams()
+    }
+
     pub fn hook_state(&self) -> Result<Option<HookState>> {
         serde_json::from_value(adapter::hook_state())
             .map_err(|error| PluginError::new("invalid_hook_state", error.to_string()))
@@ -369,6 +416,14 @@ impl Ctx {
 
     pub fn secret(&self, key: &str) -> Result<Option<String>> {
         adapter::secret(key)
+    }
+
+    pub fn can(&self, permission: &str) -> bool {
+        adapter::can(permission)
+    }
+
+    pub fn permissions(&self) -> Vec<String> {
+        adapter::permissions()
     }
 
     pub fn now(&self) -> Result<String> {
@@ -408,6 +463,77 @@ impl Records<'_> {
     pub fn delete(&self, record_type: &str, id: &str) -> Result<()> {
         adapter::delete_record(record_type, id)
     }
+
+    pub fn update_if(
+        &self,
+        record_type: &str,
+        id: &str,
+        expected_updated_at: &str,
+        values: Value,
+    ) -> Result<Value> {
+        adapter::update_record_if(record_type, id, expected_updated_at, &values)
+    }
+
+    pub fn apply(&self, mutations: &[Mutation]) -> Result<Vec<Value>> {
+        adapter::apply_records(mutations)
+    }
+
+    pub fn aggregate(&self, query: Value) -> Result<Value> {
+        adapter::aggregate_records(&query)
+    }
+
+    pub fn iterate(
+        &self,
+        record_type: &str,
+        query: ListQuery,
+        cursor: Option<&str>,
+    ) -> Result<(Vec<Value>, Option<String>)> {
+        adapter::iterate_records(record_type, query, cursor)
+    }
+}
+
+#[derive(Debug, Clone)]
+pub struct Mutation {
+    pub record_type: String,
+    pub id: Option<String>,
+    pub expected_updated_at: Option<String>,
+    pub values: Value,
+}
+
+impl Mutation {
+    pub fn create(record_type: &str, values: Value) -> Self {
+        Self {
+            record_type: record_type.to_owned(),
+            id: None,
+            expected_updated_at: None,
+            values,
+        }
+    }
+
+    pub fn update(record_type: &str, id: &str, values: Value) -> Self {
+        Self {
+            record_type: record_type.to_owned(),
+            id: Some(id.to_owned()),
+            expected_updated_at: None,
+            values,
+        }
+    }
+
+    pub fn update_if(
+        record_type: &str,
+        id: &str,
+        expected_updated_at: &str,
+        values: Value,
+    ) -> Self {
+        Self {
+            expected_updated_at: Some(expected_updated_at.to_owned()),
+            ..Self::update(record_type, id, values)
+        }
+    }
+
+    pub fn reference(index: usize) -> Value {
+        json!({ "$ref": index })
+    }
 }
 
 pub struct Kv<'a> {
@@ -435,6 +561,18 @@ impl Kv<'_> {
 
     pub fn list(&self) -> Result<Vec<(String, Value)>> {
         adapter::kv_list(&self.collection)
+    }
+
+    pub fn increment(&self, id: &str, delta: i64) -> Result<i64> {
+        adapter::kv_increment(&self.collection, id, delta)
+    }
+
+    pub fn set_if_absent(&self, id: &str, value: impl Serialize) -> Result<bool> {
+        adapter::kv_set_if_absent(
+            &self.collection,
+            id,
+            &serde_json::to_value(value).unwrap_or(Value::Null),
+        )
     }
 }
 

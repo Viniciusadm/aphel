@@ -44,6 +44,7 @@ label = "Cavalo"
 label_plural = "Cavalos"
 icon = "star"
 owner_enabled = true
+permission_scope = "organization"   # optional: scope of the default role grants (own | team | organization)
 
 [[entities.fields]]
 key = "sex"
@@ -51,6 +52,12 @@ label = "Sexo"
 type = "select"                # any custom field type
 required = true
 options = [{ value = "stallion", label = "Garanhão" }, { value = "mare", label = "Égua" }]
+
+[[entities.fields]]
+key = "registry"
+label = "Registro"
+type = "text"
+unique = true                  # enforced by the database (text, number, url, email, phone)
 
 [[entities.fields]]
 key = "sire"
@@ -86,7 +93,14 @@ public = true
 key = "equine.export_pedigree" # always "<plugin key>.<action>"
 label = "Exportar genealogia"
 description = "Baixar a genealogia completa em PDF"
-grant_to = ["manager"]         # roles that receive it on the first install (admin always has everything)
+grant_to = ["manager"]         # roles that receive it on install, upgrade and "reapply grants" (admin always has everything)
+
+[[role_presets]]               # roles the installer may create from the consent dialog (never created without consent)
+key = "groom"                  # role key; also receives grants on upgrade when it exists
+label = "Tratador"
+description = "Cuida dos cavalos"
+permissions = ["co_equine_horse.read", "co_equine_horse.update", "equine.export_pedigree"]
+scope = "organization"         # own | team | organization (default organization)
 
 [http]
 allowed_hosts = ["api.abccmm.org.br", "*.example.org"]   # outbound HTTP allowlist (exact or *.domain, max 20)
@@ -153,7 +167,10 @@ What the declarations become:
 | `entities` | A custom object `co_<key>_<entity>` with `module_key = <key>`. It appears in the menu, lists, detail pages, forms, filters, search, import/export, automations and webhooks like any custom object. Administrators cannot edit or delete it by hand (409 `custom_object_managed_by_module`). Its permissions are `co_<key>_<entity>.read\|create\|update\|delete\|archive\|export` |
 | `fields` | Custom fields with `module_key = <key>` on existing types (`deal`, `contact`, …), locked like any managed field (409 `field_managed_by_module`) and written by every record API through `custom_fields` |
 | `requires` | Core permissions (or `co_*` permissions) the plugin may use. Unknown permissions make the manifest invalid |
-| `permissions` | Entries in the permission catalog and the role editor (grouped by plugin key), granted to `grant_to` on the first install, toggled with enable/disable and removed with their grants on uninstall. A key already used gives 409 `permission_already_registered` |
+| `permissions` | Entries in the permission catalog and the role editor (grouped by plugin key), granted with `organization` scope to the `grant_to` roles that exist on install, upgrade and "reapply grants", toggled with enable/disable and removed with their grants on uninstall. A key already used gives 409 `permission_already_registered` |
+| `entities[].permission_scope` | Scope of the default grants of the entity permissions to the system `manager` and `member` roles (otherwise `team` for managers and `own` for members). Shared operational records use `organization`; personal ones keep `own`. Existing grants are never narrowed or widened, only missing ones are added |
+| `entities[].fields[].unique` | Database-enforced uniqueness (case-insensitive for text) on text, number, url, email and phone fields: a reservation row per value in `custom_field_unique_values`, written in the same transaction as the value, released when the record is deleted and taken again (or refused) when it is restored. A concurrent duplicate fails with 422 and a `custom_fields.<key>` violation, whatever API writes it. Declaring `unique` on a field that already has duplicates is refused with 409 `plugin_field_unique_conflict` (with the duplicated record ids in `details.conflicts`) before anything is written, also in the dry run; removing `unique` keeps the data and drops the reservations |
+| `role_presets` | Roles the plugin suggests, with permissions taken from its declared permissions, its `requires` and its entity permissions. The consent dialog lists them unchecked; only the selected ones are created (multipart field `role_presets`, comma separated). Presets whose role already exists receive the missing grants |
 | `hooks` | Generic record hooks or domain hooks of the modules (see [Module operations and domain hooks](#module-operations-and-domain-hooks)). The backend is called inside the transaction. An error from a veto hook blocks the write (422 with the plugin code and fields); `record.saving` and the filter hooks may change the values |
 | `operations` | Module operations the backend calls with `invoke` (see [Module operations and domain hooks](#module-operations-and-domain-hooks)). An operation not listed gives 403 `plugin_operation_not_declared`; an unknown one makes the manifest invalid |
 | `events` | The worker calls the backend after the transaction, at least once and with retries, as the plugin (see Capabilities). A plugin never receives the events it caused |
@@ -165,6 +182,8 @@ What the declarations become:
 | `emits` | Events `plugin.<key>.<name>` the backend publishes with `emit`, available as automation triggers |
 | `notifications` | Notification kinds `<key>_<name>` in the preferences, sent with `notify` (see Notifications) |
 | `widgets` | Dashboard widgets `<key>_<name>` whose data comes from `on-widget` (see Dashboard widgets) |
+| `privacy.subject_data` | The plugin holds personal data outside its record fields and takes part in privacy requests (see Data subject requests) |
+| `web.public` | Folder under `web/` served as a public single-page app at `/p/<key>/` (see Public web app) |
 
 Entity field keys cannot reuse the keys every custom object already has: `name`, `title`, `owner_id`, `created_by`, `created_at` and `updated_at`. Any key conflict (an object or field that already exists and is not the plugin's) is refused with 409 `plugin_object_conflict` or `plugin_field_conflict` before anything is written.
 
@@ -196,10 +215,16 @@ Referencing a record counts as reading it. Writing a `record` field (for example
 - hooks, events and routes, including public routes;
 - the module operations it calls;
 - `requires` and declared permissions;
+- role presets, entity visibility (`permission_scope`) and unique fields;
 - allowed hosts, schedules and secrets;
-- the currently installed version.
+- the currently installed version;
+- `grants`: for every role the plugin grants to, whether it exists and how many of the expected permissions it already has.
 
-The web app shows this as a consent dialog, with warnings for public routes and outbound HTTP, before the real install.
+The web app shows this as a consent dialog, with warnings for public routes and outbound HTTP and an unchecked checklist of role presets, before the real install.
+
+Installing never claims the setup is complete: `GET /api/v1/plugins` returns `grants` (per role: `role_exists`, `expected`, `granted`, `missing`) and `ungranted_roles`, and the plugin screen shows "role: 14 of 18 permissions granted". After creating a missing role in Settings › Roles, `POST /api/v1/plugins/{key}/grants` reapplies the declared grants to the roles that exist now (it never creates roles). Install and reapply publish `plugin.installed` / `plugin.grants_reapplied` with the created roles and the number of grants in the audit, in the same transaction as the permission writes.
+
+Plugin entities are managed custom objects: they are created with `module_key` already set and do not count against the 50 custom objects an organization can create.
 
 ## Module operations and domain hooks
 
@@ -295,6 +320,9 @@ export_plugin!(Equine);
 | Call | What it does |
 | --- | --- |
 | `ctx.records().get/list/create/update/delete(record_type, …)` | Any record type through its record handler: permissions, field permissions, validation, hooks, events and audit apply. `list` takes a `ListQuery` (filter AST, sort, search, pagination up to 100). Inside a hook only reads are allowed (see below) |
+| `ctx.records().update_if(record_type, id, expected_updated_at, values)` | Conditional update: the row is locked in the update transaction and a stale `updated_at` gives 409 `version_conflict` without writing anything. Pass the `updated_at` of the record exactly as returned; custom records return it with microseconds, core records with seconds |
+| `ctx.records().apply(&[Mutation::create(..), Mutation::update(..), Mutation::update_if(..)])` | 1 to 100 creates or (conditional) updates, at most 1 MiB of values, in **one transaction**: every write, transactional hook, event and audit entry commits together or nothing does. A value `{"$ref": n}` (`Mutation::reference(n)`) is replaced by the id of the earlier mutation `n`, and reference checks see the earlier uncommitted writes. A failure rolls everything back and names the mutation (`mutations[3]: …`, fields `mutations[3].custom_fields.x`). Post-commit hooks run after the commit. Deletions and deferred batches are not supported; record types without transactional create/update answer 422 `record_operation_not_supported` |
+| `ctx.can(permission)`, `ctx.permissions()` | The effective permissions of the call (actor ∩ capabilities), also inside hooks. Use them to enforce business limits on every write path, including the generic record API |
 | `ctx.kv(collection).get/set/delete/list` | Private key-value storage of the plugin (`plugins_data`), JSON values, collection up to 64 characters, id up to 128 |
 | `ctx.settings()`, `ctx.setting::<T>(key)` | Settings with defaults applied (secrets are left out) |
 | `ctx.secret(name)` | A `secret` setting, or `None` when it is not configured; an undeclared name gives 404 `plugin_secret_not_declared` |
@@ -382,13 +410,45 @@ A veto is never silently bypassed.
 - `on-widget` receives the saved settings (a JSON object up to 16 KB, `default_settings` when empty), the period, the time zone and the viewer, and returns any JSON. It runs with the viewer's scope and a 5 s limit.
 - The web bundle renders that JSON with `app.widget('<key>_<name>', { render })`; without a renderer the card shows "unsupported".
 
+**Reading and counting.**
+- `records.aggregate(query)` takes the body of `POST /api/v1/aggregates` and runs with the call's scope.
+- `records.iterate(type, query, cursor)` walks a large listing in pages of up to the maximum page size. It orders by `created_at` unless the query sets a sort, and returns the next cursor or nothing at the end. The cursor is an offset, so records deleted during a walk can shift the following page.
+- `kv.increment(id, delta)` and `kv.set_if_absent(id, value)` are atomic. `next_number(sequence)` hands out an increasing number outside any transaction, so a caller that fails afterwards leaves a gap.
+
+**Company and directory.** `organization()` returns the name, currency, locale, time zone and primary color. `list_users(query)`, `list_roles()` and `list_teams()` return the directory; `list_users` lists active users only, with name, email, role and teams.
+
+**Files.** `upload_file(type, id, name, bytes)` attaches a file to a record through the same use case as the API, with the same limits and permissions, and returns its metadata with `download_path`. `read_file(id)` returns the metadata and the bytes, up to 10 MB. Attachments of a plugin's entities are removed with its data on purge.
+
+**Non-JSON responses.** Inside a route, `respond_bytes(content_type, filename, bytes)` replaces the JSON body. Allowed types: CSV, plain text, calendar, PDF, JSON, ZIP, octet-stream, PNG and JPEG, up to 10 MB. A filename turns the response into a download.
+
+**Audit reason.** `set_audit_reason(reason)` fills the `reason` column of the audit entries of the writes made afterwards in that call, up to 500 characters.
+
+**Durable email and HTTP.** `defer_effect` also takes `{ "kind": "email", to, subject, text, html?, purpose? }` and `{ "kind": "http", method, url, headers?, body? }`:
+- The key makes the effect idempotent, so a retried callback does not send twice.
+- Email needs `emails.send` in `requires` and the `email` module. It goes through the installation's SMTP and is skipped when the recipient is on the opt-out list (`/api/v1/communication/opt-outs`, scopes `all` and `marketing`).
+- HTTP follows the `allowed_hosts` and the SSRF policy of `http-fetch`.
+
+**Sub-minute schedules.** A `cron` with seconds runs at each second slot: `plugins.tick` enqueues the slots of the next 60 seconds, up to 12 per schedule, so the shortest useful period is 5 seconds.
+
+**Data subject requests.** With `[privacy] subject_data = true`, each privacy request calls `on-action` with the name `privacy.export`, `privacy.anonymize` or `privacy.delete`:
+- The input is `{ request_id, action, records: [{ record_type, id }] }`, and the call runs as the plugin, before the core erases the records, with a 60 s limit.
+- The JSON returned by `privacy.export` goes into the export under `external.<key>`. An `affected` number is added to the report.
+- The call can be repeated, so it must be idempotent. An error makes the request finish as failed, reporting the remaining data.
+- Entity fields marked `personal` or `sensitive` are already found and erased by the core; this call is for data kept elsewhere, such as the key-value store. Retention policies do not make this call.
+
+**Public web app.** `[web] public = "web/public"` serves that folder of the package at `/p/<key>/`:
+- A path without a file extension that matches no file gets `index.html`, so client-side routing works. A missing asset gives 404.
+- Refer to assets by absolute path (`/p/<key>/assets/app.js`), because deep links change the base of relative ones.
+- Responses carry a restrictive `Content-Security-Policy` (scripts and connections only from the same origin) and are shown in the consent dialog as a public route.
+- The page shares the origin of Aphel, so its code has the same trust as the plugin's web bundle: it runs with the session of a signed-in visitor.
+
 ### The contract (WIT)
 
 The backend is a [WebAssembly component](https://component-model.bytecodealliance.org) of the world `aphel:plugin@1.0.0`:
 - It is defined in [`back/modules/plugins/wit/plugin.wit`](../../back/modules/plugins/wit/plugin.wit) and shipped inside the SDK crate as `sdk/rust/aphel-plugin-sdk/wit/plugin.wit`. The copies are kept in sync by `make modules` and checked by `make lint`.
 - It is also copied to `sdk/js/aphel-plugin-sdk/wit/plugin.wit` for the JavaScript SDK.
 - It exports `on-hook`, `on-event`, `on-route`, `on-schedule`, `on-action` and `on-widget`.
-- It imports the `host` interface: `get-record`, `list-records`, `create-record`, `update-record`, `delete-record`, `kv-get`, `kv-set`, `kv-delete`, `kv-list`, `http-fetch`, `notify`, `emit`, `invoke`, `settings-json`, `secret`, `now` and `log`.
+- It imports the `host` interface: `get-record`, `list-records`, `create-record`, `update-record`, `delete-record`, `update-record-if`, `apply-records`, `can`, `permissions`, `kv-get`, `kv-set`, `kv-delete`, `kv-list`, `kv-increment`, `kv-set-if-absent`, `next-number`, `aggregate-records`, `iterate-records`, `upload-file`, `read-file`, `respond-bytes`, `set-audit-reason`, `organization-json`, `list-users`, `list-roles`, `list-teams`, `defer-effect`, `hook-state-json`, `execution-context-json`, `http-fetch`, `notify`, `emit`, `invoke`, `settings-json`, `secret`, `now` and `log`.
 - Record values travel as JSON strings inside the typed records, because record fields are dynamic (custom fields, custom objects).
 
 `aphel-plugin-sdk` wraps the bindings generated by `wit-bindgen` in the `Plugin` trait and `Ctx` above. Any language with component tooling (`wit-bindgen` for C, Go or C#; `componentize-js`; `componentize-py`) can implement the same world directly.
@@ -431,7 +491,7 @@ export default definePlugin({
 })
 ```
 
-The API mirrors the Rust SDK in camelCase. Host calls are synchronous: `ctx.records.get/list/create/update/delete`, `ctx.kv(collection)`, `ctx.settings()`, `ctx.setting(key)`, `ctx.secret(key)`, `ctx.http.send({ method, url, headers, json })`, `ctx.notify({ kind, recipientUserId, title, … })`, `ctx.emit(name, { type, id }, payload)`, `ctx.invoke(operation, input)`, `ctx.deferEffect(key, command)`, `ctx.hookState()`, `ctx.executionContext()`, `ctx.now()` and `ctx.log(level, message)`.
+The API mirrors the Rust SDK in camelCase. Host calls are synchronous: `ctx.records.get/list/create/update/delete/updateIf/apply` (`ctx.records.ref(n)` builds a `$ref`), `ctx.can(permission)`, `ctx.permissions()`, `ctx.kv(collection)`, `ctx.settings()`, `ctx.setting(key)`, `ctx.secret(key)`, `ctx.http.send({ method, url, headers, json })`, `ctx.notify({ kind, recipientUserId, title, … })`, `ctx.emit(name, { type, id }, payload)`, `ctx.invoke(operation, input)`, `ctx.deferEffect(key, command)`, `ctx.hookState()`, `ctx.executionContext()`, `ctx.now()` and `ctx.log(level, message)`.
 - Throw a `PluginError` (`new PluginError(code, message, { status, fields })`, `PluginError.field`, `notFound`, `forbidden`) to veto or answer with an error. Any other exception becomes 422 `plugin_error`.
 - Host errors are thrown as `PluginError` with the host's code and status, so they can be caught or let through.
 - A route handler that returns nothing answers 404 `route_not_found`.
@@ -446,6 +506,8 @@ Uploading a package with the key of an installed plugin upgrades it, after the s
 - New entities, fields and options are created. Changed labels, `required`, `searchable`, targets and option labels are updated.
 - Fields, entities and select options that the new version no longer declares are **deactivated**: hidden, with their data kept. A later version that declares them again reactivates them. Enabling the plugin does not reactivate them.
 - Changing the **type** of an existing field is refused with 409 `plugin_field_type_changed` before anything is applied. The values live in type-specific columns and are not converted, so declare a field with a new key instead.
+- Adding `unique` rebuilds the reservations under a lock on the field (409 `plugin_field_unique_conflict` when existing records share a value); removing it drops them.
+- Declared grants, preset grants for existing roles and entity default grants are reapplied.
 
 ## Web in React
 
@@ -454,7 +516,7 @@ The bundle is an ES module that default-exports a `defineModule` (same API as th
 | Specifier | Content |
 | --- | --- |
 | `react`, `react/jsx-runtime`, `react-dom`, `react-router`, `@tanstack/react-query`, `react-i18next` | The instances used by Aphel |
-| `@aphel/web-sdk` | Stable API: `defineModule`, `NAV_ORDER`, `useModuleTranslation`, `Slot`, `api`, `useSession`, `RecordListView`, `RecordDetailPage`, `RecordFormDialog`, `RecordForm`, `useRecord`, `registerRecordResource`, formatting helpers, `customObjectPath`/`customRecordPath`, feedback (`ConfirmDialog`, `notifySuccess`, `notifyError`) and UI components (`Button`, `Badge`, `Card`, `EmptyState`, `ErrorState`, `Skeleton`, `Input`, `Label`, `Tooltip`, `Avatar`, `cn`) — [`web/src/sdk/index.ts`](../../web/src/sdk/index.ts) |
+| `@aphel/web-sdk` | Stable API: `defineModule`, `NAV_ORDER`, `useModuleTranslation`, `Slot`, `api`, `useSession`, `RecordListView`, `RecordDetailPage`, `RecordFormDialog`, `RecordForm`, `useRecord`, `registerRecordResource`, formatting helpers, `customObjectPath`/`customRecordPath`, `useChangeFeed` (live changes of the plugin's records from `GET /api/v1/plugins/<key>/changes/stream`, with `GET /api/v1/plugins/<key>/changes?since=<seq>` for catching up; kept for 24 hours, and `reset` means the client must reload), feedback (`ConfirmDialog`, `notifySuccess`, `notifyError`) and UI components (`Button`, `Badge`, `Card`, `EmptyState`, `ErrorState`, `Skeleton`, `Input`, `Label`, `Tooltip`, `Avatar`, `cn`) — [`web/src/sdk/index.ts`](../../web/src/sdk/index.ts) |
 
 ```js
 // vite.config.js
@@ -538,13 +600,14 @@ curl -H "Authorization: Bearer $TOKEN" -F package=@equine-2.0.0.aphelplugin http
 | `POST /api/v1/plugins` (multipart `package`) | `system.manage` | Install or upgrade; `?dry_run=true` only returns the consent payload |
 | `POST /api/v1/plugins/{key}/enable` · `/disable` | `system.manage` | Disabling hides entities, fields and permissions and stops hooks, events, schedules, routes and the web bundle; nothing is deleted |
 | `PUT /api/v1/plugins/{key}/settings` | `system.manage` | Validated against the declared settings; secrets set, removed (`null`) or kept (absent) |
+| `POST /api/v1/plugins/{key}/grants` | `system.manage` | Reapplies declared, preset and entity default grants to the roles that exist; never creates roles |
 | `DELETE /api/v1/plugins/{key}?purge=true` | `system.manage` | Removes the plugin, its key-value data, secrets and permissions; with `purge` also its entities, records and fields |
 | `GET /api/v1/plugins/host-catalog` | `system.manage` | Hooks and operations this Aphel offers to plugins, with the owning module and whether it is enabled |
 | `GET /api/v1/public/plugins` | public | Web bundles of the enabled plugins |
 | `ANY /api/v1/p/{key}/{path}` | declared per route | Plugin routes |
 | `ANY /api/v1/public/p/{key}/{path}` | public, rate limited | Public plugin routes |
 
-Every change publishes `plugin.installed|enabled|disabled|settings_updated|uninstalled` with audit.
+Every change publishes `plugin.installed|enabled|disabled|settings_updated|grants_reapplied|uninstalled` with audit.
 
 ## How it works
 

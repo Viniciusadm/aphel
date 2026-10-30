@@ -4,25 +4,27 @@ use uuid::Uuid;
 
 use crate::manifest::{FieldDef, PluginManifest};
 use aphel_kernel::application::custom_objects::{
-    CreateObjectCommand, CustomObjectAdminUseCases, custom_record_definition,
+    CreateObjectCommand, CustomObjectAdminUseCases, ManagedObject, custom_record_definition,
 };
+use aphel_kernel::application::fields::config_to_json;
 use aphel_kernel::application::fields::{FieldDefinitionRepository, RecordTypeRegistry};
 use aphel_kernel::domain::access::AccessScope;
 use aphel_kernel::domain::custom_objects::{
     CustomObject, CustomObjectData, DEFAULT_TITLE_FIELD_KEY,
 };
-use aphel_kernel::domain::fields::{
-    FieldConfig, FieldDefinition, FieldKey, FieldOption, FieldType,
-};
-use aphel_kernel::errors::{AppError, FieldViolation};
+use aphel_kernel::domain::fields::{FieldDefinition, FieldKey, FieldOption, FieldType};
+use aphel_kernel::errors::{AppError, CodedKind, FieldViolation};
 use aphel_kernel::infrastructure::custom_objects::MySqlCustomObjectAdminPorts;
 use aphel_kernel::infrastructure::fields::mysql_definitions::MySqlFieldDefinitionRepository;
+use aphel_kernel::infrastructure::fields::unique_values;
 use aphel_kernel::state::AppState;
 
 const PLUGIN_FIELD_POSITION: i32 = 20_000;
 const FIELD_TAKEN: &str = "plugin_field_conflict";
 const OBJECT_TAKEN: &str = "plugin_object_conflict";
 const FIELD_TYPE_CHANGED: &str = "plugin_field_type_changed";
+const FIELD_UNIQUE_CONFLICT: &str = "plugin_field_unique_conflict";
+const DUPLICATE_SAMPLE: u32 = 20;
 
 async fn bump_schema(state: &AppState) -> Result<(), AppError> {
     sqlx::query(
@@ -87,15 +89,67 @@ pub async fn validate_dependencies(
     Ok(())
 }
 
+pub async fn check(state: &AppState, manifest: &PluginManifest) -> Result<(), AppError> {
+    validate_dependencies(state, manifest).await?;
+    let pool = state.db()?;
+    ensure_compatible(&pool, manifest).await?;
+    preflight(&pool, manifest).await?;
+    ensure_unique_values(state, manifest).await
+}
+
+async fn ensure_unique_values(state: &AppState, manifest: &PluginManifest) -> Result<(), AppError> {
+    let pool = state.db()?;
+    let registry = state.registry().await?;
+    let mut conflicts = Vec::new();
+    for (record_type, field) in declared_fields(manifest) {
+        if !field.unique {
+            continue;
+        }
+        let Ok(definition) = registry.require(&record_type) else {
+            continue;
+        };
+        let Some(existing) = MySqlFieldDefinitionRepository::new(pool.clone())
+            .list(&aphel_kernel::application::shared::RecordType::parse(
+                &record_type,
+            )?)
+            .await?
+            .into_iter()
+            .find(|candidate| candidate.key.as_str() == field.key)
+        else {
+            continue;
+        };
+        if existing.is_unique {
+            continue;
+        }
+        let records =
+            unique_values::duplicated_records(&pool, definition, &existing, DUPLICATE_SAMPLE)
+                .await?;
+        if !records.is_empty() {
+            conflicts.push(json!({
+                "record_type": record_type,
+                "field": field.key,
+                "record_ids": records.iter().map(ToString::to_string).collect::<Vec<_>>(),
+            }));
+        }
+    }
+    if conflicts.is_empty() {
+        return Ok(());
+    }
+    Err(AppError::with_details(
+        CodedKind::Conflict,
+        FIELD_UNIQUE_CONFLICT,
+        "existing records share values of fields the plugin declares as unique; resolve the duplicates before installing",
+        json!({ "conflicts": conflicts }),
+    ))
+}
+
 pub async fn apply(
     state: &AppState,
     scope: &AccessScope,
     manifest: &PluginManifest,
 ) -> Result<(), AppError> {
-    validate_dependencies(state, manifest).await?;
+    check(state, manifest).await?;
     let pool = state.db()?;
-    ensure_compatible(&pool, manifest).await?;
-    preflight(&pool, manifest).await?;
     for entity in &manifest.entities {
         let object_key = manifest.object_key(&entity.key);
         match object_owner(&pool, &object_key).await? {
@@ -125,7 +179,7 @@ pub async fn apply(
                     state.events.clone(),
                     state.audit.clone(),
                 ))
-                .create(
+                .create_managed(
                     scope,
                     CreateObjectCommand {
                         key: object_key.clone(),
@@ -137,13 +191,12 @@ pub async fn apply(
                         owner_enabled: Some(entity.owner_enabled),
                         ip: None,
                     },
+                    ManagedObject {
+                        module_key: manifest.key.clone(),
+                        permission_scope: manifest.entity_scope(entity),
+                    },
                 )
                 .await?;
-                sqlx::query("UPDATE custom_objects SET module_key = ? WHERE `key` = ?")
-                    .bind(&manifest.key)
-                    .bind(&object_key)
-                    .execute(&pool)
-                    .await?;
             }
         }
     }
@@ -153,7 +206,7 @@ pub async fn apply(
     let repository = MySqlFieldDefinitionRepository::new(pool.clone());
     let mut tx = aphel_kernel::database::transaction::MySqlTx::from(pool.begin().await?);
     for (index, (record_type, field)) in fields.into_iter().enumerate() {
-        let definition = definition(&registry, &manifest.key, &record_type, field, index)?;
+        let mut definition = definition(&registry, &manifest.key, &record_type, field, index)?;
         let existing: Option<(String, Option<String>)> = sqlx::query_as(
             "SELECT id, module_key FROM field_definitions WHERE record_type = ? AND `key` = ?",
         )
@@ -164,14 +217,20 @@ pub async fn apply(
         match existing {
             None => repository.insert(&mut tx, &definition).await?,
             Some((id, Some(owner))) if owner == manifest.key => {
+                definition.id = Uuid::parse_str(&id)
+                    .map_err(|_| AppError::Internal(format!("invalid field id {id}")))?;
                 sqlx::query(
-                    "UPDATE field_definitions SET label = ?, is_required = ?, is_searchable = ?, \
-                     config = ?, is_active = TRUE WHERE id = ?",
+                    "UPDATE field_definitions SET label = ?, is_required = ?, is_unique = ?, \
+                     is_searchable = ?, is_personal = ?, is_sensitive = ?, config = ?, \
+                     is_active = TRUE WHERE id = ?",
                 )
                 .bind(&definition.label)
                 .bind(definition.is_required)
+                .bind(definition.is_unique)
                 .bind(definition.is_searchable)
-                .bind(sqlx::types::Json(config_json(&definition.config)))
+                .bind(definition.is_personal)
+                .bind(definition.is_sensitive)
+                .bind(sqlx::types::Json(config_to_json(&definition.config)))
                 .bind(&id)
                 .execute(&mut *tx)
                 .await?;
@@ -191,6 +250,23 @@ pub async fn apply(
                     .await?;
                 }
                 deactivate_undeclared_options(&mut tx, &id, &definition.options).await?;
+                if definition.field_type.supports_unique() {
+                    unique_values::rebuild(&mut tx, registry.require(&record_type)?, &definition)
+                        .await
+                        .map_err(|error| match error {
+                            AppError::Coded {
+                                kind: CodedKind::Conflict,
+                                ..
+                            } => AppError::conflict_code(
+                                FIELD_UNIQUE_CONFLICT,
+                                format!(
+                                    "existing records share values of {} on {record_type}",
+                                    field.key
+                                ),
+                            ),
+                            other => other,
+                        })?;
+                }
             }
             Some(_) => {
                 return Err(AppError::conflict_code(
@@ -398,13 +474,6 @@ async fn deactivate_undeclared(
     Ok(())
 }
 
-fn config_json(config: &FieldConfig) -> serde_json::Value {
-    match &config.target_record_type {
-        Some(target) => json!({ "target_record_type": target }),
-        None => json!({}),
-    }
-}
-
 fn definition(
     registry: &RecordTypeRegistry,
     plugin: &str,
@@ -426,10 +495,15 @@ fn definition(
         .map_err(|_| invalid(format!("{record_type} is not a record type")))?;
     let field_type = FieldType::parse(&field.field_type)
         .ok_or_else(|| invalid(format!("{} is not a field type", field.field_type)))?;
-    let config = FieldConfig {
-        target_record_type: field.target.clone(),
-        ..FieldConfig::default()
-    };
+    let config = field.config().map_err(|errors| {
+        invalid(
+            errors
+                .into_iter()
+                .map(|error| format!("{}: {}", error.property, error.message))
+                .collect::<Vec<_>>()
+                .join("; "),
+        )
+    })?;
     if let Some(target) = &field.target
         && registry.require(target).is_err()
     {
@@ -447,10 +521,10 @@ fn definition(
         is_system: false,
         column_name: None,
         is_required: field.required,
-        is_unique: false,
+        is_unique: field.unique,
         is_searchable: field.searchable,
-        is_personal: false,
-        is_sensitive: false,
+        is_personal: field.personal || field.sensitive,
+        is_sensitive: field.sensitive,
         module_key: Some(plugin.to_owned()),
         is_active: true,
         position: PLUGIN_FIELD_POSITION + index as i32,
@@ -502,7 +576,22 @@ pub async fn set_active(
 pub async fn purge(state: &AppState, manifest: &PluginManifest) -> Result<(), AppError> {
     let pool = state.db()?;
     let mut tx = aphel_kernel::database::transaction::MySqlTx::from(pool.begin().await?);
+    let mut attached: Vec<Uuid> = Vec::new();
     for record_type in manifest.entity_record_types() {
+        let files: Vec<String> =
+            sqlx::query_scalar("SELECT file_id FROM attachments WHERE record_type = ?")
+                .bind(&record_type)
+                .fetch_all(&mut *tx)
+                .await?;
+        attached.extend(files.iter().filter_map(|id| Uuid::parse_str(id).ok()));
+        for table in ["attachments", "record_shares"] {
+            sqlx::query(sqlx::AssertSqlSafe(format!(
+                "DELETE FROM {table} WHERE record_type = ?"
+            )))
+            .bind(&record_type)
+            .execute(&mut *tx)
+            .await?;
+        }
         for table in ["custom_field_values", "custom_field_multi_values"] {
             sqlx::query(sqlx::AssertSqlSafe(format!(
                 "DELETE FROM {table} WHERE record_type = ?"
@@ -528,6 +617,15 @@ pub async fn purge(state: &AppState, manifest: &PluginManifest) -> Result<(), Ap
         .bind(&manifest.key)
         .execute(&mut *tx)
         .await?;
+    let orphans = aphel_kernel::infrastructure::storage::references::delete_unreferenced_files(
+        &mut tx, &attached,
+    )
+    .await?;
     tx.commit().await?;
+    for key in orphans {
+        if let Err(error) = state.storage.delete(&key).await {
+            tracing::warn!(error = %error, "failed to remove a purged plugin file");
+        }
+    }
     bump_schema(state).await
 }

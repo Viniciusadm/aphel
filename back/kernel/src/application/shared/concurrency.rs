@@ -11,10 +11,14 @@ pub fn ensure_version(
     let Some(expected) = expected else {
         return Ok(());
     };
-    let matches = if expected.timestamp_subsec_nanos() == 0 {
+    let nanos = expected.timestamp_subsec_nanos();
+    let matches = if nanos == 0 {
         expected.timestamp() == current.timestamp()
-    } else {
+    } else if nanos % 1_000_000 == 0 {
         expected.timestamp_millis() == current.timestamp_millis()
+            || expected.timestamp_micros() == current.timestamp_micros()
+    } else {
+        expected.timestamp_micros() == current.timestamp_micros()
     };
     if matches {
         Ok(())

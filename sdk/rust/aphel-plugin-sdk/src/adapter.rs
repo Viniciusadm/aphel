@@ -4,7 +4,8 @@ use crate::bindings::aphel::plugin::host;
 use crate::bindings::aphel::plugin::types as wit;
 use crate::{
     ActionCall, Actor, ActorKind, Change, Ctx, Event, FieldError, HookCall, HttpRequest,
-    HttpResponse, ListQuery, Notification, Page, Plugin, PluginError, Request, WidgetRequest,
+    HttpResponse, ListQuery, Mutation, Notification, Page, Plugin, PluginError, Request,
+    WidgetRequest,
 };
 
 fn object(json: &str) -> Map<String, Value> {
@@ -97,6 +98,29 @@ pub(crate) fn list_records(record_type: &str, query: ListQuery) -> Result<Page, 
     })
 }
 
+pub(crate) fn aggregate_records(query: &Value) -> Result<Value, PluginError> {
+    Ok(value(&host::aggregate_records(&query.to_string())?))
+}
+
+pub(crate) fn iterate_records(
+    record_type: &str,
+    query: ListQuery,
+    cursor: Option<&str>,
+) -> Result<(Vec<Value>, Option<String>), PluginError> {
+    let (records, next) = host::iterate_records(
+        record_type,
+        &wit::ListQuery {
+            filter_json: query.filter.map(|filter| filter.to_string()),
+            sort: query.sort,
+            search: query.search,
+            page: query.page.map(|page| page as u32),
+            per_page: query.per_page.map(|per_page| per_page as u32),
+        },
+        cursor,
+    )?;
+    Ok((records.iter().map(|json| value(json)).collect(), next))
+}
+
 pub(crate) fn create_record(record_type: &str, values: &Value) -> Result<Value, PluginError> {
     Ok(value(&host::create_record(
         record_type,
@@ -120,6 +144,44 @@ pub(crate) fn delete_record(record_type: &str, id: &str) -> Result<(), PluginErr
     Ok(host::delete_record(record_type, id)?)
 }
 
+pub(crate) fn update_record_if(
+    record_type: &str,
+    id: &str,
+    expected_updated_at: &str,
+    values: &Value,
+) -> Result<Value, PluginError> {
+    Ok(value(&host::update_record_if(
+        record_type,
+        id,
+        expected_updated_at,
+        &values.to_string(),
+    )?))
+}
+
+pub(crate) fn apply_records(mutations: &[Mutation]) -> Result<Vec<Value>, PluginError> {
+    let mutations: Vec<wit::RecordMutation> = mutations
+        .iter()
+        .map(|mutation| wit::RecordMutation {
+            record_type: mutation.record_type.clone(),
+            id: mutation.id.clone(),
+            expected_updated_at: mutation.expected_updated_at.clone(),
+            values_json: mutation.values.to_string(),
+        })
+        .collect();
+    Ok(host::apply_records(&mutations)?
+        .iter()
+        .map(|json| value(json))
+        .collect())
+}
+
+pub(crate) fn can(permission: &str) -> bool {
+    host::can(permission)
+}
+
+pub(crate) fn permissions() -> Vec<String> {
+    host::permissions()
+}
+
 pub(crate) fn kv_get(collection: &str, id: &str) -> Result<Option<Value>, PluginError> {
     Ok(host::kv_get(collection, id)?.map(|json| value(&json)))
 }
@@ -137,6 +199,69 @@ pub(crate) fn kv_list(collection: &str) -> Result<Vec<(String, Value)>, PluginEr
         .into_iter()
         .map(|(id, json)| (id, value(&json)))
         .collect())
+}
+
+pub(crate) fn kv_increment(collection: &str, id: &str, delta: i64) -> Result<i64, PluginError> {
+    Ok(host::kv_increment(collection, id, delta)?)
+}
+
+pub(crate) fn kv_set_if_absent(
+    collection: &str,
+    id: &str,
+    item: &Value,
+) -> Result<bool, PluginError> {
+    Ok(host::kv_set_if_absent(collection, id, &item.to_string())?)
+}
+
+pub(crate) fn next_number(sequence: &str) -> Result<u64, PluginError> {
+    Ok(host::next_number(sequence)?)
+}
+
+pub(crate) fn set_audit_reason(reason: Option<&str>) {
+    host::set_audit_reason(reason);
+}
+
+pub(crate) fn upload_file(
+    record_type: &str,
+    record_id: &str,
+    filename: &str,
+    body: &[u8],
+) -> Result<Value, PluginError> {
+    Ok(value(&host::upload_file(
+        record_type,
+        record_id,
+        filename,
+        body,
+    )?))
+}
+
+pub(crate) fn read_file(file_id: &str) -> Result<(Value, Vec<u8>), PluginError> {
+    let (file, body) = host::read_file(file_id)?;
+    Ok((value(&file), body))
+}
+
+pub(crate) fn respond_bytes(
+    content_type: &str,
+    filename: Option<&str>,
+    body: &[u8],
+) -> Result<(), PluginError> {
+    Ok(host::respond_bytes(content_type, filename, body)?)
+}
+
+pub(crate) fn organization() -> Result<Value, PluginError> {
+    Ok(value(&host::organization_json()?))
+}
+
+pub(crate) fn list_users(query: &Value) -> Result<Value, PluginError> {
+    Ok(value(&host::list_users(&query.to_string())?))
+}
+
+pub(crate) fn list_roles() -> Result<Value, PluginError> {
+    Ok(value(&host::list_roles()?))
+}
+
+pub(crate) fn list_teams() -> Result<Value, PluginError> {
+    Ok(value(&host::list_teams()?))
 }
 
 pub(crate) fn http_fetch(request: HttpRequest) -> Result<HttpResponse, PluginError> {

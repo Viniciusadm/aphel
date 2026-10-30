@@ -18,7 +18,7 @@ use crate::application::shared::{
     Actor, AuditEntry, AuditLog, DomainEvent, EventPublisher, FieldChange, RecordRef, RecordType,
     TransactionManager, ensure_version,
 };
-use crate::domain::access::{AccessScope, Permission};
+use crate::domain::access::{AccessScope, Permission, RecordScope};
 use crate::domain::custom_objects::{
     Cardinality, CustomObject, CustomObjectData, DEFAULT_TITLE_FIELD_KEY,
     MAX_OBJECT_DESCRIPTION_LENGTH, MAX_OBJECT_ICON_LENGTH, MAX_OBJECT_KEY_LENGTH,
@@ -99,6 +99,12 @@ pub struct CreateObjectCommand {
     pub color: Option<String>,
     pub owner_enabled: Option<bool>,
     pub ip: Option<String>,
+}
+
+#[derive(Debug, Clone, PartialEq, Eq)]
+pub struct ManagedObject {
+    pub module_key: String,
+    pub permission_scope: Option<RecordScope>,
 }
 
 #[derive(Debug, Clone, PartialEq, Eq, Default)]
@@ -315,6 +321,24 @@ where
         scope: &AccessScope,
         command: CreateObjectCommand,
     ) -> Result<ObjectView, AppError> {
+        self.create_object(scope, command, None).await
+    }
+
+    pub async fn create_managed(
+        &self,
+        scope: &AccessScope,
+        command: CreateObjectCommand,
+        managed: ManagedObject,
+    ) -> Result<ObjectView, AppError> {
+        self.create_object(scope, command, Some(managed)).await
+    }
+
+    async fn create_object(
+        &self,
+        scope: &AccessScope,
+        command: CreateObjectCommand,
+        managed: Option<ManagedObject>,
+    ) -> Result<ObjectView, AppError> {
         scope.require(&Permission::SETTINGS_MANAGE)?;
         let mut violations = Vec::new();
         let key = command.key.trim().to_owned();
@@ -360,10 +384,18 @@ where
             ));
         }
         let limit = CUSTOM_OBJECTS_MAX;
-        if existing.len() >= limit {
+        if managed.is_none()
+            && existing
+                .iter()
+                .filter(|object| object.module_key.is_none())
+                .count()
+                >= limit
+        {
             return Err(AppError::validation_code(
                 TOO_MANY_CUSTOM_OBJECTS,
-                format!("the organization can have at most {limit} custom objects"),
+                format!(
+                    "the organization can have at most {limit} custom objects; objects managed by modules and plugins are not counted"
+                ),
             ));
         }
         let now = self.ports.clock().now();
@@ -385,7 +417,7 @@ where
                 .map(|object| object.position)
                 .max()
                 .map_or(0, |position| position + 1),
-            module_key: None,
+            module_key: managed.as_ref().map(|managed| managed.module_key.clone()),
             created_by: Some(scope.user_id().clone()),
             created_at: now,
             updated_at: now,
@@ -423,7 +455,13 @@ where
             .await?;
         self.ports
             .objects()
-            .grant_default_permissions(&mut tx, &object.record_type())
+            .grant_default_permissions(
+                &mut tx,
+                &object.record_type(),
+                managed
+                    .as_ref()
+                    .and_then(|managed| managed.permission_scope),
+            )
             .await?;
         self.ports.objects().bump_schema_version(&mut tx).await?;
         self.publish(

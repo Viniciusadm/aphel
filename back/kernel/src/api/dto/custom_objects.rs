@@ -349,7 +349,7 @@ pub struct CustomRecordResponse {
     pub archived_at: Option<String>,
     #[schema(example = "2026-10-20T13:45:00Z")]
     pub created_at: String,
-    #[schema(example = "2026-10-20T13:45:00Z")]
+    #[schema(example = "2026-10-20T13:45:00.123456Z")]
     pub updated_at: String,
     #[schema(value_type = Object)]
     pub custom_fields: Map<String, Value>,
@@ -366,7 +366,9 @@ impl From<CustomRecordDetails> for CustomRecordResponse {
             created_by: record.created_by.map(|user| user.into_inner()),
             archived_at: record.archived_at.map(timestamp),
             created_at: timestamp(record.created_at),
-            updated_at: timestamp(record.updated_at),
+            updated_at: record
+                .updated_at
+                .to_rfc3339_opts(chrono::SecondsFormat::Micros, true),
             custom_fields: details.custom_fields,
         }
     }

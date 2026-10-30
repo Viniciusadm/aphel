@@ -15,9 +15,10 @@ use utoipa_axum::router::{OpenApiRouter, UtoipaMethodRouterExt};
 use utoipa_axum::routes;
 
 use crate::compiled;
+use crate::grants;
 use crate::host::secret_key;
 use crate::manifest::{HostCatalog, PluginManifest, SETTING_SECRET, match_route};
-use crate::package::{MAX_PACKAGE_BYTES, read_package};
+use crate::package::{MAX_PACKAGE_BYTES, PUBLIC_APP_INDEX, read_package};
 use crate::registry;
 use crate::runtime::{self, wit};
 use crate::schema;
@@ -45,6 +46,7 @@ const PLUGIN_NOT_FOUND: &str = "plugin_not_found";
 const PLUGIN_ROUTE_NOT_FOUND: &str = "plugin_route_not_found";
 const INVALID_SETTINGS: &str = "plugin_settings_invalid";
 const WEB_PREFIX: &str = "web/";
+const PUBLIC_APP_CSP: &str = "default-src 'self'; script-src 'self'; style-src 'self' 'unsafe-inline'; img-src 'self' data: https:; font-src 'self'; connect-src 'self'; object-src 'none'; base-uri 'self'; form-action 'self'; frame-ancestors 'none'";
 const PERMISSIONS_OWNER_PREFIX: &str = "plugin:";
 const REDACTED: &str = "[redacted]";
 const PUBLIC_PER_ADDRESS_LIMIT: u32 = 60;
@@ -66,6 +68,9 @@ pub(crate) fn router() -> OpenApiRouter<AppState> {
         .routes(routes!(enable_plugin))
         .routes(routes!(disable_plugin))
         .routes(routes!(update_plugin_settings))
+        .routes(routes!(reapply_plugin_grants))
+        .routes(routes!(plugin_changes))
+        .routes(routes!(plugin_change_stream))
         .routes(routes!(host_catalog))
         .routes(routes!(catalog_readiness))
         .route("/p/{key}/{*path}", any(dispatch))
@@ -76,6 +81,13 @@ pub(crate) fn public_router() -> OpenApiRouter<AppState> {
         .routes(routes!(web_plugins))
         .route("/public/plugins/{key}/{*path}", get(web_asset))
         .route("/public/p/{key}/{*path}", any(public_dispatch))
+}
+
+pub(crate) fn root_router() -> OpenApiRouter<AppState> {
+    OpenApiRouter::new()
+        .route("/p/{key}", get(public_app_redirect))
+        .route("/p/{key}/", get(public_app_index))
+        .route("/p/{key}/{*path}", get(public_app_file))
 }
 
 fn not_found(key: &str) -> AppError {
@@ -100,31 +112,63 @@ async fn record(
     ip: Option<String>,
 ) -> Result<(), AppError> {
     let pool = state.db()?;
-    let now = chrono::Utc::now();
-    let actor = Actor::from_scope(scope);
     let mut tx = aphel_kernel::database::transaction::MySqlTx::from(
         pool.begin().await.map_err(AppError::from)?,
     );
-    store::bump(&mut tx).await?;
+    record_in(&mut tx, state, scope, action, plugin, changes, ip).await?;
+    tx.commit().await?;
+    registry::invalidate().await;
+    Ok(())
+}
+
+async fn record_in(
+    tx: &mut MySqlTx,
+    state: &AppState,
+    scope: &AccessScope,
+    action: &'static str,
+    plugin: &str,
+    changes: Vec<FieldChange>,
+    ip: Option<String>,
+) -> Result<(), AppError> {
+    let now = chrono::Utc::now();
+    let actor = Actor::from_scope(scope);
+    store::bump(tx).await?;
     state
         .events
         .publish(
-            &mut tx,
+            tx,
             DomainEvent::new(actor.clone(), action, now).with_payload(json!({ "plugin": plugin })),
         )
         .await?;
     state
         .audit
         .record(
-            &mut tx,
+            tx,
             AuditEntry::new(actor, action, now)
                 .with_changes(changes)
                 .with_ip(ip),
         )
         .await?;
-    tx.commit().await?;
-    registry::invalidate().await;
     Ok(())
+}
+
+fn grant_changes(report: &grants::GrantReport) -> Vec<FieldChange> {
+    let mut changes = Vec::new();
+    if !report.created_roles.is_empty() {
+        changes.push(FieldChange::new(
+            "created_roles",
+            Value::Null,
+            json!(report.created_roles),
+        ));
+    }
+    if report.granted > 0 {
+        changes.push(FieldChange::new(
+            "granted_permissions",
+            Value::Null,
+            json!(report.granted),
+        ));
+    }
+    changes
 }
 
 #[derive(Debug, Serialize, ToSchema)]
@@ -150,6 +194,21 @@ pub(crate) struct PluginPermissionResponse {
 }
 
 #[derive(Debug, Serialize, ToSchema)]
+pub(crate) struct PluginRolePresetResponse {
+    key: String,
+    label: String,
+    description: Option<String>,
+    permissions: Vec<String>,
+    scope: String,
+}
+
+#[derive(Debug, Serialize, ToSchema)]
+pub(crate) struct PluginEntityScopeResponse {
+    record_type: String,
+    permission_scope: String,
+}
+
+#[derive(Debug, Serialize, ToSchema)]
 pub(crate) struct PluginDeclarations {
     entities: Vec<String>,
     extended_types: Vec<String>,
@@ -167,6 +226,9 @@ pub(crate) struct PluginDeclarations {
     notifications: Vec<String>,
     widgets: Vec<String>,
     operations: Vec<String>,
+    role_presets: Vec<PluginRolePresetResponse>,
+    entity_scopes: Vec<PluginEntityScopeResponse>,
+    unique_fields: Vec<String>,
     has_web: bool,
 }
 
@@ -197,7 +259,16 @@ impl From<&PluginManifest> for PluginDeclarations {
                 .collect(),
             events: manifest.events.clone(),
             routes: routes(false),
-            public_routes: routes(true),
+            public_routes: routes(true)
+                .into_iter()
+                .chain(
+                    manifest
+                        .web
+                        .as_ref()
+                        .and_then(|web| web.public.as_ref())
+                        .map(|_| format!("GET /p/{}/", manifest.key)),
+                )
+                .collect(),
             requires: manifest.requires.clone(),
             permissions: manifest
                 .permissions
@@ -240,6 +311,50 @@ impl From<&PluginManifest> for PluginDeclarations {
                 .map(|widget| widget.title.clone())
                 .collect(),
             operations: manifest.operations.clone(),
+            role_presets: manifest
+                .role_presets
+                .iter()
+                .map(|preset| PluginRolePresetResponse {
+                    key: preset.key.clone(),
+                    label: preset.label.clone(),
+                    description: preset.description.clone(),
+                    permissions: preset.permissions.clone(),
+                    scope: preset.scope.clone(),
+                })
+                .collect(),
+            entity_scopes: manifest
+                .entities
+                .iter()
+                .filter_map(|entity| {
+                    manifest
+                        .entity_scope(entity)
+                        .map(|scope| PluginEntityScopeResponse {
+                            record_type: manifest.entity_record_type(&entity.key),
+                            permission_scope: scope.as_str().to_owned(),
+                        })
+                })
+                .collect(),
+            unique_fields: manifest
+                .entities
+                .iter()
+                .flat_map(|entity| {
+                    let record_type = manifest.entity_record_type(&entity.key);
+                    entity
+                        .fields
+                        .iter()
+                        .filter(|field| field.unique)
+                        .map(move |field| format!("{record_type}.{}", field.key))
+                })
+                .chain(
+                    manifest
+                        .fields
+                        .iter()
+                        .filter(|extension| extension.field.unique)
+                        .map(|extension| {
+                            format!("{}.{}", extension.record_type, extension.field.key)
+                        }),
+                )
+                .collect(),
             has_web: manifest.web.is_some(),
         }
     }
@@ -256,6 +371,8 @@ pub(crate) struct PluginResponse {
     declares: PluginDeclarations,
     backend_error: Option<String>,
     settings: Vec<PluginSettingResponse>,
+    grants: Vec<grants::RoleGrantStatus>,
+    ungranted_roles: Vec<String>,
     installed_at: String,
     updated_at: String,
 }
@@ -269,6 +386,7 @@ pub(crate) struct PluginConsentResponse {
     installed_version: Option<String>,
     #[serde(flatten)]
     declares: PluginDeclarations,
+    grants: Vec<grants::RoleGrantStatus>,
 }
 
 async fn respond(state: &AppState, plugin: InstalledPlugin) -> Result<PluginResponse, AppError> {
@@ -301,7 +419,15 @@ async fn respond(state: &AppState, plugin: InstalledPlugin) -> Result<PluginResp
             configured,
         });
     }
+    let grants = grants::status(&state.db()?, &plugin.manifest).await?;
+    let ungranted_roles = grants
+        .iter()
+        .filter(|status| !status.role_exists || status.granted < status.expected)
+        .map(|status| status.role.clone())
+        .collect();
     Ok(PluginResponse {
+        grants,
+        ungranted_roles,
         declares: PluginDeclarations::from(&plugin.manifest),
         backend_error: snapshot.backend_error(&plugin.key),
         settings,
@@ -461,7 +587,7 @@ async fn install_plugin(
 ) -> Result<Response, ApiError> {
     let scope = &tenant.scope;
     scope.require(&Permission::SYSTEM_MANAGE)?;
-    let bytes = package_bytes(multipart).await?;
+    let (bytes, presets) = package_bytes(multipart).await?;
     let package = read_package(&bytes)?;
     let compiled: Vec<String> = state
         .app
@@ -490,7 +616,8 @@ async fn install_plugin(
     }
     let pool = state.db()?;
     let previous = store::find(&pool, &package.manifest.key).await?;
-    schema::validate_dependencies(&state, &package.manifest).await?;
+    let presets = grants::selected_presets(&package.manifest, &presets)?;
+    schema::check(&state, &package.manifest).await?;
     if params.dry_run {
         let manifest = &package.manifest;
         let consent = PluginConsentResponse {
@@ -500,6 +627,7 @@ async fn install_plugin(
             description: manifest.description.clone(),
             installed_version: previous.map(|plugin| plugin.version),
             declares: PluginDeclarations::from(manifest),
+            grants: grants::status(&pool, manifest).await?,
         };
         return Ok(Json(Data::new(consent)).into_response());
     }
@@ -510,20 +638,25 @@ async fn install_plugin(
     );
     store::save(&mut tx, &package, Some(scope.user_id())).await?;
     sync_permissions(&mut tx, &package.manifest, enabled).await?;
-    tx.commit().await.map_err(AppError::from)?;
-    record(
+    let report = grants::reconcile(&mut tx, &package.manifest, &presets).await?;
+    let mut changes = vec![FieldChange::new(
+        "version",
+        json!(previous.map(|plugin| plugin.version)),
+        json!(package.manifest.version),
+    )];
+    changes.extend(grant_changes(&report));
+    record_in(
+        &mut tx,
         &state,
         scope,
         "plugin.installed",
         &package.manifest.key,
-        vec![FieldChange::new(
-            "version",
-            json!(previous.map(|plugin| plugin.version)),
-            json!(package.manifest.version),
-        )],
+        changes,
         client.0.ip,
     )
     .await?;
+    tx.commit().await.map_err(AppError::from)?;
+    registry::invalidate().await;
     if let Err(error) = prune_compiled(&state).await {
         tracing::warn!(error = %error, "could not prune precompiled plugin backends");
     }
@@ -546,26 +679,205 @@ pub(crate) struct InstallParams {
 
 async fn package_bytes(
     multipart: Result<Multipart, MultipartRejection>,
-) -> Result<Vec<u8>, AppError> {
+) -> Result<(Vec<u8>, Vec<String>), AppError> {
     let mut multipart = multipart
         .map_err(|_| AppError::Validation("send the package as multipart/form-data".to_owned()))?;
+    let mut package = None;
+    let mut presets = Vec::new();
     while let Some(field) = multipart
         .next_field()
         .await
         .map_err(|_| AppError::Validation("the form could not be read".to_owned()))?
     {
-        if field.name() == Some("package") {
-            let bytes = field
-                .bytes()
-                .await
-                .map_err(|_| AppError::Validation("the package could not be read".to_owned()))?;
-            return Ok(bytes.to_vec());
+        match field.name() {
+            Some("package") => {
+                let bytes = field.bytes().await.map_err(|_| {
+                    AppError::Validation("the package could not be read".to_owned())
+                })?;
+                package = Some(bytes.to_vec());
+            }
+            Some("role_presets") => {
+                let text = field.text().await.map_err(|_| {
+                    AppError::Validation("the role presets could not be read".to_owned())
+                })?;
+                presets.extend(
+                    text.split(',')
+                        .map(str::trim)
+                        .filter(|key| !key.is_empty())
+                        .map(str::to_owned),
+                );
+            }
+            _ => {}
         }
     }
-    Err(AppError::invalid_fields(
-        "invalid form",
-        vec![FieldViolation::new("package", "is required")],
+    match package {
+        Some(package) => Ok((package, presets)),
+        None => Err(AppError::invalid_fields(
+            "invalid form",
+            vec![FieldViolation::new("package", "is required")],
+        )),
+    }
+}
+
+#[utoipa::path(
+    post,
+    path = "/plugins/{key}/grants",
+    tag = TAG,
+    operation_id = "plugins_reapply_grants",
+    security(("session_cookie" = [])),
+    description = "Reapplies the plugin's declared grants (permission `system.manage`): permissions with `grant_to`, role presets and entity `permission_scope` defaults are granted again to the roles that exist now. Roles are never created here; only grants missing from existing preset roles are added. Publishes `plugin.grants_reapplied` with an audit entry in the same transaction as the permission writes. The response reports, per role, how many of the expected permissions are granted.",
+    params(("key" = String, Path, description = "Plugin key")),
+    responses(
+        (status = 200, description = "Grants reapplied", body = Data<PluginResponse>),
+        (status = 403, description = "Missing `system.manage` (`permission_denied`)", body = ErrorEnvelope),
+        (status = 404, description = "Plugin not installed (`plugin_not_found`)", body = ErrorEnvelope),
+    )
+)]
+async fn reapply_plugin_grants(
+    State(state): State<AppState>,
+    tenant: AuthContext,
+    client: ClientInfo,
+    Path(key): Path<String>,
+) -> Result<Json<Data<PluginResponse>>, ApiError> {
+    tenant.scope.require(&Permission::SYSTEM_MANAGE)?;
+    let plugin = installed(&state, &key).await?;
+    let mut tx = MySqlTx::from(state.db()?.begin().await.map_err(AppError::from)?);
+    let report = grants::reconcile(&mut tx, &plugin.manifest, &[]).await?;
+    record_in(
+        &mut tx,
+        &state,
+        &tenant.scope,
+        "plugin.grants_reapplied",
+        &key,
+        grant_changes(&report),
+        client.0.ip,
+    )
+    .await?;
+    tx.commit().await.map_err(AppError::from)?;
+    registry::invalidate().await;
+    Ok(Json(Data::new(
+        respond(&state, installed(&state, &key).await?).await?,
+    )))
+}
+
+#[derive(Debug, Deserialize, IntoParams)]
+pub(crate) struct ChangesParams {
+    #[serde(default)]
+    since: u64,
+    #[serde(default)]
+    limit: Option<u32>,
+}
+
+async fn enabled_plugin(state: &AppState, key: &str) -> Result<(), AppError> {
+    let plugin = installed(state, key).await?;
+    if !plugin.enabled {
+        return Err(not_found(key));
+    }
+    Ok(())
+}
+
+#[utoipa::path(
+    get,
+    path = "/plugins/{key}/changes",
+    tag = TAG,
+    operation_id = "plugins_changes",
+    security(("session_cookie" = [])),
+    description = "Change feed of a plugin: every create, update, delete, archive and restore of its entities and every `plugin.<key>.*` event, in commit order, with a monotonic `seq`. Pass the last `next` as `since`. Entries of record types the caller cannot read are skipped (the cursor still advances). `fields` lists the changed field names, never their values; read the record to get them. The feed keeps 24 hours; `reset = true` means entries after `since` were pruned and the client must reload its state.",
+    params(("key" = String, Path, description = "Plugin key"), ChangesParams),
+    responses(
+        (status = 200, description = "Changes after `since`", body = crate::changes::ChangesPage),
+        (status = 404, description = "Plugin not installed or disabled (`plugin_not_found`)", body = ErrorEnvelope),
+    )
+)]
+async fn plugin_changes(
+    State(state): State<AppState>,
+    tenant: AuthContext,
+    Path(key): Path<String>,
+    Query(params): Query<ChangesParams>,
+) -> Result<Json<crate::changes::ChangesPage>, ApiError> {
+    enabled_plugin(&state, &key).await?;
+    Ok(Json(
+        crate::changes::page(
+            &tenant.scope,
+            &key,
+            params.since,
+            params.limit.unwrap_or(crate::changes::MAX_PAGE),
+        )
+        .await?,
     ))
+}
+
+#[utoipa::path(
+    get,
+    path = "/plugins/{key}/changes/stream",
+    tag = TAG,
+    operation_id = "plugins_change_stream",
+    security(("session_cookie" = [])),
+    description = "The change feed as Server-Sent Events: each entry is an event `change` with the JSON of `GET /plugins/{key}/changes` and `id` = `seq`; `reset` asks the client to reload. Resumes from `since` or the `Last-Event-ID` header. The server closes the stream after 5 minutes; `EventSource` reconnects with `Last-Event-ID`.",
+    params(("key" = String, Path, description = "Plugin key"), ChangesParams),
+    responses(
+        (status = 200, description = "text/event-stream of changes"),
+        (status = 404, description = "Plugin not installed or disabled (`plugin_not_found`)", body = ErrorEnvelope),
+    )
+)]
+async fn plugin_change_stream(
+    State(state): State<AppState>,
+    tenant: AuthContext,
+    headers: HeaderMap,
+    Path(key): Path<String>,
+    Query(params): Query<ChangesParams>,
+) -> Result<Response, ApiError> {
+    use axum::response::sse::{Event, KeepAlive, Sse};
+    use futures::StreamExt;
+    enabled_plugin(&state, &key).await?;
+    let since = headers
+        .get("last-event-id")
+        .and_then(|value| value.to_str().ok())
+        .and_then(|value| value.parse::<u64>().ok())
+        .unwrap_or(params.since);
+    let scope = tenant.scope.clone();
+    let started = std::time::Instant::now();
+    let stream = futures::stream::unfold((since, true), move |(cursor, first)| {
+        let scope = scope.clone();
+        let key = key.clone();
+        async move {
+            if started.elapsed() > crate::changes::STREAM_LIFETIME {
+                return None;
+            }
+            if !first {
+                tokio::time::sleep(crate::changes::STREAM_POLL).await;
+            }
+            let (next, events) = match crate::changes::page(&scope, &key, cursor, 200).await {
+                Ok(page) => {
+                    let mut events = Vec::with_capacity(page.data.len() + 1);
+                    if page.reset {
+                        events.push(Event::default().event("reset").data("{}"));
+                    }
+                    for change in &page.data {
+                        events.push(
+                            Event::default()
+                                .event("change")
+                                .id(change.seq.to_string())
+                                .data(crate::changes::as_event(change).to_string()),
+                        );
+                    }
+                    (page.next, events)
+                }
+                Err(error) => (
+                    cursor,
+                    vec![Event::default().event("error").data(error.client_message())],
+                ),
+            };
+            Some((
+                futures::stream::iter(events.into_iter().map(Ok::<_, std::convert::Infallible>)),
+                (next, false),
+            ))
+        }
+    })
+    .flatten();
+    Ok(Sse::new(stream)
+        .keep_alive(KeepAlive::default())
+        .into_response())
 }
 
 #[derive(Debug, Deserialize, IntoParams)]
@@ -920,6 +1232,99 @@ async fn web_asset(
         header::CACHE_CONTROL,
         HeaderValue::from_static("public, max-age=31536000, immutable"),
     );
+    headers.insert(
+        header::CONTENT_SECURITY_POLICY,
+        HeaderValue::from_static(PUBLIC_APP_CSP),
+    );
+    headers.insert(
+        header::X_CONTENT_TYPE_OPTIONS,
+        HeaderValue::from_static("nosniff"),
+    );
+    Ok(response)
+}
+
+async fn public_app_redirect(Path(key): Path<String>) -> Result<Response, ApiError> {
+    if !key
+        .chars()
+        .all(|character| character.is_ascii_alphanumeric() || matches!(character, '_' | '-'))
+    {
+        return Err(not_found(&key).into());
+    }
+    Ok(axum::response::Redirect::permanent(&format!("/p/{key}/")).into_response())
+}
+
+async fn public_app_index(
+    State(state): State<AppState>,
+    Path(key): Path<String>,
+) -> Result<Response, ApiError> {
+    Ok(serve_public_app(&state, &key, "").await?)
+}
+
+async fn public_app_file(
+    State(state): State<AppState>,
+    Path((key, path)): Path<(String, String)>,
+) -> Result<Response, ApiError> {
+    Ok(serve_public_app(&state, &key, &path).await?)
+}
+
+async fn serve_public_app(state: &AppState, key: &str, path: &str) -> Result<Response, AppError> {
+    let plugin = installed(state, key).await?;
+    let root = plugin
+        .manifest
+        .web
+        .as_ref()
+        .and_then(|web| web.public.as_deref())
+        .filter(|_| plugin.enabled)
+        .ok_or_else(|| not_found(key))?
+        .trim_end_matches('/')
+        .to_owned();
+    let pool = state.db()?;
+    let index = format!("{root}/{PUBLIC_APP_INDEX}");
+    let requested = (!path.is_empty()).then(|| format!("{root}/{path}"));
+    let found = match &requested {
+        Some(requested) => store::file(&pool, key, requested).await?,
+        None => None,
+    };
+    let is_route = path
+        .rsplit('/')
+        .next()
+        .is_none_or(|name| !name.contains('.'));
+    let (is_index, file) = match found {
+        Some(file) => (false, file),
+        None if is_route => (
+            true,
+            store::file(&pool, key, &index)
+                .await?
+                .ok_or_else(|| not_found(key))?,
+        ),
+        None => return Err(not_found(key)),
+    };
+    let (content_type, content) = file;
+    let mut response = Body::from(content).into_response();
+    let headers = response.headers_mut();
+    if let Ok(value) = HeaderValue::from_str(&content_type) {
+        headers.insert(header::CONTENT_TYPE, value);
+    }
+    headers.insert(
+        header::CACHE_CONTROL,
+        HeaderValue::from_static(if is_index {
+            "no-cache"
+        } else {
+            "public, max-age=3600"
+        }),
+    );
+    headers.insert(
+        header::CONTENT_SECURITY_POLICY,
+        HeaderValue::from_static(PUBLIC_APP_CSP),
+    );
+    headers.insert(
+        header::X_CONTENT_TYPE_OPTIONS,
+        HeaderValue::from_static("nosniff"),
+    );
+    headers.insert(
+        header::REFERRER_POLICY,
+        HeaderValue::from_static("same-origin"),
+    );
     Ok(response)
 }
 
@@ -1001,9 +1406,31 @@ async fn serve_route(
         body_json,
         actor,
     };
-    let response = runtime::on_route(&plugin, scope, &request).await?;
-    let status = StatusCode::from_u16(response.status).unwrap_or(StatusCode::OK);
-    let body: Value = serde_json::from_str(&response.body_json).unwrap_or(Value::Null);
+    let result = runtime::on_route(&plugin, scope, &request).await?;
+    let status = StatusCode::from_u16(result.response.status).unwrap_or(StatusCode::OK);
+    if let Some(raw) = result.raw_body {
+        let mut response = (status, raw.bytes).into_response();
+        let headers = response.headers_mut();
+        if let Ok(value) = HeaderValue::from_str(&raw.content_type) {
+            headers.insert(header::CONTENT_TYPE, value);
+        }
+        headers.insert(
+            header::X_CONTENT_TYPE_OPTIONS,
+            HeaderValue::from_static("nosniff"),
+        );
+        headers.insert(
+            header::CACHE_CONTROL,
+            HeaderValue::from_static("private, no-store"),
+        );
+        if let Some(filename) = raw.filename
+            && let Ok(value) =
+                HeaderValue::from_str(&format!("attachment; filename=\"{filename}\""))
+        {
+            headers.insert(header::CONTENT_DISPOSITION, value);
+        }
+        return Ok(response);
+    }
+    let body: Value = serde_json::from_str(&result.response.body_json).unwrap_or(Value::Null);
     Ok((status, Json(body)).into_response())
 }
 

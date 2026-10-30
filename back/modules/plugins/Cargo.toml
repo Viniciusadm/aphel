@@ -11,6 +11,7 @@ aphel-kernel.workspace = true
 async-trait.workspace = true
 axum.workspace = true
 bytes.workspace = true
+futures.workspace = true
 libc.workspace = true
 reqwest.workspace = true
 chrono.workspace = true

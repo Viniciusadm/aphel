@@ -2,7 +2,7 @@ use serde::{Deserialize, Serialize};
 use serde_json::Value;
 
 use aphel_kernel::application::jobs::CronSchedule;
-use aphel_kernel::domain::access::{Permission, is_known_permission};
+use aphel_kernel::domain::access::{Permission, RecordScope, is_known_permission};
 use aphel_kernel::domain::custom_objects::{CUSTOM_OBJECT_PREFIX, object_record_type};
 use aphel_kernel::domain::fields::FieldType;
 use aphel_kernel::errors::{AppError, FieldViolation};
@@ -45,6 +45,9 @@ const MAX_ALLOWED_HOSTS: usize = 20;
 const MAX_OPERATIONS: usize = 100;
 const MAX_KEY_LENGTH: usize = 32;
 const MAX_OBJECT_KEY_LENGTH: usize = 48;
+const MAX_ROLE_PRESETS: usize = 20;
+pub const ENTITY_ACTIONS: &[&str] = &["read", "create", "update", "delete", "archive", "export"];
+const RESERVED_ROLES: &[&str] = &["admin"];
 
 #[derive(Debug, Clone, PartialEq, Serialize, Deserialize)]
 pub struct PluginManifest {
@@ -87,7 +90,36 @@ pub struct PluginManifest {
     #[serde(default)]
     pub operations: Vec<String>,
     #[serde(default)]
+    pub role_presets: Vec<RolePresetSpec>,
+    #[serde(default)]
+    pub privacy: PrivacySpec,
+    #[serde(default)]
     pub web: Option<WebSpec>,
+}
+
+#[derive(Debug, Clone, Default, PartialEq, Serialize, Deserialize)]
+pub struct PrivacySpec {
+    #[serde(default)]
+    pub subject_data: bool,
+}
+
+#[derive(Debug, Clone, PartialEq, Serialize, Deserialize)]
+pub struct RolePresetSpec {
+    pub key: String,
+    pub label: String,
+    #[serde(default)]
+    pub description: Option<String>,
+    #[serde(default)]
+    pub permissions: Vec<String>,
+    #[serde(default = "organization_scope")]
+    pub scope: String,
+}
+
+#[derive(Debug, Clone, PartialEq, Eq, PartialOrd, Ord)]
+pub struct PlannedGrant {
+    pub role: String,
+    pub permission: String,
+    pub scope: RecordScope,
 }
 
 #[derive(Debug, Clone, Copy)]
@@ -196,6 +228,8 @@ pub struct EntitySpec {
     #[serde(default = "enabled")]
     pub owner_enabled: bool,
     #[serde(default)]
+    pub permission_scope: Option<String>,
+    #[serde(default)]
     pub fields: Vec<FieldDef>,
 }
 
@@ -210,9 +244,54 @@ pub struct FieldDef {
     #[serde(default)]
     pub searchable: bool,
     #[serde(default)]
+    pub unique: bool,
+    #[serde(default)]
+    pub personal: bool,
+    #[serde(default)]
+    pub sensitive: bool,
+    #[serde(default)]
+    pub min: Option<Value>,
+    #[serde(default)]
+    pub max: Option<Value>,
+    #[serde(default)]
+    pub decimals: Option<u32>,
+    #[serde(default)]
+    pub max_length: Option<u32>,
+    #[serde(default)]
+    pub pattern: Option<String>,
+    #[serde(default)]
+    pub currency: Option<String>,
+    #[serde(default)]
+    pub default: Option<Value>,
+    #[serde(default)]
     pub target: Option<String>,
     #[serde(default)]
     pub options: Vec<OptionDef>,
+}
+
+impl FieldDef {
+    pub fn config(
+        &self,
+    ) -> Result<
+        aphel_kernel::domain::fields::FieldConfig,
+        Vec<aphel_kernel::application::fields::ConfigError>,
+    > {
+        let mut object = serde_json::Map::new();
+        let mut put = |key: &str, value: Option<Value>| {
+            if let Some(value) = value {
+                object.insert(key.to_owned(), value);
+            }
+        };
+        put("min", self.min.clone());
+        put("max", self.max.clone());
+        put("decimals", self.decimals.map(Value::from));
+        put("max_length", self.max_length.map(Value::from));
+        put("pattern", self.pattern.clone().map(Value::String));
+        put("currency", self.currency.clone().map(Value::String));
+        put("default_value", self.default.clone());
+        put("target_record_type", self.target.clone().map(Value::String));
+        aphel_kernel::application::fields::config_from_json(&Value::Object(object))
+    }
 }
 
 #[derive(Debug, Clone, PartialEq, Serialize, Deserialize)]
@@ -270,10 +349,16 @@ pub struct WebSpec {
     pub entry: String,
     #[serde(default)]
     pub style: Option<String>,
+    #[serde(default)]
+    pub public: Option<String>,
 }
 
 fn enabled() -> bool {
     true
+}
+
+fn organization_scope() -> String {
+    RecordScope::Organization.as_str().to_owned()
 }
 
 fn default_priority() -> i32 {
@@ -324,6 +409,7 @@ impl PluginManifest {
             || !self.schedules.is_empty()
             || !self.actions.is_empty()
             || !self.widgets.is_empty()
+            || self.privacy.subject_data
     }
 
     pub fn parse(text: &str) -> Result<Self, AppError> {
@@ -355,6 +441,62 @@ impl PluginManifest {
                 key.strip_prefix(record_type.as_str())
                     .is_some_and(|action| action.starts_with('.'))
             })
+    }
+
+    pub fn entity_scope(&self, entity: &EntitySpec) -> Option<RecordScope> {
+        entity
+            .permission_scope
+            .as_deref()
+            .and_then(RecordScope::parse)
+    }
+
+    pub fn entity_permissions(&self) -> Vec<String> {
+        self.entity_record_types()
+            .iter()
+            .flat_map(|record_type| {
+                ENTITY_ACTIONS
+                    .iter()
+                    .map(move |action| format!("{record_type}.{action}"))
+            })
+            .collect()
+    }
+
+    fn presettable(&self, permission: &str) -> bool {
+        self.permissions
+            .iter()
+            .any(|declared| declared.key == permission)
+            || self.requires.iter().any(|required| required == permission)
+            || self
+                .entity_permissions()
+                .iter()
+                .any(|key| key == permission)
+    }
+
+    pub fn planned_grants(&self) -> Vec<PlannedGrant> {
+        let mut grants: Vec<PlannedGrant> = Vec::new();
+        for declared in &self.permissions {
+            for role in &declared.grant_to {
+                grants.push(PlannedGrant {
+                    role: role.clone(),
+                    permission: declared.key.clone(),
+                    scope: RecordScope::Organization,
+                });
+            }
+        }
+        for preset in &self.role_presets {
+            let scope = RecordScope::parse(&preset.scope).unwrap_or(RecordScope::Organization);
+            for permission in &preset.permissions {
+                grants.push(PlannedGrant {
+                    role: preset.key.clone(),
+                    permission: permission.clone(),
+                    scope,
+                });
+            }
+        }
+        grants.sort();
+        grants
+            .dedup_by(|left, right| left.role == right.role && left.permission == right.permission);
+        grants
     }
 
     pub fn host_allowed(&self, host: &str) -> bool {
@@ -469,6 +611,14 @@ impl PluginManifest {
                     "must be a short lowercase key",
                 ));
             }
+            if let Some(scope) = &entity.permission_scope
+                && RecordScope::parse(scope).is_none()
+            {
+                violations.push(FieldViolation::new(
+                    format!("{path}.permission_scope"),
+                    "must be own, team or organization",
+                ));
+            }
             for (field_index, field) in entity.fields.iter().enumerate() {
                 self.validate_field(
                     &format!("{path}.fields[{field_index}]"),
@@ -567,6 +717,52 @@ impl PluginManifest {
                     format!("{path}.grant_to"),
                     "must list role keys",
                 ));
+            }
+        }
+        if self.role_presets.len() > MAX_ROLE_PRESETS {
+            violations.push(FieldViolation::new(
+                "role_presets",
+                format!("can list at most {MAX_ROLE_PRESETS} role presets"),
+            ));
+        }
+        for (index, preset) in self.role_presets.iter().enumerate() {
+            let path = format!("role_presets[{index}]");
+            if !is_key(&preset.key, 64)
+                || RESERVED_ROLES.contains(&preset.key.as_str())
+                || self.role_presets[..index]
+                    .iter()
+                    .any(|previous| previous.key == preset.key)
+            {
+                violations.push(FieldViolation::new(
+                    format!("{path}.key"),
+                    "must be a unique lowercase role key other than admin",
+                ));
+            }
+            if preset.label.trim().is_empty() || preset.label.len() > 140 {
+                violations.push(FieldViolation::new(
+                    format!("{path}.label"),
+                    "must have between 1 and 140 characters",
+                ));
+            }
+            if RecordScope::parse(&preset.scope).is_none() {
+                violations.push(FieldViolation::new(
+                    format!("{path}.scope"),
+                    "must be own, team or organization",
+                ));
+            }
+            if preset.permissions.is_empty() {
+                violations.push(FieldViolation::new(
+                    format!("{path}.permissions"),
+                    "must list at least one permission",
+                ));
+            }
+            for (permission_index, permission) in preset.permissions.iter().enumerate() {
+                if !self.presettable(permission) {
+                    violations.push(FieldViolation::new(
+                        format!("{path}.permissions[{permission_index}]"),
+                        "must be a declared permission, a required permission or a permission of the plugin's entities",
+                    ));
+                }
             }
         }
         if self.http.allowed_hosts.len() > MAX_ALLOWED_HOSTS {
@@ -854,6 +1050,34 @@ impl PluginManifest {
                 ))
             }
             _ => {}
+        }
+        if let Some(kind) = FieldType::parse(&field.field_type) {
+            match field.config() {
+                Ok(config) => {
+                    for violation in config.validate(kind) {
+                        violations.push(FieldViolation::new(
+                            format!("{path}.{}", violation.property.as_str()),
+                            violation.message,
+                        ));
+                    }
+                }
+                Err(errors) => {
+                    for error in errors {
+                        violations.push(FieldViolation::new(
+                            format!("{path}.{}", error.property),
+                            error.message,
+                        ));
+                    }
+                }
+            }
+        }
+        if field.unique
+            && FieldType::parse(&field.field_type).is_some_and(|kind| !kind.supports_unique())
+        {
+            violations.push(FieldViolation::new(
+                format!("{path}.unique"),
+                "is only supported by text, number, url, email and phone fields",
+            ));
         }
     }
 

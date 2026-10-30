@@ -4,7 +4,11 @@ const CACHE_PREFIX = 'aphel-shell-'
 const CACHE_NAME = `${CACHE_PREFIX}${VERSION}`
 const SHELL_URL = '/'
 const ASSETS_PREFIX = '/assets/'
-const BYPASS_PREFIXES = ['/api/', '/health']
+const SHARED_PREFIX = '/shared/'
+const PLUGINS_CACHE = 'aphel-plugins'
+const PLUGINS_LIST_URL = '/api/v1/public/plugins'
+const PLUGIN_ASSETS_PREFIX = `${PLUGINS_LIST_URL}/`
+const BYPASS_PREFIXES = ['/api/', '/health', '/p/']
 const CSRF_HEADER = 'X-Requested-With'
 const CSRF_VALUE = 'aphel'
 const SUBSCRIPTIONS_URL = '/api/v1/notifications/push/subscriptions'
@@ -62,16 +66,80 @@ async function cacheFirstAsset(request) {
   return response
 }
 
+function pluginAssetKey(url) {
+  return url.pathname.slice(PLUGIN_ASSETS_PREFIX.length).split('/')[0]
+}
+
+async function prunePluginAssets(cache, list) {
+  const body = await list.json()
+  const versions = new Map()
+  for (const plugin of body.data) {
+    versions.set(plugin.key, new URL(plugin.entry, self.location.origin).searchParams.get('v'))
+  }
+  const requests = await cache.keys()
+  await Promise.all(
+    requests.map((request) => {
+      const url = new URL(request.url)
+      if (url.pathname === PLUGINS_LIST_URL) return false
+      const key = pluginAssetKey(url)
+      const version = url.searchParams.get('v')
+      const current = versions.has(key) && (version === null || version === versions.get(key))
+      return current ? false : cache.delete(request)
+    }),
+  )
+}
+
+async function networkFirstPluginList(request) {
+  const cache = await caches.open(PLUGINS_CACHE)
+  try {
+    const response = await fetch(request)
+    if (response.ok) {
+      await cache.put(PLUGINS_LIST_URL, response.clone())
+      await prunePluginAssets(cache, response.clone()).catch(() => undefined)
+    }
+    return response
+  } catch (error) {
+    const cached = await cache.match(PLUGINS_LIST_URL)
+    if (cached) return cached
+    throw error
+  }
+}
+
+async function pluginAsset(request, url) {
+  const cache = await caches.open(PLUGINS_CACHE)
+  const cached = await cache.match(request)
+  if (cached && url.searchParams.has('v')) return cached
+  try {
+    const response = await fetch(request)
+    if (response.ok) await cache.put(request, response.clone())
+    return response
+  } catch (error) {
+    if (cached) return cached
+    throw error
+  }
+}
+
 self.addEventListener('fetch', (event) => {
   const { request } = event
   if (request.method !== 'GET') return
   const url = new URL(request.url)
-  if (url.origin !== self.location.origin || isBypassed(url)) return
+  if (url.origin !== self.location.origin) return
+  if (url.pathname === PLUGINS_LIST_URL) {
+    event.respondWith(networkFirstPluginList(request))
+    return
+  }
+  if (url.pathname.startsWith(PLUGIN_ASSETS_PREFIX)) {
+    event.respondWith(pluginAsset(request, url))
+    return
+  }
+  if (isBypassed(url)) return
   if (request.mode === 'navigate') {
     event.respondWith(networkFirstShell(request))
     return
   }
-  if (url.pathname.startsWith(ASSETS_PREFIX)) event.respondWith(cacheFirstAsset(request))
+  if (url.pathname.startsWith(ASSETS_PREFIX) || url.pathname.startsWith(SHARED_PREFIX)) {
+    event.respondWith(cacheFirstAsset(request))
+  }
 })
 
 function pushPayload(event) {

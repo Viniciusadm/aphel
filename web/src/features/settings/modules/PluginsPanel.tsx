@@ -14,6 +14,7 @@ import { RequirePermission } from '@/features/settings/components/RequirePermiss
 import { SYSTEM_MANAGE } from '@/features/settings/lib/permissions'
 import { PluginConsentDialog } from './plugins/PluginConsentDialog'
 import { PluginDeclarationList } from './plugins/PluginDeclarationList'
+import { PluginGrantStatus } from './plugins/PluginGrantStatus'
 import { PluginSettingsDialog } from './plugins/PluginSettingsDialog'
 import { PLUGINS_PATH, pluginsKey, type InstalledPlugin, type PluginConsent } from './plugins/types'
 
@@ -58,9 +59,10 @@ function PluginsPanelContent() {
     void queryClient.invalidateQueries({ queryKey: pluginsKey })
     window.setTimeout(reloadApp, 800)
   }
-  const packageForm = (file: File) => {
+  const packageForm = (file: File, rolePresets: string[] = []) => {
     const form = new FormData()
     form.append('package', file)
+    if (rolePresets.length > 0) form.append('role_presets', rolePresets.join(','))
     return form
   }
   const review = useMutation({
@@ -72,7 +74,8 @@ function PluginsPanelContent() {
     onError: (error) => notifyError(error),
   })
   const install = useMutation({
-    mutationFn: (file: File) => api.post<InstalledPlugin>(PLUGINS_PATH, packageForm(file)),
+    mutationFn: ({ file, rolePresets }: { file: File; rolePresets: string[] }) =>
+      api.post<InstalledPlugin>(PLUGINS_PATH, packageForm(file, rolePresets)),
     onSuccess: (response) => {
       setPending(null)
       changed(t('plugins.installed', { name: response.name }))
@@ -83,6 +86,14 @@ function PluginsPanelContent() {
     mutationFn: (plugin: InstalledPlugin) =>
       api.post(`${PLUGINS_PATH}/${plugin.key}/${plugin.enabled ? 'disable' : 'enable'}`),
     onSuccess: () => changed(t('plugins.updated')),
+    onError: (error) => notifyError(error),
+  })
+  const reapply = useMutation({
+    mutationFn: (plugin: InstalledPlugin) => api.post<InstalledPlugin>(`${PLUGINS_PATH}/${plugin.key}/grants`),
+    onSuccess: () => {
+      notifySuccess(t('plugins.grantsReapplied'))
+      void queryClient.invalidateQueries({ queryKey: pluginsKey })
+    },
     onError: (error) => notifyError(error),
   })
   const uninstall = useMutation({
@@ -157,6 +168,11 @@ function PluginsPanelContent() {
                 </div>
               )}
               <PluginDeclarationList plugin={plugin} />
+              <PluginGrantStatus
+                plugin={plugin}
+                pending={reapply.isPending}
+                onReapply={() => reapply.mutate(plugin)}
+              />
               <div className="flex flex-wrap gap-2">
                 <Button size="sm" variant="outline" onClick={() => toggle.mutate(plugin)} disabled={toggle.isPending}>
                   {plugin.enabled ? <PowerOff aria-hidden="true" /> : <Power aria-hidden="true" />}
@@ -181,8 +197,8 @@ function PluginsPanelContent() {
         consent={pending?.consent ?? null}
         pending={install.isPending}
         onCancel={() => setPending(null)}
-        onConfirm={() => {
-          if (pending) install.mutate(pending.file)
+        onConfirm={(rolePresets) => {
+          if (pending) install.mutate({ file: pending.file, rolePresets })
         }}
       />
       {configuring && (

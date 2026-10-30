@@ -34,6 +34,7 @@ const REPORT_KEYS = [
   'activities',
   'import_rows',
   'history_entries',
+  'external_items',
   'skipped',
   'errors',
 ] as const

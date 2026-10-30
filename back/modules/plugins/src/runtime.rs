@@ -55,6 +55,9 @@ pub struct CallState {
     pub hook_state: Option<serde_json::Value>,
     pub deadline: Instant,
     pub effects: Vec<crate::effects::PendingEffect>,
+    pub audit_reason: Option<String>,
+    pub route_call: bool,
+    pub raw_body: Option<RawBody>,
     limits: StoreLimits,
     wasi: WasiCtx,
     table: ResourceTable,
@@ -309,6 +312,9 @@ async fn instantiate(
             hook_state: None,
             deadline: Instant::now() + timeout,
             effects: Vec::new(),
+            audit_reason: None,
+            route_call: false,
+            raw_body: None,
             limits: StoreLimitsBuilder::new()
                 .memory_size(MEMORY_LIMIT)
                 .instances(16)
@@ -561,6 +567,42 @@ pub async fn on_action(
         .await
 }
 
+pub async fn on_data_subject(
+    plugin: &Arc<LoadedPlugin>,
+    request: &aphel_kernel::application::data_subject::DataSubjectRequest<'_>,
+    input: &serde_json::Value,
+) -> Result<serde_json::Value, AppError> {
+    let scope = plugin_scope(plugin).await?;
+    let execution = execution_context(plugin, "privacy", None, None, None)?;
+    let call = wit::ActionCall {
+        name: format!("privacy.{}", request.action.as_str()),
+        input_json: input.to_string(),
+        record_type: crate::data_subject::PRIVACY_REQUEST_TYPE.to_owned(),
+        record_id: request.id.to_string(),
+        record_json: "{}".to_owned(),
+        automation_id: String::new(),
+        run_id: request.id.to_string(),
+        actor: scope_actor(&scope),
+    };
+    let (mut store, bindings) = instantiate(plugin, scope, SCHEDULE_TIMEOUT, false).await?;
+    store.data_mut().retryable = true;
+    let output = execution
+        .scope(async {
+            bindings
+                .call_on_action(&mut store, &call)
+                .await
+                .map_err(|error| failure(plugin, error))?
+                .map_err(plugin_error)
+        })
+        .await?;
+    serde_json::from_str(&output).map_err(|_| {
+        AppError::Internal(format!(
+            "the plugin {} answered a data subject call with invalid JSON",
+            plugin.key
+        ))
+    })
+}
+
 pub async fn on_widget(
     plugin: &Arc<LoadedPlugin>,
     scope: &AccessScope,
@@ -582,14 +624,27 @@ pub async fn on_widget(
         .await
 }
 
+#[derive(Debug, Clone)]
+pub struct RawBody {
+    pub content_type: String,
+    pub filename: Option<String>,
+    pub bytes: Vec<u8>,
+}
+
+pub struct RouteResult {
+    pub response: wit::Response,
+    pub raw_body: Option<RawBody>,
+}
+
 pub async fn on_route(
     plugin: &Arc<LoadedPlugin>,
     scope: AccessScope,
     request: &wit::Request,
-) -> Result<wit::Response, AppError> {
+) -> Result<RouteResult, AppError> {
     let execution = execution_context(plugin, "route", Some(&scope), None, None)?;
     let (mut store, bindings) = instantiate(plugin, scope, ROUTE_TIMEOUT, false).await?;
-    execution
+    store.data_mut().route_call = true;
+    let response = execution
         .scope(async {
             bindings
                 .call_on_route(&mut store, request)
@@ -597,7 +652,11 @@ pub async fn on_route(
                 .map_err(|error| failure(plugin, error))?
                 .map_err(plugin_error)
         })
-        .await
+        .await?;
+    Ok(RouteResult {
+        response,
+        raw_body: store.data_mut().raw_body.take(),
+    })
 }
 
 fn actor_parts(actor: &Actor) -> (wit::ActorKind, Option<String>) {

@@ -1,17 +1,22 @@
+import { useState } from 'react'
 import { useTranslation } from 'react-i18next'
 import { ConfirmDialog } from '@/components/feedback'
 import { PluginDeclarationList } from './PluginDeclarationList'
+import { PluginRolePresetChecklist } from './PluginRolePresetChecklist'
 import type { PluginConsent } from './types'
 
 interface PluginConsentDialogProps {
   consent: PluginConsent | null
   pending: boolean
   onCancel: () => void
-  onConfirm: () => void
+  onConfirm: (rolePresets: string[]) => void
 }
 
 export function PluginConsentDialog({ consent, pending, onCancel, onConfirm }: PluginConsentDialogProps) {
   const { t } = useTranslation('modules')
+  const [presets, setPresets] = useState<{ key: string; selected: string[] }>({ key: '', selected: [] })
+  const consentKey = consent ? `${consent.key}@${consent.version}` : ''
+  const selected = presets.key === consentKey ? presets.selected : []
   const title = !consent
     ? ''
     : consent.installed_version
@@ -36,7 +41,7 @@ export function PluginConsentDialog({ consent, pending, onCancel, onConfirm }: P
       description={t('plugins.consentDescription')}
       confirmLabel={t('plugins.consentConfirm')}
       pending={pending}
-      onConfirm={onConfirm}
+      onConfirm={() => onConfirm(selected)}
     >
       {consent && (
         <div className="grid gap-3 text-sm">
@@ -52,6 +57,11 @@ export function PluginConsentDialog({ consent, pending, onCancel, onConfirm }: P
               {t('plugins.consentHttpWarning')}
             </p>
           )}
+          <PluginRolePresetChecklist
+            consent={consent}
+            selected={selected}
+            onChange={(next) => setPresets({ key: consentKey, selected: next })}
+          />
           <PluginDeclarationList plugin={consent} />
         </div>
       )}

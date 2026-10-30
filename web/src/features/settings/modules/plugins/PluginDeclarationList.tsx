@@ -13,6 +13,13 @@ const DECLARATIONS = [
   ['emits', (plugin: PluginDeclarations) => plugin.emits],
   ['notifications', (plugin: PluginDeclarations) => plugin.notifications],
   ['widgets', (plugin: PluginDeclarations) => plugin.widgets],
+  ['rolePresets', (plugin: PluginDeclarations) => plugin.role_presets.map((preset) => preset.label)],
+  [
+    'entityScopes',
+    (plugin: PluginDeclarations) =>
+      plugin.entity_scopes.map((entity) => `${entity.record_type} (${entity.permission_scope})`),
+  ],
+  ['uniqueFields', (plugin: PluginDeclarations) => plugin.unique_fields],
   ['entities', (plugin: PluginDeclarations) => plugin.entities],
   ['extendedTypes', (plugin: PluginDeclarations) => plugin.extended_types],
   ['hooks', (plugin: PluginDeclarations) => plugin.hooks],

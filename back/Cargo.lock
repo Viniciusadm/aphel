@@ -1040,6 +1040,7 @@ dependencies = [
  "bytes",
  "chrono",
  "form_urlencoded",
+ "futures",
  "libc",
  "reqwest",
  "semver",

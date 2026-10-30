@@ -78,6 +78,7 @@ where
         mode: WriteMode,
     ) -> Result<Vec<FieldChange>, AppError> {
         let writes = self.validate(tx, scope, record, values, mode).await?;
+        let record_type = self.ports.registry().require(record.record_type.as_str())?;
         let mut changes = Vec::with_capacity(writes.len());
         for (write, old) in writes {
             let definition = write.definition();
@@ -87,6 +88,12 @@ where
                         .values()
                         .upsert(tx, record, definition, value)
                         .await?;
+                    if definition.is_unique {
+                        self.ports
+                            .values()
+                            .reserve_unique(tx, record_type, record, definition)
+                            .await?;
+                    }
                     value_to_json(definition, value)
                 }
                 PendingWrite::Clear(definition) => {
@@ -94,6 +101,12 @@ where
                         .values()
                         .delete(tx, record, definition.id)
                         .await?;
+                    if definition.is_unique {
+                        self.ports
+                            .values()
+                            .release_unique(tx, record, definition.id)
+                            .await?;
+                    }
                     Value::Null
                 }
             };
@@ -235,7 +248,7 @@ where
             _ => true,
         });
 
-        violations.extend(self.check_references(scope, &writes).await?);
+        violations.extend(self.check_references(tx, scope, &writes).await?);
         violations.extend(
             self.check_uniqueness(tx, definition, record, &writes)
                 .await?,
@@ -320,6 +333,7 @@ where
 
     async fn check_references(
         &self,
+        tx: &mut P::Tx,
         scope: &AccessScope,
         writes: &[(PendingWrite, Value)],
     ) -> Result<Vec<FieldViolation>, AppError> {
@@ -368,13 +382,22 @@ where
             let definition = self.ports.registry().require(&target)?;
             let visibility = scope.record_filter(&definition.read_permission)?;
             let ids: Vec<Uuid> = references.iter().map(|(_, id)| *id).collect();
-            let existing: BTreeSet<Uuid> = self
+            let existing: BTreeSet<Uuid> = match self
                 .ports
-                .references()
-                .existing_records(scope, definition, &visibility, &ids)
+                .values()
+                .existing_records_in(tx, scope, definition, &visibility, &ids)
                 .await?
-                .into_iter()
-                .collect();
+            {
+                Some(found) => found,
+                None => {
+                    self.ports
+                        .references()
+                        .existing_records(scope, definition, &visibility, &ids)
+                        .await?
+                }
+            }
+            .into_iter()
+            .collect();
             for (definition, id) in references {
                 if !existing.contains(&id) {
                     violations.push(FieldViolation::new(

@@ -107,6 +107,7 @@ export default defineConfig({
     },
     proxy: {
       '/api': backendUrl,
+      '/p/': backendUrl,
       '/health': backendUrl,
     },
   },

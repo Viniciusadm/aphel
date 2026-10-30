@@ -19,6 +19,7 @@ On Android/desktop the browser offers installation on its own; when the `beforei
 ## Service worker
 
 - **Source:** `web/scripts/pwa/service-worker.js`. The `serviceWorkerPlugin()` plugin (`web/scripts/pwa/vite-plugin.ts`, registered in `vite.config.ts`) runs only on `vite build`: it emits `dist/sw.js` with a version (hash of the bundle's file names) and the precache list (`/`, the entry chunk with its static imports and the CSS). That way every binary with new assets has a different `sw.js`, and the browser detects the update.
+- **Plugins:** `/api/*` is never cached, with two exceptions that let the app start offline with its plugins: the list `/api/v1/public/plugins` (network first, cached copy when offline) and the assets under `/api/v1/public/plugins/<key>/` (cache first when the URL has the checksum in `?v=`, network first otherwise). They live in the `aphel-plugins` cache, which survives new service workers; each list refresh removes assets of plugins that left or changed version. Public plugin apps (`/p/*`) are not touched by the service worker.
 - **Registration:** `registerPwa()` (`web/src/pwa/register.ts`, called in `main.tsx`) registers `/sw.js` with scope `/` **only in production** (`import.meta.env.PROD`). Under `vite dev` nothing is registered and there is no `sw.js`.
 - **What is cached** (one `aphel-shell-<version>` cache; caches from old versions are deleted on activation):
   - navigation (`request.mode === 'navigate'`): network first; the HTML response becomes the shell stored at `/` and is used as the offline fallback;

@@ -55,7 +55,7 @@ The partition is applied by `push_record_scope_as` (and therefore by `push_live_
 - **Creation** (`settings.manage`, event `custom_object.created`): in the same transaction it writes the object, seeds the system fields in `field_definitions` (as `sync_system_fields` does at boot for the core; `sync_custom_object_fields` repeats this at the boot of `serve`/`worker`/`migrate`), creates the required custom field `name` ("Nome", searchable), grants the permissions to the system roles (manager: everything with team scope; collaborator: everything except export, own scope; administrator already has everything) and increments the schema version.
 - **Title field**: `title_field_key` points to an active custom field of type text, email, phone or URL. Each record write copies the normalized value of that field to `custom_records.title`; changing the field recalculates the existing titles and reindexes the type's search.
 - **Deactivating** (`is_active: false`) removes the type from the registry: it disappears from navigation, the API and all generic resources, while keeping the data. **Deleting** is only allowed with no live records and deletes the type's fields, views, layouts, segments, reports, field permissions, role permissions and relationships.
-- **Limits** fixed in code (`kernel/application/custom_objects/ports.rs`): `CUSTOM_OBJECTS_MAX = 50` objects and `CUSTOM_OBJECT_FIELDS_MAX = 200` custom fields per object.
+- **Limits** fixed in code (`kernel/application/custom_objects/ports.rs`): `CUSTOM_OBJECTS_MAX = 50` objects created by users (objects with a `module_key`, created by modules and runtime plugins through `CustomObjectAdminUseCases::create_managed`, are not counted) and `CUSTOM_OBJECT_FIELDS_MAX = 200` custom fields per object.
 
 ## Records
 

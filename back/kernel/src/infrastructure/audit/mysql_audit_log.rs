@@ -47,9 +47,19 @@ impl AuditLog<MySqlTx> for MySqlAuditLog {
             .ip
             .as_deref()
             .map(|ip| ip.chars().take(MAX_IP_LENGTH).collect::<String>());
+        let reason = entry
+            .reason
+            .clone()
+            .or_else(crate::application::shared::current_audit_reason)
+            .map(|reason| {
+                reason
+                    .chars()
+                    .take(crate::application::shared::MAX_AUDIT_REASON_LENGTH)
+                    .collect::<String>()
+            });
         sqlx::query(
-            "INSERT INTO audit_logs (id, action, record_type, record_id, actor_type, actor_id, changes, ip, causation, execution, occurred_at) \
-             VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)",
+            "INSERT INTO audit_logs (id, action, record_type, record_id, actor_type, actor_id, changes, ip, reason, causation, execution, occurred_at) \
+             VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)",
         )
         .bind(entry.id.to_string())
         .bind(&entry.action)
@@ -59,6 +69,7 @@ impl AuditLog<MySqlTx> for MySqlAuditLog {
         .bind(entry.actor.id())
         .bind(Json(changes_to_json(&entry.changes)))
         .bind(ip)
+        .bind(reason)
         .bind(entry.causation.as_ref().map(Json))
         .bind(execution.as_ref().map(Json))
         .bind(mapper::naive(entry.occurred_at))

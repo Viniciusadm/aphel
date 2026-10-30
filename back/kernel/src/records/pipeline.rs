@@ -209,7 +209,8 @@ impl RecordPipeline for MySqlRecordPipeline {
         record: &RecordRef,
     ) -> Result<(), AppError> {
         self.run::<RecordDeleted>(tx, scope, &self.removed(record))
-            .await
+            .await?;
+        crate::infrastructure::fields::unique_values::release_record(tx, record).await
     }
 
     async fn restored(
@@ -218,6 +219,10 @@ impl RecordPipeline for MySqlRecordPipeline {
         scope: &AccessScope,
         record: &RecordRef,
     ) -> Result<(), AppError> {
+        if let Ok(definition) = self.registry.require(record.record_type.as_str()) {
+            crate::infrastructure::fields::unique_values::reserve_record(tx, definition, record)
+                .await?;
+        }
         self.run::<RecordRestored>(tx, scope, &self.removed(record))
             .await
     }

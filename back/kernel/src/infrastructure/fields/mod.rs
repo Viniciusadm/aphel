@@ -4,6 +4,7 @@ pub(crate) mod mysql_references;
 pub(crate) mod mysql_values;
 pub mod permissions;
 pub(crate) mod ports;
+pub mod unique_values;
 pub mod validation_rules;
 
 pub use mysql_definitions::{

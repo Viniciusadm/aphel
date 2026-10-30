@@ -3,6 +3,7 @@ pub mod api_tokens;
 pub mod audit;
 pub mod auth;
 pub mod catalog;
+pub mod communication;
 pub mod config_package_versions;
 pub mod config_packages;
 pub mod custom_objects;

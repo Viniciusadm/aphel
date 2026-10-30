@@ -1,9 +1,14 @@
 pub mod automation;
 pub mod bridge;
+pub mod changes;
 pub mod committed;
 pub mod compiled;
+pub mod data_subject;
+pub mod directory;
 pub mod effects;
 pub mod events;
+pub mod files;
+pub mod grants;
 pub mod hooks;
 pub mod host;
 pub mod http;
@@ -56,6 +61,7 @@ impl Module for PluginsModule {
             .migration(Migration::new(3, "populate permission metadata", include_str!("../migrations/0003_permission_metadata.sql")))
             .migration(Migration::new(4, "durable plugin effects", include_str!("../migrations/0004_durable_effects.sql")))
             .migration(Migration::new(5, "external operation query results", include_str!("../migrations/0005_external_queries.sql")))
+            .migration(Migration::new(6, "plugin change feed", include_str!("../migrations/0006_create_plugins_changes.sql")))
     }
 
     fn register(&self, app: &mut AppBuilder) -> Result<(), AppError> {
@@ -82,6 +88,7 @@ impl Module for PluginsModule {
             Box::pin(hooks::removed(ctx, manifest::HOOK_PURGED, removed))
         })
         .consumer(|env| Arc::new(events::PluginEventsConsumer::new(env.pool.clone())))
+        .consumer(|env| Arc::new(changes::ChangeFeedConsumer::new(env.pool.clone())))
         .job(|env| committed::Run::shared(env.pool.clone()))
         .job(|env| events::Run::shared(env.pool.clone()))
         .job(|env| effects::Run::shared(env.pool.clone()))
@@ -98,13 +105,17 @@ impl Module for PluginsModule {
             }
             http::router()
         })
-        .public_routes(|_| http::public_router());
+        .public_routes(|_| http::public_router())
+        .root_routes(|_| http::root_router());
         app.contribute::<dyn aphel_kernel::modules::runtime_catalog::RuntimeCatalogSource>(
             Arc::new(registry::PublicEvents),
         );
         app.contribute::<dyn aphel_kernel::application::public_events::RuntimePublicEventSource>(
             Arc::new(registry::PublicEvents),
         );
+        app.contribute::<dyn aphel_kernel::application::data_subject::DataSubjectSource>(Arc::new(
+            data_subject::PluginDataSubjects,
+        ));
         app.contribute::<dyn AutomationActionSource>(Arc::new(automation::PluginActions))
             .contribute::<dyn AutomationTriggerSource>(Arc::new(automation::PluginTriggers))
             .provide::<dyn PluginHookDispatcher>(Arc::new(bridge::Dispatcher));

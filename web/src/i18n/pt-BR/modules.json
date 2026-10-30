@@ -152,7 +152,10 @@
       "actions": "Ações de automação",
       "emits": "Gatilhos de automação",
       "notifications": "Notificações",
-      "widgets": "Widgets"
+      "widgets": "Widgets",
+      "rolePresets": "Papéis sugeridos",
+      "entityScopes": "Visibilidade padrão",
+      "uniqueFields": "Campos únicos"
     },
     "checking": "Verificando o pacote…",
     "settings": "Configurações",
@@ -171,6 +174,17 @@
     "consentConfirm": "Instalar",
     "consentNothing": "O plugin não pede nenhuma permissão especial.",
     "consentPublicWarning": "Rotas públicas podem ser chamadas por qualquer pessoa na internet, sem login.",
-    "consentHttpWarning": "O plugin poderá enviar dados do CRM para os endereços listados."
+    "consentHttpWarning": "O plugin poderá enviar dados do CRM para os endereços listados.",
+    "presetsTitle": "Papéis a criar",
+    "presetsDescription": "Selecione os papéis que o plugin deve criar com as permissões sugeridas. Nada vem selecionado; papéis existentes só recebem as permissões que faltam.",
+    "presetExists": "O papel já existe",
+    "presetPermissions_one": "{{count}} permissão",
+    "presetPermissions_other": "{{count}} permissões",
+    "grantsTitle": "Permissões por papel",
+    "grantsCount": "{{role}}: {{granted}} de {{expected}} permissões concedidas",
+    "grantsRoleMissing": "{{role}}: o papel não existe",
+    "grantsIncomplete": "Alguns papéis não existem ou não têm todas as permissões esperadas pelo plugin. Crie os papéis em Configurações › Papéis e reaplique as permissões.",
+    "reapplyGrants": "Reaplicar permissões",
+    "grantsReapplied": "Permissões reaplicadas."
   }
 }

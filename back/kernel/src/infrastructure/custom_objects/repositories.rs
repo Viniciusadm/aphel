@@ -15,7 +15,7 @@ use crate::application::fields::{RecordTypeDefinition, RecordTypeRegistry};
 use crate::application::organization_admin::{ListWindow, Listing};
 use crate::application::shared::RecordRef;
 use crate::database::transaction::MySqlTx;
-use crate::domain::access::{AccessScope, RecordScopeFilter};
+use crate::domain::access::{AccessScope, RecordScope, RecordScopeFilter};
 use crate::domain::custom_objects::{
     CustomObject, CustomRecord, OnDelete, RelationshipDefinition, is_custom_record_type,
 };
@@ -246,10 +246,11 @@ impl CustomObjectRepository for MySqlCustomObjectRepository {
         &self,
         tx: &mut Self::Tx,
         record_type: &str,
+        scope: Option<RecordScope>,
     ) -> Result<(), AppError> {
         sqlx::query(
             "INSERT IGNORE INTO role_permissions (role_id, permission, scope) \
-             SELECT r.id, CONCAT(?, '.', p.action), IF(r.`key` = 'manager', 'team', 'own') \
+             SELECT r.id, CONCAT(?, '.', p.action), COALESCE(?, IF(r.`key` = 'manager', 'team', 'own')) \
              FROM roles r JOIN ( \
                SELECT 'read' AS action UNION ALL SELECT 'create' UNION ALL SELECT 'update' \
                UNION ALL SELECT 'delete' UNION ALL SELECT 'archive' UNION ALL SELECT 'export' \
@@ -258,6 +259,7 @@ impl CustomObjectRepository for MySqlCustomObjectRepository {
              AND (r.`key` = 'manager' OR (r.`key` = 'member' AND p.action <> 'export'))",
         )
         .bind(record_type)
+        .bind(scope.map(|scope| scope.as_str()))
         .execute(&mut **tx)
         .await?;
         Ok(())
@@ -779,6 +781,14 @@ impl CustomRecordRepository for MySqlCustomRecordRepository {
         .bind(record_id.to_string())
         .execute(&mut **tx)
         .await?;
+        Ok(())
+    }
+
+    async fn lock(&self, tx: &mut Self::Tx, record_id: Uuid) -> Result<(), AppError> {
+        sqlx::query("SELECT id FROM custom_records WHERE id = ? FOR UPDATE")
+            .bind(record_id.to_string())
+            .fetch_optional(&mut **tx)
+            .await?;
         Ok(())
     }
 }

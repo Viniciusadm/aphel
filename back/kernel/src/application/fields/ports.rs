@@ -115,6 +115,41 @@ pub trait CustomFieldValueRepository: Send + Sync {
         definition: &RecordTypeDefinition,
         field: &FieldDefinition,
     ) -> Result<bool, AppError>;
+    async fn reserve_unique(
+        &self,
+        _tx: &mut Self::Tx,
+        _definition: &RecordTypeDefinition,
+        _record: &RecordRef,
+        _field: &FieldDefinition,
+    ) -> Result<(), AppError> {
+        Ok(())
+    }
+    async fn release_unique(
+        &self,
+        _tx: &mut Self::Tx,
+        _record: &RecordRef,
+        _field_id: Uuid,
+    ) -> Result<(), AppError> {
+        Ok(())
+    }
+    async fn existing_records_in(
+        &self,
+        _tx: &mut Self::Tx,
+        _scope: &AccessScope,
+        _target: &RecordTypeDefinition,
+        _visibility: &RecordScopeFilter,
+        _record_ids: &[Uuid],
+    ) -> Result<Option<Vec<Uuid>>, AppError> {
+        Ok(None)
+    }
+    async fn rebuild_unique(
+        &self,
+        _tx: &mut Self::Tx,
+        _definition: &RecordTypeDefinition,
+        _field: &FieldDefinition,
+    ) -> Result<(), AppError> {
+        Ok(())
+    }
 }
 
 #[async_trait]
