@@ -74,6 +74,8 @@ pub enum Command {
         record_id: Option<String>,
         link: Option<String>,
         data: Value,
+        #[serde(default)]
+        dedupe_key: Option<String>,
     },
     Email {
         to: String,
@@ -597,6 +599,7 @@ async fn execute(
             record_id,
             link,
             data,
+            dedupe_key,
         } => {
             crate::notify::notify(
                 plugin,
@@ -610,7 +613,7 @@ async fn execute(
                     record_id,
                     link,
                     data_json: data.to_string(),
-                    dedupe_key: None,
+                    dedupe_key,
                 },
             )
             .await?;

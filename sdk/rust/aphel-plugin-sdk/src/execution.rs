@@ -88,6 +88,8 @@ pub enum EffectCommand {
         record_id: Option<String>,
         link: Option<String>,
         data: Value,
+        #[serde(skip_serializing_if = "Option::is_none")]
+        dedupe_key: Option<String>,
     },
     Invoke {
         operation: String,

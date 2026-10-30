@@ -229,7 +229,7 @@ export type EffectCommand =
   | { kind: 'kv_set'; collection: string; id: string; value: Json }
   | { kind: 'kv_delete'; collection: string; id: string }
   | { kind: 'emit'; name: string; record_type?: string | null; record_id?: string | null; payload: JsonObject }
-  | { kind: 'notify'; name: string; recipient_user_id: string; title: string; body?: string | null; record_type?: string | null; record_id?: string | null; link?: string | null; data: JsonObject }
+  | { kind: 'notify'; name: string; recipient_user_id: string; title: string; body?: string | null; record_type?: string | null; record_id?: string | null; link?: string | null; data: JsonObject; dedupe_key?: string | null }
   | { kind: 'invoke'; operation: string; input: JsonObject }
   | { kind: 'email'; to: string; to_name?: string | null; subject: string; text: string; html?: string | null; purpose?: 'transactional' | 'marketing' }
   | { kind: 'http'; method: string; url: string; headers?: [string, string][]; body?: string | null }

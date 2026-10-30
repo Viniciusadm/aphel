@@ -45,7 +45,7 @@ Commands use snake_case JSON in both SDKs:
 - `delete`, `archive`, `restore`: `record_type`, `id`.
 - `kv_set`: `collection`, `id`, `value`; `kv_delete`: `collection`, `id`.
 - `emit`: `name`, `record_type`, `record_id`, `payload`; optional record fields are null or omitted together.
-- `notify`: `name`, `recipient_user_id`, `title`, optional `body`, `record_type`, `record_id`, `link`, and `data`.
+- `notify`: `name`, `recipient_user_id`, `title`, optional `body`, `record_type`, `record_id`, `link`, `data` and `dedupe_key`.
 - `invoke`: `operation`, `input`.
 - `email`: `to`, `subject`, `text`, optional `to_name`, `html` and `purpose` (`transactional` or `marketing`).
 - `http`: `method`, `url`, optional `headers` and `body`.
