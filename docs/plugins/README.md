@@ -436,6 +436,8 @@ A veto is never silently bypassed.
 - The call can be repeated, so it must be idempotent. An error makes the request finish as failed, reporting the remaining data.
 - Entity fields marked `personal` or `sensitive` are already found and erased by the core; this call is for data kept elsewhere, such as the key-value store. Retention policies do not make this call.
 
+**API client.** `api` from `@aphel/web-sdk` returns the inner value when the JSON body has `data` as its only key, and the whole body otherwise. Do not read `.data` from it blindly: `{ data, meta }` keeps the envelope and `{ data }` does not.
+
 **Public web app.** `[web] public = "web/public"` serves that folder of the package at `/p/<key>/`:
 - A path without a file extension that matches no file gets `index.html`, so client-side routing works. A missing asset gives 404.
 - Refer to assets by absolute path (`/p/<key>/assets/app.js`), because deep links change the base of relative ones.

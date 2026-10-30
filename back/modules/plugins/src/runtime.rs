@@ -751,7 +751,24 @@ fn coded_status(kind: CodedKind) -> u16 {
     }
 }
 
+const CONCURRENT_WRITE: &str =
+    "a concurrent write got in the way; reload and apply the change again";
+const INTERNAL_MESSAGE: &str = "internal error";
+
+fn is_lock_conflict(error: &AppError) -> bool {
+    matches!(error, AppError::Persistence(message)
+        if message.contains("Deadlock found") || message.contains("Lock wait timeout"))
+}
+
 pub fn to_plugin_error(error: &AppError) -> wit::PluginError {
+    if is_lock_conflict(error) {
+        return wit::PluginError {
+            code: "version_conflict".to_owned(),
+            message: CONCURRENT_WRITE.to_owned(),
+            status: Some(409),
+            fields: Vec::new(),
+        };
+    }
     let (code, status) = match error {
         AppError::CodedFields { code, .. } => (*code, 422),
         AppError::Coded { code, kind, .. } | AppError::CodedDetails { code, kind, .. } => {
@@ -775,9 +792,14 @@ pub fn to_plugin_error(error: &AppError) -> wit::PluginError {
             .collect(),
         _ => Vec::new(),
     };
+    let message = if status == 500 {
+        INTERNAL_MESSAGE
+    } else {
+        error.client_message()
+    };
     wit::PluginError {
         code: code.to_owned(),
-        message: error.client_message().to_owned(),
+        message: message.to_owned(),
         status: Some(status),
         fields,
     }
