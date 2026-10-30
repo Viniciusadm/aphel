@@ -273,7 +273,7 @@ fn declare_record_hooks(app: &mut AppBuilder) {
     );
     app.declare_hook::<crate::records::RecordArchiving>(
         &[HookUsage::Veto],
-        "Before a custom record is archived; an error blocks the archive",
+        "Before a custom record or company is archived; an error blocks the archive",
     );
     app.declare_hook::<crate::records::RecordDeleting>(
         &[HookUsage::Veto],

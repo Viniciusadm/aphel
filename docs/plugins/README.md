@@ -250,7 +250,7 @@ Operations that act on the user's own data (favorites, reminders, following) nee
 | `action` | Runs inside the transaction after the change; an error rolls it back |
 
 Generic record hooks:
-- `record.saving` (filter), `record.validating`, `record.deleting` and `record.archiving` (veto, the last one for custom records) and `record.saved` (action) run inside the transaction.
+- `record.saving` (filter), `record.validating`, `record.deleting` and `record.archiving` (veto, the last one for custom records and companies) and `record.saved` (action) run inside the transaction.
 - `record.committed` runs after the commit; its errors are only logged.
 - `record.deleted`, `record.restored` and `record.purged` (action) run inside the transaction of the deletion, restore or purge.
 

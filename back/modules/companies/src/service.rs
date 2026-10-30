@@ -453,6 +453,11 @@ async fn set_archived(
     let now = ctx.now();
     let archived_at = archived.then_some(now);
     let mut tx = ctx.begin().await?;
+    if archived {
+        ctx.pipeline()
+            .archiving(&mut tx, scope, &RecordRef::new(RecordType::COMPANY, id))
+            .await?;
+    }
     CompanyStore::of(ctx)
         .set_archived(&mut tx, id, archived_at)
         .await?;
