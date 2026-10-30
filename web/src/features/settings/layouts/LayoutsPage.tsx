@@ -204,7 +204,7 @@ function LayoutWorkspace({ recordType, context, schema, saved }: LayoutWorkspace
         }}
       />
       <Dialog open={previewing} onOpenChange={setPreviewing}>
-        <DialogContent className="max-h-[90vh] overflow-y-auto sm:max-w-3xl">
+        <DialogContent className="sm:max-w-3xl">
           <DialogHeader>
             <DialogTitle>{t('preview.title')}</DialogTitle>
             <DialogDescription>{t('preview.description')}</DialogDescription>

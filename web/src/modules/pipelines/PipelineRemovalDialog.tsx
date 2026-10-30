@@ -130,7 +130,7 @@ function RemovalForm({
 export function PipelineRemovalDialog({ pipeline, onOpenChange, ...props }: PipelineRemovalDialogProps) {
   return (
     <Dialog open={pipeline !== null} onOpenChange={onOpenChange}>
-      <DialogContent className="max-h-[90vh] overflow-y-auto">
+      <DialogContent>
         {pipeline && <RemovalForm {...props} pipeline={pipeline} onOpenChange={onOpenChange} />}
       </DialogContent>
     </Dialog>

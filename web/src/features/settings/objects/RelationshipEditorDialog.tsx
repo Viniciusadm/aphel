@@ -51,7 +51,7 @@ export function RelationshipEditorDialog({
   const { t } = useTranslation('objects')
   return (
     <Dialog open={open} onOpenChange={onOpenChange}>
-      <DialogContent className="max-h-[90vh] overflow-y-auto">
+      <DialogContent>
         <DialogHeader>
           <DialogTitle>{relationship ? t('relationships.editTitle') : t('relationships.newTitle')}</DialogTitle>
           <DialogDescription>{t('relationships.dialogDescription')}</DialogDescription>

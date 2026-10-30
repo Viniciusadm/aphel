@@ -179,7 +179,7 @@ function StageForm({ stage, pending, onOpenChange, onSubmit }: Omit<StageDialogP
 export function StageDialog({ open, onOpenChange, ...props }: StageDialogProps) {
   return (
     <Dialog open={open} onOpenChange={onOpenChange}>
-      <DialogContent className="max-h-[90vh] overflow-y-auto">
+      <DialogContent>
         {open && <StageForm {...props} onOpenChange={onOpenChange} />}
         {open && props.stage && <StageGuidanceEditor stageId={props.stage.id} />}
       </DialogContent>

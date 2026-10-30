@@ -20,7 +20,7 @@ export interface FieldRulesDialogProps {
 export function FieldRulesDialog({ field, rule, schema, placedKeys, context, onApply, onClose }: FieldRulesDialogProps) {
   return (
     <Dialog open={Boolean(field && rule)} onOpenChange={(open) => !open && onClose()}>
-      <DialogContent className="max-h-[90vh] overflow-y-auto sm:max-w-2xl">
+      <DialogContent className="sm:max-w-2xl">
         {field && rule && (
           <RulesBody
             key={field.key}

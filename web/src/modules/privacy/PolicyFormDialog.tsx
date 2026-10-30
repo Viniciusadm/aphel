@@ -94,7 +94,7 @@ export function PolicyFormDialog({ policy, onClose }: PolicyFormDialogProps) {
 
   return (
     <Dialog open onOpenChange={(open) => !open && !pending && onClose()}>
-      <DialogContent className="max-h-[90vh] overflow-y-auto sm:max-w-lg">
+      <DialogContent className="sm:max-w-lg">
         <DialogHeader>
           <DialogTitle>{t(policy ? 'policyForm.editTitle' : 'policyForm.createTitle')}</DialogTitle>
           <DialogDescription>{t('policyForm.description')}</DialogDescription>

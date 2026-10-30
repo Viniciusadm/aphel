@@ -44,7 +44,7 @@ export function ObjectEditorDialog({ object, open, onOpenChange, onSaved }: Obje
   const { t } = useTranslation('objects')
   return (
     <Dialog open={open} onOpenChange={onOpenChange}>
-      <DialogContent className="max-h-[90vh] overflow-y-auto">
+      <DialogContent>
         <DialogHeader>
           <DialogTitle>{object ? t('editor.editTitle', { label: object.label_plural }) : t('editor.newTitle')}</DialogTitle>
           <DialogDescription>{t('editor.description')}</DialogDescription>

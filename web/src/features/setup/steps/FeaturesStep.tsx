@@ -4,7 +4,7 @@ import { useTranslation } from 'react-i18next'
 import { api, isApiError } from '@/api'
 import { Badge } from '@/components/ui/badge'
 import { Button } from '@/components/ui/button'
-import { Dialog, DialogContent, DialogDescription, DialogHeader, DialogTitle } from '@/components/ui/dialog'
+import { Dialog, DialogContent, DialogDescription, DialogFooter, DialogHeader, DialogTitle } from '@/components/ui/dialog'
 import { Input } from '@/components/ui/input'
 import { fieldViolations } from '@/features/auth/lib/api-errors'
 import { NativeSelect } from '@/features/settings/organization/components/NativeSelect'
@@ -310,7 +310,7 @@ function Configuration({
 
   return (
     <Dialog open onOpenChange={(open) => !open && !saving && onCancel()}>
-      <DialogContent className="max-h-[85vh] overflow-y-auto">
+      <DialogContent>
         <DialogHeader>
           <DialogTitle>{target ? <ModuleName module={target} /> : t('features.configureTitle')}</DialogTitle>
           <DialogDescription>{t('features.configurationHint')}</DialogDescription>
@@ -343,14 +343,14 @@ function Configuration({
               />
             ))}
           </fieldset>
-          <div className="flex flex-col-reverse gap-2 sm:flex-row sm:justify-end">
+          <DialogFooter>
             <Button type="button" variant="outline" disabled={saving} onClick={onCancel}>
               {t('features.cancel')}
             </Button>
             <Button type="submit" disabled={saving}>
               {saving ? t('features.validating') : t('features.add')}
             </Button>
-          </div>
+          </DialogFooter>
         </form>
       </DialogContent>
     </Dialog>

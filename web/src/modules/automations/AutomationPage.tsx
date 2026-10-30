@@ -396,7 +396,7 @@ function AutomationWorkspace({ initial, catalog }: { initial: Automation; catalo
         </TabsContent>
       </Tabs>
       <Dialog open={selection !== null && (selection.kind === 'trigger' || selectedNode !== null)} onOpenChange={(open) => !open && setSelection(null)}>
-        <DialogContent side="right" className="w-full max-w-full gap-0 overflow-y-auto p-0 sm:w-[34rem] sm:max-w-[92vw]">
+        <DialogContent side="right" className="w-full max-w-full sm:w-[34rem] sm:max-w-[92vw]">
           <DialogHeader className="sticky top-0 border-b bg-background p-4 pr-12">
             <DialogTitle className="truncate">{panelTitle}</DialogTitle>
             <DialogDescription>

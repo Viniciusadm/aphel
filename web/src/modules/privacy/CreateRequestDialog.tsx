@@ -54,7 +54,7 @@ export function CreateRequestDialog({ term, selection, onClose, onCreated }: Cre
 
   return (
     <Dialog open onOpenChange={(open) => !open && !create.isPending && onClose()}>
-      <DialogContent className="max-h-[90vh] overflow-y-auto sm:max-w-lg">
+      <DialogContent className="sm:max-w-lg">
         <DialogHeader>
           <DialogTitle>{t('create.title')}</DialogTitle>
           <DialogDescription>{t('create.description', { count })}</DialogDescription>

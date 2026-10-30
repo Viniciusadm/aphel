@@ -177,7 +177,7 @@ export function RecordFormDialog({
   return (
     <>
       <Dialog open={open} onOpenChange={(next) => (next ? onOpenChange(true) : requestClose())}>
-        <DialogContent className={cn('max-h-[90vh] overflow-y-auto', record && 'sm:max-w-3xl')}>
+        <DialogContent className={cn(record && 'sm:max-w-3xl')}>
           <DialogHeader>
             <DialogTitle>{title ?? t(record ? 'dialog.editTitle' : 'dialog.title')}</DialogTitle>
             <DialogDescription>{description ?? t(record ? 'dialog.editDescription' : 'dialog.description')}</DialogDescription>

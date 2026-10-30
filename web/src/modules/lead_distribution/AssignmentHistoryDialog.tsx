@@ -36,7 +36,7 @@ export function AssignmentHistoryDialog({ rule, onClose }: AssignmentHistoryDial
 
   return (
     <Dialog open onOpenChange={(open) => !open && onClose()}>
-      <DialogContent className="max-h-[90vh] overflow-y-auto sm:max-w-3xl">
+      <DialogContent className="sm:max-w-3xl">
         <DialogHeader>
           <DialogTitle>{rule ? t('history.ruleTitle', { name: rule.name }) : t('history.title')}</DialogTitle>
           <DialogDescription>{t('history.description')}</DialogDescription>

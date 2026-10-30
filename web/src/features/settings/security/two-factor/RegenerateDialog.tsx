@@ -31,7 +31,7 @@ interface RegenerateDialogProps {
 export function RegenerateDialog({ open, onOpenChange }: RegenerateDialogProps) {
   return (
     <Dialog open={open} onOpenChange={onOpenChange}>
-      <DialogContent className="max-h-[90vh] overflow-y-auto sm:max-w-lg">
+      <DialogContent className="sm:max-w-lg">
         {open && <RegenerateFlow onClose={() => onOpenChange(false)} />}
       </DialogContent>
     </Dialog>

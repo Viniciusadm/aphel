@@ -73,7 +73,7 @@ function PipelineForm({ pending, onOpenChange, onSubmit }: Omit<PipelineFormDial
 export function PipelineFormDialog({ open, onOpenChange, ...props }: PipelineFormDialogProps) {
   return (
     <Dialog open={open} onOpenChange={onOpenChange}>
-      <DialogContent className="max-h-[90vh] overflow-y-auto">
+      <DialogContent>
         {open && <PipelineForm {...props} onOpenChange={onOpenChange} />}
       </DialogContent>
     </Dialog>

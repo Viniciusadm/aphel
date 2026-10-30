@@ -105,7 +105,7 @@ export function ModuleSettingsDialog({ module, initialViolations, onClose, onSav
 
   return (
     <Dialog open onOpenChange={(open) => !open && !isSubmitting && onClose()}>
-      <DialogContent className="max-h-[90vh] overflow-y-auto">
+      <DialogContent>
         <DialogHeader>
           <DialogTitle>{t('settings.title', { name: text.name })}</DialogTitle>
           <DialogDescription>{t('settings.description')}</DialogDescription>

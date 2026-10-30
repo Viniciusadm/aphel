@@ -50,7 +50,7 @@ export function RequestDetailDialog({ id, onClose }: RequestDetailDialogProps) {
 
   return (
     <Dialog open onOpenChange={(open) => !open && onClose()}>
-      <DialogContent className="max-h-[90vh] overflow-y-auto sm:max-w-2xl">
+      <DialogContent className="sm:max-w-2xl">
         <DialogHeader>
           <DialogTitle>{t('detail.title')}</DialogTitle>
           <DialogDescription>{t('detail.description')}</DialogDescription>

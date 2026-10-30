@@ -101,7 +101,7 @@ export function IntegrationConfigDialog({ integration, open, onOpenChange, onSav
 
   return (
     <Dialog open={open} onOpenChange={close}>
-      <DialogContent className="max-h-[90vh] overflow-y-auto">
+      <DialogContent>
         <DialogHeader>
           <DialogTitle>{t('form.title', { name: text.name(integration) })}</DialogTitle>
           <DialogDescription>{t('form.description')}</DialogDescription>

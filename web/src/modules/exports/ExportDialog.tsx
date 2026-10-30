@@ -88,7 +88,7 @@ function ExportDialogContent({ recordType, archived, onClose }: ExportDialogCont
   const finished = status === 'completed' || status === 'failed'
 
   return (
-    <DialogContent className="max-h-[90dvh] w-[calc(100%-2rem)] max-w-lg overflow-y-auto">
+    <DialogContent className="w-[calc(100%-2rem)] max-w-lg">
       <DialogHeader>
         <DialogTitle>{t('title', { recordType: typeLabel })}</DialogTitle>
         <DialogDescription>{t('description')}</DialogDescription>

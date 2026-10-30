@@ -375,7 +375,7 @@ export function SchedulesPanel({ report, currentUserId }: { report: Report; curr
         </Button>
       </div>
       <Dialog open={formOpen} onOpenChange={setFormOpen}>
-        <DialogContent className="max-h-[90vh] overflow-y-auto sm:max-w-lg">
+        <DialogContent className="sm:max-w-lg">
           <DialogHeader>
             <DialogTitle>{editing ? t('schedules.editTitle') : t('schedules.createTitle')}</DialogTitle>
             <DialogDescription>{t('schedules.formDescription')}</DialogDescription>

@@ -127,7 +127,7 @@ export function FieldEditorDialog({ recordType, field, onClose }: FieldEditorDia
 
   return (
     <Dialog open onOpenChange={(open) => !open && onClose()}>
-      <DialogContent className="max-h-[90vh] overflow-y-auto sm:max-w-2xl">
+      <DialogContent className="sm:max-w-2xl">
         <DialogHeader>
           <DialogTitle>{t(field ? 'editor.editTitle' : 'editor.createTitle')}</DialogTitle>
           <DialogDescription>{t('editor.description')}</DialogDescription>

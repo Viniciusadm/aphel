@@ -19,7 +19,7 @@ export function MobileSidebar({ open, onOpenChange, settingsArea, returnPath }: 
 
   return (
     <Dialog open={open} onOpenChange={onOpenChange}>
-      <DialogContent side="left" aria-describedby={undefined} className="gap-0 bg-sidebar p-0 md:hidden">
+      <DialogContent side="left" aria-describedby={undefined} className="bg-sidebar md:hidden">
         <DialogTitle className="sr-only">{t('sidebar.title')}</DialogTitle>
         <div className="flex h-14 items-center px-4">
           <OrganizationBrand />

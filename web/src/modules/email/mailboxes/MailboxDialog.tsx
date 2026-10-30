@@ -57,7 +57,7 @@ export function MailboxDialog({ mode, onOpenChange }: MailboxDialogProps) {
   return (
     <>
       <Dialog open={mode !== null} onOpenChange={requestClose}>
-        <DialogContent className="max-h-[calc(100dvh-2rem)] overflow-y-auto sm:max-w-2xl">
+        <DialogContent className="sm:max-w-2xl">
           <DialogHeader>
             <DialogTitle>{title}</DialogTitle>
             <DialogDescription>

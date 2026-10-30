@@ -75,7 +75,7 @@ export function ChannelEditorDialog({ editing, onOpenChange, onSaved }: ChannelE
   const t = useModuleTranslation(MESSAGING_KEY)
   return (
     <Dialog open={editing !== null} onOpenChange={onOpenChange}>
-      <DialogContent className="max-h-[92vh] overflow-y-auto sm:max-w-2xl">
+      <DialogContent className="sm:max-w-2xl">
         {editing && (
           <>
             <DialogHeader>

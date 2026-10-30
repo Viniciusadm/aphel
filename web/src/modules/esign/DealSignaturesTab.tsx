@@ -307,7 +307,7 @@ function SendDialog({ dealId, open, onOpenChange }: SendDialogProps) {
 
   return (
     <Dialog open={open} onOpenChange={close}>
-      <DialogContent className="max-h-[90vh] overflow-y-auto sm:max-w-xl">
+      <DialogContent className="sm:max-w-xl">
         <DialogHeader>
           <DialogTitle>{t('dialog.title')}</DialogTitle>
           <DialogDescription>{t('dialog.description')}</DialogDescription>

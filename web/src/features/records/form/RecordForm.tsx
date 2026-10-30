@@ -4,6 +4,7 @@ import { useEffect, useId, useMemo, useRef, useState, type ReactNode } from 'rea
 import { Controller, useForm, useWatch, type FieldErrors } from 'react-hook-form'
 import { useTranslation } from 'react-i18next'
 import { Button } from '@/components/ui/button'
+import { DialogFooter } from '@/components/ui/dialog'
 import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs'
 import { cn } from '@/lib/utils'
 import { isReadOnlyField, type RecordPayload, type RecordValues } from '../fields'
@@ -274,7 +275,7 @@ export function RecordForm({
         )}
         {body}
         <Slot name="record.form.sections" props={{ recordType, mode, record }} />
-        <div className="flex flex-col-reverse gap-2 sm:flex-row sm:justify-end">
+        <DialogFooter>
           {onCancel && (
             <Button variant="outline" onClick={onCancel} disabled={isSubmitting}>
               {t('actions.cancel')}
@@ -284,7 +285,7 @@ export function RecordForm({
             {isSubmitting && <Loader2 className="animate-spin" aria-hidden="true" />}
             {label}
           </Button>
-        </div>
+        </DialogFooter>
       </form>
       {guardUnsavedChanges && <UnsavedChangesGuard when={() => isDirty && !submittingRef.current} />}
     </>

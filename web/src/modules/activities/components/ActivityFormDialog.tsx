@@ -170,7 +170,7 @@ export function ActivityFormDialog({
 
   return (
     <Dialog open={open} onOpenChange={onOpenChange}>
-      <DialogContent className="max-h-[calc(100dvh-2rem)] overflow-y-auto">
+      <DialogContent>
         <DialogHeader>
           <DialogTitle>{t(mode === 'log' ? 'form.logTitle' : 'form.taskTitle')}</DialogTitle>
           <DialogDescription>{t(mode === 'log' ? 'form.logDescription' : 'form.taskDescription')}</DialogDescription>

@@ -74,7 +74,7 @@ export function CommandPalette({ mode, onModeChange, contextCommands, createActi
     <Dialog open={open} onOpenChange={(next) => onModeChange(next ? (mode ?? 'all') : null)}>
       <DialogContent
         showCloseButton={false}
-        className="top-[8vh] max-h-[80vh] translate-y-0 gap-0 overflow-hidden p-0 sm:top-[12vh] sm:max-w-xl"
+        className="top-[8vh] max-h-[80vh] translate-y-0 [--dialog-gap:0px] [--dialog-padding:0px] sm:top-[12vh] sm:max-w-xl"
       >
         {open && (
           <PaletteBody

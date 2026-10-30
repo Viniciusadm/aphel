@@ -66,7 +66,7 @@ export function ShortcutsHelpDialog({ open, onOpenChange, enabled }: ShortcutsHe
 
   return (
     <Dialog open={open} onOpenChange={onOpenChange}>
-      <DialogContent className="max-h-[90vh] overflow-y-auto">
+      <DialogContent>
         <DialogHeader>
           <DialogTitle>{t('help.title')}</DialogTitle>
           <DialogDescription>{t('help.description')}</DialogDescription>

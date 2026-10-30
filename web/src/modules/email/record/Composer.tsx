@@ -67,7 +67,7 @@ export function ComposerDialog({ open, onOpenChange, record, mailboxes, reply }:
   return (
     <>
       <Dialog open={open} onOpenChange={requestClose}>
-        <DialogContent className="max-h-[calc(100dvh-1rem)] overflow-y-auto p-4 sm:max-w-3xl sm:p-6">
+        <DialogContent className="[--dialog-padding:--spacing(4)] sm:max-w-3xl sm:[--dialog-padding:--spacing(6)]">
           <DialogHeader>
             <DialogTitle>{reply ? t('composer.replyTitle') : t('composer.title')}</DialogTitle>
             <DialogDescription>{t('composer.description')}</DialogDescription>

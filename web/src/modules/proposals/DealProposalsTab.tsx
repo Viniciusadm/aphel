@@ -177,7 +177,7 @@ function GenerateDialog({ dealId, open, onOpenChange }: GenerateDialogProps) {
 
   return (
     <Dialog open={open} onOpenChange={close}>
-      <DialogContent className={showPreview ? 'max-h-[90vh] overflow-y-auto sm:max-w-3xl' : undefined}>
+      <DialogContent className={showPreview ? 'sm:max-w-3xl' : undefined}>
         <DialogHeader>
           <DialogTitle>{t('deal.dialogTitle')}</DialogTitle>
           <DialogDescription>{t('deal.dialogDescription')}</DialogDescription>

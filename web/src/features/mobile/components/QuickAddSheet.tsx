@@ -25,7 +25,7 @@ export function QuickAddSheet({ mode, record, actions, onModeChange }: QuickAddS
   return (
     <Dialog open={mode !== null} onOpenChange={(open) => !open && close()}>
       <DialogContent
-        className="top-auto bottom-0 left-0 max-h-[92dvh] w-full max-w-full translate-x-0 translate-y-0 gap-0 overflow-y-auto rounded-t-2xl rounded-b-none border-x-0 border-b-0 p-0 sm:left-1/2 sm:max-w-lg sm:-translate-x-1/2"
+        className="top-auto bottom-0 left-0 max-h-[92dvh] w-full max-w-full translate-x-0 translate-y-0 rounded-t-2xl rounded-b-none border-x-0 border-b-0 [--dialog-gap:0px] [--dialog-padding:0px] sm:left-1/2 sm:max-w-lg sm:-translate-x-1/2"
       >
         <div className="sticky top-0 z-10 flex items-center gap-2 border-b bg-background px-4 py-3 pr-12">
           {current && (

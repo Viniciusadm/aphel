@@ -14,7 +14,7 @@ export function SnippetsDialog({ form, onClose }: SnippetsDialogProps) {
   const t = useModuleTranslation(LEAD_FORMS_KEY)
   return (
     <Dialog open={form !== null} onOpenChange={(open) => !open && onClose()}>
-      <DialogContent className="max-h-[92vh] overflow-y-auto sm:max-w-3xl">
+      <DialogContent className="sm:max-w-3xl">
         {form && (
           <>
             <DialogHeader>

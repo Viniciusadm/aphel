@@ -51,7 +51,7 @@ export function SimulationDialog({ rule, onClose }: SimulationDialogProps) {
 
   return (
     <Dialog open onOpenChange={(open) => !open && onClose()}>
-      <DialogContent className="max-h-[90vh] overflow-y-auto sm:max-w-xl">
+      <DialogContent className="sm:max-w-xl">
         <DialogHeader>
           <DialogTitle>{t('simulation.title', { name: rule.name })}</DialogTitle>
           <DialogDescription>{t('simulation.description')}</DialogDescription>

@@ -43,7 +43,7 @@ export function ActivityScheduleDialog({ activity, open, onOpenChange }: Activit
   const { t } = useTranslation('activities')
   return (
     <Dialog open={open} onOpenChange={onOpenChange}>
-      <DialogContent className="max-h-[calc(100dvh-2rem)] overflow-y-auto">
+      <DialogContent>
         <DialogHeader>
           <DialogTitle>{t('schedule.title')}</DialogTitle>
           <DialogDescription>{t('schedule.description', { title: activity.title })}</DialogDescription>

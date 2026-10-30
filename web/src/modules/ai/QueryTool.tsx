@@ -67,7 +67,7 @@ function QueryDialog({ recordType, filter, applyFilter, onOpenChange }: QueryDia
 
   return (
     <Dialog open onOpenChange={onOpenChange}>
-      <DialogContent className="max-h-[90dvh] overflow-y-auto sm:max-w-xl">
+      <DialogContent className="sm:max-w-xl">
         <DialogHeader>
           <DialogTitle>{t('query.title')}</DialogTitle>
           <DialogDescription>{t('query.description')}</DialogDescription>
