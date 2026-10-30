@@ -1,5 +1,6 @@
 import { useQuery } from '@tanstack/react-query'
 import { api, isApiError, type components } from '@/api'
+import { preloadInstallerTranslations } from '@/kernel/modules/i18n'
 
 export type InstallRequest = components['schemas']['InstallRequest']
 export type InstallerMe = components['schemas']['MeResponse']
@@ -39,4 +40,21 @@ export function restoreBackup(file: File) {
   const body = new FormData()
   body.append('file', file)
   return api.post<RestoreResult>(`${INSTALLER_PATH}/restore`, body)
+}
+
+export const INSTALLER_CATALOG_KEY = [...INSTALLER_STATUS_KEY, 'catalog'] as const
+
+export function useInstallerCatalog() {
+  return useQuery({
+    queryKey: INSTALLER_CATALOG_KEY,
+    queryFn: async () => {
+      const [catalog] = await Promise.all([
+        api.get<components['schemas']['InstallerStatusResponse']>(INSTALLER_PATH),
+        preloadInstallerTranslations(),
+      ])
+      return catalog
+    },
+    staleTime: Number.POSITIVE_INFINITY,
+    retry: false,
+  })
 }

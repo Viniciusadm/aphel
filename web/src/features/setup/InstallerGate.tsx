@@ -10,6 +10,6 @@ export function InstallerGate() {
   const { data: available, isPending } = useInstallerAvailable()
 
   if (gated && isPending) return <FullPageLoader />
-  if (gated && available) return <Navigate to="/install" replace />
+  if (gated && available) return <Navigate to="/setup" replace />
   return <Outlet />
 }

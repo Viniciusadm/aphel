@@ -4,10 +4,10 @@ import { Badge } from '@/components/ui/badge'
 import { ErrorState } from '@/components/ui/error-state'
 import { Skeleton } from '@/components/ui/skeleton'
 import { useTemplates } from '../api'
-import { SCRATCH } from '../lib/options'
+import { SCRATCH } from '../lib/templates'
 import { rankTemplates } from '../lib/templates'
 import type { OnboardingRecommendation } from '../types'
-import { OptionCard } from './OptionCard'
+import { OptionCard } from '@/components/ui/option-card'
 
 interface RecommendationStepProps {
   recommendation: OnboardingRecommendation | null

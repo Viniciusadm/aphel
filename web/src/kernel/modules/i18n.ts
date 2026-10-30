@@ -17,6 +17,7 @@ let pending = 0
 let ready = false
 let booted = false
 let languageRequest = 0
+let keepAllModules = false
 
 function moduleNamespaces(module: WebModule): [string, ModuleTranslations][] {
   const own: [string, ModuleTranslations][] = module.translations ? [[module.key, module.translations]] : []
@@ -122,17 +123,19 @@ export function syncModuleTranslations(): Promise<void> {
   const locales = localesFor()
   const loads: Promise<void>[] = []
   for (const module of registeredModules()) {
-    if (isModuleActive(module.key, state)) loads.push(load(module, locales))
+    if (keepAllModules || isModuleActive(module.key, state)) loads.push(load(module, locales))
     else unload(module)
   }
   return Promise.all(loads).then(() => undefined)
 }
 
 export function preloadInstallerTranslations(): Promise<void> {
+  keepAllModules = true
   return Promise.all(registeredModules().map((module) => load(module, localesFor()))).then(() => undefined)
 }
 
 export function preloadModuleTranslations(state: ModuleState): Promise<void> {
+  keepAllModules = false
   const locales = localesFor()
   return Promise.all(activeModules(state).map((module) => load(module, locales))).then(() => undefined)
 }
@@ -145,6 +148,14 @@ export function switchLanguage(language: string): Promise<void> {
       if (request === languageRequest && i18n.language !== language) await i18n.changeLanguage(language)
     }),
   )
+}
+
+export function switchInstallerLanguage(language: string): Promise<void> {
+  keepAllModules = true
+  const loads = registeredModules().map((module) => load(module, localesFor(language)))
+  return Promise.allSettled(loads).then(async () => {
+    if (i18n.language !== language) await i18n.changeLanguage(language)
+  })
 }
 
 export function installModuleTranslations(): () => void {

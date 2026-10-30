@@ -6,7 +6,7 @@ use crate::application::config_packages::sections::{
     CustomObjectsSection, FieldsSection, LayoutsSection, ViewsSection,
 };
 use crate::application::config_packages::{
-    ConfigPackagePorts, ConfigSection, ConfigSectionRegistry,
+    ConfigPackagePorts, ConfigSection, ConfigSectionRegistry, UnavailableFields,
 };
 use crate::application::fields::RecordTypeRegistry;
 use crate::database::transaction::MySqlTx;
@@ -99,14 +99,34 @@ pub fn builtin_sections(
             ),
         ),
     ];
+    let registry_types = registry.clone();
     let app = crate::modules::app();
-    for (_, factory) in app.all_contributions::<ConfigSectionFactory>() {
-        sections.push((factory.order, (factory.build)(pool, &registry)));
+    let mut unavailable = Vec::new();
+    for (module, factory) in app.all_contributions::<ConfigSectionFactory>() {
+        let section = (factory.build)(pool, &registry);
+        if !app.is_enabled(module) {
+            unavailable.push(section.key());
+        }
+        sections.push((factory.order, section));
     }
     sections.sort_by_key(|(order, _)| *order);
-    ConfigSectionRegistry::new()
+    let mut registry = ConfigSectionRegistry::new()
         .with_all(sections.into_iter().map(|(_, section)| section).collect())
-        .with_all(app.contributions::<dyn ConfigSection<MySqlTx>>())
+        .with_all(app.contributions::<dyn ConfigSection<MySqlTx>>());
+    for key in unavailable {
+        registry.mark_unavailable(key);
+    }
+    let mut fields = UnavailableFields::default();
+    for definition in registry_types.definitions() {
+        for field in definition
+            .system_fields
+            .iter()
+            .filter(|field| !field.is_available())
+        {
+            fields.insert(definition.record_type.as_str(), field.key.as_str());
+        }
+    }
+    registry.with_unavailable_fields(fields)
 }
 
 pub struct MySqlConfigPackagePorts {

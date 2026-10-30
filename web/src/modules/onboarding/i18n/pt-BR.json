@@ -1,85 +1,11 @@
 {
-  "page": {
-    "title": "Configuração inicial",
-    "loading": "Carregando o assistente…",
-    "stepLabel": "Passo {{current}} de {{total}}",
-    "progressLabel": "Progresso do assistente",
-    "goToDashboard": "Ir para o painel"
-  },
-  "steps": {
-    "business": {
-      "title": "Qual é o seu tipo de negócio?",
-      "description": "Com algumas respostas rápidas, o Aphel sugere uma configuração inicial. Você pode mudar tudo depois."
-    },
-    "offering": {
-      "title": "O que você vende?",
-      "description": "Marque todas as opções que se aplicam."
-    },
-    "team": {
-      "title": "Quantas pessoas vão usar o Aphel?",
-      "description": "Considere quem atende clientes e acompanha as vendas."
-    },
-    "recommendation": {
-      "title": "Escolha um modelo para começar",
-      "description": "O modelo cria campos, funis, etiquetas e visualizações pensados para o seu tipo de negócio. Nenhum dado é apagado."
-    },
-    "preview": {
-      "title": "Confira o que será criado",
-      "description": "Revise a configuração antes de aplicar. Itens em conflito com o que já existe são pulados."
-    }
-  },
-  "businessTypes": {
-    "real_estate": {
-      "label": "Imobiliária",
-      "description": "Venda e locação de imóveis, corretores e captação."
-    },
-    "agency": {
-      "label": "Agência",
-      "description": "Marketing, design, desenvolvimento ou comunicação para clientes."
-    },
-    "consulting": {
-      "label": "Consultoria ou serviços profissionais",
-      "description": "Projetos, assessorias e serviços especializados."
-    },
-    "software": {
-      "label": "Software ou SaaS",
-      "description": "Produto digital vendido por assinatura ou licença."
-    },
-    "b2b_sales": {
-      "label": "Vendas para empresas",
-      "description": "Equipe comercial vendendo produtos ou serviços para outras empresas."
-    },
-    "other": {
-      "label": "Outro",
-      "description": "Nenhuma das opções acima descreve bem o seu negócio."
-    }
-  },
-  "offerings": {
-    "product": {
-      "label": "Produtos",
-      "description": "Itens físicos ou digitais vendidos por unidade."
-    },
-    "service": {
-      "label": "Serviços",
-      "description": "Projetos, horas ou entregas sob demanda."
-    },
-    "recurring": {
-      "label": "Recorrência",
-      "description": "Assinaturas, mensalidades ou contratos renovados."
-    }
-  },
-  "teamSizes": {
-    "solo": "Só eu",
-    "small": "2 a 10 pessoas",
-    "medium": "11 a 50 pessoas",
-    "large": "Mais de 50 pessoas"
-  },
   "reasons": {
-    "business_real_estate": "Negócio imobiliário",
+    "business_freelancer": "Trabalho independente",
     "business_agency": "Agência",
-    "business_consulting": "Consultoria e serviços",
-    "business_software": "Software ou SaaS",
-    "business_b2b_sales": "Vendas para empresas",
+    "business_real_estate": "Negócio imobiliário",
+    "business_consultancy": "Consultoria e serviços",
+    "business_saas": "Software ou SaaS",
+    "business_sales": "Vendas para empresas",
     "business_other": "Configuração neutra",
     "offering_product": "Vende produtos",
     "offering_service": "Vende serviços",
@@ -116,31 +42,15 @@
       "title_one": "{{count}} item em conflito será pulado",
       "title_other": "{{count}} itens em conflito serão pulados",
       "description": "Já existe algo com a mesma chave e configuração diferente. O que já existe fica como está."
-    }
+    },
+    "skipped": "Não incluído porque os recursos relacionados estão desativados: {{sections}}.",
+    "skippedFields": "Alguns campos usados por este modelo pertencem a recursos desativados e foram deixados de fora."
   },
   "actions": {
-    "skip": "Pular por enquanto",
-    "back": "Voltar",
-    "next": "Continuar",
-    "preview": "Pré-visualizar",
-    "finishScratch": "Concluir sem modelo",
-    "apply": "Aplicar modelo",
+    "apply": "Aplicar e continuar",
     "applying": "Aplicando…",
-    "finish": "Concluir",
+    "finishScratch": "Continuar sem modelo",
     "reopen": "Reabrir assistente"
-  },
-  "done": {
-    "applied": "Modelo aplicado. Sua organização está pronta.",
-    "scratch": "Configuração inicial concluída."
-  },
-  "notPending": {
-    "completed": "O assistente de configuração inicial já foi concluído nesta organização.",
-    "skipped": "O assistente de configuração inicial foi pulado nesta organização.",
-    "dismissed": "Esta organização já estava em uso quando o assistente foi criado, por isso ele não foi exibido."
-  },
-  "noAccess": {
-    "title": "Sem permissão",
-    "description": "Só quem administra as configurações da organização pode usar o assistente inicial."
   },
   "status": {
     "pending": "Pendente",
@@ -170,5 +80,24 @@
     "plan": "Não foi possível gerar a pré-visualização do modelo.",
     "invalidTemplate": "Este modelo não pode ser instalado nesta versão do Aphel.",
     "generic": "Algo deu errado. Tente novamente."
+  },
+  "setup": {
+    "step": "Configuração inicial",
+    "title": "Escolha sua configuração inicial",
+    "description": "Um modelo cria os campos, funis, etiquetas e visões de um CRM pronto para o seu negócio. Nada é apagado e você pode ajustar tudo depois.",
+    "descriptionFor": "Com base no que você contou ({{business}}), esta é a configuração que recomendamos. Ela cria campos, funis, etiquetas e visões; nada é apagado e você pode ajustar tudo depois.",
+    "preview": "O que será criado",
+    "task": {
+      "progress": "Preparando funis, campos e visões para o seu negócio…",
+      "applied_one": "Configuração {{name}} aplicada: {{count}} item criado para o seu negócio.",
+      "applied_other": "Configuração {{name}} aplicada: {{count}} itens criados para o seu negócio.",
+      "failed": "Não foi possível aplicar a configuração inicial do seu negócio. Você pode concluí-la pelo aviso “Termine de configurar” ou em Configurações › Assistente inicial."
+    }
+  },
+  "resume": {
+    "title": "Termine de configurar o Aphel",
+    "description": "A configuração inicial do seu negócio ainda está pendente.",
+    "continue": "Continuar configuração",
+    "dismiss": "Ocultar por enquanto"
   }
 }

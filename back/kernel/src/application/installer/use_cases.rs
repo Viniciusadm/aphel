@@ -88,6 +88,7 @@ where
                 normalized
             }
         };
+        let business = super::business::validate_business(command.business, &mut violations);
         let (Some(organization_name), Some(preferences), Some(email), true) =
             (organization_name, preferences, email, violations.is_empty())
         else {
@@ -121,25 +122,30 @@ where
             .with_record(record.clone())
             .with_payload(json!({
                 "modules": modules.iter().map(|module| &module.key).collect::<Vec<_>>(),
+                "business": business,
                 "admin_user_id": user_id.as_str(),
                 "locale": preferences.locale,
                 "timezone": preferences.timezone,
                 "currency": preferences.currency,
             }));
+        let mut changes = vec![
+            FieldChange::new(
+                "modules",
+                json!([]),
+                json!(modules.iter().map(|module| &module.key).collect::<Vec<_>>()),
+            ),
+            FieldChange::new("name", json!(null), json!(organization_name)),
+            FieldChange::new("admin_email", json!(null), json!(email.as_str())),
+            FieldChange::new("locale", json!(null), json!(preferences.locale)),
+            FieldChange::new("timezone", json!(null), json!(preferences.timezone)),
+            FieldChange::new("currency", json!(null), json!(preferences.currency)),
+        ];
+        if let Some(business) = &business {
+            changes.push(FieldChange::new("business", json!(null), json!(business)));
+        }
         let entry = AuditEntry::new(actor, INSTALLATION_COMPLETED, now)
             .with_record(record)
-            .with_changes(vec![
-                FieldChange::new(
-                    "modules",
-                    json!([]),
-                    json!(modules.iter().map(|module| &module.key).collect::<Vec<_>>()),
-                ),
-                FieldChange::new("name", json!(null), json!(organization_name)),
-                FieldChange::new("admin_email", json!(null), json!(email.as_str())),
-                FieldChange::new("locale", json!(null), json!(preferences.locale)),
-                FieldChange::new("timezone", json!(null), json!(preferences.timezone)),
-                FieldChange::new("currency", json!(null), json!(preferences.currency)),
-            ])
+            .with_changes(changes)
             .with_ip(command.ip);
         let require_https = public_base_url
             .as_deref()
@@ -154,6 +160,7 @@ where
                 },
                 ..OrganizationConfig::default()
             },
+            business,
             email_verified_at: now,
         };
 

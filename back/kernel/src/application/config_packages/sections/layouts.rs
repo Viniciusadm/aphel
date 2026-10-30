@@ -11,7 +11,7 @@ use crate::application::config_packages::sections::custom_objects::package_regis
 use crate::application::config_packages::sections::fields::{package_fields, projected_field_set};
 use crate::application::config_packages::{
     ApplyContext, ConfigPackage, ConfigSection, Decisions, PackageIssue, PlanChange, PlanItem,
-    parse_section,
+    UnavailableFields, field_reference, parse_section,
 };
 use crate::application::fields::{FieldDefinitionRepository, FieldSet, RecordTypeRegistry};
 use crate::application::layouts::{
@@ -146,6 +146,59 @@ fn parse(content: &Value) -> Result<Vec<PackageLayout>, AppError> {
     parse_section(content).map_err(|issue| AppError::Validation(issue.message))
 }
 
+fn prune_layouts(content: &mut Value, unavailable: &UnavailableFields) -> Vec<String> {
+    let mut removed = Vec::new();
+    let Some(entries) = content.as_array_mut() else {
+        return removed;
+    };
+    for entry in entries {
+        let Some(record_type) = entry
+            .get("record_type")
+            .and_then(Value::as_str)
+            .map(str::to_owned)
+        else {
+            continue;
+        };
+        let Some(tabs) = entry
+            .pointer_mut("/layout/tabs")
+            .and_then(Value::as_array_mut)
+        else {
+            continue;
+        };
+        let columns = tabs
+            .iter_mut()
+            .filter_map(|tab| tab.get_mut("sections").and_then(Value::as_array_mut))
+            .flatten()
+            .filter_map(|section| section.get_mut("columns").and_then(Value::as_array_mut))
+            .flatten();
+        for column in columns {
+            let Some(fields) = column.get_mut("fields").and_then(Value::as_array_mut) else {
+                continue;
+            };
+            fields.retain(|field| match field.get("key").and_then(Value::as_str) {
+                Some(key) if unavailable.contains(&record_type, key) => {
+                    removed.push(field_reference(&record_type, key));
+                    false
+                }
+                _ => true,
+            });
+            for field in fields.iter_mut() {
+                let Some(key) = field
+                    .get("required_when")
+                    .and_then(|condition| unavailable.referenced_in(&record_type, condition))
+                else {
+                    continue;
+                };
+                removed.push(field_reference(&record_type, &key));
+                if let Some(map) = field.as_object_mut() {
+                    map.remove("required_when");
+                }
+            }
+        }
+    }
+    removed
+}
+
 #[async_trait]
 impl<L, D, Tx> ConfigSection<Tx> for LayoutsSection<L, D>
 where
@@ -155,6 +208,10 @@ where
 {
     fn key(&self) -> &'static str {
         LAYOUTS_SECTION
+    }
+
+    fn prune(&self, content: &mut Value, unavailable: &UnavailableFields) -> Vec<String> {
+        prune_layouts(content, unavailable)
     }
 
     async fn export(&self, _scope: &AccessScope) -> Result<Option<Value>, AppError> {

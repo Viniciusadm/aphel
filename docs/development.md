@@ -20,12 +20,12 @@ make dev-back
 make dev-web
 ```
 
-Open http://localhost:5173. On an empty database, the first access opens the setup wizard (`/install`), which creates the organization (one installation = one company) and the administrator, saves the public address (the browser's origin, `http://localhost:5173` with Vite) and offers optional steps to configure outgoing email and restore a backup. To get sample data after installation, run `cargo run -- demo seed` in `back/` (it refuses if there are already records, unless `--force` is used; `demo remove` deletes only the demo data).
+Open http://localhost:5173. On an empty database, the first access opens the setup wizard (`/setup`), a single flow that creates the organization (one installation = one company) and the administrator, saves the public address (the browser's origin, `http://localhost:5173` with Vite), applies the template recommended for the business and offers outgoing email, with backup restore on its first step. To get sample data after installation, run `cargo run -- demo seed` in `back/` (it refuses if there are already records, unless `--force` is used; `demo remove` deletes only the demo data).
 
 - `make up` starts MySQL and Mailpit and waits for the MySQL healthcheck.
 - `make dev-back` runs `cargo run -- serve` in `back/` (the `serve` subcommand is the default of the `aphel` binary). On the first run the web app is built, because `rust-embed` embeds `web/dist` at compile time.
 - `make dev-web` runs Vite with a proxy from `/api` to the backend.
-- `make down` tears down the environment without deleting the data. To reset only the configured database, stop the Aphel server and workers and run `cargo run -- db reset --confirm aphel` from `back/` (replace `aphel` with the exact database name in `DATABASE_URL`). This permanently deletes the company, users, records and database secrets, recreates the database and applies all migrations; the next access opens `/install` again. It requires DROP and CREATE privileges and keeps files on disk or S3. To remove the infrastructure volumes instead: `docker compose down -v`.
+- `make down` tears down the environment without deleting the data. To reset only the configured database, stop the Aphel server and workers and run `cargo run -- db reset --confirm aphel` from `back/` (replace `aphel` with the exact database name in `DATABASE_URL`). This permanently deletes the company, users, records and database secrets, recreates the database and applies all migrations; the next access opens `/setup` again. It requires DROP and CREATE privileges and keeps files on disk or S3. To remove the infrastructure volumes instead: `docker compose down -v`.
 
 The Rust workspace has the kernel (`back/kernel`), one crate per module (`back/modules/<key>`), local plugins (`back/plugins/<key>`), the binary (`back/app`) and `back/xtask`; `cargo run` in `back/` runs the binary (default member).
 

@@ -226,12 +226,15 @@ The release build is heavy: the first one takes 15 to 40 minutes with 2 vCPUs an
 
 ## First access
 
-1. Open the Aphel address. On a new installation, it opens the **installation wizard** (`/install`).
-2. Enter the organization name, time zone, currency, language and the details of the first administrator (name, email and password). Each installation serves a single company (the organization).
-3. On completion, the wizard saves the browser origin as the public address and offers the optional **Outgoing email** (SMTP) step. You can skip it: without SMTP, invitations and password resets show a link to copy.
-4. You are signed in as the administrator. The wizard only works once: after installation, `/install` no longer exists.
+1. Open the Aphel address. On a new installation, it opens the **setup wizard** (`/setup`; `/install` redirects to it). It is a single flow with one progress indicator, from the company data to a workspace ready to use.
+2. **Company**: language (the wizard switches to it immediately), company name, time zone and currency. Each installation serves a single company (the organization).
+3. **Business**: kind of business, what you sell and team size. Asked once: the answers preselect the features and choose the recommended starting template.
+4. **Features**: the optional modules, preselected for the business; the ones that connect to external services ask for their settings before being added.
+5. **Account**: the first administrator (name, email and password) and a summary of everything chosen. **Create workspace** installs, saves the browser origin as the public address, signs you in and applies the configuration template recommended for the business (module `onboarding`: pipelines, fields, views…), without asking again. Parts of the template that need a feature left off (e.g. automations) are skipped. Until then, the answers survive a page refresh (except the password).
+6. **Email** (optional): the SMTP server used for invitations, password resets and notifications. You can do it later: without SMTP, invitations and password resets show a link to copy.
+7. **Ready**: shows what was set up and leads to the dashboard. If the template could not be applied, administrators see a "Finish setting up" notice that resumes it at `/setup`, where another template can be chosen; **Settings › Initial assistant › Reopen** does the same later.
 
-To bring the data from another installation, use **Restore from a backup** in the wizard (before installing): it takes the zip from `aphel org export` and restores the organization, users, records and files. See [Full export](data/org-export-format.md).
+To bring the data from another installation, use **Restore from a backup** on the first step of the wizard (before installing): it takes the zip from `aphel org export` and restores the organization, users, records and files. See [Full export](data/org-export-format.md).
 
 Next, in **Settings**, check the public address and the outgoing email, set the organization's logo and color, invite the team and review the pipeline, fields and permissions.
 

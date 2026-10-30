@@ -152,7 +152,7 @@ async fn get_template(
     security(("session_cookie" = [])),
     request_body = PlanPackageRequest,
     responses(
-        (status = 200, description = "Validation of the package (`valid`, `issues` with paths such as `sections.fields.0.type`) and, when valid, the installation plan: one item per field, pipeline, stage, lost reason, activity type, tag, layout, view and dashboard with `create`, `update`, `unchanged` or `skip_conflict`, the changes and the `fingerprint` to send to apply. Nothing is written", body = Data<PackagePlanResponse>),
+        (status = 200, description = "Validation of the package (`valid`, `issues` with paths such as `sections.fields.0.type`) and, when valid, the installation plan: one item per field, pipeline, stage, lost reason, activity type, tag, layout, view and dashboard with `create`, `update`, `unchanged` or `skip_conflict`, the changes and the `fingerprint` to send to apply. Sections that belong to a disabled module are not validated, planned or applied; they are listed in `skipped_sections`. References to fields of a disabled module (`<record_type>.<field>`, e.g. a layout field, a view column or sort, a stage required field) are removed before validating and listed in `skipped_fields`; a view whose filter uses one is left out. Nothing is written", body = Data<PackagePlanResponse>),
         (status = 401, description = "Missing or invalid session", body = ErrorEnvelope),
         (status = 403, description = "Missing `settings.manage` (`permission_denied`)", body = ErrorEnvelope),
         (status = 404, description = "Unknown template (`template_not_found`)", body = ErrorEnvelope),

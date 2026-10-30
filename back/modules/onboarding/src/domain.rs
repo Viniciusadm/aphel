@@ -37,37 +37,48 @@ impl OnboardingStatus {
 
 #[derive(Debug, Clone, Copy, PartialEq, Eq)]
 pub(crate) enum BusinessType {
-    RealEstate,
+    Freelancer,
     Agency,
-    Consulting,
-    Software,
-    B2bSales,
+    RealEstate,
+    Consultancy,
+    Saas,
+    Sales,
     Other,
 }
 
 impl BusinessType {
-    pub(crate) const ALL: [Self; 6] = [
-        Self::RealEstate,
+    pub(crate) const ALL: [Self; 7] = [
+        Self::Freelancer,
         Self::Agency,
-        Self::Consulting,
-        Self::Software,
-        Self::B2bSales,
+        Self::RealEstate,
+        Self::Consultancy,
+        Self::Saas,
+        Self::Sales,
         Self::Other,
     ];
 
     pub(crate) fn as_str(self) -> &'static str {
         match self {
-            Self::RealEstate => "real_estate",
+            Self::Freelancer => "freelancer",
             Self::Agency => "agency",
-            Self::Consulting => "consulting",
-            Self::Software => "software",
-            Self::B2bSales => "b2b_sales",
+            Self::RealEstate => "real_estate",
+            Self::Consultancy => "consultancy",
+            Self::Saas => "saas",
+            Self::Sales => "sales",
             Self::Other => "other",
         }
     }
 
     pub(crate) fn parse(value: &str) -> Option<Self> {
-        Self::ALL.into_iter().find(|kind| kind.as_str() == value)
+        Self::ALL
+            .into_iter()
+            .find(|kind| kind.as_str() == value)
+            .or(match value {
+                "software" => Some(Self::Saas),
+                "consulting" => Some(Self::Consultancy),
+                "b2b_sales" => Some(Self::Sales),
+                _ => None,
+            })
     }
 }
 
@@ -128,12 +139,17 @@ pub(crate) struct OnboardingAnswers {
     pub(crate) team_size: Option<TeamSize>,
 }
 
-impl OnboardingAnswers {}
+impl OnboardingAnswers {
+    pub(crate) fn is_empty(&self) -> bool {
+        self.business_type.is_none() && self.offering.is_empty() && self.team_size.is_none()
+    }
+}
 
 #[derive(Debug, Clone, PartialEq, Eq, Default)]
 pub(crate) struct OnboardingState {
     pub(crate) status: OnboardingStatus,
     pub(crate) answers: OnboardingAnswers,
+    pub(crate) installer_answers: OnboardingAnswers,
     pub(crate) template_key: Option<String>,
     pub(crate) install_id: Option<Uuid>,
     pub(crate) completed_by: Option<UserId>,
@@ -205,13 +221,14 @@ const fn signal(reason: &'static str, template: &'static str, weight: u32) -> Si
 
 fn business_signals(business_type: BusinessType) -> Vec<Signal> {
     match business_type {
-        BusinessType::RealEstate => vec![signal("business_real_estate", REAL_ESTATE_TEMPLATE, 10)],
+        BusinessType::Freelancer => vec![signal("business_freelancer", FREELANCER_TEMPLATE, 10)],
         BusinessType::Agency => vec![signal("business_agency", AGENCY_TEMPLATE, 10)],
-        BusinessType::Software => vec![signal("business_software", SAAS_TEMPLATE, 10)],
-        BusinessType::B2bSales => vec![signal("business_b2b_sales", B2B_TEMPLATE, 10)],
-        BusinessType::Consulting => vec![
-            signal("business_consulting", AGENCY_TEMPLATE, 6),
-            signal("business_consulting", FREELANCER_TEMPLATE, 4),
+        BusinessType::RealEstate => vec![signal("business_real_estate", REAL_ESTATE_TEMPLATE, 10)],
+        BusinessType::Saas => vec![signal("business_saas", SAAS_TEMPLATE, 10)],
+        BusinessType::Sales => vec![signal("business_sales", B2B_TEMPLATE, 10)],
+        BusinessType::Consultancy => vec![
+            signal("business_consultancy", AGENCY_TEMPLATE, 6),
+            signal("business_consultancy", FREELANCER_TEMPLATE, 4),
         ],
         BusinessType::Other => vec![signal("business_other", B2B_TEMPLATE, 2)],
     }

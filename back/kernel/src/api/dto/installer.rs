@@ -26,6 +26,7 @@ pub struct InstallRequest {
     pub admin_password: String,
     #[schema(example = "https://crm.example.com")]
     pub public_base_url: Option<String>,
+    pub business: Option<crate::application::installer::business::BusinessAnswers>,
     #[serde(default)]
     pub modules: Vec<String>,
     #[serde(default)]

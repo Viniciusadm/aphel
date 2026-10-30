@@ -16,6 +16,7 @@
       "products",
       "quotes",
       "email",
+      "automations",
       "demo",
       "google",
       "ai"
@@ -122,6 +123,7 @@
       "privacy",
       "leads",
       "scoring",
+      "deal_items",
       "renewals",
       "goals",
       "forecast",
@@ -166,6 +168,27 @@
       "oidc",
       "ai",
       "enrichment"
+    ]
+  },
+  {
+    "key": "other",
+    "modules": [
+      "dashboard",
+      "reminders",
+      "favorites",
+      "followers",
+      "onboarding",
+      "imports",
+      "bulk_actions",
+      "duplicates",
+      "trash",
+      "privacy",
+      "leads",
+      "products",
+      "quotes",
+      "email",
+      "automations",
+      "reports"
     ]
   }
 ]

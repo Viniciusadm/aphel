@@ -27,7 +27,7 @@ import { Navigate, type RouteObject } from 'react-router'
 import { authRoutes } from '@/features/auth/routes'
 import { registerCustomRecordContributions } from '@/features/custom-records/register'
 import { customRecordsRoutes } from '@/features/custom-records/routes'
-import { InstallerGate, installerRoutes } from '@/features/installer'
+import { InstallerGate, setupRoutes } from '@/features/setup'
 import { NotificationSettingsPage } from '@/features/notifications'
 import { searchRoutes } from '@/features/search/routes'
 import { DEFAULT_RECORD_TYPE } from '@/features/settings/fields/lib/field-types'
@@ -276,7 +276,7 @@ const kernelModule = defineModule({
   required: true,
   namespaces: KERNEL_TRANSLATIONS,
   register(app) {
-    app.publicRoutes([...installerRoutes, { element: <InstallerGate />, children: authRoutes }])
+    app.publicRoutes([...setupRoutes, { element: <InstallerGate />, children: authRoutes }])
     app.routes([
       ...searchRoutes,
       ...customRecordsRoutes,

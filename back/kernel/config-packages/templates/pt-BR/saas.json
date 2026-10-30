@@ -56,15 +56,6 @@
       },
       {
         "record_type": "deal",
-        "key": "mrr",
-        "label": "MRR",
-        "type": "currency",
-        "config": {
-          "currency": "BRL"
-        }
-      },
-      {
-        "record_type": "deal",
         "key": "seats",
         "label": "Número de usuários",
         "type": "number",

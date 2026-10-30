@@ -1,4 +1,4 @@
-use std::collections::{BTreeMap, HashMap};
+use std::collections::{BTreeMap, BTreeSet, HashMap};
 use std::sync::Arc;
 
 use async_trait::async_trait;
@@ -214,9 +214,51 @@ impl ApplyContext {
     }
 }
 
+#[derive(Debug, Clone, Default)]
+pub struct UnavailableFields {
+    fields: BTreeSet<(String, String)>,
+}
+
+impl UnavailableFields {
+    pub fn insert(&mut self, record_type: &str, key: &str) {
+        self.fields.insert((record_type.to_owned(), key.to_owned()));
+    }
+
+    pub fn contains(&self, record_type: &str, key: &str) -> bool {
+        self.fields
+            .contains(&(record_type.to_owned(), key.to_owned()))
+    }
+
+    pub fn is_empty(&self) -> bool {
+        self.fields.is_empty()
+    }
+
+    pub fn referenced_in(&self, record_type: &str, value: &Value) -> Option<String> {
+        match value {
+            Value::Object(map) => map.iter().find_map(|(name, item)| match item {
+                Value::String(key) if name == "field" && self.contains(record_type, key) => {
+                    Some(key.clone())
+                }
+                _ => self.referenced_in(record_type, item),
+            }),
+            Value::Array(items) => items
+                .iter()
+                .find_map(|item| self.referenced_in(record_type, item)),
+            _ => None,
+        }
+    }
+}
+
+pub fn field_reference(record_type: &str, key: &str) -> String {
+    format!("{record_type}.{key}")
+}
+
 #[async_trait]
 pub trait ConfigSection<Tx: Send>: Send + Sync {
     fn key(&self) -> &'static str;
+    fn prune(&self, _content: &mut Value, _unavailable: &UnavailableFields) -> Vec<String> {
+        Vec::new()
+    }
     async fn export(&self, scope: &AccessScope) -> Result<Option<Value>, AppError>;
     async fn validate(
         &self,
@@ -243,12 +285,16 @@ pub trait ConfigSection<Tx: Send>: Send + Sync {
 
 pub struct ConfigSectionRegistry<Tx> {
     sections: Vec<Arc<dyn ConfigSection<Tx>>>,
+    unavailable: BTreeSet<&'static str>,
+    unavailable_fields: UnavailableFields,
 }
 
 impl<Tx: Send> Default for ConfigSectionRegistry<Tx> {
     fn default() -> Self {
         Self {
             sections: Vec::new(),
+            unavailable: BTreeSet::new(),
+            unavailable_fields: UnavailableFields::default(),
         }
     }
 }
@@ -257,6 +303,8 @@ impl<Tx: Send> Clone for ConfigSectionRegistry<Tx> {
     fn clone(&self) -> Self {
         Self {
             sections: self.sections.clone(),
+            unavailable: self.unavailable.clone(),
+            unavailable_fields: self.unavailable_fields.clone(),
         }
     }
 }
@@ -281,6 +329,23 @@ impl<Tx: Send> ConfigSectionRegistry<Tx> {
         self.sections
             .retain(|existing| existing.key() != section.key());
         self.sections.push(section);
+    }
+
+    pub fn mark_unavailable(&mut self, key: &'static str) {
+        self.unavailable.insert(key);
+    }
+
+    pub fn with_unavailable_fields(mut self, fields: UnavailableFields) -> Self {
+        self.unavailable_fields = fields;
+        self
+    }
+
+    pub fn unavailable_fields(&self) -> &UnavailableFields {
+        &self.unavailable_fields
+    }
+
+    pub fn is_available(&self, key: &str) -> bool {
+        !self.unavailable.contains(key)
     }
 
     pub fn sections(&self) -> &[Arc<dyn ConfigSection<Tx>>] {

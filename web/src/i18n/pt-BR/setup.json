@@ -1,0 +1,196 @@
+{
+  "loading": "Carregando…",
+  "retry": "Tentar novamente",
+  "progress": {
+    "label": "Progresso da configuração",
+    "step": "Etapa {{current}} de {{total}}",
+    "done": "concluída",
+    "current": "etapa atual"
+  },
+  "steps": {
+    "company": "Empresa",
+    "business": "Negócio",
+    "features": "Recursos",
+    "account": "Conta",
+    "email": "E-mail",
+    "ready": "Pronto"
+  },
+  "actions": {
+    "back": "Voltar",
+    "next": "Continuar",
+    "later": "Fazer depois",
+    "edit": "Editar",
+    "finish": "Ir para o Aphel"
+  },
+  "locales": {
+    "pt-BR": "Português (Brasil)",
+    "en": "English"
+  },
+  "company": {
+    "title": "Vamos preparar seu espaço de trabalho",
+    "description": "Comece pelo básico da sua empresa. Leva poucos minutos e tudo pode ser alterado depois.",
+    "fields": {
+      "locale": "Idioma",
+      "organizationName": "Nome da empresa",
+      "timezone": "Fuso horário",
+      "currency": "Moeda"
+    },
+    "hints": {
+      "locale": "Usado em toda a interface e nos e-mails.",
+      "timezone": "Usado em datas, lembretes e relatórios.",
+      "currency": "Usada nos valores dos negócios e nos relatórios de receita."
+    },
+    "restore": "Restaurar a partir de um backup"
+  },
+  "business": {
+    "title": "Conte sobre o seu negócio",
+    "description": "Suas respostas escolhem os recursos e a configuração inicial ideais para você. Perguntamos só uma vez.",
+    "typeLegend": "Qual é o tipo do seu negócio?",
+    "offeringLegend": "O que você vende?",
+    "offeringHint": "Marque todas as opções que se aplicam.",
+    "teamLegend": "Quantas pessoas vão usar o Aphel?",
+    "optional": "Opcional",
+    "required": "Escolha o tipo de negócio para continuar.",
+    "types": {
+      "freelancer": {
+        "label": "Freelancer",
+        "description": "Trabalho independente, com clientes e orçamentos."
+      },
+      "agency": {
+        "label": "Agência",
+        "description": "Marketing, design, desenvolvimento ou comunicação para clientes."
+      },
+      "real_estate": {
+        "label": "Imobiliária",
+        "description": "Venda e locação de imóveis, corretores e captações."
+      },
+      "consultancy": {
+        "label": "Consultoria",
+        "description": "Projetos, assessoria e serviços especializados."
+      },
+      "saas": {
+        "label": "Software / SaaS",
+        "description": "Produto digital vendido por assinatura ou licença."
+      },
+      "sales": {
+        "label": "Vendas B2B",
+        "description": "Equipe comercial vendendo produtos ou serviços para empresas."
+      },
+      "other": {
+        "label": "Outro",
+        "description": "Nenhuma das opções acima descreve bem o seu negócio."
+      }
+    },
+    "offerings": {
+      "product": {
+        "label": "Produtos",
+        "description": "Itens físicos ou digitais vendidos por unidade."
+      },
+      "service": {
+        "label": "Serviços",
+        "description": "Projetos, horas ou entregas sob demanda."
+      },
+      "recurring": {
+        "label": "Recorrência",
+        "description": "Assinaturas, mensalidades ou contratos renovados."
+      }
+    },
+    "teamSizes": {
+      "solo": "Só eu",
+      "small": "2 a 10 pessoas",
+      "medium": "11 a 50 pessoas",
+      "large": "Mais de 50 pessoas"
+    }
+  },
+  "features": {
+    "title": "Escolha seus recursos",
+    "description": "Ativamos o que costuma ajudar um negócio como o seu ({{business}}). Ajuste como preferir; dá para mudar a qualquer momento nas Configurações.",
+    "recommended": "Recomendados para você",
+    "others": "Outros recursos",
+    "needsSetup": "Recursos que pedem alguns dados",
+    "needsSetupHint": "Eles se conectam a serviços externos, por isso pedem algumas informações antes de serem adicionados.",
+    "search": "Buscar recursos",
+    "noResults": "Nenhum recurso corresponde à busca.",
+    "dependency": "Necessário para outro recurso selecionado.",
+    "recommendedBadge": "Recomendado",
+    "incompatible": "Indisponível nesta versão.",
+    "configure": "Configurar",
+    "editConfiguration": "Editar configuração",
+    "included": "Sempre incluídos",
+    "count_one": "{{count}} recurso selecionado",
+    "count_other": "{{count}} recursos selecionados",
+    "configureTitle": "Configurar o recurso",
+    "configurationHint": "Preencha os dados deste recurso e do que ele precisa. Eles são salvos quando o espaço de trabalho for criado.",
+    "cancel": "Cancelar",
+    "add": "Adicionar recurso",
+    "validating": "Verificando…",
+    "invalidConfiguration": "Alguns dados não são válidos. Confira os campos destacados.",
+    "invalidField": "Confira este valor.",
+    "selectOption": "Selecione uma opção"
+  },
+  "account": {
+    "title": "Crie sua conta de administrador",
+    "description": "É com esta conta que você vai entrar. Confira o resumo e crie seu espaço de trabalho.",
+    "fields": {
+      "adminName": "Seu nome",
+      "adminEmail": "E-mail",
+      "adminPassword": "Senha"
+    },
+    "hints": {
+      "password": "Use de 8 a 128 caracteres."
+    },
+    "summary": "Seu espaço de trabalho",
+    "summaryCompany": "Empresa",
+    "summaryBusiness": "Negócio",
+    "summaryFeatures": "Recursos",
+    "submit": "Criar espaço de trabalho",
+    "submitting": "Criando seu espaço de trabalho…"
+  },
+  "email": {
+    "title": "Conecte seu e-mail",
+    "description": "O Aphel envia por e-mail os convites para sua equipe, as redefinições de senha e as notificações. Conecte seu servidor SMTP para que cheguem às pessoas na hora.",
+    "later": "Você pode pular: convites e redefinições de senha vão mostrar um link para você copiar e enviar. Conecte o e-mail quando quiser em Configurações › E-mail de saída.",
+    "continue": "Continuar"
+  },
+  "ready": {
+    "title": "Tudo pronto!",
+    "description": "Seu espaço de trabalho está pronto para uso.",
+    "next": {
+      "import": "Traga seus contatos e empresas de uma planilha.",
+      "invite": "Convide sua equipe em Configurações › Membros.",
+      "customize": "Ajuste campos, funis e recursos sempre que precisar."
+    },
+    "done": "O que foi preparado",
+    "nextTitle": "Bons próximos passos",
+    "created": "Espaço de trabalho {{name}} criado com os recursos que você escolheu."
+  },
+  "restore": {
+    "title": "Restaurar a partir de um backup",
+    "description": "Use o arquivo de backup (.zip) exportado de outra instalação do Aphel. Ele traz a empresa, os usuários, os registros e os arquivos; depois, entre com uma conta do backup.",
+    "file": "Arquivo de backup",
+    "hint": "A restauração só é possível nesta instalação vazia.",
+    "submit": "Restaurar",
+    "submitting": "Restaurando…",
+    "errors": {
+      "fileRequired": "Escolha o arquivo de backup.",
+      "tooLarge": "O arquivo é maior que o permitido.",
+      "invalid": "Backup inválido: {{message}}",
+      "generic": "Não foi possível restaurar o backup. Tente novamente."
+    }
+  },
+  "errors": {
+    "required": "Preencha este campo.",
+    "nameLength": "Use entre 1 e 140 caracteres.",
+    "email": "Informe um e-mail válido.",
+    "emailTaken": "Este e-mail já está cadastrado.",
+    "passwordLength": "A senha deve ter entre 8 e 128 caracteres.",
+    "timezone": "Escolha um fuso horário válido.",
+    "currency": "Escolha uma moeda válida.",
+    "locale": "Escolha um idioma disponível.",
+    "business": "Confira as respostas sobre o seu negócio.",
+    "features": "Confira os dados dos recursos selecionados.",
+    "statusFailed": "Não foi possível falar com o servidor para preparar a configuração.",
+    "network": "Sem conexão com o servidor. Verifique sua rede e tente novamente.",
+    "generic": "Não foi possível criar o espaço de trabalho. Tente novamente."
+  }
+}

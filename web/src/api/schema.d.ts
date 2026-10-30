@@ -3657,7 +3657,7 @@ export interface paths {
         /** @description Returns installer availability, compiled module metadata and profile recommendations. Only available before the company is installed. Secret values are never returned. */
         get: operations["installer_status"];
         put?: never;
-        /** @description Creates the organization with its administrator (email already verified), marks the instance as installed in the same transaction and starts a session (sets the `aphel_session` cookie). `public_base_url` is the address the browser used (its origin); it is saved as the public address used in email links and decides the `Secure` cookie flag, and stays editable in the settings. Optional modules default to disabled. The selected modules, their transitive dependencies and validated settings are stored in the installation transaction; secret settings go to the secret vault. Works only once. */
+        /** @description Creates the organization with its administrator (email already verified), marks the instance as installed in the same transaction and starts a session (sets the `aphel_session` cookie). `public_base_url` is the address the browser used (its origin); it is saved as the public address used in email links and decides the `Secure` cookie flag, and stays editable in the settings. `business` holds the answers about the business (`business_type` is a key from `GET /installer` `profiles`, `offering` any of `product`, `service`, `recurring`, `team_size` one of `solo`, `small`, `medium`, `large`); they are kept in the organization settings so later setup steps reuse them instead of asking again. Optional modules default to disabled. The selected modules, their transitive dependencies and validated settings are stored in the installation transaction; secret settings go to the secret vault. Works only once. */
         post: operations["installer_install"];
         delete?: never;
         options?: never;
@@ -9196,6 +9196,19 @@ export interface components {
         };
         /** @enum {string} */
         BundlePricing: "fixed" | "sum";
+        BusinessAnswers: {
+            /** @example agency */
+            business_type?: string | null;
+            /**
+             * @example [
+             *       "service",
+             *       "recurring"
+             *     ]
+             */
+            offering?: string[];
+            /** @example small */
+            team_size?: string | null;
+        };
         CalendarConnectUrl: {
             url: string;
         };
@@ -12419,6 +12432,13 @@ export interface components {
                 items: components["schemas"]["PlanItemResponse"][];
                 package?: null | components["schemas"]["PackageMetadataResponse"];
                 sections: string[];
+                /**
+                 * @example [
+                 *       "deal.mrr"
+                 *     ]
+                 */
+                skipped_fields: string[];
+                skipped_sections: string[];
                 summary: components["schemas"]["PlanSummaryResponse"];
                 template_key?: string | null;
                 valid: boolean;
@@ -15918,6 +15938,7 @@ export interface components {
             /** @example Ana Souza */
             admin_name: string;
             admin_password: string;
+            business?: null | components["schemas"]["BusinessAnswers"];
             /** @example BRL */
             currency: string;
             /** @example pt-BR */
@@ -17143,7 +17164,7 @@ export interface components {
             team_size?: null | components["schemas"]["OnboardingTeamSize"];
         };
         /** @enum {string} */
-        OnboardingBusinessType: "real_estate" | "agency" | "consulting" | "software" | "b2b_sales" | "other";
+        OnboardingBusinessType: "freelancer" | "agency" | "real_estate" | "consultancy" | "saas" | "sales" | "other";
         /** @enum {string} */
         OnboardingOffering: "product" | "service" | "recurring";
         OnboardingRecommendationResponse: {
@@ -17286,6 +17307,13 @@ export interface components {
             items: components["schemas"]["PlanItemResponse"][];
             package?: null | components["schemas"]["PackageMetadataResponse"];
             sections: string[];
+            /**
+             * @example [
+             *       "deal.mrr"
+             *     ]
+             */
+            skipped_fields: string[];
+            skipped_sections: string[];
             summary: components["schemas"]["PlanSummaryResponse"];
             template_key?: string | null;
             valid: boolean;
@@ -29523,7 +29551,7 @@ export interface operations {
             };
         };
         responses: {
-            /** @description Validation of the package (`valid`, `issues` with paths such as `sections.fields.0.type`) and, when valid, the installation plan: one item per field, pipeline, stage, lost reason, activity type, tag, layout, view and dashboard with `create`, `update`, `unchanged` or `skip_conflict`, the changes and the `fingerprint` to send to apply. Nothing is written */
+            /** @description Validation of the package (`valid`, `issues` with paths such as `sections.fields.0.type`) and, when valid, the installation plan: one item per field, pipeline, stage, lost reason, activity type, tag, layout, view and dashboard with `create`, `update`, `unchanged` or `skip_conflict`, the changes and the `fingerprint` to send to apply. Sections that belong to a disabled module are not validated, planned or applied; they are listed in `skipped_sections`. References to fields of a disabled module (`<record_type>.<field>`, e.g. a layout field, a view column or sort, a stage required field) are removed before validating and listed in `skipped_fields`; a view whose filter uses one is left out. Nothing is written */
             200: {
                 headers: {
                     [name: string]: unknown;
@@ -40978,7 +41006,7 @@ export interface operations {
                     "application/json": components["schemas"]["ErrorEnvelope"];
                 };
             };
-            /** @description Invalid fields (`validation_error` with `details.fields`: organization name, timezone, currency, locale, administrator name, email, password of 8 to 128 characters, public address, modules and module settings) */
+            /** @description Invalid fields (`validation_error` with `details.fields`: organization name, timezone, currency, locale, administrator name, email, password of 8 to 128 characters, public address, business answers, modules and module settings) */
             422: {
                 headers: {
                     [name: string]: unknown;
@@ -48653,7 +48681,7 @@ export interface operations {
         };
         requestBody?: never;
         responses: {
-            /** @description State of the initial setup assistant of the organization (`pending` when it was never answered), the saved answers and the template recommended for them (`null` until a business type is answered). Recommended and alternative keys refer to `GET /config-packages/templates`; `reasons` are codes for the interface to translate */
+            /** @description State of the initial setup assistant of the organization (`pending` when it was never answered), the saved answers and the template recommended for them (`null` until a business type is answered). When the assistant was never answered, `answers` are the business answers given during installation, so they are not asked again. Recommended and alternative keys refer to `GET /config-packages/templates`; `reasons` are codes for the interface to translate */
             200: {
                 headers: {
                     [name: string]: unknown;

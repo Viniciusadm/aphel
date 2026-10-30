@@ -19,7 +19,7 @@ use aphel_kernel::application::config_packages::sections::fields::{
 use aphel_kernel::application::config_packages::{
     ApplyContext, ConfigKeyRepository, ConfigPackage, ConfigSection, Decisions, KeyedItem,
     PIPELINE_ITEM, PIPELINE_STAGE_ITEM, PackageIssue, PlanAction, PlanChange, PlanItem,
-    assign_keys, parse_section,
+    UnavailableFields, assign_keys, field_reference, parse_section,
 };
 use aphel_kernel::application::fields::{FieldDefinitionRepository, RecordTypeRegistry};
 use aphel_kernel::application::shared::RecordType;
@@ -432,6 +432,31 @@ where
 {
     fn key(&self) -> &'static str {
         PIPELINES_SECTION
+    }
+
+    fn prune(&self, content: &mut Value, unavailable: &UnavailableFields) -> Vec<String> {
+        let mut removed = Vec::new();
+        let stages = content
+            .as_array_mut()
+            .into_iter()
+            .flatten()
+            .filter_map(|pipeline| pipeline.get_mut("stages").and_then(Value::as_array_mut))
+            .flatten();
+        for stage in stages {
+            for property in ["entry_required_fields", "exit_required_fields"] {
+                let Some(keys) = stage.get_mut(property).and_then(Value::as_array_mut) else {
+                    continue;
+                };
+                keys.retain(|key| match key.as_str() {
+                    Some(key) if unavailable.contains(RecordType::DEAL.as_str(), key) => {
+                        removed.push(field_reference(RecordType::DEAL.as_str(), key));
+                        false
+                    }
+                    _ => true,
+                });
+            }
+        }
+        removed
     }
 
     async fn export(&self, _scope: &AccessScope) -> Result<Option<Value>, AppError> {

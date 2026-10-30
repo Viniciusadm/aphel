@@ -37,7 +37,6 @@ import type goalsNamespace from '../modules/goals/i18n/pt-BR.json'
 import type googleNamespace from '../modules/google/i18n/pt-BR.json'
 import type importsNamespace from '../modules/imports/i18n/pt-BR.json'
 import type insightsNamespace from '../modules/insights/i18n/pt-BR.json'
-import type installerNamespace from './pt-BR/installer.json'
 import type integrationCardNamespace from './pt-BR/integration-card.json'
 import type integrationsNamespace from '../modules/integrations/i18n/pt-BR.json'
 import type layoutNamespace from './pt-BR/layout.json'
@@ -80,6 +79,7 @@ import type securityNamespace from './pt-BR/security.json'
 import type segmentsNamespace from '../modules/segments/i18n/pt-BR.json'
 import type sequencesNamespace from '../modules/sequences/i18n/pt-BR.json'
 import type settingsNamespace from './pt-BR/settings.json'
+import type setupNamespace from './pt-BR/setup.json'
 import type sharingNamespace from './pt-BR/sharing.json'
 import type systemNamespace from './pt-BR/system.json'
 import type tagsNamespace from '../modules/tags/i18n/pt-BR.json'
@@ -132,7 +132,6 @@ declare module 'i18next' {
       google: typeof googleNamespace
       imports: typeof importsNamespace
       insights: typeof insightsNamespace
-      installer: typeof installerNamespace
       'integration-card': typeof integrationCardNamespace
       integrations: typeof integrationsNamespace
       layout: typeof layoutNamespace
@@ -175,6 +174,7 @@ declare module 'i18next' {
       segments: typeof segmentsNamespace
       sequences: typeof sequencesNamespace
       settings: typeof settingsNamespace
+      setup: typeof setupNamespace
       sharing: typeof sharingNamespace
       system: typeof systemNamespace
       tags: typeof tagsNamespace

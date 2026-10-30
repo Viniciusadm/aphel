@@ -1,16 +1,20 @@
 const PROMPT_KEY = 'aphel.onboarding.prompted'
 
-export function wasPrompted(): boolean {
+function key(userId?: string | null): string {
+  return userId ? `${PROMPT_KEY}:${userId}` : PROMPT_KEY
+}
+
+export function wasPrompted(userId?: string | null): boolean {
   try {
-    return window.sessionStorage.getItem(PROMPT_KEY) === 'true'
+    return window.sessionStorage.getItem(key(userId)) === 'true'
   } catch {
     return false
   }
 }
 
-export function markPrompted(): void {
+export function markPrompted(userId?: string | null): void {
   try {
-    window.sessionStorage.setItem(PROMPT_KEY, 'true')
+    window.sessionStorage.setItem(key(userId), 'true')
   } catch {
     return
   }

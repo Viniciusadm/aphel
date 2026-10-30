@@ -81,6 +81,8 @@ References between sections are also by key: `entry_required_fields`/`exit_requi
 - `formula` fields (`type: "formula"` with `config.expression` and `config.result_type`): the expression is compiled against the package's and the organization's fields, checking syntax, result type and cycles (`invalid_formula`, `formula_cycle`); after installing, the types with a created or changed formula are recalculated by the `formulas.recalculate` job;
 - each module's rules: a pipeline with `open`, `won` and `lost` stages; system field keys are reserved; layouts go through the same `validate_layout` as the screen; views through the same `validate_view_query`; limits (200 custom fields per type, 500 options, 50 pipelines…).
 
+Features that are off do not invalidate a package: a section that belongs to a disabled module is neither validated nor applied and comes back in `skipped_sections`; references to system fields of a disabled module (e.g. `mrr` from `deal_items` in a layout, a view column or sort, or a stage's required fields) are removed before validating and come back in `skipped_fields` as `<record_type>.<field>`, and a view whose filter uses one is left out. Everything else in the package is installed normally.
+
 ## Installation plan
 
 The plan compares package × organization and returns **one item per thing** (field, pipeline, stage, loss reason, activity type, tag, layout, view, dashboard), with an `id` (`<section>:<type>:<key>`), the action and the changes (`property`, `current`, `proposed`):
@@ -207,9 +209,10 @@ The `pipeline_renewals` section (session 24) is installed after `pipelines` and 
 The `automations` section (session 17) is the most recent example; a new section is added like this:
 
 1. Implement `ConfigSection<Tx>` (`kernel/application/config_packages/section.rs`): `key()`, `export`, `validate` (returns `PackageIssue` with a path relative to the section), `plan` (one `PlanItem` per item, with `created`/`compared`/`conflicting`) and `apply` (writes with `&mut Tx` only the items for which `decisions.executes(&item)`; plan and apply must come from the same reconciliation function).
-2. References to other sections: read their content in the received `ConfigPackage` (e.g. `package_fields`) and what already exists in the organization; ids created in the same transaction are in `ApplyContext::resolve`/`resolved`.
-3. Register the section in `builtin_sections` (`kernel/infrastructure/config_packages/ports.rs`), in the right position of the installation order, and add it to [`schema.json`](schema.json).
-4. Check round trip, conflicts and idempotency on a disposable database (automated tests have been suspended since session 11).
+2. If the section references fields, implement `prune` to drop the references listed in `UnavailableFields` (fields of disabled modules) and return them as `field_reference(record_type, key)`.
+3. References to other sections: read their content in the received `ConfigPackage` (e.g. `package_fields`) and what already exists in the organization; ids created in the same transaction are in `ApplyContext::resolve`/`resolved`.
+4. Register the section in `builtin_sections` (`kernel/infrastructure/config_packages/ports.rs`), in the right position of the installation order, and add it to [`schema.json`](schema.json).
+5. Check round trip, conflicts and idempotency on a disposable database (automated tests have been suspended since session 11).
 
 ## Versioning
 

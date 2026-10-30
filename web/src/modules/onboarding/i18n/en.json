@@ -1,85 +1,11 @@
 {
-  "page": {
-    "title": "Initial setup",
-    "loading": "Loading the assistant…",
-    "stepLabel": "Step {{current}} of {{total}}",
-    "progressLabel": "Assistant progress",
-    "goToDashboard": "Go to dashboard"
-  },
-  "steps": {
-    "business": {
-      "title": "What kind of business do you run?",
-      "description": "With a few quick answers, Aphel suggests an initial setup. You can change everything later."
-    },
-    "offering": {
-      "title": "What do you sell?",
-      "description": "Check every option that applies."
-    },
-    "team": {
-      "title": "How many people will use Aphel?",
-      "description": "Count everyone who serves customers and follows sales."
-    },
-    "recommendation": {
-      "title": "Choose a template to start",
-      "description": "The template creates fields, pipelines, tags and views designed for your business. No data is deleted."
-    },
-    "preview": {
-      "title": "Review what will be created",
-      "description": "Check the setup before applying it. Items that conflict with what already exists are skipped."
-    }
-  },
-  "businessTypes": {
-    "real_estate": {
-      "label": "Real estate",
-      "description": "Property sales and rentals, brokers and listings."
-    },
-    "agency": {
-      "label": "Agency",
-      "description": "Marketing, design, development or communication for clients."
-    },
-    "consulting": {
-      "label": "Consulting or professional services",
-      "description": "Projects, advisory and specialized services."
-    },
-    "software": {
-      "label": "Software or SaaS",
-      "description": "Digital product sold by subscription or license."
-    },
-    "b2b_sales": {
-      "label": "Sales to companies",
-      "description": "A sales team selling products or services to other companies."
-    },
-    "other": {
-      "label": "Other",
-      "description": "None of the options above describes your business well."
-    }
-  },
-  "offerings": {
-    "product": {
-      "label": "Products",
-      "description": "Physical or digital items sold per unit."
-    },
-    "service": {
-      "label": "Services",
-      "description": "Projects, hours or on-demand deliveries."
-    },
-    "recurring": {
-      "label": "Recurring",
-      "description": "Subscriptions, monthly fees or renewed contracts."
-    }
-  },
-  "teamSizes": {
-    "solo": "Just me",
-    "small": "2 to 10 people",
-    "medium": "11 to 50 people",
-    "large": "More than 50 people"
-  },
   "reasons": {
-    "business_real_estate": "Real estate business",
+    "business_freelancer": "Independent work",
     "business_agency": "Agency",
-    "business_consulting": "Consulting and services",
-    "business_software": "Software or SaaS",
-    "business_b2b_sales": "Sales to companies",
+    "business_real_estate": "Real estate business",
+    "business_consultancy": "Consultancy and services",
+    "business_saas": "Software or SaaS",
+    "business_sales": "Sales to companies",
     "business_other": "Neutral setup",
     "offering_product": "Sells products",
     "offering_service": "Sells services",
@@ -116,31 +42,15 @@
       "title_one": "{{count}} conflicting item will be skipped",
       "title_other": "{{count}} conflicting items will be skipped",
       "description": "Something with the same key and a different setup already exists. What exists stays as it is."
-    }
+    },
+    "skipped": "Not included because the related features are off: {{sections}}.",
+    "skippedFields": "Some fields used by this template belong to features that are off and were left out."
   },
   "actions": {
-    "skip": "Skip for now",
-    "back": "Back",
-    "next": "Continue",
-    "preview": "Preview",
-    "finishScratch": "Finish without a template",
-    "apply": "Apply template",
+    "apply": "Apply and continue",
     "applying": "Applying…",
-    "finish": "Finish",
+    "finishScratch": "Continue without a template",
     "reopen": "Reopen assistant"
-  },
-  "done": {
-    "applied": "Template applied. Your organization is ready.",
-    "scratch": "Initial setup finished."
-  },
-  "notPending": {
-    "completed": "The initial setup assistant was already completed in this organization.",
-    "skipped": "The initial setup assistant was skipped in this organization.",
-    "dismissed": "This organization was already in use when the assistant was created, so it was not shown."
-  },
-  "noAccess": {
-    "title": "No permission",
-    "description": "Only people who manage the organization settings can use the initial assistant."
   },
   "status": {
     "pending": "Pending",
@@ -170,5 +80,24 @@
     "plan": "Could not build the template preview.",
     "invalidTemplate": "This template cannot be installed in this Aphel version.",
     "generic": "Something went wrong. Try again."
+  },
+  "setup": {
+    "step": "Starting setup",
+    "title": "Pick your starting setup",
+    "description": "A template creates the fields, pipelines, tags and views of a CRM ready for your business. Nothing is deleted and you can adjust everything later.",
+    "descriptionFor": "Based on what you told us ({{business}}), this is the setup we recommend. It creates fields, pipelines, tags and views; nothing is deleted and you can adjust everything later.",
+    "preview": "What will be created",
+    "task": {
+      "progress": "Preparing pipelines, fields and views for your business…",
+      "applied_one": "{{name}} setup applied: {{count}} item created for your business.",
+      "applied_other": "{{name}} setup applied: {{count}} items created for your business.",
+      "failed": "The starting setup for your business could not be applied. You can finish it from the “Finish setting up” notice or in Settings › Initial assistant."
+    }
+  },
+  "resume": {
+    "title": "Finish setting up Aphel",
+    "description": "The starting setup for your business is still pending.",
+    "continue": "Continue setup",
+    "dismiss": "Hide for now"
   }
 }

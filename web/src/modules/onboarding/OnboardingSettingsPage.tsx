@@ -40,7 +40,7 @@ function OnboardingSettingsSection() {
     try {
       const next = await onboardingApi.reopen()
       queryClient.setQueryData(onboardingKeys.state(), next)
-      await navigate('/onboarding')
+      await navigate('/setup')
     } catch (error) {
       notifyError(error)
     } finally {

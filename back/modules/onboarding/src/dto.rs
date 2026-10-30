@@ -33,22 +33,24 @@ impl From<OnboardingStatus> for OnboardingStatusSchema {
 #[serde(rename_all = "snake_case")]
 #[schema(as = OnboardingBusinessType)]
 pub(crate) enum BusinessTypeSchema {
-    RealEstate,
+    Freelancer,
     Agency,
-    Consulting,
-    Software,
-    B2bSales,
+    RealEstate,
+    Consultancy,
+    Saas,
+    Sales,
     Other,
 }
 
 impl From<BusinessType> for BusinessTypeSchema {
     fn from(value: BusinessType) -> Self {
         match value {
-            BusinessType::RealEstate => Self::RealEstate,
+            BusinessType::Freelancer => Self::Freelancer,
             BusinessType::Agency => Self::Agency,
-            BusinessType::Consulting => Self::Consulting,
-            BusinessType::Software => Self::Software,
-            BusinessType::B2bSales => Self::B2bSales,
+            BusinessType::RealEstate => Self::RealEstate,
+            BusinessType::Consultancy => Self::Consultancy,
+            BusinessType::Saas => Self::Saas,
+            BusinessType::Sales => Self::Sales,
             BusinessType::Other => Self::Other,
         }
     }
@@ -57,11 +59,12 @@ impl From<BusinessType> for BusinessTypeSchema {
 impl From<BusinessTypeSchema> for BusinessType {
     fn from(value: BusinessTypeSchema) -> Self {
         match value {
-            BusinessTypeSchema::RealEstate => Self::RealEstate,
+            BusinessTypeSchema::Freelancer => Self::Freelancer,
             BusinessTypeSchema::Agency => Self::Agency,
-            BusinessTypeSchema::Consulting => Self::Consulting,
-            BusinessTypeSchema::Software => Self::Software,
-            BusinessTypeSchema::B2bSales => Self::B2bSales,
+            BusinessTypeSchema::RealEstate => Self::RealEstate,
+            BusinessTypeSchema::Consultancy => Self::Consultancy,
+            BusinessTypeSchema::Saas => Self::Saas,
+            BusinessTypeSchema::Sales => Self::Sales,
             BusinessTypeSchema::Other => Self::Other,
         }
     }
@@ -204,7 +207,7 @@ impl From<OnboardingView> for OnboardingResponse {
         let state = view.state;
         Self {
             status: state.status.into(),
-            answers: (&state.answers).into(),
+            answers: (&view.answers).into(),
             recommendation: view.recommendation.map(Into::into),
             template_key: state.template_key,
             install_id: state.install_id.map(|id| id.to_string()),

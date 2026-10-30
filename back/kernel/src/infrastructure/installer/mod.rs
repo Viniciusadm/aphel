@@ -59,7 +59,7 @@ impl InstallationRepository for MySqlInstallationRepository {
                 .ok_or_else(crate::application::module_admin::module_not_found)?;
             sqlx::query("INSERT INTO installed_modules (module_key, enabled, settings, installed_version, enabled_at) VALUES (?, TRUE, ?, ?, CURRENT_TIMESTAMP(6)) ON DUPLICATE KEY UPDATE enabled = TRUE, settings = VALUES(settings), installed_version = VALUES(installed_version), enabled_at = VALUES(enabled_at)")
                 .bind(&module.key).bind(sqlx::types::Json(&module.values)).bind(entry.manifest.version).execute(&mut **tx).await?;
-            crate::modules::migrations::apply_grants(&mut **tx, app, &module.key).await?;
+            crate::modules::migrations::apply_grants(tx, app, &module.key).await?;
             for (name, value) in &module.secrets {
                 self.secrets
                     .store(
@@ -98,6 +98,19 @@ impl InstallationRepository for MySqlInstallationRepository {
         let registration = &organization.registration;
         insert_registration(tx, registration, &self.record_types).await?;
         write_configuration(tx, &organization.configuration).await?;
+        if let Some(business) = &organization.business {
+            let document = serde_json::to_string(business).map_err(|error| {
+                AppError::Internal(format!("cannot serialize business answers: {error}"))
+            })?;
+            sqlx::query(
+                "UPDATE organization_settings \
+                 SET settings = JSON_SET(COALESCE(settings, JSON_OBJECT()), '$.installer', CAST(? AS JSON)) \
+                 WHERE id = 1",
+            )
+            .bind(document)
+            .execute(&mut **tx)
+            .await?;
+        }
         sqlx::query("UPDATE users SET email_verified_at = ? WHERE id = ?")
             .bind(mapper::naive(organization.email_verified_at))
             .bind(registration.owner.id.as_str())

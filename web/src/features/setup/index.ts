@@ -1,2 +1,2 @@
 export { InstallerGate } from './InstallerGate'
-export { installerRoutes } from './routes'
+export { setupRoutes } from './routes'

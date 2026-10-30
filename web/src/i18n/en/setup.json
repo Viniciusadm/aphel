@@ -1,0 +1,196 @@
+{
+  "loading": "Loading…",
+  "retry": "Try again",
+  "progress": {
+    "label": "Setup progress",
+    "step": "Step {{current}} of {{total}}",
+    "done": "completed",
+    "current": "current step"
+  },
+  "steps": {
+    "company": "Company",
+    "business": "Business",
+    "features": "Features",
+    "account": "Account",
+    "email": "Email",
+    "ready": "Ready"
+  },
+  "actions": {
+    "back": "Back",
+    "next": "Continue",
+    "later": "Do it later",
+    "edit": "Edit",
+    "finish": "Go to Aphel"
+  },
+  "locales": {
+    "pt-BR": "Português (Brasil)",
+    "en": "English"
+  },
+  "company": {
+    "title": "Let's set up your workspace",
+    "description": "Start with the basics about your company. It takes a couple of minutes and everything can be changed later.",
+    "fields": {
+      "locale": "Language",
+      "organizationName": "Company name",
+      "timezone": "Time zone",
+      "currency": "Currency"
+    },
+    "hints": {
+      "locale": "Used across the interface and in emails.",
+      "timezone": "Used in dates, reminders and reports.",
+      "currency": "Used for deal amounts and revenue reports."
+    },
+    "restore": "Restore from a backup instead"
+  },
+  "business": {
+    "title": "Tell us about your business",
+    "description": "Your answers choose the features and the initial setup that suit you. We only ask once.",
+    "typeLegend": "What kind of business do you run?",
+    "offeringLegend": "What do you sell?",
+    "offeringHint": "Check every option that applies.",
+    "teamLegend": "How many people will use Aphel?",
+    "optional": "Optional",
+    "required": "Choose the kind of business to continue.",
+    "types": {
+      "freelancer": {
+        "label": "Freelancer",
+        "description": "Independent work, with clients and quotes."
+      },
+      "agency": {
+        "label": "Agency",
+        "description": "Marketing, design, development or communication for clients."
+      },
+      "real_estate": {
+        "label": "Real estate",
+        "description": "Property sales and rentals, brokers and listings."
+      },
+      "consultancy": {
+        "label": "Consultancy",
+        "description": "Projects, advisory and specialized services."
+      },
+      "saas": {
+        "label": "Software / SaaS",
+        "description": "Digital product sold by subscription or license."
+      },
+      "sales": {
+        "label": "B2B sales",
+        "description": "A sales team selling products or services to other companies."
+      },
+      "other": {
+        "label": "Other",
+        "description": "None of the options above describes your business well."
+      }
+    },
+    "offerings": {
+      "product": {
+        "label": "Products",
+        "description": "Physical or digital items sold per unit."
+      },
+      "service": {
+        "label": "Services",
+        "description": "Projects, hours or on-demand deliveries."
+      },
+      "recurring": {
+        "label": "Recurring",
+        "description": "Subscriptions, monthly fees or renewed contracts."
+      }
+    },
+    "teamSizes": {
+      "solo": "Just me",
+      "small": "2 to 10 people",
+      "medium": "11 to 50 people",
+      "large": "More than 50 people"
+    }
+  },
+  "features": {
+    "title": "Choose your features",
+    "description": "We turned on what usually helps a business like yours ({{business}}). Adjust as you like; you can change it anytime in Settings.",
+    "recommended": "Recommended for you",
+    "others": "Other features",
+    "needsSetup": "Features that need a few details",
+    "needsSetupHint": "These connect to external services, so they ask for some information before being added.",
+    "search": "Search features",
+    "noResults": "No feature matches your search.",
+    "dependency": "Required by another selected feature.",
+    "recommendedBadge": "Recommended",
+    "incompatible": "Unavailable in this version.",
+    "configure": "Configure",
+    "editConfiguration": "Edit configuration",
+    "included": "Always included",
+    "count_one": "{{count}} feature selected",
+    "count_other": "{{count}} features selected",
+    "configureTitle": "Set up the feature",
+    "configurationHint": "Fill in the details of this feature and of what it needs. They are saved when the workspace is created.",
+    "cancel": "Cancel",
+    "add": "Add feature",
+    "validating": "Checking…",
+    "invalidConfiguration": "Some details are not valid. Check the highlighted fields.",
+    "invalidField": "Check this value.",
+    "selectOption": "Select an option"
+  },
+  "account": {
+    "title": "Create your administrator account",
+    "description": "This is the account you will sign in with. Check the summary and create your workspace.",
+    "fields": {
+      "adminName": "Your name",
+      "adminEmail": "Email",
+      "adminPassword": "Password"
+    },
+    "hints": {
+      "password": "Use 8 to 128 characters."
+    },
+    "summary": "Your workspace",
+    "summaryCompany": "Company",
+    "summaryBusiness": "Business",
+    "summaryFeatures": "Features",
+    "submit": "Create workspace",
+    "submitting": "Creating your workspace…"
+  },
+  "email": {
+    "title": "Connect your email",
+    "description": "Aphel sends invitations to your team, password resets and notifications by email. Connect your SMTP server so they reach people right away.",
+    "later": "You can skip this: invitations and password resets will show a link for you to copy and send. Connect email anytime in Settings › Outgoing email.",
+    "continue": "Continue"
+  },
+  "ready": {
+    "title": "All set!",
+    "description": "Your workspace is ready to use.",
+    "next": {
+      "import": "Bring your contacts and companies from a spreadsheet.",
+      "invite": "Invite your team from Settings › Members.",
+      "customize": "Adjust fields, pipelines and features whenever you need."
+    },
+    "done": "What was set up",
+    "nextTitle": "Good next steps",
+    "created": "Workspace {{name}} created with the features you chose."
+  },
+  "restore": {
+    "title": "Restore from a backup",
+    "description": "Use the backup file (.zip) exported from another Aphel installation. It brings the company, users, records and files; afterwards, sign in with an account from the backup.",
+    "file": "Backup file",
+    "hint": "Restoring is only possible on this empty installation.",
+    "submit": "Restore",
+    "submitting": "Restoring…",
+    "errors": {
+      "fileRequired": "Choose the backup file.",
+      "tooLarge": "The file is larger than allowed.",
+      "invalid": "Invalid backup: {{message}}",
+      "generic": "Could not restore the backup. Try again."
+    }
+  },
+  "errors": {
+    "required": "Fill in this field.",
+    "nameLength": "Use between 1 and 140 characters.",
+    "email": "Enter a valid email.",
+    "emailTaken": "This email is already registered.",
+    "passwordLength": "The password must be between 8 and 128 characters.",
+    "timezone": "Choose a valid time zone.",
+    "currency": "Choose a valid currency.",
+    "locale": "Choose an available language.",
+    "business": "Check the answers about your business.",
+    "features": "Check the details of the selected features.",
+    "statusFailed": "Could not reach the server to prepare the setup.",
+    "network": "No connection to the server. Check your network and try again.",
+    "generic": "The workspace could not be created. Please try again."
+  }
+}

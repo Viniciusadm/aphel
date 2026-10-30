@@ -188,6 +188,30 @@ export interface ConfigPackageLabels {
   properties?: Record<string, string>
 }
 
+export interface SetupStepProps {
+  onDone: () => void
+}
+
+export interface SetupStepContribution {
+  key: string
+  label: string
+  order?: number
+  usePending?: () => boolean | undefined
+  render: ComponentType<SetupStepProps>
+}
+
+export interface SetupTaskResult {
+  summary: string
+}
+
+export interface SetupTaskContribution {
+  key: string
+  progressLabel: string
+  failureLabel: string
+  order?: number
+  run: () => Promise<SetupTaskResult | null>
+}
+
 export type FilterFunction<N extends FilterName> = (value: FilterValue<N>, context: FilterContext<N>) => FilterValue<N>
 
 export interface RouteOptions {
@@ -215,6 +239,8 @@ export interface ModuleApp {
   referenceOptions(kind: string, provider: ReferenceOptionsProvider): void
   timelineSource(factory: (recordType: string, recordId: string) => TimelineSource): void
   configPackageLabels(labels: ConfigPackageLabels): void
+  setupStep(step: SetupStepContribution): void
+  setupTask(task: SetupTaskContribution): void
   on<N extends ModuleEventName>(name: N, handler: ModuleEventHandler<N>): void
 }
 

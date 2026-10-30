@@ -25,13 +25,20 @@ pub(crate) const ONBOARDING_REOPENED: &str = "onboarding.reopened";
 #[derive(Debug, Clone, PartialEq, Eq)]
 pub struct OnboardingView {
     pub(crate) state: OnboardingState,
+    pub(crate) answers: OnboardingAnswers,
     pub(crate) recommendation: Option<Recommendation>,
 }
 
 impl From<OnboardingState> for OnboardingView {
     fn from(state: OnboardingState) -> Self {
+        let answers = if state.answers.is_empty() {
+            state.installer_answers.clone()
+        } else {
+            state.answers.clone()
+        };
         Self {
-            recommendation: recommend(&state.answers),
+            recommendation: recommend(&answers),
+            answers,
             state,
         }
     }
@@ -124,6 +131,7 @@ pub(crate) async fn reopen(ctx: &Ctx<'_>, ip: Option<String>) -> Result<Onboardi
     let state = OnboardingState {
         status: OnboardingStatus::Pending,
         answers: current.answers.clone(),
+        installer_answers: current.installer_answers.clone(),
         updated_at: Some(ctx.now()),
         ..OnboardingState::default()
     };
@@ -133,7 +141,10 @@ pub(crate) async fn reopen(ctx: &Ctx<'_>, ip: Option<String>) -> Result<Onboardi
 }
 
 async fn load_state(ctx: &Ctx<'_>) -> Result<OnboardingState, AppError> {
-    Ok(OnboardingStore::of(ctx).find().await?.unwrap_or_default())
+    let store = OnboardingStore::of(ctx);
+    let mut state = store.find().await?.unwrap_or_default();
+    state.installer_answers = store.installer_answers().await?;
+    Ok(state)
 }
 
 async fn resolve_choice(

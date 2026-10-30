@@ -93,6 +93,16 @@ export function PreviewStep({ plan, isPending, isError, onRetry }: PreviewStepPr
         </div>
       )}
 
+      {plan.skipped_sections.length > 0 && (
+        <p className="rounded-lg border border-dashed p-3 text-sm text-muted-foreground">
+          {t('preview.skipped', { sections: plan.skipped_sections.map((section) => labels.section(section)).join(', ') })}
+        </p>
+      )}
+
+      {plan.skipped_fields.length > 0 && (
+        <p className="rounded-lg border border-dashed p-3 text-sm text-muted-foreground">{t('preview.skippedFields')}</p>
+      )}
+
       {conflicts.length > 0 && (
         <section
           className="grid gap-2 rounded-lg border border-warning/40 bg-warning/10 p-4"

@@ -1,6 +1,8 @@
 import type { PackageTemplate } from '../api'
 import type { OnboardingRecommendation } from '../types'
 
+export const SCRATCH = 'scratch'
+
 export interface TemplateOption {
   template: PackageTemplate
   reasons: string[]

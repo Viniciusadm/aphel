@@ -29,7 +29,7 @@ pub(crate) fn router() -> OpenApiRouter<AppState> {
     operation_id = "onboarding_get",
     security(("session_cookie" = [])),
     responses(
-        (status = 200, description = "State of the initial setup assistant of the organization (`pending` when it was never answered), the saved answers and the template recommended for them (`null` until a business type is answered). Recommended and alternative keys refer to `GET /config-packages/templates`; `reasons` are codes for the interface to translate", body = Data<OnboardingResponse>),
+        (status = 200, description = "State of the initial setup assistant of the organization (`pending` when it was never answered), the saved answers and the template recommended for them (`null` until a business type is answered). When the assistant was never answered, `answers` are the business answers given during installation, so they are not asked again. Recommended and alternative keys refer to `GET /config-packages/templates`; `reasons` are codes for the interface to translate", body = Data<OnboardingResponse>),
         (status = 401, description = "Missing or invalid session", body = ErrorEnvelope),
         (status = 403, description = "Missing `settings.manage` (`permission_denied`)", body = ErrorEnvelope),
     )

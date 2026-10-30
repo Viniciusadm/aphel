@@ -87,7 +87,7 @@ async fn installer_status(
     path = "/installer",
     tag = TAG,
     operation_id = "installer_install",
-    description = "Creates the organization with its administrator (email already verified), marks the instance as installed in the same transaction and starts a session (sets the `aphel_session` cookie). `public_base_url` is the address the browser used (its origin); it is saved as the public address used in email links and decides the `Secure` cookie flag, and stays editable in the settings. Optional modules default to disabled. The selected modules, their transitive dependencies and validated settings are stored in the installation transaction; secret settings go to the secret vault. Works only once.",
+    description = "Creates the organization with its administrator (email already verified), marks the instance as installed in the same transaction and starts a session (sets the `aphel_session` cookie). `public_base_url` is the address the browser used (its origin); it is saved as the public address used in email links and decides the `Secure` cookie flag, and stays editable in the settings. `business` holds the answers about the business (`business_type` is a key from `GET /installer` `profiles`, `offering` any of `product`, `service`, `recurring`, `team_size` one of `solo`, `small`, `medium`, `large`); they are kept in the organization settings so later setup steps reuse them instead of asking again. Optional modules default to disabled. The selected modules, their transitive dependencies and validated settings are stored in the installation transaction; secret settings go to the secret vault. Works only once.",
     request_body = InstallRequest,
     responses(
         (status = 201, description = "Instance installed, session started", body = MeResponse),
@@ -95,7 +95,7 @@ async fn installer_status(
         (status = 404, description = "The instance is already installed (`not_found`)", body = ErrorEnvelope),
         (status = 409, description = "Email already registered (`email_taken`)", body = ErrorEnvelope),
         (status = 413, description = "Request body too large (`payload_too_large`)", body = ErrorEnvelope),
-        (status = 422, description = "Invalid fields (`validation_error` with `details.fields`: organization name, timezone, currency, locale, administrator name, email, password of 8 to 128 characters, public address, modules and module settings)", body = ErrorEnvelope),
+        (status = 422, description = "Invalid fields (`validation_error` with `details.fields`: organization name, timezone, currency, locale, administrator name, email, password of 8 to 128 characters, public address, business answers, modules and module settings)", body = ErrorEnvelope),
         (status = 503, description = "Database is not configured (`configuration_error`)", body = ErrorEnvelope),
     )
 )]
@@ -116,6 +116,7 @@ async fn install(
             admin_name: request.admin_name,
             admin_email: request.admin_email,
             admin_password: password.clone(),
+            business: request.business,
             public_base_url: request.public_base_url,
             ip: client.ip.clone(),
         })

@@ -82,6 +82,8 @@ pub struct PackagePlan {
     pub package: Option<PackageMetadata>,
     pub template_key: Option<String>,
     pub sections: Vec<String>,
+    pub skipped_sections: Vec<String>,
+    pub skipped_fields: Vec<String>,
     pub valid: bool,
     pub issues: Vec<PackageIssue>,
     pub items: Vec<PlanItem>,
@@ -252,7 +254,7 @@ where
     ) -> Result<PackagePlan, AppError> {
         scope.require(&Permission::SETTINGS_MANAGE)?;
         let (template_key, value) = self.resolve_source(source).await?;
-        let (package, issues) = self.inspect(scope, &value).await?;
+        let (package, issues, skipped_fields) = self.inspect(scope, &value).await?;
         let Some(package) = package.filter(|_| issues.is_empty()) else {
             return Ok(PackagePlan {
                 package: ConfigPackage::parse(&value)
@@ -260,6 +262,8 @@ where
                     .map(|package| metadata(&package)),
                 template_key,
                 sections: Vec::new(),
+                skipped_sections: Vec::new(),
+                skipped_fields,
                 valid: false,
                 issues,
                 items: Vec::new(),
@@ -272,6 +276,8 @@ where
             package: Some(metadata(&package)),
             template_key,
             sections: self.present_sections(&package),
+            skipped_sections: self.skipped_sections(&package),
+            skipped_fields,
             valid: true,
             issues,
             fingerprint: fingerprint(&items)?,
@@ -287,7 +293,7 @@ where
     ) -> Result<InstallResult, AppError> {
         scope.require(&Permission::SETTINGS_MANAGE)?;
         let (template_key, value) = self.resolve_source(command.source).await?;
-        let (package, issues) = self.inspect(scope, &value).await?;
+        let (package, issues, _) = self.inspect(scope, &value).await?;
         let Some(package) = package.filter(|_| issues.is_empty()) else {
             return Err(AppError::invalid_fields_code(
                 INVALID_PACKAGE,
@@ -312,6 +318,9 @@ where
         let mut context = ApplyContext::new(now);
         let mut tx = self.ports.transactions().begin().await?;
         for section in self.ports.sections().sections() {
+            if !self.ports.sections().is_available(section.key()) {
+                continue;
+            }
             let Some(content) = package.section(section.key()) else {
                 continue;
             };
@@ -442,11 +451,12 @@ where
         &self,
         scope: &AccessScope,
         value: &Value,
-    ) -> Result<(Option<ConfigPackage>, Vec<PackageIssue>), AppError> {
-        let package = match ConfigPackage::parse(value) {
+    ) -> Result<(Option<ConfigPackage>, Vec<PackageIssue>, Vec<String>), AppError> {
+        let mut package = match ConfigPackage::parse(value) {
             Ok(package) => package,
-            Err(issues) => return Ok((None, issues)),
+            Err(issues) => return Ok((None, issues, Vec::new())),
         };
+        let skipped_fields = self.prune(&mut package);
         let mut issues = package.header_issues();
         let known: BTreeSet<&str> = self.ports.sections().keys().into_iter().collect();
         for key in package.sections.keys() {
@@ -459,6 +469,9 @@ where
             }
         }
         for section in self.ports.sections().sections() {
+            if !self.ports.sections().is_available(section.key()) {
+                continue;
+            }
             let Some(content) = package.section(section.key()) else {
                 continue;
             };
@@ -471,7 +484,7 @@ where
                     .map(|issue| issue.under(&prefix)),
             );
         }
-        Ok((Some(package), issues))
+        Ok((Some(package), issues, skipped_fields))
     }
 
     async fn plan_items(
@@ -481,6 +494,9 @@ where
     ) -> Result<Vec<PlanItem>, AppError> {
         let mut items = Vec::new();
         for section in self.ports.sections().sections() {
+            if !self.ports.sections().is_available(section.key()) {
+                continue;
+            }
             let Some(content) = package.section(section.key()) else {
                 continue;
             };
@@ -489,12 +505,40 @@ where
         Ok(items)
     }
 
-    fn present_sections(&self, package: &ConfigPackage) -> Vec<String> {
-        self.ports
-            .sections()
+    fn prune(&self, package: &mut ConfigPackage) -> Vec<String> {
+        let registry = self.ports.sections();
+        let unavailable = registry.unavailable_fields();
+        if unavailable.is_empty() {
+            return Vec::new();
+        }
+        let mut removed = BTreeSet::new();
+        for section in registry.sections() {
+            if !registry.is_available(section.key()) {
+                continue;
+            }
+            if let Some(content) = package.sections.get_mut(section.key()) {
+                removed.extend(section.prune(content, unavailable));
+            }
+        }
+        removed.into_iter().collect()
+    }
+
+    fn skipped_sections(&self, package: &ConfigPackage) -> Vec<String> {
+        let registry = self.ports.sections();
+        registry
             .keys()
             .into_iter()
-            .filter(|key| package.section(key).is_some())
+            .filter(|key| !registry.is_available(key) && package.section(key).is_some())
+            .map(str::to_owned)
+            .collect()
+    }
+
+    fn present_sections(&self, package: &ConfigPackage) -> Vec<String> {
+        let registry = self.ports.sections();
+        registry
+            .keys()
+            .into_iter()
+            .filter(|key| registry.is_available(key) && package.section(key).is_some())
             .map(str::to_owned)
             .collect()
     }

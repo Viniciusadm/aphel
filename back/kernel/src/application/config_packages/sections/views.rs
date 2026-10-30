@@ -12,7 +12,8 @@ use crate::application::config_packages::sections::custom_objects::package_regis
 use crate::application::config_packages::sections::fields::{package_fields, projected_field_set};
 use crate::application::config_packages::{
     ApplyContext, ConfigKeyRepository, ConfigPackage, ConfigSection, Decisions, KeyedItem,
-    PackageIssue, PlanAction, PlanChange, PlanItem, SAVED_VIEW_ITEM, assign_keys, parse_section,
+    PackageIssue, PlanAction, PlanChange, PlanItem, SAVED_VIEW_ITEM, UnavailableFields,
+    assign_keys, field_reference, parse_section,
 };
 use crate::application::fields::{FieldDefinitionRepository, RecordTypeRegistry};
 use crate::application::query::{
@@ -281,6 +282,49 @@ fn parse(content: &Value) -> Result<Vec<PackageView>, AppError> {
     parse_section(content).map_err(|issue| AppError::Validation(issue.message))
 }
 
+fn prune_views(content: &mut Value, unavailable: &UnavailableFields) -> Vec<String> {
+    let mut removed = Vec::new();
+    let Some(views) = content.as_array_mut() else {
+        return removed;
+    };
+    views.retain_mut(|view| {
+        let Some(record_type) = view
+            .get("record_type")
+            .and_then(Value::as_str)
+            .map(str::to_owned)
+        else {
+            return true;
+        };
+        if let Some(key) = view
+            .get("filter")
+            .and_then(|filter| unavailable.referenced_in(&record_type, filter))
+        {
+            removed.push(field_reference(&record_type, &key));
+            return false;
+        }
+        if let Some(columns) = view.get_mut("columns").and_then(Value::as_array_mut) {
+            columns.retain(|column| match column.as_str() {
+                Some(key) if unavailable.contains(&record_type, key) => {
+                    removed.push(field_reference(&record_type, key));
+                    false
+                }
+                _ => true,
+            });
+        }
+        if let Some(sort) = view.get_mut("sort").and_then(Value::as_array_mut) {
+            sort.retain(|entry| match entry.get("field").and_then(Value::as_str) {
+                Some(key) if unavailable.contains(&record_type, key) => {
+                    removed.push(field_reference(&record_type, key));
+                    false
+                }
+                _ => true,
+            });
+        }
+        true
+    });
+    removed
+}
+
 #[async_trait]
 impl<V, K, D, Tx> ConfigSection<Tx> for ViewsSection<V, K, D>
 where
@@ -291,6 +335,10 @@ where
 {
     fn key(&self) -> &'static str {
         VIEWS_SECTION
+    }
+
+    fn prune(&self, content: &mut Value, unavailable: &UnavailableFields) -> Vec<String> {
+        prune_views(content, unavailable)
     }
 
     async fn export(&self, scope: &AccessScope) -> Result<Option<Value>, AppError> {

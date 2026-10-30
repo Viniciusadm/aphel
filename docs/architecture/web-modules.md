@@ -33,7 +33,7 @@ export default leadProModule
 
 | Contribution | Effect |
 | --- | --- |
-| `routes(routes, { layout })` | Authenticated routes. `layout: 'app'` (default) sits inside the `AppLayout`; `'bare'` only requires a session (e.g. onboarding) |
+| `routes(routes, { layout })` | Authenticated routes. `layout: 'app'` (default) sits inside the `AppLayout`; `'bare'` only requires a session |
 | `publicRoutes(routes)` | Routes without a session (installer, login, public scheduling, public quote) |
 | `nav(item)` | Item in the sidebar, the palette and the `G` shortcuts. `order` sets the position (custom objects go in `NAV_ORDER.customObjects`, modules without `order` in `NAV_ORDER.modules`, administration in `NAV_ORDER.administration`) |
 | `settings(area, item)` | Settings item (`account`, `organization`, `integrations`, `data`) in the given group, with the page (`lazy`/`element`) and extra routes (`routes`). The area, the search, the card and the menu come from here |
@@ -45,6 +45,8 @@ export default leadProModule
 | `timelineRenderer(kind, r)` / `eventRenderer(event, r)` | Timeline items (the event one wins over the `kind` one) |
 | `widget(key, r)` | Dashboard widget. With a `<module>.<name>` key, the title comes from `<module>:widgets.<name>.title` |
 | `command(c)` | Palette command (`to` navigates, `run` executes) |
+| `setupTask(task)` | Automatic work run by the setup wizard right after the workspace is created, while "Create workspace" is busy (`progressLabel`), when the module is among the selected features. `run()` uses the answers already given (never asks again) and returns `{ summary }` for the Ready screen, `null` when there is nothing to report; on failure the Ready screen shows `failureLabel` (e.g. `template` from `onboarding` applies the recommended template) |
+| `setupStep(step)` | Interactive step shown at `/setup` when the setup is resumed or reopened (`usePending` tells whether it still has to be done). `render` receives `{ onDone }` and draws itself with `SetupStepFrame` from `@/kernel/setup` (same card, header and footer as the kernel steps); e.g. `template` from `onboarding` lets the administrator pick another template |
 
 Labels (`label`, `description`) are i18n keys in the module's namespace; use `ns:key` for another namespace (the `kernel` uses `layout:nav.*` and `settings:tabs.*`). Permissions accept one or several (any one is enough).
 
@@ -65,7 +67,7 @@ Labels (`label`, `description`) are i18n keys in the module's namespace; use `ns
 | `dashboard.top` | Below the dashboard header | `{}` |
 | `composer.tools` | Note editor and message composers | `{ context, subject?, value, onChange }` |
 | `user.menu` | User menu | `{}` |
-| `app.shell` | Inside the `AppLayout`, with no UI of its own (e.g. `OnboardingGate` from the `onboarding` module) | `{}` |
+| `app.shell` | Inside the `AppLayout`, for global elements (e.g. the "Finish setting up" notice of the `onboarding` module) | `{}` |
 | `app.sidebar` | Sidebar, below the navigation (desktop and mobile; e.g. favorites) | `{ collapsed?, onNavigate? }` |
 | `deals.badges` | Deal badges on the Kanban card and in the table | `{ deal, placement: 'card' \| 'list' }` |
 | `deals.detail.fieldLocks` | Deal page (no UI; locks fields, e.g. amount managed by the items) | `{ dealId, lockFields }` |

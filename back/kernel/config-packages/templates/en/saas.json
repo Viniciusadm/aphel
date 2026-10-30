@@ -56,12 +56,6 @@
       },
       {
         "record_type": "deal",
-        "key": "mrr",
-        "label": "MRR",
-        "type": "currency"
-      },
-      {
-        "record_type": "deal",
         "key": "seats",
         "label": "Number of seats",
         "type": "number",

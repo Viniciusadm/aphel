@@ -66,6 +66,24 @@ fn parse_user(value: Option<String>) -> Result<Option<UserId>, AppError> {
         .transpose()
 }
 
+fn answers_from_stored(stored: &StoredAnswers) -> OnboardingAnswers {
+    let mut offering: Vec<Offering> = stored
+        .offering
+        .iter()
+        .filter_map(|value| Offering::parse(value))
+        .collect();
+    offering.sort();
+    offering.dedup();
+    OnboardingAnswers {
+        business_type: stored
+            .business_type
+            .as_deref()
+            .and_then(BusinessType::parse),
+        offering,
+        team_size: stored.team_size.as_deref().and_then(TeamSize::parse),
+    }
+}
+
 impl From<&OnboardingState> for StoredOnboarding {
     fn from(state: &OnboardingState) -> Self {
         Self {
@@ -100,29 +118,10 @@ impl TryFrom<StoredOnboarding> for OnboardingState {
     fn try_from(stored: StoredOnboarding) -> Result<Self, AppError> {
         let status = OnboardingStatus::parse(&stored.status)
             .ok_or_else(|| mapper::invalid_column("settings.onboarding.status", &stored.status))?;
-        let mut offering: Vec<Offering> = stored
-            .answers
-            .offering
-            .iter()
-            .filter_map(|value| Offering::parse(value))
-            .collect();
-        offering.sort();
-        offering.dedup();
         Ok(Self {
             status,
-            answers: OnboardingAnswers {
-                business_type: stored
-                    .answers
-                    .business_type
-                    .as_deref()
-                    .and_then(BusinessType::parse),
-                offering,
-                team_size: stored
-                    .answers
-                    .team_size
-                    .as_deref()
-                    .and_then(TeamSize::parse),
-            },
+            answers: answers_from_stored(&stored.answers),
+            installer_answers: OnboardingAnswers::default(),
             template_key: stored.template_key,
             install_id: stored
                 .install_id
@@ -195,6 +194,19 @@ impl OnboardingStore {
             return Err(AppError::NotFound("organization was not found".to_owned()));
         }
         Ok(())
+    }
+
+    pub(crate) async fn installer_answers(&self) -> Result<OnboardingAnswers, AppError> {
+        let document: Option<Option<Json<Value>>> = sqlx::query_scalar(
+            "SELECT JSON_EXTRACT(settings, '$.installer') FROM organization_settings WHERE id = 1",
+        )
+        .fetch_optional(&self.pool)
+        .await?;
+        let Some(Json(document)) = document.flatten() else {
+            return Ok(OnboardingAnswers::default());
+        };
+        let stored: StoredAnswers = serde_json::from_value(document).unwrap_or_default();
+        Ok(answers_from_stored(&stored))
     }
 
     pub(crate) async fn find_install(

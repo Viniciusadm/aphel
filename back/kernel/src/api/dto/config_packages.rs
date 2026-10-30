@@ -297,6 +297,9 @@ pub struct PackagePlanResponse {
     pub package: Option<PackageMetadataResponse>,
     pub template_key: Option<String>,
     pub sections: Vec<String>,
+    pub skipped_sections: Vec<String>,
+    #[schema(example = json!(["deal.mrr"]))]
+    pub skipped_fields: Vec<String>,
     pub issues: Vec<PackageIssueResponse>,
     pub items: Vec<PlanItemResponse>,
     pub fingerprint: String,
@@ -310,6 +313,8 @@ impl From<PackagePlan> for PackagePlanResponse {
             package: plan.package.map(Into::into),
             template_key: plan.template_key,
             sections: plan.sections,
+            skipped_sections: plan.skipped_sections,
+            skipped_fields: plan.skipped_fields,
             issues: plan.issues.into_iter().map(Into::into).collect(),
             items: plan.items.into_iter().map(Into::into).collect(),
             fingerprint: plan.fingerprint,
