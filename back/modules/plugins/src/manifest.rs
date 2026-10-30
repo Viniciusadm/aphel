@@ -76,6 +76,8 @@ pub struct PluginManifest {
     #[serde(default)]
     pub requires: Vec<String>,
     #[serde(default)]
+    pub optional_requires: Vec<String>,
+    #[serde(default)]
     pub permissions: Vec<PermissionSpec>,
     #[serde(default)]
     pub http: HttpSpec,
@@ -438,6 +440,10 @@ impl PluginManifest {
     pub fn allows(&self, permission: &Permission) -> bool {
         let key = permission.as_str();
         self.requires.iter().any(|required| required == key)
+            || self
+                .optional_requires
+                .iter()
+                .any(|optional| optional == key)
             || self.permissions.iter().any(|declared| declared.key == key)
             || self.entity_record_types().iter().any(|record_type| {
                 key.strip_prefix(record_type.as_str())
@@ -468,6 +474,10 @@ impl PluginManifest {
             .iter()
             .any(|declared| declared.key == permission)
             || self.requires.iter().any(|required| required == permission)
+            || self
+                .optional_requires
+                .iter()
+                .any(|optional| optional == permission)
             || self
                 .entity_permissions()
                 .iter()
@@ -693,6 +703,14 @@ impl PluginManifest {
                 violations.push(FieldViolation::new(
                     format!("requires[{index}]"),
                     "is not a known permission",
+                ));
+            }
+        }
+        for (index, optional) in self.optional_requires.iter().enumerate() {
+            if Permission::parse(optional.clone()).is_err() {
+                violations.push(FieldViolation::new(
+                    format!("optional_requires[{index}]"),
+                    "is not a valid permission",
                 ));
             }
         }

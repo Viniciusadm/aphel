@@ -217,6 +217,7 @@ pub(crate) struct PluginDeclarations {
     routes: Vec<String>,
     public_routes: Vec<String>,
     requires: Vec<String>,
+    optional_requires: Vec<String>,
     permissions: Vec<PluginPermissionResponse>,
     allowed_hosts: Vec<String>,
     schedules: Vec<String>,
@@ -270,6 +271,7 @@ impl From<&PluginManifest> for PluginDeclarations {
                 )
                 .collect(),
             requires: manifest.requires.clone(),
+            optional_requires: manifest.optional_requires.clone(),
             permissions: manifest
                 .permissions
                 .iter()
