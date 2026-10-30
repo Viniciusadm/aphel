@@ -1,4 +1,5 @@
 import { NavLink } from 'react-router'
+import { NO_FILTER_CONTEXT, useFilters } from '@/kernel/modules/filters'
 import { Tooltip, TooltipContent, TooltipTrigger } from '@/components/ui/tooltip'
 import { cn } from '@/lib/utils'
 import { useCustomObjects } from './api'
@@ -13,11 +14,12 @@ export interface CustomObjectsNavProps {
 
 export function CustomObjectsNav({ collapsed = false, onNavigate }: CustomObjectsNavProps) {
   const objects = useCustomObjects()
-  if (!objects.data || objects.data.length === 0) return null
+  const visible = useFilters('navigation.customObjects', objects.data ?? [], NO_FILTER_CONTEXT)
+  if (visible.length === 0) return null
 
   return (
     <>
-      {objects.data.map((object) => {
+      {visible.map((object) => {
         const label = object.label_plural
         const to = customObjectPath(object.key)
         const link = (

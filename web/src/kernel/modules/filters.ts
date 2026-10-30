@@ -1,5 +1,6 @@
 import { useMemo } from 'react'
 import type { PaletteCommand } from '@/features/command-palette/types'
+import type { CustomObject } from '@/features/custom-records/resources'
 import type { RecordTab } from '@/features/records/detail/types'
 import type { FormLayout } from '@/features/records/form/lib/layout'
 import type { RecordFormMode } from '@/features/records/form/RecordForm'
@@ -14,6 +15,7 @@ export interface FilterMap {
   'records.formLayout': { value: FormLayout | null; context: { recordType?: string; mode: RecordFormMode } }
   'records.detailTabs': { value: RecordTab[]; context: { recordType: string; record: RecordItem; readOnly: boolean } }
   'navigation.items': { value: NavigationEntry[]; context: Record<string, never> }
+  'navigation.customObjects': { value: CustomObject[]; context: Record<string, never> }
   commands: { value: PaletteCommand[]; context: Record<string, never> }
   'settings.sections': { value: SettingsMenuGroup[]; context: { area: SettingsAreaKey } }
 }
