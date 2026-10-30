@@ -19,6 +19,7 @@ export declare const hooks: {
   readonly VALIDATING: 'record.validating'
   readonly SAVED: 'record.saved'
   readonly DELETING: 'record.deleting'
+  readonly ARCHIVING: 'record.archiving'
   readonly COMMITTED: 'record.committed'
   readonly DELETED: 'record.deleted'
   readonly RESTORED: 'record.restored'

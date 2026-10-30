@@ -117,7 +117,7 @@ pub fn host_catalog_response() -> HostCatalogResponse {
 fn record_hook_kind(key: &str) -> &'static str {
     match key {
         "record.saving" => "filter",
-        "record.validating" | "record.deleting" => "veto",
+        "record.validating" | "record.deleting" | "record.archiving" => "veto",
         _ => "action",
     }
 }

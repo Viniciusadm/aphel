@@ -89,6 +89,13 @@ pub trait RecordPipeline: Send + Sync {
 
     async fn committed(&self, scope: &AccessScope, write: &RecordWrite<'_>);
 
+    async fn archiving(
+        &self,
+        tx: &mut Self::Tx,
+        scope: &AccessScope,
+        record: &RecordRef,
+    ) -> Result<(), AppError>;
+
     async fn deleting(
         &self,
         tx: &mut Self::Tx,

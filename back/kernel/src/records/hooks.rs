@@ -14,6 +14,7 @@ pub struct RecordValidating;
 pub struct RecordSaved;
 pub struct RecordCommitted;
 pub struct RecordDeleting;
+pub struct RecordArchiving;
 pub struct RecordDeleted;
 pub struct RecordPurged;
 pub struct RecordRestored;
@@ -104,6 +105,10 @@ impl Hook for RecordCommitted {
 }
 
 impl Hook for RecordDeleting {
+    type Args = RemovedRecord;
+}
+
+impl Hook for RecordArchiving {
     type Args = RemovedRecord;
 }
 

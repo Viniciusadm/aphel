@@ -487,6 +487,13 @@ where
         let archived_at = archived.then_some(now);
         let reference = RecordRef::new(RecordType::parse(record_type.as_str())?, current.id);
         let mut tx = self.ports.transactions().begin().await?;
+        if archived {
+            self.ports
+                .fields()
+                .pipeline()
+                .archiving(&mut tx, scope, &reference)
+                .await?;
+        }
         self.ports
             .records()
             .set_archived(&mut tx, current.id, archived_at, now)

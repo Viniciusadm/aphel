@@ -5,6 +5,7 @@ export const hooks = Object.freeze({
   VALIDATING: 'record.validating',
   SAVED: 'record.saved',
   DELETING: 'record.deleting',
+  ARCHIVING: 'record.archiving',
   COMMITTED: 'record.committed',
   DELETED: 'record.deleted',
   RESTORED: 'record.restored',

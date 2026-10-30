@@ -10,6 +10,7 @@ What this Aphel offers to runtime plugins besides records: the hooks a manifest 
 | `record.validating` | plugins | any | veto | `values` and `changes` of the write |
 | `record.saved` | plugins | any | action | `values` and `changes`, inside the transaction |
 | `record.deleting` | plugins | any | veto | The record being deleted |
+| `record.archiving` | plugins | any | veto | The custom record being archived |
 | `record.committed` | plugins | any | action | `values` and `changes`, after the commit (errors only logged) |
 | `record.deleted` | plugins | any | action | The deleted record, inside the transaction |
 | `record.restored` | plugins | any | action | The restored record, inside the transaction |

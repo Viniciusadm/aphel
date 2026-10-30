@@ -14,6 +14,7 @@ pub const HOOK_SAVING: &str = "record.saving";
 pub const HOOK_VALIDATING: &str = "record.validating";
 pub const HOOK_SAVED: &str = "record.saved";
 pub const HOOK_DELETING: &str = "record.deleting";
+pub const HOOK_ARCHIVING: &str = "record.archiving";
 pub const HOOK_COMMITTED: &str = "record.committed";
 pub const HOOK_DELETED: &str = "record.deleted";
 pub const HOOK_RESTORED: &str = "record.restored";
@@ -23,6 +24,7 @@ pub const RECORD_HOOKS: &[&str] = &[
     HOOK_VALIDATING,
     HOOK_SAVED,
     HOOK_DELETING,
+    HOOK_ARCHIVING,
     HOOK_COMMITTED,
     HOOK_DELETED,
     HOOK_RESTORED,

@@ -150,6 +150,7 @@ pub mod hooks {
     pub const VALIDATING: &str = "record.validating";
     pub const SAVED: &str = "record.saved";
     pub const DELETING: &str = "record.deleting";
+    pub const ARCHIVING: &str = "record.archiving";
     pub const COMMITTED: &str = "record.committed";
     pub const DELETED: &str = "record.deleted";
     pub const RESTORED: &str = "record.restored";

@@ -31,8 +31,8 @@ use aphel_kernel::modules::builder::APHEL_VERSION;
 use aphel_kernel::modules::{AppBuilder, Manifest, Migration, Module};
 use aphel_kernel::modules::{PluginHookDispatcher, PluginOperation};
 use aphel_kernel::records::{
-    RecordDeleted, RecordDeleting, RecordPurged, RecordRestored, RecordSaved, RecordSaving,
-    RecordValidating,
+    RecordArchiving, RecordDeleted, RecordDeleting, RecordPurged, RecordRestored, RecordSaved,
+    RecordSaving, RecordValidating,
 };
 
 pub const KEY: &str = "plugins";
@@ -77,6 +77,9 @@ impl Module for PluginsModule {
         .on::<RecordSaved, _>(HOOK_PRIORITY, |ctx, changed| Box::pin(hooks::saved(ctx, changed)))
         .on::<RecordDeleting, _>(HOOK_PRIORITY, |ctx, removed| {
             Box::pin(hooks::deleting(ctx, removed))
+        })
+        .on::<RecordArchiving, _>(HOOK_PRIORITY, |ctx, removed| {
+            Box::pin(hooks::removed(ctx, manifest::HOOK_ARCHIVING, removed))
         })
         .on::<RecordDeleted, _>(HOOK_PRIORITY, |ctx, removed| {
             Box::pin(hooks::removed(ctx, manifest::HOOK_DELETED, removed))

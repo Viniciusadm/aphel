@@ -271,6 +271,10 @@ fn declare_record_hooks(app: &mut AppBuilder) {
         &[HookUsage::Action],
         "After the transaction that wrote a record was committed",
     );
+    app.declare_hook::<crate::records::RecordArchiving>(
+        &[HookUsage::Veto],
+        "Before a custom record is archived; an error blocks the archive",
+    );
     app.declare_hook::<crate::records::RecordDeleting>(
         &[HookUsage::Veto],
         "Before a record is deleted; an error blocks the deletion (restrict relationships)",

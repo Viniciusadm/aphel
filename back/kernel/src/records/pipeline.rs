@@ -21,10 +21,10 @@ use crate::infrastructure::storage::references::delete_unreferenced_files;
 use crate::modules::builder::KERNEL_MODULE;
 use crate::modules::{App, Hook, HookCtx};
 use crate::records::hooks::{
-    ChangedRecord, QueryConstraints, RecordCommitted, RecordDeleted, RecordDeleting, RecordPurged,
-    RecordQueryFilter, RecordRestored, RecordSaved, RecordSaving, RecordSchema, RecordSchemaFilter,
-    RecordSerializing, RecordValidating, RemovedRecord, SavingRecord, SearchPlanFilter,
-    SerializedRecords,
+    ChangedRecord, QueryConstraints, RecordArchiving, RecordCommitted, RecordDeleted,
+    RecordDeleting, RecordPurged, RecordQueryFilter, RecordRestored, RecordSaved, RecordSaving,
+    RecordSchema, RecordSchemaFilter, RecordSerializing, RecordValidating, RemovedRecord,
+    SavingRecord, SearchPlanFilter, SerializedRecords,
 };
 
 #[derive(Clone)]
@@ -199,6 +199,26 @@ impl RecordPipeline for MySqlRecordPipeline {
             }),
         );
         self.run::<RecordDeleting>(tx, scope, &self.removed(record))
+            .await
+    }
+
+    async fn archiving(
+        &self,
+        tx: &mut MySqlTx,
+        scope: &AccessScope,
+        record: &RecordRef,
+    ) -> Result<(), AppError> {
+        let before =
+            crate::records::snapshot::capture(tx, &self.pool, &self.registry, record).await?;
+        tx.record_states.insert(
+            (record.record_type.as_str().to_owned(), record.record_id),
+            serde_json::json!({
+                "operation_id": tx.operation_id, "record_type": record.record_type.as_str(),
+                "record_id": record.record_id, "phase": "record.archiving", "before": before,
+                "before_available": true, "proposed": null, "persisted": null,
+            }),
+        );
+        self.run::<RecordArchiving>(tx, scope, &self.removed(record))
             .await
     }
 

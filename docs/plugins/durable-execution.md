@@ -47,6 +47,8 @@ Commands use snake_case JSON in both SDKs:
 - `emit`: `name`, `record_type`, `record_id`, `payload`; optional record fields are null or omitted together.
 - `notify`: `name`, `recipient_user_id`, `title`, optional `body`, `record_type`, `record_id`, `link`, and `data`.
 - `invoke`: `operation`, `input`.
+- `email`: `to`, `subject`, `text`, optional `to_name`, `html` and `purpose` (`transactional` or `marketing`).
+- `http`: `method`, `url`, optional `headers` and `body`.
 
 Keys have 1–128 bytes and identify an effect within the plugin execution. Reusing a key with an identical command deduplicates it; changing the command produces `plugin_effect_key_conflict`. Include the hook name and record identifier when a logical execution can visit several hooks or records. Commands are limited to 64 KiB; a hook can collect at most 100 intentions.
 
@@ -94,7 +96,7 @@ Metadata refreshes are serialized. A generation changed during loading is reject
 
 ## External effects
 
-There is no deferred outbound HTTP command. The host cannot guarantee a single external side effect without a cooperating recipient. A future HTTP delivery API must include recipient-side idempotency and account for a crash after the remote response but before the local receipt. Do not use HTTP from transactional hooks.
+The `http` and `email` commands deliver through a durable intention, so a retried callback does not schedule a second send. The host still cannot guarantee a single external side effect without a cooperating recipient: a crash after the remote response but before the local receipt repeats the call, so recipients must deduplicate. Do not use immediate HTTP from transactional hooks.
 
 ## Queued module delivery
 
