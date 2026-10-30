@@ -523,9 +523,12 @@ The bundle is an ES module that default-exports a `defineModule` (same API as th
 
 ```js
 // vite.config.js
+import tailwindcss from '@tailwindcss/vite'
+
 export default {
+  plugins: [tailwindcss()],
   build: {
-    lib: { entry: 'src/index.tsx', formats: ['es'], fileName: () => 'index.js' },
+    lib: { entry: 'src/index.tsx', formats: ['es'], fileName: () => 'index.js', cssFileName: 'style' },
     rolldownOptions: {
       external: ['react', 'react/jsx-runtime', 'react-dom', 'react-router', '@tanstack/react-query', 'react-i18next', '@aphel/web-sdk'],
     },
@@ -547,7 +550,19 @@ export default defineModule({
 })
 ```
 
-Other libraries (icons, date helpers) are bundled into the plugin. Use `useModuleTranslation(key)` instead of `useTranslation` (the typed namespaces only know the built-in modules). Tailwind classes already used by Aphel work as is; anything else goes in the plugin `style.css`.
+Other libraries (icons, date helpers) are bundled into the plugin. Use `useModuleTranslation(key)` instead of `useTranslation` (the typed namespaces only know the built-in modules). Do not rely on Aphel's own Tailwind classes: the host only generates the ones it uses, so anything else silently does nothing. A plugin builds its own stylesheet with a Tailwind prefix, declares it as `style = "web/style.css"` and imports it at the top of its entry:
+
+```css
+/* src/style.css */
+@layer theme, utilities;
+@import 'tailwindcss/theme.css' layer(theme) prefix(eq);
+@import 'tailwindcss/utilities.css' layer(utilities) prefix(eq) source(none);
+@import '../../aphel/web/src/sdk/theme.css';
+
+@source './**/*.{ts,tsx}';
+```
+
+Classes are then written as `eq:flex` or `eq:md:grid-cols-2`. `sdk/theme.css` maps the Aphel tokens (`eq:bg-background`, `eq:text-muted-foreground`, `eq:rounded-md`) and the `dark:` variant, so the plugin follows the theme and the organization color. Always use the prefix and never import Tailwind's preflight: the stylesheet is global and loads after the host's, so an unprefixed `.p-4` would override responsive host classes such as `md:p-6` on every screen.
 
 For types, point `@aphel/web-sdk` and `@/*` to an Aphel checkout in the plugin `tsconfig.json`:
 
