@@ -164,6 +164,21 @@ where
         })
     }
 
+    pub async fn listed(
+        &self,
+        scope: &AccessScope,
+        key: &str,
+        ids: &[Uuid],
+    ) -> Result<Vec<CustomRecordDetails>, AppError> {
+        let object = self.object(key)?.clone();
+        let records = self.ports.records().find_many(object.id, ids).await?;
+        let ordered = ids
+            .iter()
+            .filter_map(|id| records.iter().find(|record| record.id == *id).cloned())
+            .collect();
+        self.with_custom_fields(scope, &object, ordered).await
+    }
+
     pub async fn get(
         &self,
         scope: &AccessScope,

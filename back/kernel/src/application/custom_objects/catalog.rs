@@ -1,4 +1,5 @@
-use std::sync::{Arc, RwLock};
+use std::sync::{Arc, Mutex, RwLock};
+use std::time::{Duration, Instant};
 
 use async_trait::async_trait;
 
@@ -12,8 +13,11 @@ pub trait CustomSchemaSource: Send + Sync {
     async fn load(&self) -> Result<CustomSchema, AppError>;
 }
 
+const VERSION_CHECK_INTERVAL: Duration = Duration::from_secs(1);
+
 struct CachedRegistry {
     version: u64,
+    checked: Mutex<Instant>,
     schema: Arc<CustomSchema>,
     registry: Arc<RecordTypeRegistry>,
 }
@@ -63,21 +67,34 @@ impl RecordTypeCatalog {
         let Some(source) = &self.source else {
             return Ok(Arc::new(CachedRegistry {
                 version: 0,
+                checked: Mutex::new(Instant::now()),
                 schema: Arc::new(CustomSchema::default()),
                 registry: self.builtin.clone(),
             }));
         };
-        let version = source.version().await?;
         let cached = self.cache.read().ok().and_then(|cache| cache.clone());
+        if let Some(cached) = &cached
+            && cached
+                .checked
+                .lock()
+                .is_ok_and(|checked| checked.elapsed() < VERSION_CHECK_INTERVAL)
+        {
+            return Ok(cached.clone());
+        }
+        let version = source.version().await?;
         if let Some(cached) = cached
             && cached.version == version
         {
+            if let Ok(mut checked) = cached.checked.lock() {
+                *checked = Instant::now();
+            }
             return Ok(cached);
         }
         let schema = Arc::new(source.load().await?);
         let registry = build_registry(&self.builtin, &schema)?.with_custom_schema(schema.clone());
         let entry = Arc::new(CachedRegistry {
             version,
+            checked: Mutex::new(Instant::now()),
             schema,
             registry: Arc::new(registry),
         });

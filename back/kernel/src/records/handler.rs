@@ -124,6 +124,14 @@ pub trait RecordTypeHandler: Send + Sync {
 
     async fn load(&self, ctx: &RecordCtx<'_>, id: Uuid) -> Result<Option<Value>, AppError>;
 
+    async fn load_listed(&self, ctx: &RecordCtx<'_>, ids: &[Uuid]) -> Result<Vec<Value>, AppError> {
+        let mut records = Vec::with_capacity(ids.len());
+        for id in ids {
+            records.extend(self.load(ctx, *id).await?);
+        }
+        Ok(records)
+    }
+
     async fn archive(&self, _ctx: &RecordCtx<'_>, _id: Uuid) -> Result<(), AppError> {
         Err(operation_not_supported(self.record_type(), "archive"))
     }

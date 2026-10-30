@@ -1,4 +1,6 @@
 use std::collections::HashMap;
+use std::sync::{LazyLock, RwLock};
+use std::time::{Duration, Instant};
 
 use async_trait::async_trait;
 use chrono::{DateTime, NaiveDateTime, Utc};
@@ -21,12 +23,80 @@ use crate::errors::AppError;
 use crate::infrastructure::fields::permissions::scope_access_rules;
 use crate::infrastructure::repositories::mapper;
 
+const DEFINITION_CACHE_TTL: Duration = Duration::from_secs(2);
+
+type DefinitionCache = HashMap<String, (Instant, Vec<FieldDefinition>)>;
+
+static DEFINITIONS: LazyLock<RwLock<DefinitionCache>> = LazyLock::new(RwLock::default);
+
+fn cached_definitions(record_type: &RecordType) -> Option<Vec<FieldDefinition>> {
+    let cache = DEFINITIONS.read().ok()?;
+    let (stored, definitions) = cache.get(record_type.as_str())?;
+    (stored.elapsed() < DEFINITION_CACHE_TTL).then(|| definitions.clone())
+}
+
+fn store_definitions(record_type: &RecordType, definitions: &[FieldDefinition]) {
+    if let Ok(mut cache) = DEFINITIONS.write() {
+        cache.insert(
+            record_type.as_str().to_owned(),
+            (Instant::now(), definitions.to_vec()),
+        );
+    }
+}
+
+pub fn invalidate_definitions() {
+    if let Ok(mut cache) = DEFINITIONS.write() {
+        cache.clear();
+    }
+}
+
 #[derive(Clone)]
 pub struct MySqlFieldDefinitionRepository {
     pool: MySqlPool,
 }
 
 impl MySqlFieldDefinitionRepository {
+    async fn load(&self, record_type: &RecordType) -> Result<Vec<FieldDefinition>, AppError> {
+        let rows = sqlx::query(
+
+            "SELECT id, record_type, `key`, label, field_type, is_system, column_name, is_required, \
+             is_unique, is_searchable, is_personal, is_sensitive, is_active, position, config, module_key \
+             FROM field_definitions \
+             WHERE record_type = ? ORDER BY position, created_at, id",
+        )
+        .bind(record_type.as_str())
+        .fetch_all(&self.pool)
+        .await?;
+        let mut definitions = rows
+            .iter()
+            .map(definition_from_row)
+            .collect::<Result<Vec<_>, _>>()?;
+        if definitions.is_empty() {
+            return Ok(definitions);
+        }
+
+        let option_rows = sqlx::query(
+            "SELECT o.id, o.field_id, o.value, o.label, o.color, o.position, o.is_active \
+             FROM field_options o JOIN field_definitions f ON f.id = o.field_id \
+             WHERE f.record_type = ? \
+             ORDER BY o.position, o.created_at, o.id",
+        )
+        .bind(record_type.as_str())
+        .fetch_all(&self.pool)
+        .await?;
+        let mut options: HashMap<Uuid, Vec<FieldOption>> = HashMap::new();
+        for row in &option_rows {
+            options
+                .entry(uuid_column(row, "field_id")?)
+                .or_default()
+                .push(option_from_row(row)?);
+        }
+        for definition in &mut definitions {
+            definition.options = options.remove(&definition.id).unwrap_or_default();
+        }
+        Ok(definitions)
+    }
+
     pub fn new(pool: MySqlPool) -> Self {
         Self { pool }
     }
@@ -171,46 +241,16 @@ impl FieldDefinitionRepository for MySqlFieldDefinitionRepository {
     }
 
     async fn list(&self, record_type: &RecordType) -> Result<Vec<FieldDefinition>, AppError> {
-        let rows = sqlx::query(
-            "SELECT id, record_type, `key`, label, field_type, is_system, column_name, is_required, \
-             is_unique, is_searchable, is_personal, is_sensitive, is_active, position, config, module_key \
-             FROM field_definitions \
-             WHERE record_type = ? ORDER BY position, created_at, id",
-        )
-        .bind(record_type.as_str())
-        .fetch_all(&self.pool)
-        .await?;
-        let mut definitions = rows
-            .iter()
-            .map(definition_from_row)
-            .collect::<Result<Vec<_>, _>>()?;
-        if definitions.is_empty() {
-            return Ok(definitions);
+        if let Some(cached) = cached_definitions(record_type) {
+            return Ok(cached);
         }
-
-        let option_rows = sqlx::query(
-            "SELECT o.id, o.field_id, o.value, o.label, o.color, o.position, o.is_active \
-             FROM field_options o JOIN field_definitions f ON f.id = o.field_id \
-             WHERE f.record_type = ? \
-             ORDER BY o.position, o.created_at, o.id",
-        )
-        .bind(record_type.as_str())
-        .fetch_all(&self.pool)
-        .await?;
-        let mut options: HashMap<Uuid, Vec<FieldOption>> = HashMap::new();
-        for row in &option_rows {
-            options
-                .entry(uuid_column(row, "field_id")?)
-                .or_default()
-                .push(option_from_row(row)?);
-        }
-        for definition in &mut definitions {
-            definition.options = options.remove(&definition.id).unwrap_or_default();
-        }
+        let definitions = self.load(record_type).await?;
+        store_definitions(record_type, &definitions);
         Ok(definitions)
     }
 
     async fn insert(&self, tx: &mut MySqlTx, field: &FieldDefinition) -> Result<(), AppError> {
+        invalidate_definitions();
         sqlx::query(
             "INSERT INTO field_definitions (id, record_type, `key`, label, field_type, \
              is_system, column_name, is_required, is_unique, is_searchable, is_personal, is_sensitive, \
@@ -240,6 +280,7 @@ impl FieldDefinitionRepository for MySqlFieldDefinitionRepository {
     }
 
     async fn update(&self, tx: &mut MySqlTx, field: &FieldDefinition) -> Result<(), AppError> {
+        invalidate_definitions();
         sqlx::query(
             "UPDATE field_definitions SET label = ?, field_type = ?, is_required = ?, is_unique = ?, \
              is_searchable = ?, is_personal = ?, is_sensitive = ?, is_active = ?, config = ?, updated_at = UTC_TIMESTAMP(6) \
@@ -266,6 +307,7 @@ impl FieldDefinitionRepository for MySqlFieldDefinitionRepository {
         record_type: &RecordType,
         ordered_ids: &[Uuid],
     ) -> Result<(), AppError> {
+        invalidate_definitions();
         reorder_rows(
             tx,
             "field_definitions",
@@ -282,6 +324,7 @@ impl FieldDefinitionRepository for MySqlFieldDefinitionRepository {
         field_id: Uuid,
         option: &FieldOption,
     ) -> Result<(), AppError> {
+        invalidate_definitions();
         insert_options(tx, field_id, std::slice::from_ref(option)).await?;
         touch_field(tx, field_id).await
     }
@@ -292,6 +335,7 @@ impl FieldDefinitionRepository for MySqlFieldDefinitionRepository {
         field_id: Uuid,
         option: &FieldOption,
     ) -> Result<(), AppError> {
+        invalidate_definitions();
         sqlx::query(
             "UPDATE field_options SET label = ?, color = ?, is_active = ? \
              WHERE field_id = ? AND id = ?",
@@ -312,6 +356,7 @@ impl FieldDefinitionRepository for MySqlFieldDefinitionRepository {
         field_id: Uuid,
         ordered_ids: &[Uuid],
     ) -> Result<(), AppError> {
+        invalidate_definitions();
         reorder_rows(
             tx,
             "field_options",
@@ -358,6 +403,7 @@ pub async fn seed_system_fields(
     connection: &mut MySqlConnection,
     registry: &RecordTypeRegistry,
 ) -> Result<(), AppError> {
+    invalidate_definitions();
     for definition in registry.definitions() {
         for (index, field) in definition.system_fields.iter().enumerate() {
             sqlx::query(
@@ -475,6 +521,7 @@ pub async fn seed_managed_fields(
     connection: &mut MySqlConnection,
     registry: &RecordTypeRegistry,
 ) -> Result<(), AppError> {
+    invalidate_definitions();
     release_undeclared_fields(connection, registry).await?;
     for definition in registry.definitions() {
         for (index, managed) in definition.managed_fields.iter().enumerate() {
@@ -540,6 +587,7 @@ pub async fn sync_system_fields(
     pool: &MySqlPool,
     registry: &RecordTypeRegistry,
 ) -> Result<u64, AppError> {
+    invalidate_definitions();
     if registry.definitions().all(|definition| {
         definition.system_fields.is_empty() && definition.managed_fields.is_empty()
     }) {

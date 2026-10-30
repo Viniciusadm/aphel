@@ -152,12 +152,12 @@ async fn list(
         .query(scope, record_type, record_query)
         .await?;
     let record_ctx = RecordCtx::new(scope, &state);
-    let mut records = Vec::with_capacity(listing.items.len());
-    for id in listing.items {
-        if let Some(record) = handler.load(&record_ctx, id).await? {
-            records.push(encode(&record));
-        }
-    }
+    let records: Vec<_> = handler
+        .load_listed(&record_ctx, &listing.items)
+        .await?
+        .iter()
+        .map(encode)
+        .collect();
     Ok(wit::Page {
         records_json: records,
         total: listing.total,
@@ -241,12 +241,12 @@ async fn iterate(
         .await?;
     let fetched = listing.items.len() as u64;
     let record_ctx = RecordCtx::new(scope, &state);
-    let mut records = Vec::with_capacity(listing.items.len());
-    for id in listing.items {
-        if let Some(record) = handler.load(&record_ctx, id).await? {
-            records.push(encode(&record));
-        }
-    }
+    let records: Vec<_> = handler
+        .load_listed(&record_ctx, &listing.items)
+        .await?
+        .iter()
+        .map(encode)
+        .collect();
     let next = (fetched == per_page && offset + fetched < listing.total)
         .then(|| format!("{ITERATE_CURSOR_PREFIX}{}", offset + fetched));
     Ok((records, next))

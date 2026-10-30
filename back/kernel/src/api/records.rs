@@ -127,6 +127,19 @@ impl RecordTypeHandler for CustomRecordHandler {
         Ok(Some(Self::response(ctx, details.into()).await?))
     }
 
+    async fn load_listed(&self, ctx: &RecordCtx<'_>, ids: &[Uuid]) -> Result<Vec<Value>, AppError> {
+        let key = self.object_key(ctx).await?;
+        let listed = custom_record_use_cases(ctx.state)
+            .await?
+            .listed(ctx.scope, &key, ids)
+            .await?;
+        let mut records = Vec::with_capacity(listed.len());
+        for details in listed {
+            records.push(Self::response(ctx, details.into()).await?);
+        }
+        Ok(records)
+    }
+
     async fn archive(&self, ctx: &RecordCtx<'_>, id: Uuid) -> Result<(), AppError> {
         let key = self.object_key(ctx).await?;
         custom_record_use_cases(ctx.state)
