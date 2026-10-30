@@ -2,6 +2,7 @@ import type { ComponentType, ReactNode } from 'react'
 import { ObjectIcon, customObjectPath, objectColor, useCustomObjects } from '@/features/custom-records'
 import type { NavigationPreferences } from '@/features/settings/navigation/types'
 import { NAV_ORDER } from '@/kernel/modules/define'
+import { NO_FILTER_CONTEXT, useFilters } from '@/kernel/modules/filters'
 import { useNavigationEntries, type NavigationEntry } from '@/kernel/modules/navigation'
 
 export interface SidebarEntry {
@@ -31,13 +32,14 @@ function sidebarEntry(entry: NavigationEntry): SidebarEntry {
 export function useAvailableSidebarEntries(): SidebarEntry[] {
   const entries = useNavigationEntries()
   const objects = useCustomObjects()
+  const visibleObjects = useFilters('navigation.customObjects', objects.data ?? [], NO_FILTER_CONTEXT)
 
   const regular = entries.filter((entry) => !entry.locked)
   const leading = regular.filter((entry) => entry.order < NAV_ORDER.customObjects).map(sidebarEntry)
   const trailing = regular.filter((entry) => entry.order >= NAV_ORDER.customObjects).map(sidebarEntry)
   const locked = entries.filter((entry) => entry.locked).map(sidebarEntry)
 
-  const customObjects = (objects.data ?? []).map(
+  const customObjects = visibleObjects.map(
     (object): SidebarEntry => ({
       key: `object:${object.key}`,
       to: customObjectPath(object.key),
