@@ -1,7 +1,6 @@
 pub(crate) mod cli;
 pub(crate) mod dataset;
 pub(crate) mod domain;
-pub(crate) mod http;
 pub(crate) mod revenue;
 pub(crate) mod service;
 pub(crate) mod store;
@@ -45,11 +44,6 @@ impl Module for DemoModule {
         app.contribute::<dyn aphel_kernel::modules::ModuleCommand>(std::sync::Arc::new(
             cli::DemoCli,
         ));
-        app.openapi_tag(
-            http::TAG,
-            "Demonstration mode status and the public credentials of the demo visitor",
-        )
-        .routes(|_| http::router());
         Ok(())
     }
 }

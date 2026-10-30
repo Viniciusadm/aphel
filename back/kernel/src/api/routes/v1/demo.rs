@@ -4,13 +4,13 @@ use utoipa::ToSchema;
 use utoipa_axum::router::OpenApiRouter;
 use utoipa_axum::routes;
 
-use aphel_kernel::api::dto::common::Data;
-use aphel_kernel::api::state::AppState;
-use aphel_kernel::infrastructure::demo::demo_settings;
+use crate::api::dto::common::Data;
+use crate::api::state::AppState;
+use crate::infrastructure::demo::demo_settings;
 
-pub(crate) const TAG: &str = "demo";
+pub const TAG: &str = "demo";
 
-pub(crate) fn router() -> OpenApiRouter<AppState> {
+pub fn router() -> OpenApiRouter<AppState> {
     OpenApiRouter::new().routes(routes!(demo_status))
 }
 

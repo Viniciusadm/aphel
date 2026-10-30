@@ -139,6 +139,10 @@ impl Module for KernelModule {
         }
         app.openapi_tag("health", "Service health")
             .openapi_tag(
+                v1::demo::TAG,
+                "Demonstration mode status and the public credentials of the demo visitor",
+            )
+            .openapi_tag(
                 v1::modules::TAG,
                 "Modules compiled into this build: manifest, compatibility, enabling, settings and data removal",
             )
@@ -168,6 +172,7 @@ impl Module for KernelModule {
 fn routes() -> OpenApiRouter<AppState> {
     OpenApiRouter::new()
         .merge(v1::modules::router())
+        .merge(v1::demo::router())
         .merge(v1::auth::router())
         .merge(v1::api_tokens::router())
         .merge(v1::installer::router())

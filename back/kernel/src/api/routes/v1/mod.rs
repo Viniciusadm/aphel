@@ -7,6 +7,7 @@ pub mod communication;
 pub mod config_package_versions;
 pub mod config_packages;
 pub mod custom_objects;
+pub mod demo;
 pub mod directory;
 pub mod field_permissions;
 pub mod fields;
