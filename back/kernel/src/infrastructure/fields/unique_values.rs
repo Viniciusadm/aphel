@@ -42,16 +42,19 @@ async fn is_live(
     record_id: &str,
 ) -> Result<bool, AppError> {
     let mut builder: QueryBuilder<MySql> = QueryBuilder::new(format!(
-        "SELECT EXISTS(SELECT 1 FROM {} r WHERE r.id = ",
+        "SELECT 1 FROM {} r WHERE r.id = ",
         quoted(&definition.table)
     ));
     builder.push_bind(record_id.to_owned());
     if let Some(deleted) = &definition.deleted_column {
         builder.push(format!(" AND r.{} IS NULL", quoted(deleted)));
     }
-    builder.push(")");
-    let live: bool = builder.build_query_scalar().fetch_one(&mut **tx).await?;
-    Ok(live)
+    builder.push(" FOR SHARE");
+    let live: Option<i32> = builder
+        .build_query_scalar()
+        .fetch_optional(&mut **tx)
+        .await?;
+    Ok(live.is_some())
 }
 
 async fn holds_value(
@@ -61,17 +64,17 @@ async fn holds_value(
     record_id: &str,
     value_key: &str,
 ) -> Result<bool, AppError> {
-    let held: bool = sqlx::query_scalar(sqlx::AssertSqlSafe(format!(
-        "SELECT EXISTS(SELECT 1 FROM custom_field_values v WHERE v.record_type = ? \
-         AND v.record_id = ? AND v.field_id = ? AND {UNIQUE_KEY_EXPRESSION} = ?)"
+    let held: Option<i32> = sqlx::query_scalar(sqlx::AssertSqlSafe(format!(
+        "SELECT 1 FROM custom_field_values v WHERE v.record_type = ? \
+         AND v.record_id = ? AND v.field_id = ? AND {UNIQUE_KEY_EXPRESSION} = ? FOR SHARE"
     )))
     .bind(record_type)
     .bind(record_id)
     .bind(field_id.to_string())
     .bind(value_key)
-    .fetch_one(&mut **tx)
+    .fetch_optional(&mut **tx)
     .await?;
-    Ok(held)
+    Ok(held.is_some())
 }
 
 pub async fn release(tx: &mut MySqlTx, record: &RecordRef, field_id: Uuid) -> Result<(), AppError> {
