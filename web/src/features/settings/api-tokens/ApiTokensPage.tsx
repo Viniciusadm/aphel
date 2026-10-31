@@ -37,6 +37,7 @@ import {
 import { ApiTokenLimitsPanel } from './ApiTokenLimitsPanel'
 import { PageHeader } from '@/components/ui/page-header'
 import { Page } from '@/components/ui/page'
+import { NativeSelect } from '@/components/ui/native-select'
 
 const EXPIRATION_OPTIONS = ['30', '90', '365', 'never'] as const
 type ExpirationOption = (typeof EXPIRATION_OPTIONS)[number]
@@ -306,9 +307,8 @@ function CreateTokenForm({ onCancel, onCreated }: CreateTokenFormProps) {
         </fieldset>
         <div className="grid gap-2.5">
           <Label htmlFor={`${formId}-expiration`}>{t('form.expiration')}</Label>
-          <select
+          <NativeSelect
             id={`${formId}-expiration`}
-            className="h-9 rounded-md border border-input bg-background px-3 text-sm"
             value={expiration}
             onChange={(event) => setExpiration(event.target.value as ExpirationOption)}
           >
@@ -317,7 +317,7 @@ function CreateTokenForm({ onCancel, onCreated }: CreateTokenFormProps) {
                 {t(`form.expirationOptions.${option}`)}
               </option>
             ))}
-          </select>
+          </NativeSelect>
         </div>
       </form>
       <DialogFooter>

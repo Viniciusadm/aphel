@@ -33,6 +33,7 @@ import { pipelineFromFilter, withPipelineFilter } from './pipeline-filter'
 import { DealsBoard } from './board/DealsBoard'
 import { DEAL_CREATE_LAYOUT, DEAL_RECORD_TYPE, dealPath } from './resource'
 import { PageHeader } from '@/components/ui/page-header'
+import { NativeSelect } from '@/components/ui/native-select'
 
 export const DEALS_MODE_PARAM = 'mode'
 export const DEALS_PIPELINE_PARAM = 'pipeline'
@@ -103,7 +104,7 @@ function PipelineFilterSelect() {
   if (options.length < 2) return null
 
   return (
-    <select
+    <NativeSelect
       aria-label={t('filter.label')}
       value={selected}
       onChange={(event) =>
@@ -121,7 +122,7 @@ function PipelineFilterSelect() {
           {item.is_active ? item.name : t('filter.inactive', { name: item.name })}
         </option>
       ))}
-    </select>
+    </NativeSelect>
   )
 }
 
@@ -204,7 +205,7 @@ function BoardMode({ canMove }: { canMove: boolean }) {
           }}
         />
         {options.length > 1 && (
-          <select
+          <NativeSelect
             aria-label={t('board.pipeline')}
             value={pipeline?.id ?? ''}
             onChange={(event) =>
@@ -221,7 +222,7 @@ function BoardMode({ canMove }: { canMove: boolean }) {
                 {item.name}
               </option>
             ))}
-          </select>
+          </NativeSelect>
         )}
         <BoardToolbar filter={filter} />
       </div>

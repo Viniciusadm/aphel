@@ -20,6 +20,7 @@ import { REQUIRABLE_SYSTEM_FIELDS } from './requirements'
 import { DEAL_RECORD_TYPE } from './resource'
 import { parseRottingDays, stageRottingDays } from './rotting/lib'
 import { RottingDaysField } from './rotting/RottingDaysField'
+import { NativeSelect } from '@/components/ui/native-select'
 
 export interface StageFormValues {
   name: string
@@ -127,7 +128,7 @@ function StageForm({ stage, pending, onOpenChange, onSubmit }: Omit<StageDialogP
       </div>
       <div className="grid gap-2">
         <Label htmlFor={kindId}>{t('settings.stages.kind')}</Label>
-        <select
+        <NativeSelect
           id={kindId}
           value={kind}
           disabled={kindLocked}
@@ -139,7 +140,7 @@ function StageForm({ stage, pending, onOpenChange, onSubmit }: Omit<StageDialogP
               {t(`kind.${value}`)}
             </option>
           ))}
-        </select>
+        </NativeSelect>
         {kindLocked && <p className="text-xs text-muted-foreground">{t('settings.stages.kindLocked')}</p>}
       </div>
       <RottingDaysField

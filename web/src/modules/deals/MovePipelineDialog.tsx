@@ -13,6 +13,7 @@ import { Label } from '@/components/ui/label'
 import { activePipelines, usePipelines } from '@/modules/pipelines/api'
 import type { Pipeline, StageKind } from '@/modules/pipelines/types'
 import type { Deal } from './types'
+import { NativeSelect } from '@/components/ui/native-select'
 
 export interface PipelineMoveChoice {
   pipelineId: string
@@ -72,7 +73,7 @@ function MovePipelineForm({ deal, pending, onOpenChange, onConfirm }: Omit<MoveP
         <>
           <div className="grid gap-2">
             <Label htmlFor={pipelineSelectId}>{t('move.pipeline')}</Label>
-            <select
+            <NativeSelect
               id={pipelineSelectId}
               value={pipelineId}
               onChange={(event) => {
@@ -87,11 +88,11 @@ function MovePipelineForm({ deal, pending, onOpenChange, onConfirm }: Omit<MoveP
                   {item.name}
                 </option>
               ))}
-            </select>
+            </NativeSelect>
           </div>
           <div className="grid gap-2">
             <Label htmlFor={stageSelectId}>{t('move.stage')}</Label>
-            <select
+            <NativeSelect
               id={stageSelectId}
               value={stageId}
               onChange={(event) => setStageId(event.target.value)}
@@ -102,7 +103,7 @@ function MovePipelineForm({ deal, pending, onOpenChange, onConfirm }: Omit<MoveP
                   {item.name}
                 </option>
               ))}
-            </select>
+            </NativeSelect>
           </div>
         </>
       )}

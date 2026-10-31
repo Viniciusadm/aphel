@@ -15,6 +15,7 @@ import { useWidgetData } from './api'
 import type { DashboardSubject, LayoutPeriod, LayoutWidget, ResolvedPeriod, WidgetSettings, WidgetSize } from './types'
 import { WidgetSettingsForm } from './WidgetSettingsForm'
 import { widgetRenderer } from './widgets/registry'
+import { NativeSelect } from '@/components/ui/native-select'
 
 const SIZE_CLASSES: Record<WidgetSize, string> = {
   small: 'md:col-span-1 xl:col-span-1',
@@ -153,9 +154,8 @@ export function WidgetCard({
         </div>
         {editing && (
           <div className="flex shrink-0 items-center gap-1">
-            <select
+            <NativeSelect
               aria-label={t('actions.size', { title })}
-              className="h-8 rounded-md border border-input bg-background px-2 text-xs"
               value={widget.size}
               onChange={(event) => onResize(event.target.value as WidgetSize)}
             >
@@ -164,7 +164,7 @@ export function WidgetCard({
                   {t(`sizes.${size}`)}
                 </option>
               ))}
-            </select>
+            </NativeSelect>
             {settingsFields && (
               <Popover open={settingsOpen} onOpenChange={setSettingsOpen}>
                 <PopoverTrigger asChild>

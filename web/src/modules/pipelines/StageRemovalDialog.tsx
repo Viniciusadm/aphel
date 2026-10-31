@@ -11,6 +11,7 @@ import {
 } from '@/components/ui/dialog'
 import { Label } from '@/components/ui/label'
 import type { PipelineStage } from './types'
+import { NativeSelect } from '@/components/ui/native-select'
 
 export type StageRemovalMode = 'deactivate' | 'delete'
 
@@ -66,7 +67,7 @@ function RemovalForm({
         ) : (
           <div className="grid gap-2">
             <Label htmlFor={selectId}>{t('settings.removal.target')}</Label>
-            <select
+            <NativeSelect
               id={selectId}
               value={target}
               onChange={(event) => setTarget(event.target.value)}
@@ -77,7 +78,7 @@ function RemovalForm({
                   {candidate.name}
                 </option>
               ))}
-            </select>
+            </NativeSelect>
           </div>
         ))}
       <DialogFooter>

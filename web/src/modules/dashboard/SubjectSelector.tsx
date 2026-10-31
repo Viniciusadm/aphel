@@ -4,6 +4,7 @@ import { Checkbox } from '@/components/ui/checkbox'
 import { Label } from '@/components/ui/label'
 import { useDashboardSubjects } from './api'
 import type { DashboardSubject } from './types'
+import { NativeSelect } from '@/components/ui/native-select'
 
 const ALL = 'all'
 
@@ -40,9 +41,8 @@ export function SubjectSelector({ value, onChange }: SubjectSelectorProps) {
   return (
     <div className="grid w-full min-w-0 gap-2.5 sm:w-auto">
       <Label htmlFor={`${id}-subject`}>{t('subject.label')}</Label>
-      <select
+      <NativeSelect
         id={`${id}-subject`}
-        className="h-9 w-full min-w-0 max-w-full rounded-md border border-input bg-background px-3 text-sm shadow-xs sm:w-56"
         value={known ? selected : ALL}
         disabled={subjects.isPending}
         onChange={(event) => onChange(parseSubject(event.target.value))}
@@ -66,7 +66,7 @@ export function SubjectSelector({ value, onChange }: SubjectSelectorProps) {
             ))}
           </optgroup>
         )}
-      </select>
+      </NativeSelect>
     </div>
   )
 }

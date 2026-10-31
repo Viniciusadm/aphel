@@ -25,6 +25,7 @@ import {
   type WebhookDelivery,
   type WebhookEndpoint,
 } from './api'
+import { NativeSelect } from '@/components/ui/native-select'
 
 const STATUS_VARIANTS: Record<DeliveryStatus, BadgeProps['variant']> = {
   pending: 'secondary',
@@ -70,8 +71,7 @@ export function DeliveryLog({ endpoint }: DeliveryLogProps) {
         </div>
         <label className="flex items-center gap-2 text-sm">
           {t('deliveries.filter')}
-          <select
-            className="h-8 rounded-md border border-input bg-background px-2 text-sm"
+          <NativeSelect
             value={status ?? ''}
             onChange={(event) => {
               setStatus(isDeliveryStatus(event.target.value) ? event.target.value : null)
@@ -84,7 +84,7 @@ export function DeliveryLog({ endpoint }: DeliveryLogProps) {
                 {t(`deliveries.status.${option}`)}
               </option>
             ))}
-          </select>
+          </NativeSelect>
         </label>
       </div>
       {deliveries.isPending ? (

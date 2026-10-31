@@ -5,6 +5,7 @@ import { Input } from '@/components/ui/input'
 import { Label } from '@/components/ui/label'
 import { PERIOD_PRESETS, isValidCustomRange } from './period'
 import type { LayoutPeriod, PeriodPreset } from './types'
+import { NativeSelect } from '@/components/ui/native-select'
 
 export interface PeriodSelectorProps {
   value: LayoutPeriod
@@ -60,9 +61,8 @@ export function PeriodSelector({ value, onChange }: PeriodSelectorProps) {
     <form className="flex flex-wrap items-end gap-2" onSubmit={apply}>
       <div className="grid gap-2.5">
         <Label htmlFor={`${id}-preset`}>{t('period.label')}</Label>
-        <select
+        <NativeSelect
           id={`${id}-preset`}
-          className="h-9 rounded-md border border-input bg-background px-3 text-sm shadow-xs"
           value={preset}
           onChange={(event) => choose(event.target.value as PeriodPreset)}
         >
@@ -71,7 +71,7 @@ export function PeriodSelector({ value, onChange }: PeriodSelectorProps) {
               {t(`period.presets.${option}`)}
             </option>
           ))}
-        </select>
+        </NativeSelect>
       </div>
       {preset === 'custom' && (
         <>

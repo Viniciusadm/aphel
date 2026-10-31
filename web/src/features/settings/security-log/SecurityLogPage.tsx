@@ -27,6 +27,7 @@ import { useEventDetails } from './details'
 import { PageHeader } from '@/components/ui/page-header'
 import { Table, TableBody, TableHead, TableHeader, TableRow } from '@/components/ui/table'
 import { Page } from '@/components/ui/page'
+import { NativeSelect } from '@/components/ui/native-select'
 
 const EMPTY_FILTERS: SecurityEventFilters = { scope: 'mine', kind: '', from: '', to: '' }
 
@@ -233,9 +234,8 @@ function FiltersForm({ filters, onApply }: FiltersFormProps) {
     >
       <div className="grid gap-2.5">
         <Label htmlFor={`${id}-kind`}>{t('log.filters.kind')}</Label>
-        <select
+        <NativeSelect
           id={`${id}-kind`}
-          className="h-9 rounded-md border border-input bg-background px-3 text-sm"
           value={draft.kind}
           onChange={(event) => setDraft((current) => ({ ...current, kind: event.target.value as SecurityEventKind | '' }))}
         >
@@ -245,7 +245,7 @@ function FiltersForm({ filters, onApply }: FiltersFormProps) {
               {t(`kinds.${kind}`)}
             </option>
           ))}
-        </select>
+        </NativeSelect>
       </div>
       <div className="grid gap-2.5">
         <Label htmlFor={`${id}-from`}>{t('log.filters.from')}</Label>

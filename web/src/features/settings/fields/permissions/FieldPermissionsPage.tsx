@@ -8,7 +8,6 @@ import { Badge } from '@/components/ui/badge'
 import { Button } from '@/components/ui/button'
 import { EmptyState } from '@/components/ui/empty-state'
 import { ErrorState } from '@/components/ui/error-state'
-import { cn } from '@/lib/utils'
 import { ListSkeleton } from '../../components/ListSkeleton'
 import { RecordTypeSelect } from '../../components/RecordTypeSelect'
 import { RequirePermission } from '../../components/RequirePermission'
@@ -28,6 +27,7 @@ import {
 import { applyToColumn, cellKey, changedCells, draftEntries, isConfigurable, matrixDraft, type MatrixDraft } from './matrix'
 import { PageHeader } from '@/components/ui/page-header'
 import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from '@/components/ui/table'
+import { NativeSelect } from '@/components/ui/native-select'
 
 export function FieldPermissionsPage() {
   const { recordType = DEFAULT_RECORD_TYPE } = useParams()
@@ -276,10 +276,9 @@ function FieldLabel({ field }: { field: FieldPermissionField }) {
 function ColumnApply({ role, onApply }: { role: FieldPermissionRole; onApply: (access: FieldAccess) => void }) {
   const { t } = useTranslation('field-permissions')
   return (
-    <select
+    <NativeSelect
       aria-label={t('table.applyToColumnLabel', { role: role.name })}
       title={t('table.applyToColumn')}
-      className="h-8 rounded-md border border-input bg-background px-2 text-xs font-normal text-foreground"
       value=""
       onChange={(event) => {
         const access = event.target.value as FieldAccess
@@ -292,7 +291,7 @@ function ColumnApply({ role, onApply }: { role: FieldPermissionRole; onApply: (a
           {t(`access.${access}`)}
         </option>
       ))}
-    </select>
+    </NativeSelect>
   )
 }
 
@@ -322,13 +321,8 @@ function AccessCell({ field, role, value, changed, disabled, onChange }: AccessC
     )
   }
   return (
-    <select
+    <NativeSelect
       aria-label={`${t('table.cell', { field: field.label, role: role.name })}${changed ? ` (${t('table.changed')})` : ''}`}
-      className={cn(
-        'h-8 w-full min-w-36 rounded-md border border-input bg-background px-2 text-sm',
-        value === 'hidden' && 'text-destructive',
-        changed && 'ring-2 ring-primary/40',
-      )}
       value={value}
       disabled={disabled}
       onChange={(event) => onChange(event.target.value as FieldAccess)}
@@ -338,6 +332,6 @@ function AccessCell({ field, role, value, changed, disabled, onChange }: AccessC
           {t(`access.${access}`)}
         </option>
       ))}
-    </select>
+    </NativeSelect>
   )
 }

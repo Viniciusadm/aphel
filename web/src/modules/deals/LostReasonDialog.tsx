@@ -13,6 +13,7 @@ import { Label } from '@/components/ui/label'
 import { Skeleton } from '@/components/ui/skeleton'
 import { Textarea } from '@/components/ui/textarea'
 import { useLostReasons } from '@/modules/pipelines/api'
+import { NativeSelect } from '@/components/ui/native-select'
 
 export interface LostReasonChoice {
   lostReasonId: string
@@ -63,7 +64,7 @@ function LostReasonForm({ dealTitle, pending, onOpenChange, onConfirm }: Omit<Lo
         {reasons.isPending ? (
           <Skeleton className="h-9 w-full" />
         ) : (
-          <select
+          <NativeSelect
             id={selectId}
             value={reasonId}
             onChange={(event) => setReasonId(event.target.value)}
@@ -77,7 +78,7 @@ function LostReasonForm({ dealTitle, pending, onOpenChange, onConfirm }: Omit<Lo
                 {reason.name}
               </option>
             ))}
-          </select>
+          </NativeSelect>
         )}
         {missing && (
           <p id={errorId} role="alert" className="text-sm text-destructive">

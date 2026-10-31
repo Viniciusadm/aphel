@@ -13,6 +13,7 @@ import { Label } from '@/components/ui/label'
 import type { PipelineRemovalBody } from './api'
 import type { Pipeline } from './types'
 import { compatibleStages, dealCount, defaultMapping } from './removal'
+import { NativeSelect } from '@/components/ui/native-select'
 
 export interface PipelineRemovalDialogProps {
   pipeline: Pipeline | null
@@ -69,7 +70,7 @@ function RemovalForm({
           <>
             <div className="grid gap-2">
               <Label htmlFor={targetSelectId}>{t('remove.target')}</Label>
-              <select
+              <NativeSelect
                 id={targetSelectId}
                 value={targetId}
                 onChange={(event) => {
@@ -84,7 +85,7 @@ function RemovalForm({
                     {item.name}
                   </option>
                 ))}
-              </select>
+              </NativeSelect>
             </div>
             <fieldset className="grid gap-2">
               <legend className="text-sm font-medium">{t('remove.mapping')}</legend>
@@ -96,7 +97,7 @@ function RemovalForm({
                     <Label htmlFor={id} className="font-normal">
                       {t('remove.stageLabel', { name: stage.name, count: stage.deal_count ?? 0 })}
                     </Label>
-                    <select
+                    <NativeSelect
                       id={id}
                       value={mapping[stage.id] ?? ''}
                       onChange={(event) => setMapping((current) => ({ ...current, [stage.id]: event.target.value }))}
@@ -108,7 +109,7 @@ function RemovalForm({
                           {option.name}
                         </option>
                       ))}
-                    </select>
+                    </NativeSelect>
                   </div>
                 )
               })}
