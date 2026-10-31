@@ -45,6 +45,7 @@ export { NumberMaskInput, type NumberMaskInputProps } from '@/components/ui/numb
 export { OptionCard } from '@/components/ui/option-card'
 export { Page, PageSection, type PageProps, type PageWidth } from '@/components/ui/page'
 export { PageHeader, type PageHeaderBack, type PageHeaderProps } from '@/components/ui/page-header'
+export { ItemList, ItemRow } from '@/components/ui/item-list'
 export { MasterDetail, type MasterDetailProps, type MasterItem } from '@/components/ui/master-detail'
 export { SectionTitle } from '@/components/ui/section-title'
 export { SelectField, type SelectFieldOption, type SelectFieldProps } from '@/components/ui/select-field'
