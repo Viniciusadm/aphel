@@ -99,7 +99,7 @@ function DisqualifyForm({ lead, onClose }: { lead: LeadTarget; onClose: () => vo
               </option>
             ))}
           </NativeSelect>
-          {reasonError && <p className="text-xs text-destructive">{t('disqualify.reasonRequired')}</p>}
+          {reasonError && <p className="text-sm text-destructive">{t('disqualify.reasonRequired')}</p>}
           {reasons.isSuccess && reasons.data.length === 0 && (
             <p className="text-xs text-muted-foreground">{t('disqualify.noReasons')}</p>
           )}

@@ -127,7 +127,7 @@ function ExportForm({ available }: { available: string[] }) {
             )
           })}
         </div>
-        {selected.length === 0 && <p className="text-xs text-destructive">{t('export.noSections')}</p>}
+        {selected.length === 0 && <p className="text-sm text-destructive">{t('export.noSections')}</p>}
       </fieldset>
       <div className="grid gap-4 sm:grid-cols-2">
         <div className="grid gap-2.5">

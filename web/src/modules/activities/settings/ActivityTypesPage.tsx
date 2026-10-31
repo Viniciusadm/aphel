@@ -249,7 +249,7 @@ function ActivityTypeForm({ editing, onClose, onSaved }: ActivityTypeFormProps) 
               setNameError(false)
             }}
           />
-          {nameError && <p className="text-xs text-destructive">{t('types.nameRequired')}</p>}
+          {nameError && <p className="text-sm text-destructive">{t('types.nameRequired')}</p>}
           {editing && <p className="text-xs text-muted-foreground">{t('types.keyHint', { key: editing.key })}</p>}
         </div>
         <div className="grid gap-4 sm:grid-cols-2">

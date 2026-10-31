@@ -250,7 +250,7 @@ function AddMemberForm({ team, roles, busy, onCancel, onSubmit }: AddMemberFormP
             setUserError(false)
           }}
         />
-        {userError && <p className="text-xs text-destructive">{t('add.userRequired')}</p>}
+        {userError && <p className="text-sm text-destructive">{t('add.userRequired')}</p>}
       </div>
       <div className="grid gap-2.5">
         <Label htmlFor={`${formId}-role`}>{t('add.role')}</Label>

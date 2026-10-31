@@ -121,7 +121,7 @@ function EditorBody({ form, onCancel, onSaved }: EditorBodyProps) {
                   <Label htmlFor={`${formId}-name`}>{t('editor.name')}</Label>
                   <Input id={`${formId}-name`} placeholder={t('editor.namePlaceholder')} {...register('name')} />
                   {formState.errors.name && (
-                    <p className="text-xs text-destructive">{errorText(formState.errors.name.message)}</p>
+                    <p className="text-sm text-destructive">{errorText(formState.errors.name.message)}</p>
                   )}
                 </div>
                 <div className="grid gap-2.5">
@@ -159,7 +159,7 @@ function EditorBody({ form, onCancel, onSaved }: EditorBodyProps) {
                     />
                   ))}
                 </ol>
-                {rootFieldsError && <p className="text-xs text-destructive">{errorText(rootFieldsError)}</p>}
+                {rootFieldsError && <p className="text-sm text-destructive">{errorText(rootFieldsError)}</p>}
                 {fields.fields.length < MAX_FIELDS && (
                   <div className="flex flex-wrap items-center gap-2">
                     <NativeSelect
@@ -262,7 +262,7 @@ function EditorBody({ form, onCancel, onSaved }: EditorBodyProps) {
                         ))}
                       </NativeSelect>
                       {formState.errors.pipeline_id && (
-                        <p className="text-xs text-destructive">{errorText(formState.errors.pipeline_id.message)}</p>
+                        <p className="text-sm text-destructive">{errorText(formState.errors.pipeline_id.message)}</p>
                       )}
                     </div>
                     <div className="grid gap-2.5">
@@ -276,7 +276,7 @@ function EditorBody({ form, onCancel, onSaved }: EditorBodyProps) {
                         ))}
                       </NativeSelect>
                       {formState.errors.stage_id && (
-                        <p className="text-xs text-destructive">{errorText(formState.errors.stage_id.message)}</p>
+                        <p className="text-sm text-destructive">{errorText(formState.errors.stage_id.message)}</p>
                       )}
                     </div>
                     <div className="grid gap-2.5">
@@ -284,14 +284,14 @@ function EditorBody({ form, onCancel, onSaved }: EditorBodyProps) {
                       <Input placeholder={t('editor.titleTemplatePlaceholder')} id={`${formId}-title`} {...register('title_template')} />
                       <p className="text-xs text-muted-foreground">{t('editor.titleTemplateHelp', { field: '{{name}}', form: '{{form}}' })}</p>
                       {formState.errors.title_template && (
-                        <p className="text-xs text-destructive">{errorText(formState.errors.title_template.message)}</p>
+                        <p className="text-sm text-destructive">{errorText(formState.errors.title_template.message)}</p>
                       )}
                     </div>
                     <div className="grid gap-2.5">
                       <Label htmlFor={`${formId}-amount`}>{t('editor.amount')}</Label>
                       <Input placeholder={t('editor.amountPlaceholder')} id={`${formId}-amount`} inputMode="decimal" {...register('amount')} />
                       {formState.errors.amount && (
-                        <p className="text-xs text-destructive">{errorText(formState.errors.amount.message)}</p>
+                        <p className="text-sm text-destructive">{errorText(formState.errors.amount.message)}</p>
                       )}
                     </div>
                   </div>
@@ -328,7 +328,7 @@ function EditorBody({ form, onCancel, onSaved }: EditorBodyProps) {
                     {...register('redirect_url')}
                   />
                   {formState.errors.redirect_url && (
-                    <p className="text-xs text-destructive">{errorText(formState.errors.redirect_url.message)}</p>
+                    <p className="text-sm text-destructive">{errorText(formState.errors.redirect_url.message)}</p>
                   )}
                 </div>
               </section>
@@ -348,7 +348,7 @@ function EditorBody({ form, onCancel, onSaved }: EditorBodyProps) {
                   />
                   <p className="text-xs text-muted-foreground">{t('editor.allowedOriginsHelp')}</p>
                   {formState.errors.allowed_origins && (
-                    <p className="text-xs text-destructive">{errorText(formState.errors.allowed_origins.message)}</p>
+                    <p className="text-sm text-destructive">{errorText(formState.errors.allowed_origins.message)}</p>
                   )}
                 </div>
               </section>

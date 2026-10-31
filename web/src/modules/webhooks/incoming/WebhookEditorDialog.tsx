@@ -143,7 +143,7 @@ function EditorBody({ webhook, onCancel, onSaved }: EditorBodyProps) {
               {...register('name')}
             />
             {formState.errors.name && (
-              <p className="text-xs text-destructive">{errorMessage(formState.errors.name.message)}</p>
+              <p className="text-sm text-destructive">{errorMessage(formState.errors.name.message)}</p>
             )}
           </div>
           <div className="grid gap-2.5">
@@ -178,7 +178,7 @@ function EditorBody({ webhook, onCancel, onSaved }: EditorBodyProps) {
                 {...register('signature_tolerance_seconds', { valueAsNumber: true })}
               />
               {formState.errors.signature_tolerance_seconds && (
-                <p className="text-xs text-destructive">
+                <p className="text-sm text-destructive">
                   {errorMessage(formState.errors.signature_tolerance_seconds.message)}
                 </p>
               )}

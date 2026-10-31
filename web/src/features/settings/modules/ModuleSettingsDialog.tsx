@@ -143,7 +143,7 @@ export function ModuleSettingsDialog({ module, initialViolations, onClose, onSav
                   </p>
                 )}
                 {message && (
-                  <p id={errorId} className="text-xs text-destructive">
+                  <p id={errorId} className="text-sm text-destructive">
                     {message}
                   </p>
                 )}

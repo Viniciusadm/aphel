@@ -456,7 +456,7 @@ function ConfigurationFields({
               </p>
             )}
             {invalid && (
-              <p role="alert" className="text-xs text-destructive">
+              <p role="alert" className="text-sm text-destructive">
                 {t('features.invalidField')}
               </p>
             )}

@@ -72,7 +72,7 @@ export function CallForm({ values, onChange, outcomes, outcomeError, disabled, a
           onValueChange={(outcomeKey) => set({ outcomeKey })}
           options={outcomes.map((outcome) => ({ value: outcome.key, label: outcome.name }))}
         />
-        {outcomeError && <p className="text-xs text-destructive">{t('form.outcomeRequired')}</p>}
+        {outcomeError && <p className="text-sm text-destructive">{t('form.outcomeRequired')}</p>}
       </fieldset>
       <div className="grid gap-2.5">
         <Label htmlFor={`${formId}-minutes`}>{t('form.duration')}</Label>

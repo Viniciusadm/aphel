@@ -336,7 +336,7 @@ function BundleForm({ productId, bundle, onClose }: BundleFormProps) {
               </Button>
             </div>
             {(errors[`${index}.product_id`] || errors[`${index}.quantity`]) && (
-              <p className="text-xs text-destructive">
+              <p className="text-sm text-destructive">
                 {errors[`${index}.product_id`] ?? errors[`${index}.quantity`]}
               </p>
             )}

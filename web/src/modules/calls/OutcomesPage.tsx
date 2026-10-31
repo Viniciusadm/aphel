@@ -221,7 +221,7 @@ function OutcomeForm({
               setNameError(false)
             }}
           />
-          {nameError && <p className="text-xs text-destructive">{t('outcomes.nameRequired')}</p>}
+          {nameError && <p className="text-sm text-destructive">{t('outcomes.nameRequired')}</p>}
           {editing && <p className="text-xs text-muted-foreground">{t('outcomes.keyHint', { key: editing.key })}</p>}
         </div>
         <div className="flex items-start gap-2">

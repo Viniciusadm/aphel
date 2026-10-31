@@ -418,7 +418,7 @@ function QuoteEditor({ quote }: { quote: QuoteDetail }) {
                       <p className="text-xs text-muted-foreground">{t('editor.acceptedFrom', { ip: quote.acceptance.ip })}</p>
                     )}
                     {quote.deal_sync_error ? (
-                      <p className="text-xs text-destructive">{t('editor.syncError', { error: quote.deal_sync_error })}</p>
+                      <p className="text-sm text-destructive">{t('editor.syncError', { error: quote.deal_sync_error })}</p>
                     ) : quote.deal_synced_at ? (
                       <p className="text-xs text-muted-foreground">{t('editor.synced')}</p>
                     ) : (

@@ -136,7 +136,7 @@ function ObjectForm({ object, onClose, onSaved }: ObjectFormProps) {
 
   const fieldError = (name: keyof FormErrors) =>
     errors[name] ? (
-      <p id={`${formId}-${name}-error`} className="text-xs text-destructive">
+      <p id={`${formId}-${name}-error`} className="text-sm text-destructive">
         {errors[name]}
       </p>
     ) : null

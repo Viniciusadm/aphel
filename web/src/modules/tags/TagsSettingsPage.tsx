@@ -226,7 +226,7 @@ function TagForm({ editing, onClose, onSaved }: TagFormProps) {
             }}
           />
           {nameError && (
-            <p id={`${formId}-name-error`} className="text-xs text-destructive">
+            <p id={`${formId}-name-error`} className="text-sm text-destructive">
               {nameError}
             </p>
           )}

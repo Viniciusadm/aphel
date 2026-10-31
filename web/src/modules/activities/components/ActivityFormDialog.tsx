@@ -83,7 +83,7 @@ function initialValues(
 function FieldMessage({ id, message }: { id: string; message?: string }) {
   if (!message) return null
   return (
-    <p id={id} className="text-xs text-destructive">
+    <p id={id} className="text-sm text-destructive">
       {message}
     </p>
   )

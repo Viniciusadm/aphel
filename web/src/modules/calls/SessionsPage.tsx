@@ -118,7 +118,7 @@ function StartSessionCard() {
                 ))}
               </NativeSelect>
             )}
-            {viewError && <p className="text-xs text-destructive">{t('start.viewRequired')}</p>}
+            {viewError && <p className="text-sm text-destructive">{t('start.viewRequired')}</p>}
             <p className="text-xs text-muted-foreground">{t('start.viewHint')}</p>
           </div>
           <div className="grid gap-2.5">

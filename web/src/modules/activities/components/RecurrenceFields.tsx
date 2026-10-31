@@ -145,7 +145,7 @@ export function RecurrenceFields({ value, onChange, error, disabled }: Recurrenc
         </div>
       )}
       {error && (
-        <p id={ids.error} className="text-xs text-destructive">
+        <p id={ids.error} className="text-sm text-destructive">
           {error}
         </p>
       )}

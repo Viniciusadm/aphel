@@ -25,7 +25,7 @@ function ErrorText({ id, message }: { id: string; message?: string }) {
   const { t } = useTranslation('webhooks', { keyPrefix: 'incoming' })
   if (!message) return null
   return (
-    <p id={id} className="text-xs text-destructive">
+    <p id={id} className="text-sm text-destructive">
       {t(message, { defaultValue: localizeViolationMessage(message) })}
     </p>
   )

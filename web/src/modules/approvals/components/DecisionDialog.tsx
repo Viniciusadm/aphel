@@ -95,7 +95,7 @@ function DecisionForm({ request, action, onOpenChange, onDone }: DecisionFormPro
           }}
         />
         {missing && (
-          <p id={errorId} className="text-xs text-destructive">
+          <p id={errorId} className="text-sm text-destructive">
             {t('decision.commentMissing')}
           </p>
         )}

@@ -208,7 +208,7 @@ export function IntegrationConfigDialog({ integration, open, onOpenChange, onSav
                   </p>
                 )}
                 {message && (
-                  <p id={errorId} className="text-xs text-destructive">
+                  <p id={errorId} className="text-sm text-destructive">
                     {message}
                   </p>
                 )}

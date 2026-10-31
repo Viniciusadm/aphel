@@ -281,7 +281,7 @@ function RunsHistory() {
                   {run.requested_by ? ` · ${run.requested_by.display_name}` : ''}
                 </p>
                 {run.error_message && (
-                  <p className="text-xs text-destructive">
+                  <p className="text-sm text-destructive">
                     {run.status === 'failed' ? t('runs.failed') : t('runs.partial')}
                   </p>
                 )}

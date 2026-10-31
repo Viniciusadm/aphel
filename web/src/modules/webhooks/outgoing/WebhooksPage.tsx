@@ -255,7 +255,7 @@ function EndpointRow({
               : t('neverDelivered')}
           </p>
           {!endpoint.is_active && endpoint.disabled_reason === 'failures' && endpoint.disabled_at && (
-            <p className="text-xs text-destructive">
+            <p className="text-sm text-destructive">
               {t('disabledByFailures', { date: formatDateTime(endpoint.disabled_at, formatting) })}
             </p>
           )}

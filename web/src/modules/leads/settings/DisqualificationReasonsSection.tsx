@@ -245,7 +245,7 @@ function ReasonForm({
               setNameError(false)
             }}
           />
-          {nameError && <p className="text-xs text-destructive">{t('reasons.nameRequired')}</p>}
+          {nameError && <p className="text-sm text-destructive">{t('reasons.nameRequired')}</p>}
           {editing && <code className="text-xs text-muted-foreground">{editing.key}</code>}
         </div>
       </form>

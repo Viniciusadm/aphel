@@ -195,7 +195,7 @@ function RelationshipForm({ relationship, recordType, onClose, onSaved }: Relati
 
   const errorText = (name: keyof FormErrors) =>
     errors[name] ? (
-      <p id={`${formId}-${name}-error`} className="text-xs text-destructive">
+      <p id={`${formId}-${name}-error`} className="text-sm text-destructive">
         {errors[name]}
       </p>
     ) : null

@@ -135,7 +135,7 @@ function CreateBody({ recordType, layout, relations, onCreated, onDone, onCancel
                 }}
               />
               {error && (
-                <p id={`${inputId}-error`} className="text-xs text-destructive">
+                <p id={`${inputId}-error`} className="text-sm text-destructive">
                   {error}
                 </p>
               )}

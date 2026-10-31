@@ -140,7 +140,7 @@ function PolicyForm({ policy, pipelineOfStage, onOpenChange }: PolicyFormProps) 
 
   const fieldError = (field: string) => {
     const text = errorText(errors[field])
-    return text ? <p className="text-xs text-destructive">{text}</p> : null
+    return text ? <p className="text-sm text-destructive">{text}</p> : null
   }
 
   const lockedError = Object.entries(errors).find(([field]) => field.startsWith('locked_fields'))?.[1]
@@ -407,7 +407,7 @@ function PolicyForm({ policy, pipelineOfStage, onOpenChange }: PolicyFormProps) 
             })}
           </div>
         )}
-        {lockedError && <p className="text-xs text-destructive">{errorText(lockedError)}</p>}
+        {lockedError && <p className="text-sm text-destructive">{errorText(lockedError)}</p>}
       </fieldset>
 
       <div className="grid gap-3 sm:grid-cols-2">

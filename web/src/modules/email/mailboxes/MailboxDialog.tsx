@@ -169,7 +169,7 @@ function MailboxForm({ mode, onDirtyChange, onCancel, onDone }: MailboxFormProps
   const invalid = (key: keyof typeof errors) => submitted && errors[key]
   const errorText = (key: keyof typeof errors, message: string) =>
     invalid(key) ? (
-      <p id={`${formId}-${key}-error`} className="text-xs text-destructive">
+      <p id={`${formId}-${key}-error`} className="text-sm text-destructive">
         {message}
       </p>
     ) : null
@@ -322,7 +322,7 @@ function ServerFields({ kind, formId, values, submitted, errors, onChange, onSec
           aria-invalid={(submitted && errors[hostKey]) || undefined}
           onChange={(event) => onChange({ [hostKey]: event.target.value })}
         />
-        {submitted && errors[hostKey] && <p className="text-xs text-destructive">{t('mailboxes.form.required')}</p>}
+        {submitted && errors[hostKey] && <p className="text-sm text-destructive">{t('mailboxes.form.required')}</p>}
       </div>
       <div className="grid content-start gap-2.5">
         <Label htmlFor={`${prefix}-port`}>{t('mailboxes.form.port')}</Label>
@@ -336,7 +336,7 @@ function ServerFields({ kind, formId, values, submitted, errors, onChange, onSec
           aria-invalid={(submitted && errors[portKey]) || undefined}
           onChange={(event) => onChange({ [portKey]: event.target.value })}
         />
-        {submitted && errors[portKey] && <p className="text-xs text-destructive">{t('mailboxes.form.portInvalid')}</p>}
+        {submitted && errors[portKey] && <p className="text-sm text-destructive">{t('mailboxes.form.portInvalid')}</p>}
       </div>
       <div className="grid content-start gap-2.5">
         <Label htmlFor={`${prefix}-security`}>{t('mailboxes.form.security')}</Label>

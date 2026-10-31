@@ -146,7 +146,7 @@ export function StepsEditor({ steps, errors, errorText, onChange }: StepsEditorP
                         </option>
                       ))}
                     </NativeSelect>
-                    {userError && <p className="text-xs text-destructive">{userError}</p>}
+                    {userError && <p className="text-sm text-destructive">{userError}</p>}
                   </div>
                 )}
                 {step.approverKind === 'role' && (
@@ -165,7 +165,7 @@ export function StepsEditor({ steps, errors, errorText, onChange }: StepsEditorP
                         </option>
                       ))}
                     </NativeSelect>
-                    {roleError && <p className="text-xs text-destructive">{roleError}</p>}
+                    {roleError && <p className="text-sm text-destructive">{roleError}</p>}
                   </div>
                 )}
                 {step.approverKind === 'owner_team_manager' && (

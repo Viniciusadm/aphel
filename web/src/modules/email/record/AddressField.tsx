@@ -120,7 +120,7 @@ export function AddressField({ label, value, onChange, suggestions, autoFocus }:
         </datalist>
       </div>
       {invalid && (
-        <p id={`${id}-error`} className="text-xs text-destructive">
+        <p id={`${id}-error`} className="text-sm text-destructive">
           {t('composer.invalidAddress', { value: invalid })}
         </p>
       )}

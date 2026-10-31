@@ -207,7 +207,7 @@ export function EndpointFormDialog({ endpoint, onClose, onCreated, onUpdated }: 
               {...register('description')}
             />
             {descriptionError && (
-              <p id={`${formId}-description-error`} className="text-xs text-destructive">
+              <p id={`${formId}-description-error`} className="text-sm text-destructive">
                 {descriptionError}
               </p>
             )}
@@ -265,7 +265,7 @@ export function EndpointFormDialog({ endpoint, onClose, onCreated, onUpdated }: 
                 />
               ))}
             {eventsError && (
-              <p id={`${formId}-events-error`} className="text-xs text-destructive">
+              <p id={`${formId}-events-error`} className="text-sm text-destructive">
                 {eventsError}
               </p>
             )}

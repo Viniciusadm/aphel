@@ -69,12 +69,12 @@ export function FieldEditor({ index, total, targets, onMove, onRemove }: FieldEd
         <div className="grid gap-2.5">
           <Label htmlFor={`${prefix}-label`}>{t('editor.label')}</Label>
           <Input placeholder={t('editor.labelPlaceholder')} id={`${prefix}-label`} {...register(`fields.${index}.label`, { onBlur: fillKey })} />
-          {errors?.label && <p className="text-xs text-destructive">{message(errors.label.message)}</p>}
+          {errors?.label && <p className="text-sm text-destructive">{message(errors.label.message)}</p>}
         </div>
         <div className="grid gap-2.5">
           <Label htmlFor={`${prefix}-key`}>{t('editor.key')}</Label>
           <Input placeholder={t('editor.keyPlaceholder')} id={`${prefix}-key`} className="font-mono" {...register(`fields.${index}.key`)} />
-          {errors?.key && <p className="text-xs text-destructive">{message(errors.key.message)}</p>}
+          {errors?.key && <p className="text-sm text-destructive">{message(errors.key.message)}</p>}
         </div>
         <div className="grid gap-2.5">
           <Label htmlFor={`${prefix}-kind`}>{t('editor.kind')}</Label>
@@ -107,7 +107,7 @@ export function FieldEditor({ index, total, targets, onMove, onRemove }: FieldEd
               {kind === 'select' ? t('editor.selectPrompt') : t('editor.placeholder')}
             </Label>
             <Input id={`${prefix}-placeholder`} {...register(`fields.${index}.placeholder`)} />
-            {errors?.placeholder && <p className="text-xs text-destructive">{message(errors.placeholder.message)}</p>}
+            {errors?.placeholder && <p className="text-sm text-destructive">{message(errors.placeholder.message)}</p>}
           </div>
         )}
         {kind === 'select' && (
@@ -115,7 +115,7 @@ export function FieldEditor({ index, total, targets, onMove, onRemove }: FieldEd
             <Label htmlFor={`${prefix}-options`}>{t('editor.options')}</Label>
             <Textarea placeholder={t('editor.optionsPlaceholder')} id={`${prefix}-options`} rows={3} {...register(`fields.${index}.options`)} />
             <p className="text-xs text-muted-foreground">{t('editor.optionsHelp')}</p>
-            {errors?.options && <p className="text-xs text-destructive">{message(errors.options.message)}</p>}
+            {errors?.options && <p className="text-sm text-destructive">{message(errors.options.message)}</p>}
           </div>
         )}
       </div>
@@ -123,7 +123,7 @@ export function FieldEditor({ index, total, targets, onMove, onRemove }: FieldEd
         <input type="checkbox" className="size-4 accent-primary" {...register(`fields.${index}.required`)} />
         {t('editor.required')}
       </label>
-      {errors?.required && <p className="text-xs text-destructive">{message(errors.required.message)}</p>}
+      {errors?.required && <p className="text-sm text-destructive">{message(errors.required.message)}</p>}
     </li>
   )
 }

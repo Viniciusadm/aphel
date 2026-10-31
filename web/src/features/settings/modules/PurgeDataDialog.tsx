@@ -137,7 +137,7 @@ export function PurgeDataDialog({ module, name, onClose, onChanged }: PurgeDataD
             onChange={(event) => setTyped(event.target.value)}
           />
           {error && (
-            <p id={errorId} role="alert" className="text-xs text-destructive">
+            <p id={errorId} role="alert" className="text-sm text-destructive">
               {error}
             </p>
           )}

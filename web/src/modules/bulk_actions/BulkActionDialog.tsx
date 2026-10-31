@@ -134,7 +134,7 @@ export function BulkActionDialog({ kind, context, recordType, onClose }: BulkAct
                   <option value="csv">CSV</option>
                 </NativeSelect>
                 {exportTooLarge && (
-                  <p role="alert" className="text-xs text-destructive">
+                  <p role="alert" className="text-sm text-destructive">
                     {t('export.tooMany', { max: MAX_EXPORT_IDS })}
                   </p>
                 )}

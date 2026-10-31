@@ -83,7 +83,7 @@ export function PasswordSection() {
     const message = errors[name]?.message as PasswordMessageKey | undefined
     if (!message) return null
     return (
-      <p id={`${formId}-${name}-error`} className="text-xs text-destructive">
+      <p id={`${formId}-${name}-error`} className="text-sm text-destructive">
         {t(message, { min: MIN_PASSWORD_LENGTH, max: MAX_PASSWORD_LENGTH })}
       </p>
     )

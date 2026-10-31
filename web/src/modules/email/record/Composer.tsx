@@ -303,7 +303,7 @@ function ComposerForm({ record, mailboxes, reply, onDirtyChange, onCancel, onSen
             setTo(value)
           }}
         />
-        {submitted && recipientsMissing && <p className="text-xs text-destructive">{t('composer.recipientsRequired')}</p>}
+        {submitted && recipientsMissing && <p className="text-sm text-destructive">{t('composer.recipientsRequired')}</p>}
         <RecipientSuggestions
           suggestions={suggestions}
           selected={[...to, ...cc, ...bcc]}
@@ -377,7 +377,7 @@ function ComposerForm({ record, mailboxes, reply, onDirtyChange, onCancel, onSen
             setSubject(event.target.value)
           }}
         />
-        {submitted && subject.trim() === '' && <p className="text-xs text-destructive">{t('composer.subjectRequired')}</p>}
+        {submitted && subject.trim() === '' && <p className="text-sm text-destructive">{t('composer.subjectRequired')}</p>}
       </div>
       <Tabs value={tab} onValueChange={changeTab} className="grid gap-3">
         <div className="flex flex-wrap items-center justify-between gap-2">
@@ -532,7 +532,7 @@ function ComposerForm({ record, mailboxes, reply, onDirtyChange, onCancel, onSen
                   }}
                 />
                 {submitted && scheduleInvalid && (
-                  <p className="text-xs text-destructive">{t('composer.scheduleInvalid')}</p>
+                  <p className="text-sm text-destructive">{t('composer.scheduleInvalid')}</p>
                 )}
               </>
             )}

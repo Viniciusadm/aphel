@@ -265,7 +265,7 @@ function CreateTokenForm({ onCancel, onCreated }: CreateTokenFormProps) {
             }}
           />
           {nameError && (
-            <p id={`${formId}-name-error`} className="text-xs text-destructive">
+            <p id={`${formId}-name-error`} className="text-sm text-destructive">
               {nameError}
             </p>
           )}
@@ -300,7 +300,7 @@ function CreateTokenForm({ onCancel, onCreated }: CreateTokenFormProps) {
             </div>
           )}
           {scopesError && (
-            <p id={`${formId}-scopes-error`} className="text-xs text-destructive">
+            <p id={`${formId}-scopes-error`} className="text-sm text-destructive">
               {scopesError}
             </p>
           )}

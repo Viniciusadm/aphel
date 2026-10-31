@@ -254,7 +254,7 @@ function RoleForm({
               setNameError(false)
             }}
           />
-          {nameError && <p className="text-xs text-destructive">{t('roles.nameRequired')}</p>}
+          {nameError && <p className="text-sm text-destructive">{t('roles.nameRequired')}</p>}
           {editing && <code className="text-xs text-muted-foreground">{editing.key}</code>}
         </div>
       </form>

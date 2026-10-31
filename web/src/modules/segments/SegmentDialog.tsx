@@ -134,7 +134,7 @@ function SegmentForm({ schema, recordType, editing, onClose, onSaved }: SegmentF
             aria-invalid={errors.name ? true : undefined}
             onChange={(event) => setName(event.target.value)}
           />
-          {errors.name && <p className="text-xs text-destructive">{errors.name}</p>}
+          {errors.name && <p className="text-sm text-destructive">{errors.name}</p>}
         </div>
         <div className="grid gap-2.5">
           <Label htmlFor={`${formId}-description`}>{t('dialog.descriptionLabel')}</Label>
@@ -151,7 +151,7 @@ function SegmentForm({ schema, recordType, editing, onClose, onSaved }: SegmentF
           <p className="text-xs text-muted-foreground">{t('dialog.filterHint')}</p>
           <FilterBuilder schema={schema} value={draft} onChange={setDraft} />
           {errors.filter && (
-            <p role="alert" className="text-xs text-destructive">
+            <p role="alert" className="text-sm text-destructive">
               {errors.filter}
             </p>
           )}

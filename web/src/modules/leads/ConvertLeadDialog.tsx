@@ -121,7 +121,7 @@ function ConvertForm({ lead, onClose }: { lead: LeadTarget; onClose: () => void 
               </option>
             ))}
           </NativeSelect>
-          {pipelineError && <p className="text-xs text-destructive">{t('convert.pipelineRequired')}</p>}
+          {pipelineError && <p className="text-sm text-destructive">{t('convert.pipelineRequired')}</p>}
         </div>
         <div className="grid gap-2.5">
           <Label htmlFor={`${formId}-stage`}>{t('convert.stage')}</Label>
