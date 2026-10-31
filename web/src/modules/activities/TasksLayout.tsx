@@ -8,6 +8,7 @@ import { TabsNav, TabsNavItem } from '@/components/ui/tabs-nav'
 import { ActivityFormDialog, type ActivityFormMode } from './components/ActivityFormDialog'
 import { activityResource, TASKS_PATH } from './resource'
 import { PageHeader } from '@/components/ui/page-header'
+import { Page } from '@/components/ui/page'
 
 export function TasksLayout() {
   const { t } = useTranslation('activities')
@@ -20,9 +21,8 @@ export function TasksLayout() {
   ]
 
   return (
-    <div className="flex w-full flex-col gap-4">
-      <header className="flex flex-wrap items-start justify-between gap-3">
-        <PageHeader title={t('page.title')} description={t('page.description')} />
+    <Page>
+<PageHeader title={t('page.title')} description={t('page.description')} actions={<>
         {hasPermission('activities.create') && (
           <div className="flex flex-wrap gap-2">
             <Button variant="outline" size="sm" onClick={() => setDialog('log')}>
@@ -35,7 +35,8 @@ export function TasksLayout() {
             </Button>
           </div>
         )}
-      </header>
+      
+      </>} />
       <TabsNav aria-label={t('page.sections')} className="self-start">
         {tabs.map((tab) => (
           <TabsNavItem key={tab.to} to={tab.to} end={tab.end}>
@@ -52,6 +53,6 @@ export function TasksLayout() {
           if (dialog === 'log') navigate(activityResource.detailPath?.(activity.id) ?? TASKS_PATH)
         }}
       />
-    </div>
+    </Page>
   )
 }

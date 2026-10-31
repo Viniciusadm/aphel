@@ -1,4 +1,4 @@
-import { ArrowLeft, Plus, Tags } from 'lucide-react'
+import { Plus, Tags } from 'lucide-react'
 import { useState } from 'react'
 import { useTranslation } from 'react-i18next'
 import { Link, useNavigate } from 'react-router'
@@ -18,6 +18,7 @@ import { PriceListBadges, PriceListValidity } from './PriceListBadges'
 import { PriceListDialog } from './PriceListDialog'
 import { PageHeader } from '@/components/ui/page-header'
 import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from '@/components/ui/table'
+import { Page } from '@/components/ui/page'
 
 const PRODUCTS_PATH = '/products'
 
@@ -27,16 +28,12 @@ export function PriceListsPage() {
   const canManageLimits = hasPermission(SETTINGS_MANAGE)
 
   return (
-    <div className="flex flex-col gap-4">
-      <div className="grid gap-2">
-        <Button asChild size="sm" variant="ghost" className="w-fit">
-          <Link to={PRODUCTS_PATH}>
-            <ArrowLeft aria-hidden="true" />
-            {t('list.back')}
-          </Link>
-        </Button>
-        <PageHeader title={t('list.title')} description={t('list.description')} />
-      </div>
+    <Page>
+      <PageHeader
+        back={{ to: PRODUCTS_PATH, label: t('list.back') }}
+        title={t('list.title')}
+        description={t('list.description')}
+      />
       {canManageLimits ? (
         <Tabs defaultValue="lists" className="flex flex-col gap-4">
           <TabsList>
@@ -53,7 +50,7 @@ export function PriceListsPage() {
       ) : (
         <PriceListsTable />
       )}
-    </div>
+    </Page>
   )
 }
 

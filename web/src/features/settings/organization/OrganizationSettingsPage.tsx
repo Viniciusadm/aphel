@@ -30,6 +30,7 @@ import { NativeSelect } from './components/NativeSelect'
 import { brandPalette, contrastRatio, formatRatio, isHexColor } from './lib/contrast'
 import { LOCALES, currencyLabel, currencyOptions, timezoneOptions } from './lib/preferences'
 import { PageHeader } from '@/components/ui/page-header'
+import { Page } from '@/components/ui/page'
 
 const DEFAULT_PICKER_COLOR = '#4f46e5'
 
@@ -77,8 +78,8 @@ export function OrganizationSettingsPage() {
   const query = useOrganizationSettings()
 
   return (
-    <section className="grid gap-6" aria-labelledby="organization-settings-title">
-      <PageHeader title={t('title')} description={t('description')} />
+    <Page aria-labelledby="organization-settings-title">
+<PageHeader title={t('title')} description={t('description')} />
       <MailNotConfiguredNotice />
       {query.isPending ? (
         <PageLoader />
@@ -87,7 +88,7 @@ export function OrganizationSettingsPage() {
       ) : (
         <OrganizationForm organization={query.data} />
       )}
-    </section>
+    </Page>
   )
 }
 

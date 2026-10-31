@@ -20,6 +20,7 @@ import { ObjectIcon } from './ObjectIcon'
 import { KanbanBoard } from './KanbanBoard'
 import { CUSTOM_RECORD_READ_ONLY_KEYS, customRecordPath, objectPermission, type CustomObject } from './resources'
 import { PageHeader } from '@/components/ui/page-header'
+import { Page } from '@/components/ui/page'
 
 const BOARD_PARAM = 'board'
 const BOARD_FIELD_PARAM = 'board_field'
@@ -89,8 +90,8 @@ function CustomRecordsContent({ object }: { object: CustomObject }) {
   const openRecord = (id: string) => navigate(customRecordPath(object.key, id))
 
   return (
-    <div className={cn('flex min-w-0 flex-col gap-4', kanban && boardField && 'h-full')}>
-      <PageHeader
+    <Page className={cn(kanban && boardField && 'h-full')}>
+<PageHeader
         icon={
           <span
             className="mt-0.5 flex size-9 shrink-0 items-center justify-center rounded-md border bg-card"
@@ -174,6 +175,6 @@ function CustomRecordsContent({ object }: { object: CustomObject }) {
             onCreated={(record) => openRecord(record.id)}
           />
         ))}
-    </div>
+    </Page>
   )
 }

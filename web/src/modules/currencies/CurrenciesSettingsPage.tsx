@@ -28,6 +28,7 @@ import type { CurrencySettings, ExchangeRate } from './types'
 import { PageHeader } from '@/components/ui/page-header'
 import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from '@/components/ui/table'
 import { Field } from '@/components/ui/field'
+import { Page } from '@/components/ui/page'
 
 const CURRENCY_CODE = /^[A-Za-z]{3}$/
 const RATE_PATTERN = /^\d+([.,]\d{1,10})?$/
@@ -49,8 +50,8 @@ function CurrenciesSettings() {
   const { t } = useTranslation('currencies')
   const settings = useCurrencySettings()
   return (
-    <section className="flex flex-col gap-8">
-      <PageHeader title={t('title')} description={t('description')} />
+    <Page>
+<PageHeader title={t('title')} description={t('description')} />
       {settings.isPending ? (
         <PageLoader />
       ) : settings.isError ? (
@@ -62,7 +63,7 @@ function CurrenciesSettings() {
           <ExchangeRates settings={settings.data} />
         </>
       )}
-    </section>
+    </Page>
   )
 }
 

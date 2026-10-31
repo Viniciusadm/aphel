@@ -42,6 +42,7 @@ import type {
 import { useLayoutEditor } from './useLayoutEditor'
 import { WidgetCard } from './WidgetCard'
 import { PageHeader } from '@/components/ui/page-header'
+import { Page } from '@/components/ui/page'
 
 function newWidgetId(): string {
   const random = globalThis.crypto?.randomUUID?.() ?? `${Date.now().toString(36)}-${Math.random().toString(36).slice(2)}`
@@ -130,9 +131,8 @@ export function DashboardPage() {
   const addable = (catalog.data ?? []).filter((descriptor) => !present.has(descriptor.key))
 
   return (
-    <div className="flex w-full flex-col gap-6">
-      <header className="flex flex-wrap items-end justify-between gap-4">
-        <PageHeader title={t('title')} description={t('description')} />
+    <Page>
+<PageHeader title={t('title')} description={t('description')} actions={<>
         <div className="flex min-w-0 flex-wrap items-end gap-2">
           {current && <PeriodSelector value={period} onChange={(next) => save({ period: next })} />}
           {current && <SubjectSelector value={subject} onChange={(next) => save({ subject: next })} />}
@@ -147,7 +147,8 @@ export function DashboardPage() {
             {editing ? t('actions.done') : t('actions.customize')}
           </Button>
         </div>
-      </header>
+      
+      </>} />
       <Slot name="dashboard.top" props={{}} />
 
       {editing && current && (
@@ -231,6 +232,6 @@ export function DashboardPage() {
           setConfirmReset(false)
         }}
       />
-    </div>
+    </Page>
   )
 }

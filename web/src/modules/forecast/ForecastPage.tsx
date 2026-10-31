@@ -24,6 +24,7 @@ import {
 import { ForecastDealsDialog, type DrillDown } from './ForecastDealsDialog'
 import { PageHeader } from '@/components/ui/page-header'
 import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from '@/components/ui/table'
+import { Page } from '@/components/ui/page'
 
 function useMonthLabel() {
   const formatting = useRecordFormatting()
@@ -75,9 +76,8 @@ export function ForecastPage() {
   }
 
   return (
-    <div className="flex min-w-0 flex-col gap-4">
-      <div className="flex flex-col gap-3 sm:flex-row sm:items-end sm:justify-between">
-        <PageHeader title={t('page.title')} description={t('page.description')} />
+    <Page>
+<PageHeader title={t('page.title')} description={t('page.description')} actions={<>
         <div className="flex flex-wrap items-center gap-2">
           <label className="flex items-center gap-2 text-sm">
             <span className="shrink-0 text-muted-foreground">{t('page.horizon')}</span>
@@ -104,10 +104,11 @@ export function ForecastPage() {
             </Button>
           )}
         </div>
-      </div>
+      
+      </>} />
       {body}
       <ForecastDealsDialog drillDown={drillDown} onClose={() => setDrillDown(null)} />
-    </div>
+    </Page>
   )
 }
 

@@ -29,6 +29,7 @@ import {
 import { ConversationPanel } from './ConversationPanel'
 import { ChannelIcon, StatusBadge } from './shared'
 import { PageHeader } from '@/components/ui/page-header'
+import { Page } from '@/components/ui/page'
 
 const ALL = '__all__'
 const ASSIGNEE_FILTERS: AssigneeFilter[] = ['any', 'me', 'none']
@@ -65,9 +66,8 @@ export function InboxPage() {
   const pages = Math.max(1, Math.ceil(total / CONVERSATIONS_PER_PAGE))
 
   return (
-    <section className="flex flex-col gap-3">
-      <div className="flex flex-col gap-2 sm:flex-row sm:items-end sm:justify-between">
-        <PageHeader title={t('inbox.title')} description={t('inbox.description')} />
+    <Page>
+<PageHeader title={t('inbox.title')} description={t('inbox.description')} actions={<>
         {hasPermission(MANAGE_CHANNELS_PERMISSION) && (
           <Button asChild size="sm" variant="outline">
             <Link to="/messaging/channels">
@@ -76,7 +76,8 @@ export function InboxPage() {
             </Link>
           </Button>
         )}
-      </div>
+      
+      </>} />
 
       <div className="grid gap-3 md:h-[calc(100dvh-11rem)] md:min-h-[520px] md:grid-cols-[minmax(260px,360px)_minmax(0,1fr)]">
         <aside
@@ -211,7 +212,7 @@ export function InboxPage() {
           )}
         </div>
       </div>
-    </section>
+    </Page>
   )
 }
 

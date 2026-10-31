@@ -27,6 +27,7 @@ import { LayoutCanvas } from './components/LayoutCanvas'
 import { fieldAtPath, layoutCandidates, layoutsEqual, normalizeForSave, setFieldRules, startingLayout } from './lib/draft'
 import { PageHeader } from '@/components/ui/page-header'
 import { Alert } from '@/components/ui/alert'
+import { Page } from '@/components/ui/page'
 
 function parseContext(value: string | null): LayoutContext {
   return LAYOUT_CONTEXTS.includes(value as LayoutContext) ? (value as LayoutContext) : 'create'
@@ -49,8 +50,8 @@ function LayoutsSection({ recordType }: { recordType: string }) {
   const layout = useFormLayout(recordType, context)
 
   return (
-    <section className="grid min-w-0 gap-4">
-      <PageHeader
+    <Page>
+<PageHeader
         title={t('title')}
         description={t('description')}
         actions={
@@ -99,7 +100,7 @@ function LayoutsSection({ recordType }: { recordType: string }) {
           saved={savedLayout(layout.data)}
         />
       )}
-    </section>
+    </Page>
   )
 }
 

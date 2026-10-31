@@ -5,6 +5,7 @@ import { NoAccess } from './components/NoAccess'
 import { useSettingsGroups, type SettingsArea } from '@/kernel/modules/settings'
 import { useOtherAreas } from './lib/use-other-areas'
 import { PageHeader } from '@/components/ui/page-header'
+import { Page } from '@/components/ui/page'
 
 interface SettingsAreaLayoutProps {
   area: SettingsArea
@@ -19,11 +20,11 @@ export function SettingsAreaLayout({ area }: SettingsAreaLayoutProps) {
   const hasContent = hasItems || (area.key === 'organization' && otherAreas.length > 0)
 
   return (
-    <div className="flex w-full flex-col gap-6">
+    <Page>
       {isOverview && (
         <PageHeader title={t(area.titleKey)} description={t(area.descriptionKey)} />
       )}
       {hasContent ? <Outlet /> : <NoAccess />}
-    </div>
+    </Page>
   )
 }

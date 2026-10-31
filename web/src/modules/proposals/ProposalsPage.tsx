@@ -29,6 +29,7 @@ import {
 } from './api'
 import { NoAccess } from './NoAccess'
 import { PageHeader } from '@/components/ui/page-header'
+import { Page } from '@/components/ui/page'
 
 export function ProposalsPage() {
   const t = useModuleTranslation(PROPOSALS_KEY)
@@ -60,11 +61,11 @@ export function ProposalsPage() {
   )
 
   return (
-    <div className="flex flex-col gap-4">
-      <div className="flex flex-col gap-3 sm:flex-row sm:items-end sm:justify-between">
-        <PageHeader title={t('list.title')} description={t('list.description')} />
+    <Page>
+<PageHeader title={t('list.title')} description={t('list.description')} actions={<>
         {newButton}
-      </div>
+      
+      </>} />
       {templates.isPending ? (
         <div className="grid gap-2" aria-busy="true">
           <Skeleton className="h-20 w-full" />
@@ -105,7 +106,7 @@ export function ProposalsPage() {
           await invalidate()
         }}
       />
-    </div>
+    </Page>
   )
 }
 

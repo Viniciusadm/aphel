@@ -18,6 +18,7 @@ import { PluginGrantStatus } from './plugins/PluginGrantStatus'
 import { PluginSettingsDialog } from './plugins/PluginSettingsDialog'
 import { PLUGINS_PATH, pluginsKey, type InstalledPlugin, type PluginConsent } from './plugins/types'
 import { PageHeader } from '@/components/ui/page-header'
+import { Page } from '@/components/ui/page'
 
 const PACKAGE_EXTENSION = '.aphelplugin'
 
@@ -129,11 +130,11 @@ function PluginsPanelContent() {
   )
 
   return (
-    <section className="flex flex-col gap-4" aria-label={t('plugins.title')}>
-      <div className="flex flex-wrap items-start justify-between gap-3">
-        <PageHeader level="section" title={t('plugins.title')} description={t('plugins.description')} />
+    <Page aria-label={t('plugins.title')}>
+      <PageHeader level="section" title={t('plugins.title')} description={t('plugins.description')} actions={<>
         {upload}
-      </div>
+      
+      </>} />
       {readiness.isError ? (
         <ErrorState description={loadErrorDescription(readiness.error)} onRetry={() => void readiness.refetch()} />
       ) : readiness.isPending || readiness.data.state === 'loading' ? (
@@ -231,6 +232,6 @@ function PluginsPanelContent() {
           if (removing) uninstall.mutate(removing)
         }}
       />
-    </section>
+    </Page>
   )
 }

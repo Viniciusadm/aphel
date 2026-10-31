@@ -1,7 +1,7 @@
-import { ArrowLeft, Lock, ShieldCheck } from 'lucide-react'
+import { Lock, ShieldCheck } from 'lucide-react'
 import { useMemo, useState } from 'react'
 import { useTranslation } from 'react-i18next'
-import { Link, useParams } from 'react-router'
+import { useParams } from 'react-router'
 import { isApiError } from '@/api'
 import { ConfirmDialog, UnsavedChangesGuard, notifyError, notifySuccess } from '@/components/feedback'
 import { Badge } from '@/components/ui/badge'
@@ -29,6 +29,7 @@ import { PageHeader } from '@/components/ui/page-header'
 import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from '@/components/ui/table'
 import { NativeSelect } from '@/components/ui/native-select'
 import { Checkbox } from '@/components/ui/checkbox'
+import { Page } from '@/components/ui/page'
 
 export function FieldPermissionsPage() {
   const { recordType = DEFAULT_RECORD_TYPE } = useParams()
@@ -47,16 +48,9 @@ function FieldPermissionsSection({ recordType }: { recordType: string }) {
   const unavailable = query.isError && isRecordTypeNotFound(query.error)
 
   return (
-    <section className="grid min-w-0 grid-cols-1 gap-4">
-      <div>
-        <Button variant="ghost" size="sm" asChild>
-          <Link to={`/settings/fields/${recordType}`}>
-            <ArrowLeft />
-            {t('back')}
-          </Link>
-        </Button>
-      </div>
+    <Page>
       <PageHeader
+        back={{ to: `/settings/fields/${recordType}`, label: t('back') }}
         title={t('title')}
         description={t('description', { recordType: recordTypeLabel })}
         actions={
@@ -84,7 +78,7 @@ function FieldPermissionsSection({ recordType }: { recordType: string }) {
           onReload={() => void query.refetch()}
         />
       )}
-    </section>
+    </Page>
   )
 }
 

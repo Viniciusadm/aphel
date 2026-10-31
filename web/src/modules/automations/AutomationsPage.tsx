@@ -21,6 +21,7 @@ import { CreateAutomationDialog } from './CreateAutomationDialog'
 import { automatableRecordTypes, useAutomationLabels } from './lib/labels'
 import { AUTOMATION_STATUSES, type Automation, type AutomationStatus } from './types'
 import { PageHeader } from '@/components/ui/page-header'
+import { Page } from '@/components/ui/page'
 
 export const AUTOMATIONS_PERMISSION = 'automations.manage'
 
@@ -109,14 +110,14 @@ function AutomationsList() {
   }
 
   return (
-    <div className="flex w-full flex-col gap-4">
-      <div className="flex flex-wrap items-start justify-between gap-3">
-        <PageHeader title={t('page.title')} description={t('page.description')} />
+    <Page>
+<PageHeader title={t('page.title')} description={t('page.description')} actions={<>
         <Button onClick={() => setCreating(true)} disabled={!catalog.data}>
           <Plus aria-hidden="true" />
           {t('page.new')}
         </Button>
-      </div>
+      
+      </>} />
       <div className="grid gap-3 sm:grid-cols-[minmax(0,1fr)_12rem_12rem]">
         <div className="grid gap-2.5">
           <Label htmlFor={searchId} className="sr-only">
@@ -183,7 +184,7 @@ function AutomationsList() {
       {catalog.data && (
         <CreateAutomationDialog open={creating} onOpenChange={setCreating} catalog={catalog.data} recordTypes={recordTypes} />
       )}
-    </div>
+    </Page>
   )
 }
 

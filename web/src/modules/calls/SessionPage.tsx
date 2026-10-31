@@ -27,6 +27,7 @@ import { callErrorKey } from './lib/errors'
 import { joinDuration } from './lib/format'
 import type { CallSession, CallSessionItem, StartedCall } from './types'
 import { PageHeader } from '@/components/ui/page-header'
+import { Page } from '@/components/ui/page'
 
 const CONTACT = 'contact'
 
@@ -83,7 +84,7 @@ function SessionWorkspace({ session }: { session: CallSession }) {
   }
 
   return (
-    <>
+    <Page>
       <PageHeader
         title={session.name}
         description={
@@ -155,7 +156,7 @@ function SessionWorkspace({ session }: { session: CallSession }) {
         confirmLabel={t('session.finish')}
         onConfirm={() => apply(() => callsApi.finish(session.id))}
       />
-    </>
+    </Page>
   )
 }
 

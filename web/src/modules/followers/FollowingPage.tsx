@@ -14,6 +14,7 @@ import { CORE_RECORD_TYPES, followedRecordHref, useRecordTypeLabel } from './lab
 import type { FollowedRecord } from './types'
 import { PageHeader } from '@/components/ui/page-header'
 import { Field } from '@/components/ui/field'
+import { Page } from '@/components/ui/page'
 
 export function FollowingPage() {
   const { t } = useTranslation('followers')
@@ -66,9 +67,8 @@ export function FollowingPage() {
   }
 
   return (
-    <div className="flex w-full flex-col gap-4">
-      <div className="flex flex-wrap items-end justify-between gap-3">
-        <PageHeader title={t('page.title')} description={t('page.description')} />
+    <Page>
+<PageHeader title={t('page.title')} description={t('page.description')} actions={<>
         <Field label={t('page.typeFilter')}>
           {(control) => <NativeSelect
             {...control}
@@ -87,9 +87,10 @@ export function FollowingPage() {
             ))}
           </NativeSelect>}
         </Field>
-      </div>
+      
+      </>} />
       {body}
-    </div>
+    </Page>
   )
 }
 

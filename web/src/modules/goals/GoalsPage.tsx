@@ -22,6 +22,7 @@ import {
 import { GoalCard } from './GoalCard'
 import { GoalDialog } from './GoalDialog'
 import { PageHeader } from '@/components/ui/page-header'
+import { Page } from '@/components/ui/page'
 
 type GoalView = 'current' | 'all'
 
@@ -94,11 +95,11 @@ export function GoalsPage() {
   }
 
   return (
-    <div className="flex flex-col gap-4">
-      <div className="flex flex-col gap-3 sm:flex-row sm:items-end sm:justify-between">
-        <PageHeader title={t('page.title')} description={t('page.description')} />
+    <Page>
+<PageHeader title={t('page.title')} description={t('page.description')} actions={<>
         {newButton}
-      </div>
+      
+      </>} />
       <div className="flex flex-col gap-3 sm:flex-row sm:items-center sm:justify-between">
         <nav aria-label={t('page.viewLabel')} className="flex gap-1 overflow-x-auto border-b">
           {(['current', 'all'] as const).map((candidate) => (
@@ -158,6 +159,6 @@ export function GoalsPage() {
         variant="destructive"
         onConfirm={() => (deleting ? remove(deleting) : undefined)}
       />
-    </div>
+    </Page>
   )
 }

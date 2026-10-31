@@ -10,6 +10,7 @@ import { RecordListView } from '@/features/records/table'
 import { Slot } from '@/kernel/modules/Slot'
 import { PRODUCT_CREATE_LAYOUT, PRODUCT_RECORD_TYPE, productPath } from './resource'
 import { PageHeader } from '@/components/ui/page-header'
+import { Page } from '@/components/ui/page'
 
 export function ProductsPage() {
   const { t } = useTranslation('products')
@@ -27,11 +28,11 @@ export function ProductsPage() {
   ) : undefined
 
   return (
-    <div className="flex flex-col gap-4">
-      <div className="flex flex-col gap-3 sm:flex-row sm:items-start sm:justify-between">
-        <PageHeader title={t('list.title')} description={t('list.description')} />
+    <Page>
+<PageHeader title={t('list.title')} description={t('list.description')} actions={<>
         <Slot name="products.list.header" props={{}} />
-      </div>
+      
+      </>} />
       <RecordListView
         recordType={PRODUCT_RECORD_TYPE}
         toolbarActions={newButton}
@@ -50,6 +51,6 @@ export function ProductsPage() {
           onCreated={(record) => navigate(productPath(record.id))}
         />
       )}
-    </div>
+    </Page>
   )
 }

@@ -34,6 +34,7 @@ import { DealsBoard } from './board/DealsBoard'
 import { DEAL_CREATE_LAYOUT, DEAL_RECORD_TYPE, dealPath } from './resource'
 import { PageHeader } from '@/components/ui/page-header'
 import { NativeSelect } from '@/components/ui/native-select'
+import { Page } from '@/components/ui/page'
 
 export const DEALS_MODE_PARAM = 'mode'
 export const DEALS_PIPELINE_PARAM = 'pipeline'
@@ -272,9 +273,8 @@ export function DealsPage() {
   ) : undefined
 
   return (
-    <div className={cn('flex min-w-0 flex-col gap-4', mode === 'board' && 'h-full')}>
-      <div className="flex flex-wrap items-end justify-between gap-3">
-        <PageHeader title={t('list.title')} description={t('list.description')} />
+    <Page className={cn(mode === 'board' && 'h-full')}>
+<PageHeader title={t('list.title')} description={t('list.description')} actions={<>
         <div className="flex flex-wrap items-center gap-2">
           <SegmentedControl
             aria-label={t('list.mode')}
@@ -288,7 +288,8 @@ export function DealsPage() {
           />
           {mode === 'board' && newButton}
         </div>
-      </div>
+      
+      </>} />
       {mode === 'board' ? (
         <BoardMode canMove={canMove} />
       ) : (
@@ -320,6 +321,6 @@ export function DealsPage() {
           onCreated={() => void queryClient.invalidateQueries({ queryKey: dealsKeys.boards() })}
         />
       )}
-    </div>
+    </Page>
   )
 }

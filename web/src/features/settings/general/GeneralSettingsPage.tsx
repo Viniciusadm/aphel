@@ -11,6 +11,7 @@ import { positiveInteger, useSaveConfiguration, type OrganizationConfiguration }
 import { ConfigurationGate } from './ConfigurationGate'
 import { serverFieldErrors } from './violations'
 import { PageHeader } from '@/components/ui/page-header'
+import { Page } from '@/components/ui/page'
 
 const schema = z.object({
   publicBaseUrl: z
@@ -32,11 +33,11 @@ function toFormValues(configuration: OrganizationConfiguration): FormValues {
 export function GeneralSettingsPage() {
   const { t } = useTranslation('settings')
   return (
-    <section className="grid gap-6" aria-labelledby="general-settings-title">
-      <PageHeader title={t('configuration.general.title')} description={t('configuration.general.description')} />
+    <Page aria-labelledby="general-settings-title">
+<PageHeader title={t('configuration.general.title')} description={t('configuration.general.description')} />
       <MailNotConfiguredNotice />
       <ConfigurationGate>{(configuration) => <GeneralForm configuration={configuration} />}</ConfigurationGate>
-    </section>
+    </Page>
   )
 }
 

@@ -20,6 +20,7 @@ import { DEFAULT_RECORD_TYPE } from './lib/field-types'
 import { mergeVisibleOrder, moveId } from './lib/order'
 import { useRecordTypeLabel } from './lib/useRecordTypeLabel'
 import { PageHeader } from '@/components/ui/page-header'
+import { Page } from '@/components/ui/page'
 
 export function FieldsPage() {
   const { recordType = DEFAULT_RECORD_TYPE } = useParams()
@@ -98,8 +99,8 @@ function FieldsSection({ recordType }: { recordType: string }) {
   const openCreate = () => setEditing({ fieldId: null })
 
   return (
-    <section className="grid grid-cols-1 gap-4">
-      <PageHeader
+    <Page>
+<PageHeader
         title={t('title')}
         description={t('description')}
         actions={
@@ -190,6 +191,6 @@ function FieldsSection({ recordType }: { recordType: string }) {
           onOpenChange={(open) => !open && setDeactivating(null)}
         />
       )}
-    </section>
+    </Page>
   )
 }

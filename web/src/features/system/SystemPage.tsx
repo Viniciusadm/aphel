@@ -15,6 +15,7 @@ import { ModulesSection, MigrationsSection } from './MigrationsSection'
 import { QueueSection } from './QueueSection'
 import { StatusSection } from './StatusSection'
 import { PageHeader } from '@/components/ui/page-header'
+import { Page } from '@/components/ui/page'
 
 const TWO_FACTOR_SETUP_REQUIRED = 'two_factor_setup_required'
 
@@ -66,9 +67,8 @@ export function SystemPage() {
   }
 
   return (
-    <div className="flex min-w-0 flex-col gap-4">
-      <div className="flex flex-col gap-3 sm:flex-row sm:items-end sm:justify-between">
-        <PageHeader title={t('page.title')} description={t('page.description')} />
+    <Page>
+<PageHeader title={t('page.title')} description={t('page.description')} actions={<>
         {overview.isSuccess && (
           <Button
             variant="outline"
@@ -79,8 +79,9 @@ export function SystemPage() {
             {t('page.refresh')}
           </Button>
         )}
-      </div>
+      
+      </>} />
       {body}
-    </div>
+    </Page>
   )
 }

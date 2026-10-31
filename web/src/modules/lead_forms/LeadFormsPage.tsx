@@ -20,6 +20,7 @@ import { FormEditorDialog } from './FormEditorDialog'
 import { SnippetsDialog } from './SnippetsDialog'
 import { SubmissionsDialog } from './SubmissionsDialog'
 import { PageHeader } from '@/components/ui/page-header'
+import { Page } from '@/components/ui/page'
 
 type PendingConfirmation = { kind: 'delete' | 'rotate'; form: LeadForm }
 
@@ -46,14 +47,14 @@ export function LeadFormsPage() {
   }
 
   return (
-    <section className="flex flex-col gap-4">
-      <div className="flex flex-col gap-3 sm:flex-row sm:items-end sm:justify-between">
-        <PageHeader title={t('page.title')} description={t('page.description')} />
+    <Page>
+<PageHeader title={t('page.title')} description={t('page.description')} actions={<>
         <Button size="sm" onClick={() => setCreating(true)}>
           <Plus aria-hidden="true" />
           {t('page.new')}
         </Button>
-      </div>
+      
+      </>} />
 
       {forms.isPending ? (
         <div className="grid gap-2" aria-busy="true">
@@ -117,7 +118,7 @@ export function LeadFormsPage() {
         variant="destructive"
         onConfirm={() => (pending ? confirm(pending) : undefined)}
       />
-    </section>
+    </Page>
   )
 }
 

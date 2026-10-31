@@ -15,6 +15,7 @@ import { toast } from '@/components/ui/toast-store'
 import { usePersonalPreferences, useUpdatePersonalPreferences } from './api'
 import type { NavigationPreferences, PersonalPreferences, SupportedLanguage } from './types'
 import { PageHeader } from '@/components/ui/page-header'
+import { Page } from '@/components/ui/page'
 
 const FOLLOW_ORGANIZATION = 'organization'
 const DEFAULT_HOME = '/'
@@ -41,8 +42,8 @@ function LanguageSection({ preferences }: { preferences: PersonalPreferences }) 
   }
 
   return (
-    <section className="grid gap-3">
-      <PageHeader title={t('language.title')} description={t('language.description')} />
+    <Page>
+<PageHeader title={t('language.title')} description={t('language.description')} />
       <div className="grid max-w-sm gap-2.5">
         <Label id={labelId}>{t('language.label')}</Label>
         <Select value={preferences.locale ?? FOLLOW_ORGANIZATION} onValueChange={change} disabled={update.isPending}>
@@ -59,7 +60,7 @@ function LanguageSection({ preferences }: { preferences: PersonalPreferences }) 
           </SelectContent>
         </Select>
       </div>
-    </section>
+    </Page>
   )
 }
 

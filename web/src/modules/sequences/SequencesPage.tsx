@@ -22,6 +22,7 @@ import {
 } from './constants'
 import { PageHeader } from '@/components/ui/page-header'
 import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from '@/components/ui/table'
+import { Page } from '@/components/ui/page'
 
 type ActiveFilter = '' | 'active' | 'inactive'
 
@@ -150,11 +151,11 @@ function SequencesList() {
   }
 
   return (
-    <div className="flex w-full flex-col gap-4">
-      <div className="flex flex-wrap items-start justify-between gap-3">
-        <PageHeader title={t('page.title')} description={t('page.description')} />
+    <Page>
+<PageHeader title={t('page.title')} description={t('page.description')} actions={<>
         {newButton}
-      </div>
+      
+      </>} />
       <div className="grid gap-3 sm:grid-cols-[minmax(0,1fr)_12rem]">
         <div className="grid gap-2.5">
           <Label htmlFor={searchId} className="sr-only">
@@ -196,6 +197,6 @@ function SequencesList() {
         </div>
       </div>
       {body}
-    </div>
+    </Page>
   )
 }

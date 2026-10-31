@@ -17,6 +17,7 @@ import { DisqualifyLeadDialog, type LeadTarget } from './DisqualifyLeadDialog'
 import { lifecycleErrorMessage } from './errors'
 import { leadTarget } from './lead-target'
 import { PageHeader } from '@/components/ui/page-header'
+import { Page } from '@/components/ui/page'
 
 export function LeadsPage() {
   const { t } = useTranslation('leads')
@@ -92,16 +93,16 @@ export function LeadsPage() {
   }
 
   return (
-    <div className="flex flex-col gap-4">
-      <div className="flex flex-wrap items-start justify-between gap-3">
-        <PageHeader title={t('inbox.title')} description={t('inbox.description')} />
+    <Page>
+<PageHeader title={t('inbox.title')} description={t('inbox.description')} actions={<>
         <Button asChild size="sm" variant="outline">
           <Link to={LEADS_REPORT_PATH}>
             <BarChart3 aria-hidden="true" />
             {t('report.open')}
           </Link>
         </Button>
-      </div>
+      
+      </>} />
       <RecordListView
         recordType={CONTACT_RECORD_TYPE}
         baseFilter={LEAD_INBOX_FILTER}
@@ -115,6 +116,6 @@ export function LeadsPage() {
         lead={converting}
         onOpenChange={(open) => !open && setConverting(null)}
       />
-    </div>
+    </Page>
   )
 }

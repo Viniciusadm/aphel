@@ -20,6 +20,7 @@ import { useOfflineQuery } from '@/pwa/offline/cache'
 import { TODAY_TASK_GROUPS, todayQueries, useTodayRange } from './api'
 import { ActivityMapLink } from '@/features/mobile/components/ActivityMapLink'
 import { PageHeader } from '@/components/ui/page-header'
+import { Page } from '@/components/ui/page'
 
 function RecordReference({ activity }: { activity: Activity }) {
   if (!activity.record) return null
@@ -144,8 +145,8 @@ export function TodayPage() {
   const fromCache = agenda.fromCache || tasks.fromCache
 
   return (
-    <div className="mx-auto grid w-full max-w-2xl gap-4">
-      <PageHeader
+    <Page className="mx-auto max-w-2xl">
+<PageHeader
         title={t('today.title')}
         description={<p className="first-letter:uppercase">{formatDayTitle(todayKey(formatting.timezone), formatting.locale)}</p>}
       />
@@ -190,6 +191,6 @@ export function TodayPage() {
           {t('today.seeInbox')}
         </Link>
       )}
-    </div>
+    </Page>
   )
 }
