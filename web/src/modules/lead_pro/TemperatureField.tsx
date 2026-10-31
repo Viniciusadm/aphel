@@ -32,6 +32,7 @@ export function TemperatureInput({ value, onChange, field: _field, initialValue:
         disabled={props.disabled}
       />
       <Input
+        placeholder="0"
         {...props}
         type="number"
         min={0}

@@ -203,7 +203,7 @@ export function ModuleSettingsDialog({ module, initialViolations, onClose, onSav
                     describedBy={describedBy}
                   />
                 ) : field.type === 'long_text' ? (
-                  <Textarea id={inputId} rows={4} aria-invalid={invalid} aria-describedby={describedBy} {...register(field.key)} />
+                  <Textarea placeholder={t('placeholders.value')} id={inputId} rows={4} aria-invalid={invalid} aria-describedby={describedBy} {...register(field.key)} />
                 ) : (
                   <Input
                     id={inputId}
@@ -213,7 +213,7 @@ export function ModuleSettingsDialog({ module, initialViolations, onClose, onSav
                     max={field.type === 'number' ? (field.max ?? undefined) : undefined}
                     autoComplete={field.type === 'secret' ? 'new-password' : 'off'}
                     disabled={clearing}
-                    placeholder={secretConfigured ? '••••••••' : undefined}
+                    placeholder={secretConfigured ? '••••••••' : t('placeholders.value')}
                     aria-invalid={invalid}
                     aria-describedby={describedBy}
                     {...register(field.key)}

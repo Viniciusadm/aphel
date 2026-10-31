@@ -85,7 +85,7 @@ export function BookingForm({ questions, submitting, onSubmit }: BookingFormProp
         <Label htmlFor="booking-name">
           {t('form.name')} <span aria-hidden>*</span>
         </Label>
-        <Input
+        <Input placeholder={t('placeholders.bookerName')}
           id="booking-name"
           autoComplete="name"
           aria-required
@@ -98,7 +98,7 @@ export function BookingForm({ questions, submitting, onSubmit }: BookingFormProp
         <Label htmlFor="booking-email">
           {t('form.email')} <span aria-hidden>*</span>
         </Label>
-        <Input
+        <Input placeholder={t('placeholders.bookerEmail')}
           id="booking-email"
           type="email"
           autoComplete="email"

@@ -87,5 +87,8 @@
     "syncFailed": "Sem cotação no provedor para: {{currencies}}",
     "lastSynced": "Última atualização: {{date}}",
     "neverSynced": "Ainda não atualizado"
+  },
+  "placeholders": {
+    "rate": "0,00"
   }
 }

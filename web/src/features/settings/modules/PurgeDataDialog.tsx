@@ -125,7 +125,7 @@ export function PurgeDataDialog({ module, name, onClose, onChanged }: PurgeDataD
               components={{ strong: <strong className="font-semibold break-all" /> }}
             />
           </Label>
-          <Input
+          <Input placeholder={module.key}
             id={inputId}
             value={typed}
             autoComplete="off"

@@ -105,7 +105,7 @@ export function LoginPage() {
             values={lockedMinutes === null ? undefined : { count: lockedMinutes }}
           />
         )}
-        <FormField
+        <FormField placeholder={t('placeholders.email')}
           id="login-email"
           type="email"
           autoComplete="email"
@@ -114,7 +114,7 @@ export function LoginPage() {
           {...register('email')}
         />
         <div className="grid gap-2">
-          <FormField
+          <FormField placeholder={t('placeholders.password')}
             id="login-password"
             type="password"
             autoComplete="current-password"

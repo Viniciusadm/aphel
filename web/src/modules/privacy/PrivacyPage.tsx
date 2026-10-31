@@ -45,7 +45,7 @@ function PrivacySection() {
     <section className="flex min-w-0 flex-col gap-4">
       <SectionHeader title={t('page.title')} description={t('page.description')} />
       <Tabs value={tab} onValueChange={changeTab} className="flex min-w-0 flex-col gap-4">
-        <TabsList aria-label={t('page.tabsLabel')} className="max-w-full self-start overflow-x-auto">
+        <TabsList aria-label={t('page.tabsLabel')}>
           {TABS.map((value) => (
             <TabsTrigger key={value} value={value}>
               {t(`tabs.${value}`)}

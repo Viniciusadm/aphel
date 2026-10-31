@@ -1,3 +1,4 @@
+import { Badge } from '@/components/ui/badge'
 import { Bell } from 'lucide-react'
 import { useState } from 'react'
 import { useTranslation } from 'react-i18next'
@@ -20,12 +21,15 @@ export function NotificationBell() {
         <Button variant="ghost" size="icon" className="relative" aria-label={label}>
           <Bell />
           {count > 0 && (
-            <span
+            <Badge
+              count
+              size="sm"
+              variant="destructive"
               aria-hidden="true"
-              className="absolute -top-0.5 -right-0.5 flex h-4 min-w-4 items-center justify-center rounded-full bg-destructive-solid px-1 text-[10px] leading-none font-semibold text-destructive-foreground"
+              className="absolute -top-0.5 -right-0.5"
             >
               {count > MAX_BADGE_COUNT ? `${MAX_BADGE_COUNT}+` : count}
-            </span>
+            </Badge>
           )}
         </Button>
       </PopoverTrigger>

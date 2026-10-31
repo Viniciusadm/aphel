@@ -1,3 +1,4 @@
+import { SegmentedControl } from '@/components/ui/segmented-control'
 import { useQueryClient } from '@tanstack/react-query'
 import { KanbanSquare, Plus, Table2 } from 'lucide-react'
 import { useEffect, useMemo, useState } from 'react'
@@ -276,26 +277,16 @@ export function DealsPage() {
           <p className="text-sm text-muted-foreground">{t('list.description')}</p>
         </div>
         <div className="flex flex-wrap items-center gap-2">
-          <div role="group" aria-label={t('list.mode')} className="inline-flex rounded-md border p-0.5">
-            {(
-              [
-                ['board', KanbanSquare, t('list.board')],
-                ['table', Table2, t('list.table')],
-              ] as const
-            ).map(([value, Icon, label]) => (
-              <Button
-                key={value}
-                variant="ghost"
-                size="sm"
-                aria-pressed={mode === value}
-                className={cn('h-7', mode === value && 'bg-accent text-accent-foreground')}
-                onClick={() => setMode(value)}
-              >
-                <Icon aria-hidden="true" />
-                {label}
-              </Button>
-            ))}
-          </div>
+          <SegmentedControl
+            aria-label={t('list.mode')}
+            size="sm"
+            value={mode}
+            onValueChange={setMode}
+            options={[
+              { value: 'board', label: t('list.board'), icon: <KanbanSquare aria-hidden="true" /> },
+              { value: 'table', label: t('list.table'), icon: <Table2 aria-hidden="true" /> },
+            ]}
+          />
           {mode === 'board' && newButton}
         </div>
       </div>

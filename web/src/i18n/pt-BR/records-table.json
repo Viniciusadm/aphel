@@ -112,7 +112,10 @@
     "removeRelated": "Remover condição relacionada",
     "relatedLoading": "Carregando os campos da relação…",
     "relatedUnavailable": "Esta relação não está disponível para edição.",
-    "relatedReadOnly": "Condição mantida sem alterações: {{summary}}"
+    "relatedReadOnly": "Condição mantida sem alterações: {{summary}}",
+    "daysPlaceholder": "0",
+    "numberPlaceholder": "0",
+    "valuePlaceholder": "Valor"
   },
   "operators": {
     "eq": "é igual a",

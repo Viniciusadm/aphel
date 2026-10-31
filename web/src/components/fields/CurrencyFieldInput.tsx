@@ -1,3 +1,4 @@
+import { useTranslation } from 'react-i18next'
 import { MoneyInput } from '@/components/ui/money-input'
 import { moneyFromNumber, moneyToNumber } from '@/lib/money'
 import { DEFAULT_CURRENCY_DECIMALS } from './lib/currency'
@@ -11,6 +12,7 @@ export interface CurrencyFieldInputProps extends FieldInputBaseProps<number> {
 }
 
 export function CurrencyFieldInput({ locale, decimals, ...props }: CurrencyFieldInputProps) {
+  const { t } = useTranslation('records-form')
   const fractionDigits = decimals ?? DEFAULT_CURRENCY_DECIMALS
   return (
     <MoneyInput
@@ -19,6 +21,7 @@ export function CurrencyFieldInput({ locale, decimals, ...props }: CurrencyField
       decimals={fractionDigits}
       separators={numberSeparators(locale)}
       allowNegative
+      placeholder={t('input.currencyPlaceholder')}
       value={moneyFromNumber(props.value, fractionDigits)}
       onValueChange={(next) => props.onChange(moneyToNumber(next))}
     />

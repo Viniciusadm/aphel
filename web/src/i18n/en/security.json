@@ -21,7 +21,10 @@
       "mismatch": "The passwords do not match.",
       "same": "The new password must be different from the current one.",
       "wrongCurrent": "The current password is incorrect."
-    }
+    },
+    "currentPlaceholder": "Enter your current password",
+    "newPlaceholder": "Create a new password",
+    "confirmationPlaceholder": "Repeat the new password"
   },
   "sessions": {
     "title": "Active sessions",

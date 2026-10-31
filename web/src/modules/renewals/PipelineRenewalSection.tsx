@@ -137,7 +137,7 @@ function RenewalForm({ pipelineId, settings, pipelines }: RenewalFormProps) {
       <div className="grid gap-4 sm:grid-cols-2">
         <div className="grid gap-1.5">
           <Label htmlFor={ids.days}>{t('renewal.daysBefore')}</Label>
-          <Input
+          <Input placeholder={t('placeholders.days')}
             id={ids.days}
             inputMode="numeric"
             value={draft.days_before}
@@ -198,7 +198,7 @@ function RenewalForm({ pipelineId, settings, pipelines }: RenewalFormProps) {
         </div>
         <div className="grid gap-1.5 sm:col-span-2">
           <Label htmlFor={ids.prefix}>{t('renewal.titlePrefix')}</Label>
-          <Input
+          <Input placeholder={t('placeholders.titlePrefix')}
             id={ids.prefix}
             value={draft.title_prefix}
             maxLength={60}

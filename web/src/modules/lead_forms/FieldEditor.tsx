@@ -68,12 +68,12 @@ export function FieldEditor({ index, total, targets, onMove, onRemove }: FieldEd
       <div className="grid gap-3 sm:grid-cols-2">
         <div className="grid gap-1.5">
           <Label htmlFor={`${prefix}-label`}>{t('editor.label')}</Label>
-          <Input id={`${prefix}-label`} {...register(`fields.${index}.label`, { onBlur: fillKey })} />
+          <Input placeholder={t('editor.labelPlaceholder')} id={`${prefix}-label`} {...register(`fields.${index}.label`, { onBlur: fillKey })} />
           {errors?.label && <p className="text-xs text-destructive">{message(errors.label.message)}</p>}
         </div>
         <div className="grid gap-1.5">
           <Label htmlFor={`${prefix}-key`}>{t('editor.key')}</Label>
-          <Input id={`${prefix}-key`} className="font-mono" {...register(`fields.${index}.key`)} />
+          <Input placeholder={t('editor.keyPlaceholder')} id={`${prefix}-key`} className="font-mono" {...register(`fields.${index}.key`)} />
           {errors?.key && <p className="text-xs text-destructive">{message(errors.key.message)}</p>}
         </div>
         <div className="grid gap-1.5">
@@ -113,7 +113,7 @@ export function FieldEditor({ index, total, targets, onMove, onRemove }: FieldEd
         {kind === 'select' && (
           <div className="grid gap-1.5 sm:col-span-2">
             <Label htmlFor={`${prefix}-options`}>{t('editor.options')}</Label>
-            <Textarea id={`${prefix}-options`} rows={3} {...register(`fields.${index}.options`)} />
+            <Textarea placeholder={t('editor.optionsPlaceholder')} id={`${prefix}-options`} rows={3} {...register(`fields.${index}.options`)} />
             <p className="text-xs text-muted-foreground">{t('editor.optionsHelp')}</p>
             {errors?.options && <p className="text-xs text-destructive">{message(errors.options.message)}</p>}
           </div>

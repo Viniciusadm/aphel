@@ -429,7 +429,7 @@ function ConfigurationFields({
                 ))}
               </NativeSelect>
             ) : (
-              <Input
+              <Input placeholder={t('placeholders.value')}
                 id={id}
                 type={inputType}
                 required={field.required}

@@ -151,6 +151,12 @@
     "actions": {
       "cancel": "Cancel",
       "save": "Save"
+    },
+    "placeholders": {
+      "lostReason": "E.g.: Price too high",
+      "pipelineName": "E.g.: Sales",
+      "probability": "E.g.: 50",
+      "stageName": "E.g.: Proposal sent"
     }
   },
   "guidance": {
@@ -187,6 +193,10 @@
     },
     "errors": {
       "checklistIncomplete": "Complete the required items of the stage guidance before advancing: {{items}}."
+    },
+    "placeholders": {
+      "checklistItem": "E.g.: Confirm budget",
+      "guidance": "Guide the team on this stage"
     }
   },
   "rotting": {
@@ -208,6 +218,18 @@
     "filter": {
       "label": "Rotting",
       "description": "Show only deals rotting in their stage"
+    },
+    "placeholders": {
+      "days": "E.g.: 14"
     }
+  },
+  "placeholders": {
+    "pipelineName": "E.g.: Sales",
+    "lostReason": "E.g.: Price too high",
+    "stageName": "E.g.: Proposal sent",
+    "probability": "E.g.: 50",
+    "guidance": "Guide the team on this stage",
+    "checklistItem": "E.g.: Confirm budget",
+    "days": "E.g.: 14"
   }
 }

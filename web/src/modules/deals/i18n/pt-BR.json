@@ -204,6 +204,10 @@
       "activate": "Ativar",
       "deactivate": "Desativar",
       "empty": "Nenhum papel cadastrado"
+    },
+    "placeholders": {
+      "credit": "0",
+      "roleName": "Ex.: Gerente da conta"
     }
   },
   "nav": {
@@ -211,5 +215,8 @@
   },
   "createAction": {
     "label": "Nova oportunidade"
+  },
+  "placeholders": {
+    "note": "Conte o que aconteceu"
   }
 }

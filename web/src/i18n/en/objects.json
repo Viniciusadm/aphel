@@ -73,7 +73,9 @@
     "errors": {
       "labelRequired": "Enter the name.",
       "keyInvalid": "Use only lowercase letters and _ (up to {{max}} characters), starting with a letter."
-    }
+    },
+    "keyPlaceholder": "E.g.: contract",
+    "descriptionPlaceholder": "Describe what this object is for"
   },
   "removal": {
     "deleteTitle": "Delete {{label}}?",
@@ -168,6 +170,12 @@
       "keyInvalid": "Use lowercase letters, digits and _, starting with a letter.",
       "sameKeys": "When both sides have the same type, the keys must differ.",
       "serverValidation": "Could not save: check whether the keys are already used by a field or another relation of the chosen types."
+    },
+    "editor": {
+      "fromLabelPlaceholder": "E.g.: Contacts",
+      "toLabelPlaceholder": "E.g.: Company",
+      "keyPlaceholder": "E.g.: company_contacts",
+      "inverseKeyPlaceholder": "E.g.: contact_company"
     }
   },
   "records": {

@@ -126,7 +126,7 @@ function SegmentForm({ schema, recordType, editing, onClose, onSaved }: SegmentF
       >
         <div className="grid gap-1.5">
           <Label htmlFor={`${formId}-name`}>{t('dialog.name')}</Label>
-          <Input
+          <Input placeholder={t('placeholders.name')}
             id={`${formId}-name`}
             value={name}
             maxLength={MAX_SEGMENT_NAME_LENGTH}
@@ -138,7 +138,7 @@ function SegmentForm({ schema, recordType, editing, onClose, onSaved }: SegmentF
         </div>
         <div className="grid gap-1.5">
           <Label htmlFor={`${formId}-description`}>{t('dialog.descriptionLabel')}</Label>
-          <Textarea
+          <Textarea placeholder={t('placeholders.description')}
             id={`${formId}-description`}
             value={description}
             maxLength={MAX_SEGMENT_DESCRIPTION_LENGTH}

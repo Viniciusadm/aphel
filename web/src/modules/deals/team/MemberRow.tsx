@@ -66,7 +66,7 @@ export function MemberRow({ member, isOwner, roles, readOnly, busy, onSave, onRe
           {formatPercent(member.credit_percent, i18n.language)}
         </span>
       ) : (
-        <Input
+        <Input placeholder={t('placeholders.credit')}
           inputMode="decimal"
           value={credit}
           disabled={busy}

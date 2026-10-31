@@ -173,7 +173,7 @@ function SettingsForm({ settings }: { settings: ForecastSettings }) {
         <div className="grid gap-4 sm:grid-cols-2">
           <FormRow id={`${formId}-best-case`} label={t('settings.bestCase')} error={errorText(errors.bestCase?.message)}>
             {(describedBy) => (
-              <Input
+              <Input placeholder={t('placeholders.percent')}
                 id={`${formId}-best-case`}
                 type="number"
                 min={1}
@@ -187,7 +187,7 @@ function SettingsForm({ settings }: { settings: ForecastSettings }) {
           </FormRow>
           <FormRow id={`${formId}-commit`} label={t('settings.commit')} error={errorText(errors.commit?.message)}>
             {(describedBy) => (
-              <Input
+              <Input placeholder={t('placeholders.percent')}
                 id={`${formId}-commit`}
                 type="number"
                 min={1}

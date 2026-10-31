@@ -93,7 +93,9 @@
     "personal": "Personal data",
     "personalHint": "Identifies or may identify a person (name, email, phone, document). Included in data subject search, export and anonymization.",
     "sensitive": "Sensitive data",
-    "sensitiveHint": "Racial or ethnic origin, health, religion, political opinion, biometrics and similar (LGPD art. 5, II). Sensitive data is always personal too."
+    "sensitiveHint": "Racial or ethnic origin, health, religion, political opinion, biometrics and similar (LGPD art. 5, II). Sensitive data is always personal too.",
+    "labelPlaceholder": "E.g.: Work phone",
+    "keyPlaceholder": "E.g.: work_phone"
   },
   "config": {
     "min": "Minimum value",
@@ -115,7 +117,9 @@
     "noDefault": "No default value",
     "checked": "Checked",
     "unchecked": "Unchecked",
-    "noOptions": "Add options to choose a default value."
+    "noOptions": "Add options to choose a default value.",
+    "valuePlaceholder": "Enter the value",
+    "defaultValuePlaceholder": "Default value (optional)"
   },
   "options": {
     "title": "Options",
@@ -133,7 +137,8 @@
     "newColorPicker": "Pick new option color",
     "add": "Add option",
     "valueHint": "Value: {{value}}",
-    "inactiveHint": "Inactive options can no longer be chosen, but records that already use them keep the value."
+    "inactiveHint": "Inactive options can no longer be chosen, but records that already use them keep the value.",
+    "labelPlaceholder": "E.g.: In negotiation"
   },
   "confirmDeactivate": {
     "title": "Deactivate the {{label}} field?",

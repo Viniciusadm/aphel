@@ -32,5 +32,9 @@
       "contractEnd": "Contract ends: {{date}}",
       "partial": "MRR in the base currency; contracts without an exchange rate were left out of the sum."
     }
+  },
+  "placeholders": {
+    "days": "E.g.: 30",
+    "titlePrefix": "E.g.: Renewal:"
   }
 }

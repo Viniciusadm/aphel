@@ -305,6 +305,14 @@
       "headers": "Cabeçalhos",
       "body": "Corpo ({{size}} bytes)",
       "truncated": "truncado"
+    },
+    "placeholders": {
+      "tolerance": "Ex.: 300",
+      "description": "Descreva para que serve este webhook"
     }
+  },
+  "placeholders": {
+    "description": "Descreva para que serve este webhook",
+    "tolerance": "Ex.: 300"
   }
 }

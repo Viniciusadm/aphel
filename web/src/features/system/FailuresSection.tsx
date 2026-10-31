@@ -66,7 +66,7 @@ function FailureTabs({ failures }: { failures: RecentFailures }) {
   const { t } = useTranslation('system')
   return (
     <Tabs defaultValue="automations" className="grid gap-3">
-      <TabsList className="h-auto flex-wrap justify-start" aria-label={t('failures.title')}>
+      <TabsList aria-label={t('failures.title')}>
         {TABS.map((tab) => (
           <TabsTrigger key={tab} value={tab} className="h-7">
             {t(`failures.tabs.${tab}`)} ({failures[tab].length})

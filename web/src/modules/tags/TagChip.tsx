@@ -1,5 +1,6 @@
 import { X } from 'lucide-react'
 import { useTranslation } from 'react-i18next'
+import { Badge } from '@/components/ui/badge'
 import { cn } from '@/lib/utils'
 
 export interface TagChipProps {
@@ -13,13 +14,11 @@ export interface TagChipProps {
 export function TagChip({ name, color, onRemove, disabled, className }: TagChipProps) {
   const { t } = useTranslation('tags')
   return (
-    <span
-      className={cn(
-        'inline-flex max-w-full min-w-0 items-center gap-1.5 rounded-full border bg-background px-2 py-0.5 text-xs font-medium',
-        className,
-      )}
+    <Badge
+      variant="outline"
+      className={cn('max-w-full min-w-0 gap-1.5 rounded-full bg-background', className)}
+      icon={<span aria-hidden="true" className="size-2 shrink-0 rounded-full" style={{ backgroundColor: color }} />}
     >
-      <span aria-hidden="true" className="size-2 shrink-0 rounded-full" style={{ backgroundColor: color }} />
       <span className="truncate">{name}</span>
       {onRemove && (
         <button
@@ -32,7 +31,7 @@ export function TagChip({ name, color, onRemove, disabled, className }: TagChipP
           <X className="size-3" aria-hidden="true" />
         </button>
       )}
-    </span>
+    </Badge>
   )
 }
 

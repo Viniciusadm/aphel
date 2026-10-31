@@ -218,7 +218,7 @@ function PolicyForm({ policy, pipelineOfStage, onOpenChange }: PolicyFormProps) 
       <div className="grid gap-3 sm:grid-cols-2">
         <div className="grid gap-1.5">
           <Label htmlFor={ids.name}>{t('form.name')}</Label>
-          <Input
+          <Input placeholder={t('placeholders.name')}
             id={ids.name}
             value={draft.name}
             maxLength={140}
@@ -232,7 +232,7 @@ function PolicyForm({ policy, pipelineOfStage, onOpenChange }: PolicyFormProps) 
         </div>
         <div className="grid gap-1.5">
           <Label htmlFor={ids.key}>{t('form.key')}</Label>
-          <Input
+          <Input placeholder={t('placeholders.key')}
             id={ids.key}
             value={draft.key}
             maxLength={64}
@@ -245,7 +245,7 @@ function PolicyForm({ policy, pipelineOfStage, onOpenChange }: PolicyFormProps) 
         </div>
         <div className="grid gap-1.5 sm:col-span-2">
           <Label htmlFor={ids.description}>{t('form.descriptionField')}</Label>
-          <Textarea
+          <Textarea placeholder={t('placeholders.description')}
             id={ids.description}
             value={draft.description}
             rows={2}

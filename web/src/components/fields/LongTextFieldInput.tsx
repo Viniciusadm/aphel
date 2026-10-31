@@ -1,3 +1,4 @@
+import { useTranslation } from 'react-i18next'
 import { Textarea } from '@/components/ui/textarea'
 import { ariaProps, type FieldInputBaseProps } from './types'
 
@@ -7,10 +8,12 @@ export interface LongTextFieldInputProps extends FieldInputBaseProps<string> {
 }
 
 export function LongTextFieldInput({ maxLength, rows = 4, ...props }: LongTextFieldInputProps) {
+  const { t } = useTranslation('records-form')
   return (
     <Textarea
       {...ariaProps(props)}
       rows={rows}
+      placeholder={t('input.longTextPlaceholder')}
       maxLength={maxLength}
       className={props.className}
       value={props.value ?? ''}

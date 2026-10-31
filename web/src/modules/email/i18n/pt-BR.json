@@ -368,5 +368,14 @@
     "clicked": "Link clicado no e-mail",
     "bounced": "E-mail devolvido",
     "open": "Abrir conversa"
+  },
+  "placeholders": {
+    "templateName": "Ex.: Boas-vindas",
+    "templateKey": "Ex.: boas_vindas",
+    "subject": "Ex.: Bem-vindo à nossa empresa",
+    "bodyHtml": "Escreva o conteúdo do e-mail",
+    "historyDays": "Ex.: 30",
+    "username": "Ex.: voce@empresa.com",
+    "port": "Ex.: 993"
   }
 }

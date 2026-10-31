@@ -49,7 +49,7 @@ export function CancelBookingDialog({ booking, onClose }: CancelBookingDialogPro
     >
       <div className="grid gap-1">
         <Label htmlFor={reasonId}>{t('bookings.reason')}</Label>
-        <Textarea id={reasonId} rows={3} value={reason} onChange={(event) => setReason(event.target.value)} />
+        <Textarea placeholder={t('placeholders.reason')} id={reasonId} rows={3} value={reason} onChange={(event) => setReason(event.target.value)} />
       </div>
     </ConfirmDialog>
   )

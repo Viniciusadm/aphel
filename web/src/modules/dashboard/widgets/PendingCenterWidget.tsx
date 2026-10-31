@@ -1,3 +1,4 @@
+import { Badge } from '@/components/ui/badge'
 import { AlarmClock, CalendarClock, CalendarDays, Hourglass, type LucideIcon } from 'lucide-react'
 import type { ReactNode } from 'react'
 import { useTranslation } from 'react-i18next'
@@ -25,14 +26,9 @@ function Section<T extends { id: string }>({ id, icon: Icon, title, bucket, tone
       <h4 id={headingId} className="flex items-center gap-2 text-sm font-medium">
         <Icon className={cn('size-4', tone === 'danger' && bucket.count > 0 ? 'text-destructive' : 'text-muted-foreground')} aria-hidden />
         <span className="truncate">{title}</span>
-        <span
-          className={cn(
-            'ml-auto rounded-full px-2 py-0.5 text-xs tabular-nums',
-            tone === 'danger' && bucket.count > 0 ? 'bg-destructive/10 text-destructive' : 'bg-muted text-muted-foreground',
-          )}
-        >
+        <Badge count tone={tone === 'danger' && bucket.count > 0 ? 'destructive' : 'neutral'} className="ml-auto">
           {bucket.count}
-        </span>
+        </Badge>
       </h4>
       {bucket.count === 0 ? (
         <p className="text-xs text-muted-foreground">{t('widgets.pending_center.noItems')}</p>

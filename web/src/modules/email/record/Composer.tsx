@@ -363,7 +363,7 @@ function ComposerForm({ record, mailboxes, reply, onDirtyChange, onCancel, onSen
       )}
       <div className="grid content-start gap-1.5">
         <Label htmlFor={`${formId}-subject`}>{t('fields.subject')}</Label>
-        <Input
+        <Input placeholder={t('placeholders.subject')}
           id={`${formId}-subject`}
           ref={subjectRef}
           value={subject}
@@ -381,7 +381,7 @@ function ComposerForm({ record, mailboxes, reply, onDirtyChange, onCancel, onSen
       </div>
       <Tabs value={tab} onValueChange={changeTab} className="grid gap-3">
         <div className="flex flex-wrap items-center justify-between gap-2">
-          <TabsList className="w-fit">
+          <TabsList>
             <TabsTrigger value="write">{t('composer.write')}</TabsTrigger>
             <TabsTrigger value="preview">{t('composer.preview')}</TabsTrigger>
           </TabsList>

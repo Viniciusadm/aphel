@@ -242,7 +242,7 @@ function RoleForm({
       >
         <div className="grid gap-1.5">
           <Label htmlFor={`${formId}-name`}>{t('roles.name')}</Label>
-          <Input
+          <Input placeholder={t('placeholders.roleName')}
             id={`${formId}-name`}
             value={name}
             autoFocus

@@ -1,4 +1,5 @@
 import { useState } from 'react'
+import { useTranslation } from 'react-i18next'
 import { Input } from '@/components/ui/input'
 import { formatNumberDraft, parseLocaleNumber } from './lib/number'
 import { ariaProps, type FieldInputBaseProps } from './types'
@@ -9,6 +10,7 @@ export interface NumberFieldInputProps extends FieldInputBaseProps<number | stri
 }
 
 export function NumberFieldInput({ locale, decimals, ...props }: NumberFieldInputProps) {
+  const { t } = useTranslation('records-form')
   const { value, onChange } = props
   const [draft, setDraft] = useState(() => formatNumberDraft(value, locale))
   const [lastValue, setLastValue] = useState(value)
@@ -26,6 +28,7 @@ export function NumberFieldInput({ locale, decimals, ...props }: NumberFieldInpu
       type="text"
       inputMode={decimals === 0 ? 'numeric' : 'decimal'}
       autoComplete="off"
+      placeholder={t('input.numberPlaceholder')}
       className={props.className}
       value={draft}
       onChange={(event) => {

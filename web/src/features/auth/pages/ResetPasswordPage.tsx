@@ -72,7 +72,7 @@ export function ResetPasswordPage() {
     <AuthCard title={t('resetPassword.title')} description={t('resetPassword.description')}>
       <form noValidate onSubmit={onSubmit} className="grid gap-4">
         <FormAlert message={errors.root?.server?.message} />
-        <FormField
+        <FormField placeholder={t('placeholders.newPassword')}
           id="reset-password-password"
           type="password"
           autoComplete="new-password"

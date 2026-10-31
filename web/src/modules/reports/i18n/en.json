@@ -265,6 +265,11 @@
       "unavailable": "This report no longer exists or is not shared with you.",
       "error": "The report could not be loaded.",
       "useDashboardPeriod": "Use the dashboard period"
+    },
+    "placeholders": {
+      "description": "Describe what this report shows",
+      "day": "E.g.: 1",
+      "limit": "E.g.: 10"
     }
   },
   "builtin": {
@@ -397,5 +402,10 @@
   },
   "nav": {
     "reports": "Reports"
+  },
+  "placeholders": {
+    "limit": "E.g.: 10",
+    "description": "Describe what this report shows",
+    "day": "E.g.: 1"
   }
 }

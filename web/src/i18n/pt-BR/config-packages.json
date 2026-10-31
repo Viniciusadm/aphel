@@ -92,7 +92,9 @@
     "hint": "Só entra o que é portável: campos e opções ativos, funis, motivos, tipos de atividade, etiquetas, layouts, visualizações da organização e o dashboard padrão. Nenhum contato, empresa ou oportunidade é exportado.",
     "submit": "Exportar e baixar",
     "exporting": "Exportando…",
-    "done": "Arquivo {{file}} baixado."
+    "done": "Arquivo {{file}} baixado.",
+    "authorPlaceholder": "Ex.: Time de Operações",
+    "packageDescriptionPlaceholder": "Descreva o que este pacote configura"
   },
   "install": {
     "planning": "Analisando o pacote…",

@@ -74,7 +74,7 @@ function DisableForm({ onClose }: { onClose: () => void }) {
         <DialogTitle>{t('disable.title')}</DialogTitle>
         <DialogDescription>{t('disable.description')}</DialogDescription>
       </DialogHeader>
-      <TextField
+      <TextField placeholder={t('fields.passwordPlaceholder')}
         label={t('fields.password')}
         type="password"
         autoComplete="current-password"
@@ -82,7 +82,7 @@ function DisableForm({ onClose }: { onClose: () => void }) {
         onChange={(event) => setPassword(event.target.value)}
         error={errors.password}
       />
-      <TextField
+      <TextField placeholder={t('fields.codePlaceholder')}
         label={t('fields.code')}
         hint={t('fields.codeHint')}
         value={code}

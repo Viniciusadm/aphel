@@ -1,43 +1,41 @@
 import { useTranslation } from 'react-i18next'
-import { Badge, type BadgeProps } from '@/components/ui/badge'
+import { Badge, type BadgeTone } from '@/components/ui/badge'
 import type { AutomationStatus, RunStatus, StepStatus } from '../types'
 
-type Variant = BadgeProps['variant']
-
-const AUTOMATION_VARIANTS: Record<AutomationStatus, Variant> = {
-  draft: 'secondary',
+const AUTOMATION_VARIANTS: Record<AutomationStatus, BadgeTone> = {
+  draft: 'neutral',
   active: 'success',
   paused: 'warning',
 }
 
-const RUN_VARIANTS: Record<RunStatus, Variant> = {
-  running: 'default',
+const RUN_VARIANTS: Record<RunStatus, BadgeTone> = {
+  running: 'primary',
   waiting: 'warning',
   succeeded: 'success',
   failed: 'destructive',
-  skipped: 'secondary',
-  cancelled: 'outline',
+  skipped: 'neutral',
+  cancelled: 'neutral',
 }
 
-const STEP_VARIANTS: Record<StepStatus, Variant> = {
+const STEP_VARIANTS: Record<StepStatus, BadgeTone> = {
   succeeded: 'success',
   failed: 'destructive',
-  skipped: 'secondary',
-  planned: 'outline',
+  skipped: 'neutral',
+  planned: 'neutral',
   waiting: 'warning',
 }
 
 export function AutomationStatusBadge({ status }: { status: AutomationStatus }) {
   const { t } = useTranslation('automations')
-  return <Badge variant={AUTOMATION_VARIANTS[status] ?? 'outline'}>{t(`status.${status}`, { defaultValue: status })}</Badge>
+  return <Badge tone={AUTOMATION_VARIANTS[status] ?? 'neutral'}>{t(`status.${status}`, { defaultValue: status })}</Badge>
 }
 
 export function RunStatusBadge({ status }: { status: RunStatus }) {
   const { t } = useTranslation('automations')
-  return <Badge variant={RUN_VARIANTS[status] ?? 'outline'}>{t(`runStatus.${status}`, { defaultValue: status })}</Badge>
+  return <Badge tone={RUN_VARIANTS[status] ?? 'neutral'}>{t(`runStatus.${status}`, { defaultValue: status })}</Badge>
 }
 
 export function StepStatusBadge({ status }: { status: StepStatus }) {
   const { t } = useTranslation('automations')
-  return <Badge variant={STEP_VARIANTS[status] ?? 'outline'}>{t(`stepStatus.${status}`, { defaultValue: status })}</Badge>
+  return <Badge tone={STEP_VARIANTS[status] ?? 'neutral'}>{t(`stepStatus.${status}`, { defaultValue: status })}</Badge>
 }

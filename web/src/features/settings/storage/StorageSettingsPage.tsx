@@ -186,7 +186,7 @@ function StorageForm({ configuration }: { configuration: OrganizationConfigurati
             hint={t('configuration.storage.pathHint')}
           >
             {(describedBy) => (
-              <Input
+              <Input placeholder={t('configuration.storage.pathPlaceholder')}
                 id="storage-path"
                 className="font-mono"
                 aria-invalid={errors.path ? true : undefined}
@@ -199,12 +199,12 @@ function StorageForm({ configuration }: { configuration: OrganizationConfigurati
           <>
             <FormRow id="storage-bucket" label={t('configuration.storage.bucket')} error={errorText(errors.bucket?.message)}>
               {(describedBy) => (
-                <Input id="storage-bucket" aria-describedby={describedBy} {...register('bucket')} />
+                <Input placeholder={t('configuration.storage.bucketPlaceholder')} id="storage-bucket" aria-describedby={describedBy} {...register('bucket')} />
               )}
             </FormRow>
             <FormRow id="storage-region" label={t('configuration.storage.region')} error={errorText(errors.region?.message)}>
               {(describedBy) => (
-                <Input id="storage-region" aria-describedby={describedBy} {...register('region')} />
+                <Input placeholder={t('configuration.storage.regionPlaceholder')} id="storage-region" aria-describedby={describedBy} {...register('region')} />
               )}
             </FormRow>
             <FormRow
@@ -225,7 +225,7 @@ function StorageForm({ configuration }: { configuration: OrganizationConfigurati
             </FormRow>
             <FormRow id="storage-access-key" label={t('configuration.storage.accessKeyId')}>
               {(describedBy) => (
-                <Input
+                <Input placeholder={t('configuration.storage.accessKeyIdPlaceholder')}
                   id="storage-access-key"
                   autoComplete="off"
                   aria-describedby={describedBy}
@@ -243,7 +243,7 @@ function StorageForm({ configuration }: { configuration: OrganizationConfigurati
               }
             >
               {(describedBy) => (
-                <Input
+                <Input placeholder={t('configuration.storage.secretKeyPlaceholder')}
                   id="storage-secret-key"
                   type="password"
                   autoComplete="new-password"

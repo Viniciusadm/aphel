@@ -60,7 +60,7 @@ export function SimulationDialog({ rule, onClose }: SimulationDialogProps) {
         <form className="flex flex-wrap items-end gap-3" onSubmit={run}>
           <div className="grid w-28 gap-1">
             <Label htmlFor="simulation-count">{t('simulation.count')}</Label>
-            <Input
+            <Input placeholder={t('placeholders.count')}
               id="simulation-count"
               type="number"
               min={1}

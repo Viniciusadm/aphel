@@ -112,7 +112,7 @@ export function PluginSettingsDialog({ plugin, onClose, onSaved }: PluginSetting
             return (
               <div key={setting.key} className="grid gap-1.5">
                 <Label htmlFor={inputId}>{setting.label}</Label>
-                <Input
+                <Input placeholder={t('placeholders.value')}
                   id={inputId}
                   type={isSecret ? 'password' : setting.type === 'number' ? 'number' : 'text'}
                   autoComplete={isSecret ? 'new-password' : undefined}

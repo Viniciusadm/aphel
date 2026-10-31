@@ -204,6 +204,10 @@
       "activate": "Activate",
       "deactivate": "Deactivate",
       "empty": "No roles yet"
+    },
+    "placeholders": {
+      "credit": "0",
+      "roleName": "E.g.: Account manager"
     }
   },
   "nav": {
@@ -211,5 +215,8 @@
   },
   "createAction": {
     "label": "New deal"
+  },
+  "placeholders": {
+    "note": "Tell us what happened"
   }
 }

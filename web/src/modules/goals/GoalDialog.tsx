@@ -339,7 +339,7 @@ function GoalForm({ owners, editing, onClose, onSaved }: GoalFormProps) {
             error={errorText(errors.target?.message)}
           >
             {(describedBy) => (
-              <Input
+              <Input placeholder={t('placeholders.target')}
                 id={`${formId}-target`}
                 inputMode="decimal"
                 autoComplete="off"

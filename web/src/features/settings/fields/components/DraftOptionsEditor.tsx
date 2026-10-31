@@ -54,7 +54,7 @@ export function DraftOptionsEditor({ control, register, errors }: DraftOptionsEd
               <div className="flex flex-wrap items-start gap-2 rounded-md border bg-background p-2" data-option={item.id}>
                 {handle}
                 <div className="grid min-w-40 flex-1 gap-1">
-                  <Input
+                  <Input placeholder={t('options.labelPlaceholder')}
                     id={labelId}
                     aria-label={t('options.label', { position: index + 1 })}
                     aria-invalid={labelError ? true : undefined}

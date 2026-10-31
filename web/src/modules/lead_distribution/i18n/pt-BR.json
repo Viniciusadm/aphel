@@ -175,5 +175,13 @@
     "unknown": "Regra indisponível",
     "hint": "Quando escolhida, a regra define o responsável de cada registro criado.",
     "empty": "Nenhuma regra ativa para este tipo de registro."
+  },
+  "placeholders": {
+    "weight": "Ex.: 1",
+    "routeValues": "Ex.: Site, Indicação",
+    "name": "Ex.: Leads do site",
+    "key": "Ex.: leads_do_site",
+    "description": "Descreva quando esta regra se aplica",
+    "count": "Ex.: 10"
   }
 }

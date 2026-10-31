@@ -1,3 +1,4 @@
+import { OptionGroup } from '@/components/ui/option-group'
 import { useInfiniteQuery } from '@tanstack/react-query'
 import { LoaderCircle } from 'lucide-react'
 import { useEffect, useMemo, useRef, useState } from 'react'
@@ -77,42 +78,27 @@ export function Timeline({ queryKey, fetchPage, kindOptions = [], autoLoad = tru
     return () => observer.disconnect()
   }, [autoLoad, hasNextPage, isFetchingNextPage, fetchNextPage])
 
-  const toggleKind = (kind: string) =>
-    setKinds((current) => (current.includes(kind) ? current.filter((item) => item !== kind) : [...current, kind]))
+  const ALL_KINDS = '__all__'
+  const selectKinds = (next: string[]) =>
+    setKinds(next.includes(ALL_KINDS) && kinds.length > 0 ? [] : next.filter((item) => item !== ALL_KINDS))
 
   const reference = now ?? mountedAt
 
   return (
     <section aria-label={t('timeline.label')} className={cn('grid gap-4', className)}>
       {kindOptions.length > 0 && (
-        <div
-          role="group"
+        <OptionGroup
+          multiple
+          size="sm"
           aria-label={t('timeline.filterLabel')}
-          className="-mx-1 flex gap-1.5 overflow-x-auto px-1 pb-1"
-        >
-          <Button
-            size="sm"
-            variant={kinds.length === 0 ? 'secondary' : 'ghost'}
-            aria-pressed={kinds.length === 0}
-            onClick={() => setKinds([])}
-          >
-            {t('timeline.all')}
-          </Button>
-          {kindOptions.map((option) => {
-            const active = kinds.includes(option.kind)
-            return (
-              <Button
-                key={option.kind}
-                size="sm"
-                variant={active ? 'secondary' : 'ghost'}
-                aria-pressed={active}
-                onClick={() => toggleKind(option.kind)}
-              >
-                {option.label}
-              </Button>
-            )
-          })}
-        </div>
+          className="-mx-1 flex-nowrap overflow-x-auto px-1 pb-1"
+          value={kinds.length === 0 ? [ALL_KINDS] : kinds}
+          onValueChange={selectKinds}
+          options={[
+            { value: ALL_KINDS, label: t('timeline.all') },
+            ...kindOptions.map((option) => ({ value: option.kind, label: option.label })),
+          ]}
+        />
       )}
 
       {query.isPending ? (

@@ -1,3 +1,4 @@
+import { SegmentedControl } from '@/components/ui/segmented-control'
 import {
   DndContext,
   DragOverlay,
@@ -225,20 +226,13 @@ export function CalendarPage() {
         <h2 className="min-w-0 flex-1 truncate text-base font-semibold capitalize" aria-live="polite">
           {viewTitle(state.mode, anchor, formatting.locale)}
         </h2>
-        <div role="group" aria-label={t('views.label')} className="inline-flex rounded-md border p-0.5">
-          {CALENDAR_VIEW_MODES.map((mode) => (
-            <Button
-              key={mode}
-              variant={state.mode === mode ? 'secondary' : 'ghost'}
-              size="sm"
-              className="h-7"
-              aria-pressed={state.mode === mode}
-              onClick={() => update({ mode })}
-            >
-              {t(`views.${mode}`)}
-            </Button>
-          ))}
-        </div>
+        <SegmentedControl
+          aria-label={t('views.label')}
+          size="sm"
+          value={state.mode}
+          onValueChange={(mode) => update({ mode })}
+          options={CALENDAR_VIEW_MODES.map((mode) => ({ value: mode, label: t(`views.${mode}`) }))}
+        />
       </div>
       <CalendarFilters
         ownerId={state.ownerId}

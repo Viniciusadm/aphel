@@ -86,7 +86,7 @@ function GeneralForm({ configuration }: { configuration: OrganizationConfigurati
           hint={t('configuration.general.publicBaseUrlHint')}
         >
           {(describedBy) => (
-            <Input
+            <Input placeholder={t('configuration.general.publicBaseUrlPlaceholder')}
               id="general-public-base-url"
               type="url"
               inputMode="url"
@@ -109,7 +109,7 @@ function GeneralForm({ configuration }: { configuration: OrganizationConfigurati
           hint={t('configuration.general.maxUploadMbHint')}
         >
           {(describedBy) => (
-            <Input
+            <Input placeholder={t('configuration.general.maxUploadPlaceholder')}
               id="general-max-upload"
               inputMode="numeric"
               className="w-32"

@@ -102,7 +102,7 @@ function RegenerateFlow({ onClose }: { onClose: () => void }) {
         <DialogDescription>{t('regenerate.description')}</DialogDescription>
       </DialogHeader>
       {usingPassword ? (
-        <TextField
+        <TextField placeholder={t('fields.passwordPlaceholder')}
           key="password"
           label={t('fields.password')}
           type="password"
@@ -112,7 +112,7 @@ function RegenerateFlow({ onClose }: { onClose: () => void }) {
           error={error}
         />
       ) : (
-        <TextField
+        <TextField placeholder={t('fields.codePlaceholder')}
           key="code"
           label={t('fields.code')}
           hint={t('fields.codeHint')}

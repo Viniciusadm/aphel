@@ -448,6 +448,9 @@
       "noType": "Nenhum tipo de atividade ativo para registrar a visita.",
       "submit": "Fazer check-in",
       "created": "Check-in registrado."
+    },
+    "placeholders": {
+      "title": "Ex.: Ligar para o cliente"
     }
   },
   "today": {
@@ -464,5 +467,14 @@
     "reopen": "Reabrir {{title}}",
     "fromCache": "Sem conexão: mostrando a última versão salva neste aparelho.",
     "seeInbox": "Ver todas na caixa de atividades"
+  },
+  "placeholders": {
+    "duration": "Ex.: 30",
+    "description": "Detalhes da atividade",
+    "interval": "Ex.: 1",
+    "monthDay": "Ex.: 15",
+    "count": "Ex.: 10",
+    "typeName": "Ex.: Reunião",
+    "colorHex": "#3B82F6"
   }
 }

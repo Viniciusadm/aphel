@@ -1,3 +1,4 @@
+import { SegmentedControl } from '@/components/ui/segmented-control'
 import { CheckCheck, Settings } from 'lucide-react'
 import { useState } from 'react'
 import { useTranslation } from 'react-i18next'
@@ -49,18 +50,17 @@ export function NotificationPanel({ unreadCount, onNavigate }: NotificationPanel
           {t('panel.markAll')}
         </Button>
       </header>
-      <div role="group" aria-label={t('panel.filter')} className="flex gap-1 border-b px-3 py-2">
-        {[false, true].map((value) => (
-          <Button
-            key={String(value)}
-            variant={unreadOnly === value ? 'secondary' : 'ghost'}
-            size="sm"
-            aria-pressed={unreadOnly === value}
-            onClick={() => setUnreadOnly(value)}
-          >
-            {t(value ? 'panel.unread' : 'panel.all')}
-          </Button>
-        ))}
+      <div className="border-b px-3 py-2">
+        <SegmentedControl
+          aria-label={t('panel.filter')}
+          size="sm"
+          value={unreadOnly ? 'unread' : 'all'}
+          onValueChange={(value) => setUnreadOnly(value === 'unread')}
+          options={[
+            { value: 'all', label: t('panel.all') },
+            { value: 'unread', label: t('panel.unread') },
+          ]}
+        />
       </div>
       <div className="min-h-0 flex-1 overflow-y-auto">
         {query.isPending ? (

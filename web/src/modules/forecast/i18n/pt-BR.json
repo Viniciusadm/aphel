@@ -96,5 +96,8 @@
   },
   "nav": {
     "forecast": "Previsão"
+  },
+  "placeholders": {
+    "percent": "Ex.: 80"
   }
 }

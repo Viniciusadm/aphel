@@ -1,3 +1,5 @@
+import { OptionGroup } from '@/components/ui/option-group'
+import { SegmentedControl } from '@/components/ui/segmented-control'
 import { PhoneIncoming, PhoneOutgoing, Play, Square } from 'lucide-react'
 import { useEffect, useId, useState } from 'react'
 import { useTranslation } from 'react-i18next'
@@ -50,38 +52,26 @@ export function CallForm({ values, onChange, outcomes, outcomeError, disabled, a
     <div className="grid gap-4">
       <fieldset className="grid gap-1.5" disabled={disabled}>
         <legend className="mb-1.5 text-sm font-medium">{t('form.direction')}</legend>
-        <div className="flex flex-wrap gap-2">
-          {(['outbound', 'inbound'] as const).map((direction) => (
-            <Button
-              key={direction}
-              type="button"
-              size="sm"
-              variant={values.direction === direction ? 'default' : 'outline'}
-              aria-pressed={values.direction === direction}
-              onClick={() => set({ direction })}
-            >
-              {direction === 'outbound' ? <PhoneOutgoing aria-hidden="true" /> : <PhoneIncoming aria-hidden="true" />}
-              {t(`direction.${direction}`)}
-            </Button>
-          ))}
-        </div>
+        <SegmentedControl
+          size="sm"
+          className="self-start"
+          value={values.direction}
+          onValueChange={(direction) => set({ direction })}
+          options={[
+            { value: 'outbound', label: t('direction.outbound'), icon: <PhoneOutgoing aria-hidden="true" /> },
+            { value: 'inbound', label: t('direction.inbound'), icon: <PhoneIncoming aria-hidden="true" /> },
+          ]}
+        />
       </fieldset>
       <fieldset className="grid gap-1.5" disabled={disabled}>
         <legend className="mb-1.5 text-sm font-medium">{t('form.outcome')}</legend>
-        <div className="flex flex-wrap gap-2" role="group" aria-invalid={outcomeError ? true : undefined}>
-          {outcomes.map((outcome) => (
-            <Button
-              key={outcome.key}
-              type="button"
-              size="sm"
-              variant={values.outcomeKey === outcome.key ? 'default' : 'outline'}
-              aria-pressed={values.outcomeKey === outcome.key}
-              onClick={() => set({ outcomeKey: outcome.key })}
-            >
-              {outcome.name}
-            </Button>
-          ))}
-        </div>
+        <OptionGroup
+          size="sm"
+          aria-invalid={outcomeError ? true : undefined}
+          value={values.outcomeKey}
+          onValueChange={(outcomeKey) => set({ outcomeKey })}
+          options={outcomes.map((outcome) => ({ value: outcome.key, label: outcome.name }))}
+        />
         {outcomeError && <p className="text-xs text-destructive">{t('form.outcomeRequired')}</p>}
       </fieldset>
       <div className="grid gap-1.5">

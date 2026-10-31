@@ -64,9 +64,9 @@ Components never depend on i18n. Texts that belong to the library (close button,
 | --- | --- |
 | Actions | `Button`, `DropdownMenu*` |
 | Forms | `Input`, `MoneyInput`, `NumberMaskInput`, `Textarea`, `Select*`, `Checkbox`, `Switch`, `Label`, `Field`, `OptionCard` |
-| Layout | `Card*`, `Separator`, `Tabs*`, `Table*`, `PageHeader` |
+| Layout | `Card*`, `Separator`, `Tabs*`, `TabsNav*`, `SegmentedControl`, `OptionGroup`, `Table*`, `PageHeader` |
 | Overlays | `Dialog*`, `ConfirmDialog`, `Popover*`, `Tooltip*`, `TooltipProvider` |
-| Feedback | `Badge`, `Avatar`, `EmptyState`, `ErrorState`, `Skeleton`, `Spinner`, `PageLoader`, `Toaster`, `toast` |
+| Feedback | `Badge` (`tone`, `size`, `count`, `icon`), `StatusBadge`, `Avatar`, `EmptyState`, `ErrorState`, `Skeleton`, `Spinner`, `PageLoader`, `Toaster`, `toast` |
 | Utilities | `cn`, `UiLabelsProvider`, `useUiLabels`, `defaultUiLabels` |
 
 `MoneyInput` fills the decimals as digits are typed, from the right: `1`, `5`, `0` show `0,01`, `0,15`, `1,50`. It takes the canonical value as a dot string (`"1234.50"`, `""` when empty), `decimals`, `separators` (`moneySeparatorsFromSetting('comma' | 'dot')` or the locale's decimal and group marks) and `allowNegative`. Pasting `1.234,56` or `12.5` is read as a number, not as digits. `NumberMaskInput` masks `integer`, `signedInteger`, `quantity` (3 decimals) and `percent` (2 decimals, up to 100) and takes `decimalSeparator`. The currency field of records uses `MoneyInput` with the installation's locale.

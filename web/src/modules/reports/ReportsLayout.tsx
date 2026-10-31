@@ -1,8 +1,8 @@
 import { useTranslation } from 'react-i18next'
-import { Navigate, NavLink, Outlet } from 'react-router'
+import { Navigate, Outlet } from 'react-router'
 import { useSession } from '@/app/session/session-context'
 import { EmptyState } from '@/components/ui/empty-state'
-import { cn } from '@/lib/utils'
+import { TabsNav, TabsNavItem } from '@/components/ui/tabs-nav'
 import { allowedReportTabs } from './tabs'
 
 export function ReportsLayout() {
@@ -20,24 +20,13 @@ export function ReportsLayout() {
         <EmptyState title={t('noAccess.title')} description={t('noAccess.description')} />
       ) : (
         <>
-          <nav aria-label={t('tabs.label')} className="flex gap-1 overflow-x-auto shadow-[inset_0_-1px_0_var(--color-border)]">
+          <TabsNav aria-label={t('tabs.label')} className="self-start">
             {tabs.map((tab) => (
-              <NavLink
-                key={tab.path}
-                to={tab.path}
-                className={({ isActive }) =>
-                  cn(
-                    'border-b-2 px-3 py-2 text-sm font-medium whitespace-nowrap transition-colors',
-                    isActive
-                      ? 'border-primary text-foreground'
-                      : 'border-transparent text-muted-foreground hover:text-foreground',
-                  )
-                }
-              >
+              <TabsNavItem key={tab.path} to={tab.path}>
                 {t(tab.labelKey)}
-              </NavLink>
+              </TabsNavItem>
             ))}
-          </nav>
+          </TabsNav>
           <Outlet />
         </>
       )}

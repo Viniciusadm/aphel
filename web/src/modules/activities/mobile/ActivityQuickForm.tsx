@@ -1,3 +1,4 @@
+import { OptionGroup } from '@/components/ui/option-group'
 import { useQueryClient } from '@tanstack/react-query'
 import { useId, useState } from 'react'
 import { useTranslation } from 'react-i18next'
@@ -8,7 +9,6 @@ import { Label } from '@/components/ui/label'
 import { activitiesKeys, useActivityTypes } from '../api'
 import { ActivityTypeIcon } from '../components/ActivityTypeIcon'
 import { useRecordFormatting } from '@/features/records/formatting'
-import { cn } from '@/lib/utils'
 import { submitActivity } from './api'
 import { DictationField } from '@/features/mobile/components/DictationField'
 import { RecordPicker, type PickedRecord } from '@/features/mobile/components/RecordPicker'
@@ -71,7 +71,7 @@ export function ActivityQuickForm({ onDone, initialRecord }: ActivityQuickFormPr
     <FormBody onSubmit={() => void submit()}>
       <div className="grid gap-2">
         <Label htmlFor={ids.title}>{t('activity.title')}</Label>
-        <Input
+        <Input placeholder={t('placeholders.title')}
           id={ids.title}
           value={title}
           onChange={(event) => setTitle(event.target.value)}
@@ -83,42 +83,25 @@ export function ActivityQuickForm({ onDone, initialRecord }: ActivityQuickFormPr
       </div>
       <fieldset className="grid gap-2">
         <legend className="mb-2 text-sm font-medium">{t('activity.type')}</legend>
-        <div className="flex flex-wrap gap-2">
-          {activeTypes.map((type) => (
-            <button
-              key={type.id}
-              type="button"
-              aria-pressed={selectedTypeId === type.id}
-              onClick={() => setTypeId(type.id)}
-              className={cn(
-                'inline-flex min-h-11 items-center gap-2 rounded-full border px-3 text-sm',
-                selectedTypeId === type.id ? 'border-primary bg-primary/10 font-medium' : 'bg-background',
-              )}
-            >
-              <ActivityTypeIcon icon={type.icon} color={type.color} className="size-6" />
-              {type.name}
-            </button>
-          ))}
-        </div>
+        <OptionGroup
+          size="touch"
+          value={selectedTypeId}
+          onValueChange={(next) => next && setTypeId(next)}
+          options={activeTypes.map((type) => ({
+            value: type.id,
+            label: type.name,
+            icon: <ActivityTypeIcon icon={type.icon} color={type.color} className="size-6" />,
+          }))}
+        />
       </fieldset>
       <fieldset className="grid gap-2">
         <legend className="mb-2 text-sm font-medium">{t('activity.when')}</legend>
-        <div className="grid grid-cols-2 gap-2">
-          {(['due', 'done'] as const).map((option) => (
-            <button
-              key={option}
-              type="button"
-              aria-pressed={when === option}
-              onClick={() => setWhen(option)}
-              className={cn(
-                'min-h-11 rounded-md border px-3 text-sm',
-                when === option ? 'border-primary bg-primary/10 font-medium' : 'bg-background',
-              )}
-            >
-              {t(`activity.whenOptions.${option}`)}
-            </button>
-          ))}
-        </div>
+        <OptionGroup
+          size="touch"
+          value={when}
+          onValueChange={(next) => next && setWhen(next)}
+          options={(['due', 'done'] as const).map((option) => ({ value: option, label: t(`activity.whenOptions.${option}`) }))}
+        />
         {when === 'due' && (
           <div className="grid gap-2">
             <Label htmlFor={ids.due} className="sr-only">

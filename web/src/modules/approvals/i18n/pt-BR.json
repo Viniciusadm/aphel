@@ -240,5 +240,11 @@
     "version_conflict": "A política foi alterada por outra pessoa. Recarregue e tente de novo.",
     "validation_error": "Revise os dados informados.",
     "generic": "Não foi possível concluir a operação."
+  },
+  "placeholders": {
+    "comment": "Escreva um comentário",
+    "name": "Ex.: Desconto acima de 10%",
+    "key": "Ex.: desconto_acima_10",
+    "description": "Descreva quando esta política se aplica"
   }
 }

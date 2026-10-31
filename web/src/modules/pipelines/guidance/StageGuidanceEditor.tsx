@@ -109,7 +109,7 @@ function GuidanceForm({ stageId, guidance }: { stageId: string; guidance: StageG
       </div>
       <div className="grid min-w-0 gap-2">
         <Label htmlFor={textId}>{t('editor.guidance')}</Label>
-        <Textarea
+        <Textarea placeholder={t('placeholders.guidance')}
           id={textId}
           value={text}
           rows={4}
@@ -130,7 +130,7 @@ function GuidanceForm({ stageId, guidance }: { stageId: string; guidance: StageG
             return (
               <li key={item.uid} className="grid min-w-0 gap-2 rounded-md border p-2">
                 <div className="flex min-w-0 items-center gap-1">
-                  <Input
+                  <Input placeholder={t('placeholders.checklistItem')}
                     value={item.label}
                     maxLength={LABEL_MAX_LENGTH}
                     aria-label={t('editor.itemLabel', { index: position })}

@@ -146,7 +146,7 @@ function EditorBody({ webhook, onCancel, onSaved }: EditorBodyProps) {
           </div>
           <div className="grid gap-1.5">
             <Label htmlFor={`${formId}-description`}>{t('form.descriptionLabel')}</Label>
-            <Textarea
+            <Textarea placeholder={t('placeholders.description')}
               id={`${formId}-description`}
               rows={2}
               maxLength={MAX_DESCRIPTION_LENGTH}
@@ -168,7 +168,7 @@ function EditorBody({ webhook, onCancel, onSaved }: EditorBodyProps) {
           {signed && (
             <div className="grid gap-1.5 sm:max-w-xs">
               <Label htmlFor={`${formId}-tolerance`}>{t('form.tolerance')}</Label>
-              <Input
+              <Input placeholder={t('placeholders.tolerance')}
                 id={`${formId}-tolerance`}
                 type="number"
                 min={MIN_TOLERANCE_SECONDS}

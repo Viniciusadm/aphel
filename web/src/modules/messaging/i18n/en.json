@@ -238,7 +238,9 @@
     "secretConfigured": "Configured. Fill in only to replace it.",
     "keepSecret": "•••••••• (configured)",
     "reuseImapPassword": "Remove the SMTP password and use the IMAP password",
-    "active": "Active channel (receives and sends messages)"
+    "active": "Active channel (receives and sends messages)",
+    "namePlaceholder": "E.g.: Sales WhatsApp",
+    "valuePlaceholder": "Enter the value"
   },
   "tab": {
     "label": "Conversations",

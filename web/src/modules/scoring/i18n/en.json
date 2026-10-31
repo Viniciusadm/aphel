@@ -121,5 +121,17 @@
     "calculatedAt": "Calculated on {{date}}",
     "notCalculated": "Not calculated yet",
     "thresholds": "Warm from {{warm}}, hot from {{hot}}"
+  },
+  "placeholders": {
+    "name": "E.g.: Lead qualification",
+    "key": "E.g.: lead_qualification",
+    "description": "Describe how this model scores",
+    "warm": "E.g.: 40",
+    "hot": "E.g.: 70",
+    "criterionLabel": "E.g.: Decision-maker role",
+    "criterionKey": "E.g.: decision_maker_role",
+    "points": "E.g.: 10",
+    "maxPoints": "E.g.: 30",
+    "decayDays": "E.g.: 30"
   }
 }

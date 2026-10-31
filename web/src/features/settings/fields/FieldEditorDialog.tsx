@@ -141,7 +141,7 @@ export function FieldEditorDialog({ recordType, field, onClose }: FieldEditorDia
           )}
           <div className="grid gap-4 sm:grid-cols-2">
             <FormField id="field-label" label={t('editor.label')} error={errors.label?.message}>
-              <Input
+              <Input placeholder={t('editor.labelPlaceholder')}
                 id="field-label"
                 aria-invalid={errors.label ? true : undefined}
                 aria-describedby={describedBy('field-label', errors.label?.message)}
@@ -159,7 +159,7 @@ export function FieldEditorDialog({ recordType, field, onClose }: FieldEditorDia
                   aria-describedby={describedBy('field-key', undefined, keyHint)}
                 />
               ) : (
-                <Input
+                <Input placeholder={t('editor.keyPlaceholder')}
                   id="field-key"
                   className="font-mono"
                   aria-invalid={errors.key ? true : undefined}

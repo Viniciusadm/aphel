@@ -21,7 +21,10 @@
       "mismatch": "As senhas não conferem.",
       "same": "A nova senha deve ser diferente da atual.",
       "wrongCurrent": "A senha atual está incorreta."
-    }
+    },
+    "currentPlaceholder": "Digite a senha atual",
+    "newPlaceholder": "Crie uma nova senha",
+    "confirmationPlaceholder": "Repita a nova senha"
   },
   "sessions": {
     "title": "Sessões ativas",

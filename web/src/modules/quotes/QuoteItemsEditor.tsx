@@ -72,7 +72,7 @@ export function QuoteItemsEditor({ currency, items, editable, onChange, onAddPro
           {items.map((item) => (
             <div key={item.key} className={`${GRID} rounded-lg border bg-card p-2`}>
               <div className="grid gap-1">
-                <Input
+                <Input placeholder={t('placeholders.itemName')}
                   aria-label={t('editor.items.name')}
                   value={item.name ?? ''}
                   disabled={!editable}
@@ -88,7 +88,7 @@ export function QuoteItemsEditor({ currency, items, editable, onChange, onAddPro
                   </span>
                 )}
               </div>
-              <Input
+              <Input placeholder={t('placeholders.quantity')}
                 aria-label={t('editor.items.quantity')}
                 inputMode="decimal"
                 value={item.quantity ?? ''}
@@ -120,7 +120,7 @@ export function QuoteItemsEditor({ currency, items, editable, onChange, onAddPro
                     ))}
                   </SelectContent>
                 </Select>
-                <Input
+                <Input placeholder={t('placeholders.discount')}
                   aria-label={t('editor.items.discount')}
                   inputMode="decimal"
                   value={item.discount_type === 'none' ? '' : (item.discount_value ?? '')}
@@ -128,7 +128,7 @@ export function QuoteItemsEditor({ currency, items, editable, onChange, onAddPro
                   onChange={(event) => update(item.key, { discount_value: event.target.value })}
                 />
               </div>
-              <Input
+              <Input placeholder={t('placeholders.tax')}
                 aria-label={t('editor.items.tax')}
                 inputMode="decimal"
                 value={item.tax_percent ?? ''}

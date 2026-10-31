@@ -196,7 +196,7 @@ function MailboxForm({ mode, onDirtyChange, onCancel, onDone }: MailboxFormProps
         </div>
         <div className="grid content-start gap-1.5">
           <Label htmlFor={`${formId}-history`}>{t('mailboxes.form.historyDays')}</Label>
-          <Input
+          <Input placeholder={t('placeholders.historyDays')}
             id={`${formId}-history`}
             type="number"
             inputMode="numeric"
@@ -238,7 +238,7 @@ function MailboxForm({ mode, onDirtyChange, onCancel, onDone }: MailboxFormProps
             <legend className="mb-2 text-sm font-medium">{t('mailboxes.form.credentials')}</legend>
             <div className="grid content-start gap-1.5">
               <Label htmlFor={`${formId}-username`}>{t('mailboxes.form.username')}</Label>
-              <Input
+              <Input placeholder={t('placeholders.username')}
                 id={`${formId}-username`}
                 value={values.username}
                 autoComplete="off"
@@ -326,7 +326,7 @@ function ServerFields({ kind, formId, values, submitted, errors, onChange, onSec
       </div>
       <div className="grid content-start gap-1.5">
         <Label htmlFor={`${prefix}-port`}>{t('mailboxes.form.port')}</Label>
-        <Input
+        <Input placeholder={t('placeholders.port')}
           id={`${prefix}-port`}
           type="number"
           inputMode="numeric"

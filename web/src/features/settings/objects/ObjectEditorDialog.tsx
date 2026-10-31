@@ -192,7 +192,7 @@ function ObjectForm({ object, onClose, onSaved }: ObjectFormProps) {
         </div>
         <div className="grid gap-1.5">
           <Label htmlFor={`${formId}-key`}>{t('editor.key')}</Label>
-          <Input
+          <Input placeholder={t('editor.keyPlaceholder')}
             id={`${formId}-key`}
             value={key}
             maxLength={OBJECT_KEY_MAX_LENGTH}
@@ -213,7 +213,7 @@ function ObjectForm({ object, onClose, onSaved }: ObjectFormProps) {
         </div>
         <div className="grid gap-1.5">
           <Label htmlFor={`${formId}-description`}>{t('editor.descriptionLabel')}</Label>
-          <Textarea
+          <Textarea placeholder={t('editor.descriptionPlaceholder')}
             id={`${formId}-description`}
             value={description}
             rows={2}

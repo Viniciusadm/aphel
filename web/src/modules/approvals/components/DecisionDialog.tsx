@@ -82,7 +82,7 @@ function DecisionForm({ request, action, onOpenChange, onDone }: DecisionFormPro
       </DialogHeader>
       <div className="grid gap-1.5">
         <Label htmlFor={commentId}>{required ? t('decision.commentRequired') : t('decision.comment')}</Label>
-        <Textarea
+        <Textarea placeholder={t('placeholders.comment')}
           id={commentId}
           value={comment}
           rows={4}

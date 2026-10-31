@@ -222,5 +222,13 @@
   },
   "nav": {
     "sequences": "Sequências"
+  },
+  "placeholders": {
+    "name": "Ex.: Boas-vindas",
+    "description": "Descreva o objetivo desta sequência",
+    "dailyLimit": "Ex.: 50",
+    "waitDays": "Ex.: 2",
+    "subject": "Ex.: Olá, tudo bem?",
+    "body": "Escreva o conteúdo do e-mail"
   }
 }

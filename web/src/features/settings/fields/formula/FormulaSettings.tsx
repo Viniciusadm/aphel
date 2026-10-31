@@ -122,7 +122,7 @@ export function FormulaSettings({
             hint={t('settings.decimalsHint')}
             error={errors.config?.decimals?.message}
           >
-            <Input
+            <Input placeholder={t('settings.decimalsPlaceholder')}
               id="field-config-decimals"
               inputMode="numeric"
               aria-invalid={errors.config?.decimals ? true : undefined}

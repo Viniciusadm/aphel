@@ -88,7 +88,7 @@ function LostReasonForm({ dealTitle, pending, onOpenChange, onConfirm }: Omit<Lo
       </div>
       <div className="grid gap-2">
         <Label htmlFor={noteId}>{t('lost.note')}</Label>
-        <Textarea id={noteId} value={note} maxLength={5000} onChange={(event) => setNote(event.target.value)} />
+        <Textarea placeholder={t('placeholders.note')} id={noteId} value={note} maxLength={5000} onChange={(event) => setNote(event.target.value)} />
       </div>
       <DialogFooter>
         <Button type="button" variant="outline" onClick={() => onOpenChange(false)} disabled={pending}>

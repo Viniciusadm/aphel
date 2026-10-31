@@ -109,5 +109,11 @@
       "term": "term",
       "total": "total"
     }
+  },
+  "placeholders": {
+    "item": "E.g.: Annual license",
+    "quantity": "1",
+    "unitPrice": "0.00",
+    "discount": "0"
   }
 }

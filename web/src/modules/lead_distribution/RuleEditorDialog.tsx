@@ -124,7 +124,7 @@ function MembersEditor({ control, errors, users, weighted }: MembersEditorProps)
                       control={control}
                       name={`members.${index}.weight`}
                       render={({ field: input }) => (
-                        <Input
+                        <Input placeholder={t('placeholders.weight')}
                           id={`member-${index}-weight`}
                           type="number"
                           min={1}
@@ -285,7 +285,7 @@ function RoutingEditor({ control, errors, users, recordType }: RoutingEditorProp
                       control={control}
                       name={`routes.${index}.values`}
                       render={({ field: input }) => (
-                        <Input
+                        <Input placeholder={t('placeholders.routeValues')}
                           id={`route-${index}-values`}
                           aria-invalid={routeErrors?.values ? true : undefined}
                           aria-describedby={`route-${index}-values-hint`}
@@ -446,12 +446,12 @@ export function RuleEditorDialog({ rule, onClose }: RuleEditorDialogProps) {
           <div className="grid gap-4 sm:grid-cols-2">
             <div className="grid gap-1">
               <Label htmlFor="rule-name">{t('editor.name')}</Label>
-              <Input id="rule-name" aria-invalid={errors.name ? true : undefined} {...register('name')} />
+              <Input placeholder={t('placeholders.name')} id="rule-name" aria-invalid={errors.name ? true : undefined} {...register('name')} />
               <FieldMessage id="rule-name-error" message={errors.name?.message} />
             </div>
             <div className="grid gap-1">
               <Label htmlFor="rule-key">{t('editor.key')}</Label>
-              <Input
+              <Input placeholder={t('placeholders.key')}
                 id="rule-key"
                 disabled={!creating}
                 aria-invalid={errors.key ? true : undefined}
@@ -511,7 +511,7 @@ export function RuleEditorDialog({ rule, onClose }: RuleEditorDialogProps) {
             </div>
             <div className="grid gap-1 sm:col-span-2">
               <Label htmlFor="rule-description">{t('editor.descriptionField')}</Label>
-              <Textarea id="rule-description" rows={2} {...register('description')} />
+              <Textarea placeholder={t('placeholders.description')} id="rule-description" rows={2} {...register('description')} />
             </div>
             <Controller
               control={control}

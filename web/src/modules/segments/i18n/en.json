@@ -62,5 +62,9 @@
     "loading": "Loading segments…",
     "unknown": "unavailable segment",
     "summary": "{{field}}: {{name}}"
+  },
+  "placeholders": {
+    "name": "E.g.: Active customers",
+    "description": "Describe this segment"
   }
 }

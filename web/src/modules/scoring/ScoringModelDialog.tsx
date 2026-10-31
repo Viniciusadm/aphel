@@ -172,7 +172,7 @@ function ScoringModelForm({ model, hasPrimary, onOpenChange, onSaved }: FormProp
       <div className="grid min-w-0 gap-4 sm:grid-cols-2">
         <div className="grid min-w-0 content-start gap-2">
           <Label htmlFor={ids.name}>{t('dialog.name')}</Label>
-          <Input
+          <Input placeholder={t('placeholders.name')}
             id={ids.name}
             value={draft.name}
             maxLength={NAME_MAX_LENGTH}
@@ -183,7 +183,7 @@ function ScoringModelForm({ model, hasPrimary, onOpenChange, onSaved }: FormProp
         </div>
         <div className="grid min-w-0 content-start gap-2">
           <Label htmlFor={ids.key}>{t('dialog.key')}</Label>
-          <Input
+          <Input placeholder={t('placeholders.key')}
             id={ids.key}
             value={draft.key}
             disabled={!creating}
@@ -202,7 +202,7 @@ function ScoringModelForm({ model, hasPrimary, onOpenChange, onSaved }: FormProp
 
       <div className="grid min-w-0 gap-2">
         <Label htmlFor={ids.description}>{t('dialog.descriptionLabel')}</Label>
-        <Textarea
+        <Textarea placeholder={t('placeholders.description')}
           id={ids.description}
           value={draft.description}
           rows={2}
@@ -254,7 +254,7 @@ function ScoringModelForm({ model, hasPrimary, onOpenChange, onSaved }: FormProp
         <div className="grid min-w-0 gap-4 sm:grid-cols-2">
           <div className="grid min-w-0 content-start gap-2">
             <Label htmlFor={ids.warm}>{t('dialog.warmFrom')}</Label>
-            <Input
+            <Input placeholder={t('placeholders.warm')}
               id={ids.warm}
               inputMode="numeric"
               value={draft.warmFrom}
@@ -265,7 +265,7 @@ function ScoringModelForm({ model, hasPrimary, onOpenChange, onSaved }: FormProp
           </div>
           <div className="grid min-w-0 content-start gap-2">
             <Label htmlFor={ids.hot}>{t('dialog.hotFrom')}</Label>
-            <Input
+            <Input placeholder={t('placeholders.hot')}
               id={ids.hot}
               inputMode="numeric"
               value={draft.hotFrom}
@@ -402,7 +402,7 @@ function CriterionEditor({ criterion, index, total, schema, error, onChange, onM
       <div className="grid min-w-0 gap-3 sm:grid-cols-[minmax(0,2fr)_minmax(0,1fr)_minmax(0,1fr)]">
         <div className="grid min-w-0 content-start gap-1.5">
           <Label htmlFor={`${id}-label`}>{t('dialog.criterionLabel')}</Label>
-          <Input
+          <Input placeholder={t('placeholders.criterionLabel')}
             id={`${id}-label`}
             value={criterion.label}
             maxLength={LABEL_MAX_LENGTH}
@@ -413,7 +413,7 @@ function CriterionEditor({ criterion, index, total, schema, error, onChange, onM
         </div>
         <div className="grid min-w-0 content-start gap-1.5">
           <Label htmlFor={`${id}-key`}>{t('dialog.criterionKey')}</Label>
-          <Input
+          <Input placeholder={t('placeholders.criterionKey')}
             id={`${id}-key`}
             value={criterion.key}
             maxLength={64}
@@ -424,7 +424,7 @@ function CriterionEditor({ criterion, index, total, schema, error, onChange, onM
         </div>
         <div className="grid min-w-0 content-start gap-1.5">
           <Label htmlFor={`${id}-points`}>{t('dialog.points')}</Label>
-          <Input
+          <Input placeholder={t('placeholders.points')}
             id={`${id}-points`}
             inputMode="numeric"
             value={criterion.points}
@@ -464,7 +464,7 @@ function CriterionEditor({ criterion, index, total, schema, error, onChange, onM
           </div>
           <div className="grid min-w-0 content-start gap-1.5">
             <Label htmlFor={`${id}-cap`}>{t('dialog.maxPoints')}</Label>
-            <Input
+            <Input placeholder={t('placeholders.maxPoints')}
               id={`${id}-cap`}
               inputMode="numeric"
               value={criterion.maxPoints}
@@ -478,7 +478,7 @@ function CriterionEditor({ criterion, index, total, schema, error, onChange, onM
           </div>
           <div className="grid min-w-0 content-start gap-1.5">
             <Label htmlFor={`${id}-decay`}>{t('dialog.decayDays')}</Label>
-            <Input
+            <Input placeholder={t('placeholders.decayDays')}
               id={`${id}-decay`}
               inputMode="numeric"
               value={criterion.decayDays}

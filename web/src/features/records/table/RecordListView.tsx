@@ -1,3 +1,4 @@
+import { SegmentedControl } from '@/components/ui/segmented-control'
 import { CalendarDays, SearchX, Table2 } from 'lucide-react'
 import { useEffect, useMemo, useState, type ReactNode } from 'react'
 import { useTranslation } from 'react-i18next'
@@ -417,28 +418,16 @@ function LayoutToggle({ layout, onChange, fields, fieldKey, onFieldChange }: Lay
   const { t } = useTranslation('calendar')
   return (
     <div className="flex min-w-0 flex-wrap items-center gap-2">
-      <div role="group" aria-label={t('layout.label')} className="inline-flex rounded-md border p-0.5">
-        <Button
-          variant={layout === 'table' ? 'secondary' : 'ghost'}
-          size="sm"
-          className="h-7"
-          aria-pressed={layout === 'table'}
-          onClick={() => onChange('table')}
-        >
-          <Table2 aria-hidden />
-          {t('layout.table')}
-        </Button>
-        <Button
-          variant={layout === 'calendar' ? 'secondary' : 'ghost'}
-          size="sm"
-          className="h-7"
-          aria-pressed={layout === 'calendar'}
-          onClick={() => onChange('calendar')}
-        >
-          <CalendarDays aria-hidden />
-          {t('layout.calendar')}
-        </Button>
-      </div>
+      <SegmentedControl
+        aria-label={t('layout.label')}
+        size="sm"
+        value={layout}
+        onValueChange={onChange}
+        options={[
+          { value: 'table', label: t('layout.table'), icon: <Table2 aria-hidden /> },
+          { value: 'calendar', label: t('layout.calendar'), icon: <CalendarDays aria-hidden /> },
+        ]}
+      />
       {layout === 'calendar' && fields.length > 1 && (
         <NativeSelect
           aria-label={t('layout.field')}

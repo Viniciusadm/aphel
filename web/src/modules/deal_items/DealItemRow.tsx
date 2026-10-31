@@ -102,7 +102,7 @@ export function DealItemRow({
       className={`grid grid-cols-2 gap-3 rounded-md border p-3 @3xl:rounded-none @3xl:border-0 @3xl:border-b @3xl:px-2 @3xl:py-2 ${ITEM_GRID_CLASS}`}
     >
       <Cell label={t('items.columns.item')} className="col-span-2 min-w-0 @3xl:col-span-1">
-        <Input aria-label={t('items.columns.item')} maxLength={255} {...field('name')} />
+        <Input placeholder={t('placeholders.item')} aria-label={t('items.columns.item')} maxLength={255} {...field('name')} />
         <span className="mt-1 flex min-w-0 items-center gap-1 text-xs text-muted-foreground">
           {item.product_id && <Package className="size-3 shrink-0" aria-label={t('items.fromCatalog')} />}
           <span className="truncate">
@@ -111,7 +111,7 @@ export function DealItemRow({
         </span>
       </Cell>
       <Cell label={t('items.columns.quantity')} className="min-w-0">
-        <Input
+        <Input placeholder={t('placeholders.quantity')}
           aria-label={t('items.columns.quantity')}
           inputMode="decimal"
           className="tabular-nums"
@@ -119,7 +119,7 @@ export function DealItemRow({
         />
       </Cell>
       <Cell label={t('items.columns.unitPrice')} className="min-w-0">
-        <Input
+        <Input placeholder={t('placeholders.unitPrice')}
           aria-label={t('items.columns.unitPrice')}
           inputMode="decimal"
           className="tabular-nums"
@@ -150,7 +150,7 @@ export function DealItemRow({
             ))}
           </NativeSelect>
           <div className="relative min-w-0 flex-1">
-            <Input
+            <Input placeholder={t('placeholders.discount')}
               aria-label={t('items.discountValue')}
               inputMode="decimal"
               className="pr-10 tabular-nums"

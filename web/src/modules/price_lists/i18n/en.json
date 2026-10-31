@@ -177,5 +177,12 @@
       "validation_error": "Check the highlighted components.",
       "generic": "Could not save the bundle. Try again."
     }
+  },
+  "placeholders": {
+    "minQuantity": "1",
+    "unitPrice": "0.00",
+    "name": "E.g.: Wholesale list",
+    "description": "Describe when to use this list",
+    "quantity": "1"
   }
 }

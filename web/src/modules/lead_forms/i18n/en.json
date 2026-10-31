@@ -97,7 +97,12 @@
     "ownerActingUser": "The user who creates the records",
     "distributionRule": "Distribution rule",
     "noDistributionRule": "None",
-    "ownerHelp": "With a distribution rule, each submission picks the rule's next owner; if nobody is available, the fixed owner (or the user who creates the records) is used. Existing contacts keep their current owner."
+    "ownerHelp": "With a distribution rule, each submission picks the rule's next owner; if nobody is available, the fixed owner (or the user who creates the records) is used. Existing contacts keep their current owner.",
+    "labelPlaceholder": "E.g.: Phone",
+    "keyPlaceholder": "E.g.: phone",
+    "optionsPlaceholder": "One option per line",
+    "titleTemplatePlaceholder": "E.g.: Website lead",
+    "amountPlaceholder": "0.00"
   },
   "kinds": {
     "text": "Text",

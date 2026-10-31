@@ -129,5 +129,14 @@
     "update": "Update",
     "installed": "Installed ({{version}})",
     "checking": "Checking…"
+  },
+  "placeholders": {
+    "family": "E.g.: Inter",
+    "name": "E.g.: Dark theme",
+    "id": "E.g.: dark-theme",
+    "version": "E.g.: 1.0.0",
+    "author": "E.g.: Mary Smith",
+    "license": "E.g.: MIT",
+    "description": "Describe this theme"
   }
 }

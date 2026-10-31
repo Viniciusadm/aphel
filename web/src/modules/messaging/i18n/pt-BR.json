@@ -238,7 +238,9 @@
     "secretConfigured": "Configurado. Preencha só para trocar.",
     "keepSecret": "•••••••• (configurado)",
     "reuseImapPassword": "Remover a senha SMTP e usar a senha IMAP",
-    "active": "Canal ativo (recebe e envia mensagens)"
+    "active": "Canal ativo (recebe e envia mensagens)",
+    "namePlaceholder": "Ex.: WhatsApp comercial",
+    "valuePlaceholder": "Digite o valor"
   },
   "tab": {
     "label": "Conversas",

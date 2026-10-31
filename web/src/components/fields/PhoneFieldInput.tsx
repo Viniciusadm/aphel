@@ -68,6 +68,7 @@ export function PhoneFieldInput({ defaultCountry, locale, fieldLabel, ...props }
         {...ariaProps(props)}
         aria-invalid={invalid || props.invalid || undefined}
         type="tel"
+        placeholder={t('input.phonePlaceholder')}
         inputMode="tel"
         autoComplete="tel-national"
         className="min-w-0 flex-1"

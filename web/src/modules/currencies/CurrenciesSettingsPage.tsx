@@ -455,7 +455,7 @@ function RateForm({ editing, currencies, today, onClose, onSaved }: RateFormProp
         </div>
         <div className="grid gap-1.5">
           <Label htmlFor={`${formId}-rate`}>{t('rates.rateLabel', { currency })}</Label>
-          <Input
+          <Input placeholder={t('placeholders.rate')}
             id={`${formId}-rate`}
             inputMode="decimal"
             value={rate}

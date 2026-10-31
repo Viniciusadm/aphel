@@ -56,15 +56,15 @@ export function SignatureDialog({ quote, proposalsEnabled, open, onOpenChange }:
           <div className="grid gap-4">
             <div className="grid gap-1.5">
               <Label htmlFor={ids.name}>{t('signature.signerName')}</Label>
-              <Input id={ids.name} value={name} onChange={(event) => setName(event.target.value)} />
+              <Input placeholder={t('placeholders.name')} id={ids.name} value={name} onChange={(event) => setName(event.target.value)} />
             </div>
             <div className="grid gap-1.5">
               <Label htmlFor={ids.email}>{t('signature.signerEmail')}</Label>
-              <Input id={ids.email} type="email" value={email} onChange={(event) => setEmail(event.target.value)} />
+              <Input placeholder={t('placeholders.email')} id={ids.email} type="email" value={email} onChange={(event) => setEmail(event.target.value)} />
             </div>
             <div className="grid gap-1.5">
               <Label htmlFor={ids.message}>{t('signature.message')}</Label>
-              <Textarea id={ids.message} rows={3} value={message} onChange={(event) => setMessage(event.target.value)} />
+              <Textarea placeholder={t('placeholders.message')} id={ids.message} rows={3} value={message} onChange={(event) => setMessage(event.target.value)} />
             </div>
           </div>
         ) : (

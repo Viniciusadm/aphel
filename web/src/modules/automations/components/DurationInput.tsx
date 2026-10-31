@@ -32,7 +32,7 @@ export function DurationInput({ id, value, onChange, signed = false, invalid, ..
 
   return (
     <div className="flex min-w-0 flex-wrap items-center gap-2">
-      <Input
+      <Input placeholder={t('placeholders.amount')}
         id={id}
         type="number"
         inputMode="numeric"

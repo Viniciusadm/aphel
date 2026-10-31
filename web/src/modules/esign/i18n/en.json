@@ -120,5 +120,8 @@
     "esign_request_closed": "This request is already closed",
     "deal_not_found": "Deal not found",
     "permission_denied": "You are not allowed to do this"
+  },
+  "placeholders": {
+    "webhookUrl": "https://"
   }
 }

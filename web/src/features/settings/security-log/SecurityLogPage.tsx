@@ -1,3 +1,4 @@
+import { SegmentedControl } from '@/components/ui/segmented-control'
 import { ShieldCheck } from 'lucide-react'
 import { useId, useMemo, useState, type FormEvent } from 'react'
 import { useTranslation } from 'react-i18next'
@@ -76,19 +77,14 @@ export function SecurityLogPage() {
     <section className="grid gap-4">
       <SectionHeader title={t('log.title')} description={t('log.description')} />
       {canSeeOrganization && (
-        <div role="group" aria-label={t('log.scopeLabel')} className="flex flex-wrap gap-2">
-          {(['mine', 'organization'] as const).map((scope) => (
-            <Button
-              key={scope}
-              size="sm"
-              variant={filters.scope === scope ? 'default' : 'outline'}
-              aria-pressed={filters.scope === scope}
-              onClick={() => apply({ ...filters, scope })}
-            >
-              {t(`log.scope.${scope}`)}
-            </Button>
-          ))}
-        </div>
+        <SegmentedControl
+          aria-label={t('log.scopeLabel')}
+          size="sm"
+          className="self-start"
+          value={filters.scope}
+          onValueChange={(scope) => apply({ ...filters, scope })}
+          options={(['mine', 'organization'] as const).map((scope) => ({ value: scope, label: t(`log.scope.${scope}`) }))}
+        />
       )}
       <FiltersForm key={toSearch(filters).toString()} filters={filters} onApply={(next) => apply(next)} />
       {events.isPending ? (

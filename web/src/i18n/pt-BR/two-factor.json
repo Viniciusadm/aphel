@@ -6,7 +6,9 @@
   "fields": {
     "password": "Senha da sua conta",
     "code": "Código de verificação",
-    "codeHint": "Código de 6 dígitos do aplicativo autenticador ou um código de recuperação."
+    "codeHint": "Código de 6 dígitos do aplicativo autenticador ou um código de recuperação.",
+    "passwordPlaceholder": "Digite a senha da sua conta",
+    "codePlaceholder": "123456"
   },
   "errors": {
     "required": "Preencha este campo.",

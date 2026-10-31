@@ -34,7 +34,7 @@ export function EsignSettingsPanel() {
         <div className="grid gap-1.5">
           <Label htmlFor="esign-webhook-url">{t('settingsPanel.webhookUrl')}</Label>
           <div className="flex gap-2">
-            <Input id="esign-webhook-url" readOnly value={status.data.webhook_url} className="min-w-0 font-mono text-xs" />
+            <Input placeholder={t('placeholders.webhookUrl')} id="esign-webhook-url" readOnly value={status.data.webhook_url} className="min-w-0 font-mono text-xs" />
             <Button
               type="button"
               size="icon"

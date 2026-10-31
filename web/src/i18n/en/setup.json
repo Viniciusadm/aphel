@@ -192,5 +192,12 @@
     "statusFailed": "Could not reach the server to prepare the setup.",
     "network": "No connection to the server. Check your network and try again.",
     "generic": "The workspace could not be created. Please try again."
+  },
+  "placeholders": {
+    "adminName": "E.g.: Mary Smith",
+    "adminEmail": "you@company.com",
+    "adminPassword": "Create a password",
+    "organizationName": "E.g.: My Company Inc.",
+    "value": "Enter the value"
   }
 }

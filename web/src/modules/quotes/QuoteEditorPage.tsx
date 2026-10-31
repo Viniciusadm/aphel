@@ -291,7 +291,7 @@ function QuoteEditor({ quote }: { quote: QuoteDetail }) {
             <CardContent className="grid gap-4 sm:grid-cols-2">
               <div className="grid gap-1.5 sm:col-span-2">
                 <Label htmlFor={ids.title}>{t('editor.fields.title')}</Label>
-                <Input id={ids.title} value={header.title} disabled={!editable} onChange={(event) => patchHeader({ title: event.target.value })} />
+                <Input placeholder={t('placeholders.title')} id={ids.title} value={header.title} disabled={!editable} onChange={(event) => patchHeader({ title: event.target.value })} />
               </div>
               <div className="grid gap-1.5">
                 <Label htmlFor={ids.validUntil}>{t('editor.fields.validUntil')}</Label>
@@ -342,7 +342,7 @@ function QuoteEditor({ quote }: { quote: QuoteDetail }) {
                       ))}
                     </SelectContent>
                   </Select>
-                  <Input
+                  <Input placeholder={t('placeholders.discount')}
                     id={ids.discount}
                     inputMode="decimal"
                     value={header.discount_value}
@@ -353,15 +353,15 @@ function QuoteEditor({ quote }: { quote: QuoteDetail }) {
               </div>
               <div className="grid gap-1.5">
                 <Label>{t('editor.fields.currency')}</Label>
-                <Input value={quote.currency} disabled readOnly />
+                <Input placeholder={t('placeholders.currency')} value={quote.currency} disabled readOnly />
               </div>
               <div className="grid gap-1.5 sm:col-span-2">
                 <Label htmlFor={ids.terms}>{t('editor.fields.terms')}</Label>
-                <Textarea id={ids.terms} rows={3} value={header.terms} disabled={!editable} onChange={(event) => patchHeader({ terms: event.target.value })} />
+                <Textarea placeholder={t('placeholders.terms')} id={ids.terms} rows={3} value={header.terms} disabled={!editable} onChange={(event) => patchHeader({ terms: event.target.value })} />
               </div>
               <div className="grid gap-1.5 sm:col-span-2">
                 <Label htmlFor={ids.notes}>{t('editor.fields.notes')}</Label>
-                <Textarea id={ids.notes} rows={3} value={header.notes} disabled={!editable} onChange={(event) => patchHeader({ notes: event.target.value })} />
+                <Textarea placeholder={t('placeholders.notes')} id={ids.notes} rows={3} value={header.notes} disabled={!editable} onChange={(event) => patchHeader({ notes: event.target.value })} />
               </div>
             </CardContent>
           </Card>

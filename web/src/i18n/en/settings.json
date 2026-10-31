@@ -122,7 +122,8 @@
       "email": "Email",
       "role": "Role",
       "rolePlaceholder": "Choose a role",
-      "submit": "Send invitation"
+      "submit": "Send invitation",
+      "emailPlaceholder": "person@company.com"
     },
     "roleDialog": {
       "title": "Change role",
@@ -177,7 +178,9 @@
       "keyHint": "Optional. Generated from the name when empty.",
       "systemKeyHint": "The key of system roles cannot be changed.",
       "adminNotice": "The administrator has full access to the organization, including permissions created in the future.",
-      "matrixCaption": "Role permissions"
+      "matrixCaption": "Role permissions",
+      "namePlaceholder": "E.g.: Sales manager",
+      "keyPlaceholder": "E.g.: sales_manager"
     },
     "confirmDelete": {
       "title": "Delete the role {{name}}?",
@@ -268,7 +271,8 @@
       "noMembers": "There are no members in the organization yet.",
       "search": "Search members",
       "noMatches": "No members found.",
-      "selectedCount": "{{count}} selected"
+      "selectedCount": "{{count}} selected",
+      "namePlaceholder": "E.g.: Sales"
     },
     "confirmDelete": {
       "title": "Delete the team {{name}}?",
@@ -476,7 +480,9 @@
       "publicBaseUrlHint": "The address people use to reach Aphel. It is the base of every link sent by email (invitations, password resets, notifications). With https, the session cookie is marked as secure.",
       "insecureWarning": "The address uses http: the session cookie is not marked as secure. Use https in production.",
       "maxUploadMb": "Maximum upload size (MB)",
-      "maxUploadMbHint": "Applies to attachments, imports and emails. Also adjust the reverse proxy limit."
+      "maxUploadMbHint": "Applies to attachments, imports and emails. Also adjust the reverse proxy limit.",
+      "publicBaseUrlPlaceholder": "https://app.yourcompany.com",
+      "maxUploadPlaceholder": "E.g.: 25"
     },
     "mail": {
       "title": "Outgoing email",
@@ -516,7 +522,12 @@
       "test": "Test connection",
       "testing": "Testing…",
       "testOk": "Connection works: the test file was written, read and deleted.",
-      "testFailed": "Test failed: {{message}}"
+      "testFailed": "Test failed: {{message}}",
+      "pathPlaceholder": "E.g.: /var/lib/aphel/uploads",
+      "bucketPlaceholder": "E.g.: my-bucket",
+      "regionPlaceholder": "E.g.: us-east-1",
+      "accessKeyIdPlaceholder": "E.g.: AKIAIOSFODNN7EXAMPLE",
+      "secretKeyPlaceholder": "Paste the secret key"
     },
     "webhooks": {
       "title": "Delivery",
@@ -544,6 +555,14 @@
       "indexUrl": "Index URL",
       "allowHttp": "Allow http (development only)",
       "timeout": "Maximum fetch time (s)"
+    },
+    "numeric": {
+      "valuePlaceholder": "Enter the value"
+    }
+  },
+  "modules": {
+    "catalog": {
+      "timeoutPlaceholder": "E.g.: 30"
     }
   }
 }

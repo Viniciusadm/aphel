@@ -1,5 +1,5 @@
 export { Avatar, type AvatarProps } from '@/components/ui/avatar'
-export { Badge, type BadgeProps } from '@/components/ui/badge'
+export { Badge, type BadgeProps, type BadgeTone } from '@/components/ui/badge'
 export { Button, type ButtonProps } from '@/components/ui/button'
 export { Card, CardContent, CardDescription, CardFooter, CardHeader, CardTitle } from '@/components/ui/card'
 export { Checkbox } from '@/components/ui/checkbox'
@@ -68,7 +68,12 @@ export {
   TableHeader,
   TableRow,
 } from '@/components/ui/table'
-export { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs'
+export { OptionGroup, type OptionGroupOption, type OptionGroupProps } from '@/components/ui/option-group'
+export { SegmentedControl, type SegmentedControlOption, type SegmentedControlProps } from '@/components/ui/segmented-control'
+export { StatusBadge, type StatusBadgeProps } from '@/components/ui/status-badge'
+export { Tabs, TabsContent, TabsList, TabsTrigger, type TabsTriggerProps } from '@/components/ui/tabs'
+export type { TabsSize } from '@/components/ui/tabs-variants'
+export { TabsNav, TabsNavItem, type TabsNavItemProps } from '@/components/ui/tabs-nav'
 export { Textarea } from '@/components/ui/textarea'
 export { toast, type ToastInput, type ToastVariant } from '@/components/ui/toast-store'
 export { Toaster } from '@/components/ui/toast'

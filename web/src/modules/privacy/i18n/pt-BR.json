@@ -268,5 +268,9 @@
       "retention_preview_required": "Faça uma nova pré-visualização antes de continuar.",
       "retention_policy_limit": "A organização já tem o número máximo de políticas (50)."
     }
+  },
+  "placeholders": {
+    "name": "Ex.: Retenção de leads inativos",
+    "days": "Ex.: 365"
   }
 }

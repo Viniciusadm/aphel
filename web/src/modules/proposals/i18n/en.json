@@ -66,7 +66,11 @@
     "goToIssue": "Go to line {{line}}, column {{column}}",
     "invalid": "Fix the template issues before saving.",
     "notFoundTitle": "Template not found",
-    "notFoundDescription": "The template may have been deleted."
+    "notFoundDescription": "The template may have been deleted.",
+    "namePlaceholder": "E.g.: Commercial proposal",
+    "keyPlaceholder": "E.g.: commercial_proposal",
+    "descriptionPlaceholder": "Describe when to use this template",
+    "bodyPlaceholder": "Write the proposal content"
   },
   "issues": {
     "unknown_variable": "unknown variable: {{variable}}",

@@ -122,7 +122,8 @@
       "email": "E-mail",
       "role": "Papel",
       "rolePlaceholder": "Escolha um papel",
-      "submit": "Enviar convite"
+      "submit": "Enviar convite",
+      "emailPlaceholder": "pessoa@empresa.com"
     },
     "roleDialog": {
       "title": "Alterar papel",
@@ -177,7 +178,9 @@
       "keyHint": "Opcional. Gerada a partir do nome quando vazia.",
       "systemKeyHint": "A chave de papéis de sistema não pode ser alterada.",
       "adminNotice": "O administrador tem acesso total à organização, inclusive a permissões criadas no futuro.",
-      "matrixCaption": "Permissões do papel"
+      "matrixCaption": "Permissões do papel",
+      "namePlaceholder": "Ex.: Gerente comercial",
+      "keyPlaceholder": "Ex.: gerente_comercial"
     },
     "confirmDelete": {
       "title": "Excluir o papel {{name}}?",
@@ -268,7 +271,8 @@
       "noMembers": "Ainda não há membros na organização.",
       "search": "Buscar membros",
       "noMatches": "Nenhum membro encontrado.",
-      "selectedCount": "{{count}} selecionado(s)"
+      "selectedCount": "{{count}} selecionado(s)",
+      "namePlaceholder": "Ex.: Vendas"
     },
     "confirmDelete": {
       "title": "Excluir a equipe {{name}}?",
@@ -476,7 +480,9 @@
       "publicBaseUrlHint": "Endereço pelo qual as pessoas acessam o Aphel. É a base de todos os links enviados por e-mail (convites, redefinição de senha, notificações). Com https, o cookie de sessão é marcado como seguro.",
       "insecureWarning": "O endereço usa http: o cookie de sessão não é marcado como seguro. Em produção, use https.",
       "maxUploadMb": "Tamanho máximo de upload (MB)",
-      "maxUploadMbHint": "Vale para anexos, importações e e-mails. Ajuste também o limite do proxy reverso."
+      "maxUploadMbHint": "Vale para anexos, importações e e-mails. Ajuste também o limite do proxy reverso.",
+      "publicBaseUrlPlaceholder": "https://app.suaempresa.com.br",
+      "maxUploadPlaceholder": "Ex.: 25"
     },
     "mail": {
       "title": "E-mail de envio",
@@ -516,7 +522,12 @@
       "test": "Testar conexão",
       "testing": "Testando…",
       "testOk": "Conexão funcionando: o arquivo de teste foi gravado, lido e apagado.",
-      "testFailed": "Falha no teste: {{message}}"
+      "testFailed": "Falha no teste: {{message}}",
+      "pathPlaceholder": "Ex.: /var/lib/aphel/uploads",
+      "bucketPlaceholder": "Ex.: meu-bucket",
+      "regionPlaceholder": "Ex.: sa-east-1",
+      "accessKeyIdPlaceholder": "Ex.: AKIAIOSFODNN7EXAMPLE",
+      "secretKeyPlaceholder": "Cole a chave secreta"
     },
     "webhooks": {
       "title": "Entrega",
@@ -544,6 +555,14 @@
       "indexUrl": "URL do índice",
       "allowHttp": "Permitir http (só desenvolvimento)",
       "timeout": "Tempo máximo de busca (s)"
+    },
+    "numeric": {
+      "valuePlaceholder": "Digite o valor"
+    }
+  },
+  "modules": {
+    "catalog": {
+      "timeoutPlaceholder": "Ex.: 30"
     }
   }
 }

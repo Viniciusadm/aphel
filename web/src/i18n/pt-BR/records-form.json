@@ -41,7 +41,13 @@
     "timezone": "Fuso: {{zone}}",
     "unknownUser": "Usuário desconhecido",
     "recordUnavailable": "Tipo de registro indisponível",
-    "loadError": "Não foi possível carregar as opções."
+    "loadError": "Não foi possível carregar as opções.",
+    "textPlaceholder": "Digite aqui",
+    "emailPlaceholder": "nome@exemplo.com",
+    "longTextPlaceholder": "Escreva aqui…",
+    "numberPlaceholder": "0",
+    "currencyPlaceholder": "0,00",
+    "phonePlaceholder": "(00) 00000-0000"
   },
   "validation": {
     "required": "Campo obrigatório.",

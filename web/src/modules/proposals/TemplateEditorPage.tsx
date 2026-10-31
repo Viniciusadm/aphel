@@ -261,7 +261,7 @@ function EditorForm({ template }: { template: ProposalTemplate | null }) {
           <div className="grid gap-4 sm:grid-cols-2">
             <div className="grid gap-1.5">
               <Label htmlFor={`${formId}-name`}>{t('editor.name')}</Label>
-              <Input
+              <Input placeholder={t('editor.namePlaceholder')}
                 id={`${formId}-name`}
                 value={values.name}
                 maxLength={160}
@@ -271,7 +271,7 @@ function EditorForm({ template }: { template: ProposalTemplate | null }) {
             </div>
             <div className="grid gap-1.5">
               <Label htmlFor={`${formId}-key`}>{t('editor.key')}</Label>
-              <Input
+              <Input placeholder={t('editor.keyPlaceholder')}
                 id={`${formId}-key`}
                 value={values.key}
                 maxLength={64}
@@ -288,7 +288,7 @@ function EditorForm({ template }: { template: ProposalTemplate | null }) {
           </div>
           <div className="grid gap-1.5">
             <Label htmlFor={`${formId}-description`}>{t('editor.descriptionLabel')}</Label>
-            <Input
+            <Input placeholder={t('editor.descriptionPlaceholder')}
               id={`${formId}-description`}
               value={values.description}
               maxLength={500}
@@ -324,7 +324,7 @@ function EditorForm({ template }: { template: ProposalTemplate | null }) {
                 onPick={insertVariable}
               />
             </div>
-            <Textarea
+            <Textarea placeholder={t('editor.bodyPlaceholder')}
               ref={bodyRef}
               id={`${formId}-body`}
               value={values.body}

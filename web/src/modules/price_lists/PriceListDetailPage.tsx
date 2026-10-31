@@ -303,7 +303,7 @@ function ItemsForm({ list, items, canEdit, title }: ItemsFormProps) {
                       )}
                     </td>
                     <td className="px-4 py-2">
-                      <Input
+                      <Input placeholder={t('placeholders.minQuantity')}
                         inputMode="decimal"
                         value={draft.minQuantity}
                         disabled={!canEdit}
@@ -316,7 +316,7 @@ function ItemsForm({ list, items, canEdit, title }: ItemsFormProps) {
                       )}
                     </td>
                     <td className="px-4 py-2">
-                      <Input
+                      <Input placeholder={t('placeholders.unitPrice')}
                         inputMode="decimal"
                         value={draft.unitPrice}
                         disabled={!canEdit}

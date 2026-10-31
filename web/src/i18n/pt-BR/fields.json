@@ -93,7 +93,9 @@
     "personal": "Dado pessoal",
     "personalHint": "Identifica ou pode identificar uma pessoa (nome, e-mail, telefone, documento). Entra na localização de titulares, na exportação e na anonimização.",
     "sensitive": "Dado sensível",
-    "sensitiveHint": "Origem racial ou étnica, saúde, religião, opinião política, biometria e afins (LGPD art. 5º, II). Todo dado sensível também é pessoal."
+    "sensitiveHint": "Origem racial ou étnica, saúde, religião, opinião política, biometria e afins (LGPD art. 5º, II). Todo dado sensível também é pessoal.",
+    "labelPlaceholder": "Ex.: Telefone comercial",
+    "keyPlaceholder": "Ex.: telefone_comercial"
   },
   "config": {
     "min": "Valor mínimo",
@@ -115,7 +117,9 @@
     "noDefault": "Sem valor padrão",
     "checked": "Marcado",
     "unchecked": "Desmarcado",
-    "noOptions": "Adicione opções para escolher um valor padrão."
+    "noOptions": "Adicione opções para escolher um valor padrão.",
+    "valuePlaceholder": "Digite o valor",
+    "defaultValuePlaceholder": "Valor padrão (opcional)"
   },
   "options": {
     "title": "Opções",
@@ -133,7 +137,8 @@
     "newColorPicker": "Escolher cor da nova opção",
     "add": "Adicionar opção",
     "valueHint": "Valor: {{value}}",
-    "inactiveHint": "Opções inativas deixam de aparecer para escolha, mas os registros que já as usam continuam com o valor."
+    "inactiveHint": "Opções inativas deixam de aparecer para escolha, mas os registros que já as usam continuam com o valor.",
+    "labelPlaceholder": "Ex.: Em negociação"
   },
   "confirmDeactivate": {
     "title": "Desativar o campo {{label}}?",

@@ -42,7 +42,10 @@
     "expressionHint": "Boolean formula. Example: amount > 10000 and is_blank(source)",
     "save": "Save",
     "cancel": "Cancel",
-    "required": "Fill in this field."
+    "required": "Fill in this field.",
+    "namePlaceholder": "E.g.: Minimum contract value",
+    "keyPlaceholder": "E.g.: minimum_contract_value",
+    "messagePlaceholder": "E.g.: The value must be greater than zero"
   },
   "test": {
     "title": "Test against a record",

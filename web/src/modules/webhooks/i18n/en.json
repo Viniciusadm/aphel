@@ -305,6 +305,14 @@
       "headers": "Headers",
       "body": "Body ({{size}} bytes)",
       "truncated": "truncated"
+    },
+    "placeholders": {
+      "tolerance": "E.g.: 300",
+      "description": "Describe what this webhook is for"
     }
+  },
+  "placeholders": {
+    "description": "Describe what this webhook is for",
+    "tolerance": "E.g.: 300"
   }
 }

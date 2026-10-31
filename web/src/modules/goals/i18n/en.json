@@ -114,5 +114,8 @@
   },
   "nav": {
     "goals": "Goals"
+  },
+  "placeholders": {
+    "target": "E.g.: 100000"
   }
 }

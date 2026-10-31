@@ -73,7 +73,9 @@
     "errors": {
       "labelRequired": "Informe o nome.",
       "keyInvalid": "Use apenas letras minúsculas e _ (até {{max}} caracteres), começando por uma letra."
-    }
+    },
+    "keyPlaceholder": "Ex.: contrato",
+    "descriptionPlaceholder": "Descreva para que serve este objeto"
   },
   "removal": {
     "deleteTitle": "Excluir {{label}}?",
@@ -168,6 +170,12 @@
       "keyInvalid": "Use letras minúsculas, dígitos e _, começando por uma letra.",
       "sameKeys": "Quando os dois lados são do mesmo tipo, as chaves precisam ser diferentes.",
       "serverValidation": "Não foi possível salvar: verifique se as chaves já não são usadas por um campo ou outra relação dos tipos escolhidos."
+    },
+    "editor": {
+      "fromLabelPlaceholder": "Ex.: Contatos",
+      "toLabelPlaceholder": "Ex.: Empresa",
+      "keyPlaceholder": "Ex.: contatos_da_empresa",
+      "inverseKeyPlaceholder": "Ex.: empresa_do_contato"
     }
   },
   "records": {

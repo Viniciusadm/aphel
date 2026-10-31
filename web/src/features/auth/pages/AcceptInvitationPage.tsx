@@ -57,14 +57,14 @@ function NewAccountForm({ token, onAccepted, onInvalidToken }: InvitationFormPro
   return (
     <form noValidate onSubmit={onSubmit} className="grid gap-4">
       <FormAlert message={errors.root?.server?.message} />
-      <FormField
+      <FormField placeholder={t('placeholders.displayName')}
         id="invitation-display-name"
         autoComplete="name"
         label={t('fields.displayName')}
         error={errors.displayName?.message}
         {...register('displayName')}
       />
-      <FormField
+      <FormField placeholder={t('placeholders.newPassword')}
         id="invitation-password"
         type="password"
         autoComplete="new-password"
@@ -110,7 +110,7 @@ function ExistingAccountForm({ token, onAccepted, onInvalidToken }: InvitationFo
   return (
     <form noValidate onSubmit={onSubmit} className="grid gap-4">
       <FormAlert message={errors.root?.server?.message} />
-      <FormField
+      <FormField placeholder={t('placeholders.currentPassword')}
         id="invitation-current-password"
         type="password"
         autoComplete="current-password"

@@ -177,5 +177,12 @@
       "validation_error": "Revise os componentes destacados.",
       "generic": "Não foi possível salvar o kit. Tente de novo."
     }
+  },
+  "placeholders": {
+    "minQuantity": "1",
+    "unitPrice": "0,00",
+    "name": "Ex.: Tabela atacado",
+    "description": "Descreva quando usar esta tabela",
+    "quantity": "1"
   }
 }

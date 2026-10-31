@@ -107,7 +107,7 @@ export function PolicyFormDialog({ policy, onClose }: PolicyFormDialogProps) {
           )}
           <div className="grid gap-2">
             <Label htmlFor={ids.name}>{t('policyForm.name')}</Label>
-            <Input
+            <Input placeholder={t('placeholders.name')}
               id={ids.name}
               value={name}
               maxLength={NAME_MAX_LENGTH}
@@ -150,7 +150,7 @@ export function PolicyFormDialog({ policy, onClose }: PolicyFormDialogProps) {
           )}
           <div className="grid gap-2">
             <Label htmlFor={ids.days}>{t('policyForm.days')}</Label>
-            <Input
+            <Input placeholder={t('placeholders.days')}
               id={ids.days}
               type="number"
               inputMode="numeric"

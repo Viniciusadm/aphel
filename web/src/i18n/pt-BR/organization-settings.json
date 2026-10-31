@@ -54,5 +54,8 @@
   },
   "save": "Salvar alterações",
   "saving": "Salvando…",
-  "saved": "Configurações da organização salvas."
+  "saved": "Configurações da organização salvas.",
+  "placeholders": {
+    "name": "Ex.: Minha Empresa Ltda."
+  }
 }

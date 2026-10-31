@@ -41,7 +41,7 @@ export function AccountStep({ form, summary, error, submitting, progress, onSubm
       <fieldset className="grid gap-4" disabled={submitting}>
         <FormRow id="setup-admin-name" label={t('account.fields.adminName')} error={message(errors.adminName?.message)}>
           {(describedBy) => (
-            <Input
+            <Input placeholder={t('placeholders.adminName')}
               id="setup-admin-name"
               autoComplete="name"
               aria-invalid={errors.adminName ? true : undefined}
@@ -52,7 +52,7 @@ export function AccountStep({ form, summary, error, submitting, progress, onSubm
         </FormRow>
         <FormRow id="setup-admin-email" label={t('account.fields.adminEmail')} error={message(errors.adminEmail?.message)}>
           {(describedBy) => (
-            <Input
+            <Input placeholder={t('placeholders.adminEmail')}
               id="setup-admin-email"
               type="email"
               autoComplete="email"
@@ -69,7 +69,7 @@ export function AccountStep({ form, summary, error, submitting, progress, onSubm
           hint={errors.adminPassword ? undefined : t('account.hints.password')}
         >
           {(describedBy) => (
-            <Input
+            <Input placeholder={t('placeholders.adminPassword')}
               id="setup-admin-password"
               type="password"
               autoComplete="new-password"

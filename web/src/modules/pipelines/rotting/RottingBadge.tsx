@@ -17,11 +17,11 @@ export function RottingBadge({ deal, className }: RottingBadgeProps) {
 
   return (
     <Badge
-      variant="warning"
+      tone="warning"
+      icon={<AlarmClock aria-hidden="true" />}
       className={cn('tabular-nums', className)}
       title={rotting.limit ? t('badge.title', { limit: rotting.limit }) : undefined}
     >
-      <AlarmClock className="size-3.5" aria-hidden="true" />
       {t('badge.daysInStage', { count: days })}
     </Badge>
   )

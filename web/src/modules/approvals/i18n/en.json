@@ -240,5 +240,11 @@
     "version_conflict": "The policy was changed by someone else. Reload and try again.",
     "validation_error": "Check the information provided.",
     "generic": "The operation could not be completed."
+  },
+  "placeholders": {
+    "comment": "Write a comment",
+    "name": "E.g.: Discount above 10%",
+    "key": "E.g.: discount_above_10",
+    "description": "Describe when this policy applies"
   }
 }

@@ -53,7 +53,7 @@ export function ForgotPasswordPage() {
     <AuthCard title={t('forgotPassword.title')} description={t('forgotPassword.description')} footer={backToLogin}>
       <form noValidate onSubmit={onSubmit} className="grid gap-4">
         <FormAlert message={errors.root?.server?.message} />
-        <FormField
+        <FormField placeholder={t('placeholders.email')}
           id="forgot-password-email"
           type="email"
           autoComplete="email"

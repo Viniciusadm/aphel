@@ -92,7 +92,9 @@
     "hint": "Only portable settings are included: active fields and options, pipelines, reasons, activity types, tags, layouts, organization views and the default dashboard. No contact, company or deal is exported.",
     "submit": "Export and download",
     "exporting": "Exporting…",
-    "done": "File {{file}} downloaded."
+    "done": "File {{file}} downloaded.",
+    "authorPlaceholder": "E.g.: Operations team",
+    "packageDescriptionPlaceholder": "Describe what this package configures"
   },
   "install": {
     "planning": "Analyzing the package…",

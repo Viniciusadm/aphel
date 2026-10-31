@@ -256,9 +256,26 @@
       "cancelConfirm": "Cancel booking",
       "reason": "Reason (optional)",
       "locked": "This booking can no longer be rescheduled or canceled here."
+    },
+    "placeholders": {
+      "bookerEmail": "name@example.com",
+      "reason": "Tell us why (optional)",
+      "bookerName": "E.g.: Mary Smith"
     }
   },
   "nav": {
     "scheduling": "Scheduling"
+  },
+  "placeholders": {
+    "number": "0",
+    "reason": "Tell us why (optional)",
+    "name": "E.g.: 30-minute meeting",
+    "description": "Describe this meeting type",
+    "duration": "E.g.: 30",
+    "interval": "E.g.: 15",
+    "locationValue": "Enter the location or link",
+    "question": "E.g.: What is the meeting about?",
+    "bookerName": "E.g.: Mary Smith",
+    "bookerEmail": "name@example.com"
   }
 }

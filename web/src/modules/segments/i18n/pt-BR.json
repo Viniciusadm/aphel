@@ -62,5 +62,9 @@
     "loading": "Carregando segmentos…",
     "unknown": "segmento indisponível",
     "summary": "{{field}}: {{name}}"
+  },
+  "placeholders": {
+    "name": "Ex.: Clientes ativos",
+    "description": "Descreva este segmento"
   }
 }

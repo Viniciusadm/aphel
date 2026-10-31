@@ -152,7 +152,7 @@ function CatalogSourceForm({ source }: { source: CatalogSource }) {
                 error={errorText(errors.timeoutSecs?.message)}
               >
                 {(describedBy) => (
-                  <Input
+                  <Input placeholder={t('modules.catalog.timeoutPlaceholder')}
                     id="catalog-timeout"
                     inputMode="numeric"
                     className="w-32"

@@ -291,7 +291,7 @@ function AutomationWorkspace({ initial, catalog }: { initial: Automation; catalo
         <div className="flex flex-wrap items-start justify-between gap-3">
           <div className="grid min-w-0 flex-1 gap-2">
             <div className="flex min-w-0 flex-wrap items-center gap-2">
-              <Input
+              <Input placeholder={t('placeholders.name')}
                 value={draft.name}
                 onChange={(event) => setDraft((current) => ({ ...current, name: event.target.value }))}
                 aria-label={t('editor.name')}
@@ -357,7 +357,7 @@ function AutomationWorkspace({ initial, catalog }: { initial: Automation; catalo
         )}
       </div>
       <Tabs value={tab} onValueChange={(value) => setTab(value as Tab)}>
-        <TabsList className="max-w-full overflow-x-auto">
+        <TabsList>
           <TabsTrigger value="flow">{t('tabs.flow')}</TabsTrigger>
           <TabsTrigger value="test">{t('tabs.test')}</TabsTrigger>
           <TabsTrigger value="runs">{t('tabs.runs')}</TabsTrigger>

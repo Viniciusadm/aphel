@@ -1,3 +1,4 @@
+import { OptionGroup } from '@/components/ui/option-group'
 import { useQueryClient } from '@tanstack/react-query'
 import { useId, useState } from 'react'
 import { useTranslation } from 'react-i18next'
@@ -7,7 +8,6 @@ import { Label } from '@/components/ui/label'
 import { activitiesKeys } from '@/modules/activities/api'
 import { callsKeys, useCallOutcomes } from './api'
 import type { CallActivity, LogCallRequest } from './types'
-import { cn } from '@/lib/utils'
 import { submitWithOutbox } from '@/pwa/offline/outbox'
 import { useOutboxFeedback } from '@/features/mobile/lib/outbox-feedback'
 import { DictationField } from '@/features/mobile/components/DictationField'
@@ -77,46 +77,26 @@ export function CallQuickForm({ onDone, initialRecord }: CallQuickFormProps) {
       <RecordPicker value={record} onChange={setRecord} />
       <fieldset className="grid gap-2">
         <legend className="mb-2 text-sm font-medium">{t('call.direction')}</legend>
-        <div className="grid grid-cols-2 gap-2">
-          {(['outbound', 'inbound'] as const).map((option) => (
-            <button
-              key={option}
-              type="button"
-              aria-pressed={direction === option}
-              onClick={() => setDirection(option)}
-              className={cn(
-                'min-h-11 rounded-md border px-3 text-sm',
-                direction === option ? 'border-primary bg-primary/10 font-medium' : 'bg-background',
-              )}
-            >
-              {t(`call.directions.${option}`)}
-            </button>
-          ))}
-        </div>
+        <OptionGroup
+          size="touch"
+          value={direction}
+          onValueChange={(next) => next && setDirection(next)}
+          options={(['outbound', 'inbound'] as const).map((option) => ({ value: option, label: t(`call.directions.${option}`) }))}
+        />
       </fieldset>
       <fieldset className="grid gap-2">
         <legend className="mb-2 text-sm font-medium">{t('call.outcome')}</legend>
-        <div className="flex flex-wrap gap-2">
-          {activeOutcomes.map((outcome) => (
-            <button
-              key={outcome.key}
-              type="button"
-              aria-pressed={outcomeKey === outcome.key}
-              onClick={() => setOutcomeKey(outcome.key)}
-              className={cn(
-                'min-h-11 rounded-full border px-4 text-sm',
-                outcomeKey === outcome.key ? 'border-primary bg-primary/10 font-medium' : 'bg-background',
-              )}
-            >
-              {outcome.name}
-            </button>
-          ))}
-        </div>
+        <OptionGroup
+          size="touch"
+          value={outcomeKey}
+          onValueChange={setOutcomeKey}
+          options={activeOutcomes.map((outcome) => ({ value: outcome.key, label: outcome.name }))}
+        />
         {touched && !outcomeKey && <p className="text-sm text-destructive">{t('call.outcomeRequired')}</p>}
       </fieldset>
       <div className="grid gap-2">
         <Label htmlFor={ids.minutes}>{t('call.minutes')}</Label>
-        <Input
+        <Input placeholder={t('placeholders.minutes')}
           id={ids.minutes}
           type="number"
           inputMode="decimal"

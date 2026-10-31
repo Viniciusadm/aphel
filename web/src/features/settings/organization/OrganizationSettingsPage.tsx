@@ -207,7 +207,7 @@ function OrganizationForm({ organization }: { organization: OrganizationSettings
         <legend className="mb-2 text-base font-semibold">{t('sections.identity')}</legend>
         <FormRow id="organization-name" label={t('fields.name')} error={errorText(errors.name?.message)}>
           {(describedBy) => (
-            <Input
+            <Input placeholder={t('placeholders.name')}
               id="organization-name"
               autoComplete="organization"
               aria-invalid={errors.name ? true : undefined}

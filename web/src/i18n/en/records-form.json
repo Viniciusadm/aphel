@@ -41,7 +41,13 @@
     "timezone": "Time zone: {{zone}}",
     "unknownUser": "Unknown user",
     "recordUnavailable": "Record type unavailable",
-    "loadError": "Could not load the options."
+    "loadError": "Could not load the options.",
+    "textPlaceholder": "Type here",
+    "emailPlaceholder": "name@example.com",
+    "longTextPlaceholder": "Write here…",
+    "numberPlaceholder": "0",
+    "currencyPlaceholder": "0.00",
+    "phonePlaceholder": "(000) 000-0000"
   },
   "validation": {
     "required": "This field is required.",

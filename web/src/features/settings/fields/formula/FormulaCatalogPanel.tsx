@@ -112,7 +112,7 @@ function CatalogTabs({ catalog, term, onInsert }: CatalogTabsProps) {
 
   return (
     <Tabs defaultValue="fields" className="grid min-w-0 gap-2">
-      <TabsList className="w-full justify-start sm:w-auto">
+      <TabsList>
         <TabsTrigger value="fields">{t('catalog.fields')}</TabsTrigger>
         <TabsTrigger value="relations">{t('catalog.relations')}</TabsTrigger>
         <TabsTrigger value="functions">{t('catalog.functions')}</TabsTrigger>

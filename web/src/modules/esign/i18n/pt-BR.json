@@ -120,5 +120,8 @@
     "esign_request_closed": "Esta solicitação já foi encerrada",
     "deal_not_found": "Oportunidade não encontrada",
     "permission_denied": "Você não tem permissão para esta ação"
+  },
+  "placeholders": {
+    "webhookUrl": "https://"
   }
 }

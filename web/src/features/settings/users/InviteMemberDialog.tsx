@@ -76,7 +76,7 @@ export function InviteMemberDialog({ open, roles, onOpenChange, onInvited }: Inv
           <FormAlert message={errors.root?.server?.message} />
           <div className="grid gap-2">
             <Label htmlFor="invite-email">{t('users.inviteDialog.email')}</Label>
-            <Input
+            <Input placeholder={t('users.inviteDialog.emailPlaceholder')}
               id="invite-email"
               type="email"
               autoComplete="off"

@@ -42,7 +42,10 @@
     "expressionHint": "Fórmula booleana. Exemplo: amount > 10000 and is_blank(source)",
     "save": "Salvar",
     "cancel": "Cancelar",
-    "required": "Preencha este campo."
+    "required": "Preencha este campo.",
+    "namePlaceholder": "Ex.: Valor mínimo do contrato",
+    "keyPlaceholder": "Ex.: valor_minimo_contrato",
+    "messagePlaceholder": "Ex.: O valor deve ser maior que zero"
   },
   "test": {
     "title": "Testar contra um registro",

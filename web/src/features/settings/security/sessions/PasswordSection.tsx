@@ -96,7 +96,7 @@ export function PasswordSection() {
       <form className="grid max-w-md gap-4" noValidate onSubmit={(event) => void onSubmit(event)}>
         <div className="grid gap-1.5">
           <Label htmlFor={`${formId}-currentPassword`}>{t('password.current')}</Label>
-          <Input
+          <Input placeholder={t('password.currentPlaceholder')}
             id={`${formId}-currentPassword`}
             type="password"
             autoComplete="current-password"
@@ -108,7 +108,7 @@ export function PasswordSection() {
         </div>
         <div className="grid gap-1.5">
           <Label htmlFor={`${formId}-newPassword`}>{t('password.new')}</Label>
-          <Input
+          <Input placeholder={t('password.newPlaceholder')}
             id={`${formId}-newPassword`}
             type="password"
             autoComplete="new-password"
@@ -125,7 +125,7 @@ export function PasswordSection() {
         </div>
         <div className="grid gap-1.5">
           <Label htmlFor={`${formId}-confirmation`}>{t('password.confirmation')}</Label>
-          <Input
+          <Input placeholder={t('password.confirmationPlaceholder')}
             id={`${formId}-confirmation`}
             type="password"
             autoComplete="new-password"

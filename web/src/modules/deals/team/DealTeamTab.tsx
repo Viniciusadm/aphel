@@ -258,7 +258,7 @@ function AddMemberForm({ team, roles, busy, onCancel, onSubmit }: AddMemberFormP
       </div>
       <div className="grid gap-1.5">
         <Label htmlFor={`${formId}-credit`}>{t('add.credit')}</Label>
-        <Input
+        <Input placeholder={t('placeholders.credit')}
           id={`${formId}-credit`}
           inputMode="decimal"
           value={credit}

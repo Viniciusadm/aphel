@@ -212,7 +212,7 @@ function TagForm({ editing, onClose, onSaved }: TagFormProps) {
       >
         <div className="grid gap-1.5">
           <Label htmlFor={`${formId}-name`}>{t('settings.name')}</Label>
-          <Input
+          <Input placeholder={t('placeholders.name')}
             id={`${formId}-name`}
             value={name}
             maxLength={MAX_TAG_NAME_LENGTH}
@@ -240,7 +240,7 @@ function TagForm({ editing, onClose, onSaved }: TagFormProps) {
               value={HEX_COLOR.test(color) ? color : DEFAULT_TAG_COLOR}
               onChange={(event) => setColor(event.target.value)}
             />
-            <Input aria-label={t('settings.colorHex')} value={color} onChange={(event) => setColor(event.target.value)} />
+            <Input placeholder={t('placeholders.colorHex')} aria-label={t('settings.colorHex')} value={color} onChange={(event) => setColor(event.target.value)} />
           </div>
         </div>
         <fieldset className="grid gap-2">

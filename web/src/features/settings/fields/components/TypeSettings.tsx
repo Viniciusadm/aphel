@@ -51,7 +51,7 @@ export function TypeSettings({ fieldType, control, register, errors, optionChoic
     const error = configErrors?.[name]?.message
     return (
       <FormField id={id} label={label} hint={hint} error={error}>
-        <Input
+        <Input placeholder={t('config.valuePlaceholder')}
           id={id}
           inputMode={inputMode}
           aria-invalid={error ? true : undefined}
@@ -204,7 +204,7 @@ function DefaultValueInput({ fieldType, control, register, errors, optionChoices
 
   return (
     <FormField id={id} label={t('config.defaultValue')} hint={hint} error={error}>
-      <Input
+      <Input placeholder={t('config.defaultValuePlaceholder')}
         id={id}
         type={DEFAULT_INPUT_TYPES[fieldType] ?? 'text'}
         inputMode={isNumeric(fieldType) ? 'decimal' : undefined}

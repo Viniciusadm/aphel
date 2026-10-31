@@ -103,7 +103,7 @@ export function TeamEditorDialog({ team, teams, members, onClose }: TeamEditorDi
           <div className="grid gap-4 sm:grid-cols-2">
             <div className="grid gap-2">
               <Label htmlFor="team-name">{t('teams.editor.name')}</Label>
-              <Input
+              <Input placeholder={t('teams.editor.namePlaceholder')}
                 id="team-name"
                 aria-invalid={errors.name ? true : undefined}
                 aria-describedby={errors.name ? 'team-name-error' : undefined}

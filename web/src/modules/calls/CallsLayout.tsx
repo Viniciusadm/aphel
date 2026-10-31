@@ -1,7 +1,7 @@
 import { useTranslation } from 'react-i18next'
-import { NavLink, Outlet } from 'react-router'
+import { Outlet } from 'react-router'
 import { useSession } from '@/app/session/session-context'
-import { cn } from '@/lib/utils'
+import { TabsNav, TabsNavItem } from '@/components/ui/tabs-nav'
 import { CALLS_PATH } from './constants'
 
 export function CallsLayout() {
@@ -20,25 +20,13 @@ export function CallsLayout() {
         <h1 className="text-2xl font-semibold tracking-tight">{t('page.title')}</h1>
         <p className="text-sm text-muted-foreground">{t('page.description')}</p>
       </header>
-      <nav aria-label={t('page.sections')} className="flex gap-1 overflow-x-auto border-b">
+      <TabsNav aria-label={t('page.sections')} className="self-start">
         {tabs.map((tab) => (
-          <NavLink
-            key={tab.to}
-            to={tab.to}
-            end={tab.end}
-            className={({ isActive }) =>
-              cn(
-                '-mb-px border-b-2 px-3 py-2 text-sm font-medium whitespace-nowrap transition-colors',
-                isActive
-                  ? 'border-primary text-foreground'
-                  : 'border-transparent text-muted-foreground hover:text-foreground',
-              )
-            }
-          >
+          <TabsNavItem key={tab.to} to={tab.to} end={tab.end}>
             {tab.label}
-          </NavLink>
+          </TabsNavItem>
         ))}
-      </nav>
+      </TabsNav>
       <Outlet />
     </div>
   )

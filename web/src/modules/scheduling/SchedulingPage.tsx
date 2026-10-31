@@ -18,7 +18,7 @@ export function SchedulingPage() {
         <p className="text-sm text-muted-foreground">{t('page.description')}</p>
       </header>
       <Tabs value={section} onValueChange={(value) => setSection(value as Section)} className="grid gap-4">
-        <TabsList className="w-fit">
+        <TabsList>
           <TabsTrigger value="meeting-types">{t('tabs.meetingTypes')}</TabsTrigger>
           <TabsTrigger value="availability">{t('tabs.availability')}</TabsTrigger>
           <TabsTrigger value="bookings">{t('tabs.bookings')}</TabsTrigger>

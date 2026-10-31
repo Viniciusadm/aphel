@@ -190,5 +190,8 @@
     "grantsIncomplete": "Some roles are missing or do not have every permission the plugin expects. Create the roles in Settings › Roles and reapply the grants.",
     "reapplyGrants": "Reapply grants",
     "grantsReapplied": "Grants reapplied."
+  },
+  "placeholders": {
+    "value": "Enter the value"
   }
 }

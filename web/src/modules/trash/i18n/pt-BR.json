@@ -44,5 +44,8 @@
     "product": "Produtos",
     "activity": "Atividades",
     "quote": "Cotações"
+  },
+  "placeholders": {
+    "retention": "Ex.: 30"
   }
 }

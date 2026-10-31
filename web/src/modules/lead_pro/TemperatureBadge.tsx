@@ -3,7 +3,7 @@ import { Badge } from '@/components/ui/badge'
 import { useModuleTranslation } from '@/kernel/modules/i18n'
 import { LEAD_PRO_KEY, temperatureBand } from './api'
 
-const VARIANTS = { cold: 'secondary', warm: 'warning', hot: 'destructive' } as const
+const TONES = { cold: 'neutral', warm: 'warning', hot: 'destructive' } as const
 
 export const DEFAULT_HOT_THRESHOLD = 70
 
@@ -11,8 +11,7 @@ export function TemperatureBadge({ temperature, hotThreshold }: { temperature: n
   const t = useModuleTranslation(LEAD_PRO_KEY)
   const band = temperatureBand(temperature, hotThreshold)
   return (
-    <Badge variant={VARIANTS[band]} className="gap-1 tabular-nums">
-      <Flame className="size-3" aria-hidden="true" />
+    <Badge tone={TONES[band]} icon={<Flame aria-hidden="true" />} className="tabular-nums">
       {temperature}
       <span className="sr-only">{t(`bands.${band}`)}</span>
     </Badge>

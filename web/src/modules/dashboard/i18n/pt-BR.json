@@ -146,5 +146,8 @@
   },
   "nav": {
     "home": "Início"
+  },
+  "placeholders": {
+    "number": "0"
   }
 }

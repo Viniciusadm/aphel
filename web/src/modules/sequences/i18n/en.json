@@ -222,5 +222,13 @@
   },
   "nav": {
     "sequences": "Sequences"
+  },
+  "placeholders": {
+    "name": "E.g.: Welcome",
+    "description": "Describe the goal of this sequence",
+    "dailyLimit": "E.g.: 50",
+    "waitDays": "E.g.: 2",
+    "subject": "E.g.: Hi, how are you?",
+    "body": "Write the email content"
   }
 }

@@ -66,7 +66,7 @@ function PipelineName({ pipeline }: { pipeline: Pipeline }) {
     >
       <div className="grid min-w-56 flex-1 gap-1.5">
         <Label htmlFor={inputId}>{t('settings.pipeline.name')}</Label>
-        <Input id={inputId} value={name} maxLength={140} onChange={(event) => setName(event.target.value)} />
+        <Input placeholder={t('placeholders.pipelineName')} id={inputId} value={name} maxLength={140} onChange={(event) => setName(event.target.value)} />
       </div>
       <Button type="submit" variant="outline" disabled={!changed || rename.isPending}>
         {t('actions.save')}
@@ -321,7 +321,7 @@ function LostReasonRow({
             if (name.trim()) update.mutate({ name: name.trim() })
           }}
         >
-          <Input
+          <Input placeholder={t('placeholders.lostReason')}
             aria-label={t('settings.lostReasons.name')}
             value={name}
             maxLength={140}
@@ -412,7 +412,7 @@ function LostReasonsSection() {
         >
           <div className="grid min-w-56 flex-1 gap-1.5">
             <Label htmlFor={inputId}>{t('settings.lostReasons.new')}</Label>
-            <Input id={inputId} value={name} maxLength={140} onChange={(event) => setName(event.target.value)} />
+            <Input placeholder={t('placeholders.lostReason')} id={inputId} value={name} maxLength={140} onChange={(event) => setName(event.target.value)} />
           </div>
           <Button type="submit" disabled={!name.trim() || create.isPending}>
             <Plus aria-hidden="true" />

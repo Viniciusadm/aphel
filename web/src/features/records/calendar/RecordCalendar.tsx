@@ -1,3 +1,4 @@
+import { SegmentedControl } from '@/components/ui/segmented-control'
 import { keepPreviousData, useQuery, useQueryClient } from '@tanstack/react-query'
 import { ChevronLeft, ChevronRight } from 'lucide-react'
 import { createContext, useContext, useState, type DragEvent } from 'react'
@@ -262,19 +263,14 @@ export function RecordCalendar({
             : `${formatShortDay(from, formatting.locale)} – ${formatShortDay(addDays(to, -1), formatting.locale)}`}
         </h2>
         <span className="text-xs text-muted-foreground">{t('records.byField', { field: field.label })}</span>
-        <div className="ml-auto flex items-center gap-1" role="group" aria-label={t('views.label')}>
-          {RECORD_CALENDAR_MODES.map((option) => (
-            <Button
-              key={option}
-              variant={mode === option ? 'secondary' : 'ghost'}
-              size="sm"
-              aria-pressed={mode === option}
-              onClick={() => setMode(option)}
-            >
-              {t(`views.${option}`)}
-            </Button>
-          ))}
-        </div>
+        <SegmentedControl
+          aria-label={t('views.label')}
+          size="sm"
+          className="ml-auto"
+          value={mode}
+          onValueChange={setMode}
+          options={RECORD_CALENDAR_MODES.map((option) => ({ value: option, label: t(`views.${option}`) }))}
+        />
       </div>
       {total > shown && (
         <p role="status" className="text-sm text-muted-foreground">

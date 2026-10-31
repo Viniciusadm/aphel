@@ -268,5 +268,9 @@
       "retention_preview_required": "Run a new preview before continuing.",
       "retention_policy_limit": "The organization already has the maximum number of policies (50)."
     }
+  },
+  "placeholders": {
+    "name": "E.g.: Inactive lead retention",
+    "days": "E.g.: 365"
   }
 }

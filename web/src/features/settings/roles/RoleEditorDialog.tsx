@@ -72,7 +72,7 @@ export function RoleEditorDialog({ role, catalog, onClose }: RoleEditorDialogPro
           <div className="grid gap-4 sm:grid-cols-2">
             <div className="grid gap-2">
               <Label htmlFor="role-name">{t('roles.editor.name')}</Label>
-              <Input
+              <Input placeholder={t('roles.editor.namePlaceholder')}
                 id="role-name"
                 aria-invalid={errors.name ? true : undefined}
                 aria-describedby={errors.name ? 'role-name-error' : undefined}
@@ -82,7 +82,7 @@ export function RoleEditorDialog({ role, catalog, onClose }: RoleEditorDialogPro
             </div>
             <div className="grid gap-2">
               <Label htmlFor="role-key">{t('roles.editor.key')}</Label>
-              <Input
+              <Input placeholder={t('roles.editor.keyPlaceholder')}
                 id="role-key"
                 disabled={role?.is_system}
                 aria-invalid={errors.key ? true : undefined}

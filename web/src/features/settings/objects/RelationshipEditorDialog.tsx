@@ -293,7 +293,7 @@ function RelationshipForm({ relationship, recordType, onClose, onSaved }: Relati
         <div className="grid gap-4 sm:grid-cols-2">
           <div className="grid gap-1.5">
             <Label htmlFor={`${formId}-from-label`}>{t('relationships.fromLabel', { type: fromName })}</Label>
-            <Input
+            <Input placeholder={t('relationships.editor.fromLabelPlaceholder')}
               id={`${formId}-from-label`}
               value={fromLabel}
               maxLength={LABEL_MAX_LENGTH}
@@ -305,7 +305,7 @@ function RelationshipForm({ relationship, recordType, onClose, onSaved }: Relati
           </div>
           <div className="grid gap-1.5">
             <Label htmlFor={`${formId}-to-label`}>{t('relationships.toLabel', { type: toName })}</Label>
-            <Input
+            <Input placeholder={t('relationships.editor.toLabelPlaceholder')}
               id={`${formId}-to-label`}
               value={toLabel}
               maxLength={LABEL_MAX_LENGTH}
@@ -317,7 +317,7 @@ function RelationshipForm({ relationship, recordType, onClose, onSaved }: Relati
           </div>
           <div className="grid gap-1.5">
             <Label htmlFor={`${formId}-key`}>{t('relationships.key', { type: fromName })}</Label>
-            <Input
+            <Input placeholder={t('relationships.editor.keyPlaceholder')}
               id={`${formId}-key`}
               value={key}
               maxLength={RELATION_KEY_MAX_LENGTH}
@@ -335,7 +335,7 @@ function RelationshipForm({ relationship, recordType, onClose, onSaved }: Relati
           </div>
           <div className="grid gap-1.5">
             <Label htmlFor={`${formId}-inverse-key`}>{t('relationships.inverseKey', { type: toName })}</Label>
-            <Input
+            <Input placeholder={t('relationships.editor.inverseKeyPlaceholder')}
               id={`${formId}-inverse-key`}
               value={inverseKey}
               maxLength={RELATION_KEY_MAX_LENGTH}

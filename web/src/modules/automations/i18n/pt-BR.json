@@ -533,5 +533,12 @@
   },
   "nav": {
     "automations": "Automações"
+  },
+  "placeholders": {
+    "name": "Ex.: Avisar time de vendas",
+    "description": "Descreva o que esta automação faz",
+    "amount": "0",
+    "number": "0",
+    "text": "Digite o texto"
   }
 }

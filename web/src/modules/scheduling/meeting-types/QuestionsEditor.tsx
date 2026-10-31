@@ -38,7 +38,7 @@ export function QuestionsEditor({ control, register, errors }: QuestionsEditorPr
               <div className="flex items-end gap-2">
                 <div className="grid flex-1 gap-1">
                   <Label htmlFor={`question-${index}-label`}>{t('meetingTypes.form.questionLabel')}</Label>
-                  <Input
+                  <Input placeholder={t('placeholders.question')}
                     id={`question-${index}-label`}
                     aria-invalid={questionErrors?.label ? true : undefined}
                     {...register(`questions.${index}.label`)}

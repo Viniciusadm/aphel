@@ -70,6 +70,7 @@ function ConfirmDialogBody({
             {labels.confirmTypePrompt(confirmationText ?? '')}
           </Label>
           <Input
+            placeholder={confirmationText}
             id={inputId}
             value={typed}
             autoComplete="off"

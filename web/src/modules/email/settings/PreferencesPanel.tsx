@@ -224,7 +224,7 @@ function CaptureForm({ initial }: { initial: CaptureSettings }) {
       />
       <div className="grid max-w-xs gap-1.5">
         <Label htmlFor={`${formId}-history`}>{t('capture.initialHistoryDays')}</Label>
-        <Input
+        <Input placeholder={t('placeholders.historyDays')}
           id={`${formId}-history`}
           type="number"
           inputMode="numeric"

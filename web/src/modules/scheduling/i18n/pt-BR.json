@@ -256,9 +256,26 @@
       "cancelConfirm": "Cancelar agendamento",
       "reason": "Motivo (opcional)",
       "locked": "Este agendamento não pode mais ser remarcado ou cancelado por aqui."
+    },
+    "placeholders": {
+      "bookerEmail": "nome@exemplo.com",
+      "reason": "Conte o motivo (opcional)",
+      "bookerName": "Ex.: Maria Silva"
     }
   },
   "nav": {
     "scheduling": "Agendamento"
+  },
+  "placeholders": {
+    "number": "0",
+    "reason": "Conte o motivo (opcional)",
+    "name": "Ex.: Reunião de 30 minutos",
+    "description": "Descreva este tipo de reunião",
+    "duration": "Ex.: 30",
+    "interval": "Ex.: 15",
+    "locationValue": "Informe o local ou o link",
+    "question": "Ex.: Qual o assunto da conversa?",
+    "bookerName": "Ex.: Maria Silva",
+    "bookerEmail": "nome@exemplo.com"
   }
 }

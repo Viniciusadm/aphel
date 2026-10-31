@@ -61,7 +61,7 @@ export function FontsEditor({ fonts, onChange }: FontsEditorProps) {
         <div className="grid gap-3 sm:grid-cols-4">
           <div className="grid gap-1.5 sm:col-span-2">
             <Label htmlFor="font-family">{t('fonts.family')}</Label>
-            <Input id="font-family" value={family} onChange={(event) => setFamily(event.target.value)} />
+            <Input placeholder={t('placeholders.family')} id="font-family" value={family} onChange={(event) => setFamily(event.target.value)} />
           </div>
           <div className="grid gap-1.5">
             <Label htmlFor="font-weight">{t('fonts.weight')}</Label>

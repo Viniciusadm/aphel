@@ -190,5 +190,8 @@
     "grantsIncomplete": "Alguns papéis não existem ou não têm todas as permissões esperadas pelo plugin. Crie os papéis em Configurações › Papéis e reaplique as permissões.",
     "reapplyGrants": "Reaplicar permissões",
     "grantsReapplied": "Permissões reaplicadas."
+  },
+  "placeholders": {
+    "value": "Digite o valor"
   }
 }

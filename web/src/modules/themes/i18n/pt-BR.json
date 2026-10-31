@@ -129,5 +129,14 @@
     "update": "Atualizar",
     "installed": "Instalado ({{version}})",
     "checking": "Verificando…"
+  },
+  "placeholders": {
+    "family": "Ex.: Inter",
+    "name": "Ex.: Tema escuro",
+    "id": "Ex.: tema-escuro",
+    "version": "Ex.: 1.0.0",
+    "author": "Ex.: Maria Silva",
+    "license": "Ex.: MIT",
+    "description": "Descreva este tema"
   }
 }

@@ -87,5 +87,8 @@
     "syncFailed": "No rate from the provider for: {{currencies}}",
     "lastSynced": "Last update: {{date}}",
     "neverSynced": "Not updated yet"
+  },
+  "placeholders": {
+    "rate": "0.00"
   }
 }

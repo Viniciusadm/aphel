@@ -109,7 +109,7 @@ function CancelBookingButton({ token }: { token: string }) {
       >
         <div className="grid gap-1">
           <Label htmlFor={reasonId}>{t('manage.reason')}</Label>
-          <Textarea id={reasonId} rows={3} value={reason} onChange={(event) => setReason(event.target.value)} />
+          <Textarea placeholder={t('placeholders.reason')} id={reasonId} rows={3} value={reason} onChange={(event) => setReason(event.target.value)} />
         </div>
       </ConfirmDialog>
     </>

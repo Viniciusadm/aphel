@@ -72,7 +72,7 @@ export function AvailabilityForm({ userId, availability }: AvailabilityFormProps
   ) => (
     <div className="grid gap-1">
       <Label htmlFor={`availability-${name}`}>{label}</Label>
-      <Input
+      <Input placeholder={t('placeholders.number')}
         id={`availability-${name}`}
         type="number"
         min={min}

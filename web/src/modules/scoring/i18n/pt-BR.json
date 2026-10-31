@@ -121,5 +121,17 @@
     "calculatedAt": "Calculada em {{date}}",
     "notCalculated": "Ainda não calculada",
     "thresholds": "Morno a partir de {{warm}}, quente a partir de {{hot}}"
+  },
+  "placeholders": {
+    "name": "Ex.: Qualificação de leads",
+    "key": "Ex.: qualificacao_de_leads",
+    "description": "Descreva como este modelo pontua",
+    "warm": "Ex.: 40",
+    "hot": "Ex.: 70",
+    "criterionLabel": "Ex.: Cargo de decisão",
+    "criterionKey": "Ex.: cargo_decisao",
+    "points": "Ex.: 10",
+    "maxPoints": "Ex.: 30",
+    "decayDays": "Ex.: 30"
   }
 }

@@ -75,6 +75,11 @@
       "submit": "Create contact",
       "created": "Contact {{name}} created.",
       "outboxLabel": "Contact {{name}}"
+    },
+    "placeholders": {
+      "name": "E.g.: Mary Smith",
+      "phone": "(000) 000-0000",
+      "email": "name@example.com"
     }
   }
 }

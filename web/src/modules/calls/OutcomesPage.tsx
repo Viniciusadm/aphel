@@ -210,7 +210,7 @@ function OutcomeForm({
       >
         <div className="grid gap-1.5">
           <Label htmlFor={`${formId}-name`}>{t('outcomes.name')}</Label>
-          <Input
+          <Input placeholder={t('placeholders.outcomeName')}
             id={`${formId}-name`}
             value={name}
             autoFocus

@@ -75,6 +75,11 @@
       "submit": "Criar contato",
       "created": "Contato {{name}} criado.",
       "outboxLabel": "Contato {{name}}"
+    },
+    "placeholders": {
+      "name": "Ex.: Maria Silva",
+      "phone": "(00) 00000-0000",
+      "email": "nome@exemplo.com"
     }
   }
 }

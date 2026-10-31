@@ -48,7 +48,7 @@ export function WidgetSettingsForm({ fields, settings, onSubmit, onCancel }: Wid
         field.kind === 'integer' ? (
           <div key={field.key} className="grid gap-1.5">
             <Label htmlFor={`${id}-${field.key}`}>{t(field.label as 'title')}</Label>
-            <Input
+            <Input placeholder={t('placeholders.number')}
               id={`${id}-${field.key}`}
               type="number"
               inputMode="numeric"

@@ -59,7 +59,7 @@ export function MailboxesPage() {
     <section className="flex flex-col gap-4">
       <SectionHeader title={t('mailboxes.title')} description={t('mailboxes.description')} />
       <Tabs value={section} onValueChange={(value) => setSection(value as Section)} className="grid gap-4">
-        <TabsList className="w-fit">
+        <TabsList>
           <TabsTrigger value="mailboxes">{t('mailboxes.tabs.mailboxes')}</TabsTrigger>
           <TabsTrigger value="templates">{t('mailboxes.tabs.templates')}</TabsTrigger>
         </TabsList>

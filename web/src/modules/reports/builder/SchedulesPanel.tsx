@@ -154,7 +154,7 @@ function ScheduleForm({
         {values.frequency === 'monthly' && (
           <div className="grid gap-1.5">
             <Label htmlFor={ids.day}>{t('schedules.form.dayOfMonth')}</Label>
-            <Input
+            <Input placeholder={t('placeholders.day')}
               id={ids.day}
               type="number"
               min={1}

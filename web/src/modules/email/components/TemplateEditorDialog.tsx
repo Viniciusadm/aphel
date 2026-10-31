@@ -165,7 +165,7 @@ function TemplateForm({ scope, template, onDirtyChange, onCancel, onSaved }: Tem
       <div className="grid gap-4 sm:grid-cols-2">
         <div className="grid content-start gap-1.5">
           <Label htmlFor={`${formId}-name`}>{t('templates.name')}</Label>
-          <Input
+          <Input placeholder={t('placeholders.templateName')}
             id={`${formId}-name`}
             value={input.name}
             required
@@ -181,7 +181,7 @@ function TemplateForm({ scope, template, onDirtyChange, onCancel, onSaved }: Tem
         </div>
         <div className="grid content-start gap-1.5">
           <Label htmlFor={`${formId}-key`}>{t('templates.key')}</Label>
-          <Input
+          <Input placeholder={t('placeholders.templateKey')}
             id={`${formId}-key`}
             value={input.key}
             required
@@ -216,7 +216,7 @@ function TemplateForm({ scope, template, onDirtyChange, onCancel, onSaved }: Tem
       </div>
       <Tabs value={tab} onValueChange={showPreview} className="grid gap-3">
         <div className="flex flex-wrap items-center justify-between gap-2">
-          <TabsList className="w-fit">
+          <TabsList>
             <TabsTrigger value="edit">{t('templates.editTab')}</TabsTrigger>
             <TabsTrigger value="preview">{t('templates.previewTab')}</TabsTrigger>
           </TabsList>
@@ -225,7 +225,7 @@ function TemplateForm({ scope, template, onDirtyChange, onCancel, onSaved }: Tem
         <TabsContent value="edit" className="grid gap-4">
           <div className="grid content-start gap-1.5">
             <Label htmlFor={`${formId}-subject`}>{t('fields.subject')}</Label>
-            <Input
+            <Input placeholder={t('placeholders.subject')}
               id={`${formId}-subject`}
               ref={subjectRef}
               value={input.subject}
@@ -239,7 +239,7 @@ function TemplateForm({ scope, template, onDirtyChange, onCancel, onSaved }: Tem
           </div>
           <div className="grid content-start gap-1.5">
             <Label htmlFor={`${formId}-body`}>{t('templates.bodyHtml')}</Label>
-            <Textarea
+            <Textarea placeholder={t('placeholders.bodyHtml')}
               id={`${formId}-body`}
               ref={bodyRef}
               value={input.body_html}

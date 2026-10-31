@@ -19,7 +19,7 @@ export function RottingDaysField({ value, invalid, disabled, onChange }: Rotting
   return (
     <div className="grid gap-2">
       <Label htmlFor={id}>{t('stage.label')}</Label>
-      <Input
+      <Input placeholder={t('placeholders.days')}
         id={id}
         type="number"
         min={1}

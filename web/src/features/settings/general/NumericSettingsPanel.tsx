@@ -116,7 +116,7 @@ export function NumericSettingsPanel({
               return (
                 <FormRow key={setting.key} id={fieldId} label={setting.label} error={error} hint={setting.hint}>
                   {(describedBy) => (
-                    <Input
+                    <Input placeholder={t('configuration.numeric.valuePlaceholder')}
                       id={fieldId}
                       inputMode="numeric"
                       aria-invalid={error ? true : undefined}

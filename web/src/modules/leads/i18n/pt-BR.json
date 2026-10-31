@@ -153,5 +153,9 @@
   },
   "nav": {
     "leads": "Leads"
+  },
+  "placeholders": {
+    "dealTitle": "Ex.: Proposta para Empresa X",
+    "reasonName": "Ex.: Sem orçamento"
   }
 }

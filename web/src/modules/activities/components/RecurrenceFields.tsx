@@ -59,7 +59,7 @@ export function RecurrenceFields({ value, onChange, error, disabled }: Recurrenc
         {frequency && (
           <div className="grid gap-1.5">
             <Label htmlFor={ids.interval}>{t(`recurrence.interval.${frequency}`)}</Label>
-            <Input
+            <Input placeholder={t('placeholders.interval')}
               id={ids.interval}
               inputMode="numeric"
               value={value.interval}
@@ -94,7 +94,7 @@ export function RecurrenceFields({ value, onChange, error, disabled }: Recurrenc
       {value.frequency === 'monthly' && (
         <div className="grid gap-1.5">
           <Label htmlFor={ids.monthDay}>{t('recurrence.monthDay')}</Label>
-          <Input
+          <Input placeholder={t('placeholders.monthDay')}
             id={ids.monthDay}
             inputMode="numeric"
             className="w-24"
@@ -134,7 +134,7 @@ export function RecurrenceFields({ value, onChange, error, disabled }: Recurrenc
           {value.end === 'count' && (
             <div className="grid gap-1.5">
               <Label htmlFor={ids.count}>{t('recurrence.countLabel')}</Label>
-              <Input
+              <Input placeholder={t('placeholders.count')}
                 id={ids.count}
                 inputMode="numeric"
                 value={value.count}

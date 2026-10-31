@@ -533,5 +533,12 @@
   },
   "nav": {
     "automations": "Automations"
+  },
+  "placeholders": {
+    "name": "E.g.: Notify the sales team",
+    "description": "Describe what this automation does",
+    "amount": "0",
+    "number": "0",
+    "text": "Type the text"
   }
 }

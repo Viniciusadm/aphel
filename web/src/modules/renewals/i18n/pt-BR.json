@@ -32,5 +32,9 @@
       "contractEnd": "Fim do contrato: {{date}}",
       "partial": "MRR na moeda base; contratos sem cotação ficaram de fora da soma."
     }
+  },
+  "placeholders": {
+    "days": "Ex.: 30",
+    "titlePrefix": "Ex.: Renovação:"
   }
 }

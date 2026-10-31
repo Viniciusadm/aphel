@@ -238,7 +238,7 @@ function ActivityTypeForm({ editing, onClose, onSaved }: ActivityTypeFormProps) 
       >
         <div className="grid gap-1.5">
           <Label htmlFor={`${formId}-name`}>{t('types.name')}</Label>
-          <Input
+          <Input placeholder={t('placeholders.typeName')}
             id={`${formId}-name`}
             value={name}
             autoFocus
@@ -280,7 +280,7 @@ function ActivityTypeForm({ editing, onClose, onSaved }: ActivityTypeFormProps) 
                 value={HEX_COLOR.test(color) ? color : DEFAULT_ACTIVITY_COLOR}
                 onChange={(event) => setColor(event.target.value)}
               />
-              <Input aria-label={t('types.colorHex')} value={color} onChange={(event) => setColor(event.target.value)} />
+              <Input placeholder={t('placeholders.colorHex')} aria-label={t('types.colorHex')} value={color} onChange={(event) => setColor(event.target.value)} />
             </div>
           </div>
         </div>

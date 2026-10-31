@@ -66,7 +66,11 @@
     "goToIssue": "Ir para linha {{line}}, coluna {{column}}",
     "invalid": "Corrija os problemas do modelo antes de salvar.",
     "notFoundTitle": "Modelo não encontrado",
-    "notFoundDescription": "O modelo pode ter sido excluído."
+    "notFoundDescription": "O modelo pode ter sido excluído.",
+    "namePlaceholder": "Ex.: Proposta comercial",
+    "keyPlaceholder": "Ex.: proposta_comercial",
+    "descriptionPlaceholder": "Descreva quando usar este modelo",
+    "bodyPlaceholder": "Escreva o conteúdo da proposta"
   },
   "issues": {
     "unknown_variable": "variável desconhecida: {{variable}}",

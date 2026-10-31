@@ -141,7 +141,7 @@ function ConvertForm({ lead, onClose }: { lead: LeadTarget; onClose: () => void 
         </div>
         <div className="grid gap-1.5">
           <Label htmlFor={`${formId}-title`}>{t('convert.dealTitle')}</Label>
-          <Input
+          <Input placeholder={t('placeholders.dealTitle')}
             id={`${formId}-title`}
             value={title}
             maxLength={255}

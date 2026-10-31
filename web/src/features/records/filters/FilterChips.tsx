@@ -1,3 +1,4 @@
+import { Badge } from '@/components/ui/badge'
 import { X } from 'lucide-react'
 import { Fragment } from 'react'
 import { useTranslation } from 'react-i18next'
@@ -37,7 +38,7 @@ export function FilterChips({ schema: baseSchema, filter, onChange, className }:
         return (
           <Fragment key={`${index}-${summary}`}>
             {index > 0 && <span className="text-xs text-muted-foreground">{joiner}</span>}
-            <span className="inline-flex max-w-full items-center gap-1 rounded-full border bg-muted/60 py-0.5 pr-1 pl-2.5 text-xs">
+            <Badge tone="neutral" className="max-w-full gap-1 rounded-full py-0.5 pr-1 pl-2.5">
               <span className="truncate">
                 {Summary && isFilterCondition(node) ? (
                   <Summary recordType={schema.record_type} condition={node} label={extension.field.label} />
@@ -53,7 +54,7 @@ export function FilterChips({ schema: baseSchema, filter, onChange, className }:
               >
                 <X className="size-3" aria-hidden />
               </button>
-            </span>
+            </Badge>
           </Fragment>
         )
       })}

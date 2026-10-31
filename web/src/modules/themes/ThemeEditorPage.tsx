@@ -1,3 +1,4 @@
+import { SegmentedControl } from '@/components/ui/segmented-control'
 import { useMutation, useQuery, useQueryClient } from '@tanstack/react-query'
 import { ArrowLeft, Save } from 'lucide-react'
 import { useMemo, useState } from 'react'
@@ -139,7 +140,7 @@ function ThemeEditor({ creating, initial }: { creating: boolean; initial: ThemeP
             <legend className="mb-2 text-base font-semibold">{t('editor.identity')}</legend>
             <div className="grid gap-1.5">
               <Label htmlFor="theme-name">{t('editor.name')}</Label>
-              <Input
+              <Input placeholder={t('placeholders.name')}
                 id="theme-name"
                 value={draft.name}
                 onChange={(event) =>
@@ -152,7 +153,7 @@ function ThemeEditor({ creating, initial }: { creating: boolean; initial: ThemeP
             </div>
             <div className="grid gap-1.5">
               <Label htmlFor="theme-id">{t('editor.id')}</Label>
-              <Input
+              <Input placeholder={t('placeholders.id')}
                 id="theme-id"
                 value={draft.id}
                 disabled={!creating}
@@ -162,19 +163,19 @@ function ThemeEditor({ creating, initial }: { creating: boolean; initial: ThemeP
             </div>
             <div className="grid gap-1.5">
               <Label htmlFor="theme-version">{t('editor.version')}</Label>
-              <Input id="theme-version" value={draft.version} onChange={(event) => patch({ version: event.target.value })} />
+              <Input placeholder={t('placeholders.version')} id="theme-version" value={draft.version} onChange={(event) => patch({ version: event.target.value })} />
             </div>
             <div className="grid gap-1.5">
               <Label htmlFor="theme-author">{t('editor.author')}</Label>
-              <Input id="theme-author" value={draft.author} onChange={(event) => patch({ author: event.target.value })} />
+              <Input placeholder={t('placeholders.author')} id="theme-author" value={draft.author} onChange={(event) => patch({ author: event.target.value })} />
             </div>
             <div className="grid gap-1.5">
               <Label htmlFor="theme-license">{t('editor.license')}</Label>
-              <Input id="theme-license" value={draft.license} onChange={(event) => patch({ license: event.target.value })} />
+              <Input placeholder={t('placeholders.license')} id="theme-license" value={draft.license} onChange={(event) => patch({ license: event.target.value })} />
             </div>
             <div className="grid gap-1.5 sm:col-span-2">
               <Label htmlFor="theme-description">{t('editor.descriptionLabel')}</Label>
-              <Textarea
+              <Textarea placeholder={t('placeholders.description')}
                 id="theme-description"
                 rows={2}
                 value={draft.description ?? ''}
@@ -224,19 +225,13 @@ function ThemeEditor({ creating, initial }: { creating: boolean; initial: ThemeP
         <aside className="grid min-w-0 content-start gap-3 xl:sticky xl:top-4 xl:self-start" aria-label={t('preview.title')}>
           <div className="flex items-center justify-between gap-2">
             <h3 className="text-base font-semibold">{t('preview.title')}</h3>
-            <div className="flex gap-1" role="group" aria-label={t('preview.mode')}>
-              {(['light', 'dark'] as const).map((mode) => (
-                <Button
-                  key={mode}
-                  size="sm"
-                  variant={previewMode === mode ? 'default' : 'outline'}
-                  aria-pressed={previewMode === mode}
-                  onClick={() => setPreviewMode(mode)}
-                >
-                  {t(`editor.tabs.${mode}`)}
-                </Button>
-              ))}
-            </div>
+            <SegmentedControl
+              aria-label={t('preview.mode')}
+              size="sm"
+              value={previewMode}
+              onValueChange={setPreviewMode}
+              options={(['light', 'dark'] as const).map((mode) => ({ value: mode, label: t(`editor.tabs.${mode}`) }))}
+            />
           </div>
           {warnings.length > 0 && (
             <ul className="grid gap-1 rounded-md border border-warning/40 bg-warning/10 p-3 text-sm">

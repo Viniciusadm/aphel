@@ -102,7 +102,7 @@ function StageForm({ stage, pending, onOpenChange, onSubmit }: Omit<StageDialogP
       </DialogHeader>
       <div className="grid gap-2">
         <Label htmlFor={nameId}>{t('settings.stages.name')}</Label>
-        <Input
+        <Input placeholder={t('placeholders.stageName')}
           id={nameId}
           value={name}
           maxLength={140}
@@ -113,7 +113,7 @@ function StageForm({ stage, pending, onOpenChange, onSubmit }: Omit<StageDialogP
       </div>
       <div className="grid gap-2">
         <Label htmlFor={probabilityId}>{t('settings.stages.probability')}</Label>
-        <Input
+        <Input placeholder={t('placeholders.probability')}
           id={probabilityId}
           type="number"
           min={0}

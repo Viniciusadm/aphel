@@ -178,11 +178,11 @@ function CreateForm({
     <form onSubmit={submit} className="grid gap-4">
       <div className="grid gap-1.5">
         <Label htmlFor={nameId}>{t('create.name')}</Label>
-        <Input id={nameId} value={name} onChange={(event) => setName(event.target.value)} maxLength={120} required autoFocus />
+        <Input placeholder={t('placeholders.name')} id={nameId} value={name} onChange={(event) => setName(event.target.value)} maxLength={120} required autoFocus />
       </div>
       <div className="grid gap-1.5">
         <Label htmlFor={descriptionId}>{t('create.descriptionLabel')}</Label>
-        <Textarea id={descriptionId} value={description} onChange={(event) => setDescription(event.target.value)} rows={2} maxLength={1000} />
+        <Textarea placeholder={t('placeholders.description')} id={descriptionId} value={description} onChange={(event) => setDescription(event.target.value)} rows={2} maxLength={1000} />
       </div>
       {example ? (
         <p className="text-sm text-muted-foreground">

@@ -71,7 +71,7 @@ export function CompanyStep({ form, error, onNext, onRestore }: CompanyStepProps
       </FormRow>
       <FormRow id="setup-organization-name" label={t('company.fields.organizationName')} error={message(errors.organizationName?.message)}>
         {(describedBy) => (
-          <Input
+          <Input placeholder={t('placeholders.organizationName')}
             id="setup-organization-name"
             autoComplete="organization"
             aria-invalid={errors.organizationName ? true : undefined}

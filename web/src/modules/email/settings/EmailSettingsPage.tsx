@@ -19,7 +19,7 @@ export function EmailSettingsPage() {
       <section className="flex flex-col gap-4">
         <SectionHeader title={t('settings.title')} description={t('settings.description')} />
         <Tabs value={section} onValueChange={(value) => setSection(value as Section)} className="grid gap-4">
-          <TabsList className="w-fit">
+          <TabsList>
             <TabsTrigger value="templates">{t('settings.tabs.templates')}</TabsTrigger>
             <TabsTrigger value="blocklist">{t('settings.tabs.blocklist')}</TabsTrigger>
             <TabsTrigger value="preferences">{t('settings.tabs.preferences')}</TabsTrigger>

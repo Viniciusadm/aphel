@@ -134,7 +134,7 @@ function SequenceForm({ sequence }: { sequence: Sequence | null }) {
           </h2>
           <div className="grid gap-1.5">
             <Label htmlFor={`${formId}-name`}>{t('editor.name')}</Label>
-            <Input
+            <Input placeholder={t('placeholders.name')}
               id={`${formId}-name`}
               aria-invalid={errors.name ? true : undefined}
               aria-describedby={errors.name ? `${formId}-name-error` : undefined}
@@ -144,7 +144,7 @@ function SequenceForm({ sequence }: { sequence: Sequence | null }) {
           </div>
           <div className="grid gap-1.5">
             <Label htmlFor={`${formId}-description`}>{t('editor.description')}</Label>
-            <Textarea id={`${formId}-description`} rows={2} {...register('description')} />
+            <Textarea placeholder={t('placeholders.description')} id={`${formId}-description`} rows={2} {...register('description')} />
             <FieldMessage id={`${formId}-description-error`} message={errors.description?.message} />
           </div>
           <Controller
@@ -184,7 +184,7 @@ function SequenceForm({ sequence }: { sequence: Sequence | null }) {
             </div>
             <div className="grid gap-1.5">
               <Label htmlFor={`${formId}-limit`}>{t('editor.dailyLimit')}</Label>
-              <Input
+              <Input placeholder={t('placeholders.dailyLimit')}
                 id={`${formId}-limit`}
                 type="number"
                 min={1}
@@ -298,7 +298,7 @@ function StepsEditor({ control, register, errors, formId }: StepsEditorProps) {
               {kind === 'wait' && (
                 <div className="grid max-w-48 gap-1.5">
                   <Label htmlFor={`${prefix}-wait`}>{t('editor.waitDays')}</Label>
-                  <Input
+                  <Input placeholder={t('placeholders.waitDays')}
                     id={`${prefix}-wait`}
                     type="number"
                     min={1}
@@ -339,7 +339,7 @@ function StepsEditor({ control, register, errors, formId }: StepsEditorProps) {
                   </div>
                   <div className="grid gap-1.5">
                     <Label htmlFor={`${prefix}-subject`}>{t('editor.subject')}</Label>
-                    <Input
+                    <Input placeholder={t('placeholders.subject')}
                       id={`${prefix}-subject`}
                       aria-invalid={stepErrors?.subject ? true : undefined}
                       aria-describedby={stepErrors?.subject ? `${prefix}-subject-error` : `${prefix}-subject-hint`}
@@ -352,7 +352,7 @@ function StepsEditor({ control, register, errors, formId }: StepsEditorProps) {
                   </div>
                   <div className="grid gap-1.5">
                     <Label htmlFor={`${prefix}-body`}>{t('editor.body')}</Label>
-                    <Textarea
+                    <Textarea placeholder={t('placeholders.body')}
                       id={`${prefix}-body`}
                       rows={6}
                       className="font-mono text-xs"

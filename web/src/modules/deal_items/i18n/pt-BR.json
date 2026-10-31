@@ -109,5 +109,11 @@
       "term": "prazo",
       "total": "total"
     }
+  },
+  "placeholders": {
+    "item": "Ex.: Licença anual",
+    "quantity": "1",
+    "unitPrice": "0,00",
+    "discount": "0"
   }
 }

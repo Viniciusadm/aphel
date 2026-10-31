@@ -324,7 +324,7 @@ function ReportEditor({ report }: { report: Report | null }) {
             </div>
             <div className="grid gap-1.5">
               <Label htmlFor={ids.description}>{t('sections.details.description')}</Label>
-              <Textarea
+              <Textarea placeholder={t('placeholders.description')}
                 id={ids.description}
                 rows={2}
                 value={draft.description}

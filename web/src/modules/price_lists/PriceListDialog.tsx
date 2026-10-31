@@ -139,7 +139,7 @@ function PriceListForm({ list, onClose, onSaved }: PriceListFormProps) {
       >
         <div className="grid gap-1.5">
           <Label htmlFor={`${formId}-name`}>{t('form.name')}</Label>
-          <Input
+          <Input placeholder={t('placeholders.name')}
             id={`${formId}-name`}
             value={name}
             maxLength={140}
@@ -164,7 +164,7 @@ function PriceListForm({ list, onClose, onSaved }: PriceListFormProps) {
         </div>
         <div className="grid gap-1.5">
           <Label htmlFor={`${formId}-description`}>{t('form.descriptionLabel')}</Label>
-          <Textarea
+          <Textarea placeholder={t('placeholders.description')}
             id={`${formId}-description`}
             value={description}
             maxLength={2000}

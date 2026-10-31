@@ -114,7 +114,7 @@ export function TemplateInput({
   const shared = {
     id,
     value,
-    placeholder,
+    placeholder: placeholder ?? t('placeholders.text'),
     maxLength,
     onChange: handleChange,
     onKeyDown: handleKeyDown,

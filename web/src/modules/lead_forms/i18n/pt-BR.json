@@ -97,7 +97,12 @@
     "ownerActingUser": "O usuário que cria os registros",
     "distributionRule": "Regra de distribuição",
     "noDistributionRule": "Nenhuma",
-    "ownerHelp": "Com uma regra de distribuição, cada envio escolhe o próximo responsável da regra; se ninguém estiver disponível, vale o responsável fixo (ou o usuário que cria os registros). Contatos já existentes mantêm o responsável atual."
+    "ownerHelp": "Com uma regra de distribuição, cada envio escolhe o próximo responsável da regra; se ninguém estiver disponível, vale o responsável fixo (ou o usuário que cria os registros). Contatos já existentes mantêm o responsável atual.",
+    "labelPlaceholder": "Ex.: Telefone",
+    "keyPlaceholder": "Ex.: telefone",
+    "optionsPlaceholder": "Uma opção por linha",
+    "titleTemplatePlaceholder": "Ex.: Lead do site",
+    "amountPlaceholder": "0,00"
   },
   "kinds": {
     "text": "Texto",

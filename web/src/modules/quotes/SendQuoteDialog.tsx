@@ -71,20 +71,20 @@ export function SendQuoteDialog({ quote, open, onOpenChange }: SendQuoteDialogPr
         <div className="grid gap-4">
           <div className="grid gap-1.5">
             <Label htmlFor={ids.to}>{t('send.to')}</Label>
-            <Input id={ids.to} value={to} onChange={(event) => setTo(event.target.value)} />
+            <Input placeholder={t('placeholders.to')} id={ids.to} value={to} onChange={(event) => setTo(event.target.value)} />
             <p className="text-xs text-muted-foreground">{t('send.toHint')}</p>
           </div>
           <div className="grid gap-1.5">
             <Label htmlFor={ids.cc}>{t('send.cc')}</Label>
-            <Input id={ids.cc} value={cc} onChange={(event) => setCc(event.target.value)} />
+            <Input placeholder={t('placeholders.cc')} id={ids.cc} value={cc} onChange={(event) => setCc(event.target.value)} />
           </div>
           <div className="grid gap-1.5">
             <Label htmlFor={ids.subject}>{t('send.subject')}</Label>
-            <Input id={ids.subject} value={subject} onChange={(event) => setSubject(event.target.value)} />
+            <Input placeholder={t('placeholders.subject')} id={ids.subject} value={subject} onChange={(event) => setSubject(event.target.value)} />
           </div>
           <div className="grid gap-1.5">
             <Label htmlFor={ids.body}>{t('send.body')}</Label>
-            <Textarea id={ids.body} rows={8} value={body} onChange={(event) => setBody(event.target.value)} />
+            <Textarea placeholder={t('placeholders.body')} id={ids.body} rows={8} value={body} onChange={(event) => setBody(event.target.value)} />
             <p className="text-xs text-muted-foreground">
               {t('send.linkHint', { placeholder: LINK_PLACEHOLDER, interpolation: { escapeValue: false } })}
             </p>

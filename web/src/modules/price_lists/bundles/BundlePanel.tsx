@@ -318,7 +318,7 @@ function BundleForm({ productId, bundle, onClose }: BundleFormProps) {
                   onChange={(value) => update(draft.key, { productId: value })}
                 />
               </div>
-              <Input
+              <Input placeholder={t('placeholders.quantity')}
                 className="w-24"
                 inputMode="decimal"
                 value={draft.quantity}

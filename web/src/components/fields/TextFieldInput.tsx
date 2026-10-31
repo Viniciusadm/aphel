@@ -1,3 +1,4 @@
+import { useTranslation } from 'react-i18next'
 import { Input } from '@/components/ui/input'
 import { cn } from '@/lib/utils'
 import { ariaProps, type FieldInputBaseProps } from './types'
@@ -13,6 +14,8 @@ export interface TextFieldInputProps extends FieldInputBaseProps<string> {
 const inputModes: Record<TextInputKind, 'text' | 'url' | 'email'> = { text: 'text', url: 'url', email: 'email' }
 
 export function TextFieldInput({ kind = 'text', maxLength, placeholder, ...props }: TextFieldInputProps) {
+  const { t } = useTranslation('records-form')
+  const defaultPlaceholder = kind === 'url' ? 'https://' : kind === 'email' ? t('input.emailPlaceholder') : t('input.textPlaceholder')
   return (
     <Input
       {...ariaProps(props)}
@@ -20,7 +23,7 @@ export function TextFieldInput({ kind = 'text', maxLength, placeholder, ...props
       inputMode={inputModes[kind]}
       autoComplete={kind === 'email' ? 'email' : kind === 'url' ? 'url' : 'off'}
       maxLength={maxLength}
-      placeholder={placeholder ?? (kind === 'url' ? 'https://' : undefined)}
+      placeholder={placeholder ?? defaultPlaceholder}
       className={cn(props.className)}
       value={props.value ?? ''}
       onChange={(event) => props.onChange(event.target.value === '' ? null : event.target.value)}

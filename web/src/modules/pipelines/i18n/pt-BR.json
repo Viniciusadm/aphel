@@ -151,6 +151,12 @@
     "actions": {
       "cancel": "Cancelar",
       "save": "Salvar"
+    },
+    "placeholders": {
+      "lostReason": "Ex.: Preço alto",
+      "pipelineName": "Ex.: Vendas",
+      "probability": "Ex.: 50",
+      "stageName": "Ex.: Proposta enviada"
     }
   },
   "guidance": {
@@ -187,6 +193,10 @@
     },
     "errors": {
       "checklistIncomplete": "Conclua os itens obrigatórios do guia da etapa antes de avançar: {{items}}."
+    },
+    "placeholders": {
+      "checklistItem": "Ex.: Confirmar orçamento",
+      "guidance": "Oriente o time sobre esta etapa"
     }
   },
   "rotting": {
@@ -208,6 +218,18 @@
     "filter": {
       "label": "Parados",
       "description": "Mostrar só oportunidades paradas na etapa"
+    },
+    "placeholders": {
+      "days": "Ex.: 14"
     }
+  },
+  "placeholders": {
+    "pipelineName": "Ex.: Vendas",
+    "lostReason": "Ex.: Preço alto",
+    "stageName": "Ex.: Proposta enviada",
+    "probability": "Ex.: 50",
+    "guidance": "Oriente o time sobre esta etapa",
+    "checklistItem": "Ex.: Confirmar orçamento",
+    "days": "Ex.: 14"
   }
 }

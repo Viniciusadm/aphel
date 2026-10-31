@@ -265,6 +265,11 @@
       "unavailable": "Este relatório não existe mais ou não está compartilhado com você.",
       "error": "Não foi possível carregar o relatório.",
       "useDashboardPeriod": "Usar o período do painel"
+    },
+    "placeholders": {
+      "description": "Descreva o que este relatório mostra",
+      "day": "Ex.: 1",
+      "limit": "Ex.: 10"
     }
   },
   "builtin": {
@@ -397,5 +402,10 @@
   },
   "nav": {
     "reports": "Relatórios"
+  },
+  "placeholders": {
+    "limit": "Ex.: 10",
+    "description": "Descreva o que este relatório mostra",
+    "day": "Ex.: 1"
   }
 }

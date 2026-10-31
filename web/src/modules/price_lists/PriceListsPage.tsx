@@ -40,7 +40,7 @@ export function PriceListsPage() {
       </div>
       {canManageLimits ? (
         <Tabs defaultValue="lists" className="flex flex-col gap-4">
-          <TabsList className="w-fit">
+          <TabsList>
             <TabsTrigger value="lists">{t('tabs.lists')}</TabsTrigger>
             <TabsTrigger value="limits">{t('tabs.limits')}</TabsTrigger>
           </TabsList>

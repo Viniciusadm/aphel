@@ -1,3 +1,4 @@
+import { SegmentedControl } from '@/components/ui/segmented-control'
 import { Kanban, List, Plus } from 'lucide-react'
 import { useMemo, useState } from 'react'
 import { useTranslation } from 'react-i18next'
@@ -104,28 +105,16 @@ function CustomRecordsContent({ object }: { object: CustomObject }) {
           </div>
         </div>
         {selectFields.length > 0 && (
-          <div role="group" aria-label={t('kanban.modeLabel')} className="inline-flex rounded-md border p-0.5">
-            <Button
-              variant={kanban ? 'ghost' : 'secondary'}
-              size="sm"
-              className="h-7"
-              aria-pressed={!kanban}
-              onClick={() => updateParams({ [BOARD_PARAM]: null })}
-            >
-              <List aria-hidden />
-              {t('kanban.list')}
-            </Button>
-            <Button
-              variant={kanban ? 'secondary' : 'ghost'}
-              size="sm"
-              className="h-7"
-              aria-pressed={kanban}
-              onClick={() => updateParams({ [BOARD_PARAM]: KANBAN_MODE })}
-            >
-              <Kanban aria-hidden />
-              {t('kanban.board')}
-            </Button>
-          </div>
+          <SegmentedControl
+            aria-label={t('kanban.modeLabel')}
+            size="sm"
+            value={kanban ? 'board' : 'list'}
+            onValueChange={(value) => updateParams({ [BOARD_PARAM]: value === 'board' ? KANBAN_MODE : null })}
+            options={[
+              { value: 'list', label: t('kanban.list'), icon: <List aria-hidden /> },
+              { value: 'board', label: t('kanban.board'), icon: <Kanban aria-hidden /> },
+            ]}
+          />
         )}
       </div>
       {kanban && boardField ? (

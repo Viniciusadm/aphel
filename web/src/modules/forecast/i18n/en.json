@@ -96,5 +96,8 @@
   },
   "nav": {
     "forecast": "Forecast"
+  },
+  "placeholders": {
+    "percent": "E.g.: 80"
   }
 }

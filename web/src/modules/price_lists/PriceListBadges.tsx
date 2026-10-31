@@ -8,11 +8,11 @@ export function PriceListBadges({ list }: { list: PriceList }) {
   const { t } = useTranslation('price_lists')
   return (
     <>
-      {list.is_default && <Badge variant="secondary">{t('badges.default')}</Badge>}
+      {list.is_default && <Badge tone="primary">{t('badges.default')}</Badge>}
       {!list.is_active ? (
-        <Badge variant="outline">{t('badges.inactive')}</Badge>
+        <Badge tone="neutral">{t('badges.inactive')}</Badge>
       ) : (
-        !isInEffect(list) && <Badge variant="warning">{t('badges.outOfPeriod')}</Badge>
+        !isInEffect(list) && <Badge tone="warning">{t('badges.outOfPeriod')}</Badge>
       )}
     </>
   )

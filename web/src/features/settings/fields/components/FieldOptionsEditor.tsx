@@ -184,7 +184,7 @@ function OptionRow({ recordType, fieldId, fieldVersion, option, position, handle
       <div className="flex flex-wrap items-start gap-2">
         {handle}
         <div className="grid min-w-40 flex-1 gap-1">
-          <Input
+          <Input placeholder={t('options.labelPlaceholder')}
             id={labelId}
             aria-label={t('options.label', { position })}
             value={label}

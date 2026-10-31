@@ -305,7 +305,7 @@ function SchemaProperty({ name, property, required, value, values, onChange, con
     )
   } else if (type === 'integer' || type === 'number') {
     control = (
-      <Input
+      <Input placeholder={t('placeholders.number')}
         id={id}
         type="number"
         inputMode="numeric"

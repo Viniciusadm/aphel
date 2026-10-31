@@ -48,7 +48,7 @@ function PipelineForm({ pending, onOpenChange, onSubmit }: Omit<PipelineFormDial
       </DialogHeader>
       <div className="grid gap-2">
         <Label htmlFor={nameId}>{t('fields.name')}</Label>
-        <Input
+        <Input placeholder={t('placeholders.pipelineName')}
           id={nameId}
           value={name}
           maxLength={140}

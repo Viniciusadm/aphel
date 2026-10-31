@@ -62,7 +62,7 @@ export function ContactQuickForm({ onDone }: QuickFormProps) {
     <FormBody onSubmit={() => void submit()}>
       <div className="grid gap-2">
         <Label htmlFor={ids.name}>{t('contact.name')}</Label>
-        <Input
+        <Input placeholder={t('placeholders.name')}
           id={ids.name}
           value={name}
           onChange={(event) => setName(event.target.value)}
@@ -76,7 +76,7 @@ export function ContactQuickForm({ onDone }: QuickFormProps) {
       </div>
       <div className="grid gap-2">
         <Label htmlFor={ids.phone}>{t('contact.phone')}</Label>
-        <Input
+        <Input placeholder={t('placeholders.phone')}
           id={ids.phone}
           type="tel"
           inputMode="tel"
@@ -88,7 +88,7 @@ export function ContactQuickForm({ onDone }: QuickFormProps) {
       </div>
       <div className="grid gap-2">
         <Label htmlFor={ids.email}>{t('contact.email')}</Label>
-        <Input
+        <Input placeholder={t('placeholders.email')}
           id={ids.email}
           type="email"
           inputMode="email"

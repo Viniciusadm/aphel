@@ -22,12 +22,11 @@ export function RecordTabs({ tabs, defaultTab, param, className }: RecordTabsPro
 
   return (
     <Tabs value={active} onValueChange={setActive} className={cn('grid min-w-0 gap-4', className)}>
-      <TabsList aria-label={t('tabs.label')} className="scroll-smooth-thin h-11 w-full justify-start sm:h-9 sm:w-fit">
+      <TabsList aria-label={t('tabs.label')} className="scroll-smooth-thin">
         {tabs.map((tab) => {
           const Icon = tab.icon
           return (
-            <TabsTrigger key={tab.key} value={tab.key} className="px-2.5 sm:px-3">
-              {Icon && <Icon className="size-4" aria-hidden="true" />}
+            <TabsTrigger key={tab.key} value={tab.key} icon={Icon && <Icon aria-hidden="true" />}>
               {tab.label}
             </TabsTrigger>
           )

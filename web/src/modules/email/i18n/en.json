@@ -368,5 +368,14 @@
     "clicked": "Link clicked in email",
     "bounced": "Email bounced",
     "open": "Open conversation"
+  },
+  "placeholders": {
+    "templateName": "E.g.: Welcome",
+    "templateKey": "E.g.: welcome",
+    "subject": "E.g.: Welcome to our company",
+    "bodyHtml": "Write the email content",
+    "historyDays": "E.g.: 30",
+    "username": "E.g.: you@company.com",
+    "port": "E.g.: 993"
   }
 }

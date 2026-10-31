@@ -1,10 +1,10 @@
 import { History, Plus } from 'lucide-react'
 import { useState } from 'react'
 import { useTranslation } from 'react-i18next'
-import { NavLink, Outlet, useNavigate } from 'react-router'
+import { Outlet, useNavigate } from 'react-router'
 import { useSession } from '@/app/session/session-context'
 import { Button } from '@/components/ui/button'
-import { cn } from '@/lib/utils'
+import { TabsNav, TabsNavItem } from '@/components/ui/tabs-nav'
 import { ActivityFormDialog, type ActivityFormMode } from './components/ActivityFormDialog'
 import { activityResource, TASKS_PATH } from './resource'
 
@@ -38,25 +38,13 @@ export function TasksLayout() {
           </div>
         )}
       </header>
-      <nav aria-label={t('page.sections')} className="flex gap-1 overflow-x-auto border-b">
+      <TabsNav aria-label={t('page.sections')} className="self-start">
         {tabs.map((tab) => (
-          <NavLink
-            key={tab.to}
-            to={tab.to}
-            end={tab.end}
-            className={({ isActive }) =>
-              cn(
-                '-mb-px border-b-2 px-3 py-2 text-sm font-medium whitespace-nowrap transition-colors',
-                isActive
-                  ? 'border-primary text-foreground'
-                  : 'border-transparent text-muted-foreground hover:text-foreground',
-              )
-            }
-          >
+          <TabsNavItem key={tab.to} to={tab.to} end={tab.end}>
             {tab.label}
-          </NavLink>
+          </TabsNavItem>
         ))}
-      </nav>
+      </TabsNav>
       <Outlet />
       <ActivityFormDialog
         open={dialog !== null}

@@ -205,7 +205,7 @@ function ChannelForm({
     >
       <div className="grid gap-4 sm:grid-cols-2">
         <Field id={`${prefix}-name`} label={t('editor.name')} error={errors.name}>
-          <Input
+          <Input placeholder={t('editor.namePlaceholder')}
             id={`${prefix}-name`}
             value={name}
             maxLength={120}
@@ -234,7 +234,7 @@ function ChannelForm({
             hint={t(`editor.hints.${field.key}`, { defaultValue: '' }) || undefined}
             error={errors[`config.${field.key}`]}
           >
-            <Input
+            <Input placeholder={t('editor.valuePlaceholder')}
               id={`${prefix}-${field.key}`}
               type={field.type ?? 'text'}
               inputMode={field.type === 'number' ? 'numeric' : undefined}

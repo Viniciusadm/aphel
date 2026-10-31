@@ -280,7 +280,7 @@ function EditorBody({ form, onCancel, onSaved }: EditorBodyProps) {
                     </div>
                     <div className="grid gap-1.5">
                       <Label htmlFor={`${formId}-title`}>{t('editor.titleTemplate')}</Label>
-                      <Input id={`${formId}-title`} {...register('title_template')} />
+                      <Input placeholder={t('editor.titleTemplatePlaceholder')} id={`${formId}-title`} {...register('title_template')} />
                       <p className="text-xs text-muted-foreground">{t('editor.titleTemplateHelp', { field: '{{name}}', form: '{{form}}' })}</p>
                       {formState.errors.title_template && (
                         <p className="text-xs text-destructive">{errorText(formState.errors.title_template.message)}</p>
@@ -288,7 +288,7 @@ function EditorBody({ form, onCancel, onSaved }: EditorBodyProps) {
                     </div>
                     <div className="grid gap-1.5">
                       <Label htmlFor={`${formId}-amount`}>{t('editor.amount')}</Label>
-                      <Input id={`${formId}-amount`} inputMode="decimal" {...register('amount')} />
+                      <Input placeholder={t('editor.amountPlaceholder')} id={`${formId}-amount`} inputMode="decimal" {...register('amount')} />
                       {formState.errors.amount && (
                         <p className="text-xs text-destructive">{errorText(formState.errors.amount.message)}</p>
                       )}

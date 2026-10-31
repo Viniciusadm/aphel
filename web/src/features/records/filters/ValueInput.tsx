@@ -60,7 +60,7 @@ export function ValueInput({ field, operand, value, onChange, label }: ValueInpu
   if (operand === 'days') {
     return (
       <span className="inline-flex min-w-0 items-center gap-2">
-        <Input
+        <Input placeholder={t('filters.daysPlaceholder')}
           type="number"
           inputMode="numeric"
           min={0}
@@ -143,7 +143,7 @@ function ScalarInput({ field, value, label, onChange }: ScalarInputProps) {
     case 'number':
     case 'currency':
       return (
-        <Input
+        <Input placeholder={t('filters.numberPlaceholder')}
           type="number"
           step="any"
           inputMode="decimal"
@@ -187,7 +187,7 @@ function ScalarInput({ field, value, label, onChange }: ScalarInputProps) {
       )
     default:
       return (
-        <Input
+        <Input placeholder={t('filters.valuePlaceholder')}
           aria-label={label}
           className="w-full sm:w-48"
           value={textOf(value)}

@@ -190,7 +190,7 @@ function ValidationRuleForm({ recordType, rule, onOpenChange, onSaved }: FormPro
       <div className="grid min-w-0 gap-4 sm:grid-cols-2">
         <div className="grid min-w-0 gap-2">
           <Label htmlFor={ids.name}>{t('dialog.name')}</Label>
-          <Input
+          <Input placeholder={t('dialog.namePlaceholder')}
             id={ids.name}
             value={name}
             maxLength={NAME_MAX_LENGTH}
@@ -201,7 +201,7 @@ function ValidationRuleForm({ recordType, rule, onOpenChange, onSaved }: FormPro
         </div>
         <div className="grid min-w-0 gap-2">
           <Label htmlFor={ids.key}>{t('dialog.key')}</Label>
-          <Input
+          <Input placeholder={t('dialog.keyPlaceholder')}
             id={ids.key}
             value={key}
             disabled={Boolean(rule)}
@@ -219,7 +219,7 @@ function ValidationRuleForm({ recordType, rule, onOpenChange, onSaved }: FormPro
       </div>
       <div className="grid min-w-0 gap-2">
         <Label htmlFor={ids.message}>{t('dialog.message')}</Label>
-        <Textarea
+        <Textarea placeholder={t('dialog.messagePlaceholder')}
           id={ids.message}
           value={message}
           rows={2}

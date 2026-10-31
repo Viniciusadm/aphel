@@ -175,5 +175,13 @@
     "unknown": "Unavailable rule",
     "hint": "When set, the rule picks the owner of each created record.",
     "empty": "No active rule for this record type."
+  },
+  "placeholders": {
+    "weight": "E.g.: 1",
+    "routeValues": "E.g.: Website, Referral",
+    "name": "E.g.: Website leads",
+    "key": "E.g.: website_leads",
+    "description": "Describe when this rule applies",
+    "count": "E.g.: 10"
   }
 }

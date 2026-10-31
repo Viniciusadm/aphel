@@ -124,7 +124,7 @@ export function MeetingTypeDialog({ meetingType, onClose }: MeetingTypeDialogPro
           <FieldMessage message={errors.root?.server?.message} />
           <div className="grid gap-1">
             <Label htmlFor="meeting-type-name">{t('meetingTypes.form.name')}</Label>
-            <Input id="meeting-type-name" aria-invalid={errors.name ? true : undefined} {...register('name')} />
+            <Input placeholder={t('placeholders.name')} id="meeting-type-name" aria-invalid={errors.name ? true : undefined} {...register('name')} />
             <FieldMessage message={errors.name?.message} />
           </div>
           <div className="grid gap-1">
@@ -144,13 +144,13 @@ export function MeetingTypeDialog({ meetingType, onClose }: MeetingTypeDialogPro
           </div>
           <div className="grid gap-1">
             <Label htmlFor="meeting-type-description">{t('meetingTypes.form.descriptionLabel')}</Label>
-            <Textarea id="meeting-type-description" rows={3} {...register('description')} />
+            <Textarea placeholder={t('placeholders.description')} id="meeting-type-description" rows={3} {...register('description')} />
             <FieldMessage message={errors.description?.message} />
           </div>
           <div className="grid gap-4 sm:grid-cols-2">
             <div className="grid gap-1">
               <Label htmlFor="meeting-type-duration">{t('meetingTypes.form.duration')}</Label>
-              <Input
+              <Input placeholder={t('placeholders.duration')}
                 id="meeting-type-duration"
                 type="number"
                 min={MIN_DURATION}
@@ -162,7 +162,7 @@ export function MeetingTypeDialog({ meetingType, onClose }: MeetingTypeDialogPro
             </div>
             <div className="grid gap-1">
               <Label htmlFor="meeting-type-interval">{t('meetingTypes.form.slotInterval')}</Label>
-              <Input
+              <Input placeholder={t('placeholders.interval')}
                 id="meeting-type-interval"
                 type="number"
                 min={MIN_SLOT_INTERVAL}
@@ -197,7 +197,7 @@ export function MeetingTypeDialog({ meetingType, onClose }: MeetingTypeDialogPro
             {locationKind !== 'none' && (
               <div className="grid gap-1">
                 <Label htmlFor="meeting-type-location-value">{t(`locationValueLabels.${locationKind}`)}</Label>
-                <Input
+                <Input placeholder={t('placeholders.locationValue')}
                   id="meeting-type-location-value"
                   aria-invalid={errors.locationValue ? true : undefined}
                   {...register('locationValue')}

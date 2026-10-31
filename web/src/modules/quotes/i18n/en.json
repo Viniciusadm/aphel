@@ -241,9 +241,35 @@
       "rateLimited": "Too many attempts. Wait a little and try again.",
       "generic": "Could not complete. Try again."
     },
-    "poweredBy": "Sent with Aphel"
+    "poweredBy": "Sent with Aphel",
+    "placeholders": {
+      "email": "name@example.com",
+      "reason": "Tell us why you are declining",
+      "name": "E.g.: Mary Smith"
+    }
   },
   "nav": {
     "quotes": "Quotes"
+  },
+  "placeholders": {
+    "name": "E.g.: Mary Smith",
+    "email": "name@example.com",
+    "note": "Leave a note (optional)",
+    "title": "E.g.: Commercial proposal",
+    "discount": "0",
+    "currency": "E.g.: USD",
+    "terms": "Commercial terms",
+    "notes": "Notes for the customer",
+    "itemName": "E.g.: Annual license",
+    "quantity": "1",
+    "tax": "0",
+    "days": "E.g.: 15",
+    "to": "customer@example.com",
+    "cc": "cc@example.com",
+    "subject": "E.g.: Your quote",
+    "body": "Write the message",
+    "message": "Write a message (optional)",
+    "comment": "Write a comment (optional)",
+    "reason": "Tell us why you are declining"
   }
 }

@@ -172,6 +172,12 @@
       "created": "Call logged.",
       "outboxLabel": "Call",
       "outboxLabelFor": "Call with {{title}}"
+    },
+    "placeholders": {
+      "minutes": "E.g.: 15"
     }
+  },
+  "placeholders": {
+    "outcomeName": "E.g.: Answered"
   }
 }

@@ -192,5 +192,12 @@
     "statusFailed": "Não foi possível falar com o servidor para preparar a configuração.",
     "network": "Sem conexão com o servidor. Verifique sua rede e tente novamente.",
     "generic": "Não foi possível criar o espaço de trabalho. Tente novamente."
+  },
+  "placeholders": {
+    "adminName": "Ex.: Maria Silva",
+    "adminEmail": "voce@empresa.com",
+    "adminPassword": "Crie uma senha",
+    "organizationName": "Ex.: Minha Empresa Ltda.",
+    "value": "Digite o valor"
   }
 }

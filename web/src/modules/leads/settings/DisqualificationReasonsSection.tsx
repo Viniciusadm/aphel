@@ -233,7 +233,7 @@ function ReasonForm({
       >
         <div className="grid gap-1.5">
           <Label htmlFor={`${formId}-name`}>{t('reasons.name')}</Label>
-          <Input
+          <Input placeholder={t('placeholders.reasonName')}
             id={`${formId}-name`}
             value={name}
             autoFocus

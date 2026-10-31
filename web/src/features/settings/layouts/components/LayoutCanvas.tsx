@@ -1,3 +1,4 @@
+import { SegmentedControl } from '@/components/ui/segmented-control'
 import {
   DndContext,
   KeyboardSensor,
@@ -110,18 +111,15 @@ export function LayoutCanvas({ layout, candidates, context, onChange, onEditRule
         <Palette fields={available} />
         <div className="grid min-w-0 content-start gap-4">
           <div className="flex min-w-0 flex-wrap items-center gap-2" role="group" aria-label={t('tabs.label')}>
-            {layout.tabs.map((tab, index) => (
-              <Button
-                key={tab.id}
-                type="button"
-                size="sm"
-                variant={tab.id === activeTab?.id ? 'default' : 'outline'}
-                aria-pressed={tab.id === activeTab?.id}
-                onClick={() => setActiveTabId(tab.id)}
-              >
-                {tab.label || t('tabs.untitled', { number: index + 1 })}
-              </Button>
-            ))}
+            <SegmentedControl
+              size="sm"
+              value={activeTab?.id ?? ''}
+              onValueChange={setActiveTabId}
+              options={layout.tabs.map((tab, index) => ({
+                value: tab.id,
+                label: tab.label || t('tabs.untitled', { number: index + 1 }),
+              }))}
+            />
             <Button
               type="button"
               size="sm"

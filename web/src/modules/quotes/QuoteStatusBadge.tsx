@@ -1,18 +1,18 @@
 import { useTranslation } from 'react-i18next'
-import { Badge, type BadgeProps } from '@/components/ui/badge'
+import { Badge, type BadgeTone } from '@/components/ui/badge'
 import type { QuoteStatus } from './types'
 
-const VARIANTS: Record<QuoteStatus, BadgeProps['variant']> = {
-  draft: 'secondary',
+const VARIANTS: Record<QuoteStatus, BadgeTone> = {
+  draft: 'neutral',
   pending_approval: 'warning',
-  approved: 'default',
-  sent: 'outline',
+  approved: 'primary',
+  sent: 'primary',
   accepted: 'success',
   rejected: 'destructive',
-  expired: 'secondary',
+  expired: 'neutral',
 }
 
 export function QuoteStatusBadge({ status }: { status: QuoteStatus }) {
   const { t } = useTranslation('quotes')
-  return <Badge variant={VARIANTS[status]}>{t(`status.${status}`)}</Badge>
+  return <Badge tone={VARIANTS[status]}>{t(`status.${status}`)}</Badge>
 }

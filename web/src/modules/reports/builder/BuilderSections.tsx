@@ -479,7 +479,7 @@ export function SortSection({
         </Button>
         <div className="grid gap-1.5">
           <Label htmlFor={limitId}>{t('sections.sort.limit')}</Label>
-          <Input
+          <Input placeholder={t('placeholders.limit')}
             id={limitId}
             type="number"
             min={1}

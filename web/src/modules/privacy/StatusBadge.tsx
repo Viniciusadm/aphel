@@ -1,19 +1,17 @@
 import { useTranslation } from 'react-i18next'
-import { Badge } from '@/components/ui/badge'
+import { Badge, type BadgeTone } from '@/components/ui/badge'
 
-type BadgeVariant = 'default' | 'secondary' | 'destructive' | 'success' | 'warning' | 'outline'
-
-const VARIANTS: Record<string, BadgeVariant> = {
+const VARIANTS: Record<string, BadgeTone> = {
   pending: 'warning',
   queued: 'warning',
-  processing: 'secondary',
-  running: 'secondary',
+  processing: 'primary',
+  running: 'primary',
   completed: 'success',
   failed: 'destructive',
-  cancelled: 'outline',
+  cancelled: 'neutral',
 }
 
 export function StatusBadge({ status }: { status: string }) {
   const { t } = useTranslation('privacy')
-  return <Badge variant={VARIANTS[status] ?? 'outline'}>{t(`status.${status as 'pending'}`)}</Badge>
+  return <Badge tone={VARIANTS[status] ?? 'neutral'}>{t(`status.${status as 'pending'}`)}</Badge>
 }

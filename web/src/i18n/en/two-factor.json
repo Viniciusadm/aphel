@@ -6,7 +6,9 @@
   "fields": {
     "password": "Your account password",
     "code": "Verification code",
-    "codeHint": "6-digit code from your authenticator app or a recovery code."
+    "codeHint": "6-digit code from your authenticator app or a recovery code.",
+    "passwordPlaceholder": "Enter your account password",
+    "codePlaceholder": "123456"
   },
   "errors": {
     "required": "Fill in this field.",

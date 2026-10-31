@@ -241,9 +241,35 @@
       "rateLimited": "Muitas tentativas. Aguarde um pouco e tente de novo.",
       "generic": "Não foi possível concluir. Tente novamente."
     },
-    "poweredBy": "Enviado com Aphel"
+    "poweredBy": "Enviado com Aphel",
+    "placeholders": {
+      "email": "nome@exemplo.com",
+      "reason": "Conte o motivo da recusa",
+      "name": "Ex.: Maria Silva"
+    }
   },
   "nav": {
     "quotes": "Cotações"
+  },
+  "placeholders": {
+    "name": "Ex.: Maria Silva",
+    "email": "nome@exemplo.com",
+    "note": "Deixe um recado (opcional)",
+    "title": "Ex.: Proposta comercial",
+    "discount": "0",
+    "currency": "Ex.: BRL",
+    "terms": "Condições comerciais",
+    "notes": "Observações para o cliente",
+    "itemName": "Ex.: Licença anual",
+    "quantity": "1",
+    "tax": "0",
+    "days": "Ex.: 15",
+    "to": "cliente@exemplo.com",
+    "cc": "copia@exemplo.com",
+    "subject": "Ex.: Sua proposta",
+    "body": "Escreva a mensagem",
+    "message": "Escreva uma mensagem (opcional)",
+    "comment": "Escreva um comentário (opcional)",
+    "reason": "Conte o motivo da recusa"
   }
 }

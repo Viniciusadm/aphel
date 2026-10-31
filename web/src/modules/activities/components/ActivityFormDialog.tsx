@@ -271,7 +271,7 @@ export function ActivityFormDialog({
             {showDuration && (
               <div className="grid gap-1.5">
                 <Label htmlFor={ids.duration}>{t('form.duration')}</Label>
-                <Input
+                <Input placeholder={t('placeholders.duration')}
                   id={ids.duration}
                   inputMode="numeric"
                   aria-invalid={errors.duration_minutes ? true : undefined}
@@ -287,7 +287,7 @@ export function ActivityFormDialog({
           </div>
           <div className="grid gap-1.5">
             <Label htmlFor={ids.description}>{t('form.description')}</Label>
-            <Textarea id={ids.description} rows={3} {...register('description')} />
+            <Textarea placeholder={t('placeholders.description')} id={ids.description} rows={3} {...register('description')} />
           </div>
         </form>
         <DialogFooter>

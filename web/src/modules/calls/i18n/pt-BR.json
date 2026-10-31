@@ -172,6 +172,12 @@
       "created": "Ligação registrada.",
       "outboxLabel": "Ligação",
       "outboxLabelFor": "Ligação com {{title}}"
+    },
+    "placeholders": {
+      "minutes": "Ex.: 15"
     }
+  },
+  "placeholders": {
+    "outcomeName": "Ex.: Atendeu"
   }
 }

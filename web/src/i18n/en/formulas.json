@@ -7,7 +7,8 @@
     "decimals": "Decimal places",
     "decimalsHint": "From 0 to 6. Empty keeps the calculated value.",
     "currency": "Currency",
-    "currencyHint": "3-letter ISO code. Empty uses BRL."
+    "currencyHint": "3-letter ISO code. Empty uses BRL.",
+    "decimalsPlaceholder": "E.g.: 2"
   },
   "resultTypes": {
     "number": "Number",

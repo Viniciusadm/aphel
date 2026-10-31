@@ -112,7 +112,10 @@
     "removeRelated": "Remove related condition",
     "relatedLoading": "Loading the relation fields…",
     "relatedUnavailable": "This relation is not available for editing.",
-    "relatedReadOnly": "Condition kept unchanged: {{summary}}"
+    "relatedReadOnly": "Condition kept unchanged: {{summary}}",
+    "daysPlaceholder": "0",
+    "numberPlaceholder": "0",
+    "valuePlaceholder": "Value"
   },
   "operators": {
     "eq": "is",

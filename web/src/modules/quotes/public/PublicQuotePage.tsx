@@ -244,7 +244,7 @@ function Answer({ token, quote }: { token: string; quote: PublicQuote }) {
           <h2 className="text-base font-semibold">{t('reject.title')}</h2>
           <div className="grid gap-1.5">
             <Label htmlFor={ids.reason}>{t('reject.reason')}</Label>
-            <Textarea id={ids.reason} rows={3} value={reason} onChange={(event) => setReason(event.target.value)} />
+            <Textarea placeholder={t('placeholders.reason')} id={ids.reason} rows={3} value={reason} onChange={(event) => setReason(event.target.value)} />
           </div>
           <div className="flex flex-wrap gap-2">
             <Button type="submit" variant="destructive" disabled={answer.reject.isPending}>
@@ -270,11 +270,11 @@ function Answer({ token, quote }: { token: string; quote: PublicQuote }) {
           <div className="grid gap-3 sm:grid-cols-2">
             <div className="grid gap-1.5">
               <Label htmlFor={ids.name}>{t('accept.name')}</Label>
-              <Input id={ids.name} required autoComplete="name" value={name} onChange={(event) => setName(event.target.value)} />
+              <Input placeholder={t('placeholders.name')} id={ids.name} required autoComplete="name" value={name} onChange={(event) => setName(event.target.value)} />
             </div>
             <div className="grid gap-1.5">
               <Label htmlFor={ids.email}>{t('accept.email')}</Label>
-              <Input
+              <Input placeholder={t('placeholders.email')}
                 id={ids.email}
                 type="email"
                 required

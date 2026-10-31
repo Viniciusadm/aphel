@@ -142,7 +142,7 @@ function ExportForm({ available }: { available: string[] }) {
         </div>
         <div className="grid gap-1.5">
           <Label htmlFor={`${formId}-author`}>{t('export.author')}</Label>
-          <Input
+          <Input placeholder={t('export.authorPlaceholder')}
             id={`${formId}-author`}
             value={author}
             maxLength={MAX_TEXT_LENGTH}
@@ -151,7 +151,7 @@ function ExportForm({ available }: { available: string[] }) {
         </div>
         <div className="grid gap-1.5 sm:col-span-2">
           <Label htmlFor={`${formId}-description`}>{t('export.packageDescription')}</Label>
-          <Textarea
+          <Textarea placeholder={t('export.packageDescriptionPlaceholder')}
             id={`${formId}-description`}
             value={description}
             rows={3}
