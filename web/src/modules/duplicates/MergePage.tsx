@@ -1,3 +1,4 @@
+import { FieldError as SharedFieldError } from '@/components/ui/field-error'
 import { ArrowLeft, ArrowLeftRight, GitMerge, SearchX } from 'lucide-react'
 import { useMemo, useState } from 'react'
 import { useTranslation } from 'react-i18next'
@@ -184,7 +185,7 @@ function MergeForm({ info, resource, schema, primary, duplicate, onSwap }: Merge
           />
         ))}
       </div>
-      {!allowed && <p className="text-sm text-destructive">{t('merge.noPermission')}</p>}
+      {!allowed && <SharedFieldError>{t('merge.noPermission')}</SharedFieldError>}
       <div className="flex justify-end">
         <Button disabled={!allowed || merge.isPending} onClick={() => setConfirming(true)}>
           <GitMerge aria-hidden="true" />

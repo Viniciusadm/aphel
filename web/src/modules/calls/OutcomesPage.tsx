@@ -1,3 +1,4 @@
+import { FieldError as SharedFieldError } from '@/components/ui/field-error'
 import { Pencil, Plus } from 'lucide-react'
 import { useId, useState } from 'react'
 import { useTranslation } from 'react-i18next'
@@ -221,7 +222,7 @@ function OutcomeForm({
               setNameError(false)
             }}
           />
-          {nameError && <p className="text-sm text-destructive">{t('outcomes.nameRequired')}</p>}
+          {nameError && <SharedFieldError>{t('outcomes.nameRequired')}</SharedFieldError>}
           {editing && <p className="text-xs text-muted-foreground">{t('outcomes.keyHint', { key: editing.key })}</p>}
           </>}
         </Field>

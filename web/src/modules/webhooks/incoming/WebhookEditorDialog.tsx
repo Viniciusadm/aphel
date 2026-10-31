@@ -1,3 +1,4 @@
+import { FieldError as SharedFieldError } from '@/components/ui/field-error'
 import { zodResolver } from '@hookform/resolvers/zod'
 import { Plus, Wand2 } from 'lucide-react'
 import { useId, useState } from 'react'
@@ -144,7 +145,7 @@ function EditorBody({ webhook, onCancel, onSaved }: EditorBodyProps) {
               {...register('name')}
             />
             {formState.errors.name && (
-              <p className="text-sm text-destructive">{errorMessage(formState.errors.name.message)}</p>
+              <SharedFieldError>{errorMessage(formState.errors.name.message)}</SharedFieldError>
             )}
             </>}
           </Field>
@@ -191,9 +192,9 @@ function EditorBody({ webhook, onCancel, onSaved }: EditorBodyProps) {
                 {...register('signature_tolerance_seconds', { valueAsNumber: true })}
               />
               {formState.errors.signature_tolerance_seconds && (
-                <p className="text-sm text-destructive">
+                <SharedFieldError>
                   {errorMessage(formState.errors.signature_tolerance_seconds.message)}
-                </p>
+                </SharedFieldError>
               )}
               </>}
             </Field>

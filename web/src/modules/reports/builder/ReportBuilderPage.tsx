@@ -1,3 +1,4 @@
+import { FieldError as SharedFieldError } from '@/components/ui/field-error'
 import { useQueryClient } from '@tanstack/react-query'
 import { ArrowLeft, Download, LayoutDashboard, Save, Trash2 } from 'lucide-react'
 import { useEffect, useId, useRef, useState } from 'react'
@@ -321,7 +322,7 @@ function ReportEditor({ report }: { report: Report | null }) {
                 aria-invalid={submitted && Boolean(nameError)}
                 onChange={(event) => update({ name: event.target.value })}
               />
-              {submitted && nameError && <p className="text-sm text-destructive">{nameError}</p>}
+              {submitted && nameError && <SharedFieldError>{nameError}</SharedFieldError>}
               </>}
             </Field>
             <Field label={t('sections.details.description')}>
@@ -357,7 +358,7 @@ function ReportEditor({ report }: { report: Report | null }) {
                       </option>
                     ))}
                   </NativeSelect>
-                  {submitted && teamError && <p className="text-sm text-destructive">{teamError}</p>}
+                  {submitted && teamError && <SharedFieldError>{teamError}</SharedFieldError>}
                   </>}
                 </Field>
               )}

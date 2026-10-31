@@ -1,3 +1,4 @@
+import { FieldError as SharedFieldError } from '@/components/ui/field-error'
 import { Boxes, Pencil, Plus, Trash2, X } from 'lucide-react'
 import { useId, useState } from 'react'
 import { useTranslation } from 'react-i18next'
@@ -334,14 +335,14 @@ function BundleForm({ productId, bundle, onClose }: BundleFormProps) {
               </Button>
             </div>
             {(errors[`${index}.product_id`] || errors[`${index}.quantity`]) && (
-              <p className="text-sm text-destructive">
+              <SharedFieldError>
                 {errors[`${index}.product_id`] ?? errors[`${index}.quantity`]}
-              </p>
+              </SharedFieldError>
             )}
           </div>
         ))}
         {(errors.components || errors.pricing) && (
-          <p className="text-sm text-destructive">{errors.components ?? errors.pricing}</p>
+          <SharedFieldError>{errors.components ?? errors.pricing}</SharedFieldError>
         )}
         <Button
           type="button"

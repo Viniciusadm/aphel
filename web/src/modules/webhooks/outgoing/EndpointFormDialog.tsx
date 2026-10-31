@@ -1,3 +1,4 @@
+import { FieldError as SharedFieldError } from '@/components/ui/field-error'
 import { zodResolver } from '@hookform/resolvers/zod'
 import type { ParseKeys } from 'i18next'
 import { useId } from 'react'
@@ -208,9 +209,9 @@ export function EndpointFormDialog({ endpoint, onClose, onCreated, onUpdated }: 
               {...register('description')}
             />
             {descriptionError && (
-              <p id={`${formId}-description-error`} className="text-sm text-destructive">
+              <SharedFieldError id={`${formId}-description-error`}>
                 {descriptionError}
-              </p>
+              </SharedFieldError>
             )}
             </>}
           </Field>
@@ -267,9 +268,9 @@ export function EndpointFormDialog({ endpoint, onClose, onCreated, onUpdated }: 
                 />
               ))}
             {eventsError && (
-              <p id={`${formId}-events-error`} className="text-sm text-destructive">
+              <SharedFieldError id={`${formId}-events-error`}>
                 {eventsError}
-              </p>
+              </SharedFieldError>
             )}
           </fieldset>
           <Controller

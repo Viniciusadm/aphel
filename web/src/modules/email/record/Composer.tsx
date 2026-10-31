@@ -1,3 +1,4 @@
+import { FieldError as SharedFieldError } from '@/components/ui/field-error'
 import { useMutation } from '@tanstack/react-query'
 import { CalendarClock, Loader2, Paperclip, Send, X } from 'lucide-react'
 import { Suspense, lazy, useId, useRef, useState } from 'react'
@@ -302,7 +303,7 @@ function ComposerForm({ record, mailboxes, reply, onDirtyChange, onCancel, onSen
             setTo(value)
           }}
         />
-        {submitted && recipientsMissing && <p className="text-sm text-destructive">{t('composer.recipientsRequired')}</p>}
+        {submitted && recipientsMissing && <SharedFieldError>{t('composer.recipientsRequired')}</SharedFieldError>}
         <RecipientSuggestions
           suggestions={suggestions}
           selected={[...to, ...cc, ...bcc]}
@@ -375,7 +376,7 @@ function ComposerForm({ record, mailboxes, reply, onDirtyChange, onCancel, onSen
             setSubject(event.target.value)
           }}
         />
-        {submitted && subject.trim() === '' && <p className="text-sm text-destructive">{t('composer.subjectRequired')}</p>}
+        {submitted && subject.trim() === '' && <SharedFieldError>{t('composer.subjectRequired')}</SharedFieldError>}
         </>}
       </Field>
       <Tabs value={tab} onValueChange={changeTab} className="grid gap-3">
@@ -527,7 +528,7 @@ function ComposerForm({ record, mailboxes, reply, onDirtyChange, onCancel, onSen
                   }}
                 />
                 {submitted && scheduleInvalid && (
-                  <p className="text-sm text-destructive">{t('composer.scheduleInvalid')}</p>
+                  <SharedFieldError>{t('composer.scheduleInvalid')}</SharedFieldError>
                 )}
               </>
             )}

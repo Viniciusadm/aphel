@@ -1,3 +1,4 @@
+import { FieldError as SharedFieldError } from '@/components/ui/field-error'
 import { AlertTriangle } from 'lucide-react'
 import { useTranslation } from 'react-i18next'
 import { Skeleton } from '@/components/ui/skeleton'
@@ -20,7 +21,7 @@ export function PreviewPane({ preview, pending, error }: PreviewPaneProps) {
       </div>
     )
   }
-  if (error || !preview) return <p className="text-sm text-destructive">{t('preview.error')}</p>
+  if (error || !preview) return <SharedFieldError>{t('preview.error')}</SharedFieldError>
   return (
     <div className="grid gap-3">
       {preview.missing_variables.length > 0 && (

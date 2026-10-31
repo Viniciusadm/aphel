@@ -1,3 +1,4 @@
+import { FieldError as SharedFieldError } from '@/components/ui/field-error'
 import { useQueryClient } from '@tanstack/react-query'
 import { ArrowDown, ArrowUp, Plus, Trash2 } from 'lucide-react'
 import { useId, useState } from 'react'
@@ -195,9 +196,9 @@ function GuidanceForm({ stageId, guidance }: { stageId: string; guidance: StageG
         </div>
       </fieldset>
       {error && (
-        <p role="alert" className="text-sm text-destructive">
+        <SharedFieldError>
           {error}
-        </p>
+        </SharedFieldError>
       )}
       <div className="flex justify-end">
         <Button type="button" variant="secondary" disabled={saving} onClick={() => void save()}>

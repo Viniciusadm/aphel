@@ -1,3 +1,4 @@
+import { FieldError as SharedFieldError } from '@/components/ui/field-error'
 import { CircleAlert, CircleCheck, Download, RotateCcw } from 'lucide-react'
 import { useCustomObjectLabel } from '@/features/custom-records/api'
 import { useState } from 'react'
@@ -77,9 +78,9 @@ export function ResultStep({ job }: ResultStepProps) {
             </Button>
           </div>
           {retry.isError && (
-            <p role="alert" className="text-sm text-destructive">
+            <SharedFieldError>
               {errorMessage(retry.error)}
-            </p>
+            </SharedFieldError>
           )}
           {hasFailures && <p className="text-xs text-muted-foreground">{t('result.retryHint')}</p>}
         </CardContent>

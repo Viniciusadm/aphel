@@ -1,3 +1,4 @@
+import { FieldError as SharedFieldError } from '@/components/ui/field-error'
 import { CalendarClock, Pencil, Plus, Trash2 } from 'lucide-react'
 import { useId, useState, type FormEvent } from 'react'
 import { useTranslation } from 'react-i18next'
@@ -210,7 +211,7 @@ function ScheduleForm({
             <p className="text-sm text-muted-foreground">{t('schedules.form.noUsers')}</p>
           )}
         </div>
-        {submitted && recipientsError && <p className="text-sm text-destructive">{recipientsError}</p>}
+        {submitted && recipientsError && <SharedFieldError>{recipientsError}</SharedFieldError>}
       </fieldset>
       <ToggleField label={t('schedules.form.active')} checked={values.isActive} onCheckedChange={(checked) => set({ isActive: checked === true })} />
       <DialogFooter>
@@ -230,7 +231,7 @@ function Deliveries({ reportId, scheduleId }: { reportId: string; scheduleId: st
   const formatting = useRecordFormatting()
   const deliveries = useScheduleDeliveries(reportId, scheduleId)
   if (deliveries.isPending) return <Skeleton className="h-6 w-full" />
-  if (deliveries.isError) return <p className="text-sm text-destructive">{t('schedules.deliveries.error')}</p>
+  if (deliveries.isError) return <SharedFieldError>{t('schedules.deliveries.error')}</SharedFieldError>
   if (deliveries.data.data.length === 0) {
     return <p className="text-sm text-muted-foreground">{t('schedules.deliveries.empty')}</p>
   }
@@ -298,7 +299,7 @@ export function SchedulesPanel({ report, currentUserId }: { report: Report; curr
   return (
     <Section title={t('schedules.title')} description={t('schedules.description')}>
       {schedules.isPending && <Skeleton className="h-10 w-full" />}
-      {schedules.isError && <p className="text-sm text-destructive">{t('schedules.loadError')}</p>}
+      {schedules.isError && <SharedFieldError>{t('schedules.loadError')}</SharedFieldError>}
       {schedules.isSuccess && schedules.data.length === 0 && (
         <p className="text-sm text-muted-foreground">{t('schedules.empty')}</p>
       )}

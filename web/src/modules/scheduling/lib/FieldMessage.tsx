@@ -1,3 +1,4 @@
+import { FieldError as SharedFieldError } from '@/components/ui/field-error'
 import { useSchedulingText } from '../text'
 
 interface FieldMessageProps {
@@ -9,8 +10,8 @@ export function FieldMessage({ id, message }: FieldMessageProps) {
   const text = useSchedulingText()
   if (!message) return null
   return (
-    <p id={id} className="text-sm text-destructive">
+    <SharedFieldError id={id}>
       {text(message)}
-    </p>
+    </SharedFieldError>
   )
 }

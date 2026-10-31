@@ -1,3 +1,4 @@
+import { FieldError as SharedFieldError } from '@/components/ui/field-error'
 import { X } from 'lucide-react'
 import { useId, useState } from 'react'
 import { useTranslation } from 'react-i18next'
@@ -121,9 +122,9 @@ function PriceListForm({ list, onClose, onSaved }: PriceListFormProps) {
 
   const errorFor = (field: string) =>
     errors[field] ? (
-      <p id={`${formId}-${field}-error`} className="text-sm text-destructive">
+      <SharedFieldError id={`${formId}-${field}-error`}>
         {errors[field]}
-      </p>
+      </SharedFieldError>
     ) : null
 
   return (

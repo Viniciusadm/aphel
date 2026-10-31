@@ -1,3 +1,4 @@
+import { FieldError as SharedFieldError } from '@/components/ui/field-error'
 import { useQueryClient } from '@tanstack/react-query'
 import { useState } from 'react'
 import { useTranslation } from 'react-i18next'
@@ -71,7 +72,7 @@ export function ContactQuickForm({ onDone }: QuickFormProps) {
           aria-invalid={touched && nameMissing}
           required
         />
-        {touched && nameMissing && <p className="text-sm text-destructive">{t('contact.nameRequired')}</p>}
+        {touched && nameMissing && <SharedFieldError>{t('contact.nameRequired')}</SharedFieldError>}
         </>}
       </Field>
       <Field label={t('contact.phone')}>

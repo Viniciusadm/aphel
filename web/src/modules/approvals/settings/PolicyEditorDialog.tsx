@@ -1,3 +1,4 @@
+import { FieldError as SharedFieldError } from '@/components/ui/field-error'
 import { useMemo, useState } from 'react'
 import { useTranslation } from 'react-i18next'
 import { isApiError } from '@/api'
@@ -127,7 +128,7 @@ function PolicyForm({ policy, pipelineOfStage, onOpenChange }: PolicyFormProps) 
 
   const fieldError = (field: string) => {
     const text = errorText(errors[field])
-    return text ? <p className="text-sm text-destructive">{text}</p> : null
+    return text ? <SharedFieldError>{text}</SharedFieldError> : null
   }
 
   const lockedError = Object.entries(errors).find(([field]) => field.startsWith('locked_fields'))?.[1]
@@ -391,7 +392,7 @@ function PolicyForm({ policy, pipelineOfStage, onOpenChange }: PolicyFormProps) 
             })}
           </div>
         )}
-        {lockedError && <p className="text-sm text-destructive">{errorText(lockedError)}</p>}
+        {lockedError && <SharedFieldError>{errorText(lockedError)}</SharedFieldError>}
       </fieldset>
 
       <div className="grid gap-3 sm:grid-cols-2">

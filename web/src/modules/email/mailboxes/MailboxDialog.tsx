@@ -1,3 +1,4 @@
+import { FieldError as SharedFieldError } from '@/components/ui/field-error'
 import { Loader2 } from 'lucide-react'
 import { useId, useRef, useState } from 'react'
 import { useTranslation } from 'react-i18next'
@@ -169,9 +170,9 @@ function MailboxForm({ mode, onDirtyChange, onCancel, onDone }: MailboxFormProps
   const invalid = (key: keyof typeof errors) => submitted && errors[key]
   const errorText = (key: keyof typeof errors, message: string) =>
     invalid(key) ? (
-      <p id={`${formId}-${key}-error`} className="text-sm text-destructive">
+      <SharedFieldError id={`${formId}-${key}-error`}>
         {message}
-      </p>
+      </SharedFieldError>
     ) : null
 
   return (
@@ -321,7 +322,7 @@ function ServerFields({ kind, values, submitted, errors, onChange, onSecurityCha
           aria-invalid={(submitted && errors[hostKey]) || undefined}
           onChange={(event) => onChange({ [hostKey]: event.target.value })}
         />
-        {submitted && errors[hostKey] && <p className="text-sm text-destructive">{t('mailboxes.form.required')}</p>}
+        {submitted && errors[hostKey] && <SharedFieldError>{t('mailboxes.form.required')}</SharedFieldError>}
         </>}
       </Field>
       <Field label={t('mailboxes.form.port')} className="content-start">
@@ -336,7 +337,7 @@ function ServerFields({ kind, values, submitted, errors, onChange, onSecurityCha
           aria-invalid={(submitted && errors[portKey]) || undefined}
           onChange={(event) => onChange({ [portKey]: event.target.value })}
         />
-        {submitted && errors[portKey] && <p className="text-sm text-destructive">{t('mailboxes.form.portInvalid')}</p>}
+        {submitted && errors[portKey] && <SharedFieldError>{t('mailboxes.form.portInvalid')}</SharedFieldError>}
         </>}
       </Field>
       <Field label={t('mailboxes.form.security')} className="content-start">

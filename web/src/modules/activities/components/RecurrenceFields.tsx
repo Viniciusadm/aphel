@@ -1,3 +1,4 @@
+import { FieldError as SharedFieldError } from '@/components/ui/field-error'
 import { useId } from 'react'
 import { useTranslation } from 'react-i18next'
 import { Input } from '@/components/ui/input'
@@ -131,9 +132,9 @@ export function RecurrenceFields({ value, onChange, error, disabled }: Recurrenc
         </div>
       )}
       {error && (
-        <p id={ids.error} className="text-sm text-destructive">
+        <SharedFieldError id={ids.error}>
           {error}
-        </p>
+        </SharedFieldError>
       )}
     </fieldset>
   )

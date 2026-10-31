@@ -1,3 +1,4 @@
+import { FieldError as SharedFieldError } from '@/components/ui/field-error'
 import { zodResolver } from '@hookform/resolvers/zod'
 import { Plus } from 'lucide-react'
 import { useId, useState } from 'react'
@@ -122,7 +123,7 @@ function EditorBody({ form, onCancel, onSaved }: EditorBodyProps) {
                   {(control) => <>
                     <Input {...control} placeholder={t('editor.namePlaceholder')} {...register('name')} />
                   {formState.errors.name && (
-                    <p className="text-sm text-destructive">{errorText(formState.errors.name.message)}</p>
+                    <SharedFieldError>{errorText(formState.errors.name.message)}</SharedFieldError>
                   )}
                   </>}
                 </Field>
@@ -168,7 +169,7 @@ function EditorBody({ form, onCancel, onSaved }: EditorBodyProps) {
                     />
                   ))}
                 </ol>
-                {rootFieldsError && <p className="text-sm text-destructive">{errorText(rootFieldsError)}</p>}
+                {rootFieldsError && <SharedFieldError>{errorText(rootFieldsError)}</SharedFieldError>}
                 {fields.fields.length < MAX_FIELDS && (
                   <div className="flex flex-wrap items-center gap-2">
                     <NativeSelect
@@ -279,7 +280,7 @@ function EditorBody({ form, onCancel, onSaved }: EditorBodyProps) {
                         ))}
                       </NativeSelect>
                       {formState.errors.pipeline_id && (
-                        <p className="text-sm text-destructive">{errorText(formState.errors.pipeline_id.message)}</p>
+                        <SharedFieldError>{errorText(formState.errors.pipeline_id.message)}</SharedFieldError>
                       )}
                       </>}
                     </Field>
@@ -294,7 +295,7 @@ function EditorBody({ form, onCancel, onSaved }: EditorBodyProps) {
                         ))}
                       </NativeSelect>
                       {formState.errors.stage_id && (
-                        <p className="text-sm text-destructive">{errorText(formState.errors.stage_id.message)}</p>
+                        <SharedFieldError>{errorText(formState.errors.stage_id.message)}</SharedFieldError>
                       )}
                       </>}
                     </Field>
@@ -303,7 +304,7 @@ function EditorBody({ form, onCancel, onSaved }: EditorBodyProps) {
                         <Input placeholder={t('editor.titleTemplatePlaceholder')} {...control} {...register('title_template')} />
                       <p className="text-xs text-muted-foreground">{t('editor.titleTemplateHelp', { field: '{{name}}', form: '{{form}}' })}</p>
                       {formState.errors.title_template && (
-                        <p className="text-sm text-destructive">{errorText(formState.errors.title_template.message)}</p>
+                        <SharedFieldError>{errorText(formState.errors.title_template.message)}</SharedFieldError>
                       )}
                       </>}
                     </Field>
@@ -311,7 +312,7 @@ function EditorBody({ form, onCancel, onSaved }: EditorBodyProps) {
                       {(control) => <>
                         <Input placeholder={t('editor.amountPlaceholder')} {...control} inputMode="decimal" {...register('amount')} />
                       {formState.errors.amount && (
-                        <p className="text-sm text-destructive">{errorText(formState.errors.amount.message)}</p>
+                        <SharedFieldError>{errorText(formState.errors.amount.message)}</SharedFieldError>
                       )}
                       </>}
                     </Field>
@@ -347,7 +348,7 @@ function EditorBody({ form, onCancel, onSaved }: EditorBodyProps) {
                     {...register('redirect_url')}
                   />
                   {formState.errors.redirect_url && (
-                    <p className="text-sm text-destructive">{errorText(formState.errors.redirect_url.message)}</p>
+                    <SharedFieldError>{errorText(formState.errors.redirect_url.message)}</SharedFieldError>
                   )}
                   </>}
                 </Field>
@@ -368,7 +369,7 @@ function EditorBody({ form, onCancel, onSaved }: EditorBodyProps) {
                   />
                   <p className="text-xs text-muted-foreground">{t('editor.allowedOriginsHelp')}</p>
                   {formState.errors.allowed_origins && (
-                    <p className="text-sm text-destructive">{errorText(formState.errors.allowed_origins.message)}</p>
+                    <SharedFieldError>{errorText(formState.errors.allowed_origins.message)}</SharedFieldError>
                   )}
                   </>}
                 </Field>

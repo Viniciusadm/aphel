@@ -1,3 +1,4 @@
+import { FieldError as SharedFieldError } from '@/components/ui/field-error'
 import { X } from 'lucide-react'
 import { useId, useState } from 'react'
 import { useTranslation } from 'react-i18next'
@@ -119,9 +120,9 @@ export function AddressField({ label, value, onChange, suggestions, autoFocus }:
         </datalist>
       </div>
       {invalid && (
-        <p id={`${id}-error`} className="text-sm text-destructive">
+        <SharedFieldError id={`${id}-error`}>
           {t('composer.invalidAddress', { value: invalid })}
-        </p>
+        </SharedFieldError>
       )}
     </Field>
   )

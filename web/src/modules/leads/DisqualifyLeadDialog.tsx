@@ -1,3 +1,4 @@
+import { FieldError as SharedFieldError } from '@/components/ui/field-error'
 import { useId, useState } from 'react'
 import { useTranslation } from 'react-i18next'
 import { notifySuccess } from '@/components/feedback'
@@ -99,7 +100,7 @@ function DisqualifyForm({ lead, onClose }: { lead: LeadTarget; onClose: () => vo
               </option>
             ))}
           </NativeSelect>
-          {reasonError && <p className="text-sm text-destructive">{t('disqualify.reasonRequired')}</p>}
+          {reasonError && <SharedFieldError>{t('disqualify.reasonRequired')}</SharedFieldError>}
           {reasons.isSuccess && reasons.data.length === 0 && (
             <p className="text-xs text-muted-foreground">{t('disqualify.noReasons')}</p>
           )}

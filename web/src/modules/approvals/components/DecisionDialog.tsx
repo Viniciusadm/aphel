@@ -1,3 +1,4 @@
+import { FieldError as SharedFieldError } from '@/components/ui/field-error'
 import { useId, useState } from 'react'
 import { useTranslation } from 'react-i18next'
 import { Button } from '@/components/ui/button'
@@ -94,9 +95,9 @@ function DecisionForm({ request, action, onOpenChange, onDone }: DecisionFormPro
           }}
         />
         {missing && (
-          <p id={errorId} className="text-sm text-destructive">
+          <SharedFieldError id={errorId}>
             {t('decision.commentMissing')}
-          </p>
+          </SharedFieldError>
         )}
         </>}
       </Field>

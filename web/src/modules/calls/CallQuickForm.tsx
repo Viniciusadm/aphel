@@ -1,3 +1,4 @@
+import { FieldError as SharedFieldError } from '@/components/ui/field-error'
 import { OptionGroup } from '@/components/ui/option-group'
 import { useQueryClient } from '@tanstack/react-query'
 import { useId, useState } from 'react'
@@ -92,7 +93,7 @@ export function CallQuickForm({ onDone, initialRecord }: CallQuickFormProps) {
           onValueChange={setOutcomeKey}
           options={activeOutcomes.map((outcome) => ({ value: outcome.key, label: outcome.name }))}
         />
-        {touched && !outcomeKey && <p className="text-sm text-destructive">{t('call.outcomeRequired')}</p>}
+        {touched && !outcomeKey && <SharedFieldError>{t('call.outcomeRequired')}</SharedFieldError>}
       </fieldset>
       <Field label={t('call.minutes')}>
         {(control) => <>
@@ -108,7 +109,7 @@ export function CallQuickForm({ onDone, initialRecord }: CallQuickFormProps) {
           className="h-11 text-base"
           aria-invalid={minutesInvalid}
         />
-        {minutesInvalid && <p className="text-sm text-destructive">{t('call.minutesInvalid')}</p>}
+        {minutesInvalid && <SharedFieldError>{t('call.minutesInvalid')}</SharedFieldError>}
         </>}
       </Field>
       <DictationField id={ids.notes} label={t('call.notes')} value={notes} onChange={setNotes} maxLength={20_000} />

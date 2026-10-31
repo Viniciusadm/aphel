@@ -1,3 +1,4 @@
+import { FieldError as SharedFieldError } from '@/components/ui/field-error'
 import { useId, useState } from 'react'
 import { useTranslation } from 'react-i18next'
 import { isApiError } from '@/api'
@@ -134,7 +135,7 @@ function SegmentForm({ schema, recordType, editing, onClose, onSaved }: SegmentF
             aria-invalid={errors.name ? true : undefined}
             onChange={(event) => setName(event.target.value)}
           />
-          {errors.name && <p className="text-sm text-destructive">{errors.name}</p>}
+          {errors.name && <SharedFieldError>{errors.name}</SharedFieldError>}
           </>}
         </Field>
         <Field label={t('dialog.descriptionLabel')}>
@@ -151,9 +152,9 @@ function SegmentForm({ schema, recordType, editing, onClose, onSaved }: SegmentF
           <p className="text-xs text-muted-foreground">{t('dialog.filterHint')}</p>
           <FilterBuilder schema={schema} value={draft} onChange={setDraft} />
           {errors.filter && (
-            <p role="alert" className="text-sm text-destructive">
+            <SharedFieldError>
               {errors.filter}
-            </p>
+            </SharedFieldError>
           )}
         </fieldset>
       </form>

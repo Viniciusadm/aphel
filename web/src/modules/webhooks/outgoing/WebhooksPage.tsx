@@ -1,3 +1,4 @@
+import { FieldError as SharedFieldError } from '@/components/ui/field-error'
 import { Check, Copy, MoreHorizontal, Plus, Webhook } from 'lucide-react'
 import { useState } from 'react'
 import { useTranslation } from 'react-i18next'
@@ -255,9 +256,9 @@ function EndpointRow({
               : t('neverDelivered')}
           </p>
           {!endpoint.is_active && endpoint.disabled_reason === 'failures' && endpoint.disabled_at && (
-            <p className="text-sm text-destructive">
+            <SharedFieldError>
               {t('disabledByFailures', { date: formatDateTime(endpoint.disabled_at, formatting) })}
-            </p>
+            </SharedFieldError>
           )}
         </div>
         <div className="flex gap-2 self-start">

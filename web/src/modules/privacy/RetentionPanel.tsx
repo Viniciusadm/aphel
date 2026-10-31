@@ -1,3 +1,4 @@
+import { FieldError as SharedFieldError } from '@/components/ui/field-error'
 import { History, MoreHorizontal, Plus, Timer } from 'lucide-react'
 import { useState } from 'react'
 import { useTranslation } from 'react-i18next'
@@ -281,9 +282,9 @@ function RunsHistory() {
                   {run.requested_by ? ` · ${run.requested_by.display_name}` : ''}
                 </p>
                 {run.error_message && (
-                  <p className="text-sm text-destructive">
+                  <SharedFieldError>
                     {run.status === 'failed' ? t('runs.failed') : t('runs.partial')}
-                  </p>
+                  </SharedFieldError>
                 )}
               </li>
             ))}

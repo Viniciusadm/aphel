@@ -1,3 +1,4 @@
+import { FieldError as SharedFieldError } from '@/components/ui/field-error'
 import { useQueryClient } from '@tanstack/react-query'
 import { LoaderCircle, MapPin, MapPinOff, RefreshCw } from 'lucide-react'
 import { useCallback, useEffect, useId, useState } from 'react'
@@ -155,7 +156,7 @@ export function CheckInQuickForm({ onDone, initialRecord }: CheckInQuickFormProp
         />}
       </Field>
       <DictationField id={ids.notes} label={t('checkIn.notes')} value={notes} onChange={setNotes} maxLength={20_000} />
-      {!visitType && !types.isPending && <p className="text-sm text-destructive">{t('checkIn.noType')}</p>}
+      {!visitType && !types.isPending && <SharedFieldError>{t('checkIn.noType')}</SharedFieldError>}
       <FormActions
         pending={pending}
         disabled={!visitType || location.status === 'capturing'}

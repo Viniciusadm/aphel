@@ -1,3 +1,4 @@
+import { FieldError as SharedFieldError } from '@/components/ui/field-error'
 import { ArrowDown, ArrowUp, Trash2 } from 'lucide-react'
 import { Controller, useFormContext, useWatch } from 'react-hook-form'
 import { Button } from '@/components/ui/button'
@@ -69,13 +70,13 @@ export function FieldEditor({ index, total, targets, onMove, onRemove }: FieldEd
         <Field label={t('editor.label')}>
           {(control) => <>
             <Input placeholder={t('editor.labelPlaceholder')} {...control} {...register(`fields.${index}.label`, { onBlur: fillKey })} />
-          {errors?.label && <p className="text-sm text-destructive">{message(errors.label.message)}</p>}
+          {errors?.label && <SharedFieldError>{message(errors.label.message)}</SharedFieldError>}
           </>}
         </Field>
         <Field label={t('editor.key')}>
           {(control) => <>
             <Input placeholder={t('editor.keyPlaceholder')} {...control} className="font-mono" {...register(`fields.${index}.key`)} />
-          {errors?.key && <p className="text-sm text-destructive">{message(errors.key.message)}</p>}
+          {errors?.key && <SharedFieldError>{message(errors.key.message)}</SharedFieldError>}
           </>}
         </Field>
         <Field label={t('editor.kind')}>
@@ -105,7 +106,7 @@ export function FieldEditor({ index, total, targets, onMove, onRemove }: FieldEd
           <Field label={kind === 'select' ? t('editor.selectPrompt') : t('editor.placeholder')} className="sm:col-span-2">
             {(control) => <>
               <Input {...control} {...register(`fields.${index}.placeholder`)} />
-            {errors?.placeholder && <p className="text-sm text-destructive">{message(errors.placeholder.message)}</p>}
+            {errors?.placeholder && <SharedFieldError>{message(errors.placeholder.message)}</SharedFieldError>}
             </>}
           </Field>
         )}
@@ -114,7 +115,7 @@ export function FieldEditor({ index, total, targets, onMove, onRemove }: FieldEd
             {(control) => <>
               <Textarea placeholder={t('editor.optionsPlaceholder')} {...control} rows={3} {...register(`fields.${index}.options`)} />
             <p className="text-xs text-muted-foreground">{t('editor.optionsHelp')}</p>
-            {errors?.options && <p className="text-sm text-destructive">{message(errors.options.message)}</p>}
+            {errors?.options && <SharedFieldError>{message(errors.options.message)}</SharedFieldError>}
             </>}
           </Field>
         )}
@@ -129,7 +130,7 @@ export function FieldEditor({ index, total, targets, onMove, onRemove }: FieldEd
         />
         {t('editor.required')}
       </label>
-      {errors?.required && <p className="text-sm text-destructive">{message(errors.required.message)}</p>}
+      {errors?.required && <SharedFieldError>{message(errors.required.message)}</SharedFieldError>}
     </li>
   )
 }

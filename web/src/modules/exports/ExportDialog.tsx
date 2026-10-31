@@ -1,3 +1,4 @@
+import { FieldError as SharedFieldError } from '@/components/ui/field-error'
 import { Download, FileDown, LoaderCircle } from 'lucide-react'
 import { useCustomObjectLabel } from '@/features/custom-records/api'
 import { useId, useState, type FormEvent } from 'react'
@@ -112,9 +113,9 @@ function ExportDialogContent({ recordType, archived, onClose }: ExportDialogCont
             </>
           )}
           {status === 'failed' && (
-            <p role="alert" className="text-sm text-destructive">
+            <SharedFieldError>
               {job.data?.failure_reason ?? t('failed')}
-            </p>
+            </SharedFieldError>
           )}
           <DialogFooter>
             <Button variant="outline" onClick={onClose}>
@@ -165,15 +166,15 @@ function ExportDialogContent({ recordType, archived, onClose }: ExportDialogCont
               ))}
             </ul>
             {config && columns.length === 0 && (
-              <p role="alert" className="text-sm text-destructive">
+              <SharedFieldError>
                 {t('noColumns')}
-              </p>
+              </SharedFieldError>
             )}
           </fieldset>
           {request.isError && (
-            <p role="alert" className="text-sm text-destructive">
+            <SharedFieldError>
               {errorMessage(request.error)}
-            </p>
+            </SharedFieldError>
           )}
           <DialogFooter>
             <Button type="button" variant="outline" onClick={onClose}>

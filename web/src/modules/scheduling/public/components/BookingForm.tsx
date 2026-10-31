@@ -1,3 +1,4 @@
+import { FieldError as SharedFieldError } from '@/components/ui/field-error'
 import { zodResolver } from '@hookform/resolvers/zod'
 import { useMemo } from 'react'
 import { useForm } from 'react-hook-form'
@@ -89,7 +90,7 @@ export function BookingForm({ questions, submitting, onSubmit }: BookingFormProp
           aria-invalid={errors.name ? true : undefined}
           {...register('name')}
         />
-        {errors.name && <p className="text-sm text-destructive">{message(errors.name.message)}</p>}
+        {errors.name && <SharedFieldError>{message(errors.name.message)}</SharedFieldError>}
       </Field>
       <Field id="booking-email" label={<>{t('form.email')} <span aria-hidden>*</span></>}>
         <Input placeholder={t('placeholders.bookerEmail')}
@@ -100,7 +101,7 @@ export function BookingForm({ questions, submitting, onSubmit }: BookingFormProp
           aria-invalid={errors.email ? true : undefined}
           {...register('email')}
         />
-        {errors.email && <p className="text-sm text-destructive">{message(errors.email.message)}</p>}
+        {errors.email && <SharedFieldError>{message(errors.email.message)}</SharedFieldError>}
       </Field>
       {questions.map((question, index) => {
         const fieldId = `booking-question-${index}`
@@ -115,7 +116,7 @@ export function BookingForm({ questions, submitting, onSubmit }: BookingFormProp
               aria-invalid={error ? true : undefined}
               {...register(`answers.${index}`)}
             />
-            {error && <p className="text-sm text-destructive">{message(error.message)}</p>}
+            {error && <SharedFieldError>{message(error.message)}</SharedFieldError>}
           </Field>
         )
       })}

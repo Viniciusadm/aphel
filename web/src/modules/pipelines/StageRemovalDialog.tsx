@@ -1,3 +1,4 @@
+import { FieldError as SharedFieldError } from '@/components/ui/field-error'
 import { useState } from 'react'
 import { useTranslation } from 'react-i18next'
 import { Button } from '@/components/ui/button'
@@ -60,9 +61,9 @@ function RemovalForm({
       </DialogHeader>
       {needsTarget &&
         (blocked ? (
-          <p role="alert" className="text-sm text-destructive">
+          <SharedFieldError>
             {t('settings.removal.noTarget')}
-          </p>
+          </SharedFieldError>
         ) : (
           <Field label={t('settings.removal.target')}>
             {(control) => <NativeSelect

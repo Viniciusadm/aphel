@@ -1,3 +1,4 @@
+import { FieldError as SharedFieldError } from '@/components/ui/field-error'
 import { useId, useState } from 'react'
 import { useTranslation } from 'react-i18next'
 import { Button } from '@/components/ui/button'
@@ -79,11 +80,11 @@ function LostReasonForm({ dealTitle, pending, onOpenChange, onConfirm }: Omit<Lo
           </NativeSelect>
         )}
         {missing && (
-          <p id={errorId} role="alert" className="text-sm text-destructive">
+          <SharedFieldError id={errorId}>
             {t('lost.required')}
-          </p>
+          </SharedFieldError>
         )}
-        {reasons.isError && <p className="text-sm text-destructive">{t('lost.loadError')}</p>}
+        {reasons.isError && <SharedFieldError>{t('lost.loadError')}</SharedFieldError>}
       </Field>
       <Field label={t('lost.note')}>
         {(fieldControl) => <Textarea placeholder={t('placeholders.note')} {...fieldControl} value={note} maxLength={5000} onChange={(event) => setNote(event.target.value)} />}

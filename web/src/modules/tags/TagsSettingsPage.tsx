@@ -1,3 +1,4 @@
+import { FieldError as SharedFieldError } from '@/components/ui/field-error'
 import { Pencil, Plus, Trash2 } from 'lucide-react'
 import { useId, useState } from 'react'
 import { useTranslation } from 'react-i18next'
@@ -226,9 +227,9 @@ function TagForm({ editing, onClose, onSaved }: TagFormProps) {
             }}
           />
           {nameError && (
-            <p id={`${formId}-name-error`} className="text-sm text-destructive">
+            <SharedFieldError id={`${formId}-name-error`}>
               {nameError}
-            </p>
+            </SharedFieldError>
           )}
           </>}
         </Field>

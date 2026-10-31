@@ -1,3 +1,4 @@
+import { FieldError as SharedFieldError } from '@/components/ui/field-error'
 import { ArrowDown, ArrowUp, Plus, Trash2 } from 'lucide-react'
 import { useTranslation } from 'react-i18next'
 import { Button } from '@/components/ui/button'
@@ -143,7 +144,7 @@ export function StepsEditor({ steps, errors, errorText, onChange }: StepsEditorP
                         </option>
                       ))}
                     </NativeSelect>
-                    {userError && <p className="text-sm text-destructive">{userError}</p>}
+                    {userError && <SharedFieldError>{userError}</SharedFieldError>}
                     </>}
                   </Field>
                 )}
@@ -163,7 +164,7 @@ export function StepsEditor({ steps, errors, errorText, onChange }: StepsEditorP
                         </option>
                       ))}
                     </NativeSelect>
-                    {roleError && <p className="text-sm text-destructive">{roleError}</p>}
+                    {roleError && <SharedFieldError>{roleError}</SharedFieldError>}
                     </>}
                   </Field>
                 )}

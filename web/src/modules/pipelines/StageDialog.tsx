@@ -1,3 +1,4 @@
+import { FieldError as SharedFieldError } from '@/components/ui/field-error'
 import { useState } from 'react'
 import { useTranslation } from 'react-i18next'
 import { Button } from '@/components/ui/button'
@@ -107,7 +108,7 @@ function StageForm({ stage, pending, onOpenChange, onSubmit }: Omit<StageDialogP
           aria-invalid={nameError || undefined}
           onChange={(event) => setName(event.target.value)}
         />
-        {nameError && <p className="text-sm text-destructive">{t('settings.stages.nameRequired')}</p>}
+        {nameError && <SharedFieldError>{t('settings.stages.nameRequired')}</SharedFieldError>}
         </>}
       </Field>
       <Field label={t('settings.stages.probability')}>
@@ -122,7 +123,7 @@ function StageForm({ stage, pending, onOpenChange, onSubmit }: Omit<StageDialogP
           aria-invalid={probabilityError || undefined}
           onChange={(event) => setProbability(event.target.value)}
         />
-        {probabilityError && <p className="text-sm text-destructive">{t('settings.stages.probabilityInvalid')}</p>}
+        {probabilityError && <SharedFieldError>{t('settings.stages.probabilityInvalid')}</SharedFieldError>}
         </>}
       </Field>
       <Field label={t('settings.stages.kind')}>

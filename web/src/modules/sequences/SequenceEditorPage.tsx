@@ -1,3 +1,4 @@
+import { FieldError as SharedFieldError } from '@/components/ui/field-error'
 import { zodResolver } from '@hookform/resolvers/zod'
 import { ArrowDown, ArrowUp, Plus, Trash2 } from 'lucide-react'
 import { useEffect, useId, useState } from 'react'
@@ -72,9 +73,9 @@ function FieldMessage({ id, message }: { id: string; message?: string }) {
   const text = useSequencesText()
   if (!message) return null
   return (
-    <p id={id} className="text-sm text-destructive">
+    <SharedFieldError id={id}>
       {text(message)}
-    </p>
+    </SharedFieldError>
   )
 }
 
@@ -203,9 +204,9 @@ function SequenceForm({ sequence }: { sequence: Sequence | null }) {
         </section>
         <StepsEditor control={control} register={register} errors={errors} formId={formId} />
         {errors.root?.server?.message && (
-          <p role="alert" className="text-sm text-destructive">
+          <SharedFieldError>
             {errors.root.server.message}
-          </p>
+          </SharedFieldError>
         )}
         <div className="flex flex-wrap justify-end gap-2">
           <Button asChild variant="outline">

@@ -1,3 +1,4 @@
+import { FieldError as SharedFieldError } from '@/components/ui/field-error'
 import { OptionGroup } from '@/components/ui/option-group'
 import { useQueryClient } from '@tanstack/react-query'
 import { useId, useState } from 'react'
@@ -79,7 +80,7 @@ export function ActivityQuickForm({ onDone, initialRecord }: ActivityQuickFormPr
           maxLength={255}
           aria-invalid={touched && titleMissing}
         />
-        {touched && titleMissing && <p className="text-sm text-destructive">{t('activity.titleRequired')}</p>}
+        {touched && titleMissing && <SharedFieldError>{t('activity.titleRequired')}</SharedFieldError>}
         </>}
       </Field>
       <fieldset className="grid gap-2">

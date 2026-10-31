@@ -1,3 +1,4 @@
+import { FieldError as SharedFieldError } from '@/components/ui/field-error'
 import { CheckCircle2, LinkIcon, Printer, XCircle } from 'lucide-react'
 import { useState } from 'react'
 import { useTranslation } from 'react-i18next'
@@ -290,9 +291,9 @@ function Answer({ token, quote }: { token: string; quote: PublicQuote }) {
         </form>
       )}
       {error && (
-        <p role="alert" className="text-sm text-destructive">
+        <SharedFieldError>
           {t(errorKey(error))}
-        </p>
+        </SharedFieldError>
       )}
     </section>
   )

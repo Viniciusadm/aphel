@@ -1,3 +1,4 @@
+import { FieldError as SharedFieldError } from '@/components/ui/field-error'
 import { Plus, Users } from 'lucide-react'
 import { useId, useState } from 'react'
 import { useTranslation } from 'react-i18next'
@@ -249,7 +250,7 @@ function AddMemberForm({ team, roles, busy, onCancel, onSubmit }: AddMemberFormP
             setUserError(false)
           }}
         />
-        {userError && <p className="text-sm text-destructive">{t('add.userRequired')}</p>}
+        {userError && <SharedFieldError>{t('add.userRequired')}</SharedFieldError>}
       </Field>
       <Field label={t('add.role')}>
         {(fieldControl) => <RoleSelect id={fieldControl.id} value={roleId} roles={roles} onChange={setRoleId} />}

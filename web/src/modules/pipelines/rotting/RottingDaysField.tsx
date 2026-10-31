@@ -1,3 +1,4 @@
+import { FieldError as SharedFieldError } from '@/components/ui/field-error'
 import { useId } from 'react'
 import { useTranslation } from 'react-i18next'
 import { Input } from '@/components/ui/input'
@@ -34,7 +35,7 @@ export function RottingDaysField({ value, invalid, disabled, onChange }: Rotting
       <p id={descriptionId} className="text-xs text-muted-foreground">
         {disabled ? t('stage.openOnly') : t('stage.description')}
       </p>
-      {invalid && <p className="text-sm text-destructive">{t('stage.invalid')}</p>}
+      {invalid && <SharedFieldError>{t('stage.invalid')}</SharedFieldError>}
       </>}
     </Field>
   )

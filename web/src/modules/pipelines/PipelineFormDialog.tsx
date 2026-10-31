@@ -1,3 +1,4 @@
+import { FieldError as SharedFieldError } from '@/components/ui/field-error'
 import { useState } from 'react'
 import { useTranslation } from 'react-i18next'
 import { Button } from '@/components/ui/button'
@@ -54,7 +55,7 @@ function PipelineForm({ pending, onOpenChange, onSubmit }: Omit<PipelineFormDial
           aria-invalid={nameError || undefined}
           onChange={(event) => setName(event.target.value)}
         />
-        {nameError && <p className="text-sm text-destructive">{t('fields.nameRequired')}</p>}
+        {nameError && <SharedFieldError>{t('fields.nameRequired')}</SharedFieldError>}
         </>}
       </Field>
       <TeamsField selected={teams} onChange={setTeams} />

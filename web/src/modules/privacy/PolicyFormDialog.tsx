@@ -1,3 +1,4 @@
+import { FieldError as SharedFieldError } from '@/components/ui/field-error'
 import { useId, useState, type FormEvent } from 'react'
 import { useTranslation } from 'react-i18next'
 import { notifySuccess } from '@/components/feedback'
@@ -101,9 +102,9 @@ export function PolicyFormDialog({ policy, onClose }: PolicyFormDialogProps) {
         </DialogHeader>
         <form className="grid gap-4" onSubmit={submit} noValidate>
           {error && (
-            <p id={ids.error} role="alert" className="text-sm text-destructive">
+            <SharedFieldError id={ids.error}>
               {error}
-            </p>
+            </SharedFieldError>
           )}
           <Field label={t('policyForm.name')}>
             {(control) => <Input placeholder={t('placeholders.name')}

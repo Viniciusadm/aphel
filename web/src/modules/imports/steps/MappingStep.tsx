@@ -1,3 +1,4 @@
+import { FieldError as SharedFieldError } from '@/components/ui/field-error'
 import { CheckCircle2, Play } from 'lucide-react'
 import { useMemo, useState } from 'react'
 import { useTranslation } from 'react-i18next'
@@ -185,14 +186,14 @@ export function MappingStep({ job }: MappingStepProps) {
       {report && <ValidationReport report={report} />}
 
       {missing.length > 0 && (
-        <p role="alert" className="text-sm text-destructive">
+        <SharedFieldError>
           {t('mapping.missingRequired', { fields: missing.map((target) => target.label).join(', ') })}
-        </p>
+        </SharedFieldError>
       )}
       {failure && (
-        <p role="alert" className="text-sm text-destructive">
+        <SharedFieldError>
           {errorMessage(failure)}
-        </p>
+        </SharedFieldError>
       )}
       <div className="flex flex-wrap gap-2">
         <Button variant="outline" disabled={busy} onClick={() => void runValidation()}>

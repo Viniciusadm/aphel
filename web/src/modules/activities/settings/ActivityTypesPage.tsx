@@ -1,3 +1,4 @@
+import { FieldError as SharedFieldError } from '@/components/ui/field-error'
 import { useQuery } from '@tanstack/react-query'
 import { Pencil, Plus } from 'lucide-react'
 import { useId, useState } from 'react'
@@ -249,7 +250,7 @@ function ActivityTypeForm({ editing, onClose, onSaved }: ActivityTypeFormProps) 
               setNameError(false)
             }}
           />
-          {nameError && <p className="text-sm text-destructive">{t('types.nameRequired')}</p>}
+          {nameError && <SharedFieldError>{t('types.nameRequired')}</SharedFieldError>}
           {editing && <p className="text-xs text-muted-foreground">{t('types.keyHint', { key: editing.key })}</p>}
           </>}
         </Field>

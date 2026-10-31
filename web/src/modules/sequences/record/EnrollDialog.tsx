@@ -1,3 +1,4 @@
+import { FieldError as SharedFieldError } from '@/components/ui/field-error'
 import { useId, useState } from 'react'
 import { useTranslation } from 'react-i18next'
 import { Link } from 'react-router'
@@ -110,9 +111,9 @@ export function EnrollDialog({ contactId, enrolledSequenceIds, onClose }: Enroll
             </>}
           </Field>
           {failure && (
-            <p role="alert" className="text-sm text-destructive">
+            <SharedFieldError>
               {failure}
-            </p>
+            </SharedFieldError>
           )}
         </form>
         <DialogFooter>

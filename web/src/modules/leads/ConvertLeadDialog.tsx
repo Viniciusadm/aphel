@@ -1,3 +1,4 @@
+import { FieldError as SharedFieldError } from '@/components/ui/field-error'
 import { useId, useMemo, useState } from 'react'
 import { useTranslation } from 'react-i18next'
 import { useNavigate } from 'react-router'
@@ -121,7 +122,7 @@ function ConvertForm({ lead, onClose }: { lead: LeadTarget; onClose: () => void 
               </option>
             ))}
           </NativeSelect>
-          {pipelineError && <p className="text-sm text-destructive">{t('convert.pipelineRequired')}</p>}
+          {pipelineError && <SharedFieldError>{t('convert.pipelineRequired')}</SharedFieldError>}
           </>}
         </Field>
         <Field label={t('convert.stage')}>

@@ -1,3 +1,4 @@
+import { FieldError as SharedFieldError } from '@/components/ui/field-error'
 import { OptionGroup } from '@/components/ui/option-group'
 import { SegmentedControl } from '@/components/ui/segmented-control'
 import { PhoneIncoming, PhoneOutgoing, Play, Square } from 'lucide-react'
@@ -72,7 +73,7 @@ export function CallForm({ values, onChange, outcomes, outcomeError, disabled, a
           onValueChange={(outcomeKey) => set({ outcomeKey })}
           options={outcomes.map((outcome) => ({ value: outcome.key, label: outcome.name }))}
         />
-        {outcomeError && <p className="text-sm text-destructive">{t('form.outcomeRequired')}</p>}
+        {outcomeError && <SharedFieldError>{t('form.outcomeRequired')}</SharedFieldError>}
       </fieldset>
       <Field id={`${formId}-minutes`} label={t('form.duration')}>
         <div className="flex flex-wrap items-center gap-2">

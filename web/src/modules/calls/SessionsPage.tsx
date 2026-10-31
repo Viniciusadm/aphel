@@ -1,3 +1,4 @@
+import { FieldError as SharedFieldError } from '@/components/ui/field-error'
 import { useQuery } from '@tanstack/react-query'
 import { PhoneCall } from 'lucide-react'
 import { useId, useState } from 'react'
@@ -117,7 +118,7 @@ function StartSessionCard() {
                 ))}
               </NativeSelect>
             )}
-            {viewError && <p className="text-sm text-destructive">{t('start.viewRequired')}</p>}
+            {viewError && <SharedFieldError>{t('start.viewRequired')}</SharedFieldError>}
             <p className="text-xs text-muted-foreground">{t('start.viewHint')}</p>
           </Field>
           <Field label={t('start.name')}>

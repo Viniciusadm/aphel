@@ -1,3 +1,4 @@
+import { FieldError as SharedFieldError } from '@/components/ui/field-error'
 import { useQuery, useQueryClient } from '@tanstack/react-query'
 import { ArrowLeft, CheckCircle2, ChevronLeft, Circle, Phone, PhoneCall, SkipForward } from 'lucide-react'
 import { useState } from 'react'
@@ -265,7 +266,7 @@ function CurrentContact({ session, item, busy, onSkip, onBack, onLogged }: Curre
           {contact.isPending ? (
             <Skeleton className="h-9 w-48" />
           ) : contact.isError ? (
-            <p className="text-sm text-destructive">{t('session.contactUnavailable')}</p>
+            <SharedFieldError>{t('session.contactUnavailable')}</SharedFieldError>
           ) : phones.length === 0 ? (
             <p className="text-sm text-muted-foreground">{t('session.noPhone')}</p>
           ) : (

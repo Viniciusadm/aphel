@@ -1,3 +1,4 @@
+import { FieldError as SharedFieldError } from '@/components/ui/field-error'
 import { ArrowDown, ArrowUp, Plus, Trash2 } from 'lucide-react'
 import { useId, useMemo } from 'react'
 import { useFieldArray, useFormContext, useWatch } from 'react-hook-form'
@@ -25,9 +26,9 @@ function ErrorText({ id, message }: { id: string; message?: string }) {
   const { t } = useTranslation('webhooks', { keyPrefix: 'incoming' })
   if (!message) return null
   return (
-    <p id={id} className="text-sm text-destructive">
+    <SharedFieldError id={id}>
       {t(message, { defaultValue: localizeViolationMessage(message) })}
-    </p>
+    </SharedFieldError>
   )
 }
 

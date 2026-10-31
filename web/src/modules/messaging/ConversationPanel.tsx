@@ -1,3 +1,4 @@
+import { FieldError as SharedFieldError } from '@/components/ui/field-error'
 import { useQueryClient } from '@tanstack/react-query'
 import { AlertCircle, ArrowLeft, Check, CheckCheck, Clock, Link2, Loader2, Send } from 'lucide-react'
 import { useEffect, useRef, useState } from 'react'
@@ -336,9 +337,9 @@ function Composer({ conversation }: { conversation: Conversation }) {
         aria-describedby={error ? `reply-error-${conversation.id}` : undefined}
       />
       {error && (
-        <p id={`reply-error-${conversation.id}`} className="text-sm text-destructive">
+        <SharedFieldError id={`reply-error-${conversation.id}`}>
           {error}
-        </p>
+        </SharedFieldError>
       )}
       </Field>
       <div className="flex flex-wrap items-center justify-between gap-2">

@@ -1,3 +1,4 @@
+import { FieldError as SharedFieldError } from '@/components/ui/field-error'
 import { Coins, Pencil, Plus, Trash2, X } from 'lucide-react'
 import { useId, useState } from 'react'
 import { useTranslation } from 'react-i18next'
@@ -465,9 +466,9 @@ function RateForm({ editing, currencies, today, onClose, onSaved }: RateFormProp
             }}
           />
           {rateError ? (
-            <p id={`${formId}-rate-error`} className="text-sm text-destructive">
+            <SharedFieldError id={`${formId}-rate-error`}>
               {t('rates.invalidRate')}
-            </p>
+            </SharedFieldError>
           ) : (
             <p id={`${formId}-rate-hint`} className="text-xs text-muted-foreground">
               {t('rates.rateHint')}

@@ -1,3 +1,4 @@
+import { FieldError as SharedFieldError } from '@/components/ui/field-error'
 import { zodResolver } from '@hookform/resolvers/zod'
 import { useEffect, useId, useMemo } from 'react'
 import { Controller, useForm, useWatch } from 'react-hook-form'
@@ -83,9 +84,9 @@ function initialValues(
 function FieldMessage({ id, message }: { id: string; message?: string }) {
   if (!message) return null
   return (
-    <p id={id} className="text-sm text-destructive">
+    <SharedFieldError id={id}>
       {message}
-    </p>
+    </SharedFieldError>
   )
 }
 

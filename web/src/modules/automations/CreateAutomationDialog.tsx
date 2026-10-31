@@ -1,3 +1,4 @@
+import { FieldError as SharedFieldError } from '@/components/ui/field-error'
 import { useMutation } from '@tanstack/react-query'
 import { ArrowLeft, FilePlus2, Sparkles } from 'lucide-react'
 import { useState, type FormEvent } from 'react'
@@ -212,7 +213,7 @@ function CreateForm({
       )}
       {create.isError && (
         <div className="grid gap-1 rounded-md border border-destructive/50 p-3">
-          <p className="text-sm text-destructive">{t('create.failed')}</p>
+          <SharedFieldError>{t('create.failed')}</SharedFieldError>
           <IssueList issues={issues} showPath />
         </div>
       )}

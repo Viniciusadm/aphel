@@ -1,3 +1,4 @@
+import { FieldError as SharedFieldError } from '@/components/ui/field-error'
 import { useId, useState } from 'react'
 import { useTranslation } from 'react-i18next'
 import { Button } from '@/components/ui/button'
@@ -62,9 +63,9 @@ function RemovalForm({
       </DialogHeader>
       {deals > 0 &&
         (targets.length === 0 ? (
-          <p role="alert" className="text-sm text-destructive">
+          <SharedFieldError>
             {t('remove.noTarget')}
-          </p>
+          </SharedFieldError>
         ) : (
           <>
             <Field label={t('remove.target')}>

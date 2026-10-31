@@ -1,3 +1,4 @@
+import { FieldError as SharedFieldError } from '@/components/ui/field-error'
 import { useTranslation } from 'react-i18next'
 import { Skeleton } from '@/components/ui/skeleton'
 import { useTeams } from '@/features/settings/api'
@@ -14,7 +15,7 @@ export function TeamsField({ selected, disabled, onChange }: TeamsFieldProps) {
   const teams = useTeams()
 
   if (teams.isPending) return <Skeleton className="h-16 w-full" />
-  if (teams.isError) return <p className="text-sm text-destructive">{t('teams.loadError')}</p>
+  if (teams.isError) return <SharedFieldError>{t('teams.loadError')}</SharedFieldError>
 
   return (
     <CheckboxList

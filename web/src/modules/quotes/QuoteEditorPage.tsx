@@ -1,3 +1,4 @@
+import { FieldError as SharedFieldError } from '@/components/ui/field-error'
 import { CircleCheck, Copy, Download, ExternalLink, FilePlus2, FileText, PenLine, Save, Send, ShieldCheck, Trash2 } from 'lucide-react'
 import { useId, useState, type ReactNode } from 'react'
 import { useTranslation } from 'react-i18next'
@@ -411,7 +412,7 @@ function QuoteEditor({ quote }: { quote: QuoteDetail }) {
                       <p className="text-xs text-muted-foreground">{t('editor.acceptedFrom', { ip: quote.acceptance.ip })}</p>
                     )}
                     {quote.deal_sync_error ? (
-                      <p className="text-sm text-destructive">{t('editor.syncError', { error: quote.deal_sync_error })}</p>
+                      <SharedFieldError>{t('editor.syncError', { error: quote.deal_sync_error })}</SharedFieldError>
                     ) : quote.deal_synced_at ? (
                       <p className="text-xs text-muted-foreground">{t('editor.synced')}</p>
                     ) : (

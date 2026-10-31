@@ -1,3 +1,4 @@
+import { FieldError as SharedFieldError } from '@/components/ui/field-error'
 import { zodResolver } from '@hookform/resolvers/zod'
 import { Plus, Trash2 } from 'lucide-react'
 import { useMemo } from 'react'
@@ -57,9 +58,9 @@ function FieldMessage({ id, message }: FieldMessageProps) {
   const text = useLeadDistributionText()
   if (!message) return null
   return (
-    <p id={id} className="text-sm text-destructive">
+    <SharedFieldError id={id}>
       {text(message)}
-    </p>
+    </SharedFieldError>
   )
 }
 

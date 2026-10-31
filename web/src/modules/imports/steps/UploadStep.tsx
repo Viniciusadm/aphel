@@ -1,3 +1,4 @@
+import { FieldError as SharedFieldError } from '@/components/ui/field-error'
 import { Upload } from 'lucide-react'
 import { useId, useState, type FormEvent } from 'react'
 import { useTranslation } from 'react-i18next'
@@ -54,14 +55,14 @@ export function UploadStep({ recordType, retryOf }: UploadStepProps) {
             />
           </Field>
           {missing && (
-            <p role="alert" className="text-sm text-destructive">
+            <SharedFieldError>
               {t('upload.required')}
-            </p>
+            </SharedFieldError>
           )}
           {upload.isError && (
-            <p role="alert" className="text-sm text-destructive">
+            <SharedFieldError>
               {t('errors.upload')} {errorMessage(upload.error)}
-            </p>
+            </SharedFieldError>
           )}
           <div>
             <Button type="submit" disabled={upload.isPending}>

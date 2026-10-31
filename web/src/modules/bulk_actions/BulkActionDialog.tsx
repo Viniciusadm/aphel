@@ -1,3 +1,4 @@
+import { FieldError as SharedFieldError } from '@/components/ui/field-error'
 import { useQueryClient } from '@tanstack/react-query'
 import { useId, useMemo, useState } from 'react'
 import { useTranslation } from 'react-i18next'
@@ -134,9 +135,9 @@ export function BulkActionDialog({ kind, context, recordType, onClose }: BulkAct
                   <option value="csv">CSV</option>
                 </NativeSelect>
                 {exportTooLarge && (
-                  <p role="alert" className="text-sm text-destructive">
+                  <SharedFieldError>
                     {t('export.tooMany', { max: MAX_EXPORT_IDS })}
-                  </p>
+                  </SharedFieldError>
                 )}
                 </>}
               </Field>

@@ -1,3 +1,4 @@
+import { FieldError as SharedFieldError } from '@/components/ui/field-error'
 import { Pencil, Plus, Trash2 } from 'lucide-react'
 import { useId, useState } from 'react'
 import { useTranslation } from 'react-i18next'
@@ -254,7 +255,7 @@ function RoleForm({
               setNameError(false)
             }}
           />
-          {nameError && <p className="text-sm text-destructive">{t('roles.nameRequired')}</p>}
+          {nameError && <SharedFieldError>{t('roles.nameRequired')}</SharedFieldError>}
           {editing && <code className="text-xs text-muted-foreground">{editing.key}</code>}
           </>}
         </Field>

@@ -1,3 +1,4 @@
+import { FieldError as SharedFieldError } from '@/components/ui/field-error'
 import { useQueryClient } from '@tanstack/react-query'
 import { Loader2 } from 'lucide-react'
 import { useState } from 'react'
@@ -98,7 +99,7 @@ function LinkForm({ conversation, onDone }: { conversation: Conversation; onDone
           />
         )}
       </Field>
-      {error && <p className="text-sm text-destructive">{error}</p>}
+      {error && <SharedFieldError>{error}</SharedFieldError>}
       <DialogFooter>
         <Button type="button" variant="outline" onClick={onDone}>
           {t('actions.cancel')}

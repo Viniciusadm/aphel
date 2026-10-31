@@ -1,3 +1,4 @@
+import { FieldError as SharedFieldError } from '@/components/ui/field-error'
 import { ArrowDown, ArrowUp, Plus, Trash2 } from 'lucide-react'
 import { useId, useState, type ReactNode } from 'react'
 import { useTranslation } from 'react-i18next'
@@ -328,7 +329,7 @@ function ScoringModelForm({ model, hasPrimary, onOpenChange, onSaved }: FormProp
 
       {(generalError || otherErrors.length > 0) && (
         <div className="grid gap-1" role="alert">
-          {generalError && <p className="text-sm text-destructive">{generalError}</p>}
+          {generalError && <SharedFieldError>{generalError}</SharedFieldError>}
           {otherErrors.map(([field, message]) => (
             <p key={field} className="text-sm break-words text-destructive">
               {errorText(message)}
