@@ -48,7 +48,7 @@ function TeamLinkSection({ control }: { control: Control<MeetingTypeFormValues> 
     <fieldset className="grid gap-2 rounded-lg border p-3">
       <legend className="px-1 text-sm font-medium">{t('meetingTypes.form.team')}</legend>
       <p className="text-sm text-muted-foreground">{t('meetingTypes.form.teamHint')}</p>
-      <div className="grid max-w-sm gap-1">
+      <div className="grid max-w-sm gap-2">
         <Label htmlFor="meeting-type-rule">{t('meetingTypes.form.distributionRule')}</Label>
         <Controller
           control={control}
@@ -122,12 +122,12 @@ export function MeetingTypeDialog({ meetingType, onClose }: MeetingTypeDialogPro
         </DialogHeader>
         <form className="grid gap-5" onSubmit={onSubmit} noValidate>
           <FieldMessage message={errors.root?.server?.message} />
-          <div className="grid gap-1">
+          <div className="grid gap-2">
             <Label htmlFor="meeting-type-name">{t('meetingTypes.form.name')}</Label>
             <Input placeholder={t('placeholders.name')} id="meeting-type-name" aria-invalid={errors.name ? true : undefined} {...register('name')} />
             <FieldMessage message={errors.name?.message} />
           </div>
-          <div className="grid gap-1">
+          <div className="grid gap-2">
             <Label htmlFor="meeting-type-slug">{t('meetingTypes.form.slug')}</Label>
             <div className="flex min-w-0 items-center rounded-md border border-input bg-muted/40 shadow-xs">
               <span className="truncate pl-3 text-sm text-muted-foreground">{`${window.location.origin}/book/`}</span>
@@ -142,13 +142,13 @@ export function MeetingTypeDialog({ meetingType, onClose }: MeetingTypeDialogPro
             <p className="text-xs text-muted-foreground">{t('meetingTypes.form.slugHint')}</p>
             <FieldMessage message={errors.slug?.message} />
           </div>
-          <div className="grid gap-1">
+          <div className="grid gap-2">
             <Label htmlFor="meeting-type-description">{t('meetingTypes.form.descriptionLabel')}</Label>
             <Textarea placeholder={t('placeholders.description')} id="meeting-type-description" rows={3} {...register('description')} />
             <FieldMessage message={errors.description?.message} />
           </div>
           <div className="grid gap-4 sm:grid-cols-2">
-            <div className="grid gap-1">
+            <div className="grid gap-2">
               <Label htmlFor="meeting-type-duration">{t('meetingTypes.form.duration')}</Label>
               <Input placeholder={t('placeholders.duration')}
                 id="meeting-type-duration"
@@ -160,7 +160,7 @@ export function MeetingTypeDialog({ meetingType, onClose }: MeetingTypeDialogPro
               />
               <FieldMessage message={errors.durationMinutes?.message} />
             </div>
-            <div className="grid gap-1">
+            <div className="grid gap-2">
               <Label htmlFor="meeting-type-interval">{t('meetingTypes.form.slotInterval')}</Label>
               <Input placeholder={t('placeholders.interval')}
                 id="meeting-type-interval"
@@ -173,7 +173,7 @@ export function MeetingTypeDialog({ meetingType, onClose }: MeetingTypeDialogPro
               <p className="text-xs text-muted-foreground">{t('meetingTypes.form.slotIntervalHint')}</p>
               <FieldMessage message={errors.slotIntervalMinutes?.message} />
             </div>
-            <div className="grid gap-1">
+            <div className="grid gap-2">
               <Label htmlFor="meeting-type-location-kind">{t('meetingTypes.form.locationKind')}</Label>
               <Controller
                 control={control}
@@ -195,7 +195,7 @@ export function MeetingTypeDialog({ meetingType, onClose }: MeetingTypeDialogPro
               />
             </div>
             {locationKind !== 'none' && (
-              <div className="grid gap-1">
+              <div className="grid gap-2">
                 <Label htmlFor="meeting-type-location-value">{t(`locationValueLabels.${locationKind}`)}</Label>
                 <Input placeholder={t('placeholders.locationValue')}
                   id="meeting-type-location-value"

@@ -58,7 +58,7 @@ export function MergeWithAction({ recordType, record, readOnly }: RecordSlotProp
               void navigate(mergePagePath(recordType, record.id, duplicateId))
             }}
           >
-            <div className="grid gap-1.5">
+            <div className="grid gap-2.5">
               <Label htmlFor={inputId}>{t('mergeWith.label')}</Label>
               <RecordFieldInput
                 id={inputId}

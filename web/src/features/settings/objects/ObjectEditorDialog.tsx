@@ -160,7 +160,7 @@ function ObjectForm({ object, onClose, onSaved }: ObjectFormProps) {
           </Alert>
         )}
         <div className="grid gap-4 sm:grid-cols-2">
-          <div className="grid gap-1.5">
+          <div className="grid gap-2.5">
             <Label htmlFor={`${formId}-singular`}>{t('editor.labelSingular')}</Label>
             <Input
               id={`${formId}-singular`}
@@ -174,7 +174,7 @@ function ObjectForm({ object, onClose, onSaved }: ObjectFormProps) {
             />
             {fieldError('labelSingular')}
           </div>
-          <div className="grid gap-1.5">
+          <div className="grid gap-2.5">
             <Label htmlFor={`${formId}-plural`}>{t('editor.labelPlural')}</Label>
             <Input
               id={`${formId}-plural`}
@@ -191,7 +191,7 @@ function ObjectForm({ object, onClose, onSaved }: ObjectFormProps) {
             {fieldError('labelPlural')}
           </div>
         </div>
-        <div className="grid gap-1.5">
+        <div className="grid gap-2.5">
           <Label htmlFor={`${formId}-key`}>{t('editor.key')}</Label>
           <Input placeholder={t('editor.keyPlaceholder')}
             id={`${formId}-key`}
@@ -212,7 +212,7 @@ function ObjectForm({ object, onClose, onSaved }: ObjectFormProps) {
           </p>
           {fieldError('key')}
         </div>
-        <div className="grid gap-1.5">
+        <div className="grid gap-2.5">
           <Label htmlFor={`${formId}-description`}>{t('editor.descriptionLabel')}</Label>
           <Textarea placeholder={t('editor.descriptionPlaceholder')}
             id={`${formId}-description`}
@@ -342,7 +342,7 @@ function TitleFieldSelect({ id, recordType, currentKey, value, onChange }: Title
   )
 
   return (
-    <div className="grid gap-1.5">
+    <div className="grid gap-2.5">
       <Label htmlFor={id}>{t('editor.titleField')}</Label>
       <NativeSelect
         id={id}

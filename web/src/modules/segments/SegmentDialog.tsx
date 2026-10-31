@@ -124,7 +124,7 @@ function SegmentForm({ schema, recordType, editing, onClose, onSaved }: SegmentF
           void submit()
         }}
       >
-        <div className="grid gap-1.5">
+        <div className="grid gap-2.5">
           <Label htmlFor={`${formId}-name`}>{t('dialog.name')}</Label>
           <Input placeholder={t('placeholders.name')}
             id={`${formId}-name`}
@@ -136,7 +136,7 @@ function SegmentForm({ schema, recordType, editing, onClose, onSaved }: SegmentF
           />
           {errors.name && <p className="text-xs text-destructive">{errors.name}</p>}
         </div>
-        <div className="grid gap-1.5">
+        <div className="grid gap-2.5">
           <Label htmlFor={`${formId}-description`}>{t('dialog.descriptionLabel')}</Label>
           <Textarea placeholder={t('placeholders.description')}
             id={`${formId}-description`}

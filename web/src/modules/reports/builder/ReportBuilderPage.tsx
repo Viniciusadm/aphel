@@ -311,7 +311,7 @@ function ReportEditor({ report }: { report: Report | null }) {
       <div className="grid gap-4 lg:grid-cols-[minmax(0,26rem)_minmax(0,1fr)] lg:items-start">
         <fieldset disabled={!editable} className="grid min-w-0 gap-4">
           <Section title={t('sections.details.title')}>
-            <div className="grid gap-1.5">
+            <div className="grid gap-2.5">
               <Label htmlFor={ids.name}>{t('sections.details.name')}</Label>
               <Input
                 id={ids.name}
@@ -323,7 +323,7 @@ function ReportEditor({ report }: { report: Report | null }) {
               />
               {submitted && nameError && <p className="text-sm text-destructive">{nameError}</p>}
             </div>
-            <div className="grid gap-1.5">
+            <div className="grid gap-2.5">
               <Label htmlFor={ids.description}>{t('sections.details.description')}</Label>
               <Textarea placeholder={t('placeholders.description')}
                 id={ids.description}
@@ -333,7 +333,7 @@ function ReportEditor({ report }: { report: Report | null }) {
               />
             </div>
             <div className="grid gap-3 sm:grid-cols-2 lg:grid-cols-1 xl:grid-cols-2">
-              <div className="grid gap-1.5">
+              <div className="grid gap-2.5">
                 <Label htmlFor={ids.visibility}>{t('sections.details.visibility')}</Label>
                 <NativeSelect
                   id={ids.visibility}
@@ -348,7 +348,7 @@ function ReportEditor({ report }: { report: Report | null }) {
                 </NativeSelect>
               </div>
               {draft.visibility === 'team' && (
-                <div className="grid gap-1.5">
+                <div className="grid gap-2.5">
                   <Label htmlFor={ids.team}>{t('sections.details.team')}</Label>
                   <NativeSelect id={ids.team} value={draft.teamId} onChange={(event) => update({ teamId: event.target.value })}>
                     <option value="">{t('common.choose')}</option>

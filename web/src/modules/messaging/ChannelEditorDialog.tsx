@@ -127,7 +127,7 @@ function Field({
   children: ReactNode
 }) {
   return (
-    <div className="grid gap-1.5">
+    <div className="grid gap-2.5">
       <Label htmlFor={id}>{label}</Label>
       {children}
       {hint && !error && <p className="text-xs text-muted-foreground">{hint}</p>}

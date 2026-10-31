@@ -38,7 +38,7 @@ export function SubjectSelector({ value, onChange }: SubjectSelectorProps) {
     )
 
   return (
-    <div className="grid w-full min-w-0 gap-1.5 sm:w-auto">
+    <div className="grid w-full min-w-0 gap-2.5 sm:w-auto">
       <Label htmlFor={`${id}-subject`}>{t('subject.label')}</Label>
       <select
         id={`${id}-subject`}

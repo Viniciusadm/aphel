@@ -40,7 +40,7 @@ export function StepPanel({ step, recordType, schema, catalog, variables, record
   return (
     <fieldset disabled={readOnly} className="grid min-w-0 gap-5">
       <IssueList issues={general} showPath />
-      <div className="grid gap-1.5">
+      <div className="grid gap-2.5">
         <Label htmlFor={labelId}>{t('panel.label')}</Label>
         <Input
           id={labelId}
@@ -162,7 +162,7 @@ function DurationField({
 }) {
   const id = useId()
   return (
-    <div className="grid gap-1.5">
+    <div className="grid gap-2.5">
       <Label htmlFor={id}>{label}</Label>
       <DurationInput id={id} value={value} onChange={onChange} signed={signed} invalid={issues.length > 0} />
       {hint && <p className="text-xs text-muted-foreground">{hint}</p>}
@@ -276,7 +276,7 @@ function ActionEditor({
 
   return (
     <section className="grid gap-4">
-      <div className="grid gap-1.5">
+      <div className="grid gap-2.5">
         <Label htmlFor={id}>{t('panel.action')}</Label>
         <NativeSelect
           id={id}
@@ -382,7 +382,7 @@ function WaitEditor({
         />
       ) : (
         <>
-          <div className="grid gap-1.5">
+          <div className="grid gap-2.5">
             <Label htmlFor={fieldId}>{t('panel.untilField')}</Label>
             <FieldSelect
               id={fieldId}

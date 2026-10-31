@@ -72,7 +72,7 @@ export function DryRunPanel({ automation, catalog, schema, draftSteps, dirty, on
           <h2 className="font-medium">{t('test.title')}</h2>
           <p className="text-sm text-muted-foreground">{t('test.description')}</p>
         </div>
-        <div className="grid gap-1.5">
+        <div className="grid gap-2.5">
           <Label htmlFor={recordId}>{t('test.record', { type: labels.recordTypeLabel(automation.record_type) })}</Label>
           <RecordFieldInput id={recordId} targetRecordType={automation.record_type} value={record} onChange={setRecord} />
         </div>

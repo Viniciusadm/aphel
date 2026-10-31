@@ -59,7 +59,7 @@ export function EnrollDialog({ contactId, enrolledSequenceIds, onClose }: Enroll
             if (sequenceId) void submit()
           }}
         >
-          <div className="grid gap-1.5">
+          <div className="grid gap-2.5">
             <Label htmlFor={`${formId}-sequence`}>{t('record.sequence')}</Label>
             <NativeSelect
               id={`${formId}-sequence`}
@@ -83,7 +83,7 @@ export function EnrollDialog({ contactId, enrolledSequenceIds, onClose }: Enroll
               </p>
             )}
           </div>
-          <div className="grid gap-1.5">
+          <div className="grid gap-2.5">
             <Label htmlFor={`${formId}-mailbox`}>{t('record.mailbox')}</Label>
             <NativeSelect
               id={`${formId}-mailbox`}

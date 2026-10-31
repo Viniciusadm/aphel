@@ -41,7 +41,7 @@ export function RecurrenceFields({ value, onChange, error, disabled }: Recurrenc
   return (
     <fieldset className="grid min-w-0 gap-3" disabled={disabled} aria-describedby={error ? ids.error : undefined}>
       <div className="grid gap-4 sm:grid-cols-2">
-        <div className="grid gap-1.5">
+        <div className="grid gap-2.5">
           <Label htmlFor={ids.frequency}>{t('recurrence.label')}</Label>
           <NativeSelect
             id={ids.frequency}
@@ -57,7 +57,7 @@ export function RecurrenceFields({ value, onChange, error, disabled }: Recurrenc
           </NativeSelect>
         </div>
         {frequency && (
-          <div className="grid gap-1.5">
+          <div className="grid gap-2.5">
             <Label htmlFor={ids.interval}>{t(`recurrence.interval.${frequency}`)}</Label>
             <Input placeholder={t('placeholders.interval')}
               id={ids.interval}
@@ -92,7 +92,7 @@ export function RecurrenceFields({ value, onChange, error, disabled }: Recurrenc
         </div>
       )}
       {value.frequency === 'monthly' && (
-        <div className="grid gap-1.5">
+        <div className="grid gap-2.5">
           <Label htmlFor={ids.monthDay}>{t('recurrence.monthDay')}</Label>
           <Input placeholder={t('placeholders.monthDay')}
             id={ids.monthDay}
@@ -106,7 +106,7 @@ export function RecurrenceFields({ value, onChange, error, disabled }: Recurrenc
       )}
       {active && (
         <div className="grid gap-4 sm:grid-cols-2">
-          <div className="grid gap-1.5">
+          <div className="grid gap-2.5">
             <Label htmlFor={ids.end}>{t('recurrence.endLabel')}</Label>
             <NativeSelect
               id={ids.end}
@@ -121,7 +121,7 @@ export function RecurrenceFields({ value, onChange, error, disabled }: Recurrenc
             </NativeSelect>
           </div>
           {value.end === 'until' && (
-            <div className="grid gap-1.5">
+            <div className="grid gap-2.5">
               <Label htmlFor={ids.until}>{t('recurrence.untilLabel')}</Label>
               <Input
                 id={ids.until}
@@ -132,7 +132,7 @@ export function RecurrenceFields({ value, onChange, error, disabled }: Recurrenc
             </div>
           )}
           {value.end === 'count' && (
-            <div className="grid gap-1.5">
+            <div className="grid gap-2.5">
               <Label htmlFor={ids.count}>{t('recurrence.countLabel')}</Label>
               <Input placeholder={t('placeholders.count')}
                 id={ids.count}

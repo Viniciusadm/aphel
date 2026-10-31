@@ -138,7 +138,7 @@ export function LayoutCanvas({ layout, candidates, context, onChange, onEditRule
           {activeTab && (
             <div className="grid min-w-0 gap-4 rounded-lg border p-3 sm:p-4" data-tab={activeTab.id}>
               <div className="flex min-w-0 flex-col gap-2 sm:flex-row sm:items-end">
-                <div className="grid min-w-0 flex-1 gap-1.5">
+                <div className="grid min-w-0 flex-1 gap-2.5">
                   <Label htmlFor={`tab-${activeTab.id}`}>{t('tabs.name')}</Label>
                   <Input
                     id={`tab-${activeTab.id}`}
@@ -259,7 +259,7 @@ function SectionEditor({ section, first, last, removable, layout, byKey, availab
   return (
     <section aria-label={section.label || t('sections.namePlaceholder')} className="grid min-w-0 gap-3 rounded-md border bg-card p-3" data-section={section.id}>
       <div className="flex min-w-0 flex-col gap-2 sm:flex-row sm:items-end">
-        <div className="grid min-w-0 flex-1 gap-1.5">
+        <div className="grid min-w-0 flex-1 gap-2.5">
           <Label htmlFor={nameId}>{t('sections.name')}</Label>
           <Input
             id={nameId}
@@ -270,7 +270,7 @@ function SectionEditor({ section, first, last, removable, layout, byKey, availab
           />
         </div>
         <div className="flex items-end gap-1">
-          <div className="grid gap-1.5">
+          <div className="grid gap-2.5">
             <Label htmlFor={`${nameId}-columns`}>{t('sections.columns')}</Label>
             <select
               id={`${nameId}-columns`}

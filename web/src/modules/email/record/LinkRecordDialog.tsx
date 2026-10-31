@@ -74,7 +74,7 @@ function LinkForm({ thread, onDone }: { thread: EmailThread; onDone: () => void 
         void save()
       }}
     >
-      <div className="grid gap-1.5">
+      <div className="grid gap-2.5">
         <Label htmlFor={`${formId}-type`}>{t('links.recordType')}</Label>
         <NativeSelect
           id={`${formId}-type`}
@@ -91,7 +91,7 @@ function LinkForm({ thread, onDone }: { thread: EmailThread; onDone: () => void 
           ))}
         </NativeSelect>
       </div>
-      <div className="grid gap-1.5">
+      <div className="grid gap-2.5">
         <Label htmlFor={`${formId}-record`}>{t('links.record')}</Label>
         <RecordFieldInput
           key={recordType}

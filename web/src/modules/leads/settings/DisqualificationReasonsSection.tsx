@@ -232,7 +232,7 @@ function ReasonForm({
           void submit()
         }}
       >
-        <div className="grid gap-1.5">
+        <div className="grid gap-2.5">
           <Label htmlFor={`${formId}-name`}>{t('reasons.name')}</Label>
           <Input placeholder={t('placeholders.reasonName')}
             id={`${formId}-name`}

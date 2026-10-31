@@ -91,7 +91,7 @@ function MembersEditor({ control, errors, users, weighted }: MembersEditorProps)
           return (
             <li key={field.id} className="grid gap-3 rounded-lg border p-3">
               <div className="flex flex-wrap items-end gap-3">
-                <div className="grid min-w-48 flex-1 gap-1">
+                <div className="grid min-w-48 flex-1 gap-2">
                   <Label htmlFor={`member-${index}-user`}>{t('editor.user')}</Label>
                   <Controller
                     control={control}
@@ -118,7 +118,7 @@ function MembersEditor({ control, errors, users, weighted }: MembersEditorProps)
                   <FieldMessage id={`member-${index}-user-error`} message={memberErrors?.userId?.message} />
                 </div>
                 {weighted && (
-                  <div className="grid w-24 gap-1">
+                  <div className="grid w-24 gap-2">
                     <Label htmlFor={`member-${index}-weight`}>{t('editor.weight')}</Label>
                     <Controller
                       control={control}
@@ -160,7 +160,7 @@ function MembersEditor({ control, errors, users, weighted }: MembersEditorProps)
               {memberErrors?.weight && <FieldMessage id={`member-${index}-weight-error`} message={memberErrors.weight.message} />}
               {away && (
                 <div className="grid gap-3 sm:grid-cols-2">
-                  <div className="grid gap-1">
+                  <div className="grid gap-2">
                     <Label htmlFor={`member-${index}-from`}>{t('editor.awayFrom')}</Label>
                     <Controller
                       control={control}
@@ -170,7 +170,7 @@ function MembersEditor({ control, errors, users, weighted }: MembersEditorProps)
                       )}
                     />
                   </div>
-                  <div className="grid gap-1">
+                  <div className="grid gap-2">
                     <Label htmlFor={`member-${index}-until`}>{t('editor.awayUntil')}</Label>
                     <Controller
                       control={control}
@@ -218,7 +218,7 @@ function RoutingEditor({ control, errors, users, recordType }: RoutingEditorProp
   return (
     <div className="grid gap-4">
       <div className="grid gap-3 sm:grid-cols-2">
-        <div className="grid gap-1">
+        <div className="grid gap-2">
           <Label htmlFor="routing-field">{t('editor.routingField')}</Label>
           <Controller
             control={control}
@@ -240,7 +240,7 @@ function RoutingEditor({ control, errors, users, recordType }: RoutingEditorProp
           />
           <FieldMessage id="routing-field-error" message={errors.routingField?.message} />
         </div>
-        <div className="grid gap-1">
+        <div className="grid gap-2">
           <Label htmlFor="routing-fallback">{t('editor.fallback')}</Label>
           <Controller
             control={control}
@@ -279,7 +279,7 @@ function RoutingEditor({ control, errors, users, recordType }: RoutingEditorProp
                   </Button>
                 </div>
                 <div className="grid gap-3 sm:grid-cols-2">
-                  <div className="grid gap-1">
+                  <div className="grid gap-2">
                     <Label htmlFor={`route-${index}-values`}>{t('editor.routeValues')}</Label>
                     <Controller
                       control={control}
@@ -298,7 +298,7 @@ function RoutingEditor({ control, errors, users, recordType }: RoutingEditorProp
                     </p>
                     <FieldMessage id={`route-${index}-values-error`} message={routeErrors?.values?.message} />
                   </div>
-                  <div className="grid gap-1">
+                  <div className="grid gap-2">
                     <Label htmlFor={`route-${index}-team`}>{t('editor.routeTeam')}</Label>
                     <Controller
                       control={control}
@@ -444,12 +444,12 @@ export function RuleEditorDialog({ rule, onClose }: RuleEditorDialogProps) {
         <form className="grid gap-5" onSubmit={onSubmit} noValidate>
           <FieldMessage id="rule-form-error" message={errors.root?.server?.message} />
           <div className="grid gap-4 sm:grid-cols-2">
-            <div className="grid gap-1">
+            <div className="grid gap-2">
               <Label htmlFor="rule-name">{t('editor.name')}</Label>
               <Input placeholder={t('placeholders.name')} id="rule-name" aria-invalid={errors.name ? true : undefined} {...register('name')} />
               <FieldMessage id="rule-name-error" message={errors.name?.message} />
             </div>
-            <div className="grid gap-1">
+            <div className="grid gap-2">
               <Label htmlFor="rule-key">{t('editor.key')}</Label>
               <Input placeholder={t('placeholders.key')}
                 id="rule-key"
@@ -463,7 +463,7 @@ export function RuleEditorDialog({ rule, onClose }: RuleEditorDialogProps) {
               </p>
               <FieldMessage id="rule-key-error" message={errors.key?.message} />
             </div>
-            <div className="grid gap-1">
+            <div className="grid gap-2">
               <Label htmlFor="rule-record-type">{t('editor.recordType')}</Label>
               <Controller
                 control={control}
@@ -485,7 +485,7 @@ export function RuleEditorDialog({ rule, onClose }: RuleEditorDialogProps) {
               />
               <FieldMessage id="rule-record-type-error" message={errors.recordType?.message} />
             </div>
-            <div className="grid gap-1">
+            <div className="grid gap-2">
               <Label htmlFor="rule-strategy">{t('editor.strategy')}</Label>
               <Controller
                 control={control}
@@ -509,7 +509,7 @@ export function RuleEditorDialog({ rule, onClose }: RuleEditorDialogProps) {
                 {t(`strategyHints.${strategy}`)}
               </p>
             </div>
-            <div className="grid gap-1 sm:col-span-2">
+            <div className="grid gap-2 sm:col-span-2">
               <Label htmlFor="rule-description">{t('editor.descriptionField')}</Label>
               <Textarea placeholder={t('placeholders.description')} id="rule-description" rows={2} {...register('description')} />
             </div>

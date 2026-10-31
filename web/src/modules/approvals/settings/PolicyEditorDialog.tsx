@@ -216,7 +216,7 @@ function PolicyForm({ policy, pipelineOfStage, onOpenChange }: PolicyFormProps) 
       </DialogHeader>
 
       <div className="grid gap-3 sm:grid-cols-2">
-        <div className="grid gap-1.5">
+        <div className="grid gap-2.5">
           <Label htmlFor={ids.name}>{t('form.name')}</Label>
           <Input placeholder={t('placeholders.name')}
             id={ids.name}
@@ -230,7 +230,7 @@ function PolicyForm({ policy, pipelineOfStage, onOpenChange }: PolicyFormProps) 
           />
           {fieldError('name')}
         </div>
-        <div className="grid gap-1.5">
+        <div className="grid gap-2.5">
           <Label htmlFor={ids.key}>{t('form.key')}</Label>
           <Input placeholder={t('placeholders.key')}
             id={ids.key}
@@ -243,7 +243,7 @@ function PolicyForm({ policy, pipelineOfStage, onOpenChange }: PolicyFormProps) 
           />
           {creating ? fieldError('key') : <p className="text-xs text-muted-foreground">{t('form.keyLocked')}</p>}
         </div>
-        <div className="grid gap-1.5 sm:col-span-2">
+        <div className="grid gap-2.5 sm:col-span-2">
           <Label htmlFor={ids.description}>{t('form.descriptionField')}</Label>
           <Textarea placeholder={t('placeholders.description')}
             id={ids.description}
@@ -257,7 +257,7 @@ function PolicyForm({ policy, pipelineOfStage, onOpenChange }: PolicyFormProps) 
       </div>
 
       <div className="grid gap-3 sm:grid-cols-2">
-        <div className="grid gap-1.5">
+        <div className="grid gap-2.5">
           <Label htmlFor={ids.recordType}>{t('form.recordType')}</Label>
           <NativeSelect
             id={ids.recordType}
@@ -272,7 +272,7 @@ function PolicyForm({ policy, pipelineOfStage, onOpenChange }: PolicyFormProps) 
           </NativeSelect>
           {fieldError('record_type')}
         </div>
-        <div className="grid gap-1.5">
+        <div className="grid gap-2.5">
           <Label htmlFor={ids.moment}>{t('form.moment')}</Label>
           <NativeSelect
             id={ids.moment}
@@ -295,7 +295,7 @@ function PolicyForm({ policy, pipelineOfStage, onOpenChange }: PolicyFormProps) 
         </div>
         {draft.moment === 'stage_change' && (
           <>
-            <div className="grid gap-1.5">
+            <div className="grid gap-2.5">
               <Label htmlFor={ids.pipeline}>{t('form.pipeline')}</Label>
               <NativeSelect
                 id={ids.pipeline}
@@ -310,7 +310,7 @@ function PolicyForm({ policy, pipelineOfStage, onOpenChange }: PolicyFormProps) 
                 ))}
               </NativeSelect>
             </div>
-            <div className="grid gap-1.5">
+            <div className="grid gap-2.5">
               <Label htmlFor={ids.stage}>{t('form.stage')}</Label>
               <NativeSelect
                 id={ids.stage}
@@ -333,7 +333,7 @@ function PolicyForm({ policy, pipelineOfStage, onOpenChange }: PolicyFormProps) 
       </div>
 
       <div className="grid gap-3">
-        <div className="grid gap-1.5 sm:max-w-xs">
+        <div className="grid gap-2.5 sm:max-w-xs">
           <Label htmlFor={ids.condition}>{t('form.condition')}</Label>
           <NativeSelect
             id={ids.condition}
@@ -356,7 +356,7 @@ function PolicyForm({ policy, pipelineOfStage, onOpenChange }: PolicyFormProps) 
           ))}
         {draft.conditionKind === 'filter' && fieldError('condition_filter')}
         {draft.conditionKind === 'formula' && (
-          <div className="grid gap-1.5">
+          <div className="grid gap-2.5">
             <Label htmlFor={ids.formula}>{t('form.formula')}</Label>
             <Textarea
               id={ids.formula}
@@ -411,7 +411,7 @@ function PolicyForm({ policy, pipelineOfStage, onOpenChange }: PolicyFormProps) 
       </fieldset>
 
       <div className="grid gap-3 sm:grid-cols-2">
-        <div className="grid gap-1.5">
+        <div className="grid gap-2.5">
           <Label htmlFor={ids.due}>{t('form.dueHours')}</Label>
           <Input
             id={ids.due}

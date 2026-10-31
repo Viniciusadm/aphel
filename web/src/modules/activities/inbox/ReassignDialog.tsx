@@ -58,7 +58,7 @@ function ReassignForm({
         else onCancel()
       }}
     >
-      <div className="grid gap-1.5">
+      <div className="grid gap-2.5">
         <Label htmlFor={id}>{t('reassign.owner')}</Label>
         <NativeSelect id={id} value={ownerId} disabled={users.isPending} onChange={(event) => setOwnerId(event.target.value)}>
           <option value="" disabled>

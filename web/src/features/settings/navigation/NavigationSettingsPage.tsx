@@ -43,7 +43,7 @@ function LanguageSection({ preferences }: { preferences: PersonalPreferences }) 
   return (
     <section className="grid gap-3">
       <PageHeader title={t('language.title')} description={t('language.description')} />
-      <div className="grid max-w-sm gap-1.5">
+      <div className="grid max-w-sm gap-2.5">
         <Label id={labelId}>{t('language.label')}</Label>
         <Select value={preferences.locale ?? FOLLOW_ORGANIZATION} onValueChange={change} disabled={update.isPending}>
           <SelectTrigger aria-labelledby={labelId}>
@@ -111,7 +111,7 @@ function NavigationSection({ preferences }: { preferences: PersonalPreferences }
     <>
       <section className="grid gap-3">
         <PageHeader title={t('home.title')} description={t('home.description')} />
-        <div className="grid max-w-sm gap-1.5">
+        <div className="grid max-w-sm gap-2.5">
           <Label id={homeLabelId}>{t('home.label')}</Label>
           <Select
             value={draft.home ?? DEFAULT_HOME}

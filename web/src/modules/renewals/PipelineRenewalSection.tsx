@@ -129,13 +129,13 @@ function RenewalForm({ pipelineId, settings, pipelines }: RenewalFormProps) {
           checked={draft.is_enabled}
           onCheckedChange={(checked) => update({ is_enabled: checked === true })}
         />
-        <div className="grid gap-1">
+        <div className="grid gap-2">
           <Label htmlFor={ids.enabled}>{t('renewal.enabled')}</Label>
           <p className="text-xs text-muted-foreground">{t('renewal.enabledHint')}</p>
         </div>
       </div>
       <div className="grid gap-4 sm:grid-cols-2">
-        <div className="grid gap-1.5">
+        <div className="grid gap-2.5">
           <Label htmlFor={ids.days}>{t('renewal.daysBefore')}</Label>
           <Input placeholder={t('placeholders.days')}
             id={ids.days}
@@ -146,7 +146,7 @@ function RenewalForm({ pipelineId, settings, pipelines }: RenewalFormProps) {
           />
           <p className="text-xs text-muted-foreground">{t('renewal.daysBeforeHint', { max: MAX_DAYS_BEFORE })}</p>
         </div>
-        <div className="grid gap-1.5">
+        <div className="grid gap-2.5">
           <Label htmlFor={ids.owner}>{t('renewal.owner')}</Label>
           <NativeSelect
             id={ids.owner}
@@ -160,7 +160,7 @@ function RenewalForm({ pipelineId, settings, pipelines }: RenewalFormProps) {
             ))}
           </NativeSelect>
         </div>
-        <div className="grid gap-1.5">
+        <div className="grid gap-2.5">
           <Label htmlFor={ids.pipeline}>{t('renewal.targetPipeline')}</Label>
           <NativeSelect
             id={ids.pipeline}
@@ -180,7 +180,7 @@ function RenewalForm({ pipelineId, settings, pipelines }: RenewalFormProps) {
             ))}
           </NativeSelect>
         </div>
-        <div className="grid gap-1.5">
+        <div className="grid gap-2.5">
           <Label htmlFor={ids.stage}>{t('renewal.targetStage')}</Label>
           <NativeSelect
             id={ids.stage}
@@ -196,7 +196,7 @@ function RenewalForm({ pipelineId, settings, pipelines }: RenewalFormProps) {
             ))}
           </NativeSelect>
         </div>
-        <div className="grid gap-1.5 sm:col-span-2">
+        <div className="grid gap-2.5 sm:col-span-2">
           <Label htmlFor={ids.prefix}>{t('renewal.titlePrefix')}</Label>
           <Input placeholder={t('placeholders.titlePrefix')}
             id={ids.prefix}

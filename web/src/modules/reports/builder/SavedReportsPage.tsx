@@ -32,7 +32,7 @@ export function SavedReportsPage() {
           <p className="text-sm text-muted-foreground">{t('list.description')}</p>
         </div>
         <div className="flex flex-wrap items-end gap-2">
-          <div className="grid gap-1.5">
+          <div className="grid gap-2.5">
             <Label htmlFor={filterId} className="text-xs text-muted-foreground">
               {t('list.filter')}
             </Label>

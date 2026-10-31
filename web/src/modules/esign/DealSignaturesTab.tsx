@@ -313,7 +313,7 @@ function SendDialog({ dealId, open, onOpenChange }: SendDialogProps) {
           <DialogDescription>{t('dialog.description')}</DialogDescription>
         </DialogHeader>
         <div className="grid gap-4">
-          <div className="grid gap-1.5">
+          <div className="grid gap-2.5">
             <Label htmlFor="esign-file">{t('dialog.file')}</Label>
             {attachments.isPending ? (
               <Skeleton className="h-9 w-full" />
@@ -401,7 +401,7 @@ function SendDialog({ dealId, open, onOpenChange }: SendDialogProps) {
               </Button>
             </div>
           </fieldset>
-          <div className="grid gap-1.5">
+          <div className="grid gap-2.5">
             <Label htmlFor="esign-message">{t('dialog.message')}</Label>
             <Textarea
               id="esign-message"

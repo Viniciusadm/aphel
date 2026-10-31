@@ -74,7 +74,7 @@ export function CallForm({ values, onChange, outcomes, outcomeError, disabled, a
         />
         {outcomeError && <p className="text-xs text-destructive">{t('form.outcomeRequired')}</p>}
       </fieldset>
-      <div className="grid gap-1.5">
+      <div className="grid gap-2.5">
         <Label htmlFor={`${formId}-minutes`}>{t('form.duration')}</Label>
         <div className="flex flex-wrap items-center gap-2">
           <Input
@@ -112,7 +112,7 @@ export function CallForm({ values, onChange, outcomes, outcomeError, disabled, a
           </Button>
         </div>
       </div>
-      <div className="grid gap-1.5">
+      <div className="grid gap-2.5">
         <Label htmlFor={`${formId}-notes`}>{t('form.notes')}</Label>
         <Textarea
           id={`${formId}-notes`}

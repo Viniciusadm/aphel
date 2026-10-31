@@ -49,7 +49,7 @@ export function AddressField({ label, value, onChange, suggestions, autoFocus }:
   }
 
   return (
-    <div className="grid gap-1.5">
+    <div className="grid gap-2.5">
       <Label htmlFor={id}>{label}</Label>
       <div
         className={cn(

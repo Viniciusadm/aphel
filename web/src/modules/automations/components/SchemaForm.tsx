@@ -339,7 +339,7 @@ function SchemaProperty({ name, property, required, value, values, onChange, con
   }
 
   return (
-    <div className="grid min-w-0 gap-1.5">
+    <div className="grid min-w-0 gap-2.5">
       <Label htmlFor={id}>
         {label}
         {required && <span aria-hidden="true" className="text-destructive"> *</span>}

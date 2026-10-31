@@ -88,7 +88,7 @@ export function RatesProviderSettings({ settings }: { settings: CurrencySettings
           void save()
         }}
       >
-        <div className="grid gap-1.5">
+        <div className="grid gap-2.5">
           <Label htmlFor={selectId}>{t('provider.label')}</Label>
           <NativeSelect
             id={selectId}
@@ -104,7 +104,7 @@ export function RatesProviderSettings({ settings }: { settings: CurrencySettings
           </NativeSelect>
         </div>
         {provider !== 'manual' && (
-          <div className="grid min-w-64 flex-1 gap-1.5">
+          <div className="grid min-w-64 flex-1 gap-2.5">
             <Label htmlFor={urlId}>{t('provider.urlLabel')}</Label>
             <Input
               id={urlId}

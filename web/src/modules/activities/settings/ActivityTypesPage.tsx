@@ -237,7 +237,7 @@ function ActivityTypeForm({ editing, onClose, onSaved }: ActivityTypeFormProps) 
           void submit()
         }}
       >
-        <div className="grid gap-1.5">
+        <div className="grid gap-2.5">
           <Label htmlFor={`${formId}-name`}>{t('types.name')}</Label>
           <Input placeholder={t('placeholders.typeName')}
             id={`${formId}-name`}
@@ -253,7 +253,7 @@ function ActivityTypeForm({ editing, onClose, onSaved }: ActivityTypeFormProps) 
           {editing && <p className="text-xs text-muted-foreground">{t('types.keyHint', { key: editing.key })}</p>}
         </div>
         <div className="grid gap-4 sm:grid-cols-2">
-          <div className="grid gap-1.5">
+          <div className="grid gap-2.5">
             <Label htmlFor={`${formId}-icon`}>{t('types.icon')}</Label>
             <div className="flex items-center gap-2">
               <ActivityTypeIcon icon={icon} color={color} />
@@ -271,7 +271,7 @@ function ActivityTypeForm({ editing, onClose, onSaved }: ActivityTypeFormProps) 
               </NativeSelect>
             </div>
           </div>
-          <div className="grid gap-1.5">
+          <div className="grid gap-2.5">
             <Label htmlFor={`${formId}-color`}>{t('types.color')}</Label>
             <div className="flex items-center gap-2">
               <input

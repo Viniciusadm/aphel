@@ -80,7 +80,7 @@ function DisqualifyForm({ lead, onClose }: { lead: LeadTarget; onClose: () => vo
           void submit()
         }}
       >
-        <div className="grid gap-1.5">
+        <div className="grid gap-2.5">
           <Label htmlFor={`${formId}-reason`}>{t('disqualify.reason')}</Label>
           <NativeSelect
             id={`${formId}-reason`}
@@ -104,7 +104,7 @@ function DisqualifyForm({ lead, onClose }: { lead: LeadTarget; onClose: () => vo
             <p className="text-xs text-muted-foreground">{t('disqualify.noReasons')}</p>
           )}
         </div>
-        <div className="grid gap-1.5">
+        <div className="grid gap-2.5">
           <Label htmlFor={`${formId}-note`}>{t('disqualify.note')}</Label>
           <Textarea
             id={`${formId}-note`}

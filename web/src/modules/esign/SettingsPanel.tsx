@@ -31,7 +31,7 @@ export function EsignSettingsPanel() {
       {status.isPending ? (
         <Skeleton className="h-9 w-full" />
       ) : status.data ? (
-        <div className="grid gap-1.5">
+        <div className="grid gap-2.5">
           <Label htmlFor="esign-webhook-url">{t('settingsPanel.webhookUrl')}</Label>
           <div className="flex gap-2">
             <Input placeholder={t('placeholders.webhookUrl')} id="esign-webhook-url" readOnly value={status.data.webhook_url} className="min-w-0 font-mono text-xs" />

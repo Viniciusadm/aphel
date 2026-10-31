@@ -209,7 +209,7 @@ function OutcomeForm({
           void submit()
         }}
       >
-        <div className="grid gap-1.5">
+        <div className="grid gap-2.5">
           <Label htmlFor={`${formId}-name`}>{t('outcomes.name')}</Label>
           <Input placeholder={t('placeholders.outcomeName')}
             id={`${formId}-name`}

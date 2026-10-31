@@ -25,7 +25,7 @@ export function ReportFilters({ state, allPipelines = false, withDimension = fal
   return (
     <div className="flex min-w-0 flex-wrap items-end gap-3 rounded-lg border bg-card p-3">
       {withDimension && (
-        <div className="grid w-full min-w-0 gap-1.5 sm:w-auto">
+        <div className="grid w-full min-w-0 gap-2.5 sm:w-auto">
           <Label htmlFor={`${id}-dimension`}>{t('filters.dimension')}</Label>
           <select
             id={`${id}-dimension`}
@@ -41,7 +41,7 @@ export function ReportFilters({ state, allPipelines = false, withDimension = fal
           </select>
         </div>
       )}
-      <div className="grid w-full min-w-0 gap-1.5 sm:w-auto">
+      <div className="grid w-full min-w-0 gap-2.5 sm:w-auto">
         <Label htmlFor={`${id}-pipeline`}>{t('filters.pipeline')}</Label>
         <select
           id={`${id}-pipeline`}

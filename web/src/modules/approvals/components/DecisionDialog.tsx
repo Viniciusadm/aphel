@@ -80,7 +80,7 @@ function DecisionForm({ request, action, onOpenChange, onDone }: DecisionFormPro
         <DialogTitle>{t(`decision.${action}.title`)}</DialogTitle>
         <DialogDescription>{t(`decision.${action}.description`, { name: request.policy_name })}</DialogDescription>
       </DialogHeader>
-      <div className="grid gap-1.5">
+      <div className="grid gap-2.5">
         <Label htmlFor={commentId}>{required ? t('decision.commentRequired') : t('decision.comment')}</Label>
         <Textarea placeholder={t('placeholders.comment')}
           id={commentId}

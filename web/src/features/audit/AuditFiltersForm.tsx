@@ -35,7 +35,7 @@ export function AuditFiltersForm({ filters, onApply }: AuditFiltersFormProps) {
       aria-label={t('filters.label')}
       className="grid gap-3 rounded-lg border p-4 sm:grid-cols-2 lg:grid-cols-5"
     >
-      <div className="grid gap-1.5">
+      <div className="grid gap-2.5">
         <Label htmlFor={`${id}-record-type`}>{t('filters.recordType')}</Label>
         <Input
           id={`${id}-record-type`}
@@ -56,7 +56,7 @@ export function AuditFiltersForm({ filters, onApply }: AuditFiltersFormProps) {
           })}
         </datalist>
       </div>
-      <div className="grid gap-1.5">
+      <div className="grid gap-2.5">
         <Label htmlFor={`${id}-record-id`}>{t('filters.recordId')}</Label>
         <Input
           id={`${id}-record-id`}
@@ -66,7 +66,7 @@ export function AuditFiltersForm({ filters, onApply }: AuditFiltersFormProps) {
           autoComplete="off"
         />
       </div>
-      <div className="grid gap-1.5">
+      <div className="grid gap-2.5">
         <Label htmlFor={`${id}-actor`}>{t('filters.actor')}</Label>
         <Input
           id={`${id}-actor`}
@@ -76,11 +76,11 @@ export function AuditFiltersForm({ filters, onApply }: AuditFiltersFormProps) {
           autoComplete="off"
         />
       </div>
-      <div className="grid gap-1.5">
+      <div className="grid gap-2.5">
         <Label htmlFor={`${id}-from`}>{t('filters.from')}</Label>
         <Input id={`${id}-from`} type="date" value={draft.from} onChange={update('from')} max={draft.to || undefined} />
       </div>
-      <div className="grid gap-1.5">
+      <div className="grid gap-2.5">
         <Label htmlFor={`${id}-to`}>{t('filters.to')}</Label>
         <Input id={`${id}-to`} type="date" value={draft.to} onChange={update('to')} min={draft.from || undefined} />
       </div>

@@ -36,7 +36,7 @@ export function QuestionsEditor({ control, register, errors }: QuestionsEditorPr
           return (
             <li key={field.id} className="grid gap-3 rounded-lg border p-3">
               <div className="flex items-end gap-2">
-                <div className="grid flex-1 gap-1">
+                <div className="grid flex-1 gap-2">
                   <Label htmlFor={`question-${index}-label`}>{t('meetingTypes.form.questionLabel')}</Label>
                   <Input placeholder={t('placeholders.question')}
                     id={`question-${index}-label`}
@@ -56,7 +56,7 @@ export function QuestionsEditor({ control, register, errors }: QuestionsEditorPr
               </div>
               <FieldMessage message={questionErrors?.label?.message} />
               <div className="grid gap-3 sm:grid-cols-[10rem_1fr_auto] sm:items-end">
-                <div className="grid gap-1">
+                <div className="grid gap-2">
                   <Label htmlFor={`question-${index}-kind`}>{t('meetingTypes.form.questionKind')}</Label>
                   <Controller
                     control={control}
@@ -77,7 +77,7 @@ export function QuestionsEditor({ control, register, errors }: QuestionsEditorPr
                     )}
                   />
                 </div>
-                <div className="grid gap-1">
+                <div className="grid gap-2">
                   <Label htmlFor={`question-${index}-field`}>{t('meetingTypes.form.contactField')}</Label>
                   <Controller
                     control={control}

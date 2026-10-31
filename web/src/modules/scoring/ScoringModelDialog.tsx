@@ -400,7 +400,7 @@ function CriterionEditor({ criterion, index, total, schema, error, onChange, onM
         </div>
       </div>
       <div className="grid min-w-0 gap-3 sm:grid-cols-[minmax(0,2fr)_minmax(0,1fr)_minmax(0,1fr)]">
-        <div className="grid min-w-0 content-start gap-1.5">
+        <div className="grid min-w-0 content-start gap-2.5">
           <Label htmlFor={`${id}-label`}>{t('dialog.criterionLabel')}</Label>
           <Input placeholder={t('placeholders.criterionLabel')}
             id={`${id}-label`}
@@ -411,7 +411,7 @@ function CriterionEditor({ criterion, index, total, schema, error, onChange, onM
           />
           {error(path('label'))}
         </div>
-        <div className="grid min-w-0 content-start gap-1.5">
+        <div className="grid min-w-0 content-start gap-2.5">
           <Label htmlFor={`${id}-key`}>{t('dialog.criterionKey')}</Label>
           <Input placeholder={t('placeholders.criterionKey')}
             id={`${id}-key`}
@@ -422,7 +422,7 @@ function CriterionEditor({ criterion, index, total, schema, error, onChange, onM
           />
           {error(path('key'))}
         </div>
-        <div className="grid min-w-0 content-start gap-1.5">
+        <div className="grid min-w-0 content-start gap-2.5">
           <Label htmlFor={`${id}-points`}>{t('dialog.points')}</Label>
           <Input placeholder={t('placeholders.points')}
             id={`${id}-points`}
@@ -447,7 +447,7 @@ function CriterionEditor({ criterion, index, total, schema, error, onChange, onM
         </div>
       ) : (
         <div className="grid min-w-0 gap-3 sm:grid-cols-3">
-          <div className="grid min-w-0 content-start gap-1.5">
+          <div className="grid min-w-0 content-start gap-2.5">
             <Label htmlFor={`${id}-signal`}>{t('dialog.signal')}</Label>
             <NativeSelect
               id={`${id}-signal`}
@@ -462,7 +462,7 @@ function CriterionEditor({ criterion, index, total, schema, error, onChange, onM
             </NativeSelect>
             {error(path('signal'))}
           </div>
-          <div className="grid min-w-0 content-start gap-1.5">
+          <div className="grid min-w-0 content-start gap-2.5">
             <Label htmlFor={`${id}-cap`}>{t('dialog.maxPoints')}</Label>
             <Input placeholder={t('placeholders.maxPoints')}
               id={`${id}-cap`}
@@ -476,7 +476,7 @@ function CriterionEditor({ criterion, index, total, schema, error, onChange, onM
             </p>
             {error(path('max_points'))}
           </div>
-          <div className="grid min-w-0 content-start gap-1.5">
+          <div className="grid min-w-0 content-start gap-2.5">
             <Label htmlFor={`${id}-decay`}>{t('dialog.decayDays')}</Label>
             <Input placeholder={t('placeholders.decayDays')}
               id={`${id}-decay`}

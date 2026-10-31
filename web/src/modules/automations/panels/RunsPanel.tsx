@@ -95,7 +95,7 @@ export function RunsPanel({ automation, catalog, schema, draftSteps }: RunsPanel
   return (
     <div className="grid gap-4">
       <div className="flex flex-wrap items-end gap-3">
-        <div className="grid gap-1.5">
+        <div className="grid gap-2.5">
           <Label htmlFor={statusId}>{t('runs.status')}</Label>
           <NativeSelect
             id={statusId}
@@ -114,7 +114,7 @@ export function RunsPanel({ automation, catalog, schema, draftSteps }: RunsPanel
             ))}
           </NativeSelect>
         </div>
-        <div className="grid min-w-0 flex-1 gap-1.5 sm:max-w-xs">
+        <div className="grid min-w-0 flex-1 gap-2.5 sm:max-w-xs">
           <Label htmlFor={recordId}>{t('runs.record')}</Label>
           <RecordFieldInput
             id={recordId}

@@ -241,7 +241,7 @@ function Answer({ token, quote }: { token: string; quote: PublicQuote }) {
           }}
         >
           <h2 className="text-base font-semibold">{t('reject.title')}</h2>
-          <div className="grid gap-1.5">
+          <div className="grid gap-2.5">
             <Label htmlFor={ids.reason}>{t('reject.reason')}</Label>
             <Textarea placeholder={t('placeholders.reason')} id={ids.reason} rows={3} value={reason} onChange={(event) => setReason(event.target.value)} />
           </div>
@@ -267,11 +267,11 @@ function Answer({ token, quote }: { token: string; quote: PublicQuote }) {
             <p className="text-sm text-muted-foreground">{t('accept.description')}</p>
           </div>
           <div className="grid gap-3 sm:grid-cols-2">
-            <div className="grid gap-1.5">
+            <div className="grid gap-2.5">
               <Label htmlFor={ids.name}>{t('accept.name')}</Label>
               <Input placeholder={t('placeholders.name')} id={ids.name} required autoComplete="name" value={name} onChange={(event) => setName(event.target.value)} />
             </div>
-            <div className="grid gap-1.5">
+            <div className="grid gap-2.5">
               <Label htmlFor={ids.email}>{t('accept.email')}</Label>
               <Input placeholder={t('placeholders.email')}
                 id={ids.email}

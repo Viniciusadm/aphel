@@ -190,7 +190,7 @@ function GenerateDialog({ dealId, open, onOpenChange }: GenerateDialogProps) {
           <p className="text-sm text-muted-foreground">{t('deal.noTemplates')}</p>
         ) : (
           <div className="grid gap-3">
-            <div className="grid gap-1.5">
+            <div className="grid gap-2.5">
               <Label htmlFor="proposal-template">{t('deal.template')}</Label>
               <Select value={templateId ?? undefined} onValueChange={setChosen} disabled={pending}>
                 <SelectTrigger id="proposal-template">

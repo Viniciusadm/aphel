@@ -287,7 +287,7 @@ function BundleForm({ productId, bundle, onClose }: BundleFormProps) {
         <h3 className="text-base font-semibold">{t(bundle ? 'bundles.editTitle' : 'bundles.createTitle')}</h3>
         <p className="text-sm text-muted-foreground">{t('bundles.formDescription')}</p>
       </div>
-      <div className="grid gap-1.5 sm:max-w-xs">
+      <div className="grid gap-2.5 sm:max-w-xs">
         <Label htmlFor={`${formId}-pricing`}>{t('bundles.pricingLabel')}</Label>
         <NativeSelect
           id={`${formId}-pricing`}

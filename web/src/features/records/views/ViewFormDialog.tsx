@@ -173,7 +173,7 @@ function ViewForm({ view, pending, onCancel, onSubmit }: ViewFormProps) {
             checked={isDefault}
             onCheckedChange={(checked) => setIsDefault(checked === true)}
           />
-          <div className="grid gap-1">
+          <div className="grid gap-2">
             <Label htmlFor={ids.isDefault}>{t('views.form.organizationDefault')}</Label>
             <p className="text-xs text-muted-foreground">{t('views.form.organizationDefaultHint')}</p>
           </div>

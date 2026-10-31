@@ -15,7 +15,7 @@ export function DistributionRuleSelect({ recordType, value, onChange, disabled }
   const unknown = value && rules.isSuccess && !options.some((rule) => rule.id === value)
 
   return (
-    <div className="grid gap-1.5">
+    <div className="grid gap-2.5">
       <Label htmlFor={id}>{t('ruleSelect.label')}</Label>
       <NativeSelect
         id={id}

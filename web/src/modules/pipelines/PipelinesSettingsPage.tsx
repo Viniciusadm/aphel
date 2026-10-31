@@ -64,7 +64,7 @@ function PipelineName({ pipeline }: { pipeline: Pipeline }) {
         if (changed) rename.mutate(name.trim())
       }}
     >
-      <div className="grid min-w-56 flex-1 gap-1.5">
+      <div className="grid min-w-56 flex-1 gap-2.5">
         <Label htmlFor={inputId}>{t('settings.pipeline.name')}</Label>
         <Input placeholder={t('placeholders.pipelineName')} id={inputId} value={name} maxLength={140} onChange={(event) => setName(event.target.value)} />
       </div>
@@ -410,7 +410,7 @@ function LostReasonsSection() {
             if (name.trim()) create.mutate(name.trim())
           }}
         >
-          <div className="grid min-w-56 flex-1 gap-1.5">
+          <div className="grid min-w-56 flex-1 gap-2.5">
             <Label htmlFor={inputId}>{t('settings.lostReasons.new')}</Label>
             <Input placeholder={t('placeholders.lostReason')} id={inputId} value={name} maxLength={140} onChange={(event) => setName(event.target.value)} />
           </div>

@@ -58,7 +58,7 @@ export function PeriodSelector({ value, onChange }: PeriodSelectorProps) {
 
   return (
     <form className="flex flex-wrap items-end gap-2" onSubmit={apply}>
-      <div className="grid gap-1.5">
+      <div className="grid gap-2.5">
         <Label htmlFor={`${id}-preset`}>{t('period.label')}</Label>
         <select
           id={`${id}-preset`}
@@ -75,7 +75,7 @@ export function PeriodSelector({ value, onChange }: PeriodSelectorProps) {
       </div>
       {preset === 'custom' && (
         <>
-          <div className="grid gap-1.5">
+          <div className="grid gap-2.5">
             <Label htmlFor={`${id}-from`}>{t('period.from')}</Label>
             <Input
               id={`${id}-from`}
@@ -86,7 +86,7 @@ export function PeriodSelector({ value, onChange }: PeriodSelectorProps) {
               onChange={(event) => setFrom(event.target.value)}
             />
           </div>
-          <div className="grid gap-1.5">
+          <div className="grid gap-2.5">
             <Label htmlFor={`${id}-to`}>{t('period.to')}</Label>
             <Input
               id={`${id}-to`}

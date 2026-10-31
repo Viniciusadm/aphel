@@ -156,7 +156,7 @@ function SequencesList() {
         {newButton}
       </div>
       <div className="grid gap-3 sm:grid-cols-[minmax(0,1fr)_12rem]">
-        <div className="grid gap-1.5">
+        <div className="grid gap-2.5">
           <Label htmlFor={searchId} className="sr-only">
             {t('page.search')}
           </Label>
@@ -177,7 +177,7 @@ function SequencesList() {
             />
           </div>
         </div>
-        <div className="grid gap-1.5">
+        <div className="grid gap-2.5">
           <Label htmlFor={activeId} className="sr-only">
             {t('page.statusFilter')}
           </Label>

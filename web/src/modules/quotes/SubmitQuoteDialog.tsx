@@ -38,7 +38,7 @@ export function SubmitQuoteDialog({ quote, open, onOpenChange }: SubmitQuoteDial
           <DialogTitle>{t('actions.submitTitle')}</DialogTitle>
           <DialogDescription>{t('actions.submitDescription')}</DialogDescription>
         </DialogHeader>
-        <div className="grid gap-1.5">
+        <div className="grid gap-2.5">
           <Label htmlFor={commentId}>{t('actions.comment')}</Label>
           <Textarea placeholder={t('placeholders.comment')} id={commentId} rows={3} value={comment} onChange={(event) => setComment(event.target.value)} />
         </div>

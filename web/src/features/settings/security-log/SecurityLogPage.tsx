@@ -231,7 +231,7 @@ function FiltersForm({ filters, onApply }: FiltersFormProps) {
       aria-label={t('log.filters.label')}
       className="grid gap-3 rounded-lg border p-4 sm:grid-cols-3"
     >
-      <div className="grid gap-1.5">
+      <div className="grid gap-2.5">
         <Label htmlFor={`${id}-kind`}>{t('log.filters.kind')}</Label>
         <select
           id={`${id}-kind`}
@@ -247,7 +247,7 @@ function FiltersForm({ filters, onApply }: FiltersFormProps) {
           ))}
         </select>
       </div>
-      <div className="grid gap-1.5">
+      <div className="grid gap-2.5">
         <Label htmlFor={`${id}-from`}>{t('log.filters.from')}</Label>
         <Input
           id={`${id}-from`}
@@ -257,7 +257,7 @@ function FiltersForm({ filters, onApply }: FiltersFormProps) {
           onChange={(event) => setDraft((current) => ({ ...current, from: event.target.value }))}
         />
       </div>
-      <div className="grid gap-1.5">
+      <div className="grid gap-2.5">
         <Label htmlFor={`${id}-to`}>{t('log.filters.to')}</Label>
         <Input
           id={`${id}-to`}

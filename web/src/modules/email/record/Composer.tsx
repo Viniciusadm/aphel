@@ -276,7 +276,7 @@ function ComposerForm({ record, mailboxes, reply, onDirtyChange, onCancel, onSen
       }}
     >
       {mailboxes.length > 1 && (
-        <div className="grid content-start gap-1.5">
+        <div className="grid content-start gap-2.5">
           <Label htmlFor={`${formId}-mailbox`}>{t('composer.from')}</Label>
           <NativeSelect
             id={`${formId}-mailbox`}
@@ -341,7 +341,7 @@ function ComposerForm({ record, mailboxes, reply, onDirtyChange, onCancel, onSen
         </div>
       )}
       {availableTemplates.length > 0 && (
-        <div className="grid content-start gap-1.5">
+        <div className="grid content-start gap-2.5">
           <Label htmlFor={`${formId}-template`}>{t('composer.template')}</Label>
           <NativeSelect
             id={`${formId}-template`}
@@ -361,7 +361,7 @@ function ComposerForm({ record, mailboxes, reply, onDirtyChange, onCancel, onSen
           </NativeSelect>
         </div>
       )}
-      <div className="grid content-start gap-1.5">
+      <div className="grid content-start gap-2.5">
         <Label htmlFor={`${formId}-subject`}>{t('fields.subject')}</Label>
         <Input placeholder={t('placeholders.subject')}
           id={`${formId}-subject`}

@@ -79,7 +79,7 @@ function QueryDialog({ recordType, filter, applyFilter, onOpenChange }: QueryDia
             run()
           }}
         >
-          <div className="grid gap-1.5">
+          <div className="grid gap-2.5">
             <Label htmlFor={`${id}-question`}>{t('query.question')}</Label>
             <Textarea
               id={`${id}-question`}

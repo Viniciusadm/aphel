@@ -130,7 +130,7 @@ function SequenceForm({ sequence }: { sequence: Sequence | null }) {
           <h2 id={`${formId}-settings`} className="text-base font-medium">
             {t('editor.settings')}
           </h2>
-          <div className="grid gap-1.5">
+          <div className="grid gap-2.5">
             <Label htmlFor={`${formId}-name`}>{t('editor.name')}</Label>
             <Input placeholder={t('placeholders.name')}
               id={`${formId}-name`}
@@ -140,7 +140,7 @@ function SequenceForm({ sequence }: { sequence: Sequence | null }) {
             />
             <FieldMessage id={`${formId}-name-error`} message={errors.name?.message} />
           </div>
-          <div className="grid gap-1.5">
+          <div className="grid gap-2.5">
             <Label htmlFor={`${formId}-description`}>{t('editor.description')}</Label>
             <Textarea placeholder={t('placeholders.description')} id={`${formId}-description`} rows={2} {...register('description')} />
             <FieldMessage id={`${formId}-description-error`} message={errors.description?.message} />
@@ -159,7 +159,7 @@ function SequenceForm({ sequence }: { sequence: Sequence | null }) {
             )}
           />
           <div className="grid gap-4 sm:grid-cols-3">
-            <div className="grid gap-1.5">
+            <div className="grid gap-2.5">
               <Label htmlFor={`${formId}-start`}>{t('editor.windowStart')}</Label>
               <Input
                 id={`${formId}-start`}
@@ -169,7 +169,7 @@ function SequenceForm({ sequence }: { sequence: Sequence | null }) {
               />
               <FieldMessage id={`${formId}-start-error`} message={errors.windowStart?.message} />
             </div>
-            <div className="grid gap-1.5">
+            <div className="grid gap-2.5">
               <Label htmlFor={`${formId}-end`}>{t('editor.windowEnd')}</Label>
               <Input
                 id={`${formId}-end`}
@@ -180,7 +180,7 @@ function SequenceForm({ sequence }: { sequence: Sequence | null }) {
               />
               <FieldMessage id={`${formId}-end-error`} message={errors.windowEnd?.message} />
             </div>
-            <div className="grid gap-1.5">
+            <div className="grid gap-2.5">
               <Label htmlFor={`${formId}-limit`}>{t('editor.dailyLimit')}</Label>
               <Input placeholder={t('placeholders.dailyLimit')}
                 id={`${formId}-limit`}
@@ -250,7 +250,7 @@ function StepsEditor({ control, register, errors, formId }: StepsEditorProps) {
                 <span className="flex size-7 shrink-0 items-center justify-center rounded-full bg-muted text-sm font-medium tabular-nums">
                   {index + 1}
                 </span>
-                <div className="grid min-w-48 flex-1 gap-1.5">
+                <div className="grid min-w-48 flex-1 gap-2.5">
                   <Label htmlFor={`${prefix}-kind`}>{t('editor.kind')}</Label>
                   <NativeSelect id={`${prefix}-kind`} {...register(`steps.${index}.kind`)}>
                     {STEP_KINDS.map((option) => (
@@ -294,7 +294,7 @@ function StepsEditor({ control, register, errors, formId }: StepsEditorProps) {
               </div>
               <p className="text-xs text-muted-foreground">{t(`stepHints.${kind}`)}</p>
               {kind === 'wait' && (
-                <div className="grid max-w-48 gap-1.5">
+                <div className="grid max-w-48 gap-2.5">
                   <Label htmlFor={`${prefix}-wait`}>{t('editor.waitDays')}</Label>
                   <Input placeholder={t('placeholders.waitDays')}
                     id={`${prefix}-wait`}
@@ -309,7 +309,7 @@ function StepsEditor({ control, register, errors, formId }: StepsEditorProps) {
                 </div>
               )}
               {(isTaskKind(kind) || kind === 'manual_email') && (
-                <div className="grid gap-1.5">
+                <div className="grid gap-2.5">
                   <Label htmlFor={`${prefix}-title`}>{t('editor.title')}</Label>
                   <Input
                     id={`${prefix}-title`}
@@ -323,7 +323,7 @@ function StepsEditor({ control, register, errors, formId }: StepsEditorProps) {
               )}
               {isEmailKind(kind) && (
                 <>
-                  <div className="grid gap-1.5">
+                  <div className="grid gap-2.5">
                     <Label htmlFor={`${prefix}-template`}>{t('editor.template')}</Label>
                     <NativeSelect id={`${prefix}-template`} disabled={templates.isPending} {...register(`steps.${index}.templateId`)}>
                       <option value="">{t('editor.noTemplate')}</option>
@@ -335,7 +335,7 @@ function StepsEditor({ control, register, errors, formId }: StepsEditorProps) {
                     </NativeSelect>
                     <p className="text-xs text-muted-foreground">{t('editor.templateHint')}</p>
                   </div>
-                  <div className="grid gap-1.5">
+                  <div className="grid gap-2.5">
                     <Label htmlFor={`${prefix}-subject`}>{t('editor.subject')}</Label>
                     <Input placeholder={t('placeholders.subject')}
                       id={`${prefix}-subject`}
@@ -348,7 +348,7 @@ function StepsEditor({ control, register, errors, formId }: StepsEditorProps) {
                     </p>
                     <FieldMessage id={`${prefix}-subject-error`} message={stepErrors?.subject?.message} />
                   </div>
-                  <div className="grid gap-1.5">
+                  <div className="grid gap-2.5">
                     <Label htmlFor={`${prefix}-body`}>{t('editor.body')}</Label>
                     <Textarea placeholder={t('placeholders.body')}
                       id={`${prefix}-body`}

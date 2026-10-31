@@ -69,20 +69,20 @@ export function SendQuoteDialog({ quote, open, onOpenChange }: SendQuoteDialogPr
           <DialogDescription>{t('send.description')}</DialogDescription>
         </DialogHeader>
         <div className="grid gap-4">
-          <div className="grid gap-1.5">
+          <div className="grid gap-2.5">
             <Label htmlFor={ids.to}>{t('send.to')}</Label>
             <Input placeholder={t('placeholders.to')} id={ids.to} value={to} onChange={(event) => setTo(event.target.value)} />
             <p className="text-xs text-muted-foreground">{t('send.toHint')}</p>
           </div>
-          <div className="grid gap-1.5">
+          <div className="grid gap-2.5">
             <Label htmlFor={ids.cc}>{t('send.cc')}</Label>
             <Input placeholder={t('placeholders.cc')} id={ids.cc} value={cc} onChange={(event) => setCc(event.target.value)} />
           </div>
-          <div className="grid gap-1.5">
+          <div className="grid gap-2.5">
             <Label htmlFor={ids.subject}>{t('send.subject')}</Label>
             <Input placeholder={t('placeholders.subject')} id={ids.subject} value={subject} onChange={(event) => setSubject(event.target.value)} />
           </div>
-          <div className="grid gap-1.5">
+          <div className="grid gap-2.5">
             <Label htmlFor={ids.body}>{t('send.body')}</Label>
             <Textarea placeholder={t('placeholders.body')} id={ids.body} rows={8} value={body} onChange={(event) => setBody(event.target.value)} />
             <p className="text-xs text-muted-foreground">

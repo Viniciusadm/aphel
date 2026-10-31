@@ -296,7 +296,7 @@ function RetentionForm({ current }: { current: TrashSettings }) {
         )
       }}
     >
-      <div className="grid gap-1">
+      <div className="grid gap-2">
         <Label htmlFor="trash-retention">{t('retention.label')}</Label>
         <Input placeholder={t('placeholders.retention')}
           id="trash-retention"

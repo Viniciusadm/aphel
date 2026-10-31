@@ -89,7 +89,7 @@ export function ActionEditor({ index, total, target, onMove, onRemove }: ActionE
       <p className="text-xs text-muted-foreground">{t(`actionHelp.${type}`)}</p>
 
       {type === 'upsert_contact' && (
-        <div className="grid gap-1.5">
+        <div className="grid gap-2.5">
           <Label htmlFor={`${id}-match`}>{t('actions.matchBy')}</Label>
           <NativeSelect id={`${id}-match`} {...register(`actions.${index}.match_by`)}>
             <option value="email">{t('actions.matchEmail')}</option>
@@ -101,7 +101,7 @@ export function ActionEditor({ index, total, target, onMove, onRemove }: ActionE
       )}
 
       {type === 'upsert_contact' && matchBy === 'field' && (
-        <div className="grid gap-1.5">
+        <div className="grid gap-2.5">
           <Label htmlFor={`${id}-match-field`}>{t('actions.matchFieldLabel')}</Label>
           <NativeSelect
             id={`${id}-match-field`}
@@ -123,7 +123,7 @@ export function ActionEditor({ index, total, target, onMove, onRemove }: ActionE
 
       {type === 'create_deal' && (
         <div className="grid gap-3 sm:grid-cols-2">
-          <div className="grid gap-1.5">
+          <div className="grid gap-2.5">
             <Label htmlFor={`${id}-pipeline`}>{t('actions.pipeline')}</Label>
             <NativeSelect
               id={`${id}-pipeline`}
@@ -143,7 +143,7 @@ export function ActionEditor({ index, total, target, onMove, onRemove }: ActionE
             </NativeSelect>
             <ErrorText id={`${id}-pipeline-error`} message={errors?.pipeline_id?.message} />
           </div>
-          <div className="grid gap-1.5">
+          <div className="grid gap-2.5">
             <Label htmlFor={`${id}-stage`}>{t('actions.stage')}</Label>
             <NativeSelect
               id={`${id}-stage`}
@@ -175,7 +175,7 @@ export function ActionEditor({ index, total, target, onMove, onRemove }: ActionE
       )}
 
       {type === 'create_activity' && (
-        <div className="grid gap-1.5">
+        <div className="grid gap-2.5">
           <Label htmlFor={`${id}-activity-type`}>{t('actions.activityType')}</Label>
           <NativeSelect
             id={`${id}-activity-type`}

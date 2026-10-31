@@ -46,7 +46,7 @@ export function PreferencesPage() {
             aria-describedby={`${shortcutsId}-description`}
             className="mt-0.5"
           />
-          <div className="grid min-w-0 flex-1 gap-1">
+          <div className="grid min-w-0 flex-1 gap-2">
             <Label htmlFor={shortcutsId}>{t('preferences.shortcuts.label')}</Label>
             <p id={`${shortcutsId}-description`} className="text-sm text-muted-foreground">
               {t('preferences.shortcuts.description')}

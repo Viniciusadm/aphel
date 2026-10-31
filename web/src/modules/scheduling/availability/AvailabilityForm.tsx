@@ -70,7 +70,7 @@ export function AvailabilityForm({ userId, availability }: AvailabilityFormProps
     min: number,
     max: number,
   ) => (
-    <div className="grid gap-1">
+    <div className="grid gap-2">
       <Label htmlFor={`availability-${name}`}>{label}</Label>
       <Input placeholder={t('placeholders.number')}
         id={`availability-${name}`}
@@ -94,7 +94,7 @@ export function AvailabilityForm({ userId, availability }: AvailabilityFormProps
         </div>
       )}
       <FieldMessage message={errors.root?.server?.message} />
-      <div className="grid max-w-sm gap-1">
+      <div className="grid max-w-sm gap-2">
         <Label htmlFor="availability-timezone">{t('availability.timezone')}</Label>
         <TimeZoneInput
           id="availability-timezone"
@@ -112,7 +112,7 @@ export function AvailabilityForm({ userId, availability }: AvailabilityFormProps
           0,
           MAX_NOTICE_MINUTES,
         )}
-        <div className="grid gap-1">
+        <div className="grid gap-2">
           <Label htmlFor="availability-maxPerDay">{t('availability.maxPerDay')}</Label>
           <Input
             id="availability-maxPerDay"

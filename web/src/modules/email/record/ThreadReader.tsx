@@ -168,7 +168,7 @@ function VisibilityControl({ thread }: { thread: EmailThreadDetail }) {
   }
 
   return (
-    <div className="grid gap-1 sm:max-w-sm">
+    <div className="grid gap-2 sm:max-w-sm">
       <Label htmlFor={id} className="text-xs text-muted-foreground">
         {t('reader.visibilityLabel')}
       </Label>

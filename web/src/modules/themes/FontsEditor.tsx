@@ -59,11 +59,11 @@ export function FontsEditor({ fonts, onChange }: FontsEditorProps) {
       )}
       {fonts.length < MAX_FONTS && (
         <div className="grid gap-3 sm:grid-cols-4">
-          <div className="grid gap-1.5 sm:col-span-2">
+          <div className="grid gap-2.5 sm:col-span-2">
             <Label htmlFor="font-family">{t('fonts.family')}</Label>
             <Input placeholder={t('placeholders.family')} id="font-family" value={family} onChange={(event) => setFamily(event.target.value)} />
           </div>
-          <div className="grid gap-1.5">
+          <div className="grid gap-2.5">
             <Label htmlFor="font-weight">{t('fonts.weight')}</Label>
             <Select value={weight} onValueChange={setWeight}>
               <SelectTrigger id="font-weight">
@@ -78,7 +78,7 @@ export function FontsEditor({ fonts, onChange }: FontsEditorProps) {
               </SelectContent>
             </Select>
           </div>
-          <div className="grid gap-1.5">
+          <div className="grid gap-2.5">
             <Label htmlFor="font-style">{t('fonts.style')}</Label>
             <Select value={style} onValueChange={(next) => setStyle(next as FontFile['style'])}>
               <SelectTrigger id="font-style">

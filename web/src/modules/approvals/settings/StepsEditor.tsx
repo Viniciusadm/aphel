@@ -84,7 +84,7 @@ export function StepsEditor({ steps, errors, errorText, onChange }: StepsEditorP
                 </div>
               </div>
               <div className="grid gap-3 sm:grid-cols-2">
-                <div className="grid gap-1.5 sm:col-span-2">
+                <div className="grid gap-2.5 sm:col-span-2">
                   <Label htmlFor={`${step.uid}-name`}>{t('form.stepName')}</Label>
                   <Input
                     id={`${step.uid}-name`}
@@ -94,7 +94,7 @@ export function StepsEditor({ steps, errors, errorText, onChange }: StepsEditorP
                     onChange={(event) => update(index, { name: event.target.value })}
                   />
                 </div>
-                <div className="grid gap-1.5">
+                <div className="grid gap-2.5">
                   <Label htmlFor={`${step.uid}-kind`}>{t('form.approverKind')}</Label>
                   <NativeSelect
                     id={`${step.uid}-kind`}
@@ -112,7 +112,7 @@ export function StepsEditor({ steps, errors, errorText, onChange }: StepsEditorP
                     ))}
                   </NativeSelect>
                 </div>
-                <div className="grid gap-1.5">
+                <div className="grid gap-2.5">
                   <Label htmlFor={`${step.uid}-rule`}>{t('form.rule')}</Label>
                   <NativeSelect
                     id={`${step.uid}-rule`}
@@ -131,7 +131,7 @@ export function StepsEditor({ steps, errors, errorText, onChange }: StepsEditorP
                   </NativeSelect>
                 </div>
                 {step.approverKind === 'user' && (
-                  <div className="grid gap-1.5 sm:col-span-2">
+                  <div className="grid gap-2.5 sm:col-span-2">
                     <Label htmlFor={`${step.uid}-user`}>{t('form.approverUser')}</Label>
                     <NativeSelect
                       id={`${step.uid}-user`}
@@ -150,7 +150,7 @@ export function StepsEditor({ steps, errors, errorText, onChange }: StepsEditorP
                   </div>
                 )}
                 {step.approverKind === 'role' && (
-                  <div className="grid gap-1.5 sm:col-span-2">
+                  <div className="grid gap-2.5 sm:col-span-2">
                     <Label htmlFor={`${step.uid}-role`}>{t('form.approverRole')}</Label>
                     <NativeSelect
                       id={`${step.uid}-role`}

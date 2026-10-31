@@ -123,7 +123,7 @@ export function BulkActionDialog({ kind, context, recordType, onClose }: BulkAct
             {kind === 'move_stage' && <StageForm onChange={setDraft} />}
             {kind === 'enroll_in_sequence' && <SequenceForm onChange={setDraft} />}
             {kind === 'export' && (
-              <div className="grid gap-1.5">
+              <div className="grid gap-2.5">
                 <Label htmlFor={`${formId}-format`}>{t('export.format')}</Label>
                 <NativeSelect
                   id={`${formId}-format`}
@@ -180,7 +180,7 @@ function OwnerForm({ onChange }: DraftFormProps) {
   const users = useOrganizationUsers()
   const [ownerId, setOwnerId] = useState('')
   return (
-    <div className="grid gap-1.5">
+    <div className="grid gap-2.5">
       <Label htmlFor={id}>{t('owner.label')}</Label>
       <NativeSelect
         id={id}
@@ -233,7 +233,7 @@ function TagsForm({ recordType, onChange }: DraftFormProps & { recordType: BulkR
       </fieldset>
       <ReferenceOptions kind="tag" context={{ recordType }}>
         {({ options, isLoading }) => (
-          <div className="grid gap-1.5">
+          <div className="grid gap-2.5">
             <Label htmlFor={id}>{t('tags.label')}</Label>
             <NativeSelect
               id={id}
@@ -271,7 +271,7 @@ function FieldForm({ recordType, onChange }: DraftFormProps & { recordType: Bulk
     onChange(key ? { action: 'set_field', field: key, value: next ?? null } : null)
   return (
     <>
-      <div className="grid gap-1.5">
+      <div className="grid gap-2.5">
         <Label htmlFor={id}>{t('field.label')}</Label>
         <NativeSelect
           id={id}
@@ -292,7 +292,7 @@ function FieldForm({ recordType, onChange }: DraftFormProps & { recordType: Bulk
         </NativeSelect>
       </div>
       {field && (
-        <div className="grid gap-1.5">
+        <div className="grid gap-2.5">
           <Label htmlFor={`${id}-value`}>{t('field.value')}</Label>
           <FieldInput
             key={field.key}
@@ -318,7 +318,7 @@ function StageForm({ onChange }: DraftFormProps) {
   return (
     <ReferenceOptions kind="pipeline_stage">
       {({ options, isLoading }) => (
-        <div className="grid gap-1.5">
+        <div className="grid gap-2.5">
           <Label htmlFor={`${id}-stage`}>{t('stage.label')}</Label>
           <NativeSelect
             id={`${id}-stage`}
@@ -354,7 +354,7 @@ function SequenceForm({ onChange }: DraftFormProps) {
   return (
     <ReferenceOptions kind="sequence">
       {({ options, isLoading }) => (
-        <div className="grid gap-1.5">
+        <div className="grid gap-2.5">
           <Label htmlFor={id}>{t('sequence.label')}</Label>
           <NativeSelect
             id={id}

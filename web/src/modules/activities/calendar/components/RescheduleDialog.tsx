@@ -63,7 +63,7 @@ function RescheduleForm({
         if (value) onConfirm(value)
       }}
     >
-      <div className="grid gap-1.5">
+      <div className="grid gap-2.5">
         <Label htmlFor={id}>{t('reschedule.dueAt')}</Label>
         <DateTimeFieldInput
           id={id}

@@ -70,7 +70,7 @@ export function FollowingPage() {
     <div className="flex w-full flex-col gap-4">
       <div className="flex flex-wrap items-end justify-between gap-3">
         <PageHeader title={t('page.title')} description={t('page.description')} />
-        <div className="grid gap-1.5">
+        <div className="grid gap-2.5">
           <Label htmlFor={typeId}>{t('page.typeFilter')}</Label>
           <NativeSelect
             id={typeId}

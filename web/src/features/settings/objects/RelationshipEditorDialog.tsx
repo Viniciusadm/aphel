@@ -218,7 +218,7 @@ function RelationshipForm({ relationship, recordType, onClose, onSaved }: Relati
           </Alert>
         )}
         <div className="grid gap-4 sm:grid-cols-2">
-          <div className="grid gap-1.5">
+          <div className="grid gap-2.5">
             <Label htmlFor={`${formId}-from`}>{t('relationships.from')}</Label>
             <NativeSelect
               id={`${formId}-from`}
@@ -237,7 +237,7 @@ function RelationshipForm({ relationship, recordType, onClose, onSaved }: Relati
               ))}
             </NativeSelect>
           </div>
-          <div className="grid gap-1.5">
+          <div className="grid gap-2.5">
             <Label htmlFor={`${formId}-to`}>{t('relationships.to')}</Label>
             <NativeSelect
               id={`${formId}-to`}
@@ -292,7 +292,7 @@ function RelationshipForm({ relationship, recordType, onClose, onSaved }: Relati
           </div>
         </fieldset>
         <div className="grid gap-4 sm:grid-cols-2">
-          <div className="grid gap-1.5">
+          <div className="grid gap-2.5">
             <Label htmlFor={`${formId}-from-label`}>{t('relationships.fromLabel', { type: fromName })}</Label>
             <Input placeholder={t('relationships.editor.fromLabelPlaceholder')}
               id={`${formId}-from-label`}
@@ -304,7 +304,7 @@ function RelationshipForm({ relationship, recordType, onClose, onSaved }: Relati
             />
             {errorText('fromLabel')}
           </div>
-          <div className="grid gap-1.5">
+          <div className="grid gap-2.5">
             <Label htmlFor={`${formId}-to-label`}>{t('relationships.toLabel', { type: toName })}</Label>
             <Input placeholder={t('relationships.editor.toLabelPlaceholder')}
               id={`${formId}-to-label`}
@@ -316,7 +316,7 @@ function RelationshipForm({ relationship, recordType, onClose, onSaved }: Relati
             />
             {errorText('toLabel')}
           </div>
-          <div className="grid gap-1.5">
+          <div className="grid gap-2.5">
             <Label htmlFor={`${formId}-key`}>{t('relationships.key', { type: fromName })}</Label>
             <Input placeholder={t('relationships.editor.keyPlaceholder')}
               id={`${formId}-key`}
@@ -334,7 +334,7 @@ function RelationshipForm({ relationship, recordType, onClose, onSaved }: Relati
             />
             {errorText('key')}
           </div>
-          <div className="grid gap-1.5">
+          <div className="grid gap-2.5">
             <Label htmlFor={`${formId}-inverse-key`}>{t('relationships.inverseKey', { type: toName })}</Label>
             <Input placeholder={t('relationships.editor.inverseKeyPlaceholder')}
               id={`${formId}-inverse-key`}
@@ -370,7 +370,7 @@ function RelationshipForm({ relationship, recordType, onClose, onSaved }: Relati
             </span>
           </span>
         </label>
-        <div className="grid gap-1.5">
+        <div className="grid gap-2.5">
           <Label htmlFor={`${formId}-on-delete`}>{t('relationships.onDelete', { type: fromName })}</Label>
           <NativeSelect
             id={`${formId}-on-delete`}

@@ -58,7 +58,7 @@ export function SimulationDialog({ rule, onClose }: SimulationDialogProps) {
         </DialogHeader>
         {!rule.is_active && <p className="text-sm text-muted-foreground">{t('simulation.inactiveRule')}</p>}
         <form className="flex flex-wrap items-end gap-3" onSubmit={run}>
-          <div className="grid w-28 gap-1">
+          <div className="grid w-28 gap-2">
             <Label htmlFor="simulation-count">{t('simulation.count')}</Label>
             <Input placeholder={t('placeholders.count')}
               id="simulation-count"
@@ -70,7 +70,7 @@ export function SimulationDialog({ rule, onClose }: SimulationDialogProps) {
             />
           </div>
           {routingField && (
-            <div className="grid min-w-40 flex-1 gap-1">
+            <div className="grid min-w-40 flex-1 gap-2">
               <Label htmlFor="simulation-value">{t('simulation.value', { field: routingField })}</Label>
               <Input
                 id="simulation-value"

@@ -113,7 +113,7 @@ function RequestApprovalBody({
         </DialogTitle>
         <DialogDescription>{t(`submit.descriptions.${moment}`)}</DialogDescription>
       </DialogHeader>
-      <div className="grid gap-1.5">
+      <div className="grid gap-2.5">
         <Label htmlFor={commentId}>{t('submit.comment')}</Label>
         <Textarea
           id={commentId}

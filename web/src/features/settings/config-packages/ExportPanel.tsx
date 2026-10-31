@@ -130,7 +130,7 @@ function ExportForm({ available }: { available: string[] }) {
         {selected.length === 0 && <p className="text-xs text-destructive">{t('export.noSections')}</p>}
       </fieldset>
       <div className="grid gap-4 sm:grid-cols-2">
-        <div className="grid gap-1.5">
+        <div className="grid gap-2.5">
           <Label htmlFor={`${formId}-name`}>{t('export.name')}</Label>
           <Input
             id={`${formId}-name`}
@@ -140,7 +140,7 @@ function ExportForm({ available }: { available: string[] }) {
             onChange={(event) => setName(event.target.value)}
           />
         </div>
-        <div className="grid gap-1.5">
+        <div className="grid gap-2.5">
           <Label htmlFor={`${formId}-author`}>{t('export.author')}</Label>
           <Input placeholder={t('export.authorPlaceholder')}
             id={`${formId}-author`}
@@ -149,7 +149,7 @@ function ExportForm({ available }: { available: string[] }) {
             onChange={(event) => setAuthor(event.target.value)}
           />
         </div>
-        <div className="grid gap-1.5 sm:col-span-2">
+        <div className="grid gap-2.5 sm:col-span-2">
           <Label htmlFor={`${formId}-description`}>{t('export.packageDescription')}</Label>
           <Textarea placeholder={t('export.packageDescriptionPlaceholder')}
             id={`${formId}-description`}

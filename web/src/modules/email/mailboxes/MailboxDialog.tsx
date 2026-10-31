@@ -184,7 +184,7 @@ function MailboxForm({ mode, onDirtyChange, onCancel, onDone }: MailboxFormProps
       }}
     >
       <div className="grid gap-4 sm:grid-cols-2">
-        <div className="grid content-start gap-1.5">
+        <div className="grid content-start gap-2.5">
           <Label htmlFor={`${formId}-display-name`}>{t('mailboxes.form.displayName')}</Label>
           <Input
             id={`${formId}-display-name`}
@@ -194,7 +194,7 @@ function MailboxForm({ mode, onDirtyChange, onCancel, onDone }: MailboxFormProps
             onChange={(event) => update({ display_name: event.target.value })}
           />
         </div>
-        <div className="grid content-start gap-1.5">
+        <div className="grid content-start gap-2.5">
           <Label htmlFor={`${formId}-history`}>{t('mailboxes.form.historyDays')}</Label>
           <Input placeholder={t('placeholders.historyDays')}
             id={`${formId}-history`}
@@ -236,7 +236,7 @@ function MailboxForm({ mode, onDirtyChange, onCancel, onDone }: MailboxFormProps
           />
           <fieldset className="grid gap-4 sm:grid-cols-2">
             <legend className="mb-2 text-sm font-medium">{t('mailboxes.form.credentials')}</legend>
-            <div className="grid content-start gap-1.5">
+            <div className="grid content-start gap-2.5">
               <Label htmlFor={`${formId}-username`}>{t('mailboxes.form.username')}</Label>
               <Input placeholder={t('placeholders.username')}
                 id={`${formId}-username`}
@@ -311,7 +311,7 @@ function ServerFields({ kind, formId, values, submitted, errors, onChange, onSec
   return (
     <fieldset className="grid gap-4 sm:grid-cols-[minmax(0,1fr)_7rem_9rem]">
       <legend className="mb-2 text-sm font-medium">{t(`mailboxes.form.${kind}Legend`)}</legend>
-      <div className="grid content-start gap-1.5">
+      <div className="grid content-start gap-2.5">
         <Label htmlFor={`${prefix}-host`}>{t('mailboxes.form.host')}</Label>
         <Input
           id={`${prefix}-host`}
@@ -324,7 +324,7 @@ function ServerFields({ kind, formId, values, submitted, errors, onChange, onSec
         />
         {submitted && errors[hostKey] && <p className="text-xs text-destructive">{t('mailboxes.form.required')}</p>}
       </div>
-      <div className="grid content-start gap-1.5">
+      <div className="grid content-start gap-2.5">
         <Label htmlFor={`${prefix}-port`}>{t('mailboxes.form.port')}</Label>
         <Input placeholder={t('placeholders.port')}
           id={`${prefix}-port`}
@@ -338,7 +338,7 @@ function ServerFields({ kind, formId, values, submitted, errors, onChange, onSec
         />
         {submitted && errors[portKey] && <p className="text-xs text-destructive">{t('mailboxes.form.portInvalid')}</p>}
       </div>
-      <div className="grid content-start gap-1.5">
+      <div className="grid content-start gap-2.5">
         <Label htmlFor={`${prefix}-security`}>{t('mailboxes.form.security')}</Label>
         <NativeSelect
           id={`${prefix}-security`}

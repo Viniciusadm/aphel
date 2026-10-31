@@ -66,7 +66,7 @@ function SettingsForm({ settings }: { settings: QuoteSettings }) {
   return (
     <div className="grid max-w-2xl gap-6">
       <UnsavedChangesGuard when={dirty} />
-      <div className="grid gap-1.5">
+      <div className="grid gap-2.5">
         <Label htmlFor={ids.days}>{t('settings.validDays')}</Label>
         <Input placeholder={t('placeholders.days')}
           id={ids.days}
@@ -81,7 +81,7 @@ function SettingsForm({ settings }: { settings: QuoteSettings }) {
         />
         <p className="text-xs text-muted-foreground">{t('settings.validDaysHint')}</p>
       </div>
-      <div className="grid gap-1.5">
+      <div className="grid gap-2.5">
         <Label htmlFor={ids.terms}>{t('settings.terms')}</Label>
         <Textarea placeholder={t('placeholders.terms')}
           id={ids.terms}

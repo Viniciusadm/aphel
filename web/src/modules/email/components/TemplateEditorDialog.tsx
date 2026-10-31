@@ -163,7 +163,7 @@ function TemplateForm({ scope, template, onDirtyChange, onCancel, onSaved }: Tem
       }}
     >
       <div className="grid gap-4 sm:grid-cols-2">
-        <div className="grid content-start gap-1.5">
+        <div className="grid content-start gap-2.5">
           <Label htmlFor={`${formId}-name`}>{t('templates.name')}</Label>
           <Input placeholder={t('placeholders.templateName')}
             id={`${formId}-name`}
@@ -179,7 +179,7 @@ function TemplateForm({ scope, template, onDirtyChange, onCancel, onSaved }: Tem
             }
           />
         </div>
-        <div className="grid content-start gap-1.5">
+        <div className="grid content-start gap-2.5">
           <Label htmlFor={`${formId}-key`}>{t('templates.key')}</Label>
           <Input placeholder={t('placeholders.templateKey')}
             id={`${formId}-key`}
@@ -199,7 +199,7 @@ function TemplateForm({ scope, template, onDirtyChange, onCancel, onSaved }: Tem
           </p>
         </div>
       </div>
-      <div className="grid content-start gap-1.5">
+      <div className="grid content-start gap-2.5">
         <Label htmlFor={`${formId}-record-type`}>{t('templates.recordType')}</Label>
         <NativeSelect
           id={`${formId}-record-type`}
@@ -223,7 +223,7 @@ function TemplateForm({ scope, template, onDirtyChange, onCancel, onSaved }: Tem
           {tab === 'edit' && <VariablePicker recordType={input.record_type} onInsert={insertVariable} />}
         </div>
         <TabsContent value="edit" className="grid gap-4">
-          <div className="grid content-start gap-1.5">
+          <div className="grid content-start gap-2.5">
             <Label htmlFor={`${formId}-subject`}>{t('fields.subject')}</Label>
             <Input placeholder={t('placeholders.subject')}
               id={`${formId}-subject`}
@@ -237,7 +237,7 @@ function TemplateForm({ scope, template, onDirtyChange, onCancel, onSaved }: Tem
               onChange={(event) => update({ subject: event.target.value })}
             />
           </div>
-          <div className="grid content-start gap-1.5">
+          <div className="grid content-start gap-2.5">
             <Label htmlFor={`${formId}-body`}>{t('templates.bodyHtml')}</Label>
             <Textarea placeholder={t('placeholders.bodyHtml')}
               id={`${formId}-body`}

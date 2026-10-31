@@ -277,11 +277,11 @@ function QuoteEditor({ quote }: { quote: QuoteDetail }) {
               <CardTitle>{t('editor.header')}</CardTitle>
             </CardHeader>
             <CardContent className="grid gap-4 sm:grid-cols-2">
-              <div className="grid gap-1.5 sm:col-span-2">
+              <div className="grid gap-2.5 sm:col-span-2">
                 <Label htmlFor={ids.title}>{t('editor.fields.title')}</Label>
                 <Input placeholder={t('placeholders.title')} id={ids.title} value={header.title} disabled={!editable} onChange={(event) => patchHeader({ title: event.target.value })} />
               </div>
-              <div className="grid gap-1.5">
+              <div className="grid gap-2.5">
                 <Label htmlFor={ids.validUntil}>{t('editor.fields.validUntil')}</Label>
                 <Input
                   id={ids.validUntil}
@@ -291,7 +291,7 @@ function QuoteEditor({ quote }: { quote: QuoteDetail }) {
                   onChange={(event) => patchHeader({ valid_until: event.target.value })}
                 />
               </div>
-              <div className="grid gap-1.5">
+              <div className="grid gap-2.5">
                 <Label htmlFor={ids.priceList}>{t('editor.fields.priceList')}</Label>
                 <Select
                   value={header.price_list_id || NO_PRICE_LIST}
@@ -311,7 +311,7 @@ function QuoteEditor({ quote }: { quote: QuoteDetail }) {
                   </SelectContent>
                 </Select>
               </div>
-              <div className="grid gap-1.5">
+              <div className="grid gap-2.5">
                 <Label htmlFor={ids.discount}>{t('editor.fields.totalDiscount')}</Label>
                 <div className="flex gap-2">
                   <Select
@@ -339,15 +339,15 @@ function QuoteEditor({ quote }: { quote: QuoteDetail }) {
                   />
                 </div>
               </div>
-              <div className="grid gap-1.5">
+              <div className="grid gap-2.5">
                 <Label>{t('editor.fields.currency')}</Label>
                 <Input placeholder={t('placeholders.currency')} value={quote.currency} disabled readOnly />
               </div>
-              <div className="grid gap-1.5 sm:col-span-2">
+              <div className="grid gap-2.5 sm:col-span-2">
                 <Label htmlFor={ids.terms}>{t('editor.fields.terms')}</Label>
                 <Textarea placeholder={t('placeholders.terms')} id={ids.terms} rows={3} value={header.terms} disabled={!editable} onChange={(event) => patchHeader({ terms: event.target.value })} />
               </div>
-              <div className="grid gap-1.5 sm:col-span-2">
+              <div className="grid gap-2.5 sm:col-span-2">
                 <Label htmlFor={ids.notes}>{t('editor.fields.notes')}</Label>
                 <Textarea placeholder={t('placeholders.notes')} id={ids.notes} rows={3} value={header.notes} disabled={!editable} onChange={(event) => patchHeader({ notes: event.target.value })} />
               </div>

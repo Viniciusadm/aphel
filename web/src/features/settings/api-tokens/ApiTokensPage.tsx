@@ -248,7 +248,7 @@ function CreateTokenForm({ onCancel, onCreated }: CreateTokenFormProps) {
           void submit()
         }}
       >
-        <div className="grid gap-1.5">
+        <div className="grid gap-2.5">
           <Label htmlFor={`${formId}-name`}>{t('form.name')}</Label>
           <Input
             id={`${formId}-name`}
@@ -304,7 +304,7 @@ function CreateTokenForm({ onCancel, onCreated }: CreateTokenFormProps) {
             </p>
           )}
         </fieldset>
-        <div className="grid gap-1.5">
+        <div className="grid gap-2.5">
           <Label htmlFor={`${formId}-expiration`}>{t('form.expiration')}</Label>
           <select
             id={`${formId}-expiration`}

@@ -108,7 +108,7 @@ function CancelBookingButton({ token }: { token: string }) {
           await cancel.mutateAsync(reason.trim() || null)
         }}
       >
-        <div className="grid gap-1">
+        <div className="grid gap-2">
           <Label htmlFor={reasonId}>{t('manage.reason')}</Label>
           <Textarea placeholder={t('placeholders.reason')} id={reasonId} rows={3} value={reason} onChange={(event) => setReason(event.target.value)} />
         </div>

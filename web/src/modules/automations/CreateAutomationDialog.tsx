@@ -176,11 +176,11 @@ function CreateForm({
 
   return (
     <form onSubmit={submit} className="grid gap-4">
-      <div className="grid gap-1.5">
+      <div className="grid gap-2.5">
         <Label htmlFor={nameId}>{t('create.name')}</Label>
         <Input placeholder={t('placeholders.name')} id={nameId} value={name} onChange={(event) => setName(event.target.value)} maxLength={120} required autoFocus />
       </div>
-      <div className="grid gap-1.5">
+      <div className="grid gap-2.5">
         <Label htmlFor={descriptionId}>{t('create.descriptionLabel')}</Label>
         <Textarea placeholder={t('placeholders.description')} id={descriptionId} value={description} onChange={(event) => setDescription(event.target.value)} rows={2} maxLength={1000} />
       </div>
@@ -193,7 +193,7 @@ function CreateForm({
         </p>
       ) : (
         <div className="grid gap-4 sm:grid-cols-2">
-          <div className="grid gap-1.5">
+          <div className="grid gap-2.5">
             <Label htmlFor={typeId}>{t('create.recordType')}</Label>
             <NativeSelect id={typeId} value={recordType} onChange={(event) => setRecordType(event.target.value)} className="w-full">
               {recordTypes.map((item) => (
@@ -204,7 +204,7 @@ function CreateForm({
             </NativeSelect>
             <p className="text-xs text-muted-foreground">{t('create.recordTypeHint')}</p>
           </div>
-          <div className="grid gap-1.5">
+          <div className="grid gap-2.5">
             <Label htmlFor={triggerId}>{t('create.trigger')}</Label>
             <NativeSelect id={triggerId} value={effectiveTrigger} onChange={(event) => setTrigger(event.target.value)} className="w-full">
               {triggers.map((entry) => (

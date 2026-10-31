@@ -21,7 +21,7 @@ function UserPicker({ value, onChange }: { value: string | null; onChange: (user
   const others = (users.data ?? []).filter((user) => user.id !== me.user.id)
   if (others.length === 0) return null
   return (
-    <div className="grid max-w-xs gap-1">
+    <div className="grid max-w-xs gap-2">
       <Label htmlFor="availability-user">{t('availability.user')}</Label>
       <Select value={value ?? SELF} onValueChange={(next) => onChange(next === SELF ? null : next)}>
         <SelectTrigger id="availability-user">

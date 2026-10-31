@@ -169,7 +169,7 @@ export function InboxPage() {
           </div>
         </div>
         {query.owner === 'team' && (
-          <div className="grid min-w-0 gap-1.5">
+          <div className="grid min-w-0 gap-2.5">
             <Label htmlFor={ids.team} className="text-xs text-muted-foreground">
               {t('filters.team')}
             </Label>
@@ -188,7 +188,7 @@ export function InboxPage() {
             </NativeSelect>
           </div>
         )}
-        <div className="grid min-w-0 gap-1.5">
+        <div className="grid min-w-0 gap-2.5">
           <Label htmlFor={ids.sort} className="text-xs text-muted-foreground">
             {t('filters.sort')}
           </Label>

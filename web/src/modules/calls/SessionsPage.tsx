@@ -93,7 +93,7 @@ function StartSessionCard() {
             void submit()
           }}
         >
-          <div className="grid gap-1.5">
+          <div className="grid gap-2.5">
             <Label htmlFor={`${formId}-view`}>{t('start.view')}</Label>
             {views.isPending ? (
               <Skeleton className="h-9 w-full" />
@@ -121,7 +121,7 @@ function StartSessionCard() {
             {viewError && <p className="text-xs text-destructive">{t('start.viewRequired')}</p>}
             <p className="text-xs text-muted-foreground">{t('start.viewHint')}</p>
           </div>
-          <div className="grid gap-1.5">
+          <div className="grid gap-2.5">
             <Label htmlFor={`${formId}-name`}>{t('start.name')}</Label>
             <Input
               id={`${formId}-name`}
@@ -130,7 +130,7 @@ function StartSessionCard() {
               onChange={(event) => setName(event.target.value)}
             />
           </div>
-          <div className="grid gap-1.5">
+          <div className="grid gap-2.5">
             <Label htmlFor={`${formId}-script`}>{t('start.script')}</Label>
             <Textarea
               id={`${formId}-script`}

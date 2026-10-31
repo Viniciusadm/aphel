@@ -86,7 +86,7 @@ function RulesForm({ settings }: { settings: LifecycleSettings }) {
           />
         ))}
       </div>
-      <div className="grid gap-1.5 rounded-md border bg-card p-4">
+      <div className="grid gap-2.5 rounded-md border bg-card p-4">
         <Label htmlFor="lifecycle-disqualified-stage">{t('settings.disqualified.title')}</Label>
         <p className="text-xs text-muted-foreground">{t('settings.disqualified.description')}</p>
         <NativeSelect
@@ -148,7 +148,7 @@ function RuleCard({
           <p className="text-xs text-muted-foreground">{t(`settings.rules.triggers.${rule.trigger}.description`)}</p>
         </div>
       </div>
-      <div className="grid gap-1.5 sm:max-w-xs">
+      <div className="grid gap-2.5 sm:max-w-xs">
         <Label htmlFor={`${prefix}-target`}>{t('settings.rules.target')}</Label>
         <NativeSelect
           id={`${prefix}-target`}

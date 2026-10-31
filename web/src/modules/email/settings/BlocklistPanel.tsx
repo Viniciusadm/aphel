@@ -66,7 +66,7 @@ export function BlocklistPanel() {
           if (valid) add.mutate()
         }}
       >
-        <div className="grid content-start gap-1.5">
+        <div className="grid content-start gap-2.5">
           <Label htmlFor={`${formId}-kind`}>{t('blocklist.kind')}</Label>
           <NativeSelect id={`${formId}-kind`} value={kind} onChange={(event) => setKind(event.target.value as BlocklistKind)}>
             {BLOCKLIST_KINDS.map((option) => (
@@ -76,7 +76,7 @@ export function BlocklistPanel() {
             ))}
           </NativeSelect>
         </div>
-        <div className="grid content-start gap-1.5">
+        <div className="grid content-start gap-2.5">
           <Label htmlFor={`${formId}-value`}>{t('blocklist.value')}</Label>
           <Input
             id={`${formId}-value`}
@@ -88,7 +88,7 @@ export function BlocklistPanel() {
             onChange={(event) => setValue(event.target.value)}
           />
         </div>
-        <div className="grid content-start gap-1.5">
+        <div className="grid content-start gap-2.5">
           <Label htmlFor={`${formId}-reason`}>{t('blocklist.reason')}</Label>
           <Input
             id={`${formId}-reason`}

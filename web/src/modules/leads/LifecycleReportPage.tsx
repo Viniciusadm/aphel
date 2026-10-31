@@ -38,7 +38,7 @@ export function LifecycleReportPage() {
         description={t('report.description')}
       />
       <div className="flex flex-wrap items-end gap-3">
-        <div className="grid gap-1.5">
+        <div className="grid gap-2.5">
           <Label htmlFor="lifecycle-report-type">{t('report.recordType')}</Label>
           <NativeSelect
             id="lifecycle-report-type"
@@ -49,7 +49,7 @@ export function LifecycleReportPage() {
             <option value="company">{t('report.recordTypes.company')}</option>
           </NativeSelect>
         </div>
-        <div className="grid gap-1.5">
+        <div className="grid gap-2.5">
           <Label htmlFor="lifecycle-report-from">{t('report.from')}</Label>
           <Input
             id="lifecycle-report-from"
@@ -59,7 +59,7 @@ export function LifecycleReportPage() {
             onChange={(event) => event.target.value && setPeriod((current) => ({ ...current, from: event.target.value }))}
           />
         </div>
-        <div className="grid gap-1.5">
+        <div className="grid gap-2.5">
           <Label htmlFor="lifecycle-report-to">{t('report.to')}</Label>
           <Input
             id="lifecycle-report-to"

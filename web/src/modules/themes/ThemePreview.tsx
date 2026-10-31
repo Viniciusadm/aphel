@@ -73,7 +73,7 @@ export function ThemePreview({ tokens, fonts, mode }: ThemePreviewProps) {
           <CardDescription>{t('preview.cardDescription')}</CardDescription>
         </CardHeader>
         <CardContent className="grid gap-3">
-          <div className="grid gap-1.5">
+          <div className="grid gap-2.5">
             <Label htmlFor="preview-input">{t('preview.field')}</Label>
             <Input id="preview-input" placeholder={t('preview.placeholder')} />
           </div>

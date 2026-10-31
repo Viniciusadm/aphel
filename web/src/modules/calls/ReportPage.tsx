@@ -50,7 +50,7 @@ export function ReportPage() {
   return (
     <div className="grid gap-4">
       <div className="flex flex-wrap items-end gap-3">
-        <div className="grid gap-1.5">
+        <div className="grid gap-2.5">
           <Label htmlFor={`${formId}-from`}>{t('report.from')}</Label>
           <Input
             id={`${formId}-from`}
@@ -59,7 +59,7 @@ export function ReportPage() {
             onChange={(event) => setRange((current) => ({ ...current, from: event.target.value }))}
           />
         </div>
-        <div className="grid gap-1.5">
+        <div className="grid gap-2.5">
           <Label htmlFor={`${formId}-to`}>{t('report.to')}</Label>
           <Input
             id={`${formId}-to`}
@@ -68,7 +68,7 @@ export function ReportPage() {
             onChange={(event) => setRange((current) => ({ ...current, to: event.target.value }))}
           />
         </div>
-        <div className="grid gap-1.5">
+        <div className="grid gap-2.5">
           <Label htmlFor={`${formId}-owner`}>{t('report.owner')}</Label>
           <NativeSelect
             id={`${formId}-owner`}

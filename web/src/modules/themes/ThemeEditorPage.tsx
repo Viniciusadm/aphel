@@ -142,7 +142,7 @@ function ThemeEditor({ creating, initial }: { creating: boolean; initial: ThemeP
         <div className="grid min-w-0 content-start gap-6">
           <fieldset className="grid gap-3 sm:grid-cols-2">
             <legend className="mb-2 text-base font-semibold">{t('editor.identity')}</legend>
-            <div className="grid gap-1.5">
+            <div className="grid gap-2.5">
               <Label htmlFor="theme-name">{t('editor.name')}</Label>
               <Input placeholder={t('placeholders.name')}
                 id="theme-name"
@@ -155,7 +155,7 @@ function ThemeEditor({ creating, initial }: { creating: boolean; initial: ThemeP
                 }
               />
             </div>
-            <div className="grid gap-1.5">
+            <div className="grid gap-2.5">
               <Label htmlFor="theme-id">{t('editor.id')}</Label>
               <Input placeholder={t('placeholders.id')}
                 id="theme-id"
@@ -165,19 +165,19 @@ function ThemeEditor({ creating, initial }: { creating: boolean; initial: ThemeP
                 onChange={(event) => patch({ id: event.target.value })}
               />
             </div>
-            <div className="grid gap-1.5">
+            <div className="grid gap-2.5">
               <Label htmlFor="theme-version">{t('editor.version')}</Label>
               <Input placeholder={t('placeholders.version')} id="theme-version" value={draft.version} onChange={(event) => patch({ version: event.target.value })} />
             </div>
-            <div className="grid gap-1.5">
+            <div className="grid gap-2.5">
               <Label htmlFor="theme-author">{t('editor.author')}</Label>
               <Input placeholder={t('placeholders.author')} id="theme-author" value={draft.author} onChange={(event) => patch({ author: event.target.value })} />
             </div>
-            <div className="grid gap-1.5">
+            <div className="grid gap-2.5">
               <Label htmlFor="theme-license">{t('editor.license')}</Label>
               <Input placeholder={t('placeholders.license')} id="theme-license" value={draft.license} onChange={(event) => patch({ license: event.target.value })} />
             </div>
-            <div className="grid gap-1.5 sm:col-span-2">
+            <div className="grid gap-2.5 sm:col-span-2">
               <Label htmlFor="theme-description">{t('editor.descriptionLabel')}</Label>
               <Textarea placeholder={t('placeholders.description')}
                 id="theme-description"

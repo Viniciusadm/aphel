@@ -100,7 +100,7 @@ export function PluginSettingsDialog({ plugin, onClose, onSaved }: PluginSetting
                     checked={value === true}
                     onCheckedChange={(checked) => setDraft({ ...draft, [setting.key]: checked === true })}
                   />
-                  <div className="grid gap-1">
+                  <div className="grid gap-2">
                     <Label htmlFor={inputId}>{setting.label}</Label>
                     {setting.help && <p className="text-xs text-muted-foreground">{setting.help}</p>}
                   </div>

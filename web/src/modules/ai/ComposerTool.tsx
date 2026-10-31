@@ -116,7 +116,7 @@ function ComposerDialog({ context, subject, value, onChange, onOpenChange }: Com
               </Button>
             ))}
           </div>
-          <div className="grid gap-1.5">
+          <div className="grid gap-2.5">
             <Label htmlFor={`${id}-instruction`}>{t('compose.instruction')}</Label>
             <Textarea
               id={`${id}-instruction`}

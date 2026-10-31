@@ -121,7 +121,7 @@ function ScheduleForm({
   return (
     <form className="grid gap-4" onSubmit={handleSubmit} noValidate>
       <div className="grid gap-3 sm:grid-cols-2">
-        <div className="grid gap-1.5">
+        <div className="grid gap-2.5">
           <Label htmlFor={ids.frequency}>{t('schedules.form.frequency')}</Label>
           <NativeSelect
             id={ids.frequency}
@@ -136,7 +136,7 @@ function ScheduleForm({
           </NativeSelect>
         </div>
         {values.frequency === 'weekly' && (
-          <div className="grid gap-1.5">
+          <div className="grid gap-2.5">
             <Label htmlFor={ids.weekday}>{t('schedules.form.weekday')}</Label>
             <NativeSelect
               id={ids.weekday}
@@ -152,7 +152,7 @@ function ScheduleForm({
           </div>
         )}
         {values.frequency === 'monthly' && (
-          <div className="grid gap-1.5">
+          <div className="grid gap-2.5">
             <Label htmlFor={ids.day}>{t('schedules.form.dayOfMonth')}</Label>
             <Input placeholder={t('placeholders.day')}
               id={ids.day}
@@ -164,12 +164,12 @@ function ScheduleForm({
             />
           </div>
         )}
-        <div className="grid gap-1.5">
+        <div className="grid gap-2.5">
           <Label htmlFor={ids.time}>{t('schedules.form.time')}</Label>
           <Input id={ids.time} type="time" value={values.time} onChange={(event) => set({ time: event.target.value })} />
         </div>
         {hasPeriod && (
-          <div className="grid gap-1.5">
+          <div className="grid gap-2.5">
             <Label htmlFor={ids.preset}>{t('schedules.form.period')}</Label>
             <NativeSelect
               id={ids.preset}

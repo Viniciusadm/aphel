@@ -109,7 +109,7 @@ function ScheduleForm({ activity, onClose }: { activity: ScheduledActivity; onCl
             </span>
           </div>
         )}
-        <div className="grid gap-1.5">
+        <div className="grid gap-2.5">
           <Label htmlFor={`${baseId}-due`}>{t('form.dueAt')}</Label>
           <DateTimeFieldInput
             id={`${baseId}-due`}
@@ -119,7 +119,7 @@ function ScheduleForm({ activity, onClose }: { activity: ScheduledActivity; onCl
             locale={formatting.locale}
           />
         </div>
-        <div className="grid gap-1.5">
+        <div className="grid gap-2.5">
           <Label htmlFor={`${baseId}-reminder`}>{t('reminder.label')}</Label>
           <ReminderSelect id={`${baseId}-reminder`} value={reminder} onChange={setReminder} />
         </div>

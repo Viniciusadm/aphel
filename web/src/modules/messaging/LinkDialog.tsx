@@ -74,7 +74,7 @@ function LinkForm({ conversation, onDone }: { conversation: Conversation; onDone
         void save()
       }}
     >
-      <div className="grid gap-1.5">
+      <div className="grid gap-2.5">
         <Label htmlFor={`link-contact-${conversation.id}`}>{t('links.contact')}</Label>
         {contactLocked && conversation.contact ? (
           <LinkedRecordLabel recordType="contact" record={conversation.contact} />
@@ -87,7 +87,7 @@ function LinkForm({ conversation, onDone }: { conversation: Conversation; onDone
           />
         )}
       </div>
-      <div className="grid gap-1.5">
+      <div className="grid gap-2.5">
         <Label htmlFor={`link-deal-${conversation.id}`}>{t('links.deal')}</Label>
         {dealLocked && conversation.deal ? (
           <LinkedRecordLabel recordType="deal" record={conversation.deal} />

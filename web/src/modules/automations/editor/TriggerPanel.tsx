@@ -50,7 +50,7 @@ export function TriggerPanel({
 
   return (
     <fieldset disabled={readOnly} className="grid min-w-0 gap-5">
-      <div className="grid gap-1.5">
+      <div className="grid gap-2.5">
         <Label htmlFor={id}>{t('panel.triggerType')}</Label>
         <NativeSelect id={id} value={type} onChange={(event) => onChange({ type: event.target.value })} className="w-full">
           {!entry && <option value={type}>{type}</option>}

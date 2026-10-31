@@ -339,7 +339,7 @@ function EnrollmentsSection({ sequence }: { sequence: Sequence }) {
           </h2>
           <p className="text-sm text-muted-foreground">{t('enrollments.description')}</p>
         </div>
-        <div className="grid w-48 gap-1.5">
+        <div className="grid w-48 gap-2.5">
           <Label htmlFor={statusId} className="sr-only">
             {t('enrollments.statusFilter')}
           </Label>

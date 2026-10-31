@@ -132,7 +132,7 @@ function EditorBody({ webhook, onCancel, onSaved }: EditorBodyProps) {
       </DialogHeader>
       <FormProvider {...form}>
         <form id={formId} className="grid gap-4" noValidate onSubmit={(event) => void submit(event)}>
-          <div className="grid gap-1.5">
+          <div className="grid gap-2.5">
             <Label htmlFor={`${formId}-name`}>{t('form.name')}</Label>
             <Input
               id={`${formId}-name`}
@@ -145,7 +145,7 @@ function EditorBody({ webhook, onCancel, onSaved }: EditorBodyProps) {
               <p className="text-xs text-destructive">{errorMessage(formState.errors.name.message)}</p>
             )}
           </div>
-          <div className="grid gap-1.5">
+          <div className="grid gap-2.5">
             <Label htmlFor={`${formId}-description`}>{t('form.descriptionLabel')}</Label>
             <Textarea placeholder={t('placeholders.description')}
               id={`${formId}-description`}
@@ -167,7 +167,7 @@ function EditorBody({ webhook, onCancel, onSaved }: EditorBodyProps) {
             )}
           </div>
           {signed && (
-            <div className="grid gap-1.5 sm:max-w-xs">
+            <div className="grid gap-2.5 sm:max-w-xs">
               <Label htmlFor={`${formId}-tolerance`}>{t('form.tolerance')}</Label>
               <Input placeholder={t('placeholders.tolerance')}
                 id={`${formId}-tolerance`}

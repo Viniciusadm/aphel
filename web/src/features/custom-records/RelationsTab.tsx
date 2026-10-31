@@ -63,7 +63,7 @@ export function RelationPanel({ recordType, recordId, relation, readOnly = false
   return (
     <div className="grid gap-3">
       {canLink && (
-        <div className="grid gap-1.5">
+        <div className="grid gap-2.5">
           <Label htmlFor={pickerId}>{t('relations.link', { label: relation.label })}</Label>
           <RecordFieldInput
             id={pickerId}

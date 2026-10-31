@@ -120,7 +120,7 @@ function LinkCompanyForm({ contactId }: { contactId: string }) {
         void submit()
       }}
     >
-      <div className="grid min-w-0 gap-1.5">
+      <div className="grid min-w-0 gap-2.5">
         <Label id={companyLabelId}>{t('companies.companyLabel')}</Label>
         <RecordFieldInput
           targetRecordType="company"
@@ -129,7 +129,7 @@ function LinkCompanyForm({ contactId }: { contactId: string }) {
           aria-labelledby={companyLabelId}
         />
       </div>
-      <div className="grid gap-1.5">
+      <div className="grid gap-2.5">
         <Label htmlFor={roleId}>{t('companies.roleLabel')}</Label>
         <NativeSelect id={roleId} value={role} onChange={(event) => setRole(event.target.value)}>
           <option value="">{t('companies.roleNone')}</option>

@@ -66,17 +66,17 @@ export function FieldEditor({ index, total, targets, onMove, onRemove }: FieldEd
         </div>
       </div>
       <div className="grid gap-3 sm:grid-cols-2">
-        <div className="grid gap-1.5">
+        <div className="grid gap-2.5">
           <Label htmlFor={`${prefix}-label`}>{t('editor.label')}</Label>
           <Input placeholder={t('editor.labelPlaceholder')} id={`${prefix}-label`} {...register(`fields.${index}.label`, { onBlur: fillKey })} />
           {errors?.label && <p className="text-xs text-destructive">{message(errors.label.message)}</p>}
         </div>
-        <div className="grid gap-1.5">
+        <div className="grid gap-2.5">
           <Label htmlFor={`${prefix}-key`}>{t('editor.key')}</Label>
           <Input placeholder={t('editor.keyPlaceholder')} id={`${prefix}-key`} className="font-mono" {...register(`fields.${index}.key`)} />
           {errors?.key && <p className="text-xs text-destructive">{message(errors.key.message)}</p>}
         </div>
-        <div className="grid gap-1.5">
+        <div className="grid gap-2.5">
           <Label htmlFor={`${prefix}-kind`}>{t('editor.kind')}</Label>
           <NativeSelect id={`${prefix}-kind`} {...register(`fields.${index}.kind`)}>
             {FIELD_KINDS.map((option) => (
@@ -86,7 +86,7 @@ export function FieldEditor({ index, total, targets, onMove, onRemove }: FieldEd
             ))}
           </NativeSelect>
         </div>
-        <div className="grid gap-1.5">
+        <div className="grid gap-2.5">
           <Label htmlFor={`${prefix}-target`}>{t('editor.target')}</Label>
           <NativeSelect id={`${prefix}-target`} {...register(`fields.${index}.target`)}>
             <option value="">{t('editor.noTarget')}</option>
@@ -102,7 +102,7 @@ export function FieldEditor({ index, total, targets, onMove, onRemove }: FieldEd
           </NativeSelect>
         </div>
         {kind !== 'checkbox' && (
-          <div className="grid gap-1.5 sm:col-span-2">
+          <div className="grid gap-2.5 sm:col-span-2">
             <Label htmlFor={`${prefix}-placeholder`}>
               {kind === 'select' ? t('editor.selectPrompt') : t('editor.placeholder')}
             </Label>
@@ -111,7 +111,7 @@ export function FieldEditor({ index, total, targets, onMove, onRemove }: FieldEd
           </div>
         )}
         {kind === 'select' && (
-          <div className="grid gap-1.5 sm:col-span-2">
+          <div className="grid gap-2.5 sm:col-span-2">
             <Label htmlFor={`${prefix}-options`}>{t('editor.options')}</Label>
             <Textarea placeholder={t('editor.optionsPlaceholder')} id={`${prefix}-options`} rows={3} {...register(`fields.${index}.options`)} />
             <p className="text-xs text-muted-foreground">{t('editor.optionsHelp')}</p>

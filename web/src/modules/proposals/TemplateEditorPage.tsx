@@ -254,7 +254,7 @@ function EditorForm({ template }: { template: ProposalTemplate | null }) {
           }}
         >
           <div className="grid gap-4 sm:grid-cols-2">
-            <div className="grid gap-1.5">
+            <div className="grid gap-2.5">
               <Label htmlFor={`${formId}-name`}>{t('editor.name')}</Label>
               <Input placeholder={t('editor.namePlaceholder')}
                 id={`${formId}-name`}
@@ -264,7 +264,7 @@ function EditorForm({ template }: { template: ProposalTemplate | null }) {
                 onChange={(event) => change('name', event.target.value)}
               />
             </div>
-            <div className="grid gap-1.5">
+            <div className="grid gap-2.5">
               <Label htmlFor={`${formId}-key`}>{t('editor.key')}</Label>
               <Input placeholder={t('editor.keyPlaceholder')}
                 id={`${formId}-key`}
@@ -281,7 +281,7 @@ function EditorForm({ template }: { template: ProposalTemplate | null }) {
               </p>
             </div>
           </div>
-          <div className="grid gap-1.5">
+          <div className="grid gap-2.5">
             <Label htmlFor={`${formId}-description`}>{t('editor.descriptionLabel')}</Label>
             <Input placeholder={t('editor.descriptionPlaceholder')}
               id={`${formId}-description`}

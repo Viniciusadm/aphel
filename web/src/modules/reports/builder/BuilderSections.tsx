@@ -328,7 +328,7 @@ export function PeriodSection({ draft, onChange, fields }: DraftProps & { fields
       </div>
       {period && (
         <div className="grid gap-3 sm:grid-cols-2">
-          <div className="grid gap-1.5">
+          <div className="grid gap-2.5">
             <Label htmlFor={ids.field}>{t('sections.period.field')}</Label>
             <NativeSelect
               id={ids.field}
@@ -342,7 +342,7 @@ export function PeriodSection({ draft, onChange, fields }: DraftProps & { fields
               ))}
             </NativeSelect>
           </div>
-          <div className="grid gap-1.5">
+          <div className="grid gap-2.5">
             <Label htmlFor={ids.preset}>{t('sections.period.preset')}</Label>
             <NativeSelect
               id={ids.preset}
@@ -358,7 +358,7 @@ export function PeriodSection({ draft, onChange, fields }: DraftProps & { fields
           </div>
           {period.preset === 'custom' && (
             <>
-              <div className="grid gap-1.5">
+              <div className="grid gap-2.5">
                 <Label htmlFor={ids.from}>{t('sections.period.from')}</Label>
                 <Input
                   id={ids.from}
@@ -367,7 +367,7 @@ export function PeriodSection({ draft, onChange, fields }: DraftProps & { fields
                   onChange={(event) => onChange({ period: { ...period, from: event.target.value } })}
                 />
               </div>
-              <div className="grid gap-1.5">
+              <div className="grid gap-2.5">
                 <Label htmlFor={ids.to}>{t('sections.period.to')}</Label>
                 <Input
                   id={ids.to}
@@ -477,7 +477,7 @@ export function SortSection({
           <Plus />
           {t('sections.sort.add')}
         </Button>
-        <div className="grid gap-1.5">
+        <div className="grid gap-2.5">
           <Label htmlFor={limitId}>{t('sections.sort.limit')}</Label>
           <Input placeholder={t('placeholders.limit')}
             id={limitId}
@@ -524,7 +524,7 @@ export function VisualizationSection({ draft, onChange, fields }: DraftProps & {
         ))}
       </div>
       {draft.visualization !== 'table' && metrics.length > 1 && (
-        <div className="grid gap-1.5">
+        <div className="grid gap-2.5">
           <Label htmlFor={metricId}>{t('sections.visualization.metric')}</Label>
           <NativeSelect
             id={metricId}

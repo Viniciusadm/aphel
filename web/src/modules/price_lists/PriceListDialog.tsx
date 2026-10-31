@@ -137,7 +137,7 @@ function PriceListForm({ list, onClose, onSaved }: PriceListFormProps) {
           void submit()
         }}
       >
-        <div className="grid gap-1.5">
+        <div className="grid gap-2.5">
           <Label htmlFor={`${formId}-name`}>{t('form.name')}</Label>
           <Input placeholder={t('placeholders.name')}
             id={`${formId}-name`}
@@ -149,7 +149,7 @@ function PriceListForm({ list, onClose, onSaved }: PriceListFormProps) {
           />
           {errorFor('name')}
         </div>
-        <div className="grid gap-1.5">
+        <div className="grid gap-2.5">
           <Label htmlFor={`${formId}-key`}>{t('form.key')}</Label>
           <Input
             id={`${formId}-key`}
@@ -162,7 +162,7 @@ function PriceListForm({ list, onClose, onSaved }: PriceListFormProps) {
           />
           {errorFor('key') ?? <p className="text-xs text-muted-foreground">{t('form.keyHint')}</p>}
         </div>
-        <div className="grid gap-1.5">
+        <div className="grid gap-2.5">
           <Label htmlFor={`${formId}-description`}>{t('form.descriptionLabel')}</Label>
           <Textarea placeholder={t('placeholders.description')}
             id={`${formId}-description`}
@@ -173,7 +173,7 @@ function PriceListForm({ list, onClose, onSaved }: PriceListFormProps) {
           />
         </div>
         <div className="grid gap-4 sm:grid-cols-2">
-          <div className="grid gap-1.5">
+          <div className="grid gap-2.5">
             <Label htmlFor={`${formId}-currency`}>{t('form.currency')}</Label>
             <NativeSelect
               id={`${formId}-currency`}
@@ -189,7 +189,7 @@ function PriceListForm({ list, onClose, onSaved }: PriceListFormProps) {
             </NativeSelect>
             {errorFor('currency')}
           </div>
-          <div className="grid gap-1.5">
+          <div className="grid gap-2.5">
             <Label htmlFor={`${formId}-applies`}>{t('form.appliesTo')}</Label>
             <NativeSelect
               id={`${formId}-applies`}
@@ -205,7 +205,7 @@ function PriceListForm({ list, onClose, onSaved }: PriceListFormProps) {
           </div>
         </div>
         {appliesTo === 'segment' && (
-          <div className="grid gap-1.5">
+          <div className="grid gap-2.5">
             <Label htmlFor={`${formId}-segment`}>{t('form.segment')}</Label>
             <NativeSelect
               id={`${formId}-segment`}
@@ -263,7 +263,7 @@ function PriceListForm({ list, onClose, onSaved }: PriceListFormProps) {
           </fieldset>
         )}
         <div className="grid gap-4 sm:grid-cols-2">
-          <div className="grid gap-1.5">
+          <div className="grid gap-2.5">
             <Label htmlFor={`${formId}-from`}>{t('form.validFrom')}</Label>
             <Input
               id={`${formId}-from`}
@@ -272,7 +272,7 @@ function PriceListForm({ list, onClose, onSaved }: PriceListFormProps) {
               onChange={(event) => setValidFrom(event.target.value)}
             />
           </div>
-          <div className="grid gap-1.5">
+          <div className="grid gap-2.5">
             <Label htmlFor={`${formId}-to`}>{t('form.validTo')}</Label>
             <Input
               id={`${formId}-to`}

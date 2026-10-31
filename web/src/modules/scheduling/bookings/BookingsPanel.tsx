@@ -84,7 +84,7 @@ export function BookingsPanel() {
   return (
     <div className="grid gap-4">
       <div className="flex flex-wrap items-end gap-4">
-        <div className="grid w-44 gap-1">
+        <div className="grid w-44 gap-2">
           <Label htmlFor="bookings-status">{t('bookings.status')}</Label>
           <Select
             value={filters.status}
@@ -100,7 +100,7 @@ export function BookingsPanel() {
             </SelectContent>
           </Select>
         </div>
-        <div className="grid w-56 gap-1">
+        <div className="grid w-56 gap-2">
           <Label htmlFor="bookings-meeting-type">{t('bookings.meetingType')}</Label>
           <Select
             value={filters.meetingTypeId ?? ALL}

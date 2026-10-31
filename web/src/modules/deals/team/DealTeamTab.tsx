@@ -238,7 +238,7 @@ function AddMemberForm({ team, roles, busy, onCancel, onSubmit }: AddMemberFormP
         void submit()
       }}
     >
-      <div className="grid min-w-0 gap-1.5">
+      <div className="grid min-w-0 gap-2.5">
         <Label id={`${formId}-user`}>{t('add.user')}</Label>
         <UserFieldInput
           value={userId}
@@ -252,11 +252,11 @@ function AddMemberForm({ team, roles, busy, onCancel, onSubmit }: AddMemberFormP
         />
         {userError && <p className="text-xs text-destructive">{t('add.userRequired')}</p>}
       </div>
-      <div className="grid gap-1.5">
+      <div className="grid gap-2.5">
         <Label htmlFor={`${formId}-role`}>{t('add.role')}</Label>
         <RoleSelect id={`${formId}-role`} value={roleId} roles={roles} onChange={setRoleId} />
       </div>
-      <div className="grid gap-1.5">
+      <div className="grid gap-2.5">
         <Label htmlFor={`${formId}-credit`}>{t('add.credit')}</Label>
         <Input placeholder={t('placeholders.credit')}
           id={`${formId}-credit`}

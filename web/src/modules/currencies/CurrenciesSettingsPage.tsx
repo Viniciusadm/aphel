@@ -159,7 +159,7 @@ function EnabledCurrencies({ settings }: { settings: CurrencySettings }) {
             void add()
           }}
         >
-          <div className="grid gap-1.5">
+          <div className="grid gap-2.5">
             <Label htmlFor={inputId}>{t('enabled.code')}</Label>
             <Input
               id={inputId}
@@ -433,7 +433,7 @@ function RateForm({ editing, currencies, today, onClose, onSaved }: RateFormProp
           void submit()
         }}
       >
-        <div className="grid gap-1.5">
+        <div className="grid gap-2.5">
           <Label htmlFor={`${formId}-currency`}>{t('rates.columns.currency')}</Label>
           <NativeSelect
             id={`${formId}-currency`}
@@ -448,11 +448,11 @@ function RateForm({ editing, currencies, today, onClose, onSaved }: RateFormProp
             ))}
           </NativeSelect>
         </div>
-        <div className="grid gap-1.5">
+        <div className="grid gap-2.5">
           <Label htmlFor={`${formId}-date`}>{t('rates.columns.date')}</Label>
           <Input id={`${formId}-date`} type="date" value={date} onChange={(event) => setDate(event.target.value)} />
         </div>
-        <div className="grid gap-1.5">
+        <div className="grid gap-2.5">
           <Label htmlFor={`${formId}-rate`}>{t('rates.rateLabel', { currency })}</Label>
           <Input placeholder={t('placeholders.rate')}
             id={`${formId}-rate`}

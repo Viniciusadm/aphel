@@ -101,7 +101,7 @@ function ConvertForm({ lead, onClose }: { lead: LeadTarget; onClose: () => void 
           void submit()
         }}
       >
-        <div className="grid gap-1.5">
+        <div className="grid gap-2.5">
           <Label htmlFor={`${formId}-pipeline`}>{t('convert.pipeline')}</Label>
           <NativeSelect
             id={`${formId}-pipeline`}
@@ -123,7 +123,7 @@ function ConvertForm({ lead, onClose }: { lead: LeadTarget; onClose: () => void 
           </NativeSelect>
           {pipelineError && <p className="text-xs text-destructive">{t('convert.pipelineRequired')}</p>}
         </div>
-        <div className="grid gap-1.5">
+        <div className="grid gap-2.5">
           <Label htmlFor={`${formId}-stage`}>{t('convert.stage')}</Label>
           <NativeSelect
             id={`${formId}-stage`}
@@ -139,7 +139,7 @@ function ConvertForm({ lead, onClose }: { lead: LeadTarget; onClose: () => void 
             ))}
           </NativeSelect>
         </div>
-        <div className="grid gap-1.5">
+        <div className="grid gap-2.5">
           <Label htmlFor={`${formId}-title`}>{t('convert.dealTitle')}</Label>
           <Input placeholder={t('placeholders.dealTitle')}
             id={`${formId}-title`}
@@ -148,7 +148,7 @@ function ConvertForm({ lead, onClose }: { lead: LeadTarget; onClose: () => void 
             onChange={(event) => setTitle(event.target.value)}
           />
         </div>
-        <div className="grid gap-1.5">
+        <div className="grid gap-2.5">
           <Label htmlFor={`${formId}-amount`}>{t('convert.amount')}</Label>
           <Input
             id={`${formId}-amount`}

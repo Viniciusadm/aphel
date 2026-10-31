@@ -141,7 +141,7 @@ function ConversationHeader({ conversation, onBack }: { conversation: Conversati
       </div>
       {canReply && (
         <div className="grid gap-2 sm:grid-cols-2">
-          <div className="grid gap-1">
+          <div className="grid gap-2">
             <Label htmlFor={`status-${conversation.id}`} className="text-xs text-muted-foreground">
               {t('panel.status')}
             </Label>
@@ -167,7 +167,7 @@ function ConversationHeader({ conversation, onBack }: { conversation: Conversati
               </SelectContent>
             </Select>
           </div>
-          <div className="grid gap-1">
+          <div className="grid gap-2">
             <Label htmlFor={`assignee-${conversation.id}`} className="text-xs text-muted-foreground">
               {t('panel.assignee')}
             </Label>

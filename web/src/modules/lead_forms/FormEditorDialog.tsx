@@ -117,14 +117,14 @@ function EditorBody({ form, onCancel, onSaved }: EditorBodyProps) {
                 <h3 id={`${formId}-general`} className="text-sm font-semibold">
                   {t('editor.general')}
                 </h3>
-                <div className="grid gap-1.5">
+                <div className="grid gap-2.5">
                   <Label htmlFor={`${formId}-name`}>{t('editor.name')}</Label>
                   <Input id={`${formId}-name`} placeholder={t('editor.namePlaceholder')} {...register('name')} />
                   {formState.errors.name && (
                     <p className="text-xs text-destructive">{errorText(formState.errors.name.message)}</p>
                   )}
                 </div>
-                <div className="grid gap-1.5">
+                <div className="grid gap-2.5">
                   <Label htmlFor={`${formId}-actor`}>{t('editor.actingUser')}</Label>
                   <NativeSelect id={`${formId}-actor`} {...register('acting_user_id')}>
                     <option value="">{t('editor.actingUserCreator')}</option>
@@ -195,11 +195,11 @@ function EditorBody({ form, onCancel, onSaved }: EditorBodyProps) {
                   {t('editor.dedupe')}
                 </label>
                 <div className="grid gap-3 sm:grid-cols-2">
-                  <div className="grid gap-1.5">
+                  <div className="grid gap-2.5">
                     <Label htmlFor={`${formId}-source`}>{t('editor.source')}</Label>
                     <Input id={`${formId}-source`} placeholder={t('editor.sourcePlaceholder')} {...register('source')} />
                   </div>
-                  <div className="grid gap-1.5">
+                  <div className="grid gap-2.5">
                     <Label htmlFor={`${formId}-owner`}>{t('editor.owner')}</Label>
                     <NativeSelect id={`${formId}-owner`} {...register('owner_id')}>
                       <option value="">{t('editor.ownerActingUser')}</option>
@@ -210,7 +210,7 @@ function EditorBody({ form, onCancel, onSaved }: EditorBodyProps) {
                       ))}
                     </NativeSelect>
                   </div>
-                  <div className="grid gap-1.5">
+                  <div className="grid gap-2.5">
                     <Label htmlFor={`${formId}-distribution`}>{t('editor.distributionRule')}</Label>
                     <NativeSelect id={`${formId}-distribution`} {...register('distribution_rule_id')}>
                       <option value="">{t('editor.noDistributionRule')}</option>
@@ -222,7 +222,7 @@ function EditorBody({ form, onCancel, onSaved }: EditorBodyProps) {
                     </NativeSelect>
                   </div>
                   <p className="text-xs text-muted-foreground sm:col-span-2">{t('editor.ownerHelp')}</p>
-                  <div className="grid gap-1.5">
+                  <div className="grid gap-2.5">
                     <Label htmlFor={`${formId}-tag`}>{t('editor.tag')}</Label>
                     <NativeSelect id={`${formId}-tag`} {...register('tag_id')}>
                       <option value="">{t('editor.noTag')}</option>
@@ -246,7 +246,7 @@ function EditorBody({ form, onCancel, onSaved }: EditorBodyProps) {
                 </label>
                 {values.create_deal && (
                   <div className="grid gap-3 sm:grid-cols-2">
-                    <div className="grid gap-1.5">
+                    <div className="grid gap-2.5">
                       <Label htmlFor={`${formId}-pipeline`}>{t('editor.pipeline')}</Label>
                       <NativeSelect
                         id={`${formId}-pipeline`}
@@ -265,7 +265,7 @@ function EditorBody({ form, onCancel, onSaved }: EditorBodyProps) {
                         <p className="text-xs text-destructive">{errorText(formState.errors.pipeline_id.message)}</p>
                       )}
                     </div>
-                    <div className="grid gap-1.5">
+                    <div className="grid gap-2.5">
                       <Label htmlFor={`${formId}-stage`}>{t('editor.stage')}</Label>
                       <NativeSelect id={`${formId}-stage`} disabled={!pipeline} {...register('stage_id')}>
                         <option value="">{t('editor.choose')}</option>
@@ -279,7 +279,7 @@ function EditorBody({ form, onCancel, onSaved }: EditorBodyProps) {
                         <p className="text-xs text-destructive">{errorText(formState.errors.stage_id.message)}</p>
                       )}
                     </div>
-                    <div className="grid gap-1.5">
+                    <div className="grid gap-2.5">
                       <Label htmlFor={`${formId}-title`}>{t('editor.titleTemplate')}</Label>
                       <Input placeholder={t('editor.titleTemplatePlaceholder')} id={`${formId}-title`} {...register('title_template')} />
                       <p className="text-xs text-muted-foreground">{t('editor.titleTemplateHelp', { field: '{{name}}', form: '{{form}}' })}</p>
@@ -287,7 +287,7 @@ function EditorBody({ form, onCancel, onSaved }: EditorBodyProps) {
                         <p className="text-xs text-destructive">{errorText(formState.errors.title_template.message)}</p>
                       )}
                     </div>
-                    <div className="grid gap-1.5">
+                    <div className="grid gap-2.5">
                       <Label htmlFor={`${formId}-amount`}>{t('editor.amount')}</Label>
                       <Input placeholder={t('editor.amountPlaceholder')} id={`${formId}-amount`} inputMode="decimal" {...register('amount')} />
                       {formState.errors.amount && (
@@ -302,7 +302,7 @@ function EditorBody({ form, onCancel, onSaved }: EditorBodyProps) {
                 <h3 id={`${formId}-after`} className="text-sm font-semibold">
                   {t('editor.afterSubmit')}
                 </h3>
-                <div className="grid gap-1.5">
+                <div className="grid gap-2.5">
                   <Label htmlFor={`${formId}-submit-label`}>{t('editor.submitLabel')}</Label>
                   <Input
                     id={`${formId}-submit-label`}
@@ -310,7 +310,7 @@ function EditorBody({ form, onCancel, onSaved }: EditorBodyProps) {
                     {...register('submit_label')}
                   />
                 </div>
-                <div className="grid gap-1.5">
+                <div className="grid gap-2.5">
                   <Label htmlFor={`${formId}-success`}>{t('editor.successMessage')}</Label>
                   <Textarea
                     id={`${formId}-success`}
@@ -319,7 +319,7 @@ function EditorBody({ form, onCancel, onSaved }: EditorBodyProps) {
                     {...register('success_message')}
                   />
                 </div>
-                <div className="grid gap-1.5">
+                <div className="grid gap-2.5">
                   <Label htmlFor={`${formId}-redirect`}>{t('editor.redirectUrl')}</Label>
                   <Input
                     id={`${formId}-redirect`}
@@ -337,7 +337,7 @@ function EditorBody({ form, onCancel, onSaved }: EditorBodyProps) {
                 <h3 id={`${formId}-security`} className="text-sm font-semibold">
                   {t('editor.security')}
                 </h3>
-                <div className="grid gap-1.5">
+                <div className="grid gap-2.5">
                   <Label htmlFor={`${formId}-origins`}>{t('editor.allowedOrigins')}</Label>
                   <Textarea
                     id={`${formId}-origins`}

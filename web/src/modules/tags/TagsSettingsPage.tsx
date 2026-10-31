@@ -211,7 +211,7 @@ function TagForm({ editing, onClose, onSaved }: TagFormProps) {
           void submit()
         }}
       >
-        <div className="grid gap-1.5">
+        <div className="grid gap-2.5">
           <Label htmlFor={`${formId}-name`}>{t('settings.name')}</Label>
           <Input placeholder={t('placeholders.name')}
             id={`${formId}-name`}
@@ -231,7 +231,7 @@ function TagForm({ editing, onClose, onSaved }: TagFormProps) {
             </p>
           )}
         </div>
-        <div className="grid gap-1.5">
+        <div className="grid gap-2.5">
           <Label htmlFor={`${formId}-color`}>{t('settings.color')}</Label>
           <div className="flex items-center gap-2">
             <input

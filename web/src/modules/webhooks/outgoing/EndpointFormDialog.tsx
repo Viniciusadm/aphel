@@ -178,7 +178,7 @@ export function EndpointFormDialog({ endpoint, onClose, onCreated, onUpdated }: 
               {serverError}
             </Alert>
           )}
-          <div className="grid gap-1.5">
+          <div className="grid gap-2.5">
             <Label htmlFor={`${formId}-url`}>{t('form.url')}</Label>
             <Input
               id={`${formId}-url`}
@@ -195,7 +195,7 @@ export function EndpointFormDialog({ endpoint, onClose, onCreated, onUpdated }: 
               {urlError ?? t('form.urlHint')}
             </p>
           </div>
-          <div className="grid gap-1.5">
+          <div className="grid gap-2.5">
             <Label htmlFor={`${formId}-description`}>{t('form.descriptionLabel')}</Label>
             <Textarea
               id={`${formId}-description`}

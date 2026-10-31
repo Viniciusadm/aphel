@@ -81,7 +81,7 @@ export function BookingForm({ questions, submitting, onSubmit }: BookingFormProp
 
   return (
     <form className="grid gap-4" onSubmit={submit} noValidate>
-      <div className="grid gap-1">
+      <div className="grid gap-2">
         <Label htmlFor="booking-name">
           {t('form.name')} <span aria-hidden>*</span>
         </Label>
@@ -94,7 +94,7 @@ export function BookingForm({ questions, submitting, onSubmit }: BookingFormProp
         />
         {errors.name && <p className="text-sm text-destructive">{message(errors.name.message)}</p>}
       </div>
-      <div className="grid gap-1">
+      <div className="grid gap-2">
         <Label htmlFor="booking-email">
           {t('form.email')} <span aria-hidden>*</span>
         </Label>

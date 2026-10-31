@@ -95,7 +95,7 @@ export function PasswordSection() {
     <Page>
       <PageHeader level="section" title={t('password.title')} description={t('password.description')} />
       <form className="grid max-w-md gap-4" noValidate onSubmit={(event) => void onSubmit(event)}>
-        <div className="grid gap-1.5">
+        <div className="grid gap-2.5">
           <Label htmlFor={`${formId}-currentPassword`}>{t('password.current')}</Label>
           <Input placeholder={t('password.currentPlaceholder')}
             id={`${formId}-currentPassword`}
@@ -107,7 +107,7 @@ export function PasswordSection() {
           />
           {fieldError('currentPassword')}
         </div>
-        <div className="grid gap-1.5">
+        <div className="grid gap-2.5">
           <Label htmlFor={`${formId}-newPassword`}>{t('password.new')}</Label>
           <Input placeholder={t('password.newPlaceholder')}
             id={`${formId}-newPassword`}
@@ -124,7 +124,7 @@ export function PasswordSection() {
             </p>
           )}
         </div>
-        <div className="grid gap-1.5">
+        <div className="grid gap-2.5">
           <Label htmlFor={`${formId}-confirmation`}>{t('password.confirmation')}</Label>
           <Input placeholder={t('password.confirmationPlaceholder')}
             id={`${formId}-confirmation`}

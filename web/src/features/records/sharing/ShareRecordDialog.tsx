@@ -136,7 +136,7 @@ function ShareForm({ ownerId, existing, pending, onSubmit }: ShareFormProps) {
   return (
     <form className="grid gap-3 rounded-md border p-3" onSubmit={submit}>
       <div className="grid gap-3 sm:grid-cols-[8rem_1fr_8rem]">
-        <div className="grid gap-1.5">
+        <div className="grid gap-2.5">
           <Label htmlFor={typeId}>{t('form.granteeType')}</Label>
           <NativeSelect
             id={typeId}
@@ -153,7 +153,7 @@ function ShareForm({ ownerId, existing, pending, onSubmit }: ShareFormProps) {
             ))}
           </NativeSelect>
         </div>
-        <div className="grid min-w-0 gap-1.5">
+        <div className="grid min-w-0 gap-2.5">
           <Label htmlFor={granteeId}>{t(granteeType === 'user' ? 'form.user' : 'form.team')}</Label>
           <NativeSelect id={granteeId} value={grantee} onChange={(event) => setGrantee(event.target.value)}>
             <option value="">{t('form.choose')}</option>
@@ -167,7 +167,7 @@ function ShareForm({ ownerId, existing, pending, onSubmit }: ShareFormProps) {
             <p className="text-xs text-muted-foreground">{t('form.teamsUnavailable')}</p>
           )}
         </div>
-        <div className="grid gap-1.5">
+        <div className="grid gap-2.5">
           <Label htmlFor={accessId}>{t('form.access')}</Label>
           <NativeSelect id={accessId} value={access} onChange={(event) => setAccess(event.target.value as ShareAccess)}>
             {ACCESS_OPTIONS.map((option) => (

@@ -176,7 +176,7 @@ export function ActivityFormDialog({
           <DialogDescription>{t(mode === 'log' ? 'form.logDescription' : 'form.taskDescription')}</DialogDescription>
         </DialogHeader>
         <form id={formId} className="grid gap-4" onSubmit={(event) => void submit(event)} noValidate>
-          <div className="grid gap-1.5">
+          <div className="grid gap-2.5">
             <Label htmlFor={ids.title}>{t('form.title')}</Label>
             <Input
               id={ids.title}
@@ -189,7 +189,7 @@ export function ActivityFormDialog({
             <FieldMessage id={`${ids.title}-error`} message={errors.title ? t('form.titleRequired') : undefined} />
           </div>
           <div className="grid gap-4 sm:grid-cols-2">
-            <div className="grid gap-1.5">
+            <div className="grid gap-2.5">
               <Label htmlFor={ids.type}>{t('form.type')}</Label>
               <NativeSelect id={ids.type} {...register('activity_type_id')} disabled={types.isPending}>
                 {activeTypes.map((type) => (
@@ -203,7 +203,7 @@ export function ActivityFormDialog({
                 message={errors.activity_type_id ? t('form.typeRequired') : undefined}
               />
             </div>
-            <div className="grid gap-1.5">
+            <div className="grid gap-2.5">
               <Label htmlFor={ids.priority}>{t('form.priority')}</Label>
               <NativeSelect id={ids.priority} {...register('priority')}>
                 {ACTIVITY_PRIORITIES.map((priority: ActivityPriority) => (
@@ -214,7 +214,7 @@ export function ActivityFormDialog({
               </NativeSelect>
             </div>
           </div>
-          <div className="grid gap-1.5">
+          <div className="grid gap-2.5">
             <Label htmlFor={ids.when}>{t(mode === 'log' ? 'form.completedAt' : 'form.dueAt')}</Label>
             <Controller
               control={control}
@@ -233,7 +233,7 @@ export function ActivityFormDialog({
             {mode === 'log' && <p className="text-xs text-muted-foreground">{t('form.completedAtHint')}</p>}
           </div>
           {mode === 'task' && (
-            <div className="grid gap-1.5">
+            <div className="grid gap-2.5">
               <Label htmlFor={ids.reminder}>{t('reminder.label')}</Label>
               <Controller
                 control={control}
@@ -258,7 +258,7 @@ export function ActivityFormDialog({
             />
           )}
           <div className="grid gap-4 sm:grid-cols-2">
-            <div className="grid gap-1.5">
+            <div className="grid gap-2.5">
               <Label htmlFor={ids.owner}>{t('form.owner')}</Label>
               <NativeSelect id={ids.owner} {...register('owner_id')}>
                 {ownerOptions.map((user) => (
@@ -269,7 +269,7 @@ export function ActivityFormDialog({
               </NativeSelect>
             </div>
             {showDuration && (
-              <div className="grid gap-1.5">
+              <div className="grid gap-2.5">
                 <Label htmlFor={ids.duration}>{t('form.duration')}</Label>
                 <Input placeholder={t('placeholders.duration')}
                   id={ids.duration}
@@ -285,7 +285,7 @@ export function ActivityFormDialog({
               </div>
             )}
           </div>
-          <div className="grid gap-1.5">
+          <div className="grid gap-2.5">
             <Label htmlFor={ids.description}>{t('form.description')}</Label>
             <Textarea placeholder={t('placeholders.description')} id={ids.description} rows={3} {...register('description')} />
           </div>
