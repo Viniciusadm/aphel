@@ -1326,6 +1326,22 @@ export interface paths {
         patch?: never;
         trace?: never;
     };
+    "/api/v1/catalog/themes/{id}/download": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        get?: never;
+        put?: never;
+        post: operations["catalog_theme_download"];
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
     "/api/v1/communication/opt-outs": {
         parameters: {
             query?: never;
@@ -6573,6 +6589,40 @@ export interface paths {
         patch?: never;
         trace?: never;
     };
+    "/api/v1/public/themes/active.css": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        /** @description Stylesheet of the active theme, linked by the web app before it renders. Public: it only holds design tokens. Empty when no theme is active. Uses an ETag that changes whenever the active theme does */
+        get: operations["themes_active_stylesheet"];
+        put?: never;
+        post?: never;
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
+    "/api/v1/public/themes/fonts/{file}": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        /** @description A font file of an installed theme, addressed by the SHA-256 of its content (`<sha256>.woff2`), so it can be cached forever */
+        get: operations["themes_font"];
+        put?: never;
+        post?: never;
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
     "/api/v1/quote-settings": {
         parameters: {
             query?: never;
@@ -7809,6 +7859,86 @@ export interface paths {
         patch: operations["teams_update"];
         trace?: never;
     };
+    "/api/v1/themes": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        get: operations["themes_list"];
+        put?: never;
+        post: operations["themes_install"];
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
+    "/api/v1/themes/activation": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        get?: never;
+        put?: never;
+        post: operations["themes_activate"];
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
+    "/api/v1/themes/validate": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        get?: never;
+        put?: never;
+        post: operations["themes_validate"];
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
+    "/api/v1/themes/{key}": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        get?: never;
+        put: operations["themes_save"];
+        post?: never;
+        delete: operations["themes_delete"];
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
+    "/api/v1/themes/{key}/package": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        get: operations["themes_export"];
+        put?: never;
+        post?: never;
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
     "/api/v1/timeline": {
         parameters: {
             query?: never;
@@ -8306,6 +8436,9 @@ export interface components {
             label: string;
             record_types: string[];
             secret_fields: string[];
+        };
+        ActivationRequest: {
+            key?: string | null;
         };
         ActivityCallResponse: {
             direction: components["schemas"]["CallDirection"];
@@ -9438,7 +9571,7 @@ export interface components {
         /** @enum {string} */
         CallSessionStatus: "active" | "completed";
         /** @enum {string} */
-        CatalogEntryKindResponse: "template" | "module";
+        CatalogEntryKindResponse: "template" | "theme" | "module";
         CatalogEntryResponse: {
             author: string;
             compatible: boolean;
@@ -12680,6 +12813,15 @@ export interface components {
                 text: string;
             };
         };
+        Data_PreviewResponse: {
+            data: {
+                fonts: components["schemas"]["PreviewFontResponse"][];
+                installed_version?: string | null;
+                issues: components["schemas"]["IssueResponse"][];
+                token_count: number;
+                warnings: components["schemas"]["IssueResponse"][];
+            };
+        };
         Data_PriceListResponse: {
             data: {
                 applies_to: components["schemas"]["PriceListAppliesTo"];
@@ -13467,6 +13609,30 @@ export interface components {
                 parent_team_id?: string | null;
                 /** @example 2026-10-20T13:45:00Z */
                 updated_at: string;
+            };
+        };
+        Data_ThemeListResponse: {
+            data: {
+                active_key?: string | null;
+                themes: components["schemas"]["ThemeResponse"][];
+            };
+        };
+        Data_ThemeResponse: {
+            data: {
+                active: boolean;
+                author: string;
+                checksum: string;
+                created_at: string;
+                description?: string | null;
+                font_count: number;
+                key: string;
+                license: string;
+                min_aphel_version?: string | null;
+                name: string;
+                source: string;
+                tokens: components["schemas"]["TokenSets"];
+                updated_at: string;
+                version: string;
             };
         };
         Data_TrackingObjectionResponse: {
@@ -15484,6 +15650,14 @@ export interface components {
             record_type: string;
             title?: string | null;
         };
+        FontFile: {
+            data: string;
+            family: string;
+            format?: string;
+            style?: string;
+            /** Format: int32 */
+            weight: number;
+        };
         ForecastBucketResponse: {
             /** @example 120000.00 */
             amount: string;
@@ -16219,6 +16393,10 @@ export interface components {
             /** @example bia@example.com */
             email: string;
             role_id: string;
+        };
+        IssueResponse: {
+            message: string;
+            path: string;
         };
         IssuedIncomingWebhookResponse: components["schemas"]["IncomingWebhookResponse"] & {
             /** @example /api/v1/hooks/whk_3f9a1c2b9c1e0d7a4b2f6e8d0a1b3c5d7e9f1a2b4c6d8e0f1a3b5c7d9e1f2a4b6c */
@@ -19300,6 +19478,7 @@ export interface components {
             hooks: string[];
             notifications: string[];
             operations: string[];
+            optional_requires: string[];
             permissions: components["schemas"]["PluginPermissionResponse"][];
             public_routes: string[];
             requires: string[];
@@ -19370,11 +19549,25 @@ export interface components {
             subject: string;
             text: string;
         };
+        PreviewFontResponse: {
+            bytes: number;
+            family: string;
+            style: string;
+            /** Format: int32 */
+            weight: number;
+        };
         PreviewProposalRequest: {
             body?: string | null;
             deal_id?: string | null;
             quote_id?: string | null;
             template_id?: string | null;
+        };
+        PreviewResponse: {
+            fonts: components["schemas"]["PreviewFontResponse"][];
+            installed_version?: string | null;
+            issues: components["schemas"]["IssueResponse"][];
+            token_count: number;
+            warnings: components["schemas"]["IssueResponse"][];
         };
         /** @enum {string} */
         PriceListAppliesTo: "all" | "segment" | "companies";
@@ -21297,6 +21490,40 @@ export interface components {
         TestIntegrationRequest: {
             send_test_email?: boolean;
         };
+        ThemeListResponse: {
+            active_key?: string | null;
+            themes: components["schemas"]["ThemeResponse"][];
+        };
+        ThemePackage: {
+            author: string;
+            description?: string | null;
+            fonts?: components["schemas"]["FontFile"][];
+            format: string;
+            /** Format: int32 */
+            format_version: number;
+            id: string;
+            license: string;
+            min_aphel_version?: string | null;
+            name: string;
+            tokens?: components["schemas"]["TokenSets"];
+            version: string;
+        };
+        ThemeResponse: {
+            active: boolean;
+            author: string;
+            checksum: string;
+            created_at: string;
+            description?: string | null;
+            font_count: number;
+            key: string;
+            license: string;
+            min_aphel_version?: string | null;
+            name: string;
+            source: string;
+            tokens: components["schemas"]["TokenSets"];
+            updated_at: string;
+            version: string;
+        };
         /** @enum {string} */
         TimeGranularity: "day" | "week" | "month" | "quarter" | "year";
         TimelineActorResponse: {
@@ -21334,6 +21561,11 @@ export interface components {
         };
         TokenRequest: {
             token: string;
+        };
+        TokenSets: {
+            dark?: Record<string, never>;
+            light?: Record<string, never>;
+            shared?: Record<string, never>;
         };
         TrackingObjectionResponse: {
             created_at: string;
@@ -28539,6 +28771,86 @@ export interface operations {
                 };
             };
             /** @description Module entry (`catalog_entry_not_installable`), Aphel too old (`aphel_too_old`), checksum mismatch (`checksum_mismatch`), package that does not match the entry (`catalog_package_mismatch`) or download failure (`catalog_unavailable`). `Idempotency-Key` already used with a different request (`idempotency_key_reused`) or longer than 255 characters (`validation_error`) */
+            422: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["ErrorEnvelope"];
+                };
+            };
+            /** @description API token rate limit exceeded (`rate_limited`); see `Retry-After` and `X-RateLimit-*` */
+            429: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["ErrorEnvelope"];
+                };
+            };
+        };
+    };
+    catalog_theme_download: {
+        parameters: {
+            query?: never;
+            header?: {
+                /** @description Up to 255 printable ASCII characters. The same key with the same request (method, path and body) within 24 hours answers the stored response with the same status and body plus `Idempotent-Replayed: true`. Scoped to the credential (session cookie or API token); ignored without a credential. 5xx and 429 responses are not stored */
+                "Idempotency-Key"?: string;
+            };
+            path: {
+                /** @description Catalog entry id of a theme, such as `aphel.slate` */
+                id: string;
+            };
+            cookie?: never;
+        };
+        requestBody?: never;
+        responses: {
+            /** @description Downloads the theme package, checks its SHA-256, the minimum Aphel version and that it matches the entry, and returns it unchanged. Nothing is installed: send it to `POST /themes/validate` and `POST /themes` */
+            200: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": unknown;
+                };
+            };
+            /** @description Missing or invalid session */
+            401: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["ErrorEnvelope"];
+                };
+            };
+            /** @description Missing `settings.manage` (`permission_denied`) */
+            403: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["ErrorEnvelope"];
+                };
+            };
+            /** @description Catalog turned off (`catalog_disabled`) or unknown entry (`catalog_entry_not_found`) */
+            404: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["ErrorEnvelope"];
+                };
+            };
+            /** @description The first request with this `Idempotency-Key` is still being processed (`idempotency_key_in_progress`) */
+            409: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["ErrorEnvelope"];
+                };
+            };
+            /** @description Not a theme entry (`catalog_entry_not_installable`), Aphel too old (`aphel_too_old`), checksum mismatch (`checksum_mismatch`), package that does not match the entry (`catalog_package_mismatch`) or download failure (`catalog_unavailable`). `Idempotency-Key` already used with a different request (`idempotency_key_reused`) or longer than 255 characters (`validation_error`) */
             422: {
                 headers: {
                     [name: string]: unknown;
@@ -56355,6 +56667,65 @@ export interface operations {
             };
         };
     };
+    themes_active_stylesheet: {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        requestBody?: never;
+        responses: {
+            /** @description CSS with the theme tokens and its font faces */
+            200: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "text/css": string;
+                };
+            };
+            /** @description The active theme did not change */
+            304: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content?: never;
+            };
+        };
+    };
+    themes_font: {
+        parameters: {
+            query?: never;
+            header?: never;
+            path: {
+                /** @description `<sha256>.woff2` */
+                file: string;
+            };
+            cookie?: never;
+        };
+        requestBody?: never;
+        responses: {
+            /** @description The woff2 file */
+            200: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "font/woff2": number[];
+                };
+            };
+            /** @description Unknown font (`theme_font_not_found`) */
+            404: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["ErrorEnvelope"];
+                };
+            };
+        };
+    };
     quote_settings_get: {
         parameters: {
             query?: never;
@@ -64168,6 +64539,475 @@ export interface operations {
             };
             /** @description Invalid fields (`validation_error`), or the parent would create a cycle (`team_cycle`) */
             422: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["ErrorEnvelope"];
+                };
+            };
+            /** @description API token rate limit exceeded (`rate_limited`); see `Retry-After` and `X-RateLimit-*` */
+            429: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["ErrorEnvelope"];
+                };
+            };
+        };
+    };
+    themes_list: {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        requestBody?: never;
+        responses: {
+            /** @description Installed themes and the active one. The default look is always available and is selected with no active theme */
+            200: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["Data_ThemeListResponse"];
+                };
+            };
+            /** @description Missing or invalid credentials */
+            401: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["ErrorEnvelope"];
+                };
+            };
+            /** @description Missing `themes.manage` (`permission_denied`) */
+            403: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["ErrorEnvelope"];
+                };
+            };
+            /** @description API token rate limit exceeded (`rate_limited`); see `Retry-After` and `X-RateLimit-*` */
+            429: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["ErrorEnvelope"];
+                };
+            };
+        };
+    };
+    themes_install: {
+        parameters: {
+            query?: never;
+            header?: {
+                /** @description Up to 255 printable ASCII characters. The same key with the same request (method, path and body) within 24 hours answers the stored response with the same status and body plus `Idempotent-Replayed: true`. Scoped to the credential (session cookie or API token); ignored without a credential. 5xx and 429 responses are not stored */
+                "Idempotency-Key"?: string;
+            };
+            path?: never;
+            cookie?: never;
+        };
+        requestBody: {
+            content: {
+                "application/json": components["schemas"]["ThemePackage"];
+            };
+        };
+        responses: {
+            /** @description Theme installed, or replaced when the id is already installed. An active theme stays active */
+            201: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["Data_ThemeResponse"];
+                };
+            };
+            /** @description Missing or invalid credentials */
+            401: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["ErrorEnvelope"];
+                };
+            };
+            /** @description Missing `themes.manage` (`permission_denied`) */
+            403: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["ErrorEnvelope"];
+                };
+            };
+            /** @description Limit of 20 themes reached (`theme_limit_reached`). The first request with this `Idempotency-Key` is still being processed (`idempotency_key_in_progress`) */
+            409: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["ErrorEnvelope"];
+                };
+            };
+            /** @description Invalid package (`theme_invalid`, with `details.fields`). `Idempotency-Key` already used with a different request (`idempotency_key_reused`) or longer than 255 characters (`validation_error`) */
+            422: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["ErrorEnvelope"];
+                };
+            };
+            /** @description API token rate limit exceeded (`rate_limited`); see `Retry-After` and `X-RateLimit-*` */
+            429: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["ErrorEnvelope"];
+                };
+            };
+        };
+    };
+    themes_activate: {
+        parameters: {
+            query?: never;
+            header?: {
+                /** @description Up to 255 printable ASCII characters. The same key with the same request (method, path and body) within 24 hours answers the stored response with the same status and body plus `Idempotent-Replayed: true`. Scoped to the credential (session cookie or API token); ignored without a credential. 5xx and 429 responses are not stored */
+                "Idempotency-Key"?: string;
+            };
+            path?: never;
+            cookie?: never;
+        };
+        requestBody: {
+            content: {
+                "application/json": components["schemas"]["ActivationRequest"];
+            };
+        };
+        responses: {
+            /** @description Theme activated for the whole installation, public pages included. A null `key` goes back to the default look */
+            200: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["Data_ThemeListResponse"];
+                };
+            };
+            /** @description Missing or invalid credentials */
+            401: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["ErrorEnvelope"];
+                };
+            };
+            /** @description Missing `themes.manage` (`permission_denied`) */
+            403: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["ErrorEnvelope"];
+                };
+            };
+            /** @description Theme not installed (`theme_not_found`) */
+            404: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["ErrorEnvelope"];
+                };
+            };
+            /** @description The first request with this `Idempotency-Key` is still being processed (`idempotency_key_in_progress`) */
+            409: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["ErrorEnvelope"];
+                };
+            };
+            /** @description `Idempotency-Key` already used with a different request (`idempotency_key_reused`) or longer than 255 characters (`validation_error`) */
+            422: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["ErrorEnvelope"];
+                };
+            };
+            /** @description API token rate limit exceeded (`rate_limited`); see `Retry-After` and `X-RateLimit-*` */
+            429: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["ErrorEnvelope"];
+                };
+            };
+        };
+    };
+    themes_validate: {
+        parameters: {
+            query?: never;
+            header?: {
+                /** @description Up to 255 printable ASCII characters. The same key with the same request (method, path and body) within 24 hours answers the stored response with the same status and body plus `Idempotent-Replayed: true`. Scoped to the credential (session cookie or API token); ignored without a credential. 5xx and 429 responses are not stored */
+                "Idempotency-Key"?: string;
+            };
+            path?: never;
+            cookie?: never;
+        };
+        requestBody: {
+            content: {
+                "application/json": components["schemas"]["ThemePackage"];
+            };
+        };
+        responses: {
+            /** @description Validation report without installing: blocking `issues`, `warnings` such as ignored tokens, the fonts and the installed version of the same id */
+            200: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["Data_PreviewResponse"];
+                };
+            };
+            /** @description Missing or invalid credentials */
+            401: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["ErrorEnvelope"];
+                };
+            };
+            /** @description Missing `themes.manage` (`permission_denied`) */
+            403: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["ErrorEnvelope"];
+                };
+            };
+            /** @description The first request with this `Idempotency-Key` is still being processed (`idempotency_key_in_progress`) */
+            409: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["ErrorEnvelope"];
+                };
+            };
+            /** @description `Idempotency-Key` already used with a different request (`idempotency_key_reused`) or longer than 255 characters (`validation_error`) */
+            422: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["ErrorEnvelope"];
+                };
+            };
+            /** @description API token rate limit exceeded (`rate_limited`); see `Retry-After` and `X-RateLimit-*` */
+            429: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["ErrorEnvelope"];
+                };
+            };
+        };
+    };
+    themes_save: {
+        parameters: {
+            query?: never;
+            header?: never;
+            path: {
+                /** @description Theme id, equal to `id` in the body */
+                key: string;
+            };
+            cookie?: never;
+        };
+        requestBody: {
+            content: {
+                "application/json": components["schemas"]["ThemePackage"];
+            };
+        };
+        responses: {
+            /** @description Theme created or updated from the editor */
+            200: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["Data_ThemeResponse"];
+                };
+            };
+            /** @description Missing or invalid credentials */
+            401: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["ErrorEnvelope"];
+                };
+            };
+            /** @description Missing `themes.manage` (`permission_denied`) */
+            403: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["ErrorEnvelope"];
+                };
+            };
+            /** @description Limit of 20 themes reached (`theme_limit_reached`) */
+            409: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["ErrorEnvelope"];
+                };
+            };
+            /** @description Invalid package (`theme_invalid`) or an id different from the path (`theme_key_mismatch`) */
+            422: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["ErrorEnvelope"];
+                };
+            };
+            /** @description API token rate limit exceeded (`rate_limited`); see `Retry-After` and `X-RateLimit-*` */
+            429: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["ErrorEnvelope"];
+                };
+            };
+        };
+    };
+    themes_delete: {
+        parameters: {
+            query?: never;
+            header?: never;
+            path: {
+                /** @description Theme id */
+                key: string;
+            };
+            cookie?: never;
+        };
+        requestBody?: never;
+        responses: {
+            /** @description Theme removed with its fonts */
+            204: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content?: never;
+            };
+            /** @description Missing or invalid credentials */
+            401: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["ErrorEnvelope"];
+                };
+            };
+            /** @description Missing `themes.manage` (`permission_denied`) */
+            403: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["ErrorEnvelope"];
+                };
+            };
+            /** @description Theme not installed (`theme_not_found`) */
+            404: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["ErrorEnvelope"];
+                };
+            };
+            /** @description The theme is active (`theme_active`) */
+            409: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["ErrorEnvelope"];
+                };
+            };
+            /** @description API token rate limit exceeded (`rate_limited`); see `Retry-After` and `X-RateLimit-*` */
+            429: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["ErrorEnvelope"];
+                };
+            };
+        };
+    };
+    themes_export: {
+        parameters: {
+            query?: never;
+            header?: never;
+            path: {
+                /** @description Theme id */
+                key: string;
+            };
+            cookie?: never;
+        };
+        requestBody?: never;
+        responses: {
+            /** @description The theme as an `aphel-theme` package with its fonts, ready to be installed elsewhere */
+            200: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["ThemePackage"];
+                };
+            };
+            /** @description Missing or invalid credentials */
+            401: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["ErrorEnvelope"];
+                };
+            };
+            /** @description Missing `themes.manage` (`permission_denied`) */
+            403: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["ErrorEnvelope"];
+                };
+            };
+            /** @description Theme not installed (`theme_not_found`) */
+            404: {
                 headers: {
                     [name: string]: unknown;
                 };

@@ -48,7 +48,7 @@
       "required": ["id", "kind", "name", "author", "version", "min_aphel_version", "license"],
       "properties": {
         "id": { "$ref": "#/$defs/id" },
-        "kind": { "enum": ["template", "module"] },
+        "kind": { "enum": ["template", "theme", "module"] },
         "name": { "type": "string", "minLength": 1, "maxLength": 140 },
         "description": { "type": "string", "maxLength": 2000 },
         "author": { "type": "string", "minLength": 1, "maxLength": 140 },
@@ -76,14 +76,14 @@
           "type": "object",
           "additionalProperties": false,
           "required": ["url", "sha256"],
-          "description": "Templates only: where to download the aphel-config package and the SHA-256 of the file's exact bytes.",
+          "description": "Templates and themes only: where to download the package (aphel-config or aphel-theme) and the SHA-256 of the file's exact bytes.",
           "properties": {
             "url": {
               "description": "HTTPS URL of the package or a path relative to the index (e.g. packages/aphel.b2b-1.0.0.json), resolved against the index URL or against the embedded catalog.",
               "anyOf": [{ "$ref": "#/$defs/url" }, { "$ref": "#/$defs/relative_path" }]
             },
             "sha256": { "type": "string", "pattern": "^[0-9a-f]{64}$" },
-            "size": { "type": "integer", "minimum": 1, "maximum": 2097152 }
+            "size": { "type": "integer", "minimum": 1, "maximum": 3145728 }
           }
         },
         "module": {
@@ -101,6 +101,10 @@
       "allOf": [
         {
           "if": { "properties": { "kind": { "const": "template" } } },
+          "then": { "required": ["package"], "not": { "required": ["module"] } }
+        },
+        {
+          "if": { "properties": { "kind": { "const": "theme" } } },
           "then": { "required": ["package"], "not": { "required": ["module"] } }
         },
         {

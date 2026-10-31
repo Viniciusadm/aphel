@@ -23,6 +23,7 @@ pub const CATALOG_APHEL_TOO_OLD: &str = "aphel_too_old";
 pub const CATALOG_CHECKSUM_MISMATCH: &str = "checksum_mismatch";
 pub const CATALOG_PACKAGE_MISMATCH: &str = "catalog_package_mismatch";
 pub const CATALOG_INVALID_PACKAGE: &str = "invalid_package";
+pub const MAX_THEME_PACKAGE_BYTES: usize = 3 * 1024 * 1024;
 
 #[derive(Debug, Clone, PartialEq, Eq)]
 pub struct CatalogEntryView {
@@ -118,6 +119,16 @@ where
         scope: &AccessScope,
         entry_id: &str,
     ) -> Result<DownloadedTemplate, AppError> {
+        self.download_package(scope, entry_id, CatalogEntryKind::Template)
+            .await
+    }
+
+    pub async fn download_package(
+        &self,
+        scope: &AccessScope,
+        entry_id: &str,
+        expected: CatalogEntryKind,
+    ) -> Result<DownloadedTemplate, AppError> {
         scope.require(&Permission::SETTINGS_MANAGE)?;
         let source = self.ports.settings().index_url.clone().ok_or_else(|| {
             AppError::not_found_code(
@@ -137,7 +148,7 @@ where
                 )
             })?;
         let package_ref = match (&entry.kind, &entry.package) {
-            (CatalogEntryKind::Template, Some(package)) => package.clone(),
+            (kind, Some(package)) if *kind == expected => package.clone(),
             _ => {
                 return Err(AppError::validation_code(
                     CATALOG_ENTRY_NOT_INSTALLABLE,
@@ -158,7 +169,7 @@ where
         let bytes = self
             .ports
             .fetcher()
-            .fetch(&package_url, self.ports.settings(), MAX_PACKAGE_BYTES)
+            .fetch(&package_url, self.ports.settings(), package_limit(expected))
             .await
             .map_err(|error| unavailable("could not download the package", &error))?;
         let checksum = sha256_hex(&bytes);
@@ -224,6 +235,13 @@ where
                 .or_insert(version.version);
         }
         Ok(installed)
+    }
+}
+
+fn package_limit(kind: CatalogEntryKind) -> usize {
+    match kind {
+        CatalogEntryKind::Theme => MAX_THEME_PACKAGE_BYTES,
+        _ => MAX_PACKAGE_BYTES,
     }
 }
 

@@ -17,6 +17,7 @@ const MAX_URL_LENGTH: usize = 2048;
 #[serde(rename_all = "snake_case")]
 pub enum CatalogEntryKind {
     Template,
+    Theme,
     Module,
 }
 
@@ -227,12 +228,12 @@ fn validate_entry(entry: CatalogEntry, allow_http: bool) -> Result<CatalogEntry,
         }
     }
     match entry.kind {
-        CatalogEntryKind::Template => {
+        CatalogEntryKind::Template | CatalogEntryKind::Theme => {
             let Some(package) = &entry.package else {
-                return Err("a template needs package.url and package.sha256".to_owned());
+                return Err("a template or theme needs package.url and package.sha256".to_owned());
             };
             if entry.module.is_some() {
-                return Err("a template cannot declare module".to_owned());
+                return Err("a template or theme cannot declare module".to_owned());
             }
             if !is_allowed_url(&package.url, allow_http) && !is_relative_path(&package.url) {
                 return Err(

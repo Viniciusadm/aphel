@@ -93,6 +93,7 @@ Texts always go through i18n: `useModuleTranslation(key)` for the module's names
 | `user.menu` | — | User menu |
 | `app.shell` | — | Global components of the app shell |
 | `app.sidebar` | `collapsed`, `onNavigate` | End of the sidebar |
+| `catalog.sections` | `entries` | After the modules section of Settings › Catalog; the module renders the entries of the kinds it handles |
 
 ## Filters
 

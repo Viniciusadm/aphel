@@ -1,5 +1,6 @@
 {
   "tabs": {
+    "themes": "Themes",
     "modules": "Modules",
     "orgExport": "Full export",
     "migrationAssistant": "Migrate from another CRM",
@@ -296,6 +297,9 @@
     "communication": "Email and communication"
   },
   "items": {
+    "themes": {
+      "description": "Colors, shapes and fonts applied to the whole installation."
+    },
     "preferences": {
       "description": "Shortcuts and interface behavior for you."
     },

@@ -15,6 +15,7 @@ notes = { path = "modules/notes", required = true }
 reminders = { path = "modules/reminders" }
 timeline = { path = "modules/timeline", required = true }
 favorites = { path = "modules/favorites" }
+themes = { path = "modules/themes" }
 followers = { path = "modules/followers" }
 dashboard = { path = "modules/dashboard" }
 reports = { path = "modules/reports" }

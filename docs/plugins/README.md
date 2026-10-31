@@ -551,7 +551,7 @@ export default defineModule({
 })
 ```
 
-The base components (`Select`, `Dialog`, `Table`, `Tabs`, `Checkbox`, `Switch`, `Field` and the ones above) are also available from `@aphel/ui`, which follows the installation's theme; using it is optional, see [`docs/ui`](../ui/README.md). Other libraries (icons, date helpers) are bundled into the plugin. Use `useModuleTranslation(key)` instead of `useTranslation` (the typed namespaces only know the built-in modules). Do not rely on Aphel's own Tailwind classes: the host only generates the ones it uses, so anything else silently does nothing. A plugin builds its own stylesheet with a Tailwind prefix, declares it as `style = "web/style.css"` and imports it at the top of its entry:
+The base components (`Select`, `Dialog`, `Table`, `Tabs`, `Checkbox`, `Switch`, `Field` and the ones above) are also available from `@aphel/ui`, which follows the installation's [theme](../themes/README.md); using it is optional, see [`docs/ui`](../ui/README.md). Other libraries (icons, date helpers) are bundled into the plugin. Use `useModuleTranslation(key)` instead of `useTranslation` (the typed namespaces only know the built-in modules). Do not rely on Aphel's own Tailwind classes: the host only generates the ones it uses, so anything else silently does nothing. A plugin builds its own stylesheet with a Tailwind prefix, declares it as `style = "web/style.css"` and imports it at the top of its entry:
 
 ```css
 /* src/style.css */

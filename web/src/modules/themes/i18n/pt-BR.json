@@ -1,0 +1,133 @@
+{
+  "page": {
+    "title": "Temas",
+    "description": "Troque o visual de toda a instalação: cores, formas, tipografia e sombras. O tema vale para o app, as páginas públicas e os plugins que usam a biblioteca de componentes.",
+    "import": "Importar tema",
+    "create": "Novo tema"
+  },
+  "default": {
+    "name": "Padrão do Aphel",
+    "description": "O visual original. Sempre disponível, sem instalar nada."
+  },
+  "card": {
+    "active": "Em uso",
+    "use": "Usar",
+    "edit": "Editar",
+    "duplicate": "Duplicar",
+    "export": "Exportar",
+    "remove": "Remover",
+    "more": "Mais ações de {{name}}",
+    "author": "Por {{author}}",
+    "license": "Licença {{license}}",
+    "fonts_one": "{{count}} fonte",
+    "fonts_other": "{{count}} fontes",
+    "source": {
+      "upload": "Importado",
+      "catalog": "Catálogo",
+      "editor": "Editor"
+    }
+  },
+  "import": {
+    "title": "Instalar {{name}}",
+    "summary": "Versão {{version}}, de {{author}}, licença {{license}}.",
+    "counts": "{{tokens}} tokens e {{fonts}} fontes.",
+    "replaces": "Já existe a versão {{version}} deste tema. Instalar substitui a versão atual.",
+    "issues": "O tema tem problemas e não pode ser instalado:",
+    "warnings_one": "{{count}} aviso",
+    "warnings_other": "{{count}} avisos",
+    "install": "Instalar",
+    "replace": "Substituir",
+    "installing": "Instalando…",
+    "installed": "Tema {{name}} instalado.",
+    "invalidFile": "O arquivo não é um JSON válido."
+  },
+  "contrast": {
+    "title": "Contraste baixo (menos de 4,5:1):",
+    "item": "{{foreground}} sobre {{background}}: {{ratio}}:1"
+  },
+  "remove": {
+    "title": "Remover {{name}}?",
+    "description": "O tema e suas fontes serão apagados. Você pode importá-lo de novo se tiver o arquivo.",
+    "done": "Tema {{name}} removido."
+  },
+  "actions": {
+    "cancel": "Cancelar",
+    "back": "Voltar"
+  },
+  "editor": {
+    "createTitle": "Novo tema",
+    "editTitle": "Editar {{name}}",
+    "description": "Deixe um campo vazio para usar o valor padrão. A prévia mostra os componentes com os valores atuais.",
+    "copyName": "Cópia de {{name}}",
+    "identity": "Identificação",
+    "name": "Nome",
+    "id": "Identificador",
+    "version": "Versão",
+    "author": "Autor",
+    "license": "Licença",
+    "descriptionLabel": "Descrição",
+    "save": "Salvar",
+    "saving": "Salvando…",
+    "saved": "Tema {{name}} salvo.",
+    "loadError": "Não foi possível carregar o tema.",
+    "darkNotice": "O modo escuro ainda não está disponível no app. Os valores ficam salvos no tema para quando for liberado.",
+    "resetToken": "Restaurar {{name}} ao padrão",
+    "pickColor": "Escolher cor",
+    "tabs": {
+      "light": "Claro",
+      "dark": "Escuro",
+      "shared": "Forma e tipografia",
+      "fonts": "Fontes"
+    }
+  },
+  "groups": {
+    "color": "Cores",
+    "shape": "Formas",
+    "size": "Tamanhos",
+    "depth": "Profundidade",
+    "type": "Tipografia",
+    "motion": "Movimento"
+  },
+  "fonts": {
+    "description": "Arquivos woff2 de até 400 KB. No máximo {{max}} por tema. Use o nome da família nos campos de tipografia.",
+    "family": "Família",
+    "weight": "Peso",
+    "style": "Estilo",
+    "add": "Adicionar fonte",
+    "remove": "Remover {{family}}",
+    "tooLarge": "A fonte deve ter no máximo {{size}} KB."
+  },
+  "preview": {
+    "title": "Prévia",
+    "label": "Prévia do tema",
+    "mode": "Modo da prévia",
+    "primary": "Primário",
+    "secondary": "Secundário",
+    "outline": "Contorno",
+    "ghost": "Fantasma",
+    "destructive": "Destrutivo",
+    "badge": "Selo",
+    "cardTitle": "Título do cartão",
+    "cardDescription": "Descrição curta do conteúdo.",
+    "field": "Campo de texto",
+    "placeholder": "Digite algo",
+    "select": "Selecione uma opção",
+    "checkbox": "Caixa",
+    "switch": "Chave",
+    "tabOne": "Primeira",
+    "tabTwo": "Segunda",
+    "columnName": "Nome",
+    "columnValue": "Valor",
+    "rowOne": "Primeira linha",
+    "rowTwo": "Segunda linha"
+  },
+  "catalog": {
+    "title": "Temas",
+    "description": "Visuais prontos para toda a instalação. Instalar não ativa o tema: você escolhe depois em Configurações › Temas.",
+    "empty": "Este catálogo não tem temas.",
+    "install": "Instalar",
+    "update": "Atualizar",
+    "installed": "Instalado ({{version}})",
+    "checking": "Verificando…"
+  }
+}

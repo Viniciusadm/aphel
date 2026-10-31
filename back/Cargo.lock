@@ -200,6 +200,7 @@ dependencies = [
  "aphel-mod-segments",
  "aphel-mod-sequences",
  "aphel-mod-tags",
+ "aphel-mod-themes",
  "aphel-mod-timeline",
  "aphel-mod-trash",
  "aphel-mod-webhooks",
@@ -1337,6 +1338,26 @@ dependencies = [
  "chrono",
  "serde",
  "serde_json",
+ "sqlx",
+ "utoipa",
+ "utoipa-axum",
+ "uuid",
+]
+
+[[package]]
+name = "aphel-mod-themes"
+version = "0.1.0"
+dependencies = [
+ "aphel-kernel",
+ "async-trait",
+ "axum",
+ "base64 0.22.1",
+ "chrono",
+ "regex",
+ "semver",
+ "serde",
+ "serde_json",
+ "sha2 0.11.1",
  "sqlx",
  "utoipa",
  "utoipa-axum",

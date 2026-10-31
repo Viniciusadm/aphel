@@ -73,7 +73,7 @@ Components never depend on i18n. Texts that belong to the library (close button,
 
 ## Tokens
 
-Tokens are CSS custom properties on `:root` (and `[data-theme='dark']`), defined in `web/src/sdk/tokens.css`. Components read them, so changing a token changes every component that uses the library, in Aphel and in plugins.
+Tokens are CSS custom properties on `:root` (and `[data-theme='dark']`). They are generated from `back/modules/themes/tokens.json` into `web/src/sdk/tokens.css` by `make modules`; the full list with defaults is in [`tokens.md`](tokens.md). Components read them, so changing a token changes every component that uses the library, in Aphel and in plugins. An installation changes them with a [theme](../themes/README.md).
 
 | Group | Tokens |
 | --- | --- |
@@ -84,7 +84,13 @@ Tokens are CSS custom properties on `:root` (and `[data-theme='dark']`), defined
 | Type | `--font-family-sans`, `--font-family-heading`, `--font-family-mono` |
 | Motion | `--duration-fast` |
 
-The organization color overrides `--primary*` through `--org-primary*`.
+The organization color overrides `--primary*` through `--org-primary*`, on top of the theme.
+
+A public web app of a plugin (`/p/<key>/`) also links the active theme's stylesheet:
+
+```html
+<link rel="stylesheet" href="/api/v1/public/themes/active.css" />
+```
 
 ## Stability
 

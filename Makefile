@@ -29,6 +29,7 @@ down:
 
 modules:
 	$(CARGO) run -q -p xtask -- modules sync
+	$(CARGO) run -q -p xtask -- themes sync
 
 web/node_modules: web/package-lock.json
 	$(NPM) ci
@@ -46,6 +47,7 @@ dev-web: modules | web/node_modules
 
 lint: | web/dist
 	$(CARGO) run -q -p xtask -- modules sync --check
+	$(CARGO) run -q -p xtask -- themes sync --check
 	$(CARGO) fmt --all --check
 	$(CARGO) clippy --workspace -- -D warnings
 	$(NPM) run lint

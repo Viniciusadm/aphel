@@ -42,6 +42,7 @@ module-notes = { package = "aphel-mod-notes", path = "../modules/notes" }
 module-reminders = { package = "aphel-mod-reminders", path = "../modules/reminders" }
 module-timeline = { package = "aphel-mod-timeline", path = "../modules/timeline" }
 module-favorites = { package = "aphel-mod-favorites", path = "../modules/favorites" }
+module-themes = { package = "aphel-mod-themes", path = "../modules/themes" }
 module-followers = { package = "aphel-mod-followers", path = "../modules/followers" }
 module-dashboard = { package = "aphel-mod-dashboard", path = "../modules/dashboard" }
 module-reports = { package = "aphel-mod-reports", path = "../modules/reports" }

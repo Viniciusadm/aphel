@@ -2,6 +2,7 @@ import { BookOpen, Download, ExternalLink, PackageX, Puzzle, RefreshCw } from 'l
 import { useState } from 'react'
 import { useTranslation } from 'react-i18next'
 import { isApiError } from '@/api'
+import { Slot } from '@/kernel/modules/Slot'
 import { Badge } from '@/components/ui/badge'
 import { Button } from '@/components/ui/button'
 import { EmptyState } from '@/components/ui/empty-state'
@@ -204,6 +205,7 @@ function CatalogContent({ catalog, busy, failure, onCompare }: CatalogContentPro
           </ul>
         )}
       </section>
+      <Slot name="catalog.sections" props={{ entries: catalog.entries }} />
     </div>
   )
 }

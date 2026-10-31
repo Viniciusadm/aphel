@@ -36,6 +36,7 @@ pub fn compiled() -> Vec<Box<dyn Module>> {
         Box::new(module_reminders::RemindersModule),
         Box::new(module_timeline::TimelineModule),
         Box::new(module_favorites::FavoritesModule),
+        Box::new(module_themes::ThemesModule),
         Box::new(module_followers::FollowersModule),
         Box::new(module_dashboard::DashboardModule),
         Box::new(module_reports::ReportsModule),

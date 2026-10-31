@@ -15,6 +15,7 @@ import activitiesModule from '@modules/activities'
 import notesModule from '@modules/notes'
 import timelineModule from '@modules/timeline'
 import favoritesModule from '@modules/favorites'
+import themesModule from '@modules/themes'
 import followersModule from '@modules/followers'
 import dashboardModule from '@modules/dashboard'
 import reportsModule from '@modules/reports'
@@ -69,6 +70,7 @@ export const MODULES: WebModule[] = [
   notesModule,
   timelineModule,
   favoritesModule,
+  themesModule,
   followersModule,
   dashboardModule,
   reportsModule,

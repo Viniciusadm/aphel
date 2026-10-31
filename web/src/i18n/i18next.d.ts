@@ -83,6 +83,7 @@ import type setupNamespace from './pt-BR/setup.json'
 import type sharingNamespace from './pt-BR/sharing.json'
 import type systemNamespace from './pt-BR/system.json'
 import type tagsNamespace from '../modules/tags/i18n/pt-BR.json'
+import type themesNamespace from '../modules/themes/i18n/pt-BR.json'
 import type timelineNamespace from '../modules/timeline/i18n/pt-BR.json'
 import type trashNamespace from '../modules/trash/i18n/pt-BR.json'
 import type twoFactorNamespace from './pt-BR/two-factor.json'
@@ -178,6 +179,7 @@ declare module 'i18next' {
       sharing: typeof sharingNamespace
       system: typeof systemNamespace
       tags: typeof tagsNamespace
+      themes: typeof themesNamespace
       timeline: typeof timelineNamespace
       trash: typeof trashNamespace
       'two-factor': typeof twoFactorNamespace
