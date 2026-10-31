@@ -1,3 +1,4 @@
+import { FieldError as SharedFieldError } from '@/components/ui/field-error'
 import { useMutation, useQueryClient } from '@tanstack/react-query'
 import { useState } from 'react'
 import { useTranslation } from 'react-i18next'
@@ -79,7 +80,7 @@ function RecordFormDialogBody({
       }),
   })
 
-  if (!resource) return <p className="text-sm text-destructive">{t('dialog.unavailable')}</p>
+  if (!resource) return <SharedFieldError>{t('dialog.unavailable')}</SharedFieldError>
   if (schema.isPending || (formLayout.isPending && !formLayout.isError)) {
     return (
       <div className="grid gap-4" aria-busy="true">
@@ -91,7 +92,7 @@ function RecordFormDialogBody({
   if (schema.isError) {
     return (
       <div className="grid gap-3">
-        <p className="text-sm text-destructive">{t('dialog.loadError')}</p>
+        <SharedFieldError>{t('dialog.loadError')}</SharedFieldError>
         <Button variant="outline" className="justify-self-start" onClick={() => void schema.refetch()}>
           {t('actions.retry')}
         </Button>

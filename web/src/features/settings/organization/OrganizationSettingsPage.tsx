@@ -1,3 +1,4 @@
+import { FieldError as SharedFieldError } from '@/components/ui/field-error'
 import { zodResolver } from '@hookform/resolvers/zod'
 import { useQueryClient } from '@tanstack/react-query'
 import { ImageUp, Trash2 } from 'lucide-react'
@@ -254,9 +255,9 @@ function OrganizationForm({ organization }: { organization: OrganizationSettings
             {t('logo.hint')}
           </p>
           {logoError && (
-            <p role="alert" className="text-sm text-destructive">
+            <SharedFieldError>
               {logoError}
-            </p>
+            </SharedFieldError>
           )}
         </div>
 

@@ -1,3 +1,4 @@
+import { FieldError as SharedFieldError } from '@/components/ui/field-error'
 import { zodResolver } from '@hookform/resolvers/zod'
 import { useId, useMemo, useState } from 'react'
 import { Controller, useForm } from 'react-hook-form'
@@ -207,9 +208,9 @@ export function IntegrationConfigDialog({ integration, open, onOpenChange, onSav
                   </p>
                 )}
                 {message && (
-                  <p id={errorId} className="text-sm text-destructive">
+                  <SharedFieldError id={errorId}>
                     {message}
-                  </p>
+                  </SharedFieldError>
                 )}
               </Field>
             )

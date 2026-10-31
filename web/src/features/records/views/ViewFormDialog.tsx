@@ -1,3 +1,4 @@
+import { FieldError as SharedFieldError } from '@/components/ui/field-error'
 import { useId, useState, type FormEvent } from 'react'
 import { useTranslation } from 'react-i18next'
 import { useSession } from '@/app/session/session-context'
@@ -124,9 +125,9 @@ function ViewForm({ view, pending, onCancel, onSubmit }: ViewFormProps) {
           onChange={(event) => setName(event.target.value)}
         />
         {submitted && nameError && (
-          <p id={ids.error} className="text-sm text-destructive">
+          <SharedFieldError id={ids.error}>
             {nameError}
-          </p>
+          </SharedFieldError>
         )}
         </>}
       </Field>
@@ -162,7 +163,7 @@ function ViewForm({ view, pending, onCancel, onSubmit }: ViewFormProps) {
           {teams.isSuccess && teamOptions.length === 0 && (
             <p className="text-sm text-muted-foreground">{t('views.form.noTeams')}</p>
           )}
-          {submitted && teamError && <p className="text-sm text-destructive">{teamError}</p>}
+          {submitted && teamError && <SharedFieldError>{teamError}</SharedFieldError>}
           </>}
         </Field>
       )}

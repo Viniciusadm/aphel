@@ -1,3 +1,4 @@
+import { FieldError as SharedFieldError } from '@/components/ui/field-error'
 import { useState, type ReactNode } from 'react'
 import { useTranslation } from 'react-i18next'
 import { api, isApiError } from '@/api'
@@ -452,9 +453,9 @@ function ConfigurationFields({
               </p>
             )}
             {invalid && (
-              <p role="alert" className="text-sm text-destructive">
+              <SharedFieldError>
                 {t('features.invalidField')}
-              </p>
+              </SharedFieldError>
             )}
           </div>
         )

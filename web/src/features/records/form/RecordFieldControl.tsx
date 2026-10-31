@@ -1,3 +1,4 @@
+import { FieldError as SharedFieldError } from '@/components/ui/field-error'
 import { useTranslation } from 'react-i18next'
 import { FieldInput } from '@/components/fields/FieldInput'
 import { Label } from '@/components/ui/label'
@@ -67,9 +68,9 @@ export function RecordFieldControl({
           </Label>
         </div>
         {error && (
-          <p id={errorId} role="alert" className="text-sm text-destructive">
+          <SharedFieldError id={errorId}>
             {error}
-          </p>
+          </SharedFieldError>
         )}
       </div>
     )

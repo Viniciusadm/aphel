@@ -1,3 +1,4 @@
+import { FieldError as SharedFieldError } from '@/components/ui/field-error'
 import { FileJson, PackageCheck, Upload } from 'lucide-react'
 import { useId, useRef, useState } from 'react'
 import { useTranslation } from 'react-i18next'
@@ -119,9 +120,9 @@ function UploadCard({ disabled, onChoose }: { disabled: boolean; onChoose: (pkg:
           </Link>
         </Button>
         {error && (
-          <p role="alert" className="text-sm text-destructive">
+          <SharedFieldError>
             {t(`upload.errors.${error}`)}
-          </p>
+          </SharedFieldError>
         )}
       </CardContent>
     </Card>

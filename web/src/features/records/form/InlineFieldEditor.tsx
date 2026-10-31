@@ -1,3 +1,4 @@
+import { FieldError as SharedFieldError } from '@/components/ui/field-error'
 import { Check, Loader2, Pencil, X } from 'lucide-react'
 import { useId, useRef, useState, type KeyboardEvent, type MouseEvent } from 'react'
 import { useTranslation } from 'react-i18next'
@@ -60,9 +61,9 @@ export function InlineFieldEditor({ field, value, onSave, readOnly = false, know
   }
 
   const errorMessage = error && (
-    <p id={errorId} role="alert" className="text-sm text-destructive">
+    <SharedFieldError id={errorId}>
       {error}
-    </p>
+    </SharedFieldError>
   )
 
   if (field.field_type === 'checkbox') {

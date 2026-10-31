@@ -1,3 +1,4 @@
+import { FieldError as SharedFieldError } from '@/components/ui/field-error'
 import { useQueryClient } from '@tanstack/react-query'
 import { useId, useState } from 'react'
 import { useTranslation } from 'react-i18next'
@@ -70,7 +71,7 @@ function CreateBody({ recordType, layout, relations, onCreated, onDone, onCancel
   if (schema.isError) {
     return (
       <div className="grid gap-3">
-        <p className="text-sm text-destructive">{t('records.formLoadError')}</p>
+        <SharedFieldError>{t('records.formLoadError')}</SharedFieldError>
         <Button variant="outline" className="justify-self-start" onClick={() => void schema.refetch()}>
           {t('records.retry')}
         </Button>
@@ -132,9 +133,9 @@ function CreateBody({ recordType, layout, relations, onCreated, onDone, onCancel
                 }}
               />
               {error && (
-                <p id={`${inputId}-error`} className="text-sm text-destructive">
+                <SharedFieldError id={`${inputId}-error`}>
                   {error}
-                </p>
+                </SharedFieldError>
               )}
             </Field>
           )

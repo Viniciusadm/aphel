@@ -1,3 +1,4 @@
+import { FieldError as SharedFieldError } from '@/components/ui/field-error'
 import { AlertTriangle, CheckCircle2, Download } from 'lucide-react'
 import { useId, useState } from 'react'
 import { Trans, useTranslation } from 'react-i18next'
@@ -139,9 +140,9 @@ export function PurgeDataDialog({ module, name, onClose, onChanged }: PurgeDataD
             onChange={(event) => setTyped(event.target.value)}
           />
           {error && (
-            <p id={errorId} role="alert" className="text-sm text-destructive">
+            <SharedFieldError id={errorId}>
               {error}
-            </p>
+            </SharedFieldError>
           )}
           </Field>
         </form>

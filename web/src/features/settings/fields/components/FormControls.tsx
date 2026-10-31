@@ -1,3 +1,4 @@
+import { FieldError as SharedFieldError } from '@/components/ui/field-error'
 import type { ComponentProps, KeyboardEventHandler, ReactNode } from 'react'
 import { useTranslation } from 'react-i18next'
 import { Input } from '@/components/ui/input'
@@ -19,9 +20,9 @@ export function FieldMessage({ id, message }: FieldMessageProps) {
   const key = asFieldsMessageKey(message)
   if (!key) return null
   return (
-    <p id={id} className="text-sm text-destructive">
+    <SharedFieldError id={id}>
       {t(key)}
-    </p>
+    </SharedFieldError>
   )
 }
 

@@ -1,3 +1,4 @@
+import { FieldError as SharedFieldError } from '@/components/ui/field-error'
 import { useId, type ComponentProps } from 'react'
 import { Input } from '@/components/ui/input'
 import { Field } from '@/components/ui/field'
@@ -25,9 +26,9 @@ export function TextField({ label, error, hint, className, ...props }: TextField
         {...props}
       />
       {error && (
-        <p id={errorId} role="alert" className="text-sm text-destructive">
+        <SharedFieldError id={errorId}>
           {error}
-        </p>
+        </SharedFieldError>
       )}
       {hint && !error && (
         <p id={hintId} className="text-xs text-muted-foreground">

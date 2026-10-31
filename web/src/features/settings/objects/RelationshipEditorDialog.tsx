@@ -1,3 +1,4 @@
+import { FieldError as SharedFieldError } from '@/components/ui/field-error'
 import { useId, useState } from 'react'
 import { useTranslation } from 'react-i18next'
 import { isApiError } from '@/api'
@@ -195,9 +196,9 @@ function RelationshipForm({ relationship, recordType, onClose, onSaved }: Relati
 
   const errorText = (name: keyof FormErrors) =>
     errors[name] ? (
-      <p id={`${formId}-${name}-error`} className="text-sm text-destructive">
+      <SharedFieldError id={`${formId}-${name}-error`}>
         {errors[name]}
-      </p>
+      </SharedFieldError>
     ) : null
   const describedBy = (name: keyof FormErrors) => (errors[name] ? `${formId}-${name}-error` : undefined)
 

@@ -1,3 +1,4 @@
+import { FieldError as SharedFieldError } from '@/components/ui/field-error'
 import { Check, Copy, KeyRound, Plus } from 'lucide-react'
 import { useId, useState } from 'react'
 import { useTranslation } from 'react-i18next'
@@ -265,9 +266,9 @@ function CreateTokenForm({ onCancel, onCreated }: CreateTokenFormProps) {
             }}
           />
           {nameError && (
-            <p id={`${formId}-name-error`} className="text-sm text-destructive">
+            <SharedFieldError id={`${formId}-name-error`}>
               {nameError}
-            </p>
+            </SharedFieldError>
           )}
           </>}
         </Field>
@@ -301,9 +302,9 @@ function CreateTokenForm({ onCancel, onCreated }: CreateTokenFormProps) {
             </div>
           )}
           {scopesError && (
-            <p id={`${formId}-scopes-error`} className="text-sm text-destructive">
+            <SharedFieldError id={`${formId}-scopes-error`}>
               {scopesError}
-            </p>
+            </SharedFieldError>
           )}
         </fieldset>
         <Field label={t('form.expiration')}>

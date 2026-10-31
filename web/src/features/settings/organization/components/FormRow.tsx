@@ -1,3 +1,4 @@
+import { FieldError as SharedFieldError } from '@/components/ui/field-error'
 import type { ReactNode } from 'react'
 import { Field } from '@/components/ui/field'
 
@@ -17,9 +18,9 @@ export function FormRow({ id, label, error, hint, children }: FormRowProps) {
     <Field id={id} label={label}>
       {children(describedBy)}
       {error && (
-        <p id={errorId} className="text-sm text-destructive">
+        <SharedFieldError id={errorId}>
           {error}
-        </p>
+        </SharedFieldError>
       )}
       {hint && (
         <p id={hintId} className="text-xs text-muted-foreground">

@@ -1,3 +1,4 @@
+import { FieldError as SharedFieldError } from '@/components/ui/field-error'
 import { FileJson, LayoutTemplate, Upload } from 'lucide-react'
 import { useId, useRef, useState, type DragEvent } from 'react'
 import { useTranslation } from 'react-i18next'
@@ -107,9 +108,9 @@ function UploadSource({ disabled, onChoose }: SourceProps) {
         </div>
         <div aria-live="assertive">
           {error && (
-            <p id={`${inputId}-error`} role="alert" className="text-sm text-destructive">
+            <SharedFieldError id={`${inputId}-error`}>
               {t(`install.fileErrors.${error}`)}
-            </p>
+            </SharedFieldError>
           )}
         </div>
       </CardContent>

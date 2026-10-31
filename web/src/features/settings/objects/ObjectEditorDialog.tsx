@@ -1,3 +1,4 @@
+import { FieldError as SharedFieldError } from '@/components/ui/field-error'
 import { useId, useMemo, useState } from 'react'
 import { useTranslation } from 'react-i18next'
 import { isApiError } from '@/api'
@@ -136,9 +137,9 @@ function ObjectForm({ object, onClose, onSaved }: ObjectFormProps) {
 
   const fieldError = (name: keyof FormErrors) =>
     errors[name] ? (
-      <p id={`${formId}-${name}-error`} className="text-sm text-destructive">
+      <SharedFieldError id={`${formId}-${name}-error`}>
         {errors[name]}
-      </p>
+      </SharedFieldError>
     ) : null
   const describedBy = (name: keyof FormErrors, hint?: string) =>
     [errors[name] ? `${formId}-${name}-error` : null, hint ?? null].filter(Boolean).join(' ') || undefined

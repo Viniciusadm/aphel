@@ -1,3 +1,4 @@
+import { FieldError as SharedFieldError } from '@/components/ui/field-error'
 import { Download } from 'lucide-react'
 import { useState } from 'react'
 import { useTranslation } from 'react-i18next'
@@ -116,7 +117,7 @@ function ExportForm({ available }: { available: string[] }) {
             )
           })}
         </div>
-        {selected.length === 0 && <p className="text-sm text-destructive">{t('export.noSections')}</p>}
+        {selected.length === 0 && <SharedFieldError>{t('export.noSections')}</SharedFieldError>}
       </fieldset>
       <div className="grid gap-4 sm:grid-cols-2">
         <Field label={t('export.name')}>

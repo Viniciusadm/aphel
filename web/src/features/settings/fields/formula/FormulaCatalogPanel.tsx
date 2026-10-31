@@ -1,3 +1,4 @@
+import { FieldError as SharedFieldError } from '@/components/ui/field-error'
 import { Loader2 } from 'lucide-react'
 import { useState } from 'react'
 import { useTranslation } from 'react-i18next'
@@ -67,9 +68,9 @@ export function FormulaCatalogPanel({ recordType, onInsert }: FormulaCatalogPane
           {t('catalog.loading')}
         </p>
       ) : catalog.isError ? (
-        <p role="alert" className="text-sm text-destructive">
+        <SharedFieldError>
           {t('catalog.loadError')}
-        </p>
+        </SharedFieldError>
       ) : (
         <CatalogTabs catalog={catalog.data} term={term} onInsert={onInsert} />
       )}

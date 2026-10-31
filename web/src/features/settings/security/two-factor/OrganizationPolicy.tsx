@@ -1,3 +1,4 @@
+import { FieldError as SharedFieldError } from '@/components/ui/field-error'
 import { useQueryClient } from '@tanstack/react-query'
 import { useId, useState, type FormEvent } from 'react'
 import { useTranslation } from 'react-i18next'
@@ -103,9 +104,9 @@ function PolicyForm({ state }: { state: TwoFactorPolicyState }) {
             </p>
           )}
           {error && (
-            <p role="alert" className="text-sm text-destructive">
+            <SharedFieldError>
               {error}
-            </p>
+            </SharedFieldError>
           )}
           <div className="flex justify-end">
             <Button type="submit" disabled={pending || selected === state.policy} aria-busy={pending || undefined}>

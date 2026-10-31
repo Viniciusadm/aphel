@@ -1,3 +1,4 @@
+import { FieldError as SharedFieldError } from '@/components/ui/field-error'
 import { Loader2 } from 'lucide-react'
 import { useId, useMemo, useRef, useState } from 'react'
 import { useTranslation } from 'react-i18next'
@@ -197,7 +198,7 @@ function ValidationRuleForm({ recordType, rule, onOpenChange, onSaved }: FormPro
             aria-invalid={nameError ? true : undefined}
             onChange={(event) => setName(event.target.value)}
           />
-          {nameError && <p className="text-sm text-destructive">{nameError}</p>}
+          {nameError && <SharedFieldError>{nameError}</SharedFieldError>}
           </>}
         </Field>
         <Field label={t('dialog.key')} className="min-w-0">
@@ -215,7 +216,7 @@ function ValidationRuleForm({ recordType, rule, onOpenChange, onSaved }: FormPro
           <p id={`${ids.key}-hint`} className="text-xs text-muted-foreground">
             {t('dialog.keyHint')}
           </p>
-          {serverErrors.key && <p className="text-sm text-destructive">{serverErrors.key}</p>}
+          {serverErrors.key && <SharedFieldError>{serverErrors.key}</SharedFieldError>}
           </>}
         </Field>
       </div>
@@ -233,7 +234,7 @@ function ValidationRuleForm({ recordType, rule, onOpenChange, onSaved }: FormPro
         <p id={`${ids.message}-hint`} className="text-xs text-muted-foreground">
           {t('dialog.messageHint')}
         </p>
-        {messageError && <p className="text-sm text-destructive">{messageError}</p>}
+        {messageError && <SharedFieldError>{messageError}</SharedFieldError>}
         </>}
       </Field>
       <div className="grid min-w-0 gap-4 sm:grid-cols-2">
@@ -248,7 +249,7 @@ function ValidationRuleForm({ recordType, rule, onOpenChange, onSaved }: FormPro
             ))}
           </NativeSelect>
           <p className="text-xs text-muted-foreground">{t('dialog.fieldHint')}</p>
-          {serverErrors.field && <p className="text-sm text-destructive">{serverErrors.field}</p>}
+          {serverErrors.field && <SharedFieldError>{serverErrors.field}</SharedFieldError>}
           </>}
         </Field>
         <Field label={t('dialog.timing')} className="min-w-0">
@@ -323,9 +324,9 @@ function ValidationRuleForm({ recordType, rule, onOpenChange, onSaved }: FormPro
         </div>
       </section>
       {(generalError || serverErrors.record_type || serverErrors.applies_on) && (
-        <p role="alert" className="text-sm text-destructive">
+        <SharedFieldError>
           {generalError ?? serverErrors.record_type ?? serverErrors.applies_on}
-        </p>
+        </SharedFieldError>
       )}
       <DialogFooter>
         <Button type="button" variant="outline" disabled={saving} onClick={() => onOpenChange(false)}>

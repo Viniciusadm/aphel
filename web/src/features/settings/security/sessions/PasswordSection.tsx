@@ -1,3 +1,4 @@
+import { FieldError as SharedFieldError } from '@/components/ui/field-error'
 import { zodResolver } from '@hookform/resolvers/zod'
 import { useId } from 'react'
 import { useForm } from 'react-hook-form'
@@ -83,9 +84,9 @@ export function PasswordSection() {
     const message = errors[name]?.message as PasswordMessageKey | undefined
     if (!message) return null
     return (
-      <p id={`${formId}-${name}-error`} className="text-sm text-destructive">
+      <SharedFieldError id={`${formId}-${name}-error`}>
         {t(message, { min: MIN_PASSWORD_LENGTH, max: MAX_PASSWORD_LENGTH })}
-      </p>
+      </SharedFieldError>
     )
   }
 
