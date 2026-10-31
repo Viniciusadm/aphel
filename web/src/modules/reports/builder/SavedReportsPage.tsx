@@ -1,5 +1,5 @@
 import { BarChart3, Building2, Plus, Users } from 'lucide-react'
-import { useId, useState } from 'react'
+import { useState } from 'react'
 import { useTranslation } from 'react-i18next'
 import { Link } from 'react-router'
 import { useSession } from '@/app/session/session-context'
@@ -7,19 +7,18 @@ import { Button } from '@/components/ui/button'
 import { Card } from '@/components/ui/card'
 import { EmptyState } from '@/components/ui/empty-state'
 import { ErrorState } from '@/components/ui/error-state'
-import { Label } from '@/components/ui/label'
 import { Skeleton } from '@/components/ui/skeleton'
 import { NativeSelect } from '@/features/records/filters/NativeSelect'
 import { formatDateTime, useRecordFormatting } from '@/features/records/formatting'
 import { useReports } from './api'
 import { REPORT_RECORD_TYPES } from './model'
+import { Field } from '@/components/ui/field'
 
 export function SavedReportsPage() {
   const { t } = useTranslation('reports', { keyPrefix: 'builder' })
   const { hasPermission } = useSession()
   const formatting = useRecordFormatting()
   const reports = useReports()
-  const filterId = useId()
   const [recordType, setRecordType] = useState('')
   const allowedTypes = REPORT_RECORD_TYPES.filter((type) => hasPermission(type.permission))
   const visible = (reports.data ?? []).filter((report) => !recordType || report.record_type === recordType)
@@ -32,19 +31,16 @@ export function SavedReportsPage() {
           <p className="text-sm text-muted-foreground">{t('list.description')}</p>
         </div>
         <div className="flex flex-wrap items-end gap-2">
-          <div className="grid gap-2.5">
-            <Label htmlFor={filterId} className="text-xs text-muted-foreground">
-              {t('list.filter')}
-            </Label>
-            <NativeSelect id={filterId} value={recordType} onChange={(event) => setRecordType(event.target.value)}>
+          <Field label={t('list.filter')}>
+            {(fieldControl) => <NativeSelect {...fieldControl} value={recordType} onChange={(event) => setRecordType(event.target.value)}>
               <option value="">{t('list.allModules')}</option>
               {allowedTypes.map((type) => (
                 <option key={type.recordType} value={type.recordType}>
                   {t(`modules.${type.recordType}`)}
                 </option>
               ))}
-            </NativeSelect>
-          </div>
+            </NativeSelect>}
+          </Field>
           {allowedTypes.length > 0 && (
             <Button asChild>
               <Link to="/reports/saved/new">

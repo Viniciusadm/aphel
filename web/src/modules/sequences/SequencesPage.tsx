@@ -23,6 +23,7 @@ import {
 import { PageHeader } from '@/components/ui/page-header'
 import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from '@/components/ui/table'
 import { Page } from '@/components/ui/page'
+import { Field } from '@/components/ui/field'
 
 type ActiveFilter = '' | 'active' | 'inactive'
 
@@ -48,7 +49,6 @@ function SequencesList() {
   const { t } = useTranslation('sequences')
   const { hasPermission } = useSession()
   const searchId = useId()
-  const activeId = useId()
   const canManage = hasPermission(SEQUENCES_MANAGE_PERMISSION)
   const [search, setSearch] = useState('')
   const [active, setActive] = useState<ActiveFilter>('')
@@ -178,12 +178,9 @@ function SequencesList() {
             />
           </div>
         </div>
-        <div className="grid gap-2.5">
-          <Label htmlFor={activeId} className="sr-only">
-            {t('page.statusFilter')}
-          </Label>
-          <NativeSelect
-            id={activeId}
+        <Field label={t('page.statusFilter')} hideLabel>
+          {(fieldControl) => <NativeSelect
+            {...fieldControl}
             value={active}
             onChange={(event) => {
               setActive(event.target.value as ActiveFilter)
@@ -193,8 +190,8 @@ function SequencesList() {
             <option value="">{t('page.allStatuses')}</option>
             <option value="active">{t('status.active')}</option>
             <option value="inactive">{t('status.inactive')}</option>
-          </NativeSelect>
-        </div>
+          </NativeSelect>}
+        </Field>
       </div>
       {body}
     </Page>

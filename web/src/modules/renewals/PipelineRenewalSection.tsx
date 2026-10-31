@@ -136,17 +136,18 @@ function RenewalForm({ pipelineId, settings, pipelines }: RenewalFormProps) {
         </div>
       </div>
       <div className="grid gap-4 sm:grid-cols-2">
-        <div className="grid gap-2.5">
-          <Label htmlFor={ids.days}>{t('renewal.daysBefore')}</Label>
-          <Input placeholder={t('placeholders.days')}
-            id={ids.days}
+        <Field label={t('renewal.daysBefore')}>
+          {(fieldControl) => <>
+            <Input placeholder={t('placeholders.days')}
+            {...fieldControl}
             inputMode="numeric"
             value={draft.days_before}
             aria-invalid={!daysValid}
             onChange={(event) => update({ days_before: event.target.value })}
           />
           <p className="text-xs text-muted-foreground">{t('renewal.daysBeforeHint', { max: MAX_DAYS_BEFORE })}</p>
-        </div>
+          </>}
+        </Field>
         <Field label={t('renewal.owner')}>
           {(control) => <NativeSelect
             {...control}

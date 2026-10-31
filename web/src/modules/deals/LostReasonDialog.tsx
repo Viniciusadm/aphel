@@ -14,6 +14,7 @@ import { Skeleton } from '@/components/ui/skeleton'
 import { Textarea } from '@/components/ui/textarea'
 import { useLostReasons } from '@/modules/pipelines/api'
 import { NativeSelect } from '@/components/ui/native-select'
+import { Field } from '@/components/ui/field'
 
 export interface LostReasonChoice {
   lostReasonId: string
@@ -35,7 +36,6 @@ function LostReasonForm({ dealTitle, pending, onOpenChange, onConfirm }: Omit<Lo
   const [note, setNote] = useState('')
   const [touched, setTouched] = useState(false)
   const selectId = useId()
-  const noteId = useId()
   const errorId = useId()
   const missing = touched && !reasonId
 
@@ -87,10 +87,9 @@ function LostReasonForm({ dealTitle, pending, onOpenChange, onConfirm }: Omit<Lo
         )}
         {reasons.isError && <p className="text-sm text-destructive">{t('lost.loadError')}</p>}
       </div>
-      <div className="grid gap-2">
-        <Label htmlFor={noteId}>{t('lost.note')}</Label>
-        <Textarea placeholder={t('placeholders.note')} id={noteId} value={note} maxLength={5000} onChange={(event) => setNote(event.target.value)} />
-      </div>
+      <Field label={t('lost.note')}>
+        {(fieldControl) => <Textarea placeholder={t('placeholders.note')} {...fieldControl} value={note} maxLength={5000} onChange={(event) => setNote(event.target.value)} />}
+      </Field>
       <DialogFooter>
         <Button type="button" variant="outline" onClick={() => onOpenChange(false)} disabled={pending}>
           {t('actions.cancel')}

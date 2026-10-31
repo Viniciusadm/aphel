@@ -22,6 +22,7 @@ import { automatableRecordTypes, useAutomationLabels } from './lib/labels'
 import { AUTOMATION_STATUSES, type Automation, type AutomationStatus } from './types'
 import { PageHeader } from '@/components/ui/page-header'
 import { Page } from '@/components/ui/page'
+import { Field } from '@/components/ui/field'
 
 export const AUTOMATIONS_PERMISSION = 'automations.manage'
 
@@ -46,8 +47,6 @@ function useDebounced<T>(value: T, delay = 300): T {
 function AutomationsList() {
   const { t } = useTranslation('automations')
   const searchId = useId()
-  const statusId = useId()
-  const typeId = useId()
   const catalog = useAutomationCatalog()
   const objects = useCustomObjects()
   const labels = useAutomationLabels(catalog.data)
@@ -137,12 +136,9 @@ function AutomationsList() {
             />
           </div>
         </div>
-        <div className="grid gap-2.5">
-          <Label htmlFor={statusId} className="sr-only">
-            {t('page.status')}
-          </Label>
-          <NativeSelect
-            id={statusId}
+        <Field label={t('page.status')} hideLabel>
+          {(fieldControl) => <NativeSelect
+            {...fieldControl}
             value={status}
             onChange={(event) => {
               setStatus(event.target.value as AutomationStatus | '')
@@ -156,14 +152,11 @@ function AutomationsList() {
                 {t(`status.${item}`)}
               </option>
             ))}
-          </NativeSelect>
-        </div>
-        <div className="grid gap-2.5">
-          <Label htmlFor={typeId} className="sr-only">
-            {t('page.recordType')}
-          </Label>
-          <NativeSelect
-            id={typeId}
+          </NativeSelect>}
+        </Field>
+        <Field label={t('page.recordType')} hideLabel>
+          {(fieldControl) => <NativeSelect
+            {...fieldControl}
             value={recordType}
             onChange={(event) => {
               setRecordType(event.target.value)
@@ -177,8 +170,8 @@ function AutomationsList() {
                 {labels.recordTypeLabel(item)}
               </option>
             ))}
-          </NativeSelect>
-        </div>
+          </NativeSelect>}
+        </Field>
       </div>
       {body}
       {catalog.data && (

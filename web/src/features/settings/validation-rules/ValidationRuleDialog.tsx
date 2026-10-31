@@ -305,10 +305,10 @@ function ValidationRuleForm({ recordType, rule, onOpenChange, onSaved }: FormPro
           {t('test.title')}
         </h3>
         <div className="grid min-w-0 gap-3 sm:grid-cols-2">
-          <div className="grid min-w-0 content-start gap-2">
-            <Label htmlFor={ids.record}>{t('test.record')}</Label>
-            <RecordFieldInput
-              id={ids.record}
+          <Field label={t('test.record')} className="min-w-0 content-start">
+            {(fieldControl) => <>
+              <RecordFieldInput
+              id={fieldControl.id}
               value={recordId}
               onChange={setRecordId}
               targetRecordType={recordType}
@@ -317,7 +317,8 @@ function ValidationRuleForm({ recordType, rule, onOpenChange, onSaved }: FormPro
             <p id={`${ids.record}-hint`} className="text-xs text-muted-foreground">
               {t('test.recordHint')}
             </p>
-          </div>
+            </>}
+          </Field>
           <div className="flex min-h-9 min-w-0 items-center gap-2 self-end rounded-md border bg-muted/40 px-3 py-1.5 text-sm" aria-live="polite">
             {testResult}
           </div>

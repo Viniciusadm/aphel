@@ -15,7 +15,6 @@ import {
 } from '@/components/ui/dialog'
 import { EmptyState } from '@/components/ui/empty-state'
 import { ErrorState } from '@/components/ui/error-state'
-import { Label } from '@/components/ui/label'
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/components/ui/select'
 import { Skeleton } from '@/components/ui/skeleton'
 import { fileDownloadUrl } from '@/features/files'
@@ -33,6 +32,7 @@ import {
   type ProposalDocument,
 } from './api'
 import { ProposalDocumentView } from './ProposalDocumentView'
+import { Field } from '@/components/ui/field'
 
 const KNOWN_ERRORS = [
   'proposal_template_required',
@@ -190,10 +190,9 @@ function GenerateDialog({ dealId, open, onOpenChange }: GenerateDialogProps) {
           <p className="text-sm text-muted-foreground">{t('deal.noTemplates')}</p>
         ) : (
           <div className="grid gap-3">
-            <div className="grid gap-2.5">
-              <Label htmlFor="proposal-template">{t('deal.template')}</Label>
-              <Select value={templateId ?? undefined} onValueChange={setChosen} disabled={pending}>
-                <SelectTrigger id="proposal-template">
+            <Field label={t('deal.template')}>
+              {(fieldControl) => <Select value={templateId ?? undefined} onValueChange={setChosen} disabled={pending}>
+                <SelectTrigger id={fieldControl.id}>
                   <SelectValue placeholder={t('deal.templatePlaceholder')} />
                 </SelectTrigger>
                 <SelectContent>
@@ -203,8 +202,8 @@ function GenerateDialog({ dealId, open, onOpenChange }: GenerateDialogProps) {
                     </SelectItem>
                   ))}
                 </SelectContent>
-              </Select>
-            </div>
+              </Select>}
+            </Field>
             <Button
               type="button"
               variant="ghost"

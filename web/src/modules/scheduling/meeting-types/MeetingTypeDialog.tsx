@@ -143,11 +143,12 @@ export function MeetingTypeDialog({ meetingType, onClose }: MeetingTypeDialogPro
             <p className="text-xs text-muted-foreground">{t('meetingTypes.form.slugHint')}</p>
             <FieldMessage message={errors.slug?.message} />
           </div>
-          <div className="grid gap-2">
-            <Label htmlFor="meeting-type-description">{t('meetingTypes.form.descriptionLabel')}</Label>
-            <Textarea placeholder={t('placeholders.description')} id="meeting-type-description" rows={3} {...register('description')} />
+          <Field label={t('meetingTypes.form.descriptionLabel')}>
+            {(fieldControl) => <>
+              <Textarea placeholder={t('placeholders.description')} {...fieldControl} rows={3} {...register('description')} />
             <FieldMessage message={errors.description?.message} />
-          </div>
+            </>}
+          </Field>
           <div className="grid gap-4 sm:grid-cols-2">
             <Field label={t('meetingTypes.form.duration')}>
               {(control) => <>

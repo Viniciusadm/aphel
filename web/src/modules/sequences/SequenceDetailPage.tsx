@@ -7,7 +7,6 @@ import { ConfirmDialog, notifySuccess } from '@/components/feedback'
 import { Button } from '@/components/ui/button'
 import { EmptyState } from '@/components/ui/empty-state'
 import { ErrorState } from '@/components/ui/error-state'
-import { Label } from '@/components/ui/label'
 import { Skeleton } from '@/components/ui/skeleton'
 import { NativeSelect } from '@/features/records/filters/NativeSelect'
 import { formatDateTime, useRecordFormatting } from '@/features/records/formatting'
@@ -30,6 +29,7 @@ import type { Enrollment, EnrollmentStatus, Sequence } from './types'
 import { PageHeader } from '@/components/ui/page-header'
 import { Page } from '@/components/ui/page'
 import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from '@/components/ui/table'
+import { Field } from '@/components/ui/field'
 
 export function SequenceDetailPage() {
   const { t } = useTranslation('sequences')
@@ -241,7 +241,6 @@ function EnrollmentsSection({ sequence }: { sequence: Sequence }) {
   const { hasPermission } = useSession()
   const formatting = useRecordFormatting()
   const headingId = useId()
-  const statusId = useId()
   const [status, setStatus] = useState<EnrollmentStatus | ''>('')
   const [page, setPage] = useState(1)
   const enrollments = useSequenceEnrollments(sequence.id, { page, status: status || undefined })
@@ -339,12 +338,9 @@ function EnrollmentsSection({ sequence }: { sequence: Sequence }) {
           </h2>
           <p className="text-sm text-muted-foreground">{t('enrollments.description')}</p>
         </div>
-        <div className="grid w-48 gap-2.5">
-          <Label htmlFor={statusId} className="sr-only">
-            {t('enrollments.statusFilter')}
-          </Label>
-          <NativeSelect
-            id={statusId}
+        <Field label={t('enrollments.statusFilter')} hideLabel className="w-48">
+          {(fieldControl) => <NativeSelect
+            {...fieldControl}
             value={status}
             onChange={(event) => {
               setStatus(event.target.value as EnrollmentStatus | '')
@@ -357,8 +353,8 @@ function EnrollmentsSection({ sequence }: { sequence: Sequence }) {
                 {t(`enrollmentStatus.${option}`)}
               </option>
             ))}
-          </NativeSelect>
-        </div>
+          </NativeSelect>}
+        </Field>
       </div>
       {body}
     </section>

@@ -6,7 +6,6 @@ import { useSession } from '@/app/session/session-context'
 import { Button } from '@/components/ui/button'
 import { EmptyState } from '@/components/ui/empty-state'
 import { ErrorState } from '@/components/ui/error-state'
-import { Label } from '@/components/ui/label'
 import { Skeleton } from '@/components/ui/skeleton'
 import { useActivityInbox, type InboxGroup, type InboxItem, type InboxQuery } from '@/modules/activities/api'
 import { NativeSelect } from '@/features/records/filters/NativeSelect'
@@ -20,6 +19,7 @@ import { ReassignDialog } from './ReassignDialog'
 import { useInboxActions } from './useInboxActions'
 import { PageHeader } from '@/components/ui/page-header'
 import { Page } from '@/components/ui/page'
+import { Field } from '@/components/ui/field'
 
 const COLLAPSIBLE_GROUPS = new Set(['upcoming', 'no_due'])
 
@@ -169,12 +169,9 @@ export function InboxPage() {
           </div>
         </div>
         {query.owner === 'team' && (
-          <div className="grid min-w-0 gap-2.5">
-            <Label htmlFor={ids.team} className="text-xs text-muted-foreground">
-              {t('filters.team')}
-            </Label>
-            <NativeSelect
-              id={ids.team}
+          <Field label={t('filters.team')} className="min-w-0">
+            {(fieldControl) => <NativeSelect
+              {...fieldControl}
               className="w-full sm:w-48"
               value={query.teamId ?? ''}
               onChange={(event) => setQuery({ teamId: event.target.value || undefined })}
@@ -185,15 +182,12 @@ export function InboxPage() {
                   {team.name}
                 </option>
               ))}
-            </NativeSelect>
-          </div>
+            </NativeSelect>}
+          </Field>
         )}
-        <div className="grid min-w-0 gap-2.5">
-          <Label htmlFor={ids.sort} className="text-xs text-muted-foreground">
-            {t('filters.sort')}
-          </Label>
-          <NativeSelect
-            id={ids.sort}
+        <Field label={t('filters.sort')} className="min-w-0">
+          {(fieldControl) => <NativeSelect
+            {...fieldControl}
             className="w-full sm:w-56"
             value={query.sort}
             onChange={(event) => setQuery({ sort: event.target.value as InboxQuery['sort'] })}
@@ -203,8 +197,8 @@ export function InboxPage() {
                 {t(`sort.${sort}`)}
               </option>
             ))}
-          </NativeSelect>
-        </div>
+          </NativeSelect>}
+        </Field>
       </div>
       {actions.undo && (
         <div

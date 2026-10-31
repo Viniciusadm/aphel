@@ -30,6 +30,7 @@ import {
 import { KNOWN_ERRORS, errorText } from './errors'
 import { LinkDialog } from './LinkDialog'
 import { ChannelIcon, LinkedRecordLabel, StatusBadge } from './shared'
+import { Field } from '@/components/ui/field'
 
 export function ConversationPanel({ conversationId, onBack }: { conversationId: string; onBack: () => void }) {
   const t = useModuleTranslation(MESSAGING_KEY)
@@ -141,11 +142,8 @@ function ConversationHeader({ conversation, onBack }: { conversation: Conversati
       </div>
       {canReply && (
         <div className="grid gap-2 sm:grid-cols-2">
-          <div className="grid gap-2">
-            <Label htmlFor={`status-${conversation.id}`} className="text-xs text-muted-foreground">
-              {t('panel.status')}
-            </Label>
-            <Select
+          <Field label={t('panel.status')}>
+            {(fieldControl) => <Select
               value={conversation.status}
               disabled={busy}
               onValueChange={(value) =>
@@ -155,7 +153,7 @@ function ConversationHeader({ conversation, onBack }: { conversation: Conversati
                 )
               }
             >
-              <SelectTrigger id={`status-${conversation.id}`}>
+              <SelectTrigger id={fieldControl.id}>
                 <SelectValue />
               </SelectTrigger>
               <SelectContent>
@@ -165,14 +163,11 @@ function ConversationHeader({ conversation, onBack }: { conversation: Conversati
                   </SelectItem>
                 ))}
               </SelectContent>
-            </Select>
-          </div>
-          <div className="grid gap-2">
-            <Label htmlFor={`assignee-${conversation.id}`} className="text-xs text-muted-foreground">
-              {t('panel.assignee')}
-            </Label>
-            <UserFieldInput
-              id={`assignee-${conversation.id}`}
+            </Select>}
+          </Field>
+          <Field label={t('panel.assignee')}>
+            {(fieldControl) => <UserFieldInput
+              id={fieldControl.id}
               value={conversation.assignee_user_id ?? null}
               disabled={busy}
               onChange={(userId) =>
@@ -181,8 +176,8 @@ function ConversationHeader({ conversation, onBack }: { conversation: Conversati
                   userId ? t('panel.assigned') : t('panel.unassigned'),
                 )
               }
-            />
-          </div>
+            />}
+          </Field>
         </div>
       )}
       {canReply && <LinkDialog conversation={conversation} open={linking} onOpenChange={setLinking} />}

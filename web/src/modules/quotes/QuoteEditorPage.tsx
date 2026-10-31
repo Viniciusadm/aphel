@@ -290,14 +290,13 @@ function QuoteEditor({ quote }: { quote: QuoteDetail }) {
                   onChange={(event) => patchHeader({ valid_until: event.target.value })}
                 />}
               </Field>
-              <div className="grid gap-2.5">
-                <Label htmlFor={ids.priceList}>{t('editor.fields.priceList')}</Label>
-                <Select
+              <Field label={t('editor.fields.priceList')}>
+                {(fieldControl) => <Select
                   value={header.price_list_id || NO_PRICE_LIST}
                   disabled={!editable}
                   onValueChange={(value) => patchHeader({ price_list_id: value === NO_PRICE_LIST ? '' : value })}
                 >
-                  <SelectTrigger id={ids.priceList}>
+                  <SelectTrigger id={fieldControl.id}>
                     <SelectValue />
                   </SelectTrigger>
                   <SelectContent>
@@ -308,8 +307,8 @@ function QuoteEditor({ quote }: { quote: QuoteDetail }) {
                       </SelectItem>
                     ))}
                   </SelectContent>
-                </Select>
-              </div>
+                </Select>}
+              </Field>
               <div className="grid gap-2.5">
                 <Label htmlFor={ids.discount}>{t('editor.fields.totalDiscount')}</Label>
                 <div className="flex gap-2">

@@ -5,7 +5,6 @@ import { useTranslation } from 'react-i18next'
 import { zonedInputToUtc } from '@/components/fields/lib/datetime'
 import { notifyError } from '@/components/feedback/notify'
 import { Input } from '@/components/ui/input'
-import { Label } from '@/components/ui/label'
 import { activitiesKeys, useActivityTypes } from '../api'
 import { ActivityTypeIcon } from '../components/ActivityTypeIcon'
 import { useRecordFormatting } from '@/features/records/formatting'
@@ -105,18 +104,15 @@ export function ActivityQuickForm({ onDone, initialRecord }: ActivityQuickFormPr
           options={(['due', 'done'] as const).map((option) => ({ value: option, label: t(`activity.whenOptions.${option}`) }))}
         />
         {when === 'due' && (
-          <div className="grid gap-2">
-            <Label htmlFor={ids.due} className="sr-only">
-              {t('activity.dueAt')}
-            </Label>
-            <Input
-              id={ids.due}
+          <Field label={t('activity.dueAt')} hideLabel>
+            {(fieldControl) => <Input
+              {...fieldControl}
               type="datetime-local"
               value={dueAt}
               onChange={(event) => setDueAt(event.target.value)}
               className="h-11 text-base"
-            />
-          </div>
+            />}
+          </Field>
         )}
       </fieldset>
       <RecordPicker value={record} onChange={setRecord} />

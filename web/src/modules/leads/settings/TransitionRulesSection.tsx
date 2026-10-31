@@ -15,6 +15,7 @@ import { lifecycleErrorMessage } from '../errors'
 import type { LifecycleSettings, LifecycleStageOption, LifecycleTransitionRule } from '../types'
 import { PageHeader } from '@/components/ui/page-header'
 import { Page } from '@/components/ui/page'
+import { Field } from '@/components/ui/field'
 
 interface Draft {
   rules: LifecycleTransitionRule[]
@@ -148,10 +149,9 @@ function RuleCard({
           <p className="text-xs text-muted-foreground">{t(`settings.rules.triggers.${rule.trigger}.description`)}</p>
         </div>
       </div>
-      <div className="grid gap-2.5 sm:max-w-xs">
-        <Label htmlFor={`${prefix}-target`}>{t('settings.rules.target')}</Label>
-        <NativeSelect
-          id={`${prefix}-target`}
+      <Field label={t('settings.rules.target')} className="sm:max-w-xs">
+        {(fieldControl) => <NativeSelect
+          {...fieldControl}
           value={rule.target_stage}
           disabled={!rule.enabled}
           onChange={(event) => onChange({ target_stage: event.target.value })}
@@ -161,8 +161,8 @@ function RuleCard({
               {stage.label}
             </option>
           ))}
-        </NativeSelect>
-      </div>
+        </NativeSelect>}
+      </Field>
       <div className="grid gap-1.5">
         <span className="text-sm font-medium">{t('settings.rules.from')}</span>
         <p className="text-xs text-muted-foreground">{t('settings.rules.fromDescription')}</p>

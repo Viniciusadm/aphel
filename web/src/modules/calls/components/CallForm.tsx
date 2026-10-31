@@ -11,6 +11,7 @@ import { cn } from '@/lib/utils'
 import { formatCallDuration, splitDuration } from '../lib/format'
 import type { CallOutcome } from '../types'
 import type { CallFormValues } from './call-form-values'
+import { Field } from '@/components/ui/field'
 
 export interface CallFormProps {
   values: CallFormValues
@@ -112,17 +113,16 @@ export function CallForm({ values, onChange, outcomes, outcomeError, disabled, a
           </Button>
         </div>
       </div>
-      <div className="grid gap-2.5">
-        <Label htmlFor={`${formId}-notes`}>{t('form.notes')}</Label>
-        <Textarea
-          id={`${formId}-notes`}
+      <Field label={t('form.notes')}>
+        {(fieldControl) => <Textarea
+          {...fieldControl}
           rows={3}
           value={values.notes}
           disabled={disabled}
           placeholder={t('form.notesPlaceholder')}
           onChange={(event) => set({ notes: event.target.value })}
-        />
-      </div>
+        />}
+      </Field>
     </div>
   )
 }

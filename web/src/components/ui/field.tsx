@@ -7,11 +7,12 @@ export interface FieldProps {
   description?: string
   error?: string
   required?: boolean
+  hideLabel?: boolean
   className?: string
   children: (control: { id: string; 'aria-describedby': string | undefined; 'aria-invalid': boolean }) => ReactNode
 }
 
-export function Field({ label, description, error, required, className, children }: FieldProps) {
+export function Field({ label, description, error, required, hideLabel, className, children }: FieldProps) {
   const id = useId()
   const descriptionId = `${id}-description`
   const errorId = `${id}-error`
@@ -19,7 +20,7 @@ export function Field({ label, description, error, required, className, children
 
   return (
     <div data-slot="field" className={cn('grid gap-2', className)}>
-      <Label htmlFor={id}>
+      <Label htmlFor={id} className={hideLabel ? 'sr-only' : undefined}>
         {label}
         {required && (
           <span aria-hidden className="text-destructive">

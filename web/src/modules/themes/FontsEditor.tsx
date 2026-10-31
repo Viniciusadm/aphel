@@ -4,7 +4,6 @@ import { useTranslation } from 'react-i18next'
 import { notifyError } from '@/components/feedback'
 import { Button } from '@/components/ui/button'
 import { Input } from '@/components/ui/input'
-import { Label } from '@/components/ui/label'
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/components/ui/select'
 import { MAX_FONT_BYTES, MAX_FONTS, fontFromFile } from './lib/package'
 import type { FontFile } from './lib/types'
@@ -63,10 +62,9 @@ export function FontsEditor({ fonts, onChange }: FontsEditorProps) {
           <Field label={t('fonts.family')} className="sm:col-span-2">
             {(control) => <Input placeholder={t('placeholders.family')} {...control} value={family} onChange={(event) => setFamily(event.target.value)} />}
           </Field>
-          <div className="grid gap-2.5">
-            <Label htmlFor="font-weight">{t('fonts.weight')}</Label>
-            <Select value={weight} onValueChange={setWeight}>
-              <SelectTrigger id="font-weight">
+          <Field label={t('fonts.weight')}>
+            {(fieldControl) => <Select value={weight} onValueChange={setWeight}>
+              <SelectTrigger id={fieldControl.id}>
                 <SelectValue />
               </SelectTrigger>
               <SelectContent>
@@ -76,20 +74,19 @@ export function FontsEditor({ fonts, onChange }: FontsEditorProps) {
                   </SelectItem>
                 ))}
               </SelectContent>
-            </Select>
-          </div>
-          <div className="grid gap-2.5">
-            <Label htmlFor="font-style">{t('fonts.style')}</Label>
-            <Select value={style} onValueChange={(next) => setStyle(next as FontFile['style'])}>
-              <SelectTrigger id="font-style">
+            </Select>}
+          </Field>
+          <Field label={t('fonts.style')}>
+            {(fieldControl) => <Select value={style} onValueChange={(next) => setStyle(next as FontFile['style'])}>
+              <SelectTrigger id={fieldControl.id}>
                 <SelectValue />
               </SelectTrigger>
               <SelectContent>
                 <SelectItem value="normal">normal</SelectItem>
                 <SelectItem value="italic">italic</SelectItem>
               </SelectContent>
-            </Select>
-          </div>
+            </Select>}
+          </Field>
           <div className="sm:col-span-4">
             <input
               ref={fileInput}

@@ -122,15 +122,14 @@ function StartSessionCard() {
             {viewError && <p className="text-sm text-destructive">{t('start.viewRequired')}</p>}
             <p className="text-xs text-muted-foreground">{t('start.viewHint')}</p>
           </div>
-          <div className="grid gap-2.5">
-            <Label htmlFor={`${formId}-name`}>{t('start.name')}</Label>
-            <Input
-              id={`${formId}-name`}
+          <Field label={t('start.name')}>
+            {(fieldControl) => <Input
+              {...fieldControl}
               value={name}
               placeholder={selected?.name ?? ''}
               onChange={(event) => setName(event.target.value)}
-            />
-          </div>
+            />}
+          </Field>
           <Field label={t('start.script')}>
             {(control) => <Textarea
               {...control}

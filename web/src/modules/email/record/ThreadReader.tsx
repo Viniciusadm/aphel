@@ -1,12 +1,11 @@
 import { ArrowLeft, FileText, Link2, X } from 'lucide-react'
-import { useId, useState } from 'react'
+import { useState } from 'react'
 import { useTranslation } from 'react-i18next'
 import { useSession } from '@/app/session/session-context'
 import { ConfirmDialog, notifyError, notifySuccess } from '@/components/feedback'
 import { Badge } from '@/components/ui/badge'
 import { Button } from '@/components/ui/button'
 import { ErrorState } from '@/components/ui/error-state'
-import { Label } from '@/components/ui/label'
 import { Skeleton } from '@/components/ui/skeleton'
 import { NativeSelect } from '@/features/records/filters/NativeSelect'
 import { emailApi, useInvalidateThreads, useThread } from '../api'
@@ -19,6 +18,7 @@ import { EMAIL_VISIBILITIES, type EmailMessage, type EmailThreadDetail, type Thr
 import type { ReplyContext } from './Composer'
 import { LinkRecordDialog } from './LinkRecordDialog'
 import { MessageItem } from './MessageItem'
+import { Field } from '@/components/ui/field'
 
 interface ThreadReaderProps {
   threadId: string
@@ -146,7 +146,6 @@ function ThreadContent({
 
 function VisibilityControl({ thread }: { thread: EmailThreadDetail }) {
   const { t } = useTranslation('email')
-  const id = useId()
   const invalidate = useInvalidateThreads()
   const [saving, setSaving] = useState(false)
   const value = thread.visibility_is_default ? 'default' : thread.visibility
@@ -168,11 +167,9 @@ function VisibilityControl({ thread }: { thread: EmailThreadDetail }) {
   }
 
   return (
-    <div className="grid gap-2 sm:max-w-sm">
-      <Label htmlFor={id} className="text-xs text-muted-foreground">
-        {t('reader.visibilityLabel')}
-      </Label>
-      <NativeSelect id={id} value={value} disabled={saving} onChange={(event) => void change(event.target.value)}>
+    <Field label={t('reader.visibilityLabel')} className="sm:max-w-sm">
+      {(fieldControl) => <>
+        <NativeSelect {...fieldControl} value={value} disabled={saving} onChange={(event) => void change(event.target.value)}>
         <option value="default">{t('reader.visibilityDefault')}</option>
         {EMAIL_VISIBILITIES.map((visibility) => (
           <option key={visibility} value={visibility}>
@@ -181,7 +178,8 @@ function VisibilityControl({ thread }: { thread: EmailThreadDetail }) {
         ))}
       </NativeSelect>
       <p className="text-xs text-muted-foreground">{t(`visibility.${thread.visibility}.description`)}</p>
-    </div>
+      </>}
+    </Field>
   )
 }
 

@@ -38,6 +38,7 @@ import {
   type EsignSignerInput,
   type EsignSignerStatus,
 } from './api'
+import { Field } from '@/components/ui/field'
 
 type Deal = components['schemas']['DealResponse']
 type Contact = components['schemas']['ContactResponse']
@@ -401,18 +402,17 @@ function SendDialog({ dealId, open, onOpenChange }: SendDialogProps) {
               </Button>
             </div>
           </fieldset>
-          <div className="grid gap-2.5">
-            <Label htmlFor="esign-message">{t('dialog.message')}</Label>
-            <Textarea
-              id="esign-message"
+          <Field label={t('dialog.message')}>
+            {(fieldControl) => <Textarea
+              {...fieldControl}
               value={message}
               maxLength={1000}
               rows={3}
               disabled={pending}
               placeholder={t('dialog.messagePlaceholder')}
               onChange={(event) => setMessage(event.target.value)}
-            />
-          </div>
+            />}
+          </Field>
           <p className="text-xs text-muted-foreground">{t('dialog.privacy')}</p>
         </div>
         <DialogFooter>

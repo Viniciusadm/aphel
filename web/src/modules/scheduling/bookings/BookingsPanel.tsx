@@ -7,13 +7,13 @@ import { Button } from '@/components/ui/button'
 import { Checkbox } from '@/components/ui/checkbox'
 import { EmptyState } from '@/components/ui/empty-state'
 import { ErrorState } from '@/components/ui/error-state'
-import { Label } from '@/components/ui/label'
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/components/ui/select'
 import { Skeleton } from '@/components/ui/skeleton'
 import { useBookings, useMeetingTypes } from '../api'
 import { formatDateTimeRange } from '../lib/format'
 import type { BookingFilters, MeetingBookingResponse } from '../types'
 import { CancelBookingDialog } from './CancelBookingDialog'
+import { Field } from '@/components/ui/field'
 
 const ALL = 'all'
 
@@ -84,13 +84,12 @@ export function BookingsPanel() {
   return (
     <div className="grid gap-4">
       <div className="flex flex-wrap items-end gap-4">
-        <div className="grid w-44 gap-2">
-          <Label htmlFor="bookings-status">{t('bookings.status')}</Label>
-          <Select
+        <Field label={t('bookings.status')} className="w-44">
+          {(fieldControl) => <Select
             value={filters.status}
             onValueChange={(value) => update({ status: value as BookingFilters['status'] })}
           >
-            <SelectTrigger id="bookings-status">
+            <SelectTrigger id={fieldControl.id}>
               <SelectValue />
             </SelectTrigger>
             <SelectContent>
@@ -98,15 +97,14 @@ export function BookingsPanel() {
               <SelectItem value="confirmed">{t('bookingStatus.confirmed')}</SelectItem>
               <SelectItem value="canceled">{t('bookingStatus.canceled')}</SelectItem>
             </SelectContent>
-          </Select>
-        </div>
-        <div className="grid w-56 gap-2">
-          <Label htmlFor="bookings-meeting-type">{t('bookings.meetingType')}</Label>
-          <Select
+          </Select>}
+        </Field>
+        <Field label={t('bookings.meetingType')} className="w-56">
+          {(fieldControl) => <Select
             value={filters.meetingTypeId ?? ALL}
             onValueChange={(value) => update({ meetingTypeId: value === ALL ? null : value })}
           >
-            <SelectTrigger id="bookings-meeting-type">
+            <SelectTrigger id={fieldControl.id}>
               <SelectValue />
             </SelectTrigger>
             <SelectContent>
@@ -117,8 +115,8 @@ export function BookingsPanel() {
                 </SelectItem>
               ))}
             </SelectContent>
-          </Select>
-        </div>
+          </Select>}
+        </Field>
         <label className="flex h-9 items-center gap-2 text-sm">
           <Checkbox
             checked={filters.upcoming}
