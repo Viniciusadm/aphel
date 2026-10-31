@@ -9,7 +9,6 @@ import {
   DialogHeader,
   DialogTitle,
 } from '@/components/ui/dialog'
-import { Label } from '@/components/ui/label'
 import { Skeleton } from '@/components/ui/skeleton'
 import { Textarea } from '@/components/ui/textarea'
 import { useLostReasons } from '@/modules/pipelines/api'
@@ -59,8 +58,7 @@ function LostReasonForm({ dealTitle, pending, onOpenChange, onConfirm }: Omit<Lo
           {dealTitle ? t('lost.descriptionFor', { title: dealTitle }) : t('lost.description')}
         </DialogDescription>
       </DialogHeader>
-      <div className="grid gap-2">
-        <Label htmlFor={selectId}>{t('lost.reason')}</Label>
+      <Field id={selectId} label={t('lost.reason')}>
         {reasons.isPending ? (
           <Skeleton className="h-9 w-full" />
         ) : (
@@ -86,7 +84,7 @@ function LostReasonForm({ dealTitle, pending, onOpenChange, onConfirm }: Omit<Lo
           </p>
         )}
         {reasons.isError && <p className="text-sm text-destructive">{t('lost.loadError')}</p>}
-      </div>
+      </Field>
       <Field label={t('lost.note')}>
         {(fieldControl) => <Textarea placeholder={t('placeholders.note')} {...fieldControl} value={note} maxLength={5000} onChange={(event) => setNote(event.target.value)} />}
       </Field>

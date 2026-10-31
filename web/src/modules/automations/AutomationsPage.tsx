@@ -9,7 +9,6 @@ import { Button } from '@/components/ui/button'
 import { EmptyState } from '@/components/ui/empty-state'
 import { ErrorState } from '@/components/ui/error-state'
 import { Input } from '@/components/ui/input'
-import { Label } from '@/components/ui/label'
 import { Skeleton } from '@/components/ui/skeleton'
 import { useCustomObjects } from '@/features/custom-records'
 import { NativeSelect } from '@/features/records/filters/NativeSelect'
@@ -118,10 +117,7 @@ function AutomationsList() {
       
       </>} />
       <div className="grid gap-3 sm:grid-cols-[minmax(0,1fr)_12rem_12rem]">
-        <div className="grid gap-2.5">
-          <Label htmlFor={searchId} className="sr-only">
-            {t('page.search')}
-          </Label>
+        <Field id={searchId} label={t('page.search')} hideLabel>
           <div className="relative">
             <Search className="pointer-events-none absolute top-1/2 left-3 size-4 -translate-y-1/2 text-muted-foreground" aria-hidden="true" />
             <Input
@@ -135,7 +131,7 @@ function AutomationsList() {
               className="pl-9"
             />
           </div>
-        </div>
+        </Field>
         <Field label={t('page.status')} hideLabel>
           {(fieldControl) => <NativeSelect
             {...fieldControl}

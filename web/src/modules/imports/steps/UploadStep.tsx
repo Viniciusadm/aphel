@@ -5,8 +5,8 @@ import { useNavigate } from 'react-router'
 import { errorMessage } from '@/components/feedback'
 import { Button } from '@/components/ui/button'
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card'
-import { Label } from '@/components/ui/label'
 import { useUploadImport } from '../api'
+import { Field } from '@/components/ui/field'
 
 export interface UploadStepProps {
   recordType: string
@@ -41,8 +41,7 @@ export function UploadStep({ recordType, retryOf }: UploadStepProps) {
       </CardHeader>
       <CardContent>
         <form className="grid gap-4" onSubmit={submit} noValidate>
-          <div className="grid gap-2">
-            <Label htmlFor={inputId}>{t('upload.fileLabel')}</Label>
+          <Field id={inputId} label={t('upload.fileLabel')}>
             <input
               id={inputId}
               type="file"
@@ -53,7 +52,7 @@ export function UploadStep({ recordType, retryOf }: UploadStepProps) {
                 setMissing(false)
               }}
             />
-          </div>
+          </Field>
           {missing && (
             <p role="alert" className="text-sm text-destructive">
               {t('upload.required')}

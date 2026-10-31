@@ -5,7 +5,6 @@ import { useEffect, useId, useState } from 'react'
 import { useTranslation } from 'react-i18next'
 import { Button } from '@/components/ui/button'
 import { Input } from '@/components/ui/input'
-import { Label } from '@/components/ui/label'
 import { Textarea } from '@/components/ui/textarea'
 import { cn } from '@/lib/utils'
 import { formatCallDuration, splitDuration } from '../lib/format'
@@ -75,8 +74,7 @@ export function CallForm({ values, onChange, outcomes, outcomeError, disabled, a
         />
         {outcomeError && <p className="text-sm text-destructive">{t('form.outcomeRequired')}</p>}
       </fieldset>
-      <div className="grid gap-2.5">
-        <Label htmlFor={`${formId}-minutes`}>{t('form.duration')}</Label>
+      <Field id={`${formId}-minutes`} label={t('form.duration')}>
         <div className="flex flex-wrap items-center gap-2">
           <Input
             id={`${formId}-minutes`}
@@ -112,7 +110,7 @@ export function CallForm({ values, onChange, outcomes, outcomeError, disabled, a
               : t('form.startTimer')}
           </Button>
         </div>
-      </div>
+      </Field>
       <Field label={t('form.notes')}>
         {(fieldControl) => <Textarea
           {...fieldControl}

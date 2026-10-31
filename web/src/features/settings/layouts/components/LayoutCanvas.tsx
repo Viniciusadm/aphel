@@ -17,7 +17,6 @@ import { useState, type ReactNode } from 'react'
 import { useTranslation } from 'react-i18next'
 import { Button } from '@/components/ui/button'
 import { Input } from '@/components/ui/input'
-import { Label } from '@/components/ui/label'
 import { MAX_LAYOUT_COLUMNS, MAX_LAYOUT_LABEL_LENGTH, MAX_LAYOUT_SECTIONS, MAX_LAYOUT_TABS } from '@/features/records/form/lib/layout'
 import type { FormLayout, LayoutContext, LayoutSection } from '@/features/records/form/lib/layout'
 import type { FieldDefinition } from '@/features/records/types'
@@ -269,8 +268,7 @@ function SectionEditor({ section, first, last, removable, layout, byKey, availab
           />}
         </Field>
         <div className="flex items-end gap-1">
-          <div className="grid gap-2.5">
-            <Label htmlFor={`${nameId}-columns`}>{t('sections.columns')}</Label>
+          <Field id={`${nameId}-columns`} label={t('sections.columns')}>
             <select
               id={`${nameId}-columns`}
               className={SELECT_CLASS}
@@ -283,7 +281,7 @@ function SectionEditor({ section, first, last, removable, layout, byKey, availab
                 </option>
               ))}
             </select>
-          </div>
+          </Field>
           <IconButton label={t('sections.moveUp')} disabled={first} onClick={() => onChange(moveSection(layout, section.id, -1))}>
             <ArrowUp aria-hidden="true" />
           </IconButton>

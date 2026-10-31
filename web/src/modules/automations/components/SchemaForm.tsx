@@ -30,6 +30,7 @@ import {
 } from './ReferenceSelects'
 import { TemplateInput } from './TemplateInput'
 import { UserSpecInput } from './UserSpecInput'
+import { Field } from '@/components/ui/field'
 
 const DURATION_NAMES = new Set(['due_in', 'duration', 'offset', 'timeout'])
 const SIGNED_DURATIONS = new Set(['offset'])
@@ -339,15 +340,12 @@ function SchemaProperty({ name, property, required, value, values, onChange, con
   }
 
   return (
-    <div className="grid min-w-0 gap-2.5">
-      <Label htmlFor={id}>
-        {label}
-        {required && <span aria-hidden="true" className="text-destructive"> *</span>}
-      </Label>
+    <Field id={id} label={<>{label}
+        {required && <span aria-hidden="true" className="text-destructive"> *</span>}</>} className="min-w-0">
       {control}
       {hint && <p className="text-xs text-muted-foreground">{hint}</p>}
       <IssueList id={describedBy} issues={issues} />
-    </div>
+    </Field>
   )
 }
 

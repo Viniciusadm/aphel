@@ -17,7 +17,6 @@ import {
 import { EmptyState } from '@/components/ui/empty-state'
 import { ErrorState } from '@/components/ui/error-state'
 import { Input } from '@/components/ui/input'
-import { Label } from '@/components/ui/label'
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/components/ui/select'
 import { Skeleton } from '@/components/ui/skeleton'
 import { Textarea } from '@/components/ui/textarea'
@@ -314,8 +313,7 @@ function SendDialog({ dealId, open, onOpenChange }: SendDialogProps) {
           <DialogDescription>{t('dialog.description')}</DialogDescription>
         </DialogHeader>
         <div className="grid gap-4">
-          <div className="grid gap-2.5">
-            <Label htmlFor="esign-file">{t('dialog.file')}</Label>
+          <Field id="esign-file" label={t('dialog.file')}>
             {attachments.isPending ? (
               <Skeleton className="h-9 w-full" />
             ) : attachments.isError ? (
@@ -336,7 +334,7 @@ function SendDialog({ dealId, open, onOpenChange }: SendDialogProps) {
                 </SelectContent>
               </Select>
             )}
-          </div>
+          </Field>
           <fieldset className="grid gap-2">
             <legend className="mb-1 text-sm font-medium">{t('dialog.signers')}</legend>
             {signers.length === 0 && <p className="text-sm text-muted-foreground">{t('dialog.noSigners')}</p>}

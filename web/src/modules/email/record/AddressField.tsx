@@ -1,10 +1,10 @@
 import { X } from 'lucide-react'
 import { useId, useState } from 'react'
 import { useTranslation } from 'react-i18next'
-import { Label } from '@/components/ui/label'
 import { cn } from '@/lib/utils'
 import { isValidAddress, normalizeAddress } from '../lib/format'
 import type { EmailAddress } from '../types'
+import { Field } from '@/components/ui/field'
 
 interface AddressFieldProps {
   label: string
@@ -49,8 +49,7 @@ export function AddressField({ label, value, onChange, suggestions, autoFocus }:
   }
 
   return (
-    <div className="grid gap-2.5">
-      <Label htmlFor={id}>{label}</Label>
+    <Field id={id} label={label}>
       <div
         className={cn(
           'flex min-h-9 flex-wrap items-center gap-1 rounded-md border border-input bg-background px-2 py-1 shadow-xs focus-within:ring-2 focus-within:ring-ring',
@@ -124,6 +123,6 @@ export function AddressField({ label, value, onChange, suggestions, autoFocus }:
           {t('composer.invalidAddress', { value: invalid })}
         </p>
       )}
-    </div>
+    </Field>
   )
 }

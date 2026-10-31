@@ -5,7 +5,6 @@ import { notifySuccess } from '@/components/feedback'
 import { Button } from '@/components/ui/button'
 import { Checkbox } from '@/components/ui/checkbox'
 import { ErrorState } from '@/components/ui/error-state'
-import { Label } from '@/components/ui/label'
 import { Skeleton } from '@/components/ui/skeleton'
 import { toast } from '@/components/ui/toast-store'
 import { NativeSelect } from '@/features/records/filters/NativeSelect'
@@ -88,8 +87,7 @@ function RulesForm({ settings }: { settings: LifecycleSettings }) {
           />
         ))}
       </div>
-      <div className="grid gap-2.5 rounded-md border bg-card p-4">
-        <Label htmlFor="lifecycle-disqualified-stage">{t('settings.disqualified.title')}</Label>
+      <Field id="lifecycle-disqualified-stage" label={t('settings.disqualified.title')} className="rounded-md border bg-card p-4">
         <p className="text-xs text-muted-foreground">{t('settings.disqualified.description')}</p>
         <NativeSelect
           id="lifecycle-disqualified-stage"
@@ -104,7 +102,7 @@ function RulesForm({ settings }: { settings: LifecycleSettings }) {
             </option>
           ))}
         </NativeSelect>
-      </div>
+      </Field>
       <div>
         <Button onClick={() => void save()} disabled={saving}>
           {t('settings.save')}

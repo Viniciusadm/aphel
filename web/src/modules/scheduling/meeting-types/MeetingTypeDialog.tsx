@@ -14,7 +14,6 @@ import {
   DialogTitle,
 } from '@/components/ui/dialog'
 import { Input } from '@/components/ui/input'
-import { Label } from '@/components/ui/label'
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/components/ui/select'
 import { Textarea } from '@/components/ui/textarea'
 import { useDistributionRules, useSaveMeetingType } from '../api'
@@ -128,8 +127,7 @@ export function MeetingTypeDialog({ meetingType, onClose }: MeetingTypeDialogPro
             <FieldMessage message={errors.name?.message} />
             </>}
           </Field>
-          <div className="grid gap-2">
-            <Label htmlFor="meeting-type-slug">{t('meetingTypes.form.slug')}</Label>
+          <Field id="meeting-type-slug" label={t('meetingTypes.form.slug')}>
             <div className="flex min-w-0 items-center rounded-md border border-input bg-muted/40 shadow-xs">
               <span className="truncate pl-3 text-sm text-muted-foreground">{`${window.location.origin}/book/`}</span>
               <Input
@@ -142,7 +140,7 @@ export function MeetingTypeDialog({ meetingType, onClose }: MeetingTypeDialogPro
             </div>
             <p className="text-xs text-muted-foreground">{t('meetingTypes.form.slugHint')}</p>
             <FieldMessage message={errors.slug?.message} />
-          </div>
+          </Field>
           <Field label={t('meetingTypes.form.descriptionLabel')}>
             {(fieldControl) => <>
               <Textarea placeholder={t('placeholders.description')} {...fieldControl} rows={3} {...register('description')} />

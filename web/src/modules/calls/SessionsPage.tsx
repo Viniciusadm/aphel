@@ -10,7 +10,6 @@ import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/com
 import { EmptyState } from '@/components/ui/empty-state'
 import { ErrorState } from '@/components/ui/error-state'
 import { Input } from '@/components/ui/input'
-import { Label } from '@/components/ui/label'
 import { Skeleton } from '@/components/ui/skeleton'
 import { Textarea } from '@/components/ui/textarea'
 import { toast } from '@/components/ui/toast-store'
@@ -94,8 +93,7 @@ function StartSessionCard() {
             void submit()
           }}
         >
-          <div className="grid gap-2.5">
-            <Label htmlFor={`${formId}-view`}>{t('start.view')}</Label>
+          <Field id={`${formId}-view`} label={t('start.view')}>
             {views.isPending ? (
               <Skeleton className="h-9 w-full" />
             ) : views.isError ? (
@@ -121,7 +119,7 @@ function StartSessionCard() {
             )}
             {viewError && <p className="text-sm text-destructive">{t('start.viewRequired')}</p>}
             <p className="text-xs text-muted-foreground">{t('start.viewHint')}</p>
-          </div>
+          </Field>
           <Field label={t('start.name')}>
             {(fieldControl) => <Input
               {...fieldControl}

@@ -14,7 +14,6 @@ import {
 } from '@/components/ui/dialog'
 import { ErrorState } from '@/components/ui/error-state'
 import { Input } from '@/components/ui/input'
-import { Label } from '@/components/ui/label'
 import { Skeleton } from '@/components/ui/skeleton'
 import { toast } from '@/components/ui/toast-store'
 import { NativeSelect } from '@/features/records/filters/NativeSelect'
@@ -255,8 +254,7 @@ function ActivityTypeForm({ editing, onClose, onSaved }: ActivityTypeFormProps) 
           </>}
         </Field>
         <div className="grid gap-4 sm:grid-cols-2">
-          <div className="grid gap-2.5">
-            <Label htmlFor={`${formId}-icon`}>{t('types.icon')}</Label>
+          <Field id={`${formId}-icon`} label={t('types.icon')}>
             <div className="flex items-center gap-2">
               <ActivityTypeIcon icon={icon} color={color} />
               <NativeSelect
@@ -272,9 +270,8 @@ function ActivityTypeForm({ editing, onClose, onSaved }: ActivityTypeFormProps) 
                 ))}
               </NativeSelect>
             </div>
-          </div>
-          <div className="grid gap-2.5">
-            <Label htmlFor={`${formId}-color`}>{t('types.color')}</Label>
+          </Field>
+          <Field id={`${formId}-color`} label={t('types.color')}>
             <div className="flex items-center gap-2">
               <input
                 id={`${formId}-color`}
@@ -285,7 +282,7 @@ function ActivityTypeForm({ editing, onClose, onSaved }: ActivityTypeFormProps) 
               />
               <Input placeholder={t('placeholders.colorHex')} aria-label={t('types.colorHex')} value={color} onChange={(event) => setColor(event.target.value)} />
             </div>
-          </div>
+          </Field>
         </div>
       </form>
       <DialogFooter>

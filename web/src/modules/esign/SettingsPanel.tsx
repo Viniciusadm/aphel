@@ -2,10 +2,10 @@ import { Copy } from 'lucide-react'
 import { notifySuccess } from '@/components/feedback'
 import { Button } from '@/components/ui/button'
 import { Input } from '@/components/ui/input'
-import { Label } from '@/components/ui/label'
 import { Skeleton } from '@/components/ui/skeleton'
 import { useModuleTranslation } from '@/kernel/modules/i18n'
 import { ESIGN_KEY, useEsignStatus } from './api'
+import { Field } from '@/components/ui/field'
 
 export function EsignSettingsPanel() {
   const t = useModuleTranslation(ESIGN_KEY)
@@ -31,8 +31,7 @@ export function EsignSettingsPanel() {
       {status.isPending ? (
         <Skeleton className="h-9 w-full" />
       ) : status.data ? (
-        <div className="grid gap-2.5">
-          <Label htmlFor="esign-webhook-url">{t('settingsPanel.webhookUrl')}</Label>
+        <Field id="esign-webhook-url" label={t('settingsPanel.webhookUrl')}>
           <div className="flex gap-2">
             <Input placeholder={t('placeholders.webhookUrl')} id="esign-webhook-url" readOnly value={status.data.webhook_url} className="min-w-0 font-mono text-xs" />
             <Button
@@ -48,7 +47,7 @@ export function EsignSettingsPanel() {
           <p className="text-xs text-muted-foreground">
             {status.data.configured ? t('settingsPanel.configured') : t('settingsPanel.notConfigured')}
           </p>
-        </div>
+        </Field>
       ) : (
         <p className="text-xs text-muted-foreground">{t('settingsPanel.enableFirst')}</p>
       )}

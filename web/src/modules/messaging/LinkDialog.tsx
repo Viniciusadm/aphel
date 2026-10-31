@@ -12,11 +12,11 @@ import {
   DialogHeader,
   DialogTitle,
 } from '@/components/ui/dialog'
-import { Label } from '@/components/ui/label'
 import { useModuleTranslation } from '@/kernel/modules/i18n'
 import { MESSAGING_KEY, messagingApi, messagingKeys, type Conversation } from './api'
 import { errorText } from './errors'
 import { LinkedRecordLabel } from './shared'
+import { Field } from '@/components/ui/field'
 
 interface LinkDialogProps {
   conversation: Conversation
@@ -74,8 +74,7 @@ function LinkForm({ conversation, onDone }: { conversation: Conversation; onDone
         void save()
       }}
     >
-      <div className="grid gap-2.5">
-        <Label htmlFor={`link-contact-${conversation.id}`}>{t('links.contact')}</Label>
+      <Field id={`link-contact-${conversation.id}`} label={t('links.contact')}>
         {contactLocked && conversation.contact ? (
           <LinkedRecordLabel recordType="contact" record={conversation.contact} />
         ) : (
@@ -86,9 +85,8 @@ function LinkForm({ conversation, onDone }: { conversation: Conversation; onDone
             onChange={setContactId}
           />
         )}
-      </div>
-      <div className="grid gap-2.5">
-        <Label htmlFor={`link-deal-${conversation.id}`}>{t('links.deal')}</Label>
+      </Field>
+      <Field id={`link-deal-${conversation.id}`} label={t('links.deal')}>
         {dealLocked && conversation.deal ? (
           <LinkedRecordLabel recordType="deal" record={conversation.deal} />
         ) : (
@@ -99,7 +97,7 @@ function LinkForm({ conversation, onDone }: { conversation: Conversation; onDone
             onChange={setDealId}
           />
         )}
-      </div>
+      </Field>
       {error && <p className="text-sm text-destructive">{error}</p>}
       <DialogFooter>
         <Button type="button" variant="outline" onClick={onDone}>

@@ -15,7 +15,6 @@ import {
   DialogTitle,
 } from '@/components/ui/dialog'
 import { Input } from '@/components/ui/input'
-import { Label } from '@/components/ui/label'
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/components/ui/select'
 import { integrationsApi, isSecretConfigured, type Integration, type IntegrationField } from './api'
 import {
@@ -30,6 +29,7 @@ import {
 } from './form'
 import { useIntegrationText } from './text'
 import { Alert } from '@/components/ui/alert'
+import { Field } from '@/components/ui/field'
 
 interface IntegrationConfigDialogProps {
   integration: Integration
@@ -152,8 +152,7 @@ export function IntegrationConfigDialog({ integration, open, onOpenChange, onSav
             }
 
             return (
-              <div key={field.key} className="grid gap-1.5">
-                <Label htmlFor={inputId}>{label}</Label>
+              <Field key={field.key} id={inputId} label={label}>
                 {field.type === 'select' ? (
                   <Controller
                     control={control}
@@ -212,7 +211,7 @@ export function IntegrationConfigDialog({ integration, open, onOpenChange, onSav
                     {message}
                   </p>
                 )}
-              </div>
+              </Field>
             )
           })}
         </form>

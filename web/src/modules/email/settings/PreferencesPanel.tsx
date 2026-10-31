@@ -7,7 +7,6 @@ import { Button } from '@/components/ui/button'
 import { Checkbox } from '@/components/ui/checkbox'
 import { ErrorState } from '@/components/ui/error-state'
 import { Input } from '@/components/ui/input'
-import { Label } from '@/components/ui/label'
 import { Skeleton } from '@/components/ui/skeleton'
 import { emailApi, emailKeys, useCaptureSettings, useTrackingSettings } from '../api'
 import { MAX_HISTORY_DAYS, validHistoryDays } from '../lib/mailbox-form'
@@ -59,12 +58,9 @@ function ToggleRow({
         className="mt-0.5"
         onCheckedChange={(value) => onChange(value === true)}
       />
-      <div className="grid gap-0.5">
-        <Label htmlFor={id} className="leading-snug">
-          {label}
-        </Label>
+      <Field id={id} label={label}>
         <p className="text-sm text-muted-foreground">{description}</p>
-      </div>
+      </Field>
     </div>
   )
 }

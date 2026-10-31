@@ -15,7 +15,6 @@ import {
   DialogTitle,
 } from '@/components/ui/dialog'
 import { Input } from '@/components/ui/input'
-import { Label } from '@/components/ui/label'
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/components/ui/select'
 import { Textarea } from '@/components/ui/textarea'
 import { modulesApi, type ModuleInfo, type ModuleSettingField } from '@/kernel/modules/api'
@@ -36,6 +35,7 @@ import {
 } from './form'
 import { useModuleText } from './text'
 import { Alert } from '@/components/ui/alert'
+import { Field } from '@/components/ui/field'
 
 interface ModuleSettingsDialogProps {
   module: ModuleInfo
@@ -174,8 +174,7 @@ export function ModuleSettingsDialog({ module, initialViolations, onClose, onSav
             }
 
             return (
-              <div key={field.key} className="grid gap-1.5">
-                <Label htmlFor={inputId}>{label}</Label>
+              <Field key={field.key} id={inputId} label={label}>
                 {field.type === 'select' ? (
                   <Controller
                     control={control}
@@ -228,7 +227,7 @@ export function ModuleSettingsDialog({ module, initialViolations, onClose, onSav
                   </label>
                 )}
                 {footer}
-              </div>
+              </Field>
             )
           })}
         </form>

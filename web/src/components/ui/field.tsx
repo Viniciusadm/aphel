@@ -2,18 +2,26 @@ import { useId, type ReactNode } from 'react'
 import { cn } from '@/lib/utils'
 import { Label } from './label'
 
+export interface FieldControlProps {
+  id: string
+  'aria-describedby': string | undefined
+  'aria-invalid': boolean
+}
+
 export interface FieldProps {
-  label: string
-  description?: string
-  error?: string
+  id?: string
+  label: ReactNode
+  description?: ReactNode
+  error?: ReactNode
   required?: boolean
   hideLabel?: boolean
   className?: string
-  children: (control: { id: string; 'aria-describedby': string | undefined; 'aria-invalid': boolean }) => ReactNode
+  children: ReactNode | ((control: FieldControlProps) => ReactNode)
 }
 
-export function Field({ label, description, error, required, hideLabel, className, children }: FieldProps) {
-  const id = useId()
+export function Field({ id: providedId, label, description, error, required, hideLabel, className, children }: FieldProps) {
+  const generatedId = useId()
+  const id = providedId ?? generatedId
   const descriptionId = `${id}-description`
   const errorId = `${id}-error`
   const describedBy = [description ? descriptionId : null, error ? errorId : null].filter(Boolean).join(' ')
@@ -28,7 +36,9 @@ export function Field({ label, description, error, required, hideLabel, classNam
           </span>
         )}
       </Label>
-      {children({ id, 'aria-describedby': describedBy || undefined, 'aria-invalid': Boolean(error) })}
+      {typeof children === 'function'
+        ? children({ id, 'aria-describedby': describedBy || undefined, 'aria-invalid': Boolean(error) })
+        : children}
       {description && (
         <p id={descriptionId} className="text-sm text-muted-foreground">
           {description}

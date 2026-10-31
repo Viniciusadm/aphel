@@ -12,7 +12,6 @@ import {
   DialogTitle,
 } from '@/components/ui/dialog'
 import { Input } from '@/components/ui/input'
-import { Label } from '@/components/ui/label'
 import { NativeSelect } from '../filters/NativeSelect'
 import type { SavedView, ViewVisibility } from '../types'
 import { MAX_VIEW_NAME_LENGTH, SETTINGS_MANAGE, useViewTeams } from './viewsApi'
@@ -175,10 +174,9 @@ function ViewForm({ view, pending, onCancel, onSubmit }: ViewFormProps) {
             checked={isDefault}
             onCheckedChange={(checked) => setIsDefault(checked === true)}
           />
-          <div className="grid gap-2">
-            <Label htmlFor={ids.isDefault}>{t('views.form.organizationDefault')}</Label>
+          <Field id={ids.isDefault} label={t('views.form.organizationDefault')}>
             <p className="text-xs text-muted-foreground">{t('views.form.organizationDefaultHint')}</p>
-          </div>
+          </Field>
         </div>
       )}
       <DialogFooter>

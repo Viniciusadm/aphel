@@ -1,5 +1,5 @@
 import type { ReactNode } from 'react'
-import { Label } from '@/components/ui/label'
+import { Field } from '@/components/ui/field'
 
 interface FormRowProps {
   id: string
@@ -14,8 +14,7 @@ export function FormRow({ id, label, error, hint, children }: FormRowProps) {
   const hintId = hint ? `${id}-hint` : undefined
   const describedBy = [errorId, hintId].filter(Boolean).join(' ') || undefined
   return (
-    <div className="grid gap-2">
-      <Label htmlFor={id}>{label}</Label>
+    <Field id={id} label={label}>
       {children(describedBy)}
       {error && (
         <p id={errorId} className="text-sm text-destructive">
@@ -27,6 +26,6 @@ export function FormRow({ id, label, error, hint, children }: FormRowProps) {
           {hint}
         </p>
       )}
-    </div>
+    </Field>
   )
 }

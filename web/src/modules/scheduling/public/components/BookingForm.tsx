@@ -5,9 +5,9 @@ import { useTranslation } from 'react-i18next'
 import { z } from 'zod'
 import { Button } from '@/components/ui/button'
 import { Input } from '@/components/ui/input'
-import { Label } from '@/components/ui/label'
 import { Textarea } from '@/components/ui/textarea'
 import type { PublicMeetingQuestion } from '../types'
+import { Field } from '@/components/ui/field'
 
 const MAX_ANSWER_LENGTH = 2000
 
@@ -81,10 +81,7 @@ export function BookingForm({ questions, submitting, onSubmit }: BookingFormProp
 
   return (
     <form className="grid gap-4" onSubmit={submit} noValidate>
-      <div className="grid gap-2">
-        <Label htmlFor="booking-name">
-          {t('form.name')} <span aria-hidden>*</span>
-        </Label>
+      <Field id="booking-name" label={<>{t('form.name')} <span aria-hidden>*</span></>}>
         <Input placeholder={t('placeholders.bookerName')}
           id="booking-name"
           autoComplete="name"
@@ -93,11 +90,8 @@ export function BookingForm({ questions, submitting, onSubmit }: BookingFormProp
           {...register('name')}
         />
         {errors.name && <p className="text-sm text-destructive">{message(errors.name.message)}</p>}
-      </div>
-      <div className="grid gap-2">
-        <Label htmlFor="booking-email">
-          {t('form.email')} <span aria-hidden>*</span>
-        </Label>
+      </Field>
+      <Field id="booking-email" label={<>{t('form.email')} <span aria-hidden>*</span></>}>
         <Input placeholder={t('placeholders.bookerEmail')}
           id="booking-email"
           type="email"
@@ -107,25 +101,22 @@ export function BookingForm({ questions, submitting, onSubmit }: BookingFormProp
           {...register('email')}
         />
         {errors.email && <p className="text-sm text-destructive">{message(errors.email.message)}</p>}
-      </div>
+      </Field>
       {questions.map((question, index) => {
         const fieldId = `booking-question-${index}`
         const error = errors.answers?.[index]
-        const Field = question.kind === 'long_text' ? Textarea : Input
+        const Control = question.kind === 'long_text' ? Textarea : Input
         return (
-          <div key={question.key} className="grid gap-1">
-            <Label htmlFor={fieldId} className="leading-normal">
-              {question.label}
-              {question.required && <span aria-hidden>*</span>}
-            </Label>
-            <Field
+          <Field key={question.key} id={fieldId} label={<>{question.label}
+              {question.required && <span aria-hidden>*</span>}</>}>
+            <Control
               id={fieldId}
               aria-required={question.required || undefined}
               aria-invalid={error ? true : undefined}
               {...register(`answers.${index}`)}
             />
             {error && <p className="text-sm text-destructive">{message(error.message)}</p>}
-          </div>
+          </Field>
         )
       })}
       <div className="absolute -left-[9999px] h-px w-px overflow-hidden" aria-hidden="true">

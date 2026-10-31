@@ -11,7 +11,6 @@ import { Button } from '@/components/ui/button'
 import { Checkbox } from '@/components/ui/checkbox'
 import { ErrorState } from '@/components/ui/error-state'
 import { Input } from '@/components/ui/input'
-import { Label } from '@/components/ui/label'
 import { fieldViolations } from '@/features/auth/lib/api-errors'
 import { FormRow } from '@/features/settings/organization/components/FormRow'
 import { NativeSelect } from '@/features/settings/organization/components/NativeSelect'
@@ -25,6 +24,7 @@ import {
 } from '../api'
 import { PageHeader } from '@/components/ui/page-header'
 import { Page } from '@/components/ui/page'
+import { Field } from '@/components/ui/field'
 
 const percentage = z.coerce.number<string | number>().int('settings.errors.percentage').min(1, 'settings.errors.percentage').max(100, 'settings.errors.percentage')
 
@@ -166,10 +166,9 @@ function SettingsForm({ settings }: { settings: ForecastSettings }) {
               />
             )}
           />
-          <div className="grid gap-0.5">
-            <Label htmlFor={`${formId}-categories`}>{t('settings.categoriesEnabled')}</Label>
+          <Field id={`${formId}-categories`} label={t('settings.categoriesEnabled')}>
             <p className="text-xs text-muted-foreground">{t('settings.categoriesHint')}</p>
-          </div>
+          </Field>
         </div>
         <div className="grid gap-4 sm:grid-cols-2">
           <FormRow id={`${formId}-best-case`} label={t('settings.bestCase')} error={errorText(errors.bestCase?.message)}>

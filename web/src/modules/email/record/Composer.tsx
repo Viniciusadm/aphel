@@ -513,11 +513,8 @@ function ComposerForm({ record, mailboxes, reply, onDirtyChange, onCancel, onSen
               setScheduled(value === true)
             }}
           />
-          <div className="grid min-w-0 flex-1 gap-2">
-            <Label htmlFor={`${formId}-schedule`} className="flex items-center gap-1.5">
-              <CalendarClock className="size-4" aria-hidden="true" />
-              {t('composer.schedule')}
-            </Label>
+          <Field id={`${formId}-schedule`} label={<><CalendarClock className="size-4" aria-hidden="true" />
+              {t('composer.schedule')}</>} className="min-w-0 flex-1">
             {scheduled && (
               <>
                 <DateTimeFieldInput
@@ -536,7 +533,7 @@ function ComposerForm({ record, mailboxes, reply, onDirtyChange, onCancel, onSen
                 )}
               </>
             )}
-          </div>
+          </Field>
         </div>
         {trackingAvailable && (
           <div className="flex items-start gap-3">
@@ -546,10 +543,9 @@ function ComposerForm({ record, mailboxes, reply, onDirtyChange, onCancel, onSen
               className="mt-0.5"
               onCheckedChange={(value) => setTrackingOverride(value === true)}
             />
-            <div className="grid gap-0.5">
-              <Label htmlFor={`${formId}-tracking`}>{t('composer.tracking')}</Label>
+            <Field id={`${formId}-tracking`} label={t('composer.tracking')}>
               <p className="text-xs text-muted-foreground">{t('composer.trackingHint')}</p>
-            </div>
+            </Field>
           </div>
         )}
       </div>

@@ -25,6 +25,7 @@ import {
   type EnrichmentProposalItem,
 } from './api'
 import { normalizeCnpj } from './cnpj'
+import { Field } from '@/components/ui/field'
 
 const KNOWN_ERRORS = [
   'enrichment_cnpj_missing',
@@ -175,15 +176,12 @@ export function CompanyEnrichmentTab({ recordId, readOnly }: RecordTabRenderProp
                     disabled={!enabled || applying}
                     onCheckedChange={(checked) => toggle(item.data_key, checked === true)}
                   />
-                  <div className="grid min-w-0 flex-1 gap-0.5">
-                    <Label htmlFor={id} className="text-sm font-medium">
-                      {t(`items.${item.data_key}`)}
+                  <Field id={id} label={<>{t(`items.${item.data_key}`)}
                       <span className="ml-1 font-normal text-muted-foreground">
                         {item.field_key
                           ? t('lookup.target', { field: item.field_label ?? item.field_key })
                           : t('lookup.unmapped')}
-                      </span>
-                    </Label>
+                      </span></>} className="min-w-0 flex-1">
                     <div className="flex min-w-0 flex-wrap items-center gap-1 text-sm">
                       {item.field_key && displayValue(item.current) !== '' && (
                         <>
@@ -200,7 +198,7 @@ export function CompanyEnrichmentTab({ recordId, readOnly }: RecordTabRenderProp
                         </Badge>
                       )}
                     </div>
-                  </div>
+                  </Field>
                 </li>
               )
             })}

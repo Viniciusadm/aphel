@@ -4,13 +4,13 @@ import { notifyError } from '@/components/feedback'
 import { Button } from '@/components/ui/button'
 import { Checkbox } from '@/components/ui/checkbox'
 import { ErrorState } from '@/components/ui/error-state'
-import { Label } from '@/components/ui/label'
 import { Skeleton } from '@/components/ui/skeleton'
 import { toast } from '@/components/ui/toast-store'
 import { useCommandPalette } from '../context'
 import { usePreferences, useUpdatePreferences } from './api'
 import { PageHeader } from '@/components/ui/page-header'
 import { Page } from '@/components/ui/page'
+import { Field } from '@/components/ui/field'
 
 export function PreferencesPage() {
   const { t } = useTranslation('command-palette')
@@ -46,12 +46,11 @@ export function PreferencesPage() {
             aria-describedby={`${shortcutsId}-description`}
             className="mt-0.5"
           />
-          <div className="grid min-w-0 flex-1 gap-2">
-            <Label htmlFor={shortcutsId}>{t('preferences.shortcuts.label')}</Label>
+          <Field id={shortcutsId} label={t('preferences.shortcuts.label')} className="min-w-0 flex-1">
             <p id={`${shortcutsId}-description`} className="text-sm text-muted-foreground">
               {t('preferences.shortcuts.description')}
             </p>
-          </div>
+          </Field>
           <Button variant="outline" size="sm" onClick={openHelp}>
             {t('preferences.shortcuts.showList')}
           </Button>

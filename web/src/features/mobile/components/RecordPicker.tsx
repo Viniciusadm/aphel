@@ -3,10 +3,10 @@ import { useId, useState } from 'react'
 import { useTranslation } from 'react-i18next'
 import { Button } from '@/components/ui/button'
 import { Input } from '@/components/ui/input'
-import { Label } from '@/components/ui/label'
 import { SEARCH_MIN_LENGTH, useGlobalSearch } from '@/features/search/api'
 import { useSearchRecordTypeLabel } from '@/features/search/links'
 import { CHECK_IN_RECORD_TYPES } from '../lib/record-route'
+import { Field } from '@/components/ui/field'
 
 export interface PickedRecord {
   recordType: string
@@ -32,10 +32,7 @@ export function RecordPicker({ value, onChange, required = false }: RecordPicker
   const searching = !value && query.trim().length >= SEARCH_MIN_LENGTH
 
   return (
-    <div className="grid gap-2">
-      <Label htmlFor={inputId}>
-        {t(required ? 'picker.labelRequired' : 'picker.label')}
-      </Label>
+    <Field id={inputId} label={t(required ? 'picker.labelRequired' : 'picker.label')}>
       {value ? (
         <div className="flex min-h-11 items-center gap-2 rounded-md border bg-muted/40 px-3">
           <span className="min-w-0 flex-1 truncate text-sm">
@@ -88,6 +85,6 @@ export function RecordPicker({ value, onChange, required = false }: RecordPicker
           )}
         </ul>
       )}
-    </div>
+    </Field>
   )
 }

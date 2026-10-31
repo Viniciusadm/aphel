@@ -14,7 +14,6 @@ import {
   DialogTitle,
 } from '@/components/ui/dialog'
 import { Input } from '@/components/ui/input'
-import { Label } from '@/components/ui/label'
 import { Textarea } from '@/components/ui/textarea'
 import { useFieldSchema } from '@/features/records/api'
 import { activeFields, fieldViolations } from '@/features/records/fields'
@@ -272,8 +271,7 @@ function ValidationRuleForm({ recordType, rule, onOpenChange, onSaved }: FormPro
           </>}
         </Field>
       </div>
-      <div className="grid min-w-0 gap-2">
-        <Label htmlFor={ids.expression}>{t('dialog.expression')}</Label>
+      <Field id={ids.expression} label={t('dialog.expression')} className="min-w-0">
         <p id={`${ids.expression}-hint`} className="text-xs text-muted-foreground">
           {t('dialog.expressionHint')}
         </p>
@@ -299,7 +297,7 @@ function ValidationRuleForm({ recordType, rule, onOpenChange, onSaved }: FormPro
           catalog={catalog.data}
         />
         <FormulaCatalogPanel recordType={recordType} onInsert={insert} />
-      </div>
+      </Field>
       <section className="grid min-w-0 gap-3 rounded-md border p-3" aria-labelledby={`${ids.record}-title`}>
         <h3 id={`${ids.record}-title`} className="text-sm font-medium">
           {t('test.title')}

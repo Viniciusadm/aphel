@@ -1,5 +1,5 @@
 import { Loader2 } from 'lucide-react'
-import { useState, type ReactNode } from 'react'
+import { useState } from 'react'
 import { isApiError } from '@/api'
 import { notifyError } from '@/components/feedback'
 import { UserFieldInput } from '@/components/fields'
@@ -14,10 +14,10 @@ import {
   DialogTitle,
 } from '@/components/ui/dialog'
 import { Input } from '@/components/ui/input'
-import { Label } from '@/components/ui/label'
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/components/ui/select'
 import { useModuleTranslation } from '@/kernel/modules/i18n'
 import { MESSAGING_KEY, messagingApi, type Channel, type ChannelBody, type ChannelKind } from './api'
+import { Field } from '@/components/ui/field'
 
 interface FieldSpec {
   key: string
@@ -113,33 +113,6 @@ function fieldErrors(error: unknown): Record<string, string> {
   return Object.fromEntries(fields.map((item) => [item.field, item.message]))
 }
 
-function Field({
-  id,
-  label,
-  hint,
-  error,
-  children,
-}: {
-  id: string
-  label: string
-  hint?: string
-  error?: string
-  children: ReactNode
-}) {
-  return (
-    <div className="grid gap-2.5">
-      <Label htmlFor={id}>{label}</Label>
-      {children}
-      {hint && !error && <p className="text-xs text-muted-foreground">{hint}</p>}
-      {error && (
-        <p id={`${id}-error`} className="text-sm text-destructive">
-          {error}
-        </p>
-      )}
-    </div>
-  )
-}
-
 function ChannelForm({
   editing,
   onCancel,
@@ -217,7 +190,7 @@ function ChannelForm({
         <Field
           id={`${prefix}-acting-user`}
           label={t('editor.actingUser')}
-          hint={t('editor.actingUserHint')}
+          description={t('editor.actingUserHint')}
           error={errors.acting_user_id}
         >
           <UserFieldInput id={`${prefix}-acting-user`} value={actingUserId} onChange={setActingUserId} />
@@ -231,7 +204,7 @@ function ChannelForm({
             key={field.key}
             id={`${prefix}-${field.key}`}
             label={t(`editor.config.${field.key}`)}
-            hint={t(`editor.hints.${field.key}`, { defaultValue: '' }) || undefined}
+            description={t(`editor.hints.${field.key}`, { defaultValue: '' }) || undefined}
             error={errors[`config.${field.key}`]}
           >
             <Input placeholder={t('editor.valuePlaceholder')}
@@ -277,7 +250,7 @@ function ChannelForm({
               key={field.key}
               id={`${prefix}-${field.key}`}
               label={t(`editor.secrets.${field.key}`)}
-              hint={configured ? t('editor.secretConfigured') : t(`editor.hints.${field.key}`, { defaultValue: '' }) || undefined}
+              description={configured ? t('editor.secretConfigured') : t(`editor.hints.${field.key}`, { defaultValue: '' }) || undefined}
               error={errors[`secrets.${field.key}`]}
             >
               <Input

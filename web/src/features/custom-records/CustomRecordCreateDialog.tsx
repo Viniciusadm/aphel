@@ -6,7 +6,6 @@ import { notifySuccess, UnsavedChangesDialog } from '@/components/feedback'
 import { RecordFieldInput } from '@/components/fields'
 import { Button } from '@/components/ui/button'
 import { Dialog, DialogContent, DialogDescription, DialogHeader, DialogTitle } from '@/components/ui/dialog'
-import { Label } from '@/components/ui/label'
 import { Skeleton } from '@/components/ui/skeleton'
 import { recordsKeys, useFieldSchema } from '@/features/records/api'
 import { fieldViolations, type RecordPayload } from '@/features/records/fields'
@@ -15,6 +14,7 @@ import { savedLayout, useFormLayout } from '@/features/records/form/layout-api'
 import { recordPath, requireRecordResource } from '@/features/records/resources'
 import type { RecordItem } from '@/features/records/types'
 import type { RequiredRelation } from './api'
+import { Field } from '@/components/ui/field'
 
 const RELATIONS_ERROR_PREFIX = 'relations.'
 
@@ -112,13 +112,10 @@ function CreateBody({ recordType, layout, relations, onCreated, onDone, onCancel
           const inputId = `${formId}-${relation.key}`
           const error = errors[relation.key]
           return (
-            <div key={relation.key} className="grid gap-1.5">
-              <Label htmlFor={inputId}>
-                {relation.label}
+            <Field key={relation.key} id={inputId} label={<>{relation.label}
                 <span className="text-destructive" aria-hidden>
                   {' *'}
-                </span>
-              </Label>
+                </span></>}>
               <RecordFieldInput
                 id={inputId}
                 targetRecordType={relation.targetType}
@@ -139,7 +136,7 @@ function CreateBody({ recordType, layout, relations, onCreated, onDone, onCancel
                   {error}
                 </p>
               )}
-            </div>
+            </Field>
           )
         })}
       </fieldset>

@@ -6,7 +6,6 @@ import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/com
 import { Checkbox } from '@/components/ui/checkbox'
 import { ErrorState } from '@/components/ui/error-state'
 import { Input } from '@/components/ui/input'
-import { Label } from '@/components/ui/label'
 import { Skeleton } from '@/components/ui/skeleton'
 import type { Pipeline } from '@/modules/pipelines/types'
 import { NativeSelect } from '@/features/records/filters/NativeSelect'
@@ -130,10 +129,9 @@ function RenewalForm({ pipelineId, settings, pipelines }: RenewalFormProps) {
           checked={draft.is_enabled}
           onCheckedChange={(checked) => update({ is_enabled: checked === true })}
         />
-        <div className="grid gap-2">
-          <Label htmlFor={ids.enabled}>{t('renewal.enabled')}</Label>
+        <Field id={ids.enabled} label={t('renewal.enabled')}>
           <p className="text-xs text-muted-foreground">{t('renewal.enabledHint')}</p>
-        </div>
+        </Field>
       </div>
       <div className="grid gap-4 sm:grid-cols-2">
         <Field label={t('renewal.daysBefore')}>

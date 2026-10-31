@@ -13,8 +13,8 @@ import {
   DialogTitle,
 } from '@/components/ui/dialog'
 import { Input } from '@/components/ui/input'
-import { Label } from '@/components/ui/label'
 import { PLUGINS_PATH, type InstalledPlugin, type PluginSetting } from './types'
+import { Field } from '@/components/ui/field'
 
 interface PluginSettingsDialogProps {
   plugin: InstalledPlugin
@@ -100,18 +100,16 @@ export function PluginSettingsDialog({ plugin, onClose, onSaved }: PluginSetting
                     checked={value === true}
                     onCheckedChange={(checked) => setDraft({ ...draft, [setting.key]: checked === true })}
                   />
-                  <div className="grid gap-2">
-                    <Label htmlFor={inputId}>{setting.label}</Label>
+                  <Field id={inputId} label={setting.label}>
                     {setting.help && <p className="text-xs text-muted-foreground">{setting.help}</p>}
-                  </div>
+                  </Field>
                 </div>
               )
             }
             const isSecret = setting.type === 'secret'
             const willClear = cleared.includes(setting.key)
             return (
-              <div key={setting.key} className="grid gap-1.5">
-                <Label htmlFor={inputId}>{setting.label}</Label>
+              <Field key={setting.key} id={inputId} label={setting.label}>
                 <Input placeholder={t('placeholders.value')}
                   id={inputId}
                   type={isSecret ? 'password' : setting.type === 'number' ? 'number' : 'text'}
@@ -144,7 +142,7 @@ export function PluginSettingsDialog({ plugin, onClose, onSaved }: PluginSetting
                     )}
                   </div>
                 )}
-              </div>
+              </Field>
             )
           })}
         </form>

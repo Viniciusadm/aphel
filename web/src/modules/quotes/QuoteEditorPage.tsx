@@ -309,8 +309,7 @@ function QuoteEditor({ quote }: { quote: QuoteDetail }) {
                   </SelectContent>
                 </Select>}
               </Field>
-              <div className="grid gap-2.5">
-                <Label htmlFor={ids.discount}>{t('editor.fields.totalDiscount')}</Label>
+              <Field id={ids.discount} label={t('editor.fields.totalDiscount')}>
                 <div className="flex gap-2">
                   <Select
                     value={header.discount_type}
@@ -336,7 +335,7 @@ function QuoteEditor({ quote }: { quote: QuoteDetail }) {
                     onChange={(event) => patchHeader({ discount_value: event.target.value })}
                   />
                 </div>
-              </div>
+              </Field>
               <div className="grid gap-2.5">
                 <Label>{t('editor.fields.currency')}</Label>
                 <Input placeholder={t('placeholders.currency')} value={quote.currency} disabled readOnly />

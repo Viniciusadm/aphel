@@ -16,7 +16,6 @@ import {
 import { EmptyState } from '@/components/ui/empty-state'
 import { ErrorState } from '@/components/ui/error-state'
 import { Input } from '@/components/ui/input'
-import { Label } from '@/components/ui/label'
 import { Skeleton } from '@/components/ui/skeleton'
 import { RequirePermission } from '@/features/settings/components/RequirePermission'
 import { SETTINGS_MANAGE } from '@/features/settings/lib/permissions'
@@ -233,8 +232,7 @@ function TagForm({ editing, onClose, onSaved }: TagFormProps) {
           )}
           </>}
         </Field>
-        <div className="grid gap-2.5">
-          <Label htmlFor={`${formId}-color`}>{t('settings.color')}</Label>
+        <Field id={`${formId}-color`} label={t('settings.color')}>
           <div className="flex items-center gap-2">
             <input
               id={`${formId}-color`}
@@ -245,7 +243,7 @@ function TagForm({ editing, onClose, onSaved }: TagFormProps) {
             />
             <Input placeholder={t('placeholders.colorHex')} aria-label={t('settings.colorHex')} value={color} onChange={(event) => setColor(event.target.value)} />
           </div>
-        </div>
+        </Field>
         <fieldset className="grid gap-2">
           <legend className="text-sm font-medium">{t('settings.recordTypes')}</legend>
           <p className="text-xs text-muted-foreground">{t('settings.recordTypesHint')}</p>

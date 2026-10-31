@@ -6,6 +6,7 @@ import { Input } from '@/components/ui/input'
 import { Label } from '@/components/ui/label'
 import type { WidgetSettings } from './types'
 import type { SettingsField } from '@/kernel/widgets/types'
+import { Field } from '@/components/ui/field'
 
 export interface WidgetSettingsFormProps {
   fields: SettingsField[]
@@ -46,8 +47,7 @@ export function WidgetSettingsForm({ fields, settings, onSubmit, onCancel }: Wid
     <form className="grid gap-3" onSubmit={submit}>
       {fields.map((field) =>
         field.kind === 'integer' ? (
-          <div key={field.key} className="grid gap-1.5">
-            <Label htmlFor={`${id}-${field.key}`}>{t(field.label as 'title')}</Label>
+          <Field key={field.key} id={`${id}-${field.key}`} label={t(field.label as 'title')}>
             <Input placeholder={t('placeholders.number')}
               id={`${id}-${field.key}`}
               type="number"
@@ -57,7 +57,7 @@ export function WidgetSettingsForm({ fields, settings, onSubmit, onCancel }: Wid
               value={String(draft[field.key] ?? '')}
               onChange={(event) => setDraft((current) => ({ ...current, [field.key]: event.target.value }))}
             />
-          </div>
+          </Field>
         ) : (
           <Label key={field.key} htmlFor={`${id}-${field.key}`} className="font-normal">
             <Checkbox
