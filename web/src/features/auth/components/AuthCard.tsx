@@ -1,3 +1,4 @@
+import { PageTitle } from '@/components/ui/page-title'
 import type { ReactNode } from 'react'
 import { Card, CardContent, CardDescription, CardFooter, CardHeader } from '@/components/ui/card'
 
@@ -12,7 +13,7 @@ export function AuthCard({ title, description, footer, children }: AuthCardProps
   return (
     <Card>
       <CardHeader>
-        <h1 className="text-xl font-semibold tracking-tight">{title}</h1>
+        <PageTitle >{title}</PageTitle>
         {description && <CardDescription>{description}</CardDescription>}
       </CardHeader>
       {children && <CardContent>{children}</CardContent>}

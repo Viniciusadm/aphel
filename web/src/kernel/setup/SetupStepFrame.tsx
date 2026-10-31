@@ -1,3 +1,4 @@
+import { PageTitle } from '@/components/ui/page-title'
 import { ArrowLeft, LoaderCircle } from 'lucide-react'
 import { useEffect, useRef, type FormEvent, type ReactNode } from 'react'
 import { useTranslation } from 'react-i18next'
@@ -45,9 +46,9 @@ export function SetupStepFrame({ title, description, error, notice, primary, sec
     <Card>
       <form className="grid gap-6" onSubmit={onSubmit} noValidate>
         <CardHeader className="gap-2">
-          <h1 ref={headingRef} tabIndex={-1} className="text-xl font-semibold tracking-tight outline-none">
+          <PageTitle ref={headingRef} tabIndex={-1} className="outline-none">
             {title}
-          </h1>
+          </PageTitle>
           {description && <CardDescription>{description}</CardDescription>}
         </CardHeader>
         <CardContent className="grid gap-5">

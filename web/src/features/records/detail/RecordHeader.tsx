@@ -1,3 +1,4 @@
+import { PageTitle } from '@/components/ui/page-title'
 import { ArrowLeft } from 'lucide-react'
 import type { ReactNode } from 'react'
 import { useTranslation } from 'react-i18next'
@@ -34,7 +35,7 @@ export function RecordHeader({ title, titleAccessory, subtitle, owner, actions, 
         )}
         <div className="grid min-w-0 gap-1">
           <div className="flex min-w-0 items-start gap-1">
-            <h1 className="min-w-0 text-xl font-semibold tracking-tight break-words">{title}</h1>
+            <PageTitle className="min-w-0 break-words">{title}</PageTitle>
             {titleAccessory}
           </div>
           {(subtitle || owner) && (

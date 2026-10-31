@@ -1,3 +1,4 @@
+import { PageTitle } from '@/components/ui/page-title'
 import { useQueryClient } from '@tanstack/react-query'
 import { CircleAlert } from 'lucide-react'
 import { useTranslation } from 'react-i18next'
@@ -37,9 +38,9 @@ export function RouteErrorBoundary({ homePath = '/', className }: RouteErrorBoun
         <CircleAlert className="size-6" aria-hidden="true" />
       </div>
       <div className="grid gap-1">
-        <h1 className="text-xl font-semibold tracking-tight">
+        <PageTitle >
           {notFound ? t('errorBoundary.notFoundTitle') : t('errorBoundary.title')}
-        </h1>
+        </PageTitle>
         <p className="text-sm text-muted-foreground">
           {notFound ? t('errorBoundary.notFoundDescription') : t('errorBoundary.routeDescription')}
         </p>

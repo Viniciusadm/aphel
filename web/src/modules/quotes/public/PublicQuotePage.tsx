@@ -1,3 +1,4 @@
+import { PageTitle } from '@/components/ui/page-title'
 import { FieldError as SharedFieldError } from '@/components/ui/field-error'
 import { CheckCircle2, LinkIcon, Printer, XCircle } from 'lucide-react'
 import { useState } from 'react'
@@ -93,7 +94,7 @@ function QuoteDocument({ token, quote }: { token: string; quote: PublicQuote }) 
           <p className="text-sm font-semibold" style={{ color: accent }}>
             {quote.organization.name}
           </p>
-          <h1 className="text-xl font-semibold tracking-tight">{quote.title}</h1>
+          <PageTitle >{quote.title}</PageTitle>
           <p className="text-sm text-muted-foreground">{t('number', { number: quote.number, version: quote.version })}</p>
           {(quote.contact_name || quote.company_name) && (
             <p className="text-sm">

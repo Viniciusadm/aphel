@@ -1,3 +1,4 @@
+import { PageTitle } from '@/components/ui/page-title'
 import { CalendarCheck2, CalendarX2, Clock, MapPin, User } from 'lucide-react'
 import { useState } from 'react'
 import { useTranslation } from 'react-i18next'
@@ -47,7 +48,7 @@ function BookingSummary({ booking, timeZone }: BookingSummaryProps) {
         <p className="text-sm font-medium text-muted-foreground">{booking.organization_name}</p>
         <Badge variant={canceled ? 'secondary' : 'success'}>{t(`status.${booking.status}`)}</Badge>
       </div>
-      <h1 className="text-xl font-semibold tracking-tight">{booking.meeting_type_name}</h1>
+      <PageTitle >{booking.meeting_type_name}</PageTitle>
       <ul className="grid gap-2 text-sm">
         <li className="flex items-start gap-2">
           <Clock className="mt-0.5 size-4 shrink-0 text-muted-foreground" aria-hidden />
