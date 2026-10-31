@@ -32,6 +32,7 @@ import { TokenField } from './TokenField'
 import { PageHeader } from '@/components/ui/page-header'
 import { Page } from '@/components/ui/page'
 import { Alert } from '@/components/ui/alert'
+import { Field } from '@/components/ui/field'
 
 const NEW_THEME_KEY = 'new'
 
@@ -142,10 +143,9 @@ function ThemeEditor({ creating, initial }: { creating: boolean; initial: ThemeP
         <div className="grid min-w-0 content-start gap-6">
           <fieldset className="grid gap-3 sm:grid-cols-2">
             <legend className="mb-2 text-base font-semibold">{t('editor.identity')}</legend>
-            <div className="grid gap-2.5">
-              <Label htmlFor="theme-name">{t('editor.name')}</Label>
-              <Input placeholder={t('placeholders.name')}
-                id="theme-name"
+            <Field label={t('editor.name')}>
+              {(control) => <Input placeholder={t('placeholders.name')}
+                {...control}
                 value={draft.name}
                 onChange={(event) =>
                   patch({
@@ -153,8 +153,8 @@ function ThemeEditor({ creating, initial }: { creating: boolean; initial: ThemeP
                     ...(creating ? { id: slugify(event.target.value) } : {}),
                   })
                 }
-              />
-            </div>
+              />}
+            </Field>
             <div className="grid gap-2.5">
               <Label htmlFor="theme-id">{t('editor.id')}</Label>
               <Input placeholder={t('placeholders.id')}
@@ -165,18 +165,15 @@ function ThemeEditor({ creating, initial }: { creating: boolean; initial: ThemeP
                 onChange={(event) => patch({ id: event.target.value })}
               />
             </div>
-            <div className="grid gap-2.5">
-              <Label htmlFor="theme-version">{t('editor.version')}</Label>
-              <Input placeholder={t('placeholders.version')} id="theme-version" value={draft.version} onChange={(event) => patch({ version: event.target.value })} />
-            </div>
-            <div className="grid gap-2.5">
-              <Label htmlFor="theme-author">{t('editor.author')}</Label>
-              <Input placeholder={t('placeholders.author')} id="theme-author" value={draft.author} onChange={(event) => patch({ author: event.target.value })} />
-            </div>
-            <div className="grid gap-2.5">
-              <Label htmlFor="theme-license">{t('editor.license')}</Label>
-              <Input placeholder={t('placeholders.license')} id="theme-license" value={draft.license} onChange={(event) => patch({ license: event.target.value })} />
-            </div>
+            <Field label={t('editor.version')}>
+              {(control) => <Input placeholder={t('placeholders.version')} {...control} value={draft.version} onChange={(event) => patch({ version: event.target.value })} />}
+            </Field>
+            <Field label={t('editor.author')}>
+              {(control) => <Input placeholder={t('placeholders.author')} {...control} value={draft.author} onChange={(event) => patch({ author: event.target.value })} />}
+            </Field>
+            <Field label={t('editor.license')}>
+              {(control) => <Input placeholder={t('placeholders.license')} {...control} value={draft.license} onChange={(event) => patch({ license: event.target.value })} />}
+            </Field>
             <div className="grid gap-2.5 sm:col-span-2">
               <Label htmlFor="theme-description">{t('editor.descriptionLabel')}</Label>
               <Textarea placeholder={t('placeholders.description')}

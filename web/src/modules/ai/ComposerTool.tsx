@@ -17,6 +17,7 @@ import { useModuleTranslation } from '@/kernel/modules/i18n'
 import type { ComposerContext, SlotProps } from '@/kernel/modules/slots'
 import { AI_KEY, AI_RECORD_TYPES, aiApi, useAiStatus } from './api'
 import { AiErrorMessage, AiFooter } from './AiNotice'
+import { Field } from '@/components/ui/field'
 
 const SHORTCUTS = ['improve', 'formal', 'friendly', 'shorter', 'grammar', 'summarize', 'reply'] as const
 const DRAFT_SHORTCUTS = new Set<string>(['improve', 'formal', 'friendly', 'shorter', 'grammar', 'summarize'])
@@ -116,10 +117,9 @@ function ComposerDialog({ context, subject, value, onChange, onOpenChange }: Com
               </Button>
             ))}
           </div>
-          <div className="grid gap-2.5">
-            <Label htmlFor={`${id}-instruction`}>{t('compose.instruction')}</Label>
-            <Textarea
-              id={`${id}-instruction`}
+          <Field label={t('compose.instruction')}>
+            {(control) => <Textarea
+              {...control}
               rows={3}
               maxLength={MAX_INSTRUCTION}
               placeholder={t(hasDraft ? 'compose.placeholderDraft' : 'compose.placeholderEmpty')}
@@ -131,8 +131,8 @@ function ComposerDialog({ context, subject, value, onChange, onOpenChange }: Com
                   run(instruction)
                 }
               }}
-            />
-          </div>
+            />}
+          </Field>
           {subjectSupported && (
             <div className="flex items-center gap-2">
               <Checkbox

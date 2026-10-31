@@ -13,6 +13,7 @@ import { callsApi, callsKeys } from './api'
 import { formatCallDuration } from './lib/format'
 import type { CallReport, CallReportQuery } from './types'
 import { Table, TableBody, TableCaption, TableCell, TableHead, TableHeader, TableRow } from '@/components/ui/table'
+import { Field } from '@/components/ui/field'
 
 function isoDate(date: Date): string {
   const year = date.getFullYear()
@@ -51,24 +52,22 @@ export function ReportPage() {
   return (
     <div className="grid gap-4">
       <div className="flex flex-wrap items-end gap-3">
-        <div className="grid gap-2.5">
-          <Label htmlFor={`${formId}-from`}>{t('report.from')}</Label>
-          <Input
-            id={`${formId}-from`}
+        <Field label={t('report.from')}>
+          {(control) => <Input
+            {...control}
             type="date"
             value={range.from}
             onChange={(event) => setRange((current) => ({ ...current, from: event.target.value }))}
-          />
-        </div>
-        <div className="grid gap-2.5">
-          <Label htmlFor={`${formId}-to`}>{t('report.to')}</Label>
-          <Input
-            id={`${formId}-to`}
+          />}
+        </Field>
+        <Field label={t('report.to')}>
+          {(control) => <Input
+            {...control}
             type="date"
             value={range.to}
             onChange={(event) => setRange((current) => ({ ...current, to: event.target.value }))}
-          />
-        </div>
+          />}
+        </Field>
         <div className="grid gap-2.5">
           <Label htmlFor={`${formId}-owner`}>{t('report.owner')}</Label>
           <NativeSelect

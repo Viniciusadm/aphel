@@ -22,6 +22,7 @@ import { useCurrencySettings } from '@/modules/currencies/api'
 import { priceListsApi, useInvalidatePriceLists } from './api'
 import { fieldErrors, priceListErrorKey } from './errors'
 import type { PriceList, PriceListAppliesTo, PriceListRequest } from './types'
+import { Field } from '@/components/ui/field'
 
 const APPLIES_TO: PriceListAppliesTo[] = ['all', 'segment', 'companies']
 const COMPANY_RECORD_TYPE = 'company'
@@ -162,16 +163,15 @@ function PriceListForm({ list, onClose, onSaved }: PriceListFormProps) {
           />
           {errorFor('key') ?? <p className="text-xs text-muted-foreground">{t('form.keyHint')}</p>}
         </div>
-        <div className="grid gap-2.5">
-          <Label htmlFor={`${formId}-description`}>{t('form.descriptionLabel')}</Label>
-          <Textarea placeholder={t('placeholders.description')}
-            id={`${formId}-description`}
+        <Field label={t('form.descriptionLabel')}>
+          {(control) => <Textarea placeholder={t('placeholders.description')}
+            {...control}
             value={description}
             maxLength={2000}
             rows={2}
             onChange={(event) => setDescription(event.target.value)}
-          />
-        </div>
+          />}
+        </Field>
         <div className="grid gap-4 sm:grid-cols-2">
           <div className="grid gap-2.5">
             <Label htmlFor={`${formId}-currency`}>{t('form.currency')}</Label>
@@ -263,15 +263,14 @@ function PriceListForm({ list, onClose, onSaved }: PriceListFormProps) {
           </fieldset>
         )}
         <div className="grid gap-4 sm:grid-cols-2">
-          <div className="grid gap-2.5">
-            <Label htmlFor={`${formId}-from`}>{t('form.validFrom')}</Label>
-            <Input
-              id={`${formId}-from`}
+          <Field label={t('form.validFrom')}>
+            {(control) => <Input
+              {...control}
               type="date"
               value={validFrom}
               onChange={(event) => setValidFrom(event.target.value)}
-            />
-          </div>
+            />}
+          </Field>
           <div className="grid gap-2.5">
             <Label htmlFor={`${formId}-to`}>{t('form.validTo')}</Label>
             <Input

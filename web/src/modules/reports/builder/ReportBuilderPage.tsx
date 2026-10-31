@@ -51,6 +51,7 @@ import {
 import { ReportResultView } from './ReportResultView'
 import { SchedulesPanel } from './SchedulesPanel'
 import { Alert } from '@/components/ui/alert'
+import { Field } from '@/components/ui/field'
 
 const SETTINGS_MANAGE = 'settings.manage'
 const PREVIEW_DELAY_MS = 400
@@ -323,15 +324,14 @@ function ReportEditor({ report }: { report: Report | null }) {
               />
               {submitted && nameError && <p className="text-sm text-destructive">{nameError}</p>}
             </div>
-            <div className="grid gap-2.5">
-              <Label htmlFor={ids.description}>{t('sections.details.description')}</Label>
-              <Textarea placeholder={t('placeholders.description')}
-                id={ids.description}
+            <Field label={t('sections.details.description')}>
+              {(control) => <Textarea placeholder={t('placeholders.description')}
+                {...control}
                 rows={2}
                 value={draft.description}
                 onChange={(event) => update({ description: event.target.value })}
-              />
-            </div>
+              />}
+            </Field>
             <div className="grid gap-3 sm:grid-cols-2 lg:grid-cols-1 xl:grid-cols-2">
               <div className="grid gap-2.5">
                 <Label htmlFor={ids.visibility}>{t('sections.details.visibility')}</Label>

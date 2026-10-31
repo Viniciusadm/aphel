@@ -1,5 +1,5 @@
 import { CheckCircle2, Hourglass, ShieldCheck } from 'lucide-react'
-import { useId, useState } from 'react'
+import { useState } from 'react'
 import { useTranslation } from 'react-i18next'
 import { Link } from 'react-router'
 import { Button } from '@/components/ui/button'
@@ -11,13 +11,13 @@ import {
   DialogHeader,
   DialogTitle,
 } from '@/components/ui/dialog'
-import { Label } from '@/components/ui/label'
 import { Textarea } from '@/components/ui/textarea'
 import { toast } from '@/components/ui/toast-store'
 import { useSubmitApproval } from '../api'
 import { approvalPath } from '../constants'
 import { approvalErrorKey } from '../errors'
 import type { ApprovalMoment, ApprovalSubmission } from '../types'
+import { Field } from '@/components/ui/field'
 
 export interface RequestApprovalDialogProps {
   open: boolean
@@ -46,7 +46,6 @@ function RequestApprovalBody({
   onSubmitted,
 }: Omit<RequestApprovalDialogProps, 'open'>) {
   const { t } = useTranslation('approvals')
-  const commentId = useId()
   const [comment, setComment] = useState('')
   const [result, setResult] = useState<ApprovalSubmission | null>(null)
   const submit = useSubmitApproval()
@@ -113,17 +112,16 @@ function RequestApprovalBody({
         </DialogTitle>
         <DialogDescription>{t(`submit.descriptions.${moment}`)}</DialogDescription>
       </DialogHeader>
-      <div className="grid gap-2.5">
-        <Label htmlFor={commentId}>{t('submit.comment')}</Label>
-        <Textarea
-          id={commentId}
+      <Field label={t('submit.comment')}>
+        {(control) => <Textarea
+          {...control}
           value={comment}
           rows={4}
           maxLength={2000}
           placeholder={t('submit.commentPlaceholder')}
           onChange={(event) => setComment(event.target.value)}
-        />
-      </div>
+        />}
+      </Field>
       <DialogFooter>
         <Button type="button" variant="outline" onClick={() => onOpenChange(false)} disabled={submit.isPending}>
           {t('actions.close')}

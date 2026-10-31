@@ -1,5 +1,5 @@
 import { CalendarCheck2, CalendarX2, Clock, MapPin, User } from 'lucide-react'
-import { useId, useState } from 'react'
+import { useState } from 'react'
 import { useTranslation } from 'react-i18next'
 import { Link, useLocation, useParams } from 'react-router'
 import { isApiError } from '@/api'
@@ -7,7 +7,6 @@ import { ConfirmDialog, PageLoader } from '@/components/feedback'
 import { Badge } from '@/components/ui/badge'
 import { Button } from '@/components/ui/button'
 import { ErrorState } from '@/components/ui/error-state'
-import { Label } from '@/components/ui/label'
 import { Textarea } from '@/components/ui/textarea'
 import { browserTimeZone } from '@/modules/scheduling/lib/format'
 import { bookingApi, useCancelPublicBooking, usePublicBooking, useReschedule } from './api'
@@ -17,6 +16,7 @@ import { SlotPicker } from './components/SlotPicker'
 import { formatWhen } from './lib/time'
 import type { PublicBookingResponse, PublicSlot } from './types'
 import { Alert } from '@/components/ui/alert'
+import { Field } from '@/components/ui/field'
 
 interface ManageLocationState {
   booked?: boolean
@@ -87,7 +87,6 @@ function BookingSummary({ booking, timeZone }: BookingSummaryProps) {
 
 function CancelBookingButton({ token }: { token: string }) {
   const { t } = useTranslation('scheduling', { keyPrefix: 'public' })
-  const reasonId = useId()
   const cancel = useCancelPublicBooking(token)
   const [open, setOpen] = useState(false)
   const [reason, setReason] = useState('')
@@ -108,10 +107,9 @@ function CancelBookingButton({ token }: { token: string }) {
           await cancel.mutateAsync(reason.trim() || null)
         }}
       >
-        <div className="grid gap-2">
-          <Label htmlFor={reasonId}>{t('manage.reason')}</Label>
-          <Textarea placeholder={t('placeholders.reason')} id={reasonId} rows={3} value={reason} onChange={(event) => setReason(event.target.value)} />
-        </div>
+        <Field label={t('manage.reason')}>
+          {(control) => <Textarea placeholder={t('placeholders.reason')} {...control} rows={3} value={reason} onChange={(event) => setReason(event.target.value)} />}
+        </Field>
       </ConfirmDialog>
     </>
   )

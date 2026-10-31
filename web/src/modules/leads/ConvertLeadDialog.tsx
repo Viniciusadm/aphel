@@ -20,6 +20,7 @@ import { NativeSelect } from '@/features/records/filters/NativeSelect'
 import { useLeadActions } from './api'
 import type { LeadTarget } from './DisqualifyLeadDialog'
 import { lifecycleErrorMessage } from './errors'
+import { Field } from '@/components/ui/field'
 
 export interface ConvertLeadDialogProps {
   lead: LeadTarget | null
@@ -139,25 +140,23 @@ function ConvertForm({ lead, onClose }: { lead: LeadTarget; onClose: () => void 
             ))}
           </NativeSelect>
         </div>
-        <div className="grid gap-2.5">
-          <Label htmlFor={`${formId}-title`}>{t('convert.dealTitle')}</Label>
-          <Input placeholder={t('placeholders.dealTitle')}
-            id={`${formId}-title`}
+        <Field label={t('convert.dealTitle')}>
+          {(control) => <Input placeholder={t('placeholders.dealTitle')}
+            {...control}
             value={title}
             maxLength={255}
             onChange={(event) => setTitle(event.target.value)}
-          />
-        </div>
-        <div className="grid gap-2.5">
-          <Label htmlFor={`${formId}-amount`}>{t('convert.amount')}</Label>
-          <Input
-            id={`${formId}-amount`}
+          />}
+        </Field>
+        <Field label={t('convert.amount')}>
+          {(control) => <Input
+            {...control}
             value={amount}
             inputMode="decimal"
             placeholder={t('convert.amountPlaceholder')}
             onChange={(event) => setAmount(event.target.value)}
-          />
-        </div>
+          />}
+        </Field>
       </form>
       <DialogFooter>
         <Button variant="outline" onClick={onClose} disabled={convert.isPending}>

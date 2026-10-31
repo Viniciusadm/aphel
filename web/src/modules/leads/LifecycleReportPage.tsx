@@ -13,6 +13,7 @@ import type { LifecycleRecordType, LifecycleReport, LifecycleStageReport } from 
 import { Page } from '@/components/ui/page'
 import { PageHeader } from '@/components/ui/page-header'
 import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from '@/components/ui/table'
+import { Field } from '@/components/ui/field'
 
 function isoDate(date: Date): string {
   return date.toISOString().slice(0, 10)
@@ -50,26 +51,24 @@ export function LifecycleReportPage() {
             <option value="company">{t('report.recordTypes.company')}</option>
           </NativeSelect>
         </div>
-        <div className="grid gap-2.5">
-          <Label htmlFor="lifecycle-report-from">{t('report.from')}</Label>
-          <Input
-            id="lifecycle-report-from"
+        <Field label={t('report.from')}>
+          {(control) => <Input
+            {...control}
             type="date"
             value={period.from}
             max={period.to}
             onChange={(event) => event.target.value && setPeriod((current) => ({ ...current, from: event.target.value }))}
-          />
-        </div>
-        <div className="grid gap-2.5">
-          <Label htmlFor="lifecycle-report-to">{t('report.to')}</Label>
-          <Input
-            id="lifecycle-report-to"
+          />}
+        </Field>
+        <Field label={t('report.to')}>
+          {(control) => <Input
+            {...control}
             type="date"
             value={period.to}
             min={period.from}
             onChange={(event) => event.target.value && setPeriod((current) => ({ ...current, to: event.target.value }))}
-          />
-        </div>
+          />}
+        </Field>
       </div>
       {report.isPending ? (
         <div className="grid gap-2" aria-busy="true">

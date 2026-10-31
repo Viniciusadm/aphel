@@ -13,6 +13,7 @@ import { useQuoteMutations, useQuoteSettings } from './api'
 import type { QuoteSettings } from './types'
 import { PageHeader } from '@/components/ui/page-header'
 import { Page } from '@/components/ui/page'
+import { Field } from '@/components/ui/field'
 
 const NO_MOVE = '__none__'
 
@@ -81,10 +82,9 @@ function SettingsForm({ settings }: { settings: QuoteSettings }) {
         />
         <p className="text-xs text-muted-foreground">{t('settings.validDaysHint')}</p>
       </div>
-      <div className="grid gap-2.5">
-        <Label htmlFor={ids.terms}>{t('settings.terms')}</Label>
-        <Textarea placeholder={t('placeholders.terms')}
-          id={ids.terms}
+      <Field label={t('settings.terms')}>
+        {(control) => <Textarea placeholder={t('placeholders.terms')}
+          {...control}
           rows={4}
           value={terms}
           disabled={!canEdit}
@@ -92,8 +92,8 @@ function SettingsForm({ settings }: { settings: QuoteSettings }) {
             setTerms(event.target.value)
             setDirty(true)
           }}
-        />
-      </div>
+        />}
+      </Field>
       <div className="grid gap-3">
         <div className="grid gap-1">
           <h3 className="text-sm font-medium">{t('settings.acceptStages')}</h3>

@@ -23,6 +23,7 @@ import {
 } from './api'
 import { PERIOD_PRESETS } from './model'
 import { Section } from './BuilderSections'
+import { Field } from '@/components/ui/field'
 
 const FREQUENCIES: ReportScheduleFrequency[] = ['daily', 'weekly', 'monthly']
 const WEEKDAYS = [1, 2, 3, 4, 5, 6, 7]
@@ -152,22 +153,20 @@ function ScheduleForm({
           </div>
         )}
         {values.frequency === 'monthly' && (
-          <div className="grid gap-2.5">
-            <Label htmlFor={ids.day}>{t('schedules.form.dayOfMonth')}</Label>
-            <Input placeholder={t('placeholders.day')}
-              id={ids.day}
+          <Field label={t('schedules.form.dayOfMonth')}>
+            {(control) => <Input placeholder={t('placeholders.day')}
+              {...control}
               type="number"
               min={1}
               max={31}
               value={values.dayOfMonth}
               onChange={(event) => set({ dayOfMonth: Math.min(31, Math.max(1, Math.round(Number(event.target.value)) || 1)) })}
-            />
-          </div>
+            />}
+          </Field>
         )}
-        <div className="grid gap-2.5">
-          <Label htmlFor={ids.time}>{t('schedules.form.time')}</Label>
-          <Input id={ids.time} type="time" value={values.time} onChange={(event) => set({ time: event.target.value })} />
-        </div>
+        <Field label={t('schedules.form.time')}>
+          {(control) => <Input {...control} type="time" value={values.time} onChange={(event) => set({ time: event.target.value })} />}
+        </Field>
         {hasPeriod && (
           <div className="grid gap-2.5">
             <Label htmlFor={ids.preset}>{t('schedules.form.period')}</Label>

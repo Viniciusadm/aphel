@@ -30,6 +30,7 @@ import { cn } from '@/lib/utils'
 import { OBJECT_KEY_MAX_LENGTH, OBJECT_KEY_PATTERN, objectsAdminApi, type CustomObjectAdmin } from './api'
 import { objectKeyFromLabel } from './keys'
 import { Alert } from '@/components/ui/alert'
+import { Field } from '@/components/ui/field'
 
 const LABEL_MAX_LENGTH = 100
 const TITLE_FIELD_TYPES = ['text', 'email', 'phone', 'url']
@@ -212,15 +213,14 @@ function ObjectForm({ object, onClose, onSaved }: ObjectFormProps) {
           </p>
           {fieldError('key')}
         </div>
-        <div className="grid gap-2.5">
-          <Label htmlFor={`${formId}-description`}>{t('editor.descriptionLabel')}</Label>
-          <Textarea placeholder={t('editor.descriptionPlaceholder')}
-            id={`${formId}-description`}
+        <Field label={t('editor.descriptionLabel')}>
+          {(control) => <Textarea placeholder={t('editor.descriptionPlaceholder')}
+            {...control}
             value={description}
             rows={2}
             onChange={(event) => setDescription(event.target.value)}
-          />
-        </div>
+          />}
+        </Field>
         <fieldset className="grid gap-2">
           <legend className="text-sm font-medium">{t('editor.icon')}</legend>
           <div className="flex flex-wrap gap-1.5">

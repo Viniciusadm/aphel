@@ -1,5 +1,5 @@
 import { CheckCircle2, LinkIcon, Printer, XCircle } from 'lucide-react'
-import { useId, useState } from 'react'
+import { useState } from 'react'
 import { useTranslation } from 'react-i18next'
 import { useParams } from 'react-router'
 import { isApiError } from '@/api'
@@ -8,11 +8,11 @@ import { Badge, type BadgeProps } from '@/components/ui/badge'
 import { Button } from '@/components/ui/button'
 import { EmptyState } from '@/components/ui/empty-state'
 import { Input } from '@/components/ui/input'
-import { Label } from '@/components/ui/label'
 import { Textarea } from '@/components/ui/textarea'
 import { usePublicQuote, usePublicQuoteAnswer } from './api'
 import type { PublicQuote, PublicQuoteState } from './types'
 import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from '@/components/ui/table'
+import { Field } from '@/components/ui/field'
 
 const STATE_VARIANTS: Record<PublicQuoteState, BadgeProps['variant']> = {
   open: 'default',
@@ -199,7 +199,6 @@ function Total({ label, value }: { label: string; value: string }) {
 function Answer({ token, quote }: { token: string; quote: PublicQuote }) {
   const { t } = useTranslation('quotes', { keyPrefix: 'public' })
   const format = useFormat(quote.currency)
-  const ids = { name: useId(), email: useId(), reason: useId() }
   const answer = usePublicQuoteAnswer(token)
   const [name, setName] = useState(quote.contact_name ?? '')
   const [email, setEmail] = useState('')
@@ -241,10 +240,9 @@ function Answer({ token, quote }: { token: string; quote: PublicQuote }) {
           }}
         >
           <h2 className="text-base font-semibold">{t('reject.title')}</h2>
-          <div className="grid gap-2.5">
-            <Label htmlFor={ids.reason}>{t('reject.reason')}</Label>
-            <Textarea placeholder={t('placeholders.reason')} id={ids.reason} rows={3} value={reason} onChange={(event) => setReason(event.target.value)} />
-          </div>
+          <Field label={t('reject.reason')}>
+            {(control) => <Textarea placeholder={t('placeholders.reason')} {...control} rows={3} value={reason} onChange={(event) => setReason(event.target.value)} />}
+          </Field>
           <div className="flex flex-wrap gap-2">
             <Button type="submit" variant="destructive" disabled={answer.reject.isPending}>
               {t('reject.submit')}
@@ -267,21 +265,19 @@ function Answer({ token, quote }: { token: string; quote: PublicQuote }) {
             <p className="text-sm text-muted-foreground">{t('accept.description')}</p>
           </div>
           <div className="grid gap-3 sm:grid-cols-2">
-            <div className="grid gap-2.5">
-              <Label htmlFor={ids.name}>{t('accept.name')}</Label>
-              <Input placeholder={t('placeholders.name')} id={ids.name} required autoComplete="name" value={name} onChange={(event) => setName(event.target.value)} />
-            </div>
-            <div className="grid gap-2.5">
-              <Label htmlFor={ids.email}>{t('accept.email')}</Label>
-              <Input placeholder={t('placeholders.email')}
-                id={ids.email}
+            <Field label={t('accept.name')}>
+              {(control) => <Input placeholder={t('placeholders.name')} {...control} required autoComplete="name" value={name} onChange={(event) => setName(event.target.value)} />}
+            </Field>
+            <Field label={t('accept.email')}>
+              {(control) => <Input placeholder={t('placeholders.email')}
+                {...control}
                 type="email"
                 required
                 autoComplete="email"
                 value={email}
                 onChange={(event) => setEmail(event.target.value)}
-              />
-            </div>
+              />}
+            </Field>
           </div>
           <div className="flex flex-wrap gap-2">
             <Button type="submit" disabled={answer.accept.isPending || !name.trim() || !email.trim()}>

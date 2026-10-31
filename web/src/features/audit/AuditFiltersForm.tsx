@@ -5,6 +5,7 @@ import { Input } from '@/components/ui/input'
 import { Label } from '@/components/ui/label'
 import { recordTypeLabel, KNOWN_RECORD_TYPES } from './lib/labels'
 import { EMPTY_FILTERS, hasFilters, type AuditFilters } from './lib/filters'
+import { Field } from '@/components/ui/field'
 
 interface AuditFiltersFormProps {
   filters: AuditFilters
@@ -56,34 +57,30 @@ export function AuditFiltersForm({ filters, onApply }: AuditFiltersFormProps) {
           })}
         </datalist>
       </div>
-      <div className="grid gap-2.5">
-        <Label htmlFor={`${id}-record-id`}>{t('filters.recordId')}</Label>
-        <Input
-          id={`${id}-record-id`}
+      <Field label={t('filters.recordId')}>
+        {(control) => <Input
+          {...control}
           value={draft.recordId}
           onChange={update('recordId')}
           placeholder={t('filters.recordIdPlaceholder')}
           autoComplete="off"
-        />
-      </div>
-      <div className="grid gap-2.5">
-        <Label htmlFor={`${id}-actor`}>{t('filters.actor')}</Label>
-        <Input
-          id={`${id}-actor`}
+        />}
+      </Field>
+      <Field label={t('filters.actor')}>
+        {(control) => <Input
+          {...control}
           value={draft.actor}
           onChange={update('actor')}
           placeholder={t('filters.actorPlaceholder')}
           autoComplete="off"
-        />
-      </div>
-      <div className="grid gap-2.5">
-        <Label htmlFor={`${id}-from`}>{t('filters.from')}</Label>
-        <Input id={`${id}-from`} type="date" value={draft.from} onChange={update('from')} max={draft.to || undefined} />
-      </div>
-      <div className="grid gap-2.5">
-        <Label htmlFor={`${id}-to`}>{t('filters.to')}</Label>
-        <Input id={`${id}-to`} type="date" value={draft.to} onChange={update('to')} min={draft.from || undefined} />
-      </div>
+        />}
+      </Field>
+      <Field label={t('filters.from')}>
+        {(control) => <Input {...control} type="date" value={draft.from} onChange={update('from')} max={draft.to || undefined} />}
+      </Field>
+      <Field label={t('filters.to')}>
+        {(control) => <Input {...control} type="date" value={draft.to} onChange={update('to')} min={draft.from || undefined} />}
+      </Field>
       <div className="flex flex-wrap justify-end gap-2 sm:col-span-2 lg:col-span-5">
         <Button type="button" variant="outline" onClick={clear} disabled={!hasFilters(draft) && !hasFilters(filters)}>
           {t('filters.clear')}

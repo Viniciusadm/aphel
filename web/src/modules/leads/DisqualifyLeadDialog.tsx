@@ -17,6 +17,7 @@ import { NativeSelect } from '@/features/records/filters/NativeSelect'
 import { useDisqualificationReasons, useLeadActions } from './api'
 import { MAX_NOTE_LENGTH } from './constants'
 import { lifecycleErrorMessage } from './errors'
+import { Field } from '@/components/ui/field'
 
 export interface LeadTarget {
   id: string
@@ -104,17 +105,16 @@ function DisqualifyForm({ lead, onClose }: { lead: LeadTarget; onClose: () => vo
             <p className="text-xs text-muted-foreground">{t('disqualify.noReasons')}</p>
           )}
         </div>
-        <div className="grid gap-2.5">
-          <Label htmlFor={`${formId}-note`}>{t('disqualify.note')}</Label>
-          <Textarea
-            id={`${formId}-note`}
+        <Field label={t('disqualify.note')}>
+          {(control) => <Textarea
+            {...control}
             value={note}
             maxLength={MAX_NOTE_LENGTH}
             rows={3}
             placeholder={t('disqualify.notePlaceholder')}
             onChange={(event) => setNote(event.target.value)}
-          />
-        </div>
+          />}
+        </Field>
       </form>
       <DialogFooter>
         <Button variant="outline" onClick={onClose} disabled={disqualify.isPending}>

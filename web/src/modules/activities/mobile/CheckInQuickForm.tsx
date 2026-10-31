@@ -5,7 +5,6 @@ import { useTranslation } from 'react-i18next'
 import { notifyError } from '@/components/feedback/notify'
 import { Button } from '@/components/ui/button'
 import { Input } from '@/components/ui/input'
-import { Label } from '@/components/ui/label'
 import { activitiesKeys, useActivityTypes } from '../api'
 import { recordsKeys } from '@/features/records/api'
 import { CHECK_IN_TYPE_KEYS, pickActivityType, submitActivity } from './api'
@@ -14,6 +13,7 @@ import { DictationField } from '@/features/mobile/components/DictationField'
 import { RecordPicker, type PickedRecord } from '@/features/mobile/components/RecordPicker'
 import { useOutboxFeedback } from '@/features/mobile/lib/outbox-feedback'
 import { FormActions, FormBody, type QuickFormProps } from '@/features/mobile/components/QuickForm'
+import { Field } from '@/components/ui/field'
 
 type LocationState =
   | { status: 'idle' }
@@ -144,17 +144,16 @@ export function CheckInQuickForm({ onDone, initialRecord }: CheckInQuickFormProp
         />
       </div>
       <RecordPicker value={record} onChange={setRecord} />
-      <div className="grid gap-2">
-        <Label htmlFor={ids.title}>{t('checkIn.title')}</Label>
-        <Input
-          id={ids.title}
+      <Field label={t('checkIn.title')}>
+        {(control) => <Input
+          {...control}
           value={title}
           onChange={(event) => setTitle(event.target.value)}
           placeholder={resolvedTitle}
           className="h-11 text-base"
           maxLength={255}
-        />
-      </div>
+        />}
+      </Field>
       <DictationField id={ids.notes} label={t('checkIn.notes')} value={notes} onChange={setNotes} maxLength={20_000} />
       {!visitType && !types.isPending && <p className="text-sm text-destructive">{t('checkIn.noType')}</p>}
       <FormActions

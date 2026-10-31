@@ -12,6 +12,7 @@ import type { RecordItem } from '@/features/records/types'
 import { submitWithOutbox } from '@/pwa/offline/outbox'
 import { useOutboxFeedback } from '@/features/mobile/lib/outbox-feedback'
 import { FormActions, FormBody, type QuickFormProps } from '@/features/mobile/components/QuickForm'
+import { Field } from '@/components/ui/field'
 
 function splitName(name: string): { first_name: string; last_name: string | null } {
   const parts = name.trim().split(/\s+/)
@@ -74,22 +75,20 @@ export function ContactQuickForm({ onDone }: QuickFormProps) {
         />
         {touched && nameMissing && <p className="text-sm text-destructive">{t('contact.nameRequired')}</p>}
       </div>
-      <div className="grid gap-2">
-        <Label htmlFor={ids.phone}>{t('contact.phone')}</Label>
-        <Input placeholder={t('placeholders.phone')}
-          id={ids.phone}
+      <Field label={t('contact.phone')}>
+        {(control) => <Input placeholder={t('placeholders.phone')}
+          {...control}
           type="tel"
           inputMode="tel"
           value={phone}
           onChange={(event) => setPhone(event.target.value)}
           autoComplete="tel"
           className="h-11 text-base"
-        />
-      </div>
-      <div className="grid gap-2">
-        <Label htmlFor={ids.email}>{t('contact.email')}</Label>
-        <Input placeholder={t('placeholders.email')}
-          id={ids.email}
+        />}
+      </Field>
+      <Field label={t('contact.email')}>
+        {(control) => <Input placeholder={t('placeholders.email')}
+          {...control}
           type="email"
           inputMode="email"
           value={email}
@@ -97,8 +96,8 @@ export function ContactQuickForm({ onDone }: QuickFormProps) {
           autoComplete="email"
           autoCapitalize="none"
           className="h-11 text-base"
-        />
-      </div>
+        />}
+      </Field>
       <FormActions pending={pending} label={t('contact.submit')} />
     </FormBody>
   )

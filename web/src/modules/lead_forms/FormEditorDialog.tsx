@@ -26,6 +26,7 @@ import {
 import { FormPreview } from './FormPreview'
 import { Alert } from '@/components/ui/alert'
 import { Checkbox } from '@/components/ui/checkbox'
+import { Field } from '@/components/ui/field'
 
 interface FormEditorDialogProps {
   open: boolean
@@ -208,10 +209,9 @@ function EditorBody({ form, onCancel, onSaved }: EditorBodyProps) {
                   {t('editor.dedupe')}
                 </label>
                 <div className="grid gap-3 sm:grid-cols-2">
-                  <div className="grid gap-2.5">
-                    <Label htmlFor={`${formId}-source`}>{t('editor.source')}</Label>
-                    <Input id={`${formId}-source`} placeholder={t('editor.sourcePlaceholder')} {...register('source')} />
-                  </div>
+                  <Field label={t('editor.source')}>
+                    {(control) => <Input {...control} placeholder={t('editor.sourcePlaceholder')} {...register('source')} />}
+                  </Field>
                   <div className="grid gap-2.5">
                     <Label htmlFor={`${formId}-owner`}>{t('editor.owner')}</Label>
                     <NativeSelect id={`${formId}-owner`} {...register('owner_id')}>
@@ -321,23 +321,21 @@ function EditorBody({ form, onCancel, onSaved }: EditorBodyProps) {
                 <h3 id={`${formId}-after`} className="text-sm font-semibold">
                   {t('editor.afterSubmit')}
                 </h3>
-                <div className="grid gap-2.5">
-                  <Label htmlFor={`${formId}-submit-label`}>{t('editor.submitLabel')}</Label>
-                  <Input
-                    id={`${formId}-submit-label`}
+                <Field label={t('editor.submitLabel')}>
+                  {(control) => <Input
+                    {...control}
                     placeholder={t('preview.submit')}
                     {...register('submit_label')}
-                  />
-                </div>
-                <div className="grid gap-2.5">
-                  <Label htmlFor={`${formId}-success`}>{t('editor.successMessage')}</Label>
-                  <Textarea
-                    id={`${formId}-success`}
+                  />}
+                </Field>
+                <Field label={t('editor.successMessage')}>
+                  {(control) => <Textarea
+                    {...control}
                     rows={2}
                     placeholder={t('preview.defaultSuccess')}
                     {...register('success_message')}
-                  />
-                </div>
+                  />}
+                </Field>
                 <div className="grid gap-2.5">
                   <Label htmlFor={`${formId}-redirect`}>{t('editor.redirectUrl')}</Label>
                   <Input

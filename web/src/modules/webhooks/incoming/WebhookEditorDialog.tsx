@@ -45,6 +45,7 @@ import {
 import { Alert } from '@/components/ui/alert'
 import { EmptyState } from '@/components/ui/empty-state'
 import { Checkbox } from '@/components/ui/checkbox'
+import { Field } from '@/components/ui/field'
 
 interface WebhookEditorDialogProps {
   open: boolean
@@ -147,15 +148,14 @@ function EditorBody({ webhook, onCancel, onSaved }: EditorBodyProps) {
               <p className="text-sm text-destructive">{errorMessage(formState.errors.name.message)}</p>
             )}
           </div>
-          <div className="grid gap-2.5">
-            <Label htmlFor={`${formId}-description`}>{t('form.descriptionLabel')}</Label>
-            <Textarea placeholder={t('placeholders.description')}
-              id={`${formId}-description`}
+          <Field label={t('form.descriptionLabel')}>
+            {(control) => <Textarea placeholder={t('placeholders.description')}
+              {...control}
               rows={2}
               maxLength={MAX_DESCRIPTION_LENGTH}
               {...register('description')}
-            />
-          </div>
+            />}
+          </Field>
           <div className="flex flex-wrap gap-x-6 gap-y-2">
             <label className="flex items-center gap-2 text-sm">
               <Controller

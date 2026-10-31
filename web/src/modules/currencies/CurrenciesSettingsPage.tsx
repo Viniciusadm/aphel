@@ -28,6 +28,7 @@ import { RatesProviderSettings } from './RatesProviderSettings'
 import type { CurrencySettings, ExchangeRate } from './types'
 import { PageHeader } from '@/components/ui/page-header'
 import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from '@/components/ui/table'
+import { Field } from '@/components/ui/field'
 
 const CURRENCY_CODE = /^[A-Za-z]{3}$/
 const RATE_PATTERN = /^\d+([.,]\d{1,10})?$/
@@ -448,10 +449,9 @@ function RateForm({ editing, currencies, today, onClose, onSaved }: RateFormProp
             ))}
           </NativeSelect>
         </div>
-        <div className="grid gap-2.5">
-          <Label htmlFor={`${formId}-date`}>{t('rates.columns.date')}</Label>
-          <Input id={`${formId}-date`} type="date" value={date} onChange={(event) => setDate(event.target.value)} />
-        </div>
+        <Field label={t('rates.columns.date')}>
+          {(control) => <Input {...control} type="date" value={date} onChange={(event) => setDate(event.target.value)} />}
+        </Field>
         <div className="grid gap-2.5">
           <Label htmlFor={`${formId}-rate`}>{t('rates.rateLabel', { currency })}</Label>
           <Input placeholder={t('placeholders.rate')}

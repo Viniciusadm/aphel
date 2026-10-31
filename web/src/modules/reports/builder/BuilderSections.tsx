@@ -32,6 +32,7 @@ import {
   withGranularity,
   type ReportDraft,
 } from './model'
+import { Field } from '@/components/ui/field'
 
 const FUNCTIONS: AggregateFunction[] = ['count', 'sum', 'avg', 'min', 'max']
 const DURATION_UNITS = ['days', 'hours'] as const
@@ -358,15 +359,14 @@ export function PeriodSection({ draft, onChange, fields }: DraftProps & { fields
           </div>
           {period.preset === 'custom' && (
             <>
-              <div className="grid gap-2.5">
-                <Label htmlFor={ids.from}>{t('sections.period.from')}</Label>
-                <Input
-                  id={ids.from}
+              <Field label={t('sections.period.from')}>
+                {(control) => <Input
+                  {...control}
                   type="date"
                   value={period.from}
                   onChange={(event) => onChange({ period: { ...period, from: event.target.value } })}
-                />
-              </div>
+                />}
+              </Field>
               <div className="grid gap-2.5">
                 <Label htmlFor={ids.to}>{t('sections.period.to')}</Label>
                 <Input
@@ -402,7 +402,6 @@ export function SortSection({
 }: DraftProps & { options: GroupOption[]; fields: AggregateField[] }) {
   const { t } = useTranslation('reports', { keyPrefix: 'builder' })
   const { t: tReports } = useTranslation('reports')
-  const limitId = useId()
   const keys = [
     ...draft.groupBy
       .filter((group) => group.field)
@@ -477,10 +476,9 @@ export function SortSection({
           <Plus />
           {t('sections.sort.add')}
         </Button>
-        <div className="grid gap-2.5">
-          <Label htmlFor={limitId}>{t('sections.sort.limit')}</Label>
-          <Input placeholder={t('placeholders.limit')}
-            id={limitId}
+        <Field label={t('sections.sort.limit')}>
+          {(control) => <Input placeholder={t('placeholders.limit')}
+            {...control}
             type="number"
             min={1}
             max={MAX_LIMIT}
@@ -490,8 +488,8 @@ export function SortSection({
               const value = Math.round(Number(event.target.value))
               onChange({ limit: Number.isFinite(value) ? Math.min(MAX_LIMIT, Math.max(1, value)) : 1 })
             }}
-          />
-        </div>
+          />}
+        </Field>
       </div>
     </Section>
   )

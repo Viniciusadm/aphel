@@ -28,6 +28,7 @@ import { SubmitQuoteDialog } from './SubmitQuoteDialog'
 import type { QuoteDetail, QuoteDiscountType, QuoteRequest } from './types'
 import { Page } from '@/components/ui/page'
 import { PageHeader } from '@/components/ui/page-header'
+import { Field } from '@/components/ui/field'
 
 const NO_PRICE_LIST = '__none__'
 const QUOTE_RECORD_TYPE = 'quote'
@@ -281,16 +282,15 @@ function QuoteEditor({ quote }: { quote: QuoteDetail }) {
                 <Label htmlFor={ids.title}>{t('editor.fields.title')}</Label>
                 <Input placeholder={t('placeholders.title')} id={ids.title} value={header.title} disabled={!editable} onChange={(event) => patchHeader({ title: event.target.value })} />
               </div>
-              <div className="grid gap-2.5">
-                <Label htmlFor={ids.validUntil}>{t('editor.fields.validUntil')}</Label>
-                <Input
-                  id={ids.validUntil}
+              <Field label={t('editor.fields.validUntil')}>
+                {(control) => <Input
+                  {...control}
                   type="date"
                   value={header.valid_until}
                   disabled={!editable}
                   onChange={(event) => patchHeader({ valid_until: event.target.value })}
-                />
-              </div>
+                />}
+              </Field>
               <div className="grid gap-2.5">
                 <Label htmlFor={ids.priceList}>{t('editor.fields.priceList')}</Label>
                 <Select

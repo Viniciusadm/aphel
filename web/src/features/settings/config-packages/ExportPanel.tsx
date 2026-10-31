@@ -13,6 +13,7 @@ import { Textarea } from '@/components/ui/textarea'
 import { configPackagesApi, useConfigSections, type ExportBody } from './api'
 import { downloadJson, packageFileName } from './lib/download'
 import { usePackageLabels } from './lib/labels'
+import { Field } from '@/components/ui/field'
 
 const MAX_TEXT_LENGTH = 200
 
@@ -130,25 +131,23 @@ function ExportForm({ available }: { available: string[] }) {
         {selected.length === 0 && <p className="text-sm text-destructive">{t('export.noSections')}</p>}
       </fieldset>
       <div className="grid gap-4 sm:grid-cols-2">
-        <div className="grid gap-2.5">
-          <Label htmlFor={`${formId}-name`}>{t('export.name')}</Label>
-          <Input
-            id={`${formId}-name`}
+        <Field label={t('export.name')}>
+          {(control) => <Input
+            {...control}
             value={name}
             maxLength={MAX_TEXT_LENGTH}
             placeholder={t('export.namePlaceholder')}
             onChange={(event) => setName(event.target.value)}
-          />
-        </div>
-        <div className="grid gap-2.5">
-          <Label htmlFor={`${formId}-author`}>{t('export.author')}</Label>
-          <Input placeholder={t('export.authorPlaceholder')}
-            id={`${formId}-author`}
+          />}
+        </Field>
+        <Field label={t('export.author')}>
+          {(control) => <Input placeholder={t('export.authorPlaceholder')}
+            {...control}
             value={author}
             maxLength={MAX_TEXT_LENGTH}
             onChange={(event) => setAuthor(event.target.value)}
-          />
-        </div>
+          />}
+        </Field>
         <div className="grid gap-2.5 sm:col-span-2">
           <Label htmlFor={`${formId}-description`}>{t('export.packageDescription')}</Label>
           <Textarea placeholder={t('export.packageDescriptionPlaceholder')}

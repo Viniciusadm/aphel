@@ -1,13 +1,13 @@
-import { useId, useState } from 'react'
+import { useState } from 'react'
 import { useTranslation } from 'react-i18next'
 import { notifySuccess } from '@/components/feedback'
 import { Button } from '@/components/ui/button'
 import { Dialog, DialogContent, DialogDescription, DialogFooter, DialogHeader, DialogTitle } from '@/components/ui/dialog'
-import { Label } from '@/components/ui/label'
 import { Textarea } from '@/components/ui/textarea'
 import { useQuoteMutations } from './api'
 import { notifyQuoteError } from './errors'
 import type { QuoteDetail } from './types'
+import { Field } from '@/components/ui/field'
 
 export interface SubmitQuoteDialogProps {
   quote: QuoteDetail
@@ -17,7 +17,6 @@ export interface SubmitQuoteDialogProps {
 
 export function SubmitQuoteDialog({ quote, open, onOpenChange }: SubmitQuoteDialogProps) {
   const { t } = useTranslation('quotes')
-  const commentId = useId()
   const mutations = useQuoteMutations()
   const [comment, setComment] = useState('')
 
@@ -38,10 +37,9 @@ export function SubmitQuoteDialog({ quote, open, onOpenChange }: SubmitQuoteDial
           <DialogTitle>{t('actions.submitTitle')}</DialogTitle>
           <DialogDescription>{t('actions.submitDescription')}</DialogDescription>
         </DialogHeader>
-        <div className="grid gap-2.5">
-          <Label htmlFor={commentId}>{t('actions.comment')}</Label>
-          <Textarea placeholder={t('placeholders.comment')} id={commentId} rows={3} value={comment} onChange={(event) => setComment(event.target.value)} />
-        </div>
+        <Field label={t('actions.comment')}>
+          {(control) => <Textarea placeholder={t('placeholders.comment')} {...control} rows={3} value={comment} onChange={(event) => setComment(event.target.value)} />}
+        </Field>
         <DialogFooter>
           <Button variant="outline" onClick={() => onOpenChange(false)}>
             {t('actions.cancel')}

@@ -1,12 +1,12 @@
-import { useId, useState } from 'react'
+import { useState } from 'react'
 import { useTranslation } from 'react-i18next'
 import { isApiError } from '@/api'
 import { ConfirmDialog, notifyError, notifySuccess } from '@/components/feedback'
-import { Label } from '@/components/ui/label'
 import { Textarea } from '@/components/ui/textarea'
 import { toast } from '@/components/ui/toast-store'
 import { useCancelBooking } from '../api'
 import type { MeetingBookingResponse } from '../types'
+import { Field } from '@/components/ui/field'
 
 interface CancelBookingDialogProps {
   booking: MeetingBookingResponse | null
@@ -15,7 +15,6 @@ interface CancelBookingDialogProps {
 
 export function CancelBookingDialog({ booking, onClose }: CancelBookingDialogProps) {
   const { t } = useTranslation('scheduling')
-  const reasonId = useId()
   const cancel = useCancelBooking()
   const [reason, setReason] = useState('')
 
@@ -47,10 +46,9 @@ export function CancelBookingDialog({ booking, onClose }: CancelBookingDialogPro
         }
       }}
     >
-      <div className="grid gap-2">
-        <Label htmlFor={reasonId}>{t('bookings.reason')}</Label>
-        <Textarea placeholder={t('placeholders.reason')} id={reasonId} rows={3} value={reason} onChange={(event) => setReason(event.target.value)} />
-      </div>
+      <Field label={t('bookings.reason')}>
+        {(control) => <Textarea placeholder={t('placeholders.reason')} {...control} rows={3} value={reason} onChange={(event) => setReason(event.target.value)} />}
+      </Field>
     </ConfirmDialog>
   )
 }

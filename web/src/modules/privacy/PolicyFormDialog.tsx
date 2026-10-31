@@ -26,6 +26,7 @@ import {
   type RetentionPolicy,
 } from './api'
 import { usePrivacyErrors } from './lib/shared'
+import { Field } from '@/components/ui/field'
 
 interface PolicyFormDialogProps {
   policy: RetentionPolicy | null
@@ -105,16 +106,15 @@ export function PolicyFormDialog({ policy, onClose }: PolicyFormDialogProps) {
               {error}
             </p>
           )}
-          <div className="grid gap-2">
-            <Label htmlFor={ids.name}>{t('policyForm.name')}</Label>
-            <Input placeholder={t('placeholders.name')}
-              id={ids.name}
+          <Field label={t('policyForm.name')}>
+            {(control) => <Input placeholder={t('placeholders.name')}
+              {...control}
               value={name}
               maxLength={NAME_MAX_LENGTH}
               required
               onChange={(event) => setName(event.target.value)}
-            />
-          </div>
+            />}
+          </Field>
           <div className="grid gap-2">
             <Label htmlFor={ids.action}>{t('policyForm.action')}</Label>
             <NativeSelect

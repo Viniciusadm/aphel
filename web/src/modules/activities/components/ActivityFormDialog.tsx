@@ -44,6 +44,7 @@ import {
   type ActivityFormMode,
   type ActivityFormValues,
 } from '../lib/form'
+import { Field } from '@/components/ui/field'
 
 export type { ActivityFormMode } from '../lib/form'
 
@@ -285,10 +286,9 @@ export function ActivityFormDialog({
               </div>
             )}
           </div>
-          <div className="grid gap-2.5">
-            <Label htmlFor={ids.description}>{t('form.description')}</Label>
-            <Textarea placeholder={t('placeholders.description')} id={ids.description} rows={3} {...register('description')} />
-          </div>
+          <Field label={t('form.description')}>
+            {(control) => <Textarea placeholder={t('placeholders.description')} {...control} rows={3} {...register('description')} />}
+          </Field>
         </form>
         <DialogFooter>
           <Button variant="outline" onClick={() => onOpenChange(false)} disabled={create.isPending}>

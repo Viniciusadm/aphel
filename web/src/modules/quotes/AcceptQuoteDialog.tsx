@@ -9,6 +9,7 @@ import { Textarea } from '@/components/ui/textarea'
 import { useQuoteMutations } from './api'
 import { notifyQuoteError } from './errors'
 import type { QuoteDetail } from './types'
+import { Field } from '@/components/ui/field'
 
 export interface AcceptQuoteDialogProps {
   quote: QuoteDetail
@@ -54,14 +55,12 @@ export function AcceptQuoteDialog({ quote, open, onOpenChange }: AcceptQuoteDial
             <Input placeholder={t('placeholders.name')} id={ids.name} value={name} maxLength={160} onChange={(event) => setName(event.target.value)} />
             <p className="text-xs text-muted-foreground">{t('actions.acceptNameHint')}</p>
           </div>
-          <div className="grid gap-2.5">
-            <Label htmlFor={ids.email}>{t('actions.acceptEmail')}</Label>
-            <Input placeholder={t('placeholders.email')} id={ids.email} type="email" value={email} onChange={(event) => setEmail(event.target.value)} />
-          </div>
-          <div className="grid gap-2.5">
-            <Label htmlFor={ids.note}>{t('actions.acceptNote')}</Label>
-            <Textarea placeholder={t('placeholders.note')} id={ids.note} rows={3} maxLength={2000} value={note} onChange={(event) => setNote(event.target.value)} />
-          </div>
+          <Field label={t('actions.acceptEmail')}>
+            {(control) => <Input placeholder={t('placeholders.email')} {...control} type="email" value={email} onChange={(event) => setEmail(event.target.value)} />}
+          </Field>
+          <Field label={t('actions.acceptNote')}>
+            {(control) => <Textarea placeholder={t('placeholders.note')} {...control} rows={3} maxLength={2000} value={note} onChange={(event) => setNote(event.target.value)} />}
+          </Field>
         </div>
         <DialogFooter>
           <Button variant="outline" onClick={() => onOpenChange(false)}>

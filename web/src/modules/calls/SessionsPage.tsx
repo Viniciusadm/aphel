@@ -20,6 +20,7 @@ import { formatDateTime, useRecordFormatting } from '@/features/records/formatti
 import { callsApi, callsKeys } from './api'
 import { callSessionPath } from './constants'
 import { callErrorKey } from './lib/errors'
+import { Field } from '@/components/ui/field'
 
 const CONTACT = 'contact'
 
@@ -130,16 +131,15 @@ function StartSessionCard() {
               onChange={(event) => setName(event.target.value)}
             />
           </div>
-          <div className="grid gap-2.5">
-            <Label htmlFor={`${formId}-script`}>{t('start.script')}</Label>
-            <Textarea
-              id={`${formId}-script`}
+          <Field label={t('start.script')}>
+            {(control) => <Textarea
+              {...control}
               rows={5}
               value={scriptValue}
               placeholder={t('start.scriptPlaceholder')}
               onChange={(event) => setScript(event.target.value)}
-            />
-          </div>
+            />}
+          </Field>
           <Button type="submit" disabled={saving}>
             <PhoneCall aria-hidden="true" />
             {t('start.submit')}

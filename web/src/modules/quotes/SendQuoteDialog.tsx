@@ -9,6 +9,7 @@ import { Textarea } from '@/components/ui/textarea'
 import { useQuoteMutations } from './api'
 import { notifyQuoteError } from './errors'
 import type { EmailAddressInput, QuoteDetail } from './types'
+import { Field } from '@/components/ui/field'
 
 const LINK_PLACEHOLDER = '{{quote_link}}'
 
@@ -74,14 +75,12 @@ export function SendQuoteDialog({ quote, open, onOpenChange }: SendQuoteDialogPr
             <Input placeholder={t('placeholders.to')} id={ids.to} value={to} onChange={(event) => setTo(event.target.value)} />
             <p className="text-xs text-muted-foreground">{t('send.toHint')}</p>
           </div>
-          <div className="grid gap-2.5">
-            <Label htmlFor={ids.cc}>{t('send.cc')}</Label>
-            <Input placeholder={t('placeholders.cc')} id={ids.cc} value={cc} onChange={(event) => setCc(event.target.value)} />
-          </div>
-          <div className="grid gap-2.5">
-            <Label htmlFor={ids.subject}>{t('send.subject')}</Label>
-            <Input placeholder={t('placeholders.subject')} id={ids.subject} value={subject} onChange={(event) => setSubject(event.target.value)} />
-          </div>
+          <Field label={t('send.cc')}>
+            {(control) => <Input placeholder={t('placeholders.cc')} {...control} value={cc} onChange={(event) => setCc(event.target.value)} />}
+          </Field>
+          <Field label={t('send.subject')}>
+            {(control) => <Input placeholder={t('placeholders.subject')} {...control} value={subject} onChange={(event) => setSubject(event.target.value)} />}
+          </Field>
           <div className="grid gap-2.5">
             <Label htmlFor={ids.body}>{t('send.body')}</Label>
             <Textarea placeholder={t('placeholders.body')} id={ids.body} rows={8} value={body} onChange={(event) => setBody(event.target.value)} />

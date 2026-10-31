@@ -28,6 +28,7 @@ import { PageHeader } from '@/components/ui/page-header'
 import { Table, TableBody, TableHead, TableHeader, TableRow } from '@/components/ui/table'
 import { Page } from '@/components/ui/page'
 import { NativeSelect } from '@/components/ui/native-select'
+import { Field } from '@/components/ui/field'
 
 const EMPTY_FILTERS: SecurityEventFilters = { scope: 'mine', kind: '', from: '', to: '' }
 
@@ -247,26 +248,24 @@ function FiltersForm({ filters, onApply }: FiltersFormProps) {
           ))}
         </NativeSelect>
       </div>
-      <div className="grid gap-2.5">
-        <Label htmlFor={`${id}-from`}>{t('log.filters.from')}</Label>
-        <Input
-          id={`${id}-from`}
+      <Field label={t('log.filters.from')}>
+        {(control) => <Input
+          {...control}
           type="date"
           value={draft.from}
           max={draft.to || undefined}
           onChange={(event) => setDraft((current) => ({ ...current, from: event.target.value }))}
-        />
-      </div>
-      <div className="grid gap-2.5">
-        <Label htmlFor={`${id}-to`}>{t('log.filters.to')}</Label>
-        <Input
-          id={`${id}-to`}
+        />}
+      </Field>
+      <Field label={t('log.filters.to')}>
+        {(control) => <Input
+          {...control}
           type="date"
           value={draft.to}
           min={draft.from || undefined}
           onChange={(event) => setDraft((current) => ({ ...current, to: event.target.value }))}
-        />
-      </div>
+        />}
+      </Field>
       <div className="flex flex-wrap justify-end gap-2 sm:col-span-3">
         <Button type="button" variant="outline" onClick={clear} disabled={!hasFilters(draft) && !hasFilters(filters)}>
           {t('log.filters.clear')}

@@ -18,6 +18,7 @@ import { reportFromError } from './lib/errors'
 import { AUTOMATION_EXAMPLES, type AutomationExample } from './lib/examples'
 import { supportsRecordType, useAutomationLabels } from './lib/labels'
 import type { AutomationCatalog, CreateAutomationPayload } from './types'
+import { Field } from '@/components/ui/field'
 
 export interface CreateAutomationDialogProps {
   open: boolean
@@ -141,8 +142,6 @@ function CreateForm({
   const navigate = useNavigate()
   const cache = useAutomationCache()
   const labels = useAutomationLabels(catalog)
-  const nameId = useId()
-  const descriptionId = useId()
   const typeId = useId()
   const triggerId = useId()
   const example = choice.kind === 'example' ? choice.example : null
@@ -176,14 +175,12 @@ function CreateForm({
 
   return (
     <form onSubmit={submit} className="grid gap-4">
-      <div className="grid gap-2.5">
-        <Label htmlFor={nameId}>{t('create.name')}</Label>
-        <Input placeholder={t('placeholders.name')} id={nameId} value={name} onChange={(event) => setName(event.target.value)} maxLength={120} required autoFocus />
-      </div>
-      <div className="grid gap-2.5">
-        <Label htmlFor={descriptionId}>{t('create.descriptionLabel')}</Label>
-        <Textarea placeholder={t('placeholders.description')} id={descriptionId} value={description} onChange={(event) => setDescription(event.target.value)} rows={2} maxLength={1000} />
-      </div>
+      <Field label={t('create.name')}>
+        {(control) => <Input placeholder={t('placeholders.name')} {...control} value={name} onChange={(event) => setName(event.target.value)} maxLength={120} required autoFocus />}
+      </Field>
+      <Field label={t('create.descriptionLabel')}>
+        {(control) => <Textarea placeholder={t('placeholders.description')} {...control} value={description} onChange={(event) => setDescription(event.target.value)} rows={2} maxLength={1000} />}
+      </Field>
       {example ? (
         <p className="text-sm text-muted-foreground">
           {t('create.exampleSummary', {

@@ -5,7 +5,6 @@ import { Button } from '@/components/ui/button'
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card'
 import { Checkbox } from '@/components/ui/checkbox'
 import { Input } from '@/components/ui/input'
-import { Label } from '@/components/ui/label'
 import { Select, SelectTrigger, SelectValue } from '@/components/ui/select'
 import { Switch } from '@/components/ui/switch'
 import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from '@/components/ui/table'
@@ -13,6 +12,7 @@ import { Tabs, TabsList, TabsTrigger } from '@/components/ui/tabs'
 import { base64ToBuffer } from './lib/package'
 import { previewStyle } from './lib/tokens'
 import type { FontFile, TokenSets } from './lib/types'
+import { Field } from '@/components/ui/field'
 
 interface ThemePreviewProps {
   tokens: TokenSets
@@ -73,10 +73,9 @@ export function ThemePreview({ tokens, fonts, mode }: ThemePreviewProps) {
           <CardDescription>{t('preview.cardDescription')}</CardDescription>
         </CardHeader>
         <CardContent className="grid gap-3">
-          <div className="grid gap-2.5">
-            <Label htmlFor="preview-input">{t('preview.field')}</Label>
-            <Input id="preview-input" placeholder={t('preview.placeholder')} />
-          </div>
+          <Field label={t('preview.field')}>
+            {(control) => <Input {...control} placeholder={t('preview.placeholder')} />}
+          </Field>
           <Select>
             <SelectTrigger aria-label={t('preview.select')}>
               <SelectValue placeholder={t('preview.select')} />

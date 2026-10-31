@@ -26,6 +26,7 @@ import {
   type Segment,
   type SegmentRecordType,
 } from './api'
+import { Field } from '@/components/ui/field'
 
 export interface SegmentDialogProps {
   open: boolean
@@ -136,16 +137,15 @@ function SegmentForm({ schema, recordType, editing, onClose, onSaved }: SegmentF
           />
           {errors.name && <p className="text-sm text-destructive">{errors.name}</p>}
         </div>
-        <div className="grid gap-2.5">
-          <Label htmlFor={`${formId}-description`}>{t('dialog.descriptionLabel')}</Label>
-          <Textarea placeholder={t('placeholders.description')}
-            id={`${formId}-description`}
+        <Field label={t('dialog.descriptionLabel')}>
+          {(control) => <Textarea placeholder={t('placeholders.description')}
+            {...control}
             value={description}
             maxLength={MAX_SEGMENT_DESCRIPTION_LENGTH}
             rows={2}
             onChange={(event) => setDescription(event.target.value)}
-          />
-        </div>
+          />}
+        </Field>
         <fieldset className="grid min-w-0 gap-2">
           <legend className="text-sm font-medium">{t('dialog.filter')}</legend>
           <p className="text-xs text-muted-foreground">{t('dialog.filterHint')}</p>

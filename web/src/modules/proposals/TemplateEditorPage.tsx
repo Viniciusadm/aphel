@@ -34,6 +34,7 @@ import { VariablePicker } from './VariablePicker'
 import { Page } from '@/components/ui/page'
 import { PageHeader } from '@/components/ui/page-header'
 import { Alert } from '@/components/ui/alert'
+import { Field } from '@/components/ui/field'
 
 const DEBOUNCE_MS = 450
 const SYNTAX_SAMPLES = [
@@ -254,16 +255,15 @@ function EditorForm({ template }: { template: ProposalTemplate | null }) {
           }}
         >
           <div className="grid gap-4 sm:grid-cols-2">
-            <div className="grid gap-2.5">
-              <Label htmlFor={`${formId}-name`}>{t('editor.name')}</Label>
-              <Input placeholder={t('editor.namePlaceholder')}
-                id={`${formId}-name`}
+            <Field label={t('editor.name')}>
+              {(control) => <Input placeholder={t('editor.namePlaceholder')}
+                {...control}
                 value={values.name}
                 maxLength={160}
                 required
                 onChange={(event) => change('name', event.target.value)}
-              />
-            </div>
+              />}
+            </Field>
             <div className="grid gap-2.5">
               <Label htmlFor={`${formId}-key`}>{t('editor.key')}</Label>
               <Input placeholder={t('editor.keyPlaceholder')}
@@ -281,15 +281,14 @@ function EditorForm({ template }: { template: ProposalTemplate | null }) {
               </p>
             </div>
           </div>
-          <div className="grid gap-2.5">
-            <Label htmlFor={`${formId}-description`}>{t('editor.descriptionLabel')}</Label>
-            <Input placeholder={t('editor.descriptionPlaceholder')}
-              id={`${formId}-description`}
+          <Field label={t('editor.descriptionLabel')}>
+            {(control) => <Input placeholder={t('editor.descriptionPlaceholder')}
+              {...control}
               value={values.description}
               maxLength={500}
               onChange={(event) => change('description', event.target.value)}
-            />
-          </div>
+            />}
+          </Field>
           <div className="flex flex-wrap gap-x-6 gap-y-3">
             <label className="flex items-center gap-2 text-sm">
               <Checkbox

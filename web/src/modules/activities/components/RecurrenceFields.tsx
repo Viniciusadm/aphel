@@ -12,6 +12,7 @@ import {
   type RecurrenceEnd,
   type RecurrenceFormState,
 } from '../lib/recurrence'
+import { Field } from '@/components/ui/field'
 
 export interface RecurrenceFieldsProps {
   value: RecurrenceFormState
@@ -57,15 +58,14 @@ export function RecurrenceFields({ value, onChange, error, disabled }: Recurrenc
           </NativeSelect>
         </div>
         {frequency && (
-          <div className="grid gap-2.5">
-            <Label htmlFor={ids.interval}>{t(`recurrence.interval.${frequency}`)}</Label>
-            <Input placeholder={t('placeholders.interval')}
-              id={ids.interval}
+          <Field label={t(`recurrence.interval.${frequency}`)}>
+            {(control) => <Input placeholder={t('placeholders.interval')}
+              {...control}
               inputMode="numeric"
               value={value.interval}
               onChange={(event) => set({ interval: event.target.value })}
-            />
-          </div>
+            />}
+          </Field>
         )}
       </div>
       {value.frequency === 'weekly' && (
@@ -121,26 +121,24 @@ export function RecurrenceFields({ value, onChange, error, disabled }: Recurrenc
             </NativeSelect>
           </div>
           {value.end === 'until' && (
-            <div className="grid gap-2.5">
-              <Label htmlFor={ids.until}>{t('recurrence.untilLabel')}</Label>
-              <Input
-                id={ids.until}
+            <Field label={t('recurrence.untilLabel')}>
+              {(control) => <Input
+                {...control}
                 type="date"
                 value={value.until}
                 onChange={(event) => set({ until: event.target.value })}
-              />
-            </div>
+              />}
+            </Field>
           )}
           {value.end === 'count' && (
-            <div className="grid gap-2.5">
-              <Label htmlFor={ids.count}>{t('recurrence.countLabel')}</Label>
-              <Input placeholder={t('placeholders.count')}
-                id={ids.count}
+            <Field label={t('recurrence.countLabel')}>
+              {(control) => <Input placeholder={t('placeholders.count')}
+                {...control}
                 inputMode="numeric"
                 value={value.count}
                 onChange={(event) => set({ count: event.target.value })}
-              />
-            </div>
+              />}
+            </Field>
           )}
         </div>
       )}
