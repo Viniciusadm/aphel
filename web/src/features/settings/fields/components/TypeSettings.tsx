@@ -13,6 +13,7 @@ import {
 import type { FieldFormContext, FieldFormValues } from '../lib/form'
 import { ChoiceSelect, FieldMessage, FormField, type Choice } from './FormControls'
 import { describedBy } from '../lib/aria'
+import { Checkbox } from '@/components/ui/checkbox'
 
 interface TypeSettingsProps {
   fieldType: FieldType
@@ -143,13 +144,11 @@ function DefaultValueInput({ fieldType, control, register, errors, optionChoices
               <div className="flex flex-wrap gap-x-4 gap-y-2">
                 {optionChoices.map((choice) => (
                   <label key={choice.value} className="flex items-center gap-2 text-sm">
-                    <input
-                      type="checkbox"
-                      className="size-4 accent-primary"
+                    <Checkbox
                       checked={field.value.includes(choice.value)}
-                      onChange={(event) =>
+                      onCheckedChange={(checked) =>
                         field.onChange(
-                          event.target.checked
+                          checked === true
                             ? [...field.value, choice.value]
                             : field.value.filter((value) => value !== choice.value),
                         )

@@ -1,7 +1,7 @@
 import { zodResolver } from '@hookform/resolvers/zod'
 import { Plus } from 'lucide-react'
 import { useId, useState } from 'react'
-import { FormProvider, useFieldArray, useForm, useWatch } from 'react-hook-form'
+import { Controller, FormProvider, useFieldArray, useForm, useWatch } from 'react-hook-form'
 import { isApiError } from '@/api'
 import { notifyError } from '@/components/feedback'
 import { Button } from '@/components/ui/button'
@@ -25,6 +25,7 @@ import {
 } from './form'
 import { FormPreview } from './FormPreview'
 import { Alert } from '@/components/ui/alert'
+import { Checkbox } from '@/components/ui/checkbox'
 
 interface FormEditorDialogProps {
   open: boolean
@@ -137,7 +138,13 @@ function EditorBody({ form, onCancel, onSaved }: EditorBodyProps) {
                   <p className="text-xs text-muted-foreground">{t('editor.actingUserHelp')}</p>
                 </div>
                 <label className="flex items-center gap-2 text-sm">
-                  <input type="checkbox" className="size-4 accent-primary" {...register('is_active')} />
+                  <Controller
+          control={control}
+          name="is_active"
+          render={({ field }) => (
+            <Checkbox checked={field.value === true} onCheckedChange={(checked) => field.onChange(checked === true)} />
+          )}
+        />
                   {t('editor.isActive')}
                 </label>
               </section>
@@ -191,7 +198,13 @@ function EditorBody({ form, onCancel, onSaved }: EditorBodyProps) {
                   {t('editor.contact')}
                 </h3>
                 <label className="flex items-center gap-2 text-sm">
-                  <input type="checkbox" className="size-4 accent-primary" {...register('dedupe_by_email')} />
+                  <Controller
+          control={control}
+          name="dedupe_by_email"
+          render={({ field }) => (
+            <Checkbox checked={field.value === true} onCheckedChange={(checked) => field.onChange(checked === true)} />
+          )}
+        />
                   {t('editor.dedupe')}
                 </label>
                 <div className="grid gap-3 sm:grid-cols-2">
@@ -241,7 +254,13 @@ function EditorBody({ form, onCancel, onSaved }: EditorBodyProps) {
                   {t('editor.deal')}
                 </h3>
                 <label className="flex items-center gap-2 text-sm">
-                  <input type="checkbox" className="size-4 accent-primary" {...register('create_deal')} />
+                  <Controller
+          control={control}
+          name="create_deal"
+          render={({ field }) => (
+            <Checkbox checked={field.value === true} onCheckedChange={(checked) => field.onChange(checked === true)} />
+          )}
+        />
                   {t('editor.createDeal')}
                 </label>
                 {values.create_deal && (

@@ -1,5 +1,5 @@
 import { ArrowDown, ArrowUp, Trash2 } from 'lucide-react'
-import { useFormContext, useWatch } from 'react-hook-form'
+import { Controller, useFormContext, useWatch } from 'react-hook-form'
 import { Button } from '@/components/ui/button'
 import { Input } from '@/components/ui/input'
 import { Label } from '@/components/ui/label'
@@ -8,6 +8,7 @@ import { NativeSelect } from '@/features/records/filters/NativeSelect'
 import { useModuleTranslation } from '@/kernel/modules/i18n'
 import { LEAD_FORMS_KEY, FIELD_KINDS, FULL_NAME_TARGET, type LeadFormOptions } from './api'
 import { slugify, type LeadFormValues } from './form'
+import { Checkbox } from '@/components/ui/checkbox'
 
 interface FieldEditorProps {
   index: number
@@ -120,7 +121,13 @@ export function FieldEditor({ index, total, targets, onMove, onRemove }: FieldEd
         )}
       </div>
       <label className="flex items-center gap-2 text-sm">
-        <input type="checkbox" className="size-4 accent-primary" {...register(`fields.${index}.required`)} />
+        <Controller
+          control={control}
+          name={`fields.${index}.required`}
+          render={({ field }) => (
+            <Checkbox checked={field.value === true} onCheckedChange={(checked) => field.onChange(checked === true)} />
+          )}
+        />
         {t('editor.required')}
       </label>
       {errors?.required && <p className="text-sm text-destructive">{message(errors.required.message)}</p>}

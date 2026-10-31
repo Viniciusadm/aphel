@@ -1,7 +1,7 @@
 import { zodResolver } from '@hookform/resolvers/zod'
 import { Plus, Wand2 } from 'lucide-react'
 import { useId, useState } from 'react'
-import { FormProvider, useFieldArray, useForm, useWatch } from 'react-hook-form'
+import { Controller, FormProvider, useFieldArray, useForm, useWatch } from 'react-hook-form'
 import { useTranslation } from 'react-i18next'
 import { isApiError } from '@/api'
 import { notifyError } from '@/components/feedback'
@@ -44,6 +44,7 @@ import {
 } from './form'
 import { Alert } from '@/components/ui/alert'
 import { EmptyState } from '@/components/ui/empty-state'
+import { Checkbox } from '@/components/ui/checkbox'
 
 interface WebhookEditorDialogProps {
   open: boolean
@@ -157,12 +158,24 @@ function EditorBody({ webhook, onCancel, onSaved }: EditorBodyProps) {
           </div>
           <div className="flex flex-wrap gap-x-6 gap-y-2">
             <label className="flex items-center gap-2 text-sm">
-              <input type="checkbox" className="size-4 accent-primary" {...register('is_active')} />
+              <Controller
+          control={control}
+          name="is_active"
+          render={({ field }) => (
+            <Checkbox checked={field.value === true} onCheckedChange={(checked) => field.onChange(checked === true)} />
+          )}
+        />
               {t('form.isActive')}
             </label>
             {!webhook && (
               <label className="flex items-center gap-2 text-sm">
-                <input type="checkbox" className="size-4 accent-primary" {...register('generate_signing_secret')} />
+                <Controller
+          control={control}
+          name="generate_signing_secret"
+          render={({ field }) => (
+            <Checkbox checked={field.value === true} onCheckedChange={(checked) => field.onChange(checked === true)} />
+          )}
+        />
                 {t('form.generateSecret')}
               </label>
             )}

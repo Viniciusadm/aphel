@@ -20,6 +20,7 @@ import { applyApiError } from '../lib/errors'
 import { teamSchema, type TeamValues } from '../lib/schemas'
 import { zodResolver } from '@hookform/resolvers/zod'
 import { parentOptions } from './hierarchy'
+import { Checkbox } from '@/components/ui/checkbox'
 
 const NO_PARENT = 'none'
 
@@ -166,25 +167,21 @@ export function TeamEditorDialog({ team, teams, members, onClose }: TeamEditorDi
                   return (
                     <li key={member.user_id} className="flex items-center justify-between gap-3 rounded-md px-2 py-1.5">
                       <label className="flex min-w-0 items-center gap-2 text-sm">
-                        <input
-                          type="checkbox"
-                          className="size-4 accent-primary"
+                        <Checkbox
                           checked={Boolean(current)}
                           aria-label={`${t('teams.editor.member')}: ${member.display_name}`}
-                          onChange={(event) => toggleMember(member.user_id, event.target.checked)}
+                          onCheckedChange={(checked) => toggleMember(member.user_id, checked === true)}
                         />
                         <span className="truncate">
                           {member.display_name} <span className="text-muted-foreground">{member.email}</span>
                         </span>
                       </label>
                       <label className="flex shrink-0 items-center gap-2 text-sm text-muted-foreground">
-                        <input
-                          type="checkbox"
-                          className="size-4 accent-primary"
+                        <Checkbox
                           checked={current?.manager ?? false}
                           disabled={!current}
                           aria-label={`${t('teams.editor.manager')}: ${member.display_name}`}
-                          onChange={(event) => toggleManager(member.user_id, event.target.checked)}
+                          onCheckedChange={(checked) => toggleManager(member.user_id, checked === true)}
                         />
                         {t('teams.editor.manager')}
                       </label>

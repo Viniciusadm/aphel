@@ -28,6 +28,7 @@ import { applyToColumn, cellKey, changedCells, draftEntries, isConfigurable, mat
 import { PageHeader } from '@/components/ui/page-header'
 import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from '@/components/ui/table'
 import { NativeSelect } from '@/components/ui/native-select'
+import { Checkbox } from '@/components/ui/checkbox'
 
 export function FieldPermissionsPage() {
   const { recordType = DEFAULT_RECORD_TYPE } = useParams()
@@ -168,12 +169,7 @@ function MatrixEditor({ recordType, recordTypeLabel, matrix, onReload }: MatrixE
       )}
       {configurableRoles.length === 0 && <p className="text-sm text-muted-foreground">{t('noRoles')}</p>}
       <label className="flex items-center gap-2 text-sm text-muted-foreground">
-        <input
-          type="checkbox"
-          className="size-4 accent-primary"
-          checked={showInactive}
-          onChange={(event) => setShowInactive(event.target.checked)}
-        />
+        <Checkbox checked={showInactive} onCheckedChange={(checked) => setShowInactive(checked === true)} />
         {t('showInactive')}
       </label>
       {fields.length === 0 ? (
