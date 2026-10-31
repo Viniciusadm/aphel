@@ -6,6 +6,7 @@ import { Label } from '@/components/ui/label'
 import { PERIOD_PRESETS, isValidCustomRange } from './period'
 import type { LayoutPeriod, PeriodPreset } from './types'
 import { NativeSelect } from '@/components/ui/native-select'
+import { Field } from '@/components/ui/field'
 
 export interface PeriodSelectorProps {
   value: LayoutPeriod
@@ -75,28 +76,26 @@ export function PeriodSelector({ value, onChange }: PeriodSelectorProps) {
       </div>
       {preset === 'custom' && (
         <>
-          <div className="grid gap-2.5">
-            <Label htmlFor={`${id}-from`}>{t('period.from')}</Label>
-            <Input
-              id={`${id}-from`}
+          <Field label={t('period.from')}>
+            {(control) => <Input
+              {...control}
               type="date"
               className="w-40"
               value={from}
               aria-invalid={touched && !valid}
               onChange={(event) => setFrom(event.target.value)}
-            />
-          </div>
-          <div className="grid gap-2.5">
-            <Label htmlFor={`${id}-to`}>{t('period.to')}</Label>
-            <Input
-              id={`${id}-to`}
+            />}
+          </Field>
+          <Field label={t('period.to')}>
+            {(control) => <Input
+              {...control}
               type="date"
               className="w-40"
               value={to}
               aria-invalid={touched && !valid}
               onChange={(event) => setTo(event.target.value)}
-            />
-          </div>
+            />}
+          </Field>
           <Button type="submit" variant="outline">
             {t('period.apply')}
           </Button>

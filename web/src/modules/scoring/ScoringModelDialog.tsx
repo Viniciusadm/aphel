@@ -39,6 +39,7 @@ import {
   type ModelDraft,
 } from './scoring-form'
 import { SCORING_SIGNALS, type ScoringCriterionKind, type ScoringModel, type ScoringSignal } from './types'
+import { Field } from '@/components/ui/field'
 
 const LOCAL_ERRORS: FormError[] = ['required', 'invalidKey', 'points', 'cap', 'decay', 'bands', 'filter', 'integer']
 
@@ -170,21 +171,22 @@ function ScoringModelForm({ model, hasPrimary, onOpenChange, onSaved }: FormProp
       </DialogHeader>
 
       <div className="grid min-w-0 gap-4 sm:grid-cols-2">
-        <div className="grid min-w-0 content-start gap-2">
-          <Label htmlFor={ids.name}>{t('dialog.name')}</Label>
-          <Input placeholder={t('placeholders.name')}
-            id={ids.name}
+        <Field label={t('dialog.name')} className="min-w-0 content-start">
+          {(control) => <>
+            <Input placeholder={t('placeholders.name')}
+            {...control}
             value={draft.name}
             maxLength={NAME_MAX_LENGTH}
             aria-invalid={errors.name ? true : undefined}
             onChange={(event) => patch({ name: event.target.value })}
           />
           {fieldError('name')}
-        </div>
-        <div className="grid min-w-0 content-start gap-2">
-          <Label htmlFor={ids.key}>{t('dialog.key')}</Label>
-          <Input placeholder={t('placeholders.key')}
-            id={ids.key}
+          </>}
+        </Field>
+        <Field label={t('dialog.key')} className="min-w-0 content-start">
+          {(control) => <>
+            <Input placeholder={t('placeholders.key')}
+            {...control}
             value={draft.key}
             disabled={!creating}
             maxLength={64}
@@ -197,20 +199,22 @@ function ScoringModelForm({ model, hasPrimary, onOpenChange, onSaved }: FormProp
             {t('dialog.keyHint')}
           </p>
           {fieldError('key')}
-        </div>
+          </>}
+        </Field>
       </div>
 
-      <div className="grid min-w-0 gap-2">
-        <Label htmlFor={ids.description}>{t('dialog.descriptionLabel')}</Label>
-        <Textarea placeholder={t('placeholders.description')}
-          id={ids.description}
+      <Field label={t('dialog.descriptionLabel')} className="min-w-0">
+        {(control) => <>
+          <Textarea placeholder={t('placeholders.description')}
+          {...control}
           value={draft.description}
           rows={2}
           maxLength={DESCRIPTION_MAX_LENGTH}
           onChange={(event) => patch({ description: event.target.value })}
         />
         {fieldError('description')}
-      </div>
+        </>}
+      </Field>
 
       <div className="grid min-w-0 gap-4 sm:grid-cols-2">
         <div className="grid min-w-0 content-start gap-2">
@@ -252,28 +256,30 @@ function ScoringModelForm({ model, hasPrimary, onOpenChange, onSaved }: FormProp
       <fieldset className="grid min-w-0 gap-3 rounded-md border p-3">
         <legend className="px-1 text-sm font-medium">{t('dialog.bandsTitle')}</legend>
         <div className="grid min-w-0 gap-4 sm:grid-cols-2">
-          <div className="grid min-w-0 content-start gap-2">
-            <Label htmlFor={ids.warm}>{t('dialog.warmFrom')}</Label>
-            <Input placeholder={t('placeholders.warm')}
-              id={ids.warm}
+          <Field label={t('dialog.warmFrom')} className="min-w-0 content-start">
+            {(control) => <>
+              <Input placeholder={t('placeholders.warm')}
+              {...control}
               inputMode="numeric"
               value={draft.warmFrom}
               aria-invalid={errors.warm_from ? true : undefined}
               onChange={(event) => patch({ warmFrom: event.target.value })}
             />
             {fieldError('warm_from')}
-          </div>
-          <div className="grid min-w-0 content-start gap-2">
-            <Label htmlFor={ids.hot}>{t('dialog.hotFrom')}</Label>
-            <Input placeholder={t('placeholders.hot')}
-              id={ids.hot}
+            </>}
+          </Field>
+          <Field label={t('dialog.hotFrom')} className="min-w-0 content-start">
+            {(control) => <>
+              <Input placeholder={t('placeholders.hot')}
+              {...control}
               inputMode="numeric"
               value={draft.hotFrom}
               aria-invalid={errors.hot_from ? true : undefined}
               onChange={(event) => patch({ hotFrom: event.target.value })}
             />
             {fieldError('hot_from')}
-          </div>
+            </>}
+          </Field>
         </div>
         <p className="text-xs text-muted-foreground">{t('dialog.bandsHint')}</p>
       </fieldset>
@@ -400,32 +406,34 @@ function CriterionEditor({ criterion, index, total, schema, error, onChange, onM
         </div>
       </div>
       <div className="grid min-w-0 gap-3 sm:grid-cols-[minmax(0,2fr)_minmax(0,1fr)_minmax(0,1fr)]">
-        <div className="grid min-w-0 content-start gap-2.5">
-          <Label htmlFor={`${id}-label`}>{t('dialog.criterionLabel')}</Label>
-          <Input placeholder={t('placeholders.criterionLabel')}
-            id={`${id}-label`}
+        <Field label={t('dialog.criterionLabel')} className="min-w-0 content-start">
+          {(control) => <>
+            <Input placeholder={t('placeholders.criterionLabel')}
+            {...control}
             value={criterion.label}
             maxLength={LABEL_MAX_LENGTH}
             aria-invalid={error(path('label')) ? true : undefined}
             onChange={(event) => onChange({ label: event.target.value })}
           />
           {error(path('label'))}
-        </div>
-        <div className="grid min-w-0 content-start gap-2.5">
-          <Label htmlFor={`${id}-key`}>{t('dialog.criterionKey')}</Label>
-          <Input placeholder={t('placeholders.criterionKey')}
-            id={`${id}-key`}
+          </>}
+        </Field>
+        <Field label={t('dialog.criterionKey')} className="min-w-0 content-start">
+          {(control) => <>
+            <Input placeholder={t('placeholders.criterionKey')}
+            {...control}
             value={criterion.key}
             maxLength={64}
             className="font-mono"
             onChange={(event) => onChange({ key: event.target.value })}
           />
           {error(path('key'))}
-        </div>
-        <div className="grid min-w-0 content-start gap-2.5">
-          <Label htmlFor={`${id}-points`}>{t('dialog.points')}</Label>
-          <Input placeholder={t('placeholders.points')}
-            id={`${id}-points`}
+          </>}
+        </Field>
+        <Field label={t('dialog.points')} className="min-w-0 content-start">
+          {(control) => <>
+            <Input placeholder={t('placeholders.points')}
+            {...control}
             inputMode="numeric"
             value={criterion.points}
             aria-describedby={`${id}-points-hint`}
@@ -435,7 +443,8 @@ function CriterionEditor({ criterion, index, total, schema, error, onChange, onM
             {t('dialog.pointsHint')}
           </p>
           {error(path('points'))}
-        </div>
+          </>}
+        </Field>
       </div>
       {criterion.kind === 'profile' ? (
         <div className="grid min-w-0 gap-1.5">
@@ -462,10 +471,10 @@ function CriterionEditor({ criterion, index, total, schema, error, onChange, onM
             </NativeSelect>
             {error(path('signal'))}
           </div>
-          <div className="grid min-w-0 content-start gap-2.5">
-            <Label htmlFor={`${id}-cap`}>{t('dialog.maxPoints')}</Label>
-            <Input placeholder={t('placeholders.maxPoints')}
-              id={`${id}-cap`}
+          <Field label={t('dialog.maxPoints')} className="min-w-0 content-start">
+            {(control) => <>
+              <Input placeholder={t('placeholders.maxPoints')}
+              {...control}
               inputMode="numeric"
               value={criterion.maxPoints}
               aria-describedby={`${id}-cap-hint`}
@@ -475,11 +484,12 @@ function CriterionEditor({ criterion, index, total, schema, error, onChange, onM
               {t('dialog.maxPointsHint')}
             </p>
             {error(path('max_points'))}
-          </div>
-          <div className="grid min-w-0 content-start gap-2.5">
-            <Label htmlFor={`${id}-decay`}>{t('dialog.decayDays')}</Label>
-            <Input placeholder={t('placeholders.decayDays')}
-              id={`${id}-decay`}
+            </>}
+          </Field>
+          <Field label={t('dialog.decayDays')} className="min-w-0 content-start">
+            {(control) => <>
+              <Input placeholder={t('placeholders.decayDays')}
+              {...control}
               inputMode="numeric"
               value={criterion.decayDays}
               aria-describedby={`${id}-decay-hint`}
@@ -489,7 +499,8 @@ function CriterionEditor({ criterion, index, total, schema, error, onChange, onM
               {t('dialog.decayHint')}
             </p>
             {error(path('decay_days'))}
-          </div>
+            </>}
+          </Field>
         </div>
       )}
     </li>

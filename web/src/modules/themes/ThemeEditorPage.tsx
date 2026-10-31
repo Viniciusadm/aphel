@@ -9,7 +9,6 @@ import { notifyError, notifySuccess } from '@/components/feedback'
 import { Button } from '@/components/ui/button'
 import { ErrorState } from '@/components/ui/error-state'
 import { Input } from '@/components/ui/input'
-import { Label } from '@/components/ui/label'
 import { Skeleton } from '@/components/ui/skeleton'
 import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs'
 import { Textarea } from '@/components/ui/textarea'
@@ -155,16 +154,15 @@ function ThemeEditor({ creating, initial }: { creating: boolean; initial: ThemeP
                 }
               />}
             </Field>
-            <div className="grid gap-2.5">
-              <Label htmlFor="theme-id">{t('editor.id')}</Label>
-              <Input placeholder={t('placeholders.id')}
-                id="theme-id"
+            <Field label={t('editor.id')}>
+              {(control) => <Input placeholder={t('placeholders.id')}
+                {...control}
                 value={draft.id}
                 disabled={!creating}
                 aria-invalid={draft.id !== '' && !idValid}
                 onChange={(event) => patch({ id: event.target.value })}
-              />
-            </div>
+              />}
+            </Field>
             <Field label={t('editor.version')}>
               {(control) => <Input placeholder={t('placeholders.version')} {...control} value={draft.version} onChange={(event) => patch({ version: event.target.value })} />}
             </Field>
@@ -174,15 +172,14 @@ function ThemeEditor({ creating, initial }: { creating: boolean; initial: ThemeP
             <Field label={t('editor.license')}>
               {(control) => <Input placeholder={t('placeholders.license')} {...control} value={draft.license} onChange={(event) => patch({ license: event.target.value })} />}
             </Field>
-            <div className="grid gap-2.5 sm:col-span-2">
-              <Label htmlFor="theme-description">{t('editor.descriptionLabel')}</Label>
-              <Textarea placeholder={t('placeholders.description')}
-                id="theme-description"
+            <Field label={t('editor.descriptionLabel')} className="sm:col-span-2">
+              {(control) => <Textarea placeholder={t('placeholders.description')}
+                {...control}
                 rows={2}
                 value={draft.description ?? ''}
                 onChange={(event) => patch({ description: event.target.value })}
-              />
-            </div>
+              />}
+            </Field>
           </fieldset>
           <Tabs defaultValue="light" onValueChange={(value) => value !== 'shared' && setPreviewMode(value as 'light' | 'dark')}>
             <TabsList>

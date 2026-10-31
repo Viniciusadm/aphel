@@ -160,10 +160,9 @@ function EnabledCurrencies({ settings }: { settings: CurrencySettings }) {
             void add()
           }}
         >
-          <div className="grid gap-2.5">
-            <Label htmlFor={inputId}>{t('enabled.code')}</Label>
-            <Input
-              id={inputId}
+          <Field label={t('enabled.code')}>
+            {(control) => <Input
+              {...control}
               className="w-32 font-mono uppercase"
               maxLength={3}
               value={code}
@@ -174,8 +173,8 @@ function EnabledCurrencies({ settings }: { settings: CurrencySettings }) {
                 setCode(event.target.value)
                 setInvalid(false)
               }}
-            />
-          </div>
+            />}
+          </Field>
           <Button type="submit" variant="outline" disabled={saving || !code.trim()}>
             <Plus aria-hidden="true" />
             {t('enabled.add')}
@@ -452,10 +451,10 @@ function RateForm({ editing, currencies, today, onClose, onSaved }: RateFormProp
         <Field label={t('rates.columns.date')}>
           {(control) => <Input {...control} type="date" value={date} onChange={(event) => setDate(event.target.value)} />}
         </Field>
-        <div className="grid gap-2.5">
-          <Label htmlFor={`${formId}-rate`}>{t('rates.rateLabel', { currency })}</Label>
-          <Input placeholder={t('placeholders.rate')}
-            id={`${formId}-rate`}
+        <Field label={t('rates.rateLabel', { currency })}>
+          {(control) => <>
+            <Input placeholder={t('placeholders.rate')}
+            {...control}
             inputMode="decimal"
             value={rate}
             autoFocus
@@ -475,7 +474,8 @@ function RateForm({ editing, currencies, today, onClose, onSaved }: RateFormProp
               {t('rates.rateHint')}
             </p>
           )}
-        </div>
+          </>}
+        </Field>
       </form>
       <DialogFooter>
         <Button variant="outline" onClick={onClose} disabled={saving}>

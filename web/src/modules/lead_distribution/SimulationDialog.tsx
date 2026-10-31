@@ -12,8 +12,8 @@ import {
   DialogTitle,
 } from '@/components/ui/dialog'
 import { Input } from '@/components/ui/input'
-import { Label } from '@/components/ui/label'
 import { useSimulation, type DistributionRule } from './api'
+import { Field } from '@/components/ui/field'
 
 const DEFAULT_COUNT = 10
 const MAX_COUNT = 50
@@ -58,27 +58,25 @@ export function SimulationDialog({ rule, onClose }: SimulationDialogProps) {
         </DialogHeader>
         {!rule.is_active && <p className="text-sm text-muted-foreground">{t('simulation.inactiveRule')}</p>}
         <form className="flex flex-wrap items-end gap-3" onSubmit={run}>
-          <div className="grid w-28 gap-2">
-            <Label htmlFor="simulation-count">{t('simulation.count')}</Label>
-            <Input placeholder={t('placeholders.count')}
-              id="simulation-count"
+          <Field label={t('simulation.count')} className="w-28">
+            {(control) => <Input placeholder={t('placeholders.count')}
+              {...control}
               type="number"
               min={1}
               max={MAX_COUNT}
               value={Number.isFinite(count) ? count : ''}
               onChange={(event) => setCount(event.target.valueAsNumber)}
-            />
-          </div>
+            />}
+          </Field>
           {routingField && (
-            <div className="grid min-w-40 flex-1 gap-2">
-              <Label htmlFor="simulation-value">{t('simulation.value', { field: routingField })}</Label>
-              <Input
-                id="simulation-value"
+            <Field label={t('simulation.value', { field: routingField })} className="min-w-40 flex-1">
+              {(control) => <Input
+                {...control}
                 placeholder={t('simulation.valuePlaceholder')}
                 value={value}
                 onChange={(event) => setValue(event.target.value)}
-              />
-            </div>
+              />}
+            </Field>
           )}
           <Button type="submit" disabled={simulation.isPending}>
             {simulation.isPending ? t('simulation.running') : t('simulation.run')}

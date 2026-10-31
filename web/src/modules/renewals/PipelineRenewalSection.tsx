@@ -12,6 +12,7 @@ import type { Pipeline } from '@/modules/pipelines/types'
 import { NativeSelect } from '@/features/records/filters/NativeSelect'
 import { useRenewalSettings, useSaveRenewalSettings } from './api'
 import type { RenewalOwnerMode, RenewalSettings } from './types'
+import { Field } from '@/components/ui/field'
 
 const OWNER_MODES: RenewalOwnerMode[] = ['original', 'none']
 const MAX_DAYS_BEFORE = 365
@@ -196,16 +197,17 @@ function RenewalForm({ pipelineId, settings, pipelines }: RenewalFormProps) {
             ))}
           </NativeSelect>
         </div>
-        <div className="grid gap-2.5 sm:col-span-2">
-          <Label htmlFor={ids.prefix}>{t('renewal.titlePrefix')}</Label>
-          <Input placeholder={t('placeholders.titlePrefix')}
-            id={ids.prefix}
+        <Field label={t('renewal.titlePrefix')} className="sm:col-span-2">
+          {(control) => <>
+            <Input placeholder={t('placeholders.titlePrefix')}
+            {...control}
             value={draft.title_prefix}
             maxLength={60}
             onChange={(event) => update({ title_prefix: event.target.value })}
           />
           <p className="text-xs text-muted-foreground">{t('renewal.titlePrefixHint')}</p>
-        </div>
+          </>}
+        </Field>
       </div>
       <div className="flex justify-end">
         <Button type="submit" disabled={save.isPending || !daysValid || !stageValid}>

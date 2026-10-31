@@ -15,6 +15,7 @@ import { formatDateTime, useRecordFormatting } from '@/features/records/formatti
 import { emailApi, emailKeys, useBlocklist } from '../api'
 import { isValidAddress } from '../lib/format'
 import { BLOCKLIST_KINDS, type BlocklistEntry, type BlocklistKind } from '../types'
+import { Field } from '@/components/ui/field'
 
 const DOMAIN_PATTERN = /^(?!-)[a-z0-9-]+(\.[a-z0-9-]+)+$/i
 
@@ -76,28 +77,26 @@ export function BlocklistPanel() {
             ))}
           </NativeSelect>
         </div>
-        <div className="grid content-start gap-2.5">
-          <Label htmlFor={`${formId}-value`}>{t('blocklist.value')}</Label>
-          <Input
-            id={`${formId}-value`}
+        <Field label={t('blocklist.value')} className="content-start">
+          {(control) => <Input
+            {...control}
             value={value}
             autoCapitalize="off"
             spellCheck={false}
             placeholder={t(`blocklist.placeholders.${kind}`)}
             aria-invalid={(submitted && !valid) || undefined}
             onChange={(event) => setValue(event.target.value)}
-          />
-        </div>
-        <div className="grid content-start gap-2.5">
-          <Label htmlFor={`${formId}-reason`}>{t('blocklist.reason')}</Label>
-          <Input
-            id={`${formId}-reason`}
+          />}
+        </Field>
+        <Field label={t('blocklist.reason')} className="content-start">
+          {(control) => <Input
+            {...control}
             value={reason}
             maxLength={200}
             placeholder={t('blocklist.reasonPlaceholder')}
             onChange={(event) => setReason(event.target.value)}
-          />
-        </div>
+          />}
+        </Field>
         <Button type="submit" disabled={add.isPending}>
           {add.isPending ? <Loader2 className="animate-spin" aria-hidden="true" /> : <Plus aria-hidden="true" />}
           {t('blocklist.add')}

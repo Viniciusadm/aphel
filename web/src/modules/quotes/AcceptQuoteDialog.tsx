@@ -1,10 +1,9 @@
-import { useId, useState } from 'react'
+import { useState } from 'react'
 import { useTranslation } from 'react-i18next'
 import { notifySuccess } from '@/components/feedback'
 import { Button } from '@/components/ui/button'
 import { Dialog, DialogContent, DialogDescription, DialogFooter, DialogHeader, DialogTitle } from '@/components/ui/dialog'
 import { Input } from '@/components/ui/input'
-import { Label } from '@/components/ui/label'
 import { Textarea } from '@/components/ui/textarea'
 import { useQuoteMutations } from './api'
 import { notifyQuoteError } from './errors'
@@ -19,7 +18,6 @@ export interface AcceptQuoteDialogProps {
 
 export function AcceptQuoteDialog({ quote, open, onOpenChange }: AcceptQuoteDialogProps) {
   const { t } = useTranslation('quotes')
-  const ids = { name: useId(), email: useId(), note: useId() }
   const mutations = useQuoteMutations()
   const [name, setName] = useState('')
   const [email, setEmail] = useState('')
@@ -50,11 +48,12 @@ export function AcceptQuoteDialog({ quote, open, onOpenChange }: AcceptQuoteDial
           <DialogDescription>{t('actions.acceptDescription')}</DialogDescription>
         </DialogHeader>
         <div className="grid gap-4">
-          <div className="grid gap-2.5">
-            <Label htmlFor={ids.name}>{t('actions.acceptName')}</Label>
-            <Input placeholder={t('placeholders.name')} id={ids.name} value={name} maxLength={160} onChange={(event) => setName(event.target.value)} />
+          <Field label={t('actions.acceptName')}>
+            {(control) => <>
+              <Input placeholder={t('placeholders.name')} {...control} value={name} maxLength={160} onChange={(event) => setName(event.target.value)} />
             <p className="text-xs text-muted-foreground">{t('actions.acceptNameHint')}</p>
-          </div>
+            </>}
+          </Field>
           <Field label={t('actions.acceptEmail')}>
             {(control) => <Input placeholder={t('placeholders.email')} {...control} type="email" value={email} onChange={(event) => setEmail(event.target.value)} />}
           </Field>

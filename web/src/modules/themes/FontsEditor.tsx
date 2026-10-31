@@ -8,6 +8,7 @@ import { Label } from '@/components/ui/label'
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/components/ui/select'
 import { MAX_FONT_BYTES, MAX_FONTS, fontFromFile } from './lib/package'
 import type { FontFile } from './lib/types'
+import { Field } from '@/components/ui/field'
 
 const WEIGHTS = [100, 200, 300, 400, 500, 600, 700, 800, 900]
 
@@ -59,10 +60,9 @@ export function FontsEditor({ fonts, onChange }: FontsEditorProps) {
       )}
       {fonts.length < MAX_FONTS && (
         <div className="grid gap-3 sm:grid-cols-4">
-          <div className="grid gap-2.5 sm:col-span-2">
-            <Label htmlFor="font-family">{t('fonts.family')}</Label>
-            <Input placeholder={t('placeholders.family')} id="font-family" value={family} onChange={(event) => setFamily(event.target.value)} />
-          </div>
+          <Field label={t('fonts.family')} className="sm:col-span-2">
+            {(control) => <Input placeholder={t('placeholders.family')} {...control} value={family} onChange={(event) => setFamily(event.target.value)} />}
+          </Field>
           <div className="grid gap-2.5">
             <Label htmlFor="font-weight">{t('fonts.weight')}</Label>
             <Select value={weight} onValueChange={setWeight}>

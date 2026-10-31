@@ -40,6 +40,7 @@ import {
   type RuleFormValues,
 } from './form'
 import { useLeadDistributionText, type LeadDistributionKey } from './text'
+import { Field } from '@/components/ui/field'
 
 const BUILTIN_RECORD_TYPES = ['deal', 'contact', 'company'] as const
 
@@ -449,10 +450,10 @@ export function RuleEditorDialog({ rule, onClose }: RuleEditorDialogProps) {
               <Input placeholder={t('placeholders.name')} id="rule-name" aria-invalid={errors.name ? true : undefined} {...register('name')} />
               <FieldMessage id="rule-name-error" message={errors.name?.message} />
             </div>
-            <div className="grid gap-2">
-              <Label htmlFor="rule-key">{t('editor.key')}</Label>
-              <Input placeholder={t('placeholders.key')}
-                id="rule-key"
+            <Field label={t('editor.key')}>
+              {(control) => <>
+                <Input placeholder={t('placeholders.key')}
+                {...control}
                 disabled={!creating}
                 aria-invalid={errors.key ? true : undefined}
                 aria-describedby="rule-key-hint"
@@ -462,7 +463,8 @@ export function RuleEditorDialog({ rule, onClose }: RuleEditorDialogProps) {
                 {t('editor.keyHint')}
               </p>
               <FieldMessage id="rule-key-error" message={errors.key?.message} />
-            </div>
+              </>}
+            </Field>
             <div className="grid gap-2">
               <Label htmlFor="rule-record-type">{t('editor.recordType')}</Label>
               <Controller

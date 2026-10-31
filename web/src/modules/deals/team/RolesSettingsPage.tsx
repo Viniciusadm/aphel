@@ -15,7 +15,6 @@ import {
 import { EmptyState } from '@/components/ui/empty-state'
 import { ErrorState } from '@/components/ui/error-state'
 import { Input } from '@/components/ui/input'
-import { Label } from '@/components/ui/label'
 import { Skeleton } from '@/components/ui/skeleton'
 import { toast } from '@/components/ui/toast-store'
 import { RequirePermission } from '@/features/settings/components/RequirePermission'
@@ -27,6 +26,7 @@ import { dealTeamErrorMessage } from './errors'
 import type { DealMemberRole } from './types'
 import { PageHeader } from '@/components/ui/page-header'
 import { Page } from '@/components/ui/page'
+import { Field } from '@/components/ui/field'
 
 interface EditorState {
   role: DealMemberRole | null
@@ -241,10 +241,10 @@ function RoleForm({
           void submit()
         }}
       >
-        <div className="grid gap-2.5">
-          <Label htmlFor={`${formId}-name`}>{t('roles.name')}</Label>
-          <Input placeholder={t('placeholders.roleName')}
-            id={`${formId}-name`}
+        <Field label={t('roles.name')}>
+          {(control) => <>
+            <Input placeholder={t('placeholders.roleName')}
+            {...control}
             value={name}
             autoFocus
             maxLength={140}
@@ -256,7 +256,8 @@ function RoleForm({
           />
           {nameError && <p className="text-sm text-destructive">{t('roles.nameRequired')}</p>}
           {editing && <code className="text-xs text-muted-foreground">{editing.key}</code>}
-        </div>
+          </>}
+        </Field>
       </form>
       <DialogFooter>
         <Button variant="outline" onClick={onClose} disabled={saving}>

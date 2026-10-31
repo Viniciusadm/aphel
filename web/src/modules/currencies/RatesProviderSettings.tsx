@@ -12,6 +12,7 @@ import { SETTINGS_MANAGE } from '@/features/settings/lib/permissions'
 import { currenciesApi, useInvalidateCurrencies } from './api'
 import { currencyErrorKey } from './errors'
 import type { CurrencySettings, RatesProviderKey } from './types'
+import { Field } from '@/components/ui/field'
 
 const PROVIDERS: RatesProviderKey[] = ['manual', 'frankfurter']
 const URL_PATTERN = /^https?:\/\/\S+$/i
@@ -104,10 +105,9 @@ export function RatesProviderSettings({ settings }: { settings: CurrencySettings
           </NativeSelect>
         </div>
         {provider !== 'manual' && (
-          <div className="grid min-w-64 flex-1 gap-2.5">
-            <Label htmlFor={urlId}>{t('provider.urlLabel')}</Label>
-            <Input
-              id={urlId}
+          <Field label={t('provider.urlLabel')} className="min-w-64 flex-1">
+            {(control) => <Input
+              {...control}
               type="url"
               value={url}
               placeholder="https://api.frankfurter.app"
@@ -118,8 +118,8 @@ export function RatesProviderSettings({ settings }: { settings: CurrencySettings
                 setUrl(event.target.value)
                 setInvalidUrl(false)
               }}
-            />
-          </div>
+            />}
+          </Field>
         )}
         {canEdit && (
           <Button type="submit" variant="outline" disabled={saving || !dirty}>

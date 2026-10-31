@@ -148,15 +148,14 @@ function ExportForm({ available }: { available: string[] }) {
             onChange={(event) => setAuthor(event.target.value)}
           />}
         </Field>
-        <div className="grid gap-2.5 sm:col-span-2">
-          <Label htmlFor={`${formId}-description`}>{t('export.packageDescription')}</Label>
-          <Textarea placeholder={t('export.packageDescriptionPlaceholder')}
-            id={`${formId}-description`}
+        <Field label={t('export.packageDescription')} className="sm:col-span-2">
+          {(control) => <Textarea placeholder={t('export.packageDescriptionPlaceholder')}
+            {...control}
             value={description}
             rows={3}
             onChange={(event) => setDescription(event.target.value)}
-          />
-        </div>
+          />}
+        </Field>
       </div>
       <p className="text-xs text-muted-foreground">{t('export.hint')}</p>
       <div className="flex flex-wrap items-center gap-3">

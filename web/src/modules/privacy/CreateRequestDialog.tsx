@@ -11,9 +11,9 @@ import {
   DialogTitle,
 } from '@/components/ui/dialog'
 import { Input } from '@/components/ui/input'
-import { Label } from '@/components/ui/label'
 import { DEFAULT_DUE_DAYS, REQUEST_KINDS, useRequestMutations, type RequestKind } from './api'
 import { addDays, endOfDayIso, usePrivacyErrors } from './lib/shared'
+import { Field } from '@/components/ui/field'
 
 export interface RequestSelection {
   records: { record_type: string; id: string }[]
@@ -32,7 +32,6 @@ export function CreateRequestDialog({ term, selection, onClose, onCreated }: Cre
   const { t } = useTranslation('privacy')
   const { create } = useRequestMutations()
   const notifyFailure = usePrivacyErrors()
-  const dueId = useId()
   const dueHintId = useId()
   const [kind, setKind] = useState<RequestKind>('export')
   const [dueDate, setDueDate] = useState(addDays(DEFAULT_DUE_DAYS))
@@ -82,10 +81,10 @@ export function CreateRequestDialog({ term, selection, onClose, onCreated }: Cre
               </label>
             ))}
           </fieldset>
-          <div className="grid gap-2">
-            <Label htmlFor={dueId}>{t('create.dueAt')}</Label>
-            <Input
-              id={dueId}
+          <Field label={t('create.dueAt')}>
+            {(control) => <>
+              <Input
+              {...control}
               type="date"
               value={dueDate}
               required
@@ -95,7 +94,8 @@ export function CreateRequestDialog({ term, selection, onClose, onCreated }: Cre
             <p id={dueHintId} className="text-xs text-muted-foreground">
               {t('create.dueHint')}
             </p>
-          </div>
+            </>}
+          </Field>
           <p className="rounded-md border bg-muted/40 px-3 py-2 text-xs text-muted-foreground">{t('create.notice')}</p>
           <DialogFooter>
             <Button type="button" variant="outline" onClick={onClose} disabled={create.isPending}>

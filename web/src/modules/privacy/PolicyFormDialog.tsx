@@ -148,10 +148,10 @@ export function PolicyFormDialog({ policy, onClose }: PolicyFormDialogProps) {
               </NativeSelect>
             </div>
           )}
-          <div className="grid gap-2">
-            <Label htmlFor={ids.days}>{t('policyForm.days')}</Label>
-            <Input placeholder={t('placeholders.days')}
-              id={ids.days}
+          <Field label={t('policyForm.days')}>
+            {(control) => <>
+              <Input placeholder={t('placeholders.days')}
+              {...control}
               type="number"
               inputMode="numeric"
               min={MIN_THRESHOLD_DAYS}
@@ -164,7 +164,8 @@ export function PolicyFormDialog({ policy, onClose }: PolicyFormDialogProps) {
             <p id={ids.daysHint} className="text-xs text-muted-foreground">
               {t(policy ? 'policyForm.daysHintEdit' : 'policyForm.daysHint')}
             </p>
-          </div>
+            </>}
+          </Field>
           <DialogFooter>
             <Button type="button" variant="outline" onClick={onClose} disabled={pending}>
               {t('actions.cancel')}

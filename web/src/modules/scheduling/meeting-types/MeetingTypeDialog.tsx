@@ -34,6 +34,7 @@ import {
   type MeetingTypeFormValues,
 } from './form'
 import { QuestionsEditor } from './QuestionsEditor'
+import { Field } from '@/components/ui/field'
 
 interface MeetingTypeDialogProps {
   meetingType: MeetingTypeResponse | null
@@ -148,10 +149,10 @@ export function MeetingTypeDialog({ meetingType, onClose }: MeetingTypeDialogPro
             <FieldMessage message={errors.description?.message} />
           </div>
           <div className="grid gap-4 sm:grid-cols-2">
-            <div className="grid gap-2">
-              <Label htmlFor="meeting-type-duration">{t('meetingTypes.form.duration')}</Label>
-              <Input placeholder={t('placeholders.duration')}
-                id="meeting-type-duration"
+            <Field label={t('meetingTypes.form.duration')}>
+              {(control) => <>
+                <Input placeholder={t('placeholders.duration')}
+                {...control}
                 type="number"
                 min={MIN_DURATION}
                 max={MAX_DURATION}
@@ -159,11 +160,12 @@ export function MeetingTypeDialog({ meetingType, onClose }: MeetingTypeDialogPro
                 {...register('durationMinutes', { valueAsNumber: true })}
               />
               <FieldMessage message={errors.durationMinutes?.message} />
-            </div>
-            <div className="grid gap-2">
-              <Label htmlFor="meeting-type-interval">{t('meetingTypes.form.slotInterval')}</Label>
-              <Input placeholder={t('placeholders.interval')}
-                id="meeting-type-interval"
+              </>}
+            </Field>
+            <Field label={t('meetingTypes.form.slotInterval')}>
+              {(control) => <>
+                <Input placeholder={t('placeholders.interval')}
+                {...control}
                 type="number"
                 min={MIN_SLOT_INTERVAL}
                 max={MAX_SLOT_INTERVAL}
@@ -172,7 +174,8 @@ export function MeetingTypeDialog({ meetingType, onClose }: MeetingTypeDialogPro
               />
               <p className="text-xs text-muted-foreground">{t('meetingTypes.form.slotIntervalHint')}</p>
               <FieldMessage message={errors.slotIntervalMinutes?.message} />
-            </div>
+              </>}
+            </Field>
             <div className="grid gap-2">
               <Label htmlFor="meeting-type-location-kind">{t('meetingTypes.form.locationKind')}</Label>
               <Controller

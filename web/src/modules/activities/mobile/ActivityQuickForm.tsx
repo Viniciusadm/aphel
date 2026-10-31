@@ -14,6 +14,7 @@ import { DictationField } from '@/features/mobile/components/DictationField'
 import { RecordPicker, type PickedRecord } from '@/features/mobile/components/RecordPicker'
 import { useOutboxFeedback } from '@/features/mobile/lib/outbox-feedback'
 import { FormActions, FormBody, type QuickFormProps } from '@/features/mobile/components/QuickForm'
+import { Field } from '@/components/ui/field'
 
 type ActivityWhen = 'done' | 'due'
 
@@ -69,10 +70,10 @@ export function ActivityQuickForm({ onDone, initialRecord }: ActivityQuickFormPr
 
   return (
     <FormBody onSubmit={() => void submit()}>
-      <div className="grid gap-2">
-        <Label htmlFor={ids.title}>{t('activity.title')}</Label>
-        <Input placeholder={t('placeholders.title')}
-          id={ids.title}
+      <Field label={t('activity.title')}>
+        {(control) => <>
+          <Input placeholder={t('placeholders.title')}
+          {...control}
           value={title}
           onChange={(event) => setTitle(event.target.value)}
           className="h-11 text-base"
@@ -80,7 +81,8 @@ export function ActivityQuickForm({ onDone, initialRecord }: ActivityQuickFormPr
           aria-invalid={touched && titleMissing}
         />
         {touched && titleMissing && <p className="text-sm text-destructive">{t('activity.titleRequired')}</p>}
-      </div>
+        </>}
+      </Field>
       <fieldset className="grid gap-2">
         <legend className="mb-2 text-sm font-medium">{t('activity.type')}</legend>
         <OptionGroup

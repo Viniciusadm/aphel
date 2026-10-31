@@ -23,6 +23,7 @@ import { useEmailRecordTypes } from '../lib/record-types'
 import type { EmailTemplate, EmailTemplateInput, TemplateScope } from '../types'
 import { PreviewPane } from './PreviewPane'
 import { VariablePicker } from './VariablePicker'
+import { Field } from '@/components/ui/field'
 
 interface TemplateEditorDialogProps {
   open: boolean
@@ -163,10 +164,9 @@ function TemplateForm({ scope, template, onDirtyChange, onCancel, onSaved }: Tem
       }}
     >
       <div className="grid gap-4 sm:grid-cols-2">
-        <div className="grid content-start gap-2.5">
-          <Label htmlFor={`${formId}-name`}>{t('templates.name')}</Label>
-          <Input placeholder={t('placeholders.templateName')}
-            id={`${formId}-name`}
+        <Field label={t('templates.name')} className="content-start">
+          {(control) => <Input placeholder={t('placeholders.templateName')}
+            {...control}
             value={input.name}
             required
             maxLength={120}
@@ -177,12 +177,12 @@ function TemplateForm({ scope, template, onDirtyChange, onCancel, onSaved }: Tem
                   : { name: event.target.value, key: slugifyKey(event.target.value) },
               )
             }
-          />
-        </div>
-        <div className="grid content-start gap-2.5">
-          <Label htmlFor={`${formId}-key`}>{t('templates.key')}</Label>
-          <Input placeholder={t('placeholders.templateKey')}
-            id={`${formId}-key`}
+          />}
+        </Field>
+        <Field label={t('templates.key')} className="content-start">
+          {(control) => <>
+            <Input placeholder={t('placeholders.templateKey')}
+            {...control}
             value={input.key}
             required
             maxLength={64}
@@ -197,7 +197,8 @@ function TemplateForm({ scope, template, onDirtyChange, onCancel, onSaved }: Tem
           <p id={`${formId}-key-hint`} className="text-xs text-muted-foreground">
             {t('templates.keyHint')}
           </p>
-        </div>
+          </>}
+        </Field>
       </div>
       <div className="grid content-start gap-2.5">
         <Label htmlFor={`${formId}-record-type`}>{t('templates.recordType')}</Label>
@@ -223,10 +224,9 @@ function TemplateForm({ scope, template, onDirtyChange, onCancel, onSaved }: Tem
           {tab === 'edit' && <VariablePicker recordType={input.record_type} onInsert={insertVariable} />}
         </div>
         <TabsContent value="edit" className="grid gap-4">
-          <div className="grid content-start gap-2.5">
-            <Label htmlFor={`${formId}-subject`}>{t('fields.subject')}</Label>
-            <Input placeholder={t('placeholders.subject')}
-              id={`${formId}-subject`}
+          <Field label={t('fields.subject')} className="content-start">
+            {(control) => <Input placeholder={t('placeholders.subject')}
+              {...control}
               ref={subjectRef}
               value={input.subject}
               required
@@ -235,12 +235,12 @@ function TemplateForm({ scope, template, onDirtyChange, onCancel, onSaved }: Tem
                 lastFocus.current = 'subject'
               }}
               onChange={(event) => update({ subject: event.target.value })}
-            />
-          </div>
-          <div className="grid content-start gap-2.5">
-            <Label htmlFor={`${formId}-body`}>{t('templates.bodyHtml')}</Label>
-            <Textarea placeholder={t('placeholders.bodyHtml')}
-              id={`${formId}-body`}
+            />}
+          </Field>
+          <Field label={t('templates.bodyHtml')} className="content-start">
+            {(control) => <>
+              <Textarea placeholder={t('placeholders.bodyHtml')}
+              {...control}
               ref={bodyRef}
               value={input.body_html}
               rows={12}
@@ -254,7 +254,8 @@ function TemplateForm({ scope, template, onDirtyChange, onCancel, onSaved }: Tem
             <p id={`${formId}-body-hint`} className="text-xs text-muted-foreground">
               {t('templates.bodyHint', { example: '{{contact.first_name}}' })}
             </p>
-          </div>
+            </>}
+          </Field>
         </TabsContent>
         <TabsContent value="preview">
           <PreviewPane preview={preview.data} pending={preview.isPending} error={preview.isError} />

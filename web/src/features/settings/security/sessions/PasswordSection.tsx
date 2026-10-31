@@ -7,7 +7,6 @@ import { isApiError } from '@/api'
 import { notifyError, notifySuccess } from '@/components/feedback'
 import { Button } from '@/components/ui/button'
 import { Input } from '@/components/ui/input'
-import { Label } from '@/components/ui/label'
 import {
   MAX_PASSWORD_LENGTH,
   MIN_PASSWORD_LENGTH,
@@ -16,6 +15,7 @@ import {
 } from './api'
 import { PageHeader } from '@/components/ui/page-header'
 import { Page } from '@/components/ui/page'
+import { Field } from '@/components/ui/field'
 
 const passwordSchema = z
   .object({
@@ -95,10 +95,10 @@ export function PasswordSection() {
     <Page>
       <PageHeader level="section" title={t('password.title')} description={t('password.description')} />
       <form className="grid max-w-md gap-4" noValidate onSubmit={(event) => void onSubmit(event)}>
-        <div className="grid gap-2.5">
-          <Label htmlFor={`${formId}-currentPassword`}>{t('password.current')}</Label>
-          <Input placeholder={t('password.currentPlaceholder')}
-            id={`${formId}-currentPassword`}
+        <Field label={t('password.current')}>
+          {(control) => <>
+            <Input placeholder={t('password.currentPlaceholder')}
+            {...control}
             type="password"
             autoComplete="current-password"
             aria-invalid={errors.currentPassword ? true : undefined}
@@ -106,11 +106,12 @@ export function PasswordSection() {
             {...register('currentPassword')}
           />
           {fieldError('currentPassword')}
-        </div>
-        <div className="grid gap-2.5">
-          <Label htmlFor={`${formId}-newPassword`}>{t('password.new')}</Label>
-          <Input placeholder={t('password.newPlaceholder')}
-            id={`${formId}-newPassword`}
+          </>}
+        </Field>
+        <Field label={t('password.new')}>
+          {(control) => <>
+            <Input placeholder={t('password.newPlaceholder')}
+            {...control}
             type="password"
             autoComplete="new-password"
             maxLength={MAX_PASSWORD_LENGTH}
@@ -123,11 +124,12 @@ export function PasswordSection() {
               {t('password.hint', { min: MIN_PASSWORD_LENGTH })}
             </p>
           )}
-        </div>
-        <div className="grid gap-2.5">
-          <Label htmlFor={`${formId}-confirmation`}>{t('password.confirmation')}</Label>
-          <Input placeholder={t('password.confirmationPlaceholder')}
-            id={`${formId}-confirmation`}
+          </>}
+        </Field>
+        <Field label={t('password.confirmation')}>
+          {(control) => <>
+            <Input placeholder={t('password.confirmationPlaceholder')}
+            {...control}
             type="password"
             autoComplete="new-password"
             maxLength={MAX_PASSWORD_LENGTH}
@@ -136,7 +138,8 @@ export function PasswordSection() {
             {...register('confirmation')}
           />
           {fieldError('confirmation')}
-        </div>
+          </>}
+        </Field>
         <Button type="submit" className="justify-self-start" disabled={isSubmitting}>
           {t('password.submit')}
         </Button>

@@ -161,10 +161,10 @@ function ObjectForm({ object, onClose, onSaved }: ObjectFormProps) {
           </Alert>
         )}
         <div className="grid gap-4 sm:grid-cols-2">
-          <div className="grid gap-2.5">
-            <Label htmlFor={`${formId}-singular`}>{t('editor.labelSingular')}</Label>
-            <Input
-              id={`${formId}-singular`}
+          <Field label={t('editor.labelSingular')}>
+            {(control) => <>
+              <Input
+              {...control}
               value={labelSingular}
               maxLength={LABEL_MAX_LENGTH}
               placeholder={t('editor.labelSingularPlaceholder')}
@@ -174,11 +174,12 @@ function ObjectForm({ object, onClose, onSaved }: ObjectFormProps) {
               onChange={(event) => changeSingular(event.target.value)}
             />
             {fieldError('labelSingular')}
-          </div>
-          <div className="grid gap-2.5">
-            <Label htmlFor={`${formId}-plural`}>{t('editor.labelPlural')}</Label>
-            <Input
-              id={`${formId}-plural`}
+            </>}
+          </Field>
+          <Field label={t('editor.labelPlural')}>
+            {(control) => <>
+              <Input
+              {...control}
               value={labelPlural}
               maxLength={LABEL_MAX_LENGTH}
               placeholder={t('editor.labelPluralPlaceholder')}
@@ -190,12 +191,13 @@ function ObjectForm({ object, onClose, onSaved }: ObjectFormProps) {
               }}
             />
             {fieldError('labelPlural')}
-          </div>
+            </>}
+          </Field>
         </div>
-        <div className="grid gap-2.5">
-          <Label htmlFor={`${formId}-key`}>{t('editor.key')}</Label>
-          <Input placeholder={t('editor.keyPlaceholder')}
-            id={`${formId}-key`}
+        <Field label={t('editor.key')}>
+          {(control) => <>
+            <Input placeholder={t('editor.keyPlaceholder')}
+            {...control}
             value={key}
             maxLength={OBJECT_KEY_MAX_LENGTH}
             disabled={editing}
@@ -212,7 +214,8 @@ function ObjectForm({ object, onClose, onSaved }: ObjectFormProps) {
             {editing ? t('editor.keyLocked') : t('editor.keyHint', { recordType: `co_${key || '…'}` })}
           </p>
           {fieldError('key')}
-        </div>
+          </>}
+        </Field>
         <Field label={t('editor.descriptionLabel')}>
           {(control) => <Textarea placeholder={t('editor.descriptionPlaceholder')}
             {...control}

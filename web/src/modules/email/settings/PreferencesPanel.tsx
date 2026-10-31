@@ -12,6 +12,7 @@ import { Skeleton } from '@/components/ui/skeleton'
 import { emailApi, emailKeys, useCaptureSettings, useTrackingSettings } from '../api'
 import { MAX_HISTORY_DAYS, validHistoryDays } from '../lib/mailbox-form'
 import type { CaptureSettings, TrackingSettings } from '../types'
+import { Field } from '@/components/ui/field'
 
 export function PreferencesPanel() {
   return (
@@ -222,10 +223,10 @@ function CaptureForm({ initial }: { initial: CaptureSettings }) {
         checked={values.link_open_deals}
         onChange={(checked) => setValues((current) => ({ ...current, link_open_deals: checked }))}
       />
-      <div className="grid max-w-xs gap-2.5">
-        <Label htmlFor={`${formId}-history`}>{t('capture.initialHistoryDays')}</Label>
-        <Input placeholder={t('placeholders.historyDays')}
-          id={`${formId}-history`}
+      <Field label={t('capture.initialHistoryDays')} className="max-w-xs">
+        {(control) => <>
+          <Input placeholder={t('placeholders.historyDays')}
+          {...control}
           type="number"
           inputMode="numeric"
           min={1}
@@ -240,7 +241,8 @@ function CaptureForm({ initial }: { initial: CaptureSettings }) {
             ? t('capture.initialHistoryHint')
             : t('mailboxes.form.historyInvalid', { max: MAX_HISTORY_DAYS })}
         </p>
-      </div>
+        </>}
+      </Field>
       <div className="flex justify-end">
         <Button type="submit" disabled={!dirty || saving || !historyValid} className="w-full sm:w-auto">
           {saving && <Loader2 className="animate-spin" aria-hidden="true" />}

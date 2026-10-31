@@ -278,10 +278,9 @@ function QuoteEditor({ quote }: { quote: QuoteDetail }) {
               <CardTitle>{t('editor.header')}</CardTitle>
             </CardHeader>
             <CardContent className="grid gap-4 sm:grid-cols-2">
-              <div className="grid gap-2.5 sm:col-span-2">
-                <Label htmlFor={ids.title}>{t('editor.fields.title')}</Label>
-                <Input placeholder={t('placeholders.title')} id={ids.title} value={header.title} disabled={!editable} onChange={(event) => patchHeader({ title: event.target.value })} />
-              </div>
+              <Field label={t('editor.fields.title')} className="sm:col-span-2">
+                {(control) => <Input placeholder={t('placeholders.title')} {...control} value={header.title} disabled={!editable} onChange={(event) => patchHeader({ title: event.target.value })} />}
+              </Field>
               <Field label={t('editor.fields.validUntil')}>
                 {(control) => <Input
                   {...control}
@@ -343,14 +342,12 @@ function QuoteEditor({ quote }: { quote: QuoteDetail }) {
                 <Label>{t('editor.fields.currency')}</Label>
                 <Input placeholder={t('placeholders.currency')} value={quote.currency} disabled readOnly />
               </div>
-              <div className="grid gap-2.5 sm:col-span-2">
-                <Label htmlFor={ids.terms}>{t('editor.fields.terms')}</Label>
-                <Textarea placeholder={t('placeholders.terms')} id={ids.terms} rows={3} value={header.terms} disabled={!editable} onChange={(event) => patchHeader({ terms: event.target.value })} />
-              </div>
-              <div className="grid gap-2.5 sm:col-span-2">
-                <Label htmlFor={ids.notes}>{t('editor.fields.notes')}</Label>
-                <Textarea placeholder={t('placeholders.notes')} id={ids.notes} rows={3} value={header.notes} disabled={!editable} onChange={(event) => patchHeader({ notes: event.target.value })} />
-              </div>
+              <Field label={t('editor.fields.terms')} className="sm:col-span-2">
+                {(control) => <Textarea placeholder={t('placeholders.terms')} {...control} rows={3} value={header.terms} disabled={!editable} onChange={(event) => patchHeader({ terms: event.target.value })} />}
+              </Field>
+              <Field label={t('editor.fields.notes')} className="sm:col-span-2">
+                {(control) => <Textarea placeholder={t('placeholders.notes')} {...control} rows={3} value={header.notes} disabled={!editable} onChange={(event) => patchHeader({ notes: event.target.value })} />}
+              </Field>
             </CardContent>
           </Card>
 

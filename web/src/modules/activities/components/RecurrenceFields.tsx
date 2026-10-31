@@ -92,17 +92,18 @@ export function RecurrenceFields({ value, onChange, error, disabled }: Recurrenc
         </div>
       )}
       {value.frequency === 'monthly' && (
-        <div className="grid gap-2.5">
-          <Label htmlFor={ids.monthDay}>{t('recurrence.monthDay')}</Label>
-          <Input placeholder={t('placeholders.monthDay')}
-            id={ids.monthDay}
+        <Field label={t('recurrence.monthDay')}>
+          {(control) => <>
+            <Input placeholder={t('placeholders.monthDay')}
+            {...control}
             inputMode="numeric"
             className="w-24"
             value={value.monthDay}
             onChange={(event) => set({ monthDay: event.target.value })}
           />
           <p className="text-xs text-muted-foreground">{t('recurrence.monthDayHint')}</p>
-        </div>
+          </>}
+        </Field>
       )}
       {active && (
         <div className="grid gap-4 sm:grid-cols-2">

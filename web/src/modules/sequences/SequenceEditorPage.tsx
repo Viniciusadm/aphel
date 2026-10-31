@@ -41,6 +41,7 @@ import {
 import type { Sequence, SequenceStepKind } from './types'
 import { Page } from '@/components/ui/page'
 import { PageHeader } from '@/components/ui/page-header'
+import { Field } from '@/components/ui/field'
 
 const VARIABLE_EXAMPLE = '{{contact.first_name}}'
 const VARIABLE_EXAMPLES = '{{contact.first_name}}, {{company.name}}, {{user.display_name}}'
@@ -130,21 +131,23 @@ function SequenceForm({ sequence }: { sequence: Sequence | null }) {
           <h2 id={`${formId}-settings`} className="text-base font-medium">
             {t('editor.settings')}
           </h2>
-          <div className="grid gap-2.5">
-            <Label htmlFor={`${formId}-name`}>{t('editor.name')}</Label>
-            <Input placeholder={t('placeholders.name')}
-              id={`${formId}-name`}
+          <Field label={t('editor.name')}>
+            {(control) => <>
+              <Input placeholder={t('placeholders.name')}
+              {...control}
               aria-invalid={errors.name ? true : undefined}
               aria-describedby={errors.name ? `${formId}-name-error` : undefined}
               {...register('name')}
             />
             <FieldMessage id={`${formId}-name-error`} message={errors.name?.message} />
-          </div>
-          <div className="grid gap-2.5">
-            <Label htmlFor={`${formId}-description`}>{t('editor.description')}</Label>
-            <Textarea placeholder={t('placeholders.description')} id={`${formId}-description`} rows={2} {...register('description')} />
+            </>}
+          </Field>
+          <Field label={t('editor.description')}>
+            {(control) => <>
+              <Textarea placeholder={t('placeholders.description')} {...control} rows={2} {...register('description')} />
             <FieldMessage id={`${formId}-description-error`} message={errors.description?.message} />
-          </div>
+            </>}
+          </Field>
           <Controller
             control={control}
             name="isActive"
@@ -159,31 +162,33 @@ function SequenceForm({ sequence }: { sequence: Sequence | null }) {
             )}
           />
           <div className="grid gap-4 sm:grid-cols-3">
-            <div className="grid gap-2.5">
-              <Label htmlFor={`${formId}-start`}>{t('editor.windowStart')}</Label>
-              <Input
-                id={`${formId}-start`}
+            <Field label={t('editor.windowStart')}>
+              {(control) => <>
+                <Input
+                {...control}
                 type="time"
                 aria-invalid={errors.windowStart ? true : undefined}
                 {...register('windowStart')}
               />
               <FieldMessage id={`${formId}-start-error`} message={errors.windowStart?.message} />
-            </div>
-            <div className="grid gap-2.5">
-              <Label htmlFor={`${formId}-end`}>{t('editor.windowEnd')}</Label>
-              <Input
-                id={`${formId}-end`}
+              </>}
+            </Field>
+            <Field label={t('editor.windowEnd')}>
+              {(control) => <>
+                <Input
+                {...control}
                 type="time"
                 aria-invalid={errors.windowEnd ? true : undefined}
                 aria-describedby={errors.windowEnd ? `${formId}-end-error` : undefined}
                 {...register('windowEnd')}
               />
               <FieldMessage id={`${formId}-end-error`} message={errors.windowEnd?.message} />
-            </div>
-            <div className="grid gap-2.5">
-              <Label htmlFor={`${formId}-limit`}>{t('editor.dailyLimit')}</Label>
-              <Input placeholder={t('placeholders.dailyLimit')}
-                id={`${formId}-limit`}
+              </>}
+            </Field>
+            <Field label={t('editor.dailyLimit')}>
+              {(control) => <>
+                <Input placeholder={t('placeholders.dailyLimit')}
+                {...control}
                 type="number"
                 min={1}
                 max={MAX_DAILY_LIMIT}
@@ -192,7 +197,8 @@ function SequenceForm({ sequence }: { sequence: Sequence | null }) {
                 {...register('dailyLimit', { valueAsNumber: true })}
               />
               <FieldMessage id={`${formId}-limit-error`} message={errors.dailyLimit?.message} />
-            </div>
+              </>}
+            </Field>
           </div>
           <p className="text-xs text-muted-foreground">{t('editor.windowHint')}</p>
         </section>
@@ -294,10 +300,10 @@ function StepsEditor({ control, register, errors, formId }: StepsEditorProps) {
               </div>
               <p className="text-xs text-muted-foreground">{t(`stepHints.${kind}`)}</p>
               {kind === 'wait' && (
-                <div className="grid max-w-48 gap-2.5">
-                  <Label htmlFor={`${prefix}-wait`}>{t('editor.waitDays')}</Label>
-                  <Input placeholder={t('placeholders.waitDays')}
-                    id={`${prefix}-wait`}
+                <Field label={t('editor.waitDays')} className="max-w-48">
+                  {(control) => <>
+                    <Input placeholder={t('placeholders.waitDays')}
+                    {...control}
                     type="number"
                     min={1}
                     max={MAX_WAIT_DAYS}
@@ -306,20 +312,22 @@ function StepsEditor({ control, register, errors, formId }: StepsEditorProps) {
                     {...register(`steps.${index}.waitDays`, { valueAsNumber: true })}
                   />
                   <FieldMessage id={`${prefix}-wait-error`} message={stepErrors?.waitDays?.message} />
-                </div>
+                  </>}
+                </Field>
               )}
               {(isTaskKind(kind) || kind === 'manual_email') && (
-                <div className="grid gap-2.5">
-                  <Label htmlFor={`${prefix}-title`}>{t('editor.title')}</Label>
-                  <Input
-                    id={`${prefix}-title`}
+                <Field label={t('editor.title')}>
+                  {(control) => <>
+                    <Input
+                    {...control}
                     placeholder={kind === 'manual_email' ? t('editor.titleOptional') : undefined}
                     aria-invalid={stepErrors?.title ? true : undefined}
                     aria-describedby={stepErrors?.title ? `${prefix}-title-error` : undefined}
                     {...register(`steps.${index}.title`)}
                   />
                   <FieldMessage id={`${prefix}-title-error`} message={stepErrors?.title?.message} />
-                </div>
+                  </>}
+                </Field>
               )}
               {isEmailKind(kind) && (
                 <>
@@ -335,10 +343,10 @@ function StepsEditor({ control, register, errors, formId }: StepsEditorProps) {
                     </NativeSelect>
                     <p className="text-xs text-muted-foreground">{t('editor.templateHint')}</p>
                   </div>
-                  <div className="grid gap-2.5">
-                    <Label htmlFor={`${prefix}-subject`}>{t('editor.subject')}</Label>
-                    <Input placeholder={t('placeholders.subject')}
-                      id={`${prefix}-subject`}
+                  <Field label={t('editor.subject')}>
+                    {(control) => <>
+                      <Input placeholder={t('placeholders.subject')}
+                      {...control}
                       aria-invalid={stepErrors?.subject ? true : undefined}
                       aria-describedby={stepErrors?.subject ? `${prefix}-subject-error` : `${prefix}-subject-hint`}
                       {...register(`steps.${index}.subject`)}
@@ -347,11 +355,12 @@ function StepsEditor({ control, register, errors, formId }: StepsEditorProps) {
                       {t('editor.subjectHint', { example: VARIABLE_EXAMPLE })}
                     </p>
                     <FieldMessage id={`${prefix}-subject-error`} message={stepErrors?.subject?.message} />
-                  </div>
-                  <div className="grid gap-2.5">
-                    <Label htmlFor={`${prefix}-body`}>{t('editor.body')}</Label>
-                    <Textarea placeholder={t('placeholders.body')}
-                      id={`${prefix}-body`}
+                    </>}
+                  </Field>
+                  <Field label={t('editor.body')}>
+                    {(control) => <>
+                      <Textarea placeholder={t('placeholders.body')}
+                      {...control}
                       rows={6}
                       className="font-mono text-xs"
                       aria-invalid={stepErrors?.bodyHtml ? true : undefined}
@@ -362,7 +371,8 @@ function StepsEditor({ control, register, errors, formId }: StepsEditorProps) {
                       {t('editor.bodyHint', { examples: VARIABLE_EXAMPLES })}
                     </p>
                     <FieldMessage id={`${prefix}-body-error`} message={stepErrors?.bodyHtml?.message} />
-                  </div>
+                    </>}
+                  </Field>
                 </>
               )}
             </li>

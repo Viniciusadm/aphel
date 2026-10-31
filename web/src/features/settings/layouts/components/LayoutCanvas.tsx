@@ -41,6 +41,7 @@ import {
 } from '../lib/draft'
 import { PALETTE_ID, columnId, parseColumnId } from '../lib/dnd'
 import { FieldChip } from './FieldChip'
+import { Field } from '@/components/ui/field'
 
 const SELECT_CLASS =
   'h-8 min-w-0 rounded-md border border-input bg-background px-2 text-sm focus-visible:ring-2 focus-visible:ring-ring focus-visible:outline-none'
@@ -138,16 +139,15 @@ export function LayoutCanvas({ layout, candidates, context, onChange, onEditRule
           {activeTab && (
             <div className="grid min-w-0 gap-4 rounded-lg border p-3 sm:p-4" data-tab={activeTab.id}>
               <div className="flex min-w-0 flex-col gap-2 sm:flex-row sm:items-end">
-                <div className="grid min-w-0 flex-1 gap-2.5">
-                  <Label htmlFor={`tab-${activeTab.id}`}>{t('tabs.name')}</Label>
-                  <Input
-                    id={`tab-${activeTab.id}`}
+                <Field label={t('tabs.name')} className="min-w-0 flex-1">
+                  {(control) => <Input
+                    {...control}
                     value={activeTab.label ?? ''}
                     maxLength={MAX_LAYOUT_LABEL_LENGTH}
                     placeholder={t('tabs.untitled', { number: layout.tabs.indexOf(activeTab) + 1 })}
                     onChange={(event) => onChange(renameTab(layout, activeTab.id, event.target.value))}
-                  />
-                </div>
+                  />}
+                </Field>
                 <div className="flex gap-1">
                   <IconButton label={t('tabs.moveLeft')} onClick={() => onChange(moveTab(layout, activeTab.id, -1))} disabled={layout.tabs[0] === activeTab}>
                     <ArrowLeft aria-hidden="true" />
@@ -259,16 +259,15 @@ function SectionEditor({ section, first, last, removable, layout, byKey, availab
   return (
     <section aria-label={section.label || t('sections.namePlaceholder')} className="grid min-w-0 gap-3 rounded-md border bg-card p-3" data-section={section.id}>
       <div className="flex min-w-0 flex-col gap-2 sm:flex-row sm:items-end">
-        <div className="grid min-w-0 flex-1 gap-2.5">
-          <Label htmlFor={nameId}>{t('sections.name')}</Label>
-          <Input
-            id={nameId}
+        <Field label={t('sections.name')} className="min-w-0 flex-1">
+          {(control) => <Input
+            {...control}
             value={section.label ?? ''}
             maxLength={MAX_LAYOUT_LABEL_LENGTH}
             placeholder={t('sections.namePlaceholder')}
             onChange={(event) => onChange(renameSection(layout, section.id, event.target.value))}
-          />
-        </div>
+          />}
+        </Field>
         <div className="flex items-end gap-1">
           <div className="grid gap-2.5">
             <Label htmlFor={`${nameId}-columns`}>{t('sections.columns')}</Label>

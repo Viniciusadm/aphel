@@ -16,6 +16,7 @@ import { Label } from '@/components/ui/label'
 import { NativeSelect } from '../filters/NativeSelect'
 import type { SavedView, ViewVisibility } from '../types'
 import { MAX_VIEW_NAME_LENGTH, SETTINGS_MANAGE, useViewTeams } from './viewsApi'
+import { Field } from '@/components/ui/field'
 
 export interface ViewFormValues {
   name: string
@@ -111,10 +112,10 @@ function ViewForm({ view, pending, onCancel, onSubmit }: ViewFormProps) {
 
   return (
     <form className="grid gap-4" onSubmit={handleSubmit} noValidate>
-      <div className="grid gap-2">
-        <Label htmlFor={ids.name}>{t('views.form.name')}</Label>
-        <Input
-          id={ids.name}
+      <Field label={t('views.form.name')}>
+        {(control) => <>
+          <Input
+          {...control}
           autoFocus
           value={name}
           maxLength={MAX_VIEW_NAME_LENGTH + 10}
@@ -128,7 +129,8 @@ function ViewForm({ view, pending, onCancel, onSubmit }: ViewFormProps) {
             {nameError}
           </p>
         )}
-      </div>
+        </>}
+      </Field>
       <div className="grid gap-2">
         <Label htmlFor={ids.visibility}>{t('views.visibility.label')}</Label>
         <NativeSelect

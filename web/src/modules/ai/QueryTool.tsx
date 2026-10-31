@@ -1,6 +1,6 @@
 import { useMutation } from '@tanstack/react-query'
 import { Loader2, MessageSquareText, Sparkles } from 'lucide-react'
-import { useId, useState } from 'react'
+import { useState } from 'react'
 import { useTranslation } from 'react-i18next'
 import { notifySuccess } from '@/components/feedback'
 import { Button } from '@/components/ui/button'
@@ -12,7 +12,6 @@ import {
   DialogHeader,
   DialogTitle,
 } from '@/components/ui/dialog'
-import { Label } from '@/components/ui/label'
 import { Textarea } from '@/components/ui/textarea'
 import { useFieldSchema, useOrganizationUsers } from '@/features/records/api'
 import { describeCondition, type SummaryContext } from '@/features/records/filters'
@@ -22,6 +21,7 @@ import { useModuleTranslation } from '@/kernel/modules/i18n'
 import type { SlotProps } from '@/kernel/modules/slots'
 import { AI_KEY, aiApi, useAiStatus } from './api'
 import { AiErrorMessage, AiFooter } from './AiNotice'
+import { Field } from '@/components/ui/field'
 
 const MAX_QUESTION = 500
 
@@ -49,7 +49,6 @@ interface QueryDialogProps extends SlotProps<'record.list.toolbar'> {
 
 function QueryDialog({ recordType, filter, applyFilter, onOpenChange }: QueryDialogProps) {
   const t = useModuleTranslation(AI_KEY)
-  const id = useId()
   const [question, setQuestion] = useState('')
   const query = useMutation({ mutationFn: (text: string) => aiApi.query(recordType, text) })
 
@@ -79,10 +78,10 @@ function QueryDialog({ recordType, filter, applyFilter, onOpenChange }: QueryDia
             run()
           }}
         >
-          <div className="grid gap-2.5">
-            <Label htmlFor={`${id}-question`}>{t('query.question')}</Label>
-            <Textarea
-              id={`${id}-question`}
+          <Field label={t('query.question')}>
+            {(control) => <>
+              <Textarea
+              {...control}
               rows={2}
               maxLength={MAX_QUESTION}
               placeholder={t(`query.placeholder.${recordType}`, { defaultValue: t('query.placeholder.default') })}
@@ -96,7 +95,8 @@ function QueryDialog({ recordType, filter, applyFilter, onOpenChange }: QueryDia
               }}
             />
             <p className="text-xs text-muted-foreground">{t('query.sends')}</p>
-          </div>
+            </>}
+          </Field>
           <Button type="submit" variant={query.data ? 'outline' : 'default'} disabled={query.isPending || !question.trim()}>
             {query.isPending ? <Loader2 className="animate-spin" aria-hidden="true" /> : <MessageSquareText aria-hidden="true" />}
             {t('query.generate')}

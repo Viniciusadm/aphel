@@ -1,18 +1,17 @@
 import { useQueryClient } from '@tanstack/react-query'
-import { useId, useState } from 'react'
+import { useState } from 'react'
 import { useTranslation } from 'react-i18next'
 import { useNavigate } from 'react-router'
 import { NETWORK_ERROR_CODE, isApiError } from '@/api'
 import { Input } from '@/components/ui/input'
-import { Label } from '@/components/ui/label'
 import { SetupStepFrame } from '@/kernel/setup'
 import { INSTALLER_STATUS_KEY, restoreBackup } from '../api'
+import { Field } from '@/components/ui/field'
 
 export function RestoreStep() {
   const { t } = useTranslation('setup')
   const queryClient = useQueryClient()
   const navigate = useNavigate()
-  const inputId = useId()
   const [file, setFile] = useState<File | null>(null)
   const [error, setError] = useState<string | null>(null)
   const [submitting, setSubmitting] = useState(false)
@@ -50,17 +49,18 @@ export function RestoreStep() {
       error={error}
       primary={{ label: t('restore.submit'), onClick: () => void submit(), busy: submitting, busyLabel: t('restore.submitting') }}
     >
-      <div className="grid gap-2">
-        <Label htmlFor={inputId}>{t('restore.file')}</Label>
-        <Input
-          id={inputId}
+      <Field label={t('restore.file')}>
+        {(control) => <>
+          <Input
+          {...control}
           type="file"
           accept=".zip,application/zip"
           disabled={submitting}
           onChange={(event) => setFile(event.target.files?.[0] ?? null)}
         />
         <p className="text-xs text-muted-foreground">{t('restore.hint')}</p>
-      </div>
+        </>}
+      </Field>
     </SetupStepFrame>
   )
 }

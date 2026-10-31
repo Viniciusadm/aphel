@@ -138,10 +138,10 @@ function PriceListForm({ list, onClose, onSaved }: PriceListFormProps) {
           void submit()
         }}
       >
-        <div className="grid gap-2.5">
-          <Label htmlFor={`${formId}-name`}>{t('form.name')}</Label>
-          <Input placeholder={t('placeholders.name')}
-            id={`${formId}-name`}
+        <Field label={t('form.name')}>
+          {(control) => <>
+            <Input placeholder={t('placeholders.name')}
+            {...control}
             value={name}
             maxLength={140}
             autoFocus
@@ -149,11 +149,12 @@ function PriceListForm({ list, onClose, onSaved }: PriceListFormProps) {
             onChange={(event) => setName(event.target.value)}
           />
           {errorFor('name')}
-        </div>
-        <div className="grid gap-2.5">
-          <Label htmlFor={`${formId}-key`}>{t('form.key')}</Label>
-          <Input
-            id={`${formId}-key`}
+          </>}
+        </Field>
+        <Field label={t('form.key')}>
+          {(control) => <>
+            <Input
+            {...control}
             className="font-mono"
             value={key}
             maxLength={64}
@@ -162,7 +163,8 @@ function PriceListForm({ list, onClose, onSaved }: PriceListFormProps) {
             onChange={(event) => setKey(event.target.value)}
           />
           {errorFor('key') ?? <p className="text-xs text-muted-foreground">{t('form.keyHint')}</p>}
-        </div>
+          </>}
+        </Field>
         <Field label={t('form.descriptionLabel')}>
           {(control) => <Textarea placeholder={t('placeholders.description')}
             {...control}
@@ -271,17 +273,18 @@ function PriceListForm({ list, onClose, onSaved }: PriceListFormProps) {
               onChange={(event) => setValidFrom(event.target.value)}
             />}
           </Field>
-          <div className="grid gap-2.5">
-            <Label htmlFor={`${formId}-to`}>{t('form.validTo')}</Label>
-            <Input
-              id={`${formId}-to`}
+          <Field label={t('form.validTo')}>
+            {(control) => <>
+              <Input
+              {...control}
               type="date"
               value={validTo}
               aria-invalid={errors.valid_to ? true : undefined}
               onChange={(event) => setValidTo(event.target.value)}
             />
             {errorFor('valid_to')}
-          </div>
+            </>}
+          </Field>
         </div>
         <p className="-mt-2 text-xs text-muted-foreground">{t('form.validityHint')}</p>
         <div className="flex items-center gap-2">

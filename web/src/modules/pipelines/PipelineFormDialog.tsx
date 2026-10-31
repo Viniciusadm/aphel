@@ -1,4 +1,4 @@
-import { useId, useState } from 'react'
+import { useState } from 'react'
 import { useTranslation } from 'react-i18next'
 import { Button } from '@/components/ui/button'
 import {
@@ -10,8 +10,8 @@ import {
   DialogTitle,
 } from '@/components/ui/dialog'
 import { Input } from '@/components/ui/input'
-import { Label } from '@/components/ui/label'
 import { TeamsField } from './TeamsField'
+import { Field } from '@/components/ui/field'
 
 export interface PipelineFormValues {
   name: string
@@ -30,7 +30,6 @@ function PipelineForm({ pending, onOpenChange, onSubmit }: Omit<PipelineFormDial
   const [name, setName] = useState('')
   const [teams, setTeams] = useState<string[]>([])
   const [submitted, setSubmitted] = useState(false)
-  const nameId = useId()
   const nameError = submitted && !name.trim()
 
   return (
@@ -46,17 +45,18 @@ function PipelineForm({ pending, onOpenChange, onSubmit }: Omit<PipelineFormDial
         <DialogTitle>{t('create.title')}</DialogTitle>
         <DialogDescription>{t('create.description')}</DialogDescription>
       </DialogHeader>
-      <div className="grid gap-2">
-        <Label htmlFor={nameId}>{t('fields.name')}</Label>
-        <Input placeholder={t('placeholders.pipelineName')}
-          id={nameId}
+      <Field label={t('fields.name')}>
+        {(control) => <>
+          <Input placeholder={t('placeholders.pipelineName')}
+          {...control}
           value={name}
           maxLength={140}
           aria-invalid={nameError || undefined}
           onChange={(event) => setName(event.target.value)}
         />
         {nameError && <p className="text-sm text-destructive">{t('fields.nameRequired')}</p>}
-      </div>
+        </>}
+      </Field>
       <TeamsField selected={teams} onChange={setTeams} />
       <DialogFooter>
         <Button type="button" variant="outline" onClick={() => onOpenChange(false)} disabled={pending}>

@@ -119,13 +119,14 @@ function EditorBody({ form, onCancel, onSaved }: EditorBodyProps) {
                 <h3 id={`${formId}-general`} className="text-sm font-semibold">
                   {t('editor.general')}
                 </h3>
-                <div className="grid gap-2.5">
-                  <Label htmlFor={`${formId}-name`}>{t('editor.name')}</Label>
-                  <Input id={`${formId}-name`} placeholder={t('editor.namePlaceholder')} {...register('name')} />
+                <Field label={t('editor.name')}>
+                  {(control) => <>
+                    <Input {...control} placeholder={t('editor.namePlaceholder')} {...register('name')} />
                   {formState.errors.name && (
                     <p className="text-sm text-destructive">{errorText(formState.errors.name.message)}</p>
                   )}
-                </div>
+                  </>}
+                </Field>
                 <div className="grid gap-2.5">
                   <Label htmlFor={`${formId}-actor`}>{t('editor.actingUser')}</Label>
                   <NativeSelect id={`${formId}-actor`} {...register('acting_user_id')}>
@@ -298,21 +299,23 @@ function EditorBody({ form, onCancel, onSaved }: EditorBodyProps) {
                         <p className="text-sm text-destructive">{errorText(formState.errors.stage_id.message)}</p>
                       )}
                     </div>
-                    <div className="grid gap-2.5">
-                      <Label htmlFor={`${formId}-title`}>{t('editor.titleTemplate')}</Label>
-                      <Input placeholder={t('editor.titleTemplatePlaceholder')} id={`${formId}-title`} {...register('title_template')} />
+                    <Field label={t('editor.titleTemplate')}>
+                      {(control) => <>
+                        <Input placeholder={t('editor.titleTemplatePlaceholder')} {...control} {...register('title_template')} />
                       <p className="text-xs text-muted-foreground">{t('editor.titleTemplateHelp', { field: '{{name}}', form: '{{form}}' })}</p>
                       {formState.errors.title_template && (
                         <p className="text-sm text-destructive">{errorText(formState.errors.title_template.message)}</p>
                       )}
-                    </div>
-                    <div className="grid gap-2.5">
-                      <Label htmlFor={`${formId}-amount`}>{t('editor.amount')}</Label>
-                      <Input placeholder={t('editor.amountPlaceholder')} id={`${formId}-amount`} inputMode="decimal" {...register('amount')} />
+                      </>}
+                    </Field>
+                    <Field label={t('editor.amount')}>
+                      {(control) => <>
+                        <Input placeholder={t('editor.amountPlaceholder')} {...control} inputMode="decimal" {...register('amount')} />
                       {formState.errors.amount && (
                         <p className="text-sm text-destructive">{errorText(formState.errors.amount.message)}</p>
                       )}
-                    </div>
+                      </>}
+                    </Field>
                   </div>
                 )}
               </section>
@@ -336,10 +339,10 @@ function EditorBody({ form, onCancel, onSaved }: EditorBodyProps) {
                     {...register('success_message')}
                   />}
                 </Field>
-                <div className="grid gap-2.5">
-                  <Label htmlFor={`${formId}-redirect`}>{t('editor.redirectUrl')}</Label>
-                  <Input
-                    id={`${formId}-redirect`}
+                <Field label={t('editor.redirectUrl')}>
+                  {(control) => <>
+                    <Input
+                    {...control}
                     type="url"
                     placeholder="https://www.exemplo.com.br/obrigado"
                     {...register('redirect_url')}
@@ -347,17 +350,18 @@ function EditorBody({ form, onCancel, onSaved }: EditorBodyProps) {
                   {formState.errors.redirect_url && (
                     <p className="text-sm text-destructive">{errorText(formState.errors.redirect_url.message)}</p>
                   )}
-                </div>
+                  </>}
+                </Field>
               </section>
 
               <section className="grid gap-3" aria-labelledby={`${formId}-security`}>
                 <h3 id={`${formId}-security`} className="text-sm font-semibold">
                   {t('editor.security')}
                 </h3>
-                <div className="grid gap-2.5">
-                  <Label htmlFor={`${formId}-origins`}>{t('editor.allowedOrigins')}</Label>
-                  <Textarea
-                    id={`${formId}-origins`}
+                <Field label={t('editor.allowedOrigins')}>
+                  {(control) => <>
+                    <Textarea
+                    {...control}
                     rows={3}
                     className="font-mono text-xs"
                     placeholder="https://www.exemplo.com.br"
@@ -367,7 +371,8 @@ function EditorBody({ form, onCancel, onSaved }: EditorBodyProps) {
                   {formState.errors.allowed_origins && (
                     <p className="text-sm text-destructive">{errorText(formState.errors.allowed_origins.message)}</p>
                   )}
-                </div>
+                  </>}
+                </Field>
               </section>
 
               {serverErrors.length > 0 && (

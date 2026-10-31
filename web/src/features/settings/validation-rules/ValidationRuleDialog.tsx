@@ -32,6 +32,7 @@ import {
   type ValidationRulePreviewRequest,
   type ValidationRuleTiming,
 } from './types'
+import { Field } from '@/components/ui/field'
 
 const NAME_MAX_LENGTH = 120
 const MESSAGE_MAX_LENGTH = 500
@@ -188,21 +189,22 @@ function ValidationRuleForm({ recordType, rule, onOpenChange, onSaved }: FormPro
         <DialogDescription>{t('dialog.description')}</DialogDescription>
       </DialogHeader>
       <div className="grid min-w-0 gap-4 sm:grid-cols-2">
-        <div className="grid min-w-0 gap-2">
-          <Label htmlFor={ids.name}>{t('dialog.name')}</Label>
-          <Input placeholder={t('dialog.namePlaceholder')}
-            id={ids.name}
+        <Field label={t('dialog.name')} className="min-w-0">
+          {(control) => <>
+            <Input placeholder={t('dialog.namePlaceholder')}
+            {...control}
             value={name}
             maxLength={NAME_MAX_LENGTH}
             aria-invalid={nameError ? true : undefined}
             onChange={(event) => setName(event.target.value)}
           />
           {nameError && <p className="text-sm text-destructive">{nameError}</p>}
-        </div>
-        <div className="grid min-w-0 gap-2">
-          <Label htmlFor={ids.key}>{t('dialog.key')}</Label>
-          <Input placeholder={t('dialog.keyPlaceholder')}
-            id={ids.key}
+          </>}
+        </Field>
+        <Field label={t('dialog.key')} className="min-w-0">
+          {(control) => <>
+            <Input placeholder={t('dialog.keyPlaceholder')}
+            {...control}
             value={key}
             disabled={Boolean(rule)}
             maxLength={64}
@@ -215,12 +217,13 @@ function ValidationRuleForm({ recordType, rule, onOpenChange, onSaved }: FormPro
             {t('dialog.keyHint')}
           </p>
           {serverErrors.key && <p className="text-sm text-destructive">{serverErrors.key}</p>}
-        </div>
+          </>}
+        </Field>
       </div>
-      <div className="grid min-w-0 gap-2">
-        <Label htmlFor={ids.message}>{t('dialog.message')}</Label>
-        <Textarea placeholder={t('dialog.messagePlaceholder')}
-          id={ids.message}
+      <Field label={t('dialog.message')} className="min-w-0">
+        {(control) => <>
+          <Textarea placeholder={t('dialog.messagePlaceholder')}
+          {...control}
           value={message}
           rows={2}
           maxLength={MESSAGE_MAX_LENGTH}
@@ -232,7 +235,8 @@ function ValidationRuleForm({ recordType, rule, onOpenChange, onSaved }: FormPro
           {t('dialog.messageHint')}
         </p>
         {messageError && <p className="text-sm text-destructive">{messageError}</p>}
-      </div>
+        </>}
+      </Field>
       <div className="grid min-w-0 gap-4 sm:grid-cols-2">
         <div className="grid min-w-0 gap-2">
           <Label htmlFor={ids.field}>{t('dialog.field')}</Label>

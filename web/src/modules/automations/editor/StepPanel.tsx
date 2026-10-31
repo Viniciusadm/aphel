@@ -17,6 +17,7 @@ import { supportsRecordType, useAutomationLabels } from '../lib/labels'
 import type { TemplateVariable } from '../lib/variables'
 import type { AutomationCatalog, BranchCaseSpec, StepSpec } from '../types'
 import { EMPTY_GROUP, actionDefaults, nextCaseKey } from './steps'
+import { Field } from '@/components/ui/field'
 
 export interface StepPanelProps {
   step: StepSpec
@@ -34,16 +35,15 @@ const KNOWN_PREFIXES = ['label', 'filter', 'cases', 'config', 'duration', 'until
 
 export function StepPanel({ step, recordType, schema, catalog, variables, recordTypes, issues, readOnly, onChange }: StepPanelProps) {
   const { t } = useTranslation('automations')
-  const labelId = useId()
   const general = issuesOutside(issues, KNOWN_PREFIXES)
 
   return (
     <fieldset disabled={readOnly} className="grid min-w-0 gap-5">
       <IssueList issues={general} showPath />
-      <div className="grid gap-2.5">
-        <Label htmlFor={labelId}>{t('panel.label')}</Label>
-        <Input
-          id={labelId}
+      <Field label={t('panel.label')}>
+        {(control) => <>
+          <Input
+          {...control}
           value={step.label ?? ''}
           maxLength={120}
           placeholder={t('panel.labelPlaceholder')}
@@ -52,7 +52,8 @@ export function StepPanel({ step, recordType, schema, catalog, variables, record
         <p className="text-xs text-muted-foreground">
           {t('panel.stepId')} <code>{step.id}</code>
         </p>
-      </div>
+        </>}
+      </Field>
       {step.type === 'condition' && (
         <ConditionSection
           title={t('panel.conditionTitle')}

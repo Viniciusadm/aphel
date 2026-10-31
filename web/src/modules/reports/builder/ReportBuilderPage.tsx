@@ -312,10 +312,10 @@ function ReportEditor({ report }: { report: Report | null }) {
       <div className="grid gap-4 lg:grid-cols-[minmax(0,26rem)_minmax(0,1fr)] lg:items-start">
         <fieldset disabled={!editable} className="grid min-w-0 gap-4">
           <Section title={t('sections.details.title')}>
-            <div className="grid gap-2.5">
-              <Label htmlFor={ids.name}>{t('sections.details.name')}</Label>
-              <Input
-                id={ids.name}
+            <Field label={t('sections.details.name')}>
+              {(control) => <>
+                <Input
+                {...control}
                 value={draft.name}
                 maxLength={MAX_REPORT_NAME_LENGTH + 10}
                 placeholder={t('sections.details.namePlaceholder')}
@@ -323,7 +323,8 @@ function ReportEditor({ report }: { report: Report | null }) {
                 onChange={(event) => update({ name: event.target.value })}
               />
               {submitted && nameError && <p className="text-sm text-destructive">{nameError}</p>}
-            </div>
+              </>}
+            </Field>
             <Field label={t('sections.details.description')}>
               {(control) => <Textarea placeholder={t('placeholders.description')}
                 {...control}

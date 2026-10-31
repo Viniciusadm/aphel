@@ -30,6 +30,7 @@ import {
   type MailboxFormValues,
 } from '../lib/mailbox-form'
 import { MAIL_SECURITIES, type MailSecurity, type Mailbox, type UpdateMailboxRequest } from '../types'
+import { Field } from '@/components/ui/field'
 
 export type MailboxDialogMode = { kind: 'create'; provider: string; providerLabel: string } | { kind: 'edit'; mailbox: Mailbox }
 
@@ -184,20 +185,19 @@ function MailboxForm({ mode, onDirtyChange, onCancel, onDone }: MailboxFormProps
       }}
     >
       <div className="grid gap-4 sm:grid-cols-2">
-        <div className="grid content-start gap-2.5">
-          <Label htmlFor={`${formId}-display-name`}>{t('mailboxes.form.displayName')}</Label>
-          <Input
-            id={`${formId}-display-name`}
+        <Field label={t('mailboxes.form.displayName')} className="content-start">
+          {(control) => <Input
+            {...control}
             value={values.display_name}
             maxLength={120}
             placeholder={t('mailboxes.form.displayNamePlaceholder')}
             onChange={(event) => update({ display_name: event.target.value })}
-          />
-        </div>
-        <div className="grid content-start gap-2.5">
-          <Label htmlFor={`${formId}-history`}>{t('mailboxes.form.historyDays')}</Label>
-          <Input placeholder={t('placeholders.historyDays')}
-            id={`${formId}-history`}
+          />}
+        </Field>
+        <Field label={t('mailboxes.form.historyDays')} className="content-start">
+          {(control) => <>
+            <Input placeholder={t('placeholders.historyDays')}
+            {...control}
             type="number"
             inputMode="numeric"
             min={1}
@@ -211,7 +211,8 @@ function MailboxForm({ mode, onDirtyChange, onCancel, onDone }: MailboxFormProps
             {t('mailboxes.form.historyHint', { max: MAX_HISTORY_DAYS })}
           </p>
           {errorText('history_days', t('mailboxes.form.historyInvalid', { max: MAX_HISTORY_DAYS }))}
-        </div>
+          </>}
+        </Field>
       </div>
 
       {withServer && (
@@ -236,10 +237,10 @@ function MailboxForm({ mode, onDirtyChange, onCancel, onDone }: MailboxFormProps
           />
           <fieldset className="grid gap-4 sm:grid-cols-2">
             <legend className="mb-2 text-sm font-medium">{t('mailboxes.form.credentials')}</legend>
-            <div className="grid content-start gap-2.5">
-              <Label htmlFor={`${formId}-username`}>{t('mailboxes.form.username')}</Label>
-              <Input placeholder={t('placeholders.username')}
-                id={`${formId}-username`}
+            <Field label={t('mailboxes.form.username')} className="content-start">
+              {(control) => <>
+                <Input placeholder={t('placeholders.username')}
+                {...control}
                 value={values.username}
                 autoComplete="off"
                 autoCapitalize="off"
@@ -248,7 +249,8 @@ function MailboxForm({ mode, onDirtyChange, onCancel, onDone }: MailboxFormProps
                 onChange={(event) => update({ username: event.target.value })}
               />
               {errorText('username', t('mailboxes.form.required'))}
-            </div>
+              </>}
+            </Field>
             <div className="grid content-start gap-1.5">
               <div className="flex items-center justify-between gap-2">
                 <Label htmlFor={`${formId}-password`}>{t('mailboxes.form.password')}</Label>
@@ -311,10 +313,10 @@ function ServerFields({ kind, formId, values, submitted, errors, onChange, onSec
   return (
     <fieldset className="grid gap-4 sm:grid-cols-[minmax(0,1fr)_7rem_9rem]">
       <legend className="mb-2 text-sm font-medium">{t(`mailboxes.form.${kind}Legend`)}</legend>
-      <div className="grid content-start gap-2.5">
-        <Label htmlFor={`${prefix}-host`}>{t('mailboxes.form.host')}</Label>
-        <Input
-          id={`${prefix}-host`}
+      <Field label={t('mailboxes.form.host')} className="content-start">
+        {(control) => <>
+          <Input
+          {...control}
           value={values[hostKey]}
           autoCapitalize="off"
           spellCheck={false}
@@ -323,11 +325,12 @@ function ServerFields({ kind, formId, values, submitted, errors, onChange, onSec
           onChange={(event) => onChange({ [hostKey]: event.target.value })}
         />
         {submitted && errors[hostKey] && <p className="text-sm text-destructive">{t('mailboxes.form.required')}</p>}
-      </div>
-      <div className="grid content-start gap-2.5">
-        <Label htmlFor={`${prefix}-port`}>{t('mailboxes.form.port')}</Label>
-        <Input placeholder={t('placeholders.port')}
-          id={`${prefix}-port`}
+        </>}
+      </Field>
+      <Field label={t('mailboxes.form.port')} className="content-start">
+        {(control) => <>
+          <Input placeholder={t('placeholders.port')}
+          {...control}
           type="number"
           inputMode="numeric"
           min={1}
@@ -337,7 +340,8 @@ function ServerFields({ kind, formId, values, submitted, errors, onChange, onSec
           onChange={(event) => onChange({ [portKey]: event.target.value })}
         />
         {submitted && errors[portKey] && <p className="text-sm text-destructive">{t('mailboxes.form.portInvalid')}</p>}
-      </div>
+        </>}
+      </Field>
       <div className="grid content-start gap-2.5">
         <Label htmlFor={`${prefix}-security`}>{t('mailboxes.form.security')}</Label>
         <NativeSelect

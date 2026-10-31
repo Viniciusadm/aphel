@@ -177,10 +177,10 @@ export function ActivityFormDialog({
           <DialogDescription>{t(mode === 'log' ? 'form.logDescription' : 'form.taskDescription')}</DialogDescription>
         </DialogHeader>
         <form id={formId} className="grid gap-4" onSubmit={(event) => void submit(event)} noValidate>
-          <div className="grid gap-2.5">
-            <Label htmlFor={ids.title}>{t('form.title')}</Label>
-            <Input
-              id={ids.title}
+          <Field label={t('form.title')}>
+            {(control) => <>
+              <Input
+              {...control}
               autoFocus
               aria-invalid={errors.title ? true : undefined}
               aria-describedby={errors.title ? `${ids.title}-error` : undefined}
@@ -188,7 +188,8 @@ export function ActivityFormDialog({
               {...register('title')}
             />
             <FieldMessage id={`${ids.title}-error`} message={errors.title ? t('form.titleRequired') : undefined} />
-          </div>
+            </>}
+          </Field>
           <div className="grid gap-4 sm:grid-cols-2">
             <div className="grid gap-2.5">
               <Label htmlFor={ids.type}>{t('form.type')}</Label>
@@ -270,10 +271,10 @@ export function ActivityFormDialog({
               </NativeSelect>
             </div>
             {showDuration && (
-              <div className="grid gap-2.5">
-                <Label htmlFor={ids.duration}>{t('form.duration')}</Label>
-                <Input placeholder={t('placeholders.duration')}
-                  id={ids.duration}
+              <Field label={t('form.duration')}>
+                {(control) => <>
+                  <Input placeholder={t('placeholders.duration')}
+                  {...control}
                   inputMode="numeric"
                   aria-invalid={errors.duration_minutes ? true : undefined}
                   aria-describedby={errors.duration_minutes ? `${ids.duration}-error` : undefined}
@@ -283,7 +284,8 @@ export function ActivityFormDialog({
                   id={`${ids.duration}-error`}
                   message={errors.duration_minutes ? t('form.durationInvalid') : undefined}
                 />
-              </div>
+                </>}
+              </Field>
             )}
           </div>
           <Field label={t('form.description')}>

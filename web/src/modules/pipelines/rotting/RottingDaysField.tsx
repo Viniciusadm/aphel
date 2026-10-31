@@ -1,8 +1,8 @@
 import { useId } from 'react'
 import { useTranslation } from 'react-i18next'
 import { Input } from '@/components/ui/input'
-import { Label } from '@/components/ui/label'
 import { MAX_ROTTING_DAYS } from './lib'
+import { Field } from '@/components/ui/field'
 
 export interface RottingDaysFieldProps {
   value: string
@@ -13,14 +13,13 @@ export interface RottingDaysFieldProps {
 
 export function RottingDaysField({ value, invalid, disabled, onChange }: RottingDaysFieldProps) {
   const { t } = useTranslation('pipelines', { keyPrefix: 'rotting' })
-  const id = useId()
   const descriptionId = useId()
 
   return (
-    <div className="grid gap-2">
-      <Label htmlFor={id}>{t('stage.label')}</Label>
-      <Input placeholder={t('placeholders.days')}
-        id={id}
+    <Field label={t('stage.label')}>
+      {(control) => <>
+        <Input placeholder={t('placeholders.days')}
+        {...control}
         type="number"
         min={1}
         max={MAX_ROTTING_DAYS}
@@ -36,6 +35,7 @@ export function RottingDaysField({ value, invalid, disabled, onChange }: Rotting
         {disabled ? t('stage.openOnly') : t('stage.description')}
       </p>
       {invalid && <p className="text-sm text-destructive">{t('stage.invalid')}</p>}
-    </div>
+      </>}
+    </Field>
   )
 }

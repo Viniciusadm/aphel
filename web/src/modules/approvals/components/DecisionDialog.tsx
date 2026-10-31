@@ -9,12 +9,12 @@ import {
   DialogHeader,
   DialogTitle,
 } from '@/components/ui/dialog'
-import { Label } from '@/components/ui/label'
 import { Textarea } from '@/components/ui/textarea'
 import { toast } from '@/components/ui/toast-store'
 import { useApprovalDecision, type ApprovalDecisionAction } from '../api'
 import { approvalErrorKey } from '../errors'
 import type { ApprovalRequest } from '../types'
+import { Field } from '@/components/ui/field'
 
 export interface DecisionDialogProps {
   request: ApprovalRequest
@@ -41,7 +41,6 @@ interface DecisionFormProps extends Omit<DecisionDialogProps, 'action'> {
 
 function DecisionForm({ request, action, onOpenChange, onDone }: DecisionFormProps) {
   const { t } = useTranslation('approvals')
-  const commentId = useId()
   const errorId = useId()
   const [comment, setComment] = useState('')
   const [missing, setMissing] = useState(false)
@@ -80,10 +79,10 @@ function DecisionForm({ request, action, onOpenChange, onDone }: DecisionFormPro
         <DialogTitle>{t(`decision.${action}.title`)}</DialogTitle>
         <DialogDescription>{t(`decision.${action}.description`, { name: request.policy_name })}</DialogDescription>
       </DialogHeader>
-      <div className="grid gap-2.5">
-        <Label htmlFor={commentId}>{required ? t('decision.commentRequired') : t('decision.comment')}</Label>
-        <Textarea placeholder={t('placeholders.comment')}
-          id={commentId}
+      <Field label={required ? t('decision.commentRequired') : t('decision.comment')}>
+        {(control) => <>
+          <Textarea placeholder={t('placeholders.comment')}
+          {...control}
           value={comment}
           rows={4}
           maxLength={2000}
@@ -99,7 +98,8 @@ function DecisionForm({ request, action, onOpenChange, onDone }: DecisionFormPro
             {t('decision.commentMissing')}
           </p>
         )}
-      </div>
+        </>}
+      </Field>
       <DialogFooter>
         <Button type="button" variant="outline" onClick={() => onOpenChange(false)} disabled={decision.isPending}>
           {t('actions.close')}

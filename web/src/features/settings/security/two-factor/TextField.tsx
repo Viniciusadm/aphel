@@ -1,6 +1,6 @@
 import { useId, type ComponentProps } from 'react'
 import { Input } from '@/components/ui/input'
-import { Label } from '@/components/ui/label'
+import { Field } from '@/components/ui/field'
 
 interface TextFieldProps extends Omit<ComponentProps<'input'>, 'id'> {
   label: string
@@ -15,10 +15,10 @@ export function TextField({ label, error, hint, className, ...props }: TextField
   const describedBy = [error ? errorId : null, hint && !error ? hintId : null].filter(Boolean).join(' ') || undefined
 
   return (
-    <div className="grid gap-2">
-      <Label htmlFor={id}>{label}</Label>
-      <Input
-        id={id}
+    <Field label={label}>
+      {(control) => <>
+        <Input
+        {...control}
         className={className}
         aria-invalid={error ? true : undefined}
         aria-describedby={describedBy}
@@ -34,6 +34,7 @@ export function TextField({ label, error, hint, className, ...props }: TextField
           {hint}
         </p>
       )}
-    </div>
+      </>}
+    </Field>
   )
 }

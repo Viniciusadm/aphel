@@ -367,16 +367,15 @@ export function PeriodSection({ draft, onChange, fields }: DraftProps & { fields
                   onChange={(event) => onChange({ period: { ...period, from: event.target.value } })}
                 />}
               </Field>
-              <div className="grid gap-2.5">
-                <Label htmlFor={ids.to}>{t('sections.period.to')}</Label>
-                <Input
-                  id={ids.to}
+              <Field label={t('sections.period.to')}>
+                {(control) => <Input
+                  {...control}
                   type="date"
                   value={period.to}
                   aria-invalid={Boolean(period.from && period.to && period.from > period.to)}
                   onChange={(event) => onChange({ period: { ...period, to: event.target.value } })}
-                />
-              </div>
+                />}
+              </Field>
             </>
           )}
           <div className="flex items-center gap-2 sm:col-span-2">

@@ -18,6 +18,7 @@ import { RoleSelect } from '../components/RoleSelect'
 import { applyApiError } from '../lib/errors'
 import { inviteMemberSchema, type InviteMemberValues } from '../lib/schemas'
 import { zodResolver } from '@hookform/resolvers/zod'
+import { Field } from '@/components/ui/field'
 
 interface InviteMemberDialogProps {
   open: boolean
@@ -74,10 +75,10 @@ export function InviteMemberDialog({ open, roles, onOpenChange, onInvited }: Inv
         </DialogHeader>
         <form className="grid gap-4" onSubmit={onSubmit} noValidate>
           <FormAlert message={errors.root?.server?.message} />
-          <div className="grid gap-2">
-            <Label htmlFor="invite-email">{t('users.inviteDialog.email')}</Label>
-            <Input placeholder={t('users.inviteDialog.emailPlaceholder')}
-              id="invite-email"
+          <Field label={t('users.inviteDialog.email')}>
+            {(control) => <>
+              <Input placeholder={t('users.inviteDialog.emailPlaceholder')}
+              {...control}
               type="email"
               autoComplete="off"
               aria-invalid={errors.email ? true : undefined}
@@ -85,7 +86,8 @@ export function InviteMemberDialog({ open, roles, onOpenChange, onInvited }: Inv
               {...register('email')}
             />
             <FieldError id="invite-email-error" message={errors.email?.message} />
-          </div>
+            </>}
+          </Field>
           <div className="grid gap-2">
             <Label htmlFor="invite-role">{t('users.inviteDialog.role')}</Label>
             <Controller

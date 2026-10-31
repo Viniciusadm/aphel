@@ -28,6 +28,7 @@ import { activityErrorKey } from '../lib/errors'
 import { ACTIVITY_ICON_NAMES, DEFAULT_ACTIVITY_COLOR } from '../lib/icons'
 import { PageHeader } from '@/components/ui/page-header'
 import { Page } from '@/components/ui/page'
+import { Field } from '@/components/ui/field'
 
 const HEX_COLOR = /^#[0-9a-f]{6}$/i
 
@@ -237,10 +238,10 @@ function ActivityTypeForm({ editing, onClose, onSaved }: ActivityTypeFormProps) 
           void submit()
         }}
       >
-        <div className="grid gap-2.5">
-          <Label htmlFor={`${formId}-name`}>{t('types.name')}</Label>
-          <Input placeholder={t('placeholders.typeName')}
-            id={`${formId}-name`}
+        <Field label={t('types.name')}>
+          {(control) => <>
+            <Input placeholder={t('placeholders.typeName')}
+            {...control}
             value={name}
             autoFocus
             aria-invalid={nameError ? true : undefined}
@@ -251,7 +252,8 @@ function ActivityTypeForm({ editing, onClose, onSaved }: ActivityTypeFormProps) 
           />
           {nameError && <p className="text-sm text-destructive">{t('types.nameRequired')}</p>}
           {editing && <p className="text-xs text-muted-foreground">{t('types.keyHint', { key: editing.key })}</p>}
-        </div>
+          </>}
+        </Field>
         <div className="grid gap-4 sm:grid-cols-2">
           <div className="grid gap-2.5">
             <Label htmlFor={`${formId}-icon`}>{t('types.icon')}</Label>

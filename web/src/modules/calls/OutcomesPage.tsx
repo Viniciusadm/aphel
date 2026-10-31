@@ -26,6 +26,7 @@ import { callErrorKey } from './lib/errors'
 import type { CallOutcome } from './types'
 import { PageHeader } from '@/components/ui/page-header'
 import { Page } from '@/components/ui/page'
+import { Field } from '@/components/ui/field'
 
 interface EditorState {
   outcome: CallOutcome | null
@@ -209,10 +210,10 @@ function OutcomeForm({
           void submit()
         }}
       >
-        <div className="grid gap-2.5">
-          <Label htmlFor={`${formId}-name`}>{t('outcomes.name')}</Label>
-          <Input placeholder={t('placeholders.outcomeName')}
-            id={`${formId}-name`}
+        <Field label={t('outcomes.name')}>
+          {(control) => <>
+            <Input placeholder={t('placeholders.outcomeName')}
+            {...control}
             value={name}
             autoFocus
             aria-invalid={nameError ? true : undefined}
@@ -223,7 +224,8 @@ function OutcomeForm({
           />
           {nameError && <p className="text-sm text-destructive">{t('outcomes.nameRequired')}</p>}
           {editing && <p className="text-xs text-muted-foreground">{t('outcomes.keyHint', { key: editing.key })}</p>}
-        </div>
+          </>}
+        </Field>
         <div className="flex items-start gap-2">
           <Checkbox
             id={`${formId}-connected`}

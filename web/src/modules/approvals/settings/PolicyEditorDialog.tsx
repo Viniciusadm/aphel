@@ -47,6 +47,7 @@ import {
   type PolicyDraft,
 } from './policy-form'
 import { StepsEditor } from './StepsEditor'
+import { Field } from '@/components/ui/field'
 
 const LOCAL_ERRORS = ['required', 'invalidKey', 'dueRange'] as const
 type LocalError = (typeof LOCAL_ERRORS)[number]
@@ -216,10 +217,10 @@ function PolicyForm({ policy, pipelineOfStage, onOpenChange }: PolicyFormProps) 
       </DialogHeader>
 
       <div className="grid gap-3 sm:grid-cols-2">
-        <div className="grid gap-2.5">
-          <Label htmlFor={ids.name}>{t('form.name')}</Label>
-          <Input placeholder={t('placeholders.name')}
-            id={ids.name}
+        <Field label={t('form.name')}>
+          {(control) => <>
+            <Input placeholder={t('placeholders.name')}
+            {...control}
             value={draft.name}
             maxLength={140}
             aria-invalid={errors.name ? true : undefined}
@@ -229,11 +230,12 @@ function PolicyForm({ policy, pipelineOfStage, onOpenChange }: PolicyFormProps) 
             }}
           />
           {fieldError('name')}
-        </div>
-        <div className="grid gap-2.5">
-          <Label htmlFor={ids.key}>{t('form.key')}</Label>
-          <Input placeholder={t('placeholders.key')}
-            id={ids.key}
+          </>}
+        </Field>
+        <Field label={t('form.key')}>
+          {(control) => <>
+            <Input placeholder={t('placeholders.key')}
+            {...control}
             value={draft.key}
             maxLength={64}
             disabled={!creating}
@@ -242,18 +244,20 @@ function PolicyForm({ policy, pipelineOfStage, onOpenChange }: PolicyFormProps) 
             onChange={(event) => patch({ key: event.target.value, keyTouched: true })}
           />
           {creating ? fieldError('key') : <p className="text-xs text-muted-foreground">{t('form.keyLocked')}</p>}
-        </div>
-        <div className="grid gap-2.5 sm:col-span-2">
-          <Label htmlFor={ids.description}>{t('form.descriptionField')}</Label>
-          <Textarea placeholder={t('placeholders.description')}
-            id={ids.description}
+          </>}
+        </Field>
+        <Field label={t('form.descriptionField')} className="sm:col-span-2">
+          {(control) => <>
+            <Textarea placeholder={t('placeholders.description')}
+            {...control}
             value={draft.description}
             rows={2}
             maxLength={1000}
             onChange={(event) => patch({ description: event.target.value })}
           />
           {fieldError('description')}
-        </div>
+          </>}
+        </Field>
       </div>
 
       <div className="grid gap-3 sm:grid-cols-2">
@@ -356,10 +360,10 @@ function PolicyForm({ policy, pipelineOfStage, onOpenChange }: PolicyFormProps) 
           ))}
         {draft.conditionKind === 'filter' && fieldError('condition_filter')}
         {draft.conditionKind === 'formula' && (
-          <div className="grid gap-2.5">
-            <Label htmlFor={ids.formula}>{t('form.formula')}</Label>
-            <Textarea
-              id={ids.formula}
+          <Field label={t('form.formula')}>
+            {(control) => <>
+              <Textarea
+              {...control}
               value={draft.formula}
               rows={3}
               spellCheck={false}
@@ -370,7 +374,8 @@ function PolicyForm({ policy, pipelineOfStage, onOpenChange }: PolicyFormProps) 
             />
             <p className="text-xs text-muted-foreground">{t('form.formulaHint')}</p>
             {fieldError('condition_formula')}
-          </div>
+            </>}
+          </Field>
         )}
       </div>
 
@@ -411,10 +416,10 @@ function PolicyForm({ policy, pipelineOfStage, onOpenChange }: PolicyFormProps) 
       </fieldset>
 
       <div className="grid gap-3 sm:grid-cols-2">
-        <div className="grid gap-2.5">
-          <Label htmlFor={ids.due}>{t('form.dueHours')}</Label>
-          <Input
-            id={ids.due}
+        <Field label={t('form.dueHours')}>
+          {(control) => <>
+            <Input
+            {...control}
             type="number"
             inputMode="numeric"
             min={MIN_DUE_HOURS}
@@ -425,7 +430,8 @@ function PolicyForm({ policy, pipelineOfStage, onOpenChange }: PolicyFormProps) 
             onChange={(event) => patch({ dueHours: event.target.value })}
           />
           {fieldError('due_hours')}
-        </div>
+          </>}
+        </Field>
         <div className="flex items-center gap-2 sm:pt-7">
           <Checkbox
             id={ids.active}

@@ -17,7 +17,6 @@ import {
 } from '@/components/ui/dialog'
 import { ErrorState } from '@/components/ui/error-state'
 import { Input } from '@/components/ui/input'
-import { Label } from '@/components/ui/label'
 import { Skeleton } from '@/components/ui/skeleton'
 import { Textarea } from '@/components/ui/textarea'
 import {
@@ -32,6 +31,7 @@ import {
   type WebhookEndpointWithSecret,
 } from './api'
 import { Alert } from '@/components/ui/alert'
+import { Field } from '@/components/ui/field'
 
 type MessageKey = ParseKeys<'webhooks'>
 
@@ -178,10 +178,10 @@ export function EndpointFormDialog({ endpoint, onClose, onCreated, onUpdated }: 
               {serverError}
             </Alert>
           )}
-          <div className="grid gap-2.5">
-            <Label htmlFor={`${formId}-url`}>{t('form.url')}</Label>
-            <Input
-              id={`${formId}-url`}
+          <Field label={t('form.url')}>
+            {(control) => <>
+              <Input
+              {...control}
               type="url"
               inputMode="url"
               autoFocus
@@ -194,11 +194,12 @@ export function EndpointFormDialog({ endpoint, onClose, onCreated, onUpdated }: 
             <p id={`${formId}-url-hint`} className={urlError ? 'text-xs text-destructive' : 'text-xs text-muted-foreground'}>
               {urlError ?? t('form.urlHint')}
             </p>
-          </div>
-          <div className="grid gap-2.5">
-            <Label htmlFor={`${formId}-description`}>{t('form.descriptionLabel')}</Label>
-            <Textarea
-              id={`${formId}-description`}
+            </>}
+          </Field>
+          <Field label={t('form.descriptionLabel')}>
+            {(control) => <>
+              <Textarea
+              {...control}
               rows={2}
               maxLength={MAX_DESCRIPTION_LENGTH}
               placeholder={t('form.descriptionPlaceholder')}
@@ -211,7 +212,8 @@ export function EndpointFormDialog({ endpoint, onClose, onCreated, onUpdated }: 
                 {descriptionError}
               </p>
             )}
-          </div>
+            </>}
+          </Field>
           <fieldset className="grid gap-2" aria-describedby={eventsError ? `${formId}-events-error` : undefined}>
             <legend className="mb-1 text-sm font-medium">{t('form.events')}</legend>
             <Controller

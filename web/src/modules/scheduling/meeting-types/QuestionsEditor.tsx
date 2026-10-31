@@ -10,6 +10,7 @@ import { useContactFields } from '../api'
 import { FieldMessage } from '../lib/FieldMessage'
 import { QUESTION_KINDS } from '../types'
 import { MAX_QUESTIONS, NO_CONTACT_FIELD, emptyQuestion, type MeetingTypeFormValues } from './form'
+import { Field } from '@/components/ui/field'
 
 interface QuestionsEditorProps {
   control: Control<MeetingTypeFormValues>
@@ -36,14 +37,13 @@ export function QuestionsEditor({ control, register, errors }: QuestionsEditorPr
           return (
             <li key={field.id} className="grid gap-3 rounded-lg border p-3">
               <div className="flex items-end gap-2">
-                <div className="grid flex-1 gap-2">
-                  <Label htmlFor={`question-${index}-label`}>{t('meetingTypes.form.questionLabel')}</Label>
-                  <Input placeholder={t('placeholders.question')}
-                    id={`question-${index}-label`}
+                <Field label={t('meetingTypes.form.questionLabel')} className="flex-1">
+                  {(control) => <Input placeholder={t('placeholders.question')}
+                    {...control}
                     aria-invalid={questionErrors?.label ? true : undefined}
                     {...register(`questions.${index}.label`)}
-                  />
-                </div>
+                  />}
+                </Field>
                 <Button
                   type="button"
                   variant="ghost"

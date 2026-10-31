@@ -8,7 +8,6 @@ import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/com
 import { EmptyState } from '@/components/ui/empty-state'
 import { ErrorState } from '@/components/ui/error-state'
 import { Input } from '@/components/ui/input'
-import { Label } from '@/components/ui/label'
 import { Skeleton } from '@/components/ui/skeleton'
 import { NativeSelect } from '@/features/records/filters/NativeSelect'
 import { formatDateTime, useRecordFormatting } from '@/features/records/formatting'
@@ -33,6 +32,7 @@ import { useTrashTypeLabel } from './labels'
 import { PageHeader } from '@/components/ui/page-header'
 import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from '@/components/ui/table'
 import { Page } from '@/components/ui/page'
+import { Field } from '@/components/ui/field'
 
 export function TrashPage() {
   return (
@@ -296,10 +296,10 @@ function RetentionForm({ current }: { current: TrashSettings }) {
         )
       }}
     >
-      <div className="grid gap-2">
-        <Label htmlFor="trash-retention">{t('retention.label')}</Label>
-        <Input placeholder={t('placeholders.retention')}
-          id="trash-retention"
+      <Field label={t('retention.label')}>
+        {(control) => <>
+          <Input placeholder={t('placeholders.retention')}
+          {...control}
           type="number"
           inputMode="numeric"
           min={MIN_RETENTION_DAYS}
@@ -313,7 +313,8 @@ function RetentionForm({ current }: { current: TrashSettings }) {
         <p id={hintId} className={valid ? 'text-xs text-muted-foreground' : 'text-xs text-destructive'}>
           {valid ? t('retention.hint') : t('retention.invalid')}
         </p>
-      </div>
+        </>}
+      </Field>
       <Button type="submit" size="sm" disabled={!valid || days === current.retention_days || update.isPending}>
         {t('retention.save')}
       </Button>

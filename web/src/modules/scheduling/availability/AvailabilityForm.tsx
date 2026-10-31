@@ -24,6 +24,7 @@ import {
   type AvailabilityFormValues,
 } from './form'
 import { WeeklyHoursEditor } from './WeeklyHoursEditor'
+import { Field } from '@/components/ui/field'
 
 interface AvailabilityFormProps {
   userId: string | null
@@ -70,10 +71,10 @@ export function AvailabilityForm({ userId, availability }: AvailabilityFormProps
     min: number,
     max: number,
   ) => (
-    <div className="grid gap-2">
-      <Label htmlFor={`availability-${name}`}>{label}</Label>
-      <Input placeholder={t('placeholders.number')}
-        id={`availability-${name}`}
+    <Field label={label}>
+      {(control) => <>
+        <Input placeholder={t('placeholders.number')}
+        {...control}
         type="number"
         min={min}
         max={max}
@@ -82,7 +83,8 @@ export function AvailabilityForm({ userId, availability }: AvailabilityFormProps
       />
       <p className="text-xs text-muted-foreground">{hint}</p>
       <FieldMessage message={errors[name]?.message} />
-    </div>
+      </>}
+    </Field>
   )
 
   return (

@@ -27,6 +27,7 @@ import { RELATION_KEY_PATTERN, objectsAdminApi } from './api'
 import { relationKeyFromLabel } from './keys'
 import { useRecordTypeLabels } from './labels'
 import { Alert } from '@/components/ui/alert'
+import { Field } from '@/components/ui/field'
 
 const RELATION_KEY_MAX_LENGTH = 64
 const LABEL_MAX_LENGTH = 100
@@ -292,10 +293,10 @@ function RelationshipForm({ relationship, recordType, onClose, onSaved }: Relati
           </div>
         </fieldset>
         <div className="grid gap-4 sm:grid-cols-2">
-          <div className="grid gap-2.5">
-            <Label htmlFor={`${formId}-from-label`}>{t('relationships.fromLabel', { type: fromName })}</Label>
-            <Input placeholder={t('relationships.editor.fromLabelPlaceholder')}
-              id={`${formId}-from-label`}
+          <Field label={t('relationships.fromLabel', { type: fromName })}>
+            {(control) => <>
+              <Input placeholder={t('relationships.editor.fromLabelPlaceholder')}
+              {...control}
               value={fromLabel}
               maxLength={LABEL_MAX_LENGTH}
               aria-invalid={errors.fromLabel ? true : undefined}
@@ -303,11 +304,12 @@ function RelationshipForm({ relationship, recordType, onClose, onSaved }: Relati
               onChange={(event) => applyFromLabel(event.target.value)}
             />
             {errorText('fromLabel')}
-          </div>
-          <div className="grid gap-2.5">
-            <Label htmlFor={`${formId}-to-label`}>{t('relationships.toLabel', { type: toName })}</Label>
-            <Input placeholder={t('relationships.editor.toLabelPlaceholder')}
-              id={`${formId}-to-label`}
+            </>}
+          </Field>
+          <Field label={t('relationships.toLabel', { type: toName })}>
+            {(control) => <>
+              <Input placeholder={t('relationships.editor.toLabelPlaceholder')}
+              {...control}
               value={toLabel}
               maxLength={LABEL_MAX_LENGTH}
               aria-invalid={errors.toLabel ? true : undefined}
@@ -315,11 +317,12 @@ function RelationshipForm({ relationship, recordType, onClose, onSaved }: Relati
               onChange={(event) => applyToLabel(event.target.value)}
             />
             {errorText('toLabel')}
-          </div>
-          <div className="grid gap-2.5">
-            <Label htmlFor={`${formId}-key`}>{t('relationships.key', { type: fromName })}</Label>
-            <Input placeholder={t('relationships.editor.keyPlaceholder')}
-              id={`${formId}-key`}
+            </>}
+          </Field>
+          <Field label={t('relationships.key', { type: fromName })}>
+            {(control) => <>
+              <Input placeholder={t('relationships.editor.keyPlaceholder')}
+              {...control}
               value={key}
               maxLength={RELATION_KEY_MAX_LENGTH}
               disabled={editing}
@@ -333,11 +336,12 @@ function RelationshipForm({ relationship, recordType, onClose, onSaved }: Relati
               }}
             />
             {errorText('key')}
-          </div>
-          <div className="grid gap-2.5">
-            <Label htmlFor={`${formId}-inverse-key`}>{t('relationships.inverseKey', { type: toName })}</Label>
-            <Input placeholder={t('relationships.editor.inverseKeyPlaceholder')}
-              id={`${formId}-inverse-key`}
+            </>}
+          </Field>
+          <Field label={t('relationships.inverseKey', { type: toName })}>
+            {(control) => <>
+              <Input placeholder={t('relationships.editor.inverseKeyPlaceholder')}
+              {...control}
               value={inverseKey}
               maxLength={RELATION_KEY_MAX_LENGTH}
               disabled={editing}
@@ -351,7 +355,8 @@ function RelationshipForm({ relationship, recordType, onClose, onSaved }: Relati
               }}
             />
             {errorText('inverseKey')}
-          </div>
+            </>}
+          </Field>
         </div>
         <p className="text-xs text-muted-foreground">{t('relationships.keysHint')}</p>
         <label className={cn('flex items-start gap-2 text-sm', !requiredAllowed && 'opacity-60')}>

@@ -21,6 +21,7 @@ import { DEAL_RECORD_TYPE } from './resource'
 import { parseRottingDays, stageRottingDays } from './rotting/lib'
 import { RottingDaysField } from './rotting/RottingDaysField'
 import { NativeSelect } from '@/components/ui/native-select'
+import { Field } from '@/components/ui/field'
 
 export interface StageFormValues {
   name: string
@@ -62,8 +63,6 @@ function StageForm({ stage, pending, onOpenChange, onSubmit }: Omit<StageDialogP
   const [kind, setKind] = useState<StageKind>(stage?.kind ?? 'open')
   const [rottingDays, setRottingDays] = useState(String(stageRottingDays(stage) ?? ''))
   const [submitted, setSubmitted] = useState(false)
-  const nameId = useId()
-  const probabilityId = useId()
   const kindId = useId()
   const parsedProbability = Number(probability)
   const nameError = submitted && !name.trim()
@@ -101,21 +100,22 @@ function StageForm({ stage, pending, onOpenChange, onSubmit }: Omit<StageDialogP
         <DialogTitle>{stage ? t('settings.stages.editTitle') : t('settings.stages.newTitle')}</DialogTitle>
         <DialogDescription>{t('settings.stages.dialogDescription')}</DialogDescription>
       </DialogHeader>
-      <div className="grid gap-2">
-        <Label htmlFor={nameId}>{t('settings.stages.name')}</Label>
-        <Input placeholder={t('placeholders.stageName')}
-          id={nameId}
+      <Field label={t('settings.stages.name')}>
+        {(control) => <>
+          <Input placeholder={t('placeholders.stageName')}
+          {...control}
           value={name}
           maxLength={140}
           aria-invalid={nameError || undefined}
           onChange={(event) => setName(event.target.value)}
         />
         {nameError && <p className="text-sm text-destructive">{t('settings.stages.nameRequired')}</p>}
-      </div>
-      <div className="grid gap-2">
-        <Label htmlFor={probabilityId}>{t('settings.stages.probability')}</Label>
-        <Input placeholder={t('placeholders.probability')}
-          id={probabilityId}
+        </>}
+      </Field>
+      <Field label={t('settings.stages.probability')}>
+        {(control) => <>
+          <Input placeholder={t('placeholders.probability')}
+          {...control}
           type="number"
           min={0}
           max={100}
@@ -125,7 +125,8 @@ function StageForm({ stage, pending, onOpenChange, onSubmit }: Omit<StageDialogP
           onChange={(event) => setProbability(event.target.value)}
         />
         {probabilityError && <p className="text-sm text-destructive">{t('settings.stages.probabilityInvalid')}</p>}
-      </div>
+        </>}
+      </Field>
       <div className="grid gap-2">
         <Label htmlFor={kindId}>{t('settings.stages.kind')}</Label>
         <NativeSelect

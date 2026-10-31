@@ -2,7 +2,6 @@ import { useId, useState, type FormEvent } from 'react'
 import { useTranslation } from 'react-i18next'
 import { Button } from '@/components/ui/button'
 import { Input } from '@/components/ui/input'
-import { Label } from '@/components/ui/label'
 import { recordTypeLabel, KNOWN_RECORD_TYPES } from './lib/labels'
 import { EMPTY_FILTERS, hasFilters, type AuditFilters } from './lib/filters'
 import { Field } from '@/components/ui/field'
@@ -36,10 +35,10 @@ export function AuditFiltersForm({ filters, onApply }: AuditFiltersFormProps) {
       aria-label={t('filters.label')}
       className="grid gap-3 rounded-lg border p-4 sm:grid-cols-2 lg:grid-cols-5"
     >
-      <div className="grid gap-2.5">
-        <Label htmlFor={`${id}-record-type`}>{t('filters.recordType')}</Label>
-        <Input
-          id={`${id}-record-type`}
+      <Field label={t('filters.recordType')}>
+        {(control) => <>
+          <Input
+          {...control}
           list={`${id}-record-types`}
           value={draft.recordType}
           onChange={update('recordType')}
@@ -56,7 +55,8 @@ export function AuditFiltersForm({ filters, onApply }: AuditFiltersFormProps) {
             )
           })}
         </datalist>
-      </div>
+        </>}
+      </Field>
       <Field label={t('filters.recordId')}>
         {(control) => <Input
           {...control}

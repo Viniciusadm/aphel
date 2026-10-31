@@ -9,6 +9,7 @@ import { useModuleTranslation } from '@/kernel/modules/i18n'
 import { LEAD_FORMS_KEY, FIELD_KINDS, FULL_NAME_TARGET, type LeadFormOptions } from './api'
 import { slugify, type LeadFormValues } from './form'
 import { Checkbox } from '@/components/ui/checkbox'
+import { Field } from '@/components/ui/field'
 
 interface FieldEditorProps {
   index: number
@@ -67,16 +68,18 @@ export function FieldEditor({ index, total, targets, onMove, onRemove }: FieldEd
         </div>
       </div>
       <div className="grid gap-3 sm:grid-cols-2">
-        <div className="grid gap-2.5">
-          <Label htmlFor={`${prefix}-label`}>{t('editor.label')}</Label>
-          <Input placeholder={t('editor.labelPlaceholder')} id={`${prefix}-label`} {...register(`fields.${index}.label`, { onBlur: fillKey })} />
+        <Field label={t('editor.label')}>
+          {(control) => <>
+            <Input placeholder={t('editor.labelPlaceholder')} {...control} {...register(`fields.${index}.label`, { onBlur: fillKey })} />
           {errors?.label && <p className="text-sm text-destructive">{message(errors.label.message)}</p>}
-        </div>
-        <div className="grid gap-2.5">
-          <Label htmlFor={`${prefix}-key`}>{t('editor.key')}</Label>
-          <Input placeholder={t('editor.keyPlaceholder')} id={`${prefix}-key`} className="font-mono" {...register(`fields.${index}.key`)} />
+          </>}
+        </Field>
+        <Field label={t('editor.key')}>
+          {(control) => <>
+            <Input placeholder={t('editor.keyPlaceholder')} {...control} className="font-mono" {...register(`fields.${index}.key`)} />
           {errors?.key && <p className="text-sm text-destructive">{message(errors.key.message)}</p>}
-        </div>
+          </>}
+        </Field>
         <div className="grid gap-2.5">
           <Label htmlFor={`${prefix}-kind`}>{t('editor.kind')}</Label>
           <NativeSelect id={`${prefix}-kind`} {...register(`fields.${index}.kind`)}>
@@ -103,21 +106,21 @@ export function FieldEditor({ index, total, targets, onMove, onRemove }: FieldEd
           </NativeSelect>
         </div>
         {kind !== 'checkbox' && (
-          <div className="grid gap-2.5 sm:col-span-2">
-            <Label htmlFor={`${prefix}-placeholder`}>
-              {kind === 'select' ? t('editor.selectPrompt') : t('editor.placeholder')}
-            </Label>
-            <Input id={`${prefix}-placeholder`} {...register(`fields.${index}.placeholder`)} />
+          <Field label={kind === 'select' ? t('editor.selectPrompt') : t('editor.placeholder')} className="sm:col-span-2">
+            {(control) => <>
+              <Input {...control} {...register(`fields.${index}.placeholder`)} />
             {errors?.placeholder && <p className="text-sm text-destructive">{message(errors.placeholder.message)}</p>}
-          </div>
+            </>}
+          </Field>
         )}
         {kind === 'select' && (
-          <div className="grid gap-2.5 sm:col-span-2">
-            <Label htmlFor={`${prefix}-options`}>{t('editor.options')}</Label>
-            <Textarea placeholder={t('editor.optionsPlaceholder')} id={`${prefix}-options`} rows={3} {...register(`fields.${index}.options`)} />
+          <Field label={t('editor.options')} className="sm:col-span-2">
+            {(control) => <>
+              <Textarea placeholder={t('editor.optionsPlaceholder')} {...control} rows={3} {...register(`fields.${index}.options`)} />
             <p className="text-xs text-muted-foreground">{t('editor.optionsHelp')}</p>
             {errors?.options && <p className="text-sm text-destructive">{message(errors.options.message)}</p>}
-          </div>
+            </>}
+          </Field>
         )}
       </div>
       <label className="flex items-center gap-2 text-sm">

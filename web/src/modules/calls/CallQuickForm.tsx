@@ -4,7 +4,6 @@ import { useId, useState } from 'react'
 import { useTranslation } from 'react-i18next'
 import { notifyError } from '@/components/feedback/notify'
 import { Input } from '@/components/ui/input'
-import { Label } from '@/components/ui/label'
 import { activitiesKeys } from '@/modules/activities/api'
 import { callsKeys, useCallOutcomes } from './api'
 import type { CallActivity, LogCallRequest } from './types'
@@ -13,6 +12,7 @@ import { useOutboxFeedback } from '@/features/mobile/lib/outbox-feedback'
 import { DictationField } from '@/features/mobile/components/DictationField'
 import { RecordPicker, type PickedRecord } from '@/features/mobile/components/RecordPicker'
 import { FormActions, FormBody, type QuickFormProps } from '@/features/mobile/components/QuickForm'
+import { Field } from '@/components/ui/field'
 
 type CallDirection = 'outbound' | 'inbound'
 
@@ -94,10 +94,10 @@ export function CallQuickForm({ onDone, initialRecord }: CallQuickFormProps) {
         />
         {touched && !outcomeKey && <p className="text-sm text-destructive">{t('call.outcomeRequired')}</p>}
       </fieldset>
-      <div className="grid gap-2">
-        <Label htmlFor={ids.minutes}>{t('call.minutes')}</Label>
-        <Input placeholder={t('placeholders.minutes')}
-          id={ids.minutes}
+      <Field label={t('call.minutes')}>
+        {(control) => <>
+          <Input placeholder={t('placeholders.minutes')}
+          {...control}
           type="number"
           inputMode="decimal"
           min={0}
@@ -109,7 +109,8 @@ export function CallQuickForm({ onDone, initialRecord }: CallQuickFormProps) {
           aria-invalid={minutesInvalid}
         />
         {minutesInvalid && <p className="text-sm text-destructive">{t('call.minutesInvalid')}</p>}
-      </div>
+        </>}
+      </Field>
       <DictationField id={ids.notes} label={t('call.notes')} value={notes} onChange={setNotes} maxLength={20_000} />
       <FormActions pending={pending} label={t('call.submit')} />
     </FormBody>

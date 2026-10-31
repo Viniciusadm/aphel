@@ -1,6 +1,6 @@
 import { useMutation, useQueryClient } from '@tanstack/react-query'
 import { ArrowDown, ArrowUp, Pencil, Plus, Power, PowerOff, Trash2 } from 'lucide-react'
-import { Fragment, useId, useState, type FormEvent } from 'react'
+import { Fragment, useState, type FormEvent } from 'react'
 import { useTranslation } from 'react-i18next'
 import { useSession } from '@/app/session/session-context'
 import { notifySuccess } from '@/components/feedback/notify'
@@ -9,7 +9,6 @@ import { Button } from '@/components/ui/button'
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card'
 import { ErrorState } from '@/components/ui/error-state'
 import { Input } from '@/components/ui/input'
-import { Label } from '@/components/ui/label'
 import { Skeleton } from '@/components/ui/skeleton'
 import {
   DEAL_BOARDS_QUERY_KEY,
@@ -30,6 +29,7 @@ import { moveItem } from './order'
 import { RottingStageBadge } from './rotting/RottingStageBadge'
 import { StageDialog, type StageFormValues } from './StageDialog'
 import { StageRemovalDialog, type StageRemovalMode } from './StageRemovalDialog'
+import { Field } from '@/components/ui/field'
 
 const KIND_VARIANT = { open: 'secondary', won: 'success', lost: 'destructive' } as const
 
@@ -45,7 +45,6 @@ function PipelineName({ pipeline }: { pipeline: Pipeline }) {
   const { t } = useTranslation('pipelines', { keyPrefix: 'editor' })
   const invalidate = useInvalidate()
   const [name, setName] = useState(pipeline.name)
-  const inputId = useId()
   const rename = useMutation({
     mutationFn: (next: string) => pipelinesApi.update(pipeline.id, { name: next }),
     onSuccess: () => {
@@ -64,10 +63,9 @@ function PipelineName({ pipeline }: { pipeline: Pipeline }) {
         if (changed) rename.mutate(name.trim())
       }}
     >
-      <div className="grid min-w-56 flex-1 gap-2.5">
-        <Label htmlFor={inputId}>{t('settings.pipeline.name')}</Label>
-        <Input placeholder={t('placeholders.pipelineName')} id={inputId} value={name} maxLength={140} onChange={(event) => setName(event.target.value)} />
-      </div>
+      <Field label={t('settings.pipeline.name')} className="min-w-56 flex-1">
+        {(control) => <Input placeholder={t('placeholders.pipelineName')} {...control} value={name} maxLength={140} onChange={(event) => setName(event.target.value)} />}
+      </Field>
       <Button type="submit" variant="outline" disabled={!changed || rename.isPending}>
         {t('actions.save')}
       </Button>
@@ -379,7 +377,6 @@ function LostReasonsSection() {
   const invalidate = useInvalidate()
   const reasons = useLostReasons(true)
   const [name, setName] = useState('')
-  const inputId = useId()
   const create = useMutation({
     mutationFn: (next: string) => lostReasonsApi.create(next),
     onSuccess: () => {
@@ -410,10 +407,9 @@ function LostReasonsSection() {
             if (name.trim()) create.mutate(name.trim())
           }}
         >
-          <div className="grid min-w-56 flex-1 gap-2.5">
-            <Label htmlFor={inputId}>{t('settings.lostReasons.new')}</Label>
-            <Input placeholder={t('placeholders.lostReason')} id={inputId} value={name} maxLength={140} onChange={(event) => setName(event.target.value)} />
-          </div>
+          <Field label={t('settings.lostReasons.new')} className="min-w-56 flex-1">
+            {(control) => <Input placeholder={t('placeholders.lostReason')} {...control} value={name} maxLength={140} onChange={(event) => setName(event.target.value)} />}
+          </Field>
           <Button type="submit" disabled={!name.trim() || create.isPending}>
             <Plus aria-hidden="true" />
             {t('settings.lostReasons.add')}

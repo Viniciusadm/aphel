@@ -34,6 +34,7 @@ import {
 import { TagChip } from './TagChip'
 import { PageHeader } from '@/components/ui/page-header'
 import { Page } from '@/components/ui/page'
+import { Field } from '@/components/ui/field'
 
 const HEX_COLOR = /^#[0-9a-f]{6}$/i
 
@@ -211,10 +212,10 @@ function TagForm({ editing, onClose, onSaved }: TagFormProps) {
           void submit()
         }}
       >
-        <div className="grid gap-2.5">
-          <Label htmlFor={`${formId}-name`}>{t('settings.name')}</Label>
-          <Input placeholder={t('placeholders.name')}
-            id={`${formId}-name`}
+        <Field label={t('settings.name')}>
+          {(control) => <>
+            <Input placeholder={t('placeholders.name')}
+            {...control}
             value={name}
             maxLength={MAX_TAG_NAME_LENGTH}
             autoFocus
@@ -230,7 +231,8 @@ function TagForm({ editing, onClose, onSaved }: TagFormProps) {
               {nameError}
             </p>
           )}
-        </div>
+          </>}
+        </Field>
         <div className="grid gap-2.5">
           <Label htmlFor={`${formId}-color`}>{t('settings.color')}</Label>
           <div className="flex items-center gap-2">

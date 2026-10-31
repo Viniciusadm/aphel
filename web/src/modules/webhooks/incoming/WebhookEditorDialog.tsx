@@ -15,7 +15,6 @@ import {
   DialogTitle,
 } from '@/components/ui/dialog'
 import { Input } from '@/components/ui/input'
-import { Label } from '@/components/ui/label'
 import { Skeleton } from '@/components/ui/skeleton'
 import { Textarea } from '@/components/ui/textarea'
 import { defaultPipeline, usePipelines } from '@/modules/pipelines/api'
@@ -135,10 +134,10 @@ function EditorBody({ webhook, onCancel, onSaved }: EditorBodyProps) {
       </DialogHeader>
       <FormProvider {...form}>
         <form id={formId} className="grid gap-4" noValidate onSubmit={(event) => void submit(event)}>
-          <div className="grid gap-2.5">
-            <Label htmlFor={`${formId}-name`}>{t('form.name')}</Label>
-            <Input
-              id={`${formId}-name`}
+          <Field label={t('form.name')}>
+            {(control) => <>
+              <Input
+              {...control}
               maxLength={MAX_NAME_LENGTH}
               placeholder={t('form.namePlaceholder')}
               aria-invalid={formState.errors.name ? true : undefined}
@@ -147,7 +146,8 @@ function EditorBody({ webhook, onCancel, onSaved }: EditorBodyProps) {
             {formState.errors.name && (
               <p className="text-sm text-destructive">{errorMessage(formState.errors.name.message)}</p>
             )}
-          </div>
+            </>}
+          </Field>
           <Field label={t('form.descriptionLabel')}>
             {(control) => <Textarea placeholder={t('placeholders.description')}
               {...control}
@@ -181,10 +181,10 @@ function EditorBody({ webhook, onCancel, onSaved }: EditorBodyProps) {
             )}
           </div>
           {signed && (
-            <div className="grid gap-2.5 sm:max-w-xs">
-              <Label htmlFor={`${formId}-tolerance`}>{t('form.tolerance')}</Label>
-              <Input placeholder={t('placeholders.tolerance')}
-                id={`${formId}-tolerance`}
+            <Field label={t('form.tolerance')} className="sm:max-w-xs">
+              {(control) => <>
+                <Input placeholder={t('placeholders.tolerance')}
+                {...control}
                 type="number"
                 min={MIN_TOLERANCE_SECONDS}
                 max={MAX_TOLERANCE_SECONDS}
@@ -195,7 +195,8 @@ function EditorBody({ webhook, onCancel, onSaved }: EditorBodyProps) {
                   {errorMessage(formState.errors.signature_tolerance_seconds.message)}
                 </p>
               )}
-            </div>
+              </>}
+            </Field>
           )}
 
           <section className="grid gap-3" aria-labelledby={`${formId}-actions`}>

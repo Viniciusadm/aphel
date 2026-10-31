@@ -13,7 +13,6 @@ import {
 } from '@/components/ui/dialog'
 import { ErrorState } from '@/components/ui/error-state'
 import { Input } from '@/components/ui/input'
-import { Label } from '@/components/ui/label'
 import { Skeleton } from '@/components/ui/skeleton'
 import { Textarea } from '@/components/ui/textarea'
 import { useFieldSchema } from '@/features/records/api'
@@ -125,10 +124,10 @@ function SegmentForm({ schema, recordType, editing, onClose, onSaved }: SegmentF
           void submit()
         }}
       >
-        <div className="grid gap-2.5">
-          <Label htmlFor={`${formId}-name`}>{t('dialog.name')}</Label>
-          <Input placeholder={t('placeholders.name')}
-            id={`${formId}-name`}
+        <Field label={t('dialog.name')}>
+          {(control) => <>
+            <Input placeholder={t('placeholders.name')}
+            {...control}
             value={name}
             maxLength={MAX_SEGMENT_NAME_LENGTH}
             autoFocus
@@ -136,7 +135,8 @@ function SegmentForm({ schema, recordType, editing, onClose, onSaved }: SegmentF
             onChange={(event) => setName(event.target.value)}
           />
           {errors.name && <p className="text-sm text-destructive">{errors.name}</p>}
-        </div>
+          </>}
+        </Field>
         <Field label={t('dialog.descriptionLabel')}>
           {(control) => <Textarea placeholder={t('placeholders.description')}
             {...control}

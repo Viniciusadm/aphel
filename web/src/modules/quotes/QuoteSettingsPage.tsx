@@ -1,4 +1,4 @@
-import { useId, useState } from 'react'
+import { useState } from 'react'
 import { useTranslation } from 'react-i18next'
 import { useSession } from '@/app/session/session-context'
 import { notifyError, notifySuccess, PageLoader, UnsavedChangesGuard } from '@/components/feedback'
@@ -36,7 +36,6 @@ export function QuoteSettingsPage() {
 
 function SettingsForm({ settings }: { settings: QuoteSettings }) {
   const { t } = useTranslation('quotes')
-  const ids = { days: useId(), terms: useId() }
   const { hasPermission } = useSession()
   const canEdit = hasPermission('settings.manage')
   const pipelines = usePipelines()
@@ -67,10 +66,10 @@ function SettingsForm({ settings }: { settings: QuoteSettings }) {
   return (
     <div className="grid max-w-2xl gap-6">
       <UnsavedChangesGuard when={dirty} />
-      <div className="grid gap-2.5">
-        <Label htmlFor={ids.days}>{t('settings.validDays')}</Label>
-        <Input placeholder={t('placeholders.days')}
-          id={ids.days}
+      <Field label={t('settings.validDays')}>
+        {(control) => <>
+          <Input placeholder={t('placeholders.days')}
+          {...control}
           className="w-32"
           inputMode="numeric"
           value={days}
@@ -81,7 +80,8 @@ function SettingsForm({ settings }: { settings: QuoteSettings }) {
           }}
         />
         <p className="text-xs text-muted-foreground">{t('settings.validDaysHint')}</p>
-      </div>
+        </>}
+      </Field>
       <Field label={t('settings.terms')}>
         {(control) => <Textarea placeholder={t('placeholders.terms')}
           {...control}

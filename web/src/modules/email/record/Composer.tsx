@@ -31,6 +31,7 @@ import { AddressField } from './AddressField'
 import { htmlToText } from './html-text'
 import type { RichEmailEditorHandle } from './RichEmailEditor'
 import { useRecipientSuggestions } from './suggestions'
+import { Field } from '@/components/ui/field'
 
 const RichEmailEditor = lazy(() => import('./RichEmailEditor'))
 
@@ -361,10 +362,10 @@ function ComposerForm({ record, mailboxes, reply, onDirtyChange, onCancel, onSen
           </NativeSelect>
         </div>
       )}
-      <div className="grid content-start gap-2.5">
-        <Label htmlFor={`${formId}-subject`}>{t('fields.subject')}</Label>
-        <Input placeholder={t('placeholders.subject')}
-          id={`${formId}-subject`}
+      <Field label={t('fields.subject')} className="content-start">
+        {(control) => <>
+          <Input placeholder={t('placeholders.subject')}
+          {...control}
           ref={subjectRef}
           value={subject}
           maxLength={300}
@@ -378,7 +379,8 @@ function ComposerForm({ record, mailboxes, reply, onDirtyChange, onCancel, onSen
           }}
         />
         {submitted && subject.trim() === '' && <p className="text-sm text-destructive">{t('composer.subjectRequired')}</p>}
-      </div>
+        </>}
+      </Field>
       <Tabs value={tab} onValueChange={changeTab} className="grid gap-3">
         <div className="flex flex-wrap items-center justify-between gap-2">
           <TabsList>

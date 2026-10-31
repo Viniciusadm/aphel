@@ -11,7 +11,6 @@ import {
   DialogTitle,
 } from '@/components/ui/dialog'
 import { Input } from '@/components/ui/input'
-import { Label } from '@/components/ui/label'
 import { toast } from '@/components/ui/toast-store'
 import { settingsApi, useSettingsMutation, versionOf, type PermissionDefinition, type Role } from '../api'
 import { FieldError, FormAlert } from '../components/FieldError'
@@ -20,6 +19,7 @@ import { roleSchema, type RoleValues } from '../lib/schemas'
 import { zodResolver } from '@hookform/resolvers/zod'
 import { PermissionMatrix } from './PermissionMatrix'
 import { grantsFromMatrix, matrixFromRole } from './matrix'
+import { Field } from '@/components/ui/field'
 
 interface RoleEditorDialogProps {
   role: Role | null
@@ -70,20 +70,21 @@ export function RoleEditorDialog({ role, catalog, onClose }: RoleEditorDialogPro
         <form className="grid gap-4" onSubmit={onSubmit} noValidate>
           <FormAlert message={errors.root?.server?.message} />
           <div className="grid gap-4 sm:grid-cols-2">
-            <div className="grid gap-2">
-              <Label htmlFor="role-name">{t('roles.editor.name')}</Label>
-              <Input placeholder={t('roles.editor.namePlaceholder')}
-                id="role-name"
+            <Field label={t('roles.editor.name')}>
+              {(control) => <>
+                <Input placeholder={t('roles.editor.namePlaceholder')}
+                {...control}
                 aria-invalid={errors.name ? true : undefined}
                 aria-describedby={errors.name ? 'role-name-error' : undefined}
                 {...register('name')}
               />
               <FieldError id="role-name-error" message={errors.name?.message} />
-            </div>
-            <div className="grid gap-2">
-              <Label htmlFor="role-key">{t('roles.editor.key')}</Label>
-              <Input placeholder={t('roles.editor.keyPlaceholder')}
-                id="role-key"
+              </>}
+            </Field>
+            <Field label={t('roles.editor.key')}>
+              {(control) => <>
+                <Input placeholder={t('roles.editor.keyPlaceholder')}
+                {...control}
                 disabled={role?.is_system}
                 aria-invalid={errors.key ? true : undefined}
                 aria-describedby={errors.key ? 'role-key-error' : 'role-key-hint'}
@@ -96,7 +97,8 @@ export function RoleEditorDialog({ role, catalog, onClose }: RoleEditorDialogPro
                   {t(role?.is_system ? 'roles.editor.systemKeyHint' : 'roles.editor.keyHint')}
                 </p>
               )}
-            </div>
+              </>}
+            </Field>
           </div>
           {locked && (
             <p className="rounded-md border bg-muted/40 px-3 py-2 text-sm text-muted-foreground">

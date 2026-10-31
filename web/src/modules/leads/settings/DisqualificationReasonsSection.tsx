@@ -15,7 +15,6 @@ import {
 import { EmptyState } from '@/components/ui/empty-state'
 import { ErrorState } from '@/components/ui/error-state'
 import { Input } from '@/components/ui/input'
-import { Label } from '@/components/ui/label'
 import { Skeleton } from '@/components/ui/skeleton'
 import { toast } from '@/components/ui/toast-store'
 import { SortableList } from '@/features/settings/fields/components/SortableList'
@@ -26,6 +25,7 @@ import { lifecycleErrorMessage } from '../errors'
 import type { DisqualificationReason } from '../types'
 import { PageHeader } from '@/components/ui/page-header'
 import { Page } from '@/components/ui/page'
+import { Field } from '@/components/ui/field'
 
 interface EditorState {
   reason: DisqualificationReason | null
@@ -232,10 +232,10 @@ function ReasonForm({
           void submit()
         }}
       >
-        <div className="grid gap-2.5">
-          <Label htmlFor={`${formId}-name`}>{t('reasons.name')}</Label>
-          <Input placeholder={t('placeholders.reasonName')}
-            id={`${formId}-name`}
+        <Field label={t('reasons.name')}>
+          {(control) => <>
+            <Input placeholder={t('placeholders.reasonName')}
+            {...control}
             value={name}
             autoFocus
             maxLength={MAX_REASON_NAME_LENGTH}
@@ -247,7 +247,8 @@ function ReasonForm({
           />
           {nameError && <p className="text-sm text-destructive">{t('reasons.nameRequired')}</p>}
           {editing && <code className="text-xs text-muted-foreground">{editing.key}</code>}
-        </div>
+          </>}
+        </Field>
       </form>
       <DialogFooter>
         <Button variant="outline" onClick={onClose} disabled={saving}>

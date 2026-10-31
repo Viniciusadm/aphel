@@ -1,10 +1,9 @@
 import { useQueryClient } from '@tanstack/react-query'
-import { useId, useState } from 'react'
+import { useState } from 'react'
 import { useTranslation } from 'react-i18next'
 import { useNavigate } from 'react-router'
 import { notifyError } from '@/components/feedback/notify'
 import { Input } from '@/components/ui/input'
-import { Label } from '@/components/ui/label'
 import { CONTACT_RECORD_TYPE, contactResource } from './resource'
 import { emitModuleEvent } from '@/kernel/modules/events'
 import { recordsKeys } from '@/features/records/api'
@@ -24,7 +23,6 @@ export function ContactQuickForm({ onDone }: QuickFormProps) {
   const { t } = useTranslation('contacts', { keyPrefix: 'quickAdd' })
   const navigate = useNavigate()
   const queryClient = useQueryClient()
-  const ids = { name: useId(), phone: useId(), email: useId() }
   const [name, setName] = useState('')
   const [phone, setPhone] = useState('')
   const [email, setEmail] = useState('')
@@ -61,10 +59,10 @@ export function ContactQuickForm({ onDone }: QuickFormProps) {
 
   return (
     <FormBody onSubmit={() => void submit()}>
-      <div className="grid gap-2">
-        <Label htmlFor={ids.name}>{t('contact.name')}</Label>
-        <Input placeholder={t('placeholders.name')}
-          id={ids.name}
+      <Field label={t('contact.name')}>
+        {(control) => <>
+          <Input placeholder={t('placeholders.name')}
+          {...control}
           value={name}
           onChange={(event) => setName(event.target.value)}
           autoComplete="name"
@@ -74,7 +72,8 @@ export function ContactQuickForm({ onDone }: QuickFormProps) {
           required
         />
         {touched && nameMissing && <p className="text-sm text-destructive">{t('contact.nameRequired')}</p>}
-      </div>
+        </>}
+      </Field>
       <Field label={t('contact.phone')}>
         {(control) => <Input placeholder={t('placeholders.phone')}
           {...control}

@@ -21,6 +21,7 @@ import { teamSchema, type TeamValues } from '../lib/schemas'
 import { zodResolver } from '@hookform/resolvers/zod'
 import { parentOptions } from './hierarchy'
 import { Checkbox } from '@/components/ui/checkbox'
+import { Field } from '@/components/ui/field'
 
 const NO_PARENT = 'none'
 
@@ -102,16 +103,17 @@ export function TeamEditorDialog({ team, teams, members, onClose }: TeamEditorDi
         <form className="grid gap-4" onSubmit={onSubmit} noValidate>
           <FormAlert message={errors.root?.server?.message} />
           <div className="grid gap-4 sm:grid-cols-2">
-            <div className="grid gap-2">
-              <Label htmlFor="team-name">{t('teams.editor.name')}</Label>
-              <Input placeholder={t('teams.editor.namePlaceholder')}
-                id="team-name"
+            <Field label={t('teams.editor.name')}>
+              {(control) => <>
+                <Input placeholder={t('teams.editor.namePlaceholder')}
+                {...control}
                 aria-invalid={errors.name ? true : undefined}
                 aria-describedby={errors.name ? 'team-name-error' : undefined}
                 {...register('name')}
               />
               <FieldError id="team-name-error" message={errors.name?.message} />
-            </div>
+              </>}
+            </Field>
             <div className="grid gap-2">
               <Label htmlFor="team-parent">{t('teams.editor.parent')}</Label>
               <Controller

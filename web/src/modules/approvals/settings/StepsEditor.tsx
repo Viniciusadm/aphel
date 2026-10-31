@@ -9,6 +9,7 @@ import { useRoles } from '@/features/settings/api'
 import { APPROVAL_RULES, APPROVER_KINDS, MAX_POLICY_STEPS, MIN_POLICY_STEPS } from '../constants'
 import type { ApprovalRule, ApproverKind } from '../types'
 import { newStep, type FormErrors, type StepDraft } from './policy-form'
+import { Field } from '@/components/ui/field'
 
 export interface StepsEditorProps {
   steps: StepDraft[]
@@ -84,16 +85,15 @@ export function StepsEditor({ steps, errors, errorText, onChange }: StepsEditorP
                 </div>
               </div>
               <div className="grid gap-3 sm:grid-cols-2">
-                <div className="grid gap-2.5 sm:col-span-2">
-                  <Label htmlFor={`${step.uid}-name`}>{t('form.stepName')}</Label>
-                  <Input
-                    id={`${step.uid}-name`}
+                <Field label={t('form.stepName')} className="sm:col-span-2">
+                  {(control) => <Input
+                    {...control}
                     value={step.name}
                     maxLength={140}
                     placeholder={t('form.stepNamePlaceholder')}
                     onChange={(event) => update(index, { name: event.target.value })}
-                  />
-                </div>
+                  />}
+                </Field>
                 <div className="grid gap-2.5">
                   <Label htmlFor={`${step.uid}-kind`}>{t('form.approverKind')}</Label>
                   <NativeSelect

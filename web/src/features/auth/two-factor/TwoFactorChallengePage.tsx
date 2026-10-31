@@ -7,12 +7,12 @@ import { NETWORK_ERROR_CODE, isApiError } from '@/api'
 import { storeSession } from '@/app/session/session-query'
 import { Button } from '@/components/ui/button'
 import { Input } from '@/components/ui/input'
-import { Label } from '@/components/ui/label'
 import { logout } from '../api'
 import { AuthCard } from '../components/AuthCard'
 import { SubmitButton } from '../components/SubmitButton'
 import { REDIRECT_PARAM, withRedirect } from '../lib/redirect'
 import { INVALID_TWO_FACTOR_CODE, submitTwoFactorChallenge } from './api'
+import { Field } from '@/components/ui/field'
 
 type ChallengeMode = 'totp' | 'recovery'
 type ChallengeError = 'required' | 'totpFormat' | 'invalidCode' | 'rateLimited' | 'network' | 'generic'
@@ -104,10 +104,10 @@ export function TwoFactorChallengePage() {
       }
     >
       <form noValidate onSubmit={(event) => void onSubmit(event)} className="grid gap-4">
-        <div className="grid gap-2">
-          <Label htmlFor={inputId}>{recovery ? t('challenge.recoveryLabel') : t('challenge.codeLabel')}</Label>
-          <Input
-            id={inputId}
+        <Field label={recovery ? t('challenge.recoveryLabel') : t('challenge.codeLabel')}>
+          {(control) => <>
+            <Input
+            {...control}
             key={mode}
             value={code}
             onChange={(event) => setCode(event.target.value)}
@@ -128,7 +128,8 @@ export function TwoFactorChallengePage() {
               <span>{t(`challenge.errors.${error}`)}</span>
             </p>
           )}
-        </div>
+          </>}
+        </Field>
         <SubmitButton pending={pending} pendingLabel={t('challenge.submitting')}>
           {t('challenge.submit')}
         </SubmitButton>

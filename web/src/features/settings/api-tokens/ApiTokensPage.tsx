@@ -38,6 +38,7 @@ import { ApiTokenLimitsPanel } from './ApiTokenLimitsPanel'
 import { PageHeader } from '@/components/ui/page-header'
 import { Page } from '@/components/ui/page'
 import { NativeSelect } from '@/components/ui/native-select'
+import { Field } from '@/components/ui/field'
 
 const EXPIRATION_OPTIONS = ['30', '90', '365', 'never'] as const
 type ExpirationOption = (typeof EXPIRATION_OPTIONS)[number]
@@ -249,10 +250,10 @@ function CreateTokenForm({ onCancel, onCreated }: CreateTokenFormProps) {
           void submit()
         }}
       >
-        <div className="grid gap-2.5">
-          <Label htmlFor={`${formId}-name`}>{t('form.name')}</Label>
-          <Input
-            id={`${formId}-name`}
+        <Field label={t('form.name')}>
+          {(control) => <>
+            <Input
+            {...control}
             value={name}
             maxLength={MAX_API_TOKEN_NAME_LENGTH}
             autoFocus
@@ -269,7 +270,8 @@ function CreateTokenForm({ onCancel, onCreated }: CreateTokenFormProps) {
               {nameError}
             </p>
           )}
-        </div>
+          </>}
+        </Field>
         <fieldset className="grid gap-2" aria-describedby={scopesError ? `${formId}-scopes-error` : undefined}>
           <legend className="mb-1 text-sm font-medium">{t('form.scopes')}</legend>
           {scopes.isPending ? (

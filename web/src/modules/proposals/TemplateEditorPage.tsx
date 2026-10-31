@@ -264,10 +264,10 @@ function EditorForm({ template }: { template: ProposalTemplate | null }) {
                 onChange={(event) => change('name', event.target.value)}
               />}
             </Field>
-            <div className="grid gap-2.5">
-              <Label htmlFor={`${formId}-key`}>{t('editor.key')}</Label>
-              <Input placeholder={t('editor.keyPlaceholder')}
-                id={`${formId}-key`}
+            <Field label={t('editor.key')}>
+              {(control) => <>
+                <Input placeholder={t('editor.keyPlaceholder')}
+                {...control}
                 value={values.key}
                 maxLength={64}
                 disabled={Boolean(template)}
@@ -279,7 +279,8 @@ function EditorForm({ template }: { template: ProposalTemplate | null }) {
               <p id={`${formId}-key-help`} className={keyError ? 'text-xs text-destructive' : 'text-xs text-muted-foreground'}>
                 {keyError ?? t('editor.keyHelp')}
               </p>
-            </div>
+              </>}
+            </Field>
           </div>
           <Field label={t('editor.descriptionLabel')}>
             {(control) => <Input placeholder={t('editor.descriptionPlaceholder')}

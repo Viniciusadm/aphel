@@ -7,11 +7,11 @@ import { notifySuccess } from '@/components/feedback/notify'
 import { Button } from '@/components/ui/button'
 import { Checkbox } from '@/components/ui/checkbox'
 import { Input } from '@/components/ui/input'
-import { Label } from '@/components/ui/label'
 import { Skeleton } from '@/components/ui/skeleton'
 import { Textarea } from '@/components/ui/textarea'
 import { stageGuidanceApi, stageGuidanceKeys, useStageGuidance } from './api'
 import type { StageGuidance } from './types'
+import { Field } from '@/components/ui/field'
 
 const GUIDANCE_MAX_LENGTH = 20000
 const LABEL_MAX_LENGTH = 200
@@ -107,10 +107,10 @@ function GuidanceForm({ stageId, guidance }: { stageId: string; guidance: StageG
         </h3>
         <p className="text-sm text-muted-foreground">{t('editor.description')}</p>
       </div>
-      <div className="grid min-w-0 gap-2">
-        <Label htmlFor={textId}>{t('editor.guidance')}</Label>
-        <Textarea placeholder={t('placeholders.guidance')}
-          id={textId}
+      <Field label={t('editor.guidance')} className="min-w-0">
+        {(control) => <>
+          <Textarea placeholder={t('placeholders.guidance')}
+          {...control}
           value={text}
           rows={4}
           maxLength={GUIDANCE_MAX_LENGTH}
@@ -120,7 +120,8 @@ function GuidanceForm({ stageId, guidance }: { stageId: string; guidance: StageG
         <p id={`${textId}-hint`} className="text-xs text-muted-foreground">
           {t('editor.guidanceHint')}
         </p>
-      </div>
+        </>}
+      </Field>
       <fieldset className="grid min-w-0 gap-2">
         <legend className="mb-1 text-sm font-medium">{t('editor.items')}</legend>
         {items.length === 0 && <p className="text-sm text-muted-foreground">{t('editor.noItems')}</p>}
