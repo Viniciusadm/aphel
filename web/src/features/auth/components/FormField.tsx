@@ -14,25 +14,9 @@ interface FormFieldProps extends ComponentProps<'input'> {
 export function FormField({ id, label, error, hint, ...inputProps }: FormFieldProps) {
   const { t } = useTranslation('auth')
   const errorKey = asAuthMessageKey(error)
-  const hintId = hint ? `${id}-hint` : undefined
-  const errorId = errorKey ? `${id}-error` : undefined
-  const describedBy = [errorId, hintId].filter(Boolean).join(' ') || undefined
-
   return (
-    <Field label={label}>
-      {(control) => <>
-        <Input {...control} aria-invalid={errorKey ? true : undefined} aria-describedby={describedBy} {...inputProps} />
-      {errorKey && (
-        <p id={errorId} className="text-sm text-destructive">
-          {t(errorKey)}
-        </p>
-      )}
-      {hint && !errorKey && (
-        <p id={hintId} className="text-xs text-muted-foreground">
-          {hint}
-        </p>
-      )}
-      </>}
+    <Field id={id} label={label} error={errorKey ? t(errorKey) : undefined} description={!errorKey ? hint : undefined}>
+      {(control) => <Input {...inputProps} {...control} />}
     </Field>
   )
 }
