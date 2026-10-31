@@ -12,6 +12,7 @@ import { FAILED_JOBS_PER_PAGE, useFailedJobs, useJobAction, useJobStats } from '
 import { useDateTimeFormat } from './format'
 import { SectionCard } from './SectionCard'
 import type { FailedJob } from './types'
+import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from '@/components/ui/table'
 
 export function FailedJobsSection() {
   const { t } = useTranslation('system')
@@ -50,43 +51,43 @@ export function FailedJobsSection() {
     body = (
       <>
         <div className={cn('relative overflow-x-auto rounded-lg border', jobs.isFetching && 'opacity-60')}>
-          <table className="w-full text-sm">
-            <thead className="bg-muted/50 text-left text-muted-foreground">
-              <tr>
-                <th scope="col" className="px-3 py-2 font-medium">
+          <Table>
+            <TableHeader>
+              <TableRow>
+                <TableHead scope="col">
                   {t('failedJobs.columns.kind')}
-                </th>
-                <th scope="col" className="px-3 py-2 font-medium">
+                </TableHead>
+                <TableHead scope="col">
                   {t('failedJobs.columns.error')}
-                </th>
-                <th scope="col" className="hidden px-3 py-2 font-medium whitespace-nowrap sm:table-cell">
+                </TableHead>
+                <TableHead scope="col" className="hidden whitespace-nowrap sm:table-cell">
                   {t('failedJobs.columns.failedAt')}
-                </th>
-                <th scope="col" className="px-3 py-2 text-right font-medium">
+                </TableHead>
+                <TableHead scope="col" className="text-right">
                   {t('failedJobs.columns.actions')}
-                </th>
-              </tr>
-            </thead>
-            <tbody>
+                </TableHead>
+              </TableRow>
+            </TableHeader>
+            <TableBody>
               {jobs.data.data.map((job) => (
-                <tr key={job.id} className="border-t align-top">
-                  <td className="px-3 py-2">
+                <TableRow key={job.id} className="align-top">
+                  <TableCell>
                     <div className="grid gap-0.5">
                       <span className="font-mono text-xs break-all">{job.kind}</span>
                       <span className="text-xs text-muted-foreground">
                         {t('failedJobs.attempts', { attempts: job.attempts, max: job.max_attempts })}
                       </span>
                     </div>
-                  </td>
-                  <td className="max-w-xs px-3 py-2">
+                  </TableCell>
+                  <TableCell className="max-w-xs">
                     <span className="line-clamp-3 text-xs break-words text-muted-foreground" title={job.last_error ?? undefined}>
                       {job.last_error ?? '—'}
                     </span>
-                  </td>
-                  <td className="hidden px-3 py-2 whitespace-nowrap text-muted-foreground sm:table-cell">
+                  </TableCell>
+                  <TableCell className="hidden whitespace-nowrap text-muted-foreground sm:table-cell">
                     <time dateTime={job.failed_at}>{format.format(new Date(job.failed_at))}</time>
-                  </td>
-                  <td className="px-3 py-2">
+                  </TableCell>
+                  <TableCell>
                     <div className="flex justify-end gap-1">
                       <Button
                         variant="outline"
@@ -102,11 +103,11 @@ export function FailedJobsSection() {
                         <span className="sr-only sm:not-sr-only">{t('failedJobs.discard')}</span>
                       </Button>
                     </div>
-                  </td>
-                </tr>
+                  </TableCell>
+                </TableRow>
               ))}
-            </tbody>
-          </table>
+            </TableBody>
+          </Table>
         </div>
         <Pagination page={page} perPage={FAILED_JOBS_PER_PAGE} total={jobs.data.meta.total} onPageChange={setPage} />
       </>

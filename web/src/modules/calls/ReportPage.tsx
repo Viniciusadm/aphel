@@ -12,6 +12,7 @@ import { NativeSelect } from '@/features/records/filters/NativeSelect'
 import { callsApi, callsKeys } from './api'
 import { formatCallDuration } from './lib/format'
 import type { CallReport, CallReportQuery } from './types'
+import { Table, TableBody, TableCaption, TableCell, TableHead, TableHeader, TableRow } from '@/components/ui/table'
 
 function isoDate(date: Date): string {
   const year = date.getFullYear()
@@ -120,51 +121,51 @@ function ReportContent({ report }: { report: CallReport }) {
         <EmptyState icon={BarChart3} title={t('report.emptyTitle')} description={t('report.emptyDescription')} />
       ) : (
         <Card>
-          <CardContent className="overflow-x-auto p-0">
-            <table className="w-full text-sm">
-              <caption className="sr-only">{t('report.caption')}</caption>
-              <thead className="border-b bg-muted/40 text-left text-xs text-muted-foreground">
-                <tr>
-                  <th scope="col" className="px-3 py-2 font-medium">
+          <CardContent className="p-0">
+            <Table>
+              <TableCaption className="sr-only">{t('report.caption')}</TableCaption>
+              <TableHeader>
+                <TableRow>
+                  <TableHead scope="col">
                     {t('report.user')}
-                  </th>
+                  </TableHead>
                   {columns.map((outcome) => (
-                    <th key={outcome.key} scope="col" className="px-3 py-2 text-right font-medium">
+                    <TableHead key={outcome.key} scope="col" className="text-right">
                       {outcome.name}
-                    </th>
+                    </TableHead>
                   ))}
-                  <th scope="col" className="px-3 py-2 text-right font-medium">
+                  <TableHead scope="col" className="text-right">
                     {t('report.calls')}
-                  </th>
-                  <th scope="col" className="px-3 py-2 text-right font-medium">
+                  </TableHead>
+                  <TableHead scope="col" className="text-right">
                     {t('report.rate')}
-                  </th>
-                  <th scope="col" className="px-3 py-2 text-right font-medium">
+                  </TableHead>
+                  <TableHead scope="col" className="text-right">
                     {t('report.duration')}
-                  </th>
-                </tr>
-              </thead>
-              <tbody>
+                  </TableHead>
+                </TableRow>
+              </TableHeader>
+              <TableBody>
                 {report.users.map((row) => {
                   const counts = new Map(row.outcomes.map((outcome) => [outcome.outcome_key, outcome.calls]))
                   return (
-                    <tr key={row.user?.id ?? 'none'} className="border-b last:border-0">
-                      <th scope="row" className="px-3 py-2 text-left font-medium">
+                    <TableRow key={row.user?.id ?? 'none'}>
+                      <TableHead scope="row" className="text-left">
                         {row.user?.display_name ?? t('report.noOwner')}
-                      </th>
+                      </TableHead>
                       {columns.map((outcome) => (
-                        <td key={outcome.key} className="px-3 py-2 text-right tabular-nums">
+                        <TableCell key={outcome.key} className="text-right tabular-nums">
                           {counts.get(outcome.key) ?? 0}
-                        </td>
+                        </TableCell>
                       ))}
-                      <td className="px-3 py-2 text-right font-medium tabular-nums">{row.calls}</td>
-                      <td className="px-3 py-2 text-right tabular-nums">{rate(row.connected, row.calls)}</td>
-                      <td className="px-3 py-2 text-right tabular-nums">{formatCallDuration(row.duration_seconds)}</td>
-                    </tr>
+                      <TableCell className="text-right font-medium tabular-nums">{row.calls}</TableCell>
+                      <TableCell className="text-right tabular-nums">{rate(row.connected, row.calls)}</TableCell>
+                      <TableCell className="text-right tabular-nums">{formatCallDuration(row.duration_seconds)}</TableCell>
+                    </TableRow>
                   )
                 })}
-              </tbody>
-            </table>
+              </TableBody>
+            </Table>
           </CardContent>
         </Card>
       )}

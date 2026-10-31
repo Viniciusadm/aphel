@@ -12,6 +12,7 @@ import { DEFAULT_REPORT_DAYS, LEADS_PATH } from './constants'
 import type { LifecycleRecordType, LifecycleReport, LifecycleStageReport } from './types'
 import { Page } from '@/components/ui/page'
 import { PageHeader } from '@/components/ui/page-header'
+import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from '@/components/ui/table'
 
 function isoDate(date: Date): string {
   return date.toISOString().slice(0, 10)
@@ -103,18 +104,18 @@ function ReportContent({ report }: { report: LifecycleReport }) {
           <CardTitle>{t('report.stagesTitle')}</CardTitle>
           <CardDescription>{t('report.stagesDescription')}</CardDescription>
         </CardHeader>
-        <CardContent className="overflow-x-auto">
-          <table className="w-full min-w-[640px] text-sm">
-            <thead className="text-left text-xs text-muted-foreground">
-              <tr>
-                <th className="py-2 pr-3 font-medium">{t('report.columns.stage')}</th>
-                <th className="py-2 pr-3 text-right font-medium">{t('report.columns.current')}</th>
-                <th className="py-2 pr-3 font-medium">{t('report.columns.entered')}</th>
-                <th className="py-2 pr-3 font-medium">{t('report.columns.conversion')}</th>
-                <th className="py-2 text-right font-medium">{t('report.columns.averageDays')}</th>
-              </tr>
-            </thead>
-            <tbody>
+        <CardContent>
+          <Table>
+            <TableHeader>
+              <TableRow>
+                <TableHead>{t('report.columns.stage')}</TableHead>
+                <TableHead className="text-right">{t('report.columns.current')}</TableHead>
+                <TableHead>{t('report.columns.entered')}</TableHead>
+                <TableHead>{t('report.columns.conversion')}</TableHead>
+                <TableHead className="text-right">{t('report.columns.averageDays')}</TableHead>
+              </TableRow>
+            </TableHeader>
+            <TableBody>
               {report.stages.map((stage) => (
                 <StageRow
                   key={stage.stage}
@@ -125,8 +126,8 @@ function ReportContent({ report }: { report: LifecycleReport }) {
                   decimal={decimal}
                 />
               ))}
-            </tbody>
-          </table>
+            </TableBody>
+          </Table>
         </CardContent>
       </Card>
       {report.record_type === 'contact' && (
@@ -171,8 +172,8 @@ function StageRow({
   const { t } = useTranslation('leads')
   const width = `${Math.round((stage.entered / maxEntered) * 100)}%`
   return (
-    <tr className="border-t align-middle">
-      <td className="py-2 pr-3">
+    <TableRow className="align-middle">
+      <TableCell>
         <span className="inline-flex items-center gap-2 font-medium">
           <span
             aria-hidden="true"
@@ -181,9 +182,9 @@ function StageRow({
           />
           {stage.label}
         </span>
-      </td>
-      <td className="py-2 pr-3 text-right tabular-nums">{stage.current}</td>
-      <td className="py-2 pr-3">
+      </TableCell>
+      <TableCell className="text-right tabular-nums">{stage.current}</TableCell>
+      <TableCell>
         <div className="flex items-center gap-2">
           <div className="h-2 w-32 overflow-hidden rounded bg-muted" aria-hidden="true">
             <div
@@ -193,8 +194,8 @@ function StageRow({
           </div>
           <span className="tabular-nums">{stage.entered}</span>
         </div>
-      </td>
-      <td className="py-2 pr-3">
+      </TableCell>
+      <TableCell>
         {stage.conversion_rate == null || !nextLabel ? (
           <span className="text-muted-foreground">—</span>
         ) : (
@@ -206,10 +207,10 @@ function StageRow({
             })}
           </span>
         )}
-      </td>
-      <td className="py-2 text-right tabular-nums">
+      </TableCell>
+      <TableCell className="text-right tabular-nums">
         {stage.average_days == null ? '—' : t('report.days', { days: decimal.format(stage.average_days) })}
-      </td>
-    </tr>
+      </TableCell>
+    </TableRow>
   )
 }

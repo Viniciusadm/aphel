@@ -19,6 +19,7 @@ import { cn } from '@/lib/utils'
 import { useOfflineQuery } from '@/pwa/offline/cache'
 import { TODAY_TASK_GROUPS, todayQueries, useTodayRange } from './api'
 import { ActivityMapLink } from '@/features/mobile/components/ActivityMapLink'
+import { PageHeader } from '@/components/ui/page-header'
 
 function RecordReference({ activity }: { activity: Activity }) {
   if (!activity.record) return null
@@ -144,12 +145,10 @@ export function TodayPage() {
 
   return (
     <div className="mx-auto grid w-full max-w-2xl gap-4">
-      <header className="grid gap-1">
-        <h1 className="text-2xl font-semibold tracking-tight">{t('today.title')}</h1>
-        <p className="text-sm text-muted-foreground first-letter:uppercase">
-          {formatDayTitle(todayKey(formatting.timezone), formatting.locale)}
-        </p>
-      </header>
+      <PageHeader
+        title={t('today.title')}
+        description={<p className="first-letter:uppercase">{formatDayTitle(todayKey(formatting.timezone), formatting.locale)}</p>}
+      />
       {fromCache && (
         <p className="flex items-center gap-2 rounded-md border border-dashed px-3 py-2 text-xs text-muted-foreground" role="status">
           <CloudOff className="size-4 shrink-0" aria-hidden="true" />
