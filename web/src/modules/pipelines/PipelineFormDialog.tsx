@@ -1,14 +1,9 @@
-import { FieldError as SharedFieldError } from '@/components/ui/field-error'
 import { useState } from 'react'
 import { useTranslation } from 'react-i18next'
-import { Button } from '@/components/ui/button'
+import { DialogForm } from '@/components/ui/dialog-form'
 import {
   Dialog,
   DialogContent,
-  DialogDescription,
-  DialogFooter,
-  DialogHeader,
-  DialogTitle,
 } from '@/components/ui/dialog'
 import { Input } from '@/components/ui/input'
 import { TeamsField } from './TeamsField'
@@ -34,20 +29,21 @@ function PipelineForm({ pending, onOpenChange, onSubmit }: Omit<PipelineFormDial
   const nameError = submitted && !name.trim()
 
   return (
-    <form
-      className="grid gap-4"
+    <DialogForm
+      title={t('create.title')}
+      description={t('create.description')}
+      pending={pending}
+      submitLabel={t('create.confirm')}
+      cancelLabel={t('actions.cancel')}
+      onCancel={() => onOpenChange(false)}
       onSubmit={(event) => {
         event.preventDefault()
         setSubmitted(true)
         if (name.trim()) onSubmit({ name: name.trim(), team_ids: teams })
       }}
     >
-      <DialogHeader>
-        <DialogTitle>{t('create.title')}</DialogTitle>
-        <DialogDescription>{t('create.description')}</DialogDescription>
-      </DialogHeader>
-      <Field label={t('fields.name')}>
-        {(control) => <>
+      <Field label={t('fields.name')} error={nameError ? t('fields.nameRequired') : undefined}>
+        {(control) => 
           <Input placeholder={t('placeholders.pipelineName')}
           {...control}
           value={name}
@@ -55,19 +51,10 @@ function PipelineForm({ pending, onOpenChange, onSubmit }: Omit<PipelineFormDial
           aria-invalid={nameError || undefined}
           onChange={(event) => setName(event.target.value)}
         />
-        {nameError && <SharedFieldError>{t('fields.nameRequired')}</SharedFieldError>}
-        </>}
+}
       </Field>
       <TeamsField selected={teams} onChange={setTeams} />
-      <DialogFooter>
-        <Button type="button" variant="outline" onClick={() => onOpenChange(false)} disabled={pending}>
-          {t('actions.cancel')}
-        </Button>
-        <Button type="submit" disabled={pending}>
-          {t('create.confirm')}
-        </Button>
-      </DialogFooter>
-    </form>
+    </DialogForm>
   )
 }
 

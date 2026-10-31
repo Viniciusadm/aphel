@@ -95,3 +95,4 @@ export { DECIMAL_SEPARATOR_CHARS, parseDecimalSeparator, type DecimalSeparator }
 export { moneySeparatorsFromSetting, type MoneySeparators } from '@/lib/money'
 export { type NumberMaskKind } from '@/lib/number-mask'
 export { FieldError } from '@/components/ui/field-error'
+export { DialogForm, type DialogFormProps } from '@/components/ui/dialog-form'
