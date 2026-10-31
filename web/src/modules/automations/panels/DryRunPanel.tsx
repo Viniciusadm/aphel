@@ -1,13 +1,11 @@
 import { useMutation } from '@tanstack/react-query'
 import { FlaskConical, Play } from 'lucide-react'
-import { useId, useState } from 'react'
+import { useState } from 'react'
 import { useTranslation } from 'react-i18next'
 import { RecordFieldInput } from '@/components/fields'
 import { notifyError, notifySuccess } from '@/components/feedback'
 import { Badge } from '@/components/ui/badge'
 import { Button } from '@/components/ui/button'
-import { Checkbox } from '@/components/ui/checkbox'
-import { Label } from '@/components/ui/label'
 import type { FieldSchema } from '@/features/records/types'
 import { automationsApi, useAutomationCache, useAutomationVersions } from '../api'
 import { StepTimeline } from '../components/StepTimeline'
@@ -15,6 +13,7 @@ import { useAutomationLabels } from '../lib/labels'
 import type { Automation, AutomationCatalog, DryRunResult, StepSpec } from '../types'
 import { EmptyState } from '@/components/ui/empty-state'
 import { Field } from '@/components/ui/field'
+import { ToggleField } from '@/components/ui/toggle-field'
 
 export interface DryRunPanelProps {
   automation: Automation
@@ -27,7 +26,6 @@ export interface DryRunPanelProps {
 
 export function DryRunPanel({ automation, catalog, schema, draftSteps, dirty, onSaveDraft }: DryRunPanelProps) {
   const { t } = useTranslation('automations')
-  const draftId = useId()
   const labels = useAutomationLabels(catalog)
   const cache = useAutomationCache()
   const versions = useAutomationVersions(automation.id)
@@ -76,20 +74,7 @@ export function DryRunPanel({ automation, catalog, schema, draftSteps, dirty, on
         <Field label={t('test.record', { type: labels.recordTypeLabel(automation.record_type) })}>
           {(fieldControl) => <RecordFieldInput id={fieldControl.id} targetRecordType={automation.record_type} value={record} onChange={setRecord} />}
         </Field>
-        <div className="flex items-start gap-2">
-          <Checkbox
-            id={draftId}
-            checked={draftMode}
-            disabled={neverPublished}
-            onCheckedChange={(checked) => setUseDraft(checked === true)}
-          />
-          <div className="grid gap-0.5">
-            <Label htmlFor={draftId}>{t('test.useDraft')}</Label>
-            <p className="text-xs text-muted-foreground">
-              {neverPublished ? t('test.neverPublished') : dirty && draftMode ? t('test.willSave') : t('test.useDraftHint')}
-            </p>
-          </div>
-        </div>
+        <ToggleField label={t('test.useDraft')} description={neverPublished ? t('test.neverPublished') : dirty && draftMode ? t('test.willSave') : t('test.useDraftHint')} checked={draftMode} onCheckedChange={(checked) => setUseDraft(checked === true)} disabled={neverPublished} />
         <div className="flex flex-wrap gap-2">
           <Button type="button" disabled={!record || dryRun.isPending} onClick={() => dryRun.mutate()}>
             <FlaskConical aria-hidden="true" />

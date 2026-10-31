@@ -1,19 +1,18 @@
 import { Download } from 'lucide-react'
-import { useId, useState } from 'react'
+import { useState } from 'react'
 import { useTranslation } from 'react-i18next'
 import { notifyError } from '@/components/feedback'
 import { Button } from '@/components/ui/button'
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card'
-import { Checkbox } from '@/components/ui/checkbox'
 import { ErrorState } from '@/components/ui/error-state'
 import { Input } from '@/components/ui/input'
-import { Label } from '@/components/ui/label'
 import { Skeleton } from '@/components/ui/skeleton'
 import { Textarea } from '@/components/ui/textarea'
 import { configPackagesApi, useConfigSections, type ExportBody } from './api'
 import { downloadJson, packageFileName } from './lib/download'
 import { usePackageLabels } from './lib/labels'
 import { Field } from '@/components/ui/field'
+import { ToggleField } from '@/components/ui/toggle-field'
 
 const MAX_TEXT_LENGTH = 200
 
@@ -52,7 +51,6 @@ export function ExportPanel() {
 function ExportForm({ available }: { available: string[] }) {
   const { t } = useTranslation('config-packages')
   const labels = usePackageLabels()
-  const formId = useId()
   const [selected, setSelected] = useState<string[]>(available)
   const [name, setName] = useState('')
   const [description, setDescription] = useState('')
@@ -113,18 +111,8 @@ function ExportForm({ available }: { available: string[] }) {
         </div>
         <div className="grid gap-2 sm:grid-cols-2">
           {available.map((section) => {
-            const id = `${formId}-section-${section}`
             return (
-              <div key={section} className="flex items-center gap-2">
-                <Checkbox
-                  id={id}
-                  checked={selected.includes(section)}
-                  onCheckedChange={(checked) => toggle(section, checked === true)}
-                />
-                <Label htmlFor={id} className="font-normal">
-                  {labels.section(section)}
-                </Label>
-              </div>
+              <ToggleField key={section} label={labels.section(section)} checked={selected.includes(section)} onCheckedChange={(checked) => toggle(section, checked === true)} />
             )
           })}
         </div>

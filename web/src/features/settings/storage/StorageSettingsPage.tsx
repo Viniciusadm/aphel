@@ -5,9 +5,7 @@ import { useTranslation } from 'react-i18next'
 import { z } from 'zod'
 import { notifyError, notifySuccess, UnsavedChangesGuard } from '@/components/feedback'
 import { Button } from '@/components/ui/button'
-import { Checkbox } from '@/components/ui/checkbox'
 import { Input } from '@/components/ui/input'
-import { Label } from '@/components/ui/label'
 import {
   testStorage,
   useSaveConfiguration,
@@ -21,6 +19,7 @@ import { FormRow } from '../organization/components/FormRow'
 import { NativeSelect } from '../organization/components/NativeSelect'
 import { PageHeader } from '@/components/ui/page-header'
 import { Page } from '@/components/ui/page'
+import { ToggleField } from '@/components/ui/toggle-field'
 
 const schema = z
   .object({
@@ -257,20 +256,17 @@ function StorageForm({ configuration }: { configuration: OrganizationConfigurati
               <CheckboxRow
                 control={control}
                 name="clearSecret"
-                id="storage-clear-secret"
                 label={t('configuration.storage.clearSecret')}
               />
             )}
             <CheckboxRow
               control={control}
               name="forcePathStyle"
-              id="storage-path-style"
               label={t('configuration.storage.forcePathStyle')}
             />
             <CheckboxRow
               control={control}
               name="allowHttp"
-              id="storage-allow-http"
               label={t('configuration.storage.allowHttp')}
             />
           </>
@@ -305,22 +301,16 @@ function StorageForm({ configuration }: { configuration: OrganizationConfigurati
 interface CheckboxRowProps {
   control: Control<FormValues>
   name: 'clearSecret' | 'allowHttp' | 'forcePathStyle'
-  id: string
   label: string
 }
 
-function CheckboxRow({ control, name, id, label }: CheckboxRowProps) {
+function CheckboxRow({ control, name, label }: CheckboxRowProps) {
   return (
     <Controller
       control={control}
       name={name}
       render={({ field }) => (
-        <div className="flex items-center gap-2">
-          <Checkbox id={id} checked={field.value} onCheckedChange={(checked) => field.onChange(checked === true)} />
-          <Label htmlFor={id} className="font-normal">
-            {label}
-          </Label>
-        </div>
+        <ToggleField label={label} checked={field.value} onCheckedChange={(checked) => field.onChange(checked === true)} />
       )}
     />
   )

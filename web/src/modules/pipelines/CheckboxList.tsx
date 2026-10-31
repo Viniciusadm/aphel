@@ -1,6 +1,5 @@
 import { useId } from 'react'
-import { Checkbox } from '@/components/ui/checkbox'
-import { Label } from '@/components/ui/label'
+import { ToggleField } from '@/components/ui/toggle-field'
 
 export interface CheckboxListItem {
   value: string
@@ -42,23 +41,17 @@ export function CheckboxList({
       ) : (
         <ul className="grid max-h-48 gap-2 overflow-y-auto sm:grid-cols-2">
           {items.map((item) => {
-            const id = `${baseId}-${item.value}`
             const checked = selected.includes(item.value)
             return (
-              <li key={item.value} className="flex min-w-0 items-center gap-2">
-                <Checkbox
-                  id={id}
+              <li key={item.value} className="min-w-0">
+                <ToggleField
+                  label={item.label}
                   checked={checked}
                   disabled={disabled}
                   onCheckedChange={(next) =>
-                    onChange(
-                      next === true ? [...selected, item.value] : selected.filter((value) => value !== item.value),
-                    )
+                    onChange(next ? [...selected, item.value] : selected.filter((value) => value !== item.value))
                   }
                 />
-                <Label htmlFor={id} className="min-w-0 truncate font-normal">
-                  {item.label}
-                </Label>
               </li>
             )
           })}

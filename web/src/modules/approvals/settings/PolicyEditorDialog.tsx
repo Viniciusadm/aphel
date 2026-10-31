@@ -1,8 +1,7 @@
-import { useId, useMemo, useState } from 'react'
+import { useMemo, useState } from 'react'
 import { useTranslation } from 'react-i18next'
 import { isApiError } from '@/api'
 import { Button } from '@/components/ui/button'
-import { Checkbox } from '@/components/ui/checkbox'
 import {
   Dialog,
   DialogContent,
@@ -12,7 +11,6 @@ import {
   DialogTitle,
 } from '@/components/ui/dialog'
 import { Input } from '@/components/ui/input'
-import { Label } from '@/components/ui/label'
 import { Skeleton } from '@/components/ui/skeleton'
 import { Textarea } from '@/components/ui/textarea'
 import { toast } from '@/components/ui/toast-store'
@@ -48,6 +46,7 @@ import {
 } from './policy-form'
 import { StepsEditor } from './StepsEditor'
 import { Field } from '@/components/ui/field'
+import { ToggleField } from '@/components/ui/toggle-field'
 
 const LOCAL_ERRORS = ['required', 'invalidKey', 'dueRange'] as const
 type LocalError = (typeof LOCAL_ERRORS)[number]
@@ -89,19 +88,6 @@ interface PolicyFormProps {
 
 function PolicyForm({ policy, pipelineOfStage, onOpenChange }: PolicyFormProps) {
   const { t } = useTranslation('approvals')
-  const ids = {
-    name: useId(),
-    key: useId(),
-    description: useId(),
-    recordType: useId(),
-    moment: useId(),
-    pipeline: useId(),
-    stage: useId(),
-    condition: useId(),
-    formula: useId(),
-    due: useId(),
-    active: useId(),
-  }
   const creating = policy === null
   const [draft, setDraft] = useState<PolicyDraft>(() =>
     policy ? draftFromPolicy(policy, pipelineOfStage) : emptyDraft(DEAL_RECORD_TYPE),
@@ -392,25 +378,15 @@ function PolicyForm({ policy, pipelineOfStage, onOpenChange }: PolicyFormProps) 
             {lockable.map((field) => {
               const key = lockableKey(field)
               const checked = draft.lockedFields.includes(key)
-              const checkboxId = `${ids.recordType}-lock-${key}`
               return (
-                <div key={key} className="flex items-center gap-2">
-                  <Checkbox
-                    id={checkboxId}
-                    checked={checked}
-                    onCheckedChange={(value) =>
+                <ToggleField key={key} label={field.label} checked={checked} onCheckedChange={(value) =>
                       patch({
                         lockedFields:
                           value === true
                             ? [...draft.lockedFields, key]
                             : draft.lockedFields.filter((item) => item !== key),
                       })
-                    }
-                  />
-                  <Label htmlFor={checkboxId} className="text-sm font-normal">
-                    {field.label}
-                  </Label>
-                </div>
+                    } />
               )
             })}
           </div>
@@ -435,16 +411,7 @@ function PolicyForm({ policy, pipelineOfStage, onOpenChange }: PolicyFormProps) 
           {fieldError('due_hours')}
           </>}
         </Field>
-        <div className="flex items-center gap-2 sm:pt-7">
-          <Checkbox
-            id={ids.active}
-            checked={draft.isActive}
-            onCheckedChange={(value) => patch({ isActive: value === true })}
-          />
-          <Label htmlFor={ids.active} className="font-normal">
-            {t('form.active')}
-          </Label>
-        </div>
+        <ToggleField label={t('form.active')} checked={draft.isActive} onCheckedChange={(value) => patch({ isActive: value === true })} className="sm:pt-7" />
       </div>
 
       <StepsEditor steps={draft.steps} errors={errors} errorText={errorText} onChange={(steps) => patch({ steps })} />

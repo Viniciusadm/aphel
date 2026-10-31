@@ -3,7 +3,6 @@ import { useId, useState } from 'react'
 import { useTranslation } from 'react-i18next'
 import { Badge } from '@/components/ui/badge'
 import { Button } from '@/components/ui/button'
-import { Checkbox } from '@/components/ui/checkbox'
 import {
   Dialog,
   DialogContent,
@@ -14,7 +13,6 @@ import {
 } from '@/components/ui/dialog'
 import { ErrorState } from '@/components/ui/error-state'
 import { Input } from '@/components/ui/input'
-import { Label } from '@/components/ui/label'
 import { Skeleton } from '@/components/ui/skeleton'
 import { toast } from '@/components/ui/toast-store'
 import { RequirePermission } from '@/features/settings/components/RequirePermission'
@@ -27,6 +25,7 @@ import type { CallOutcome } from './types'
 import { PageHeader } from '@/components/ui/page-header'
 import { Page } from '@/components/ui/page'
 import { Field } from '@/components/ui/field'
+import { ToggleField } from '@/components/ui/toggle-field'
 
 interface EditorState {
   outcome: CallOutcome | null
@@ -226,17 +225,7 @@ function OutcomeForm({
           {editing && <p className="text-xs text-muted-foreground">{t('outcomes.keyHint', { key: editing.key })}</p>}
           </>}
         </Field>
-        <div className="flex items-start gap-2">
-          <Checkbox
-            id={`${formId}-connected`}
-            checked={connected}
-            onCheckedChange={(value) => setConnected(value === true)}
-          />
-          <div className="grid gap-0.5">
-            <Label htmlFor={`${formId}-connected`}>{t('outcomes.isConnected')}</Label>
-            <p className="text-xs text-muted-foreground">{t('outcomes.isConnectedHint')}</p>
-          </div>
-        </div>
+        <ToggleField label={t('outcomes.isConnected')} description={t('outcomes.isConnectedHint')} checked={connected} onCheckedChange={(value) => setConnected(value === true)} />
       </form>
       <DialogFooter>
         <Button variant="outline" onClick={onClose} disabled={saving}>

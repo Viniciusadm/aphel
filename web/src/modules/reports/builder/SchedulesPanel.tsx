@@ -4,10 +4,8 @@ import { useTranslation } from 'react-i18next'
 import { ConfirmDialog, notifyError, notifySuccess } from '@/components/feedback'
 import { Badge } from '@/components/ui/badge'
 import { Button } from '@/components/ui/button'
-import { Checkbox } from '@/components/ui/checkbox'
 import { Dialog, DialogContent, DialogDescription, DialogFooter, DialogHeader, DialogTitle } from '@/components/ui/dialog'
 import { Input } from '@/components/ui/input'
-import { Label } from '@/components/ui/label'
 import { Skeleton } from '@/components/ui/skeleton'
 import { useOrganizationUsers } from '@/features/records/api'
 import { NativeSelect } from '@/features/records/filters/NativeSelect'
@@ -24,6 +22,7 @@ import {
 import { PERIOD_PRESETS } from './model'
 import { Section } from './BuilderSections'
 import { Field } from '@/components/ui/field'
+import { ToggleField } from '@/components/ui/toggle-field'
 
 const FREQUENCIES: ReportScheduleFrequency[] = ['daily', 'weekly', 'monthly']
 const WEEKDAYS = [1, 2, 3, 4, 5, 6, 7]
@@ -196,25 +195,15 @@ function ScheduleForm({
           {users.isPending && <Skeleton className="h-6 w-full" />}
           {filtered.map((user) => {
             const checked = values.recipients.includes(user.id)
-            const id = `${ids.search}-${user.id}`
             return (
-              <div key={user.id} className="flex items-center gap-2">
-                <Checkbox
-                  id={id}
-                  checked={checked}
-                  onCheckedChange={(next) =>
+              <ToggleField key={user.id} label={user.display_name} checked={checked} onCheckedChange={(next) =>
                     set({
                       recipients:
                         next === true
                           ? [...values.recipients, user.id]
                           : values.recipients.filter((recipient) => recipient !== user.id),
                     })
-                  }
-                />
-                <Label htmlFor={id} className="font-normal">
-                  {user.display_name}
-                </Label>
-              </div>
+                  } />
             )
           })}
           {users.isSuccess && filtered.length === 0 && (
@@ -223,10 +212,7 @@ function ScheduleForm({
         </div>
         {submitted && recipientsError && <p className="text-sm text-destructive">{recipientsError}</p>}
       </fieldset>
-      <div className="flex items-center gap-2">
-        <Checkbox id={ids.active} checked={values.isActive} onCheckedChange={(checked) => set({ isActive: checked === true })} />
-        <Label htmlFor={ids.active}>{t('schedules.form.active')}</Label>
-      </div>
+      <ToggleField label={t('schedules.form.active')} checked={values.isActive} onCheckedChange={(checked) => set({ isActive: checked === true })} />
       <DialogFooter>
         <Button type="button" variant="outline" onClick={onCancel}>
           {tCommon('actions.cancel')}

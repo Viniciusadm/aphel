@@ -3,7 +3,6 @@ import { useId, useState } from 'react'
 import { useTranslation } from 'react-i18next'
 import { RecordFieldInput } from '@/components/fields'
 import { Button } from '@/components/ui/button'
-import { Checkbox } from '@/components/ui/checkbox'
 import {
   Dialog,
   DialogContent,
@@ -13,7 +12,6 @@ import {
   DialogTitle,
 } from '@/components/ui/dialog'
 import { Input } from '@/components/ui/input'
-import { Label } from '@/components/ui/label'
 import { Textarea } from '@/components/ui/textarea'
 import { toast } from '@/components/ui/toast-store'
 import { NativeSelect } from '@/features/records/filters/NativeSelect'
@@ -23,6 +21,7 @@ import { priceListsApi, useInvalidatePriceLists } from './api'
 import { fieldErrors, priceListErrorKey } from './errors'
 import type { PriceList, PriceListAppliesTo, PriceListRequest } from './types'
 import { Field } from '@/components/ui/field'
+import { ToggleField } from '@/components/ui/toggle-field'
 
 const APPLIES_TO: PriceListAppliesTo[] = ['all', 'segment', 'companies']
 const COMPANY_RECORD_TYPE = 'company'
@@ -288,24 +287,9 @@ function PriceListForm({ list, onClose, onSaved }: PriceListFormProps) {
           </Field>
         </div>
         <p className="-mt-2 text-xs text-muted-foreground">{t('form.validityHint')}</p>
-        <div className="flex items-center gap-2">
-          <Checkbox
-            id={`${formId}-active`}
-            checked={isActive}
-            onCheckedChange={(checked) => setIsActive(checked === true)}
-          />
-          <Label htmlFor={`${formId}-active`}>{t('form.active')}</Label>
-        </div>
+        <ToggleField label={t('form.active')} checked={isActive} onCheckedChange={(checked) => setIsActive(checked === true)} />
         <div className="grid gap-1">
-          <div className="flex items-center gap-2">
-            <Checkbox
-              id={`${formId}-default`}
-              checked={appliesTo === 'all' && isDefault}
-              disabled={appliesTo !== 'all'}
-              onCheckedChange={(checked) => setIsDefault(checked === true)}
-            />
-            <Label htmlFor={`${formId}-default`}>{t('form.default', { currency: selectedCurrency })}</Label>
-          </div>
+          <ToggleField label={t('form.default', { currency: selectedCurrency })} checked={appliesTo === 'all' && isDefault} onCheckedChange={(checked) => setIsDefault(checked === true)} disabled={appliesTo !== 'all'} />
           <p className="text-xs text-muted-foreground">{t('form.defaultHint')}</p>
         </div>
       </form>

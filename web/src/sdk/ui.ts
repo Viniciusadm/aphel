@@ -84,6 +84,7 @@ export { StatusBadge, type StatusBadgeProps } from '@/components/ui/status-badge
 export { Tabs, TabsContent, TabsList, TabsTrigger, type TabsTriggerProps } from '@/components/ui/tabs'
 export type { TabsSize } from '@/components/ui/tabs-variants'
 export { TabsNav, TabsNavItem, type TabsNavItemProps } from '@/components/ui/tabs-nav'
+export { ToggleField, type ToggleFieldProps } from '@/components/ui/toggle-field'
 export { Textarea } from '@/components/ui/textarea'
 export { toast, type ToastInput, type ToastVariant } from '@/components/ui/toast-store'
 export { Toaster } from '@/components/ui/toast'

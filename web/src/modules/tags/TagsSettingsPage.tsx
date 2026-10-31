@@ -5,7 +5,6 @@ import { isApiError } from '@/api'
 import { ConfirmDialog, notifyError, notifySuccess } from '@/components/feedback'
 import { Badge } from '@/components/ui/badge'
 import { Button } from '@/components/ui/button'
-import { Checkbox } from '@/components/ui/checkbox'
 import {
   Dialog,
   DialogContent,
@@ -35,6 +34,7 @@ import { TagChip } from './TagChip'
 import { PageHeader } from '@/components/ui/page-header'
 import { Page } from '@/components/ui/page'
 import { Field } from '@/components/ui/field'
+import { ToggleField } from '@/components/ui/toggle-field'
 
 const HEX_COLOR = /^#[0-9a-f]{6}$/i
 
@@ -251,18 +251,8 @@ function TagForm({ editing, onClose, onSaved }: TagFormProps) {
           <p className="text-xs text-muted-foreground">{t('settings.recordTypesHint')}</p>
           <div className="flex flex-wrap gap-4">
             {TAGGABLE_RECORD_TYPES.map((recordType) => {
-              const id = `${formId}-${recordType}`
               return (
-                <div key={recordType} className="flex items-center gap-2">
-                  <Checkbox
-                    id={id}
-                    checked={recordTypes.includes(recordType)}
-                    onCheckedChange={(checked) => toggleType(recordType, checked === true)}
-                  />
-                  <Label htmlFor={id} className="font-normal">
-                    {t(`recordTypes.${recordType}`)}
-                  </Label>
-                </div>
+                <ToggleField key={recordType} label={t(`recordTypes.${recordType}`)} checked={recordTypes.includes(recordType)} onCheckedChange={(checked) => toggleType(recordType, checked === true)} />
               )
             })}
           </div>

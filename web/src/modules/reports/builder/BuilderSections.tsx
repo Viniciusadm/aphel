@@ -1,11 +1,9 @@
 import { ArrowDown, ArrowUp, Plus, Trash2 } from 'lucide-react'
-import { useId, type ReactNode } from 'react'
+import { type ReactNode } from 'react'
 import { useTranslation } from 'react-i18next'
 import { Button } from '@/components/ui/button'
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card'
-import { Checkbox } from '@/components/ui/checkbox'
 import { Input } from '@/components/ui/input'
-import { Label } from '@/components/ui/label'
 import { FilterBuilder, type DraftGroup, type FilterFieldExtension } from '@/features/records/filters'
 import { NativeSelect } from '@/features/records/filters/NativeSelect'
 import type { FieldSchema } from '@/features/records/types'
@@ -33,6 +31,7 @@ import {
   type ReportDraft,
 } from './model'
 import { Field } from '@/components/ui/field'
+import { ToggleField } from '@/components/ui/toggle-field'
 
 const FUNCTIONS: AggregateFunction[] = ['count', 'sum', 'avg', 'min', 'max']
 const DURATION_UNITS = ['days', 'hours'] as const
@@ -308,25 +307,16 @@ export function FiltersSection({
 
 export function PeriodSection({ draft, onChange, fields }: DraftProps & { fields: AggregateField[] }) {
   const { t } = useTranslation('reports', { keyPrefix: 'builder' })
-  const ids = { enabled: useId(), field: useId(), preset: useId(), from: useId(), to: useId(), compare: useId() }
   const temporal = fields.filter((field) => field.temporal && !field.is_virtual)
   const period = draft.period
   return (
     <Section title={t('sections.period.title')} description={t('sections.period.description')}>
-      <div className="flex items-center gap-2">
-        <Checkbox
-          id={ids.enabled}
-          checked={period !== null}
-          disabled={temporal.length === 0}
-          onCheckedChange={(checked) =>
+      <ToggleField label={t('sections.period.enabled')} checked={period !== null} onCheckedChange={(checked) =>
             onChange({
               period: checked === true ? { field: temporal[0]?.key ?? '', preset: 'month', from: '', to: '' } : null,
               compare: checked === true ? draft.compare : false,
             })
-          }
-        />
-        <Label htmlFor={ids.enabled}>{t('sections.period.enabled')}</Label>
-      </div>
+          } disabled={temporal.length === 0} />
       {period && (
         <div className="grid gap-3 sm:grid-cols-2">
           <Field label={t('sections.period.field')}>
@@ -376,14 +366,7 @@ export function PeriodSection({ draft, onChange, fields }: DraftProps & { fields
               </Field>
             </>
           )}
-          <div className="flex items-center gap-2 sm:col-span-2">
-            <Checkbox
-              id={ids.compare}
-              checked={draft.compare}
-              onCheckedChange={(checked) => onChange({ compare: checked === true })}
-            />
-            <Label htmlFor={ids.compare}>{t('sections.period.compare')}</Label>
-          </div>
+          <ToggleField label={t('sections.period.compare')} checked={draft.compare} onCheckedChange={(checked) => onChange({ compare: checked === true })} className="sm:col-span-2" />
         </div>
       )}
       {temporal.length === 0 && <p className="text-sm text-muted-foreground">{t('sections.period.noFields')}</p>}

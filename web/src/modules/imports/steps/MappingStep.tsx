@@ -1,11 +1,9 @@
 import { CheckCircle2, Play } from 'lucide-react'
-import { useId, useMemo, useState } from 'react'
+import { useMemo, useState } from 'react'
 import { useTranslation } from 'react-i18next'
 import { errorMessage } from '@/components/feedback'
 import { Button } from '@/components/ui/button'
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card'
-import { Checkbox } from '@/components/ui/checkbox'
-import { Label } from '@/components/ui/label'
 import { NativeSelect } from '@/features/records/filters/NativeSelect'
 import { Slot } from '@/kernel/modules/Slot'
 import {
@@ -22,6 +20,7 @@ import { acceptsMultiple, delimiterLabel, duplicateKeysFor, missingRequired, sup
 import { ValidationReport } from './ValidationReport'
 import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from '@/components/ui/table'
 import { Field } from '@/components/ui/field'
+import { ToggleField } from '@/components/ui/toggle-field'
 
 const STRATEGIES: DuplicateStrategy[] = ['skip', 'update', 'create']
 
@@ -37,7 +36,6 @@ export function MappingStep({ job }: MappingStepProps) {
   const configure = useConfigureImport(job.id)
   const validate = useValidateImport(job.id)
   const start = useStartImport(job.id)
-  const companiesId = useId()
 
   const missing = useMemo(
     () => missingRequired(job.targets, mapping),
@@ -167,14 +165,7 @@ export function MappingStep({ job }: MappingStepProps) {
             </NativeSelect>}
           </Field>
           {supportsCompanyCreation(job.record_type, job.targets) && (
-            <div className="flex items-center gap-2 sm:col-span-2">
-              <Checkbox
-                id={companiesId}
-                checked={options.create_missing_companies}
-                onCheckedChange={(checked) => changeOptions({ create_missing_companies: checked === true })}
-              />
-              <Label htmlFor={companiesId}>{t('mapping.createCompanies')}</Label>
-            </div>
+            <ToggleField label={t('mapping.createCompanies')} checked={options.create_missing_companies} onCheckedChange={(checked) => changeOptions({ create_missing_companies: checked === true })} className="sm:col-span-2" />
           )}
           <div className="sm:col-span-2">
             <Slot

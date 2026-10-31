@@ -1,11 +1,9 @@
-import { useId } from 'react'
 import { useTranslation } from 'react-i18next'
-import { Checkbox } from '@/components/ui/checkbox'
-import { Label } from '@/components/ui/label'
 import { useDashboardSubjects } from './api'
 import type { DashboardSubject } from './types'
 import { NativeSelect } from '@/components/ui/native-select'
 import { Field } from '@/components/ui/field'
+import { ToggleField } from '@/components/ui/toggle-field'
 
 const ALL = 'all'
 
@@ -77,13 +75,7 @@ export interface CompareToggleProps {
 
 export function CompareToggle({ checked, onChange }: CompareToggleProps) {
   const { t } = useTranslation('dashboard')
-  const id = useId()
   return (
-    <div className="flex h-9 items-center gap-2">
-      <Checkbox id={id} checked={checked} onCheckedChange={(state) => onChange(state === true)} />
-      <Label htmlFor={id} className="text-sm font-normal">
-        {t('compare.label')}
-      </Label>
-    </div>
+    <ToggleField label={t('compare.label')} checked={checked} onCheckedChange={(state) => onChange(state === true)} className="h-9" />
   )
 }

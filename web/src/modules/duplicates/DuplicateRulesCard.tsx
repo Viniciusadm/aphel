@@ -3,11 +3,10 @@ import { useTranslation } from 'react-i18next'
 import { notifyError, notifySuccess } from '@/components/feedback'
 import { Button } from '@/components/ui/button'
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card'
-import { Checkbox } from '@/components/ui/checkbox'
-import { Label } from '@/components/ui/label'
 import { Skeleton } from '@/components/ui/skeleton'
 import { useDuplicateRules, useUpdateDuplicateRules, type DuplicateRecordType, type DuplicateRules } from './api'
 import { ruleLabelKey } from './lib/labels'
+import { ToggleField } from '@/components/ui/toggle-field'
 
 export function DuplicateRulesCard({ recordType, label }: { recordType: DuplicateRecordType; label: string }) {
   const { t } = useTranslation('duplicates')
@@ -53,17 +52,9 @@ function RulesForm({ recordType, current }: { recordType: DuplicateRecordType; c
     >
       <ul className="grid gap-3">
         {current.rules.map((rule) => {
-          const id = `duplicate-rule-${recordType}-${rule.rule}`
           const labelKey = ruleLabelKey(rule.rule)
           return (
-            <li key={rule.rule} className="flex items-center gap-2">
-              <Checkbox
-                id={id}
-                checked={values[rule.rule] ?? false}
-                onCheckedChange={(checked) => setValues((previous) => ({ ...previous, [rule.rule]: checked === true }))}
-              />
-              <Label htmlFor={id}>{labelKey ? t(labelKey) : rule.rule}</Label>
-            </li>
+            <ToggleField key={rule.rule} label={labelKey ? t(labelKey) : rule.rule} checked={values[rule.rule] ?? false} onCheckedChange={(checked) => setValues((previous) => ({ ...previous, [rule.rule]: checked === true }))} />
           )
         })}
       </ul>

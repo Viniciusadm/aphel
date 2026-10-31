@@ -1,10 +1,7 @@
 import { Plus, Trash2 } from 'lucide-react'
-import { useId } from 'react'
 import { useTranslation } from 'react-i18next'
 import { Button } from '@/components/ui/button'
-import { Checkbox } from '@/components/ui/checkbox'
 import { Input } from '@/components/ui/input'
-import { Label } from '@/components/ui/label'
 import { NativeSelect } from '@/features/records/filters/NativeSelect'
 import type { FieldSchema, FilterNode } from '@/features/records/types'
 import { ConditionEditor } from '../components/ConditionEditor'
@@ -18,6 +15,7 @@ import type { TemplateVariable } from '../lib/variables'
 import type { AutomationCatalog, BranchCaseSpec, StepSpec } from '../types'
 import { EMPTY_GROUP, actionDefaults, nextCaseKey } from './steps'
 import { Field } from '@/components/ui/field'
+import { ToggleField } from '@/components/ui/toggle-field'
 
 export interface StepPanelProps {
   step: StepSpec
@@ -333,7 +331,6 @@ function WaitEditor({
   onChange: (step: StepSpec) => void
 }) {
   const { t } = useTranslation('automations')
-  const recheckId = useId()
   const mode = step.until_field ? 'field' : 'duration'
   const hasRecheck = step.recheck !== undefined && step.recheck !== null
 
@@ -406,22 +403,12 @@ function WaitEditor({
         </>
       )}
       <div className="grid gap-3 rounded-md border p-3">
-        <div className="flex items-start gap-2">
-          <Checkbox
-            id={recheckId}
-            checked={hasRecheck}
-            onCheckedChange={(checked) => {
+        <ToggleField label={t('panel.recheck')} description={t('panel.recheckHint')} checked={hasRecheck} onCheckedChange={(checked) => {
               const copy: StepSpec = { ...step }
               if (checked === true) copy.recheck = EMPTY_GROUP
               else delete copy.recheck
               onChange(copy)
-            }}
-          />
-          <div className="grid gap-0.5">
-            <Label htmlFor={recheckId}>{t('panel.recheck')}</Label>
-            <p className="text-xs text-muted-foreground">{t('panel.recheckHint')}</p>
-          </div>
-        </div>
+            }} />
         {hasRecheck && (
           <ConditionEditor
             key={`${step.id}-recheck`}

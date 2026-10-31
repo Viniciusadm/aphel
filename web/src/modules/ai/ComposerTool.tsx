@@ -1,8 +1,7 @@
 import { useMutation } from '@tanstack/react-query'
 import { Loader2, Sparkles } from 'lucide-react'
-import { useId, useState } from 'react'
+import { useState } from 'react'
 import { Button } from '@/components/ui/button'
-import { Checkbox } from '@/components/ui/checkbox'
 import {
   Dialog,
   DialogContent,
@@ -11,13 +10,13 @@ import {
   DialogHeader,
   DialogTitle,
 } from '@/components/ui/dialog'
-import { Label } from '@/components/ui/label'
 import { Textarea } from '@/components/ui/textarea'
 import { useModuleTranslation } from '@/kernel/modules/i18n'
 import type { ComposerContext, SlotProps } from '@/kernel/modules/slots'
 import { AI_KEY, AI_RECORD_TYPES, aiApi, useAiStatus } from './api'
 import { AiErrorMessage, AiFooter } from './AiNotice'
 import { Field } from '@/components/ui/field'
+import { ToggleField } from '@/components/ui/toggle-field'
 
 const SHORTCUTS = ['improve', 'formal', 'friendly', 'shorter', 'grammar', 'summarize', 'reply'] as const
 const DRAFT_SHORTCUTS = new Set<string>(['improve', 'formal', 'friendly', 'shorter', 'grammar', 'summarize'])
@@ -63,7 +62,6 @@ interface ComposerDialogProps extends SlotProps<'composer.tools'> {
 
 function ComposerDialog({ context, subject, value, onChange, onOpenChange }: ComposerDialogProps) {
   const t = useModuleTranslation(AI_KEY)
-  const id = useId()
   const [instruction, setInstruction] = useState('')
   const subjectSupported = Boolean(subject && AI_RECORD_TYPES.includes(subject.recordType))
   const [useRecord, setUseRecord] = useState(subjectSupported)
@@ -134,16 +132,7 @@ function ComposerDialog({ context, subject, value, onChange, onOpenChange }: Com
             />}
           </Field>
           {subjectSupported && (
-            <div className="flex items-center gap-2">
-              <Checkbox
-                id={`${id}-record`}
-                checked={useRecord}
-                onCheckedChange={(checked) => setUseRecord(checked === true)}
-              />
-              <Label htmlFor={`${id}-record`} className="text-sm font-normal">
-                {t('compose.useRecord')}
-              </Label>
-            </div>
+            <ToggleField label={t('compose.useRecord')} checked={useRecord} onCheckedChange={(checked) => setUseRecord(checked === true)} />
           )}
           <p className="text-xs text-muted-foreground">
             {t(hasDraft ? 'compose.sendsDraft' : 'compose.sendsInstruction')}

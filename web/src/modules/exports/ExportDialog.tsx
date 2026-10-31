@@ -4,7 +4,6 @@ import { useId, useState, type FormEvent } from 'react'
 import { useTranslation } from 'react-i18next'
 import { errorMessage } from '@/components/feedback'
 import { Button } from '@/components/ui/button'
-import { Checkbox } from '@/components/ui/checkbox'
 import {
   Dialog,
   DialogContent,
@@ -13,12 +12,12 @@ import {
   DialogHeader,
   DialogTitle,
 } from '@/components/ui/dialog'
-import { Label } from '@/components/ui/label'
 import { fileDownloadUrl } from '@/features/files'
 import { sortToParam } from '@/features/records/table'
 import type { ArchivedMode } from '@/features/records/types'
 import { isExportable, useExportJob, useRequestExport, type ExportFormat } from './api'
 import { orderedColumns, useCurrentListConfig } from './exportColumns'
+import { ToggleField } from '@/components/ui/toggle-field'
 
 const FORMATS: ExportFormat[] = ['csv', 'xlsx']
 const ID_COLUMN = 'id'
@@ -160,27 +159,9 @@ function ExportDialogContent({ recordType, archived, onClose }: ExportDialogCont
               </div>
             </div>
             <ul className="grid max-h-64 gap-2 overflow-y-auto rounded-md border p-3 sm:grid-cols-2">
-              <li className="flex items-center gap-2">
-                <Checkbox
-                  id={`${idPrefix}-id`}
-                  checked={includeId}
-                  onCheckedChange={(checked) => setIncludeId(checked === true)}
-                />
-                <Label htmlFor={`${idPrefix}-id`} className="font-normal">
-                  {t('includeId')}
-                </Label>
-              </li>
+              <ToggleField label={t('includeId')} checked={includeId} onCheckedChange={(checked) => setIncludeId(checked === true)} />
               {fields.map((field) => (
-                <li key={field.key} className="flex min-w-0 items-center gap-2">
-                  <Checkbox
-                    id={`${idPrefix}-${field.key}`}
-                    checked={chosen.has(field.key)}
-                    onCheckedChange={(checked) => toggle(field.key, checked === true)}
-                  />
-                  <Label htmlFor={`${idPrefix}-${field.key}`} className="truncate font-normal">
-                    {field.label}
-                  </Label>
-                </li>
+                <ToggleField key={field.key} label={field.label} checked={chosen.has(field.key)} onCheckedChange={(checked) => toggle(field.key, checked === true)} className="min-w-0" />
               ))}
             </ul>
             {config && columns.length === 0 && (

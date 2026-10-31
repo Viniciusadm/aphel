@@ -16,6 +16,7 @@ import type { LifecycleSettings, LifecycleStageOption, LifecycleTransitionRule }
 import { PageHeader } from '@/components/ui/page-header'
 import { Page } from '@/components/ui/page'
 import { Field } from '@/components/ui/field'
+import { ToggleField } from '@/components/ui/toggle-field'
 
 interface Draft {
   rules: LifecycleTransitionRule[]
@@ -125,7 +126,6 @@ function RuleCard({
   onChange: (patch: Partial<LifecycleTransitionRule>) => void
 }) {
   const { t } = useTranslation('leads')
-  const prefix = `lifecycle-rule-${rule.trigger}`
   const toggleFrom = (value: string, checked: boolean) =>
     onChange({
       from_stages: checked
@@ -136,19 +136,7 @@ function RuleCard({
   return (
     <fieldset className="grid gap-3 rounded-md border bg-card p-4">
       <legend className="sr-only">{t(`settings.rules.triggers.${rule.trigger}.label`)}</legend>
-      <div className="flex items-start gap-3">
-        <Checkbox
-          id={`${prefix}-enabled`}
-          checked={rule.enabled}
-          onCheckedChange={(checked) => onChange({ enabled: checked === true })}
-        />
-        <div className="grid gap-0.5">
-          <Label htmlFor={`${prefix}-enabled`} className="font-medium">
-            {t(`settings.rules.triggers.${rule.trigger}.label`)}
-          </Label>
-          <p className="text-xs text-muted-foreground">{t(`settings.rules.triggers.${rule.trigger}.description`)}</p>
-        </div>
-      </div>
+      <ToggleField label={t(`settings.rules.triggers.${rule.trigger}.label`)} description={t(`settings.rules.triggers.${rule.trigger}.description`)} checked={rule.enabled} onCheckedChange={(checked) => onChange({ enabled: checked === true })} />
       <Field label={t('settings.rules.target')} className="sm:max-w-xs">
         {(fieldControl) => <NativeSelect
           {...fieldControl}

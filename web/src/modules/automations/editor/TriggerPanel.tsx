@@ -1,7 +1,4 @@
-import { useId } from 'react'
 import { useTranslation } from 'react-i18next'
-import { Checkbox } from '@/components/ui/checkbox'
-import { Label } from '@/components/ui/label'
 import { NativeSelect } from '@/features/records/filters/NativeSelect'
 import type { FieldSchema } from '@/features/records/types'
 import { IssueList } from '../components/IssueList'
@@ -11,6 +8,7 @@ import { supportsRecordType, useAutomationLabels } from '../lib/labels'
 import type { TemplateVariable } from '../lib/variables'
 import type { AutomationCatalog, DefinitionOptions, JsonObject, TriggerSpec } from '../types'
 import { Field } from '@/components/ui/field'
+import { ToggleField } from '@/components/ui/toggle-field'
 
 export interface TriggerPanelProps {
   trigger: TriggerSpec
@@ -42,7 +40,6 @@ export function TriggerPanel({
   onOptionsChange,
 }: TriggerPanelProps) {
   const { t } = useTranslation('automations')
-  const id = useId()
   const labels = useAutomationLabels(catalog)
   const triggers = catalog.triggers.filter((entry) => supportsRecordType(entry, recordType))
   const entry = catalog.triggers.find((item) => item.key === trigger.type)
@@ -84,16 +81,7 @@ export function TriggerPanel({
           <p className="text-xs text-muted-foreground">{t('panel.waitingHint')}</p>
         </div>
         {(['cancel_waiting_on_pause', 'cancel_waiting_on_publish'] as const).map((key) => (
-          <div key={key} className="flex items-start gap-2">
-            <Checkbox
-              id={`${id}-${key}`}
-              checked={options[key] ?? DEFAULT_OPTIONS[key]}
-              onCheckedChange={(checked) => onOptionsChange({ ...options, [key]: checked === true })}
-            />
-            <Label htmlFor={`${id}-${key}`} className="leading-snug font-normal">
-              {t(`panel.options.${key}`)}
-            </Label>
-          </div>
+          <ToggleField key={key} label={t(`panel.options.${key}`)} checked={options[key] ?? DEFAULT_OPTIONS[key]} onCheckedChange={(checked) => onOptionsChange({ ...options, [key]: checked === true })} />
         ))}
       </section>
     </fieldset>

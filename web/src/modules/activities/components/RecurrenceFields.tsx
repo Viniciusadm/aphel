@@ -1,8 +1,6 @@
 import { useId } from 'react'
 import { useTranslation } from 'react-i18next'
-import { Checkbox } from '@/components/ui/checkbox'
 import { Input } from '@/components/ui/input'
-import { Label } from '@/components/ui/label'
 import { NativeSelect } from '@/features/records/filters/NativeSelect'
 import type { RecurrenceFrequency } from '../api'
 import {
@@ -13,6 +11,7 @@ import {
   type RecurrenceFormState,
 } from '../lib/recurrence'
 import { Field } from '@/components/ui/field'
+import { ToggleField } from '@/components/ui/toggle-field'
 
 export interface RecurrenceFieldsProps {
   value: RecurrenceFormState
@@ -72,18 +71,8 @@ export function RecurrenceFields({ value, onChange, error, disabled }: Recurrenc
           <span className="text-sm font-medium">{t('recurrence.weekdaysLabel')}</span>
           <div className="flex flex-wrap gap-x-3 gap-y-2">
             {RECURRENCE_WEEKDAYS.map((weekday) => {
-              const checkboxId = `${baseId}-weekday-${weekday}`
               return (
-                <div key={weekday} className="flex items-center gap-1.5">
-                  <Checkbox
-                    id={checkboxId}
-                    checked={value.weekdays.includes(weekday)}
-                    onCheckedChange={() => set({ weekdays: toggleWeekday(value.weekdays, weekday) })}
-                  />
-                  <Label htmlFor={checkboxId} className="font-normal">
-                    {t(`recurrence.weekdaysShort.${weekday}`)}
-                  </Label>
-                </div>
+                <ToggleField key={weekday} label={t(`recurrence.weekdaysShort.${weekday}`)} checked={value.weekdays.includes(weekday)} onCheckedChange={() => set({ weekdays: toggleWeekday(value.weekdays, weekday) })} />
               )
             })}
           </div>

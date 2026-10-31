@@ -6,9 +6,7 @@ import { useSession } from '@/app/session/session-context'
 import { notifyError, notifySuccess } from '@/components/feedback'
 import { Button } from '@/components/ui/button'
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card'
-import { Checkbox } from '@/components/ui/checkbox'
 import { Input } from '@/components/ui/input'
-import { Label } from '@/components/ui/label'
 import {
   positiveInteger,
   useOrganizationConfiguration,
@@ -19,6 +17,7 @@ import { serverFieldErrors } from '../general/violations'
 import { SETTINGS_MANAGE } from '../lib/permissions'
 import { FormRow } from '../organization/components/FormRow'
 import { NativeSelect } from '../organization/components/NativeSelect'
+import { ToggleField } from '@/components/ui/toggle-field'
 
 const schema = z
   .object({
@@ -131,16 +130,7 @@ function CatalogSourceForm({ source }: { source: CatalogSource }) {
                   control={control}
                   name="allowHttp"
                   render={({ field }) => (
-                    <div className="flex items-center gap-2">
-                      <Checkbox
-                        id="catalog-allow-http"
-                        checked={field.value}
-                        onCheckedChange={(checked) => field.onChange(checked === true)}
-                      />
-                      <Label htmlFor="catalog-allow-http" className="font-normal">
-                        {t('configuration.catalog.allowHttp')}
-                      </Label>
-                    </div>
+                    <ToggleField label={t('configuration.catalog.allowHttp')} checked={field.value} onCheckedChange={(checked) => field.onChange(checked === true)} />
                   )}
                 />
               </>
