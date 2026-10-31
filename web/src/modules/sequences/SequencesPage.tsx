@@ -1,4 +1,4 @@
-import { ListOrdered, Plus, Search } from 'lucide-react'
+import { ListOrdered, Plus } from 'lucide-react'
 import { useEffect, useId, useState } from 'react'
 import { useTranslation } from 'react-i18next'
 import { Link } from 'react-router'
@@ -6,7 +6,6 @@ import { useSession } from '@/app/session/session-context'
 import { Button } from '@/components/ui/button'
 import { EmptyState } from '@/components/ui/empty-state'
 import { ErrorState } from '@/components/ui/error-state'
-import { Input } from '@/components/ui/input'
 import { Skeleton } from '@/components/ui/skeleton'
 import { NativeSelect } from '@/features/records/filters/NativeSelect'
 import { useSequences } from './api'
@@ -23,6 +22,7 @@ import { PageHeader } from '@/components/ui/page-header'
 import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from '@/components/ui/table'
 import { Page } from '@/components/ui/page'
 import { Field } from '@/components/ui/field'
+import { SearchInput } from '@/components/ui/search-input'
 
 type ActiveFilter = '' | 'active' | 'inactive'
 
@@ -157,22 +157,15 @@ function SequencesList() {
       </>} />
       <div className="grid gap-3 sm:grid-cols-[minmax(0,1fr)_12rem]">
         <Field id={searchId} label={t('page.search')} hideLabel>
-          <div className="relative">
-            <Search
-              className="pointer-events-none absolute top-1/2 left-3 size-4 -translate-y-1/2 text-muted-foreground"
-              aria-hidden="true"
-            />
-            <Input
-              id={searchId}
-              value={search}
-              placeholder={t('page.search')}
-              onChange={(event) => {
-                setSearch(event.target.value)
-                setPage(1)
-              }}
-              className="pl-9"
-            />
-          </div>
+          <SearchInput
+            id={searchId}
+            value={search}
+            placeholder={t('page.search')}
+            onValueChange={(value) => {
+              setSearch(value)
+              setPage(1)
+            }}
+          />
         </Field>
         <Field label={t('page.statusFilter')} hideLabel>
           {(fieldControl) => <NativeSelect

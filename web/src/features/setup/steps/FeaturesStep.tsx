@@ -1,4 +1,3 @@
-import { Search } from 'lucide-react'
 import { useState, type ReactNode } from 'react'
 import { useTranslation } from 'react-i18next'
 import { api, isApiError } from '@/api'
@@ -21,6 +20,7 @@ import {
   type ModuleSettings,
 } from '../lib/modules'
 import { Alert } from '@/components/ui/alert'
+import { SearchInput } from '@/components/ui/search-input'
 
 interface FeaturesStepProps {
   catalog: InstallerCatalog
@@ -91,17 +91,13 @@ export function FeaturesStep({ catalog, businessType, businessLabel, value, onCh
       primary={{ label: t('actions.next'), onClick: onNext }}
       aside={<span className="text-sm text-muted-foreground sm:px-2">{t('features.count', { count })}</span>}
     >
-      <div className="relative">
-        <Search className="pointer-events-none absolute top-1/2 left-3 size-4 -translate-y-1/2 text-muted-foreground" aria-hidden />
-        <Input
-          type="search"
-          className="pl-9"
+      <SearchInput
+          
           aria-label={t('features.search')}
           placeholder={t('features.search')}
           value={search}
-          onChange={(event) => setSearch(event.target.value)}
+          onValueChange={(value) => setSearch(value)}
         />
-      </div>
       {groups.map((group) => (
         <FeatureGroup key={group.key} title={group.title} hint={group.hint} search={search} items={group.items}>
           {(item) => {

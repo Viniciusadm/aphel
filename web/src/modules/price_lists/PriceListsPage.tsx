@@ -7,7 +7,6 @@ import { PageLoader } from '@/components/feedback'
 import { Button } from '@/components/ui/button'
 import { EmptyState } from '@/components/ui/empty-state'
 import { ErrorState } from '@/components/ui/error-state'
-import { Input } from '@/components/ui/input'
 import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs'
 import { NativeSelect } from '@/features/records/filters/NativeSelect'
 import { useCurrencySettings } from '@/modules/currencies/api'
@@ -19,6 +18,7 @@ import { PriceListDialog } from './PriceListDialog'
 import { PageHeader } from '@/components/ui/page-header'
 import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from '@/components/ui/table'
 import { Page } from '@/components/ui/page'
+import { SearchInput } from '@/components/ui/search-input'
 
 const PRODUCTS_PATH = '/products'
 
@@ -77,14 +77,13 @@ function PriceListsTable() {
   return (
     <div className="grid gap-4">
       <div className="flex flex-wrap items-center gap-2">
-        <Input
-          className="w-full sm:w-64"
-          type="search"
+        <SearchInput
+          wrapperClassName="w-full sm:w-64"
           value={search}
           placeholder={t('list.search')}
           aria-label={t('list.search')}
-          onChange={(event) => {
-            setSearch(event.target.value)
+          onValueChange={(value) => {
+            setSearch(value)
             setPage(1)
           }}
         />

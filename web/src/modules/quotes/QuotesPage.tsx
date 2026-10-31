@@ -1,11 +1,10 @@
-import { FileText, Search } from 'lucide-react'
+import { FileText } from 'lucide-react'
 import { useState } from 'react'
 import { useTranslation } from 'react-i18next'
 import { Link } from 'react-router'
 import { Button } from '@/components/ui/button'
 import { EmptyState } from '@/components/ui/empty-state'
 import { ErrorState } from '@/components/ui/error-state'
-import { Input } from '@/components/ui/input'
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/components/ui/select'
 import { Skeleton } from '@/components/ui/skeleton'
 import { formatCurrency, formatDate, useRecordFormatting } from '@/features/records/formatting'
@@ -15,6 +14,7 @@ import type { QuoteStatus } from './types'
 import { PageHeader } from '@/components/ui/page-header'
 import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from '@/components/ui/table'
 import { Page } from '@/components/ui/page'
+import { SearchInput } from '@/components/ui/search-input'
 
 const ALL = '__all__'
 const STATUSES: QuoteStatus[] = ['draft', 'pending_approval', 'approved', 'sent', 'accepted', 'rejected', 'expired']
@@ -33,19 +33,16 @@ export function QuotesPage() {
     <Page>
       <PageHeader title={t('title')} description={t('description')} />
       <div className="flex flex-wrap gap-2">
-        <div className="relative w-full max-w-xs">
-          <Search className="absolute top-1/2 left-2.5 size-4 -translate-y-1/2 text-muted-foreground" aria-hidden="true" />
-          <Input
-            className="pl-8"
+        <SearchInput wrapperClassName="w-full max-w-xs"
+            
             placeholder={t('list.search')}
             aria-label={t('list.search')}
             value={search}
-            onChange={(event) => {
-              setSearch(event.target.value)
+            onValueChange={(value) => {
+              setSearch(value)
               setPage(1)
             }}
           />
-        </div>
         <Select
           value={status || ALL}
           onValueChange={(value) => {

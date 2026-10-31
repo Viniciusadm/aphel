@@ -64,6 +64,7 @@ export {
   SelectTrigger,
   SelectValue,
 } from '@/components/ui/select'
+export { SearchInput, type SearchInputProps } from '@/components/ui/search-input'
 export { Separator } from '@/components/ui/separator'
 export { Skeleton } from '@/components/ui/skeleton'
 export { Spinner } from '@/components/ui/spinner'

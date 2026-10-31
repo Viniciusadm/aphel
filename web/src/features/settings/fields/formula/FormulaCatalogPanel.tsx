@@ -1,12 +1,12 @@
-import { Loader2, Search } from 'lucide-react'
+import { Loader2 } from 'lucide-react'
 import { useState } from 'react'
 import { useTranslation } from 'react-i18next'
 import { Badge } from '@/components/ui/badge'
-import { Input } from '@/components/ui/input'
 import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs'
 import { cn } from '@/lib/utils'
 import { useFormulaCatalog, type FormulaCatalog, type FormulaFunction } from './api'
 import { functionDescription } from './messages'
+import { SearchInput } from '@/components/ui/search-input'
 
 export interface FormulaSnippet {
   text: string
@@ -53,17 +53,13 @@ export function FormulaCatalogPanel({ recordType, onInsert }: FormulaCatalogPane
         <h3 id="formula-catalog-title" className="text-sm font-medium">
           {t('catalog.title')}
         </h3>
-        <div className="relative w-full sm:w-48">
-          <Search className="pointer-events-none absolute top-1/2 left-2 size-4 -translate-y-1/2 text-muted-foreground" aria-hidden="true" />
-          <Input
-            type="search"
+        <SearchInput wrapperClassName="w-full sm:w-48"
             value={search}
             aria-label={t('catalog.search')}
             placeholder={t('catalog.search')}
-            className="h-8 pl-8"
-            onChange={(event) => setSearch(event.target.value)}
+            className="h-8"
+            onValueChange={(value) => setSearch(value)}
           />
-        </div>
       </div>
       {catalog.isPending ? (
         <p className="flex items-center gap-2 text-sm text-muted-foreground">

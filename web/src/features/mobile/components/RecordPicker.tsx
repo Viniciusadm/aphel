@@ -1,12 +1,12 @@
-import { Search, X } from 'lucide-react'
+import { X } from 'lucide-react'
 import { useId, useState } from 'react'
 import { useTranslation } from 'react-i18next'
 import { Button } from '@/components/ui/button'
-import { Input } from '@/components/ui/input'
 import { SEARCH_MIN_LENGTH, useGlobalSearch } from '@/features/search/api'
 import { useSearchRecordTypeLabel } from '@/features/search/links'
 import { CHECK_IN_RECORD_TYPES } from '../lib/record-route'
 import { Field } from '@/components/ui/field'
+import { SearchInput } from '@/components/ui/search-input'
 
 export interface PickedRecord {
   recordType: string
@@ -44,18 +44,14 @@ export function RecordPicker({ value, onChange, required = false }: RecordPicker
           </Button>
         </div>
       ) : (
-        <div className="relative">
-          <Search className="pointer-events-none absolute top-1/2 left-3 size-4 -translate-y-1/2 text-muted-foreground" aria-hidden="true" />
-          <Input
+        <SearchInput
             id={inputId}
-            type="search"
             value={query}
-            onChange={(event) => setQuery(event.target.value)}
+            onValueChange={(value) => setQuery(value)}
             placeholder={t('picker.placeholder')}
-            className="h-11 pl-9 text-base"
+            className="h-11  text-base"
             autoComplete="off"
           />
-        </div>
       )}
       {searching && (
         <ul className="grid divide-y rounded-md border" aria-label={t('picker.results')} aria-busy={search.isFetching}>

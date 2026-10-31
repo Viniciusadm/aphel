@@ -4,13 +4,13 @@ import { useTranslation } from 'react-i18next'
 import { useSearchParams } from 'react-router'
 import { EmptyState } from '@/components/ui/empty-state'
 import { ErrorState } from '@/components/ui/error-state'
-import { Input } from '@/components/ui/input'
 import { Skeleton } from '@/components/ui/skeleton'
 import { cn } from '@/lib/utils'
 import { SEARCH_MIN_LENGTH, useGlobalSearch } from './api'
 import { SearchResultGroups } from './results'
 import { PageHeader } from '@/components/ui/page-header'
 import { Page } from '@/components/ui/page'
+import { SearchInput } from '@/components/ui/search-input'
 
 const SEARCH_PAGE_LIMIT = 20
 const SEARCH_DEBOUNCE_MS = 250
@@ -76,22 +76,18 @@ export function SearchPage() {
       <PageHeader title={t('page.title')} description={t('page.description')} />
       <form
         role="search"
-        className="relative"
         onSubmit={(event) => {
           event.preventDefault()
           setParams(draft.trim() ? { q: draft.trim() } : {}, { replace: true })
         }}
       >
-        <Search className="pointer-events-none absolute top-1/2 left-3 size-4 -translate-y-1/2 text-muted-foreground" aria-hidden />
-        <Input
-          type="search"
+        <SearchInput
           value={draft}
-          onChange={(event) => setDraft(event.target.value)}
+          onValueChange={setDraft}
           placeholder={t('page.placeholder')}
           aria-label={t('page.inputLabel')}
           maxLength={100}
           autoFocus
-          className="pl-9"
         />
       </form>
       {trimmed.length >= SEARCH_MIN_LENGTH && search.data && !search.isError && (

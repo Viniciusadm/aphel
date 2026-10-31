@@ -1,8 +1,6 @@
-import { Search, X } from 'lucide-react'
 import { useEffect, useRef, useState } from 'react'
 import { useTranslation } from 'react-i18next'
-import { Input } from '@/components/ui/input'
-import { cn } from '@/lib/utils'
+import { SearchInput } from '@/components/ui/search-input'
 
 export const SEARCH_DEBOUNCE_MS = 300
 export const MAX_SEARCH_LENGTH = 100
@@ -36,36 +34,20 @@ export function SearchBox({ value, onChange, delay = SEARCH_DEBOUNCE_MS, classNa
   }, [draft, value, delay])
 
   return (
-    <div className={cn('relative min-w-0', className)}>
-      <Search
-        className="pointer-events-none absolute top-1/2 left-2.5 size-4 -translate-y-1/2 text-muted-foreground"
-        aria-hidden
-      />
-      <Input
-        type="search"
-        aria-label={t('search.label')}
-        placeholder={t('search.placeholder')}
-        maxLength={MAX_SEARCH_LENGTH}
-        className="h-8 pr-8 pl-8 [&::-webkit-search-cancel-button]:hidden"
-        value={draft}
-        onChange={(event) => setDraft(event.target.value)}
-        onKeyDown={(event) => {
-          if (event.key === 'Enter') onChangeRef.current(draft)
-        }}
-      />
-      {draft && (
-        <button
-          type="button"
-          className="absolute top-1/2 right-2 flex size-5 -translate-y-1/2 items-center justify-center rounded-sm text-muted-foreground hover:text-foreground"
-          aria-label={t('filters.clear')}
-          onClick={() => {
-            setDraft('')
-            onChangeRef.current('')
-          }}
-        >
-          <X className="size-3.5" aria-hidden />
-        </button>
-      )}
-    </div>
+    <SearchInput
+      wrapperClassName={className}
+      aria-label={t('search.label')}
+      placeholder={t('search.placeholder')}
+      maxLength={MAX_SEARCH_LENGTH}
+      clearLabel={t('filters.clear')}
+      value={draft}
+      onValueChange={(next) => {
+        setDraft(next)
+        if (next === '') onChangeRef.current('')
+      }}
+      onKeyDown={(event) => {
+        if (event.key === 'Enter') onChangeRef.current(draft)
+      }}
+    />
   )
 }

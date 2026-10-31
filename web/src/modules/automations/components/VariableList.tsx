@@ -1,8 +1,7 @@
-import { Search } from 'lucide-react'
 import { useMemo, useState } from 'react'
 import { useTranslation } from 'react-i18next'
-import { Input } from '@/components/ui/input'
 import { VARIABLE_GROUPS, filterVariables, type TemplateVariable } from '../lib/variables'
+import { SearchInput } from '@/components/ui/search-input'
 
 export interface VariableListProps {
   variables: TemplateVariable[]
@@ -16,17 +15,14 @@ export function VariableList({ variables, onPick }: VariableListProps) {
 
   return (
     <div className="grid">
-      <div className="relative border-b p-2">
-        <Search className="pointer-events-none absolute top-1/2 left-4 size-4 -translate-y-1/2 text-muted-foreground" aria-hidden="true" />
-        <Input
+      <SearchInput wrapperClassName="border-b p-2"
           value={term}
-          onChange={(event) => setTerm(event.target.value)}
+          onValueChange={(value) => setTerm(value)}
           placeholder={t('variables.search')}
           aria-label={t('variables.search')}
-          className="pl-8"
+          
           autoFocus
         />
-      </div>
       <div className="max-h-72 overflow-y-auto p-1">
         {visible.length === 0 ? (
           <p className="px-2 py-3 text-sm text-muted-foreground">{t('variables.empty')}</p>

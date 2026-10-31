@@ -21,6 +21,7 @@ import { zodResolver } from '@hookform/resolvers/zod'
 import { parentOptions } from './hierarchy'
 import { Checkbox } from '@/components/ui/checkbox'
 import { Field } from '@/components/ui/field'
+import { SearchInput } from '@/components/ui/search-input'
 
 const NO_PARENT = 'none'
 
@@ -150,12 +151,11 @@ export function TeamEditorDialog({ team, teams, members, onClose }: TeamEditorDi
               </span>
             </legend>
             {members.length > 0 ? (
-              <Input
-                type="search"
+              <SearchInput
                 value={search}
                 placeholder={t('teams.editor.search')}
                 aria-label={t('teams.editor.search')}
-                onChange={(event) => setSearch(event.target.value)}
+                onValueChange={setSearch}
               />
             ) : null}
             {members.length === 0 ? (

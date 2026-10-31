@@ -1,5 +1,5 @@
 import { useMutation } from '@tanstack/react-query'
-import { Clock, Pause, Play, Plus, Search, Workflow } from 'lucide-react'
+import { Clock, Pause, Play, Plus, Workflow } from 'lucide-react'
 import { useEffect, useId, useState } from 'react'
 import { useTranslation } from 'react-i18next'
 import { Link } from 'react-router'
@@ -8,7 +8,6 @@ import { notifyError, notifySuccess } from '@/components/feedback'
 import { Button } from '@/components/ui/button'
 import { EmptyState } from '@/components/ui/empty-state'
 import { ErrorState } from '@/components/ui/error-state'
-import { Input } from '@/components/ui/input'
 import { Skeleton } from '@/components/ui/skeleton'
 import { useCustomObjects } from '@/features/custom-records'
 import { NativeSelect } from '@/features/records/filters/NativeSelect'
@@ -22,6 +21,7 @@ import { AUTOMATION_STATUSES, type Automation, type AutomationStatus } from './t
 import { PageHeader } from '@/components/ui/page-header'
 import { Page } from '@/components/ui/page'
 import { Field } from '@/components/ui/field'
+import { SearchInput } from '@/components/ui/search-input'
 
 export const AUTOMATIONS_PERMISSION = 'automations.manage'
 
@@ -118,19 +118,16 @@ function AutomationsList() {
       </>} />
       <div className="grid gap-3 sm:grid-cols-[minmax(0,1fr)_12rem_12rem]">
         <Field id={searchId} label={t('page.search')} hideLabel>
-          <div className="relative">
-            <Search className="pointer-events-none absolute top-1/2 left-3 size-4 -translate-y-1/2 text-muted-foreground" aria-hidden="true" />
-            <Input
+          <SearchInput
               id={searchId}
               value={search}
               placeholder={t('page.search')}
-              onChange={(event) => {
-                setSearch(event.target.value)
+              onValueChange={(value) => {
+                setSearch(value)
                 setPage(1)
               }}
-              className="pl-9"
+              
             />
-          </div>
         </Field>
         <Field label={t('page.status')} hideLabel>
           {(fieldControl) => <NativeSelect
