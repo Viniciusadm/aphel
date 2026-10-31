@@ -9,7 +9,6 @@ export {
   type RecordListViewProps,
 } from './RecordListView'
 export { ARCHIVED_PARAM, parseArchivedParam } from './archived'
-export { RecordPagination, type RecordPaginationProps } from './RecordPagination'
 export { RecordTable, SELECT_COLUMN_ID, type RecordTableProps } from './RecordTable'
 export { SearchBox, type SearchBoxProps } from './SearchBox'
 export { recordListKey, useRecordList, type UseRecordListOptions } from './useRecordList'

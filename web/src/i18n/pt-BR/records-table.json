@@ -41,13 +41,6 @@
     "compact": "Compacta",
     "comfortable": "Confortável"
   },
-  "pagination": {
-    "summary": "{{from}}–{{to}} de {{total}}",
-    "page": "Página {{page}} de {{pages}}",
-    "previous": "Página anterior",
-    "next": "Próxima página",
-    "perPage": "Itens por página"
-  },
   "states": {
     "emptyTitle": "Nenhum registro ainda",
     "emptyDescription": "Quando houver registros, eles aparecerão aqui.",

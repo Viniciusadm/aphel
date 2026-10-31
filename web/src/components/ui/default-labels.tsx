@@ -19,9 +19,11 @@ const portugueseLabels: UiLabels = {
     </>
   ),
   pageLoading: 'Carregando página…',
-  paginationPrevious: 'Anterior',
-  paginationNext: 'Próxima',
-  paginationSummary: (page, pages, total) => `Página ${page} de ${pages} · ${total} itens`,
+  paginationPrevious: 'Página anterior',
+  paginationNext: 'Próxima página',
+  paginationSummary: (from, to, total) => `${from}–${to} de ${total}`,
+  paginationPage: (page, pages) => `Página ${page} de ${pages}`,
+  paginationPerPage: 'Itens por página',
   back: 'Voltar',
 }
 
@@ -44,9 +46,11 @@ const englishLabels: UiLabels = {
     </>
   ),
   pageLoading: 'Loading page…',
-  paginationPrevious: 'Previous',
-  paginationNext: 'Next',
-  paginationSummary: (page, pages, total) => `Page ${page} of ${pages} · ${total} items`,
+  paginationPrevious: 'Previous page',
+  paginationNext: 'Next page',
+  paginationSummary: (from, to, total) => `${from}–${to} of ${total}`,
+  paginationPage: (page, pages) => `Page ${page} of ${pages}`,
+  paginationPerPage: 'Items per page',
   back: 'Back',
 }
 

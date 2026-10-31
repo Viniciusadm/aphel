@@ -8,7 +8,7 @@ import { Badge } from '@/components/ui/badge'
 import { Button } from '@/components/ui/button'
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card'
 import { fileDownloadUrl } from '@/features/files'
-import { RecordPagination } from '@/features/records/table'
+import { Pagination } from '@/components/ui/pagination'
 import { ERROR_ROWS_PAGE_SIZE, isImportable, useImportRows, useRetryFailed, type ImportJob } from '../api'
 import { LIST_PATHS } from '../mapping'
 import { RowErrors } from './RowErrors'
@@ -94,7 +94,7 @@ export function ResultStep({ job }: ResultStepProps) {
             <CardContent className="grid gap-3">
               <RowErrors rows={rows.data?.data ?? []} />
               {rows.data && rows.data.meta.total > ERROR_ROWS_PAGE_SIZE && (
-                <RecordPagination
+                <Pagination
                   page={page}
                   perPage={ERROR_ROWS_PAGE_SIZE}
                   total={rows.data.meta.total}

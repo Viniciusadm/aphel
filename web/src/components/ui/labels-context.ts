@@ -18,7 +18,9 @@ export interface UiLabels {
   pageLoading: string
   paginationPrevious: string
   paginationNext: string
-  paginationSummary: (page: number, pages: number, total: number) => string
+  paginationSummary: (from: string, to: string, total: string) => string
+  paginationPage: (page: number, pages: number) => string
+  paginationPerPage: string
   back: string
 }
 

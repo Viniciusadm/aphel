@@ -41,13 +41,6 @@
     "compact": "Compact",
     "comfortable": "Comfortable"
   },
-  "pagination": {
-    "summary": "{{from}}–{{to}} of {{total}}",
-    "page": "Page {{page}} of {{pages}}",
-    "previous": "Previous page",
-    "next": "Next page",
-    "perPage": "Items per page"
-  },
   "states": {
     "emptyTitle": "No records yet",
     "emptyDescription": "Records will appear here once they exist.",

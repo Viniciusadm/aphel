@@ -5,7 +5,7 @@ import { EmptyState } from '@/components/ui/empty-state'
 import { ErrorState } from '@/components/ui/error-state'
 import { Skeleton } from '@/components/ui/skeleton'
 import { getRecordResource } from '@/features/records/resources'
-import { RecordPagination } from '@/features/records/table'
+import { Pagination } from '@/components/ui/pagination'
 import { MEMBERS_PER_PAGE, isSegmentRecordType, useSegment, useSegmentMembers } from './api'
 import { SEGMENT_TYPE_PARAM } from './SegmentsPage'
 import '@/modules/contacts/resource'
@@ -69,7 +69,7 @@ export function SegmentDetailPage() {
               )
             })}
           </ul>
-          <RecordPagination
+          <Pagination
             page={page}
             perPage={MEMBERS_PER_PAGE}
             total={members.data.meta.total}

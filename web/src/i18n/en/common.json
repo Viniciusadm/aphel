@@ -28,8 +28,10 @@
     "points": "{{value}} pp"
   },
   "pagination": {
-    "previous": "Previous",
-    "next": "Next",
-    "summary": "Page {{page}} of {{pages}} · {{total}} items"
+    "summary": "{{from}}–{{to}} of {{total}}",
+    "page": "Page {{page}} of {{pages}}",
+    "previous": "Previous page",
+    "next": "Next page",
+    "perPage": "Items per page"
   }
 }

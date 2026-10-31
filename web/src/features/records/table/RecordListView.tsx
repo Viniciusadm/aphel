@@ -40,7 +40,7 @@ import { ViewSwitcher } from '../views/ViewSwitcher'
 import { ColumnsMenu } from './ColumnsMenu'
 import { defaultColumnKeys } from './columns'
 import { DensityToggle } from './DensityToggle'
-import { RecordPagination } from './RecordPagination'
+import { Pagination } from '@/components/ui/pagination'
 import { RecordTable } from './RecordTable'
 import { SearchBox } from './SearchBox'
 import { useRecordList } from './useRecordList'
@@ -298,7 +298,7 @@ function RecordListContent({
           titleAddon={combinedTitleAddon}
         />
         {!isLoading && (
-          <RecordPagination
+          <Pagination
             page={urlState.page}
             perPage={urlState.perPage}
             total={total}
