@@ -18,6 +18,7 @@ import { postponedDueAt } from './lib/dates'
 import { INBOX_OWNERS, INBOX_SORTS, buildInboxParams, parseInboxQuery } from './lib/params'
 import { ReassignDialog } from './ReassignDialog'
 import { useInboxActions } from './useInboxActions'
+import { PageHeader } from '@/components/ui/page-header'
 
 const COLLAPSIBLE_GROUPS = new Set(['upcoming', 'no_due'])
 
@@ -140,10 +141,7 @@ export function InboxPage() {
 
   return (
     <div className="flex w-full min-w-0 flex-col gap-4">
-      <header className="grid gap-1">
-        <h1 className="text-2xl font-semibold tracking-tight">{t('page.title')}</h1>
-        <p className="text-sm text-muted-foreground">{t('page.description')}</p>
-      </header>
+      <PageHeader title={t('page.title')} description={t('page.description')} />
       <div className="flex min-w-0 flex-wrap items-end gap-3">
         <div className="grid gap-1.5">
           <span id={ids.owner} className="text-xs font-medium text-muted-foreground">

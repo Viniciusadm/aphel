@@ -22,6 +22,8 @@ import {
   type ForecastReport,
 } from './api'
 import { ForecastDealsDialog, type DrillDown } from './ForecastDealsDialog'
+import { PageHeader } from '@/components/ui/page-header'
+import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from '@/components/ui/table'
 
 function useMonthLabel() {
   const formatting = useRecordFormatting()
@@ -75,10 +77,7 @@ export function ForecastPage() {
   return (
     <div className="flex min-w-0 flex-col gap-4">
       <div className="flex flex-col gap-3 sm:flex-row sm:items-end sm:justify-between">
-        <div className="grid gap-1">
-          <h1 className="text-xl font-semibold">{t('page.title')}</h1>
-          <p className="text-sm text-muted-foreground">{t('page.description')}</p>
-        </div>
+        <PageHeader title={t('page.title')} description={t('page.description')} />
         <div className="flex flex-wrap items-center gap-2">
           <label className="flex items-center gap-2 text-sm">
             <span className="shrink-0 text-muted-foreground">{t('page.horizon')}</span>
@@ -232,94 +231,92 @@ function ForecastTable({ report, onDrillDown }: ContentProps) {
     onDrillDown({ month: month.month, label: monthLabel(month.starts_on, 'long'), category })
 
   return (
-    <div className="min-w-0 overflow-x-auto rounded-lg border bg-card">
-      <table className="w-full min-w-[36rem] text-sm">
-        <caption className="sr-only">{t('table.caption')}</caption>
-        <thead className="border-b bg-muted/40 text-left text-xs text-muted-foreground">
-          <tr>
-            <th scope="col" className="px-3 py-2 font-medium">
-              {t('table.month')}
-            </th>
-            <th scope="col" className="px-3 py-2 text-right font-medium">
-              {t('table.open')}
-            </th>
-            <th scope="col" className="px-3 py-2 text-right font-medium">
-              {t('table.forecast')}
-            </th>
-            {categories.map((category) => (
-              <th key={category} scope="col" className="px-3 py-2 text-right font-medium">
-                {t(`categories.${category}`)}
-              </th>
-            ))}
-            {showWon && (
-              <th scope="col" className="px-3 py-2 text-right font-medium">
-                {t('table.won')}
-              </th>
-            )}
-          </tr>
-        </thead>
-        <tbody>
-          {report.months.map((month) => (
-            <tr key={month.month} className="border-b last:border-b-0">
-              <th scope="row" className="px-3 py-2 text-left font-medium capitalize">
-                {monthLabel(month.starts_on, 'long')}
-              </th>
-              <td className="px-3 py-2 text-right tabular-nums">
-                <DrillButton
-                  disabled={month.open.count === 0}
-                  label={t('table.drillDown', { month: monthLabel(month.starts_on, 'long') })}
-                  onClick={() => open(month)}
-                >
-                  {money(month.open.amount)}
-                  <span className="block text-xs text-muted-foreground">
-                    {t('summary.deals', { count: month.open.count })}
-                  </span>
-                </DrillButton>
-              </td>
-              <td className="px-3 py-2 text-right font-medium tabular-nums">{money(month.forecast)}</td>
-              {categories.map((category) => {
-                const bucket = categoryAmount(month, category)
-                return (
-                  <td key={category} className="px-3 py-2 text-right tabular-nums">
-                    <DrillButton
-                      disabled={!bucket || bucket.count === 0}
-                      label={t('table.drillDownCategory', {
-                        month: monthLabel(month.starts_on, 'long'),
-                        category: t(`categories.${category}`),
-                      })}
-                      onClick={() => open(month, category)}
-                    >
-                      {money(bucket?.amount)}
-                      <span className="block text-xs text-muted-foreground">
-                        {formatNumber(bucket?.count ?? 0, formatting)}
-                      </span>
-                    </DrillButton>
-                  </td>
-                )
-              })}
-              {showWon && (
-                <td className="px-3 py-2 text-right tabular-nums text-muted-foreground">{money(month.won?.amount)}</td>
-              )}
-            </tr>
+    <Table className="min-w-[36rem]">
+      <caption className="sr-only">{t('table.caption')}</caption>
+      <TableHeader>
+        <TableRow>
+          <TableHead scope="col">
+            {t('table.month')}
+          </TableHead>
+          <TableHead scope="col" className="text-right">
+            {t('table.open')}
+          </TableHead>
+          <TableHead scope="col" className="text-right">
+            {t('table.forecast')}
+          </TableHead>
+          {categories.map((category) => (
+            <TableHead key={category} scope="col" className="text-right">
+              {t(`categories.${category}`)}
+            </TableHead>
           ))}
-        </tbody>
-        <tfoot className="border-t bg-muted/40 font-medium">
-          <tr>
-            <th scope="row" className="px-3 py-2 text-left">
-              {t('table.total')}
-            </th>
-            <td className="px-3 py-2 text-right tabular-nums">{money(report.totals.open.amount)}</td>
-            <td className="px-3 py-2 text-right tabular-nums">{money(report.totals.forecast)}</td>
-            {categories.map((category) => (
-              <td key={category} className="px-3 py-2 text-right tabular-nums">
-                {money(categoryAmount(report.totals, category)?.amount)}
-              </td>
-            ))}
-            {showWon && <td className="px-3 py-2 text-right tabular-nums">{money(report.totals.won?.amount)}</td>}
-          </tr>
-        </tfoot>
-      </table>
-    </div>
+          {showWon && (
+            <TableHead scope="col" className="text-right">
+              {t('table.won')}
+            </TableHead>
+          )}
+        </TableRow>
+      </TableHeader>
+      <TableBody>
+        {report.months.map((month) => (
+          <TableRow key={month.month} className="last:border-b-0">
+            <TableHead scope="row" className="text-left capitalize">
+              {monthLabel(month.starts_on, 'long')}
+            </TableHead>
+            <TableCell className="text-right tabular-nums">
+              <DrillButton
+                disabled={month.open.count === 0}
+                label={t('table.drillDown', { month: monthLabel(month.starts_on, 'long') })}
+                onClick={() => open(month)}
+              >
+                {money(month.open.amount)}
+                <span className="block text-xs text-muted-foreground">
+                  {t('summary.deals', { count: month.open.count })}
+                </span>
+              </DrillButton>
+            </TableCell>
+            <TableCell className="text-right font-medium tabular-nums">{money(month.forecast)}</TableCell>
+            {categories.map((category) => {
+              const bucket = categoryAmount(month, category)
+              return (
+                <TableCell key={category} className="text-right tabular-nums">
+                  <DrillButton
+                    disabled={!bucket || bucket.count === 0}
+                    label={t('table.drillDownCategory', {
+                      month: monthLabel(month.starts_on, 'long'),
+                      category: t(`categories.${category}`),
+                    })}
+                    onClick={() => open(month, category)}
+                  >
+                    {money(bucket?.amount)}
+                    <span className="block text-xs text-muted-foreground">
+                      {formatNumber(bucket?.count ?? 0, formatting)}
+                    </span>
+                  </DrillButton>
+                </TableCell>
+              )
+            })}
+            {showWon && (
+              <TableCell className="text-right tabular-nums text-muted-foreground">{money(month.won?.amount)}</TableCell>
+            )}
+          </TableRow>
+        ))}
+      </TableBody>
+      <tfoot className="border-t bg-muted/40 font-medium">
+        <TableRow>
+          <TableHead scope="row" className="text-left">
+            {t('table.total')}
+          </TableHead>
+          <TableCell className="text-right tabular-nums">{money(report.totals.open.amount)}</TableCell>
+          <TableCell className="text-right tabular-nums">{money(report.totals.forecast)}</TableCell>
+          {categories.map((category) => (
+            <TableCell key={category} className="text-right tabular-nums">
+              {money(categoryAmount(report.totals, category)?.amount)}
+            </TableCell>
+          ))}
+          {showWon && <TableCell className="text-right tabular-nums">{money(report.totals.won?.amount)}</TableCell>}
+        </TableRow>
+      </tfoot>
+    </Table>
   )
 }
 

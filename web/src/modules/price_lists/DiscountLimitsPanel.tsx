@@ -10,6 +10,7 @@ import { toast } from '@/components/ui/toast-store'
 import { priceListsApi, useDiscountLimits, useInvalidatePriceLists } from './api'
 import { priceListErrorKey } from './errors'
 import type { DiscountLimit } from './types'
+import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from '@/components/ui/table'
 
 const PERCENT_PATTERN = /^\d{1,3}([.,]\d{1,2})?$/
 
@@ -78,59 +79,57 @@ function DiscountLimitsForm({ limits }: { limits: DiscountLimit[] }) {
         <h2 className="text-base font-semibold">{t('limits.title')}</h2>
         <p className="text-sm text-muted-foreground">{t('limits.description')}</p>
       </div>
-      <div className="relative overflow-x-auto rounded-lg border">
-        <table className="w-full text-sm">
-          <thead className="bg-muted/50 text-left text-muted-foreground">
-            <tr>
-              <th scope="col" className="px-4 py-2 font-medium">
-                {t('limits.role')}
-              </th>
-              <th scope="col" className="w-48 px-4 py-2 font-medium">
-                {t('limits.maxDiscount')}
-              </th>
-            </tr>
-          </thead>
-          <tbody>
-            {limits.map((limit) => {
-              const inputId = `discount-limit-${limit.role_id}`
-              const wrong = invalid.includes(limit.role_id)
-              return (
-                <tr key={limit.role_id} className="border-t align-top">
-                  <td className="px-4 py-2">
-                    <label htmlFor={inputId} className="font-medium">
-                      {limit.role_name}
-                    </label>
-                    <p className="font-mono text-xs text-muted-foreground">{limit.role_key}</p>
-                  </td>
-                  <td className="px-4 py-2">
-                    <div className="flex items-center gap-2">
-                      <Input
-                        id={inputId}
-                        inputMode="decimal"
-                        className="w-28"
-                        value={values[limit.role_id] ?? ''}
-                        placeholder={t('limits.noLimit')}
-                        aria-invalid={wrong ? true : undefined}
-                        aria-describedby={wrong ? `${inputId}-error` : undefined}
-                        onChange={(event) => {
-                          setValues({ ...values, [limit.role_id]: event.target.value })
-                          setInvalid(invalid.filter((id) => id !== limit.role_id))
-                        }}
-                      />
-                      <span className="text-muted-foreground">%</span>
-                    </div>
-                    {wrong && (
-                      <p id={`${inputId}-error`} className="mt-1 text-xs text-destructive">
-                        {t('limits.invalid')}
-                      </p>
-                    )}
-                  </td>
-                </tr>
-              )
-            })}
-          </tbody>
-        </table>
-      </div>
+      <Table>
+        <TableHeader>
+          <TableRow>
+            <TableHead scope="col">
+              {t('limits.role')}
+            </TableHead>
+            <TableHead scope="col" className="w-48">
+              {t('limits.maxDiscount')}
+            </TableHead>
+          </TableRow>
+        </TableHeader>
+        <TableBody>
+          {limits.map((limit) => {
+            const inputId = `discount-limit-${limit.role_id}`
+            const wrong = invalid.includes(limit.role_id)
+            return (
+              <TableRow key={limit.role_id} className="align-top">
+                <TableCell>
+                  <label htmlFor={inputId} className="font-medium">
+                    {limit.role_name}
+                  </label>
+                  <p className="font-mono text-xs text-muted-foreground">{limit.role_key}</p>
+                </TableCell>
+                <TableCell>
+                  <div className="flex items-center gap-2">
+                    <Input
+                      id={inputId}
+                      inputMode="decimal"
+                      className="w-28"
+                      value={values[limit.role_id] ?? ''}
+                      placeholder={t('limits.noLimit')}
+                      aria-invalid={wrong ? true : undefined}
+                      aria-describedby={wrong ? `${inputId}-error` : undefined}
+                      onChange={(event) => {
+                        setValues({ ...values, [limit.role_id]: event.target.value })
+                        setInvalid(invalid.filter((id) => id !== limit.role_id))
+                      }}
+                    />
+                    <span className="text-muted-foreground">%</span>
+                  </div>
+                  {wrong && (
+                    <p id={`${inputId}-error`} className="mt-1 text-xs text-destructive">
+                      {t('limits.invalid')}
+                    </p>
+                  )}
+                </TableCell>
+              </TableRow>
+            )
+          })}
+        </TableBody>
+      </Table>
       <p className="text-xs text-muted-foreground">{t('limits.hint')}</p>
       <div className="flex justify-end">
         <Button type="submit" disabled={!dirty || saving}>

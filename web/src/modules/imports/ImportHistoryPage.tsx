@@ -8,9 +8,10 @@ import { ErrorState } from '@/components/ui/error-state'
 import { fileDownloadUrl } from '@/features/files'
 import { formatDateTime, useRecordFormatting } from '@/features/records/formatting'
 import { ListSkeleton } from '@/features/settings/components/ListSkeleton'
-import { Pagination } from '@/features/settings/components/Pagination'
-import { SectionHeader } from '@/features/settings/components/SectionHeader'
+import { Pagination } from '@/components/ui/pagination'
 import { HISTORY_PAGE_SIZE, isImportable, isRunning, useImportHistory, type ImportJob } from './api'
+import { PageHeader } from '@/components/ui/page-header'
+import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from '@/components/ui/table'
 
 type BadgeVariant = 'secondary' | 'destructive' | 'success' | 'warning' | 'outline'
 
@@ -43,10 +44,10 @@ export function ImportHistoryPage() {
 
   return (
     <section className="flex min-w-0 flex-col gap-4">
-      <SectionHeader
+      <PageHeader
         title={t('history.title')}
         description={t('history.description')}
-        action={
+        actions={
           <Button asChild>
             <Link to="/imports/new">{t('history.new')}</Link>
           </Button>
@@ -60,65 +61,63 @@ export function ImportHistoryPage() {
         <EmptyState title={t('history.empty')} description={t('history.emptyDescription')} />
       ) : (
         <>
-          <div className="relative overflow-x-auto rounded-lg border">
-            <table className="w-full text-sm">
-              <thead className="bg-muted/50 text-left text-muted-foreground">
-                <tr>
-                  <th scope="col" className="px-4 py-2 font-medium">
-                    {t('history.columns.file')}
-                  </th>
-                  <th scope="col" className="hidden px-4 py-2 font-medium sm:table-cell">
-                    {t('history.columns.recordType')}
-                  </th>
-                  <th scope="col" className="px-4 py-2 font-medium">
-                    {t('history.columns.status')}
-                  </th>
-                  <th scope="col" className="hidden px-4 py-2 font-medium md:table-cell">
-                    {t('history.columns.result')}
-                  </th>
-                  <th scope="col" className="hidden px-4 py-2 font-medium lg:table-cell">
-                    {t('history.columns.createdAt')}
-                  </th>
-                  <th scope="col" className="px-4 py-2">
-                    <span className="sr-only">{t('history.columns.actions')}</span>
-                  </th>
-                </tr>
-              </thead>
-              <tbody>
-                {imports.data.data.map((job) => (
-                  <tr key={job.id} className="border-t">
-                    <td className="max-w-56 truncate px-4 py-2 font-medium">{job.file_name}</td>
-                    <td className="hidden px-4 py-2 sm:table-cell">{recordTypeLabel(job.record_type)}</td>
-                    <td className="px-4 py-2">
-                      <Badge variant={STATUS_VARIANTS[job.status] ?? 'secondary'}>
-                        {t(`status.${job.status}`, { defaultValue: job.status })}
-                      </Badge>
-                    </td>
-                    <td className="hidden px-4 py-2 text-muted-foreground md:table-cell">{totalsText(job)}</td>
-                    <td className="hidden px-4 py-2 text-muted-foreground lg:table-cell">
-                      {formatDateTime(job.created_at, formatting)}
-                    </td>
-                    <td className="px-4 py-2">
-                      <div className="flex justify-end gap-2">
-                        {job.error_file_id && (
-                          <Button variant="ghost" size="sm" asChild>
-                            <a href={fileDownloadUrl(job.error_file_id)} download>
-                              {t('history.errorFile')}
-                            </a>
-                          </Button>
-                        )}
-                        <Button variant="outline" size="sm" asChild>
-                          <Link to={`/imports/${job.id}`}>
-                            {job.status === 'draft' || isRunning(job.status) ? t('history.continue') : t('history.open')}
-                          </Link>
+          <Table>
+            <TableHeader>
+              <TableRow>
+                <TableHead scope="col">
+                  {t('history.columns.file')}
+                </TableHead>
+                <TableHead scope="col" className="hidden sm:table-cell">
+                  {t('history.columns.recordType')}
+                </TableHead>
+                <TableHead scope="col">
+                  {t('history.columns.status')}
+                </TableHead>
+                <TableHead scope="col" className="hidden md:table-cell">
+                  {t('history.columns.result')}
+                </TableHead>
+                <TableHead scope="col" className="hidden lg:table-cell">
+                  {t('history.columns.createdAt')}
+                </TableHead>
+                <TableHead scope="col">
+                  <span className="sr-only">{t('history.columns.actions')}</span>
+                </TableHead>
+              </TableRow>
+            </TableHeader>
+            <TableBody>
+              {imports.data.data.map((job) => (
+                <TableRow key={job.id}>
+                  <TableCell className="max-w-56 truncate font-medium">{job.file_name}</TableCell>
+                  <TableCell className="hidden sm:table-cell">{recordTypeLabel(job.record_type)}</TableCell>
+                  <TableCell>
+                    <Badge variant={STATUS_VARIANTS[job.status] ?? 'secondary'}>
+                      {t(`status.${job.status}`, { defaultValue: job.status })}
+                    </Badge>
+                  </TableCell>
+                  <TableCell className="hidden text-muted-foreground md:table-cell">{totalsText(job)}</TableCell>
+                  <TableCell className="hidden text-muted-foreground lg:table-cell">
+                    {formatDateTime(job.created_at, formatting)}
+                  </TableCell>
+                  <TableCell>
+                    <div className="flex justify-end gap-2">
+                      {job.error_file_id && (
+                        <Button variant="ghost" size="sm" asChild>
+                          <a href={fileDownloadUrl(job.error_file_id)} download>
+                            {t('history.errorFile')}
+                          </a>
                         </Button>
-                      </div>
-                    </td>
-                  </tr>
-                ))}
-              </tbody>
-            </table>
-          </div>
+                      )}
+                      <Button variant="outline" size="sm" asChild>
+                        <Link to={`/imports/${job.id}`}>
+                          {job.status === 'draft' || isRunning(job.status) ? t('history.continue') : t('history.open')}
+                        </Link>
+                      </Button>
+                    </div>
+                  </TableCell>
+                </TableRow>
+              ))}
+            </TableBody>
+          </Table>
           <Pagination
             page={page}
             perPage={HISTORY_PAGE_SIZE}

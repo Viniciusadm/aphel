@@ -16,6 +16,7 @@ export {
   DialogTitle,
   DialogTrigger,
   type DialogContentProps,
+  type DialogSize,
 } from '@/components/ui/dialog'
 export {
   DropdownMenu,
@@ -41,7 +42,14 @@ export { useUiLabels, type UiLabels } from '@/components/ui/labels-context'
 export { MoneyInput, type MoneyInputProps } from '@/components/ui/money-input'
 export { NumberMaskInput, type NumberMaskInputProps } from '@/components/ui/number-mask-input'
 export { OptionCard } from '@/components/ui/option-card'
-export { PageHeader, type PageHeaderProps } from '@/components/ui/page-header'
+export { Page, PageSection, type PageProps, type PageWidth } from '@/components/ui/page'
+export { PageHeader, type PageHeaderBack, type PageHeaderProps } from '@/components/ui/page-header'
+export { MasterDetail, type MasterDetailProps, type MasterItem } from '@/components/ui/master-detail'
+export { SectionTitle } from '@/components/ui/section-title'
+export { SelectField, type SelectFieldOption, type SelectFieldProps } from '@/components/ui/select-field'
+export { UrlTabs, type UrlTab } from '@/components/ui/url-tabs'
+export { Pagination, type PaginationProps } from '@/components/ui/pagination'
+export { QueryState, type QueryLike, type QueryStateProps } from '@/components/ui/query-state'
 export { PageLoader, type PageLoaderProps } from '@/components/ui/page-loader'
 export { Popover, PopoverAnchor, PopoverClose, PopoverContent, PopoverTrigger } from '@/components/ui/popover'
 export {

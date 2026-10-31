@@ -41,6 +41,7 @@ import type {
 } from './types'
 import { useLayoutEditor } from './useLayoutEditor'
 import { WidgetCard } from './WidgetCard'
+import { PageHeader } from '@/components/ui/page-header'
 
 function newWidgetId(): string {
   const random = globalThis.crypto?.randomUUID?.() ?? `${Date.now().toString(36)}-${Math.random().toString(36).slice(2)}`
@@ -131,10 +132,7 @@ export function DashboardPage() {
   return (
     <div className="flex w-full flex-col gap-6">
       <header className="flex flex-wrap items-end justify-between gap-4">
-        <div className="grid gap-1">
-          <h1 className="text-2xl font-semibold tracking-tight">{t('title')}</h1>
-          <p className="text-sm text-muted-foreground">{t('description')}</p>
-        </div>
+        <PageHeader title={t('title')} description={t('description')} />
         <div className="flex min-w-0 flex-wrap items-end gap-2">
           {current && <PeriodSelector value={period} onChange={(next) => save({ period: next })} />}
           {current && <SubjectSelector value={subject} onChange={(next) => save({ subject: next })} />}

@@ -27,6 +27,12 @@ export const NAV_ORDER = {
   administration: 900,
 } as const
 
+export interface NavGroup {
+  key: string
+  label: string
+  icon: LucideIcon
+}
+
 export interface NavContribution {
   to: string
   label: string
@@ -36,6 +42,7 @@ export interface NavContribution {
   permission?: PermissionRequirement
   badge?: ComponentType<{ collapsed?: boolean }>
   order?: number
+  group?: NavGroup
 }
 
 export type SettingsAreaKey = 'account' | 'organization' | 'integrations' | 'data'

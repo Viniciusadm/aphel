@@ -18,6 +18,7 @@ import {
   type CalendarStatus,
   type SsoLoginStatus,
 } from './api'
+import { PageHeader } from '@/components/ui/page-header'
 
 const KNOWN_CALENDAR_ERRORS = [
   'access_denied',
@@ -252,10 +253,7 @@ export function ProviderPage({ moduleKey, title, description, providerName }: Pr
   const status = useProviderStatus(moduleKey)
   return (
     <section className="flex flex-col gap-4">
-      <div className="grid gap-1">
-        <h1 className="text-xl font-semibold">{title}</h1>
-        <p className="text-sm text-muted-foreground">{description}</p>
-      </div>
+      <PageHeader title={title} description={description} />
       {status.isPending ? (
         <div className="grid gap-3" aria-busy="true">
           <Skeleton className="h-40 w-full" />

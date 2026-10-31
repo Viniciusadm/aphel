@@ -9,6 +9,7 @@ import { useRecordFormatting } from '@/features/records/formatting'
 import { RecordListView } from '@/features/records/table'
 import { Slot } from '@/kernel/modules/Slot'
 import { PRODUCT_CREATE_LAYOUT, PRODUCT_RECORD_TYPE, productPath } from './resource'
+import { PageHeader } from '@/components/ui/page-header'
 
 export function ProductsPage() {
   const { t } = useTranslation('products')
@@ -28,10 +29,7 @@ export function ProductsPage() {
   return (
     <div className="flex flex-col gap-4">
       <div className="flex flex-col gap-3 sm:flex-row sm:items-start sm:justify-between">
-        <div className="grid gap-1">
-          <h1 className="text-xl font-semibold">{t('list.title')}</h1>
-          <p className="text-sm text-muted-foreground">{t('list.description')}</p>
-        </div>
+        <PageHeader title={t('list.title')} description={t('list.description')} />
         <Slot name="products.list.header" props={{}} />
       </div>
       <RecordListView

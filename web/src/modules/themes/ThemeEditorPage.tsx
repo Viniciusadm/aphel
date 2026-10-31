@@ -14,7 +14,6 @@ import { Skeleton } from '@/components/ui/skeleton'
 import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs'
 import { Textarea } from '@/components/ui/textarea'
 import { RequirePermission } from '@/features/settings/components/RequirePermission'
-import { SectionHeader } from '@/features/settings/components/SectionHeader'
 import { themesApi, themesKeys } from './api'
 import { FontsEditor } from './FontsEditor'
 import { contrastWarnings } from './lib/contrast-report'
@@ -30,6 +29,7 @@ import type { ThemePackage, TokenScope, TokenValue } from './lib/types'
 import { THEMES_MANAGE } from './permissions'
 import { ThemePreview } from './ThemePreview'
 import { TokenField } from './TokenField'
+import { PageHeader } from '@/components/ui/page-header'
 
 const NEW_THEME_KEY = 'new'
 
@@ -109,10 +109,10 @@ function ThemeEditor({ creating, initial }: { creating: boolean; initial: ThemeP
 
   return (
     <section className="flex min-w-0 flex-col gap-4">
-      <SectionHeader
+      <PageHeader
         title={creating ? t('editor.createTitle') : t('editor.editTitle', { name: initial.name })}
         description={t('editor.description')}
-        action={
+        actions={
           <div className="flex flex-wrap gap-2">
             <Button variant="outline" size="sm" onClick={() => void navigate('..', { relative: 'path' })}>
               <ArrowLeft aria-hidden="true" />

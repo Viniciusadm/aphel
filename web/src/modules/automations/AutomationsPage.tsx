@@ -20,6 +20,7 @@ import { AutomationStatusBadge } from './components/StatusBadges'
 import { CreateAutomationDialog } from './CreateAutomationDialog'
 import { automatableRecordTypes, useAutomationLabels } from './lib/labels'
 import { AUTOMATION_STATUSES, type Automation, type AutomationStatus } from './types'
+import { PageHeader } from '@/components/ui/page-header'
 
 export const AUTOMATIONS_PERMISSION = 'automations.manage'
 
@@ -110,10 +111,7 @@ function AutomationsList() {
   return (
     <div className="flex w-full flex-col gap-4">
       <div className="flex flex-wrap items-start justify-between gap-3">
-        <div className="grid gap-1">
-          <h1 className="text-xl font-semibold">{t('page.title')}</h1>
-          <p className="text-sm text-muted-foreground">{t('page.description')}</p>
-        </div>
+        <PageHeader title={t('page.title')} description={t('page.description')} />
         <Button onClick={() => setCreating(true)} disabled={!catalog.data}>
           <Plus aria-hidden="true" />
           {t('page.new')}

@@ -3,6 +3,7 @@ import { Outlet } from 'react-router'
 import { useSession } from '@/app/session/session-context'
 import { TabsNav, TabsNavItem } from '@/components/ui/tabs-nav'
 import { CALLS_PATH } from './constants'
+import { PageHeader } from '@/components/ui/page-header'
 
 export function CallsLayout() {
   const { t } = useTranslation('calls')
@@ -16,10 +17,7 @@ export function CallsLayout() {
   ]
   return (
     <div className="flex w-full flex-col gap-4">
-      <header className="grid gap-1">
-        <h1 className="text-2xl font-semibold tracking-tight">{t('page.title')}</h1>
-        <p className="text-sm text-muted-foreground">{t('page.description')}</p>
-      </header>
+      <PageHeader title={t('page.title')} description={t('page.description')} />
       <TabsNav aria-label={t('page.sections')} className="self-start">
         {tabs.map((tab) => (
           <TabsNavItem key={tab.to} to={tab.to} end={tab.end}>

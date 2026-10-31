@@ -6,7 +6,7 @@ import { Button } from '@/components/ui/button'
 import { EmptyState } from '@/components/ui/empty-state'
 import { ErrorState } from '@/components/ui/error-state'
 import { Skeleton } from '@/components/ui/skeleton'
-import { Pagination } from '@/features/settings/components/Pagination'
+import { Pagination } from '@/components/ui/pagination'
 import { NativeSelect } from '@/features/settings/organization/components/NativeSelect'
 import { cn } from '@/lib/utils'
 import {
@@ -21,6 +21,7 @@ import {
 } from './api'
 import { GoalCard } from './GoalCard'
 import { GoalDialog } from './GoalDialog'
+import { PageHeader } from '@/components/ui/page-header'
 
 type GoalView = 'current' | 'all'
 
@@ -95,10 +96,7 @@ export function GoalsPage() {
   return (
     <div className="flex flex-col gap-4">
       <div className="flex flex-col gap-3 sm:flex-row sm:items-end sm:justify-between">
-        <div className="grid gap-1">
-          <h1 className="text-xl font-semibold">{t('page.title')}</h1>
-          <p className="text-sm text-muted-foreground">{t('page.description')}</p>
-        </div>
+        <PageHeader title={t('page.title')} description={t('page.description')} />
         {newButton}
       </div>
       <div className="flex flex-col gap-3 sm:flex-row sm:items-center sm:justify-between">

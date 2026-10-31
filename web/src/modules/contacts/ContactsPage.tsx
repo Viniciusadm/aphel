@@ -7,6 +7,7 @@ import { Button } from '@/components/ui/button'
 import { RecordFormDialog } from '@/features/records/form'
 import { RecordListView } from '@/features/records/table'
 import { CONTACT_CREATE_LAYOUT, CONTACT_RECORD_TYPE, contactResource } from './resource'
+import { PageHeader } from '@/components/ui/page-header'
 
 export function ContactsPage() {
   const { t } = useTranslation('contacts')
@@ -23,10 +24,7 @@ export function ContactsPage() {
 
   return (
     <div className="flex flex-col gap-4">
-      <div className="grid gap-1">
-        <h1 className="text-xl font-semibold">{t('list.title')}</h1>
-        <p className="text-sm text-muted-foreground">{t('list.description')}</p>
-      </div>
+      <PageHeader title={t('list.title')} description={t('list.description')} />
       <RecordListView
         recordType={CONTACT_RECORD_TYPE}
         toolbarActions={newButton}

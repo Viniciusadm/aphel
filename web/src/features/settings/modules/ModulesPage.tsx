@@ -5,10 +5,10 @@ import { ErrorState } from '@/components/ui/error-state'
 import { Skeleton } from '@/components/ui/skeleton'
 import { useModules, useInvalidateModules } from '@/kernel/modules/api'
 import { RequirePermission } from '@/features/settings/components/RequirePermission'
-import { SectionHeader } from '@/features/settings/components/SectionHeader'
 import { SETTINGS_MANAGE } from '@/features/settings/lib/permissions'
 import { ModuleCard } from './ModuleCard'
 import { CatalogSourcePanel } from './CatalogSourcePanel'
+import { PageHeader } from '@/components/ui/page-header'
 
 export function ModulesPage() {
   return (
@@ -27,7 +27,7 @@ function ModulesList() {
 
   return (
     <section className="flex flex-col gap-4">
-      <SectionHeader title={t('title')} description={t('description')} />
+      <PageHeader title={t('title')} description={t('description')} />
       {modules.isPending ? (
         <div className="grid gap-3 md:grid-cols-2" aria-busy="true">
           <Skeleton className="h-56 w-full" />

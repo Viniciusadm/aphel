@@ -10,7 +10,6 @@ import { toast } from '@/components/ui/toast-store'
 import { ListSkeleton } from '../components/ListSkeleton'
 import { RecordTypeSelect } from '../components/RecordTypeSelect'
 import { RequirePermission } from '../components/RequirePermission'
-import { SectionHeader } from '../components/SectionHeader'
 import { SETTINGS_MANAGE } from '../lib/permissions'
 import { fieldsApi, useFieldMutation, useFields, useReorderFields, type Field } from './api'
 import { FieldRow, type FieldAction } from './components/FieldRow'
@@ -20,6 +19,7 @@ import { errorMessageKey, isRecordTypeNotFound } from './lib/errors'
 import { DEFAULT_RECORD_TYPE } from './lib/field-types'
 import { mergeVisibleOrder, moveId } from './lib/order'
 import { useRecordTypeLabel } from './lib/useRecordTypeLabel'
+import { PageHeader } from '@/components/ui/page-header'
 
 export function FieldsPage() {
   const { recordType = DEFAULT_RECORD_TYPE } = useParams()
@@ -99,10 +99,10 @@ function FieldsSection({ recordType }: { recordType: string }) {
 
   return (
     <section className="grid grid-cols-1 gap-4">
-      <SectionHeader
+      <PageHeader
         title={t('title')}
         description={t('description')}
-        action={
+        actions={
           <div className="flex flex-wrap gap-2">
             <RecordTypeSelect
               value={recordType}

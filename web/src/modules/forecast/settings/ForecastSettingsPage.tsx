@@ -13,7 +13,6 @@ import { ErrorState } from '@/components/ui/error-state'
 import { Input } from '@/components/ui/input'
 import { Label } from '@/components/ui/label'
 import { fieldViolations } from '@/features/auth/lib/api-errors'
-import { SectionHeader } from '@/features/settings/components/SectionHeader'
 import { FormRow } from '@/features/settings/organization/components/FormRow'
 import { NativeSelect } from '@/features/settings/organization/components/NativeSelect'
 import {
@@ -24,6 +23,7 @@ import {
   useForecastSettings,
   type ForecastSettings,
 } from '../api'
+import { PageHeader } from '@/components/ui/page-header'
 
 const percentage = z.coerce.number<string | number>().int('settings.errors.percentage').min(1, 'settings.errors.percentage').max(100, 'settings.errors.percentage')
 
@@ -65,7 +65,7 @@ export function ForecastSettingsPage() {
   const query = useForecastSettings()
   return (
     <section className="flex flex-col gap-6">
-      <SectionHeader title={t('settings.title')} description={t('settings.description')} />
+      <PageHeader title={t('settings.title')} description={t('settings.description')} />
       {query.isPending ? (
         <PageLoader />
       ) : query.isError ? (

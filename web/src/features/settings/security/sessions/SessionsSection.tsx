@@ -8,10 +8,10 @@ import { EmptyState } from '@/components/ui/empty-state'
 import { ErrorState } from '@/components/ui/error-state'
 import { Skeleton } from '@/components/ui/skeleton'
 import { formatDateTime, useRecordFormatting } from '@/features/records/formatting'
-import { SectionHeader } from '@/features/settings/components/SectionHeader'
 import { securitySessionsApi, useInvalidateSecuritySessions, useSecuritySessions, type SecuritySession } from './api'
 import { DeviceIcon } from './DeviceIcon'
 import { useDeviceLabel } from './device-label'
+import { PageHeader } from '@/components/ui/page-header'
 
 export function SessionsSection() {
   const { t } = useTranslation('security')
@@ -36,10 +36,10 @@ export function SessionsSection() {
 
   return (
     <section className="flex flex-col gap-4">
-      <SectionHeader
+      <PageHeader level="section"
         title={t('sessions.title')}
         description={t('sessions.description')}
-        action={
+        actions={
           otherCount > 0 ? (
             <Button size="sm" variant="outline" onClick={() => setRevokingOthers(true)}>
               {t('sessions.revokeOthers')}

@@ -21,6 +21,16 @@ export function DialogOverlay({ className, ...props }: ComponentProps<typeof Dia
 
 type DialogSide = 'center' | 'left' | 'right'
 
+export type DialogSize = 'sm' | 'md' | 'lg' | 'xl' | '2xl'
+
+const sizeClasses: Record<DialogSize, string> = {
+  sm: 'sm:max-w-sm',
+  md: 'sm:max-w-lg',
+  lg: 'sm:max-w-xl',
+  xl: 'sm:max-w-2xl',
+  '2xl': 'sm:max-w-3xl',
+}
+
 const sideClasses: Record<DialogSide, string> = {
   center:
     'top-1/2 left-1/2 max-h-[calc(100dvh-2rem)] w-full max-w-[calc(100%-2rem)] -translate-x-1/2 -translate-y-1/2 rounded-(--dialog-radius) border [--dialog-gap:--spacing(4)] [--dialog-padding:--spacing(6)] sm:max-w-lg',
@@ -36,6 +46,7 @@ const bodySideClasses: Record<DialogSide, string> = {
 
 export interface DialogContentProps extends ComponentProps<typeof DialogPrimitive.Content> {
   side?: DialogSide
+  size?: DialogSize
   showCloseButton?: boolean
 }
 
@@ -43,6 +54,7 @@ export function DialogContent({
   className,
   children,
   side = 'center',
+  size = 'md',
   showCloseButton = true,
   ...props
 }: DialogContentProps) {
@@ -55,6 +67,7 @@ export function DialogContent({
         className={cn(
           'fixed z-50 flex flex-col overflow-hidden bg-background text-foreground shadow-lg outline-none',
           sideClasses[side],
+          side === 'center' && sizeClasses[size],
           className,
         )}
         {...props}

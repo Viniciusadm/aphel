@@ -10,7 +10,6 @@ import { EmptyState } from '@/components/ui/empty-state'
 import { ErrorState } from '@/components/ui/error-state'
 import { Skeleton } from '@/components/ui/skeleton'
 import { Dialog, DialogContent, DialogDescription, DialogHeader, DialogTitle } from '@/components/ui/dialog'
-import { SectionHeader } from '@/features/settings/components/SectionHeader'
 import { RequirePermission } from '@/features/settings/components/RequirePermission'
 import { SYSTEM_MANAGE } from '@/features/settings/lib/permissions'
 import { PluginConsentDialog } from './plugins/PluginConsentDialog'
@@ -18,6 +17,7 @@ import { PluginDeclarationList } from './plugins/PluginDeclarationList'
 import { PluginGrantStatus } from './plugins/PluginGrantStatus'
 import { PluginSettingsDialog } from './plugins/PluginSettingsDialog'
 import { PLUGINS_PATH, pluginsKey, type InstalledPlugin, type PluginConsent } from './plugins/types'
+import { PageHeader } from '@/components/ui/page-header'
 
 const PACKAGE_EXTENSION = '.aphelplugin'
 
@@ -131,7 +131,7 @@ function PluginsPanelContent() {
   return (
     <section className="flex flex-col gap-4" aria-label={t('plugins.title')}>
       <div className="flex flex-wrap items-start justify-between gap-3">
-        <SectionHeader title={t('plugins.title')} description={t('plugins.description')} />
+        <PageHeader level="section" title={t('plugins.title')} description={t('plugins.description')} />
         {upload}
       </div>
       {readiness.isError ? (

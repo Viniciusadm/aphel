@@ -20,12 +20,12 @@ import type { FieldSchema } from '@/features/records/types'
 import { ListSkeleton } from '../components/ListSkeleton'
 import { RecordTypeSelect } from '../components/RecordTypeSelect'
 import { RequirePermission } from '../components/RequirePermission'
-import { SectionHeader } from '../components/SectionHeader'
 import { DEFAULT_RECORD_TYPE, isKnownRecordType } from '../fields/lib/field-types'
 import { SETTINGS_MANAGE } from '../lib/permissions'
 import { FieldRulesDialog } from './components/FieldRulesDialog'
 import { LayoutCanvas } from './components/LayoutCanvas'
 import { fieldAtPath, layoutCandidates, layoutsEqual, normalizeForSave, setFieldRules, startingLayout } from './lib/draft'
+import { PageHeader } from '@/components/ui/page-header'
 
 function parseContext(value: string | null): LayoutContext {
   return LAYOUT_CONTEXTS.includes(value as LayoutContext) ? (value as LayoutContext) : 'create'
@@ -49,10 +49,10 @@ function LayoutsSection({ recordType }: { recordType: string }) {
 
   return (
     <section className="grid min-w-0 gap-4">
-      <SectionHeader
+      <PageHeader
         title={t('title')}
         description={t('description')}
-        action={
+        actions={
           <div className="flex flex-wrap gap-2">
             <RecordTypeSelect
               value={recordType}

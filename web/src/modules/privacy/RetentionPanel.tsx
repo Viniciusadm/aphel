@@ -15,7 +15,7 @@ import { EmptyState } from '@/components/ui/empty-state'
 import { ErrorState } from '@/components/ui/error-state'
 import { formatDate, formatDateTime, useRecordFormatting } from '@/features/records/formatting'
 import { ListSkeleton } from '@/features/settings/components/ListSkeleton'
-import { Pagination } from '@/features/settings/components/Pagination'
+import { Pagination } from '@/components/ui/pagination'
 import {
   RUNS_PER_PAGE,
   usePolicyMutations,

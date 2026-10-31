@@ -5,12 +5,12 @@ import { z } from 'zod'
 import { notifyError, notifySuccess, UnsavedChangesGuard } from '@/components/feedback'
 import { Button } from '@/components/ui/button'
 import { Input } from '@/components/ui/input'
-import { SectionHeader } from '../components/SectionHeader'
 import { MailNotConfiguredNotice } from '../email/MailNotConfiguredNotice'
 import { FormRow } from '../organization/components/FormRow'
 import { positiveInteger, useSaveConfiguration, type OrganizationConfiguration } from './api'
 import { ConfigurationGate } from './ConfigurationGate'
 import { serverFieldErrors } from './violations'
+import { PageHeader } from '@/components/ui/page-header'
 
 const schema = z.object({
   publicBaseUrl: z
@@ -33,7 +33,7 @@ export function GeneralSettingsPage() {
   const { t } = useTranslation('settings')
   return (
     <section className="grid gap-6" aria-labelledby="general-settings-title">
-      <SectionHeader title={t('configuration.general.title')} description={t('configuration.general.description')} />
+      <PageHeader title={t('configuration.general.title')} description={t('configuration.general.description')} />
       <MailNotConfiguredNotice />
       <ConfigurationGate>{(configuration) => <GeneralForm configuration={configuration} />}</ConfigurationGate>
     </section>

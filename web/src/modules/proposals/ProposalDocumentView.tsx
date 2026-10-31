@@ -2,6 +2,7 @@ import { Fragment } from 'react'
 import { cn } from '@/lib/utils'
 import { useModuleTranslation } from '@/kernel/modules/i18n'
 import { PROPOSALS_KEY, type ProposalBlock, type ProposalItemsTable, type ProposalSpan } from './api'
+import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from '@/components/ui/table'
 
 function Spans({ spans }: { spans: ProposalSpan[] }) {
   const t = useModuleTranslation(PROPOSALS_KEY)
@@ -41,38 +42,36 @@ function ItemsTableView({ table }: { table: ProposalItemsTable }) {
   const t = useModuleTranslation(PROPOSALS_KEY)
   return (
     <div className="grid gap-2">
-      <div className="overflow-x-auto rounded-md border">
-        <table className="w-full min-w-[480px] text-sm">
-          <thead className="bg-muted/60 text-left">
-            <tr>
-              <th className="px-2 py-1.5 font-semibold">{t('preview.item')}</th>
-              <th className="px-2 py-1.5 text-right font-semibold">{t('preview.quantity')}</th>
-              <th className="px-2 py-1.5 text-right font-semibold">{t('preview.unitPrice')}</th>
-              <th className="px-2 py-1.5 text-right font-semibold">{t('preview.discount')}</th>
-              <th className="px-2 py-1.5 text-right font-semibold">{t('preview.total')}</th>
-            </tr>
-          </thead>
-          <tbody>
-            {table.rows.length === 0 ? (
-              <tr>
-                <td colSpan={5} className="px-2 py-2 text-muted-foreground">
-                  {table.available ? t('preview.noItems') : t('preview.itemsUnavailable')}
-                </td>
-              </tr>
-            ) : (
-              table.rows.map((row, index) => (
-                <tr key={index} className="border-t">
-                  <td className="px-2 py-1.5 break-words">{row.name}</td>
-                  <td className="px-2 py-1.5 text-right tabular-nums">{row.quantity}</td>
-                  <td className="px-2 py-1.5 text-right tabular-nums whitespace-nowrap">{row.unit_price}</td>
-                  <td className="px-2 py-1.5 text-right tabular-nums whitespace-nowrap">{row.discount}</td>
-                  <td className="px-2 py-1.5 text-right tabular-nums whitespace-nowrap">{row.total}</td>
-                </tr>
-              ))
-            )}
-          </tbody>
-        </table>
-      </div>
+      <Table className="min-w-[480px]">
+        <TableHeader>
+          <TableRow>
+            <TableHead className="px-2 py-1.5 font-semibold">{t('preview.item')}</TableHead>
+            <TableHead className="px-2 py-1.5 text-right font-semibold">{t('preview.quantity')}</TableHead>
+            <TableHead className="px-2 py-1.5 text-right font-semibold">{t('preview.unitPrice')}</TableHead>
+            <TableHead className="px-2 py-1.5 text-right font-semibold">{t('preview.discount')}</TableHead>
+            <TableHead className="px-2 py-1.5 text-right font-semibold">{t('preview.total')}</TableHead>
+          </TableRow>
+        </TableHeader>
+        <TableBody>
+          {table.rows.length === 0 ? (
+            <TableRow>
+              <TableCell colSpan={5} className="px-2 text-muted-foreground">
+                {table.available ? t('preview.noItems') : t('preview.itemsUnavailable')}
+              </TableCell>
+            </TableRow>
+          ) : (
+            table.rows.map((row, index) => (
+              <TableRow key={index}>
+                <TableCell className="px-2 py-1.5 break-words">{row.name}</TableCell>
+                <TableCell className="px-2 py-1.5 text-right tabular-nums">{row.quantity}</TableCell>
+                <TableCell className="px-2 py-1.5 text-right tabular-nums whitespace-nowrap">{row.unit_price}</TableCell>
+                <TableCell className="px-2 py-1.5 text-right tabular-nums whitespace-nowrap">{row.discount}</TableCell>
+                <TableCell className="px-2 py-1.5 text-right tabular-nums whitespace-nowrap">{row.total}</TableCell>
+              </TableRow>
+            ))
+          )}
+        </TableBody>
+      </Table>
       <dl className="ml-auto grid w-full max-w-64 grid-cols-[1fr_auto] gap-x-4 gap-y-0.5 text-sm">
         <dt className="text-muted-foreground">{t('preview.subtotal')}</dt>
         <dd className="text-right tabular-nums">{table.subtotal}</dd>

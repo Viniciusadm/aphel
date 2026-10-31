@@ -5,7 +5,7 @@ import { ConfirmDialog, notifyError, notifySuccess } from '@/components/feedback
 import { Button } from '@/components/ui/button'
 import { ErrorState } from '@/components/ui/error-state'
 import { Skeleton } from '@/components/ui/skeleton'
-import { Pagination } from '@/features/settings/components/Pagination'
+import { Pagination } from '@/components/ui/pagination'
 import { NativeSelect } from '@/features/settings/organization/components/NativeSelect'
 import { cn } from '@/lib/utils'
 import { FAILED_JOBS_PER_PAGE, useFailedJobs, useJobAction, useJobStats } from './api'

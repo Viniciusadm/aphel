@@ -16,6 +16,10 @@ export interface UiLabels {
   confirmTypeLabel: string
   confirmTypePrompt: (name: string) => ReactNode
   pageLoading: string
+  paginationPrevious: string
+  paginationNext: string
+  paginationSummary: (page: number, pages: number, total: number) => string
+  back: string
 }
 
 export const UiLabelsContext = createContext<UiLabels | null>(null)

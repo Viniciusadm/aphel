@@ -3,9 +3,9 @@ import { useTranslation } from 'react-i18next'
 import { EmptyState } from '@/components/ui/empty-state'
 import { ErrorState } from '@/components/ui/error-state'
 import { Skeleton } from '@/components/ui/skeleton'
-import { SectionHeader } from '@/features/settings/components/SectionHeader'
 import { useIntegrations, useInvalidateIntegrations } from '@/features/settings/email/integration/api'
 import { IntegrationCard } from '@/features/settings/email/integration/IntegrationCard'
+import { PageHeader } from '@/components/ui/page-header'
 
 export function IntegrationsPage() {
   const { t } = useTranslation('integrations')
@@ -14,7 +14,7 @@ export function IntegrationsPage() {
 
   return (
     <section className="flex flex-col gap-4">
-      <SectionHeader title={t('title')} description={t('description')} />
+      <PageHeader title={t('title')} description={t('description')} />
       {integrations.isPending ? (
         <div className="grid gap-3 md:grid-cols-2" aria-busy="true">
           <Skeleton className="h-44 w-full" />

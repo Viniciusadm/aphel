@@ -18,13 +18,13 @@ import { Input } from '@/components/ui/input'
 import { Label } from '@/components/ui/label'
 import { Skeleton } from '@/components/ui/skeleton'
 import { toast } from '@/components/ui/toast-store'
-import { SectionHeader } from '@/features/settings/components/SectionHeader'
 import { SortableList } from '@/features/settings/fields/components/SortableList'
 import { cn } from '@/lib/utils'
 import { lifecycleApi, useDisqualificationReasons, useInvalidateDisqualificationReasons } from '../api'
 import { MAX_REASON_NAME_LENGTH } from '../constants'
 import { lifecycleErrorMessage } from '../errors'
 import type { DisqualificationReason } from '../types'
+import { PageHeader } from '@/components/ui/page-header'
 
 interface EditorState {
   reason: DisqualificationReason | null
@@ -84,10 +84,10 @@ export function DisqualificationReasonsSection() {
 
   return (
     <section className="flex flex-col gap-4">
-      <SectionHeader
+      <PageHeader level="section"
         title={t('reasons.title')}
         description={t('reasons.description')}
-        action={
+        actions={
           <Button size="sm" onClick={() => setEditor({ reason: null })}>
             <Plus aria-hidden="true" />
             {t('reasons.new')}

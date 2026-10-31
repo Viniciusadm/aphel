@@ -12,12 +12,12 @@ import { EmptyState } from '@/components/ui/empty-state'
 import { ErrorState } from '@/components/ui/error-state'
 import { formatDateTime, useRecordFormatting } from '@/features/records/formatting'
 import { ListSkeleton } from '@/features/settings/components/ListSkeleton'
-import { Pagination } from '@/features/settings/components/Pagination'
+import { Pagination } from '@/components/ui/pagination'
 import { RequirePermission } from '@/features/settings/components/RequirePermission'
-import { SectionHeader } from '@/features/settings/components/SectionHeader'
 import { ORGANIZATION_EXPORT } from '@/features/settings/lib/permissions'
 import { EXPORTS_PER_PAGE, downloadUrl, isPending, useOrgExports, useRequestOrgExport } from './api'
 import { asOrgExportStatus, type OrgExport, type OrgExportStatus } from './types'
+import { PageHeader } from '@/components/ui/page-header'
 
 type BadgeVariant = 'secondary' | 'destructive' | 'success' | 'warning'
 
@@ -46,7 +46,7 @@ function OrgExportSection() {
 
   return (
     <section className="flex min-w-0 flex-col gap-6">
-      <SectionHeader title={t('page.title')} description={t('page.description')} />
+      <PageHeader title={t('page.title')} description={t('page.description')} />
       <div className="grid min-w-0 gap-4 lg:grid-cols-[minmax(0,3fr)_minmax(0,2fr)]">
         <RequestCard disabled={hasPending} />
         <RestoreCard />

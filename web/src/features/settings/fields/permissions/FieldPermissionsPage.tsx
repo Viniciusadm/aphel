@@ -12,7 +12,6 @@ import { cn } from '@/lib/utils'
 import { ListSkeleton } from '../../components/ListSkeleton'
 import { RecordTypeSelect } from '../../components/RecordTypeSelect'
 import { RequirePermission } from '../../components/RequirePermission'
-import { SectionHeader } from '../../components/SectionHeader'
 import { SETTINGS_MANAGE } from '../../lib/permissions'
 import { isRecordTypeNotFound } from '../lib/errors'
 import { DEFAULT_RECORD_TYPE } from '../lib/field-types'
@@ -27,6 +26,8 @@ import {
   type FieldPermissionRole,
 } from './api'
 import { applyToColumn, cellKey, changedCells, draftEntries, isConfigurable, matrixDraft, type MatrixDraft } from './matrix'
+import { PageHeader } from '@/components/ui/page-header'
+import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from '@/components/ui/table'
 
 export function FieldPermissionsPage() {
   const { recordType = DEFAULT_RECORD_TYPE } = useParams()
@@ -54,10 +55,10 @@ function FieldPermissionsSection({ recordType }: { recordType: string }) {
           </Link>
         </Button>
       </div>
-      <SectionHeader
+      <PageHeader
         title={t('title')}
         description={t('description', { recordType: recordTypeLabel })}
-        action={
+        actions={
           <RecordTypeSelect
             value={recordType}
             label={t('recordTypesLabel')}
@@ -178,57 +179,55 @@ function MatrixEditor({ recordType, recordTypeLabel, matrix, onReload }: MatrixE
       {fields.length === 0 ? (
         <EmptyState title={t('empty')} />
       ) : (
-        <div className="relative max-w-full overflow-x-auto rounded-lg border">
-          <table className="w-full min-w-max text-sm">
-            <caption className="sr-only">{t('table.caption', { recordType: recordTypeLabel })}</caption>
-            <thead className="bg-muted/50 text-muted-foreground">
-              <tr>
-                <th scope="col" className="sticky left-0 z-10 bg-muted px-3 py-2 text-left align-bottom font-medium">
-                  {t('table.field')}
-                </th>
-                {roles.map((role) => (
-                  <th key={role.id} scope="col" className="px-3 py-2 text-left align-bottom font-medium">
-                    <div className="grid gap-1.5">
-                      <span className="text-foreground">{role.name}</span>
-                      {role.is_configurable ? (
-                        <ColumnApply
-                          role={role}
-                          onApply={(access) => setDraft((current) => applyToColumn(current, fields, role.id, access))}
-                        />
-                      ) : (
-                        <span className="inline-flex items-center gap-1 text-xs font-normal">
-                          <Lock className="size-3" aria-hidden />
-                          {t('table.admin')}
-                        </span>
-                      )}
-                    </div>
-                  </th>
-                ))}
-              </tr>
-            </thead>
-            <tbody>
-              {fields.map((field) => (
-                <tr key={field.id} className="border-t">
-                  <th scope="row" className="sticky left-0 z-10 bg-background px-3 py-2 text-left font-normal">
-                    <FieldLabel field={field} />
-                  </th>
-                  {roles.map((role) => (
-                    <td key={role.id} className="px-3 py-2">
-                      <AccessCell
-                        field={field}
+        <Table>
+          <caption className="sr-only">{t('table.caption', { recordType: recordTypeLabel })}</caption>
+          <TableHeader>
+            <TableRow>
+              <TableHead scope="col" className="sticky left-0 z-10 bg-muted text-left align-bottom">
+                {t('table.field')}
+              </TableHead>
+              {roles.map((role) => (
+                <TableHead key={role.id} scope="col" className="text-left align-bottom">
+                  <div className="grid gap-1.5">
+                    <span className="text-foreground">{role.name}</span>
+                    {role.is_configurable ? (
+                      <ColumnApply
                         role={role}
-                        value={draft[cellKey(field.id, role.id)] ?? 'editable'}
-                        changed={changed.includes(cellKey(field.id, role.id))}
-                        disabled={save.isPending}
-                        onChange={(access) => setCell(field, role, access)}
+                        onApply={(access) => setDraft((current) => applyToColumn(current, fields, role.id, access))}
                       />
-                    </td>
-                  ))}
-                </tr>
+                    ) : (
+                      <span className="inline-flex items-center gap-1 text-xs font-normal">
+                        <Lock className="size-3" aria-hidden />
+                        {t('table.admin')}
+                      </span>
+                    )}
+                  </div>
+                </TableHead>
               ))}
-            </tbody>
-          </table>
-        </div>
+            </TableRow>
+          </TableHeader>
+          <TableBody>
+            {fields.map((field) => (
+              <TableRow key={field.id}>
+                <TableHead scope="row" className="sticky left-0 z-10 bg-background text-left font-normal">
+                  <FieldLabel field={field} />
+                </TableHead>
+                {roles.map((role) => (
+                  <TableCell key={role.id}>
+                    <AccessCell
+                      field={field}
+                      role={role}
+                      value={draft[cellKey(field.id, role.id)] ?? 'editable'}
+                      changed={changed.includes(cellKey(field.id, role.id))}
+                      disabled={save.isPending}
+                      onChange={(access) => setCell(field, role, access)}
+                    />
+                  </TableCell>
+                ))}
+              </TableRow>
+            ))}
+          </TableBody>
+        </Table>
       )}
       <div className="flex flex-col-reverse gap-2 sm:flex-row sm:items-center sm:justify-end">
         <p className="text-sm text-muted-foreground sm:mr-auto" aria-live="polite">

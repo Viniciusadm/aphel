@@ -17,9 +17,8 @@ import {
   type Member,
 } from '../api'
 import { ListSkeleton } from '../components/ListSkeleton'
-import { Pagination } from '../components/Pagination'
+import { Pagination } from '@/components/ui/pagination'
 import { RequirePermission } from '../components/RequirePermission'
-import { SectionHeader } from '../components/SectionHeader'
 import { errorMessageKey } from '../lib/errors'
 import { USERS_MANAGE } from '../lib/permissions'
 import { ChangeRoleDialog } from './ChangeRoleDialog'
@@ -27,6 +26,8 @@ import { InviteMemberDialog } from './InviteMemberDialog'
 import { MemberLinkDialog, type MemberLink } from './MemberLinkDialog'
 import { MemberActions, type MemberAction } from './MemberActions'
 import { MemberStatusBadge } from './MemberStatusBadge'
+import { PageHeader } from '@/components/ui/page-header'
+import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from '@/components/ui/table'
 
 type ConfirmAction = Extract<MemberAction, 'suspend' | 'cancelInvitation'>
 
@@ -124,10 +125,10 @@ function MembersSection() {
 
   return (
     <section className="grid gap-4">
-      <SectionHeader
+      <PageHeader
         title={t('users.title')}
         description={t('users.description')}
-        action={
+        actions={
           <Button onClick={() => setInviting(true)} disabled={!roles.data}>
             <UserPlus />
             {t('users.invite')}
@@ -142,54 +143,52 @@ function MembersSection() {
         <EmptyState title={t('users.empty')} />
       ) : (
         <>
-          <div className="relative overflow-x-auto rounded-lg border">
-            <table className="w-full text-sm">
-              <thead className="bg-muted/50 text-left text-muted-foreground">
-                <tr>
-                  <th scope="col" className="px-4 py-2 font-medium">
-                    {t('users.columns.name')}
-                  </th>
-                  <th scope="col" className="px-4 py-2 font-medium">
-                    {t('users.columns.role')}
-                  </th>
-                  <th scope="col" className="px-4 py-2 font-medium">
-                    {t('users.columns.status')}
-                  </th>
-                  <th scope="col" className="hidden px-4 py-2 font-medium md:table-cell">
-                    {t('users.columns.teams')}
-                  </th>
-                  <th scope="col" className="w-12 px-4 py-2">
-                    <span className="sr-only">{t('users.columns.actions')}</span>
-                  </th>
-                </tr>
-              </thead>
-              <tbody>
-                {members.data.data.map((member) => (
-                  <tr key={member.id} className="border-t">
-                    <td className="px-4 py-3">
-                      <div className="font-medium">
-                        {member.display_name}
-                        {member.user_id === me.user.id && (
-                          <span className="ml-1 text-muted-foreground">({t('users.you')})</span>
-                        )}
-                      </div>
-                      <div className="text-muted-foreground">{member.email}</div>
-                    </td>
-                    <td className="px-4 py-3">{member.role.name}</td>
-                    <td className="px-4 py-3">
-                      <MemberStatusBadge status={member.status} />
-                    </td>
-                    <td className="hidden px-4 py-3 text-muted-foreground md:table-cell">
-                      {member.teams.length > 0 ? member.teams.map((team) => team.name).join(', ') : t('users.noTeams')}
-                    </td>
-                    <td className="px-4 py-3 text-right">
-                      <MemberActions member={member} onAction={onAction} />
-                    </td>
-                  </tr>
-                ))}
-              </tbody>
-            </table>
-          </div>
+          <Table>
+            <TableHeader>
+              <TableRow>
+                <TableHead scope="col">
+                  {t('users.columns.name')}
+                </TableHead>
+                <TableHead scope="col">
+                  {t('users.columns.role')}
+                </TableHead>
+                <TableHead scope="col">
+                  {t('users.columns.status')}
+                </TableHead>
+                <TableHead scope="col" className="hidden md:table-cell">
+                  {t('users.columns.teams')}
+                </TableHead>
+                <TableHead scope="col" className="w-12">
+                  <span className="sr-only">{t('users.columns.actions')}</span>
+                </TableHead>
+              </TableRow>
+            </TableHeader>
+            <TableBody>
+              {members.data.data.map((member) => (
+                <TableRow key={member.id}>
+                  <TableCell>
+                    <div className="font-medium">
+                      {member.display_name}
+                      {member.user_id === me.user.id && (
+                        <span className="ml-1 text-muted-foreground">({t('users.you')})</span>
+                      )}
+                    </div>
+                    <div className="text-muted-foreground">{member.email}</div>
+                  </TableCell>
+                  <TableCell>{member.role.name}</TableCell>
+                  <TableCell>
+                    <MemberStatusBadge status={member.status} />
+                  </TableCell>
+                  <TableCell className="hidden text-muted-foreground md:table-cell">
+                    {member.teams.length > 0 ? member.teams.map((team) => team.name).join(', ') : t('users.noTeams')}
+                  </TableCell>
+                  <TableCell className="text-right">
+                    <MemberActions member={member} onAction={onAction} />
+                  </TableCell>
+                </TableRow>
+              ))}
+            </TableBody>
+          </Table>
           <Pagination page={page} perPage={MEMBERS_PER_PAGE} total={members.data.meta.total} onPageChange={setPage} />
         </>
       )}

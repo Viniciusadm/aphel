@@ -16,6 +16,8 @@ import { PRICE_LISTS_PER_PAGE, priceListPath, usePriceLists } from './api'
 import { DiscountLimitsPanel } from './DiscountLimitsPanel'
 import { PriceListBadges, PriceListValidity } from './PriceListBadges'
 import { PriceListDialog } from './PriceListDialog'
+import { PageHeader } from '@/components/ui/page-header'
+import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from '@/components/ui/table'
 
 const PRODUCTS_PATH = '/products'
 
@@ -33,10 +35,7 @@ export function PriceListsPage() {
             {t('list.back')}
           </Link>
         </Button>
-        <div className="grid gap-1">
-          <h1 className="text-xl font-semibold">{t('list.title')}</h1>
-          <p className="text-sm text-muted-foreground">{t('list.description')}</p>
-        </div>
+        <PageHeader title={t('list.title')} description={t('list.description')} />
       </div>
       {canManageLimits ? (
         <Tabs defaultValue="lists" className="flex flex-col gap-4">
@@ -117,57 +116,55 @@ function PriceListsTable() {
         <EmptyState icon={Tags} title={t('list.empty')} description={t('list.emptyHint')} action={newButton} />
       ) : (
         <>
-          <div className="relative overflow-x-auto rounded-lg border">
-            <table className="w-full text-sm">
-              <thead className="bg-muted/50 text-left text-muted-foreground">
-                <tr>
-                  <th scope="col" className="px-4 py-2 font-medium">
-                    {t('columns.name')}
-                  </th>
-                  <th scope="col" className="px-4 py-2 font-medium">
-                    {t('columns.currency')}
-                  </th>
-                  <th scope="col" className="hidden px-4 py-2 font-medium md:table-cell">
-                    {t('columns.appliesTo')}
-                  </th>
-                  <th scope="col" className="hidden px-4 py-2 font-medium md:table-cell">
-                    {t('columns.validity')}
-                  </th>
-                  <th scope="col" className="px-4 py-2 text-right font-medium">
-                    {t('columns.items')}
-                  </th>
-                </tr>
-              </thead>
-              <tbody>
-                {lists.data.data.map((list) => (
-                  <tr
-                    key={list.id}
-                    className="cursor-pointer border-t hover:bg-muted/40"
-                    onClick={() => navigate(priceListPath(list.id))}
-                  >
-                    <td className="px-4 py-2">
-                      <div className="flex flex-wrap items-center gap-2">
-                        <Link
-                          to={priceListPath(list.id)}
-                          className="font-medium hover:underline"
-                          onClick={(event) => event.stopPropagation()}
-                        >
-                          {list.name}
-                        </Link>
-                        <PriceListBadges list={list} />
-                      </div>
-                    </td>
-                    <td className="px-4 py-2 font-mono">{list.currency}</td>
-                    <td className="hidden px-4 py-2 md:table-cell">{t(`appliesTo.${list.applies_to}`)}</td>
-                    <td className="hidden px-4 py-2 md:table-cell">
-                      <PriceListValidity list={list} />
-                    </td>
-                    <td className="px-4 py-2 text-right tabular-nums">{list.item_count}</td>
-                  </tr>
-                ))}
-              </tbody>
-            </table>
-          </div>
+          <Table>
+            <TableHeader>
+              <TableRow>
+                <TableHead scope="col">
+                  {t('columns.name')}
+                </TableHead>
+                <TableHead scope="col">
+                  {t('columns.currency')}
+                </TableHead>
+                <TableHead scope="col" className="hidden md:table-cell">
+                  {t('columns.appliesTo')}
+                </TableHead>
+                <TableHead scope="col" className="hidden md:table-cell">
+                  {t('columns.validity')}
+                </TableHead>
+                <TableHead scope="col" className="text-right">
+                  {t('columns.items')}
+                </TableHead>
+              </TableRow>
+            </TableHeader>
+            <TableBody>
+              {lists.data.data.map((list) => (
+                <TableRow
+                  key={list.id}
+                  className="cursor-pointer hover:bg-muted/40"
+                  onClick={() => navigate(priceListPath(list.id))}
+                >
+                  <TableCell>
+                    <div className="flex flex-wrap items-center gap-2">
+                      <Link
+                        to={priceListPath(list.id)}
+                        className="font-medium hover:underline"
+                        onClick={(event) => event.stopPropagation()}
+                      >
+                        {list.name}
+                      </Link>
+                      <PriceListBadges list={list} />
+                    </div>
+                  </TableCell>
+                  <TableCell className="font-mono">{list.currency}</TableCell>
+                  <TableCell className="hidden md:table-cell">{t(`appliesTo.${list.applies_to}`)}</TableCell>
+                  <TableCell className="hidden md:table-cell">
+                    <PriceListValidity list={list} />
+                  </TableCell>
+                  <TableCell className="text-right tabular-nums">{list.item_count}</TableCell>
+                </TableRow>
+              ))}
+            </TableBody>
+          </Table>
           {lastPage > 1 && (
             <div className="flex items-center justify-end gap-2 text-sm">
               <Button size="sm" variant="outline" disabled={page <= 1} onClick={() => setPage(page - 1)}>

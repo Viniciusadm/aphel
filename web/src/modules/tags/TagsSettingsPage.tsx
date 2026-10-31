@@ -20,7 +20,6 @@ import { Input } from '@/components/ui/input'
 import { Label } from '@/components/ui/label'
 import { Skeleton } from '@/components/ui/skeleton'
 import { RequirePermission } from '@/features/settings/components/RequirePermission'
-import { SectionHeader } from '@/features/settings/components/SectionHeader'
 import { SETTINGS_MANAGE } from '@/features/settings/lib/permissions'
 import {
   DEFAULT_TAG_COLOR,
@@ -33,6 +32,7 @@ import {
   type TaggableRecordType,
 } from './api'
 import { TagChip } from './TagChip'
+import { PageHeader } from '@/components/ui/page-header'
 
 const HEX_COLOR = /^#[0-9a-f]{6}$/i
 
@@ -63,10 +63,10 @@ function TagsSection() {
 
   return (
     <section className="flex flex-col gap-4">
-      <SectionHeader
+      <PageHeader
         title={t('settings.title')}
         description={t('settings.description')}
-        action={
+        actions={
           <Button size="sm" onClick={() => setEditor({ tag: null })}>
             <Plus aria-hidden="true" />
             {t('settings.new')}

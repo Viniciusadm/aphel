@@ -1,9 +1,7 @@
-import { ArrowLeft } from 'lucide-react'
 import { useTranslation } from 'react-i18next'
 import { Link, useParams } from 'react-router'
 import { isApiError } from '@/api'
 import { PageLoader } from '@/components/feedback'
-import { Button } from '@/components/ui/button'
 import { EmptyState } from '@/components/ui/empty-state'
 import { ErrorState } from '@/components/ui/error-state'
 import { useApprovalRequest } from './api'
@@ -14,6 +12,8 @@ import { ApprovalStatusBadge, OverdueBadge } from './components/StatusBadge'
 import { APPROVALS_PATH } from './constants'
 import { useRecordTypeLabel } from './lib/labels'
 import { recordPath } from './lib/record-link'
+import { Page } from '@/components/ui/page'
+import { PageHeader } from '@/components/ui/page-header'
 
 export function ApprovalDetailPage() {
   const { t } = useTranslation('approvals')
@@ -21,23 +21,14 @@ export function ApprovalDetailPage() {
   const request = useApprovalRequest(id)
   const recordTypeLabel = useRecordTypeLabel()
 
-  const back = (
-    <Button asChild variant="ghost" size="sm" className="w-fit">
-      <Link to={APPROVALS_PATH}>
-        <ArrowLeft aria-hidden="true" />
-        {t('detail.back')}
-      </Link>
-    </Button>
-  )
-
   if (request.isPending) return <PageLoader />
   if (request.isError) {
     if (isApiError(request.error) && request.error.status === 404) {
       return (
-        <div className="flex flex-col gap-4">
-          {back}
+        <Page>
+          <PageHeader back={{ to: APPROVALS_PATH, label: t('detail.back') }} title={t('detail.notFoundTitle')} />
           <EmptyState title={t('detail.notFoundTitle')} description={t('detail.notFoundDescription')} />
-        </div>
+        </Page>
       )
     }
     return <ErrorState onRetry={() => void request.refetch()} />
@@ -48,16 +39,18 @@ export function ApprovalDetailPage() {
   const title = data.record_title?.trim() || t('request.untitledRecord')
 
   return (
-    <div className="flex w-full max-w-3xl flex-col gap-6">
-      {back}
-      <div className="flex flex-wrap items-start justify-between gap-3">
-        <div className="grid gap-1">
-          <div className="flex flex-wrap items-center gap-2">
-            <h1 className="text-xl font-semibold">{data.policy_name}</h1>
+    <Page width="form">
+      <PageHeader
+        back={{ to: APPROVALS_PATH, label: t('detail.back') }}
+        title={data.policy_name}
+        badges={
+          <>
             <ApprovalStatusBadge status={data.status} />
             {data.is_overdue && data.status === 'pending' && <OverdueBadge />}
-          </div>
-          <p className="text-sm text-muted-foreground">
+          </>
+        }
+        description={
+          <p>
             {recordTypeLabel(data.record_type)} ·{' '}
             {link ? (
               <Link to={link} className="font-medium text-foreground hover:underline">
@@ -67,9 +60,9 @@ export function ApprovalDetailPage() {
               title
             )}
           </p>
-        </div>
-        <RequestActions request={data} size="default" />
-      </div>
+        }
+        actions={<RequestActions request={data} size="default" />}
+      />
       <RequestSummary request={data} />
       <RequestComments request={data} />
       {data.locked_fields.length > 0 && data.status === 'pending' && (
@@ -81,6 +74,6 @@ export function ApprovalDetailPage() {
         <h2 className="text-base font-semibold">{t('request.steps')}</h2>
         <ApprovalSteps steps={data.steps} />
       </section>
-    </div>
+    </Page>
   )
 }

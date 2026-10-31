@@ -24,6 +24,8 @@ import {
 import { useRecordTypeLabel } from './lib/labels'
 import { recordPath } from './lib/record-link'
 import type { ApprovalBox, ApprovalRequest, ApprovalStatus } from './types'
+import { PageHeader } from '@/components/ui/page-header'
+import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from '@/components/ui/table'
 
 export function ApprovalsPage() {
   const { t } = useTranslation('approvals')
@@ -82,10 +84,7 @@ export function ApprovalsPage() {
 
   return (
     <div className="flex w-full flex-col gap-4">
-      <div className="grid gap-1">
-        <h1 className="text-xl font-semibold">{t('inbox.title')}</h1>
-        <p className="text-sm text-muted-foreground">{t('inbox.description')}</p>
-      </div>
+      <PageHeader title={t('inbox.title')} description={t('inbox.description')} />
       <div className="flex flex-wrap items-center justify-between gap-3">
         <Tabs
           value={box}
@@ -134,71 +133,69 @@ function RequestsTable({ requests }: { requests: ApprovalRequest[] }) {
   const formatting = useRecordFormatting()
   const recordTypeLabel = useRecordTypeLabel()
   return (
-    <div className="relative overflow-x-auto rounded-lg border">
-      <table className="w-full text-sm">
-        <thead className="bg-muted/50 text-left text-muted-foreground">
-          <tr>
-            <th scope="col" className="px-4 py-2 font-medium">
-              {t('columns.record')}
-            </th>
-            <th scope="col" className="px-4 py-2 font-medium">
-              {t('columns.policy')}
-            </th>
-            <th scope="col" className="hidden px-4 py-2 font-medium md:table-cell">
-              {t('columns.requestedBy')}
-            </th>
-            <th scope="col" className="hidden px-4 py-2 font-medium sm:table-cell">
-              {t('columns.dueAt')}
-            </th>
-            <th scope="col" className="px-4 py-2 font-medium">
-              {t('columns.status')}
-            </th>
-          </tr>
-        </thead>
-        <tbody>
-          {requests.map((request) => {
-            const link = recordPath(request.record_type, request.record_id)
-            const title = request.record_title?.trim() || t('request.untitledRecord')
-            const overdue = request.is_overdue && request.status === 'pending'
-            return (
-              <tr key={request.id} className="border-t align-top">
-                <td className="px-4 py-3">
-                  {link ? (
-                    <Link to={link} className="font-medium hover:underline">
-                      {title}
-                    </Link>
-                  ) : (
-                    <span className="font-medium">{title}</span>
-                  )}
-                  <div className="text-xs text-muted-foreground">{recordTypeLabel(request.record_type)}</div>
-                </td>
-                <td className="px-4 py-3">
-                  <Link to={approvalPath(request.id)} className="hover:underline">
-                    {request.policy_name}
+    <Table>
+      <TableHeader>
+        <TableRow>
+          <TableHead scope="col">
+            {t('columns.record')}
+          </TableHead>
+          <TableHead scope="col">
+            {t('columns.policy')}
+          </TableHead>
+          <TableHead scope="col" className="hidden md:table-cell">
+            {t('columns.requestedBy')}
+          </TableHead>
+          <TableHead scope="col" className="hidden sm:table-cell">
+            {t('columns.dueAt')}
+          </TableHead>
+          <TableHead scope="col">
+            {t('columns.status')}
+          </TableHead>
+        </TableRow>
+      </TableHeader>
+      <TableBody>
+        {requests.map((request) => {
+          const link = recordPath(request.record_type, request.record_id)
+          const title = request.record_title?.trim() || t('request.untitledRecord')
+          const overdue = request.is_overdue && request.status === 'pending'
+          return (
+            <TableRow key={request.id} className="align-top">
+              <TableCell>
+                {link ? (
+                  <Link to={link} className="font-medium hover:underline">
+                    {title}
                   </Link>
-                  <div className="text-xs text-muted-foreground">
-                    {t(`moments.${request.moment}`)}
-                    {request.target_name && ` · ${request.target_name}`}
-                  </div>
-                </td>
-                <td className="hidden px-4 py-3 md:table-cell">
-                  {request.requested_by?.display_name ?? t('request.system')}
-                  <div className="text-xs text-muted-foreground">
-                    {formatDateTime(request.requested_at, formatting)}
-                  </div>
-                </td>
-                <td className={cn('hidden px-4 py-3 sm:table-cell', overdue && 'font-medium text-destructive')}>
-                  {request.due_at ? formatDateTime(request.due_at, formatting) : '—'}
-                  {overdue && <div className="text-xs">{t('request.overdue')}</div>}
-                </td>
-                <td className="px-4 py-3">
-                  <ApprovalStatusBadge status={request.status} />
-                </td>
-              </tr>
-            )
-          })}
-        </tbody>
-      </table>
-    </div>
+                ) : (
+                  <span className="font-medium">{title}</span>
+                )}
+                <div className="text-xs text-muted-foreground">{recordTypeLabel(request.record_type)}</div>
+              </TableCell>
+              <TableCell>
+                <Link to={approvalPath(request.id)} className="hover:underline">
+                  {request.policy_name}
+                </Link>
+                <div className="text-xs text-muted-foreground">
+                  {t(`moments.${request.moment}`)}
+                  {request.target_name && ` · ${request.target_name}`}
+                </div>
+              </TableCell>
+              <TableCell className="hidden md:table-cell">
+                {request.requested_by?.display_name ?? t('request.system')}
+                <div className="text-xs text-muted-foreground">
+                  {formatDateTime(request.requested_at, formatting)}
+                </div>
+              </TableCell>
+              <TableCell className={cn('hidden px-4 py-3 sm:table-cell', overdue && 'font-medium text-destructive')}>
+                {request.due_at ? formatDateTime(request.due_at, formatting) : '—'}
+                {overdue && <div className="text-xs">{t('request.overdue')}</div>}
+              </TableCell>
+              <TableCell>
+                <ApprovalStatusBadge status={request.status} />
+              </TableCell>
+            </TableRow>
+          )
+        })}
+      </TableBody>
+    </Table>
   )
 }

@@ -9,6 +9,7 @@ import { Skeleton } from '@/components/ui/skeleton'
 import { cn } from '@/lib/utils'
 import { SEARCH_MIN_LENGTH, useGlobalSearch } from './api'
 import { SearchResultGroups } from './results'
+import { PageHeader } from '@/components/ui/page-header'
 
 const SEARCH_PAGE_LIMIT = 20
 const SEARCH_DEBOUNCE_MS = 250
@@ -71,10 +72,7 @@ export function SearchPage() {
 
   return (
     <div className="flex w-full flex-col gap-4">
-      <div className="grid gap-1">
-        <h1 className="text-xl font-semibold">{t('page.title')}</h1>
-        <p className="text-sm text-muted-foreground">{t('page.description')}</p>
-      </div>
+      <PageHeader title={t('page.title')} description={t('page.description')} />
       <form
         role="search"
         className="relative"

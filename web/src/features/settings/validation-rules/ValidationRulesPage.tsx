@@ -11,7 +11,6 @@ import { ErrorState } from '@/components/ui/error-state'
 import { useFieldSchema } from '@/features/records/api'
 import { RecordTypeSelect } from '../components/RecordTypeSelect'
 import { RequirePermission } from '../components/RequirePermission'
-import { SectionHeader } from '../components/SectionHeader'
 import { DEFAULT_RECORD_TYPE } from '../fields/lib/field-types'
 import { SETTINGS_MANAGE } from '../lib/permissions'
 import { useInvalidateValidationRules, useValidationRules, validationRulesApi } from './api'
@@ -19,6 +18,7 @@ import { VALIDATION_RULES_PATH } from './routes'
 import type { ValidationRule } from './types'
 import { ValidationRuleDialog } from './ValidationRuleDialog'
 import { useIsModuleActive } from '@/kernel/modules/registry'
+import { PageHeader } from '@/components/ui/page-header'
 
 export function ValidationRulesPage() {
   return (
@@ -75,7 +75,7 @@ function ValidationRulesSettings() {
 
   return (
     <section className="flex flex-col gap-6">
-      <SectionHeader title={t('title')} description={t('description')} />
+      <PageHeader title={t('title')} description={t('description')} />
       <div className="flex flex-wrap items-center justify-between gap-3">
         <RecordTypeSelect
           value={recordType}

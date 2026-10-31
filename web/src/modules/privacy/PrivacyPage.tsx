@@ -2,11 +2,11 @@ import { useTranslation } from 'react-i18next'
 import { useSearchParams } from 'react-router'
 import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs'
 import { RequirePermission } from '@/features/settings/components/RequirePermission'
-import { SectionHeader } from '@/features/settings/components/SectionHeader'
 import { PRIVACY_MANAGE } from '@/features/settings/lib/permissions'
 import { RequestsPanel } from './RequestsPanel'
 import { RetentionPanel } from './RetentionPanel'
 import { SubjectSearchPanel } from './SubjectSearchPanel'
+import { PageHeader } from '@/components/ui/page-header'
 
 const TABS = ['subjects', 'requests', 'retention'] as const
 type PrivacyTab = (typeof TABS)[number]
@@ -43,7 +43,7 @@ function PrivacySection() {
 
   return (
     <section className="flex min-w-0 flex-col gap-4">
-      <SectionHeader title={t('page.title')} description={t('page.description')} />
+      <PageHeader title={t('page.title')} description={t('page.description')} />
       <Tabs value={tab} onValueChange={changeTab} className="flex min-w-0 flex-col gap-4">
         <TabsList aria-label={t('page.tabsLabel')}>
           {TABS.map((value) => (

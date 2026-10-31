@@ -4,6 +4,7 @@ import { useSession } from '@/app/session/session-context'
 import { EmptyState } from '@/components/ui/empty-state'
 import { TabsNav, TabsNavItem } from '@/components/ui/tabs-nav'
 import { allowedReportTabs } from './tabs'
+import { PageHeader } from '@/components/ui/page-header'
 
 export function ReportsLayout() {
   const { t } = useTranslation('reports')
@@ -12,10 +13,7 @@ export function ReportsLayout() {
 
   return (
     <div className="flex w-full flex-col gap-6">
-      <header className="grid gap-1">
-        <h1 className="text-2xl font-semibold tracking-tight">{t('title')}</h1>
-        <p className="text-sm text-muted-foreground">{t('description')}</p>
-      </header>
+      <PageHeader title={t('title')} description={t('description')} />
       {tabs.length === 0 ? (
         <EmptyState title={t('noAccess.title')} description={t('noAccess.description')} />
       ) : (

@@ -11,7 +11,6 @@ import { Skeleton } from '@/components/ui/skeleton'
 import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs'
 import { toast } from '@/components/ui/toast-store'
 import { formatDateTime, useRecordFormatting } from '@/features/records/formatting'
-import { SectionHeader } from '@/features/settings/components/SectionHeader'
 import { emailApi, useInvalidateMailboxes, useMailboxProviders, useMailboxes } from '../api'
 import { MailboxStatusBadge } from '../components/MailboxStatusBadge'
 import { TemplatesPanel } from '../components/TemplatesPanel'
@@ -19,6 +18,7 @@ import { VisibilityBadge } from '../components/VisibilityBadge'
 import { notifyEmailError, oauthErrorMessage } from '../lib/errors'
 import type { Mailbox, MailboxProviderInfo } from '../types'
 import { MailboxDialog, type MailboxDialogMode } from './MailboxDialog'
+import { PageHeader } from '@/components/ui/page-header'
 
 type Section = 'mailboxes' | 'templates'
 
@@ -57,7 +57,7 @@ export function MailboxesPage() {
 
   return (
     <section className="flex flex-col gap-4">
-      <SectionHeader title={t('mailboxes.title')} description={t('mailboxes.description')} />
+      <PageHeader title={t('mailboxes.title')} description={t('mailboxes.description')} />
       <Tabs value={section} onValueChange={(value) => setSection(value as Section)} className="grid gap-4">
         <TabsList>
           <TabsTrigger value="mailboxes">{t('mailboxes.tabs.mailboxes')}</TabsTrigger>

@@ -4,7 +4,8 @@
     "retry": "Try again",
     "close": "Close",
     "cancel": "Cancel",
-    "confirm": "Confirm"
+    "confirm": "Confirm",
+    "back": "Back"
   },
   "states": {
     "loading": "Loading…",
@@ -25,5 +26,10 @@
   "delta": {
     "previousValue": "before: {{value}}",
     "points": "{{value}} pp"
+  },
+  "pagination": {
+    "previous": "Previous",
+    "next": "Next",
+    "summary": "Page {{page}} of {{pages}} · {{total}} items"
   }
 }

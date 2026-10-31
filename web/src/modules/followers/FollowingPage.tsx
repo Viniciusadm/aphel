@@ -13,6 +13,7 @@ import { formatDateTime, useRecordFormatting } from '@/features/records/formatti
 import { FOLLOWED_PER_PAGE, useFollowedRecords } from './api'
 import { CORE_RECORD_TYPES, followedRecordHref, useRecordTypeLabel } from './labels'
 import type { FollowedRecord } from './types'
+import { PageHeader } from '@/components/ui/page-header'
 
 export function FollowingPage() {
   const { t } = useTranslation('followers')
@@ -68,10 +69,7 @@ export function FollowingPage() {
   return (
     <div className="flex w-full flex-col gap-4">
       <div className="flex flex-wrap items-end justify-between gap-3">
-        <div className="grid gap-1">
-          <h1 className="text-xl font-semibold">{t('page.title')}</h1>
-          <p className="text-sm text-muted-foreground">{t('page.description')}</p>
-        </div>
+        <PageHeader title={t('page.title')} description={t('page.description')} />
         <div className="grid gap-1.5">
           <Label htmlFor={typeId}>{t('page.typeFilter')}</Label>
           <NativeSelect

@@ -9,10 +9,10 @@ import { Button } from '@/components/ui/button'
 import { ErrorState } from '@/components/ui/error-state'
 import { Skeleton } from '@/components/ui/skeleton'
 import { RequirePermission } from '@/features/settings/components/RequirePermission'
-import { SectionHeader } from '@/features/settings/components/SectionHeader'
 import { SETTINGS_MANAGE } from '@/features/settings/lib/permissions'
 import { onboardingApi, onboardingKeys, useOnboardingState, useTemplates } from './api'
 import type { OnboardingState } from './types'
+import { PageHeader } from '@/components/ui/page-header'
 
 export function OnboardingSettingsPage() {
   return (
@@ -50,10 +50,10 @@ function OnboardingSettingsSection() {
 
   return (
     <section className="flex flex-col gap-4">
-      <SectionHeader
+      <PageHeader
         title={t('settings.title')}
         description={t('settings.description')}
-        action={
+        actions={
           <Button size="sm" onClick={() => void reopen()} disabled={reopening || state.isPending}>
             <RotateCcw aria-hidden="true" />
             {t('actions.reopen')}

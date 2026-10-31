@@ -21,12 +21,13 @@ import { toast } from '@/components/ui/toast-store'
 import { formatDate, formatNumber, useRecordFormatting } from '@/features/records/formatting'
 import { NativeSelect } from '@/features/records/filters/NativeSelect'
 import { RequirePermission } from '@/features/settings/components/RequirePermission'
-import { SectionHeader } from '@/features/settings/components/SectionHeader'
 import { SETTINGS_MANAGE } from '@/features/settings/lib/permissions'
 import { currenciesApi, RATES_PER_PAGE, useCurrencySettings, useExchangeRates, useInvalidateCurrencies } from './api'
 import { currencyErrorKey } from './errors'
 import { RatesProviderSettings } from './RatesProviderSettings'
 import type { CurrencySettings, ExchangeRate } from './types'
+import { PageHeader } from '@/components/ui/page-header'
+import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from '@/components/ui/table'
 
 const CURRENCY_CODE = /^[A-Za-z]{3}$/
 const RATE_PATTERN = /^\d+([.,]\d{1,10})?$/
@@ -49,7 +50,7 @@ function CurrenciesSettings() {
   const settings = useCurrencySettings()
   return (
     <section className="flex flex-col gap-8">
-      <SectionHeader title={t('title')} description={t('description')} />
+      <PageHeader title={t('title')} description={t('description')} />
       {settings.isPending ? (
         <PageLoader />
       ) : settings.isError ? (
@@ -258,65 +259,63 @@ function ExchangeRates({ settings }: { settings: CurrencySettings }) {
         />
       ) : (
         <>
-          <div className="relative overflow-x-auto rounded-lg border">
-            <table className="w-full text-sm">
-              <thead className="bg-muted/50 text-left text-muted-foreground">
-                <tr>
-                  <th scope="col" className="px-4 py-2 font-medium">
-                    {t('rates.columns.date')}
-                  </th>
-                  <th scope="col" className="px-4 py-2 font-medium">
-                    {t('rates.columns.currency')}
-                  </th>
-                  <th scope="col" className="px-4 py-2 text-right font-medium">
-                    {t('rates.columns.rate', { base: settings.base })}
-                  </th>
-                  <th scope="col" className="hidden px-4 py-2 font-medium sm:table-cell">
-                    {t('rates.columns.source')}
-                  </th>
-                  <th scope="col" className="w-24 px-4 py-2">
-                    <span className="sr-only">{t('rates.columns.actions')}</span>
-                  </th>
-                </tr>
-              </thead>
-              <tbody>
-                {rates.data.data.map((rate) => (
-                  <tr key={rate.id} className="border-t">
-                    <td className="px-4 py-2 tabular-nums">{formatDate(rate.effective_date, formatting)}</td>
-                    <td className="px-4 py-2 font-mono">{rate.currency}</td>
-                    <td className="px-4 py-2 text-right tabular-nums">
-                      {formatNumber(rate.rate, formatting, RATE_DECIMALS)}
-                    </td>
-                    <td className="hidden px-4 py-2 sm:table-cell">
-                      <Badge variant="outline">{t(`rates.sources.${rate.source}`)}</Badge>
-                    </td>
-                    <td className="px-4 py-2">
-                      {canEdit && (
-                        <div className="flex justify-end gap-1">
-                          <Button
-                            size="sm"
-                            variant="ghost"
-                            aria-label={t('rates.edit')}
-                            onClick={() => setEditor({ rate })}
-                          >
-                            <Pencil aria-hidden="true" />
-                          </Button>
-                          <Button
-                            size="sm"
-                            variant="ghost"
-                            aria-label={t('rates.delete')}
-                            onClick={() => setRemoving(rate)}
-                          >
-                            <Trash2 aria-hidden="true" />
-                          </Button>
-                        </div>
-                      )}
-                    </td>
-                  </tr>
-                ))}
-              </tbody>
-            </table>
-          </div>
+          <Table>
+            <TableHeader>
+              <TableRow>
+                <TableHead scope="col">
+                  {t('rates.columns.date')}
+                </TableHead>
+                <TableHead scope="col">
+                  {t('rates.columns.currency')}
+                </TableHead>
+                <TableHead scope="col" className="text-right">
+                  {t('rates.columns.rate', { base: settings.base })}
+                </TableHead>
+                <TableHead scope="col" className="hidden sm:table-cell">
+                  {t('rates.columns.source')}
+                </TableHead>
+                <TableHead scope="col" className="w-24">
+                  <span className="sr-only">{t('rates.columns.actions')}</span>
+                </TableHead>
+              </TableRow>
+            </TableHeader>
+            <TableBody>
+              {rates.data.data.map((rate) => (
+                <TableRow key={rate.id}>
+                  <TableCell className="tabular-nums">{formatDate(rate.effective_date, formatting)}</TableCell>
+                  <TableCell className="font-mono">{rate.currency}</TableCell>
+                  <TableCell className="text-right tabular-nums">
+                    {formatNumber(rate.rate, formatting, RATE_DECIMALS)}
+                  </TableCell>
+                  <TableCell className="hidden sm:table-cell">
+                    <Badge variant="outline">{t(`rates.sources.${rate.source}`)}</Badge>
+                  </TableCell>
+                  <TableCell>
+                    {canEdit && (
+                      <div className="flex justify-end gap-1">
+                        <Button
+                          size="sm"
+                          variant="ghost"
+                          aria-label={t('rates.edit')}
+                          onClick={() => setEditor({ rate })}
+                        >
+                          <Pencil aria-hidden="true" />
+                        </Button>
+                        <Button
+                          size="sm"
+                          variant="ghost"
+                          aria-label={t('rates.delete')}
+                          onClick={() => setRemoving(rate)}
+                        >
+                          <Trash2 aria-hidden="true" />
+                        </Button>
+                      </div>
+                    )}
+                  </TableCell>
+                </TableRow>
+              ))}
+            </TableBody>
+          </Table>
           {lastPage > 1 && (
             <div className="flex items-center justify-end gap-2 text-sm">
               <Button size="sm" variant="outline" disabled={page <= 1} onClick={() => setPage(page - 1)}>

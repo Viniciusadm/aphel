@@ -100,20 +100,20 @@ export function ThemePreview({ tokens, fonts, mode }: ThemePreviewProps) {
       </Tabs>
       <Table>
         <TableHeader>
-          <TableRow>
-            <TableHead>{t('preview.columnName')}</TableHead>
-            <TableHead className="text-right">{t('preview.columnValue')}</TableHead>
-          </TableRow>
+        <TableRow>
+          <TableHead>{t('preview.columnName')}</TableHead>
+          <TableHead className="text-right">{t('preview.columnValue')}</TableHead>
+        </TableRow>
         </TableHeader>
         <TableBody>
-          <TableRow>
-            <TableCell>{t('preview.rowOne')}</TableCell>
-            <TableCell className="text-right">1.240</TableCell>
-          </TableRow>
-          <TableRow>
-            <TableCell>{t('preview.rowTwo')}</TableCell>
-            <TableCell className="text-right">860</TableCell>
-          </TableRow>
+        <TableRow>
+          <TableCell>{t('preview.rowOne')}</TableCell>
+          <TableCell className="text-right">1.240</TableCell>
+        </TableRow>
+        <TableRow>
+          <TableCell>{t('preview.rowTwo')}</TableCell>
+          <TableCell className="text-right">860</TableCell>
+        </TableRow>
         </TableBody>
       </Table>
     </div>

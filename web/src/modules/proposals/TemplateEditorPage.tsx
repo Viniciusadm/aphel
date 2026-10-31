@@ -1,5 +1,5 @@
 import { keepPreviousData, useQuery } from '@tanstack/react-query'
-import { AlertCircle, ArrowLeft, CheckCircle2, FileQuestion, Loader2 } from 'lucide-react'
+import { AlertCircle, CheckCircle2, FileQuestion, Loader2 } from 'lucide-react'
 import { useEffect, useId, useMemo, useRef, useState } from 'react'
 import { Link, useNavigate, useParams } from 'react-router'
 import { isApiError } from '@/api'
@@ -31,6 +31,8 @@ import {
 import { NoAccess } from './NoAccess'
 import { ProposalDocumentView } from './ProposalDocumentView'
 import { VariablePicker } from './VariablePicker'
+import { Page } from '@/components/ui/page'
+import { PageHeader } from '@/components/ui/page-header'
 
 const DEBOUNCE_MS = 450
 const SYNTAX_SAMPLES = [
@@ -228,26 +230,18 @@ function EditorForm({ template }: { template: ProposalTemplate | null }) {
   const canSave = values.name.trim().length > 0 && values.body.trim().length > 0 && !saving && (dirty || !template)
 
   return (
-    <div className="flex flex-col gap-4">
+    <Page>
       <UnsavedChangesGuard when={() => dirty && !leaving.current} />
-      <div className="flex flex-col gap-3 sm:flex-row sm:items-end sm:justify-between">
-        <div className="grid gap-1">
-          <Link
-            to={PROPOSALS_PATH}
-            className="inline-flex w-fit items-center gap-1 text-sm text-muted-foreground hover:text-foreground"
-          >
-            <ArrowLeft className="size-4" aria-hidden="true" />
-            {t('editor.back')}
-          </Link>
-          <h1 className="text-xl font-semibold break-words">
-            {template ? t('editor.editTitle') : t('editor.createTitle')}
-          </h1>
-        </div>
-        <Button type="submit" form={formId} disabled={!canSave}>
-          {saving && <Loader2 className="animate-spin" aria-hidden="true" />}
-          {saving ? t('editor.saving') : t('editor.save')}
-        </Button>
-      </div>
+      <PageHeader
+        back={{ to: PROPOSALS_PATH, label: t('editor.back') }}
+        title={template ? t('editor.editTitle') : t('editor.createTitle')}
+        actions={
+          <Button type="submit" form={formId} disabled={!canSave}>
+            {saving && <Loader2 className="animate-spin" aria-hidden="true" />}
+            {saving ? t('editor.saving') : t('editor.save')}
+          </Button>
+        }
+      />
 
       <div className="grid gap-4 lg:grid-cols-[minmax(0,1fr)_minmax(0,1fr)]">
         <form
@@ -382,7 +376,7 @@ function EditorForm({ template }: { template: ProposalTemplate | null }) {
           )}
         </section>
       </div>
-    </div>
+    </Page>
   )
 }
 

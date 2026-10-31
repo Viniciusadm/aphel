@@ -13,6 +13,7 @@ export interface SidebarEntry {
   end?: boolean
   locked?: boolean
   badge?: ComponentType<{ collapsed?: boolean }>
+  group?: { key: string; label: string; icon: ReactNode }
 }
 
 const ICON_CLASS = 'size-4 shrink-0'
@@ -26,6 +27,7 @@ function sidebarEntry(entry: NavigationEntry): SidebarEntry {
     end: entry.end,
     locked: entry.locked,
     badge: entry.badge,
+    group: entry.group && { key: entry.group.key, label: entry.group.label, icon: <entry.group.icon className={ICON_CLASS} aria-hidden /> },
   }
 }
 

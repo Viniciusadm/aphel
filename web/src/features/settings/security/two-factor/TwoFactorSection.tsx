@@ -9,13 +9,13 @@ import { Card, CardContent } from '@/components/ui/card'
 import { ErrorState } from '@/components/ui/error-state'
 import { Skeleton } from '@/components/ui/skeleton'
 import { formatDateTime, useRecordFormatting } from '@/features/records/formatting'
-import { SectionHeader } from '@/features/settings/components/SectionHeader'
 import { SETTINGS_MANAGE } from '@/features/settings/lib/permissions'
 import { TWO_FACTOR_SETUP_REQUIRED, useTwoFactorStatus, type TwoFactorStatus } from './api'
 import { DisableDialog } from './DisableDialog'
 import { OrganizationPolicy } from './OrganizationPolicy'
 import { RegenerateDialog } from './RegenerateDialog'
 import { SetupDialog } from './SetupDialog'
+import { PageHeader } from '@/components/ui/page-header'
 
 const LOW_RECOVERY_CODES = 3
 
@@ -36,7 +36,7 @@ export function TwoFactorSection() {
   return (
     <div className="flex flex-col gap-8">
       <section className="flex flex-col gap-4">
-        <SectionHeader title={t('section.title')} description={t('section.description')} />
+        <PageHeader level="section" title={t('section.title')} description={t('section.description')} />
         {mustEnable && (
           <div
             role="alert"

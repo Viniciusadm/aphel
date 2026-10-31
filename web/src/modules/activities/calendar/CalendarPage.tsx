@@ -45,6 +45,7 @@ import { COLUMN_DROP_PREFIX, TimeGridView } from './components/TimeGridView'
 import { eventStart, groupEntriesByDay } from './lib/events'
 import { CALENDAR_VIEW_MODES, DEFAULT_EVENT_MINUTES, shiftAnchor, snapMinutes, viewRange, viewTitle } from './lib/range'
 import { useCalendarUrlState } from './useCalendarUrlState'
+import { PageHeader } from '@/components/ui/page-header'
 
 const DEFAULT_CREATE_MINUTES = 9 * 60
 const EMPTY_ITEMS: Activity[] = []
@@ -197,10 +198,7 @@ export function CalendarPage() {
 
   return (
     <div className="flex w-full min-w-0 flex-col gap-4">
-      <header className="grid gap-1">
-        <h1 className="text-2xl font-semibold tracking-tight">{t('page.title')}</h1>
-        <p className="text-sm text-muted-foreground">{t('page.description')}</p>
-      </header>
+      <PageHeader title={t('page.title')} description={t('page.description')} />
       <div className="flex min-w-0 flex-wrap items-center gap-2">
         <Button variant="outline" size="sm" onClick={() => update({ date: null })}>
           {t('nav.today')}

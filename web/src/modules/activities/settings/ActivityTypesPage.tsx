@@ -19,7 +19,6 @@ import { Skeleton } from '@/components/ui/skeleton'
 import { toast } from '@/components/ui/toast-store'
 import { NativeSelect } from '@/features/records/filters/NativeSelect'
 import { RequirePermission } from '@/features/settings/components/RequirePermission'
-import { SectionHeader } from '@/features/settings/components/SectionHeader'
 import { SortableList } from '@/features/settings/fields/components/SortableList'
 import { SETTINGS_MANAGE } from '@/features/settings/lib/permissions'
 import { cn } from '@/lib/utils'
@@ -27,6 +26,7 @@ import { activitiesApi, activitiesKeys, useInvalidateActivityTypes, type Activit
 import { ActivityTypeIcon } from '../components/ActivityTypeIcon'
 import { activityErrorKey } from '../lib/errors'
 import { ACTIVITY_ICON_NAMES, DEFAULT_ACTIVITY_COLOR } from '../lib/icons'
+import { PageHeader } from '@/components/ui/page-header'
 
 const HEX_COLOR = /^#[0-9a-f]{6}$/i
 
@@ -96,10 +96,10 @@ function ActivityTypesSection() {
 
   return (
     <section className="flex flex-col gap-4">
-      <SectionHeader
+      <PageHeader
         title={t('types.title')}
         description={t('types.description')}
-        action={
+        actions={
           <Button size="sm" onClick={() => setEditor({ type: null })}>
             <Plus aria-hidden="true" />
             {t('types.new')}

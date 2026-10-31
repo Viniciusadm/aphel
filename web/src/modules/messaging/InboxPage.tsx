@@ -28,6 +28,7 @@ import {
 } from './api'
 import { ConversationPanel } from './ConversationPanel'
 import { ChannelIcon, StatusBadge } from './shared'
+import { PageHeader } from '@/components/ui/page-header'
 
 const ALL = '__all__'
 const ASSIGNEE_FILTERS: AssigneeFilter[] = ['any', 'me', 'none']
@@ -66,10 +67,7 @@ export function InboxPage() {
   return (
     <section className="flex flex-col gap-3">
       <div className="flex flex-col gap-2 sm:flex-row sm:items-end sm:justify-between">
-        <div className="grid gap-1">
-          <h1 className="text-xl font-semibold">{t('inbox.title')}</h1>
-          <p className="text-sm text-muted-foreground">{t('inbox.description')}</p>
-        </div>
+        <PageHeader title={t('inbox.title')} description={t('inbox.description')} />
         {hasPermission(MANAGE_CHANNELS_PERMISSION) && (
           <Button asChild size="sm" variant="outline">
             <Link to="/messaging/channels">

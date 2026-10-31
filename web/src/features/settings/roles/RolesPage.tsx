@@ -10,10 +10,10 @@ import { toast } from '@/components/ui/toast-store'
 import { settingsApi, usePermissionCatalog, useRoles, useSettingsMutation, type Role } from '../api'
 import { ListSkeleton } from '../components/ListSkeleton'
 import { RequirePermission } from '../components/RequirePermission'
-import { SectionHeader } from '../components/SectionHeader'
 import { errorMessageKey } from '../lib/errors'
 import { SETTINGS_MANAGE } from '../lib/permissions'
 import { RoleEditorDialog } from './RoleEditorDialog'
+import { PageHeader } from '@/components/ui/page-header'
 
 export function RolesPage() {
   return (
@@ -47,10 +47,10 @@ function RolesSection() {
 
   return (
     <section className="grid gap-4">
-      <SectionHeader
+      <PageHeader
         title={t('roles.title')}
         description={t('roles.description')}
-        action={
+        actions={
           <Button onClick={() => setEditing({ role: null })} disabled={!catalog.data}>
             <Plus />
             {t('roles.create')}

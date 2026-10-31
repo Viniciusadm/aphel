@@ -13,9 +13,8 @@ import { Skeleton } from '@/components/ui/skeleton'
 import { NativeSelect } from '@/features/records/filters/NativeSelect'
 import { formatDateTime, useRecordFormatting } from '@/features/records/formatting'
 import { ListSkeleton } from '@/features/settings/components/ListSkeleton'
-import { Pagination } from '@/features/settings/components/Pagination'
+import { Pagination } from '@/components/ui/pagination'
 import { RequirePermission } from '@/features/settings/components/RequirePermission'
-import { SectionHeader } from '@/features/settings/components/SectionHeader'
 import { SETTINGS_MANAGE } from '@/features/settings/lib/permissions'
 import {
   MAX_RETENTION_DAYS,
@@ -31,6 +30,8 @@ import {
   type TrashSettings,
 } from './api'
 import { useTrashTypeLabel } from './labels'
+import { PageHeader } from '@/components/ui/page-header'
+import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from '@/components/ui/table'
 
 export function TrashPage() {
   return (
@@ -91,7 +92,7 @@ function TrashSection() {
 
   return (
     <section className="grid gap-4">
-      <SectionHeader title={t('title')} description={t('description')} />
+      <PageHeader title={t('title')} description={t('description')} />
       <div className="flex flex-wrap items-end gap-3">
         <label className="grid gap-1 text-sm">
           <span className="text-muted-foreground">{t('typeLabel')}</span>
@@ -176,78 +177,76 @@ function TrashTable({ items, busy, onRestore, onPurge }: TrashTableProps) {
   const formatting = useRecordFormatting()
   const typeLabel = useTrashTypeLabel()
   return (
-    <div className="relative overflow-x-auto rounded-lg border">
-      <table className="w-full text-sm">
-        <thead className="bg-muted/50 text-left text-muted-foreground">
-          <tr>
-            <th scope="col" className="px-4 py-2 font-medium">
-              {t('columns.record')}
-            </th>
-            <th scope="col" className="hidden px-4 py-2 font-medium sm:table-cell">
-              {t('columns.type')}
-            </th>
-            <th scope="col" className="hidden px-4 py-2 font-medium md:table-cell">
-              {t('columns.deletedAt')}
-            </th>
-            <th scope="col" className="hidden px-4 py-2 font-medium md:table-cell">
-              {t('columns.expiresAt')}
-            </th>
-            <th scope="col" className="px-4 py-2 text-right font-medium">
-              {t('columns.actions')}
-            </th>
-          </tr>
-        </thead>
-        <tbody>
-          {items.map((item) => (
-            <tr key={`${item.record_type}:${item.id}`} className="border-t align-top">
-              <td className="px-4 py-3">
-                <div className="grid min-w-0 gap-0.5">
-                  <span className="font-medium break-words">{item.title}</span>
-                  {item.subtitle && <span className="text-xs break-words text-muted-foreground">{item.subtitle}</span>}
-                  <span className="text-xs text-muted-foreground sm:hidden">
-                    {typeLabel(item.record_type)}
-                  </span>
-                </div>
-              </td>
-              <td className="hidden px-4 py-3 sm:table-cell">
-                {typeLabel(item.record_type)}
-              </td>
-              <td className="hidden px-4 py-3 whitespace-nowrap md:table-cell">
-                {formatDateTime(item.deleted_at, formatting)}
-              </td>
-              <td className="hidden px-4 py-3 whitespace-nowrap md:table-cell">
-                {item.expires_at ? formatDateTime(item.expires_at, formatting) : '—'}
-              </td>
-              <td className="px-4 py-3">
-                <div className="flex flex-wrap justify-end gap-1">
-                  <Button
-                    size="sm"
-                    variant="outline"
-                    disabled={busy}
-                    aria-label={`${t('restore')}: ${item.title}`}
-                    onClick={() => onRestore(item)}
-                  >
-                    <ArchiveRestore aria-hidden="true" />
-                    <span className="hidden sm:inline">{t('restore')}</span>
-                  </Button>
-                  <Button
-                    size="sm"
-                    variant="ghost"
-                    className="text-destructive"
-                    disabled={busy}
-                    aria-label={`${t('purge')}: ${item.title}`}
-                    onClick={() => onPurge(item)}
-                  >
-                    <Trash2 aria-hidden="true" />
-                    <span className="hidden sm:inline">{t('purge')}</span>
-                  </Button>
-                </div>
-              </td>
-            </tr>
-          ))}
-        </tbody>
-      </table>
-    </div>
+    <Table>
+      <TableHeader>
+        <TableRow>
+          <TableHead scope="col">
+            {t('columns.record')}
+          </TableHead>
+          <TableHead scope="col" className="hidden sm:table-cell">
+            {t('columns.type')}
+          </TableHead>
+          <TableHead scope="col" className="hidden md:table-cell">
+            {t('columns.deletedAt')}
+          </TableHead>
+          <TableHead scope="col" className="hidden md:table-cell">
+            {t('columns.expiresAt')}
+          </TableHead>
+          <TableHead scope="col" className="text-right">
+            {t('columns.actions')}
+          </TableHead>
+        </TableRow>
+      </TableHeader>
+      <TableBody>
+        {items.map((item) => (
+          <TableRow key={`${item.record_type}:${item.id}`} className="align-top">
+            <TableCell>
+              <div className="grid min-w-0 gap-0.5">
+                <span className="font-medium break-words">{item.title}</span>
+                {item.subtitle && <span className="text-xs break-words text-muted-foreground">{item.subtitle}</span>}
+                <span className="text-xs text-muted-foreground sm:hidden">
+                  {typeLabel(item.record_type)}
+                </span>
+              </div>
+            </TableCell>
+            <TableCell className="hidden sm:table-cell">
+              {typeLabel(item.record_type)}
+            </TableCell>
+            <TableCell className="hidden whitespace-nowrap md:table-cell">
+              {formatDateTime(item.deleted_at, formatting)}
+            </TableCell>
+            <TableCell className="hidden whitespace-nowrap md:table-cell">
+              {item.expires_at ? formatDateTime(item.expires_at, formatting) : '—'}
+            </TableCell>
+            <TableCell>
+              <div className="flex flex-wrap justify-end gap-1">
+                <Button
+                  size="sm"
+                  variant="outline"
+                  disabled={busy}
+                  aria-label={`${t('restore')}: ${item.title}`}
+                  onClick={() => onRestore(item)}
+                >
+                  <ArchiveRestore aria-hidden="true" />
+                  <span className="hidden sm:inline">{t('restore')}</span>
+                </Button>
+                <Button
+                  size="sm"
+                  variant="ghost"
+                  className="text-destructive"
+                  disabled={busy}
+                  aria-label={`${t('purge')}: ${item.title}`}
+                  onClick={() => onPurge(item)}
+                >
+                  <Trash2 aria-hidden="true" />
+                  <span className="hidden sm:inline">{t('purge')}</span>
+                </Button>
+              </div>
+            </TableCell>
+          </TableRow>
+        ))}
+      </TableBody>
+    </Table>
   )
 }
 

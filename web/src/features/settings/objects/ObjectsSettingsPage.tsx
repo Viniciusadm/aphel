@@ -11,12 +11,12 @@ import { ErrorState } from '@/components/ui/error-state'
 import { Skeleton } from '@/components/ui/skeleton'
 import { ObjectIcon, notifyObjectsError, objectColor } from '@/features/custom-records'
 import { RequirePermission } from '@/features/settings/components/RequirePermission'
-import { SectionHeader } from '@/features/settings/components/SectionHeader'
 import { SortableList } from '@/features/settings/fields/components/SortableList'
 import { SETTINGS_MANAGE } from '@/features/settings/lib/permissions'
 import { objectsAdminApi, objectsAdminKeys, useCustomObjectsAdmin, useInvalidateObjects, type CustomObjectAdmin } from './api'
 import { ObjectEditorDialog } from './ObjectEditorDialog'
 import { ObjectRemovalDialogs, type RemovalState } from './ObjectRemovalDialogs'
+import { PageHeader } from '@/components/ui/page-header'
 
 export function ObjectsSettingsPage() {
   return (
@@ -61,10 +61,10 @@ function ObjectsSection() {
 
   return (
     <section className="flex flex-col gap-4">
-      <SectionHeader
+      <PageHeader
         title={t('settings.title')}
         description={t('settings.description')}
-        action={
+        actions={
           <Button size="sm" onClick={() => setEditor({ object: null })}>
             <Plus aria-hidden="true" />
             {t('settings.new')}

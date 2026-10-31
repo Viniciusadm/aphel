@@ -14,7 +14,6 @@ import { NativeSelect } from '@/features/records/filters/NativeSelect'
 import { useAllMembers } from '@/features/settings/api'
 import { ListSkeleton } from '@/features/settings/components/ListSkeleton'
 import { RequirePermission } from '@/features/settings/components/RequirePermission'
-import { SectionHeader } from '@/features/settings/components/SectionHeader'
 import { SETTINGS_MANAGE } from '@/features/settings/lib/permissions'
 import { cn } from '@/lib/utils'
 import {
@@ -38,6 +37,8 @@ import type {
   StepKey,
   ValueMaps,
 } from './types'
+import { PageHeader } from '@/components/ui/page-header'
+import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from '@/components/ui/table'
 
 const SOURCE_PARAM = 'source'
 const MAPPABLE: MapTarget[] = ['pipeline_id', 'stage_id', 'owner_id']
@@ -74,7 +75,7 @@ function MigrationAssistantSection() {
 
   return (
     <section className="flex min-w-0 flex-col gap-6">
-      <SectionHeader title={t('page.title')} description={t('page.description')} />
+      <PageHeader title={t('page.title')} description={t('page.description')} />
       <p className="flex gap-2 rounded-lg border bg-muted/40 p-3 text-sm text-muted-foreground">
         <Info aria-hidden="true" className="mt-0.5 size-4 shrink-0" />
         <span>{t('page.inferredHeaders')}</span>
@@ -404,30 +405,28 @@ function PreviewPanel({ preview, maps, onMapsChange }: PreviewPanelProps) {
       {sampleColumns.length > 0 && preview.sample.length > 0 && (
         <div className="grid min-w-0 gap-2">
           <h4 className="text-sm font-semibold">{t('preview.sample')}</h4>
-          <div className="max-w-full overflow-x-auto">
-            <table className="w-full text-left text-xs">
-              <thead>
-                <tr className="border-b">
-                  {sampleColumns.map((column) => (
-                    <th key={column.index} className="px-2 py-1 font-medium whitespace-nowrap">
-                      {targetLabel(column.target)}
-                    </th>
-                  ))}
-                </tr>
-              </thead>
-              <tbody>
-                {preview.sample.map((row, rowIndex) => (
-                  <tr key={rowIndex} className="border-b last:border-0">
-                    {sampleColumns.map((column) => (
-                      <td key={column.index} className="px-2 py-1 whitespace-nowrap">
-                        {row[column.index]}
-                      </td>
-                    ))}
-                  </tr>
+          <Table>
+            <TableHeader>
+              <TableRow>
+                {sampleColumns.map((column) => (
+                  <TableHead key={column.index} className="px-2 py-1 whitespace-nowrap">
+                    {targetLabel(column.target)}
+                  </TableHead>
                 ))}
-              </tbody>
-            </table>
-          </div>
+              </TableRow>
+            </TableHeader>
+            <TableBody>
+              {preview.sample.map((row, rowIndex) => (
+                <TableRow key={rowIndex} className="last:border-0">
+                  {sampleColumns.map((column) => (
+                    <TableCell key={column.index} className="px-2 py-1 whitespace-nowrap">
+                      {row[column.index]}
+                    </TableCell>
+                  ))}
+                </TableRow>
+              ))}
+            </TableBody>
+          </Table>
         </div>
       )}
     </div>

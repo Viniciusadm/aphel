@@ -32,6 +32,10 @@ export function UiLabelsBridge({ children }: { children: ReactNode }) {
         />
       ),
       pageLoading: detail('pageLoader'),
+      paginationPrevious: common('pagination.previous'),
+      paginationNext: common('pagination.next'),
+      paginationSummary: (page, pages, total) => common('pagination.summary', { page, pages, total }),
+      back: common('actions.back'),
     }),
     [common, detail],
   )

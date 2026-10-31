@@ -2,6 +2,7 @@ import { Bar, BarChart, CartesianGrid, ResponsiveContainer, Tooltip, XAxis, YAxi
 import { formatCurrency, formatNumber, useRecordFormatting } from '@/features/records/formatting'
 import { useModuleTranslation } from '@/kernel/modules/i18n'
 import type { DealsBySourceData } from './types'
+import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from '@/components/ui/table'
 
 interface SourceBar {
   key: string
@@ -74,49 +75,47 @@ export function DealsBySourceWidget({ data }: { data: DealsBySourceData }) {
         </ResponsiveContainer>
       </div>
       <figcaption className="sr-only">{chartLabel}</figcaption>
-      <div className="overflow-x-auto">
-        <table className="w-full text-sm">
-          <thead>
-            <tr className="border-b text-left text-xs text-muted-foreground">
-              <th scope="col" className="py-1.5 pr-2 font-medium">
-                {t('dealsBySource.source')}
-              </th>
-              <th scope="col" className="py-1.5 pr-2 text-right font-medium">
-                {t('dealsBySource.count')}
-              </th>
+      <Table>
+        <TableHeader>
+          <TableRow className="text-left text-xs text-muted-foreground">
+            <TableHead scope="col" className="py-1.5 pr-2">
+              {t('dealsBySource.source')}
+            </TableHead>
+            <TableHead scope="col" className="py-1.5 pr-2 text-right">
+              {t('dealsBySource.count')}
+            </TableHead>
+            {data.amount_visible && (
+              <TableHead scope="col" className="py-1.5 text-right">
+                {t('dealsBySource.amount')}
+              </TableHead>
+            )}
+          </TableRow>
+        </TableHeader>
+        <TableBody>
+          {bars.map((bar) => (
+            <TableRow key={bar.key} className="last:border-b-0">
+              <TableHead scope="row" className="max-w-0 truncate py-1.5 pr-2 text-left font-normal">
+                {bar.label}
+              </TableHead>
+              <TableCell className="py-1.5 pr-2 text-right tabular-nums">{formatNumber(bar.count, formatting)}</TableCell>
               {data.amount_visible && (
-                <th scope="col" className="py-1.5 text-right font-medium">
-                  {t('dealsBySource.amount')}
-                </th>
+                <TableCell className="py-1.5 text-right tabular-nums">{formatCurrency(bar.amount, formatting, data.currency)}</TableCell>
               )}
-            </tr>
-          </thead>
-          <tbody>
-            {bars.map((bar) => (
-              <tr key={bar.key} className="border-b last:border-b-0">
-                <th scope="row" className="max-w-0 truncate py-1.5 pr-2 text-left font-normal">
-                  {bar.label}
-                </th>
-                <td className="py-1.5 pr-2 text-right tabular-nums">{formatNumber(bar.count, formatting)}</td>
-                {data.amount_visible && (
-                  <td className="py-1.5 text-right tabular-nums">{formatCurrency(bar.amount, formatting, data.currency)}</td>
-                )}
-              </tr>
-            ))}
-          </tbody>
-          <tfoot>
-            <tr className="border-t font-medium">
-              <th scope="row" className="py-1.5 pr-2 text-left">
-                {t('dealsBySource.total')}
-              </th>
-              <td className="py-1.5 pr-2 text-right tabular-nums">{formatNumber(data.total.count, formatting)}</td>
-              {data.amount_visible && (
-                <td className="py-1.5 text-right tabular-nums">{formatCurrency(data.total.amount, formatting, data.currency)}</td>
-              )}
-            </tr>
-          </tfoot>
-        </table>
-      </div>
+            </TableRow>
+          ))}
+        </TableBody>
+        <tfoot>
+          <TableRow className="font-medium">
+            <TableHead scope="row" className="py-1.5 pr-2 text-left">
+              {t('dealsBySource.total')}
+            </TableHead>
+            <TableCell className="py-1.5 pr-2 text-right tabular-nums">{formatNumber(data.total.count, formatting)}</TableCell>
+            {data.amount_visible && (
+              <TableCell className="py-1.5 text-right tabular-nums">{formatCurrency(data.total.amount, formatting, data.currency)}</TableCell>
+            )}
+          </TableRow>
+        </tfoot>
+      </Table>
       {!data.amount_visible && <p className="text-xs text-muted-foreground">{t('dealsBySource.amountHidden')}</p>}
     </figure>
   )

@@ -12,9 +12,9 @@ import { Label } from '@/components/ui/label'
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/components/ui/select'
 import { Skeleton } from '@/components/ui/skeleton'
 import { toast } from '@/components/ui/toast-store'
-import { SectionHeader } from '@/features/settings/components/SectionHeader'
 import { usePersonalPreferences, useUpdatePersonalPreferences } from './api'
 import type { NavigationPreferences, PersonalPreferences, SupportedLanguage } from './types'
+import { PageHeader } from '@/components/ui/page-header'
 
 const FOLLOW_ORGANIZATION = 'organization'
 const DEFAULT_HOME = '/'
@@ -42,7 +42,7 @@ function LanguageSection({ preferences }: { preferences: PersonalPreferences }) 
 
   return (
     <section className="grid gap-3">
-      <SectionHeader title={t('language.title')} description={t('language.description')} />
+      <PageHeader title={t('language.title')} description={t('language.description')} />
       <div className="grid max-w-sm gap-1.5">
         <Label id={labelId}>{t('language.label')}</Label>
         <Select value={preferences.locale ?? FOLLOW_ORGANIZATION} onValueChange={change} disabled={update.isPending}>
@@ -110,7 +110,7 @@ function NavigationSection({ preferences }: { preferences: PersonalPreferences }
   return (
     <>
       <section className="grid gap-3">
-        <SectionHeader title={t('home.title')} description={t('home.description')} />
+        <PageHeader title={t('home.title')} description={t('home.description')} />
         <div className="grid max-w-sm gap-1.5">
           <Label id={homeLabelId}>{t('home.label')}</Label>
           <Select
@@ -132,10 +132,10 @@ function NavigationSection({ preferences }: { preferences: PersonalPreferences }
         </div>
       </section>
       <section className="grid gap-3">
-        <SectionHeader
+        <PageHeader
           title={t('menu.title')}
           description={t('menu.description')}
-          action={
+          actions={
             <Button variant="outline" size="sm" onClick={() => setDraft({ order: [], hidden: [], home: draft.home })}>
               {t('menu.reset')}
             </Button>

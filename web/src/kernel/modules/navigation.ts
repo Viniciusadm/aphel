@@ -16,6 +16,7 @@ export interface NavigationEntry {
   end?: boolean
   locked?: boolean
   badge?: ComponentType<{ collapsed?: boolean }>
+  group?: { key: string; label: string; icon: LucideIcon }
 }
 
 export const SETTINGS_ENTRY_KEY = 'settings'
@@ -41,6 +42,7 @@ export function useNavigationEntries(): NavigationEntry[] {
         order,
         end: value.end,
         badge: value.badge,
+        group: value.group && { ...value.group, label: translate(module, value.group.label) },
       }))
     if (!settingsAccess) return modules
     return [

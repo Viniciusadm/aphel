@@ -1,7 +1,7 @@
-import { ArrowLeft, Pencil, Plus, Tags, Trash2, X } from 'lucide-react'
+import { Pencil, Plus, Tags, Trash2, X } from 'lucide-react'
 import { useState } from 'react'
 import { useTranslation } from 'react-i18next'
-import { Link, useNavigate, useParams } from 'react-router'
+import { useNavigate, useParams } from 'react-router'
 import { useSession } from '@/app/session/session-context'
 import { ConfirmDialog, PageLoader, UnsavedChangesGuard } from '@/components/feedback'
 import { RecordFieldInput } from '@/components/fields'
@@ -16,6 +16,9 @@ import { fieldErrors, priceListErrorKey } from './errors'
 import { PriceListBadges, PriceListValidity } from './PriceListBadges'
 import { PriceListDialog } from './PriceListDialog'
 import type { PriceList, PriceListItem } from './types'
+import { Page } from '@/components/ui/page'
+import { PageHeader } from '@/components/ui/page-header'
+import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from '@/components/ui/table'
 
 const PRODUCT_RECORD_TYPE = 'product'
 const MONEY_PATTERN = /^\d+([.,]\d{1,2})?$/
@@ -84,24 +87,15 @@ function PriceListDetail({ list }: { list: PriceList }) {
   }
 
   return (
-    <div className="flex flex-col gap-6">
-      <div className="grid gap-2">
-        <Button asChild size="sm" variant="ghost" className="w-fit">
-          <Link to={PRICE_LISTS_PATH}>
-            <ArrowLeft aria-hidden="true" />
-            {t('detail.back')}
-          </Link>
-        </Button>
-        <div className="flex flex-col gap-3 sm:flex-row sm:items-start sm:justify-between">
-          <div className="grid gap-1">
-            <div className="flex flex-wrap items-center gap-2">
-              <h1 className="text-xl font-semibold">{list.name}</h1>
-              <PriceListBadges list={list} />
-            </div>
-            {list.description && <p className="text-sm text-muted-foreground">{list.description}</p>}
-          </div>
-          {canEdit && (
-            <div className="flex flex-wrap gap-2">
+    <Page>
+      <PageHeader
+        back={{ to: PRICE_LISTS_PATH, label: t('detail.back') }}
+        title={list.name}
+        badges={<PriceListBadges list={list} />}
+        description={list.description ? <p>{list.description}</p> : undefined}
+        actions={
+          canEdit && (
+            <>
               <Button size="sm" variant="outline" onClick={() => setEditing(true)}>
                 <Pencil aria-hidden="true" />
                 {t('detail.edit')}
@@ -110,9 +104,10 @@ function PriceListDetail({ list }: { list: PriceList }) {
                 <Trash2 aria-hidden="true" />
                 {t('detail.delete')}
               </Button>
-            </div>
-          )}
-        </div>
+            </>
+          )
+        }
+      />
         <dl className="grid gap-3 rounded-lg border bg-card p-4 text-sm sm:grid-cols-4">
           <div className="grid gap-0.5">
             <dt className="text-muted-foreground">{t('columns.currency')}</dt>
@@ -137,7 +132,6 @@ function PriceListDetail({ list }: { list: PriceList }) {
             <dd className="font-mono">{list.key}</dd>
           </div>
         </dl>
-      </div>
       <PriceListItemsEditor list={list} canEdit={canEdit} />
       <PriceListDialog open={editing} onOpenChange={setEditing} list={list} />
       <ConfirmDialog
@@ -149,7 +143,7 @@ function PriceListDetail({ list }: { list: PriceList }) {
         variant="destructive"
         onConfirm={remove}
       />
-    </div>
+    </Page>
   )
 }
 
@@ -260,95 +254,93 @@ function ItemsForm({ list, items, canEdit, title }: ItemsFormProps) {
       {drafts.length === 0 ? (
         <EmptyState icon={Tags} title={t('items.empty')} description={t('items.emptyHint')} />
       ) : (
-        <div className="relative overflow-x-auto rounded-lg border">
-          <table className="w-full text-sm">
-            <thead className="bg-muted/50 text-left text-muted-foreground">
-              <tr>
-                <th scope="col" className="min-w-56 px-4 py-2 font-medium">
-                  {t('items.product')}
-                </th>
-                <th scope="col" className="w-32 px-4 py-2 font-medium">
-                  {t('items.minQuantity')}
-                </th>
-                <th scope="col" className="w-40 px-4 py-2 font-medium">
-                  {t('items.unitPrice', { currency: list.currency })}
-                </th>
-                <th scope="col" className="hidden px-4 py-2 text-right font-medium md:table-cell">
-                  {t('items.catalogPrice')}
-                </th>
-                {canEdit && (
-                  <th scope="col" className="w-12 px-4 py-2">
-                    <span className="sr-only">{t('items.actions')}</span>
-                  </th>
-                )}
-              </tr>
-            </thead>
-            <tbody>
-              {drafts.map((draft, index) => {
-                const reference = draft.productId ? catalog.get(draft.productId) : undefined
-                return (
-                  <tr key={draft.key} className="border-t align-top">
-                    <td className="px-4 py-2">
-                      <RecordFieldInput
-                        targetRecordType={PRODUCT_RECORD_TYPE}
-                        value={draft.productId}
-                        clearable={false}
-                        disabled={!canEdit}
-                        invalid={Boolean(errorText(index, 'product_id'))}
-                        aria-label={t('items.productOf', { position: index + 1 })}
-                        onChange={(value) => update(draft.key, { productId: value })}
-                      />
-                      {errorText(index, 'product_id') && (
-                        <p className="mt-1 text-xs text-destructive">{errorText(index, 'product_id')}</p>
-                      )}
-                    </td>
-                    <td className="px-4 py-2">
-                      <Input placeholder={t('placeholders.minQuantity')}
-                        inputMode="decimal"
-                        value={draft.minQuantity}
-                        disabled={!canEdit}
-                        aria-label={t('items.minQuantityOf', { position: index + 1 })}
-                        aria-invalid={errorText(index, 'min_quantity') ? true : undefined}
-                        onChange={(event) => update(draft.key, { minQuantity: event.target.value })}
-                      />
-                      {errorText(index, 'min_quantity') && (
-                        <p className="mt-1 text-xs text-destructive">{errorText(index, 'min_quantity')}</p>
-                      )}
-                    </td>
-                    <td className="px-4 py-2">
-                      <Input placeholder={t('placeholders.unitPrice')}
-                        inputMode="decimal"
-                        value={draft.unitPrice}
-                        disabled={!canEdit}
-                        aria-label={t('items.unitPriceOf', { position: index + 1 })}
-                        aria-invalid={errorText(index, 'unit_price') ? true : undefined}
-                        onChange={(event) => update(draft.key, { unitPrice: event.target.value })}
-                      />
-                      {errorText(index, 'unit_price') && (
-                        <p className="mt-1 text-xs text-destructive">{errorText(index, 'unit_price')}</p>
-                      )}
-                    </td>
-                    <td className="hidden px-4 py-2 text-right tabular-nums text-muted-foreground md:table-cell">
-                      {reference ? formatCurrency(reference.product_price, formatting, reference.product_currency) : '—'}
-                    </td>
-                    {canEdit && (
-                      <td className="px-4 py-2">
-                        <Button
-                          size="icon"
-                          variant="ghost"
-                          aria-label={t('items.remove', { position: index + 1 })}
-                          onClick={() => setDrafts(drafts.filter((current) => current.key !== draft.key))}
-                        >
-                          <X aria-hidden="true" />
-                        </Button>
-                      </td>
+        <Table>
+          <TableHeader>
+            <TableRow>
+              <TableHead scope="col" className="min-w-56">
+                {t('items.product')}
+              </TableHead>
+              <TableHead scope="col" className="w-32">
+                {t('items.minQuantity')}
+              </TableHead>
+              <TableHead scope="col" className="w-40">
+                {t('items.unitPrice', { currency: list.currency })}
+              </TableHead>
+              <TableHead scope="col" className="hidden text-right md:table-cell">
+                {t('items.catalogPrice')}
+              </TableHead>
+              {canEdit && (
+                <TableHead scope="col" className="w-12">
+                  <span className="sr-only">{t('items.actions')}</span>
+                </TableHead>
+              )}
+            </TableRow>
+          </TableHeader>
+          <TableBody>
+            {drafts.map((draft, index) => {
+              const reference = draft.productId ? catalog.get(draft.productId) : undefined
+              return (
+                <TableRow key={draft.key} className="align-top">
+                  <TableCell>
+                    <RecordFieldInput
+                      targetRecordType={PRODUCT_RECORD_TYPE}
+                      value={draft.productId}
+                      clearable={false}
+                      disabled={!canEdit}
+                      invalid={Boolean(errorText(index, 'product_id'))}
+                      aria-label={t('items.productOf', { position: index + 1 })}
+                      onChange={(value) => update(draft.key, { productId: value })}
+                    />
+                    {errorText(index, 'product_id') && (
+                      <p className="mt-1 text-xs text-destructive">{errorText(index, 'product_id')}</p>
                     )}
-                  </tr>
-                )
-              })}
-            </tbody>
-          </table>
-        </div>
+                  </TableCell>
+                  <TableCell>
+                    <Input placeholder={t('placeholders.minQuantity')}
+                      inputMode="decimal"
+                      value={draft.minQuantity}
+                      disabled={!canEdit}
+                      aria-label={t('items.minQuantityOf', { position: index + 1 })}
+                      aria-invalid={errorText(index, 'min_quantity') ? true : undefined}
+                      onChange={(event) => update(draft.key, { minQuantity: event.target.value })}
+                    />
+                    {errorText(index, 'min_quantity') && (
+                      <p className="mt-1 text-xs text-destructive">{errorText(index, 'min_quantity')}</p>
+                    )}
+                  </TableCell>
+                  <TableCell>
+                    <Input placeholder={t('placeholders.unitPrice')}
+                      inputMode="decimal"
+                      value={draft.unitPrice}
+                      disabled={!canEdit}
+                      aria-label={t('items.unitPriceOf', { position: index + 1 })}
+                      aria-invalid={errorText(index, 'unit_price') ? true : undefined}
+                      onChange={(event) => update(draft.key, { unitPrice: event.target.value })}
+                    />
+                    {errorText(index, 'unit_price') && (
+                      <p className="mt-1 text-xs text-destructive">{errorText(index, 'unit_price')}</p>
+                    )}
+                  </TableCell>
+                  <TableCell className="hidden text-right tabular-nums text-muted-foreground md:table-cell">
+                    {reference ? formatCurrency(reference.product_price, formatting, reference.product_currency) : '—'}
+                  </TableCell>
+                  {canEdit && (
+                    <TableCell>
+                      <Button
+                        size="icon"
+                        variant="ghost"
+                        aria-label={t('items.remove', { position: index + 1 })}
+                        onClick={() => setDrafts(drafts.filter((current) => current.key !== draft.key))}
+                      >
+                        <X aria-hidden="true" />
+                      </Button>
+                    </TableCell>
+                  )}
+                </TableRow>
+              )
+            })}
+          </TableBody>
+        </Table>
       )}
       <p className="text-xs text-muted-foreground">{t('items.tiersHint')}</p>
     </section>

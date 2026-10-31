@@ -1,8 +1,7 @@
-import { ArrowLeft } from 'lucide-react'
 import { useCustomObjectLabel } from '@/features/custom-records/api'
 import type { ReactNode } from 'react'
 import { useTranslation } from 'react-i18next'
-import { Link, useParams, useSearchParams } from 'react-router'
+import { useParams, useSearchParams } from 'react-router'
 import { PageLoader } from '@/components/feedback'
 import { EmptyState } from '@/components/ui/empty-state'
 import { ErrorState } from '@/components/ui/error-state'
@@ -13,6 +12,8 @@ import { MappingStep } from './steps/MappingStep'
 import { ResultStep } from './steps/ResultStep'
 import { RunStep } from './steps/RunStep'
 import { UploadStep } from './steps/UploadStep'
+import { Page } from '@/components/ui/page'
+import { PageHeader } from '@/components/ui/page-header'
 
 const STEPS = ['upload', 'mapping', 'run', 'result'] as const
 type Step = (typeof STEPS)[number]
@@ -73,17 +74,11 @@ function ImportLayout({ recordType, step, children }: ImportLayoutProps) {
   const typeLabel = isImportable(recordType) ? t(`recordTypes.${recordType}`) : (customLabel ?? recordType)
   const current = STEPS.indexOf(step)
   return (
-    <div className="flex min-w-0 flex-col gap-4">
-      <div className="grid gap-2">
-        <Link
-          to={LIST_PATHS[recordType] ?? '/'}
-          className="inline-flex w-fit items-center gap-1 text-sm text-muted-foreground hover:text-foreground"
-        >
-          <ArrowLeft className="size-4" aria-hidden />
-          {t('wizard.back')}
-        </Link>
-        <h1 className="text-xl font-semibold">{t('wizard.title', { recordType: typeLabel })}</h1>
-      </div>
+    <Page>
+      <PageHeader
+        back={{ to: LIST_PATHS[recordType] ?? '/', label: t('wizard.back') }}
+        title={t('wizard.title', { recordType: typeLabel })}
+      />
       <ol aria-label={t('wizard.stepsLabel')} className="flex flex-wrap gap-2 text-sm">
         {STEPS.map((item, index) => (
           <li
@@ -104,6 +99,6 @@ function ImportLayout({ recordType, step, children }: ImportLayoutProps) {
         ))}
       </ol>
       {children}
-    </div>
+    </Page>
   )
 }

@@ -1,8 +1,5 @@
-import { ArrowLeft } from 'lucide-react'
 import { useMemo, useState } from 'react'
 import { useTranslation } from 'react-i18next'
-import { Link } from 'react-router'
-import { Button } from '@/components/ui/button'
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card'
 import { EmptyState } from '@/components/ui/empty-state'
 import { ErrorState } from '@/components/ui/error-state'
@@ -13,6 +10,8 @@ import { NativeSelect } from '@/features/records/filters/NativeSelect'
 import { useLifecycleReport } from './api'
 import { DEFAULT_REPORT_DAYS, LEADS_PATH } from './constants'
 import type { LifecycleRecordType, LifecycleReport, LifecycleStageReport } from './types'
+import { Page } from '@/components/ui/page'
+import { PageHeader } from '@/components/ui/page-header'
 
 function isoDate(date: Date): string {
   return date.toISOString().slice(0, 10)
@@ -32,17 +31,12 @@ export function LifecycleReportPage() {
   const report = useLifecycleReport(query)
 
   return (
-    <div className="flex flex-col gap-4">
-      <div className="grid gap-1">
-        <Button asChild variant="ghost" size="sm" className="w-fit px-2">
-          <Link to={LEADS_PATH}>
-            <ArrowLeft aria-hidden="true" />
-            {t('report.back')}
-          </Link>
-        </Button>
-        <h1 className="text-xl font-semibold">{t('report.title')}</h1>
-        <p className="text-sm text-muted-foreground">{t('report.description')}</p>
-      </div>
+    <Page>
+      <PageHeader
+        back={{ to: LEADS_PATH, label: t('report.back') }}
+        title={t('report.title')}
+        description={t('report.description')}
+      />
       <div className="flex flex-wrap items-end gap-3">
         <div className="grid gap-1.5">
           <Label htmlFor="lifecycle-report-type">{t('report.recordType')}</Label>
@@ -86,7 +80,7 @@ export function LifecycleReportPage() {
       ) : (
         <ReportContent report={report.data} />
       )}
-    </div>
+    </Page>
   )
 }
 

@@ -12,6 +12,7 @@ import { Label } from '@/components/ui/label'
 import { Textarea } from '@/components/ui/textarea'
 import { usePublicQuote, usePublicQuoteAnswer } from './api'
 import type { PublicQuote, PublicQuoteState } from './types'
+import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from '@/components/ui/table'
 
 const STATE_VARIANTS: Record<PublicQuoteState, BadgeProps['variant']> = {
   open: 'default',
@@ -115,49 +116,47 @@ function QuoteDocument({ token, quote }: { token: string; quote: PublicQuote }) 
         </div>
       </header>
 
-      <div className="overflow-x-auto">
-        <table className="w-full text-sm">
-          <thead className="text-left text-xs text-muted-foreground">
-            <tr className="border-b">
-              <th className="py-2 pr-3 font-medium">{t('columns.item')}</th>
-              <th className="px-3 py-2 text-right font-medium">{t('columns.quantity')}</th>
-              <th className="px-3 py-2 text-right font-medium">{t('columns.unitPrice')}</th>
-              <th className="px-3 py-2 text-right font-medium">{t('columns.discount')}</th>
-              <th className="px-3 py-2 text-right font-medium">{t('columns.tax')}</th>
-              <th className="py-2 pl-3 text-right font-medium">{t('columns.total')}</th>
-            </tr>
-          </thead>
-          <tbody>
-            {quote.items.map((item, index) => (
-              <tr key={`${item.name}-${index}`} className="border-b align-top break-inside-avoid">
-                <td className="py-2 pr-3">
-                  <p className="font-medium">{item.name}</p>
-                  {item.description && <p className="text-xs whitespace-pre-line text-muted-foreground">{item.description}</p>}
-                  {item.components.length > 0 && (
-                    <p className="text-xs text-muted-foreground">
-                      {t('includes', {
-                        components: item.components.map((component) => `${format.number(component.quantity)}× ${component.name}`).join(', '),
-                      })}
-                    </p>
-                  )}
-                </td>
-                <td className="px-3 py-2 text-right tabular-nums">
-                  {format.number(item.quantity)}
-                  {item.unit && ` ${item.unit}`}
-                </td>
-                <td className="px-3 py-2 text-right tabular-nums">{format.money(item.unit_price)}</td>
-                <td className="px-3 py-2 text-right tabular-nums">
-                  {Number(item.discount_amount) > 0 ? `− ${format.money(item.discount_amount)}` : '—'}
-                </td>
-                <td className="px-3 py-2 text-right tabular-nums">
-                  {Number(item.tax_percent) > 0 ? `${format.number(item.tax_percent)}%` : '—'}
-                </td>
-                <td className="py-2 pl-3 text-right font-medium tabular-nums">{format.money(item.total)}</td>
-              </tr>
-            ))}
-          </tbody>
-        </table>
-      </div>
+      <Table>
+        <TableHeader>
+          <TableRow>
+            <TableHead className="pr-3">{t('columns.item')}</TableHead>
+            <TableHead className="text-right">{t('columns.quantity')}</TableHead>
+            <TableHead className="text-right">{t('columns.unitPrice')}</TableHead>
+            <TableHead className="text-right">{t('columns.discount')}</TableHead>
+            <TableHead className="text-right">{t('columns.tax')}</TableHead>
+            <TableHead className="pl-3 text-right">{t('columns.total')}</TableHead>
+          </TableRow>
+        </TableHeader>
+        <TableBody>
+          {quote.items.map((item, index) => (
+            <TableRow key={`${item.name}-${index}`} className="align-top break-inside-avoid">
+              <TableCell className="pr-3">
+                <p className="font-medium">{item.name}</p>
+                {item.description && <p className="text-xs whitespace-pre-line text-muted-foreground">{item.description}</p>}
+                {item.components.length > 0 && (
+                  <p className="text-xs text-muted-foreground">
+                    {t('includes', {
+                      components: item.components.map((component) => `${format.number(component.quantity)}× ${component.name}`).join(', '),
+                    })}
+                  </p>
+                )}
+              </TableCell>
+              <TableCell className="text-right tabular-nums">
+                {format.number(item.quantity)}
+                {item.unit && ` ${item.unit}`}
+              </TableCell>
+              <TableCell className="text-right tabular-nums">{format.money(item.unit_price)}</TableCell>
+              <TableCell className="text-right tabular-nums">
+                {Number(item.discount_amount) > 0 ? `− ${format.money(item.discount_amount)}` : '—'}
+              </TableCell>
+              <TableCell className="text-right tabular-nums">
+                {Number(item.tax_percent) > 0 ? `${format.number(item.tax_percent)}%` : '—'}
+              </TableCell>
+              <TableCell className="pl-3 text-right font-medium tabular-nums">{format.money(item.total)}</TableCell>
+            </TableRow>
+          ))}
+        </TableBody>
+      </Table>
 
       <dl className="ml-auto grid w-full max-w-xs gap-1 text-sm">
         <Total label={t('totals.subtotal')} value={format.money(quote.subtotal)} />

@@ -24,7 +24,6 @@ import { ErrorState } from '@/components/ui/error-state'
 import { Skeleton } from '@/components/ui/skeleton'
 import { toast } from '@/components/ui/toast-store'
 import { formatDateTime, useRecordFormatting } from '@/features/records/formatting'
-import { SectionHeader } from '@/features/settings/components/SectionHeader'
 import {
   subscribesToAll,
   useInvalidateWebhooks,
@@ -36,6 +35,7 @@ import {
 import { DeliveryLog } from './DeliveryLog'
 import { EndpointFormDialog } from './EndpointFormDialog'
 import { WebhookDeliveryPanel } from './WebhookDeliveryPanel'
+import { PageHeader } from '@/components/ui/page-header'
 
 type Editing = { endpoint: WebhookEndpoint | null } | null
 
@@ -64,10 +64,10 @@ export function WebhooksPage() {
 
   return (
     <section className="flex flex-col gap-4">
-      <SectionHeader
+      <PageHeader
         title={t('title')}
         description={t('description')}
-        action={
+        actions={
           <Button size="sm" onClick={() => setEditing({ endpoint: null })}>
             <Plus aria-hidden="true" />
             {t('new')}

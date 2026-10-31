@@ -32,6 +32,7 @@ import { dealsKeys } from './api'
 import { pipelineFromFilter, withPipelineFilter } from './pipeline-filter'
 import { DealsBoard } from './board/DealsBoard'
 import { DEAL_CREATE_LAYOUT, DEAL_RECORD_TYPE, dealPath } from './resource'
+import { PageHeader } from '@/components/ui/page-header'
 
 export const DEALS_MODE_PARAM = 'mode'
 export const DEALS_PIPELINE_PARAM = 'pipeline'
@@ -272,10 +273,7 @@ export function DealsPage() {
   return (
     <div className={cn('flex min-w-0 flex-col gap-4', mode === 'board' && 'h-full')}>
       <div className="flex flex-wrap items-end justify-between gap-3">
-        <div className="grid gap-1">
-          <h1 className="text-xl font-semibold">{t('list.title')}</h1>
-          <p className="text-sm text-muted-foreground">{t('list.description')}</p>
-        </div>
+        <PageHeader title={t('list.title')} description={t('list.description')} />
         <div className="flex flex-wrap items-center gap-2">
           <SegmentedControl
             aria-label={t('list.mode')}

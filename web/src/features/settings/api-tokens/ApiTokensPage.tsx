@@ -20,7 +20,6 @@ import { Input } from '@/components/ui/input'
 import { Label } from '@/components/ui/label'
 import { Skeleton } from '@/components/ui/skeleton'
 import { formatDateTime, useRecordFormatting } from '@/features/records/formatting'
-import { SectionHeader } from '@/features/settings/components/SectionHeader'
 import { USERS_MANAGE } from '@/features/settings/lib/permissions'
 import {
   MAX_API_TOKEN_NAME_LENGTH,
@@ -36,6 +35,7 @@ import {
   type CreatedApiToken,
 } from './api'
 import { ApiTokenLimitsPanel } from './ApiTokenLimitsPanel'
+import { PageHeader } from '@/components/ui/page-header'
 
 const EXPIRATION_OPTIONS = ['30', '90', '365', 'never'] as const
 type ExpirationOption = (typeof EXPIRATION_OPTIONS)[number]
@@ -59,10 +59,10 @@ export function ApiTokensPage() {
 
   return (
     <section className="flex flex-col gap-4">
-      <SectionHeader
+      <PageHeader
         title={t('title')}
         description={t('description')}
-        action={
+        actions={
           <Button size="sm" onClick={() => setCreating(true)}>
             <Plus aria-hidden="true" />
             {t('new')}

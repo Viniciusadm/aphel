@@ -10,13 +10,13 @@ import { ErrorState } from '@/components/ui/error-state'
 import { toast } from '@/components/ui/toast-store'
 import { usePipelines } from '@/modules/pipelines/api'
 import { RequirePermission } from '@/features/settings/components/RequirePermission'
-import { SectionHeader } from '@/features/settings/components/SectionHeader'
 import { approvalsApi, useApprovalPolicies, usePolicyMutation } from '../api'
 import { APPROVALS_MANAGE_PERMISSION } from '../constants'
 import { approvalErrorKey } from '../errors'
 import { useRecordTypeLabel } from '../lib/labels'
 import type { ApprovalPolicy } from '../types'
 import { PolicyEditorDialog } from './PolicyEditorDialog'
+import { PageHeader } from '@/components/ui/page-header'
 
 interface EditorState {
   policy: ApprovalPolicy | null
@@ -98,10 +98,10 @@ function ApprovalPolicies() {
 
   return (
     <section className="flex flex-col gap-6">
-      <SectionHeader
+      <PageHeader
         title={t('settings.title')}
         description={t('settings.description')}
-        action={ordered.length > 0 ? newButton : undefined}
+        actions={ordered.length > 0 ? newButton : undefined}
       />
       {body}
       <PolicyEditorDialog

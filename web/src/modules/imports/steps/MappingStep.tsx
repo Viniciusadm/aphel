@@ -20,6 +20,7 @@ import {
 } from '../api'
 import { acceptsMultiple, delimiterLabel, duplicateKeysFor, missingRequired, supportsCompanyCreation } from '../mapping'
 import { ValidationReport } from './ValidationReport'
+import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from '@/components/ui/table'
 
 const STRATEGIES: DuplicateStrategy[] = ['skip', 'update', 'create']
 
@@ -228,34 +229,32 @@ function PreviewTable({ job }: { job: ImportJob }) {
         <CardTitle>{t('mapping.previewTitle')}</CardTitle>
       </CardHeader>
       <CardContent>
-        <div className="relative max-w-full overflow-x-auto rounded-md border">
-          <table className="w-full text-sm">
-            <thead className="bg-muted/50 text-left">
-              <tr>
-                <th scope="col" className="px-3 py-2 font-medium whitespace-nowrap">
-                  {t('mapping.line')}
-                </th>
-                {job.headers.map((header, index) => (
-                  <th key={`${header}-${index}`} scope="col" className="px-3 py-2 font-medium whitespace-nowrap">
-                    {header}
-                  </th>
-                ))}
-              </tr>
-            </thead>
-            <tbody>
-              {job.preview.map((row) => (
-                <tr key={row.row_index} className="border-t">
-                  <td className="px-3 py-2 text-muted-foreground tabular-nums">{row.row_index}</td>
-                  {job.headers.map((header, index) => (
-                    <td key={`${header}-${index}`} className="max-w-48 truncate px-3 py-2 whitespace-nowrap">
-                      {row.cells[index] ?? ''}
-                    </td>
-                  ))}
-                </tr>
+        <Table>
+          <TableHeader>
+            <TableRow>
+              <TableHead scope="col" className="whitespace-nowrap">
+                {t('mapping.line')}
+              </TableHead>
+              {job.headers.map((header, index) => (
+                <TableHead key={`${header}-${index}`} scope="col" className="whitespace-nowrap">
+                  {header}
+                </TableHead>
               ))}
-            </tbody>
-          </table>
-        </div>
+            </TableRow>
+          </TableHeader>
+          <TableBody>
+            {job.preview.map((row) => (
+              <TableRow key={row.row_index}>
+                <TableCell className="text-muted-foreground tabular-nums">{row.row_index}</TableCell>
+                {job.headers.map((header, index) => (
+                  <TableCell key={`${header}-${index}`} className="max-w-48 truncate whitespace-nowrap">
+                    {row.cells[index] ?? ''}
+                  </TableCell>
+                ))}
+              </TableRow>
+            ))}
+          </TableBody>
+        </Table>
       </CardContent>
     </Card>
   )

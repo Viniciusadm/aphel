@@ -9,10 +9,11 @@ import { EmptyState } from '@/components/ui/empty-state'
 import { ErrorState } from '@/components/ui/error-state'
 import { formatDateTime, useRecordFormatting } from '@/features/records/formatting'
 import { ListSkeleton } from '@/features/settings/components/ListSkeleton'
-import { Pagination } from '@/features/settings/components/Pagination'
-import { SectionHeader } from '@/features/settings/components/SectionHeader'
+import { Pagination } from '@/components/ui/pagination'
 import { BulkResult } from './BulkResult'
 import { HISTORY_PAGE_SIZE, bulkApi, bulkKeys, isBulkRecordType, useBulkHistory, type BulkOperation } from './api'
+import { PageHeader } from '@/components/ui/page-header'
+import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from '@/components/ui/table'
 
 type BadgeVariant = 'secondary' | 'destructive' | 'success' | 'warning'
 
@@ -50,7 +51,7 @@ export function BulkHistoryPage() {
 
   return (
     <section className="flex min-w-0 flex-col gap-4">
-      <SectionHeader title={t('history.title')} description={t('history.description')} />
+      <PageHeader title={t('history.title')} description={t('history.description')} />
       {history.isPending ? (
         <ListSkeleton />
       ) : history.isError ? (
@@ -59,65 +60,63 @@ export function BulkHistoryPage() {
         <EmptyState title={t('history.empty')} description={t('history.emptyDescription')} />
       ) : (
         <>
-          <div className="relative overflow-x-auto rounded-lg border">
-            <table className="w-full text-sm">
-              <thead className="bg-muted/50 text-left text-muted-foreground">
-                <tr>
-                  <th scope="col" className="px-4 py-2 font-medium">
-                    {t('history.columns.action')}
-                  </th>
-                  <th scope="col" className="hidden px-4 py-2 font-medium sm:table-cell">
-                    {t('history.columns.recordType')}
-                  </th>
-                  <th scope="col" className="px-4 py-2 font-medium">
-                    {t('history.columns.status')}
-                  </th>
-                  <th scope="col" className="hidden px-4 py-2 font-medium md:table-cell">
-                    {t('history.columns.records')}
-                  </th>
-                  <th scope="col" className="hidden px-4 py-2 font-medium lg:table-cell">
-                    {t('history.columns.createdAt')}
-                  </th>
-                  <th scope="col" className="px-4 py-2">
-                    <span className="sr-only">{t('history.columns.details')}</span>
-                  </th>
-                </tr>
-              </thead>
-              <tbody>
-                {history.data.data.map((operation) => (
-                  <tr key={operation.id} className="border-t">
-                    <td className="px-4 py-2 font-medium">
-                      {t(`actions.${operation.action}`, { defaultValue: operation.action })}
-                    </td>
-                    <td className="hidden px-4 py-2 sm:table-cell">{recordTypeLabel(operation.record_type)}</td>
-                    <td className="px-4 py-2">
-                      <Badge
-                        variant={STATUS_VARIANTS[operation.status] ?? 'secondary'}
-                        title={operation.failure_reason ?? undefined}
-                      >
-                        {t(`history.status.${operation.status}`, { defaultValue: operation.status })}
-                      </Badge>
-                    </td>
-                    <td className="hidden px-4 py-2 text-muted-foreground tabular-nums md:table-cell">
-                      {t('history.counts', {
-                        succeeded: operation.succeeded,
-                        issues: operation.skipped + operation.failed,
-                        total: operation.total,
-                      })}
-                    </td>
-                    <td className="hidden px-4 py-2 text-muted-foreground lg:table-cell">
-                      {formatDateTime(operation.created_at, formatting)}
-                    </td>
-                    <td className="px-4 py-2 text-right">
-                      <Button variant="outline" size="sm" onClick={() => select(operation)}>
-                        {t('history.open')}
-                      </Button>
-                    </td>
-                  </tr>
-                ))}
-              </tbody>
-            </table>
-          </div>
+          <Table>
+            <TableHeader>
+              <TableRow>
+                <TableHead scope="col">
+                  {t('history.columns.action')}
+                </TableHead>
+                <TableHead scope="col" className="hidden sm:table-cell">
+                  {t('history.columns.recordType')}
+                </TableHead>
+                <TableHead scope="col">
+                  {t('history.columns.status')}
+                </TableHead>
+                <TableHead scope="col" className="hidden md:table-cell">
+                  {t('history.columns.records')}
+                </TableHead>
+                <TableHead scope="col" className="hidden lg:table-cell">
+                  {t('history.columns.createdAt')}
+                </TableHead>
+                <TableHead scope="col">
+                  <span className="sr-only">{t('history.columns.details')}</span>
+                </TableHead>
+              </TableRow>
+            </TableHeader>
+            <TableBody>
+              {history.data.data.map((operation) => (
+                <TableRow key={operation.id}>
+                  <TableCell className="font-medium">
+                    {t(`actions.${operation.action}`, { defaultValue: operation.action })}
+                  </TableCell>
+                  <TableCell className="hidden sm:table-cell">{recordTypeLabel(operation.record_type)}</TableCell>
+                  <TableCell>
+                    <Badge
+                      variant={STATUS_VARIANTS[operation.status] ?? 'secondary'}
+                      title={operation.failure_reason ?? undefined}
+                    >
+                      {t(`history.status.${operation.status}`, { defaultValue: operation.status })}
+                    </Badge>
+                  </TableCell>
+                  <TableCell className="hidden text-muted-foreground tabular-nums md:table-cell">
+                    {t('history.counts', {
+                      succeeded: operation.succeeded,
+                      issues: operation.skipped + operation.failed,
+                      total: operation.total,
+                    })}
+                  </TableCell>
+                  <TableCell className="hidden text-muted-foreground lg:table-cell">
+                    {formatDateTime(operation.created_at, formatting)}
+                  </TableCell>
+                  <TableCell className="text-right">
+                    <Button variant="outline" size="sm" onClick={() => select(operation)}>
+                      {t('history.open')}
+                    </Button>
+                  </TableCell>
+                </TableRow>
+              ))}
+            </TableBody>
+          </Table>
           <Pagination
             page={page}
             perPage={HISTORY_PAGE_SIZE}

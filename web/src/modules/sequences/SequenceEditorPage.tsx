@@ -1,5 +1,5 @@
 import { zodResolver } from '@hookform/resolvers/zod'
-import { ArrowDown, ArrowLeft, ArrowUp, Plus, Trash2 } from 'lucide-react'
+import { ArrowDown, ArrowUp, Plus, Trash2 } from 'lucide-react'
 import { useEffect, useId, useState } from 'react'
 import { Controller, useFieldArray, useForm, useWatch, type Control, type FieldErrors, type UseFormRegister } from 'react-hook-form'
 import { useTranslation } from 'react-i18next'
@@ -39,6 +39,8 @@ import {
   type SequenceFormValues,
 } from './lib/form'
 import type { Sequence, SequenceStepKind } from './types'
+import { Page } from '@/components/ui/page'
+import { PageHeader } from '@/components/ui/page-header'
 
 const VARIABLE_EXAMPLE = '{{contact.first_name}}'
 const VARIABLE_EXAMPLES = '{{contact.first_name}}, {{company.name}}, {{user.display_name}}'
@@ -118,15 +120,11 @@ function SequenceForm({ sequence }: { sequence: Sequence | null }) {
   const backTo = sequence ? sequencePath(sequence.id) : SEQUENCES_PATH
 
   return (
-    <div className="flex w-full max-w-4xl flex-col gap-6">
-      <div className="flex flex-wrap items-center gap-3">
-        <Button asChild variant="ghost" size="icon" aria-label={t('editor.back')}>
-          <Link to={backTo}>
-            <ArrowLeft />
-          </Link>
-        </Button>
-        <h1 className="text-xl font-semibold">{sequence ? t('editor.titleEdit', { name: sequence.name }) : t('editor.titleNew')}</h1>
-      </div>
+    <Page width="form">
+      <PageHeader
+        back={{ to: backTo, label: t('editor.back') }}
+        title={sequence ? t('editor.titleEdit', { name: sequence.name }) : t('editor.titleNew')}
+      />
       <form id={formId} className="grid gap-6" noValidate onSubmit={(event) => void onSubmit(event)}>
         <section className="grid gap-4 rounded-lg border p-4" aria-labelledby={`${formId}-settings`}>
           <h2 id={`${formId}-settings`} className="text-base font-medium">
@@ -214,7 +212,7 @@ function SequenceForm({ sequence }: { sequence: Sequence | null }) {
         </div>
       </form>
       <UnsavedChangesGuard when={isDirty && !savedId} />
-    </div>
+    </Page>
   )
 }
 

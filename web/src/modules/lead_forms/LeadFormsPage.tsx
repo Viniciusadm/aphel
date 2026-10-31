@@ -19,6 +19,7 @@ import { LEAD_FORMS_KEY, leadFormsApi, useInvalidateLeadForms, useLeadForms, typ
 import { FormEditorDialog } from './FormEditorDialog'
 import { SnippetsDialog } from './SnippetsDialog'
 import { SubmissionsDialog } from './SubmissionsDialog'
+import { PageHeader } from '@/components/ui/page-header'
 
 type PendingConfirmation = { kind: 'delete' | 'rotate'; form: LeadForm }
 
@@ -47,10 +48,7 @@ export function LeadFormsPage() {
   return (
     <section className="flex flex-col gap-4">
       <div className="flex flex-col gap-3 sm:flex-row sm:items-end sm:justify-between">
-        <div className="grid gap-1">
-          <h1 className="text-xl font-semibold">{t('page.title')}</h1>
-          <p className="text-sm text-muted-foreground">{t('page.description')}</p>
-        </div>
+        <PageHeader title={t('page.title')} description={t('page.description')} />
         <Button size="sm" onClick={() => setCreating(true)}>
           <Plus aria-hidden="true" />
           {t('page.new')}

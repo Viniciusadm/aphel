@@ -1,6 +1,5 @@
-import { ArrowLeft, Copy, Lock, MoreHorizontal, Plus, RadioTower } from 'lucide-react'
+import { Copy, Lock, MoreHorizontal, Plus, RadioTower } from 'lucide-react'
 import { useState } from 'react'
-import { Link } from 'react-router'
 import { useSession } from '@/app/session/session-context'
 import { ConfirmDialog, notifyError, notifySuccess } from '@/components/feedback'
 import { Badge } from '@/components/ui/badge'
@@ -30,6 +29,8 @@ import {
 import { ChannelEditorDialog } from './ChannelEditorDialog'
 import { errorText } from './errors'
 import { ChannelIcon } from './shared'
+import { Page } from '@/components/ui/page'
+import { PageHeader } from '@/components/ui/page-header'
 
 type Editing = { kind: ChannelKind; channel: Channel | null }
 
@@ -70,21 +71,13 @@ export function ChannelsPage() {
   }
 
   return (
-    <section className="flex flex-col gap-4">
-      <div className="flex flex-col gap-3 sm:flex-row sm:items-end sm:justify-between">
-        <div className="grid gap-1">
-          <Link
-            to="/messaging"
-            className="flex w-fit items-center gap-1 text-sm text-muted-foreground hover:text-foreground"
-          >
-            <ArrowLeft className="size-4" aria-hidden="true" />
-            {t('channels.back')}
-          </Link>
-          <h1 className="text-xl font-semibold">{t('channels.title')}</h1>
-          <p className="text-sm text-muted-foreground">{t('channels.description')}</p>
-        </div>
-        {newButtons}
-      </div>
+    <Page>
+      <PageHeader
+        back={{ to: '/messaging', label: t('channels.back') }}
+        title={t('channels.title')}
+        description={t('channels.description')}
+        actions={newButtons}
+      />
 
       {channels.isPending ? (
         <div className="grid gap-2" aria-busy="true">
@@ -132,7 +125,7 @@ export function ChannelsPage() {
         variant="destructive"
         onConfirm={() => (deleting ? remove(deleting) : undefined)}
       />
-    </section>
+    </Page>
   )
 }
 

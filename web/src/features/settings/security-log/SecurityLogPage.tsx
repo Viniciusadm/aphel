@@ -11,8 +11,7 @@ import { ErrorState } from '@/components/ui/error-state'
 import { Input } from '@/components/ui/input'
 import { Label } from '@/components/ui/label'
 import { ListSkeleton } from '@/features/settings/components/ListSkeleton'
-import { Pagination } from '@/features/settings/components/Pagination'
-import { SectionHeader } from '@/features/settings/components/SectionHeader'
+import { Pagination } from '@/components/ui/pagination'
 import { USERS_MANAGE } from '@/features/settings/lib/permissions'
 import { DeviceIcon } from '@/features/settings/security/sessions/DeviceIcon'
 import { useDeviceLabel } from '@/features/settings/security/sessions/device-label'
@@ -25,6 +24,8 @@ import {
   type SecurityEventKind,
 } from './api'
 import { useEventDetails } from './details'
+import { PageHeader } from '@/components/ui/page-header'
+import { Table, TableBody, TableHead, TableHeader, TableRow } from '@/components/ui/table'
 
 const EMPTY_FILTERS: SecurityEventFilters = { scope: 'mine', kind: '', from: '', to: '' }
 
@@ -75,7 +76,7 @@ export function SecurityLogPage() {
 
   return (
     <section className="grid gap-4">
-      <SectionHeader title={t('log.title')} description={t('log.description')} />
+      <PageHeader title={t('log.title')} description={t('log.description')} />
       {canSeeOrganization && (
         <SegmentedControl
           aria-label={t('log.scopeLabel')}
@@ -101,37 +102,35 @@ export function SecurityLogPage() {
         />
       ) : (
         <>
-          <div className="relative overflow-x-auto rounded-lg border">
-            <table className="w-full text-sm">
-              <caption className="sr-only">{t('log.title')}</caption>
-              <thead className="bg-muted/50 text-left text-muted-foreground">
-                <tr>
-                  <th scope="col" className="px-3 py-2 font-medium whitespace-nowrap">
-                    {t('log.columns.occurredAt')}
-                  </th>
-                  <th scope="col" className="px-3 py-2 font-medium">
-                    {t('log.columns.event')}
-                  </th>
-                  {showUser && (
-                    <th scope="col" className="px-3 py-2 font-medium">
-                      {t('log.columns.user')}
-                    </th>
-                  )}
-                  <th scope="col" className="hidden px-3 py-2 font-medium md:table-cell">
-                    {t('log.columns.device')}
-                  </th>
-                  <th scope="col" className="hidden px-3 py-2 font-medium lg:table-cell">
-                    {t('log.columns.details')}
-                  </th>
-                </tr>
-              </thead>
-              <tbody>
-                {events.data.data.map((event) => (
-                  <EventRow key={event.id} event={event} showUser={showUser} />
-                ))}
-              </tbody>
-            </table>
-          </div>
+          <Table>
+            <caption className="sr-only">{t('log.title')}</caption>
+            <TableHeader>
+              <TableRow>
+                <TableHead scope="col" className="whitespace-nowrap">
+                  {t('log.columns.occurredAt')}
+                </TableHead>
+                <TableHead scope="col">
+                  {t('log.columns.event')}
+                </TableHead>
+                {showUser && (
+                  <TableHead scope="col">
+                    {t('log.columns.user')}
+                  </TableHead>
+                )}
+                <TableHead scope="col" className="hidden md:table-cell">
+                  {t('log.columns.device')}
+                </TableHead>
+                <TableHead scope="col" className="hidden lg:table-cell">
+                  {t('log.columns.details')}
+                </TableHead>
+              </TableRow>
+            </TableHeader>
+            <TableBody>
+              {events.data.data.map((event) => (
+                <EventRow key={event.id} event={event} showUser={showUser} />
+              ))}
+            </TableBody>
+          </Table>
           <Pagination
             page={page}
             perPage={SECURITY_EVENTS_PER_PAGE}

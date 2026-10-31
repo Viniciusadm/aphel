@@ -16,6 +16,7 @@ import { ConvertLeadDialog } from './ConvertLeadDialog'
 import { DisqualifyLeadDialog, type LeadTarget } from './DisqualifyLeadDialog'
 import { lifecycleErrorMessage } from './errors'
 import { leadTarget } from './lead-target'
+import { PageHeader } from '@/components/ui/page-header'
 
 export function LeadsPage() {
   const { t } = useTranslation('leads')
@@ -93,10 +94,7 @@ export function LeadsPage() {
   return (
     <div className="flex flex-col gap-4">
       <div className="flex flex-wrap items-start justify-between gap-3">
-        <div className="grid gap-1">
-          <h1 className="text-xl font-semibold">{t('inbox.title')}</h1>
-          <p className="text-sm text-muted-foreground">{t('inbox.description')}</p>
-        </div>
+        <PageHeader title={t('inbox.title')} description={t('inbox.description')} />
         <Button asChild size="sm" variant="outline">
           <Link to={LEADS_REPORT_PATH}>
             <BarChart3 aria-hidden="true" />

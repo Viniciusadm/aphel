@@ -15,6 +15,7 @@ import { useReportFilters } from './filters'
 import { amountValue, formatDuration, formatPercent } from './format'
 import { ReportFilters } from './ReportFilters'
 import { ReportSkeleton } from './ReportState'
+import { Table, TableBody, TableHead, TableHeader, TableRow } from '@/components/ui/table'
 
 const CHART_LIMIT = 10
 
@@ -166,79 +167,77 @@ function PerformanceTable({ report }: { report: PerformanceReport }) {
   const duration = (value: number) => format.duration(value)
   const money = (value: number) => format.money(value)
   return (
-    <div className="relative -mx-4 overflow-x-auto px-4">
-      <table className="w-full min-w-[720px] text-sm">
-        <caption className="sr-only">{t('performance.table.caption')}</caption>
-        <thead>
-          <tr className="border-b text-left text-xs text-muted-foreground">
-            <th scope="col" className="py-2 pr-3 font-medium">{t(`dimensions.${report.dimension}`)}</th>
-            <th scope="col" className="py-2 pr-3 text-right font-medium">{t('performance.metrics.created')}</th>
-            <th scope="col" className="py-2 pr-3 text-right font-medium">{t('performance.metrics.won')}</th>
-            {report.amounts_visible && (
-              <th scope="col" className="py-2 pr-3 text-right font-medium">{t('performance.metrics.wonAmount')}</th>
-            )}
-            <th scope="col" className="py-2 pr-3 text-right font-medium">{t('performance.metrics.lost')}</th>
-            <th scope="col" className="py-2 pr-3 text-right font-medium">{t('performance.metrics.conversion')}</th>
-            <th scope="col" className="py-2 pr-3 text-right font-medium">{t('performance.metrics.cycle')}</th>
-            {report.activities_visible && (
-              <th scope="col" className="py-2 text-right font-medium">{t('performance.metrics.activities')}</th>
-            )}
-          </tr>
-        </thead>
-        <tbody>
-          {report.rows.map((row) => {
-            const now = row.current
-            const before = row.previous ?? null
-            return (
-              <tr key={row.key ?? 'none'} className="border-b last:border-0">
-                <th scope="row" className={cn('max-w-48 truncate py-2 pr-3 text-left font-medium', !row.key && 'text-muted-foreground')}>
-                  {rowLabel(row, report, t)}
-                </th>
-                <Cell delta={before && <Delta current={now.created} previous={before.created} format={format.count} />}>
-                  {format.count(now.created)}
-                </Cell>
-                <Cell delta={before && <Delta current={now.won} previous={before.won} format={format.count} />}>
-                  {format.count(now.won)}
-                </Cell>
-                {report.amounts_visible && (
-                  <Cell
-                    delta={
-                      before && <Delta current={amountValue(now.won_amount)} previous={amountValue(before.won_amount)} format={money} />
-                    }
-                  >
-                    {format.money(now.won_amount)}
-                  </Cell>
-                )}
-                <Cell delta={before && <Delta current={now.lost} previous={before.lost} format={format.count} inverse />}>
-                  {format.count(now.lost)}
-                </Cell>
-                <Cell
-                  delta={before && <Delta current={now.conversion_rate} previous={before.conversion_rate} format={percent} points />}
-                >
-                  {format.percent(now.conversion_rate)}
-                </Cell>
+    <Table className="min-w-[720px]">
+      <caption className="sr-only">{t('performance.table.caption')}</caption>
+      <TableHeader>
+        <TableRow className="text-left text-xs text-muted-foreground">
+          <TableHead scope="col" className="pr-3">{t(`dimensions.${report.dimension}`)}</TableHead>
+          <TableHead scope="col" className="pr-3 text-right">{t('performance.metrics.created')}</TableHead>
+          <TableHead scope="col" className="pr-3 text-right">{t('performance.metrics.won')}</TableHead>
+          {report.amounts_visible && (
+            <TableHead scope="col" className="pr-3 text-right">{t('performance.metrics.wonAmount')}</TableHead>
+          )}
+          <TableHead scope="col" className="pr-3 text-right">{t('performance.metrics.lost')}</TableHead>
+          <TableHead scope="col" className="pr-3 text-right">{t('performance.metrics.conversion')}</TableHead>
+          <TableHead scope="col" className="pr-3 text-right">{t('performance.metrics.cycle')}</TableHead>
+          {report.activities_visible && (
+            <TableHead scope="col" className="text-right">{t('performance.metrics.activities')}</TableHead>
+          )}
+        </TableRow>
+      </TableHeader>
+      <TableBody>
+        {report.rows.map((row) => {
+          const now = row.current
+          const before = row.previous ?? null
+          return (
+            <TableRow key={row.key ?? 'none'} className="last:border-0">
+              <TableHead scope="row" className={cn('max-w-48 truncate py-2 pr-3 text-left font-medium', !row.key && 'text-muted-foreground')}>
+                {rowLabel(row, report, t)}
+              </TableHead>
+              <Cell delta={before && <Delta current={now.created} previous={before.created} format={format.count} />}>
+                {format.count(now.created)}
+              </Cell>
+              <Cell delta={before && <Delta current={now.won} previous={before.won} format={format.count} />}>
+                {format.count(now.won)}
+              </Cell>
+              {report.amounts_visible && (
                 <Cell
                   delta={
-                    before && (
-                      <Delta current={now.average_cycle_seconds} previous={before.average_cycle_seconds} format={duration} inverse />
-                    )
+                    before && <Delta current={amountValue(now.won_amount)} previous={amountValue(before.won_amount)} format={money} />
                   }
                 >
-                  {format.duration(now.average_cycle_seconds)}
+                  {format.money(now.won_amount)}
                 </Cell>
-                {report.activities_visible && (
-                  <Cell
-                    delta={before && <Delta current={now.activities_done} previous={before.activities_done} format={format.count} />}
-                  >
-                    {format.count(now.activities_done ?? 0)}
-                  </Cell>
-                )}
-              </tr>
-            )
-          })}
-        </tbody>
-      </table>
-    </div>
+              )}
+              <Cell delta={before && <Delta current={now.lost} previous={before.lost} format={format.count} inverse />}>
+                {format.count(now.lost)}
+              </Cell>
+              <Cell
+                delta={before && <Delta current={now.conversion_rate} previous={before.conversion_rate} format={percent} points />}
+              >
+                {format.percent(now.conversion_rate)}
+              </Cell>
+              <Cell
+                delta={
+                  before && (
+                    <Delta current={now.average_cycle_seconds} previous={before.average_cycle_seconds} format={duration} inverse />
+                  )
+                }
+              >
+                {format.duration(now.average_cycle_seconds)}
+              </Cell>
+              {report.activities_visible && (
+                <Cell
+                  delta={before && <Delta current={now.activities_done} previous={before.activities_done} format={format.count} />}
+                >
+                  {format.count(now.activities_done ?? 0)}
+                </Cell>
+              )}
+            </TableRow>
+          )
+        })}
+      </TableBody>
+    </Table>
   )
 }
 

@@ -29,6 +29,7 @@ import {
   variationLabel,
   type GroupLabels,
 } from './format'
+import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from '@/components/ui/table'
 
 const LIGHT_SERIES = ['#2a78d6', '#eb6834', '#1baf7a', '#eda100', '#e87ba4', '#008300', '#6250d6', '#e34948']
 const DARK_SERIES = ['#3987e5', '#d95926', '#199e70', '#c98500', '#d55181', '#008300', '#9085e9', '#e66767']
@@ -375,64 +376,62 @@ export function ReportTable({ result, compact = false }: { result: AggregateResu
   const compare = Boolean(result.previous_period)
   const cell = compact ? 'px-2 py-1.5' : 'px-3 py-2'
   return (
-    <div className="w-full overflow-x-auto rounded-md border">
-      <table className="w-full min-w-max border-collapse text-sm">
-        <thead className="bg-muted/50 text-left text-xs text-muted-foreground">
-          <tr>
-            {result.groups.map((group) => (
-              <th key={group.key} scope="col" className={cn(cell, 'font-medium')}>
-                {group.label}
-              </th>
-            ))}
-            {result.metrics.map((metric) => (
-              <MetricHeaders key={metric.key} label={metricLabel(metric, t)} compare={compare} cell={cell} />
-            ))}
-          </tr>
-        </thead>
-        <tbody>
-          {result.rows.map((row, index) => (
-            <tr key={index} className="border-t">
-              {result.groups.map((group, groupIndex) => (
-                <td key={group.key} className={cn(cell, 'whitespace-nowrap')}>
-                  {groupValueLabel(group, row.groups[groupIndex], formatting, labels)}
-                </td>
-              ))}
-              {result.metrics.map((metric, metricIndex) => (
-                <MetricCells
-                  key={metric.key}
-                  metric={metric}
-                  current={row.values[metricIndex]}
-                  previous={row.previous ? row.previous[metricIndex] : undefined}
-                  compare={compare}
-                  cell={cell}
-                  formatting={formatting}
-                />
-              ))}
-            </tr>
+    <Table>
+      <TableHeader>
+        <TableRow>
+          {result.groups.map((group) => (
+            <TableHead key={group.key} scope="col" className={cn(cell, 'font-medium')}>
+              {group.label}
+            </TableHead>
           ))}
-        </tbody>
-        {result.groups.length > 0 && (
-          <tfoot className="border-t-2 bg-muted/30 font-medium">
-            <tr>
-              <th scope="row" colSpan={result.groups.length} className={cn(cell, 'text-left')}>
-                {tBuilder('result.total')}
-              </th>
-              {result.metrics.map((metric, metricIndex) => (
-                <MetricCells
-                  key={metric.key}
-                  metric={metric}
-                  current={result.totals.values[metricIndex]}
-                  previous={result.totals.previous ? result.totals.previous[metricIndex] : undefined}
-                  compare={compare}
-                  cell={cell}
-                  formatting={formatting}
-                />
-              ))}
-            </tr>
-          </tfoot>
-        )}
-      </table>
-    </div>
+          {result.metrics.map((metric) => (
+            <MetricHeaders key={metric.key} label={metricLabel(metric, t)} compare={compare} cell={cell} />
+          ))}
+        </TableRow>
+      </TableHeader>
+      <TableBody>
+        {result.rows.map((row, index) => (
+          <TableRow key={index}>
+            {result.groups.map((group, groupIndex) => (
+              <TableCell key={group.key} className={cn(cell, 'whitespace-nowrap')}>
+                {groupValueLabel(group, row.groups[groupIndex], formatting, labels)}
+              </TableCell>
+            ))}
+            {result.metrics.map((metric, metricIndex) => (
+              <MetricCells
+                key={metric.key}
+                metric={metric}
+                current={row.values[metricIndex]}
+                previous={row.previous ? row.previous[metricIndex] : undefined}
+                compare={compare}
+                cell={cell}
+                formatting={formatting}
+              />
+            ))}
+          </TableRow>
+        ))}
+      </TableBody>
+      {result.groups.length > 0 && (
+        <tfoot className="border-t-2 bg-muted/30 font-medium">
+          <TableRow>
+            <TableHead scope="row" colSpan={result.groups.length} className={cn(cell, 'text-left')}>
+              {tBuilder('result.total')}
+            </TableHead>
+            {result.metrics.map((metric, metricIndex) => (
+              <MetricCells
+                key={metric.key}
+                metric={metric}
+                current={result.totals.values[metricIndex]}
+                previous={result.totals.previous ? result.totals.previous[metricIndex] : undefined}
+                compare={compare}
+                cell={cell}
+                formatting={formatting}
+              />
+            ))}
+          </TableRow>
+        </tfoot>
+      )}
+    </Table>
   )
 }
 

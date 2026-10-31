@@ -7,15 +7,16 @@ import { Button } from '@/components/ui/button'
 import { EmptyState } from '@/components/ui/empty-state'
 import { ErrorState } from '@/components/ui/error-state'
 import { ListSkeleton } from '@/features/settings/components/ListSkeleton'
-import { Pagination } from '@/features/settings/components/Pagination'
+import { Pagination } from '@/components/ui/pagination'
 import { RequirePermission } from '@/features/settings/components/RequirePermission'
-import { SectionHeader } from '@/features/settings/components/SectionHeader'
 import { AUDIT_READ } from '@/features/settings/lib/permissions'
 import { AUDIT_PER_PAGE, useAuditLogs, type AuditActor, type AuditLog } from './api'
 import { AuditFiltersForm } from './AuditFiltersForm'
 import { ChangeList } from './ChangeList'
 import { filtersFromSearch, hasFilters, pageFromSearch, toSearch, type AuditFilters } from './lib/filters'
 import { recordTypeLabel } from './lib/labels'
+import { PageHeader } from '@/components/ui/page-header'
+import { Table, TableBody, TableHead, TableHeader, TableRow } from '@/components/ui/table'
 
 export function AuditPage() {
   return (
@@ -40,7 +41,7 @@ function AuditSection() {
 
   return (
     <section className="grid gap-4">
-      <SectionHeader title={t('title')} description={t('description')} />
+      <PageHeader title={t('title')} description={t('description')} />
       <AuditFiltersForm key={toSearch(filters).toString()} filters={filters} onApply={(next) => apply(next)} />
       {logs.isPending ? (
         <ListSkeleton />
@@ -57,34 +58,32 @@ function AuditSection() {
         />
       ) : (
         <>
-          <div className="relative overflow-x-auto rounded-lg border">
-            <table className="w-full text-sm">
-              <thead className="bg-muted/50 text-left text-muted-foreground">
-                <tr>
-                  <th scope="col" className="px-4 py-2 font-medium whitespace-nowrap">
-                    {t('columns.occurredAt')}
-                  </th>
-                  <th scope="col" className="px-4 py-2 font-medium">
-                    {t('columns.actor')}
-                  </th>
-                  <th scope="col" className="px-4 py-2 font-medium">
-                    {t('columns.action')}
-                  </th>
-                  <th scope="col" className="hidden px-4 py-2 font-medium md:table-cell">
-                    {t('columns.record')}
-                  </th>
-                  <th scope="col" className="px-4 py-2 font-medium">
-                    {t('columns.changes')}
-                  </th>
-                </tr>
-              </thead>
-              <tbody>
-                {logs.data.data.map((log) => (
-                  <AuditRow key={log.id} log={log} onFilterActor={filterByActor} />
-                ))}
-              </tbody>
-            </table>
-          </div>
+          <Table>
+            <TableHeader>
+              <TableRow>
+                <TableHead scope="col" className="whitespace-nowrap">
+                  {t('columns.occurredAt')}
+                </TableHead>
+                <TableHead scope="col">
+                  {t('columns.actor')}
+                </TableHead>
+                <TableHead scope="col">
+                  {t('columns.action')}
+                </TableHead>
+                <TableHead scope="col" className="hidden md:table-cell">
+                  {t('columns.record')}
+                </TableHead>
+                <TableHead scope="col">
+                  {t('columns.changes')}
+                </TableHead>
+              </TableRow>
+            </TableHeader>
+            <TableBody>
+              {logs.data.data.map((log) => (
+                <AuditRow key={log.id} log={log} onFilterActor={filterByActor} />
+              ))}
+            </TableBody>
+          </Table>
           <Pagination
             page={page}
             perPage={AUDIT_PER_PAGE}

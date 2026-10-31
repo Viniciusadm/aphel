@@ -14,6 +14,7 @@ import { FailuresSection } from './FailuresSection'
 import { ModulesSection, MigrationsSection } from './MigrationsSection'
 import { QueueSection } from './QueueSection'
 import { StatusSection } from './StatusSection'
+import { PageHeader } from '@/components/ui/page-header'
 
 const TWO_FACTOR_SETUP_REQUIRED = 'two_factor_setup_required'
 
@@ -67,10 +68,7 @@ export function SystemPage() {
   return (
     <div className="flex min-w-0 flex-col gap-4">
       <div className="flex flex-col gap-3 sm:flex-row sm:items-end sm:justify-between">
-        <div className="grid gap-1">
-          <h1 className="text-xl font-semibold">{t('page.title')}</h1>
-          <p className="text-sm text-muted-foreground">{t('page.description')}</p>
-        </div>
+        <PageHeader title={t('page.title')} description={t('page.description')} />
         {overview.isSuccess && (
           <Button
             variant="outline"

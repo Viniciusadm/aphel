@@ -9,12 +9,13 @@ import { ErrorState } from '@/components/ui/error-state'
 import { useCustomObjects } from '@/features/custom-records/api'
 import { ListSkeleton } from '@/features/settings/components/ListSkeleton'
 import { RequirePermission } from '@/features/settings/components/RequirePermission'
-import { SectionHeader } from '@/features/settings/components/SectionHeader'
 import { LEAD_DISTRIBUTION_MANAGE } from '@/features/settings/lib/permissions'
 import { leadDistributionApi, useDistributionMutation, useDistributionRules, type DistributionRule } from './api'
 import { AssignmentHistoryDialog } from './AssignmentHistoryDialog'
 import { RuleEditorDialog } from './RuleEditorDialog'
 import { SimulationDialog } from './SimulationDialog'
+import { PageHeader } from '@/components/ui/page-header'
+import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from '@/components/ui/table'
 
 export function LeadDistributionPage() {
   return (
@@ -57,10 +58,10 @@ function LeadDistributionSection() {
 
   return (
     <section className="grid gap-4">
-      <SectionHeader
+      <PageHeader
         title={t('title')}
         description={t('description')}
-        action={
+        actions={
           <div className="flex flex-wrap gap-2">
             <Button variant="outline" onClick={() => setHistory({ rule: null })}>
               <History />
@@ -80,108 +81,106 @@ function LeadDistributionSection() {
       ) : rules.data.length === 0 ? (
         <EmptyState title={t('empty')} description={t('emptyDescription')} />
       ) : (
-        <div className="relative overflow-x-auto rounded-lg border">
-          <table className="w-full text-sm">
-            <thead className="bg-muted/50 text-left text-muted-foreground">
-              <tr>
-                <th scope="col" className="px-4 py-2 font-medium">
-                  {t('columns.name')}
-                </th>
-                <th scope="col" className="hidden px-4 py-2 font-medium sm:table-cell">
-                  {t('columns.recordType')}
-                </th>
-                <th scope="col" className="hidden px-4 py-2 font-medium md:table-cell">
-                  {t('columns.strategy')}
-                </th>
-                <th scope="col" className="hidden px-4 py-2 font-medium lg:table-cell">
-                  {t('columns.members')}
-                </th>
-                <th scope="col" className="hidden px-4 py-2 font-medium lg:table-cell">
-                  {t('columns.assignments')}
-                </th>
-                <th scope="col" className="px-4 py-2 font-medium">
-                  {t('columns.status')}
-                </th>
-                <th scope="col" className="w-40 px-4 py-2">
-                  <span className="sr-only">{t('columns.actions')}</span>
-                </th>
-              </tr>
-            </thead>
-            <tbody>
-              {rules.data.map((rule) => {
-                const away = rule.members.filter((member) => member.away_now || !member.active).length
-                const last = memberName(rule, rule.last_user_id)
-                return (
-                  <tr key={rule.id} className="border-t align-top">
-                    <td className="px-4 py-3">
-                      <div className="font-medium">{rule.name}</div>
-                      {rule.routing && (
-                        <div className="text-xs text-muted-foreground">
-                          {t('routed', { field: rule.routing.field })}
-                        </div>
-                      )}
-                    </td>
-                    <td className="hidden px-4 py-3 text-muted-foreground sm:table-cell">
-                      {recordTypeLabel(rule.record_type)}
-                    </td>
-                    <td className="hidden px-4 py-3 md:table-cell">{t(`strategies.${rule.strategy}`)}</td>
-                    <td className="hidden px-4 py-3 lg:table-cell">
-                      <div>{t('membersSummary', { count: rule.members.length })}</div>
-                      {away > 0 && (
-                        <div className="text-xs text-muted-foreground">{t('awaySummary', { count: away })}</div>
-                      )}
-                    </td>
-                    <td className="hidden px-4 py-3 lg:table-cell">
-                      <div className="tabular-nums">{rule.assignments}</div>
-                      {last && <div className="text-xs text-muted-foreground">{t('lastAssigned', { name: last })}</div>}
-                    </td>
-                    <td className="px-4 py-3">
-                      <Badge variant={rule.is_active ? 'success' : 'secondary'}>
-                        {t(rule.is_active ? 'status.active' : 'status.inactive')}
-                      </Badge>
-                    </td>
-                    <td className="px-4 py-3">
-                      <div className="flex justify-end gap-1">
-                        <Button
-                          variant="ghost"
-                          size="icon"
-                          aria-label={`${t('actions.simulate')}: ${rule.name}`}
-                          onClick={() => setSimulating(rule)}
-                        >
-                          <FlaskConical />
-                        </Button>
-                        <Button
-                          variant="ghost"
-                          size="icon"
-                          aria-label={`${t('actions.history')}: ${rule.name}`}
-                          onClick={() => setHistory({ rule })}
-                        >
-                          <History />
-                        </Button>
-                        <Button
-                          variant="ghost"
-                          size="icon"
-                          aria-label={`${t('actions.edit')}: ${rule.name}`}
-                          onClick={() => setEditing({ rule })}
-                        >
-                          <Pencil />
-                        </Button>
-                        <Button
-                          variant="ghost"
-                          size="icon"
-                          aria-label={`${t('actions.delete')}: ${rule.name}`}
-                          onClick={() => setDeleting(rule)}
-                        >
-                          <Trash2 />
-                        </Button>
+        <Table>
+          <TableHeader>
+            <TableRow>
+              <TableHead scope="col">
+                {t('columns.name')}
+              </TableHead>
+              <TableHead scope="col" className="hidden sm:table-cell">
+                {t('columns.recordType')}
+              </TableHead>
+              <TableHead scope="col" className="hidden md:table-cell">
+                {t('columns.strategy')}
+              </TableHead>
+              <TableHead scope="col" className="hidden lg:table-cell">
+                {t('columns.members')}
+              </TableHead>
+              <TableHead scope="col" className="hidden lg:table-cell">
+                {t('columns.assignments')}
+              </TableHead>
+              <TableHead scope="col">
+                {t('columns.status')}
+              </TableHead>
+              <TableHead scope="col" className="w-40">
+                <span className="sr-only">{t('columns.actions')}</span>
+              </TableHead>
+            </TableRow>
+          </TableHeader>
+          <TableBody>
+            {rules.data.map((rule) => {
+              const away = rule.members.filter((member) => member.away_now || !member.active).length
+              const last = memberName(rule, rule.last_user_id)
+              return (
+                <TableRow key={rule.id} className="align-top">
+                  <TableCell>
+                    <div className="font-medium">{rule.name}</div>
+                    {rule.routing && (
+                      <div className="text-xs text-muted-foreground">
+                        {t('routed', { field: rule.routing.field })}
                       </div>
-                    </td>
-                  </tr>
-                )
-              })}
-            </tbody>
-          </table>
-        </div>
+                    )}
+                  </TableCell>
+                  <TableCell className="hidden text-muted-foreground sm:table-cell">
+                    {recordTypeLabel(rule.record_type)}
+                  </TableCell>
+                  <TableCell className="hidden md:table-cell">{t(`strategies.${rule.strategy}`)}</TableCell>
+                  <TableCell className="hidden lg:table-cell">
+                    <div>{t('membersSummary', { count: rule.members.length })}</div>
+                    {away > 0 && (
+                      <div className="text-xs text-muted-foreground">{t('awaySummary', { count: away })}</div>
+                    )}
+                  </TableCell>
+                  <TableCell className="hidden lg:table-cell">
+                    <div className="tabular-nums">{rule.assignments}</div>
+                    {last && <div className="text-xs text-muted-foreground">{t('lastAssigned', { name: last })}</div>}
+                  </TableCell>
+                  <TableCell>
+                    <Badge variant={rule.is_active ? 'success' : 'secondary'}>
+                      {t(rule.is_active ? 'status.active' : 'status.inactive')}
+                    </Badge>
+                  </TableCell>
+                  <TableCell>
+                    <div className="flex justify-end gap-1">
+                      <Button
+                        variant="ghost"
+                        size="icon"
+                        aria-label={`${t('actions.simulate')}: ${rule.name}`}
+                        onClick={() => setSimulating(rule)}
+                      >
+                        <FlaskConical />
+                      </Button>
+                      <Button
+                        variant="ghost"
+                        size="icon"
+                        aria-label={`${t('actions.history')}: ${rule.name}`}
+                        onClick={() => setHistory({ rule })}
+                      >
+                        <History />
+                      </Button>
+                      <Button
+                        variant="ghost"
+                        size="icon"
+                        aria-label={`${t('actions.edit')}: ${rule.name}`}
+                        onClick={() => setEditing({ rule })}
+                      >
+                        <Pencil />
+                      </Button>
+                      <Button
+                        variant="ghost"
+                        size="icon"
+                        aria-label={`${t('actions.delete')}: ${rule.name}`}
+                        onClick={() => setDeleting(rule)}
+                      >
+                        <Trash2 />
+                      </Button>
+                    </div>
+                  </TableCell>
+                </TableRow>
+              )
+            })}
+          </TableBody>
+        </Table>
       )}
       {editing && <RuleEditorDialog rule={editing.rule} onClose={() => setEditing(null)} />}
       {history && <AssignmentHistoryDialog rule={history.rule} onClose={() => setHistory(null)} />}

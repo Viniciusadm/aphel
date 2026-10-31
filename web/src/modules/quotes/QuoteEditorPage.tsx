@@ -1,4 +1,4 @@
-import { ArrowLeft, CircleCheck, Copy, Download, ExternalLink, FilePlus2, FileText, PenLine, Save, Send, ShieldCheck, Trash2 } from 'lucide-react'
+import { CircleCheck, Copy, Download, ExternalLink, FilePlus2, FileText, PenLine, Save, Send, ShieldCheck, Trash2 } from 'lucide-react'
 import { useId, useState, type ReactNode } from 'react'
 import { useTranslation } from 'react-i18next'
 import { Link, useNavigate, useParams } from 'react-router'
@@ -26,6 +26,8 @@ import { SendQuoteDialog } from './SendQuoteDialog'
 import { SignatureDialog } from './SignatureDialog'
 import { SubmitQuoteDialog } from './SubmitQuoteDialog'
 import type { QuoteDetail, QuoteDiscountType, QuoteRequest } from './types'
+import { Page } from '@/components/ui/page'
+import { PageHeader } from '@/components/ui/page-header'
 
 const NO_PRICE_LIST = '__none__'
 const QUOTE_RECORD_TYPE = 'quote'
@@ -246,29 +248,15 @@ function QuoteEditor({ quote }: { quote: QuoteDetail }) {
   }
 
   return (
-    <div className="flex flex-col gap-6">
+    <Page>
       <UnsavedChangesGuard when={dirty} />
-      <div className="flex flex-col gap-3">
-        <Link
-          to={`/deals/${encodeURIComponent(quote.deal_id)}`}
-          className="inline-flex w-fit items-center gap-1 text-sm text-muted-foreground hover:text-foreground"
-        >
-          <ArrowLeft className="size-4" aria-hidden="true" />
-          {t('editor.back')}
-        </Link>
-        <div className="flex flex-wrap items-start justify-between gap-3">
-          <div className="grid gap-1">
-            <span className="text-sm text-muted-foreground">
-              {t('numberVersion', { number: quote.number, version: quote.version })}
-            </span>
-            <div className="flex flex-wrap items-center gap-2">
-              <h1 className="text-2xl font-semibold tracking-tight">{quote.title}</h1>
-              <QuoteStatusBadge status={quote.status} />
-            </div>
-          </div>
-          <div className="flex flex-wrap gap-2">{actions}</div>
-        </div>
-      </div>
+      <PageHeader
+        back={{ to: `/deals/${encodeURIComponent(quote.deal_id)}`, label: t('editor.back') }}
+        title={quote.title}
+        badges={<QuoteStatusBadge status={quote.status} />}
+        description={<p>{t('numberVersion', { number: quote.number, version: quote.version })}</p>}
+        actions={actions}
+      />
 
       {!quote.is_current && currentVersion && (
         <div className="flex flex-wrap items-center gap-3 rounded-lg border bg-muted/40 p-3 text-sm">
@@ -512,7 +500,7 @@ function QuoteEditor({ quote }: { quote: QuoteDetail }) {
         pending={mutations.remove.isPending}
         onConfirm={remove}
       />
-    </div>
+    </Page>
   )
 }
 

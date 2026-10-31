@@ -15,7 +15,6 @@ import { EmptyState } from '@/components/ui/empty-state'
 import { ErrorState } from '@/components/ui/error-state'
 import { Skeleton } from '@/components/ui/skeleton'
 import { formatDateTime, useRecordFormatting } from '@/features/records/formatting'
-import { SectionHeader } from '@/features/settings/components/SectionHeader'
 import {
   incomingWebhooksApi,
   useIncomingWebhooks,
@@ -27,6 +26,7 @@ import {
 import { CredentialsDialog } from './CredentialsDialog'
 import { RequestLogDialog } from './RequestLogDialog'
 import { WebhookEditorDialog } from './WebhookEditorDialog'
+import { PageHeader } from '@/components/ui/page-header'
 
 type PendingConfirmation =
   | { kind: 'delete'; webhook: IncomingWebhook }
@@ -71,10 +71,10 @@ export function IncomingWebhooksPage() {
 
   return (
     <section className="flex flex-col gap-4">
-      <SectionHeader
+      <PageHeader
         title={t('title')}
         description={t('description')}
-        action={
+        actions={
           <Button size="sm" onClick={() => setCreating(true)}>
             <Plus aria-hidden="true" />
             {t('new')}

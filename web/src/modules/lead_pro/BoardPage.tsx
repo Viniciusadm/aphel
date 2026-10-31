@@ -7,6 +7,8 @@ import { Skeleton } from '@/components/ui/skeleton'
 import { useModuleTranslation } from '@/kernel/modules/i18n'
 import { LEAD_PRO_KEY, READ_PERMISSION, useHotLeads } from './api'
 import { TemperatureBadge } from './TemperatureBadge'
+import { Page } from '@/components/ui/page'
+import { PageHeader } from '@/components/ui/page-header'
 
 export function BoardPage() {
   const t = useModuleTranslation(LEAD_PRO_KEY)
@@ -17,13 +19,11 @@ export function BoardPage() {
   if (!allowed) return <EmptyState icon={Lock} title={t('board.noAccess')} description={t('board.noAccessDescription')} />
 
   return (
-    <section className="flex flex-col gap-4">
-      <div className="grid gap-1">
-        <h1 className="text-xl font-semibold">{t('board.title')}</h1>
-        <p className="text-sm text-muted-foreground">
-          {board.data ? t('board.description', { threshold: board.data.hot_threshold }) : t('board.loading')}
-        </p>
-      </div>
+    <Page>
+      <PageHeader
+        title={t('board.title')}
+        description={board.data ? t('board.description', { threshold: board.data.hot_threshold }) : t('board.loading')}
+      />
       {board.isPending ? (
         <Skeleton className="h-40 w-full" />
       ) : board.isError ? (
@@ -47,6 +47,6 @@ export function BoardPage() {
           ))}
         </ul>
       )}
-    </section>
+    </Page>
   )
 }

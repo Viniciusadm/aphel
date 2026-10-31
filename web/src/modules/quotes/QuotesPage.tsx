@@ -12,6 +12,8 @@ import { formatCurrency, formatDate, useRecordFormatting } from '@/features/reco
 import { QUOTES_PER_PAGE, quotePath, useQuotes } from './api'
 import { QuoteStatusBadge } from './QuoteStatusBadge'
 import type { QuoteStatus } from './types'
+import { PageHeader } from '@/components/ui/page-header'
+import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from '@/components/ui/table'
 
 const ALL = '__all__'
 const STATUSES: QuoteStatus[] = ['draft', 'pending_approval', 'approved', 'sent', 'accepted', 'rejected', 'expired']
@@ -28,10 +30,7 @@ export function QuotesPage() {
 
   return (
     <div className="flex flex-col gap-6">
-      <div className="grid gap-1">
-        <h1 className="text-2xl font-semibold tracking-tight">{t('title')}</h1>
-        <p className="text-sm text-muted-foreground">{t('description')}</p>
-      </div>
+      <PageHeader title={t('title')} description={t('description')} />
       <div className="flex flex-wrap gap-2">
         <div className="relative w-full max-w-xs">
           <Search className="absolute top-1/2 left-2.5 size-4 -translate-y-1/2 text-muted-foreground" aria-hidden="true" />
@@ -76,38 +75,36 @@ export function QuotesPage() {
       ) : query.data.data.length === 0 ? (
         <EmptyState icon={FileText} title={t('list.empty')} />
       ) : (
-        <div className="overflow-x-auto rounded-lg border">
-          <table className="w-full text-sm">
-            <thead className="bg-muted/50 text-left text-xs text-muted-foreground">
-              <tr>
-                <th className="px-3 py-2 font-medium">{t('list.columns.number')}</th>
-                <th className="px-3 py-2 font-medium">{t('list.columns.title')}</th>
-                <th className="px-3 py-2 font-medium">{t('list.columns.status')}</th>
-                <th className="px-3 py-2 text-right font-medium">{t('list.columns.total')}</th>
-                <th className="px-3 py-2 font-medium">{t('list.columns.validUntil')}</th>
-                <th className="px-3 py-2 font-medium">{t('list.columns.updatedAt')}</th>
-              </tr>
-            </thead>
-            <tbody>
-              {query.data.data.map((quote) => (
-                <tr key={quote.id} className="border-t">
-                  <td className="px-3 py-2 tabular-nums">{t('numberVersion', { number: quote.number, version: quote.version })}</td>
-                  <td className="px-3 py-2">
-                    <Link to={quotePath(quote.id)} className="font-medium hover:underline">
-                      {quote.title}
-                    </Link>
-                  </td>
-                  <td className="px-3 py-2">
-                    <QuoteStatusBadge status={quote.status} />
-                  </td>
-                  <td className="px-3 py-2 text-right tabular-nums">{formatCurrency(quote.total, formatting, quote.currency)}</td>
-                  <td className="px-3 py-2">{quote.valid_until ? formatDate(quote.valid_until, formatting) : '—'}</td>
-                  <td className="px-3 py-2">{formatDate(quote.updated_at, formatting)}</td>
-                </tr>
-              ))}
-            </tbody>
-          </table>
-        </div>
+        <Table>
+          <TableHeader>
+            <TableRow>
+              <TableHead>{t('list.columns.number')}</TableHead>
+              <TableHead>{t('list.columns.title')}</TableHead>
+              <TableHead>{t('list.columns.status')}</TableHead>
+              <TableHead className="text-right">{t('list.columns.total')}</TableHead>
+              <TableHead>{t('list.columns.validUntil')}</TableHead>
+              <TableHead>{t('list.columns.updatedAt')}</TableHead>
+            </TableRow>
+          </TableHeader>
+          <TableBody>
+            {query.data.data.map((quote) => (
+              <TableRow key={quote.id}>
+                <TableCell className="tabular-nums">{t('numberVersion', { number: quote.number, version: quote.version })}</TableCell>
+                <TableCell>
+                  <Link to={quotePath(quote.id)} className="font-medium hover:underline">
+                    {quote.title}
+                  </Link>
+                </TableCell>
+                <TableCell>
+                  <QuoteStatusBadge status={quote.status} />
+                </TableCell>
+                <TableCell className="text-right tabular-nums">{formatCurrency(quote.total, formatting, quote.currency)}</TableCell>
+                <TableCell>{quote.valid_until ? formatDate(quote.valid_until, formatting) : '—'}</TableCell>
+                <TableCell>{formatDate(quote.updated_at, formatting)}</TableCell>
+              </TableRow>
+            ))}
+          </TableBody>
+        </Table>
       )}
       {pages > 1 && (
         <div className="flex items-center justify-end gap-2 text-sm">

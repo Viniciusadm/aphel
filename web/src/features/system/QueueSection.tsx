@@ -4,6 +4,7 @@ import { Skeleton } from '@/components/ui/skeleton'
 import { useJobStats } from './api'
 import { useDurationFormat } from './format'
 import { SectionCard } from './SectionCard'
+import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from '@/components/ui/table'
 
 const STATES = ['pending', 'scheduled', 'running', 'failed'] as const
 
@@ -37,39 +38,37 @@ export function QueueSection() {
         {kinds.length === 0 ? (
           <p className="text-sm text-muted-foreground">{t('queue.empty')}</p>
         ) : (
-          <div className="relative overflow-x-auto rounded-lg border">
-            <table className="w-full text-sm">
-              <caption className="sr-only">{t('queue.byKind')}</caption>
-              <thead className="bg-muted/50 text-left text-muted-foreground">
-                <tr>
-                  <th scope="col" className="px-3 py-2 font-medium">
-                    {t('queue.columns.kind')}
-                  </th>
-                  <th scope="col" className="hidden px-3 py-2 font-medium sm:table-cell">
-                    {t('queue.columns.queue')}
-                  </th>
-                  {STATES.map((state) => (
-                    <th key={state} scope="col" className="px-3 py-2 text-right font-medium">
-                      {t(`queue.${state}`)}
-                    </th>
-                  ))}
-                </tr>
-              </thead>
-              <tbody>
-                {kinds.map((kind) => (
-                  <tr key={`${kind.queue}:${kind.kind}`} className="border-t">
-                    <td className="min-w-36 px-3 py-2 font-mono text-xs break-all">{kind.kind}</td>
-                    <td className="hidden px-3 py-2 sm:table-cell">{kind.queue}</td>
-                    {STATES.map((state) => (
-                      <td key={state} className="px-3 py-2 text-right tabular-nums">
-                        {kind[state]}
-                      </td>
-                    ))}
-                  </tr>
+          <Table>
+            <caption className="sr-only">{t('queue.byKind')}</caption>
+            <TableHeader>
+              <TableRow>
+                <TableHead scope="col">
+                  {t('queue.columns.kind')}
+                </TableHead>
+                <TableHead scope="col" className="hidden sm:table-cell">
+                  {t('queue.columns.queue')}
+                </TableHead>
+                {STATES.map((state) => (
+                  <TableHead key={state} scope="col" className="text-right">
+                    {t(`queue.${state}`)}
+                  </TableHead>
                 ))}
-              </tbody>
-            </table>
-          </div>
+              </TableRow>
+            </TableHeader>
+            <TableBody>
+              {kinds.map((kind) => (
+                <TableRow key={`${kind.queue}:${kind.kind}`}>
+                  <TableCell className="min-w-36 font-mono text-xs break-all">{kind.kind}</TableCell>
+                  <TableCell className="hidden sm:table-cell">{kind.queue}</TableCell>
+                  {STATES.map((state) => (
+                    <TableCell key={state} className="text-right tabular-nums">
+                      {kind[state]}
+                    </TableCell>
+                  ))}
+                </TableRow>
+              ))}
+            </TableBody>
+          </Table>
         )}
       </>
     )

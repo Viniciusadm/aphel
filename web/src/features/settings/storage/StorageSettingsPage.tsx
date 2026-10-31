@@ -8,7 +8,6 @@ import { Button } from '@/components/ui/button'
 import { Checkbox } from '@/components/ui/checkbox'
 import { Input } from '@/components/ui/input'
 import { Label } from '@/components/ui/label'
-import { SectionHeader } from '../components/SectionHeader'
 import {
   testStorage,
   useSaveConfiguration,
@@ -20,6 +19,7 @@ import { ConfigurationGate } from '../general/ConfigurationGate'
 import { serverFieldErrors } from '../general/violations'
 import { FormRow } from '../organization/components/FormRow'
 import { NativeSelect } from '../organization/components/NativeSelect'
+import { PageHeader } from '@/components/ui/page-header'
 
 const schema = z
   .object({
@@ -84,7 +84,7 @@ export function StorageSettingsPage() {
   const { t } = useTranslation('settings')
   return (
     <section className="grid gap-6">
-      <SectionHeader title={t('configuration.storage.title')} description={t('configuration.storage.description')} />
+      <PageHeader title={t('configuration.storage.title')} description={t('configuration.storage.description')} />
       <ConfigurationGate>{(configuration) => <StorageForm configuration={configuration} />}</ConfigurationGate>
     </section>
   )

@@ -8,13 +8,13 @@ import { notifyError, notifySuccess } from '@/components/feedback'
 import { Button } from '@/components/ui/button'
 import { Input } from '@/components/ui/input'
 import { Label } from '@/components/ui/label'
-import { SectionHeader } from '@/features/settings/components/SectionHeader'
 import {
   MAX_PASSWORD_LENGTH,
   MIN_PASSWORD_LENGTH,
   securitySessionsApi,
   useInvalidateSecuritySessions,
 } from './api'
+import { PageHeader } from '@/components/ui/page-header'
 
 const passwordSchema = z
   .object({
@@ -92,7 +92,7 @@ export function PasswordSection() {
 
   return (
     <section className="flex flex-col gap-4">
-      <SectionHeader title={t('password.title')} description={t('password.description')} />
+      <PageHeader level="section" title={t('password.title')} description={t('password.description')} />
       <form className="grid max-w-md gap-4" noValidate onSubmit={(event) => void onSubmit(event)}>
         <div className="grid gap-1.5">
           <Label htmlFor={`${formId}-currentPassword`}>{t('password.current')}</Label>

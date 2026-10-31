@@ -9,10 +9,11 @@ import { toast } from '@/components/ui/toast-store'
 import { settingsApi, useAllMembers, useSettingsMutation, useTeams, type Team } from '../api'
 import { ListSkeleton } from '../components/ListSkeleton'
 import { RequirePermission } from '../components/RequirePermission'
-import { SectionHeader } from '../components/SectionHeader'
 import { errorMessageKey } from '../lib/errors'
 import { SETTINGS_MANAGE } from '../lib/permissions'
 import { TeamEditorDialog } from './TeamEditorDialog'
+import { PageHeader } from '@/components/ui/page-header'
+import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from '@/components/ui/table'
 
 export function TeamsPage() {
   return (
@@ -46,10 +47,10 @@ function TeamsSection() {
 
   return (
     <section className="grid gap-4">
-      <SectionHeader
+      <PageHeader
         title={t('teams.title')}
         description={t('teams.description')}
-        action={
+        actions={
           <Button onClick={() => setEditing({ team: null })} disabled={!teams.data || !members.data}>
             <Plus />
             {t('teams.create')}
@@ -63,67 +64,65 @@ function TeamsSection() {
       ) : teams.data.length === 0 ? (
         <EmptyState title={t('teams.empty')} />
       ) : (
-        <div className="relative overflow-x-auto rounded-lg border">
-          <table className="w-full text-sm">
-            <thead className="bg-muted/50 text-left text-muted-foreground">
-              <tr>
-                <th scope="col" className="px-4 py-2 font-medium">
-                  {t('teams.columns.name')}
-                </th>
-                <th scope="col" className="hidden px-4 py-2 font-medium sm:table-cell">
-                  {t('teams.columns.parent')}
-                </th>
-                <th scope="col" className="hidden px-4 py-2 font-medium md:table-cell">
-                  {t('teams.columns.managers')}
-                </th>
-                <th scope="col" className="px-4 py-2 font-medium">
-                  {t('teams.columns.members')}
-                </th>
-                <th scope="col" className="w-24 px-4 py-2">
-                  <span className="sr-only">{t('teams.columns.actions')}</span>
-                </th>
-              </tr>
-            </thead>
-            <tbody>
-              {teams.data.map((team) => (
-                <tr key={team.id} className="border-t">
-                  <td className="px-4 py-3 font-medium">{team.name}</td>
-                  <td className="hidden px-4 py-3 text-muted-foreground sm:table-cell">
-                    {teamName(team.parent_team_id)}
-                  </td>
-                  <td className="hidden px-4 py-3 text-muted-foreground md:table-cell">
-                    {team.members
-                      .filter((member) => member.is_manager)
-                      .map((member) => member.display_name)
-                      .join(', ') || t('teams.noParent')}
-                  </td>
-                  <td className="px-4 py-3">{t('teams.membersCount', { count: team.members.length })}</td>
-                  <td className="px-4 py-3">
-                    <div className="flex justify-end gap-1">
-                      <Button
-                        variant="ghost"
-                        size="icon"
-                        aria-label={`${t('actions.edit')}: ${team.name}`}
-                        onClick={() => setEditing({ team })}
-                        disabled={!members.data}
-                      >
-                        <Pencil />
-                      </Button>
-                      <Button
-                        variant="ghost"
-                        size="icon"
-                        aria-label={`${t('actions.delete')}: ${team.name}`}
-                        onClick={() => setDeleting(team)}
-                      >
-                        <Trash2 />
-                      </Button>
-                    </div>
-                  </td>
-                </tr>
-              ))}
-            </tbody>
-          </table>
-        </div>
+        <Table>
+          <TableHeader>
+            <TableRow>
+              <TableHead scope="col">
+                {t('teams.columns.name')}
+              </TableHead>
+              <TableHead scope="col" className="hidden sm:table-cell">
+                {t('teams.columns.parent')}
+              </TableHead>
+              <TableHead scope="col" className="hidden md:table-cell">
+                {t('teams.columns.managers')}
+              </TableHead>
+              <TableHead scope="col">
+                {t('teams.columns.members')}
+              </TableHead>
+              <TableHead scope="col" className="w-24">
+                <span className="sr-only">{t('teams.columns.actions')}</span>
+              </TableHead>
+            </TableRow>
+          </TableHeader>
+          <TableBody>
+            {teams.data.map((team) => (
+              <TableRow key={team.id}>
+                <TableCell className="font-medium">{team.name}</TableCell>
+                <TableCell className="hidden text-muted-foreground sm:table-cell">
+                  {teamName(team.parent_team_id)}
+                </TableCell>
+                <TableCell className="hidden text-muted-foreground md:table-cell">
+                  {team.members
+                    .filter((member) => member.is_manager)
+                    .map((member) => member.display_name)
+                    .join(', ') || t('teams.noParent')}
+                </TableCell>
+                <TableCell>{t('teams.membersCount', { count: team.members.length })}</TableCell>
+                <TableCell>
+                  <div className="flex justify-end gap-1">
+                    <Button
+                      variant="ghost"
+                      size="icon"
+                      aria-label={`${t('actions.edit')}: ${team.name}`}
+                      onClick={() => setEditing({ team })}
+                      disabled={!members.data}
+                    >
+                      <Pencil />
+                    </Button>
+                    <Button
+                      variant="ghost"
+                      size="icon"
+                      aria-label={`${t('actions.delete')}: ${team.name}`}
+                      onClick={() => setDeleting(team)}
+                    >
+                      <Trash2 />
+                    </Button>
+                  </div>
+                </TableCell>
+              </TableRow>
+            ))}
+          </TableBody>
+        </Table>
       )}
       {editing && teams.data && members.data && (
         <TeamEditorDialog

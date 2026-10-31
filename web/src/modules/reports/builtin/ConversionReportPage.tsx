@@ -19,6 +19,7 @@ import { useReportFilters } from './filters'
 import { formatDuration, formatPercent } from './format'
 import { ReportFilters } from './ReportFilters'
 import { ReportSkeleton } from './ReportState'
+import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from '@/components/ui/table'
 
 interface Formatters {
   count: (value: number) => string
@@ -166,58 +167,56 @@ function StageTable({
   const before = byId(previous)
   const percent = (value: number) => format.percent(value)
   return (
-    <div className="relative -mx-4 overflow-x-auto px-4">
-      <table className="w-full min-w-[640px] text-sm">
-        <caption className="sr-only">{t('conversion.stages.caption')}</caption>
-        <thead>
-          <tr className="border-b text-left text-xs text-muted-foreground">
-            <th scope="col" className="py-2 pr-3 font-medium">{t('conversion.stages.stage')}</th>
-            <th scope="col" className="py-2 pr-3 text-right font-medium">{t('conversion.stages.reached')}</th>
-            <th scope="col" className="py-2 pr-3 text-right font-medium">{t('conversion.stages.passage')}</th>
-            <th scope="col" className="py-2 pr-3 text-right font-medium">{t('conversion.stages.lost')}</th>
-            <th scope="col" className="py-2 pr-3 text-right font-medium">{t('conversion.stages.averageTime')}</th>
-            <th scope="col" className="py-2 text-right font-medium">{t('conversion.stages.openNow')}</th>
-          </tr>
-        </thead>
-        <tbody>
-          {stages.map((stage) => {
-            const row = now.get(stage.id)
-            if (!row) return null
-            const old = before.get(stage.id)
-            return (
-              <tr key={stage.id} className="border-b last:border-0">
-                <th scope="row" className="py-2 pr-3 text-left font-medium">{stage.name}</th>
-                <td className="py-2 pr-3 text-right tabular-nums">
-                  <div>{format.count(row.reached)}</div>
-                  {old && <div className="text-xs"><Delta current={row.reached} previous={old.reached} format={format.count} /></div>}
-                </td>
-                <td className="py-2 pr-3 text-right tabular-nums">
-                  <div>{format.percent(row.passage_rate)}</div>
-                  <div className="text-xs text-muted-foreground">{t('conversion.stages.advanced', { value: format.count(row.advanced) })}</div>
-                  {old && <div className="text-xs"><Delta current={row.passage_rate} previous={old.passage_rate} format={percent} points /></div>}
-                </td>
-                <td className="py-2 pr-3 text-right tabular-nums">
-                  <div className={cn(row.lost > 0 && 'text-destructive')}>{format.count(row.lost)}</div>
-                  {amountsVisible && row.lost > 0 && <div className="text-xs text-muted-foreground">{format.money(row.lost_amount)}</div>}
-                </td>
-                <td className="py-2 pr-3 text-right tabular-nums">
-                  <div>{format.duration(row.average_seconds)}</div>
-                  <div className="text-xs text-muted-foreground">{t('conversion.stages.visits', { count: row.completed_visits })}</div>
-                </td>
-                <td className="py-2 text-right tabular-nums">
-                  <div>{format.count(row.open_visits)}</div>
-                  {row.open_visits > 0 && (
-                    <div className="text-xs text-muted-foreground">
-                      {t('conversion.stages.openFor', { value: format.duration(row.open_average_seconds) })}
-                    </div>
-                  )}
-                </td>
-              </tr>
-            )
-          })}
-        </tbody>
-      </table>
-    </div>
+    <Table className="min-w-[640px]">
+      <caption className="sr-only">{t('conversion.stages.caption')}</caption>
+      <TableHeader>
+        <TableRow className="text-left text-xs text-muted-foreground">
+          <TableHead scope="col" className="pr-3">{t('conversion.stages.stage')}</TableHead>
+          <TableHead scope="col" className="pr-3 text-right">{t('conversion.stages.reached')}</TableHead>
+          <TableHead scope="col" className="pr-3 text-right">{t('conversion.stages.passage')}</TableHead>
+          <TableHead scope="col" className="pr-3 text-right">{t('conversion.stages.lost')}</TableHead>
+          <TableHead scope="col" className="pr-3 text-right">{t('conversion.stages.averageTime')}</TableHead>
+          <TableHead scope="col" className="text-right">{t('conversion.stages.openNow')}</TableHead>
+        </TableRow>
+      </TableHeader>
+      <TableBody>
+        {stages.map((stage) => {
+          const row = now.get(stage.id)
+          if (!row) return null
+          const old = before.get(stage.id)
+          return (
+            <TableRow key={stage.id} className="last:border-0">
+              <TableHead scope="row" className="pr-3 text-left">{stage.name}</TableHead>
+              <TableCell className="pr-3 text-right tabular-nums">
+                <div>{format.count(row.reached)}</div>
+                {old && <div className="text-xs"><Delta current={row.reached} previous={old.reached} format={format.count} /></div>}
+              </TableCell>
+              <TableCell className="pr-3 text-right tabular-nums">
+                <div>{format.percent(row.passage_rate)}</div>
+                <div className="text-xs text-muted-foreground">{t('conversion.stages.advanced', { value: format.count(row.advanced) })}</div>
+                {old && <div className="text-xs"><Delta current={row.passage_rate} previous={old.passage_rate} format={percent} points /></div>}
+              </TableCell>
+              <TableCell className="pr-3 text-right tabular-nums">
+                <div className={cn(row.lost > 0 && 'text-destructive')}>{format.count(row.lost)}</div>
+                {amountsVisible && row.lost > 0 && <div className="text-xs text-muted-foreground">{format.money(row.lost_amount)}</div>}
+              </TableCell>
+              <TableCell className="pr-3 text-right tabular-nums">
+                <div>{format.duration(row.average_seconds)}</div>
+                <div className="text-xs text-muted-foreground">{t('conversion.stages.visits', { count: row.completed_visits })}</div>
+              </TableCell>
+              <TableCell className="text-right tabular-nums">
+                <div>{format.count(row.open_visits)}</div>
+                {row.open_visits > 0 && (
+                  <div className="text-xs text-muted-foreground">
+                    {t('conversion.stages.openFor', { value: format.duration(row.open_average_seconds) })}
+                  </div>
+                )}
+              </TableCell>
+            </TableRow>
+          )
+        })}
+      </TableBody>
+    </Table>
   )
 }
 

@@ -28,6 +28,7 @@ import {
   type UpdateProposalTemplate,
 } from './api'
 import { NoAccess } from './NoAccess'
+import { PageHeader } from '@/components/ui/page-header'
 
 export function ProposalsPage() {
   const t = useModuleTranslation(PROPOSALS_KEY)
@@ -61,10 +62,7 @@ export function ProposalsPage() {
   return (
     <div className="flex flex-col gap-4">
       <div className="flex flex-col gap-3 sm:flex-row sm:items-end sm:justify-between">
-        <div className="grid gap-1">
-          <h1 className="text-xl font-semibold">{t('list.title')}</h1>
-          <p className="text-sm text-muted-foreground">{t('list.description')}</p>
-        </div>
+        <PageHeader title={t('list.title')} description={t('list.description')} />
         {newButton}
       </div>
       {templates.isPending ? (

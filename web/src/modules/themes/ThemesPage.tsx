@@ -17,7 +17,6 @@ import {
 import { ErrorState } from '@/components/ui/error-state'
 import { ListSkeleton } from '@/features/settings/components/ListSkeleton'
 import { RequirePermission } from '@/features/settings/components/RequirePermission'
-import { SectionHeader } from '@/features/settings/components/SectionHeader'
 import { themesApi, themesKeys, useThemes } from './api'
 import { ImportDialog } from './ImportDialog'
 import { downloadPackage, readPackageFile, reloadThemeStylesheet } from './lib/package'
@@ -25,6 +24,7 @@ import { emptyTokenSets } from './lib/tokens'
 import type { ThemePackage, ThemeSummary, ThemeValidation } from './lib/types'
 import { THEMES_MANAGE } from './permissions'
 import { ThemeSwatches } from './ThemeSwatches'
+import { PageHeader } from '@/components/ui/page-header'
 
 export function ThemesPage() {
   return (
@@ -110,10 +110,10 @@ function ThemesSection() {
 
   return (
     <section className="flex min-w-0 flex-col gap-4">
-      <SectionHeader
+      <PageHeader
         title={t('page.title')}
         description={t('page.description')}
-        action={
+        actions={
           <div className="flex flex-wrap gap-2">
             <input
               ref={fileInput}

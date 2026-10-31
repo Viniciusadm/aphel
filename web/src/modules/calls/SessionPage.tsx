@@ -26,6 +26,7 @@ import { CALLS_PATH } from './constants'
 import { callErrorKey } from './lib/errors'
 import { joinDuration } from './lib/format'
 import type { CallSession, CallSessionItem, StartedCall } from './types'
+import { PageHeader } from '@/components/ui/page-header'
 
 const CONTACT = 'contact'
 
@@ -83,27 +84,31 @@ function SessionWorkspace({ session }: { session: CallSession }) {
 
   return (
     <>
-      <header className="flex flex-wrap items-start justify-between gap-3">
-        <div className="grid gap-1">
-          <h1 className="text-2xl font-semibold tracking-tight">{session.name}</h1>
-          <p className="text-sm text-muted-foreground tabular-nums">
-            {t('session.progress', { done: handled, total: session.total })}
-            {' · '}
-            {t('session.counts', { logged: counts.logged, skipped: counts.skipped })}
-          </p>
-          <div className="h-1.5 w-64 max-w-full overflow-hidden rounded-full bg-muted" aria-hidden="true">
-            <div
-              className="h-full bg-primary transition-all"
-              style={{ width: `${session.total ? Math.round((handled / session.total) * 100) : 0}%` }}
-            />
-          </div>
-        </div>
-        {!completed && (
-          <Button variant="outline" size="sm" disabled={busy} onClick={() => setConfirmFinish(true)}>
-            {t('session.finish')}
-          </Button>
-        )}
-      </header>
+      <PageHeader
+        title={session.name}
+        description={
+          <>
+            <p className="tabular-nums">
+              {t('session.progress', { done: handled, total: session.total })}
+              {' · '}
+              {t('session.counts', { logged: counts.logged, skipped: counts.skipped })}
+            </p>
+            <div className="h-1.5 w-64 max-w-full overflow-hidden rounded-full bg-muted" aria-hidden="true">
+              <div
+                className="h-full bg-primary transition-all"
+                style={{ width: `${session.total ? Math.round((handled / session.total) * 100) : 0}%` }}
+              />
+            </div>
+          </>
+        }
+        actions={
+          !completed && (
+            <Button variant="outline" size="sm" disabled={busy} onClick={() => setConfirmFinish(true)}>
+              {t('session.finish')}
+            </Button>
+          )
+        }
+      />
       <div className="grid gap-4 lg:grid-cols-[minmax(0,1fr)_18rem]">
         <div className="grid min-w-0 gap-4">
           {completed || !session.current ? (

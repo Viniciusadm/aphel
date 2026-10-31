@@ -20,6 +20,8 @@ import {
   SEQUENCES_READ_PERMISSION,
   sequencePath,
 } from './constants'
+import { PageHeader } from '@/components/ui/page-header'
+import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from '@/components/ui/table'
 
 type ActiveFilter = '' | 'active' | 'inactive'
 
@@ -90,60 +92,58 @@ function SequencesList() {
   } else {
     body = (
       <>
-        <div className="relative overflow-x-auto rounded-lg border">
-          <table className="w-full text-sm">
-            <thead className="bg-muted/50 text-left text-muted-foreground">
-              <tr>
-                <th scope="col" className="px-4 py-2 font-medium">
-                  {t('columns.name')}
-                </th>
-                <th scope="col" className="hidden px-4 py-2 font-medium sm:table-cell">
-                  {t('columns.steps')}
-                </th>
-                <th scope="col" className="px-4 py-2 font-medium">
-                  {t('columns.active')}
-                </th>
-                <th scope="col" className="hidden px-4 py-2 font-medium md:table-cell">
-                  {t('columns.completed')}
-                </th>
-                <th scope="col" className="hidden px-4 py-2 font-medium md:table-cell">
-                  {t('columns.exited')}
-                </th>
-                <th scope="col" className="px-4 py-2 font-medium">
-                  {t('columns.status')}
-                </th>
-              </tr>
-            </thead>
-            <tbody>
-              {sequences.data.data.map((sequence) => (
-                <tr key={sequence.id} className="border-t align-top">
-                  <td className="px-4 py-3">
-                    <Link to={sequencePath(sequence.id)} className="font-medium hover:underline">
-                      {sequence.name}
-                    </Link>
-                    {sequence.description && (
-                      <div className="line-clamp-1 text-xs text-muted-foreground">{sequence.description}</div>
-                    )}
-                  </td>
-                  <td className="hidden px-4 py-3 tabular-nums sm:table-cell">{sequence.steps.length}</td>
-                  <td className="px-4 py-3 tabular-nums">
-                    {sequence.enrollments.active}
-                    {sequence.enrollments.paused > 0 && (
-                      <span className="ml-1 text-xs text-muted-foreground">
-                        {t('page.pausedCount', { count: sequence.enrollments.paused })}
-                      </span>
-                    )}
-                  </td>
-                  <td className="hidden px-4 py-3 tabular-nums md:table-cell">{sequence.enrollments.completed}</td>
-                  <td className="hidden px-4 py-3 tabular-nums md:table-cell">{sequence.enrollments.exited}</td>
-                  <td className="px-4 py-3">
-                    <SequenceStatusBadge active={sequence.is_active} />
-                  </td>
-                </tr>
-              ))}
-            </tbody>
-          </table>
-        </div>
+        <Table>
+          <TableHeader>
+            <TableRow>
+              <TableHead scope="col">
+                {t('columns.name')}
+              </TableHead>
+              <TableHead scope="col" className="hidden sm:table-cell">
+                {t('columns.steps')}
+              </TableHead>
+              <TableHead scope="col">
+                {t('columns.active')}
+              </TableHead>
+              <TableHead scope="col" className="hidden md:table-cell">
+                {t('columns.completed')}
+              </TableHead>
+              <TableHead scope="col" className="hidden md:table-cell">
+                {t('columns.exited')}
+              </TableHead>
+              <TableHead scope="col">
+                {t('columns.status')}
+              </TableHead>
+            </TableRow>
+          </TableHeader>
+          <TableBody>
+            {sequences.data.data.map((sequence) => (
+              <TableRow key={sequence.id} className="align-top">
+                <TableCell>
+                  <Link to={sequencePath(sequence.id)} className="font-medium hover:underline">
+                    {sequence.name}
+                  </Link>
+                  {sequence.description && (
+                    <div className="line-clamp-1 text-xs text-muted-foreground">{sequence.description}</div>
+                  )}
+                </TableCell>
+                <TableCell className="hidden tabular-nums sm:table-cell">{sequence.steps.length}</TableCell>
+                <TableCell className="tabular-nums">
+                  {sequence.enrollments.active}
+                  {sequence.enrollments.paused > 0 && (
+                    <span className="ml-1 text-xs text-muted-foreground">
+                      {t('page.pausedCount', { count: sequence.enrollments.paused })}
+                    </span>
+                  )}
+                </TableCell>
+                <TableCell className="hidden tabular-nums md:table-cell">{sequence.enrollments.completed}</TableCell>
+                <TableCell className="hidden tabular-nums md:table-cell">{sequence.enrollments.exited}</TableCell>
+                <TableCell>
+                  <SequenceStatusBadge active={sequence.is_active} />
+                </TableCell>
+              </TableRow>
+            ))}
+          </TableBody>
+        </Table>
         <Pager page={page} perPage={SEQUENCES_PER_PAGE} total={sequences.data.meta.total} onPageChange={setPage} />
       </>
     )
@@ -152,10 +152,7 @@ function SequencesList() {
   return (
     <div className="flex w-full flex-col gap-4">
       <div className="flex flex-wrap items-start justify-between gap-3">
-        <div className="grid gap-1">
-          <h1 className="text-xl font-semibold">{t('page.title')}</h1>
-          <p className="text-sm text-muted-foreground">{t('page.description')}</p>
-        </div>
+        <PageHeader title={t('page.title')} description={t('page.description')} />
         {newButton}
       </div>
       <div className="grid gap-3 sm:grid-cols-[minmax(0,1fr)_12rem]">

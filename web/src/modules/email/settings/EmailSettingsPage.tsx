@@ -2,11 +2,11 @@ import { useState } from 'react'
 import { useTranslation } from 'react-i18next'
 import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs'
 import { RequirePermission } from '@/features/settings/components/RequirePermission'
-import { SectionHeader } from '@/features/settings/components/SectionHeader'
 import { SETTINGS_MANAGE } from '@/features/settings/lib/permissions'
 import { TemplatesPanel } from '../components/TemplatesPanel'
 import { BlocklistPanel } from './BlocklistPanel'
 import { PreferencesPanel } from './PreferencesPanel'
+import { PageHeader } from '@/components/ui/page-header'
 
 type Section = 'templates' | 'blocklist' | 'preferences'
 
@@ -17,7 +17,7 @@ export function EmailSettingsPage() {
   return (
     <RequirePermission permission={SETTINGS_MANAGE}>
       <section className="flex flex-col gap-4">
-        <SectionHeader title={t('settings.title')} description={t('settings.description')} />
+        <PageHeader title={t('settings.title')} description={t('settings.description')} />
         <Tabs value={section} onValueChange={(value) => setSection(value as Section)} className="grid gap-4">
           <TabsList>
             <TabsTrigger value="templates">{t('settings.tabs.templates')}</TabsTrigger>

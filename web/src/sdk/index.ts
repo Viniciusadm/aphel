@@ -4,6 +4,7 @@ export type {
   ModuleApp,
   ModuleTranslations,
   NavContribution,
+  NavGroup,
   RecordTabContribution,
   RecordTabRenderProps,
   SettingsContribution,

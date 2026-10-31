@@ -7,6 +7,7 @@ import { Button } from '@/components/ui/button'
 import { TabsNav, TabsNavItem } from '@/components/ui/tabs-nav'
 import { ActivityFormDialog, type ActivityFormMode } from './components/ActivityFormDialog'
 import { activityResource, TASKS_PATH } from './resource'
+import { PageHeader } from '@/components/ui/page-header'
 
 export function TasksLayout() {
   const { t } = useTranslation('activities')
@@ -21,10 +22,7 @@ export function TasksLayout() {
   return (
     <div className="flex w-full flex-col gap-4">
       <header className="flex flex-wrap items-start justify-between gap-3">
-        <div className="grid gap-1">
-          <h1 className="text-2xl font-semibold tracking-tight">{t('page.title')}</h1>
-          <p className="text-sm text-muted-foreground">{t('page.description')}</p>
-        </div>
+        <PageHeader title={t('page.title')} description={t('page.description')} />
         {hasPermission('activities.create') && (
           <div className="flex flex-wrap gap-2">
             <Button variant="outline" size="sm" onClick={() => setDialog('log')}>

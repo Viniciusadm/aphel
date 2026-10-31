@@ -5,6 +5,7 @@ import { Skeleton } from '@/components/ui/skeleton'
 import { useMigrations } from './api'
 import { SectionCard } from './SectionCard'
 import type { InstalledModule, Migrations } from './types'
+import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from '@/components/ui/table'
 
 function MigrationsBody({ migrations }: { migrations: Migrations }) {
   const { t } = useTranslation('system')
@@ -85,60 +86,58 @@ export function ModulesSection({ modules }: { modules: InstalledModule[] }) {
       {modules.length === 0 ? (
         <p className="text-sm text-muted-foreground">{t('modules.empty')}</p>
       ) : (
-        <div className="relative overflow-x-auto rounded-lg border">
-          <table className="w-full text-sm">
-            <thead className="bg-muted/50 text-left text-muted-foreground">
-              <tr>
-                <th scope="col" className="px-3 py-2 font-medium">
-                  {t('modules.columns.module')}
-                </th>
-                <th scope="col" className="hidden px-3 py-2 font-medium sm:table-cell">
-                  {t('modules.columns.version')}
-                </th>
-                <th scope="col" className="px-3 py-2 font-medium">
-                  {t('modules.columns.compatibility')}
-                </th>
-                <th scope="col" className="px-3 py-2 text-right font-medium">
-                  {t('modules.columns.enabled')}
-                </th>
-                <th scope="col" className="hidden px-3 py-2 font-medium md:table-cell">
-                  {t('modules.columns.migrations')}
-                </th>
-              </tr>
-            </thead>
-            <tbody>
-              {modules.map((module) => {
-                const compatible = module.compatibility === 'compatible'
-                const count = counts.get(module.key)
-                return (
-                  <tr key={module.key} className="border-t align-top">
-                    <td className="px-3 py-2">
-                      <div className="grid gap-0.5">
-                        <span>{module.name}</span>
-                        <span className="font-mono text-xs text-muted-foreground">{module.key}</span>
-                      </div>
-                    </td>
-                    <td className="hidden px-3 py-2 font-mono text-xs sm:table-cell">{module.version}</td>
-                    <td className="px-3 py-2">
-                      <Badge
-                        variant={compatible ? 'success' : 'destructive'}
-                        title={module.compatibility_detail ?? module.compatibility}
-                      >
-                        {t(compatible ? 'modules.compatible' : 'modules.incompatible')}
-                      </Badge>
-                    </td>
-                    <td className="px-3 py-2 text-right">
-                      {t(module.enabled ? 'modules.enabled' : 'modules.disabled')}
-                    </td>
-                    <td className="hidden px-3 py-2 text-xs text-muted-foreground md:table-cell">
-                      {count ? t('modules.migrationsCount', count) : '—'}
-                    </td>
-                  </tr>
-                )
-              })}
-            </tbody>
-          </table>
-        </div>
+        <Table>
+          <TableHeader>
+            <TableRow>
+              <TableHead scope="col">
+                {t('modules.columns.module')}
+              </TableHead>
+              <TableHead scope="col" className="hidden sm:table-cell">
+                {t('modules.columns.version')}
+              </TableHead>
+              <TableHead scope="col">
+                {t('modules.columns.compatibility')}
+              </TableHead>
+              <TableHead scope="col" className="text-right">
+                {t('modules.columns.enabled')}
+              </TableHead>
+              <TableHead scope="col" className="hidden md:table-cell">
+                {t('modules.columns.migrations')}
+              </TableHead>
+            </TableRow>
+          </TableHeader>
+          <TableBody>
+            {modules.map((module) => {
+              const compatible = module.compatibility === 'compatible'
+              const count = counts.get(module.key)
+              return (
+                <TableRow key={module.key} className="align-top">
+                  <TableCell>
+                    <div className="grid gap-0.5">
+                      <span>{module.name}</span>
+                      <span className="font-mono text-xs text-muted-foreground">{module.key}</span>
+                    </div>
+                  </TableCell>
+                  <TableCell className="hidden font-mono text-xs sm:table-cell">{module.version}</TableCell>
+                  <TableCell>
+                    <Badge
+                      variant={compatible ? 'success' : 'destructive'}
+                      title={module.compatibility_detail ?? module.compatibility}
+                    >
+                      {t(compatible ? 'modules.compatible' : 'modules.incompatible')}
+                    </Badge>
+                  </TableCell>
+                  <TableCell className="text-right">
+                    {t(module.enabled ? 'modules.enabled' : 'modules.disabled')}
+                  </TableCell>
+                  <TableCell className="hidden text-xs text-muted-foreground md:table-cell">
+                    {count ? t('modules.migrationsCount', count) : '—'}
+                  </TableCell>
+                </TableRow>
+              )
+            })}
+          </TableBody>
+        </Table>
       )}
     </SectionCard>
   )

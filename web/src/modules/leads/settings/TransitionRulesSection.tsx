@@ -9,11 +9,11 @@ import { Label } from '@/components/ui/label'
 import { Skeleton } from '@/components/ui/skeleton'
 import { toast } from '@/components/ui/toast-store'
 import { NativeSelect } from '@/features/records/filters/NativeSelect'
-import { SectionHeader } from '@/features/settings/components/SectionHeader'
 import { lifecycleApi, lifecycleKeys, useLifecycleSettings } from '../api'
 import { TRANSITION_TRIGGERS } from '../constants'
 import { lifecycleErrorMessage } from '../errors'
 import type { LifecycleSettings, LifecycleStageOption, LifecycleTransitionRule } from '../types'
+import { PageHeader } from '@/components/ui/page-header'
 
 interface Draft {
   rules: LifecycleTransitionRule[]
@@ -73,7 +73,7 @@ function RulesForm({ settings }: { settings: LifecycleSettings }) {
 
   return (
     <section className="flex flex-col gap-4">
-      <SectionHeader title={t('settings.rules.title')} description={t('settings.rules.description')} />
+      <PageHeader level="section" title={t('settings.rules.title')} description={t('settings.rules.description')} />
       <div className="grid gap-3">
         {draft.rules.map((rule) => (
           <RuleCard

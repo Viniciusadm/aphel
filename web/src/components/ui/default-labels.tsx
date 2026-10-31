@@ -19,6 +19,10 @@ const portugueseLabels: UiLabels = {
     </>
   ),
   pageLoading: 'Carregando página…',
+  paginationPrevious: 'Anterior',
+  paginationNext: 'Próxima',
+  paginationSummary: (page, pages, total) => `Página ${page} de ${pages} · ${total} itens`,
+  back: 'Voltar',
 }
 
 const englishLabels: UiLabels = {
@@ -40,6 +44,10 @@ const englishLabels: UiLabels = {
     </>
   ),
   pageLoading: 'Loading page…',
+  paginationPrevious: 'Previous',
+  paginationNext: 'Next',
+  paginationSummary: (page, pages, total) => `Page ${page} of ${pages} · ${total} items`,
+  back: 'Back',
 }
 
 export function defaultUiLabels(): UiLabels {

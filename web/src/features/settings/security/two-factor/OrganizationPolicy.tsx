@@ -6,7 +6,6 @@ import { Button } from '@/components/ui/button'
 import { Card, CardContent } from '@/components/ui/card'
 import { ErrorState } from '@/components/ui/error-state'
 import { Skeleton } from '@/components/ui/skeleton'
-import { SectionHeader } from '@/features/settings/components/SectionHeader'
 import {
   TWO_FACTOR_NOT_ENABLED,
   TWO_FACTOR_POLICIES,
@@ -18,6 +17,7 @@ import {
   type TwoFactorPolicy,
   type TwoFactorPolicyState,
 } from './api'
+import { PageHeader } from '@/components/ui/page-header'
 
 export function OrganizationPolicy() {
   const { t } = useTranslation('two-factor')
@@ -25,7 +25,7 @@ export function OrganizationPolicy() {
 
   return (
     <section className="flex flex-col gap-4">
-      <SectionHeader title={t('policy.title')} description={t('policy.description')} />
+      <PageHeader title={t('policy.title')} description={t('policy.description')} />
       {policy.isPending ? (
         <Skeleton className="h-40 w-full" />
       ) : policy.isError ? (

@@ -18,13 +18,13 @@ import { Label } from '@/components/ui/label'
 import { Skeleton } from '@/components/ui/skeleton'
 import { toast } from '@/components/ui/toast-store'
 import { RequirePermission } from '@/features/settings/components/RequirePermission'
-import { SectionHeader } from '@/features/settings/components/SectionHeader'
 import { SortableList } from '@/features/settings/fields/components/SortableList'
 import { SETTINGS_MANAGE } from '@/features/settings/lib/permissions'
 import { cn } from '@/lib/utils'
 import { callsApi, useCallOutcomes, useInvalidateCalls } from './api'
 import { callErrorKey } from './lib/errors'
 import type { CallOutcome } from './types'
+import { PageHeader } from '@/components/ui/page-header'
 
 interface EditorState {
   outcome: CallOutcome | null
@@ -78,10 +78,10 @@ function OutcomesSection() {
 
   return (
     <section className="flex flex-col gap-4">
-      <SectionHeader
+      <PageHeader
         title={t('outcomes.title')}
         description={t('outcomes.description')}
-        action={
+        actions={
           <Button size="sm" onClick={() => setEditor({ outcome: null })}>
             <Plus aria-hidden="true" />
             {t('outcomes.new')}

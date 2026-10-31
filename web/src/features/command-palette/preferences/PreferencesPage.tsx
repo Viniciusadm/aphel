@@ -7,9 +7,9 @@ import { ErrorState } from '@/components/ui/error-state'
 import { Label } from '@/components/ui/label'
 import { Skeleton } from '@/components/ui/skeleton'
 import { toast } from '@/components/ui/toast-store'
-import { SectionHeader } from '@/features/settings/components/SectionHeader'
 import { useCommandPalette } from '../context'
 import { usePreferences, useUpdatePreferences } from './api'
+import { PageHeader } from '@/components/ui/page-header'
 
 export function PreferencesPage() {
   const { t } = useTranslation('command-palette')
@@ -30,7 +30,7 @@ export function PreferencesPage() {
 
   return (
     <section className="grid gap-4">
-      <SectionHeader title={t('preferences.title')} description={t('preferences.description')} />
+      <PageHeader title={t('preferences.title')} description={t('preferences.description')} />
       {preferences.isPending ? (
         <Skeleton className="h-20" />
       ) : preferences.isError ? (

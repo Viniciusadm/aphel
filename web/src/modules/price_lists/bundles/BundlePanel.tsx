@@ -17,6 +17,7 @@ import { fieldErrors } from '../errors'
 import { bundlesApi, useInvalidateBundle, useProductBundle } from './api'
 import { bundleErrorKey } from './errors'
 import type { BundlePricing, ProductBundle } from './types'
+import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from '@/components/ui/table'
 
 const PRODUCT_RECORD_TYPE = 'product'
 const PRICING: BundlePricing[] = ['fixed', 'sum']
@@ -149,45 +150,43 @@ function BundleView({ productId, bundle, readOnly, priceListId, onPriceListChang
           </NativeSelect>
         </div>
       )}
-      <div className="relative overflow-x-auto rounded-lg border">
-        <table className="w-full text-sm">
-          <thead className="bg-muted/50 text-left text-muted-foreground">
-            <tr>
-              <th scope="col" className="px-4 py-2 font-medium">
-                {t('bundles.component')}
-              </th>
-              <th scope="col" className="px-4 py-2 text-right font-medium">
-                {t('bundles.quantity')}
-              </th>
-              <th scope="col" className="px-4 py-2 text-right font-medium">
-                {t('bundles.unitPrice')}
-              </th>
-              <th scope="col" className="hidden px-4 py-2 text-right font-medium sm:table-cell">
-                {t('bundles.total')}
-              </th>
-            </tr>
-          </thead>
-          <tbody>
-            {bundle.components.map((component) => (
-              <tr key={component.product_id} className="border-t">
-                <td className="px-4 py-2">
-                  <span className="font-medium">{component.name}</span>
-                  {component.code && <span className="ml-2 font-mono text-xs text-muted-foreground">{component.code}</span>}
-                </td>
-                <td className="px-4 py-2 text-right tabular-nums">
-                  {formatNumber(component.quantity, formatting, QUANTITY_DECIMALS)}
-                </td>
-                <td className="px-4 py-2 text-right tabular-nums">
-                  {formatCurrency(component.unit_price, formatting, bundle.currency)}
-                </td>
-                <td className="hidden px-4 py-2 text-right tabular-nums sm:table-cell">
-                  {formatCurrency(component.total, formatting, bundle.currency)}
-                </td>
-              </tr>
-            ))}
-          </tbody>
-        </table>
-      </div>
+      <Table>
+        <TableHeader>
+          <TableRow>
+            <TableHead scope="col">
+              {t('bundles.component')}
+            </TableHead>
+            <TableHead scope="col" className="text-right">
+              {t('bundles.quantity')}
+            </TableHead>
+            <TableHead scope="col" className="text-right">
+              {t('bundles.unitPrice')}
+            </TableHead>
+            <TableHead scope="col" className="hidden text-right sm:table-cell">
+              {t('bundles.total')}
+            </TableHead>
+          </TableRow>
+        </TableHeader>
+        <TableBody>
+          {bundle.components.map((component) => (
+            <TableRow key={component.product_id}>
+              <TableCell>
+                <span className="font-medium">{component.name}</span>
+                {component.code && <span className="ml-2 font-mono text-xs text-muted-foreground">{component.code}</span>}
+              </TableCell>
+              <TableCell className="text-right tabular-nums">
+                {formatNumber(component.quantity, formatting, QUANTITY_DECIMALS)}
+              </TableCell>
+              <TableCell className="text-right tabular-nums">
+                {formatCurrency(component.unit_price, formatting, bundle.currency)}
+              </TableCell>
+              <TableCell className="hidden text-right tabular-nums sm:table-cell">
+                {formatCurrency(component.total, formatting, bundle.currency)}
+              </TableCell>
+            </TableRow>
+          ))}
+        </TableBody>
+      </Table>
       <p className="text-xs text-muted-foreground">{t(`bundles.pricingHint.${bundle.pricing}`)}</p>
       <ConfirmDialog
         open={removing}

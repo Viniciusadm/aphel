@@ -10,8 +10,7 @@ import { ErrorState } from '@/components/ui/error-state'
 import { NativeSelect } from '@/features/records/filters/NativeSelect'
 import { formatDateTime, useRecordFormatting } from '@/features/records/formatting'
 import { ListSkeleton } from '@/features/settings/components/ListSkeleton'
-import { Pagination } from '@/features/settings/components/Pagination'
-import { SectionHeader } from '@/features/settings/components/SectionHeader'
+import { Pagination } from '@/components/ui/pagination'
 import { SETTINGS_MANAGE } from '@/features/settings/lib/permissions'
 import {
   CANDIDATE_STATUSES,
@@ -28,6 +27,7 @@ import {
 import { DuplicateRulesCard } from './DuplicateRulesCard'
 import { mergePagePath } from './paths'
 import { ruleLabelKey, typeLabel } from './lib/labels'
+import { PageHeader } from '@/components/ui/page-header'
 
 export function DuplicatesPage() {
   const { t } = useTranslation('duplicates')
@@ -71,10 +71,10 @@ function DuplicatesQueue({ types }: { types: DuplicateTypeInfo[] }) {
   return (
     <div className="grid gap-6">
       <section className="grid gap-4">
-        <SectionHeader
+        <PageHeader
           title={t('queue.title')}
           description={t('queue.description')}
-          action={
+          actions={
             canManage && (
               <Button size="sm" variant="outline" disabled={scan.isPending} onClick={requestScan}>
                 <RefreshCw aria-hidden="true" />

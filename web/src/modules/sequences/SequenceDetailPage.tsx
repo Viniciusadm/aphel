@@ -1,4 +1,4 @@
-import { ArrowLeft, Pencil, Trash2, Users } from 'lucide-react'
+import { Pencil, Trash2, Users } from 'lucide-react'
 import { useId, useState } from 'react'
 import { useTranslation } from 'react-i18next'
 import { Link, useNavigate, useParams } from 'react-router'
@@ -27,6 +27,9 @@ import {
 import { notifySequenceError } from './lib/errors'
 import { useStepLabel } from './lib/labels'
 import type { Enrollment, EnrollmentStatus, Sequence } from './types'
+import { PageHeader } from '@/components/ui/page-header'
+import { Page } from '@/components/ui/page'
+import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from '@/components/ui/table'
 
 export function SequenceDetailPage() {
   const { t } = useTranslation('sequences')
@@ -72,44 +75,40 @@ function SequenceDetail({ sequence }: { sequence: Sequence }) {
   }
 
   return (
-    <div className="flex w-full flex-col gap-6">
-      <div className="flex flex-wrap items-start justify-between gap-3">
-        <div className="flex items-start gap-3">
-          <Button asChild variant="ghost" size="icon" aria-label={t('detail.back')}>
-            <Link to={SEQUENCES_PATH}>
-              <ArrowLeft />
-            </Link>
-          </Button>
-          <div className="grid gap-1">
-            <div className="flex flex-wrap items-center gap-2">
-              <h1 className="text-xl font-semibold">{sequence.name}</h1>
-              <SequenceStatusBadge active={sequence.is_active} />
-            </div>
-            {sequence.description && <p className="text-sm text-muted-foreground">{sequence.description}</p>}
-            <p className="text-sm text-muted-foreground">
+    <Page>
+      <PageHeader
+        back={{ to: SEQUENCES_PATH, label: t('detail.back') }}
+        title={sequence.name}
+        badges={<SequenceStatusBadge active={sequence.is_active} />}
+        description={
+          <>
+            {sequence.description && <p>{sequence.description}</p>}
+            <p>
               {t('detail.windowSummary', {
                 start: sequence.window_start,
                 end: sequence.window_end,
                 limit: sequence.daily_limit,
               })}
             </p>
-          </div>
-        </div>
-        {canManage && (
-          <div className="flex gap-2">
-            <Button asChild variant="outline">
-              <Link to={sequenceEditPath(sequence.id)}>
-                <Pencil aria-hidden="true" />
-                {t('detail.edit')}
-              </Link>
-            </Button>
-            <Button variant="outline" onClick={() => setDeleting(true)}>
-              <Trash2 aria-hidden="true" />
-              {t('detail.delete')}
-            </Button>
-          </div>
-        )}
-      </div>
+          </>
+        }
+        actions={
+          canManage && (
+            <>
+              <Button asChild variant="outline">
+                <Link to={sequenceEditPath(sequence.id)}>
+                  <Pencil aria-hidden="true" />
+                  {t('detail.edit')}
+                </Link>
+              </Button>
+              <Button variant="outline" onClick={() => setDeleting(true)}>
+                <Trash2 aria-hidden="true" />
+                {t('detail.delete')}
+              </Button>
+            </>
+          )
+        }
+      />
       <dl className="grid grid-cols-2 gap-3 sm:grid-cols-4">
         {(['active', 'paused', 'completed', 'exited'] as const).map((status) => (
           <div key={status} className="rounded-lg border p-3">
@@ -132,7 +131,7 @@ function SequenceDetail({ sequence }: { sequence: Sequence }) {
           onOpenChange={(open) => !open && setDeleting(false)}
         />
       )}
-    </div>
+    </Page>
   )
 }
 
@@ -157,72 +156,70 @@ function StepMetricsSection({ sequence }: { sequence: Sequence }) {
   } else {
     const byPosition = new Map(metrics.data.steps.map((step) => [step.position, step]))
     body = (
-      <div className="relative overflow-x-auto rounded-lg border">
-        <table className="w-full text-sm">
-          <thead className="bg-muted/50 text-left text-muted-foreground">
-            <tr>
-              <th scope="col" className="px-4 py-2 font-medium">
-                {t('metrics.step')}
-              </th>
-              <th scope="col" className="px-4 py-2 text-right font-medium">
-                {t('metrics.sent')}
-              </th>
-              <th scope="col" className="px-4 py-2 text-right font-medium">
-                {t('metrics.opened')}
-              </th>
-              <th scope="col" className="px-4 py-2 text-right font-medium">
-                {t('metrics.replied')}
-              </th>
-              <th scope="col" className="hidden px-4 py-2 text-right font-medium sm:table-cell">
-                {t('metrics.bounced')}
-              </th>
-              <th scope="col" className="px-4 py-2 text-right font-medium">
-                {t('metrics.exits')}
-              </th>
-            </tr>
-          </thead>
-          <tbody>
-            {sequence.steps.map((step) => {
-              const values = byPosition.get(step.position)
-              const sent = values?.sent ?? 0
-              const isEmail = step.kind === 'auto_email'
-              return (
-                <tr key={step.id} className="border-t">
-                  <th scope="row" className="px-4 py-3 text-left font-normal">
-                    <span className="mr-2 text-muted-foreground tabular-nums">{step.position + 1}.</span>
-                    {stepLabel(step)}
-                  </th>
-                  <td className="px-4 py-3 text-right tabular-nums">{step.kind === 'wait' ? '—' : sent}</td>
-                  <td className="px-4 py-3 text-right tabular-nums">
-                    {isEmail ? (
-                      <>
-                        {values?.opened ?? 0}
-                        <span className="ml-1 text-xs text-muted-foreground">{percent(values?.opened ?? 0, sent)}</span>
-                      </>
-                    ) : (
-                      '—'
-                    )}
-                  </td>
-                  <td className="px-4 py-3 text-right tabular-nums">
-                    {isEmail ? (
-                      <>
-                        {values?.replied ?? 0}
-                        <span className="ml-1 text-xs text-muted-foreground">{percent(values?.replied ?? 0, sent)}</span>
-                      </>
-                    ) : (
-                      '—'
-                    )}
-                  </td>
-                  <td className="hidden px-4 py-3 text-right tabular-nums sm:table-cell">
-                    {isEmail ? (values?.bounced ?? 0) : '—'}
-                  </td>
-                  <td className="px-4 py-3 text-right tabular-nums">{values?.exits ?? 0}</td>
-                </tr>
-              )
-            })}
-          </tbody>
-        </table>
-      </div>
+      <Table>
+        <TableHeader>
+          <TableRow>
+            <TableHead scope="col">
+              {t('metrics.step')}
+            </TableHead>
+            <TableHead scope="col" className="text-right">
+              {t('metrics.sent')}
+            </TableHead>
+            <TableHead scope="col" className="text-right">
+              {t('metrics.opened')}
+            </TableHead>
+            <TableHead scope="col" className="text-right">
+              {t('metrics.replied')}
+            </TableHead>
+            <TableHead scope="col" className="hidden text-right sm:table-cell">
+              {t('metrics.bounced')}
+            </TableHead>
+            <TableHead scope="col" className="text-right">
+              {t('metrics.exits')}
+            </TableHead>
+          </TableRow>
+        </TableHeader>
+        <TableBody>
+          {sequence.steps.map((step) => {
+            const values = byPosition.get(step.position)
+            const sent = values?.sent ?? 0
+            const isEmail = step.kind === 'auto_email'
+            return (
+              <TableRow key={step.id}>
+                <TableHead scope="row" className="py-3 text-left font-normal">
+                  <span className="mr-2 text-muted-foreground tabular-nums">{step.position + 1}.</span>
+                  {stepLabel(step)}
+                </TableHead>
+                <TableCell className="text-right tabular-nums">{step.kind === 'wait' ? '—' : sent}</TableCell>
+                <TableCell className="text-right tabular-nums">
+                  {isEmail ? (
+                    <>
+                      {values?.opened ?? 0}
+                      <span className="ml-1 text-xs text-muted-foreground">{percent(values?.opened ?? 0, sent)}</span>
+                    </>
+                  ) : (
+                    '—'
+                  )}
+                </TableCell>
+                <TableCell className="text-right tabular-nums">
+                  {isEmail ? (
+                    <>
+                      {values?.replied ?? 0}
+                      <span className="ml-1 text-xs text-muted-foreground">{percent(values?.replied ?? 0, sent)}</span>
+                    </>
+                  ) : (
+                    '—'
+                  )}
+                </TableCell>
+                <TableCell className="hidden text-right tabular-nums sm:table-cell">
+                  {isEmail ? (values?.bounced ?? 0) : '—'}
+                </TableCell>
+                <TableCell className="text-right tabular-nums">{values?.exits ?? 0}</TableCell>
+              </TableRow>
+            )
+          })}
+        </TableBody>
+      </Table>
     )
   }
 
@@ -272,64 +269,62 @@ function EnrollmentsSection({ sequence }: { sequence: Sequence }) {
   } else {
     body = (
       <>
-        <div className="relative overflow-x-auto rounded-lg border">
-          <table className="w-full text-sm">
-            <thead className="bg-muted/50 text-left text-muted-foreground">
-              <tr>
-                <th scope="col" className="px-4 py-2 font-medium">
-                  {t('enrollments.contact')}
-                </th>
-                <th scope="col" className="px-4 py-2 font-medium">
-                  {t('enrollments.status')}
-                </th>
-                <th scope="col" className="hidden px-4 py-2 font-medium md:table-cell">
-                  {t('enrollments.progress')}
-                </th>
-                <th scope="col" className="hidden px-4 py-2 font-medium lg:table-cell">
-                  {t('enrollments.enrolledBy')}
-                </th>
-                <th scope="col" className="hidden px-4 py-2 font-medium lg:table-cell">
-                  {t('enrollments.nextRun')}
-                </th>
-                {canEnroll && (
-                  <th scope="col" className="w-24 px-4 py-2">
-                    <span className="sr-only">{t('enrollments.actions')}</span>
-                  </th>
-                )}
-              </tr>
-            </thead>
-            <tbody>
-              {enrollments.data.data.map((enrollment) => (
-                <tr key={enrollment.id} className="border-t align-top">
-                  <td className="px-4 py-3">
-                    <Link to={`/contacts/${encodeURIComponent(enrollment.contact_id)}`} className="font-medium hover:underline">
-                      {enrollment.contact_name}
-                    </Link>
-                    {enrollment.contact_email && (
-                      <div className="text-xs text-muted-foreground">{enrollment.contact_email}</div>
-                    )}
-                  </td>
-                  <td className="px-4 py-3">
-                    <EnrollmentStatusBadge status={enrollment.status} />
-                  </td>
-                  <td className="hidden px-4 py-3 md:table-cell">{progress(enrollment)}</td>
-                  <td className="hidden px-4 py-3 text-muted-foreground lg:table-cell">
-                    {enrollment.enrolled_by_name ?? '—'}
-                    <div className="text-xs">{t(`sources.${enrollment.source}`)}</div>
-                  </td>
-                  <td className="hidden px-4 py-3 text-muted-foreground lg:table-cell">
-                    {enrollment.next_run_at ? formatDateTime(enrollment.next_run_at, formatting) : '—'}
-                  </td>
-                  {canEnroll && (
-                    <td className="px-4 py-3">
-                      <EnrollmentActions enrollment={enrollment} label={enrollment.contact_name} />
-                    </td>
+        <Table>
+          <TableHeader>
+            <TableRow>
+              <TableHead scope="col">
+                {t('enrollments.contact')}
+              </TableHead>
+              <TableHead scope="col">
+                {t('enrollments.status')}
+              </TableHead>
+              <TableHead scope="col" className="hidden md:table-cell">
+                {t('enrollments.progress')}
+              </TableHead>
+              <TableHead scope="col" className="hidden lg:table-cell">
+                {t('enrollments.enrolledBy')}
+              </TableHead>
+              <TableHead scope="col" className="hidden lg:table-cell">
+                {t('enrollments.nextRun')}
+              </TableHead>
+              {canEnroll && (
+                <TableHead scope="col" className="w-24">
+                  <span className="sr-only">{t('enrollments.actions')}</span>
+                </TableHead>
+              )}
+            </TableRow>
+          </TableHeader>
+          <TableBody>
+            {enrollments.data.data.map((enrollment) => (
+              <TableRow key={enrollment.id} className="align-top">
+                <TableCell>
+                  <Link to={`/contacts/${encodeURIComponent(enrollment.contact_id)}`} className="font-medium hover:underline">
+                    {enrollment.contact_name}
+                  </Link>
+                  {enrollment.contact_email && (
+                    <div className="text-xs text-muted-foreground">{enrollment.contact_email}</div>
                   )}
-                </tr>
-              ))}
-            </tbody>
-          </table>
-        </div>
+                </TableCell>
+                <TableCell>
+                  <EnrollmentStatusBadge status={enrollment.status} />
+                </TableCell>
+                <TableCell className="hidden md:table-cell">{progress(enrollment)}</TableCell>
+                <TableCell className="hidden text-muted-foreground lg:table-cell">
+                  {enrollment.enrolled_by_name ?? '—'}
+                  <div className="text-xs">{t(`sources.${enrollment.source}`)}</div>
+                </TableCell>
+                <TableCell className="hidden text-muted-foreground lg:table-cell">
+                  {enrollment.next_run_at ? formatDateTime(enrollment.next_run_at, formatting) : '—'}
+                </TableCell>
+                {canEnroll && (
+                  <TableCell>
+                    <EnrollmentActions enrollment={enrollment} label={enrollment.contact_name} />
+                  </TableCell>
+                )}
+              </TableRow>
+            ))}
+          </TableBody>
+        </Table>
         <Pager page={page} perPage={ENROLLMENTS_PER_PAGE} total={enrollments.data.meta.total} onPageChange={setPage} />
       </>
     )

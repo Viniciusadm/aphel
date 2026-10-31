@@ -1,4 +1,3 @@
-import { ArrowLeft } from 'lucide-react'
 import { useState } from 'react'
 import { useTranslation } from 'react-i18next'
 import { Link, useParams } from 'react-router'
@@ -12,6 +11,8 @@ import { SEGMENT_TYPE_PARAM } from './SegmentsPage'
 import '@/modules/contacts/resource'
 import '@/modules/companies/resource'
 import '@/modules/deals/resource'
+import { Page } from '@/components/ui/page'
+import { PageHeader } from '@/components/ui/page-header'
 
 export function SegmentDetailPage() {
   const { t } = useTranslation('segments')
@@ -28,20 +29,21 @@ export function SegmentDetailPage() {
   const backTo = isSegmentRecordType(recordType) ? `/segments?${SEGMENT_TYPE_PARAM}=${recordType}` : '/segments'
 
   return (
-    <div className="flex flex-col gap-4">
-      <Link to={backTo} className="inline-flex w-fit items-center gap-1 text-sm text-muted-foreground hover:text-foreground">
-        <ArrowLeft className="size-4" aria-hidden="true" />
-        {t('detail.back')}
-      </Link>
-      <div className="grid gap-1">
-        <h1 className="text-xl font-semibold break-words">{segment.data.name}</h1>
-        {segment.data.description && <p className="text-sm text-muted-foreground">{segment.data.description}</p>}
-        <p className="text-sm text-muted-foreground">
-          {isSegmentRecordType(recordType) && t(`recordTypes.${recordType}`)}
-          {' · '}
-          {members.data ? t('page.count', { count: members.data.meta.total }) : t('detail.loading')}
-        </p>
-      </div>
+    <Page>
+      <PageHeader
+        back={{ to: backTo, label: t('detail.back') }}
+        title={segment.data.name}
+        description={
+          <>
+            {segment.data.description && <p>{segment.data.description}</p>}
+            <p>
+              {isSegmentRecordType(recordType) && t(`recordTypes.${recordType}`)}
+              {' · '}
+              {members.data ? t('page.count', { count: members.data.meta.total }) : t('detail.loading')}
+            </p>
+          </>
+        }
+      />
       {members.isPending ? (
         <Skeleton className="h-40 w-full" />
       ) : members.isError ? (
@@ -75,6 +77,6 @@ export function SegmentDetailPage() {
           />
         </>
       )}
-    </div>
+    </Page>
   )
 }

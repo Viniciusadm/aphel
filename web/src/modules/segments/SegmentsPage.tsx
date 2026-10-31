@@ -20,6 +20,7 @@ import {
   type SegmentRecordType,
 } from './api'
 import { SegmentDialog } from './SegmentDialog'
+import { PageHeader } from '@/components/ui/page-header'
 
 export const SEGMENT_TYPE_PARAM = 'type'
 
@@ -33,10 +34,7 @@ export function SegmentsPage() {
 
   return (
     <div className="flex flex-col gap-4">
-      <div className="grid gap-1">
-        <h1 className="text-xl font-semibold">{t('page.title')}</h1>
-        <p className="text-sm text-muted-foreground">{t('page.description')}</p>
-      </div>
+      <PageHeader title={t('page.title')} description={t('page.description')} />
       {recordType ? (
         <>
           <nav aria-label={t('page.typesLabel')} className="flex gap-1 overflow-x-auto border-b">

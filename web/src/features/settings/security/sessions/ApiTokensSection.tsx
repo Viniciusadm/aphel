@@ -15,7 +15,7 @@ import {
   useInvalidateApiTokens,
   type ApiToken,
 } from '@/features/settings/api-tokens/api'
-import { SectionHeader } from '@/features/settings/components/SectionHeader'
+import { PageHeader } from '@/components/ui/page-header'
 
 export function ApiTokensSection() {
   const { t } = useTranslation('security')
@@ -32,10 +32,10 @@ export function ApiTokensSection() {
 
   return (
     <section className="flex flex-col gap-4">
-      <SectionHeader
+      <PageHeader level="section"
         title={t('apiTokens.title')}
         description={t('apiTokens.description')}
-        action={
+        actions={
           <Button asChild size="sm" variant="outline">
             <Link to="/account/api-tokens">{t('apiTokens.manage')}</Link>
           </Button>

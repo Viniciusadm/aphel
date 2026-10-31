@@ -9,13 +9,13 @@ import { EmptyState } from '@/components/ui/empty-state'
 import { ErrorState } from '@/components/ui/error-state'
 import { ListSkeleton } from '@/features/settings/components/ListSkeleton'
 import { RequirePermission } from '@/features/settings/components/RequirePermission'
-import { SectionHeader } from '@/features/settings/components/SectionHeader'
 import { SETTINGS_MANAGE } from '@/features/settings/lib/permissions'
 import { useInvalidateVersions } from '../config-packages/versioning/api'
 import { ComparisonView } from '../config-packages/versioning/ComparisonView'
 import type { VersionComparison } from '../config-packages/versioning/types'
 import { catalogApi, useCatalog } from './api'
 import type { Catalog, CatalogEntry } from './types'
+import { PageHeader } from '@/components/ui/page-header'
 
 const KNOWN_ERRORS = [
   'catalog_disabled',
@@ -100,10 +100,10 @@ function CatalogSection() {
 
   return (
     <section className="flex min-w-0 flex-col gap-4">
-      <SectionHeader
+      <PageHeader
         title={t('page.title')}
         description={t('page.description')}
-        action={
+        actions={
           <Button variant="outline" size="sm" disabled={catalog.isFetching} onClick={() => void catalog.refetch()}>
             <RefreshCw aria-hidden="true" />
             {t('page.refresh')}

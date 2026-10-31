@@ -13,7 +13,6 @@ import { Button } from '@/components/ui/button'
 import { ErrorState } from '@/components/ui/error-state'
 import { Input } from '@/components/ui/input'
 import { fieldViolations } from '@/features/auth/lib/api-errors'
-import { SectionHeader } from '../components/SectionHeader'
 import { MailNotConfiguredNotice } from '../email/MailNotConfiguredNotice'
 import { SETTINGS_MANAGE } from '../lib/permissions'
 import {
@@ -30,6 +29,7 @@ import { FormRow } from './components/FormRow'
 import { NativeSelect } from './components/NativeSelect'
 import { brandPalette, contrastRatio, formatRatio, isHexColor } from './lib/contrast'
 import { LOCALES, currencyLabel, currencyOptions, timezoneOptions } from './lib/preferences'
+import { PageHeader } from '@/components/ui/page-header'
 
 const DEFAULT_PICKER_COLOR = '#4f46e5'
 
@@ -78,7 +78,7 @@ export function OrganizationSettingsPage() {
 
   return (
     <section className="grid gap-6" aria-labelledby="organization-settings-title">
-      <SectionHeader title={t('title')} description={t('description')} />
+      <PageHeader title={t('title')} description={t('description')} />
       <MailNotConfiguredNotice />
       {query.isPending ? (
         <PageLoader />

@@ -6,6 +6,7 @@ import { useRecentFailures } from './api'
 import { useDateTimeFormat } from './format'
 import { SectionCard } from './SectionCard'
 import type { Failure, RecentFailures } from './types'
+import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from '@/components/ui/table'
 
 const TABS = ['automations', 'webhooks', 'integrations'] as const
 const DEFAULT_WINDOW_DAYS = 7
@@ -17,48 +18,46 @@ function FailureTable({ failures }: { failures: Failure[] }) {
   const showStatus = failures.some((failure) => typeof failure.response_status === 'number')
 
   return (
-    <div className="relative overflow-x-auto rounded-lg border">
-      <table className="w-full text-sm">
-        <thead className="bg-muted/50 text-left text-muted-foreground">
-          <tr>
-            <th scope="col" className="px-3 py-2 font-medium">
-              {t('failures.columns.kind')}
-            </th>
-            <th scope="col" className="px-3 py-2 font-medium">
-              {t('failures.columns.error')}
-            </th>
+    <Table>
+      <TableHeader>
+        <TableRow>
+          <TableHead scope="col">
+            {t('failures.columns.kind')}
+          </TableHead>
+          <TableHead scope="col">
+            {t('failures.columns.error')}
+          </TableHead>
+          {showStatus && (
+            <TableHead scope="col" className="hidden sm:table-cell">
+              {t('failures.columns.status')}
+            </TableHead>
+          )}
+          <TableHead scope="col" className="hidden whitespace-nowrap sm:table-cell">
+            {t('failures.columns.occurredAt')}
+          </TableHead>
+        </TableRow>
+      </TableHeader>
+      <TableBody>
+        {failures.map((failure, index) => (
+          <TableRow key={`${failure.reference_id}:${failure.occurred_at}:${index}`} className="align-top">
+            <TableCell>
+              <span className="font-mono text-xs break-all">{failure.kind}</span>
+            </TableCell>
+            <TableCell className="max-w-xs">
+              <span className="line-clamp-3 text-xs break-words text-muted-foreground" title={failure.error ?? undefined}>
+                {failure.error ?? '—'}
+              </span>
+            </TableCell>
             {showStatus && (
-              <th scope="col" className="hidden px-3 py-2 font-medium sm:table-cell">
-                {t('failures.columns.status')}
-              </th>
+              <TableCell className="hidden tabular-nums sm:table-cell">{failure.response_status ?? '—'}</TableCell>
             )}
-            <th scope="col" className="hidden px-3 py-2 font-medium whitespace-nowrap sm:table-cell">
-              {t('failures.columns.occurredAt')}
-            </th>
-          </tr>
-        </thead>
-        <tbody>
-          {failures.map((failure, index) => (
-            <tr key={`${failure.reference_id}:${failure.occurred_at}:${index}`} className="border-t align-top">
-              <td className="px-3 py-2">
-                <span className="font-mono text-xs break-all">{failure.kind}</span>
-              </td>
-              <td className="max-w-xs px-3 py-2">
-                <span className="line-clamp-3 text-xs break-words text-muted-foreground" title={failure.error ?? undefined}>
-                  {failure.error ?? '—'}
-                </span>
-              </td>
-              {showStatus && (
-                <td className="hidden px-3 py-2 tabular-nums sm:table-cell">{failure.response_status ?? '—'}</td>
-              )}
-              <td className="hidden px-3 py-2 whitespace-nowrap text-muted-foreground sm:table-cell">
-                <time dateTime={failure.occurred_at}>{format.format(new Date(failure.occurred_at))}</time>
-              </td>
-            </tr>
-          ))}
-        </tbody>
-      </table>
-    </div>
+            <TableCell className="hidden whitespace-nowrap text-muted-foreground sm:table-cell">
+              <time dateTime={failure.occurred_at}>{format.format(new Date(failure.occurred_at))}</time>
+            </TableCell>
+          </TableRow>
+        ))}
+      </TableBody>
+    </Table>
   )
 }
 

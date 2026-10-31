@@ -9,9 +9,9 @@ import { Label } from '@/components/ui/label'
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/components/ui/select'
 import { Textarea } from '@/components/ui/textarea'
 import { usePipelines } from '@/modules/pipelines/api'
-import { SectionHeader } from '@/features/settings/components/SectionHeader'
 import { useQuoteMutations, useQuoteSettings } from './api'
 import type { QuoteSettings } from './types'
+import { PageHeader } from '@/components/ui/page-header'
 
 const NO_MOVE = '__none__'
 
@@ -20,7 +20,7 @@ export function QuoteSettingsPage() {
   const query = useQuoteSettings()
   return (
     <section className="flex flex-col gap-6">
-      <SectionHeader title={t('settings.title')} description={t('settings.description')} />
+      <PageHeader title={t('settings.title')} description={t('settings.description')} />
       {query.isPending ? (
         <PageLoader />
       ) : query.isError ? (
