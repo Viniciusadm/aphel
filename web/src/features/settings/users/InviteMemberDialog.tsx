@@ -10,7 +10,6 @@ import {
   DialogTitle,
 } from '@/components/ui/dialog'
 import { Input } from '@/components/ui/input'
-import { Label } from '@/components/ui/label'
 import { toast } from '@/components/ui/toast-store'
 import { settingsApi, useSettingsMutation, type InvitedMember, type Role } from '../api'
 import { FieldError, FormAlert } from '../components/FieldError'
@@ -88,14 +87,14 @@ export function InviteMemberDialog({ open, roles, onOpenChange, onInvited }: Inv
             <FieldError id="invite-email-error" message={errors.email?.message} />
             </>}
           </Field>
-          <div className="grid gap-2">
-            <Label htmlFor="invite-role">{t('users.inviteDialog.role')}</Label>
-            <Controller
+          <Field label={t('users.inviteDialog.role')}>
+            {(fieldControl) => <>
+              <Controller
               control={control}
               name="roleId"
               render={({ field }) => (
                 <RoleSelect
-                  id="invite-role"
+                  id={fieldControl.id}
                   roles={roles}
                   value={field.value}
                   onChange={field.onChange}
@@ -106,7 +105,8 @@ export function InviteMemberDialog({ open, roles, onOpenChange, onInvited }: Inv
               )}
             />
             <FieldError id="invite-role-error" message={errors.roleId?.message} />
-          </div>
+            </>}
+          </Field>
           <DialogFooter>
             <Button variant="outline" onClick={() => close(false)} disabled={isSubmitting}>
               {t('actions.cancel')}

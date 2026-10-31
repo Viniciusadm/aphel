@@ -14,6 +14,7 @@ import { StepTimeline } from '../components/StepTimeline'
 import { useAutomationLabels } from '../lib/labels'
 import type { Automation, AutomationCatalog, DryRunResult, StepSpec } from '../types'
 import { EmptyState } from '@/components/ui/empty-state'
+import { Field } from '@/components/ui/field'
 
 export interface DryRunPanelProps {
   automation: Automation
@@ -26,7 +27,6 @@ export interface DryRunPanelProps {
 
 export function DryRunPanel({ automation, catalog, schema, draftSteps, dirty, onSaveDraft }: DryRunPanelProps) {
   const { t } = useTranslation('automations')
-  const recordId = useId()
   const draftId = useId()
   const labels = useAutomationLabels(catalog)
   const cache = useAutomationCache()
@@ -73,10 +73,9 @@ export function DryRunPanel({ automation, catalog, schema, draftSteps, dirty, on
           <h2 className="font-medium">{t('test.title')}</h2>
           <p className="text-sm text-muted-foreground">{t('test.description')}</p>
         </div>
-        <div className="grid gap-2.5">
-          <Label htmlFor={recordId}>{t('test.record', { type: labels.recordTypeLabel(automation.record_type) })}</Label>
-          <RecordFieldInput id={recordId} targetRecordType={automation.record_type} value={record} onChange={setRecord} />
-        </div>
+        <Field label={t('test.record', { type: labels.recordTypeLabel(automation.record_type) })}>
+          {(fieldControl) => <RecordFieldInput id={fieldControl.id} targetRecordType={automation.record_type} value={record} onChange={setRecord} />}
+        </Field>
         <div className="flex items-start gap-2">
           <Checkbox
             id={draftId}

@@ -1,4 +1,4 @@
-import { useId, useState } from 'react'
+import { useState } from 'react'
 import { useTranslation } from 'react-i18next'
 import { DateTimeFieldInput } from '@/components/fields/DateTimeFieldInput'
 import { Button } from '@/components/ui/button'
@@ -10,9 +10,9 @@ import {
   DialogHeader,
   DialogTitle,
 } from '@/components/ui/dialog'
-import { Label } from '@/components/ui/label'
 import type { Activity } from '@/modules/activities/api'
 import { useRecordFormatting } from '@/features/records/formatting'
+import { Field } from '@/components/ui/field'
 
 export interface RescheduleDialogProps {
   activity: Activity | null
@@ -53,7 +53,6 @@ function RescheduleForm({
 }) {
   const { t } = useTranslation('activities', { keyPrefix: 'calendar' })
   const formatting = useRecordFormatting()
-  const id = useId()
   const [value, setValue] = useState<string | null>(activity.due_at ?? null)
   return (
     <form
@@ -63,16 +62,15 @@ function RescheduleForm({
         if (value) onConfirm(value)
       }}
     >
-      <div className="grid gap-2.5">
-        <Label htmlFor={id}>{t('reschedule.dueAt')}</Label>
-        <DateTimeFieldInput
-          id={id}
+      <Field label={t('reschedule.dueAt')}>
+        {(fieldControl) => <DateTimeFieldInput
+          id={fieldControl.id}
           value={value}
           onChange={setValue}
           timeZone={formatting.timezone}
           locale={formatting.locale}
-        />
-      </div>
+        />}
+      </Field>
       <DialogFooter>
         <Button type="button" variant="outline" onClick={onCancel}>
           {t('reschedule.cancel')}

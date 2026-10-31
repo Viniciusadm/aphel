@@ -11,7 +11,6 @@ import {
   DialogTitle,
 } from '@/components/ui/dialog'
 import { Input } from '@/components/ui/input'
-import { Label } from '@/components/ui/label'
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/components/ui/select'
 import { toast } from '@/components/ui/toast-store'
 import { settingsApi, useSettingsMutation, versionOf, type Member, type Team } from '../api'
@@ -114,15 +113,15 @@ export function TeamEditorDialog({ team, teams, members, onClose }: TeamEditorDi
               <FieldError id="team-name-error" message={errors.name?.message} />
               </>}
             </Field>
-            <div className="grid gap-2">
-              <Label htmlFor="team-parent">{t('teams.editor.parent')}</Label>
-              <Controller
+            <Field label={t('teams.editor.parent')}>
+              {(fieldControl) => <>
+                <Controller
                 control={control}
                 name="parentTeamId"
                 render={({ field }) => (
                   <Select value={field.value} onValueChange={field.onChange}>
                     <SelectTrigger
-                      id="team-parent"
+                      id={fieldControl.id}
                       aria-invalid={errors.parentTeamId ? true : undefined}
                       aria-describedby={errors.parentTeamId ? 'team-parent-error' : undefined}
                     >
@@ -140,7 +139,8 @@ export function TeamEditorDialog({ team, teams, members, onClose }: TeamEditorDi
                 )}
               />
               <FieldError id="team-parent-error" message={errors.parentTeamId?.message} />
-            </div>
+              </>}
+            </Field>
           </div>
           <fieldset className="grid gap-2">
             <legend className="mb-2 flex w-full items-center justify-between gap-2 text-sm font-medium">

@@ -2,10 +2,10 @@ import { Loader2 } from 'lucide-react'
 import { useTranslation } from 'react-i18next'
 import { isApiError } from '@/api'
 import { RecordFieldInput } from '@/components/fields'
-import { Label } from '@/components/ui/label'
 import { useRecordFormatting } from '@/features/records/formatting'
 import type { FormulaPreview } from './api'
 import { formatFormulaValue, type FormulaFormatOptions } from './format'
+import { Field } from '@/components/ui/field'
 
 interface FormulaPreviewPanelProps {
   recordType: string
@@ -55,10 +55,10 @@ export function FormulaPreviewPanel({
         {t('preview.title')}
       </h3>
       <div className="grid min-w-0 gap-3 sm:grid-cols-2">
-        <div className="grid min-w-0 content-start gap-2">
-          <Label htmlFor={pickerId}>{t('preview.record')}</Label>
-          <RecordFieldInput
-            id={pickerId}
+        <Field label={t('preview.record')} className="min-w-0 content-start">
+          {(fieldControl) => <>
+            <RecordFieldInput
+            id={fieldControl.id}
             value={recordId}
             onChange={onRecordChange}
             targetRecordType={recordType}
@@ -67,7 +67,8 @@ export function FormulaPreviewPanel({
           <p id={hintId} className="text-xs text-muted-foreground">
             {t('preview.recordHint')}
           </p>
-        </div>
+          </>}
+        </Field>
         <div className="grid min-w-0 content-start gap-2">
           <p className="text-sm leading-none font-medium">{t('preview.value')}</p>
           <div className="flex min-h-9 min-w-0 items-center gap-2 rounded-md border bg-muted/40 px-3 py-1.5 text-sm" aria-live="polite">

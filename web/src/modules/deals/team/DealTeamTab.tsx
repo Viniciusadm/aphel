@@ -18,6 +18,7 @@ import { dealTeamErrorMessage, formatPercent, parsePercent, toPercentInput } fro
 import { MEMBER_GRID_CLASS, MemberRow } from './MemberRow'
 import { RoleSelect } from './RoleSelect'
 import type { DealMember, DealMemberRole, DealTeam, UpdateDealMemberRequest } from './types'
+import { Field } from '@/components/ui/field'
 
 export interface DealTeamTabProps {
   dealId: string
@@ -252,20 +253,18 @@ function AddMemberForm({ team, roles, busy, onCancel, onSubmit }: AddMemberFormP
         />
         {userError && <p className="text-sm text-destructive">{t('add.userRequired')}</p>}
       </div>
-      <div className="grid gap-2.5">
-        <Label htmlFor={`${formId}-role`}>{t('add.role')}</Label>
-        <RoleSelect id={`${formId}-role`} value={roleId} roles={roles} onChange={setRoleId} />
-      </div>
-      <div className="grid gap-2.5">
-        <Label htmlFor={`${formId}-credit`}>{t('add.credit')}</Label>
-        <Input placeholder={t('placeholders.credit')}
-          id={`${formId}-credit`}
+      <Field label={t('add.role')}>
+        {(fieldControl) => <RoleSelect id={fieldControl.id} value={roleId} roles={roles} onChange={setRoleId} />}
+      </Field>
+      <Field label={t('add.credit')}>
+        {(fieldControl) => <Input placeholder={t('placeholders.credit')}
+          id={fieldControl.id}
           inputMode="decimal"
           value={credit}
           className="tabular-nums"
           onChange={(event) => setCredit(event.target.value)}
-        />
-      </div>
+        />}
+      </Field>
       <div className="flex flex-wrap items-center justify-between gap-2 @2xl:col-span-3">
         <span className="text-xs text-muted-foreground">
           {t('add.available', { percent: formatPercent(team.remaining_percent, i18n.language) })}

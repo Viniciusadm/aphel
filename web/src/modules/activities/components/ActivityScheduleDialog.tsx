@@ -10,7 +10,6 @@ import {
   DialogHeader,
   DialogTitle,
 } from '@/components/ui/dialog'
-import { Label } from '@/components/ui/label'
 import { toast } from '@/components/ui/toast-store'
 import { useRecordFormatting } from '@/features/records/formatting'
 import { useUpdateActivity, type Activity, type RecurrenceApplyTo, type UpdateActivityRequest } from '../api'
@@ -25,6 +24,7 @@ import {
 } from '../lib/recurrence'
 import { RecurrenceFields } from './RecurrenceFields'
 import { ReminderSelect } from './ReminderSelect'
+import { Field } from '@/components/ui/field'
 
 export type ScheduledActivity = Pick<
   Activity,
@@ -109,20 +109,18 @@ function ScheduleForm({ activity, onClose }: { activity: ScheduledActivity; onCl
             </span>
           </div>
         )}
-        <div className="grid gap-2.5">
-          <Label htmlFor={`${baseId}-due`}>{t('form.dueAt')}</Label>
-          <DateTimeFieldInput
-            id={`${baseId}-due`}
+        <Field label={t('form.dueAt')}>
+          {(fieldControl) => <DateTimeFieldInput
+            id={fieldControl.id}
             value={dueAt}
             onChange={setDueAt}
             timeZone={formatting.timezone}
             locale={formatting.locale}
-          />
-        </div>
-        <div className="grid gap-2.5">
-          <Label htmlFor={`${baseId}-reminder`}>{t('reminder.label')}</Label>
-          <ReminderSelect id={`${baseId}-reminder`} value={reminder} onChange={setReminder} />
-        </div>
+          />}
+        </Field>
+        <Field label={t('reminder.label')}>
+          {(fieldControl) => <ReminderSelect id={fieldControl.id} value={reminder} onChange={setReminder} />}
+        </Field>
         <RecurrenceFields
           value={recurrence}
           onChange={setRecurrence}

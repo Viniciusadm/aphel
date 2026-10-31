@@ -6,7 +6,6 @@ import { notifySuccess } from '@/components/feedback'
 import { Badge } from '@/components/ui/badge'
 import { Button } from '@/components/ui/button'
 import { Input } from '@/components/ui/input'
-import { Label } from '@/components/ui/label'
 import { useSaveAvailability } from '../api'
 import { matchServerField, serverFieldViolations } from '../lib/errors'
 import { FieldMessage } from '../lib/FieldMessage'
@@ -96,15 +95,16 @@ export function AvailabilityForm({ userId, availability }: AvailabilityFormProps
         </div>
       )}
       <FieldMessage message={errors.root?.server?.message} />
-      <div className="grid max-w-sm gap-2">
-        <Label htmlFor="availability-timezone">{t('availability.timezone')}</Label>
-        <TimeZoneInput
-          id="availability-timezone"
+      <Field label={t('availability.timezone')} className="max-w-sm">
+        {(fieldControl) => <>
+          <TimeZoneInput
+          id={fieldControl.id}
           aria-invalid={errors.timezone ? true : undefined}
           {...register('timezone')}
         />
         <FieldMessage message={errors.timezone?.message} />
-      </div>
+        </>}
+      </Field>
       <WeeklyHoursEditor control={control} register={register} errors={errors} />
       <div className="grid gap-4 sm:grid-cols-2 lg:grid-cols-3">
         {numberField(
@@ -114,10 +114,10 @@ export function AvailabilityForm({ userId, availability }: AvailabilityFormProps
           0,
           MAX_NOTICE_MINUTES,
         )}
-        <div className="grid gap-2">
-          <Label htmlFor="availability-maxPerDay">{t('availability.maxPerDay')}</Label>
-          <Input
-            id="availability-maxPerDay"
+        <Field label={t('availability.maxPerDay')}>
+          {(fieldControl) => <>
+            <Input
+            id={fieldControl.id}
             type="number"
             min={1}
             max={MAX_PER_DAY}
@@ -127,7 +127,8 @@ export function AvailabilityForm({ userId, availability }: AvailabilityFormProps
           />
           <p className="text-xs text-muted-foreground">{t('availability.maxPerDayHint')}</p>
           <FieldMessage message={errors.maxPerDay?.message} />
-        </div>
+          </>}
+        </Field>
         {numberField('horizonDays', t('availability.horizon'), t('availability.horizonHint'), 1, MAX_HORIZON_DAYS)}
         {numberField(
           'bufferBeforeMinutes',

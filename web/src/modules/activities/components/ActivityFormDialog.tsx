@@ -14,7 +14,6 @@ import {
   DialogTitle,
 } from '@/components/ui/dialog'
 import { Input } from '@/components/ui/input'
-import { Label } from '@/components/ui/label'
 import { Textarea } from '@/components/ui/textarea'
 import { toast } from '@/components/ui/toast-store'
 import { useOrganizationUsers } from '@/features/records/api'
@@ -216,14 +215,14 @@ export function ActivityFormDialog({
               </NativeSelect>}
             </Field>
           </div>
-          <div className="grid gap-2.5">
-            <Label htmlFor={ids.when}>{t(mode === 'log' ? 'form.completedAt' : 'form.dueAt')}</Label>
-            <Controller
+          <Field label={t(mode === 'log' ? 'form.completedAt' : 'form.dueAt')}>
+            {(fieldControl) => <>
+              <Controller
               control={control}
               name={mode === 'log' ? 'completed_at' : 'due_at'}
               render={({ field }) => (
                 <DateTimeFieldInput
-                  id={ids.when}
+                  id={fieldControl.id}
                   value={field.value}
                   onChange={field.onChange}
                   onBlur={field.onBlur}
@@ -233,18 +232,18 @@ export function ActivityFormDialog({
               )}
             />
             {mode === 'log' && <p className="text-xs text-muted-foreground">{t('form.completedAtHint')}</p>}
-          </div>
+            </>}
+          </Field>
           {mode === 'task' && (
-            <div className="grid gap-2.5">
-              <Label htmlFor={ids.reminder}>{t('reminder.label')}</Label>
-              <Controller
+            <Field label={t('reminder.label')}>
+              {(fieldControl) => <Controller
                 control={control}
                 name="reminder_minutes_before"
                 render={({ field }) => (
-                  <ReminderSelect id={ids.reminder} value={field.value} onChange={field.onChange} />
+                  <ReminderSelect id={fieldControl.id} value={field.value} onChange={field.onChange} />
                 )}
-              />
-            </div>
+              />}
+            </Field>
           )}
           {mode === 'task' && (
             <Controller
@@ -260,16 +259,15 @@ export function ActivityFormDialog({
             />
           )}
           <div className="grid gap-4 sm:grid-cols-2">
-            <div className="grid gap-2.5">
-              <Label htmlFor={ids.owner}>{t('form.owner')}</Label>
-              <NativeSelect id={ids.owner} {...register('owner_id')}>
+            <Field label={t('form.owner')}>
+              {(fieldControl) => <NativeSelect id={fieldControl.id} {...register('owner_id')}>
                 {ownerOptions.map((user) => (
                   <option key={user.id} value={user.id}>
                     {user.id === me.user.id ? t('form.ownerMe', { name: user.display_name }) : user.display_name}
                   </option>
                 ))}
-              </NativeSelect>
-            </div>
+              </NativeSelect>}
+            </Field>
             {showDuration && (
               <Field label={t('form.duration')}>
                 {(control) => <>

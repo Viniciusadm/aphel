@@ -1,5 +1,5 @@
 import { Loader2 } from 'lucide-react'
-import { useId, useState } from 'react'
+import { useState } from 'react'
 import { useTranslation } from 'react-i18next'
 import { notifyError, notifySuccess } from '@/components/feedback'
 import { RecordFieldInput } from '@/components/fields'
@@ -12,7 +12,6 @@ import {
   DialogHeader,
   DialogTitle,
 } from '@/components/ui/dialog'
-import { Label } from '@/components/ui/label'
 import { NativeSelect } from '@/features/records/filters/NativeSelect'
 import { emailApi, useInvalidateThreads } from '../api'
 import { useEmailRecordTypes } from '../lib/record-types'
@@ -42,7 +41,6 @@ export function LinkRecordDialog({ thread, open, onOpenChange }: LinkRecordDialo
 
 function LinkForm({ thread, onDone }: { thread: EmailThread; onDone: () => void }) {
   const { t } = useTranslation('email')
-  const formId = useId()
   const recordTypes = useEmailRecordTypes()
   const invalidate = useInvalidateThreads()
   const [recordType, setRecordType] = useState('contact')
@@ -91,17 +89,18 @@ function LinkForm({ thread, onDone }: { thread: EmailThread; onDone: () => void 
           ))}
         </NativeSelect>}
       </Field>
-      <div className="grid gap-2.5">
-        <Label htmlFor={`${formId}-record`}>{t('links.record')}</Label>
-        <RecordFieldInput
+      <Field label={t('links.record')}>
+        {(fieldControl) => <>
+          <RecordFieldInput
           key={recordType}
-          id={`${formId}-record`}
+          id={fieldControl.id}
           targetRecordType={recordType}
           value={recordId}
           onChange={setRecordId}
         />
         {alreadyLinked && <p className="text-xs text-muted-foreground">{t('links.alreadyLinked')}</p>}
-      </div>
+        </>}
+      </Field>
       <DialogFooter>
         <Button type="button" variant="outline" onClick={onDone}>
           {t('actions.cancel')}

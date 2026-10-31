@@ -12,7 +12,6 @@ import {
   DialogHeader,
   DialogTitle,
 } from '@/components/ui/dialog'
-import { Label } from '@/components/ui/label'
 import { recordsKeys, useFieldSchema, useOrganizationUsers } from '@/features/records/api'
 import { NativeSelect } from '@/features/records/filters/NativeSelect'
 import type { BulkActionContext } from '@/features/records/table'
@@ -262,7 +261,6 @@ function TagsForm({ recordType, onChange }: DraftFormProps & { recordType: BulkR
 
 function FieldForm({ recordType, onChange }: DraftFormProps & { recordType: BulkRecordType }) {
   const { t } = useTranslation('bulk_actions')
-  const id = useId()
   const schema = useFieldSchema(recordType)
   const fields = useMemo(() => (schema.data ? bulkEditableFields(schema.data, recordType) : []), [schema.data, recordType])
   const [fieldKey, setFieldKey] = useState('')
@@ -292,11 +290,11 @@ function FieldForm({ recordType, onChange }: DraftFormProps & { recordType: Bulk
         </NativeSelect>}
       </Field>
       {field && (
-        <div className="grid gap-2.5">
-          <Label htmlFor={`${id}-value`}>{t('field.value')}</Label>
-          <FieldInput
+        <Field label={t('field.value')}>
+          {(fieldControl) => <>
+            <FieldInput
             key={field.key}
-            id={`${id}-value`}
+            id={fieldControl.id}
             field={field}
             value={value}
             onChange={(next) => {
@@ -305,7 +303,8 @@ function FieldForm({ recordType, onChange }: DraftFormProps & { recordType: Bulk
             }}
           />
           <p className="text-xs text-muted-foreground">{t('field.emptyHint')}</p>
-        </div>
+          </>}
+        </Field>
       )}
     </>
   )
@@ -313,15 +312,14 @@ function FieldForm({ recordType, onChange }: DraftFormProps & { recordType: Bulk
 
 function StageForm({ onChange }: DraftFormProps) {
   const { t } = useTranslation('bulk_actions')
-  const id = useId()
   const [stageId, setStageId] = useState('')
   return (
     <ReferenceOptions kind="pipeline_stage">
       {({ options, isLoading }) => (
-        <div className="grid gap-2.5">
-          <Label htmlFor={`${id}-stage`}>{t('stage.label')}</Label>
-          <NativeSelect
-            id={`${id}-stage`}
+        <Field label={t('stage.label')}>
+          {(fieldControl) => <>
+            <NativeSelect
+            id={fieldControl.id}
             value={stageId}
             disabled={isLoading}
             onChange={(event) => {
@@ -341,7 +339,8 @@ function StageForm({ onChange }: DraftFormProps) {
             ))}
           </NativeSelect>
           <p className="text-xs text-muted-foreground">{t('stage.rulesHint')}</p>
-        </div>
+          </>}
+        </Field>
       )}
     </ReferenceOptions>
   )

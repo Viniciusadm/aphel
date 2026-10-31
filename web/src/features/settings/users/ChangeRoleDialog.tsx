@@ -9,12 +9,12 @@ import {
   DialogHeader,
   DialogTitle,
 } from '@/components/ui/dialog'
-import { Label } from '@/components/ui/label'
 import { toast } from '@/components/ui/toast-store'
 import { settingsApi, useSettingsMutation, versionOf, type Member, type Role } from '../api'
 import { FormAlert } from '../components/FieldError'
 import { RoleSelect } from '../components/RoleSelect'
 import { errorMessageKey, type SettingsMessageKey } from '../lib/errors'
+import { Field } from '@/components/ui/field'
 
 interface ChangeRoleDialogProps {
   member: Member
@@ -47,16 +47,15 @@ export function ChangeRoleDialog({ member, roles, onClose }: ChangeRoleDialogPro
           <DialogDescription>{t('users.roleDialog.description', { name: member.display_name })}</DialogDescription>
         </DialogHeader>
         <FormAlert message={error} />
-        <div className="grid gap-2">
-          <Label htmlFor="member-role">{t('users.roleDialog.role')}</Label>
-          <RoleSelect
-            id="member-role"
+        <Field label={t('users.roleDialog.role')}>
+          {(fieldControl) => <RoleSelect
+            id={fieldControl.id}
             roles={roles}
             value={roleId}
             onChange={setRoleId}
             placeholder={t('users.inviteDialog.rolePlaceholder')}
-          />
-        </div>
+          />}
+        </Field>
         <DialogFooter>
           <Button variant="outline" onClick={onClose} disabled={change.isPending}>
             {t('actions.cancel')}

@@ -4,7 +4,6 @@ import { useTranslation } from 'react-i18next'
 import { Button } from '@/components/ui/button'
 import { Checkbox } from '@/components/ui/checkbox'
 import { Input } from '@/components/ui/input'
-import { Label } from '@/components/ui/label'
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/components/ui/select'
 import { useContactFields } from '../api'
 import { FieldMessage } from '../lib/FieldMessage'
@@ -56,14 +55,13 @@ export function QuestionsEditor({ control, register, errors }: QuestionsEditorPr
               </div>
               <FieldMessage message={questionErrors?.label?.message} />
               <div className="grid gap-3 sm:grid-cols-[10rem_1fr_auto] sm:items-end">
-                <div className="grid gap-2">
-                  <Label htmlFor={`question-${index}-kind`}>{t('meetingTypes.form.questionKind')}</Label>
-                  <Controller
+                <Field label={t('meetingTypes.form.questionKind')}>
+                  {(fieldControl) => <Controller
                     control={control}
                     name={`questions.${index}.kind`}
                     render={({ field: input }) => (
                       <Select value={input.value} onValueChange={input.onChange}>
-                        <SelectTrigger id={`question-${index}-kind`}>
+                        <SelectTrigger id={fieldControl.id}>
                           <SelectValue />
                         </SelectTrigger>
                         <SelectContent>
@@ -75,16 +73,15 @@ export function QuestionsEditor({ control, register, errors }: QuestionsEditorPr
                         </SelectContent>
                       </Select>
                     )}
-                  />
-                </div>
-                <div className="grid gap-2">
-                  <Label htmlFor={`question-${index}-field`}>{t('meetingTypes.form.contactField')}</Label>
-                  <Controller
+                  />}
+                </Field>
+                <Field label={t('meetingTypes.form.contactField')}>
+                  {(fieldControl) => <Controller
                     control={control}
                     name={`questions.${index}.contactField`}
                     render={({ field: input }) => (
                       <Select value={input.value} onValueChange={input.onChange}>
-                        <SelectTrigger id={`question-${index}-field`}>
+                        <SelectTrigger id={fieldControl.id}>
                           <SelectValue />
                         </SelectTrigger>
                         <SelectContent>
@@ -97,8 +94,8 @@ export function QuestionsEditor({ control, register, errors }: QuestionsEditorPr
                         </SelectContent>
                       </Select>
                     )}
-                  />
-                </div>
+                  />}
+                </Field>
                 <Controller
                   control={control}
                   name={`questions.${index}.required`}

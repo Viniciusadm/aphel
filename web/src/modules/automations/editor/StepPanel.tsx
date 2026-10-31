@@ -161,14 +161,14 @@ function DurationField({
   issues: ValidationIssue[]
   signed?: boolean
 }) {
-  const id = useId()
   return (
-    <div className="grid gap-2.5">
-      <Label htmlFor={id}>{label}</Label>
-      <DurationInput id={id} value={value} onChange={onChange} signed={signed} invalid={issues.length > 0} />
+    <Field label={label}>
+      {(fieldControl) => <>
+        <DurationInput id={fieldControl.id} value={value} onChange={onChange} signed={signed} invalid={issues.length > 0} />
       {hint && <p className="text-xs text-muted-foreground">{hint}</p>}
       <IssueList issues={issues} />
-    </div>
+      </>}
+    </Field>
   )
 }
 
@@ -268,7 +268,6 @@ function ActionEditor({
   onChange: (step: StepSpec) => void
 }) {
   const { t } = useTranslation('automations')
-  const id = useId()
   const labels = useAutomationLabels(catalog)
   const actions = catalog.actions.filter((action) => supportsRecordType(action, recordType))
   const entry = catalog.actions.find((action) => action.key === step.action)
@@ -277,10 +276,10 @@ function ActionEditor({
 
   return (
     <section className="grid gap-4">
-      <div className="grid gap-2.5">
-        <Label htmlFor={id}>{t('panel.action')}</Label>
-        <NativeSelect
-          id={id}
+      <Field label={t('panel.action')}>
+        {(fieldControl) => <>
+          <NativeSelect
+          id={fieldControl.id}
           value={step.action ?? ''}
           onChange={(event) => {
             const next = catalog.actions.find((action) => action.key === event.target.value)
@@ -297,7 +296,8 @@ function ActionEditor({
         </NativeSelect>
         {description && <p className="text-xs text-muted-foreground">{description}</p>}
         <IssueList issues={issuesUnder(issues, 'action')} />
-      </div>
+        </>}
+      </Field>
       {entry ? (
         <SchemaForm
           key={`${step.id}:${step.action}`}
@@ -333,7 +333,6 @@ function WaitEditor({
   onChange: (step: StepSpec) => void
 }) {
   const { t } = useTranslation('automations')
-  const fieldId = useId()
   const recheckId = useId()
   const mode = step.until_field ? 'field' : 'duration'
   const hasRecheck = step.recheck !== undefined && step.recheck !== null
@@ -383,10 +382,10 @@ function WaitEditor({
         />
       ) : (
         <>
-          <div className="grid gap-2.5">
-            <Label htmlFor={fieldId}>{t('panel.untilField')}</Label>
-            <FieldSelect
-              id={fieldId}
+          <Field label={t('panel.untilField')}>
+            {(fieldControl) => <>
+              <FieldSelect
+              id={fieldControl.id}
               recordType={recordType}
               fieldTypes={['date', 'datetime']}
               value={step.until_field}
@@ -394,7 +393,8 @@ function WaitEditor({
               invalid={issuesUnder(issues, 'until_field').length > 0}
             />
             <IssueList issues={issuesUnder(issues, 'until_field')} />
-          </div>
+            </>}
+          </Field>
           <DurationField
             label={t('panel.offset')}
             hint={t('panel.offsetHint')}

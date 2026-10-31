@@ -1,12 +1,11 @@
 import { Clock, RefreshCw } from 'lucide-react'
-import { useId, useState, type ReactNode } from 'react'
+import { useState, type ReactNode } from 'react'
 import { useTranslation } from 'react-i18next'
 import { RecordFieldInput } from '@/components/fields'
 import { Button } from '@/components/ui/button'
 import { Dialog, DialogContent, DialogDescription, DialogHeader, DialogTitle } from '@/components/ui/dialog'
 import { EmptyState } from '@/components/ui/empty-state'
 import { ErrorState } from '@/components/ui/error-state'
-import { Label } from '@/components/ui/label'
 import { Skeleton } from '@/components/ui/skeleton'
 import { NativeSelect } from '@/features/records/filters/NativeSelect'
 import { formatDateTime, useRecordFormatting } from '@/features/records/formatting'
@@ -30,7 +29,6 @@ export interface RunsPanelProps {
 
 export function RunsPanel({ automation, catalog, schema, draftSteps }: RunsPanelProps) {
   const { t } = useTranslation('automations')
-  const recordId = useId()
   const formatting = useRecordFormatting()
   const labels = useAutomationLabels(catalog)
   const [status, setStatus] = useState<RunStatus | ''>('')
@@ -113,18 +111,17 @@ export function RunsPanel({ automation, catalog, schema, draftSteps }: RunsPanel
             ))}
           </NativeSelect>}
         </Field>
-        <div className="grid min-w-0 flex-1 gap-2.5 sm:max-w-xs">
-          <Label htmlFor={recordId}>{t('runs.record')}</Label>
-          <RecordFieldInput
-            id={recordId}
+        <Field label={t('runs.record')} className="min-w-0 flex-1 sm:max-w-xs">
+          {(fieldControl) => <RecordFieldInput
+            id={fieldControl.id}
             targetRecordType={automation.record_type}
             value={record}
             onChange={(next) => {
               setRecord(next)
               setPage(1)
             }}
-          />
-        </div>
+          />}
+        </Field>
         <Button type="button" variant="outline" size="icon" aria-label={t('runs.refresh')} onClick={() => void runs.refetch()}>
           <RefreshCw aria-hidden="true" className={runs.isFetching ? 'animate-spin' : undefined} />
         </Button>

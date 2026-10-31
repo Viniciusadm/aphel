@@ -1,5 +1,5 @@
 import { Link2, Lock, Unlink } from 'lucide-react'
-import { useId, useState } from 'react'
+import { useState } from 'react'
 import { useTranslation } from 'react-i18next'
 import { Link } from 'react-router'
 import { notifySuccess } from '@/components/feedback'
@@ -8,7 +8,6 @@ import { Badge } from '@/components/ui/badge'
 import { Button } from '@/components/ui/button'
 import { EmptyState } from '@/components/ui/empty-state'
 import { ErrorState } from '@/components/ui/error-state'
-import { Label } from '@/components/ui/label'
 import { Skeleton } from '@/components/ui/skeleton'
 import { getRecordResource } from '@/features/records/resources'
 import {
@@ -19,6 +18,7 @@ import {
   type RelationInfo,
 } from './api'
 import { notifyObjectsError } from './errors'
+import { Field } from '@/components/ui/field'
 
 export interface RelationPanelProps {
   recordType: string
@@ -29,7 +29,6 @@ export interface RelationPanelProps {
 
 export function RelationPanel({ recordType, recordId, relation, readOnly = false }: RelationPanelProps) {
   const { t } = useTranslation('objects')
-  const pickerId = useId()
   const [page, setPage] = useState(1)
   const related = useRelatedRecords(recordType, recordId, relation.key, page)
   const { link, unlink } = useRelationMutations(recordType, recordId, relation)
@@ -63,17 +62,16 @@ export function RelationPanel({ recordType, recordId, relation, readOnly = false
   return (
     <div className="grid gap-3">
       {canLink && (
-        <div className="grid gap-2.5">
-          <Label htmlFor={pickerId}>{t('relations.link', { label: relation.label })}</Label>
-          <RecordFieldInput
-            id={pickerId}
+        <Field label={t('relations.link', { label: relation.label })}>
+          {(fieldControl) => <RecordFieldInput
+            id={fieldControl.id}
             targetRecordType={relation.target_type}
             value={null}
             clearable={false}
             disabled={busy}
             onChange={linkRecord}
-          />
-        </div>
+          />}
+        </Field>
       )}
       {related.isPending ? (
         <div className="grid gap-2" aria-busy="true">

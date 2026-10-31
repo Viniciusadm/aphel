@@ -16,7 +16,6 @@ import {
   DialogTitle,
 } from '@/components/ui/dialog'
 import { Input } from '@/components/ui/input'
-import { Label } from '@/components/ui/label'
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/components/ui/select'
 import { Textarea } from '@/components/ui/textarea'
 import { useCustomObjects } from '@/features/custom-records/api'
@@ -92,15 +91,15 @@ function MembersEditor({ control, errors, users, weighted }: MembersEditorProps)
           return (
             <li key={field.id} className="grid gap-3 rounded-lg border p-3">
               <div className="flex flex-wrap items-end gap-3">
-                <div className="grid min-w-48 flex-1 gap-2">
-                  <Label htmlFor={`member-${index}-user`}>{t('editor.user')}</Label>
-                  <Controller
+                <Field label={t('editor.user')} className="min-w-48 flex-1">
+                  {(fieldControl) => <>
+                    <Controller
                     control={control}
                     name={`members.${index}.userId`}
                     render={({ field: input }) => (
                       <Select value={input.value || undefined} onValueChange={input.onChange}>
                         <SelectTrigger
-                          id={`member-${index}-user`}
+                          id={fieldControl.id}
                           aria-invalid={memberErrors?.userId ? true : undefined}
                           aria-describedby={memberErrors?.userId ? `member-${index}-user-error` : undefined}
                         >
@@ -117,16 +116,16 @@ function MembersEditor({ control, errors, users, weighted }: MembersEditorProps)
                     )}
                   />
                   <FieldMessage id={`member-${index}-user-error`} message={memberErrors?.userId?.message} />
-                </div>
+                  </>}
+                </Field>
                 {weighted && (
-                  <div className="grid w-24 gap-2">
-                    <Label htmlFor={`member-${index}-weight`}>{t('editor.weight')}</Label>
-                    <Controller
+                  <Field label={t('editor.weight')} className="w-24">
+                    {(fieldControl) => <Controller
                       control={control}
                       name={`members.${index}.weight`}
                       render={({ field: input }) => (
                         <Input placeholder={t('placeholders.weight')}
-                          id={`member-${index}-weight`}
+                          id={fieldControl.id}
                           type="number"
                           min={1}
                           max={MAX_WEIGHT}
@@ -135,8 +134,8 @@ function MembersEditor({ control, errors, users, weighted }: MembersEditorProps)
                           aria-invalid={memberErrors?.weight ? true : undefined}
                         />
                       )}
-                    />
-                  </div>
+                    />}
+                  </Field>
                 )}
                 <Controller
                   control={control}
@@ -161,24 +160,23 @@ function MembersEditor({ control, errors, users, weighted }: MembersEditorProps)
               {memberErrors?.weight && <FieldMessage id={`member-${index}-weight-error`} message={memberErrors.weight.message} />}
               {away && (
                 <div className="grid gap-3 sm:grid-cols-2">
-                  <div className="grid gap-2">
-                    <Label htmlFor={`member-${index}-from`}>{t('editor.awayFrom')}</Label>
-                    <Controller
+                  <Field label={t('editor.awayFrom')}>
+                    {(fieldControl) => <Controller
                       control={control}
                       name={`members.${index}.awayFrom`}
                       render={({ field: input }) => (
-                        <Input id={`member-${index}-from`} type="datetime-local" {...input} />
+                        <Input id={fieldControl.id} type="datetime-local" {...input} />
                       )}
-                    />
-                  </div>
-                  <div className="grid gap-2">
-                    <Label htmlFor={`member-${index}-until`}>{t('editor.awayUntil')}</Label>
-                    <Controller
+                    />}
+                  </Field>
+                  <Field label={t('editor.awayUntil')}>
+                    {(fieldControl) => <>
+                      <Controller
                       control={control}
                       name={`members.${index}.awayUntil`}
                       render={({ field: input }) => (
                         <Input
-                          id={`member-${index}-until`}
+                          id={fieldControl.id}
                           type="datetime-local"
                           aria-invalid={memberErrors?.awayUntil ? true : undefined}
                           {...input}
@@ -186,7 +184,8 @@ function MembersEditor({ control, errors, users, weighted }: MembersEditorProps)
                       )}
                     />
                     <FieldMessage id={`member-${index}-until-error`} message={memberErrors?.awayUntil?.message} />
-                  </div>
+                    </>}
+                  </Field>
                   <p className="text-xs text-muted-foreground sm:col-span-2">{t('editor.awayHint')}</p>
                 </div>
               )}
@@ -219,14 +218,14 @@ function RoutingEditor({ control, errors, users, recordType }: RoutingEditorProp
   return (
     <div className="grid gap-4">
       <div className="grid gap-3 sm:grid-cols-2">
-        <div className="grid gap-2">
-          <Label htmlFor="routing-field">{t('editor.routingField')}</Label>
-          <Controller
+        <Field label={t('editor.routingField')}>
+          {(fieldControl) => <>
+            <Controller
             control={control}
             name="routingField"
             render={({ field: input }) => (
               <Select value={input.value || undefined} onValueChange={input.onChange}>
-                <SelectTrigger id="routing-field" aria-invalid={errors.routingField ? true : undefined}>
+                <SelectTrigger id={fieldControl.id} aria-invalid={errors.routingField ? true : undefined}>
                   <SelectValue placeholder={t('editor.selectField')} />
                 </SelectTrigger>
                 <SelectContent>
@@ -240,15 +239,15 @@ function RoutingEditor({ control, errors, users, recordType }: RoutingEditorProp
             )}
           />
           <FieldMessage id="routing-field-error" message={errors.routingField?.message} />
-        </div>
-        <div className="grid gap-2">
-          <Label htmlFor="routing-fallback">{t('editor.fallback')}</Label>
-          <Controller
+          </>}
+        </Field>
+        <Field label={t('editor.fallback')}>
+          {(fieldControl) => <Controller
             control={control}
             name="fallback"
             render={({ field: input }) => (
               <Select value={input.value} onValueChange={input.onChange}>
-                <SelectTrigger id="routing-fallback">
+                <SelectTrigger id={fieldControl.id}>
                   <SelectValue />
                 </SelectTrigger>
                 <SelectContent>
@@ -257,8 +256,8 @@ function RoutingEditor({ control, errors, users, recordType }: RoutingEditorProp
                 </SelectContent>
               </Select>
             )}
-          />
-        </div>
+          />}
+        </Field>
       </div>
       <fieldset className="grid gap-2">
         <legend className="text-sm font-medium">{t('editor.routes')}</legend>
@@ -280,14 +279,14 @@ function RoutingEditor({ control, errors, users, recordType }: RoutingEditorProp
                   </Button>
                 </div>
                 <div className="grid gap-3 sm:grid-cols-2">
-                  <div className="grid gap-2">
-                    <Label htmlFor={`route-${index}-values`}>{t('editor.routeValues')}</Label>
-                    <Controller
+                  <Field label={t('editor.routeValues')}>
+                    {(fieldControl) => <>
+                      <Controller
                       control={control}
                       name={`routes.${index}.values`}
                       render={({ field: input }) => (
                         <Input placeholder={t('placeholders.routeValues')}
-                          id={`route-${index}-values`}
+                          id={fieldControl.id}
                           aria-invalid={routeErrors?.values ? true : undefined}
                           aria-describedby={`route-${index}-values-hint`}
                           {...input}
@@ -298,15 +297,16 @@ function RoutingEditor({ control, errors, users, recordType }: RoutingEditorProp
                       {t('editor.routeValuesHint')}
                     </p>
                     <FieldMessage id={`route-${index}-values-error`} message={routeErrors?.values?.message} />
-                  </div>
-                  <div className="grid gap-2">
-                    <Label htmlFor={`route-${index}-team`}>{t('editor.routeTeam')}</Label>
-                    <Controller
+                    </>}
+                  </Field>
+                  <Field label={t('editor.routeTeam')}>
+                    {(fieldControl) => <>
+                      <Controller
                       control={control}
                       name={`routes.${index}.teamId`}
                       render={({ field: input }) => (
                         <Select value={input.value} onValueChange={input.onChange}>
-                          <SelectTrigger id={`route-${index}-team`} aria-invalid={routeErrors?.teamId ? true : undefined}>
+                          <SelectTrigger id={fieldControl.id} aria-invalid={routeErrors?.teamId ? true : undefined}>
                             <SelectValue />
                           </SelectTrigger>
                           <SelectContent>
@@ -321,7 +321,8 @@ function RoutingEditor({ control, errors, users, recordType }: RoutingEditorProp
                       )}
                     />
                     <FieldMessage id={`route-${index}-team-error`} message={routeErrors?.teamId?.message} />
-                  </div>
+                    </>}
+                  </Field>
                 </div>
                 <Controller
                   control={control}
@@ -445,11 +446,12 @@ export function RuleEditorDialog({ rule, onClose }: RuleEditorDialogProps) {
         <form className="grid gap-5" onSubmit={onSubmit} noValidate>
           <FieldMessage id="rule-form-error" message={errors.root?.server?.message} />
           <div className="grid gap-4 sm:grid-cols-2">
-            <div className="grid gap-2">
-              <Label htmlFor="rule-name">{t('editor.name')}</Label>
-              <Input placeholder={t('placeholders.name')} id="rule-name" aria-invalid={errors.name ? true : undefined} {...register('name')} />
+            <Field label={t('editor.name')}>
+              {(fieldControl) => <>
+                <Input placeholder={t('placeholders.name')} id={fieldControl.id} aria-invalid={errors.name ? true : undefined} {...register('name')} />
               <FieldMessage id="rule-name-error" message={errors.name?.message} />
-            </div>
+              </>}
+            </Field>
             <Field label={t('editor.key')}>
               {(control) => <>
                 <Input placeholder={t('placeholders.key')}
@@ -465,14 +467,14 @@ export function RuleEditorDialog({ rule, onClose }: RuleEditorDialogProps) {
               <FieldMessage id="rule-key-error" message={errors.key?.message} />
               </>}
             </Field>
-            <div className="grid gap-2">
-              <Label htmlFor="rule-record-type">{t('editor.recordType')}</Label>
-              <Controller
+            <Field label={t('editor.recordType')}>
+              {(fieldControl) => <>
+                <Controller
                 control={control}
                 name="recordType"
                 render={({ field }) => (
                   <Select value={field.value} onValueChange={field.onChange}>
-                    <SelectTrigger id="rule-record-type" aria-invalid={errors.recordType ? true : undefined}>
+                    <SelectTrigger id={fieldControl.id} aria-invalid={errors.recordType ? true : undefined}>
                       <SelectValue />
                     </SelectTrigger>
                     <SelectContent>
@@ -486,15 +488,16 @@ export function RuleEditorDialog({ rule, onClose }: RuleEditorDialogProps) {
                 )}
               />
               <FieldMessage id="rule-record-type-error" message={errors.recordType?.message} />
-            </div>
-            <div className="grid gap-2">
-              <Label htmlFor="rule-strategy">{t('editor.strategy')}</Label>
-              <Controller
+              </>}
+            </Field>
+            <Field label={t('editor.strategy')}>
+              {(fieldControl) => <>
+                <Controller
                 control={control}
                 name="strategy"
                 render={({ field }) => (
                   <Select value={field.value} onValueChange={field.onChange}>
-                    <SelectTrigger id="rule-strategy" aria-describedby="rule-strategy-hint">
+                    <SelectTrigger id={fieldControl.id} aria-describedby="rule-strategy-hint">
                       <SelectValue />
                     </SelectTrigger>
                     <SelectContent>
@@ -510,11 +513,11 @@ export function RuleEditorDialog({ rule, onClose }: RuleEditorDialogProps) {
               <p id="rule-strategy-hint" className="text-xs text-muted-foreground">
                 {t(`strategyHints.${strategy}`)}
               </p>
-            </div>
-            <div className="grid gap-2 sm:col-span-2">
-              <Label htmlFor="rule-description">{t('editor.descriptionField')}</Label>
-              <Textarea placeholder={t('placeholders.description')} id="rule-description" rows={2} {...register('description')} />
-            </div>
+              </>}
+            </Field>
+            <Field label={t('editor.descriptionField')} className="sm:col-span-2">
+              {(fieldControl) => <Textarea placeholder={t('placeholders.description')} id={fieldControl.id} rows={2} {...register('description')} />}
+            </Field>
             <Controller
               control={control}
               name="isActive"

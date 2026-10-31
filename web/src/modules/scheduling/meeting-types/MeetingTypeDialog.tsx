@@ -49,14 +49,13 @@ function TeamLinkSection({ control }: { control: Control<MeetingTypeFormValues> 
     <fieldset className="grid gap-2 rounded-lg border p-3">
       <legend className="px-1 text-sm font-medium">{t('meetingTypes.form.team')}</legend>
       <p className="text-sm text-muted-foreground">{t('meetingTypes.form.teamHint')}</p>
-      <div className="grid max-w-sm gap-2">
-        <Label htmlFor="meeting-type-rule">{t('meetingTypes.form.distributionRule')}</Label>
-        <Controller
+      <Field label={t('meetingTypes.form.distributionRule')} className="max-w-sm">
+        {(fieldControl) => <Controller
           control={control}
           name="distributionRuleId"
           render={({ field }) => (
             <Select value={field.value} onValueChange={field.onChange}>
-              <SelectTrigger id="meeting-type-rule">
+              <SelectTrigger id={fieldControl.id}>
                 <SelectValue />
               </SelectTrigger>
               <SelectContent>
@@ -69,8 +68,8 @@ function TeamLinkSection({ control }: { control: Control<MeetingTypeFormValues> 
               </SelectContent>
             </Select>
           )}
-        />
-      </div>
+        />}
+      </Field>
     </fieldset>
   )
 }
@@ -123,11 +122,12 @@ export function MeetingTypeDialog({ meetingType, onClose }: MeetingTypeDialogPro
         </DialogHeader>
         <form className="grid gap-5" onSubmit={onSubmit} noValidate>
           <FieldMessage message={errors.root?.server?.message} />
-          <div className="grid gap-2">
-            <Label htmlFor="meeting-type-name">{t('meetingTypes.form.name')}</Label>
-            <Input placeholder={t('placeholders.name')} id="meeting-type-name" aria-invalid={errors.name ? true : undefined} {...register('name')} />
+          <Field label={t('meetingTypes.form.name')}>
+            {(fieldControl) => <>
+              <Input placeholder={t('placeholders.name')} id={fieldControl.id} aria-invalid={errors.name ? true : undefined} {...register('name')} />
             <FieldMessage message={errors.name?.message} />
-          </div>
+            </>}
+          </Field>
           <div className="grid gap-2">
             <Label htmlFor="meeting-type-slug">{t('meetingTypes.form.slug')}</Label>
             <div className="flex min-w-0 items-center rounded-md border border-input bg-muted/40 shadow-xs">
@@ -176,14 +176,13 @@ export function MeetingTypeDialog({ meetingType, onClose }: MeetingTypeDialogPro
               <FieldMessage message={errors.slotIntervalMinutes?.message} />
               </>}
             </Field>
-            <div className="grid gap-2">
-              <Label htmlFor="meeting-type-location-kind">{t('meetingTypes.form.locationKind')}</Label>
-              <Controller
+            <Field label={t('meetingTypes.form.locationKind')}>
+              {(fieldControl) => <Controller
                 control={control}
                 name="locationKind"
                 render={({ field }) => (
                   <Select value={field.value} onValueChange={field.onChange}>
-                    <SelectTrigger id="meeting-type-location-kind">
+                    <SelectTrigger id={fieldControl.id}>
                       <SelectValue />
                     </SelectTrigger>
                     <SelectContent>
@@ -195,19 +194,20 @@ export function MeetingTypeDialog({ meetingType, onClose }: MeetingTypeDialogPro
                     </SelectContent>
                   </Select>
                 )}
-              />
-            </div>
+              />}
+            </Field>
             {locationKind !== 'none' && (
-              <div className="grid gap-2">
-                <Label htmlFor="meeting-type-location-value">{t(`locationValueLabels.${locationKind}`)}</Label>
-                <Input placeholder={t('placeholders.locationValue')}
-                  id="meeting-type-location-value"
+              <Field label={t(`locationValueLabels.${locationKind}`)}>
+                {(fieldControl) => <>
+                  <Input placeholder={t('placeholders.locationValue')}
+                  id={fieldControl.id}
                   aria-invalid={errors.locationValue ? true : undefined}
                   {...register('locationValue')}
                 />
                 <p className="text-xs text-muted-foreground">{t('meetingTypes.form.locationValueHint')}</p>
                 <FieldMessage message={errors.locationValue?.message} />
-              </div>
+                </>}
+              </Field>
             )}
           </div>
           <div className="grid gap-3">
