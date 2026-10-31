@@ -88,8 +88,8 @@ function GroupSection({
   onNavigate?: () => void
 }) {
   const location = useLocation()
-  const active = node.entries.some((entry) => location.pathname.startsWith(entry.to))
-  const [open, setOpen] = useState(active)
+  const active = node.entries.some((entry) => entry.end ? location.pathname === entry.to : location.pathname === entry.to || location.pathname.startsWith(`${entry.to}/`))
+  const [disclosure, setDisclosure] = useState<{ path: string; open: boolean } | null>(null)
   if (collapsed) {
     return (
       <>
@@ -99,13 +99,13 @@ function GroupSection({
       </>
     )
   }
-  const expanded = open || active
+  const expanded = disclosure?.path === location.pathname ? disclosure.open : active
   return (
     <div className="flex flex-col gap-1">
       <button
         type="button"
         aria-expanded={expanded}
-        onClick={() => setOpen(!expanded)}
+        onClick={() => setDisclosure({ path: location.pathname, open: !expanded })}
         className={cn(ITEM_CLASS, 'w-full text-left')}
       >
         {node.icon}
