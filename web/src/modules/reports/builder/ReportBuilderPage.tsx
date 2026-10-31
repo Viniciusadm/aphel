@@ -50,6 +50,7 @@ import {
 } from './model'
 import { ReportResultView } from './ReportResultView'
 import { SchedulesPanel } from './SchedulesPanel'
+import { Alert } from '@/components/ui/alert'
 
 const SETTINGS_MANAGE = 'settings.manage'
 const PREVIEW_DELAY_MS = 400
@@ -399,7 +400,7 @@ function ReportEditor({ report }: { report: Report | null }) {
               {!ready && <p className="text-sm text-muted-foreground">{t('preview.incomplete')}</p>}
               {ready && preview.isPending && <Skeleton className="h-64 w-full" />}
               {ready && previewError && (
-                <div role="alert" className="grid gap-1 rounded-md border border-destructive/30 bg-destructive/5 p-3 text-sm">
+                <Alert className="grid gap-1">
                   <p className="font-medium">{t('preview.error')}</p>
                   {violations.length > 0 ? (
                     <ul className="list-inside list-disc text-muted-foreground">
@@ -412,7 +413,7 @@ function ReportEditor({ report }: { report: Report | null }) {
                   ) : (
                     <p className="text-muted-foreground">{isApiError(previewError) ? previewError.message : String(previewError)}</p>
                   )}
-                </div>
+                </Alert>
               )}
               {ready && !previewError && preview.data && (
                 <>

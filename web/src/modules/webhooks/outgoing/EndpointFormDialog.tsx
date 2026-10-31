@@ -31,6 +31,7 @@ import {
   type WebhookEndpoint,
   type WebhookEndpointWithSecret,
 } from './api'
+import { Alert } from '@/components/ui/alert'
 
 type MessageKey = ParseKeys<'webhooks'>
 
@@ -172,12 +173,10 @@ export function EndpointFormDialog({ endpoint, onClose, onCreated, onUpdated }: 
         </DialogHeader>
         <form id={formId} className="grid gap-4" noValidate onSubmit={(event) => void onSubmit(event)}>
           {serverError && (
-            <p
-              role="alert"
-              className="rounded-md border border-destructive/30 bg-destructive/5 px-3 py-2 text-sm text-destructive"
+            <Alert className="text-destructive"
             >
               {serverError}
-            </p>
+            </Alert>
           )}
           <div className="grid gap-1.5">
             <Label htmlFor={`${formId}-url`}>{t('form.url')}</Label>

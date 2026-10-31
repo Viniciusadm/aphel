@@ -18,6 +18,7 @@ import { MeetingDetails } from './components/MeetingDetails'
 import { SlotPicker } from './components/SlotPicker'
 import { formatWhen } from './lib/time'
 import type { PublicMeetingTypeResponse, PublicSlot } from './types'
+import { Alert } from '@/components/ui/alert'
 
 type BookingErrorKey =
   | 'errors.slotUnavailable'
@@ -96,9 +97,9 @@ function BookingFlow({ slug, meetingType }: { slug: string; meetingType: PublicM
       </aside>
       <section className="grid content-start gap-4 p-6 md:pl-0">
         {errorKey && (
-          <p role="alert" className="rounded-md border border-destructive/30 bg-destructive/5 p-3 text-sm">
+          <Alert>
             {t(errorKey)}
-          </p>
+          </Alert>
         )}
         <div className={step === 'slot' ? 'grid gap-4' : 'hidden'}>
           <h2 className="text-lg font-semibold">{t('slots.title')}</h2>

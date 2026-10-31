@@ -20,6 +20,7 @@ import {
 } from './api'
 import { PageHeader } from '@/components/ui/page-header'
 import { Page } from '@/components/ui/page'
+import { Alert } from '@/components/ui/alert'
 
 const KNOWN_CALENDAR_ERRORS = [
   'access_denied',
@@ -189,12 +190,12 @@ export function CalendarSection({ moduleKey, providerName, status }: CalendarSec
           </div>
         </dl>
         {connection.last_error_code && (
-          <p role="alert" className="rounded-md border border-destructive/40 bg-destructive/10 px-3 py-2 text-sm">
+          <Alert>
             {t(calendarErrorKey(connection.last_error_code))}
             {connection.last_error_message && (
               <span className="mt-1 block text-xs text-muted-foreground">{connection.last_error_message}</span>
             )}
-          </p>
+          </Alert>
         )}
         <div className="flex flex-wrap gap-2">
           {connection.status === 'revoked' && status.can_connect ? (

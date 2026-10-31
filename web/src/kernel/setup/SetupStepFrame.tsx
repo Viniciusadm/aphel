@@ -4,6 +4,7 @@ import { useTranslation } from 'react-i18next'
 import { Button } from '@/components/ui/button'
 import { Card, CardContent, CardDescription, CardFooter, CardHeader } from '@/components/ui/card'
 import { useSetupFrame } from './context'
+import { Alert } from '@/components/ui/alert'
 
 export interface SetupAction {
   label: string
@@ -56,9 +57,9 @@ export function SetupStepFrame({ title, description, error, notice, primary, sec
             </p>
           )}
           {error && (
-            <p role="alert" className="rounded-md border border-destructive/30 bg-destructive/5 p-3 text-sm text-destructive">
+            <Alert className="text-destructive">
               {error}
-            </p>
+            </Alert>
           )}
           {children}
         </CardContent>

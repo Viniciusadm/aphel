@@ -20,6 +20,7 @@ import {
   type ModuleChoice,
   type ModuleSettings,
 } from '../lib/modules'
+import { Alert } from '@/components/ui/alert'
 
 interface FeaturesStepProps {
   catalog: InstallerCatalog
@@ -325,9 +326,9 @@ function Configuration({
           }}
         >
           {error && (
-            <p role="alert" className="rounded-md border border-destructive/30 bg-destructive/5 p-3 text-sm text-destructive">
+            <Alert className="text-destructive">
               {error}
-            </p>
+            </Alert>
           )}
           <fieldset disabled={saving} className="grid gap-5">
             {items.map((item) => (

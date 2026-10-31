@@ -13,6 +13,7 @@ import {
 import { contrastWarnings } from './lib/contrast-report'
 import type { ThemePackage, ThemeValidation } from './lib/types'
 import { ThemeSwatches } from './ThemeSwatches'
+import { Alert } from '@/components/ui/alert'
 
 interface ImportDialogProps {
   themePackage: ThemePackage | null
@@ -54,7 +55,7 @@ export function ImportDialog({ themePackage, validation, installing, onCancel, o
               </p>
             )}
             {validation.issues.length > 0 && (
-              <div role="alert" className="grid gap-1 rounded-md border border-destructive/30 bg-destructive/5 p-3 text-sm">
+              <Alert className="grid gap-1">
                 <p className="font-medium">{t('import.issues')}</p>
                 <ul className="grid gap-1">
                   {validation.issues.map((issue) => (
@@ -63,7 +64,7 @@ export function ImportDialog({ themePackage, validation, installing, onCancel, o
                     </li>
                   ))}
                 </ul>
-              </div>
+              </Alert>
             )}
             {validation.warnings.length > 0 && (
               <details className="rounded-md border p-3 text-sm">

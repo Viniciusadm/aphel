@@ -42,6 +42,7 @@ import {
   webhookFormSchema,
   type WebhookFormValues,
 } from './form'
+import { Alert } from '@/components/ui/alert'
 
 interface WebhookEditorDialogProps {
   open: boolean
@@ -239,16 +240,14 @@ function EditorBody({ webhook, onCancel, onSaved }: EditorBodyProps) {
           </section>
 
           {serverErrors.length > 0 && (
-            <ul
-              role="alert"
-              className="grid gap-1 rounded-md border border-destructive/30 bg-destructive/5 px-3 py-2 text-xs text-destructive"
+            <Alert className="grid gap-1 text-xs text-destructive"
             >
               {serverErrors.map((error) => (
                 <li key={`${error.field}-${error.message}`}>
                   <code>{error.field}</code>: {error.message}
                 </li>
               ))}
-            </ul>
+            </Alert>
           )}
         </form>
       </FormProvider>

@@ -29,6 +29,7 @@ import {
   type ValidationKey,
 } from './form'
 import { useIntegrationText } from './text'
+import { Alert } from '@/components/ui/alert'
 
 interface IntegrationConfigDialogProps {
   integration: Integration
@@ -108,9 +109,9 @@ export function IntegrationConfigDialog({ integration, open, onOpenChange, onSav
         </DialogHeader>
         <form id={formId} className="grid gap-4" noValidate onSubmit={onSubmit}>
           {formError && (
-            <p role="alert" className="rounded-md border border-destructive/30 bg-destructive/5 px-3 py-2 text-sm text-destructive">
+            <Alert className="text-destructive">
               {formError}
-            </p>
+            </Alert>
           )}
           {integration.fields.map((field) => {
             const inputId = `${formId}-${field.key}`

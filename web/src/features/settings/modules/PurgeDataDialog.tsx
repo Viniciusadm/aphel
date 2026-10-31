@@ -17,6 +17,7 @@ import { modulesApi, type ModuleInfo } from '@/kernel/modules/api'
 import { formatDateTime, useRecordFormatting } from '@/features/records/formatting'
 import { moduleErrorMessage, notifyModuleError } from './errors'
 import { exportCoversDisable, exportModuleData } from './export'
+import { Alert } from '@/components/ui/alert'
 
 interface PurgeDataDialogProps {
   module: ModuleInfo
@@ -81,13 +82,12 @@ export function PurgeDataDialog({ module, name, onClose, onChanged }: PurgeDataD
           <DialogTitle>{t('purge.title', { name })}</DialogTitle>
           <DialogDescription>{t('purge.description')}</DialogDescription>
         </DialogHeader>
-        <div
-          role="note"
-          className="flex gap-2 rounded-md border border-destructive/30 bg-destructive/5 px-3 py-2 text-sm text-destructive"
+        <Alert
+          role="note" className="flex gap-2 text-destructive"
         >
           <AlertTriangle className="mt-0.5 size-4 shrink-0" aria-hidden="true" />
           <p>{t('purge.warning')}</p>
-        </div>
+        </Alert>
         <div className="grid gap-2 rounded-md border px-3 py-2 text-sm">
           {exported && lastExport ? (
             <p className="flex items-center gap-2">

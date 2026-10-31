@@ -35,6 +35,7 @@ import {
   type ValidationKey,
 } from './form'
 import { useModuleText } from './text'
+import { Alert } from '@/components/ui/alert'
 
 interface ModuleSettingsDialogProps {
   module: ModuleInfo
@@ -117,9 +118,9 @@ export function ModuleSettingsDialog({ module, initialViolations, onClose, onSav
         )}
         <form id={formId} className="grid gap-4" noValidate onSubmit={onSubmit}>
           {formError && (
-            <p role="alert" className="rounded-md border border-destructive/30 bg-destructive/5 px-3 py-2 text-sm text-destructive">
+            <Alert className="text-destructive">
               {formError}
-            </p>
+            </Alert>
           )}
           {fields.length === 0 && <p className="text-sm text-muted-foreground">{t('settings.noFields')}</p>}
           {fields.map((field) => {

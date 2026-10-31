@@ -25,6 +25,7 @@ import {
   type RecordFormLayout,
 } from './lib/values'
 import { layoutRuleStates, recordRuleValues, useConditionContext } from './use-form-rules'
+import { Alert } from '@/components/ui/alert'
 
 export type RecordFormMode = 'create' | 'edit'
 
@@ -269,9 +270,9 @@ export function RecordForm({
         className={cn('grid min-w-0 gap-4', className)}
       >
         {serverError && (
-          <p role="alert" className="rounded-md border border-destructive/40 bg-destructive/10 px-3 py-2 text-sm text-destructive">
+          <Alert className="text-destructive">
             {serverError}
-          </p>
+          </Alert>
         )}
         {body}
         <Slot name="record.form.sections" props={{ recordType, mode, record }} />

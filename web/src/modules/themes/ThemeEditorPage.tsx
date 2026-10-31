@@ -31,6 +31,7 @@ import { ThemePreview } from './ThemePreview'
 import { TokenField } from './TokenField'
 import { PageHeader } from '@/components/ui/page-header'
 import { Page } from '@/components/ui/page'
+import { Alert } from '@/components/ui/alert'
 
 const NEW_THEME_KEY = 'new'
 
@@ -127,13 +128,15 @@ function ThemeEditor({ creating, initial }: { creating: boolean; initial: ThemeP
         }
       />
       {fieldIssues.length > 0 && (
-        <ul role="alert" className="grid gap-1 rounded-md border border-destructive/30 bg-destructive/5 p-3 text-sm">
-          {fieldIssues.map((issue) => (
-            <li key={issue} className="break-words">
-              {issue}
-            </li>
-          ))}
-        </ul>
+        <Alert>
+          <ul className="grid gap-1">
+            {fieldIssues.map((issue) => (
+              <li key={issue} className="break-words">
+                {issue}
+              </li>
+            ))}
+          </ul>
+        </Alert>
       )}
       <div className="grid gap-6 xl:grid-cols-[minmax(0,1fr)_minmax(0,26rem)]">
         <div className="grid min-w-0 content-start gap-6">

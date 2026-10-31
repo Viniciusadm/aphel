@@ -27,6 +27,7 @@ import {
 } from './api'
 import { IntegrationConfigDialog } from './IntegrationConfigDialog'
 import { useIntegrationText } from './text'
+import { Alert } from '@/components/ui/alert'
 
 const ICONS: Record<string, LucideIcon> = {
   mail: Mail,
@@ -118,10 +119,10 @@ export function IntegrationCard({ integration, onChanged }: IntegrationCardProps
                 : t('neverTested')}
             </p>
             {integration.last_error && integration.last_error_at && (
-              <div className="rounded-md border border-destructive/30 bg-destructive/5 px-2 py-1.5 text-destructive">
+              <Alert className="text-destructive">
                 <p className="font-medium">{t('lastError', { date: formatDateTime(integration.last_error_at, formatting) })}</p>
                 <p className="break-words">{integration.last_error}</p>
-              </div>
+              </Alert>
             )}
             {integration.recent_errors.length > 1 && (
               <details>

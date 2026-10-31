@@ -16,6 +16,7 @@ import { InvalidLink } from './components/InvalidLink'
 import { SlotPicker } from './components/SlotPicker'
 import { formatWhen } from './lib/time'
 import type { PublicBookingResponse, PublicSlot } from './types'
+import { Alert } from '@/components/ui/alert'
 
 interface ManageLocationState {
   booked?: boolean
@@ -145,9 +146,9 @@ function Reschedule({ token, timeZone, onTimeZoneChange, onDone }: ReschedulePro
     <div className="grid gap-4">
       <h2 className="text-lg font-semibold">{t('manage.rescheduleTitle')}</h2>
       {errorKey && (
-        <p role="alert" className="rounded-md border border-destructive/30 bg-destructive/5 p-3 text-sm">
+        <Alert>
           {t(errorKey)}
-        </p>
+        </Alert>
       )}
       <SlotPicker
         owner={`manage:${token}`}

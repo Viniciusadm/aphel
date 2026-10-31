@@ -20,6 +20,7 @@ import { ModuleSettingsDialog } from './ModuleSettingsDialog'
 import { serverViolations, type SettingViolation } from './form'
 import { PurgeDataDialog } from './PurgeDataDialog'
 import { useModuleText } from './text'
+import { Alert } from '@/components/ui/alert'
 
 type CompatibilityProblem = 'requires_aphel' | 'missing_dependency' | 'incompatible_dependency' | 'unknown'
 
@@ -124,9 +125,8 @@ export function ModuleCard({ module, nameOf, onChanged }: ModuleCardProps) {
         </CardHeader>
         <CardContent className="grid gap-3 px-4 text-sm">
           {problem && (
-            <div
-              role="status"
-              className="flex gap-2 rounded-md border border-destructive/30 bg-destructive/5 px-3 py-2 text-destructive"
+            <Alert
+              role="status" className="flex gap-2 text-destructive"
             >
               <AlertTriangle className="mt-0.5 size-4 shrink-0" aria-hidden="true" />
               <div className="grid gap-0.5">
@@ -136,7 +136,7 @@ export function ModuleCard({ module, nameOf, onChanged }: ModuleCardProps) {
                   <p className="text-xs">{t('minAphelVersion', { version: module.min_aphel_version })}</p>
                 )}
               </div>
-            </div>
+            </Alert>
           )}
           {module.update_available && module.installed_version && (
             <p className="text-xs text-muted-foreground">

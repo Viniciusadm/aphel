@@ -26,6 +26,7 @@ import { FieldRulesDialog } from './components/FieldRulesDialog'
 import { LayoutCanvas } from './components/LayoutCanvas'
 import { fieldAtPath, layoutCandidates, layoutsEqual, normalizeForSave, setFieldRules, startingLayout } from './lib/draft'
 import { PageHeader } from '@/components/ui/page-header'
+import { Alert } from '@/components/ui/alert'
 
 function parseContext(value: string | null): LayoutContext {
   return LAYOUT_CONTEXTS.includes(value as LayoutContext) ? (value as LayoutContext) : 'create'
@@ -181,14 +182,14 @@ function LayoutWorkspace({ recordType, context, schema, saved }: LayoutWorkspace
         </div>
       </div>
       {problems.length > 0 && (
-        <div role="alert" className="grid gap-1 rounded-md border border-destructive/40 bg-destructive/10 px-3 py-2 text-sm text-destructive">
+        <Alert className="grid gap-1 text-destructive">
           <p className="font-medium">{t('errors.invalid')}</p>
           <ul className="list-disc pl-5">
             {problems.map((problem, index) => (
               <li key={index}>{problem}</li>
             ))}
           </ul>
-        </div>
+        </Alert>
       )}
       <LayoutCanvas layout={draft} candidates={candidates} context={context} onChange={setDraft} onEditRules={setEditingRules} />
       <FieldRulesDialog

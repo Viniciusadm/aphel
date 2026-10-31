@@ -17,6 +17,7 @@ import { catalogApi, useCatalog } from './api'
 import type { Catalog, CatalogEntry } from './types'
 import { PageHeader } from '@/components/ui/page-header'
 import { Page } from '@/components/ui/page'
+import { Alert } from '@/components/ui/alert'
 
 const KNOWN_ERRORS = [
   'catalog_disabled',
@@ -277,9 +278,9 @@ function TemplateCard({ entry, busy, disabled, error, onCompare }: TemplateCardP
           </p>
         )}
         {error && (
-          <p role="alert" className="rounded-md border border-destructive/30 bg-destructive/5 p-2 text-sm break-words">
+          <Alert className="break-words">
             {error}
-          </p>
+          </Alert>
         )}
         <div className="flex flex-wrap gap-2">
           <Button size="sm" disabled={disabled || !entry.compatible} onClick={onCompare}>

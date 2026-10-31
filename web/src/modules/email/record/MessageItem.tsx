@@ -8,6 +8,7 @@ import { attachmentDownloadUrl } from '../api'
 import { HtmlFrame, TextBody } from '../components/HtmlFrame'
 import { formatFileSize, joinParticipants, participantName, participantsByRole } from '../lib/format'
 import type { EmailMessage, EmailStatus } from '../types'
+import { Alert } from '@/components/ui/alert'
 
 const STATUS_VARIANTS: Partial<Record<EmailStatus, BadgeProps['variant']>> = {
   draft: 'outline',
@@ -81,10 +82,10 @@ export function MessageItem({ message, defaultExpanded, canReply, canCancel, onR
             </div>
           )}
           {message.status === 'failed' && message.failure_reason && (
-            <p className="flex items-start gap-2 rounded-md border border-destructive/30 bg-destructive/5 px-3 py-2 text-sm text-destructive">
+            <Alert className="flex items-start gap-2 text-destructive">
               <XCircle className="mt-0.5 size-4 shrink-0" aria-hidden="true" />
               <span className="break-words">{message.failure_reason}</span>
-            </p>
+            </Alert>
           )}
           {message.body?.html ? (
             <HtmlFrame html={message.body.html} title={message.subject ?? t('reader.bodyTitle')} />

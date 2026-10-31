@@ -24,6 +24,7 @@ import {
   type LeadFormValues,
 } from './form'
 import { FormPreview } from './FormPreview'
+import { Alert } from '@/components/ui/alert'
 
 interface FormEditorDialogProps {
   open: boolean
@@ -353,16 +354,14 @@ function EditorBody({ form, onCancel, onSaved }: EditorBodyProps) {
               </section>
 
               {serverErrors.length > 0 && (
-                <ul
-                  role="alert"
-                  className="grid gap-1 rounded-md border border-destructive/30 bg-destructive/5 px-3 py-2 text-xs text-destructive"
+                <Alert className="grid gap-1 text-xs text-destructive"
                 >
                   {serverErrors.map((error) => (
                     <li key={`${error.field}-${error.message}`}>
                       <code>{error.field}</code>: {error.message}
                     </li>
                   ))}
-                </ul>
+                </Alert>
               )}
             </form>
             <aside className="grid content-start gap-2 lg:sticky lg:top-0">

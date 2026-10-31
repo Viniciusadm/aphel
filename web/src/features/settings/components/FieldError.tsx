@@ -1,5 +1,6 @@
 import { useTranslation } from 'react-i18next'
 import { asMessageKey } from '../lib/errors'
+import { Alert } from '@/components/ui/alert'
 
 interface FieldErrorProps {
   id: string
@@ -26,8 +27,8 @@ export function FormAlert({ message }: FormAlertProps) {
   const key = asMessageKey(message)
   if (!key) return null
   return (
-    <p role="alert" className="rounded-md border border-destructive/30 bg-destructive/5 px-3 py-2 text-sm text-destructive">
+    <Alert className="text-destructive">
       {t(key)}
-    </p>
+    </Alert>
   )
 }

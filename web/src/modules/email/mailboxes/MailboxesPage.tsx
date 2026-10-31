@@ -20,6 +20,7 @@ import type { Mailbox, MailboxProviderInfo } from '../types'
 import { MailboxDialog, type MailboxDialogMode } from './MailboxDialog'
 import { PageHeader } from '@/components/ui/page-header'
 import { Page } from '@/components/ui/page'
+import { Alert } from '@/components/ui/alert'
 
 type Section = 'mailboxes' | 'templates'
 
@@ -241,10 +242,10 @@ function MailboxCard({ mailbox, onEdit, onRemove }: MailboxCardProps) {
         </div>
       </div>
       {mailbox.status === 'error' && mailbox.status_reason && (
-        <p className="flex items-start gap-2 rounded-md border border-destructive/30 bg-destructive/5 px-3 py-2 text-sm text-destructive">
+        <Alert className="flex items-start gap-2 text-destructive">
           <AlertCircle className="mt-0.5 size-4 shrink-0" aria-hidden="true" />
           <span className="break-words">{mailbox.status_reason}</span>
-        </p>
+        </Alert>
       )}
       <dl className="grid gap-x-6 gap-y-1 text-sm sm:grid-cols-3">
         <div className="grid">

@@ -29,6 +29,7 @@ import { NativeSelect } from '@/features/records/filters/NativeSelect'
 import { cn } from '@/lib/utils'
 import { OBJECT_KEY_MAX_LENGTH, OBJECT_KEY_PATTERN, objectsAdminApi, type CustomObjectAdmin } from './api'
 import { objectKeyFromLabel } from './keys'
+import { Alert } from '@/components/ui/alert'
 
 const LABEL_MAX_LENGTH = 100
 const TITLE_FIELD_TYPES = ['text', 'email', 'phone', 'url']
@@ -154,9 +155,9 @@ function ObjectForm({ object, onClose, onSaved }: ObjectFormProps) {
         }}
       >
         {errors.form && (
-          <p role="alert" className="rounded-md border border-destructive/30 bg-destructive/5 px-3 py-2 text-sm text-destructive">
+          <Alert className="text-destructive">
             {errors.form}
-          </p>
+          </Alert>
         )}
         <div className="grid gap-4 sm:grid-cols-2">
           <div className="grid gap-1.5">

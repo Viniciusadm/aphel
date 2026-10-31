@@ -33,6 +33,7 @@ import { ProposalDocumentView } from './ProposalDocumentView'
 import { VariablePicker } from './VariablePicker'
 import { Page } from '@/components/ui/page'
 import { PageHeader } from '@/components/ui/page-header'
+import { Alert } from '@/components/ui/alert'
 
 const DEBOUNCE_MS = 450
 const SYNTAX_SAMPLES = [
@@ -408,7 +409,7 @@ function IssuesPanel({ id, issues, checking, empty, onFocusIssue }: IssuesPanelP
     )
   }
   return (
-    <div id={id} className="grid gap-1 rounded-md border border-destructive/40 bg-destructive/5 p-2" aria-live="polite">
+    <Alert id={id} className="grid gap-1" aria-live="polite">
       <p className="flex items-center gap-1.5 text-xs font-medium text-destructive">
         <AlertCircle className="size-3.5" aria-hidden="true" />
         {t('editor.issues', { count: issues.length })}
@@ -429,6 +430,6 @@ function IssuesPanel({ id, issues, checking, empty, onFocusIssue }: IssuesPanelP
           </li>
         ))}
       </ul>
-    </div>
+    </Alert>
   )
 }

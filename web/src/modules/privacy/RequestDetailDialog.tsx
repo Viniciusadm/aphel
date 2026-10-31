@@ -25,6 +25,7 @@ import {
 import { usePrivacyErrors } from './lib/shared'
 import { RecordLink } from './RecordLink'
 import { StatusBadge } from './StatusBadge'
+import { Alert } from '@/components/ui/alert'
 
 const REPORT_KEYS = [
   'records',
@@ -130,9 +131,9 @@ function RequestDetailBody({ detail, onClose }: { detail: PrivacyRequestDetail; 
       </dl>
 
       {request.failure_reason && (
-        <p role="alert" className="rounded-md border border-destructive/40 bg-destructive/10 px-3 py-2 text-sm">
+        <Alert>
           {t('detail.failure')}
-        </p>
+        </Alert>
       )}
 
       {request.result && <Report request={request} />}

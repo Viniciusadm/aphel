@@ -26,6 +26,7 @@ import { cn } from '@/lib/utils'
 import { RELATION_KEY_PATTERN, objectsAdminApi } from './api'
 import { relationKeyFromLabel } from './keys'
 import { useRecordTypeLabels } from './labels'
+import { Alert } from '@/components/ui/alert'
 
 const RELATION_KEY_MAX_LENGTH = 64
 const LABEL_MAX_LENGTH = 100
@@ -212,9 +213,9 @@ function RelationshipForm({ relationship, recordType, onClose, onSaved }: Relati
         }}
       >
         {errors.form && (
-          <p role="alert" className="rounded-md border border-destructive/30 bg-destructive/5 px-3 py-2 text-sm text-destructive">
+          <Alert className="text-destructive">
             {errors.form}
-          </p>
+          </Alert>
         )}
         <div className="grid gap-4 sm:grid-cols-2">
           <div className="grid gap-1.5">

@@ -54,6 +54,7 @@ import type {
   StepSpec,
   TriggerSpec,
 } from './types'
+import { Alert } from '@/components/ui/alert'
 
 type Tab = 'flow' | 'test' | 'runs' | 'versions'
 
@@ -347,13 +348,13 @@ function AutomationWorkspace({ initial, catalog }: { initial: Automation; catalo
           </div>
         </div>
         {totalIssues > 0 && (
-          <div role="alert" className="grid gap-2 rounded-md border border-destructive/50 bg-destructive/5 p-3">
+          <Alert className="grid gap-2">
             <p className="flex items-center gap-2 text-sm font-medium text-destructive">
               <AlertTriangle className="size-4" aria-hidden="true" />
               {t('editor.issues', { count: totalIssues })}
             </p>
             <IssueList issues={generalIssues} showPath />
-          </div>
+          </Alert>
         )}
       </div>
       <Tabs value={tab} onValueChange={(value) => setTab(value as Tab)}>

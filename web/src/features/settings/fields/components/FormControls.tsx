@@ -7,6 +7,7 @@ import { cn } from '@/lib/utils'
 import { HEX_COLOR_PATTERN } from '../lib/form'
 import { describedBy } from '../lib/aria'
 import { asFieldsMessageKey } from '../lib/errors'
+import { Alert } from '@/components/ui/alert'
 
 interface FieldMessageProps {
   id: string
@@ -29,9 +30,9 @@ export function FormAlert({ message }: { message?: string }) {
   const key = asFieldsMessageKey(message)
   if (!key) return null
   return (
-    <p role="alert" className="rounded-md border border-destructive/30 bg-destructive/5 px-3 py-2 text-sm text-destructive">
+    <Alert className="text-destructive">
       {t(key)}
-    </p>
+    </Alert>
   )
 }
 
