@@ -25,6 +25,7 @@ import type { ThemePackage, ThemeSummary, ThemeValidation } from './lib/types'
 import { THEMES_MANAGE } from './permissions'
 import { ThemeSwatches } from './ThemeSwatches'
 import { PageHeader } from '@/components/ui/page-header'
+import { Page } from '@/components/ui/page'
 
 export function ThemesPage() {
   return (
@@ -109,7 +110,7 @@ function ThemesSection() {
   }
 
   return (
-    <section className="flex min-w-0 flex-col gap-4">
+    <Page>
       <PageHeader
         title={t('page.title')}
         description={t('page.description')}
@@ -248,6 +249,6 @@ function ThemesSection() {
           notifySuccess(t('remove.done', { name: removing.name }))
         }}
       />
-    </section>
+    </Page>
   )
 }

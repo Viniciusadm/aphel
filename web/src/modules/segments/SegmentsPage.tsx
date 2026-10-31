@@ -21,6 +21,7 @@ import {
 } from './api'
 import { SegmentDialog } from './SegmentDialog'
 import { PageHeader } from '@/components/ui/page-header'
+import { Page } from '@/components/ui/page'
 
 export const SEGMENT_TYPE_PARAM = 'type'
 
@@ -33,7 +34,7 @@ export function SegmentsPage() {
   const recordType = isSegmentRecordType(requested) && readable.includes(requested) ? requested : readable[0]
 
   return (
-    <div className="flex flex-col gap-4">
+    <Page>
       <PageHeader title={t('page.title')} description={t('page.description')} />
       {recordType ? (
         <>
@@ -60,7 +61,7 @@ export function SegmentsPage() {
       ) : (
         <EmptyState title={t('page.noAccessTitle')} description={t('page.noAccessDescription')} />
       )}
-    </div>
+    </Page>
   )
 }
 

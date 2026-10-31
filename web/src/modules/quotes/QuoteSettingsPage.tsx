@@ -12,6 +12,7 @@ import { usePipelines } from '@/modules/pipelines/api'
 import { useQuoteMutations, useQuoteSettings } from './api'
 import type { QuoteSettings } from './types'
 import { PageHeader } from '@/components/ui/page-header'
+import { Page } from '@/components/ui/page'
 
 const NO_MOVE = '__none__'
 
@@ -19,7 +20,7 @@ export function QuoteSettingsPage() {
   const { t } = useTranslation('quotes')
   const query = useQuoteSettings()
   return (
-    <section className="flex flex-col gap-6">
+    <Page>
       <PageHeader title={t('settings.title')} description={t('settings.description')} />
       {query.isPending ? (
         <PageLoader />
@@ -28,7 +29,7 @@ export function QuoteSettingsPage() {
       ) : (
         <SettingsForm key={query.data.updated_at ?? 'default'} settings={query.data} />
       )}
-    </section>
+    </Page>
   )
 }
 

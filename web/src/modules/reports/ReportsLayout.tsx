@@ -5,6 +5,7 @@ import { EmptyState } from '@/components/ui/empty-state'
 import { TabsNav, TabsNavItem } from '@/components/ui/tabs-nav'
 import { allowedReportTabs } from './tabs'
 import { PageHeader } from '@/components/ui/page-header'
+import { Page } from '@/components/ui/page'
 
 export function ReportsLayout() {
   const { t } = useTranslation('reports')
@@ -12,7 +13,7 @@ export function ReportsLayout() {
   const tabs = allowedReportTabs(hasPermission)
 
   return (
-    <div className="flex w-full flex-col gap-6">
+    <Page>
       <PageHeader title={t('title')} description={t('description')} />
       {tabs.length === 0 ? (
         <EmptyState title={t('noAccess.title')} description={t('noAccess.description')} />
@@ -28,7 +29,7 @@ export function ReportsLayout() {
           <Outlet />
         </>
       )}
-    </div>
+    </Page>
   )
 }
 

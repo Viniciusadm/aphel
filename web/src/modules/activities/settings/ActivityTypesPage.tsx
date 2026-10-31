@@ -27,6 +27,7 @@ import { ActivityTypeIcon } from '../components/ActivityTypeIcon'
 import { activityErrorKey } from '../lib/errors'
 import { ACTIVITY_ICON_NAMES, DEFAULT_ACTIVITY_COLOR } from '../lib/icons'
 import { PageHeader } from '@/components/ui/page-header'
+import { Page } from '@/components/ui/page'
 
 const HEX_COLOR = /^#[0-9a-f]{6}$/i
 
@@ -95,7 +96,7 @@ function ActivityTypesSection() {
   }
 
   return (
-    <section className="flex flex-col gap-4">
+    <Page>
       <PageHeader
         title={t('types.title')}
         description={t('types.description')}
@@ -159,7 +160,7 @@ function ActivityTypesSection() {
         />
       )}
       <ActivityTypeDialog editor={editor} onClose={() => setEditor(null)} onSaved={() => void invalidate()} />
-    </section>
+    </Page>
   )
 }
 

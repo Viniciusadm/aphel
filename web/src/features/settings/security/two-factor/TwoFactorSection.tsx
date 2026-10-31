@@ -16,6 +16,7 @@ import { OrganizationPolicy } from './OrganizationPolicy'
 import { RegenerateDialog } from './RegenerateDialog'
 import { SetupDialog } from './SetupDialog'
 import { PageHeader } from '@/components/ui/page-header'
+import { Page } from '@/components/ui/page'
 
 const LOW_RECOVERY_CODES = 3
 
@@ -35,7 +36,7 @@ export function TwoFactorSection() {
 
   return (
     <div className="flex flex-col gap-8">
-      <section className="flex flex-col gap-4">
+      <Page>
         <PageHeader level="section" title={t('section.title')} description={t('section.description')} />
         {mustEnable && (
           <div
@@ -63,7 +64,7 @@ export function TwoFactorSection() {
             onRegenerate={() => setDialog('regenerate')}
           />
         )}
-      </section>
+      </Page>
       {hasPermission(SETTINGS_MANAGE) && <OrganizationPolicy />}
       <SetupDialog open={dialog === 'setup'} onOpenChange={onOpenChange} />
       <DisableDialog open={dialog === 'disable'} onOpenChange={onOpenChange} />

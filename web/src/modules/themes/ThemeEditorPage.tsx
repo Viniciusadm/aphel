@@ -30,6 +30,7 @@ import { THEMES_MANAGE } from './permissions'
 import { ThemePreview } from './ThemePreview'
 import { TokenField } from './TokenField'
 import { PageHeader } from '@/components/ui/page-header'
+import { Page } from '@/components/ui/page'
 
 const NEW_THEME_KEY = 'new'
 
@@ -108,7 +109,7 @@ function ThemeEditor({ creating, initial }: { creating: boolean; initial: ThemeP
   const sharedGroups = useMemo(() => groupedTokens('shared'), [])
 
   return (
-    <section className="flex min-w-0 flex-col gap-4">
+    <Page>
       <PageHeader
         title={creating ? t('editor.createTitle') : t('editor.editTitle', { name: initial.name })}
         description={t('editor.description')}
@@ -249,7 +250,7 @@ function ThemeEditor({ creating, initial }: { creating: boolean; initial: ThemeP
           <ThemePreview tokens={draft.tokens} fonts={draft.fonts} mode={previewMode} />
         </aside>
       </div>
-    </section>
+    </Page>
   )
 }
 

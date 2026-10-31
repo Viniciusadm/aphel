@@ -6,6 +6,7 @@ import { Skeleton } from '@/components/ui/skeleton'
 import { useIntegrations, useInvalidateIntegrations } from '@/features/settings/email/integration/api'
 import { IntegrationCard } from '@/features/settings/email/integration/IntegrationCard'
 import { PageHeader } from '@/components/ui/page-header'
+import { Page } from '@/components/ui/page'
 
 export function IntegrationsPage() {
   const { t } = useTranslation('integrations')
@@ -13,7 +14,7 @@ export function IntegrationsPage() {
   const invalidate = useInvalidateIntegrations()
 
   return (
-    <section className="flex flex-col gap-4">
+    <Page>
       <PageHeader title={t('title')} description={t('description')} />
       {integrations.isPending ? (
         <div className="grid gap-3 md:grid-cols-2" aria-busy="true">
@@ -31,6 +32,6 @@ export function IntegrationsPage() {
           ))}
         </ul>
       )}
-    </section>
+    </Page>
   )
 }

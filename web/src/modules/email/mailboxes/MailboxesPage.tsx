@@ -19,6 +19,7 @@ import { notifyEmailError, oauthErrorMessage } from '../lib/errors'
 import type { Mailbox, MailboxProviderInfo } from '../types'
 import { MailboxDialog, type MailboxDialogMode } from './MailboxDialog'
 import { PageHeader } from '@/components/ui/page-header'
+import { Page } from '@/components/ui/page'
 
 type Section = 'mailboxes' | 'templates'
 
@@ -56,7 +57,7 @@ export function MailboxesPage() {
   useOAuthReturn()
 
   return (
-    <section className="flex flex-col gap-4">
+    <Page>
       <PageHeader title={t('mailboxes.title')} description={t('mailboxes.description')} />
       <Tabs value={section} onValueChange={(value) => setSection(value as Section)} className="grid gap-4">
         <TabsList>
@@ -70,7 +71,7 @@ export function MailboxesPage() {
           <TemplatesPanel scope="personal" />
         </TabsContent>
       </Tabs>
-    </section>
+    </Page>
   )
 }
 

@@ -24,6 +24,7 @@ import {
   type ForecastSettings,
 } from '../api'
 import { PageHeader } from '@/components/ui/page-header'
+import { Page } from '@/components/ui/page'
 
 const percentage = z.coerce.number<string | number>().int('settings.errors.percentage').min(1, 'settings.errors.percentage').max(100, 'settings.errors.percentage')
 
@@ -64,7 +65,7 @@ export function ForecastSettingsPage() {
   const { t } = useTranslation('forecast')
   const query = useForecastSettings()
   return (
-    <section className="flex flex-col gap-6">
+    <Page>
       <PageHeader title={t('settings.title')} description={t('settings.description')} />
       {query.isPending ? (
         <PageLoader />
@@ -73,7 +74,7 @@ export function ForecastSettingsPage() {
       ) : (
         <SettingsForm key={query.data.updated_at ?? 'default'} settings={query.data} />
       )}
-    </section>
+    </Page>
   )
 }
 

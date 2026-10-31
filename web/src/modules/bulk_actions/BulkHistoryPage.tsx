@@ -14,6 +14,7 @@ import { BulkResult } from './BulkResult'
 import { HISTORY_PAGE_SIZE, bulkApi, bulkKeys, isBulkRecordType, useBulkHistory, type BulkOperation } from './api'
 import { PageHeader } from '@/components/ui/page-header'
 import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from '@/components/ui/table'
+import { Page } from '@/components/ui/page'
 
 type BadgeVariant = 'secondary' | 'destructive' | 'success' | 'warning'
 
@@ -50,7 +51,7 @@ export function BulkHistoryPage() {
     isBulkRecordType(recordType) ? t(`history.recordTypes.${recordType}`) : recordType
 
   return (
-    <section className="flex min-w-0 flex-col gap-4">
+    <Page>
       <PageHeader title={t('history.title')} description={t('history.description')} />
       {history.isPending ? (
         <ListSkeleton />
@@ -148,6 +149,6 @@ export function BulkHistoryPage() {
           )}
         </DialogContent>
       </Dialog>
-    </section>
+    </Page>
   )
 }

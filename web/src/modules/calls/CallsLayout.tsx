@@ -4,6 +4,7 @@ import { useSession } from '@/app/session/session-context'
 import { TabsNav, TabsNavItem } from '@/components/ui/tabs-nav'
 import { CALLS_PATH } from './constants'
 import { PageHeader } from '@/components/ui/page-header'
+import { Page } from '@/components/ui/page'
 
 export function CallsLayout() {
   const { t } = useTranslation('calls')
@@ -16,7 +17,7 @@ export function CallsLayout() {
       : []),
   ]
   return (
-    <div className="flex w-full flex-col gap-4">
+    <Page>
       <PageHeader title={t('page.title')} description={t('page.description')} />
       <TabsNav aria-label={t('page.sections')} className="self-start">
         {tabs.map((tab) => (
@@ -26,6 +27,6 @@ export function CallsLayout() {
         ))}
       </TabsNav>
       <Outlet />
-    </div>
+    </Page>
   )
 }

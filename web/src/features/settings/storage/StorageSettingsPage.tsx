@@ -20,6 +20,7 @@ import { serverFieldErrors } from '../general/violations'
 import { FormRow } from '../organization/components/FormRow'
 import { NativeSelect } from '../organization/components/NativeSelect'
 import { PageHeader } from '@/components/ui/page-header'
+import { Page } from '@/components/ui/page'
 
 const schema = z
   .object({
@@ -83,10 +84,10 @@ function toSettings(values: FormValues): StorageSettings {
 export function StorageSettingsPage() {
   const { t } = useTranslation('settings')
   return (
-    <section className="grid gap-6">
+    <Page>
       <PageHeader title={t('configuration.storage.title')} description={t('configuration.storage.description')} />
       <ConfigurationGate>{(configuration) => <StorageForm configuration={configuration} />}</ConfigurationGate>
-    </section>
+    </Page>
   )
 }
 

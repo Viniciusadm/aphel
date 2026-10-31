@@ -26,6 +26,7 @@ import {
 import { useEventDetails } from './details'
 import { PageHeader } from '@/components/ui/page-header'
 import { Table, TableBody, TableHead, TableHeader, TableRow } from '@/components/ui/table'
+import { Page } from '@/components/ui/page'
 
 const EMPTY_FILTERS: SecurityEventFilters = { scope: 'mine', kind: '', from: '', to: '' }
 
@@ -75,7 +76,7 @@ export function SecurityLogPage() {
   const showUser = filters.scope === 'organization'
 
   return (
-    <section className="grid gap-4">
+    <Page>
       <PageHeader title={t('log.title')} description={t('log.description')} />
       {canSeeOrganization && (
         <SegmentedControl
@@ -139,7 +140,7 @@ export function SecurityLogPage() {
           />
         </>
       )}
-    </section>
+    </Page>
   )
 }
 

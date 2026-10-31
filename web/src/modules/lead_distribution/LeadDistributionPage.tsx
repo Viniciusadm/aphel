@@ -16,6 +16,7 @@ import { RuleEditorDialog } from './RuleEditorDialog'
 import { SimulationDialog } from './SimulationDialog'
 import { PageHeader } from '@/components/ui/page-header'
 import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from '@/components/ui/table'
+import { Page } from '@/components/ui/page'
 
 export function LeadDistributionPage() {
   return (
@@ -57,7 +58,7 @@ function LeadDistributionSection() {
     rule.members.find((member) => member.user_id === userId)?.name ?? null
 
   return (
-    <section className="grid gap-4">
+    <Page>
       <PageHeader
         title={t('title')}
         description={t('description')}
@@ -197,6 +198,6 @@ function LeadDistributionSection() {
           onOpenChange={(open) => !open && setDeleting(null)}
         />
       )}
-    </section>
+    </Page>
   )
 }

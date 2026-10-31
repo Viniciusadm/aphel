@@ -19,6 +19,7 @@ import type { ValidationRule } from './types'
 import { ValidationRuleDialog } from './ValidationRuleDialog'
 import { useIsModuleActive } from '@/kernel/modules/registry'
 import { PageHeader } from '@/components/ui/page-header'
+import { Page } from '@/components/ui/page'
 
 export function ValidationRulesPage() {
   return (
@@ -74,7 +75,7 @@ function ValidationRulesSettings() {
   }
 
   return (
-    <section className="flex flex-col gap-6">
+    <Page>
       <PageHeader title={t('title')} description={t('description')} />
       <div className="flex flex-wrap items-center justify-between gap-3">
         <RecordTypeSelect
@@ -195,6 +196,6 @@ function ValidationRulesSettings() {
           setRemoving(null)
         }}
       />
-    </section>
+    </Page>
   )
 }

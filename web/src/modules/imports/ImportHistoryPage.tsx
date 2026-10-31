@@ -12,6 +12,7 @@ import { Pagination } from '@/components/ui/pagination'
 import { HISTORY_PAGE_SIZE, isImportable, isRunning, useImportHistory, type ImportJob } from './api'
 import { PageHeader } from '@/components/ui/page-header'
 import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from '@/components/ui/table'
+import { Page } from '@/components/ui/page'
 
 type BadgeVariant = 'secondary' | 'destructive' | 'success' | 'warning' | 'outline'
 
@@ -43,7 +44,7 @@ export function ImportHistoryPage() {
         })
 
   return (
-    <section className="flex min-w-0 flex-col gap-4">
+    <Page>
       <PageHeader
         title={t('history.title')}
         description={t('history.description')}
@@ -126,6 +127,6 @@ export function ImportHistoryPage() {
           />
         </>
       )}
-    </section>
+    </Page>
   )
 }

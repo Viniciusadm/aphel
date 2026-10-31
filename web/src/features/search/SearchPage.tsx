@@ -10,6 +10,7 @@ import { cn } from '@/lib/utils'
 import { SEARCH_MIN_LENGTH, useGlobalSearch } from './api'
 import { SearchResultGroups } from './results'
 import { PageHeader } from '@/components/ui/page-header'
+import { Page } from '@/components/ui/page'
 
 const SEARCH_PAGE_LIMIT = 20
 const SEARCH_DEBOUNCE_MS = 250
@@ -71,7 +72,7 @@ export function SearchPage() {
   }
 
   return (
-    <div className="flex w-full flex-col gap-4">
+    <Page>
       <PageHeader title={t('page.title')} description={t('page.description')} />
       <form
         role="search"
@@ -99,6 +100,6 @@ export function SearchPage() {
         </p>
       )}
       {body}
-    </div>
+    </Page>
   )
 }

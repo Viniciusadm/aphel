@@ -18,6 +18,7 @@ import { ORGANIZATION_EXPORT } from '@/features/settings/lib/permissions'
 import { EXPORTS_PER_PAGE, downloadUrl, isPending, useOrgExports, useRequestOrgExport } from './api'
 import { asOrgExportStatus, type OrgExport, type OrgExportStatus } from './types'
 import { PageHeader } from '@/components/ui/page-header'
+import { Page } from '@/components/ui/page'
 
 type BadgeVariant = 'secondary' | 'destructive' | 'success' | 'warning'
 
@@ -45,7 +46,7 @@ function OrgExportSection() {
   const hasPending = exports.data?.data.some((item) => isPending(item.status)) ?? false
 
   return (
-    <section className="flex min-w-0 flex-col gap-6">
+    <Page>
       <PageHeader title={t('page.title')} description={t('page.description')} />
       <div className="grid min-w-0 gap-4 lg:grid-cols-[minmax(0,3fr)_minmax(0,2fr)]">
         <RequestCard disabled={hasPending} />
@@ -75,7 +76,7 @@ function OrgExportSection() {
           </>
         )}
       </div>
-    </section>
+    </Page>
   )
 }
 

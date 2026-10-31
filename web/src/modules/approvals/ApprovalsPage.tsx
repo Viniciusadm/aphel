@@ -26,6 +26,7 @@ import { recordPath } from './lib/record-link'
 import type { ApprovalBox, ApprovalRequest, ApprovalStatus } from './types'
 import { PageHeader } from '@/components/ui/page-header'
 import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from '@/components/ui/table'
+import { Page } from '@/components/ui/page'
 
 export function ApprovalsPage() {
   const { t } = useTranslation('approvals')
@@ -83,7 +84,7 @@ export function ApprovalsPage() {
   }
 
   return (
-    <div className="flex w-full flex-col gap-4">
+    <Page>
       <PageHeader title={t('inbox.title')} description={t('inbox.description')} />
       <div className="flex flex-wrap items-center justify-between gap-3">
         <Tabs
@@ -124,7 +125,7 @@ export function ApprovalsPage() {
         </div>
       </div>
       {body}
-    </div>
+    </Page>
   )
 }
 

@@ -14,6 +14,7 @@ import { SETTINGS_MANAGE } from '../lib/permissions'
 import { TeamEditorDialog } from './TeamEditorDialog'
 import { PageHeader } from '@/components/ui/page-header'
 import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from '@/components/ui/table'
+import { Page } from '@/components/ui/page'
 
 export function TeamsPage() {
   return (
@@ -46,7 +47,7 @@ function TeamsSection() {
     (id && teams.data?.find((team) => team.id === id)?.name) || t('teams.noParent')
 
   return (
-    <section className="grid gap-4">
+    <Page>
       <PageHeader
         title={t('teams.title')}
         description={t('teams.description')}
@@ -144,6 +145,6 @@ function TeamsSection() {
           onOpenChange={(open) => !open && setDeleting(null)}
         />
       )}
-    </section>
+    </Page>
   )
 }

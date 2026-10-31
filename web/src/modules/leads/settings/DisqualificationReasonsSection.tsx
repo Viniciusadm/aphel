@@ -25,6 +25,7 @@ import { MAX_REASON_NAME_LENGTH } from '../constants'
 import { lifecycleErrorMessage } from '../errors'
 import type { DisqualificationReason } from '../types'
 import { PageHeader } from '@/components/ui/page-header'
+import { Page } from '@/components/ui/page'
 
 interface EditorState {
   reason: DisqualificationReason | null
@@ -83,7 +84,7 @@ export function DisqualificationReasonsSection() {
   }
 
   return (
-    <section className="flex flex-col gap-4">
+    <Page>
       <PageHeader level="section"
         title={t('reasons.title')}
         description={t('reasons.description')}
@@ -179,7 +180,7 @@ export function DisqualificationReasonsSection() {
         notifyOnError={false}
         onConfirm={remove}
       />
-    </section>
+    </Page>
   )
 }
 

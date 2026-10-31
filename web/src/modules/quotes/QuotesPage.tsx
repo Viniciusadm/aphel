@@ -14,6 +14,7 @@ import { QuoteStatusBadge } from './QuoteStatusBadge'
 import type { QuoteStatus } from './types'
 import { PageHeader } from '@/components/ui/page-header'
 import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from '@/components/ui/table'
+import { Page } from '@/components/ui/page'
 
 const ALL = '__all__'
 const STATUSES: QuoteStatus[] = ['draft', 'pending_approval', 'approved', 'sent', 'accepted', 'rejected', 'expired']
@@ -29,7 +30,7 @@ export function QuotesPage() {
   const pages = Math.max(1, Math.ceil(total / QUOTES_PER_PAGE))
 
   return (
-    <div className="flex flex-col gap-6">
+    <Page>
       <PageHeader title={t('title')} description={t('description')} />
       <div className="flex flex-wrap gap-2">
         <div className="relative w-full max-w-xs">
@@ -117,6 +118,6 @@ export function QuotesPage() {
           </Button>
         </div>
       )}
-    </div>
+    </Page>
   )
 }

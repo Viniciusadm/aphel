@@ -7,6 +7,7 @@ import { TemplatesPanel } from '../components/TemplatesPanel'
 import { BlocklistPanel } from './BlocklistPanel'
 import { PreferencesPanel } from './PreferencesPanel'
 import { PageHeader } from '@/components/ui/page-header'
+import { Page } from '@/components/ui/page'
 
 type Section = 'templates' | 'blocklist' | 'preferences'
 
@@ -16,7 +17,7 @@ export function EmailSettingsPage() {
 
   return (
     <RequirePermission permission={SETTINGS_MANAGE}>
-      <section className="flex flex-col gap-4">
+      <Page>
         <PageHeader title={t('settings.title')} description={t('settings.description')} />
         <Tabs value={section} onValueChange={(value) => setSection(value as Section)} className="grid gap-4">
           <TabsList>
@@ -34,7 +35,7 @@ export function EmailSettingsPage() {
             <PreferencesPanel />
           </TabsContent>
         </Tabs>
-      </section>
+      </Page>
     </RequirePermission>
   )
 }

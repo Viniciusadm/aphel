@@ -13,6 +13,7 @@ import { SETTINGS_MANAGE } from '@/features/settings/lib/permissions'
 import { onboardingApi, onboardingKeys, useOnboardingState, useTemplates } from './api'
 import type { OnboardingState } from './types'
 import { PageHeader } from '@/components/ui/page-header'
+import { Page } from '@/components/ui/page'
 
 export function OnboardingSettingsPage() {
   return (
@@ -49,7 +50,7 @@ function OnboardingSettingsSection() {
   }
 
   return (
-    <section className="flex flex-col gap-4">
+    <Page>
       <PageHeader
         title={t('settings.title')}
         description={t('settings.description')}
@@ -73,7 +74,7 @@ function OnboardingSettingsSection() {
           {t('settings.packagesLink')}
         </Link>
       </p>
-    </section>
+    </Page>
   )
 }
 

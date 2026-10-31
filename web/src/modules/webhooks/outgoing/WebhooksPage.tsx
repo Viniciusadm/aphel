@@ -36,6 +36,7 @@ import { DeliveryLog } from './DeliveryLog'
 import { EndpointFormDialog } from './EndpointFormDialog'
 import { WebhookDeliveryPanel } from './WebhookDeliveryPanel'
 import { PageHeader } from '@/components/ui/page-header'
+import { Page } from '@/components/ui/page'
 
 type Editing = { endpoint: WebhookEndpoint | null } | null
 
@@ -63,7 +64,7 @@ export function WebhooksPage() {
   }
 
   return (
-    <section className="flex flex-col gap-4">
+    <Page>
       <PageHeader
         title={t('title')}
         description={t('description')}
@@ -146,7 +147,7 @@ export function WebhooksPage() {
         onConfirm={() => (rotating ? rotate(rotating) : undefined)}
       />
       <WebhookDeliveryPanel />
-    </section>
+    </Page>
   )
 }
 

@@ -10,6 +10,7 @@ import { toast } from '@/components/ui/toast-store'
 import { useCommandPalette } from '../context'
 import { usePreferences, useUpdatePreferences } from './api'
 import { PageHeader } from '@/components/ui/page-header'
+import { Page } from '@/components/ui/page'
 
 export function PreferencesPage() {
   const { t } = useTranslation('command-palette')
@@ -29,7 +30,7 @@ export function PreferencesPage() {
   }
 
   return (
-    <section className="grid gap-4">
+    <Page>
       <PageHeader title={t('preferences.title')} description={t('preferences.description')} />
       {preferences.isPending ? (
         <Skeleton className="h-20" />
@@ -56,6 +57,6 @@ export function PreferencesPage() {
           </Button>
         </div>
       )}
-    </section>
+    </Page>
   )
 }

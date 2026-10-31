@@ -7,6 +7,7 @@ import { RequestsPanel } from './RequestsPanel'
 import { RetentionPanel } from './RetentionPanel'
 import { SubjectSearchPanel } from './SubjectSearchPanel'
 import { PageHeader } from '@/components/ui/page-header'
+import { Page } from '@/components/ui/page'
 
 const TABS = ['subjects', 'requests', 'retention'] as const
 type PrivacyTab = (typeof TABS)[number]
@@ -42,7 +43,7 @@ function PrivacySection() {
     )
 
   return (
-    <section className="flex min-w-0 flex-col gap-4">
+    <Page>
       <PageHeader title={t('page.title')} description={t('page.description')} />
       <Tabs value={tab} onValueChange={changeTab} className="flex min-w-0 flex-col gap-4">
         <TabsList aria-label={t('page.tabsLabel')}>
@@ -62,6 +63,6 @@ function PrivacySection() {
           <RetentionPanel />
         </TabsContent>
       </Tabs>
-    </section>
+    </Page>
   )
 }

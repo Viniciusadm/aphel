@@ -17,6 +17,7 @@ import { objectsAdminApi, objectsAdminKeys, useCustomObjectsAdmin, useInvalidate
 import { ObjectEditorDialog } from './ObjectEditorDialog'
 import { ObjectRemovalDialogs, type RemovalState } from './ObjectRemovalDialogs'
 import { PageHeader } from '@/components/ui/page-header'
+import { Page } from '@/components/ui/page'
 
 export function ObjectsSettingsPage() {
   return (
@@ -60,7 +61,7 @@ function ObjectsSection() {
   }
 
   return (
-    <section className="flex flex-col gap-4">
+    <Page>
       <PageHeader
         title={t('settings.title')}
         description={t('settings.description')}
@@ -118,7 +119,7 @@ function ObjectsSection() {
         }}
       />
       <ObjectRemovalDialogs state={removal} onChange={setRemoval} onDone={() => void invalidate()} />
-    </section>
+    </Page>
   )
 }
 

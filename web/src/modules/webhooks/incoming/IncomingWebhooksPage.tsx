@@ -27,6 +27,7 @@ import { CredentialsDialog } from './CredentialsDialog'
 import { RequestLogDialog } from './RequestLogDialog'
 import { WebhookEditorDialog } from './WebhookEditorDialog'
 import { PageHeader } from '@/components/ui/page-header'
+import { Page } from '@/components/ui/page'
 
 type PendingConfirmation =
   | { kind: 'delete'; webhook: IncomingWebhook }
@@ -70,7 +71,7 @@ export function IncomingWebhooksPage() {
   }
 
   return (
-    <section className="flex flex-col gap-4">
+    <Page>
       <PageHeader
         title={t('title')}
         description={t('description')}
@@ -133,7 +134,7 @@ export function IncomingWebhooksPage() {
         variant={pending?.kind === 'delete' || pending?.kind === 'regenerateToken' ? 'destructive' : 'default'}
         onConfirm={() => (pending ? confirm(pending) : undefined)}
       />
-    </section>
+    </Page>
   )
 }
 

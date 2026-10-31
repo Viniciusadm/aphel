@@ -14,6 +14,7 @@ import { errorMessageKey } from '../lib/errors'
 import { SETTINGS_MANAGE } from '../lib/permissions'
 import { RoleEditorDialog } from './RoleEditorDialog'
 import { PageHeader } from '@/components/ui/page-header'
+import { Page } from '@/components/ui/page'
 
 export function RolesPage() {
   return (
@@ -46,7 +47,7 @@ function RolesSection() {
   const failed = roles.isError || catalog.isError
 
   return (
-    <section className="grid gap-4">
+    <Page>
       <PageHeader
         title={t('roles.title')}
         description={t('roles.description')}
@@ -124,6 +125,6 @@ function RolesSection() {
           onOpenChange={(open) => !open && setDeleting(null)}
         />
       )}
-    </section>
+    </Page>
   )
 }

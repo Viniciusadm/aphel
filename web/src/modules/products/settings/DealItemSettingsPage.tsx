@@ -8,12 +8,13 @@ import { Button } from '@/components/ui/button'
 import { ErrorState } from '@/components/ui/error-state'
 import { DEAL_AMOUNT_MODES, productsApi, productsKeys, useDealItemSettings, type DealAmountMode, type DealItemSettings } from '../api'
 import { PageHeader } from '@/components/ui/page-header'
+import { Page } from '@/components/ui/page'
 
 export function DealItemSettingsPage() {
   const { t } = useTranslation('products')
   const query = useDealItemSettings()
   return (
-    <section className="flex flex-col gap-6">
+    <Page>
       <PageHeader title={t('settings.title')} description={t('settings.description')} />
       {query.isPending ? (
         <PageLoader />
@@ -22,7 +23,7 @@ export function DealItemSettingsPage() {
       ) : (
         <SettingsForm key={query.data.updated_at ?? 'default'} settings={query.data} />
       )}
-    </section>
+    </Page>
   )
 }
 

@@ -16,6 +16,7 @@ import {
   type ApiToken,
 } from '@/features/settings/api-tokens/api'
 import { PageHeader } from '@/components/ui/page-header'
+import { Page } from '@/components/ui/page'
 
 export function ApiTokensSection() {
   const { t } = useTranslation('security')
@@ -31,7 +32,7 @@ export function ApiTokensSection() {
   }
 
   return (
-    <section className="flex flex-col gap-4">
+    <Page>
       <PageHeader level="section"
         title={t('apiTokens.title')}
         description={t('apiTokens.description')}
@@ -63,7 +64,7 @@ export function ApiTokensSection() {
         variant="destructive"
         onConfirm={() => (revoking ? revoke(revoking) : undefined)}
       />
-    </section>
+    </Page>
   )
 }
 

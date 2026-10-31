@@ -39,6 +39,7 @@ import type {
 } from './types'
 import { PageHeader } from '@/components/ui/page-header'
 import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from '@/components/ui/table'
+import { Page } from '@/components/ui/page'
 
 const SOURCE_PARAM = 'source'
 const MAPPABLE: MapTarget[] = ['pipeline_id', 'stage_id', 'owner_id']
@@ -74,7 +75,7 @@ function MigrationAssistantSection() {
     )
 
   return (
-    <section className="flex min-w-0 flex-col gap-6">
+    <Page>
       <PageHeader title={t('page.title')} description={t('page.description')} />
       <p className="flex gap-2 rounded-lg border bg-muted/40 p-3 text-sm text-muted-foreground">
         <Info aria-hidden="true" className="mt-0.5 size-4 shrink-0" />
@@ -113,7 +114,7 @@ function MigrationAssistantSection() {
           {selected ? <SourceSteps key={selected.key} source={selected} /> : null}
         </>
       )}
-    </section>
+    </Page>
   )
 }
 

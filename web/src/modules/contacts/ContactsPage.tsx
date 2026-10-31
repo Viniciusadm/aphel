@@ -8,6 +8,7 @@ import { RecordFormDialog } from '@/features/records/form'
 import { RecordListView } from '@/features/records/table'
 import { CONTACT_CREATE_LAYOUT, CONTACT_RECORD_TYPE, contactResource } from './resource'
 import { PageHeader } from '@/components/ui/page-header'
+import { Page } from '@/components/ui/page'
 
 export function ContactsPage() {
   const { t } = useTranslation('contacts')
@@ -23,7 +24,7 @@ export function ContactsPage() {
   ) : undefined
 
   return (
-    <div className="flex flex-col gap-4">
+    <Page>
       <PageHeader title={t('list.title')} description={t('list.description')} />
       <RecordListView
         recordType={CONTACT_RECORD_TYPE}
@@ -45,6 +46,6 @@ export function ContactsPage() {
           }}
         />
       )}
-    </div>
+    </Page>
   )
 }

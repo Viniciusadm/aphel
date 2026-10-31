@@ -28,6 +28,7 @@ import { MemberActions, type MemberAction } from './MemberActions'
 import { MemberStatusBadge } from './MemberStatusBadge'
 import { PageHeader } from '@/components/ui/page-header'
 import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from '@/components/ui/table'
+import { Page } from '@/components/ui/page'
 
 type ConfirmAction = Extract<MemberAction, 'suspend' | 'cancelInvitation'>
 
@@ -124,7 +125,7 @@ function MembersSection() {
   }[confirming.action]
 
   return (
-    <section className="grid gap-4">
+    <Page>
       <PageHeader
         title={t('users.title')}
         description={t('users.description')}
@@ -214,6 +215,6 @@ function MembersSection() {
           onOpenChange={(open) => !open && setConfirming(null)}
         />
       )}
-    </section>
+    </Page>
   )
 }

@@ -11,6 +11,7 @@ import { Pagination } from '@/components/ui/pagination'
 import { HISTORY_PAGE_SIZE, isExportable, useExportHistory } from './api'
 import { PageHeader } from '@/components/ui/page-header'
 import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from '@/components/ui/table'
+import { Page } from '@/components/ui/page'
 
 type BadgeVariant = 'secondary' | 'destructive' | 'success' | 'warning'
 
@@ -31,7 +32,7 @@ export function ExportHistoryPage() {
     isExportable(recordType) ? t(`recordTypes.${recordType}`) : recordType
 
   return (
-    <section className="flex min-w-0 flex-col gap-4">
+    <Page>
       <PageHeader title={t('history.title')} description={t('history.description')} />
       {exports.isPending ? (
         <ListSkeleton />
@@ -103,6 +104,6 @@ export function ExportHistoryPage() {
           />
         </>
       )}
-    </section>
+    </Page>
   )
 }

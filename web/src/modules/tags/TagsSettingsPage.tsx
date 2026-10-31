@@ -33,6 +33,7 @@ import {
 } from './api'
 import { TagChip } from './TagChip'
 import { PageHeader } from '@/components/ui/page-header'
+import { Page } from '@/components/ui/page'
 
 const HEX_COLOR = /^#[0-9a-f]{6}$/i
 
@@ -62,7 +63,7 @@ function TagsSection() {
   }
 
   return (
-    <section className="flex flex-col gap-4">
+    <Page>
       <PageHeader
         title={t('settings.title')}
         description={t('settings.description')}
@@ -149,7 +150,7 @@ function TagsSection() {
         variant="destructive"
         onConfirm={() => (deleting ? remove(deleting) : undefined)}
       />
-    </section>
+    </Page>
   )
 }
 

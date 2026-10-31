@@ -25,6 +25,7 @@ import { callsApi, useCallOutcomes, useInvalidateCalls } from './api'
 import { callErrorKey } from './lib/errors'
 import type { CallOutcome } from './types'
 import { PageHeader } from '@/components/ui/page-header'
+import { Page } from '@/components/ui/page'
 
 interface EditorState {
   outcome: CallOutcome | null
@@ -77,7 +78,7 @@ function OutcomesSection() {
   }
 
   return (
-    <section className="flex flex-col gap-4">
+    <Page>
       <PageHeader
         title={t('outcomes.title')}
         description={t('outcomes.description')}
@@ -155,7 +156,7 @@ function OutcomesSection() {
           )}
         </DialogContent>
       </Dialog>
-    </section>
+    </Page>
   )
 }
 

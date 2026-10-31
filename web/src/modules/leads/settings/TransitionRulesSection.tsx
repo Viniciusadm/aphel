@@ -14,6 +14,7 @@ import { TRANSITION_TRIGGERS } from '../constants'
 import { lifecycleErrorMessage } from '../errors'
 import type { LifecycleSettings, LifecycleStageOption, LifecycleTransitionRule } from '../types'
 import { PageHeader } from '@/components/ui/page-header'
+import { Page } from '@/components/ui/page'
 
 interface Draft {
   rules: LifecycleTransitionRule[]
@@ -72,7 +73,7 @@ function RulesForm({ settings }: { settings: LifecycleSettings }) {
   }
 
   return (
-    <section className="flex flex-col gap-4">
+    <Page>
       <PageHeader level="section" title={t('settings.rules.title')} description={t('settings.rules.description')} />
       <div className="grid gap-3">
         {draft.rules.map((rule) => (
@@ -107,7 +108,7 @@ function RulesForm({ settings }: { settings: LifecycleSettings }) {
           {t('settings.save')}
         </Button>
       </div>
-    </section>
+    </Page>
   )
 }
 

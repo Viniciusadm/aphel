@@ -13,6 +13,7 @@ import { useScoringRecordTypeLabel } from './labels'
 import { ScoringModelDialog } from './ScoringModelDialog'
 import { SCORING_MANAGE, type ScoringModel } from './types'
 import { PageHeader } from '@/components/ui/page-header'
+import { Page } from '@/components/ui/page'
 
 export function ScoringPage() {
   return (
@@ -50,7 +51,7 @@ function ScoringSettings() {
   }
 
   return (
-    <section className="flex flex-col gap-6">
+    <Page>
       <PageHeader
         title={t('title')}
         description={t('description')}
@@ -185,6 +186,6 @@ function ScoringSettings() {
           setRemoving(null)
         }}
       />
-    </section>
+    </Page>
   )
 }

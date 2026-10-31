@@ -12,6 +12,7 @@ import { securitySessionsApi, useInvalidateSecuritySessions, useSecuritySessions
 import { DeviceIcon } from './DeviceIcon'
 import { useDeviceLabel } from './device-label'
 import { PageHeader } from '@/components/ui/page-header'
+import { Page } from '@/components/ui/page'
 
 export function SessionsSection() {
   const { t } = useTranslation('security')
@@ -35,7 +36,7 @@ export function SessionsSection() {
   }
 
   return (
-    <section className="flex flex-col gap-4">
+    <Page>
       <PageHeader level="section"
         title={t('sessions.title')}
         description={t('sessions.description')}
@@ -88,7 +89,7 @@ export function SessionsSection() {
         variant="destructive"
         onConfirm={revokeOthers}
       />
-    </section>
+    </Page>
   )
 }
 

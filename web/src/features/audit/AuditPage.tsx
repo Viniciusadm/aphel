@@ -17,6 +17,7 @@ import { filtersFromSearch, hasFilters, pageFromSearch, toSearch, type AuditFilt
 import { recordTypeLabel } from './lib/labels'
 import { PageHeader } from '@/components/ui/page-header'
 import { Table, TableBody, TableHead, TableHeader, TableRow } from '@/components/ui/table'
+import { Page } from '@/components/ui/page'
 
 export function AuditPage() {
   return (
@@ -40,7 +41,7 @@ function AuditSection() {
   const invalidFilters = logs.isError && isApiError(logs.error) && logs.error.status === 422
 
   return (
-    <section className="grid gap-4">
+    <Page>
       <PageHeader title={t('title')} description={t('description')} />
       <AuditFiltersForm key={toSearch(filters).toString()} filters={filters} onApply={(next) => apply(next)} />
       {logs.isPending ? (
@@ -92,7 +93,7 @@ function AuditSection() {
           />
         </>
       )}
-    </section>
+    </Page>
   )
 }
 

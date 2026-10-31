@@ -9,6 +9,7 @@ import { SETTINGS_MANAGE } from '@/features/settings/lib/permissions'
 import { ModuleCard } from './ModuleCard'
 import { CatalogSourcePanel } from './CatalogSourcePanel'
 import { PageHeader } from '@/components/ui/page-header'
+import { Page } from '@/components/ui/page'
 
 export function ModulesPage() {
   return (
@@ -26,7 +27,7 @@ function ModulesList() {
   const optional = modules.data?.filter((module) => !module.required) ?? []
 
   return (
-    <section className="flex flex-col gap-4">
+    <Page>
       <PageHeader title={t('title')} description={t('description')} />
       {modules.isPending ? (
         <div className="grid gap-3 md:grid-cols-2" aria-busy="true">
@@ -45,6 +46,6 @@ function ModulesList() {
         </ul>
       )}
       <CatalogSourcePanel />
-    </section>
+    </Page>
   )
 }

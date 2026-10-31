@@ -16,6 +16,7 @@ import type { VersionComparison } from '../config-packages/versioning/types'
 import { catalogApi, useCatalog } from './api'
 import type { Catalog, CatalogEntry } from './types'
 import { PageHeader } from '@/components/ui/page-header'
+import { Page } from '@/components/ui/page'
 
 const KNOWN_ERRORS = [
   'catalog_disabled',
@@ -99,7 +100,7 @@ function CatalogSection() {
   }
 
   return (
-    <section className="flex min-w-0 flex-col gap-4">
+    <Page>
       <PageHeader
         title={t('page.title')}
         description={t('page.description')}
@@ -128,7 +129,7 @@ function CatalogSection() {
           onCompare={(entry) => void compare(entry)}
         />
       )}
-    </section>
+    </Page>
   )
 }
 

@@ -17,6 +17,7 @@ import { useRecordTypeLabel } from '../lib/labels'
 import type { ApprovalPolicy } from '../types'
 import { PolicyEditorDialog } from './PolicyEditorDialog'
 import { PageHeader } from '@/components/ui/page-header'
+import { Page } from '@/components/ui/page'
 
 interface EditorState {
   policy: ApprovalPolicy | null
@@ -97,7 +98,7 @@ function ApprovalPolicies() {
   }
 
   return (
-    <section className="flex flex-col gap-6">
+    <Page>
       <PageHeader
         title={t('settings.title')}
         description={t('settings.description')}
@@ -130,7 +131,7 @@ function ApprovalPolicies() {
           setRemoving(null)
         }}
       />
-    </section>
+    </Page>
   )
 }
 

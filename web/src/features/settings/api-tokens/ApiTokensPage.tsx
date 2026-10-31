@@ -36,6 +36,7 @@ import {
 } from './api'
 import { ApiTokenLimitsPanel } from './ApiTokenLimitsPanel'
 import { PageHeader } from '@/components/ui/page-header'
+import { Page } from '@/components/ui/page'
 
 const EXPIRATION_OPTIONS = ['30', '90', '365', 'never'] as const
 type ExpirationOption = (typeof EXPIRATION_OPTIONS)[number]
@@ -58,7 +59,7 @@ export function ApiTokensPage() {
   }
 
   return (
-    <section className="flex flex-col gap-4">
+    <Page>
       <PageHeader
         title={t('title')}
         description={t('description')}
@@ -128,7 +129,7 @@ export function ApiTokensPage() {
         onConfirm={() => (revoking ? revoke(revoking) : undefined)}
       />
       <ApiTokenLimitsPanel />
-    </section>
+    </Page>
   )
 }
 

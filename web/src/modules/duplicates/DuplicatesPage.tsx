@@ -28,6 +28,7 @@ import { DuplicateRulesCard } from './DuplicateRulesCard'
 import { mergePagePath } from './paths'
 import { ruleLabelKey, typeLabel } from './lib/labels'
 import { PageHeader } from '@/components/ui/page-header'
+import { Page } from '@/components/ui/page'
 
 export function DuplicatesPage() {
   const { t } = useTranslation('duplicates')
@@ -70,7 +71,7 @@ function DuplicatesQueue({ types }: { types: DuplicateTypeInfo[] }) {
 
   return (
     <div className="grid gap-6">
-      <section className="grid gap-4">
+      <Page>
         <PageHeader
           title={t('queue.title')}
           description={t('queue.description')}
@@ -133,7 +134,7 @@ function DuplicatesQueue({ types }: { types: DuplicateTypeInfo[] }) {
             />
           </>
         )}
-      </section>
+      </Page>
       {canManage && <DuplicateRulesCard key={recordType} recordType={recordType} label={typeLabel(t, selected)} />}
     </div>
   )

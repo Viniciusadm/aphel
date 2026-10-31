@@ -19,6 +19,7 @@ import { INBOX_OWNERS, INBOX_SORTS, buildInboxParams, parseInboxQuery } from './
 import { ReassignDialog } from './ReassignDialog'
 import { useInboxActions } from './useInboxActions'
 import { PageHeader } from '@/components/ui/page-header'
+import { Page } from '@/components/ui/page'
 
 const COLLAPSIBLE_GROUPS = new Set(['upcoming', 'no_due'])
 
@@ -140,7 +141,7 @@ export function InboxPage() {
   }
 
   return (
-    <div className="flex w-full min-w-0 flex-col gap-4">
+    <Page>
       <PageHeader title={t('page.title')} description={t('page.description')} />
       <div className="flex min-w-0 flex-wrap items-end gap-3">
         <div className="grid gap-1.5">
@@ -222,6 +223,6 @@ export function InboxPage() {
       )}
       {body}
       <ReassignDialog item={reassigning} onOpenChange={(open) => !open && setReassigning(null)} onConfirm={reassign} />
-    </div>
+    </Page>
   )
 }

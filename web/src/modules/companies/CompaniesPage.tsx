@@ -8,6 +8,7 @@ import { RecordFormDialog } from '@/features/records/form'
 import { RecordListView } from '@/features/records/table'
 import { COMPANY_CREATE_LAYOUT, COMPANY_RECORD_TYPE, companyResource } from './resource'
 import { PageHeader } from '@/components/ui/page-header'
+import { Page } from '@/components/ui/page'
 
 export function CompaniesPage() {
   const { t } = useTranslation('companies')
@@ -23,7 +24,7 @@ export function CompaniesPage() {
   ) : undefined
 
   return (
-    <div className="flex flex-col gap-4">
+    <Page>
       <PageHeader title={t('list.title')} description={t('list.description')} />
       <RecordListView
         recordType={COMPANY_RECORD_TYPE}
@@ -45,6 +46,6 @@ export function CompaniesPage() {
           }}
         />
       )}
-    </div>
+    </Page>
   )
 }

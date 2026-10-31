@@ -10,6 +10,7 @@ import { VERSIONS_TAB } from './versioning/tab'
 import { VersionsPanel } from './versioning/VersionsPanel'
 import { VersionsTabTrigger } from './versioning/VersionsTab'
 import { PageHeader } from '@/components/ui/page-header'
+import { Page } from '@/components/ui/page'
 
 const TABS = ['export', 'install', 'history'] as const
 type PackagesTab = (typeof TABS)[number] | typeof VERSIONS_TAB
@@ -44,7 +45,7 @@ function ConfigPackagesSection() {
     )
 
   return (
-    <section className="flex min-w-0 flex-col gap-4">
+    <Page>
       <PageHeader title={t('page.title')} description={t('page.description')} />
       <Tabs value={tab} onValueChange={changeTab} className="flex min-w-0 flex-col gap-4">
         <TabsList aria-label={t('page.tabsLabel')} className="self-start">
@@ -68,6 +69,6 @@ function ConfigPackagesSection() {
           <VersionsPanel />
         </TabsContent>
       </Tabs>
-    </section>
+    </Page>
   )
 }

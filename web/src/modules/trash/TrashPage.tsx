@@ -32,6 +32,7 @@ import {
 import { useTrashTypeLabel } from './labels'
 import { PageHeader } from '@/components/ui/page-header'
 import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from '@/components/ui/table'
+import { Page } from '@/components/ui/page'
 
 export function TrashPage() {
   return (
@@ -91,7 +92,7 @@ function TrashSection() {
   const filtered = Boolean(filters.recordType || filters.search)
 
   return (
-    <section className="grid gap-4">
+    <Page>
       <PageHeader title={t('title')} description={t('description')} />
       <div className="flex flex-wrap items-end gap-3">
         <label className="grid gap-1 text-sm">
@@ -161,7 +162,7 @@ function TrashSection() {
         pending={purge.isPending}
         onConfirm={purgeItem}
       />
-    </section>
+    </Page>
   )
 }
 

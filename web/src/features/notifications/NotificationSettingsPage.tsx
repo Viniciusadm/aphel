@@ -8,6 +8,7 @@ import { type NotificationPreference, useNotificationPreferences, useUpdateNotif
 import { NOTIFICATION_CHANNELS, orderedNotificationKinds } from './lib/kinds'
 import { PageHeader } from '@/components/ui/page-header'
 import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from '@/components/ui/table'
+import { Page } from '@/components/ui/page'
 
 export function NotificationSettingsPage() {
   const { t } = useTranslation('notifications')
@@ -21,7 +22,7 @@ export function NotificationSettingsPage() {
   }
 
   return (
-    <section className="grid gap-4">
+    <Page>
       <PageHeader title={t('settings.title')} description={t('settings.description')} />
       <PushDeviceSetting />
       {preferences.isPending ? (
@@ -82,6 +83,6 @@ export function NotificationSettingsPage() {
         </Table>
       )}
       <p className="text-xs text-muted-foreground">{t('settings.footnote')}</p>
-    </section>
+    </Page>
   )
 }

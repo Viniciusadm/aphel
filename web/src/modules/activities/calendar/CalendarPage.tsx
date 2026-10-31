@@ -46,6 +46,7 @@ import { eventStart, groupEntriesByDay } from './lib/events'
 import { CALENDAR_VIEW_MODES, DEFAULT_EVENT_MINUTES, shiftAnchor, snapMinutes, viewRange, viewTitle } from './lib/range'
 import { useCalendarUrlState } from './useCalendarUrlState'
 import { PageHeader } from '@/components/ui/page-header'
+import { Page } from '@/components/ui/page'
 
 const DEFAULT_CREATE_MINUTES = 9 * 60
 const EMPTY_ITEMS: Activity[] = []
@@ -197,7 +198,7 @@ export function CalendarPage() {
   }
 
   return (
-    <div className="flex w-full min-w-0 flex-col gap-4">
+    <Page>
       <PageHeader title={t('page.title')} description={t('page.description')} />
       <div className="flex min-w-0 flex-wrap items-center gap-2">
         <Button variant="outline" size="sm" onClick={() => update({ date: null })}>
@@ -270,6 +271,6 @@ export function CalendarPage() {
         defaults={creating ?? undefined}
         onOpenChange={(open) => !open && setCreating(null)}
       />
-    </div>
+    </Page>
   )
 }

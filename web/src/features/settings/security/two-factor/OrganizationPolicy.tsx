@@ -18,13 +18,14 @@ import {
   type TwoFactorPolicyState,
 } from './api'
 import { PageHeader } from '@/components/ui/page-header'
+import { Page } from '@/components/ui/page'
 
 export function OrganizationPolicy() {
   const { t } = useTranslation('two-factor')
   const policy = useTwoFactorPolicy(true)
 
   return (
-    <section className="flex flex-col gap-4">
+    <Page>
       <PageHeader title={t('policy.title')} description={t('policy.description')} />
       {policy.isPending ? (
         <Skeleton className="h-40 w-full" />
@@ -37,7 +38,7 @@ export function OrganizationPolicy() {
       ) : (
         <PolicyForm key={policy.data.policy} state={policy.data} />
       )}
-    </section>
+    </Page>
   )
 }
 

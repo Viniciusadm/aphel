@@ -25,6 +25,7 @@ import {
 } from './api'
 import { DataDisclosure } from './DataDisclosure'
 import { PageHeader } from '@/components/ui/page-header'
+import { Page } from '@/components/ui/page'
 
 const ALL = 'all'
 
@@ -40,7 +41,7 @@ export function AiPage() {
   }
 
   return (
-    <section className="flex flex-col gap-4">
+    <Page>
       <PageHeader title={t('page.title')} description={t('page.description')} />
       {status.isPending ? (
         <Skeleton className="h-40 w-full" />
@@ -53,7 +54,7 @@ export function AiPage() {
         </>
       )}
       {canViewUsage && <CallLog />}
-    </section>
+    </Page>
   )
 }
 
