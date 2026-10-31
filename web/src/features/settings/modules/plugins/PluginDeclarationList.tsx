@@ -27,11 +27,43 @@ const DECLARATIONS = [
   ['routes', (plugin: PluginDeclarations) => plugin.routes],
 ] as const
 
-export function PluginDeclarationList({ plugin }: { plugin: PluginDeclarations }) {
+export function PluginDeclarationList({ plugin, compact = false }: { plugin: PluginDeclarations; compact?: boolean }) {
   const { t } = useTranslation('modules')
   const rows = DECLARATIONS.map(([label, values]) => [label, values(plugin)] as const).filter(
     ([, values]) => values.length > 0,
   )
+  if (compact) {
+    return (
+      <section className="flex min-h-0 flex-1 flex-col gap-2 overflow-hidden rounded-md bg-muted/40 p-3">
+        <h3 className="shrink-0 text-xs font-semibold text-foreground">{t('plugins.declarationsPreview')}</h3>
+        {rows.length === 0 ? (
+          <p className="text-xs text-muted-foreground">{t('plugins.noDeclarations')}</p>
+        ) : (
+          <dl className="grid content-start gap-2 overflow-hidden">
+            {rows.slice(0, 3).map(([label, values]) => (
+              <div key={label} className="grid min-w-0 gap-1">
+                <dt className="text-[11px] font-medium leading-tight text-muted-foreground">
+                  {t(`plugins.declares.${label}`)}
+                </dt>
+                <dd className="flex min-w-0 flex-wrap gap-1 overflow-hidden">
+                  {values.slice(0, 3).map((value) => (
+                    <span key={value} className="max-w-full truncate rounded bg-background px-1.5 py-0.5 text-xs text-foreground">
+                      {value}
+                    </span>
+                  ))}
+                  {values.length > 3 && (
+                    <span className="rounded bg-background px-1.5 py-0.5 text-xs text-muted-foreground">
+                      +{values.length - 3}
+                    </span>
+                  )}
+                </dd>
+              </div>
+            ))}
+          </dl>
+        )}
+      </section>
+    )
+  }
   if (rows.length === 0) return null
   return (
     <dl className="grid gap-1 text-xs">

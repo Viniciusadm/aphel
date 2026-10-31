@@ -2,6 +2,7 @@
   "tabs": {
     "themes": "Temas",
     "modules": "Módulos",
+    "plugins": "Plugins",
     "orgExport": "Exportação completa",
     "migrationAssistant": "Migrar de outro CRM",
     "label": "Seções das configurações",
@@ -297,6 +298,9 @@
     "communication": "E-mail e comunicação"
   },
   "items": {
+    "plugins": {
+      "description": "Instale e gerencie plugins que ampliam as integrações do Aphel."
+    },
     "themes": {
       "description": "Cores, formas e fontes aplicadas a toda a instalação."
     },

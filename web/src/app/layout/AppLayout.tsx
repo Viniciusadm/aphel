@@ -26,7 +26,7 @@ export function AppLayout() {
   const [mobileNavOpen, setMobileNavOpen] = useState(false)
   const settingsArea = useSettingsArea()
   const location = useLocation()
-  const currentPath = `${location.pathname}${location.search}`
+  const currentPath = `${location.pathname}${location.search}${location.hash}`
   const [returnPath, setReturnPath] = useState('/')
   if (!settingsArea && returnPath !== currentPath) setReturnPath(currentPath)
 

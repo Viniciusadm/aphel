@@ -1,6 +1,6 @@
 import { ArrowLeft, type LucideIcon } from 'lucide-react'
 import type { ReactElement } from 'react'
-import { Link, NavLink } from 'react-router'
+import { Link, NavLink, useLocation } from 'react-router'
 import { useTranslation } from 'react-i18next'
 import { Tooltip, TooltipContent, TooltipTrigger } from '@/components/ui/tooltip'
 import { cn } from '@/lib/utils'
@@ -24,6 +24,7 @@ interface SettingsNavProps {
 export function SettingsNav({ area, returnPath, collapsed = false, onNavigate }: SettingsNavProps) {
   const { t } = useTranslation('settings')
   const { t: tl } = useTranslation('layout')
+  const location = useLocation()
   const { query, setQuery, filteredGroups, isSearching } = useSettingsSearch(area)
   const otherAreas = useOtherAreas(area)
 
@@ -59,6 +60,9 @@ export function SettingsNav({ area, returnPath, collapsed = false, onNavigate }:
     )
 
   const backLabel = tl('sidebar.backToApp')
+  const areaPath = area.basePath.replace(/\/$/, '')
+  const isAreaRoot = location.pathname.replace(/\/$/, '') === areaPath
+  const backPath = isAreaRoot ? returnPath : area.basePath
 
   return (
     <div className="flex flex-col gap-4 px-2">
@@ -67,7 +71,7 @@ export function SettingsNav({ area, returnPath, collapsed = false, onNavigate }:
           'back',
           backLabel,
           <Link
-            to={returnPath}
+            to={backPath}
             onClick={onNavigate}
             aria-label={collapsed ? backLabel : undefined}
             className={cn(itemClass, 'text-muted-foreground', collapsed && 'justify-center px-0')}

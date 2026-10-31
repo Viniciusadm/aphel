@@ -1,4 +1,4 @@
-import { PackagePlus, Plug, Power, PowerOff, Settings2, Trash2 } from 'lucide-react'
+import { Info, PackagePlus, Plug, Power, PowerOff, Settings2, Trash2 } from 'lucide-react'
 import { useRef, useState } from 'react'
 import { useTranslation } from 'react-i18next'
 import { useMutation, useQuery, useQueryClient } from '@tanstack/react-query'
@@ -9,6 +9,7 @@ import { Button } from '@/components/ui/button'
 import { EmptyState } from '@/components/ui/empty-state'
 import { ErrorState } from '@/components/ui/error-state'
 import { Skeleton } from '@/components/ui/skeleton'
+import { Dialog, DialogContent, DialogDescription, DialogHeader, DialogTitle } from '@/components/ui/dialog'
 import { SectionHeader } from '@/features/settings/components/SectionHeader'
 import { RequirePermission } from '@/features/settings/components/RequirePermission'
 import { SYSTEM_MANAGE } from '@/features/settings/lib/permissions'
@@ -44,6 +45,7 @@ function PluginsPanelContent() {
   const [removing, setRemoving] = useState<InstalledPlugin | null>(null)
   const [configuring, setConfiguring] = useState<InstalledPlugin | null>(null)
   const [pending, setPending] = useState<{ file: File; consent: PluginConsent } | null>(null)
+  const [details, setDetails] = useState<InstalledPlugin | null>(null)
   const readiness = useQuery({
     queryKey: [...pluginsKey, 'readiness'],
     queryFn: () => api.get<{ state: 'loading' | 'ready' | 'degraded'; version: number | null }>(`${PLUGINS_PATH}/readiness`),
@@ -145,7 +147,7 @@ function PluginsPanelContent() {
       ) : (
         <ul className="grid gap-3 md:grid-cols-2">
           {plugins.data.map((plugin) => (
-            <li key={plugin.key} className="grid gap-3 rounded-md border bg-card p-4">
+          <li key={plugin.key} className="flex h-80 flex-col gap-3 overflow-hidden rounded-md border bg-card p-4">
               <div className="flex flex-wrap items-start justify-between gap-2">
                 <div className="grid gap-1">
                   <span className="font-semibold">{plugin.name}</span>
@@ -160,20 +162,13 @@ function PluginsPanelContent() {
                   </Badge>
                 </div>
               </div>
-              {plugin.description && <p className="text-sm text-muted-foreground">{plugin.description}</p>}
-              {plugin.backend_error && (
-                <div role="alert" className="grid gap-1 rounded-md border border-destructive/50 p-3 text-sm">
-                  <p className="text-destructive">{t('plugins.backendFailedDescription')}</p>
-                  <p className="text-xs break-words text-muted-foreground">{plugin.backend_error}</p>
-                </div>
-              )}
-              <PluginDeclarationList plugin={plugin} />
-              <PluginGrantStatus
-                plugin={plugin}
-                pending={reapply.isPending}
-                onReapply={() => reapply.mutate(plugin)}
-              />
-              <div className="flex flex-wrap gap-2">
+              {plugin.description && <p className="line-clamp-2 text-sm text-muted-foreground">{plugin.description}</p>}
+              <PluginDeclarationList plugin={plugin} compact />
+              <div className="mt-auto flex flex-wrap gap-2">
+                <Button size="sm" variant="outline" onClick={() => setDetails(plugin)}>
+                  <Info aria-hidden="true" />
+                  {t('plugins.viewDetails')}
+                </Button>
                 <Button size="sm" variant="outline" onClick={() => toggle.mutate(plugin)} disabled={toggle.isPending}>
                   {plugin.enabled ? <PowerOff aria-hidden="true" /> : <Power aria-hidden="true" />}
                   {plugin.enabled ? t('plugins.disable') : t('plugins.enable')}
@@ -193,6 +188,20 @@ function PluginsPanelContent() {
           ))}
         </ul>
       )}
+      <Dialog open={details !== null} onOpenChange={(open) => { if (!open) setDetails(null) }}>
+        {details && (
+          <DialogContent className="max-w-2xl">
+            <DialogHeader>
+              <DialogTitle>{t('plugins.detailsTitle', { name: details.name })}</DialogTitle>
+              <DialogDescription>{details.key} · {t('version', { version: details.version })}</DialogDescription>
+            </DialogHeader>
+            {details.description && <p className="text-sm text-muted-foreground">{details.description}</p>}
+            {details.backend_error && <p role="alert" className="break-words text-sm text-destructive">{details.backend_error}</p>}
+            <PluginGrantStatus plugin={details} pending={reapply.isPending} onReapply={() => reapply.mutate(details)} />
+            <PluginDeclarationList plugin={details} />
+          </DialogContent>
+        )}
+      </Dialog>
       <PluginConsentDialog
         consent={pending?.consent ?? null}
         pending={install.isPending}

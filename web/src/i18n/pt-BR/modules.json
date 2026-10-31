@@ -119,6 +119,10 @@
   },
   "applyUpdate": "Aplicar atualização",
   "plugins": {
+    "viewDetails": "Ver detalhes",
+    "detailsTitle": "Detalhes de {{name}}",
+    "declarationsPreview": "O que este plugin adiciona",
+    "noDeclarations": "Este plugin não declara recursos adicionais.",
     "catalogLoading": "Carregando o catálogo de plugins…",
     "title": "Plugins",
     "description": "Extensões de terceiros instaladas a partir de um pacote .aphelplugin, sem recompilar nem reiniciar o Aphel. Elas rodam isoladas e só acessam o que a API de plugins permite.",

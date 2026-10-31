@@ -119,6 +119,10 @@
   },
   "applyUpdate": "Apply update",
   "plugins": {
+    "viewDetails": "View details",
+    "detailsTitle": "{{name}} details",
+    "declarationsPreview": "What this plugin adds",
+    "noDeclarations": "This plugin declares no additional resources.",
     "catalogLoading": "Loading the plugin catalog…",
     "title": "Plugins",
     "description": "Third-party extensions installed from an .aphelplugin package, without rebuilding or restarting Aphel. They run isolated and only reach what the plugin API allows.",

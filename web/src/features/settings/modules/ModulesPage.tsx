@@ -9,7 +9,6 @@ import { SectionHeader } from '@/features/settings/components/SectionHeader'
 import { SETTINGS_MANAGE } from '@/features/settings/lib/permissions'
 import { ModuleCard } from './ModuleCard'
 import { CatalogSourcePanel } from './CatalogSourcePanel'
-import { PluginsPanel } from './PluginsPanel'
 
 export function ModulesPage() {
   return (
@@ -45,7 +44,6 @@ function ModulesList() {
           ))}
         </ul>
       )}
-      <PluginsPanel />
       <CatalogSourcePanel />
     </section>
   )
