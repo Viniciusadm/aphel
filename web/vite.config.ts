@@ -22,10 +22,12 @@ const sharedEntries: Record<string, { specifier: string; source: string }> = {
   react: { specifier: 'react', source: 'runtime/react.js' },
   'jsx-runtime': { specifier: 'react/jsx-runtime', source: 'runtime/jsx-runtime.js' },
   'react-dom': { specifier: 'react-dom', source: 'runtime/react-dom.js' },
+  'react-dom-client': { specifier: 'react-dom/client', source: 'runtime/react-dom-client.js' },
   'react-router': { specifier: 'react-router', source: 'runtime/react-router.js' },
   'react-query': { specifier: '@tanstack/react-query', source: 'runtime/react-query.js' },
   'react-i18next': { specifier: 'react-i18next', source: 'runtime/react-i18next.js' },
   sdk: { specifier: '@aphel/web-sdk', source: 'src/sdk/index.ts' },
+  ui: { specifier: '@aphel/ui', source: 'src/sdk/ui-entry.ts' },
 }
 
 function pluginImportMap(): Plugin {
@@ -75,6 +77,8 @@ export default defineConfig({
       preserveEntrySignatures: 'exports-only',
       output: {
         entryFileNames: (chunk) => (chunk.name.startsWith('shared/') ? '[name].js' : 'assets/[name]-[hash].js'),
+        assetFileNames: (asset) =>
+          asset.names.some((name) => /(^|\/)ui\.css$/.test(name)) ? 'shared/ui.css' : 'assets/[name]-[hash][extname]',
         codeSplitting: {
           groups: [
             { name: 'ui-utils', test: /node_modules[\\/](clsx|tailwind-merge|class-variance-authority)[\\/]/, priority: 1 },

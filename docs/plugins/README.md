@@ -518,7 +518,8 @@ The bundle is an ES module that default-exports a `defineModule` (same API as th
 
 | Specifier | Content |
 | --- | --- |
-| `react`, `react/jsx-runtime`, `react-dom`, `react-router`, `@tanstack/react-query`, `react-i18next` | The instances used by Aphel |
+| `react`, `react/jsx-runtime`, `react-dom`, `react-dom/client`, `react-router`, `@tanstack/react-query`, `react-i18next` | The instances used by Aphel |
+| `@aphel/ui` | The UI components and tokens, without session, records or i18n dependencies; also usable in public web apps. See [`docs/ui`](../ui/README.md) |
 | `@aphel/web-sdk` | Stable API: `defineModule`, `NAV_ORDER`, `useModuleTranslation`, `Slot`, `api`, `useSession`, `RecordListView`, `RecordDetailPage`, `RecordFormDialog`, `RecordForm`, `useRecord`, `registerRecordResource`, formatting helpers, `customObjectPath`/`customRecordPath`, `useChangeFeed` (live changes of the plugin's records from `GET /api/v1/plugins/<key>/changes/stream`, with `GET /api/v1/plugins/<key>/changes?since=<seq>` for catching up; kept for 24 hours, and `reset` means the client must reload), feedback (`ConfirmDialog`, `notifySuccess`, `notifyError`) and UI components (`Button`, `Badge`, `Card`, `EmptyState`, `ErrorState`, `Skeleton`, `Input`, `Label`, `Tooltip`, `Avatar`, `cn`) — [`web/src/sdk/index.ts`](../../web/src/sdk/index.ts) |
 
 ```js
@@ -530,7 +531,7 @@ export default {
   build: {
     lib: { entry: 'src/index.tsx', formats: ['es'], fileName: () => 'index.js', cssFileName: 'style' },
     rolldownOptions: {
-      external: ['react', 'react/jsx-runtime', 'react-dom', 'react-router', '@tanstack/react-query', 'react-i18next', '@aphel/web-sdk'],
+      external: ['react', 'react/jsx-runtime', 'react-dom', 'react-router', '@tanstack/react-query', 'react-i18next', '@aphel/web-sdk', '@aphel/ui'],
     },
   },
 }
@@ -550,7 +551,7 @@ export default defineModule({
 })
 ```
 
-Other libraries (icons, date helpers) are bundled into the plugin. Use `useModuleTranslation(key)` instead of `useTranslation` (the typed namespaces only know the built-in modules). Do not rely on Aphel's own Tailwind classes: the host only generates the ones it uses, so anything else silently does nothing. A plugin builds its own stylesheet with a Tailwind prefix, declares it as `style = "web/style.css"` and imports it at the top of its entry:
+The base components (`Select`, `Dialog`, `Table`, `Tabs`, `Checkbox`, `Switch`, `Field` and the ones above) are also available from `@aphel/ui`, which follows the installation's theme; using it is optional, see [`docs/ui`](../ui/README.md). Other libraries (icons, date helpers) are bundled into the plugin. Use `useModuleTranslation(key)` instead of `useTranslation` (the typed namespaces only know the built-in modules). Do not rely on Aphel's own Tailwind classes: the host only generates the ones it uses, so anything else silently does nothing. A plugin builds its own stylesheet with a Tailwind prefix, declares it as `style = "web/style.css"` and imports it at the top of its entry:
 
 ```css
 /* src/style.css */

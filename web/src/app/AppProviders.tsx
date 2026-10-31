@@ -6,6 +6,7 @@ import { Toaster } from '@/components/ui/toast'
 import { TooltipProvider } from '@/components/ui/tooltip'
 import i18n from '@/i18n'
 import { createQueryClient } from './query-client'
+import { UiLabelsBridge } from './UiLabelsBridge'
 import { ThemeProvider } from './theme/ThemeProvider'
 
 interface AppProvidersProps {
@@ -20,11 +21,13 @@ export function AppProviders({ children, queryClient }: AppProvidersProps) {
     <I18nextProvider i18n={i18n}>
       <QueryClientProvider client={client}>
         <ThemeProvider>
-          <TooltipProvider>
-            <DemoBanner />
-            {children}
-            <Toaster />
-          </TooltipProvider>
+          <UiLabelsBridge>
+            <TooltipProvider>
+              <DemoBanner />
+              {children}
+              <Toaster />
+            </TooltipProvider>
+          </UiLabelsBridge>
         </ThemeProvider>
       </QueryClientProvider>
     </I18nextProvider>

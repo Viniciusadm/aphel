@@ -47,6 +47,7 @@ It runs as a single Rust binary with the React frontend embedded; each installat
 | `sdk/rust/aphel-plugin-sdk` | Rust SDK for runtime plugins (guest side over `wit-bindgen`, target `wasm32-wasip2`; own workspace) |
 | `sdk/js/aphel-plugin-sdk` | JavaScript/TypeScript SDK for runtime plugins (`@aphel/plugin-sdk`: `definePlugin`, esbuild + `componentize-js` via `aphel-plugin-js`) |
 | `sdk/cli` | `aphel-plugin new\|build\|pack` (own workspace) |
+| `sdk/js/aphel-ui` | `@aphel/ui`: types and theme CSS for plugins that use the UI library (generated from `web/src/sdk/ui.ts` by `npm run generate`) |
 | `back/aphel.modules.toml` | Selection of the build's modules and plugins |
 | `web/` | React + Vite frontend |
 | `docker/` | Production Dockerfile and infrastructure files |
@@ -97,7 +98,7 @@ It runs as a single Rust binary with the React frontend embedded; each installat
 - Web platform (auth, installer, core settings, system, audit, files, notifications, search, custom objects, mobile, record building blocks) in `web/src/features/<feature>/`, registered by the `kernel` web module.
 - API calls only via `web/src/api` (generated types in `web/src/api/schema.d.ts`).
 - Texts only via i18n. Module namespace = key, in `web/src/modules/<key>/i18n/<locale>.json`; the `kernel` ones in `web/src/i18n/<locale>/<namespace>.json`. After creating or moving JSON files, `npm run i18n:types` regenerates `web/src/i18n/i18next.d.ts`.
-- Base UI components in `web/src/components/ui`.
+- Base UI components in `web/src/components/ui`. They depend on no i18n, session or API: texts come from `UiLabelsProvider` (`UiLabelsBridge` in the app) and every color, radius, height and shadow comes from the tokens in `web/src/sdk/tokens.css`, never from fixed values. The public surface is `web/src/sdk/ui.ts`, served to plugins as `@aphel/ui` (`/shared/ui.js`, with `/shared/ui.css` for public apps) and re-exported by `@aphel/web-sdk`; it only grows. Guide: [`docs/ui`](docs/ui/README.md).
 - Record screens use the generic building blocks from `web/src/features/records` (without knowing about modules): the module calls `registerRecordResource` and assembles `RecordListView` (`table/`), `RecordFormDialog`/`RecordForm`/`InlineFieldEditor` (`form/`, inputs in `components/fields`) and `RecordDetailPage` (`detail/`, `timeline/`). Confirmation dialogs, toasts, error boundaries and the unsaved-changes guard come from `web/src/components/feedback`.
 
 ## Commands

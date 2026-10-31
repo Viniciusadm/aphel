@@ -1,7 +1,7 @@
 import { Inbox, type LucideIcon } from 'lucide-react'
 import type { ReactNode } from 'react'
-import { useTranslation } from 'react-i18next'
 import { cn } from '@/lib/utils'
+import { useUiLabels } from './labels-context'
 
 export interface EmptyStateProps {
   title?: string
@@ -12,7 +12,7 @@ export interface EmptyStateProps {
 }
 
 export function EmptyState({ title, description, icon: Icon = Inbox, action, className }: EmptyStateProps) {
-  const { t } = useTranslation()
+  const labels = useUiLabels()
   return (
     <div
       data-slot="empty-state"
@@ -25,7 +25,7 @@ export function EmptyState({ title, description, icon: Icon = Inbox, action, cla
         <Icon className="size-6" aria-hidden />
       </div>
       <div className="grid gap-1">
-        <p className="text-base font-medium">{title ?? t('states.emptyTitle')}</p>
+        <p className="text-base font-medium">{title ?? labels.emptyTitle}</p>
         {description && <p className="max-w-sm text-sm text-muted-foreground">{description}</p>}
       </div>
       {action}

@@ -26,6 +26,7 @@ All of them follow semver. While Aphel is at `0.x`, a minor version (`0.1` → `
 - Declared hooks (catalog in [hooks.md](hooks.md)): the hook type, the argument type and when it runs. New fields may appear in the arguments (build and read them by field, not by full destructuring).
 - Services (`provide`) and typed contributions listed in the [guide](README.md): the trait may gain methods with defaults.
 - Naming rules: module key, `<key>.` permissions, `/api/v1/<key>` routes (public ones at `/api/v1/public/<key>`; a key with `_` becomes `-` in the path), web `/<key>`, i18n namespace `<key>`, `<key>_*` tables, `<key>.` jobs.
+- UI library: the exports of `@aphel/ui` and the design token names ([docs/ui](../ui/README.md)) only grow; default token values may be refined.
 - Web: `defineModule`/`ModuleApp`, slots, filters, override ids and field type lookup described in [web.md](web.md); new contributions are additive.
 - Public HTTP API (`/api/v1`): see [API versioning](../api/versioning.md).
 

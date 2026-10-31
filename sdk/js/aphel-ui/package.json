@@ -1,0 +1,32 @@
+{
+  "name": "@aphel/ui",
+  "version": "0.1.0",
+  "description": "Types and theme tokens for the Aphel UI library that the host serves to plugins as the @aphel/ui import",
+  "license": "MIT",
+  "type": "module",
+  "types": "./dist/sdk/ui.d.ts",
+  "exports": {
+    ".": {
+      "types": "./dist/sdk/ui.d.ts"
+    },
+    "./theme.css": "./theme.css",
+    "./tokens.css": "./tokens.css"
+  },
+  "files": [
+    "dist",
+    "theme.css",
+    "tokens.css"
+  ],
+  "sideEffects": false,
+  "scripts": {
+    "generate": "node scripts/generate.mjs",
+    "prepack": "npm run generate"
+  },
+  "peerDependencies": {
+    "class-variance-authority": "^0.7.1",
+    "clsx": "^2.1.1",
+    "lucide-react": ">=1.0.0",
+    "radix-ui": "^1.8.1",
+    "react": "^19.0.0"
+  }
+}

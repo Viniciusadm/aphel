@@ -1,7 +1,7 @@
 import { CircleAlert } from 'lucide-react'
-import { useTranslation } from 'react-i18next'
 import { cn } from '@/lib/utils'
 import { Button } from './button'
+import { useUiLabels } from './labels-context'
 
 export interface ErrorStateProps {
   title?: string
@@ -11,7 +11,7 @@ export interface ErrorStateProps {
 }
 
 export function ErrorState({ title, description, onRetry, className }: ErrorStateProps) {
-  const { t } = useTranslation()
+  const labels = useUiLabels()
   return (
     <div
       role="alert"
@@ -23,12 +23,12 @@ export function ErrorState({ title, description, onRetry, className }: ErrorStat
     >
       <CircleAlert className="size-8 text-destructive" aria-hidden />
       <div className="grid gap-1">
-        <p className="text-base font-medium">{title ?? t('states.errorTitle')}</p>
-        <p className="max-w-sm text-sm text-muted-foreground">{description ?? t('states.errorDescription')}</p>
+        <p className="text-base font-medium">{title ?? labels.errorTitle}</p>
+        <p className="max-w-sm text-sm text-muted-foreground">{description ?? labels.errorDescription}</p>
       </div>
       {onRetry && (
         <Button variant="outline" size="sm" onClick={onRetry}>
-          {t('actions.retry')}
+          {labels.retry}
         </Button>
       )}
     </div>

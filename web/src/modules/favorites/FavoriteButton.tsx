@@ -30,7 +30,7 @@ function FavoriteToggleButton({ target, addLabel, removeLabel, className }: Favo
           aria-pressed={isFavorite}
           aria-label={label}
         >
-          <Star className={cn(isFavorite && 'fill-amber-400 text-amber-600 dark:text-amber-400')} aria-hidden />
+          <Star className={cn(isFavorite && 'fill-warning-solid text-warning')} aria-hidden />
         </Button>
       </TooltipTrigger>
       <TooltipContent>{label}</TooltipContent>

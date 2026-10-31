@@ -1,8 +1,8 @@
 import { X } from 'lucide-react'
 import { Toast as ToastPrimitive } from 'radix-ui'
 import { useSyncExternalStore } from 'react'
-import { useTranslation } from 'react-i18next'
 import { cn } from '@/lib/utils'
+import { useUiLabels } from './labels-context'
 import { dismissToast, getToasts, subscribeToToasts, type ToastVariant } from './toast-store'
 
 const variantClasses: Record<ToastVariant, string> = {
@@ -12,11 +12,11 @@ const variantClasses: Record<ToastVariant, string> = {
 }
 
 export function Toaster() {
-  const { t } = useTranslation()
+  const labels = useUiLabels()
   const toasts = useSyncExternalStore(subscribeToToasts, getToasts, getToasts)
 
   return (
-    <ToastPrimitive.Provider swipeDirection="right" label={t('toast.label')}>
+    <ToastPrimitive.Provider swipeDirection="right" label={labels.toastRegion}>
       {toasts.map((item) => (
         <ToastPrimitive.Root
           key={item.id}
@@ -47,7 +47,7 @@ export function Toaster() {
             )}
           </div>
           <ToastPrimitive.Close
-            aria-label={t('actions.close')}
+            aria-label={labels.close}
             className="absolute top-2 right-2 rounded-sm p-1 opacity-70 hover:opacity-100 focus-visible:ring-2 focus-visible:ring-ring focus-visible:outline-none"
           >
             <X className="size-4" />
@@ -55,7 +55,7 @@ export function Toaster() {
         </ToastPrimitive.Root>
       ))}
       <ToastPrimitive.Viewport
-        label={t('toast.viewport')}
+        label={labels.toastViewport}
         className="fixed right-0 bottom-0 z-[100] m-0 flex w-full max-w-sm list-none flex-col gap-2 p-4 outline-none"
       />
     </ToastPrimitive.Provider>

@@ -98,7 +98,7 @@ function GeneralForm({ configuration }: { configuration: OrganizationConfigurati
           )}
         </FormRow>
         {insecure && (
-          <p className="rounded-md border border-amber-500/40 bg-amber-500/10 p-3 text-sm">
+          <p className="rounded-md border border-warning/40 bg-warning/10 p-3 text-sm">
             {t('configuration.general.insecureWarning')}
           </p>
         )}

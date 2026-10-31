@@ -14,7 +14,7 @@ export function MailNotConfiguredNotice({ showLink = true }: { showLink?: boolea
   const configuration = useOrganizationConfiguration(canManage)
   if (!canManage || !configuration.data || configuration.data.mail_configured) return null
   return (
-    <div role="status" className="flex items-start gap-3 rounded-md border border-amber-500/40 bg-amber-500/10 p-3 text-sm">
+    <div role="status" className="flex items-start gap-3 rounded-md border border-warning/40 bg-warning/10 p-3 text-sm">
       <MailWarning className="mt-0.5 size-4 shrink-0" aria-hidden />
       <div className="grid gap-1">
         <p className="font-medium">{t('configuration.mail.notConfiguredTitle')}</p>

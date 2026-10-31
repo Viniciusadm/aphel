@@ -174,7 +174,7 @@ function StorageForm({ configuration }: { configuration: OrganizationConfigurati
           )}
         </FormRow>
         {driverChanged && (
-          <p className="rounded-md border border-amber-500/40 bg-amber-500/10 p-3 text-sm">
+          <p className="rounded-md border border-warning/40 bg-warning/10 p-3 text-sm">
             {t('configuration.storage.driverChangeWarning')}
           </p>
         )}
@@ -280,7 +280,7 @@ function StorageForm({ configuration }: { configuration: OrganizationConfigurati
           role="status"
           className={
             result.ok
-              ? 'rounded-md border border-emerald-500/40 bg-emerald-500/10 p-3 text-sm'
+              ? 'rounded-md border border-success/40 bg-success/10 p-3 text-sm'
               : 'rounded-md border border-destructive/30 bg-destructive/5 p-3 text-sm text-destructive'
           }
         >
