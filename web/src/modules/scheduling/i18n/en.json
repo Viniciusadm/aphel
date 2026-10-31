@@ -172,11 +172,6 @@
     "canceled": "Booking canceled",
     "notChangeable": "This booking can no longer be changed."
   },
-  "pagination": {
-    "previous": "Previous page",
-    "next": "Next page",
-    "page": "Page {{page}} of {{total}}"
-  },
   "public": {
     "poweredBy": "Scheduling by Aphel",
     "invalid": {

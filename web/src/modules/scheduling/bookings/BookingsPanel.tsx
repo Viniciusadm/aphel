@@ -1,4 +1,4 @@
-import { CalendarX2, ChevronLeft, ChevronRight } from 'lucide-react'
+import { CalendarX2 } from 'lucide-react'
 import { useState } from 'react'
 import { useTranslation } from 'react-i18next'
 import { Link } from 'react-router'
@@ -14,6 +14,7 @@ import { formatDateTimeRange } from '../lib/format'
 import type { BookingFilters, MeetingBookingResponse } from '../types'
 import { CancelBookingDialog } from './CancelBookingDialog'
 import { Field } from '@/components/ui/field'
+import { Pagination } from '@/components/ui/pagination'
 
 const ALL = 'all'
 
@@ -79,7 +80,6 @@ export function BookingsPanel() {
   const meetingTypes = useMeetingTypes()
   const update = (patch: Partial<BookingFilters>) => setFilters((current) => ({ ...current, page: 1, ...patch }))
   const meta = bookings.data?.meta
-  const lastPage = meta ? Math.max(1, Math.ceil(meta.total / meta.per_page)) : 1
 
   return (
     <div className="grid gap-4">
@@ -141,28 +141,13 @@ export function BookingsPanel() {
           ))}
         </ul>
       )}
-      {lastPage > 1 && (
-        <div className="flex items-center justify-end gap-2 text-sm">
-          <Button
-            variant="outline"
-            size="icon"
-            aria-label={t('pagination.previous')}
-            disabled={filters.page <= 1}
-            onClick={() => setFilters((current) => ({ ...current, page: current.page - 1 }))}
-          >
-            <ChevronLeft />
-          </Button>
-          <span>{t('pagination.page', { page: filters.page, total: lastPage })}</span>
-          <Button
-            variant="outline"
-            size="icon"
-            aria-label={t('pagination.next')}
-            disabled={filters.page >= lastPage}
-            onClick={() => setFilters((current) => ({ ...current, page: current.page + 1 }))}
-          >
-            <ChevronRight />
-          </Button>
-        </div>
+      {meta && (
+        <Pagination
+          page={filters.page}
+          perPage={meta.per_page}
+          total={meta.total}
+          onPageChange={(page) => setFilters((current) => ({ ...current, page }))}
+        />
       )}
       <CancelBookingDialog booking={canceling} onClose={() => setCanceling(null)} />
     </div>

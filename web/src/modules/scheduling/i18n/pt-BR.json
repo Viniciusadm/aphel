@@ -172,11 +172,6 @@
     "canceled": "Agendamento cancelado",
     "notChangeable": "Este agendamento não pode mais ser alterado."
   },
-  "pagination": {
-    "previous": "Página anterior",
-    "next": "Próxima página",
-    "page": "Página {{page}} de {{total}}"
-  },
   "public": {
     "poweredBy": "Agendamento feito com Aphel",
     "invalid": {
