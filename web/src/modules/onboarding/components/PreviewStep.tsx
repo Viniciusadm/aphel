@@ -5,6 +5,7 @@ import { ErrorState } from '@/components/ui/error-state'
 import { Skeleton } from '@/components/ui/skeleton'
 import { usePackageLabels } from '@/features/settings/config-packages/lib/labels'
 import type { PackagePlan, PlanItem } from '../api'
+import { EmptyState } from '@/components/ui/empty-state'
 
 const SUMMARY_KEYS = ['create', 'update', 'skip_conflict', 'unchanged'] as const
 
@@ -61,7 +62,7 @@ export function PreviewStep({ plan, isPending, isError, onRetry }: PreviewStepPr
       </dl>
 
       {groups.length === 0 ? (
-        <p className="rounded-lg border border-dashed p-4 text-sm text-muted-foreground">{t('preview.nothing')}</p>
+        <EmptyState title={t('preview.nothing')} />
       ) : (
         <div className="grid gap-4">
           {groups.map(([section, items]) => (
@@ -94,13 +95,11 @@ export function PreviewStep({ plan, isPending, isError, onRetry }: PreviewStepPr
       )}
 
       {plan.skipped_sections.length > 0 && (
-        <p className="rounded-lg border border-dashed p-3 text-sm text-muted-foreground">
-          {t('preview.skipped', { sections: plan.skipped_sections.map((section) => labels.section(section)).join(', ') })}
-        </p>
+        <EmptyState title={t('preview.skipped', { sections: plan.skipped_sections.map((section) => labels.section(section)).join(', ') })} />
       )}
 
       {plan.skipped_fields.length > 0 && (
-        <p className="rounded-lg border border-dashed p-3 text-sm text-muted-foreground">{t('preview.skippedFields')}</p>
+        <EmptyState title={t('preview.skippedFields')} />
       )}
 
       {conflicts.length > 0 && (

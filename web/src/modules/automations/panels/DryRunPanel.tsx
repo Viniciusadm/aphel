@@ -13,6 +13,7 @@ import { automationsApi, useAutomationCache, useAutomationVersions } from '../ap
 import { StepTimeline } from '../components/StepTimeline'
 import { useAutomationLabels } from '../lib/labels'
 import type { Automation, AutomationCatalog, DryRunResult, StepSpec } from '../types'
+import { EmptyState } from '@/components/ui/empty-state'
 
 export interface DryRunPanelProps {
   automation: Automation
@@ -125,7 +126,7 @@ export function DryRunPanel({ automation, catalog, schema, draftSteps, dirty, on
             <StepTimeline steps={result.data.steps} definitionSteps={definitionSteps} catalog={catalog} schema={schema} />
           </>
         ) : (
-          <div className="rounded-lg border border-dashed p-6 text-center text-sm text-muted-foreground">{t('test.empty')}</div>
+          <EmptyState title={t('test.empty')} />
         )}
       </section>
     </div>

@@ -43,6 +43,7 @@ import {
   type WebhookFormValues,
 } from './form'
 import { Alert } from '@/components/ui/alert'
+import { EmptyState } from '@/components/ui/empty-state'
 
 interface WebhookEditorDialogProps {
   open: boolean
@@ -198,7 +199,7 @@ function EditorBody({ webhook, onCancel, onSaved }: EditorBodyProps) {
             {targets.isPending ? (
               <Skeleton className="h-24 w-full" />
             ) : actions.fields.length === 0 ? (
-              <p className="rounded-md border border-dashed p-3 text-sm text-muted-foreground">{t('form.noActions')}</p>
+              <EmptyState title={t('form.noActions')} />
             ) : (
               <ol className="grid gap-3">
                 {actions.fields.map((action, index) => (

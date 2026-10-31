@@ -7,6 +7,7 @@ import { ProductPicker } from '@/modules/products/ProductPicker'
 import { formatCurrency, useRecordFormatting } from '@/features/records/formatting'
 import { DISCOUNT_TYPES, type EditableItem } from './items'
 import type { QuoteDiscountType } from './types'
+import { EmptyState } from '@/components/ui/empty-state'
 
 const GRID = 'grid grid-cols-1 gap-2 md:grid-cols-[minmax(0,2fr)_5rem_7rem_9rem_5rem_7rem_2.25rem] md:items-center'
 
@@ -55,9 +56,7 @@ export function QuoteItemsEditor({ currency, items, editable, onChange, onAddPro
         )}
       </div>
       {items.length === 0 ? (
-        <p className="rounded-lg border border-dashed p-6 text-center text-sm text-muted-foreground">
-          {t('editor.items.empty')}
-        </p>
+        <EmptyState title={t('editor.items.empty')} />
       ) : (
         <div className="grid gap-2">
           <div className={`${GRID} hidden px-2 text-xs font-medium text-muted-foreground md:grid`}>

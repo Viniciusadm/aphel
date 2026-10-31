@@ -10,6 +10,7 @@ import { notifyObjectsError, useRelationships, type Relationship } from '@/featu
 import { objectsAdminApi, useInvalidateObjects, type CustomObjectAdmin } from './api'
 import { useRecordTypeLabels } from './labels'
 import { RelationshipEditorDialog } from './RelationshipEditorDialog'
+import { EmptyState } from '@/components/ui/empty-state'
 
 export interface RelationshipsSectionProps {
   object: CustomObjectAdmin
@@ -55,9 +56,7 @@ export function RelationshipsSection({ object }: RelationshipsSectionProps) {
       ) : relationships.isError ? (
         <ErrorState title={t('relationships.loadError')} onRetry={() => void relationships.refetch()} />
       ) : relationships.data.length === 0 ? (
-        <p className="rounded-md border border-dashed p-4 text-center text-sm text-muted-foreground">
-          {t('relationships.empty')}
-        </p>
+        <EmptyState title={t('relationships.empty')} />
       ) : (
         <ul className="grid gap-2" aria-label={t('relationships.title')}>
           {relationships.data.map((relationship) => (

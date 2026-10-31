@@ -83,9 +83,7 @@ export function RelationPanel({ recordType, recordId, relation, readOnly = false
       ) : related.isError ? (
         <ErrorState title={t('relations.loadError')} onRetry={() => void related.refetch()} />
       ) : items.length === 0 ? (
-        <p className="rounded-md border border-dashed p-4 text-center text-sm text-muted-foreground">
-          {t('relations.empty', { label: relation.label })}
-        </p>
+        <EmptyState title={t('relations.empty', { label: relation.label })} />
       ) : (
         <ul aria-label={relation.label} className="grid gap-2">
           {items.map((item) => {
