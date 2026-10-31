@@ -12,12 +12,12 @@ import {
   DialogTitle,
 } from '@/components/ui/dialog'
 import { Input } from '@/components/ui/input'
-import { Label } from '@/components/ui/label'
 import { modulesApi, type ModuleInfo } from '@/kernel/modules/api'
 import { formatDateTime, useRecordFormatting } from '@/features/records/formatting'
 import { moduleErrorMessage, notifyModuleError } from './errors'
 import { exportCoversDisable, exportModuleData } from './export'
 import { Alert } from '@/components/ui/alert'
+import { Field } from '@/components/ui/field'
 
 interface PurgeDataDialogProps {
   module: ModuleInfo
@@ -111,20 +111,22 @@ export function PurgeDataDialog({ module, name, onClose, onChanged }: PurgeDataD
           </Button>
         </div>
         <form
-          className="grid gap-2"
           onSubmit={(event) => {
             event.preventDefault()
             void purge()
           }}
         >
-          <Label htmlFor={inputId} className="block text-sm leading-normal font-normal">
-            <Trans
-              t={t}
-              i18nKey="purge.typeToConfirm"
-              values={{ key: module.key }}
-              components={{ strong: <strong className="font-semibold break-all" /> }}
-            />
-          </Label>
+          <Field
+            id={inputId}
+            label={
+              <Trans
+                t={t}
+                i18nKey="purge.typeToConfirm"
+                values={{ key: module.key }}
+                components={{ strong: <strong className="font-semibold break-all" /> }}
+              />
+            }
+          >
           <Input placeholder={module.key}
             id={inputId}
             value={typed}
@@ -141,6 +143,7 @@ export function PurgeDataDialog({ module, name, onClose, onChanged }: PurgeDataD
               {error}
             </p>
           )}
+          </Field>
         </form>
         <DialogFooter>
           <Button type="button" variant="outline" disabled={busy} onClick={onClose}>

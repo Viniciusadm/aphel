@@ -9,7 +9,6 @@ import { Badge } from '@/components/ui/badge'
 import { Button } from '@/components/ui/button'
 import { EmptyState } from '@/components/ui/empty-state'
 import { ErrorState } from '@/components/ui/error-state'
-import { Label } from '@/components/ui/label'
 import { Skeleton } from '@/components/ui/skeleton'
 import { NativeSelect } from '@/features/records/filters/NativeSelect'
 import { useContactCompanies, useContactCompanyMutations, type ContactCompanyLink } from './api'
@@ -120,15 +119,9 @@ function LinkCompanyForm({ contactId }: { contactId: string }) {
         void submit()
       }}
     >
-      <div className="grid min-w-0 gap-2.5">
-        <Label id={companyLabelId}>{t('companies.companyLabel')}</Label>
-        <RecordFieldInput
-          targetRecordType="company"
-          value={companyId}
-          onChange={setCompanyId}
-          aria-labelledby={companyLabelId}
-        />
-      </div>
+      <Field id={companyLabelId} label={t('companies.companyLabel')} className="min-w-0">
+        <RecordFieldInput targetRecordType="company" value={companyId} onChange={setCompanyId} id={companyLabelId} />
+      </Field>
       <Field label={t('companies.roleLabel')}>
         {(control) => <NativeSelect {...control} value={role} onChange={(event) => setRole(event.target.value)}>
           <option value="">{t('companies.roleNone')}</option>

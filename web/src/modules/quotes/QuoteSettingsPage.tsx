@@ -5,7 +5,6 @@ import { notifyError, notifySuccess, PageLoader, UnsavedChangesGuard } from '@/c
 import { Button } from '@/components/ui/button'
 import { ErrorState } from '@/components/ui/error-state'
 import { Input } from '@/components/ui/input'
-import { Label } from '@/components/ui/label'
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/components/ui/select'
 import { Textarea } from '@/components/ui/textarea'
 import { usePipelines } from '@/modules/pipelines/api'
@@ -100,8 +99,8 @@ function SettingsForm({ settings }: { settings: QuoteSettings }) {
           <p className="text-xs text-muted-foreground">{t('settings.acceptStagesHint')}</p>
         </div>
         {(pipelines.data ?? []).map((pipeline) => (
-          <div key={pipeline.id} className="grid gap-1.5 sm:grid-cols-[12rem_minmax(0,1fr)] sm:items-center">
-            <Label>{pipeline.name}</Label>
+          <div key={pipeline.id} className="grid gap-2 sm:grid-cols-[12rem_minmax(0,1fr)] sm:items-center">
+            <p className="text-sm font-medium">{pipeline.name}</p>
             <Select
               value={stages[pipeline.id] ?? NO_MOVE}
               disabled={!canEdit}

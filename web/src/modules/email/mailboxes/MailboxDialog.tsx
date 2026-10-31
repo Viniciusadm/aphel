@@ -13,7 +13,6 @@ import {
   DialogTitle,
 } from '@/components/ui/dialog'
 import { Input } from '@/components/ui/input'
-import { Label } from '@/components/ui/label'
 import { NativeSelect } from '@/features/records/filters/NativeSelect'
 import { emailApi, useInvalidateMailboxes } from '../api'
 import { VisibilityPicker } from '../components/VisibilityPicker'
@@ -249,11 +248,13 @@ function MailboxForm({ mode, onDirtyChange, onCancel, onDone }: MailboxFormProps
               {errorText('username', t('mailboxes.form.required'))}
               </>}
             </Field>
-            <div className="grid content-start gap-1.5">
-              <div className="flex items-center justify-between gap-2">
-                <Label htmlFor={`${formId}-password`}>{t('mailboxes.form.password')}</Label>
-                {editing?.credentials_configured && <Badge variant="secondary">{t('mailboxes.passwordConfigured')}</Badge>}
-              </div>
+            <Field
+              id={`${formId}-password`}
+              label={t('mailboxes.form.password')}
+              labelAction={
+                editing?.credentials_configured && <Badge tone="neutral">{t('mailboxes.passwordConfigured')}</Badge>
+              }
+            >
               <Input
                 id={`${formId}-password`}
                 type="password"
@@ -264,7 +265,7 @@ function MailboxForm({ mode, onDirtyChange, onCancel, onDone }: MailboxFormProps
                 onChange={(event) => update({ password: event.target.value })}
               />
               {errorText('password', t('mailboxes.form.required'))}
-            </div>
+            </Field>
           </fieldset>
         </>
       )}

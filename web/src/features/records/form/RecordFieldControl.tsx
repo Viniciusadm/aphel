@@ -3,6 +3,7 @@ import { FieldInput } from '@/components/fields/FieldInput'
 import { Label } from '@/components/ui/label'
 import { cn } from '@/lib/utils'
 import type { FieldDefinition } from '../types'
+import { Field } from '@/components/ui/field'
 
 export interface RecordFieldControlProps {
   field: FieldDefinition
@@ -29,8 +30,8 @@ export function RecordFieldControl({
 }: RecordFieldControlProps) {
   const { t } = useTranslation('records-form')
   const errorId = `${id}-error`
-  const label = (
-    <Label htmlFor={id} className="font-medium">
+  const labelContent = (
+    <>
       <span>{field.label}</span>
       {field.is_required && (
         <>
@@ -40,7 +41,7 @@ export function RecordFieldControl({
           <span className="sr-only">({t('form.required')})</span>
         </>
       )}
-    </Label>
+    </>
   )
   const input = (
     <FieldInput
@@ -56,24 +57,33 @@ export function RecordFieldControl({
     />
   )
 
-  return (
-    <div className={cn('grid min-w-0 content-start gap-2', className)} data-field={field.key}>
-      {field.field_type === 'checkbox' ? (
+  if (field.field_type === 'checkbox') {
+    return (
+      <div className={cn('grid min-w-0 content-start gap-2', className)} data-field={field.key}>
         <div className="flex min-h-9 items-center gap-2">
           {input}
-          {label}
+          <Label htmlFor={id} className="font-medium">
+            {labelContent}
+          </Label>
         </div>
-      ) : (
-        <>
-          {label}
-          {input}
-        </>
-      )}
-      {error && (
-        <p id={errorId} className="text-sm text-destructive">
-          {error}
-        </p>
-      )}
-    </div>
+        {error && (
+          <p id={errorId} role="alert" className="text-sm text-destructive">
+            {error}
+          </p>
+        )}
+      </div>
+    )
+  }
+
+  return (
+    <Field
+      id={id}
+      label={labelContent}
+      error={error}
+      data-field={field.key}
+      className={cn('min-w-0 content-start', className)}
+    >
+      {input}
+    </Field>
   )
 }

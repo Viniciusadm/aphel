@@ -6,7 +6,6 @@ import { useSession } from '@/app/session/session-context'
 import { Button } from '@/components/ui/button'
 import { EmptyState } from '@/components/ui/empty-state'
 import { ErrorState } from '@/components/ui/error-state'
-import { Label } from '@/components/ui/label'
 import { Skeleton } from '@/components/ui/skeleton'
 import { Tabs, TabsList, TabsTrigger } from '@/components/ui/tabs'
 import { NativeSelect } from '@/features/records/filters/NativeSelect'
@@ -27,6 +26,7 @@ import type { ApprovalBox, ApprovalRequest, ApprovalStatus } from './types'
 import { PageHeader } from '@/components/ui/page-header'
 import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from '@/components/ui/table'
 import { Page } from '@/components/ui/page'
+import { Field } from '@/components/ui/field'
 
 export function ApprovalsPage() {
   const { t } = useTranslation('approvals')
@@ -102,10 +102,7 @@ export function ApprovalsPage() {
             ))}
           </TabsList>
         </Tabs>
-        <div className="flex items-center gap-2">
-          <Label htmlFor={statusId} className="text-sm text-muted-foreground">
-            {t('inbox.status')}
-          </Label>
+        <Field id={statusId} label={t('inbox.status')} inline>
           <NativeSelect
             id={statusId}
             className="w-44"
@@ -122,7 +119,7 @@ export function ApprovalsPage() {
               </option>
             ))}
           </NativeSelect>
-        </div>
+        </Field>
       </div>
       {body}
     </Page>

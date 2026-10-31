@@ -15,11 +15,14 @@ export interface FieldProps {
   error?: ReactNode
   required?: boolean
   hideLabel?: boolean
+  labelAction?: ReactNode
+  inline?: boolean
+  'data-field'?: string
   className?: string
   children: ReactNode | ((control: FieldControlProps) => ReactNode)
 }
 
-export function Field({ id: providedId, label, description, error, required, hideLabel, className, children }: FieldProps) {
+export function Field({ id: providedId, label, description, error, required, hideLabel, labelAction, inline, 'data-field': dataField, className, children }: FieldProps) {
   const generatedId = useId()
   const id = providedId ?? generatedId
   const descriptionId = `${id}-description`
@@ -27,15 +30,26 @@ export function Field({ id: providedId, label, description, error, required, hid
   const describedBy = [description ? descriptionId : null, error ? errorId : null].filter(Boolean).join(' ')
 
   return (
-    <div data-slot="field" className={cn('grid gap-2', className)}>
-      <Label htmlFor={id} className={hideLabel ? 'sr-only' : undefined}>
-        {label}
-        {required && (
-          <span aria-hidden className="text-destructive">
-            *
-          </span>
-        )}
-      </Label>
+    <div data-slot="field" data-field={dataField} className={cn(inline ? 'flex flex-wrap items-center gap-2' : 'grid gap-2', className)}>
+      {(() => {
+        const text = (
+          <Label htmlFor={id} className={hideLabel ? 'sr-only' : undefined}>
+            {label}
+            {required && (
+              <span aria-hidden className="text-destructive">
+                *
+              </span>
+            )}
+          </Label>
+        )
+        if (!labelAction) return text
+        return (
+          <div className="flex flex-wrap items-center justify-between gap-2">
+            {text}
+            {labelAction}
+          </div>
+        )
+      })()}
       {typeof children === 'function'
         ? children({ id, 'aria-describedby': describedBy || undefined, 'aria-invalid': Boolean(error) })
         : children}

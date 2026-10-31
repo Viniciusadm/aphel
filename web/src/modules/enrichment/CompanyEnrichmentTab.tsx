@@ -9,7 +9,6 @@ import { Checkbox } from '@/components/ui/checkbox'
 import { EmptyState } from '@/components/ui/empty-state'
 import { ErrorState } from '@/components/ui/error-state'
 import { Input } from '@/components/ui/input'
-import { Label } from '@/components/ui/label'
 import { Skeleton } from '@/components/ui/skeleton'
 import { useFieldSchema } from '@/features/records/api'
 import { formatDateTime, useRecordFormatting } from '@/features/records/formatting'
@@ -131,8 +130,8 @@ export function CompanyEnrichmentTab({ recordId, readOnly }: RecordTabRenderProp
         <p className="text-sm text-muted-foreground">{t('company.description')}</p>
       </div>
       {canLookup && (
-        <form className="grid gap-1.5" onSubmit={(event) => void search(event)}>
-          <Label htmlFor="enrichment-cnpj">{t('company.cnpj')}</Label>
+        <form onSubmit={(event) => void search(event)}>
+          <Field id="enrichment-cnpj" label={t('company.cnpj')}>
           <div className="flex flex-col gap-2 sm:flex-row">
             <Input
               id="enrichment-cnpj"
@@ -154,6 +153,7 @@ export function CompanyEnrichmentTab({ recordId, readOnly }: RecordTabRenderProp
           <p className="text-xs text-muted-foreground">
             {cnpj.trim() !== '' && !valid ? t('company.invalidCnpj') : t('company.dataNotice')}
           </p>
+                  </Field>
         </form>
       )}
       {lookup && (

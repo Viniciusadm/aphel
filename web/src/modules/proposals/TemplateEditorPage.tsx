@@ -10,7 +10,6 @@ import { Checkbox } from '@/components/ui/checkbox'
 import { EmptyState } from '@/components/ui/empty-state'
 import { ErrorState } from '@/components/ui/error-state'
 import { Input } from '@/components/ui/input'
-import { Label } from '@/components/ui/label'
 import { Skeleton } from '@/components/ui/skeleton'
 import { Textarea } from '@/components/ui/textarea'
 import { RecordFieldInput } from '@/components/fields'
@@ -310,15 +309,13 @@ function EditorForm({ template }: { template: ProposalTemplate | null }) {
               {t('editor.default')}
             </label>
           </div>
-          <div className="grid gap-1.5">
-            <div className="flex flex-wrap items-center justify-between gap-2">
-              <Label htmlFor={`${formId}-body`}>{t('editor.body')}</Label>
-              <VariablePicker
-                variables={variables.data ?? []}
-                disabled={variables.isPending}
-                onPick={insertVariable}
-              />
-            </div>
+          <Field
+            id={`${formId}-body`}
+            label={t('editor.body')}
+            labelAction={
+              <VariablePicker variables={variables.data ?? []} disabled={variables.isPending} onPick={insertVariable} />
+            }
+          >
             <Textarea placeholder={t('editor.bodyPlaceholder')}
               ref={bodyRef}
               id={`${formId}-body`}
@@ -336,7 +333,7 @@ function EditorForm({ template }: { template: ProposalTemplate | null }) {
               empty={values.body.trim().length === 0}
               onFocusIssue={focusIssue}
             />
-          </div>
+          </Field>
           <details className="rounded-md border px-3 py-2 text-sm">
             <summary className="cursor-pointer font-medium">{t('editor.syntaxTitle')}</summary>
             <ul className="mt-2 grid gap-1 text-muted-foreground">
@@ -352,18 +349,11 @@ function EditorForm({ template }: { template: ProposalTemplate | null }) {
         </form>
 
         <section className="grid min-w-0 content-start gap-3 lg:sticky lg:top-4 lg:self-start" aria-label={t('preview.title')}>
-          <div className="grid gap-1.5 rounded-lg border bg-card p-4">
+          <div className="grid gap-2 rounded-lg border bg-card p-4">
             <h2 className="text-base font-semibold">{t('preview.title')}</h2>
-            <Label htmlFor={`${formId}-deal`} className="text-sm">
-              {t('preview.deal')}
-            </Label>
-            <RecordFieldInput
-              id={`${formId}-deal`}
-              targetRecordType="deal"
-              value={dealId}
-              onChange={setDealId}
-            />
-            <p className="text-xs text-muted-foreground">{t('preview.hint')}</p>
+            <Field id={`${formId}-deal`} label={t('preview.deal')} description={t('preview.hint')}>
+              <RecordFieldInput id={`${formId}-deal`} targetRecordType="deal" value={dealId} onChange={setDealId} />
+            </Field>
           </div>
           {preview.isError ? (
             <ErrorState description={t('preview.error')} onRetry={() => void preview.refetch()} />

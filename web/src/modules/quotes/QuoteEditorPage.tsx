@@ -8,7 +8,6 @@ import { Button } from '@/components/ui/button'
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card'
 import { ErrorState } from '@/components/ui/error-state'
 import { Input } from '@/components/ui/input'
-import { Label } from '@/components/ui/label'
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/components/ui/select'
 import { Textarea } from '@/components/ui/textarea'
 import { useIsModuleActive } from '@/kernel/modules/registry'
@@ -336,10 +335,9 @@ function QuoteEditor({ quote }: { quote: QuoteDetail }) {
                   />
                 </div>
               </Field>
-              <div className="grid gap-2.5">
-                <Label>{t('editor.fields.currency')}</Label>
-                <Input placeholder={t('placeholders.currency')} value={quote.currency} disabled readOnly />
-              </div>
+              <Field label={t('editor.fields.currency')}>
+                {(control) => <Input placeholder={t('placeholders.currency')} {...control} value={quote.currency} disabled readOnly />}
+              </Field>
               <Field label={t('editor.fields.terms')} className="sm:col-span-2">
                 {(control) => <Textarea placeholder={t('placeholders.terms')} {...control} rows={3} value={header.terms} disabled={!editable} onChange={(event) => patchHeader({ terms: event.target.value })} />}
               </Field>

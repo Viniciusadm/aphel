@@ -1,12 +1,11 @@
 import { useId, useState, type FormEvent } from 'react'
 import { useTranslation } from 'react-i18next'
 import { Button } from '@/components/ui/button'
-import { Checkbox } from '@/components/ui/checkbox'
 import { Input } from '@/components/ui/input'
-import { Label } from '@/components/ui/label'
 import type { WidgetSettings } from './types'
 import type { SettingsField } from '@/kernel/widgets/types'
 import { Field } from '@/components/ui/field'
+import { ToggleField } from '@/components/ui/toggle-field'
 
 export interface WidgetSettingsFormProps {
   fields: SettingsField[]
@@ -59,14 +58,12 @@ export function WidgetSettingsForm({ fields, settings, onSubmit, onCancel }: Wid
             />
           </Field>
         ) : (
-          <Label key={field.key} htmlFor={`${id}-${field.key}`} className="font-normal">
-            <Checkbox
-              id={`${id}-${field.key}`}
-              checked={draft[field.key] === true}
-              onCheckedChange={(checked) => setDraft((current) => ({ ...current, [field.key]: checked === true }))}
-            />
-            {t(field.label as 'title')}
-          </Label>
+          <ToggleField
+            key={field.key}
+            label={t(field.label as 'title')}
+            checked={draft[field.key] === true}
+            onCheckedChange={(checked) => setDraft((current) => ({ ...current, [field.key]: checked }))}
+          />
         ),
       )}
       <div className="flex justify-end gap-2">

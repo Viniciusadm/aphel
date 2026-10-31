@@ -15,7 +15,6 @@ import {
   DialogTitle,
 } from '@/components/ui/dialog'
 import { Input } from '@/components/ui/input'
-import { Label } from '@/components/ui/label'
 import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs'
 import { Textarea } from '@/components/ui/textarea'
 import { uploadFile } from '@/features/files'
@@ -409,9 +408,7 @@ function ComposerForm({ record, mailboxes, reply, onDirtyChange, onCancel, onSen
           )}
         </div>
         <TabsContent value="write" className="grid content-start gap-1.5">
-          <Label htmlFor={`${formId}-body`} className="sr-only">
-            {t('composer.body')}
-          </Label>
+          <Field id={`${formId}-body`} label={t('composer.body')} hideLabel>
           {format === 'rich' ? (
             <Suspense fallback={<Textarea rows={12} disabled placeholder={t('composer.editor.loading')} />}>
               <RichEmailEditor
@@ -446,7 +443,8 @@ function ComposerForm({ record, mailboxes, reply, onDirtyChange, onCancel, onSen
               }}
             />
           )}
-          {format === 'html' && <p className="text-xs text-muted-foreground">{t('composer.htmlHint')}</p>}
+          {format === 'html' && <p className="text-sm text-muted-foreground">{t('composer.htmlHint')}</p>}
+          </Field>
         </TabsContent>
         <TabsContent value="preview">
           <PreviewPane preview={preview.data} pending={preview.isPending} error={preview.isError} />

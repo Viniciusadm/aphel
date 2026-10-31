@@ -8,7 +8,6 @@ import { notifyError } from '@/components/feedback'
 import { Button } from '@/components/ui/button'
 import { Checkbox } from '@/components/ui/checkbox'
 import { ErrorState } from '@/components/ui/error-state'
-import { Label } from '@/components/ui/label'
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/components/ui/select'
 import { Skeleton } from '@/components/ui/skeleton'
 import { toast } from '@/components/ui/toast-store'
@@ -16,6 +15,7 @@ import { usePersonalPreferences, useUpdatePersonalPreferences } from './api'
 import type { NavigationPreferences, PersonalPreferences, SupportedLanguage } from './types'
 import { PageHeader } from '@/components/ui/page-header'
 import { Page } from '@/components/ui/page'
+import { Field } from '@/components/ui/field'
 
 const FOLLOW_ORGANIZATION = 'organization'
 const DEFAULT_HOME = '/'
@@ -44,10 +44,9 @@ function LanguageSection({ preferences }: { preferences: PersonalPreferences }) 
   return (
     <Page>
 <PageHeader title={t('language.title')} description={t('language.description')} />
-      <div className="grid max-w-sm gap-2.5">
-        <Label id={labelId}>{t('language.label')}</Label>
+      <Field id={labelId} label={t('language.label')} className="max-w-sm">
         <Select value={preferences.locale ?? FOLLOW_ORGANIZATION} onValueChange={change} disabled={update.isPending}>
-          <SelectTrigger aria-labelledby={labelId}>
+          <SelectTrigger id={labelId}>
             <SelectValue />
           </SelectTrigger>
           <SelectContent>
@@ -59,7 +58,7 @@ function LanguageSection({ preferences }: { preferences: PersonalPreferences }) 
             ))}
           </SelectContent>
         </Select>
-      </div>
+      </Field>
     </Page>
   )
 }
@@ -112,13 +111,12 @@ function NavigationSection({ preferences }: { preferences: PersonalPreferences }
     <>
       <section className="grid gap-3">
         <PageHeader title={t('home.title')} description={t('home.description')} />
-        <div className="grid max-w-sm gap-2.5">
-          <Label id={homeLabelId}>{t('home.label')}</Label>
+        <Field id={homeLabelId} label={t('home.label')} className="max-w-sm">
           <Select
             value={draft.home ?? DEFAULT_HOME}
             onValueChange={(value) => setDraft({ ...draft, home: value === DEFAULT_HOME ? null : value })}
           >
-            <SelectTrigger aria-labelledby={homeLabelId}>
+            <SelectTrigger id={homeLabelId}>
               <SelectValue />
             </SelectTrigger>
             <SelectContent>
@@ -130,7 +128,7 @@ function NavigationSection({ preferences }: { preferences: PersonalPreferences }
               ))}
             </SelectContent>
           </Select>
-        </div>
+        </Field>
       </section>
       <section className="grid gap-3">
         <PageHeader

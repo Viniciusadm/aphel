@@ -9,7 +9,6 @@ import {
   DialogHeader,
   DialogTitle,
 } from '@/components/ui/dialog'
-import { Label } from '@/components/ui/label'
 import type { PipelineRemovalBody } from './api'
 import type { Pipeline } from './types'
 import { compatibleStages, dealCount, defaultMapping } from './removal'
@@ -92,10 +91,12 @@ function RemovalForm({
                 const id = `${baseId}-${stage.id}`
                 const options = compatibleStages(target, stage)
                 return (
-                  <div key={stage.id} className="grid gap-1 sm:grid-cols-2 sm:items-center sm:gap-3">
-                    <Label htmlFor={id} className="font-normal">
-                      {t('remove.stageLabel', { name: stage.name, count: stage.deal_count ?? 0 })}
-                    </Label>
+                  <Field
+                    key={stage.id}
+                    id={id}
+                    label={t('remove.stageLabel', { name: stage.name, count: stage.deal_count ?? 0 })}
+                    className="sm:grid-cols-2 sm:items-center sm:gap-3"
+                  >
                     <NativeSelect
                       id={id}
                       value={mapping[stage.id] ?? ''}
@@ -109,7 +110,7 @@ function RemovalForm({
                         </option>
                       ))}
                     </NativeSelect>
-                  </div>
+                  </Field>
                 )
               })}
             </fieldset>

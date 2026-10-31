@@ -3,11 +3,11 @@ import { useId } from 'react'
 import { useTranslation } from 'react-i18next'
 import { Button } from '@/components/ui/button'
 import { Input } from '@/components/ui/input'
-import { Label } from '@/components/ui/label'
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/components/ui/select'
 import { cssColorToHex } from './lib/color'
 import { defaultValue, type TokenDefinition } from './lib/tokens'
 import type { FontStack, TokenValue } from './lib/types'
+import { Field } from '@/components/ui/field'
 
 const FALLBACKS = ['sans-serif', 'serif', 'monospace', 'system-ui', 'ui-sans-serif', 'ui-serif', 'ui-monospace'] as const
 
@@ -27,12 +27,11 @@ export function TokenField({ token, mode, value, onChange }: TokenFieldProps) {
   const id = useId()
   const fallback = defaultValue(token, mode)
   return (
-    <div className="grid gap-1.5">
-      <div className="flex items-center justify-between gap-2">
-        <Label htmlFor={id} className="capitalize">
-          {label(token.name)}
-        </Label>
-        {value !== undefined && (
+    <Field
+      id={id}
+      label={<span className="capitalize">{label(token.name)}</span>}
+      labelAction={
+        value !== undefined && (
           <Button
             type="button"
             variant="ghost"
@@ -43,8 +42,9 @@ export function TokenField({ token, mode, value, onChange }: TokenFieldProps) {
           >
             <RotateCcw className="size-3.5" aria-hidden="true" />
           </Button>
-        )}
-      </div>
+        )
+      }
+    >
       {token.kind === 'font' ? (
         <FontStackField id={id} value={value} placeholder={fallback} onChange={onChange} />
       ) : (
@@ -60,7 +60,7 @@ export function TokenField({ token, mode, value, onChange }: TokenFieldProps) {
           />
         </div>
       )}
-    </div>
+    </Field>
   )
 }
 

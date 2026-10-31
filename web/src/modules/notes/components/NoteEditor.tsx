@@ -2,13 +2,13 @@ import { Lock, Users } from 'lucide-react'
 import { useId, useState } from 'react'
 import { useTranslation } from 'react-i18next'
 import { Button } from '@/components/ui/button'
-import { Label } from '@/components/ui/label'
 import { Slot } from '@/kernel/modules/Slot'
 import { type ComposerSubject } from '@/kernel/modules/slots'
 import { MentionInput } from '@/features/notifications'
 import { NativeSelect } from '@/features/records/filters/NativeSelect'
 import type { NoteVisibility } from '../api'
 import { Markdown } from './Markdown'
+import { Field } from '@/components/ui/field'
 
 export const MAX_NOTE_LENGTH = 50_000
 
@@ -65,9 +65,11 @@ export function NoteEditor({
         void submit()
       }}
     >
-      <div className="flex items-center justify-between gap-2">
-        <Label htmlFor={`${id}-body`}>{t('editor.label')}</Label>
-        <div className="flex flex-wrap items-center justify-end gap-1">
+      <Field
+        id={`${id}-body`}
+        label={t('editor.label')}
+        labelAction={
+          <div className="flex flex-wrap items-center justify-end gap-1">
           {!preview && <Slot name="composer.tools" props={{ context: 'note', subject, value: body, onChange: setBody }} />}
           <Button
           type="button"
@@ -78,8 +80,9 @@ export function NoteEditor({
         >
           {t(preview ? 'editor.write' : 'editor.preview')}
           </Button>
-        </div>
-      </div>
+          </div>
+        }
+      >
       {preview ? (
         <div className="min-h-24 rounded-md border px-3 py-2" aria-label={t('editor.previewLabel')}>
           {empty ? (
@@ -105,6 +108,7 @@ export function NoteEditor({
           }}
         />
       )}
+      </Field>
       <p id={`${id}-hint`} className={tooLong ? 'text-xs text-destructive' : 'text-xs text-muted-foreground'}>
         {tooLong ? t('editor.tooLong') : t('editor.hint')}
       </p>

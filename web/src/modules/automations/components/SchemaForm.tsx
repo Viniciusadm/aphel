@@ -2,9 +2,7 @@ import { Plus, Trash2 } from 'lucide-react'
 import { useId, useState, type ReactNode } from 'react'
 import { useTranslation } from 'react-i18next'
 import { Button } from '@/components/ui/button'
-import { Checkbox } from '@/components/ui/checkbox'
 import { Input } from '@/components/ui/input'
-import { Label } from '@/components/ui/label'
 import { useFieldSchema } from '@/features/records/api'
 import { NativeSelect } from '@/features/records/filters/NativeSelect'
 import type { FieldSchema, FieldType, FilterNode } from '@/features/records/types'
@@ -31,6 +29,7 @@ import {
 import { TemplateInput } from './TemplateInput'
 import { UserSpecInput } from './UserSpecInput'
 import { Field } from '@/components/ui/field'
+import { ToggleField } from '@/components/ui/toggle-field'
 
 const DURATION_NAMES = new Set(['due_in', 'duration', 'offset', 'timeout'])
 const SIGNED_DURATIONS = new Set(['offset'])
@@ -159,16 +158,13 @@ function SchemaProperty({ name, property, required, value, values, onChange, con
   if (type === 'boolean') {
     return (
       <div className="grid gap-1">
-        <div className="flex items-center gap-2">
-          <Checkbox
-            id={id}
-            checked={value === undefined ? property.default === true : value === true}
-            onCheckedChange={(checked) => onChange(checked === true)}
-            aria-describedby={describedBy}
-          />
-          <Label htmlFor={id}>{label}</Label>
-        </div>
-        {hint && <p className="text-xs text-muted-foreground">{hint}</p>}
+        <ToggleField
+          label={label}
+          description={hint || undefined}
+          checked={value === undefined ? property.default === true : value === true}
+          onCheckedChange={onChange}
+          controlProps={{ 'aria-describedby': describedBy }}
+        />
         <IssueList id={describedBy} issues={issues} />
       </div>
     )

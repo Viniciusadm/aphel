@@ -2,11 +2,11 @@ import { Mic, MicOff } from 'lucide-react'
 import { useCallback } from 'react'
 import { useTranslation } from 'react-i18next'
 import { Button } from '@/components/ui/button'
-import { Label } from '@/components/ui/label'
 import { Textarea } from '@/components/ui/textarea'
 import { toast } from '@/components/ui/toast-store'
 import { cn } from '@/lib/utils'
 import { useDictation, type DictationFailure } from '../lib/speech'
+import { Field } from '@/components/ui/field'
 
 export interface DictationFieldProps {
   id: string
@@ -32,10 +32,11 @@ export function DictationField({ id, label, value, onChange, placeholder, maxLen
   const dictation = useDictation({ onText, onFailure })
 
   return (
-    <div className="grid gap-2">
-      <div className="flex items-center justify-between gap-2">
-        <Label htmlFor={id}>{label}</Label>
-        {dictation.supported ? (
+    <Field
+      id={id}
+      label={label}
+      labelAction={
+        dictation.supported ? (
           <Button
             type="button"
             variant={dictation.listening ? 'destructive' : 'outline'}
@@ -49,8 +50,9 @@ export function DictationField({ id, label, value, onChange, placeholder, maxLen
           </Button>
         ) : (
           <span className="text-xs text-muted-foreground">{t('dictation.unsupported')}</span>
-        )}
-      </div>
+        )
+      }
+    >
       <Textarea
         id={id}
         value={value}
@@ -64,6 +66,6 @@ export function DictationField({ id, label, value, onChange, placeholder, maxLen
           {dictation.interim || t('dictation.listening')}
         </p>
       )}
-    </div>
+    </Field>
   )
 }

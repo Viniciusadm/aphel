@@ -16,7 +16,6 @@ import {
 import { EmptyState } from '@/components/ui/empty-state'
 import { ErrorState } from '@/components/ui/error-state'
 import { Input } from '@/components/ui/input'
-import { Label } from '@/components/ui/label'
 import { Skeleton } from '@/components/ui/skeleton'
 import { Textarea } from '@/components/ui/textarea'
 import { dashboardApi, dashboardKeys } from '@/modules/dashboard/api'
@@ -365,16 +364,15 @@ function ReportEditor({ report }: { report: Report | null }) {
             </div>
           </Section>
           <Section title={t('sections.module.title')} description={t('sections.module.description')}>
-            <Label htmlFor={ids.module} className="sr-only">
-              {t('sections.module.title')}
-            </Label>
-            <NativeSelect id={ids.module} value={draft.recordType} onChange={(event) => changeRecordType(event.target.value)}>
-              {allowedTypes.map((type) => (
-                <option key={type.recordType} value={type.recordType}>
-                  {t(`modules.${type.recordType}`)}
-                </option>
-              ))}
-            </NativeSelect>
+            <Field id={ids.module} label={t('sections.module.title')} hideLabel>
+              <NativeSelect id={ids.module} value={draft.recordType} onChange={(event) => changeRecordType(event.target.value)}>
+                {allowedTypes.map((type) => (
+                  <option key={type.recordType} value={type.recordType}>
+                    {t(`modules.${type.recordType}`)}
+                  </option>
+                ))}
+              </NativeSelect>
+            </Field>
           </Section>
           {aggregateSchema.isError ? (
             <ErrorState onRetry={() => aggregateSchema.refetch()} />

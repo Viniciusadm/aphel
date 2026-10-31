@@ -8,7 +8,6 @@ import { Button } from '@/components/ui/button'
 import { EmptyState } from '@/components/ui/empty-state'
 import { ErrorState } from '@/components/ui/error-state'
 import { Input } from '@/components/ui/input'
-import { Label } from '@/components/ui/label'
 import { toast } from '@/components/ui/toast-store'
 import { formatCurrency, formatNumber, useRecordFormatting } from '@/features/records/formatting'
 import { NativeSelect } from '@/features/records/filters/NativeSelect'
@@ -137,10 +136,7 @@ function BundleView({ productId, bundle, readOnly, priceListId, onPriceListChang
         )}
       </div>
       {(priceLists.data?.length ?? 0) > 0 && (
-        <div className="flex flex-wrap items-center gap-2">
-          <Label htmlFor={selectId} className="text-sm text-muted-foreground">
-            {t('bundles.priceList')}
-          </Label>
+        <Field id={selectId} label={t('bundles.priceList')} inline>
           <NativeSelect id={selectId} value={priceListId} onChange={(event) => onPriceListChange(event.target.value)}>
             <option value="">{t('bundles.catalogPrices')}</option>
             {(priceLists.data ?? []).map((list) => (
@@ -149,7 +145,7 @@ function BundleView({ productId, bundle, readOnly, priceListId, onPriceListChang
               </option>
             ))}
           </NativeSelect>
-        </div>
+        </Field>
       )}
       <Table>
         <TableHeader>

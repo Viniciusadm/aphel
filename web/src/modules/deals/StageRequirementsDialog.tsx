@@ -10,13 +10,13 @@ import {
   DialogHeader,
   DialogTitle,
 } from '@/components/ui/dialog'
-import { Label } from '@/components/ui/label'
 import { Skeleton } from '@/components/ui/skeleton'
 import { useFieldSchema } from '@/features/records/api'
 import { findField } from '@/features/records/fields'
 import { DEAL_RECORD_TYPE } from './resource'
 import { dealFieldValue, isFilled } from './requirements'
 import type { Deal } from './types'
+import { Field } from '@/components/ui/field'
 
 export interface StageRequirementsDialogProps {
   open: boolean
@@ -71,8 +71,7 @@ function RequirementsForm({
             const errorId = `${id}-error`
             const invalid = submitted && missing.includes(key)
             return (
-              <div key={key} className="grid gap-2" data-field={key}>
-                <Label htmlFor={id}>{definition?.label ?? key}</Label>
+              <Field key={key} id={id} label={definition?.label ?? key} data-field={key}>
                 {definition ? (
                   <FieldInput
                     field={definition}
@@ -90,7 +89,7 @@ function RequirementsForm({
                     {t('requirements.required')}
                   </p>
                 )}
-              </div>
+              </Field>
             )
           })}
         </div>

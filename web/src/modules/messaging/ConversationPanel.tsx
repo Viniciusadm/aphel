@@ -6,7 +6,6 @@ import { notifyError, notifySuccess } from '@/components/feedback'
 import { UserFieldInput } from '@/components/fields'
 import { Button } from '@/components/ui/button'
 import { ErrorState } from '@/components/ui/error-state'
-import { Label } from '@/components/ui/label'
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/components/ui/select'
 import { Skeleton } from '@/components/ui/skeleton'
 import { Textarea } from '@/components/ui/textarea'
@@ -319,9 +318,7 @@ function Composer({ conversation }: { conversation: Conversation }) {
         void send()
       }}
     >
-      <Label htmlFor={`reply-${conversation.id}`} className="sr-only">
-        {t('composer.label')}
-      </Label>
+      <Field id={`reply-${conversation.id}`} label={t('composer.label')} hideLabel>
       <Textarea
         id={`reply-${conversation.id}`}
         value={value}
@@ -343,6 +340,7 @@ function Composer({ conversation }: { conversation: Conversation }) {
           {error}
         </p>
       )}
+      </Field>
       <div className="flex flex-wrap items-center justify-between gap-2">
         <div className="flex flex-wrap items-center gap-1">
           <Slot

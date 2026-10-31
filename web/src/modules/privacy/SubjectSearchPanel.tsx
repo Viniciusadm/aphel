@@ -7,12 +7,12 @@ import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card'
 import { Checkbox } from '@/components/ui/checkbox'
 import { EmptyState } from '@/components/ui/empty-state'
 import { Input } from '@/components/ui/input'
-import { Label } from '@/components/ui/label'
 import { formatDateTime, useRecordFormatting } from '@/features/records/formatting'
 import { useSubjectSearch, type SubjectSearch } from './api'
 import { CreateRequestDialog, type RequestSelection } from './CreateRequestDialog'
 import { usePrivacyErrors } from './lib/shared'
 import { RecordLink } from './RecordLink'
+import { Field } from '@/components/ui/field'
 
 interface SubjectSearchPanelProps {
   onRequestCreated: () => void
@@ -88,8 +88,8 @@ export function SubjectSearchPanel({ onRequestCreated }: SubjectSearchPanelProps
 
   return (
     <div className="grid min-w-0 gap-4">
-      <form role="search" className="grid gap-2" onSubmit={submit}>
-        <Label htmlFor={inputId}>{t('search.label')}</Label>
+      <form role="search" onSubmit={submit}>
+        <Field id={inputId} label={t('search.label')}>
         <div className="flex min-w-0 gap-2">
           <Input
             id={inputId}
@@ -110,6 +110,7 @@ export function SubjectSearchPanel({ onRequestCreated }: SubjectSearchPanelProps
         <p id={hintId} className="text-xs text-muted-foreground">
           {t('search.hint')}
         </p>
+              </Field>
       </form>
 
       {!result ? (

@@ -1,13 +1,13 @@
 import type { ComponentProps, KeyboardEventHandler, ReactNode } from 'react'
 import { useTranslation } from 'react-i18next'
 import { Input } from '@/components/ui/input'
-import { Label } from '@/components/ui/label'
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/components/ui/select'
 import { cn } from '@/lib/utils'
 import { HEX_COLOR_PATTERN } from '../lib/form'
 import { describedBy } from '../lib/aria'
 import { asFieldsMessageKey } from '../lib/errors'
 import { Alert } from '@/components/ui/alert'
+import { Field } from '@/components/ui/field'
 
 interface FieldMessageProps {
   id: string
@@ -47,19 +47,18 @@ interface FormFieldProps {
 
 export function FormField({ id, label, hint, error, className, children }: FormFieldProps) {
   return (
-    <div className={cn('grid content-start gap-2', className)}>
-      <Label htmlFor={id}>{label}</Label>
+    <Field id={id} label={label} className={cn('content-start', className)}>
       {children}
       {error ? (
         <FieldMessage id={`${id}-error`} message={error} />
       ) : (
         hint && (
-          <p id={`${id}-hint`} className="text-xs text-muted-foreground">
+          <p id={`${id}-hint`} className="text-sm text-muted-foreground">
             {hint}
           </p>
         )
       )}
-    </div>
+    </Field>
   )
 }
 

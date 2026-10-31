@@ -9,7 +9,6 @@ import { Button } from '@/components/ui/button'
 import { EmptyState } from '@/components/ui/empty-state'
 import { ErrorState } from '@/components/ui/error-state'
 import { Input } from '@/components/ui/input'
-import { Label } from '@/components/ui/label'
 import { Skeleton } from '@/components/ui/skeleton'
 import { toast } from '@/components/ui/toast-store'
 import { useOrganizationUsers } from '@/features/records/api'
@@ -239,20 +238,19 @@ function AddMemberForm({ team, roles, busy, onCancel, onSubmit }: AddMemberFormP
         void submit()
       }}
     >
-      <div className="grid min-w-0 gap-2.5">
-        <Label id={`${formId}-user`}>{t('add.user')}</Label>
+      <Field id={`${formId}-user`} label={t('add.user')} className="min-w-0">
         <UserFieldInput
+          id={`${formId}-user`}
           value={userId}
           clearable={false}
           invalid={userError}
-          aria-labelledby={`${formId}-user`}
           onChange={(value) => {
             setUserId(value)
             setUserError(false)
           }}
         />
         {userError && <p className="text-sm text-destructive">{t('add.userRequired')}</p>}
-      </div>
+      </Field>
       <Field label={t('add.role')}>
         {(fieldControl) => <RoleSelect id={fieldControl.id} value={roleId} roles={roles} onChange={setRoleId} />}
       </Field>
