@@ -1,4 +1,4 @@
-import { useId, useState } from 'react'
+import { useState } from 'react'
 import { useTranslation } from 'react-i18next'
 import { Button } from '@/components/ui/button'
 import {
@@ -9,10 +9,10 @@ import {
   DialogHeader,
   DialogTitle,
 } from '@/components/ui/dialog'
-import { Label } from '@/components/ui/label'
 import type { InboxItem } from '@/modules/activities/api'
 import { useOrganizationUsers } from '@/features/records/api'
 import { NativeSelect } from '@/features/records/filters/NativeSelect'
+import { Field } from '@/components/ui/field'
 
 export interface ReassignDialogProps {
   item: InboxItem | null
@@ -46,7 +46,6 @@ function ReassignForm({
 }) {
   const { t } = useTranslation('activities', { keyPrefix: 'inbox' })
   const users = useOrganizationUsers()
-  const id = useId()
   const [ownerId, setOwnerId] = useState(item.owner_id ?? '')
   const options = users.data ?? []
   return (
@@ -58,9 +57,8 @@ function ReassignForm({
         else onCancel()
       }}
     >
-      <div className="grid gap-2.5">
-        <Label htmlFor={id}>{t('reassign.owner')}</Label>
-        <NativeSelect id={id} value={ownerId} disabled={users.isPending} onChange={(event) => setOwnerId(event.target.value)}>
+      <Field label={t('reassign.owner')}>
+        {(control) => <NativeSelect {...control} value={ownerId} disabled={users.isPending} onChange={(event) => setOwnerId(event.target.value)}>
           <option value="" disabled>
             {t('reassign.choose')}
           </option>
@@ -69,8 +67,8 @@ function ReassignForm({
               {user.display_name}
             </option>
           ))}
-        </NativeSelect>
-      </div>
+        </NativeSelect>}
+      </Field>
       <DialogFooter>
         <Button type="button" variant="outline" onClick={onCancel}>
           {t('reassign.cancel')}

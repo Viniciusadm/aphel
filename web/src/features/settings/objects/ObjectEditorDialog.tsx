@@ -13,7 +13,6 @@ import {
   DialogTitle,
 } from '@/components/ui/dialog'
 import { Input } from '@/components/ui/input'
-import { Label } from '@/components/ui/label'
 import { Textarea } from '@/components/ui/textarea'
 import {
   DEFAULT_OBJECT_COLOR,
@@ -345,10 +344,10 @@ function TitleFieldSelect({ id, recordType, currentKey, value, onChange }: Title
   )
 
   return (
-    <div className="grid gap-2.5">
-      <Label htmlFor={id}>{t('editor.titleField')}</Label>
-      <NativeSelect
-        id={id}
+    <Field label={t('editor.titleField')}>
+      {(control) => <>
+        <NativeSelect
+        {...control}
         value={value}
         disabled={schema.isPending}
         aria-describedby={`${id}-hint`}
@@ -364,6 +363,7 @@ function TitleFieldSelect({ id, recordType, currentKey, value, onChange }: Title
       <p id={`${id}-hint`} className="text-xs text-muted-foreground">
         {t('editor.titleFieldHint')}
       </p>
-    </div>
+      </>}
+    </Field>
   )
 }

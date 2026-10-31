@@ -277,10 +277,9 @@ function ComposerForm({ record, mailboxes, reply, onDirtyChange, onCancel, onSen
       }}
     >
       {mailboxes.length > 1 && (
-        <div className="grid content-start gap-2.5">
-          <Label htmlFor={`${formId}-mailbox`}>{t('composer.from')}</Label>
-          <NativeSelect
-            id={`${formId}-mailbox`}
+        <Field label={t('composer.from')} className="content-start">
+          {(control) => <NativeSelect
+            {...control}
             value={mailboxId}
             disabled={Boolean(reply)}
             onChange={(event) => setMailboxId(event.target.value)}
@@ -290,8 +289,8 @@ function ComposerForm({ record, mailboxes, reply, onDirtyChange, onCancel, onSen
                 {mailbox.display_name ? `${mailbox.display_name} <${mailbox.address}>` : mailbox.address}
               </option>
             ))}
-          </NativeSelect>
-        </div>
+          </NativeSelect>}
+        </Field>
       )}
       <div className="grid gap-2">
         <AddressField
@@ -342,10 +341,9 @@ function ComposerForm({ record, mailboxes, reply, onDirtyChange, onCancel, onSen
         </div>
       )}
       {availableTemplates.length > 0 && (
-        <div className="grid content-start gap-2.5">
-          <Label htmlFor={`${formId}-template`}>{t('composer.template')}</Label>
-          <NativeSelect
-            id={`${formId}-template`}
+        <Field label={t('composer.template')} className="content-start">
+          {(control) => <NativeSelect
+            {...control}
             value={template?.id ?? ''}
             disabled={applyTemplate.isPending}
             onChange={(event) => {
@@ -359,8 +357,8 @@ function ComposerForm({ record, mailboxes, reply, onDirtyChange, onCancel, onSen
                 {item.scope === 'personal' ? t('composer.personalTemplate', { name: item.name }) : item.name}
               </option>
             ))}
-          </NativeSelect>
-        </div>
+          </NativeSelect>}
+        </Field>
       )}
       <Field label={t('fields.subject')} className="content-start">
         {(control) => <>

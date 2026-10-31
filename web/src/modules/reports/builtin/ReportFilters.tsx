@@ -1,12 +1,11 @@
-import { useId } from 'react'
 import { useTranslation } from 'react-i18next'
-import { Label } from '@/components/ui/label'
 import { usePipelines } from '@/modules/pipelines/api'
 import { PeriodSelector } from '@/modules/dashboard/PeriodSelector'
 import { CompareToggle } from '@/modules/dashboard/SubjectSelector'
 import { PERFORMANCE_DIMENSIONS, type PerformanceDimension } from './api'
 import type { ReportFiltersState } from './filters'
 import { NativeSelect } from '@/components/ui/native-select'
+import { Field } from '@/components/ui/field'
 
 export interface ReportFiltersProps {
   state: ReportFiltersState
@@ -16,18 +15,16 @@ export interface ReportFiltersProps {
 
 export function ReportFilters({ state, allPipelines = false, withDimension = false }: ReportFiltersProps) {
   const { t } = useTranslation('reports', { keyPrefix: 'builtin' })
-  const id = useId()
   const pipelines = usePipelines()
   const { filters } = state
 
   return (
     <div className="flex min-w-0 flex-wrap items-end gap-3 rounded-lg border bg-card p-3">
       {withDimension && (
-        <div className="grid w-full min-w-0 gap-2.5 sm:w-auto">
-          <Label htmlFor={`${id}-dimension`}>{t('filters.dimension')}</Label>
-          <NativeSelect
+        <Field label={t('filters.dimension')} className="w-full min-w-0 sm:w-auto">
+          {(control) => <NativeSelect
             className="w-full sm:w-52"
-            id={`${id}-dimension`}
+            {...control}
             value={filters.dimension}
             onChange={(event) => state.setDimension(event.target.value as PerformanceDimension)}
           >
@@ -36,14 +33,13 @@ export function ReportFilters({ state, allPipelines = false, withDimension = fal
                 {t(`dimensions.${dimension}`)}
               </option>
             ))}
-          </NativeSelect>
-        </div>
+          </NativeSelect>}
+        </Field>
       )}
-      <div className="grid w-full min-w-0 gap-2.5 sm:w-auto">
-        <Label htmlFor={`${id}-pipeline`}>{t('filters.pipeline')}</Label>
-        <NativeSelect
+      <Field label={t('filters.pipeline')} className="w-full min-w-0 sm:w-auto">
+        {(control) => <NativeSelect
             className="w-full sm:w-52"
-          id={`${id}-pipeline`}
+          {...control}
           value={filters.pipelineId ?? ''}
           disabled={pipelines.isPending}
           onChange={(event) => state.setPipeline(event.target.value || null)}
@@ -54,8 +50,8 @@ export function ReportFilters({ state, allPipelines = false, withDimension = fal
               {pipeline.name}
             </option>
           ))}
-        </NativeSelect>
-      </div>
+        </NativeSelect>}
+      </Field>
       <PeriodSelector value={filters.period} onChange={state.setPeriod} />
       <CompareToggle checked={filters.compare} onChange={state.setCompare} />
     </div>

@@ -1,6 +1,6 @@
 import { useMutation, useQueryClient } from '@tanstack/react-query'
 import { Ban, Loader2, Plus, Trash2 } from 'lucide-react'
-import { useId, useState } from 'react'
+import { useState } from 'react'
 import { useTranslation } from 'react-i18next'
 import { ConfirmDialog, notifyError, notifySuccess } from '@/components/feedback'
 import { Badge } from '@/components/ui/badge'
@@ -8,7 +8,6 @@ import { Button } from '@/components/ui/button'
 import { EmptyState } from '@/components/ui/empty-state'
 import { ErrorState } from '@/components/ui/error-state'
 import { Input } from '@/components/ui/input'
-import { Label } from '@/components/ui/label'
 import { Skeleton } from '@/components/ui/skeleton'
 import { NativeSelect } from '@/features/records/filters/NativeSelect'
 import { formatDateTime, useRecordFormatting } from '@/features/records/formatting'
@@ -30,7 +29,6 @@ function isValidValue(kind: BlocklistKind, value: string): boolean {
 
 export function BlocklistPanel() {
   const { t } = useTranslation('email')
-  const formId = useId()
   const formatting = useRecordFormatting()
   const queryClient = useQueryClient()
   const blocklist = useBlocklist()
@@ -67,16 +65,15 @@ export function BlocklistPanel() {
           if (valid) add.mutate()
         }}
       >
-        <div className="grid content-start gap-2.5">
-          <Label htmlFor={`${formId}-kind`}>{t('blocklist.kind')}</Label>
-          <NativeSelect id={`${formId}-kind`} value={kind} onChange={(event) => setKind(event.target.value as BlocklistKind)}>
+        <Field label={t('blocklist.kind')} className="content-start">
+          {(control) => <NativeSelect {...control} value={kind} onChange={(event) => setKind(event.target.value as BlocklistKind)}>
             {BLOCKLIST_KINDS.map((option) => (
               <option key={option} value={option}>
                 {t(`blocklist.kinds.${option}`)}
               </option>
             ))}
-          </NativeSelect>
-        </div>
+          </NativeSelect>}
+        </Field>
         <Field label={t('blocklist.value')} className="content-start">
           {(control) => <Input
             {...control}

@@ -147,10 +147,9 @@ function RenewalForm({ pipelineId, settings, pipelines }: RenewalFormProps) {
           />
           <p className="text-xs text-muted-foreground">{t('renewal.daysBeforeHint', { max: MAX_DAYS_BEFORE })}</p>
         </div>
-        <div className="grid gap-2.5">
-          <Label htmlFor={ids.owner}>{t('renewal.owner')}</Label>
-          <NativeSelect
-            id={ids.owner}
+        <Field label={t('renewal.owner')}>
+          {(control) => <NativeSelect
+            {...control}
             value={draft.owner_mode}
             onChange={(event) => update({ owner_mode: event.target.value as RenewalOwnerMode })}
           >
@@ -159,12 +158,11 @@ function RenewalForm({ pipelineId, settings, pipelines }: RenewalFormProps) {
                 {t(`renewal.ownerModes.${mode}`)}
               </option>
             ))}
-          </NativeSelect>
-        </div>
-        <div className="grid gap-2.5">
-          <Label htmlFor={ids.pipeline}>{t('renewal.targetPipeline')}</Label>
-          <NativeSelect
-            id={ids.pipeline}
+          </NativeSelect>}
+        </Field>
+        <Field label={t('renewal.targetPipeline')}>
+          {(control) => <NativeSelect
+            {...control}
             value={draft.target_pipeline_id}
             onChange={(event) => {
               const targetPipelineId = event.target.value
@@ -179,12 +177,11 @@ function RenewalForm({ pipelineId, settings, pipelines }: RenewalFormProps) {
                 {item.name}
               </option>
             ))}
-          </NativeSelect>
-        </div>
-        <div className="grid gap-2.5">
-          <Label htmlFor={ids.stage}>{t('renewal.targetStage')}</Label>
-          <NativeSelect
-            id={ids.stage}
+          </NativeSelect>}
+        </Field>
+        <Field label={t('renewal.targetStage')}>
+          {(control) => <NativeSelect
+            {...control}
             value={draft.target_stage_id}
             aria-invalid={!stageValid}
             onChange={(event) => update({ target_stage_id: event.target.value })}
@@ -195,8 +192,8 @@ function RenewalForm({ pipelineId, settings, pipelines }: RenewalFormProps) {
                 {stage.name}
               </option>
             ))}
-          </NativeSelect>
-        </div>
+          </NativeSelect>}
+        </Field>
         <Field label={t('renewal.titlePrefix')} className="sm:col-span-2">
           {(control) => <>
             <Input placeholder={t('placeholders.titlePrefix')}

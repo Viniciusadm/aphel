@@ -1,8 +1,7 @@
-import { useId, useState, type FormEvent } from 'react'
+import { useState, type FormEvent } from 'react'
 import { useTranslation } from 'react-i18next'
 import { Button } from '@/components/ui/button'
 import { Input } from '@/components/ui/input'
-import { Label } from '@/components/ui/label'
 import { PERIOD_PRESETS, isValidCustomRange } from './period'
 import type { LayoutPeriod, PeriodPreset } from './types'
 import { NativeSelect } from '@/components/ui/native-select'
@@ -22,7 +21,6 @@ function todayIso(): string {
 
 export function PeriodSelector({ value, onChange }: PeriodSelectorProps) {
   const { t } = useTranslation('dashboard')
-  const id = useId()
   const [preset, setPreset] = useState<PeriodPreset>(value.preset)
   const [from, setFrom] = useState(value.from ?? '')
   const [to, setTo] = useState(value.to ?? '')
@@ -60,10 +58,9 @@ export function PeriodSelector({ value, onChange }: PeriodSelectorProps) {
 
   return (
     <form className="flex flex-wrap items-end gap-2" onSubmit={apply}>
-      <div className="grid gap-2.5">
-        <Label htmlFor={`${id}-preset`}>{t('period.label')}</Label>
-        <NativeSelect
-          id={`${id}-preset`}
+      <Field label={t('period.label')}>
+        {(control) => <NativeSelect
+          {...control}
           value={preset}
           onChange={(event) => choose(event.target.value as PeriodPreset)}
         >
@@ -72,8 +69,8 @@ export function PeriodSelector({ value, onChange }: PeriodSelectorProps) {
               {t(`period.presets.${option}`)}
             </option>
           ))}
-        </NativeSelect>
-      </div>
+        </NativeSelect>}
+      </Field>
       {preset === 'custom' && (
         <>
           <Field label={t('period.from')}>

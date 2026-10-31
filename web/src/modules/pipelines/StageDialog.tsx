@@ -1,4 +1,4 @@
-import { useId, useState } from 'react'
+import { useState } from 'react'
 import { useTranslation } from 'react-i18next'
 import { Button } from '@/components/ui/button'
 import {
@@ -10,7 +10,6 @@ import {
   DialogTitle,
 } from '@/components/ui/dialog'
 import { Input } from '@/components/ui/input'
-import { Label } from '@/components/ui/label'
 import type { PipelineStage, StageKind } from './types'
 import { useFieldSchema } from '@/features/records/api'
 import { activeFields } from '@/features/records/fields'
@@ -63,7 +62,6 @@ function StageForm({ stage, pending, onOpenChange, onSubmit }: Omit<StageDialogP
   const [kind, setKind] = useState<StageKind>(stage?.kind ?? 'open')
   const [rottingDays, setRottingDays] = useState(String(stageRottingDays(stage) ?? ''))
   const [submitted, setSubmitted] = useState(false)
-  const kindId = useId()
   const parsedProbability = Number(probability)
   const nameError = submitted && !name.trim()
   const probabilityError =
@@ -127,10 +125,10 @@ function StageForm({ stage, pending, onOpenChange, onSubmit }: Omit<StageDialogP
         {probabilityError && <p className="text-sm text-destructive">{t('settings.stages.probabilityInvalid')}</p>}
         </>}
       </Field>
-      <div className="grid gap-2">
-        <Label htmlFor={kindId}>{t('settings.stages.kind')}</Label>
-        <NativeSelect
-          id={kindId}
+      <Field label={t('settings.stages.kind')}>
+        {(control) => <>
+          <NativeSelect
+          {...control}
           value={kind}
           disabled={kindLocked}
           onChange={(event) => setKind(event.target.value as StageKind)}
@@ -143,7 +141,8 @@ function StageForm({ stage, pending, onOpenChange, onSubmit }: Omit<StageDialogP
           ))}
         </NativeSelect>
         {kindLocked && <p className="text-xs text-muted-foreground">{t('settings.stages.kindLocked')}</p>}
-      </div>
+        </>}
+      </Field>
       <RottingDaysField
         value={kind === 'open' ? rottingDays : ''}
         disabled={kind !== 'open'}

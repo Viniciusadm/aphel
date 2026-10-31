@@ -1,4 +1,4 @@
-import { useId, useState } from 'react'
+import { useState } from 'react'
 import { useTranslation } from 'react-i18next'
 import { Button } from '@/components/ui/button'
 import {
@@ -9,9 +9,9 @@ import {
   DialogHeader,
   DialogTitle,
 } from '@/components/ui/dialog'
-import { Label } from '@/components/ui/label'
 import type { PipelineStage } from './types'
 import { NativeSelect } from '@/components/ui/native-select'
+import { Field } from '@/components/ui/field'
 
 export type StageRemovalMode = 'deactivate' | 'delete'
 
@@ -40,7 +40,6 @@ function RemovalForm({
   const deals = stage.deal_count ?? 0
   const targets = removalTargets(stage, stages)
   const [target, setTarget] = useState(targets[0]?.id ?? '')
-  const selectId = useId()
   const needsTarget = deals > 0
   const blocked = needsTarget && targets.length === 0
 
@@ -65,10 +64,9 @@ function RemovalForm({
             {t('settings.removal.noTarget')}
           </p>
         ) : (
-          <div className="grid gap-2">
-            <Label htmlFor={selectId}>{t('settings.removal.target')}</Label>
-            <NativeSelect
-              id={selectId}
+          <Field label={t('settings.removal.target')}>
+            {(control) => <NativeSelect
+              {...control}
               value={target}
               onChange={(event) => setTarget(event.target.value)}
               className="h-9 w-full rounded-md border bg-background px-3 text-sm"
@@ -78,8 +76,8 @@ function RemovalForm({
                   {candidate.name}
                 </option>
               ))}
-            </NativeSelect>
-          </div>
+            </NativeSelect>}
+          </Field>
         ))}
       <DialogFooter>
         <Button type="button" variant="outline" onClick={() => onOpenChange(false)} disabled={pending}>

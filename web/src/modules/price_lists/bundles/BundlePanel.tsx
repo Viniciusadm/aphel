@@ -18,6 +18,7 @@ import { bundlesApi, useInvalidateBundle, useProductBundle } from './api'
 import { bundleErrorKey } from './errors'
 import type { BundlePricing, ProductBundle } from './types'
 import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from '@/components/ui/table'
+import { Field } from '@/components/ui/field'
 
 const PRODUCT_RECORD_TYPE = 'product'
 const PRICING: BundlePricing[] = ['fixed', 'sum']
@@ -287,10 +288,10 @@ function BundleForm({ productId, bundle, onClose }: BundleFormProps) {
         <h3 className="text-base font-semibold">{t(bundle ? 'bundles.editTitle' : 'bundles.createTitle')}</h3>
         <p className="text-sm text-muted-foreground">{t('bundles.formDescription')}</p>
       </div>
-      <div className="grid gap-2.5 sm:max-w-xs">
-        <Label htmlFor={`${formId}-pricing`}>{t('bundles.pricingLabel')}</Label>
-        <NativeSelect
-          id={`${formId}-pricing`}
+      <Field label={t('bundles.pricingLabel')} className="sm:max-w-xs">
+        {(control) => <>
+          <NativeSelect
+          {...control}
           value={pricing}
           onChange={(event) => setPricing(event.target.value as BundlePricing)}
         >
@@ -301,7 +302,8 @@ function BundleForm({ productId, bundle, onClose }: BundleFormProps) {
           ))}
         </NativeSelect>
         <p className="text-xs text-muted-foreground">{t(`bundles.pricingHint.${pricing}`)}</p>
-      </div>
+        </>}
+      </Field>
       <fieldset className="grid gap-2">
         <legend className="mb-1.5 text-sm font-medium">{t('bundles.components')}</legend>
         {drafts.map((draft, index) => (

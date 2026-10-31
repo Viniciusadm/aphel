@@ -42,10 +42,9 @@ export function RecurrenceFields({ value, onChange, error, disabled }: Recurrenc
   return (
     <fieldset className="grid min-w-0 gap-3" disabled={disabled} aria-describedby={error ? ids.error : undefined}>
       <div className="grid gap-4 sm:grid-cols-2">
-        <div className="grid gap-2.5">
-          <Label htmlFor={ids.frequency}>{t('recurrence.label')}</Label>
-          <NativeSelect
-            id={ids.frequency}
+        <Field label={t('recurrence.label')}>
+          {(control) => <NativeSelect
+            {...control}
             value={value.frequency}
             onChange={(event) => set({ frequency: event.target.value as RecurrenceFrequency | 'none' })}
           >
@@ -55,8 +54,8 @@ export function RecurrenceFields({ value, onChange, error, disabled }: Recurrenc
                 {t(`recurrence.frequency.${frequency}`)}
               </option>
             ))}
-          </NativeSelect>
-        </div>
+          </NativeSelect>}
+        </Field>
         {frequency && (
           <Field label={t(`recurrence.interval.${frequency}`)}>
             {(control) => <Input placeholder={t('placeholders.interval')}
@@ -107,10 +106,9 @@ export function RecurrenceFields({ value, onChange, error, disabled }: Recurrenc
       )}
       {active && (
         <div className="grid gap-4 sm:grid-cols-2">
-          <div className="grid gap-2.5">
-            <Label htmlFor={ids.end}>{t('recurrence.endLabel')}</Label>
-            <NativeSelect
-              id={ids.end}
+          <Field label={t('recurrence.endLabel')}>
+            {(control) => <NativeSelect
+              {...control}
               value={value.end}
               onChange={(event) => set({ end: event.target.value as RecurrenceEnd })}
             >
@@ -119,8 +117,8 @@ export function RecurrenceFields({ value, onChange, error, disabled }: Recurrenc
                   {t(`recurrence.end.${end}`)}
                 </option>
               ))}
-            </NativeSelect>
-          </div>
+            </NativeSelect>}
+          </Field>
           {value.end === 'until' && (
             <Field label={t('recurrence.untilLabel')}>
               {(control) => <Input

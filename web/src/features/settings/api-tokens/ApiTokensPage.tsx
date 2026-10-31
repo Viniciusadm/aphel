@@ -17,7 +17,6 @@ import {
 import { EmptyState } from '@/components/ui/empty-state'
 import { ErrorState } from '@/components/ui/error-state'
 import { Input } from '@/components/ui/input'
-import { Label } from '@/components/ui/label'
 import { Skeleton } from '@/components/ui/skeleton'
 import { formatDateTime, useRecordFormatting } from '@/features/records/formatting'
 import { USERS_MANAGE } from '@/features/settings/lib/permissions'
@@ -307,10 +306,9 @@ function CreateTokenForm({ onCancel, onCreated }: CreateTokenFormProps) {
             </p>
           )}
         </fieldset>
-        <div className="grid gap-2.5">
-          <Label htmlFor={`${formId}-expiration`}>{t('form.expiration')}</Label>
-          <NativeSelect
-            id={`${formId}-expiration`}
+        <Field label={t('form.expiration')}>
+          {(control) => <NativeSelect
+            {...control}
             value={expiration}
             onChange={(event) => setExpiration(event.target.value as ExpirationOption)}
           >
@@ -319,8 +317,8 @@ function CreateTokenForm({ onCancel, onCreated }: CreateTokenFormProps) {
                 {t(`form.expirationOptions.${option}`)}
               </option>
             ))}
-          </NativeSelect>
-        </div>
+          </NativeSelect>}
+        </Field>
       </form>
       <DialogFooter>
         <Button type="button" variant="outline" onClick={onCancel}>

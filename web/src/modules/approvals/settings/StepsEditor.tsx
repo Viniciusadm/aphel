@@ -2,7 +2,6 @@ import { ArrowDown, ArrowUp, Plus, Trash2 } from 'lucide-react'
 import { useTranslation } from 'react-i18next'
 import { Button } from '@/components/ui/button'
 import { Input } from '@/components/ui/input'
-import { Label } from '@/components/ui/label'
 import { NativeSelect } from '@/features/records/filters/NativeSelect'
 import { useOrganizationUsers } from '@/features/records/api'
 import { useRoles } from '@/features/settings/api'
@@ -94,10 +93,9 @@ export function StepsEditor({ steps, errors, errorText, onChange }: StepsEditorP
                     onChange={(event) => update(index, { name: event.target.value })}
                   />}
                 </Field>
-                <div className="grid gap-2.5">
-                  <Label htmlFor={`${step.uid}-kind`}>{t('form.approverKind')}</Label>
-                  <NativeSelect
-                    id={`${step.uid}-kind`}
+                <Field label={t('form.approverKind')}>
+                  {(control) => <NativeSelect
+                    {...control}
                     value={step.approverKind}
                     onChange={(event) =>
                       update(index, {
@@ -110,12 +108,11 @@ export function StepsEditor({ steps, errors, errorText, onChange }: StepsEditorP
                         {t(`approverKinds.${kind}`)}
                       </option>
                     ))}
-                  </NativeSelect>
-                </div>
-                <div className="grid gap-2.5">
-                  <Label htmlFor={`${step.uid}-rule`}>{t('form.rule')}</Label>
-                  <NativeSelect
-                    id={`${step.uid}-rule`}
+                  </NativeSelect>}
+                </Field>
+                <Field label={t('form.rule')}>
+                  {(control) => <NativeSelect
+                    {...control}
                     value={step.rule}
                     onChange={(event) =>
                       update(index, {
@@ -128,13 +125,13 @@ export function StepsEditor({ steps, errors, errorText, onChange }: StepsEditorP
                         {t(`rules.${rule}`)}
                       </option>
                     ))}
-                  </NativeSelect>
-                </div>
+                  </NativeSelect>}
+                </Field>
                 {step.approverKind === 'user' && (
-                  <div className="grid gap-2.5 sm:col-span-2">
-                    <Label htmlFor={`${step.uid}-user`}>{t('form.approverUser')}</Label>
-                    <NativeSelect
-                      id={`${step.uid}-user`}
+                  <Field label={t('form.approverUser')} className="sm:col-span-2">
+                    {(control) => <>
+                      <NativeSelect
+                      {...control}
                       value={step.approverUserId}
                       aria-invalid={userError ? true : undefined}
                       onChange={(event) => update(index, { approverUserId: event.target.value })}
@@ -147,13 +144,14 @@ export function StepsEditor({ steps, errors, errorText, onChange }: StepsEditorP
                       ))}
                     </NativeSelect>
                     {userError && <p className="text-sm text-destructive">{userError}</p>}
-                  </div>
+                    </>}
+                  </Field>
                 )}
                 {step.approverKind === 'role' && (
-                  <div className="grid gap-2.5 sm:col-span-2">
-                    <Label htmlFor={`${step.uid}-role`}>{t('form.approverRole')}</Label>
-                    <NativeSelect
-                      id={`${step.uid}-role`}
+                  <Field label={t('form.approverRole')} className="sm:col-span-2">
+                    {(control) => <>
+                      <NativeSelect
+                      {...control}
                       value={step.approverRoleId}
                       aria-invalid={roleError ? true : undefined}
                       onChange={(event) => update(index, { approverRoleId: event.target.value })}
@@ -166,7 +164,8 @@ export function StepsEditor({ steps, errors, errorText, onChange }: StepsEditorP
                       ))}
                     </NativeSelect>
                     {roleError && <p className="text-sm text-destructive">{roleError}</p>}
-                  </div>
+                    </>}
+                  </Field>
                 )}
                 {step.approverKind === 'owner_team_manager' && (
                   <p className="text-xs text-muted-foreground sm:col-span-2">{t('form.ownerTeamManagerHint')}</p>

@@ -175,10 +175,10 @@ function PriceListForm({ list, onClose, onSaved }: PriceListFormProps) {
           />}
         </Field>
         <div className="grid gap-4 sm:grid-cols-2">
-          <div className="grid gap-2.5">
-            <Label htmlFor={`${formId}-currency`}>{t('form.currency')}</Label>
-            <NativeSelect
-              id={`${formId}-currency`}
+          <Field label={t('form.currency')}>
+            {(control) => <>
+              <NativeSelect
+              {...control}
               value={selectedCurrency}
               onChange={(event) => setCurrency(event.target.value)}
             >
@@ -190,11 +190,11 @@ function PriceListForm({ list, onClose, onSaved }: PriceListFormProps) {
               ))}
             </NativeSelect>
             {errorFor('currency')}
-          </div>
-          <div className="grid gap-2.5">
-            <Label htmlFor={`${formId}-applies`}>{t('form.appliesTo')}</Label>
-            <NativeSelect
-              id={`${formId}-applies`}
+            </>}
+          </Field>
+          <Field label={t('form.appliesTo')}>
+            {(control) => <NativeSelect
+              {...control}
               value={appliesTo}
               onChange={(event) => setAppliesTo(event.target.value as PriceListAppliesTo)}
             >
@@ -203,14 +203,14 @@ function PriceListForm({ list, onClose, onSaved }: PriceListFormProps) {
                   {t(`appliesTo.${value}`)}
                 </option>
               ))}
-            </NativeSelect>
-          </div>
+            </NativeSelect>}
+          </Field>
         </div>
         {appliesTo === 'segment' && (
-          <div className="grid gap-2.5">
-            <Label htmlFor={`${formId}-segment`}>{t('form.segment')}</Label>
-            <NativeSelect
-              id={`${formId}-segment`}
+          <Field label={t('form.segment')}>
+            {(control) => <>
+              <NativeSelect
+              {...control}
               value={segmentId}
               aria-invalid={errors.segment_id ? true : undefined}
               onChange={(event) => setSegmentId(event.target.value)}
@@ -223,7 +223,8 @@ function PriceListForm({ list, onClose, onSaved }: PriceListFormProps) {
               ))}
             </NativeSelect>
             {errorFor('segment_id') ?? <p className="text-xs text-muted-foreground">{t('form.segmentHint')}</p>}
-          </div>
+            </>}
+          </Field>
         )}
         {appliesTo === 'companies' && (
           <fieldset className="grid gap-2">

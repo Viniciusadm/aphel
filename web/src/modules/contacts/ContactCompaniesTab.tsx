@@ -14,6 +14,7 @@ import { Skeleton } from '@/components/ui/skeleton'
 import { NativeSelect } from '@/features/records/filters/NativeSelect'
 import { useContactCompanies, useContactCompanyMutations, type ContactCompanyLink } from './api'
 import { CONTACT_COMPANY_ROLES } from './resource'
+import { Field } from '@/components/ui/field'
 
 export interface ContactCompaniesTabProps {
   contactId: string
@@ -94,7 +95,6 @@ export function ContactCompaniesTab({ contactId, readOnly = false }: ContactComp
 function LinkCompanyForm({ contactId }: { contactId: string }) {
   const { t } = useTranslation('contacts')
   const companyLabelId = useId()
-  const roleId = useId()
   const [companyId, setCompanyId] = useState<string | null>(null)
   const [role, setRole] = useState('')
   const { link } = useContactCompanyMutations(contactId)
@@ -129,17 +129,16 @@ function LinkCompanyForm({ contactId }: { contactId: string }) {
           aria-labelledby={companyLabelId}
         />
       </div>
-      <div className="grid gap-2.5">
-        <Label htmlFor={roleId}>{t('companies.roleLabel')}</Label>
-        <NativeSelect id={roleId} value={role} onChange={(event) => setRole(event.target.value)}>
+      <Field label={t('companies.roleLabel')}>
+        {(control) => <NativeSelect {...control} value={role} onChange={(event) => setRole(event.target.value)}>
           <option value="">{t('companies.roleNone')}</option>
           {CONTACT_COMPANY_ROLES.map((value) => (
             <option key={value} value={value}>
               {t(`roles.${value}`)}
             </option>
           ))}
-        </NativeSelect>
-      </div>
+        </NativeSelect>}
+      </Field>
       <Button type="submit" disabled={!companyId || link.isPending}>
         {link.isPending ? t('companies.adding') : t('companies.add')}
       </Button>

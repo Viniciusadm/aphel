@@ -17,6 +17,7 @@ import { NativeSelect } from '@/features/records/filters/NativeSelect'
 import { emailApi, useInvalidateThreads } from '../api'
 import { useEmailRecordTypes } from '../lib/record-types'
 import type { EmailThread } from '../types'
+import { Field } from '@/components/ui/field'
 
 interface LinkRecordDialogProps {
   thread: EmailThread
@@ -74,10 +75,9 @@ function LinkForm({ thread, onDone }: { thread: EmailThread; onDone: () => void 
         void save()
       }}
     >
-      <div className="grid gap-2.5">
-        <Label htmlFor={`${formId}-type`}>{t('links.recordType')}</Label>
-        <NativeSelect
-          id={`${formId}-type`}
+      <Field label={t('links.recordType')}>
+        {(control) => <NativeSelect
+          {...control}
           value={recordType}
           onChange={(event) => {
             setRecordType(event.target.value)
@@ -89,8 +89,8 @@ function LinkForm({ thread, onDone }: { thread: EmailThread; onDone: () => void 
               {option.label}
             </option>
           ))}
-        </NativeSelect>
-      </div>
+        </NativeSelect>}
+      </Field>
       <div className="grid gap-2.5">
         <Label htmlFor={`${formId}-record`}>{t('links.record')}</Label>
         <RecordFieldInput

@@ -14,6 +14,7 @@ import type { PipelineRemovalBody } from './api'
 import type { Pipeline } from './types'
 import { compatibleStages, dealCount, defaultMapping } from './removal'
 import { NativeSelect } from '@/components/ui/native-select'
+import { Field } from '@/components/ui/field'
 
 export interface PipelineRemovalDialogProps {
   pipeline: Pipeline | null
@@ -36,7 +37,6 @@ function RemovalForm({
   const [targetId, setTargetId] = useState(targets[0]?.id ?? '')
   const target = targets.find((item) => item.id === targetId)
   const [mapping, setMapping] = useState<Record<string, string>>(() => defaultMapping(pipeline, target))
-  const targetSelectId = useId()
   const baseId = useId()
   const sources = pipeline.stages.filter((stage) => (stage.deal_count ?? 0) > 0)
   const unmapped = sources.filter((stage) => !mapping[stage.id])
@@ -68,10 +68,9 @@ function RemovalForm({
           </p>
         ) : (
           <>
-            <div className="grid gap-2">
-              <Label htmlFor={targetSelectId}>{t('remove.target')}</Label>
-              <NativeSelect
-                id={targetSelectId}
+            <Field label={t('remove.target')}>
+              {(control) => <NativeSelect
+                {...control}
                 value={targetId}
                 onChange={(event) => {
                   const next = targets.find((item) => item.id === event.target.value)
@@ -85,8 +84,8 @@ function RemovalForm({
                     {item.name}
                   </option>
                 ))}
-              </NativeSelect>
-            </div>
+              </NativeSelect>}
+            </Field>
             <fieldset className="grid gap-2">
               <legend className="text-sm font-medium">{t('remove.mapping')}</legend>
               {sources.map((stage) => {

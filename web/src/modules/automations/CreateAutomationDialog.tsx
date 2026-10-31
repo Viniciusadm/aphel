@@ -1,13 +1,12 @@
 import { useMutation } from '@tanstack/react-query'
 import { ArrowLeft, FilePlus2, Sparkles } from 'lucide-react'
-import { useId, useState, type FormEvent } from 'react'
+import { useState, type FormEvent } from 'react'
 import { useTranslation } from 'react-i18next'
 import { useNavigate } from 'react-router'
 import { useSession } from '@/app/session/session-context'
 import { Button } from '@/components/ui/button'
 import { Dialog, DialogContent, DialogDescription, DialogFooter, DialogHeader, DialogTitle } from '@/components/ui/dialog'
 import { Input } from '@/components/ui/input'
-import { Label } from '@/components/ui/label'
 import { Textarea } from '@/components/ui/textarea'
 import { NativeSelect } from '@/features/records/filters/NativeSelect'
 import type { ReferenceOption } from '@/kernel/modules/define'
@@ -142,8 +141,6 @@ function CreateForm({
   const navigate = useNavigate()
   const cache = useAutomationCache()
   const labels = useAutomationLabels(catalog)
-  const typeId = useId()
-  const triggerId = useId()
   const example = choice.kind === 'example' ? choice.example : null
   const [name, setName] = useState(() => (example ? t(`examples.${example.key}.name`) : ''))
   const [description, setDescription] = useState(() => (example ? t(`examples.${example.key}.description`) : ''))
@@ -190,9 +187,9 @@ function CreateForm({
         </p>
       ) : (
         <div className="grid gap-4 sm:grid-cols-2">
-          <div className="grid gap-2.5">
-            <Label htmlFor={typeId}>{t('create.recordType')}</Label>
-            <NativeSelect id={typeId} value={recordType} onChange={(event) => setRecordType(event.target.value)} className="w-full">
+          <Field label={t('create.recordType')}>
+            {(control) => <>
+              <NativeSelect {...control} value={recordType} onChange={(event) => setRecordType(event.target.value)} className="w-full">
               {recordTypes.map((item) => (
                 <option key={item} value={item}>
                   {labels.recordTypeLabel(item)}
@@ -200,17 +197,17 @@ function CreateForm({
               ))}
             </NativeSelect>
             <p className="text-xs text-muted-foreground">{t('create.recordTypeHint')}</p>
-          </div>
-          <div className="grid gap-2.5">
-            <Label htmlFor={triggerId}>{t('create.trigger')}</Label>
-            <NativeSelect id={triggerId} value={effectiveTrigger} onChange={(event) => setTrigger(event.target.value)} className="w-full">
+            </>}
+          </Field>
+          <Field label={t('create.trigger')}>
+            {(control) => <NativeSelect {...control} value={effectiveTrigger} onChange={(event) => setTrigger(event.target.value)} className="w-full">
               {triggers.map((entry) => (
                 <option key={entry.key} value={entry.key}>
                   {labels.triggerLabel(entry.key, entry)}
                 </option>
               ))}
-            </NativeSelect>
-          </div>
+            </NativeSelect>}
+          </Field>
         </div>
       )}
       {create.isError && (

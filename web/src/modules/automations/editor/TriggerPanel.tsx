@@ -10,6 +10,7 @@ import { issuesOutside, issuesUnder, type ValidationIssue } from '../lib/errors'
 import { supportsRecordType, useAutomationLabels } from '../lib/labels'
 import type { TemplateVariable } from '../lib/variables'
 import type { AutomationCatalog, DefinitionOptions, JsonObject, TriggerSpec } from '../types'
+import { Field } from '@/components/ui/field'
 
 export interface TriggerPanelProps {
   trigger: TriggerSpec
@@ -50,9 +51,9 @@ export function TriggerPanel({
 
   return (
     <fieldset disabled={readOnly} className="grid min-w-0 gap-5">
-      <div className="grid gap-2.5">
-        <Label htmlFor={id}>{t('panel.triggerType')}</Label>
-        <NativeSelect id={id} value={type} onChange={(event) => onChange({ type: event.target.value })} className="w-full">
+      <Field label={t('panel.triggerType')}>
+        {(control) => <>
+          <NativeSelect {...control} value={type} onChange={(event) => onChange({ type: event.target.value })} className="w-full">
           {!entry && <option value={type}>{type}</option>}
           {triggers.map((item) => (
             <option key={item.key} value={item.key}>
@@ -62,7 +63,8 @@ export function TriggerPanel({
         </NativeSelect>
         {description && <p className="text-xs text-muted-foreground">{description}</p>}
         <IssueList issues={issuesUnder(issues, 'type')} />
-      </div>
+        </>}
+      </Field>
       {entry && (
         <SchemaForm
           key={type}

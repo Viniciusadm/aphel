@@ -1,4 +1,4 @@
-import { useId, useState } from 'react'
+import { useState } from 'react'
 import { useTranslation } from 'react-i18next'
 import { Button } from '@/components/ui/button'
 import {
@@ -9,11 +9,11 @@ import {
   DialogHeader,
   DialogTitle,
 } from '@/components/ui/dialog'
-import { Label } from '@/components/ui/label'
 import { activePipelines, usePipelines } from '@/modules/pipelines/api'
 import type { Pipeline, StageKind } from '@/modules/pipelines/types'
 import type { Deal } from './types'
 import { NativeSelect } from '@/components/ui/native-select'
+import { Field } from '@/components/ui/field'
 
 export interface PipelineMoveChoice {
   pipelineId: string
@@ -48,8 +48,6 @@ function MovePipelineForm({ deal, pending, onOpenChange, onConfirm }: Omit<MoveP
   const [stageId, setStageId] = useState(() => defaultStageId(pipeline, stageKindOf(deal)))
   const stages = pipeline?.stages.filter((stage) => stage.is_active) ?? []
   const stage = stages.find((item) => item.id === stageId)
-  const pipelineSelectId = useId()
-  const stageSelectId = useId()
 
   return (
     <form
@@ -71,10 +69,9 @@ function MovePipelineForm({ deal, pending, onOpenChange, onConfirm }: Omit<MoveP
         <p className="text-sm text-muted-foreground">{t('move.noTargets')}</p>
       ) : (
         <>
-          <div className="grid gap-2">
-            <Label htmlFor={pipelineSelectId}>{t('move.pipeline')}</Label>
-            <NativeSelect
-              id={pipelineSelectId}
+          <Field label={t('move.pipeline')}>
+            {(control) => <NativeSelect
+              {...control}
               value={pipelineId}
               onChange={(event) => {
                 const next = targets.find((item) => item.id === event.target.value)
@@ -88,12 +85,11 @@ function MovePipelineForm({ deal, pending, onOpenChange, onConfirm }: Omit<MoveP
                   {item.name}
                 </option>
               ))}
-            </NativeSelect>
-          </div>
-          <div className="grid gap-2">
-            <Label htmlFor={stageSelectId}>{t('move.stage')}</Label>
-            <NativeSelect
-              id={stageSelectId}
+            </NativeSelect>}
+          </Field>
+          <Field label={t('move.stage')}>
+            {(control) => <NativeSelect
+              {...control}
               value={stageId}
               onChange={(event) => setStageId(event.target.value)}
               className="h-9 w-full rounded-md border bg-background px-3 text-sm"
@@ -103,8 +99,8 @@ function MovePipelineForm({ deal, pending, onOpenChange, onConfirm }: Omit<MoveP
                   {item.name}
                 </option>
               ))}
-            </NativeSelect>
-          </div>
+            </NativeSelect>}
+          </Field>
         </>
       )}
       <DialogFooter>

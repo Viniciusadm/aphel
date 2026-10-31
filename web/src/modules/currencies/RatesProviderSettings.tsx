@@ -4,7 +4,6 @@ import { useTranslation } from 'react-i18next'
 import { useSession } from '@/app/session/session-context'
 import { Button } from '@/components/ui/button'
 import { Input } from '@/components/ui/input'
-import { Label } from '@/components/ui/label'
 import { toast } from '@/components/ui/toast-store'
 import { formatDateTime, useRecordFormatting } from '@/features/records/formatting'
 import { NativeSelect } from '@/features/records/filters/NativeSelect'
@@ -23,7 +22,6 @@ export function RatesProviderSettings({ settings }: { settings: CurrencySettings
   const canEdit = hasPermission(SETTINGS_MANAGE)
   const formatting = useRecordFormatting()
   const invalidate = useInvalidateCurrencies()
-  const selectId = useId()
   const urlId = useId()
   const [provider, setProvider] = useState<RatesProviderKey>(settings.provider.provider === 'frankfurter' ? 'frankfurter' : 'manual')
   const [url, setUrl] = useState(settings.provider.url ?? '')
@@ -89,10 +87,9 @@ export function RatesProviderSettings({ settings }: { settings: CurrencySettings
           void save()
         }}
       >
-        <div className="grid gap-2.5">
-          <Label htmlFor={selectId}>{t('provider.label')}</Label>
-          <NativeSelect
-            id={selectId}
+        <Field label={t('provider.label')}>
+          {(control) => <NativeSelect
+            {...control}
             value={provider}
             disabled={!canEdit || saving}
             onChange={(event) => setProvider(event.target.value as RatesProviderKey)}
@@ -102,8 +99,8 @@ export function RatesProviderSettings({ settings }: { settings: CurrencySettings
                 {key === 'manual' ? t('provider.options.manual') : t('provider.options.frankfurter')}
               </option>
             ))}
-          </NativeSelect>
-        </div>
+          </NativeSelect>}
+        </Field>
         {provider !== 'manual' && (
           <Field label={t('provider.urlLabel')} className="min-w-64 flex-1">
             {(control) => <Input

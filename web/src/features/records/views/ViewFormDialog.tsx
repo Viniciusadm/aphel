@@ -131,10 +131,9 @@ function ViewForm({ view, pending, onCancel, onSubmit }: ViewFormProps) {
         )}
         </>}
       </Field>
-      <div className="grid gap-2">
-        <Label htmlFor={ids.visibility}>{t('views.visibility.label')}</Label>
-        <NativeSelect
-          id={ids.visibility}
+      <Field label={t('views.visibility.label')}>
+        {(control) => <NativeSelect
+          {...control}
           value={visibility}
           onChange={(event) => setVisibility(event.target.value as ViewVisibility)}
         >
@@ -143,13 +142,13 @@ function ViewForm({ view, pending, onCancel, onSubmit }: ViewFormProps) {
               {t(`views.visibility.${option}`)}
             </option>
           ))}
-        </NativeSelect>
-      </div>
+        </NativeSelect>}
+      </Field>
       {visibility === 'team' && (
-        <div className="grid gap-2">
-          <Label htmlFor={ids.team}>{t('views.form.team')}</Label>
-          <NativeSelect
-            id={ids.team}
+        <Field label={t('views.form.team')}>
+          {(control) => <>
+            <NativeSelect
+            {...control}
             value={teamId}
             aria-invalid={submitted && Boolean(teamError)}
             onChange={(event) => setTeamId(event.target.value)}
@@ -165,7 +164,8 @@ function ViewForm({ view, pending, onCancel, onSubmit }: ViewFormProps) {
             <p className="text-sm text-muted-foreground">{t('views.form.noTeams')}</p>
           )}
           {submitted && teamError && <p className="text-sm text-destructive">{teamError}</p>}
-        </div>
+          </>}
+        </Field>
       )}
       {visibility === 'organization' && canManage && (
         <div className="flex items-start gap-2">

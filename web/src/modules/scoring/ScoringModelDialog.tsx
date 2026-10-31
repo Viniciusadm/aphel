@@ -13,7 +13,6 @@ import {
   DialogTitle,
 } from '@/components/ui/dialog'
 import { Input } from '@/components/ui/input'
-import { Label } from '@/components/ui/label'
 import { Textarea } from '@/components/ui/textarea'
 import { useFieldSchema } from '@/features/records/api'
 import { FilterBuilder, emptyGroup, serializeFilter } from '@/features/records/filters'
@@ -217,10 +216,10 @@ function ScoringModelForm({ model, hasPrimary, onOpenChange, onSaved }: FormProp
       </Field>
 
       <div className="grid min-w-0 gap-4 sm:grid-cols-2">
-        <div className="grid min-w-0 content-start gap-2">
-          <Label htmlFor={ids.recordType}>{t('dialog.recordType')}</Label>
-          <NativeSelect
-            id={ids.recordType}
+        <Field label={t('dialog.recordType')} className="min-w-0 content-start">
+          {(control) => <>
+            <NativeSelect
+            {...control}
             value={draft.recordType}
             disabled={!creating}
             onChange={(event) => changeRecordType(event.target.value)}
@@ -232,7 +231,8 @@ function ScoringModelForm({ model, hasPrimary, onOpenChange, onSaved }: FormProp
             ))}
           </NativeSelect>
           {fieldError('record_type')}
-        </div>
+          </>}
+        </Field>
         <div className="grid min-w-0 content-start gap-2 pt-1 sm:pt-7">
           <label htmlFor={ids.primary} className="flex items-center gap-2 text-sm">
             <Checkbox
@@ -456,10 +456,10 @@ function CriterionEditor({ criterion, index, total, schema, error, onChange, onM
         </div>
       ) : (
         <div className="grid min-w-0 gap-3 sm:grid-cols-3">
-          <div className="grid min-w-0 content-start gap-2.5">
-            <Label htmlFor={`${id}-signal`}>{t('dialog.signal')}</Label>
-            <NativeSelect
-              id={`${id}-signal`}
+          <Field label={t('dialog.signal')} className="min-w-0 content-start">
+            {(control) => <>
+              <NativeSelect
+              {...control}
               value={criterion.signal}
               onChange={(event) => onChange({ signal: event.target.value as ScoringSignal })}
             >
@@ -470,7 +470,8 @@ function CriterionEditor({ criterion, index, total, schema, error, onChange, onM
               ))}
             </NativeSelect>
             {error(path('signal'))}
-          </div>
+            </>}
+          </Field>
           <Field label={t('dialog.maxPoints')} className="min-w-0 content-start">
             {(control) => <>
               <Input placeholder={t('placeholders.maxPoints')}

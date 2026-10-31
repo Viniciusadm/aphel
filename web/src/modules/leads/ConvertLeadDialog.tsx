@@ -12,7 +12,6 @@ import {
   DialogTitle,
 } from '@/components/ui/dialog'
 import { Input } from '@/components/ui/input'
-import { Label } from '@/components/ui/label'
 import { toast } from '@/components/ui/toast-store'
 import { dealPath } from '@/modules/deals/resource'
 import { defaultPipeline, usePipelines } from '@/modules/pipelines/api'
@@ -102,10 +101,10 @@ function ConvertForm({ lead, onClose }: { lead: LeadTarget; onClose: () => void 
           void submit()
         }}
       >
-        <div className="grid gap-2.5">
-          <Label htmlFor={`${formId}-pipeline`}>{t('convert.pipeline')}</Label>
-          <NativeSelect
-            id={`${formId}-pipeline`}
+        <Field label={t('convert.pipeline')}>
+          {(control) => <>
+            <NativeSelect
+            {...control}
             value={pipelineId}
             disabled={pipelines.isPending}
             aria-invalid={pipelineError ? true : undefined}
@@ -123,11 +122,11 @@ function ConvertForm({ lead, onClose }: { lead: LeadTarget; onClose: () => void 
             ))}
           </NativeSelect>
           {pipelineError && <p className="text-sm text-destructive">{t('convert.pipelineRequired')}</p>}
-        </div>
-        <div className="grid gap-2.5">
-          <Label htmlFor={`${formId}-stage`}>{t('convert.stage')}</Label>
-          <NativeSelect
-            id={`${formId}-stage`}
+          </>}
+        </Field>
+        <Field label={t('convert.stage')}>
+          {(control) => <NativeSelect
+            {...control}
             value={stageId}
             disabled={!pipeline}
             onChange={(event) => setStageId(event.target.value)}
@@ -138,8 +137,8 @@ function ConvertForm({ lead, onClose }: { lead: LeadTarget; onClose: () => void 
                 {stage.name}
               </option>
             ))}
-          </NativeSelect>
-        </div>
+          </NativeSelect>}
+        </Field>
         <Field label={t('convert.dealTitle')}>
           {(control) => <Input placeholder={t('placeholders.dealTitle')}
             {...control}

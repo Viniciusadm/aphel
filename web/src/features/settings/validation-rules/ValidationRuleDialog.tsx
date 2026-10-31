@@ -238,9 +238,9 @@ function ValidationRuleForm({ recordType, rule, onOpenChange, onSaved }: FormPro
         </>}
       </Field>
       <div className="grid min-w-0 gap-4 sm:grid-cols-2">
-        <div className="grid min-w-0 gap-2">
-          <Label htmlFor={ids.field}>{t('dialog.field')}</Label>
-          <NativeSelect id={ids.field} value={field} onChange={(event) => setField(event.target.value)}>
+        <Field label={t('dialog.field')} className="min-w-0">
+          {(control) => <>
+            <NativeSelect {...control} value={field} onChange={(event) => setField(event.target.value)}>
             <option value="">{t('dialog.noField')}</option>
             {fields.map((item) => (
               <option key={item.key} value={item.key}>
@@ -250,11 +250,12 @@ function ValidationRuleForm({ recordType, rule, onOpenChange, onSaved }: FormPro
           </NativeSelect>
           <p className="text-xs text-muted-foreground">{t('dialog.fieldHint')}</p>
           {serverErrors.field && <p className="text-sm text-destructive">{serverErrors.field}</p>}
-        </div>
-        <div className="grid min-w-0 gap-2">
-          <Label htmlFor={ids.timing}>{t('dialog.timing')}</Label>
-          <NativeSelect
-            id={ids.timing}
+          </>}
+        </Field>
+        <Field label={t('dialog.timing')} className="min-w-0">
+          {(control) => <>
+            <NativeSelect
+            {...control}
             value={timing}
             onChange={(event) => setTiming(event.target.value as ValidationRuleTiming)}
           >
@@ -268,7 +269,8 @@ function ValidationRuleForm({ recordType, rule, onOpenChange, onSaved }: FormPro
             <Checkbox id={ids.active} checked={active} onCheckedChange={(value) => setActive(value === true)} />
             {t('dialog.active')}
           </label>
-        </div>
+          </>}
+        </Field>
       </div>
       <div className="grid min-w-0 gap-2">
         <Label htmlFor={ids.expression}>{t('dialog.expression')}</Label>

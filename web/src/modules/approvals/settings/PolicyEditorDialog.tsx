@@ -261,10 +261,10 @@ function PolicyForm({ policy, pipelineOfStage, onOpenChange }: PolicyFormProps) 
       </div>
 
       <div className="grid gap-3 sm:grid-cols-2">
-        <div className="grid gap-2.5">
-          <Label htmlFor={ids.recordType}>{t('form.recordType')}</Label>
-          <NativeSelect
-            id={ids.recordType}
+        <Field label={t('form.recordType')}>
+          {(control) => <>
+            <NativeSelect
+            {...control}
             value={draft.recordType}
             onChange={(event) => changeRecordType(event.target.value)}
           >
@@ -275,11 +275,12 @@ function PolicyForm({ policy, pipelineOfStage, onOpenChange }: PolicyFormProps) 
             ))}
           </NativeSelect>
           {fieldError('record_type')}
-        </div>
-        <div className="grid gap-2.5">
-          <Label htmlFor={ids.moment}>{t('form.moment')}</Label>
-          <NativeSelect
-            id={ids.moment}
+          </>}
+        </Field>
+        <Field label={t('form.moment')}>
+          {(control) => <>
+            <NativeSelect
+            {...control}
             value={draft.moment}
             onChange={(event) =>
               patch({
@@ -296,13 +297,13 @@ function PolicyForm({ policy, pipelineOfStage, onOpenChange }: PolicyFormProps) 
             ))}
           </NativeSelect>
           {fieldError('moment')}
-        </div>
+          </>}
+        </Field>
         {draft.moment === 'stage_change' && (
           <>
-            <div className="grid gap-2.5">
-              <Label htmlFor={ids.pipeline}>{t('form.pipeline')}</Label>
-              <NativeSelect
-                id={ids.pipeline}
+            <Field label={t('form.pipeline')}>
+              {(control) => <NativeSelect
+                {...control}
                 value={draft.pipelineId}
                 onChange={(event) => patch({ pipelineId: event.target.value, targetId: '' })}
               >
@@ -312,12 +313,12 @@ function PolicyForm({ policy, pipelineOfStage, onOpenChange }: PolicyFormProps) 
                     {item.name}
                   </option>
                 ))}
-              </NativeSelect>
-            </div>
-            <div className="grid gap-2.5">
-              <Label htmlFor={ids.stage}>{t('form.stage')}</Label>
-              <NativeSelect
-                id={ids.stage}
+              </NativeSelect>}
+            </Field>
+            <Field label={t('form.stage')}>
+              {(control) => <>
+                <NativeSelect
+                {...control}
                 value={draft.targetId}
                 disabled={!pipeline}
                 aria-invalid={errors.target_id ? true : undefined}
@@ -331,16 +332,17 @@ function PolicyForm({ policy, pipelineOfStage, onOpenChange }: PolicyFormProps) 
                 ))}
               </NativeSelect>
               {fieldError('target_id')}
-            </div>
+              </>}
+            </Field>
           </>
         )}
       </div>
 
       <div className="grid gap-3">
-        <div className="grid gap-2.5 sm:max-w-xs">
-          <Label htmlFor={ids.condition}>{t('form.condition')}</Label>
-          <NativeSelect
-            id={ids.condition}
+        <Field label={t('form.condition')} className="sm:max-w-xs">
+          {(control) => <>
+            <NativeSelect
+            {...control}
             value={draft.conditionKind}
             onChange={(event) => patch({ conditionKind: event.target.value as ConditionKind })}
           >
@@ -351,7 +353,8 @@ function PolicyForm({ policy, pipelineOfStage, onOpenChange }: PolicyFormProps) 
             ))}
           </NativeSelect>
           {fieldError('condition_kind')}
-        </div>
+          </>}
+        </Field>
         {draft.conditionKind === 'filter' &&
           (schema.data ? (
             <FilterBuilder schema={schema.data} value={draft.filter} onChange={(filter) => patch({ filter })} />

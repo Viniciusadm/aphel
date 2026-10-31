@@ -4,13 +4,13 @@ import { Link } from 'react-router'
 import { notifySuccess } from '@/components/feedback'
 import { Button } from '@/components/ui/button'
 import { Dialog, DialogContent, DialogDescription, DialogFooter, DialogHeader, DialogTitle } from '@/components/ui/dialog'
-import { Label } from '@/components/ui/label'
 import { useMailboxes } from '@/modules/email/api'
 import { MAILBOXES_PATH } from '@/modules/email/constants'
 import { NativeSelect } from '@/features/records/filters/NativeSelect'
 import { sequencesApi, useActiveSequences, useSequenceMutation } from '../api'
 import { SEQUENCES_PATH } from '../constants'
 import { sequenceErrorMessage } from '../lib/errors'
+import { Field } from '@/components/ui/field'
 
 export interface EnrollDialogProps {
   contactId: string
@@ -59,10 +59,10 @@ export function EnrollDialog({ contactId, enrolledSequenceIds, onClose }: Enroll
             if (sequenceId) void submit()
           }}
         >
-          <div className="grid gap-2.5">
-            <Label htmlFor={`${formId}-sequence`}>{t('record.sequence')}</Label>
-            <NativeSelect
-              id={`${formId}-sequence`}
+          <Field label={t('record.sequence')}>
+            {(control) => <>
+              <NativeSelect
+              {...control}
               value={sequenceId}
               disabled={sequences.isPending}
               onChange={(event) => setSequenceId(event.target.value)}
@@ -82,11 +82,12 @@ export function EnrollDialog({ contactId, enrolledSequenceIds, onClose }: Enroll
                 </Link>
               </p>
             )}
-          </div>
-          <div className="grid gap-2.5">
-            <Label htmlFor={`${formId}-mailbox`}>{t('record.mailbox')}</Label>
-            <NativeSelect
-              id={`${formId}-mailbox`}
+            </>}
+          </Field>
+          <Field label={t('record.mailbox')}>
+            {(control) => <>
+              <NativeSelect
+              {...control}
               value={mailboxId}
               disabled={mailboxes.isPending}
               onChange={(event) => setMailboxId(event.target.value)}
@@ -106,7 +107,8 @@ export function EnrollDialog({ contactId, enrolledSequenceIds, onClose }: Enroll
                 </Link>
               </p>
             )}
-          </div>
+            </>}
+          </Field>
           {failure && (
             <p role="alert" className="text-sm text-destructive">
               {failure}

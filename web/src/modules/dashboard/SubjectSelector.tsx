@@ -5,6 +5,7 @@ import { Label } from '@/components/ui/label'
 import { useDashboardSubjects } from './api'
 import type { DashboardSubject } from './types'
 import { NativeSelect } from '@/components/ui/native-select'
+import { Field } from '@/components/ui/field'
 
 const ALL = 'all'
 
@@ -26,7 +27,6 @@ export interface SubjectSelectorProps {
 
 export function SubjectSelector({ value, onChange }: SubjectSelectorProps) {
   const { t } = useTranslation('dashboard')
-  const id = useId()
   const subjects = useDashboardSubjects()
   const data = subjects.data
   const selected = subjectValue(value)
@@ -39,10 +39,9 @@ export function SubjectSelector({ value, onChange }: SubjectSelectorProps) {
     )
 
   return (
-    <div className="grid w-full min-w-0 gap-2.5 sm:w-auto">
-      <Label htmlFor={`${id}-subject`}>{t('subject.label')}</Label>
-      <NativeSelect
-        id={`${id}-subject`}
+    <Field label={t('subject.label')} className="w-full min-w-0 sm:w-auto">
+      {(control) => <NativeSelect
+        {...control}
         value={known ? selected : ALL}
         disabled={subjects.isPending}
         onChange={(event) => onChange(parseSubject(event.target.value))}
@@ -66,8 +65,8 @@ export function SubjectSelector({ value, onChange }: SubjectSelectorProps) {
             ))}
           </optgroup>
         )}
-      </NativeSelect>
-    </div>
+      </NativeSelect>}
+    </Field>
   )
 }
 

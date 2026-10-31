@@ -13,7 +13,6 @@ import {
   DialogTitle,
 } from '@/components/ui/dialog'
 import { Input } from '@/components/ui/input'
-import { Label } from '@/components/ui/label'
 import {
   isCustomRecordType,
   notifyObjectsError,
@@ -219,10 +218,9 @@ function RelationshipForm({ relationship, recordType, onClose, onSaved }: Relati
           </Alert>
         )}
         <div className="grid gap-4 sm:grid-cols-2">
-          <div className="grid gap-2.5">
-            <Label htmlFor={`${formId}-from`}>{t('relationships.from')}</Label>
-            <NativeSelect
-              id={`${formId}-from`}
+          <Field label={t('relationships.from')}>
+            {(control) => <NativeSelect
+              {...control}
               value={fromType}
               disabled={editing}
               aria-describedby={describedBy('types')}
@@ -236,12 +234,11 @@ function RelationshipForm({ relationship, recordType, onClose, onSaved }: Relati
                   {option.singular}
                 </option>
               ))}
-            </NativeSelect>
-          </div>
-          <div className="grid gap-2.5">
-            <Label htmlFor={`${formId}-to`}>{t('relationships.to')}</Label>
-            <NativeSelect
-              id={`${formId}-to`}
+            </NativeSelect>}
+          </Field>
+          <Field label={t('relationships.to')}>
+            {(control) => <NativeSelect
+              {...control}
               value={toType}
               disabled={editing}
               aria-describedby={describedBy('types')}
@@ -253,8 +250,8 @@ function RelationshipForm({ relationship, recordType, onClose, onSaved }: Relati
                   {option.singular}
                 </option>
               ))}
-            </NativeSelect>
-          </div>
+            </NativeSelect>}
+          </Field>
         </div>
         {errorText('types')}
         <fieldset className="grid gap-2" disabled={editing}>
@@ -375,10 +372,9 @@ function RelationshipForm({ relationship, recordType, onClose, onSaved }: Relati
             </span>
           </span>
         </label>
-        <div className="grid gap-2.5">
-          <Label htmlFor={`${formId}-on-delete`}>{t('relationships.onDelete', { type: fromName })}</Label>
-          <NativeSelect
-            id={`${formId}-on-delete`}
+        <Field label={t('relationships.onDelete', { type: fromName })}>
+          {(control) => <NativeSelect
+            {...control}
             value={onDelete}
             onChange={(event) => setOnDelete(event.target.value as RelationshipOnDelete)}
           >
@@ -387,8 +383,8 @@ function RelationshipForm({ relationship, recordType, onClose, onSaved }: Relati
                 {t(`relationships.onDeleteOptions.${value}`, { from: fromName, toPlural })}
               </option>
             ))}
-          </NativeSelect>
-        </div>
+          </NativeSelect>}
+        </Field>
       </form>
       <DialogFooter>
         <Button variant="outline" onClick={onClose} disabled={saving}>

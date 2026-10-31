@@ -334,10 +334,9 @@ function ReportEditor({ report }: { report: Report | null }) {
               />}
             </Field>
             <div className="grid gap-3 sm:grid-cols-2 lg:grid-cols-1 xl:grid-cols-2">
-              <div className="grid gap-2.5">
-                <Label htmlFor={ids.visibility}>{t('sections.details.visibility')}</Label>
-                <NativeSelect
-                  id={ids.visibility}
+              <Field label={t('sections.details.visibility')}>
+                {(control) => <NativeSelect
+                  {...control}
                   value={draft.visibility}
                   onChange={(event) => update({ visibility: event.target.value as ReportDraft['visibility'] })}
                 >
@@ -346,12 +345,12 @@ function ReportEditor({ report }: { report: Report | null }) {
                       {t(`visibility.${visibility}`)}
                     </option>
                   ))}
-                </NativeSelect>
-              </div>
+                </NativeSelect>}
+              </Field>
               {draft.visibility === 'team' && (
-                <div className="grid gap-2.5">
-                  <Label htmlFor={ids.team}>{t('sections.details.team')}</Label>
-                  <NativeSelect id={ids.team} value={draft.teamId} onChange={(event) => update({ teamId: event.target.value })}>
+                <Field label={t('sections.details.team')}>
+                  {(control) => <>
+                    <NativeSelect {...control} value={draft.teamId} onChange={(event) => update({ teamId: event.target.value })}>
                     <option value="">{t('common.choose')}</option>
                     {teamOptions.map((team) => (
                       <option key={team.id} value={team.id}>
@@ -360,7 +359,8 @@ function ReportEditor({ report }: { report: Report | null }) {
                     ))}
                   </NativeSelect>
                   {submitted && teamError && <p className="text-sm text-destructive">{teamError}</p>}
-                </div>
+                  </>}
+                </Field>
               )}
             </div>
           </Section>

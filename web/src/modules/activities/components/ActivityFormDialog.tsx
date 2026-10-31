@@ -191,9 +191,9 @@ export function ActivityFormDialog({
             </>}
           </Field>
           <div className="grid gap-4 sm:grid-cols-2">
-            <div className="grid gap-2.5">
-              <Label htmlFor={ids.type}>{t('form.type')}</Label>
-              <NativeSelect id={ids.type} {...register('activity_type_id')} disabled={types.isPending}>
+            <Field label={t('form.type')}>
+              {(control) => <>
+                <NativeSelect {...control} {...register('activity_type_id')} disabled={types.isPending}>
                 {activeTypes.map((type) => (
                   <option key={type.id} value={type.id}>
                     {type.name}
@@ -204,17 +204,17 @@ export function ActivityFormDialog({
                 id={`${ids.type}-error`}
                 message={errors.activity_type_id ? t('form.typeRequired') : undefined}
               />
-            </div>
-            <div className="grid gap-2.5">
-              <Label htmlFor={ids.priority}>{t('form.priority')}</Label>
-              <NativeSelect id={ids.priority} {...register('priority')}>
+              </>}
+            </Field>
+            <Field label={t('form.priority')}>
+              {(control) => <NativeSelect {...control} {...register('priority')}>
                 {ACTIVITY_PRIORITIES.map((priority: ActivityPriority) => (
                   <option key={priority} value={priority}>
                     {t(`priority.${priority}`)}
                   </option>
                 ))}
-              </NativeSelect>
-            </div>
+              </NativeSelect>}
+            </Field>
           </div>
           <div className="grid gap-2.5">
             <Label htmlFor={ids.when}>{t(mode === 'log' ? 'form.completedAt' : 'form.dueAt')}</Label>

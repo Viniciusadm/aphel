@@ -1,6 +1,6 @@
 import { SegmentedControl } from '@/components/ui/segmented-control'
 import { ShieldCheck } from 'lucide-react'
-import { useId, useMemo, useState, type FormEvent } from 'react'
+import { useMemo, useState, type FormEvent } from 'react'
 import { useTranslation } from 'react-i18next'
 import { useSearchParams } from 'react-router'
 import { isApiError } from '@/api'
@@ -9,7 +9,6 @@ import { Button } from '@/components/ui/button'
 import { EmptyState } from '@/components/ui/empty-state'
 import { ErrorState } from '@/components/ui/error-state'
 import { Input } from '@/components/ui/input'
-import { Label } from '@/components/ui/label'
 import { ListSkeleton } from '@/features/settings/components/ListSkeleton'
 import { Pagination } from '@/components/ui/pagination'
 import { USERS_MANAGE } from '@/features/settings/lib/permissions'
@@ -213,7 +212,6 @@ interface FiltersFormProps {
 
 function FiltersForm({ filters, onApply }: FiltersFormProps) {
   const { t } = useTranslation('security')
-  const id = useId()
   const [draft, setDraft] = useState(filters)
 
   const submit = (event: FormEvent) => {
@@ -233,10 +231,9 @@ function FiltersForm({ filters, onApply }: FiltersFormProps) {
       aria-label={t('log.filters.label')}
       className="grid gap-3 rounded-lg border p-4 sm:grid-cols-3"
     >
-      <div className="grid gap-2.5">
-        <Label htmlFor={`${id}-kind`}>{t('log.filters.kind')}</Label>
-        <NativeSelect
-          id={`${id}-kind`}
+      <Field label={t('log.filters.kind')}>
+        {(control) => <NativeSelect
+          {...control}
           value={draft.kind}
           onChange={(event) => setDraft((current) => ({ ...current, kind: event.target.value as SecurityEventKind | '' }))}
         >
@@ -246,8 +243,8 @@ function FiltersForm({ filters, onApply }: FiltersFormProps) {
               {t(`kinds.${kind}`)}
             </option>
           ))}
-        </NativeSelect>
-      </div>
+        </NativeSelect>}
+      </Field>
       <Field label={t('log.filters.from')}>
         {(control) => <Input
           {...control}

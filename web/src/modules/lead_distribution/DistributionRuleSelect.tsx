@@ -1,13 +1,11 @@
-import { useId } from 'react'
 import { useTranslation } from 'react-i18next'
-import { Label } from '@/components/ui/label'
 import { NativeSelect } from '@/features/records/filters/NativeSelect'
 import { useDistributionRules } from './api'
 import type { DistributionRuleSelectProps } from './slots'
+import { Field } from '@/components/ui/field'
 
 export function DistributionRuleSelect({ recordType, value, onChange, disabled }: DistributionRuleSelectProps) {
   const { t } = useTranslation('lead_distribution')
-  const id = useId()
   const rules = useDistributionRules()
   const options = (rules.data ?? []).filter(
     (rule) => rule.record_type === recordType && (rule.is_active || rule.id === value),
@@ -15,10 +13,10 @@ export function DistributionRuleSelect({ recordType, value, onChange, disabled }
   const unknown = value && rules.isSuccess && !options.some((rule) => rule.id === value)
 
   return (
-    <div className="grid gap-2.5">
-      <Label htmlFor={id}>{t('ruleSelect.label')}</Label>
-      <NativeSelect
-        id={id}
+    <Field label={t('ruleSelect.label')}>
+      {(control) => <>
+        <NativeSelect
+        {...control}
         value={value ?? ''}
         disabled={disabled || rules.isPending}
         onChange={(event) => onChange(event.target.value || null)}
@@ -34,6 +32,7 @@ export function DistributionRuleSelect({ recordType, value, onChange, disabled }
       <p className="text-xs text-muted-foreground">
         {rules.isSuccess && options.length === 0 ? t('ruleSelect.empty') : t('ruleSelect.hint')}
       </p>
-    </div>
+      </>}
+    </Field>
   )
 }

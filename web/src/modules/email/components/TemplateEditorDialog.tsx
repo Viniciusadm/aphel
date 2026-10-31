@@ -13,7 +13,6 @@ import {
   DialogTitle,
 } from '@/components/ui/dialog'
 import { Input } from '@/components/ui/input'
-import { Label } from '@/components/ui/label'
 import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs'
 import { Textarea } from '@/components/ui/textarea'
 import { NativeSelect } from '@/features/records/filters/NativeSelect'
@@ -200,10 +199,9 @@ function TemplateForm({ scope, template, onDirtyChange, onCancel, onSaved }: Tem
           </>}
         </Field>
       </div>
-      <div className="grid content-start gap-2.5">
-        <Label htmlFor={`${formId}-record-type`}>{t('templates.recordType')}</Label>
-        <NativeSelect
-          id={`${formId}-record-type`}
+      <Field label={t('templates.recordType')} className="content-start">
+        {(control) => <NativeSelect
+          {...control}
           value={input.record_type ?? ''}
           onChange={(event) => update({ record_type: event.target.value || null })}
         >
@@ -213,8 +211,8 @@ function TemplateForm({ scope, template, onDirtyChange, onCancel, onSaved }: Tem
               {option.label}
             </option>
           ))}
-        </NativeSelect>
-      </div>
+        </NativeSelect>}
+      </Field>
       <Tabs value={tab} onValueChange={showPreview} className="grid gap-3">
         <div className="flex flex-wrap items-center justify-between gap-2">
           <TabsList>

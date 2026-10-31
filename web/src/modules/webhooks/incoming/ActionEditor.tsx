@@ -5,13 +5,13 @@ import { useTranslation } from 'react-i18next'
 import { localizeViolationMessage } from '@/api'
 import { Button } from '@/components/ui/button'
 import { Input } from '@/components/ui/input'
-import { Label } from '@/components/ui/label'
 import { useActivityTypes } from '@/modules/activities/api'
 import { usePipelines } from '@/modules/pipelines/api'
 import { NativeSelect } from '@/features/records/filters/NativeSelect'
 import { Slot } from '@/kernel/modules/Slot'
 import type { ActionTarget, MatchableField } from './api'
 import type { WebhookFormValues } from './form'
+import { Field } from '@/components/ui/field'
 
 interface ActionEditorProps {
   index: number
@@ -89,22 +89,21 @@ export function ActionEditor({ index, total, target, onMove, onRemove }: ActionE
       <p className="text-xs text-muted-foreground">{t(`actionHelp.${type}`)}</p>
 
       {type === 'upsert_contact' && (
-        <div className="grid gap-2.5">
-          <Label htmlFor={`${id}-match`}>{t('actions.matchBy')}</Label>
-          <NativeSelect id={`${id}-match`} {...register(`actions.${index}.match_by`)}>
+        <Field label={t('actions.matchBy')}>
+          {(control) => <NativeSelect {...control} {...register(`actions.${index}.match_by`)}>
             <option value="email">{t('actions.matchEmail')}</option>
             <option value="phone">{t('actions.matchPhone')}</option>
             <option value="field">{t('actions.matchField')}</option>
             <option value="none">{t('actions.matchNone')}</option>
-          </NativeSelect>
-        </div>
+          </NativeSelect>}
+        </Field>
       )}
 
       {type === 'upsert_contact' && matchBy === 'field' && (
-        <div className="grid gap-2.5">
-          <Label htmlFor={`${id}-match-field`}>{t('actions.matchFieldLabel')}</Label>
-          <NativeSelect
-            id={`${id}-match-field`}
+        <Field label={t('actions.matchFieldLabel')}>
+          {(control) => <>
+            <NativeSelect
+            {...control}
             aria-invalid={errors?.match_field ? true : undefined}
             aria-describedby={errors?.match_field ? `${id}-match-field-error` : undefined}
             {...register(`actions.${index}.match_field`)}
@@ -118,15 +117,16 @@ export function ActionEditor({ index, total, target, onMove, onRemove }: ActionE
           </NativeSelect>
           {uniqueFields.length === 0 && <p className="text-xs text-muted-foreground">{t('actions.noUniqueFields')}</p>}
           <ErrorText id={`${id}-match-field-error`} message={errors?.match_field?.message} />
-        </div>
+          </>}
+        </Field>
       )}
 
       {type === 'create_deal' && (
         <div className="grid gap-3 sm:grid-cols-2">
-          <div className="grid gap-2.5">
-            <Label htmlFor={`${id}-pipeline`}>{t('actions.pipeline')}</Label>
-            <NativeSelect
-              id={`${id}-pipeline`}
+          <Field label={t('actions.pipeline')}>
+            {(control) => <>
+              <NativeSelect
+              {...control}
               aria-invalid={errors?.pipeline_id ? true : undefined}
               {...register(`actions.${index}.pipeline_id`, {
                 onChange: () => setValue(`actions.${index}.stage_id`, ''),
@@ -142,11 +142,12 @@ export function ActionEditor({ index, total, target, onMove, onRemove }: ActionE
                 ))}
             </NativeSelect>
             <ErrorText id={`${id}-pipeline-error`} message={errors?.pipeline_id?.message} />
-          </div>
-          <div className="grid gap-2.5">
-            <Label htmlFor={`${id}-stage`}>{t('actions.stage')}</Label>
-            <NativeSelect
-              id={`${id}-stage`}
+            </>}
+          </Field>
+          <Field label={t('actions.stage')}>
+            {(control) => <>
+              <NativeSelect
+              {...control}
               aria-invalid={errors?.stage_id ? true : undefined}
               {...register(`actions.${index}.stage_id`)}
             >
@@ -158,7 +159,8 @@ export function ActionEditor({ index, total, target, onMove, onRemove }: ActionE
               ))}
             </NativeSelect>
             <ErrorText id={`${id}-stage-error`} message={errors?.stage_id?.message} />
-          </div>
+            </>}
+          </Field>
         </div>
       )}
 
@@ -175,10 +177,10 @@ export function ActionEditor({ index, total, target, onMove, onRemove }: ActionE
       )}
 
       {type === 'create_activity' && (
-        <div className="grid gap-2.5">
-          <Label htmlFor={`${id}-activity-type`}>{t('actions.activityType')}</Label>
-          <NativeSelect
-            id={`${id}-activity-type`}
+        <Field label={t('actions.activityType')}>
+          {(control) => <>
+            <NativeSelect
+            {...control}
             aria-invalid={errors?.activity_type_id ? true : undefined}
             {...register(`actions.${index}.activity_type_id`)}
           >
@@ -192,7 +194,8 @@ export function ActionEditor({ index, total, target, onMove, onRemove }: ActionE
               ))}
           </NativeSelect>
           <ErrorText id={`${id}-activity-type-error`} message={errors?.activity_type_id?.message} />
-        </div>
+          </>}
+        </Field>
       )}
 
       <fieldset className="grid gap-2">

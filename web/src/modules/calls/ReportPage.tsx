@@ -1,12 +1,11 @@
 import { keepPreviousData, useQuery } from '@tanstack/react-query'
 import { BarChart3 } from 'lucide-react'
-import { useId, useMemo, useState } from 'react'
+import { useMemo, useState } from 'react'
 import { useTranslation } from 'react-i18next'
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card'
 import { EmptyState } from '@/components/ui/empty-state'
 import { ErrorState } from '@/components/ui/error-state'
 import { Input } from '@/components/ui/input'
-import { Label } from '@/components/ui/label'
 import { Skeleton } from '@/components/ui/skeleton'
 import { NativeSelect } from '@/features/records/filters/NativeSelect'
 import { callsApi, callsKeys } from './api'
@@ -35,7 +34,6 @@ function rate(connected: number, calls: number): string {
 
 export function ReportPage() {
   const { t } = useTranslation('calls')
-  const formId = useId()
   const [range, setRange] = useState(defaultRange)
   const [owner, setOwner] = useState<'all' | 'me'>('all')
   const query: CallReportQuery = useMemo(
@@ -68,17 +66,16 @@ export function ReportPage() {
             onChange={(event) => setRange((current) => ({ ...current, to: event.target.value }))}
           />}
         </Field>
-        <div className="grid gap-2.5">
-          <Label htmlFor={`${formId}-owner`}>{t('report.owner')}</Label>
-          <NativeSelect
-            id={`${formId}-owner`}
+        <Field label={t('report.owner')}>
+          {(control) => <NativeSelect
+            {...control}
             value={owner}
             onChange={(event) => setOwner(event.target.value === 'me' ? 'me' : 'all')}
           >
             <option value="all">{t('report.everyone')}</option>
             <option value="me">{t('report.mine')}</option>
-          </NativeSelect>
-        </div>
+          </NativeSelect>}
+        </Field>
       </div>
       {report.isPending ? (
         <div className="grid gap-2" aria-busy="true">

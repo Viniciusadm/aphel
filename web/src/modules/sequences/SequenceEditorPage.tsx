@@ -12,7 +12,6 @@ import { Checkbox } from '@/components/ui/checkbox'
 import { EmptyState } from '@/components/ui/empty-state'
 import { ErrorState } from '@/components/ui/error-state'
 import { Input } from '@/components/ui/input'
-import { Label } from '@/components/ui/label'
 import { Skeleton } from '@/components/ui/skeleton'
 import { Textarea } from '@/components/ui/textarea'
 import { useEmailTemplates } from '@/modules/email/api'
@@ -256,16 +255,15 @@ function StepsEditor({ control, register, errors, formId }: StepsEditorProps) {
                 <span className="flex size-7 shrink-0 items-center justify-center rounded-full bg-muted text-sm font-medium tabular-nums">
                   {index + 1}
                 </span>
-                <div className="grid min-w-48 flex-1 gap-2.5">
-                  <Label htmlFor={`${prefix}-kind`}>{t('editor.kind')}</Label>
-                  <NativeSelect id={`${prefix}-kind`} {...register(`steps.${index}.kind`)}>
+                <Field label={t('editor.kind')} className="min-w-48 flex-1">
+                  {(control) => <NativeSelect {...control} {...register(`steps.${index}.kind`)}>
                     {STEP_KINDS.map((option) => (
                       <option key={option} value={option}>
                         {t(`stepKinds.${option}`)}
                       </option>
                     ))}
-                  </NativeSelect>
-                </div>
+                  </NativeSelect>}
+                </Field>
                 <div className="flex gap-1">
                   <Button
                     type="button"
@@ -331,9 +329,9 @@ function StepsEditor({ control, register, errors, formId }: StepsEditorProps) {
               )}
               {isEmailKind(kind) && (
                 <>
-                  <div className="grid gap-2.5">
-                    <Label htmlFor={`${prefix}-template`}>{t('editor.template')}</Label>
-                    <NativeSelect id={`${prefix}-template`} disabled={templates.isPending} {...register(`steps.${index}.templateId`)}>
+                  <Field label={t('editor.template')}>
+                    {(control) => <>
+                      <NativeSelect {...control} disabled={templates.isPending} {...register(`steps.${index}.templateId`)}>
                       <option value="">{t('editor.noTemplate')}</option>
                       {organizationTemplates.map((template) => (
                         <option key={template.id} value={template.id}>
@@ -342,7 +340,8 @@ function StepsEditor({ control, register, errors, formId }: StepsEditorProps) {
                       ))}
                     </NativeSelect>
                     <p className="text-xs text-muted-foreground">{t('editor.templateHint')}</p>
-                  </div>
+                    </>}
+                  </Field>
                   <Field label={t('editor.subject')}>
                     {(control) => <>
                       <Input placeholder={t('placeholders.subject')}

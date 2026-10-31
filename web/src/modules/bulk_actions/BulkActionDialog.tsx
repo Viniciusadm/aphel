@@ -32,6 +32,7 @@ import {
 } from './api'
 import { BulkResult } from './BulkResult'
 import { bulkEditableFields } from './fields'
+import { Field } from '@/components/ui/field'
 
 export type BulkActionKind =
   | 'assign_owner'
@@ -123,10 +124,10 @@ export function BulkActionDialog({ kind, context, recordType, onClose }: BulkAct
             {kind === 'move_stage' && <StageForm onChange={setDraft} />}
             {kind === 'enroll_in_sequence' && <SequenceForm onChange={setDraft} />}
             {kind === 'export' && (
-              <div className="grid gap-2.5">
-                <Label htmlFor={`${formId}-format`}>{t('export.format')}</Label>
-                <NativeSelect
-                  id={`${formId}-format`}
+              <Field label={t('export.format')}>
+                {(control) => <>
+                  <NativeSelect
+                  {...control}
                   value={format}
                   onChange={(event) => setFormat(event.target.value as BulkExportFormat)}
                 >
@@ -138,7 +139,8 @@ export function BulkActionDialog({ kind, context, recordType, onClose }: BulkAct
                     {t('export.tooMany', { max: MAX_EXPORT_IDS })}
                   </p>
                 )}
-              </div>
+                </>}
+              </Field>
             )}
             {(kind === 'archive' || kind === 'unarchive' || kind === 'delete') && (
               <p className="text-sm text-muted-foreground">{t(`confirm.${kind}`, { count })}</p>
@@ -176,14 +178,12 @@ interface DraftFormProps {
 
 function OwnerForm({ onChange }: DraftFormProps) {
   const { t } = useTranslation('bulk_actions')
-  const id = useId()
   const users = useOrganizationUsers()
   const [ownerId, setOwnerId] = useState('')
   return (
-    <div className="grid gap-2.5">
-      <Label htmlFor={id}>{t('owner.label')}</Label>
-      <NativeSelect
-        id={id}
+    <Field label={t('owner.label')}>
+      {(control) => <NativeSelect
+        {...control}
         value={ownerId}
         disabled={users.isPending}
         onChange={(event) => {
@@ -197,8 +197,8 @@ function OwnerForm({ onChange }: DraftFormProps) {
             {user.display_name}
           </option>
         ))}
-      </NativeSelect>
-    </div>
+      </NativeSelect>}
+    </Field>
   )
 }
 
@@ -233,10 +233,10 @@ function TagsForm({ recordType, onChange }: DraftFormProps & { recordType: BulkR
       </fieldset>
       <ReferenceOptions kind="tag" context={{ recordType }}>
         {({ options, isLoading }) => (
-          <div className="grid gap-2.5">
-            <Label htmlFor={id}>{t('tags.label')}</Label>
-            <NativeSelect
-              id={id}
+          <Field label={t('tags.label')}>
+            {(control) => <>
+              <NativeSelect
+              {...control}
               value={tagId}
               disabled={isLoading}
               onChange={(event) => {
@@ -252,7 +252,8 @@ function TagsForm({ recordType, onChange }: DraftFormProps & { recordType: BulkR
               ))}
             </NativeSelect>
             {!isLoading && options.length === 0 && <p className="text-xs text-muted-foreground">{t('tags.empty')}</p>}
-          </div>
+            </>}
+          </Field>
         )}
       </ReferenceOptions>
     </>
@@ -271,10 +272,9 @@ function FieldForm({ recordType, onChange }: DraftFormProps & { recordType: Bulk
     onChange(key ? { action: 'set_field', field: key, value: next ?? null } : null)
   return (
     <>
-      <div className="grid gap-2.5">
-        <Label htmlFor={id}>{t('field.label')}</Label>
-        <NativeSelect
-          id={id}
+      <Field label={t('field.label')}>
+        {(control) => <NativeSelect
+          {...control}
           value={fieldKey}
           disabled={schema.isPending}
           onChange={(event) => {
@@ -289,8 +289,8 @@ function FieldForm({ recordType, onChange }: DraftFormProps & { recordType: Bulk
               {candidate.label}
             </option>
           ))}
-        </NativeSelect>
-      </div>
+        </NativeSelect>}
+      </Field>
       {field && (
         <div className="grid gap-2.5">
           <Label htmlFor={`${id}-value`}>{t('field.value')}</Label>
@@ -349,15 +349,14 @@ function StageForm({ onChange }: DraftFormProps) {
 
 function SequenceForm({ onChange }: DraftFormProps) {
   const { t } = useTranslation('bulk_actions')
-  const id = useId()
   const [sequenceId, setSequenceId] = useState('')
   return (
     <ReferenceOptions kind="sequence">
       {({ options, isLoading }) => (
-        <div className="grid gap-2.5">
-          <Label htmlFor={id}>{t('sequence.label')}</Label>
-          <NativeSelect
-            id={id}
+        <Field label={t('sequence.label')}>
+          {(control) => <>
+            <NativeSelect
+            {...control}
             value={sequenceId}
             disabled={isLoading}
             onChange={(event) => {
@@ -374,7 +373,8 @@ function SequenceForm({ onChange }: DraftFormProps) {
           </NativeSelect>
           {!isLoading && options.length === 0 && <p className="text-xs text-muted-foreground">{t('sequence.empty')}</p>}
           <p className="text-xs text-muted-foreground">{t('sequence.hint')}</p>
-        </div>
+          </>}
+        </Field>
       )}
     </ReferenceOptions>
   )

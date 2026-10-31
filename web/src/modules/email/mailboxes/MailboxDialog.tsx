@@ -219,7 +219,6 @@ function MailboxForm({ mode, onDirtyChange, onCancel, onDone }: MailboxFormProps
         <>
           <ServerFields
             kind="imap"
-            formId={formId}
             values={values}
             submitted={submitted}
             errors={errors}
@@ -228,7 +227,6 @@ function MailboxForm({ mode, onDirtyChange, onCancel, onDone }: MailboxFormProps
           />
           <ServerFields
             kind="smtp"
-            formId={formId}
             values={values}
             submitted={submitted}
             errors={errors}
@@ -296,7 +294,6 @@ function MailboxForm({ mode, onDirtyChange, onCancel, onDone }: MailboxFormProps
 
 interface ServerFieldsProps {
   kind: 'imap' | 'smtp'
-  formId: string
   values: MailboxFormValues
   submitted: boolean
   errors: ReturnType<typeof mailboxFormErrors>
@@ -304,12 +301,11 @@ interface ServerFieldsProps {
   onSecurityChange: (security: MailSecurity) => void
 }
 
-function ServerFields({ kind, formId, values, submitted, errors, onChange, onSecurityChange }: ServerFieldsProps) {
+function ServerFields({ kind, values, submitted, errors, onChange, onSecurityChange }: ServerFieldsProps) {
   const { t } = useTranslation('email')
   const hostKey = kind === 'imap' ? 'imap_host' : 'smtp_host'
   const portKey = kind === 'imap' ? 'imap_port' : 'smtp_port'
   const securityKey = kind === 'imap' ? 'imap_security' : 'smtp_security'
-  const prefix = `${formId}-${kind}`
   return (
     <fieldset className="grid gap-4 sm:grid-cols-[minmax(0,1fr)_7rem_9rem]">
       <legend className="mb-2 text-sm font-medium">{t(`mailboxes.form.${kind}Legend`)}</legend>
@@ -342,10 +338,9 @@ function ServerFields({ kind, formId, values, submitted, errors, onChange, onSec
         {submitted && errors[portKey] && <p className="text-sm text-destructive">{t('mailboxes.form.portInvalid')}</p>}
         </>}
       </Field>
-      <div className="grid content-start gap-2.5">
-        <Label htmlFor={`${prefix}-security`}>{t('mailboxes.form.security')}</Label>
-        <NativeSelect
-          id={`${prefix}-security`}
+      <Field label={t('mailboxes.form.security')} className="content-start">
+        {(control) => <NativeSelect
+          {...control}
           value={values[securityKey]}
           onChange={(event) => onSecurityChange(event.target.value as MailSecurity)}
         >
@@ -354,8 +349,8 @@ function ServerFields({ kind, formId, values, submitted, errors, onChange, onSec
               {t(`mailboxes.security.${security}`)}
             </option>
           ))}
-        </NativeSelect>
-      </div>
+        </NativeSelect>}
+      </Field>
     </fieldset>
   )
 }

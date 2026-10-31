@@ -19,6 +19,7 @@ import { StepTimeline } from '../components/StepTimeline'
 import { useStepSummary } from '../editor/summary'
 import { useAutomationLabels } from '../lib/labels'
 import { RUN_STATUSES, type Automation, type AutomationCatalog, type AutomationRunDetails, type RunStatus, type StepSpec } from '../types'
+import { Field } from '@/components/ui/field'
 
 export interface RunsPanelProps {
   automation: Automation
@@ -29,7 +30,6 @@ export interface RunsPanelProps {
 
 export function RunsPanel({ automation, catalog, schema, draftSteps }: RunsPanelProps) {
   const { t } = useTranslation('automations')
-  const statusId = useId()
   const recordId = useId()
   const formatting = useRecordFormatting()
   const labels = useAutomationLabels(catalog)
@@ -95,10 +95,9 @@ export function RunsPanel({ automation, catalog, schema, draftSteps }: RunsPanel
   return (
     <div className="grid gap-4">
       <div className="flex flex-wrap items-end gap-3">
-        <div className="grid gap-2.5">
-          <Label htmlFor={statusId}>{t('runs.status')}</Label>
-          <NativeSelect
-            id={statusId}
+        <Field label={t('runs.status')}>
+          {(control) => <NativeSelect
+            {...control}
             value={status}
             onChange={(event) => {
               setStatus(event.target.value as RunStatus | '')
@@ -112,8 +111,8 @@ export function RunsPanel({ automation, catalog, schema, draftSteps }: RunsPanel
                 {t(`runStatus.${item}`)}
               </option>
             ))}
-          </NativeSelect>
-        </div>
+          </NativeSelect>}
+        </Field>
         <div className="grid min-w-0 flex-1 gap-2.5 sm:max-w-xs">
           <Label htmlFor={recordId}>{t('runs.record')}</Label>
           <RecordFieldInput

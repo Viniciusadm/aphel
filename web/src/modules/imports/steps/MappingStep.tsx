@@ -21,6 +21,7 @@ import {
 import { acceptsMultiple, delimiterLabel, duplicateKeysFor, missingRequired, supportsCompanyCreation } from '../mapping'
 import { ValidationReport } from './ValidationReport'
 import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from '@/components/ui/table'
+import { Field } from '@/components/ui/field'
 
 const STRATEGIES: DuplicateStrategy[] = ['skip', 'update', 'create']
 
@@ -36,8 +37,6 @@ export function MappingStep({ job }: MappingStepProps) {
   const configure = useConfigureImport(job.id)
   const validate = useValidateImport(job.id)
   const start = useStartImport(job.id)
-  const keyId = useId()
-  const strategyId = useId()
   const companiesId = useId()
 
   const missing = useMemo(
@@ -138,10 +137,9 @@ export function MappingStep({ job }: MappingStepProps) {
           <CardTitle>{t('mapping.options')}</CardTitle>
         </CardHeader>
         <CardContent className="grid gap-4 sm:grid-cols-2">
-          <div className="grid gap-2">
-            <Label htmlFor={keyId}>{t('mapping.duplicateKey')}</Label>
-            <NativeSelect
-              id={keyId}
+          <Field label={t('mapping.duplicateKey')}>
+            {(control) => <NativeSelect
+              {...control}
               value={options.duplicate_key}
               onChange={(event) => changeOptions({ duplicate_key: event.target.value as DuplicateKey })}
             >
@@ -150,12 +148,11 @@ export function MappingStep({ job }: MappingStepProps) {
                   {t(`mapping.keys.${key}`)}
                 </option>
               ))}
-            </NativeSelect>
-          </div>
-          <div className="grid gap-2">
-            <Label htmlFor={strategyId}>{t('mapping.duplicateStrategy')}</Label>
-            <NativeSelect
-              id={strategyId}
+            </NativeSelect>}
+          </Field>
+          <Field label={t('mapping.duplicateStrategy')}>
+            {(control) => <NativeSelect
+              {...control}
               value={options.duplicate_strategy}
               disabled={options.duplicate_key === 'none'}
               onChange={(event) =>
@@ -167,8 +164,8 @@ export function MappingStep({ job }: MappingStepProps) {
                   {t(`mapping.strategies.${strategy}`)}
                 </option>
               ))}
-            </NativeSelect>
-          </div>
+            </NativeSelect>}
+          </Field>
           {supportsCompanyCreation(job.record_type, job.targets) && (
             <div className="flex items-center gap-2 sm:col-span-2">
               <Checkbox

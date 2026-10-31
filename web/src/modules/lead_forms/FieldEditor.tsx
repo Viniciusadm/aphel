@@ -2,7 +2,6 @@ import { ArrowDown, ArrowUp, Trash2 } from 'lucide-react'
 import { Controller, useFormContext, useWatch } from 'react-hook-form'
 import { Button } from '@/components/ui/button'
 import { Input } from '@/components/ui/input'
-import { Label } from '@/components/ui/label'
 import { Textarea } from '@/components/ui/textarea'
 import { NativeSelect } from '@/features/records/filters/NativeSelect'
 import { useModuleTranslation } from '@/kernel/modules/i18n'
@@ -24,7 +23,6 @@ export function FieldEditor({ index, total, targets, onMove, onRemove }: FieldEd
   const { register, control, getValues, setValue, formState } = useFormContext<LeadFormValues>()
   const kind = useWatch({ control, name: `fields.${index}.kind` })
   const errors = formState.errors.fields?.[index]
-  const prefix = `lead-form-field-${index}`
   const compatibleTargets = targets.filter((target) =>
     kind === 'checkbox' ? target.field_type === 'checkbox' : target.field_type !== 'checkbox',
   )
@@ -80,19 +78,17 @@ export function FieldEditor({ index, total, targets, onMove, onRemove }: FieldEd
           {errors?.key && <p className="text-sm text-destructive">{message(errors.key.message)}</p>}
           </>}
         </Field>
-        <div className="grid gap-2.5">
-          <Label htmlFor={`${prefix}-kind`}>{t('editor.kind')}</Label>
-          <NativeSelect id={`${prefix}-kind`} {...register(`fields.${index}.kind`)}>
+        <Field label={t('editor.kind')}>
+          {(control) => <NativeSelect {...control} {...register(`fields.${index}.kind`)}>
             {FIELD_KINDS.map((option) => (
               <option key={option} value={option}>
                 {t(`kinds.${option}`)}
               </option>
             ))}
-          </NativeSelect>
-        </div>
-        <div className="grid gap-2.5">
-          <Label htmlFor={`${prefix}-target`}>{t('editor.target')}</Label>
-          <NativeSelect id={`${prefix}-target`} {...register(`fields.${index}.target`)}>
+          </NativeSelect>}
+        </Field>
+        <Field label={t('editor.target')}>
+          {(control) => <NativeSelect {...control} {...register(`fields.${index}.target`)}>
             <option value="">{t('editor.noTarget')}</option>
             {compatibleTargets.map((target) => (
               <option key={target.key} value={target.key}>
@@ -103,8 +99,8 @@ export function FieldEditor({ index, total, targets, onMove, onRemove }: FieldEd
                     : target.label}
               </option>
             ))}
-          </NativeSelect>
-        </div>
+          </NativeSelect>}
+        </Field>
         {kind !== 'checkbox' && (
           <Field label={kind === 'select' ? t('editor.selectPrompt') : t('editor.placeholder')} className="sm:col-span-2">
             {(control) => <>

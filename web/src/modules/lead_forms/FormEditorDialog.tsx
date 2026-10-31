@@ -7,7 +7,6 @@ import { notifyError } from '@/components/feedback'
 import { Button } from '@/components/ui/button'
 import { Dialog, DialogContent, DialogDescription, DialogFooter, DialogHeader, DialogTitle } from '@/components/ui/dialog'
 import { Input } from '@/components/ui/input'
-import { Label } from '@/components/ui/label'
 import { Skeleton } from '@/components/ui/skeleton'
 import { Textarea } from '@/components/ui/textarea'
 import { NativeSelect } from '@/features/records/filters/NativeSelect'
@@ -127,9 +126,9 @@ function EditorBody({ form, onCancel, onSaved }: EditorBodyProps) {
                   )}
                   </>}
                 </Field>
-                <div className="grid gap-2.5">
-                  <Label htmlFor={`${formId}-actor`}>{t('editor.actingUser')}</Label>
-                  <NativeSelect id={`${formId}-actor`} {...register('acting_user_id')}>
+                <Field label={t('editor.actingUser')}>
+                  {(control) => <>
+                    <NativeSelect {...control} {...register('acting_user_id')}>
                     <option value="">{t('editor.actingUserCreator')}</option>
                     {(options.data?.users ?? []).map((user) => (
                       <option key={user.id} value={user.id}>
@@ -138,7 +137,8 @@ function EditorBody({ form, onCancel, onSaved }: EditorBodyProps) {
                     ))}
                   </NativeSelect>
                   <p className="text-xs text-muted-foreground">{t('editor.actingUserHelp')}</p>
-                </div>
+                  </>}
+                </Field>
                 <label className="flex items-center gap-2 text-sm">
                   <Controller
           control={control}
@@ -213,40 +213,37 @@ function EditorBody({ form, onCancel, onSaved }: EditorBodyProps) {
                   <Field label={t('editor.source')}>
                     {(control) => <Input {...control} placeholder={t('editor.sourcePlaceholder')} {...register('source')} />}
                   </Field>
-                  <div className="grid gap-2.5">
-                    <Label htmlFor={`${formId}-owner`}>{t('editor.owner')}</Label>
-                    <NativeSelect id={`${formId}-owner`} {...register('owner_id')}>
+                  <Field label={t('editor.owner')}>
+                    {(control) => <NativeSelect {...control} {...register('owner_id')}>
                       <option value="">{t('editor.ownerActingUser')}</option>
                       {(options.data?.users ?? []).map((user) => (
                         <option key={user.id} value={user.id}>
                           {user.display_name} ({user.email})
                         </option>
                       ))}
-                    </NativeSelect>
-                  </div>
-                  <div className="grid gap-2.5">
-                    <Label htmlFor={`${formId}-distribution`}>{t('editor.distributionRule')}</Label>
-                    <NativeSelect id={`${formId}-distribution`} {...register('distribution_rule_id')}>
+                    </NativeSelect>}
+                  </Field>
+                  <Field label={t('editor.distributionRule')}>
+                    {(control) => <NativeSelect {...control} {...register('distribution_rule_id')}>
                       <option value="">{t('editor.noDistributionRule')}</option>
                       {(options.data?.distribution_rules ?? []).map((rule) => (
                         <option key={rule.id} value={rule.id}>
                           {rule.name}
                         </option>
                       ))}
-                    </NativeSelect>
-                  </div>
+                    </NativeSelect>}
+                  </Field>
                   <p className="text-xs text-muted-foreground sm:col-span-2">{t('editor.ownerHelp')}</p>
-                  <div className="grid gap-2.5">
-                    <Label htmlFor={`${formId}-tag`}>{t('editor.tag')}</Label>
-                    <NativeSelect id={`${formId}-tag`} {...register('tag_id')}>
+                  <Field label={t('editor.tag')}>
+                    {(control) => <NativeSelect {...control} {...register('tag_id')}>
                       <option value="">{t('editor.noTag')}</option>
                       {(options.data?.tags ?? []).map((tag) => (
                         <option key={tag.id} value={tag.id}>
                           {tag.name}
                         </option>
                       ))}
-                    </NativeSelect>
-                  </div>
+                    </NativeSelect>}
+                  </Field>
                 </div>
               </section>
 
@@ -266,10 +263,10 @@ function EditorBody({ form, onCancel, onSaved }: EditorBodyProps) {
                 </label>
                 {values.create_deal && (
                   <div className="grid gap-3 sm:grid-cols-2">
-                    <div className="grid gap-2.5">
-                      <Label htmlFor={`${formId}-pipeline`}>{t('editor.pipeline')}</Label>
-                      <NativeSelect
-                        id={`${formId}-pipeline`}
+                    <Field label={t('editor.pipeline')}>
+                      {(control) => <>
+                        <NativeSelect
+                        {...control}
                         {...register('pipeline_id', {
                           onChange: () => setValue('stage_id', ''),
                         })}
@@ -284,10 +281,11 @@ function EditorBody({ form, onCancel, onSaved }: EditorBodyProps) {
                       {formState.errors.pipeline_id && (
                         <p className="text-sm text-destructive">{errorText(formState.errors.pipeline_id.message)}</p>
                       )}
-                    </div>
-                    <div className="grid gap-2.5">
-                      <Label htmlFor={`${formId}-stage`}>{t('editor.stage')}</Label>
-                      <NativeSelect id={`${formId}-stage`} disabled={!pipeline} {...register('stage_id')}>
+                      </>}
+                    </Field>
+                    <Field label={t('editor.stage')}>
+                      {(control) => <>
+                        <NativeSelect {...control} disabled={!pipeline} {...register('stage_id')}>
                         <option value="">{t('editor.choose')}</option>
                         {(pipeline?.stages ?? []).map((stage) => (
                           <option key={stage.id} value={stage.id}>
@@ -298,7 +296,8 @@ function EditorBody({ form, onCancel, onSaved }: EditorBodyProps) {
                       {formState.errors.stage_id && (
                         <p className="text-sm text-destructive">{errorText(formState.errors.stage_id.message)}</p>
                       )}
-                    </div>
+                      </>}
+                    </Field>
                     <Field label={t('editor.titleTemplate')}>
                       {(control) => <>
                         <Input placeholder={t('editor.titleTemplatePlaceholder')} {...control} {...register('title_template')} />

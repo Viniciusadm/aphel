@@ -11,7 +11,6 @@ import {
   DialogTitle,
 } from '@/components/ui/dialog'
 import { Input } from '@/components/ui/input'
-import { Label } from '@/components/ui/label'
 import { NativeSelect } from '@/features/records/filters/NativeSelect'
 import { useCustomObjectsAdmin } from '@/features/settings/objects/api'
 import {
@@ -115,10 +114,10 @@ export function PolicyFormDialog({ policy, onClose }: PolicyFormDialogProps) {
               onChange={(event) => setName(event.target.value)}
             />}
           </Field>
-          <div className="grid gap-2">
-            <Label htmlFor={ids.action}>{t('policyForm.action')}</Label>
-            <NativeSelect
-              id={ids.action}
+          <Field label={t('policyForm.action')}>
+            {(control) => <>
+              <NativeSelect
+              {...control}
               value={action}
               disabled={Boolean(policy)}
               onChange={(event) => isRetentionAction(event.target.value) && setAction(event.target.value)}
@@ -130,12 +129,12 @@ export function PolicyFormDialog({ policy, onClose }: PolicyFormDialogProps) {
               ))}
             </NativeSelect>
             <p className="text-xs text-muted-foreground">{t(`actionHints.${action}`)}</p>
-          </div>
+            </>}
+          </Field>
           {needsRecordType(action) && (
-            <div className="grid gap-2">
-              <Label htmlFor={ids.recordType}>{t('policyForm.recordType')}</Label>
-              <NativeSelect
-                id={ids.recordType}
+            <Field label={t('policyForm.recordType')}>
+              {(control) => <NativeSelect
+                {...control}
                 value={recordType}
                 disabled={Boolean(policy)}
                 onChange={(event) => setRecordType(event.target.value)}
@@ -145,8 +144,8 @@ export function PolicyFormDialog({ policy, onClose }: PolicyFormDialogProps) {
                     {option.label}
                   </option>
                 ))}
-              </NativeSelect>
-            </div>
+              </NativeSelect>}
+            </Field>
           )}
           <Field label={t('policyForm.days')}>
             {(control) => <>

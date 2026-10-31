@@ -4,7 +4,6 @@ import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/com
 import { EmptyState } from '@/components/ui/empty-state'
 import { ErrorState } from '@/components/ui/error-state'
 import { Input } from '@/components/ui/input'
-import { Label } from '@/components/ui/label'
 import { Skeleton } from '@/components/ui/skeleton'
 import { NativeSelect } from '@/features/records/filters/NativeSelect'
 import { useLifecycleReport } from './api'
@@ -40,17 +39,16 @@ export function LifecycleReportPage() {
         description={t('report.description')}
       />
       <div className="flex flex-wrap items-end gap-3">
-        <div className="grid gap-2.5">
-          <Label htmlFor="lifecycle-report-type">{t('report.recordType')}</Label>
-          <NativeSelect
-            id="lifecycle-report-type"
+        <Field label={t('report.recordType')}>
+          {(control) => <NativeSelect
+            {...control}
             value={recordType}
             onChange={(event) => setRecordType(event.target.value as LifecycleRecordType)}
           >
             <option value="contact">{t('report.recordTypes.contact')}</option>
             <option value="company">{t('report.recordTypes.company')}</option>
-          </NativeSelect>
-        </div>
+          </NativeSelect>}
+        </Field>
         <Field label={t('report.from')}>
           {(control) => <Input
             {...control}

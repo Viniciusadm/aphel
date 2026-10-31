@@ -10,7 +10,6 @@ import {
   DialogHeader,
   DialogTitle,
 } from '@/components/ui/dialog'
-import { Label } from '@/components/ui/label'
 import { Textarea } from '@/components/ui/textarea'
 import { toast } from '@/components/ui/toast-store'
 import { NativeSelect } from '@/features/records/filters/NativeSelect'
@@ -81,10 +80,10 @@ function DisqualifyForm({ lead, onClose }: { lead: LeadTarget; onClose: () => vo
           void submit()
         }}
       >
-        <div className="grid gap-2.5">
-          <Label htmlFor={`${formId}-reason`}>{t('disqualify.reason')}</Label>
-          <NativeSelect
-            id={`${formId}-reason`}
+        <Field label={t('disqualify.reason')}>
+          {(control) => <>
+            <NativeSelect
+            {...control}
             value={reasonId}
             disabled={reasons.isPending}
             aria-invalid={reasonError ? true : undefined}
@@ -104,7 +103,8 @@ function DisqualifyForm({ lead, onClose }: { lead: LeadTarget; onClose: () => vo
           {reasons.isSuccess && reasons.data.length === 0 && (
             <p className="text-xs text-muted-foreground">{t('disqualify.noReasons')}</p>
           )}
-        </div>
+          </>}
+        </Field>
         <Field label={t('disqualify.note')}>
           {(control) => <Textarea
             {...control}

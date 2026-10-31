@@ -122,10 +122,9 @@ function ScheduleForm({
   return (
     <form className="grid gap-4" onSubmit={handleSubmit} noValidate>
       <div className="grid gap-3 sm:grid-cols-2">
-        <div className="grid gap-2.5">
-          <Label htmlFor={ids.frequency}>{t('schedules.form.frequency')}</Label>
-          <NativeSelect
-            id={ids.frequency}
+        <Field label={t('schedules.form.frequency')}>
+          {(control) => <NativeSelect
+            {...control}
             value={values.frequency}
             onChange={(event) => set({ frequency: event.target.value as ReportScheduleFrequency })}
           >
@@ -134,13 +133,12 @@ function ScheduleForm({
                 {t(`schedules.frequency.${frequency}`)}
               </option>
             ))}
-          </NativeSelect>
-        </div>
+          </NativeSelect>}
+        </Field>
         {values.frequency === 'weekly' && (
-          <div className="grid gap-2.5">
-            <Label htmlFor={ids.weekday}>{t('schedules.form.weekday')}</Label>
-            <NativeSelect
-              id={ids.weekday}
+          <Field label={t('schedules.form.weekday')}>
+            {(control) => <NativeSelect
+              {...control}
               value={values.weekday}
               onChange={(event) => set({ weekday: Number(event.target.value) })}
             >
@@ -149,8 +147,8 @@ function ScheduleForm({
                   {t(`schedules.weekdays.${weekday}` as 'schedules.weekdays.1')}
                 </option>
               ))}
-            </NativeSelect>
-          </div>
+            </NativeSelect>}
+          </Field>
         )}
         {values.frequency === 'monthly' && (
           <Field label={t('schedules.form.dayOfMonth')}>
@@ -168,10 +166,9 @@ function ScheduleForm({
           {(control) => <Input {...control} type="time" value={values.time} onChange={(event) => set({ time: event.target.value })} />}
         </Field>
         {hasPeriod && (
-          <div className="grid gap-2.5">
-            <Label htmlFor={ids.preset}>{t('schedules.form.period')}</Label>
-            <NativeSelect
-              id={ids.preset}
+          <Field label={t('schedules.form.period')}>
+            {(control) => <NativeSelect
+              {...control}
               value={values.periodPreset}
               onChange={(event) => set({ periodPreset: event.target.value as PeriodPreset | '' })}
             >
@@ -181,8 +178,8 @@ function ScheduleForm({
                   {t(`presets.${preset}`)}
                 </option>
               ))}
-            </NativeSelect>
-          </div>
+            </NativeSelect>}
+          </Field>
         )}
       </div>
       <fieldset className="grid gap-2">

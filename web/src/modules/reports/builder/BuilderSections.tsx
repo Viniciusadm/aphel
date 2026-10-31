@@ -329,10 +329,9 @@ export function PeriodSection({ draft, onChange, fields }: DraftProps & { fields
       </div>
       {period && (
         <div className="grid gap-3 sm:grid-cols-2">
-          <div className="grid gap-2.5">
-            <Label htmlFor={ids.field}>{t('sections.period.field')}</Label>
-            <NativeSelect
-              id={ids.field}
+          <Field label={t('sections.period.field')}>
+            {(control) => <NativeSelect
+              {...control}
               value={period.field}
               onChange={(event) => onChange({ period: { ...period, field: event.target.value } })}
             >
@@ -341,12 +340,11 @@ export function PeriodSection({ draft, onChange, fields }: DraftProps & { fields
                   {field.label}
                 </option>
               ))}
-            </NativeSelect>
-          </div>
-          <div className="grid gap-2.5">
-            <Label htmlFor={ids.preset}>{t('sections.period.preset')}</Label>
-            <NativeSelect
-              id={ids.preset}
+            </NativeSelect>}
+          </Field>
+          <Field label={t('sections.period.preset')}>
+            {(control) => <NativeSelect
+              {...control}
               value={period.preset}
               onChange={(event) => onChange({ period: { ...period, preset: event.target.value as PeriodPreset } })}
             >
@@ -355,8 +353,8 @@ export function PeriodSection({ draft, onChange, fields }: DraftProps & { fields
                   {t(`presets.${preset}`)}
                 </option>
               ))}
-            </NativeSelect>
-          </div>
+            </NativeSelect>}
+          </Field>
           {period.preset === 'custom' && (
             <>
               <Field label={t('sections.period.from')}>
@@ -497,7 +495,6 @@ export function SortSection({
 export function VisualizationSection({ draft, onChange, fields }: DraftProps & { fields: AggregateField[] }) {
   const { t } = useTranslation('reports', { keyPrefix: 'builder' })
   const { t: tReports } = useTranslation('reports')
-  const metricId = useId()
   const metrics = draft.metrics.filter(isMetricComplete)
   return (
     <Section title={t('sections.visualization.title')}>
@@ -521,10 +518,9 @@ export function VisualizationSection({ draft, onChange, fields }: DraftProps & {
         ))}
       </div>
       {draft.visualization !== 'table' && metrics.length > 1 && (
-        <div className="grid gap-2.5">
-          <Label htmlFor={metricId}>{t('sections.visualization.metric')}</Label>
-          <NativeSelect
-            id={metricId}
+        <Field label={t('sections.visualization.metric')}>
+          {(control) => <NativeSelect
+            {...control}
             value={draft.chartMetric ?? metricKeyOf(metrics[0])}
             onChange={(event) => onChange({ chartMetric: event.target.value })}
           >
@@ -533,8 +529,8 @@ export function VisualizationSection({ draft, onChange, fields }: DraftProps & {
                 {metricName(metric, fields, tReports)}
               </option>
             ))}
-          </NativeSelect>
-        </div>
+          </NativeSelect>}
+        </Field>
       )}
     </Section>
   )

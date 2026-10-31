@@ -1,10 +1,9 @@
 import { Trash2, User, Users } from 'lucide-react'
-import { useId, useMemo, useState, type FormEvent } from 'react'
+import { useMemo, useState, type FormEvent } from 'react'
 import { useTranslation } from 'react-i18next'
 import { Button } from '@/components/ui/button'
 import { Dialog, DialogContent, DialogDescription, DialogHeader, DialogTitle } from '@/components/ui/dialog'
 import { ErrorState } from '@/components/ui/error-state'
-import { Label } from '@/components/ui/label'
 import { Skeleton } from '@/components/ui/skeleton'
 import { toast } from '@/components/ui/toast-store'
 import { useOrganizationUsers } from '../api'
@@ -13,6 +12,7 @@ import { useViewTeams } from '../views/viewsApi'
 import { useRecordShareMutations, useRecordShares } from './api'
 import { sharingErrorMessage } from './errors'
 import type { RecordShare, ShareAccess, ShareGranteeType } from './types'
+import { Field } from '@/components/ui/field'
 
 const ACCESS_OPTIONS: ShareAccess[] = ['read', 'edit']
 const GRANTEE_TYPES: ShareGranteeType[] = ['user', 'team']
@@ -107,9 +107,6 @@ interface ShareFormProps {
 
 function ShareForm({ ownerId, existing, pending, onSubmit }: ShareFormProps) {
   const { t } = useTranslation('sharing')
-  const typeId = useId()
-  const granteeId = useId()
-  const accessId = useId()
   const [granteeType, setGranteeType] = useState<ShareGranteeType>('user')
   const [grantee, setGrantee] = useState('')
   const [access, setAccess] = useState<ShareAccess>('read')
@@ -136,10 +133,9 @@ function ShareForm({ ownerId, existing, pending, onSubmit }: ShareFormProps) {
   return (
     <form className="grid gap-3 rounded-md border p-3" onSubmit={submit}>
       <div className="grid gap-3 sm:grid-cols-[8rem_1fr_8rem]">
-        <div className="grid gap-2.5">
-          <Label htmlFor={typeId}>{t('form.granteeType')}</Label>
-          <NativeSelect
-            id={typeId}
+        <Field label={t('form.granteeType')}>
+          {(control) => <NativeSelect
+            {...control}
             value={granteeType}
             onChange={(event) => {
               setGranteeType(event.target.value as ShareGranteeType)
@@ -151,11 +147,11 @@ function ShareForm({ ownerId, existing, pending, onSubmit }: ShareFormProps) {
                 {t(`granteeTypes.${type}`)}
               </option>
             ))}
-          </NativeSelect>
-        </div>
-        <div className="grid min-w-0 gap-2.5">
-          <Label htmlFor={granteeId}>{t(granteeType === 'user' ? 'form.user' : 'form.team')}</Label>
-          <NativeSelect id={granteeId} value={grantee} onChange={(event) => setGrantee(event.target.value)}>
+          </NativeSelect>}
+        </Field>
+        <Field label={t(granteeType === 'user' ? 'form.user' : 'form.team')} className="min-w-0">
+          {(control) => <>
+            <NativeSelect {...control} value={grantee} onChange={(event) => setGrantee(event.target.value)}>
             <option value="">{t('form.choose')}</option>
             {options.map((option) => (
               <option key={option.id} value={option.id}>
@@ -166,17 +162,17 @@ function ShareForm({ ownerId, existing, pending, onSubmit }: ShareFormProps) {
           {granteeType === 'team' && teams.isError && (
             <p className="text-xs text-muted-foreground">{t('form.teamsUnavailable')}</p>
           )}
-        </div>
-        <div className="grid gap-2.5">
-          <Label htmlFor={accessId}>{t('form.access')}</Label>
-          <NativeSelect id={accessId} value={access} onChange={(event) => setAccess(event.target.value as ShareAccess)}>
+          </>}
+        </Field>
+        <Field label={t('form.access')}>
+          {(control) => <NativeSelect {...control} value={access} onChange={(event) => setAccess(event.target.value as ShareAccess)}>
             {ACCESS_OPTIONS.map((option) => (
               <option key={option} value={option}>
                 {t(`access.${option}`)}
               </option>
             ))}
-          </NativeSelect>
-        </div>
+          </NativeSelect>}
+        </Field>
       </div>
       <div className="flex items-center justify-between gap-2">
         <p className="text-xs text-muted-foreground">{t(`accessHelp.${access}`)}</p>

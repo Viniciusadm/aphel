@@ -16,7 +16,6 @@ import {
 import { EmptyState } from '@/components/ui/empty-state'
 import { ErrorState } from '@/components/ui/error-state'
 import { Input } from '@/components/ui/input'
-import { Label } from '@/components/ui/label'
 import { toast } from '@/components/ui/toast-store'
 import { formatDate, formatNumber, useRecordFormatting } from '@/features/records/formatting'
 import { NativeSelect } from '@/features/records/filters/NativeSelect'
@@ -433,10 +432,9 @@ function RateForm({ editing, currencies, today, onClose, onSaved }: RateFormProp
           void submit()
         }}
       >
-        <div className="grid gap-2.5">
-          <Label htmlFor={`${formId}-currency`}>{t('rates.columns.currency')}</Label>
-          <NativeSelect
-            id={`${formId}-currency`}
+        <Field label={t('rates.columns.currency')}>
+          {(control) => <NativeSelect
+            {...control}
             value={currency}
             disabled={editing !== null}
             onChange={(event) => setCurrency(event.target.value)}
@@ -446,8 +444,8 @@ function RateForm({ editing, currencies, today, onClose, onSaved }: RateFormProp
                 {code}
               </option>
             ))}
-          </NativeSelect>
-        </div>
+          </NativeSelect>}
+        </Field>
         <Field label={t('rates.columns.date')}>
           {(control) => <Input {...control} type="date" value={date} onChange={(event) => setDate(event.target.value)} />}
         </Field>

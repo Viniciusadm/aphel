@@ -1,11 +1,10 @@
 import { BellRing } from 'lucide-react'
-import { createElement, useId, useState } from 'react'
+import { createElement, useState } from 'react'
 import { useTranslation } from 'react-i18next'
 import { Link } from 'react-router'
 import { Button } from '@/components/ui/button'
 import { EmptyState } from '@/components/ui/empty-state'
 import { ErrorState } from '@/components/ui/error-state'
-import { Label } from '@/components/ui/label'
 import { Skeleton } from '@/components/ui/skeleton'
 import { recordTypeIcon } from '@/features/records/links'
 import { NativeSelect } from '@/features/records/filters/NativeSelect'
@@ -14,10 +13,10 @@ import { FOLLOWED_PER_PAGE, useFollowedRecords } from './api'
 import { CORE_RECORD_TYPES, followedRecordHref, useRecordTypeLabel } from './labels'
 import type { FollowedRecord } from './types'
 import { PageHeader } from '@/components/ui/page-header'
+import { Field } from '@/components/ui/field'
 
 export function FollowingPage() {
   const { t } = useTranslation('followers')
-  const typeId = useId()
   const [recordType, setRecordType] = useState('')
   const [page, setPage] = useState(1)
   const followed = useFollowedRecords(recordType, page)
@@ -70,10 +69,9 @@ export function FollowingPage() {
     <div className="flex w-full flex-col gap-4">
       <div className="flex flex-wrap items-end justify-between gap-3">
         <PageHeader title={t('page.title')} description={t('page.description')} />
-        <div className="grid gap-2.5">
-          <Label htmlFor={typeId}>{t('page.typeFilter')}</Label>
-          <NativeSelect
-            id={typeId}
+        <Field label={t('page.typeFilter')}>
+          {(control) => <NativeSelect
+            {...control}
             className="w-48"
             value={recordType}
             onChange={(event) => {
@@ -87,8 +85,8 @@ export function FollowingPage() {
                 {typeLabel(type)}
               </option>
             ))}
-          </NativeSelect>
-        </div>
+          </NativeSelect>}
+        </Field>
       </div>
       {body}
     </div>
