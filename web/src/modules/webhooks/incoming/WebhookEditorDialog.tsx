@@ -68,7 +68,7 @@ function serverFieldErrors(error: unknown): ServerFieldError[] {
 export function WebhookEditorDialog({ open, webhook, onOpenChange, onSaved }: WebhookEditorDialogProps) {
   return (
     <Dialog open={open} onOpenChange={onOpenChange}>
-      <DialogContent className="sm:max-w-3xl">
+      <DialogContent size="2xl">
         <EditorBody webhook={webhook} onCancel={() => onOpenChange(false)} onSaved={onSaved} />
       </DialogContent>
     </Dialog>

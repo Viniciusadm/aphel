@@ -29,7 +29,7 @@ export function SubmissionsDialog({ form, onClose }: SubmissionsDialogProps) {
   const t = useModuleTranslation(LEAD_FORMS_KEY)
   return (
     <Dialog open={form !== null} onOpenChange={(open) => !open && onClose()}>
-      <DialogContent className="sm:max-w-3xl">
+      <DialogContent size="2xl">
         {form && (
           <>
             <DialogHeader>

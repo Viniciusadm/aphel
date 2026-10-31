@@ -93,7 +93,7 @@ export function TeamEditorDialog({ team, teams, members, onClose }: TeamEditorDi
 
   return (
     <Dialog open onOpenChange={(open) => !open && onClose()}>
-      <DialogContent className="sm:max-w-2xl">
+      <DialogContent size="xl">
         <DialogHeader>
           <DialogTitle>{t(team ? 'teams.editor.editTitle' : 'teams.editor.createTitle')}</DialogTitle>
           <DialogDescription>{t('teams.editor.description')}</DialogDescription>

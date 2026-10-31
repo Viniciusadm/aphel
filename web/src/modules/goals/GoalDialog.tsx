@@ -49,7 +49,7 @@ export function GoalDialog({ open, editing, onOpenChange, onSaved }: GoalDialogP
   const owners = useGoalOwners()
   return (
     <Dialog open={open} onOpenChange={onOpenChange}>
-      <DialogContent className="sm:max-w-lg">
+      <DialogContent>
         <DialogHeader>
           <DialogTitle>{t(editing ? 'dialog.editTitle' : 'dialog.newTitle')}</DialogTitle>
           <DialogDescription>{t('dialog.description')}</DialogDescription>

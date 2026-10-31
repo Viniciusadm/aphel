@@ -115,7 +115,7 @@ export function MeetingTypeDialog({ meetingType, onClose }: MeetingTypeDialogPro
 
   return (
     <Dialog open onOpenChange={(open) => !open && onClose()}>
-      <DialogContent className="sm:max-w-2xl">
+      <DialogContent size="xl">
         <DialogHeader>
           <DialogTitle>{t(meetingType ? 'meetingTypes.form.editTitle' : 'meetingTypes.form.createTitle')}</DialogTitle>
           <DialogDescription>{t('meetingTypes.form.description')}</DialogDescription>

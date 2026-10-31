@@ -56,7 +56,7 @@ export function CredentialsDialog({ issued, onClose }: CredentialsDialogProps) {
 
   return (
     <Dialog open={issued !== null} onOpenChange={(open) => !open && onClose()}>
-      <DialogContent className="sm:max-w-2xl">
+      <DialogContent size="xl">
         <DialogHeader>
           <DialogTitle>
             {showsCredentials

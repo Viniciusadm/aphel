@@ -28,7 +28,7 @@ interface SetupDialogProps {
 export function SetupDialog({ open, onOpenChange }: SetupDialogProps) {
   return (
     <Dialog open={open} onOpenChange={onOpenChange}>
-      <DialogContent className="sm:max-w-lg">
+      <DialogContent>
         {open && <SetupFlow onClose={() => onOpenChange(false)} />}
       </DialogContent>
     </Dialog>

@@ -62,7 +62,7 @@ export function RoleEditorDialog({ role, catalog, onClose }: RoleEditorDialogPro
 
   return (
     <Dialog open onOpenChange={(open) => !open && onClose()}>
-      <DialogContent className="sm:max-w-3xl">
+      <DialogContent size="2xl">
         <DialogHeader>
           <DialogTitle>{t(role ? 'roles.editor.editTitle' : 'roles.editor.createTitle')}</DialogTitle>
           <DialogDescription>{t('roles.editor.description')}</DialogDescription>

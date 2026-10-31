@@ -34,7 +34,7 @@ export function CreateAutomationDialog({ open, onOpenChange, catalog, recordType
   const { t } = useTranslation('automations')
   return (
     <Dialog open={open} onOpenChange={onOpenChange}>
-      <DialogContent className="sm:max-w-2xl">
+      <DialogContent size="xl">
         <DialogHeader>
           <DialogTitle>{t('create.title')}</DialogTitle>
           <DialogDescription>{t('create.description')}</DialogDescription>

@@ -204,7 +204,7 @@ function DeliveryDetailDialog({ endpointId, deliveryId, onClose }: DeliveryDetai
 
   return (
     <Dialog open={deliveryId !== null} onOpenChange={(open) => !open && onClose()}>
-      <DialogContent className="sm:max-w-2xl">
+      <DialogContent size="xl">
         <DialogHeader>
           <DialogTitle>{t('detail.title', { event: detail.data?.event_type ?? '' })}</DialogTitle>
         </DialogHeader>

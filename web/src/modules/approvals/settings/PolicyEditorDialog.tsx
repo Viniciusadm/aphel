@@ -61,7 +61,7 @@ export function PolicyEditorDialog({ open, policy, onOpenChange }: PolicyEditorD
   const pipelines = usePipelines()
   return (
     <Dialog open={open} onOpenChange={onOpenChange}>
-      <DialogContent className="sm:max-w-2xl">
+      <DialogContent size="xl">
         {open &&
           (pipelines.isPending ? (
             <Skeleton className="h-64 w-full" />

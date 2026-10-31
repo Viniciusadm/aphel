@@ -37,7 +37,7 @@ export function PriceListDialog({ open, onOpenChange, list, onSaved }: PriceList
   const { t } = useTranslation('price_lists')
   return (
     <Dialog open={open} onOpenChange={onOpenChange}>
-      <DialogContent className="sm:max-w-xl">
+      <DialogContent size="lg">
         <DialogHeader>
           <DialogTitle>{t(list ? 'form.editTitle' : 'form.newTitle')}</DialogTitle>
           <DialogDescription>{t('form.description')}</DialogDescription>

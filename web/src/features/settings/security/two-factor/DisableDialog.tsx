@@ -28,7 +28,7 @@ interface DisableDialogProps {
 export function DisableDialog({ open, onOpenChange }: DisableDialogProps) {
   return (
     <Dialog open={open} onOpenChange={onOpenChange}>
-      <DialogContent className="sm:max-w-md">{open && <DisableForm onClose={() => onOpenChange(false)} />}</DialogContent>
+      <DialogContent size="sm">{open && <DisableForm onClose={() => onOpenChange(false)} />}</DialogContent>
     </Dialog>
   )
 }

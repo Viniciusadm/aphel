@@ -53,7 +53,7 @@ interface ScoringModelDialogProps {
 export function ScoringModelDialog({ open, onOpenChange, ...props }: ScoringModelDialogProps) {
   return (
     <Dialog open={open} onOpenChange={onOpenChange}>
-      <DialogContent className="sm:max-w-3xl">
+      <DialogContent size="2xl">
         {open && <ScoringModelForm key={props.model?.id ?? 'new'} onOpenChange={onOpenChange} {...props} />}
       </DialogContent>
     </Dialog>

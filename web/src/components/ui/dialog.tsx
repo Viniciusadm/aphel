@@ -24,7 +24,7 @@ type DialogSide = 'center' | 'left' | 'right'
 export type DialogSize = 'sm' | 'md' | 'lg' | 'xl' | '2xl'
 
 const sizeClasses: Record<DialogSize, string> = {
-  sm: 'sm:max-w-sm',
+  sm: 'sm:max-w-md',
   md: 'sm:max-w-lg',
   lg: 'sm:max-w-xl',
   xl: 'sm:max-w-2xl',

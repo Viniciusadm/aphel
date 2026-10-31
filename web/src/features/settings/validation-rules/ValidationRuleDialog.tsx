@@ -47,7 +47,7 @@ interface ValidationRuleDialogProps {
 export function ValidationRuleDialog({ open, onOpenChange, ...props }: ValidationRuleDialogProps) {
   return (
     <Dialog open={open} onOpenChange={onOpenChange}>
-      <DialogContent className="sm:max-w-3xl">
+      <DialogContent size="2xl">
         {open && <ValidationRuleForm key={props.rule?.id ?? 'new'} onOpenChange={onOpenChange} {...props} />}
       </DialogContent>
     </Dialog>

@@ -165,7 +165,7 @@ export function EndpointFormDialog({ endpoint, onClose, onCreated, onUpdated }: 
 
   return (
     <Dialog open onOpenChange={(open) => !open && onClose()}>
-      <DialogContent className="sm:max-w-2xl">
+      <DialogContent size="xl">
         <DialogHeader>
           <DialogTitle>{t(endpoint ? 'form.editTitle' : 'form.createTitle')}</DialogTitle>
           <DialogDescription>{t('form.description')}</DialogDescription>

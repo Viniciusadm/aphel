@@ -436,7 +436,7 @@ export function RuleEditorDialog({ rule, onClose }: RuleEditorDialogProps) {
 
   return (
     <Dialog open onOpenChange={(open) => !open && onClose()}>
-      <DialogContent className="sm:max-w-3xl">
+      <DialogContent size="2xl">
         <DialogHeader>
           <DialogTitle>{t(rule ? 'editor.editTitle' : 'editor.createTitle')}</DialogTitle>
           <DialogDescription>{t('editor.description')}</DialogDescription>

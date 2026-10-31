@@ -157,7 +157,7 @@ function RunDetailDialog({ automation, runId, onClose, catalog, schema, stepsOf 
   const run = useAutomationRun(automation.id, runId)
   return (
     <Dialog open={Boolean(runId)} onOpenChange={(open) => !open && onClose()}>
-      <DialogContent className="sm:max-w-3xl">
+      <DialogContent size="2xl">
         <DialogHeader>
           <DialogTitle>{t('runs.detailTitle')}</DialogTitle>
           <DialogDescription>{automation.name}</DialogDescription>

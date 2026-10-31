@@ -28,7 +28,7 @@ export function ForecastDealsDialog({ drillDown, onClose }: { drillDown: DrillDo
   const { t } = useTranslation('forecast')
   return (
     <Dialog open={drillDown !== null} onOpenChange={(open) => !open && onClose()}>
-      <DialogContent className="sm:max-w-2xl">
+      <DialogContent size="xl">
         <DialogHeader>
           <DialogTitle className="capitalize">
             {drillDown?.category

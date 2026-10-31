@@ -45,7 +45,7 @@ export function TemplateEditorDialog({ open, onOpenChange, scope, template }: Te
   return (
     <>
       <Dialog open={open} onOpenChange={requestClose}>
-        <DialogContent className="sm:max-w-3xl">
+        <DialogContent size="2xl">
           <DialogHeader>
             <DialogTitle>{template ? t('templates.editTitle') : t('templates.createTitle')}</DialogTitle>
             <DialogDescription>{t(`templates.editorDescription.${scope}`)}</DialogDescription>

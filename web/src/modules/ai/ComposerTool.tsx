@@ -92,7 +92,7 @@ function ComposerDialog({ context, subject, value, onChange, onOpenChange }: Com
 
   return (
     <Dialog open onOpenChange={onOpenChange}>
-      <DialogContent className="sm:max-w-xl">
+      <DialogContent size="lg">
         <DialogHeader>
           <DialogTitle>{t('compose.title')}</DialogTitle>
           <DialogDescription>{t(`compose.description.${context}`)}</DialogDescription>

@@ -51,7 +51,7 @@ export function RequestLogDialog({ webhook, onClose }: RequestLogDialogProps) {
         }
       }}
     >
-      <DialogContent className="sm:max-w-3xl">
+      <DialogContent size="2xl">
         <DialogHeader>
           <DialogTitle>{t('log.title', { name: webhook?.name ?? '' })}</DialogTitle>
           <DialogDescription>{t('log.description')}</DialogDescription>

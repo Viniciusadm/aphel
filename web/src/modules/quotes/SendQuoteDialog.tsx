@@ -63,7 +63,7 @@ export function SendQuoteDialog({ quote, open, onOpenChange }: SendQuoteDialogPr
 
   return (
     <Dialog open={open} onOpenChange={onOpenChange}>
-      <DialogContent className="sm:max-w-xl">
+      <DialogContent size="lg">
         <DialogHeader>
           <DialogTitle>{t('send.title')}</DialogTitle>
           <DialogDescription>{t('send.description')}</DialogDescription>
