@@ -1,3 +1,5 @@
+@layer theme, base, components, plugin-ui, utilities;
+
 @import 'tailwindcss';
 @import './sdk/theme.css';
 @import './sdk/tokens.css';
