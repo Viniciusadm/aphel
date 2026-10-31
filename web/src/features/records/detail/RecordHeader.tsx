@@ -34,7 +34,7 @@ export function RecordHeader({ title, titleAccessory, subtitle, owner, actions, 
         )}
         <div className="grid min-w-0 gap-1">
           <div className="flex min-w-0 items-start gap-1">
-            <h1 className="min-w-0 text-xl font-semibold tracking-tight break-words sm:text-2xl">{title}</h1>
+            <h1 className="min-w-0 text-xl font-semibold tracking-tight break-words">{title}</h1>
             {titleAccessory}
           </div>
           {(subtitle || owner) && (

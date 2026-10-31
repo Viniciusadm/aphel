@@ -19,6 +19,7 @@ import { objectColor } from './icons'
 import { ObjectIcon } from './ObjectIcon'
 import { KanbanBoard } from './KanbanBoard'
 import { CUSTOM_RECORD_READ_ONLY_KEYS, customRecordPath, objectPermission, type CustomObject } from './resources'
+import { PageHeader } from '@/components/ui/page-header'
 
 const BOARD_PARAM = 'board'
 const BOARD_FIELD_PARAM = 'board_field'
@@ -89,34 +90,32 @@ function CustomRecordsContent({ object }: { object: CustomObject }) {
 
   return (
     <div className={cn('flex min-w-0 flex-col gap-4', kanban && boardField && 'h-full')}>
-      <div className="flex flex-wrap items-start justify-between gap-3">
-        <div className="flex min-w-0 items-start gap-3">
+      <PageHeader
+        icon={
           <span
             className="mt-0.5 flex size-9 shrink-0 items-center justify-center rounded-md border bg-card"
             style={{ color: objectColor(object.color) }}
           >
             <ObjectIcon icon={object.icon} className="size-5" aria-hidden />
           </span>
-          <div className="grid min-w-0 gap-1">
-            <h1 className="truncate text-xl font-semibold">{object.label_plural}</h1>
-            <p className="text-sm text-muted-foreground">
-              {object.description || t('records.description', { label: object.label_plural })}
-            </p>
-          </div>
-        </div>
-        {selectFields.length > 0 && (
-          <SegmentedControl
-            aria-label={t('kanban.modeLabel')}
-            size="sm"
-            value={kanban ? 'board' : 'list'}
-            onValueChange={(value) => updateParams({ [BOARD_PARAM]: value === 'board' ? KANBAN_MODE : null })}
-            options={[
-              { value: 'list', label: t('kanban.list'), icon: <List aria-hidden /> },
-              { value: 'board', label: t('kanban.board'), icon: <Kanban aria-hidden /> },
-            ]}
-          />
-        )}
-      </div>
+        }
+        title={object.label_plural}
+        description={<p>{object.description || t('records.description', { label: object.label_plural })}</p>}
+        actions={
+          selectFields.length > 0 && (
+            <SegmentedControl
+              aria-label={t('kanban.modeLabel')}
+              size="sm"
+              value={kanban ? 'board' : 'list'}
+              onValueChange={(value) => updateParams({ [BOARD_PARAM]: value === 'board' ? KANBAN_MODE : null })}
+              options={[
+                { value: 'list', label: t('kanban.list'), icon: <List aria-hidden /> },
+                { value: 'board', label: t('kanban.board'), icon: <Kanban aria-hidden /> },
+              ]}
+            />
+          )
+        }
+      />
       {kanban && boardField ? (
         <div className="flex min-h-0 min-w-0 flex-1 flex-col gap-3">
           <div className="flex min-w-0 flex-wrap items-center gap-2">

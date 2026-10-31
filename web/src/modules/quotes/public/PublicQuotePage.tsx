@@ -92,7 +92,7 @@ function QuoteDocument({ token, quote }: { token: string; quote: PublicQuote }) 
           <p className="text-sm font-semibold" style={{ color: accent }}>
             {quote.organization.name}
           </p>
-          <h1 className="text-2xl font-semibold tracking-tight">{quote.title}</h1>
+          <h1 className="text-xl font-semibold tracking-tight">{quote.title}</h1>
           <p className="text-sm text-muted-foreground">{t('number', { number: quote.number, version: quote.version })}</p>
           {(quote.contact_name || quote.company_name) && (
             <p className="text-sm">

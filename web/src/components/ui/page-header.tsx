@@ -15,11 +15,12 @@ export interface PageHeaderProps {
   actions?: ReactNode
   back?: PageHeaderBack
   badges?: ReactNode
+  icon?: ReactNode
   level?: 'page' | 'section'
   className?: string
 }
 
-export function PageHeader({ title, description, actions, back, badges, level = 'page', className }: PageHeaderProps) {
+export function PageHeader({ title, description, actions, back, badges, icon, level = 'page', className }: PageHeaderProps) {
   const labels = useUiLabels()
   const Heading = level === 'page' ? 'h1' : 'h2'
   return (
@@ -34,7 +35,9 @@ export function PageHeader({ title, description, actions, back, badges, level = 
         </Link>
       )}
       <div className="flex flex-wrap items-start justify-between gap-4">
-        <div className="grid min-w-0 gap-1">
+        <div className="flex min-w-0 items-start gap-3">
+          {icon}
+          <div className="grid min-w-0 gap-1">
           <div className="flex flex-wrap items-center gap-2">
             <Heading
               className={cn(
@@ -47,6 +50,7 @@ export function PageHeader({ title, description, actions, back, badges, level = 
             {badges}
           </div>
           {description && <div className="grid gap-1 text-sm text-muted-foreground">{description}</div>}
+          </div>
         </div>
         {actions && <div className="flex flex-wrap items-center gap-2">{actions}</div>}
       </div>
