@@ -52,11 +52,6 @@
     "title": "Sem permissão",
     "description": "Você não tem permissão para gerenciar usuários, papéis ou equipes desta organização."
   },
-  "pagination": {
-    "summary": "Página {{page}} de {{pages}} · {{total}} no total",
-    "previous": "Anterior",
-    "next": "Próxima"
-  },
   "actions": {
     "save": "Salvar",
     "saving": "Salvando…",

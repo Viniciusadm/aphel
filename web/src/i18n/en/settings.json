@@ -52,11 +52,6 @@
     "title": "No permission",
     "description": "You are not allowed to manage users, roles or teams of this organization."
   },
-  "pagination": {
-    "summary": "Page {{page}} of {{pages}} · {{total}} in total",
-    "previous": "Previous",
-    "next": "Next"
-  },
   "actions": {
     "save": "Save",
     "saving": "Saving…",
