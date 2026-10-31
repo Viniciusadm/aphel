@@ -1,3 +1,4 @@
+import { FieldError as SharedFieldError } from '@/components/ui/field-error'
 import { useId, type ReactNode } from 'react'
 import { cn } from '@/lib/utils'
 import { Label } from './label'
@@ -59,9 +60,9 @@ export function Field({ id: providedId, label, description, error, required, hid
         </p>
       )}
       {error && (
-        <p id={errorId} role="alert" className="text-sm text-destructive">
+        <SharedFieldError id={errorId}>
           {error}
-        </p>
+        </SharedFieldError>
       )}
     </div>
   )
