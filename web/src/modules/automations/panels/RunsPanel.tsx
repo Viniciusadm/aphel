@@ -1,3 +1,4 @@
+import { FieldError as SharedFieldError } from '@/components/ui/field-error'
 import { Clock, RefreshCw } from 'lucide-react'
 import { useState, type ReactNode } from 'react'
 import { useTranslation } from 'react-i18next'
@@ -221,9 +222,9 @@ function RunDetail({
         </div>
       )}
       {run.error && (
-        <p role="alert" className="rounded-md bg-destructive/10 px-3 py-2 text-sm break-words text-destructive">
+        <SharedFieldError className="rounded-md bg-destructive/10 px-3 py-2 break-words">
           {run.error}
-        </p>
+        </SharedFieldError>
       )}
       <h3 className="text-sm font-medium">{t('runs.steps')}</h3>
       <StepTimeline

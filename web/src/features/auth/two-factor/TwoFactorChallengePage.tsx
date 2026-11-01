@@ -1,3 +1,4 @@
+import { FieldError as SharedFieldError } from '@/components/ui/field-error'
 import { useQueryClient } from '@tanstack/react-query'
 import { CircleAlert } from 'lucide-react'
 import { useId, useState, type FormEvent } from 'react'
@@ -123,10 +124,10 @@ export function TwoFactorChallengePage() {
             aria-describedby={error ? errorId : undefined}
           />
           {error && (
-            <p id={errorId} role="alert" className="flex items-start gap-1.5 text-sm text-destructive">
+            <SharedFieldError id={errorId}  className="flex items-start gap-1.5">
               <CircleAlert className="mt-0.5 size-4 shrink-0" aria-hidden />
               <span>{t(`challenge.errors.${error}`)}</span>
-            </p>
+            </SharedFieldError>
           )}
           </>}
         </Field>

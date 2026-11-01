@@ -1,3 +1,4 @@
+import { FieldError as SharedFieldError } from '@/components/ui/field-error'
 import { Info, PackagePlus, Plug, Power, PowerOff, Settings2, Trash2 } from 'lucide-react'
 import { useRef, useState } from 'react'
 import { useTranslation } from 'react-i18next'
@@ -197,7 +198,7 @@ function PluginsPanelContent() {
               <DialogDescription>{details.key} · {t('version', { version: details.version })}</DialogDescription>
             </DialogHeader>
             {details.description && <p className="text-sm text-muted-foreground">{details.description}</p>}
-            {details.backend_error && <p role="alert" className="break-words text-sm text-destructive">{details.backend_error}</p>}
+            {details.backend_error && <SharedFieldError className="break-words">{details.backend_error}</SharedFieldError>}
             <PluginGrantStatus plugin={details} pending={reapply.isPending} onReapply={() => reapply.mutate(details)} />
             <PluginDeclarationList plugin={details} />
           </DialogContent>

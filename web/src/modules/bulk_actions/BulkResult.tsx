@@ -1,3 +1,4 @@
+import { FieldError as SharedFieldError } from '@/components/ui/field-error'
 import { CheckCircle2, Loader2, TriangleAlert } from 'lucide-react'
 import { useTranslation } from 'react-i18next'
 import { Link } from 'react-router'
@@ -45,10 +46,10 @@ export function BulkResult({ operation: initial, recordType }: BulkResultProps) 
           <p className="text-xs text-muted-foreground">{t('result.background')}</p>
         </div>
       ) : operation.status === 'failed' ? (
-        <p className="flex items-center gap-2 text-sm text-destructive">
+        <SharedFieldError className="flex items-center gap-2">
           <TriangleAlert className="size-4" aria-hidden="true" />
           {t('result.failed')}
-        </p>
+        </SharedFieldError>
       ) : (
         <p className="flex items-center gap-2 text-sm">
           <CheckCircle2 className="size-4 text-success" aria-hidden="true" />

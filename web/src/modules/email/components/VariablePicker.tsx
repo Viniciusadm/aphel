@@ -1,3 +1,4 @@
+import { FieldError as SharedFieldError } from '@/components/ui/field-error'
 import { Braces } from 'lucide-react'
 import { useState } from 'react'
 import { useTranslation } from 'react-i18next'
@@ -39,7 +40,7 @@ export function VariablePicker({ recordType, onInsert, disabled }: VariablePicke
         />
         <div className="grid max-h-64 overflow-y-auto">
           {variables.isPending && <p className="p-2 text-sm text-muted-foreground">{t('common.loading')}</p>}
-          {variables.isError && <p className="p-2 text-sm text-destructive">{t('templates.variablesError')}</p>}
+          {variables.isError && <SharedFieldError className="p-2">{t('templates.variablesError')}</SharedFieldError>}
           {variables.isSuccess && options.length === 0 && (
             <p className="p-2 text-sm text-muted-foreground">{t('templates.noVariables')}</p>
           )}

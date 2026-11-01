@@ -1,3 +1,4 @@
+import { FieldError as SharedFieldError } from '@/components/ui/field-error'
 import { useMutation } from '@tanstack/react-query'
 import { FlaskConical, Play } from 'lucide-react'
 import { useState } from 'react'
@@ -103,9 +104,9 @@ export function DryRunPanel({ automation, catalog, schema, draftSteps, dirty, on
             </div>
             {!result.data.record_available && <p className="text-sm text-muted-foreground">{t('test.recordUnavailable')}</p>}
             {result.data.error && (
-              <p role="alert" className="rounded-md bg-destructive/10 px-3 py-2 text-sm text-destructive">
+              <SharedFieldError className="rounded-md bg-destructive/10 px-3 py-2">
                 {result.data.error}
-              </p>
+              </SharedFieldError>
             )}
             <StepTimeline steps={result.data.steps} definitionSteps={definitionSteps} catalog={catalog} schema={schema} />
           </>

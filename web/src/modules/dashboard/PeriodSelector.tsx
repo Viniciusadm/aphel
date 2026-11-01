@@ -1,3 +1,4 @@
+import { FieldError as SharedFieldError } from '@/components/ui/field-error'
 import { useState, type FormEvent } from 'react'
 import { useTranslation } from 'react-i18next'
 import { Button } from '@/components/ui/button'
@@ -97,9 +98,9 @@ export function PeriodSelector({ value, onChange }: PeriodSelectorProps) {
             {t('period.apply')}
           </Button>
           {touched && !valid && (
-            <p role="alert" className="basis-full text-sm text-destructive">
+            <SharedFieldError className="basis-full">
               {t('period.invalid')}
-            </p>
+            </SharedFieldError>
           )}
         </>
       )}

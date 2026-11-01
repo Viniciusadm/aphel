@@ -1,3 +1,4 @@
+import { FieldError as SharedFieldError } from '@/components/ui/field-error'
 import { PackagePlus, Search } from 'lucide-react'
 import { useId, useState } from 'react'
 import { useTranslation } from 'react-i18next'
@@ -60,7 +61,7 @@ export function ProductPicker({ currency, disabled, onSelect }: ProductPickerPro
               <Skeleton className="h-10 w-full" />
             </div>
           ) : products.isError ? (
-            <p className="p-2 text-sm text-destructive">{t('items.catalogError')}</p>
+            <SharedFieldError className="p-2">{t('items.catalogError')}</SharedFieldError>
           ) : items.length === 0 ? (
             <p className="p-2 text-sm text-muted-foreground">{t('items.catalogEmpty')}</p>
           ) : (

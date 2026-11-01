@@ -1,3 +1,4 @@
+import { FieldError as SharedFieldError } from '@/components/ui/field-error'
 import { useQueryClient } from '@tanstack/react-query'
 import { useId, useState } from 'react'
 import { useTranslation } from 'react-i18next'
@@ -54,7 +55,7 @@ export function NoteQuickForm({ onDone, initialRecord }: NoteQuickFormProps) {
   return (
     <FormBody onSubmit={() => void submit()}>
       <RecordPicker value={record} onChange={setRecord} required />
-      {touched && !record && <p className="-mt-2 text-sm text-destructive">{t('note.recordRequired')}</p>}
+      {touched && !record && <SharedFieldError className="-mt-2">{t('note.recordRequired')}</SharedFieldError>}
       <DictationField
         id={bodyId}
         label={t('note.body')}
@@ -63,7 +64,7 @@ export function NoteQuickForm({ onDone, initialRecord }: NoteQuickFormProps) {
         placeholder={t('note.placeholder')}
         maxLength={NOTE_MAX_LENGTH}
       />
-      {touched && bodyMissing && <p className="-mt-2 text-sm text-destructive">{t('note.bodyRequired')}</p>}
+      {touched && bodyMissing && <SharedFieldError className="-mt-2">{t('note.bodyRequired')}</SharedFieldError>}
       <FormActions pending={pending} label={t('note.submit')} />
     </FormBody>
   )

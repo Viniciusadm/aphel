@@ -1,3 +1,4 @@
+import { FieldError as SharedFieldError } from '@/components/ui/field-error'
 import { Check, ChevronsUpDown } from 'lucide-react'
 import { useId, useState, type KeyboardEvent, type ReactNode } from 'react'
 import { useTranslation } from 'react-i18next'
@@ -141,7 +142,7 @@ export function SearchablePicker({
           {loading ? (
             <p className="px-2 py-3 text-sm text-muted-foreground">{t('input.loading')}</p>
           ) : errorMessage ? (
-            <p className="px-2 py-3 text-sm text-destructive">{errorMessage}</p>
+            <SharedFieldError className="px-2 py-3">{errorMessage}</SharedFieldError>
           ) : options.length === 0 ? (
             <p className="px-2 py-3 text-sm text-muted-foreground">{t('input.noResults')}</p>
           ) : (

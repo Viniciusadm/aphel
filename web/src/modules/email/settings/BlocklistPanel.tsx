@@ -1,3 +1,4 @@
+import { FieldError as SharedFieldError } from '@/components/ui/field-error'
 import { useMutation, useQueryClient } from '@tanstack/react-query'
 import { Ban, Loader2, Plus, Trash2 } from 'lucide-react'
 import { useState } from 'react'
@@ -99,7 +100,7 @@ export function BlocklistPanel() {
           {t('blocklist.add')}
         </Button>
         {submitted && !valid && (
-          <p className="text-sm text-destructive sm:col-span-4">{t(`blocklist.invalid.${kind}`)}</p>
+          <SharedFieldError className="sm:col-span-4">{t(`blocklist.invalid.${kind}`)}</SharedFieldError>
         )}
       </form>
       {blocklist.isPending && (

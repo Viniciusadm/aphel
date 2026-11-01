@@ -181,9 +181,9 @@ function EnabledCurrencies({ settings }: { settings: CurrencySettings }) {
             {t('enabled.add')}
           </Button>
           {invalid && (
-            <p id={`${inputId}-error`} className="basis-full text-sm text-destructive">
+            <SharedFieldError id={`${inputId}-error`} className="basis-full">
               {t('enabled.invalidCode')}
-            </p>
+            </SharedFieldError>
           )}
         </form>
       )}

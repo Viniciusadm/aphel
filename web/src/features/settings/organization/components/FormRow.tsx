@@ -1,4 +1,3 @@
-import { FieldError as SharedFieldError } from '@/components/ui/field-error'
 import type { ReactNode } from 'react'
 import { Field } from '@/components/ui/field'
 
@@ -11,22 +10,9 @@ interface FormRowProps {
 }
 
 export function FormRow({ id, label, error, hint, children }: FormRowProps) {
-  const errorId = error ? `${id}-error` : undefined
-  const hintId = hint ? `${id}-hint` : undefined
-  const describedBy = [errorId, hintId].filter(Boolean).join(' ') || undefined
   return (
-    <Field id={id} label={label}>
-      {children(describedBy)}
-      {error && (
-        <SharedFieldError id={errorId}>
-          {error}
-        </SharedFieldError>
-      )}
-      {hint && (
-        <p id={hintId} className="text-xs text-muted-foreground">
-          {hint}
-        </p>
-      )}
+    <Field id={id} label={label} error={error} description={hint}>
+      {(control) => children(control['aria-describedby'])}
     </Field>
   )
 }
