@@ -21,7 +21,7 @@ impl Module for ThemesModule {
     fn manifest(&self) -> Manifest {
         Manifest::new(KEY, "Themes", APHEL_VERSION)
             .description("Installable visual themes: design tokens and fonts applied to the whole installation, public pages and plugins included")
-            .enabled_by_default()
+            .required()
             .owned_tables(&["themes_installed", "themes_fonts", "themes_state"])
             .migration(Migration::new(
                 1,
