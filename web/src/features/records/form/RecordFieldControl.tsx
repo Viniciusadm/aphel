@@ -1,7 +1,6 @@
-import { FieldError as SharedFieldError } from '@/components/ui/field-error'
+import { ToggleField } from '@/components/ui/toggle-field'
 import { useTranslation } from 'react-i18next'
 import { FieldInput } from '@/components/fields/FieldInput'
-import { Label } from '@/components/ui/label'
 import { cn } from '@/lib/utils'
 import type { FieldDefinition } from '../types'
 import { Field } from '@/components/ui/field'
@@ -60,19 +59,9 @@ export function RecordFieldControl({
 
   if (field.field_type === 'checkbox') {
     return (
-      <div className={cn('grid min-w-0 content-start gap-2', className)} data-field={field.key}>
-        <div className="flex min-h-9 items-center gap-2">
-          {input}
-          <Label htmlFor={id} className="font-medium">
-            {labelContent}
-          </Label>
-        </div>
-        {error && (
-          <SharedFieldError id={errorId}>
-            {error}
-          </SharedFieldError>
-        )}
-      </div>
+      <ToggleField id={id} label={labelContent} error={error} checked={value === true} onCheckedChange={onChange} disabled={disabled} data-field={field.key} className={cn('min-w-0 content-start', className)}>
+        {() => input}
+      </ToggleField>
     )
   }
 
