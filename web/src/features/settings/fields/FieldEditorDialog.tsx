@@ -1,14 +1,10 @@
+import { DialogForm } from '@/components/ui/dialog-form'
 import { useState } from 'react'
 import { Controller, useForm, useWatch } from 'react-hook-form'
 import { useTranslation } from 'react-i18next'
-import { Button } from '@/components/ui/button'
 import {
   Dialog,
   DialogContent,
-  DialogDescription,
-  DialogFooter,
-  DialogHeader,
-  DialogTitle,
 } from '@/components/ui/dialog'
 import { Input } from '@/components/ui/input'
 import { toast } from '@/components/ui/toast-store'
@@ -128,11 +124,18 @@ export function FieldEditorDialog({ recordType, field, onClose }: FieldEditorDia
   return (
     <Dialog open onOpenChange={(open) => !open && onClose()}>
       <DialogContent size="xl">
-        <DialogHeader>
-          <DialogTitle>{t(field ? 'editor.editTitle' : 'editor.createTitle')}</DialogTitle>
-          <DialogDescription>{t('editor.description')}</DialogDescription>
-        </DialogHeader>
-        <form className="grid min-w-0 gap-4" onSubmit={onSubmit} noValidate>
+        <DialogForm
+          className="min-w-0"
+          onSubmit={onSubmit}
+          noValidate
+          title={t(field ? 'editor.editTitle' : 'editor.createTitle')}
+          description={t('editor.description')}
+          cancelLabel={t('actions.cancel')}
+          submitLabel={isSubmitting ? t('actions.saving') : t('actions.save')}
+          onCancel={onClose}
+          pending={isSubmitting}
+          submitDisabled={isSubmitting}
+        >
           <FormAlert message={errors.root?.server?.message} />
           {system && (
             <p className="rounded-md border bg-muted/40 px-3 py-2 text-sm text-muted-foreground">
@@ -271,15 +274,7 @@ export function FieldEditorDialog({ recordType, field, onClose }: FieldEditorDia
               })}
             />
           </fieldset>
-          <DialogFooter>
-            <Button type="button" variant="outline" onClick={onClose} disabled={isSubmitting}>
-              {t('actions.cancel')}
-            </Button>
-            <Button type="submit" disabled={isSubmitting}>
-              {isSubmitting ? t('actions.saving') : t('actions.save')}
-            </Button>
-          </DialogFooter>
-        </form>
+        </DialogForm>
       </DialogContent>
     </Dialog>
   )

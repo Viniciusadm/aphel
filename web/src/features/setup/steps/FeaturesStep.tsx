@@ -1,10 +1,11 @@
+import { DialogForm } from '@/components/ui/dialog-form'
 import { FieldError as SharedFieldError } from '@/components/ui/field-error'
 import { useState, type ReactNode } from 'react'
 import { useTranslation } from 'react-i18next'
 import { api, isApiError } from '@/api'
 import { Badge } from '@/components/ui/badge'
 import { Button } from '@/components/ui/button'
-import { Dialog, DialogContent, DialogDescription, DialogFooter, DialogHeader, DialogTitle } from '@/components/ui/dialog'
+import { Dialog, DialogContent } from '@/components/ui/dialog'
 import { Input } from '@/components/ui/input'
 import { fieldViolations } from '@/features/auth/lib/api-errors'
 import { NativeSelect } from '@/features/settings/organization/components/NativeSelect'
@@ -93,7 +94,6 @@ export function FeaturesStep({ catalog, businessType, businessLabel, value, onCh
       aside={<span className="text-sm text-muted-foreground sm:px-2">{t('features.count', { count })}</span>}
     >
       <SearchInput
-          
           aria-label={t('features.search')}
           placeholder={t('features.search')}
           value={search}
@@ -309,18 +309,20 @@ function Configuration({
   return (
     <Dialog open onOpenChange={(open) => !open && !saving && onCancel()}>
       <DialogContent>
-        <DialogHeader>
-          <DialogTitle>{target ? <ModuleName module={target} /> : t('features.configureTitle')}</DialogTitle>
-          <DialogDescription>{t('features.configurationHint')}</DialogDescription>
-        </DialogHeader>
-        <form
-          className="grid gap-4"
+        <DialogForm
           noValidate
           onSubmit={(event) => {
             event.preventDefault()
             event.stopPropagation()
             void save()
           }}
+          title={<>{target ? <ModuleName module={target} /> : t('features.configureTitle')}</>}
+          description={t('features.configurationHint')}
+          cancelLabel={t('features.cancel')}
+          submitLabel={saving ? t('features.validating') : t('features.add')}
+          onCancel={onCancel}
+          pending={saving}
+          submitDisabled={saving}
         >
           {error && (
             <Alert className="text-destructive">
@@ -341,15 +343,7 @@ function Configuration({
               />
             ))}
           </fieldset>
-          <DialogFooter>
-            <Button type="button" variant="outline" disabled={saving} onClick={onCancel}>
-              {t('features.cancel')}
-            </Button>
-            <Button type="submit" disabled={saving}>
-              {saving ? t('features.validating') : t('features.add')}
-            </Button>
-          </DialogFooter>
-        </form>
+        </DialogForm>
       </DialogContent>
     </Dialog>
   )

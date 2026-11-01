@@ -1,18 +1,14 @@
+import { DialogForm } from '@/components/ui/dialog-form'
 import { FieldError as SharedFieldError } from '@/components/ui/field-error'
 import { Loader2 } from 'lucide-react'
 import { useId, useMemo, useRef, useState } from 'react'
 import { useTranslation } from 'react-i18next'
 import { isApiError } from '@/api'
 import { RecordFieldInput } from '@/components/fields'
-import { Button } from '@/components/ui/button'
 import { Checkbox } from '@/components/ui/checkbox'
 import {
   Dialog,
   DialogContent,
-  DialogDescription,
-  DialogFooter,
-  DialogHeader,
-  DialogTitle,
 } from '@/components/ui/dialog'
 import { Input } from '@/components/ui/input'
 import { Textarea } from '@/components/ui/textarea'
@@ -177,17 +173,20 @@ function ValidationRuleForm({ recordType, rule, onOpenChange, onSaved }: FormPro
   else testResult = <span className="text-muted-foreground">{t('test.notEvaluated')}</span>
 
   return (
-    <form
-      className="grid min-w-0 gap-4"
+    <DialogForm
+      className="min-w-0"
       onSubmit={(event) => {
         event.preventDefault()
         void submit()
       }}
+      title={rule ? t('dialog.editTitle') : t('dialog.newTitle')}
+      description={t('dialog.description')}
+      cancelLabel={t('dialog.cancel')}
+      submitLabel={t('dialog.save')}
+      onCancel={() => onOpenChange(false)}
+      pending={saving}
+      submitDisabled={saving}
     >
-      <DialogHeader>
-        <DialogTitle>{rule ? t('dialog.editTitle') : t('dialog.newTitle')}</DialogTitle>
-        <DialogDescription>{t('dialog.description')}</DialogDescription>
-      </DialogHeader>
       <div className="grid min-w-0 gap-4 sm:grid-cols-2">
         <Field label={t('dialog.name')} className="min-w-0">
           {(control) => <>
@@ -288,7 +287,7 @@ function ValidationRuleForm({ recordType, rule, onOpenChange, onSaved }: FormPro
           }}
           onChange={(value) => setExpression(value.slice(0, FORMULA_EXPRESSION_MAX_LENGTH))}
         />
-        {expressionError && <p className="text-sm break-words text-destructive">{expressionError}</p>}
+        {expressionError && <SharedFieldError className="break-words">{expressionError}</SharedFieldError>}
         <FormulaStatus
           id={statusId}
           preview={formula}
@@ -328,14 +327,6 @@ function ValidationRuleForm({ recordType, rule, onOpenChange, onSaved }: FormPro
           {generalError ?? serverErrors.record_type ?? serverErrors.applies_on}
         </SharedFieldError>
       )}
-      <DialogFooter>
-        <Button type="button" variant="outline" disabled={saving} onClick={() => onOpenChange(false)}>
-          {t('dialog.cancel')}
-        </Button>
-        <Button type="submit" disabled={saving}>
-          {t('dialog.save')}
-        </Button>
-      </DialogFooter>
-    </form>
+    </DialogForm>
   )
 }

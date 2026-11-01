@@ -1,13 +1,9 @@
+import { DialogForm } from '@/components/ui/dialog-form'
 import { useState } from 'react'
 import { useTranslation } from 'react-i18next'
-import { Button } from '@/components/ui/button'
 import {
   Dialog,
   DialogContent,
-  DialogDescription,
-  DialogFooter,
-  DialogHeader,
-  DialogTitle,
 } from '@/components/ui/dialog'
 import { toast } from '@/components/ui/toast-store'
 import { settingsApi, useSettingsMutation, versionOf, type Member, type Role } from '../api'
@@ -42,10 +38,17 @@ export function ChangeRoleDialog({ member, roles, onClose }: ChangeRoleDialogPro
   return (
     <Dialog open onOpenChange={(open) => !open && onClose()}>
       <DialogContent>
-        <DialogHeader>
-          <DialogTitle>{t('users.roleDialog.title')}</DialogTitle>
-          <DialogDescription>{t('users.roleDialog.description', { name: member.display_name })}</DialogDescription>
-        </DialogHeader>
+        <DialogForm
+          title={t('users.roleDialog.title')}
+          description={<>{t('users.roleDialog.description', { name: member.display_name })}</>}
+          cancelLabel={t('actions.cancel')}
+          submitLabel={change.isPending ? t('actions.saving') : t('actions.save')}
+          onCancel={onClose}
+          noValidate
+          onSubmit={() => void submit()}
+          pending={change.isPending}
+          submitDisabled={change.isPending || roleId === member.role.id}
+        >
         <FormAlert message={error} />
         <Field label={t('users.roleDialog.role')}>
           {(fieldControl) => <RoleSelect
@@ -56,14 +59,7 @@ export function ChangeRoleDialog({ member, roles, onClose }: ChangeRoleDialogPro
             placeholder={t('users.inviteDialog.rolePlaceholder')}
           />}
         </Field>
-        <DialogFooter>
-          <Button variant="outline" onClick={onClose} disabled={change.isPending}>
-            {t('actions.cancel')}
-          </Button>
-          <Button onClick={submit} disabled={change.isPending || roleId === member.role.id}>
-            {change.isPending ? t('actions.saving') : t('actions.save')}
-          </Button>
-        </DialogFooter>
+        </DialogForm>
       </DialogContent>
     </Dialog>
   )

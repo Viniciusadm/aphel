@@ -1,14 +1,10 @@
+import { DialogForm } from '@/components/ui/dialog-form'
 import { useState, type FormEvent } from 'react'
 import { useTranslation } from 'react-i18next'
 import { notifyError, notifySuccess } from '@/components/feedback'
-import { Button } from '@/components/ui/button'
 import {
   Dialog,
   DialogContent,
-  DialogDescription,
-  DialogFooter,
-  DialogHeader,
-  DialogTitle,
 } from '@/components/ui/dialog'
 import {
   INVALID_CURRENT_PASSWORD,
@@ -69,11 +65,19 @@ function DisableForm({ onClose }: { onClose: () => void }) {
   }
 
   return (
-    <form noValidate onSubmit={(event) => void submit(event)} className="grid gap-4">
-      <DialogHeader>
-        <DialogTitle>{t('disable.title')}</DialogTitle>
-        <DialogDescription>{t('disable.description')}</DialogDescription>
-      </DialogHeader>
+    <DialogForm
+      submitVariant="destructive"
+      noValidate
+      onSubmit={(event) => void submit(event)}
+      className="grid gap-4"
+      title={t('disable.title')}
+      description={t('disable.description')}
+      cancelLabel={t('actions.cancel')}
+      submitLabel={pending ? t('disable.submitting') : t('disable.submit')}
+      onCancel={onClose}
+      pending={pending}
+      submitDisabled={pending}
+    >
       <TextField placeholder={t('fields.passwordPlaceholder')}
         label={t('fields.password')}
         type="password"
@@ -90,14 +94,6 @@ function DisableForm({ onClose }: { onClose: () => void }) {
         error={errors.code}
         {...codeInputProps}
       />
-      <DialogFooter>
-        <Button type="button" variant="outline" onClick={onClose}>
-          {t('actions.cancel')}
-        </Button>
-        <Button type="submit" variant="destructive" disabled={pending} aria-busy={pending || undefined}>
-          {pending ? t('disable.submitting') : t('disable.submit')}
-        </Button>
-      </DialogFooter>
-    </form>
+    </DialogForm>
   )
 }

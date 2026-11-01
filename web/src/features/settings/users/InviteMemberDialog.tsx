@@ -1,13 +1,9 @@
+import { DialogForm } from '@/components/ui/dialog-form'
 import { Controller, useForm } from 'react-hook-form'
 import { useTranslation } from 'react-i18next'
-import { Button } from '@/components/ui/button'
 import {
   Dialog,
   DialogContent,
-  DialogDescription,
-  DialogFooter,
-  DialogHeader,
-  DialogTitle,
 } from '@/components/ui/dialog'
 import { Input } from '@/components/ui/input'
 import { toast } from '@/components/ui/toast-store'
@@ -68,11 +64,17 @@ export function InviteMemberDialog({ open, roles, onOpenChange, onInvited }: Inv
   return (
     <Dialog open={open} onOpenChange={close}>
       <DialogContent>
-        <DialogHeader>
-          <DialogTitle>{t('users.inviteDialog.title')}</DialogTitle>
-          <DialogDescription>{t('users.inviteDialog.description')}</DialogDescription>
-        </DialogHeader>
-        <form className="grid gap-4" onSubmit={onSubmit} noValidate>
+        <DialogForm
+          onSubmit={onSubmit}
+          noValidate
+          title={t('users.inviteDialog.title')}
+          description={t('users.inviteDialog.description')}
+          cancelLabel={t('actions.cancel')}
+          submitLabel={isSubmitting ? t('actions.saving') : t('users.inviteDialog.submit')}
+          onCancel={() => close(false)}
+          pending={isSubmitting}
+          submitDisabled={isSubmitting}
+        >
           <FormAlert message={errors.root?.server?.message} />
           <Field label={t('users.inviteDialog.email')}>
             {(control) => <>
@@ -107,15 +109,7 @@ export function InviteMemberDialog({ open, roles, onOpenChange, onInvited }: Inv
             <FieldError id="invite-role-error" message={errors.roleId?.message} />
             </>}
           </Field>
-          <DialogFooter>
-            <Button variant="outline" onClick={() => close(false)} disabled={isSubmitting}>
-              {t('actions.cancel')}
-            </Button>
-            <Button type="submit" disabled={isSubmitting}>
-              {isSubmitting ? t('actions.saving') : t('users.inviteDialog.submit')}
-            </Button>
-          </DialogFooter>
-        </form>
+        </DialogForm>
       </DialogContent>
     </Dialog>
   )

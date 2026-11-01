@@ -1,14 +1,10 @@
+import { DialogForm } from '@/components/ui/dialog-form'
 import { useState } from 'react'
 import { useForm } from 'react-hook-form'
 import { useTranslation } from 'react-i18next'
-import { Button } from '@/components/ui/button'
 import {
   Dialog,
   DialogContent,
-  DialogDescription,
-  DialogFooter,
-  DialogHeader,
-  DialogTitle,
 } from '@/components/ui/dialog'
 import { Input } from '@/components/ui/input'
 import { toast } from '@/components/ui/toast-store'
@@ -63,11 +59,17 @@ export function RoleEditorDialog({ role, catalog, onClose }: RoleEditorDialogPro
   return (
     <Dialog open onOpenChange={(open) => !open && onClose()}>
       <DialogContent size="2xl">
-        <DialogHeader>
-          <DialogTitle>{t(role ? 'roles.editor.editTitle' : 'roles.editor.createTitle')}</DialogTitle>
-          <DialogDescription>{t('roles.editor.description')}</DialogDescription>
-        </DialogHeader>
-        <form className="grid gap-4" onSubmit={onSubmit} noValidate>
+        <DialogForm
+          onSubmit={onSubmit}
+          noValidate
+          title={t(role ? 'roles.editor.editTitle' : 'roles.editor.createTitle')}
+          description={t('roles.editor.description')}
+          cancelLabel={t('actions.cancel')}
+          submitLabel={isSubmitting ? t('actions.saving') : t('actions.save')}
+          onCancel={onClose}
+          pending={isSubmitting}
+          submitDisabled={isSubmitting}
+        >
           <FormAlert message={errors.root?.server?.message} />
           <div className="grid gap-4 sm:grid-cols-2">
             <Field label={t('roles.editor.name')}>
@@ -106,15 +108,7 @@ export function RoleEditorDialog({ role, catalog, onClose }: RoleEditorDialogPro
             </p>
           )}
           <PermissionMatrix catalog={catalog} value={matrix} readOnly={locked} onChange={setMatrix} />
-          <DialogFooter>
-            <Button variant="outline" onClick={onClose} disabled={isSubmitting}>
-              {t('actions.cancel')}
-            </Button>
-            <Button type="submit" disabled={isSubmitting}>
-              {isSubmitting ? t('actions.saving') : t('actions.save')}
-            </Button>
-          </DialogFooter>
-        </form>
+        </DialogForm>
       </DialogContent>
     </Dialog>
   )

@@ -1,15 +1,11 @@
+import { DialogForm } from '@/components/ui/dialog-form'
 import { NativeSelect } from '@/components/ui/native-select'
 import { useMemo, useState } from 'react'
 import { Controller, useForm } from 'react-hook-form'
 import { useTranslation } from 'react-i18next'
-import { Button } from '@/components/ui/button'
 import {
   Dialog,
   DialogContent,
-  DialogDescription,
-  DialogFooter,
-  DialogHeader,
-  DialogTitle,
 } from '@/components/ui/dialog'
 import { Input } from '@/components/ui/input'
 import { toast } from '@/components/ui/toast-store'
@@ -96,11 +92,17 @@ export function TeamEditorDialog({ team, teams, members, onClose }: TeamEditorDi
   return (
     <Dialog open onOpenChange={(open) => !open && onClose()}>
       <DialogContent size="xl">
-        <DialogHeader>
-          <DialogTitle>{t(team ? 'teams.editor.editTitle' : 'teams.editor.createTitle')}</DialogTitle>
-          <DialogDescription>{t('teams.editor.description')}</DialogDescription>
-        </DialogHeader>
-        <form className="grid gap-4" onSubmit={onSubmit} noValidate>
+        <DialogForm
+          onSubmit={onSubmit}
+          noValidate
+          title={t(team ? 'teams.editor.editTitle' : 'teams.editor.createTitle')}
+          description={t('teams.editor.description')}
+          cancelLabel={t('actions.cancel')}
+          submitLabel={isSubmitting ? t('actions.saving') : t('actions.save')}
+          onCancel={onClose}
+          pending={isSubmitting}
+          submitDisabled={isSubmitting}
+        >
           <FormAlert message={errors.root?.server?.message} />
           <div className="grid gap-4 sm:grid-cols-2">
             <Field label={t('teams.editor.name')}>
@@ -186,15 +188,7 @@ export function TeamEditorDialog({ team, teams, members, onClose }: TeamEditorDi
               </ul>
             )}
           </fieldset>
-          <DialogFooter>
-            <Button variant="outline" onClick={onClose} disabled={isSubmitting}>
-              {t('actions.cancel')}
-            </Button>
-            <Button type="submit" disabled={isSubmitting}>
-              {isSubmitting ? t('actions.saving') : t('actions.save')}
-            </Button>
-          </DialogFooter>
-        </form>
+        </DialogForm>
       </DialogContent>
     </Dialog>
   )
