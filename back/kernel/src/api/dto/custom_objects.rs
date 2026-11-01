@@ -59,6 +59,8 @@ pub struct CustomObjectResponse {
     pub owner_enabled: bool,
     pub is_active: bool,
     pub position: i32,
+    pub module_key: Option<String>,
+    pub is_internal: bool,
     pub permissions: Vec<String>,
     #[schema(example = "2026-10-20T13:45:00Z")]
     pub created_at: String,
@@ -81,6 +83,8 @@ impl From<&CustomObject> for CustomObjectResponse {
             owner_enabled: object.data.owner_enabled,
             is_active: object.data.is_active,
             position: object.position,
+            module_key: object.module_key.clone(),
+            is_internal: object.is_internal,
             permissions: crate::domain::custom_objects::OBJECT_ACTIONS
                 .iter()
                 .filter_map(|action| object.permission(action))

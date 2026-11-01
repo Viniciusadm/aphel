@@ -4,6 +4,7 @@ import type { NavigationPreferences } from '@/features/settings/navigation/types
 import { NAV_ORDER } from '@/kernel/modules/define'
 import { NO_FILTER_CONTEXT, useFilters } from '@/kernel/modules/filters'
 import { useNavigationEntries, type NavigationEntry } from '@/kernel/modules/navigation'
+import { pluginMenus } from '@/kernel/modules/plugins'
 
 export interface SidebarEntry {
   key: string
@@ -34,7 +35,10 @@ function sidebarEntry(entry: NavigationEntry): SidebarEntry {
 export function useAvailableSidebarEntries(): SidebarEntry[] {
   const entries = useNavigationEntries()
   const objects = useCustomObjects()
-  const visibleObjects = useFilters('navigation.customObjects', objects.data ?? [], NO_FILTER_CONTEXT)
+  const unmanaged = (objects.data ?? []).filter(
+    (object) => !object.module_key || pluginMenus().get(object.module_key)?.own_entities !== 'hidden',
+  )
+  const visibleObjects = useFilters('navigation.customObjects', unmanaged, NO_FILTER_CONTEXT)
 
   const regular = entries.filter((entry) => !entry.locked)
   const leading = regular.filter((entry) => entry.order < NAV_ORDER.customObjects).map(sidebarEntry)

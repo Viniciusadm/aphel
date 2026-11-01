@@ -36,3 +36,4 @@ pub use settings::{module_secret_key, module_settings};
 pub use worker::{WorkerEnv, WorkerParts};
 
 pub mod runtime_catalog;
+pub mod toggle_guard;

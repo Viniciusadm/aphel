@@ -83,6 +83,14 @@
       "rateLimited": "Muitas tentativas em pouco tempo. Aguarde um instante e tente novamente.",
       "server": "O servidor encontrou um problema. Tente novamente em instantes.",
       "generic": "Ocorreu um erro inesperado. Tente novamente."
+    },
+    "codes": {
+      "plugin_failed": "Este recurso está indisponível no momento. Avise o administrador do sistema.",
+      "plugin_not_found": "Este recurso foi desativado. Atualize a página.",
+      "plugin_disabled": "Este recurso foi desativado. Atualize a página.",
+      "plugin_conflicts_unacknowledged": "Há extensões que se sobrepõem. Confirme para continuar.",
+      "plugin_module_conflict_blocked": "Um módulo em uso impede esta ação.",
+      "module_held_by_extension": "Este módulo está sendo mantido desativado por uma extensão instalada."
     }
   },
   "pageLoader": "Carregando página…"

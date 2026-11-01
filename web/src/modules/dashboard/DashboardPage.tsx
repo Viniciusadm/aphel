@@ -20,6 +20,7 @@ import { Button } from '@/components/ui/button'
 import {
   DropdownMenu,
   DropdownMenuContent,
+  DropdownMenuGroup,
   DropdownMenuItem,
   DropdownMenuLabel,
   DropdownMenuTrigger,
@@ -164,10 +165,21 @@ export function DashboardPage() {
               {addable.length === 0 ? (
                 <DropdownMenuLabel className="font-normal text-muted-foreground">{t('actions.noMoreWidgets')}</DropdownMenuLabel>
               ) : (
-                addable.map((descriptor) => (
-                  <DropdownMenuItem key={descriptor.key} onSelect={() => addWidget(descriptor)}>
-                    {titleOf(descriptor.key)}
-                  </DropdownMenuItem>
+                [...new Set(addable.map((descriptor) => descriptor.category))].map((category) => (
+                  <DropdownMenuGroup key={category}>
+                    {new Set(addable.map((descriptor) => descriptor.category)).size > 1 && (
+                      <DropdownMenuLabel className="text-xs text-muted-foreground">
+                        {t(`categories.${category}` as never, { defaultValue: category })}
+                      </DropdownMenuLabel>
+                    )}
+                    {addable
+                      .filter((descriptor) => descriptor.category === category)
+                      .map((descriptor) => (
+                        <DropdownMenuItem key={descriptor.key} onSelect={() => addWidget(descriptor)}>
+                          {titleOf(descriptor.key)}
+                        </DropdownMenuItem>
+                      ))}
+                  </DropdownMenuGroup>
                 ))
               )}
             </DropdownMenuContent>

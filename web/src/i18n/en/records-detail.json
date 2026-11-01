@@ -83,6 +83,14 @@
       "rateLimited": "Too many attempts. Wait a moment and try again.",
       "server": "The server ran into a problem. Try again shortly.",
       "generic": "An unexpected error occurred. Try again."
+    },
+    "codes": {
+      "plugin_failed": "This feature is unavailable right now. Tell your system administrator.",
+      "plugin_not_found": "This feature was turned off. Reload the page.",
+      "plugin_disabled": "This feature was turned off. Reload the page.",
+      "plugin_conflicts_unacknowledged": "Some extensions overlap. Confirm to continue.",
+      "plugin_module_conflict_blocked": "A module in use prevents this action.",
+      "module_held_by_extension": "This module is kept disabled by an installed extension."
     }
   },
   "pageLoader": "Loading page…"

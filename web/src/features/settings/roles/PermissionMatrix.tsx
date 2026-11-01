@@ -2,6 +2,7 @@ import { Fragment } from 'react'
 import { useTranslation } from 'react-i18next'
 import type { PermissionDefinition, RecordScope } from '../api'
 import { moduleLabel, permissionLabel } from '../lib/permissions'
+import { useCustomObjectsAdmin } from '../objects/api'
 import { useLabelText } from '../lib/use-label-text'
 import { MATRIX_SCOPES, groupCatalog, type MatrixValue } from './matrix'
 import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from '@/components/ui/table'
@@ -16,7 +17,9 @@ interface PermissionMatrixProps {
 export function PermissionMatrix({ catalog, value, readOnly = false, onChange }: PermissionMatrixProps) {
   const { t } = useTranslation('settings')
   const labelText = useLabelText()
-  const groups = groupCatalog(catalog)
+  const objects = useCustomObjectsAdmin()
+  const internal = new Set((objects.data ?? []).filter((object) => object.is_internal).map((object) => object.record_type))
+  const groups = groupCatalog(catalog).filter((group) => !internal.has(group.module))
   const scopeLabel = (scope: RecordScope | null) => t(`permissions.columns.${scope ?? 'none'}`)
 
   const set = (permission: string, scope: RecordScope | null) => onChange({ ...value, [permission]: scope })

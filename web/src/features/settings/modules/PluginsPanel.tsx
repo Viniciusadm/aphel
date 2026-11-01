@@ -13,11 +13,18 @@ import { Skeleton } from '@/components/ui/skeleton'
 import { Dialog, DialogContent, DialogDescription, DialogHeader, DialogTitle } from '@/components/ui/dialog'
 import { RequirePermission } from '@/features/settings/components/RequirePermission'
 import { SYSTEM_MANAGE } from '@/features/settings/lib/permissions'
+import { PluginConflictList } from './plugins/PluginConflictList'
 import { PluginConsentDialog } from './plugins/PluginConsentDialog'
 import { PluginDeclarationList } from './plugins/PluginDeclarationList'
 import { PluginGrantStatus } from './plugins/PluginGrantStatus'
 import { PluginSettingsDialog } from './plugins/PluginSettingsDialog'
-import { PLUGINS_PATH, pluginsKey, type InstalledPlugin, type PluginConsent } from './plugins/types'
+import {
+  PLUGINS_PATH,
+  pluginsKey,
+  type InstalledPlugin,
+  type PluginConflict,
+  type PluginConsent,
+} from './plugins/types'
 import { PageHeader } from '@/components/ui/page-header'
 import { Page } from '@/components/ui/page'
 
@@ -40,6 +47,14 @@ function loadErrorDescription(error: unknown) {
   return isApiError(error) ? `${message} (${error.status}: ${error.code})` : message
 }
 
+const CONFLICTS_UNACKNOWLEDGED = 'plugin_conflicts_unacknowledged'
+
+function unacknowledgedConflicts(error: unknown): PluginConflict[] | null {
+  if (!isApiError(error) || error.code !== CONFLICTS_UNACKNOWLEDGED) return null
+  const details = error.details as { conflicts?: PluginConflict[] } | null
+  return details?.conflicts ?? []
+}
+
 function PluginsPanelContent() {
   const { t } = useTranslation('modules')
   const queryClient = useQueryClient()
@@ -48,6 +63,7 @@ function PluginsPanelContent() {
   const [configuring, setConfiguring] = useState<InstalledPlugin | null>(null)
   const [pending, setPending] = useState<{ file: File; consent: PluginConsent } | null>(null)
   const [details, setDetails] = useState<InstalledPlugin | null>(null)
+  const [overlapping, setOverlapping] = useState<{ plugin: InstalledPlugin; conflicts: PluginConflict[] } | null>(null)
   const readiness = useQuery({
     queryKey: [...pluginsKey, 'readiness'],
     queryFn: () => api.get<{ state: 'loading' | 'ready' | 'degraded'; version: number | null }>(`${PLUGINS_PATH}/readiness`),
@@ -78,8 +94,19 @@ function PluginsPanelContent() {
     onError: (error) => notifyError(error),
   })
   const install = useMutation({
-    mutationFn: ({ file, rolePresets }: { file: File; rolePresets: string[] }) =>
-      api.post<InstalledPlugin>(PLUGINS_PATH, packageForm(file, rolePresets)),
+    mutationFn: ({
+      file,
+      rolePresets,
+      acknowledge,
+    }: {
+      file: File
+      rolePresets: string[]
+      acknowledge: boolean
+    }) =>
+      api.post<InstalledPlugin>(
+        acknowledge ? `${PLUGINS_PATH}?acknowledge_conflicts=true` : PLUGINS_PATH,
+        packageForm(file, rolePresets),
+      ),
     onSuccess: (response) => {
       setPending(null)
       changed(t('plugins.installed', { name: response.name }))
@@ -87,10 +114,19 @@ function PluginsPanelContent() {
     onError: (error) => notifyError(error),
   })
   const toggle = useMutation({
-    mutationFn: (plugin: InstalledPlugin) =>
-      api.post(`${PLUGINS_PATH}/${plugin.key}/${plugin.enabled ? 'disable' : 'enable'}`),
-    onSuccess: () => changed(t('plugins.updated')),
-    onError: (error) => notifyError(error),
+    mutationFn: ({ plugin, acknowledge = false }: { plugin: InstalledPlugin; acknowledge?: boolean }) =>
+      api.post(
+        `${PLUGINS_PATH}/${plugin.key}/${plugin.enabled ? 'disable' : 'enable'}${acknowledge ? '?acknowledge_conflicts=true' : ''}`,
+      ),
+    onSuccess: () => {
+      setOverlapping(null)
+      changed(t('plugins.updated'))
+    },
+    onError: (error, { plugin }) => {
+      const conflicts = unacknowledgedConflicts(error)
+      if (conflicts) setOverlapping({ plugin, conflicts })
+      else notifyError(error)
+    },
   })
   const reapply = useMutation({
     mutationFn: (plugin: InstalledPlugin) => api.post<InstalledPlugin>(`${PLUGINS_PATH}/${plugin.key}/grants`),
@@ -171,7 +207,7 @@ function PluginsPanelContent() {
                   <Info aria-hidden="true" />
                   {t('plugins.viewDetails')}
                 </Button>
-                <Button size="sm" variant="outline" onClick={() => toggle.mutate(plugin)} disabled={toggle.isPending}>
+                <Button size="sm" variant="outline" onClick={() => toggle.mutate({ plugin })} disabled={toggle.isPending}>
                   {plugin.enabled ? <PowerOff aria-hidden="true" /> : <Power aria-hidden="true" />}
                   {plugin.enabled ? t('plugins.disable') : t('plugins.enable')}
                 </Button>
@@ -208,10 +244,24 @@ function PluginsPanelContent() {
         consent={pending?.consent ?? null}
         pending={install.isPending}
         onCancel={() => setPending(null)}
-        onConfirm={(rolePresets) => {
-          if (pending) install.mutate({ file: pending.file, rolePresets })
+        onConfirm={(rolePresets, acknowledge) => {
+          if (pending) install.mutate({ file: pending.file, rolePresets, acknowledge })
         }}
       />
+      <ConfirmDialog
+        open={overlapping !== null}
+        onOpenChange={(open) => {
+          if (!open) setOverlapping(null)
+        }}
+        title={t('plugins.toggleConflictsTitle', { name: overlapping?.plugin.name ?? '' })}
+        confirmLabel={t('plugins.toggleConflictsConfirm')}
+        pending={toggle.isPending}
+        onConfirm={() => {
+          if (overlapping) toggle.mutate({ plugin: overlapping.plugin, acknowledge: true })
+        }}
+      >
+        {overlapping && <PluginConflictList conflicts={overlapping.conflicts} />}
+      </ConfirmDialog>
       {configuring && (
         <PluginSettingsDialog
           plugin={configuring}

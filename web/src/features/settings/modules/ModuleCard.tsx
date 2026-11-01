@@ -224,6 +224,7 @@ export function ModuleCard({ module, nameOf, onChanged }: ModuleCardProps) {
             {module.data_exported_at && <p>{t('dataExportedAt', { date: date(module.data_exported_at) })}</p>}
             {module.data_purged_at && <p>{t('dataPurgedAt', { date: date(module.data_purged_at) })}</p>}
           </div>
+          {module.held_by && <p className="text-xs text-warning">{t('plugins.heldByPlugin', { plugin: module.held_by })}</p>}
           {blockedByDependents && (
             <p id={dependentsHintId} className="text-xs text-muted-foreground">
               {t('dependents.hint', { names: dependentNames })}
@@ -242,7 +243,7 @@ export function ModuleCard({ module, nameOf, onChanged }: ModuleCardProps) {
               {t('actions.disable')}
             </Button>
           ) : (
-            <Button size="sm" disabled={busy || problem !== null} aria-busy={busy} onClick={() => void enable()}>
+            <Button size="sm" disabled={busy || problem !== null || Boolean(module.held_by)} aria-busy={busy} onClick={() => void enable()}>
               {t('actions.enable')}
             </Button>
           )}

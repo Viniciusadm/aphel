@@ -3,6 +3,7 @@ pub mod bridge;
 pub mod changes;
 pub mod committed;
 pub mod compiled;
+pub mod conflicts;
 pub mod data_subject;
 pub mod directory;
 pub mod effects;
@@ -13,6 +14,7 @@ pub mod hooks;
 pub mod host;
 pub mod http;
 pub mod manifest;
+pub mod modules;
 pub mod net;
 pub mod notify;
 pub mod package;
@@ -62,6 +64,7 @@ impl Module for PluginsModule {
             .migration(Migration::new(4, "durable plugin effects", include_str!("../migrations/0004_durable_effects.sql")))
             .migration(Migration::new(5, "external operation query results", include_str!("../migrations/0005_external_queries.sql")))
             .migration(Migration::new(6, "plugin change feed", include_str!("../migrations/0006_create_plugins_changes.sql")))
+            .migration(Migration::new(7, "plugin module conflicts", include_str!("../migrations/0007_create_plugins_module_conflicts.sql")))
     }
 
     fn register(&self, app: &mut AppBuilder) -> Result<(), AppError> {
@@ -110,6 +113,9 @@ impl Module for PluginsModule {
         })
         .public_routes(|_| http::public_router())
         .root_routes(|_| http::root_router());
+        app.contribute::<dyn aphel_kernel::modules::toggle_guard::ModuleToggleGuard>(Arc::new(
+            modules::PluginModuleGuard,
+        ));
         app.contribute::<dyn aphel_kernel::modules::runtime_catalog::RuntimeCatalogSource>(
             Arc::new(registry::PublicEvents),
         );

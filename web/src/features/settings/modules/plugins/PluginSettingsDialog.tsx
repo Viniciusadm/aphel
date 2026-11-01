@@ -13,6 +13,7 @@ import {
   DialogTitle,
 } from '@/components/ui/dialog'
 import { Input } from '@/components/ui/input'
+import { NativeSelect } from '@/components/ui/native-select'
 import { PLUGINS_PATH, type InstalledPlugin, type PluginSetting } from './types'
 import { Field } from '@/components/ui/field'
 
@@ -89,11 +90,19 @@ export function PluginSettingsDialog({ plugin, onClose, onSaved }: PluginSetting
           <DialogDescription>{t('plugins.settingsDescription')}</DialogDescription>
         </DialogHeader>
         <form id={formId} className="grid gap-4" onSubmit={(event) => void submit(event)}>
-          {plugin.settings.map((setting) => {
+          {plugin.settings.map((setting, index) => {
+            const heading =
+              setting.group && setting.group !== plugin.settings[index - 1]?.group ? setting.group : null
             const inputId = `${formId}-${setting.key}`
             const value = draft[setting.key]
+            const headingNode = heading && (
+              <h3 key={`${setting.key}-heading`} className="mt-2 text-sm font-semibold">
+                {heading}
+              </h3>
+            )
             if (setting.type === 'boolean') {
-              return (
+              return [
+                headingNode,
                 <div key={setting.key} className="flex items-start gap-2">
                   <Checkbox
                     id={inputId}
@@ -103,12 +112,33 @@ export function PluginSettingsDialog({ plugin, onClose, onSaved }: PluginSetting
                   <Field id={inputId} label={setting.label}>
                     {setting.help && <p className="text-xs text-muted-foreground">{setting.help}</p>}
                   </Field>
-                </div>
-              )
+                </div>,
+              ]
+            }
+            if (setting.type === 'select') {
+              return [
+                headingNode,
+                <Field key={setting.key} id={inputId} label={setting.label}>
+                  <NativeSelect
+                    id={inputId}
+                    value={typeof value === 'string' ? value : ''}
+                    onValueChange={(next) => setDraft({ ...draft, [setting.key]: next })}
+                  >
+                    <option value="">{t('placeholders.value')}</option>
+                    {(setting.options ?? []).map((option) => (
+                      <option key={option.value} value={option.value}>
+                        {option.label}
+                      </option>
+                    ))}
+                  </NativeSelect>
+                  {setting.help && <p className="text-xs text-muted-foreground">{setting.help}</p>}
+                </Field>,
+              ]
             }
             const isSecret = setting.type === 'secret'
             const willClear = cleared.includes(setting.key)
-            return (
+            return [
+              headingNode,
               <Field key={setting.key} id={inputId} label={setting.label}>
                 <Input placeholder={t('placeholders.value')}
                   id={inputId}
@@ -142,8 +172,8 @@ export function PluginSettingsDialog({ plugin, onClose, onSaved }: PluginSetting
                     )}
                   </div>
                 )}
-              </Field>
-            )
+              </Field>,
+            ]
           })}
         </form>
         <DialogFooter>

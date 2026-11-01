@@ -33,7 +33,8 @@ pub const RECORD_HOOKS: &[&str] = &[
 const METHODS: &[&str] = &["GET", "POST", "PUT", "PATCH", "DELETE"];
 pub const SETTING_SECRET: &str = "secret";
 pub const PLUGIN_EVENT_PREFIX: &str = "plugin.";
-const SETTING_KINDS: &[&str] = &["number", "boolean", "text", SETTING_SECRET];
+const SETTING_KINDS: &[&str] = &["number", "boolean", "text", "select", SETTING_SECRET];
+pub const SETTING_SELECT: &str = "select";
 const MAX_SCHEDULES: usize = 10;
 const MAX_ACTIONS: usize = 20;
 const MAX_EMITS: usize = 50;
@@ -99,6 +100,47 @@ pub struct PluginManifest {
     pub privacy: PrivacySpec,
     #[serde(default)]
     pub web: Option<WebSpec>,
+    #[serde(default)]
+    pub menu: MenuSpec,
+    #[serde(default)]
+    pub conflicts_with: Vec<String>,
+    #[serde(default)]
+    pub settings_permission: Option<String>,
+}
+
+pub const MENU_ACTIONS: &[&str] = &["hide", "move"];
+pub const OWN_ENTITIES_VISIBILITY: &[&str] = &["visible", "hidden"];
+const MAX_MENU_RULES: usize = 50;
+const MAX_CONFLICTS: usize = 20;
+
+#[derive(Debug, Clone, Default, PartialEq, Serialize, Deserialize, utoipa::ToSchema)]
+#[serde(deny_unknown_fields)]
+pub struct MenuSpec {
+    #[serde(default)]
+    pub flat: bool,
+    #[serde(default)]
+    pub own_entities: Option<String>,
+    #[serde(default)]
+    pub rules: Vec<MenuRule>,
+}
+
+impl MenuSpec {
+    pub fn hides_own_entities(&self) -> bool {
+        self.own_entities.as_deref() == Some("hidden")
+    }
+
+    pub fn is_empty(&self) -> bool {
+        !self.flat && !self.hides_own_entities() && self.rules.is_empty()
+    }
+}
+
+#[derive(Debug, Clone, PartialEq, Serialize, Deserialize, utoipa::ToSchema)]
+#[serde(deny_unknown_fields)]
+pub struct MenuRule {
+    pub target: String,
+    pub action: String,
+    #[serde(default)]
+    pub order: Option<i32>,
 }
 
 #[derive(Debug, Clone, Default, PartialEq, Serialize, Deserialize)]
@@ -117,6 +159,8 @@ pub struct RolePresetSpec {
     pub permissions: Vec<String>,
     #[serde(default = "organization_scope")]
     pub scope: String,
+    #[serde(default)]
+    pub home: Option<String>,
 }
 
 #[derive(Debug, Clone, PartialEq, Eq, PartialOrd, Ord)]
@@ -234,6 +278,8 @@ pub struct EntitySpec {
     #[serde(default)]
     pub permission_scope: Option<String>,
     #[serde(default)]
+    pub internal: bool,
+    #[serde(default)]
     pub fields: Vec<FieldDef>,
 }
 
@@ -345,6 +391,16 @@ pub struct SettingSpec {
     pub max: Option<i64>,
     #[serde(default)]
     pub help: Option<String>,
+    #[serde(default)]
+    pub group: Option<String>,
+    #[serde(default)]
+    pub options: Vec<SettingOption>,
+}
+
+#[derive(Debug, Clone, PartialEq, Serialize, Deserialize, utoipa::ToSchema)]
+pub struct SettingOption {
+    pub value: String,
+    pub label: String,
 }
 
 #[derive(Debug, Clone, PartialEq, Serialize, Deserialize)]
@@ -394,6 +450,16 @@ fn default_input_kind() -> String {
 
 fn default_entry() -> String {
     "web/index.js".to_owned()
+}
+
+fn is_menu_target(value: &str) -> bool {
+    !value.is_empty()
+        && value.len() <= 80
+        && value.chars().all(|character| {
+            character.is_ascii_lowercase()
+                || character.is_ascii_digit()
+                || matches!(character, '_' | '-' | '.' | '/')
+        })
 }
 
 fn is_key(value: &str, max: usize) -> bool {
@@ -770,6 +836,14 @@ impl PluginManifest {
                     "must be own, team or organization",
                 ));
             }
+            if let Some(home) = &preset.home
+                && (!home.starts_with('/') || home.starts_with("//") || home.len() > 200)
+            {
+                violations.push(FieldViolation::new(
+                    format!("{path}.home"),
+                    "must be an application path starting with a single slash",
+                ));
+            }
             if preset.permissions.is_empty() {
                 violations.push(FieldViolation::new(
                     format!("{path}.permissions"),
@@ -1021,6 +1095,27 @@ impl PluginManifest {
                     format!("must be one of {}", SETTING_KINDS.join(", ")),
                 ));
             }
+            if setting.kind == SETTING_SELECT {
+                if setting.options.is_empty() {
+                    violations.push(FieldViolation::new(
+                        format!("settings[{index}].options"),
+                        "is required for select settings",
+                    ));
+                }
+                if let Some(default) = setting.default.as_ref().and_then(Value::as_str)
+                    && !setting.options.iter().any(|option| option.value == default)
+                {
+                    violations.push(FieldViolation::new(
+                        format!("settings[{index}].default"),
+                        "must be one of the options",
+                    ));
+                }
+            } else if !setting.options.is_empty() {
+                violations.push(FieldViolation::new(
+                    format!("settings[{index}].options"),
+                    "is only allowed for select settings",
+                ));
+            }
             if setting.kind == SETTING_SECRET && setting.default.is_some() {
                 violations.push(FieldViolation::new(
                     format!("settings[{index}].default"),
@@ -1028,6 +1123,19 @@ impl PluginManifest {
                 ));
             }
         }
+        if let Some(permission) = &self.settings_permission
+            && !self
+                .permissions
+                .iter()
+                .any(|declared| &declared.key == permission)
+        {
+            violations.push(FieldViolation::new(
+                "settings_permission",
+                "must be a permission declared in permissions",
+            ));
+        }
+        self.validate_menu(&mut violations);
+        self.validate_conflicts(compiled_modules, &mut violations);
         if violations.is_empty() {
             Ok(())
         } else {
@@ -1036,6 +1144,84 @@ impl PluginManifest {
                 "plugin.toml is invalid",
                 violations,
             ))
+        }
+    }
+
+    fn validate_menu(&self, violations: &mut Vec<FieldViolation>) {
+        if let Some(visibility) = &self.menu.own_entities
+            && !OWN_ENTITIES_VISIBILITY.contains(&visibility.as_str())
+        {
+            violations.push(FieldViolation::new(
+                "menu.own_entities",
+                format!("must be one of {}", OWN_ENTITIES_VISIBILITY.join(", ")),
+            ));
+        }
+        if self.menu.rules.len() > MAX_MENU_RULES {
+            violations.push(FieldViolation::new(
+                "menu.rules",
+                format!("at most {MAX_MENU_RULES} rules"),
+            ));
+        }
+        let mut seen = std::collections::HashSet::new();
+        for (index, rule) in self.menu.rules.iter().enumerate() {
+            let path = format!("menu.rules[{index}]");
+            if !is_menu_target(&rule.target) {
+                violations.push(FieldViolation::new(
+                    format!("{path}.target"),
+                    "must be a navigation item key",
+                ));
+            } else if rule.target == "settings" {
+                violations.push(FieldViolation::new(
+                    format!("{path}.target"),
+                    "the settings entry cannot be changed",
+                ));
+            } else if !seen.insert(rule.target.as_str()) {
+                violations.push(FieldViolation::new(
+                    format!("{path}.target"),
+                    "is already targeted by another rule",
+                ));
+            }
+            if !MENU_ACTIONS.contains(&rule.action.as_str()) {
+                violations.push(FieldViolation::new(
+                    format!("{path}.action"),
+                    format!("must be one of {}", MENU_ACTIONS.join(", ")),
+                ));
+            }
+            match (rule.action.as_str(), rule.order) {
+                ("move", None) => violations.push(FieldViolation::new(
+                    format!("{path}.order"),
+                    "is required for move",
+                )),
+                ("hide", Some(_)) => violations.push(FieldViolation::new(
+                    format!("{path}.order"),
+                    "is only allowed for move",
+                )),
+                _ => {}
+            }
+        }
+    }
+
+    fn validate_conflicts(
+        &self,
+        compiled_modules: &[String],
+        violations: &mut Vec<FieldViolation>,
+    ) {
+        if self.conflicts_with.len() > MAX_CONFLICTS {
+            violations.push(FieldViolation::new(
+                "conflicts_with",
+                format!("at most {MAX_CONFLICTS} modules"),
+            ));
+        }
+        let mut seen = std::collections::HashSet::new();
+        for (index, module) in self.conflicts_with.iter().enumerate() {
+            let path = format!("conflicts_with[{index}]");
+            if !seen.insert(module.as_str()) {
+                violations.push(FieldViolation::new(path, "is listed twice"));
+            } else if module == &self.key {
+                violations.push(FieldViolation::new(path, "cannot conflict with itself"));
+            } else if !compiled_modules.iter().any(|compiled| compiled == module) {
+                violations.push(FieldViolation::new(path, "is not a built-in module"));
+            }
         }
     }
 

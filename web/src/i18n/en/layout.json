@@ -22,5 +22,7 @@
   "home": {
     "emptyTitle": "No page available",
     "emptyDescription": "No module with a home page is enabled for you. Contact your administrator."
-  }
+  },
+  "extensionsFailedTitle": "Part of the system did not load",
+  "extensionsFailed": "{{names}} did not load. Tell your system administrator."
 }

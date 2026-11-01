@@ -3,6 +3,7 @@ import { useMemo, type ComponentType } from 'react'
 import type { NavContribution } from './define'
 import { NO_FILTER_CONTEXT, useFilters } from './filters'
 import { useLabelTranslator } from './i18n'
+import { pluginMenus, type PluginMenu } from './plugins'
 import { useActiveContributions, usePermissionCheck } from './registry'
 import { ADMIN_AREAS, ORGANIZATION_AREA, useAllowedSettingsAreas } from './settings'
 
@@ -23,6 +24,42 @@ export const SETTINGS_ENTRY_KEY = 'settings'
 
 export function navigationKey(to: string): string {
   return to === '/' ? 'home' : to.replace(/^\/+/, '')
+}
+
+interface LabeledEntry {
+  key: string
+  label: string
+  group?: { label: string }
+}
+
+export function qualifiedLabel(entry: LabeledEntry, entries: LabeledEntry[]): string {
+  const ambiguous = entries.some((other) => other.key !== entry.key && other.label === entry.label)
+  return ambiguous && entry.group ? `${entry.group.label} › ${entry.label}` : entry.label
+}
+
+export function applyPluginMenus(
+  entries: NavigationEntry[],
+  menus: ReadonlyMap<string, PluginMenu>,
+): NavigationEntry[] {
+  if (menus.size === 0) return entries
+  let result = entries.map((entry) => {
+    const menu = menus.get(entry.module)
+    return menu?.flat && entry.group ? { ...entry, group: undefined } : entry
+  })
+  let moved = false
+  for (const [, menu] of [...menus].sort(([left], [right]) => left.localeCompare(right))) {
+    for (const rule of menu.rules) {
+      if (rule.target === SETTINGS_ENTRY_KEY) continue
+      if (rule.action === 'hide') {
+        result = result.filter((entry) => entry.key !== rule.target)
+      } else if (rule.order != null) {
+        const order = rule.order
+        result = result.map((entry) => (entry.key === rule.target ? { ...entry, order } : entry))
+        moved = true
+      }
+    }
+  }
+  return moved ? result.toSorted((left, right) => left.order - right.order) : result
 }
 
 export function useNavigationEntries(): NavigationEntry[] {
@@ -58,5 +95,6 @@ export function useNavigationEntries(): NavigationEntry[] {
       },
     ]
   }, [items, allowed, translate, settingsAccess])
-  return useFilters('navigation.items', entries, NO_FILTER_CONTEXT)
+  const arranged = useMemo(() => applyPluginMenus(entries, pluginMenus()), [entries])
+  return useFilters('navigation.items', arranged, NO_FILTER_CONTEXT)
 }

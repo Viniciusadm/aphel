@@ -4,7 +4,7 @@ import { Link } from 'react-router'
 import { Badge } from '@/components/ui/badge'
 import { cn } from '@/lib/utils'
 import type { SearchGroup, SearchHit } from './api'
-import { searchHitPath, useSearchRecordTypeLabel } from './links'
+import { searchHitPath, useInternalRecordTypes, useSearchRecordTypeLabel } from './links'
 
 export interface SearchRecordTypeIconProps {
   recordType: string
@@ -69,9 +69,10 @@ export interface SearchResultGroupsProps {
 export function SearchResultGroups({ groups, onSelect, className }: SearchResultGroupsProps) {
   const { t } = useTranslation('search')
   const label = useSearchRecordTypeLabel()
+  const internal = useInternalRecordTypes()
   return (
     <div className={cn('grid gap-4', className)}>
-      {groups.map((group) => {
+      {groups.filter((group) => !internal.has(group.record_type)).map((group) => {
         const headingId = `search-group-${group.record_type}`
         return (
           <section

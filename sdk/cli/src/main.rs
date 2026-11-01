@@ -188,7 +188,7 @@ fn new(args: &[String]) -> Result<(), Failure> {
     fs::write(
         dir.join("plugin.toml"),
         format!(
-            "key = \"{key}\"\nname = \"{key}\"\nversion = \"0.1.0\"\napi = 1\nrequires_aphel = \">=0.1.0\"\n\n[[routes]]\nmethod = \"GET\"\npath = \"/ping\"\n"
+            "key = \"{key}\"\nname = \"{key}\"\nversion = \"0.1.0\"\napi = 1\nrequires_aphel = \">=0.1.0\"\n\n[menu]\nflat = true\n\n[[routes]]\nmethod = \"GET\"\npath = \"/ping\"\n"
         ),
     )?;
     if js {

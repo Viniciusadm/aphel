@@ -156,12 +156,13 @@ pub async fn apply(
             Some(Some(owner)) if owner == manifest.key => {
                 sqlx::query(
                     "UPDATE custom_objects SET label_singular = ?, label_plural = ?, description = ?, \
-                     owner_enabled = ?, updated_at = CURRENT_TIMESTAMP(6) WHERE `key` = ?",
+                     owner_enabled = ?, is_internal = ?, updated_at = CURRENT_TIMESTAMP(6) WHERE `key` = ?",
                 )
                 .bind(&entity.label)
                 .bind(&entity.label_plural)
                 .bind(&entity.description)
                 .bind(entity.owner_enabled)
+                .bind(entity.internal)
                 .bind(&object_key)
                 .execute(&pool)
                 .await?;
@@ -194,6 +195,7 @@ pub async fn apply(
                     ManagedObject {
                         module_key: manifest.key.clone(),
                         permission_scope: manifest.entity_scope(entity),
+                        internal: entity.internal,
                     },
                 )
                 .await?;
@@ -305,6 +307,7 @@ fn reserved_keys(manifest: &PluginManifest, entity_key: &str) -> Result<Vec<Stri
         },
         position: 0,
         module_key: Some(manifest.key.clone()),
+        is_internal: entity.internal,
         created_by: None,
         created_at: now,
         updated_at: now,

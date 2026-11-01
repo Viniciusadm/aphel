@@ -22,5 +22,7 @@
   "home": {
     "emptyTitle": "Nenhuma página disponível",
     "emptyDescription": "Nenhum módulo com página inicial está habilitado para você. Fale com o administrador."
-  }
+  },
+  "extensionsFailedTitle": "Parte do sistema não carregou",
+  "extensionsFailed": "{{names}} não carregou. Avise o administrador do sistema."
 }

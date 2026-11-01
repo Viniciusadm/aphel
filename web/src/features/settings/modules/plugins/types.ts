@@ -36,6 +36,7 @@ export interface PluginDeclarations {
   routes: string[]
   public_routes: string[]
   requires: string[]
+  optional_requires: string[]
   permissions: PluginPermission[]
   allowed_hosts: string[]
   schedules: string[]
@@ -48,14 +49,44 @@ export interface PluginDeclarations {
   role_presets: PluginRolePreset[]
   entity_scopes: PluginEntityScope[]
   unique_fields: string[]
+  menu: PluginMenu
+  conflicts_with: string[]
   has_web: boolean
+}
+
+export interface PluginMenuRule {
+  target: string
+  action: 'hide' | 'move'
+  order?: number | null
+}
+
+export interface PluginMenu {
+  flat?: boolean
+  own_entities?: 'visible' | 'hidden' | null
+  rules?: PluginMenuRule[]
+}
+
+export interface PluginConflict {
+  kind: 'menu_target' | 'hook_overlap' | 'role_preset_key'
+  target: string
+  other_plugin: string
+  other_name: string
+}
+
+export interface ModuleConflictPlan {
+  module: string
+  name: string
+  enabled: boolean
+  blocked_by: string[]
 }
 
 export interface PluginSetting {
   key: string
   label: string
-  type: 'number' | 'boolean' | 'text' | 'secret'
+  type: 'number' | 'boolean' | 'text' | 'select' | 'secret'
   help: string | null
+  group?: string | null
+  options?: { value: string; label: string }[]
   min: number | null
   max: number | null
   value: unknown
@@ -81,6 +112,8 @@ export interface PluginConsent extends PluginDeclarations {
   description: string | null
   installed_version: string | null
   grants: RoleGrantStatus[]
+  conflicts: PluginConflict[]
+  module_conflicts: ModuleConflictPlan[]
 }
 
 export const PLUGINS_PATH = '/v1/plugins'

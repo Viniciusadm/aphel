@@ -1,3 +1,4 @@
+import { pluginDisplayName } from '@/kernel/modules/plugins'
 import { History } from 'lucide-react'
 import { useMemo } from 'react'
 import { useTranslation } from 'react-i18next'
@@ -150,7 +151,7 @@ function ActorCell({ actor, onFilterActor }: { actor: AuditActor; onFilterActor:
         : actor.type === 'api_token'
           ? t('actor.apiToken')
           : actor.type === 'plugin'
-            ? t('actor.plugin', { key: actor.id })
+            ? t('actor.plugin', { key: pluginDisplayName(actor.id ?? '') })
             : t('actor.automation')
 
   return (

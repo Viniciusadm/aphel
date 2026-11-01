@@ -8,7 +8,7 @@ import { recordDetailHref, recordTypeIcon } from '@/features/records/links'
 import { SEARCH_MIN_LENGTH, useGlobalSearch, type SearchGroup } from '@/features/search'
 import { NO_FILTER_CONTEXT, useFilters } from '@/kernel/modules/filters'
 import { useModuleCommands } from '@/kernel/modules/contributions'
-import { useNavigationEntries } from '@/kernel/modules/navigation'
+import { qualifiedLabel, useNavigationEntries } from '@/kernel/modules/navigation'
 import { cn } from '@/lib/utils'
 import { useCommandPalette } from './context'
 import type { CreateAction } from './create-actions'
@@ -150,7 +150,7 @@ function PaletteBody({ mode, onModeChange, contextCommands, createActions }: Pal
       run: () => controls.openCreate({ kind: action.key }),
     }))
     const navigation: PaletteCommand[] = navigationEntries.map((item) => {
-      const page = item.label
+      const page = qualifiedLabel(item, navigationEntries)
       const shortcut = GO_SHORTCUTS.find((candidate) => candidate.to === item.to)
       return {
         id: `nav:${item.to}`,

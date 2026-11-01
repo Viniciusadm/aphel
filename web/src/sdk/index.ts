@@ -31,5 +31,5 @@ export {
 } from '@/features/records/formatting'
 export type { FilterNode, RecordItem } from '@/features/records/types'
 export { customObjectPath, customRecordPath, customRecordType } from '@/features/custom-records/resources'
-export { ConfirmDialog, ErrorBoundary, PageLoader, notifyError, notifySuccess } from '@/components/feedback'
+export { ConfirmDialog, ErrorBoundary, PageLoader, errorMessage, notifyError, notifySuccess } from '@/components/feedback'
 export * from './ui'

@@ -17,7 +17,7 @@ export function RecordTypeSelect({ value, label, coreLabel, to, extraTypes = [] 
 
   const core = RECORD_TYPES.map((recordType) => ({ value: recordType as string, label: coreLabel(recordType) }))
   const custom = (objects.data ?? [])
-    .filter((object) => object.is_active || object.record_type === value)
+    .filter((object) => (object.is_active && !object.is_internal) || object.record_type === value)
     .map((object) => ({ value: object.record_type, label: object.label_plural }))
   const known = [...core, ...extraTypes, ...custom]
   const options = known.some((option) => option.value === value) ? known : [...known, { value, label: value }]

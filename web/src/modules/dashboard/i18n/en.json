@@ -149,5 +149,8 @@
   },
   "placeholders": {
     "number": "0"
+  },
+  "categories": {
+    "sales": "Sales"
   }
 }

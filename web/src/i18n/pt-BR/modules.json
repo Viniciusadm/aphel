@@ -159,7 +159,10 @@
       "widgets": "Widgets",
       "rolePresets": "Papéis sugeridos",
       "entityScopes": "Visibilidade padrão",
-      "uniqueFields": "Campos únicos"
+      "uniqueFields": "Campos únicos",
+      "optionalRequires": "Permissões opcionais",
+      "conflictsWith": "Desativa os módulos",
+      "menu": "Altera o menu"
     },
     "checking": "Verificando o pacote…",
     "settings": "Configurações",
@@ -189,7 +192,21 @@
     "grantsRoleMissing": "{{role}}: o papel não existe",
     "grantsIncomplete": "Alguns papéis não existem ou não têm todas as permissões esperadas pelo plugin. Crie os papéis em Configurações › Papéis e reaplique as permissões.",
     "reapplyGrants": "Reaplicar permissões",
-    "grantsReapplied": "Permissões reaplicadas."
+    "grantsReapplied": "Permissões reaplicadas.",
+    "consentConflictsTitle": "Este plugin se sobrepõe a outros já instalados",
+    "consentConflictsDescription": "Os plugins abaixo mexem nas mesmas coisas e podem se contradizer.",
+    "consentConflictsAck": "Entendo que esses plugins se contradizem e quero continuar",
+    "consentModuleDisables": "Este plugin desativa o módulo {{name}} enquanto estiver instalado. Ele será reativado ao desinstalar o plugin.",
+    "consentModuleBlocked": "O módulo {{name}} não pode ser desativado agora: {{blockedBy}}.",
+    "conflictKinds": {
+      "menu_target": "Mesmo item de menu: {{target}}",
+      "hook_overlap": "Mesma regra: {{target}}",
+      "role_preset_key": "Mesmo papel sugerido: {{target}}"
+    },
+    "conflictWith": "{{kind}} (já em {{plugin}})",
+    "toggleConflictsTitle": "Ativar {{name}}?",
+    "toggleConflictsConfirm": "Ativar mesmo assim",
+    "heldByPlugin": "Mantido desativado por {{plugin}}"
   },
   "placeholders": {
     "value": "Digite o valor"

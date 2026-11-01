@@ -143,6 +143,7 @@ pub struct ModuleResponse {
     pub configured_secrets: Vec<String>,
     pub dependencies: Vec<ModuleDependencyResponse>,
     pub enabled_dependents: Vec<String>,
+    pub held_by: Option<String>,
 }
 
 impl From<ModuleView> for ModuleResponse {
@@ -194,6 +195,7 @@ impl From<ModuleView> for ModuleResponse {
             configured_secrets: view.configured_secrets.clone(),
             dependencies: view.dependencies.into_iter().map(Into::into).collect(),
             enabled_dependents: view.enabled_dependents,
+            held_by: view.held_by,
         }
     }
 }

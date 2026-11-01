@@ -127,8 +127,8 @@ impl CustomObjectRepository for MySqlCustomObjectRepository {
         sqlx::query(
             "INSERT INTO custom_objects (id, `key`, label_singular, label_plural, \
              description, icon, color, title_field_key, owner_enabled, is_active, position, \
-             module_key, created_by, created_at, updated_at) \
-             VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)",
+             module_key, is_internal, created_by, created_at, updated_at) \
+             VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)",
         )
         .bind(object.id.to_string())
         .bind(&object.key)
@@ -142,6 +142,7 @@ impl CustomObjectRepository for MySqlCustomObjectRepository {
         .bind(object.data.is_active)
         .bind(object.position)
         .bind(&object.module_key)
+        .bind(object.is_internal)
         .bind(
             object
                 .created_by

@@ -1,3 +1,4 @@
+import { qualifiedLabel } from '@/kernel/modules/navigation'
 import { NativeSelect } from '@/components/ui/native-select'
 import { useId, useMemo, useState } from 'react'
 import { useQueryClient } from '@tanstack/react-query'
@@ -112,7 +113,7 @@ function NavigationSection({ preferences }: { preferences: PersonalPreferences }
               <option value={DEFAULT_HOME}>{t('home.default')}</option>
               {homeOptions.map((entry) => (
                 <option key={entry.key} value={entry.to}>
-                  {entry.label}
+                  {qualifiedLabel(entry, homeOptions)}
                 </option>
               ))}
             </NativeSelect>

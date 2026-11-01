@@ -24,7 +24,7 @@ export default defineModule({
 | Method | Contributes |
 | --- | --- |
 | `routes(routes, { layout })` / `publicRoutes` | App routes (`layout: 'app'` by default, or `'bare'`) and public routes without a session. Routes behind the `ModuleGate` |
-| `nav(item)` | Sidebar item (`order`, `permission`, `badge`) |
+| `nav(item)` | Sidebar item (`to`, `label`, `icon`, `key`, `end`, `order`, `permission`, `badge`, `group`). `group` (`{ key, label, icon }`) collects items into a collapsible section placed where its first item is; a plugin's `[menu] flat = true` drops it. Plugins can also hide or move items declaratively with `[menu.rules]` (see [`../plugins`](../plugins/README.md)) |
 | `settings(area, item)` | Settings item (`account`, `organization`, `integrations`, `data`) with its own page |
 | `recordTab(types, tab)` | Tab on the record detail page (`render` receives `recordType`, `recordId`, `readOnly`; the optional `useVisible` hides the tab depending on the data) |
 | `recordList(extension)` | Extra filter fields and title adornment in record lists (`use` returns `{ filterFields, titleAddon }`) |

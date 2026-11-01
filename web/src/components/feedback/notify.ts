@@ -54,8 +54,28 @@ export function ruleErrorMessage(error: unknown): string | null {
   }
 }
 
+const translateLoose = i18n.t.bind(i18n) as unknown as (key: string, options: object) => string
+
+function lookup(namespace: string, key: string): string | null {
+  const text = translateLoose(key, { ns: namespace, defaultValue: '' })
+  return text === '' ? null : text
+}
+
+function codeMessage(error: unknown): string | null {
+  if (!isApiError(error)) return null
+  const hosted = lookup('records-detail', `notify.codes.${error.code}`)
+  if (hosted) return hosted
+  const parts = error.code.split('_')
+  for (let length = parts.length - 1; length > 0; length--) {
+    const text = lookup(parts.slice(0, length).join('_'), `errors.${error.code}`)
+    if (text) return text
+  }
+  return null
+}
+
 export function errorMessage(error: unknown): string {
-  return ruleErrorMessage(error) ?? i18n.t(errorMessageKey(error), { ns: 'records-detail' })
+  if (typeof error === 'string' && error.trim() !== '') return error
+  return ruleErrorMessage(error) ?? codeMessage(error) ?? i18n.t(errorMessageKey(error), { ns: 'records-detail' })
 }
 
 export interface NotifyOptions {

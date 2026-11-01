@@ -24,7 +24,7 @@
   "actor": {
     "system": "System",
     "apiToken": "API token",
-    "plugin": "Plugin {{key}}",
+    "plugin": "{{key}} (automatic)",
     "automation": "Automation",
     "unknownUser": "Removed user",
     "filterBy": "Filter by this actor"

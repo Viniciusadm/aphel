@@ -67,7 +67,7 @@ pub(crate) fn router() -> OpenApiRouter<AppState> {
         .routes(routes!(uninstall_plugin))
         .routes(routes!(enable_plugin))
         .routes(routes!(disable_plugin))
-        .routes(routes!(update_plugin_settings))
+        .routes(routes!(update_plugin_settings, list_plugin_settings))
         .routes(routes!(reapply_plugin_grants))
         .routes(routes!(plugin_changes))
         .routes(routes!(plugin_change_stream))
@@ -180,6 +180,8 @@ pub(crate) struct PluginSettingResponse {
     help: Option<String>,
     min: Option<i64>,
     max: Option<i64>,
+    group: Option<String>,
+    options: Vec<crate::manifest::SettingOption>,
     #[schema(value_type = Object)]
     value: Value,
     configured: Option<bool>,
@@ -230,6 +232,8 @@ pub(crate) struct PluginDeclarations {
     role_presets: Vec<PluginRolePresetResponse>,
     entity_scopes: Vec<PluginEntityScopeResponse>,
     unique_fields: Vec<String>,
+    menu: crate::manifest::MenuSpec,
+    conflicts_with: Vec<String>,
     has_web: bool,
 }
 
@@ -357,6 +361,8 @@ impl From<&PluginManifest> for PluginDeclarations {
                         }),
                 )
                 .collect(),
+            menu: manifest.menu.clone(),
+            conflicts_with: manifest.conflicts_with.clone(),
             has_web: manifest.web.is_some(),
         }
     }
@@ -389,10 +395,14 @@ pub(crate) struct PluginConsentResponse {
     #[serde(flatten)]
     declares: PluginDeclarations,
     grants: Vec<grants::RoleGrantStatus>,
+    conflicts: Vec<crate::conflicts::PluginConflict>,
+    module_conflicts: Vec<crate::modules::ModuleConflictPlan>,
 }
 
-async fn respond(state: &AppState, plugin: InstalledPlugin) -> Result<PluginResponse, AppError> {
-    let snapshot = registry::current(&state.db()?).await?;
+async fn setting_responses(
+    state: &AppState,
+    plugin: &InstalledPlugin,
+) -> Result<Vec<PluginSettingResponse>, AppError> {
     let values = plugin.effective_settings();
     let mut settings = Vec::with_capacity(plugin.manifest.settings.len());
     for setting in &plugin.manifest.settings {
@@ -417,10 +427,18 @@ async fn respond(state: &AppState, plugin: InstalledPlugin) -> Result<PluginResp
             help: setting.help.clone(),
             min: setting.min,
             max: setting.max,
+            group: setting.group.clone(),
+            options: setting.options.clone(),
             value: values.get(&setting.key).cloned().unwrap_or(Value::Null),
             configured,
         });
     }
+    Ok(settings)
+}
+
+async fn respond(state: &AppState, plugin: InstalledPlugin) -> Result<PluginResponse, AppError> {
+    let snapshot = registry::current(&state.db()?).await?;
+    let settings = setting_responses(state, &plugin).await?;
     let grants = grants::status(&state.db()?, &plugin.manifest).await?;
     let ungranted_roles = grants
         .iter()
@@ -576,7 +594,7 @@ async fn host_catalog(
         (status = 201, description = "Plugin installed or upgraded", body = Data<PluginResponse>),
         (status = 401, description = "Missing or invalid credentials (`unauthorized`)", body = ErrorEnvelope),
         (status = 403, description = "Missing `system.manage` (`permission_denied`)", body = ErrorEnvelope),
-        (status = 409, description = "A custom object, field or permission with the same key already exists (`plugin_object_conflict`, `plugin_field_conflict`, `permission_already_registered`)", body = ErrorEnvelope),
+        (status = 409, description = "A custom object, field or permission with the same key already exists (`plugin_object_conflict`, `plugin_field_conflict`, `permission_already_registered`), or the plugin overlaps with another installed plugin and `acknowledge_conflicts` was not sent (`plugin_conflicts_unacknowledged`)", body = ErrorEnvelope),
         (status = 422, description = "Invalid package, manifest or backend (`plugin_package_invalid`, `plugin_manifest_invalid`, `plugin_backend_invalid`)", body = ErrorEnvelope),
     )
 )]
@@ -620,6 +638,8 @@ async fn install_plugin(
     let previous = store::find(&pool, &package.manifest.key).await?;
     let presets = grants::selected_presets(&package.manifest, &presets)?;
     schema::check(&state, &package.manifest).await?;
+    let conflicts = crate::conflicts::detect_for(&pool, &package.manifest).await?;
+    let module_conflicts = crate::modules::plan(&state, scope, &package.manifest).await?;
     if params.dry_run {
         let manifest = &package.manifest;
         let consent = PluginConsentResponse {
@@ -630,42 +650,62 @@ async fn install_plugin(
             installed_version: previous.map(|plugin| plugin.version),
             declares: PluginDeclarations::from(manifest),
             grants: grants::status(&pool, manifest).await?,
+            conflicts,
+            module_conflicts,
         };
         return Ok(Json(Data::new(consent)).into_response());
     }
-    schema::apply(&state, scope, &package.manifest).await?;
+    crate::conflicts::require_acknowledged(&conflicts, params.acknowledge_conflicts)?;
+    crate::modules::ensure_unblocked(&module_conflicts)?;
     let enabled = previous.as_ref().is_none_or(|plugin| plugin.enabled);
-    let mut tx = aphel_kernel::database::transaction::MySqlTx::from(
-        pool.begin().await.map_err(AppError::from)?,
-    );
-    store::save(&mut tx, &package, Some(scope.user_id())).await?;
-    sync_permissions(&mut tx, &package.manifest, enabled).await?;
-    let report = grants::reconcile(&mut tx, &package.manifest, &presets).await?;
-    let mut changes = vec![FieldChange::new(
-        "version",
-        json!(previous.map(|plugin| plugin.version)),
-        json!(package.manifest.version),
-    )];
-    changes.extend(grant_changes(&report));
-    record_in(
-        &mut tx,
-        &state,
-        scope,
-        "plugin.installed",
-        &package.manifest.key,
-        changes,
-        client.0.ip,
-    )
-    .await?;
-    tx.commit().await.map_err(AppError::from)?;
-    registry::invalidate().await;
-    if let Err(error) = prune_compiled(&state).await {
-        tracing::warn!(error = %error, "could not prune precompiled plugin backends");
+    let held = if enabled {
+        crate::modules::hold(&state, scope, &package.manifest).await?
+    } else {
+        Vec::new()
+    };
+    let outcome: Result<InstalledPlugin, AppError> = async {
+        schema::apply(&state, scope, &package.manifest).await?;
+        let mut tx = aphel_kernel::database::transaction::MySqlTx::from(
+            pool.begin().await.map_err(AppError::from)?,
+        );
+        store::save(&mut tx, &package, Some(scope.user_id())).await?;
+        sync_permissions(&mut tx, &package.manifest, enabled).await?;
+        let report = grants::reconcile(&mut tx, &package.manifest, &presets).await?;
+        let mut changes = vec![FieldChange::new(
+            "version",
+            json!(previous.map(|plugin| plugin.version)),
+            json!(package.manifest.version),
+        )];
+        changes.extend(grant_changes(&report));
+        record_in(
+            &mut tx,
+            &state,
+            scope,
+            "plugin.installed",
+            &package.manifest.key,
+            changes,
+            client.0.ip,
+        )
+        .await?;
+        tx.commit().await.map_err(AppError::from)?;
+        registry::invalidate().await;
+        if let Err(error) = prune_compiled(&state).await {
+            tracing::warn!(error = %error, "could not prune precompiled plugin backends");
+        }
+        let plugin = installed(&state, &package.manifest.key).await?;
+        if !plugin.enabled {
+            schema::set_active(&state, &plugin.manifest, false).await?;
+        }
+        Ok(plugin)
     }
-    let plugin = installed(&state, &package.manifest.key).await?;
-    if !plugin.enabled {
-        schema::set_active(&state, &plugin.manifest, false).await?;
-    }
+    .await;
+    let plugin = match outcome {
+        Ok(plugin) => plugin,
+        Err(error) => {
+            crate::modules::release_modules(&state, scope, &package.manifest.key, &held).await;
+            return Err(error.into());
+        }
+    };
     Ok((
         StatusCode::CREATED,
         Json(Data::new(respond(&state, plugin).await?)),
@@ -677,6 +717,14 @@ async fn install_plugin(
 pub(crate) struct InstallParams {
     #[serde(default)]
     dry_run: bool,
+    #[serde(default)]
+    acknowledge_conflicts: bool,
+}
+
+#[derive(Debug, Default, Deserialize, IntoParams)]
+pub(crate) struct ToggleParams {
+    #[serde(default)]
+    acknowledge_conflicts: bool,
 }
 
 async fn package_bytes(
@@ -911,6 +959,7 @@ async fn uninstall_plugin(
 ) -> Result<StatusCode, ApiError> {
     tenant.scope.require(&Permission::SYSTEM_MANAGE)?;
     let plugin = installed(&state, &key).await?;
+    crate::modules::release(&state, &tenant.scope, &key).await;
     if params.purge {
         schema::purge(&state, &plugin.manifest).await?;
     } else {
@@ -953,10 +1002,19 @@ async fn toggle(
     client: ClientInfo,
     key: &str,
     enabled: bool,
+    acknowledge_conflicts: bool,
 ) -> Result<PluginResponse, AppError> {
     tenant.scope.require(&Permission::SYSTEM_MANAGE)?;
     let plugin = installed(state, key).await?;
     if plugin.enabled != enabled {
+        if enabled {
+            schema::validate_dependencies(state, &plugin.manifest).await?;
+            let conflicts = crate::conflicts::detect_for(&state.db()?, &plugin.manifest).await?;
+            crate::conflicts::require_acknowledged(&conflicts, acknowledge_conflicts)?;
+            let plans = crate::modules::plan(state, &tenant.scope, &plugin.manifest).await?;
+            crate::modules::ensure_unblocked(&plans)?;
+            crate::modules::hold(state, &tenant.scope, &plugin.manifest).await?;
+        }
         let mut tx = aphel_kernel::database::transaction::MySqlTx::from(
             state.db()?.begin().await.map_err(AppError::from)?,
         );
@@ -964,6 +1022,9 @@ async fn toggle(
         set_runtime_permissions_active(&mut tx, &permissions_owner(key), enabled).await?;
         tx.commit().await?;
         schema::set_active(state, &plugin.manifest, enabled).await?;
+        if !enabled {
+            crate::modules::release(state, &tenant.scope, key).await;
+        }
         record(
             state,
             &tenant.scope,
@@ -988,9 +1049,10 @@ async fn toggle(
     operation_id = "plugins_enable",
     security(("session_cookie" = [])),
     description = "Enables an installed plugin (permission `system.manage`): its entities, fields, hooks, events, routes and web bundle come back. Publishes `plugin.enabled`.",
-    params(("key" = String, Path, description = "Plugin key")),
+    params(("key" = String, Path, description = "Plugin key"), ToggleParams),
     responses(
         (status = 200, description = "Plugin enabled", body = Data<PluginResponse>),
+        (status = 409, description = "The plugin overlaps with another enabled plugin and the overlap was not acknowledged (`plugin_conflicts_unacknowledged`)", body = ErrorEnvelope),
         (status = 403, description = "Missing `system.manage` (`permission_denied`)", body = ErrorEnvelope),
         (status = 404, description = "Plugin not installed (`plugin_not_found`)", body = ErrorEnvelope),
     )
@@ -1000,9 +1062,18 @@ async fn enable_plugin(
     tenant: AuthContext,
     client: ClientInfo,
     Path(key): Path<String>,
+    Query(params): Query<ToggleParams>,
 ) -> Result<Json<Data<PluginResponse>>, ApiError> {
     Ok(Json(Data::new(
-        toggle(&state, &tenant, client, &key, true).await?,
+        toggle(
+            &state,
+            &tenant,
+            client,
+            &key,
+            true,
+            params.acknowledge_conflicts,
+        )
+        .await?,
     )))
 }
 
@@ -1027,7 +1098,7 @@ async fn disable_plugin(
     Path(key): Path<String>,
 ) -> Result<Json<Data<PluginResponse>>, ApiError> {
     Ok(Json(Data::new(
-        toggle(&state, &tenant, client, &key, false).await?,
+        toggle(&state, &tenant, client, &key, false, false).await?,
     )))
 }
 
@@ -1051,6 +1122,9 @@ fn validate_settings(
                     && setting.max.is_none_or(|max| number <= max)
             }),
             "boolean" => value.is_boolean(),
+            crate::manifest::SETTING_SELECT => value
+                .as_str()
+                .is_some_and(|text| setting.options.iter().any(|option| option.value == text)),
             _ => value.as_str().is_some_and(|text| text.len() <= 1000),
         };
         if valid || value.is_null() {
@@ -1073,13 +1147,52 @@ fn validate_settings(
     }
 }
 
+fn require_settings_access(tenant: &AuthContext, plugin: &InstalledPlugin) -> Result<(), AppError> {
+    if tenant.scope.require(&Permission::SYSTEM_MANAGE).is_ok() {
+        return Ok(());
+    }
+    match &plugin.manifest.settings_permission {
+        Some(permission) => {
+            tenant
+                .scope
+                .require(&Permission::parse(permission.clone())?)?;
+            Ok(())
+        }
+        None => tenant.scope.require(&Permission::SYSTEM_MANAGE).map(|_| ()),
+    }
+}
+
+#[utoipa::path(
+    get,
+    path = "/plugins/{key}/settings",
+    tag = TAG,
+    operation_id = "plugins_settings",
+    security(("session_cookie" = [])),
+    description = "Lists the settings of a plugin with their current values (permission `system.manage` or the plugin's `settings_permission`). Secret settings only report `configured`.",
+    params(("key" = String, Path, description = "Plugin key")),
+    responses(
+        (status = 200, description = "Settings", body = Data<Vec<PluginSettingResponse>>),
+        (status = 403, description = "Missing permission (`permission_denied`)", body = ErrorEnvelope),
+        (status = 404, description = "Plugin not installed (`plugin_not_found`)", body = ErrorEnvelope),
+    )
+)]
+async fn list_plugin_settings(
+    State(state): State<AppState>,
+    tenant: AuthContext,
+    Path(key): Path<String>,
+) -> Result<Json<Data<Vec<PluginSettingResponse>>>, ApiError> {
+    let plugin = installed(&state, &key).await?;
+    require_settings_access(&tenant, &plugin)?;
+    Ok(Json(Data::new(setting_responses(&state, &plugin).await?)))
+}
+
 #[utoipa::path(
     put,
     path = "/plugins/{key}/settings",
     tag = TAG,
     operation_id = "plugins_update_settings",
     security(("session_cookie" = [])),
-    description = "Replaces the settings of a plugin (permission `system.manage`), validated against the settings it declares. `null` restores the default. Secret settings are stored encrypted and never returned (only `configured`): a string sets the secret, `null` removes it and leaving the key out keeps it. Publishes `plugin.settings_updated`.",
+    description = "Replaces the settings of a plugin (permission `system.manage` or the plugin's `settings_permission`), validated against the settings it declares. `null` restores the default. Secret settings are stored encrypted and never returned (only `configured`): a string sets the secret, `null` removes it and leaving the key out keeps it. Publishes `plugin.settings_updated`.",
     params(("key" = String, Path, description = "Plugin key")),
     request_body(content = Object, description = "Map of setting key to value"),
     responses(
@@ -1096,8 +1209,8 @@ async fn update_plugin_settings(
     Path(key): Path<String>,
     Json(values): Json<Map<String, Value>>,
 ) -> Result<Json<Data<PluginResponse>>, ApiError> {
-    tenant.scope.require(&Permission::SYSTEM_MANAGE)?;
     let plugin = installed(&state, &key).await?;
+    require_settings_access(&tenant, &plugin)?;
     let mut settings = validate_settings(&plugin.manifest, &values)?;
     settings.retain(|_, value| !value.is_null());
     let mut secrets = Vec::new();
@@ -1172,7 +1285,10 @@ async fn update_plugin_settings(
 #[derive(Debug, Serialize, ToSchema)]
 pub(crate) struct WebPluginResponse {
     key: String,
+    name: String,
     version: String,
+    menu: crate::manifest::MenuSpec,
+    role_homes: std::collections::BTreeMap<String, String>,
     entry: String,
     style: Option<String>,
 }
@@ -1206,7 +1322,15 @@ async fn web_plugins(
                 let web = plugin.manifest.web.as_ref()?;
                 Some(WebPluginResponse {
                     key: plugin.key.clone(),
+                    name: plugin.manifest.name.clone(),
                     version: plugin.version.clone(),
+                    menu: plugin.manifest.menu.clone(),
+                    role_homes: plugin
+                        .manifest
+                        .role_presets
+                        .iter()
+                        .filter_map(|preset| Some((preset.key.clone(), preset.home.clone()?)))
+                        .collect(),
                     entry: asset(plugin, &web.entry),
                     style: web.style.as_deref().map(|style| asset(plugin, style)),
                 })

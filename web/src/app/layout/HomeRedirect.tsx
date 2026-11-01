@@ -1,7 +1,9 @@
 import { useEffect } from 'react'
 import { useLocation, useNavigate } from 'react-router'
+import { useSession } from '@/app/session/session-context'
 import { mobileHomePath } from '@/features/mobile/lib/home'
 import { usePersonalPreferences } from '@/features/settings/navigation/api'
+import { pluginRoleHome } from '@/kernel/modules/plugins'
 
 const HOME_REDIRECT_KEY = 'aphel.home.redirected'
 
@@ -25,7 +27,8 @@ export function HomeRedirect() {
   const location = useLocation()
   const navigate = useNavigate()
   const preferences = usePersonalPreferences()
-  const home = preferences.data?.navigation.home ?? mobileHomePath()
+  const { me } = useSession()
+  const home = preferences.data?.navigation.home ?? pluginRoleHome(me.role_key) ?? mobileHomePath()
 
   useEffect(
     () => () => {

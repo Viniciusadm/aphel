@@ -136,6 +136,10 @@ impl ModuleLifecycle for ModuleRuntime {
             .unwrap_or_default()
     }
 
+    async fn held_modules(&self) -> Result<std::collections::HashMap<String, String>, AppError> {
+        crate::modules::toggle_guard::held_modules(&self.pool).await
+    }
+
     async fn on_enable(&self, scope: &AccessScope, key: &str) -> Result<(), AppError> {
         let entry = self.entry(key)?;
         self.refresh().await;

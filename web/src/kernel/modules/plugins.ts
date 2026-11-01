@@ -1,7 +1,22 @@
 import type { WebModule } from './define'
 
+export interface PluginMenuRule {
+  target: string
+  action: 'hide' | 'move'
+  order?: number | null
+}
+
+export interface PluginMenu {
+  flat: boolean
+  own_entities?: 'visible' | 'hidden' | null
+  rules: PluginMenuRule[]
+}
+
 interface WebPluginEntry {
   key: string
+  name: string
+  menu: PluginMenu
+  role_homes?: Record<string, string>
   version: string
   entry: string
   style: string | null
@@ -10,6 +25,10 @@ interface WebPluginEntry {
 const PLUGINS_URL = '/api/v1/public/plugins'
 
 let loaded: WebModule[] = []
+let failedNames: string[] = []
+let menus: ReadonlyMap<string, PluginMenu> = new Map()
+let roleHomes: ReadonlyMap<string, string> = new Map()
+let names: ReadonlyMap<string, string> = new Map()
 
 function injectStyle(href: string) {
   const link = document.createElement('link')
@@ -33,11 +52,25 @@ export async function loadWebPlugins(): Promise<void> {
     if (!response.ok) return
     const body = (await response.json()) as { data: WebPluginEntry[] }
     const results = await Promise.allSettled(body.data.map(importPlugin))
-    loaded = results.flatMap((result) => {
-      if (result.status === 'fulfilled') return [result.value]
+    const loadedMenus = new Map<string, PluginMenu>()
+    const loadedHomes = new Map<string, string>()
+    const loadedNames = new Map<string, string>()
+    const failures: string[] = []
+    loaded = results.flatMap((result, index) => {
+      if (result.status === 'fulfilled') {
+        loadedMenus.set(body.data[index].key, body.data[index].menu)
+        loadedNames.set(body.data[index].key, body.data[index].name)
+        for (const [role, path] of Object.entries(body.data[index].role_homes ?? {})) loadedHomes.set(role, path)
+        return [result.value]
+      }
       console.error(result.reason)
+      failures.push(body.data[index].name)
       return []
     })
+    failedNames = failures
+    menus = loadedMenus
+    roleHomes = loadedHomes
+    names = loadedNames
   } catch (error) {
     console.error(error)
   }
@@ -45,4 +78,20 @@ export async function loadWebPlugins(): Promise<void> {
 
 export function webPlugins(): WebModule[] {
   return loaded
+}
+
+export function pluginMenus(): ReadonlyMap<string, PluginMenu> {
+  return menus
+}
+
+export function failedWebPlugins(): string[] {
+  return failedNames
+}
+
+export function pluginRoleHome(roleKey: string): string | undefined {
+  return roleHomes.get(roleKey)
+}
+
+export function pluginDisplayName(key: string): string {
+  return names.get(key) ?? key
 }

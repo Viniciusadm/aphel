@@ -1,3 +1,4 @@
+import { pluginDisplayName } from '@/kernel/modules/plugins'
 import { ArrowDown, ArrowUp, MoreHorizontal, Pencil, Power, PowerOff } from 'lucide-react'
 import type { ReactNode } from 'react'
 import { useTranslation } from 'react-i18next'
@@ -45,7 +46,7 @@ export function FieldRow({ field, handle, canMoveUp, canMoveDown, onAction }: Fi
           <Badge variant="outline">{t(`types.${field.field_type}`)}</Badge>
           {field.is_system && <Badge variant="secondary">{t('list.system')}</Badge>}
           {field.module_key && (
-            <Badge variant="secondary">{t('list.managed', { module: field.module_key })}</Badge>
+            <Badge variant="secondary">{t('list.managed', { module: pluginDisplayName(field.module_key) })}</Badge>
           )}
           {field.is_required && <Badge variant="outline">{t('list.required')}</Badge>}
           {field.is_unique && <Badge variant="outline">{t('list.unique')}</Badge>}

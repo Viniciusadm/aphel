@@ -1,0 +1,1 @@
+ALTER TABLE custom_objects ADD COLUMN is_internal BOOLEAN NOT NULL DEFAULT FALSE AFTER module_key;

@@ -25,6 +25,7 @@ pub const MODULE_ENABLED: &str = "module_enabled";
 pub const MODULE_EXPORT_REQUIRED: &str = "module_export_required";
 pub const MODULE_CONFIRMATION_REQUIRED: &str = "module_confirmation_required";
 pub const MODULE_REQUIRED: &str = "module_required";
+pub const MODULE_HELD_BY_EXTENSION: &str = "module_held_by_extension";
 
 pub const MODULE_ENABLED_EVENT: &str = "module.enabled";
 pub const MODULE_DISABLED_EVENT: &str = "module.disabled";
@@ -55,6 +56,7 @@ where
         let manage = scope.scope_for(&Permission::SETTINGS_MANAGE).is_some();
         let descriptors = self.ports.runtime().descriptors();
         let states = self.ports.modules().list().await?;
+        let held = self.ports.runtime().held_modules().await?;
         let secrets = if manage {
             self.configured_secrets(scope, &descriptors).await?
         } else {
@@ -62,7 +64,11 @@ where
         };
         Ok(descriptors
             .iter()
-            .map(|descriptor| self.view(descriptor, &descriptors, &states, &secrets, manage))
+            .map(|descriptor| {
+                let mut view = self.view(descriptor, &descriptors, &states, &secrets, manage);
+                view.held_by = held.get(descriptor.key()).cloned();
+                view
+            })
             .collect())
     }
 
@@ -98,6 +104,12 @@ where
         });
         if view.enabled() && !upgrading {
             return Ok(view);
+        }
+        if let Some(holder) = &view.held_by {
+            return Err(AppError::conflict_code(
+                MODULE_HELD_BY_EXTENSION,
+                format!("this module is kept disabled by {holder}"),
+            ));
         }
         let missing = missing_required(
             &view.descriptor.manifest.settings,
@@ -435,6 +447,7 @@ where
                 })
                 .map(|candidate| candidate.key().to_owned())
                 .collect(),
+            held_by: None,
             state,
         }
     }

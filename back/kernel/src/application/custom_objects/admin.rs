@@ -105,6 +105,7 @@ pub struct CreateObjectCommand {
 pub struct ManagedObject {
     pub module_key: String,
     pub permission_scope: Option<RecordScope>,
+    pub internal: bool,
 }
 
 #[derive(Debug, Clone, PartialEq, Eq, Default)]
@@ -418,6 +419,7 @@ where
                 .max()
                 .map_or(0, |position| position + 1),
             module_key: managed.as_ref().map(|managed| managed.module_key.clone()),
+            is_internal: managed.as_ref().is_some_and(|managed| managed.internal),
             created_by: Some(scope.user_id().clone()),
             created_at: now,
             updated_at: now,

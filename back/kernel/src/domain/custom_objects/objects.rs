@@ -62,6 +62,7 @@ pub struct CustomObject {
     pub data: CustomObjectData,
     pub position: i32,
     pub module_key: Option<String>,
+    pub is_internal: bool,
     pub created_by: Option<UserId>,
     pub created_at: DateTime<Utc>,
     pub updated_at: DateTime<Utc>,

@@ -17,6 +17,7 @@ export interface ConfirmDialogProps {
   cancelLabel?: string
   variant?: ConfirmDialogVariant
   confirmationText?: string
+  confirmDisabled?: boolean
   pending?: boolean
   onError?: (error: unknown) => void
   onConfirm: () => void | Promise<void>
@@ -36,6 +37,7 @@ function ConfirmDialogBody({
   cancelLabel,
   variant,
   confirmationText,
+  confirmDisabled = false,
   busy,
   onOpenChange,
   onSubmit,
@@ -48,7 +50,7 @@ function ConfirmDialogBody({
   const typedMatches = !requiresTyping || typed.trim() === confirmationText?.trim()
 
   const submit = () => {
-    if (!busy && typedMatches) onSubmit()
+    if (!busy && typedMatches && !confirmDisabled) onSubmit()
   }
 
   return (
@@ -89,7 +91,7 @@ function ConfirmDialogBody({
         <Button
           variant={destructive ? 'destructive' : 'default'}
           onClick={submit}
-          disabled={busy || !typedMatches}
+          disabled={busy || !typedMatches || confirmDisabled}
           aria-busy={busy}
         >
           {busy

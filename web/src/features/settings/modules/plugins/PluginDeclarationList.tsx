@@ -3,6 +3,12 @@ import type { PluginDeclarations } from './types'
 
 const DECLARATIONS = [
   ['requires', (plugin: PluginDeclarations) => plugin.requires],
+  ['optionalRequires', (plugin: PluginDeclarations) => plugin.optional_requires],
+  ['conflictsWith', (plugin: PluginDeclarations) => plugin.conflicts_with],
+  [
+    'menu',
+    (plugin: PluginDeclarations) => (plugin.menu.rules ?? []).map((rule) => `${rule.action} ${rule.target}`),
+  ],
   ['permissions', (plugin: PluginDeclarations) => plugin.permissions.map((permission) => permission.label)],
   ['allowedHosts', (plugin: PluginDeclarations) => plugin.allowed_hosts],
   ['publicRoutes', (plugin: PluginDeclarations) => plugin.public_routes],

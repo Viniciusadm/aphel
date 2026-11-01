@@ -112,10 +112,18 @@ cron = "0 0 3 * * *"
 [[settings]]                   # edited by administrators, read by the plugin
 key = "exam_validity_days"
 label = "Validade dos exames (dias)"
-type = "number"                # number | boolean | text | secret
+type = "number"                # number | boolean | text | select | secret
+group = "Exams"                # optional heading in the settings form
 default = 60
 min = 1
 max = 365
+
+[[settings]]
+key = "reminder_channel"
+label = "Reminder channel"
+type = "select"                # needs options; the value is one of them
+options = [{ value = "email", label = "Email" }, { value = "push", label = "Notification" }]
+default = "email"
 
 [[settings]]
 key = "api_token"
@@ -170,6 +178,8 @@ What the declarations become:
 | `permissions` | Entries in the permission catalog and the role editor (grouped by plugin key), granted with `organization` scope to the `grant_to` roles that exist on install, upgrade and "reapply grants", toggled with enable/disable and removed with their grants on uninstall. A key already used gives 409 `permission_already_registered` |
 | `entities[].permission_scope` | Scope of the default grants of the entity permissions to the system `manager` and `member` roles (otherwise `team` for managers and `own` for members). Shared operational records use `organization`; personal ones keep `own`. Existing grants are never narrowed or widened, only missing ones are added |
 | `entities[].fields[].unique` | Database-enforced uniqueness (case-insensitive for text) on text, number, url, email and phone fields: a reservation row per value in `custom_field_unique_values`, written in the same transaction as the value, released when the record is deleted and taken again (or refused) when it is restored. A concurrent duplicate fails with 422 and a `custom_fields.<key>` violation, whatever API writes it. Declaring `unique` on a field that already has duplicates is refused with 409 `plugin_field_unique_conflict` (with the duplicated record ids in `details.conflicts`) before anything is written, also in the dry run; removing `unique` keeps the data and drops the reservations |
+| `entities[].internal` | `true` hides the entity from the places that list record types for people (global search, role matrix, type selectors). Its permissions keep working |
+| `role_presets[].home` | Application path where users of the role land when they have not picked a home in their navigation settings |
 | `role_presets` | Roles the plugin suggests, with permissions taken from its declared permissions, its `requires` and its entity permissions. The consent dialog lists them unchecked; only the selected ones are created (multipart field `role_presets`, comma separated). Presets whose role already exists receive the missing grants |
 | `optional_requires` | Permissions the plugin uses when their module is enabled. Unlike `requires`, a disabled module does not block the install; check with `ctx.can` before using them |
 | `hooks` | Generic record hooks or domain hooks of the modules (see [Module operations and domain hooks](#module-operations-and-domain-hooks)). The backend is called inside the transaction. An error from a veto hook blocks the write (422 with the plugin code and fields); `record.saving` and the filter hooks may change the values |
@@ -178,7 +188,7 @@ What the declarations become:
 | `routes` | `GET/POST/PUT/PATCH/DELETE /api/v1/p/<key>/…` with the caller's session or API token and the declared permission. Public routes (see below) |
 | `http` | Outbound HTTP allowed only to these hosts (see Outbound HTTP) |
 | `schedules` | The worker calls `on-schedule(name, slot)` once per due slot (see Schedules) |
-| `settings` | Shown in the plugin settings dialog; `PUT /api/v1/plugins/<key>/settings` |
+| `settings` | Shown in the plugin settings dialog; `GET`/`PUT /api/v1/plugins/<key>/settings`. `type = "select"` takes `options` (`value` and `label`), `group` sorts settings under a heading. `settings_permission` (a permission the plugin declares) lets people who hold it read and write the settings without `system.manage`, so the plugin can offer them in its own screens |
 | `actions` | Automation actions `plugin.<key>.<action>` in the automation editor, with a form built from `inputs` (see Automations) |
 | `emits` | Events `plugin.<key>.<name>` the backend publishes with `emit`, available as automation triggers |
 | `notifications` | Notification kinds `<key>_<name>` in the preferences, sent with `notify` (see Notifications) |
@@ -187,6 +197,38 @@ What the declarations become:
 | `web.public` | Folder under `web/` served as a public single-page app at `/p/<key>/` (see Public web app) |
 
 Entity field keys cannot reuse the keys every custom object already has: `name`, `title`, `owner_id`, `created_by`, `created_at` and `updated_at`. Any key conflict (an object or field that already exists and is not the plugin's) is refused with 409 `plugin_object_conflict` or `plugin_field_conflict` before anything is written.
+
+### Menu and conflicts
+
+A plugin integrates with the navigation through `[menu]` and can declare modules it replaces:
+
+```toml
+conflicts_with = ["proposals"]
+
+[menu]
+flat = true
+own_entities = "hidden"
+
+[[menu.rules]]
+target = "restaurant.orders"
+action = "move"
+order = 120
+
+[[menu.rules]]
+target = "calls"
+action = "hide"
+```
+
+| Field | Meaning |
+| --- | --- |
+| `menu.flat` | The plugin's `app.nav` items ignore their `group`: they appear as regular items, not as a submenu named after the plugin |
+| `menu.own_entities` | `hidden` removes the plugin's entities (custom objects with its `module_key`) from the sidebar; default `visible` |
+| `menu.rules` | `hide` removes the navigation item with that key (core or another plugin); `move` sets its `order` (see `NAV_ORDER`). The `settings` entry cannot be a target. One rule per target |
+| `conflicts_with` | Built-in modules the plugin replaces. Installing (or enabling) the plugin disables them; uninstalling (or disabling) it enables them again, only if they were enabled before and no other plugin still holds them. While held, enabling the module fails with 409 `module_held_by_extension` and `GET /modules` reports `held_by` |
+
+The rules are applied by the web app to the enabled plugins only, before the `navigation.items` filter. Use them only when the plugin really changes how the system is organized; the filter remains available as an escape hatch without consent or conflict detection.
+
+Conflicts between plugins are detected on install, upgrade and enable: two plugins with a `menu.rules` rule on the same `target`, hooks on the same `(hook, record_type)` for `record.saving|validating|deleting|archiving` of a type neither owns, or the same role preset key. The dry run lists them in `conflicts`; installing or enabling then requires `acknowledge_conflicts=true`, otherwise 409 `plugin_conflicts_unacknowledged` with `details.conflicts`. `module_conflicts` in the dry run lists each module to be disabled with `blocked_by` (dependent modules, plugins that require its permissions or operations, or a required module); a non-empty `blocked_by` refuses the install with 409 `plugin_module_conflict_blocked`.
 
 ## Capabilities and scope
 
@@ -218,6 +260,8 @@ Referencing a record counts as reading it. Writing a `record` field (for example
 - `requires` and declared permissions;
 - role presets, entity visibility (`permission_scope`) and unique fields;
 - allowed hosts, schedules and secrets;
+- `menu` and `conflicts_with`;
+- `conflicts` with other plugins and `module_conflicts` (modules that will be disabled);
 - the currently installed version;
 - `grants`: for every role the plugin grants to, whether it exists and how many of the expected permissions it already has.
 

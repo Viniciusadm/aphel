@@ -10,6 +10,7 @@ import { cn } from '@/lib/utils'
 import { readStorage, writeStorage } from '@/lib/storage'
 import { OfflineShell } from '@/pwa/offline/OfflineShell'
 import { PwaShell } from '@/pwa/PwaShell'
+import { ExtensionLoadNotice } from './ExtensionLoadNotice'
 import { HomeRedirect } from './HomeRedirect'
 import { applyStoredLanguage } from './language'
 import { LanguageSync } from './LanguageSync'
@@ -45,6 +46,7 @@ export function AppLayout() {
         <Slot name="app.shell" props={{}} />
         <TwoFactorGate />
         <LanguageSync />
+        <ExtensionLoadNotice />
         <HomeRedirect />
         <Sidebar
           collapsed={collapsed}

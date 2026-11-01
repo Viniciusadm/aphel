@@ -10572,12 +10572,15 @@ export interface components {
             icon?: string | null;
             id: string;
             is_active: boolean;
+            is_internal?: boolean;
             /** @example contract */
             key: string;
             /** @example Contracts */
             label_plural: string;
             /** @example Contract */
             label_singular: string;
+            is_internal?: boolean;
+            module_key?: string | null;
             owner_enabled: boolean;
             permissions: string[];
             /** Format: int32 */
@@ -12533,6 +12536,7 @@ export interface components {
                 enabled: boolean;
                 enabled_at?: string | null;
                 enabled_dependents: string[];
+                held_by?: string | null;
                 events: components["schemas"]["ModuleEventResponse"][];
                 installed_version?: string | null;
                 /** @example proposals */
@@ -14166,6 +14170,7 @@ export interface components {
                 enabled: boolean;
                 enabled_at?: string | null;
                 enabled_dependents: string[];
+                held_by?: string | null;
                 events: components["schemas"]["ModuleEventResponse"][];
                 installed_version?: string | null;
                 /** @example proposals */
@@ -14600,6 +14605,8 @@ export interface components {
             data: {
                 entry: string;
                 key: string;
+                menu: components["schemas"]["MenuSpec"];
+                name: string;
                 style?: string | null;
                 version: string;
             }[];
@@ -17302,6 +17309,7 @@ export interface components {
             enabled: boolean;
             enabled_at?: string | null;
             enabled_dependents: string[];
+            held_by?: string | null;
             events: components["schemas"]["ModuleEventResponse"][];
             installed_version?: string | null;
             /** @example proposals */
@@ -22096,9 +22104,22 @@ export interface components {
         ViewType: "table" | "kanban" | "calendar";
         /** @enum {string} */
         ViewVisibility: "private" | "team" | "organization";
+        MenuRule: {
+            action: string;
+            /** Format: int32 */
+            order?: number | null;
+            target: string;
+        };
+        MenuSpec: {
+            flat?: boolean;
+            own_entities?: string | null;
+            rules?: components["schemas"]["MenuRule"][];
+        };
         WebPluginResponse: {
             entry: string;
             key: string;
+            menu: components["schemas"]["MenuSpec"];
+            name: string;
             style?: string | null;
             version: string;
         };

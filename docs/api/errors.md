@@ -350,6 +350,9 @@ Whoever creates a new code adds the row to this table and cites it in the respon
 | `module_incompatible` | 409 | modules |
 | `module_not_found` | 404 | modules |
 | `module_required_by` | 409 | modules |
+| `module_held_by_extension` | 409 | modules |
+| `plugin_conflicts_unacknowledged` | 409 | plugins |
+| `plugin_module_conflict_blocked` | 409 | plugins |
 | `module_settings_required` | 422 | modules |
 | `module_required` | 409 | modules (disabling a module marked as required in the build) |
 | `module_dependency_cycle` | 409 | modules (the build's modules depend on each other in a cycle; `App` assembly error) |

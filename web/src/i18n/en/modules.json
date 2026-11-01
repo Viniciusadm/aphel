@@ -159,7 +159,10 @@
       "widgets": "Widgets",
       "rolePresets": "Role presets",
       "entityScopes": "Default visibility",
-      "uniqueFields": "Unique fields"
+      "uniqueFields": "Unique fields",
+      "optionalRequires": "Optional permissions",
+      "conflictsWith": "Disables modules",
+      "menu": "Changes the menu"
     },
     "checking": "Checking the package…",
     "settings": "Settings",
@@ -189,7 +192,21 @@
     "grantsRoleMissing": "{{role}}: role does not exist",
     "grantsIncomplete": "Some roles are missing or do not have every permission the plugin expects. Create the roles in Settings › Roles and reapply the grants.",
     "reapplyGrants": "Reapply grants",
-    "grantsReapplied": "Grants reapplied."
+    "grantsReapplied": "Grants reapplied.",
+    "consentConflictsTitle": "This plugin overlaps with plugins already installed",
+    "consentConflictsDescription": "The plugins below touch the same things and may contradict each other.",
+    "consentConflictsAck": "I understand these plugins contradict each other and want to continue",
+    "consentModuleDisables": "This plugin disables the {{name}} module while it is installed. The module is enabled again when the plugin is uninstalled.",
+    "consentModuleBlocked": "The {{name}} module cannot be disabled right now: {{blockedBy}}.",
+    "conflictKinds": {
+      "menu_target": "Same menu item: {{target}}",
+      "hook_overlap": "Same rule: {{target}}",
+      "role_preset_key": "Same suggested role: {{target}}"
+    },
+    "conflictWith": "{{kind}} (already in {{plugin}})",
+    "toggleConflictsTitle": "Enable {{name}}?",
+    "toggleConflictsConfirm": "Enable anyway",
+    "heldByPlugin": "Kept disabled by {{plugin}}"
   },
   "placeholders": {
     "value": "Enter the value"

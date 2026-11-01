@@ -28,6 +28,7 @@ pub trait ModuleLifecycle: Send + Sync {
 
     fn descriptors(&self) -> Vec<ModuleDescriptor>;
     fn validate_settings(&self, key: &str, settings: &Value) -> Vec<FieldViolation>;
+    async fn held_modules(&self) -> Result<std::collections::HashMap<String, String>, AppError>;
     async fn on_enable(&self, scope: &AccessScope, key: &str) -> Result<(), AppError>;
     async fn on_disable(&self, scope: &AccessScope, key: &str) -> Result<(), AppError>;
     async fn export_data(&self, scope: &AccessScope, key: &str) -> Result<Value, AppError>;
