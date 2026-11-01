@@ -1,8 +1,8 @@
+import { NativeSelect } from '@/components/ui/native-select'
 import { FieldError as SharedFieldError } from '@/components/ui/field-error'
 import type { ComponentProps, KeyboardEventHandler, ReactNode } from 'react'
 import { useTranslation } from 'react-i18next'
 import { Input } from '@/components/ui/input'
-import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/components/ui/select'
 import { cn } from '@/lib/utils'
 import { HEX_COLOR_PATTERN } from '../lib/form'
 import { describedBy } from '../lib/aria'
@@ -134,19 +134,14 @@ export function ChoiceSelect({
 }: ChoiceSelectProps) {
   const selected = value === '' && noneLabel ? NONE_VALUE : value
   return (
-    <Select value={selected} onValueChange={(next) => onChange(next === NONE_VALUE ? '' : next)} disabled={disabled}>
-      <SelectTrigger id={id} aria-invalid={invalid || undefined} aria-describedby={describedById}>
-        <SelectValue placeholder={placeholder} />
-      </SelectTrigger>
-      <SelectContent>
-        {noneLabel && <SelectItem value={NONE_VALUE}>{noneLabel}</SelectItem>}
+    <NativeSelect value={selected} onValueChange={(next) => onChange(next === NONE_VALUE ? '' : next)} disabled={disabled} id={id} aria-invalid={invalid || undefined} aria-describedby={describedById}><option value="" disabled>{placeholder}</option>
+        {noneLabel && <option value={NONE_VALUE}>{noneLabel}</option>}
         {choices.map((choice) => (
-          <SelectItem key={choice.value} value={choice.value}>
+          <option key={choice.value} value={choice.value}>
             {choice.label}
-          </SelectItem>
+          </option>
         ))}
-      </SelectContent>
-    </Select>
+      </NativeSelect>
   )
 }
 

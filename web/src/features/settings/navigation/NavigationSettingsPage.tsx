@@ -1,3 +1,4 @@
+import { NativeSelect } from '@/components/ui/native-select'
 import { useId, useMemo, useState } from 'react'
 import { useQueryClient } from '@tanstack/react-query'
 import { ArrowDown, ArrowUp } from 'lucide-react'
@@ -8,7 +9,6 @@ import { notifyError } from '@/components/feedback'
 import { Button } from '@/components/ui/button'
 import { Checkbox } from '@/components/ui/checkbox'
 import { ErrorState } from '@/components/ui/error-state'
-import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/components/ui/select'
 import { Skeleton } from '@/components/ui/skeleton'
 import { toast } from '@/components/ui/toast-store'
 import { usePersonalPreferences, useUpdatePersonalPreferences } from './api'
@@ -45,19 +45,14 @@ function LanguageSection({ preferences }: { preferences: PersonalPreferences }) 
     <Page>
 <PageHeader title={t('language.title')} description={t('language.description')} />
       <Field id={labelId} label={t('language.label')} className="max-w-sm">
-        <Select value={preferences.locale ?? FOLLOW_ORGANIZATION} onValueChange={change} disabled={update.isPending}>
-          <SelectTrigger id={labelId}>
-            <SelectValue />
-          </SelectTrigger>
-          <SelectContent>
-            <SelectItem value={FOLLOW_ORGANIZATION}>{t('language.organization')}</SelectItem>
+        <NativeSelect value={preferences.locale ?? FOLLOW_ORGANIZATION} onValueChange={change} disabled={update.isPending} id={labelId}>
+            <option value={FOLLOW_ORGANIZATION}>{t('language.organization')}</option>
             {LANGUAGES.map((language) => (
-              <SelectItem key={language} value={language}>
+              <option key={language} value={language}>
                 {t(`language.options.${language}`)}
-              </SelectItem>
+              </option>
             ))}
-          </SelectContent>
-        </Select>
+          </NativeSelect>
       </Field>
     </Page>
   )
@@ -112,22 +107,15 @@ function NavigationSection({ preferences }: { preferences: PersonalPreferences }
       <section className="grid gap-3">
         <PageHeader title={t('home.title')} description={t('home.description')} />
         <Field id={homeLabelId} label={t('home.label')} className="max-w-sm">
-          <Select
-            value={draft.home ?? DEFAULT_HOME}
-            onValueChange={(value) => setDraft({ ...draft, home: value === DEFAULT_HOME ? null : value })}
-          >
-            <SelectTrigger id={homeLabelId}>
-              <SelectValue />
-            </SelectTrigger>
-            <SelectContent>
-              <SelectItem value={DEFAULT_HOME}>{t('home.default')}</SelectItem>
+          <NativeSelect value={draft.home ?? DEFAULT_HOME}
+            onValueChange={(value) => setDraft({ ...draft, home: value === DEFAULT_HOME ? null : value })} id={homeLabelId}>
+              <option value={DEFAULT_HOME}>{t('home.default')}</option>
               {homeOptions.map((entry) => (
-                <SelectItem key={entry.key} value={entry.to}>
+                <option key={entry.key} value={entry.to}>
                   {entry.label}
-                </SelectItem>
+                </option>
               ))}
-            </SelectContent>
-          </Select>
+            </NativeSelect>
         </Field>
       </section>
       <section className="grid gap-3">

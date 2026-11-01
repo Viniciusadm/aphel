@@ -1,5 +1,5 @@
+import { NativeSelect } from '@/components/ui/native-select'
 import { useNavigate } from 'react-router'
-import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/components/ui/select'
 import { RECORD_TYPES, type KnownRecordType } from '../fields/lib/field-types'
 import { useCustomObjectsAdmin } from '../objects/api'
 
@@ -23,17 +23,12 @@ export function RecordTypeSelect({ value, label, coreLabel, to, extraTypes = [] 
   const options = known.some((option) => option.value === value) ? known : [...known, { value, label: value }]
 
   return (
-    <Select value={value} onValueChange={(next) => navigate(to(next))}>
-      <SelectTrigger aria-label={label} className="w-full sm:w-48">
-        <SelectValue />
-      </SelectTrigger>
-      <SelectContent>
+    <NativeSelect value={value} onValueChange={(next) => navigate(to(next))} aria-label={label} className="w-full sm:w-48">
         {options.map((option) => (
-          <SelectItem key={option.value} value={option.value}>
+          <option key={option.value} value={option.value}>
             {option.label}
-          </SelectItem>
+          </option>
         ))}
-      </SelectContent>
-    </Select>
+      </NativeSelect>
   )
 }

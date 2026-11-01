@@ -1,3 +1,4 @@
+import { NativeSelect } from '@/components/ui/native-select'
 import { useMemo, useState } from 'react'
 import { Controller, useForm } from 'react-hook-form'
 import { useTranslation } from 'react-i18next'
@@ -11,7 +12,6 @@ import {
   DialogTitle,
 } from '@/components/ui/dialog'
 import { Input } from '@/components/ui/input'
-import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/components/ui/select'
 import { toast } from '@/components/ui/toast-store'
 import { settingsApi, useSettingsMutation, versionOf, type Member, type Team } from '../api'
 import { FieldError, FormAlert } from '../components/FieldError'
@@ -120,23 +120,16 @@ export function TeamEditorDialog({ team, teams, members, onClose }: TeamEditorDi
                 control={control}
                 name="parentTeamId"
                 render={({ field }) => (
-                  <Select value={field.value} onValueChange={field.onChange}>
-                    <SelectTrigger
-                      id={fieldControl.id}
+                  <NativeSelect value={field.value} onValueChange={field.onChange} id={fieldControl.id}
                       aria-invalid={errors.parentTeamId ? true : undefined}
-                      aria-describedby={errors.parentTeamId ? 'team-parent-error' : undefined}
-                    >
-                      <SelectValue />
-                    </SelectTrigger>
-                    <SelectContent>
-                      <SelectItem value={NO_PARENT}>{t('teams.editor.noParent')}</SelectItem>
+                      aria-describedby={errors.parentTeamId ? 'team-parent-error' : undefined}>
+                      <option value={NO_PARENT}>{t('teams.editor.noParent')}</option>
                       {parentOptions(teams, team).map((option) => (
-                        <SelectItem key={option.id} value={option.id}>
+                        <option key={option.id} value={option.id}>
                           {option.name}
-                        </SelectItem>
+                        </option>
                       ))}
-                    </SelectContent>
-                  </Select>
+                    </NativeSelect>
                 )}
               />
               <FieldError id="team-parent-error" message={errors.parentTeamId?.message} />

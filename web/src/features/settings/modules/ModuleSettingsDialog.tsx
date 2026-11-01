@@ -1,3 +1,4 @@
+import { NativeSelect } from '@/components/ui/native-select'
 import { FieldError as SharedFieldError } from '@/components/ui/field-error'
 import { zodResolver } from '@hookform/resolvers/zod'
 import { useEffect, useId, useMemo, useState } from 'react'
@@ -181,18 +182,13 @@ export function ModuleSettingsDialog({ module, initialViolations, onClose, onSav
                     control={control}
                     name={field.key}
                     render={({ field: control }) => (
-                      <Select value={typeof control.value === 'string' ? control.value : ''} onValueChange={control.onChange}>
-                        <SelectTrigger id={inputId} className="w-full" aria-invalid={invalid} aria-describedby={describedBy}>
-                          <SelectValue placeholder={t('settings.selectPlaceholder')} />
-                        </SelectTrigger>
-                        <SelectContent>
+                      <NativeSelect value={typeof control.value === 'string' ? control.value : ''} onValueChange={control.onChange} id={inputId} className="w-full" aria-invalid={invalid} aria-describedby={describedBy}><option value="" disabled>{t('settings.selectPlaceholder')}</option>
                           {field.options.map((option) => (
-                            <SelectItem key={option.value} value={option.value}>
+                            <option key={option.value} value={option.value}>
                               {text.optionLabel(field, option.value, option.label)}
-                            </SelectItem>
+                            </option>
                           ))}
-                        </SelectContent>
-                      </Select>
+                        </NativeSelect>
                     )}
                   />
                 ) : field.type === 'field' ? (

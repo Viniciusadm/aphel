@@ -1,3 +1,4 @@
+import { NativeSelect } from '@/components/ui/native-select'
 import { useMutation, useQueryClient } from '@tanstack/react-query'
 import { Eye, Loader2, RotateCcw } from 'lucide-react'
 import { useMemo, useState } from 'react'
@@ -9,7 +10,6 @@ import { Badge } from '@/components/ui/badge'
 import { Button } from '@/components/ui/button'
 import { Dialog, DialogContent, DialogDescription, DialogHeader, DialogTitle } from '@/components/ui/dialog'
 import { ErrorState } from '@/components/ui/error-state'
-import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/components/ui/select'
 import { toast } from '@/components/ui/toast-store'
 import { useFieldSchema } from '@/features/records/api'
 import { fieldViolations } from '@/features/records/fields'
@@ -62,21 +62,14 @@ function LayoutsSection({ recordType }: { recordType: string }) {
               coreLabel={(type) => t(`recordTypes.${type}`)}
               to={(type) => `/settings/layouts/${type}?context=${context}`}
             />
-            <Select
-              value={context}
-              onValueChange={(next) => setParams({ context: parseContext(next) }, { replace: true })}
-            >
-              <SelectTrigger aria-label={t('contexts.label')} className="w-full sm:w-40">
-                <SelectValue />
-              </SelectTrigger>
-              <SelectContent>
+            <NativeSelect value={context}
+              onValueChange={(next) => setParams({ context: parseContext(next) }, { replace: true })} aria-label={t('contexts.label')} className="w-full sm:w-40">
                 {LAYOUT_CONTEXTS.map((item) => (
-                  <SelectItem key={item} value={item}>
+                  <option key={item} value={item}>
                     {t(`contexts.${item}`)}
-                  </SelectItem>
+                  </option>
                 ))}
-              </SelectContent>
-            </Select>
+              </NativeSelect>
           </div>
         }
       />

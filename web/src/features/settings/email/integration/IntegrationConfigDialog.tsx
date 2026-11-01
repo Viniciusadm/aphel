@@ -1,3 +1,4 @@
+import { NativeSelect } from '@/components/ui/native-select'
 import { FieldError as SharedFieldError } from '@/components/ui/field-error'
 import { zodResolver } from '@hookform/resolvers/zod'
 import { useId, useMemo, useState } from 'react'
@@ -16,7 +17,6 @@ import {
   DialogTitle,
 } from '@/components/ui/dialog'
 import { Input } from '@/components/ui/input'
-import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/components/ui/select'
 import { integrationsApi, isSecretConfigured, type Integration, type IntegrationField } from './api'
 import {
   buildFormSchema,
@@ -159,18 +159,13 @@ export function IntegrationConfigDialog({ integration, open, onOpenChange, onSav
                     control={control}
                     name={field.key}
                     render={({ field: control }) => (
-                      <Select value={typeof control.value === 'string' ? control.value : ''} onValueChange={control.onChange}>
-                        <SelectTrigger id={inputId} aria-invalid={message ? true : undefined} aria-describedby={describedBy}>
-                          <SelectValue placeholder={t('form.selectPlaceholder')} />
-                        </SelectTrigger>
-                        <SelectContent>
+                      <NativeSelect value={typeof control.value === 'string' ? control.value : ''} onValueChange={control.onChange} id={inputId} aria-invalid={message ? true : undefined} aria-describedby={describedBy}><option value="" disabled>{t('form.selectPlaceholder')}</option>
                           {field.options.map((option) => (
-                            <SelectItem key={option} value={option}>
+                            <option key={option} value={option}>
                               {text.optionLabel(integration, field, option)}
-                            </SelectItem>
+                            </option>
                           ))}
-                        </SelectContent>
-                      </Select>
+                        </NativeSelect>
                     )}
                   />
                 ) : (
