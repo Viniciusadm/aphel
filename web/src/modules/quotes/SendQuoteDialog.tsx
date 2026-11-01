@@ -1,8 +1,8 @@
+import { DialogForm } from '@/components/ui/dialog-form'
 import { useState } from 'react'
 import { useTranslation } from 'react-i18next'
 import { notifySuccess } from '@/components/feedback'
-import { Button } from '@/components/ui/button'
-import { Dialog, DialogContent, DialogDescription, DialogFooter, DialogHeader, DialogTitle } from '@/components/ui/dialog'
+import { Dialog, DialogContent } from '@/components/ui/dialog'
 import { Input } from '@/components/ui/input'
 import { Textarea } from '@/components/ui/textarea'
 import { useQuoteMutations } from './api'
@@ -63,10 +63,17 @@ export function SendQuoteDialog({ quote, open, onOpenChange }: SendQuoteDialogPr
   return (
     <Dialog open={open} onOpenChange={onOpenChange}>
       <DialogContent size="lg">
-        <DialogHeader>
-          <DialogTitle>{t('send.title')}</DialogTitle>
-          <DialogDescription>{t('send.description')}</DialogDescription>
-        </DialogHeader>
+        <DialogForm
+          title={t('send.title')}
+          description={t('send.description')}
+          cancelLabel={t('actions.cancel')}
+          submitLabel={t('send.submit')}
+          onCancel={() => onOpenChange(false)}
+          noValidate
+          onSubmit={() => void submit()}
+          pending={mutations.send.isPending}
+          submitDisabled={mutations.send.isPending}
+        >
         <div className="grid gap-4">
           <Field label={t('send.to')}>
             {(control) => <>
@@ -89,14 +96,7 @@ export function SendQuoteDialog({ quote, open, onOpenChange }: SendQuoteDialogPr
             </>}
           </Field>
         </div>
-        <DialogFooter>
-          <Button variant="outline" onClick={() => onOpenChange(false)}>
-            {t('actions.cancel')}
-          </Button>
-          <Button onClick={() => void submit()} disabled={mutations.send.isPending}>
-            {t('send.submit')}
-          </Button>
-        </DialogFooter>
+        </DialogForm>
       </DialogContent>
     </Dialog>
   )

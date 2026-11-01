@@ -1,8 +1,8 @@
+import { DialogForm } from '@/components/ui/dialog-form'
 import { useState } from 'react'
 import { useTranslation } from 'react-i18next'
 import { notifySuccess } from '@/components/feedback'
-import { Button } from '@/components/ui/button'
-import { Dialog, DialogContent, DialogDescription, DialogFooter, DialogHeader, DialogTitle } from '@/components/ui/dialog'
+import { Dialog, DialogContent } from '@/components/ui/dialog'
 import { Textarea } from '@/components/ui/textarea'
 import { useQuoteMutations } from './api'
 import { notifyQuoteError } from './errors'
@@ -33,21 +33,21 @@ export function SubmitQuoteDialog({ quote, open, onOpenChange }: SubmitQuoteDial
   return (
     <Dialog open={open} onOpenChange={onOpenChange}>
       <DialogContent>
-        <DialogHeader>
-          <DialogTitle>{t('actions.submitTitle')}</DialogTitle>
-          <DialogDescription>{t('actions.submitDescription')}</DialogDescription>
-        </DialogHeader>
+        <DialogForm
+          title={t('actions.submitTitle')}
+          description={t('actions.submitDescription')}
+          cancelLabel={t('actions.cancel')}
+          submitLabel={t('actions.submit')}
+          onCancel={() => onOpenChange(false)}
+          noValidate
+          onSubmit={() => void submit()}
+          pending={mutations.submit.isPending}
+          submitDisabled={mutations.submit.isPending}
+        >
         <Field label={t('actions.comment')}>
           {(control) => <Textarea placeholder={t('placeholders.comment')} {...control} rows={3} value={comment} onChange={(event) => setComment(event.target.value)} />}
         </Field>
-        <DialogFooter>
-          <Button variant="outline" onClick={() => onOpenChange(false)}>
-            {t('actions.cancel')}
-          </Button>
-          <Button onClick={() => void submit()} disabled={mutations.submit.isPending}>
-            {t('actions.submit')}
-          </Button>
-        </DialogFooter>
+        </DialogForm>
       </DialogContent>
     </Dialog>
   )

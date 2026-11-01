@@ -1,8 +1,8 @@
+import { DialogForm } from '@/components/ui/dialog-form'
 import { useState } from 'react'
 import { useTranslation } from 'react-i18next'
 import { notifySuccess } from '@/components/feedback'
-import { Button } from '@/components/ui/button'
-import { Dialog, DialogContent, DialogDescription, DialogFooter, DialogHeader, DialogTitle } from '@/components/ui/dialog'
+import { Dialog, DialogContent } from '@/components/ui/dialog'
 import { Input } from '@/components/ui/input'
 import { Textarea } from '@/components/ui/textarea'
 import { generateQuotePdf, sendQuoteForSignature } from './modules'
@@ -47,10 +47,17 @@ export function SignatureDialog({ quote, proposalsEnabled, open, onOpenChange }:
   return (
     <Dialog open={open} onOpenChange={onOpenChange}>
       <DialogContent>
-        <DialogHeader>
-          <DialogTitle>{t('signature.title')}</DialogTitle>
-          <DialogDescription>{t('signature.description')}</DialogDescription>
-        </DialogHeader>
+        <DialogForm
+          title={t('signature.title')}
+          description={t('signature.description')}
+          cancelLabel={t('actions.cancel')}
+          submitLabel={t('signature.submit')}
+          onCancel={() => onOpenChange(false)}
+          noValidate
+          onSubmit={() => void submit()}
+          pending={pending}
+      submitDisabled={!proposalsEnabled || pending || !name.trim() || !email.trim()}
+        >
         {proposalsEnabled ? (
           <div className="grid gap-4">
             <Field label={t('signature.signerName')}>
@@ -66,17 +73,7 @@ export function SignatureDialog({ quote, proposalsEnabled, open, onOpenChange }:
         ) : (
           <p className="text-sm text-muted-foreground">{t('signature.needsProposals')}</p>
         )}
-        <DialogFooter>
-          <Button variant="outline" onClick={() => onOpenChange(false)}>
-            {t('actions.cancel')}
-          </Button>
-          <Button
-            onClick={() => void submit()}
-            disabled={!proposalsEnabled || pending || !name.trim() || !email.trim()}
-          >
-            {t('signature.submit')}
-          </Button>
-        </DialogFooter>
+        </DialogForm>
       </DialogContent>
     </Dialog>
   )

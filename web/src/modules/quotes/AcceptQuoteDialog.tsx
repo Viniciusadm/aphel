@@ -1,8 +1,8 @@
+import { DialogForm } from '@/components/ui/dialog-form'
 import { useState } from 'react'
 import { useTranslation } from 'react-i18next'
 import { notifySuccess } from '@/components/feedback'
-import { Button } from '@/components/ui/button'
-import { Dialog, DialogContent, DialogDescription, DialogFooter, DialogHeader, DialogTitle } from '@/components/ui/dialog'
+import { Dialog, DialogContent } from '@/components/ui/dialog'
 import { Input } from '@/components/ui/input'
 import { Textarea } from '@/components/ui/textarea'
 import { useQuoteMutations } from './api'
@@ -43,10 +43,17 @@ export function AcceptQuoteDialog({ quote, open, onOpenChange }: AcceptQuoteDial
   return (
     <Dialog open={open} onOpenChange={onOpenChange}>
       <DialogContent>
-        <DialogHeader>
-          <DialogTitle>{t('actions.acceptTitle')}</DialogTitle>
-          <DialogDescription>{t('actions.acceptDescription')}</DialogDescription>
-        </DialogHeader>
+        <DialogForm
+          title={t('actions.acceptTitle')}
+          description={t('actions.acceptDescription')}
+          cancelLabel={t('actions.cancel')}
+          submitLabel={t('actions.accept')}
+          onCancel={() => onOpenChange(false)}
+          noValidate
+          onSubmit={() => void accept()}
+          pending={mutations.accept.isPending}
+          submitDisabled={mutations.accept.isPending}
+        >
         <div className="grid gap-4">
           <Field label={t('actions.acceptName')}>
             {(control) => <>
@@ -61,14 +68,7 @@ export function AcceptQuoteDialog({ quote, open, onOpenChange }: AcceptQuoteDial
             {(control) => <Textarea placeholder={t('placeholders.note')} {...control} rows={3} maxLength={2000} value={note} onChange={(event) => setNote(event.target.value)} />}
           </Field>
         </div>
-        <DialogFooter>
-          <Button variant="outline" onClick={() => onOpenChange(false)}>
-            {t('actions.cancel')}
-          </Button>
-          <Button onClick={() => void accept()} disabled={mutations.accept.isPending}>
-            {t('actions.accept')}
-          </Button>
-        </DialogFooter>
+        </DialogForm>
       </DialogContent>
     </Dialog>
   )

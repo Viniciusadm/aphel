@@ -1,3 +1,4 @@
+import { DialogForm } from '@/components/ui/dialog-form'
 import { NativeSelect } from '@/components/ui/native-select'
 import { useQuery, useQueryClient } from '@tanstack/react-query'
 import { Download, FileText, Loader2, Plus } from 'lucide-react'
@@ -9,10 +10,6 @@ import { Button } from '@/components/ui/button'
 import {
   Dialog,
   DialogContent,
-  DialogDescription,
-  DialogFooter,
-  DialogHeader,
-  DialogTitle,
 } from '@/components/ui/dialog'
 import { EmptyState } from '@/components/ui/empty-state'
 import { ErrorState } from '@/components/ui/error-state'
@@ -178,10 +175,18 @@ function GenerateDialog({ dealId, open, onOpenChange }: GenerateDialogProps) {
   return (
     <Dialog open={open} onOpenChange={close}>
       <DialogContent size={showPreview ? '2xl' : 'md'}>
-        <DialogHeader>
-          <DialogTitle>{t('deal.dialogTitle')}</DialogTitle>
-          <DialogDescription>{t('deal.dialogDescription')}</DialogDescription>
-        </DialogHeader>
+        <DialogForm
+          title={t('deal.dialogTitle')}
+          description={t('deal.dialogDescription')}
+          cancelLabel={t('deal.cancel')}
+          submitLabel={<>{pending && <Loader2 className="animate-spin" aria-hidden="true" />}
+            {pending ? t('deal.generating') : t('deal.confirm')}</>}
+          onCancel={() => close(false)}
+          noValidate
+          onSubmit={() => void generate()}
+          pending={pending}
+          submitDisabled={!templateId || pending}
+        >
         {templates.isPending ? (
           <Skeleton className="h-9 w-full" />
         ) : templates.isError ? (
@@ -218,15 +223,7 @@ function GenerateDialog({ dealId, open, onOpenChange }: GenerateDialogProps) {
               ))}
           </div>
         )}
-        <DialogFooter>
-          <Button variant="outline" onClick={() => close(false)} disabled={pending}>
-            {t('deal.cancel')}
-          </Button>
-          <Button onClick={() => void generate()} disabled={!templateId || pending}>
-            {pending && <Loader2 className="animate-spin" aria-hidden="true" />}
-            {pending ? t('deal.generating') : t('deal.confirm')}
-          </Button>
-        </DialogFooter>
+        </DialogForm>
       </DialogContent>
     </Dialog>
   )

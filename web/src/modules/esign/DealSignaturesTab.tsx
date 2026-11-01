@@ -1,3 +1,4 @@
+import { DialogForm } from '@/components/ui/dialog-form'
 import { NativeSelect } from '@/components/ui/native-select'
 import { useQuery, useQueryClient } from '@tanstack/react-query'
 import { Download, FileSignature, Loader2, Plus, Trash2, UserPlus } from 'lucide-react'
@@ -10,10 +11,6 @@ import { Button } from '@/components/ui/button'
 import {
   Dialog,
   DialogContent,
-  DialogDescription,
-  DialogFooter,
-  DialogHeader,
-  DialogTitle,
 } from '@/components/ui/dialog'
 import { EmptyState } from '@/components/ui/empty-state'
 import { ErrorState } from '@/components/ui/error-state'
@@ -308,10 +305,18 @@ function SendDialog({ dealId, open, onOpenChange }: SendDialogProps) {
   return (
     <Dialog open={open} onOpenChange={close}>
       <DialogContent size="lg">
-        <DialogHeader>
-          <DialogTitle>{t('dialog.title')}</DialogTitle>
-          <DialogDescription>{t('dialog.description')}</DialogDescription>
-        </DialogHeader>
+        <DialogForm
+          title={t('dialog.title')}
+          description={t('dialog.description')}
+          cancelLabel={t('dialog.close')}
+          submitLabel={<>{pending && <Loader2 className="animate-spin" aria-hidden="true" />}
+            {pending ? t('dialog.sending') : t('dialog.confirm')}</>}
+          onCancel={() => close(false)}
+          noValidate
+          onSubmit={() => void send()}
+          pending={pending}
+          submitDisabled={!valid || pending}
+        >
         <div className="grid gap-4">
           <Field id="esign-file" label={t('dialog.file')}>
             {attachments.isPending ? (
@@ -408,15 +413,7 @@ function SendDialog({ dealId, open, onOpenChange }: SendDialogProps) {
           </Field>
           <p className="text-xs text-muted-foreground">{t('dialog.privacy')}</p>
         </div>
-        <DialogFooter>
-          <Button variant="outline" onClick={() => close(false)} disabled={pending}>
-            {t('dialog.close')}
-          </Button>
-          <Button onClick={() => void send()} disabled={!valid || pending}>
-            {pending && <Loader2 className="animate-spin" aria-hidden="true" />}
-            {pending ? t('dialog.sending') : t('dialog.confirm')}
-          </Button>
-        </DialogFooter>
+        </DialogForm>
       </DialogContent>
     </Dialog>
   )
