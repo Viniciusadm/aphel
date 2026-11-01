@@ -13,7 +13,10 @@ All screens, in the core and in plugins, are built from the same primitives expo
 | Tabs stored in the URL | `UrlTabs` |
 | Master list with a detail pane | `MasterDetail` |
 | Form fields | `Field` |
-| Select with an empty option | `SelectField` |
+| Fixed options, including empty options | `NativeSelect` or `SelectField` |
+| Shared form dialog structure | `DialogForm` inside `DialogContent` |
+| Client-side search, filters and pagination | `CollectionView` |
+| Standalone public or system title | `PageTitle` |
 | Dialog widths | `DialogContent size="sm|md|lg|xl|2xl"` |
 
 Rules:
@@ -33,3 +36,15 @@ Use `NativeSelect` for fixed options in forms and list filters. Use `SelectField
 Pass validation messages through `Field error` and descriptions through `Field description`. Use the child callback to associate controls with their label and feedback. Display submission errors with `Alert`.
 
 Form dialogs use `DialogHeader`, a body composed of `Field`, and `DialogFooter` with cancel and submit actions. Disable submission while pending and preserve values after failure.
+
+## Collections
+
+Choose `Table` for comparable columns and `ItemList`/`ItemRow` for variable row content with actions. Use `CollectionView` for a complete in-memory collection: it composes `SearchInput`, `NativeSelect`, empty feedback and `Pagination`. Pass translated labels and domain-specific search/filter accessors. It never fetches or changes data. Server-paginated collections must keep their server pagination rather than paginate a partial response again.
+
+## Dialog forms
+
+Use `DialogForm` inside `DialogContent` for forms with a standard cancel/submit footer. Pass translated title, optional description, labels, submission error and pending state. Keep validation and field composition in the caller. Specialized dialogs may compose the same header and footer primitives directly.
+
+## Titles and settings
+
+`PageHeader` uses `PageTitle` for page-level headings. Standalone public, authentication and system layouts use the same title primitive. Settings area overviews own their page frame; internal routes render their own frame without a second wrapper from the area layout.
