@@ -1,10 +1,10 @@
 import { cva, type VariantProps } from 'class-variance-authority'
 
-export const tabsListVariants = cva('inline-flex max-w-full items-center gap-1 overflow-x-auto rounded-md bg-muted p-1 text-muted-foreground', {
+export const tabsListVariants = cva('inline-flex w-fit max-w-full items-center gap-1 overflow-x-auto rounded-md bg-muted text-muted-foreground', {
   variants: {
     size: {
-      sm: 'h-(--control-height-sm)',
-      md: 'h-(--control-height-md)',
+      sm: 'h-(--control-height-sm) p-1',
+      md: 'h-(--control-height-md) p-1.5',
     },
   },
   defaultVariants: { size: 'md' },
