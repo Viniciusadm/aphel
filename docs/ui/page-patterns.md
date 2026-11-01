@@ -10,7 +10,7 @@ All screens, in the core and in plugins, are built from the same primitives expo
 | Loading, error and empty states of a query | `QueryState` |
 | Tabular data | `Table` family (bordered container, shared paddings) |
 | Pagination of non-record lists | `Pagination` |
-| Tabs stored in the URL | `UrlTabs` |
+| Contextual sections stored in the URL | `SectionWorkspace`, `SectionIndex`, `SectionLink`, `SectionContent` |
 | Master list with a detail pane | `MasterDetail` |
 | Form fields | `Field` |
 | Fixed options, including empty options | `NativeSelect` or `SelectField` |
@@ -23,9 +23,21 @@ Rules:
 
 - Every page renders exactly one `PageHeader` (`h1`, `text-xl`) as the first child of `Page`.
 - Detail and editor pages pass `back` to `PageHeader`; they never build their own back link.
-- Primary actions go in `PageHeader actions`; creation forms open in a `Dialog`.
+- Primary actions go in `PageHeader actions`. Use dialogs for short creation flows and dedicated pages for full record editing.
 - Plugins never reimplement these components. A missing pattern is added to the core and exported in `web/src/sdk/ui.ts`.
 - A plugin groups its sidebar entries with the `group` field of `app.nav`.
+
+## Information architecture
+
+Use the application sidebar for product destinations, `AreaNavigation` for closely related route views, and `SectionWorkspace` for independent functions within a complex area. Contextual section selection uses the URL and preserves browser navigation. Do not use horizontal tabs as primary page navigation. Retain tabs only for equivalent modes within a single task, such as writing and previewing a message. Shared TabsList and SegmentedControl render native selection controls below 768 pixels. Use a labeled filter dialog with a vertical checkbox list for multi-select timeline event types; never represent those filters as a horizontally scrolling navigation strip.
+
+Record pages open an overview with upcoming work and recent activity. Full collections and complete fields have contextual destinations. Desktop uses a main work area and a compact supporting field panel; mobile presents the next actions before supporting fields and recent activity. Configure domain priorities with `RecordResource.summaryFields`; saved layout visibility rules still apply.
+
+Full editing opens `/records/:recordType/:recordId/edit`, preserves the previous record location and guards unsaved changes. Short creation and contextual actions continue to use dialogs. Form layout groups render as vertical chapters with section links; their persisted schema is unchanged.
+
+`RecordTable` uses cards on mobile, including selection, multi-field sorting, row actions and disclosure of additional selected columns. Keep server queries and pagination shared across presentations. Mobile pipelines show one selected stage and explicit movement actions.
+
+Use `app.recordSection` for module contributions. It supports an optional group and summary renderer. `recordTab`, existing record filters, record page options and `?tab=` URLs remain compatibility interfaces. The `UrlTabs` export adapts its existing contract to contextual sections.
 
 ## Select controls
 
@@ -54,3 +66,13 @@ Use `size="3xl"` for a dialog editor with a separate live preview. Ordinary form
 Sidebar navigation uses `SidebarLink`, including settings navigation, collapsed icon links and nested group entries. Keep tooltips and route permissions in the application shell. Group controls retain their native button semantics through `asChild`.
 
 Dialogs with no description set `aria-describedby={undefined}` on `DialogContent`. Complex dialogs with an external form footer, an upload flow or extra actions may compose `DialogHeader`, `Field` and `DialogFooter` directly instead of adding variants to `DialogForm`.
+
+## Mobile collection controls
+
+Keep the saved view above a single search-and-filter row. Put creation in the page header. On record lists, the filter button opens a bottom sheet with criteria, archive visibility, optional sorting and display sections. Keep a short applied-filter/sort summary outside; do not stack every control or duplicate chips and sorting panels above the cards. Apply all draft options in one URL update and reset pagination; dismissing the panel discards its draft. FilterMenu also opens a bottom sheet on mobile for consumers outside RecordListView.
+
+## Mobile page actions and pagination
+
+Below 768 pixels, page-header actions follow the title and description on their own row; a single action can use the available width. Desktop retains the side-by-side header. Global quick entries belong in the header create menu, not in a floating button over list content. Preserve the current record when opening a quick-entry form. Pagination contains only Previous, Page X of Y and Next on both mobile and desktop; render PaginationSummary beside the result list and place PageSizeSelect inside Display settings; reserve bottom spacing for the fixed navigation and safe area only.
+
+The Pagination API takes page, perPage, total and onPageChange. Move former onPerPageChange/perPageOptions usage to PageSizeSelect and reset to page 1 when changing size. PaginationSummary is a separate component so counts never become an interactive page indicator. These primitives are exported through @aphel/ui.

@@ -5,7 +5,8 @@
     "search": "Search",
     "add": "Add",
     "inbox": "Inbox",
-    "more": "More"
+    "more": "Menu",
+    "deals": "Deals"
   },
   "quickAdd": {
     "description": "Log it in a few taps.",
@@ -15,7 +16,8 @@
     "queued": "Saved on this device. It will be sent when you reconnect.",
     "titles": {
       "menu": "Add"
-    }
+    },
+    "menuLabel": "Quick entry"
   },
   "picker": {
     "label": "Link to a record (optional)",

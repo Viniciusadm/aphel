@@ -50,7 +50,7 @@ interface DialogBodyProps {
   onDirtyChange: (dirty: boolean) => void
 }
 
-function RecordFormDialogBody({
+export function RecordFormDialogBody({
   recordType,
   layout,
   defaultValues,

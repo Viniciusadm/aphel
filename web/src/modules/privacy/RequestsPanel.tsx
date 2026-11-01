@@ -1,3 +1,4 @@
+import { PaginationSummary } from '@/components/ui/pagination-summary'
 import { ClipboardList } from 'lucide-react'
 import { useTranslation } from 'react-i18next'
 import { useSearchParams } from 'react-router'
@@ -67,6 +68,7 @@ export function RequestsPanel() {
         />
       ) : (
         <>
+          <PaginationSummary page={page} perPage={REQUESTS_PER_PAGE} total={requests.data.meta.total} />
           <ul className="grid gap-2">
             {requests.data.data.map((request) => (
               <RequestRow

@@ -42,7 +42,7 @@ const leadProModule = defineModule({
       permission: READ_PERMISSION,
       order: NAV_ORDER.modules,
     })
-    app.recordTab('contact', {
+    app.recordSection('contact', {
       key: `${LEAD_PRO_KEY}.temperature`,
       label: 'tab',
       icon: Flame,

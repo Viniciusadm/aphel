@@ -1,3 +1,4 @@
+import { SearchInput } from '@/components/ui/search-input'
 import { SidebarLink } from '@/components/ui/sidebar-link'
 import { ChevronDown } from 'lucide-react'
 import { useId, useState, type ReactNode } from 'react'
@@ -126,18 +127,32 @@ function GroupSection({
 
 export function SidebarNav({ collapsed = false, onNavigate }: SidebarNavProps) {
   const { t } = useTranslation('layout')
+  const [query, setQuery] = useState('')
   const preferences = useNavigationPreferences()
-  const nodes = groupEntries(arrangeSidebarEntries(useAvailableSidebarEntries(), preferences))
+  const entries = arrangeSidebarEntries(useAvailableSidebarEntries(), preferences)
+  const filtered = entries.filter((entry) => !query || `${entry.label} ${entry.group?.label ?? ''}`.toLocaleLowerCase().includes(query.toLocaleLowerCase()))
+  const categories = ['work', 'crm', 'operations', 'analysis', 'administration'] as const
+  const category = (entry: SidebarEntry) => {
+    if (entry.locked || /^\/(settings|system|oidc|google|microsoft)(\/|$)/.test(entry.to)) return 'administration'
+    if (entry.to === '/calls/report') return 'analysis'
+    if (/^\/(reports|forecast|goals)(\/|$)/.test(entry.to)) return 'analysis'
+    if (/^\/(contacts|companies|leads|deals|objects)(\/|$)/.test(entry.to) || entry.key.startsWith('object:')) return 'crm'
+    if (/^\/(today|tasks|calendar|inbox|messaging|following|search)(\/|$)/.test(entry.to) || entry.to === '/') return 'work'
+    return 'operations'
+  }
 
   return (
     <nav aria-label={t('nav.label')} className="flex flex-col gap-1 px-2">
-      {nodes.map((node) =>
-        node.kind === 'entry' ? (
-          <EntryLink key={node.entry.key} entry={node.entry} collapsed={collapsed} onNavigate={onNavigate} />
-        ) : (
-          <GroupSection key={node.key} node={node} collapsed={collapsed} onNavigate={onNavigate} />
-        ),
-      )}
+      {!collapsed && <SearchInput value={query} onValueChange={setQuery} aria-label={t('nav.search')} placeholder={t('nav.search')} wrapperClassName="mb-3" />}
+      {categories.map((key) => {
+        const nodes = groupEntries(filtered.filter((entry) => category(entry) === key))
+        if (nodes.length === 0) return null
+        return <section key={key} className="grid gap-1 pb-4">
+          {!collapsed && <h2 className="px-3 pb-1 text-xs font-semibold text-muted-foreground">{t(`nav.groups.${key}`)}</h2>}
+          {nodes.map((node) => node.kind === 'entry' ? <EntryLink key={node.entry.key} entry={node.entry} collapsed={collapsed} onNavigate={onNavigate} /> : <GroupSection key={node.key} node={node} collapsed={collapsed} onNavigate={onNavigate} />)}
+        </section>
+      })}
+
     </nav>
   )
 }

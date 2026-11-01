@@ -25,6 +25,7 @@ export {
   type RecordListExtension,
   type RecordListExtensionProps,
   type RecordListExtensionResult,
+  type RecordSectionContribution,
   type RecordTabContribution,
   type RecordTabRenderProps,
   type RecordTabVisibilityProps,
@@ -51,6 +52,7 @@ export {
   moduleWidgetTitleKey,
   useModuleCommands,
   useModuleRecordTabs,
+  useModuleRecordSections,
   type ModuleCommand,
 } from './contributions'
 export { registerNativeFieldTypes, useFieldTypeRenderers, type FieldDisplayProps, type FieldTypeRenderers } from './field-types'

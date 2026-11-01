@@ -99,3 +99,9 @@ export { DialogForm, type DialogFormProps } from '@/components/ui/dialog-form'
 export { PageTitle } from '@/components/ui/page-title'
 export { CollectionView, type CollectionViewProps } from '@/components/ui/collection-view'
 export { SidebarLink, type SidebarLinkProps } from '@/components/ui/sidebar-link'
+
+export { SectionWorkspace, SectionIndex, SectionLink, SectionContent } from '@/components/ui/section-workspace'
+export { AreaNavigation, type AreaDestination } from '@/components/ui/area-navigation'
+
+export { PageSizeSelect, type PageSizeSelectProps } from '@/components/ui/page-size-select'
+export { PaginationSummary, type PaginationSummaryProps } from '@/components/ui/pagination-summary'

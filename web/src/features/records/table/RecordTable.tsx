@@ -13,7 +13,8 @@ import {
 import { ArrowDown, ArrowUp, ArrowUpDown } from 'lucide-react'
 import { useMemo, type MouseEvent, type ReactNode } from 'react'
 import { useTranslation } from 'react-i18next'
-import { Link, useNavigate } from 'react-router'
+import { Link, useLocation, useNavigate } from 'react-router'
+import { useMediaQuery } from '../calendar/useMediaQuery'
 import { Checkbox } from '@/components/ui/checkbox'
 import { Skeleton } from '@/components/ui/skeleton'
 import { cn } from '@/lib/utils'
@@ -43,6 +44,7 @@ export interface RecordTableProps {
   resource?: RecordResource
   sort?: SortSpec[]
   onSortChange?: (sort: SortSpec[]) => void
+  mobileSorting?: boolean
   density?: TableDensity
   isLoading?: boolean
   isFetching?: boolean
@@ -77,6 +79,7 @@ export function RecordTable({
   sort = [],
   onSortChange,
   density = 'comfortable',
+  mobileSorting = true,
   isLoading = false,
   isFetching = false,
   loadingRows = 8,
@@ -90,6 +93,8 @@ export function RecordTable({
 }: RecordTableProps) {
   const { t } = useTranslation('records-table')
   const navigate = useNavigate()
+  const location = useLocation()
+  const mobile = useMediaQuery('(max-width: 767px)')
   const selectable = Boolean(onSelectionChange)
   const recordType = schema.record_type
   const resolvedFields = useMemo(
@@ -149,7 +154,7 @@ export function RecordTable({
 
   const openRecord = (record: RecordItem) => {
     if (onRowClick) onRowClick(record)
-    else if (resource?.detailPath) void navigate(resource.detailPath(record.id))
+    else if (resource?.detailPath) void navigate(resource.detailPath(record.id), { state: { returnTo: `${location.pathname}${location.search}` } })
   }
   const clickable = Boolean(onRowClick || resource?.detailPath)
 
@@ -163,6 +168,29 @@ export function RecordTable({
   const padding = cellPadding[density]
   const headerGroups = table.getHeaderGroups()
   const rows = table.getRowModel().rows
+
+  if (mobile) return <div className={cn('grid min-w-0 gap-3', className)} aria-busy={isLoading || isFetching}>
+    {mobileSorting && onSortChange && <details className="rounded-lg border p-3">
+      <summary className="min-h-8 cursor-pointer text-sm font-medium">{t('table.sortOptions')}</summary>
+      <div className="grid gap-2 pt-3">{fields.filter((field) => field.is_sortable).map((field) => {
+        const current = sort.find((item) => item.field === field.key)
+        return <button key={field.key} type="button" className="flex min-h-11 items-center justify-between gap-2 rounded-md px-2 text-left text-sm hover:bg-muted" onClick={() => {
+          const others = sort.filter((item) => item.field !== field.key)
+          onSortChange(current?.direction === 'desc' ? others : [{ field: field.key, direction: current ? 'desc' as const : 'asc' as const }, ...others].slice(0, MAX_SORTS))
+        }}>{field.label}{current && <span>{current.direction === 'asc' ? '↑' : '↓'} {sort.findIndex((item) => item.field === field.key) + 1}</span>}</button>
+      })}</div>
+    </details>}
+    {selectable && <label className="flex min-h-11 items-center gap-3 text-sm"><Checkbox checked={table.getIsAllPageRowsSelected() ? true : table.getIsSomePageRowsSelected() ? 'indeterminate' : false} disabled={isLoading || !rows.length} onCheckedChange={(value) => table.toggleAllPageRowsSelected(value === true)} />{t('table.selectPage')}</label>}
+    {isLoading ? Array.from({ length: 3 }, (_, index) => <Skeleton key={index} className="h-40 w-full" />) : rows.map((row) => <DisplayRecordProvider key={row.id} value={{ recordType, recordId: row.original.id, title: resource ? recordTitle(resource, row.original) : row.original.id }}><article className={cn('grid min-w-0 gap-4 rounded-xl border bg-card p-4', row.getIsSelected() && 'border-primary bg-accent/40', rowClassName?.(row.original))}>
+      <div className="flex min-w-0 items-start gap-3">
+        {selectable && <Checkbox aria-label={t('table.selectRow', { title: resource ? recordTitle(resource, row.original) : row.original.id })} checked={row.getIsSelected()} onCheckedChange={(value) => row.toggleSelected(value === true)} />}
+        <div className="min-w-0 flex-1">{resource?.detailPath ? <Link state={{ returnTo: `${location.pathname}${location.search}` }} to={resource.detailPath(row.original.id)} className="block text-base font-semibold break-words">{recordTitle(resource, row.original)}</Link> : <button type="button" className="text-left text-base font-semibold" onClick={() => openRecord(row.original)}>{resource ? recordTitle(resource, row.original) : row.original.id}</button>}{titleAddon?.(row.original)}</div>
+      </div>
+      <dl className="grid gap-3">{fields.filter((field) => field.key !== titleKey).slice(0, 3).map((field) => <div key={field.key} className="grid gap-1"><dt className="text-xs text-muted-foreground">{field.label}</dt><dd className="min-w-0 text-sm break-words"><FieldValueDisplay field={field} value={getFieldValue(row.original, field)} /></dd></div>)}</dl>
+      {fields.filter((field) => field.key !== titleKey).length > 3 && <details><summary className="min-h-11 cursor-pointer text-sm font-medium text-primary">{t('table.moreFields')}</summary><dl className="grid gap-3 pt-2">{fields.filter((field) => field.key !== titleKey).slice(3).map((field) => <div key={field.key} className="grid gap-1"><dt className="text-xs text-muted-foreground">{field.label}</dt><dd className="min-w-0 text-sm break-words"><FieldValueDisplay field={field} value={getFieldValue(row.original, field)} /></dd></div>)}</dl></details>}
+      {hasRowActions && <div className="flex flex-wrap gap-2 border-t pt-3">{rowActions.map(({ key, Component }) => <Component key={key} recordType={recordType} record={row.original} />)}</div>}
+    </article></DisplayRecordProvider>)}
+  </div>
 
   return (
     <div
@@ -307,11 +335,12 @@ interface RecordCellProps {
 
 function RecordCell({ field, record, resource, isTitle, addon }: RecordCellProps): ReactNode {
   const value = getFieldValue(record, field)
+  const location = useLocation()
   if (isTitle && resource) {
     const title = recordTitle(resource, record)
     const href = resource.detailPath?.(record.id)
     const label = href ? (
-      <Link to={href} className="block truncate font-medium text-foreground underline-offset-4 hover:underline">
+      <Link to={href} state={{ returnTo: `${location.pathname}${location.search}` }} className="block truncate font-medium text-foreground underline-offset-4 hover:underline">
         {title}
       </Link>
     ) : (

@@ -18,7 +18,9 @@
     "selectAllMatching_one": "Select the matching record",
     "selectAllMatching_other": "Select all {{count}} matching records",
     "allMatchingSelected_one": "The matching record is selected.",
-    "allMatchingSelected_other": "All {{count}} matching records are selected."
+    "allMatchingSelected_other": "All {{count}} matching records are selected.",
+    "moreFields": "More information",
+    "sortOptions": "Sort records"
   },
   "columns": {
     "button": "Columns",
@@ -210,5 +212,22 @@
     "exclude": "Hide archived",
     "include": "Include archived",
     "only": "Archived only"
+  },
+  "display": {
+    "title": "Display"
+  },
+  "mobileControls": {
+    "title": "Filters and options",
+    "description": "Refine the results. Changes apply only when you confirm.",
+    "sortField": "Sort by — priority {{number}}",
+    "direction": "Direction",
+    "removeSort": "Remove sort rule {{number}}",
+    "addSort": "Add sort rule",
+    "filterCount_one": "{{count}} filter",
+    "filterCount_other": "{{count}} filters",
+    "sortCount_one": "{{count}} sort rule",
+    "sortCount_other": "{{count}} sort rules",
+    "reset": "Clear filters and sorting",
+    "cardFields": "Card fields"
   }
 }

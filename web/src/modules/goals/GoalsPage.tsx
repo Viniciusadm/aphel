@@ -1,3 +1,4 @@
+import { PaginationSummary } from '@/components/ui/pagination-summary'
 import { Plus, Target } from 'lucide-react'
 import { useState } from 'react'
 import { useTranslation } from 'react-i18next'
@@ -79,6 +80,7 @@ export function GoalsPage() {
   } else {
     body = (
       <>
+        <PaginationSummary page={page} perPage={GOALS_PER_PAGE} total={goals.data.meta.total} />
         <ul
           className={cn('grid gap-3 sm:grid-cols-2 xl:grid-cols-3 transition-opacity', goals.isFetching && 'opacity-60')}
           aria-label={t('page.listLabel')}
@@ -101,27 +103,9 @@ export function GoalsPage() {
       
       </>} />
       <div className="flex flex-col gap-3 sm:flex-row sm:items-center sm:justify-between">
-        <nav aria-label={t('page.viewLabel')} className="flex gap-1 overflow-x-auto border-b">
-          {(['current', 'all'] as const).map((candidate) => (
-            <button
-              key={candidate}
-              type="button"
-              aria-current={candidate === view ? 'page' : undefined}
-              onClick={() => {
-                setView(candidate)
-                setPage(1)
-              }}
-              className={cn(
-                '-mb-px border-b-2 px-3 py-2 text-sm font-medium whitespace-nowrap transition-colors',
-                candidate === view
-                  ? 'border-primary text-foreground'
-                  : 'border-transparent text-muted-foreground hover:text-foreground',
-              )}
-            >
-              {t(`page.views.${candidate}`)}
-            </button>
-          ))}
-        </nav>
+        <NativeSelect aria-label={t('page.viewLabel')} value={view} onChange={(event) => { setView(event.target.value as GoalView); setPage(1) }}>
+          {(['current', 'all'] as const).map((candidate) => <option key={candidate} value={candidate}>{t(`page.views.${candidate}`)}</option>)}
+        </NativeSelect>
         <label className="flex min-w-0 items-center gap-2 text-sm">
           <span className="shrink-0 text-muted-foreground">{t('page.ownerFilter')}</span>
           <NativeSelect

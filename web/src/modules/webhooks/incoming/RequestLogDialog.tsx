@@ -1,3 +1,4 @@
+import { PaginationSummary } from '@/components/ui/pagination-summary'
 import { ArrowLeft, Inbox } from 'lucide-react'
 import { useState } from 'react'
 import { useTranslation } from 'react-i18next'
@@ -103,6 +104,7 @@ function RequestList({ webhookId, onSelect }: { webhookId: string; onSelect: (id
         <EmptyState icon={Inbox} title={t('log.emptyTitle')} description={t('log.emptyDescription')} />
       ) : (
         <>
+          <PaginationSummary page={page} perPage={REQUESTS_PER_PAGE} total={requests.data.meta.total} />
           <ul className="grid gap-2" aria-label={t('log.listLabel')}>
             {requests.data.data.map((request) => (
               <li key={request.id}>

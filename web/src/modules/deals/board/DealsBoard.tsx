@@ -1,4 +1,6 @@
 import { DndContext, DragOverlay, closestCorners, type DragEndEvent, type DragStartEvent } from '@dnd-kit/core'
+import { useMediaQuery } from '@/features/records/calendar/useMediaQuery'
+import { NativeSelect } from '@/components/ui/native-select'
 import { useBoardSensors } from '@/features/mobile/lib/board-sensors'
 import { useQuery, useQueryClient } from '@tanstack/react-query'
 import { KanbanSquare } from 'lucide-react'
@@ -44,6 +46,8 @@ function BoardSkeleton() {
 export function DealsBoard({ request, canMove }: DealsBoardProps) {
   const { t } = useTranslation('deals')
   const queryClient = useQueryClient()
+  const mobile = useMediaQuery('(max-width: 767px)')
+  const [mobileStage, setMobileStage] = useState('')
   const formatting = useRecordFormatting()
   const requestKey = JSON.stringify(dealsKeys.board(request))
   const boardKey = useMemo(() => JSON.parse(requestKey) as unknown[], [requestKey])
@@ -196,6 +200,7 @@ export function DealsBoard({ request, canMove }: DealsBoardProps) {
 
   return (
     <>
+      {mobile && <NativeSelect aria-label={t('board.stageSelect')} value={columns.find((column) => column.stage.id === mobileStage)?.stage.id ?? columns[0].stage.id} onChange={(event) => setMobileStage(event.target.value)}>{columns.map((column) => <option key={column.stage.id} value={column.stage.id}>{column.stage.name} ({column.count})</option>)}</NativeSelect>}
       <DndContext
         sensors={sensors}
         collisionDetection={closestCorners}
@@ -211,13 +216,14 @@ export function DealsBoard({ request, canMove }: DealsBoardProps) {
           aria-label={t('board.label', { pipeline: board.data.pipeline.name })}
           className="scroll-smooth-thin flex min-h-[28rem] flex-1 snap-x snap-proximity gap-3 overflow-x-auto overscroll-x-contain pb-3 md:snap-none"
         >
-          {columns.map((column) => (
+          {(mobile ? [columns.find((column) => column.stage.id === mobileStage) ?? columns[0]] : columns).map((column) => (
             <BoardColumnView
               key={column.stage.id}
               column={column}
               stages={stages}
               formatting={formatting}
               draggable={canMove}
+              disableDrag={mobile}
               loadingMore={loadingStage === column.stage.id}
               onMove={requestMove}
               onMovePipeline={canMovePipeline ? requestPipelineMove : undefined}

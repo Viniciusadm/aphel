@@ -23,7 +23,7 @@ const leadsModule = defineModule({
       permission: LIFECYCLE_MANAGE_PERMISSION,
       routes: [lifecycleSettingsRoute],
     })
-    app.recordTab(LIFECYCLE_RECORD_TYPES, {
+    app.recordSection(LIFECYCLE_RECORD_TYPES, {
       key: LIFECYCLE_TAB_KEY,
       label: 'history.tab',
       icon: History,

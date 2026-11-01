@@ -28,7 +28,7 @@ const pipelinesModule = defineModule({
       routes: [pipelinesSettingsRoute],
     })
     app.referenceOptions('pipeline_stage', PIPELINE_STAGE_REFERENCE_OPTIONS)
-    app.recordTab(DEAL_RECORD_TYPE, {
+    app.recordSection(DEAL_RECORD_TYPE, {
       key: STAGE_GUIDANCE_TAB_KEY,
       label: 'guidance.panel.tab',
       icon: ListChecks,

@@ -4,6 +4,8 @@ export interface RecordResource {
   recordType: string
   basePath: string
   titleField: string
+  updatePermission?: string
+  summaryFields?: string[]
   subtitleField?: string
   detailPath?: (id: string) => string
 }

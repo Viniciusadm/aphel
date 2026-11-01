@@ -1,3 +1,10 @@
+import { SlidersHorizontal } from 'lucide-react'
+import { Button } from './button'
+import { Popover, PopoverContent, PopoverTrigger } from './popover'
+import { PageSizeSelect } from './page-size-select'
+import { PaginationSummary } from './pagination-summary'
+import { useUiLabels } from './labels-context'
+import { defaultUiLabels } from './default-labels'
 import { useState, type ReactNode } from 'react'
 import { EmptyState } from './empty-state'
 import { NativeSelect } from './native-select'
@@ -17,6 +24,7 @@ export interface CollectionViewProps<T> {
 }
 
 export function CollectionView<T>({ items, searchLabel, emptyTitle, getSearchText, filterLabel, allLabel, filters, getFilterValue, children }: CollectionViewProps<T>) {
+  const labels = useUiLabels()
   const [search, setSearch] = useState('')
   const [filter, setFilter] = useState('')
   const [page, setPage] = useState(1)
@@ -27,15 +35,17 @@ export function CollectionView<T>({ items, searchLabel, emptyTitle, getSearchTex
   const currentPage = Math.min(page, Math.max(1, Math.ceil(filtered.length / perPage)))
   return (
     <div className="grid min-w-0 gap-4">
-      {(searchLabel || (filters && getFilterValue)) && <div className="flex flex-wrap items-center gap-2">
+      <div className="flex flex-wrap items-center gap-2">
         {searchLabel && <SearchInput wrapperClassName="min-w-48 flex-1" aria-label={searchLabel} placeholder={searchLabel} value={search} onValueChange={(value) => { setSearch(value); setPage(1) }} />}
         {filters && getFilterValue && <NativeSelect aria-label={filterLabel} value={activeFilter} onChange={(event) => { setFilter(event.target.value); setPage(1) }}>
           <option value="">{allLabel}</option>
           {filters.map((option) => <option key={option.value} value={option.value}>{option.label}</option>)}
         </NativeSelect>}
-      </div>}
+        <Popover><PopoverTrigger asChild><Button variant="outline" size="sm" className="ml-auto"><SlidersHorizontal aria-hidden />{labels.displaySettings ?? defaultUiLabels().displaySettings}</Button></PopoverTrigger><PopoverContent align="end"><PageSizeSelect value={perPage} onChange={(value) => { setPerPage(value); setPage(1) }} /></PopoverContent></Popover>
+      </div>
+      <PaginationSummary page={currentPage} perPage={perPage} total={filtered.length} />
       {filtered.length ? children(filtered.slice((currentPage - 1) * perPage, currentPage * perPage)) : <EmptyState title={emptyTitle} />}
-      <Pagination page={currentPage} perPage={perPage} total={filtered.length} onPageChange={setPage} onPerPageChange={(value) => { setPerPage(value); setPage(1) }} />
+      <Pagination page={currentPage} perPage={perPage} total={filtered.length} onPageChange={setPage} />
     </div>
   )
 }

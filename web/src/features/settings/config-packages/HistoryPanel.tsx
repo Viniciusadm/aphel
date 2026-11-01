@@ -1,3 +1,4 @@
+import { PaginationSummary } from '@/components/ui/pagination-summary'
 import { Download, History } from 'lucide-react'
 import { useMemo, useState } from 'react'
 import { useTranslation } from 'react-i18next'
@@ -43,6 +44,7 @@ export function HistoryPanel() {
 
   return (
     <div className="grid gap-3">
+      <PaginationSummary page={page} perPage={INSTALLS_PER_PAGE} total={installs.data.meta.total} />
       <ul className="grid gap-2" aria-label={t('history.listLabel')}>
         {installs.data.data.map((install) => (
           <li key={install.id} className="flex min-w-0 flex-wrap items-center gap-3 rounded-md border bg-card px-3 py-2">

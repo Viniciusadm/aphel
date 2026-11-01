@@ -47,6 +47,7 @@ export function registerCustomObjectResources(objects: CustomObject[]) {
   for (const object of objects) {
     registerRecordResource({
       recordType: object.record_type,
+      updatePermission: objectPermission(object, 'update'),
       basePath: customRecordsApiPath(object.key),
       titleField: CUSTOM_RECORD_TITLE_FIELD,
       detailPath: (id) => customRecordPath(object.key, id),

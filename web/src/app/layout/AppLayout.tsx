@@ -41,35 +41,36 @@ export function AppLayout() {
 
   return (
     <CommandPaletteProvider>
-      <div className={cn('flex min-h-dvh bg-background text-foreground', !settingsArea && 'h-full')}>
-        <OrganizationTheme />
-        <Slot name="app.shell" props={{}} />
-        <TwoFactorGate />
-        <LanguageSync />
-        <ExtensionLoadNotice />
-        <HomeRedirect />
-        <Sidebar
-          collapsed={collapsed}
-          onToggleCollapsed={toggleCollapsed}
-          settingsArea={settingsArea}
-          returnPath={returnPath}
-        />
-        <MobileSidebar
-          open={mobileNavOpen}
-          onOpenChange={setMobileNavOpen}
-          settingsArea={settingsArea}
-          returnPath={returnPath}
-        />
-        <div className="flex min-w-0 flex-1 flex-col">
-          <Topbar onOpenMobileNav={() => setMobileNavOpen(true)} />
-          <main className={cn('flex-1 p-4 pb-[calc(5.5rem+env(safe-area-inset-bottom))] md:p-6', !settingsArea && 'overflow-y-auto')}>
-            <Outlet />
-          </main>
+      <MobileShell onOpenMenu={() => setMobileNavOpen(true)}>
+        <div className={cn('flex min-h-dvh bg-background text-foreground', !settingsArea && 'h-full')}>
+          <OrganizationTheme />
+          <Slot name="app.shell" props={{}} />
+          <TwoFactorGate />
+          <LanguageSync />
+          <ExtensionLoadNotice />
+          <HomeRedirect />
+          <Sidebar
+            collapsed={collapsed}
+            onToggleCollapsed={toggleCollapsed}
+            settingsArea={settingsArea}
+            returnPath={returnPath}
+          />
+          <MobileSidebar
+            open={mobileNavOpen}
+            onOpenChange={setMobileNavOpen}
+            settingsArea={settingsArea}
+            returnPath={returnPath}
+          />
+          <div className="flex min-w-0 flex-1 flex-col">
+            <Topbar onOpenMobileNav={() => setMobileNavOpen(true)} />
+            <main className={cn('flex-1 p-4 pb-[calc(5.5rem+env(safe-area-inset-bottom))] md:p-6', !settingsArea && 'overflow-y-auto')}>
+              <Outlet />
+            </main>
+          </div>
+          <PwaShell />
+          <OfflineShell />
         </div>
-        <PwaShell />
-        <OfflineShell />
-        <MobileShell onOpenMenu={() => setMobileNavOpen(true)} />
-      </div>
+      </MobileShell>
     </CommandPaletteProvider>
   )
 }

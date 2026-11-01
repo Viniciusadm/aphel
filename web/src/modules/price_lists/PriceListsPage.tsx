@@ -7,7 +7,7 @@ import { PageLoader } from '@/components/feedback'
 import { Button } from '@/components/ui/button'
 import { EmptyState } from '@/components/ui/empty-state'
 import { ErrorState } from '@/components/ui/error-state'
-import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs'
+import { SectionWorkspace, SectionContent, SectionIndex, SectionLink } from '@/components/ui/section-workspace'
 import { NativeSelect } from '@/features/records/filters/NativeSelect'
 import { useCurrencySettings } from '@/modules/currencies/api'
 import { SETTINGS_MANAGE } from '@/features/settings/lib/permissions'
@@ -35,18 +35,18 @@ export function PriceListsPage() {
         description={t('list.description')}
       />
       {canManageLimits ? (
-        <Tabs defaultValue="lists" className="flex flex-col gap-4">
-          <TabsList>
-            <TabsTrigger value="lists">{t('tabs.lists')}</TabsTrigger>
-            <TabsTrigger value="limits">{t('tabs.limits')}</TabsTrigger>
-          </TabsList>
-          <TabsContent value="lists">
+        <SectionWorkspace defaultValue="lists">
+          <SectionIndex>
+            <SectionLink value="lists">{t('tabs.lists')}</SectionLink>
+            <SectionLink value="limits">{t('tabs.limits')}</SectionLink>
+          </SectionIndex>
+          <SectionContent value="lists">
             <PriceListsTable />
-          </TabsContent>
-          <TabsContent value="limits">
+          </SectionContent>
+          <SectionContent value="limits">
             <DiscountLimitsPanel />
-          </TabsContent>
-        </Tabs>
+          </SectionContent>
+        </SectionWorkspace>
       ) : (
         <PriceListsTable />
       )}

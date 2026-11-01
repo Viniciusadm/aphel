@@ -407,5 +407,11 @@
     "limit": "E.g.: 10",
     "description": "Describe what this report shows",
     "day": "E.g.: 1"
+  },
+  "library": {
+    "title": "Report library",
+    "conversion": "Understand funnel progression and where deals are lost.",
+    "performance": "Track results and compare sales performance.",
+    "saved": "Find and create reports with data relevant to your team."
   }
 }

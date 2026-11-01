@@ -1,9 +1,12 @@
+import { MobileRecordToolbar, type MobileListOptions } from './MobileRecordToolbar'
+import { useMediaQuery } from '../calendar/useMediaQuery'
 import { SegmentedControl } from '@/components/ui/segmented-control'
-import { CalendarDays, SearchX, Table2 } from 'lucide-react'
+import { CalendarDays, SearchX, SlidersHorizontal, Table2 } from 'lucide-react'
 import { useEffect, useMemo, useState, type ReactNode } from 'react'
 import { useTranslation } from 'react-i18next'
 import { useSearchParams } from 'react-router'
 import { isApiError } from '@/api'
+import { Popover, PopoverContent, PopoverTrigger } from '@/components/ui/popover'
 import { Button } from '@/components/ui/button'
 import { EmptyState } from '@/components/ui/empty-state'
 import { ErrorState } from '@/components/ui/error-state'
@@ -35,11 +38,15 @@ import {
   sameConfig,
   viewConfig,
   type ListUrlState,
+  buildListSearch,
+  parseListSearch,
 } from '../views/urlState'
 import { ViewSwitcher } from '../views/ViewSwitcher'
 import { ColumnsMenu } from './ColumnsMenu'
 import { defaultColumnKeys } from './columns'
 import { DensityToggle } from './DensityToggle'
+import { PageSizeSelect } from '@/components/ui/page-size-select'
+import { PaginationSummary } from '@/components/ui/pagination-summary'
 import { Pagination } from '@/components/ui/pagination'
 import { RecordTable } from './RecordTable'
 import { SearchBox } from './SearchBox'
@@ -117,6 +124,7 @@ function RecordListContent({
   baseFilter,
 }: RecordListContentProps) {
   const { t } = useTranslation('records-table')
+  const mobile = useMediaQuery('(max-width: 767px)')
   const resource = requireRecordResource(recordType)
   const viewsQuery = useSavedViews(recordType)
   const [urlState, setUrlState] = useListUrlState()
@@ -281,6 +289,7 @@ function RecordListContent({
   } else {
     body = (
       <>
+        {!isLoading && <PaginationSummary page={urlState.page} perPage={urlState.perPage} total={total} />}
         <RecordTable
           schema={schema}
           resource={resource}
@@ -288,6 +297,7 @@ function RecordListContent({
           columns={config.columns}
           sort={config.sort}
           onSortChange={setSort}
+          mobileSorting={false}
           density={config.density}
           isLoading={isLoading}
           isFetching={list.isFetching}
@@ -303,17 +313,14 @@ function RecordListContent({
             perPage={urlState.perPage}
             total={total}
             onPageChange={(page) => update({ page })}
-            onPerPageChange={(perPage) => update({ perPage, page: 1 })}
           />
         )}
       </>
     )
   }
 
-  return (
-    <div className={cn('grid min-w-0 gap-3', className)}>
-      <div className="flex min-w-0 flex-wrap items-center gap-2">
-        <ViewSwitcher
+  const viewSwitcher = (
+    <ViewSwitcher
           recordType={recordType}
           views={views}
           activeView={activeView}
@@ -330,6 +337,33 @@ function RecordListContent({
                 : undefined
           }
         />
+  )
+  const applyMobileOptions = (options: MobileListOptions) => setSearchParams((current) => {
+    const next = buildListSearch({ ...parseListSearch(current), filter: options.filter, sort: options.sort, columns: options.columns, density: options.density, layout: options.layout, calendarField: options.calendarField, perPage: options.perPage, page: 1 }, current)
+    if (archived === undefined && archivedFilter) {
+      if (options.archived === 'exclude') next.delete(ARCHIVED_PARAM)
+      else next.set(ARCHIVED_PARAM, options.archived)
+    }
+    return next
+  })
+
+  return (
+    <div className={cn('grid min-w-0 gap-3', className)}>
+      {mobile ? <MobileRecordToolbar
+        recordType={recordType}
+        schema={extensions.filterSchema}
+        titleField={resource.titleField}
+        resetColumns={baseConfig.columns}
+        view={<>{viewSwitcher}{toolbarActions}</>}
+        search={urlState.search}
+        onSearch={setSearch}
+        options={{ filter: config.filter, sort: config.sort, columns: config.columns, density: config.density, archived: archivedMode, layout, perPage: urlState.perPage, calendarField: calendarField?.key ?? '' }}
+        allowArchived={archived === undefined && archivedFilter}
+        dateFields={dateFields}
+        onApply={applyMobileOptions}
+      /> : (
+      <div className="flex min-w-0 flex-wrap items-center gap-2">
+        {viewSwitcher}
         <SearchBox value={urlState.search} onChange={setSearch} className="w-full sm:w-64" />
         <FilterMenu schema={extensions.filterSchema} filter={config.filter} onApply={setFilter} />
         <Slot name="record.list.toolbar" props={{ recordType, filter: config.filter, applyFilter: setFilter }} />
@@ -356,7 +390,9 @@ function RecordListContent({
             />
           )}
           {!showCalendar && (
-            <>
+            <Popover>
+              <PopoverTrigger asChild><Button variant="outline" size="sm"><SlidersHorizontal aria-hidden />{t('display.title')}</Button></PopoverTrigger>
+              <PopoverContent align="end" className="grid gap-4">
               <ColumnsMenu
                 schema={schema}
                 columns={config.columns}
@@ -365,17 +401,20 @@ function RecordListContent({
                 onReset={() => update({ columns: undefined })}
               />
               <DensityToggle value={config.density} onChange={setDensity} />
-            </>
+              <PageSizeSelect value={urlState.perPage} onChange={(perPage) => update({ perPage, page: 1 })} />
+              </PopoverContent>
+            </Popover>
           )}
           {toolbarActions}
         </div>
       </div>
+      )}
       {viewMissing && (
         <p role="status" className="text-sm text-muted-foreground">
           {t('views.notFound')}
         </p>
       )}
-      <FilterChips schema={extensions.filterSchema} filter={config.filter} onChange={setFilter} />
+      {!mobile && <FilterChips schema={extensions.filterSchema} filter={config.filter} onChange={setFilter} />}
       {selectable && !showCalendar && selectedIds.length > 0 && (
         <div
           role="region"

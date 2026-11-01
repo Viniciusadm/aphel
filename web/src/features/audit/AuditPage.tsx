@@ -1,3 +1,4 @@
+import { PaginationSummary } from '@/components/ui/pagination-summary'
 import { pluginDisplayName } from '@/kernel/modules/plugins'
 import { History } from 'lucide-react'
 import { useMemo } from 'react'
@@ -60,6 +61,7 @@ function AuditSection() {
         />
       ) : (
         <>
+          <PaginationSummary page={page} perPage={AUDIT_PER_PAGE} total={logs.data.meta.total} />
           <Table>
             <TableHeader>
               <TableRow>

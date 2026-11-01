@@ -1,3 +1,4 @@
+import { PaginationSummary } from '@/components/ui/pagination-summary'
 import { Inbox, MailPlus, Plug } from 'lucide-react'
 import { useState } from 'react'
 import { useTranslation } from 'react-i18next'
@@ -99,6 +100,7 @@ export function EmailsTab({ recordType, recordId }: EmailsTabProps) {
       )}
       {threads.isSuccess && threads.data.data.length > 0 && (
         <>
+          <PaginationSummary page={threads.data.meta.page} perPage={threads.data.meta.per_page || THREADS_PER_PAGE} total={threads.data.meta.total} />
           <ThreadList threads={threads.data.data} onOpen={(thread) => openThread(thread.id)} />
           <Pagination
             page={threads.data.meta.page}

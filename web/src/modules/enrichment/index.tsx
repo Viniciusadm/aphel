@@ -10,7 +10,7 @@ const enrichmentModule = defineModule({
   key: ENRICHMENT_KEY,
   translations: { 'pt-BR': () => import('./i18n/pt-BR.json'), en: () => import('./i18n/en.json') },
   register(app) {
-    app.recordTab('company', {
+    app.recordSection('company', {
       key: `${ENRICHMENT_KEY}.enrichment`,
       label: 'tab',
       icon: Building2,

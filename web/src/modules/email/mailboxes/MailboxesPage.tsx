@@ -8,7 +8,7 @@ import { Button } from '@/components/ui/button'
 import { EmptyState } from '@/components/ui/empty-state'
 import { ErrorState } from '@/components/ui/error-state'
 import { Skeleton } from '@/components/ui/skeleton'
-import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs'
+import { SectionWorkspace, SectionContent, SectionIndex, SectionLink } from '@/components/ui/section-workspace'
 import { toast } from '@/components/ui/toast-store'
 import { formatDateTime, useRecordFormatting } from '@/features/records/formatting'
 import { emailApi, useInvalidateMailboxes, useMailboxProviders, useMailboxes } from '../api'
@@ -22,7 +22,6 @@ import { PageHeader } from '@/components/ui/page-header'
 import { Page } from '@/components/ui/page'
 import { Alert } from '@/components/ui/alert'
 
-type Section = 'mailboxes' | 'templates'
 
 function useOAuthReturn() {
   const { t } = useTranslation('email')
@@ -47,31 +46,30 @@ function useOAuthReturn() {
         next.delete('error')
         return next
       },
-      { replace: true },
+      { replace: false },
     )
   }, [connected, error, providers.data, setSearchParams, t])
 }
 
 export function MailboxesPage() {
   const { t } = useTranslation('email')
-  const [section, setSection] = useState<Section>('mailboxes')
   useOAuthReturn()
 
   return (
     <Page>
       <PageHeader title={t('mailboxes.title')} description={t('mailboxes.description')} />
-      <Tabs value={section} onValueChange={(value) => setSection(value as Section)} className="grid gap-4">
-        <TabsList>
-          <TabsTrigger value="mailboxes">{t('mailboxes.tabs.mailboxes')}</TabsTrigger>
-          <TabsTrigger value="templates">{t('mailboxes.tabs.templates')}</TabsTrigger>
-        </TabsList>
-        <TabsContent value="mailboxes">
+      <SectionWorkspace defaultValue="mailboxes">
+        <SectionIndex>
+          <SectionLink value="mailboxes">{t('mailboxes.tabs.mailboxes')}</SectionLink>
+          <SectionLink value="templates">{t('mailboxes.tabs.templates')}</SectionLink>
+        </SectionIndex>
+        <SectionContent value="mailboxes">
           <MailboxesSection />
-        </TabsContent>
-        <TabsContent value="templates">
+        </SectionContent>
+        <SectionContent value="templates">
           <TemplatesPanel scope="personal" />
-        </TabsContent>
-      </Tabs>
+        </SectionContent>
+      </SectionWorkspace>
     </Page>
   )
 }

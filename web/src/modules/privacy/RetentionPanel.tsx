@@ -1,3 +1,4 @@
+import { PaginationSummary } from '@/components/ui/pagination-summary'
 import { FieldError as SharedFieldError } from '@/components/ui/field-error'
 import { History, MoreHorizontal, Plus, Timer } from 'lucide-react'
 import { useState } from 'react'
@@ -266,6 +267,7 @@ function RunsHistory() {
         <EmptyState icon={History} title={t('runs.empty')} />
       ) : (
         <>
+          <PaginationSummary page={page} perPage={RUNS_PER_PAGE} total={runs.data.meta.total} />
           <ul className="grid gap-2">
             {runs.data.data.map((run) => (
               <li key={run.id} className="grid min-w-0 gap-1 rounded-lg border p-3 text-sm">

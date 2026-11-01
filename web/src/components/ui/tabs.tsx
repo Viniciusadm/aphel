@@ -1,18 +1,41 @@
 import { Tabs as TabsPrimitive } from 'radix-ui'
-import { createContext, useContext, type ComponentProps, type ReactNode } from 'react'
+import { Children, createContext, isValidElement, useContext, useState, type ComponentProps, type ReactNode } from 'react'
 import { cn } from '@/lib/utils'
+import { NativeSelect } from './native-select'
+import { optionText } from './option-text'
+import { defaultUiLabels } from './default-labels'
+import { useUiLabels } from './labels-context'
 import { Badge } from './badge'
 import { tabsListVariants, tabsTriggerVariants, type TabsSize } from './tabs-variants'
 
 
 const TabsSizeContext = createContext<TabsSize>('md')
 
-export const Tabs = TabsPrimitive.Root
+const TabsValueContext = createContext<{ value: string; select: (value: string) => void } | null>(null)
 
-export function TabsList({ className, size = 'md', ...props }: ComponentProps<typeof TabsPrimitive.List> & { size?: TabsSize }) {
+export function Tabs({ value, defaultValue, onValueChange, ...props }: ComponentProps<typeof TabsPrimitive.Root>) {
+  const [internal, setInternal] = useState(defaultValue)
+  const select = (next: string) => {
+    if (value === undefined) setInternal(next)
+    onValueChange?.(next)
+  }
+  return <TabsValueContext.Provider value={{ value: value ?? internal ?? '', select }}>
+    <TabsPrimitive.Root {...props} value={value ?? internal} onValueChange={select} />
+  </TabsValueContext.Provider>
+}
+
+export function TabsList({ className, children, size = 'md', ...props }: ComponentProps<typeof TabsPrimitive.List> & { size?: TabsSize }) {
+  const context = useContext(TabsValueContext)
+  const labels = useUiLabels()
+  const sectionLabel = labels.sectionNavigation ?? defaultUiLabels().sectionNavigation
+  const options = Children.toArray(children).flatMap((child) => isValidElement<TabsTriggerProps>(child) && child.type === TabsTrigger ? [child.props] : [])
   return (
     <TabsSizeContext.Provider value={size}>
-      <TabsPrimitive.List data-slot="tabs-list" className={cn(tabsListVariants({ size }), className)} {...props} />
+      {context && options.length > 0 && <NativeSelect className="w-full md:hidden" aria-label={props['aria-label'] ?? sectionLabel} value={context.value} onValueChange={context.select}>
+        {!options.some((option) => option.value === context.value) && <option value="" disabled>{sectionLabel}</option>}
+        {options.map((option) => <option key={option.value} value={option.value} disabled={option.disabled}>{option['aria-label'] ?? (optionText(option.children) || option.value)}{option.count !== undefined ? ` (${option.count})` : ''}</option>)}
+      </NativeSelect>}
+      <TabsPrimitive.List data-slot="tabs-list" className={cn(tabsListVariants({ size }), className, context && options.length > 0 && 'hidden md:inline-flex')} {...props}>{children}</TabsPrimitive.List>
     </TabsSizeContext.Provider>
   )
 }

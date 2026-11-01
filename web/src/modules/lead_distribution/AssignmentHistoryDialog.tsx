@@ -1,3 +1,4 @@
+import { PaginationSummary } from '@/components/ui/pagination-summary'
 import { useMemo, useState } from 'react'
 import { useTranslation } from 'react-i18next'
 import { Link } from 'react-router'
@@ -50,6 +51,7 @@ export function AssignmentHistoryDialog({ rule, onClose }: AssignmentHistoryDial
           <EmptyState title={t('history.empty')} />
         ) : (
           <div className="grid gap-3">
+            <PaginationSummary page={page} perPage={ASSIGNMENTS_PER_PAGE} total={assignments.data.meta.total} />
             <Table>
               <TableHeader>
                 <TableRow>

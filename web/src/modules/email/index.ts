@@ -41,7 +41,7 @@ const emailModule = defineModule({
       permission: SETTINGS_MANAGE,
       routes: [emailSettingsRoute],
     })
-    app.recordTab([...CORE_EMAIL_RECORD_TYPES, `${CUSTOM_RECORD_TYPE_PREFIX}*`], EMAILS_RECORD_TAB)
+    app.recordSection([...CORE_EMAIL_RECORD_TYPES, `${CUSTOM_RECORD_TYPE_PREFIX}*`], EMAILS_RECORD_TAB)
     app.filter('records.detailTabs', withEmailsTabPlacement)
     for (const [eventType, renderer] of Object.entries(EMAIL_TIMELINE_RENDERERS)) app.eventRenderer(eventType, renderer)
   },

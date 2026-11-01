@@ -25,10 +25,9 @@ export function ContactsPage() {
 
   return (
     <Page>
-      <PageHeader title={t('list.title')} description={t('list.description')} />
+      <PageHeader title={t('list.title')} description={t('list.description')} actions={newButton} />
       <RecordListView
         recordType={CONTACT_RECORD_TYPE}
-        toolbarActions={newButton}
         emptyAction={newButton}
         onRowClick={(record) => navigate(contactResource.detailPath!(record.id))}
         archivedFilter

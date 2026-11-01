@@ -1,3 +1,4 @@
+import { PaginationSummary } from '@/components/ui/pagination-summary'
 import { FieldError as SharedFieldError } from '@/components/ui/field-error'
 import { Archive, Download, PackageCheck, Terminal } from 'lucide-react'
 import { useState } from 'react'
@@ -63,6 +64,7 @@ function OrgExportSection() {
           <EmptyState icon={Archive} title={t('history.empty')} description={t('history.emptyDescription')} />
         ) : (
           <>
+            <PaginationSummary page={page} perPage={EXPORTS_PER_PAGE} total={exports.data.meta.total} />
             <ul className="grid gap-2">
               {exports.data.data.map((item) => (
                 <ExportRow key={item.id} item={item} />

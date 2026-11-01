@@ -1,3 +1,4 @@
+import { PaginationSummary } from '@/components/ui/pagination-summary'
 import { useState } from 'react'
 import { useTranslation } from 'react-i18next'
 import { Badge } from '@/components/ui/badge'
@@ -42,6 +43,7 @@ export function ExportHistoryPage() {
         <EmptyState title={t('history.empty')} description={t('history.emptyDescription')} />
       ) : (
         <>
+          <PaginationSummary page={page} perPage={HISTORY_PAGE_SIZE} total={exports.data.meta.total} />
           <Table>
             <TableHeader>
               <TableRow>

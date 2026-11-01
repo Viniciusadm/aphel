@@ -79,8 +79,12 @@ export function useModuleRecordTabs(recordType: string, recordId: string, readOn
           key: tab.key,
           label: translate(module, tab.label),
           icon: tab.icon,
+          group: tab.group,
+          summary: tab.summary ? createElement(tab.summary, { recordType, recordId, readOnly }) : undefined,
           content: createElement(tab.render, { recordType, recordId, readOnly }),
         })),
     [visible, translate, recordType, recordId, readOnly],
   )
 }
+
+export const useModuleRecordSections = useModuleRecordTabs

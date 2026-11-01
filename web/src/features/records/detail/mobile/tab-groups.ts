@@ -19,7 +19,7 @@ export function tabGroupOf(key: string): TabGroupKey {
 }
 
 export function groupTabs(tabs: RecordTab[]): { group: TabGroupKey; tabs: RecordTab[] }[] {
-  return TAB_GROUP_ORDER.map((group) => ({ group, tabs: tabs.filter((tab) => tabGroupOf(tab.key) === group) })).filter(
+  return TAB_GROUP_ORDER.map((group) => ({ group, tabs: tabs.filter((tab) => (tab.group ?? tabGroupOf(tab.key)) === group) })).filter(
     (entry) => entry.tabs.length > 0,
   )
 }

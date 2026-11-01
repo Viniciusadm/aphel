@@ -5,7 +5,8 @@
     "search": "Busca",
     "add": "Adicionar",
     "inbox": "Caixa",
-    "more": "Mais"
+    "more": "Menu",
+    "deals": "Negócios"
   },
   "quickAdd": {
     "description": "Registre em poucos toques.",
@@ -15,7 +16,8 @@
     "queued": "Salvo neste aparelho. Será enviado ao reconectar.",
     "titles": {
       "menu": "Adicionar"
-    }
+    },
+    "menuLabel": "Registro rápido"
   },
   "picker": {
     "label": "Vincular a um registro (opcional)",

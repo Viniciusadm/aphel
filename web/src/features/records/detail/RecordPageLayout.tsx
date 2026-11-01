@@ -1,3 +1,4 @@
+import { useLocation, useNavigate } from 'react-router'
 import { Pencil } from 'lucide-react'
 import { useMemo, useState, type ReactNode } from 'react'
 import { useTranslation } from 'react-i18next'
@@ -11,8 +12,9 @@ import { FieldValueDisplay, UserValue } from '../display/FieldValueDisplay'
 import { ShareRecordButton } from '../sharing/ShareRecordButton'
 import { DisplayRecordProvider } from '../display/display-record'
 import { activeFields, findField, getFieldValue } from '../fields'
+import { resolveLayout, resolvedFields } from '../form/lib/layout'
+import { useConditionContext, layoutRuleStates, recordRuleValues } from '../form/use-form-rules'
 import { savedLayout, useFormLayout } from '../form/layout-api'
-import { RecordFormDialog } from '../form/RecordFormDialog'
 import { recordTitle, requireRecordResource } from '../resources'
 import type { TimelineSource } from '../timeline/types'
 import type { FieldDefinition, FieldSchema, RecordItem } from '../types'
@@ -22,11 +24,12 @@ import { RecordFieldsPanel } from './RecordFieldsPanel'
 import { RecordHeader, type RecordBackLink } from './RecordHeader'
 import { RecordMobileView } from './mobile/RecordMobileView'
 import { RecordPageShell } from './RecordPageShell'
+import { RecordOverview } from './RecordOverview'
 import { RecordTabs } from './RecordTabs'
 import { DEFAULT_READ_ONLY_FIELD_KEYS, resolveRecordTabs, type RecordTabsConfig } from './types'
 
 const MOBILE_QUERY = '(max-width: 767px)'
-const MOBILE_SUMMARY_FIELDS = 6
+const SUMMARY_KEYS = ['stage_id', 'status', 'amount', 'currency', 'close_date', 'due_at', 'email', 'phone', 'company_id', 'owner_id', 'website', 'lifecycle_stage']
 
 export interface RecordPageLayoutProps {
   recordType: string
@@ -79,7 +82,14 @@ export function RecordPageLayout({
   className,
 }: RecordPageLayoutProps) {
   const { t } = useTranslation('records-detail')
-  const [editing, setEditing] = useState(false)
+  const navigate = useNavigate()
+  const location = useLocation()
+  const [returnTo] = useState(() => {
+    const value = (location.state as { returnTo?: unknown } | null)?.returnTo
+    return typeof value === 'string' && value.startsWith('/') && !value.startsWith('//') ? value : undefined
+  })
+  const contextualBack = back && returnTo ? { ...back, to: returnTo } : back
+  const edit = () => void navigate(`/records/${encodeURIComponent(recordType)}/${encodeURIComponent(record.id)}/edit`, { state: { returnTo: `${location.pathname}${location.search}`, listReturnTo: returnTo } })
   const resource = requireRecordResource(recordType)
   const { saveField } = useSaveRecordField(recordType, record.id)
   const defaults = useDefaultRecordTabs({ recordType, recordId: record.id, readOnly, timeline })
@@ -94,6 +104,27 @@ export function RecordPageLayout({
     () => (viewLayout ? activeFields(schema) : visibleFields(schema, fieldKeys)),
     [schema, fieldKeys, viewLayout],
   )
+
+  const conditions = useConditionContext(fields)
+  const resolvedLayout = viewLayout ? resolveLayout(viewLayout, fields) : null
+  const states = layoutRuleStates(resolvedLayout, recordRuleValues(fields, record), conditions)
+  const visibleSummaryFields = resolvedLayout ? resolvedFields(resolvedLayout).map((item) => item.field).filter((field) => states[field.key]?.visible !== false) : fields
+  const priorityKeys = resource.summaryFields ?? SUMMARY_KEYS
+  const summaryFields = visibleSummaryFields
+    .filter((field) => priorityKeys.includes(field.key) || field.is_required)
+    .sort((left, right) => {
+      const priority = (field: FieldDefinition) => {
+        const index = priorityKeys.indexOf(field.key)
+        return index < 0 ? priorityKeys.length : index
+      }
+      return priority(left) - priority(right)
+    })
+    .slice(0, 8)
+  const summaryPanel = <RecordFieldsPanel fields={summaryFields} record={record} readOnly={readOnly} readOnlyFieldKeys={readOnlyFieldKeys} onSaveField={saveField} />
+  const detailPanel = <div className="grid min-w-0 gap-4"><RecordFieldsPanel fields={fields} layout={viewLayout} record={record} readOnly={readOnly} readOnlyFieldKeys={readOnlyFieldKeys} onSaveField={saveField}><Slot name="record.fields.panel" props={slotProps} /></RecordFieldsPanel><Slot name="record.detail.sidebar" props={slotProps} /></div>
+  const destinations = [...resolvedTabs, { key: 'details', label: t('fields.title'), content: detailPanel }]
+  const overview = <RecordOverview sections={destinations} />
+  const workspaceSections = [{ key: 'overview', label: t('overview.title'), content: overview }, ...destinations]
 
   const subtitle = resource.subtitleField ? rawValue(record, schema, resource.subtitleField) : null
   const owner = rawValue(record, schema, ownerField)
@@ -119,9 +150,9 @@ export function RecordPageLayout({
           headerSlot={<Slot name="record.detail.header" props={slotProps} />}
           subtitle={subtitleNode}
           owner={ownerNode}
-          back={back}
-          tabs={resolvedTabs}
-          onEdit={readOnly ? undefined : () => setEditing(true)}
+          back={contextualBack}
+          tabs={destinations}
+          onEdit={readOnly ? undefined : edit}
           actions={
             <>
               <ShareRecordButton recordType={recordType} recordId={record.id} />
@@ -129,9 +160,10 @@ export function RecordPageLayout({
               <Slot name="record.detail.actions" props={slotProps} />
             </>
           }
+          overview={<RecordOverview sections={destinations} fields={summaryPanel} />}
           summaryPanel={
             <RecordFieldsPanel
-              fields={fields.slice(0, MOBILE_SUMMARY_FIELDS)}
+              fields={summaryFields}
               record={record}
               readOnly={readOnly}
               readOnlyFieldKeys={readOnlyFieldKeys}
@@ -156,9 +188,6 @@ export function RecordPageLayout({
             </div>
           }
         />
-        {!readOnly && (
-          <RecordFormDialog recordType={recordType} record={record} open={editing} onOpenChange={setEditing} />
-        )}
       </DisplayRecordProvider>
     )
   }
@@ -172,15 +201,10 @@ export function RecordPageLayout({
           <RecordHeader
             title={recordTitle(resource, record)}
             titleAccessory={<Slot name="record.detail.title" props={slotProps} />}
-            back={back}
+            back={contextualBack}
+            primaryAction={!readOnly ? <Button size="sm" onClick={edit}><Pencil aria-hidden />{t('header.edit')}</Button> : undefined}
             actions={
               <>
-                {!readOnly && (
-                  <Button size="sm" variant="outline" onClick={() => setEditing(true)}>
-                    <Pencil aria-hidden="true" />
-                    {t('header.edit')}
-                  </Button>
-                )}
                 <ShareRecordButton recordType={recordType} recordId={record.id} />
                 {actions}
                 <Slot name="record.detail.actions" props={slotProps} />
@@ -200,27 +224,10 @@ export function RecordPageLayout({
           <Slot name="record.detail.header" props={slotProps} />
           </>
         }
-        sidebar={
-          <div className="grid min-w-0 gap-4">
-            <RecordFieldsPanel
-              fields={fields}
-              layout={viewLayout}
-              record={record}
-              readOnly={readOnly}
-              readOnlyFieldKeys={readOnlyFieldKeys}
-              onSaveField={saveField}
-            >
-              <Slot name="record.fields.panel" props={slotProps} />
-            </RecordFieldsPanel>
-            <Slot name="record.detail.sidebar" props={slotProps} />
-          </div>
-        }
+        sidebar={summaryPanel}
       >
-        <RecordTabs tabs={resolvedTabs} defaultTab={defaultTab} />
+        <RecordTabs tabs={workspaceSections} defaultTab={defaultTab ?? 'overview'} />
       </RecordPageShell>
-      {!readOnly && (
-        <RecordFormDialog recordType={recordType} record={record} open={editing} onOpenChange={setEditing} />
-      )}
     </DisplayRecordProvider>
   )
 }

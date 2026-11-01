@@ -10,7 +10,7 @@ function useHasRelations({ recordType, recordId, enabled }: RecordTabVisibilityP
 }
 
 export function registerCustomRecordContributions(app: ModuleApp) {
-  app.recordTab((recordType) => !isCustomRecordType(recordType), {
+  app.recordSection((recordType) => !isCustomRecordType(recordType), {
     key: 'relations',
     label: 'objects:relations.tab',
     icon: Link2,

@@ -2,7 +2,7 @@ import { useDraggable } from '@dnd-kit/core'
 import { Building2, Clock, EllipsisVertical, Shuffle, User } from 'lucide-react'
 import { memo, useMemo } from 'react'
 import { useTranslation } from 'react-i18next'
-import { Link } from 'react-router'
+import { Link, useLocation } from 'react-router'
 import { Avatar } from '@/components/ui/avatar'
 import { Button } from '@/components/ui/button'
 import {
@@ -40,6 +40,7 @@ export const DealCardContent = memo(function DealCardContent({
   overlay = false,
 }: DealCardContentProps) {
   const { t } = useTranslation('deals')
+  const location = useLocation()
   const { t: tp } = useTranslation('deals', { keyPrefix: 'pipeline' })
   const days = daysInStage(deal.stage_entered_at)
   const toneContext = useMemo(() => ({ deal }), [deal])
@@ -59,6 +60,7 @@ export const DealCardContent = memo(function DealCardContent({
       <div className="flex items-start justify-between gap-2">
         <Link
           to={dealPath(deal.id)}
+          state={{ returnTo: `${location.pathname}${location.search}` }}
           className="min-w-0 font-medium break-words hover:underline"
           onPointerDown={(event) => event.stopPropagation()}
         >
@@ -131,6 +133,7 @@ export interface DealCardProps {
   deal: Deal
   formatting: RecordFormatting
   stages: PipelineStage[]
+  disableDrag?: boolean
   draggable: boolean
   onMove: (dealId: string, stageId: string) => void
   onMovePipeline?: (dealId: string) => void
@@ -141,13 +144,14 @@ export const DealCard = memo(function DealCard({
   formatting,
   stages,
   draggable,
+  disableDrag,
   onMove,
   onMovePipeline,
 }: DealCardProps) {
   const { attributes, listeners, setNodeRef, isDragging } = useDraggable({
     id: deal.id,
     data: { stageId: deal.stage_id },
-    disabled: !draggable,
+    disabled: !draggable || disableDrag,
   })
   const { role: _role, tabIndex: _tabIndex, 'aria-describedby': _describedBy, ...dragAttributes } = attributes
 

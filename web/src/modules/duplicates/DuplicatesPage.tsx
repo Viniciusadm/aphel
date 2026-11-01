@@ -1,3 +1,4 @@
+import { PaginationSummary } from '@/components/ui/pagination-summary'
 import { ArrowLeftRight, CopyCheck, RefreshCw } from 'lucide-react'
 import { useTranslation } from 'react-i18next'
 import { Link, useSearchParams } from 'react-router'
@@ -121,6 +122,7 @@ function DuplicatesQueue({ types }: { types: DuplicateTypeInfo[] }) {
           />
         ) : (
           <>
+            <PaginationSummary page={page} perPage={DUPLICATES_PER_PAGE} total={candidates.data.meta.total} />
             <ul className="grid gap-3" aria-label={t('queue.title')}>
               {candidates.data.data.map((candidate) => (
                 <CandidateItem key={candidate.id} candidate={candidate} type={selected} />

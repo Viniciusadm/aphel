@@ -32,9 +32,10 @@ export interface ColumnsMenuProps {
   onChange: (columns: string[]) => void
   onReset?: () => void
   titleField?: string
+  label?: string
 }
 
-export function ColumnsMenu({ schema, columns, onChange, onReset, titleField }: ColumnsMenuProps) {
+export function ColumnsMenu({ schema, columns, onChange, onReset, titleField, label }: ColumnsMenuProps) {
   const { t } = useTranslation('records-table')
   const visible = useMemo(() => resolveColumnFields(schema, columns, titleField), [schema, columns, titleField])
   const hidden = useMemo(
@@ -48,12 +49,12 @@ export function ColumnsMenu({ schema, columns, onChange, onReset, titleField }: 
       <PopoverTrigger asChild>
         <Button variant="outline" size="sm">
           <Columns3 aria-hidden />
-          {t('columns.button')}
+          {label ?? t('columns.button')}
         </Button>
       </PopoverTrigger>
-      <PopoverContent align="end" className="grid max-h-[min(32rem,80vh)] w-72 gap-3 overflow-y-auto" aria-label={t('columns.title')}>
+      <PopoverContent align="end" className="grid max-h-[min(32rem,80vh)] w-72 gap-3 overflow-y-auto" aria-label={label ?? t('columns.title')}>
         <div className="flex items-center justify-between gap-2">
-          <p className="text-sm font-medium">{t('columns.title')}</p>
+          <p className="text-sm font-medium">{label ?? t('columns.title')}</p>
           {onReset && (
             <Button variant="link" size="sm" className="h-auto px-0 text-xs" onClick={onReset}>
               {t('columns.reset')}

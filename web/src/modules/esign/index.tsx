@@ -20,7 +20,7 @@ const esignModule = defineModule({
   translations: { 'pt-BR': () => import('./i18n/pt-BR.json'), en: () => import('./i18n/en.json') },
   settingsPanel: EsignSettingsPanel,
   register(app) {
-    app.recordTab('deal', {
+    app.recordSection('deal', {
       key: `${ESIGN_KEY}.signatures`,
       label: 'tab',
       icon: FileSignature,

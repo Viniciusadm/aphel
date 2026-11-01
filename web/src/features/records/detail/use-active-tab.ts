@@ -16,7 +16,7 @@ export function useActiveTab(keys: string[], defaultKey?: string, param = RECORD
         else next.set(param, key)
         return next
       },
-      { replace: true },
+      { replace: false },
     )
   }
 

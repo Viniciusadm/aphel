@@ -1,6 +1,7 @@
 import type { UiLabels } from './labels-context'
 
 const portugueseLabels: UiLabels = {
+  sectionNavigation: 'Selecionar visualização',
   close: 'Fechar',
   retry: 'Tentar novamente',
   emptyTitle: 'Nada por aqui ainda',
@@ -19,6 +20,9 @@ const portugueseLabels: UiLabels = {
     </>
   ),
   pageLoading: 'Carregando página…',
+  paginationPreviousShort: 'Anterior',
+  paginationNextShort: 'Próxima',
+  displaySettings: 'Exibição',
   paginationPrevious: 'Página anterior',
   paginationNext: 'Próxima página',
   paginationSummary: (from, to, total) => `${from}–${to} de ${total}`,
@@ -28,6 +32,7 @@ const portugueseLabels: UiLabels = {
 }
 
 const englishLabels: UiLabels = {
+  sectionNavigation: 'Select view',
   close: 'Close',
   retry: 'Try again',
   emptyTitle: 'Nothing here yet',
@@ -46,6 +51,9 @@ const englishLabels: UiLabels = {
     </>
   ),
   pageLoading: 'Loading page…',
+  paginationPreviousShort: 'Previous',
+  paginationNextShort: 'Next',
+  displaySettings: 'Display',
   paginationPrevious: 'Previous page',
   paginationNext: 'Next page',
   paginationSummary: (from, to, total) => `${from}–${to} of ${total}`,

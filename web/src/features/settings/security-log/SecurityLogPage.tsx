@@ -1,3 +1,4 @@
+import { PaginationSummary } from '@/components/ui/pagination-summary'
 import { SegmentedControl } from '@/components/ui/segmented-control'
 import { ShieldCheck } from 'lucide-react'
 import { useMemo, useState, type FormEvent } from 'react'
@@ -104,6 +105,7 @@ export function SecurityLogPage() {
         />
       ) : (
         <>
+          <PaginationSummary page={page} perPage={SECURITY_EVENTS_PER_PAGE} total={events.data.meta.total} />
           <Table>
             <caption className="sr-only">{t('log.title')}</caption>
             <TableHeader>

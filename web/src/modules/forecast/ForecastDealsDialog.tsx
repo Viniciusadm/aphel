@@ -1,3 +1,4 @@
+import { PaginationSummary } from '@/components/ui/pagination-summary'
 import { useState } from 'react'
 import { useTranslation } from 'react-i18next'
 import { Link } from 'react-router'
@@ -63,6 +64,7 @@ function DealsList({ drillDown }: { drillDown: DrillDown }) {
 
   return (
     <div className="grid min-w-0 gap-3">
+      <PaginationSummary page={page} perPage={FORECAST_DEALS_PER_PAGE} total={deals.data.meta.total} />
       <ul
         className={cn('grid max-h-[60vh] gap-2 overflow-y-auto transition-opacity', deals.isFetching && 'opacity-60')}
         aria-label={t('deals.listLabel')}

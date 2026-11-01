@@ -9,7 +9,9 @@ export function dealPath(id: string) {
 
 export const dealResource = registerRecordResource({
   recordType: DEAL_RECORD_TYPE,
+  updatePermission: 'deals.update',
   basePath: '/v1/deals',
+  summaryFields: ['stage_id', 'amount', 'currency', 'expected_close_date', 'contact_id', 'company_id', 'owner_id'],
   titleField: 'title',
   subtitleField: 'stage_id',
   detailPath: dealPath,

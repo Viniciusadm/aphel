@@ -18,7 +18,9 @@
     "selectAllMatching_one": "Selecionar o registro do filtro",
     "selectAllMatching_other": "Selecionar todos os {{count}} registros do filtro",
     "allMatchingSelected_one": "O registro do filtro está selecionado.",
-    "allMatchingSelected_other": "Todos os {{count}} registros do filtro estão selecionados."
+    "allMatchingSelected_other": "Todos os {{count}} registros do filtro estão selecionados.",
+    "moreFields": "Mais informações",
+    "sortOptions": "Ordenar registros"
   },
   "columns": {
     "button": "Colunas",
@@ -210,5 +212,22 @@
     "exclude": "Ocultar arquivados",
     "include": "Incluir arquivados",
     "only": "Somente arquivados"
+  },
+  "display": {
+    "title": "Exibição"
+  },
+  "mobileControls": {
+    "title": "Filtros e opções",
+    "description": "Refine os resultados. As alterações só serão aplicadas ao confirmar.",
+    "sortField": "Ordenar por — prioridade {{number}}",
+    "direction": "Direção",
+    "removeSort": "Remover ordenação {{number}}",
+    "addSort": "Adicionar ordenação",
+    "filterCount_one": "{{count}} filtro",
+    "filterCount_other": "{{count}} filtros",
+    "sortCount_one": "{{count}} ordenação",
+    "sortCount_other": "{{count}} ordenações",
+    "reset": "Limpar filtros e ordenação",
+    "cardFields": "Campos dos cartões"
   }
 }

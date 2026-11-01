@@ -51,7 +51,7 @@ const approvalsModule = defineModule({
       key: 'approvals',
       render: QuoteApprovalsCard,
     })
-    app.recordTab(DEAL_RECORD_TYPE, {
+    app.recordSection(DEAL_RECORD_TYPE, {
       key: APPROVALS_TAB_KEY,
       label: 'panel.tab',
       icon: ShieldCheck,

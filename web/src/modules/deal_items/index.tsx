@@ -23,14 +23,14 @@ const dealItemsModule = defineModule({
       permission: SETTINGS_MANAGE,
       routes: [productsSettingsRoute],
     })
-    app.recordTab(DEAL_RECORD_TYPE, {
+    app.recordSection(DEAL_RECORD_TYPE, {
       key: 'items',
       label: 'items.tab',
       icon: ShoppingCart,
       order: 20,
       render: DealItemsRecordTab,
     })
-    app.recordTab(DEAL_RECORD_TYPE, {
+    app.recordSection(DEAL_RECORD_TYPE, {
       key: 'revenue',
       label: 'panel.tab',
       icon: Repeat,

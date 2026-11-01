@@ -25,7 +25,7 @@ const aiModule = defineModule({
       icon: Sparkles,
       permission: [USE_PERMISSION, VIEW_USAGE_PERMISSION],
     })
-    app.recordTab(AI_RECORD_TYPES, {
+    app.recordSection(AI_RECORD_TYPES, {
       key: `${AI_KEY}.assistant`,
       label: 'tab.label',
       icon: Sparkles,

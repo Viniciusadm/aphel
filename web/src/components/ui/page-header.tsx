@@ -35,8 +35,8 @@ export function PageHeader({ title, description, actions, back, badges, icon, le
           {back.label ?? labels.back}
         </Link>
       )}
-      <div className="flex flex-wrap items-start justify-between gap-4">
-        <div className="flex min-w-0 items-start gap-3">
+      <div className="flex flex-col items-stretch gap-4 md:flex-row md:flex-wrap md:items-start md:justify-between">
+        <div className="flex min-w-0 flex-1 items-start gap-3">
           {icon}
           <div className="grid min-w-0 gap-1">
           <div className="flex flex-wrap items-center gap-2">
@@ -53,7 +53,7 @@ export function PageHeader({ title, description, actions, back, badges, icon, le
           {description && <div className="grid gap-1 text-sm text-muted-foreground">{description}</div>}
           </div>
         </div>
-        {actions && <div className="flex flex-wrap items-center gap-2">{actions}</div>}
+        {actions && <div className="flex w-full max-w-full flex-wrap items-center gap-2 max-md:[&>button]:flex-1 max-md:[&>a]:flex-1 md:w-auto">{actions}</div>}
       </div>
     </header>
   )

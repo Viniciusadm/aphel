@@ -1,3 +1,4 @@
+import { PaginationSummary } from '@/components/ui/pagination-summary'
 import { FieldError as SharedFieldError } from '@/components/ui/field-error'
 import { CircleAlert, CircleCheck, Download, RotateCcw } from 'lucide-react'
 import { useCustomObjectLabel } from '@/features/custom-records/api'
@@ -93,6 +94,7 @@ export function ResultStep({ job }: ResultStepProps) {
               <CardTitle>{t('result.errorsTitle')}</CardTitle>
             </CardHeader>
             <CardContent className="grid gap-3">
+              {rows.data && <PaginationSummary page={page} perPage={ERROR_ROWS_PAGE_SIZE} total={rows.data.meta.total} />}
               <RowErrors rows={rows.data?.data ?? []} />
               {rows.data && rows.data.meta.total > ERROR_ROWS_PAGE_SIZE && (
                 <Pagination

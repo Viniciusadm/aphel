@@ -55,14 +55,14 @@ const dealsModule = defineModule({
       order: 110,
       routes: [dealMemberRolesSettingsRoute],
     })
-    app.recordTab(['contact', 'company'], {
+    app.recordSection(['contact', 'company'], {
       key: 'deals',
       label: 'related.tab',
       icon: Briefcase,
       order: 5,
       render: RelatedDealsTab,
     })
-    app.recordTab(DEAL_RECORD_TYPE, {
+    app.recordSection(DEAL_RECORD_TYPE, {
       key: 'team',
       label: 'team.tab',
       icon: Users,

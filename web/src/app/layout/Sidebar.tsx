@@ -25,7 +25,7 @@ export function Sidebar({ collapsed, onToggleCollapsed, settingsArea, returnPath
       data-collapsed={collapsed}
       className={cn(
         'hidden shrink-0 flex-col border-r border-sidebar-border bg-sidebar transition-[width] duration-200 md:flex',
-        settingsArea && 'sticky top-0 h-dvh self-start',
+        'sticky top-0 h-dvh self-start',
         collapsed ? 'w-16' : 'w-64',
       )}
     >

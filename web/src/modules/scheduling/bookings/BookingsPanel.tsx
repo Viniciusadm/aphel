@@ -1,3 +1,4 @@
+import { PaginationSummary } from '@/components/ui/pagination-summary'
 import { NativeSelect } from '@/components/ui/native-select'
 import { CalendarX2 } from 'lucide-react'
 import { useState } from 'react'
@@ -111,6 +112,7 @@ export function BookingsPanel() {
           {t('bookings.upcomingOnly')}
         </label>
       </div>
+      {meta && <PaginationSummary page={filters.page} perPage={meta.per_page} total={meta.total} />}
       {bookings.isPending ? (
         <div className="grid gap-2">
           <Skeleton className="h-16" />

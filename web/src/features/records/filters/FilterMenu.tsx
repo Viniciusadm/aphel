@@ -1,6 +1,8 @@
 import { ListFilter } from 'lucide-react'
 import { useState } from 'react'
 import { useTranslation } from 'react-i18next'
+import { useMediaQuery } from '../calendar/useMediaQuery'
+import { Dialog, DialogContent, DialogDescription, DialogTitle, DialogTrigger } from '@/components/ui/dialog'
 import { Badge } from '@/components/ui/badge'
 import { Button } from '@/components/ui/button'
 import { Popover, PopoverContent, PopoverTrigger } from '@/components/ui/popover'
@@ -22,6 +24,8 @@ function initialDraft(filter: FilterNode | null): DraftGroup {
 
 export function FilterMenu({ schema: baseSchema, filter, onApply }: FilterMenuProps) {
   const { t } = useTranslation('records-table')
+  const { t: common } = useTranslation()
+  const mobile = useMediaQuery('(max-width: 767px)')
   const { schema, extensions } = useFilterSchema(baseSchema)
   const [open, setOpen] = useState(false)
   const [draft, setDraft] = useState<DraftGroup>(() => initialDraft(filter))
@@ -37,10 +41,8 @@ export function FilterMenu({ schema: baseSchema, filter, onApply }: FilterMenuPr
     setOpen(false)
   }
 
-  return (
-    <Popover open={open} onOpenChange={handleOpenChange}>
-      <PopoverTrigger asChild>
-        <Button variant="outline" size="sm" aria-label={active > 0 ? t('filters.active', { count: active }) : undefined}>
+  const trigger = (
+    <Button variant="outline" size="sm" aria-label={active > 0 ? t('filters.active', { count: active }) : undefined}>
           <ListFilter aria-hidden />
           {t('filters.button')}
           {active > 0 && (
@@ -49,13 +51,9 @@ export function FilterMenu({ schema: baseSchema, filter, onApply }: FilterMenuPr
             </Badge>
           )}
         </Button>
-      </PopoverTrigger>
-      <PopoverContent
-        align="start"
-        aria-label={t('filters.title')}
-        className="grid max-h-[min(36rem,80vh)] w-[44rem] gap-3 overflow-y-auto"
-      >
-        <form
+  )
+  const editor = (
+    <form
           className="grid gap-3"
           onSubmit={(event) => {
             event.preventDefault()
@@ -64,16 +62,28 @@ export function FilterMenu({ schema: baseSchema, filter, onApply }: FilterMenuPr
         >
           <FilterBuilder schema={schema} value={draft} onChange={setDraft} extensions={extensions} allowRelated />
           <p className="text-xs text-muted-foreground">{t('filters.incomplete')}</p>
-          <div className="flex flex-wrap justify-end gap-2 border-t pt-3">
-            <Button type="button" variant="ghost" size="sm" onClick={() => apply(null)}>
+          <div className="sticky bottom-0 flex flex-wrap justify-end gap-2 border-t bg-background pt-3">
+            <Button type="button" variant="ghost" size="sm" onClick={() => mobile ? setDraft(initialDraft(null)) : apply(null)}>
               {t('filters.clear')}
             </Button>
+            {mobile && <Button type="button" variant="outline" size="sm" onClick={() => setOpen(false)}>{common('actions.cancel')}</Button>}
             <Button type="submit" size="sm">
               {t('filters.apply')}
             </Button>
           </div>
         </form>
-      </PopoverContent>
-    </Popover>
   )
+  if (mobile) return <Dialog open={open} onOpenChange={handleOpenChange}>
+    <DialogTrigger asChild>{trigger}</DialogTrigger>
+    <DialogContent side="bottom" className="max-h-[94dvh]">
+      <div className="grid min-w-0 gap-4 p-4 pb-[max(1rem,env(safe-area-inset-bottom))]">
+        <div className="grid gap-1 pr-10"><DialogTitle>{t('filters.title')}</DialogTitle><DialogDescription>{t('mobileControls.description')}</DialogDescription></div>
+        {editor}
+      </div>
+    </DialogContent>
+  </Dialog>
+  return <Popover open={open} onOpenChange={handleOpenChange}>
+    <PopoverTrigger asChild>{trigger}</PopoverTrigger>
+    <PopoverContent align="start" aria-label={t('filters.title')} className="grid max-h-[min(36rem,80vh)] w-[44rem] gap-3 overflow-y-auto">{editor}</PopoverContent>
+  </Popover>
 }

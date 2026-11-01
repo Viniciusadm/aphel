@@ -18,7 +18,7 @@ const scoringModule = defineModule({
       permission: 'scoring.manage',
       routes: [scoringSettingsRoute],
     })
-    app.recordTab(SCORED_RECORD_TYPES, {
+    app.recordSection(SCORED_RECORD_TYPES, {
       key: 'scoring',
       label: 'record.tab',
       icon: Gauge,

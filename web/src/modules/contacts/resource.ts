@@ -5,7 +5,9 @@ export const CONTACTS_PATH = '/contacts'
 
 export const contactResource = registerRecordResource({
   recordType: CONTACT_RECORD_TYPE,
+  updatePermission: 'contacts.update',
   basePath: '/v1/contacts',
+  summaryFields: ['email', 'phone', 'mobile', 'company_id', 'owner_id', 'lifecycle_stage'],
   titleField: 'name',
   subtitleField: 'email',
   detailPath: (id) => `${CONTACTS_PATH}/${encodeURIComponent(id)}`,

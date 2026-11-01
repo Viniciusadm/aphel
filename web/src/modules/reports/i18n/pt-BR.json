@@ -407,5 +407,11 @@
     "limit": "Ex.: 10",
     "description": "Descreva o que este relatório mostra",
     "day": "Ex.: 1"
+  },
+  "library": {
+    "title": "Biblioteca de relatórios",
+    "conversion": "Entenda a passagem dos negócios pelo funil e onde ocorrem perdas.",
+    "performance": "Acompanhe resultados e compare o desempenho da operação.",
+    "saved": "Consulte e crie relatórios com os dados relevantes para seu time."
   }
 }

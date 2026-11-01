@@ -222,7 +222,7 @@ function ConditionEditor({ condition, context, onRemove }: ConditionEditorProps)
   const ExtensionInput = extension?.ValueInput
 
   return (
-    <div className="flex min-w-0 flex-wrap items-start gap-2" data-testid="filter-condition">
+    <div className="grid min-w-0 gap-2 rounded-lg border p-3 sm:flex sm:flex-wrap sm:items-start sm:border-0 sm:p-0" data-testid="filter-condition">
       <FieldPicker fields={fields} value={condition.field} onChange={(next) => replace(withField(condition, next, schema))} />
       {field && (
         <NativeSelect

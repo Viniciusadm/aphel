@@ -13,7 +13,7 @@ export const DropdownMenuPortal = DropdownMenuPrimitive.Portal
 export const DropdownMenuRadioGroup = DropdownMenuPrimitive.RadioGroup
 
 const itemClasses =
-  "relative flex cursor-default items-center gap-2 rounded-sm px-2 py-1.5 text-sm outline-none select-none focus:bg-accent focus:text-accent-foreground data-[disabled]:pointer-events-none data-[disabled]:opacity-50 [&_svg]:pointer-events-none [&_svg]:shrink-0 [&_svg:not([class*='size-'])]:size-4"
+  "relative flex max-md:min-h-11 cursor-default items-center gap-2 rounded-sm px-2 py-1.5 text-sm outline-none select-none focus:bg-accent focus:text-accent-foreground data-[disabled]:pointer-events-none data-[disabled]:opacity-50 [&_svg]:pointer-events-none [&_svg]:shrink-0 [&_svg:not([class*='size-'])]:size-4"
 
 export function DropdownMenuContent({
   className,
@@ -26,7 +26,7 @@ export function DropdownMenuContent({
         data-slot="dropdown-menu-content"
         sideOffset={sideOffset}
         className={cn(
-          'z-50 min-w-40 overflow-hidden rounded-(--popover-radius) border bg-popover p-1 text-popover-foreground shadow-(--popover-shadow)',
+          'z-50 max-h-[var(--radix-dropdown-menu-content-available-height)] min-w-40 overflow-y-auto rounded-(--popover-radius) border bg-popover p-1 text-popover-foreground shadow-(--popover-shadow)',
           className,
         )}
         {...props}

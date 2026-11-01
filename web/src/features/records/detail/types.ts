@@ -4,6 +4,8 @@ import type { ReactNode } from 'react'
 export interface RecordTab {
   key: string
   label: string
+  summary?: ReactNode
+  group?: string
   content: ReactNode
   icon?: LucideIcon
 }

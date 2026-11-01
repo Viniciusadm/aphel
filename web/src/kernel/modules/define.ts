@@ -80,6 +80,11 @@ export interface RecordTabContribution {
   render: ComponentType<RecordTabRenderProps>
 }
 
+export interface RecordSectionContribution extends RecordTabContribution {
+  group?: 'activity' | 'relationships' | 'communication' | 'insights' | 'more'
+  summary?: ComponentType<RecordTabRenderProps>
+}
+
 export interface SlotContribution<P> {
   key?: string
   recordTypes?: RecordTypeSelector
@@ -231,6 +236,7 @@ export interface ModuleApp {
   publicRoutes(routes: RouteObject[]): void
   nav(item: NavContribution): void
   settings(area: SettingsAreaKey, item: SettingsContribution): void
+  recordSection(recordType: RecordTypeSelector, section: RecordSectionContribution): void
   recordTab(recordType: RecordTypeSelector, tab: RecordTabContribution): void
   recordList(extension: RecordListExtension): void
   slot<N extends SlotName>(name: N, contribution: SlotContribution<SlotProps<N>>): void

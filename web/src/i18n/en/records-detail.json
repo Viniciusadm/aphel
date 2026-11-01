@@ -44,7 +44,11 @@
     "emptyFiltered": "No items match the selected filter.",
     "errorTitle": "Could not load the timeline",
     "system": "System",
-    "relatedRecord": "Related record"
+    "relatedRecord": "Related record",
+    "allTypes": "All event types",
+    "filterDescription": "Choose the event types you want to see.",
+    "clearFilters": "Clear filters",
+    "applyFilters": "Apply filters"
   },
   "confirm": {
     "cancel": "Cancel",
@@ -106,5 +110,11 @@
       "insights": "Insights",
       "more": "More"
     }
+  },
+  "overview": {
+    "title": "Overview",
+    "nextActions": "Next actions",
+    "recentActivity": "Recent activity",
+    "viewAll": "View all"
   }
 }

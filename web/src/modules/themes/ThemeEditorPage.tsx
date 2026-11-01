@@ -10,7 +10,7 @@ import { Button } from '@/components/ui/button'
 import { ErrorState } from '@/components/ui/error-state'
 import { Input } from '@/components/ui/input'
 import { Skeleton } from '@/components/ui/skeleton'
-import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs'
+import { SectionWorkspace, SectionContent, SectionIndex, SectionLink } from '@/components/ui/section-workspace'
 import { Textarea } from '@/components/ui/textarea'
 import { RequirePermission } from '@/features/settings/components/RequirePermission'
 import { themesApi, themesKeys } from './api'
@@ -181,15 +181,15 @@ function ThemeEditor({ creating, initial }: { creating: boolean; initial: ThemeP
               />}
             </Field>
           </fieldset>
-          <Tabs defaultValue="light" onValueChange={(value) => value !== 'shared' && setPreviewMode(value as 'light' | 'dark')}>
-            <TabsList>
-              <TabsTrigger value="light">{t('editor.tabs.light')}</TabsTrigger>
-              <TabsTrigger value="dark">{t('editor.tabs.dark')}</TabsTrigger>
-              <TabsTrigger value="shared">{t('editor.tabs.shared')}</TabsTrigger>
-              <TabsTrigger value="fonts">{t('editor.tabs.fonts')}</TabsTrigger>
-            </TabsList>
+          <SectionWorkspace defaultValue="light" onValueChange={(value) => (value === 'light' || value === 'dark') && setPreviewMode(value)}>
+            <SectionIndex>
+              <SectionLink value="light">{t('editor.tabs.light')}</SectionLink>
+              <SectionLink value="dark">{t('editor.tabs.dark')}</SectionLink>
+              <SectionLink value="shared">{t('editor.tabs.shared')}</SectionLink>
+              <SectionLink value="fonts">{t('editor.tabs.fonts')}</SectionLink>
+            </SectionIndex>
             {(['light', 'dark'] as const).map((mode) => (
-              <TabsContent key={mode} value={mode} className="mt-4 grid gap-6">
+              <SectionContent key={mode} value={mode} className="mt-4 grid gap-6">
                 {mode === 'dark' && <p className="text-sm text-muted-foreground">{t('editor.darkNotice')}</p>}
                 {colorGroups.map(([group, tokens]) => (
                   <TokenGroupFields
@@ -201,9 +201,9 @@ function ThemeEditor({ creating, initial }: { creating: boolean; initial: ThemeP
                     onChange={(name, value) => setToken(mode, name, value)}
                   />
                 ))}
-              </TabsContent>
+              </SectionContent>
             ))}
-            <TabsContent value="shared" className="mt-4 grid gap-6">
+            <SectionContent value="shared" className="mt-4 grid gap-6">
               {sharedGroups.map(([group, tokens]) => (
                 <TokenGroupFields
                   key={group}
@@ -214,11 +214,11 @@ function ThemeEditor({ creating, initial }: { creating: boolean; initial: ThemeP
                   onChange={(name, value) => setToken('shared', name, value)}
                 />
               ))}
-            </TabsContent>
-            <TabsContent value="fonts" className="mt-4">
+            </SectionContent>
+            <SectionContent value="fonts" className="mt-4">
               <FontsEditor fonts={draft.fonts} onChange={(fonts) => patch({ fonts })} />
-            </TabsContent>
-          </Tabs>
+            </SectionContent>
+          </SectionWorkspace>
         </div>
         <aside className="grid min-w-0 content-start gap-3 xl:sticky xl:top-4 xl:self-start" aria-label={t('preview.title')}>
           <div className="flex items-center justify-between gap-2">

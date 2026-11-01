@@ -21,7 +21,7 @@ export function createRoutes(): RouteObject[] {
           children: [
             {
               errorElement: <RouteErrorBoundary />,
-              children: [...moduleRoutes('app'), ...buildSettingsRoutes(), { index: true, element: <HomeFallback /> }],
+              children: [...moduleRoutes('app'), ...buildSettingsRoutes(), { path: 'records/:recordType/:recordId/edit', lazy: async () => ({ Component: (await import('@/features/records/form/RecordEditPage')).RecordEditPage }) }, { index: true, element: <HomeFallback /> }],
             },
           ],
         },

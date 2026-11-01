@@ -1,3 +1,4 @@
+import { PaginationSummary } from '@/components/ui/pagination-summary'
 import { RotateCcw, Trash2 } from 'lucide-react'
 import { useState } from 'react'
 import { useTranslation } from 'react-i18next'
@@ -50,6 +51,7 @@ export function FailedJobsSection() {
   } else {
     body = (
       <>
+        <PaginationSummary page={page} perPage={FAILED_JOBS_PER_PAGE} total={jobs.data.meta.total} />
         <div className={cn('relative overflow-x-auto rounded-lg border', jobs.isFetching && 'opacity-60')}>
           <Table>
             <TableHeader>

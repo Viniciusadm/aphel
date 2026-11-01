@@ -28,7 +28,7 @@ const quotesModule = defineModule({
       permission: SETTINGS_MANAGE,
       routes: [quotesSettingsRoute],
     })
-    app.recordTab(DEAL_RECORD_TYPE, {
+    app.recordSection(DEAL_RECORD_TYPE, {
       key: QUOTES_TAB_KEY,
       label: 'deal.tab',
       icon: FileText,

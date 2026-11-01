@@ -17,10 +17,11 @@ export interface ActivitiesTabProps {
   recordType: string
   recordId: string
   readOnly?: boolean
+  summary?: boolean
   className?: string
 }
 
-export function ActivitiesTab({ recordType, recordId, readOnly = false, className }: ActivitiesTabProps) {
+export function ActivitiesTab({ recordType, recordId, readOnly = false, summary = false, className }: ActivitiesTabProps) {
   const { t } = useTranslation('activities')
   const { hasPermission } = useSession()
   const titleId = useId()
@@ -90,7 +91,7 @@ export function ActivitiesTab({ recordType, recordId, readOnly = false, classNam
         <div className="grid gap-4">
           {open.length > 0 ? (
             <ul className="grid gap-2" aria-label={t('tab.openList')}>
-              {open.map((activity) => (
+              {(summary ? [...open].sort((a, b) => (a.due_at ?? '9999').localeCompare(b.due_at ?? '9999')).slice(0, 3) : open).map((activity) => (
                 <ActivityRow
                   key={activity.id}
                   activity={activity}
@@ -102,7 +103,7 @@ export function ActivitiesTab({ recordType, recordId, readOnly = false, classNam
           ) : (
             <p className="text-sm text-muted-foreground">{t('tab.noOpen')}</p>
           )}
-          {closed.length > 0 && (
+          {!summary && closed.length > 0 && (
             <div className="grid gap-2">
               <Button
                 variant="ghost"

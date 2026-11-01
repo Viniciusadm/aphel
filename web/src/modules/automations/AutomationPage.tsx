@@ -4,6 +4,7 @@ import { Field } from '@/components/ui/field'
 import { FieldError as SharedFieldError } from '@/components/ui/field-error'
 import { useMutation } from '@tanstack/react-query'
 import { AlertTriangle, MoreHorizontal, Pause, Play, Rocket, Save, Trash2 } from 'lucide-react'
+import { useActiveTab } from '@/features/records/detail/use-active-tab'
 import { useMemo, useState } from 'react'
 import { useTranslation } from 'react-i18next'
 import { Link, useNavigate, useParams } from 'react-router'
@@ -16,7 +17,7 @@ import { DropdownMenu, DropdownMenuContent, DropdownMenuItem, DropdownMenuTrigge
 import { EmptyState } from '@/components/ui/empty-state'
 import { ErrorState } from '@/components/ui/error-state'
 import { Input } from '@/components/ui/input'
-import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs'
+import { SectionWorkspace, SectionContent, SectionIndex, SectionLink } from '@/components/ui/section-workspace'
 import { useCustomObjects } from '@/features/custom-records'
 import { useFieldSchema } from '@/features/records/api'
 import { AUTOMATIONS_PATH, automationsApi, useAutomation, useAutomationCache, useAutomationCatalog } from './api'
@@ -60,7 +61,6 @@ import type {
 } from './types'
 import { Alert } from '@/components/ui/alert'
 
-type Tab = 'flow' | 'test' | 'runs' | 'versions'
 
 interface Draft {
   name: string
@@ -135,7 +135,7 @@ function AutomationWorkspace({ initial, catalog }: { initial: Automation; catalo
   const [saved, setSaved] = useState(() => snapshotOf(draftOf(initial)))
   const [report, setReport] = useState<ValidationReport>(EMPTY_REPORT)
   const [selection, setSelection] = useState<FlowSelection | null>(null)
-  const [tab, setTab] = useState<Tab>('flow')
+  const [tab, setTab] = useActiveTab(['flow', 'test', 'runs', 'versions'], 'flow')
   const [pendingRemoval, setPendingRemoval] = useState<string | null>(null)
   const [confirmDelete, setConfirmDelete] = useState(false)
   const [conflict, setConflict] = useState(false)
@@ -339,14 +339,14 @@ function AutomationWorkspace({ initial, catalog }: { initial: Automation; catalo
           </Alert>
         )}
       </div>
-      <Tabs value={tab} onValueChange={(value) => setTab(value as Tab)}>
-        <TabsList>
-          <TabsTrigger value="flow">{t('tabs.flow')}</TabsTrigger>
-          <TabsTrigger value="test">{t('tabs.test')}</TabsTrigger>
-          <TabsTrigger value="runs">{t('tabs.runs')}</TabsTrigger>
-          <TabsTrigger value="versions">{t('tabs.versions')}</TabsTrigger>
-        </TabsList>
-        <TabsContent value="flow" className="pt-4">
+      <SectionWorkspace value={tab} onValueChange={setTab}>
+        <SectionIndex>
+          <SectionLink value="flow">{t('tabs.flow')}</SectionLink>
+          <SectionLink value="test">{t('tabs.test')}</SectionLink>
+          <SectionLink value="runs">{t('tabs.runs')}</SectionLink>
+          <SectionLink value="versions">{t('tabs.versions')}</SectionLink>
+        </SectionIndex>
+        <SectionContent value="flow" className="pt-4">
           <p className="mb-2 text-xs text-muted-foreground">{t('editor.flowHint')}</p>
           <FlowEditor
             recordType={recordType}
@@ -360,8 +360,8 @@ function AutomationWorkspace({ initial, catalog }: { initial: Automation; catalo
             onInsert={insert}
             onRemoveJump={(uid) => setNodes((nodes) => removeJump(nodes, uid))}
           />
-        </TabsContent>
-        <TabsContent value="test" className="pt-4">
+        </SectionContent>
+        <SectionContent value="test" className="pt-4">
           <DryRunPanel
             automation={automation}
             catalog={catalog}
@@ -370,14 +370,14 @@ function AutomationWorkspace({ initial, catalog }: { initial: Automation; catalo
             dirty={dirty}
             onSaveDraft={saveDraft}
           />
-        </TabsContent>
-        <TabsContent value="runs" className="pt-4">
+        </SectionContent>
+        <SectionContent value="runs" className="pt-4">
           <RunsPanel automation={automation} catalog={catalog} schema={schema.data} draftSteps={draftSteps} />
-        </TabsContent>
-        <TabsContent value="versions" className="pt-4">
+        </SectionContent>
+        <SectionContent value="versions" className="pt-4">
           <VersionsPanel automation={automation} catalog={catalog} schema={schema.data} onRestore={restore} />
-        </TabsContent>
-      </Tabs>
+        </SectionContent>
+      </SectionWorkspace>
       <Dialog open={selection !== null && (selection.kind === 'trigger' || selectedNode !== null)} onOpenChange={(open) => !open && setSelection(null)}>
         <DialogContent side="right" className="w-full max-w-full sm:w-[34rem] sm:max-w-[92vw]">
           <DialogHeader className="sticky top-0 border-b bg-background p-4 pr-12">
@@ -452,7 +452,7 @@ function AutomationWorkspace({ initial, catalog }: { initial: Automation; catalo
           setSaved(snapshot)
           await cache.invalidateAll()
           notifySuccess(t('toast.deleted', { name: automation.name }))
-          void navigate(AUTOMATIONS_PATH, { replace: true })
+          void navigate(AUTOMATIONS_PATH, { replace: false })
         }}
       />
       <ConfirmDialog

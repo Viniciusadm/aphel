@@ -1,3 +1,4 @@
+import { PaginationSummary } from '@/components/ui/pagination-summary'
 import { UserPlus } from 'lucide-react'
 import { useState } from 'react'
 import { useTranslation } from 'react-i18next'
@@ -144,6 +145,7 @@ function MembersSection() {
         <EmptyState title={t('users.empty')} />
       ) : (
         <>
+          <PaginationSummary page={page} perPage={MEMBERS_PER_PAGE} total={members.data.meta.total} />
           <Table>
             <TableHeader>
               <TableRow>

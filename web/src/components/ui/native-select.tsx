@@ -10,7 +10,7 @@ export function NativeSelect({ className, children, onChange, onValueChange, ...
   return (
     <span className={cn('relative inline-flex min-w-0', className)}>
       <select
-        className="h-(--control-height-md) w-full min-w-0 appearance-none rounded-(--input-radius) border border-input bg-background py-1 pr-8 pl-3 text-sm shadow-xs outline-none transition-colors focus-visible:ring-2 focus-visible:ring-ring disabled:cursor-not-allowed disabled:opacity-50 aria-invalid:border-destructive aria-invalid:ring-destructive/20"
+        className="max-md:min-h-11 h-(--control-height-md) w-full min-w-0 appearance-none rounded-(--input-radius) border border-input bg-background py-1 pr-8 pl-3 text-base md:text-sm shadow-xs outline-none transition-colors focus-visible:ring-2 focus-visible:ring-ring disabled:cursor-not-allowed disabled:opacity-50 aria-invalid:border-destructive aria-invalid:ring-destructive/20"
         {...props}
         onChange={(event) => { onChange?.(event); onValueChange?.(event.target.value) }}
       >

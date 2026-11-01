@@ -4,7 +4,8 @@ import { useTranslation } from 'react-i18next'
 import { Outlet, useNavigate } from 'react-router'
 import { useSession } from '@/app/session/session-context'
 import { Button } from '@/components/ui/button'
-import { TabsNav, TabsNavItem } from '@/components/ui/tabs-nav'
+import { AreaNavigation } from '@/components/ui/area-navigation'
+import { useLocation } from 'react-router'
 import { ActivityFormDialog, type ActivityFormMode } from './components/ActivityFormDialog'
 import { activityResource, TASKS_PATH } from './resource'
 import { PageHeader } from '@/components/ui/page-header'
@@ -12,6 +13,7 @@ import { Page } from '@/components/ui/page'
 
 export function TasksLayout() {
   const { t } = useTranslation('activities')
+  const location = useLocation()
   const { hasPermission } = useSession()
   const navigate = useNavigate()
   const [dialog, setDialog] = useState<ActivityFormMode | null>(null)
@@ -37,13 +39,7 @@ export function TasksLayout() {
         )}
       
       </>} />
-      <TabsNav aria-label={t('page.sections')} className="self-start">
-        {tabs.map((tab) => (
-          <TabsNavItem key={tab.to} to={tab.to} end={tab.end}>
-            {tab.label}
-          </TabsNavItem>
-        ))}
-      </TabsNav>
+      <AreaNavigation items={tabs} label={t('page.sections')} active={tabs.find((item) => item.to === location.pathname)?.to ?? tabs[0].to} />
       <Outlet />
       <ActivityFormDialog
         open={dialog !== null}

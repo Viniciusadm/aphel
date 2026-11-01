@@ -1,6 +1,6 @@
 import { useSearchParams } from 'react-router'
 import { useTranslation } from 'react-i18next'
-import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs'
+import { SectionWorkspace, SectionContent, SectionIndex, SectionLink } from '@/components/ui/section-workspace'
 import { RequirePermission } from '@/features/settings/components/RequirePermission'
 import { SETTINGS_MANAGE } from '@/features/settings/lib/permissions'
 import { ExportPanel } from './ExportPanel'
@@ -41,34 +41,34 @@ function ConfigPackagesSection() {
         params.set(TAB_PARAM, parseTab(next))
         return params
       },
-      { replace: true },
+      { replace: false },
     )
 
   return (
     <Page>
       <PageHeader title={t('page.title')} description={t('page.description')} />
-      <Tabs value={tab} onValueChange={changeTab} className="flex min-w-0 flex-col gap-4">
-        <TabsList aria-label={t('page.tabsLabel')} className="self-start">
+      <SectionWorkspace value={tab} onValueChange={changeTab}>
+        <SectionIndex aria-label={t('page.tabsLabel')} className="self-start">
           {TABS.map((value) => (
-            <TabsTrigger key={value} value={value}>
+            <SectionLink key={value} value={value}>
               {t(`tabs.${value}`)}
-            </TabsTrigger>
+            </SectionLink>
           ))}
           <VersionsTabTrigger />
-        </TabsList>
-        <TabsContent value="export" className="min-w-0">
+        </SectionIndex>
+        <SectionContent value="export" className="min-w-0">
           <ExportPanel />
-        </TabsContent>
-        <TabsContent value="install" className="min-w-0">
+        </SectionContent>
+        <SectionContent value="install" className="min-w-0">
           <InstallPanel onInstalled={() => changeTab('history')} />
-        </TabsContent>
-        <TabsContent value="history" className="min-w-0">
+        </SectionContent>
+        <SectionContent value="history" className="min-w-0">
           <HistoryPanel />
-        </TabsContent>
-        <TabsContent value={VERSIONS_TAB} className="min-w-0">
+        </SectionContent>
+        <SectionContent value={VERSIONS_TAB} className="min-w-0">
           <VersionsPanel />
-        </TabsContent>
-      </Tabs>
+        </SectionContent>
+      </SectionWorkspace>
     </Page>
   )
 }

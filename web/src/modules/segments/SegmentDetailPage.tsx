@@ -1,3 +1,4 @@
+import { PaginationSummary } from '@/components/ui/pagination-summary'
 import { useState } from 'react'
 import { useTranslation } from 'react-i18next'
 import { Link, useParams } from 'react-router'
@@ -52,6 +53,7 @@ export function SegmentDetailPage() {
         <EmptyState title={t('detail.emptyTitle')} description={t('detail.emptyDescription')} />
       ) : (
         <>
+          <PaginationSummary page={page} perPage={MEMBERS_PER_PAGE} total={members.data.meta.total} />
           <ul className="divide-y rounded-lg border" aria-label={t('detail.membersLabel')}>
             {members.data.data.map((member) => {
               const label = member.label ?? member.id

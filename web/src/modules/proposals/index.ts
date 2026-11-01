@@ -23,7 +23,7 @@ const proposalsModule = defineModule({
       },
     ])
     app.nav({ to: PROPOSALS_PATH, label: 'nav', icon: FileText, permission: [MANAGE_PERMISSION] })
-    app.recordTab('deal', {
+    app.recordSection('deal', {
       key: `${PROPOSALS_KEY}.documents`,
       label: 'tab',
       icon: FileText,

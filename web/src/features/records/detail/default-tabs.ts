@@ -21,6 +21,7 @@ export function useDefaultRecordTabs({ recordType, recordId, readOnly = false, t
     () => [
       {
         key: 'timeline',
+        summary: timeline ? createElement(Timeline, { queryKey: recordsKeys.detail(recordType, recordId), fetchPage: timeline.fetchPage, autoLoad: false, limit: 5 }) : undefined,
         label: t('tabs.timeline'),
         icon: History,
         content: timeline

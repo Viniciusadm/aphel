@@ -1,11 +1,12 @@
-import { CalendarDays, Inbox, Menu, Plus, Search, type LucideIcon } from 'lucide-react'
+import { CalendarDays, Handshake, Menu, Search, type LucideIcon } from 'lucide-react'
 import { useTranslation } from 'react-i18next'
 import { NavLink } from 'react-router'
 import { cn } from '@/lib/utils'
+import { useAvailableSidebarEntries } from '@/app/layout/sidebar-entries'
 import { TODAY_PATH } from '../routes'
 
 interface NavTarget {
-  key: 'today' | 'search' | 'inbox'
+  key: 'today' | 'search' | 'deals'
   to: string
   icon: LucideIcon
 }
@@ -13,7 +14,7 @@ interface NavTarget {
 const LINKS: NavTarget[] = [
   { key: 'today', to: TODAY_PATH, icon: CalendarDays },
   { key: 'search', to: '/search', icon: Search },
-  { key: 'inbox', to: '/inbox', icon: Inbox },
+  { key: 'deals', to: '/deals', icon: Handshake },
 ]
 
 const ITEM_CLASS =
@@ -31,13 +32,14 @@ function NavItem({ target }: { target: NavTarget }) {
 }
 
 export interface MobileNavProps {
-  onAdd: () => void
   onOpenMenu: () => void
 }
 
-export function MobileNav({ onAdd, onOpenMenu }: MobileNavProps) {
+export function MobileNav({ onOpenMenu }: MobileNavProps) {
   const { t } = useTranslation('mobile')
-  const [today, search, inbox] = LINKS
+  const [today, search, deals] = LINKS
+  const entries = useAvailableSidebarEntries()
+  const canOpenDeals = entries.some((entry) => entry.to === deals.to)
   return (
     <nav
       aria-label={t('nav.label')}
@@ -45,14 +47,8 @@ export function MobileNav({ onAdd, onOpenMenu }: MobileNavProps) {
     >
       <div className="mx-auto flex max-w-lg items-stretch px-1">
         <NavItem target={today} />
+        {canOpenDeals && <NavItem target={deals} />}
         <NavItem target={search} />
-        <button type="button" onClick={onAdd} className={ITEM_CLASS} aria-haspopup="dialog">
-          <span className="flex size-10 items-center justify-center rounded-full bg-primary-solid text-primary-foreground shadow-sm">
-            <Plus className="size-5" aria-hidden="true" />
-          </span>
-          <span className="sr-only">{t('nav.add')}</span>
-        </button>
-        <NavItem target={inbox} />
         <button type="button" onClick={onOpenMenu} className={ITEM_CLASS} aria-haspopup="dialog">
           <Menu className="size-5" aria-hidden="true" />
           {t('nav.more')}

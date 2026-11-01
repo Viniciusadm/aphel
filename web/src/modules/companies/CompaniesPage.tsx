@@ -25,10 +25,9 @@ export function CompaniesPage() {
 
   return (
     <Page>
-      <PageHeader title={t('list.title')} description={t('list.description')} />
+      <PageHeader title={t('list.title')} description={t('list.description')} actions={newButton} />
       <RecordListView
         recordType={COMPANY_RECORD_TYPE}
-        toolbarActions={newButton}
         emptyAction={newButton}
         onRowClick={(record) => navigate(companyResource.detailPath!(record.id))}
         archivedFilter

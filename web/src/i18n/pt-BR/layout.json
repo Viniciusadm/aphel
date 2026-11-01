@@ -2,7 +2,15 @@
   "nav": {
     "label": "Navegação principal",
     "system": "Sistema",
-    "settings": "Configurações"
+    "settings": "Configurações",
+    "groups": {
+      "work": "Meu trabalho",
+      "crm": "CRM",
+      "operations": "Operação",
+      "analysis": "Análise",
+      "administration": "Administração"
+    },
+    "search": "Buscar no menu"
   },
   "sidebar": {
     "collapse": "Recolher menu",

@@ -1,11 +1,10 @@
 import { zodResolver } from '@hookform/resolvers/zod'
 import { Loader2 } from 'lucide-react'
-import { useEffect, useId, useMemo, useRef, useState, type ReactNode } from 'react'
+import { useEffect, useId, useMemo, useRef, type ReactNode } from 'react'
 import { Controller, useForm, useWatch, type FieldErrors } from 'react-hook-form'
 import { useTranslation } from 'react-i18next'
 import { Button } from '@/components/ui/button'
 import { DialogFooter } from '@/components/ui/dialog'
-import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs'
 import { cn } from '@/lib/utils'
 import { isReadOnlyField, type RecordPayload, type RecordValues } from '../fields'
 import type { FieldDefinition, FieldSchema, RecordItem } from '../types'
@@ -14,7 +13,7 @@ import { UnsavedChangesGuard } from '@/components/feedback'
 import { mapRecordApiError } from './lib/errors'
 import { useFilters } from '@/kernel/modules/filters'
 import { Slot } from '@/kernel/modules/Slot'
-import type { FormLayout, ResolvedLayout, ResolvedLayoutSection } from './lib/layout'
+import type { FormLayout, ResolvedLayoutSection } from './lib/layout'
 import { resolveLayout, resolvedFields } from './lib/layout'
 import { buildRecordSchema, isBlank } from './lib/validation'
 import {
@@ -54,12 +53,6 @@ const WIDE_FIELD_TYPES = new Set(['long_text', 'multi_select'])
 const SECTION_COLUMNS: Record<number, string> = {
   2: 'sm:grid-cols-2',
   3: 'sm:grid-cols-2 lg:grid-cols-3',
-}
-
-function tabOfField(layout: ResolvedLayout | null, key: string): string | undefined {
-  return layout?.tabs.find((tab) =>
-    tab.sections.some((section) => section.columns.some((column) => column.fields.some((item) => item.field.key === key))),
-  )?.id
 }
 
 export function RecordForm({
@@ -113,13 +106,13 @@ export function RecordForm({
     () => recordRuleValues(knownFields, record, defaultValues),
     [knownFields, record, defaultValues],
   )
-  const [activeTab, setActiveTab] = useState<string | undefined>(undefined)
 
   const {
     control,
     handleSubmit,
     reset,
     setError,
+    setFocus,
     formState: { errors, isDirty, isSubmitting },
   } = useForm<RecordValues, unknown, RecordValues>({
     resolver: zodResolver(validationSchema),
@@ -131,15 +124,15 @@ export function RecordForm({
     () => layoutRuleStates(resolved, { ...baseRuleValues, ...watched }, conditionContext),
     [resolved, baseRuleValues, watched, conditionContext],
   )
-  const currentTab = activeTab ?? resolved?.tabs[0]?.id
 
   useEffect(() => {
     onDirtyChange?.(isDirty)
   }, [isDirty, onDirtyChange])
 
   const revealField = (key: string | undefined) => {
-    const tab = key ? tabOfField(resolved, key) : undefined
-    if (tab) setActiveTab(tab)
+    if (!key) return
+    setFocus(key)
+    document.getElementById(`${formId}-${key}`)?.scrollIntoView({ block: 'center', behavior: 'smooth' })
   }
 
   const onInvalid = (invalid: FieldErrors<RecordValues>) => {
@@ -233,22 +226,15 @@ export function RecordForm({
   if (formFields.length === 0) {
     body = <p className="text-sm text-muted-foreground">{t('form.noFields')}</p>
   } else if (resolved && resolved.tabs.length > 1) {
-    body = (
-      <Tabs value={currentTab} onValueChange={setActiveTab} className="grid min-w-0 gap-4">
-        <TabsList aria-label={t('layout.tabs')}>
-          {resolved.tabs.map((tab, index) => (
-            <TabsTrigger key={tab.id} value={tab.id}>
-              {tab.label || t('layout.untitledTab', { number: index + 1 })}
-            </TabsTrigger>
-          ))}
-        </TabsList>
-        {resolved.tabs.map((tab) => (
-          <TabsContent key={tab.id} value={tab.id} className="grid min-w-0 gap-6">
-            {tab.sections.map(renderSection)}
-          </TabsContent>
-        ))}
-      </Tabs>
-    )
+    body = <div className="grid min-w-0 gap-8">
+      <nav aria-label={t('layout.tabs')} className="flex flex-wrap gap-x-4 gap-y-2 border-b pb-4">
+        {resolved.tabs.map((tab, index) => <a key={tab.id} href={`#${formId}-section-${tab.id}`} className="inline-flex min-h-11 items-center text-sm text-muted-foreground underline-offset-4 hover:text-foreground hover:underline">{tab.label || t('layout.untitledTab', { number: index + 1 })}</a>)}
+      </nav>
+      {resolved.tabs.map((tab, index) => <section key={tab.id} id={`${formId}-section-${tab.id}`} className="grid min-w-0 scroll-mt-20 gap-5">
+        <h2 className="text-base font-semibold">{tab.label || t('layout.untitledTab', { number: index + 1 })}</h2>
+        {tab.sections.map(renderSection)}
+      </section>)}
+    </div>
   } else if (resolved) {
     body = <div className="grid min-w-0 gap-6">{resolved.tabs[0]?.sections.map(renderSection)}</div>
   } else {

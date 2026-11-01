@@ -1,3 +1,4 @@
+import { PaginationSummary } from '@/components/ui/pagination-summary'
 import { ArchiveRestore, Search, Trash2 } from 'lucide-react'
 import { useState, type FormEvent } from 'react'
 import { useTranslation } from 'react-i18next'
@@ -135,6 +136,7 @@ function TrashSection() {
         />
       ) : (
         <>
+          <PaginationSummary page={page} perPage={TRASH_PER_PAGE} total={trash.data.meta.total} />
           <TrashTable
             items={trash.data.data}
             busy={restore.isPending || purge.isPending}

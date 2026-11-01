@@ -11,6 +11,7 @@ export function UiLabelsBridge({ children }: { children: ReactNode }) {
 
   const labels = useMemo<UiLabels>(
     () => ({
+      sectionNavigation: common('actions.selectView'),
       close: common('actions.close'),
       retry: common('actions.retry'),
       emptyTitle: common('states.emptyTitle'),
@@ -32,6 +33,9 @@ export function UiLabelsBridge({ children }: { children: ReactNode }) {
         />
       ),
       pageLoading: detail('pageLoader'),
+      paginationPreviousShort: common('pagination.previousShort'),
+      paginationNextShort: common('pagination.nextShort'),
+      displaySettings: common('actions.display'),
       paginationPrevious: common('pagination.previous'),
       paginationNext: common('pagination.next'),
       paginationSummary: (from, to, total) => common('pagination.summary', { from, to, total }),

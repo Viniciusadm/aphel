@@ -16,11 +16,11 @@ export function RecordPageShell({ header, sidebar, children, className }: Record
       <div
         className={cn(
           'grid min-w-0 items-start gap-4 sm:gap-6',
-          sidebar && 'lg:grid-cols-[minmax(16rem,20rem)_minmax(0,1fr)] xl:grid-cols-[22rem_minmax(0,1fr)]',
+          sidebar && 'lg:grid-cols-[minmax(0,1fr)_17rem] xl:grid-cols-[minmax(0,1fr)_20rem]',
         )}
       >
-        {sidebar && <aside className="min-w-0 lg:sticky lg:top-4">{sidebar}</aside>}
         <div className="min-w-0">{children}</div>
+        {sidebar && <aside className="min-w-0 lg:sticky lg:top-20">{sidebar}</aside>}
       </div>
     </Page>
   )

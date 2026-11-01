@@ -5,7 +5,9 @@
     "close": "Close",
     "cancel": "Cancel",
     "confirm": "Confirm",
-    "back": "Back"
+    "back": "Back",
+    "selectView": "Select view",
+    "display": "Display"
   },
   "states": {
     "loading": "Loading…",
@@ -32,6 +34,8 @@
     "page": "Page {{page}} of {{pages}}",
     "previous": "Previous page",
     "next": "Next page",
-    "perPage": "Items per page"
+    "perPage": "Items per page",
+    "previousShort": "Previous",
+    "nextShort": "Next"
   }
 }

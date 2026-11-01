@@ -6,6 +6,7 @@ export const TASKS_PATH = '/tasks'
 
 export const activityResource = registerRecordResource({
   recordType: ACTIVITY_RECORD_TYPE,
+  updatePermission: 'activities.update',
   basePath: '/v1/activities',
   titleField: 'title',
   detailPath: (id) => `${TASKS_PATH}/${encodeURIComponent(id)}`,

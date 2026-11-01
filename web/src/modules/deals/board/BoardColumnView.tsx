@@ -19,6 +19,7 @@ export interface BoardColumnViewProps {
   column: BoardColumn
   stages: PipelineStage[]
   formatting: RecordFormatting
+  disableDrag?: boolean
   draggable: boolean
   loadingMore: boolean
   onMove: (dealId: string, stageId: string) => void
@@ -31,6 +32,7 @@ export const BoardColumnView = memo(function BoardColumnView({
   stages,
   formatting,
   draggable,
+  disableDrag,
   loadingMore,
   onMove,
   onMovePipeline,
@@ -44,7 +46,7 @@ export const BoardColumnView = memo(function BoardColumnView({
     <section
       aria-labelledby={headingId}
       className={cn(
-        'flex w-[min(18rem,85vw)] shrink-0 snap-start flex-col rounded-lg border bg-muted/40 transition-colors md:w-72',
+        'flex w-full shrink-0 snap-start flex-col rounded-lg border bg-muted/40 transition-colors md:w-72',
         isOver && 'border-primary bg-primary/5',
       )}
     >
@@ -72,6 +74,7 @@ export const BoardColumnView = memo(function BoardColumnView({
             formatting={formatting}
             stages={stages}
             draggable={draggable}
+            disableDrag={disableDrag}
             onMove={onMove}
             onMovePipeline={onMovePipeline}
           />

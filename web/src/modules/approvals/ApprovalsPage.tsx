@@ -7,7 +7,6 @@ import { Button } from '@/components/ui/button'
 import { EmptyState } from '@/components/ui/empty-state'
 import { ErrorState } from '@/components/ui/error-state'
 import { Skeleton } from '@/components/ui/skeleton'
-import { Tabs, TabsList, TabsTrigger } from '@/components/ui/tabs'
 import { NativeSelect } from '@/features/records/filters/NativeSelect'
 import { formatDateTime, useRecordFormatting } from '@/features/records/formatting'
 import { cn } from '@/lib/utils'
@@ -87,21 +86,9 @@ export function ApprovalsPage() {
     <Page>
       <PageHeader title={t('inbox.title')} description={t('inbox.description')} />
       <div className="flex flex-wrap items-center justify-between gap-3">
-        <Tabs
-          value={box}
-          onValueChange={(value) => {
-            setBox(value as ApprovalBox)
-            setPage(1)
-          }}
-        >
-          <TabsList>
-            {boxes.map((item) => (
-              <TabsTrigger key={item} value={item}>
-                {t(`inbox.boxes.${item}`)}
-              </TabsTrigger>
-            ))}
-          </TabsList>
-        </Tabs>
+        <NativeSelect aria-label={t('inbox.title')} value={box} onChange={(event) => { setBox(event.target.value as ApprovalBox); setPage(1) }}>
+          {boxes.map((item) => <option key={item} value={item}>{t(`inbox.boxes.${item}`)}</option>)}
+        </NativeSelect>
         <Field id={statusId} label={t('inbox.status')} inline>
           <NativeSelect
             id={statusId}

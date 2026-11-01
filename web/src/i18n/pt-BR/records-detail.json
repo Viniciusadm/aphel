@@ -44,7 +44,11 @@
     "emptyFiltered": "Nenhum item corresponde ao filtro selecionado.",
     "errorTitle": "Não foi possível carregar a linha do tempo",
     "system": "Sistema",
-    "relatedRecord": "Registro relacionado"
+    "relatedRecord": "Registro relacionado",
+    "allTypes": "Todos os tipos",
+    "filterDescription": "Escolha os tipos de evento que deseja ver.",
+    "clearFilters": "Limpar filtros",
+    "applyFilters": "Aplicar filtros"
   },
   "confirm": {
     "cancel": "Cancelar",
@@ -106,5 +110,11 @@
       "insights": "Análises",
       "more": "Mais"
     }
+  },
+  "overview": {
+    "title": "Visão geral",
+    "nextActions": "Próximas ações",
+    "recentActivity": "Atividade recente",
+    "viewAll": "Ver tudo"
   }
 }

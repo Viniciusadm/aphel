@@ -16,7 +16,7 @@ const priceListsModule = defineModule({
   register(app) {
     app.routes(priceListRoutes)
     app.slot('products.list.header', { key: 'price-lists', permission: ['products.read'], render: PriceListsLink })
-    app.recordTab(PRODUCT_RECORD_TYPE, {
+    app.recordSection(PRODUCT_RECORD_TYPE, {
       key: BUNDLE_TAB_KEY,
       label: 'bundles.tab',
       icon: Boxes,

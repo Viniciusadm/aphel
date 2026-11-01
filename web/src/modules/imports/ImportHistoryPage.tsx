@@ -1,3 +1,4 @@
+import { PaginationSummary } from '@/components/ui/pagination-summary'
 import { useState } from 'react'
 import { useTranslation } from 'react-i18next'
 import { Link } from 'react-router'
@@ -62,6 +63,7 @@ export function ImportHistoryPage() {
         <EmptyState title={t('history.empty')} description={t('history.emptyDescription')} />
       ) : (
         <>
+          <PaginationSummary page={page} perPage={HISTORY_PAGE_SIZE} total={imports.data.meta.total} />
           <Table>
             <TableHeader>
               <TableRow>

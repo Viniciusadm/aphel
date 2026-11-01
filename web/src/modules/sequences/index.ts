@@ -31,7 +31,7 @@ const sequencesModule = defineModule({
       permission: [SEQUENCES_READ_PERMISSION, SEQUENCES_MANAGE_PERMISSION],
       order: 160,
     })
-    app.recordTab('contact', SEQUENCES_RECORD_TAB)
+    app.recordSection('contact', SEQUENCES_RECORD_TAB)
     app.filter('records.detailTabs', withSequencesTabPlacement, SEQUENCES_PLACEMENT_PRIORITY)
     app.referenceOptions('sequence', SEQUENCE_REFERENCE_OPTIONS)
   },

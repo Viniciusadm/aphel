@@ -1,3 +1,4 @@
+import { PaginationSummary } from '@/components/ui/pagination-summary'
 import { useQuery } from '@tanstack/react-query'
 import { useState } from 'react'
 import { useTranslation } from 'react-i18next'
@@ -61,6 +62,7 @@ export function BulkHistoryPage() {
         <EmptyState title={t('history.empty')} description={t('history.emptyDescription')} />
       ) : (
         <>
+          <PaginationSummary page={page} perPage={HISTORY_PAGE_SIZE} total={history.data.meta.total} />
           <Table>
             <TableHeader>
               <TableRow>

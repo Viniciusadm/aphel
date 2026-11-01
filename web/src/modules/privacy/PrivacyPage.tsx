@@ -1,6 +1,6 @@
 import { useTranslation } from 'react-i18next'
 import { useSearchParams } from 'react-router'
-import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs'
+import { SectionWorkspace, SectionContent, SectionIndex, SectionLink } from '@/components/ui/section-workspace'
 import { RequirePermission } from '@/features/settings/components/RequirePermission'
 import { PRIVACY_MANAGE } from '@/features/settings/lib/permissions'
 import { RequestsPanel } from './RequestsPanel'
@@ -39,30 +39,30 @@ function PrivacySection() {
         if (parseTab(next) === 'requests' && request) params.set('request', request)
         return params
       },
-      { replace: true },
+      { replace: false },
     )
 
   return (
     <Page>
       <PageHeader title={t('page.title')} description={t('page.description')} />
-      <Tabs value={tab} onValueChange={changeTab} className="flex min-w-0 flex-col gap-4">
-        <TabsList aria-label={t('page.tabsLabel')}>
+      <SectionWorkspace value={tab} onValueChange={changeTab}>
+        <SectionIndex aria-label={t('page.tabsLabel')}>
           {TABS.map((value) => (
-            <TabsTrigger key={value} value={value}>
+            <SectionLink key={value} value={value}>
               {t(`tabs.${value}`)}
-            </TabsTrigger>
+            </SectionLink>
           ))}
-        </TabsList>
-        <TabsContent value="subjects" className="min-w-0">
+        </SectionIndex>
+        <SectionContent value="subjects" className="min-w-0">
           <SubjectSearchPanel onRequestCreated={() => changeTab('requests')} />
-        </TabsContent>
-        <TabsContent value="requests" className="min-w-0">
+        </SectionContent>
+        <SectionContent value="requests" className="min-w-0">
           <RequestsPanel />
-        </TabsContent>
-        <TabsContent value="retention" className="min-w-0">
+        </SectionContent>
+        <SectionContent value="retention" className="min-w-0">
           <RetentionPanel />
-        </TabsContent>
-      </Tabs>
+        </SectionContent>
+      </SectionWorkspace>
     </Page>
   )
 }

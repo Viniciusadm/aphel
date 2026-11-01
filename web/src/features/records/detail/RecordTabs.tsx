@@ -1,5 +1,6 @@
 import { useTranslation } from 'react-i18next'
-import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs'
+import { Link, useSearchParams } from 'react-router'
+import { NativeSelect } from '@/components/ui/native-select'
 import { cn } from '@/lib/utils'
 import type { RecordTab } from './types'
 import { useActiveTab } from './use-active-tab'
@@ -18,25 +19,22 @@ export function RecordTabs({ tabs, defaultTab, param, className }: RecordTabsPro
     defaultTab,
     param,
   )
+  const [params] = useSearchParams()
+  const overviewParams = new URLSearchParams(params)
+  overviewParams.delete(param ?? 'tab')
   if (tabs.length === 0) return null
 
   return (
-    <Tabs value={active} onValueChange={setActive} className={cn('grid min-w-0 gap-4', className)}>
-      <TabsList aria-label={t('tabs.label')} className="scroll-smooth-thin">
-        {tabs.map((tab) => {
-          const Icon = tab.icon
-          return (
-            <TabsTrigger key={tab.key} value={tab.key} icon={Icon && <Icon aria-hidden="true" />}>
-              {tab.label}
-            </TabsTrigger>
-          )
-        })}
-      </TabsList>
-      {tabs.map((tab) => (
-        <TabsContent key={tab.key} value={tab.key} className="min-w-0">
-          {tab.content}
-        </TabsContent>
-      ))}
-    </Tabs>
+    <div className={cn('grid min-w-0 gap-5', className)}>
+      <div className="flex flex-wrap items-center justify-between gap-3 border-b pb-4">
+        <Link to={{ search: `?${overviewParams}` }} className="inline-flex min-h-11 items-center text-sm font-medium text-muted-foreground hover:text-foreground">{t('overview.title')}</Link>
+        <NativeSelect className="w-full sm:w-56" aria-label={t('tabs.label')} value={active} onChange={(event) => setActive(event.target.value)}>
+          {tabs.map((tab) => <option key={tab.key} value={tab.key}>{tab.label}</option>)}
+        </NativeSelect>
+      </div>
+      <section key={active} className="min-w-0" aria-label={tabs.find((tab) => tab.key === active)?.label}>
+        {tabs.find((tab) => tab.key === active)?.content}
+      </section>
+    </div>
   )
 }

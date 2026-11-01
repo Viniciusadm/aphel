@@ -2,6 +2,7 @@ import { createContext, useContext, type ReactNode } from 'react'
 import { defaultUiLabels } from './default-labels'
 
 export interface UiLabels {
+  sectionNavigation?: string
   close: string
   retry: string
   emptyTitle: string
@@ -16,6 +17,9 @@ export interface UiLabels {
   confirmTypeLabel: string
   confirmTypePrompt: (name: string) => ReactNode
   pageLoading: string
+  paginationPreviousShort?: string
+  paginationNextShort?: string
+  displaySettings?: string
   paginationPrevious: string
   paginationNext: string
   paginationSummary: (from: string, to: string, total: string) => string

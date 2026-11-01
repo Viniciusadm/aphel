@@ -5,7 +5,9 @@ export const COMPANIES_PATH = '/companies'
 
 export const companyResource = registerRecordResource({
   recordType: COMPANY_RECORD_TYPE,
+  updatePermission: 'companies.update',
   basePath: '/v1/companies',
+  summaryFields: ['domain', 'website', 'email', 'phone', 'owner_id', 'industry'],
   titleField: 'name',
   subtitleField: 'domain',
   detailPath: (id) => `${COMPANIES_PATH}/${encodeURIComponent(id)}`,

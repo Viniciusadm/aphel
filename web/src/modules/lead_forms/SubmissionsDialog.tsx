@@ -1,3 +1,4 @@
+import { PaginationSummary } from '@/components/ui/pagination-summary'
 import { Inbox } from 'lucide-react'
 import { useState } from 'react'
 import { Link } from 'react-router'
@@ -85,6 +86,7 @@ function SubmissionList({ form }: { form: LeadForm }) {
         <EmptyState icon={Inbox} title={t('submissions.emptyTitle')} description={t('submissions.emptyDescription')} />
       ) : (
         <>
+          <PaginationSummary page={page} perPage={SUBMISSIONS_PER_PAGE} total={submissions.data.meta.total} />
           <ul className="grid gap-2" aria-label={t('submissions.listLabel')}>
             {submissions.data.data.map((submission) => (
               <SubmissionRow key={submission.id} form={form} submission={submission} />

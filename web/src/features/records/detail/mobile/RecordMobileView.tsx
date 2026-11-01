@@ -10,7 +10,6 @@ import { cn } from '@/lib/utils'
 import type { RecordBackLink } from '../RecordHeader'
 import { RECORD_TAB_PARAM } from '../use-active-tab'
 import type { RecordTab } from '../types'
-import { groupTabs } from './tab-groups'
 
 export interface RecordMobileViewProps {
   title: string
@@ -20,6 +19,7 @@ export interface RecordMobileViewProps {
   owner?: ReactNode
   back?: RecordBackLink
   tabs: RecordTab[]
+  overview?: ReactNode
   summaryPanel: ReactNode
   detailsPanel: ReactNode
   actions?: ReactNode
@@ -62,6 +62,7 @@ export function RecordMobileView({
   owner,
   back,
   tabs,
+  overview,
   summaryPanel,
   detailsPanel,
   actions,
@@ -75,15 +76,6 @@ export function RecordMobileView({
   const requested = searchParams.get(RECORD_TAB_PARAM)
   const activeTab = tabs.find((tab) => tab.key === requested) ?? null
 
-  const openTab = (key: string) =>
-    setSearchParams(
-      (current) => {
-        const next = new URLSearchParams(current)
-        next.set(RECORD_TAB_PARAM, key)
-        return next
-      },
-      { replace: false },
-    )
   const closeTab = () =>
     setSearchParams(
       (current) => {
@@ -149,42 +141,15 @@ export function RecordMobileView({
           {t('mobile.actions')}
         </Button>
       </div>
-      {summaryPanel}
-      <button
+      {overview ?? summaryPanel}
+      {!overview && <button
         type="button"
         onClick={() => setDetailsOpen(true)}
         className="flex min-h-12 items-center justify-between rounded-lg border bg-card px-4 text-sm font-medium focus-visible:ring-2 focus-visible:ring-ring focus-visible:outline-none"
       >
         {t('mobile.allDetails')}
         <ChevronRight className="size-4 text-muted-foreground" aria-hidden="true" />
-      </button>
-      <nav aria-label={t('mobile.sections')} className="grid gap-4">
-        {groupTabs(tabs).map(({ group, tabs: groupItems }) => (
-          <section key={group} className="grid gap-2">
-            <h2 className="px-1 text-xs font-semibold tracking-wide text-muted-foreground uppercase">
-              {t(`mobile.groups.${group}`)}
-            </h2>
-            <ul className="divide-y overflow-hidden rounded-lg border bg-card">
-              {groupItems.map((tab) => {
-                const Icon = tab.icon
-                return (
-                  <li key={tab.key}>
-                    <button
-                      type="button"
-                      onClick={() => openTab(tab.key)}
-                      className="flex min-h-12 w-full items-center gap-3 px-4 text-left text-sm font-medium hover:bg-accent focus-visible:ring-2 focus-visible:ring-ring focus-visible:outline-none focus-visible:ring-inset"
-                    >
-                      {Icon && <Icon className="size-4 shrink-0 text-muted-foreground" aria-hidden="true" />}
-                      <span className="min-w-0 flex-1 truncate">{tab.label}</span>
-                      <ChevronRight className="size-4 shrink-0 text-muted-foreground" aria-hidden="true" />
-                    </button>
-                  </li>
-                )
-              })}
-            </ul>
-          </section>
-        ))}
-      </nav>
+      </button>}
       <BottomSheet open={actionsOpen} onOpenChange={setActionsOpen} title={t('mobile.actions')}>
         <div className={SHEET_ACTIONS}>{actions}</div>
       </BottomSheet>

@@ -8,7 +8,7 @@ import { Button } from '@/components/ui/button'
 import { EmptyState } from '@/components/ui/empty-state'
 import { ErrorState } from '@/components/ui/error-state'
 import { Skeleton } from '@/components/ui/skeleton'
-import { cn } from '@/lib/utils'
+import { NativeSelect } from '@/components/ui/native-select'
 import {
   SEGMENT_RECORD_TYPES,
   isSegmentRecordType,
@@ -38,24 +38,9 @@ export function SegmentsPage() {
       <PageHeader title={t('page.title')} description={t('page.description')} />
       {recordType ? (
         <>
-          <nav aria-label={t('page.typesLabel')} className="flex gap-1 overflow-x-auto border-b">
-            {readable.map((candidate) => (
-              <button
-                key={candidate}
-                type="button"
-                aria-current={candidate === recordType ? 'page' : undefined}
-                onClick={() => setParams({ [SEGMENT_TYPE_PARAM]: candidate })}
-                className={cn(
-                  '-mb-px border-b-2 px-3 py-2 text-sm font-medium whitespace-nowrap transition-colors',
-                  candidate === recordType
-                    ? 'border-primary text-foreground'
-                    : 'border-transparent text-muted-foreground hover:text-foreground',
-                )}
-              >
-                {t(`recordTypes.${candidate}`)}
-              </button>
-            ))}
-          </nav>
+          <NativeSelect aria-label={t('page.typesLabel')} value={recordType} onValueChange={(candidate) => setParams((current) => { const next = new URLSearchParams(current); next.set(SEGMENT_TYPE_PARAM, candidate); return next })}>
+            {readable.map((candidate) => <option key={candidate} value={candidate}>{t(`recordTypes.${candidate}`)}</option>)}
+          </NativeSelect>
           <SegmentList key={recordType} recordType={recordType} />
         </>
       ) : (
