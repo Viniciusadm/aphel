@@ -1,14 +1,10 @@
+import { DialogForm } from '@/components/ui/dialog-form'
 import { FieldError as SharedFieldError } from '@/components/ui/field-error'
 import { useId, useState } from 'react'
 import { useTranslation } from 'react-i18next'
-import { Button } from '@/components/ui/button'
 import {
   Dialog,
   DialogContent,
-  DialogDescription,
-  DialogFooter,
-  DialogHeader,
-  DialogTitle,
 } from '@/components/ui/dialog'
 import { Skeleton } from '@/components/ui/skeleton'
 import { Textarea } from '@/components/ui/textarea'
@@ -46,19 +42,21 @@ function LostReasonForm({ dealTitle, pending, onOpenChange, onConfirm }: Omit<Lo
   }
 
   return (
-    <form
+    <DialogForm
+      submitVariant="destructive"
       className="grid gap-4"
       onSubmit={(event) => {
         event.preventDefault()
         submit()
       }}
+      title={t('lost.title')}
+      description={<>{dealTitle ? t('lost.descriptionFor', { title: dealTitle }) : t('lost.description')}</>}
+      cancelLabel={t('actions.cancel')}
+      submitLabel={t('lost.confirm')}
+      onCancel={() => onOpenChange(false)}
+      pending={pending}
+      submitDisabled={pending}
     >
-      <DialogHeader>
-        <DialogTitle>{t('lost.title')}</DialogTitle>
-        <DialogDescription>
-          {dealTitle ? t('lost.descriptionFor', { title: dealTitle }) : t('lost.description')}
-        </DialogDescription>
-      </DialogHeader>
       <Field id={selectId} label={t('lost.reason')}>
         {reasons.isPending ? (
           <Skeleton className="h-9 w-full" />
@@ -69,7 +67,7 @@ function LostReasonForm({ dealTitle, pending, onOpenChange, onConfirm }: Omit<Lo
             onChange={(event) => setReasonId(event.target.value)}
             aria-invalid={missing || undefined}
             aria-describedby={missing ? errorId : undefined}
-            className="h-9 w-full rounded-md border bg-background px-3 text-sm"
+            className="w-full"
           >
             <option value="">{t('lost.choose')}</option>
             {(reasons.data ?? []).map((reason) => (
@@ -89,15 +87,7 @@ function LostReasonForm({ dealTitle, pending, onOpenChange, onConfirm }: Omit<Lo
       <Field label={t('lost.note')}>
         {(fieldControl) => <Textarea placeholder={t('placeholders.note')} {...fieldControl} value={note} maxLength={5000} onChange={(event) => setNote(event.target.value)} />}
       </Field>
-      <DialogFooter>
-        <Button type="button" variant="outline" onClick={() => onOpenChange(false)} disabled={pending}>
-          {t('actions.cancel')}
-        </Button>
-        <Button type="submit" variant="destructive" disabled={pending}>
-          {t('lost.confirm')}
-        </Button>
-      </DialogFooter>
-    </form>
+    </DialogForm>
   )
 }
 

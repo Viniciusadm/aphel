@@ -1,14 +1,9 @@
-import { FieldError as SharedFieldError } from '@/components/ui/field-error'
+import { DialogForm } from '@/components/ui/dialog-form'
 import { useState } from 'react'
 import { useTranslation } from 'react-i18next'
-import { Button } from '@/components/ui/button'
 import {
   Dialog,
   DialogContent,
-  DialogDescription,
-  DialogFooter,
-  DialogHeader,
-  DialogTitle,
 } from '@/components/ui/dialog'
 import { Input } from '@/components/ui/input'
 import type { PipelineStage, StageKind } from './types'
@@ -72,8 +67,7 @@ function StageForm({ stage, pending, onOpenChange, onSubmit }: Omit<StageDialogP
   const rottingError = submitted && parsedRottingDays === undefined
 
   return (
-    <form
-      className="grid gap-4"
+    <DialogForm
       onSubmit={(event) => {
         event.preventDefault()
         setSubmitted(true)
@@ -94,12 +88,15 @@ function StageForm({ stage, pending, onOpenChange, onSubmit }: Omit<StageDialogP
           })
         }
       }}
+      title={stage ? t('settings.stages.editTitle') : t('settings.stages.newTitle')}
+      description={t('settings.stages.dialogDescription')}
+      cancelLabel={t('actions.cancel')}
+      submitLabel={t('actions.save')}
+      onCancel={() => onOpenChange(false)}
+      pending={pending}
+      submitDisabled={pending}
     >
-      <DialogHeader>
-        <DialogTitle>{stage ? t('settings.stages.editTitle') : t('settings.stages.newTitle')}</DialogTitle>
-        <DialogDescription>{t('settings.stages.dialogDescription')}</DialogDescription>
-      </DialogHeader>
-      <Field label={t('settings.stages.name')}>
+      <Field label={t('settings.stages.name')} error={nameError ? t('settings.stages.nameRequired') : undefined}>
         {(control) => <>
           <Input placeholder={t('placeholders.stageName')}
           {...control}
@@ -108,10 +105,9 @@ function StageForm({ stage, pending, onOpenChange, onSubmit }: Omit<StageDialogP
           aria-invalid={nameError || undefined}
           onChange={(event) => setName(event.target.value)}
         />
-        {nameError && <SharedFieldError>{t('settings.stages.nameRequired')}</SharedFieldError>}
         </>}
       </Field>
-      <Field label={t('settings.stages.probability')}>
+      <Field label={t('settings.stages.probability')} error={probabilityError ? t('settings.stages.probabilityInvalid') : undefined}>
         {(control) => <>
           <Input placeholder={t('placeholders.probability')}
           {...control}
@@ -123,7 +119,6 @@ function StageForm({ stage, pending, onOpenChange, onSubmit }: Omit<StageDialogP
           aria-invalid={probabilityError || undefined}
           onChange={(event) => setProbability(event.target.value)}
         />
-        {probabilityError && <SharedFieldError>{t('settings.stages.probabilityInvalid')}</SharedFieldError>}
         </>}
       </Field>
       <Field label={t('settings.stages.kind')}>
@@ -133,7 +128,7 @@ function StageForm({ stage, pending, onOpenChange, onSubmit }: Omit<StageDialogP
           value={kind}
           disabled={kindLocked}
           onChange={(event) => setKind(event.target.value as StageKind)}
-          className="h-9 w-full rounded-md border bg-background px-3 text-sm disabled:opacity-60"
+          className="w-full"
         >
           {KINDS.map((value) => (
             <option key={value} value={value}>
@@ -166,15 +161,7 @@ function StageForm({ stage, pending, onOpenChange, onSubmit }: Omit<StageDialogP
         emptyText={tp('rules.noFields')}
         onChange={setExit}
       />
-      <DialogFooter>
-        <Button type="button" variant="outline" onClick={() => onOpenChange(false)} disabled={pending}>
-          {t('actions.cancel')}
-        </Button>
-        <Button type="submit" disabled={pending}>
-          {t('actions.save')}
-        </Button>
-      </DialogFooter>
-    </form>
+    </DialogForm>
   )
 }
 

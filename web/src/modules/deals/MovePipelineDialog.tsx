@@ -1,13 +1,9 @@
+import { DialogForm } from '@/components/ui/dialog-form'
 import { useState } from 'react'
 import { useTranslation } from 'react-i18next'
-import { Button } from '@/components/ui/button'
 import {
   Dialog,
   DialogContent,
-  DialogDescription,
-  DialogFooter,
-  DialogHeader,
-  DialogTitle,
 } from '@/components/ui/dialog'
 import { activePipelines, usePipelines } from '@/modules/pipelines/api'
 import type { Pipeline, StageKind } from '@/modules/pipelines/types'
@@ -50,21 +46,21 @@ function MovePipelineForm({ deal, pending, onOpenChange, onConfirm }: Omit<MoveP
   const stage = stages.find((item) => item.id === stageId)
 
   return (
-    <form
-      className="grid gap-4"
+    <DialogForm
       onSubmit={(event) => {
         event.preventDefault()
         if (pipeline && stage) {
           onConfirm({ pipelineId: pipeline.id, stageId: stage.id, stageKind: stage.kind, stageName: stage.name })
         }
       }}
+      title={t('move.title')}
+      description={<>{deal ? t('move.descriptionFor', { title: deal.title }) : t('move.description')}</>}
+      cancelLabel={t('actions.cancel')}
+      submitLabel={t('move.confirm')}
+      onCancel={() => onOpenChange(false)}
+      pending={pending}
+      submitDisabled={pending || !pipeline || !stage}
     >
-      <DialogHeader>
-        <DialogTitle>{t('move.title')}</DialogTitle>
-        <DialogDescription>
-          {deal ? t('move.descriptionFor', { title: deal.title }) : t('move.description')}
-        </DialogDescription>
-      </DialogHeader>
       {targets.length === 0 ? (
         <p className="text-sm text-muted-foreground">{t('move.noTargets')}</p>
       ) : (
@@ -78,7 +74,7 @@ function MovePipelineForm({ deal, pending, onOpenChange, onConfirm }: Omit<MoveP
                 setPipelineId(event.target.value)
                 setStageId(defaultStageId(next, stageKindOf(deal)))
               }}
-              className="h-9 w-full rounded-md border bg-background px-3 text-sm"
+              className="w-full"
             >
               {targets.map((item) => (
                 <option key={item.id} value={item.id}>
@@ -92,7 +88,7 @@ function MovePipelineForm({ deal, pending, onOpenChange, onConfirm }: Omit<MoveP
               {...control}
               value={stageId}
               onChange={(event) => setStageId(event.target.value)}
-              className="h-9 w-full rounded-md border bg-background px-3 text-sm"
+              className="w-full"
             >
               {stages.map((item) => (
                 <option key={item.id} value={item.id}>
@@ -103,15 +99,7 @@ function MovePipelineForm({ deal, pending, onOpenChange, onConfirm }: Omit<MoveP
           </Field>
         </>
       )}
-      <DialogFooter>
-        <Button type="button" variant="outline" onClick={() => onOpenChange(false)} disabled={pending}>
-          {t('actions.cancel')}
-        </Button>
-        <Button type="submit" disabled={pending || !pipeline || !stage}>
-          {t('move.confirm')}
-        </Button>
-      </DialogFooter>
-    </form>
+    </DialogForm>
   )
 }
 

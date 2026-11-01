@@ -1,3 +1,4 @@
+import { DialogForm } from '@/components/ui/dialog-form'
 import { FieldError as SharedFieldError } from '@/components/ui/field-error'
 import { ArrowDown, ArrowUp, Plus, Trash2 } from 'lucide-react'
 import { useId, useState, type ReactNode } from 'react'
@@ -8,10 +9,6 @@ import { Checkbox } from '@/components/ui/checkbox'
 import {
   Dialog,
   DialogContent,
-  DialogDescription,
-  DialogFooter,
-  DialogHeader,
-  DialogTitle,
 } from '@/components/ui/dialog'
 import { Input } from '@/components/ui/input'
 import { Textarea } from '@/components/ui/textarea'
@@ -157,18 +154,20 @@ function ScoringModelForm({ model, hasPrimary, onOpenChange, onSaved }: FormProp
   )
 
   return (
-    <form
-      className="grid min-w-0 gap-4"
+    <DialogForm
+      className="min-w-0"
       noValidate
       onSubmit={(event) => {
         event.preventDefault()
         void submit()
       }}
+      title={creating ? t('dialog.newTitle') : t('dialog.editTitle')}
+      description={t('dialog.description')}
+      cancelLabel={t('dialog.cancel')}
+      submitLabel={saving ? t('dialog.saving') : t('dialog.save')}
+      onCancel={() => onOpenChange(false)}
+      submitDisabled={saving}
     >
-      <DialogHeader>
-        <DialogTitle>{creating ? t('dialog.newTitle') : t('dialog.editTitle')}</DialogTitle>
-        <DialogDescription>{t('dialog.description')}</DialogDescription>
-      </DialogHeader>
 
       <div className="grid min-w-0 gap-4 sm:grid-cols-2">
         <Field label={t('dialog.name')} className="min-w-0 content-start">
@@ -331,22 +330,14 @@ function ScoringModelForm({ model, hasPrimary, onOpenChange, onSaved }: FormProp
         <div className="grid gap-1" role="alert">
           {generalError && <SharedFieldError>{generalError}</SharedFieldError>}
           {otherErrors.map(([field, message]) => (
-            <p key={field} className="text-sm break-words text-destructive">
+            <SharedFieldError key={field} className="break-words">
               {errorText(message)}
-            </p>
+            </SharedFieldError>
           ))}
         </div>
       )}
 
-      <DialogFooter>
-        <Button type="button" variant="outline" onClick={() => onOpenChange(false)}>
-          {t('dialog.cancel')}
-        </Button>
-        <Button type="submit" disabled={saving}>
-          {saving ? t('dialog.saving') : t('dialog.save')}
-        </Button>
-      </DialogFooter>
-    </form>
+    </DialogForm>
   )
 }
 

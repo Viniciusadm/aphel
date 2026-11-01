@@ -1,14 +1,10 @@
+import { DialogForm } from '@/components/ui/dialog-form'
 import { FieldError as SharedFieldError } from '@/components/ui/field-error'
 import { useId, useState } from 'react'
 import { useTranslation } from 'react-i18next'
-import { Button } from '@/components/ui/button'
 import {
   Dialog,
   DialogContent,
-  DialogDescription,
-  DialogFooter,
-  DialogHeader,
-  DialogTitle,
 } from '@/components/ui/dialog'
 import { Textarea } from '@/components/ui/textarea'
 import { toast } from '@/components/ui/toast-store'
@@ -69,17 +65,21 @@ function DecisionForm({ request, action, onOpenChange, onDone }: DecisionFormPro
   }
 
   return (
-    <form
+    <DialogForm
+      submitVariant={action === 'approve' ? 'default' : 'destructive'}
       className="grid gap-4"
       onSubmit={(event) => {
         event.preventDefault()
         void submit()
       }}
+      title={<>{t(`decision.${action}.title`)}</>}
+      description={<>{t(`decision.${action}.description`, { name: request.policy_name })}</>}
+      cancelLabel={t('actions.close')}
+      submitLabel={<>{t(`decision.${action}.confirm`)}</>}
+      onCancel={() => onOpenChange(false)}
+      pending={decision.isPending}
+      submitDisabled={decision.isPending}
     >
-      <DialogHeader>
-        <DialogTitle>{t(`decision.${action}.title`)}</DialogTitle>
-        <DialogDescription>{t(`decision.${action}.description`, { name: request.policy_name })}</DialogDescription>
-      </DialogHeader>
       <Field label={required ? t('decision.commentRequired') : t('decision.comment')}>
         {(control) => <>
           <Textarea placeholder={t('placeholders.comment')}
@@ -101,14 +101,6 @@ function DecisionForm({ request, action, onOpenChange, onDone }: DecisionFormPro
         )}
         </>}
       </Field>
-      <DialogFooter>
-        <Button type="button" variant="outline" onClick={() => onOpenChange(false)} disabled={decision.isPending}>
-          {t('actions.close')}
-        </Button>
-        <Button type="submit" variant={action === 'approve' ? 'default' : 'destructive'} disabled={decision.isPending}>
-          {t(`decision.${action}.confirm`)}
-        </Button>
-      </DialogFooter>
-    </form>
+    </DialogForm>
   )
 }

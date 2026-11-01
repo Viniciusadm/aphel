@@ -1,15 +1,11 @@
+import { DialogForm } from '@/components/ui/dialog-form'
 import { FieldError as SharedFieldError } from '@/components/ui/field-error'
 import { useId, useState, type FormEvent } from 'react'
 import { useTranslation } from 'react-i18next'
 import { notifySuccess } from '@/components/feedback'
-import { Button } from '@/components/ui/button'
 import {
   Dialog,
   DialogContent,
-  DialogDescription,
-  DialogFooter,
-  DialogHeader,
-  DialogTitle,
 } from '@/components/ui/dialog'
 import { Input } from '@/components/ui/input'
 import { NativeSelect } from '@/features/records/filters/NativeSelect'
@@ -96,11 +92,17 @@ export function PolicyFormDialog({ policy, onClose }: PolicyFormDialogProps) {
   return (
     <Dialog open onOpenChange={(open) => !open && !pending && onClose()}>
       <DialogContent>
-        <DialogHeader>
-          <DialogTitle>{t(policy ? 'policyForm.editTitle' : 'policyForm.createTitle')}</DialogTitle>
-          <DialogDescription>{t('policyForm.description')}</DialogDescription>
-        </DialogHeader>
-        <form className="grid gap-4" onSubmit={submit} noValidate>
+        <DialogForm
+          onSubmit={submit}
+          noValidate
+          title={t(policy ? 'policyForm.editTitle' : 'policyForm.createTitle')}
+          description={t('policyForm.description')}
+          cancelLabel={t('actions.cancel')}
+          submitLabel={pending ? t('actions.saving') : t('actions.save')}
+          onCancel={onClose}
+          pending={pending}
+          submitDisabled={pending}
+        >
           {error && (
             <SharedFieldError id={ids.error}>
               {error}
@@ -166,15 +168,7 @@ export function PolicyFormDialog({ policy, onClose }: PolicyFormDialogProps) {
             </p>
             </>}
           </Field>
-          <DialogFooter>
-            <Button type="button" variant="outline" onClick={onClose} disabled={pending}>
-              {t('actions.cancel')}
-            </Button>
-            <Button type="submit" disabled={pending} aria-busy={pending}>
-              {pending ? t('actions.saving') : t('actions.save')}
-            </Button>
-          </DialogFooter>
-        </form>
+        </DialogForm>
       </DialogContent>
     </Dialog>
   )

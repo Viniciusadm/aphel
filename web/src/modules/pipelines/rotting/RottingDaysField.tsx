@@ -1,5 +1,3 @@
-import { FieldError as SharedFieldError } from '@/components/ui/field-error'
-import { useId } from 'react'
 import { useTranslation } from 'react-i18next'
 import { Input } from '@/components/ui/input'
 import { MAX_ROTTING_DAYS } from './lib'
@@ -14,29 +12,10 @@ export interface RottingDaysFieldProps {
 
 export function RottingDaysField({ value, invalid, disabled, onChange }: RottingDaysFieldProps) {
   const { t } = useTranslation('pipelines', { keyPrefix: 'rotting' })
-  const descriptionId = useId()
 
   return (
-    <Field label={t('stage.label')}>
-      {(control) => <>
-        <Input placeholder={t('placeholders.days')}
-        {...control}
-        type="number"
-        min={1}
-        max={MAX_ROTTING_DAYS}
-        step={1}
-        inputMode="numeric"
-        value={value}
-        disabled={disabled}
-        aria-invalid={invalid || undefined}
-        aria-describedby={descriptionId}
-        onChange={(event) => onChange(event.target.value)}
-      />
-      <p id={descriptionId} className="text-xs text-muted-foreground">
-        {disabled ? t('stage.openOnly') : t('stage.description')}
-      </p>
-      {invalid && <SharedFieldError>{t('stage.invalid')}</SharedFieldError>}
-      </>}
+    <Field label={t('stage.label')} description={disabled ? t('stage.openOnly') : t('stage.description')} error={invalid ? t('stage.invalid') : undefined}>
+      {(control) => <Input {...control} placeholder={t('placeholders.days')} type="number" min={1} max={MAX_ROTTING_DAYS} step={1} inputMode="numeric" value={value} disabled={disabled} onChange={(event) => onChange(event.target.value)} />}
     </Field>
   )
 }

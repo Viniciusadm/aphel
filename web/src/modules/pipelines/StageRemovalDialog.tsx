@@ -1,14 +1,10 @@
+import { DialogForm } from '@/components/ui/dialog-form'
 import { FieldError as SharedFieldError } from '@/components/ui/field-error'
 import { useState } from 'react'
 import { useTranslation } from 'react-i18next'
-import { Button } from '@/components/ui/button'
 import {
   Dialog,
   DialogContent,
-  DialogDescription,
-  DialogFooter,
-  DialogHeader,
-  DialogTitle,
 } from '@/components/ui/dialog'
 import type { PipelineStage } from './types'
 import { NativeSelect } from '@/components/ui/native-select'
@@ -45,20 +41,22 @@ function RemovalForm({
   const blocked = needsTarget && targets.length === 0
 
   return (
-    <form
+    <DialogForm
+      submitVariant="destructive"
       className="grid gap-4"
       onSubmit={(event) => {
         event.preventDefault()
         if (blocked) return
         onConfirm(needsTarget ? target : undefined)
       }}
+      title={<>{t(`settings.removal.${mode}Title`, { name: stage.name })}</>}
+      description={<>{needsTarget ? t('settings.removal.withDeals', { count: deals }) : t(`settings.removal.${mode}Description`)}</>}
+      cancelLabel={t('actions.cancel')}
+      submitLabel={<>{t(`settings.removal.${mode}Confirm`)}</>}
+      onCancel={() => onOpenChange(false)}
+      pending={pending}
+      submitDisabled={pending || blocked}
     >
-      <DialogHeader>
-        <DialogTitle>{t(`settings.removal.${mode}Title`, { name: stage.name })}</DialogTitle>
-        <DialogDescription>
-          {needsTarget ? t('settings.removal.withDeals', { count: deals }) : t(`settings.removal.${mode}Description`)}
-        </DialogDescription>
-      </DialogHeader>
       {needsTarget &&
         (blocked ? (
           <SharedFieldError>
@@ -70,7 +68,7 @@ function RemovalForm({
               {...control}
               value={target}
               onChange={(event) => setTarget(event.target.value)}
-              className="h-9 w-full rounded-md border bg-background px-3 text-sm"
+              className="w-full"
             >
               {targets.map((candidate) => (
                 <option key={candidate.id} value={candidate.id}>
@@ -80,15 +78,7 @@ function RemovalForm({
             </NativeSelect>}
           </Field>
         ))}
-      <DialogFooter>
-        <Button type="button" variant="outline" onClick={() => onOpenChange(false)} disabled={pending}>
-          {t('actions.cancel')}
-        </Button>
-        <Button type="submit" variant="destructive" disabled={pending || blocked}>
-          {t(`settings.removal.${mode}Confirm`)}
-        </Button>
-      </DialogFooter>
-    </form>
+    </DialogForm>
   )
 }
 

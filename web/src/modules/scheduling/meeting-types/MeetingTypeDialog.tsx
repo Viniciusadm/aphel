@@ -1,18 +1,14 @@
+import { DialogForm } from '@/components/ui/dialog-form'
 import { NativeSelect } from '@/components/ui/native-select'
 import { zodResolver } from '@hookform/resolvers/zod'
 import { Controller, useForm, useWatch, type Control } from 'react-hook-form'
 import { useTranslation } from 'react-i18next'
 import { isApiError } from '@/api'
 import { notifySuccess } from '@/components/feedback'
-import { Button } from '@/components/ui/button'
 import { Checkbox } from '@/components/ui/checkbox'
 import {
   Dialog,
   DialogContent,
-  DialogDescription,
-  DialogFooter,
-  DialogHeader,
-  DialogTitle,
 } from '@/components/ui/dialog'
 import { Input } from '@/components/ui/input'
 import { Textarea } from '@/components/ui/textarea'
@@ -110,11 +106,17 @@ export function MeetingTypeDialog({ meetingType, onClose }: MeetingTypeDialogPro
   return (
     <Dialog open onOpenChange={(open) => !open && onClose()}>
       <DialogContent size="xl">
-        <DialogHeader>
-          <DialogTitle>{t(meetingType ? 'meetingTypes.form.editTitle' : 'meetingTypes.form.createTitle')}</DialogTitle>
-          <DialogDescription>{t('meetingTypes.form.description')}</DialogDescription>
-        </DialogHeader>
-        <form className="grid gap-5" onSubmit={onSubmit} noValidate>
+        <DialogForm
+          onSubmit={onSubmit}
+          noValidate
+          title={t(meetingType ? 'meetingTypes.form.editTitle' : 'meetingTypes.form.createTitle')}
+          description={t('meetingTypes.form.description')}
+          cancelLabel={t('actions.cancel')}
+          submitLabel={isSubmitting ? t('actions.saving') : t('actions.save')}
+          onCancel={onClose}
+          pending={isSubmitting}
+          submitDisabled={isSubmitting}
+        >
           <FieldMessage message={errors.root?.server?.message} />
           <Field label={t('meetingTypes.form.name')}>
             {(fieldControl) => <>
@@ -223,15 +225,7 @@ export function MeetingTypeDialog({ meetingType, onClose }: MeetingTypeDialogPro
           </div>
           <TeamLinkSection control={control} />
           <QuestionsEditor control={control} register={register} errors={errors} />
-          <DialogFooter>
-            <Button type="button" variant="outline" onClick={onClose} disabled={isSubmitting}>
-              {t('actions.cancel')}
-            </Button>
-            <Button type="submit" disabled={isSubmitting}>
-              {isSubmitting ? t('actions.saving') : t('actions.save')}
-            </Button>
-          </DialogFooter>
-        </form>
+        </DialogForm>
       </DialogContent>
     </Dialog>
   )

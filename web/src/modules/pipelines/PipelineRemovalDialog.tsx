@@ -1,14 +1,10 @@
+import { DialogForm } from '@/components/ui/dialog-form'
 import { FieldError as SharedFieldError } from '@/components/ui/field-error'
 import { useId, useState } from 'react'
 import { useTranslation } from 'react-i18next'
-import { Button } from '@/components/ui/button'
 import {
   Dialog,
   DialogContent,
-  DialogDescription,
-  DialogFooter,
-  DialogHeader,
-  DialogTitle,
 } from '@/components/ui/dialog'
 import type { PipelineRemovalBody } from './api'
 import type { Pipeline } from './types'
@@ -43,7 +39,8 @@ function RemovalForm({
   const blocked = deals > 0 && (!target || unmapped.length > 0)
 
   return (
-    <form
+    <DialogForm
+      submitVariant="destructive"
       className="grid gap-4"
       onSubmit={(event) => {
         event.preventDefault()
@@ -54,13 +51,14 @@ function RemovalForm({
             : { target_pipeline_id: targetId || undefined },
         )
       }}
+      title={<>{t('remove.title', { name: pipeline.name })}</>}
+      description={<>{deals > 0 ? t('remove.withDeals', { count: deals }) : t('remove.description')}</>}
+      cancelLabel={t('actions.cancel')}
+      submitLabel={t('remove.confirm')}
+      onCancel={() => onOpenChange(false)}
+      pending={pending}
+      submitDisabled={pending || blocked}
     >
-      <DialogHeader>
-        <DialogTitle>{t('remove.title', { name: pipeline.name })}</DialogTitle>
-        <DialogDescription>
-          {deals > 0 ? t('remove.withDeals', { count: deals }) : t('remove.description')}
-        </DialogDescription>
-      </DialogHeader>
       {deals > 0 &&
         (targets.length === 0 ? (
           <SharedFieldError>
@@ -77,7 +75,7 @@ function RemovalForm({
                   setTargetId(event.target.value)
                   setMapping(defaultMapping(pipeline, next))
                 }}
-                className="h-9 w-full rounded-md border bg-background px-3 text-sm"
+                className="w-full"
               >
                 {targets.map((item) => (
                   <option key={item.id} value={item.id}>
@@ -102,7 +100,7 @@ function RemovalForm({
                       id={id}
                       value={mapping[stage.id] ?? ''}
                       onChange={(event) => setMapping((current) => ({ ...current, [stage.id]: event.target.value }))}
-                      className="h-9 w-full rounded-md border bg-background px-3 text-sm"
+                      className="w-full"
                     >
                       {options.length === 0 && <option value="">{t('remove.noCompatible')}</option>}
                       {options.map((option) => (
@@ -117,15 +115,7 @@ function RemovalForm({
             </fieldset>
           </>
         ))}
-      <DialogFooter>
-        <Button type="button" variant="outline" onClick={() => onOpenChange(false)} disabled={pending}>
-          {t('actions.cancel')}
-        </Button>
-        <Button type="submit" variant="destructive" disabled={pending || blocked}>
-          {t('remove.confirm')}
-        </Button>
-      </DialogFooter>
-    </form>
+    </DialogForm>
   )
 }
 

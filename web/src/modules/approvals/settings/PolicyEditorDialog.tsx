@@ -1,15 +1,11 @@
+import { DialogForm } from '@/components/ui/dialog-form'
 import { FieldError as SharedFieldError } from '@/components/ui/field-error'
 import { useMemo, useState } from 'react'
 import { useTranslation } from 'react-i18next'
 import { isApiError } from '@/api'
-import { Button } from '@/components/ui/button'
 import {
   Dialog,
   DialogContent,
-  DialogDescription,
-  DialogFooter,
-  DialogHeader,
-  DialogTitle,
 } from '@/components/ui/dialog'
 import { Input } from '@/components/ui/input'
 import { Skeleton } from '@/components/ui/skeleton'
@@ -190,18 +186,20 @@ function PolicyForm({ policy, pipelineOfStage, onOpenChange }: PolicyFormProps) 
   }
 
   return (
-    <form
-      className="grid gap-5"
+    <DialogForm
       noValidate
       onSubmit={(event) => {
         event.preventDefault()
         void submit()
       }}
+      title={creating ? t('form.createTitle') : t('form.editTitle')}
+      description={t('form.description')}
+      cancelLabel={t('actions.close')}
+      submitLabel={t('form.save')}
+      onCancel={() => onOpenChange(false)}
+      pending={save.isPending}
+      submitDisabled={save.isPending}
     >
-      <DialogHeader>
-        <DialogTitle>{creating ? t('form.createTitle') : t('form.editTitle')}</DialogTitle>
-        <DialogDescription>{t('form.description')}</DialogDescription>
-      </DialogHeader>
 
       <div className="grid gap-3 sm:grid-cols-2">
         <Field label={t('form.name')}>
@@ -425,14 +423,6 @@ function PolicyForm({ policy, pipelineOfStage, onOpenChange }: PolicyFormProps) 
         </ul>
       )}
 
-      <DialogFooter>
-        <Button type="button" variant="outline" onClick={() => onOpenChange(false)} disabled={save.isPending}>
-          {t('actions.close')}
-        </Button>
-        <Button type="submit" disabled={save.isPending}>
-          {t('form.save')}
-        </Button>
-      </DialogFooter>
-    </form>
+    </DialogForm>
   )
 }

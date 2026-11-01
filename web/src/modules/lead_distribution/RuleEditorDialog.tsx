@@ -1,3 +1,4 @@
+import { DialogForm } from '@/components/ui/dialog-form'
 import { NativeSelect } from '@/components/ui/native-select'
 import { FieldError as SharedFieldError } from '@/components/ui/field-error'
 import { zodResolver } from '@hookform/resolvers/zod'
@@ -12,10 +13,6 @@ import { Checkbox } from '@/components/ui/checkbox'
 import {
   Dialog,
   DialogContent,
-  DialogDescription,
-  DialogFooter,
-  DialogHeader,
-  DialogTitle,
 } from '@/components/ui/dialog'
 import { Input } from '@/components/ui/input'
 import { Textarea } from '@/components/ui/textarea'
@@ -418,11 +415,17 @@ export function RuleEditorDialog({ rule, onClose }: RuleEditorDialogProps) {
   return (
     <Dialog open onOpenChange={(open) => !open && onClose()}>
       <DialogContent size="2xl">
-        <DialogHeader>
-          <DialogTitle>{t(rule ? 'editor.editTitle' : 'editor.createTitle')}</DialogTitle>
-          <DialogDescription>{t('editor.description')}</DialogDescription>
-        </DialogHeader>
-        <form className="grid gap-5" onSubmit={onSubmit} noValidate>
+        <DialogForm
+          onSubmit={onSubmit}
+          noValidate
+          title={t(rule ? 'editor.editTitle' : 'editor.createTitle')}
+          description={t('editor.description')}
+          cancelLabel={t('actions.cancel')}
+          submitLabel={isSubmitting ? t('actions.saving') : t('actions.save')}
+          onCancel={onClose}
+          pending={isSubmitting}
+          submitDisabled={isSubmitting}
+        >
           <FieldMessage id="rule-form-error" message={errors.root?.server?.message} />
           <div className="grid gap-4 sm:grid-cols-2">
             <Field label={t('editor.name')}>
@@ -520,15 +523,7 @@ export function RuleEditorDialog({ rule, onClose }: RuleEditorDialogProps) {
               <RoutingEditor control={control} errors={errors} users={users.data ?? []} recordType={recordType} />
             )}
           </section>
-          <DialogFooter>
-            <Button type="button" variant="outline" onClick={onClose} disabled={isSubmitting}>
-              {t('actions.cancel')}
-            </Button>
-            <Button type="submit" disabled={isSubmitting}>
-              {isSubmitting ? t('actions.saving') : t('actions.save')}
-            </Button>
-          </DialogFooter>
-        </form>
+        </DialogForm>
       </DialogContent>
     </Dialog>
   )

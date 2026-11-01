@@ -1,14 +1,10 @@
+import { DialogForm } from '@/components/ui/dialog-form'
 import { useId, useState, type FormEvent } from 'react'
 import { useTranslation } from 'react-i18next'
 import { notifySuccess } from '@/components/feedback'
-import { Button } from '@/components/ui/button'
 import {
   Dialog,
   DialogContent,
-  DialogDescription,
-  DialogFooter,
-  DialogHeader,
-  DialogTitle,
 } from '@/components/ui/dialog'
 import { Input } from '@/components/ui/input'
 import { DEFAULT_DUE_DAYS, REQUEST_KINDS, useRequestMutations, type RequestKind } from './api'
@@ -54,11 +50,16 @@ export function CreateRequestDialog({ term, selection, onClose, onCreated }: Cre
   return (
     <Dialog open onOpenChange={(open) => !open && !create.isPending && onClose()}>
       <DialogContent>
-        <DialogHeader>
-          <DialogTitle>{t('create.title')}</DialogTitle>
-          <DialogDescription>{t('create.description', { count })}</DialogDescription>
-        </DialogHeader>
-        <form className="grid gap-4" onSubmit={submit}>
+        <DialogForm
+          onSubmit={submit}
+          title={t('create.title')}
+          description={<>{t('create.description', { count })}</>}
+          cancelLabel={t('actions.cancel')}
+          submitLabel={create.isPending ? t('actions.saving') : t('create.submit')}
+          onCancel={onClose}
+          pending={create.isPending}
+          submitDisabled={create.isPending || count === 0}
+        >
           <fieldset className="grid gap-2">
             <legend className="mb-2 text-sm font-medium">{t('create.kind')}</legend>
             {REQUEST_KINDS.map((value) => (
@@ -97,15 +98,7 @@ export function CreateRequestDialog({ term, selection, onClose, onCreated }: Cre
             </>}
           </Field>
           <p className="rounded-md border bg-muted/40 px-3 py-2 text-xs text-muted-foreground">{t('create.notice')}</p>
-          <DialogFooter>
-            <Button type="button" variant="outline" onClick={onClose} disabled={create.isPending}>
-              {t('actions.cancel')}
-            </Button>
-            <Button type="submit" disabled={create.isPending || count === 0} aria-busy={create.isPending}>
-              {create.isPending ? t('actions.saving') : t('create.submit')}
-            </Button>
-          </DialogFooter>
-        </form>
+        </DialogForm>
       </DialogContent>
     </Dialog>
   )
