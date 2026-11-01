@@ -19,9 +19,11 @@ export function SettingsAreaLayout({ area }: SettingsAreaLayoutProps) {
   const hasItems = groups.length > 0
   const hasContent = hasItems || (area.key === 'organization' && otherAreas.length > 0)
 
+  if (!isOverview && hasContent) return <Outlet />
+
   return (
     <Page>
-      {isOverview && (
+      {(isOverview || !hasContent) && (
         <PageHeader title={t(area.titleKey)} description={t(area.descriptionKey)} />
       )}
       {hasContent ? <Outlet /> : <NoAccess />}

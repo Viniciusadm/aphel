@@ -59,10 +59,10 @@ export function SettingsNav({ area, returnPath, collapsed = false, onNavigate }:
       </NavLink>,
     )
 
-  const backLabel = tl('sidebar.backToApp')
   const areaPath = area.basePath.replace(/\/$/, '')
   const isAreaRoot = location.pathname.replace(/\/$/, '') === areaPath
   const backPath = isAreaRoot ? returnPath : area.basePath
+  const backLabel = isAreaRoot ? tl('sidebar.backToApp') : t(area.titleKey)
 
   return (
     <div className="flex flex-col gap-4 px-2">
