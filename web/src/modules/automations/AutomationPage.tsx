@@ -1,5 +1,9 @@
+import { Page } from '@/components/ui/page'
+import { PageHeader } from '@/components/ui/page-header'
+import { Field } from '@/components/ui/field'
+import { FieldError as SharedFieldError } from '@/components/ui/field-error'
 import { useMutation } from '@tanstack/react-query'
-import { AlertTriangle, ArrowLeft, MoreHorizontal, Pause, Play, Rocket, Save, Trash2 } from 'lucide-react'
+import { AlertTriangle, MoreHorizontal, Pause, Play, Rocket, Save, Trash2 } from 'lucide-react'
 import { useMemo, useState } from 'react'
 import { useTranslation } from 'react-i18next'
 import { Link, useNavigate, useParams } from 'react-router'
@@ -282,42 +286,13 @@ function AutomationWorkspace({ initial, catalog }: { initial: Automation; catalo
         : ''
 
   return (
-    <div className="flex w-full flex-col gap-4">
-      <UnsavedChangesGuard when={dirty} />
-      <div className="grid gap-3">
-        <Link to={AUTOMATIONS_PATH} className="inline-flex w-fit items-center gap-1 text-sm text-muted-foreground hover:text-foreground">
-          <ArrowLeft className="size-4" aria-hidden="true" />
-          {t('editor.back')}
-        </Link>
-        <div className="flex flex-wrap items-start justify-between gap-3">
-          <div className="grid min-w-0 flex-1 gap-2">
-            <div className="flex min-w-0 flex-wrap items-center gap-2">
-              <Input placeholder={t('placeholders.name')}
-                value={draft.name}
-                onChange={(event) => setDraft((current) => ({ ...current, name: event.target.value }))}
-                aria-label={t('editor.name')}
-                maxLength={120}
-                className="h-10 w-full min-w-0 text-lg font-semibold sm:max-w-md sm:flex-1"
-              />
-              <AutomationStatusBadge status={automation.status} />
-              <span className="text-xs text-muted-foreground">
-                {automation.version > 0 ? t('page.version', { version: automation.version }) : t('editor.neverPublished')}
-              </span>
-              {dirty && <span className="text-xs font-medium text-warning">{t('editor.unsaved')}</span>}
-            </div>
-            <Input
-              value={draft.description}
-              onChange={(event) => setDraft((current) => ({ ...current, description: event.target.value }))}
-              aria-label={t('editor.description')}
-              placeholder={t('editor.descriptionPlaceholder')}
-              maxLength={1000}
-              className="max-w-2xl"
-            />
-            <p className="text-xs text-muted-foreground">
-              {t('editor.recordType', { type: labels.recordTypeLabel(recordType) })} · <code>{automation.key}</code>
-            </p>
-          </div>
-          <div className="flex flex-wrap gap-2">
+    <Page>
+      <PageHeader title={draft.name || t('placeholders.name')} back={{ to: AUTOMATIONS_PATH, label: t('editor.back') }} badges={<>
+        <AutomationStatusBadge status={automation.status} />
+        <span className="text-xs text-muted-foreground">{automation.version > 0 ? t('page.version', { version: automation.version }) : t('editor.neverPublished')}</span>
+        {dirty && <span className="text-xs font-medium text-warning">{t('editor.unsaved')}</span>}
+      </>} description={<p>{t('editor.recordType', { type: labels.recordTypeLabel(recordType) })} · <code>{automation.key}</code></p>} actions={<>
+
             <Button type="button" variant="outline" disabled={!dirty || busy} onClick={() => save.mutate()}>
               <Save aria-hidden="true" />
               {save.isPending ? t('editor.saving') : t('editor.save')}
@@ -345,14 +320,21 @@ function AutomationWorkspace({ initial, catalog }: { initial: Automation; catalo
                 </DropdownMenuItem>
               </DropdownMenuContent>
             </DropdownMenu>
-          </div>
-        </div>
+                </>} />
+      <UnsavedChangesGuard when={dirty} />
+      <div className="grid gap-3">
+        <Field label={t('editor.name')}>
+          {(control) => <Input {...control} placeholder={t('placeholders.name')} value={draft.name} onChange={(event) => setDraft((current) => ({ ...current, name: event.target.value }))} maxLength={120} className="max-w-md" />}
+        </Field>
+        <Field label={t('editor.description')}>
+          {(control) => <Input {...control} placeholder={t('editor.descriptionPlaceholder')} value={draft.description} onChange={(event) => setDraft((current) => ({ ...current, description: event.target.value }))} maxLength={1000} className="max-w-2xl" />}
+        </Field>
         {totalIssues > 0 && (
           <Alert className="grid gap-2">
-            <p className="flex items-center gap-2 text-sm font-medium text-destructive">
+            <SharedFieldError className="flex items-center gap-2 font-medium">
               <AlertTriangle className="size-4" aria-hidden="true" />
               {t('editor.issues', { count: totalIssues })}
-            </p>
+            </SharedFieldError>
             <IssueList issues={generalIssues} showPath />
           </Alert>
         )}
@@ -481,6 +463,6 @@ function AutomationWorkspace({ initial, catalog }: { initial: Automation; catalo
         confirmLabel={t('editor.reload')}
         onConfirm={reload}
       />
-    </div>
+    </Page>
   )
 }

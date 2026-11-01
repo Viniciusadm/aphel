@@ -1,6 +1,7 @@
+import { PageHeader } from '@/components/ui/page-header'
 import { FieldError as SharedFieldError } from '@/components/ui/field-error'
 import { useQueryClient } from '@tanstack/react-query'
-import { ArrowLeft, Download, LayoutDashboard, Save, Trash2 } from 'lucide-react'
+import { Download, LayoutDashboard, Save, Trash2 } from 'lucide-react'
 import { useEffect, useId, useRef, useState } from 'react'
 import { useTranslation } from 'react-i18next'
 import { Link, useNavigate, useParams } from 'react-router'
@@ -261,18 +262,7 @@ function ReportEditor({ report }: { report: Report | null }) {
   return (
     <div className="grid gap-4">
       {guard.dialog}
-      <div className="flex flex-wrap items-center justify-between gap-3">
-        <div className="flex min-w-0 items-center gap-2">
-          <Button asChild variant="ghost" size="icon" aria-label={t('builder.back')}>
-            <Link to="/reports/saved">
-              <ArrowLeft />
-            </Link>
-          </Button>
-          <h2 className="min-w-0 truncate text-lg font-semibold">
-            {report ? report.name : t('builder.newTitle')}
-          </h2>
-        </div>
-        <div className="flex flex-wrap items-center gap-2">
+      <PageHeader level="section" title={report ? report.name : t('builder.newTitle')} back={{ to: '/reports/saved', label: t('builder.back') }} actions={<>
           {report && (
             <DropdownMenu>
               <DropdownMenuTrigger asChild>
@@ -305,8 +295,7 @@ function ReportEditor({ report }: { report: Report | null }) {
               {saving ? t('common.saving') : t('common.save')}
             </Button>
           )}
-        </div>
-      </div>
+              </>} />
       {!editable && <p className="text-sm text-muted-foreground">{t('builder.readOnly')}</p>}
 
       <div className="grid gap-4 lg:grid-cols-[minmax(0,26rem)_minmax(0,1fr)] lg:items-start">

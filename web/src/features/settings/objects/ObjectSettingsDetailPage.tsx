@@ -1,4 +1,6 @@
-import { ArrowLeft, ExternalLink, LayoutTemplate, ListChecks, Pencil, ShieldCheck, Trash2 } from 'lucide-react'
+import { Page } from '@/components/ui/page'
+import { PageHeader } from '@/components/ui/page-header'
+import { ExternalLink, LayoutTemplate, ListChecks, Pencil, ShieldCheck, Trash2 } from 'lucide-react'
 import { useState, type ReactNode } from 'react'
 import { useTranslation } from 'react-i18next'
 import { Link, useNavigate, useParams } from 'react-router'
@@ -64,36 +66,16 @@ function ObjectSettingsContent({ object }: { object: CustomObjectAdmin }) {
   const recordType = object.record_type
 
   return (
-    <div className="grid min-w-0 gap-6">
-      <div className="grid gap-3">
-        <Button variant="ghost" size="sm" className="justify-self-start" asChild>
-          <Link to="/settings/objects">
-            <ArrowLeft aria-hidden="true" />
-            {t('detailSettings.back')}
-          </Link>
-        </Button>
-        <div className="flex flex-wrap items-start justify-between gap-3">
-          <div className="flex min-w-0 items-start gap-3">
-            <span
-              className="flex size-10 shrink-0 items-center justify-center rounded-md border bg-card"
-              style={{ color: objectColor(object.color) }}
-            >
-              <ObjectIcon icon={object.icon} className="size-5" aria-hidden />
-            </span>
-            <div className="grid min-w-0 gap-1">
-              <div className="flex flex-wrap items-center gap-2">
-                <h2 className="truncate text-lg font-semibold">{object.label_plural}</h2>
-                {!object.is_active && <Badge variant="secondary">{t('settings.inactive')}</Badge>}
-              </div>
-              <p className="text-xs text-muted-foreground">
-                <span className="font-mono">{recordType}</span>
-                {' · '}
-                {t('settings.recordCount', { count: object.record_count })}
-              </p>
-              {object.description && <p className="text-sm text-muted-foreground">{object.description}</p>}
-            </div>
-          </div>
-          <div className="flex flex-wrap items-center gap-2">
+    <Page>
+      <PageHeader title={object.label_plural} back={{ to: '/settings/objects', label: t('detailSettings.back') }} icon={
+        <span className="flex size-10 shrink-0 items-center justify-center rounded-md border bg-card" style={{ color: objectColor(object.color) }}>
+          <ObjectIcon icon={object.icon} className="size-5" aria-hidden />
+        </span>
+      } badges={!object.is_active && <Badge variant="secondary">{t('settings.inactive')}</Badge>} description={<>
+        <p><span className="font-mono">{recordType}</span>{' · '}{t('settings.recordCount', { count: object.record_count })}</p>
+        {object.description && <p>{object.description}</p>}
+      </>} actions={<>
+
             {object.is_active && (
               <Button size="sm" variant="outline" asChild>
                 <Link to={customObjectPath(object.key)}>
@@ -114,9 +96,7 @@ function ObjectSettingsContent({ object }: { object: CustomObjectAdmin }) {
               <Trash2 aria-hidden="true" />
               {t('detailSettings.delete')}
             </Button>
-          </div>
-        </div>
-      </div>
+                </>} />
       <div className="grid gap-3 sm:grid-cols-3">
         <LinkCard
           icon={<ListChecks className="size-4" aria-hidden />}
@@ -150,7 +130,7 @@ function ObjectSettingsContent({ object }: { object: CustomObjectAdmin }) {
           if (removal?.step === 'delete') navigate('/settings/objects')
         }}
       />
-    </div>
+    </Page>
   )
 }
 

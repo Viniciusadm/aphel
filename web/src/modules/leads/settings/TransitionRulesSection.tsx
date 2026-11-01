@@ -13,7 +13,7 @@ import { TRANSITION_TRIGGERS } from '../constants'
 import { lifecycleErrorMessage } from '../errors'
 import type { LifecycleSettings, LifecycleStageOption, LifecycleTransitionRule } from '../types'
 import { PageHeader } from '@/components/ui/page-header'
-import { Page } from '@/components/ui/page'
+import { PageSection } from '@/components/ui/page'
 import { Field } from '@/components/ui/field'
 import { ToggleField } from '@/components/ui/toggle-field'
 
@@ -74,7 +74,7 @@ function RulesForm({ settings }: { settings: LifecycleSettings }) {
   }
 
   return (
-    <Page>
+    <PageSection>
       <PageHeader level="section" title={t('settings.rules.title')} description={t('settings.rules.description')} />
       <div className="grid gap-3">
         {draft.rules.map((rule) => (
@@ -108,7 +108,7 @@ function RulesForm({ settings }: { settings: LifecycleSettings }) {
           {t('settings.save')}
         </Button>
       </div>
-    </Page>
+    </PageSection>
   )
 }
 

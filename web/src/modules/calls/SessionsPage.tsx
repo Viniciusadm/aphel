@@ -1,3 +1,4 @@
+import { PageHeader } from '@/components/ui/page-header'
 import { FieldError as SharedFieldError } from '@/components/ui/field-error'
 import { useQuery } from '@tanstack/react-query'
 import { PhoneCall } from 'lucide-react'
@@ -157,7 +158,7 @@ function SessionList() {
   })
   return (
     <section className="grid h-fit gap-3">
-      <h2 className="text-lg font-semibold">{t('sessions.title')}</h2>
+      <PageHeader level="section" title={t('sessions.title')} />
       {sessions.isPending ? (
         <div className="grid gap-2" aria-busy="true">
           <Skeleton className="h-16 w-full" />

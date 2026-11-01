@@ -1,3 +1,4 @@
+import { PageHeader } from '@/components/ui/page-header'
 import { BarChart3, Building2, Plus, Users } from 'lucide-react'
 import { useState } from 'react'
 import { useTranslation } from 'react-i18next'
@@ -25,12 +26,7 @@ export function SavedReportsPage() {
 
   return (
     <div className="grid gap-4">
-      <div className="flex flex-wrap items-end justify-between gap-3">
-        <div className="grid gap-1">
-          <h2 className="text-lg font-semibold">{t('list.title')}</h2>
-          <p className="text-sm text-muted-foreground">{t('list.description')}</p>
-        </div>
-        <div className="flex flex-wrap items-end gap-2">
+      <PageHeader level="section" title={t('list.title')} description={t('list.description')} actions={<>
           <Field label={t('list.filter')}>
             {(fieldControl) => <NativeSelect {...fieldControl} value={recordType} onChange={(event) => setRecordType(event.target.value)}>
               <option value="">{t('list.allModules')}</option>
@@ -49,8 +45,7 @@ export function SavedReportsPage() {
               </Link>
             </Button>
           )}
-        </div>
-      </div>
+              </>} />
       {reports.isPending && (
         <div className="grid gap-3 sm:grid-cols-2 xl:grid-cols-3">
           <Skeleton className="h-28" />

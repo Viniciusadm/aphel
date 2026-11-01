@@ -1,3 +1,5 @@
+import { PageSection } from '@/components/ui/page'
+import { SectionTitle } from '@/components/ui/section-title'
 import { useTranslation } from 'react-i18next'
 import { SettingsLinkCard } from './components/SettingsLinkCard'
 import { SettingsSearchInput } from './components/SettingsSearchInput'
@@ -18,13 +20,13 @@ export function SettingsAreaOverview({ area }: SettingsAreaOverviewProps) {
   const showOtherAreas = !isSearching && area.key === 'organization' && otherAreas.length > 0
 
   return (
-    <div className="flex flex-col gap-8">
+    <PageSection>
       <SettingsSearchInput value={query} onChange={setQuery} className="max-w-md" />
       {showOtherAreas && (
         <section aria-labelledby="settings-other-areas" className="grid gap-3">
-          <h2 id="settings-other-areas" className="text-sm font-semibold text-muted-foreground">
+          <SectionTitle id="settings-other-areas">
             {t('otherAreas')}
-          </h2>
+          </SectionTitle>
           <div className={gridClass}>
             {otherAreas.map((other) => (
               <SettingsLinkCard
@@ -41,9 +43,9 @@ export function SettingsAreaOverview({ area }: SettingsAreaOverviewProps) {
       {isSearching && filteredGroups.length === 0 && <p className="text-sm text-muted-foreground">{t('search.empty')}</p>}
       {filteredGroups.map((group) => (
         <section key={group.key} aria-labelledby={`settings-group-${group.key}`} className="grid gap-3">
-          <h2 id={`settings-group-${group.key}`} className="text-sm font-semibold text-muted-foreground">
+          <SectionTitle id={`settings-group-${group.key}`}>
             {group.label}
-          </h2>
+          </SectionTitle>
           <div className={gridClass}>
             {group.items.map((item) => (
               <SettingsLinkCard
@@ -57,6 +59,6 @@ export function SettingsAreaOverview({ area }: SettingsAreaOverviewProps) {
           </div>
         </section>
       ))}
-    </div>
+    </PageSection>
   )
 }
