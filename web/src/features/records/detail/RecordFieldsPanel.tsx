@@ -60,7 +60,7 @@ export function RecordFieldsPanel({
 
   return (
     <section aria-label={t('fields.label')} className={cn('grid content-start gap-3 rounded-lg border bg-card p-4', className)}>
-      <h2 className="text-sm font-semibold">{title ?? t('fields.title')}</h2>
+      {title !== '' && <h2 className="text-sm font-semibold">{title ?? t('fields.title')}</h2>}
       {empty ? (
         <p className="text-sm text-muted-foreground">{t('fields.empty')}</p>
       ) : (

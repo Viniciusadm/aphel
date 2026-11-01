@@ -19,7 +19,7 @@ export function DialogOverlay({ className, ...props }: ComponentProps<typeof Dia
   )
 }
 
-type DialogSide = 'center' | 'left' | 'right'
+type DialogSide = 'center' | 'left' | 'right' | 'bottom'
 
 export type DialogSize = 'sm' | 'md' | 'lg' | 'xl' | '2xl' | '3xl'
 
@@ -37,12 +37,15 @@ const sideClasses: Record<DialogSide, string> = {
     'top-1/2 left-1/2 max-h-[calc(100dvh-2rem)] w-full max-w-[calc(100%-2rem)] -translate-x-1/2 -translate-y-1/2 rounded-(--dialog-radius) border [--dialog-gap:--spacing(4)] [--dialog-padding:--spacing(6)] sm:max-w-lg',
   left: 'inset-y-0 left-0 h-full w-72 max-w-[85vw] border-r [--dialog-gap:0px] [--dialog-padding:0px]',
   right: 'inset-y-0 right-0 h-full w-72 max-w-[85vw] border-l [--dialog-gap:0px] [--dialog-padding:0px]',
+  bottom:
+    'inset-x-0 bottom-0 max-h-[92dvh] w-full rounded-t-2xl border-t [--dialog-gap:0px] [--dialog-padding:0px]',
 }
 
 const bodySideClasses: Record<DialogSide, string> = {
   center: '*:shrink-0',
   left: '',
   right: '',
+  bottom: '',
 }
 
 export interface DialogContentProps extends ComponentProps<typeof DialogPrimitive.Content> {

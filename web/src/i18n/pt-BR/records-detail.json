@@ -93,5 +93,18 @@
       "module_held_by_extension": "Este módulo está sendo mantido desativado por uma extensão instalada."
     }
   },
-  "pageLoader": "Carregando página…"
+  "pageLoader": "Carregando página…",
+  "mobile": {
+    "actions": "Ações",
+    "allDetails": "Ver todos os detalhes",
+    "back": "Voltar",
+    "sections": "Seções",
+    "groups": {
+      "activity": "Atividade",
+      "relationships": "Relacionamentos",
+      "communication": "Comunicação",
+      "insights": "Análises",
+      "more": "Mais"
+    }
+  }
 }

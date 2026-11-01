@@ -4,7 +4,14 @@ import { cn } from '@/lib/utils'
 
 export interface AvatarProps extends ComponentProps<'span'> {
   name: string
-  size?: 'sm' | 'md'
+  size?: 'sm' | 'md' | 'lg' | 'xl'
+}
+
+const sizeClasses = {
+  sm: 'size-6 text-[0.625rem]',
+  md: 'size-8 text-xs',
+  lg: 'size-12 text-base',
+  xl: 'size-16 text-xl',
 }
 
 export function Avatar({ name, size = 'sm', className, ...props }: AvatarProps) {
@@ -14,7 +21,7 @@ export function Avatar({ name, size = 'sm', className, ...props }: AvatarProps) 
       aria-hidden="true"
       className={cn(
         'inline-flex shrink-0 items-center justify-center rounded-full bg-secondary font-medium text-secondary-foreground',
-        size === 'sm' ? 'size-6 text-[0.625rem]' : 'size-8 text-xs',
+        sizeClasses[size],
         className,
       )}
       {...props}

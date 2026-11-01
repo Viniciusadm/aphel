@@ -103,7 +103,7 @@ export function InlineFieldEditor({ field, value, onSave, readOnly = false, know
   if (!editing) {
     return (
       <div
-        className="group -mx-2 flex min-h-8 min-w-0 cursor-pointer items-center gap-1 rounded-md px-2 hover:bg-muted/60"
+        className="group -mx-2 flex min-h-11 min-w-0 md:min-h-8 cursor-pointer items-center gap-1 rounded-md px-2 hover:bg-muted/60"
         onClick={(event: MouseEvent<HTMLDivElement>) => {
           if (!isInteractiveTarget(event.target)) startEditing()
         }}
@@ -112,7 +112,7 @@ export function InlineFieldEditor({ field, value, onSave, readOnly = false, know
         <Button
           variant="ghost"
           size="icon"
-          className="size-7 shrink-0 opacity-60 group-hover:opacity-100 focus-visible:opacity-100"
+          className="size-9 shrink-0 md:size-7 md:opacity-60 md:group-hover:opacity-100 focus-visible:opacity-100"
           aria-label={t('actions.edit', { field: field.label })}
           onClick={startEditing}
         >
@@ -156,13 +156,14 @@ export function InlineFieldEditor({ field, value, onSave, readOnly = false, know
         <Button
           variant="ghost"
           size="icon"
+          className="size-11 md:size-9"
           aria-label={t('inline.save', { field: field.label })}
           disabled={saving}
           onClick={() => void commit()}
         >
           {saving ? <Loader2 className="animate-spin" /> : <Check />}
         </Button>
-        <Button variant="ghost" size="icon" aria-label={t('inline.cancel')} disabled={saving} onClick={cancel}>
+        <Button variant="ghost" size="icon" className="size-11 md:size-9" aria-label={t('inline.cancel')} disabled={saving} onClick={cancel}>
           <X />
         </Button>
       </div>
