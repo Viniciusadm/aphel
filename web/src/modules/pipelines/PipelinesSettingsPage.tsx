@@ -1,3 +1,5 @@
+import { Page } from '@/components/ui/page'
+import { PageHeader } from '@/components/ui/page-header'
 import { useMutation, useQueryClient } from '@tanstack/react-query'
 import { ArrowDown, ArrowUp, Pencil, Plus, Power, PowerOff, Trash2 } from 'lucide-react'
 import { Fragment, useState, type FormEvent } from 'react'
@@ -449,11 +451,8 @@ export function PipelinesSettingsPage() {
   const pipeline = pipelines.data?.find((item) => item.id === selectedId) ?? defaultPipeline(pipelines.data)
 
   return (
-    <div className="grid gap-6">
-      <div className="grid gap-1">
-        <h2 className="text-lg font-semibold">{t('settings.title')}</h2>
-        <p className="text-sm text-muted-foreground">{t('settings.description')}</p>
-      </div>
+    <Page>
+      <PageHeader title={t('settings.title')} description={t('settings.description')} />
       {pipelines.isPending ? (
         <Skeleton className="h-64 w-full" />
       ) : pipelines.isError || !pipeline ? (
@@ -468,6 +467,6 @@ export function PipelinesSettingsPage() {
         </>
       )}
       <LostReasonsSection />
-    </div>
+    </Page>
   )
 }

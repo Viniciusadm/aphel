@@ -1,5 +1,7 @@
+import { Page } from '@/components/ui/page'
+import { PageHeader } from '@/components/ui/page-header'
 import { FieldError as SharedFieldError } from '@/components/ui/field-error'
-import { ArrowLeft, ArrowLeftRight, GitMerge, SearchX } from 'lucide-react'
+import { ArrowLeftRight, GitMerge, SearchX } from 'lucide-react'
 import { useMemo, useState } from 'react'
 import { useTranslation } from 'react-i18next'
 import { Link, useNavigate, useSearchParams } from 'react-router'
@@ -153,24 +155,13 @@ function MergeForm({ info, resource, schema, primary, duplicate, onSwap }: Merge
   }
 
   return (
-    <section className="grid gap-4">
-      <div className="flex flex-col gap-3 sm:flex-row sm:items-start sm:justify-between">
-        <div className="grid gap-1">
-          <Link
-            to={DUPLICATES_SETTINGS_PATH}
-            className="inline-flex items-center gap-1 text-sm text-muted-foreground hover:text-foreground"
-          >
-            <ArrowLeft aria-hidden="true" className="size-4" />
-            {t('merge.back')}
-          </Link>
-          <h2 className="text-lg font-semibold">{t('merge.title')}</h2>
-          <p className="max-w-3xl text-sm text-muted-foreground">{t('merge.description')}</p>
-        </div>
+    <Page>
+      <PageHeader title={t('merge.title')} description={t('merge.description')} back={{ to: DUPLICATES_SETTINGS_PATH, label: t('merge.back') }} actions={
         <Button size="sm" variant="outline" onClick={onSwap}>
           <ArrowLeftRight aria-hidden="true" />
           {t('merge.swap')}
         </Button>
-      </div>
+      } />
       <div className="grid gap-3 sm:grid-cols-2">
         <SideHeader label={t('merge.primary')} name={primaryName} highlighted />
         <SideHeader label={t('merge.duplicate')} name={duplicateName} />
@@ -201,7 +192,7 @@ function MergeForm({ info, resource, schema, primary, duplicate, onSwap }: Merge
         pending={merge.isPending}
         onConfirm={submit}
       />
-    </section>
+    </Page>
   )
 }
 

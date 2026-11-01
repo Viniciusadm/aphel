@@ -1,4 +1,5 @@
 import type { ReactNode } from 'react'
+import { Page } from '@/components/ui/page'
 import { cn } from '@/lib/utils'
 
 export interface RecordPageShellProps {
@@ -10,7 +11,7 @@ export interface RecordPageShellProps {
 
 export function RecordPageShell({ header, sidebar, children, className }: RecordPageShellProps) {
   return (
-    <div className={cn('grid min-w-0 gap-4 sm:gap-6', className)}>
+    <Page className={className}>
       {header}
       <div
         className={cn(
@@ -21,6 +22,6 @@ export function RecordPageShell({ header, sidebar, children, className }: Record
         {sidebar && <aside className="min-w-0 lg:sticky lg:top-4">{sidebar}</aside>}
         <div className="min-w-0">{children}</div>
       </div>
-    </div>
+    </Page>
   )
 }

@@ -11,7 +11,7 @@ export interface PageHeaderBack {
 }
 
 export interface PageHeaderProps {
-  title: string
+  title: ReactNode
   description?: ReactNode
   actions?: ReactNode
   back?: PageHeaderBack
@@ -42,7 +42,7 @@ export function PageHeader({ title, description, actions, back, badges, icon, le
           <div className="flex flex-wrap items-center gap-2">
             <Heading
               className={cn(
-                'font-semibold tracking-tight [font-family:var(--font-family-heading)]',
+                'min-w-0 break-words font-semibold tracking-tight [font-family:var(--font-family-heading)]',
                 level === 'page' ? 'text-xl' : 'text-lg',
               )}
             >
