@@ -21,7 +21,7 @@ export function DialogOverlay({ className, ...props }: ComponentProps<typeof Dia
 
 type DialogSide = 'center' | 'left' | 'right'
 
-export type DialogSize = 'sm' | 'md' | 'lg' | 'xl' | '2xl'
+export type DialogSize = 'sm' | 'md' | 'lg' | 'xl' | '2xl' | '3xl'
 
 const sizeClasses: Record<DialogSize, string> = {
   sm: 'sm:max-w-md',
@@ -29,6 +29,7 @@ const sizeClasses: Record<DialogSize, string> = {
   lg: 'sm:max-w-xl',
   xl: 'sm:max-w-2xl',
   '2xl': 'sm:max-w-3xl',
+  '3xl': 'sm:max-w-5xl',
 }
 
 const sideClasses: Record<DialogSide, string> = {

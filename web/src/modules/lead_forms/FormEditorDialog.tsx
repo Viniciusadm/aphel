@@ -52,7 +52,7 @@ function serverFieldErrors(error: unknown): ServerFieldError[] {
 export function FormEditorDialog({ open, form, onOpenChange, onSaved }: FormEditorDialogProps) {
   return (
     <Dialog open={open} onOpenChange={onOpenChange}>
-      <DialogContent className="sm:max-w-5xl">
+      <DialogContent size="3xl">
         {open && <EditorBody form={form} onCancel={() => onOpenChange(false)} onSaved={onSaved} />}
       </DialogContent>
     </Dialog>

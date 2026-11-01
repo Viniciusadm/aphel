@@ -17,7 +17,7 @@ All screens, in the core and in plugins, are built from the same primitives expo
 | Shared form dialog structure | `DialogForm` inside `DialogContent` |
 | Client-side search, filters and pagination | `CollectionView` |
 | Standalone public or system title | `PageTitle` |
-| Dialog widths | `DialogContent size="sm|md|lg|xl|2xl"` |
+| Dialog widths | `DialogContent size="sm|md|lg|xl|2xl|3xl"` |
 
 Rules:
 
@@ -48,3 +48,9 @@ Use `DialogForm` inside `DialogContent` for forms with a standard cancel/submit 
 ## Titles and settings
 
 `PageHeader` uses `PageTitle` for page-level headings. Standalone public, authentication and system layouts use the same title primitive. Settings area overviews own their page frame; internal routes render their own frame without a second wrapper from the area layout.
+
+Use `size="3xl"` for a dialog editor with a separate live preview. Ordinary forms retain the smaller standard sizes. Rich record choices with colored option labels retain Radix `Select`; all plain text choices use native selection, including layout tools, theme previews and phone country selection.
+
+Sidebar navigation uses `SidebarLink`, including settings navigation, collapsed icon links and nested group entries. Keep tooltips and route permissions in the application shell. Group controls retain their native button semantics through `asChild`.
+
+Dialogs with no description set `aria-describedby={undefined}` on `DialogContent`. Complex dialogs with an external form footer, an upload flow or extra actions may compose `DialogHeader`, `Field` and `DialogFooter` directly instead of adding variants to `DialogForm`.
