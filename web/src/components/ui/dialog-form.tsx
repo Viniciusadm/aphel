@@ -1,7 +1,7 @@
 import type { ComponentProps, ReactNode } from 'react'
 import { cn } from '@/lib/utils'
 import { Alert } from './alert'
-import { Button } from './button'
+import { Button, type ButtonProps } from './button'
 import { DialogDescription, DialogFooter, DialogHeader, DialogTitle } from './dialog'
 
 export interface DialogFormProps extends Omit<ComponentProps<'form'>, 'title'> {
@@ -10,12 +10,13 @@ export interface DialogFormProps extends Omit<ComponentProps<'form'>, 'title'> {
   error?: ReactNode
   pending?: boolean
   submitDisabled?: boolean
+  submitVariant?: ButtonProps['variant']
   submitLabel: ReactNode
   cancelLabel: ReactNode
   onCancel: () => void
 }
 
-export function DialogForm({ title, description, error, pending, submitDisabled, submitLabel, cancelLabel, onCancel, children, className, onSubmit, ...props }: DialogFormProps) {
+export function DialogForm({ title, description, error, pending, submitDisabled, submitLabel, submitVariant, cancelLabel, onCancel, children, className, onSubmit, ...props }: DialogFormProps) {
   return (
     <form {...props} aria-busy={pending || undefined} className={cn('grid gap-4', className)} onSubmit={(event) => {
       event.preventDefault()
@@ -29,7 +30,7 @@ export function DialogForm({ title, description, error, pending, submitDisabled,
       {children}
       <DialogFooter>
         <Button type="button" variant="outline" disabled={pending} onClick={onCancel}>{cancelLabel}</Button>
-        <Button type="submit" disabled={pending || submitDisabled}>{submitLabel}</Button>
+        <Button type="submit" variant={submitVariant} aria-busy={pending || undefined} disabled={pending || submitDisabled}>{submitLabel}</Button>
       </DialogFooter>
     </form>
   )

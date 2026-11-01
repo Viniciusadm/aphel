@@ -17,11 +17,11 @@ export interface MasterDetailProps {
 
 export function MasterDetail({ items, selected, onSelect, header, detail }: MasterDetailProps) {
   return (
-    <div data-slot="master-detail" className="grid gap-4 md:grid-cols-[16rem_1fr]">
-      <nav className="grid content-start gap-1">
+    <div data-slot="master-detail" className="grid min-w-0 gap-4 md:grid-cols-[16rem_minmax(0,1fr)]">
+      <nav className="grid min-w-0 content-start gap-1">
         {header}
         {items.map((item) => (
-          <div key={item.id} className="flex items-center gap-1">
+          <div key={item.id} className="flex min-w-0 items-center gap-1">
             <Button
               className="min-w-0 flex-1 justify-start"
               size="sm"
@@ -29,7 +29,7 @@ export function MasterDetail({ items, selected, onSelect, header, detail }: Mast
               aria-current={item.id === selected ? 'true' : undefined}
               onClick={() => onSelect(item.id)}
             >
-              {item.label}
+              <span className="min-w-0 truncate">{item.label}</span>
             </Button>
             {item.actions}
           </div>

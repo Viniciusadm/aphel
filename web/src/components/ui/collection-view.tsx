@@ -22,17 +22,18 @@ export function CollectionView<T>({ items, searchLabel, emptyTitle, getSearchTex
   const [page, setPage] = useState(1)
   const [perPage, setPerPage] = useState(25)
   const query = search.trim().toLocaleLowerCase()
-  const filtered = items.filter((item) => (!query || (getSearchText?.(item) ?? '').toLocaleLowerCase().includes(query)) && (!filter || getFilterValue?.(item) === filter))
+  const activeFilter = filters?.some((option) => option.value === filter) ? filter : ''
+  const filtered = items.filter((item) => (!query || (getSearchText?.(item) ?? '').toLocaleLowerCase().includes(query)) && (!activeFilter || getFilterValue?.(item) === activeFilter))
   const currentPage = Math.min(page, Math.max(1, Math.ceil(filtered.length / perPage)))
   return (
     <div className="grid min-w-0 gap-4">
-      <div className="flex flex-wrap items-center gap-2">
+      {(searchLabel || (filters && getFilterValue)) && <div className="flex flex-wrap items-center gap-2">
         {searchLabel && <SearchInput wrapperClassName="min-w-48 flex-1" aria-label={searchLabel} placeholder={searchLabel} value={search} onValueChange={(value) => { setSearch(value); setPage(1) }} />}
-        {filters && getFilterValue && <NativeSelect aria-label={filterLabel} value={filter} onChange={(event) => { setFilter(event.target.value); setPage(1) }}>
+        {filters && getFilterValue && <NativeSelect aria-label={filterLabel} value={activeFilter} onChange={(event) => { setFilter(event.target.value); setPage(1) }}>
           <option value="">{allLabel}</option>
           {filters.map((option) => <option key={option.value} value={option.value}>{option.label}</option>)}
         </NativeSelect>}
-      </div>
+      </div>}
       {filtered.length ? children(filtered.slice((currentPage - 1) * perPage, currentPage * perPage)) : <EmptyState title={emptyTitle} />}
       <Pagination page={currentPage} perPage={perPage} total={filtered.length} onPageChange={setPage} onPerPageChange={(value) => { setPerPage(value); setPage(1) }} />
     </div>
