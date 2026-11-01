@@ -1,3 +1,4 @@
+import { NativeSelect } from '@/components/ui/native-select'
 import { zodResolver } from '@hookform/resolvers/zod'
 import { Controller, useForm, useWatch, type Control } from 'react-hook-form'
 import { useTranslation } from 'react-i18next'
@@ -14,7 +15,6 @@ import {
   DialogTitle,
 } from '@/components/ui/dialog'
 import { Input } from '@/components/ui/input'
-import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/components/ui/select'
 import { Textarea } from '@/components/ui/textarea'
 import { useDistributionRules, useSaveMeetingType } from '../api'
 import { matchServerField, serverFieldViolations } from '../lib/errors'
@@ -53,19 +53,14 @@ function TeamLinkSection({ control }: { control: Control<MeetingTypeFormValues> 
           control={control}
           name="distributionRuleId"
           render={({ field }) => (
-            <Select value={field.value} onValueChange={field.onChange}>
-              <SelectTrigger id={fieldControl.id}>
-                <SelectValue />
-              </SelectTrigger>
-              <SelectContent>
-                <SelectItem value={NO_DISTRIBUTION_RULE}>{t('meetingTypes.form.personalLink')}</SelectItem>
+            <NativeSelect value={field.value} onValueChange={field.onChange} id={fieldControl.id}>
+                <option value={NO_DISTRIBUTION_RULE}>{t('meetingTypes.form.personalLink')}</option>
                 {rules.data?.map((rule) => (
-                  <SelectItem key={rule.id} value={rule.id}>
+                  <option key={rule.id} value={rule.id}>
                     {rule.name}
-                  </SelectItem>
+                  </option>
                 ))}
-              </SelectContent>
-            </Select>
+              </NativeSelect>
           )}
         />}
       </Field>
@@ -180,18 +175,13 @@ export function MeetingTypeDialog({ meetingType, onClose }: MeetingTypeDialogPro
                 control={control}
                 name="locationKind"
                 render={({ field }) => (
-                  <Select value={field.value} onValueChange={field.onChange}>
-                    <SelectTrigger id={fieldControl.id}>
-                      <SelectValue />
-                    </SelectTrigger>
-                    <SelectContent>
+                  <NativeSelect value={field.value} onValueChange={field.onChange} id={fieldControl.id}>
                       {LOCATION_KINDS.map((kind) => (
-                        <SelectItem key={kind} value={kind}>
+                        <option key={kind} value={kind}>
                           {t(`locationKinds.${kind}`)}
-                        </SelectItem>
+                        </option>
                       ))}
-                    </SelectContent>
-                  </Select>
+                    </NativeSelect>
                 )}
               />}
             </Field>

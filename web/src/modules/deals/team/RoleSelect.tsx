@@ -1,5 +1,5 @@
+import { NativeSelect } from '@/components/ui/native-select'
 import { useTranslation } from 'react-i18next'
-import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/components/ui/select'
 import type { DealMemberRole, DealMemberRoleSummary } from './types'
 
 const NO_ROLE = '__none'
@@ -22,22 +22,15 @@ export function RoleSelect({ id, value, roles, current, disabled, onChange, clas
     options.push({ id: current.id, name: current.name })
   }
   return (
-    <Select
-      value={value ?? NO_ROLE}
+    <NativeSelect value={value ?? NO_ROLE}
       disabled={disabled}
-      onValueChange={(next) => onChange(next === NO_ROLE ? null : next)}
-    >
-      <SelectTrigger id={id} aria-label={props['aria-label']} className={className}>
-        <SelectValue />
-      </SelectTrigger>
-      <SelectContent>
-        <SelectItem value={NO_ROLE}>{t('noRole')}</SelectItem>
+      onValueChange={(next) => onChange(next === NO_ROLE ? null : next)} id={id} aria-label={props['aria-label']} className={className}>
+        <option value={NO_ROLE}>{t('noRole')}</option>
         {options.map((option) => (
-          <SelectItem key={option.id} value={option.id}>
+          <option key={option.id} value={option.id}>
             {option.name}
-          </SelectItem>
+          </option>
         ))}
-      </SelectContent>
-    </Select>
+      </NativeSelect>
   )
 }

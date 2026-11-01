@@ -1,3 +1,4 @@
+import { NativeSelect } from '@/components/ui/native-select'
 import { CalendarX2 } from 'lucide-react'
 import { useState } from 'react'
 import { useTranslation } from 'react-i18next'
@@ -7,7 +8,6 @@ import { Button } from '@/components/ui/button'
 import { Checkbox } from '@/components/ui/checkbox'
 import { EmptyState } from '@/components/ui/empty-state'
 import { ErrorState } from '@/components/ui/error-state'
-import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/components/ui/select'
 import { Skeleton } from '@/components/ui/skeleton'
 import { useBookings, useMeetingTypes } from '../api'
 import { formatDateTimeRange } from '../lib/format'
@@ -85,37 +85,23 @@ export function BookingsPanel() {
     <div className="grid gap-4">
       <div className="flex flex-wrap items-end gap-4">
         <Field label={t('bookings.status')} className="w-44">
-          {(fieldControl) => <Select
-            value={filters.status}
-            onValueChange={(value) => update({ status: value as BookingFilters['status'] })}
-          >
-            <SelectTrigger id={fieldControl.id}>
-              <SelectValue />
-            </SelectTrigger>
-            <SelectContent>
-              <SelectItem value={ALL}>{t('bookings.allStatuses')}</SelectItem>
-              <SelectItem value="confirmed">{t('bookingStatus.confirmed')}</SelectItem>
-              <SelectItem value="canceled">{t('bookingStatus.canceled')}</SelectItem>
-            </SelectContent>
-          </Select>}
+          {(fieldControl) => <NativeSelect value={filters.status}
+            onValueChange={(value) => update({ status: value as BookingFilters['status'] })} id={fieldControl.id}>
+              <option value={ALL}>{t('bookings.allStatuses')}</option>
+              <option value="confirmed">{t('bookingStatus.confirmed')}</option>
+              <option value="canceled">{t('bookingStatus.canceled')}</option>
+            </NativeSelect>}
         </Field>
         <Field label={t('bookings.meetingType')} className="w-56">
-          {(fieldControl) => <Select
-            value={filters.meetingTypeId ?? ALL}
-            onValueChange={(value) => update({ meetingTypeId: value === ALL ? null : value })}
-          >
-            <SelectTrigger id={fieldControl.id}>
-              <SelectValue />
-            </SelectTrigger>
-            <SelectContent>
-              <SelectItem value={ALL}>{t('bookings.allMeetingTypes')}</SelectItem>
+          {(fieldControl) => <NativeSelect value={filters.meetingTypeId ?? ALL}
+            onValueChange={(value) => update({ meetingTypeId: value === ALL ? null : value })} id={fieldControl.id}>
+              <option value={ALL}>{t('bookings.allMeetingTypes')}</option>
               {(meetingTypes.data ?? []).map((meetingType) => (
-                <SelectItem key={meetingType.id} value={meetingType.id}>
+                <option key={meetingType.id} value={meetingType.id}>
                   {meetingType.name}
-                </SelectItem>
+                </option>
               ))}
-            </SelectContent>
-          </Select>}
+            </NativeSelect>}
         </Field>
         <label className="flex h-9 items-center gap-2 text-sm">
           <Checkbox

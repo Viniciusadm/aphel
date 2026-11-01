@@ -1,10 +1,10 @@
+import { NativeSelect } from '@/components/ui/native-select'
 import { Plus, Trash2 } from 'lucide-react'
 import { Controller, useFieldArray, type Control, type FieldErrors, type UseFormRegister } from 'react-hook-form'
 import { useTranslation } from 'react-i18next'
 import { Button } from '@/components/ui/button'
 import { Checkbox } from '@/components/ui/checkbox'
 import { Input } from '@/components/ui/input'
-import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/components/ui/select'
 import { useContactFields } from '../api'
 import { FieldMessage } from '../lib/FieldMessage'
 import { QUESTION_KINDS } from '../types'
@@ -60,18 +60,13 @@ export function QuestionsEditor({ control, register, errors }: QuestionsEditorPr
                     control={control}
                     name={`questions.${index}.kind`}
                     render={({ field: input }) => (
-                      <Select value={input.value} onValueChange={input.onChange}>
-                        <SelectTrigger id={fieldControl.id}>
-                          <SelectValue />
-                        </SelectTrigger>
-                        <SelectContent>
+                      <NativeSelect value={input.value} onValueChange={input.onChange} id={fieldControl.id}>
                           {QUESTION_KINDS.map((kind) => (
-                            <SelectItem key={kind} value={kind}>
+                            <option key={kind} value={kind}>
                               {t(`questionKinds.${kind}`)}
-                            </SelectItem>
+                            </option>
                           ))}
-                        </SelectContent>
-                      </Select>
+                        </NativeSelect>
                     )}
                   />}
                 </Field>
@@ -80,19 +75,14 @@ export function QuestionsEditor({ control, register, errors }: QuestionsEditorPr
                     control={control}
                     name={`questions.${index}.contactField`}
                     render={({ field: input }) => (
-                      <Select value={input.value} onValueChange={input.onChange}>
-                        <SelectTrigger id={fieldControl.id}>
-                          <SelectValue />
-                        </SelectTrigger>
-                        <SelectContent>
-                          <SelectItem value={NO_CONTACT_FIELD}>{t('meetingTypes.form.noContactField')}</SelectItem>
+                      <NativeSelect value={input.value} onValueChange={input.onChange} id={fieldControl.id}>
+                          <option value={NO_CONTACT_FIELD}>{t('meetingTypes.form.noContactField')}</option>
                           {(contactFields.data ?? []).map((contactField) => (
-                            <SelectItem key={contactField.key} value={contactField.key}>
+                            <option key={contactField.key} value={contactField.key}>
                               {contactField.label}
-                            </SelectItem>
+                            </option>
                           ))}
-                        </SelectContent>
-                      </Select>
+                        </NativeSelect>
                     )}
                   />}
                 </Field>

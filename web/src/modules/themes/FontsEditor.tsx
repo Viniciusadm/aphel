@@ -1,10 +1,10 @@
+import { NativeSelect } from '@/components/ui/native-select'
 import { Trash2, Upload } from 'lucide-react'
 import { useRef, useState } from 'react'
 import { useTranslation } from 'react-i18next'
 import { notifyError } from '@/components/feedback'
 import { Button } from '@/components/ui/button'
 import { Input } from '@/components/ui/input'
-import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/components/ui/select'
 import { MAX_FONT_BYTES, MAX_FONTS, fontFromFile } from './lib/package'
 import type { FontFile } from './lib/types'
 import { Field } from '@/components/ui/field'
@@ -63,29 +63,19 @@ export function FontsEditor({ fonts, onChange }: FontsEditorProps) {
             {(control) => <Input placeholder={t('placeholders.family')} {...control} value={family} onChange={(event) => setFamily(event.target.value)} />}
           </Field>
           <Field label={t('fonts.weight')}>
-            {(fieldControl) => <Select value={weight} onValueChange={setWeight}>
-              <SelectTrigger id={fieldControl.id}>
-                <SelectValue />
-              </SelectTrigger>
-              <SelectContent>
+            {(fieldControl) => <NativeSelect value={weight} onValueChange={setWeight} id={fieldControl.id}>
                 {WEIGHTS.map((option) => (
-                  <SelectItem key={option} value={String(option)}>
+                  <option key={option} value={String(option)}>
                     {option}
-                  </SelectItem>
+                  </option>
                 ))}
-              </SelectContent>
-            </Select>}
+              </NativeSelect>}
           </Field>
           <Field label={t('fonts.style')}>
-            {(fieldControl) => <Select value={style} onValueChange={(next) => setStyle(next as FontFile['style'])}>
-              <SelectTrigger id={fieldControl.id}>
-                <SelectValue />
-              </SelectTrigger>
-              <SelectContent>
-                <SelectItem value="normal">normal</SelectItem>
-                <SelectItem value="italic">italic</SelectItem>
-              </SelectContent>
-            </Select>}
+            {(fieldControl) => <NativeSelect value={style} onValueChange={(next) => setStyle(next as FontFile['style'])} id={fieldControl.id}>
+                <option value="normal">normal</option>
+                <option value="italic">italic</option>
+              </NativeSelect>}
           </Field>
           <div className="sm:col-span-4">
             <input

@@ -1,8 +1,8 @@
+import { NativeSelect } from '@/components/ui/native-select'
 import { Plus, Trash2 } from 'lucide-react'
 import { useTranslation } from 'react-i18next'
 import { Button } from '@/components/ui/button'
 import { Input } from '@/components/ui/input'
-import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/components/ui/select'
 import { ProductPicker } from '@/modules/products/ProductPicker'
 import { formatCurrency, useRecordFormatting } from '@/features/records/formatting'
 import { DISCOUNT_TYPES, type EditableItem } from './items'
@@ -103,22 +103,15 @@ export function QuoteItemsEditor({ currency, items, editable, onChange, onAddPro
                 onChange={(event) => update(item.key, { unit_price: event.target.value })}
               />
               <div className="flex gap-1">
-                <Select
-                  value={item.discount_type ?? 'none'}
+                <NativeSelect value={item.discount_type ?? 'none'}
                   disabled={!editable}
-                  onValueChange={(value) => update(item.key, { discount_type: value as QuoteDiscountType })}
-                >
-                  <SelectTrigger aria-label={t('editor.fields.discountType')} className="w-16 px-2">
-                    <SelectValue />
-                  </SelectTrigger>
-                  <SelectContent>
+                  onValueChange={(value) => update(item.key, { discount_type: value as QuoteDiscountType })} aria-label={t('editor.fields.discountType')} className="w-16 px-2">
                     {DISCOUNT_TYPES.map((type) => (
-                      <SelectItem key={type} value={type}>
+                      <option key={type} value={type}>
                         {type === 'none' ? '—' : type === 'percent' ? '%' : '$'}
-                      </SelectItem>
+                      </option>
                     ))}
-                  </SelectContent>
-                </Select>
+                  </NativeSelect>
                 <Input placeholder={t('placeholders.discount')}
                   aria-label={t('editor.items.discount')}
                   inputMode="decimal"

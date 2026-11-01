@@ -1,3 +1,4 @@
+import { NativeSelect } from '@/components/ui/native-select'
 import { FieldError as SharedFieldError } from '@/components/ui/field-error'
 import { zodResolver } from '@hookform/resolvers/zod'
 import { Plus, Trash2 } from 'lucide-react'
@@ -17,7 +18,6 @@ import {
   DialogTitle,
 } from '@/components/ui/dialog'
 import { Input } from '@/components/ui/input'
-import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/components/ui/select'
 import { Textarea } from '@/components/ui/textarea'
 import { useCustomObjects } from '@/features/custom-records/api'
 import { useOrganizationUsers } from '@/features/records/api'
@@ -98,22 +98,15 @@ function MembersEditor({ control, errors, users, weighted }: MembersEditorProps)
                     control={control}
                     name={`members.${index}.userId`}
                     render={({ field: input }) => (
-                      <Select value={input.value || undefined} onValueChange={input.onChange}>
-                        <SelectTrigger
-                          id={fieldControl.id}
+                      <NativeSelect value={input.value || ''} onValueChange={input.onChange} id={fieldControl.id}
                           aria-invalid={memberErrors?.userId ? true : undefined}
-                          aria-describedby={memberErrors?.userId ? `member-${index}-user-error` : undefined}
-                        >
-                          <SelectValue placeholder={t('editor.selectUser')} />
-                        </SelectTrigger>
-                        <SelectContent>
+                          aria-describedby={memberErrors?.userId ? `member-${index}-user-error` : undefined}><option value="" disabled>{t('editor.selectUser')}</option>
                           {users.map((user) => (
-                            <SelectItem key={user.id} value={user.id}>
+                            <option key={user.id} value={user.id}>
                               {user.display_name}
-                            </SelectItem>
+                            </option>
                           ))}
-                        </SelectContent>
-                      </Select>
+                        </NativeSelect>
                     )}
                   />
                   <FieldMessage id={`member-${index}-user-error`} message={memberErrors?.userId?.message} />
@@ -225,18 +218,13 @@ function RoutingEditor({ control, errors, users, recordType }: RoutingEditorProp
             control={control}
             name="routingField"
             render={({ field: input }) => (
-              <Select value={input.value || undefined} onValueChange={input.onChange}>
-                <SelectTrigger id={fieldControl.id} aria-invalid={errors.routingField ? true : undefined}>
-                  <SelectValue placeholder={t('editor.selectField')} />
-                </SelectTrigger>
-                <SelectContent>
+              <NativeSelect value={input.value || ''} onValueChange={input.onChange} id={fieldControl.id} aria-invalid={errors.routingField ? true : undefined}><option value="" disabled>{t('editor.selectField')}</option>
                   {fieldOptions.map((field) => (
-                    <SelectItem key={field.key} value={field.key}>
+                    <option key={field.key} value={field.key}>
                       {field.label}
-                    </SelectItem>
+                    </option>
                   ))}
-                </SelectContent>
-              </Select>
+                </NativeSelect>
             )}
           />
           <FieldMessage id="routing-field-error" message={errors.routingField?.message} />
@@ -247,15 +235,10 @@ function RoutingEditor({ control, errors, users, recordType }: RoutingEditorProp
             control={control}
             name="fallback"
             render={({ field: input }) => (
-              <Select value={input.value} onValueChange={input.onChange}>
-                <SelectTrigger id={fieldControl.id}>
-                  <SelectValue />
-                </SelectTrigger>
-                <SelectContent>
-                  <SelectItem value="members">{t('editor.fallbacks.members')}</SelectItem>
-                  <SelectItem value="none">{t('editor.fallbacks.none')}</SelectItem>
-                </SelectContent>
-              </Select>
+              <NativeSelect value={input.value} onValueChange={input.onChange} id={fieldControl.id}>
+                  <option value="members">{t('editor.fallbacks.members')}</option>
+                  <option value="none">{t('editor.fallbacks.none')}</option>
+                </NativeSelect>
             )}
           />}
         </Field>
@@ -306,19 +289,14 @@ function RoutingEditor({ control, errors, users, recordType }: RoutingEditorProp
                       control={control}
                       name={`routes.${index}.teamId`}
                       render={({ field: input }) => (
-                        <Select value={input.value} onValueChange={input.onChange}>
-                          <SelectTrigger id={fieldControl.id} aria-invalid={routeErrors?.teamId ? true : undefined}>
-                            <SelectValue />
-                          </SelectTrigger>
-                          <SelectContent>
-                            <SelectItem value={NO_TEAM}>{t('editor.noTeam')}</SelectItem>
+                        <NativeSelect value={input.value} onValueChange={input.onChange} id={fieldControl.id} aria-invalid={routeErrors?.teamId ? true : undefined}>
+                            <option value={NO_TEAM}>{t('editor.noTeam')}</option>
                             {(teams.data ?? []).map((team) => (
-                              <SelectItem key={team.id} value={team.id}>
+                              <option key={team.id} value={team.id}>
                                 {team.name}
-                              </SelectItem>
+                              </option>
                             ))}
-                          </SelectContent>
-                        </Select>
+                          </NativeSelect>
                       )}
                     />
                     <FieldMessage id={`route-${index}-team-error`} message={routeErrors?.teamId?.message} />
@@ -474,18 +452,13 @@ export function RuleEditorDialog({ rule, onClose }: RuleEditorDialogProps) {
                 control={control}
                 name="recordType"
                 render={({ field }) => (
-                  <Select value={field.value} onValueChange={field.onChange}>
-                    <SelectTrigger id={fieldControl.id} aria-invalid={errors.recordType ? true : undefined}>
-                      <SelectValue />
-                    </SelectTrigger>
-                    <SelectContent>
+                  <NativeSelect value={field.value} onValueChange={field.onChange} id={fieldControl.id} aria-invalid={errors.recordType ? true : undefined}>
                       {recordTypes.map((option) => (
-                        <SelectItem key={option.value} value={option.value}>
+                        <option key={option.value} value={option.value}>
                           {option.label}
-                        </SelectItem>
+                        </option>
                       ))}
-                    </SelectContent>
-                  </Select>
+                    </NativeSelect>
                 )}
               />
               <FieldMessage id="rule-record-type-error" message={errors.recordType?.message} />
@@ -497,18 +470,13 @@ export function RuleEditorDialog({ rule, onClose }: RuleEditorDialogProps) {
                 control={control}
                 name="strategy"
                 render={({ field }) => (
-                  <Select value={field.value} onValueChange={field.onChange}>
-                    <SelectTrigger id={fieldControl.id} aria-describedby="rule-strategy-hint">
-                      <SelectValue />
-                    </SelectTrigger>
-                    <SelectContent>
+                  <NativeSelect value={field.value} onValueChange={field.onChange} id={fieldControl.id} aria-describedby="rule-strategy-hint">
                       {STRATEGIES.map((option) => (
-                        <SelectItem key={option} value={option}>
+                        <option key={option} value={option}>
                           {t(`strategies.${option}`)}
-                        </SelectItem>
+                        </option>
                       ))}
-                    </SelectContent>
-                  </Select>
+                    </NativeSelect>
                 )}
               />
               <p id="rule-strategy-hint" className="text-xs text-muted-foreground">

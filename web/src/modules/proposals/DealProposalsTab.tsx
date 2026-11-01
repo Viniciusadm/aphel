@@ -1,3 +1,4 @@
+import { NativeSelect } from '@/components/ui/native-select'
 import { useQuery, useQueryClient } from '@tanstack/react-query'
 import { Download, FileText, Loader2, Plus } from 'lucide-react'
 import { useState } from 'react'
@@ -15,7 +16,6 @@ import {
 } from '@/components/ui/dialog'
 import { EmptyState } from '@/components/ui/empty-state'
 import { ErrorState } from '@/components/ui/error-state'
-import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/components/ui/select'
 import { Skeleton } from '@/components/ui/skeleton'
 import { fileDownloadUrl } from '@/features/files'
 import { formatDateTime, useRecordFormatting } from '@/features/records/formatting'
@@ -177,7 +177,7 @@ function GenerateDialog({ dealId, open, onOpenChange }: GenerateDialogProps) {
 
   return (
     <Dialog open={open} onOpenChange={close}>
-      <DialogContent className={showPreview ? 'sm:max-w-3xl' : undefined}>
+      <DialogContent size={showPreview ? '2xl' : 'md'}>
         <DialogHeader>
           <DialogTitle>{t('deal.dialogTitle')}</DialogTitle>
           <DialogDescription>{t('deal.dialogDescription')}</DialogDescription>
@@ -191,18 +191,13 @@ function GenerateDialog({ dealId, open, onOpenChange }: GenerateDialogProps) {
         ) : (
           <div className="grid gap-3">
             <Field label={t('deal.template')}>
-              {(fieldControl) => <Select value={templateId ?? undefined} onValueChange={setChosen} disabled={pending}>
-                <SelectTrigger id={fieldControl.id}>
-                  <SelectValue placeholder={t('deal.templatePlaceholder')} />
-                </SelectTrigger>
-                <SelectContent>
+              {(fieldControl) => <NativeSelect value={templateId ?? undefined} onValueChange={setChosen} disabled={pending} id={fieldControl.id}><option value="" disabled>{t('deal.templatePlaceholder')}</option>
                   {active.map((template) => (
-                    <SelectItem key={template.id} value={template.id}>
+                    <option key={template.id} value={template.id}>
                       {template.name}
-                    </SelectItem>
+                    </option>
                   ))}
-                </SelectContent>
-              </Select>}
+                </NativeSelect>}
             </Field>
             <Button
               type="button"

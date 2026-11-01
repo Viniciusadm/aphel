@@ -1,10 +1,10 @@
+import { NativeSelect } from '@/components/ui/native-select'
 import { useState } from 'react'
 import { useTranslation } from 'react-i18next'
 import { isApiError } from '@/api'
 import { useSession } from '@/app/session/session-context'
 import { PageLoader } from '@/components/feedback'
 import { ErrorState } from '@/components/ui/error-state'
-import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/components/ui/select'
 import { useOrganizationUsers } from '@/features/records/api'
 import { useAvailability } from '../api'
 import { AvailabilityForm } from './AvailabilityForm'
@@ -22,19 +22,14 @@ function UserPicker({ value, onChange }: { value: string | null; onChange: (user
   if (others.length === 0) return null
   return (
     <Field label={t('availability.user')} className="max-w-xs">
-      {(fieldControl) => <Select value={value ?? SELF} onValueChange={(next) => onChange(next === SELF ? null : next)}>
-        <SelectTrigger id={fieldControl.id}>
-          <SelectValue />
-        </SelectTrigger>
-        <SelectContent>
-          <SelectItem value={SELF}>{t('availability.me')}</SelectItem>
+      {(fieldControl) => <NativeSelect value={value ?? SELF} onValueChange={(next) => onChange(next === SELF ? null : next)} id={fieldControl.id}>
+          <option value={SELF}>{t('availability.me')}</option>
           {others.map((user) => (
-            <SelectItem key={user.id} value={user.id}>
+            <option key={user.id} value={user.id}>
               {user.display_name}
-            </SelectItem>
+            </option>
           ))}
-        </SelectContent>
-      </Select>}
+        </NativeSelect>}
     </Field>
   )
 }

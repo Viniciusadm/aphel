@@ -1,3 +1,4 @@
+import { NativeSelect } from '@/components/ui/native-select'
 import { ChevronLeft, ChevronRight, Lock, Sparkles } from 'lucide-react'
 import { useState } from 'react'
 import { useSession } from '@/app/session/session-context'
@@ -5,7 +6,6 @@ import { Badge } from '@/components/ui/badge'
 import { Button } from '@/components/ui/button'
 import { EmptyState } from '@/components/ui/empty-state'
 import { ErrorState } from '@/components/ui/error-state'
-import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/components/ui/select'
 import { Skeleton } from '@/components/ui/skeleton'
 import { useOrganizationUsers } from '@/features/records/api'
 import { formatDateTime, useRecordFormatting } from '@/features/records/formatting'
@@ -112,43 +112,29 @@ function CallLog() {
           <p className="text-sm text-muted-foreground">{t('log.description')}</p>
         </div>
         <div className="flex flex-wrap gap-2">
-          <Select
-            value={filters.feature ?? ALL}
+          <NativeSelect value={filters.feature ?? ALL}
             onValueChange={(value) =>
               setFilters((current) => ({ ...current, page: 1, feature: value === ALL ? null : (value as AiFeature) }))
-            }
-          >
-            <SelectTrigger className="w-44" aria-label={t('log.feature')}>
-              <SelectValue />
-            </SelectTrigger>
-            <SelectContent>
-              <SelectItem value={ALL}>{t('log.allFeatures')}</SelectItem>
+            } className="w-44" aria-label={t('log.feature')}>
+              <option value={ALL}>{t('log.allFeatures')}</option>
               {AI_FEATURES.map((feature) => (
-                <SelectItem key={feature} value={feature}>
+                <option key={feature} value={feature}>
                   {t(`features.${feature}`)}
-                </SelectItem>
+                </option>
               ))}
-            </SelectContent>
-          </Select>
-          <Select
-            value={filters.status ?? ALL}
+            </NativeSelect>
+          <NativeSelect value={filters.status ?? ALL}
             onValueChange={(value) =>
               setFilters((current) => ({
                 ...current,
                 page: 1,
                 status: value === ALL ? null : (value as 'success' | 'error'),
               }))
-            }
-          >
-            <SelectTrigger className="w-36" aria-label={t('log.status')}>
-              <SelectValue />
-            </SelectTrigger>
-            <SelectContent>
-              <SelectItem value={ALL}>{t('log.allStatuses')}</SelectItem>
-              <SelectItem value="success">{t('log.statuses.success')}</SelectItem>
-              <SelectItem value="error">{t('log.statuses.error')}</SelectItem>
-            </SelectContent>
-          </Select>
+            } className="w-36" aria-label={t('log.status')}>
+              <option value={ALL}>{t('log.allStatuses')}</option>
+              <option value="success">{t('log.statuses.success')}</option>
+              <option value="error">{t('log.statuses.error')}</option>
+            </NativeSelect>
         </div>
       </div>
       {calls.data && (

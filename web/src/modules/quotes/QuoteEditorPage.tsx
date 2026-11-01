@@ -1,3 +1,4 @@
+import { NativeSelect } from '@/components/ui/native-select'
 import { FieldError as SharedFieldError } from '@/components/ui/field-error'
 import { CircleCheck, Copy, Download, ExternalLink, FilePlus2, FileText, PenLine, Save, Send, ShieldCheck, Trash2 } from 'lucide-react'
 import { useId, useState, type ReactNode } from 'react'
@@ -9,7 +10,6 @@ import { Button } from '@/components/ui/button'
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card'
 import { ErrorState } from '@/components/ui/error-state'
 import { Input } from '@/components/ui/input'
-import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/components/ui/select'
 import { Textarea } from '@/components/ui/textarea'
 import { useIsModuleActive } from '@/kernel/modules/registry'
 import { Slot } from '@/kernel/modules/Slot'
@@ -291,42 +291,28 @@ function QuoteEditor({ quote }: { quote: QuoteDetail }) {
                 />}
               </Field>
               <Field label={t('editor.fields.priceList')}>
-                {(fieldControl) => <Select
-                  value={header.price_list_id || NO_PRICE_LIST}
+                {(fieldControl) => <NativeSelect value={header.price_list_id || NO_PRICE_LIST}
                   disabled={!editable}
-                  onValueChange={(value) => patchHeader({ price_list_id: value === NO_PRICE_LIST ? '' : value })}
-                >
-                  <SelectTrigger id={fieldControl.id}>
-                    <SelectValue />
-                  </SelectTrigger>
-                  <SelectContent>
-                    <SelectItem value={NO_PRICE_LIST}>{t('editor.fields.noPriceList')}</SelectItem>
+                  onValueChange={(value) => patchHeader({ price_list_id: value === NO_PRICE_LIST ? '' : value })} id={fieldControl.id}>
+                    <option value={NO_PRICE_LIST}>{t('editor.fields.noPriceList')}</option>
                     {availableLists.map((list) => (
-                      <SelectItem key={list.id} value={list.id}>
+                      <option key={list.id} value={list.id}>
                         {list.name}
-                      </SelectItem>
+                      </option>
                     ))}
-                  </SelectContent>
-                </Select>}
+                  </NativeSelect>}
               </Field>
               <Field id={ids.discount} label={t('editor.fields.totalDiscount')}>
                 <div className="flex gap-2">
-                  <Select
-                    value={header.discount_type}
+                  <NativeSelect value={header.discount_type}
                     disabled={!editable}
-                    onValueChange={(value) => patchHeader({ discount_type: value as QuoteDiscountType })}
-                  >
-                    <SelectTrigger aria-label={t('editor.fields.discountType')} className="w-40">
-                      <SelectValue />
-                    </SelectTrigger>
-                    <SelectContent>
+                    onValueChange={(value) => patchHeader({ discount_type: value as QuoteDiscountType })} aria-label={t('editor.fields.discountType')} className="w-40">
                       {DISCOUNT_TYPES.map((type) => (
-                        <SelectItem key={type} value={type}>
+                        <option key={type} value={type}>
                           {t(`editor.discountTypes.${type}`)}
-                        </SelectItem>
+                        </option>
                       ))}
-                    </SelectContent>
-                  </Select>
+                    </NativeSelect>
                   <Input placeholder={t('placeholders.discount')}
                     id={ids.discount}
                     inputMode="decimal"

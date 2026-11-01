@@ -1,3 +1,4 @@
+import { NativeSelect } from '@/components/ui/native-select'
 import { FieldError as SharedFieldError } from '@/components/ui/field-error'
 import { useQueryClient } from '@tanstack/react-query'
 import { AlertCircle, ArrowLeft, Check, CheckCheck, Clock, Link2, Loader2, Send } from 'lucide-react'
@@ -7,7 +8,6 @@ import { notifyError, notifySuccess } from '@/components/feedback'
 import { UserFieldInput } from '@/components/fields'
 import { Button } from '@/components/ui/button'
 import { ErrorState } from '@/components/ui/error-state'
-import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/components/ui/select'
 import { Skeleton } from '@/components/ui/skeleton'
 import { Textarea } from '@/components/ui/textarea'
 import { useOrganizationUsers } from '@/features/records/api'
@@ -143,27 +143,20 @@ function ConversationHeader({ conversation, onBack }: { conversation: Conversati
       {canReply && (
         <div className="grid gap-2 sm:grid-cols-2">
           <Field label={t('panel.status')}>
-            {(fieldControl) => <Select
-              value={conversation.status}
+            {(fieldControl) => <NativeSelect value={conversation.status}
               disabled={busy}
               onValueChange={(value) =>
                 void run(
                   () => messagingApi.setStatus(conversation.id, value as ConversationStatus),
                   t('panel.statusChanged', { status: t(`status.${value}`) }),
                 )
-              }
-            >
-              <SelectTrigger id={fieldControl.id}>
-                <SelectValue />
-              </SelectTrigger>
-              <SelectContent>
+              } id={fieldControl.id}>
                 {CONVERSATION_STATUSES.map((status) => (
-                  <SelectItem key={status} value={status}>
+                  <option key={status} value={status}>
                     {t(`status.${status}`)}
-                  </SelectItem>
+                  </option>
                 ))}
-              </SelectContent>
-            </Select>}
+              </NativeSelect>}
           </Field>
           <Field label={t('panel.assignee')}>
             {(fieldControl) => <UserFieldInput

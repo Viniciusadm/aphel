@@ -1,3 +1,4 @@
+import { NativeSelect } from '@/components/ui/native-select'
 import { FileText } from 'lucide-react'
 import { useState } from 'react'
 import { useTranslation } from 'react-i18next'
@@ -5,7 +6,6 @@ import { Link } from 'react-router'
 import { Button } from '@/components/ui/button'
 import { EmptyState } from '@/components/ui/empty-state'
 import { ErrorState } from '@/components/ui/error-state'
-import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/components/ui/select'
 import { Skeleton } from '@/components/ui/skeleton'
 import { formatCurrency, formatDate, useRecordFormatting } from '@/features/records/formatting'
 import { QUOTES_PER_PAGE, quotePath, useQuotes } from './api'
@@ -43,25 +43,18 @@ export function QuotesPage() {
               setPage(1)
             }}
           />
-        <Select
-          value={status || ALL}
+        <NativeSelect value={status || ALL}
           onValueChange={(value) => {
             setStatus(value === ALL ? '' : value)
             setPage(1)
-          }}
-        >
-          <SelectTrigger className="w-48" aria-label={t('list.columns.status')}>
-            <SelectValue />
-          </SelectTrigger>
-          <SelectContent>
-            <SelectItem value={ALL}>{t('list.allStatuses')}</SelectItem>
+          }} className="w-48" aria-label={t('list.columns.status')}>
+            <option value={ALL}>{t('list.allStatuses')}</option>
             {STATUSES.map((value) => (
-              <SelectItem key={value} value={value}>
+              <option key={value} value={value}>
                 {t(`status.${value}`)}
-              </SelectItem>
+              </option>
             ))}
-          </SelectContent>
-        </Select>
+          </NativeSelect>
       </div>
       {query.isPending ? (
         <div className="grid gap-2" aria-busy="true">

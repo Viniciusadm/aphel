@@ -1,3 +1,4 @@
+import { NativeSelect } from '@/components/ui/native-select'
 import { Loader2 } from 'lucide-react'
 import { useState } from 'react'
 import { isApiError } from '@/api'
@@ -14,7 +15,6 @@ import {
   DialogTitle,
 } from '@/components/ui/dialog'
 import { Input } from '@/components/ui/input'
-import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/components/ui/select'
 import { useModuleTranslation } from '@/kernel/modules/i18n'
 import { MESSAGING_KEY, messagingApi, type Channel, type ChannelBody, type ChannelKind } from './api'
 import { Field } from '@/components/ui/field'
@@ -224,18 +224,11 @@ function ChannelForm({
             label={t('editor.config.smtp_security')}
             error={errors['config.smtp_security']}
           >
-            <Select
-              value={config.smtp_security ?? 'tls'}
-              onValueChange={(value) => setConfig((current) => ({ ...current, smtp_security: value }))}
-            >
-              <SelectTrigger id={`${prefix}-smtp-security`}>
-                <SelectValue />
-              </SelectTrigger>
-              <SelectContent>
-                <SelectItem value="tls">{t('editor.security.tls')}</SelectItem>
-                <SelectItem value="starttls">{t('editor.security.starttls')}</SelectItem>
-              </SelectContent>
-            </Select>
+            <NativeSelect value={config.smtp_security ?? 'tls'}
+              onValueChange={(value) => setConfig((current) => ({ ...current, smtp_security: value }))} id={`${prefix}-smtp-security`}>
+                <option value="tls">{t('editor.security.tls')}</option>
+                <option value="starttls">{t('editor.security.starttls')}</option>
+              </NativeSelect>
           </Field>
         )}
       </fieldset>

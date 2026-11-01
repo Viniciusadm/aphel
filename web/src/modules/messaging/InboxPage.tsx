@@ -1,3 +1,4 @@
+import { NativeSelect } from '@/components/ui/native-select'
 import { Inbox, Lock, MessageCircle, Search, Settings2 } from 'lucide-react'
 import { useState } from 'react'
 import { Link, useSearchParams } from 'react-router'
@@ -7,7 +8,6 @@ import { Button } from '@/components/ui/button'
 import { EmptyState } from '@/components/ui/empty-state'
 import { ErrorState } from '@/components/ui/error-state'
 import { Input } from '@/components/ui/input'
-import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/components/ui/select'
 import { Skeleton } from '@/components/ui/skeleton'
 import { formatDateTime, useRecordFormatting } from '@/features/records/formatting'
 import { cn } from '@/lib/utils'
@@ -98,50 +98,31 @@ export function InboxPage() {
             />
           </div>
           <div className="grid grid-cols-2 gap-2">
-            <Select
-              value={filters.status ?? ALL}
-              onValueChange={(value) => update({ status: value === ALL ? null : (value as ConversationStatus) })}
-            >
-              <SelectTrigger aria-label={t('inbox.filters.status')}>
-                <SelectValue />
-              </SelectTrigger>
-              <SelectContent>
-                <SelectItem value={ALL}>{t('inbox.filters.allStatuses')}</SelectItem>
+            <NativeSelect value={filters.status ?? ALL}
+              onValueChange={(value) => update({ status: value === ALL ? null : (value as ConversationStatus) })} aria-label={t('inbox.filters.status')}>
+                <option value={ALL}>{t('inbox.filters.allStatuses')}</option>
                 {CONVERSATION_STATUSES.map((status) => (
-                  <SelectItem key={status} value={status}>
+                  <option key={status} value={status}>
                     {t(`status.${status}`)}
-                  </SelectItem>
+                  </option>
                 ))}
-              </SelectContent>
-            </Select>
-            <Select value={filters.assignee} onValueChange={(value) => update({ assignee: value as AssigneeFilter })}>
-              <SelectTrigger aria-label={t('inbox.filters.assignee')}>
-                <SelectValue />
-              </SelectTrigger>
-              <SelectContent>
+              </NativeSelect>
+            <NativeSelect value={filters.assignee} onValueChange={(value) => update({ assignee: value as AssigneeFilter })} aria-label={t('inbox.filters.assignee')}>
                 {ASSIGNEE_FILTERS.map((assignee) => (
-                  <SelectItem key={assignee} value={assignee}>
+                  <option key={assignee} value={assignee}>
                     {t(`inbox.filters.assignees.${assignee}`)}
-                  </SelectItem>
+                  </option>
                 ))}
-              </SelectContent>
-            </Select>
-            <Select
-              value={filters.channelId ?? ALL}
-              onValueChange={(value) => update({ channelId: value === ALL ? null : value })}
-            >
-              <SelectTrigger aria-label={t('inbox.filters.channel')}>
-                <SelectValue />
-              </SelectTrigger>
-              <SelectContent>
-                <SelectItem value={ALL}>{t('inbox.filters.allChannels')}</SelectItem>
+              </NativeSelect>
+            <NativeSelect value={filters.channelId ?? ALL}
+              onValueChange={(value) => update({ channelId: value === ALL ? null : value })} aria-label={t('inbox.filters.channel')}>
+                <option value={ALL}>{t('inbox.filters.allChannels')}</option>
                 {(channels.data?.data ?? []).map((channel) => (
-                  <SelectItem key={channel.id} value={channel.id}>
+                  <option key={channel.id} value={channel.id}>
                     {channel.name}
-                  </SelectItem>
+                  </option>
                 ))}
-              </SelectContent>
-            </Select>
+              </NativeSelect>
             <Button
               type="button"
               variant={filters.unread ? 'secondary' : 'outline'}

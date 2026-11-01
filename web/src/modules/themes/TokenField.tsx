@@ -1,9 +1,9 @@
+import { NativeSelect } from '@/components/ui/native-select'
 import { RotateCcw } from 'lucide-react'
 import { useId } from 'react'
 import { useTranslation } from 'react-i18next'
 import { Button } from '@/components/ui/button'
 import { Input } from '@/components/ui/input'
-import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/components/ui/select'
 import { cssColorToHex } from './lib/color'
 import { defaultValue, type TokenDefinition } from './lib/tokens'
 import type { FontStack, TokenValue } from './lib/types'
@@ -109,18 +109,13 @@ function FontStackField({
           )
         }
       />
-      <Select value={stack?.fallback ?? 'sans-serif'} onValueChange={(next) => update(stack?.families ?? [], next)}>
-        <SelectTrigger aria-label="fallback">
-          <SelectValue />
-        </SelectTrigger>
-        <SelectContent>
+      <NativeSelect value={stack?.fallback ?? 'sans-serif'} onValueChange={(next) => update(stack?.families ?? [], next)} aria-label="fallback">
           {FALLBACKS.map((fallback) => (
-            <SelectItem key={fallback} value={fallback}>
+            <option key={fallback} value={fallback}>
               {fallback}
-            </SelectItem>
+            </option>
           ))}
-        </SelectContent>
-      </Select>
+        </NativeSelect>
     </div>
   )
 }

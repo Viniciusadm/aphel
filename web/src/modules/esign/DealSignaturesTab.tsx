@@ -1,3 +1,4 @@
+import { NativeSelect } from '@/components/ui/native-select'
 import { useQuery, useQueryClient } from '@tanstack/react-query'
 import { Download, FileSignature, Loader2, Plus, Trash2, UserPlus } from 'lucide-react'
 import { useState } from 'react'
@@ -17,7 +18,6 @@ import {
 import { EmptyState } from '@/components/ui/empty-state'
 import { ErrorState } from '@/components/ui/error-state'
 import { Input } from '@/components/ui/input'
-import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/components/ui/select'
 import { Skeleton } from '@/components/ui/skeleton'
 import { Textarea } from '@/components/ui/textarea'
 import { fileDownloadUrl, useAttachments } from '@/features/files'
@@ -321,18 +321,13 @@ function SendDialog({ dealId, open, onOpenChange }: SendDialogProps) {
             ) : pdfs.length === 0 ? (
               <p className="text-sm text-muted-foreground">{t('dialog.noPdf')}</p>
             ) : (
-              <Select value={chosenFile ?? undefined} onValueChange={setFileId} disabled={pending}>
-                <SelectTrigger id="esign-file">
-                  <SelectValue placeholder={t('dialog.filePlaceholder')} />
-                </SelectTrigger>
-                <SelectContent>
+              <NativeSelect value={chosenFile ?? undefined} onValueChange={setFileId} disabled={pending} id="esign-file"><option value="" disabled>{t('dialog.filePlaceholder')}</option>
                   {pdfs.map((attachment) => (
-                    <SelectItem key={attachment.id} value={attachment.file.id}>
+                    <option key={attachment.id} value={attachment.file.id}>
                       {attachment.file.original_name}
-                    </SelectItem>
+                    </option>
                   ))}
-                </SelectContent>
-              </Select>
+                </NativeSelect>
             )}
           </Field>
           <fieldset className="grid gap-2">

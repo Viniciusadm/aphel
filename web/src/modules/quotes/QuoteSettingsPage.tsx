@@ -1,3 +1,4 @@
+import { NativeSelect } from '@/components/ui/native-select'
 import { useState } from 'react'
 import { useTranslation } from 'react-i18next'
 import { useSession } from '@/app/session/session-context'
@@ -5,7 +6,6 @@ import { notifyError, notifySuccess, PageLoader, UnsavedChangesGuard } from '@/c
 import { Button } from '@/components/ui/button'
 import { ErrorState } from '@/components/ui/error-state'
 import { Input } from '@/components/ui/input'
-import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/components/ui/select'
 import { Textarea } from '@/components/ui/textarea'
 import { usePipelines } from '@/modules/pipelines/api'
 import { useQuoteMutations, useQuoteSettings } from './api'
@@ -101,8 +101,7 @@ function SettingsForm({ settings }: { settings: QuoteSettings }) {
         {(pipelines.data ?? []).map((pipeline) => (
           <div key={pipeline.id} className="grid gap-2 sm:grid-cols-[12rem_minmax(0,1fr)] sm:items-center">
             <p className="text-sm font-medium">{pipeline.name}</p>
-            <Select
-              value={stages[pipeline.id] ?? NO_MOVE}
+            <NativeSelect value={stages[pipeline.id] ?? NO_MOVE}
               disabled={!canEdit}
               onValueChange={(value) => {
                 setStages((current) => {
@@ -112,20 +111,14 @@ function SettingsForm({ settings }: { settings: QuoteSettings }) {
                   return next
                 })
                 setDirty(true)
-              }}
-            >
-              <SelectTrigger aria-label={pipeline.name}>
-                <SelectValue />
-              </SelectTrigger>
-              <SelectContent>
-                <SelectItem value={NO_MOVE}>{t('settings.noMove')}</SelectItem>
+              }} aria-label={pipeline.name}>
+                <option value={NO_MOVE}>{t('settings.noMove')}</option>
                 {pipeline.stages.map((stage) => (
-                  <SelectItem key={stage.id} value={stage.id}>
+                  <option key={stage.id} value={stage.id}>
                     {stage.name}
-                  </SelectItem>
+                  </option>
                 ))}
-              </SelectContent>
-            </Select>
+              </NativeSelect>
           </div>
         ))}
       </div>
