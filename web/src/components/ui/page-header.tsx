@@ -1,3 +1,4 @@
+import { PageTitle } from './page-title'
 import { ArrowLeft } from 'lucide-react'
 import type { ReactNode } from 'react'
 import { Link } from 'react-router'
@@ -22,7 +23,7 @@ export interface PageHeaderProps {
 
 export function PageHeader({ title, description, actions, back, badges, icon, level = 'page', className }: PageHeaderProps) {
   const labels = useUiLabels()
-  const Heading = level === 'page' ? 'h1' : 'h2'
+  const Heading = level === 'page' ? PageTitle : 'h2'
   return (
     <header data-slot="page-header" className={cn('flex flex-col gap-2', className)}>
       {back && (
