@@ -13,7 +13,6 @@ import {
 } from '@/components/ui/dialog'
 import { Skeleton } from '@/components/ui/skeleton'
 import { toast } from '@/components/ui/toast-store'
-import { cn } from '@/lib/utils'
 import { recordsApi, recordsKeys, useFieldSchema, useIdempotencyKey } from '../api'
 import type { RecordPayload, RecordValues } from '../fields'
 import { getRecordResource, recordPath } from '../resources'
@@ -178,7 +177,7 @@ export function RecordFormDialog({
   return (
     <>
       <Dialog open={open} onOpenChange={(next) => (next ? onOpenChange(true) : requestClose())}>
-        <DialogContent className={cn(record && 'sm:max-w-3xl')}>
+        <DialogContent size={record ? '2xl' : 'md'}>
           <DialogHeader>
             <DialogTitle>{title ?? t(record ? 'dialog.editTitle' : 'dialog.title')}</DialogTitle>
             <DialogDescription>{description ?? t(record ? 'dialog.editDescription' : 'dialog.description')}</DialogDescription>

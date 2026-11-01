@@ -191,7 +191,7 @@ function PluginsPanelContent() {
       )}
       <Dialog open={details !== null} onOpenChange={(open) => { if (!open) setDetails(null) }}>
         {details && (
-          <DialogContent className="max-w-2xl">
+          <DialogContent size="xl">
             <DialogHeader>
               <DialogTitle>{t('plugins.detailsTitle', { name: details.name })}</DialogTitle>
               <DialogDescription>{details.key} · {t('version', { version: details.version })}</DialogDescription>

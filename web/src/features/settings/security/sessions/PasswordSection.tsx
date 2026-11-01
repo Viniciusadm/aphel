@@ -15,7 +15,7 @@ import {
   useInvalidateSecuritySessions,
 } from './api'
 import { PageHeader } from '@/components/ui/page-header'
-import { Page } from '@/components/ui/page'
+import { PageSection } from '@/components/ui/page'
 import { Field } from '@/components/ui/field'
 
 const passwordSchema = z
@@ -93,7 +93,7 @@ export function PasswordSection() {
   const describedBy = (name: keyof PasswordValues) => (errors[name] ? `${formId}-${name}-error` : undefined)
 
   return (
-    <Page>
+    <PageSection>
       <PageHeader level="section" title={t('password.title')} description={t('password.description')} />
       <form className="grid max-w-md gap-4" noValidate onSubmit={(event) => void onSubmit(event)}>
         <Field label={t('password.current')}>
@@ -145,6 +145,6 @@ export function PasswordSection() {
           {t('password.submit')}
         </Button>
       </form>
-    </Page>
+    </PageSection>
   )
 }
