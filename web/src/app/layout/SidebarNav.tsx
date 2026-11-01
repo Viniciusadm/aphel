@@ -1,5 +1,5 @@
 import { ChevronDown } from 'lucide-react'
-import { useState, type ReactNode } from 'react'
+import { useId, useState, type ReactNode } from 'react'
 import { useTranslation } from 'react-i18next'
 import { NavLink, useLocation } from 'react-router'
 import { Tooltip, TooltipContent, TooltipTrigger } from '@/components/ui/tooltip'
@@ -88,7 +88,8 @@ function GroupSection({
   onNavigate?: () => void
 }) {
   const location = useLocation()
-  const active = node.entries.some((entry) => entry.end ? location.pathname === entry.to : location.pathname === entry.to || location.pathname.startsWith(`${entry.to}/`))
+  const active = node.entries.some((entry) => location.pathname === entry.to || location.pathname.startsWith(`${entry.to}/`))
+  const contentId = useId()
   const [disclosure, setDisclosure] = useState<{ path: string; open: boolean } | null>(null)
   if (collapsed) {
     return (
@@ -105,6 +106,7 @@ function GroupSection({
       <button
         type="button"
         aria-expanded={expanded}
+        aria-controls={contentId}
         onClick={() => setDisclosure({ path: location.pathname, open: !expanded })}
         className={cn(ITEM_CLASS, 'w-full text-left')}
       >
@@ -112,10 +114,11 @@ function GroupSection({
         <span className="flex-1 truncate">{node.label}</span>
         <ChevronDown className={cn('size-4 shrink-0 transition-transform', !expanded && '-rotate-90')} aria-hidden />
       </button>
-      {expanded &&
-        node.entries.map((entry) => (
+      {expanded && <div id={contentId} className="grid gap-1">
+        {node.entries.map((entry) => (
           <EntryLink key={entry.key} entry={entry} collapsed={false} nested onNavigate={onNavigate} />
         ))}
+      </div>}
     </div>
   )
 }
