@@ -1,3 +1,4 @@
+import { SidebarLink } from '@/components/ui/sidebar-link'
 import { ChevronDown } from 'lucide-react'
 import { useId, useState, type ReactNode } from 'react'
 import { useTranslation } from 'react-i18next'
@@ -16,8 +17,6 @@ type SidebarNode =
   | { kind: 'entry'; entry: SidebarEntry }
   | { kind: 'group'; key: string; label: string; icon: ReactNode; entries: SidebarEntry[] }
 
-const ITEM_CLASS =
-  'relative flex h-9 items-center gap-3 rounded-md px-3 text-sm font-medium text-sidebar-foreground transition-colors hover:bg-sidebar-accent hover:text-sidebar-accent-foreground focus-visible:ring-2 focus-visible:ring-ring focus-visible:outline-none aria-[current=page]:bg-sidebar-accent aria-[current=page]:text-sidebar-accent-foreground'
 
 function groupEntries(entries: SidebarEntry[]): SidebarNode[] {
   const nodes: SidebarNode[] = []
@@ -57,17 +56,18 @@ function EntryLink({
   onNavigate?: () => void
 }) {
   const link = (
-    <NavLink
-      to={entry.to}
-      end={entry.end}
-      onClick={onNavigate}
-      aria-label={collapsed ? entry.label : undefined}
-      className={cn(ITEM_CLASS, collapsed && 'justify-center px-0', nested && !collapsed && 'h-8 pl-9')}
-    >
-      {entry.icon}
-      {!collapsed && <span className="truncate">{entry.label}</span>}
-      {entry.badge && <entry.badge collapsed={collapsed} />}
-    </NavLink>
+    <SidebarLink asChild collapsed={collapsed} nested={nested}>
+      <NavLink
+        to={entry.to}
+        end={entry.end}
+        onClick={onNavigate}
+        aria-label={collapsed ? entry.label : undefined}
+      >
+        {entry.icon}
+        {!collapsed && <span className="truncate">{entry.label}</span>}
+        {entry.badge && <entry.badge collapsed={collapsed} />}
+      </NavLink>
+    </SidebarLink>
   )
   if (!collapsed) return link
   return (
@@ -103,17 +103,18 @@ function GroupSection({
   const expanded = disclosure?.path === location.pathname ? disclosure.open : active
   return (
     <div className="flex flex-col gap-1">
-      <button
-        type="button"
-        aria-expanded={expanded}
-        aria-controls={contentId}
-        onClick={() => setDisclosure({ path: location.pathname, open: !expanded })}
-        className={cn(ITEM_CLASS, 'w-full text-left')}
-      >
-        {node.icon}
-        <span className="flex-1 truncate">{node.label}</span>
-        <ChevronDown className={cn('size-4 shrink-0 transition-transform', !expanded && '-rotate-90')} aria-hidden />
-      </button>
+      <SidebarLink asChild className="w-full text-left">
+        <button
+          type="button"
+          aria-expanded={expanded}
+          aria-controls={contentId}
+          onClick={() => setDisclosure({ path: location.pathname, open: !expanded })}
+        >
+          {node.icon}
+          <span className="flex-1 truncate">{node.label}</span>
+          <ChevronDown className={cn('size-4 shrink-0 transition-transform', !expanded && '-rotate-90')} aria-hidden />
+        </button>
+      </SidebarLink>
       {expanded && <div id={contentId} className="grid gap-1">
         {node.entries.map((entry) => (
           <EntryLink key={entry.key} entry={entry} collapsed={false} nested onNavigate={onNavigate} />

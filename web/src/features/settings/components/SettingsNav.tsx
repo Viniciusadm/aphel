@@ -1,3 +1,4 @@
+import { SidebarLink } from '@/components/ui/sidebar-link'
 import { ArrowLeft, type LucideIcon } from 'lucide-react'
 import type { ReactElement } from 'react'
 import { Link, NavLink, useLocation } from 'react-router'
@@ -8,9 +9,6 @@ import type { SettingsArea } from '@/kernel/modules/settings'
 import { useOtherAreas } from '../lib/use-other-areas'
 import { useSettingsSearch } from '../lib/use-settings-search'
 import { SettingsSearchInput } from './SettingsSearchInput'
-
-const itemClass =
-  'flex h-8 items-center gap-2.5 rounded-md px-3 text-sm text-sidebar-foreground transition-colors hover:bg-sidebar-accent hover:text-sidebar-accent-foreground focus-visible:ring-2 focus-visible:ring-ring focus-visible:outline-none'
 
 const headingClass = 'px-3 text-xs font-semibold tracking-wide text-muted-foreground uppercase'
 
@@ -42,21 +40,18 @@ export function SettingsNav({ area, returnPath, collapsed = false, onNavigate }:
     withTooltip(
       to,
       label,
-      <NavLink
-        key={to}
-        to={to}
-        end={end}
-        onClick={onNavigate}
-        aria-label={collapsed ? label : undefined}
-        className={cn(
-          itemClass,
-          'aria-[current=page]:bg-sidebar-accent aria-[current=page]:font-medium aria-[current=page]:text-sidebar-accent-foreground',
-          collapsed && 'justify-center px-0',
-        )}
-      >
-        <Icon aria-hidden className="size-4 shrink-0" />
-        {!collapsed && <span className="truncate">{label}</span>}
-      </NavLink>,
+      <SidebarLink asChild key={to} collapsed={collapsed}>
+        <NavLink
+          key={to}
+          to={to}
+          end={end}
+          onClick={onNavigate}
+          aria-label={collapsed ? label : undefined}
+        >
+          <Icon aria-hidden className="size-4 shrink-0" />
+          {!collapsed && <span className="truncate">{label}</span>}
+        </NavLink>
+      </SidebarLink>,
     )
 
   const areaPath = area.basePath.replace(/\/$/, '')
@@ -70,15 +65,16 @@ export function SettingsNav({ area, returnPath, collapsed = false, onNavigate }:
         {withTooltip(
           'back',
           backLabel,
-          <Link
-            to={backPath}
-            onClick={onNavigate}
-            aria-label={collapsed ? backLabel : undefined}
-            className={cn(itemClass, 'text-muted-foreground', collapsed && 'justify-center px-0')}
-          >
-            <ArrowLeft aria-hidden className="size-4 shrink-0" />
-            {!collapsed && <span className="truncate">{backLabel}</span>}
-          </Link>,
+          <SidebarLink asChild collapsed={collapsed} className="text-muted-foreground">
+            <Link
+              to={backPath}
+              onClick={onNavigate}
+              aria-label={collapsed ? backLabel : undefined}
+            >
+              <ArrowLeft aria-hidden className="size-4 shrink-0" />
+              {!collapsed && <span className="truncate">{backLabel}</span>}
+            </Link>
+          </SidebarLink>,
         )}
         {!collapsed && <p className="truncate px-3 text-sm font-semibold">{t(area.titleKey)}</p>}
         {!collapsed && <SettingsSearchInput value={query} onChange={setQuery} />}
