@@ -5,7 +5,7 @@ import { Button } from '@/components/ui/button'
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card'
 import { Checkbox } from '@/components/ui/checkbox'
 import { Input } from '@/components/ui/input'
-import { Select, SelectTrigger, SelectValue } from '@/components/ui/select'
+import { NativeSelect } from '@/components/ui/native-select'
 import { Switch } from '@/components/ui/switch'
 import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from '@/components/ui/table'
 import { Tabs, TabsList, TabsTrigger } from '@/components/ui/tabs'
@@ -76,11 +76,9 @@ export function ThemePreview({ tokens, fonts, mode }: ThemePreviewProps) {
           <Field label={t('preview.field')}>
             {(control) => <Input {...control} placeholder={t('preview.placeholder')} />}
           </Field>
-          <Select>
-            <SelectTrigger aria-label={t('preview.select')}>
-              <SelectValue placeholder={t('preview.select')} />
-            </SelectTrigger>
-          </Select>
+          <NativeSelect aria-label={t('preview.select')} defaultValue="">
+            <option value="" disabled>{t('preview.select')}</option>
+          </NativeSelect>
           <div className="flex items-center gap-4">
             <label className="flex items-center gap-2 text-sm">
               <Checkbox defaultChecked /> {t('preview.checkbox')}

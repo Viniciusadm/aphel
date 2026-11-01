@@ -1,3 +1,4 @@
+import { FieldError as SharedFieldError } from '@/components/ui/field-error'
 import { Archive, Download, PackageCheck, Terminal } from 'lucide-react'
 import { useState } from 'react'
 import { useTranslation } from 'react-i18next'
@@ -197,7 +198,7 @@ function ExportRow({ item }: { item: OrgExport }) {
           </p>
         )}
         {item.status === 'failed' && item.failure_reason && (
-          <p className="text-sm break-words text-destructive">{item.failure_reason}</p>
+          <SharedFieldError className="break-words">{item.failure_reason}</SharedFieldError>
         )}
       </div>
       {item.status === 'completed' && (

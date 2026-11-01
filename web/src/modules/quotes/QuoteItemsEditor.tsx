@@ -105,7 +105,7 @@ export function QuoteItemsEditor({ currency, items, editable, onChange, onAddPro
               <div className="flex gap-1">
                 <NativeSelect value={item.discount_type ?? 'none'}
                   disabled={!editable}
-                  onValueChange={(value) => update(item.key, { discount_type: value as QuoteDiscountType })} aria-label={t('editor.fields.discountType')} className="w-16 px-2">
+                  onValueChange={(value) => update(item.key, { discount_type: value as QuoteDiscountType })} aria-label={t('editor.fields.discountType')} className="w-16">
                     {DISCOUNT_TYPES.map((type) => (
                       <option key={type} value={type}>
                         {type === 'none' ? '—' : type === 'percent' ? '%' : '$'}

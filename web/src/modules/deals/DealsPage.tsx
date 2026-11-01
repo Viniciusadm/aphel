@@ -115,7 +115,7 @@ function PipelineFilterSelect() {
           page: 1,
         }))
       }
-      className="h-8 max-w-48 rounded-md border bg-background px-2 text-sm"
+      className="h-8 max-w-48 px-2"
     >
       <option value="">{t('filter.all')}</option>
       {options.map((item) => (
@@ -216,7 +216,7 @@ function BoardMode({ canMove }: { canMove: boolean }) {
                 return next
               })
             }
-            className="h-8 rounded-md border bg-background px-2 text-sm"
+            className="h-8 px-2"
           >
             {options.map((item) => (
               <option key={item.id} value={item.id}>

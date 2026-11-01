@@ -9,7 +9,7 @@ export function NotFoundPage() {
   return (
     <div className="mx-auto flex max-w-md flex-col items-center gap-4 py-16 text-center">
       <p className="text-5xl font-bold text-primary">{t('notFound.code')}</p>
-      <PageTitle >{t('notFound.title')}</PageTitle>
+      <PageTitle>{t('notFound.title')}</PageTitle>
       <p className="text-sm text-muted-foreground">{t('notFound.description')}</p>
       <Button asChild>
         <Link to="/">{t('notFound.backHome')}</Link>

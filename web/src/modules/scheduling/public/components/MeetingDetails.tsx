@@ -27,7 +27,7 @@ export function MeetingDetails({
   return (
     <div className="grid gap-3">
       <p className="text-sm font-medium text-muted-foreground">{organizationName}</p>
-      <PageTitle >{meetingName}</PageTitle>
+      <PageTitle>{meetingName}</PageTitle>
       <ul className="grid gap-2 text-sm text-muted-foreground">
         {hostName && (
           <li className="flex items-center gap-2">

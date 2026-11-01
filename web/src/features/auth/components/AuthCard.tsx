@@ -13,7 +13,7 @@ export function AuthCard({ title, description, footer, children }: AuthCardProps
   return (
     <Card>
       <CardHeader>
-        <PageTitle >{title}</PageTitle>
+        <PageTitle>{title}</PageTitle>
         {description && <CardDescription>{description}</CardDescription>}
       </CardHeader>
       {children && <CardContent>{children}</CardContent>}

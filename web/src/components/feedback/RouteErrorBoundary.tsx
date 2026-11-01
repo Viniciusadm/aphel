@@ -38,7 +38,7 @@ export function RouteErrorBoundary({ homePath = '/', className }: RouteErrorBoun
         <CircleAlert className="size-6" aria-hidden="true" />
       </div>
       <div className="grid gap-1">
-        <PageTitle >
+        <PageTitle>
           {notFound ? t('errorBoundary.notFoundTitle') : t('errorBoundary.title')}
         </PageTitle>
         <p className="text-sm text-muted-foreground">
