@@ -17,7 +17,6 @@ import {
   DialogTitle,
 } from '@/components/ui/dialog'
 import { Input } from '@/components/ui/input'
-import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/components/ui/select'
 import { Textarea } from '@/components/ui/textarea'
 import { modulesApi, type ModuleInfo, type ModuleSettingField } from '@/kernel/modules/api'
 import { moduleDefinition } from '@/kernel/modules/registry'
@@ -279,22 +278,18 @@ function FieldPicker({ control, field, inputId, invalid, describedBy }: FieldPic
         const value = typeof control.value === 'string' ? control.value : ''
         const known = value === '' || options.some((option) => option.key === value)
         return (
-          <Select value={value} onValueChange={control.onChange} disabled={schema.isPending || !field.record_type}>
-            <SelectTrigger id={inputId} className="w-full" aria-invalid={invalid} aria-describedby={describedBy} aria-busy={schema.isPending}>
-              <SelectValue placeholder={t('settings.fieldPlaceholder')} />
-            </SelectTrigger>
-            <SelectContent>
-              {!known && <SelectItem value={value}>{value}</SelectItem>}
+          <NativeSelect value={value} onValueChange={control.onChange} disabled={schema.isPending || !field.record_type} id={inputId} className="w-full" aria-invalid={invalid} aria-describedby={describedBy} aria-busy={schema.isPending}>
+              <option value="" disabled>{t('settings.fieldPlaceholder')}</option>
+              {!known && <option value={value}>{value}</option>}
               {options.map((option) => (
-                <SelectItem key={option.key} value={option.key}>
+                <option key={option.key} value={option.key}>
                   {option.label}
-                </SelectItem>
+                </option>
               ))}
               {options.length === 0 && known && (
-                <p className="px-2 py-1.5 text-sm text-muted-foreground">{t('settings.noFieldOptions')}</p>
+                <option disabled>{t('settings.noFieldOptions')}</option>
               )}
-            </SelectContent>
-          </Select>
+          </NativeSelect>
         )
       }}
     />

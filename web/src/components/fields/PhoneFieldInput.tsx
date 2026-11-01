@@ -1,3 +1,4 @@
+import { NativeSelect } from '@/components/ui/native-select'
 import { useMemo, useState } from 'react'
 import { useTranslation } from 'react-i18next'
 import { Input } from '@/components/ui/input'
@@ -47,10 +48,10 @@ export function PhoneFieldInput({ defaultCountry, locale, fieldLabel, ...props }
 
   return (
     <div className={cn('flex min-w-0 gap-2', props.className)}>
-      <select
+      <NativeSelect
         aria-label={fieldLabel ? t('input.countryOf', { field: fieldLabel }) : t('input.country')}
         disabled={props.disabled}
-        className="h-9 w-24 shrink-0 rounded-md border border-input bg-background px-2 text-sm shadow-xs outline-none focus-visible:ring-2 focus-visible:ring-ring disabled:cursor-not-allowed disabled:opacity-50"
+        className="w-24 shrink-0"
         value={country.code}
         onChange={(event) => {
           const next = findPhoneCountry(event.target.value) ?? fallback
@@ -63,7 +64,7 @@ export function PhoneFieldInput({ defaultCountry, locale, fieldLabel, ...props }
             {`${names.get(item.code)} (+${item.dialCode})`}
           </option>
         ))}
-      </select>
+      </NativeSelect>
       <Input
         {...ariaProps(props)}
         aria-invalid={invalid || props.invalid || undefined}

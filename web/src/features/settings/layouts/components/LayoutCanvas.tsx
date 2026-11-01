@@ -1,3 +1,4 @@
+import { NativeSelect } from '@/components/ui/native-select'
 import { SegmentedControl } from '@/components/ui/segmented-control'
 import {
   DndContext,
@@ -42,8 +43,6 @@ import { PALETTE_ID, columnId, parseColumnId } from '../lib/dnd'
 import { FieldChip } from './FieldChip'
 import { Field } from '@/components/ui/field'
 
-const SELECT_CLASS =
-  'h-8 min-w-0 rounded-md border border-input bg-background px-2 text-sm focus-visible:ring-2 focus-visible:ring-ring focus-visible:outline-none'
 
 export interface LayoutCanvasProps {
   layout: FormLayout
@@ -269,9 +268,8 @@ function SectionEditor({ section, first, last, removable, layout, byKey, availab
         </Field>
         <div className="flex items-end gap-1">
           <Field id={`${nameId}-columns`} label={t('sections.columns')}>
-            <select
+            <NativeSelect
               id={`${nameId}-columns`}
-              className={SELECT_CLASS}
               value={section.columns.length}
               onChange={(event) => onChange(setSectionColumns(layout, section.id, Number(event.target.value)))}
             >
@@ -280,7 +278,7 @@ function SectionEditor({ section, first, last, removable, layout, byKey, availab
                   {index + 1}
                 </option>
               ))}
-            </select>
+            </NativeSelect>
           </Field>
           <IconButton label={t('sections.moveUp')} disabled={first} onClick={() => onChange(moveSection(layout, section.id, -1))}>
             <ArrowUp aria-hidden="true" />
@@ -356,9 +354,9 @@ function ColumnEditor({ id, label, fieldKeys: keys, available, onAdd, children }
         )}
       </SortableContext>
       {available.length > 0 && (
-        <select
+        <NativeSelect
           aria-label={`${t('fields.add')} — ${label}`}
-          className={cn(SELECT_CLASS, 'text-muted-foreground')}
+          className="text-muted-foreground"
           value=""
           onChange={(event) => {
             if (event.target.value) onAdd(event.target.value)
@@ -370,7 +368,7 @@ function ColumnEditor({ id, label, fieldKeys: keys, available, onAdd, children }
               {field.label}
             </option>
           ))}
-        </select>
+        </NativeSelect>
       )}
     </div>
   )

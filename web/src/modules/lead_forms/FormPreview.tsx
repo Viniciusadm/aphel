@@ -1,3 +1,9 @@
+import { Button } from '@/components/ui/button'
+import { Field } from '@/components/ui/field'
+import { Input } from '@/components/ui/input'
+import { NativeSelect } from '@/components/ui/native-select'
+import { Textarea } from '@/components/ui/textarea'
+import { ToggleField } from '@/components/ui/toggle-field'
 import { useModuleTranslation } from '@/kernel/modules/i18n'
 import { LEAD_FORMS_KEY } from './api'
 import { parseOptions, type LeadFormValues } from './form'
@@ -5,8 +11,6 @@ import { parseOptions, type LeadFormValues } from './form'
 interface FormPreviewProps {
   values: LeadFormValues
 }
-
-const inputClass = 'w-full rounded-md border border-input bg-background px-2.5 py-2 text-sm'
 
 export function FormPreview({ values }: FormPreviewProps) {
   const t = useModuleTranslation(LEAD_FORMS_KEY)
@@ -18,42 +22,35 @@ export function FormPreview({ values }: FormPreviewProps) {
         const id = `lead-form-preview-${index}`
         if (field.kind === 'checkbox') {
           return (
-            <label key={id} className="flex items-start gap-2 text-sm">
-              <input type="checkbox" className="mt-0.5 size-4" disabled />
-              <span className="break-words">{label}</span>
-            </label>
+            <ToggleField key={id} id={id} label={label} checked={false} onCheckedChange={() => {}} disabled />
           )
         }
         return (
-          <div key={id} className="grid gap-1">
-            <label htmlFor={id} className="text-sm font-semibold break-words">
-              {label}
-            </label>
+          <Field key={id} id={id} label={label}>
             {field.kind === 'textarea' ? (
-              <textarea id={id} className={`${inputClass} min-h-20`} placeholder={field.placeholder} readOnly />
+              <Textarea id={id} className="min-h-20" placeholder={field.placeholder} readOnly />
             ) : field.kind === 'select' ? (
-              <select id={id} className={inputClass} disabled>
+              <NativeSelect id={id} disabled>
                 <option>{field.placeholder || t('preview.selectPrompt')}</option>
                 {parseOptions(field.options).map((option) => (
                   <option key={option.value}>{option.label}</option>
                 ))}
-              </select>
+              </NativeSelect>
             ) : (
-              <input
+              <Input
                 id={id}
-                className={inputClass}
                 type={field.kind === 'email' ? 'email' : field.kind === 'phone' ? 'tel' : 'text'}
                 placeholder={field.placeholder}
                 readOnly
               />
             )}
-          </div>
+          </Field>
         )
       })}
       <div>
-        <span className="inline-flex rounded-md bg-primary-solid px-4 py-2 text-sm font-semibold text-primary-foreground">
+        <Button asChild><span>
           {values.submit_label || t('preview.submit')}
-        </span>
+        </span></Button>
       </div>
       <p className="rounded-md bg-muted px-3 py-2 text-xs text-muted-foreground break-words">
         {t('preview.afterSubmit', {
