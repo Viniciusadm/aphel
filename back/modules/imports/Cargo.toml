@@ -7,6 +7,8 @@ license.workspace = true
 publish = false
 
 [dependencies]
+notifications = { package = "aphel-mod-notifications", path = "../notifications" }
+dashboard = { package = "aphel-mod-dashboard", path = "../dashboard" }
 aphel-kernel.workspace = true
 exports = { package = "aphel-mod-exports", path = "../exports" }
 lead_distribution = { package = "aphel-mod-lead-distribution", path = "../lead_distribution" }

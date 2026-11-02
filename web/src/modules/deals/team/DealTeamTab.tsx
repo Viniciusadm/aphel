@@ -13,6 +13,7 @@ import { Input } from '@/components/ui/input'
 import { Skeleton } from '@/components/ui/skeleton'
 import { toast } from '@/components/ui/toast-store'
 import { useOrganizationUsers } from '@/features/records/api'
+
 import { useDealMemberRoles, useDealTeam, useDealTeamMutations } from './api'
 import { dealTeamErrorMessage, formatPercent, parsePercent, toPercentInput } from './errors'
 import { MEMBER_GRID_CLASS, MemberRow } from './MemberRow'

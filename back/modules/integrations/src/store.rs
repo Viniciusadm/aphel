@@ -5,7 +5,7 @@ use sqlx::types::Json;
 use sqlx::{MySqlPool, Row};
 use uuid::Uuid;
 
-use aphel_kernel::application::integrations::{Integration, IntegrationError, IntegrationStatus};
+use crate::engine::{Integration, IntegrationError, IntegrationStatus};
 use aphel_kernel::context::Ctx;
 use aphel_kernel::database::transaction::MySqlTx;
 use aphel_kernel::errors::AppError;

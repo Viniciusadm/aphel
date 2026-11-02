@@ -1,3 +1,4 @@
+use aphel_contract_automation::AutomationBuilder;
 pub(crate) mod http;
 pub(crate) mod model;
 pub(crate) mod public_http;

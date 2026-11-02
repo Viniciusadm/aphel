@@ -15,8 +15,8 @@ use aphel_kernel::application::fields::permissions::query_error;
 use aphel_kernel::application::fields::{EntityDefinition, FieldSet};
 use aphel_kernel::application::organization_admin::{ListWindow, Listing};
 use aphel_kernel::application::query::{
-    Filter, RecordQuery, RecordQueryEngine, RecordQueryExecutor, RecordQueryPorts, ResolveContext,
-    SegmentResolution, in_segment, resolve_filter_with,
+    Filter, FilterExpansion, RecordQuery, RecordQueryEngine, RecordQueryExecutor, RecordQueryPorts,
+    ResolveContext, in_saved_filter, resolve_filter_with,
 };
 use aphel_kernel::application::shared::{RecordRef, RecordType, ensure_version};
 use aphel_kernel::database::transaction::MySqlTx;
@@ -206,7 +206,7 @@ pub(crate) async fn members(
     query: SegmentMembersQuery,
 ) -> Result<Listing<SegmentMember>, AppError> {
     let segment = visible(ctx, segment_id).await?;
-    let membership = in_segment(segment.id);
+    let membership = in_saved_filter(segment.id);
     let filter = match query.filter {
         Some(extra) => Filter::and(vec![membership, extra]),
         None => membership,
@@ -249,7 +249,7 @@ async fn count(ctx: &Ctx<'_>, record_type: &RecordType, segment_id: Uuid) -> Opt
             ctx.scope,
             record_type.as_str(),
             RecordQuery {
-                filter: Some(in_segment(segment_id)),
+                filter: Some(in_saved_filter(segment_id)),
                 window: ListWindow {
                     offset: 0,
                     limit: 1,
@@ -280,7 +280,7 @@ async fn validate_filter(
         &fields,
         &context,
         filter,
-        SegmentResolution::Reject,
+        FilterExpansion::Reject,
         violations,
     );
     if node.is_none() && violations.len() == before {

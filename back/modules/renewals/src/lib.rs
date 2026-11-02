@@ -50,13 +50,10 @@ impl Module for RenewalsModule {
 
     fn register(&self, app: &mut AppBuilder) -> Result<(), AppError> {
         app.contribute(std::sync::Arc::new(
-            aphel_kernel::infrastructure::config_packages::ConfigSectionFactory::new(
-                80,
-                |pool, registry| {
-                    let _ = registry;
-                    std::sync::Arc::new(crate::section::pipeline_renewals_section(pool))
-                },
-            ),
+            ::config_packages::infrastructure::ConfigSectionFactory::new(80, |pool, registry| {
+                let _ = registry;
+                std::sync::Arc::new(crate::section::pipeline_renewals_section(pool))
+            }),
         ));
         let renewal_of = record_field(
             RENEWAL_OF_DEAL_FIELD,
@@ -74,8 +71,8 @@ impl Module for RenewalsModule {
             ))
         })
         .schedule(runtime::renewals_scan_schedule())
-        .widget(Arc::new(widget::RenewalsDueWidget))
-        .notification_kind(notifications::RENEWAL_NOTIFICATION_KIND)
+        .contribute::<dyn ::dashboard::engine::WidgetProvider<::dashboard::repository::MySqlDashboardPorts>>(Arc::new(widget::RenewalsDueWidget))
+        .contribute(std::sync::Arc::new(notifications::RENEWAL_NOTIFICATION_KIND))
         .consumer(|env| notifications::RenewalNotificationConsumer::shared(env.pool.clone()));
         for definition in PUBLIC_EVENTS {
             app.public_event(*definition);

@@ -1,8 +1,11 @@
 pub(crate) mod cli;
 pub(crate) mod dataset;
 pub(crate) mod domain;
+mod policy;
 pub(crate) mod revenue;
 pub(crate) mod service;
+pub mod settings;
+mod status;
 pub(crate) mod store;
 
 pub(crate) use dataset::*;
@@ -41,6 +44,14 @@ impl Module for DemoModule {
     }
 
     fn register(&self, app: &mut AppBuilder) -> Result<(), AppError> {
+        app.contribute::<dyn aphel_kernel::modules::HttpRequestPolicy>(std::sync::Arc::new(
+            policy::DemoPolicy,
+        ));
+        app.contribute::<dyn aphel_kernel::application::mail::MailDeliveryPolicy>(
+            std::sync::Arc::new(policy::DemoPolicy),
+        );
+        app.openapi_tag(status::TAG, "Demonstration environment status")
+            .public_routes(|_| status::router());
         app.contribute(std::sync::Arc::new(
             aphel_kernel::application::fields::EntityKeyAliases(&[
                 ("approval_policy", "approvals.approval_policy"),

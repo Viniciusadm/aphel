@@ -16,6 +16,7 @@ import { toast } from '@/components/ui/toast-store'
 import { recordTimelineSource } from '@/modules/timeline'
 import { contactResource } from '@/modules/contacts/resource'
 import { recordsKeys } from '@/features/records/api'
+
 import { recordPath, recordTitle } from '@/features/records/resources'
 import { Timeline } from '@/features/records/timeline'
 import type { RecordItem } from '@/features/records/types'

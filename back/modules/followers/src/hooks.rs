@@ -7,6 +7,7 @@ use sqlx::MySqlPool;
 use crate::domain::FollowOrigin;
 use crate::store::FollowerStore;
 use aphel_kernel::application::custom_objects::{CatalogEventConsumer, RecordTypeCatalog};
+
 use aphel_kernel::application::fields::RecordTypeRegistry;
 use aphel_kernel::application::record_sharing::RecordDirectory;
 use aphel_kernel::application::shared::{DomainEvent, EventConsumer, RecordType};

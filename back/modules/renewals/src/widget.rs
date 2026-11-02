@@ -10,16 +10,14 @@ use uuid::Uuid;
 
 use deal_items::widgets::{base_revenue, money};
 
-use aphel_kernel::application::dashboard::{
-    DashboardPorts, SettingsReader, WidgetContext, WidgetProvider,
-};
+use ::dashboard::engine::{DashboardPorts, SettingsReader, WidgetContext, WidgetProvider};
+use ::dashboard::engine_domain::local_today;
 use aphel_kernel::application::fields::permissions::{FieldAccess, FieldAccessPolicy};
 use aphel_kernel::application::query::{
     Filter, FilterOperator, QueryPlan, RecordQueryPorts, SortSpec,
 };
 use aphel_kernel::application::shared::RecordType;
 use aphel_kernel::domain::access::{AccessScope, Permission};
-use aphel_kernel::domain::dashboard::local_today;
 use aphel_kernel::errors::{AppError, FieldViolation};
 use aphel_kernel::infrastructure::query::compiler::{Projection, build_query};
 use aphel_kernel::infrastructure::repositories::mapper::invalid_column;

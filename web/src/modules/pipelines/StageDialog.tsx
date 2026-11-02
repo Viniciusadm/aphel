@@ -8,6 +8,7 @@ import {
 import { Input } from '@/components/ui/input'
 import type { PipelineStage, StageKind } from './types'
 import { useFieldSchema } from '@/features/records/api'
+
 import { activeFields } from '@/features/records/fields'
 import { CheckboxList, type CheckboxListItem } from './CheckboxList'
 import { StageGuidanceEditor } from './guidance/StageGuidanceEditor'

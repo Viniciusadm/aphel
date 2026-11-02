@@ -10,6 +10,7 @@ use crate::domain::custom::{
 };
 use crate::store::ReportStore;
 use crate::table::report_table;
+use ::saved_views::application::ViewVisibility;
 use aphel_kernel::Ctx;
 use aphel_kernel::application::access::{Authorizer, PERMISSION_DENIED};
 use aphel_kernel::application::audit::{DiffOptions, diff_changes};
@@ -17,7 +18,6 @@ use aphel_kernel::application::fields::EntityDefinition;
 use aphel_kernel::application::fields::permissions::query_error;
 use aphel_kernel::application::query::{AggregateEngine, AggregateQuery, AggregateResult};
 use aphel_kernel::application::shared::{FieldChange, RecordRef, RecordType, ensure_version};
-use aphel_kernel::application::views::ViewVisibility;
 use aphel_kernel::database::transaction::MySqlTx;
 use aphel_kernel::domain::TeamId;
 use aphel_kernel::domain::access::{AccessScope, Permission};

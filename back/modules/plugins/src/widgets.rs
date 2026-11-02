@@ -6,11 +6,11 @@ use serde_json::Value;
 use crate::manifest::WidgetSpec;
 use crate::registry::LoadedPlugin;
 use crate::runtime::{self, scope_actor, wit};
-use aphel_kernel::application::dashboard::{WidgetContext, WidgetProvider, WidgetSize};
+use ::dashboard::DashboardWidget;
+use ::dashboard::engine::{WidgetContext, WidgetProvider, WidgetSize};
+use ::dashboard::repository::MySqlDashboardPorts;
 use aphel_kernel::domain::access::Permission;
 use aphel_kernel::errors::{AppError, FieldViolation};
-use aphel_kernel::infrastructure::repositories::mysql_dashboard::MySqlDashboardPorts;
-use aphel_kernel::modules::builder::DashboardWidget;
 
 const DEFAULT_CATEGORY: &str = "plugins";
 const MAX_SETTINGS_BYTES: usize = 16 * 1024;

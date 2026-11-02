@@ -75,7 +75,7 @@ impl Module for ReportsModule {
             "Saved custom reports, their results, exports and e-mail schedules",
         )
         .routes(|_| http::builtin::router().merge(http::custom::router()))
-        .widget(Arc::new(SavedReportWidget))
+        .contribute::<dyn ::dashboard::engine::WidgetProvider<::dashboard::repository::MySqlDashboardPorts>>(Arc::new(SavedReportWidget))
         .worker(worker);
         for operation in plugin_bridge::operations() {
             app.contribute::<aphel_kernel::modules::PluginOperation>(operation);

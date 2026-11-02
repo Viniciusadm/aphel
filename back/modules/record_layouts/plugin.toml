@@ -1,0 +1,5 @@
+key = "record_layouts"
+name = "Record Layouts"
+version = "0.1.0"
+layer = "capability"
+runtime = "native"

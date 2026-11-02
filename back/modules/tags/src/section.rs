@@ -1,4 +1,4 @@
-use aphel_kernel::application::config_packages::ConfigReferenceKind;
+use ::config_packages::application::ConfigReferenceKind;
 use std::collections::BTreeSet;
 
 use async_trait::async_trait;
@@ -10,8 +10,8 @@ use uuid::Uuid;
 use crate::domain::{Tag, normalize_tag_color, normalize_tag_name};
 use crate::store::TagStore;
 use crate::taggable_record_type;
-use aphel_kernel::application::config_packages::sections::common::{check_key, diff};
-use aphel_kernel::application::config_packages::{
+use ::config_packages::application::sections::common::{check_key, diff};
+use ::config_packages::application::{
     ApplyContext, ConfigKeyRepository, ConfigPackage, ConfigSection, Decisions, KeyedItem,
     PackageIssue, PlanChange, PlanItem, assign_keys, parse_section,
 };
@@ -276,8 +276,7 @@ where
     ) -> Result<(), AppError> {
         for plan in self.reconcile(scope, &parse(content)?, context.at).await? {
             if !decisions.executes(&plan.item)
-                && plan.item.action
-                    != aphel_kernel::application::config_packages::PlanAction::Unchanged
+                && plan.item.action != ::config_packages::application::PlanAction::Unchanged
             {
                 continue;
             }

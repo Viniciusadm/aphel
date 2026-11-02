@@ -9,11 +9,11 @@ use crate::{
     ActiveAutomation, Automation, AutomationDefinition, AutomationListFilter, AutomationVersion,
     TriggerSpec,
 };
+use aphel_contract_automation::domain::AutomationStatus;
 use aphel_kernel::Ctx;
 use aphel_kernel::application::organization_admin::{ListWindow, Listing};
 use aphel_kernel::database::transaction::MySqlTx;
 use aphel_kernel::domain::UserId;
-use aphel_kernel::domain::automations::AutomationStatus;
 use aphel_kernel::errors::AppError;
 use aphel_kernel::infrastructure::fields::mysql_definitions::uuid_column;
 use aphel_kernel::infrastructure::repositories::mapper;

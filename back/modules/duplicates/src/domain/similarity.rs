@@ -4,7 +4,7 @@ const COMPANY_SUFFIXES: &[&str] = &[
     "ltda", "me", "mei", "epp", "eireli", "sa", "s a", "cia", "inc", "llc", "ltd", "corp",
 ];
 
-pub(crate) use aphel_kernel::application::search::text::normalize_name;
+pub(crate) use ::search::application::text::normalize_name;
 
 pub(crate) fn normalize_company_name(value: &str) -> String {
     let mut name = normalize_name(value);

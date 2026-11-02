@@ -100,7 +100,7 @@ fn sync(check: bool) -> Result<bool, Failure> {
     let back = back_dir();
     let selection = read_selection(&back.join(SELECTION))?;
     let profiles: Vec<Value> = serde_json::from_str(&fs::read_to_string(
-        back.join("kernel/src/application/installer/profiles.json"),
+        back.join("../blueprints/profiles.json"),
     )?)?;
     for module in selection.iter().filter(|module| !module.spec.required) {
         if !profiles.iter().any(|profile| {
@@ -232,10 +232,10 @@ fn package_name(back: &Path, module: &SelectedModule) -> Result<String, Failure>
 fn dependency_lines(back: &Path, selection: &[SelectedModule]) -> Result<Vec<String>, Failure> {
     let mut lines = Vec::new();
     for module in selection {
-        let mut fields = vec![format!(
-            "package = {}",
-            quoted(&package_name(back, module)?)
-        )];
+        let mut fields = vec![
+            "optional = true".to_owned(),
+            format!("package = {}", quoted(&package_name(back, module)?)),
+        ];
         let spec = &module.spec;
         if let Some(path) = &spec.path {
             fields.push(format!("path = {}", quoted(&format!("../{path}"))));
@@ -298,7 +298,27 @@ fn app_manifest(current: &str, generated: &[String]) -> Result<String, Failure> 
         output.push(String::new());
         output.extend(rest);
     }
-    Ok(output.join("\n") + "\n")
+    let mut text = output.join("\n") + "\n";
+    let features = format!(
+        "[features]\ndefault = [\"plugins\"]\nplugins = [{}]\n\n",
+        generated
+            .iter()
+            .filter_map(|line| line
+                .split_once(" = ")
+                .map(|(key, _)| quoted(&format!("dep:{key}"))))
+            .collect::<Vec<_>>()
+            .join(", ")
+    );
+    if let Some(start) = text.find("[features]\n") {
+        let end = text[start + 11..]
+            .find("\n[")
+            .map_or(text.len(), |offset| start + 12 + offset);
+        text.replace_range(start..end, &features);
+    } else {
+        let start = text.find("[dependencies]").ok_or("missing dependencies")?;
+        text.insert_str(start, &features);
+    }
+    Ok(text)
 }
 
 fn resolve(
@@ -522,7 +542,7 @@ fn rust_registry(modules: &[ResolvedModule]) -> String {
         .iter()
         .map(|module| {
             format!(
-                "        Box::new({}{}::{}),\n",
+                "        #[cfg(feature = \"plugins\")]\n        Box::new({}{}::{}),\n",
                 DEPENDENCY_PREFIX.replace('-', "_"),
                 module.key,
                 module.module_type
@@ -537,7 +557,7 @@ fn rust_registry(modules: &[ResolvedModule]) -> String {
          \n\
          pub fn compiled() -> Vec<Box<dyn Module>> {{\n    vec![\n        Box::new(aphel_kernel::KernelModule),\n{}    ]\n}}\n\
          \n\
-         pub fn build() -> Result<App, AppError> {{\n    AppBuilder::new()\n        .modules(compiled())\n        .require(REQUIRED.iter().copied())\n        .build()\n}}\n",
+         pub fn build() -> Result<App, AppError> {{\n    let builder = AppBuilder::new();\n    #[cfg(feature = \"plugins\")]\n    let builder = {{\n        let mut builder = builder;\n        crate::blueprints::register(&mut builder);\n        builder\n    }};\n    builder\n        .modules(compiled())\n        .require(REQUIRED.iter().copied())\n        .build()\n}}\n",
         required.concat(),
         compiled
     )

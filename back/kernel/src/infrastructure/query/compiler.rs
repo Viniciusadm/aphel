@@ -20,28 +20,28 @@ pub fn quoted(identifier: &str) -> String {
 pub(crate) const RECORD_ALIAS: &str = "r";
 
 #[derive(Debug, Clone, Copy, PartialEq, Eq)]
-pub struct TagStorage {
-    pub taggings: &'static str,
-    pub tag_column: &'static str,
-    pub tags: &'static str,
+pub struct ReferenceSetStorage {
+    pub links_table: &'static str,
+    pub value_column: &'static str,
+    pub labels_table: &'static str,
 }
 
-pub(crate) fn tag_storage() -> Option<TagStorage> {
+pub(crate) fn reference_set_storage() -> Option<ReferenceSetStorage> {
     crate::modules::try_app()?
-        .contributions::<TagStorage>()
+        .contributions::<ReferenceSetStorage>()
         .first()
         .map(|storage| **storage)
 }
 
-pub(crate) fn taggings_source() -> String {
-    match tag_storage() {
+pub(crate) fn reference_set_source() -> String {
+    match reference_set_storage() {
         Some(storage) => format!(
-            "(SELECT record_type, record_id, {} AS tag_id FROM {})",
-            quoted(storage.tag_column),
-            quoted(storage.taggings)
+            "(SELECT record_type, record_id, {} AS value_id FROM {})",
+            quoted(storage.value_column),
+            quoted(storage.links_table)
         ),
         None => "(SELECT CAST(NULL AS CHAR) AS record_type, CAST(NULL AS CHAR) AS record_id, \
-                 CAST(NULL AS CHAR) AS tag_id)"
+                 CAST(NULL AS CHAR) AS value_id)"
             .to_owned(),
     }
 }
@@ -73,7 +73,7 @@ pub fn push_record_scope_as(
     push_record_scope_keyed(builder, scope, definition, visibility, alias, "id");
 }
 
-pub(crate) fn push_record_scope_keyed(
+pub fn push_record_scope_keyed(
     builder: &mut QueryBuilder<MySql>,
     scope: &AccessScope,
     definition: &EntityDefinition,
@@ -358,7 +358,7 @@ pub(crate) fn push_record_group(builder: &mut QueryBuilder<MySql>, group: &Recor
         ));
 }
 
-pub(crate) fn push_live_record(
+pub fn push_live_record(
     builder: &mut QueryBuilder<MySql>,
     scope: &AccessScope,
     definition: &EntityDefinition,
@@ -649,20 +649,20 @@ impl<'a> Compiler<'a> {
                     builder.push(")");
                 }
             }
-            FieldTarget::Tags => {
+            FieldTarget::ReferenceSet => {
                 if condition.negated {
                     builder.push("NOT ");
                 }
                 builder.push(format!(
                     "EXISTS (SELECT 1 FROM {} tg WHERE ",
-                    taggings_source()
+                    reference_set_source()
                 ));
                 self.push_value_owner(builder, "tg");
                 if let Predicate::In(_) = &condition.predicate {
                     builder.push(" AND ");
                     push_predicate(
                         builder,
-                        "tg.tag_id",
+                        "tg.value_id",
                         &condition.predicate,
                         condition.field_type,
                     );
@@ -776,7 +776,7 @@ impl<'a> Compiler<'a> {
         builder.push(" ORDER BY ");
         for (index, sort) in sorts.iter().enumerate() {
             let expression = match &sort.target {
-                FieldTarget::Tags | FieldTarget::OwnerTeam => continue,
+                FieldTarget::ReferenceSet | FieldTarget::OwnerTeam => continue,
                 FieldTarget::System { .. } | FieldTarget::Computed { .. } => {
                     self.target_expression(&sort.target)
                 }

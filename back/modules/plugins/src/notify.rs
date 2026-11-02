@@ -5,16 +5,16 @@ use uuid::Uuid;
 
 use crate::registry::LoadedPlugin;
 use crate::runtime::wit;
-use aphel_kernel::application::notifications::{
+use ::notifications::application::{
     NotificationDirectory, NotificationIntent, NotificationPorts, dispatch,
 };
+use ::notifications::domain::NotificationKind;
+use ::notifications::infrastructure::MySqlNotificationPorts;
 use aphel_kernel::application::shared::RecordRef;
 use aphel_kernel::domain::UserId;
 use aphel_kernel::domain::access::AccessScope;
-use aphel_kernel::domain::notifications::NotificationKind;
 use aphel_kernel::errors::AppError;
 use aphel_kernel::infrastructure::jobs::MySqlJobQueue;
-use aphel_kernel::infrastructure::notifications::MySqlNotificationPorts;
 use aphel_kernel::state::runtime_state;
 
 const NOT_DECLARED: &str = "plugin_notification_not_declared";

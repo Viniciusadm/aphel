@@ -14,15 +14,14 @@ use crate::domain::{
     ApprovalRule, ApprovalStatus, ApproverKind, ConditionKind, DecisionEntry, PolicyCondition,
     PolicyListFilter, PolicyStep, RecordState, RequestApprover, RequestListFilter, StepSnapshot,
 };
+use ::formulas::application::{FormulaEngine, TypeFormulas, ValueKind, compile_formula};
+use ::formulas::infrastructure::MySqlFormulaPorts;
 use aphel_kernel::Ctx;
-use aphel_kernel::application::fields::formulas::{
-    FormulaEngine, TypeFormulas, ValueKind, compile_formula,
-};
 use aphel_kernel::application::fields::{EntityDefinition, FieldSet, RecordTypeRegistry};
 use aphel_kernel::application::organization_admin::{ListWindow, Listing};
 use aphel_kernel::application::query::{
-    ArchivedFilter, Filter, FilterOperator, ID_FIELD, RecordQuery, RecordQueryEngine,
-    RecordQueryExecutor, RecordQueryPorts, ResolveContext, SegmentResolution, load_related_sets,
+    ArchivedFilter, Filter, FilterExpansion, FilterOperator, ID_FIELD, RecordQuery,
+    RecordQueryEngine, RecordQueryExecutor, RecordQueryPorts, ResolveContext, load_related_sets,
     resolve_query_related, validate_view_query_related,
 };
 use aphel_kernel::application::security::Clock;
@@ -35,7 +34,6 @@ use aphel_kernel::domain::fields::{
 };
 use aphel_kernel::errors::{AppError, FieldViolation};
 use aphel_kernel::infrastructure::fields::MySqlFieldDefinitionRepository;
-use aphel_kernel::infrastructure::fields::formulas::MySqlFormulaPorts;
 use aphel_kernel::infrastructure::query::compiler::{
     Projection, build_query, push_record_scope, quoted,
 };
@@ -938,7 +936,7 @@ impl ApprovalDirectory {
         };
         let engine = RecordQueryEngine::new(&ports);
         let segments = engine
-            .segments(definition.record_type.as_str(), Some(filter))
+            .expansions(definition.record_type.as_str(), Some(filter))
             .await?;
         let relations = load_related_sets(
             &self.registry,
@@ -965,7 +963,7 @@ impl ApprovalDirectory {
             &context,
             RecordScopeFilter::Organization,
             query,
-            SegmentResolution::Expand(&segments),
+            FilterExpansion::Expand(&segments),
             &relations,
         ))
     }

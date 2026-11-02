@@ -20,7 +20,7 @@ use aphel_kernel::application::organizations::PublicBaseUrl;
 use aphel_kernel::application::shared::{JobContext, JobHandler};
 use aphel_kernel::domain::access::AccessScope;
 use aphel_kernel::errors::AppError;
-use aphel_kernel::infrastructure::demo::demo_settings;
+
 use aphel_kernel::modules::{WorkerEnv, WorkerParts};
 
 pub(crate) struct BookingEmailHandler {
@@ -116,10 +116,10 @@ impl JobHandler for BookingEmailHandler {
         let Some(email) = self.render(booking_id, kind, recipient).await? else {
             return Ok(());
         };
-        if demo_settings().enabled {
+        if aphel_kernel::application::mail::delivery_override().is_some() {
             tracing::info!(
                 subject = email.subject.as_str(),
-                "demo mode: booking e-mail discarded instead of sent"
+                "mail policy: booking e-mail discarded instead of sent"
             );
             return Ok(());
         }

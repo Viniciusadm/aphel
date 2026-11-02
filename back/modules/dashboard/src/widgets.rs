@@ -5,10 +5,11 @@ use rust_decimal::Decimal;
 use rust_decimal::prelude::ToPrimitive;
 use serde_json::{Map, Value, json};
 
-use aphel_kernel::application::dashboard::{
+use crate::engine::{
     DashboardPorts, DashboardRepository, Planner, SettingsReader, WidgetContext, WidgetProvider,
     WidgetSize, instant_value, period_totals,
 };
+use crate::engine_domain::{local_today, start_of_day};
 use aphel_kernel::application::fields::permissions::{FieldAccess, FieldAccessPolicy};
 use aphel_kernel::application::files::UserReference;
 use aphel_kernel::application::query::{
@@ -16,7 +17,6 @@ use aphel_kernel::application::query::{
 };
 use aphel_kernel::application::shared::RecordType;
 use aphel_kernel::domain::access::Permission;
-use aphel_kernel::domain::dashboard::{local_today, start_of_day};
 use aphel_kernel::errors::{AppError, FieldViolation};
 use currencies::domain::{BASE_AMOUNT_FIELD, BASE_AMOUNT_METRIC};
 use pipelines::rotting::stale_deal_filter;

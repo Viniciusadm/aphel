@@ -45,7 +45,7 @@ impl Module for BulkActionsModule {
         app.openapi_tag(http::TAG, "Bulk actions over selected records or every record of a filter, with progress and report")
             .routes(|_| http::router());
         for definition in notifications::notification_kinds() {
-            app.notification_kind(definition);
+            app.contribute(std::sync::Arc::new(definition));
         }
         app.consumer(|env| {
             notifications::BulkNotificationConsumer::shared(

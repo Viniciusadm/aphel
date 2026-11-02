@@ -9,6 +9,7 @@ import { ConfirmDialog, notifySuccess } from '@/components/feedback'
 import { Badge } from '@/components/ui/badge'
 import { Button } from '@/components/ui/button'
 import { recordsKeys } from '@/features/records/api'
+
 import { recordPath, recordTitle } from '@/features/records/resources'
 import type { RecordItem } from '@/features/records/types'
 import { PRODUCT_RECORD_TYPE, PRODUCTS_PATH, productResource } from './resource'

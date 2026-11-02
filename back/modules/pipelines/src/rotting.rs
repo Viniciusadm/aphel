@@ -3,9 +3,9 @@ use chrono::{DateTime, Duration, Utc};
 use serde_json::{Value, json};
 use uuid::Uuid;
 
-use aphel_kernel::application::automations::definition::TriggerSpec;
-use aphel_kernel::application::automations::time::triggers::{DueRule, TimePlan};
-use aphel_kernel::application::automations::triggers::{AutomationTrigger, TriggerCandidate};
+use aphel_contract_automation::application::definition::TriggerSpec;
+use aphel_contract_automation::application::time::triggers::{DueRule, TimePlan};
+use aphel_contract_automation::application::triggers::{AutomationTrigger, TriggerCandidate};
 use aphel_kernel::application::fields::{
     COMPUTED_RECORD_ALIAS, ComputedColumn, FieldSet, SystemField,
 };

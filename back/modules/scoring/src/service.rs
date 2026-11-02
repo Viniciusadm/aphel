@@ -15,10 +15,10 @@ use crate::domain::{
 };
 use crate::engine::is_scored_record_type;
 use crate::store::{ModelStore, ScoreStore};
+use ::config_packages::application::{is_config_key, key_from_name};
 use aphel_kernel::Ctx;
 use aphel_kernel::application::access::Authorizer;
 use aphel_kernel::application::audit::{DiffOptions, diff_values};
-use aphel_kernel::application::config_packages::{is_config_key, key_from_name};
 use aphel_kernel::application::fields::EntityDefinition;
 use aphel_kernel::application::query::Filter;
 use aphel_kernel::application::shared::{FieldChange, Job, JobQueue, RecordRef, ensure_version};

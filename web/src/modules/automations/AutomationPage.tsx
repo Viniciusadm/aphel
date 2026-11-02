@@ -20,6 +20,7 @@ import { Input } from '@/components/ui/input'
 import { SectionWorkspace, SectionContent, SectionIndex, SectionLink } from '@/components/ui/section-workspace'
 import { useCustomObjects } from '@/features/custom-records'
 import { useFieldSchema } from '@/features/records/api'
+
 import { AUTOMATIONS_PATH, automationsApi, useAutomation, useAutomationCache, useAutomationCatalog } from './api'
 import { AUTOMATIONS_PERMISSION } from './AutomationsPage'
 import { IssueList } from './components/IssueList'

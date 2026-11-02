@@ -4,7 +4,7 @@ use async_trait::async_trait;
 use sqlx::{MySqlPool, Row};
 use uuid::Uuid;
 
-use aphel_kernel::application::search::{SearchContentSource, SearchRefresh};
+use ::search::application::{SearchContentSource, SearchRefresh};
 use aphel_kernel::application::shared::{DomainEvent, RecordType};
 use aphel_kernel::domain::access::Permission;
 use aphel_kernel::errors::AppError;

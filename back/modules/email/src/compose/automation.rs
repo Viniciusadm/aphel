@@ -10,11 +10,11 @@ use crate::templates::{
     MAX_TEMPLATE_BODY_BYTES, MAX_TEMPLATE_SUBJECT_LENGTH, is_email_record_type,
 };
 use crate::{EMAIL_BOUNCED, EMAIL_CLICKED, EMAIL_OPENED, EMAIL_RECEIVED, EMAIL_SENT, EmailAddress};
-use aphel_kernel::application::automations::AutomationTrigger;
-use aphel_kernel::application::automations::actions::{
+use aphel_contract_automation::application::AutomationTrigger;
+use aphel_contract_automation::application::actions::{
     ActionContext, AutomationAction, ValidationContext, record_permission,
 };
-use aphel_kernel::application::automations::triggers::{TriggerCandidate, event_context};
+use aphel_contract_automation::application::triggers::{TriggerCandidate, event_context};
 use aphel_kernel::application::shared::DomainEvent;
 use aphel_kernel::domain::access::Permission;
 use aphel_kernel::errors::{AppError, FieldViolation};

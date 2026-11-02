@@ -9,16 +9,16 @@ use crate::domain::{
     SubmitApprovalCommand,
 };
 use crate::service;
-use aphel_kernel::Ctx;
-use aphel_kernel::application::automations::AutomationTrigger;
-use aphel_kernel::application::automations::actions::{
+use ::config_packages::application::is_config_key;
+use aphel_contract_automation::application::AutomationTrigger;
+use aphel_contract_automation::application::actions::{
     ActionContext, AutomationAction, ValidationContext,
 };
-use aphel_kernel::application::automations::definition::TriggerSpec;
-use aphel_kernel::application::automations::triggers::{
+use aphel_contract_automation::application::definition::TriggerSpec;
+use aphel_contract_automation::application::triggers::{
     TriggerCandidate, event_context, is_automatable,
 };
-use aphel_kernel::application::config_packages::is_config_key;
+use aphel_kernel::Ctx;
 use aphel_kernel::application::shared::{DomainEvent, RecordRef};
 use aphel_kernel::domain::access::Permission;
 use aphel_kernel::errors::{AppError, FieldViolation};
@@ -166,7 +166,7 @@ impl AutomationAction for RequestApproval {
     }
 
     fn required_permissions(&self, record_type: &str, _config: &Value) -> Vec<Permission> {
-        aphel_kernel::application::automations::actions::record_permission(record_type, "update")
+        aphel_contract_automation::application::actions::record_permission(record_type, "update")
             .into_iter()
             .collect()
     }

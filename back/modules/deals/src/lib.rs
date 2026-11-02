@@ -1,3 +1,4 @@
+use aphel_contract_automation::AutomationBuilder;
 pub(crate) mod automation;
 pub mod domain;
 pub mod hooks;
@@ -16,6 +17,7 @@ use std::sync::Arc;
 
 use aphel_kernel::modules::Migration;
 
+use ::notifications::domain::NotificationKindDefinition;
 use aphel_kernel::application::fields::builtin::{field, record_field, timestamps, with_fields};
 use aphel_kernel::application::fields::{EntityDefinition, EntityTraits, RecordRelation};
 use aphel_kernel::application::public_events::{
@@ -24,7 +26,6 @@ use aphel_kernel::application::public_events::{
 use aphel_kernel::application::shared::RecordType;
 use aphel_kernel::domain::access::{Permission, PermissionDefinition};
 use aphel_kernel::domain::fields::FieldType;
-use aphel_kernel::domain::notifications::NotificationKindDefinition;
 use aphel_kernel::errors::AppError;
 use aphel_kernel::infrastructure::defaults::seed::DefaultsSeed;
 use aphel_kernel::modules::DEFAULT_PRIORITY;
@@ -298,10 +299,10 @@ impl Module for DealsModule {
                 ("deal_member_role", "deals.deal_member_role"),
             ]),
         ));
-        app.contribute::<dyn aphel_kernel::application::notifications::texts::NotificationTexts>(
+        app.contribute::<dyn ::notifications::application::texts::NotificationTexts>(
             std::sync::Arc::new(crate::notifications::DealNotificationTexts),
         );
-        app.contribute::<dyn aphel_kernel::application::notifications::NotificationSource>(
+        app.contribute::<dyn ::notifications::application::NotificationSource>(
             std::sync::Arc::new(notifications::DealNotifications),
         );
         app.declare_hook(
@@ -363,19 +364,16 @@ impl Module for DealsModule {
         app.contribute::<dyn aphel_sdk::points::ReferenceProvider>(std::sync::Arc::new(
             operations::StageRefs,
         ));
-        app.provide::<dyn aphel_kernel::application::automations::StageOperations>(
+        app.provide::<dyn aphel_contract_automation::application::StageOperations>(
             std::sync::Arc::new(operations::AutomationStages),
         );
         app.contribute(std::sync::Arc::new(
-            aphel_kernel::infrastructure::config_packages::ConfigSectionFactory::new(
-                170,
-                |pool, registry| {
-                    let _ = registry;
-                    std::sync::Arc::new(crate::team::section::DealMemberRolesSection::new(
-                        pool.clone(),
-                    ))
-                },
-            ),
+            ::config_packages::infrastructure::ConfigSectionFactory::new(170, |pool, registry| {
+                let _ = registry;
+                std::sync::Arc::new(crate::team::section::DealMemberRolesSection::new(
+                    pool.clone(),
+                ))
+            }),
         ));
         app.contribute(Arc::new(DefaultsSeed(|connection| {
             Box::pin(team::store::seed_deal_member_roles(connection))
@@ -412,7 +410,7 @@ impl Module for DealsModule {
             app.public_event(*definition);
         }
         for definition in NOTIFICATION_KINDS {
-            app.notification_kind(definition);
+            app.contribute(std::sync::Arc::new(definition));
         }
         team::register(app)?;
         Ok(())

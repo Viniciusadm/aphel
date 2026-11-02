@@ -4,17 +4,15 @@ use serde::Serialize;
 use serde_json::Value;
 
 use crate::Ctx;
-use crate::api::automation_operations::{automation_gateway, automation_gateways};
 use crate::api::routes::v1::field_permissions::{redacted, redacted_items};
 use crate::api::routes::v1::files::file_use_cases;
-use crate::application::automations::{AutomationGatewayFactory, HandlerAutomationGateway};
 use crate::application::fields::FieldSet;
 use crate::application::files::FileUseCases;
 use crate::application::shared::RecordType;
 use crate::domain::access::AccessScope;
 use crate::errors::AppError;
+use crate::infrastructure::outbound_http::OutboundHttpNetwork;
 use crate::infrastructure::storage::MySqlFilePorts;
-use crate::infrastructure::webhooks::outgoing::OutgoingWebhookNetwork;
 use crate::records::runtime::field_set;
 
 impl Ctx<'_> {
@@ -48,16 +46,8 @@ impl Ctx<'_> {
         file_use_cases(&self.state()).await
     }
 
-    pub fn automation_gateway(&self) -> HandlerAutomationGateway {
-        automation_gateway(self.state())
-    }
-
-    pub fn automation_gateways(&self) -> Arc<dyn AutomationGatewayFactory> {
-        automation_gateways(self.state())
-    }
-
-    pub fn webhook_network(&self) -> Result<Arc<OutgoingWebhookNetwork>, AppError> {
-        self.state().webhook_network()
+    pub fn outbound_http_network(&self) -> Result<Arc<OutboundHttpNetwork>, AppError> {
+        self.state().outbound_http_network()
     }
 
     pub fn app_base_url(&self) -> String {

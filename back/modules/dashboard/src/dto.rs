@@ -3,16 +3,16 @@ use serde::{Deserialize, Serialize};
 use serde_json::Value;
 use utoipa::{IntoParams, ToSchema};
 
+use crate::engine::{
+    LayoutSubject, PeriodQuery, SubjectKind, SubjectOptions, WidgetDescriptor, WidgetSize,
+    WidgetSubject,
+};
+use crate::engine_domain::{PeriodPreset, PeriodSelection, ResolvedPeriod};
 use crate::layout::{
     DashboardLayout, LayoutPeriod, LayoutView, LayoutWidget, SubjectQuery, WidgetDataQuery,
 };
 use crate::service::WidgetData;
-use aphel_kernel::application::dashboard::{
-    LayoutSubject, PeriodQuery, SubjectKind, SubjectOptions, WidgetDescriptor, WidgetSize,
-    WidgetSubject,
-};
 use aphel_kernel::domain::access::RecordScope;
-use aphel_kernel::domain::dashboard::{PeriodPreset, PeriodSelection, ResolvedPeriod};
 use aphel_kernel::errors::AppError;
 
 fn instant(value: DateTime<Utc>) -> String {

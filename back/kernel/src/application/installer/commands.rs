@@ -10,7 +10,7 @@ pub struct InstallCommand {
     pub admin_email: String,
     pub admin_password: Secret,
     pub public_base_url: Option<String>,
-    pub business: Option<super::business::BusinessAnswers>,
+    pub business: Option<serde_json::Value>,
     pub ip: Option<String>,
     pub modules: Vec<String>,
     pub module_settings:

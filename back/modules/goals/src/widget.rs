@@ -4,13 +4,11 @@ use serde_json::{Map, Value, json};
 use crate::domain::{DATE_FORMAT, GoalListQuery, GoalOwnerKind};
 use crate::http::GoalResponse;
 use crate::service;
+use ::dashboard::engine::{DashboardPorts, SettingsReader, WidgetContext, WidgetProvider};
+use ::dashboard::engine_domain::local_today;
 use aphel_kernel::Ctx;
-use aphel_kernel::application::dashboard::{
-    DashboardPorts, SettingsReader, WidgetContext, WidgetProvider,
-};
 use aphel_kernel::application::organization_admin::ListWindow;
 use aphel_kernel::domain::access::Permission;
-use aphel_kernel::domain::dashboard::local_today;
 use aphel_kernel::errors::{AppError, FieldViolation};
 use aphel_kernel::state::runtime_state;
 

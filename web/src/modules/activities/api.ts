@@ -2,6 +2,7 @@ import { keepPreviousData, useInfiniteQuery, useMutation, useQuery, useQueryClie
 import { api } from '@/api'
 import type { components } from '@/api/schema'
 import { recordsKeys } from '@/features/records/api'
+
 import { ACTIVITY_RECORD_TYPE, ACTIVITY_TYPE_RECORD_TYPE } from './resource'
 
 export type Activity = components['schemas']['ActivityResponse']

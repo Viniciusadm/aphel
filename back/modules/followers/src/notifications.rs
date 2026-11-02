@@ -1,20 +1,20 @@
+use ::notifications::application::NotificationView;
+use ::notifications::application::texts::{NotificationTexts, data_text};
 use aphel_kernel::application::mail::MailLocale;
-use aphel_kernel::application::notifications::NotificationView;
-use aphel_kernel::application::notifications::texts::{NotificationTexts, data_text};
 use std::collections::HashMap;
 
 use async_trait::async_trait;
 use serde_json::{Map, Value, json};
 
-use aphel_kernel::api::routes::v1::field_permissions::user_field_redaction;
-use aphel_kernel::application::fields::{CUSTOM_FIELDS_PREFIX, FieldDefinitionRepository};
-use aphel_kernel::application::notifications::{
+use ::notifications::application::{
     NotificationIntent, NotificationSource, NotificationSourceContext, event_dedupe,
 };
+use ::notifications::domain::NotificationKind;
+use aphel_kernel::api::routes::v1::field_permissions::user_field_redaction;
+use aphel_kernel::application::fields::{CUSTOM_FIELDS_PREFIX, FieldDefinitionRepository};
 use aphel_kernel::application::shared::{DomainEvent, REDACTED, RecordRef};
 use aphel_kernel::domain::UserId;
 use aphel_kernel::domain::fields::FieldDefinition;
-use aphel_kernel::domain::notifications::NotificationKind;
 use aphel_kernel::errors::AppError;
 use aphel_kernel::infrastructure::fields::MySqlFieldDefinitionRepository;
 use aphel_kernel::state::runtime_pool;

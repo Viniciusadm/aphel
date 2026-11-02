@@ -13,6 +13,7 @@ import {
 } from '@/components/ui/dialog'
 import { Skeleton } from '@/components/ui/skeleton'
 import { useFieldSchema } from '@/features/records/api'
+
 import { findField } from '@/features/records/fields'
 import { DEAL_RECORD_TYPE } from './resource'
 import { dealFieldValue, isFilled } from './requirements'

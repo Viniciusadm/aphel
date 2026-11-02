@@ -16,7 +16,7 @@ use crate::domain::{
 use aphel_kernel::Ctx;
 use aphel_kernel::application::organization_admin::{ListWindow, Listing};
 use aphel_kernel::application::query::{
-    Filter, FilterOperator, ID_FIELD, RecordQuery, RecordQueryEngine, in_segment,
+    Filter, FilterOperator, ID_FIELD, RecordQuery, RecordQueryEngine, in_saved_filter,
 };
 use aphel_kernel::application::shared::RecordType;
 use aphel_kernel::database::transaction::MySqlTx;
@@ -639,7 +639,7 @@ impl SegmentMembership {
                 RecordType::COMPANY.as_str(),
                 RecordQuery {
                     filter: Some(Filter::and(vec![
-                        in_segment(segment_id),
+                        in_saved_filter(segment_id),
                         Filter::condition(
                             ID_FIELD,
                             FilterOperator::Eq,

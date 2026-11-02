@@ -131,13 +131,10 @@ impl Module for LeadsModule {
             |ctx, converted| Box::pin(plugin_bridge::converted(ctx, converted)),
         );
         app.contribute(std::sync::Arc::new(
-            aphel_kernel::infrastructure::config_packages::ConfigSectionFactory::new(
-                180,
-                |pool, registry| {
-                    let _ = registry;
-                    std::sync::Arc::new(crate::section::lifecycle_section(pool))
-                },
-            ),
+            ::config_packages::infrastructure::ConfigSectionFactory::new(180, |pool, registry| {
+                let _ = registry;
+                std::sync::Arc::new(crate::section::lifecycle_section(pool))
+            }),
         ));
         app.contribute(Arc::new(DefaultsSeed(|connection| {
             Box::pin(store::seed_disqualification_reasons(connection))

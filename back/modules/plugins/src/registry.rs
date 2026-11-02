@@ -9,8 +9,8 @@ use tokio::sync::Mutex;
 use crate::manifest::PluginManifest;
 use crate::widgets::PluginWidget;
 use crate::{notify, runtime, store};
+use ::notifications::intern;
 use aphel_kernel::errors::AppError;
-use aphel_kernel::modules::intern;
 
 const CHECK_INTERVAL: Duration = Duration::from_secs(2);
 const REFRESH_INTERVAL: Duration = Duration::from_secs(5);
@@ -314,8 +314,8 @@ fn publish_extensions(snapshot: &Snapshot) {
         batch.add(std::sync::Arc::new(kind));
     }
     for widget in widgets {
-        batch.add::<dyn aphel_kernel::application::dashboard::WidgetProvider<
-                aphel_kernel::infrastructure::repositories::mysql_dashboard::MySqlDashboardPorts,
+        batch.add::<dyn ::dashboard::engine::WidgetProvider<
+                ::dashboard::repository::MySqlDashboardPorts,
             >>(widget);
     }
     for event in events {

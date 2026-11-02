@@ -4,10 +4,10 @@ use serde_json::{Value, json};
 
 use crate::service::{self, GENERATE, PROPOSAL_GENERATED, TemplateChoice};
 use crate::store;
-use aphel_kernel::application::automations::actions::{
+use aphel_contract_automation::application::actions::{
     ActionContext, AutomationAction, ValidationContext,
 };
-use aphel_kernel::application::automations::triggers::{
+use aphel_contract_automation::application::triggers::{
     AutomationTrigger, TriggerCandidate, event_context,
 };
 use aphel_kernel::application::shared::DomainEvent;

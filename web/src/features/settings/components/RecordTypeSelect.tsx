@@ -1,7 +1,7 @@
 import { NativeSelect } from '@/components/ui/native-select'
 import { useNavigate } from 'react-router'
 import { RECORD_TYPES, type KnownRecordType } from '../fields/lib/field-types'
-import { useCustomObjectsAdmin } from '../objects/api'
+import { useCustomObjectsAdmin } from '@/modules/objects/ui/api'
 
 interface RecordTypeSelectProps {
   value: string

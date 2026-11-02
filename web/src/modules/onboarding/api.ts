@@ -1,6 +1,6 @@
 import { useQuery } from '@tanstack/react-query'
 import { api } from '@/api'
-import { configPackagesApi, configPackagesKeys } from '@/features/settings/config-packages/api'
+import { configPackagesApi, configPackagesKeys } from '@/modules/config_packages/ui/api'
 import type { CompleteBody, OnboardingState, SaveAnswersBody } from './types'
 
 export {
@@ -9,7 +9,7 @@ export {
   type PackagePlan,
   type PackageTemplate,
   type PlanItem,
-} from '@/features/settings/config-packages/api'
+} from '@/modules/config_packages/ui/api'
 
 export const onboardingKeys = {
   all: ['onboarding'] as const,

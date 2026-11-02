@@ -2,13 +2,13 @@ use aphel_contract_crm::CrmRecordTypes;
 use serde_json::{Value, json};
 use uuid::Uuid;
 
-use aphel_kernel::application::automations::definition::TriggerSpec;
-use aphel_kernel::application::automations::time::triggers::*;
-use aphel_kernel::application::automations::triggers::{
+use aphel_contract_automation::application::definition::TriggerSpec;
+use aphel_contract_automation::application::time::triggers::*;
+use aphel_contract_automation::application::triggers::{
     AutomationTrigger, TriggerCandidate, is_automatable,
 };
 use aphel_kernel::application::fields::FieldSet;
-use aphel_kernel::application::query::{Filter, FilterOperator, in_segment};
+use aphel_kernel::application::query::{Filter, FilterOperator, in_saved_filter};
 use aphel_kernel::application::shared::{DomainEvent, RecordType};
 use aphel_kernel::errors::FieldViolation;
 
@@ -174,7 +174,7 @@ impl AutomationTrigger for Schedule {
             .text("segment_id")
             .and_then(|id| Uuid::parse_str(id).ok())
         {
-            filters.push(("trigger.segment_id".to_owned(), in_segment(segment)));
+            filters.push(("trigger.segment_id".to_owned(), in_saved_filter(segment)));
         }
         filters
     }

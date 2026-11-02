@@ -3,7 +3,7 @@
 A configuration package describes **how an organization works**, without any business data: custom fields and their options, pipelines with stages and stage rules, loss reasons, activity types, tags, form layouts (with conditional rules), organization views, the default dashboard and automations (as drafts). The same format is used to export an organization's configuration, install it in another one and distribute the business templates embedded in the binary (B2B, agency, freelancer, real estate, SaaS).
 
 - JSON Schema: [`schema.json`](schema.json)
-- Built-in templates: [`back/kernel/config-packages/templates/`](../../back/kernel/config-packages/templates) (one `<key>.json` file per template; the template key is the file name)
+- Built-in templates: [`blueprints/templates/`](../../blueprints/templates) (one `<key>.json` file per template; the template key is the file name)
 - Code: `back/kernel/src/application/config_packages` (engine and sections), `back/kernel/src/infrastructure/config_packages` (MySQL, built-in templates), `back/kernel/src/api/routes/v1/config_packages.rs`
 
 ## Format
@@ -208,7 +208,7 @@ The `pipeline_renewals` section (session 24) is installed after `pipelines` and 
 
 The `automations` section (session 17) is the most recent example; a new section is added like this:
 
-1. Implement `ConfigSection<Tx>` (`kernel/application/config_packages/section.rs`): `key()`, `export`, `validate` (returns `PackageIssue` with a path relative to the section), `plan` (one `PlanItem` per item, with `created`/`compared`/`conflicting`) and `apply` (writes with `&mut Tx` only the items for which `decisions.executes(&item)`; plan and apply must come from the same reconciliation function).
+1. Implement `ConfigSection<Tx>` (`modules/config_packages/src/application/section.rs`): `key()`, `export`, `validate` (returns `PackageIssue` with a path relative to the section), `plan` (one `PlanItem` per item, with `created`/`compared`/`conflicting`) and `apply` (writes with `&mut Tx` only the items for which `decisions.executes(&item)`; plan and apply must come from the same reconciliation function).
 2. If the section references fields, implement `prune` to drop the references listed in `UnavailableFields` (fields of disabled modules) and return them as `field_reference(record_type, key)`.
 3. References to other sections: read their content in the received `ConfigPackage` (e.g. `package_fields`) and what already exists in the organization; ids created in the same transaction are in `ApplyContext::resolve`/`resolved`.
 4. Register the section in `builtin_sections` (`kernel/infrastructure/config_packages/ports.rs`), in the right position of the installation order, and add it to [`schema.json`](schema.json).

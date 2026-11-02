@@ -3,6 +3,7 @@ import { api } from '@/api'
 import type { components } from '@/api/schema'
 import { recordsKeys } from '@/features/records/api'
 
+
 export type Note = components['schemas']['NoteResponse']
 export type NotePage = components['schemas']['Page_NoteResponse']
 export type NoteVisibility = components['schemas']['NoteVisibility']

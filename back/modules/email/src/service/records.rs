@@ -4,7 +4,6 @@ use crate::compose::AttachmentFile;
 use crate::templates::VariableField;
 use aphel_kernel::Ctx;
 use aphel_kernel::application::access::PERMISSION_DENIED;
-use aphel_kernel::application::automations::AutomationGateway;
 use aphel_kernel::application::files::{FileSettings, FileUseCases, RecordAccessChecker};
 use aphel_kernel::application::shared::RecordRef;
 use aphel_kernel::errors::AppError;
@@ -15,8 +14,13 @@ pub(crate) async fn load_record(
     ctx: &Ctx<'_>,
     record: &RecordRef,
 ) -> Result<Option<Value>, AppError> {
-    ctx.automation_gateway()
-        .load_record(ctx.scope, record)
+    let state = ctx.state();
+    ctx.registry()
+        .handler(record.record_type.as_str())?
+        .load(
+            &aphel_kernel::records::RecordCtx::new(ctx.scope, &state),
+            record.record_id,
+        )
         .await
 }
 
@@ -24,10 +28,7 @@ pub(crate) async fn readable_fields(
     ctx: &Ctx<'_>,
     record_type: &str,
 ) -> Result<Vec<VariableField>, AppError> {
-    let fields = ctx
-        .automation_gateway()
-        .fields(ctx.scope, record_type)
-        .await?;
+    let fields = ctx.field_set(ctx.scope, record_type).await?;
     Ok(fields
         .active()
         .map(|field| VariableField {

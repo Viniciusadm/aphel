@@ -1,4 +1,4 @@
-use aphel_kernel::application::config_packages::ConfigReferenceKind;
+use aphel_contract::ReferenceKind as ConfigReferenceKind;
 
 pub const PIPELINE_ITEM: ConfigReferenceKind = ConfigReferenceKind::new("workflow.pipeline");
 pub const PIPELINE_STAGE_ITEM: ConfigReferenceKind = ConfigReferenceKind::new("workflow.stage");

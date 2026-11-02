@@ -21,6 +21,7 @@ import { Textarea } from '@/components/ui/textarea'
 import { modulesApi, type ModuleInfo, type ModuleSettingField } from '@/kernel/modules/api'
 import { moduleDefinition } from '@/kernel/modules/registry'
 import { useFieldSchema } from '@/features/records/api'
+
 import { activeFields } from '@/features/records/fields'
 import {
   buildFormSchema,

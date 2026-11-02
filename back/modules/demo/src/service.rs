@@ -11,12 +11,11 @@ use crate::{
     DemoCatalog, DemoCleanup, DemoDataset, DemoDealOutcome, DemoRemovalReport, DemoResetReport,
     DemoSeedCommand, DemoSeedReport, DemoTarget, DemoVisitor, NewDemoVisitor, generate,
 };
+use ::config_packages::application::{ApplyCommand, ConfigPackageUseCases, PackageSource};
+use ::config_packages::infrastructure::MySqlConfigPackagePorts;
 use activities::domain::CreateActivityCommand;
 use aphel_kernel::Ctx;
 use aphel_kernel::application::access::{AccessRepository, build_access_scope};
-use aphel_kernel::application::config_packages::{
-    ApplyCommand, ConfigPackageUseCases, PackageSource,
-};
 use aphel_kernel::application::fields::{CreateFieldCommand, FieldOptionInput, FieldUseCases};
 use aphel_kernel::application::security::{PasswordHasher, password_violation};
 use aphel_kernel::application::shared::{
@@ -26,7 +25,6 @@ use aphel_kernel::domain::access::{AccessScope, Permission, permission_catalog};
 use aphel_kernel::domain::{Email, UserId};
 use aphel_kernel::errors::{AppError, FieldViolation};
 use aphel_kernel::infrastructure::auth::Argon2PasswordHasher;
-use aphel_kernel::infrastructure::config_packages::MySqlConfigPackagePorts;
 use aphel_kernel::infrastructure::fields::MySqlFieldPorts;
 use aphel_kernel::infrastructure::repositories::mysql_access::MySqlAccessRepository;
 use aphel_kernel::records::AddressInput;

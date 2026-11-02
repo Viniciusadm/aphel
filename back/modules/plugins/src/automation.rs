@@ -7,12 +7,12 @@ use serde_json::{Map, Value, json};
 use crate::manifest::{ActionSpec, EmitSpec, InputSpec, PluginManifest};
 use crate::registry::{self, LoadedPlugin};
 use crate::runtime::{self, wit};
-use aphel_kernel::application::automations::actions::{ActionContext, ValidationContext};
-use aphel_kernel::application::automations::context::TriggerContext;
-use aphel_kernel::application::automations::triggers::{
+use aphel_contract_automation::application::actions::{ActionContext, ValidationContext};
+use aphel_contract_automation::application::context::TriggerContext;
+use aphel_contract_automation::application::triggers::{
     TriggerCandidate, event_context, is_automatable,
 };
-use aphel_kernel::application::automations::{
+use aphel_contract_automation::application::{
     AutomationAction, AutomationActionSource, AutomationTrigger, AutomationTriggerSource,
 };
 use aphel_kernel::application::shared::DomainEvent;

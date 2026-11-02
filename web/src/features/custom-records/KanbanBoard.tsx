@@ -26,6 +26,7 @@ import {
 } from '@/components/ui/dropdown-menu'
 import { Skeleton } from '@/components/ui/skeleton'
 import { recordsKeys } from '@/features/records/api'
+
 import { getFieldValue, toRecordPayload } from '@/features/records/fields'
 import { recordPath, recordTitle, requireRecordResource, type RecordResource } from '@/features/records/resources'
 import { recordListParams } from '@/features/records/table/query'

@@ -19,6 +19,7 @@ import {
 import { notifyApprovalGate } from '@/modules/approvals/components/useApprovalGate'
 import { isApprovalGateError } from '@/modules/approvals/errors'
 import { recordsKeys } from '@/features/records/api'
+
 import type { RecordItem } from '@/features/records/types'
 import { activePipelines, usePipelines } from '@/modules/pipelines/api'
 import { dealsApi, dealsKeys } from '../api'

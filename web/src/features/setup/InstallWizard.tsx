@@ -17,7 +17,7 @@ import {
 import type { SetupTaskContribution } from '@/kernel/modules/define'
 import { switchInstallerLanguage } from '@/kernel/modules/i18n'
 import { ModulesSync } from '@/kernel/modules/ModulesSync'
-import { contributions, isModuleRequired, sortContributions } from '@/kernel/modules/registry'
+import { contributions, sortContributions } from '@/kernel/modules/registry'
 import { SetupFrameContext, SetupStepFrame } from '@/kernel/setup'
 import { INSTALLER_STATUS_KEY, install, useInstallerCatalog, type InstallerMe } from './api'
 import { SetupLoadingCard } from './components/SetupLoadingCard'
@@ -98,7 +98,9 @@ export function InstallWizard() {
     () => (catalog ? dependencyClosure(catalog.modules, choice.modules) : new Set<string>()),
     [catalog, choice.modules],
   )
-  const keys = KEYS
+  const hasProfiles = Boolean(catalog?.profiles.length)
+  const hasModules = Boolean(catalog?.modules.some((module) => !module.required))
+  const keys = KEYS.filter((key) => (key !== 'business' || hasProfiles) && (key !== 'features' || hasModules))
   const steps = keys.map((key) => ({ key, label: t(`steps.${key as 'company'}`) }))
   const index = Math.max(0, keys.indexOf(step))
 
@@ -112,7 +114,7 @@ export function InstallWizard() {
   const businessLabel = business.business_type ? t(`business.types.${business.business_type}.label`) : ''
 
   const nextFromCompany = async () => {
-    if (await form.trigger([...COMPANY_FIELDS])) goTo('business')
+    if (await form.trigger([...COMPANY_FIELDS])) goTo(hasProfiles ? 'business' : hasModules ? 'features' : 'account')
   }
 
   const nextFromBusiness = () => {
@@ -174,7 +176,7 @@ export function InstallWizard() {
     try {
       const me = await install({
         ...choice,
-        business,
+        business: hasProfiles ? business : undefined,
         organization_name: values.organizationName.trim(),
         timezone: values.timezone,
         currency: values.currency,
@@ -190,7 +192,7 @@ export function InstallWizard() {
       form.resetField('adminPassword')
       const enabled = dependencyClosure(catalog.modules, choice.modules)
       const outcomes: ReadyResult[] = [{ ok: true, text: t('ready.created', { name: values.organizationName.trim() }) }]
-      for (const task of tasks.filter((item) => isModuleRequired(item.module) || enabled.has(item.module))) {
+      for (const task of tasks.filter((item) => item.module === 'kernel' || enabled.has(item.module) || catalog.modules.some((module) => module.key === item.module && module.required))) {
         setProgress(label(task.value.progressLabel))
         try {
           const result = await task.value.run()
@@ -234,7 +236,7 @@ export function InstallWizard() {
         onEdit: () => goTo('business'),
       },
       { key: 'features', label: t('account.summaryFeatures'), value: t('features.count', { count }), onEdit: () => goTo('features') },
-    ]
+    ].filter((item) => (item.key !== 'business' || hasProfiles) && (item.key !== 'features' || hasModules))
   }
 
   const catalogGate = (title: string) =>

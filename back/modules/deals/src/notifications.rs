@@ -1,16 +1,16 @@
+use ::notifications::application::NotificationView;
+use ::notifications::application::texts::NotificationTexts;
 use aphel_kernel::application::mail::MailLocale;
-use aphel_kernel::application::notifications::NotificationView;
-use aphel_kernel::application::notifications::texts::NotificationTexts;
 use async_trait::async_trait;
 use serde_json::{Value, json};
 
-use aphel_kernel::application::notifications::{
+use ::notifications::application::{
     NotificationIntent, NotificationSource, NotificationSourceContext, event_dedupe, payload_text,
     payload_user,
 };
+use ::notifications::domain::NotificationKind;
 use aphel_kernel::application::shared::DomainEvent;
 use aphel_kernel::domain::UserId;
-use aphel_kernel::domain::notifications::NotificationKind;
 use aphel_kernel::errors::AppError;
 
 use crate::domain::{DEAL_CREATED, DEAL_OWNER_CHANGED, DEAL_STAGE_CHANGED};

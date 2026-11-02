@@ -1,3 +1,4 @@
+use aphel_contract_automation::AutomationBuilder;
 pub(crate) mod automation;
 pub mod domain;
 pub(crate) mod hooks;
@@ -18,6 +19,7 @@ use std::sync::Arc;
 
 use aphel_kernel::modules::Migration;
 
+use ::notifications::domain::{ALL_CHANNELS, NotificationKindDefinition};
 use aphel_kernel::application::fields::builtin::{field, record_field, timestamps, with_fields};
 use aphel_kernel::application::fields::{
     EntityDefinition, EntityTraits, RecordRelation, RelationPath, SystemField,
@@ -28,7 +30,6 @@ use aphel_kernel::application::public_events::{
 use aphel_kernel::application::shared::RecordType;
 use aphel_kernel::domain::access::{Permission, PermissionDefinition};
 use aphel_kernel::domain::fields::FieldType;
-use aphel_kernel::domain::notifications::{ALL_CHANNELS, NotificationKindDefinition};
 use aphel_kernel::errors::AppError;
 use aphel_kernel::infrastructure::defaults::{DefaultsProbe, DefaultsSeed};
 use aphel_kernel::infrastructure::query::aggregate::LookupTitleSource;
@@ -258,6 +259,19 @@ impl Module for ActivitiesModule {
     }
 
     fn register(&self, app: &mut AppBuilder) -> Result<(), AppError> {
+        app.contribute(std::sync::Arc::new(
+            ::config_packages::application::versioning::fragments::SectionFragmentLayout {
+                section: "activity_types",
+                collections: vec![
+                    ::config_packages::application::versioning::fragments::FragmentCollection {
+                        path: None,
+                        kind: "activity_type",
+                        key_fields: &["key"],
+                    },
+                ],
+            },
+        ));
+
         app.entity(aphel_kernel::application::fields::builtin::with_fields(
             aphel_kernel::application::fields::EntityDefinition::new(
                 aphel_kernel::application::shared::RecordType::from_static(
@@ -290,13 +304,11 @@ impl Module for ActivitiesModule {
                 ("activity_type", "activities.activity_type"),
             ]),
         ));
-        app.contribute::<dyn aphel_kernel::modules::DigestSource>(std::sync::Arc::new(
-            points::OpenTasks,
-        ));
-        app.contribute::<dyn aphel_kernel::application::notifications::texts::NotificationTexts>(
+        app.contribute::<dyn ::notifications::DigestSource>(std::sync::Arc::new(points::OpenTasks));
+        app.contribute::<dyn ::notifications::application::texts::NotificationTexts>(
             std::sync::Arc::new(crate::notifications::ActivityNotificationTexts),
         );
-        app.contribute::<dyn aphel_kernel::application::notifications::NotificationSource>(
+        app.contribute::<dyn ::notifications::application::NotificationSource>(
             std::sync::Arc::new(notifications::TaskAssignedNotifications),
         );
         app.declare_hook(
@@ -321,17 +333,14 @@ impl Module for ActivitiesModule {
         app.contribute::<dyn aphel_sdk::points::ReferenceProvider>(std::sync::Arc::new(
             operations::ActivityTypeRefs,
         ));
-        app.provide::<dyn aphel_kernel::application::automations::TaskOperations>(
+        app.provide::<dyn aphel_contract_automation::application::TaskOperations>(
             std::sync::Arc::new(operations::AutomationTasks),
         );
         app.contribute(std::sync::Arc::new(
-            aphel_kernel::infrastructure::config_packages::ConfigSectionFactory::new(
-                90,
-                |pool, registry| {
-                    let _ = registry;
-                    std::sync::Arc::new(crate::section::activity_types_section(pool.clone()))
-                },
-            ),
+            ::config_packages::infrastructure::ConfigSectionFactory::new(90, |pool, registry| {
+                let _ = registry;
+                std::sync::Arc::new(crate::section::activity_types_section(pool.clone()))
+            }),
         ));
         app.filter(
             aphel_kernel::records::RecordSerializing,
@@ -360,7 +369,7 @@ impl Module for ActivitiesModule {
             app.public_event(*definition);
         }
         for definition in NOTIFICATION_KINDS {
-            app.notification_kind(definition);
+            app.contribute(std::sync::Arc::new(definition));
         }
         for hook in plugin_bridge::hooks() {
             app.contribute::<aphel_kernel::modules::PluginHook>(hook);

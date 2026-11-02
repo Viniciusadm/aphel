@@ -1,22 +1,17 @@
 import {
-  Bell,
-  Boxes,
   Building2,
   Database,
   Gauge,
   History,
   KeyRound,
   Languages,
-  LayoutTemplate,
-  ListChecks,
-  PackageOpen,
   Plug,
   Puzzle,
   Server,
+  Send,
   ShieldAlert,
   ShieldCheck,
   SlidersHorizontal,
-  Store,
   TextCursorInput,
   UserCog,
   Users,
@@ -29,8 +24,6 @@ import { authRoutes } from '@/features/auth/routes'
 import { registerCustomRecordContributions } from '@/features/custom-records/register'
 import { customRecordsRoutes } from '@/features/custom-records/routes'
 import { InstallerGate, setupRoutes } from '@/features/setup'
-import { NotificationSettingsPage } from '@/features/notifications'
-import { searchRoutes } from '@/features/search/routes'
 import { DEFAULT_RECORD_TYPE } from '@/features/settings/fields/lib/field-types'
 import {
   AUDIT_READ,
@@ -39,8 +32,6 @@ import {
   USERS_MANAGE,
 } from '@/features/settings/lib/permissions'
 import { navigationSettingsRoute } from '@/features/settings/navigation/routes'
-import { objectsSettingsRoutes } from '@/features/settings/objects/routes'
-import { validationRulesSettingsRoute } from '@/features/settings/validation-rules/routes'
 import { systemRoutes } from '@/features/system/routes'
 import { defineModule, NAV_ORDER, type ModuleApp, type SettingsAreaKey } from '@/kernel/modules/define'
 import { KERNEL_TRANSLATIONS } from './translations'
@@ -96,13 +87,6 @@ function registerSettings(app: ModuleApp) {
       routes: [navigationSettingsRoute],
     },
     {
-      group: 'profile',
-      path: 'notifications',
-      label: 'notifications',
-      icon: Bell,
-      lazy: async () => ({ Component: NotificationSettingsPage }),
-    },
-    {
       group: 'accountSecurity',
       path: 'security',
       label: 'security',
@@ -126,6 +110,7 @@ function registerSettings(app: ModuleApp) {
   ])
 
   settings(app, 'organization', [
+    { group: 'organization', path: 'outgoing-email', label: 'outgoingEmail', icon: Send, permission: SETTINGS_MANAGE, lazy: page(() => import('@/features/settings/email/OutgoingEmailPage'), 'OutgoingEmailPage') },
     {
       group: 'organization',
       path: 'organization',
@@ -198,39 +183,6 @@ function registerSettings(app: ModuleApp) {
         },
       ],
     },
-    {
-      group: 'records',
-      path: 'layouts',
-      label: 'layouts',
-      icon: LayoutTemplate,
-      permission: SETTINGS_MANAGE,
-      routes: [
-        {
-          path: 'layouts',
-          element: <Navigate to={DEFAULT_RECORD_TYPE} replace />,
-        },
-        {
-          path: 'layouts/:recordType',
-          lazy: page(() => import('@/features/settings/layouts/LayoutsPage'), 'LayoutsPage'),
-        },
-      ],
-    },
-    {
-      group: 'records',
-      path: 'objects',
-      label: 'objects',
-      icon: Boxes,
-      permission: SETTINGS_MANAGE,
-      routes: objectsSettingsRoutes,
-    },
-    {
-      group: 'records',
-      path: 'validation-rules',
-      label: 'validationRules',
-      icon: ListChecks,
-      permission: SETTINGS_MANAGE,
-      routes: [validationRulesSettingsRoute],
-    },
   ])
 
   settings(app, 'integrations', [
@@ -253,22 +205,7 @@ function registerSettings(app: ModuleApp) {
   ])
 
   settings(app, 'data', [
-    {
-      group: 'transfer',
-      path: 'config-packages',
-      label: 'configPackages',
-      icon: PackageOpen,
-      permission: SETTINGS_MANAGE,
-      lazy: page(() => import('@/features/settings/config-packages/ConfigPackagesPage'), 'ConfigPackagesPage'),
-    },
-    {
-      group: 'transfer',
-      path: 'catalog',
-      label: 'catalog',
-      icon: Store,
-      permission: SETTINGS_MANAGE,
-      lazy: page(() => import('@/features/settings/catalog/CatalogPage'), 'CatalogPage'),
-    },
+
     {
       group: 'compliance',
       path: 'audit',
@@ -287,7 +224,6 @@ const kernelModule = defineModule({
   register(app) {
     app.publicRoutes([...setupRoutes, { element: <InstallerGate />, children: authRoutes }])
     app.routes([
-      ...searchRoutes,
       ...customRecordsRoutes,
       ...systemRoutes,
     ])

@@ -2,6 +2,7 @@ import { useQuery } from '@tanstack/react-query'
 import { useState, type ReactNode } from 'react'
 import { useLocation } from 'react-router'
 import { recordsKeys } from '@/features/records/api'
+
 import { recordDetailApi } from '@/features/records/detail/api'
 import { getRecordResource, recordTitle } from '@/features/records/resources'
 import { useModuleQuickAdds } from '@/kernel/modules/quick-add'

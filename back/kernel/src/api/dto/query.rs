@@ -44,7 +44,8 @@ pub enum FilterOperatorSchema {
     WithinNextDays,
     OlderThanDays,
     Anniversary,
-    InSegment,
+    #[serde(rename = "in_segment")]
+    InSavedFilter,
     InGroup,
 }
 

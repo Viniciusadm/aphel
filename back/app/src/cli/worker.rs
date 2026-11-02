@@ -62,7 +62,7 @@ pub(crate) async fn run(config: AppConfig) -> CliResult {
         mailer,
         storage,
         public_url,
-        webhooks: config.webhooks.clone(),
+        outbound_http: config.outbound_http.clone(),
         record_types: Arc::new(RecordTypeCatalog::new(
             RecordTypeRegistry::builtin(),
             Arc::new(MySqlCustomSchemaSource::new(pool.clone())),

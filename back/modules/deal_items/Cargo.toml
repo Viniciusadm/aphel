@@ -7,6 +7,8 @@ license.workspace = true
 publish = false
 
 [dependencies]
+config_packages = { package = "aphel-mod-config-packages", path = "../config_packages" }
+dashboard = { package = "aphel-mod-dashboard", path = "../dashboard" }
 aphel-contract-crm.workspace = true
 aphel-kernel.workspace = true
 currencies = { package = "aphel-mod-currencies", path = "../currencies" }

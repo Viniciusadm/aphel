@@ -6,14 +6,14 @@ use serde_json::{Value, json};
 use sqlx::MySqlPool;
 
 use crate::team::domain::DEAL_MEMBER_ADDED;
+use ::notifications::application::{NotificationIntent, dispatch};
+use ::notifications::domain::{NotificationKind, NotificationKindDefinition};
+use ::notifications::infrastructure::MySqlNotificationPorts;
 use aphel_kernel::application::fields::RecordTypeRegistry;
-use aphel_kernel::application::notifications::{NotificationIntent, dispatch};
 use aphel_kernel::application::shared::{Actor, DomainEvent, EventConsumer, RecordType};
 use aphel_kernel::domain::UserId;
-use aphel_kernel::domain::notifications::{NotificationKind, NotificationKindDefinition};
 use aphel_kernel::errors::AppError;
 use aphel_kernel::infrastructure::jobs::MySqlJobQueue;
-use aphel_kernel::infrastructure::notifications::MySqlNotificationPorts;
 
 pub(crate) const DEAL_TEAM_NOTIFICATIONS_CONSUMER: &str = "deals.team_notifications";
 pub(crate) const DEAL_TEAM_MEMBER_ADDED: NotificationKind =

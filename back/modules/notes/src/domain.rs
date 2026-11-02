@@ -1,10 +1,10 @@
 use chrono::{DateTime, Utc};
 use uuid::Uuid;
 
+use ::notifications::domain::mentions_to_text;
 use aphel_kernel::application::files::UserReference;
 use aphel_kernel::application::shared::RecordRef;
 use aphel_kernel::domain::UserId;
-use aphel_kernel::domain::notifications::mentions_to_text;
 use aphel_kernel::errors::AppError;
 
 pub(crate) const NOTE_NOT_FOUND: &str = "note_not_found";

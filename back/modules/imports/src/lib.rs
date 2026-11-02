@@ -17,7 +17,7 @@ use std::sync::Arc;
 use aphel_kernel::application::files::{FileReferenceColumn, FileReferenceSource};
 use aphel_kernel::modules::Migration;
 
-use aphel_kernel::domain::notifications::{ALL_CHANNELS, NotificationKindDefinition};
+use ::notifications::domain::{ALL_CHANNELS, NotificationKindDefinition};
 use aphel_kernel::errors::AppError;
 use aphel_kernel::modules::builder::APHEL_VERSION;
 use aphel_kernel::modules::{AppBuilder, DEFAULT_PRIORITY, Manifest, Module, WorkerParts};
@@ -70,13 +70,13 @@ impl Module for ImportsModule {
         app.contribute(std::sync::Arc::new(
             aphel_kernel::application::fields::EntityKeyAliases(&[("import", "imports.import")]),
         ));
-        app.contribute::<dyn aphel_kernel::application::notifications::texts::NotificationTexts>(
+        app.contribute::<dyn ::notifications::application::texts::NotificationTexts>(
             std::sync::Arc::new(crate::notifications::ImportNotificationTexts),
         );
-        app.contribute::<dyn aphel_kernel::infrastructure::repositories::mysql_dashboard::RecentEventExclusion>(
-            Arc::new(dashboard::ImportedEventsExclusion),
-        );
-        app.contribute::<dyn aphel_kernel::application::notifications::NotificationSource>(
+        app.contribute::<dyn ::dashboard::repository::RecentEventExclusion>(Arc::new(
+            dashboard::ImportedEventsExclusion,
+        ));
+        app.contribute::<dyn ::notifications::application::NotificationSource>(
             std::sync::Arc::new(notifications::ImportNotifications),
         );
         app.contribute::<dyn FileReferenceSource>(Arc::new(ImportFileReferences));
@@ -92,12 +92,12 @@ impl Module for ImportsModule {
             crate::notifications::IMPORT_FINISHED_NOTIFICATION,
             crate::notifications::IMPORT_FAILED_NOTIFICATION,
         ] {
-            app.notification_kind(NotificationKindDefinition {
+            app.contribute(std::sync::Arc::new(NotificationKindDefinition {
                 kind,
                 channels: ALL_CHANNELS,
                 email_default: false,
                 push_default: false,
-            });
+            }));
         }
         app.worker(|env| {
             WorkerParts::default().handler(Arc::new(runtime::ImportRunHandler::new(env.state())))

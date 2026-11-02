@@ -5,9 +5,7 @@ use serde_json::{Value, json};
 use crate::CATEGORY;
 use crate::aggregate::{combine, condition, count_at, period, run, with_subject};
 use crate::settings::{SettingsReader, invalid_settings};
-use aphel_kernel::application::dashboard::{
-    DashboardPorts, WidgetContext, WidgetProvider, WidgetSize,
-};
+use ::dashboard::engine::{DashboardPorts, WidgetContext, WidgetProvider, WidgetSize};
 use aphel_kernel::domain::access::Permission;
 use aphel_kernel::errors::{AppError, FieldViolation};
 

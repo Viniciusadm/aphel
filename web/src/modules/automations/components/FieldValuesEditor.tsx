@@ -5,6 +5,7 @@ import { FieldInput } from '@/components/fields'
 import { Button } from '@/components/ui/button'
 import { Skeleton } from '@/components/ui/skeleton'
 import { useFieldSchema } from '@/features/records/api'
+
 import { activeFields } from '@/features/records/fields'
 import { FieldPicker } from '@/features/records/filters'
 import type { FieldDefinition } from '@/features/records/types'

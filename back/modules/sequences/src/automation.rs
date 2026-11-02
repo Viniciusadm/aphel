@@ -7,7 +7,7 @@ use crate::{
     NO_MAILBOX_AVAILABLE, SEQUENCE_ALREADY_ENROLLED, SEQUENCE_CONTACT_OBJECTED,
     SEQUENCE_CONTACT_WITHOUT_EMAIL, SEQUENCE_EMPTY, SEQUENCE_INACTIVE,
 };
-use aphel_kernel::application::automations::actions::{
+use aphel_contract_automation::application::actions::{
     ActionContext, AutomationAction, ValidationContext, record_permission,
 };
 use aphel_kernel::domain::access::Permission;

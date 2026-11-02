@@ -1,3 +1,7 @@
+mod opt_out_http;
+mod opt_out_store;
+mod opt_outs;
+use aphel_contract_automation::AutomationBuilder;
 pub(crate) mod actor;
 pub(crate) mod channel_routes;
 pub(crate) mod channels;
@@ -154,14 +158,21 @@ impl Module for MessagingModule {
                 )
                 .help("E-mail do usuário em nome de quem os webhooks e a leitura de e-mails buscam e criam contatos e registram mensagens, quando o canal não define um. Vazio: quem criou o canal"),
             )
+                        .owned_tables(&["communication_opt_outs"])
             .migration(Migration::new(
                 1,
                 "create messaging channels, conversations and messages",
                 include_str!("../migrations/0001_messaging.sql"),
             ))
+            .migration(Migration::new(2, "create communication opt outs", include_str!("../migrations/2830_create_communication_opt_outs.sql")).adopts_core(2830))
     }
 
     fn register(&self, app: &mut AppBuilder) -> Result<(), AppError> {
+        app.openapi_tag(opt_out_http::TAG, "Communication opt-outs")
+            .routes(|_| opt_out_http::router());
+        app.contribute::<dyn aphel_kernel::application::mail::MailRecipientPolicy>(
+            std::sync::Arc::new(RecipientPolicy),
+        );
         app.openapi_tag(
             TAG,
             "Shared inbox for WhatsApp Cloud API and email (IMAP/SMTP)",
@@ -199,6 +210,23 @@ impl Module for MessagingModule {
         let ctx = Ctx::from_state(&state, ctx.scope).await?;
         for channel in channels {
             channels::remove_credentials(&ctx, tx, &channel).await?;
+        }
+        Ok(())
+    }
+}
+
+struct RecipientPolicy;
+#[async_trait]
+impl aphel_kernel::application::mail::MailRecipientPolicy for RecipientPolicy {
+    async fn check(
+        &self,
+        pool: &sqlx::MySqlPool,
+        address: &str,
+        purpose: &str,
+    ) -> Result<(), AppError> {
+        let purpose = opt_outs::Purpose::parse(purpose).unwrap_or(opt_outs::Purpose::Transactional);
+        if opt_out_store::opted_out(pool, address, purpose).await? {
+            return Err(opt_outs::opted_out_error(address));
         }
         Ok(())
     }

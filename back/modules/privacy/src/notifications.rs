@@ -1,7 +1,7 @@
 use async_trait::async_trait;
 use serde_json::json;
 
-use aphel_kernel::application::notifications::{
+use ::notifications::application::{
     NotificationIntent, NotificationSource, NotificationSourceContext, payload_text,
     requested_job_intents,
 };

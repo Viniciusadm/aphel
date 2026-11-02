@@ -16,6 +16,7 @@ use crate::modules::services::Services;
 pub struct Manifest {
     pub base: ManifestBase,
     pub uninstall_sql: Option<&'static str>,
+    pub legacy_core_feature: Option<i64>,
     pub required: bool,
     pub enabled_by_default: bool,
     pub optional: Vec<&'static str>,
@@ -30,6 +31,7 @@ impl Manifest {
         Self {
             base: ManifestBase::new(key, name, version),
             uninstall_sql: None,
+            legacy_core_feature: None,
             required: false,
             enabled_by_default: false,
             optional: Vec::new(),
@@ -59,6 +61,11 @@ impl Manifest {
         if !self.optional.contains(&key) {
             self.optional.push(key);
         }
+        self
+    }
+
+    pub fn adopts_core_feature(mut self, version: i64) -> Self {
+        self.legacy_core_feature = Some(version);
         self
     }
 

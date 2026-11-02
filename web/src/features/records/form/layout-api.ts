@@ -1,3 +1,4 @@
+import { useIsModuleActive } from '@/kernel/modules/registry'
 import { useQuery } from '@tanstack/react-query'
 import { api } from '@/api'
 import type { FormLayout, FormLayoutResponse, LayoutContext } from './lib/layout'
@@ -20,12 +21,14 @@ export const formLayoutsApi = {
 }
 
 export function useFormLayout(recordType: string, context: LayoutContext, { enabled = true }: { enabled?: boolean } = {}) {
-  return useQuery({
+  const active = useIsModuleActive('record_layouts')
+  const result = useQuery({
     queryKey: formLayoutKeys.detail(recordType, context),
     queryFn: () => formLayoutsApi.get(recordType, context),
     staleTime: 60_000,
-    enabled,
+    enabled: enabled && active,
   })
+  return { ...result, data: active ? result.data : undefined, isPending: active && result.isPending }
 }
 
 export function savedLayout(response: FormLayoutResponse | undefined): FormLayout | null {

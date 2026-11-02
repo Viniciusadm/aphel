@@ -27,7 +27,7 @@ import {
   formulaUsesDecimals,
   isFormulaResultType,
   type FormulaResultType,
-} from '../formula/result-types'
+} from '@/modules/formulas/ui/result-types'
 
 export interface DraftOption {
   label: string

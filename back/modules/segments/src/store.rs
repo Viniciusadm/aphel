@@ -10,7 +10,7 @@ use uuid::Uuid;
 use crate::domain::Segment;
 use aphel_kernel::Ctx;
 use aphel_kernel::application::fields::EntityDefinition;
-use aphel_kernel::application::query::{Filter, SegmentSource};
+use aphel_kernel::application::query::{Filter, FilterSource};
 use aphel_kernel::application::shared::RecordType;
 use aphel_kernel::database::transaction::MySqlTx;
 use aphel_kernel::domain::UserId;
@@ -115,7 +115,7 @@ impl SegmentStore {
             .transpose()
     }
 
-    pub(crate) async fn source(&self, segment_id: Uuid) -> Result<Option<SegmentSource>, AppError> {
+    pub(crate) async fn source(&self, segment_id: Uuid) -> Result<Option<FilterSource>, AppError> {
         let row: Option<(String, Json<Value>)> =
             sqlx::query_as("SELECT record_type, filter FROM segments WHERE id = ?")
                 .bind(segment_id.to_string())
@@ -127,7 +127,7 @@ impl SegmentStore {
         let filter = serde_json::from_value::<Filter>(filter).map_err(|_| {
             AppError::Persistence(format!("segment {segment_id} has an invalid filter"))
         })?;
-        Ok(Some(SegmentSource {
+        Ok(Some(FilterSource {
             record_type,
             filter,
         }))

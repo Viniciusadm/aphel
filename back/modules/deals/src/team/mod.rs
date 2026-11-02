@@ -14,7 +14,7 @@ pub(crate) fn register(app: &mut AppBuilder) -> Result<(), AppError> {
         "Team of a deal (members, roles and revenue credit split) and the configurable member roles",
     )
     .routes(|_| http::router())
-    .notification_kind(notifications::DEAL_TEAM_NOTIFICATION_KIND)
+    .contribute(std::sync::Arc::new(notifications::DEAL_TEAM_NOTIFICATION_KIND))
     .consumer(|env| notifications::DealTeamNotificationConsumer::shared(env.pool.clone()));
     Ok(())
 }

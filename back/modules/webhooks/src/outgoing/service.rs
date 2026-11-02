@@ -14,6 +14,7 @@ use crate::outgoing::store::{WebhookDeliveryStore, WebhookEndpointStore};
 use aphel_kernel::Ctx;
 use aphel_kernel::application::access::Authorizer;
 use aphel_kernel::application::audit::{DiffOptions, diff_values};
+use aphel_kernel::application::outbound_http::{OutboundUrlGuard, UrlRejection};
 use aphel_kernel::application::public_events::is_public_event;
 use aphel_kernel::application::secrets::{SecretKey, SecretVault};
 use aphel_kernel::application::security::SecureTokens;
@@ -21,7 +22,6 @@ use aphel_kernel::application::shared::{
     Actor, AuditEntry, AuditLog, DomainEvent, EventPublisher, FieldChange, Job, JobQueue,
     RecordRef, ensure_version,
 };
-use aphel_kernel::application::webhooks::outgoing::{UrlRejection, WebhookUrlGuard};
 use aphel_kernel::database::transaction::MySqlTx;
 use aphel_kernel::domain::Secret;
 use aphel_kernel::domain::access::{AccessScope, Permission};
@@ -187,7 +187,7 @@ async fn validate_url(ctx: &Ctx<'_>, raw: &str) -> Result<String, AppError> {
             )],
         ));
     }
-    let network = ctx.webhook_network()?;
+    let network = ctx.outbound_http_network()?;
     match network.guard().check(&url).await {
         Ok(()) => Ok(url),
         Err(UrlRejection::Invalid(message)) => Err(AppError::invalid_fields(
@@ -506,7 +506,7 @@ pub(crate) async fn send_test(
         Some(scope.user_id().clone()),
         now,
     );
-    ctx.webhook_network()?;
+    ctx.outbound_http_network()?;
     let deliveries = WebhookDeliveryStore::of(ctx);
     let mut tx = ctx.begin().await?;
     deliveries.insert(&mut tx, &delivery).await?;

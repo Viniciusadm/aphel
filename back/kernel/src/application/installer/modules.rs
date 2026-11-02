@@ -9,14 +9,18 @@ use crate::domain::Secret;
 use crate::errors::{AppError, FieldViolation};
 use crate::modules::App;
 
-#[derive(Debug, Deserialize, Serialize, ToSchema)]
+#[derive(Debug, Clone, Deserialize, Serialize, ToSchema)]
 pub struct InstallerProfile {
     pub key: String,
     pub modules: Vec<String>,
 }
 
 pub fn profiles() -> Vec<InstallerProfile> {
-    serde_json::from_str(include_str!("profiles.json")).expect("valid installer profiles")
+    crate::modules::app()
+        .contributions::<dyn super::InstallerBlueprintSource>()
+        .into_iter()
+        .flat_map(|source| source.profiles())
+        .collect()
 }
 
 pub struct PreparedModule {

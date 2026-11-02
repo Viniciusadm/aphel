@@ -40,16 +40,37 @@ impl Module for TagsModule {
 
     fn register(&self, app: &mut AppBuilder) -> Result<(), AppError> {
         app.contribute(std::sync::Arc::new(
+            aphel_kernel::application::query::ReferenceSetField {
+                key: "tags",
+                label: "Tags",
+            },
+        ));
+        app.contribute(std::sync::Arc::new(
+            ::config_packages::application::versioning::fragments::SectionFragmentLayout {
+                section: "tags",
+                collections: vec![
+                    ::config_packages::application::versioning::fragments::FragmentCollection {
+                        path: None,
+                        kind: "tag",
+                        key_fields: &["key"],
+                    },
+                ],
+            },
+        ));
+
+        app.contribute(std::sync::Arc::new(
             aphel_kernel::application::fields::EntityKeyAliases(&[("tag", "tags.tag")]),
         ));
         contract::register(app);
-        app.contribute(std::sync::Arc::new(aphel_kernel::infrastructure::config_packages::ConfigSectionFactory::new(
-            100,
-            |pool, registry| {
+        app.contribute(std::sync::Arc::new(
+            ::config_packages::infrastructure::ConfigSectionFactory::new(100, |pool, registry| {
                 let _ = registry;
-                std::sync::Arc::new(crate::section::TagsSection::new(crate::TagStore::new(pool.clone()), aphel_kernel::infrastructure::config_packages::MySqlConfigKeyRepository::new(pool.clone())))
-            },
-        )));
+                std::sync::Arc::new(crate::section::TagsSection::new(
+                    crate::TagStore::new(pool.clone()),
+                    ::config_packages::infrastructure::MySqlConfigKeyRepository::new(pool.clone()),
+                ))
+            }),
+        ));
         app.openapi_tag(
             http::TAG,
             "Tags of the organization and tagging of contacts, companies and deals",
@@ -60,14 +81,14 @@ impl Module for TagsModule {
             aphel_kernel::modules::DEFAULT_PRIORITY,
             |ctx, removed| Box::pin(crate::hooks::purge_record_taggings(ctx, removed)),
         );
-        app.contribute::<dyn aphel_kernel::application::search::SearchContentSource>(Arc::new(
+        app.contribute::<dyn ::search::application::SearchContentSource>(Arc::new(
             search::TagSearchContent,
         ));
         app.contribute(Arc::new(
-            aphel_kernel::infrastructure::query::compiler::TagStorage {
-                taggings: "taggings",
-                tag_column: "tag_id",
-                tags: "tags",
+            aphel_kernel::infrastructure::query::compiler::ReferenceSetStorage {
+                links_table: "taggings",
+                value_column: "tag_id",
+                labels_table: "tags",
             },
         ));
         Ok(())

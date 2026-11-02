@@ -13,6 +13,7 @@ import { ErrorState } from '@/components/ui/error-state'
 import { Skeleton } from '@/components/ui/skeleton'
 import { formatCurrency, useRecordFormatting } from '@/features/records/formatting'
 import { recordsKeys } from '@/features/records/api'
+
 import { activePipelines, usePipelines } from '@/modules/pipelines/api'
 import { BOARD_PER_COLUMN, dealsApi, dealsKeys, type BoardRequest } from '../api'
 import { MovePipelineDialog, type PipelineMoveChoice } from '../MovePipelineDialog'

@@ -5,14 +5,14 @@ use chrono::SecondsFormat;
 use serde_json::{Value, json};
 
 use crate::domain::ACTIVITY_COMPLETED;
-use aphel_kernel::application::automations::actions::{
+use aphel_contract_automation::application::actions::{
     ActionContext, AutomationAction, CREATE_TASK, MAX_BODY_LENGTH, MAX_TITLE_LENGTH,
     ValidationContext, invalid, only_keys, optional_text, parent_record, required_text,
     resolve_user, text, user_spec_schema, validate_user_spec,
 };
-use aphel_kernel::application::automations::gateway::{Reference, TaskSpec};
-use aphel_kernel::application::automations::templates::parse_offset;
-use aphel_kernel::application::automations::triggers::{
+use aphel_contract_automation::application::gateway::{Reference, TaskSpec};
+use aphel_contract_automation::application::templates::parse_offset;
+use aphel_contract_automation::application::triggers::{
     AutomationTrigger, TriggerCandidate, event_context, is_automatable, parent_records,
 };
 use aphel_kernel::application::shared::DomainEvent;

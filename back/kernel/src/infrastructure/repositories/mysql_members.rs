@@ -168,21 +168,18 @@ async fn ensure_admin_remains(
 }
 
 async fn revoke_sessions(
-    transaction: &mut sqlx::MySqlConnection,
+    transaction: &mut MySqlTx,
+    pool: &MySqlPool,
     user_id: &UserId,
     at: DateTime<Utc>,
 ) -> Result<(), AppError> {
     sqlx::query("UPDATE sessions SET revoked_at = ? WHERE user_id = ? AND revoked_at IS NULL")
         .bind(mapper::naive(at))
         .bind(user_id.as_str())
-        .execute(&mut *transaction)
+        .execute(&mut **transaction)
         .await?;
-    crate::infrastructure::notifications::push::remove_user_push_subscriptions(
-        &mut *transaction,
-        user_id,
-        None,
-    )
-    .await?;
+    crate::application::security::session_revoked(transaction, pool, None, Some(user_id), None)
+        .await?;
     Ok(())
 }
 
@@ -381,7 +378,7 @@ impl MemberRepository for MySqlMemberRepository {
             .bind(user_id.as_str())
             .execute(&mut **tx)
             .await?;
-        revoke_sessions(&mut *tx, user_id, at).await?;
+        revoke_sessions(tx, &self.pool, user_id, at).await?;
         Ok(())
     }
 
@@ -424,7 +421,7 @@ impl MemberRepository for MySqlMemberRepository {
             .bind(user_id.as_str())
             .execute(&mut **tx)
             .await?;
-        revoke_sessions(&mut *tx, user_id, at).await?;
+        revoke_sessions(tx, &self.pool, user_id, at).await?;
         Ok(())
     }
 

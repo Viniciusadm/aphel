@@ -11,7 +11,7 @@ pub struct MySqlTransactionManager {
 }
 
 impl MySqlTransactionManager {
-    pub(crate) fn new(pool: MySqlPool) -> Self {
+    pub fn new(pool: MySqlPool) -> Self {
         Self { pool }
     }
 }

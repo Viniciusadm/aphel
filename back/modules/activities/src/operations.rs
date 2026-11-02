@@ -4,8 +4,8 @@ use uuid::Uuid;
 
 use crate::domain::CreateActivityCommand;
 use crate::{service, types};
+use aphel_contract_automation::application::{TaskOperations, TaskSpec};
 use aphel_kernel::Ctx;
-use aphel_kernel::application::automations::{TaskOperations, TaskSpec};
 use aphel_kernel::application::organization_admin::ListWindow;
 use aphel_kernel::errors::AppError;
 

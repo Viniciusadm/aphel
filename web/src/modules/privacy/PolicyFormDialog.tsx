@@ -9,7 +9,7 @@ import {
 } from '@/components/ui/dialog'
 import { Input } from '@/components/ui/input'
 import { NativeSelect } from '@/features/records/filters/NativeSelect'
-import { useCustomObjectsAdmin } from '@/features/settings/objects/api'
+import { useCustomObjectsAdmin } from '@/modules/objects/ui/api'
 import {
   MAX_THRESHOLD_DAYS,
   MIN_THRESHOLD_DAYS,

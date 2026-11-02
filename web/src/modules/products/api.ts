@@ -2,6 +2,7 @@ import { keepPreviousData, useQuery } from '@tanstack/react-query'
 import { api } from '@/api'
 import type { components } from '@/api/schema'
 import { recordsKeys } from '@/features/records/api'
+
 import { PRODUCT_RECORD_TYPE } from './resource'
 
 type Schemas = components['schemas']

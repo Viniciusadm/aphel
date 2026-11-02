@@ -6,16 +6,16 @@ use crate::domain::{
     Recommendation, SaveAnswersCommand, TeamSize, recommend,
 };
 use crate::store::OnboardingStore;
+use ::config_packages::application::TemplateCatalog;
+use ::config_packages::infrastructure::EmbeddedTemplates;
 use aphel_kernel::Ctx;
 use aphel_kernel::application::access::Authorizer;
-use aphel_kernel::application::config_packages::TemplateCatalog;
 use aphel_kernel::application::shared::{
     Actor, AuditEntry, AuditLog, DomainEvent, EventPublisher, FieldChange, RecordRef,
 };
 use aphel_kernel::domain::access::Permission;
 use aphel_kernel::domain::organizations::DEFAULT_LOCALE;
 use aphel_kernel::errors::{AppError, FieldViolation};
-use aphel_kernel::infrastructure::config_packages::EmbeddedTemplates;
 
 pub const ONBOARDING_NOT_PENDING: &str = "onboarding_not_pending";
 pub(crate) const ONBOARDING_COMPLETED: &str = "onboarding.completed";

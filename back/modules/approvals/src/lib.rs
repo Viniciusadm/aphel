@@ -1,3 +1,4 @@
+use aphel_contract_automation::AutomationBuilder;
 pub(crate) mod automation;
 pub mod domain;
 pub(crate) mod engine;
@@ -15,9 +16,9 @@ use std::sync::Arc;
 
 use aphel_kernel::modules::Migration;
 
+use ::notifications::domain::{ALL_CHANNELS, NotificationKindDefinition};
 use aphel_kernel::application::public_events::{PublicEventDefinition, PublicResource, event};
 use aphel_kernel::domain::access::{Permission, PermissionDefinition};
-use aphel_kernel::domain::notifications::{ALL_CHANNELS, NotificationKindDefinition};
 use aphel_kernel::errors::AppError;
 use aphel_kernel::modules::builder::APHEL_VERSION;
 use aphel_kernel::modules::{AppBuilder, Manifest, Module};
@@ -98,19 +99,24 @@ impl Module for ApprovalsModule {
                 "approvals.approval_policy",
             )]),
         ));
-        app.contribute::<dyn aphel_kernel::application::notifications::texts::NotificationTexts>(
+        app.contribute::<dyn ::notifications::application::texts::NotificationTexts>(
             std::sync::Arc::new(crate::notifications::ApprovalNotificationTexts),
         );
-        app.contribute::<dyn aphel_kernel::application::notifications::NotificationSource>(
+        app.contribute::<dyn ::notifications::application::NotificationSource>(
             std::sync::Arc::new(notifications::ApprovalNotifications),
         );
-        app.contribute(std::sync::Arc::new(aphel_kernel::infrastructure::config_packages::ConfigSectionFactory::new(
-            210,
-            |pool, registry| {
+        app.contribute(std::sync::Arc::new(
+            ::config_packages::infrastructure::ConfigSectionFactory::new(210, |pool, registry| {
                 let _ = registry;
-                std::sync::Arc::new(crate::section::ApprovalPoliciesSection::new(registry.clone(), crate::store::ApprovalStore::new(pool.clone()), crate::store::ApprovalDirectory::new(pool.clone(), registry.clone()), pipelines::store::PipelineStore::new(pool.clone()), aphel_kernel::infrastructure::config_packages::MySqlConfigKeyRepository::new(pool.clone())))
-            },
-        )));
+                std::sync::Arc::new(crate::section::ApprovalPoliciesSection::new(
+                    registry.clone(),
+                    crate::store::ApprovalStore::new(pool.clone()),
+                    crate::store::ApprovalDirectory::new(pool.clone(), registry.clone()),
+                    pipelines::store::PipelineStore::new(pool.clone()),
+                    ::config_packages::infrastructure::MySqlConfigKeyRepository::new(pool.clone()),
+                ))
+            }),
+        ));
         app.triggers(automation::approval_triggers())
             .action(Arc::new(automation::RequestApproval));
         app.on(RecordValidating, APPROVAL_PRIORITY, |ctx, args| {
@@ -137,7 +143,7 @@ impl Module for ApprovalsModule {
             app.public_event(*definition);
         }
         for definition in NOTIFICATION_KINDS {
-            app.notification_kind(*definition);
+            app.contribute(std::sync::Arc::new(*definition));
         }
         for operation in plugin_bridge::operations() {
             app.contribute::<aphel_kernel::modules::PluginOperation>(operation);

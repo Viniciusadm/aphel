@@ -1,0 +1,28 @@
+[package]
+name = "aphel-mod-search"
+version.workspace = true
+edition.workspace = true
+rust-version.workspace = true
+license.workspace = true
+publish = false
+
+[dependencies]
+aphel-kernel.workspace = true
+async-trait.workspace = true
+axum.workspace = true
+chrono.workspace = true
+chrono-tz.workspace = true
+rust_decimal.workspace = true
+serde.workspace = true
+serde_json.workspace = true
+sqlx.workspace = true
+tracing.workspace = true
+utoipa.workspace = true
+utoipa-axum.workspace = true
+uuid.workspace = true
+sha2.workspace = true
+regex.workspace = true
+futures.workspace = true
+tokio.workspace = true
+
+clap.workspace = true

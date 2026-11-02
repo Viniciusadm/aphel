@@ -10,13 +10,15 @@ use uuid::Uuid;
 use crate::domain::*;
 use crate::store::{CallOutcomeStore, CallSessionStore, CallStore};
 use crate::telephony::{TelephonyRecordingRequest, TelephonyRouter, TelephonyStartRequest};
+use ::config_packages::application::{is_config_key, key_from_name};
+use ::saved_views::application::{SavedViewRepository, is_visible};
+use ::saved_views::infrastructure::MySqlSavedViewRepository;
 use activities::domain::{ActivityRecord, ActivityScheduleInput, CreateActivityCommand, instant};
 use activities::service::{self as activity_service, PreparedActivity, record_access};
 use activities::types::require_activity_type_reader;
 use aphel_kernel::Ctx;
 use aphel_kernel::application::access::{Authorizer, PERMISSION_DENIED};
 use aphel_kernel::application::audit::{DiffOptions, diff_changes};
-use aphel_kernel::application::config_packages::{is_config_key, key_from_name};
 use aphel_kernel::application::files::RecordAccessChecker;
 use aphel_kernel::application::organization_admin::{ListWindow, Listing};
 use aphel_kernel::application::query::{
@@ -26,12 +28,10 @@ use aphel_kernel::application::shared::{
     Actor, AuditEntry, AuditLog, DomainEvent, EventPublisher, FieldChange, RecordRef, RecordType,
     ensure_version,
 };
-use aphel_kernel::application::views::{SavedViewRepository, is_visible};
 use aphel_kernel::database::transaction::MySqlTx;
 use aphel_kernel::domain::UserId;
 use aphel_kernel::domain::access::{AccessScope, Permission};
 use aphel_kernel::errors::{AppError, FieldViolation};
-use aphel_kernel::infrastructure::views::MySqlSavedViewRepository;
 
 pub(crate) fn telephony(ctx: &Ctx<'_>) -> Result<Arc<dyn TelephonyRouter>, AppError> {
     ctx.services().require::<dyn TelephonyRouter>()

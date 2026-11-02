@@ -7,6 +7,7 @@ license.workspace = true
 publish = false
 
 [dependencies]
+saved_views = { package = "aphel-mod-saved-views", path = "../saved_views" }
 aphel-contract-crm.workspace = true
 aphel-kernel.workspace = true
 currencies = { package = "aphel-mod-currencies", path = "../currencies" }

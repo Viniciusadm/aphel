@@ -14,26 +14,26 @@ use uuid::Uuid;
 
 use crate::clock::automation_clock;
 use crate::engine::{EngineInput, EngineMode, EngineOutcome, StepRecorder};
+use crate::gateway::automation_gateways;
 use crate::model::*;
 use crate::service::template_scope;
 use crate::store::{AutomationLocks, AutomationRunStore, AutomationStore, RunInsert};
-use aphel_kernel::Ctx;
-use aphel_kernel::api::automation_operations::automation_gateways;
-use aphel_kernel::application::access::{AccessRepository, build_access_scope};
-use aphel_kernel::application::auth::UserRepository;
-use aphel_kernel::application::automations::actions::ActionRegistry;
-use aphel_kernel::application::automations::context::TriggerContext;
-use aphel_kernel::application::automations::gateway::AutomationGatewayFactory;
-use aphel_kernel::application::automations::triggers::{
+use aphel_contract_automation::application::actions::ActionRegistry;
+use aphel_contract_automation::application::context::TriggerContext;
+use aphel_contract_automation::application::gateway::AutomationGatewayFactory;
+use aphel_contract_automation::application::triggers::{
     RECORD_CREATED, RECORD_DELETED, RECORD_UPDATED, TriggerRegistry,
 };
+use aphel_contract_automation::domain::{AutomationStatus, RunStatus, SkipReason};
+use aphel_kernel::Ctx;
+use aphel_kernel::application::access::{AccessRepository, build_access_scope};
+use aphel_kernel::application::auth::UserRepository;
 use aphel_kernel::application::security::Clock;
 use aphel_kernel::application::shared::{
     Actor, DomainEvent, EventCausation, EventConsumer, EventPublisher, Job, JobContext, JobHandler,
     JobQueue, RecordRef,
 };
 use aphel_kernel::domain::access::AccessScope;
-use aphel_kernel::domain::automations::{AutomationStatus, RunStatus, SkipReason};
 use aphel_kernel::domain::users::User;
 use aphel_kernel::errors::AppError;
 use aphel_kernel::infrastructure::repositories::mysql_access::MySqlAccessRepository;

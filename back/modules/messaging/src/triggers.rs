@@ -1,8 +1,8 @@
 use std::sync::Arc;
 
 use crate::{MESSAGE_RECEIVED, MESSAGE_SENT};
-use aphel_kernel::application::automations::AutomationTrigger;
-use aphel_kernel::application::automations::triggers::{TriggerCandidate, event_context};
+use aphel_contract_automation::application::AutomationTrigger;
+use aphel_contract_automation::application::triggers::{TriggerCandidate, event_context};
 use aphel_kernel::application::shared::DomainEvent;
 
 struct MessagingTrigger {

@@ -1,0 +1,5 @@
+export { MentionInput, type MentionInputProps } from '@/modules/notifications/ui/components/MentionInput'
+export { NotificationBell } from '@/modules/notifications/ui/components/NotificationBell'
+export { NotificationSettingsPage } from '@/modules/notifications/ui/NotificationSettingsPage'
+export { MENTION_PATTERN, mentionedUserIds, mentionMarkup, mentionsToText } from '@/modules/notifications/ui/lib/mentions'
+export { notificationsKeys } from '@/modules/notifications/ui/api'

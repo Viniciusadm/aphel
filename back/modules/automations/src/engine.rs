@@ -8,23 +8,23 @@ use uuid::Uuid;
 use crate::conditions::{Partial, TriggerEvaluation};
 use crate::hooks::{RunningAction, after_action, before_action};
 use crate::model::{RunStep, truncate_error};
-use aphel_kernel::Ctx;
-use aphel_kernel::application::access::Authorizer;
-use aphel_kernel::application::automations::actions::{ActionContext, ActionRegistry};
-use aphel_kernel::application::automations::definition::{
+use aphel_contract_automation::application::actions::{ActionContext, ActionRegistry};
+use aphel_contract_automation::application::definition::{
     AutomationDefinition, StepBody, StepSpec,
 };
-use aphel_kernel::application::automations::gateway::AutomationGateway;
-use aphel_kernel::application::automations::templates::TemplateScope;
-use aphel_kernel::application::automations::time::duration::{DURATION_MESSAGE, parse_duration};
-use aphel_kernel::application::automations::time::waits::{
+use aphel_contract_automation::application::gateway::AutomationGateway;
+use aphel_contract_automation::application::templates::TemplateScope;
+use aphel_contract_automation::application::time::duration::{DURATION_MESSAGE, parse_duration};
+use aphel_contract_automation::application::time::waits::{
     WAIT_UNTIL_POLL_MINUTES, WaitTarget, parse_timestamp, timestamp,
 };
+use aphel_contract_automation::domain::StepStatus;
+use aphel_kernel::Ctx;
+use aphel_kernel::application::access::Authorizer;
 use aphel_kernel::application::fields::FieldSet;
 use aphel_kernel::application::query::Filter;
 use aphel_kernel::application::security::Clock;
 use aphel_kernel::application::shared::RecordRef;
-use aphel_kernel::domain::automations::StepStatus;
 use aphel_kernel::errors::AppError;
 
 #[derive(Debug, Clone, Copy, PartialEq, Eq)]

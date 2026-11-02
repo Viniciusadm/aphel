@@ -2,13 +2,13 @@ use chrono::{DateTime, Utc};
 use serde_json::Value;
 use uuid::Uuid;
 
-use aphel_kernel::application::automations::context::TriggerContext;
-use aphel_kernel::application::automations::definition::{AutomationDefinition, TriggerSpec};
-use aphel_kernel::application::shared::{RecordRef, RecordType};
-use aphel_kernel::domain::UserId;
-use aphel_kernel::domain::automations::{
+use aphel_contract_automation::application::context::TriggerContext;
+use aphel_contract_automation::application::definition::{AutomationDefinition, TriggerSpec};
+use aphel_contract_automation::domain::{
     AutomationStatus, RunStatus, SkipReason, StepKind, StepStatus,
 };
+use aphel_kernel::application::shared::{RecordRef, RecordType};
+use aphel_kernel::domain::UserId;
 
 pub(crate) const AUTOMATION_RECORD_TYPE: RecordType =
     RecordType::from_static("automations.automation");

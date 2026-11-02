@@ -2,9 +2,9 @@ use aphel_contract_crm::CrmRecordTypes;
 use async_trait::async_trait;
 use serde_json::{Map, Value, json};
 
-use aphel_kernel::application::automations::actions::*;
-use aphel_kernel::application::automations::gateway::{MessageChannel, MessageSpec};
-use aphel_kernel::application::automations::triggers::is_automatable;
+use aphel_contract_automation::application::actions::*;
+use aphel_contract_automation::application::gateway::{MessageChannel, MessageSpec};
+use aphel_contract_automation::application::triggers::is_automatable;
 use aphel_kernel::application::shared::RecordType;
 use aphel_kernel::domain::UserId;
 use aphel_kernel::domain::access::Permission;

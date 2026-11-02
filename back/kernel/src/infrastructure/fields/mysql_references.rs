@@ -15,7 +15,7 @@ pub struct MySqlReferenceChecker {
 }
 
 impl MySqlReferenceChecker {
-    pub(crate) fn new(pool: MySqlPool) -> Self {
+    pub fn new(pool: MySqlPool) -> Self {
         Self { pool }
     }
 }

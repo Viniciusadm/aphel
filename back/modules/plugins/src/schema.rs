@@ -3,9 +3,9 @@ use sqlx::MySqlPool;
 use uuid::Uuid;
 
 use crate::manifest::{FieldDef, PluginManifest};
-use aphel_kernel::application::custom_objects::{
-    CreateObjectCommand, CustomObjectAdminUseCases, ManagedObject, custom_record_definition,
-};
+use ::objects::application::{CreateObjectCommand, CustomObjectAdminUseCases, ManagedObject};
+use ::objects::infrastructure::MySqlCustomObjectAdminPorts;
+use aphel_kernel::application::custom_objects::custom_record_definition;
 use aphel_kernel::application::fields::config_to_json;
 use aphel_kernel::application::fields::{FieldDefinitionRepository, RecordTypeRegistry};
 use aphel_kernel::domain::access::AccessScope;
@@ -14,7 +14,6 @@ use aphel_kernel::domain::custom_objects::{
 };
 use aphel_kernel::domain::fields::{FieldDefinition, FieldKey, FieldOption, FieldType};
 use aphel_kernel::errors::{AppError, CodedKind, FieldViolation};
-use aphel_kernel::infrastructure::custom_objects::MySqlCustomObjectAdminPorts;
 use aphel_kernel::infrastructure::fields::mysql_definitions::MySqlFieldDefinitionRepository;
 use aphel_kernel::infrastructure::fields::unique_values;
 use aphel_kernel::state::AppState;

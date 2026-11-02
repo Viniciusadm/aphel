@@ -18,10 +18,10 @@ use crate::domain::{
     price_list_not_found,
 };
 use crate::store::{DiscountLimitStore, PriceListStore};
+use ::config_packages::application::{is_config_key, key_from_name};
 use aphel_kernel::Ctx;
 use aphel_kernel::application::access::Authorizer;
 use aphel_kernel::application::audit::{DiffOptions, diff_changes};
-use aphel_kernel::application::config_packages::{is_config_key, key_from_name};
 use aphel_kernel::application::organization_admin::{ListWindow, Listing};
 use aphel_kernel::application::shared::{
     Actor, AuditEntry, AuditLog, DomainEvent, EventPublisher, FieldChange, RecordRef, RecordType,

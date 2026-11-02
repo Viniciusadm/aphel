@@ -490,7 +490,17 @@
       "copyableLinkLabel": "Link para copiar",
       "copyableLinkDescription": "O e-mail de envio não está configurado. Copie o link e entregue à pessoa por outro canal.",
       "copy": "Copiar",
-      "copied": "Copiado"
+      "copied": "Copiado",
+      "transport": {
+        "host": "Servidor SMTP",
+        "from": "E-mail do remetente",
+        "username": "Usuário",
+        "port": "Porta",
+        "security": "Segurança da conexão",
+        "none": "Nenhuma",
+        "password": "Nova senha",
+        "clearPassword": "Remover a senha armazenada"
+      }
     },
     "storage": {
       "title": "Armazenamento de arquivos",

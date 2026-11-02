@@ -3,15 +3,15 @@ use serde_json::{Value, json};
 use uuid::Uuid;
 
 use crate::incoming::INCOMING_WEBHOOK_PROCESSED;
-use aphel_kernel::application::automations::actions::*;
-use aphel_kernel::application::automations::definition::TriggerSpec;
-use aphel_kernel::application::automations::gateway::WebhookCall;
-use aphel_kernel::application::automations::triggers::{
+use aphel_contract_automation::application::actions::*;
+use aphel_contract_automation::application::definition::TriggerSpec;
+use aphel_contract_automation::application::gateway::WebhookCall;
+use aphel_contract_automation::application::triggers::{
     AutomationTrigger, INCOMING_WEBHOOK, TriggerCandidate, TriggerReference, is_automatable, single,
 };
 use aphel_kernel::application::fields::FieldSet;
+use aphel_kernel::application::outbound_http::{HttpMethod, is_reserved_transport_header};
 use aphel_kernel::application::shared::DomainEvent;
-use aphel_kernel::application::webhooks::outgoing::{WebhookMethod, is_reserved_webhook_header};
 use aphel_kernel::domain::access::Permission;
 use aphel_kernel::errors::{AppError, FieldViolation};
 
@@ -189,7 +189,7 @@ impl AutomationAction for CallWebhook {
             None => violations.push(context.violation("url", "is required")),
         }
         if let Some(value) = config.get("method")
-            && value.as_str().and_then(WebhookMethod::parse).is_none()
+            && value.as_str().and_then(HttpMethod::parse).is_none()
         {
             violations.push(context.violation("method", "must be GET, POST, PUT, PATCH or DELETE"));
         }
@@ -264,7 +264,7 @@ impl AutomationAction for CallWebhook {
                 body: self.body(context, config)?,
                 signing_secret,
                 method: text(config, "method")
-                    .and_then(WebhookMethod::parse)
+                    .and_then(HttpMethod::parse)
                     .unwrap_or_default(),
                 headers: config
                     .get("headers")
@@ -297,4 +297,8 @@ impl AutomationAction for CallWebhook {
             },
         ))
     }
+}
+
+fn is_reserved_webhook_header(name: &str) -> bool {
+    is_reserved_transport_header(name) || name.trim().to_ascii_lowercase().starts_with("x-aphel-")
 }

@@ -1,8 +1,7 @@
+use crate::engine::IntegrationError;
+use crate::{ActiveIntegration, IntegrationStore};
 use aphel_sdk::AppError;
-use aphel_sdk::points::{
-    ActiveIntegration, FailureEntry, FailureSource, HealthSource, IntegrationError,
-    IntegrationStore,
-};
+use aphel_sdk::points::{FailureEntry, FailureSource, HealthSource};
 use async_trait::async_trait;
 use chrono::{DateTime, NaiveDateTime, Utc};
 use sqlx::types::Json;

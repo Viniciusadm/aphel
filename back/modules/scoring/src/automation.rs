@@ -4,9 +4,9 @@ use serde_json::{Value, json};
 
 use crate::domain::{COMPANY_SCORE_BAND_CHANGED, SCORE_BAND_CHANGED, ScoreBand};
 use crate::engine::is_scored_record_type;
-use aphel_kernel::application::automations::AutomationTrigger;
-use aphel_kernel::application::automations::definition::TriggerSpec;
-use aphel_kernel::application::automations::triggers::{TriggerCandidate, event_context};
+use aphel_contract_automation::application::AutomationTrigger;
+use aphel_contract_automation::application::definition::TriggerSpec;
+use aphel_contract_automation::application::triggers::{TriggerCandidate, event_context};
 use aphel_kernel::application::fields::FieldSet;
 use aphel_kernel::application::shared::DomainEvent;
 use aphel_kernel::errors::FieldViolation;

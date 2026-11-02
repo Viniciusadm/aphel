@@ -6,6 +6,7 @@ use clap::{ArgMatches, Args, Command, FromArgMatches, Subcommand};
 use tracing::info;
 
 use crate::service;
+use crate::settings::demo_settings;
 use crate::{DemoSeedCommand, DemoVisitor};
 use aphel_kernel::Ctx;
 use aphel_kernel::application::fields::RecordTypeRegistry;
@@ -16,7 +17,6 @@ use aphel_kernel::domain::access::AccessScope;
 use aphel_kernel::errors::AppError;
 use aphel_kernel::infrastructure::audit::MySqlAuditLog;
 use aphel_kernel::infrastructure::defaults::sync_defaults;
-use aphel_kernel::infrastructure::demo::demo_settings;
 use aphel_kernel::infrastructure::events::MySqlEventPublisher;
 use aphel_kernel::infrastructure::fields::sync_system_fields;
 use aphel_kernel::infrastructure::organizations::organization_config_catalog;

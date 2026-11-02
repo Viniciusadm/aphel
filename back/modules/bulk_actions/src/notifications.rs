@@ -6,17 +6,16 @@ use sqlx::MySqlPool;
 
 use crate::{BULK_OPERATION_COMPLETED, BULK_OPERATION_FAILED};
 use aphel_kernel::application::custom_objects::{CatalogEventConsumer, RecordTypeCatalog};
+
+use ::notifications::application::texts::record_type_label;
+use ::notifications::application::{NotificationIntent, dispatch};
+use ::notifications::domain::{ALL_CHANNELS, NotificationKind, NotificationKindDefinition};
+use ::notifications::infrastructure::MySqlNotificationPorts;
 use aphel_kernel::application::mail::MailLocale;
-use aphel_kernel::application::notifications::texts::record_type_label;
-use aphel_kernel::application::notifications::{NotificationIntent, dispatch};
 use aphel_kernel::application::shared::{DomainEvent, EventConsumer};
 use aphel_kernel::domain::UserId;
-use aphel_kernel::domain::notifications::{
-    ALL_CHANNELS, NotificationKind, NotificationKindDefinition,
-};
 use aphel_kernel::errors::AppError;
 use aphel_kernel::infrastructure::jobs::MySqlJobQueue;
-use aphel_kernel::infrastructure::notifications::MySqlNotificationPorts;
 
 pub(crate) const BULK_NOTIFICATIONS_CONSUMER: &str = "bulk_actions.notifications";
 pub(crate) const BULK_OPERATION_FINISHED: NotificationKind =

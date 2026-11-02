@@ -9,10 +9,10 @@ use uuid::Uuid;
 
 use crate::store::automations::to_json;
 use crate::{AutomationRun, AutomationStats, RunListFilter, RunStep};
+use aphel_contract_automation::domain::{RunStatus, SkipReason, StepKind, StepStatus};
 use aphel_kernel::Ctx;
 use aphel_kernel::application::organization_admin::{ListWindow, Listing};
 use aphel_kernel::application::shared::RecordRef;
-use aphel_kernel::domain::automations::{RunStatus, SkipReason, StepKind, StepStatus};
 use aphel_kernel::errors::AppError;
 use aphel_kernel::infrastructure::fields::mysql_definitions::uuid_column;
 use aphel_kernel::infrastructure::repositories::mapper;

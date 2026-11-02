@@ -10,6 +10,7 @@ rust-version = "1.94"
 license = "AGPL-3.0-only"
 
 [workspace.dependencies]
+aphel-contract-automation = { path = "contracts/automation" }
 aphel-kernel = { path = "kernel" }
 aphel-contract = { path = "contract" }
 aphel-contract-crm = { path = "contracts/crm" }

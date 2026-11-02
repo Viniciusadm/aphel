@@ -6,7 +6,8 @@ use serde_json::{Map, Value, json};
 
 use std::str::FromStr;
 
-use aphel_kernel::application::dashboard::{DashboardPorts, WidgetContext, WidgetProvider};
+use ::dashboard::engine::{DashboardPorts, WidgetContext, WidgetProvider};
+use ::dashboard::engine_domain::ResolvedPeriod;
 use aphel_kernel::application::fields::permissions::{FieldAccess, FieldAccessPolicy};
 use aphel_kernel::application::query::{
     AggregateEngine, AggregateFunction, AggregatePeriod, AggregateQuery, Filter, FilterOperator,
@@ -14,7 +15,6 @@ use aphel_kernel::application::query::{
 };
 use aphel_kernel::application::shared::RecordType;
 use aphel_kernel::domain::access::Permission;
-use aphel_kernel::domain::dashboard::ResolvedPeriod;
 use aphel_kernel::errors::AppError;
 
 pub(crate) const RECURRING_REVENUE_WIDGET: &str = "recurring_revenue";

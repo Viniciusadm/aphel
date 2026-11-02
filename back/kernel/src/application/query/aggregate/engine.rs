@@ -14,20 +14,20 @@ use crate::application::query::{
     AggregateOrder, AggregateOrderKey, AggregatePeriod, AggregatePlan, AggregateQuery,
     AggregateRange, AggregateRelationInfo, AggregateResult, AggregateRow, AggregateRowData,
     AggregateSchema, AggregateSort, AggregateTotals, COUNT_METRIC, DEFAULT_AGGREGATE_LIMIT,
-    FieldTarget, Filter, FilterOperator, GroupBySpec, GroupLabels, GroupPlan, GroupValue,
-    LabelSource, MAX_AGGREGATE_LIMIT, MAX_GROUPS, MAX_METRICS, MAX_SORTS, MetricDuration,
-    MetricPlan, MetricSpec, MetricTarget, OWNER_TEAM_FIELD, PlanNode, QueryPlan, RecordQuery,
-    RecordQueryEngine, RecordQueryExecutor, RecordQueryPorts, RelatedFieldSets, RelatedGroup,
-    ResolveContext, SegmentResolution, SortDirection, TAGS_FIELD, TimeGranularity, buckets,
-    load_related_sets, resolve_filter, resolve_query_related, split_relation_path, target_of,
+    FieldTarget, Filter, FilterExpansion, FilterOperator, GroupBySpec, GroupLabels, GroupPlan,
+    GroupValue, LabelSource, MAX_AGGREGATE_LIMIT, MAX_GROUPS, MAX_METRICS, MAX_SORTS,
+    MetricDuration, MetricPlan, MetricSpec, MetricTarget, OWNER_TEAM_FIELD, PlanNode, QueryPlan,
+    RecordQuery, RecordQueryEngine, RecordQueryExecutor, RecordQueryPorts, RelatedFieldSets,
+    RelatedGroup, ResolveContext, SortDirection, TimeGranularity, buckets, load_related_sets,
+    reference_set_field, resolve_filter, resolve_query_related, split_relation_path, target_of,
     timezone_shift,
 };
 use crate::application::security::Clock;
 use crate::domain::access::AccessScope;
-use crate::domain::dashboard::{
+use crate::domain::fields::FieldType;
+use crate::domain::period::{
     PeriodPreset, PeriodSelection, ResolvedPeriod, previous_period, resolve_period,
 };
-use crate::domain::fields::FieldType;
 use crate::errors::{AppError, FieldViolation};
 
 pub const TAGS_LABEL: &str = "Etiquetas";
@@ -194,10 +194,12 @@ where
                 }
             })
             .collect();
-        if fields.find(TAGS_FIELD).is_none() {
+        if let Some(source) = reference_set_field()
+            && fields.find(source.key).is_none()
+        {
             infos.push(AggregateFieldInfo {
-                key: TAGS_FIELD.to_owned(),
-                label: TAGS_LABEL.to_owned(),
+                key: source.key.to_owned(),
+                label: source.label.to_owned(),
                 field_type: FieldType::MultiSelect,
                 is_virtual: true,
                 groupable: true,
@@ -257,8 +259,8 @@ where
             .related_sets(scope, definition, &relation_keys(&query))
             .await?;
         let resolved = self.resolve(scope, &fields, &relations, &query, now, timezone)?;
-        let segments = RecordQueryEngine::new(self.ports)
-            .segments(&query.record_type, query.filter.as_ref())
+        let expansions = RecordQueryEngine::new(self.ports)
+            .expansions(&query.record_type, query.filter.as_ref())
             .await?;
         let base = resolve_query_related(
             &fields,
@@ -274,7 +276,7 @@ where
                     limit: 1,
                 },
             },
-            SegmentResolution::Expand(&segments),
+            FilterExpansion::Expand(&expansions),
             &relations,
         )?;
         let current_base = match &resolved.period {
@@ -531,12 +533,14 @@ where
             })
         };
         if fields.find(key).is_none() && allow_virtual {
-            if key == TAGS_FIELD {
+            if let Some(source) = reference_set_field()
+                && key == source.key
+            {
                 return virtual_group(
-                    FieldTarget::Tags,
+                    FieldTarget::ReferenceSet,
                     FieldType::MultiSelect,
-                    TAGS_LABEL,
-                    GroupLabels::Lookup(LabelSource::Tags),
+                    source.label,
+                    GroupLabels::Lookup(LabelSource::ReferenceSet),
                 );
             }
             if key == OWNER_TEAM_FIELD && fields.record_type.owner_column.is_some() {
@@ -1009,7 +1013,7 @@ fn metric_target(
         FieldTarget::System { column } => Some(MetricTarget::System { column }),
         FieldTarget::Computed { computed } => Some(MetricTarget::Computed { computed }),
         FieldTarget::Custom { field_id, column } => Some(MetricTarget::Custom { field_id, column }),
-        FieldTarget::Tags | FieldTarget::OwnerTeam => {
+        FieldTarget::ReferenceSet | FieldTarget::OwnerTeam => {
             violations.push(FieldViolation::new(
                 field_path,
                 "cannot be used as a metric",

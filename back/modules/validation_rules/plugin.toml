@@ -1,0 +1,5 @@
+key = "validation_rules"
+name = "Validation Rules"
+version = "0.1.0"
+layer = "capability"
+runtime = "native"

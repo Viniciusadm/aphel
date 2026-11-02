@@ -86,7 +86,7 @@ export function RecordFormDialogBody({
   })
 
   if (!resource) return <SharedFieldError>{t('dialog.unavailable')}</SharedFieldError>
-  if (schema.isPending || (formLayout.isPending && !formLayout.isError)) {
+  if (schema.isPending || formLayout.isLoading) {
     return (
       <div className="grid gap-4" aria-busy="true">
         <Skeleton className="h-9 w-full" />

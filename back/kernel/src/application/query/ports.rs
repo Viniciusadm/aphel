@@ -4,7 +4,7 @@ use uuid::Uuid;
 
 use crate::application::fields::{FieldDefinitionRepository, RecordTypeRegistry};
 use crate::application::organization_admin::Listing;
-use crate::application::query::{QueryPlan, SegmentSource};
+use crate::application::query::{FilterSource, QueryPlan};
 use crate::application::security::Clock;
 use crate::domain::access::AccessScope;
 use crate::errors::AppError;
@@ -17,7 +17,7 @@ pub trait RecordQueryExecutor: Send + Sync {
         scope: &AccessScope,
         plan: &QueryPlan,
     ) -> Result<Listing<Uuid>, AppError>;
-    async fn segment(&self, _segment_id: Uuid) -> Result<Option<SegmentSource>, AppError> {
+    async fn filter_source(&self, _filter_id: Uuid) -> Result<Option<FilterSource>, AppError> {
         Ok(None)
     }
 }

@@ -11,6 +11,7 @@ use crate::{
 use aphel_kernel::application::custom_objects::{
     TITLE_FIELD as CUSTOM_TITLE_FIELD, resolve_relation,
 };
+
 use aphel_kernel::application::fields::{EntityDefinition, FieldSet, RecordTypeRegistry};
 use aphel_kernel::domain::custom_objects::RelationSide;
 use aphel_kernel::domain::fields::FieldType;

@@ -4,7 +4,7 @@ use serde_json::{Map, Value, json};
 
 use crate::domain::normalize_address;
 use crate::{MailProviderError, MailboxCredentials};
-use aphel_kernel::infrastructure::webhooks::outgoing::network::is_public_ip;
+use aphel_kernel::infrastructure::outbound_http::network::is_public_ip;
 
 pub(crate) const PASSWORD_CREDENTIAL: &str = "password";
 pub(crate) const SMTP_PASSWORD_CREDENTIAL: &str = "smtp_password";

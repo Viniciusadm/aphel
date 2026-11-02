@@ -6,10 +6,10 @@ use sqlx::{MySqlPool, QueryBuilder, Row};
 use uuid::Uuid;
 
 use crate::domain::custom::{ReportVisualization, SavedReport};
+use ::saved_views::application::ViewVisibility;
 use aphel_kernel::Ctx;
 use aphel_kernel::application::query::AggregateQuery;
 use aphel_kernel::application::shared::RecordType;
-use aphel_kernel::application::views::ViewVisibility;
 use aphel_kernel::database::transaction::MySqlTx;
 use aphel_kernel::domain::access::AccessScope;
 use aphel_kernel::domain::{TeamId, UserId};

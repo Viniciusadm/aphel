@@ -8,6 +8,7 @@ import { Button } from '@/components/ui/button'
 import { Input } from '@/components/ui/input'
 import { activitiesKeys, useActivityTypes } from '../api'
 import { recordsKeys } from '@/features/records/api'
+
 import { CHECK_IN_TYPE_KEYS, pickActivityType, submitActivity } from './api'
 import { captureLocation, mapUrl, type CapturedLocation, type LocationFailure } from '@/features/mobile/lib/geolocation'
 import { DictationField } from '@/features/mobile/components/DictationField'

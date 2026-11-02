@@ -4,6 +4,7 @@ import { useTranslation } from 'react-i18next'
 import { Button } from '@/components/ui/button'
 import { Input } from '@/components/ui/input'
 import { useFieldSchema } from '@/features/records/api'
+
 import { NativeSelect } from '@/features/records/filters/NativeSelect'
 import type { FieldSchema, FieldType, FilterNode } from '@/features/records/types'
 import { issuesUnder, type ValidationIssue } from '../lib/errors'

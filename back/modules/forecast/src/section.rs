@@ -8,11 +8,11 @@ use sqlx::MySqlPool;
 use crate::domain::{ForecastSettings, UpdateForecastSettingsCommand};
 use crate::service::{merge_settings, settings_snapshot, write_settings};
 use crate::store::ForecastStore;
-use aphel_kernel::Ctx;
-use aphel_kernel::application::config_packages::{
+use ::config_packages::application::{
     ApplyContext, ConfigPackage, ConfigSection, Decisions, PackageIssue, PlanChange, PlanItem,
     parse_section,
 };
+use aphel_kernel::Ctx;
 use aphel_kernel::application::fields::RecordTypeRegistry;
 use aphel_kernel::database::transaction::MySqlTx;
 use aphel_kernel::domain::access::AccessScope;

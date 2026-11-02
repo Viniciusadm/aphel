@@ -10,8 +10,8 @@ use aphel_kernel::application::access::Authorizer;
 use aphel_kernel::application::fields::{EntityDefinition, FieldSet, RecordTypeRegistry};
 use aphel_kernel::application::organization_admin::ListWindow;
 use aphel_kernel::application::query::{
-    ArchivedFilter, Filter, FilterOperator, ID_FIELD, QueryPlan, RecordQuery, RecordQueryEngine,
-    RecordQueryExecutor, RecordQueryPorts, ResolveContext, SegmentResolution, load_related_sets,
+    ArchivedFilter, Filter, FilterExpansion, FilterOperator, ID_FIELD, QueryPlan, RecordQuery,
+    RecordQueryEngine, RecordQueryExecutor, RecordQueryPorts, ResolveContext, load_related_sets,
     resolve_query_related, validate_view_query_related,
 };
 use aphel_kernel::application::security::Clock;
@@ -59,7 +59,7 @@ impl ScoringDirectory {
         };
         let engine = RecordQueryEngine::new(&ports);
         let segments = engine
-            .segments(definition.record_type.as_str(), Some(&filter))
+            .expansions(definition.record_type.as_str(), Some(&filter))
             .await?;
         let relations = load_related_sets(
             &self.registry,
@@ -83,7 +83,7 @@ impl ScoringDirectory {
             &context,
             RecordScopeFilter::Organization,
             query,
-            SegmentResolution::Expand(&segments),
+            FilterExpansion::Expand(&segments),
             &relations,
         ))
     }

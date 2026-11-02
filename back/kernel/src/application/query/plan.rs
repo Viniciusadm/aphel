@@ -83,7 +83,7 @@ pub enum FieldTarget {
     System { column: String },
     Computed { computed: ComputedColumn },
     Custom { field_id: Uuid, column: ValueColumn },
-    Tags,
+    ReferenceSet,
     OwnerTeam,
 }
 

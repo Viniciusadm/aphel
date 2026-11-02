@@ -4,9 +4,7 @@ use async_trait::async_trait;
 use chrono::{DateTime, Utc};
 use uuid::Uuid;
 
-use crate::application::fields::{
-    CustomFieldPorts, EntityDefinition, FieldDefinitionRepository, RecordTypeRegistry,
-};
+use crate::application::fields::{CustomFieldPorts, EntityDefinition, RecordTypeRegistry};
 use crate::application::files::RecordAccessChecker;
 use crate::application::organization_admin::{ListWindow, Listing};
 use crate::application::query::RecordQueryPorts;
@@ -133,28 +131,6 @@ pub trait RecordLinkRepository: Send + Sync {
         definition: &EntityDefinition,
         record_ids: &[Uuid],
     ) -> Result<HashMap<Uuid, String>, AppError>;
-}
-
-pub type CustomObjectsTx<P> =
-    <<P as CustomObjectAdminPorts>::Transactions as TransactionManager>::Tx;
-
-pub trait CustomObjectAdminPorts: Send + Sync {
-    type Transactions: TransactionManager;
-    type Objects: CustomObjectRepository<Tx = <Self::Transactions as TransactionManager>::Tx>;
-    type Relationships: RelationshipRepository<Tx = <Self::Transactions as TransactionManager>::Tx>;
-    type Definitions: FieldDefinitionRepository<Tx = <Self::Transactions as TransactionManager>::Tx>;
-    type Events: EventPublisher<<Self::Transactions as TransactionManager>::Tx>;
-    type Audit: AuditLog<<Self::Transactions as TransactionManager>::Tx>;
-    type Clock: Clock;
-
-    fn registry(&self) -> &RecordTypeRegistry;
-    fn transactions(&self) -> &Self::Transactions;
-    fn objects(&self) -> &Self::Objects;
-    fn relationships(&self) -> &Self::Relationships;
-    fn definitions(&self) -> &Self::Definitions;
-    fn events(&self) -> &Self::Events;
-    fn audit(&self) -> &Self::Audit;
-    fn clock(&self) -> &Self::Clock;
 }
 
 #[async_trait]

@@ -7,6 +7,7 @@ license.workspace = true
 publish = false
 
 [dependencies]
+notifications = { package = "aphel-mod-notifications", path = "../notifications" }
 aphel-contract-crm.workspace = true
 aphel-kernel.workspace = true
 activities = { package = "aphel-mod-activities", path = "../activities" }

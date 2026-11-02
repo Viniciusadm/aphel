@@ -8,7 +8,8 @@ import { useSession } from '@/app/session/session-context'
 import { Button } from '@/components/ui/button'
 import { ErrorState } from '@/components/ui/error-state'
 import { Skeleton } from '@/components/ui/skeleton'
-import { useFieldSchema, useSavedViews } from '@/features/records/api'
+import { useFieldSchema } from '@/features/records/api'
+import { useSavedViews } from '@/modules/saved_views/api'
 import { FilterChips, FilterMenu } from '@/features/records/filters'
 import { RecordFormDialog } from '@/features/records/form'
 import { RecordListView, SearchBox } from '@/features/records/table'
@@ -21,8 +22,8 @@ import {
   buildListSearch,
   pickDefaultView,
   useListUrlState,
-} from '@/features/records/views'
-import { hasExplicitQuery, viewDensity } from '@/features/records/views/urlState'
+} from '@/modules/saved_views/ui'
+import { hasExplicitQuery, viewDensity } from '@/modules/saved_views/ui/urlState'
 import { applyFilters } from '@/kernel/modules/filters'
 import { Slot } from '@/kernel/modules/Slot'
 import { cn } from '@/lib/utils'

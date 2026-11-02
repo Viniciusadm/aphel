@@ -10,9 +10,9 @@ use crate::domain::{
     MIN_WEIGHT, RouteSelection, Routing, pick, select_route, simulate,
 };
 use crate::store::{DistributionStore, PickRecord};
+use aphel_contract_automation::application::AutomationGateway;
+use aphel_contract_automation::application::templates::CUSTOM_FIELDS_KEY;
 use aphel_kernel::Ctx;
-use aphel_kernel::application::automations::AutomationGateway;
-use aphel_kernel::application::automations::templates::CUSTOM_FIELDS_KEY;
 use aphel_kernel::application::shared::RecordRef;
 use aphel_kernel::database::transaction::MySqlTx;
 use aphel_kernel::domain::UserId;

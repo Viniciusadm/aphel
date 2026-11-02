@@ -4,7 +4,7 @@ use uuid::Uuid;
 use aphel_kernel::application::shared::RecordType;
 use aphel_kernel::domain::UserId;
 
-pub(crate) use crate::outgoing::{WebhookRequest, WebhookResponse};
+pub(crate) use crate::outgoing::{OutboundRequest, OutboundResponse};
 
 pub(crate) const WEBHOOK_ENDPOINT_RECORD_TYPE: RecordType =
     RecordType::from_static("webhooks.webhook_endpoint");

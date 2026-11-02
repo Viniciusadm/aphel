@@ -3,7 +3,6 @@ pub mod capabilities;
 pub mod commands;
 pub mod computed;
 pub mod field_set;
-pub mod formulas;
 pub mod permissions;
 pub mod pipeline;
 pub mod ports;
@@ -11,7 +10,6 @@ pub mod reader;
 pub mod registry;
 pub mod rules;
 pub mod use_cases;
-pub mod validation_rules;
 pub mod values;
 pub mod writer;
 

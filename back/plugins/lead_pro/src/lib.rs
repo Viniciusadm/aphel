@@ -9,11 +9,11 @@ use std::sync::Arc;
 
 use serde_json::json;
 
+use ::notifications::domain::NotificationKindDefinition;
 use aphel_kernel::application::fields::SystemField;
 use aphel_kernel::application::public_events::{PublicEventDefinition, event};
 use aphel_kernel::domain::access::PermissionDefinition;
 use aphel_kernel::domain::fields::FieldType;
-use aphel_kernel::domain::notifications::NotificationKindDefinition;
 use aphel_kernel::errors::AppError;
 use aphel_kernel::modules::{
     AppBuilder, Manifest, Migration, Module, SettingField, SettingKind, WorkerParts,
@@ -146,7 +146,7 @@ impl Module for LeadPro {
         for definition in PUBLIC_EVENTS {
             app.public_event(*definition);
         }
-        app.notification_kind(NotificationKindDefinition::new(LEAD_HOT))
+        app.contribute(std::sync::Arc::new(NotificationKindDefinition::new(LEAD_HOT)))
             .openapi_tag(
                 http::TAG,
                 "Lead temperature (Lead Pro plugin): hot leads board, temperature and touches of a contact",

@@ -1,0 +1,5 @@
+key = "config_packages"
+name = "Config Packages"
+version = "0.1.0"
+layer = "capability"
+runtime = "native"

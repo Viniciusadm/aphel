@@ -7,6 +7,7 @@ license.workspace = true
 publish = false
 
 [dependencies]
+config_packages = { package = "aphel-mod-config-packages", path = "../config_packages" }
 aphel-contract-crm.workspace = true
 aphel-kernel.workspace = true
 companies = { package = "aphel-mod-companies", path = "../companies" }

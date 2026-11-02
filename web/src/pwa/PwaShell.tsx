@@ -3,7 +3,6 @@ import { useEffect, useState, useSyncExternalStore } from 'react'
 import { useTranslation } from 'react-i18next'
 import { useNavigate } from 'react-router'
 import { Button } from '@/components/ui/button'
-import { syncPushSubscription } from './push/push'
 import { isServiceWorkerEnabled } from './support'
 import { applyUpdate, getWaitingWorker, subscribeToUpdate } from './update-store'
 
@@ -24,10 +23,6 @@ export function PwaShell() {
   const waiting = useSyncExternalStore(subscribeToUpdate, getWaitingWorker, () => null)
   const [dismissed, setDismissed] = useState<ServiceWorker | null>(null)
   const [updating, setUpdating] = useState(false)
-
-  useEffect(() => {
-    void syncPushSubscription().catch(() => undefined)
-  }, [])
 
   useEffect(() => {
     if (!isServiceWorkerEnabled()) return

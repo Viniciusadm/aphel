@@ -7,7 +7,7 @@ import { useModules, useInvalidateModules } from '@/kernel/modules/api'
 import { RequirePermission } from '@/features/settings/components/RequirePermission'
 import { SETTINGS_MANAGE } from '@/features/settings/lib/permissions'
 import { ModuleCard } from './ModuleCard'
-import { CatalogSourcePanel } from './CatalogSourcePanel'
+import { Slot } from '@/kernel/modules/Slot'
 import { PageHeader } from '@/components/ui/page-header'
 import { Page } from '@/components/ui/page'
 
@@ -45,7 +45,7 @@ function ModulesList() {
           ))}
         </ul>
       )}
-      <CatalogSourcePanel />
+      <Slot name="modules.settings" props={{}} />
     </Page>
   )
 }

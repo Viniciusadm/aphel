@@ -2,8 +2,9 @@ import { useTranslation } from 'react-i18next'
 import { useSession } from '@/app/session/session-context'
 import { useActivityTypes } from '@/modules/activities/api'
 import { useOrganizationUsers } from '@/features/records/api'
+
 import { NativeSelect } from '@/features/records/filters/NativeSelect'
-import { useViewTeams } from '@/features/records/views/viewsApi'
+import { useViewTeams } from '@/modules/saved_views/ui/viewsApi'
 
 export interface CalendarFiltersProps {
   ownerId: string

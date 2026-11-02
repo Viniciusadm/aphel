@@ -22,10 +22,10 @@ use crate::{
     SEQUENCE_UPDATED, SaveSequenceCommand, SequenceEnrollmentRequest, SequenceListQuery,
     SequenceMetrics, SequenceStep, SequenceSummary, SequenceView, StepInput, StepMetrics,
 };
+use ::config_packages::application::{is_config_key, key_from_name};
 use aphel_kernel::Ctx;
 use aphel_kernel::application::access::{Authorizer, PERMISSION_DENIED};
 use aphel_kernel::application::audit::{DiffOptions, diff_values};
-use aphel_kernel::application::config_packages::{is_config_key, key_from_name};
 use aphel_kernel::application::files::RecordAccessChecker;
 use aphel_kernel::application::organization_admin::{ListWindow, Listing};
 use aphel_kernel::application::shared::{

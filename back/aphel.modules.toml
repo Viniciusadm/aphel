@@ -1,4 +1,14 @@
 [modules]
+objects = { path = "modules/objects" }
+notifications = { path = "modules/notifications" }
+config_packages = { path = "modules/config_packages" }
+search = { path = "modules/search" }
+saved_views = { path = "modules/saved_views" }
+record_layouts = { path = "modules/record_layouts" }
+formulas = { path = "modules/formulas" }
+validation_rules = { path = "modules/validation_rules" }
+
+marketplace = { path = "modules/marketplace" }
 contacts = { path = "modules/contacts", required = true }
 companies = { path = "modules/companies", required = true }
 leads = { path = "modules/leads" }

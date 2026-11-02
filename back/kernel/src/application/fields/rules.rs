@@ -31,3 +31,30 @@ impl ConditionalRules for NoConditionalRules {
         Ok(Vec::new())
     }
 }
+
+pub trait ConditionalRulesFactory: Send + Sync {
+    fn create(&self, pool: &sqlx::MySqlPool) -> std::sync::Arc<dyn ConditionalRules>;
+}
+
+pub struct ContributedConditionalRules(pub sqlx::MySqlPool);
+#[async_trait]
+impl ConditionalRules for ContributedConditionalRules {
+    async fn violations(
+        &self,
+        scope: &AccessScope,
+        fields: &FieldSet,
+        values: &Map<String, Value>,
+        mode: WriteMode,
+    ) -> Result<Vec<FieldViolation>, AppError> {
+        let mut violations = Vec::new();
+        for factory in crate::modules::app().contributions::<dyn ConditionalRulesFactory>() {
+            violations.extend(
+                factory
+                    .create(&self.0)
+                    .violations(scope, fields, values, mode)
+                    .await?,
+            );
+        }
+        Ok(violations)
+    }
+}

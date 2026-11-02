@@ -1,4 +1,4 @@
-use aphel_kernel::application::config_packages::ConfigReferenceKind;
+use ::config_packages::application::ConfigReferenceKind;
 use std::collections::BTreeSet;
 
 use async_trait::async_trait;
@@ -12,8 +12,8 @@ use crate::domain::{
     MAX_DISQUALIFICATION_REASONS, MAX_STAGE_LENGTH, TransitionRule, TransitionTrigger,
 };
 use crate::store::{ReasonStore, SettingsStore};
-use aphel_kernel::application::config_packages::sections::common::{check_key, diff};
-use aphel_kernel::application::config_packages::{
+use ::config_packages::application::sections::common::{check_key, diff};
+use ::config_packages::application::{
     ApplyContext, ConfigPackage, ConfigSection, Decisions, PackageIssue, PlanChange, PlanItem,
     parse_section,
 };

@@ -1,5 +1,14 @@
 import type { WebModule } from '@/kernel/modules/define'
 import kernelModule from '@modules/kernel'
+import objectsModule from '@modules/objects'
+import notificationsModule from '@modules/notifications'
+import configPackagesModule from '@modules/config_packages'
+import searchModule from '@modules/search'
+import savedViewsModule from '@modules/saved_views'
+import recordLayoutsModule from '@modules/record_layouts'
+import formulasModule from '@modules/formulas'
+import validationRulesModule from '@modules/validation_rules'
+import marketplaceModule from '@modules/marketplace'
 import contactsModule from '@modules/contacts'
 import companiesModule from '@modules/companies'
 import leadsModule from '@modules/leads'
@@ -55,6 +64,15 @@ import messagingModule from '@modules/messaging'
 
 export const MODULES: WebModule[] = [
   kernelModule,
+  objectsModule,
+  notificationsModule,
+  configPackagesModule,
+  searchModule,
+  savedViewsModule,
+  recordLayoutsModule,
+  formulasModule,
+  validationRulesModule,
+  marketplaceModule,
   contactsModule,
   companiesModule,
   leadsModule,

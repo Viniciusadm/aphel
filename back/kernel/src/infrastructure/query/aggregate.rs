@@ -15,8 +15,8 @@ use crate::domain::fields::{FieldType, ValueColumn};
 use crate::errors::AppError;
 use crate::infrastructure::query::MySqlRecordQueryPorts;
 use crate::infrastructure::query::compiler::{
-    Compiler, RECORD_ALIAS, aliased, push_live_record, push_where, quoted, tag_storage,
-    taggings_source,
+    Compiler, RECORD_ALIAS, aliased, push_live_record, push_where, quoted, reference_set_source,
+    reference_set_storage,
 };
 use crate::infrastructure::query::computed::computed_expression;
 use crate::infrastructure::repositories::mapper;
@@ -70,7 +70,7 @@ fn value_expression(group: &GroupPlan, index: usize) -> String {
             ..
         } => format!("{join}.option_id"),
         FieldTarget::Custom { column, .. } => format!("{join}.{}", column.column_name()),
-        FieldTarget::Tags => format!("{join}.tag_id"),
+        FieldTarget::ReferenceSet => format!("{join}.value_id"),
         FieldTarget::OwnerTeam => format!("{join}.team_id"),
     }
 }
@@ -274,8 +274,8 @@ fn push_group_join(
                 .push(format!(" AND {join}.field_id = "))
                 .push_bind(field_id.to_string());
         }
-        FieldTarget::Tags => {
-            builder.push(format!(" LEFT JOIN {} {join} ON ", taggings_source()));
+        FieldTarget::ReferenceSet => {
+            builder.push(format!(" LEFT JOIN {} {join} ON ", reference_set_source()));
             compiler.push_value_owner_of(builder, &join, record_type, &source);
         }
         FieldTarget::OwnerTeam => {
@@ -472,13 +472,13 @@ impl AggregateExecutor for MySqlAggregateExecutor {
             LabelSource::Teams => {
                 QueryBuilder::<MySql>::new("SELECT r.id, r.name FROM teams r WHERE r.id")
             }
-            LabelSource::Tags => {
-                let Some(storage) = tag_storage() else {
+            LabelSource::ReferenceSet => {
+                let Some(storage) = reference_set_storage() else {
                     return Ok(HashMap::new());
                 };
                 QueryBuilder::<MySql>::new(format!(
                     "SELECT r.id, r.name FROM {} r WHERE r.id",
-                    quoted(storage.tags)
+                    quoted(storage.labels_table)
                 ))
             }
             LabelSource::Records {

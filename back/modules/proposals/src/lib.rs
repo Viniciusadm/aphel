@@ -1,3 +1,4 @@
+use aphel_contract_automation::AutomationBuilder;
 mod automation;
 mod config;
 mod errors;
@@ -16,7 +17,7 @@ use std::sync::Arc;
 
 use async_trait::async_trait;
 
-use aphel_kernel::application::config_packages::ConfigSection;
+use ::config_packages::application::ConfigSection;
 use aphel_kernel::application::files::{FileReferenceColumn, FileReferenceSource};
 use aphel_kernel::application::public_events::event;
 use aphel_kernel::context::Ctx;

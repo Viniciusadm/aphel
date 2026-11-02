@@ -37,18 +37,15 @@ pub mod catalog {
 }
 
 pub mod automation {
-    pub use aphel_kernel::application::automations::actions::{ADD_TAG, REMOVE_TAG};
+    pub use aphel_contract_automation::application::actions::{ADD_TAG, REMOVE_TAG};
 }
 
 pub mod points {
     pub use aphel_kernel::application::files::GeneratedFileKind;
-    pub use aphel_kernel::application::integrations::IntegrationError;
-    pub use aphel_kernel::application::notifications::DueTask;
     pub use aphel_kernel::application::system::{FailureEntry, FailureSource};
     pub use aphel_kernel::domain::UserId;
     pub use aphel_kernel::modules::{
-        ActiveIntegration, DigestSource, FileReferenceSource, HealthSource, IntegrationStore,
-        ReferenceProvider, lookup_exists,
+        FileReferenceSource, HealthSource, ReferenceProvider, lookup_exists,
     };
 }
 

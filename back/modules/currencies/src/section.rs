@@ -5,7 +5,7 @@ use serde_json::{Value, json};
 
 use crate::domain::{MAX_ENABLED_CURRENCIES, normalize_currency_code};
 use crate::store::CurrencyStore;
-use aphel_kernel::application::config_packages::{
+use ::config_packages::application::{
     ApplyContext, ConfigPackage, ConfigSection, Decisions, PackageIssue, PlanChange, PlanItem,
     parse_section,
 };

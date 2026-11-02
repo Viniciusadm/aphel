@@ -1,4 +1,4 @@
-use aphel_kernel::application::config_packages::ConfigReferenceKind;
+use ::config_packages::application::ConfigReferenceKind;
 use std::collections::{BTreeMap, HashMap};
 use std::sync::{Arc, Mutex};
 
@@ -9,8 +9,9 @@ use sqlx::{AssertSqlSafe, MySql, MySqlPool, QueryBuilder, Row};
 use uuid::Uuid;
 
 use crate::{ColumnInfo, ColumnKind, ConfigKind, DataRow, MemberRow, OrganizationProfile};
+use ::config_packages::application::{ConfigKeyRepository, assign_keys};
+use ::config_packages::infrastructure::MySqlConfigKeyRepository;
 use aphel_kernel::Ctx;
-use aphel_kernel::application::config_packages::{ConfigKeyRepository, assign_keys};
 use aphel_kernel::application::fields::{RecordTypeRegistry, is_sql_identifier};
 use aphel_kernel::application::organization_admin::ListWindow;
 use aphel_kernel::application::organizations::OrganizationRegistration;
@@ -18,7 +19,6 @@ use aphel_kernel::database::transaction::MySqlTx;
 use aphel_kernel::domain::UserId;
 use aphel_kernel::domain::access::RoleKey;
 use aphel_kernel::errors::AppError;
-use aphel_kernel::infrastructure::config_packages::MySqlConfigKeyRepository;
 use aphel_kernel::infrastructure::query::compiler::quoted;
 use aphel_kernel::infrastructure::repositories::mapper;
 use aphel_kernel::infrastructure::repositories::mysql_organizations::insert_registration;

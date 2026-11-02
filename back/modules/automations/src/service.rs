@@ -1,3 +1,4 @@
+use crate::gateway::AutomationContext;
 use aphel_contract_crm::CrmPermissions;
 use std::collections::BTreeSet;
 
@@ -14,19 +15,20 @@ use crate::store::{
     AutomationRunStore, AutomationStore, AutomationTimeStore, CancelTarget, RunInsert,
 };
 use crate::validation::{AutomationValidator, ValidationLevel};
+use aphel_contract_automation::application::actions::{
+    ActionRegistry, SECRET_OWNER_TYPE, configured_flag, secret_key,
+};
+use aphel_contract_automation::application::context::TriggerContext;
+use aphel_contract_automation::application::definition::{
+    AutomationDefinition, StepBody, TriggerSpec, parse_definition, parse_trigger,
+};
+use aphel_contract_automation::application::gateway::AutomationGatewayFactory;
+use aphel_contract_automation::application::templates::TemplateScope;
+use aphel_contract_automation::application::triggers::{MANUAL, TriggerRegistry};
+use aphel_contract_automation::domain::{AutomationStatus, RunStatus, SkipReason};
 use aphel_kernel::Ctx;
 use aphel_kernel::application::access::Authorizer;
 use aphel_kernel::application::audit::{DiffOptions, diff_changes};
-use aphel_kernel::application::automations::actions::{
-    ActionRegistry, SECRET_OWNER_TYPE, configured_flag, secret_key,
-};
-use aphel_kernel::application::automations::context::TriggerContext;
-use aphel_kernel::application::automations::definition::{
-    AutomationDefinition, StepBody, TriggerSpec, parse_definition, parse_trigger,
-};
-use aphel_kernel::application::automations::gateway::AutomationGatewayFactory;
-use aphel_kernel::application::automations::templates::TemplateScope;
-use aphel_kernel::application::automations::triggers::{MANUAL, TriggerRegistry};
 use aphel_kernel::application::organization_admin::{ListWindow, Listing};
 use aphel_kernel::application::secrets::SecretVault;
 use aphel_kernel::application::security::Clock;
@@ -37,7 +39,6 @@ use aphel_kernel::application::shared::{
 use aphel_kernel::database::transaction::MySqlTx;
 use aphel_kernel::domain::Secret;
 use aphel_kernel::domain::access::Permission;
-use aphel_kernel::domain::automations::{AutomationStatus, RunStatus, SkipReason};
 use aphel_kernel::errors::{AppError, FieldViolation};
 
 use aphel_kernel::application::shared::parse_uuid as parse_id;

@@ -42,7 +42,7 @@ impl GroupPlan {
 pub enum LabelSource {
     Users,
     Teams,
-    Tags,
+    ReferenceSet,
     Records {
         record_type: String,
         readable: Option<Box<(EntityDefinition, RecordScopeFilter)>>,

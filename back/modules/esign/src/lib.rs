@@ -1,3 +1,4 @@
+use aphel_contract_automation::AutomationBuilder;
 pub(crate) mod clicksign;
 pub(crate) mod delivery;
 pub(crate) mod http;

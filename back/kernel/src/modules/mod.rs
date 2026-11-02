@@ -8,7 +8,6 @@ pub mod intern;
 pub mod manifest;
 pub mod migrations;
 pub mod module;
-pub(crate) mod operation_action;
 pub mod operations;
 pub mod plugin_bridge;
 pub mod plugin_manifest;
@@ -44,8 +43,8 @@ pub use plugin_manifest::{
     INVALID_PLUGIN_MANIFEST, Layer, PluginManifest, Provides, Runtime, Uses,
 };
 pub use points::{
-    ActiveIntegration, DigestSource, FileReferenceSource, HealthSource, IntegrationStore,
-    ReferenceProvider, lookup_exists,
+    FileReferenceSource, HealthSource, HttpRequestPolicy, ReferenceKeySource, ReferenceProvider,
+    lookup_exists,
 };
 pub use routes::{MODULE_DISABLED, module_disabled};
 pub use services::Services;

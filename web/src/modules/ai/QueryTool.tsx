@@ -14,6 +14,7 @@ import {
 } from '@/components/ui/dialog'
 import { Textarea } from '@/components/ui/textarea'
 import { useFieldSchema, useOrganizationUsers } from '@/features/records/api'
+
 import { describeCondition, type SummaryContext } from '@/features/records/filters'
 import { useRecordFormatting } from '@/features/records/formatting'
 import { isFilterCondition, isFilterGroup, isFilterRelated, type FilterNode } from '@/features/records/types'

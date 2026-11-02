@@ -12,8 +12,8 @@ use crate::templates::{
     MAX_TEMPLATE_SUBJECT_LENGTH, NewEmailTemplate, TemplateFilter, TemplateListScope,
     TemplateScope, is_email_record_type,
 };
-use aphel_kernel::application::config_packages::sections::common::{check_key, diff};
-use aphel_kernel::application::config_packages::{
+use ::config_packages::application::sections::common::{check_key, diff};
+use ::config_packages::application::{
     ApplyContext, ConfigPackage, ConfigSection, Decisions, PackageIssue, PlanAction, PlanChange,
     PlanItem, parse_section,
 };

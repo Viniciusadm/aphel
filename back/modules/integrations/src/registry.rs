@@ -1,7 +1,7 @@
 use std::sync::Arc;
 
-use aphel_kernel::application::integrations::{IntegrationRegistry, WebhookIntegrationProvider};
-use aphel_kernel::infrastructure::integrations::SmtpIntegrationProvider;
+use crate::engine::{IntegrationRegistry, WebhookIntegrationProvider};
+use crate::smtp::SmtpIntegrationProvider;
 
 pub(crate) fn builtin_integrations() -> IntegrationRegistry {
     IntegrationRegistry::new()

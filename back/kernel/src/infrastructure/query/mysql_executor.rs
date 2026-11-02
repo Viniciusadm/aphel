@@ -8,7 +8,7 @@ use uuid::Uuid;
 use crate::application::fields::RecordTypeRegistry;
 use crate::application::organization_admin::Listing;
 use crate::application::query::{
-    QueryPlan, RecordQueryExecutor, RecordQueryPorts, SegmentSource, SegmentSourceResolver,
+    FilterSource, FilterSourceResolver, QueryPlan, RecordQueryExecutor, RecordQueryPorts,
 };
 use crate::domain::access::AccessScope;
 use crate::errors::AppError;
@@ -24,7 +24,7 @@ pub struct MySqlRecordQueryExecutor {
 }
 
 impl MySqlRecordQueryExecutor {
-    pub(crate) fn new(pool: MySqlPool) -> Self {
+    pub fn new(pool: MySqlPool) -> Self {
         Self { pool }
     }
 }
@@ -71,14 +71,14 @@ impl RecordQueryExecutor for MySqlRecordQueryExecutor {
         })
     }
 
-    async fn segment(&self, segment_id: Uuid) -> Result<Option<SegmentSource>, AppError> {
+    async fn filter_source(&self, filter_id: Uuid) -> Result<Option<FilterSource>, AppError> {
         let Some(resolver) = crate::modules::app()
             .services()
-            .get::<dyn SegmentSourceResolver>()
+            .get::<dyn FilterSourceResolver>()
         else {
             return Ok(None);
         };
-        resolver.source(&self.pool, segment_id).await
+        resolver.source(&self.pool, filter_id).await
     }
 }
 

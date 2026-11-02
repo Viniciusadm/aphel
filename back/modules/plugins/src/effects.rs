@@ -265,8 +265,8 @@ async fn validate(plugin: &LoadedPlugin, command: &Command) -> Result<(), AppErr
                     "declare emails.send in requires to send e-mail",
                 ));
             }
-            aphel_kernel::application::communication::normalize_address(to)?;
-            if aphel_kernel::application::communication::Purpose::parse(purpose).is_none() {
+            aphel_kernel::domain::Email::new(to.trim().to_lowercase())?;
+            if !matches!(purpose.as_str(), "transactional" | "marketing") {
                 return Err(AppError::validation_code(
                     "plugin_effect_invalid",
                     "purpose must be transactional or marketing",
@@ -461,11 +461,10 @@ async fn execute(
             purpose,
         } => {
             use aphel_kernel::application::access::Authorizer;
-            use aphel_kernel::application::communication::{Purpose, opted_out_error};
             scope.require(&aphel_kernel::domain::access::Permission::EMAILS_SEND)?;
-            let purpose = Purpose::parse(&purpose).unwrap_or(Purpose::Transactional);
-            if aphel_kernel::infrastructure::communication::opted_out(pool, &to, purpose).await? {
-                let refusal = opted_out_error(&to);
+            if let Err(refusal) =
+                aphel_kernel::application::mail::check_recipient(pool, &to, &purpose).await
+            {
                 sqlx::query("UPDATE plugins_effects SET last_error = ? WHERE id = ?")
                     .bind(refusal.client_message())
                     .bind(effect_id.to_string())

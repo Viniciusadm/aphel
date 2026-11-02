@@ -6,25 +6,25 @@ use uuid::Uuid;
 
 use crate::outgoing::model::{
     DeliveryAttempt, DeliveryStatus, DeliveryTrigger, DisabledReason, MAX_ERROR_LENGTH,
-    WEBHOOK_ENDPOINT_RECORD_TYPE, WebhookDelivery, WebhookEndpoint, WebhookRequest,
-    WebhookResponse, retry_delay, truncate_chars,
+    OutboundRequest, OutboundResponse, WEBHOOK_ENDPOINT_RECORD_TYPE, WebhookDelivery,
+    WebhookEndpoint, retry_delay, truncate_chars,
 };
 use crate::outgoing::service::{WEBHOOK_ENDPOINT_DISABLED_EVENT, deliver_job, secret_key};
 use crate::outgoing::store::{WebhookDeliveryStore, WebhookEndpointStore};
 use aphel_kernel::Ctx;
 use aphel_kernel::application::jobs::ScheduledJobDefinition;
+use aphel_kernel::application::outbound_http::OutboundSender;
 use aphel_kernel::application::public_events::SharedPublicEventRenderer;
 use aphel_kernel::application::secrets::SecretVault;
+use aphel_kernel::application::security::signature::sign_payload;
 use aphel_kernel::application::shared::{
     Actor, AuditEntry, AuditLog, DomainEvent, EnqueueOutcome, EventPublisher, FieldChange,
     JobQueue, RecordRef,
 };
-use aphel_kernel::application::webhooks::outgoing::WebhookSender;
-use aphel_kernel::application::webhooks::outgoing::signature::sign_payload;
 use aphel_kernel::database::transaction::MySqlTx;
 use aphel_kernel::domain::UserId;
 use aphel_kernel::errors::AppError;
-use aphel_kernel::infrastructure::webhooks::outgoing::OutgoingWebhookNetwork;
+use aphel_kernel::infrastructure::outbound_http::OutboundHttpNetwork;
 
 pub(crate) const OUTGOING_WEBHOOKS_CONSUMER: &str = "webhooks.outgoing";
 pub(crate) const WEBHOOKS_MAINTENANCE_JOB: &str = "webhooks.maintenance";
@@ -106,8 +106,8 @@ fn payload_id(payload: &Value, key: &str) -> Result<Uuid, AppError> {
         .ok_or_else(|| AppError::Internal(format!("webhook delivery job without a valid {key}")))
 }
 
-fn failure(message: impl Into<String>) -> WebhookResponse {
-    WebhookResponse {
+fn failure(message: impl Into<String>) -> OutboundResponse {
+    OutboundResponse {
         status: None,
         body: None,
         duration_ms: 0,
@@ -116,7 +116,7 @@ fn failure(message: impl Into<String>) -> WebhookResponse {
 }
 
 pub(crate) async fn deliver(ctx: &Ctx<'_>, payload: Value) -> Result<(), AppError> {
-    let network = ctx.webhook_network()?;
+    let network = ctx.outbound_http_network()?;
     let delivery_id = payload_id(&payload, "delivery_id")?;
     let endpoint_id = payload_id(&payload, "endpoint_id")?;
     let Some(delivery) = WebhookDeliveryStore::of(ctx)
@@ -143,7 +143,7 @@ pub(crate) async fn deliver_inline(
     endpoint: &WebhookEndpoint,
     delivery: &WebhookDelivery,
 ) -> Result<(), AppError> {
-    let network = ctx.webhook_network()?;
+    let network = ctx.outbound_http_network()?;
     if !endpoint.is_active {
         return cancel(ctx, delivery, "the endpoint is disabled").await;
     }
@@ -163,10 +163,10 @@ pub(crate) async fn deliver_inline(
 
 async fn attempt(
     ctx: &Ctx<'_>,
-    network: &OutgoingWebhookNetwork,
+    network: &OutboundHttpNetwork,
     endpoint: &WebhookEndpoint,
     delivery: &WebhookDelivery,
-) -> WebhookResponse {
+) -> OutboundResponse {
     let secret = match ctx
         .state()
         .secrets
@@ -187,24 +187,25 @@ async fn attempt(
     };
     network
         .http_sender()
-        .send(&WebhookRequest {
+        .send(&OutboundRequest {
             url: endpoint.url.clone(),
-            delivery_id: delivery.id,
-            event_type: delivery.event_type.clone(),
-            timestamp,
-            signature,
+            headers: vec![
+                ("X-Aphel-Delivery".to_owned(), delivery.id.to_string()),
+                ("X-Aphel-Event".to_owned(), delivery.event_type.clone()),
+                ("X-Aphel-Signature".to_owned(), signature),
+            ],
             body: delivery.body.clone(),
-            ..WebhookRequest::default()
+            ..OutboundRequest::default()
         })
         .await
 }
 
 async fn finish(
     ctx: &Ctx<'_>,
-    network: &OutgoingWebhookNetwork,
+    _network: &OutboundHttpNetwork,
     endpoint: &WebhookEndpoint,
     delivery: &WebhookDelivery,
-    response: WebhookResponse,
+    response: OutboundResponse,
 ) -> Result<(), AppError> {
     let now = ctx.now();
     let attempts = delivery.attempts + 1;
@@ -250,7 +251,9 @@ async fn finish(
                 .await?;
         }
         if counts
-            && failures >= network.disable_after_failures()
+            && failures
+                >= crate::settings::delivery_settings(&ctx.state().configuration())
+                    .disable_after_failures
             && endpoints
                 .disable(&mut tx, endpoint.id, DisabledReason::Failures, now)
                 .await?

@@ -34,6 +34,14 @@ export interface CatalogSource {
   timeout_secs: number
 }
 
+export interface MailSettings {
+  host: string | null
+  port: number
+  from: string | null
+  username: string | null
+  security: string
+}
+
 export interface OrganizationConfiguration {
   public_base_url: string | null
   effective_public_base_url: string
@@ -44,10 +52,14 @@ export interface OrganizationConfiguration {
   webhooks: WebhookDelivery
   api_tokens: ApiTokenLimits
   catalog: CatalogSource
+  mail: MailSettings
+  mail_secret_configured: boolean
   mail_configured: boolean
 }
 
 export interface UpdateOrganizationConfiguration {
+  mail?: MailSettings
+  mail_password?: string | null
   public_base_url?: string
   max_upload_mb?: number
   storage?: StorageSettings

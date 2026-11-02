@@ -11,12 +11,12 @@ use crate::application::fields::{
     ResolvedField, raw_from_json,
 };
 use crate::application::query::{
-    ArchivedFilter, CompareOp, FieldTarget, Filter, FilterCondition, FilterOperator, ID_FIELD,
-    LogicalOperator, MAX_FILTER_CONDITIONS, MAX_FILTER_DEPTH, MAX_LIST_VALUES, MAX_RELATIVE_DAYS,
-    MAX_SEARCH_LENGTH, MAX_SORTS, OWNER_TEAM_FIELD, OperandKind, PlanCondition, PlanNode, PlanSort,
-    PlanValue, Predicate, QueryPlan, RecordGroup, RecordQuery, RelatedNode, SEGMENT_FIELD,
-    SearchPlan, SegmentResolution, SortDirection, SortSpec, TAGS_FIELD, escape_like,
-    hierarchical_target, operators,
+    ArchivedFilter, CompareOp, FieldTarget, Filter, FilterCondition, FilterExpansion,
+    FilterOperator, ID_FIELD, LogicalOperator, MAX_FILTER_CONDITIONS, MAX_FILTER_DEPTH,
+    MAX_LIST_VALUES, MAX_RELATIVE_DAYS, MAX_SEARCH_LENGTH, MAX_SORTS, OWNER_TEAM_FIELD,
+    OperandKind, PlanCondition, PlanNode, PlanSort, PlanValue, Predicate, QueryPlan, RecordGroup,
+    RecordQuery, RelatedNode, SearchPlan, SortDirection, SortSpec, escape_like,
+    filter_source_field, hierarchical_target, operators, reference_set_field,
 };
 use crate::domain::UserId;
 use crate::domain::access::{AccessScope, RecordScopeFilter};
@@ -124,13 +124,7 @@ pub fn resolve_query(
     visibility: RecordScopeFilter,
     query: RecordQuery,
 ) -> Result<QueryPlan, AppError> {
-    resolve_query_with(
-        fields,
-        context,
-        visibility,
-        query,
-        SegmentResolution::Reject,
-    )
+    resolve_query_with(fields, context, visibility, query, FilterExpansion::Reject)
 }
 
 pub fn resolve_query_with(
@@ -138,14 +132,14 @@ pub fn resolve_query_with(
     context: &ResolveContext,
     visibility: RecordScopeFilter,
     query: RecordQuery,
-    segments: SegmentResolution<'_>,
+    expansions: FilterExpansion<'_>,
 ) -> Result<QueryPlan, AppError> {
     resolve_query_related(
         fields,
         context,
         visibility,
         query,
-        segments,
+        expansions,
         NO_RELATIONS.get_or_init(RelatedFieldSets::default),
     )
 }
@@ -155,7 +149,7 @@ pub fn resolve_query_related(
     context: &ResolveContext,
     visibility: RecordScopeFilter,
     query: RecordQuery,
-    segments: SegmentResolution<'_>,
+    expansions: FilterExpansion<'_>,
     relations: &RelatedFieldSets,
 ) -> Result<QueryPlan, AppError> {
     let mut violations = Vec::new();
@@ -164,7 +158,7 @@ pub fn resolve_query_related(
             fields,
             context,
             filter,
-            segments,
+            expansions,
             relations,
             &mut violations,
         ),
@@ -220,7 +214,7 @@ pub fn validate_view_query_related(
             fields,
             context,
             filter,
-            SegmentResolution::Accept,
+            FilterExpansion::Accept,
             relations,
             &mut violations,
         );
@@ -235,27 +229,21 @@ pub fn resolve_filter(
     filter: &Filter,
     violations: &mut Vec<FieldViolation>,
 ) -> Option<PlanNode> {
-    resolve_filter_with(
-        fields,
-        context,
-        filter,
-        SegmentResolution::Reject,
-        violations,
-    )
+    resolve_filter_with(fields, context, filter, FilterExpansion::Reject, violations)
 }
 
 pub fn resolve_filter_with(
     fields: &FieldSet,
     context: &ResolveContext,
     filter: &Filter,
-    segments: SegmentResolution<'_>,
+    expansions: FilterExpansion<'_>,
     violations: &mut Vec<FieldViolation>,
 ) -> Option<PlanNode> {
     resolve_filter_related(
         fields,
         context,
         filter,
-        segments,
+        expansions,
         NO_RELATIONS.get_or_init(RelatedFieldSets::default),
         violations,
     )
@@ -265,7 +253,7 @@ pub fn resolve_filter_related(
     fields: &FieldSet,
     context: &ResolveContext,
     filter: &Filter,
-    segments: SegmentResolution<'_>,
+    expansions: FilterExpansion<'_>,
     relations: &RelatedFieldSets,
     violations: &mut Vec<FieldViolation>,
 ) -> Option<PlanNode> {
@@ -274,7 +262,7 @@ pub fn resolve_filter_related(
         context,
         violations,
         conditions: 0,
-        segments,
+        expansions,
         relations,
     };
     resolver.node(filter, "filter", 1)
@@ -285,7 +273,7 @@ struct FilterResolver<'a> {
     context: &'a ResolveContext,
     violations: &'a mut Vec<FieldViolation>,
     conditions: usize,
-    segments: SegmentResolution<'a>,
+    expansions: FilterExpansion<'a>,
     relations: &'a RelatedFieldSets,
 }
 
@@ -402,8 +390,8 @@ impl FilterResolver<'_> {
         condition: &FilterCondition,
         path: &str,
     ) -> Option<Option<PlanNode>> {
-        if condition.operator == FilterOperator::InSegment {
-            return Some(self.segment_condition(condition, path));
+        if condition.operator == FilterOperator::InSavedFilter {
+            return Some(self.expanded_condition(condition, path));
         }
         if self.fields.find(&condition.field).is_some() {
             return None;
@@ -412,7 +400,9 @@ impl FilterResolver<'_> {
             return Some(self.related_condition(condition, relation, field, path));
         }
         match condition.field.as_str() {
-            TAGS_FIELD => Some(self.tags_condition(condition, path)),
+            field if reference_set_field().is_some_and(|source| source.key == field) => {
+                Some(self.reference_set_condition(condition, path))
+            }
             ID_FIELD => Some(self.id_condition(condition, path)),
             OWNER_TEAM_FIELD if self.fields.record_type.owner_column.is_some() => {
                 Some(self.owner_team_condition(condition, path))
@@ -447,7 +437,7 @@ impl FilterResolver<'_> {
             context: self.context,
             violations: &mut *self.violations,
             conditions: self.conditions.saturating_sub(1),
-            segments: SegmentResolution::Reject,
+            expansions: FilterExpansion::Reject,
             relations: NO_RELATIONS.get_or_init(RelatedFieldSets::default),
         };
         let node = nested.node(&inner, path, MAX_FILTER_DEPTH);
@@ -482,7 +472,7 @@ impl FilterResolver<'_> {
             context: self.context,
             violations: &mut *self.violations,
             conditions: self.conditions,
-            segments: SegmentResolution::Reject,
+            expansions: FilterExpansion::Reject,
             relations: NO_RELATIONS.get_or_init(RelatedFieldSets::default),
         };
         let node = nested.node(filter, &format!("{path}.filter"), depth + 1);
@@ -552,7 +542,11 @@ impl FilterResolver<'_> {
         );
     }
 
-    fn tags_condition(&mut self, condition: &FilterCondition, path: &str) -> Option<PlanNode> {
+    fn reference_set_condition(
+        &mut self,
+        condition: &FilterCondition,
+        path: &str,
+    ) -> Option<PlanNode> {
         let (predicate, negated) = match condition.operator {
             FilterOperator::IsEmpty | FilterOperator::IsNotEmpty => {
                 if !condition.value.is_null() {
@@ -578,12 +572,12 @@ impl FilterResolver<'_> {
                 }
             },
             _ => {
-                self.unsupported_operator(condition, path, TAGS_FIELD);
+                self.unsupported_operator(condition, path, &condition.field);
                 return None;
             }
         };
         Some(PlanNode::Condition(PlanCondition {
-            target: FieldTarget::Tags,
+            target: FieldTarget::ReferenceSet,
             field_type: FieldType::MultiSelect,
             predicate,
             negated,
@@ -632,24 +626,24 @@ impl FilterResolver<'_> {
         }
     }
 
-    fn segment_condition(&mut self, condition: &FilterCondition, path: &str) -> Option<PlanNode> {
-        if condition.field != SEGMENT_FIELD {
+    fn expanded_condition(&mut self, condition: &FilterCondition, path: &str) -> Option<PlanNode> {
+        if filter_source_field() != Some(condition.field.as_str()) {
             self.violation(
                 format!("{path}.field"),
-                format!("in_segment must be used with the {SEGMENT_FIELD} field"),
+                "must use a contributed saved-filter field",
             );
             return None;
         }
-        let segments = match self.segments {
-            SegmentResolution::Reject => {
+        let expansions = match self.expansions {
+            FilterExpansion::Reject => {
                 self.violation(
                     format!("{path}.operator"),
-                    "segment conditions cannot be used here",
+                    "saved-filter conditions cannot be used here",
                 );
                 return None;
             }
-            SegmentResolution::Accept => None,
-            SegmentResolution::Expand(segments) => Some(segments),
+            FilterExpansion::Accept => None,
+            FilterExpansion::Expand(expansions) => Some(expansions),
         };
         let id = match single_id(&condition.value) {
             Ok(id) => id,
@@ -658,9 +652,9 @@ impl FilterResolver<'_> {
                 return None;
             }
         };
-        let segments = segments?;
-        let Some(filter) = segments.get(&id) else {
-            self.violation(format!("{path}.value"), "segment was not found");
+        let expansions = expansions?;
+        let Some(filter) = expansions.get(&id) else {
+            self.violation(format!("{path}.value"), "saved filter was not found");
             return None;
         };
         let mut nested = Vec::new();
@@ -668,13 +662,13 @@ impl FilterResolver<'_> {
             self.fields,
             self.context,
             filter,
-            SegmentResolution::Reject,
+            FilterExpansion::Reject,
             &mut nested,
         );
         if !nested.is_empty() {
             self.violation(
                 format!("{path}.value"),
-                "the segment filter is no longer valid",
+                "the saved filter is no longer valid",
             );
             return None;
         }
@@ -702,7 +696,7 @@ impl FilterResolver<'_> {
         match operator {
             IsEmpty => Ok((Predicate::Present, true)),
             IsNotEmpty => Ok((Predicate::Present, false)),
-            InSegment => Err("in_segment cannot be used with this field".to_owned()),
+            InSavedFilter => Err("in_segment cannot be used with this field".to_owned()),
             InGroup => {
                 let root = single_id(value)?;
                 let group = hierarchical_target(&field.definition)

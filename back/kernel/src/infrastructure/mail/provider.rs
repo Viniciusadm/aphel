@@ -1,203 +1,120 @@
-use crate::modules::points::IntegrationStore;
-use std::collections::BTreeMap;
-use std::sync::{Arc, Mutex};
-
-use async_trait::async_trait;
-use chrono::{NaiveDateTime, Utc};
-use serde_json::{Map, Value};
-use sqlx::MySqlPool;
-
-use crate::application::integrations::{
-    IntegrationError, IntegrationErrorSource, IntegrationStatus, ResolvedConfig, secret_key,
-};
+use super::{SmtpMailer, SmtpSecurity, SmtpSettings};
 use crate::application::mail::{
     EmailAttachment, EmailMessage, MAIL_NOT_CONFIGURED, Mailer, SharedMailer,
 };
 use crate::application::organizations::MailStatus;
-use crate::domain::access::AccessScope;
+use crate::application::secrets::SecretVault;
 use crate::errors::AppError;
-use crate::infrastructure::demo::{DemoLogMailer, demo_settings};
-use crate::infrastructure::integrations::smtp::{PASSWORD_FIELD, PROVIDER_KEY, delivery_mailer};
-use crate::infrastructure::mail::SmtpMailer;
 use crate::infrastructure::platform::SharedSecretVault;
-use crate::infrastructure::repositories::mapper;
+use async_trait::async_trait;
+use sqlx::MySqlPool;
+use std::sync::Arc;
 
 pub fn mail_not_configured() -> AppError {
     AppError::validation_code(
         MAIL_NOT_CONFIGURED,
-        "no outgoing email server is configured; set up SMTP in the organization settings",
+        "no outgoing mail transport is configured",
     )
 }
-
-#[derive(Debug, Clone, PartialEq, Eq)]
-struct CacheKey {
-    id: String,
-    status: String,
-    updated_at: NaiveDateTime,
-}
-
-#[derive(Clone)]
-struct ResolvedMailer {
-    mailer: Arc<SmtpMailer>,
-    integration_id: String,
-    in_error: bool,
-}
-
 pub struct SmtpMailerProvider {
     pool: MySqlPool,
     vault: SharedSecretVault,
-    cache: Mutex<Option<(CacheKey, ResolvedMailer)>>,
 }
-
 impl SmtpMailerProvider {
-    pub(crate) fn new(pool: MySqlPool, vault: SharedSecretVault) -> Self {
-        Self {
-            pool,
-            vault,
-            cache: Mutex::new(None),
-        }
+    pub fn new(pool: MySqlPool, vault: SharedSecretVault) -> Self {
+        Self { pool, vault }
     }
-
     pub fn shared(pool: MySqlPool, vault: SharedSecretVault) -> SharedMailer {
-        if demo_settings().enabled {
-            return Arc::new(DemoLogMailer);
-        }
         Arc::new(Self::new(pool, vault))
     }
-
-    pub(crate) async fn is_configured(&self) -> Result<bool, AppError> {
-        Ok(match self.store() {
-            Some(store) => store.active(&self.pool, PROVIDER_KEY).await?.is_some(),
-            None => false,
-        })
-    }
-
-    fn store(&self) -> Option<Arc<dyn IntegrationStore>> {
-        crate::modules::app()
-            .contributions::<dyn IntegrationStore>()
-            .into_iter()
-            .next()
-    }
-
-    fn cached(&self, key: &CacheKey) -> Option<ResolvedMailer> {
-        self.cache
-            .lock()
-            .ok()
-            .and_then(|cache| cache.clone())
-            .filter(|(cached_key, _)| cached_key == key)
-            .map(|(_, resolved)| resolved)
-    }
-
-    fn remember(&self, key: CacheKey, resolved: ResolvedMailer) {
-        if let Ok(mut cache) = self.cache.lock() {
-            *cache = Some((key, resolved));
+    async fn resolve(&self) -> Result<Option<SharedMailer>, AppError> {
+        if let Some(mailer) = crate::application::mail::delivery_override() {
+            return Ok(Some(mailer));
         }
-    }
-
-    async fn resolve(&self) -> Result<Option<ResolvedMailer>, AppError> {
-        let Some(store) = self.store() else {
-            return Ok(None);
+        let settings: Option<sqlx::types::Json<serde_json::Value>> =
+            sqlx::query_scalar("SELECT settings FROM organization_settings WHERE id = 1")
+                .fetch_optional(&self.pool)
+                .await?;
+        let config = settings.map(|settings| settings.0).unwrap_or_default();
+        let mail = config.get("mail").filter(|mail| {
+            mail.get("host")
+                .and_then(serde_json::Value::as_str)
+                .is_some_and(|host| !host.is_empty())
+        });
+        let text = |key: &str, env: &str| {
+            mail.and_then(|mail| mail.get(key))
+                .and_then(serde_json::Value::as_str)
+                .map(str::to_owned)
+                .or_else(|| std::env::var(env).ok())
+                .filter(|value| !value.is_empty())
         };
-        let Some(active) = store.active(&self.pool, PROVIDER_KEY).await? else {
-            return Ok(None);
-        };
-        let key = CacheKey {
-            id: active.id,
-            status: active.status,
-            updated_at: active.updated_at,
-        };
-        if let Some(resolved) = self.cached(&key) {
-            return Ok(Some(resolved));
+        if let (Some(host), Some(from)) = (text("host", "SMTP_HOST"), text("from", "SMTP_FROM")) {
+            let security = match text("security", "SMTP_SECURITY").as_deref() {
+                Some("none") => SmtpSecurity::None,
+                Some("tls") => SmtpSecurity::Tls,
+                _ => SmtpSecurity::StartTls,
+            };
+            let settings = SmtpSettings {
+                host,
+                from,
+                security,
+                port: mail
+                    .and_then(|mail| mail.get("port"))
+                    .and_then(serde_json::Value::as_u64)
+                    .and_then(|port| u16::try_from(port).ok())
+                    .or_else(|| {
+                        std::env::var("SMTP_PORT")
+                            .ok()
+                            .and_then(|port| port.parse().ok())
+                    })
+                    .unwrap_or(587),
+                username: text("username", "SMTP_USERNAME"),
+                password: match self
+                    .vault
+                    .reveal(
+                        &crate::domain::access::AccessScope::system(),
+                        &crate::application::organizations::mail_secret_key(),
+                    )
+                    .await?
+                {
+                    Some(password) => Some(password),
+                    None => std::env::var("SMTP_PASSWORD")
+                        .ok()
+                        .map(crate::domain::Secret::new),
+                },
+            };
+            return Ok(Some(Arc::new(SmtpMailer::with_timeout(&settings, None)?)));
         }
-        let integration_id = uuid::Uuid::parse_str(&key.id)
-            .map_err(|_| mapper::invalid_column("integrations.id", &key.id))?;
-        let config = active.config;
-        let mut secrets = BTreeMap::new();
-        if let Some(password) = self
-            .vault
-            .reveal(
-                &AccessScope::system(),
-                &secret_key(integration_id, PASSWORD_FIELD),
-            )
-            .await?
+        for source in crate::modules::app()
+            .contributions::<dyn crate::application::mail::MailTransportSource>()
         {
-            secrets.insert(PASSWORD_FIELD.to_owned(), password);
-        }
-        let resolved_config = ResolvedConfig {
-            values: match config {
-                Value::Object(map) => map,
-                _ => Map::new(),
-            },
-            secrets,
-        };
-        let mailer = delivery_mailer(&resolved_config).map_err(AppError::Configuration)?;
-        let resolved = ResolvedMailer {
-            mailer: Arc::new(mailer),
-            integration_id: key.id.clone(),
-            in_error: IntegrationStatus::parse(&key.status) == Some(IntegrationStatus::Error),
-        };
-        self.remember(key, resolved.clone());
-        Ok(Some(resolved))
-    }
-
-    async fn record_failure(&self, integration_id: &str, message: &str) -> Result<(), AppError> {
-        let error = IntegrationError::new(Utc::now(), IntegrationErrorSource::Delivery, message);
-        match self.store() {
-            Some(store) => {
-                store
-                    .record_failure(&self.pool, integration_id, &error)
-                    .await
+            if let Some(mailer) = source.mailer(&self.pool, &self.vault).await? {
+                return Ok(Some(mailer));
             }
-            None => Ok(()),
         }
+        Ok(None)
     }
-
-    async fn record_recovery(&self, integration_id: &str) -> Result<(), AppError> {
-        match self.store() {
-            Some(store) => store.record_recovery(&self.pool, integration_id).await,
-            None => Ok(()),
-        }
+    pub async fn is_configured(&self) -> Result<bool, AppError> {
+        Ok(self.resolve().await?.is_some())
     }
 }
-
 #[async_trait]
 impl Mailer for SmtpMailerProvider {
     async fn send(&self, message: EmailMessage) -> Result<(), AppError> {
         self.send_with_attachments(message, Vec::new()).await
     }
-
     async fn send_with_attachments(
         &self,
         message: EmailMessage,
         attachments: Vec<EmailAttachment>,
     ) -> Result<(), AppError> {
-        let resolved = self.resolve().await?.ok_or_else(mail_not_configured)?;
-        match resolved
-            .mailer
+        self.resolve()
+            .await?
+            .ok_or_else(mail_not_configured)?
             .send_with_attachments(message, attachments)
             .await
-        {
-            Ok(()) => {
-                if resolved.in_error
-                    && let Err(error) = self.record_recovery(&resolved.integration_id).await
-                {
-                    tracing::warn!("failed to record SMTP recovery: {error}");
-                }
-                Ok(())
-            }
-            Err(error) => {
-                if let Err(failure) = self
-                    .record_failure(&resolved.integration_id, error.client_message())
-                    .await
-                {
-                    tracing::warn!("failed to record SMTP failure: {failure}");
-                }
-                Err(error)
-            }
-        }
     }
 }
-
 #[async_trait]
 impl MailStatus for SmtpMailerProvider {
     async fn configured(&self) -> Result<bool, AppError> {

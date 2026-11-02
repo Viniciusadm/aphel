@@ -19,10 +19,10 @@ use crate::team::domain::{
     member_not_found, parse_credit_percent, parse_id, percent_text, role_name,
 };
 use crate::team::store::{DealCreditReader, DealMemberRoleStore, DealMemberStore};
+use ::config_packages::application::{is_config_key, key_from_name};
 use aphel_kernel::Ctx;
 use aphel_kernel::application::access::Authorizer;
 use aphel_kernel::application::audit::{DiffOptions, diff_changes};
-use aphel_kernel::application::config_packages::{is_config_key, key_from_name};
 use aphel_kernel::application::fields::FieldSet;
 use aphel_kernel::application::fields::permissions::{NOT_ACCESSIBLE_MESSAGE, not_accessible};
 use aphel_kernel::application::files::UserReference;

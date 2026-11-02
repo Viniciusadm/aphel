@@ -131,9 +131,9 @@ The `AppBuilder` is the only contribution point. Each call is tagged with the mo
 | Filter (transforms a value) | `app.filter(F, priority, handler)` |
 | Replace a service | `app.provide::<dyn LeadConverter>(Arc::new(MyConverter))`: the last provider wins |
 | Permissions | `app.permission(Permission::record("leadpro.read")).grant_to(["admin", "manager"])`: granted on enable, with no grant migration |
-| Public events, notifications | `app.public_event(..)`, `app.notification_kind(..)`: open catalogs that replace the enums |
+| Public events, notifications | `app.public_event(..)`, `app.contribute(Arc::new(NotificationKindDefinition::new(..)))`: open catalogs that replace the enums |
 | Worker | `app.job(handler)`, `app.consumer(consumer)`, `app.schedule(kind, cron)` |
-| Automations, widgets, integrations, config sections, providers (mail, telephony, login, calendar) | `app.trigger(..)`, `app.action(..)`, `app.widget(..)`, `app.integration(..)`, `app.config_section(..)`, `app.mail_provider(..)`... reusing the current traits |
+| Automations, widgets, integrations, config sections, providers (mail, telephony, login, calendar) | `app.trigger(..)`/`app.action(..)` through `AutomationBuilder`; widgets, integrations, configuration sections and providers use `app.contribute::<T>(Arc::new(..))` with owner-defined types |
 | OpenAPI tag | `app.openapi_tag(name, description)` |
 
 `AppBuilder::build()` does the following:
@@ -380,7 +380,7 @@ impl Module for LeadPro {
         app.consumer(scoring::TouchConsumer);
         app.schedule("lead_pro.cooldown", "0 0 3 * * *").job(scoring::Cooldown);
         app.public_event(PublicEvent::new("lead_pro.temperature_changed", "contact"));
-        app.notification_kind(NotificationKind::new("lead_pro.lead_hot"));
+        app.contribute(Arc::new(notifications::domain::NotificationKindDefinition::new(notifications::domain::NotificationKind::from_static("lead_pro.lead_hot"))));
         app.routes(http::router());
         app.openapi_tag("lead_pro", "Gestão avançada de leads");
         Ok(())

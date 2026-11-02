@@ -1,4 +1,4 @@
-use aphel_kernel::application::config_packages::ConfigReferenceKind;
+use ::config_packages::application::ConfigReferenceKind;
 use std::collections::{BTreeMap, BTreeSet, HashMap};
 use std::sync::Arc;
 
@@ -10,23 +10,23 @@ use uuid::Uuid;
 use crate::model::{Automation, MAX_AUTOMATIONS, MAX_DESCRIPTION_LENGTH, MAX_NAME_LENGTH};
 use crate::service::valid_key;
 use crate::store::AutomationStore;
-use activities::section::{ACTIVITY_TYPES_SECTION, PackageActivityType};
-use activities::store::ActivityTypeStore;
-use aphel_kernel::application::automations::actions::{ActionRegistry, configured_flag};
-use aphel_kernel::application::automations::definition::{
-    AutomationDefinition, MAX_DEFINITION_BYTES, TriggerSpec, parse_definition, parse_trigger,
-};
-use aphel_kernel::application::automations::triggers::{TriggerRegistry, is_automatable};
-use aphel_kernel::application::config_packages::sections::common::diff;
-use aphel_kernel::application::config_packages::sections::custom_objects::package_registry;
-use aphel_kernel::application::config_packages::{
+use ::config_packages::application::sections::common::diff;
+use ::config_packages::application::sections::custom_objects::package_registry;
+use ::config_packages::application::{
     ApplyContext, ConfigKeyRepository, ConfigPackage, ConfigSection, Decisions, PackageIssue,
     PlanChange, PlanItem, assign_keys, parse_section,
 };
+use activities::section::{ACTIVITY_TYPES_SECTION, PackageActivityType};
+use activities::store::ActivityTypeStore;
+use aphel_contract_automation::application::actions::{ActionRegistry, configured_flag};
+use aphel_contract_automation::application::definition::{
+    AutomationDefinition, MAX_DEFINITION_BYTES, TriggerSpec, parse_definition, parse_trigger,
+};
+use aphel_contract_automation::application::triggers::{TriggerRegistry, is_automatable};
+use aphel_contract_automation::domain::AutomationStatus;
 use aphel_kernel::application::fields::RecordTypeRegistry;
 use aphel_kernel::database::transaction::MySqlTx;
 use aphel_kernel::domain::access::AccessScope;
-use aphel_kernel::domain::automations::AutomationStatus;
 use aphel_kernel::errors::AppError;
 use pipelines::section::{PIPELINES_SECTION, keyed_pipelines, parse_pipelines, stage_item_key};
 use pipelines::store::PipelineStore;

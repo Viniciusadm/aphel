@@ -7,10 +7,10 @@ use crate::{
     DistributionMode, DistributionOutcome, DistributionRequest, NO_ELIGIBLE_MEMBER, RULE_INACTIVE,
     SkipCause, flatten_values,
 };
-use aphel_kernel::application::automations::actions::{
+use aphel_contract_automation::application::actions::{
     ActionContext, AutomationAction, ValidationContext, only_keys, record_permission, text,
 };
-use aphel_kernel::application::automations::triggers::is_automatable;
+use aphel_contract_automation::application::triggers::is_automatable;
 use aphel_kernel::application::shared::{RecordRef, RecordType};
 use aphel_kernel::domain::access::Permission;
 use aphel_kernel::domain::fields::FieldType;

@@ -1,7 +1,7 @@
 use serde_json::{Value, json};
 
-use aphel_kernel::application::automations::definition::TriggerSpec;
-use aphel_kernel::application::automations::triggers::{
+use aphel_contract_automation::application::definition::TriggerSpec;
+use aphel_contract_automation::application::triggers::{
     AutomationTrigger, MANUAL, RECORD_CREATED, RECORD_DELETED, RECORD_UPDATED, TriggerCandidate,
     changes, event_context, is_automatable, pipeline_change, record_event, single, stage_change,
     string_list_schema,

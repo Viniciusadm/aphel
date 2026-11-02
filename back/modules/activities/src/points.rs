@@ -1,5 +1,6 @@
+use ::notifications::{DigestSource, application::DueTask};
 use aphel_sdk::AppError;
-use aphel_sdk::points::{DigestSource, DueTask, UserId};
+use aphel_sdk::points::UserId;
 use async_trait::async_trait;
 use chrono::{DateTime, NaiveDateTime, Utc};
 use sqlx::{MySql, MySqlPool, QueryBuilder, Row};

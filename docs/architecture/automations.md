@@ -4,19 +4,19 @@ Automations run **trigger → conditions/branches → actions** flows on any aut
 
 ## Pieces
 
-The engine is the `automations` module (`back/modules/automations`, optional and selected during installation or enabled later in settings). The **contract** for triggers and actions belongs to the kernel, because the `AppBuilder` (`app.trigger`/`app.action`), the extension host and other modules depend on it: it lives in `back/kernel/src/application/automations` (the main session moves it to `back/kernel`). Each module registers its triggers and actions in its own `register`.
+The engine is the optional `automations` plugin (`back/modules/automations`). Shared trigger/action/gateway types and helpers belong to `aphel-contract-automation` (`back/contracts/automation`). Native plugins import `AutomationBuilder` from that contract to use `app.trigger`/`app.action`; both methods publish typed contributions. Execution, concrete gateways and the operation projection remain in the automations plugin.
 
 | Piece | Where it lives | What it does |
 | --- | --- | --- |
-| States (`AutomationStatus`, `RunStatus`, `StepStatus`, `StepKind`, `SkipReason`) | `back/kernel/src/domain/automations` (kernel) | Pure types, no serde |
-| `TriggerSpec`, `AutomationDefinition`, `StepSpec`/`StepBody` | `back/kernel/src/application/automations/definition.rs` (kernel) | Shape of the trigger and of the step graph; structural validation of the graph |
-| `AutomationTrigger` + `TriggerRegistry::builtin()` | `back/kernel/src/application/automations/triggers.rs` (kernel) | Trigger contract and catalog (read from `app().enabled_triggers()`); `event_context`, `record_event`, `changes`, `single` helpers for implementers |
-| `AutomationAction` + `ActionRegistry::builtin()` | `back/kernel/src/application/automations/actions.rs` (kernel) | Action contract and catalog (read from `app().enabled_actions()`); configuration validation helpers |
-| Time-based trigger contract (`TimePlan`, `DueRule`, `parse_plan`), durations and waits | `back/kernel/src/application/automations/time` (kernel) | Used by the engine and by modules with time-based triggers (e.g. `pipelines::rotting::DealRotting`) |
-| `AutomationGateway` (port) | `back/kernel/src/application/automations/gateway.rs` (kernel) | What actions and conditions can do in the rest of the system |
-| `HandlerAutomationGateway` / `HandlerAutomationGatewayFactory` | `back/kernel/src/application/automations/gateway_impl.rs` (kernel) | Gateway implementation (also used by the extension host and by email): records through the `RecordTypeHandler`; everything else goes to the `AutomationOperations` port |
-| `ApiAutomationOperations` | `back/kernel/src/api/automation_operations.rs` (kernel) | Implementation of `AutomationOperations` reusing the modules' services |
-| Templates (`Template`, `TemplateScope`, `TemplateRules`) | `back/kernel/src/application/automations/templates.rs` (kernel) | Safe mini-evaluator for `{{ ... }}` and its validation |
+| States (`AutomationStatus`, `RunStatus`, `StepStatus`, `StepKind`, `SkipReason`) | `back/contracts/automation/src/domain` (automation contract) | Pure types, no serde |
+| `TriggerSpec`, `AutomationDefinition`, `StepSpec`/`StepBody` | `back/contracts/automation/src/application/definition.rs` (automation contract) | Shape of the trigger and of the step graph; structural validation of the graph |
+| `AutomationTrigger` + `TriggerRegistry::builtin()` | `back/contracts/automation/src/application/triggers.rs` (automation contract) | Trigger contract and catalog (read from `app().contributions::<dyn AutomationTrigger>()`); `event_context`, `record_event`, `changes`, `single` helpers for implementers |
+| `AutomationAction` + `ActionRegistry::builtin()` | `back/contracts/automation/src/application/actions.rs` (automation contract) | Action contract and catalog (read from `app().contributions::<dyn AutomationAction>()`); configuration validation helpers |
+| Time-based trigger contract (`TimePlan`, `DueRule`, `parse_plan`), durations and waits | `back/contracts/automation/src/application/time` (automation contract) | Used by the engine and by modules with time-based triggers (e.g. `pipelines::rotting::DealRotting`) |
+| `AutomationGateway` (port) | `back/contracts/automation/src/application/gateway.rs` (automation contract) | What actions and conditions can do in the rest of the system |
+| `HandlerAutomationGateway` / `HandlerAutomationGatewayFactory` | `back/modules/automations/src/gateway_impl.rs` (automations plugin) | Gateway implementation (also used by the extension host and by email): records through the `RecordTypeHandler`; everything else goes to the `AutomationOperations` port |
+| `ApiAutomationOperations` | `back/modules/automations/src/gateway.rs` (automations plugin) | Implementation of `AutomationOperations` reusing the modules' services |
+| Templates (`Template`, `TemplateScope`, `TemplateRules`) | `back/contracts/automation/src/application/templates.rs` (automation contract) | Safe mini-evaluator for `{{ ... }}` and its validation |
 | Generic triggers (`record.created/updated/deleted`, `manual`) and time-based ones (`time.date_relative`, `time.record_stale`, `time.schedule`) | `back/modules/automations/src/triggers.rs`, `time/triggers.rs` | Registered by the `automations` module |
 | Generic actions (`update_fields`, `assign_owner`, `send_notification`, `send_email`, `create_related_record`) | `back/modules/automations/src/actions.rs` | Registered by the `automations` module |
 | `ActionRunning` hook (`RunningAction`) | `back/modules/automations/src/hooks.rs` | Action (`app.on(ActionRunning, ..)`): veto before running each action (the error fails the step); filter (`app.filter(ActionRunning, ..)`): receives the filled-in `output` and can change the recorded result |

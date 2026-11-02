@@ -36,9 +36,9 @@ use aphel_kernel::application::fields::{
 };
 use aphel_kernel::application::organization_admin::{ListWindow, Listing};
 use aphel_kernel::application::query::{
-    FieldTarget, Filter, FilterOperator, PlanCondition, PlanNode, PlanValue, Predicate, QueryPlan,
-    RecordQuery, RecordQueryEngine, RecordQueryExecutor, RecordQueryPorts, ResolveContext,
-    SegmentFilters, SegmentResolution, resolve_query_with,
+    FieldTarget, Filter, FilterExpansion, FilterExpansions, FilterOperator, PlanCondition,
+    PlanNode, PlanValue, Predicate, QueryPlan, RecordQuery, RecordQueryEngine, RecordQueryExecutor,
+    RecordQueryPorts, ResolveContext, resolve_query_with,
 };
 use aphel_kernel::application::shared::{
     Actor, AuditEntry, AuditLog, DomainEvent, EventPublisher, FieldChange, RecordRef, RecordType,
@@ -110,7 +110,7 @@ struct Planner {
     fields: FieldSet,
     context: ResolveContext,
     visibility: RecordScopeFilter,
-    segments: SegmentFilters,
+    segments: FilterExpansions,
 }
 
 impl Planner {
@@ -120,7 +120,7 @@ impl Planner {
             &self.context,
             self.visibility.clone(),
             query,
-            SegmentResolution::Expand(&self.segments),
+            FilterExpansion::Expand(&self.segments),
         )
     }
 }
@@ -1718,7 +1718,7 @@ async fn planner(ctx: &Ctx<'_>, filter: Option<&Filter>) -> Result<Planner, AppE
         user_id: scope.user_id().clone(),
     };
     let segments = RecordQueryEngine::new(&query)
-        .segments(RecordType::DEAL.as_str(), filter)
+        .expansions(RecordType::DEAL.as_str(), filter)
         .await?;
     Ok(Planner {
         fields,

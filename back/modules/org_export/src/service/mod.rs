@@ -19,9 +19,9 @@ use crate::{
     TempFile, ZIP_MIME_TYPE, file_stream, org_export_not_found, record_path, record_priority,
     sha256_file,
 };
+use ::config_packages::application::APHEL_VERSION;
 use aphel_kernel::Ctx;
 use aphel_kernel::application::access::{AccessRepository, Authorizer, build_access_scope};
-use aphel_kernel::application::config_packages::APHEL_VERSION;
 use aphel_kernel::application::fields::{CustomFieldReader, EntityDefinition, RecordTypeRegistry};
 use aphel_kernel::application::files::{FileRepository, NewFile, sanitize_file_name, storage_key};
 use aphel_kernel::application::organization_admin::{ListWindow, Listing};

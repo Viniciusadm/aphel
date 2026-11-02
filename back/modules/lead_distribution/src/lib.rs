@@ -1,3 +1,4 @@
+use aphel_contract_automation::AutomationBuilder;
 pub(crate) mod automation;
 pub mod domain;
 pub(crate) mod dto;
@@ -57,15 +58,12 @@ impl Module for LeadDistributionModule {
         .grant_to(["admin"]);
         app.action(Arc::new(automation::AssignByRule));
         app.contribute(Arc::new(
-            aphel_kernel::infrastructure::config_packages::ConfigSectionFactory::new(
-                135,
-                |pool, registry| {
-                    Arc::new(section::LeadDistributionSection::new(
-                        registry.clone(),
-                        store::DistributionStore::new(pool.clone()),
-                    ))
-                },
-            ),
+            ::config_packages::infrastructure::ConfigSectionFactory::new(135, |pool, registry| {
+                Arc::new(section::LeadDistributionSection::new(
+                    registry.clone(),
+                    store::DistributionStore::new(pool.clone()),
+                ))
+            }),
         ));
         for operation in plugin_bridge::operations() {
             app.contribute::<aphel_kernel::modules::PluginOperation>(operation);

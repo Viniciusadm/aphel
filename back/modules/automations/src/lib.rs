@@ -1,3 +1,7 @@
+pub mod gateway;
+pub mod gateway_impl;
+mod operation_action;
+use aphel_contract_automation::AutomationBuilder;
 pub(crate) mod actions;
 pub(crate) mod clock;
 pub(crate) mod conditions;
@@ -21,19 +25,19 @@ use std::sync::Arc;
 
 use aphel_kernel::modules::Migration;
 
-pub(crate) use aphel_kernel::application::automations::definition::*;
-pub(crate) use aphel_kernel::application::automations::{AutomationTrigger, MessageChannel};
+pub(crate) use aphel_contract_automation::application::definition::*;
+pub(crate) use aphel_contract_automation::application::{AutomationTrigger, MessageChannel};
 pub(crate) use model::*;
 pub(crate) use runtime::*;
 pub(crate) use service::{
     CreateAutomationCommand, DryRunCommand, DryRunResult, UpdateAutomationCommand,
 };
 
-use actions::{AssignOwner, CreateRelatedRecord, SendMessage, UpdateFields};
-use aphel_kernel::domain::access::{Permission, PermissionDefinition};
-use aphel_kernel::domain::notifications::{
+use ::notifications::domain::{
     ALL_CHANNELS, EMAIL_ONLY, IN_APP_AND_PUSH, NotificationKind, NotificationKindDefinition,
 };
+use actions::{AssignOwner, CreateRelatedRecord, SendMessage, UpdateFields};
+use aphel_kernel::domain::access::{Permission, PermissionDefinition};
 use aphel_kernel::errors::AppError;
 use aphel_kernel::modules::builder::APHEL_VERSION;
 use aphel_kernel::modules::{AppBuilder, Manifest, Module, WorkerEnv, WorkerParts};
@@ -85,6 +89,19 @@ impl Module for AutomationsModule {
 
     fn register(&self, app: &mut AppBuilder) -> Result<(), AppError> {
         app.contribute(std::sync::Arc::new(
+            ::config_packages::application::versioning::fragments::SectionFragmentLayout {
+                section: "automations",
+                collections: vec![
+                    ::config_packages::application::versioning::fragments::FragmentCollection {
+                        path: None,
+                        kind: "automation",
+                        key_fields: &["key"],
+                    },
+                ],
+            },
+        ));
+
+        app.contribute(std::sync::Arc::new(
             aphel_kernel::application::fields::EntityKeyAliases(&[(
                 "automation",
                 "automations.automation",
@@ -101,13 +118,19 @@ impl Module for AutomationsModule {
             aphel_kernel::modules::PLUGIN_HOOK_PRIORITY,
             |ctx, running| Box::pin(plugin_bridge::action_running(ctx, running)),
         );
-        app.contribute(std::sync::Arc::new(aphel_kernel::infrastructure::config_packages::ConfigSectionFactory::new(
-            165,
-            |pool, registry| {
+        app.contribute(std::sync::Arc::new(
+            ::config_packages::infrastructure::ConfigSectionFactory::new(165, |pool, registry| {
                 let _ = registry;
-                std::sync::Arc::new(crate::section::AutomationsSection::new(registry.clone(), crate::store::AutomationStore::new(pool.clone()), tags::TagStore::new(pool.clone()), pipelines::store::PipelineStore::new(pool.clone()), aphel_kernel::infrastructure::config_packages::MySqlConfigKeyRepository::new(pool.clone()), activities::store::ActivityTypeStore::new(pool.clone())))
-            },
-        )));
+                std::sync::Arc::new(crate::section::AutomationsSection::new(
+                    registry.clone(),
+                    crate::store::AutomationStore::new(pool.clone()),
+                    tags::TagStore::new(pool.clone()),
+                    pipelines::store::PipelineStore::new(pool.clone()),
+                    ::config_packages::infrastructure::MySqlConfigKeyRepository::new(pool.clone()),
+                    activities::store::ActivityTypeStore::new(pool.clone()),
+                ))
+            }),
+        ));
         app.trigger(Arc::new(RecordCreated))
             .trigger(Arc::new(RecordUpdated))
             .trigger(Arc::new(RecordDeleted))
@@ -133,11 +156,14 @@ impl Module for AutomationsModule {
         ))
         .grant_to(["admin"]);
         for definition in NOTIFICATION_KINDS {
-            app.notification_kind(*definition);
+            app.contribute(std::sync::Arc::new(*definition));
         }
         for hook in plugin_bridge::hooks() {
             app.contribute::<aphel_kernel::modules::PluginHook>(hook);
         }
+        app.contribute::<dyn aphel_contract_automation::application::AutomationActionSource>(
+            std::sync::Arc::new(BoundOperations),
+        );
         Ok(())
     }
 }
@@ -153,4 +179,16 @@ fn worker(env: &WorkerEnv) -> WorkerParts {
         .handler(Arc::new(TimeTriggerSweep(runtime.clone())))
         .handler(Arc::new(WaitingRunsResumer(runtime)))
         .schedules(vec![time_sweep_schedule(), resume_waiting_schedule()])
+}
+
+struct BoundOperations;
+impl aphel_contract_automation::application::AutomationActionSource for BoundOperations {
+    fn actions(&self) -> Vec<aphel_contract_automation::Action> {
+        aphel_kernel::modules::app()
+            .contributions::<aphel_kernel::modules::operations::OperationEntry>()
+            .into_iter()
+            .filter_map(operation_action::OperationAction::new)
+            .map(|action| std::sync::Arc::new(action) as aphel_contract_automation::Action)
+            .collect()
+    }
 }

@@ -1,7 +1,7 @@
 use serde_json::{Value, json};
 
+use ::dashboard::engine::{DashboardPorts, WidgetContext};
 use aphel_kernel::api::dto::aggregates::{AggregateQueryRequest, decimal};
-use aphel_kernel::application::dashboard::{DashboardPorts, WidgetContext};
 use aphel_kernel::application::fields::FieldSet;
 use aphel_kernel::application::query::{AggregateEngine, RecordQueryPorts};
 use aphel_kernel::errors::AppError;

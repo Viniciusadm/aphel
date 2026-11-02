@@ -5,13 +5,13 @@ use serde_json::{Value, json};
 use uuid::Uuid;
 
 use super::store::IntegrationStore;
-use aphel_kernel::application::access::Authorizer;
-use aphel_kernel::application::audit::{DiffOptions, diff_changes};
-use aphel_kernel::application::integrations::{
+use crate::engine::{
     ConfigInput, ConnectionTestOptions, INTEGRATION_SECRET_OWNER, Integration, IntegrationError,
     IntegrationErrorSource, IntegrationStatus, ProviderKind, ResolvedConfig,
     SharedIntegrationProvider, missing_required, secret_key, validate_config,
 };
+use aphel_kernel::application::access::Authorizer;
+use aphel_kernel::application::audit::{DiffOptions, diff_changes};
 use aphel_kernel::application::shared::{
     Actor, AuditEntry, DomainEvent, FieldChange, RecordRef, RecordType, ensure_version,
 };
@@ -592,5 +592,5 @@ async fn publish(
 }
 
 fn truncate(message: &str) -> String {
-    aphel_kernel::application::integrations::truncate_error(message)
+    crate::engine::truncate_error(message)
 }

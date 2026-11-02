@@ -16,7 +16,7 @@ use std::sync::Arc;
 use aphel_kernel::application::files::{FileReferenceColumn, FileReferenceSource};
 use aphel_kernel::modules::Migration;
 
-use aphel_kernel::domain::notifications::{ALL_CHANNELS, NotificationKindDefinition};
+use ::notifications::domain::{ALL_CHANNELS, NotificationKindDefinition};
 use aphel_kernel::errors::AppError;
 use aphel_kernel::modules::builder::APHEL_VERSION;
 use aphel_kernel::modules::{AppBuilder, Manifest, Module, WorkerParts};
@@ -61,10 +61,10 @@ impl Module for ExportsModule {
         app.contribute::<dyn aphel_kernel::modules::FileReferenceSource>(std::sync::Arc::new(
             points::ExportFiles,
         ));
-        app.contribute::<dyn aphel_kernel::application::notifications::texts::NotificationTexts>(
+        app.contribute::<dyn ::notifications::application::texts::NotificationTexts>(
             std::sync::Arc::new(crate::notifications::ExportNotificationTexts),
         );
-        app.contribute::<dyn aphel_kernel::application::notifications::NotificationSource>(
+        app.contribute::<dyn ::notifications::application::NotificationSource>(
             std::sync::Arc::new(notifications::ExportNotifications),
         );
         app.openapi_tag(http::TAG, "CSV and XLSX exports of filtered records")
@@ -74,12 +74,12 @@ impl Module for ExportsModule {
             crate::notifications::EXPORT_READY_NOTIFICATION,
             crate::notifications::EXPORT_FAILED_NOTIFICATION,
         ] {
-            app.notification_kind(NotificationKindDefinition {
+            app.contribute(std::sync::Arc::new(NotificationKindDefinition {
                 kind,
                 channels: ALL_CHANNELS,
                 email_default: false,
                 push_default: false,
-            });
+            }));
         }
         app.worker(|env| {
             WorkerParts::default().handler(Arc::new(ExportRunHandler::new(env.state())))

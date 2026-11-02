@@ -79,21 +79,27 @@ impl AccountSessionRepository for MySqlAccountSessionRepository {
         session_id: &SessionId,
         at: DateTime<Utc>,
     ) -> Result<bool, AppError> {
+        let mut tx: crate::database::transaction::MySqlTx = self.pool.begin().await?.into();
         let result = sqlx::query(
             "UPDATE sessions SET revoked_at = ? WHERE id = ? AND user_id = ? AND revoked_at IS NULL",
         )
         .bind(mapper::naive(at))
         .bind(session_id.as_str())
         .bind(user_id.as_str())
-        .execute(&self.pool)
+        .execute(&mut *tx)
         .await?;
         let revoked = result.rows_affected() > 0;
         if revoked {
-            crate::infrastructure::notifications::push::remove_session_push_subscriptions(
-                &self.pool, session_id,
+            crate::application::security::session_revoked(
+                &mut tx,
+                &self.pool,
+                Some(session_id),
+                None,
+                None,
             )
             .await?;
         }
+        tx.commit().await?;
         Ok(revoked)
     }
 
@@ -103,6 +109,7 @@ impl AccountSessionRepository for MySqlAccountSessionRepository {
         keep: &SessionId,
         at: DateTime<Utc>,
     ) -> Result<u64, AppError> {
+        let mut tx: crate::database::transaction::MySqlTx = self.pool.begin().await?.into();
         let result = sqlx::query(
             "UPDATE sessions SET revoked_at = ? WHERE user_id = ? AND id <> ? AND revoked_at IS NULL AND expires_at > ?",
         )
@@ -110,14 +117,17 @@ impl AccountSessionRepository for MySqlAccountSessionRepository {
         .bind(user_id.as_str())
         .bind(keep.as_str())
         .bind(mapper::naive(at))
-        .execute(&self.pool)
+        .execute(&mut *tx)
         .await?;
-        crate::infrastructure::notifications::push::remove_user_push_subscriptions(
+        crate::application::security::session_revoked(
+            &mut tx,
             &self.pool,
-            user_id,
+            None,
+            Some(user_id),
             Some(keep),
         )
         .await?;
+        tx.commit().await?;
         Ok(result.rows_affected())
     }
 }

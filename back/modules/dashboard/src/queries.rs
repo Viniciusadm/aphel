@@ -7,6 +7,10 @@ use sqlx::types::Json;
 use sqlx::{MySql, MySqlPool, QueryBuilder, Row};
 use uuid::Uuid;
 
+use crate::repository::{
+    RecentEventExclusion, aggregate_query, in_order, link_column, push_ids, push_readable,
+    record_ids, record_titles, user_column, uuid_column,
+};
 use aphel_kernel::application::fields::{EntityDefinition, RecordTypeRegistry};
 use aphel_kernel::application::files::UserReference;
 use aphel_kernel::application::organization_admin::ListWindow;
@@ -14,10 +18,6 @@ use aphel_kernel::application::query::{ArchivedFilter, QueryPlan};
 use aphel_kernel::domain::access::{AccessScope, RecordScopeFilter};
 use aphel_kernel::errors::AppError;
 use aphel_kernel::infrastructure::repositories::mapper::utc;
-use aphel_kernel::infrastructure::repositories::mysql_dashboard::{
-    RecentEventExclusion, aggregate_query, in_order, link_column, push_ids, push_readable,
-    record_ids, record_titles, user_column, uuid_column,
-};
 use aphel_kernel::records::constrain_query;
 use aphel_kernel::state::runtime_state;
 use pipelines::domain::StageKind;

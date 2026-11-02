@@ -5,7 +5,7 @@ use serde_json::Value;
 use uuid::Uuid;
 
 use crate::api::dto::custom_objects::{CustomRecordRequest, CustomRecordResponse};
-use crate::api::routes::v1::custom_objects::custom_record_use_cases;
+use crate::api::record_services::custom_record_use_cases;
 use crate::api::routes::v1::field_permissions::redacted;
 use crate::application::shared::RecordType;
 use crate::database::transaction::MySqlTx;

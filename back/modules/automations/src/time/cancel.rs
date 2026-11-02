@@ -5,11 +5,11 @@ use async_trait::async_trait;
 use crate::clock::automation_clock;
 use crate::runtime::AutomationRuntime;
 use crate::store::{AutomationTimeStore, CancelTarget};
-use aphel_kernel::application::automations::triggers::is_automatable;
+use aphel_contract_automation::application::triggers::is_automatable;
+use aphel_contract_automation::domain::SkipReason;
 use aphel_kernel::application::security::Clock;
 use aphel_kernel::application::shared::{DomainEvent, EventConsumer};
 use aphel_kernel::domain::access::AccessScope;
-use aphel_kernel::domain::automations::SkipReason;
 use aphel_kernel::errors::AppError;
 
 pub(crate) const CANCEL_WAITING_CONSUMER: &str = "automations.cancel_waiting";

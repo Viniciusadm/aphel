@@ -4,6 +4,7 @@ import { useTranslation } from 'react-i18next'
 import { Avatar } from '@/components/ui/avatar'
 import { Button } from '@/components/ui/button'
 import { useOrganizationUsers } from '@/features/records/api'
+
 import { SearchablePicker } from './SearchablePicker'
 import type { FieldInputBaseProps } from './types'
 

@@ -3,11 +3,11 @@ use async_trait::async_trait;
 use serde_json::{Value, json};
 
 use crate::domain::NOTE_CREATED;
-use aphel_kernel::application::automations::actions::{
+use aphel_contract_automation::application::actions::{
     ActionContext, AutomationAction, CREATE_NOTE, MAX_BODY_LENGTH, ValidationContext, invalid,
     only_keys, parent_record, required_text, text,
 };
-use aphel_kernel::application::automations::triggers::{
+use aphel_contract_automation::application::triggers::{
     AutomationTrigger, TriggerCandidate, event_context, is_automatable, parent_records,
 };
 use aphel_kernel::application::shared::{DomainEvent, RecordType};

@@ -6,7 +6,7 @@ use uuid::Uuid;
 
 use crate::application::access::{Authorizer, PERMISSION_DENIED};
 use crate::application::audit::{DiffOptions, diff_changes};
-use crate::application::fields::formulas::formula_definition_violations;
+use crate::application::fields::definition_violations;
 use crate::application::fields::permissions::FieldAccessPolicy;
 use crate::application::fields::{
     CreateFieldCommand, CustomFieldValueRepository, EntityDefinition, FieldDefinitionRepository,
@@ -257,12 +257,8 @@ where
         violations.extend(self.field_violations(&field));
         if violations.is_empty() && field.is_formula() {
             violations.extend(
-                formula_definition_violations(
-                    self.ports.registry(),
-                    self.ports.definitions(),
-                    &field,
-                )
-                .await?,
+                definition_violations(self.ports.registry(), self.ports.definitions(), &field)
+                    .await?,
             );
         }
         if !violations.is_empty() {
@@ -423,12 +419,8 @@ where
         }
         if violations.is_empty() && command.config.is_some() && updated.is_formula() {
             violations.extend(
-                formula_definition_violations(
-                    self.ports.registry(),
-                    self.ports.definitions(),
-                    &updated,
-                )
-                .await?,
+                definition_violations(self.ports.registry(), self.ports.definitions(), &updated)
+                    .await?,
             );
         }
         if !violations.is_empty() {

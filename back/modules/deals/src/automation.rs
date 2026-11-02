@@ -6,12 +6,12 @@ use async_trait::async_trait;
 use serde_json::{Value, json};
 
 use crate::domain::{DEAL_LOST, DEAL_STAGE_CHANGED, DEAL_WON};
-use aphel_kernel::application::automations::actions::{
+use aphel_contract_automation::application::actions::{
     ActionContext, AutomationAction, MOVE_STAGE, ValidationContext, invalid, only_keys, text,
 };
-use aphel_kernel::application::automations::definition::TriggerSpec;
-use aphel_kernel::application::automations::gateway::Reference;
-use aphel_kernel::application::automations::triggers::{
+use aphel_contract_automation::application::definition::TriggerSpec;
+use aphel_contract_automation::application::gateway::Reference;
+use aphel_contract_automation::application::triggers::{
     AutomationTrigger, TriggerCandidate, TriggerReference, event_context, single, stage_change,
 };
 use aphel_kernel::application::shared::{DomainEvent, RecordType};

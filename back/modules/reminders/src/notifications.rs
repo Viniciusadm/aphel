@@ -1,7 +1,7 @@
+use ::notifications::application::NotificationView;
+use ::notifications::application::texts::NotificationTexts;
+use ::notifications::domain::NotificationKind;
 use aphel_kernel::application::mail::MailLocale;
-use aphel_kernel::application::notifications::NotificationView;
-use aphel_kernel::application::notifications::texts::NotificationTexts;
-use aphel_kernel::domain::notifications::NotificationKind;
 
 pub(crate) const REMINDER_NOTIFICATION: NotificationKind =
     NotificationKind::from_static("reminder");

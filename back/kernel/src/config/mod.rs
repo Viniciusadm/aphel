@@ -12,16 +12,14 @@ pub struct AppConfig {
     pub run_migrations: bool,
     pub worker: WorkerConfig,
     pub encryption: EncryptionConfig,
-    pub webhooks: WebhooksConfig,
+    pub outbound_http: OutboundHttpConfig,
 }
 
 #[derive(Debug, Clone, PartialEq, Eq)]
-pub struct WebhooksConfig {
+pub struct OutboundHttpConfig {
     pub allow_private_networks: bool,
     pub require_https: bool,
     pub timeout: Duration,
-    pub disable_after_failures: u32,
-    pub retention_days: u32,
 }
 
 #[derive(Debug, Clone, PartialEq, Eq, Default)]
@@ -60,7 +58,7 @@ impl AppConfig {
             run_migrations,
             worker: WorkerConfig::from_env(),
             encryption: EncryptionConfig::from_env(),
-            webhooks: WebhooksConfig::from_env(),
+            outbound_http: OutboundHttpConfig::from_env(),
         }
     }
 
@@ -87,7 +85,7 @@ impl EncryptionConfig {
     }
 }
 
-impl WebhooksConfig {
+impl OutboundHttpConfig {
     pub fn from_env() -> Self {
         Self {
             allow_private_networks: env::var("WEBHOOKS_ALLOW_PRIVATE_NETWORKS")
@@ -98,14 +96,12 @@ impl WebhooksConfig {
     }
 }
 
-impl Default for WebhooksConfig {
+impl Default for OutboundHttpConfig {
     fn default() -> Self {
         Self {
             allow_private_networks: false,
             require_https: false,
             timeout: Duration::from_secs(10),
-            disable_after_failures: 15,
-            retention_days: 30,
         }
     }
 }

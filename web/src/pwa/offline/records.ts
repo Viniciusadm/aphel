@@ -1,5 +1,6 @@
 import type { UseQueryResult } from '@tanstack/react-query'
 import { recordsApi, recordsKeys } from '@/features/records/api'
+
 import { recordDetailApi } from '@/features/records/detail/api'
 import { requireRecordResource } from '@/features/records/resources'
 import type { RecordItem } from '@/features/records/types'

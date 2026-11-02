@@ -1,10 +1,11 @@
 import { useMemo } from 'react'
-import { useFieldSchema, useSavedViews } from '@/features/records/api'
+import { useFieldSchema } from '@/features/records/api'
+import { useSavedViews } from '@/modules/saved_views/api'
 import { activeFields } from '@/features/records/fields'
 import { requireRecordResource } from '@/features/records/resources'
 import { defaultColumnKeys } from '@/features/records/table'
 import type { FieldDefinition, RecordViewConfig } from '@/features/records/types'
-import { ALL_RECORDS_VIEW, resolveConfig, useListUrlState, viewConfig } from '@/features/records/views'
+import { ALL_RECORDS_VIEW, resolveConfig, useListUrlState, viewConfig } from '@/modules/saved_views/ui'
 
 export function useCurrentListConfig(recordType: string): {
   config: RecordViewConfig | null

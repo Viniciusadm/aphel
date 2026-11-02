@@ -1,3 +1,4 @@
+use aphel_contract_automation::AutomationBuilder;
 pub(crate) mod capture;
 pub mod compose;
 pub mod domain;
@@ -133,15 +134,12 @@ impl Module for EmailModule {
             store::timeline::EmailTimeline,
         ));
         app.contribute(std::sync::Arc::new(
-            aphel_kernel::infrastructure::config_packages::ConfigSectionFactory::new(
-                150,
-                |pool, registry| {
-                    let _ = registry;
-                    std::sync::Arc::new(crate::templates::EmailTemplatesSection::new(
-                        crate::store::sending::TemplateStore::new(pool.clone()),
-                    ))
-                },
-            ),
+            ::config_packages::infrastructure::ConfigSectionFactory::new(150, |pool, registry| {
+                let _ = registry;
+                std::sync::Arc::new(crate::templates::EmailTemplatesSection::new(
+                    crate::store::sending::TemplateStore::new(pool.clone()),
+                ))
+            }),
         ));
         for (name, description) in TAGS {
             app.openapi_tag(name, description);

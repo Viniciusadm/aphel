@@ -200,3 +200,42 @@ pub trait FieldPorts: Send + Sync {
     fn audit(&self) -> &Self::Audit;
     fn clock(&self) -> &Self::Clock;
 }
+
+#[async_trait]
+pub trait FieldDefinitionReader: Send + Sync {
+    async fn list(&self, record_type: &RecordType) -> Result<Vec<FieldDefinition>, AppError>;
+}
+#[async_trait]
+impl<D: FieldDefinitionRepository + ?Sized> FieldDefinitionReader for D {
+    async fn list(&self, record_type: &RecordType) -> Result<Vec<FieldDefinition>, AppError> {
+        FieldDefinitionRepository::list(self, record_type).await
+    }
+}
+
+#[async_trait]
+pub trait FieldDefinitionValidator: Send + Sync {
+    async fn validate(
+        &self,
+        registry: &RecordTypeRegistry,
+        definitions: &dyn FieldDefinitionReader,
+        field: &FieldDefinition,
+    ) -> Result<Vec<crate::errors::FieldViolation>, AppError>;
+}
+
+pub async fn definition_violations<D: FieldDefinitionRepository>(
+    registry: &RecordTypeRegistry,
+    definitions: &D,
+    field: &FieldDefinition,
+) -> Result<Vec<crate::errors::FieldViolation>, AppError> {
+    let validators = crate::modules::app().contributions::<dyn FieldDefinitionValidator>();
+    if field.formula().is_some() && validators.is_empty() {
+        return Err(AppError::Configuration(
+            "computed field validation is unavailable".to_owned(),
+        ));
+    }
+    let mut violations = Vec::new();
+    for validator in validators {
+        violations.extend(validator.validate(registry, definitions, field).await?);
+    }
+    Ok(violations)
+}

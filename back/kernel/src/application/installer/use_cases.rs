@@ -5,9 +5,8 @@ use crate::application::installer::{
     FirstOrganization, InstallCommand, Installation, InstallationRepository, InstallerPorts,
 };
 use crate::application::organizations::{
-    NewOrganization, NewOwner, OrganizationConfig, WebhookDeliverySettings,
-    normalize_public_base_url, organization_registration, validate_organization_name,
-    validate_preferences,
+    NewOrganization, NewOwner, OrganizationConfig, normalize_public_base_url,
+    organization_registration, validate_organization_name, validate_preferences,
 };
 use crate::application::security::{Clock, PasswordHasher, password_violation};
 use crate::application::shared::{
@@ -88,7 +87,7 @@ where
                 normalized
             }
         };
-        let business = super::business::validate_business(command.business, &mut violations);
+        let business = super::blueprint_input(command.business, &mut violations);
         let (Some(organization_name), Some(preferences), Some(email), true) =
             (organization_name, preferences, email, violations.is_empty())
         else {
@@ -147,17 +146,10 @@ where
             .with_record(record)
             .with_changes(changes)
             .with_ip(command.ip);
-        let require_https = public_base_url
-            .as_deref()
-            .is_some_and(|url| url.starts_with("https://"));
         let first = FirstOrganization {
             registration,
             configuration: OrganizationConfig {
                 public_base_url,
-                webhooks: WebhookDeliverySettings {
-                    require_https,
-                    ..WebhookDeliverySettings::default()
-                },
                 ..OrganizationConfig::default()
             },
             business,

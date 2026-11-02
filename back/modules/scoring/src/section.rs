@@ -1,4 +1,4 @@
-use aphel_kernel::application::config_packages::ConfigReferenceKind;
+use ::config_packages::application::ConfigReferenceKind;
 use std::collections::BTreeSet;
 
 use async_trait::async_trait;
@@ -14,8 +14,8 @@ use crate::domain::{
 use crate::engine::is_scored_record_type;
 use crate::service::{CriteriaDraft, build_criteria, recalculate_job};
 use crate::store::ModelStore;
-use aphel_kernel::application::config_packages::sections::common::{check_key, diff};
-use aphel_kernel::application::config_packages::{
+use ::config_packages::application::sections::common::{check_key, diff};
+use ::config_packages::application::{
     ApplyContext, ConfigPackage, ConfigSection, Decisions, PackageIssue, PlanChange, PlanItem,
     parse_section,
 };

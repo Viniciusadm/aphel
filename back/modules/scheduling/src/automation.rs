@@ -2,8 +2,8 @@ use aphel_contract_crm::CrmRecordTypes;
 use std::sync::Arc;
 
 use crate::{MEETING_BOOKED, MEETING_CANCELED, MEETING_RESCHEDULED};
-use aphel_kernel::application::automations::AutomationTrigger;
-use aphel_kernel::application::automations::triggers::{TriggerCandidate, event_context};
+use aphel_contract_automation::application::AutomationTrigger;
+use aphel_contract_automation::application::triggers::{TriggerCandidate, event_context};
 use aphel_kernel::application::shared::{DomainEvent, RecordType};
 
 struct MeetingTrigger {

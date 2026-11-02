@@ -1,3 +1,4 @@
+use aphel_contract_automation::AutomationBuilder;
 pub(crate) mod automation;
 pub(crate) mod directory;
 pub(crate) mod domain;
@@ -94,13 +95,10 @@ impl Module for ScoringModule {
             )]),
         ));
         app.contribute(std::sync::Arc::new(
-            aphel_kernel::infrastructure::config_packages::ConfigSectionFactory::new(
-                220,
-                |pool, registry| {
-                    let _ = registry;
-                    std::sync::Arc::new(crate::section::scoring_models_section(pool))
-                },
-            ),
+            ::config_packages::infrastructure::ConfigSectionFactory::new(220, |pool, registry| {
+                let _ = registry;
+                std::sync::Arc::new(crate::section::scoring_models_section(pool))
+            }),
         ));
         app.triggers(automation::scoring_triggers());
         for record_type in SCORED_TYPES {

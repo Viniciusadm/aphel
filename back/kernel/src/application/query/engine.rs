@@ -4,8 +4,9 @@ use crate::application::access::Authorizer;
 use crate::application::fields::FieldSet;
 use crate::application::organization_admin::Listing;
 use crate::application::query::{
-    Filter, RecordQuery, RecordQueryExecutor, RecordQueryPorts, RelatedFieldSets, ResolveContext,
-    SegmentFilters, SegmentResolution, load_related_sets, resolve_query_related, segment_ids,
+    Filter, FilterExpansion, FilterExpansions, RecordQuery, RecordQueryExecutor, RecordQueryPorts,
+    RelatedFieldSets, ResolveContext, filter_expansion_ids, load_related_sets,
+    resolve_query_related,
 };
 use crate::application::security::Clock;
 use crate::domain::access::AccessScope;
@@ -37,7 +38,7 @@ where
             timezone: self.ports.executor().timezone().await?,
             user_id: scope.user_id().clone(),
         };
-        let segments = self.segments(record_type, query.filter.as_ref()).await?;
+        let expansions = self.expansions(record_type, query.filter.as_ref()).await?;
         let relations = match &query.filter {
             Some(filter) => {
                 load_related_sets(
@@ -56,28 +57,28 @@ where
             &context,
             visibility,
             query,
-            SegmentResolution::Expand(&segments),
+            FilterExpansion::Expand(&expansions),
             &relations,
         )?;
         self.ports.executor().execute(scope, &plan).await
     }
 
-    pub async fn segments(
+    pub async fn expansions(
         &self,
         record_type: &str,
         filter: Option<&Filter>,
-    ) -> Result<SegmentFilters, AppError> {
-        let mut segments = SegmentFilters::new();
+    ) -> Result<FilterExpansions, AppError> {
+        let mut expansions = FilterExpansions::new();
         let Some(filter) = filter else {
-            return Ok(segments);
+            return Ok(expansions);
         };
-        for id in segment_ids(filter) {
-            if let Some(source) = self.ports.executor().segment(id).await?
+        for id in filter_expansion_ids(filter) {
+            if let Some(source) = self.ports.executor().filter_source(id).await?
                 && source.record_type == record_type
             {
-                segments.insert(id, source.filter);
+                expansions.insert(id, source.filter);
             }
         }
-        Ok(segments)
+        Ok(expansions)
     }
 }

@@ -6,6 +6,7 @@ import { EmptyState } from '@/components/ui/empty-state'
 import { ErrorState } from '@/components/ui/error-state'
 import { Skeleton } from '@/components/ui/skeleton'
 import { useFieldSchema } from '@/features/records/api'
+
 import type { RecordTabRenderProps } from '@/kernel/modules/define'
 import { useLifecycleHistory } from './api'
 import { LIFECYCLE_STAGE_FIELD } from './constants'

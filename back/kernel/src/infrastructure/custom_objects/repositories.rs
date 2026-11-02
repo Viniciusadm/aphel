@@ -22,18 +22,15 @@ use crate::infrastructure::custom_objects::rows::{
     OBJECT_COLUMNS, RELATIONSHIP_COLUMNS, object_from_row, relationship_from_row,
 };
 use crate::infrastructure::fields::mysql_definitions::{seed_system_fields, uuid_column};
-use crate::infrastructure::query::compiler::{push_live_record, quoted, tag_storage};
+use crate::infrastructure::query::compiler::{push_live_record, quoted, reference_set_storage};
 use crate::infrastructure::repositories::mapper;
 use crate::infrastructure::repositories::mapper::{
     instant, optional_instant, optional_user, push_ids,
 };
 
-const RECORD_TYPE_TABLES: [&str; 8] = [
+const RECORD_TYPE_TABLES: [&str; 5] = [
     "custom_field_multi_values",
     "custom_field_values",
-    "search_index",
-    "saved_views",
-    "form_layouts",
     "field_permissions",
     "field_permission_versions",
     "field_definitions",
@@ -51,10 +48,10 @@ fn record_type_tables() -> Vec<&'static str> {
             }
         }
     }
-    if let Some(storage) = tag_storage()
-        && !tables.contains(&storage.taggings)
+    if let Some(storage) = reference_set_storage()
+        && !tables.contains(&storage.links_table)
     {
-        tables.push(storage.taggings);
+        tables.push(storage.links_table);
     }
     for table in RECORD_TYPE_TABLES {
         if !tables.contains(&table) {
@@ -70,7 +67,7 @@ pub struct MySqlCustomObjectRepository {
 }
 
 impl MySqlCustomObjectRepository {
-    pub(crate) fn new(pool: MySqlPool) -> Self {
+    pub fn new(pool: MySqlPool) -> Self {
         Self { pool }
     }
 }
@@ -279,7 +276,7 @@ pub struct MySqlRelationshipRepository {
 }
 
 impl MySqlRelationshipRepository {
-    pub(crate) fn new(pool: MySqlPool) -> Self {
+    pub fn new(pool: MySqlPool) -> Self {
         Self { pool }
     }
 }
@@ -389,7 +386,7 @@ pub struct MySqlRecordLinkRepository {
 }
 
 impl MySqlRecordLinkRepository {
-    pub(crate) fn new(pool: MySqlPool, registry: Arc<RecordTypeRegistry>) -> Self {
+    pub fn new(pool: MySqlPool, registry: Arc<RecordTypeRegistry>) -> Self {
         Self { pool, registry }
     }
 
@@ -639,7 +636,7 @@ pub struct MySqlCustomRecordRepository {
 }
 
 impl MySqlCustomRecordRepository {
-    pub(crate) fn new(pool: MySqlPool) -> Self {
+    pub fn new(pool: MySqlPool) -> Self {
         Self { pool }
     }
 

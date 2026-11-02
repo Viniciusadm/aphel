@@ -2,8 +2,8 @@ use std::sync::Arc;
 
 use sqlx::MySqlPool;
 
+use crate::application::fields::ContributedConditionalRules;
 use crate::application::fields::{CustomFieldPorts, FieldPorts, RecordTypeRegistry};
-use crate::application::layouts::LayoutConditionalRules;
 use crate::application::shared::{AuditLog, EventPublisher};
 use crate::database::transaction::MySqlTx;
 use crate::infrastructure::auth::SystemClock;
@@ -11,12 +11,10 @@ use crate::infrastructure::custom_objects::MySqlRecordLinkRepository;
 use crate::infrastructure::fields::{
     MySqlCustomFieldValueRepository, MySqlFieldDefinitionRepository, MySqlReferenceChecker,
 };
-use crate::infrastructure::layouts::MySqlFormLayoutRepository;
 use crate::infrastructure::transactions::MySqlTransactionManager;
 use crate::records::MySqlRecordPipeline;
 
-pub(crate) type MySqlConditionalRules =
-    LayoutConditionalRules<MySqlFormLayoutRepository, SystemClock>;
+pub(crate) type MySqlConditionalRules = ContributedConditionalRules;
 
 pub struct MySqlCustomFieldPorts {
     registry: Arc<RecordTypeRegistry>,
@@ -37,7 +35,7 @@ impl MySqlCustomFieldPorts {
             definitions: MySqlFieldDefinitionRepository::new(pool.clone()),
             values: MySqlCustomFieldValueRepository::new(pool.clone()),
             references: MySqlReferenceChecker::new(pool.clone()),
-            rules: LayoutConditionalRules::new(MySqlFormLayoutRepository::new(pool), SystemClock),
+            rules: ContributedConditionalRules(pool),
         }
     }
 }

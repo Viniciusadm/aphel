@@ -15,6 +15,7 @@ use crate::domain::{
     progress_of,
 };
 use crate::store::GoalStore;
+use ::dashboard::engine_domain::local_today;
 use aphel_kernel::Ctx;
 use aphel_kernel::application::access::{Authorizer, PERMISSION_DENIED};
 use aphel_kernel::application::audit::{DiffOptions, diff_values};
@@ -27,7 +28,6 @@ use aphel_kernel::application::query::{
 use aphel_kernel::application::shared::{RecordRef, ensure_version};
 use aphel_kernel::database::transaction::MySqlTx;
 use aphel_kernel::domain::access::{AccessScope, Permission, RecordScope};
-use aphel_kernel::domain::dashboard::local_today;
 use aphel_kernel::domain::{TeamId, UserId};
 use aphel_kernel::errors::{AppError, FieldViolation};
 use aphel_kernel::records::{RecordMutation, publish_mutation};

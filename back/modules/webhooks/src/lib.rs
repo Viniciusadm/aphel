@@ -1,3 +1,5 @@
+pub mod settings;
+use aphel_contract_automation::AutomationBuilder;
 pub(crate) mod automation;
 pub(crate) mod events_dto;
 pub(crate) mod events_http;
@@ -12,7 +14,7 @@ use std::sync::Arc;
 use aphel_kernel::application::security::{PersonalTextColumn, PersonalTextSource};
 use aphel_kernel::modules::Migration;
 
-use aphel_kernel::domain::notifications::{ALL_CHANNELS, NotificationKindDefinition};
+use ::notifications::domain::{ALL_CHANNELS, NotificationKindDefinition};
 use aphel_kernel::errors::AppError;
 use aphel_kernel::modules::builder::APHEL_VERSION;
 use aphel_kernel::modules::{AppBuilder, Manifest, Module, WorkerParts};
@@ -78,10 +80,10 @@ impl Module for WebhooksModule {
         app.contribute::<dyn aphel_kernel::modules::HealthSource>(std::sync::Arc::new(
             points::WebhookFailures,
         ));
-        app.contribute::<dyn aphel_kernel::application::notifications::texts::NotificationTexts>(
+        app.contribute::<dyn ::notifications::application::texts::NotificationTexts>(
             std::sync::Arc::new(crate::notifications::WebhookNotificationTexts),
         );
-        app.contribute::<dyn aphel_kernel::application::notifications::NotificationSource>(
+        app.contribute::<dyn ::notifications::application::NotificationSource>(
             std::sync::Arc::new(notifications::WebhookDisabledNotifications),
         );
         app.contribute::<dyn aphel_sdk::points::ReferenceProvider>(std::sync::Arc::new(
@@ -90,6 +92,10 @@ impl Module for WebhooksModule {
         app.contribute::<dyn PersonalTextSource>(Arc::new(WebhookPersonalText));
         app.trigger(Arc::new(automation::IncomingWebhook))
             .action(Arc::new(automation::CallWebhook));
+        app.contribute::<dyn aphel_kernel::application::organizations::OrganizationConfigExtension>(Arc::new(settings::DeliveryConfiguration));
+        app.contribute::<dyn aphel_kernel::application::outbound_http::OutboundHttpPolicy>(
+            Arc::new(settings::DeliveryConfiguration),
+        );
         app.openapi_tag(
             events_http::TAG,
             "Catalog of public event types delivered by outgoing webhooks",
@@ -114,7 +120,7 @@ impl Module for WebhooksModule {
                 .schedule(incoming_webhooks_purge_schedule())
         });
         for definition in NOTIFICATION_KINDS {
-            app.notification_kind(*definition);
+            app.contribute(std::sync::Arc::new(*definition));
         }
         Ok(())
     }

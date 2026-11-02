@@ -2,6 +2,7 @@ import { useMutation, useQueryClient, type QueryKey } from '@tanstack/react-quer
 import { notifyError } from '@/components/feedback/notify'
 import { isApprovalGateError } from '@/modules/approvals/errors'
 import { recordsKeys } from '@/features/records/api'
+
 import { dealsApi } from '../api'
 import { requirementFieldsFromError } from '../requirements'
 import { DEAL_RECORD_TYPE } from '../resource'

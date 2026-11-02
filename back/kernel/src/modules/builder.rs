@@ -5,9 +5,6 @@ use std::sync::{Arc, RwLock};
 use utoipa_axum::router::OpenApiRouter;
 
 use crate::api::state::AppState;
-use crate::application::automations::actions::AutomationAction;
-use crate::application::automations::triggers::AutomationTrigger;
-use crate::application::dashboard::WidgetProvider;
 use crate::application::fields::{EntityDefinition, RecordTypeRegistry};
 use crate::application::jobs::ScheduledJobDefinition;
 use crate::application::module_admin::Compatibility;
@@ -15,9 +12,7 @@ use crate::application::public_events::PublicEventDefinition;
 use crate::application::shared::RecordType;
 use crate::application::shared::{EventConsumer, JobHandler};
 use crate::domain::access::{Permission, PermissionDefinition};
-use crate::domain::notifications::NotificationKindDefinition;
 use crate::errors::AppError;
-use crate::infrastructure::repositories::mysql_dashboard::MySqlDashboardPorts;
 use crate::modules::catalog::{Catalog, OpenApiTag, PermissionGrant};
 use crate::modules::enabled::EnabledModules;
 use crate::modules::hooks::{
@@ -40,12 +35,6 @@ pub struct Contribution<T> {
     pub priority: i32,
     pub item: T,
 }
-
-pub type DashboardWidget = Arc<dyn WidgetProvider<MySqlDashboardPorts>>;
-
-pub type Trigger = Arc<dyn AutomationTrigger>;
-
-pub type Action = Arc<dyn AutomationAction>;
 
 pub type RouteFactory = Arc<dyn Fn(&AppState) -> OpenApiRouter<AppState> + Send + Sync>;
 
@@ -105,9 +94,7 @@ pub struct AppBuilder {
     pub services: Services,
     pub catalog: Catalog,
     pub workers: Vec<Contribution<WorkerFactory>>,
-    widgets: Vec<Contribution<DashboardWidget>>,
-    triggers: Vec<Contribution<Trigger>>,
-    actions: Vec<Contribution<Action>>,
+
     record_types: Vec<Contribution<EntityDefinition>>,
     record_extensions: Vec<Contribution<RecordTypeExtension>>,
     custom_record_handler: Option<RecordHandlerFactory>,
@@ -161,9 +148,7 @@ impl AppBuilder {
             services: Services::new(enabled.clone()),
             catalog: Catalog::default(),
             workers: Vec::new(),
-            widgets: Vec::new(),
-            triggers: Vec::new(),
-            actions: Vec::new(),
+
             record_types: Vec::new(),
             record_extensions: Vec::new(),
             custom_record_handler: None,
@@ -298,12 +283,6 @@ impl AppBuilder {
         self
     }
 
-    pub fn notification_kind(&mut self, definition: NotificationKindDefinition) -> &mut Self {
-        let contribution = self.contribution(DEFAULT_PRIORITY, definition);
-        self.catalog.notification_kinds.push(contribution);
-        self
-    }
-
     pub fn openapi_tag(&mut self, name: &'static str, description: &'static str) -> &mut Self {
         let contribution = self.contribution(DEFAULT_PRIORITY, OpenApiTag { name, description });
         self.catalog.tags.push(contribution);
@@ -331,38 +310,6 @@ impl AppBuilder {
         F: Fn(&WorkerEnv) -> Arc<dyn EventConsumer> + Send + Sync + 'static,
     {
         self.worker(move |env| WorkerParts::default().consumer(factory(env)))
-    }
-
-    pub fn widget(&mut self, provider: DashboardWidget) -> &mut Self {
-        let contribution = self.contribution(DEFAULT_PRIORITY, provider);
-        self.widgets.push(contribution);
-        self
-    }
-
-    pub fn trigger(&mut self, trigger: Trigger) -> &mut Self {
-        let contribution = self.contribution(DEFAULT_PRIORITY, trigger);
-        self.triggers.push(contribution);
-        self
-    }
-
-    pub fn triggers(&mut self, triggers: impl IntoIterator<Item = Trigger>) -> &mut Self {
-        for trigger in triggers {
-            self.trigger(trigger);
-        }
-        self
-    }
-
-    pub fn action(&mut self, action: Action) -> &mut Self {
-        let contribution = self.contribution(DEFAULT_PRIORITY, action);
-        self.actions.push(contribution);
-        self
-    }
-
-    pub fn actions(&mut self, actions: impl IntoIterator<Item = Action>) -> &mut Self {
-        for action in actions {
-            self.action(action);
-        }
-        self
     }
 
     pub fn entity(&mut self, mut definition: EntityDefinition) -> &mut Self {
@@ -433,11 +380,6 @@ impl AppBuilder {
             Ok(entry) => {
                 let projection = entry.plugin_operation();
                 let entry = Arc::new(entry);
-                if let Some(action) =
-                    crate::modules::operation_action::OperationAction::new(entry.clone())
-                {
-                    self.action(Arc::new(action));
-                }
                 self.contribute::<crate::modules::operations::OperationEntry>(entry);
                 self.contribute::<crate::modules::plugin_bridge::PluginOperation>(Arc::new(
                     projection,
@@ -540,9 +482,7 @@ impl AppBuilder {
             services: self.services,
             catalog: self.catalog,
             workers: self.workers,
-            widgets: self.widgets,
-            triggers: self.triggers,
-            actions: self.actions,
+
             contributions: self.contributions,
             runtime: RwLock::new(HashMap::new()),
             enabled,
@@ -690,9 +630,7 @@ pub struct App {
     services: Services,
     catalog: Catalog,
     workers: Vec<Contribution<WorkerFactory>>,
-    widgets: Vec<Contribution<DashboardWidget>>,
-    triggers: Vec<Contribution<Trigger>>,
-    actions: Vec<Contribution<Action>>,
+
     contributions: Contributions,
     runtime: RwLock<HashMap<&'static str, Contributions>>,
     enabled: Arc<EnabledModules>,
@@ -794,27 +732,6 @@ impl App {
 
     pub fn worker_contributions(&self) -> &[Contribution<WorkerFactory>] {
         &self.workers
-    }
-
-    pub fn enabled_widgets(&self) -> impl Iterator<Item = &DashboardWidget> {
-        self.widgets
-            .iter()
-            .filter(|contribution| self.is_enabled(contribution.module))
-            .map(|contribution| &contribution.item)
-    }
-
-    pub fn enabled_triggers(&self) -> impl Iterator<Item = &Trigger> {
-        self.triggers
-            .iter()
-            .filter(|contribution| self.is_enabled(contribution.module))
-            .map(|contribution| &contribution.item)
-    }
-
-    pub fn enabled_actions(&self) -> impl Iterator<Item = &Action> {
-        self.actions
-            .iter()
-            .filter(|contribution| self.is_enabled(contribution.module))
-            .map(|contribution| &contribution.item)
     }
 
     pub fn all_contributions<T>(&self) -> Vec<(&'static str, Arc<T>)>

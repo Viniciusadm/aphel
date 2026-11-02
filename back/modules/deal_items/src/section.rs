@@ -3,7 +3,7 @@ use serde::Deserialize;
 use serde_json::{Value, json};
 
 use crate::store::DealItemStore;
-use aphel_kernel::application::config_packages::{
+use ::config_packages::application::{
     ApplyContext, ConfigPackage, ConfigSection, Decisions, PackageIssue, PlanChange, PlanItem,
     parse_section,
 };

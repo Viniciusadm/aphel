@@ -7,7 +7,7 @@ pub(crate) mod store;
 
 use std::sync::Arc;
 
-use aphel_kernel::infrastructure::config_packages::ConfigSectionFactory;
+use ::config_packages::infrastructure::ConfigSectionFactory;
 use aphel_kernel::modules::Migration;
 
 use crate::section::ForecastSection;

@@ -4,8 +4,8 @@ pub mod filter;
 pub mod operators;
 pub mod plan;
 pub mod ports;
+pub mod predicate_sources;
 pub mod resolve;
-pub mod segments;
 
 pub use aggregate::*;
 pub use engine::*;
@@ -15,5 +15,5 @@ pub use operators::{
 };
 pub use plan::*;
 pub use ports::*;
+pub use predicate_sources::*;
 pub use resolve::*;
-pub use segments::*;

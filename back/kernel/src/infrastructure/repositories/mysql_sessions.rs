@@ -76,15 +76,15 @@ impl SessionRepository for MySqlSessionRepository {
     }
 
     async fn revoke(&self, id: &SessionId, at: DateTime<Utc>) -> Result<(), AppError> {
+        let mut tx: crate::database::transaction::MySqlTx = self.pool.begin().await?.into();
         sqlx::query("UPDATE sessions SET revoked_at = ? WHERE id = ? AND revoked_at IS NULL")
             .bind(mapper::naive(at))
             .bind(id.as_str())
-            .execute(&self.pool)
+            .execute(&mut *tx)
             .await?;
-        crate::infrastructure::notifications::push::remove_session_push_subscriptions(
-            &self.pool, id,
-        )
-        .await?;
+        crate::application::security::session_revoked(&mut tx, &self.pool, Some(id), None, None)
+            .await?;
+        tx.commit().await?;
         Ok(())
     }
 
@@ -108,17 +108,23 @@ impl SessionRepository for MySqlSessionRepository {
         user_id: &UserId,
         at: DateTime<Utc>,
     ) -> Result<u64, AppError> {
+        let mut tx: crate::database::transaction::MySqlTx = self.pool.begin().await?.into();
         let result = sqlx::query(
             "UPDATE sessions SET revoked_at = ? WHERE user_id = ? AND revoked_at IS NULL",
         )
         .bind(mapper::naive(at))
         .bind(user_id.as_str())
-        .execute(&self.pool)
+        .execute(&mut *tx)
         .await?;
-        crate::infrastructure::notifications::push::remove_user_push_subscriptions(
-            &self.pool, user_id, None,
+        crate::application::security::session_revoked(
+            &mut tx,
+            &self.pool,
+            None,
+            Some(user_id),
+            None,
         )
         .await?;
+        tx.commit().await?;
         Ok(result.rows_affected())
     }
 }

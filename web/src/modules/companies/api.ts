@@ -1,6 +1,7 @@
 import { useQuery } from '@tanstack/react-query'
 import { api } from '@/api'
 import { recordsKeys } from '@/features/records/api'
+
 import type { Page } from '@/features/records/types'
 import { COMPANY_RECORD_TYPE } from './resource'
 

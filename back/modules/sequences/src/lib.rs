@@ -1,3 +1,4 @@
+use aphel_contract_automation::AutomationBuilder;
 pub(crate) mod automation;
 pub mod domain;
 pub(crate) mod dto;
@@ -98,15 +99,12 @@ impl Module for SequencesModule {
             |ctx, step| Box::pin(plugin_bridge::step_running(ctx, step)),
         );
         app.contribute(std::sync::Arc::new(
-            aphel_kernel::infrastructure::config_packages::ConfigSectionFactory::new(
-                160,
-                |pool, registry| {
-                    let _ = registry;
-                    std::sync::Arc::new(crate::section::SequencesSection::new(
-                        crate::store::SequenceStore::new(pool.clone()),
-                    ))
-                },
-            ),
+            ::config_packages::infrastructure::ConfigSectionFactory::new(160, |pool, registry| {
+                let _ = registry;
+                std::sync::Arc::new(crate::section::SequencesSection::new(
+                    crate::store::SequenceStore::new(pool.clone()),
+                ))
+            }),
         ));
         app.openapi_tag(
             http::TAG,

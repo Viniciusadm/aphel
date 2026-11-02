@@ -11,7 +11,7 @@ use crate::domain::custom::{
 use aphel_kernel::api::dto::aggregates::AggregateQueryRequest;
 use aphel_kernel::api::dto::common::double_option;
 use aphel_kernel::api::dto::files::UserReferenceResponse;
-use aphel_kernel::api::dto::views::ViewVisibilitySchema;
+use saved_views::dto::ViewVisibilitySchema;
 
 #[derive(Debug, Clone, Copy, Serialize, Deserialize, ToSchema)]
 #[serde(rename_all = "snake_case")]

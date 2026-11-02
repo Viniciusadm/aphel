@@ -93,22 +93,16 @@ impl Module for PriceListsModule {
             )]),
         ));
         app.contribute(std::sync::Arc::new(
-            aphel_kernel::infrastructure::config_packages::ConfigSectionFactory::new(
-                60,
-                |pool, registry| {
-                    let _ = registry;
-                    std::sync::Arc::new(crate::section::PriceListsSection::new(pool.clone()))
-                },
-            ),
+            ::config_packages::infrastructure::ConfigSectionFactory::new(60, |pool, registry| {
+                let _ = registry;
+                std::sync::Arc::new(crate::section::PriceListsSection::new(pool.clone()))
+            }),
         ));
         app.contribute(std::sync::Arc::new(
-            aphel_kernel::infrastructure::config_packages::ConfigSectionFactory::new(
-                70,
-                |pool, registry| {
-                    let _ = registry;
-                    std::sync::Arc::new(crate::section::DiscountLimitsSection::new(pool.clone()))
-                },
-            ),
+            ::config_packages::infrastructure::ConfigSectionFactory::new(70, |pool, registry| {
+                let _ = registry;
+                std::sync::Arc::new(crate::section::DiscountLimitsSection::new(pool.clone()))
+            }),
         ));
         app.openapi_tag(
             http::TAG,

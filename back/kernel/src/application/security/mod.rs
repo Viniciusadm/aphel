@@ -48,3 +48,8 @@ pub fn password_violation(password: &str) -> Option<String> {
         format!("must be between {MIN_PASSWORD_LENGTH} and {MAX_PASSWORD_LENGTH} characters")
     })
 }
+
+pub mod revocation;
+pub use revocation::*;
+
+pub mod signature;

@@ -2,7 +2,7 @@ use std::sync::OnceLock;
 
 use chrono::{DateTime, Duration, Utc};
 
-use aphel_kernel::application::automations::time::duration::parse_offset;
+use aphel_contract_automation::application::time::duration::parse_offset;
 use aphel_kernel::application::security::Clock;
 
 pub(crate) const DEV_CLOCK_OFFSET_ENV: &str = "AUTOMATIONS_DEV_CLOCK_OFFSET";

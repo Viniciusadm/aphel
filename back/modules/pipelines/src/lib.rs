@@ -1,3 +1,4 @@
+use aphel_contract_automation::AutomationBuilder;
 use aphel_contract_crm::CrmPermissions;
 pub mod domain;
 pub(crate) mod guidance;
@@ -14,7 +15,7 @@ pub mod store;
 
 use aphel_kernel::modules::Migration;
 
-use aphel_kernel::application::automations::time::triggers::TimeTriggerPlanner;
+use aphel_contract_automation::application::time::triggers::TimeTriggerPlanner;
 use aphel_kernel::application::public_events::{PublicEventDefinition, PublicResource, event};
 use aphel_kernel::errors::AppError;
 use aphel_kernel::infrastructure::defaults::{DefaultsProbe, DefaultsSeed};
@@ -61,6 +62,19 @@ impl Module for PipelinesModule {
     }
 
     fn register(&self, app: &mut AppBuilder) -> Result<(), AppError> {
+        app.contribute(std::sync::Arc::new(
+            ::config_packages::application::versioning::fragments::SectionFragmentLayout {
+                section: "lost_reasons",
+                collections: vec![
+                    ::config_packages::application::versioning::fragments::FragmentCollection {
+                        path: None,
+                        kind: "lost_reason",
+                        key_fields: &["key"],
+                    },
+                ],
+            },
+        ));
+
         app.entity(aphel_kernel::application::fields::builtin::with_fields(
             aphel_kernel::application::fields::EntityDefinition::new(
                 aphel_kernel::application::shared::RecordType::from_static("pipelines.pipeline"),
@@ -142,9 +156,14 @@ impl Module for PipelinesModule {
                 ("pipeline_stage", "pipelines.pipeline_stage"),
             ]),
         ));
-        app.contribute(std::sync::Arc::new(aphel_kernel::application::config_packages::versioning::fragments::NestedFragmentLayout {
-            section: "pipelines", parent_kind: "pipeline", child_kind: "stage", children_field: "stages",
-        }));
+        app.contribute(std::sync::Arc::new(
+            ::config_packages::application::versioning::fragments::NestedFragmentLayout {
+                section: "pipelines",
+                parent_kind: "pipeline",
+                child_kind: "stage",
+                children_field: "stages",
+            },
+        ));
         for (record_type, table) in [
             ("pipelines.pipeline", "pipelines"),
             ("pipelines.pipeline_stage", "pipeline_stages"),
@@ -158,28 +177,33 @@ impl Module for PipelinesModule {
                 },
             ));
         }
-        app.contribute(std::sync::Arc::new(aphel_kernel::infrastructure::config_packages::ConfigSectionFactory::new(
-            30,
-            |pool, registry| {
-                let _ = registry;
-                std::sync::Arc::new(crate::section::PipelinesSection::new(registry.clone(), crate::store::PipelineStore::new(pool.clone()), aphel_kernel::infrastructure::config_packages::MySqlConfigKeyRepository::new(pool.clone()), aphel_kernel::infrastructure::fields::MySqlFieldDefinitionRepository::new(pool.clone())))
-            },
-        )));
-        app.contribute(std::sync::Arc::new(aphel_kernel::infrastructure::config_packages::ConfigSectionFactory::new(
-            40,
-            |pool, registry| {
-                let _ = registry;
-                std::sync::Arc::new(crate::lost_reason_section::LostReasonsSection::new(crate::store::PipelineStore::new(pool.clone()), aphel_kernel::infrastructure::config_packages::MySqlConfigKeyRepository::new(pool.clone())))
-            },
-        )));
         app.contribute(std::sync::Arc::new(
-            aphel_kernel::infrastructure::config_packages::ConfigSectionFactory::new(
-                200,
-                |pool, registry| {
-                    let _ = registry;
-                    std::sync::Arc::new(crate::guidance::section::stage_guidance_section(pool))
-                },
-            ),
+            ::config_packages::infrastructure::ConfigSectionFactory::new(30, |pool, registry| {
+                let _ = registry;
+                std::sync::Arc::new(crate::section::PipelinesSection::new(
+                    registry.clone(),
+                    crate::store::PipelineStore::new(pool.clone()),
+                    ::config_packages::infrastructure::MySqlConfigKeyRepository::new(pool.clone()),
+                    aphel_kernel::infrastructure::fields::MySqlFieldDefinitionRepository::new(
+                        pool.clone(),
+                    ),
+                ))
+            }),
+        ));
+        app.contribute(std::sync::Arc::new(
+            ::config_packages::infrastructure::ConfigSectionFactory::new(40, |pool, registry| {
+                let _ = registry;
+                std::sync::Arc::new(crate::lost_reason_section::LostReasonsSection::new(
+                    crate::store::PipelineStore::new(pool.clone()),
+                    ::config_packages::infrastructure::MySqlConfigKeyRepository::new(pool.clone()),
+                ))
+            }),
+        ));
+        app.contribute(std::sync::Arc::new(
+            ::config_packages::infrastructure::ConfigSectionFactory::new(200, |pool, registry| {
+                let _ = registry;
+                std::sync::Arc::new(crate::guidance::section::stage_guidance_section(pool))
+            }),
         ));
         app.contribute(std::sync::Arc::new(DefaultsSeed(|connection| {
             Box::pin(seed::seed_pipeline_defaults(connection))

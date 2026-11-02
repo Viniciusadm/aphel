@@ -7,6 +7,9 @@ license.workspace = true
 publish = false
 
 [dependencies]
+notifications = { package = "aphel-mod-notifications", path = "../notifications" }
+config_packages = { package = "aphel-mod-config-packages", path = "../config_packages" }
+search = { package = "aphel-mod-search", path = "../search" }
 aphel-contract-crm.workspace = true
 aphel-kernel.workspace = true
 aphel-sdk.workspace = true

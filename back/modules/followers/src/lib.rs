@@ -10,8 +10,8 @@ use std::sync::Arc;
 
 use aphel_kernel::modules::Migration;
 
-use aphel_kernel::application::notifications::RecordFollowerSource;
-use aphel_kernel::domain::notifications::{ALL_CHANNELS, NotificationKindDefinition};
+use ::notifications::application::RecordFollowerSource;
+use ::notifications::domain::{ALL_CHANNELS, NotificationKindDefinition};
 use aphel_kernel::errors::AppError;
 use aphel_kernel::modules::builder::APHEL_VERSION;
 use aphel_kernel::modules::{AppBuilder, Manifest, Module};
@@ -36,7 +36,7 @@ impl Module for FollowersModule {
     }
 
     fn register(&self, app: &mut AppBuilder) -> Result<(), AppError> {
-        app.contribute::<dyn aphel_kernel::application::notifications::texts::NotificationTexts>(
+        app.contribute::<dyn ::notifications::application::texts::NotificationTexts>(
             std::sync::Arc::new(crate::notifications::FollowerNotificationTexts),
         );
         app.openapi_tag(
@@ -44,16 +44,16 @@ impl Module for FollowersModule {
             "Following records to be notified of their changes, activities, notes and emails",
         )
         .routes(|_| http::router());
-        app.notification_kind(NotificationKindDefinition {
+        app.contribute(std::sync::Arc::new(NotificationKindDefinition {
             kind: crate::notifications::FOLLOWED_RECORD_ACTIVITY_NOTIFICATION,
             channels: ALL_CHANNELS,
             email_default: false,
             push_default: false,
-        });
+        }));
         app.provide::<dyn RecordFollowerSource>(Arc::new(service::FollowerSource));
-        app.contribute::<dyn aphel_kernel::application::notifications::NotificationSource>(
-            Arc::new(notifications::FollowedRecordNotifications),
-        );
+        app.contribute::<dyn ::notifications::application::NotificationSource>(Arc::new(
+            notifications::FollowedRecordNotifications,
+        ));
         app.consumer(|env| {
             hooks::OwnerFollowConsumer::shared(env.pool.clone(), env.record_types.clone())
         });

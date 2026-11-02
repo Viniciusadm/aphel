@@ -3,7 +3,7 @@ use std::collections::BTreeSet;
 use async_trait::async_trait;
 use serde_json::{Value, json};
 
-use aphel_kernel::application::config_packages::{
+use ::config_packages::application::{
     ApplyContext, ConfigPackage, ConfigSection, Decisions, PackageIssue, PlanChange, PlanItem,
 };
 use aphel_kernel::context::Ctx;

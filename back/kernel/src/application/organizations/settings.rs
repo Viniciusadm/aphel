@@ -7,14 +7,14 @@ use serde_json::{Value, json};
 
 use crate::application::access::Authorizer;
 use crate::application::audit::{DiffOptions, diff_changes};
-use crate::application::catalog::{BUILTIN_CATALOG_SOURCE, CatalogSettings};
+
 use crate::application::secrets::{SecretKey, SecretVault};
 use crate::application::security::Clock;
 use crate::application::shared::{
     Actor, AuditEntry, AuditLog, DomainEvent, EventPublisher, FieldChange, RecordRef,
     TransactionManager,
 };
-use crate::config::WebhooksConfig;
+use crate::config::OutboundHttpConfig;
 use crate::domain::Secret;
 use crate::domain::access::{AccessScope, Permission};
 use crate::errors::{AppError, FieldViolation};
@@ -33,9 +33,10 @@ pub struct OrganizationConfig {
     pub public_base_url: Option<String>,
     pub max_upload_mb: u64,
     pub storage: StorageSettings,
-    pub webhooks: WebhookDeliverySettings,
+    pub mail: MailSettings,
     pub api_tokens: ApiTokenLimits,
-    pub catalog: CatalogSource,
+    #[serde(flatten)]
+    pub extensions: std::collections::BTreeMap<String, Value>,
 }
 
 impl Default for OrganizationConfig {
@@ -44,9 +45,9 @@ impl Default for OrganizationConfig {
             public_base_url: None,
             max_upload_mb: DEFAULT_UPLOAD_LIMIT_MB,
             storage: StorageSettings::default(),
-            webhooks: WebhookDeliverySettings::default(),
+            mail: MailSettings::default(),
             api_tokens: ApiTokenLimits::default(),
-            catalog: CatalogSource::default(),
+            extensions: configuration_defaults(),
         }
     }
 }
@@ -66,28 +67,41 @@ impl OrganizationConfig {
         self.max_upload_mb.saturating_mul(1024 * 1024)
     }
 
-    pub fn webhooks_config(&self, base: &WebhooksConfig) -> WebhooksConfig {
-        WebhooksConfig {
-            allow_private_networks: base.allow_private_networks,
-            require_https: self.webhooks.require_https,
-            timeout: Duration::from_secs(self.webhooks.timeout_secs),
-            disable_after_failures: self.webhooks.disable_after_failures,
-            retention_days: self.webhooks.retention_days,
+    pub fn outbound_http_config(&self, base: &OutboundHttpConfig) -> OutboundHttpConfig {
+        let mut config = base.clone();
+        if let Some(app) = crate::modules::try_app() {
+            for policy in
+                app.contributions::<dyn crate::application::outbound_http::OutboundHttpPolicy>()
+            {
+                config = policy.configure(self, &config);
+            }
         }
+        config
     }
+}
 
-    pub fn catalog_settings(&self) -> CatalogSettings {
-        let index_url = match self.catalog.mode {
-            CatalogMode::Builtin => Some(BUILTIN_CATALOG_SOURCE.to_owned()),
-            CatalogMode::Remote => self.catalog.index_url.clone(),
-            CatalogMode::Off => None,
-        };
-        CatalogSettings {
-            index_url,
-            allow_http: self.catalog.allow_http,
-            timeout: Duration::from_secs(self.catalog.timeout_secs),
+#[derive(Debug, Clone, PartialEq, Eq, Serialize, Deserialize, utoipa::ToSchema)]
+#[serde(default)]
+pub struct MailSettings {
+    pub host: Option<String>,
+    pub port: u16,
+    pub from: Option<String>,
+    pub username: Option<String>,
+    pub security: String,
+}
+impl Default for MailSettings {
+    fn default() -> Self {
+        Self {
+            host: None,
+            port: 587,
+            from: None,
+            username: None,
+            security: "starttls".to_owned(),
         }
     }
+}
+pub fn mail_secret_key() -> SecretKey {
+    SecretKey::organization("smtp_password")
 }
 
 #[derive(Debug, Clone, PartialEq, Eq, Serialize, Deserialize)]
@@ -131,27 +145,6 @@ impl Default for ObjectStoreSettings {
 
 #[derive(Debug, Clone, Copy, PartialEq, Eq, Serialize, Deserialize)]
 #[serde(default)]
-pub struct WebhookDeliverySettings {
-    pub require_https: bool,
-    pub timeout_secs: u64,
-    pub disable_after_failures: u32,
-    pub retention_days: u32,
-}
-
-impl Default for WebhookDeliverySettings {
-    fn default() -> Self {
-        let base = WebhooksConfig::default();
-        Self {
-            require_https: base.require_https,
-            timeout_secs: base.timeout.as_secs(),
-            disable_after_failures: base.disable_after_failures,
-            retention_days: base.retention_days,
-        }
-    }
-}
-
-#[derive(Debug, Clone, Copy, PartialEq, Eq, Serialize, Deserialize)]
-#[serde(default)]
 pub struct ApiTokenLimits {
     pub limit: u32,
     pub window_secs: u64,
@@ -169,35 +162,6 @@ impl Default for ApiTokenLimits {
 impl ApiTokenLimits {
     pub fn window(&self) -> Duration {
         Duration::from_secs(self.window_secs)
-    }
-}
-
-#[derive(Debug, Clone, Copy, PartialEq, Eq, Serialize, Deserialize, Default)]
-#[serde(rename_all = "snake_case")]
-pub enum CatalogMode {
-    #[default]
-    Builtin,
-    Remote,
-    Off,
-}
-
-#[derive(Debug, Clone, PartialEq, Eq, Serialize, Deserialize)]
-#[serde(default)]
-pub struct CatalogSource {
-    pub mode: CatalogMode,
-    pub index_url: Option<String>,
-    pub allow_http: bool,
-    pub timeout_secs: u64,
-}
-
-impl Default for CatalogSource {
-    fn default() -> Self {
-        Self {
-            mode: CatalogMode::Builtin,
-            index_url: None,
-            allow_http: false,
-            timeout_secs: 10,
-        }
     }
 }
 
@@ -276,27 +240,6 @@ pub fn validate_config(config: &OrganizationConfig) -> Vec<FieldViolation> {
         }
     }
     check_range(
-        config.webhooks.timeout_secs,
-        1,
-        60,
-        "webhooks.timeout_secs",
-        &mut violations,
-    );
-    check_range(
-        config.webhooks.disable_after_failures,
-        1,
-        1000,
-        "webhooks.disable_after_failures",
-        &mut violations,
-    );
-    check_range(
-        config.webhooks.retention_days,
-        1,
-        365,
-        "webhooks.retention_days",
-        &mut violations,
-    );
-    check_range(
         config.api_tokens.limit,
         1,
         100_000,
@@ -310,21 +253,57 @@ pub fn validate_config(config: &OrganizationConfig) -> Vec<FieldViolation> {
         "api_tokens.window_secs",
         &mut violations,
     );
-    check_range(
-        config.catalog.timeout_secs,
-        1,
-        120,
-        "catalog.timeout_secs",
-        &mut violations,
-    );
-    if config.catalog.mode == CatalogMode::Remote {
-        match &config.catalog.index_url {
-            Some(url) if is_http_url(url, config.catalog.allow_http) => {}
-            _ => violations.push(FieldViolation::new(
-                "catalog.index_url",
-                "must be an https URL (http only when allowed)",
-            )),
+    if config
+        .extensions
+        .get("mail")
+        .and_then(|mail| mail.get("password"))
+        .is_some()
+    {
+        violations.push(FieldViolation::new(
+            "mail.password",
+            "SMTP passwords must be supplied through SMTP_PASSWORD",
+        ));
+    }
+    if let Some(app) = crate::modules::try_app() {
+        for extension in app.contributions::<dyn OrganizationConfigExtension>() {
+            violations.extend(extension.validate(&config.extensions));
         }
+    }
+    if config.mail.port == 0 {
+        violations.push(FieldViolation::new(
+            "mail.port",
+            "must be between 1 and 65535",
+        ));
+    }
+    if !["none", "tls", "starttls"].contains(&config.mail.security.as_str()) {
+        violations.push(FieldViolation::new(
+            "mail.security",
+            "must be none, tls or starttls",
+        ));
+    }
+    if let Some(host) = &config.mail.host
+        && (host.trim().is_empty()
+            || host.chars().any(char::is_whitespace)
+            || host.contains(['/', '@']))
+    {
+        violations.push(FieldViolation::new(
+            "mail.host",
+            "must be an SMTP hostname or IP address",
+        ));
+    }
+    if let Some(from) = &config.mail.from
+        && crate::domain::Email::new(from.clone()).is_err()
+    {
+        violations.push(FieldViolation::new(
+            "mail.from",
+            "must be a valid email address",
+        ));
+    }
+    if config.mail.host.is_some() != config.mail.from.is_some() {
+        violations.push(FieldViolation::new(
+            "mail.from",
+            "host and sender address must be configured together",
+        ));
     }
     violations
 }
@@ -526,6 +505,7 @@ pub struct OrganizationConfigView {
     pub config: OrganizationConfig,
     pub storage_secret_configured: bool,
     pub mail_configured: bool,
+    pub mail_secret_configured: bool,
 }
 
 #[derive(Debug, Clone, PartialEq, Eq)]
@@ -541,9 +521,10 @@ pub struct UpdateOrganizationConfig {
     pub max_upload_mb: Option<u64>,
     pub storage: Option<StorageSettings>,
     pub storage_secret: SecretChange,
-    pub webhooks: Option<WebhookDeliverySettings>,
+    pub mail: Option<MailSettings>,
+    pub mail_secret: SecretChange,
     pub api_tokens: Option<ApiTokenLimits>,
-    pub catalog: Option<CatalogSource>,
+    pub extensions: std::collections::BTreeMap<String, Value>,
     pub ip: Option<String>,
 }
 
@@ -580,8 +561,11 @@ where
     async fn view(
         &self,
         scope: &AccessScope,
-        config: OrganizationConfig,
+        mut config: OrganizationConfig,
     ) -> Result<OrganizationConfigView, AppError> {
+        for (key, value) in configuration_defaults() {
+            config.extensions.entry(key).or_insert(value);
+        }
         let storage_secret_configured = self
             .ports
             .secrets()
@@ -594,6 +578,12 @@ where
             config,
             storage_secret_configured,
             mail_configured: self.ports.mail().configured().await?,
+            mail_secret_configured: self
+                .ports
+                .secrets()
+                .reveal(scope, &mail_secret_key())
+                .await?
+                .is_some(),
         })
     }
 
@@ -634,15 +624,13 @@ where
         if let Some(storage) = command.storage {
             next.storage = storage;
         }
-        if let Some(webhooks) = command.webhooks {
-            next.webhooks = webhooks;
-        }
         if let Some(api_tokens) = command.api_tokens {
             next.api_tokens = api_tokens;
         }
-        if let Some(catalog) = command.catalog {
-            next.catalog = catalog;
+        if let Some(mail) = command.mail {
+            next.mail = mail;
         }
+        next.extensions.extend(command.extensions);
         let violations = validate_config(&next);
         if !violations.is_empty() {
             return Err(AppError::invalid_fields(
@@ -668,6 +656,31 @@ where
                     .remove(&mut tx, scope, &secret_key)
                     .await?;
                 changes.push(redacted_change());
+            }
+        }
+        match &command.mail_secret {
+            SecretChange::Keep => {}
+            SecretChange::Set(value) => {
+                self.ports
+                    .secrets()
+                    .store(&mut tx, scope, &mail_secret_key(), value)
+                    .await?;
+                changes.push(FieldChange::new(
+                    "mail.password",
+                    json!(REDACTED),
+                    json!(REDACTED),
+                ));
+            }
+            SecretChange::Clear => {
+                self.ports
+                    .secrets()
+                    .remove(&mut tx, scope, &mail_secret_key())
+                    .await?;
+                changes.push(FieldChange::new(
+                    "mail.password",
+                    json!(REDACTED),
+                    json!(REDACTED),
+                ));
             }
         }
         if changes.is_empty() {
@@ -753,4 +766,20 @@ fn redacted_change() -> FieldChange {
         json!(REDACTED),
         json!(REDACTED),
     )
+}
+
+pub trait OrganizationConfigExtension: Send + Sync {
+    fn defaults(&self) -> (String, Value);
+    fn validate(&self, values: &std::collections::BTreeMap<String, Value>) -> Vec<FieldViolation>;
+}
+
+fn configuration_defaults() -> std::collections::BTreeMap<String, Value> {
+    crate::modules::try_app()
+        .map(|app| {
+            app.contributions::<dyn OrganizationConfigExtension>()
+                .into_iter()
+                .map(|source| source.defaults())
+                .collect()
+        })
+        .unwrap_or_default()
 }

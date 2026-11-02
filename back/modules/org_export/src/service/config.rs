@@ -2,13 +2,13 @@ use std::collections::HashMap;
 
 use serde_json::{Value, json};
 
-use aphel_kernel::Ctx;
-use aphel_kernel::application::config_packages::{
+use ::config_packages::application::{
     ApplyCommand, ConfigPackageUseCases, ConflictDecision, ExportCommand, INVALID_PACKAGE,
     PackageSource, PlanAction,
 };
+use ::config_packages::infrastructure::MySqlConfigPackagePorts;
+use aphel_kernel::Ctx;
 use aphel_kernel::errors::{AppError, FieldViolation};
-use aphel_kernel::infrastructure::config_packages::MySqlConfigPackagePorts;
 
 fn packages(ctx: &Ctx<'_>) -> ConfigPackageUseCases<MySqlConfigPackagePorts> {
     ConfigPackageUseCases::new(MySqlConfigPackagePorts::new(

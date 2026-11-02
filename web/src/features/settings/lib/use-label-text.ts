@@ -1,5 +1,5 @@
 import { useTranslation } from 'react-i18next'
-import { useCustomObjectsAdmin } from '../objects/api'
+import { useCustomObjectsAdmin } from '@/modules/objects/ui/api'
 import type { PermissionLabel } from './permissions'
 
 export function useLabelText() {

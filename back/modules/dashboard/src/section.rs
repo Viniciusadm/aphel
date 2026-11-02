@@ -1,4 +1,4 @@
-use aphel_kernel::application::config_packages::ConfigReferenceKind;
+use ::config_packages::application::ConfigReferenceKind;
 use std::collections::BTreeSet;
 
 use async_trait::async_trait;
@@ -6,19 +6,19 @@ use serde::{Deserialize, Serialize};
 use serde_json::{Map, Value, json};
 use uuid::Uuid;
 
+use crate::engine::WidgetSize;
+use crate::engine_domain::PeriodPreset;
 use crate::layout::{
     DashboardLayout, LAYOUT_VERSION, LayoutPeriod, LayoutWidget, MAX_LAYOUT_WIDGETS,
     MAX_WIDGET_SETTINGS_BYTES,
 };
 use crate::store::LayoutStore;
-use aphel_kernel::application::config_packages::{
+use ::config_packages::application::{
     ApplyContext, ConfigKeyRepository, ConfigPackage, ConfigSection, Decisions, PackageIssue,
     PlanChange, PlanItem, parse_section,
 };
-use aphel_kernel::application::dashboard::WidgetSize;
 use aphel_kernel::database::transaction::MySqlTx;
 use aphel_kernel::domain::access::AccessScope;
-use aphel_kernel::domain::dashboard::PeriodPreset;
 use aphel_kernel::errors::AppError;
 use pipelines::section::{keyed_pipelines, package_pipeline_keys};
 use pipelines::store::PipelineStore;

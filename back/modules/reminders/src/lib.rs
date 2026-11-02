@@ -8,7 +8,7 @@ pub(crate) mod store;
 
 use aphel_kernel::modules::Migration;
 
-use aphel_kernel::domain::notifications::{ALL_CHANNELS, NotificationKindDefinition};
+use ::notifications::domain::{ALL_CHANNELS, NotificationKindDefinition};
 use aphel_kernel::errors::AppError;
 use aphel_kernel::modules::builder::APHEL_VERSION;
 use aphel_kernel::modules::{AppBuilder, Manifest, Module, WorkerEnv, WorkerParts};
@@ -42,7 +42,7 @@ impl Module for RemindersModule {
     }
 
     fn register(&self, app: &mut AppBuilder) -> Result<(), AppError> {
-        app.contribute::<dyn aphel_kernel::application::notifications::texts::NotificationTexts>(
+        app.contribute::<dyn ::notifications::application::texts::NotificationTexts>(
             std::sync::Arc::new(crate::notifications::ReminderNotificationTexts),
         );
         app.openapi_tag(
@@ -50,12 +50,12 @@ impl Module for RemindersModule {
             "Reminders: before a task is due and standalone reminders linked to a record",
         )
         .routes(|_| http::router())
-        .notification_kind(NotificationKindDefinition {
+        .contribute(std::sync::Arc::new(NotificationKindDefinition {
             kind: crate::notifications::REMINDER_NOTIFICATION,
             channels: ALL_CHANNELS,
             email_default: true,
             push_default: true,
-        })
+        }))
         .worker(worker);
         for operation in plugin_bridge::operations() {
             app.contribute::<aphel_kernel::modules::PluginOperation>(operation);

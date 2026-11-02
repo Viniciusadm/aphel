@@ -1,3 +1,8 @@
+pub mod engine;
+pub mod engine_domain;
+pub mod repository;
+pub type DashboardWidget =
+    std::sync::Arc<dyn engine::WidgetProvider<repository::MySqlDashboardPorts>>;
 pub mod dto;
 pub(crate) mod http;
 pub(crate) mod layout;
@@ -16,7 +21,7 @@ use crate::widgets::{
     SalesIndicatorsWidget,
 };
 use aphel_kernel::errors::AppError;
-use aphel_kernel::modules::builder::{APHEL_VERSION, DashboardWidget};
+use aphel_kernel::modules::builder::APHEL_VERSION;
 use aphel_kernel::modules::{AppBuilder, Manifest, Module};
 
 pub const KEY: &str = "dashboard";
@@ -43,11 +48,24 @@ impl Module for DashboardModule {
     }
 
     fn register(&self, app: &mut AppBuilder) -> Result<(), AppError> {
-        app.contribute(std::sync::Arc::new(aphel_kernel::infrastructure::config_packages::ConfigSectionFactory::new(
+        app.contribute(std::sync::Arc::new(
+            ::config_packages::application::versioning::fragments::SectionFragmentLayout {
+                section: "dashboard",
+                collections: vec![
+                    ::config_packages::application::versioning::fragments::FragmentCollection {
+                        path: None,
+                        kind: "dashboard_layout",
+                        key_fields: &[],
+                    },
+                ],
+            },
+        ));
+
+        app.contribute(std::sync::Arc::new(::config_packages::infrastructure::ConfigSectionFactory::new(
             130,
             |pool, registry| {
                 let _ = registry;
-                std::sync::Arc::new(crate::section::DashboardSection::new(aphel_kernel::application::dashboard::WidgetRegistry::<aphel_kernel::infrastructure::repositories::mysql_dashboard::MySqlDashboardPorts>::builtin().providers().map(|provider| provider.key().to_owned()).collect(), crate::store::LayoutStore::new(pool.clone()), pipelines::store::PipelineStore::new(pool.clone()), aphel_kernel::infrastructure::config_packages::MySqlConfigKeyRepository::new(pool.clone())))
+                std::sync::Arc::new(crate::section::DashboardSection::new(crate::engine::WidgetRegistry::<crate::repository::MySqlDashboardPorts>::builtin().providers().map(|provider| provider.key().to_owned()).collect(), crate::store::LayoutStore::new(pool.clone()), pipelines::store::PipelineStore::new(pool.clone()), ::config_packages::infrastructure::MySqlConfigKeyRepository::new(pool.clone())))
             },
         )));
         app.openapi_tag(
@@ -63,7 +81,7 @@ impl Module for DashboardModule {
             Arc::new(DealsByStageWidget),
         ];
         for widget in widgets {
-            app.widget(widget);
+            app.contribute::<dyn crate::engine::WidgetProvider<crate::repository::MySqlDashboardPorts>>(widget);
         }
         Ok(())
     }

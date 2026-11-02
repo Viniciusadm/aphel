@@ -1,3 +1,4 @@
+use aphel_contract_automation::AutomationBuilder;
 pub(crate) mod automation;
 pub mod domain;
 pub(crate) mod hooks;
@@ -13,11 +14,11 @@ pub mod store;
 use aphel_contract_crm::CrmPermissions;
 use aphel_kernel::modules::Migration;
 
+use ::notifications::domain::{ALL_CHANNELS, NotificationKindDefinition};
 use aphel_kernel::application::public_events::{
     PublicEventDefinition, PublicResource, deleted, event,
 };
 use aphel_kernel::domain::access::{Permission, PermissionDefinition};
-use aphel_kernel::domain::notifications::{ALL_CHANNELS, NotificationKindDefinition};
 use aphel_kernel::errors::AppError;
 use aphel_kernel::modules::builder::APHEL_VERSION;
 use aphel_kernel::modules::{AppBuilder, Manifest, Module};
@@ -58,19 +59,19 @@ impl Module for NotesModule {
         app.contribute(std::sync::Arc::new(
             aphel_kernel::application::fields::EntityKeyAliases(&[("note", "notes.note")]),
         ));
-        app.contribute::<dyn aphel_kernel::application::notifications::texts::NotificationTexts>(
+        app.contribute::<dyn ::notifications::application::texts::NotificationTexts>(
             std::sync::Arc::new(crate::notifications::NoteNotificationTexts),
         );
-        app.provide::<dyn aphel_kernel::application::automations::NoteOperations>(
+        app.provide::<dyn aphel_contract_automation::application::NoteOperations>(
             std::sync::Arc::new(operations::AutomationNotes),
         );
-        app.contribute::<dyn aphel_kernel::application::search::SearchContentSource>(
-            std::sync::Arc::new(search::NoteSearchContent),
-        );
+        app.contribute::<dyn ::search::application::SearchContentSource>(std::sync::Arc::new(
+            search::NoteSearchContent,
+        ));
         app.contribute::<dyn aphel_kernel::application::public_events::PublicResourceLoader>(
             std::sync::Arc::new(public::NotePublicResource),
         );
-        app.contribute::<dyn aphel_kernel::application::notifications::NotificationSource>(
+        app.contribute::<dyn ::notifications::application::NotificationSource>(
             std::sync::Arc::new(notifications::NoteMentionNotifications),
         );
         app.on(
@@ -92,12 +93,12 @@ impl Module for NotesModule {
         for definition in PUBLIC_EVENTS {
             app.public_event(*definition);
         }
-        app.notification_kind(NotificationKindDefinition {
+        app.contribute(std::sync::Arc::new(NotificationKindDefinition {
             kind: crate::notifications::NOTE_MENTION_NOTIFICATION,
             channels: ALL_CHANNELS,
             email_default: true,
             push_default: true,
-        });
+        }));
         Ok(())
     }
 }

@@ -9484,19 +9484,6 @@ export interface components {
         };
         /** @enum {string} */
         BundlePricing: "fixed" | "sum";
-        BusinessAnswers: {
-            /** @example agency */
-            business_type?: string | null;
-            /**
-             * @example [
-             *       "service",
-             *       "recurring"
-             *     ]
-             */
-            offering?: string[];
-            /** @example small */
-            team_size?: string | null;
-        };
         CalendarConnectUrl: {
             url: string;
         };
@@ -9643,12 +9630,13 @@ export interface components {
             events: components["schemas"]["EventEntry"][];
             field_types: components["schemas"]["FieldTypeEntry"][];
             hooks: components["schemas"]["HookEntry"][];
-            notification_kinds: components["schemas"]["NotificationKindEntry"][];
             operations: components["schemas"]["OperationInfo"][];
             permissions: components["schemas"]["PermissionEntry"][];
             plugins: components["schemas"]["PluginEntry"][];
             reference_kinds: components["schemas"]["ReferenceKindEntry"][];
             version: string;
+        } & {
+            [key: string]: unknown;
         };
         /** @enum {string} */
         CatalogEntryKindResponse: "template" | "theme" | "module";
@@ -9675,8 +9663,6 @@ export interface components {
             /** @example 1.0.0 */
             version: string;
         };
-        /** @enum {string} */
-        CatalogModeDto: "builtin" | "remote" | "off";
         CatalogModuleResponse: {
             install_notes?: string | null;
             /** @example lead_forms */
@@ -9706,13 +9692,6 @@ export interface components {
             rejected: components["schemas"]["RejectedCatalogEntryResponse"][];
             source?: string | null;
             updated_at?: string | null;
-        };
-        CatalogSourceDto: {
-            allow_http?: boolean;
-            index_url?: string | null;
-            mode: components["schemas"]["CatalogModeDto"];
-            /** Format: int64 */
-            timeout_secs: number;
         };
         ChangeMemberRoleRequest: {
             role_id: string;
@@ -11196,12 +11175,13 @@ export interface components {
                 events: components["schemas"]["EventEntry"][];
                 field_types: components["schemas"]["FieldTypeEntry"][];
                 hooks: components["schemas"]["HookEntry"][];
-                notification_kinds: components["schemas"]["NotificationKindEntry"][];
                 operations: components["schemas"]["OperationInfo"][];
                 permissions: components["schemas"]["PermissionEntry"][];
                 plugins: components["schemas"]["PluginEntry"][];
                 reference_kinds: components["schemas"]["ReferenceKindEntry"][];
                 version: string;
+            } & {
+                [key: string]: unknown;
             };
         };
         Data_CatalogReadiness: {
@@ -12770,9 +12750,10 @@ export interface components {
         Data_OrganizationSettingsResponse: {
             data: {
                 api_tokens: components["schemas"]["ApiTokenLimitsDto"];
-                catalog: components["schemas"]["CatalogSourceDto"];
                 effective_public_base_url: string;
+                mail: components["schemas"]["MailSettings"];
                 mail_configured: boolean;
+                mail_secret_configured: boolean;
                 /** Format: int64 */
                 max_upload_mb: number;
                 /** @example https://crm.example.com */
@@ -12780,7 +12761,8 @@ export interface components {
                 secure_cookies: boolean;
                 storage: components["schemas"]["StorageSettingsDto"];
                 storage_secret_configured: boolean;
-                webhooks: components["schemas"]["WebhookDeliveryDto"];
+            } & {
+                [key: string]: unknown;
             };
         };
         Data_PackagePlanResponse: {
@@ -16399,7 +16381,7 @@ export interface components {
             /** @example Ana Souza */
             admin_name: string;
             admin_password: string;
-            business?: null | components["schemas"]["BusinessAnswers"];
+            business?: unknown;
             /** @example BRL */
             currency: string;
             /** @example pt-BR */
@@ -17111,6 +17093,21 @@ export interface components {
             /** @example IMAP/SMTP */
             label: string;
         };
+        MailSettings: {
+            /** @default null */
+            from: string | null;
+            /** @default null */
+            host: string | null;
+            /**
+             * Format: int32
+             * @default 587
+             */
+            port: number;
+            /** @default starttls */
+            security: string;
+            /** @default null */
+            username: string | null;
+        };
         MailboxResponse: {
             /** @example ana@example.com */
             address: string;
@@ -17578,11 +17575,6 @@ export interface components {
         NoteVisibility: "team" | "private";
         /** @enum {string} */
         NotificationChannel: "in_app" | "email" | "push";
-        NotificationKindEntry: {
-            email_default: boolean;
-            kind: string;
-            push_default: boolean;
-        };
         NotificationPageMeta: {
             /** @example 313737333834363030303030303030307c30313930 */
             next_cursor?: string | null;
@@ -17776,9 +17768,10 @@ export interface components {
         };
         OrganizationSettingsResponse: {
             api_tokens: components["schemas"]["ApiTokenLimitsDto"];
-            catalog: components["schemas"]["CatalogSourceDto"];
             effective_public_base_url: string;
+            mail: components["schemas"]["MailSettings"];
             mail_configured: boolean;
+            mail_secret_configured: boolean;
             /** Format: int64 */
             max_upload_mb: number;
             /** @example https://crm.example.com */
@@ -17786,7 +17779,8 @@ export interface components {
             secure_cookies: boolean;
             storage: components["schemas"]["StorageSettingsDto"];
             storage_secret_configured: boolean;
-            webhooks: components["schemas"]["WebhookDeliveryDto"];
+        } & {
+            [key: string]: unknown;
         };
         OwnerResponse: {
             display_name: string;
@@ -22090,13 +22084,15 @@ export interface components {
         };
         UpdateOrganizationSettingsRequest: {
             api_tokens?: null | components["schemas"]["ApiTokenLimitsDto"];
-            catalog?: null | components["schemas"]["CatalogSourceDto"];
+            mail?: null | components["schemas"]["MailSettings"];
+            mail_password?: string | null;
             /** Format: int64 */
             max_upload_mb?: number | null;
             public_base_url?: string | null;
             storage?: null | components["schemas"]["StorageSettingsDto"];
             storage_secret_access_key?: string | null;
-            webhooks?: null | components["schemas"]["WebhookDeliveryDto"];
+        } & {
+            [key: string]: unknown;
         };
         UpdatePipelineRequest: {
             name?: string | null;
@@ -22358,15 +22354,6 @@ export interface components {
         };
         WebhookDeliveryDetailResponse: components["schemas"]["WebhookDeliveryResponse"] & {
             request_body: unknown;
-        };
-        WebhookDeliveryDto: {
-            /** Format: int32 */
-            disable_after_failures: number;
-            require_https: boolean;
-            /** Format: int32 */
-            retention_days: number;
-            /** Format: int64 */
-            timeout_secs: number;
         };
         WebhookDeliveryResponse: {
             /**

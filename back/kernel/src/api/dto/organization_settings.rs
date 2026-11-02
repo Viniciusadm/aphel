@@ -3,9 +3,8 @@ use utoipa::ToSchema;
 
 use crate::api::dto::common::double_option;
 use crate::application::organizations::{
-    ApiTokenLimits, CatalogMode, CatalogSource, ObjectStoreSettings, OrganizationConfigView,
-    SecretChange, StorageSettings, StorageTestOutcome, UpdateOrganizationConfig,
-    WebhookDeliverySettings,
+    ApiTokenLimits, MailSettings, ObjectStoreSettings, OrganizationConfigView, SecretChange,
+    StorageSettings, StorageTestOutcome, UpdateOrganizationConfig,
 };
 use crate::domain::Secret;
 
@@ -87,39 +86,6 @@ impl From<StorageSettingsDto> for StorageSettings {
 }
 
 #[derive(Debug, Clone, Copy, Serialize, Deserialize, ToSchema)]
-pub struct WebhookDeliveryDto {
-    pub require_https: bool,
-    #[schema(minimum = 1, maximum = 60)]
-    pub timeout_secs: u64,
-    #[schema(minimum = 1, maximum = 1000)]
-    pub disable_after_failures: u32,
-    #[schema(minimum = 1, maximum = 365)]
-    pub retention_days: u32,
-}
-
-impl From<WebhookDeliverySettings> for WebhookDeliveryDto {
-    fn from(settings: WebhookDeliverySettings) -> Self {
-        Self {
-            require_https: settings.require_https,
-            timeout_secs: settings.timeout_secs,
-            disable_after_failures: settings.disable_after_failures,
-            retention_days: settings.retention_days,
-        }
-    }
-}
-
-impl From<WebhookDeliveryDto> for WebhookDeliverySettings {
-    fn from(dto: WebhookDeliveryDto) -> Self {
-        Self {
-            require_https: dto.require_https,
-            timeout_secs: dto.timeout_secs,
-            disable_after_failures: dto.disable_after_failures,
-            retention_days: dto.retention_days,
-        }
-    }
-}
-
-#[derive(Debug, Clone, Copy, Serialize, Deserialize, ToSchema)]
 pub struct ApiTokenLimitsDto {
     #[schema(minimum = 1, maximum = 100000)]
     pub limit: u32,
@@ -145,54 +111,6 @@ impl From<ApiTokenLimitsDto> for ApiTokenLimits {
     }
 }
 
-#[derive(Debug, Clone, Copy, PartialEq, Eq, Serialize, Deserialize, ToSchema)]
-#[serde(rename_all = "snake_case")]
-pub enum CatalogModeDto {
-    Builtin,
-    Remote,
-    Off,
-}
-
-#[derive(Debug, Clone, Serialize, Deserialize, ToSchema)]
-pub struct CatalogSourceDto {
-    pub mode: CatalogModeDto,
-    pub index_url: Option<String>,
-    #[serde(default)]
-    pub allow_http: bool,
-    #[schema(minimum = 1, maximum = 120)]
-    pub timeout_secs: u64,
-}
-
-impl From<CatalogSource> for CatalogSourceDto {
-    fn from(source: CatalogSource) -> Self {
-        Self {
-            mode: match source.mode {
-                CatalogMode::Builtin => CatalogModeDto::Builtin,
-                CatalogMode::Remote => CatalogModeDto::Remote,
-                CatalogMode::Off => CatalogModeDto::Off,
-            },
-            index_url: source.index_url,
-            allow_http: source.allow_http,
-            timeout_secs: source.timeout_secs,
-        }
-    }
-}
-
-impl From<CatalogSourceDto> for CatalogSource {
-    fn from(dto: CatalogSourceDto) -> Self {
-        Self {
-            mode: match dto.mode {
-                CatalogModeDto::Builtin => CatalogMode::Builtin,
-                CatalogModeDto::Remote => CatalogMode::Remote,
-                CatalogModeDto::Off => CatalogMode::Off,
-            },
-            index_url: non_empty(dto.index_url),
-            allow_http: dto.allow_http,
-            timeout_secs: dto.timeout_secs,
-        }
-    }
-}
-
 #[derive(Debug, Serialize, ToSchema)]
 pub struct OrganizationSettingsResponse {
     #[schema(example = "https://crm.example.com")]
@@ -202,10 +120,12 @@ pub struct OrganizationSettingsResponse {
     pub max_upload_mb: u64,
     pub storage: StorageSettingsDto,
     pub storage_secret_configured: bool,
-    pub webhooks: WebhookDeliveryDto,
     pub api_tokens: ApiTokenLimitsDto,
-    pub catalog: CatalogSourceDto,
+    #[serde(flatten)]
+    pub extensions: std::collections::BTreeMap<String, serde_json::Value>,
     pub mail_configured: bool,
+    pub mail: MailSettings,
+    pub mail_secret_configured: bool,
 }
 
 impl From<OrganizationConfigView> for OrganizationSettingsResponse {
@@ -218,10 +138,11 @@ impl From<OrganizationConfigView> for OrganizationSettingsResponse {
             max_upload_mb: config.max_upload_mb,
             storage: config.storage.into(),
             storage_secret_configured: view.storage_secret_configured,
-            webhooks: config.webhooks.into(),
             api_tokens: config.api_tokens.into(),
-            catalog: config.catalog.into(),
+            extensions: config.extensions,
             mail_configured: view.mail_configured,
+            mail: config.mail,
+            mail_secret_configured: view.mail_secret_configured,
         }
     }
 }
@@ -235,9 +156,13 @@ pub struct UpdateOrganizationSettingsRequest {
     #[serde(default, deserialize_with = "double_option")]
     #[schema(value_type = Option<String>, nullable = true)]
     pub storage_secret_access_key: Option<Option<String>>,
-    pub webhooks: Option<WebhookDeliveryDto>,
     pub api_tokens: Option<ApiTokenLimitsDto>,
-    pub catalog: Option<CatalogSourceDto>,
+    pub mail: Option<MailSettings>,
+    #[serde(default, deserialize_with = "double_option")]
+    #[schema(value_type = Option<String>, nullable = true)]
+    pub mail_password: Option<Option<String>>,
+    #[serde(flatten)]
+    pub extensions: std::collections::BTreeMap<String, serde_json::Value>,
 }
 
 impl UpdateOrganizationSettingsRequest {
@@ -253,9 +178,15 @@ impl UpdateOrganizationSettingsRequest {
             max_upload_mb: self.max_upload_mb,
             storage: self.storage.map(Into::into),
             storage_secret,
-            webhooks: self.webhooks.map(Into::into),
+            mail: self.mail,
+            mail_secret: match self.mail_password {
+                None => SecretChange::Keep,
+                Some(None) => SecretChange::Clear,
+                Some(Some(value)) if value.is_empty() => SecretChange::Clear,
+                Some(Some(value)) => SecretChange::Set(Secret::new(value)),
+            },
             api_tokens: self.api_tokens.map(Into::into),
-            catalog: self.catalog.map(Into::into),
+            extensions: self.extensions,
             ip,
         }
     }

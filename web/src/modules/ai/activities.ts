@@ -3,6 +3,7 @@ import { activitiesKeys } from '@/modules/activities/api'
 import { ACTIVITY_RECORD_TYPE } from '@/modules/activities/resource'
 import { recordsKeys } from '@/features/records/api'
 
+
 export function useInvalidateActivitiesForRecord(recordType: string, recordId: string) {
   const queryClient = useQueryClient()
   return () =>

@@ -1,8 +1,8 @@
 use serde_json::Value;
 use sqlx::MySqlPool;
 
+use ::notifications::domain::NotificationKind;
 use aphel_kernel::domain::access::Permission;
-use aphel_kernel::domain::notifications::NotificationKind;
 use aphel_kernel::errors::AppError;
 use aphel_kernel::modules::module_settings;
 

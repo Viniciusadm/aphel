@@ -68208,35 +68208,6 @@
           "sum"
         ]
       },
-      "BusinessAnswers": {
-        "type": "object",
-        "properties": {
-          "business_type": {
-            "type": [
-              "string",
-              "null"
-            ],
-            "example": "agency"
-          },
-          "offering": {
-            "type": "array",
-            "items": {
-              "type": "string"
-            },
-            "example": [
-              "service",
-              "recurring"
-            ]
-          },
-          "team_size": {
-            "type": [
-              "string",
-              "null"
-            ],
-            "example": "small"
-          }
-        }
-      },
       "CalendarConnectUrl": {
         "type": "object",
         "required": [
@@ -68827,8 +68798,7 @@
           "operations",
           "hooks",
           "events",
-          "permissions",
-          "notification_kinds"
+          "permissions"
         ],
         "properties": {
           "contracts": {
@@ -68853,12 +68823,6 @@
             "type": "array",
             "items": {
               "$ref": "#/components/schemas/HookEntry"
-            }
-          },
-          "notification_kinds": {
-            "type": "array",
-            "items": {
-              "$ref": "#/components/schemas/NotificationKindEntry"
             }
           },
           "operations": {
@@ -68888,7 +68852,8 @@
           "version": {
             "type": "string"
           }
-        }
+        },
+        "additionalProperties": {}
       },
       "CatalogEntryKindResponse": {
         "type": "string",
@@ -69001,14 +68966,6 @@
             "example": "1.0.0"
           }
         }
-      },
-      "CatalogModeDto": {
-        "type": "string",
-        "enum": [
-          "builtin",
-          "remote",
-          "off"
-        ]
       },
       "CatalogModuleResponse": {
         "type": "object",
@@ -69140,33 +69097,6 @@
               "string",
               "null"
             ]
-          }
-        }
-      },
-      "CatalogSourceDto": {
-        "type": "object",
-        "required": [
-          "mode",
-          "timeout_secs"
-        ],
-        "properties": {
-          "allow_http": {
-            "type": "boolean"
-          },
-          "index_url": {
-            "type": [
-              "string",
-              "null"
-            ]
-          },
-          "mode": {
-            "$ref": "#/components/schemas/CatalogModeDto"
-          },
-          "timeout_secs": {
-            "type": "integer",
-            "format": "int64",
-            "maximum": 120,
-            "minimum": 1
           }
         }
       },
@@ -75003,8 +74933,7 @@
               "operations",
               "hooks",
               "events",
-              "permissions",
-              "notification_kinds"
+              "permissions"
             ],
             "properties": {
               "contracts": {
@@ -75029,12 +74958,6 @@
                 "type": "array",
                 "items": {
                   "$ref": "#/components/schemas/HookEntry"
-                }
-              },
-              "notification_kinds": {
-                "type": "array",
-                "items": {
-                  "$ref": "#/components/schemas/NotificationKindEntry"
                 }
               },
               "operations": {
@@ -75064,7 +74987,8 @@
               "version": {
                 "type": "string"
               }
-            }
+            },
+            "additionalProperties": {}
           }
         }
       },
@@ -81354,22 +81278,25 @@
               "max_upload_mb",
               "storage",
               "storage_secret_configured",
-              "webhooks",
               "api_tokens",
-              "catalog",
-              "mail_configured"
+              "mail_configured",
+              "mail",
+              "mail_secret_configured"
             ],
             "properties": {
               "api_tokens": {
                 "$ref": "#/components/schemas/ApiTokenLimitsDto"
               },
-              "catalog": {
-                "$ref": "#/components/schemas/CatalogSourceDto"
-              },
               "effective_public_base_url": {
                 "type": "string"
               },
+              "mail": {
+                "$ref": "#/components/schemas/MailSettings"
+              },
               "mail_configured": {
+                "type": "boolean"
+              },
+              "mail_secret_configured": {
                 "type": "boolean"
               },
               "max_upload_mb": {
@@ -81392,11 +81319,9 @@
               },
               "storage_secret_configured": {
                 "type": "boolean"
-              },
-              "webhooks": {
-                "$ref": "#/components/schemas/WebhookDeliveryDto"
               }
-            }
+            },
+            "additionalProperties": {}
           }
         }
       },
@@ -95254,16 +95179,7 @@
             "maxLength": 128,
             "minLength": 8
           },
-          "business": {
-            "oneOf": [
-              {
-                "type": "null"
-              },
-              {
-                "$ref": "#/components/schemas/BusinessAnswers"
-              }
-            ]
-          },
+          "business": {},
           "currency": {
             "type": "string",
             "example": "BRL"
@@ -98040,6 +97956,42 @@
           }
         }
       },
+      "MailSettings": {
+        "type": "object",
+        "properties": {
+          "from": {
+            "type": [
+              "string",
+              "null"
+            ],
+            "default": null
+          },
+          "host": {
+            "type": [
+              "string",
+              "null"
+            ],
+            "default": null
+          },
+          "port": {
+            "type": "integer",
+            "format": "int32",
+            "default": 587,
+            "minimum": 0
+          },
+          "security": {
+            "type": "string",
+            "default": "starttls"
+          },
+          "username": {
+            "type": [
+              "string",
+              "null"
+            ],
+            "default": null
+          }
+        }
+      },
       "MailboxResponse": {
         "type": "object",
         "required": [
@@ -99775,25 +99727,6 @@
           "push"
         ]
       },
-      "NotificationKindEntry": {
-        "type": "object",
-        "required": [
-          "kind",
-          "email_default",
-          "push_default"
-        ],
-        "properties": {
-          "email_default": {
-            "type": "boolean"
-          },
-          "kind": {
-            "type": "string"
-          },
-          "push_default": {
-            "type": "boolean"
-          }
-        }
-      },
       "NotificationPageMeta": {
         "type": "object",
         "properties": {
@@ -100511,22 +100444,25 @@
           "max_upload_mb",
           "storage",
           "storage_secret_configured",
-          "webhooks",
           "api_tokens",
-          "catalog",
-          "mail_configured"
+          "mail_configured",
+          "mail",
+          "mail_secret_configured"
         ],
         "properties": {
           "api_tokens": {
             "$ref": "#/components/schemas/ApiTokenLimitsDto"
           },
-          "catalog": {
-            "$ref": "#/components/schemas/CatalogSourceDto"
-          },
           "effective_public_base_url": {
             "type": "string"
           },
+          "mail": {
+            "$ref": "#/components/schemas/MailSettings"
+          },
           "mail_configured": {
+            "type": "boolean"
+          },
+          "mail_secret_configured": {
             "type": "boolean"
           },
           "max_upload_mb": {
@@ -100549,11 +100485,9 @@
           },
           "storage_secret_configured": {
             "type": "boolean"
-          },
-          "webhooks": {
-            "$ref": "#/components/schemas/WebhookDeliveryDto"
           }
-        }
+        },
+        "additionalProperties": {}
       },
       "OwnerResponse": {
         "type": "object",
@@ -117624,14 +117558,20 @@
               }
             ]
           },
-          "catalog": {
+          "mail": {
             "oneOf": [
               {
                 "type": "null"
               },
               {
-                "$ref": "#/components/schemas/CatalogSourceDto"
+                "$ref": "#/components/schemas/MailSettings"
               }
+            ]
+          },
+          "mail_password": {
+            "type": [
+              "string",
+              "null"
             ]
           },
           "max_upload_mb": {
@@ -117664,18 +117604,9 @@
               "string",
               "null"
             ]
-          },
-          "webhooks": {
-            "oneOf": [
-              {
-                "type": "null"
-              },
-              {
-                "$ref": "#/components/schemas/WebhookDeliveryDto"
-              }
-            ]
           }
-        }
+        },
+        "additionalProperties": {}
       },
       "UpdatePipelineRequest": {
         "type": "object",
@@ -118843,38 +118774,6 @@
           }
         ]
       },
-      "WebhookDeliveryDto": {
-        "type": "object",
-        "required": [
-          "require_https",
-          "timeout_secs",
-          "disable_after_failures",
-          "retention_days"
-        ],
-        "properties": {
-          "disable_after_failures": {
-            "type": "integer",
-            "format": "int32",
-            "maximum": 1000,
-            "minimum": 1
-          },
-          "require_https": {
-            "type": "boolean"
-          },
-          "retention_days": {
-            "type": "integer",
-            "format": "int32",
-            "maximum": 365,
-            "minimum": 1
-          },
-          "timeout_secs": {
-            "type": "integer",
-            "format": "int64",
-            "maximum": 60,
-            "minimum": 1
-          }
-        }
-      },
       "WebhookDeliveryResponse": {
         "type": "object",
         "required": [
@@ -119239,16 +119138,16 @@
       "description": "Service health"
     },
     {
-      "name": "demo",
-      "description": "Demonstration mode status and the public credentials of the demo visitor"
-    },
-    {
       "name": "modules",
       "description": "Modules compiled into this build: manifest, compatibility, enabling, settings and data removal"
     },
     {
-      "name": "communication",
-      "description": "Communication opt-outs: addresses that must not receive messages sent on behalf of plugins and modules"
+      "name": "objects",
+      "description": "Dynamic entity records"
+    },
+    {
+      "name": "relationships",
+      "description": "Object relationships"
     },
     {
       "name": "auth",
@@ -119296,31 +119195,11 @@
     },
     {
       "name": "fields",
-      "description": "Field registry of each record type: system and custom fields, options and the schema used by forms and filters"
-    },
-    {
-      "name": "views",
-      "description": "Saved views (filter, sort and columns) of each record type"
-    },
-    {
-      "name": "layouts",
-      "description": "Form layouts (tabs, sections, columns and conditional rules) of each record type"
+      "description": "Formulas"
     },
     {
       "name": "directory",
       "description": "Directory of the active organization's users, readable by every member"
-    },
-    {
-      "name": "validation-rules",
-      "description": "Validation rules: boolean conditions per record type that block writes (forms, API, imports, automations) with a custom message"
-    },
-    {
-      "name": "notifications",
-      "description": "In-app notifications and notification preferences"
-    },
-    {
-      "name": "config-packages",
-      "description": "Configuration packages (`aphel-config`): export, business templates, validation and installation plan, application and history"
     },
     {
       "name": "two-factor",
@@ -119339,24 +119218,8 @@
       "description": "Aggregation engine: grouped counts, sums and averages of records with periods, comparison with the previous period and filters on related records"
     },
     {
-      "name": "search",
-      "description": "Global search across every record type the caller can read, grouped by type"
-    },
-    {
       "name": "preferences",
       "description": "Personal preferences of the current user, such as keyboard shortcuts"
-    },
-    {
-      "name": "custom-objects",
-      "description": "Custom objects of the organization (record types `custom.<key>` with their own fields, permissions and relationships)"
-    },
-    {
-      "name": "objects",
-      "description": "Records of custom objects through a generic API; `GET /objects/{key}/schema` documents the fields of each object at runtime"
-    },
-    {
-      "name": "relationships",
-      "description": "Configurable relationships between any pair of record types and the links between records"
     },
     {
       "name": "record-sharing",
@@ -119389,6 +119252,10 @@
     {
       "name": "companies",
       "description": "Companies"
+    },
+    {
+      "name": "config-packages",
+      "description": "Configuration packages"
     },
     {
       "name": "contacts",
@@ -119459,12 +119326,24 @@
       "description": "Lifecycle stages of contacts and companies: automatic transitions, stage history, conversion report, lead inbox actions (qualify, disqualify, convert) and disqualification reasons"
     },
     {
+      "name": "catalog",
+      "description": "Plugin and configuration marketplace"
+    },
+    {
       "name": "notes",
       "description": "Notes attached to records"
     },
     {
       "name": "migration-assistant",
       "description": "Assisted migration from other CRMs (Pipedrive, HubSpot, RD Station CRM, Agendor): recognized columns, conversion of their CSV exports and pre-filled imports"
+    },
+    {
+      "name": "notifications",
+      "description": "Notifications and delivery preferences"
+    },
+    {
+      "name": "custom-objects",
+      "description": "Object administration"
     },
     {
       "name": "oidc",
@@ -119523,6 +119402,10 @@
       "description": "Public forms that create contacts and deals"
     },
     {
+      "name": "communication",
+      "description": "Communication opt-outs"
+    },
+    {
       "name": "messaging",
       "description": "Shared inbox for WhatsApp Cloud API and email (IMAP/SMTP)"
     },
@@ -119539,6 +119422,10 @@
       "description": "Proposal templates and PDF proposals generated from deals"
     },
     {
+      "name": "layouts",
+      "description": "RecordLayouts"
+    },
+    {
       "name": "reminders",
       "description": "Reminders: before a task is due and standalone reminders linked to a record"
     },
@@ -119551,12 +119438,20 @@
       "description": "Saved custom reports, their results, exports and e-mail schedules"
     },
     {
+      "name": "views",
+      "description": "SavedViews"
+    },
+    {
       "name": "scheduling",
       "description": "Scheduling links: availability, meeting types, team links and the public booking page"
     },
     {
       "name": "scoring",
       "description": "Lead scoring models (profile and behavior criteria, decay, bands) and the scores of a record with their explanation"
+    },
+    {
+      "name": "search",
+      "description": "Search"
     },
     {
       "name": "segments",
@@ -119573,6 +119468,10 @@
     {
       "name": "deal-items",
       "description": "Line items of a deal (products or free items) and the deal amount mode"
+    },
+    {
+      "name": "demo",
+      "description": "Demonstration environment status"
     },
     {
       "name": "sequences",
@@ -119601,6 +119500,10 @@
     {
       "name": "privacy",
       "description": "Privacy (LGPD): personal data subjects, data subject requests (export, anonymization, deletion) and retention policies"
+    },
+    {
+      "name": "validation-rules",
+      "description": "ValidationRules"
     },
     {
       "name": "events",

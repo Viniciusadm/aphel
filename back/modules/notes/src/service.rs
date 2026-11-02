@@ -9,6 +9,7 @@ use crate::domain::{
     note_not_found,
 };
 use crate::store::NoteStore;
+use ::notifications::domain::{MAX_MENTIONS_PER_NOTE, extract_mentions};
 use aphel_kernel::Ctx;
 use aphel_kernel::application::access::{Authorizer, PERMISSION_DENIED};
 use aphel_kernel::application::audit::{DiffOptions, diff_changes};
@@ -21,7 +22,6 @@ use aphel_kernel::application::shared::{
 use aphel_kernel::database::transaction::MySqlTx;
 use aphel_kernel::domain::UserId;
 use aphel_kernel::domain::access::{Permission, RecordScopeFilter};
-use aphel_kernel::domain::notifications::{MAX_MENTIONS_PER_NOTE, extract_mentions};
 use aphel_kernel::errors::{AppError, FieldViolation};
 use aphel_kernel::infrastructure::records::MySqlRecordAccessChecker;
 

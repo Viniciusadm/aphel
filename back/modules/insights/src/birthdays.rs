@@ -11,9 +11,7 @@ use crate::aggregate::{
 };
 use crate::settings::{SettingsReader, invalid_settings};
 use crate::{CATEGORY, KEY};
-use aphel_kernel::application::dashboard::{
-    DashboardPorts, WidgetContext, WidgetProvider, WidgetSize,
-};
+use ::dashboard::engine::{DashboardPorts, WidgetContext, WidgetProvider, WidgetSize};
 use aphel_kernel::application::organization_admin::ListWindow;
 use aphel_kernel::application::query::{
     ArchivedFilter, Filter, RecordQuery, RecordQueryEngine, SortSpec,

@@ -490,7 +490,17 @@
       "copyableLinkLabel": "Link to copy",
       "copyableLinkDescription": "Outgoing email is not configured. Copy the link and hand it over through another channel.",
       "copy": "Copy",
-      "copied": "Copied"
+      "copied": "Copied",
+      "transport": {
+        "host": "SMTP host",
+        "from": "Sender email",
+        "username": "Username",
+        "port": "Port",
+        "security": "Connection security",
+        "none": "None",
+        "password": "New password",
+        "clearPassword": "Remove the stored password"
+      }
     },
     "storage": {
       "title": "File storage",

@@ -6,7 +6,6 @@ mod healthcheck;
 mod migrate;
 mod modules;
 mod openapi;
-mod search;
 mod secrets;
 mod serve;
 mod upgrade;
@@ -24,7 +23,6 @@ pub(crate) use catalog::CatalogArgs;
 pub(crate) use db::DbCommand;
 pub(crate) use healthcheck::HealthcheckArgs;
 pub(crate) use modules::ModulesCommand;
-pub(crate) use search::SearchCommand;
 pub(crate) use secrets::SecretsCommand;
 pub(crate) use upgrade::UpgradeArgs;
 
@@ -66,8 +64,6 @@ pub(crate) enum Command {
     EntitySchema(entity_schema::EntitySchemaArgs),
     #[command(subcommand, about = "Manage the encryption of stored secrets")]
     Secrets(SecretsCommand),
-    #[command(subcommand, about = "Maintain the global search index")]
-    Search(SearchCommand),
     #[command(about = "Print a sanitized diagnostic report (no secrets) to attach to issues")]
     Doctor,
     #[command(about = "Check requirements, confirm a backup and apply pending migrations")]
@@ -138,7 +134,6 @@ pub(crate) async fn run() -> CliResult {
         Command::Openapi => openapi::run(),
         Command::EntitySchema(args) => entity_schema::run(args),
         Command::Secrets(command) => secrets::run(config, command).await,
-        Command::Search(command) => search::run(config, command).await,
         Command::Doctor => doctor::run(config).await,
         Command::Upgrade(args) => upgrade::run(config, args).await,
         Command::Healthcheck(args) => healthcheck::run(config, args).await,

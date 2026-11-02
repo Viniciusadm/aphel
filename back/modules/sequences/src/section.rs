@@ -1,4 +1,4 @@
-use aphel_kernel::application::config_packages::ConfigReferenceKind;
+use ::config_packages::application::ConfigReferenceKind;
 use std::collections::{BTreeSet, HashMap};
 
 use async_trait::async_trait;
@@ -12,8 +12,8 @@ use crate::domain::{
 };
 use crate::store::SequenceStore;
 use crate::{SequenceStep, SequenceView, StepInput, parse_window, validate_steps};
-use aphel_kernel::application::config_packages::sections::common::{check_key, diff};
-use aphel_kernel::application::config_packages::{
+use ::config_packages::application::sections::common::{check_key, diff};
+use ::config_packages::application::{
     ApplyContext, ConfigPackage, ConfigSection, Decisions, PackageIssue, PlanAction, PlanChange,
     PlanItem, parse_section,
 };

@@ -1,3 +1,4 @@
+import { useIsModuleActive } from '@/kernel/modules/registry'
 import { DialogForm } from '@/components/ui/dialog-form'
 import { useState } from 'react'
 import { Controller, useForm, useWatch } from 'react-hook-form'
@@ -11,7 +12,7 @@ import { toast } from '@/components/ui/toast-store'
 import { versionOf } from '../api'
 import { fieldsApi, sortByPosition, useCreateField, useFieldMutation, type Field } from './api'
 import { DraftOptionsEditor } from './components/DraftOptionsEditor'
-import { FormulaSettings, formulaSaveMessages } from './formula'
+import { FormulaSettings, formulaSaveMessages } from '@/modules/formulas/ui'
 import { FieldOptionsEditor } from './components/FieldOptionsEditor'
 import { CheckboxField, ChoiceSelect, FormAlert, FormField, type Choice } from './components/FormControls'
 import { describedBy } from './lib/aria'
@@ -50,6 +51,7 @@ function activeOptionChoices(field: Field): Choice[] {
 
 export function FieldEditorDialog({ recordType, field, onClose }: FieldEditorDialogProps) {
   const { t } = useTranslation('fields')
+  const formulasActive = useIsModuleActive('formulas')
   const system = field?.is_system ?? false
   const existingChoices = field ? activeOptionChoices(field) : []
   const context: FieldFormContext = {
@@ -79,7 +81,7 @@ export function FieldEditorDialog({ recordType, field, onClose }: FieldEditorDia
   const draftOptions = useWatch({ control, name: 'options' })
   const sensitive = useWatch({ control, name: 'isSensitive' })
 
-  const typeChoices = (field ? compatibleTypes(field.field_type) : [...FIELD_TYPES]).map((type) => ({
+  const typeChoices = (field ? compatibleTypes(field.field_type) : FIELD_TYPES.filter((type) => type !== 'formula' || formulasActive)).map((type) => ({
     value: type,
     label: t(`types.${type}`, type),
   }))
@@ -195,7 +197,7 @@ export function FieldEditorDialog({ recordType, field, onClose }: FieldEditorDia
               )}
             />
           </div>
-          {!system && isFormulaType(fieldType) && (
+          {!system && formulasActive && isFormulaType(fieldType) && (
             <FormulaSettings
               recordType={recordType}
               fieldKey={field?.key}

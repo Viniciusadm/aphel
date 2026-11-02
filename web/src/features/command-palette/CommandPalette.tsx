@@ -1,3 +1,4 @@
+import { useIsModuleActive } from '@/kernel/modules/registry'
 import { ArrowLeft, CornerDownLeft, Keyboard, Loader2, Search, SlidersHorizontal, type LucideIcon } from 'lucide-react'
 import { useCallback, useEffect, useId, useMemo, useRef, useState, type KeyboardEvent } from 'react'
 import { useTranslation } from 'react-i18next'
@@ -5,7 +6,7 @@ import { useNavigate } from 'react-router'
 import { GO_SHORTCUTS } from '@/app/shortcuts'
 import { Dialog, DialogContent, DialogDescription, DialogTitle } from '@/components/ui/dialog'
 import { recordDetailHref, recordTypeIcon } from '@/features/records/links'
-import { SEARCH_MIN_LENGTH, useGlobalSearch, type SearchGroup } from '@/features/search'
+import { SEARCH_MIN_LENGTH, useGlobalSearch, type SearchGroup } from '@/modules/search/ui'
 import { NO_FILTER_CONTEXT, useFilters } from '@/kernel/modules/filters'
 import { useModuleCommands } from '@/kernel/modules/contributions'
 import { qualifiedLabel, useNavigationEntries } from '@/kernel/modules/navigation'
@@ -101,7 +102,8 @@ function PaletteBody({ mode, onModeChange, contextCommands, createActions }: Pal
   const [query, setQuery] = useState('')
   const [activeIndex, setActiveIndex] = useState(0)
   const debouncedQuery = useDebouncedValue(query, SEARCH_DEBOUNCE_MS)
-  const searchEnabled = mode === 'all'
+  const searchActive = useIsModuleActive('search')
+  const searchEnabled = searchActive && mode === 'all'
   const search = useGlobalSearch({ q: searchEnabled ? debouncedQuery : '', limit: SEARCH_LIMIT })
   const listRef = useRef<HTMLDivElement>(null)
   const baseId = useId()

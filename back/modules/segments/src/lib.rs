@@ -10,7 +10,7 @@ use std::sync::Arc;
 
 use aphel_kernel::modules::Migration;
 
-use aphel_kernel::application::query::SegmentSourceResolver;
+use aphel_kernel::application::query::FilterSourceResolver;
 use aphel_kernel::errors::AppError;
 use aphel_kernel::modules::builder::APHEL_VERSION;
 use aphel_kernel::modules::{AppBuilder, Manifest, Module};
@@ -46,7 +46,7 @@ impl Module for SegmentsModule {
             "Segments: named dynamic filters with member count, usable as the `in_segment` filter condition",
         )
         .routes(|_| http::router());
-        app.provide::<dyn SegmentSourceResolver>(Arc::new(hooks::StoredSegmentSources));
+        app.provide::<dyn FilterSourceResolver>(Arc::new(hooks::StoredFilterSources));
         for operation in plugin_bridge::operations() {
             app.contribute::<aphel_kernel::modules::PluginOperation>(operation);
         }

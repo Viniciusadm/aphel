@@ -1,6 +1,5 @@
 pub mod mapper;
 pub mod mysql_access;
-pub mod mysql_dashboard;
 pub mod mysql_directory;
 pub(crate) mod mysql_members;
 pub(crate) mod mysql_organization_admin;

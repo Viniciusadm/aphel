@@ -1,5 +1,5 @@
 import { modulesApi, type ModuleInfo, type ModuleDataExport } from '@/kernel/modules/api'
-import { downloadJson } from '@/features/settings/config-packages/lib/download'
+import { downloadJson } from '@/modules/config_packages/ui/lib/download'
 
 function fileDate(value: string): string {
   const date = new Date(value)

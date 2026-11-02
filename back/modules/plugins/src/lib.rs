@@ -28,7 +28,7 @@ pub mod widgets;
 
 use std::sync::Arc;
 
-use aphel_kernel::application::automations::{AutomationActionSource, AutomationTriggerSource};
+use aphel_contract_automation::application::{AutomationActionSource, AutomationTriggerSource};
 use aphel_kernel::errors::AppError;
 use aphel_kernel::modules::builder::APHEL_VERSION;
 use aphel_kernel::modules::{AppBuilder, Manifest, Migration, Module};

@@ -5,31 +5,29 @@ use std::collections::HashSet;
 use chrono::{DateTime, Utc};
 use serde_json::Value;
 
+use crate::engine::{
+    DashboardPorts, DashboardRepository, LayoutSubject, PeriodQuery, SubjectKind, SubjectOptions,
+    WidgetContext, WidgetDescriptor, WidgetRegistry, WidgetSize, WidgetSubject, parse_period,
+    period_violation, visible_subjects,
+};
+use crate::engine_domain::{ResolvedPeriod, previous_period, resolve_period};
 use crate::layout::{
     DashboardLayout, LAYOUT_VERSION, LayoutPeriod, LayoutView, LayoutWidget, MAX_LAYOUT_WIDGETS,
     MAX_WIDGET_ID_LENGTH, MAX_WIDGET_SETTINGS_BYTES, SubjectQuery, WidgetDataQuery,
 };
+use crate::repository::{MySqlDashboardPorts, MySqlDashboardRepository};
 use crate::store::LayoutStore;
 use crate::widgets::{
     DEALS_BY_STAGE, PENDING_CENTER, RECENT_ACTIVITY, REPORT_TOTALS, SALES_INDICATORS,
 };
 use aphel_kernel::application::access::PERMISSION_DENIED;
-use aphel_kernel::application::dashboard::{
-    DashboardPorts, DashboardRepository, LayoutSubject, PeriodQuery, SubjectKind, SubjectOptions,
-    WidgetContext, WidgetDescriptor, WidgetRegistry, WidgetSize, WidgetSubject, parse_period,
-    period_violation, visible_subjects,
-};
 use aphel_kernel::application::fields::permissions::{FieldAccess, FieldAccessPolicy};
 use aphel_kernel::application::query::{RecordQueryExecutor, RecordQueryPorts};
 use aphel_kernel::application::security::Clock;
 use aphel_kernel::application::shared::RecordType;
 use aphel_kernel::context::Ctx;
 use aphel_kernel::domain::access::AccessScope;
-use aphel_kernel::domain::dashboard::{ResolvedPeriod, previous_period, resolve_period};
 use aphel_kernel::errors::{AppError, FieldViolation};
-use aphel_kernel::infrastructure::repositories::mysql_dashboard::{
-    MySqlDashboardPorts, MySqlDashboardRepository,
-};
 
 pub(crate) const WIDGET_NOT_FOUND: &str = "widget_not_found";
 

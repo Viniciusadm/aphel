@@ -3,6 +3,7 @@ import { api } from '@/api'
 import type { components } from '@/api/schema'
 import { recordsKeys } from '@/features/records/api'
 
+
 type Schemas = components['schemas']
 
 export type DealItem = Schemas['DealItemResponse']

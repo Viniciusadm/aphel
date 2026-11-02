@@ -59,10 +59,9 @@ export function moduleDefinition(key: string): WebModule | undefined {
 }
 
 export function isModuleActive(key: string, current: ModuleState = state): boolean {
-  const module = modules.get(key)
-  if (module?.required) return true
+  if (key === 'kernel') return true
   if (!current.loaded) return false
-  return !current.known.has(key) || current.enabled.has(key)
+  return current.known.has(key) && current.enabled.has(key)
 }
 
 export function isModuleRequired(key: string): boolean {

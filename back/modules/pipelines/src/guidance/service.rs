@@ -14,10 +14,10 @@ use crate::guidance::domain::{
 };
 use crate::guidance::store::GuidanceStore;
 use crate::store::PipelineStore;
+use ::config_packages::application::{is_config_key, key_from_name};
 use aphel_kernel::Ctx;
 use aphel_kernel::application::access::Authorizer;
 use aphel_kernel::application::audit::{DiffOptions, diff_values};
-use aphel_kernel::application::config_packages::{is_config_key, key_from_name};
 use aphel_kernel::application::fields::{CustomFieldPorts, ReferenceChecker};
 use aphel_kernel::application::shared::{FieldChange, RecordRef, RecordType, ensure_version};
 use aphel_kernel::domain::access::{Permission, RecordScopeFilter};

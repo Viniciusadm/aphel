@@ -13,12 +13,13 @@ use crate::runtime::{AutomationRuntime, RunJobPayload, publisher_scope, run_job}
 use crate::store::{
     AutomationRunStore, AutomationStore, AutomationTimeStore, RunInsert, TimeCursor,
 };
-use aphel_kernel::Ctx;
-use aphel_kernel::application::automations::context::TriggerContext;
-use aphel_kernel::application::automations::gateway::{AutomationGateway, SharedAutomationGateway};
-use aphel_kernel::application::automations::time::triggers::{
+use aphel_contract_automation::application::context::TriggerContext;
+use aphel_contract_automation::application::gateway::{AutomationGateway, SharedAutomationGateway};
+use aphel_contract_automation::application::time::triggers::{
     CREATED_AT_FIELD, DueRule, ScheduleRule, TimePlan, parse_plan,
 };
+use aphel_contract_automation::domain::RunStatus;
+use aphel_kernel::Ctx;
 use aphel_kernel::application::fields::FieldSet;
 use aphel_kernel::application::jobs::ScheduledJobDefinition;
 use aphel_kernel::application::organization_admin::ListWindow;
@@ -28,7 +29,6 @@ use aphel_kernel::application::shared::{
     Actor, JobContext, JobHandler, JobQueue, RecordRef, RecordType,
 };
 use aphel_kernel::domain::access::AccessScope;
-use aphel_kernel::domain::automations::RunStatus;
 use aphel_kernel::errors::AppError;
 use pipelines::rotting::{TIME_DEAL_ROTTING, rotting_catch_up_filter};
 

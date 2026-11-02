@@ -6,10 +6,10 @@ use reqwest::{Client, Method};
 
 use crate::registry::LoadedPlugin;
 use crate::runtime::wit;
-use aphel_kernel::application::webhooks::outgoing::UrlRejection;
+use aphel_kernel::application::outbound_http::UrlRejection;
 use aphel_kernel::errors::AppError;
-use aphel_kernel::infrastructure::webhooks::outgoing::network::parse_webhook_url;
-use aphel_kernel::infrastructure::webhooks::outgoing::{GuardedResolver, WebhookNetworkPolicy};
+use aphel_kernel::infrastructure::outbound_http::network::parse_webhook_url;
+use aphel_kernel::infrastructure::outbound_http::{GuardedResolver, OutboundNetworkPolicy};
 use aphel_kernel::state::runtime_state;
 
 pub const MAX_RESPONSE_BYTES: usize = 5 * 1024 * 1024;
@@ -38,7 +38,7 @@ fn client(allow_private_networks: bool) -> Result<&'static Client, AppError> {
     if let Some(client) = cell.get() {
         return Ok(client);
     }
-    let policy = WebhookNetworkPolicy::new(allow_private_networks, false);
+    let policy = OutboundNetworkPolicy::new(allow_private_networks, false);
     let built = Client::builder()
         .dns_resolver(GuardedResolver::shared(policy))
         .redirect(reqwest::redirect::Policy::none())
@@ -61,8 +61,10 @@ pub async fn fetch(
     request: wit::HttpRequest,
 ) -> Result<wit::HttpResponse, AppError> {
     let state = runtime_state()?;
-    let config = state.configuration().webhooks_config(&state.webhooks);
-    let policy = WebhookNetworkPolicy::new(config.allow_private_networks, config.require_https);
+    let config = state
+        .configuration()
+        .outbound_http_config(&state.outbound_http);
+    let policy = OutboundNetworkPolicy::new(config.allow_private_networks, config.require_https);
     let url = parse_webhook_url(&request.url, &policy).map_err(|rejection| match rejection {
         UrlRejection::Invalid(message) | UrlRejection::NotAllowed(message) => {
             AppError::validation_code(

@@ -3,13 +3,11 @@ use chrono::Duration;
 use uuid::Uuid;
 
 use crate::store::DemoStore;
+use ::validation_rules::application::{CreateValidationRuleCommand, ValidationRuleUseCases};
+use ::validation_rules::infrastructure::MySqlValidationRulePorts;
 use aphel_kernel::Ctx;
-use aphel_kernel::application::fields::validation_rules::{
-    CreateValidationRuleCommand, ValidationRuleUseCases,
-};
 use aphel_kernel::application::shared::RecordType;
 use aphel_kernel::errors::{AppError, CodedKind};
-use aphel_kernel::infrastructure::fields::validation_rules::MySqlValidationRulePorts;
 use approvals::domain::{PolicyCommand, StepInput};
 use currencies::domain::{CreateExchangeRateCommand, SetCurrenciesCommand};
 use deal_items::domain::{DealItemInput, SaveDealItemCommand};

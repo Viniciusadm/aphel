@@ -1,4 +1,4 @@
-use aphel_kernel::application::config_packages::ConfigReferenceKind;
+use ::config_packages::application::ConfigReferenceKind;
 use std::collections::BTreeSet;
 
 use async_trait::async_trait;
@@ -9,8 +9,8 @@ use uuid::Uuid;
 
 use crate::domain::{LostReason, normalize_name};
 use crate::store::PipelineStore;
-use aphel_kernel::application::config_packages::sections::common::{check_key, diff};
-use aphel_kernel::application::config_packages::{
+use ::config_packages::application::sections::common::{check_key, diff};
+use ::config_packages::application::{
     ApplyContext, ConfigKeyRepository, ConfigPackage, ConfigSection, Decisions, PackageIssue,
     PlanChange, PlanItem, assign_keys, parse_section,
 };
@@ -51,13 +51,7 @@ where
 
     async fn keyed(
         &self,
-    ) -> Result<
-        Vec<(
-            LostReason,
-            aphel_kernel::application::config_packages::KeyedItem,
-        )>,
-        AppError,
-    > {
+    ) -> Result<Vec<(LostReason, ::config_packages::application::KeyedItem)>, AppError> {
         let reasons = self.pipelines.list_lost_reasons().await?;
         let stored = self
             .keys

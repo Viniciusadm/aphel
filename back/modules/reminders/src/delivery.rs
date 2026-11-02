@@ -8,17 +8,17 @@ use sqlx::MySqlPool;
 
 use crate::domain::{DueReminder, DueTaskReminder};
 use crate::store::ReminderStore;
-use aphel_kernel::application::fields::RecordTypeRegistry;
-use aphel_kernel::application::jobs::ScheduledJobDefinition;
-use aphel_kernel::application::notifications::texts::LocalizedContent;
-use aphel_kernel::application::notifications::{
+use ::notifications::application::texts::LocalizedContent;
+use ::notifications::application::{
     MORNING_HOUR, NotificationDirectory, NotificationIntent, NotificationPorts, dispatch, local_day,
 };
+use ::notifications::infrastructure::MySqlNotificationPorts;
+use aphel_kernel::application::fields::RecordTypeRegistry;
+use aphel_kernel::application::jobs::ScheduledJobDefinition;
 use aphel_kernel::application::security::Clock;
 use aphel_kernel::application::shared::{JobContext, JobHandler, RecordRef, RecordType};
 use aphel_kernel::errors::AppError;
 use aphel_kernel::infrastructure::jobs::MySqlJobQueue;
-use aphel_kernel::infrastructure::notifications::MySqlNotificationPorts;
 
 pub(crate) const REMINDERS_DELIVER_JOB: &str = "reminders.deliver";
 pub(crate) const REMINDERS_DELIVER_CRON: &str = "0 * * * * *";

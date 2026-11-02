@@ -140,7 +140,7 @@ fn doctor_env(config: &AppConfig) -> Result<WorkerEnv, AppError> {
         secrets,
         storage: Arc::new(UnavailableFileStorage),
         public_url: PublicBaseUrl::live(Arc::new(OrganizationConfigCatalog::defaults_only())),
-        webhooks: config.webhooks.clone(),
+        outbound_http: config.outbound_http.clone(),
         record_types: Arc::new(RecordTypeCatalog::builtin_only(
             RecordTypeRegistry::builtin(),
         )),
@@ -292,13 +292,6 @@ async fn doctor(config: &AppConfig, app: &App) -> CliResult {
             .map(|contribution| contribution.item.event_type.to_owned())
             .collect();
         section("public events", &events);
-        let kinds: Vec<String> = catalog
-            .notification_kind_contributions()
-            .iter()
-            .filter(|contribution| contribution.module == key)
-            .map(|contribution| contribution.item.kind.as_str().to_owned())
-            .collect();
-        section("notification kinds", &kinds);
         let tags: Vec<String> = catalog
             .tag_contributions()
             .iter()
@@ -401,7 +394,7 @@ async fn platform_state(config: &AppConfig, pool: &MySqlPool) -> Result<AppState
     let secrets = build_secret_vault(pool, &config.encryption)?;
     let state = AppState::new(Some(pool.clone()))
         .with_secrets(secrets)
-        .with_webhooks(config.webhooks.clone())
+        .with_outbound_http(config.outbound_http.clone())
         .with_mysql_platform()
         .with_organization_storage();
     aphel_kernel::state::install_runtime_state(state.clone());

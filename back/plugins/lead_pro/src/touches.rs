@@ -7,11 +7,12 @@ use serde_json::{Value, json};
 use sqlx::MySqlPool;
 use uuid::Uuid;
 
+use ::notifications::application::{NotificationIntent, dispatch};
+use ::notifications::infrastructure::MySqlNotificationPorts;
 use aphel_kernel::Ctx;
 use aphel_kernel::application::custom_objects::RecordTypeCatalog;
 use aphel_kernel::application::fields::RecordTypeRegistry;
 use aphel_kernel::application::jobs::ScheduledJobDefinition;
-use aphel_kernel::application::notifications::{NotificationIntent, dispatch};
 use aphel_kernel::application::shared::{
     Actor, DomainEvent, EventConsumer, JobContext, JobHandler, RecordRef, RecordType,
 };
@@ -21,7 +22,6 @@ use aphel_kernel::errors::AppError;
 use aphel_kernel::infrastructure::audit::MySqlAuditLog;
 use aphel_kernel::infrastructure::events::MySqlEventPublisher;
 use aphel_kernel::infrastructure::jobs::MySqlJobQueue;
-use aphel_kernel::infrastructure::notifications::MySqlNotificationPorts;
 
 use crate::domain::{LEAD_HOT, LeadProSettings, TEMPERATURE_CHANGED, heated};
 use crate::store;

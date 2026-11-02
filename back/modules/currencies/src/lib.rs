@@ -97,13 +97,10 @@ impl Module for CurrenciesModule {
             )]),
         ));
         app.contribute(std::sync::Arc::new(
-            aphel_kernel::infrastructure::config_packages::ConfigSectionFactory::new(
-                50,
-                |pool, registry| {
-                    let _ = registry;
-                    std::sync::Arc::new(crate::section::CurrenciesSection::new(pool.clone()))
-                },
-            ),
+            ::config_packages::infrastructure::ConfigSectionFactory::new(50, |pool, registry| {
+                let _ = registry;
+                std::sync::Arc::new(crate::section::CurrenciesSection::new(pool.clone()))
+            }),
         ));
         let amount_base = field(
             domain::BASE_AMOUNT_FIELD,

@@ -19,7 +19,7 @@ use aphel_kernel::state::AppState;
 
 pub(crate) fn outgoing_webhook_worker(env: &WorkerEnv) -> WorkerParts {
     let state = env.state();
-    if let Err(error) = state.webhook_network() {
+    if let Err(error) = state.outbound_http_network() {
         tracing::error!("outgoing webhooks disabled: {error}");
         return WorkerParts::default();
     }
@@ -86,11 +86,8 @@ impl JobHandler for WebhooksMaintenanceHandler {
     }
 
     async fn handle(&self, _context: &JobContext, _payload: Value) -> Result<(), AppError> {
-        let retention_days = self
-            .state
-            .configuration()
-            .webhooks_config(&self.state.webhooks)
-            .retention_days;
+        let retention_days =
+            crate::settings::delivery_settings(&self.state.configuration()).retention_days;
         let scope = AccessScope::system();
         let ctx = Ctx::from_state(&self.state, &scope).await?;
         run_maintenance(&ctx, retention_days).await

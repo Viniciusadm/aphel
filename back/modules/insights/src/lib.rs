@@ -42,9 +42,9 @@ impl Module for InsightsModule {
     }
 
     fn register(&self, app: &mut AppBuilder) -> Result<(), AppError> {
-        app.widget(Arc::new(DealsBySourceWidget))
-            .widget(Arc::new(TeamActivityRankingWidget))
-            .widget(Arc::new(BirthdaysWidget));
+        app.contribute::<dyn ::dashboard::engine::WidgetProvider<::dashboard::repository::MySqlDashboardPorts>>(Arc::new(DealsBySourceWidget))
+            .contribute::<dyn ::dashboard::engine::WidgetProvider<::dashboard::repository::MySqlDashboardPorts>>(Arc::new(TeamActivityRankingWidget))
+            .contribute::<dyn ::dashboard::engine::WidgetProvider<::dashboard::repository::MySqlDashboardPorts>>(Arc::new(BirthdaysWidget));
         Ok(())
     }
 }

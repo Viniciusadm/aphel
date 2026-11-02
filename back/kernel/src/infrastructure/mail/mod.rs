@@ -16,20 +16,20 @@ use crate::errors::AppError;
 pub use provider::{SmtpMailerProvider, mail_not_configured};
 
 #[derive(Debug, Clone, Copy, PartialEq, Eq)]
-pub(crate) enum SmtpSecurity {
+pub enum SmtpSecurity {
     None,
     StartTls,
     Tls,
 }
 
 #[derive(Debug, Clone, PartialEq, Eq)]
-pub(crate) struct SmtpSettings {
-    pub(crate) host: String,
-    pub(crate) port: u16,
-    pub(crate) security: SmtpSecurity,
-    pub(crate) username: Option<String>,
-    pub(crate) password: Option<Secret>,
-    pub(crate) from: String,
+pub struct SmtpSettings {
+    pub host: String,
+    pub port: u16,
+    pub security: SmtpSecurity,
+    pub username: Option<String>,
+    pub password: Option<Secret>,
+    pub from: String,
 }
 
 pub(crate) fn describe_smtp_error(error: &lettre::transport::smtp::Error) -> String {
@@ -56,13 +56,13 @@ pub(crate) fn describe_smtp_error(error: &lettre::transport::smtp::Error) -> Str
 }
 
 #[derive(Clone)]
-pub(crate) struct SmtpMailer {
+pub struct SmtpMailer {
     transport: AsyncSmtpTransport<Tokio1Executor>,
     from: Mailbox,
 }
 
 impl SmtpMailer {
-    pub(crate) fn with_timeout(
+    pub fn with_timeout(
         settings: &SmtpSettings,
         timeout: Option<Duration>,
     ) -> Result<Self, AppError> {
@@ -100,7 +100,7 @@ impl SmtpMailer {
         })
     }
 
-    pub(crate) async fn test_connection(&self) -> Result<(), AppError> {
+    pub async fn test_connection(&self) -> Result<(), AppError> {
         match self.transport.test_connection().await {
             Ok(true) => Ok(()),
             Ok(false) => Err(AppError::Internal(

@@ -13,6 +13,7 @@ import { Button } from '@/components/ui/button'
 import { EmptyState } from '@/components/ui/empty-state'
 import { ErrorState } from '@/components/ui/error-state'
 import { useFieldSchema } from '@/features/records/api'
+
 import { useRecord } from '@/features/records/detail'
 import { FieldValueDisplay } from '@/features/records/display/FieldValueDisplay'
 import { isEmptyValue } from '@/features/records/display/values'

@@ -7,6 +7,10 @@ license.workspace = true
 publish = false
 
 [dependencies]
+aphel-contract-automation.workspace = true
+objects = { package = "aphel-mod-objects", path = "../objects" }
+notifications = { package = "aphel-mod-notifications", path = "../notifications" }
+dashboard = { package = "aphel-mod-dashboard", path = "../dashboard" }
 aphel-contract-crm.workspace = true
 aphel-kernel.workspace = true
 aphel-sdk.workspace = true

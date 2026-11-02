@@ -12,7 +12,7 @@ use crate::application::organizations::{
 };
 use crate::application::security::{NoopSecurityEventRecorder, SharedSecurityEventRecorder};
 use crate::application::shared::SharedFileStorage;
-use crate::config::WebhooksConfig;
+use crate::config::OutboundHttpConfig;
 use crate::errors::AppError;
 use crate::infrastructure::audit::MySqlAuditLog;
 use crate::infrastructure::custom_objects::MySqlCustomSchemaSource;
@@ -24,6 +24,7 @@ use crate::infrastructure::noop::{
     NoopAuditLog, NoopEventPublisher, NoopJobQueue, UnavailableFileStorage, UnavailableSecretVault,
 };
 use crate::infrastructure::organizations::organization_config_catalog;
+use crate::infrastructure::outbound_http::OutboundHttpNetwork;
 pub use crate::infrastructure::platform::{
     SharedAuditLog, SharedEventPublisher, SharedJobQueue, SharedSecretVault,
 };
@@ -32,9 +33,8 @@ use crate::infrastructure::security::MySqlSecurityEventRecorder;
 use crate::infrastructure::storage::DynamicFileStorage;
 use crate::infrastructure::transactions::MySqlTransactionManager;
 use crate::infrastructure::two_factor::{MySqlTwoFactorPorts, MySqlTwoFactorUseCases};
-use crate::infrastructure::webhooks::outgoing::OutgoingWebhookNetwork;
 
-type CachedWebhookNetwork = (WebhooksConfig, Arc<OutgoingWebhookNetwork>);
+type CachedOutboundNetwork = (OutboundHttpConfig, Arc<OutboundHttpNetwork>);
 type CachedApiTokenLimiter = (ApiTokenLimits, Arc<SlidingWindowLimiter>);
 
 #[derive(Clone)]
@@ -52,9 +52,9 @@ pub struct AppState {
     pub security_events: SharedSecurityEventRecorder,
     pub encryption: Arc<EncryptionKeyring>,
     pub record_types: Arc<RecordTypeCatalog>,
-    pub webhooks: WebhooksConfig,
+    pub outbound_http: OutboundHttpConfig,
     mailer: Option<SharedMailer>,
-    webhook_network: Arc<Mutex<Option<CachedWebhookNetwork>>>,
+    outbound_http_network: Arc<Mutex<Option<CachedOutboundNetwork>>>,
     api_token_limiter: Arc<Mutex<Option<CachedApiTokenLimiter>>>,
 }
 
@@ -88,9 +88,9 @@ impl AppState {
             security_events: Arc::new(NoopSecurityEventRecorder),
             encryption: Arc::new(EncryptionKeyring::default()),
             record_types: Arc::new(record_types),
-            webhooks: WebhooksConfig::from_env(),
+            outbound_http: OutboundHttpConfig::from_env(),
             mailer: None,
-            webhook_network: Arc::new(Mutex::new(None)),
+            outbound_http_network: Arc::new(Mutex::new(None)),
             api_token_limiter: Arc::new(Mutex::new(None)),
         }
     }
@@ -141,9 +141,9 @@ impl AppState {
         self.with_storage(storage)
     }
 
-    pub fn with_webhooks(mut self, webhooks: WebhooksConfig) -> Self {
-        self.webhooks = webhooks;
-        self.webhook_network = Arc::new(Mutex::new(None));
+    pub fn with_outbound_http(mut self, outbound_http: OutboundHttpConfig) -> Self {
+        self.outbound_http = outbound_http;
+        self.outbound_http_network = Arc::new(Mutex::new(None));
         self
     }
 
@@ -163,18 +163,20 @@ impl AppState {
         self.configuration().max_upload_bytes()
     }
 
-    pub fn webhook_network(&self) -> Result<Arc<OutgoingWebhookNetwork>, AppError> {
-        let config = self.configuration().webhooks_config(&self.webhooks);
+    pub fn outbound_http_network(&self) -> Result<Arc<OutboundHttpNetwork>, AppError> {
+        let config = self
+            .configuration()
+            .outbound_http_config(&self.outbound_http);
         let mut cached = self
-            .webhook_network
+            .outbound_http_network
             .lock()
-            .map_err(|_| AppError::Internal("webhook network lock poisoned".to_owned()))?;
+            .map_err(|_| AppError::Internal("outbound HTTP network lock poisoned".to_owned()))?;
         if let Some((cached_config, network)) = cached.as_ref()
             && *cached_config == config
         {
             return Ok(network.clone());
         }
-        let network = Arc::new(OutgoingWebhookNetwork::new(&config)?);
+        let network = Arc::new(OutboundHttpNetwork::new(&config)?);
         *cached = Some((config, network.clone()));
         Ok(network)
     }

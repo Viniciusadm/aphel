@@ -3,7 +3,7 @@ import { useTranslation } from 'react-i18next'
 import { Badge } from '@/components/ui/badge'
 import { ErrorState } from '@/components/ui/error-state'
 import { Skeleton } from '@/components/ui/skeleton'
-import { usePackageLabels } from '@/features/settings/config-packages/lib/labels'
+import { usePackageLabels } from '@/modules/config_packages/ui/lib/labels'
 import type { PackagePlan, PlanItem } from '../api'
 import { EmptyState } from '@/components/ui/empty-state'
 

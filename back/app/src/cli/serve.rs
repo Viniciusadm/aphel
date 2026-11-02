@@ -79,7 +79,7 @@ pub(crate) async fn run(config: AppConfig, args: ServeArgs) -> CliResult {
                 mailer,
                 storage,
                 public_url,
-                webhooks: config.webhooks.clone(),
+                outbound_http: config.outbound_http.clone(),
                 record_types: Arc::new(RecordTypeCatalog::new(
                     RecordTypeRegistry::builtin(),
                     Arc::new(MySqlCustomSchemaSource::new(pool.clone())),
@@ -99,7 +99,7 @@ pub(crate) async fn run(config: AppConfig, args: ServeArgs) -> CliResult {
     let state = AppState::new(db)
         .with_secrets(secrets)
         .with_encryption(EncryptionKeyring::from_config(&config.encryption)?)
-        .with_webhooks(config.webhooks.clone())
+        .with_outbound_http(config.outbound_http.clone())
         .with_mysql_platform()
         .with_organization_storage();
     let app = api::router(state);

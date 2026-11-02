@@ -11,6 +11,7 @@ import { ErrorState } from '@/components/ui/error-state'
 import { Input } from '@/components/ui/input'
 import { Skeleton } from '@/components/ui/skeleton'
 import { useFieldSchema } from '@/features/records/api'
+
 import { formatDateTime, useRecordFormatting } from '@/features/records/formatting'
 import { useModuleTranslation } from '@/kernel/modules/i18n'
 import type { RecordTabRenderProps } from '@/kernel/modules/define'

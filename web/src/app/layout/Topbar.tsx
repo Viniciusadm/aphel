@@ -17,7 +17,6 @@ import {
 } from '@/components/ui/dropdown-menu'
 import { toast } from '@/components/ui/toast-store'
 import { CreateMenuButton, PaletteTrigger } from '@/features/command-palette'
-import { NotificationBell } from '@/features/notifications'
 import { ACCOUNT_AREA } from '@/kernel/modules/settings'
 import { OrganizationBrand } from '@/features/settings/organization/OrganizationBrand'
 import { Slot } from '@/kernel/modules/Slot'
@@ -107,7 +106,7 @@ export function Topbar() {
       </div>
       <div className="ml-auto flex items-center gap-1">
         <div className="hidden md:block"><CreateMenuButton /></div>
-        <NotificationBell />
+        <Slot name="app.topbar" props={{}} />
         <div className="hidden md:block"><UserMenu /></div>
       </div>
     </header>

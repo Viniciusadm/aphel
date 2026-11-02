@@ -26,6 +26,7 @@ use crate::recurrence::{
     ActivityTemplate, ApplyTo, OccurrenceRef, RecurrenceSeries, parse_rule, to_local,
 };
 use crate::store::{ActivityStore, ActivityTypeStore, RecurrenceStore};
+use ::notifications::application::local_day;
 use aphel_kernel::Ctx;
 use aphel_kernel::application::access::{Authorizer, PERMISSION_DENIED};
 use aphel_kernel::application::audit::{DiffOptions, diff_changes};
@@ -35,7 +36,6 @@ use aphel_kernel::application::fields::{
     RecordWrite, ReferenceChecker, WriteMode, saving_unsupported,
 };
 use aphel_kernel::application::files::RecordAccessChecker;
-use aphel_kernel::application::notifications::local_day;
 use aphel_kernel::application::organization_admin::{ListWindow, Listing};
 use aphel_kernel::application::query::{
     CompareOp, FieldTarget, Filter, FilterOperator, PlanCondition, PlanNode, PlanValue, Predicate,

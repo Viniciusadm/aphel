@@ -1,8 +1,8 @@
 use serde::{Deserialize, Serialize};
 use serde_json::Value;
 
-use aphel_kernel::application::dashboard::{LayoutSubject, PeriodQuery};
-use aphel_kernel::domain::dashboard::PeriodSelection;
+use crate::engine::{LayoutSubject, PeriodQuery};
+use crate::engine_domain::PeriodSelection;
 
 pub(crate) const LAYOUT_VERSION: u32 = 1;
 pub(crate) const MAX_LAYOUT_WIDGETS: usize = 24;

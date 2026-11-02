@@ -83,13 +83,6 @@ pub struct PermissionEntry {
 }
 
 #[derive(Debug, Clone, Serialize, utoipa::ToSchema)]
-pub struct NotificationKindEntry {
-    pub kind: &'static str,
-    pub email_default: bool,
-    pub push_default: bool,
-}
-
-#[derive(Debug, Clone, Serialize, utoipa::ToSchema)]
 pub struct FieldTypeEntry {
     pub key: &'static str,
     pub provider: &'static str,
@@ -117,7 +110,8 @@ pub struct CatalogDocument {
     pub hooks: Vec<HookEntry>,
     pub events: Vec<EventEntry>,
     pub permissions: Vec<PermissionEntry>,
-    pub notification_kinds: Vec<NotificationKindEntry>,
+    #[serde(flatten)]
+    pub extensions: std::collections::BTreeMap<String, serde_json::Value>,
 }
 
 pub fn build(app: &App) -> CatalogDocument {
@@ -154,7 +148,11 @@ pub fn build(app: &App) -> CatalogDocument {
         hooks: hooks(app),
         events: events(),
         permissions: permissions(),
-        notification_kinds: notification_kinds(app),
+        extensions: app
+            .contributions::<dyn CatalogExtension>()
+            .into_iter()
+            .map(|source| source.project(app))
+            .collect(),
     }
 }
 
@@ -333,16 +331,6 @@ fn permissions() -> Vec<PermissionEntry> {
     entries
 }
 
-fn notification_kinds(app: &App) -> Vec<NotificationKindEntry> {
-    let mut entries: Vec<NotificationKindEntry> = app
-        .catalog()
-        .notification_kinds()
-        .map(|definition| NotificationKindEntry {
-            kind: definition.kind.as_str(),
-            email_default: definition.email_default,
-            push_default: definition.push_default,
-        })
-        .collect();
-    entries.sort_by_key(|entry| entry.kind);
-    entries
+pub trait CatalogExtension: Send + Sync {
+    fn project(&self, app: &App) -> (String, serde_json::Value);
 }

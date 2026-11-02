@@ -1,6 +1,7 @@
 import { useCallback } from 'react'
 import { useTranslation } from 'react-i18next'
 import { useOrganizationUsers } from '@/features/records/api'
+
 import { countConditions, describeNode } from '@/features/records/filters'
 import { useRecordFormatting } from '@/features/records/formatting'
 import { isFilterGroup, type FieldSchema, type FilterNode } from '@/features/records/types'

@@ -1,8 +1,6 @@
 pub(crate) mod api_token_limit;
-pub mod automation_operations;
 pub(crate) mod client_address;
 pub(crate) mod csrf;
-pub(crate) mod demo_guard;
 pub(crate) mod docs;
 pub mod dto;
 pub mod error;
@@ -11,6 +9,7 @@ pub(crate) mod idempotency;
 pub mod payload_limit;
 pub mod rate_limit;
 pub(crate) mod records;
+pub(crate) mod request_policy;
 pub mod routes;
 pub mod session_cookie;
 pub mod sso;
@@ -38,7 +37,7 @@ pub fn router(state: AppState) -> Router {
             idempotency::guard,
         ))
         .layer(middleware::from_fn(csrf::require_header))
-        .layer(middleware::from_fn(demo_guard::guard))
+        .layer(middleware::from_fn(request_policy::guard))
         .layer(middleware::from_fn_with_state(
             state.clone(),
             api_token_limit::limit,
@@ -65,3 +64,5 @@ pub fn openapi_json() -> Result<String, serde_json::Error> {
 fn openapi_router(state: &AppState) -> OpenApiRouter<AppState> {
     OpenApiRouter::with_openapi(docs::base_document(&state.app)).merge(state.app.router(state))
 }
+
+pub mod record_services;

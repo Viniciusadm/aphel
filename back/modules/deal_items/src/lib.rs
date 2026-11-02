@@ -12,11 +12,11 @@ use std::sync::Arc;
 
 use aphel_kernel::modules::Migration;
 
+use ::config_packages::infrastructure::ConfigSectionFactory;
 use aphel_kernel::application::fields::ItemTable;
 use aphel_kernel::application::fields::builtin::field;
 use aphel_kernel::domain::fields::FieldType;
 use aphel_kernel::errors::AppError;
-use aphel_kernel::infrastructure::config_packages::ConfigSectionFactory;
 use aphel_kernel::modules::builder::APHEL_VERSION;
 use aphel_kernel::modules::{AppBuilder, Manifest, Module};
 use aphel_kernel::records::RecordValidating;
@@ -92,7 +92,7 @@ impl Module for DealItemsModule {
             "Line items of a deal (products or free items) and the deal amount mode",
         )
         .routes(|_| http::router())
-        .widget(Arc::new(widgets::RecurringRevenueWidget))
+        .contribute::<dyn ::dashboard::engine::WidgetProvider<::dashboard::repository::MySqlDashboardPorts>>(Arc::new(widgets::RecurringRevenueWidget))
         .on(
             RecordValidating,
             hooks::CURRENCY_LOCK_PRIORITY,

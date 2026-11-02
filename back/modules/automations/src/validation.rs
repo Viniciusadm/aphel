@@ -1,16 +1,16 @@
 use crate::conditions::{record_part, trigger_violations};
-use aphel_contract_crm::refs;
-use aphel_kernel::application::access::Authorizer;
-use aphel_kernel::application::automations::actions::{ActionRegistry, ValidationContext};
-use aphel_kernel::application::automations::definition::{
+use aphel_contract_automation::application::actions::{ActionRegistry, ValidationContext};
+use aphel_contract_automation::application::definition::{
     AutomationDefinition, MAX_DEFINITION_BYTES, TriggerSpec,
 };
-use aphel_kernel::application::automations::gateway::{AutomationGateway, Reference};
-use aphel_kernel::application::automations::templates::TemplateRules;
-use aphel_kernel::application::automations::time::waits::wait_violations;
-use aphel_kernel::application::automations::triggers::{
+use aphel_contract_automation::application::gateway::{AutomationGateway, Reference};
+use aphel_contract_automation::application::templates::TemplateRules;
+use aphel_contract_automation::application::time::waits::wait_violations;
+use aphel_contract_automation::application::triggers::{
     TriggerReference, TriggerRegistry, is_automatable,
 };
+use aphel_contract_crm::refs;
+use aphel_kernel::application::access::Authorizer;
 use aphel_kernel::application::fields::FieldSet;
 use aphel_kernel::application::query::Filter;
 use aphel_kernel::domain::access::AccessScope;

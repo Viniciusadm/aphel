@@ -10,7 +10,7 @@ use crate::errors::AppError;
 pub struct FirstOrganization {
     pub registration: OrganizationRegistration,
     pub configuration: OrganizationConfig,
-    pub business: Option<super::business::BusinessAnswers>,
+    pub business: Option<serde_json::Value>,
     pub email_verified_at: DateTime<Utc>,
 }
 

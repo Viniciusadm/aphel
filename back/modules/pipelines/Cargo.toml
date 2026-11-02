@@ -7,6 +7,8 @@ license.workspace = true
 publish = false
 
 [dependencies]
+aphel-contract-automation.workspace = true
+config_packages = { package = "aphel-mod-config-packages", path = "../config_packages" }
 aphel-contract-crm.workspace = true
 aphel-kernel.workspace = true
 axum.workspace = true

@@ -1,4 +1,4 @@
-use aphel_kernel::application::config_packages::ConfigReferenceKind;
+use ::config_packages::application::ConfigReferenceKind;
 use std::collections::{BTreeSet, HashMap};
 use std::sync::Arc;
 
@@ -15,8 +15,8 @@ use crate::domain::{
 };
 use crate::service::{MAX_DESCRIPTION_LENGTH, MAX_NAME_LENGTH};
 use crate::store::{DirectoryTeam, DirectoryUser, DistributionStore};
-use aphel_kernel::application::config_packages::sections::common::{check_key, diff};
-use aphel_kernel::application::config_packages::{
+use ::config_packages::application::sections::common::{check_key, diff};
+use ::config_packages::application::{
     ApplyContext, ConfigPackage, ConfigSection, Decisions, PackageIssue, PlanAction, PlanChange,
     PlanItem, parse_section,
 };

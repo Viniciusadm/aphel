@@ -1,3 +1,4 @@
+use aphel_contract_automation::AutomationBuilder;
 mod automation;
 mod cnpj;
 mod http;

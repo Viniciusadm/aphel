@@ -69,7 +69,14 @@ fn summary(document: &CatalogDocument) {
     }
     println!("\nEVENTS ({})", document.events.len());
     println!("PERMISSIONS ({})", document.permissions.len());
-    println!("NOTIFICATION KINDS ({})", document.notification_kinds.len());
+    println!(
+        "NOTIFICATION KINDS ({})",
+        document
+            .extensions
+            .get("notification_kinds")
+            .and_then(serde_json::Value::as_array)
+            .map_or(0, Vec::len)
+    );
 }
 
 fn cell(value: &str) -> String {

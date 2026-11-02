@@ -12,7 +12,7 @@ use crate::application::organizations::PublicBaseUrl;
 use crate::application::shared::{
     DomainEvent, EventConsumer, JobContext, JobHandler, SharedFileStorage,
 };
-use crate::config::WebhooksConfig;
+use crate::config::OutboundHttpConfig;
 use crate::errors::AppError;
 use crate::infrastructure::platform::SharedSecretVault;
 use crate::modules::enabled::EnabledModules;
@@ -25,7 +25,7 @@ pub struct WorkerEnv {
     pub mailer: SharedMailer,
     pub storage: SharedFileStorage,
     pub public_url: PublicBaseUrl,
-    pub webhooks: WebhooksConfig,
+    pub outbound_http: OutboundHttpConfig,
     pub record_types: Arc<RecordTypeCatalog>,
 }
 
@@ -33,7 +33,7 @@ impl WorkerEnv {
     pub fn state(&self) -> AppState {
         AppState::new(Some(self.pool.clone()))
             .with_secrets(self.secrets.clone())
-            .with_webhooks(self.webhooks.clone())
+            .with_outbound_http(self.outbound_http.clone())
             .with_mysql_platform()
             .with_storage(self.storage.clone())
             .with_record_catalog(self.record_types.clone())

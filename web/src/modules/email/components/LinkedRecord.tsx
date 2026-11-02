@@ -2,6 +2,7 @@ import { useQuery } from '@tanstack/react-query'
 import { Link } from 'react-router'
 import { api } from '@/api'
 import { recordsKeys } from '@/features/records/api'
+
 import { getRecordResource, recordPath, recordTitle } from '@/features/records/resources'
 import type { RecordItem } from '@/features/records/types'
 import type { EmailRecordRef } from '../types'

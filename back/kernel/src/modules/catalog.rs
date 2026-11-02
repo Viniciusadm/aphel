@@ -1,6 +1,5 @@
 use crate::application::public_events::PublicEventDefinition;
 use crate::domain::access::{Permission, PermissionDefinition};
-use crate::domain::notifications::NotificationKindDefinition;
 use crate::modules::builder::Contribution;
 
 #[derive(Debug, Clone, PartialEq, Eq)]
@@ -28,7 +27,6 @@ pub struct Catalog {
     pub permissions: Vec<Contribution<PermissionDefinition>>,
     pub grants: Vec<Contribution<PermissionGrant>>,
     pub public_events: Vec<Contribution<PublicEventDefinition>>,
-    pub notification_kinds: Vec<Contribution<NotificationKindDefinition>>,
     pub tags: Vec<Contribution<OpenApiTag>>,
     pub conflicts: Vec<CatalogConflict>,
 }
@@ -89,12 +87,6 @@ impl Catalog {
             &mut conflicts,
         );
         keep_last(
-            "notification_kind",
-            &mut self.notification_kinds,
-            |definition| definition.kind.as_str().to_owned(),
-            &mut conflicts,
-        );
-        keep_last(
             "openapi_tag",
             &mut self.tags,
             |tag| tag.name.to_owned(),
@@ -139,21 +131,6 @@ impl Catalog {
 
     pub fn public_event_contributions(&self) -> &[Contribution<PublicEventDefinition>] {
         &self.public_events
-    }
-
-    pub fn notification_kinds(&self) -> impl Iterator<Item = &NotificationKindDefinition> {
-        self.notification_kinds
-            .iter()
-            .map(|contribution| &contribution.item)
-    }
-
-    pub fn notification_kind_contributions(&self) -> &[Contribution<NotificationKindDefinition>] {
-        &self.notification_kinds
-    }
-
-    pub fn notification_kind(&self, kind: &str) -> Option<&NotificationKindDefinition> {
-        self.notification_kinds()
-            .find(|definition| definition.kind.as_str() == kind)
     }
 
     pub fn tags(&self) -> impl Iterator<Item = &OpenApiTag> {

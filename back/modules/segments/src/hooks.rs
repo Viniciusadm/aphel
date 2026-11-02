@@ -3,18 +3,22 @@ use sqlx::MySqlPool;
 use uuid::Uuid;
 
 use crate::store::SegmentStore;
-use aphel_kernel::application::query::{SegmentSource, SegmentSourceResolver};
+use aphel_kernel::application::query::{FilterSource, FilterSourceResolver};
 use aphel_kernel::errors::AppError;
 
-pub(crate) struct StoredSegmentSources;
+pub(crate) struct StoredFilterSources;
 
 #[async_trait]
-impl SegmentSourceResolver for StoredSegmentSources {
+impl FilterSourceResolver for StoredFilterSources {
+    fn field(&self) -> &'static str {
+        "segment"
+    }
+
     async fn source(
         &self,
         pool: &MySqlPool,
         segment_id: Uuid,
-    ) -> Result<Option<SegmentSource>, AppError> {
+    ) -> Result<Option<FilterSource>, AppError> {
         SegmentStore::new(pool.clone()).source(segment_id).await
     }
 }

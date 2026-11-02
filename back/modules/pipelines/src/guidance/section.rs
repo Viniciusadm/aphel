@@ -1,4 +1,4 @@
-use aphel_kernel::application::config_packages::ConfigReferenceKind;
+use ::config_packages::application::ConfigReferenceKind;
 use std::collections::{BTreeSet, HashMap};
 
 use async_trait::async_trait;
@@ -13,15 +13,15 @@ use crate::guidance::domain::{
 use crate::guidance::store::GuidanceStore;
 use crate::section::{PIPELINES_SECTION, keyed_pipelines, parse_pipelines, stage_item_key};
 use crate::store::PipelineStore;
-use aphel_kernel::application::config_packages::sections::common::{check_key, diff};
-use aphel_kernel::application::config_packages::{
+use ::config_packages::application::sections::common::{check_key, diff};
+use ::config_packages::application::{
     ApplyContext, ConfigKeyRepository, ConfigPackage, ConfigSection, Decisions, PackageIssue,
     PlanChange, PlanItem, assign_keys, parse_section,
 };
+use ::config_packages::infrastructure::MySqlConfigKeyRepository;
 use aphel_kernel::database::transaction::MySqlTx;
 use aphel_kernel::domain::access::AccessScope;
 use aphel_kernel::errors::AppError;
-use aphel_kernel::infrastructure::config_packages::MySqlConfigKeyRepository;
 
 pub(crate) const STAGE_GUIDANCE_SECTION: &str = "stage_guidance";
 const STAGE_GUIDANCE_KIND: &str = "stage_guidance";

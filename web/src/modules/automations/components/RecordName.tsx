@@ -3,6 +3,7 @@ import { ExternalLink } from 'lucide-react'
 import { Link } from 'react-router'
 import { api } from '@/api'
 import { recordsKeys } from '@/features/records/api'
+
 import { getRecordResource, recordPath, recordTitle } from '@/features/records/resources'
 import type { RecordItem } from '@/features/records/types'
 

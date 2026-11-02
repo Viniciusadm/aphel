@@ -12,12 +12,10 @@ use crate::domain::{
     RuleMember, RuleStats, UserStatus,
 };
 use crate::store::{self, AssignmentFilter, DistributionStore, RuleListFilter, TargetInfo};
+use ::config_packages::application::{MAX_CONFIG_KEY_LENGTH, is_config_key, key_from_name};
 use aphel_kernel::Ctx;
 use aphel_kernel::application::access::Authorizer;
 use aphel_kernel::application::audit::{DiffOptions, diff_values};
-use aphel_kernel::application::config_packages::{
-    MAX_CONFIG_KEY_LENGTH, is_config_key, key_from_name,
-};
 use aphel_kernel::application::organization_admin::{ListWindow, Listing};
 use aphel_kernel::application::shared::{RecordRef, RecordType, ensure_version};
 use aphel_kernel::database::transaction::MySqlTx;

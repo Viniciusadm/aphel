@@ -6,7 +6,7 @@ use serde_json::{Map, Value};
 use utoipa::ToSchema;
 
 use super::service::{ConfigureIntegrationCommand, ConnectionTestResult, IntegrationView};
-use aphel_kernel::application::integrations::{
+use crate::engine::{
     ConfigField, ConfigInput, IntegrationError, IntegrationErrorSource, ProviderKind,
 };
 

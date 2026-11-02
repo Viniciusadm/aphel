@@ -8,7 +8,7 @@ use crate::domain::builtin::{
     PerformanceDimension, PerformanceMetrics, PerformanceQuery, PerformanceReport, PerformanceRow,
     ReportPipeline, ReportStage, StageFunnel,
 };
-use aphel_kernel::application::dashboard::PeriodQuery;
+use ::dashboard::engine::PeriodQuery;
 use dashboard::dto::{DashboardPeriodResponse, PeriodPresetSchema};
 use deals::http::money;
 use pipelines::domain::StageKind;

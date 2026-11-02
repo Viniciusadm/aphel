@@ -48,7 +48,8 @@ pub enum FilterOperator {
     WithinNextDays,
     OlderThanDays,
     Anniversary,
-    InSegment,
+    #[serde(rename = "in_segment")]
+    InSavedFilter,
     InGroup,
 }
 
@@ -83,7 +84,7 @@ impl FilterOperator {
             Self::WithinNextDays => "within_next_days",
             Self::OlderThanDays => "older_than_days",
             Self::Anniversary => "anniversary",
-            Self::InSegment => "in_segment",
+            Self::InSavedFilter => "in_segment",
             Self::InGroup => "in_group",
         }
     }

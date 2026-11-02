@@ -1,5 +1,8 @@
 use std::process::ExitCode;
 
+#[cfg(feature = "plugins")]
+#[path = "../../../blueprints/installer.rs"]
+mod blueprints;
 mod cli;
 mod modules;
 

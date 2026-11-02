@@ -10,19 +10,19 @@ use crate::{
     MAX_STEPS, RUNS_PER_RECORD_LIMIT, RUNS_PER_RECORD_WINDOW_MINUTES, RunDetails, RunStep,
     UpdateAutomationCommand,
 };
-use aphel_kernel::api::dto::common::double_option;
-use aphel_kernel::api::dto::query::FilterNodeSchema;
-use aphel_kernel::application::automations::actions::AutomationAction;
-use aphel_kernel::application::automations::definition::{
+use aphel_contract_automation::application::actions::AutomationAction;
+use aphel_contract_automation::application::definition::{
     AutomationDefinition, AutomationOptions, BranchCase, StepBody, StepSpec,
 };
-use aphel_kernel::application::automations::templates::{TEMPLATE_ROOTS, TRIGGER_PATHS};
-use aphel_kernel::application::automations::time::triggers::MIN_SCHEDULE_INTERVAL_MINUTES;
-use aphel_kernel::application::automations::time::waits::WAIT_UNTIL_POLL_MINUTES;
-use aphel_kernel::application::query::Filter;
-use aphel_kernel::domain::automations::{
+use aphel_contract_automation::application::templates::{TEMPLATE_ROOTS, TRIGGER_PATHS};
+use aphel_contract_automation::application::time::triggers::MIN_SCHEDULE_INTERVAL_MINUTES;
+use aphel_contract_automation::application::time::waits::WAIT_UNTIL_POLL_MINUTES;
+use aphel_contract_automation::domain::{
     AutomationStatus, RunStatus, SkipReason, StepKind, StepStatus,
 };
+use aphel_kernel::api::dto::common::double_option;
+use aphel_kernel::api::dto::query::FilterNodeSchema;
+use aphel_kernel::application::query::Filter;
 
 fn timestamp(value: DateTime<Utc>) -> String {
     value.to_rfc3339_opts(SecondsFormat::Secs, true)

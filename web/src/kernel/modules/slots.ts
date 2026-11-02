@@ -2,7 +2,7 @@ import { useMemo, type ComponentType } from 'react'
 import type { RecordFormMode } from '@/features/records/form/RecordForm'
 import type { BulkActionContext } from '@/features/records/table/RecordListView'
 import type { FilterNode, RecordItem } from '@/features/records/types'
-import type { CatalogEntry } from '@/features/settings/catalog/types'
+import type { CatalogEntry } from '@/modules/marketplace/types'
 import type { SlotContribution } from './define'
 import { matchesRecordType } from './record-types'
 import { useActiveContributions, usePermissionCheck } from './registry'
@@ -44,6 +44,8 @@ export interface SlotPropsMap {
     onChange: (value: string) => void
   }
   'user.menu': Record<string, never>
+  'app.topbar': Record<string, never>
+  'modules.settings': Record<string, never>
   'app.shell': Record<string, never>
   'app.sidebar': { collapsed?: boolean; onNavigate?: () => void }
   'catalog.sections': { entries: CatalogEntry[] }
