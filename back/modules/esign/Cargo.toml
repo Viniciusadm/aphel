@@ -8,6 +8,7 @@ publish = false
 
 [dependencies]
 tracing.workspace = true
+aphel-contract-crm.workspace = true
 aphel-kernel.workspace = true
 activities = { package = "aphel-mod-activities", path = "../activities" }
 deals = { package = "aphel-mod-deals", path = "../deals" }

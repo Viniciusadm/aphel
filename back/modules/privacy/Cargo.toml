@@ -7,7 +7,9 @@ license.workspace = true
 publish = false
 
 [dependencies]
+aphel-contract-crm.workspace = true
 aphel-kernel.workspace = true
+aphel-sdk.workspace = true
 exports = { package = "aphel-mod-exports", path = "../exports" }
 trash = { package = "aphel-mod-trash", path = "../trash" }
 axum.workspace = true

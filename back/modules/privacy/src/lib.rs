@@ -3,6 +3,7 @@ pub(crate) mod dto;
 pub(crate) mod http;
 pub mod mysql;
 pub(crate) mod notifications;
+mod points;
 pub(crate) mod runtime;
 pub(crate) mod service;
 pub(crate) mod store;
@@ -47,6 +48,9 @@ impl Module for PrivacyModule {
     }
 
     fn register(&self, app: &mut AppBuilder) -> Result<(), AppError> {
+        app.contribute::<dyn aphel_kernel::modules::FileReferenceSource>(std::sync::Arc::new(
+            points::PrivacyFiles,
+        ));
         app.contribute::<dyn aphel_kernel::application::notifications::NotificationSource>(
             std::sync::Arc::new(notifications::PrivacyExportNotifications),
         );

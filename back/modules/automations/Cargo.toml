@@ -7,7 +7,9 @@ license.workspace = true
 publish = false
 
 [dependencies]
+aphel-contract-crm.workspace = true
 aphel-kernel.workspace = true
+aphel-sdk.workspace = true
 activities = { package = "aphel-mod-activities", path = "../activities" }
 pipelines = { package = "aphel-mod-pipelines", path = "../pipelines" }
 tags = { package = "aphel-mod-tags", path = "../tags" }

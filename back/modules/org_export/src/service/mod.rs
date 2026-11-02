@@ -1,6 +1,7 @@
 pub(crate) mod config;
 pub(crate) mod restore;
 
+use aphel_contract_crm::{CrmPermissions, CrmRecordTypes};
 use std::path::Path;
 
 use chrono::{DateTime, Utc};

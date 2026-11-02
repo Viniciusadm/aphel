@@ -1,3 +1,4 @@
+use aphel_contract_crm::CrmRecordTypes;
 use serde_json::{Value, json};
 use std::borrow::Cow;
 use uuid::Uuid;

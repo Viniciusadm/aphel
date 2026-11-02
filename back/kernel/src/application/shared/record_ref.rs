@@ -11,16 +11,6 @@ const MAX_RECORD_TYPE_LENGTH: usize = 64;
 pub struct RecordType(Cow<'static, str>);
 
 impl RecordType {
-    pub const CONTACT: Self = Self::from_static("contact");
-    pub const COMPANY: Self = Self::from_static("company");
-    pub const DEAL: Self = Self::from_static("deal");
-    pub const ACTIVITY: Self = Self::from_static("activity");
-    pub const PRODUCT: Self = Self::from_static("product");
-    pub const NOTE: Self = Self::from_static("note");
-    pub const PIPELINE: Self = Self::from_static("pipeline");
-    pub const PIPELINE_STAGE: Self = Self::from_static("pipeline_stage");
-    pub const LOST_REASON: Self = Self::from_static("lost_reason");
-    pub const ACTIVITY_TYPE: Self = Self::from_static("activity_type");
     pub const FILE: Self = Self::from_static("file");
     pub const MEMBER: Self = Self::from_static("member");
     pub const ROLE: Self = Self::from_static("role");

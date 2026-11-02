@@ -1,3 +1,4 @@
+use aphel_contract_crm::CrmRecordTypes;
 use std::sync::Arc;
 
 use chrono::{DateTime, NaiveDateTime, Utc};

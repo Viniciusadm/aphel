@@ -1,3 +1,4 @@
+use aphel_contract_crm::{CrmPermissions, CrmRecordTypes};
 use std::collections::{BTreeMap, BTreeSet};
 
 use chrono::{Datelike, Days, Months, NaiveDate};

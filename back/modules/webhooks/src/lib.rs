@@ -5,6 +5,7 @@ pub(crate) mod incoming;
 pub(crate) mod notifications;
 pub(crate) mod operations;
 pub(crate) mod outgoing;
+mod points;
 
 use std::sync::Arc;
 
@@ -67,6 +68,9 @@ impl Module for WebhooksModule {
     }
 
     fn register(&self, app: &mut AppBuilder) -> Result<(), AppError> {
+        app.contribute::<dyn aphel_kernel::modules::HealthSource>(std::sync::Arc::new(
+            points::WebhookFailures,
+        ));
         app.contribute::<dyn aphel_kernel::application::notifications::texts::NotificationTexts>(
             std::sync::Arc::new(crate::notifications::WebhookNotificationTexts),
         );

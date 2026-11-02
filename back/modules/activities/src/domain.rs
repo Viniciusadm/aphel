@@ -1,3 +1,4 @@
+use aphel_contract_crm::CrmRecordTypes;
 use chrono::{DateTime, SecondsFormat, Utc};
 use rust_decimal::Decimal;
 use rust_decimal::prelude::FromPrimitive;

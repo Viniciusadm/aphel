@@ -1,3 +1,4 @@
+use aphel_contract_crm::CrmPermissions;
 use std::sync::Arc;
 
 use chrono::NaiveDate;

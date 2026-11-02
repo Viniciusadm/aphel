@@ -14,6 +14,7 @@ pub(crate) mod store;
 pub mod token;
 pub(crate) mod validation;
 
+use aphel_contract_crm::CrmPermissions;
 use aphel_kernel::modules::Migration;
 use utoipa_axum::router::OpenApiRouter;
 

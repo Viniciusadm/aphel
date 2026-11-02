@@ -6,10 +6,12 @@ pub(crate) mod http;
 pub(crate) mod installer_http;
 pub(crate) mod model;
 pub(crate) mod notifications;
+mod points;
 pub(crate) mod runtime;
 pub(crate) mod service;
 pub(crate) mod store;
 
+use aphel_contract_crm::CrmPermissions;
 use std::sync::Arc;
 
 use aphel_kernel::application::files::{FileReferenceColumn, FileReferenceSource};
@@ -53,6 +55,9 @@ impl Module for OrgExportModule {
     }
 
     fn register(&self, app: &mut AppBuilder) -> Result<(), AppError> {
+        app.contribute::<dyn aphel_kernel::modules::FileReferenceSource>(std::sync::Arc::new(
+            points::OrganizationExportFiles,
+        ));
         app.contribute::<dyn aphel_kernel::application::notifications::NotificationSource>(
             std::sync::Arc::new(notifications::OrganizationExportNotifications),
         );

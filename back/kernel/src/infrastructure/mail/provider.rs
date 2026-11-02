@@ -1,11 +1,11 @@
+use crate::modules::points::IntegrationStore;
 use std::collections::BTreeMap;
 use std::sync::{Arc, Mutex};
 
 use async_trait::async_trait;
 use chrono::{NaiveDateTime, Utc};
 use serde_json::{Map, Value};
-use sqlx::types::Json;
-use sqlx::{MySqlPool, Row};
+use sqlx::MySqlPool;
 
 use crate::application::integrations::{
     IntegrationError, IntegrationErrorSource, IntegrationStatus, ResolvedConfig, secret_key,
@@ -66,14 +66,17 @@ impl SmtpMailerProvider {
     }
 
     pub(crate) async fn is_configured(&self) -> Result<bool, AppError> {
-        let configured: bool = sqlx::query_scalar(
-            "SELECT EXISTS(SELECT 1 FROM integrations \
-             WHERE provider_key = ? AND status IN ('active', 'error'))",
-        )
-        .bind(PROVIDER_KEY)
-        .fetch_one(&self.pool)
-        .await?;
-        Ok(configured)
+        Ok(match self.store() {
+            Some(store) => store.active(&self.pool, PROVIDER_KEY).await?.is_some(),
+            None => false,
+        })
+    }
+
+    fn store(&self) -> Option<Arc<dyn IntegrationStore>> {
+        crate::modules::app()
+            .contributions::<dyn IntegrationStore>()
+            .into_iter()
+            .next()
     }
 
     fn cached(&self, key: &CacheKey) -> Option<ResolvedMailer> {
@@ -92,27 +95,23 @@ impl SmtpMailerProvider {
     }
 
     async fn resolve(&self) -> Result<Option<ResolvedMailer>, AppError> {
-        let row = sqlx::query(
-            "SELECT id, config, status, updated_at FROM integrations \
-             WHERE provider_key = ? AND status IN ('active', 'error')",
-        )
-        .bind(PROVIDER_KEY)
-        .fetch_optional(&self.pool)
-        .await?;
-        let Some(row) = row else {
+        let Some(store) = self.store() else {
+            return Ok(None);
+        };
+        let Some(active) = store.active(&self.pool, PROVIDER_KEY).await? else {
             return Ok(None);
         };
         let key = CacheKey {
-            id: row.try_get("id")?,
-            status: row.try_get("status")?,
-            updated_at: row.try_get("updated_at")?,
+            id: active.id,
+            status: active.status,
+            updated_at: active.updated_at,
         };
         if let Some(resolved) = self.cached(&key) {
             return Ok(Some(resolved));
         }
         let integration_id = uuid::Uuid::parse_str(&key.id)
             .map_err(|_| mapper::invalid_column("integrations.id", &key.id))?;
-        let Json(config): Json<Value> = row.try_get("config")?;
+        let config = active.config;
         let mut secrets = BTreeMap::new();
         if let Some(password) = self
             .vault
@@ -143,29 +142,21 @@ impl SmtpMailerProvider {
 
     async fn record_failure(&self, integration_id: &str, message: &str) -> Result<(), AppError> {
         let error = IntegrationError::new(Utc::now(), IntegrationErrorSource::Delivery, message);
-        let entry = serde_json::to_value(&error).map_err(|failure| {
-            AppError::Internal(format!("invalid integration error: {failure}"))
-        })?;
-        sqlx::query(
-            "UPDATE integrations SET status = 'error', last_error = ?, last_error_at = ?, \
-             recent_errors = JSON_REMOVE(JSON_ARRAY_INSERT(recent_errors, '$[0]', CAST(? AS JSON)), '$[5]') \
-             WHERE id = ? AND status IN ('active', 'error')",
-        )
-        .bind(&error.message)
-        .bind(mapper::naive(error.at))
-        .bind(Json(entry))
-        .bind(integration_id)
-        .execute(&self.pool)
-        .await?;
-        Ok(())
+        match self.store() {
+            Some(store) => {
+                store
+                    .record_failure(&self.pool, integration_id, &error)
+                    .await
+            }
+            None => Ok(()),
+        }
     }
 
     async fn record_recovery(&self, integration_id: &str) -> Result<(), AppError> {
-        sqlx::query("UPDATE integrations SET status = 'active' WHERE id = ? AND status = 'error'")
-            .bind(integration_id)
-            .execute(&self.pool)
-            .await?;
-        Ok(())
+        match self.store() {
+            Some(store) => store.record_recovery(&self.pool, integration_id).await,
+            None => Ok(()),
+        }
     }
 }
 

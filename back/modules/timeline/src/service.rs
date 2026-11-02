@@ -1,3 +1,4 @@
+use aphel_contract_crm::{CrmPermissions, CrmRecordTypes};
 use std::cmp::Ordering;
 use std::collections::{BTreeSet, HashMap};
 

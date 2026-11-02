@@ -1,3 +1,4 @@
+use aphel_contract_crm::CrmRecordTypes;
 use chrono::{DateTime, Duration, Utc};
 use serde_json::{Value, json};
 use uuid::Uuid;

@@ -9,6 +9,7 @@ pub mod mailboxes;
 pub(crate) mod model;
 pub(crate) mod payload;
 pub(crate) mod plugin_bridge;
+mod points;
 pub(crate) mod provider;
 pub(crate) mod reading;
 pub(crate) mod runtime;
@@ -18,6 +19,7 @@ pub(crate) mod sync;
 pub mod templates;
 pub mod tracking;
 
+use aphel_contract_crm::CrmPermissions;
 use std::sync::Arc;
 
 use aphel_kernel::modules::Migration;
@@ -108,6 +110,9 @@ impl Module for EmailModule {
     }
 
     fn register(&self, app: &mut AppBuilder) -> Result<(), AppError> {
+        app.contribute::<dyn aphel_kernel::modules::FileReferenceSource>(std::sync::Arc::new(
+            points::EmailFiles,
+        ));
         app.declare_hook(crate::hooks::OutgoingEmail, &[aphel_kernel::modules::HookUsage::Filter],
             "An e-mail before it is saved and sent; without recipients or subject the send fails with 422",
         );

@@ -28,7 +28,6 @@ use state::AppState;
 pub fn router(state: AppState) -> Router {
     crate::state::install_runtime_state(state.clone());
     let (api_router, mut openapi) = openapi_router(&state).split_for_parts();
-    let api_router = state.app.apply_overrides(api_router, &state);
     docs::add_api_token_security(&mut openapi);
     idempotency::document(&mut openapi);
 

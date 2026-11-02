@@ -124,7 +124,6 @@ The `AppBuilder` is the only contribution point. Each call is tagged with the mo
 | Contribution | API |
 |---|---|
 | Routes | `app.routes(OpenApiRouter)` mounts under `/api/v1/...` (no forced prefix); `app.public_routes(..)` |
-| Override a route | `app.override_route(Method::POST, "/api/v1/contacts", handler)`: the last one registered wins and is logged |
 | Record type | `app.entity(def).handler(ContactHandler)` |
 | Extend an existing type | `app.extend("contact", \|t\| t.system_field(..).relation(..).computed(..))` |
 | Code-defined field (no migration) | `app.extend("contact", \|t\| t.managed_field(FieldSpec::number("lead_temperature")))`: definition synced at boot, value stored in the EAV, locked in the UI |
@@ -208,7 +207,7 @@ There are three levels, from the finest to the coarsest:
    - `email::Sender`.
 
    Callers always resolve through the container (`services.get::<dyn LeadConverter>()`), and `app.provide` from another module replaces the implementation. The original remains accessible for decoration: `app.decorate::<dyn LeadConverter>(|inner| Arc::new(Wrap(inner)))`.
-3. **Route:** `app.override_route` replaces the whole HTTP handler.
+3. **Route:** not overridable; a plugin offers its own route instead.
 
 When two contributions compete for the same thing, **the last one in load order wins**: dependencies first, then priority and the order in `aphel.modules.toml`. The conflict is logged and shown in `aphel modules doctor`. Nothing is forbidden.
 

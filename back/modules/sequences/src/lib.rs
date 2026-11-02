@@ -13,6 +13,7 @@ pub(crate) mod section;
 pub mod service;
 pub(crate) mod store;
 
+use aphel_contract_crm::CrmPermissions;
 use std::sync::Arc;
 
 use aphel_kernel::modules::Migration;

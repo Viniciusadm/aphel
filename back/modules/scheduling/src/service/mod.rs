@@ -1,3 +1,4 @@
+use aphel_contract_crm::CrmPermissions;
 use aphel_kernel::application::shared::parse_uuid as parse_id;
 
 pub(crate) mod booking;

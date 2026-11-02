@@ -1,3 +1,5 @@
+use aphel_contract_crm::{CrmPermissions, CrmRecordTypes};
+use aphel_kernel::domain::access::Permission;
 use std::collections::HashSet;
 
 use chrono::{DateTime, Utc};
@@ -171,7 +173,15 @@ pub(crate) async fn subjects(ctx: &Ctx<'_>) -> Result<SubjectOptions, AppError> 
     let directory = MySqlDashboardRepository::new(ctx.pool().clone())
         .subject_directory()
         .await?;
-    Ok(visible_subjects(ctx.scope, directory))
+    Ok(visible_subjects(
+        ctx.scope,
+        &[
+            Permission::DEALS_READ,
+            Permission::ACTIVITIES_READ,
+            Permission::CONTACTS_READ,
+        ],
+        directory,
+    ))
 }
 
 fn default_layout_with(registry: &Widgets, scope: &AccessScope) -> DashboardLayout {

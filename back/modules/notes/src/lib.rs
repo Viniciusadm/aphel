@@ -10,6 +10,7 @@ pub(crate) mod search;
 pub mod service;
 pub mod store;
 
+use aphel_contract_crm::CrmPermissions;
 use aphel_kernel::modules::Migration;
 
 use aphel_kernel::application::public_events::{

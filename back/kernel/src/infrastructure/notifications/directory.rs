@@ -1,9 +1,10 @@
+use crate::modules::points::DigestSource;
 use std::sync::Arc;
 
 use async_trait::async_trait;
-use chrono::{DateTime, NaiveDateTime, Utc};
+use chrono::{DateTime, Utc};
 use chrono_tz::Tz;
-use sqlx::{AssertSqlSafe, MySql, MySqlPool, QueryBuilder, Row};
+use sqlx::{AssertSqlSafe, MySqlPool, Row};
 
 use crate::application::access::{AccessRepository, build_access_scope};
 use crate::application::fields::{RecordTypeDefinition, RecordTypeRegistry};
@@ -15,7 +16,6 @@ use crate::application::shared::RecordRef;
 use crate::domain::UserId;
 use crate::domain::users::UserStatus;
 use crate::errors::AppError;
-use crate::infrastructure::fields::mysql_definitions::uuid_column;
 use crate::infrastructure::records::MySqlRecordAccessChecker;
 use crate::infrastructure::repositories::mapper;
 use crate::infrastructure::repositories::mysql_access::MySqlAccessRepository;
@@ -175,36 +175,22 @@ impl NotificationDirectory for MySqlNotificationDirectory {
         from: DateTime<Utc>,
         to: DateTime<Utc>,
     ) -> Result<Vec<DueTask>, AppError> {
-        let mut builder = QueryBuilder::<MySql>::new(
-            "SELECT a.id, a.owner_id, a.title, a.due_at FROM activities a \
-             JOIN users m ON m.id = a.owner_id \
-             WHERE a.status = 'open' AND a.deleted_at IS NULL AND m.status = ",
-        );
-        builder
-            .push_bind(UserStatus::Active.as_str())
-            .push(" AND a.due_at > ")
-            .push_bind(mapper::naive(from))
-            .push(" AND a.due_at <= ")
-            .push_bind(mapper::naive(to));
-        if let Some(owner_id) = owner_id {
-            builder
-                .push(" AND a.owner_id = ")
-                .push_bind(owner_id.as_str().to_owned());
+        let mut tasks = Vec::new();
+        for source in crate::modules::app().contributions::<dyn DigestSource>() {
+            tasks.extend(
+                source
+                    .open_tasks_due(
+                        &self.pool,
+                        owner_id,
+                        from,
+                        to,
+                        u64::from(MAX_DUE_TASKS_PER_RUN),
+                    )
+                    .await?,
+            );
         }
-        builder
-            .push(" ORDER BY a.due_at, a.id LIMIT ")
-            .push_bind(MAX_DUE_TASKS_PER_RUN);
-        let rows = builder.build().fetch_all(&self.pool).await?;
-        rows.iter()
-            .map(|row| {
-                let due_at: NaiveDateTime = row.try_get("due_at")?;
-                Ok(DueTask {
-                    id: uuid_column(row, "id")?,
-                    owner_id: mapper::typed_id(row.try_get("owner_id")?, UserId::new)?,
-                    title: row.try_get("title")?,
-                    due_at: mapper::utc(due_at),
-                })
-            })
-            .collect()
+        tasks.sort_by_key(|task| (task.due_at, task.id));
+        tasks.truncate(MAX_DUE_TASKS_PER_RUN as usize);
+        Ok(tasks)
     }
 }

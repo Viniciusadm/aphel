@@ -1,3 +1,4 @@
+use aphel_contract_crm::CrmRecordTypes;
 use async_trait::async_trait;
 use axum::Json;
 use axum::extract::{Path, Query, State};

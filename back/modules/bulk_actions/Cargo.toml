@@ -7,6 +7,7 @@ license.workspace = true
 publish = false
 
 [dependencies]
+aphel-contract-crm.workspace = true
 aphel-kernel.workspace = true
 exports = { package = "aphel-mod-exports", path = "../exports" }
 sequences = { package = "aphel-mod-sequences", path = "../sequences" }

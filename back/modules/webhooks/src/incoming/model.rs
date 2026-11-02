@@ -1,3 +1,4 @@
+use aphel_contract_crm::CrmRecordTypes;
 use chrono::{DateTime, Utc};
 use serde::{Deserialize, Serialize};
 use serde_json::{Map, Value};

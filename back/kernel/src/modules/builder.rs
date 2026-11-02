@@ -2,8 +2,6 @@ use std::any::{Any, TypeId};
 use std::collections::{BTreeSet, HashMap};
 use std::sync::{Arc, RwLock};
 
-use axum::http::Method;
-use axum::routing::MethodRouter;
 use utoipa_axum::router::OpenApiRouter;
 
 use crate::api::state::AppState;
@@ -81,13 +79,6 @@ pub struct RouteContribution {
     pub factory: RouteFactory,
 }
 
-#[derive(Clone)]
-pub struct RouteOverride {
-    pub method: Method,
-    pub path: String,
-    pub handler: MethodRouter<AppState>,
-}
-
 pub struct LoadedModule {
     pub module: Box<dyn Module>,
     pub manifest: Manifest,
@@ -110,7 +101,6 @@ pub struct AppBuilder {
     current: &'static str,
     loaded: Vec<&'static str>,
     pub routes: Vec<Contribution<RouteContribution>>,
-    pub overrides: Vec<Contribution<RouteOverride>>,
     pub hooks: HookBus,
     pub services: Services,
     pub catalog: Catalog,
@@ -167,7 +157,6 @@ impl AppBuilder {
             current: KERNEL_MODULE,
             loaded: Vec::new(),
             routes: Vec::new(),
-            overrides: Vec::new(),
             hooks: HookBus::new(enabled.clone()),
             services: Services::new(enabled.clone()),
             catalog: Catalog::default(),
@@ -210,10 +199,6 @@ impl AppBuilder {
         self.current
     }
 
-    pub fn has_module(&self, key: &str) -> bool {
-        self.loaded.contains(&key)
-    }
-
     fn route(&mut self, mount: RouteMount, factory: RouteFactory) -> &mut Self {
         let contribution =
             self.contribution(DEFAULT_PRIORITY, RouteContribution { mount, factory });
@@ -240,38 +225,6 @@ impl AppBuilder {
         F: Fn(&AppState) -> OpenApiRouter<AppState> + Send + Sync + 'static,
     {
         self.route(RouteMount::Root, Arc::new(factory))
-    }
-
-    pub fn override_route(
-        &mut self,
-        method: Method,
-        path: impl Into<String>,
-        handler: MethodRouter<AppState>,
-    ) -> &mut Self {
-        let path = path.into();
-        if let Some(previous) = self
-            .overrides
-            .iter()
-            .find(|existing| existing.item.method == method && existing.item.path == path)
-        {
-            tracing::info!(
-                %method,
-                path = %path,
-                previous = previous.module,
-                replacement = self.current,
-                "route override replaced"
-            );
-        }
-        let contribution = self.contribution(
-            DEFAULT_PRIORITY,
-            RouteOverride {
-                method,
-                path,
-                handler,
-            },
-        );
-        self.overrides.push(contribution);
-        self
     }
 
     pub fn on<K, F>(&mut self, hook: K, priority: i32, handler: F) -> &mut Self
@@ -568,7 +521,6 @@ impl AppBuilder {
             record_contributions,
             modules,
             routes: self.routes,
-            overrides: self.overrides,
             hooks: self.hooks,
             services: self.services,
             catalog: self.catalog,
@@ -717,7 +669,6 @@ pub struct App {
     record_contributions: Vec<RecordContributionInfo>,
     modules: Vec<LoadedModule>,
     routes: Vec<Contribution<RouteContribution>>,
-    overrides: Vec<Contribution<RouteOverride>>,
     hooks: HookBus,
     services: Services,
     catalog: Catalog,
@@ -822,10 +773,6 @@ impl App {
 
     pub fn route_contributions(&self) -> &[Contribution<RouteContribution>] {
         &self.routes
-    }
-
-    pub fn route_overrides(&self) -> &[Contribution<RouteOverride>] {
-        &self.overrides
     }
 
     pub fn worker_contributions(&self) -> &[Contribution<WorkerFactory>] {

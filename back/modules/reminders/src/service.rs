@@ -1,3 +1,4 @@
+use aphel_contract_crm::CrmRecordTypes;
 use chrono::{DateTime, Utc};
 use uuid::Uuid;
 

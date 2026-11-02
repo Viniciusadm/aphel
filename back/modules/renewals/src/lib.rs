@@ -7,6 +7,7 @@ pub(crate) mod service;
 pub(crate) mod store;
 pub(crate) mod widget;
 
+use aphel_contract_crm::CrmRecordTypes;
 use std::sync::Arc;
 
 use aphel_kernel::modules::Migration;

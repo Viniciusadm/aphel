@@ -205,7 +205,6 @@ Besides what is above, `AppBuilder` accepts:
 | `contribute::<T>` | Typed contribution; readers use `App::contributions::<T>()` (enabled modules only) or `all_contributions` |
 | `widget`, `trigger`/`action` | Dashboard widget, automation trigger and action |
 | `job`, `consumer`, `schedule`, `worker` | Background work |
-| `override_route` | Replace the handler of an existing route (method + path) while the module is enabled |
 | `routes`, `public_routes`, `root_routes` | Mount the module's routes (see [Routes: `routes` × `public_routes` × `root_routes`](#routes-routes--public_routes--root_routes)) |
 
 #### Routes: `routes` × `public_routes` × `root_routes`

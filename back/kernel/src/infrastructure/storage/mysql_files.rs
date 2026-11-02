@@ -1,3 +1,4 @@
+use crate::modules::points::FileReferenceSource;
 use std::sync::Arc;
 
 use async_trait::async_trait;
@@ -131,28 +132,12 @@ impl FileRepository for MySqlFileRepository {
 
     async fn generated_kind(&self, file_id: Uuid) -> Result<Option<GeneratedFileKind>, AppError> {
         let file_id = file_id.to_string();
-        let kind: Option<String> = sqlx::query_scalar(
-            "SELECT 'organization_export' FROM organization_exports WHERE file_id = ? \
-             UNION ALL SELECT 'privacy_package' FROM privacy_requests WHERE file_id = ? \
-             UNION ALL SELECT 'record_export' FROM export_jobs WHERE file_id = ? \
-             UNION ALL SELECT 'email_content' FROM email_messages WHERE body_file_id = ? \
-             UNION ALL SELECT 'email_content' FROM email_attachments ea WHERE ea.file_id = ? \
-             AND NOT EXISTS (SELECT 1 FROM attachments ra WHERE ra.file_id = ea.file_id) \
-             LIMIT 1",
-        )
-        .bind(&file_id)
-        .bind(&file_id)
-        .bind(&file_id)
-        .bind(&file_id)
-        .bind(&file_id)
-        .fetch_optional(&self.pool)
-        .await?;
-        Ok(match kind.as_deref() {
-            Some("organization_export") => Some(GeneratedFileKind::OrganizationExport),
-            Some("privacy_package") => Some(GeneratedFileKind::PrivacyPackage),
-            Some(_) => Some(GeneratedFileKind::RecordExport),
-            None => None,
-        })
+        for source in crate::modules::app().contributions::<dyn FileReferenceSource>() {
+            if let Some(kind) = source.reference_kind(&self.pool, &file_id).await? {
+                return Ok(Some(kind));
+            }
+        }
+        Ok(None)
     }
 
     async fn attached_records(&self, file_id: Uuid) -> Result<Vec<RecordRef>, AppError> {

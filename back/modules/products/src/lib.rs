@@ -3,6 +3,7 @@ pub mod http;
 pub mod service;
 pub mod store;
 
+use aphel_contract_crm::{CrmPermissions, CrmRecordTypes};
 use std::sync::Arc;
 
 use aphel_kernel::modules::Migration;

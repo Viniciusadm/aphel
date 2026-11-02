@@ -7,6 +7,7 @@ license.workspace = true
 publish = false
 
 [dependencies]
+aphel-contract-crm.workspace = true
 aphel-kernel.workspace = true
 imports = { package = "aphel-mod-imports", path = "../imports" }
 activities = { package = "aphel-mod-activities", path = "../activities" }

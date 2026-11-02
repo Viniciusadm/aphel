@@ -5,12 +5,6 @@ use crate::application::query::{Filter, FilterOperator, OWNER_TEAM_FIELD};
 use crate::domain::access::{AccessScope, Permission, RecordScope};
 use crate::domain::{TeamId, UserId};
 
-pub const SUBJECT_PERMISSIONS: [Permission; 3] = [
-    Permission::DEALS_READ,
-    Permission::ACTIVITIES_READ,
-    Permission::CONTACTS_READ,
-];
-
 #[derive(Debug, Clone, Copy, PartialEq, Eq, Serialize, Deserialize)]
 #[serde(rename_all = "snake_case")]
 pub enum SubjectKind {
@@ -94,8 +88,8 @@ impl WidgetSubject {
     }
 }
 
-pub fn subject_scope(scope: &AccessScope) -> RecordScope {
-    SUBJECT_PERMISSIONS
+pub fn subject_scope(scope: &AccessScope, permissions: &[Permission]) -> RecordScope {
+    permissions
         .iter()
         .filter_map(|permission| scope.scope_for(permission))
         .max()
@@ -114,8 +108,12 @@ fn own_user(scope: &AccessScope, directory: &SubjectDirectory) -> SubjectUser {
         })
 }
 
-pub fn visible_subjects(scope: &AccessScope, directory: SubjectDirectory) -> SubjectOptions {
-    let record_scope = subject_scope(scope);
+pub fn visible_subjects(
+    scope: &AccessScope,
+    permissions: &[Permission],
+    directory: SubjectDirectory,
+) -> SubjectOptions {
+    let record_scope = subject_scope(scope, permissions);
     match record_scope {
         RecordScope::Organization => SubjectOptions {
             scope: record_scope,

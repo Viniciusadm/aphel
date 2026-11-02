@@ -1,3 +1,4 @@
+use aphel_contract_crm::CrmPermissions;
 use async_trait::async_trait;
 use chrono::Utc;
 use serde_json::{Value, json};

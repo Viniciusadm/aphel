@@ -1,3 +1,4 @@
+use crate::modules::points::HealthSource;
 use async_trait::async_trait;
 use chrono::{DateTime, NaiveDateTime, Utc};
 use sqlx::mysql::MySqlRow;
@@ -5,8 +6,7 @@ use sqlx::{AssertSqlSafe, MySql, MySqlPool, QueryBuilder, Row};
 use uuid::Uuid;
 
 use crate::application::system::model::{
-    FailedJob, FailedJobFilter, FailureEntry, FailureSource, InstanceHeartbeat, JobKindCounts,
-    PageWindow,
+    FailedJob, FailedJobFilter, FailureEntry, InstanceHeartbeat, JobKindCounts, PageWindow,
 };
 use crate::application::system::ports::{FailedJobRepository, QueueMonitor};
 use crate::database::transaction::MySqlTx;
@@ -113,21 +113,6 @@ pub async fn heartbeats(pool: &MySqlPool) -> Result<Vec<InstanceHeartbeat>, AppE
         .collect()
 }
 
-fn failure(row: &MySqlRow, source: FailureSource) -> Result<FailureEntry, AppError> {
-    let status: Option<u16> = match source {
-        FailureSource::Webhook => row.try_get("response_status")?,
-        _ => None,
-    };
-    Ok(FailureEntry {
-        source,
-        reference_id: row.try_get("reference_id")?,
-        kind: row.try_get("kind")?,
-        error: truncate(row.try_get("error")?),
-        response_status: status,
-        occurred_at: mapper::utc(row.try_get::<NaiveDateTime, _>("occurred_at")?),
-    })
-}
-
 #[async_trait]
 impl QueueMonitor for MySqlQueueMonitor {
     async fn job_counts(&self, now: DateTime<Utc>) -> Result<Vec<JobKindCounts>, AppError> {
@@ -176,50 +161,9 @@ impl QueueMonitor for MySqlQueueMonitor {
         since: DateTime<Utc>,
         limit: u64,
     ) -> Result<Vec<FailureEntry>, AppError> {
-        let since = mapper::naive(since);
         let mut entries = Vec::new();
-        let automations = sqlx::query(
-            "SELECT r.automation_id AS reference_id, \
-               r.trigger_type AS kind, r.error, COALESCE(r.finished_at, r.started_at) AS occurred_at \
-             FROM automation_runs r \
-             WHERE r.status = 'failed' AND r.started_at >= ? \
-             ORDER BY r.started_at DESC LIMIT ?",
-        )
-        .bind(since)
-        .bind(limit)
-        .fetch_all(&self.pool)
-        .await?;
-        for row in &automations {
-            entries.push(failure(row, FailureSource::Automation)?);
-        }
-        let webhooks = sqlx::query(
-            "SELECT d.endpoint_id AS reference_id, \
-               d.event_type AS kind, d.error, d.response_status, \
-               COALESCE(d.completed_at, d.last_attempt_at, d.created_at) AS occurred_at \
-             FROM webhook_deliveries d \
-             WHERE d.status = 'failed' AND d.created_at >= ? \
-             ORDER BY d.created_at DESC LIMIT ?",
-        )
-        .bind(since)
-        .bind(limit)
-        .fetch_all(&self.pool)
-        .await?;
-        for row in &webhooks {
-            entries.push(failure(row, FailureSource::Webhook)?);
-        }
-        let integrations = sqlx::query(
-            "SELECT i.id AS reference_id, \
-               i.provider_key AS kind, i.last_error AS error, i.last_error_at AS occurred_at \
-             FROM integrations i \
-             WHERE i.status = 'error' AND i.last_error_at IS NOT NULL AND i.last_error_at >= ? \
-             ORDER BY i.last_error_at DESC LIMIT ?",
-        )
-        .bind(since)
-        .bind(limit)
-        .fetch_all(&self.pool)
-        .await?;
-        for row in &integrations {
-            entries.push(failure(row, FailureSource::Integration)?);
+        for source in crate::modules::app().contributions::<dyn HealthSource>() {
+            entries.extend(source.recent_failures(&self.pool, since, limit).await?);
         }
         Ok(entries)
     }

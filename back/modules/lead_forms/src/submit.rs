@@ -1,3 +1,4 @@
+use aphel_contract_crm::{CrmPermissions, CrmRecordTypes};
 use std::collections::BTreeMap;
 
 use serde_json::{Map, Number, Value, json};

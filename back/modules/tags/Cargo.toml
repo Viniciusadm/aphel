@@ -8,6 +8,7 @@ publish = false
 
 [dependencies]
 aphel-contract-tagging.workspace = true
+aphel-contract-crm.workspace = true
 aphel-kernel.workspace = true
 aphel-sdk.workspace = true
 axum.workspace = true

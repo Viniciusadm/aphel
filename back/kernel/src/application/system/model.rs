@@ -90,6 +90,37 @@ pub struct FailureEntry {
     pub occurred_at: DateTime<Utc>,
 }
 
+const MAX_FAILURE_ERROR_CHARS: usize = 500;
+
+impl FailureEntry {
+    pub fn new(
+        source: FailureSource,
+        reference_id: String,
+        kind: String,
+        error: Option<String>,
+        response_status: Option<u16>,
+        occurred_at: DateTime<Utc>,
+    ) -> Self {
+        let error = error.map(|text| {
+            if text.chars().count() > MAX_FAILURE_ERROR_CHARS {
+                let mut short: String = text.chars().take(MAX_FAILURE_ERROR_CHARS).collect();
+                short.push('…');
+                short
+            } else {
+                text
+            }
+        });
+        Self {
+            source,
+            reference_id,
+            kind,
+            error,
+            response_status,
+            occurred_at,
+        }
+    }
+}
+
 #[derive(Debug, Clone, PartialEq, Eq, Default)]
 pub struct RecentFailures {
     pub automations: Vec<FailureEntry>,

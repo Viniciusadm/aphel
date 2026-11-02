@@ -1,3 +1,4 @@
+use aphel_contract_crm::CrmRecordTypes;
 use rust_decimal::Decimal;
 use serde_json::{Value, json};
 use uuid::Uuid;

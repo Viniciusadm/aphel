@@ -12,6 +12,7 @@ license = "AGPL-3.0-only"
 [workspace.dependencies]
 aphel-kernel = { path = "kernel" }
 aphel-contract = { path = "contract" }
+aphel-contract-crm = { path = "contracts/crm" }
 aphel-contract-tagging = { path = "contracts/tagging" }
 aphel-sdk = { path = "sdk" }
 semver = "1"

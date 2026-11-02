@@ -7,6 +7,7 @@ license.workspace = true
 publish = false
 
 [dependencies]
+aphel-contract-crm.workspace = true
 aphel-kernel.workspace = true
 pipelines = { package = "aphel-mod-pipelines", path = "../pipelines" }
 axum.workspace = true

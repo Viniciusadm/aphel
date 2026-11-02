@@ -1,3 +1,4 @@
+use aphel_contract_crm::CrmPermissions;
 use async_trait::async_trait;
 use serde_json::{Value, json};
 use uuid::Uuid;

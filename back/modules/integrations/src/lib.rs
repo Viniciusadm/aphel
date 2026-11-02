@@ -1,5 +1,6 @@
 pub(crate) mod dto;
 pub(crate) mod http;
+mod points;
 pub(crate) mod registry;
 pub(crate) mod service;
 pub(crate) mod store;
@@ -30,6 +31,12 @@ impl Module for IntegrationsModule {
     }
 
     fn register(&self, app: &mut AppBuilder) -> Result<(), AppError> {
+        app.contribute::<dyn aphel_kernel::modules::HealthSource>(std::sync::Arc::new(
+            points::IntegrationFailures,
+        ));
+        app.contribute::<dyn aphel_kernel::modules::IntegrationStore>(std::sync::Arc::new(
+            points::Integrations,
+        ));
         app.openapi_tag(
             http::TAG,
             "Integration center: providers, configuration, connection test and activation",

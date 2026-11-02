@@ -1,3 +1,4 @@
+use aphel_contract_crm::CrmRecordTypes;
 use std::collections::{BTreeMap, BTreeSet};
 
 use chrono::{DateTime, Duration, NaiveDate, Utc};

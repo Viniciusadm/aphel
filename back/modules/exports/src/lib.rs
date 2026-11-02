@@ -6,6 +6,7 @@ pub(crate) mod http;
 pub(crate) mod model;
 pub mod notifications;
 pub(crate) mod plugin_bridge;
+mod points;
 pub(crate) mod runtime;
 pub mod service;
 pub(crate) mod store;
@@ -55,6 +56,9 @@ impl Module for ExportsModule {
     }
 
     fn register(&self, app: &mut AppBuilder) -> Result<(), AppError> {
+        app.contribute::<dyn aphel_kernel::modules::FileReferenceSource>(std::sync::Arc::new(
+            points::ExportFiles,
+        ));
         app.contribute::<dyn aphel_kernel::application::notifications::texts::NotificationTexts>(
             std::sync::Arc::new(crate::notifications::ExportNotificationTexts),
         );

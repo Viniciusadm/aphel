@@ -11,6 +11,7 @@ module = "LeadPro"
 web = "../../../web/src/modules/lead_pro"
 
 [dependencies]
+aphel-contract-crm.workspace = true
 aphel-kernel.workspace = true
 contacts = { package = "aphel-mod-contacts", path = "../../modules/contacts" }
 leads = { package = "aphel-mod-leads", path = "../../modules/leads" }

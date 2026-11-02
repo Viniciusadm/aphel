@@ -12,6 +12,7 @@ pub(crate) mod operation_action;
 pub mod operations;
 pub mod plugin_bridge;
 pub mod plugin_manifest;
+pub(crate) mod points;
 pub mod routes;
 pub mod runtime;
 pub mod services;
@@ -41,6 +42,9 @@ pub use plugin_bridge::{
 };
 pub use plugin_manifest::{
     INVALID_PLUGIN_MANIFEST, Layer, PluginManifest, Provides, Runtime, Uses,
+};
+pub use points::{
+    ActiveIntegration, DigestSource, FileReferenceSource, HealthSource, IntegrationStore,
 };
 pub use routes::{MODULE_DISABLED, module_disabled};
 pub use services::Services;

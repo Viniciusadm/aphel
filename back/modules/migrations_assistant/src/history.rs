@@ -1,3 +1,4 @@
+use aphel_contract_crm::CrmRecordTypes;
 use std::collections::HashMap;
 
 use chrono::{NaiveDate, NaiveDateTime, NaiveTime, TimeZone, Utc};

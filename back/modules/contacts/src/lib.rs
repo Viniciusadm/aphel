@@ -3,14 +3,15 @@ pub mod http;
 pub mod service;
 pub mod store;
 
+use aphel_contract_crm::{
+    CrmPermissions, CrmRecordTypes, activities_relation, address_fields, email_engagement_fields,
+    phone_field,
+};
 use std::sync::Arc;
 
 use aphel_kernel::modules::Migration;
 
-use aphel_kernel::application::fields::builtin::{
-    activities_relation, address_fields, email_engagement_fields, field, phone_field, record_field,
-    timestamps, with_fields,
-};
+use aphel_kernel::application::fields::builtin::{field, record_field, timestamps, with_fields};
 use aphel_kernel::application::fields::{
     LabelNormalization, RecordCapabilities, RecordRelation, RecordTypeDefinition, SystemField,
 };

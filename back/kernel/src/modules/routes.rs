@@ -1,12 +1,8 @@
-use std::collections::HashMap;
 use std::sync::Arc;
 
-use axum::Router;
-use axum::extract::{MatchedPath, Request, State};
-use axum::http::Method;
+use axum::extract::{Request, State};
 use axum::middleware::{Next, from_fn_with_state};
-use axum::response::{IntoResponse, Response};
-use tower::ServiceExt;
+use axum::response::Response;
 use utoipa_axum::router::OpenApiRouter;
 
 use crate::api::error::app_error;
@@ -32,34 +28,6 @@ async fn gate(State(gate): State<ModuleGate>, request: Request, next: Next) -> R
         return app_error(module_disabled());
     }
     next.run(request).await
-}
-
-type OverrideTargets = HashMap<(Method, String), (&'static str, Router)>;
-
-#[derive(Clone)]
-struct Overrides {
-    enabled: Arc<EnabledModules>,
-    targets: Arc<OverrideTargets>,
-}
-
-async fn overridden(State(overrides): State<Overrides>, request: Request, next: Next) -> Response {
-    let target = request
-        .extensions()
-        .get::<MatchedPath>()
-        .and_then(|path| {
-            overrides
-                .targets
-                .get(&(request.method().clone(), path.as_str().to_owned()))
-        })
-        .filter(|(module, _)| overrides.enabled.is_enabled(module))
-        .map(|(_, router)| router.clone());
-    match target {
-        Some(router) => match router.oneshot(request).await {
-            Ok(response) => response.into_response(),
-            Err(never) => match never {},
-        },
-        None => next.run(request).await,
-    }
 }
 
 impl App {
@@ -92,36 +60,5 @@ impl App {
             }
         }
         root.nest(RouteMount::Api.prefix(), api)
-    }
-
-    pub fn apply_overrides(&self, router: Router<AppState>, state: &AppState) -> Router<AppState> {
-        let overrides = self.route_overrides();
-        if overrides.is_empty() {
-            return router;
-        }
-        let mut targets = OverrideTargets::new();
-        for contribution in overrides {
-            let item = &contribution.item;
-            tracing::info!(
-                module = contribution.module,
-                method = %item.method,
-                path = %item.path,
-                "route overridden by module"
-            );
-            let target = Router::new()
-                .route(&item.path, item.handler.clone())
-                .with_state(state.clone());
-            targets.insert(
-                (item.method.clone(), item.path.clone()),
-                (contribution.module, target),
-            );
-        }
-        router.layer(from_fn_with_state(
-            Overrides {
-                enabled: self.enabled().clone(),
-                targets: Arc::new(targets),
-            },
-            overridden,
-        ))
     }
 }

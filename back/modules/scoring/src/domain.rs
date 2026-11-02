@@ -1,3 +1,4 @@
+use aphel_contract_crm::CrmRecordTypes;
 use std::collections::HashSet;
 
 use chrono::{DateTime, Utc};

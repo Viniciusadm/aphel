@@ -1,3 +1,4 @@
+use aphel_contract_crm::CrmRecordTypes;
 use std::sync::Arc;
 
 use crate::{MEETING_BOOKED, MEETING_CANCELED, MEETING_RESCHEDULED};

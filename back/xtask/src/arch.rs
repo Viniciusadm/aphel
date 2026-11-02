@@ -18,7 +18,8 @@ const WEB_SHELL_ROOTS: [&str; 6] = ["app", "features", "kernel", "components", "
 const WEB_KERNEL_PLUGIN: &str = "kernel";
 
 const GENERIC_RECORD_TYPES: [&str; 5] = ["FILE", "MEMBER", "ROLE", "TEAM", "ORGANIZATION"];
-const CORE_PERMISSION_AREAS: [&str; 5] = ["settings", "users", "audit", "system", "records"];
+const CORE_PERMISSION_AREAS: [&str; 6] =
+    ["settings", "users", "audit", "system", "records", "privacy"];
 const SQL_TABLE_KEYWORDS: [&str; 6] = ["FROM", "JOIN", "INTO", "UPDATE", "TABLE", "EXISTS"];
 const DOMAIN_WORDS: [&str; 16] = [
     "contact",

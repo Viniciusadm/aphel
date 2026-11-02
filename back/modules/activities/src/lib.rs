@@ -5,6 +5,7 @@ pub mod http;
 pub mod notifications;
 pub(crate) mod operations;
 pub(crate) mod plugin_bridge;
+mod points;
 pub(crate) mod recurrence;
 pub mod section;
 pub(crate) mod seed;
@@ -12,6 +13,7 @@ pub mod service;
 pub mod store;
 pub mod types;
 
+use aphel_contract_crm::{CrmPermissions, CrmRecordTypes};
 use std::sync::Arc;
 
 use aphel_kernel::modules::Migration;
@@ -221,6 +223,9 @@ impl Module for ActivitiesModule {
     }
 
     fn register(&self, app: &mut AppBuilder) -> Result<(), AppError> {
+        app.contribute::<dyn aphel_kernel::modules::DigestSource>(std::sync::Arc::new(
+            points::OpenTasks,
+        ));
         app.contribute::<dyn aphel_kernel::application::notifications::texts::NotificationTexts>(
             std::sync::Arc::new(crate::notifications::ActivityNotificationTexts),
         );

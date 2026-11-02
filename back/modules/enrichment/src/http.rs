@@ -1,3 +1,4 @@
+use aphel_contract_crm::CrmPermissions;
 use axum::Json;
 use axum::extract::{Path, State};
 use chrono::{DateTime, SecondsFormat, Utc};

@@ -1,3 +1,4 @@
+use aphel_contract_crm::CrmPermissions;
 use std::collections::HashMap;
 use std::sync::Arc;
 

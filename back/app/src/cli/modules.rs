@@ -26,7 +26,7 @@ pub(crate) enum ModulesCommand {
     #[command(about = "List the modules compiled into this build, in load order")]
     List,
     #[command(
-        about = "Show what each module contributes (routes, hooks, services, catalogs, worker) and the overrides and conflicts between modules"
+        about = "Show what each module contributes (routes, hooks, services, catalogs, worker) and the conflicts between modules"
     )]
     Doctor,
     #[command(about = "Disable a module and run its uninstall step; --purge also removes its data")]
@@ -220,13 +220,6 @@ async fn doctor(config: &AppConfig, app: &App) -> CliResult {
         }
 
         section("routes", &route_paths(app, &state, key));
-        let overrides: Vec<String> = app
-            .route_overrides()
-            .iter()
-            .filter(|contribution| contribution.module == key)
-            .map(|contribution| format!("{} {}", contribution.item.method, contribution.item.path))
-            .collect();
-        section("route overrides", &overrides);
 
         let hooks: Vec<String> = app
             .hooks()
@@ -369,12 +362,6 @@ async fn doctor(config: &AppConfig, app: &App) -> CliResult {
             ));
         }
     }
-    for contribution in app.route_overrides() {
-        conflicts.push(format!(
-            "route {} {} overridden by {}",
-            contribution.item.method, contribution.item.path, contribution.module
-        ));
-    }
     for conflict in app.catalog().conflicts() {
         conflicts.push(format!(
             "{} {} contributed by {} (the last one wins)",
@@ -400,9 +387,9 @@ async fn doctor(config: &AppConfig, app: &App) -> CliResult {
     }
     println!();
     if conflicts.is_empty() {
-        println!("overrides and conflicts: none");
+        println!("conflicts: none");
     } else {
-        println!("overrides and conflicts ({}):", conflicts.len());
+        println!("conflicts ({}):", conflicts.len());
         for conflict in conflicts {
             println!("  {conflict}");
         }

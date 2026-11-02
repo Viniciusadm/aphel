@@ -7,6 +7,7 @@ pub(crate) mod hooks;
 pub(crate) mod http;
 pub(crate) mod model;
 pub(crate) mod plugin_bridge;
+mod points;
 pub(crate) mod runtime;
 pub(crate) mod section;
 pub(crate) mod service;
@@ -15,6 +16,7 @@ pub(crate) mod time;
 pub(crate) mod triggers;
 pub(crate) mod validation;
 
+use aphel_contract_crm::CrmPermissions;
 use std::sync::Arc;
 
 use aphel_kernel::modules::Migration;
@@ -82,6 +84,9 @@ impl Module for AutomationsModule {
     }
 
     fn register(&self, app: &mut AppBuilder) -> Result<(), AppError> {
+        app.contribute::<dyn aphel_kernel::modules::HealthSource>(std::sync::Arc::new(
+            points::AutomationFailures,
+        ));
         app.declare_hook(crate::hooks::ActionRunning, &[aphel_kernel::modules::HookUsage::Veto, aphel_kernel::modules::HookUsage::Filter],
             "Before an automation action runs (dry run and execution; an error skips it) and, as a filter, the result recorded for the step",
         );

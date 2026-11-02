@@ -57,7 +57,6 @@ pub enum PreviousValues {
     OldNew {
         field: &'static str,
     },
-    Pipeline,
     Fields(&'static [(&'static str, &'static str)]),
 }
 

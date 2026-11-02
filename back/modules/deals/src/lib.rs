@@ -10,13 +10,12 @@ pub mod service;
 pub mod store;
 pub mod team;
 
+use aphel_contract_crm::{CrmPermissions, CrmRecordTypes, activities_relation};
 use std::sync::Arc;
 
 use aphel_kernel::modules::Migration;
 
-use aphel_kernel::application::fields::builtin::{
-    activities_relation, field, record_field, timestamps, with_fields,
-};
+use aphel_kernel::application::fields::builtin::{field, record_field, timestamps, with_fields};
 use aphel_kernel::application::fields::{RecordCapabilities, RecordRelation, RecordTypeDefinition};
 use aphel_kernel::application::public_events::{
     PreviousValues, PublicEventDefinition, PublicResource, changed, deleted, event,
@@ -91,7 +90,7 @@ const PUBLIC_EVENTS: &[PublicEventDefinition] = &[
         "deal.pipeline_changed",
         DEAL_RESOURCE,
         "A deal moved to another pipeline",
-        PreviousValues::Pipeline,
+        PreviousValues::Fields(&[("pipeline", "from"), ("stage", "from_stage")]),
     ),
     changed(
         "deal.amount_changed",

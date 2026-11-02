@@ -164,9 +164,6 @@ pub fn previous_values(definition: &PublicEventDefinition, payload: &Value) -> O
         PreviousValues::Changes => previous_from_changes(payload),
         PreviousValues::FromTo { field, from } => previous_fields(&[(field, from)], payload),
         PreviousValues::OldNew { field } => previous_fields(&[(field, "old")], payload),
-        PreviousValues::Pipeline => {
-            previous_fields(&[("pipeline", "from"), ("stage", "from_stage")], payload)
-        }
         PreviousValues::Fields(pairs) => previous_fields(pairs, payload),
     };
     (!previous.is_empty()).then_some(Value::Object(previous))

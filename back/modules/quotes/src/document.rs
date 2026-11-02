@@ -1,3 +1,4 @@
+use aphel_contract_crm::CrmPermissions;
 use chrono::NaiveDate;
 use rust_decimal::Decimal;
 

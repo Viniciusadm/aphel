@@ -14,6 +14,7 @@ pub(crate) mod sync;
 pub(crate) mod token;
 pub(crate) mod workflow;
 
+use aphel_contract_crm::{CrmPermissions, CrmRecordTypes};
 use std::sync::Arc;
 
 use aphel_kernel::modules::Migration;

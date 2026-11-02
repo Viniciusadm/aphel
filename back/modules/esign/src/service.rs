@@ -1,3 +1,4 @@
+use aphel_contract_crm::CrmRecordTypes;
 use bytes::Bytes;
 use chrono::Utc;
 use futures::StreamExt;

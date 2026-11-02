@@ -11,6 +11,7 @@ pub use domain::{AssignmentSource, Counter, DistributionRule, RuleStats, UserSta
 pub use service::*;
 pub use store::{DistributionStore, PickRecord, RuleListFilter, TargetInfo};
 
+use aphel_contract_crm::CrmPermissions;
 use std::sync::Arc;
 
 use aphel_kernel::modules::Migration;

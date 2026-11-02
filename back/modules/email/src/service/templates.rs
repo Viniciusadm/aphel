@@ -1,3 +1,4 @@
+use aphel_contract_crm::CrmPermissions;
 use serde::Serialize;
 use serde_json::{Value, json};
 use uuid::Uuid;

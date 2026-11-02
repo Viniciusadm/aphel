@@ -1,3 +1,4 @@
+use aphel_contract_crm::CrmRecordTypes;
 use chrono::{DateTime, NaiveDateTime, Utc};
 use sqlx::{MySql, MySqlPool, QueryBuilder, Row};
 use uuid::Uuid;
