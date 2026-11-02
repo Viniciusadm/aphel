@@ -1,4 +1,4 @@
-use aphel_contract_crm::traits;
+use aphel_sdk::party::PartyTraits;
 use chrono::{DateTime, Utc};
 use serde_json::{Value, json};
 use uuid::Uuid;
@@ -49,7 +49,7 @@ fn parse_type(ctx: &Ctx<'_>, value: &str) -> Result<EntityDefinition, AppError> 
 
 async fn source(ctx: &Ctx<'_>, definition: EntityDefinition) -> Result<TrashSource, AppError> {
     let capabilities = &definition.capabilities;
-    let contact_columns = capabilities.trait_columns(traits::CONTACT_POINTS);
+    let contact_columns = capabilities.contact_point_columns();
     let candidates: Vec<String> = if contact_columns.is_empty() {
         capabilities
             .label_aliases

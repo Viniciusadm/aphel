@@ -1,4 +1,4 @@
-use aphel_contract_crm::traits;
+use aphel_sdk::party::PartyTraits;
 use chrono::{DateTime, Utc};
 use sqlx::mysql::MySqlRow;
 use sqlx::{MySql, MySqlPool, QueryBuilder, Row};
@@ -218,9 +218,7 @@ pub(crate) fn push_text_match(
 
 pub(crate) fn record_title_sql(definition: &EntityDefinition) -> (String, String) {
     let title = format!("r.{}", definition.title_column().unwrap_or("title"));
-    let columns = &definition
-        .capabilities
-        .trait_columns(traits::CONTACT_POINTS);
+    let columns = &definition.capabilities.contact_point_columns();
     let subtitle = if columns.is_empty() {
         "CAST(NULL AS CHAR CHARACTER SET utf8mb4)".to_owned()
     } else {

@@ -1,13 +1,14 @@
+use aphel_sdk::party::{
+    ContactPoint, ContactPointKind, ContactPoints, PartyTraits, address_fields, phone_field,
+};
 pub mod domain;
 pub mod hierarchy;
 pub(crate) mod http;
 pub mod service;
 pub mod store;
 
-use aphel_contract_crm::traits;
 use aphel_contract_crm::{
-    CrmPermissions, CrmRecordTypes, activities_relation, address_fields, email_engagement_fields,
-    phone_field,
+    CrmPermissions, CrmRecordTypes, activities_relation, email_engagement_fields,
 };
 use std::sync::Arc;
 
@@ -97,7 +98,10 @@ pub(crate) fn company_capabilities() -> EntityTraits {
         .bulk_fields(COMPANY_BULK_FIELDS)
         .web_path("companies")
         .localized_labels(crate::labels("Companies"))
-        .trait_columns_mapping(traits::CONTACT_POINTS, &["domain", "email"])
+        .with_contact_points(ContactPoints::new([
+            ContactPoint::new("domain", ContactPointKind::Web),
+            ContactPoint::new("email", ContactPointKind::Email),
+        ]))
         .label_alias("domain", LabelNormalization::Domain)
         .free_text_fields(&["description"])
         .locked_fields(&["name"])
@@ -200,6 +204,7 @@ impl Module for CompaniesModule {
     }
 
     fn register(&self, app: &mut AppBuilder) -> Result<(), AppError> {
+        app.contract(aphel_sdk::party::DESCRIPTOR);
         app.contribute(std::sync::Arc::new(
             aphel_kernel::application::fields::EntityKeyAliases(&[(
                 "company",

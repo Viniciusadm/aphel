@@ -7,6 +7,7 @@ license.workspace = true
 publish = false
 
 [dependencies]
+aphel-sdk.workspace = true
 search = { package = "aphel-mod-search", path = "../search" }
 aphel-contract-crm.workspace = true
 aphel-kernel.workspace = true

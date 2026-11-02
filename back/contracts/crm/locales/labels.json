@@ -22,37 +22,5 @@
   "Last contacted by": {
     "pt-BR": "Último contato por",
     "en": "Last contacted by"
-  },
-  "Street": {
-    "pt-BR": "Logradouro",
-    "en": "Street"
-  },
-  "Number": {
-    "pt-BR": "Número",
-    "en": "Number"
-  },
-  "Address line 2": {
-    "pt-BR": "Complemento",
-    "en": "Address line 2"
-  },
-  "District": {
-    "pt-BR": "Bairro",
-    "en": "District"
-  },
-  "City": {
-    "pt-BR": "Cidade",
-    "en": "City"
-  },
-  "State": {
-    "pt-BR": "Estado",
-    "en": "State"
-  },
-  "Postal code": {
-    "pt-BR": "CEP",
-    "en": "Postal code"
-  },
-  "Country": {
-    "pt-BR": "País",
-    "en": "Country"
   }
 }

@@ -5,7 +5,7 @@ mod records;
 pub mod refs;
 pub mod traits;
 
-pub use fields::{activities_relation, address_fields, email_engagement_fields, phone_field};
+pub use fields::{activities_relation, email_engagement_fields};
 pub use permissions::CrmPermissions;
 pub use records::CrmRecordTypes;
 

@@ -1,7 +1,7 @@
 use aphel_kernel::application::fields::builtin::field;
 use aphel_kernel::application::fields::{RecordRelation, RelationPath, SystemField};
 use aphel_kernel::application::shared::RecordType;
-use aphel_kernel::domain::fields::{FieldConfig, FieldType};
+use aphel_kernel::domain::fields::FieldType;
 use aphel_kernel::errors::AppError;
 
 use crate::records::CrmRecordTypes;
@@ -23,34 +23,6 @@ pub fn activities_relation() -> RecordRelation {
         target_type_column: None,
         target_id_column: "activity_id".to_owned(),
     })
-}
-
-pub fn phone_field(
-    key: &str,
-    label: impl Into<aphel_kernel::application::fields::LocalizedLabels>,
-) -> Result<SystemField, AppError> {
-    Ok(field(key, label, FieldType::Phone)?
-        .searchable()
-        .with_config(FieldConfig {
-            default_country: Some("BR".to_owned()),
-            ..FieldConfig::default()
-        }))
-}
-
-pub fn address_fields() -> Result<Vec<SystemField>, AppError> {
-    [
-        ("address_street", "Street"),
-        ("address_number", "Number"),
-        ("address_complement", "Address line 2"),
-        ("address_district", "District"),
-        ("address_city", "City"),
-        ("address_state", "State"),
-        ("address_postal_code", "Postal code"),
-        ("address_country", "Country"),
-    ]
-    .into_iter()
-    .map(|(key, label)| field(key, crate::labels(label), FieldType::Text))
-    .collect()
 }
 
 pub fn email_engagement_fields() -> Result<Vec<SystemField>, AppError> {

@@ -1,11 +1,11 @@
 use crate::domain::{DuplicateFamily, DuplicateRule};
-use aphel_contract_crm::traits;
 use aphel_kernel::application::fields::{
     EntityDefinition, LabelAlias, RecordTypeRegistry, SystemField,
 };
 use aphel_kernel::application::shared::RecordType;
 use aphel_kernel::domain::access::Permission;
 use aphel_kernel::errors::{AppError, FieldViolation};
+use aphel_sdk::party::PartyTraits;
 
 pub(crate) const DUPLICATE_RECORD_TYPE_MESSAGE: &str =
     "is not a record type with duplicate detection";
@@ -84,7 +84,7 @@ impl DuplicateType {
 
     pub(crate) fn summary_columns(&self) -> Vec<String> {
         let capabilities = &self.definition.capabilities;
-        let columns = capabilities.trait_columns(traits::CONTACT_POINTS);
+        let columns = capabilities.contact_point_columns();
         if !columns.is_empty() {
             return columns;
         }
