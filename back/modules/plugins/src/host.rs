@@ -16,7 +16,7 @@ use aphel_kernel::application::shared::{Actor, DomainEvent, RecordRef};
 use aphel_kernel::domain::access::AccessScope;
 use aphel_kernel::errors::AppError;
 use aphel_kernel::records::RecordCtx;
-use aphel_kernel::state::runtime_state;
+use aphel_kernel::state::{runtime_pool, runtime_state};
 
 const MAX_PAGE_SIZE: u64 = 100;
 const MAX_KV_ITEMS: u32 = 500;
@@ -587,7 +587,7 @@ fn raw_body(
 
 async fn organization() -> Result<String, AppError> {
     use aphel_kernel::application::organizations::OrganizationRepository;
-    let pool = runtime_state()?.db()?;
+    let pool = runtime_pool()?;
     let organization =
         aphel_kernel::infrastructure::repositories::mysql_organizations::MySqlOrganizationRepository::new(pool)
             .find()
@@ -808,7 +808,7 @@ impl Host for CallState {
         answer(
             async {
                 checked(&collection, Some(&id))?;
-                let pool = runtime_state()?.db()?;
+                let pool = runtime_pool()?;
                 Ok(store::kv_get(&pool, &plugin, &collection, &id)
                     .await?
                     .as_ref()
@@ -832,7 +832,7 @@ impl Host for CallState {
             async {
                 checked(&collection, Some(&id))?;
                 let value = parse(&value_json)?;
-                let pool = runtime_state()?.db()?;
+                let pool = runtime_pool()?;
                 store::kv_set(&pool, &plugin, &collection, &id, &value).await
             }
             .await,
@@ -847,7 +847,7 @@ impl Host for CallState {
         answer(
             async {
                 checked(&collection, Some(&id))?;
-                let pool = runtime_state()?.db()?;
+                let pool = runtime_pool()?;
                 store::kv_delete(&pool, &plugin, &collection, &id).await
             }
             .await,
@@ -867,7 +867,7 @@ impl Host for CallState {
         answer(
             async {
                 checked(&collection, Some(&id))?;
-                let pool = runtime_state()?.db()?;
+                let pool = runtime_pool()?;
                 store::kv_increment(&pool, &plugin, &collection, &id, delta).await
             }
             .await,
@@ -888,7 +888,7 @@ impl Host for CallState {
             async {
                 checked(&collection, Some(&id))?;
                 let value = parse(&value_json)?;
-                let pool = runtime_state()?.db()?;
+                let pool = runtime_pool()?;
                 store::kv_set_if_absent(&pool, &plugin, &collection, &id, &value).await
             }
             .await,
@@ -903,7 +903,7 @@ impl Host for CallState {
         answer(
             async {
                 checked(SEQUENCE_COLLECTION, Some(&sequence))?;
-                let pool = runtime_state()?.db()?;
+                let pool = runtime_pool()?;
                 let next =
                     store::kv_increment(&pool, &plugin, SEQUENCE_COLLECTION, &sequence, 1).await?;
                 u64::try_from(next).map_err(|_| {
@@ -922,7 +922,7 @@ impl Host for CallState {
         answer(
             async {
                 checked(&collection, None)?;
-                let pool = runtime_state()?.db()?;
+                let pool = runtime_pool()?;
                 Ok(store::kv_list(&pool, &plugin, &collection, MAX_KV_ITEMS)
                     .await?
                     .into_iter()
@@ -1062,7 +1062,7 @@ impl Host for CallState {
                         AppError::Validation(format!("invalid user query: {error}"))
                     })?
                 };
-                let pool = runtime_state()?.db()?;
+                let pool = runtime_pool()?;
                 Ok(crate::directory::users(&pool, query).await?.to_string())
             }
             .await,
@@ -1072,7 +1072,7 @@ impl Host for CallState {
     async fn list_roles(&mut self) -> HostResult<String> {
         answer(
             async {
-                let pool = runtime_state()?.db()?;
+                let pool = runtime_pool()?;
                 Ok(crate::directory::roles(&pool).await?.to_string())
             }
             .await,
@@ -1082,7 +1082,7 @@ impl Host for CallState {
     async fn list_teams(&mut self) -> HostResult<String> {
         answer(
             async {
-                let pool = runtime_state()?.db()?;
+                let pool = runtime_pool()?;
                 Ok(crate::directory::teams(&pool).await?.to_string())
             }
             .await,

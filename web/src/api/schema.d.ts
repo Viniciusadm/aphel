@@ -5625,6 +5625,23 @@ export interface paths {
         patch?: never;
         trace?: never;
     };
+    "/api/v1/platform/catalog": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        /** @description Everything this build offers to plugins in one document (permission `system.manage`): plugins with their layer and runtime, operations, hooks with their listeners, events, permissions and notification kinds. `enabled` is false when the owning plugin is disabled. */
+        get: operations["platform_catalog"];
+        put?: never;
+        post?: never;
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
     "/api/v1/plugins": {
         parameters: {
             query?: never;
@@ -5786,8 +5803,9 @@ export interface paths {
             path?: never;
             cookie?: never;
         };
-        get?: never;
-        /** @description Replaces the settings of a plugin (permission `system.manage`), validated against the settings it declares. `null` restores the default. Secret settings are stored encrypted and never returned (only `configured`): a string sets the secret, `null` removes it and leaving the key out keeps it. Publishes `plugin.settings_updated`. */
+        /** @description Lists the settings of a plugin with their current values (permission `system.manage` or the plugin's `settings_permission`). Secret settings only report `configured`. */
+        get: operations["plugins_settings"];
+        /** @description Replaces the settings of a plugin (permission `system.manage` or the plugin's `settings_permission`), validated against the settings it declares. `null` restores the default. Secret settings are stored encrypted and never returned (only `configured`): a string sets the secret, `null` removes it and leaving the key out keeps it. Publishes `plugin.settings_updated`. */
         put: operations["plugins_update_settings"];
         post?: never;
         delete?: never;
@@ -9570,6 +9588,16 @@ export interface components {
         };
         /** @enum {string} */
         CallSessionStatus: "active" | "completed";
+        CatalogDocument: {
+            contracts: components["schemas"]["ContractInfo"][];
+            events: components["schemas"]["EventEntry"][];
+            hooks: components["schemas"]["HookEntry"][];
+            notification_kinds: components["schemas"]["NotificationKindEntry"][];
+            operations: components["schemas"]["OperationInfo"][];
+            permissions: components["schemas"]["PermissionEntry"][];
+            plugins: components["schemas"]["PluginEntry"][];
+            version: string;
+        };
         /** @enum {string} */
         CatalogEntryKindResponse: "template" | "theme" | "module";
         CatalogEntryResponse: {
@@ -10019,6 +10047,17 @@ export interface components {
             mobile?: string | null;
             name: string;
             phone?: string | null;
+        };
+        ContractInfo: {
+            keys: components["schemas"]["ContractKeyInfo"][];
+            name: string;
+            provider: string;
+            version: string;
+        };
+        ContractKeyInfo: {
+            description: string;
+            key: string;
+            kind: string;
         };
         ConversationChannel: {
             address: string;
@@ -10572,14 +10611,13 @@ export interface components {
             icon?: string | null;
             id: string;
             is_active: boolean;
-            is_internal?: boolean;
+            is_internal: boolean;
             /** @example contract */
             key: string;
             /** @example Contracts */
             label_plural: string;
             /** @example Contract */
             label_singular: string;
-            is_internal?: boolean;
             module_key?: string | null;
             owner_enabled: boolean;
             permissions: string[];
@@ -11098,6 +11136,18 @@ export interface components {
                 total: number;
                 updated_at: string;
                 view_id?: string | null;
+            };
+        };
+        Data_CatalogDocument: {
+            data: {
+                contracts: components["schemas"]["ContractInfo"][];
+                events: components["schemas"]["EventEntry"][];
+                hooks: components["schemas"]["HookEntry"][];
+                notification_kinds: components["schemas"]["NotificationKindEntry"][];
+                operations: components["schemas"]["OperationInfo"][];
+                permissions: components["schemas"]["PermissionEntry"][];
+                plugins: components["schemas"]["PluginEntry"][];
+                version: string;
             };
         };
         Data_CatalogReadiness: {
@@ -12536,8 +12586,8 @@ export interface components {
                 enabled: boolean;
                 enabled_at?: string | null;
                 enabled_dependents: string[];
-                held_by?: string | null;
                 events: components["schemas"]["ModuleEventResponse"][];
+                held_by?: string | null;
                 installed_version?: string | null;
                 /** @example proposals */
                 key: string;
@@ -12778,10 +12828,12 @@ export interface components {
         };
         Data_PluginConsentResponse: {
             data: components["schemas"]["PluginDeclarations"] & {
+                conflicts: components["schemas"]["PluginConflict"][];
                 description?: string | null;
                 grants: components["schemas"]["RoleGrantStatus"][];
                 installed_version?: string | null;
                 key: string;
+                module_conflicts: components["schemas"]["ModuleConflictPlan"][];
                 name: string;
                 version: string;
             };
@@ -13845,12 +13897,14 @@ export interface components {
                 icon?: string | null;
                 id: string;
                 is_active: boolean;
+                is_internal: boolean;
                 /** @example contract */
                 key: string;
                 /** @example Contracts */
                 label_plural: string;
                 /** @example Contract */
                 label_singular: string;
+                module_key?: string | null;
                 owner_enabled: boolean;
                 permissions: string[];
                 /** Format: int32 */
@@ -14170,8 +14224,8 @@ export interface components {
                 enabled: boolean;
                 enabled_at?: string | null;
                 enabled_dependents: string[];
-                held_by?: string | null;
                 events: components["schemas"]["ModuleEventResponse"][];
+                held_by?: string | null;
                 installed_version?: string | null;
                 /** @example proposals */
                 key: string;
@@ -14235,6 +14289,22 @@ export interface components {
                 updated_at: string;
                 version: string;
             })[];
+        };
+        Data_Vec_PluginSettingResponse: {
+            data: {
+                configured?: boolean | null;
+                group?: string | null;
+                help?: string | null;
+                key: string;
+                label: string;
+                /** Format: int64 */
+                max?: number | null;
+                /** Format: int64 */
+                min?: number | null;
+                options: components["schemas"]["SettingOption"][];
+                type: string;
+                value: Record<string, never>;
+            }[];
         };
         Data_Vec_PriceListItemResponse: {
             data: {
@@ -14607,6 +14677,9 @@ export interface components {
                 key: string;
                 menu: components["schemas"]["MenuSpec"];
                 name: string;
+                role_homes: {
+                    [key: string]: string;
+                };
                 style?: string | null;
                 version: string;
             }[];
@@ -15397,6 +15470,11 @@ export interface components {
             /** @example applied */
             status: string;
         };
+        EventEntry: {
+            description: string;
+            event_type: string;
+            resource: string;
+        };
         ExchangeRateResponse: {
             /** @example 2026-10-22T13:45:00Z */
             created_at: string;
@@ -15955,6 +16033,16 @@ export interface components {
             kind: string;
             module: string;
             record_type: string;
+        };
+        HookEntry: {
+            args?: string | null;
+            description: string;
+            enabled: boolean;
+            key: string;
+            kind: string;
+            listeners: string[];
+            module: string;
+            record_type?: string | null;
         };
         HookReceivedResponse: {
             request_id: string;
@@ -17108,6 +17196,17 @@ export interface components {
         };
         /** @enum {string} */
         MemberStatusDto: "invited" | "active" | "deactivated";
+        MenuRule: {
+            action: string;
+            /** Format: int32 */
+            order?: number | null;
+            target: string;
+        };
+        MenuSpec: {
+            flat?: boolean;
+            own_entities?: string | null;
+            rules?: components["schemas"]["MenuRule"][];
+        };
         MergeRequest: {
             duplicate_id: string;
             /**
@@ -17264,6 +17363,12 @@ export interface components {
             /** @example compatible */
             status: string;
         };
+        ModuleConflictPlan: {
+            blocked_by: string[];
+            enabled: boolean;
+            module: string;
+            name: string;
+        };
         ModuleDataExportResponse: {
             data: Record<string, never>;
             exported_at: string;
@@ -17309,8 +17414,8 @@ export interface components {
             enabled: boolean;
             enabled_at?: string | null;
             enabled_dependents: string[];
-            held_by?: string | null;
             events: components["schemas"]["ModuleEventResponse"][];
+            held_by?: string | null;
             installed_version?: string | null;
             /** @example proposals */
             key: string;
@@ -17400,6 +17505,11 @@ export interface components {
         NoteVisibility: "team" | "private";
         /** @enum {string} */
         NotificationChannel: "in_app" | "email" | "push";
+        NotificationKindEntry: {
+            email_default: boolean;
+            kind: string;
+            push_default: boolean;
+        };
         NotificationPageMeta: {
             /** @example 313737333834363030303030303030307c30313930 */
             next_cursor?: string | null;
@@ -17494,6 +17604,19 @@ export interface components {
         OnboardingTeamSize: "solo" | "small" | "medium" | "large";
         /** @enum {string} */
         OperandKind: "none" | "single" | "pair" | "list" | "days";
+        OperationInfo: {
+            description: string;
+            durable: boolean;
+            effect: string;
+            enabled: boolean;
+            expose_ai: boolean;
+            expose_automation: boolean;
+            expose_bulk: boolean;
+            idempotent: boolean;
+            key: string;
+            module: string;
+            permission?: string | null;
+        };
         OperatorResponse: {
             operand: components["schemas"]["OperandKind"];
             operator: components["schemas"]["FilterOperator"];
@@ -19355,6 +19478,11 @@ export interface components {
             permission: string;
             record_scoped: boolean;
         };
+        PermissionEntry: {
+            label?: string | null;
+            permission: string;
+            record_scoped: boolean;
+        };
         PermissionGrantDto: {
             /** @example contacts.read */
             permission: string;
@@ -19466,17 +19594,26 @@ export interface components {
             /** Format: int64 */
             update: number;
         };
+        PluginConflict: {
+            kind: string;
+            other_name: string;
+            other_plugin: string;
+            target: string;
+        };
         PluginConsentResponse: components["schemas"]["PluginDeclarations"] & {
+            conflicts: components["schemas"]["PluginConflict"][];
             description?: string | null;
             grants: components["schemas"]["RoleGrantStatus"][];
             installed_version?: string | null;
             key: string;
+            module_conflicts: components["schemas"]["ModuleConflictPlan"][];
             name: string;
             version: string;
         };
         PluginDeclarations: {
             actions: string[];
             allowed_hosts: string[];
+            conflicts_with: string[];
             emits: string[];
             entities: string[];
             entity_scopes: components["schemas"]["PluginEntityScopeResponse"][];
@@ -19484,6 +19621,7 @@ export interface components {
             extended_types: string[];
             has_web: boolean;
             hooks: string[];
+            menu: components["schemas"]["MenuSpec"];
             notifications: string[];
             operations: string[];
             optional_requires: string[];
@@ -19500,6 +19638,18 @@ export interface components {
         PluginEntityScopeResponse: {
             permission_scope: string;
             record_type: string;
+        };
+        PluginEntry: {
+            enabled: boolean;
+            key: string;
+            layer?: string | null;
+            name: string;
+            optional: string[];
+            provides: string[];
+            required: boolean;
+            requires: string[];
+            runtime: string;
+            version: string;
         };
         PluginPermissionResponse: {
             description?: string | null;
@@ -19529,6 +19679,7 @@ export interface components {
         };
         PluginSettingResponse: {
             configured?: boolean | null;
+            group?: string | null;
             help?: string | null;
             key: string;
             label: string;
@@ -19536,6 +19687,7 @@ export interface components {
             max?: number | null;
             /** Format: int64 */
             min?: number | null;
+            options: components["schemas"]["SettingOption"][];
             type: string;
             value: Record<string, never>;
         };
@@ -21216,6 +21368,10 @@ export interface components {
         SetDiscountLimitsRequest: {
             limits: components["schemas"]["DiscountLimitRequest"][];
         };
+        SettingOption: {
+            label: string;
+            value: string;
+        };
         ShareGranteeResponse: {
             id: string;
             name?: string | null;
@@ -22104,22 +22260,14 @@ export interface components {
         ViewType: "table" | "kanban" | "calendar";
         /** @enum {string} */
         ViewVisibility: "private" | "team" | "organization";
-        MenuRule: {
-            action: string;
-            /** Format: int32 */
-            order?: number | null;
-            target: string;
-        };
-        MenuSpec: {
-            flat?: boolean;
-            own_entities?: string | null;
-            rules?: components["schemas"]["MenuRule"][];
-        };
         WebPluginResponse: {
             entry: string;
             key: string;
             menu: components["schemas"]["MenuSpec"];
             name: string;
+            role_homes: {
+                [key: string]: string;
+            };
             style?: string | null;
             version: string;
         };
@@ -51994,6 +52142,53 @@ export interface operations {
             };
         };
     };
+    platform_catalog: {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        requestBody?: never;
+        responses: {
+            /** @description The platform catalog */
+            200: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["Data_CatalogDocument"];
+                };
+            };
+            /** @description Missing or invalid credentials (`unauthorized`) */
+            401: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["ErrorEnvelope"];
+                };
+            };
+            /** @description Missing `system.manage` (`permission_denied`) */
+            403: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["ErrorEnvelope"];
+                };
+            };
+            /** @description API token rate limit exceeded (`rate_limited`); see `Retry-After` and `X-RateLimit-*` */
+            429: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["ErrorEnvelope"];
+                };
+            };
+        };
+    };
     plugins_list: {
         parameters: {
             query?: never;
@@ -52045,6 +52240,7 @@ export interface operations {
         parameters: {
             query?: {
                 dry_run?: boolean;
+                acknowledge_conflicts?: boolean;
             };
             header?: {
                 /** @description Up to 255 printable ASCII characters. The same key with the same request (method, path and body) within 24 hours answers the stored response with the same status and body plus `Idempotent-Replayed: true`. Scoped to the credential (session cookie or API token); ignored without a credential. 5xx and 429 responses are not stored */
@@ -52096,7 +52292,7 @@ export interface operations {
                     "application/json": components["schemas"]["ErrorEnvelope"];
                 };
             };
-            /** @description A custom object, field or permission with the same key already exists (`plugin_object_conflict`, `plugin_field_conflict`, `permission_already_registered`). The first request with this `Idempotency-Key` is still being processed (`idempotency_key_in_progress`) */
+            /** @description A custom object, field or permission with the same key already exists (`plugin_object_conflict`, `plugin_field_conflict`, `permission_already_registered`), or the plugin overlaps with another installed plugin and `acknowledge_conflicts` was not sent (`plugin_conflicts_unacknowledged`). The first request with this `Idempotency-Key` is still being processed (`idempotency_key_in_progress`) */
             409: {
                 headers: {
                     [name: string]: unknown;
@@ -52419,7 +52615,9 @@ export interface operations {
     };
     plugins_enable: {
         parameters: {
-            query?: never;
+            query?: {
+                acknowledge_conflicts?: boolean;
+            };
             header?: {
                 /** @description Up to 255 printable ASCII characters. The same key with the same request (method, path and body) within 24 hours answers the stored response with the same status and body plus `Idempotent-Replayed: true`. Scoped to the credential (session cookie or API token); ignored without a credential. 5xx and 429 responses are not stored */
                 "Idempotency-Key"?: string;
@@ -52459,7 +52657,7 @@ export interface operations {
                     "application/json": components["schemas"]["ErrorEnvelope"];
                 };
             };
-            /** @description The first request with this `Idempotency-Key` is still being processed (`idempotency_key_in_progress`) */
+            /** @description The plugin overlaps with another enabled plugin and the overlap was not acknowledged (`plugin_conflicts_unacknowledged`). The first request with this `Idempotency-Key` is still being processed (`idempotency_key_in_progress`) */
             409: {
                 headers: {
                     [name: string]: unknown;
@@ -52541,6 +52739,56 @@ export interface operations {
             };
             /** @description `Idempotency-Key` already used with a different request (`idempotency_key_reused`) or longer than 255 characters (`validation_error`) */
             422: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["ErrorEnvelope"];
+                };
+            };
+            /** @description API token rate limit exceeded (`rate_limited`); see `Retry-After` and `X-RateLimit-*` */
+            429: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["ErrorEnvelope"];
+                };
+            };
+        };
+    };
+    plugins_settings: {
+        parameters: {
+            query?: never;
+            header?: never;
+            path: {
+                /** @description Plugin key */
+                key: string;
+            };
+            cookie?: never;
+        };
+        requestBody?: never;
+        responses: {
+            /** @description Settings */
+            200: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["Data_Vec_PluginSettingResponse"];
+                };
+            };
+            /** @description Missing permission (`permission_denied`) */
+            403: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["ErrorEnvelope"];
+                };
+            };
+            /** @description Plugin not installed (`plugin_not_found`) */
+            404: {
                 headers: {
                     [name: string]: unknown;
                 };

@@ -82,7 +82,7 @@ impl Module for ImportsModule {
             "CSV and XLSX imports: upload, mapping, dry run, execution and retry of failed rows",
         )
         .routes(|_| http::router())
-        .on::<RecordSaved, _>(DEFAULT_PRIORITY, |ctx, args| {
+        .on(RecordSaved, DEFAULT_PRIORITY, |ctx, args| {
             Box::pin(hooks::mark_written_row(ctx, args))
         });
         for kind in [

@@ -61,6 +61,14 @@ pub struct PluginManifest {
     pub description: Option<String>,
     pub api: u32,
     #[serde(default)]
+    pub layer: Option<aphel_kernel::modules::Layer>,
+    #[serde(default)]
+    pub runtime: Option<aphel_kernel::modules::Runtime>,
+    #[serde(default)]
+    pub provides: aphel_kernel::modules::Provides,
+    #[serde(default)]
+    pub uses: aphel_kernel::modules::Uses,
+    #[serde(default)]
     pub requires_aphel: Option<String>,
     #[serde(default)]
     pub entities: Vec<EntitySpec>,

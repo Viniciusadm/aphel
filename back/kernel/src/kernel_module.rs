@@ -183,6 +183,7 @@ fn routes() -> OpenApiRouter<AppState> {
         .merge(v1::teams::router())
         .merge(v1::system_jobs::router())
         .merge(v1::system::router())
+        .merge(v1::platform_catalog::router())
         .merge(v1::audit::router())
         .merge(v1::files::router())
         .merge(v1::fields::router())
@@ -260,55 +261,60 @@ pub const VALIDATION_RULE_PRIORITY: i32 = 30;
 pub const RESTRICTED_LINKS_PRIORITY: i32 = 10;
 
 fn declare_record_hooks(app: &mut AppBuilder) {
-    app.declare_hook::<crate::records::RecordSaving>(
-        &[HookUsage::Filter],
+    app.declare_hook(crate::records::RecordSaving, &[HookUsage::Filter],
         "Values and custom fields of a record before they are written (create and update of every record type)",
     );
-    app.declare_hook::<crate::records::RecordValidating>(
-        &[HookUsage::Veto],
+    app.declare_hook(crate::records::RecordValidating, &[HookUsage::Veto],
         "After a record was written and before the commit; an error rolls the write back (approvals, stage checklists, validation rules, lifecycle)",
     );
-    app.declare_hook::<crate::records::RecordSaved>(
+    app.declare_hook(
+        crate::records::RecordSaved,
         &[HookUsage::Action],
         "After a record was written, inside the same transaction",
     );
-    app.declare_hook::<crate::records::RecordCommitted>(
+    app.declare_hook(
+        crate::records::RecordCommitted,
         &[HookUsage::Action],
         "After the transaction that wrote a record was committed",
     );
-    app.declare_hook::<crate::records::RecordArchiving>(
+    app.declare_hook(
+        crate::records::RecordArchiving,
         &[HookUsage::Veto],
         "Before a custom record or company is archived; an error blocks the archive",
     );
-    app.declare_hook::<crate::records::RecordDeleting>(
+    app.declare_hook(
+        crate::records::RecordDeleting,
         &[HookUsage::Veto],
         "Before a record is deleted; an error blocks the deletion (restrict relationships)",
     );
-    app.declare_hook::<crate::records::RecordDeleted>(
+    app.declare_hook(
+        crate::records::RecordDeleted,
         &[HookUsage::Action],
         "After a record was deleted, inside the same transaction",
     );
-    app.declare_hook::<crate::records::RecordPurged>(
-        &[HookUsage::Action],
+    app.declare_hook(crate::records::RecordPurged, &[HookUsage::Action],
         "After a record was permanently deleted (trash purge, erasure, retention), inside the same transaction, before the kernel removes its custom values, relationship links, attachments, shares and the record fields that pointed to it",
     );
-    app.declare_hook::<crate::records::RecordRestored>(
-        &[HookUsage::Action],
+    app.declare_hook(crate::records::RecordRestored, &[HookUsage::Action],
         "After a deleted record was restored from the trash, inside the same transaction, after RecordValidating and before RecordSaved",
     );
-    app.declare_hook::<crate::records::RecordQueryFilter>(
+    app.declare_hook(
+        crate::records::RecordQueryFilter,
         &[HookUsage::Filter],
         "Extra AND conditions and sorting applied to every query of a record type",
     );
-    app.declare_hook::<crate::records::RecordSerializing>(
+    app.declare_hook(
+        crate::records::RecordSerializing,
         &[HookUsage::Filter],
         "Records before they are returned by the API (after the field permissions)",
     );
-    app.declare_hook::<crate::records::RecordSchemaFilter>(
+    app.declare_hook(
+        crate::records::RecordSchemaFilter,
         &[HookUsage::Filter],
         "The field schema of a record type returned to forms, lists and filters",
     );
-    app.declare_hook::<crate::records::SearchPlanFilter>(
+    app.declare_hook(
+        crate::records::SearchPlanFilter,
         &[HookUsage::Filter],
         "The query plan of the global search for one record type (extra restrictions)",
     );
@@ -316,14 +322,14 @@ fn declare_record_hooks(app: &mut AppBuilder) {
 
 fn register_record_hooks(app: &mut AppBuilder) {
     app.custom_record_handler(custom_record_handler);
-    app.on::<RecordValidating, _>(VALIDATION_RULE_PRIORITY, |ctx, args| {
+    app.on(RecordValidating, VALIDATION_RULE_PRIORITY, |ctx, args| {
         Box::pin(async move {
             validation_rule_guard(ctx.pool, &args.registry)
                 .check(ctx.tx, ctx.scope, &args.write())
                 .await
         })
     })
-    .on::<RecordDeleting, _>(RESTRICTED_LINKS_PRIORITY, |ctx, args| {
+    .on(RecordDeleting, RESTRICTED_LINKS_PRIORITY, |ctx, args| {
         Box::pin(async move {
             MySqlRecordLinkRepository::new(ctx.pool.clone(), args.registry.clone())
                 .ensure_deletable(ctx.tx, &args.record)

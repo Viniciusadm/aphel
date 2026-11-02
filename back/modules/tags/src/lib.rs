@@ -1,10 +1,8 @@
-pub(crate) mod automation;
+pub(crate) mod contract;
 pub(crate) mod domain;
 pub mod dto;
 pub(crate) mod hooks;
 pub mod http;
-pub(crate) mod operations;
-pub(crate) mod plugin_bridge;
 pub(crate) mod search;
 pub mod section;
 pub mod service;
@@ -30,6 +28,7 @@ impl Module for TagsModule {
         Manifest::new(KEY, "Tags", APHEL_VERSION)
             .description("Tags of the organization and tagging of contacts, companies, deals and custom objects")
             .required()
+            .plugin_toml(include_str!("../plugin.toml"))
             .owned_tables(&["tags", "taggings"])
             .migration(Migration::new(
                 1,
@@ -39,9 +38,7 @@ impl Module for TagsModule {
     }
 
     fn register(&self, app: &mut AppBuilder) -> Result<(), AppError> {
-        app.provide::<dyn aphel_kernel::application::automations::TagOperations>(
-            std::sync::Arc::new(operations::AutomationTags),
-        );
+        contract::register(app);
         app.contribute(std::sync::Arc::new(aphel_kernel::infrastructure::config_packages::ConfigSectionFactory::new(
             100,
             |pool, registry| {
@@ -49,21 +46,16 @@ impl Module for TagsModule {
                 std::sync::Arc::new(crate::section::TagsSection::new(crate::TagStore::new(pool.clone()), aphel_kernel::infrastructure::config_packages::MySqlConfigKeyRepository::new(pool.clone())))
             },
         )));
-        use crate::automation::Tag;
         app.openapi_tag(
             http::TAG,
             "Tags of the organization and tagging of contacts, companies and deals",
         )
         .routes(|_| http::router());
-        app.action(Arc::new(Tag { present: true }))
-            .action(Arc::new(Tag { present: false }));
-        app.on::<aphel_kernel::records::RecordPurged, _>(
+        app.on(
+            aphel_kernel::records::RecordPurged,
             aphel_kernel::modules::DEFAULT_PRIORITY,
             |ctx, removed| Box::pin(crate::hooks::purge_record_taggings(ctx, removed)),
         );
-        for operation in plugin_bridge::operations() {
-            app.contribute::<aphel_kernel::modules::PluginOperation>(operation);
-        }
         app.contribute::<dyn aphel_kernel::application::search::SearchContentSource>(Arc::new(
             search::TagSearchContent,
         ));

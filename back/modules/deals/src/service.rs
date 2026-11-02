@@ -1292,18 +1292,15 @@ async fn before_moving(
             from: moving.previous.map(|record| record.stage.clone()),
             to: moving.target.stage.clone(),
         };
-        ctx.run_hook::<DealStageChanging>(tx, KEY, &change).await?;
+        ctx.run_hook(DealStageChanging, tx, KEY, &change).await?;
     }
     if moving.status_changed {
         match moving.deal.status {
             DealStatus::Won => {
-                ctx.run_hook::<DealWinning>(tx, KEY, &moving.closing())
+                ctx.run_hook(DealWinning, tx, KEY, &moving.closing())
                     .await?
             }
-            DealStatus::Lost => {
-                ctx.run_hook::<DealLosing>(tx, KEY, &moving.closing())
-                    .await?
-            }
+            DealStatus::Lost => ctx.run_hook(DealLosing, tx, KEY, &moving.closing()).await?,
             DealStatus::Open => {}
         }
     }
@@ -1319,8 +1316,8 @@ async fn after_moving(
         return Ok(());
     }
     match moving.deal.status {
-        DealStatus::Won => ctx.run_hook::<DealWon>(tx, KEY, &moving.closing()).await,
-        DealStatus::Lost => ctx.run_hook::<DealLost>(tx, KEY, &moving.closing()).await,
+        DealStatus::Won => ctx.run_hook(DealWon, tx, KEY, &moving.closing()).await,
+        DealStatus::Lost => ctx.run_hook(DealLost, tx, KEY, &moving.closing()).await,
         DealStatus::Open => Ok(()),
     }
 }

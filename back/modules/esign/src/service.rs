@@ -5,7 +5,6 @@ use serde_json::{Value, json};
 use uuid::Uuid;
 
 use aphel_kernel::Ctx;
-use aphel_kernel::api::routes::v1::files::file_use_cases;
 use aphel_kernel::application::files::{ListAttachmentsQuery, UploadFileCommand};
 use aphel_kernel::application::organization_admin::ListWindow;
 use aphel_kernel::application::shared::{
@@ -171,7 +170,7 @@ pub(crate) async fn ensure_attached(
     deal_id: Uuid,
     file_id: Uuid,
 ) -> Result<(), AppError> {
-    let files = file_use_cases(&ctx.state()).await?;
+    let files = ctx.files().await?;
     for page in 1..=MAX_ATTACHMENT_PAGES {
         let listing = files
             .list_attachments(
@@ -214,7 +213,8 @@ pub(crate) async fn read_file(
     scope: &AccessScope,
     file_id: Uuid,
 ) -> Result<FileContent, AppError> {
-    let download = file_use_cases(&ctx.state())
+    let download = ctx
+        .files()
         .await?
         .download(scope, &file_id.to_string())
         .await?;
@@ -743,7 +743,8 @@ pub(crate) async fn attach_signed(ctx: &Ctx<'_>, request_id: Uuid) -> Result<(),
         .strip_suffix(".pdf")
         .or_else(|| request.file_name.strip_suffix(".PDF"))
         .unwrap_or(&request.file_name);
-    let file = file_use_cases(&ctx.state())
+    let file = ctx
+        .files()
         .await?
         .upload(
             scope,

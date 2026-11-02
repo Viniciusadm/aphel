@@ -49,7 +49,7 @@ The query, serialization and schema hooks run in a discarded (read-only) transac
 `HookCtx` carries `tx`, `pool`, `scope`, `services` and `module`. Registration in the module's `register`:
 
 ```rust
-app.on::<RecordValidating, _>(25, |ctx, args| {
+app.on(RecordValidating, 25, |ctx, args| {
     Box::pin(async move {
         if args.record_type != RecordType::DEAL {
             return Ok(());
@@ -59,7 +59,7 @@ app.on::<RecordValidating, _>(25, |ctx, args| {
     })
 });
 
-app.filter::<RecordQueryFilter, _>(10, |_ctx, mut constraints| {
+app.filter(RecordQueryFilter, 10, |_ctx, mut constraints| {
     Box::pin(async move {
         // constraints.conditions.push(PlanNode::Condition(..));
         Ok(constraints)
@@ -112,17 +112,17 @@ What applies only to some types becomes a capability in `RecordTypeDefinition.ca
 
 Besides the capabilities, the definition carries two structural declarations:
 
-- `hierarchy(parent_column)` (`RecordTypeDefinition::hierarchy` or `extend_record_type(..).hierarchy(..)`): the type is a tree over its own table. It enables the `in_group` operator on the type's `id` and on `record` fields that point to it (`hierarchical_target`), compiled into `WITH RECURSIVE` over the declared column (`Predicate::InGroup(RecordGroup)`). `companies` declares `parent_company_id`.
-- `item_table(ItemTable)` (via `extend_record_type`): a table of child items that formulas aggregate (`SUM(items.total)`), with the exposed columns. `deal_items` declares `items` on `deal`.
+- `hierarchy(parent_column)` (`RecordTypeDefinition::hierarchy` or `extend(..).hierarchy(..)`): the type is a tree over its own table. It enables the `in_group` operator on the type's `id` and on `record` fields that point to it (`hierarchical_target`), compiled into `WITH RECURSIVE` over the declared column (`Predicate::InGroup(RecordGroup)`). `companies` declares `parent_company_id`.
+- `item_table(ItemTable)` (via `extend`): a table of child items that formulas aggregate (`SUM(items.total)`), with the exposed columns. `deal_items` declares `items` on `deal`.
 
 ## Registering and extending types
 
 In the module's `register`:
 
 ```rust
-app.record_type(definition.handler(Arc::new(MyHandler)));
+app.entity(definition.handler(Arc::new(MyHandler)));
 
-app.extend_record_type("contact", |contact| {
+app.extend("contact", |contact| {
     contact
         .system_field(SystemField::new("temperature", "Temperatura", FieldType::Number, "temperature")?)
         .relation(relation)
@@ -131,14 +131,14 @@ app.extend_record_type("contact", |contact| {
 });
 ```
 
-- `record_type(def)` registers a type; `extend_record_type(key, |t| ..)` adds system fields (computed ones too, with `computed`), relations, `member_access`, `hierarchy`, item tables (`item_table`), managed fields and a handler to a type from another module.
+- `record_type(def)` registers a type; `extend(key, |t| ..)` adds system fields (computed ones too, with `computed`), relations, `member_access`, `hierarchy`, item tables (`item_table`), managed fields and a handler to a type from another module.
 - `managed_field(FieldSpec)` creates a custom field (EAV) defined in code: `sync_system_fields` (boot, `aphel migrate`, installer) writes the definition with `module_key` and, on later syncs, updates label, type and configuration. A field that no compiled module declares anymore loses its `module_key` on sync (the values stay and the administrator takes over managing it). The field appears in forms, filters, columns, import and the API like any custom field, but the UI cannot edit it: changing it, deactivating it or touching its options responds with 409 `field_managed_by_module`, and `FieldResponse.module_key` tells the owner.
 - The `App` builds the final registry (`app.record_types()`), and `RecordTypeRegistry::builtin()` returns a copy of it; the `RecordTypeCatalog` adds the custom objects.
-- Each module registers its own type (`companies`, `contacts`, `deals`, `activities`, `products`, `quotes`); `deals` declares the deal team (`deal_members`) via `extend_record_type("deal", ..)`; `leads` and `scoring` extend `contact` and `company` (`lifecycle_stage` and `score`). Each former extension registers its own types.
+- Each module registers its own type (`companies`, `contacts`, `deals`, `activities`, `products`, `quotes`); `deals` declares the deal team (`deal_members`) via `extend("deal", ..)`; `leads` and `scoring` extend `contact` and `company` (`lifecycle_stage` and `score`). Each former extension registers its own types.
 
 ## Contributed fields
 
-A system field declared via `extend_record_type(..).system_field(..)` or `.computed(..)` is marked with `SystemField.contributed_by = Some(module)`. The column belongs to the contributing module (its migration does the `ALTER TABLE`), and the module that owns the type does not know about the field. The kernel handles these fields generically (`kernel/records/contributed.rs`):
+A system field declared via `extend(..).system_field(..)` or `.computed(..)` is marked with `SystemField.contributed_by = Some(module)`. The column belongs to the contributing module (its migration does the `ALTER TABLE`), and the module that owns the type does not know about the field. The kernel handles these fields generically (`kernel/records/contributed.rs`):
 
 | Function | Use |
 | --- | --- |

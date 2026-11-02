@@ -82,11 +82,11 @@ impl Module for AutomationsModule {
     }
 
     fn register(&self, app: &mut AppBuilder) -> Result<(), AppError> {
-        app.declare_hook::<crate::hooks::ActionRunning>(
-            &[aphel_kernel::modules::HookUsage::Veto, aphel_kernel::modules::HookUsage::Filter],
+        app.declare_hook(crate::hooks::ActionRunning, &[aphel_kernel::modules::HookUsage::Veto, aphel_kernel::modules::HookUsage::Filter],
             "Before an automation action runs (dry run and execution; an error skips it) and, as a filter, the result recorded for the step",
         );
-        app.on::<crate::hooks::ActionRunning, _>(
+        app.on(
+            crate::hooks::ActionRunning,
             aphel_kernel::modules::PLUGIN_HOOK_PRIORITY,
             |ctx, running| Box::pin(plugin_bridge::action_running(ctx, running)),
         );

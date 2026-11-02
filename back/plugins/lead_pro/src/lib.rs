@@ -115,19 +115,19 @@ impl Module for LeadPro {
             FieldType::Number,
             TEMPERATURE_FIELD,
         )?;
-        app.extend_record_type("contact", |contact| {
+        app.extend("contact", |contact| {
             contact.system_field(field);
         });
-        app.filter::<RecordSaving, _>(SAVING_PRIORITY, |ctx, saving| {
+        app.filter(RecordSaving, SAVING_PRIORITY, |ctx, saving| {
             Box::pin(hooks::default_temperature(ctx, saving))
         })
-        .on::<RecordValidating, _>(VALIDATING_PRIORITY, |_, changed| {
+        .on(RecordValidating, VALIDATING_PRIORITY, |_, changed| {
             Box::pin(hooks::validate_temperature(changed))
         })
-        .on::<LeadQualifying, _>(QUALIFYING_PRIORITY, |ctx, lead| {
+        .on(LeadQualifying, QUALIFYING_PRIORITY, |ctx, lead| {
             Box::pin(hooks::require_temperature(ctx, lead))
         })
-        .filter::<LeadConverting, _>(CONVERTING_PRIORITY, |ctx, conversion| {
+        .filter(LeadConverting, CONVERTING_PRIORITY, |ctx, conversion| {
             Box::pin(hooks::enrich_deal_values(ctx, conversion))
         });
         app.decorate::<dyn LeadConverter, _>(|inner| Arc::new(converter::WithTouches(inner)))?;

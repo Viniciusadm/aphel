@@ -7,18 +7,6 @@ use crate::application::shared::RecordRef;
 use crate::errors::AppError;
 
 #[async_trait]
-pub trait TagOperations: Send + Sync {
-    async fn find_tag(&self, ctx: &Ctx<'_>, id: &str) -> Result<(), AppError>;
-    async fn set_tag(
-        &self,
-        ctx: &Ctx<'_>,
-        record: &RecordRef,
-        tag_id: &str,
-        present: bool,
-    ) -> Result<(), AppError>;
-}
-
-#[async_trait]
 pub trait StageOperations: Send + Sync {
     async fn find_stage(&self, ctx: &Ctx<'_>, id: &str) -> Result<(), AppError>;
     async fn move_to_stage(

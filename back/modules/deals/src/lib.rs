@@ -285,42 +285,53 @@ impl Module for DealsModule {
         app.contribute::<dyn aphel_kernel::application::notifications::NotificationSource>(
             std::sync::Arc::new(notifications::DealNotifications),
         );
-        app.declare_hook::<crate::hooks::DealStageChanging>(
+        app.declare_hook(
+            crate::hooks::DealStageChanging,
             &[aphel_kernel::modules::HookUsage::Veto],
             "Before a deal moves to another stage; an error blocks the move",
         );
-        app.declare_hook::<crate::hooks::DealWinning>(
+        app.declare_hook(
+            crate::hooks::DealWinning,
             &[aphel_kernel::modules::HookUsage::Veto],
             "Before a deal is marked as won; an error blocks it",
         );
-        app.declare_hook::<crate::hooks::DealLosing>(
+        app.declare_hook(
+            crate::hooks::DealLosing,
             &[aphel_kernel::modules::HookUsage::Veto],
             "Before a deal is marked as lost; an error blocks it",
         );
-        app.declare_hook::<crate::hooks::DealWon>(
+        app.declare_hook(
+            crate::hooks::DealWon,
             &[aphel_kernel::modules::HookUsage::Action],
             "After a deal was won, inside the same transaction",
         );
-        app.declare_hook::<crate::hooks::DealLost>(
+        app.declare_hook(
+            crate::hooks::DealLost,
             &[aphel_kernel::modules::HookUsage::Action],
             "After a deal was lost, inside the same transaction",
         );
-        app.on::<crate::hooks::DealStageChanging, _>(
+        app.on(
+            crate::hooks::DealStageChanging,
             aphel_kernel::modules::PLUGIN_HOOK_PRIORITY,
             |ctx, change| Box::pin(plugin_bridge::stage_changing(ctx, change)),
         )
-        .on::<crate::hooks::DealWinning, _>(
+        .on(
+            crate::hooks::DealWinning,
             aphel_kernel::modules::PLUGIN_HOOK_PRIORITY,
             |ctx, deal| Box::pin(plugin_bridge::closing(ctx, plugin_bridge::WINNING, deal)),
         )
-        .on::<crate::hooks::DealLosing, _>(
+        .on(
+            crate::hooks::DealLosing,
             aphel_kernel::modules::PLUGIN_HOOK_PRIORITY,
             |ctx, deal| Box::pin(plugin_bridge::closing(ctx, plugin_bridge::LOSING, deal)),
         )
-        .on::<crate::hooks::DealWon, _>(aphel_kernel::modules::PLUGIN_HOOK_PRIORITY, |ctx, deal| {
-            Box::pin(plugin_bridge::closing(ctx, plugin_bridge::WON, deal))
-        })
-        .on::<crate::hooks::DealLost, _>(
+        .on(
+            crate::hooks::DealWon,
+            aphel_kernel::modules::PLUGIN_HOOK_PRIORITY,
+            |ctx, deal| Box::pin(plugin_bridge::closing(ctx, plugin_bridge::WON, deal)),
+        )
+        .on(
+            crate::hooks::DealLost,
             aphel_kernel::modules::PLUGIN_HOOK_PRIORITY,
             |ctx, deal| Box::pin(plugin_bridge::closing(ctx, plugin_bridge::LOST, deal)),
         );
@@ -347,17 +358,17 @@ impl Module for DealsModule {
         app.contribute(Arc::new(CrmDefaultsSeed(|connection| {
             Box::pin(team::store::seed_deal_member_roles(connection))
         })));
-        app.filter::<SearchPlanFilter, _>(DEFAULT_PRIORITY, |ctx, plan| {
+        app.filter(SearchPlanFilter, DEFAULT_PRIORITY, |ctx, plan| {
             Box::pin(hooks::restrict_search(ctx, plan))
         });
-        app.filter::<RecordQueryFilter, _>(DEFAULT_PRIORITY, |ctx, constraints| {
+        app.filter(RecordQueryFilter, DEFAULT_PRIORITY, |ctx, constraints| {
             Box::pin(hooks::restrict_query(ctx, constraints))
         });
         app.trigger(Arc::new(crate::automation::StageChanged))
             .triggers(crate::automation::deal_closed_triggers())
             .action(Arc::new(crate::automation::MoveStage));
-        app.record_type(deal_definition()?.handler(Arc::new(http::DealHandler)))
-            .extend_record_type("deal", |deal| {
+        app.entity(deal_definition()?.handler(Arc::new(http::DealHandler)))
+            .extend("deal", |deal| {
                 deal.member_access(DEAL_MEMBERS_TABLE, "deal_id", "user_id");
             })
             .provide::<dyn AmountCalculator>(Arc::new(ManualAmountCalculator))

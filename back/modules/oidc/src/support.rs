@@ -29,7 +29,7 @@ pub(crate) fn public_path(key: &str) -> String {
 }
 
 pub(crate) fn app_base_url(ctx: &Ctx<'_>) -> String {
-    ctx.state().auth_settings.app_base_url.get()
+    ctx.app_base_url()
 }
 
 pub(crate) async fn settings(ctx: &Ctx<'_>, key: &str) -> Result<Value, AppError> {

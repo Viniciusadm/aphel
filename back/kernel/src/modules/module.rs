@@ -1,6 +1,7 @@
 use std::ops::Deref;
 
 use crate::modules::manifest::{ManifestBase, Migration, SettingField};
+use crate::modules::plugin_manifest::{Layer, PluginManifest, Provides, Runtime, Uses};
 use async_trait::async_trait;
 use serde_json::Value;
 use sqlx::MySqlPool;
@@ -18,6 +19,10 @@ pub struct Manifest {
     pub required: bool,
     pub enabled_by_default: bool,
     pub optional: Vec<&'static str>,
+    pub layer: Option<Layer>,
+    pub runtime: Runtime,
+    pub provides: Provides,
+    pub uses: Uses,
 }
 
 impl Manifest {
@@ -28,6 +33,10 @@ impl Manifest {
             required: false,
             enabled_by_default: false,
             optional: Vec::new(),
+            layer: None,
+            runtime: Runtime::Native,
+            provides: Provides::default(),
+            uses: Uses::default(),
         }
     }
 
@@ -80,6 +89,24 @@ impl Manifest {
 
     pub fn uninstall_sql(mut self, sql: &'static str) -> Self {
         self.uninstall_sql = Some(sql);
+        self
+    }
+
+    pub fn plugin_toml(mut self, text: &str) -> Self {
+        match PluginManifest::parse(text) {
+            Ok(plugin) if plugin.key == self.base.key => {
+                self.layer = Some(plugin.layer);
+                self.runtime = plugin.runtime;
+                self.provides = plugin.provides;
+                self.uses = plugin.uses;
+            }
+            Ok(plugin) => tracing::error!(
+                "plugin.toml of `{}` declares the key `{}`",
+                self.base.key,
+                plugin.key
+            ),
+            Err(error) => tracing::error!("plugin.toml of `{}`: {error}", self.base.key),
+        }
         self
     }
 

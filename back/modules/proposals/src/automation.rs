@@ -13,7 +13,7 @@ use aphel_kernel::application::shared::DomainEvent;
 use aphel_kernel::context::Ctx;
 use aphel_kernel::domain::access::Permission;
 use aphel_kernel::errors::{AppError, FieldViolation};
-use aphel_kernel::state::runtime_state;
+use aphel_kernel::state::{runtime_pool, runtime_state};
 
 pub(crate) const GENERATE_ACTION: &str = "proposals.generate_proposal";
 const DEAL: &str = "deal";
@@ -119,7 +119,7 @@ impl AutomationAction for GenerateProposalAction {
         } else if !config.is_null() {
             violations.push(context.violation("", "must be an object"));
         }
-        let pool = runtime_state()?.db()?;
+        let pool = runtime_pool()?;
         let template = match template_key(config) {
             Some(key) => store::find_template_by_key(&pool, key).await?,
             None => store::default_template(&pool).await?,

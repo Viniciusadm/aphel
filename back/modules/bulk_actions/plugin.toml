@@ -1,0 +1,8 @@
+key = "bulk_actions"
+name = "Bulk actions"
+version = "0.1.0"
+layer = "capability"
+runtime = "native"
+
+[uses]
+required = ["tagging@1"]

@@ -19,7 +19,7 @@ use crate::infrastructure::custom_objects::MySqlRecordLinkRepository;
 use crate::infrastructure::fields::MySqlCustomFieldValueRepository;
 use crate::infrastructure::storage::references::delete_unreferenced_files;
 use crate::modules::builder::KERNEL_MODULE;
-use crate::modules::{App, Hook, HookCtx};
+use crate::modules::{App, HookCtx, HookRef};
 use crate::records::hooks::{
     ChangedRecord, QueryConstraints, RecordArchiving, RecordCommitted, RecordDeleted,
     RecordDeleting, RecordPurged, RecordQueryFilter, RecordRestored, RecordSaved, RecordSaving,
@@ -43,18 +43,19 @@ impl MySqlRecordPipeline {
         }
     }
 
-    async fn run<H: Hook>(
+    async fn run<K: HookRef>(
         &self,
+        hook: K,
         tx: &mut MySqlTx,
         scope: &AccessScope,
-        args: &H::Args,
+        args: &K::Args,
     ) -> Result<(), AppError> {
         let hooks = self.app.hooks();
-        if !hooks.has::<H>() {
+        if !hooks.has(hook) {
             return Ok(());
         }
         let mut ctx = HookCtx::new(tx, &self.pool, scope, self.app.services(), KERNEL_MODULE);
-        hooks.run::<H>(&mut ctx, args).await
+        hooks.run(hook, &mut ctx, args).await
     }
 
     fn changed(&self, write: &RecordWrite<'_>) -> ChangedRecord {
@@ -103,7 +104,7 @@ impl RecordPipeline for MySqlRecordPipeline {
             }),
         );
         let hooks = self.app.hooks();
-        if !hooks.has::<RecordSaving>() {
+        if !hooks.has(RecordSaving) {
             return Ok(draft);
         }
         let mut ctx = HookCtx::new(tx, &self.pool, scope, self.app.services(), KERNEL_MODULE);
@@ -112,7 +113,7 @@ impl RecordPipeline for MySqlRecordPipeline {
             draft,
             registry: self.registry.clone(),
         };
-        Ok(hooks.apply::<RecordSaving>(&mut ctx, saving).await?.draft)
+        Ok(hooks.apply(RecordSaving, &mut ctx, saving).await?.draft)
     }
 
     async fn validate(
@@ -138,7 +139,7 @@ impl RecordPipeline for MySqlRecordPipeline {
         }));
         state["proposed"] = proposed;
         state["phase"] = serde_json::json!("record.validating");
-        self.run::<RecordValidating>(tx, scope, &self.changed(write))
+        self.run(RecordValidating, tx, scope, &self.changed(write))
             .await
     }
 
@@ -157,18 +158,17 @@ impl RecordPipeline for MySqlRecordPipeline {
             state["proposed"] = proposed.unwrap_or(serde_json::Value::Null);
             state["phase"] = serde_json::json!("record.saved");
         }
-        self.run::<RecordSaved>(tx, scope, &self.changed(write))
-            .await
+        self.run(RecordSaved, tx, scope, &self.changed(write)).await
     }
 
     async fn committed(&self, scope: &AccessScope, write: &RecordWrite<'_>) {
-        if !self.app.hooks().has::<RecordCommitted>() {
+        if !self.app.hooks().has(RecordCommitted) {
             return;
         }
         let args = self.changed(write);
         let outcome = async {
             let mut tx = MySqlTx::from(self.pool.begin().await?);
-            self.run::<RecordCommitted>(&mut tx, scope, &args).await?;
+            self.run(RecordCommitted, &mut tx, scope, &args).await?;
             tx.commit().await?;
             Ok::<(), AppError>(())
         }
@@ -198,7 +198,7 @@ impl RecordPipeline for MySqlRecordPipeline {
                 "before_available": true, "proposed": null, "persisted": null,
             }),
         );
-        self.run::<RecordDeleting>(tx, scope, &self.removed(record))
+        self.run(RecordDeleting, tx, scope, &self.removed(record))
             .await
     }
 
@@ -218,7 +218,7 @@ impl RecordPipeline for MySqlRecordPipeline {
                 "before_available": true, "proposed": null, "persisted": null,
             }),
         );
-        self.run::<RecordArchiving>(tx, scope, &self.removed(record))
+        self.run(RecordArchiving, tx, scope, &self.removed(record))
             .await
     }
 
@@ -228,7 +228,7 @@ impl RecordPipeline for MySqlRecordPipeline {
         scope: &AccessScope,
         record: &RecordRef,
     ) -> Result<(), AppError> {
-        self.run::<RecordDeleted>(tx, scope, &self.removed(record))
+        self.run(RecordDeleted, tx, scope, &self.removed(record))
             .await?;
         crate::infrastructure::fields::unique_values::release_record(tx, record).await
     }
@@ -243,7 +243,7 @@ impl RecordPipeline for MySqlRecordPipeline {
             crate::infrastructure::fields::unique_values::reserve_record(tx, definition, record)
                 .await?;
         }
-        self.run::<RecordRestored>(tx, scope, &self.removed(record))
+        self.run(RecordRestored, tx, scope, &self.removed(record))
             .await
     }
 
@@ -253,7 +253,7 @@ impl RecordPipeline for MySqlRecordPipeline {
         scope: &AccessScope,
         record: &RecordRef,
     ) -> Result<PurgedRecord, AppError> {
-        self.run::<RecordPurged>(tx, scope, &self.removed(record))
+        self.run(RecordPurged, tx, scope, &self.removed(record))
             .await?;
         MySqlCustomFieldValueRepository::new(self.pool.clone())
             .delete_record(tx, record)
@@ -308,20 +308,21 @@ async fn delete_record_rows(tx: &mut MySqlTx, record: &RecordRef) -> Result<Vec<
         .collect())
 }
 
-async fn read_only<H: Hook>(
+async fn read_only<K: HookRef>(
+    hook: K,
     pool: &MySqlPool,
     scope: &AccessScope,
-    value: H::Args,
-) -> Result<H::Args, AppError> {
+    value: K::Args,
+) -> Result<K::Args, AppError> {
     let app = crate::modules::app();
     let hooks = app.hooks();
-    if !hooks.has::<H>() {
+    if !hooks.has(hook) {
         return Ok(value);
     }
     let mut tx = MySqlTx::from(pool.begin().await?);
     let value = {
         let mut ctx = HookCtx::new(&mut tx, pool, scope, app.services(), KERNEL_MODULE);
-        hooks.apply::<H>(&mut ctx, value).await?
+        hooks.apply(hook, &mut ctx, value).await?
     };
     tx.rollback().await?;
     Ok(value)
@@ -332,7 +333,7 @@ pub async fn filter_search_plan(
     scope: &AccessScope,
     plan: QueryPlan,
 ) -> Result<QueryPlan, AppError> {
-    read_only::<SearchPlanFilter>(pool, scope, plan).await
+    read_only(SearchPlanFilter, pool, scope, plan).await
 }
 
 pub async fn constrain_query(
@@ -345,7 +346,7 @@ pub async fn constrain_query(
         conditions: Vec::new(),
         sort: Vec::new(),
     };
-    let constraints = read_only::<RecordQueryFilter>(pool, scope, constraints).await?;
+    let constraints = read_only(RecordQueryFilter, pool, scope, constraints).await?;
     if constraints.conditions.is_empty() && constraints.sort.is_empty() {
         return Ok(None);
     }
@@ -373,7 +374,7 @@ pub async fn serialize_records(
         record_type: record_type.clone(),
         items,
     };
-    Ok(read_only::<RecordSerializing>(pool, scope, records)
+    Ok(read_only(RecordSerializing, pool, scope, records)
         .await?
         .items)
 }
@@ -421,7 +422,7 @@ pub async fn filter_schema(
         record_type: record_type.clone(),
         schema,
     };
-    Ok(read_only::<RecordSchemaFilter>(pool, scope, schema)
+    Ok(read_only(RecordSchemaFilter, pool, scope, schema)
         .await?
         .schema)
 }

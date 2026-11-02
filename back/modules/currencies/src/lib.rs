@@ -105,7 +105,7 @@ impl Module for CurrenciesModule {
             FieldType::Currency,
         )?;
         let exchange_rate = field("exchange_rate", "Cotação", FieldType::Number)?;
-        app.extend_record_type("deal", |deal| {
+        app.extend("deal", |deal| {
             deal.system_field(amount_base.clone())
                 .system_field(exchange_rate.clone());
         })

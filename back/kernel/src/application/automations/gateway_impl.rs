@@ -10,7 +10,7 @@ use crate::Ctx;
 use crate::application::automations::{
     AUTOMATION_MESSAGE, ActivityTypeOperations, AutomationGateway, AutomationGatewayFactory,
     IncomingWebhookOperations, MessageSpec, NoteOperations, Reference, SharedAutomationGateway,
-    StageOperations, TagOperations, TaskOperations, TaskSpec, WebhookCall, WebhookCallResult,
+    StageOperations, TaskOperations, TaskSpec, WebhookCall, WebhookCallResult,
 };
 use crate::application::fields::{FieldSet, RelationPath};
 use crate::application::organization_admin::{ListWindow, Listing};
@@ -246,10 +246,15 @@ impl AutomationGateway for HandlerAutomationGateway {
         let ctx = Ctx::from_state(&self.state, scope).await?;
         let services = self.state.app.services();
         let found = match reference {
-            Reference::Tag(id) => match services.get::<dyn TagOperations>() {
-                Some(tags) => tags.find_tag(&ctx, id).await,
-                None => return Ok(false),
-            },
+            Reference::Operation { operation, id } => {
+                let Some(entry) = self.state.app.operation(operation) else {
+                    return Ok(false);
+                };
+                entry
+                    .call(&ctx, serde_json::json!({ "id": id }))
+                    .await
+                    .map(|_| ())
+            }
             Reference::Stage(id) => match services.get::<dyn StageOperations>() {
                 Some(stages) => stages.find_stage(&ctx, id).await,
                 None => return Ok(false),
@@ -299,20 +304,20 @@ impl AutomationGateway for HandlerAutomationGateway {
             .map(|_| ())
     }
 
-    async fn set_tag(
+    async fn call_operation(
         &self,
         scope: &AccessScope,
-        record: &RecordRef,
-        tag_id: &str,
-        present: bool,
-    ) -> Result<(), AppError> {
-        self.service::<dyn TagOperations>("tags")?
-            .set_tag(
-                &Ctx::from_state(&self.state, scope).await?,
-                record,
-                tag_id,
-                present,
+        operation: &str,
+        input: Value,
+    ) -> Result<Value, AppError> {
+        let entry = self.state.app.operation(operation).ok_or_else(|| {
+            AppError::unavailable_code(
+                crate::modules::CONTRACT_UNAVAILABLE,
+                format!("no enabled provider for operation `{operation}`"),
             )
+        })?;
+        entry
+            .call(&Ctx::from_state(&self.state, scope).await?, input)
             .await
     }
 

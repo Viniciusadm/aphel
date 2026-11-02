@@ -15,7 +15,7 @@ use aphel_kernel::application::shared::{
 use aphel_kernel::database::transaction::MySqlTx;
 use aphel_kernel::domain::access::{AccessScope, Permission};
 use aphel_kernel::errors::AppError;
-use aphel_kernel::records::{RecordCtx, field_set};
+use aphel_kernel::records::RecordCtx;
 
 #[derive(Debug, Clone, PartialEq, Eq)]
 pub(crate) enum IngestOutcome {
@@ -184,8 +184,7 @@ async fn resolve_contact(
     channel: &StoredChannel,
     message: &InboundMessage,
 ) -> Result<Option<Uuid>, AppError> {
-    let keys: Vec<String> = match field_set(&ctx.state(), scope, RecordType::CONTACT.as_str()).await
-    {
+    let keys: Vec<String> = match ctx.field_set(scope, RecordType::CONTACT.as_str()).await {
         Ok(fields) => fields
             .active()
             .map(|field| field.key().to_owned())

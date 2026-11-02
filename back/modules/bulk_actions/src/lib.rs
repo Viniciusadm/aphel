@@ -26,6 +26,7 @@ impl Module for BulkActionsModule {
             .description("Bulk actions over selected records or every record of a filter, with progress and report")
             .enabled_by_default()
             .depends_on(exports::KEY, "*")
+            .plugin_toml(include_str!("../plugin.toml"))
             .owned_tables(&["bulk_operation_items", "bulk_operations"])
             .migration(Migration::new(
                 1,

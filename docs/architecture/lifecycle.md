@@ -19,7 +19,7 @@ Web: `web/src/features/leads`.
 
 ## Contributed field
 
-`contacts` and `companies` do not know about the stage. `leads` creates the column in its own migration and declares the field with `app.extend_record_type("contact" | "company", |t| t.system_field(lifecycle_stage_field()))`. A system field declared by another module is a **contributed field** (`SystemField.contributed_by`): the kernel reads the values (`kernel::records::load_contributed`), validates the type (`merge_contributed`) and writes them (`write_contributed`) generically, and the contact and company DTOs flatten them into the JSON (`#[serde(flatten)] contributed`). That is why `lifecycle_stage` is still part of the API read and write bodies, imports, bulk actions, automations and incoming webhooks, with no lifecycle code in `contacts`/`companies`. See [`record-pipeline.md`](record-pipeline.md#contributed-fields).
+`contacts` and `companies` do not know about the stage. `leads` creates the column in its own migration and declares the field with `app.extend("contact" | "company", |t| t.system_field(lifecycle_stage_field()))`. A system field declared by another module is a **contributed field** (`SystemField.contributed_by`): the kernel reads the values (`kernel::records::load_contributed`), validates the type (`merge_contributed`) and writes them (`write_contributed`) generically, and the contact and company DTOs flatten them into the JSON (`#[serde(flatten)] contributed`). That is why `lifecycle_stage` is still part of the API read and write bodies, imports, bulk actions, automations and incoming webhooks, with no lifecycle code in `contacts`/`companies`. See [`record-pipeline.md`](record-pipeline.md#contributed-fields).
 
 ## Validation and history (same transaction)
 

@@ -23,7 +23,7 @@ use aphel_kernel::errors::{AppError, FieldViolation};
 use aphel_kernel::infrastructure::query::compiler::{Projection, build_query};
 use aphel_kernel::infrastructure::repositories::mapper::invalid_column;
 use aphel_kernel::records::constrain_query;
-use aphel_kernel::state::runtime_state;
+use aphel_kernel::state::runtime_pool;
 use deals::domain::date;
 
 pub(crate) const RENEWALS_DUE_WIDGET: &str = "renewals_due";
@@ -66,7 +66,7 @@ async fn renewal_deals(
     scope: &AccessScope,
     plan: &QueryPlan,
 ) -> Result<Vec<RenewalDeal>, AppError> {
-    let pool = runtime_state()?.db()?;
+    let pool = runtime_pool()?;
     let constrained = constrain_query(&pool, scope, plan).await?;
     let plan = constrained.as_ref().unwrap_or(plan);
     let ids: Vec<String> = build_query(scope, plan, Projection::Ids)?

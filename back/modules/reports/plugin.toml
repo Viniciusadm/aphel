@@ -1,0 +1,5 @@
+key = "reports"
+name = "Reports"
+version = "0.1.0"
+layer = "capability"
+runtime = "native"

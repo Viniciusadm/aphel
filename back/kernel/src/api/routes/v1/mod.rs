@@ -20,6 +20,7 @@ pub mod modules;
 pub mod notifications;
 pub mod organization;
 pub mod organization_settings;
+pub mod platform_catalog;
 pub mod preferences;
 pub mod push;
 pub mod record_shares;

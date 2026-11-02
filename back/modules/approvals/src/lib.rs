@@ -106,7 +106,7 @@ impl Module for ApprovalsModule {
         )));
         app.triggers(automation::approval_triggers())
             .action(Arc::new(automation::RequestApproval));
-        app.on::<RecordValidating, _>(APPROVAL_PRIORITY, |ctx, args| {
+        app.on(RecordValidating, APPROVAL_PRIORITY, |ctx, args| {
             Box::pin(hooks::guard_write(ctx, args))
         })
         .provide::<dyn ApprovalGate>(Arc::new(EngineApprovalGate))

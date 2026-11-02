@@ -23,6 +23,7 @@ const SDK_PLUGIN_WITS: [&str; 2] = [
     "../sdk/js/aphel-plugin-sdk/wit/plugin.wit",
 ];
 
+mod arch;
 mod themes;
 
 type Failure = Box<dyn std::error::Error>;
@@ -66,8 +67,15 @@ fn main() -> ExitCode {
         ["modules", "sync", "--check"] => sync(true),
         ["themes", "sync"] => themes::sync(false),
         ["themes", "sync", "--check"] => themes::sync(true),
+        ["arch", "check"] => arch::run(arch::Mode::Check, false),
+        ["arch", "check", "--details"] => arch::run(arch::Mode::Check, true),
+        ["arch", "check", "--report-only"] => arch::run(arch::Mode::ReportOnly, false),
+        ["arch", "check", "--report-only", "--details"] => arch::run(arch::Mode::ReportOnly, true),
+        ["arch", "baseline"] => arch::run(arch::Mode::WriteBaseline, false),
         _ => {
-            eprintln!("usage: cargo run -p xtask -- modules|themes sync [--check]");
+            eprintln!(
+                "usage: cargo run -p xtask -- modules|themes sync [--check] | arch check [--report-only] [--details] | arch baseline"
+            );
             return ExitCode::from(2);
         }
     };

@@ -10,7 +10,7 @@ use aphel_kernel::context::Ctx;
 use aphel_kernel::database::transaction::MySqlTx;
 use aphel_kernel::domain::access::AccessScope;
 use aphel_kernel::errors::AppError;
-use aphel_kernel::state::runtime_state;
+use aphel_kernel::state::{runtime_pool, runtime_state};
 
 use crate::errors::TEMPLATE_INVALID;
 use crate::markup;
@@ -94,7 +94,7 @@ impl ConfigSection<MySqlTx> for TemplatesSection {
     }
 
     async fn export(&self, _scope: &AccessScope) -> Result<Option<Value>, AppError> {
-        let templates = store::list_templates(&runtime_state()?.db()?, false).await?;
+        let templates = store::list_templates(&runtime_pool()?, false).await?;
         if templates.is_empty() {
             return Ok(None);
         }
@@ -182,7 +182,7 @@ impl ConfigSection<MySqlTx> for TemplatesSection {
         _package: &ConfigPackage,
         content: &Value,
     ) -> Result<Vec<PlanItem>, AppError> {
-        let pool = runtime_state()?.db()?;
+        let pool = runtime_pool()?;
         let mut items = Vec::new();
         for entry in entries(content) {
             let proposed = values(&entry);

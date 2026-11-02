@@ -15,6 +15,7 @@ pub(crate) struct RunningStep {
     pub(crate) template_id: Option<Uuid>,
 }
 
+#[derive(Debug, Clone, Copy)]
 pub(crate) struct StepRunning;
 
 impl Hook for StepRunning {

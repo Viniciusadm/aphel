@@ -1,0 +1,5 @@
+key = "webhooks"
+name = "Webhooks"
+version = "0.1.0"
+layer = "capability"
+runtime = "native"

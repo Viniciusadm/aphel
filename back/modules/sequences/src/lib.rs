@@ -82,11 +82,11 @@ impl Module for SequencesModule {
     }
 
     fn register(&self, app: &mut AppBuilder) -> Result<(), AppError> {
-        app.declare_hook::<crate::hooks::StepRunning>(
-            &[aphel_kernel::modules::HookUsage::Veto],
+        app.declare_hook(crate::hooks::StepRunning, &[aphel_kernel::modules::HookUsage::Veto],
             "Before a sequence step runs; a definitive error removes the contact from the sequence, a transient one retries the job",
         );
-        app.on::<crate::hooks::StepRunning, _>(
+        app.on(
+            crate::hooks::StepRunning,
             aphel_kernel::modules::PLUGIN_HOOK_PRIORITY,
             |ctx, step| Box::pin(plugin_bridge::step_running(ctx, step)),
         );

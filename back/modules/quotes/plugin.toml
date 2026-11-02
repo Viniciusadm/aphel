@@ -1,0 +1,5 @@
+key = "quotes"
+name = "Quotes"
+version = "0.1.0"
+layer = "domain"
+runtime = "native"

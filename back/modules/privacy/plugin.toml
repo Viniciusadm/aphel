@@ -1,0 +1,5 @@
+key = "privacy"
+name = "Privacy"
+version = "0.1.0"
+layer = "capability"
+runtime = "native"

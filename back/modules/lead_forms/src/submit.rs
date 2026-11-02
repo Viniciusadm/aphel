@@ -507,7 +507,8 @@ async fn create_deal(
     let has_company = lead.contact.contact.data.company_id.is_some();
     let mut tx = ctx.begin().await?;
     let conversion = ctx
-        .apply_hook::<LeadConverting>(
+        .apply_hook(
+            LeadConverting,
             &mut tx,
             KEY,
             LeadConversion {

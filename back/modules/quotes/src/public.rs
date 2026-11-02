@@ -196,7 +196,8 @@ pub(crate) async fn public_accept(
     });
     locked.updated_at = now;
     if let Some(acceptance) = locked.acceptance.clone() {
-        ctx.run_hook::<QuoteAccepting>(
+        ctx.run_hook(
+            QuoteAccepting,
             &mut tx,
             KEY,
             &AcceptingQuote {

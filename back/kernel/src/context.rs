@@ -15,7 +15,7 @@ use crate::infrastructure::platform::{
     SharedAuditLog, SharedEventPublisher, SharedJobQueue, SharedSecretVault,
 };
 use crate::infrastructure::query::MySqlRecordQueryPorts;
-use crate::modules::{App, Hook, HookCtx, Services};
+use crate::modules::{App, HookCtx, HookRef, Services};
 use crate::records::MySqlRecordPipeline;
 use crate::state::AppState;
 
@@ -176,31 +176,33 @@ impl<'a> Ctx<'a> {
         MySqlRecordPipeline::new(self.pool.clone(), self.registry.clone())
     }
 
-    pub async fn run_hook<H: Hook>(
+    pub async fn run_hook<K: HookRef>(
         &self,
+        hook: K,
         tx: &mut MySqlTx,
         module: &'static str,
-        args: &H::Args,
+        args: &K::Args,
     ) -> Result<(), AppError> {
         let hooks = self.app.hooks();
-        if !hooks.has::<H>() {
+        if !hooks.has(hook) {
             return Ok(());
         }
         let mut hook_ctx = HookCtx::new(tx, &self.pool, self.scope, self.app.services(), module);
-        hooks.run::<H>(&mut hook_ctx, args).await
+        hooks.run(hook, &mut hook_ctx, args).await
     }
 
-    pub async fn apply_hook<H: Hook>(
+    pub async fn apply_hook<K: HookRef>(
         &self,
+        hook: K,
         tx: &mut MySqlTx,
         module: &'static str,
-        args: H::Args,
-    ) -> Result<H::Args, AppError> {
+        args: K::Args,
+    ) -> Result<K::Args, AppError> {
         let hooks = self.app.hooks();
-        if !hooks.has::<H>() {
+        if !hooks.has(hook) {
             return Ok(args);
         }
         let mut hook_ctx = HookCtx::new(tx, &self.pool, self.scope, self.app.services(), module);
-        hooks.apply::<H>(&mut hook_ctx, args).await
+        hooks.apply(hook, &mut hook_ctx, args).await
     }
 }

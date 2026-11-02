@@ -1,6 +1,6 @@
 [workspace]
 resolver = "3"
-members = ["kernel", "modules/*", "app", "xtask"]
+members = ["kernel", "contract", "contracts/*", "sdk", "modules/*", "app", "xtask"]
 default-members = ["app"]
 
 [workspace.package]
@@ -11,6 +11,9 @@ license = "AGPL-3.0-only"
 
 [workspace.dependencies]
 aphel-kernel = { path = "kernel" }
+aphel-contract = { path = "contract" }
+aphel-contract-tagging = { path = "contracts/tagging" }
+aphel-sdk = { path = "sdk" }
 semver = "1"
 form_urlencoded = "1.2"
 axum = { version = "0.8", features = ["multipart"] }

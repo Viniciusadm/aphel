@@ -539,7 +539,7 @@ pub(crate) async fn generate(
         &blocks,
     );
     let attach_to = RecordRef::new(RecordType::DEAL, deal_id);
-    let files = aphel_kernel::api::routes::v1::files::file_use_cases(&ctx.state()).await?;
+    let files = ctx.files().await?;
     let file = files
         .prepare_upload(
             ctx.scope,

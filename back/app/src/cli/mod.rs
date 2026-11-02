@@ -1,3 +1,4 @@
+mod catalog;
 mod db;
 mod doctor;
 mod healthcheck;
@@ -18,6 +19,7 @@ use tracing_subscriber::EnvFilter;
 
 use aphel_kernel::config::AppConfig;
 use aphel_kernel::modules::ModuleCommand;
+pub(crate) use catalog::CatalogArgs;
 pub(crate) use db::DbCommand;
 pub(crate) use healthcheck::HealthcheckArgs;
 pub(crate) use modules::ModulesCommand;
@@ -74,6 +76,10 @@ pub(crate) enum Command {
         about = "Inspect and uninstall the modules compiled into this build"
     )]
     Modules(ModulesCommand),
+    #[command(
+        about = "List everything this build offers to plugins: plugins, operations, hooks, events, permissions"
+    )]
+    Catalog(CatalogArgs),
 }
 
 #[derive(Debug, Clone, Copy, Default, PartialEq, Eq, Args)]
@@ -131,6 +137,7 @@ pub(crate) async fn run() -> CliResult {
         Command::Upgrade(args) => upgrade::run(config, args).await,
         Command::Healthcheck(args) => healthcheck::run(config, args).await,
         Command::Modules(command) => modules::run(config, command).await,
+        Command::Catalog(args) => catalog::run(args),
     }
 }
 

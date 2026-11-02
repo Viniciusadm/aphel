@@ -1044,7 +1044,8 @@ async fn write_update_in_tx(
     aphel_kernel::records::lock_version(tx, "activities", current.id, Some(current.updated_at))
         .await?;
     if events.contains(&ACTIVITY_COMPLETED) {
-        ctx.run_hook::<ActivityCompleting>(
+        ctx.run_hook(
+            ActivityCompleting,
             tx,
             KEY,
             &CompletingActivity {

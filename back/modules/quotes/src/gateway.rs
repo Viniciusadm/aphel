@@ -35,7 +35,7 @@ pub(crate) fn deal_not_found() -> AppError {
 }
 
 pub(crate) fn quote_base_url(ctx: &Ctx<'_>) -> String {
-    ctx.state().auth_settings.app_base_url.get()
+    ctx.app_base_url()
 }
 
 fn is_hidden(error: &AppError) -> bool {

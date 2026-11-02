@@ -7,7 +7,7 @@ use aphel_kernel::application::data_subject::{
     DataSubjectOutcome, DataSubjectRequest, DataSubjectSource,
 };
 use aphel_kernel::errors::AppError;
-use aphel_kernel::state::runtime_state;
+use aphel_kernel::state::runtime_pool;
 
 pub const PRIVACY_REQUEST_TYPE: &str = "privacy_request";
 
@@ -32,7 +32,7 @@ fn input(request: &DataSubjectRequest<'_>) -> Value {
 }
 
 async fn subject_plugins() -> Result<Vec<std::sync::Arc<registry::LoadedPlugin>>, AppError> {
-    let snapshot = registry::current(&runtime_state()?.db()?).await?;
+    let snapshot = registry::current(&runtime_pool()?).await?;
     Ok(snapshot
         .plugins
         .iter()

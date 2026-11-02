@@ -19,6 +19,7 @@ pub(crate) struct RunningAction {
     pub(crate) output: Option<Value>,
 }
 
+#[derive(Debug, Clone, Copy)]
 pub(crate) struct ActionRunning;
 
 impl Hook for ActionRunning {
@@ -29,7 +30,7 @@ pub(crate) async fn before_action(ctx: &Ctx<'_>, running: &RunningAction) -> Res
     if !ctx
         .app()
         .hooks()
-        .has_actions_except::<ActionRunning>(Some(KEY))
+        .has_actions_except(ActionRunning, Some(KEY))
         && !aphel_kernel::modules::plugin_bridge::plugin_hook_subscribed(
             ctx,
             crate::plugin_bridge::ACTION_RUNNING,
@@ -39,19 +40,17 @@ pub(crate) async fn before_action(ctx: &Ctx<'_>, running: &RunningAction) -> Res
         return Ok(());
     }
     let mut tx = ctx.begin().await?;
-    ctx.run_hook::<ActionRunning>(&mut tx, KEY, running).await?;
+    ctx.run_hook(ActionRunning, &mut tx, KEY, running).await?;
     tx.commit().await?;
     Ok(())
 }
 
 pub(crate) async fn after_action(ctx: &Ctx<'_>, running: RunningAction) -> Result<Value, AppError> {
-    if !ctx.app().hooks().has_filters_except::<ActionRunning>(None) {
+    if !ctx.app().hooks().has_filters_except(ActionRunning, None) {
         return Ok(running.output.unwrap_or(Value::Null));
     }
     let mut tx = ctx.begin().await?;
-    let filtered = ctx
-        .apply_hook::<ActionRunning>(&mut tx, KEY, running)
-        .await?;
+    let filtered = ctx.apply_hook(ActionRunning, &mut tx, KEY, running).await?;
     tx.commit().await?;
     Ok(filtered.output.unwrap_or(Value::Null))
 }

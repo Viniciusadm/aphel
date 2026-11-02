@@ -108,12 +108,10 @@ impl Module for EmailModule {
     }
 
     fn register(&self, app: &mut AppBuilder) -> Result<(), AppError> {
-        app.declare_hook::<crate::hooks::OutgoingEmail>(
-            &[aphel_kernel::modules::HookUsage::Filter],
+        app.declare_hook(crate::hooks::OutgoingEmail, &[aphel_kernel::modules::HookUsage::Filter],
             "An e-mail before it is saved and sent; without recipients or subject the send fails with 422",
         );
-        app.declare_hook::<crate::hooks::InboundLinking>(
-            &[aphel_kernel::modules::HookUsage::Filter],
+        app.declare_hook(crate::hooks::InboundLinking, &[aphel_kernel::modules::HookUsage::Filter],
             "The records an incoming e-mail is linked to automatically by the mailbox synchronization",
         );
         app.contribute::<dyn FileReferenceSource>(Arc::new(EmailFileReferences));
@@ -144,7 +142,8 @@ impl Module for EmailModule {
             app.permission(PermissionDefinition::record(permission))
                 .grant_to(["admin", "manager", "member"]);
         }
-        app.filter::<crate::hooks::OutgoingEmail, _>(
+        app.filter(
+            crate::hooks::OutgoingEmail,
             aphel_kernel::modules::PLUGIN_HOOK_PRIORITY,
             |ctx, message| Box::pin(plugin_bridge::outgoing(ctx, message)),
         );

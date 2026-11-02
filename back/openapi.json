@@ -41600,6 +41600,65 @@
         ]
       }
     },
+    "/api/v1/platform/catalog": {
+      "get": {
+        "tags": [
+          "system"
+        ],
+        "description": "Everything this build offers to plugins in one document (permission `system.manage`): plugins with their layer and runtime, operations, hooks with their listeners, events, permissions and notification kinds. `enabled` is false when the owning plugin is disabled.",
+        "operationId": "platform_catalog",
+        "responses": {
+          "200": {
+            "description": "The platform catalog",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/Data_CatalogDocument"
+                }
+              }
+            }
+          },
+          "401": {
+            "description": "Missing or invalid credentials (`unauthorized`)",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ErrorEnvelope"
+                }
+              }
+            }
+          },
+          "403": {
+            "description": "Missing `system.manage` (`permission_denied`)",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ErrorEnvelope"
+                }
+              }
+            }
+          },
+          "429": {
+            "description": "API token rate limit exceeded (`rate_limited`); see `Retry-After` and `X-RateLimit-*`",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ErrorEnvelope"
+                }
+              }
+            }
+          }
+        },
+        "security": [
+          {
+            "session_cookie": []
+          },
+          {
+            "api_token": []
+          }
+        ]
+      }
+    },
     "/api/v1/plugins": {
       "get": {
         "tags": [
@@ -41674,6 +41733,14 @@
             }
           },
           {
+            "name": "acknowledge_conflicts",
+            "in": "query",
+            "required": false,
+            "schema": {
+              "type": "boolean"
+            }
+          },
+          {
             "name": "Idempotency-Key",
             "in": "header",
             "description": "Up to 255 printable ASCII characters. The same key with the same request (method, path and body) within 24 hours answers the stored response with the same status and body plus `Idempotent-Replayed: true`. Scoped to the credential (session cookie or API token); ignored without a credential. 5xx and 429 responses are not stored",
@@ -41732,7 +41799,7 @@
             }
           },
           "409": {
-            "description": "A custom object, field or permission with the same key already exists (`plugin_object_conflict`, `plugin_field_conflict`, `permission_already_registered`). The first request with this `Idempotency-Key` is still being processed (`idempotency_key_in_progress`)",
+            "description": "A custom object, field or permission with the same key already exists (`plugin_object_conflict`, `plugin_field_conflict`, `permission_already_registered`), or the plugin overlaps with another installed plugin and `acknowledge_conflicts` was not sent (`plugin_conflicts_unacknowledged`). The first request with this `Idempotency-Key` is still being processed (`idempotency_key_in_progress`)",
             "content": {
               "application/json": {
                 "schema": {
@@ -42228,6 +42295,14 @@
             }
           },
           {
+            "name": "acknowledge_conflicts",
+            "in": "query",
+            "required": false,
+            "schema": {
+              "type": "boolean"
+            }
+          },
+          {
             "name": "Idempotency-Key",
             "in": "header",
             "description": "Up to 255 printable ASCII characters. The same key with the same request (method, path and body) within 24 hours answers the stored response with the same status and body plus `Idempotent-Replayed: true`. Scoped to the credential (session cookie or API token); ignored without a credential. 5xx and 429 responses are not stored",
@@ -42270,7 +42345,7 @@
             }
           },
           "409": {
-            "description": "The first request with this `Idempotency-Key` is still being processed (`idempotency_key_in_progress`)",
+            "description": "The plugin overlaps with another enabled plugin and the overlap was not acknowledged (`plugin_conflicts_unacknowledged`). The first request with this `Idempotency-Key` is still being processed (`idempotency_key_in_progress`)",
             "content": {
               "application/json": {
                 "schema": {
@@ -42411,11 +42486,79 @@
       }
     },
     "/api/v1/plugins/{key}/settings": {
+      "get": {
+        "tags": [
+          "plugins"
+        ],
+        "description": "Lists the settings of a plugin with their current values (permission `system.manage` or the plugin's `settings_permission`). Secret settings only report `configured`.",
+        "operationId": "plugins_settings",
+        "parameters": [
+          {
+            "name": "key",
+            "in": "path",
+            "description": "Plugin key",
+            "required": true,
+            "schema": {
+              "type": "string"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "Settings",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/Data_Vec_PluginSettingResponse"
+                }
+              }
+            }
+          },
+          "403": {
+            "description": "Missing permission (`permission_denied`)",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ErrorEnvelope"
+                }
+              }
+            }
+          },
+          "404": {
+            "description": "Plugin not installed (`plugin_not_found`)",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ErrorEnvelope"
+                }
+              }
+            }
+          },
+          "429": {
+            "description": "API token rate limit exceeded (`rate_limited`); see `Retry-After` and `X-RateLimit-*`",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ErrorEnvelope"
+                }
+              }
+            }
+          }
+        },
+        "security": [
+          {
+            "session_cookie": []
+          },
+          {
+            "api_token": []
+          }
+        ]
+      },
       "put": {
         "tags": [
           "plugins"
         ],
-        "description": "Replaces the settings of a plugin (permission `system.manage`), validated against the settings it declares. `null` restores the default. Secret settings are stored encrypted and never returned (only `configured`): a string sets the secret, `null` removes it and leaving the key out keeps it. Publishes `plugin.settings_updated`.",
+        "description": "Replaces the settings of a plugin (permission `system.manage` or the plugin's `settings_permission`), validated against the settings it declares. `null` restores the default. Secret settings are stored encrypted and never returned (only `configured`): a string sets the secret, `null` removes it and leaving the key out keeps it. Publishes `plugin.settings_updated`.",
         "operationId": "plugins_update_settings",
         "parameters": [
           {
@@ -68279,6 +68422,66 @@
           "completed"
         ]
       },
+      "CatalogDocument": {
+        "type": "object",
+        "required": [
+          "version",
+          "contracts",
+          "plugins",
+          "operations",
+          "hooks",
+          "events",
+          "permissions",
+          "notification_kinds"
+        ],
+        "properties": {
+          "contracts": {
+            "type": "array",
+            "items": {
+              "$ref": "#/components/schemas/ContractInfo"
+            }
+          },
+          "events": {
+            "type": "array",
+            "items": {
+              "$ref": "#/components/schemas/EventEntry"
+            }
+          },
+          "hooks": {
+            "type": "array",
+            "items": {
+              "$ref": "#/components/schemas/HookEntry"
+            }
+          },
+          "notification_kinds": {
+            "type": "array",
+            "items": {
+              "$ref": "#/components/schemas/NotificationKindEntry"
+            }
+          },
+          "operations": {
+            "type": "array",
+            "items": {
+              "$ref": "#/components/schemas/OperationInfo"
+            }
+          },
+          "permissions": {
+            "type": "array",
+            "items": {
+              "$ref": "#/components/schemas/PermissionEntry"
+            }
+          },
+          "plugins": {
+            "type": "array",
+            "items": {
+              "$ref": "#/components/schemas/PluginEntry"
+            }
+          },
+          "version": {
+            "type": "string"
+          }
+        }
+      },
       "CatalogEntryKindResponse": {
         "type": "string",
         "enum": [
@@ -70180,6 +70383,51 @@
               "string",
               "null"
             ]
+          }
+        }
+      },
+      "ContractInfo": {
+        "type": "object",
+        "required": [
+          "name",
+          "version",
+          "provider",
+          "keys"
+        ],
+        "properties": {
+          "keys": {
+            "type": "array",
+            "items": {
+              "$ref": "#/components/schemas/ContractKeyInfo"
+            }
+          },
+          "name": {
+            "type": "string"
+          },
+          "provider": {
+            "type": "string"
+          },
+          "version": {
+            "type": "string"
+          }
+        }
+      },
+      "ContractKeyInfo": {
+        "type": "object",
+        "required": [
+          "key",
+          "kind",
+          "description"
+        ],
+        "properties": {
+          "description": {
+            "type": "string"
+          },
+          "key": {
+            "type": "string"
+          },
+          "kind": {
+            "type": "string"
           }
         }
       },
@@ -72182,6 +72430,7 @@
           "owner_enabled",
           "is_active",
           "position",
+          "is_internal",
           "permissions",
           "created_at",
           "updated_at"
@@ -72217,6 +72466,9 @@
           "is_active": {
             "type": "boolean"
           },
+          "is_internal": {
+            "type": "boolean"
+          },
           "key": {
             "type": "string",
             "example": "contract"
@@ -72228,6 +72480,12 @@
           "label_singular": {
             "type": "string",
             "example": "Contract"
+          },
+          "module_key": {
+            "type": [
+              "string",
+              "null"
+            ]
           },
           "owner_enabled": {
             "type": "boolean"
@@ -74315,6 +74573,74 @@
                   "string",
                   "null"
                 ]
+              }
+            }
+          }
+        }
+      },
+      "Data_CatalogDocument": {
+        "type": "object",
+        "required": [
+          "data"
+        ],
+        "properties": {
+          "data": {
+            "type": "object",
+            "required": [
+              "version",
+              "contracts",
+              "plugins",
+              "operations",
+              "hooks",
+              "events",
+              "permissions",
+              "notification_kinds"
+            ],
+            "properties": {
+              "contracts": {
+                "type": "array",
+                "items": {
+                  "$ref": "#/components/schemas/ContractInfo"
+                }
+              },
+              "events": {
+                "type": "array",
+                "items": {
+                  "$ref": "#/components/schemas/EventEntry"
+                }
+              },
+              "hooks": {
+                "type": "array",
+                "items": {
+                  "$ref": "#/components/schemas/HookEntry"
+                }
+              },
+              "notification_kinds": {
+                "type": "array",
+                "items": {
+                  "$ref": "#/components/schemas/NotificationKindEntry"
+                }
+              },
+              "operations": {
+                "type": "array",
+                "items": {
+                  "$ref": "#/components/schemas/OperationInfo"
+                }
+              },
+              "permissions": {
+                "type": "array",
+                "items": {
+                  "$ref": "#/components/schemas/PermissionEntry"
+                }
+              },
+              "plugins": {
+                "type": "array",
+                "items": {
+                  "$ref": "#/components/schemas/PluginEntry"
+                }
+              },
+              "version": {
+                "type": "string"
               }
             }
           }
@@ -80105,6 +80431,12 @@
                   "$ref": "#/components/schemas/ModuleEventResponse"
                 }
               },
+              "held_by": {
+                "type": [
+                  "string",
+                  "null"
+                ]
+              },
               "installed_version": {
                 "type": [
                   "string",
@@ -81007,9 +81339,17 @@
                   "key",
                   "name",
                   "version",
-                  "grants"
+                  "grants",
+                  "conflicts",
+                  "module_conflicts"
                 ],
                 "properties": {
+                  "conflicts": {
+                    "type": "array",
+                    "items": {
+                      "$ref": "#/components/schemas/PluginConflict"
+                    }
+                  },
                   "description": {
                     "type": [
                       "string",
@@ -81030,6 +81370,12 @@
                   },
                   "key": {
                     "type": "string"
+                  },
+                  "module_conflicts": {
+                    "type": "array",
+                    "items": {
+                      "$ref": "#/components/schemas/ModuleConflictPlan"
+                    }
                   },
                   "name": {
                     "type": "string"
@@ -85172,6 +85518,7 @@
                 "owner_enabled",
                 "is_active",
                 "position",
+                "is_internal",
                 "permissions",
                 "created_at",
                 "updated_at"
@@ -85207,6 +85554,9 @@
                 "is_active": {
                   "type": "boolean"
                 },
+                "is_internal": {
+                  "type": "boolean"
+                },
                 "key": {
                   "type": "string",
                   "example": "contract"
@@ -85218,6 +85568,12 @@
                 "label_singular": {
                   "type": "string",
                   "example": "Contract"
+                },
+                "module_key": {
+                  "type": [
+                    "string",
+                    "null"
+                  ]
                 },
                 "owner_enabled": {
                   "type": "boolean"
@@ -86457,6 +86813,12 @@
                     "$ref": "#/components/schemas/ModuleEventResponse"
                   }
                 },
+                "held_by": {
+                  "type": [
+                    "string",
+                    "null"
+                  ]
+                },
                 "installed_version": {
                   "type": [
                     "string",
@@ -86732,6 +87094,79 @@
                   }
                 }
               ]
+            }
+          }
+        }
+      },
+      "Data_Vec_PluginSettingResponse": {
+        "type": "object",
+        "required": [
+          "data"
+        ],
+        "properties": {
+          "data": {
+            "type": "array",
+            "items": {
+              "type": "object",
+              "required": [
+                "key",
+                "label",
+                "type",
+                "options",
+                "value"
+              ],
+              "properties": {
+                "configured": {
+                  "type": [
+                    "boolean",
+                    "null"
+                  ]
+                },
+                "group": {
+                  "type": [
+                    "string",
+                    "null"
+                  ]
+                },
+                "help": {
+                  "type": [
+                    "string",
+                    "null"
+                  ]
+                },
+                "key": {
+                  "type": "string"
+                },
+                "label": {
+                  "type": "string"
+                },
+                "max": {
+                  "type": [
+                    "integer",
+                    "null"
+                  ],
+                  "format": "int64"
+                },
+                "min": {
+                  "type": [
+                    "integer",
+                    "null"
+                  ],
+                  "format": "int64"
+                },
+                "options": {
+                  "type": "array",
+                  "items": {
+                    "$ref": "#/components/schemas/SettingOption"
+                  }
+                },
+                "type": {
+                  "type": "string"
+                },
+                "value": {
+                  "type": "object"
+                }
+              }
             }
           }
         }
@@ -88062,7 +88497,10 @@
               "type": "object",
               "required": [
                 "key",
+                "name",
                 "version",
+                "menu",
+                "role_homes",
                 "entry"
               ],
               "properties": {
@@ -88071,6 +88509,21 @@
                 },
                 "key": {
                   "type": "string"
+                },
+                "menu": {
+                  "$ref": "#/components/schemas/MenuSpec"
+                },
+                "name": {
+                  "type": "string"
+                },
+                "role_homes": {
+                  "type": "object",
+                  "additionalProperties": {
+                    "type": "string"
+                  },
+                  "propertyNames": {
+                    "type": "string"
+                  }
                 },
                 "style": {
                   "type": [
@@ -91089,6 +91542,25 @@
           }
         }
       },
+      "EventEntry": {
+        "type": "object",
+        "required": [
+          "event_type",
+          "resource",
+          "description"
+        ],
+        "properties": {
+          "description": {
+            "type": "string"
+          },
+          "event_type": {
+            "type": "string"
+          },
+          "resource": {
+            "type": "string"
+          }
+        }
+      },
       "ExchangeRateResponse": {
         "type": "object",
         "required": [
@@ -93218,6 +93690,52 @@
           },
           "record_type": {
             "type": "string"
+          }
+        }
+      },
+      "HookEntry": {
+        "type": "object",
+        "required": [
+          "key",
+          "module",
+          "kind",
+          "description",
+          "listeners",
+          "enabled"
+        ],
+        "properties": {
+          "args": {
+            "type": [
+              "string",
+              "null"
+            ]
+          },
+          "description": {
+            "type": "string"
+          },
+          "enabled": {
+            "type": "boolean"
+          },
+          "key": {
+            "type": "string"
+          },
+          "kind": {
+            "type": "string"
+          },
+          "listeners": {
+            "type": "array",
+            "items": {
+              "type": "string"
+            }
+          },
+          "module": {
+            "type": "string"
+          },
+          "record_type": {
+            "type": [
+              "string",
+              "null"
+            ]
           }
         }
       },
@@ -97667,6 +98185,50 @@
           "deactivated"
         ]
       },
+      "MenuRule": {
+        "type": "object",
+        "required": [
+          "target",
+          "action"
+        ],
+        "properties": {
+          "action": {
+            "type": "string"
+          },
+          "order": {
+            "type": [
+              "integer",
+              "null"
+            ],
+            "format": "int32"
+          },
+          "target": {
+            "type": "string"
+          }
+        },
+        "additionalProperties": false
+      },
+      "MenuSpec": {
+        "type": "object",
+        "properties": {
+          "flat": {
+            "type": "boolean"
+          },
+          "own_entities": {
+            "type": [
+              "string",
+              "null"
+            ]
+          },
+          "rules": {
+            "type": "array",
+            "items": {
+              "$ref": "#/components/schemas/MenuRule"
+            }
+          }
+        },
+        "additionalProperties": false
+      },
       "MergeRequest": {
         "type": "object",
         "required": [
@@ -98164,6 +98726,32 @@
           }
         }
       },
+      "ModuleConflictPlan": {
+        "type": "object",
+        "required": [
+          "module",
+          "name",
+          "enabled",
+          "blocked_by"
+        ],
+        "properties": {
+          "blocked_by": {
+            "type": "array",
+            "items": {
+              "type": "string"
+            }
+          },
+          "enabled": {
+            "type": "boolean"
+          },
+          "module": {
+            "type": "string"
+          },
+          "name": {
+            "type": "string"
+          }
+        }
+      },
       "ModuleDataExportResponse": {
         "type": "object",
         "required": [
@@ -98378,6 +98966,12 @@
             "items": {
               "$ref": "#/components/schemas/ModuleEventResponse"
             }
+          },
+          "held_by": {
+            "type": [
+              "string",
+              "null"
+            ]
           },
           "installed_version": {
             "type": [
@@ -98704,6 +99298,25 @@
           "email",
           "push"
         ]
+      },
+      "NotificationKindEntry": {
+        "type": "object",
+        "required": [
+          "kind",
+          "email_default",
+          "push_default"
+        ],
+        "properties": {
+          "email_default": {
+            "type": "boolean"
+          },
+          "kind": {
+            "type": "string"
+          },
+          "push_default": {
+            "type": "boolean"
+          }
+        }
       },
       "NotificationPageMeta": {
         "type": "object",
@@ -99084,6 +99697,59 @@
           "list",
           "days"
         ]
+      },
+      "OperationInfo": {
+        "type": "object",
+        "required": [
+          "key",
+          "module",
+          "description",
+          "effect",
+          "idempotent",
+          "durable",
+          "expose_automation",
+          "expose_bulk",
+          "expose_ai",
+          "enabled"
+        ],
+        "properties": {
+          "description": {
+            "type": "string"
+          },
+          "durable": {
+            "type": "boolean"
+          },
+          "effect": {
+            "type": "string"
+          },
+          "enabled": {
+            "type": "boolean"
+          },
+          "expose_ai": {
+            "type": "boolean"
+          },
+          "expose_automation": {
+            "type": "boolean"
+          },
+          "expose_bulk": {
+            "type": "boolean"
+          },
+          "idempotent": {
+            "type": "boolean"
+          },
+          "key": {
+            "type": "string"
+          },
+          "module": {
+            "type": "string"
+          },
+          "permission": {
+            "type": [
+              "string",
+              "null"
+            ]
+          }
+        }
       },
       "OperatorResponse": {
         "type": "object",
@@ -106563,6 +107229,27 @@
           }
         }
       },
+      "PermissionEntry": {
+        "type": "object",
+        "required": [
+          "permission",
+          "record_scoped"
+        ],
+        "properties": {
+          "label": {
+            "type": [
+              "string",
+              "null"
+            ]
+          },
+          "permission": {
+            "type": "string"
+          },
+          "record_scoped": {
+            "type": "boolean"
+          }
+        }
+      },
       "PermissionGrantDto": {
         "type": "object",
         "required": [
@@ -106923,6 +107610,29 @@
           }
         }
       },
+      "PluginConflict": {
+        "type": "object",
+        "required": [
+          "kind",
+          "target",
+          "other_plugin",
+          "other_name"
+        ],
+        "properties": {
+          "kind": {
+            "type": "string"
+          },
+          "other_name": {
+            "type": "string"
+          },
+          "other_plugin": {
+            "type": "string"
+          },
+          "target": {
+            "type": "string"
+          }
+        }
+      },
       "PluginConsentResponse": {
         "allOf": [
           {
@@ -106934,9 +107644,17 @@
               "key",
               "name",
               "version",
-              "grants"
+              "grants",
+              "conflicts",
+              "module_conflicts"
             ],
             "properties": {
+              "conflicts": {
+                "type": "array",
+                "items": {
+                  "$ref": "#/components/schemas/PluginConflict"
+                }
+              },
               "description": {
                 "type": [
                   "string",
@@ -106957,6 +107675,12 @@
               },
               "key": {
                 "type": "string"
+              },
+              "module_conflicts": {
+                "type": "array",
+                "items": {
+                  "$ref": "#/components/schemas/ModuleConflictPlan"
+                }
               },
               "name": {
                 "type": "string"
@@ -106991,6 +107715,8 @@
           "role_presets",
           "entity_scopes",
           "unique_fields",
+          "menu",
+          "conflicts_with",
           "has_web"
         ],
         "properties": {
@@ -107001,6 +107727,12 @@
             }
           },
           "allowed_hosts": {
+            "type": "array",
+            "items": {
+              "type": "string"
+            }
+          },
+          "conflicts_with": {
             "type": "array",
             "items": {
               "type": "string"
@@ -107044,6 +107776,9 @@
             "items": {
               "type": "string"
             }
+          },
+          "menu": {
+            "$ref": "#/components/schemas/MenuSpec"
           },
           "notifications": {
             "type": "array",
@@ -107130,6 +107865,64 @@
             "type": "string"
           },
           "record_type": {
+            "type": "string"
+          }
+        }
+      },
+      "PluginEntry": {
+        "type": "object",
+        "required": [
+          "key",
+          "name",
+          "version",
+          "runtime",
+          "required",
+          "enabled",
+          "provides",
+          "requires",
+          "optional"
+        ],
+        "properties": {
+          "enabled": {
+            "type": "boolean"
+          },
+          "key": {
+            "type": "string"
+          },
+          "layer": {
+            "type": [
+              "string",
+              "null"
+            ]
+          },
+          "name": {
+            "type": "string"
+          },
+          "optional": {
+            "type": "array",
+            "items": {
+              "type": "string"
+            }
+          },
+          "provides": {
+            "type": "array",
+            "items": {
+              "type": "string"
+            }
+          },
+          "required": {
+            "type": "boolean"
+          },
+          "requires": {
+            "type": "array",
+            "items": {
+              "type": "string"
+            }
+          },
+          "runtime": {
+            "type": "string"
+          },
+          "version": {
             "type": "string"
           }
         }
@@ -107271,12 +108064,19 @@
           "key",
           "label",
           "type",
+          "options",
           "value"
         ],
         "properties": {
           "configured": {
             "type": [
               "boolean",
+              "null"
+            ]
+          },
+          "group": {
+            "type": [
+              "string",
               "null"
             ]
           },
@@ -107305,6 +108105,12 @@
               "null"
             ],
             "format": "int64"
+          },
+          "options": {
+            "type": "array",
+            "items": {
+              "$ref": "#/components/schemas/SettingOption"
+            }
           },
           "type": {
             "type": "string"
@@ -113730,6 +114536,21 @@
           }
         }
       },
+      "SettingOption": {
+        "type": "object",
+        "required": [
+          "value",
+          "label"
+        ],
+        "properties": {
+          "label": {
+            "type": "string"
+          },
+          "value": {
+            "type": "string"
+          }
+        }
+      },
       "ShareGranteeResponse": {
         "type": "object",
         "required": [
@@ -117446,7 +118267,10 @@
         "type": "object",
         "required": [
           "key",
+          "name",
           "version",
+          "menu",
+          "role_homes",
           "entry"
         ],
         "properties": {
@@ -117455,6 +118279,21 @@
           },
           "key": {
             "type": "string"
+          },
+          "menu": {
+            "$ref": "#/components/schemas/MenuSpec"
+          },
+          "name": {
+            "type": "string"
+          },
+          "role_homes": {
+            "type": "object",
+            "additionalProperties": {
+              "type": "string"
+            },
+            "propertyNames": {
+              "type": "string"
+            }
           },
           "style": {
             "type": [

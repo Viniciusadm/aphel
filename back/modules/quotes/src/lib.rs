@@ -245,22 +245,23 @@ impl Module for QuotesModule {
     }
 
     fn register(&self, app: &mut AppBuilder) -> Result<(), AppError> {
-        app.declare_hook::<crate::hooks::QuoteAccepting>(
-            &[aphel_kernel::modules::HookUsage::Veto],
+        app.declare_hook(crate::hooks::QuoteAccepting, &[aphel_kernel::modules::HookUsage::Veto],
             "Before a quote is accepted (on its public page or manually by a user); an error blocks the acceptance",
         );
-        app.on::<crate::hooks::QuoteAccepting, _>(
+        app.on(
+            crate::hooks::QuoteAccepting,
             aphel_kernel::modules::PLUGIN_HOOK_PRIORITY,
             |ctx, accepting| Box::pin(plugin_bridge::accepting(ctx, accepting)),
         );
-        app.declare_hook::<crate::hooks::QuoteTotals>(
+        app.declare_hook(
+            crate::hooks::QuoteTotals,
             &[aphel_kernel::modules::HookUsage::Filter],
             "Totals of a quote (items, discounts and taxes) before they are saved",
         );
         app.contribute(Arc::new(CrmDefaultsSeed(|connection| {
             Box::pin(store::seed_quote_discount_policy(connection))
         })));
-        app.record_type(quote_definition()?.handler(Arc::new(http::QuoteHandler)))
+        app.entity(quote_definition()?.handler(Arc::new(http::QuoteHandler)))
             .openapi_tag(
                 http::TAG,
                 "Quotes of deals: versions, items, discounts and taxes, approval, sending, the signed public page and acceptance",

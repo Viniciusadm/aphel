@@ -18,7 +18,7 @@ use aphel_kernel::domain::UserId;
 use aphel_kernel::domain::access::AccessScope;
 use aphel_kernel::errors::{AppError, CodedKind, FieldViolation};
 use aphel_kernel::infrastructure::repositories::mysql_access::MySqlAccessRepository;
-use aphel_kernel::state::runtime_state;
+use aphel_kernel::state::{runtime_pool, runtime_state};
 use uuid::Uuid;
 
 wasmtime::component::bindgen!({
@@ -269,7 +269,7 @@ pub async fn plugin_scope(plugin: &LoadedPlugin) -> Result<AccessScope, AppError
         )
     };
     let installer = UserId::new(plugin.installed_by.clone().ok_or_else(inactive)?)?;
-    let access = MySqlAccessRepository::new(runtime_state()?.db()?)
+    let access = MySqlAccessRepository::new(runtime_pool()?)
         .load_access(&installer)
         .await?
         .ok_or_else(inactive)?;
@@ -539,7 +539,7 @@ pub async fn on_action(
         run_id: call.run_id.clone(),
         step_id: step_id.to_owned(),
     });
-    let pool = runtime_state()?.db()?;
+    let pool = runtime_pool()?;
     let source = format!(
         "automation:{}",
         backend_hash(format!("{}:{}:{step_id}", call.automation_id, call.run_id).as_bytes())

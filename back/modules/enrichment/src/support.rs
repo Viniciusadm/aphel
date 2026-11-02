@@ -10,7 +10,7 @@ use aphel_kernel::application::fields::FieldSet;
 use aphel_kernel::context::Ctx;
 use aphel_kernel::domain::access::AccessScope;
 use aphel_kernel::errors::{AppError, CodedKind};
-use aphel_kernel::records::{RecordCtx, field_set};
+use aphel_kernel::records::RecordCtx;
 
 pub(crate) fn actor_id(scope: &AccessScope) -> Uuid {
     if scope.is_system() {
@@ -72,7 +72,7 @@ pub(crate) async fn load_record(
 }
 
 pub(crate) async fn fields(ctx: &Ctx<'_>, record_type: &str) -> Result<FieldSet, AppError> {
-    field_set(&ctx.state(), ctx.scope, record_type).await
+    ctx.field_set(ctx.scope, record_type).await
 }
 
 pub(crate) async fn update_record_in_tx(

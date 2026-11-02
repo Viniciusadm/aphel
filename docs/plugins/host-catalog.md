@@ -6,15 +6,15 @@ What this Aphel offers to runtime plugins besides records: the hooks a manifest 
 
 | Hook | Module | Record type | Kind | Values |
 | --- | --- | --- | --- | --- |
-| `record.saving` | plugins | any | filter | The draft `values`/`custom_fields`; return changes |
-| `record.validating` | plugins | any | veto | `values` and `changes` of the write |
-| `record.saved` | plugins | any | action | `values` and `changes`, inside the transaction |
-| `record.deleting` | plugins | any | veto | The record being deleted |
 | `record.archiving` | plugins | any | veto | The custom record or company being archived |
 | `record.committed` | plugins | any | action | `values` and `changes`, after the commit (errors only logged) |
 | `record.deleted` | plugins | any | action | The deleted record, inside the transaction |
-| `record.restored` | plugins | any | action | The restored record, inside the transaction |
+| `record.deleting` | plugins | any | veto | The record being deleted |
 | `record.purged` | plugins | any | action | The purged record, inside the transaction |
+| `record.restored` | plugins | any | action | The restored record, inside the transaction |
+| `record.saved` | plugins | any | action | `values` and `changes`, inside the transaction |
+| `record.saving` | plugins | any | filter | The draft `values`/`custom_fields`; return changes |
+| `record.validating` | plugins | any | veto | `values` and `changes` of the write |
 | `activity.completing` | activities | `activity` | veto | Before an activity is completed; values: { activity, previous, type_key }. An error blocks it |
 | `automation.action_running` | automations | any | veto | Before an automation action runs on a record (dry run and execution), for the record's type; values: { automation_id, run_id, step_id, action, record: { record_type, record_id }, config, dry_run }. An error skips the action |
 | `deal.losing` | deals | `deal` | veto | Before a deal is lost; values: { deal, previous, stage, lost_reason }. An error blocks it |
@@ -111,7 +111,8 @@ Writing operations are refused inside hooks (409 `plugin_write_in_hook`). Each o
 | `sequences.list` | sequences | read | — | Sequences with their steps and enrollment counts: { active?, search?, page?, per_page? } -> { data, total } |
 | `sequences.pause` | sequences | write | yes | Pause an active enrollment: { id } |
 | `sequences.resume` | sequences | write | yes | Resume a paused enrollment: { id } |
-| `tags.apply` | tags | write | yes | Tag a record the actor can edit: { record_type, record_id, tag_id } -> { changed, tags } |
-| `tags.list` | tags | read | — | Tags of the organization with their usage, optionally only those allowed on a record type: { record_type? } -> { data } |
-| `tags.remove` | tags | write | yes | Remove a tag from a record the actor can edit: { record_type, record_id, tag_id } -> { changed, tags } |
+| `tagging.apply` | tags | write | yes | Tag a record the actor can edit: { record_type, record_id, tag_id } -> { changed, tags } |
+| `tagging.get` | tags | read | — | One tag by id: { id } -> tag |
+| `tagging.list` | tags | read | — | Tags of the organization with their usage, optionally only those allowed on a record type: { record_type? } -> { data } |
+| `tagging.remove` | tags | write | yes | Remove a tag from a record the actor can edit: { record_type, record_id, tag_id } -> { changed, tags } |
 | `timeline.page` | timeline | read | — | Timeline of a record the actor can read, newest first: { record_type, record_id, cursor?, kinds?: "activity,note,deal_stage,deal_change,record_change,attachment,event", per_page? } -> { data, meta: { next_cursor } } |

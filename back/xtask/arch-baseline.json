@@ -1,0 +1,23 @@
+{
+  "alter_table_on_foreign_tables": 4,
+  "conflict_and_menu_rule_usages": 15,
+  "cross_plugin_foreign_keys": 35,
+  "cross_plugin_sql_references": 164,
+  "kernel_domain_words": 304,
+  "kernel_permission_constants_for_plugins": 50,
+  "kernel_public_modules": 462,
+  "kernel_record_type_domain_constants": 10,
+  "kernel_sql_on_plugin_tables": 13,
+  "layer_direction_violations": 18,
+  "plugin_bridge_files": 32,
+  "plugin_crates_depending_on_plugin_crates": 41,
+  "plugin_kernel_paths": 95,
+  "plugin_manifest_problems": 0,
+  "plugin_state_escapes": 91,
+  "plugins_with_literal_record_types": 50,
+  "required_plugins": 13,
+  "web_conflict_usages": 0,
+  "web_feature_imports_from_plugins": 635,
+  "web_imports_across_plugins": 91,
+  "web_shell_domain_words": 136
+}

@@ -6,7 +6,6 @@ use aphel_kernel::Ctx;
 use aphel_kernel::application::shared::RecordType;
 use aphel_kernel::domain::access::{AccessScope, Permission};
 use aphel_kernel::errors::{AppError, FieldViolation};
-use aphel_kernel::records::runtime::field_set;
 
 use crate::model::{
     FULL_NAME_TARGET, LeadFormDeal, LeadFormDefinition, LeadFormField, LeadFormFieldKind,
@@ -45,7 +44,8 @@ pub(crate) async fn contact_fields(
     ctx: &Ctx<'_>,
     scope: &AccessScope,
 ) -> Result<Vec<LeadFormTargetField>, AppError> {
-    Ok(field_set(&ctx.state(), scope, "contact")
+    Ok(ctx
+        .field_set(scope, "contact")
         .await?
         .active()
         .map(|field| LeadFormTargetField {

@@ -1,0 +1,5 @@
+key = "automations"
+name = "Automations"
+version = "0.1.0"
+layer = "capability"
+runtime = "native"

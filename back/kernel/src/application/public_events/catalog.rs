@@ -169,7 +169,12 @@ pub fn public_event_catalog() -> impl Iterator<Item = PublicEventDefinition> {
         .catalog()
         .public_events()
         .copied()
-        .chain(crate::modules::runtime_extensions::public_events())
+        .chain(
+            crate::modules::app()
+                .contributions::<PublicEventDefinition>()
+                .into_iter()
+                .map(|definition| *definition),
+        )
 }
 
 pub fn custom_public_events() -> &'static [PublicEventDefinition] {

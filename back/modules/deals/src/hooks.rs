@@ -40,6 +40,7 @@ impl StageChange {
     }
 }
 
+#[derive(Debug, Clone, Copy)]
 pub struct DealStageChanging;
 
 impl Hook for DealStageChanging {
@@ -72,24 +73,28 @@ impl ClosingDeal {
     }
 }
 
+#[derive(Debug, Clone, Copy)]
 pub struct DealWinning;
 
 impl Hook for DealWinning {
     type Args = ClosingDeal;
 }
 
+#[derive(Debug, Clone, Copy)]
 pub struct DealLosing;
 
 impl Hook for DealLosing {
     type Args = ClosingDeal;
 }
 
+#[derive(Debug, Clone, Copy)]
 pub struct DealWon;
 
 impl Hook for DealWon {
     type Args = ClosingDeal;
 }
 
+#[derive(Debug, Clone, Copy)]
 pub struct DealLost;
 
 impl Hook for DealLost {

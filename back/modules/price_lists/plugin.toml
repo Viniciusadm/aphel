@@ -1,0 +1,5 @@
+key = "price_lists"
+name = "Price lists"
+version = "0.1.0"
+layer = "capability"
+runtime = "native"

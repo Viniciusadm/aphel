@@ -181,7 +181,7 @@ impl Module for ContactsModule {
     }
 
     fn register(&self, app: &mut AppBuilder) -> Result<(), AppError> {
-        app.record_type(contact_definition()?.handler(Arc::new(http::ContactHandler)))
+        app.entity(contact_definition()?.handler(Arc::new(http::ContactHandler)))
             .openapi_tag(http::TAG, "Contacts and their companies")
             .routes(|_| http::router());
         for permission in RECORD_PERMISSIONS {

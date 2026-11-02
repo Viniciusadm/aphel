@@ -9,18 +9,31 @@ use crate::application::query::{PlanNode, PlanSort, QueryPlan};
 use crate::application::shared::{FieldChange, RecordRef, RecordType};
 use crate::modules::Hook;
 
+#[derive(Debug, Clone, Copy)]
 pub struct RecordSaving;
+#[derive(Debug, Clone, Copy)]
 pub struct RecordValidating;
+#[derive(Debug, Clone, Copy)]
 pub struct RecordSaved;
+#[derive(Debug, Clone, Copy)]
 pub struct RecordCommitted;
+#[derive(Debug, Clone, Copy)]
 pub struct RecordDeleting;
+#[derive(Debug, Clone, Copy)]
 pub struct RecordArchiving;
+#[derive(Debug, Clone, Copy)]
 pub struct RecordDeleted;
+#[derive(Debug, Clone, Copy)]
 pub struct RecordPurged;
+#[derive(Debug, Clone, Copy)]
 pub struct RecordRestored;
+#[derive(Debug, Clone, Copy)]
 pub struct RecordQueryFilter;
+#[derive(Debug, Clone, Copy)]
 pub struct RecordSerializing;
+#[derive(Debug, Clone, Copy)]
 pub struct RecordSchemaFilter;
+#[derive(Debug, Clone, Copy)]
 pub struct SearchPlanFilter;
 
 #[derive(Debug, Clone)]

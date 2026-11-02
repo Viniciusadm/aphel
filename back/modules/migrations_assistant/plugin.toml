@@ -1,0 +1,5 @@
+key = "migrations_assistant"
+name = "Migration assistant"
+version = "0.1.0"
+layer = "domain"
+runtime = "native"

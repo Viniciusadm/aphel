@@ -997,11 +997,11 @@ async fn move_stage_in_tx(
     let pipeline = fields.pipeline();
     match &stage_move.action {
         StageAction::Qualify => {
-            ctx.run_hook::<LeadQualifying>(tx, super::KEY, &stage_move.lead)
+            ctx.run_hook(LeadQualifying, tx, super::KEY, &stage_move.lead)
                 .await?
         }
         StageAction::Disqualify(_, args) => {
-            ctx.run_hook::<LeadDisqualifying>(tx, super::KEY, args)
+            ctx.run_hook(LeadDisqualifying, tx, super::KEY, args)
                 .await?
         }
         StageAction::Convert(_) => {}
@@ -1130,7 +1130,7 @@ async fn move_stage_in_tx(
                 .await?
         }
         StageAction::Convert(converted) => {
-            ctx.run_hook::<LeadConverted>(tx, super::KEY, converted)
+            ctx.run_hook(LeadConverted, tx, super::KEY, converted)
                 .await?
         }
         StageAction::Qualify => {}

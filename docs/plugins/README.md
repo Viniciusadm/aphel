@@ -77,7 +77,7 @@ hook = "record.validating"
 record_types = ["deal", "co_equine_horse"]
 priority = 25                  # order among plugins (lower first)
 
-operations = ["notes.create", "tags.apply"]   # module operations called with invoke
+operations = ["notes.create", "tagging.apply"]   # module operations called with invoke
 
 [[routes]]                     # served at /api/v1/p/<key><path>
 method = "GET"
@@ -275,7 +275,7 @@ Plugin entities are managed custom objects: they are created with `module_key` a
 
 Besides records, a plugin reaches the modules through two generic channels. Both are open catalogs: each module contributes its own entries, so the WIT does not change when a module offers something new.
 
-**Operations.** `invoke(operation, input-json)` calls a use case of a module (`notes.create`, `tags.apply`, `deals.move_stage`, `email.send`, `sequences.enroll`, `ai.complete`, …). The operation runs the same service as the module's API, with the plugin's scope (see [Capabilities](#capabilities-and-scope)): permissions, events and audit apply, and the plugin needs the matching permissions in `requires` (`notes.create` needs `notes.create`). The plugin lists the operations it calls in `operations`, and the installer sees them in the consent.
+**Operations.** `invoke(operation, input-json)` calls a use case of a module (`notes.create`, `tagging.apply`, `deals.move_stage`, `email.send`, `sequences.enroll`, `ai.complete`, …). The operation runs the same service as the module's API, with the plugin's scope (see [Capabilities](#capabilities-and-scope)): permissions, events and audit apply, and the plugin needs the matching permissions in `requires` (`notes.create` needs `notes.create`). The plugin lists the operations it calls in `operations`, and the installer sees them in the consent.
 
 | Situation | Result |
 | --- | --- |
@@ -685,7 +685,7 @@ The compiled module `plugins` ([`back/modules/plugins`](../../back/modules/plugi
 - **Hooks.** The host registers one handler per record hook (`RecordSaving`, `RecordValidating`, `RecordSaved`, `RecordDeleting`). It forwards to the enabled plugins that subscribed to that hook and record type, flagging the call as in-transaction.
 - **Events.** The consumer `plugins.events` accepts the event types that some enabled plugin consumes. It skips events whose actor is the plugin itself.
 - **Schedules.** The jobs `plugins.tick` and `plugin.schedule` live in `schedule.rs`.
-- **Automations, notifications and widgets.** `automation.rs` contributes the plugin actions and triggers to the automation registries (`AutomationActionSource`/`AutomationTriggerSource`). Notification kinds and widgets are published to the kernel's runtime extension registry (`kernel/modules/runtime_extensions.rs`), which the notification catalog and `WidgetRegistry::builtin()` read next to the compiled ones (`notify.rs`, `widgets.rs`).
+- **Automations, notifications and widgets.** `automation.rs` contributes the plugin actions and triggers to the automation registries (`AutomationActionSource`/`AutomationTriggerSource`). Notification kinds and widgets are published to the kernel's runtime contributions (`App::replace_runtime`) (`kernel/modules/builder.rs`, `App::replace_runtime`), which the notification catalog and `WidgetRegistry::builtin()` read next to the compiled ones (`notify.rs`, `widgets.rs`).
 - **Routes.** Two generic routes dispatch `/api/v1/p/{key}/…` and `/api/v1/public/p/{key}/…` to the plugin, after matching the declared route and checking its permission or rate limit.
 - **Schema.** Entities are created through the custom object use cases and locked with `custom_objects.module_key`. Fields are written to `field_definitions` with `module_key`, and the boot sync only releases fields of compiled modules. `schema.rs` reconciles upgrades as described in [Upgrades](#upgrades).
 

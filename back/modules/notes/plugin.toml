@@ -1,0 +1,5 @@
+key = "notes"
+name = "Notes"
+version = "0.1.0"
+layer = "capability"
+runtime = "native"

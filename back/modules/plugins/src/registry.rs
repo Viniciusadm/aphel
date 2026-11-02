@@ -10,7 +10,7 @@ use crate::manifest::PluginManifest;
 use crate::widgets::PluginWidget;
 use crate::{notify, runtime, store};
 use aphel_kernel::errors::AppError;
-use aphel_kernel::modules::runtime_extensions;
+use aphel_kernel::modules::intern;
 
 const CHECK_INTERVAL: Duration = Duration::from_secs(2);
 const REFRESH_INTERVAL: Duration = Duration::from_secs(5);
@@ -35,7 +35,7 @@ impl BackendSlot {
         let loaded = self
             .loaded
             .get_or_try_init(|| async {
-                let pool = aphel_kernel::state::runtime_state()?.db()?;
+                let pool = aphel_kernel::state::runtime_pool()?;
                 let installed = store::find(&pool, &self.key)
                     .await?
                     .filter(|plugin| plugin.enabled && plugin.checksum == self.checksum)
@@ -283,21 +283,18 @@ fn publish_extensions(snapshot: &Snapshot) {
             use aphel_kernel::application::public_events::{PublicResource, event};
             events.push(
                 event(
-                    runtime_extensions::intern(&plugin.manifest.event_type(&spec.name)),
-                    PublicResource::payload(runtime_extensions::intern(&format!(
-                        "plugin.{}",
-                        plugin.key
-                    ))),
-                    runtime_extensions::intern(spec.description.as_deref().unwrap_or(&spec.label)),
+                    intern::intern(&plugin.manifest.event_type(&spec.name)),
+                    PublicResource::payload(intern::intern(&format!("plugin.{}", plugin.key))),
+                    intern::intern(spec.description.as_deref().unwrap_or(&spec.label)),
                 )
                 .with_verbatim_payload(),
             );
         }
         for spec in &plugin.manifest.notifications {
             let has = |channel: &str| spec.channels.iter().any(|candidate| candidate == channel);
-            kinds.push(runtime_extensions::runtime_notification_kind(
+            kinds.push(intern::runtime_notification_kind(
                 &notify::kind_key(&plugin.key, &spec.name),
-                runtime_extensions::channel_set(has("in_app"), has("email"), has("push")),
+                intern::channel_set(has("in_app"), has("email"), has("push")),
                 spec.email_default,
                 spec.push_default,
             ));
@@ -312,7 +309,19 @@ fn publish_extensions(snapshot: &Snapshot) {
             );
         }
     }
-    runtime_extensions::replace_catalog(crate::KEY, kinds, widgets, events);
+    let mut batch = aphel_kernel::modules::RuntimeBatch::new();
+    for kind in kinds {
+        batch.add(std::sync::Arc::new(kind));
+    }
+    for widget in widgets {
+        batch.add::<dyn aphel_kernel::application::dashboard::WidgetProvider<
+                aphel_kernel::infrastructure::repositories::mysql_dashboard::MySqlDashboardPorts,
+            >>(widget);
+    }
+    for event in events {
+        batch.add(std::sync::Arc::new(event));
+    }
+    aphel_kernel::modules::app().replace_runtime(crate::KEY, batch);
 }
 
 pub fn spawn_refresh(pool: MySqlPool) {

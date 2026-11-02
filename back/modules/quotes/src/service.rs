@@ -986,13 +986,14 @@ async fn filter_totals(
     items: &[QuoteItemData],
     totals: TotalsBreakdown,
 ) -> Result<TotalsBreakdown, AppError> {
-    if !ctx.app().hooks().has_filters_except::<QuoteTotals>(None) {
+    if !ctx.app().hooks().has_filters_except(QuoteTotals, None) {
         return Ok(totals);
     }
     let lines = totals.lines.len();
     let mut tx = ctx.begin().await?;
     let priced = ctx
-        .apply_hook::<QuoteTotals>(
+        .apply_hook(
+            QuoteTotals,
             &mut tx,
             KEY,
             PricedQuote {

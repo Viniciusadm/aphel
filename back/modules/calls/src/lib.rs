@@ -74,7 +74,7 @@ impl Module for CallsModule {
         )
         .routes(|_| http::router())
         .provide::<dyn TelephonyRouter>(telephony::shared_router())
-        .filter::<RecordSerializing, _>(DEFAULT_PRIORITY, |ctx, records| {
+        .filter(RecordSerializing, DEFAULT_PRIORITY, |ctx, records| {
             Box::pin(hooks::attach_calls(ctx, records))
         });
         for definition in PUBLIC_EVENTS {

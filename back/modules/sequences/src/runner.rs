@@ -358,11 +358,11 @@ async fn create_activity(ctx: &Ctx<'_>, task: SequenceTask) -> Result<Uuid, AppE
 }
 
 async fn step_running(ctx: &Ctx<'_>, step: RunningStep) -> Result<(), AppError> {
-    if !ctx.app().hooks().has::<StepRunning>() {
+    if !ctx.app().hooks().has(StepRunning) {
         return Ok(());
     }
     let mut tx = ctx.begin().await?;
-    let result = ctx.run_hook::<StepRunning>(&mut tx, KEY, &step).await;
+    let result = ctx.run_hook(StepRunning, &mut tx, KEY, &step).await;
     tx.rollback().await?;
     result
 }

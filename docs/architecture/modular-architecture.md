@@ -125,11 +125,11 @@ The `AppBuilder` is the only contribution point. Each call is tagged with the mo
 |---|---|
 | Routes | `app.routes(OpenApiRouter)` mounts under `/api/v1/...` (no forced prefix); `app.public_routes(..)` |
 | Override a route | `app.override_route(Method::POST, "/api/v1/contacts", handler)`: the last one registered wins and is logged |
-| Record type | `app.record_type(def).handler(ContactHandler)` |
-| Extend an existing type | `app.extend_record_type("contact", \|t\| t.system_field(..).relation(..).computed(..))` |
-| Code-defined field (no migration) | `app.extend_record_type("contact", \|t\| t.managed_field(FieldSpec::number("lead_temperature")))`: definition synced at boot, value stored in the EAV, locked in the UI |
-| Synchronous hook (action or veto) | `app.on::<H>(priority, handler)` |
-| Filter (transforms a value) | `app.filter::<F>(priority, handler)` |
+| Record type | `app.entity(def).handler(ContactHandler)` |
+| Extend an existing type | `app.extend("contact", \|t\| t.system_field(..).relation(..).computed(..))` |
+| Code-defined field (no migration) | `app.extend("contact", \|t\| t.managed_field(FieldSpec::number("lead_temperature")))`: definition synced at boot, value stored in the EAV, locked in the UI |
+| Synchronous hook (action or veto) | `app.on(H, priority, handler)` |
+| Filter (transforms a value) | `app.filter(F, priority, handler)` |
 | Replace a service | `app.provide::<dyn LeadConverter>(Arc::new(MyConverter))`: the last provider wins |
 | Permissions | `app.permission(Permission::record("leadpro.read")).grant_to(["admin", "manager"])`: granted on enable, with no grant migration |
 | Public events, notifications | `app.public_event(..)`, `app.notification_kind(..)`: open catalogs that replace the enums |
@@ -154,8 +154,8 @@ The `HookBus` lives in the kernel and is **keyed by Rust type**, with a list ord
 ```rust
 pub trait Hook: 'static { type Args<'a>; }
 
-app.on::<RecordSaving>(10, |ctx, args| Box::pin(async move { ... }));
-app.filter::<RecordQueryFilter>(20, |ctx, plan| Box::pin(async move { Ok(plan) }));
+app.on(RecordSaving, 10, |ctx, args| Box::pin(async move { ... }));
+app.filter(RecordQueryFilter, 20, |ctx, plan| Box::pin(async move { Ok(plan) }));
 ```
 
 The handler receives a `HookCtx` with the following fields:
@@ -247,7 +247,7 @@ The roughly 20 `match` blocks disappear. A new plugin type automatically gets im
 There are four ways, none of which touch the owning module:
 
 1. **Code-managed field (EAV):** `managed_field(..)`. No migration needed. It shows up in forms, filters, columns, imports and the API automatically, because everything is schema-driven.
-2. **Own column:** the plugin's migration can do `ALTER TABLE contacts ADD COLUMN ...` (the `ext_<key>_` restriction is dropped), and `extend_record_type` declares a `SystemField` over that column. It is faster for filtering and sorting.
+2. **Own column:** the plugin's migration can do `ALTER TABLE contacts ADD COLUMN ...` (the `ext_<key>_` restriction is dropped), and `extend` declares a `SystemField` over that column. It is faster for filtering and sorting.
 3. **1:1 or 1:N side table** (`leadpro_contact_insights` with an FK to `contacts`), plus `relation(..)` or `computed(..)` on the type. This makes the fields filterable via `EXISTS` in `RecordQuery`.
 4. **Behavior:** hooks and filters over the type, plus Rust *extension traits* over the module's public types (`impl LeadProExt for contacts::Contact`) for "new methods".
 
@@ -367,15 +367,15 @@ impl Module for LeadPro {
     fn register(&self, app: &mut AppBuilder) -> Result<(), AppError> {
         app.permission(Permission::record("lead_pro.read")).grant_to(["admin", "manager", "sales"]);
 
-        app.extend_record_type("contact", |t| {
+        app.extend("contact", |t| {
             t.system_field(SystemField::new("lead_temperature", "Temperatura", FieldType::Number, "lead_temperature").read_only())
                 .relation(RecordRelation::has_many("touches", "Interações", "lead_pro_touches", "contact_id"))
         });
 
-        app.filter::<RecordSaving>(20, hooks::default_temperature);
-        app.on::<RecordValidating>(10, hooks::block_unqualified_owner_change);
-        app.on::<leads::LeadQualifying>(10, hooks::require_temperature);
-        app.filter::<leads::LeadConverting>(10, hooks::enrich_deal_values);
+        app.filter(RecordSaving, 20, hooks::default_temperature);
+        app.on(RecordValidating, 10, hooks::block_unqualified_owner_change);
+        app.on(leads::LeadQualifying, 10, hooks::require_temperature);
+        app.filter(leads::LeadConverting, 10, hooks::enrich_deal_values);
         app.decorate::<dyn leads::LeadConverter>(|inner| Arc::new(converter::WithTouches(inner)));
 
         app.consumer(scoring::TouchConsumer);
@@ -420,7 +420,7 @@ The order is designed to keep the binary compiling after every session. First th
 | Session | Type | Content |
 |---|---|---|
 | **29 Module kernel** | Foundation | `Module` trait, `Manifest`, `AppBuilder`, `App`, `HookBus` (action, filter and veto with priority), `Services` (provide and decorate). Open catalogs of permissions (with `grant_to`), public events (the `PublicResource` enum goes away), notification kinds (the enum goes away), OpenAPI tags, routes and worker parts. `installed_extensions` → `installed_modules`; `extension_migrations` → `module_migrations`. Create `aphel modules list\|doctor\|uninstall` |
-| **30 Record pipeline** | Foundation | `records::save/delete` in the kernel, with the hooks `RecordSaving`, `RecordValidating`, `RecordSaved`, `RecordCommitted`, `RecordDeleting`, `RecordQueryFilter` and `RecordSerializing`. The `record_write_guard()` chain becomes hooks registered by approvals, pipelines, validation_rules and leads. `RecordTypeHandler` and `extend_record_type`/`managed_field`. The ~20 `match "contact"` blocks switch to the handler. `AutomationGateway` leaves `api/` |
+| **30 Record pipeline** | Foundation | `records::save/delete` in the kernel, with the hooks `RecordSaving`, `RecordValidating`, `RecordSaved`, `RecordCommitted`, `RecordDeleting`, `RecordQueryFilter` and `RecordSerializing`. The `record_write_guard()` chain becomes hooks registered by approvals, pipelines, validation_rules and leads. `RecordTypeHandler` and `extend`/`managed_field`. The ~20 `match "contact"` blocks switch to the handler. `AutomationGateway` leaves `api/` |
 | **31 Pilot: contacts, companies, leads, scoring** | Foundation | Move to `src/modules/<key>/` in the new pattern (concrete `Ctx`, no `*Ports`), with migrations consolidated per module, `Lead*` hooks and the `LeadConverter` service. Validates the design before scaling |
 | **32 Web kernel** | Foundation + parallel | `defineModule`, registries for routes, menu, settings and i18n, `Slot`, `Overridable`, `applyFilters`, field type registry, gating via `/api/v1/modules`. Convert the 10 web extensions and the pilots |
 | **33 Revenue modules** | Parallel (4) | deals, pipelines, deal_items, renewals, currencies · products, price_lists, quotes, approvals · activities, notes, reminders, calls · forecast, goals |

@@ -187,7 +187,7 @@ async fn validate_url(ctx: &Ctx<'_>, raw: &str) -> Result<String, AppError> {
             )],
         ));
     }
-    let network = ctx.state().webhook_network()?;
+    let network = ctx.webhook_network()?;
     match network.guard().check(&url).await {
         Ok(()) => Ok(url),
         Err(UrlRejection::Invalid(message)) => Err(AppError::invalid_fields(
@@ -506,7 +506,7 @@ pub(crate) async fn send_test(
         Some(scope.user_id().clone()),
         now,
     );
-    ctx.state().webhook_network()?;
+    ctx.webhook_network()?;
     let deliveries = WebhookDeliveryStore::of(ctx);
     let mut tx = ctx.begin().await?;
     deliveries.insert(&mut tx, &delivery).await?;

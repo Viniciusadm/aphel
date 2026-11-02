@@ -40,8 +40,6 @@ pub trait ModuleLifecycle: Send + Sync {
     ) -> Result<u64, AppError>;
 }
 
-pub type ModulesTx<P> = <<P as ModulePorts>::Transactions as TransactionManager>::Tx;
-
 pub trait ModulePorts: Send + Sync {
     type Transactions: TransactionManager;
     type Modules: ModuleStateRepository<Tx = <Self::Transactions as TransactionManager>::Tx>;

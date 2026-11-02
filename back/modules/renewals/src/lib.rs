@@ -62,7 +62,7 @@ impl Module for RenewalsModule {
             "Renovação de",
             RecordType::DEAL.as_str(),
         )?;
-        app.extend_record_type(RecordType::DEAL.as_str(), |deal| {
+        app.extend(RecordType::DEAL.as_str(), |deal| {
             deal.system_field(renewal_of.clone());
         })
         .routes(|_| http::router())

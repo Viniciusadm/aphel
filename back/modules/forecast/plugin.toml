@@ -1,0 +1,5 @@
+key = "forecast"
+name = "Forecast"
+version = "0.1.0"
+layer = "domain"
+runtime = "native"

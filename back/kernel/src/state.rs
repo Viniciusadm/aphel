@@ -279,6 +279,10 @@ pub fn install_runtime_state(state: AppState) {
     }
 }
 
+pub fn runtime_pool() -> Result<MySqlPool, AppError> {
+    runtime_state()?.db()
+}
+
 pub fn runtime_state() -> Result<AppState, AppError> {
     RUNTIME_STATE
         .get()

@@ -1,9 +1,10 @@
-use std::any::{Any, TypeId, type_name};
+use std::any::{Any, type_name};
 use std::collections::HashMap;
 use std::future::Future;
 use std::pin::Pin;
 use std::sync::Arc;
 
+use aphel_contract::HookKey;
 use sqlx::MySqlPool;
 
 use crate::database::transaction::MySqlTx;
@@ -15,10 +16,44 @@ use crate::modules::services::Services;
 
 pub const DEFAULT_PRIORITY: i32 = 10;
 
+pub trait HookRef: Copy {
+    type Args: Send + Sync + 'static;
+
+    fn key(&self) -> &'static str;
+
+    fn kind(&self) -> Option<aphel_contract::HookKind> {
+        None
+    }
+}
+
+impl<H: Hook + Copy> HookRef for H {
+    type Args = H::Args;
+
+    fn key(&self) -> &'static str {
+        H::key()
+    }
+}
+
+impl<A: Send + Sync + 'static> HookRef for HookKey<A> {
+    type Args = A;
+
+    fn key(&self) -> &'static str {
+        HookKey::key(self)
+    }
+
+    fn kind(&self) -> Option<aphel_contract::HookKind> {
+        Some(HookKey::kind(self))
+    }
+}
+
 pub type BoxFuture<'a, T> = Pin<Box<dyn Future<Output = T> + Send + 'a>>;
 
 pub trait Hook: 'static {
     type Args: Send + Sync + 'static;
+
+    fn key() -> &'static str {
+        type_name::<Self>()
+    }
 }
 
 pub struct HookCtx<'a> {
@@ -51,30 +86,26 @@ impl<'a> HookCtx<'a> {
     }
 }
 
-pub type ActionHandler<H> = Arc<
-    dyn for<'r, 'c> Fn(
-            &'r mut HookCtx<'c>,
-            &'r <H as Hook>::Args,
-        ) -> BoxFuture<'r, Result<(), AppError>>
+pub type ActionFn<A> = Arc<
+    dyn for<'r, 'c> Fn(&'r mut HookCtx<'c>, &'r A) -> BoxFuture<'r, Result<(), AppError>>
         + Send
         + Sync,
 >;
 
-pub type FilterHandler<H> = Arc<
-    dyn for<'r, 'c> Fn(
-            &'r mut HookCtx<'c>,
-            <H as Hook>::Args,
-        ) -> BoxFuture<'r, Result<<H as Hook>::Args, AppError>>
-        + Send
-        + Sync,
+pub type FilterFn<A> = Arc<
+    dyn for<'r, 'c> Fn(&'r mut HookCtx<'c>, A) -> BoxFuture<'r, Result<A, AppError>> + Send + Sync,
 >;
 
-struct Handlers<H: Hook> {
-    actions: Vec<Contribution<ActionHandler<H>>>,
-    filters: Vec<Contribution<FilterHandler<H>>>,
+pub type ActionHandler<H> = ActionFn<<H as Hook>::Args>;
+
+pub type FilterHandler<H> = FilterFn<<H as Hook>::Args>;
+
+struct Handlers<A> {
+    actions: Vec<Contribution<ActionFn<A>>>,
+    filters: Vec<Contribution<FilterFn<A>>>,
 }
 
-impl<H: Hook> Default for Handlers<H> {
+impl<A> Default for Handlers<A> {
     fn default() -> Self {
         Self {
             actions: Vec::new(),
@@ -140,7 +171,7 @@ pub struct HookInfo {
 }
 
 pub struct HookBus {
-    handlers: HashMap<TypeId, Box<dyn Any + Send + Sync>>,
+    handlers: HashMap<&'static str, Box<dyn Any + Send + Sync>>,
     registered: Vec<HookInfo>,
     declared: Vec<HookDeclaration>,
     enabled: Arc<EnabledModules>,
@@ -156,22 +187,24 @@ impl HookBus {
         }
     }
 
-    fn entry<H: Hook>(&mut self) -> &mut Handlers<H> {
+    fn entry<A: Send + Sync + 'static>(&mut self, key: &'static str) -> &mut Handlers<A> {
         self.handlers
-            .entry(TypeId::of::<H>())
-            .or_insert_with(|| Box::new(Handlers::<H>::default()))
-            .downcast_mut::<Handlers<H>>()
-            .expect("hook handlers keyed by their own type")
+            .entry(key)
+            .or_insert_with(|| Box::new(Handlers::<A>::default()))
+            .downcast_mut::<Handlers<A>>()
+            .unwrap_or_else(|| panic!("hook `{key}` is used with two different argument types"))
     }
 
-    fn handlers<H: Hook>(&self) -> Option<&Handlers<H>> {
+    fn handlers<A: Send + Sync + 'static>(&self, key: &'static str) -> Option<&Handlers<A>> {
         self.handlers
-            .get(&TypeId::of::<H>())
-            .and_then(|handlers| handlers.downcast_ref::<Handlers<H>>())
+            .get(key)
+            .and_then(|handlers| handlers.downcast_ref::<Handlers<A>>())
     }
 
-    pub fn declare<H: Hook>(
+    fn declare_entry(
         &mut self,
+        key: &'static str,
+        args: &'static str,
         module: &'static str,
         usages: &'static [HookUsage],
         description: &'static str,
@@ -179,75 +212,125 @@ impl HookBus {
         if self
             .declared
             .iter()
-            .any(|declaration| declaration.hook == type_name::<H>())
+            .any(|declaration| declaration.hook == key)
         {
             return;
         }
         self.declared.push(HookDeclaration {
-            hook: type_name::<H>(),
-            args: type_name::<H::Args>(),
+            hook: key,
+            args,
             module,
             usages,
             description,
         });
     }
 
-    pub fn on<H: Hook>(&mut self, contribution: Contribution<ActionHandler<H>>) {
+    pub fn declare<K: HookRef>(
+        &mut self,
+        hook: K,
+        module: &'static str,
+        usages: &'static [HookUsage],
+        description: &'static str,
+    ) {
+        self.declare_entry(
+            hook.key(),
+            type_name::<K::Args>(),
+            module,
+            usages,
+            description,
+        );
+    }
+
+    fn register_action<A: Send + Sync + 'static>(
+        &mut self,
+        key: &'static str,
+        contribution: Contribution<ActionFn<A>>,
+    ) {
         self.registered.push(HookInfo {
-            hook: type_name::<H>(),
+            hook: key,
             kind: HookKind::Action,
             module: contribution.module,
             priority: contribution.priority,
         });
-        let actions = &mut self.entry::<H>().actions;
+        let actions = &mut self.entry::<A>(key).actions;
         actions.push(contribution);
         actions.sort_by_key(|contribution| contribution.priority);
     }
 
-    pub fn filter<H: Hook>(&mut self, contribution: Contribution<FilterHandler<H>>) {
+    fn register_filter<A: Send + Sync + 'static>(
+        &mut self,
+        key: &'static str,
+        contribution: Contribution<FilterFn<A>>,
+    ) {
         self.registered.push(HookInfo {
-            hook: type_name::<H>(),
+            hook: key,
             kind: HookKind::Filter,
             module: contribution.module,
             priority: contribution.priority,
         });
-        let filters = &mut self.entry::<H>().filters;
+        let filters = &mut self.entry::<A>(key).filters;
         filters.push(contribution);
         filters.sort_by_key(|contribution| contribution.priority);
     }
 
-    pub fn has<H: Hook>(&self) -> bool {
-        self.has_except::<H>(None)
+    pub fn on<K: HookRef>(&mut self, hook: K, contribution: Contribution<ActionFn<K::Args>>) {
+        if hook.kind() == Some(aphel_contract::HookKind::Filter) {
+            tracing::error!(
+                "hook {} is a filter and cannot take an action handler",
+                hook.key()
+            );
+            return;
+        }
+        self.register_action(hook.key(), contribution);
     }
 
-    pub fn has_except<H: Hook>(&self, excluded_module: Option<&str>) -> bool {
-        self.has_kind::<H>(excluded_module, HookKind::Action)
-            || self.has_kind::<H>(excluded_module, HookKind::Filter)
+    pub fn filter<K: HookRef>(&mut self, hook: K, contribution: Contribution<FilterFn<K::Args>>) {
+        if hook
+            .kind()
+            .is_some_and(|kind| kind != aphel_contract::HookKind::Filter)
+        {
+            tracing::error!(
+                "hook {} is not a filter and cannot take a filter handler",
+                hook.key()
+            );
+            return;
+        }
+        self.register_filter(hook.key(), contribution);
     }
 
-    pub fn has_actions_except<H: Hook>(&self, excluded_module: Option<&str>) -> bool {
-        self.has_kind::<H>(excluded_module, HookKind::Action)
+    pub fn has<K: HookRef>(&self, hook: K) -> bool {
+        self.has_except(hook, None)
     }
 
-    pub fn has_filters_except<H: Hook>(&self, excluded_module: Option<&str>) -> bool {
-        self.has_kind::<H>(excluded_module, HookKind::Filter)
+    pub fn has_except<K: HookRef>(&self, hook: K, excluded_module: Option<&str>) -> bool {
+        self.has_kind(hook.key(), excluded_module, HookKind::Action)
+            || self.has_kind(hook.key(), excluded_module, HookKind::Filter)
     }
 
-    fn has_kind<H: Hook>(&self, excluded_module: Option<&str>, kind: HookKind) -> bool {
+    pub fn has_actions_except<K: HookRef>(&self, hook: K, excluded_module: Option<&str>) -> bool {
+        self.has_kind(hook.key(), excluded_module, HookKind::Action)
+    }
+
+    pub fn has_filters_except<K: HookRef>(&self, hook: K, excluded_module: Option<&str>) -> bool {
+        self.has_kind(hook.key(), excluded_module, HookKind::Filter)
+    }
+
+    fn has_kind(&self, key: &str, excluded_module: Option<&str>, kind: HookKind) -> bool {
         self.registered.iter().any(|entry| {
-            entry.hook == type_name::<H>()
+            entry.hook == key
                 && entry.kind == kind
                 && excluded_module != Some(entry.module)
                 && self.enabled.is_enabled(entry.module)
         })
     }
 
-    pub async fn run<H: Hook>(
+    async fn run_entry<A: Send + Sync + 'static>(
         &self,
+        key: &'static str,
         ctx: &mut HookCtx<'_>,
-        args: &H::Args,
+        args: &A,
     ) -> Result<(), AppError> {
-        let Some(handlers) = self.handlers::<H>() else {
+        let Some(handlers) = self.handlers::<A>(key) else {
             return Ok(());
         };
         for contribution in &handlers.actions {
@@ -259,12 +342,13 @@ impl HookBus {
         Ok(())
     }
 
-    pub async fn apply<H: Hook>(
+    async fn apply_entry<A: Send + Sync + 'static>(
         &self,
+        key: &'static str,
         ctx: &mut HookCtx<'_>,
-        value: H::Args,
-    ) -> Result<H::Args, AppError> {
-        let Some(handlers) = self.handlers::<H>() else {
+        value: A,
+    ) -> Result<A, AppError> {
+        let Some(handlers) = self.handlers::<A>(key) else {
             return Ok(value);
         };
         let mut value = value;
@@ -275,6 +359,24 @@ impl HookBus {
             value = (contribution.item)(ctx, value).await?;
         }
         Ok(value)
+    }
+
+    pub async fn run<K: HookRef>(
+        &self,
+        hook: K,
+        ctx: &mut HookCtx<'_>,
+        args: &K::Args,
+    ) -> Result<(), AppError> {
+        self.run_entry(hook.key(), ctx, args).await
+    }
+
+    pub async fn apply<K: HookRef>(
+        &self,
+        hook: K,
+        ctx: &mut HookCtx<'_>,
+        value: K::Args,
+    ) -> Result<K::Args, AppError> {
+        self.apply_entry(hook.key(), ctx, value).await
     }
 
     pub fn describe(&self) -> &[HookInfo] {

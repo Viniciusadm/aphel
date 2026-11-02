@@ -69,7 +69,8 @@ impl Module for NotesModule {
         app.contribute::<dyn aphel_kernel::application::notifications::NotificationSource>(
             std::sync::Arc::new(notifications::NoteMentionNotifications),
         );
-        app.on::<aphel_kernel::records::RecordPurged, _>(
+        app.on(
+            aphel_kernel::records::RecordPurged,
             aphel_kernel::modules::DEFAULT_PRIORITY,
             |ctx, removed| Box::pin(crate::hooks::purge_record_notes(ctx, removed)),
         );

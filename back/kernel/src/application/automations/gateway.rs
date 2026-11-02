@@ -84,7 +84,10 @@ impl WebhookCallResult {
 
 #[derive(Debug, Clone, Copy, PartialEq, Eq)]
 pub enum Reference<'a> {
-    Tag(&'a str),
+    Operation {
+        operation: &'static str,
+        id: &'a str,
+    },
     Stage(&'a str),
     User(&'a str),
     ActivityType(&'a str),
@@ -125,13 +128,12 @@ pub trait AutomationGateway: Send + Sync {
         record: &RecordRef,
         values: Map<String, Value>,
     ) -> Result<(), AppError>;
-    async fn set_tag(
+    async fn call_operation(
         &self,
         scope: &AccessScope,
-        record: &RecordRef,
-        tag_id: &str,
-        present: bool,
-    ) -> Result<(), AppError>;
+        operation: &str,
+        input: Value,
+    ) -> Result<Value, AppError>;
     async fn move_stage(
         &self,
         scope: &AccessScope,

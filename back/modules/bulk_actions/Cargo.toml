@@ -10,7 +10,7 @@ publish = false
 aphel-kernel.workspace = true
 exports = { package = "aphel-mod-exports", path = "../exports" }
 sequences = { package = "aphel-mod-sequences", path = "../sequences" }
-tags = { package = "aphel-mod-tags", path = "../tags" }
+aphel-contract-tagging.workspace = true
 axum.workspace = true
 async-trait.workspace = true
 chrono.workspace = true

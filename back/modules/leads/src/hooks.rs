@@ -46,6 +46,7 @@ impl Lead {
     }
 }
 
+#[derive(Debug, Clone, Copy)]
 pub struct LeadQualifying;
 
 impl Hook for LeadQualifying {
@@ -73,6 +74,7 @@ impl DisqualifyingLead {
     }
 }
 
+#[derive(Debug, Clone, Copy)]
 pub struct LeadDisqualifying;
 
 impl Hook for LeadDisqualifying {
@@ -86,6 +88,7 @@ pub struct LeadConversion {
     pub company: Option<Map<String, Value>>,
 }
 
+#[derive(Debug, Clone, Copy)]
 pub struct LeadConverting;
 
 impl Hook for LeadConverting {
@@ -113,6 +116,7 @@ impl ConvertedLead {
     }
 }
 
+#[derive(Debug, Clone, Copy)]
 pub struct LeadConverted;
 
 impl Hook for LeadConverted {
@@ -194,7 +198,7 @@ impl LeadConverter for DealLeadConverter {
             company: None,
         };
         let conversion = ctx
-            .apply_hook::<LeadConverting>(tx, super::KEY, conversion)
+            .apply_hook(LeadConverting, tx, super::KEY, conversion)
             .await?;
         let state = ctx.state();
         let record_ctx = RecordCtx::new(ctx.scope, &state);

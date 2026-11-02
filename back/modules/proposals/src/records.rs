@@ -12,7 +12,7 @@ use aphel_kernel::domain::access::AccessScope;
 use aphel_kernel::errors::{AppError, CodedKind};
 use aphel_kernel::infrastructure::repositories::mysql_organizations::find_organization;
 use aphel_kernel::infrastructure::repositories::mysql_users::MySqlUserRepository;
-use aphel_kernel::records::{RecordCtx, field_set};
+use aphel_kernel::records::RecordCtx;
 use deal_items::http::DealItemsResponse;
 
 use crate::format::Locale;
@@ -75,7 +75,7 @@ pub(crate) fn actor_kind(scope: &AccessScope) -> &'static str {
 }
 
 pub(crate) async fn fields(ctx: &Ctx<'_>, record_type: &str) -> Result<Vec<FieldInfo>, AppError> {
-    let fields = field_set(&ctx.state(), ctx.scope, record_type).await?;
+    let fields = ctx.field_set(ctx.scope, record_type).await?;
     Ok(fields
         .active()
         .map(|field| FieldInfo {

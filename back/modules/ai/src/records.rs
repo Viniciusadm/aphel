@@ -3,7 +3,6 @@ use uuid::Uuid;
 
 use activities::domain::ListActivitiesQuery;
 use activities::http::ActivityResponse;
-use aphel_kernel::api::routes::v1::field_permissions::redacted_items;
 use aphel_kernel::application::organization_admin::ListWindow;
 use aphel_kernel::application::query::{
     ArchivedFilter, Filter, FilterOperator, RecordQuery, RecordQueryEngine,
@@ -11,7 +10,7 @@ use aphel_kernel::application::query::{
 use aphel_kernel::application::shared::RecordType;
 use aphel_kernel::context::Ctx;
 use aphel_kernel::errors::{AppError, CodedKind};
-use aphel_kernel::records::{RecordCtx, field_set};
+use aphel_kernel::records::RecordCtx;
 use contacts::http::ContactResponse;
 use deals::http::DealResponse;
 use notes::domain::ListNotesQuery;
@@ -34,7 +33,7 @@ pub(crate) struct FieldInfo {
 }
 
 pub(crate) async fn fields(ctx: &Ctx<'_>, record_type: &str) -> Result<Vec<FieldInfo>, AppError> {
-    let fields = field_set(&ctx.state(), ctx.scope, record_type).await?;
+    let fields = ctx.field_set(ctx.scope, record_type).await?;
     Ok(fields
         .active()
         .map(|field| FieldInfo {
@@ -176,7 +175,8 @@ pub(crate) async fn activities(
     )
     .await?;
     let items: Vec<ActivityResponse> = listing.items.into_iter().map(Into::into).collect();
-    redacted_items(&ctx.state(), ctx.scope, &RecordType::ACTIVITY, items).await
+    ctx.redacted_items(ctx.scope, &RecordType::ACTIVITY, items)
+        .await
 }
 
 fn link_filter(field: &str, record_id: Uuid) -> Option<Filter> {
@@ -202,7 +202,8 @@ pub(crate) async fn deals(
     )
     .await?;
     let items: Vec<DealResponse> = listing.items.into_iter().map(Into::into).collect();
-    redacted_items(&ctx.state(), ctx.scope, &RecordType::DEAL, items).await
+    ctx.redacted_items(ctx.scope, &RecordType::DEAL, items)
+        .await
 }
 
 pub(crate) async fn contacts(
@@ -220,5 +221,6 @@ pub(crate) async fn contacts(
     )
     .await?;
     let items: Vec<ContactResponse> = listing.items.into_iter().map(Into::into).collect();
-    redacted_items(&ctx.state(), ctx.scope, &RecordType::CONTACT, items).await
+    ctx.redacted_items(ctx.scope, &RecordType::CONTACT, items)
+        .await
 }

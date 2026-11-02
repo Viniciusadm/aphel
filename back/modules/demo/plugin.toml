@@ -1,0 +1,5 @@
+key = "demo"
+name = "Demo"
+version = "0.1.0"
+layer = "capability"
+runtime = "native"

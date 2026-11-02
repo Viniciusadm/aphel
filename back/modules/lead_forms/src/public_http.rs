@@ -100,9 +100,7 @@ fn origin_allowed(ctx: &Ctx<'_>, form: &StoredForm, headers: &HeaderMap) -> bool
     let Some(origin) = normalize_origin(origin) else {
         return false;
     };
-    if allowed.contains(&origin)
-        || origin_of(&ctx.state().auth_settings.app_base_url.get()).as_ref() == Some(&origin)
-    {
+    if allowed.contains(&origin) || origin_of(&ctx.app_base_url()).as_ref() == Some(&origin) {
         return true;
     }
     header_text(headers, header::HOST).is_some_and(|authority| {

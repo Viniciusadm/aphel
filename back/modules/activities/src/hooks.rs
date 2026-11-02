@@ -17,6 +17,7 @@ pub(crate) struct CompletingActivity {
     pub(crate) type_key: String,
 }
 
+#[derive(Debug, Clone, Copy)]
 pub(crate) struct ActivityCompleting;
 
 impl Hook for ActivityCompleting {

@@ -14,7 +14,6 @@ use crate::store::{
 };
 use crate::validation::{AutomationValidator, ValidationLevel};
 use aphel_kernel::Ctx;
-use aphel_kernel::api::automation_operations::automation_gateways;
 use aphel_kernel::application::access::Authorizer;
 use aphel_kernel::application::audit::{DiffOptions, diff_changes};
 use aphel_kernel::application::automations::actions::{
@@ -255,7 +254,7 @@ async fn validate(
     definition: &AutomationDefinition,
     level: ValidationLevel,
 ) -> Result<Vec<FieldViolation>, AppError> {
-    let gateway = automation_gateways(ctx.state()).gateway(None);
+    let gateway = ctx.automation_gateways().gateway(None);
     let triggers = TriggerRegistry::builtin();
     let actions = ActionRegistry::builtin();
     AutomationValidator {
@@ -697,7 +696,7 @@ pub(crate) async fn dry_run(
     })?;
     let record = RecordRef::parse(&automation.record_type, &record_id.to_string())?;
     let scope = ctx.scope;
-    let gateway = automation_gateways(ctx.state()).gateway(None);
+    let gateway = ctx.automation_gateways().gateway(None);
     let fields = gateway.fields(scope, &automation.record_type).await?;
     let record_data = gateway.load_record(scope, &record).await?;
     let record_available = record_data.is_some();
@@ -781,7 +780,7 @@ pub(crate) async fn run_now(
         )
     })?;
     let record = RecordRef::parse(&automation.record_type, &record_id.to_string())?;
-    let gateway = automation_gateways(ctx.state()).gateway(None);
+    let gateway = ctx.automation_gateways().gateway(None);
     if gateway.load_record(ctx.scope, &record).await?.is_none() {
         return Err(AppError::invalid_fields(
             "invalid run",

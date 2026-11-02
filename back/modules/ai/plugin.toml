@@ -1,0 +1,5 @@
+key = "ai"
+name = "AI assistant"
+version = "0.1.0"
+layer = "capability"
+runtime = "native"

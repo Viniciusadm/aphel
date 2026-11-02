@@ -18,7 +18,7 @@ use aphel_kernel::errors::AppError;
 pub use aphel_kernel::infrastructure::deferred_authority::DeferredAuthority as Authority;
 use aphel_kernel::infrastructure::jobs::MySqlJobQueue;
 use aphel_kernel::records::RecordCtx;
-use aphel_kernel::state::runtime_state;
+use aphel_kernel::state::{runtime_pool, runtime_state};
 
 pub const RUN_JOB: &str = "plugin.effect";
 
@@ -186,7 +186,7 @@ pub async fn defer(
     if state.in_transaction {
         state.effects.push(effect);
     } else {
-        let pool = runtime_state()?.db()?;
+        let pool = runtime_pool()?;
         let mut tx = aphel_kernel::database::transaction::MySqlTx::from(pool.begin().await?);
         let canonical = persist(&mut tx, &pool, vec![effect]).await?;
         tx.commit().await?;

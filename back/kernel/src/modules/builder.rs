@@ -1,6 +1,6 @@
 use std::any::{Any, TypeId};
 use std::collections::{BTreeSet, HashMap};
-use std::sync::Arc;
+use std::sync::{Arc, RwLock};
 
 use axum::http::Method;
 use axum::routing::MethodRouter;
@@ -23,7 +23,7 @@ use crate::infrastructure::repositories::mysql_dashboard::MySqlDashboardPorts;
 use crate::modules::catalog::{Catalog, OpenApiTag, PermissionGrant};
 use crate::modules::enabled::EnabledModules;
 use crate::modules::hooks::{
-    ActionHandler, BoxFuture, DEFAULT_PRIORITY, FilterHandler, Hook, HookBus, HookCtx, HookUsage,
+    ActionFn, BoxFuture, DEFAULT_PRIORITY, FilterFn, HookBus, HookCtx, HookRef, HookUsage,
 };
 use crate::modules::module::{Manifest, Module};
 use crate::modules::services::Services;
@@ -274,40 +274,41 @@ impl AppBuilder {
         self
     }
 
-    pub fn on<H, F>(&mut self, priority: i32, handler: F) -> &mut Self
+    pub fn on<K, F>(&mut self, hook: K, priority: i32, handler: F) -> &mut Self
     where
-        H: Hook,
-        F: for<'r, 'c> Fn(&'r mut HookCtx<'c>, &'r H::Args) -> BoxFuture<'r, Result<(), AppError>>
+        K: HookRef,
+        F: for<'r, 'c> Fn(&'r mut HookCtx<'c>, &'r K::Args) -> BoxFuture<'r, Result<(), AppError>>
             + Send
             + Sync
             + 'static,
     {
-        let handler: ActionHandler<H> = Arc::new(handler);
+        let handler: ActionFn<K::Args> = Arc::new(handler);
         let contribution = self.contribution(priority, handler);
-        self.hooks.on::<H>(contribution);
+        self.hooks.on(hook, contribution);
         self
     }
 
-    pub fn filter<H, F>(&mut self, priority: i32, handler: F) -> &mut Self
+    pub fn filter<K, F>(&mut self, hook: K, priority: i32, handler: F) -> &mut Self
     where
-        H: Hook,
-        F: for<'r, 'c> Fn(&'r mut HookCtx<'c>, H::Args) -> BoxFuture<'r, Result<H::Args, AppError>>
+        K: HookRef,
+        F: for<'r, 'c> Fn(&'r mut HookCtx<'c>, K::Args) -> BoxFuture<'r, Result<K::Args, AppError>>
             + Send
             + Sync
             + 'static,
     {
-        let handler: FilterHandler<H> = Arc::new(handler);
+        let handler: FilterFn<K::Args> = Arc::new(handler);
         let contribution = self.contribution(priority, handler);
-        self.hooks.filter::<H>(contribution);
+        self.hooks.filter(hook, contribution);
         self
     }
 
-    pub fn declare_hook<H: Hook>(
+    pub fn declare_hook<K: HookRef>(
         &mut self,
+        hook: K,
         usages: &'static [HookUsage],
         description: &'static str,
     ) -> &mut Self {
-        self.hooks.declare::<H>(self.current, usages, description);
+        self.hooks.declare(hook, self.current, usages, description);
         self
     }
 
@@ -411,13 +412,13 @@ impl AppBuilder {
         self
     }
 
-    pub fn record_type(&mut self, definition: RecordTypeDefinition) -> &mut Self {
+    pub fn entity(&mut self, definition: RecordTypeDefinition) -> &mut Self {
         let contribution = self.contribution(DEFAULT_PRIORITY, definition);
         self.record_types.push(contribution);
         self
     }
 
-    pub fn extend_record_type<F>(&mut self, record_type: &str, extend: F) -> &mut Self
+    pub fn extend<F>(&mut self, record_type: &str, extend: F) -> &mut Self
     where
         F: FnOnce(&mut RecordTypeExtension),
     {
@@ -451,6 +452,43 @@ impl AppBuilder {
             .entry(TypeId::of::<Arc<T>>())
             .or_default()
             .push(contribution);
+        self
+    }
+
+    pub fn contract(&mut self, descriptor: aphel_contract::ContractDescriptor) -> &mut Self {
+        self.contribute::<aphel_contract::ContractDescriptor>(Arc::new(descriptor))
+    }
+
+    pub fn operation<I, O, F>(
+        &mut self,
+        key: aphel_contract::OperationKey<I, O>,
+        spec: crate::modules::operations::OperationSpec,
+        handler: F,
+    ) -> &mut Self
+    where
+        I: serde::de::DeserializeOwned + 'static,
+        O: serde::Serialize + 'static,
+        F: for<'a, 'b> Fn(&'a crate::Ctx<'b>, I) -> BoxFuture<'a, Result<O, AppError>>
+            + Send
+            + Sync
+            + 'static,
+    {
+        match crate::modules::operations::entry(key, spec, handler) {
+            Ok(entry) => {
+                let projection = entry.plugin_operation();
+                let entry = Arc::new(entry);
+                if let Some(action) =
+                    crate::modules::operation_action::OperationAction::new(entry.clone())
+                {
+                    self.action(Arc::new(action));
+                }
+                self.contribute::<crate::modules::operations::OperationEntry>(entry);
+                self.contribute::<crate::modules::plugin_bridge::PluginOperation>(Arc::new(
+                    projection,
+                ));
+            }
+            Err(error) => tracing::error!("operation {key} not registered: {error}"),
+        }
         self
     }
 
@@ -539,6 +577,7 @@ impl AppBuilder {
             triggers: self.triggers,
             actions: self.actions,
             contributions: self.contributions,
+            runtime: RwLock::new(HashMap::new()),
             enabled,
         })
     }
@@ -687,10 +726,60 @@ pub struct App {
     triggers: Vec<Contribution<Trigger>>,
     actions: Vec<Contribution<Action>>,
     contributions: Contributions,
+    runtime: RwLock<HashMap<&'static str, Contributions>>,
     enabled: Arc<EnabledModules>,
 }
 
+#[derive(Default)]
+pub struct RuntimeBatch {
+    items: HashMap<TypeId, Vec<Box<dyn Any + Send + Sync>>>,
+}
+
+impl RuntimeBatch {
+    pub fn new() -> Self {
+        Self::default()
+    }
+
+    pub fn add<T>(&mut self, item: Arc<T>) -> &mut Self
+    where
+        T: ?Sized + Send + Sync + 'static,
+    {
+        self.items
+            .entry(TypeId::of::<Arc<T>>())
+            .or_default()
+            .push(Box::new(item));
+        self
+    }
+}
+
 impl App {
+    pub fn replace_runtime(&self, owner: &'static str, batch: RuntimeBatch) {
+        let contributions: Contributions = batch
+            .items
+            .into_iter()
+            .map(|(type_id, items)| {
+                let items = items
+                    .into_iter()
+                    .map(|item| Contribution {
+                        module: owner,
+                        priority: DEFAULT_PRIORITY,
+                        item,
+                    })
+                    .collect();
+                (type_id, items)
+            })
+            .collect();
+        let mut runtime = self
+            .runtime
+            .write()
+            .unwrap_or_else(|poisoned| poisoned.into_inner());
+        if contributions.is_empty() {
+            runtime.remove(owner);
+        } else {
+            runtime.insert(owner, contributions);
+        }
+    }
+
     pub fn modules(&self) -> &[LoadedModule] {
         &self.modules
     }
@@ -768,17 +857,52 @@ impl App {
     where
         T: ?Sized + Send + Sync + 'static,
     {
-        self.contributions
-            .get(&TypeId::of::<Arc<T>>())
+        fn collect<T: ?Sized + Send + Sync + 'static>(
+            contributions: &Contributions,
+            into: &mut Vec<(&'static str, Arc<T>)>,
+        ) {
+            into.extend(
+                contributions
+                    .get(&TypeId::of::<Arc<T>>())
+                    .into_iter()
+                    .flatten()
+                    .filter_map(|contribution| {
+                        contribution
+                            .item
+                            .downcast_ref::<Arc<T>>()
+                            .map(|item| (contribution.module, item.clone()))
+                    }),
+            );
+        }
+        let mut found = Vec::new();
+        collect(&self.contributions, &mut found);
+        let runtime = self
+            .runtime
+            .read()
+            .unwrap_or_else(|poisoned| poisoned.into_inner());
+        let mut owners: Vec<_> = runtime.keys().copied().collect();
+        owners.sort_unstable();
+        for owner in owners {
+            if let Some(contributions) = runtime.get(owner) {
+                collect(contributions, &mut found);
+            }
+        }
+        found
+    }
+
+    pub fn operation(&self, key: &str) -> Option<Arc<crate::modules::operations::OperationEntry>> {
+        self.contributions::<crate::modules::operations::OperationEntry>()
             .into_iter()
-            .flatten()
-            .filter_map(|contribution| {
-                contribution
-                    .item
-                    .downcast_ref::<Arc<T>>()
-                    .map(|item| (contribution.module, item.clone()))
-            })
-            .collect()
+            .find(|entry| entry.key == key)
+    }
+
+    pub fn operations(
+        &self,
+    ) -> Vec<(
+        &'static str,
+        Arc<crate::modules::operations::OperationEntry>,
+    )> {
+        self.all_contributions::<crate::modules::operations::OperationEntry>()
     }
 
     pub fn contributions<T>(&self) -> Vec<Arc<T>>

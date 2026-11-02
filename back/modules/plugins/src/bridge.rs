@@ -164,7 +164,7 @@ pub(crate) async fn invoke(
     if found.external_query {
         return external_query(plugin, &ctx, &found, input, remaining).await;
     }
-    let output = tokio::time::timeout(remaining, (found.run)(&ctx, input))
+    let output = tokio::time::timeout(remaining, found.invoke(&ctx, input))
         .await
         .map_err(|_| {
             AppError::unavailable_code(
@@ -312,7 +312,7 @@ async fn external_query(
             "the external query already started and has no completed result; it will not be called again automatically",
         ));
     }
-    let result = tokio::time::timeout(remaining, (operation.run)(ctx, input))
+    let result = tokio::time::timeout(remaining, operation.invoke(ctx, input))
         .await
         .map_err(|_| {
             AppError::unavailable_code(

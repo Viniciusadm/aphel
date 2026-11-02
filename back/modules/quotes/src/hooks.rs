@@ -34,6 +34,7 @@ impl AcceptingQuote {
     }
 }
 
+#[derive(Debug, Clone, Copy)]
 pub struct QuoteAccepting;
 
 impl Hook for QuoteAccepting {
@@ -64,6 +65,7 @@ impl PricedQuote {
     }
 }
 
+#[derive(Debug, Clone, Copy)]
 pub struct QuoteTotals;
 
 impl Hook for QuoteTotals {

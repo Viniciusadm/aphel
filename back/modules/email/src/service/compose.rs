@@ -383,7 +383,8 @@ async fn filter_outgoing_in_tx(
     mut draft: Draft,
 ) -> Result<Draft, AppError> {
     let message = ctx
-        .apply_hook::<crate::hooks::OutgoingEmail>(
+        .apply_hook(
+            crate::hooks::OutgoingEmail,
             tx,
             crate::KEY,
             OutgoingMessage {

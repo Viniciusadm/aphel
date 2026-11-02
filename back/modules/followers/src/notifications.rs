@@ -17,7 +17,7 @@ use aphel_kernel::domain::fields::FieldDefinition;
 use aphel_kernel::domain::notifications::NotificationKind;
 use aphel_kernel::errors::AppError;
 use aphel_kernel::infrastructure::fields::MySqlFieldDefinitionRepository;
-use aphel_kernel::state::runtime_state;
+use aphel_kernel::state::runtime_pool;
 
 const ACTIVITY_CREATED: &str = "activity.created";
 const NOTE_CREATED: &str = "note.created";
@@ -168,7 +168,7 @@ struct ChangeDescriptions {
 
 impl ChangeDescriptions {
     async fn load(record: &RecordRef) -> Result<Self, AppError> {
-        let pool = runtime_state()?.db()?;
+        let pool = runtime_pool()?;
         let definitions = MySqlFieldDefinitionRepository::new(pool)
             .list(&record.record_type)
             .await?
@@ -219,7 +219,7 @@ async fn visible_changes(
     if changes.is_empty() {
         return Ok((Vec::new(), None));
     }
-    let pool = runtime_state()?.db()?;
+    let pool = runtime_pool()?;
     let redaction = user_field_redaction(&pool, Some(recipient), &record.record_type).await?;
     let mut items = Vec::new();
     let mut lines = Vec::new();

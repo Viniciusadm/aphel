@@ -188,7 +188,7 @@ impl Module for CompaniesModule {
     }
 
     fn register(&self, app: &mut AppBuilder) -> Result<(), AppError> {
-        app.record_type(company_definition()?.handler(Arc::new(http::CompanyHandler)))
+        app.entity(company_definition()?.handler(Arc::new(http::CompanyHandler)))
             .openapi_tag(http::TAG, "Companies")
             .routes(|_| http::router().merge(hierarchy::http::router()))
             .consumer(|env| {

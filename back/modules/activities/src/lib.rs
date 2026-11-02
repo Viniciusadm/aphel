@@ -227,11 +227,13 @@ impl Module for ActivitiesModule {
         app.contribute::<dyn aphel_kernel::application::notifications::NotificationSource>(
             std::sync::Arc::new(notifications::TaskAssignedNotifications),
         );
-        app.declare_hook::<crate::hooks::ActivityCompleting>(
+        app.declare_hook(
+            crate::hooks::ActivityCompleting,
             &[aphel_kernel::modules::HookUsage::Veto],
             "Before an activity is completed; an error blocks it",
         );
-        app.on::<crate::hooks::ActivityCompleting, _>(
+        app.on(
+            crate::hooks::ActivityCompleting,
             aphel_kernel::modules::PLUGIN_HOOK_PRIORITY,
             |ctx, completing| Box::pin(plugin_bridge::completing(ctx, completing)),
         );
@@ -259,17 +261,19 @@ impl Module for ActivitiesModule {
                 },
             ),
         ));
-        app.filter::<aphel_kernel::records::RecordSerializing, _>(
+        app.filter(
+            aphel_kernel::records::RecordSerializing,
             aphel_kernel::modules::DEFAULT_PRIORITY,
             |ctx, records| Box::pin(crate::hooks::mask_location(ctx, records)),
         );
-        app.on::<aphel_kernel::records::RecordPurged, _>(
+        app.on(
+            aphel_kernel::records::RecordPurged,
             aphel_kernel::modules::DEFAULT_PRIORITY,
             |ctx, removed| Box::pin(crate::hooks::unlink_purged_record(ctx, removed)),
         );
         app.trigger(Arc::new(crate::automation::ActivityCompleted))
             .action(Arc::new(crate::automation::CreateTask));
-        app.record_type(activity_definition()?.handler(Arc::new(http::ActivityHandler)))
+        app.entity(activity_definition()?.handler(Arc::new(http::ActivityHandler)))
             .openapi_tag(http::TAG, "Tasks and logged activities")
             .openapi_tag(http::TYPES_TAG, "Activity types of the organization")
             .openapi_tag(

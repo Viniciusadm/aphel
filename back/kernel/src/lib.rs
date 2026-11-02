@@ -2,6 +2,7 @@ pub mod api;
 pub mod application;
 pub mod config;
 pub mod context;
+mod context_capabilities;
 pub mod database;
 pub mod domain;
 pub mod errors;

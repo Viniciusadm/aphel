@@ -55,7 +55,7 @@ impl Module for DealItemsModule {
             field("contract_start", "Início do contrato", FieldType::Date)?,
             field("contract_end", "Fim do contrato", FieldType::Date)?,
         ];
-        app.extend_record_type("deal", |deal| {
+        app.extend("deal", |deal| {
             for revenue_field in revenue_fields {
                 deal.system_field(revenue_field);
             }
@@ -75,9 +75,11 @@ impl Module for DealItemsModule {
         )
         .routes(|_| http::router())
         .widget(Arc::new(widgets::RecurringRevenueWidget))
-        .on::<RecordValidating, _>(hooks::CURRENCY_LOCK_PRIORITY, |ctx, args| {
-            Box::pin(hooks::block_currency_change_with_items(ctx, args))
-        });
+        .on(
+            RecordValidating,
+            hooks::CURRENCY_LOCK_PRIORITY,
+            |ctx, args| Box::pin(hooks::block_currency_change_with_items(ctx, args)),
+        );
         app.contribute(Arc::new(ConfigSectionFactory::new(
             55,
             |pool, _registry| Arc::new(section::DealItemsSection::new(pool.clone())),

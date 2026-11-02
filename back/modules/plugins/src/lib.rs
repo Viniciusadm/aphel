@@ -1,5 +1,6 @@
 pub mod automation;
 pub mod bridge;
+mod catalog;
 pub mod changes;
 pub mod committed;
 pub mod compiled;
@@ -71,26 +72,26 @@ impl Module for PluginsModule {
         app.provide::<dyn aphel_kernel::infrastructure::deferred_authority::DeferredPluginPolicy>(
             std::sync::Arc::new(registry::DeferredPluginPolicy),
         );
-        app.filter::<RecordSaving, _>(HOOK_PRIORITY, |ctx, saving| {
+        app.filter(RecordSaving, HOOK_PRIORITY, |ctx, saving| {
             Box::pin(hooks::saving(ctx, saving))
         })
-        .on::<RecordValidating, _>(HOOK_PRIORITY, |ctx, changed| {
+        .on(RecordValidating, HOOK_PRIORITY, |ctx, changed| {
             Box::pin(hooks::validating(ctx, changed))
         })
-        .on::<RecordSaved, _>(HOOK_PRIORITY, |ctx, changed| Box::pin(hooks::saved(ctx, changed)))
-        .on::<RecordDeleting, _>(HOOK_PRIORITY, |ctx, removed| {
+        .on(RecordSaved, HOOK_PRIORITY, |ctx, changed| Box::pin(hooks::saved(ctx, changed)))
+        .on(RecordDeleting, HOOK_PRIORITY, |ctx, removed| {
             Box::pin(hooks::deleting(ctx, removed))
         })
-        .on::<RecordArchiving, _>(HOOK_PRIORITY, |ctx, removed| {
+        .on(RecordArchiving, HOOK_PRIORITY, |ctx, removed| {
             Box::pin(hooks::removed(ctx, manifest::HOOK_ARCHIVING, removed))
         })
-        .on::<RecordDeleted, _>(HOOK_PRIORITY, |ctx, removed| {
+        .on(RecordDeleted, HOOK_PRIORITY, |ctx, removed| {
             Box::pin(hooks::removed(ctx, manifest::HOOK_DELETED, removed))
         })
-        .on::<RecordRestored, _>(HOOK_PRIORITY, |ctx, removed| {
+        .on(RecordRestored, HOOK_PRIORITY, |ctx, removed| {
             Box::pin(hooks::removed(ctx, manifest::HOOK_RESTORED, removed))
         })
-        .on::<RecordPurged, _>(HOOK_PRIORITY, |ctx, removed| {
+        .on(RecordPurged, HOOK_PRIORITY, |ctx, removed| {
             Box::pin(hooks::removed(ctx, manifest::HOOK_PURGED, removed))
         })
         .consumer(|env| Arc::new(events::PluginEventsConsumer::new(env.pool.clone())))
@@ -128,6 +129,9 @@ impl Module for PluginsModule {
         app.contribute::<dyn AutomationActionSource>(Arc::new(automation::PluginActions))
             .contribute::<dyn AutomationTriggerSource>(Arc::new(automation::PluginTriggers))
             .provide::<dyn PluginHookDispatcher>(Arc::new(bridge::Dispatcher));
+        app.contribute::<dyn aphel_sdk::catalog::CatalogContributor>(Arc::new(
+            catalog::PluginCatalog,
+        ));
         for operation in bridge::record_operations() {
             app.contribute::<PluginOperation>(operation);
         }

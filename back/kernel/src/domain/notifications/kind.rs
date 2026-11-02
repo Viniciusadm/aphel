@@ -88,7 +88,12 @@ impl NotificationKind {
             .catalog()
             .notification_kinds()
             .copied()
-            .chain(crate::modules::runtime_extensions::notification_kinds())
+            .chain(
+                crate::modules::app()
+                    .contributions::<NotificationKindDefinition>()
+                    .into_iter()
+                    .map(|definition| *definition),
+            )
             .map(|definition| definition.kind)
             .collect()
     }
@@ -102,7 +107,13 @@ impl NotificationKind {
             .catalog()
             .notification_kind(value)
             .copied()
-            .or_else(|| crate::modules::runtime_extensions::notification_kind(value))
+            .or_else(|| {
+                crate::modules::app()
+                    .contributions::<NotificationKindDefinition>()
+                    .into_iter()
+                    .find(|definition| definition.kind.as_str() == value)
+                    .map(|definition| *definition)
+            })
     }
 
     fn definition(&self) -> Option<NotificationKindDefinition> {

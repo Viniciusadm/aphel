@@ -1,0 +1,5 @@
+key = "currencies"
+name = "Currencies"
+version = "0.1.0"
+layer = "capability"
+runtime = "native"

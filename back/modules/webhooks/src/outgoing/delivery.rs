@@ -116,7 +116,7 @@ fn failure(message: impl Into<String>) -> WebhookResponse {
 }
 
 pub(crate) async fn deliver(ctx: &Ctx<'_>, payload: Value) -> Result<(), AppError> {
-    let network = ctx.state().webhook_network()?;
+    let network = ctx.webhook_network()?;
     let delivery_id = payload_id(&payload, "delivery_id")?;
     let endpoint_id = payload_id(&payload, "endpoint_id")?;
     let Some(delivery) = WebhookDeliveryStore::of(ctx)
@@ -143,7 +143,7 @@ pub(crate) async fn deliver_inline(
     endpoint: &WebhookEndpoint,
     delivery: &WebhookDelivery,
 ) -> Result<(), AppError> {
-    let network = ctx.state().webhook_network()?;
+    let network = ctx.webhook_network()?;
     if !endpoint.is_active {
         return cancel(ctx, delivery, "the endpoint is disabled").await;
     }

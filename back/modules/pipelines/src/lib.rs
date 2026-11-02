@@ -102,7 +102,7 @@ impl Module for PipelinesModule {
             app.contribute(std::sync::Arc::new(CrmDefaultsProbe(table)));
         }
         let mut outcome = Ok(());
-        app.extend_record_type(DEAL_RECORD_TYPE, |deal| {
+        app.extend(DEAL_RECORD_TYPE, |deal| {
             outcome = rotting::rotting_fields().and_then(|fields| {
                 fields
                     .into_iter()
@@ -115,10 +115,12 @@ impl Module for PipelinesModule {
             kind: rotting::TIME_DEAL_ROTTING,
             plan: rotting::rotting_plan,
         }));
-        app.on::<RecordValidating, _>(STAGE_REQUIREMENTS_PRIORITY, |ctx, args| {
-            Box::pin(hooks::check_stage_requirements(ctx, args))
-        })
-        .on::<RecordValidating, _>(STAGE_CHECKLIST_PRIORITY, |ctx, args| {
+        app.on(
+            RecordValidating,
+            STAGE_REQUIREMENTS_PRIORITY,
+            |ctx, args| Box::pin(hooks::check_stage_requirements(ctx, args)),
+        )
+        .on(RecordValidating, STAGE_CHECKLIST_PRIORITY, |ctx, args| {
             Box::pin(hooks::check_stage_checklist(ctx, args))
         })
         .openapi_tag(http::TAG, "Pipelines, stages and lost reasons")

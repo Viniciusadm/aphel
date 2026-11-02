@@ -53,7 +53,8 @@ impl Module for DuplicatesModule {
         .routes(|_| http::router())
         .provide::<dyn DuplicateDetector>(Arc::new(hooks::RuleDuplicateDetector))
         .contribute::<dyn trash::TrashExclusion>(Arc::new(hooks::MergedRecords));
-        app.on::<aphel_kernel::records::RecordPurged, _>(
+        app.on(
+            aphel_kernel::records::RecordPurged,
             aphel_kernel::modules::DEFAULT_PRIORITY,
             |ctx, removed| Box::pin(hooks::forget_purged_record(ctx, removed)),
         );

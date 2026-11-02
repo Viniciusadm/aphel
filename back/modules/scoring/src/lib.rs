@@ -96,7 +96,7 @@ impl Module for ScoringModule {
         for record_type in SCORED_TYPES {
             let field = score_field(&record_type)?;
             let mut outcome = Ok(());
-            app.extend_record_type(record_type.as_str(), |extension| {
+            app.extend(record_type.as_str(), |extension| {
                 outcome = extension.computed(field).map(|_| ());
             });
             outcome?;

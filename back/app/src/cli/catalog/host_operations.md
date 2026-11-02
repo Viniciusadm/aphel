@@ -1,0 +1,4 @@
+## Operations
+
+Writing operations are refused inside hooks (409 `plugin_write_in_hook`). Each one needs the same permissions as the module's API, so list them in `requires`. In event, schedule and automation callbacks a writing operation must go through `defer-effect` with an `invoke` command, which only accepts operations marked **durable**: they write everything in one transaction, without external calls, so a retry never repeats them ([durable execution](durable-execution.md)). External queries (`ai.*` and `enrichment.lookup`) use synchronous `invoke` with persisted result reuse in retryable callbacks. The live catalog exposes `external_query`; they remain blocked in hooks and read-only widgets. Delivery operations commit queue acceptance; provider completion happens in the worker. See [delivery and query guarantees](durable-execution.md#queued-module-delivery).
+

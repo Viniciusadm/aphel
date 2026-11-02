@@ -396,7 +396,8 @@ pub(crate) async fn accept(
     locked.accepted_at = Some(now);
     locked.acceptance = Some(acceptance.clone());
     locked.updated_at = now;
-    ctx.run_hook::<QuoteAccepting>(
+    ctx.run_hook(
+        QuoteAccepting,
         &mut tx,
         KEY,
         &AcceptingQuote {

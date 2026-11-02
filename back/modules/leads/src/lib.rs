@@ -80,35 +80,41 @@ impl Module for LeadsModule {
     }
 
     fn register(&self, app: &mut AppBuilder) -> Result<(), AppError> {
-        app.declare_hook::<crate::hooks::LeadQualifying>(
+        app.declare_hook(
+            crate::hooks::LeadQualifying,
             &[aphel_kernel::modules::HookUsage::Veto],
             "Before a lead is qualified in the lead inbox; an error blocks the qualification",
         );
-        app.declare_hook::<crate::hooks::LeadDisqualifying>(
+        app.declare_hook(
+            crate::hooks::LeadDisqualifying,
             &[aphel_kernel::modules::HookUsage::Veto],
             "Before a lead is disqualified with a reason; an error blocks it",
         );
-        app.declare_hook::<crate::hooks::LeadConverting>(
-            &[aphel_kernel::modules::HookUsage::Filter],
+        app.declare_hook(crate::hooks::LeadConverting, &[aphel_kernel::modules::HookUsage::Filter],
             "Values of the deal (and optional company) created by the lead conversion; return them changed to enrich the conversion",
         );
-        app.declare_hook::<crate::hooks::LeadConverted>(
+        app.declare_hook(
+            crate::hooks::LeadConverted,
             &[aphel_kernel::modules::HookUsage::Action],
             "After a lead was converted, inside the conversion transaction",
         );
-        app.on::<crate::hooks::LeadQualifying, _>(
+        app.on(
+            crate::hooks::LeadQualifying,
             aphel_kernel::modules::PLUGIN_HOOK_PRIORITY,
             |ctx, lead| Box::pin(plugin_bridge::qualifying(ctx, lead)),
         )
-        .on::<crate::hooks::LeadDisqualifying, _>(
+        .on(
+            crate::hooks::LeadDisqualifying,
             aphel_kernel::modules::PLUGIN_HOOK_PRIORITY,
             |ctx, args| Box::pin(plugin_bridge::disqualifying(ctx, args)),
         )
-        .filter::<crate::hooks::LeadConverting, _>(
+        .filter(
+            crate::hooks::LeadConverting,
             aphel_kernel::modules::PLUGIN_HOOK_PRIORITY,
             |ctx, conversion| Box::pin(plugin_bridge::converting(ctx, conversion)),
         )
-        .on::<crate::hooks::LeadConverted, _>(
+        .on(
+            crate::hooks::LeadConverted,
             aphel_kernel::modules::PLUGIN_HOOK_PRIORITY,
             |ctx, converted| Box::pin(plugin_bridge::converted(ctx, converted)),
         );
@@ -125,19 +131,19 @@ impl Module for LeadsModule {
             Box::pin(store::seed_disqualification_reasons(connection))
         })));
         let stage = lifecycle_stage_field()?;
-        app.extend_record_type("contact", |contact| {
+        app.extend("contact", |contact| {
             contact.system_field(stage.clone());
         })
-        .extend_record_type("company", |company| {
+        .extend("company", |company| {
             company.system_field(stage.clone());
         })
-        .on::<RecordValidating, _>(LIFECYCLE_STAGE_PRIORITY, |ctx, args| {
+        .on(RecordValidating, LIFECYCLE_STAGE_PRIORITY, |ctx, args| {
             Box::pin(hooks::validate_stage(ctx, args))
         })
-        .on::<RecordDeleted, _>(LIFECYCLE_STAGE_PRIORITY, |ctx, args| {
+        .on(RecordDeleted, LIFECYCLE_STAGE_PRIORITY, |ctx, args| {
             Box::pin(hooks::close_stage(ctx, args))
         })
-        .on::<RecordRestored, _>(LIFECYCLE_STAGE_PRIORITY, |ctx, args| {
+        .on(RecordRestored, LIFECYCLE_STAGE_PRIORITY, |ctx, args| {
             Box::pin(hooks::restart_stage(ctx, args))
         })
         .consumer(|env| {

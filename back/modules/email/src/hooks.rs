@@ -6,7 +6,7 @@ use aphel_kernel::Ctx;
 use aphel_kernel::application::shared::RecordRef;
 use aphel_kernel::domain::UserId;
 use aphel_kernel::errors::AppError;
-use aphel_kernel::modules::Hook;
+use aphel_kernel::modules::{Hook, HookRef};
 
 #[derive(Debug, Clone, PartialEq)]
 pub struct OutgoingMessage {
@@ -24,6 +24,7 @@ pub struct OutgoingMessage {
     pub(crate) tracking: bool,
 }
 
+#[derive(Debug, Clone, Copy)]
 pub struct OutgoingEmail;
 
 impl Hook for OutgoingEmail {
@@ -44,6 +45,7 @@ pub struct LinkingEmail {
     pub(crate) records: Vec<RecordRef>,
 }
 
+#[derive(Debug, Clone, Copy)]
 pub struct InboundLinking;
 
 impl Hook for InboundLinking {
@@ -54,15 +56,15 @@ pub(crate) async fn apply_linking(
     ctx: &Ctx<'_>,
     email: LinkingEmail,
 ) -> Result<LinkingEmail, AppError> {
-    apply::<InboundLinking>(ctx, email).await
+    apply(InboundLinking, ctx, email).await
 }
 
-async fn apply<H: Hook>(ctx: &Ctx<'_>, args: H::Args) -> Result<H::Args, AppError> {
-    if !ctx.app().hooks().has_filters_except::<H>(None) {
+async fn apply<K: HookRef>(hook: K, ctx: &Ctx<'_>, args: K::Args) -> Result<K::Args, AppError> {
+    if !ctx.app().hooks().has_filters_except(hook, None) {
         return Ok(args);
     }
     let mut tx = ctx.begin().await?;
-    let result = ctx.apply_hook::<H>(&mut tx, KEY, args).await;
+    let result = ctx.apply_hook(hook, &mut tx, KEY, args).await;
     tx.rollback().await?;
     result
 }

@@ -13,25 +13,48 @@ pub const PLUGIN_HOOK_PRIORITY: i32 = 50;
 pub type OperationFuture<'a> = BoxFuture<'a, Result<Value, AppError>>;
 pub type OperationFn = for<'a, 'b> fn(&'a Ctx<'b>, Value) -> OperationFuture<'a>;
 
+pub trait OperationHandler: Send + Sync {
+    fn call<'a>(&'a self, ctx: &'a Ctx<'_>, input: Value) -> OperationFuture<'a>;
+}
+
+impl OperationHandler for OperationFn {
+    fn call<'a>(&'a self, ctx: &'a Ctx<'_>, input: Value) -> OperationFuture<'a> {
+        self(ctx, input)
+    }
+}
+
 pub struct PluginOperation {
     pub key: &'static str,
     pub description: &'static str,
     pub writes: bool,
     pub durable: bool,
     pub external_query: bool,
-    pub run: OperationFn,
+    handler: Arc<dyn OperationHandler>,
 }
 
 impl PluginOperation {
-    pub const fn read(key: &'static str, description: &'static str, run: OperationFn) -> Self {
+    pub fn read(key: &'static str, description: &'static str, run: OperationFn) -> Self {
+        Self::with_handler(key, description, false, Arc::new(run))
+    }
+
+    pub fn with_handler(
+        key: &'static str,
+        description: &'static str,
+        writes: bool,
+        handler: Arc<dyn OperationHandler>,
+    ) -> Self {
         Self {
             key,
             description,
-            writes: false,
+            writes,
             durable: false,
             external_query: false,
-            run,
+            handler,
         }
+    }
+
+    pub fn invoke<'a>(&'a self, ctx: &'a Ctx<'_>, input: Value) -> OperationFuture<'a> {
+        self.handler.call(ctx, input)
     }
 
     pub const fn with_durable_mutations(mut self) -> Self {
@@ -44,15 +67,8 @@ impl PluginOperation {
         self
     }
 
-    pub const fn write(key: &'static str, description: &'static str, run: OperationFn) -> Self {
-        Self {
-            key,
-            description,
-            writes: true,
-            durable: false,
-            external_query: false,
-            run,
-        }
+    pub fn write(key: &'static str, description: &'static str, run: OperationFn) -> Self {
+        Self::with_handler(key, description, true, Arc::new(run))
     }
 }
 

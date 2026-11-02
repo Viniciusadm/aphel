@@ -1,3 +1,4 @@
+use aphel_contract_tagging as tagging;
 use std::sync::Arc;
 
 use serde_json::{Map, Value};
@@ -129,16 +130,28 @@ pub(crate) async fn apply(
             )
             .await
         }
-        BulkAction::AddTag { tag_id } => {
-            tags::service::tag_record(ctx, record_type, &id, tag_id, None)
-                .await
-                .map(|_| ())
-        }
-        BulkAction::RemoveTag { tag_id } => {
-            tags::service::untag_record(ctx, record_type, &id, tag_id, None)
-                .await
-                .map(|_| ())
-        }
+        BulkAction::AddTag { tag_id } => ctx
+            .call(
+                tagging::APPLY,
+                tagging::TagRecord {
+                    record_type: record_type.to_owned(),
+                    record_id: id.clone(),
+                    tag_id: tag_id.clone(),
+                },
+            )
+            .await
+            .map(|_| ()),
+        BulkAction::RemoveTag { tag_id } => ctx
+            .call(
+                tagging::REMOVE,
+                tagging::TagRecord {
+                    record_type: record_type.to_owned(),
+                    record_id: id.clone(),
+                    tag_id: tag_id.clone(),
+                },
+            )
+            .await
+            .map(|_| ()),
         BulkAction::MoveStage { stage_id } => {
             let (handler, capabilities) = target(ctx, action, record_type)?;
             if !capabilities.supports_stages {
