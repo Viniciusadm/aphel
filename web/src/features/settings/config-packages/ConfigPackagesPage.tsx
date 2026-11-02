@@ -8,7 +8,6 @@ import { HistoryPanel } from './HistoryPanel'
 import { InstallPanel } from './InstallPanel'
 import { VERSIONS_TAB } from './versioning/tab'
 import { VersionsPanel } from './versioning/VersionsPanel'
-import { VersionsTabTrigger } from './versioning/VersionsTab'
 import { PageHeader } from '@/components/ui/page-header'
 import { Page } from '@/components/ui/page'
 
@@ -31,6 +30,7 @@ export function ConfigPackagesPage() {
 
 function ConfigPackagesSection() {
   const { t } = useTranslation('config-packages')
+  const { t: versioning } = useTranslation('config-package-versioning')
   const [searchParams, setSearchParams] = useSearchParams()
   const tab = parseTab(searchParams.get(TAB_PARAM))
 
@@ -54,7 +54,7 @@ function ConfigPackagesSection() {
               {t(`tabs.${value}`)}
             </SectionLink>
           ))}
-          <VersionsTabTrigger />
+          <SectionLink value={VERSIONS_TAB}>{versioning('tab')}</SectionLink>
         </SectionIndex>
         <SectionContent value="export" className="min-w-0">
           <ExportPanel />

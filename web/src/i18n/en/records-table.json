@@ -229,5 +229,6 @@
     "sortCount_other": "{{count}} sort rules",
     "reset": "Clear filters and sorting",
     "cardFields": "Card fields"
-  }
+  },
+  "collectionActions": "List actions"
 }

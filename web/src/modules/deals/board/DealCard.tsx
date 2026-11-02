@@ -28,6 +28,7 @@ export interface DealCardContentProps {
   stages?: PipelineStage[]
   onMove?: (dealId: string, stageId: string) => void
   onMovePipeline?: (dealId: string) => void
+  compact?: boolean
   overlay?: boolean
 }
 
@@ -38,6 +39,7 @@ export const DealCardContent = memo(function DealCardContent({
   onMove,
   onMovePipeline,
   overlay = false,
+  compact,
 }: DealCardContentProps) {
   const { t } = useTranslation('deals')
   const location = useLocation()
@@ -52,7 +54,8 @@ export const DealCardContent = memo(function DealCardContent({
   return (
     <div
       className={cn(
-        'grid gap-2 rounded-md border bg-card p-3 text-sm shadow-xs',
+        'grid gap-2 bg-card p-3 text-sm',
+        compact ? 'border-b last:border-b-0' : 'rounded-md border shadow-xs',
         tone === 'warning' && 'border-l-4 border-l-warning-solid',
         overlay && 'rotate-1 shadow-lg ring-2 ring-primary/40',
       )}
@@ -133,6 +136,7 @@ export interface DealCardProps {
   deal: Deal
   formatting: RecordFormatting
   stages: PipelineStage[]
+  compact?: boolean
   disableDrag?: boolean
   draggable: boolean
   onMove: (dealId: string, stageId: string) => void
@@ -145,6 +149,7 @@ export const DealCard = memo(function DealCard({
   stages,
   draggable,
   disableDrag,
+  compact,
   onMove,
   onMovePipeline,
 }: DealCardProps) {
@@ -165,6 +170,7 @@ export const DealCard = memo(function DealCard({
     >
       <DealCardContent
         deal={deal}
+        compact={compact}
         formatting={formatting}
         stages={stages}
         onMove={draggable ? onMove : undefined}

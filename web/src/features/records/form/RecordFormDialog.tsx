@@ -1,7 +1,9 @@
 import { FieldError as SharedFieldError } from '@/components/ui/field-error'
 import { useMutation, useQueryClient } from '@tanstack/react-query'
-import { useState } from 'react'
+import { useCallback, useRef, useState } from 'react'
 import { useTranslation } from 'react-i18next'
+import { useLocation, useNavigate } from 'react-router'
+import { Maximize2 } from 'lucide-react'
 import { api } from '@/api'
 import { Button } from '@/components/ui/button'
 import {
@@ -38,6 +40,8 @@ export interface RecordFormDialogProps {
 }
 
 interface DialogBodyProps {
+  full?: boolean
+  onValuesChange?: (values: RecordValues) => void
   recordType: string
   layout?: RecordFormLayout
   defaultValues?: RecordValues
@@ -51,6 +55,8 @@ interface DialogBodyProps {
 }
 
 export function RecordFormDialogBody({
+  full = false,
+  onValuesChange,
   recordType,
   layout,
   defaultValues,
@@ -128,11 +134,12 @@ export function RecordFormDialogBody({
   return (
     <RecordForm
       schema={schema.data}
-      fields={custom ? undefined : quickCreateFields(schema.data, layout)}
+      fields={custom || full ? undefined : quickCreateFields(schema.data, layout)}
       formLayout={custom}
       defaultValues={defaultValues}
       mode="create"
-      columns={1}
+      columns={full ? 2 : 1}
+      onValuesChange={onValuesChange}
       guardUnsavedChanges={false}
       onDirtyChange={onDirtyChange}
       onCancel={onCancel}
@@ -142,6 +149,7 @@ export function RecordFormDialogBody({
         void queryClient.invalidateQueries({ queryKey: recordsKeys.list(recordType) })
         void queryClient.invalidateQueries({ queryKey: recordsKeys.lookup(recordType) })
         toast({ title: t('dialog.created'), variant: 'success' })
+        for (const queryKey of resource.collectionQueryKeys ?? []) void queryClient.invalidateQueries({ queryKey })
         emitModuleEvent('record.created', { recordType, record })
         onCreated?.(record)
         onDone()
@@ -164,6 +172,10 @@ export function RecordFormDialog({
   onUpdated,
 }: RecordFormDialogProps) {
   const { t } = useTranslation('records-form')
+  const navigate = useNavigate()
+  const location = useLocation()
+  const draft = useRef<RecordValues>({})
+  const captureValues = useCallback((values: RecordValues) => { draft.current = values }, [])
   const [dirty, setDirty] = useState(false)
   const [confirming, setConfirming] = useState(false)
 
@@ -182,9 +194,15 @@ export function RecordFormDialog({
             <DialogTitle>{title ?? t(record ? 'dialog.editTitle' : 'dialog.title')}</DialogTitle>
             <DialogDescription>{description ?? t(record ? 'dialog.editDescription' : 'dialog.description')}</DialogDescription>
           </DialogHeader>
+          {!record && <Button variant="ghost" size="sm" className="w-fit" onClick={() => {
+            const values = { ...defaultValues, ...draft.current }
+            close()
+            void navigate(`/records/${encodeURIComponent(recordType)}/new`, { state: { defaultValues: values, presetValues, returnTo: `${location.pathname}${location.search}` } })
+          }}><Maximize2 aria-hidden />{t('dialog.fullForm')}</Button>}
           {open && (
             <RecordFormDialogBody
               recordType={recordType}
+              onValuesChange={captureValues}
               layout={layout}
               defaultValues={defaultValues}
               presetValues={presetValues}

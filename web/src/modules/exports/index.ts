@@ -1,5 +1,6 @@
 import { FileDown } from 'lucide-react'
 import { defineModule } from '@/kernel/modules/define'
+import { EXPORTABLE_RECORD_TYPES, exportPermission } from './api'
 import { ExportAction } from './ExportAction'
 
 const exportsModule = defineModule({
@@ -15,7 +16,10 @@ const exportsModule = defineModule({
       order: 130,
       lazy: async () => ({ Component: (await import('./ExportHistoryPage')).ExportHistoryPage }),
     })
-    app.slot('record.list.toolbar', { key: 'export', order: 2010, render: ExportAction })
+    for (const recordType of EXPORTABLE_RECORD_TYPES) {
+      app.slot('record.list.actions', { key: recordType, recordTypes: recordType, permission: exportPermission(recordType)!, order: 2010, render: ExportAction })
+    }
+    app.slot('record.list.actions', { key: 'custom', recordTypes: 'co_*', order: 2010, render: ExportAction })
   },
 })
 

@@ -77,7 +77,8 @@
       },
       "channel": "Canal",
       "allChannels": "Todos os canais",
-      "unread": "Não lidas"
+      "unread": "Não lidas",
+      "title": "Filtros de conversas"
     },
     "emptyTitle": "Nenhuma conversa",
     "emptyDescription": "Quando chegar uma mensagem por um canal ativo, ela aparece aqui.",

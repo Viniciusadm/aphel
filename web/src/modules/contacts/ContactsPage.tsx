@@ -25,7 +25,7 @@ export function ContactsPage() {
 
   return (
     <Page>
-      <PageHeader title={t('list.title')} description={t('list.description')} actions={newButton} />
+      <PageHeader title={t('list.title')} actions={newButton} />
       <RecordListView
         recordType={CONTACT_RECORD_TYPE}
         emptyAction={newButton}

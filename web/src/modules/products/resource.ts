@@ -9,6 +9,7 @@ export function productPath(id: string) {
 
 export const productResource = registerRecordResource({
   recordType: PRODUCT_RECORD_TYPE,
+  createPermission: 'products.create',
   updatePermission: 'products.update',
   basePath: '/v1/products',
   summaryFields: ['code', 'price', 'currency', 'unit', 'recurrence', 'is_active'],

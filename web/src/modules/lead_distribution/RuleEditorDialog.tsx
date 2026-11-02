@@ -3,11 +3,11 @@ import { NativeSelect } from '@/components/ui/native-select'
 import { FieldError as SharedFieldError } from '@/components/ui/field-error'
 import { zodResolver } from '@hookform/resolvers/zod'
 import { Plus, Trash2 } from 'lucide-react'
-import { useMemo } from 'react'
+import { useMemo, useRef, type FormEvent } from 'react'
 import { Controller, useFieldArray, useForm, useWatch, type Control, type FieldErrors } from 'react-hook-form'
 import { useTranslation } from 'react-i18next'
 import { isApiError } from '@/api'
-import { notifySuccess } from '@/components/feedback'
+import { UnsavedChangesGuard, notifySuccess } from '@/components/feedback'
 import { Button } from '@/components/ui/button'
 import { Checkbox } from '@/components/ui/checkbox'
 import {
@@ -37,6 +37,7 @@ import {
   type RuleFormValues,
 } from './form'
 import { useLeadDistributionText, type LeadDistributionKey } from './text'
+import { Page } from '@/components/ui/page'
 import { Field } from '@/components/ui/field'
 
 const BUILTIN_RECORD_TYPES = ['deal', 'contact', 'company'] as const
@@ -44,6 +45,7 @@ const BUILTIN_RECORD_TYPES = ['deal', 'contact', 'company'] as const
 interface RuleEditorDialogProps {
   rule: DistributionRule | null
   onClose: () => void
+  presentation?: 'dialog' | 'page'
 }
 
 interface FieldMessageProps {
@@ -352,8 +354,9 @@ const serverFieldPaths: Record<string, keyof RuleFormValues> = {
   'routing.routes': 'routes',
 }
 
-export function RuleEditorDialog({ rule, onClose }: RuleEditorDialogProps) {
+export function RuleEditorDialog({ rule, onClose, presentation = 'dialog' }: RuleEditorDialogProps) {
   const { t } = useTranslation('lead_distribution')
+  const finished = useRef(false)
   const users = useOrganizationUsers()
   const objects = useCustomObjects()
   const creating = rule === null
@@ -366,7 +369,7 @@ export function RuleEditorDialog({ rule, onClose }: RuleEditorDialogProps) {
     control,
     handleSubmit,
     setError,
-    formState: { errors, isSubmitting },
+    formState: { errors, isSubmitting, isDirty },
   } = useForm<RuleFormValues>({
     resolver: zodResolver(ruleFormSchema),
     defaultValues: defaultValues(rule, 'deal'),
@@ -384,10 +387,11 @@ export function RuleEditorDialog({ rule, onClose }: RuleEditorDialogProps) {
     return [...builtin, ...custom]
   }, [objects.data, t])
 
-  const onSubmit = handleSubmit(async (values) => {
+  const onSubmit = (event: FormEvent<HTMLFormElement>) => void handleSubmit(async (values) => {
     try {
       await save.mutateAsync(values)
       notifySuccess(t(rule ? 'toast.updated' : 'toast.created'))
+      finished.current = true
       onClose()
     } catch (error) {
       let message: LeadDistributionKey = 'errors.generic'
@@ -410,12 +414,11 @@ export function RuleEditorDialog({ rule, onClose }: RuleEditorDialogProps) {
       }
       setError('root.server', { type: 'server', message })
     }
-  })
+  })(event)
 
-  return (
-    <Dialog open onOpenChange={(open) => !open && onClose()}>
-      <DialogContent size="2xl">
-        <DialogForm
+  const form = <DialogForm
+          presentation={presentation}
+          back={presentation === 'page' ? { to: '/settings/lead-distribution' } : undefined}
           onSubmit={onSubmit}
           noValidate
           title={t(rule ? 'editor.editTitle' : 'editor.createTitle')}
@@ -524,7 +527,9 @@ export function RuleEditorDialog({ rule, onClose }: RuleEditorDialogProps) {
             )}
           </section>
         </DialogForm>
-      </DialogContent>
-    </Dialog>
-  )
+  if (presentation === 'page') return <Page width="form" className="[&_[data-slot=dialog-footer]]:bottom-[calc(4.5rem+env(safe-area-inset-bottom))] md:[&_[data-slot=dialog-footer]]:bottom-0">
+    {form}
+    <UnsavedChangesGuard when={() => isDirty && !finished.current} />
+  </Page>
+  return <Dialog open onOpenChange={(open) => !open && onClose()}><DialogContent size="2xl">{form}</DialogContent></Dialog>
 }

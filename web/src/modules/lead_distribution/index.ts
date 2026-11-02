@@ -16,6 +16,10 @@ const leadDistributionModule = defineModule({
       icon: Shuffle,
       permission: LEAD_DISTRIBUTION_MANAGE,
       lazy: async () => ({ Component: (await import('./LeadDistributionPage')).LeadDistributionPage }),
+      routes: [
+        { path: 'lead-distribution/new', lazy: async () => ({ Component: (await import('./RuleEditorPage')).RuleEditorPage }) },
+        { path: 'lead-distribution/:id/edit', lazy: async () => ({ Component: (await import('./RuleEditorPage')).RuleEditorPage }) },
+      ],
     })
     app.slot('leadDistribution.ruleSelect', {
       key: 'rule-select',

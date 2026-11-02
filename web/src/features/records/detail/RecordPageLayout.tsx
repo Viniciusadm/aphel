@@ -26,7 +26,7 @@ import { RecordMobileView } from './mobile/RecordMobileView'
 import { RecordPageShell } from './RecordPageShell'
 import { RecordOverview } from './RecordOverview'
 import { RecordTabs } from './RecordTabs'
-import { DEFAULT_READ_ONLY_FIELD_KEYS, resolveRecordTabs, type RecordTabsConfig } from './types'
+import { DEFAULT_READ_ONLY_FIELD_KEYS, resolveRecordTabs, type RecordTab, type RecordTabsConfig } from './types'
 
 const MOBILE_QUERY = '(max-width: 767px)'
 const SUMMARY_KEYS = ['stage_id', 'status', 'amount', 'currency', 'close_date', 'due_at', 'email', 'phone', 'company_id', 'owner_id', 'website', 'lifecycle_stage']
@@ -122,8 +122,8 @@ export function RecordPageLayout({
     .slice(0, 8)
   const summaryPanel = <RecordFieldsPanel fields={summaryFields} record={record} readOnly={readOnly} readOnlyFieldKeys={readOnlyFieldKeys} onSaveField={saveField} />
   const detailPanel = <div className="grid min-w-0 gap-4"><RecordFieldsPanel fields={fields} layout={viewLayout} record={record} readOnly={readOnly} readOnlyFieldKeys={readOnlyFieldKeys} onSaveField={saveField}><Slot name="record.fields.panel" props={slotProps} /></RecordFieldsPanel><Slot name="record.detail.sidebar" props={slotProps} /></div>
-  const destinations = [...resolvedTabs, { key: 'details', label: t('fields.title'), content: detailPanel }]
-  const overview = <RecordOverview sections={destinations} />
+  const destinations: RecordTab[] = [...resolvedTabs, { key: 'details', label: t('fields.title'), content: detailPanel }]
+  const overview = destinations.some((section) => section.summary) ? <RecordOverview sections={destinations} navigation={false} /> : detailPanel
   const workspaceSections = [{ key: 'overview', label: t('overview.title'), content: overview }, ...destinations]
 
   const subtitle = resource.subtitleField ? rawValue(record, schema, resource.subtitleField) : null

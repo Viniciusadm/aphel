@@ -1,5 +1,8 @@
-import { Children, createContext, isValidElement, useContext, useId, type ComponentProps } from 'react'
+import { Children, createContext, isValidElement, useContext, useId, useState, type ComponentProps, type ReactNode } from 'react'
 import { useSearchParams } from 'react-router'
+import { ChevronDown } from 'lucide-react'
+import { useUiLabels } from './labels-context'
+import { defaultUiLabels } from './default-labels'
 import { cn } from '@/lib/utils'
 
 interface SectionContextValue {
@@ -41,8 +44,19 @@ export function SectionWorkspace({ value, defaultValue = '', onValueChange, clas
   )
 }
 
-export function SectionIndex({ className, ...props }: ComponentProps<'nav'>) {
-  return <nav {...props} className={cn('grid gap-1 border-b pb-4 lg:sticky lg:top-20 lg:border-r lg:border-b-0 lg:pr-4 lg:pb-0', className)} />
+export function SectionIndex({ className, children, ...props }: ComponentProps<'nav'>) {
+  const context = useSection()
+  const [open, setOpen] = useState(false)
+  const labels = useUiLabels()
+  const selected = Children.toArray(children).find((child) => isValidElement<{ value?: string }>(child) && child.props.value === context.active)
+  const label = isValidElement<{ children?: ReactNode }>(selected) ? selected.props.children : (props['aria-label'] ?? labels.sectionNavigation ?? defaultUiLabels().sectionNavigation)
+  return <nav {...props} className={cn('min-w-0 lg:sticky lg:top-20 lg:border-r lg:pr-4', className)}>
+    <details open={open} onToggle={(event) => setOpen(event.currentTarget.open)} className="rounded-md border lg:hidden">
+      <summary className="flex min-h-11 cursor-pointer list-none items-center justify-between gap-2 px-3 text-sm font-medium">{label}<ChevronDown className="size-4" aria-hidden /></summary>
+      <div className="grid gap-1 border-t p-1" onClick={(event) => { if ((event.target as HTMLElement).closest('button')) setOpen(false) }}>{children}</div>
+    </details>
+    <div className="hidden gap-1 lg:grid">{children}</div>
+  </nav>
 }
 
 export function SectionLink({ value, children, className, ...props }: Omit<ComponentProps<'button'>, 'value'> & { value: string }) {

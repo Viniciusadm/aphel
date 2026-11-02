@@ -70,7 +70,8 @@
     "namePlaceholder": "Ex.: Proposta comercial",
     "keyPlaceholder": "Ex.: proposta_comercial",
     "descriptionPlaceholder": "Descreva quando usar este modelo",
-    "bodyPlaceholder": "Escreva o conteúdo da proposta"
+    "bodyPlaceholder": "Escreva o conteúdo da proposta",
+    "editMode": "Editar modelo"
   },
   "issues": {
     "unknown_variable": "variável desconhecida: {{variable}}",

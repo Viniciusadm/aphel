@@ -5,6 +5,7 @@ import { Link, useNavigate, useParams } from 'react-router'
 import { isApiError } from '@/api'
 import { useSession } from '@/app/session/session-context'
 import { notifyError, notifySuccess, UnsavedChangesGuard } from '@/components/feedback'
+import { cn } from '@/lib/utils'
 import { Button } from '@/components/ui/button'
 import { Checkbox } from '@/components/ui/checkbox'
 import { EmptyState } from '@/components/ui/empty-state'
@@ -131,6 +132,7 @@ function EditorForm({ template }: { template: ProposalTemplate | null }) {
   const [keyError, setKeyError] = useState<string | null>(null)
   const [saving, setSaving] = useState(false)
   const [dealId, setDealId] = useState<string | null>(null)
+  const [mobilePreview, setMobilePreview] = useState(false)
   const variables = useProposalVariables()
   const body = useDebounced(values.body, DEBOUNCE_MS)
   const dirty = !sameValues(values, saved)
@@ -185,6 +187,7 @@ function EditorForm({ template }: { template: ProposalTemplate | null }) {
   }
 
   const submit = async () => {
+    setMobilePreview(false)
     setKeyError(null)
     setSaving(true)
     try {
@@ -244,10 +247,14 @@ function EditorForm({ template }: { template: ProposalTemplate | null }) {
         }
       />
 
+      <div className="flex gap-2 lg:hidden">
+        <Button variant={mobilePreview ? 'outline' : 'secondary'} aria-pressed={!mobilePreview} onClick={() => setMobilePreview(false)}>{t('editor.editMode')}</Button>
+        <Button variant={mobilePreview ? 'secondary' : 'outline'} aria-pressed={mobilePreview} onClick={() => setMobilePreview(true)}>{t('preview.title')}</Button>
+      </div>
       <div className="grid gap-4 lg:grid-cols-[minmax(0,1fr)_minmax(0,1fr)]">
         <form
           id={formId}
-          className="grid min-w-0 content-start gap-4 rounded-lg border bg-card p-4"
+          className={cn("min-w-0 content-start gap-4 rounded-lg border bg-card p-4 lg:grid", mobilePreview ? "hidden" : "grid")}
           onSubmit={(event) => {
             event.preventDefault()
             if (canSave) void submit()
@@ -348,7 +355,7 @@ function EditorForm({ template }: { template: ProposalTemplate | null }) {
           </details>
         </form>
 
-        <section className="grid min-w-0 content-start gap-3 lg:sticky lg:top-4 lg:self-start" aria-label={t('preview.title')}>
+        <section className={cn("min-w-0 content-start gap-3 lg:sticky lg:top-20 lg:grid lg:self-start", mobilePreview ? "grid" : "hidden")} aria-label={t('preview.title')}>
           <div className="grid gap-2 rounded-lg border bg-card p-4">
             <h2 className="text-base font-semibold">{t('preview.title')}</h2>
             <Field id={`${formId}-deal`} label={t('preview.deal')} description={t('preview.hint')}>

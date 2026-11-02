@@ -70,7 +70,8 @@
     "namePlaceholder": "E.g.: Commercial proposal",
     "keyPlaceholder": "E.g.: commercial_proposal",
     "descriptionPlaceholder": "Describe when to use this template",
-    "bodyPlaceholder": "Write the proposal content"
+    "bodyPlaceholder": "Write the proposal content",
+    "editMode": "Edit template"
   },
   "issues": {
     "unknown_variable": "unknown variable: {{variable}}",

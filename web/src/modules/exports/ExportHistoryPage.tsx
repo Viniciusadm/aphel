@@ -34,7 +34,7 @@ export function ExportHistoryPage() {
 
   return (
     <Page>
-      <PageHeader title={t('history.title')} description={t('history.description')} />
+      <PageHeader title={t('history.title')} />
       {exports.isPending ? (
         <ListSkeleton />
       ) : exports.isError ? (

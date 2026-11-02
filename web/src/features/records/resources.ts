@@ -4,7 +4,9 @@ export interface RecordResource {
   recordType: string
   basePath: string
   titleField: string
+  createPermission?: string
   updatePermission?: string
+  collectionQueryKeys?: readonly (readonly unknown[])[]
   summaryFields?: string[]
   subtitleField?: string
   detailPath?: (id: string) => string

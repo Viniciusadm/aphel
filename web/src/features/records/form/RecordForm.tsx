@@ -40,6 +40,7 @@ export interface RecordFormProps {
   onSubmit: (payload: RecordPayload, values: RecordValues) => Promise<unknown> | unknown
   onCancel?: () => void
   onDirtyChange?: (dirty: boolean) => void
+  onValuesChange?: (values: RecordValues) => void
   submitLabel?: string
   columns?: 1 | 2
   guardUnsavedChanges?: boolean
@@ -67,6 +68,7 @@ export function RecordForm({
   onSubmit,
   onCancel,
   onDirtyChange,
+  onValuesChange,
   submitLabel,
   columns = 2,
   guardUnsavedChanges = true,
@@ -120,6 +122,7 @@ export function RecordForm({
     resetOptions: { keepDirtyValues: true },
   })
   const watched = useWatch({ control }) as RecordValues
+  useEffect(() => { onValuesChange?.(watched) }, [watched, onValuesChange])
   const ruleStates = useMemo(
     () => layoutRuleStates(resolved, { ...baseRuleValues, ...watched }, conditionContext),
     [resolved, baseRuleValues, watched, conditionContext],
@@ -226,11 +229,17 @@ export function RecordForm({
   if (formFields.length === 0) {
     body = <p className="text-sm text-muted-foreground">{t('form.noFields')}</p>
   } else if (resolved && resolved.tabs.length > 1) {
-    body = <div className="grid min-w-0 gap-8">
-      <nav aria-label={t('layout.tabs')} className="flex flex-wrap gap-x-4 gap-y-2 border-b pb-4">
+    body = <div className="grid min-w-0 gap-6 lg:grid-cols-[12rem_minmax(0,1fr)]">
+      <details className="rounded-md border p-3 lg:hidden">
+        <summary className="min-h-8 cursor-pointer text-sm font-medium">{t('layout.tabs')}</summary>
+        <nav aria-label={t('layout.tabs')} className="grid gap-1">
+          {resolved.tabs.map((tab, index) => <a key={tab.id} href={`#${formId}-section-${tab.id}`} className="inline-flex min-h-11 items-center text-sm text-primary">{tab.label || t('layout.untitledTab', { number: index + 1 })}</a>)}
+        </nav>
+      </details>
+      <nav aria-label={t('layout.tabs')} style={{ gridRow: `span ${resolved.tabs.length}` }} className="sticky top-20 hidden content-start gap-1 border-r pr-4 lg:grid">
         {resolved.tabs.map((tab, index) => <a key={tab.id} href={`#${formId}-section-${tab.id}`} className="inline-flex min-h-11 items-center text-sm text-muted-foreground underline-offset-4 hover:text-foreground hover:underline">{tab.label || t('layout.untitledTab', { number: index + 1 })}</a>)}
       </nav>
-      {resolved.tabs.map((tab, index) => <section key={tab.id} id={`${formId}-section-${tab.id}`} className="grid min-w-0 scroll-mt-20 gap-5">
+      {resolved.tabs.map((tab, index) => <section key={tab.id} id={`${formId}-section-${tab.id}`} className="grid min-w-0 scroll-mt-20 gap-5 lg:col-start-2">
         <h2 className="text-base font-semibold">{tab.label || t('layout.untitledTab', { number: index + 1 })}</h2>
         {tab.sections.map(renderSection)}
       </section>)}

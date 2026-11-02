@@ -229,5 +229,6 @@
     "sortCount_other": "{{count}} ordenações",
     "reset": "Limpar filtros e ordenação",
     "cardFields": "Campos dos cartões"
-  }
+  },
+  "collectionActions": "Ações da lista"
 }

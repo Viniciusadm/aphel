@@ -68,7 +68,7 @@ export function FollowingPage() {
 
   return (
     <Page>
-<PageHeader title={t('page.title')} description={t('page.description')} actions={<>
+<PageHeader title={t('page.title')} actions={<>
         <Field label={t('page.typeFilter')}>
           {(control) => <NativeSelect
             {...control}

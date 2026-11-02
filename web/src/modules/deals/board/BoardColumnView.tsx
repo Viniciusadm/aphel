@@ -19,6 +19,7 @@ export interface BoardColumnViewProps {
   column: BoardColumn
   stages: PipelineStage[]
   formatting: RecordFormatting
+  compact?: boolean
   disableDrag?: boolean
   draggable: boolean
   loadingMore: boolean
@@ -33,6 +34,7 @@ export const BoardColumnView = memo(function BoardColumnView({
   formatting,
   draggable,
   disableDrag,
+  compact,
   loadingMore,
   onMove,
   onMovePipeline,
@@ -46,7 +48,8 @@ export const BoardColumnView = memo(function BoardColumnView({
     <section
       aria-labelledby={headingId}
       className={cn(
-        'flex w-full shrink-0 snap-start flex-col rounded-lg border bg-muted/40 transition-colors md:w-72',
+        'flex shrink-0 snap-start flex-col rounded-lg border bg-muted/40 transition-colors',
+        compact ? 'w-full' : 'w-72',
         isOver && 'border-primary bg-primary/5',
       )}
     >
@@ -66,7 +69,7 @@ export const BoardColumnView = memo(function BoardColumnView({
           </p>
         ) : null}
       </header>
-      <ul ref={setNodeRef} className="scroll-smooth-thin flex min-h-24 flex-1 flex-col gap-2 overflow-y-auto p-2">
+      <ul ref={setNodeRef} className={cn("scroll-smooth-thin flex flex-1 flex-col overflow-y-auto", compact ? "gap-0" : "min-h-24 gap-2 p-2")}>
         {column.items.map((deal) => (
           <DealCard
             key={deal.id}
@@ -75,6 +78,7 @@ export const BoardColumnView = memo(function BoardColumnView({
             stages={stages}
             draggable={draggable}
             disableDrag={disableDrag}
+            compact={compact}
             onMove={onMove}
             onMovePipeline={onMovePipeline}
           />

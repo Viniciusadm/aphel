@@ -105,3 +105,5 @@ export { AreaNavigation, type AreaDestination } from '@/components/ui/area-navig
 
 export { PageSizeSelect, type PageSizeSelectProps } from '@/components/ui/page-size-select'
 export { PaginationSummary, type PaginationSummaryProps } from '@/components/ui/pagination-summary'
+
+export { WorkspaceOptions, type WorkspaceOptionsProps } from '@/components/ui/workspace-options'

@@ -134,7 +134,8 @@
     "acceptEmail": "E-mail de quem aceitou (opcional)",
     "acceptNote": "Observação (opcional)",
     "accepted": "Aceite registrado.",
-    "downloadPdf": "Baixar PDF"
+    "downloadPdf": "Baixar PDF",
+    "more": "Mais ações"
   },
   "send": {
     "title": "Enviar cotação",

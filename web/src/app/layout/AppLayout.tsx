@@ -62,7 +62,7 @@ export function AppLayout() {
             returnPath={returnPath}
           />
           <div className="flex min-w-0 flex-1 flex-col">
-            <Topbar onOpenMobileNav={() => setMobileNavOpen(true)} />
+            <Topbar />
             <main className={cn('flex-1 p-4 pb-[calc(5.5rem+env(safe-area-inset-bottom))] md:p-6', !settingsArea && 'overflow-y-auto')}>
               <Outlet />
             </main>

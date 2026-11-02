@@ -1,3 +1,4 @@
+import { WorkspaceOptions } from '@/components/ui/workspace-options'
 import { NativeSelect } from '@/components/ui/native-select'
 import { Inbox, Lock, MessageCircle, Search, Settings2 } from 'lucide-react'
 import { useState } from 'react'
@@ -66,8 +67,8 @@ export function InboxPage() {
   const pages = Math.max(1, Math.ceil(total / CONVERSATIONS_PER_PAGE))
 
   return (
-    <Page>
-<PageHeader title={t('inbox.title')} description={t('inbox.description')} actions={<>
+    <Page className={cn(selected && "max-md:[&>[data-slot=page-header]]:hidden")}>
+<PageHeader title={t('inbox.title')} actions={<>
         {hasPermission(MANAGE_CHANNELS_PERMISSION) && (
           <Button asChild size="sm" variant="outline">
             <Link to="/messaging/channels">
@@ -97,7 +98,7 @@ export function InboxPage() {
               className="pl-8"
             />
           </div>
-          <div className="grid grid-cols-2 gap-2">
+          <WorkspaceOptions label={t('inbox.filters.title')} count={Number(filters.status !== 'open') + Number(filters.assignee !== 'any') + Number(Boolean(filters.channelId)) + Number(filters.unread)}>
             <NativeSelect value={filters.status ?? ALL}
               onValueChange={(value) => update({ status: value === ALL ? null : (value as ConversationStatus) })} aria-label={t('inbox.filters.status')}>
                 <option value={ALL}>{t('inbox.filters.allStatuses')}</option>
@@ -131,8 +132,9 @@ export function InboxPage() {
             >
               {t('inbox.filters.unread')}
             </Button>
-          </div>
+          </WorkspaceOptions>
 
+          <p className="px-1 text-xs text-muted-foreground" role="status">{filters.status ? t(`status.${filters.status}`) : t('inbox.filters.allStatuses')}{filters.unread ? ` · ${t('inbox.filters.unread')}` : ''}</p>
           <div className="min-h-0 flex-1 overflow-y-auto">
             {conversations.isPending ? (
               <div className="grid gap-2 p-1" aria-busy="true">

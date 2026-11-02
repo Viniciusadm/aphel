@@ -76,3 +76,12 @@ Keep the saved view above a single search-and-filter row. Put creation in the pa
 Below 768 pixels, page-header actions follow the title and description on their own row; a single action can use the available width. Desktop retains the side-by-side header. Global quick entries belong in the header create menu, not in a floating button over list content. Preserve the current record when opening a quick-entry form. Pagination contains only Previous, Page X of Y and Next on both mobile and desktop; render PaginationSummary beside the result list and place PageSizeSelect inside Display settings; reserve bottom spacing for the fixed navigation and safe area only.
 
 The Pagination API takes page, perPage, total and onPageChange. Move former onPerPageChange/perPageOptions usage to PageSizeSelect and reset to page 1 when changing size. PaginationSummary is a separate component so counts never become an interactive page indicator. These primitives are exported through @aphel/ui.
+
+
+## Operational workspaces
+
+Use `WorkspaceOptions` for infrequent scope and display controls. It uses a bottom sheet on mobile and a side panel on desktop; pass a translated label and an optional active count. Changes are immediate, so transactional filter builders keep their own Apply/Cancel flow.
+
+Use `record.list.actions` for record collection operations such as import and export. Keep query controls in `record.list.toolbar`; do not move existing plugin contributions between slots implicitly.
+
+Full creation uses `/records/:recordType/new`; contextual creation can transfer its draft there. Declare additional collection query keys on a record resource when creation changes specialized collections. Keep long editors on routes and reserve dialogs for bounded actions.

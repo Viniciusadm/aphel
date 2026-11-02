@@ -1,11 +1,12 @@
 import { NativeSelect } from '@/components/ui/native-select'
 import { FieldError as SharedFieldError } from '@/components/ui/field-error'
-import { CircleCheck, Copy, Download, ExternalLink, FilePlus2, FileText, PenLine, Save, Send, ShieldCheck, Trash2 } from 'lucide-react'
-import { useId, useState, type ReactNode } from 'react'
+import { CircleCheck, MoreHorizontal, Copy, Download, ExternalLink, FilePlus2, FileText, PenLine, Save, Send, ShieldCheck, Trash2 } from 'lucide-react'
+import { isValidElement, useId, useState, type ReactNode } from 'react'
 import { useTranslation } from 'react-i18next'
 import { Link, useNavigate, useParams } from 'react-router'
 import { useSession } from '@/app/session/session-context'
 import { ConfirmDialog, PageLoader, notifySuccess, UnsavedChangesGuard } from '@/components/feedback'
+import { DropdownMenu, DropdownMenuContent, DropdownMenuItem, DropdownMenuTrigger } from '@/components/ui/dropdown-menu'
 import { Button } from '@/components/ui/button'
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card'
 import { ErrorState } from '@/components/ui/error-state'
@@ -244,9 +245,13 @@ function QuoteEditor({ quote }: { quote: QuoteDetail }) {
     actions.push(
       <Button key="delete" variant="ghost" onClick={() => setDialog('delete')} aria-label={t('actions.delete')}>
         <Trash2 aria-hidden="true" />
+        {t('actions.delete')}
       </Button>,
     )
   }
+
+  const primary = ['save', 'send', 'submit', 'accept'].map((key) => actions.find((action) => isValidElement(action) && action.key === key)).find(Boolean)
+  const secondary = actions.filter((action) => action !== primary)
 
   return (
     <Page>
@@ -256,7 +261,13 @@ function QuoteEditor({ quote }: { quote: QuoteDetail }) {
         title={quote.title}
         badges={<QuoteStatusBadge status={quote.status} />}
         description={<p>{t('numberVersion', { number: quote.number, version: quote.version })}</p>}
-        actions={actions}
+        actions={<>
+          {primary}
+          {secondary.length > 0 && <DropdownMenu>
+            <DropdownMenuTrigger asChild><Button variant="ghost" size="icon" aria-label={t('actions.more')}><MoreHorizontal aria-hidden /></Button></DropdownMenuTrigger>
+            <DropdownMenuContent align="end">{secondary.map((action, index) => isValidElement(action) ? <DropdownMenuItem key={action.key ?? index} asChild>{action}</DropdownMenuItem> : null)}</DropdownMenuContent>
+          </DropdownMenu>}
+        </>}
       />
 
       {!quote.is_current && currentVersion && (

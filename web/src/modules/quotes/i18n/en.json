@@ -134,7 +134,8 @@
     "acceptEmail": "E-mail of who accepted (optional)",
     "acceptNote": "Note (optional)",
     "accepted": "Acceptance recorded.",
-    "downloadPdf": "Download PDF"
+    "downloadPdf": "Download PDF",
+    "more": "More actions"
   },
   "send": {
     "title": "Send quote",

@@ -1,34 +1,27 @@
 import { useTranslation } from 'react-i18next'
-import { SectionWorkspace, SectionContent, SectionIndex, SectionLink } from '@/components/ui/section-workspace'
-import { AvailabilityPanel } from './availability/AvailabilityPanel'
-import { BookingsPanel } from './bookings/BookingsPanel'
-import { MeetingTypesPanel } from './meeting-types/MeetingTypesPanel'
+import { Navigate, Outlet, useLocation, useSearchParams } from 'react-router'
+import { AreaNavigation } from '@/components/ui/area-navigation'
 import { PageHeader } from '@/components/ui/page-header'
 import { Page } from '@/components/ui/page'
 
-
 export function SchedulingPage() {
   const { t } = useTranslation('scheduling')
-
-  return (
-    <Page>
-      <PageHeader title={t('page.title')} description={t('page.description')} />
-      <SectionWorkspace defaultValue="bookings">
-        <SectionIndex>
-          <SectionLink value="meeting-types">{t('tabs.meetingTypes')}</SectionLink>
-          <SectionLink value="availability">{t('tabs.availability')}</SectionLink>
-          <SectionLink value="bookings">{t('tabs.bookings')}</SectionLink>
-        </SectionIndex>
-        <SectionContent value="meeting-types">
-          <MeetingTypesPanel />
-        </SectionContent>
-        <SectionContent value="availability">
-          <AvailabilityPanel />
-        </SectionContent>
-        <SectionContent value="bookings">
-          <BookingsPanel />
-        </SectionContent>
-      </SectionWorkspace>
-    </Page>
-  )
+  const location = useLocation()
+  const [params] = useSearchParams()
+  const legacy = params.get('tab')
+  if (legacy && ['bookings', 'availability', 'meeting-types'].includes(legacy)) {
+    const next = new URLSearchParams(params)
+    next.delete('tab')
+    const path = legacy === 'bookings' ? '/scheduling' : `/scheduling/${legacy}`
+    return <Navigate replace to={{ pathname: path, search: next.toString() }} />
+  }
+  return <Page>
+    <PageHeader title={t('page.title')} />
+    <AreaNavigation label={t('page.title')} active={location.pathname} items={[
+      { to: '/scheduling', label: t('tabs.bookings'), end: true },
+      { to: '/scheduling/availability', label: t('tabs.availability') },
+      { to: '/scheduling/meeting-types', label: t('tabs.meetingTypes') },
+    ]} />
+    <Outlet />
+  </Page>
 }

@@ -29,7 +29,7 @@ export function ProductsPage() {
 
   return (
     <Page>
-<PageHeader title={t('list.title')} description={t('list.description')} actions={<>
+<PageHeader title={t('list.title')} actions={<>
         <Slot name="products.list.header" props={{}} />
       
       </>} />

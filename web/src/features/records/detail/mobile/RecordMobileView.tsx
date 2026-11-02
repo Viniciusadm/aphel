@@ -115,9 +115,9 @@ export function RecordMobileView({
         </Link>
       )}
       <header className="flex items-start gap-4">
-        <Avatar name={title} size="xl" />
+        <Avatar name={title} size="sm" />
         <div className="grid min-w-0 flex-1 gap-1">
-          <h1 className="text-2xl leading-tight font-semibold break-words">{title}</h1>
+          <h1 className="text-xl leading-tight font-semibold break-words">{title}</h1>
           {titleAccessory && <div className="flex flex-wrap items-center gap-2">{titleAccessory}</div>}
           {subtitle && <div className="min-w-0 truncate text-sm text-muted-foreground">{subtitle}</div>}
           {owner && (
@@ -127,20 +127,18 @@ export function RecordMobileView({
             </div>
           )}
         </div>
-      </header>
-      {headerSlot}
-      <div className="flex gap-2">
+      <div className="flex shrink-0 gap-1">
         {onEdit && (
-          <Button variant="outline" className="h-11 flex-1" onClick={onEdit}>
+          <Button variant="outline" size="icon" aria-label={t('header.edit')} onClick={onEdit}>
             <Pencil aria-hidden="true" />
-            {t('header.edit')}
           </Button>
         )}
-        <Button variant="outline" className="h-11 flex-1" onClick={() => setActionsOpen(true)}>
+        <Button variant="outline" size="icon" aria-label={t('mobile.actions')} onClick={() => setActionsOpen(true)}>
           <MoreHorizontal aria-hidden="true" />
-          {t('mobile.actions')}
         </Button>
       </div>
+      </header>
+      {headerSlot}
       {overview ?? summaryPanel}
       {!overview && <button
         type="button"

@@ -6,7 +6,7 @@ import { Button } from '@/components/ui/button'
 import type { SlotProps } from '@/kernel/modules/slots'
 import { importPermission } from './api'
 
-export function ImportAction({ recordType }: SlotProps<'record.list.toolbar'>) {
+export function ImportAction({ recordType }: SlotProps<'record.list.actions'>) {
   const { t } = useTranslation('imports')
   const { hasPermission } = useSession()
   const permission = importPermission(recordType)

@@ -6,6 +6,7 @@ import {
   type DragEndEvent,
   type DragStartEvent,
 } from '@dnd-kit/core'
+import { useMediaQuery } from '@/features/records/calendar/useMediaQuery'
 import { useBoardSensors } from '@/features/mobile/lib/board-sensors'
 import { keepPreviousData, useMutation, useQuery, useQueryClient } from '@tanstack/react-query'
 import { EllipsisVertical } from 'lucide-react'
@@ -110,7 +111,7 @@ export function KanbanBoard({ recordType, field, search, canEdit }: KanbanBoardP
       onDragEnd={handleDragEnd}
       onDragCancel={() => setActive(null)}
     >
-      <div className="scroll-smooth-thin flex min-h-[24rem] min-w-0 flex-1 snap-x snap-proximity gap-3 overflow-x-auto overscroll-x-contain pb-3 md:snap-none" aria-busy={move.isPending}>
+      <div className="scroll-smooth-thin grid min-w-0 flex-1 gap-3 pb-3 md:flex md:overflow-x-auto md:overscroll-x-contain" aria-busy={move.isPending}>
         {columns.map((column) => (
           <KanbanColumn
             key={column.id}
@@ -167,7 +168,7 @@ function KanbanColumn({ recordType, resource, field, column, columns, search, ca
     <section
       aria-labelledby={headingId}
       className={cn(
-        'flex w-[min(18rem,85vw)] shrink-0 snap-start flex-col rounded-lg border bg-muted/40 transition-colors md:w-72',
+        'flex w-full shrink-0 flex-col rounded-lg border bg-muted/40 transition-colors md:w-72',
         isOver && 'border-primary bg-primary/5',
       )}
     >
@@ -231,10 +232,11 @@ interface KanbanCardProps {
 }
 
 function KanbanCard({ resource, record, targets, canEdit, onMove }: KanbanCardProps) {
+  const mobile = useMediaQuery('(max-width: 767px)')
   const { attributes, listeners, setNodeRef, isDragging } = useDraggable({
     id: record.id,
     data: { record },
-    disabled: !canEdit,
+    disabled: !canEdit || mobile,
   })
   const { role: _role, tabIndex: _tabIndex, 'aria-describedby': _describedBy, ...dragAttributes } = attributes
 

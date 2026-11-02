@@ -48,7 +48,6 @@ export function ImportHistoryPage() {
     <Page>
       <PageHeader
         title={t('history.title')}
-        description={t('history.description')}
         actions={
           <Button asChild>
             <Link to="/imports/new">{t('history.new')}</Link>

@@ -1,3 +1,4 @@
+import { RecordListActions } from './RecordListActions'
 import { MobileRecordToolbar, type MobileListOptions } from './MobileRecordToolbar'
 import { useMediaQuery } from '../calendar/useMediaQuery'
 import { SegmentedControl } from '@/components/ui/segmented-control'
@@ -354,7 +355,7 @@ function RecordListContent({
         schema={extensions.filterSchema}
         titleField={resource.titleField}
         resetColumns={baseConfig.columns}
-        view={<>{viewSwitcher}{toolbarActions}</>}
+        view={<>{viewSwitcher}{toolbarActions}<RecordListActions recordType={recordType} /></>}
         search={urlState.search}
         onSearch={setSearch}
         options={{ filter: config.filter, sort: config.sort, columns: config.columns, density: config.density, archived: archivedMode, layout, perPage: urlState.perPage, calendarField: calendarField?.key ?? '' }}
@@ -367,18 +368,6 @@ function RecordListContent({
         <SearchBox value={urlState.search} onChange={setSearch} className="w-full sm:w-64" />
         <FilterMenu schema={extensions.filterSchema} filter={config.filter} onApply={setFilter} />
         <Slot name="record.list.toolbar" props={{ recordType, filter: config.filter, applyFilter: setFilter }} />
-        {archived === undefined && archivedFilter && (
-          <NativeSelect
-            aria-label={t('archived.label')}
-            className="w-auto"
-            value={archivedMode}
-            onChange={(event) => setArchivedMode(parseArchivedParam(event.target.value))}
-          >
-            <option value="exclude">{t('archived.exclude')}</option>
-            <option value="include">{t('archived.include')}</option>
-            <option value="only">{t('archived.only')}</option>
-          </NativeSelect>
-        )}
         <div className="ml-auto flex flex-wrap items-center gap-2">
           {dateFields.length > 0 && (
             <LayoutToggle
@@ -389,10 +378,23 @@ function RecordListContent({
               onFieldChange={setCalendarField}
             />
           )}
-          {!showCalendar && (
+          {(!showCalendar || (archived === undefined && archivedFilter)) && (
             <Popover>
               <PopoverTrigger asChild><Button variant="outline" size="sm"><SlidersHorizontal aria-hidden />{t('display.title')}</Button></PopoverTrigger>
               <PopoverContent align="end" className="grid gap-4">
+              {archived === undefined && archivedFilter && (
+                <NativeSelect
+                  aria-label={t('archived.label')}
+                  className="w-auto"
+                  value={archivedMode}
+                  onChange={(event) => setArchivedMode(parseArchivedParam(event.target.value))}
+                >
+                  <option value="exclude">{t('archived.exclude')}</option>
+                  <option value="include">{t('archived.include')}</option>
+                  <option value="only">{t('archived.only')}</option>
+                </NativeSelect>
+              )}
+              {!showCalendar && <>
               <ColumnsMenu
                 schema={schema}
                 columns={config.columns}
@@ -402,9 +404,11 @@ function RecordListContent({
               />
               <DensityToggle value={config.density} onChange={setDensity} />
               <PageSizeSelect value={urlState.perPage} onChange={(perPage) => update({ perPage, page: 1 })} />
+              </>}
               </PopoverContent>
             </Popover>
           )}
+          <RecordListActions recordType={recordType} />
           {toolbarActions}
         </div>
       </div>
@@ -414,6 +418,10 @@ function RecordListContent({
           {t('views.notFound')}
         </p>
       )}
+      {archived === undefined && archivedFilter && archivedMode !== 'exclude' && <Button variant="ghost" size="sm" className="w-fit" onClick={() => setArchivedMode('exclude')}>
+        {t(archivedMode === 'only' ? 'archived.only' : 'archived.include')} · {t('states.clearFilters')}
+      </Button>}
+      {mobile && <FilterChips schema={extensions.filterSchema} filter={config.filter} onChange={setFilter} />}
       {!mobile && <FilterChips schema={extensions.filterSchema} filter={config.filter} onChange={setFilter} />}
       {selectable && !showCalendar && selectedIds.length > 0 && (
         <div

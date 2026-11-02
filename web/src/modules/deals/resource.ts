@@ -1,3 +1,4 @@
+import { dealsKeys } from './api'
 import { registerRecordResource } from '@/features/records/resources'
 
 export const DEAL_RECORD_TYPE = 'deal'
@@ -9,7 +10,9 @@ export function dealPath(id: string) {
 
 export const dealResource = registerRecordResource({
   recordType: DEAL_RECORD_TYPE,
+  createPermission: 'deals.create',
   updatePermission: 'deals.update',
+  collectionQueryKeys: [dealsKeys.boards()],
   basePath: '/v1/deals',
   summaryFields: ['stage_id', 'amount', 'currency', 'expected_close_date', 'contact_id', 'company_id', 'owner_id'],
   titleField: 'title',

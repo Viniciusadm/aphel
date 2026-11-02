@@ -301,12 +301,6 @@ function AutomationWorkspace({ initial, catalog }: { initial: Automation; catalo
               <Rocket aria-hidden="true" />
               {publish.isPending ? t('editor.publishing') : t('editor.publish')}
             </Button>
-            {automation.version > 0 && (
-              <Button type="button" variant="outline" disabled={busy} onClick={() => toggle.mutate()}>
-                {automation.status === 'active' ? <Pause aria-hidden="true" /> : <Play aria-hidden="true" />}
-                {automation.status === 'active' ? t('actionsBar.pause') : t('actionsBar.activate')}
-              </Button>
-            )}
             <DropdownMenu>
               <DropdownMenuTrigger asChild>
                 <Button type="button" variant="ghost" size="icon" aria-label={t('editor.more')}>
@@ -314,6 +308,10 @@ function AutomationWorkspace({ initial, catalog }: { initial: Automation; catalo
                 </Button>
               </DropdownMenuTrigger>
               <DropdownMenuContent align="end">
+                {automation.version > 0 && <DropdownMenuItem disabled={busy} onSelect={() => toggle.mutate()}>
+                  {automation.status === 'active' ? <Pause aria-hidden /> : <Play aria-hidden />}
+                  {automation.status === 'active' ? t('actionsBar.pause') : t('actionsBar.activate')}
+                </DropdownMenuItem>}
                 <DropdownMenuItem className="text-destructive" onSelect={() => setConfirmDelete(true)}>
                   <Trash2 aria-hidden="true" />
                   {t('editor.delete')}
@@ -323,12 +321,17 @@ function AutomationWorkspace({ initial, catalog }: { initial: Automation; catalo
                 </>} />
       <UnsavedChangesGuard when={dirty} />
       <div className="grid gap-3">
+        <details className="rounded-md border p-3">
+          <summary className="cursor-pointer text-sm font-medium">{t('editor.settings')}</summary>
+          <div className="grid gap-3 pt-3">
         <Field label={t('editor.name')}>
           {(control) => <Input {...control} placeholder={t('placeholders.name')} value={draft.name} onChange={(event) => setDraft((current) => ({ ...current, name: event.target.value }))} maxLength={120} className="max-w-md" />}
         </Field>
         <Field label={t('editor.description')}>
           {(control) => <Input {...control} placeholder={t('editor.descriptionPlaceholder')} value={draft.description} onChange={(event) => setDraft((current) => ({ ...current, description: event.target.value }))} maxLength={1000} className="max-w-2xl" />}
         </Field>
+          </div>
+        </details>
         {totalIssues > 0 && (
           <Alert className="grid gap-2">
             <SharedFieldError className="flex items-center gap-2 font-medium">

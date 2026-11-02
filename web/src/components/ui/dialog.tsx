@@ -107,7 +107,7 @@ export function DialogFooter({ className, ...props }: ComponentProps<'div'>) {
     <div
       data-slot="dialog-footer"
       className={cn(
-        'sticky bottom-0 z-10 -mx-(--dialog-padding) flex flex-col-reverse gap-2 border-t bg-background px-(--dialog-padding) pt-4 pb-(--dialog-padding) sm:flex-row sm:justify-end',
+        'sticky bottom-0 z-10 -mx-(--dialog-padding) flex flex-row flex-wrap justify-end gap-2 border-t bg-background px-(--dialog-padding) pt-4 pb-(--dialog-padding) sm:flex-row sm:justify-end',
         className,
       )}
       {...props}

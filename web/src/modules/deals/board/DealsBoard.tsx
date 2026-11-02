@@ -1,6 +1,6 @@
 import { DndContext, DragOverlay, closestCorners, type DragEndEvent, type DragStartEvent } from '@dnd-kit/core'
 import { useMediaQuery } from '@/features/records/calendar/useMediaQuery'
-import { NativeSelect } from '@/components/ui/native-select'
+import { Button } from '@/components/ui/button'
 import { useBoardSensors } from '@/features/mobile/lib/board-sensors'
 import { useQuery, useQueryClient } from '@tanstack/react-query'
 import { KanbanSquare } from 'lucide-react'
@@ -11,7 +11,7 @@ import { EmptyState } from '@/components/ui/empty-state'
 import { isApprovalGateError } from '@/modules/approvals/errors'
 import { ErrorState } from '@/components/ui/error-state'
 import { Skeleton } from '@/components/ui/skeleton'
-import { useRecordFormatting } from '@/features/records/formatting'
+import { formatCurrency, useRecordFormatting } from '@/features/records/formatting'
 import { recordsKeys } from '@/features/records/api'
 import { activePipelines, usePipelines } from '@/modules/pipelines/api'
 import { BOARD_PER_COLUMN, dealsApi, dealsKeys, type BoardRequest } from '../api'
@@ -48,6 +48,7 @@ export function DealsBoard({ request, canMove }: DealsBoardProps) {
   const queryClient = useQueryClient()
   const mobile = useMediaQuery('(max-width: 767px)')
   const [mobileStage, setMobileStage] = useState('')
+  const [mobileBoard, setMobileBoard] = useState(false)
   const formatting = useRecordFormatting()
   const requestKey = JSON.stringify(dealsKeys.board(request))
   const boardKey = useMemo(() => JSON.parse(requestKey) as unknown[], [requestKey])
@@ -200,7 +201,12 @@ export function DealsBoard({ request, canMove }: DealsBoardProps) {
 
   return (
     <>
-      {mobile && <NativeSelect aria-label={t('board.stageSelect')} value={columns.find((column) => column.stage.id === mobileStage)?.stage.id ?? columns[0].stage.id} onChange={(event) => setMobileStage(event.target.value)}>{columns.map((column) => <option key={column.stage.id} value={column.stage.id}>{column.stage.name} ({column.count})</option>)}</NativeSelect>}
+      {mobile && <div className="flex justify-end"><Button variant="ghost" size="sm" aria-pressed={mobileBoard} onClick={() => setMobileBoard((current) => !current)}>{mobileBoard ? t('board.groupedList') : t('list.board')}</Button></div>}
+      {mobile && <nav aria-label={t('board.stageSelect')} className="grid grid-cols-2 gap-2">
+        {columns.map((column) => <Button key={column.stage.id} variant={mobileStage === column.stage.id ? 'secondary' : 'outline'} className="h-auto justify-between whitespace-normal px-3 py-2 text-left" aria-pressed={mobileStage === column.stage.id} onClick={() => setMobileStage((current) => current === column.stage.id ? '' : column.stage.id)}>
+          <span className="grid min-w-0 gap-0.5"><span>{column.stage.name}</span>{column.total_amount != null && <span className="text-xs font-normal text-muted-foreground">{formatCurrency(column.total_amount, formatting)}</span>}</span><span className="tabular-nums">{column.count}</span>
+        </Button>)}
+      </nav>}
       <DndContext
         sensors={sensors}
         collisionDetection={closestCorners}
@@ -214,9 +220,9 @@ export function DealsBoard({ request, canMove }: DealsBoardProps) {
         <div
           role="region"
           aria-label={t('board.label', { pipeline: board.data.pipeline.name })}
-          className="scroll-smooth-thin flex min-h-[28rem] flex-1 snap-x snap-proximity gap-3 overflow-x-auto overscroll-x-contain pb-3 md:snap-none"
+          className={mobile && !mobileBoard ? "grid min-w-0 gap-3" : "scroll-smooth-thin flex min-h-0 flex-1 gap-3 overflow-x-auto overscroll-x-contain pb-3"}
         >
-          {(mobile ? [columns.find((column) => column.stage.id === mobileStage) ?? columns[0]] : columns).map((column) => (
+          {(mobile && !mobileBoard && mobileStage && columns.some((column) => column.stage.id === mobileStage) ? columns.filter((column) => column.stage.id === mobileStage) : columns).map((column) => (
             <BoardColumnView
               key={column.stage.id}
               column={column}
@@ -224,6 +230,7 @@ export function DealsBoard({ request, canMove }: DealsBoardProps) {
               formatting={formatting}
               draggable={canMove}
               disableDrag={mobile}
+              compact={mobile && !mobileBoard}
               loadingMore={loadingStage === column.stage.id}
               onMove={requestMove}
               onMovePipeline={canMovePipeline ? requestPipelineMove : undefined}

@@ -87,7 +87,8 @@
     "routeTeam": "Equipe",
     "noTeam": "Nenhuma equipe",
     "routeUsers": "Usuários",
-    "routeLabel": "Rota {{index}}"
+    "routeLabel": "Rota {{index}}",
+    "notFound": "Regra não encontrada"
   },
   "validation": {
     "nameRequired": "Informe o nome.",

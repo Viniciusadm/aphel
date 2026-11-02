@@ -77,7 +77,8 @@
       },
       "channel": "Channel",
       "allChannels": "All channels",
-      "unread": "Unread"
+      "unread": "Unread",
+      "title": "Conversation filters"
     },
     "emptyTitle": "No conversations",
     "emptyDescription": "Messages arriving on an active channel show up here.",

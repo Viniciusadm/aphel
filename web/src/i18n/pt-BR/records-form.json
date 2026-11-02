@@ -20,7 +20,8 @@
     "unavailable": "Este tipo de registro não está disponível.",
     "editTitle": "Editar registro",
     "editDescription": "Altere os campos e salve.",
-    "updated": "Registro atualizado"
+    "updated": "Registro atualizado",
+    "fullForm": "Continuar no formulário completo"
   },
   "inline": {
     "save": "Salvar {{field}}",

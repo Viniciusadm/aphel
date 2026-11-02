@@ -1,4 +1,5 @@
 import { FlaskConical, History, Pencil, Plus, Trash2 } from 'lucide-react'
+import { useNavigate } from 'react-router'
 import { useState } from 'react'
 import { useTranslation } from 'react-i18next'
 import { ConfirmDialog, notifyError, notifySuccess } from '@/components/feedback'
@@ -12,7 +13,6 @@ import { RequirePermission } from '@/features/settings/components/RequirePermiss
 import { LEAD_DISTRIBUTION_MANAGE } from '@/features/settings/lib/permissions'
 import { leadDistributionApi, useDistributionMutation, useDistributionRules, type DistributionRule } from './api'
 import { AssignmentHistoryDialog } from './AssignmentHistoryDialog'
-import { RuleEditorDialog } from './RuleEditorDialog'
 import { SimulationDialog } from './SimulationDialog'
 import { PageHeader } from '@/components/ui/page-header'
 import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from '@/components/ui/table'
@@ -30,7 +30,7 @@ function LeadDistributionSection() {
   const { t } = useTranslation('lead_distribution')
   const rules = useDistributionRules()
   const objects = useCustomObjects()
-  const [editing, setEditing] = useState<{ rule: DistributionRule | null } | null>(null)
+  const navigate = useNavigate()
   const [simulating, setSimulating] = useState<DistributionRule | null>(null)
   const [deleting, setDeleting] = useState<DistributionRule | null>(null)
   const [history, setHistory] = useState<{ rule: DistributionRule | null } | null>(null)
@@ -68,7 +68,7 @@ function LeadDistributionSection() {
               <History />
               {t('history.open')}
             </Button>
-            <Button onClick={() => setEditing({ rule: null })}>
+            <Button onClick={() => void navigate('/settings/lead-distribution/new')}>
               <Plus />
               {t('create')}
             </Button>
@@ -163,7 +163,7 @@ function LeadDistributionSection() {
                         variant="ghost"
                         size="icon"
                         aria-label={`${t('actions.edit')}: ${rule.name}`}
-                        onClick={() => setEditing({ rule })}
+                        onClick={() => void navigate(`/settings/lead-distribution/${encodeURIComponent(rule.id)}/edit`)}
                       >
                         <Pencil />
                       </Button>
@@ -183,7 +183,6 @@ function LeadDistributionSection() {
           </TableBody>
         </Table>
       )}
-      {editing && <RuleEditorDialog rule={editing.rule} onClose={() => setEditing(null)} />}
       {history && <AssignmentHistoryDialog rule={history.rule} onClose={() => setHistory(null)} />}
       {simulating && <SimulationDialog rule={simulating} onClose={() => setSimulating(null)} />}
       {deleting && (

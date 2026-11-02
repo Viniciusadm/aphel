@@ -7,7 +7,7 @@ import type { SlotProps } from '@/kernel/modules/slots'
 import { exportPermission } from './api'
 import { ExportDialog } from './ExportDialog'
 
-export function ExportAction({ recordType }: SlotProps<'record.list.toolbar'>) {
+export function ExportAction({ recordType }: SlotProps<'record.list.actions'>) {
   const { t } = useTranslation('exports')
   const { hasPermission } = useSession()
   const [exporting, setExporting] = useState(false)

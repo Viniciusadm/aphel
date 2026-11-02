@@ -23,7 +23,8 @@
     "totalLabel": "Total amount of the stage",
     "emptyColumn": "No deals in this stage",
     "loadMore": "Load more ({{count}})",
-    "stageSelect": "Pipeline stage"
+    "stageSelect": "Pipeline stage",
+    "groupedList": "Grouped list"
   },
   "card": {
     "moveMenu": "Move {{title}}",

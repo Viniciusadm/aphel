@@ -44,6 +44,7 @@ import { useLayoutEditor } from './useLayoutEditor'
 import { WidgetCard } from './WidgetCard'
 import { PageHeader } from '@/components/ui/page-header'
 import { Page } from '@/components/ui/page'
+import { WorkspaceOptions } from '@/components/ui/workspace-options'
 
 function newWidgetId(): string {
   const random = globalThis.crypto?.randomUUID?.() ?? `${Date.now().toString(36)}-${Math.random().toString(36).slice(2)}`
@@ -133,11 +134,11 @@ export function DashboardPage() {
 
   return (
     <Page>
-<PageHeader title={t('title')} description={t('description')} actions={<>
+<PageHeader title={t('title')} actions={<>
         <div className="flex min-w-0 flex-wrap items-end gap-2">
           {current && <PeriodSelector value={period} onChange={(next) => save({ period: next })} />}
-          {current && <SubjectSelector value={subject} onChange={(next) => save({ subject: next })} />}
-          {current && <CompareToggle checked={compare} onChange={(next) => save({ compare: next })} />}
+          {current && <WorkspaceOptions label={t('subject.label')} count={Number(Boolean(subject)) + Number(compare)}><SubjectSelector value={subject} onChange={(next) => save({ subject: next })} />
+          <CompareToggle checked={compare} onChange={(next) => save({ compare: next })} /></WorkspaceOptions>}
           <Button
             variant={editing ? 'default' : 'outline'}
             aria-pressed={editing}

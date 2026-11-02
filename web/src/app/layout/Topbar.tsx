@@ -1,5 +1,5 @@
 import { useQueryClient } from '@tanstack/react-query'
-import { LogOut, Menu, MonitorOff, User, UserRound } from 'lucide-react'
+import { LogOut, MonitorOff, User, UserRound } from 'lucide-react'
 import { useTranslation } from 'react-i18next'
 import { useNavigate } from 'react-router'
 import { useSession } from '@/app/session/session-context'
@@ -19,18 +19,15 @@ import { toast } from '@/components/ui/toast-store'
 import { CreateMenuButton, PaletteTrigger } from '@/features/command-palette'
 import { NotificationBell } from '@/features/notifications'
 import { ACCOUNT_AREA } from '@/kernel/modules/settings'
+import { OrganizationBrand } from '@/features/settings/organization/OrganizationBrand'
 import { Slot } from '@/kernel/modules/Slot'
 import { useUpdatePersonalPreferences } from '@/features/settings/navigation/api'
 import type { SupportedLanguage } from '@/features/settings/navigation/types'
 import { normalizeLanguage } from './language'
 
-interface TopbarProps {
-  onOpenMobileNav: () => void
-}
-
 const LANGUAGES: SupportedLanguage[] = ['pt-BR', 'en']
 
-function UserMenu() {
+export function UserMenu() {
   const { t, i18n } = useTranslation('layout')
   const { t: tAuth } = useTranslation('auth')
   const { t: tNavigation } = useTranslation('navigation-settings')
@@ -100,21 +97,18 @@ function UserMenu() {
   )
 }
 
-export function Topbar({ onOpenMobileNav }: TopbarProps) {
-  const { t } = useTranslation('layout')
+export function Topbar() {
 
   return (
     <header className="sticky top-0 z-30 flex h-14 shrink-0 items-center gap-2 border-b bg-background px-4">
-      <Button variant="ghost" size="icon" className="md:hidden" onClick={onOpenMobileNav} aria-label={t('sidebar.open')}>
-        <Menu />
-      </Button>
-      <div role="search" className="min-w-0 max-w-md flex-1">
+      <div className="min-w-0 flex-1 md:hidden"><OrganizationBrand /></div>
+      <div role="search" className="hidden min-w-0 max-w-md flex-1 md:block">
         <PaletteTrigger />
       </div>
       <div className="ml-auto flex items-center gap-1">
-        <CreateMenuButton />
+        <div className="hidden md:block"><CreateMenuButton /></div>
         <NotificationBell />
-        <UserMenu />
+        <div className="hidden md:block"><UserMenu /></div>
       </div>
     </header>
   )

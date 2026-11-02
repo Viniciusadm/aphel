@@ -20,7 +20,8 @@
     "unavailable": "This record type is not available.",
     "editTitle": "Edit record",
     "editDescription": "Change the fields and save.",
-    "updated": "Record updated"
+    "updated": "Record updated",
+    "fullForm": "Continue in full form"
   },
   "inline": {
     "save": "Save {{field}}",

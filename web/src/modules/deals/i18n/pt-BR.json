@@ -23,7 +23,8 @@
     "totalLabel": "Valor total da etapa",
     "emptyColumn": "Nenhuma oportunidade nesta etapa",
     "loadMore": "Carregar mais ({{count}})",
-    "stageSelect": "Etapa do funil"
+    "stageSelect": "Etapa do funil",
+    "groupedList": "Lista por etapa"
   },
   "card": {
     "moveMenu": "Mover {{title}}",

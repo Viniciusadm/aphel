@@ -35,7 +35,7 @@ export function SegmentsPage() {
 
   return (
     <Page>
-      <PageHeader title={t('page.title')} description={t('page.description')} />
+      <PageHeader title={t('page.title')} />
       {recordType ? (
         <>
           <NativeSelect aria-label={t('page.typesLabel')} value={recordType} onValueChange={(candidate) => setParams((current) => { const next = new URLSearchParams(current); next.set(SEGMENT_TYPE_PARAM, candidate); return next })}>

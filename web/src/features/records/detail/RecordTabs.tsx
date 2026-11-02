@@ -1,6 +1,8 @@
 import { useTranslation } from 'react-i18next'
 import { Link, useSearchParams } from 'react-router'
-import { NativeSelect } from '@/components/ui/native-select'
+import { ChevronDown } from 'lucide-react'
+import { Button } from '@/components/ui/button'
+import { DropdownMenu, DropdownMenuContent, DropdownMenuItem, DropdownMenuTrigger } from '@/components/ui/dropdown-menu'
 import { cn } from '@/lib/utils'
 import type { RecordTab } from './types'
 import { useActiveTab } from './use-active-tab'
@@ -20,18 +22,23 @@ export function RecordTabs({ tabs, defaultTab, param, className }: RecordTabsPro
     param,
   )
   const [params] = useSearchParams()
-  const overviewParams = new URLSearchParams(params)
-  overviewParams.delete(param ?? 'tab')
   if (tabs.length === 0) return null
 
   return (
     <div className={cn('grid min-w-0 gap-5', className)}>
-      <div className="flex flex-wrap items-center justify-between gap-3 border-b pb-4">
-        <Link to={{ search: `?${overviewParams}` }} className="inline-flex min-h-11 items-center text-sm font-medium text-muted-foreground hover:text-foreground">{t('overview.title')}</Link>
-        <NativeSelect className="w-full sm:w-56" aria-label={t('tabs.label')} value={active} onChange={(event) => setActive(event.target.value)}>
-          {tabs.map((tab) => <option key={tab.key} value={tab.key}>{tab.label}</option>)}
-        </NativeSelect>
-      </div>
+      <nav aria-label={t('tabs.label')} className="flex flex-wrap items-center gap-2 border-b pb-2">
+        {tabs.filter((tab) => ['overview', 'tasks', 'timeline'].includes(tab.key)).map((tab) => {
+          const next = new URLSearchParams(params)
+          next.set(param ?? 'tab', tab.key)
+          return <Link key={tab.key} to={{ search: `?${next}` }} aria-current={active === tab.key ? 'page' : undefined} className={cn('inline-flex min-h-11 items-center rounded-md px-3 text-sm hover:bg-accent focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring', active === tab.key ? 'bg-accent font-semibold' : 'text-muted-foreground')}>{tab.label}</Link>
+        })}
+        {tabs.some((tab) => !['overview', 'tasks', 'timeline'].includes(tab.key)) && <DropdownMenu>
+          <DropdownMenuTrigger asChild><Button variant="ghost" size="sm">
+            {tabs.find((tab) => tab.key === active && !['overview', 'tasks', 'timeline'].includes(tab.key))?.label ?? t('mobile.sections')}<ChevronDown aria-hidden />
+          </Button></DropdownMenuTrigger>
+          <DropdownMenuContent align="start">{tabs.filter((tab) => !['overview', 'tasks', 'timeline'].includes(tab.key)).map((tab) => <DropdownMenuItem key={tab.key} onSelect={() => setActive(tab.key)}>{tab.label}</DropdownMenuItem>)}</DropdownMenuContent>
+        </DropdownMenu>}
+      </nav>
       <section key={active} className="min-w-0" aria-label={tabs.find((tab) => tab.key === active)?.label}>
         {tabs.find((tab) => tab.key === active)?.content}
       </section>

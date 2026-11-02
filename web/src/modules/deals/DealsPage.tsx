@@ -1,7 +1,7 @@
 import { SegmentedControl } from '@/components/ui/segmented-control'
 import { useQueryClient } from '@tanstack/react-query'
 import { KanbanSquare, Plus, Table2 } from 'lucide-react'
-import { useEffect, useMemo, useState } from 'react'
+import { useEffect, useMemo, useState, type ReactNode } from 'react'
 import { useTranslation } from 'react-i18next'
 import { useNavigate, useSearchParams } from 'react-router'
 import { useSession } from '@/app/session/session-context'
@@ -34,7 +34,9 @@ import { DealsBoard } from './board/DealsBoard'
 import { DEAL_CREATE_LAYOUT, DEAL_RECORD_TYPE, dealPath } from './resource'
 import { PageHeader } from '@/components/ui/page-header'
 import { NativeSelect } from '@/components/ui/native-select'
+import { RecordListActions } from '@/features/records/table/RecordListActions'
 import { Page } from '@/components/ui/page'
+import { WorkspaceOptions } from '@/components/ui/workspace-options'
 
 export const DEALS_MODE_PARAM = 'mode'
 export const DEALS_PIPELINE_PARAM = 'pipeline'
@@ -74,7 +76,7 @@ function toneRowClassName(record: RecordItem) {
   return applyFilters('deals.tone', 'default', { deal: record }) === 'warning' ? 'bg-warning-solid/10' : undefined
 }
 
-function BoardToolbar({ filter }: { filter: FilterNode | null }) {
+function BoardToolbar({ filter, children }: { filter: FilterNode | null; children?: ReactNode }) {
   const schema = useFieldSchema(DEAL_RECORD_TYPE)
   const [urlState, setUrlState] = useListUrlState()
   const setFilter = (next: FilterNode | null) => setUrlState((current) => ({ ...current, filter: next, page: 1 }))
@@ -83,12 +85,14 @@ function BoardToolbar({ filter }: { filter: FilterNode | null }) {
   return (
     <div className="grid gap-2">
       <div className="flex flex-wrap items-center gap-2">
-        <SearchBox value={urlState.search} onChange={setSearch} className="w-full sm:w-64" />
+        <SearchBox value={urlState.search} onChange={setSearch} className="min-w-0 flex-1 sm:w-64 sm:flex-none" />
         {schema.data ? (
           <FilterMenu schema={schema.data} filter={filter} onApply={setFilter} />
         ) : (
           <Skeleton className="h-8 w-24" />
         )}
+        {children}
+        <RecordListActions recordType={DEAL_RECORD_TYPE} />
         <Slot name="record.list.toolbar" props={{ recordType: DEAL_RECORD_TYPE, filter, applyFilter: setFilter }} />
       </div>
       {schema.data && <FilterChips schema={schema.data} filter={filter} onChange={setFilter} />}
@@ -141,7 +145,7 @@ function entryStage(pipeline: Pipeline | undefined) {
     .sort((left, right) => left.position - right.position)[0]
 }
 
-function BoardMode({ canMove }: { canMove: boolean }) {
+function BoardMode({ canMove, presentation }: { canMove: boolean; presentation: ReactNode }) {
   const { t } = useTranslation('deals')
   const { viewsQuery, views, activeView } = useBoardViews()
   const { pipelines, pipeline } = useBoardPipeline(activeView)
@@ -190,7 +194,9 @@ function BoardMode({ canMove }: { canMove: boolean }) {
 
   return (
     <div className="flex min-h-0 min-w-0 flex-1 flex-col gap-3">
-      <div className="flex flex-wrap items-start gap-2">
+      <BoardToolbar filter={filter}>
+        <WorkspaceOptions label={activeView?.name ?? pipeline?.name ?? t('list.mode')}>
+        {presentation}
         <ViewSwitcher
           recordType={DEAL_RECORD_TYPE}
           views={views}
@@ -225,8 +231,8 @@ function BoardMode({ canMove }: { canMove: boolean }) {
             ))}
           </NativeSelect>
         )}
-        <BoardToolbar filter={filter} />
-      </div>
+        </WorkspaceOptions>
+      </BoardToolbar>
       <DealsBoard
         request={{ pipelineId: pipeline?.id, filter, search: urlState.search }}
         canMove={canMove}
@@ -272,10 +278,7 @@ export function DealsPage() {
     </Button>
   ) : undefined
 
-  return (
-    <Page className={cn(mode === 'board' && 'h-full')}>
-<PageHeader title={t('list.title')} description={t('list.description')} actions={<>
-        <div className="flex flex-wrap items-center gap-2">
+  const presentation = (
           <SegmentedControl
             aria-label={t('list.mode')}
             size="sm"
@@ -286,19 +289,25 @@ export function DealsPage() {
               { value: 'table', label: t('list.table'), icon: <Table2 aria-hidden="true" /> },
             ]}
           />
-          {mode === 'board' && newButton}
+  )
+
+  return (
+    <Page className={cn(mode === 'board' && 'h-full')}>
+<PageHeader title={t('list.title')} actions={<>
+        <div className="flex flex-wrap items-center gap-2">
+          {newButton}
         </div>
       
       </>} />
       {mode === 'board' ? (
-        <BoardMode canMove={canMove} />
+        <BoardMode canMove={canMove} presentation={presentation} />
       ) : (
         <RecordListView
           recordType={DEAL_RECORD_TYPE}
           toolbarActions={
             <>
+              {presentation}
               <PipelineFilterSelect />
-              {newButton}
             </>
           }
           emptyAction={newButton}

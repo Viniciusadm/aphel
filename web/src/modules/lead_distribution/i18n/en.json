@@ -87,7 +87,8 @@
     "routeTeam": "Team",
     "noTeam": "No team",
     "routeUsers": "Users",
-    "routeLabel": "Route {{index}}"
+    "routeLabel": "Route {{index}}",
+    "notFound": "Rule not found"
   },
   "validation": {
     "nameRequired": "Enter the name.",

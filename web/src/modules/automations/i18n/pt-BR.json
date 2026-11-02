@@ -126,6 +126,7 @@
     }
   },
   "editor": {
+    "settings": "Nome e descrição",
     "back": "Automações",
     "name": "Nome da automação",
     "description": "Descrição",
