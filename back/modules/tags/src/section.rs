@@ -1,3 +1,4 @@
+use aphel_kernel::application::config_packages::ConfigReferenceKind;
 use std::collections::BTreeSet;
 
 use async_trait::async_trait;
@@ -12,7 +13,7 @@ use crate::taggable_record_type;
 use aphel_kernel::application::config_packages::sections::common::{check_key, diff};
 use aphel_kernel::application::config_packages::{
     ApplyContext, ConfigKeyRepository, ConfigPackage, ConfigSection, Decisions, KeyedItem,
-    PackageIssue, PlanChange, PlanItem, TAG_ITEM, assign_keys, parse_section,
+    PackageIssue, PlanChange, PlanItem, assign_keys, parse_section,
 };
 use aphel_kernel::database::transaction::MySqlTx;
 use aphel_kernel::domain::access::AccessScope;
@@ -60,7 +61,10 @@ where
                 .cmp(&right.created_at)
                 .then(left.id.cmp(&right.id))
         });
-        let stored = self.keys.keys(TAG_ITEM).await?;
+        let stored = self
+            .keys
+            .keys(ConfigReferenceKind::new("tagging.tag"))
+            .await?;
         let keyed = assign_keys(tags.iter().map(|tag| (tag.id, tag.name.as_str())), &stored);
         Ok(tags.into_iter().zip(keyed).collect())
     }
@@ -283,9 +287,18 @@ where
                 self.tags.update(tx, &plan.tag).await?;
             }
             self.keys
-                .assign(tx, TAG_ITEM, plan.tag.id, &plan.key)
+                .assign(
+                    tx,
+                    ConfigReferenceKind::new("tagging.tag"),
+                    plan.tag.id,
+                    &plan.key,
+                )
                 .await?;
-            context.resolve(TAG_ITEM, &plan.key, plan.tag.id);
+            context.resolve(
+                ConfigReferenceKind::new("tagging.tag"),
+                &plan.key,
+                plan.tag.id,
+            );
         }
         Ok(())
     }

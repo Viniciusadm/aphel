@@ -15,7 +15,7 @@ use aphel_kernel::domain::Secret;
 use aphel_kernel::domain::access::AccessScope;
 use aphel_kernel::errors::AppError;
 use aphel_kernel::infrastructure::audit::MySqlAuditLog;
-use aphel_kernel::infrastructure::crm::sync_crm_defaults;
+use aphel_kernel::infrastructure::defaults::sync_defaults;
 use aphel_kernel::infrastructure::demo::demo_settings;
 use aphel_kernel::infrastructure::events::MySqlEventPublisher;
 use aphel_kernel::infrastructure::fields::sync_system_fields;
@@ -100,7 +100,7 @@ pub(crate) async fn run(config: AppConfig, command: DemoCommand) -> CommandResul
         info!("running database migrations");
         database::migrations::run(&pool).await?;
         sync_system_fields(&pool, &registry).await?;
-        sync_crm_defaults(&pool).await?;
+        sync_defaults(&pool).await?;
     }
     let secrets = build_secret_vault(&pool, &config.encryption)?;
     let configuration = organization_config_catalog(&pool);

@@ -1,3 +1,4 @@
+use aphel_kernel::application::config_packages::ConfigReferenceKind;
 use std::collections::BTreeSet;
 
 use async_trait::async_trait;
@@ -255,7 +256,7 @@ impl ConfigSection<MySqlTx> for ActivityTypesSection {
                 self.activity_types.update(tx, &plan.activity_type).await?;
             }
             context.resolve(
-                ACTIVITY_TYPE_ITEM,
+                ConfigReferenceKind::new("tasks.activity_type"),
                 &plan.activity_type.key,
                 plan.activity_type.id,
             );

@@ -5,20 +5,11 @@ use uuid::Uuid;
 use crate::domain::CreateActivityCommand;
 use crate::{service, types};
 use aphel_kernel::Ctx;
-use aphel_kernel::application::automations::{ActivityTypeOperations, TaskOperations, TaskSpec};
+use aphel_kernel::application::automations::{TaskOperations, TaskSpec};
 use aphel_kernel::application::organization_admin::ListWindow;
 use aphel_kernel::errors::AppError;
 
 pub(crate) const DEFAULT_TASK_TYPE: &str = "task";
-
-pub(crate) struct AutomationActivityTypes;
-
-#[async_trait]
-impl ActivityTypeOperations for AutomationActivityTypes {
-    async fn find_activity_type(&self, ctx: &Ctx<'_>, id: &str) -> Result<(), AppError> {
-        types::get(ctx, id).await.map(|_| ())
-    }
-}
 
 pub(crate) struct AutomationTasks;
 
@@ -73,4 +64,17 @@ async fn default_task_type(ctx: &Ctx<'_>) -> Result<String, AppError> {
         .or_else(|| types.first())
         .map(|activity_type| activity_type.id.to_string())
         .ok_or_else(|| AppError::Validation("there is no active activity type".to_owned()))
+}
+
+pub(crate) struct ActivityTypeRefs;
+
+#[async_trait]
+impl aphel_sdk::points::ReferenceProvider for ActivityTypeRefs {
+    fn kind(&self) -> aphel_sdk::ReferenceKind {
+        aphel_contract_crm::refs::ACTIVITY_TYPE
+    }
+
+    async fn exists(&self, ctx: &Ctx<'_>, id: &str) -> Result<bool, AppError> {
+        aphel_sdk::points::lookup_exists(types::get(ctx, id).await)
+    }
 }

@@ -81,7 +81,7 @@ fn push_local(
     field_type: FieldType,
     shift: &TimezoneShift,
 ) {
-    if field_type != FieldType::DateTime || shift.segments.is_empty() {
+    if field_type.base_type() != FieldType::DateTime || shift.segments.is_empty() {
         builder.push(expression.to_owned());
         return;
     }
@@ -313,7 +313,10 @@ fn push_group_order(
         push_position(builder);
         builder.push(format!(" {direction}, "));
     }
-    let expression = if matches!(group.field_type, FieldType::Number | FieldType::Currency) {
+    let expression = if matches!(
+        group.field_type.base_type(),
+        FieldType::Number | FieldType::Currency
+    ) {
         format!("CAST({alias} AS DECIMAL(30,6))")
     } else {
         alias

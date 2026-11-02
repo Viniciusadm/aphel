@@ -1,3 +1,4 @@
+use crate::application::config_packages::ConfigReferenceKind;
 use std::collections::{BTreeMap, BTreeSet};
 use std::sync::Arc;
 
@@ -12,8 +13,8 @@ use crate::application::config_packages::sections::custom_objects::package_regis
 use crate::application::config_packages::sections::fields::{package_fields, projected_field_set};
 use crate::application::config_packages::{
     ApplyContext, ConfigKeyRepository, ConfigPackage, ConfigSection, Decisions, KeyedItem,
-    PackageIssue, PlanAction, PlanChange, PlanItem, SAVED_VIEW_ITEM, UnavailableFields,
-    assign_keys, field_reference, parse_section,
+    PackageIssue, PlanAction, PlanChange, PlanItem, UnavailableFields, assign_keys,
+    field_reference, parse_section,
 };
 use crate::application::fields::{FieldDefinitionRepository, RecordTypeRegistry};
 use crate::application::query::{
@@ -102,7 +103,10 @@ where
             .filter(|view| view.visibility == ViewVisibility::Organization)
             .collect();
         views.sort_by_key(|view| (view.position, view.id));
-        let stored = self.keys.keys(SAVED_VIEW_ITEM).await?;
+        let stored = self
+            .keys
+            .keys(ConfigReferenceKind::new("views.view"))
+            .await?;
         let keyed = assign_keys(
             views.iter().map(|view| (view.id, view.name.as_str())),
             &stored,
@@ -528,9 +532,18 @@ where
                 }
             }
             self.keys
-                .assign(tx, SAVED_VIEW_ITEM, plan.view.id, &plan.key)
+                .assign(
+                    tx,
+                    ConfigReferenceKind::new("views.view"),
+                    plan.view.id,
+                    &plan.key,
+                )
                 .await?;
-            context.resolve(SAVED_VIEW_ITEM, &plan.key, plan.view.id);
+            context.resolve(
+                ConfigReferenceKind::new("views.view"),
+                &plan.key,
+                plan.view.id,
+            );
         }
         Ok(())
     }

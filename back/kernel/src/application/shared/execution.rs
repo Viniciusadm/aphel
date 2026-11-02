@@ -66,10 +66,11 @@ impl ExecutionContext {
             executor: actor.id().unwrap_or("system").to_owned(),
             executor_kind: "event".to_owned(),
             automation: None,
-            initiator: (!matches!(actor, Actor::System | Actor::Plugin(_))).then(|| actor.into()),
+            initiator: (!(matches!(actor, Actor::System) || actor.is_service(Actor::PLUGIN)))
+                .then(|| actor.into()),
             trigger: "event".to_owned(),
             chain: match actor {
-                Actor::Plugin(key) => vec![key.clone()],
+                Actor::Service { kind, id } if kind == Actor::PLUGIN => vec![id.clone()],
                 _ => vec![],
             },
         }

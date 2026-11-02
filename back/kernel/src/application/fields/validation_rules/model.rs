@@ -27,7 +27,7 @@ pub fn is_validated_record_type(record_type: &str) -> bool {
         || crate::modules::try_app().is_some_and(|app| {
             app.record_types()
                 .capabilities(record_type)
-                .is_some_and(|capabilities| capabilities.validation_rules)
+                .is_some_and(|capabilities| capabilities.has_trait("validation_rules.subject"))
         })
 }
 

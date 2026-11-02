@@ -595,7 +595,7 @@ async fn record_document(
     let deal_ref = RecordRef::new(RecordType::DEAL, deal_id);
     let actor = Actor::from_scope(ctx.scope);
     let now = Utc::now();
-    store::insert_document(tx, document, actor_kind(ctx.scope)).await?;
+    store::insert_document(tx, document, &actor_kind(ctx.scope)).await?;
     ctx.events()
         .publish(
             tx,

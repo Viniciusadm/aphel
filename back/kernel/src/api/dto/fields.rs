@@ -14,25 +14,9 @@ use crate::application::fields::{
 use crate::domain::fields::FieldOption;
 
 #[derive(Deserialize, ToSchema)]
-#[serde(rename_all = "snake_case")]
+#[serde(transparent)]
 #[schema(as = FieldType)]
-pub enum FieldTypeSchema {
-    Text,
-    LongText,
-    Number,
-    Currency,
-    Date,
-    Datetime,
-    Select,
-    MultiSelect,
-    Checkbox,
-    Url,
-    Email,
-    Phone,
-    User,
-    Record,
-    Formula,
-}
+pub struct FieldTypeSchema(pub String);
 
 #[derive(Debug, Deserialize, ToSchema)]
 pub struct FieldOptionRequest {
@@ -199,6 +183,7 @@ impl From<FieldOption> for FieldOptionResponse {
 
 #[derive(Debug, Serialize, ToSchema)]
 pub struct FieldResponse {
+    pub labels: std::collections::BTreeMap<String, String>,
     pub id: String,
     pub record_type: String,
     pub key: String,
@@ -237,6 +222,7 @@ impl From<FieldView> for FieldResponse {
             record_type: definition.record_type,
             key: definition.key.as_str().to_owned(),
             label: definition.label,
+            labels: view.labels.0,
             field_type,
             is_system: definition.is_system,
             is_required: definition.is_required,

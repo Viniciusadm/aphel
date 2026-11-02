@@ -20,7 +20,7 @@ use aphel_kernel::modules::Migration;
 
 use aphel_kernel::application::fields::builtin::{field, record_field, timestamps, with_fields};
 use aphel_kernel::application::fields::{
-    RecordCapabilities, RecordRelation, RecordTypeDefinition, RelationPath, SystemField,
+    EntityTraits, RecordRelation, RecordTypeDefinition, RelationPath, SystemField,
 };
 use aphel_kernel::application::public_events::{
     PreviousValues, PublicEventDefinition, PublicResource, changed, deleted, event,
@@ -30,7 +30,7 @@ use aphel_kernel::domain::access::{Permission, PermissionDefinition};
 use aphel_kernel::domain::fields::FieldType;
 use aphel_kernel::domain::notifications::{ALL_CHANNELS, NotificationKindDefinition};
 use aphel_kernel::errors::AppError;
-use aphel_kernel::infrastructure::crm::{CrmDefaultsProbe, CrmDefaultsSeed};
+use aphel_kernel::infrastructure::defaults::{DefaultsProbe, DefaultsSeed};
 use aphel_kernel::infrastructure::query::aggregate::LookupTitleSource;
 use aphel_kernel::modules::builder::APHEL_VERSION;
 use aphel_kernel::modules::{AppBuilder, Manifest, Module};
@@ -91,8 +91,8 @@ const NOTIFICATION_KINDS: [NotificationKindDefinition; 2] = [
     },
 ];
 
-pub(crate) fn activity_capabilities() -> RecordCapabilities {
-    RecordCapabilities::default()
+pub(crate) fn activity_capabilities() -> EntityTraits {
+    EntityTraits::default()
         .exportable()
         .personal_data()
         .notifies()
@@ -100,7 +100,7 @@ pub(crate) fn activity_capabilities() -> RecordCapabilities {
         .attached_to_parent()
         .validation_rules()
         .web_path("tasks")
-        .plural_labels("Atividades", "Activities")
+        .localized_labels(crate::labels("Activities"))
         .free_text_fields(&["description"])
         .locked_fields(&[
             "title",
@@ -129,16 +129,26 @@ fn activity_record(key: &str, label: &str, target: RecordType) -> RecordRelation
 
 fn activity_location_fields() -> Result<Vec<SystemField>, AppError> {
     Ok(vec![
-        field("location_latitude", "Latitude", FieldType::Number)?.personal(),
-        field("location_longitude", "Longitude", FieldType::Number)?.personal(),
+        field(
+            "location_latitude",
+            crate::labels("Latitude"),
+            FieldType::Number,
+        )?
+        .personal(),
+        field(
+            "location_longitude",
+            crate::labels("Longitude"),
+            FieldType::Number,
+        )?
+        .personal(),
         field(
             "location_accuracy_m",
-            "Precisão da localização (m)",
+            crate::labels("Location accuracy (m)"),
             FieldType::Number,
         )?,
         field(
             "location_captured_at",
-            "Localização capturada em",
+            crate::labels("Location captured at"),
             FieldType::DateTime,
         )?,
     ])
@@ -156,40 +166,64 @@ pub(crate) fn activity_definition() -> Result<RecordTypeDefinition, AppError> {
     .owner_column("owner_id")
     .soft_delete_column("deleted_at")
     .system_field(
-        field("title", "Título", FieldType::Text)?
+        field("title", crate::labels("Title"), FieldType::Text)?
             .searchable()
             .required(),
     )
     .system_field(record_field(
         "activity_type_id",
-        "Tipo",
+        crate::labels("Type"),
         RecordType::ACTIVITY_TYPE.as_str(),
     )?)
     .system_field(
-        field("status", "Situação", FieldType::Select)?
-            .with_option("open", "Aberta", Some("#1f6feb"))
-            .with_option("done", "Concluída", Some("#1a7f37"))
-            .with_option("canceled", "Cancelada", Some("#6e7781")),
+        field("status", crate::labels("Status"), FieldType::Select)?
+            .with_option("open", crate::labels("Open"), Some("#1f6feb"))
+            .with_option("done", crate::labels("Done"), Some("#1a7f37"))
+            .with_option("canceled", crate::labels("Canceled"), Some("#6e7781")),
     )
     .system_field(
-        field("priority", "Prioridade", FieldType::Select)?
-            .with_option("low", "Baixa", Some("#6e7781"))
-            .with_option("normal", "Normal", Some("#1f6feb"))
-            .with_option("high", "Alta", Some("#bf8700"))
-            .with_option("urgent", "Urgente", Some("#cf222e")),
+        field("priority", crate::labels("Priority"), FieldType::Select)?
+            .with_option("low", crate::labels("Low"), Some("#6e7781"))
+            .with_option("normal", crate::labels("Normal"), Some("#1f6feb"))
+            .with_option("high", crate::labels("High"), Some("#bf8700"))
+            .with_option("urgent", crate::labels("Urgent"), Some("#cf222e")),
     )
-    .system_field(field("due_at", "Prazo", FieldType::DateTime)?)
-    .system_field(field("completed_at", "Concluída em", FieldType::DateTime)?)
-    .system_field(field("owner_id", "Responsável", FieldType::User)?)
-    .system_field(field("created_by", "Criada por", FieldType::User)?)
-    .system_field(field("record_type", "Tipo do registro", FieldType::Text)?)
-    .system_field(field("record_id", "Registro", FieldType::Text)?)
+    .system_field(field(
+        "due_at",
+        crate::labels("Due date"),
+        FieldType::DateTime,
+    )?)
+    .system_field(field(
+        "completed_at",
+        crate::labels("Completed at"),
+        FieldType::DateTime,
+    )?)
+    .system_field(field("owner_id", crate::labels("Owner"), FieldType::User)?)
+    .system_field(field(
+        "created_by",
+        crate::labels("Created by"),
+        FieldType::User,
+    )?)
+    .system_field(field(
+        "record_type",
+        crate::labels("Record type"),
+        FieldType::Text,
+    )?)
+    .system_field(field(
+        "record_id",
+        crate::labels("Record"),
+        FieldType::Text,
+    )?)
     .system_field(field(
         "duration_minutes",
-        "Duração (min)",
+        crate::labels("Duration (min)"),
         FieldType::Number,
     )?)
-    .system_field(field("description", "Descrição", FieldType::LongText)?)
+    .system_field(field(
+        "description",
+        crate::labels("Description"),
+        FieldType::LongText,
+    )?)
     .system_fields(activity_location_fields()?)
     .relation(activity_record("contact", "Contato", RecordType::CONTACT))
     .relation(activity_record("company", "Empresa", RecordType::COMPANY))
@@ -242,18 +276,18 @@ impl Module for ActivitiesModule {
             aphel_kernel::modules::PLUGIN_HOOK_PRIORITY,
             |ctx, completing| Box::pin(plugin_bridge::completing(ctx, completing)),
         );
-        app.contribute(Arc::new(CrmDefaultsSeed(|connection| {
+        app.contribute(Arc::new(DefaultsSeed(|connection| {
             Box::pin(seed::seed_activity_types(connection))
         })));
-        app.contribute(Arc::new(CrmDefaultsProbe(seed::SEEDED_TABLE)));
+        app.contribute(Arc::new(DefaultsProbe(seed::SEEDED_TABLE)));
         app.contribute(Arc::new(LookupTitleSource {
             record_type: "activity_type",
             table: seed::SEEDED_TABLE,
             title_column: "name",
         }));
-        app.provide::<dyn aphel_kernel::application::automations::ActivityTypeOperations>(
-            std::sync::Arc::new(operations::AutomationActivityTypes),
-        );
+        app.contribute::<dyn aphel_sdk::points::ReferenceProvider>(std::sync::Arc::new(
+            operations::ActivityTypeRefs,
+        ));
         app.provide::<dyn aphel_kernel::application::automations::TaskOperations>(
             std::sync::Arc::new(operations::AutomationTasks),
         );
@@ -303,4 +337,11 @@ impl Module for ActivitiesModule {
         }
         Ok(())
     }
+}
+
+pub(crate) fn labels(key: &str) -> aphel_kernel::application::fields::LocalizedLabels {
+    aphel_kernel::application::fields::LocalizedLabels::from_catalog(
+        include_str!("../locales/labels.json"),
+        key,
+    )
 }

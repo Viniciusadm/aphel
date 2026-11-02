@@ -74,7 +74,7 @@ fn push_field_match(
             let Some(email) = &matcher.email else {
                 return false;
             };
-            match field_type {
+            match field_type.base_type() {
                 FieldType::Email => {
                     builder
                         .push(format!("LOWER({expression}) = "))
@@ -91,11 +91,11 @@ fn push_field_match(
         }
         SubjectKind::Phone | SubjectKind::Document => {
             let digits = phone_digits(matcher);
-            match field_type {
+            match field_type.base_type() {
                 FieldType::Phone | FieldType::Text | FieldType::LongText => {
                     builder.push("(");
                     let mut first = true;
-                    if field_type == FieldType::Phone
+                    if field_type.base_type() == FieldType::Phone
                         && let Some(phone) = &matcher.phone
                     {
                         builder
@@ -108,7 +108,7 @@ fn push_field_match(
                             builder.push(" OR ");
                         }
                         first = false;
-                        if field_type == FieldType::LongText {
+                        if field_type.base_type() == FieldType::LongText {
                             builder
                                 .push(format!("REGEXP_REPLACE({expression}, '[^0-9]', '') LIKE "))
                                 .push_bind(contains_pattern(value));
@@ -266,7 +266,7 @@ impl PrivacyStore {
     fn personal_definition(&self, record_type: &RecordType) -> Option<&RecordTypeDefinition> {
         self.registry
             .get(record_type)
-            .filter(|definition| definition.capabilities.personal_data)
+            .filter(|definition| definition.capabilities.has_trait("privacy.personal_data"))
     }
 
     async fn matching_ids(

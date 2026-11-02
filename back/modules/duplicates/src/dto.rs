@@ -264,9 +264,8 @@ impl From<DuplicateTypeInfo> for DuplicateTypeResponse {
             .or_else(|| {
                 definition
                     .capabilities
-                    .plural_labels
-                    .as_ref()
-                    .map(|labels| labels.portuguese.clone())
+                    .plural_labels_value()
+                    .map(|labels| labels.default_text().to_owned())
             });
         Self {
             record_type: info.kind.as_str().to_owned(),

@@ -385,6 +385,6 @@ impl aphel_kernel::infrastructure::deferred_authority::DeferredPluginPolicy
         })?;
         Ok(scope
             .restricted(|permission| plugin.manifest.allows(permission))
-            .through_plugin(key))
+            .acting_as("plugin", key))
     }
 }

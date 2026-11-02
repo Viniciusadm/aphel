@@ -40,7 +40,7 @@ impl EventConsumer for PluginEventsConsumer {
         }
         let mut tx = aphel_kernel::database::transaction::MySqlTx::from(self.pool.begin().await?);
         for plugin in consumers {
-            if matches!(&event.actor, Actor::Plugin(key) if *key == plugin.key)
+            if matches!(&event.actor, Actor::Service { kind, id } if kind == Actor::PLUGIN && *id == plugin.key)
                 || event
                     .execution
                     .as_ref()

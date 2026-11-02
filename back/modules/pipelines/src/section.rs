@@ -1,4 +1,5 @@
 use aphel_contract_crm::CrmRecordTypes;
+use aphel_kernel::application::config_packages::ConfigReferenceKind;
 use std::collections::{BTreeSet, HashMap};
 use std::sync::Arc;
 
@@ -19,8 +20,8 @@ use aphel_kernel::application::config_packages::sections::fields::{
 };
 use aphel_kernel::application::config_packages::{
     ApplyContext, ConfigKeyRepository, ConfigPackage, ConfigSection, Decisions, KeyedItem,
-    PIPELINE_ITEM, PIPELINE_STAGE_ITEM, PackageIssue, PlanAction, PlanChange, PlanItem,
-    UnavailableFields, assign_keys, field_reference, parse_section,
+    PackageIssue, PlanAction, PlanChange, PlanItem, UnavailableFields, assign_keys,
+    field_reference, parse_section,
 };
 use aphel_kernel::application::fields::{FieldDefinitionRepository, RecordTypeRegistry};
 use aphel_kernel::application::shared::RecordType;
@@ -91,7 +92,9 @@ where
     K: ConfigKeyRepository,
 {
     let all = pipelines.list_pipelines().await?;
-    let stored = keys.keys(PIPELINE_ITEM).await?;
+    let stored = keys
+        .keys(ConfigReferenceKind::new("workflow.pipeline"))
+        .await?;
     let keyed = assign_keys(
         all.iter()
             .map(|pipeline| (pipeline.id, pipeline.name.as_str())),
@@ -111,7 +114,7 @@ where
     let stages = pipelines.list_stages(pipeline_id).await?;
     let ids: BTreeSet<Uuid> = stages.iter().map(|stage| stage.id).collect();
     let stored: HashMap<Uuid, String> = keys
-        .keys(PIPELINE_STAGE_ITEM)
+        .keys(ConfigReferenceKind::new("workflow.stage"))
         .await?
         .into_iter()
         .filter(|(id, _)| ids.contains(id))
@@ -679,9 +682,18 @@ where
                 self.pipelines.update_pipeline(tx, &plan.pipeline).await?;
             }
             self.keys
-                .assign(tx, PIPELINE_ITEM, pipeline_id, &plan.key)
+                .assign(
+                    tx,
+                    ConfigReferenceKind::new("workflow.pipeline"),
+                    pipeline_id,
+                    &plan.key,
+                )
                 .await?;
-            context.resolve(PIPELINE_ITEM, &plan.key, pipeline_id);
+            context.resolve(
+                ConfigReferenceKind::new("workflow.pipeline"),
+                &plan.key,
+                pipeline_id,
+            );
             for stage in &plan.stages {
                 if stage.is_new {
                     self.pipelines.insert_stage(tx, &stage.stage).await?;
@@ -691,10 +703,15 @@ where
                 if stage.item.action != PlanAction::SkipConflict || decisions.executes(&stage.item)
                 {
                     self.keys
-                        .assign(tx, PIPELINE_STAGE_ITEM, stage.stage.id, &stage.key)
+                        .assign(
+                            tx,
+                            ConfigReferenceKind::new("workflow.stage"),
+                            stage.stage.id,
+                            &stage.key,
+                        )
                         .await?;
                     context.resolve(
-                        PIPELINE_STAGE_ITEM,
+                        ConfigReferenceKind::new("workflow.stage"),
                         &stage_item_key(&plan.key, &stage.key),
                         stage.stage.id,
                     );

@@ -5,7 +5,7 @@ use chrono::{DateTime, Utc};
 use serde_json::{Map, Value, json};
 use uuid::Uuid;
 
-use crate::application::automations::gateway::{AutomationGateway, Reference};
+use crate::application::automations::gateway::{AutomationGateway, Reference, USER};
 use crate::application::automations::templates::CUSTOM_FIELDS_KEY;
 use crate::application::automations::triggers::is_attached_to_parent;
 use crate::application::fields::FieldSet;
@@ -249,14 +249,19 @@ pub async fn validate_user_spec(
             Some(id) if id.contains("{{") => {}
             Some(id) => {
                 context
-                    .reference(violations, &format!("{field}.user_id"), Reference::User(id))
+                    .reference(
+                        violations,
+                        &format!("{field}.user_id"),
+                        Reference::new(USER, id),
+                    )
                     .await?
             }
             None => violations.push(context.violation(&format!("{field}.user_id"), "is required")),
         },
         Some("field") => match spec.get("field").and_then(Value::as_str) {
             Some(key) => match context.fields.find(key) {
-                Some(field_def) if field_def.definition.field_type == FieldType::User => {}
+                Some(field_def)
+                    if field_def.definition.field_type.base_type() == FieldType::User => {}
                 Some(_) => violations
                     .push(context.violation(&format!("{field}.field"), "must be a user field")),
                 None => violations.push(context.violation(

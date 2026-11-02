@@ -58,6 +58,7 @@ pub struct UpdateOptionCommand {
 
 #[derive(Debug, Clone, PartialEq)]
 pub struct FieldView {
+    pub labels: super::LocalizedLabels,
     pub definition: FieldDefinition,
     pub access: FieldAccess,
     pub updated_at: Option<DateTime<Utc>>,

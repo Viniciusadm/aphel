@@ -377,7 +377,7 @@ impl Analyzer<'_> {
             ExprKind::Related { relation, field } => (relation.as_str(), Some(field.as_str())),
             _ => {
                 let expected = if function == AggregateFunction::Count {
-                    "a relation such as count(contacts)"
+                    "a relation such as count(items)"
                 } else {
                     "a related field such as sum(items.total)"
                 };

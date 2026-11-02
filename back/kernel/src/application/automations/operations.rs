@@ -8,11 +8,10 @@ use crate::errors::AppError;
 
 #[async_trait]
 pub trait StageOperations: Send + Sync {
-    async fn find_stage(&self, ctx: &Ctx<'_>, id: &str) -> Result<(), AppError>;
     async fn move_to_stage(
         &self,
         ctx: &Ctx<'_>,
-        deal: &RecordRef,
+        record: &RecordRef,
         stage_id: &str,
     ) -> Result<(), AppError>;
 }
@@ -28,9 +27,7 @@ pub trait NoteOperations: Send + Sync {
 }
 
 #[async_trait]
-pub trait ActivityTypeOperations: Send + Sync {
-    async fn find_activity_type(&self, ctx: &Ctx<'_>, id: &str) -> Result<(), AppError>;
-}
+pub trait ActivityTypeOperations: Send + Sync {}
 
 #[async_trait]
 pub trait TaskOperations: Send + Sync {
@@ -38,6 +35,4 @@ pub trait TaskOperations: Send + Sync {
 }
 
 #[async_trait]
-pub trait IncomingWebhookOperations: Send + Sync {
-    async fn find_incoming_webhook(&self, ctx: &Ctx<'_>, id: &str) -> Result<(), AppError>;
-}
+pub trait IncomingWebhookOperations: Send + Sync {}

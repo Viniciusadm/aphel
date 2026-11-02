@@ -188,7 +188,9 @@ impl DuplicateKey {
             Self::Domain => definition
                 .system_fields
                 .iter()
-                .filter(|field| field.field_type == FieldType::Url && field.computed.is_none())
+                .filter(|field| {
+                    field.field_type.base_type() == FieldType::Url && field.computed.is_none()
+                })
                 .map(|field| field.key.as_str().to_owned())
                 .collect(),
             _ => Vec::new(),

@@ -1,3 +1,4 @@
+use aphel_kernel::application::config_packages::ConfigReferenceKind;
 use std::collections::{BTreeSet, HashMap};
 
 use async_trait::async_trait;
@@ -13,8 +14,8 @@ use crate::domain::{
 use crate::store::RenewalStore;
 use aphel_kernel::application::config_packages::sections::common::diff;
 use aphel_kernel::application::config_packages::{
-    ApplyContext, ConfigKeyRepository, ConfigPackage, ConfigSection, Decisions, PIPELINE_ITEM,
-    PIPELINE_STAGE_ITEM, PackageIssue, PlanChange, PlanItem, assign_keys, parse_section,
+    ApplyContext, ConfigKeyRepository, ConfigPackage, ConfigSection, Decisions, PackageIssue,
+    PlanChange, PlanItem, assign_keys, parse_section,
 };
 use aphel_kernel::database::transaction::MySqlTx;
 use aphel_kernel::domain::access::AccessScope;
@@ -119,7 +120,10 @@ pub(crate) fn pipeline_renewals_section(pool: &MySqlPool) -> PipelineRenewalsSec
 
 impl PipelineRenewalsSection {
     async fn index(&self) -> Result<Index, AppError> {
-        let stored_stages = self.keys.keys(PIPELINE_STAGE_ITEM).await?;
+        let stored_stages = self
+            .keys
+            .keys(ConfigReferenceKind::new("workflow.stage"))
+            .await?;
         let mut pipelines = Vec::new();
         for (pipeline, keyed) in keyed_pipelines(&self.pipelines, &self.keys).await? {
             let stages = self.pipelines.list_stages(pipeline.id).await?;
@@ -362,7 +366,7 @@ impl ConfigSection<MySqlTx> for PipelineRenewalsSection {
         let existing = self.renewals.list().await?;
         let pipeline_id = |key: &str| {
             context
-                .resolved(PIPELINE_ITEM, key)
+                .resolved(ConfigReferenceKind::new("workflow.pipeline"), key)
                 .or_else(|| index.by_key(key).map(|pipeline| pipeline.pipeline.id))
         };
         for (entry, (item, is_new)) in entries.iter().zip(plans) {
@@ -377,7 +381,7 @@ impl ConfigSection<MySqlTx> for PipelineRenewalsSection {
             };
             let Some(stage_id) = context
                 .resolved(
-                    PIPELINE_STAGE_ITEM,
+                    ConfigReferenceKind::new("workflow.stage"),
                     &stage_item_key(&entry.target_pipeline, &entry.target_stage),
                 )
                 .or_else(|| {

@@ -22,8 +22,13 @@ const RELATIVE_DATES: [FilterOperator; 16] = [
 ];
 
 pub fn operators_for(field_type: FieldType) -> Vec<FilterOperator> {
+    if matches!(field_type, FieldType::Custom { .. })
+        && let Some(definition) = crate::application::fields::field_types::find(field_type.as_str())
+    {
+        return definition.operators.clone();
+    }
     use FilterOperator::*;
-    match field_type {
+    match field_type.base_type() {
         FieldType::Text | FieldType::Url | FieldType::Email | FieldType::Phone => vec![
             Eq,
             Neq,
@@ -48,6 +53,7 @@ pub fn operators_for(field_type: FieldType) -> Vec<FilterOperator> {
         }
         FieldType::MultiSelect => vec![In, NotIn, IsEmpty, IsNotEmpty],
         FieldType::Checkbox => vec![Eq, Neq],
+        FieldType::Custom { .. } => unreachable!("native field representation"),
     }
 }
 
@@ -56,7 +62,7 @@ pub fn supports(field_type: FieldType, operator: FilterOperator) -> bool {
 }
 
 pub fn hierarchical_target(definition: &FieldDefinition) -> Option<RecordTypeDefinition> {
-    if definition.field_type != FieldType::Record {
+    if definition.field_type.base_type() != FieldType::Record {
         return None;
     }
     let target = definition.config.target_record_type.as_deref()?;

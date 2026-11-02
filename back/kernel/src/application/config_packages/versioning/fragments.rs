@@ -5,7 +5,6 @@ use sha2::{Digest, Sha256};
 
 use crate::application::config_packages::PlanChange;
 
-const STAGES: &str = "stages";
 const WHOLE_SECTION_KIND: &str = "section";
 const WHOLE_SECTION_KEY: &str = "*";
 
@@ -74,6 +73,9 @@ pub fn fragment_hash(
 }
 
 fn locate(section: &str, content: &Value) -> Vec<(String, String, Value)> {
+    if let Some(layout) = nested_layout(section) {
+        return locate_nested(content, &layout);
+    }
     let keyed = |kind: &str, entries: Option<&Value>, key: &dyn Fn(&Value) -> Option<String>| {
         entries
             .and_then(Value::as_array)
@@ -98,34 +100,6 @@ fn locate(section: &str, content: &Value) -> Vec<(String, String, Value)> {
         "fields" => keyed("field", Some(content), &|entry| {
             joined_key(entry, "record_type", "key")
         }),
-        "pipelines" => {
-            let mut located = Vec::new();
-            for pipeline in content.as_array().into_iter().flatten() {
-                let Some(pipeline_key) = plain_key(pipeline) else {
-                    continue;
-                };
-                located.push((
-                    "pipeline".to_owned(),
-                    pipeline_key.clone(),
-                    without_stages(pipeline),
-                ));
-                for stage in pipeline
-                    .get(STAGES)
-                    .and_then(Value::as_array)
-                    .into_iter()
-                    .flatten()
-                {
-                    if let Some(stage_key) = plain_key(stage) {
-                        located.push((
-                            "stage".to_owned(),
-                            format!("{pipeline_key}.{stage_key}"),
-                            stage.clone(),
-                        ));
-                    }
-                }
-            }
-            located
-        }
         "lost_reasons" => keyed("lost_reason", Some(content), &plain_key),
         "activity_types" => keyed("activity_type", Some(content), &plain_key),
         "tags" => keyed("tag", Some(content), &plain_key),
@@ -159,12 +133,12 @@ fn joined_key(entry: &Value, first: &str, second: &str) -> Option<String> {
     Some(format!("{first}.{second}"))
 }
 
-fn without_stages(pipeline: &Value) -> Value {
-    let mut pipeline = pipeline.clone();
-    if let Value::Object(object) = &mut pipeline {
-        object.remove(STAGES);
+fn without_children(parent: &Value, children_field: &str) -> Value {
+    let mut parent = parent.clone();
+    if let Value::Object(object) = &mut parent {
+        object.remove(children_field);
     }
-    pipeline
+    parent
 }
 
 pub fn replace_fragment(
@@ -176,6 +150,10 @@ pub fn replace_fragment(
     let Some(content) = sections.get_mut(section) else {
         return;
     };
+    if let Some(layout) = nested_layout(section) {
+        replace_nested(content, fragment, replacement, &layout);
+        return;
+    }
     match (section, fragment.kind.as_str()) {
         ("custom_objects", "custom_object") => replace_in(
             content.get_mut("objects"),
@@ -201,36 +179,6 @@ pub fn replace_fragment(
             &|entry| joined_key(entry, "record_type", "context"),
             replacement,
         ),
-        ("pipelines", "pipeline") => {
-            let replacement = replacement.map(|mut local| {
-                let stages = content
-                    .as_array()
-                    .and_then(|pipelines| {
-                        pipelines
-                            .iter()
-                            .find(|pipeline| plain_key(pipeline).as_deref() == Some(&fragment.key))
-                    })
-                    .and_then(|pipeline| pipeline.get(STAGES).cloned());
-                if let (Value::Object(object), Some(stages)) = (&mut local, stages) {
-                    object.insert(STAGES.to_owned(), stages);
-                }
-                local
-            });
-            replace_in(Some(content), &fragment.key, &plain_key, replacement)
-        }
-        ("pipelines", "stage") => {
-            let Some((pipeline_key, stage_key)) = fragment.key.split_once('.') else {
-                return;
-            };
-            let pipeline = content.as_array_mut().and_then(|pipelines| {
-                pipelines
-                    .iter_mut()
-                    .find(|pipeline| plain_key(pipeline).as_deref() == Some(pipeline_key))
-            });
-            if let Some(pipeline) = pipeline {
-                replace_in(pipeline.get_mut(STAGES), stage_key, &plain_key, replacement);
-            }
-        }
         ("lost_reasons", _) | ("activity_types", _) | ("tags", _) | ("automations", _) => {
             replace_in(Some(content), &fragment.key, &plain_key, replacement)
         }
@@ -337,4 +285,95 @@ pub fn sha256_hex(bytes: &[u8]) -> String {
         .iter()
         .map(|byte| format!("{byte:02x}"))
         .collect()
+}
+
+#[derive(Debug, Clone)]
+pub struct NestedFragmentLayout {
+    pub section: &'static str,
+    pub parent_kind: &'static str,
+    pub child_kind: &'static str,
+    pub children_field: &'static str,
+}
+
+fn nested_layout(section: &str) -> Option<std::sync::Arc<NestedFragmentLayout>> {
+    crate::modules::try_app()?
+        .contributions::<NestedFragmentLayout>()
+        .into_iter()
+        .find(|layout| layout.section == section)
+}
+
+fn locate_nested(content: &Value, layout: &NestedFragmentLayout) -> Vec<(String, String, Value)> {
+    let mut located = Vec::new();
+    for parent in content.as_array().into_iter().flatten() {
+        let Some(parent_key) = plain_key(parent) else {
+            continue;
+        };
+        located.push((
+            layout.parent_kind.to_owned(),
+            parent_key.clone(),
+            without_children(parent, layout.children_field),
+        ));
+        for stage in parent
+            .get(layout.children_field)
+            .and_then(Value::as_array)
+            .into_iter()
+            .flatten()
+        {
+            if let Some(stage_key) = plain_key(stage) {
+                located.push((
+                    layout.child_kind.to_owned(),
+                    format!("{parent_key}.{stage_key}"),
+                    stage.clone(),
+                ));
+            }
+        }
+    }
+    located
+}
+
+fn replace_nested(
+    content: &mut Value,
+    fragment: &PackageFragment,
+    replacement: Option<Value>,
+    layout: &NestedFragmentLayout,
+) {
+    match fragment.kind.as_str() {
+        kind if kind == layout.parent_kind => {
+            let replacement = replacement.map(|mut local| {
+                let stages = content
+                    .as_array()
+                    .and_then(|parents| {
+                        parents
+                            .iter()
+                            .find(|parent| plain_key(parent).as_deref() == Some(&fragment.key))
+                    })
+                    .and_then(|parent| parent.get(layout.children_field).cloned());
+                if let (Value::Object(object), Some(stages)) = (&mut local, stages) {
+                    object.insert(layout.children_field.to_owned(), stages);
+                }
+                local
+            });
+            replace_in(Some(content), &fragment.key, &plain_key, replacement)
+        }
+        kind if kind == layout.child_kind => {
+            let Some((parent_key, stage_key)) = fragment.key.split_once('.') else {
+                return;
+            };
+            let parent = content.as_array_mut().and_then(|parents| {
+                parents
+                    .iter_mut()
+                    .find(|parent| plain_key(parent).as_deref() == Some(parent_key))
+            });
+            if let Some(parent) = parent {
+                replace_in(
+                    parent.get_mut(layout.children_field),
+                    stage_key,
+                    &plain_key,
+                    replacement,
+                );
+            }
+        }
+
+        _ => {}
+    }
 }

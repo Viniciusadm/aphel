@@ -1,3 +1,4 @@
+use aphel_kernel::application::config_packages::ConfigReferenceKind;
 use std::collections::{BTreeSet, HashMap};
 use std::sync::Arc;
 
@@ -634,7 +635,11 @@ impl ConfigSection<MySqlTx> for LeadDistributionSection {
         for plan in self.reconcile(scope, &parse(content)?, context.at).await? {
             if !decisions.executes(&plan.item) {
                 if plan.item.action == PlanAction::Unchanged {
-                    context.resolve(RULE_KIND, &plan.rule.key, plan.rule.id);
+                    context.resolve(
+                        ConfigReferenceKind::new("assignment.rule"),
+                        &plan.rule.key,
+                        plan.rule.id,
+                    );
                 }
                 continue;
             }
@@ -643,7 +648,11 @@ impl ConfigSection<MySqlTx> for LeadDistributionSection {
             } else {
                 self.store.update(tx, &plan.rule).await?;
             }
-            context.resolve(RULE_KIND, &plan.rule.key, plan.rule.id);
+            context.resolve(
+                ConfigReferenceKind::new("assignment.rule"),
+                &plan.rule.key,
+                plan.rule.id,
+            );
         }
         Ok(())
     }

@@ -10,10 +10,6 @@ pub(crate) struct AutomationStages;
 
 #[async_trait]
 impl StageOperations for AutomationStages {
-    async fn find_stage(&self, ctx: &Ctx<'_>, id: &str) -> Result<(), AppError> {
-        pipelines::service::get_stage(ctx, id).await.map(|_| ())
-    }
-
     async fn move_to_stage(
         &self,
         ctx: &Ctx<'_>,
@@ -30,5 +26,18 @@ impl StageOperations for AutomationStages {
         )
         .await
         .map(|_| ())
+    }
+}
+
+pub(crate) struct StageRefs;
+
+#[async_trait]
+impl aphel_sdk::points::ReferenceProvider for StageRefs {
+    fn kind(&self) -> aphel_sdk::ReferenceKind {
+        aphel_contract_crm::refs::STAGE
+    }
+
+    async fn exists(&self, ctx: &Ctx<'_>, id: &str) -> Result<bool, AppError> {
+        aphel_sdk::points::lookup_exists(pipelines::service::get_stage(ctx, id).await)
     }
 }

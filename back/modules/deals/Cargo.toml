@@ -9,6 +9,7 @@ publish = false
 [dependencies]
 aphel-contract-crm.workspace = true
 aphel-kernel.workspace = true
+aphel-sdk.workspace = true
 companies = { package = "aphel-mod-companies", path = "../companies" }
 contacts = { package = "aphel-mod-contacts", path = "../contacts" }
 currencies = { package = "aphel-mod-currencies", path = "../currencies" }

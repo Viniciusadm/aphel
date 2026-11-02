@@ -53,7 +53,7 @@ pub struct AutomationBinding {
 #[derive(Debug, Clone, Copy, PartialEq, Eq)]
 pub struct ReferenceCheck {
     pub field: &'static str,
-    pub exists_operation: &'static str,
+    pub kind: aphel_contract::ReferenceKind,
 }
 
 #[derive(Debug, Clone, Copy, PartialEq, Eq)]

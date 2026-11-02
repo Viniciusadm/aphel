@@ -7,4 +7,5 @@ license.workspace = true
 publish = false
 
 [dependencies]
+aphel-contract.workspace = true
 aphel-kernel.workspace = true

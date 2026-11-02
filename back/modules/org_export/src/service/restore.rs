@@ -1060,7 +1060,7 @@ impl Restore<'_> {
                 ));
                 continue;
             };
-            let value = match definition.field_type {
+            let value = match definition.field_type.base_type() {
                 FieldType::User => match mapper.user(value) {
                     Some(user) => user,
                     None => continue,

@@ -1,0 +1,90 @@
+{
+  "Name": {
+    "pt-BR": "Nome",
+    "en": "Name"
+  },
+  "Domain": {
+    "pt-BR": "Domínio",
+    "en": "Domain"
+  },
+  "Website": {
+    "pt-BR": "Site",
+    "en": "Website"
+  },
+  "Segment": {
+    "pt-BR": "Segmento",
+    "en": "Segment"
+  },
+  "Size": {
+    "pt-BR": "Porte",
+    "en": "Size"
+  },
+  "Email": {
+    "pt-BR": "E-mail",
+    "en": "Email"
+  },
+  "Owner": {
+    "pt-BR": "Responsável",
+    "en": "Owner"
+  },
+  "Description": {
+    "pt-BR": "Descrição",
+    "en": "Description"
+  },
+  "Source": {
+    "pt-BR": "Origem",
+    "en": "Source"
+  },
+  "Parent company": {
+    "pt-BR": "Empresa matriz",
+    "en": "Parent company"
+  },
+  "Branches": {
+    "pt-BR": "Filiais",
+    "en": "Branches"
+  },
+  "Contacts": {
+    "pt-BR": "Contatos",
+    "en": "Contacts"
+  },
+  "Deals": {
+    "pt-BR": "Oportunidades",
+    "en": "Deals"
+  },
+  "Companies": {
+    "pt-BR": "Empresas",
+    "en": "Companies"
+  },
+  "1–10": {
+    "pt-BR": "1–10",
+    "en": "1–10"
+  },
+  "11–50": {
+    "pt-BR": "11–50",
+    "en": "11–50"
+  },
+  "51–200": {
+    "pt-BR": "51–200",
+    "en": "51–200"
+  },
+  "201–500": {
+    "pt-BR": "201–500",
+    "en": "201–500"
+  },
+  "501–1000": {
+    "pt-BR": "501–1000",
+    "en": "501–1000"
+  },
+  "1001+": {
+    "pt-BR": "1001+",
+    "en": "1001+"
+  },
+  "Phone": {
+    "pt-BR": "Telefone",
+    "en": "Phone"
+  },
+  "Mobile": {
+    "pt-BR": "Celular",
+    "en": "Mobile"
+  }
+}

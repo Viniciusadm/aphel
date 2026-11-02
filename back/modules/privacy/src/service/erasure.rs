@@ -217,7 +217,12 @@ pub(crate) async fn erase(
 }
 
 fn add_mentions(redaction: &mut Redaction, field: &PersonalField, value: &Value) {
-    if field.sensitive || matches!(field.field_type, FieldType::Email | FieldType::Phone) {
+    if field.sensitive
+        || matches!(
+            field.field_type.base_type(),
+            FieldType::Email | FieldType::Phone
+        )
+    {
         redaction.add_strong_json(value);
     } else {
         redaction.add_identifiers_json(value);

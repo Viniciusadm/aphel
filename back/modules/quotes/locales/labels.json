@@ -1,0 +1,118 @@
+{
+  "Status": {
+    "pt-BR": "Situação",
+    "en": "Status"
+  },
+  "Title": {
+    "pt-BR": "Título",
+    "en": "Title"
+  },
+  "Number": {
+    "pt-BR": "Número",
+    "en": "Number"
+  },
+  "Version": {
+    "pt-BR": "Versão",
+    "en": "Version"
+  },
+  "Current version": {
+    "pt-BR": "Versão atual",
+    "en": "Current version"
+  },
+  "Deal": {
+    "pt-BR": "Oportunidade",
+    "en": "Deal"
+  },
+  "Contact": {
+    "pt-BR": "Contato",
+    "en": "Contact"
+  },
+  "Company": {
+    "pt-BR": "Empresa",
+    "en": "Company"
+  },
+  "Owner": {
+    "pt-BR": "Responsável",
+    "en": "Owner"
+  },
+  "Currency": {
+    "pt-BR": "Moeda",
+    "en": "Currency"
+  },
+  "Subtotal": {
+    "pt-BR": "Subtotal",
+    "en": "Subtotal"
+  },
+  "Discounts": {
+    "pt-BR": "Descontos",
+    "en": "Discounts"
+  },
+  "Taxes": {
+    "pt-BR": "Impostos",
+    "en": "Taxes"
+  },
+  "Total": {
+    "pt-BR": "Total",
+    "en": "Total"
+  },
+  "Valid until": {
+    "pt-BR": "Válida até",
+    "en": "Valid until"
+  },
+  "Discount above limit": {
+    "pt-BR": "Desconto acima do limite",
+    "en": "Discount above limit"
+  },
+  "Sent at": {
+    "pt-BR": "Enviada em",
+    "en": "Sent at"
+  },
+  "Accepted at": {
+    "pt-BR": "Aceita em",
+    "en": "Accepted at"
+  },
+  "Rejected at": {
+    "pt-BR": "Recusada em",
+    "en": "Rejected at"
+  },
+  "Created by": {
+    "pt-BR": "Criada por",
+    "en": "Created by"
+  },
+  "Created at": {
+    "pt-BR": "Criada em",
+    "en": "Created at"
+  },
+  "Updated at": {
+    "pt-BR": "Atualizada em",
+    "en": "Updated at"
+  },
+  "Draft": {
+    "pt-BR": "Rascunho",
+    "en": "Draft"
+  },
+  "Pending approval": {
+    "pt-BR": "Em aprovação",
+    "en": "Pending approval"
+  },
+  "Approved": {
+    "pt-BR": "Aprovada",
+    "en": "Approved"
+  },
+  "Sent": {
+    "pt-BR": "Enviada",
+    "en": "Sent"
+  },
+  "Accepted": {
+    "pt-BR": "Aceita",
+    "en": "Accepted"
+  },
+  "Rejected": {
+    "pt-BR": "Recusada",
+    "en": "Rejected"
+  },
+  "Expired": {
+    "pt-BR": "Expirada",
+    "en": "Expired"
+  }
+}

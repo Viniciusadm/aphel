@@ -76,7 +76,7 @@ pub fn formula_field_value(
     definition: &FieldDefinition,
     value: &FormulaValue,
 ) -> Option<FieldValue> {
-    match (definition.field_type, value) {
+    match (definition.field_type.base_type(), value) {
         (FieldType::Number | FieldType::Currency, FormulaValue::Number(number)) => {
             let decimals = definition.config.allowed_decimals(definition.field_type);
             let rounded = number.round_dp(decimals).normalize();
@@ -109,7 +109,7 @@ fn stored_value(value: &FieldValue) -> FormulaValue {
 
 fn source_value(definition: &FieldDefinition, value: &FieldValue, timezone: Tz) -> FormulaValue {
     match value {
-        FieldValue::Text(text) if definition.field_type == FieldType::Select => {
+        FieldValue::Text(text) if definition.field_type.base_type() == FieldType::Select => {
             definition.option_by_value(text).map_or_else(
                 || FormulaValue::Text(text.clone()),
                 |option| FormulaValue::Text(option.label.clone()),

@@ -190,7 +190,7 @@ impl ValidationRuleRepository for MySqlValidationRuleRepository {
 }
 
 fn decode(field: &FieldDefinition, row: &MySqlRow) -> Result<Option<FieldValue>, AppError> {
-    Ok(match field.field_type {
+    Ok(match field.field_type.base_type() {
         FieldType::Text | FieldType::Url | FieldType::Email | FieldType::Phone => row
             .try_get::<Option<String>, _>("value_text")?
             .map(FieldValue::Text),
@@ -214,6 +214,7 @@ fn decode(field: &FieldDefinition, row: &MySqlRow) -> Result<Option<FieldValue>,
             .and_then(|id| Uuid::parse_str(&id).ok())
             .map(FieldValue::Option),
         FieldType::MultiSelect | FieldType::User | FieldType::Record => None,
+        FieldType::Custom { .. } => unreachable!("native field representation"),
     })
 }
 

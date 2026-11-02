@@ -1,0 +1,58 @@
+{
+  "Activities": {
+    "pt-BR": "Atividades",
+    "en": "Activities"
+  },
+  "Last contact": {
+    "pt-BR": "Último contato",
+    "en": "Last contact"
+  },
+  "Last email received": {
+    "pt-BR": "Último e-mail recebido",
+    "en": "Last email received"
+  },
+  "Last email sent": {
+    "pt-BR": "Último e-mail enviado",
+    "en": "Last email sent"
+  },
+  "Email interactions": {
+    "pt-BR": "Interações por e-mail",
+    "en": "Email interactions"
+  },
+  "Last contacted by": {
+    "pt-BR": "Último contato por",
+    "en": "Last contacted by"
+  },
+  "Street": {
+    "pt-BR": "Logradouro",
+    "en": "Street"
+  },
+  "Number": {
+    "pt-BR": "Número",
+    "en": "Number"
+  },
+  "Address line 2": {
+    "pt-BR": "Complemento",
+    "en": "Address line 2"
+  },
+  "District": {
+    "pt-BR": "Bairro",
+    "en": "District"
+  },
+  "City": {
+    "pt-BR": "Cidade",
+    "en": "City"
+  },
+  "State": {
+    "pt-BR": "Estado",
+    "en": "State"
+  },
+  "Postal code": {
+    "pt-BR": "CEP",
+    "en": "Postal code"
+  },
+  "Country": {
+    "pt-BR": "País",
+    "en": "Country"
+  }
+}

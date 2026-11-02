@@ -14,6 +14,10 @@ pub enum FieldType {
     Phone,
     User,
     Record,
+    Custom {
+        key: &'static str,
+        base: &'static str,
+    },
 }
 
 #[derive(Debug, Clone, Copy, PartialEq, Eq, Hash)]
@@ -76,6 +80,7 @@ impl FieldType {
             Self::Phone => "phone",
             Self::User => "user",
             Self::Record => "record",
+            Self::Custom { key, .. } => key,
         }
     }
 
@@ -83,10 +88,24 @@ impl FieldType {
         Self::ALL
             .into_iter()
             .find(|field_type| field_type.as_str() == value)
+            .or_else(|| {
+                crate::application::fields::field_types::find(value)
+                    .map(|definition| definition.field_type())
+            })
+    }
+
+    pub fn base_type(self) -> Self {
+        match self {
+            Self::Custom { base, .. } => Self::ALL
+                .into_iter()
+                .find(|value| value.as_str() == base)
+                .expect("registered native field type"),
+            native => native,
+        }
     }
 
     pub fn value_column(&self) -> ValueColumn {
-        match self {
+        match self.base_type() {
             Self::Text | Self::Url | Self::Email | Self::Phone | Self::User | Self::Record => {
                 ValueColumn::Text
             }
@@ -97,30 +116,31 @@ impl FieldType {
             Self::Checkbox => ValueColumn::Bool,
             Self::Select => ValueColumn::Option,
             Self::MultiSelect => ValueColumn::MultiOption,
+            Self::Custom { .. } => unreachable!(),
         }
     }
 
     pub fn has_options(&self) -> bool {
-        matches!(self, Self::Select | Self::MultiSelect)
+        matches!(self.base_type(), Self::Select | Self::MultiSelect)
     }
 
     pub fn is_textual(&self) -> bool {
         matches!(
-            self,
+            self.base_type(),
             Self::Text | Self::LongText | Self::Url | Self::Email | Self::Phone
         )
     }
 
     pub fn supports_unique(&self) -> bool {
         matches!(
-            self,
+            self.base_type(),
             Self::Text | Self::Number | Self::Url | Self::Email | Self::Phone
         )
     }
 
     pub fn is_sortable(&self) -> bool {
         !matches!(
-            self,
+            self.base_type(),
             Self::MultiSelect | Self::LongText | Self::User | Self::Record
         )
     }
@@ -129,7 +149,10 @@ impl FieldType {
         if *self == target {
             return true;
         }
-        let group = |field_type: Self| match field_type {
+        if matches!(self, Self::Custom { .. }) || matches!(target, Self::Custom { .. }) {
+            return false;
+        }
+        let group = |field_type: Self| match field_type.base_type() {
             Self::Text | Self::Url | Self::Email | Self::Phone => Some(0),
             Self::Number | Self::Currency => Some(1),
             _ => None,

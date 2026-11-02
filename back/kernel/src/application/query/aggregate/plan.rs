@@ -36,7 +36,7 @@ impl GroupPlan {
     }
 
     pub fn shifts_timezone(&self) -> bool {
-        self.granularity.is_some() && self.field_type == FieldType::DateTime
+        self.granularity.is_some() && self.field_type.base_type() == FieldType::DateTime
     }
 }
 

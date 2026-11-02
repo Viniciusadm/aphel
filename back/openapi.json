@@ -66455,7 +66455,8 @@
       "AuditActorResponse": {
         "type": "object",
         "required": [
-          "type"
+          "type",
+          "kind"
         ],
         "properties": {
           "email": {
@@ -66469,6 +66470,9 @@
               "string",
               "null"
             ]
+          },
+          "kind": {
+            "type": "string"
           },
           "name": {
             "type": [
@@ -66488,21 +66492,20 @@
           "system",
           "api_token",
           "automation",
-          "plugin"
+          "plugin",
+          "service"
         ]
       },
       "AuditCausationResponse": {
         "type": "object",
         "required": [
-          "automation_id",
+          "executor_kind",
+          "executor_id",
           "run_id",
           "depth",
           "chain"
         ],
         "properties": {
-          "automation_id": {
-            "type": "string"
-          },
           "chain": {
             "type": "array",
             "items": {
@@ -66513,6 +66516,12 @@
             "type": "integer",
             "format": "int32",
             "minimum": 0
+          },
+          "executor_id": {
+            "type": "string"
+          },
+          "executor_kind": {
+            "type": "string"
           },
           "run_id": {
             "type": "string"
@@ -68426,6 +68435,8 @@
         "type": "object",
         "required": [
           "version",
+          "field_types",
+          "reference_kinds",
           "contracts",
           "plugins",
           "operations",
@@ -68445,6 +68456,12 @@
             "type": "array",
             "items": {
               "$ref": "#/components/schemas/EventEntry"
+            }
+          },
+          "field_types": {
+            "type": "array",
+            "items": {
+              "$ref": "#/components/schemas/FieldTypeEntry"
             }
           },
           "hooks": {
@@ -68475,6 +68492,12 @@
             "type": "array",
             "items": {
               "$ref": "#/components/schemas/PluginEntry"
+            }
+          },
+          "reference_kinds": {
+            "type": "array",
+            "items": {
+              "$ref": "#/components/schemas/ReferenceKindEntry"
             }
           },
           "version": {
@@ -74588,6 +74611,8 @@
             "type": "object",
             "required": [
               "version",
+              "field_types",
+              "reference_kinds",
               "contracts",
               "plugins",
               "operations",
@@ -74607,6 +74632,12 @@
                 "type": "array",
                 "items": {
                   "$ref": "#/components/schemas/EventEntry"
+                }
+              },
+              "field_types": {
+                "type": "array",
+                "items": {
+                  "$ref": "#/components/schemas/FieldTypeEntry"
                 }
               },
               "hooks": {
@@ -74637,6 +74668,12 @@
                 "type": "array",
                 "items": {
                   "$ref": "#/components/schemas/PluginEntry"
+                }
+              },
+              "reference_kinds": {
+                "type": "array",
+                "items": {
+                  "$ref": "#/components/schemas/ReferenceKindEntry"
                 }
               },
               "version": {
@@ -77777,6 +77814,7 @@
           "data": {
             "type": "object",
             "required": [
+              "labels",
               "id",
               "record_type",
               "key",
@@ -77842,6 +77880,15 @@
               },
               "label": {
                 "type": "string"
+              },
+              "labels": {
+                "type": "object",
+                "additionalProperties": {
+                  "type": "string"
+                },
+                "propertyNames": {
+                  "type": "string"
+                }
               },
               "module_key": {
                 "type": [
@@ -86128,6 +86175,7 @@
             "items": {
               "type": "object",
               "required": [
+                "labels",
                 "id",
                 "record_type",
                 "key",
@@ -86193,6 +86241,15 @@
                 },
                 "label": {
                   "type": "string"
+                },
+                "labels": {
+                  "type": "object",
+                  "additionalProperties": {
+                    "type": "string"
+                  },
+                  "propertyNames": {
+                    "type": "string"
+                  }
                 },
                 "module_key": {
                   "type": [
@@ -92293,6 +92350,7 @@
       "FieldResponse": {
         "type": "object",
         "required": [
+          "labels",
           "id",
           "record_type",
           "key",
@@ -92359,6 +92417,15 @@
           "label": {
             "type": "string"
           },
+          "labels": {
+            "type": "object",
+            "additionalProperties": {
+              "type": "string"
+            },
+            "propertyNames": {
+              "type": "string"
+            }
+          },
           "module_key": {
             "type": [
               "string",
@@ -92420,24 +92487,39 @@
         }
       },
       "FieldType": {
-        "type": "string",
-        "enum": [
-          "text",
-          "long_text",
-          "number",
-          "currency",
-          "date",
-          "datetime",
-          "select",
-          "multi_select",
-          "checkbox",
-          "url",
-          "email",
-          "phone",
-          "user",
-          "record",
-          "formula"
-        ]
+        "type": "string"
+      },
+      "FieldTypeEntry": {
+        "type": "object",
+        "required": [
+          "key",
+          "provider",
+          "storage",
+          "config",
+          "operators",
+          "enabled"
+        ],
+        "properties": {
+          "config": {},
+          "enabled": {
+            "type": "boolean"
+          },
+          "key": {
+            "type": "string"
+          },
+          "operators": {
+            "type": "array",
+            "items": {
+              "type": "string"
+            }
+          },
+          "provider": {
+            "type": "string"
+          },
+          "storage": {
+            "type": "string"
+          }
+        }
       },
       "FileResponse": {
         "type": "object",
@@ -103210,6 +103292,7 @@
             "items": {
               "type": "object",
               "required": [
+                "labels",
                 "id",
                 "record_type",
                 "key",
@@ -103275,6 +103358,15 @@
                 },
                 "label": {
                   "type": "string"
+                },
+                "labels": {
+                  "type": "object",
+                  "additionalProperties": {
+                    "type": "string"
+                  },
+                  "propertyNames": {
+                    "type": "string"
+                  }
                 },
                 "module_key": {
                   "type": [
@@ -111443,6 +111535,25 @@
           "sa",
           "su"
         ]
+      },
+      "ReferenceKindEntry": {
+        "type": "object",
+        "required": [
+          "key",
+          "provider",
+          "enabled"
+        ],
+        "properties": {
+          "enabled": {
+            "type": "boolean"
+          },
+          "key": {
+            "type": "string"
+          },
+          "provider": {
+            "type": "string"
+          }
+        }
       },
       "RegenerateRecoveryCodesRequest": {
         "type": "object",

@@ -4,15 +4,15 @@ use crate::errors::AppError;
 use crate::infrastructure::query::compiler::quoted;
 use crate::modules::BoxFuture;
 
-pub(crate) type CrmSeedFn =
+pub(crate) type DefaultsSeedFn =
     for<'c> fn(&'c mut MySqlConnection) -> BoxFuture<'c, Result<(), AppError>>;
 
-pub struct CrmDefaultsSeed(pub CrmSeedFn);
+pub struct DefaultsSeed(pub DefaultsSeedFn);
 
-pub struct CrmDefaultsProbe(pub &'static str);
+pub struct DefaultsProbe(pub &'static str);
 
-pub async fn seed_crm_defaults(connection: &mut MySqlConnection) -> Result<(), AppError> {
-    for (_, seed) in crate::modules::app().all_contributions::<CrmDefaultsSeed>() {
+pub async fn seed_defaults(connection: &mut MySqlConnection) -> Result<(), AppError> {
+    for (_, seed) in crate::modules::app().all_contributions::<DefaultsSeed>() {
         (seed.0)(&mut *connection).await?;
     }
     Ok(())
@@ -20,7 +20,7 @@ pub async fn seed_crm_defaults(connection: &mut MySqlConnection) -> Result<(), A
 
 fn probed_tables() -> Vec<&'static str> {
     let mut tables: Vec<&'static str> = Vec::new();
-    for (_, probe) in crate::modules::app().all_contributions::<CrmDefaultsProbe>() {
+    for (_, probe) in crate::modules::app().all_contributions::<DefaultsProbe>() {
         if !tables.contains(&probe.0) {
             tables.push(probe.0);
         }
@@ -28,7 +28,7 @@ fn probed_tables() -> Vec<&'static str> {
     tables
 }
 
-pub async fn sync_crm_defaults(pool: &MySqlPool) -> Result<u64, AppError> {
+pub async fn sync_defaults(pool: &MySqlPool) -> Result<u64, AppError> {
     let missing_condition = probed_tables()
         .into_iter()
         .map(|table| format!("NOT EXISTS (SELECT 1 FROM {})", quoted(table)))
@@ -46,7 +46,7 @@ pub async fn sync_crm_defaults(pool: &MySqlPool) -> Result<u64, AppError> {
         return Ok(0);
     }
     let mut transaction = pool.begin().await?;
-    seed_crm_defaults(&mut transaction).await?;
+    seed_defaults(&mut transaction).await?;
     transaction.commit().await?;
     Ok(1)
 }

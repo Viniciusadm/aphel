@@ -97,7 +97,7 @@ pub fn indexed_fields(fields: &FieldSet) -> Vec<IndexedField> {
             column: Some(system.column.clone()),
             field_type: system.field_type,
             position: i32::try_from(position).unwrap_or(i32::MAX),
-            title_candidate: system.field_type == FieldType::Text,
+            title_candidate: system.field_type.base_type() == FieldType::Text,
         });
     }
     let offset = i32::try_from(definition.system_fields.len()).unwrap_or(i32::MAX);
@@ -134,7 +134,7 @@ fn entry(field: &IndexedField, raw: &str) -> Option<IndexEntry> {
     if value.is_empty() {
         return None;
     }
-    let content = match field.field_type {
+    let content = match field.field_type.base_type() {
         FieldType::Phone => {
             let digits = phone_content(&value);
             if digits.is_empty() {

@@ -89,9 +89,8 @@ impl From<&RecordTypeDefinition> for TrashTypeResponse {
                 .or_else(|| {
                     definition
                         .capabilities
-                        .plural_labels
-                        .as_ref()
-                        .map(|labels| labels.portuguese.clone())
+                        .plural_labels_value()
+                        .map(|labels| labels.default_text().to_owned())
                 }),
             custom: definition.is_custom(),
         }

@@ -244,7 +244,7 @@ Implement `AutomationTrigger` (kernel contract) and register it in the owning mo
 
 Time-based triggers do not listen to events (`listens_to` false); the sweep logic lives in `modules/automations/time/sweep.rs` and each one's plan in `kernel/application/automations/time/triggers.rs` (`parse_plan`).
 
-A new module gets the generic triggers automatically if it publishes `<type>.created|updated|deleted` with `record` and, on updates, `changes: [{ field, old, new }]`, and if the type is automatable: the owner declares `RecordCapabilities::automatable()` in the type definition (`is_automatable` reads the capability from the `App` registry; `co_*` custom objects are always automatable).
+A new module gets the generic triggers automatically if it publishes `<type>.created|updated|deleted` with `record` and, on updates, `changes: [{ field, old, new }]`, and if the type is automatable: the owner declares `EntityTraits::automatable()` in the type definition (`is_automatable` reads the capability from the `App` registry; `co_*` custom objects are always automatable).
 
 The `create_task` action uses the `TaskOperations` service (`kernel/application/automations/operations.rs`), provided by the `activities` module (`modules/activities/operations.rs`), which resolves the default activity type and creates the activity through the module's use case. Without the module, the action fails with "tasks are not available in this installation". In templates (`{{record.<key>}}`), besides the type's active fields, `id`, `title`, `name`, `custom`, `created_at`, `updated_at` and the embedded `<base>` object of every `<base>_id` field of the type (e.g. `stage`, `owner`, `contact`, `company`) are available.
 

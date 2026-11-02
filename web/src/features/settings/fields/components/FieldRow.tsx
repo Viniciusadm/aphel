@@ -43,7 +43,7 @@ export function FieldRow({ field, handle, canMoveUp, canMoveDown, onAction }: Fi
           <code className="text-xs break-all text-muted-foreground">{field.key}</code>
         </div>
         <div className="flex flex-wrap items-center gap-1">
-          <Badge variant="outline">{t(`types.${field.field_type}`)}</Badge>
+          <Badge variant="outline">{t(`types.${field.field_type}`, field.field_type)}</Badge>
           {field.is_system && <Badge variant="secondary">{t('list.system')}</Badge>}
           {field.module_key && (
             <Badge variant="secondary">{t('list.managed', { module: pluginDisplayName(field.module_key) })}</Badge>

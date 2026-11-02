@@ -753,7 +753,7 @@ impl FilterResolver<'_> {
             }
             Anniversary => {
                 let days = parse_days(value)?;
-                let offset_seconds = match field_type {
+                let offset_seconds = match field_type.base_type() {
                     FieldType::DateTime => self
                         .context
                         .now
@@ -802,7 +802,7 @@ impl FilterResolver<'_> {
                 let [low, high] = items.as_slice() else {
                     return Err("must be a list with two values".to_owned());
                 };
-                if field_type == FieldType::DateTime {
+                if field_type.base_type() == FieldType::DateTime {
                     return match (day_operand(low), day_operand(high)) {
                         (Some(low), Some(high)) => Ok((
                             self.day_range(field_type, Some(low), Some(add_days(high, 1))),
@@ -823,7 +823,7 @@ impl FilterResolver<'_> {
                     false,
                 ))
             }
-            Eq | Neq if field_type == FieldType::Checkbox => {
+            Eq | Neq if field_type.base_type() == FieldType::Checkbox => {
                 let checked = match value {
                     Value::Bool(checked) => *checked,
                     Value::String(text) if text.trim() == "true" => true,
@@ -837,7 +837,7 @@ impl FilterResolver<'_> {
                 ))
             }
             Eq | Neq | Gt | Gte | Lt | Lte => {
-                if field_type == FieldType::DateTime
+                if field_type.base_type() == FieldType::DateTime
                     && let Some(day) = day_operand(value)
                 {
                     let next = add_days(day, 1);
@@ -872,7 +872,7 @@ impl FilterResolver<'_> {
         until: Option<NaiveDate>,
     ) -> Predicate {
         let bound = |day: NaiveDate| {
-            if field_type == FieldType::DateTime {
+            if field_type.base_type() == FieldType::DateTime {
                 PlanValue::DateTime(self.context.start_of(day))
             } else {
                 PlanValue::Date(day)
@@ -886,7 +886,7 @@ impl FilterResolver<'_> {
 
     fn operand(&self, field: &ResolvedField, value: &Value) -> Result<PlanValue, String> {
         let definition = &field.definition;
-        match definition.field_type {
+        match definition.field_type.base_type() {
             FieldType::Text | FieldType::LongText | FieldType::Url | FieldType::Email => {
                 Ok(PlanValue::Text(non_empty_text(value)?))
             }
@@ -939,6 +939,7 @@ impl FilterResolver<'_> {
                 uuid_text(&text)
             }
             FieldType::Record => uuid_text(&non_empty_text(value)?),
+            FieldType::Custom { .. } => unreachable!("native field representation"),
         }
     }
 }

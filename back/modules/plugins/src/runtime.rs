@@ -275,7 +275,7 @@ pub async fn plugin_scope(plugin: &LoadedPlugin) -> Result<AccessScope, AppError
         .ok_or_else(inactive)?;
     Ok(
         capability_scope(plugin, &build_access_scope(installer, access))
-            .through_plugin(&plugin.key),
+            .acting_as("plugin", &plugin.key),
     )
 }
 
@@ -344,7 +344,7 @@ fn execution_context(
     }
     let actor = scope
         .map(Actor::from_scope)
-        .filter(|actor| !matches!(actor, Actor::Plugin(_) | Actor::System));
+        .filter(|actor| !(actor.is_service(Actor::PLUGIN) || matches!(actor, Actor::System)));
     ExecutionContext::plugin(
         &plugin.key,
         trigger,
@@ -663,10 +663,10 @@ fn actor_parts(actor: &Actor) -> (wit::ActorKind, Option<String>) {
     match actor {
         Actor::User(user_id) => (wit::ActorKind::User, Some(user_id.as_str().to_owned())),
         Actor::ApiToken(token_id) => (wit::ActorKind::ApiToken, Some(token_id.clone())),
-        Actor::Automation(automation_id) => {
-            (wit::ActorKind::Automation, Some(automation_id.clone()))
+        Actor::Service { kind, id } if kind == Actor::AUTOMATION => {
+            (wit::ActorKind::Automation, Some(id.clone()))
         }
-        Actor::Plugin(plugin_key) => (wit::ActorKind::Plugin, Some(plugin_key.clone())),
+        Actor::Service { id, .. } => (wit::ActorKind::Plugin, Some(id.clone())),
         Actor::System => (wit::ActorKind::System, None),
     }
 }

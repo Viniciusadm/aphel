@@ -1,0 +1,82 @@
+{
+  "Title": {
+    "pt-BR": "Título",
+    "en": "Title"
+  },
+  "Amount": {
+    "pt-BR": "Valor",
+    "en": "Amount"
+  },
+  "Currency": {
+    "pt-BR": "Moeda",
+    "en": "Currency"
+  },
+  "Pipeline": {
+    "pt-BR": "Funil",
+    "en": "Pipeline"
+  },
+  "Stage": {
+    "pt-BR": "Etapa",
+    "en": "Stage"
+  },
+  "Status": {
+    "pt-BR": "Situação",
+    "en": "Status"
+  },
+  "Probability (%)": {
+    "pt-BR": "Probabilidade (%)",
+    "en": "Probability (%)"
+  },
+  "Expected close date": {
+    "pt-BR": "Previsão de fechamento",
+    "en": "Expected close date"
+  },
+  "Contact": {
+    "pt-BR": "Contato",
+    "en": "Contact"
+  },
+  "Company": {
+    "pt-BR": "Empresa",
+    "en": "Company"
+  },
+  "Owner": {
+    "pt-BR": "Responsável",
+    "en": "Owner"
+  },
+  "Source": {
+    "pt-BR": "Origem",
+    "en": "Source"
+  },
+  "Lost reason": {
+    "pt-BR": "Motivo da perda",
+    "en": "Lost reason"
+  },
+  "Closed at": {
+    "pt-BR": "Fechada em",
+    "en": "Closed at"
+  },
+  "Stage entered at": {
+    "pt-BR": "Entrou na etapa em",
+    "en": "Stage entered at"
+  },
+  "Last activity": {
+    "pt-BR": "Última atividade",
+    "en": "Last activity"
+  },
+  "Deals": {
+    "pt-BR": "Oportunidades",
+    "en": "Deals"
+  },
+  "Open": {
+    "pt-BR": "Em aberto",
+    "en": "Open"
+  },
+  "Won": {
+    "pt-BR": "Ganha",
+    "en": "Won"
+  },
+  "Lost": {
+    "pt-BR": "Perdida",
+    "en": "Lost"
+  }
+}

@@ -1,3 +1,4 @@
+use aphel_kernel::application::config_packages::ConfigReferenceKind;
 use std::collections::{BTreeSet, HashMap};
 
 use async_trait::async_trait;
@@ -434,7 +435,11 @@ impl ConfigSection<MySqlTx> for SequencesSection {
             } else {
                 self.sequences.update(tx, &plan.sequence).await?;
             }
-            context.resolve(SEQUENCE_KIND, &plan.sequence.key, plan.sequence.id);
+            context.resolve(
+                ConfigReferenceKind::new("sequences.sequence"),
+                &plan.sequence.key,
+                plan.sequence.id,
+            );
         }
         Ok(())
     }

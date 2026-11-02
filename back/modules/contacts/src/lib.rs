@@ -3,6 +3,7 @@ pub mod http;
 pub mod service;
 pub mod store;
 
+use aphel_contract_crm::traits;
 use aphel_contract_crm::{
     CrmPermissions, CrmRecordTypes, activities_relation, address_fields, email_engagement_fields,
     phone_field,
@@ -13,7 +14,7 @@ use aphel_kernel::modules::Migration;
 
 use aphel_kernel::application::fields::builtin::{field, record_field, timestamps, with_fields};
 use aphel_kernel::application::fields::{
-    LabelNormalization, RecordCapabilities, RecordRelation, RecordTypeDefinition, SystemField,
+    EntityTraits, LabelNormalization, RecordRelation, RecordTypeDefinition, SystemField,
 };
 use aphel_kernel::application::public_events::{
     PreviousValues, PublicEventDefinition, PublicResource, changed, deleted, event,
@@ -81,20 +82,20 @@ const PUBLIC_EVENTS: &[PublicEventDefinition] = &[
     ),
 ];
 
-pub(crate) fn contact_capabilities() -> RecordCapabilities {
-    RecordCapabilities::default()
+pub(crate) fn contact_capabilities() -> EntityTraits {
+    EntityTraits::default()
         .relatable()
         .importable()
         .exportable()
-        .sequences()
+        .with_trait(traits::SEQUENCEABLE)
         .personal_data()
         .notifies()
         .automatable()
         .validation_rules()
         .bulk_fields(CONTACT_BULK_FIELDS)
         .web_path("contacts")
-        .plural_labels("Contatos", "Contacts")
-        .contact_columns(&["email", "mobile", "phone"])
+        .localized_labels(crate::labels("Contacts"))
+        .trait_columns_mapping(traits::CONTACT_POINTS, &["email", "mobile", "phone"])
         .label_alias("email", LabelNormalization::Lowercase)
         .related_record("company_id", RecordType::COMPANY)
         .free_text_fields(&["notes"])
@@ -112,51 +113,60 @@ pub(crate) fn contact_definition() -> Result<RecordTypeDefinition, AppError> {
             .soft_delete_column("deleted_at")
             .archive_column("archived_at")
             .system_field(
-                SystemField::new("name", "Nome completo", FieldType::Text, "full_name")?
-                    .searchable()
-                    .personal(),
+                SystemField::new(
+                    "name",
+                    crate::labels("Full name"),
+                    FieldType::Text,
+                    "full_name",
+                )?
+                .searchable()
+                .personal(),
             )
             .system_field(
-                field("first_name", "Nome", FieldType::Text)?
+                field("first_name", crate::labels("Name"), FieldType::Text)?
                     .searchable()
                     .required()
                     .personal(),
             )
             .system_field(
-                field("last_name", "Sobrenome", FieldType::Text)?
+                field("last_name", crate::labels("Last name"), FieldType::Text)?
                     .searchable()
                     .personal(),
             )
             .system_field(
-                field("email", "E-mail", FieldType::Email)?
+                field("email", crate::labels("Email"), FieldType::Email)?
                     .searchable()
                     .personal(),
             )
-            .system_field(phone_field("phone", "Telefone")?.personal())
-            .system_field(phone_field("mobile", "Celular")?.personal())
-            .system_field(field("job_title", "Cargo", FieldType::Text)?)
+            .system_field(phone_field("phone", crate::labels("Phone"))?.personal())
+            .system_field(phone_field("mobile", crate::labels("Mobile"))?.personal())
+            .system_field(field(
+                "job_title",
+                crate::labels("Job title"),
+                FieldType::Text,
+            )?)
             .system_field(record_field(
                 "company_id",
-                "Empresa",
+                crate::labels("Company"),
                 RecordType::COMPANY.as_str(),
             )?)
-            .system_field(field("owner_id", "Responsável", FieldType::User)?);
+            .system_field(field("owner_id", crate::labels("Owner"), FieldType::User)?);
     let personal_address = address_fields()?
         .into_iter()
         .map(SystemField::personal)
         .collect();
     let definition = with_fields(definition, personal_address)
-        .system_field(field("source", "Origem", FieldType::Text)?)
-        .system_field(field("notes", "Observações", FieldType::LongText)?)
+        .system_field(field("source", crate::labels("Source"), FieldType::Text)?)
+        .system_field(field("notes", crate::labels("Notes"), FieldType::LongText)?)
         .relation(RecordRelation::belongs_to(
             "company",
-            "Empresa",
+            crate::labels("Company"),
             RecordType::COMPANY,
             "company_id",
         ))
         .relation(RecordRelation::has_many(
             "deals",
-            "Oportunidades",
+            crate::labels("Deals"),
             RecordType::DEAL,
             "contact_id",
         ))
@@ -199,4 +209,11 @@ impl Module for ContactsModule {
         }
         Ok(())
     }
+}
+
+pub(crate) fn labels(key: &str) -> aphel_kernel::application::fields::LocalizedLabels {
+    aphel_kernel::application::fields::LocalizedLabels::from_catalog(
+        include_str!("../locales/labels.json"),
+        key,
+    )
 }

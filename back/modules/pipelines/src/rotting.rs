@@ -100,21 +100,21 @@ pub(crate) fn rotting_fields() -> Result<Vec<SystemField>, AppError> {
     Ok(vec![
         SystemField::new(
             DAYS_IN_STAGE_FIELD,
-            "Dias na etapa",
+            crate::labels("Days in stage"),
             FieldType::Number,
             DAYS_IN_STAGE_FIELD,
         )?
         .computed(ComputedColumn::days_since(STAGE_ENTERED_COLUMN)),
         SystemField::new(
             IS_ROTTING_FIELD,
-            "Parada na etapa",
+            crate::labels("Stalled in stage"),
             FieldType::Checkbox,
             IS_ROTTING_FIELD,
         )?
         .computed(rotting_exceeded()),
         SystemField::new(
             ROTTING_AT_FIELD,
-            "Parada desde",
+            crate::labels("Stalled since"),
             FieldType::DateTime,
             ROTTING_AT_FIELD,
         )?

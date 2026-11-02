@@ -10,13 +10,14 @@ pub mod service;
 pub mod store;
 pub mod team;
 
+use aphel_contract_crm::traits;
 use aphel_contract_crm::{CrmPermissions, CrmRecordTypes, activities_relation};
 use std::sync::Arc;
 
 use aphel_kernel::modules::Migration;
 
 use aphel_kernel::application::fields::builtin::{field, record_field, timestamps, with_fields};
-use aphel_kernel::application::fields::{RecordCapabilities, RecordRelation, RecordTypeDefinition};
+use aphel_kernel::application::fields::{EntityTraits, RecordRelation, RecordTypeDefinition};
 use aphel_kernel::application::public_events::{
     PreviousValues, PublicEventDefinition, PublicResource, changed, deleted, event,
 };
@@ -25,7 +26,7 @@ use aphel_kernel::domain::access::{Permission, PermissionDefinition};
 use aphel_kernel::domain::fields::FieldType;
 use aphel_kernel::domain::notifications::NotificationKindDefinition;
 use aphel_kernel::errors::AppError;
-use aphel_kernel::infrastructure::crm::seed::CrmDefaultsSeed;
+use aphel_kernel::infrastructure::defaults::seed::DefaultsSeed;
 use aphel_kernel::modules::DEFAULT_PRIORITY;
 use aphel_kernel::modules::builder::APHEL_VERSION;
 use aphel_kernel::modules::{AppBuilder, Manifest, Module};
@@ -146,19 +147,19 @@ const PUBLIC_EVENTS: &[PublicEventDefinition] = &[
     ),
 ];
 
-pub(crate) fn deal_capabilities() -> RecordCapabilities {
-    RecordCapabilities::default()
+pub(crate) fn deal_capabilities() -> EntityTraits {
+    EntityTraits::default()
         .relatable()
         .importable()
         .exportable()
-        .stages()
+        .with_trait(traits::STAGED)
         .personal_data()
         .notifies()
         .automatable()
         .validation_rules()
         .bulk_fields(DEAL_BULK_FIELDS)
         .web_path("deals")
-        .plural_labels("Oportunidades", "Deals")
+        .localized_labels(crate::labels("Deals"))
         .related_record("contact_id", RecordType::CONTACT)
         .related_record("company_id", RecordType::COMPANY)
         .free_text_fields(&["lost_reason_note"])
@@ -175,75 +176,87 @@ pub(crate) fn deal_definition() -> Result<RecordTypeDefinition, AppError> {
         .soft_delete_column("deleted_at")
         .archive_column("archived_at")
         .system_field(
-            field("title", "Título", FieldType::Text)?
+            field("title", crate::labels("Title"), FieldType::Text)?
                 .searchable()
                 .required(),
         )
-        .system_field(field("amount", "Valor", FieldType::Currency)?)
-        .system_field(field("currency", "Moeda", FieldType::Text)?)
+        .system_field(field(
+            "amount",
+            crate::labels("Amount"),
+            FieldType::Currency,
+        )?)
+        .system_field(field(
+            "currency",
+            crate::labels("Currency"),
+            FieldType::Text,
+        )?)
         .system_field(record_field(
             "pipeline_id",
-            "Funil",
+            crate::labels("Pipeline"),
             RecordType::PIPELINE.as_str(),
         )?)
         .system_field(record_field(
             "stage_id",
-            "Etapa",
+            crate::labels("Stage"),
             RecordType::PIPELINE_STAGE.as_str(),
         )?)
         .system_field(
-            field("status", "Situação", FieldType::Select)?
-                .with_option("open", "Em aberto", Some("#1f6feb"))
-                .with_option("won", "Ganha", Some("#1a7f37"))
-                .with_option("lost", "Perdida", Some("#cf222e")),
+            field("status", crate::labels("Status"), FieldType::Select)?
+                .with_option("open", crate::labels("Open"), Some("#1f6feb"))
+                .with_option("won", crate::labels("Won"), Some("#1a7f37"))
+                .with_option("lost", crate::labels("Lost"), Some("#cf222e")),
         )
         .system_field(field(
             "probability",
-            "Probabilidade (%)",
+            crate::labels("Probability (%)"),
             FieldType::Number,
         )?)
         .system_field(field(
             "expected_close_date",
-            "Previsão de fechamento",
+            crate::labels("Expected close date"),
             FieldType::Date,
         )?)
         .system_field(record_field(
             "contact_id",
-            "Contato",
+            crate::labels("Contact"),
             RecordType::CONTACT.as_str(),
         )?)
         .system_field(record_field(
             "company_id",
-            "Empresa",
+            crate::labels("Company"),
             RecordType::COMPANY.as_str(),
         )?)
-        .system_field(field("owner_id", "Responsável", FieldType::User)?)
-        .system_field(field("source", "Origem", FieldType::Text)?)
+        .system_field(field("owner_id", crate::labels("Owner"), FieldType::User)?)
+        .system_field(field("source", crate::labels("Source"), FieldType::Text)?)
         .system_field(record_field(
             "lost_reason_id",
-            "Motivo da perda",
+            crate::labels("Lost reason"),
             RecordType::LOST_REASON.as_str(),
         )?)
-        .system_field(field("closed_at", "Fechada em", FieldType::DateTime)?)
+        .system_field(field(
+            "closed_at",
+            crate::labels("Closed at"),
+            FieldType::DateTime,
+        )?)
         .system_field(field(
             "stage_entered_at",
-            "Entrou na etapa em",
+            crate::labels("Stage entered at"),
             FieldType::DateTime,
         )?)
         .system_field(field(
             "last_activity_at",
-            "Última atividade",
+            crate::labels("Last activity"),
             FieldType::DateTime,
         )?)
         .relation(RecordRelation::belongs_to(
             "company",
-            "Empresa",
+            crate::labels("Company"),
             RecordType::COMPANY,
             "company_id",
         ))
         .relation(RecordRelation::belongs_to(
             "contact",
-            "Contato",
+            crate::labels("Contact"),
             RecordType::CONTACT,
             "contact_id",
         ))
@@ -340,6 +353,9 @@ impl Module for DealsModule {
         for operation in plugin_bridge::operations() {
             app.contribute::<aphel_kernel::modules::PluginOperation>(operation);
         }
+        app.contribute::<dyn aphel_sdk::points::ReferenceProvider>(std::sync::Arc::new(
+            operations::StageRefs,
+        ));
         app.provide::<dyn aphel_kernel::application::automations::StageOperations>(
             std::sync::Arc::new(operations::AutomationStages),
         );
@@ -354,7 +370,7 @@ impl Module for DealsModule {
                 },
             ),
         ));
-        app.contribute(Arc::new(CrmDefaultsSeed(|connection| {
+        app.contribute(Arc::new(DefaultsSeed(|connection| {
             Box::pin(team::store::seed_deal_member_roles(connection))
         })));
         app.filter(SearchPlanFilter, DEFAULT_PRIORITY, |ctx, plan| {
@@ -394,4 +410,11 @@ impl Module for DealsModule {
         team::register(app)?;
         Ok(())
     }
+}
+
+pub(crate) fn labels(key: &str) -> aphel_kernel::application::fields::LocalizedLabels {
+    aphel_kernel::application::fields::LocalizedLabels::from_catalog(
+        include_str!("../locales/labels.json"),
+        key,
+    )
 }

@@ -1,3 +1,4 @@
+use aphel_kernel::application::config_packages::ConfigReferenceKind;
 use std::collections::{BTreeMap, BTreeSet};
 
 use async_trait::async_trait;
@@ -516,7 +517,11 @@ impl ConfigSection<MySqlTx> for PriceListsSection {
             if let Some(items) = &plan.items {
                 self.lists.replace_items(tx, plan.list.id, items).await?;
             }
-            context.resolve(PRICE_LIST_KIND, &plan.list.key, plan.list.id);
+            context.resolve(
+                ConfigReferenceKind::new("pricing.price_list"),
+                &plan.list.key,
+                plan.list.id,
+            );
         }
         Ok(())
     }

@@ -4,6 +4,7 @@ pub(crate) mod http;
 pub mod service;
 pub mod store;
 
+use aphel_contract_crm::traits;
 use aphel_contract_crm::{
     CrmPermissions, CrmRecordTypes, activities_relation, address_fields, email_engagement_fields,
     phone_field,
@@ -14,7 +15,7 @@ use aphel_kernel::modules::Migration;
 
 use aphel_kernel::application::fields::builtin::{field, record_field, timestamps, with_fields};
 use aphel_kernel::application::fields::{
-    LabelNormalization, RecordCapabilities, RecordRelation, RecordTypeDefinition,
+    EntityTraits, LabelNormalization, RecordRelation, RecordTypeDefinition,
 };
 use aphel_kernel::application::public_events::{
     PreviousValues, PublicEventDefinition, PublicResource, changed, deleted, event,
@@ -82,8 +83,8 @@ const PUBLIC_EVENTS: &[PublicEventDefinition] = &[
     ),
 ];
 
-pub(crate) fn company_capabilities() -> RecordCapabilities {
-    RecordCapabilities::default()
+pub(crate) fn company_capabilities() -> EntityTraits {
+    EntityTraits::default()
         .relatable()
         .importable()
         .exportable()
@@ -93,8 +94,8 @@ pub(crate) fn company_capabilities() -> RecordCapabilities {
         .validation_rules()
         .bulk_fields(COMPANY_BULK_FIELDS)
         .web_path("companies")
-        .plural_labels("Empresas", "Companies")
-        .contact_columns(&["domain", "email"])
+        .localized_labels(crate::labels("Companies"))
+        .trait_columns_mapping(traits::CONTACT_POINTS, &["domain", "email"])
         .label_alias("domain", LabelNormalization::Domain)
         .free_text_fields(&["description"])
         .locked_fields(&["name"])
@@ -112,54 +113,62 @@ pub(crate) fn company_definition() -> Result<RecordTypeDefinition, AppError> {
             .archive_column("archived_at")
             .hierarchy("parent_company_id")
             .system_field(
-                field("name", "Nome", FieldType::Text)?
+                field("name", crate::labels("Name"), FieldType::Text)?
                     .searchable()
                     .required(),
             )
-            .system_field(field("domain", "Domínio", FieldType::Text)?.searchable())
-            .system_field(field("website", "Site", FieldType::Url)?)
-            .system_field(field("industry", "Segmento", FieldType::Text)?)
+            .system_field(field("domain", crate::labels("Domain"), FieldType::Text)?.searchable())
+            .system_field(field("website", crate::labels("Website"), FieldType::Url)?)
+            .system_field(field(
+                "industry",
+                crate::labels("Segment"),
+                FieldType::Text,
+            )?)
             .system_field(
-                field("size_range", "Porte", FieldType::Select)?
-                    .with_option("size_1_10", "1–10", None)
-                    .with_option("size_11_50", "11–50", None)
-                    .with_option("size_51_200", "51–200", None)
-                    .with_option("size_201_500", "201–500", None)
-                    .with_option("size_501_1000", "501–1000", None)
-                    .with_option("size_1001_plus", "1001+", None),
+                field("size_range", crate::labels("Size"), FieldType::Select)?
+                    .with_option("size_1_10", crate::labels("1–10"), None)
+                    .with_option("size_11_50", crate::labels("11–50"), None)
+                    .with_option("size_51_200", crate::labels("51–200"), None)
+                    .with_option("size_201_500", crate::labels("201–500"), None)
+                    .with_option("size_501_1000", crate::labels("501–1000"), None)
+                    .with_option("size_1001_plus", crate::labels("1001+"), None),
             )
-            .system_field(phone_field("phone", "Telefone")?)
-            .system_field(field("email", "E-mail", FieldType::Email)?.searchable())
-            .system_field(field("owner_id", "Responsável", FieldType::User)?);
+            .system_field(phone_field("phone", crate::labels("Phone"))?)
+            .system_field(field("email", crate::labels("Email"), FieldType::Email)?.searchable())
+            .system_field(field("owner_id", crate::labels("Owner"), FieldType::User)?);
     let definition = with_fields(definition, address_fields()?)
-        .system_field(field("description", "Descrição", FieldType::LongText)?)
-        .system_field(field("source", "Origem", FieldType::Text)?)
+        .system_field(field(
+            "description",
+            crate::labels("Description"),
+            FieldType::LongText,
+        )?)
+        .system_field(field("source", crate::labels("Source"), FieldType::Text)?)
         .system_field(record_field(
             "parent_company_id",
-            "Empresa matriz",
+            crate::labels("Parent company"),
             RecordType::COMPANY.as_str(),
         )?)
         .relation(RecordRelation::belongs_to(
             "parent_company",
-            "Empresa matriz",
+            crate::labels("Parent company"),
             RecordType::COMPANY,
             "parent_company_id",
         ))
         .relation(RecordRelation::has_many(
             "subsidiaries",
-            "Filiais",
+            crate::labels("Branches"),
             RecordType::COMPANY,
             "parent_company_id",
         ))
         .relation(RecordRelation::has_many(
             "contacts",
-            "Contatos",
+            crate::labels("Contacts"),
             RecordType::CONTACT,
             "company_id",
         ))
         .relation(RecordRelation::has_many(
             "deals",
-            "Oportunidades",
+            crate::labels("Deals"),
             RecordType::DEAL,
             "company_id",
         ))
@@ -212,4 +221,11 @@ impl Module for CompaniesModule {
         }
         Ok(())
     }
+}
+
+pub(crate) fn labels(key: &str) -> aphel_kernel::application::fields::LocalizedLabels {
+    aphel_kernel::application::fields::LocalizedLabels::from_catalog(
+        include_str!("../locales/labels.json"),
+        key,
+    )
 }

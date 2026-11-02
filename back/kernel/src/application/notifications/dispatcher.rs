@@ -104,8 +104,8 @@ pub fn record_path(record: &RecordRef) -> Option<String> {
     let base = crate::modules::app()
         .record_types()
         .capabilities(record_type)?
-        .web_path
-        .clone()?;
+        .web_path_value()?
+        .to_owned();
     Some(format!("/{base}/{}", record.record_id))
 }
 

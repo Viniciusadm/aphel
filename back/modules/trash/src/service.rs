@@ -1,3 +1,4 @@
+use aphel_contract_crm::traits;
 use chrono::{DateTime, Utc};
 use serde_json::{Value, json};
 use uuid::Uuid;
@@ -48,14 +49,15 @@ fn parse_type(ctx: &Ctx<'_>, value: &str) -> Result<RecordTypeDefinition, AppErr
 
 async fn source(ctx: &Ctx<'_>, definition: RecordTypeDefinition) -> Result<TrashSource, AppError> {
     let capabilities = &definition.capabilities;
-    let candidates: Vec<String> = if capabilities.contact_columns.is_empty() {
+    let contact_columns = capabilities.trait_columns(traits::CONTACT_POINTS);
+    let candidates: Vec<String> = if contact_columns.is_empty() {
         capabilities
             .label_aliases
             .iter()
             .map(|alias| alias.column.clone())
             .collect()
     } else {
-        capabilities.contact_columns.clone()
+        contact_columns
     };
     if candidates.is_empty() {
         return Ok(TrashSource::new(definition));

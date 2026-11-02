@@ -677,33 +677,35 @@ async fn seed_revenue(
 }
 
 fn demo_fields() -> Vec<(&'static str, CreateFieldCommand)> {
-    let field =
-        |key: &str, label: &str, field_type: &str, options: &[(&str, &str)]| CreateFieldCommand {
-            key: key.to_owned(),
-            label: label.to_owned(),
-            field_type: field_type.to_owned(),
-            is_required: false,
-            is_unique: false,
-            is_searchable: false,
-            is_personal: false,
-            is_sensitive: false,
-            config: Value::Null,
-            options: options
-                .iter()
-                .map(|(value, label)| FieldOptionInput {
-                    value: Some((*value).to_owned()),
-                    label: (*label).to_owned(),
-                    color: None,
-                })
-                .collect(),
-            ip: None,
-        };
+    let field = |key: &str,
+                 label: aphel_kernel::application::fields::LocalizedLabels,
+                 field_type: &str,
+                 options: &[(&str, &str)]| CreateFieldCommand {
+        key: key.to_owned(),
+        label: label.default_text().to_owned(),
+        field_type: field_type.to_owned(),
+        is_required: false,
+        is_unique: false,
+        is_searchable: false,
+        is_personal: false,
+        is_sensitive: false,
+        config: Value::Null,
+        options: options
+            .iter()
+            .map(|(value, label)| FieldOptionInput {
+                value: Some((*value).to_owned()),
+                label: (*label).to_owned(),
+                color: None,
+            })
+            .collect(),
+        ip: None,
+    };
     vec![
         (
             "company",
             field(
                 "customer_tier",
-                "Categoria do cliente",
+                crate::labels("Customer category"),
                 "select",
                 &[("gold", "Ouro"), ("silver", "Prata"), ("bronze", "Bronze")],
             ),
@@ -712,7 +714,7 @@ fn demo_fields() -> Vec<(&'static str, CreateFieldCommand)> {
             "contact",
             field(
                 "preferred_channel",
-                "Canal preferido",
+                crate::labels("Preferred channel"),
                 "select",
                 &[
                     ("email", "E-mail"),
@@ -725,7 +727,7 @@ fn demo_fields() -> Vec<(&'static str, CreateFieldCommand)> {
             "deal",
             field(
                 "contract_months",
-                "Duração do contrato (meses)",
+                crate::labels("Contract duration (months)"),
                 "number",
                 &[],
             ),

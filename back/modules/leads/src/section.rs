@@ -1,3 +1,4 @@
+use aphel_kernel::application::config_packages::ConfigReferenceKind;
 use std::collections::BTreeSet;
 
 use async_trait::async_trait;
@@ -387,7 +388,7 @@ impl ConfigSection<MySqlTx> for LifecycleSection {
                 self.reasons.update(tx, &plan.reason).await?;
             }
             context.resolve(
-                DISQUALIFICATION_REASON_ITEM,
+                ConfigReferenceKind::new("leads.disqualification_reason"),
                 &plan.reason.key,
                 plan.reason.id,
             );

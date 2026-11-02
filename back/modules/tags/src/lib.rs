@@ -35,6 +35,7 @@ impl Module for TagsModule {
                 "create tags and taggings",
                 include_str!("../migrations/0001_create_tags.sql"),
             ))
+            .migration(Migration::new(2, "namespace_config_references", include_str!("../migrations/0002_namespace_config_references.sql")))
     }
 
     fn register(&self, app: &mut AppBuilder) -> Result<(), AppError> {

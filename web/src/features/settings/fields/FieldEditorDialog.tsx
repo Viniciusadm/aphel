@@ -81,7 +81,7 @@ export function FieldEditorDialog({ recordType, field, onClose }: FieldEditorDia
 
   const typeChoices = (field ? compatibleTypes(field.field_type) : [...FIELD_TYPES]).map((type) => ({
     value: type,
-    label: t(`types.${type}`),
+    label: t(`types.${type}`, type),
   }))
   const typeLocked = system || typeChoices.length <= 1
   const draftValues = optionValuesFromLabels(draftOptions.map((option) => option.label))

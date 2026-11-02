@@ -4,7 +4,7 @@ Each deal can have a team in addition to the owner (`deals.owner_id`): users wit
 
 ## Data
 
-- `deal_member_roles`: configurable roles (stable `key`, `name`, `position`, `is_active`). `sales`, `pre_sales`, `specialist` and `manager` are seeded on installation (`seed_deal_member_roles`, called by `seed_crm_defaults`). CRUD at `/api/v1/deal-member-roles` with `settings.manage` (listing requires `deals.read`). Deleting a role leaves its members without a role (`ON DELETE SET NULL`); deactivating it prevents choosing it again.
+- `deal_member_roles`: configurable roles (stable `key`, `name`, `position`, `is_active`). `sales`, `pre_sales`, `specialist` and `manager` are seeded on installation (`seed_deal_member_roles`, called by `seed_defaults`). CRUD at `/api/v1/deal-member-roles` with `settings.manage` (listing requires `deals.read`). Deleting a role leaves its members without a role (`ON DELETE SET NULL`); deactivating it prevents choosing it again.
 - `deal_members`: `deal_id`, `user_id` (unique per deal), `role_id`, `credit_percent DECIMAL(5,2)`, `added_by`. Removed by cascade when the deal is permanently deleted (the trash keeps the team).
 
 ## Credit rule

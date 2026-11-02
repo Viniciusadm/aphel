@@ -15,7 +15,7 @@ use aphel_kernel::application::public_events::{
     PreviousValues, PublicEventDefinition, changed, event,
 };
 use aphel_kernel::errors::AppError;
-use aphel_kernel::infrastructure::crm::seed::CrmDefaultsSeed;
+use aphel_kernel::infrastructure::defaults::seed::DefaultsSeed;
 use aphel_kernel::modules::builder::APHEL_VERSION;
 use aphel_kernel::modules::{AppBuilder, DEFAULT_PRIORITY, Manifest, Module};
 use aphel_kernel::records::RecordSerializing;
@@ -65,7 +65,7 @@ impl Module for CallsModule {
     }
 
     fn register(&self, app: &mut AppBuilder) -> Result<(), AppError> {
-        app.contribute(Arc::new(CrmDefaultsSeed(|connection| {
+        app.contribute(Arc::new(DefaultsSeed(|connection| {
             Box::pin(store::seed_call_outcomes(connection))
         })));
         app.openapi_tag(

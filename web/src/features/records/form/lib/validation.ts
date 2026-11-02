@@ -182,6 +182,7 @@ export function validateFieldValue(
     case 'record':
       return typeof value === 'string' ? null : { code: 'reference' }
     case 'formula':
+    default:
       return null
   }
 }

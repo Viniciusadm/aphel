@@ -1,0 +1,70 @@
+{
+  "Name": {
+    "pt-BR": "Nome",
+    "en": "Name"
+  },
+  "Code": {
+    "pt-BR": "Código",
+    "en": "Code"
+  },
+  "Price": {
+    "pt-BR": "Preço",
+    "en": "Price"
+  },
+  "Currency": {
+    "pt-BR": "Moeda",
+    "en": "Currency"
+  },
+  "Unit": {
+    "pt-BR": "Unidade",
+    "en": "Unit"
+  },
+  "Recurrence": {
+    "pt-BR": "Recorrência",
+    "en": "Recurrence"
+  },
+  "Term (months)": {
+    "pt-BR": "Prazo (meses)",
+    "en": "Term (months)"
+  },
+  "Active": {
+    "pt-BR": "Ativo",
+    "en": "Active"
+  },
+  "Description": {
+    "pt-BR": "Descrição",
+    "en": "Description"
+  },
+  "Created by": {
+    "pt-BR": "Criado por",
+    "en": "Created by"
+  },
+  "Created at": {
+    "pt-BR": "Criado em",
+    "en": "Created at"
+  },
+  "Updated at": {
+    "pt-BR": "Atualizado em",
+    "en": "Updated at"
+  },
+  "Products": {
+    "pt-BR": "Produtos",
+    "en": "Products"
+  },
+  "No recurrence": {
+    "pt-BR": "Sem recorrência",
+    "en": "No recurrence"
+  },
+  "Monthly": {
+    "pt-BR": "Mensal",
+    "en": "Monthly"
+  },
+  "Quarterly": {
+    "pt-BR": "Trimestral",
+    "en": "Quarterly"
+  },
+  "Yearly": {
+    "pt-BR": "Anual",
+    "en": "Yearly"
+  }
+}

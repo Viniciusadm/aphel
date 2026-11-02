@@ -28,7 +28,7 @@ pub(crate) fn export_permission(record_type: &str) -> Option<Permission> {
         .record_types()
         .require(record_type)
         .ok()
-        .filter(|definition| definition.capabilities.exportable)?
+        .filter(|definition| definition.capabilities.has_trait("exports.exportable"))?
         .action_permission("export")
 }
 
@@ -37,7 +37,7 @@ pub(crate) fn is_exportable(record_type: &str) -> bool {
         || aphel_kernel::modules::app()
             .record_types()
             .capabilities(record_type)
-            .is_some_and(|capabilities| capabilities.exportable)
+            .is_some_and(|capabilities| capabilities.has_trait("exports.exportable"))
 }
 
 #[derive(Debug, Clone, Copy, PartialEq, Eq)]

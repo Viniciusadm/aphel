@@ -16,8 +16,7 @@ pub enum Actor {
     User(UserId),
     System,
     ApiToken(String),
-    Automation(String),
-    Plugin(String),
+    Service { kind: String, id: String },
 }
 
 impl Actor {
@@ -27,12 +26,28 @@ impl Actor {
     pub const AUTOMATION: &'static str = "automation";
     pub const PLUGIN: &'static str = "plugin";
 
-    pub fn from_scope(scope: &AccessScope) -> Self {
-        if let Some(plugin_key) = scope.plugin_key() {
-            return Self::Plugin(plugin_key.to_owned());
+    pub fn service(kind: impl Into<String>, id: impl Into<String>) -> Self {
+        Self::Service {
+            kind: kind.into(),
+            id: id.into(),
         }
-        if let Some(automation_id) = scope.automation_id() {
-            return Self::Automation(automation_id.to_owned());
+    }
+
+    pub fn automation(id: impl Into<String>) -> Self {
+        Self::service(Self::AUTOMATION, id)
+    }
+
+    pub fn plugin(key: impl Into<String>) -> Self {
+        Self::service(Self::PLUGIN, key)
+    }
+
+    pub fn is_service(&self, kind: &str) -> bool {
+        matches!(self, Self::Service { kind: own, .. } if own == kind)
+    }
+
+    pub fn from_scope(scope: &AccessScope) -> Self {
+        if let Some((kind, id)) = scope.service() {
+            return Self::service(kind, id);
         }
         if scope.is_system() {
             return Self::System;
@@ -43,13 +58,12 @@ impl Actor {
         }
     }
 
-    pub fn kind(&self) -> &'static str {
+    pub fn kind(&self) -> &str {
         match self {
             Self::User(_) => Self::USER,
             Self::System => Self::SYSTEM,
             Self::ApiToken(_) => Self::API_TOKEN,
-            Self::Automation(_) => Self::AUTOMATION,
-            Self::Plugin(_) => Self::PLUGIN,
+            Self::Service { kind, .. } => kind,
         }
     }
 
@@ -57,7 +71,8 @@ impl Actor {
         match self {
             Self::User(id) => Some(id.as_str()),
             Self::System => None,
-            Self::ApiToken(id) | Self::Automation(id) | Self::Plugin(id) => Some(id),
+            Self::ApiToken(id) => Some(id),
+            Self::Service { id, .. } => Some(id),
         }
     }
 
@@ -67,20 +82,25 @@ impl Actor {
             Self::USER => Ok(Self::User(UserId::new(id.ok_or_else(missing_id)?)?)),
             Self::SYSTEM => Ok(Self::System),
             Self::API_TOKEN => Ok(Self::ApiToken(id.ok_or_else(missing_id)?)),
-            Self::AUTOMATION => Ok(Self::Automation(id.ok_or_else(missing_id)?)),
-            Self::PLUGIN => Ok(Self::Plugin(id.ok_or_else(missing_id)?)),
-            other => Err(AppError::Internal(format!("unknown actor kind {other}"))),
+            other => Ok(Self::service(other, id.ok_or_else(missing_id)?)),
         }
     }
 }
 
 #[derive(Debug, Clone, PartialEq, Eq, Serialize, Deserialize)]
 pub struct EventCausation {
+    #[serde(default = "default_executor_kind")]
+    pub executor_kind: String,
+    #[serde(alias = "automation_id")]
+    pub executor_id: String,
     pub run_id: Uuid,
-    pub automation_id: Uuid,
     pub depth: u32,
     #[serde(default)]
     pub chain: Vec<Uuid>,
+}
+
+fn default_executor_kind() -> String {
+    Actor::AUTOMATION.to_owned()
 }
 
 #[derive(Debug, Clone, PartialEq, Eq, Serialize, Deserialize)]

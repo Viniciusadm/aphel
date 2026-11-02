@@ -132,6 +132,9 @@ impl Module for KernelModule {
     }
 
     fn register(&self, app: &mut AppBuilder) -> Result<(), AppError> {
+        for definition in crate::application::fields::field_types::native_definitions() {
+            app.contribute(Arc::new(definition));
+        }
         declare_record_hooks(app);
         register_record_hooks(app);
         for definition in crate::application::organizations::ORGANIZATION_PUBLIC_EVENTS {
@@ -280,7 +283,7 @@ fn declare_record_hooks(app: &mut AppBuilder) {
     app.declare_hook(
         crate::records::RecordArchiving,
         &[HookUsage::Veto],
-        "Before a custom record or company is archived; an error blocks the archive",
+        "Before a record is archived; an error blocks the archive",
     );
     app.declare_hook(
         crate::records::RecordDeleting,

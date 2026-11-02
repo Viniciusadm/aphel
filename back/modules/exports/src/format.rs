@@ -109,7 +109,7 @@ pub(crate) fn collect_references(
             let Some(value) = row.get(&column.key) else {
                 continue;
             };
-            match field.field_type {
+            match field.field_type.base_type() {
                 FieldType::User => references
                     .users
                     .extend(texts(value).into_iter().map(str::to_owned)),
@@ -191,7 +191,8 @@ pub(crate) fn format_cell(
     {
         return ExportCell::Empty;
     }
-    match field.field_type {
+    match field.field_type.base_type() {
+        FieldType::Custom { .. } => unreachable!("native field representation"),
         FieldType::Number | FieldType::Currency => number_cell(value),
         FieldType::Checkbox => {
             let checked = match value {

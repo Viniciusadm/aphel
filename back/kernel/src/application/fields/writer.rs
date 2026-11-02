@@ -441,7 +441,7 @@ fn validated_write(
     definition: &FieldDefinition,
     input: &Value,
 ) -> Result<PendingWrite, FieldValueError> {
-    let raw = raw_from_json(input).ok_or(match definition.field_type {
+    let raw = raw_from_json(input).ok_or(match definition.field_type.base_type() {
         FieldType::Number | FieldType::Currency => FieldValueError::ExpectedNumber,
         FieldType::Checkbox => FieldValueError::ExpectedBool,
         FieldType::MultiSelect => FieldValueError::ExpectedList,

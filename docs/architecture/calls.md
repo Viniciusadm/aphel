@@ -7,7 +7,7 @@ A call is a (completed) **activity of type `call`** with its own details. The co
 | Table | What it stores |
 | --- | --- |
 | `activity_calls` | 1:1 with `activities`: direction (`inbound`/`outbound`), `outcome_key`, `duration_seconds`, phone, `recording_url`, `provider` + `provider_call_id` (unique) and `session_id` |
-| `call_outcomes` | Configurable outcomes: stable key, name, `is_connected` (counts as answered in the report), position, active. The system ones (`answered`, `voicemail`, `no_answer`, `wrong_number`) are seeded at installation (`seed_call_outcomes`, called by `seed_crm_defaults`) |
+| `call_outcomes` | Configurable outcomes: stable key, name, `is_connected` (counts as answered in the report), position, active. The system ones (`answered`, `voicemail`, `no_answer`, `wrong_number`) are seeded at installation (`seed_call_outcomes`, called by `seed_defaults`) |
 | `call_sessions` | A user's call session: source view, script, state (`active`/`completed`), current position and total |
 | `call_session_items` | The session's frozen queue: contact by position, state (`pending`, `logged`, `skipped`), last call and outcome |
 

@@ -49,22 +49,34 @@ impl Module for DealItemsModule {
 
     fn register(&self, app: &mut AppBuilder) -> Result<(), AppError> {
         let revenue_fields = [
-            field("mrr", "MRR", FieldType::Currency)?,
-            field("arr", "ARR", FieldType::Currency)?,
-            field("tcv", "Valor total do contrato", FieldType::Currency)?,
-            field("contract_start", "Início do contrato", FieldType::Date)?,
-            field("contract_end", "Fim do contrato", FieldType::Date)?,
+            field("mrr", crate::labels("MRR"), FieldType::Currency)?,
+            field("arr", crate::labels("ARR"), FieldType::Currency)?,
+            field(
+                "tcv",
+                crate::labels("Total contract value"),
+                FieldType::Currency,
+            )?,
+            field(
+                "contract_start",
+                crate::labels("Contract start"),
+                FieldType::Date,
+            )?,
+            field(
+                "contract_end",
+                crate::labels("Contract end"),
+                FieldType::Date,
+            )?,
         ];
         app.extend("deal", |deal| {
             for revenue_field in revenue_fields {
                 deal.system_field(revenue_field);
             }
             deal.item_table(
-                ItemTable::new("items", "Itens", "deal_items", "deal_id")
-                    .column("total", "Total")
-                    .column("quantity", "Quantidade")
-                    .column("unit_price", "Preço unitário")
-                    .column("discount_value", "Desconto"),
+                ItemTable::new("items", crate::labels("Items"), "deal_items", "deal_id")
+                    .column("total", crate::labels("Total"))
+                    .column("quantity", crate::labels("Quantity"))
+                    .column("unit_price", crate::labels("Unit price"))
+                    .column("discount_value", crate::labels("Desconto")),
             );
         })
         .provide::<dyn AmountCalculator>(Arc::new(ItemsAmountCalculator))
@@ -89,4 +101,11 @@ impl Module for DealItemsModule {
         }
         Ok(())
     }
+}
+
+pub(crate) fn labels(key: &str) -> aphel_kernel::application::fields::LocalizedLabels {
+    aphel_kernel::application::fields::LocalizedLabels::from_catalog(
+        include_str!("../locales/labels.json"),
+        key,
+    )
 }

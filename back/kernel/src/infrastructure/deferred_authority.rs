@@ -97,7 +97,7 @@ impl DeferredAuthority {
         )
         .with_enabled_modules(current.enabled_modules().to_vec());
         if let Some(automation) = &self.automation {
-            scope = scope.through_automation(automation);
+            scope = scope.acting_as("automation", automation);
         }
         if let Some(plugin) = &self.plugin {
             let policy = crate::modules::app()

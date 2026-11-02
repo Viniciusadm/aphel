@@ -1,3 +1,4 @@
+use aphel_kernel::application::config_packages::ConfigReferenceKind;
 use std::collections::BTreeSet;
 
 use async_trait::async_trait;
@@ -204,7 +205,11 @@ impl ConfigSection<MySqlTx> for DealMemberRolesSection {
             } else if decisions.executes(&plan.item) {
                 self.roles.update(tx, &plan.role).await?;
             }
-            context.resolve(DEAL_MEMBER_ROLE_ITEM, &plan.role.key, plan.role.id);
+            context.resolve(
+                ConfigReferenceKind::new("deals.member_role"),
+                &plan.role.key,
+                plan.role.id,
+            );
         }
         Ok(())
     }

@@ -60,7 +60,7 @@ impl Module for RenewalsModule {
         ));
         let renewal_of = record_field(
             RENEWAL_OF_DEAL_FIELD,
-            "Renovação de",
+            crate::labels("Renewal of"),
             RecordType::DEAL.as_str(),
         )?;
         app.extend(RecordType::DEAL.as_str(), |deal| {
@@ -82,4 +82,11 @@ impl Module for RenewalsModule {
         }
         Ok(())
     }
+}
+
+pub(crate) fn labels(key: &str) -> aphel_kernel::application::fields::LocalizedLabels {
+    aphel_kernel::application::fields::LocalizedLabels::from_catalog(
+        include_str!("../locales/labels.json"),
+        key,
+    )
 }

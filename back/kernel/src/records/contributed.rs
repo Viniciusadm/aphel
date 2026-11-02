@@ -87,7 +87,7 @@ pub(crate) fn decode(
     column: &str,
     field_type: FieldType,
 ) -> Result<Value, AppError> {
-    Ok(match field_type {
+    Ok(match field_type.base_type() {
         FieldType::Number | FieldType::Currency => {
             if let Ok(value) = row.try_get::<Option<i64>, _>(column) {
                 json!(value)
@@ -145,7 +145,7 @@ pub fn normalize_contributed(
 }
 
 fn normalize(field_type: FieldType, value: &Value) -> Result<Value, &'static str> {
-    match (field_type, value) {
+    match (field_type.base_type(), value) {
         (_, Value::Null) => Ok(Value::Null),
         (FieldType::Number | FieldType::Currency, Value::Number(_)) => Ok(value.clone()),
         (FieldType::Number | FieldType::Currency, _) => Err("must be a number"),

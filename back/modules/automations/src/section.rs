@@ -1,3 +1,4 @@
+use aphel_kernel::application::config_packages::ConfigReferenceKind;
 use std::collections::{BTreeMap, BTreeSet, HashMap};
 use std::sync::Arc;
 
@@ -9,7 +10,7 @@ use uuid::Uuid;
 use crate::model::{Automation, MAX_AUTOMATIONS, MAX_DESCRIPTION_LENGTH, MAX_NAME_LENGTH};
 use crate::service::valid_key;
 use crate::store::AutomationStore;
-use activities::section::{ACTIVITY_TYPE_ITEM, ACTIVITY_TYPES_SECTION, PackageActivityType};
+use activities::section::{ACTIVITY_TYPES_SECTION, PackageActivityType};
 use activities::store::ActivityTypeStore;
 use aphel_kernel::application::automations::actions::{ActionRegistry, configured_flag};
 use aphel_kernel::application::automations::definition::{
@@ -19,8 +20,8 @@ use aphel_kernel::application::automations::triggers::{TriggerRegistry, is_autom
 use aphel_kernel::application::config_packages::sections::common::diff;
 use aphel_kernel::application::config_packages::sections::custom_objects::package_registry;
 use aphel_kernel::application::config_packages::{
-    ApplyContext, ConfigKeyRepository, ConfigPackage, ConfigSection, Decisions, PIPELINE_ITEM,
-    PIPELINE_STAGE_ITEM, PackageIssue, PlanChange, PlanItem, TAG_ITEM, assign_keys, parse_section,
+    ApplyContext, ConfigKeyRepository, ConfigPackage, ConfigSection, Decisions, PackageIssue,
+    PlanChange, PlanItem, assign_keys, parse_section,
 };
 use aphel_kernel::application::fields::RecordTypeRegistry;
 use aphel_kernel::database::transaction::MySqlTx;
@@ -34,7 +35,6 @@ use tags::section::{PackageTag, TAGS_SECTION};
 
 pub(crate) const AUTOMATIONS_SECTION: &str = "automations";
 const AUTOMATION_KIND: &str = "automation";
-pub(crate) const AUTOMATION_ITEM: &str = "automation";
 pub(crate) const MAX_PACKAGE_AUTOMATIONS: usize = 200;
 pub(crate) const AUTOMATION_RECORD_TYPE_MISMATCH: &str = "automation_record_type_mismatch";
 pub(crate) const NON_PORTABLE_REFERENCE: &str = "non_portable_reference";
@@ -77,7 +77,6 @@ const TRIGGER_REFERENCES: [(&str, &str, ReferenceKind); 3] = [
     ("segment_id", "segment", ReferenceKind::Segment),
 ];
 
-const SEQUENCE_ITEM: &str = "sequence";
 const SEQUENCES_SECTION: &str = "sequences";
 const IN_SEGMENT_OPERATOR: &str = "in_segment";
 
@@ -225,7 +224,10 @@ where
                 .cmp(&right.created_at)
                 .then(left.id.cmp(&right.id))
         });
-        let stored_tags = self.keys.keys(TAG_ITEM).await?;
+        let stored_tags = self
+            .keys
+            .keys(ConfigReferenceKind::new("tagging.tag"))
+            .await?;
         let tags = assign_keys(
             tags.iter().map(|tag| (tag.id, tag.name.as_str())),
             &stored_tags,
@@ -240,7 +242,10 @@ where
             .into_iter()
             .map(|activity_type| (activity_type.id, activity_type.key))
             .collect();
-        let stored_stages = self.keys.keys(PIPELINE_STAGE_ITEM).await?;
+        let stored_stages = self
+            .keys
+            .keys(ConfigReferenceKind::new("workflow.stage"))
+            .await?;
         let mut pipelines = Vec::new();
         let mut stages = Vec::new();
         for (pipeline, keyed) in keyed_pipelines(&self.pipelines, &self.keys).await? {
@@ -394,12 +399,12 @@ where
             };
             let stage_id = context
                 .resolved(
-                    PIPELINE_STAGE_ITEM,
+                    ConfigReferenceKind::new("workflow.stage"),
                     &stage_item_key(pipeline_key, stage_key),
                 )
                 .or_else(|| {
                     context
-                        .resolved(PIPELINE_ITEM, pipeline_key)
+                        .resolved(ConfigReferenceKind::new("workflow.pipeline"), pipeline_key)
                         .or_else(|| index.pipeline_id(pipeline_key))
                         .and_then(|pipeline_id| index.stage_id(pipeline_id, stage_key))
                 });
@@ -1066,7 +1071,11 @@ where
         let (plans, index) = self.reconcile(&parse(content)?).await?;
         for plan in plans {
             if let Some(current) = &plan.current {
-                context.resolve(AUTOMATION_ITEM, &plan.key, current.id);
+                context.resolve(
+                    ConfigReferenceKind::new("automations.automation"),
+                    &plan.key,
+                    current.id,
+                );
             }
             if !decisions.executes(&plan.item) {
                 continue;
@@ -1089,25 +1098,27 @@ where
             let stages = self.resolve_stages(stage_references, &index, context);
             let lookup = |kind: ReferenceKind, key: &str| -> Option<String> {
                 let id = match kind {
-                    ReferenceKind::Tag => context.resolved(TAG_ITEM, key).or_else(|| {
-                        index
-                            .tags
-                            .iter()
-                            .find(|(_, known)| known == key)
-                            .map(|(id, _)| *id)
-                    }),
-                    ReferenceKind::ActivityType => {
-                        context.resolved(ACTIVITY_TYPE_ITEM, key).or_else(|| {
+                    ReferenceKind::Tag => context
+                        .resolved(ConfigReferenceKind::new("tagging.tag"), key)
+                        .or_else(|| {
+                            index
+                                .tags
+                                .iter()
+                                .find(|(_, known)| known == key)
+                                .map(|(id, _)| *id)
+                        }),
+                    ReferenceKind::ActivityType => context
+                        .resolved(ConfigReferenceKind::new("tasks.activity_type"), key)
+                        .or_else(|| {
                             index
                                 .activity_types
                                 .iter()
                                 .find(|(_, known)| known == key)
                                 .map(|(id, _)| *id)
-                        })
-                    }
+                        }),
                     ReferenceKind::Stage => stages.get(key).copied(),
                     ReferenceKind::Sequence => context
-                        .resolved(SEQUENCE_ITEM, key)
+                        .resolved(ConfigReferenceKind::new("sequences.sequence"), key)
                         .or_else(|| KeyIndex::id_of(&index.sequences, key)),
                     ReferenceKind::Segment => KeyIndex::id_of(&index.segments, key),
                 };
@@ -1147,7 +1158,11 @@ where
             } else {
                 self.automations.update(tx, &automation).await?;
             }
-            context.resolve(AUTOMATION_ITEM, &plan.key, automation.id);
+            context.resolve(
+                ConfigReferenceKind::new("automations.automation"),
+                &plan.key,
+                automation.id,
+            );
         }
         Ok(())
     }

@@ -141,8 +141,7 @@ pub struct AccessScope {
     team_ids: Vec<TeamId>,
     permissions: PermissionSet,
     api_token: Option<ApiTokenGrant>,
-    automation_id: Option<String>,
-    plugin_key: Option<String>,
+    service: Option<(String, String)>,
     enabled_modules: Vec<String>,
 }
 
@@ -165,8 +164,7 @@ impl AccessScope {
             team_ids,
             permissions,
             api_token: None,
-            automation_id: None,
-            plugin_key: None,
+            service: None,
             enabled_modules: Vec::new(),
         }
     }
@@ -197,13 +195,21 @@ impl AccessScope {
         self.enabled_modules.iter().any(|module| module == key)
     }
 
-    pub fn through_automation(mut self, automation_id: impl Into<String>) -> Self {
-        self.automation_id = Some(automation_id.into());
+    pub fn acting_as(mut self, kind: impl Into<String>, id: impl Into<String>) -> Self {
+        self.service = Some((kind.into(), id.into()));
         self
     }
 
+    pub fn service(&self) -> Option<(&str, &str)> {
+        self.service
+            .as_ref()
+            .map(|(kind, id)| (kind.as_str(), id.as_str()))
+    }
+
     pub fn automation_id(&self) -> Option<&str> {
-        self.automation_id.as_deref()
+        self.service()
+            .filter(|(kind, _)| *kind == "automation")
+            .map(|(_, id)| id)
     }
 
     pub fn restricted(mut self, allows: impl Fn(&Permission) -> bool) -> Self {
@@ -211,13 +217,10 @@ impl AccessScope {
         self
     }
 
-    pub fn through_plugin(mut self, plugin_key: impl Into<String>) -> Self {
-        self.plugin_key = Some(plugin_key.into());
-        self
-    }
-
     pub fn plugin_key(&self) -> Option<&str> {
-        self.plugin_key.as_deref()
+        self.service()
+            .filter(|(kind, _)| *kind == "plugin")
+            .map(|(_, id)| id)
     }
 
     pub fn through_api_token(

@@ -90,7 +90,7 @@ fn leaf_matches(
         return false;
     };
     let operator = condition.operator.as_str();
-    if *field_type == FieldType::Checkbox && matches!(operator, "eq" | "neq") {
+    if field_type.base_type() == FieldType::Checkbox && matches!(operator, "eq" | "neq") {
         let Value::Bool(expected) = condition.value else {
             return false;
         };
@@ -214,7 +214,7 @@ fn equals(
             .iter()
             .any(|item| equals(field_type, item, operand, context));
     }
-    match field_type {
+    match field_type.base_type() {
         FieldType::Number | FieldType::Currency | FieldType::Date | FieldType::DateTime => {
             compare(field_type, value, operand, context) == Some(Ordering::Equal)
         }
@@ -258,7 +258,7 @@ fn compare(
     operand: &Value,
     context: &ConditionContext,
 ) -> Option<Ordering> {
-    match field_type {
+    match field_type.base_type() {
         FieldType::Number | FieldType::Currency => {
             number_of(value)?.partial_cmp(&number_of(operand)?)
         }
@@ -276,7 +276,7 @@ fn local_day(
     value: &Value,
     context: &ConditionContext,
 ) -> Option<NaiveDate> {
-    match field_type {
+    match field_type.base_type() {
         FieldType::Date => date_of(value),
         FieldType::DateTime => instant_of(value)
             .map(|instant| instant.with_timezone(&context.timezone).date_naive())
@@ -291,7 +291,7 @@ fn text_test(
     operand: &Value,
     test: impl Fn(&str, &str) -> bool,
 ) -> bool {
-    let comparable = |value: &Value| match field_type {
+    let comparable = |value: &Value| match field_type.base_type() {
         FieldType::Phone => digits_of(value),
         _ => text_of(value),
     };

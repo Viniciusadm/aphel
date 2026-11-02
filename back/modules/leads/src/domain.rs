@@ -198,7 +198,7 @@ pub(crate) struct LeadDisqualification {
     pub(crate) reason_name: String,
     pub(crate) note: Option<String>,
     pub(crate) from_stage: Option<String>,
-    pub(crate) actor_type: &'static str,
+    pub(crate) actor_type: String,
     pub(crate) actor_id: Option<String>,
     pub(crate) at: DateTime<Utc>,
 }
@@ -209,7 +209,7 @@ pub(crate) struct StageChange {
     pub(crate) record_id: Uuid,
     pub(crate) from_stage: Option<String>,
     pub(crate) to_stage: Option<String>,
-    pub(crate) actor_type: &'static str,
+    pub(crate) actor_type: String,
     pub(crate) actor_id: Option<String>,
     pub(crate) at: DateTime<Utc>,
 }

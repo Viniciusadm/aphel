@@ -223,7 +223,7 @@ where
             Err(_) => {
                 violations.push(FieldViolation::new(
                     "scopes",
-                    "must be a non-empty list of known scopes such as contacts:read",
+                    "must be a non-empty list of known scopes such as users:read",
                 ));
                 None
             }

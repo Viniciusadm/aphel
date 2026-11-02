@@ -7,10 +7,11 @@ use serde_json::{Map, Value, json};
 use uuid::Uuid;
 
 use crate::Ctx;
+use crate::application::automations::gateway::USER;
 use crate::application::automations::{
-    AUTOMATION_MESSAGE, ActivityTypeOperations, AutomationGateway, AutomationGatewayFactory,
-    IncomingWebhookOperations, MessageSpec, NoteOperations, Reference, SharedAutomationGateway,
-    StageOperations, TaskOperations, TaskSpec, WebhookCall, WebhookCallResult,
+    AUTOMATION_MESSAGE, AutomationGateway, AutomationGatewayFactory, MessageSpec, NoteOperations,
+    Reference, SharedAutomationGateway, StageOperations, TaskOperations, TaskSpec, WebhookCall,
+    WebhookCallResult,
 };
 use crate::application::fields::{FieldSet, RelationPath};
 use crate::application::organization_admin::{ListWindow, Listing};
@@ -26,6 +27,7 @@ use crate::application::shared::{
 use crate::domain::UserId;
 use crate::domain::access::AccessScope;
 use crate::errors::{AppError, CodedKind};
+use crate::modules::ReferenceProvider;
 use crate::records::{RecordCtx, field_set, query_ports};
 use crate::state::AppState;
 
@@ -243,44 +245,23 @@ impl AutomationGateway for HandlerAutomationGateway {
         scope: &AccessScope,
         reference: Reference<'_>,
     ) -> Result<bool, AppError> {
-        let ctx = Ctx::from_state(&self.state, scope).await?;
-        let services = self.state.app.services();
-        let found = match reference {
-            Reference::Operation { operation, id } => {
-                let Some(entry) = self.state.app.operation(operation) else {
-                    return Ok(false);
-                };
-                entry
-                    .call(&ctx, serde_json::json!({ "id": id }))
-                    .await
-                    .map(|_| ())
-            }
-            Reference::Stage(id) => match services.get::<dyn StageOperations>() {
-                Some(stages) => stages.find_stage(&ctx, id).await,
-                None => return Ok(false),
-            },
-            Reference::ActivityType(id) => match services.get::<dyn ActivityTypeOperations>() {
-                Some(types) => types.find_activity_type(&ctx, id).await,
-                None => return Ok(false),
-            },
-            Reference::IncomingWebhook(id) => {
-                match services.get::<dyn IncomingWebhookOperations>() {
-                    Some(webhooks) => webhooks.find_incoming_webhook(&ctx, id).await,
-                    None => return Ok(false),
-                }
-            }
-            Reference::User(_) => {
-                return self
-                    .operations
-                    .reference_exists(&self.state, reference)
-                    .await;
-            }
-        };
-        match found {
-            Ok(()) => Ok(true),
-            Err(error) if is_missing(&error) => Ok(false),
-            Err(error) => Err(error),
+        if reference.kind == USER {
+            return self
+                .operations
+                .reference_exists(&self.state, reference)
+                .await;
         }
+        let ctx = Ctx::from_state(&self.state, scope).await?;
+        let Some(provider) = self
+            .state
+            .app
+            .contributions::<dyn ReferenceProvider>()
+            .into_iter()
+            .find(|provider| provider.kind() == reference.kind)
+        else {
+            return Ok(false);
+        };
+        provider.exists(&ctx, reference.id).await
     }
 
     async fn create_task(&self, scope: &AccessScope, task: TaskSpec) -> Result<Uuid, AppError> {
@@ -324,11 +305,15 @@ impl AutomationGateway for HandlerAutomationGateway {
     async fn move_stage(
         &self,
         scope: &AccessScope,
-        deal: &RecordRef,
+        record: &RecordRef,
         stage_id: &str,
     ) -> Result<(), AppError> {
-        self.service::<dyn StageOperations>("deal stages")?
-            .move_to_stage(&Ctx::from_state(&self.state, scope).await?, deal, stage_id)
+        self.service::<dyn StageOperations>("record stages")?
+            .move_to_stage(
+                &Ctx::from_state(&self.state, scope).await?,
+                record,
+                stage_id,
+            )
             .await
     }
 

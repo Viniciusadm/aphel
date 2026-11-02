@@ -58,6 +58,7 @@ pub enum FieldValueError {
     TooManyOptions(usize),
     InvalidReference,
     ReferenceNotFound,
+    TypeUnavailable,
     NotUnique,
 }
 
@@ -89,6 +90,7 @@ impl FieldValueError {
             Self::ReferenceNotFound => {
                 "references a record that does not exist or that you cannot read".to_owned()
             }
+            Self::TypeUnavailable => "field type provider is unavailable".to_owned(),
             Self::NotUnique => "is already used by another record".to_owned(),
         }
     }
@@ -112,9 +114,24 @@ pub fn validate_value(
     if raw.is_empty() {
         return Ok(None);
     }
+    if matches!(definition.field_type, FieldType::Custom { .. }) {
+        let kind = crate::application::fields::field_types::find(definition.field_type.as_str())
+            .ok_or(FieldValueError::TypeUnavailable)?;
+        (kind.validate)(definition, raw)?;
+    }
+    validate_native_value(definition, raw)
+}
+
+pub fn validate_native_value(
+    definition: &FieldDefinition,
+    raw: &RawValue,
+) -> Result<Option<FieldValue>, FieldValueError> {
+    if raw.is_empty() {
+        return Ok(None);
+    }
     let config = &definition.config;
-    let field_type = definition.field_type;
-    let value = match field_type {
+    let field_type = definition.field_type.base_type();
+    let value = match field_type.base_type() {
         FieldType::Text | FieldType::LongText => {
             let text = expect_text(raw)?.trim().to_owned();
             let limit = config.max_text_length(field_type);
@@ -130,7 +147,7 @@ pub fn validate_value(
                     return Err(FieldValueError::PatternMismatch);
                 }
             }
-            if field_type == FieldType::LongText {
+            if field_type.base_type() == FieldType::LongText {
                 FieldValue::LongText(text)
             } else {
                 FieldValue::Text(text)
@@ -205,6 +222,7 @@ pub fn validate_value(
             )
         }
         FieldType::Record => FieldValue::Record(parse_uuid(expect_text(raw)?)?),
+        FieldType::Custom { .. } => unreachable!("native field representation"),
     };
     Ok(Some(value))
 }

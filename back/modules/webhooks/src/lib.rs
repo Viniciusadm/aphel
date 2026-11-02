@@ -77,9 +77,9 @@ impl Module for WebhooksModule {
         app.contribute::<dyn aphel_kernel::application::notifications::NotificationSource>(
             std::sync::Arc::new(notifications::WebhookDisabledNotifications),
         );
-        app.provide::<dyn aphel_kernel::application::automations::IncomingWebhookOperations>(
-            std::sync::Arc::new(operations::AutomationIncomingWebhooks),
-        );
+        app.contribute::<dyn aphel_sdk::points::ReferenceProvider>(std::sync::Arc::new(
+            operations::IncomingWebhookRefs,
+        ));
         app.contribute::<dyn PersonalTextSource>(Arc::new(WebhookPersonalText));
         app.trigger(Arc::new(automation::IncomingWebhook))
             .action(Arc::new(automation::CallWebhook));

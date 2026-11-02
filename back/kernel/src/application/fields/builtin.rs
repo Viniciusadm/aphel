@@ -2,11 +2,19 @@ use crate::application::fields::{RecordTypeDefinition, SystemField};
 use crate::domain::fields::{FieldConfig, FieldType};
 use crate::errors::AppError;
 
-pub fn field(key: &str, label: &str, field_type: FieldType) -> Result<SystemField, AppError> {
+pub fn field(
+    key: &str,
+    label: impl Into<crate::application::fields::LocalizedLabels>,
+    field_type: FieldType,
+) -> Result<SystemField, AppError> {
     SystemField::new(key, label, field_type, key)
 }
 
-pub fn record_field(key: &str, label: &str, target: &str) -> Result<SystemField, AppError> {
+pub fn record_field(
+    key: &str,
+    label: impl Into<crate::application::fields::LocalizedLabels>,
+    target: &str,
+) -> Result<SystemField, AppError> {
     Ok(
         field(key, label, FieldType::Record)?.with_config(FieldConfig {
             target_record_type: Some(target.to_owned()),
@@ -17,8 +25,16 @@ pub fn record_field(key: &str, label: &str, target: &str) -> Result<SystemField,
 
 pub fn timestamps() -> Result<Vec<SystemField>, AppError> {
     Ok(vec![
-        field("created_at", "Criado em", FieldType::DateTime)?,
-        field("updated_at", "Atualizado em", FieldType::DateTime)?,
+        field(
+            "created_at",
+            crate::labels("Created at"),
+            FieldType::DateTime,
+        )?,
+        field(
+            "updated_at",
+            crate::labels("Updated at"),
+            FieldType::DateTime,
+        )?,
     ])
 }
 

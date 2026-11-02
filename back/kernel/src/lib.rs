@@ -15,3 +15,10 @@ pub mod worker;
 
 pub use context::Ctx;
 pub use kernel_module::KernelModule;
+
+pub(crate) fn labels(key: &str) -> crate::application::fields::LocalizedLabels {
+    crate::application::fields::LocalizedLabels::from_catalog(
+        include_str!("../locales/labels.json"),
+        key,
+    )
+}

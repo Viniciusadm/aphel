@@ -227,6 +227,7 @@ version = "0.1.0"
 name = "aphel-contract-crm"
 version = "0.1.0"
 dependencies = [
+ "aphel-contract",
  "aphel-kernel",
 ]
 
@@ -526,6 +527,7 @@ dependencies = [
  "aphel-mod-contacts",
  "aphel-mod-currencies",
  "aphel-mod-pipelines",
+ "aphel-sdk",
  "async-trait",
  "axum",
  "chrono",
@@ -1459,6 +1461,7 @@ dependencies = [
 name = "aphel-mod-trash"
 version = "0.1.0"
 dependencies = [
+ "aphel-contract-crm",
  "aphel-kernel",
  "async-trait",
  "axum",

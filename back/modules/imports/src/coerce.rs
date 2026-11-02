@@ -28,7 +28,8 @@ pub(crate) fn coerce_cell(
     if text.is_empty() {
         return Ok(None);
     }
-    let value = match definition.field_type {
+    let value = match definition.field_type.base_type() {
+        FieldType::Custom { .. } => unreachable!("native field representation"),
         FieldType::Number | FieldType::Currency => {
             CellValue::Value(Value::String(parse_number(text)?))
         }

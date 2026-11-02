@@ -52,7 +52,7 @@ fn system_value(
     row: &MySqlRow,
     alias: &str,
 ) -> Result<Option<FieldValue>, AppError> {
-    Ok(match field.field_type {
+    Ok(match field.field_type.base_type() {
         FieldType::Number | FieldType::Currency => row
             .try_get::<Option<Decimal>, _>(alias)?
             .map(|number| FieldValue::Number(number.normalize())),
@@ -72,12 +72,13 @@ fn system_value(
             .try_get::<Option<String>, _>(alias)?
             .map(FieldValue::Text),
         FieldType::MultiSelect | FieldType::User | FieldType::Record => None,
+        FieldType::Custom { .. } => unreachable!("native field representation"),
     })
 }
 
 fn selected_column(field: &SystemField) -> String {
     let expression = system_expression(field, "r");
-    match field.field_type {
+    match field.field_type.base_type() {
         FieldType::Number | FieldType::Currency => {
             format!("CAST({expression} AS DECIMAL(30,6))")
         }

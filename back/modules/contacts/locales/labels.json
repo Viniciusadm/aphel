@@ -1,0 +1,54 @@
+{
+  "Full name": {
+    "pt-BR": "Nome completo",
+    "en": "Full name"
+  },
+  "Name": {
+    "pt-BR": "Nome",
+    "en": "Name"
+  },
+  "Last name": {
+    "pt-BR": "Sobrenome",
+    "en": "Last name"
+  },
+  "Email": {
+    "pt-BR": "E-mail",
+    "en": "Email"
+  },
+  "Job title": {
+    "pt-BR": "Cargo",
+    "en": "Job title"
+  },
+  "Company": {
+    "pt-BR": "Empresa",
+    "en": "Company"
+  },
+  "Owner": {
+    "pt-BR": "Responsável",
+    "en": "Owner"
+  },
+  "Source": {
+    "pt-BR": "Origem",
+    "en": "Source"
+  },
+  "Notes": {
+    "pt-BR": "Observações",
+    "en": "Notes"
+  },
+  "Deals": {
+    "pt-BR": "Oportunidades",
+    "en": "Deals"
+  },
+  "Contacts": {
+    "pt-BR": "Contatos",
+    "en": "Contacts"
+  },
+  "Phone": {
+    "pt-BR": "Telefone",
+    "en": "Phone"
+  },
+  "Mobile": {
+    "pt-BR": "Celular",
+    "en": "Mobile"
+  }
+}

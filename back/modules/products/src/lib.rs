@@ -9,9 +9,7 @@ use std::sync::Arc;
 use aphel_kernel::modules::Migration;
 
 use aphel_kernel::application::fields::builtin::field;
-use aphel_kernel::application::fields::{
-    LabelNormalization, RecordCapabilities, RecordTypeDefinition,
-};
+use aphel_kernel::application::fields::{EntityTraits, LabelNormalization, RecordTypeDefinition};
 use aphel_kernel::application::public_events::{
     PreviousValues, PublicEventDefinition, PublicResource, changed, deleted, event,
 };
@@ -53,14 +51,14 @@ pub(crate) fn product_definition() -> Result<RecordTypeDefinition, AppError> {
     Ok(
         RecordTypeDefinition::new(RecordType::PRODUCT, "products", Permission::PRODUCTS_READ)
             .capabilities(
-                RecordCapabilities::default()
+                EntityTraits::default()
                     .relatable()
                     .importable()
                     .exportable()
                     .validation_rules()
                     .bulk_fields(PRODUCT_BULK_FIELDS)
                     .web_path("products")
-                    .plural_labels("Produtos", "Products")
+                    .localized_labels(crate::labels("Products"))
                     .label_alias("code", LabelNormalization::Exact)
                     .restore_order(2),
             )
@@ -68,27 +66,55 @@ pub(crate) fn product_definition() -> Result<RecordTypeDefinition, AppError> {
             .title_field("name")
             .soft_delete_column("deleted_at")
             .system_field(
-                field("name", "Nome", FieldType::Text)?
+                field("name", crate::labels("Name"), FieldType::Text)?
                     .searchable()
                     .required(),
             )
-            .system_field(field("code", "Código", FieldType::Text)?.searchable())
-            .system_field(field("price", "Preço", FieldType::Currency)?)
-            .system_field(field("currency", "Moeda", FieldType::Text)?)
-            .system_field(field("unit", "Unidade", FieldType::Text)?)
+            .system_field(field("code", crate::labels("Code"), FieldType::Text)?.searchable())
+            .system_field(field("price", crate::labels("Price"), FieldType::Currency)?)
+            .system_field(field(
+                "currency",
+                crate::labels("Currency"),
+                FieldType::Text,
+            )?)
+            .system_field(field("unit", crate::labels("Unit"), FieldType::Text)?)
             .system_field(
-                field("recurrence", "Recorrência", FieldType::Select)?
-                    .with_option("none", "Sem recorrência", None)
-                    .with_option("monthly", "Mensal", None)
-                    .with_option("quarterly", "Trimestral", None)
-                    .with_option("yearly", "Anual", None),
+                field("recurrence", crate::labels("Recurrence"), FieldType::Select)?
+                    .with_option("none", crate::labels("No recurrence"), None)
+                    .with_option("monthly", crate::labels("Monthly"), None)
+                    .with_option("quarterly", crate::labels("Quarterly"), None)
+                    .with_option("yearly", crate::labels("Yearly"), None),
             )
-            .system_field(field("term_months", "Prazo (meses)", FieldType::Number)?)
-            .system_field(field("is_active", "Ativo", FieldType::Checkbox)?)
-            .system_field(field("description", "Descrição", FieldType::LongText)?)
-            .system_field(field("created_by", "Criado por", FieldType::User)?)
-            .system_field(field("created_at", "Criado em", FieldType::DateTime)?)
-            .system_field(field("updated_at", "Atualizado em", FieldType::DateTime)?),
+            .system_field(field(
+                "term_months",
+                crate::labels("Term (months)"),
+                FieldType::Number,
+            )?)
+            .system_field(field(
+                "is_active",
+                crate::labels("Active"),
+                FieldType::Checkbox,
+            )?)
+            .system_field(field(
+                "description",
+                crate::labels("Description"),
+                FieldType::LongText,
+            )?)
+            .system_field(field(
+                "created_by",
+                crate::labels("Created by"),
+                FieldType::User,
+            )?)
+            .system_field(field(
+                "created_at",
+                crate::labels("Created at"),
+                FieldType::DateTime,
+            )?)
+            .system_field(field(
+                "updated_at",
+                crate::labels("Updated at"),
+                FieldType::DateTime,
+            )?),
     )
 }
 
@@ -128,4 +154,11 @@ impl Module for ProductsModule {
         }
         Ok(())
     }
+}
+
+pub(crate) fn labels(key: &str) -> aphel_kernel::application::fields::LocalizedLabels {
+    aphel_kernel::application::fields::LocalizedLabels::from_catalog(
+        include_str!("../locales/labels.json"),
+        key,
+    )
 }

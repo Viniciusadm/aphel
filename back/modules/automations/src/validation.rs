@@ -1,4 +1,5 @@
 use crate::conditions::{record_part, trigger_violations};
+use aphel_contract_crm::refs;
 use aphel_kernel::application::access::Authorizer;
 use aphel_kernel::application::automations::actions::{ActionRegistry, ValidationContext};
 use aphel_kernel::application::automations::definition::{
@@ -222,13 +223,13 @@ impl AutomationValidator<'_> {
                 TriggerReference::Stage { path, id } => (
                     path,
                     self.gateway
-                        .reference_exists(self.scope, Reference::Stage(id))
+                        .reference_exists(self.scope, Reference::new(refs::STAGE, id))
                         .await?,
                 ),
                 TriggerReference::IncomingWebhook { path, id } => (
                     path,
                     self.gateway
-                        .reference_exists(self.scope, Reference::IncomingWebhook(id))
+                        .reference_exists(self.scope, Reference::new(refs::INCOMING_WEBHOOK, id))
                         .await?,
                 ),
             };

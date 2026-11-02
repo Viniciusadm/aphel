@@ -723,7 +723,7 @@ impl<'a> Compiler<'a> {
                 builder
                     .push(format!(" AND s{index}.field_id = "))
                     .push_bind(field_id.to_string());
-                if sort.field_type == FieldType::Select {
+                if sort.field_type.base_type() == FieldType::Select {
                     builder.push(format!(
                         " LEFT JOIN field_options so{index} ON so{index}.id = s{index}.value_option_id"
                     ));
@@ -740,7 +740,7 @@ impl<'a> Compiler<'a> {
                 FieldTarget::System { .. } | FieldTarget::Computed { .. } => {
                     self.target_expression(&sort.target)
                 }
-                FieldTarget::Custom { .. } if sort.field_type == FieldType::Select => {
+                FieldTarget::Custom { .. } if sort.field_type.base_type() == FieldType::Select => {
                     format!("so{index}.position")
                 }
                 FieldTarget::Custom { column, .. } => format!("s{index}.{}", column.column_name()),

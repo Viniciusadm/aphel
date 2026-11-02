@@ -267,7 +267,7 @@ pub fn import_targets(fields: &FieldSet, registry: &RecordTypeRegistry) -> Vec<I
             satisfied_by: title_stand_in.clone().filter(|_| {
                 field.definition.is_required
                     && field.is_system()
-                    && field.definition.field_type == FieldType::Text
+                    && field.definition.field_type.base_type() == FieldType::Text
             }),
         })
         .collect();

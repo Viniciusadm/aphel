@@ -17,7 +17,7 @@ use aphel_kernel::application::public_events::{PublicEventDefinition, event};
 use aphel_kernel::domain::access::{Permission, PermissionDefinition};
 use aphel_kernel::domain::fields::FieldType;
 use aphel_kernel::errors::AppError;
-use aphel_kernel::infrastructure::crm::seed::CrmDefaultsSeed;
+use aphel_kernel::infrastructure::defaults::seed::DefaultsSeed;
 use aphel_kernel::modules::builder::APHEL_VERSION;
 use aphel_kernel::modules::{AppBuilder, Manifest, Module};
 use aphel_kernel::records::{RecordDeleted, RecordRestored, RecordValidating};
@@ -51,14 +51,18 @@ const PUBLIC_EVENTS: &[PublicEventDefinition] = &[
 pub(crate) fn lifecycle_stage_field() -> Result<SystemField, AppError> {
     Ok(field(
         "lifecycle_stage",
-        "Estágio do ciclo de vida",
+        crate::labels("Lifecycle stage"),
         FieldType::Select,
     )?
-    .with_option("lead", "Lead", Some("#64748b"))
-    .with_option("qualified", "Qualificado", Some("#0ea5e9"))
-    .with_option("opportunity", "Oportunidade", Some("#8b5cf6"))
-    .with_option("customer", "Cliente", Some("#22c55e"))
-    .with_option("former_customer", "Ex-cliente", Some("#f97316")))
+    .with_option("lead", crate::labels("Lead"), Some("#64748b"))
+    .with_option("qualified", crate::labels("Qualified"), Some("#0ea5e9"))
+    .with_option("opportunity", crate::labels("Opportunity"), Some("#8b5cf6"))
+    .with_option("customer", crate::labels("Customer"), Some("#22c55e"))
+    .with_option(
+        "former_customer",
+        crate::labels("Former customer"),
+        Some("#f97316"),
+    ))
 }
 
 pub struct LeadsModule;
@@ -128,7 +132,7 @@ impl Module for LeadsModule {
                 },
             ),
         ));
-        app.contribute(Arc::new(CrmDefaultsSeed(|connection| {
+        app.contribute(Arc::new(DefaultsSeed(|connection| {
             Box::pin(store::seed_disqualification_reasons(connection))
         })));
         let stage = lifecycle_stage_field()?;
@@ -171,4 +175,11 @@ impl Module for LeadsModule {
         }
         Ok(())
     }
+}
+
+pub(crate) fn labels(key: &str) -> aphel_kernel::application::fields::LocalizedLabels {
+    aphel_kernel::application::fields::LocalizedLabels::from_catalog(
+        include_str!("../locales/labels.json"),
+        key,
+    )
 }

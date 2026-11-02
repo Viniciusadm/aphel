@@ -872,7 +872,7 @@ pub(crate) async fn disqualify_lead(
         reason_name: reason.name.clone(),
         note: note.clone(),
         from_stage: lead.stage().map(str::to_owned),
-        actor_type: actor.kind(),
+        actor_type: actor.kind().to_owned(),
         actor_id: actor.id().map(str::to_owned),
         at: ctx.now(),
     };
@@ -1347,7 +1347,7 @@ pub async fn record_stage_history(
                 record_id: record.record_id,
                 from_stage,
                 to_stage,
-                actor_type: actor.kind(),
+                actor_type: actor.kind().to_owned(),
                 actor_id: actor.id().map(str::to_owned),
                 at: ctx.now(),
             },

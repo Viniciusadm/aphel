@@ -14,7 +14,10 @@ use crate::errors::FieldViolation;
 pub const WAIT_UNTIL_POLL_MINUTES: i64 = 10;
 
 pub fn is_date_type(field_type: FieldType) -> bool {
-    matches!(field_type, FieldType::Date | FieldType::DateTime)
+    matches!(
+        field_type.base_type(),
+        FieldType::Date | FieldType::DateTime
+    )
 }
 
 pub fn timestamp(value: DateTime<Utc>) -> String {
@@ -51,7 +54,7 @@ pub fn local_instant(day: NaiveDate, time: NaiveTime, timezone: Tz) -> DateTime<
 
 pub fn instant_of(value: &Value, field_type: FieldType, timezone: Tz) -> Option<DateTime<Utc>> {
     let text = value.as_str()?.trim();
-    match field_type {
+    match field_type.base_type() {
         FieldType::Date => NaiveDate::parse_from_str(text.get(..10)?, "%Y-%m-%d")
             .ok()
             .map(|day| local_instant(day, NaiveTime::MIN, timezone)),

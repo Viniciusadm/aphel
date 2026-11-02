@@ -226,7 +226,7 @@ pub fn security_password_changed(
         ),
         locale.pick(
             "Se foi você, nada precisa ser feito. Se não reconhece esta alteração, redefina sua senha imediatamente pela opção \"Esqueci minha senha\" e fale com o administrador da sua organização.",
-            "If it was you, there is nothing to do. If you do not recognize this change, reset your password right away with \"Forgot my password\" and contact the administrator of your organization.",
+            "If it was you, there is nothing to do. If you do not recognize this change, reset your password right away with \"Forgot my password\" and notify the administrator of your organization.",
         ),
     )
 }

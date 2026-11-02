@@ -1,3 +1,4 @@
+use crate::application::config_packages::ConfigReferenceKind;
 use std::collections::{BTreeMap, BTreeSet, HashMap};
 use std::sync::Arc;
 
@@ -202,14 +203,14 @@ impl ApplyContext {
         }
     }
 
-    pub fn resolve(&mut self, item_type: &str, key: &str, id: Uuid) {
+    pub fn resolve(&mut self, item_type: ConfigReferenceKind, key: &str, id: Uuid) {
         self.resolved
-            .insert((item_type.to_owned(), key.to_owned()), id);
+            .insert((item_type.key().to_owned(), key.to_owned()), id);
     }
 
-    pub fn resolved(&self, item_type: &str, key: &str) -> Option<Uuid> {
+    pub fn resolved(&self, item_type: ConfigReferenceKind, key: &str) -> Option<Uuid> {
         self.resolved
-            .get(&(item_type.to_owned(), key.to_owned()))
+            .get(&(item_type.key().to_owned(), key.to_owned()))
             .copied()
     }
 }

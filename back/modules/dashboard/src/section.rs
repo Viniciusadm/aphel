@@ -1,3 +1,4 @@
+use aphel_kernel::application::config_packages::ConfigReferenceKind;
 use std::collections::BTreeSet;
 
 use async_trait::async_trait;
@@ -11,8 +12,8 @@ use crate::layout::{
 };
 use crate::store::LayoutStore;
 use aphel_kernel::application::config_packages::{
-    ApplyContext, ConfigKeyRepository, ConfigPackage, ConfigSection, Decisions, PIPELINE_ITEM,
-    PackageIssue, PlanChange, PlanItem, parse_section,
+    ApplyContext, ConfigKeyRepository, ConfigPackage, ConfigSection, Decisions, PackageIssue,
+    PlanChange, PlanItem, parse_section,
 };
 use aphel_kernel::application::dashboard::WidgetSize;
 use aphel_kernel::database::transaction::MySqlTx;
@@ -82,7 +83,9 @@ where
             if let Some(pipeline) = settings.remove(PIPELINE_SETTING) {
                 let pipeline_id = pipeline.as_str().and_then(|key| {
                     context
-                        .and_then(|context| context.resolved(PIPELINE_ITEM, key))
+                        .and_then(|context| {
+                            context.resolved(ConfigReferenceKind::new("workflow.pipeline"), key)
+                        })
                         .or_else(|| {
                             existing
                                 .iter()

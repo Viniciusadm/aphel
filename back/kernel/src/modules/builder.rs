@@ -516,7 +516,7 @@ impl AppBuilder {
             self.custom_record_handler.take(),
         )?);
 
-        Ok(App {
+        let app = App {
             record_types,
             record_contributions,
             modules,
@@ -531,7 +531,9 @@ impl AppBuilder {
             contributions: self.contributions,
             runtime: RwLock::new(HashMap::new()),
             enabled,
-        })
+        };
+        crate::application::fields::field_types::validate_registry(&app)?;
+        Ok(app)
     }
 }
 

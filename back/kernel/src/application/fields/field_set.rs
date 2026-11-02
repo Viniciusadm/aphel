@@ -11,6 +11,7 @@ use crate::errors::AppError;
 
 #[derive(Debug, Clone, PartialEq)]
 pub struct ResolvedField {
+    pub labels: super::LocalizedLabels,
     pub definition: FieldDefinition,
     pub system: Option<SystemField>,
     pub updated_at: Option<DateTime<Utc>>,
@@ -64,7 +65,13 @@ impl FieldSet {
                     } else {
                         FieldAccess::Editable
                     };
+                    let labels = record_type
+                        .managed_field_by_key(definition.key.as_str())
+                        .filter(|field| field.spec.label == definition.label)
+                        .map(|field| field.spec.labels.clone())
+                        .unwrap_or_else(|| definition.label.clone().into());
                     return Some(ResolvedField {
+                        labels,
                         definition,
                         system: None,
                         updated_at: None,
@@ -83,7 +90,13 @@ impl FieldSet {
                 } else {
                     FieldAccess::Editable
                 };
+                let labels = if system.label == definition.label {
+                    system.labels.clone()
+                } else {
+                    definition.label.clone().into()
+                };
                 Some(ResolvedField {
+                    labels,
                     definition,
                     system: Some(system),
                     updated_at: None,

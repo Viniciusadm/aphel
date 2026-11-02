@@ -50,7 +50,7 @@ impl MySqlNotificationDirectory {
 }
 
 fn summary_query(definition: &RecordTypeDefinition) -> Option<String> {
-    if !definition.capabilities.notifies {
+    if !definition.capabilities.has_trait("notifications.subject") {
         return None;
     }
     let title = definition.title_column()?;

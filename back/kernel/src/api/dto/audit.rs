@@ -40,6 +40,7 @@ pub enum AuditActorTypeDto {
     ApiToken,
     Automation,
     Plugin,
+    Service,
 }
 
 impl From<&Actor> for AuditActorTypeDto {
@@ -48,8 +49,9 @@ impl From<&Actor> for AuditActorTypeDto {
             Actor::User(_) => Self::User,
             Actor::System => Self::System,
             Actor::ApiToken(_) => Self::ApiToken,
-            Actor::Automation(_) => Self::Automation,
-            Actor::Plugin(_) => Self::Plugin,
+            Actor::Service { kind, .. } if kind == Actor::AUTOMATION => Self::Automation,
+            Actor::Service { kind, .. } if kind == Actor::PLUGIN => Self::Plugin,
+            Actor::Service { .. } => Self::Service,
         }
     }
 }
@@ -58,6 +60,7 @@ impl From<&Actor> for AuditActorTypeDto {
 pub struct AuditActorResponse {
     #[serde(rename = "type")]
     pub actor_type: AuditActorTypeDto,
+    pub kind: String,
     pub id: Option<String>,
     pub name: Option<String>,
     pub email: Option<String>,
@@ -82,7 +85,8 @@ impl From<FieldChange> for AuditFieldChangeResponse {
 
 #[derive(Debug, Serialize, ToSchema)]
 pub struct AuditCausationResponse {
-    pub automation_id: String,
+    pub executor_kind: String,
+    pub executor_id: String,
     pub run_id: String,
     pub depth: u32,
     pub chain: Vec<String>,
@@ -91,7 +95,8 @@ pub struct AuditCausationResponse {
 impl From<EventCausation> for AuditCausationResponse {
     fn from(causation: EventCausation) -> Self {
         Self {
-            automation_id: causation.automation_id.to_string(),
+            executor_kind: causation.executor_kind,
+            executor_id: causation.executor_id,
             run_id: causation.run_id.to_string(),
             depth: causation.depth,
             chain: causation.chain.iter().map(ToString::to_string).collect(),
@@ -129,6 +134,7 @@ impl From<AuditLogView> for AuditLogResponse {
             id: view.id.to_string(),
             actor: AuditActorResponse {
                 actor_type: (&view.actor).into(),
+                kind: view.actor.kind().to_owned(),
                 id: view.actor.id().map(str::to_owned),
                 name: view.actor_name,
                 email: view.actor_email,

@@ -163,7 +163,7 @@ pub(crate) async fn publisher_scope(
         .await?
         .map(|access| {
             build_access_scope(publisher.clone(), access)
-                .through_automation(automation.id.to_string())
+                .acting_as("automation", automation.id.to_string())
         }))
 }
 
@@ -494,8 +494,9 @@ impl AutomationRunHandler {
         let mut chain = run.chain.clone();
         chain.push(automation.id);
         let gateway = self.0.gateways().gateway(Some(EventCausation {
+            executor_kind: Actor::AUTOMATION.to_owned(),
+            executor_id: automation.id.to_string(),
             run_id: run.id,
-            automation_id: automation.id,
             depth: run.depth,
             chain,
         }));

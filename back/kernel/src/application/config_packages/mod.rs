@@ -11,3 +11,5 @@ pub use package::*;
 pub use ports::*;
 pub use section::*;
 pub use use_cases::*;
+
+pub use aphel_contract::ReferenceKind as ConfigReferenceKind;

@@ -49,7 +49,7 @@ pub fn stored_formula_value(
     timezone: Tz,
 ) -> FormulaValue {
     match value {
-        FieldValue::Text(text) if definition.field_type == FieldType::Select => {
+        FieldValue::Text(text) if definition.field_type.base_type() == FieldType::Select => {
             definition.option_by_value(text).map_or_else(
                 || FormulaValue::Text(text.clone()),
                 |option| FormulaValue::Text(option.label.clone()),
@@ -97,7 +97,7 @@ pub fn json_formula_value(
     if value.is_null() {
         return FormulaValue::Null;
     }
-    match definition.field_type {
+    match definition.field_type.base_type() {
         FieldType::Number | FieldType::Currency => {
             json_decimal(value).map_or(FormulaValue::Null, FormulaValue::Number)
         }
@@ -124,6 +124,7 @@ pub fn json_formula_value(
             _ => FormulaValue::Null,
         },
         FieldType::MultiSelect | FieldType::User | FieldType::Record => FormulaValue::Null,
+        FieldType::Custom { .. } => unreachable!("native field representation"),
     }
 }
 

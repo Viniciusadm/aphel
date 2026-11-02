@@ -16,7 +16,7 @@ use aphel_kernel::modules::Migration;
 use aphel_kernel::application::automations::time::triggers::TimeTriggerPlanner;
 use aphel_kernel::application::public_events::{PublicEventDefinition, PublicResource, event};
 use aphel_kernel::errors::AppError;
-use aphel_kernel::infrastructure::crm::{CrmDefaultsProbe, CrmDefaultsSeed};
+use aphel_kernel::infrastructure::defaults::{DefaultsProbe, DefaultsSeed};
 use aphel_kernel::modules::builder::APHEL_VERSION;
 use aphel_kernel::modules::{AppBuilder, Manifest, Module};
 use aphel_kernel::records::RecordValidating;
@@ -56,9 +56,13 @@ impl Module for PipelinesModule {
                 "create pipelines",
                 include_str!("../migrations/0001_create_pipelines.sql"),
             ))
+            .migration(Migration::new(2, "namespace_config_references", include_str!("../migrations/0002_namespace_config_references.sql")))
     }
 
     fn register(&self, app: &mut AppBuilder) -> Result<(), AppError> {
+        app.contribute(std::sync::Arc::new(aphel_kernel::application::config_packages::versioning::fragments::NestedFragmentLayout {
+            section: "pipelines", parent_kind: "pipeline", child_kind: "stage", children_field: "stages",
+        }));
         for (record_type, table) in [
             ("pipeline", "pipelines"),
             ("pipeline_stage", "pipeline_stages"),
@@ -95,11 +99,11 @@ impl Module for PipelinesModule {
                 },
             ),
         ));
-        app.contribute(std::sync::Arc::new(CrmDefaultsSeed(|connection| {
+        app.contribute(std::sync::Arc::new(DefaultsSeed(|connection| {
             Box::pin(seed::seed_pipeline_defaults(connection))
         })));
         for table in seed::SEEDED_TABLES {
-            app.contribute(std::sync::Arc::new(CrmDefaultsProbe(table)));
+            app.contribute(std::sync::Arc::new(DefaultsProbe(table)));
         }
         let mut outcome = Ok(());
         app.extend(DEAL_RECORD_TYPE, |deal| {
@@ -133,4 +137,11 @@ impl Module for PipelinesModule {
         }
         Ok(())
     }
+}
+
+pub(crate) fn labels(key: &str) -> aphel_kernel::application::fields::LocalizedLabels {
+    aphel_kernel::application::fields::LocalizedLabels::from_catalog(
+        include_str!("../locales/labels.json"),
+        key,
+    )
 }

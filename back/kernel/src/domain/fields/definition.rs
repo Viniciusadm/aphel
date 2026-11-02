@@ -71,9 +71,12 @@ impl ConfigProperty {
     }
 
     pub fn supported_by(&self, field_type: FieldType) -> bool {
+        let field_type = field_type.base_type();
         use FieldType::*;
         match self {
-            Self::Min | Self::Max | Self::Decimals => matches!(field_type, Number | Currency),
+            Self::Min | Self::Max | Self::Decimals => {
+                matches!(field_type, Number | Currency)
+            }
             Self::Currency => field_type == Currency,
             Self::MaxLength => matches!(field_type, Text | LongText),
             Self::Pattern => field_type == Text,
@@ -129,7 +132,7 @@ impl FieldConfig {
     }
 
     pub fn allowed_decimals(&self, field_type: FieldType) -> u32 {
-        let default = if field_type == FieldType::Currency {
+        let default = if field_type.base_type() == FieldType::Currency {
             DEFAULT_CURRENCY_DECIMALS
         } else {
             MAX_DECIMALS
@@ -138,7 +141,7 @@ impl FieldConfig {
     }
 
     pub fn max_text_length(&self, field_type: FieldType) -> u32 {
-        let limit = if field_type == FieldType::LongText {
+        let limit = if field_type.base_type() == FieldType::LongText {
             MAX_LONG_TEXT_LENGTH
         } else {
             MAX_TEXT_LENGTH
@@ -200,7 +203,7 @@ impl FieldConfig {
             ));
         }
         if let Some(max_length) = self.max_length {
-            let limit = if field_type == FieldType::LongText {
+            let limit = if field_type.base_type() == FieldType::LongText {
                 MAX_LONG_TEXT_LENGTH
             } else {
                 MAX_TEXT_LENGTH
@@ -232,7 +235,7 @@ impl FieldConfig {
                 "must be an ISO 3166 country code such as BR",
             ));
         }
-        if field_type == FieldType::Record && self.target_record_type.is_none() {
+        if field_type.base_type() == FieldType::Record && self.target_record_type.is_none() {
             violations.push(ConfigViolation::new(
                 ConfigProperty::TargetRecordType,
                 "is required for record fields",

@@ -1,0 +1,22 @@
+{
+  "Title": {
+    "pt-BR": "Título",
+    "en": "Title"
+  },
+  "Owner": {
+    "pt-BR": "Responsável",
+    "en": "Owner"
+  },
+  "Created by": {
+    "pt-BR": "Criado por",
+    "en": "Created by"
+  },
+  "Created at": {
+    "pt-BR": "Criado em",
+    "en": "Created at"
+  },
+  "Updated at": {
+    "pt-BR": "Atualizado em",
+    "en": "Updated at"
+  }
+}

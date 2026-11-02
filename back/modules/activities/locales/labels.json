@@ -1,0 +1,98 @@
+{
+  "Latitude": {
+    "pt-BR": "Latitude",
+    "en": "Latitude"
+  },
+  "Longitude": {
+    "pt-BR": "Longitude",
+    "en": "Longitude"
+  },
+  "Location accuracy (m)": {
+    "pt-BR": "Precisão da localização (m)",
+    "en": "Location accuracy (m)"
+  },
+  "Location captured at": {
+    "pt-BR": "Localização capturada em",
+    "en": "Location captured at"
+  },
+  "Title": {
+    "pt-BR": "Título",
+    "en": "Title"
+  },
+  "Type": {
+    "pt-BR": "Tipo",
+    "en": "Type"
+  },
+  "Status": {
+    "pt-BR": "Situação",
+    "en": "Status"
+  },
+  "Priority": {
+    "pt-BR": "Prioridade",
+    "en": "Priority"
+  },
+  "Due date": {
+    "pt-BR": "Prazo",
+    "en": "Due date"
+  },
+  "Completed at": {
+    "pt-BR": "Concluída em",
+    "en": "Completed at"
+  },
+  "Owner": {
+    "pt-BR": "Responsável",
+    "en": "Owner"
+  },
+  "Created by": {
+    "pt-BR": "Criada por",
+    "en": "Created by"
+  },
+  "Record type": {
+    "pt-BR": "Tipo do registro",
+    "en": "Record type"
+  },
+  "Record": {
+    "pt-BR": "Registro",
+    "en": "Record"
+  },
+  "Duration (min)": {
+    "pt-BR": "Duração (min)",
+    "en": "Duration (min)"
+  },
+  "Description": {
+    "pt-BR": "Descrição",
+    "en": "Description"
+  },
+  "Activities": {
+    "pt-BR": "Atividades",
+    "en": "Activities"
+  },
+  "Open": {
+    "pt-BR": "Aberta",
+    "en": "Open"
+  },
+  "Done": {
+    "pt-BR": "Concluída",
+    "en": "Done"
+  },
+  "Canceled": {
+    "pt-BR": "Cancelada",
+    "en": "Canceled"
+  },
+  "Low": {
+    "pt-BR": "Baixa",
+    "en": "Low"
+  },
+  "Normal": {
+    "pt-BR": "Normal",
+    "en": "Normal"
+  },
+  "High": {
+    "pt-BR": "Alta",
+    "en": "High"
+  },
+  "Urgent": {
+    "pt-BR": "Urgente",
+    "en": "Urgent"
+  }
+}

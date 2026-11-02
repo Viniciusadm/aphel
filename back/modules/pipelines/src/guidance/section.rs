@@ -1,3 +1,4 @@
+use aphel_kernel::application::config_packages::ConfigReferenceKind;
 use std::collections::{BTreeSet, HashMap};
 
 use async_trait::async_trait;
@@ -14,8 +15,8 @@ use crate::section::{PIPELINES_SECTION, keyed_pipelines, parse_pipelines, stage_
 use crate::store::PipelineStore;
 use aphel_kernel::application::config_packages::sections::common::{check_key, diff};
 use aphel_kernel::application::config_packages::{
-    ApplyContext, ConfigKeyRepository, ConfigPackage, ConfigSection, Decisions,
-    PIPELINE_STAGE_ITEM, PackageIssue, PlanChange, PlanItem, assign_keys, parse_section,
+    ApplyContext, ConfigKeyRepository, ConfigPackage, ConfigSection, Decisions, PackageIssue,
+    PlanChange, PlanItem, assign_keys, parse_section,
 };
 use aphel_kernel::database::transaction::MySqlTx;
 use aphel_kernel::domain::access::AccessScope;
@@ -100,7 +101,10 @@ pub(crate) fn stage_guidance_section(pool: &sqlx::MySqlPool) -> StageGuidanceSec
 
 impl StageGuidanceSection {
     async fn index(&self) -> Result<Index, AppError> {
-        let stored_stages = self.keys.keys(PIPELINE_STAGE_ITEM).await?;
+        let stored_stages = self
+            .keys
+            .keys(ConfigReferenceKind::new("workflow.stage"))
+            .await?;
         let mut pipelines = Vec::new();
         for (pipeline, keyed) in keyed_pipelines(&self.pipelines, &self.keys).await? {
             let stages = self.pipelines.list_stages(pipeline.id).await?;
@@ -385,7 +389,7 @@ impl ConfigSection<MySqlTx> for StageGuidanceSection {
             }
             let Some(stage_id) = context
                 .resolved(
-                    PIPELINE_STAGE_ITEM,
+                    ConfigReferenceKind::new("workflow.stage"),
                     &stage_item_key(&entry.pipeline, &entry.stage),
                 )
                 .or_else(|| {

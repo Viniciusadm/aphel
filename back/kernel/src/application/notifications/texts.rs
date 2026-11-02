@@ -13,10 +13,10 @@ pub fn record_type_label(record_type: &str, locale: MailLocale) -> String {
     crate::modules::app()
         .record_types()
         .capabilities(record_type)
-        .and_then(|capabilities| capabilities.plural_labels.as_ref())
+        .and_then(|capabilities| capabilities.plural_labels_value())
         .map_or_else(
             || record_type.to_owned(),
-            |labels| locale.pick(&labels.portuguese, &labels.english).to_owned(),
+            |labels| labels.get(locale.html_lang()).to_owned(),
         )
 }
 

@@ -4,7 +4,7 @@ use std::sync::Arc;
 use uuid::Uuid;
 
 use crate::application::custom_objects::CustomSchema;
-use crate::application::fields::capabilities::{ManagedField, RecordCapabilities};
+use crate::application::fields::capabilities::{EntityTraits, ManagedField};
 use crate::application::fields::computed::ComputedColumn;
 use crate::application::shared::RecordType;
 use crate::domain::access::{Permission, is_known_permission};
@@ -21,6 +21,7 @@ pub const MAX_IDENTIFIER_LENGTH: usize = 64;
 pub struct SystemFieldOption {
     pub value: String,
     pub label: String,
+    pub labels: super::LocalizedLabels,
     pub color: Option<String>,
 }
 
@@ -28,6 +29,7 @@ pub struct SystemFieldOption {
 pub struct SystemField {
     pub key: FieldKey,
     pub label: String,
+    pub labels: super::LocalizedLabels,
     pub field_type: FieldType,
     pub column: String,
     pub filterable: bool,
@@ -45,15 +47,17 @@ pub struct SystemField {
 impl SystemField {
     pub fn new(
         key: &str,
-        label: impl Into<String>,
+        label: impl Into<super::LocalizedLabels>,
         field_type: FieldType,
         column: impl Into<String>,
     ) -> Result<Self, AppError> {
+        let labels = label.into();
         Ok(Self {
             key: FieldKey::new(key).map_err(|_| {
                 AppError::Configuration(format!("invalid system field key {key:?}"))
             })?,
-            label: label.into(),
+            label: labels.default_text().to_owned(),
+            labels,
             field_type,
             column: column.into(),
             filterable: true,
@@ -131,12 +135,14 @@ impl SystemField {
     pub fn with_option(
         mut self,
         value: impl Into<String>,
-        label: impl Into<String>,
+        label: impl Into<super::LocalizedLabels>,
         color: Option<&str>,
     ) -> Self {
+        let labels = label.into();
         self.options.push(SystemFieldOption {
             value: value.into(),
-            label: label.into(),
+            label: labels.default_text().to_owned(),
+            labels,
             color: color.map(str::to_owned),
         });
         self
@@ -218,15 +224,18 @@ impl RelationPath {
 pub struct RecordRelation {
     pub key: String,
     pub label: String,
+    pub labels: super::LocalizedLabels,
     pub target: RecordType,
     pub paths: Vec<RelationPath>,
 }
 
 impl RecordRelation {
-    pub fn new(key: &str, label: impl Into<String>, target: RecordType) -> Self {
+    pub fn new(key: &str, label: impl Into<super::LocalizedLabels>, target: RecordType) -> Self {
+        let labels = label.into();
         Self {
             key: key.to_owned(),
-            label: label.into(),
+            label: labels.default_text().to_owned(),
+            labels,
             target,
             paths: Vec::new(),
         }
@@ -239,7 +248,7 @@ impl RecordRelation {
 
     pub fn belongs_to(
         key: &str,
-        label: impl Into<String>,
+        label: impl Into<super::LocalizedLabels>,
         target: RecordType,
         column: impl Into<String>,
     ) -> Self {
@@ -250,7 +259,7 @@ impl RecordRelation {
 
     pub fn has_many(
         key: &str,
-        label: impl Into<String>,
+        label: impl Into<super::LocalizedLabels>,
         target: RecordType,
         column: impl Into<String>,
     ) -> Self {
@@ -327,12 +336,14 @@ pub struct CustomTypeLabels {
 pub struct ItemColumn {
     pub column: String,
     pub label: String,
+    pub labels: super::LocalizedLabels,
 }
 
 #[derive(Debug, Clone, PartialEq, Eq)]
 pub struct ItemTable {
     pub key: String,
     pub label: String,
+    pub labels: super::LocalizedLabels,
     pub table: String,
     pub parent_column: String,
     pub columns: Vec<ItemColumn>,
@@ -340,10 +351,17 @@ pub struct ItemTable {
 }
 
 impl ItemTable {
-    pub fn new(key: &str, label: &str, table: &str, parent_column: &str) -> Self {
+    pub fn new(
+        key: &str,
+        label: impl Into<super::LocalizedLabels>,
+        table: &str,
+        parent_column: &str,
+    ) -> Self {
+        let labels = label.into();
         Self {
             key: key.to_owned(),
-            label: label.to_owned(),
+            label: labels.default_text().to_owned(),
+            labels,
             table: table.to_owned(),
             parent_column: parent_column.to_owned(),
             columns: Vec::new(),
@@ -351,10 +369,12 @@ impl ItemTable {
         }
     }
 
-    pub fn column(mut self, column: &str, label: &str) -> Self {
+    pub fn column(mut self, column: &str, label: impl Into<super::LocalizedLabels>) -> Self {
+        let labels = label.into();
         self.columns.push(ItemColumn {
             column: column.to_owned(),
-            label: label.to_owned(),
+            label: labels.default_text().to_owned(),
+            labels,
         });
         self
     }
@@ -405,7 +425,7 @@ pub struct RecordTypeDefinition {
     pub partition: Option<RecordPartition>,
     pub custom: Option<CustomTypeLabels>,
     pub title_field: Option<String>,
-    pub capabilities: RecordCapabilities,
+    pub capabilities: EntityTraits,
     pub managed_fields: Vec<ManagedField>,
     pub handler: Option<RecordHandler>,
 }
@@ -432,13 +452,21 @@ impl RecordTypeDefinition {
             partition: None,
             custom: None,
             title_field: None,
-            capabilities: RecordCapabilities::default(),
+            capabilities: EntityTraits::default(),
             managed_fields: Vec::new(),
             handler: None,
         }
     }
 
-    pub fn capabilities(mut self, capabilities: RecordCapabilities) -> Self {
+    pub fn with_trait<T: serde::Serialize>(mut self, key: &str, data: T) -> Self {
+        self.capabilities.traits.insert(
+            key.to_owned(),
+            serde_json::to_value(data).expect("serializable entity trait"),
+        );
+        self
+    }
+
+    pub fn capabilities(mut self, capabilities: EntityTraits) -> Self {
         self.capabilities = capabilities;
         self
     }
@@ -653,7 +681,7 @@ impl RecordTypeDefinition {
             if !keys.insert(field.key.as_str()) {
                 return Err(invalid("duplicated system field", field.key.as_str()));
             }
-            if field.field_type == FieldType::MultiSelect {
+            if field.field_type.base_type() == FieldType::MultiSelect {
                 return Err(invalid("multi_select system field", field.key.as_str()));
             }
             if field.is_computed() && (field.searchable || field.required) {
@@ -720,7 +748,13 @@ impl RecordTypeRegistry {
             .ok_or_else(|| operation_not_supported(record_type, "generic writes"))
     }
 
-    pub fn capabilities(&self, record_type: &str) -> Option<&RecordCapabilities> {
+    pub fn with_trait(&self, key: &str) -> impl Iterator<Item = &RecordTypeDefinition> {
+        self.types
+            .values()
+            .filter(move |definition| definition.capabilities.has_trait(key))
+    }
+
+    pub fn capabilities(&self, record_type: &str) -> Option<&EntityTraits> {
         RecordType::parse(record_type)
             .ok()
             .and_then(|record_type| self.types.get(&record_type))

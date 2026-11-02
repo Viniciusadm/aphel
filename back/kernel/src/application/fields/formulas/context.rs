@@ -12,7 +12,7 @@ use crate::domain::fields::{FieldDefinition, FieldType};
 use crate::errors::AppError;
 
 pub fn kind_of(field_type: FieldType) -> Option<ValueKind> {
-    match field_type {
+    match field_type.base_type() {
         FieldType::Number | FieldType::Currency => Some(ValueKind::Number),
         FieldType::Date | FieldType::DateTime => Some(ValueKind::Date),
         FieldType::Text
@@ -23,6 +23,7 @@ pub fn kind_of(field_type: FieldType) -> Option<ValueKind> {
         | FieldType::Select => Some(ValueKind::Text),
         FieldType::Checkbox => Some(ValueKind::Bool),
         FieldType::MultiSelect | FieldType::User | FieldType::Record => None,
+        FieldType::Custom { .. } => unreachable!("native field representation"),
     }
 }
 

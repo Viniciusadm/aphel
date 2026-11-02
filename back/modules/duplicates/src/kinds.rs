@@ -1,4 +1,5 @@
 use crate::domain::{DuplicateFamily, DuplicateRule};
+use aphel_contract_crm::traits;
 use aphel_kernel::application::fields::{
     LabelAlias, RecordTypeDefinition, RecordTypeRegistry, SystemField,
 };
@@ -83,8 +84,9 @@ impl DuplicateType {
 
     pub(crate) fn summary_columns(&self) -> Vec<String> {
         let capabilities = &self.definition.capabilities;
-        if !capabilities.contact_columns.is_empty() {
-            return capabilities.contact_columns.clone();
+        let columns = capabilities.trait_columns(traits::CONTACT_POINTS);
+        if !columns.is_empty() {
+            return columns;
         }
         capabilities
             .label_aliases

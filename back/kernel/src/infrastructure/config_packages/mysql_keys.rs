@@ -1,3 +1,4 @@
+use crate::application::config_packages::ConfigReferenceKind;
 use std::collections::HashMap;
 
 use async_trait::async_trait;
@@ -24,9 +25,12 @@ impl MySqlConfigKeyRepository {
 impl ConfigKeyRepository for MySqlConfigKeyRepository {
     type Tx = MySqlTx;
 
-    async fn keys(&self, item_type: &str) -> Result<HashMap<Uuid, String>, AppError> {
+    async fn keys(
+        &self,
+        item_type: ConfigReferenceKind,
+    ) -> Result<HashMap<Uuid, String>, AppError> {
         let rows = sqlx::query("SELECT item_id, `key` FROM config_item_keys WHERE item_type = ?")
-            .bind(item_type)
+            .bind(item_type.key())
             .fetch_all(&self.pool)
             .await?;
         rows.iter()
@@ -43,7 +47,7 @@ impl ConfigKeyRepository for MySqlConfigKeyRepository {
     async fn assign(
         &self,
         tx: &mut MySqlTx,
-        item_type: &str,
+        item_type: ConfigReferenceKind,
         item_id: Uuid,
         key: &str,
     ) -> Result<(), AppError> {
@@ -51,7 +55,7 @@ impl ConfigKeyRepository for MySqlConfigKeyRepository {
             "INSERT INTO config_item_keys (item_type, item_id, `key`) \
              VALUES (?, ?, ?) ON DUPLICATE KEY UPDATE `key` = VALUES(`key`)",
         )
-        .bind(item_type)
+        .bind(item_type.key())
         .bind(item_id.to_string())
         .bind(key)
         .execute(&mut **tx)

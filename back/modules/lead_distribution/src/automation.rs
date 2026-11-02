@@ -100,7 +100,8 @@ impl AutomationAction for AssignByRule {
         let field = Self::field(config);
         match context.fields.find(&field) {
             Some(_) if field == DEFAULT_FIELD => {}
-            Some(definition) if definition.definition.field_type == FieldType::User => {}
+            Some(definition) if definition.definition.field_type.base_type() == FieldType::User => {
+            }
             Some(_) => violations.push(context.violation("field", "must be a user field")),
             None if field == DEFAULT_FIELD => {
                 violations.push(context.violation("", "this record type has no owner"))

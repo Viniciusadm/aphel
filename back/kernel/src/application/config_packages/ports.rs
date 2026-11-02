@@ -1,3 +1,4 @@
+use crate::application::config_packages::ConfigReferenceKind;
 use std::collections::HashMap;
 
 use async_trait::async_trait;
@@ -12,21 +13,18 @@ use crate::application::shared::{AuditLog, EventPublisher, TransactionManager};
 use crate::domain::UserId;
 use crate::errors::AppError;
 
-pub const PIPELINE_ITEM: &str = "pipeline";
-pub const PIPELINE_STAGE_ITEM: &str = "pipeline_stage";
-pub const LOST_REASON_ITEM: &str = "lost_reason";
-pub const TAG_ITEM: &str = "tag";
-pub const SAVED_VIEW_ITEM: &str = "saved_view";
+pub const SAVED_VIEW_ITEM: ConfigReferenceKind = ConfigReferenceKind::new("views.view");
 
 #[async_trait]
 pub trait ConfigKeyRepository: Send + Sync {
     type Tx: Send;
 
-    async fn keys(&self, item_type: &str) -> Result<HashMap<Uuid, String>, AppError>;
+    async fn keys(&self, item_type: ConfigReferenceKind)
+    -> Result<HashMap<Uuid, String>, AppError>;
     async fn assign(
         &self,
         tx: &mut Self::Tx,
-        item_type: &str,
+        item_type: ConfigReferenceKind,
         item_id: Uuid,
         key: &str,
     ) -> Result<(), AppError>;

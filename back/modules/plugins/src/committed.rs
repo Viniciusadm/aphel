@@ -121,7 +121,7 @@ impl JobHandler for Run {
             .resolve(&self.pool)
             .await?
             .restricted(|permission| plugin.manifest.allows(permission))
-            .through_plugin(&plugin.key);
+            .acting_as("plugin", &plugin.key);
         let text = |key: &str| {
             input
                 .get(key)

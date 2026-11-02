@@ -91,7 +91,7 @@ impl HistoryStore {
         .bind(change.from_stage.as_deref())
         .bind(to_stage)
         .bind(at)
-        .bind(change.actor_type)
+        .bind(&change.actor_type)
         .bind(change.actor_id.as_deref())
         .execute(&mut **tx)
         .await?;
@@ -407,7 +407,7 @@ impl ReasonStore {
         .bind(&disqualification.reason_name)
         .bind(disqualification.note.as_deref())
         .bind(disqualification.from_stage.as_deref())
-        .bind(disqualification.actor_type)
+        .bind(&disqualification.actor_type)
         .bind(disqualification.actor_id.as_deref())
         .bind(mapper::naive(disqualification.at))
         .execute(&mut **tx)

@@ -1,3 +1,4 @@
+use aphel_contract_crm::traits;
 use aphel_contract_tagging as tagging;
 use std::sync::Arc;
 
@@ -6,7 +7,7 @@ use uuid::Uuid;
 
 use crate::BulkAction;
 use aphel_kernel::Ctx;
-use aphel_kernel::application::fields::RecordCapabilities;
+use aphel_kernel::application::fields::EntityTraits;
 use aphel_kernel::errors::{AppError, FieldViolation};
 use aphel_kernel::records::{RecordCtx, RecordTypeHandler};
 use sequences::EnrollCommand;
@@ -41,7 +42,7 @@ pub(crate) fn value_text(field: &str, value: &Value) -> Result<Option<String>, A
 }
 
 pub(crate) fn bulk_change(
-    capabilities: &RecordCapabilities,
+    capabilities: &EntityTraits,
     field: &str,
     value: &Value,
     is_custom: bool,
@@ -69,7 +70,7 @@ fn target(
     ctx: &Ctx<'_>,
     action: &BulkAction,
     record_type: &str,
-) -> Result<(Arc<dyn RecordTypeHandler>, RecordCapabilities), AppError> {
+) -> Result<(Arc<dyn RecordTypeHandler>, EntityTraits), AppError> {
     let registry = ctx.registry();
     let capabilities = registry
         .capabilities(record_type)
@@ -154,7 +155,7 @@ pub(crate) async fn apply(
             .map(|_| ()),
         BulkAction::MoveStage { stage_id } => {
             let (handler, capabilities) = target(ctx, action, record_type)?;
-            if !capabilities.supports_stages {
+            if !capabilities.has_trait(traits::STAGED) {
                 return Err(unsupported_action(action, record_type));
             }
             let mut body = Map::new();
@@ -166,7 +167,7 @@ pub(crate) async fn apply(
         }
         BulkAction::EnrollInSequence { sequence_id } => {
             let (_, capabilities) = target(ctx, action, record_type)?;
-            if !capabilities.supports_sequences {
+            if !capabilities.has_trait(traits::SEQUENCEABLE) {
                 return Err(unsupported_action(action, record_type));
             }
             sequences::service::enroll(

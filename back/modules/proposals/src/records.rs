@@ -70,8 +70,8 @@ pub(crate) fn actor_id(scope: &AccessScope) -> Uuid {
     Uuid::parse_str(scope.user_id().as_str()).unwrap_or_else(|_| Uuid::nil())
 }
 
-pub(crate) fn actor_kind(scope: &AccessScope) -> &'static str {
-    Actor::from_scope(scope).kind()
+pub(crate) fn actor_kind(scope: &AccessScope) -> String {
+    Actor::from_scope(scope).kind().to_owned()
 }
 
 pub(crate) async fn fields(ctx: &Ctx<'_>, record_type: &str) -> Result<Vec<FieldInfo>, AppError> {

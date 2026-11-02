@@ -26,7 +26,7 @@ fn binding(action_key: &'static str, label: &'static str) -> AutomationBinding {
         config_schema: config_schema(),
         reference: Some(ReferenceCheck {
             field: "tag_id",
-            exists_operation: "tagging.get",
+            kind: tagging::TAG,
         }),
         excluded_record_types: NOT_ON_TAGS,
         record_permission: Some("update"),
@@ -115,6 +115,7 @@ fn get<'a>(ctx: &'a Ctx<'_>, input: GetTag) -> BoxFuture<'a, Result<TagInfo, App
 
 pub(crate) fn register(app: &mut AppBuilder) {
     app.contract(tagging::DESCRIPTOR);
+    app.contribute::<dyn aphel_sdk::points::ReferenceProvider>(std::sync::Arc::new(TagRefs));
     app.operation(
         tagging::APPLY,
         OperationSpec::write("Tag a record the actor can edit: { record_type, record_id, tag_id } -> { changed, tags }")
@@ -141,4 +142,17 @@ pub(crate) fn register(app: &mut AppBuilder) {
         OperationSpec::read("One tag by id: { id } -> tag"),
         get,
     );
+}
+
+pub(crate) struct TagRefs;
+
+#[async_trait::async_trait]
+impl aphel_sdk::points::ReferenceProvider for TagRefs {
+    fn kind(&self) -> aphel_sdk::ReferenceKind {
+        tagging::TAG
+    }
+
+    async fn exists(&self, ctx: &Ctx<'_>, id: &str) -> Result<bool, AppError> {
+        aphel_sdk::points::lookup_exists(service::get(ctx, id).await)
+    }
 }

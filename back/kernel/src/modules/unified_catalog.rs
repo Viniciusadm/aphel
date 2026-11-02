@@ -90,8 +90,27 @@ pub struct NotificationKindEntry {
 }
 
 #[derive(Debug, Clone, Serialize, utoipa::ToSchema)]
+pub struct FieldTypeEntry {
+    pub key: &'static str,
+    pub provider: &'static str,
+    pub storage: &'static str,
+    pub config: serde_json::Value,
+    pub operators: Vec<&'static str>,
+    pub enabled: bool,
+}
+
+#[derive(Debug, Clone, Serialize, utoipa::ToSchema)]
+pub struct ReferenceKindEntry {
+    pub key: &'static str,
+    pub provider: &'static str,
+    pub enabled: bool,
+}
+
+#[derive(Debug, Clone, Serialize, utoipa::ToSchema)]
 pub struct CatalogDocument {
     pub version: &'static str,
+    pub field_types: Vec<FieldTypeEntry>,
+    pub reference_kinds: Vec<ReferenceKindEntry>,
     pub contracts: Vec<ContractInfo>,
     pub plugins: Vec<PluginEntry>,
     pub operations: Vec<OperationInfo>,
@@ -104,6 +123,31 @@ pub struct CatalogDocument {
 pub fn build(app: &App) -> CatalogDocument {
     CatalogDocument {
         version: crate::modules::builder::APHEL_VERSION,
+        field_types: app
+            .all_contributions::<crate::application::fields::FieldTypeDefinition>()
+            .into_iter()
+            .map(|(provider, definition)| FieldTypeEntry {
+                key: definition.key,
+                provider,
+                storage: definition.storage().column_name(),
+                config: definition.config.clone(),
+                operators: definition
+                    .operators
+                    .iter()
+                    .map(|operator| operator.as_str())
+                    .collect(),
+                enabled: app.is_enabled(provider),
+            })
+            .collect(),
+        reference_kinds: app
+            .all_contributions::<dyn crate::modules::ReferenceProvider>()
+            .into_iter()
+            .map(|(provider, resolver)| ReferenceKindEntry {
+                key: resolver.kind().key(),
+                provider,
+                enabled: app.is_enabled(provider),
+            })
+            .collect(),
         contracts: contracts(app),
         plugins: plugins(app),
         operations: operations(app),

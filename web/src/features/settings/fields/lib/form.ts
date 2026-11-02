@@ -3,7 +3,6 @@ import type { Resolver } from 'react-hook-form'
 import { z } from 'zod'
 import type { CreateFieldRequest, Field, UpdateFieldRequest } from '../api'
 import {
-  FIELD_TYPES,
   LABEL_MAX_LENGTH,
   MAX_DECIMALS,
   PATTERN_MAX_LENGTH,
@@ -325,7 +324,7 @@ export function fieldFormSchema(fieldType: FieldType, context: FieldFormContext)
         context.mode === 'create'
           ? text.min(1, 'validation.required').refine(isValidKey, 'validation.key')
           : z.string(),
-      fieldType: z.enum(FIELD_TYPES),
+      fieldType: z.string().trim().min(1, 'validation.required'),
       isRequired: z.boolean(),
       isUnique: z.boolean(),
       isSearchable: z.boolean(),

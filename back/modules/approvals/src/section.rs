@@ -1,3 +1,4 @@
+use aphel_kernel::application::config_packages::ConfigReferenceKind;
 use std::collections::{BTreeSet, HashMap};
 use std::sync::Arc;
 
@@ -15,9 +16,8 @@ use crate::service::{PolicyDraft, check_shape};
 use crate::store::{ApprovalDirectory, ApprovalStore};
 use aphel_kernel::application::config_packages::sections::common::{check_key, diff};
 use aphel_kernel::application::config_packages::{
-    ApplyContext, ConfigKeyRepository, ConfigPackage, ConfigSection, Decisions,
-    PIPELINE_STAGE_ITEM, PackageIssue, PlanAction, PlanChange, PlanItem, assign_keys,
-    parse_section,
+    ApplyContext, ConfigKeyRepository, ConfigPackage, ConfigSection, Decisions, PackageIssue,
+    PlanAction, PlanChange, PlanItem, assign_keys, parse_section,
 };
 use aphel_kernel::application::fields::RecordTypeRegistry;
 use aphel_kernel::application::shared::RecordType;
@@ -229,7 +229,10 @@ where
     }
 
     async fn index(&self) -> Result<Index, AppError> {
-        let stored_stages = self.keys.keys(PIPELINE_STAGE_ITEM).await?;
+        let stored_stages = self
+            .keys
+            .keys(ConfigReferenceKind::new("workflow.stage"))
+            .await?;
         let mut pipelines = Vec::new();
         for (pipeline, keyed) in keyed_pipelines(&self.pipelines, &self.keys).await? {
             let stages = self.pipelines.list_stages(pipeline.id).await?;
@@ -554,7 +557,7 @@ where
                 };
                 target_id = context
                     .resolved(
-                        PIPELINE_STAGE_ITEM,
+                        ConfigReferenceKind::new("workflow.stage"),
                         &stage_item_key(pipeline_key, stage_key),
                     )
                     .or_else(|| {
@@ -649,7 +652,11 @@ where
                     next_position += 1;
                 }
             }
-            context.resolve(APPROVAL_POLICY_KIND, &policy.key, policy.id);
+            context.resolve(
+                ConfigReferenceKind::new("approvals.policy"),
+                &policy.key,
+                policy.id,
+            );
         }
         Ok(())
     }

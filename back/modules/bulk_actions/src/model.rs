@@ -1,10 +1,11 @@
 use aphel_contract_crm::CrmPermissions;
+use aphel_contract_crm::traits;
 use chrono::{DateTime, Utc};
 use serde::{Deserialize, Serialize};
 use serde_json::{Value, json};
 use uuid::Uuid;
 
-use aphel_kernel::application::fields::{RecordCapabilities, RecordTypeRegistry};
+use aphel_kernel::application::fields::{EntityTraits, RecordTypeRegistry};
 use aphel_kernel::application::query::{ArchivedFilter, Filter};
 use aphel_kernel::application::shared::RecordType;
 use aphel_kernel::domain::UserId;
@@ -26,7 +27,7 @@ pub(crate) const BULK_OPERATION_FAILED: &str = "bulk_operation.failed";
 pub(crate) fn bulk_capabilities(
     registry: &RecordTypeRegistry,
     record_type: &str,
-) -> Option<RecordCapabilities> {
+) -> Option<EntityTraits> {
     registry
         .capabilities(record_type)
         .filter(|capabilities| capabilities.allows_bulk())
@@ -98,7 +99,7 @@ impl BulkAction {
             bulk_capabilities(registry, record_type).ok_or_else(|| unsupported("actions"))?;
         if let Self::EnrollInSequence { .. } = self {
             return capabilities
-                .supports_sequences
+                .has_trait(traits::SEQUENCEABLE)
                 .then_some(Permission::SEQUENCES_ENROLL)
                 .ok_or_else(|| unsupported("sequence enrollment"));
         }

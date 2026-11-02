@@ -16,7 +16,7 @@ A rule has:
 | Field | Meaning |
 | --- | --- |
 | `key` | Stable, unique key (snake_case), used by configuration packages. Generated from the name when omitted. Does not change. |
-| `record_type` | A type that declares `RecordCapabilities::validation_rules()` (in the default build: `contact`, `company`, `deal`, `activity`, `product`, `quote`) or `co_<key>`. Does not change. |
+| `record_type` | A type that declares `EntityTraits::validation_rules()` (in the default build: `contact`, `company`, `deal`, `activity`, `product`, `quote`) or `co_<key>`. Does not change. |
 | `name` | Name for the administrator. |
 | `expression` | Boolean formula (the same language as formula fields, `kernel/application/fields/formulas`) that describes the **error condition**: when the result is `true`, the write is rejected. A `false` or empty result lets it through. |
 | `message` | Message shown to the user (free text written by the administrator, in pt-BR). |

@@ -14,6 +14,7 @@ function tagsField(recordType: string, tags: Tag[], label: string): FieldDefinit
     id: `virtual-${TAGS_FIELD_KEY}`,
     key: TAGS_FIELD_KEY,
     label,
+    labels: {},
     record_type: recordType,
     field_type: 'multi_select',
     config: {},

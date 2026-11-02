@@ -138,7 +138,7 @@ pub(crate) fn group_label(column: &AggregateGroupColumn, group: &GroupValue) -> 
     let Some(value) = group.value.as_ref() else {
         return EMPTY_GROUP_LABEL.to_owned();
     };
-    match column.field_type {
+    match column.field_type.base_type() {
         FieldType::Date | FieldType::DateTime => bucket_label(column.granularity, value),
         FieldType::Checkbox => match value.as_str() {
             "true" => "Sim".to_owned(),

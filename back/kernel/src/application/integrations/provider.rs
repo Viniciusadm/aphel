@@ -106,7 +106,7 @@ impl IntegrationProvider for WebhookIntegrationProvider {
     }
 
     fn description(&self) -> &'static str {
-        "Send CRM events to any HTTPS endpoint"
+        "Send application events to any HTTPS endpoint"
     }
 
     fn icon(&self) -> &'static str {

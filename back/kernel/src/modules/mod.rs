@@ -45,6 +45,7 @@ pub use plugin_manifest::{
 };
 pub use points::{
     ActiveIntegration, DigestSource, FileReferenceSource, HealthSource, IntegrationStore,
+    ReferenceProvider, lookup_exists,
 };
 pub use routes::{MODULE_DISABLED, module_disabled};
 pub use services::Services;

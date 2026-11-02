@@ -77,7 +77,7 @@ impl MySqlCustomFieldValueRepository {
                 continue;
             };
             if let Some(option) = row.try_get::<Option<String>, _>("multi_option_id")? {
-                if field.field_type == FieldType::MultiSelect
+                if field.field_type.base_type() == FieldType::MultiSelect
                     && let Ok(option) = Uuid::parse_str(&option)
                 {
                     multi.entry((record_id, field_id)).or_default().push(option);
@@ -134,7 +134,7 @@ fn columns_of(value: &FieldValue) -> ColumnValues {
 }
 
 fn decode(field: &FieldDefinition, row: &MySqlRow) -> Result<Option<FieldValue>, AppError> {
-    Ok(match field.field_type {
+    Ok(match field.field_type.base_type() {
         FieldType::Text | FieldType::Url | FieldType::Email | FieldType::Phone => row
             .try_get::<Option<String>, _>("value_text")?
             .map(FieldValue::Text),
@@ -166,6 +166,7 @@ fn decode(field: &FieldDefinition, row: &MySqlRow) -> Result<Option<FieldValue>,
             .try_get::<Option<String>, _>("value_text")?
             .and_then(|id| Uuid::parse_str(&id).ok())
             .map(FieldValue::Record),
+        FieldType::Custom { .. } => unreachable!("native field representation"),
     })
 }
 
@@ -252,7 +253,7 @@ impl CustomFieldValueRepository for MySqlCustomFieldValueRepository {
                 continue;
             };
             if let Some(option) = row.try_get::<Option<String>, _>("multi_option_id")? {
-                if field.field_type == FieldType::MultiSelect
+                if field.field_type.base_type() == FieldType::MultiSelect
                     && let Ok(option) = Uuid::parse_str(&option)
                 {
                     multi.entry((record_id, field_id)).or_default().push(option);

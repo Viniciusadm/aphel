@@ -52,7 +52,7 @@ pub const MAX_RELATIONSHIPS_PER_ORGANIZATION: usize = 200;
 pub fn is_relatable_core_type(registry: &RecordTypeRegistry, record_type: &str) -> bool {
     registry
         .capabilities(record_type)
-        .is_some_and(|capabilities| capabilities.relatable)
+        .is_some_and(|capabilities| capabilities.has_trait("records.relatable"))
 }
 
 const INVALID_OBJECT: &str = "invalid custom object";

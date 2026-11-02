@@ -25,7 +25,8 @@ pub mod access {
 
 pub mod shared {
     pub use aphel_kernel::application::shared::{
-        DomainEvent, JobContext, JobHandler, RecordRef, RecordType,
+        Actor, DomainEvent, EventCausation, EventOrigin, JobContext, JobHandler, RecordRef,
+        RecordType,
     };
 }
 
@@ -47,5 +48,18 @@ pub mod points {
     pub use aphel_kernel::domain::UserId;
     pub use aphel_kernel::modules::{
         ActiveIntegration, DigestSource, FileReferenceSource, HealthSource, IntegrationStore,
+        ReferenceProvider, lookup_exists,
+    };
+}
+
+pub mod fields {
+    pub use aphel_kernel::application::fields::{
+        EntityTraits, FieldSpec, FieldTypeDefinition, FieldValidator, LocalizedLabels,
+        RecordTypeDefinition, RecordTypeRegistry, SystemField,
+    };
+    pub use aphel_kernel::application::query::FilterOperator;
+    pub use aphel_kernel::domain::fields::{
+        FieldConfig, FieldDefinition, FieldKey, FieldType, FieldValue, FieldValueError, RawValue,
+        ValueColumn, validate_native_value,
     };
 }

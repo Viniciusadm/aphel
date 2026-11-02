@@ -1,3 +1,4 @@
+use aphel_kernel::application::config_packages::ConfigReferenceKind;
 use std::collections::{BTreeMap, HashMap};
 use std::sync::{Arc, Mutex};
 
@@ -9,10 +10,7 @@ use uuid::Uuid;
 
 use crate::{ColumnInfo, ColumnKind, ConfigKind, DataRow, MemberRow, OrganizationProfile};
 use aphel_kernel::Ctx;
-use aphel_kernel::application::config_packages::{
-    ConfigKeyRepository, LOST_REASON_ITEM, PIPELINE_ITEM, PIPELINE_STAGE_ITEM, TAG_ITEM,
-    assign_keys,
-};
+use aphel_kernel::application::config_packages::{ConfigKeyRepository, assign_keys};
 use aphel_kernel::application::fields::{RecordTypeRegistry, is_sql_identifier};
 use aphel_kernel::application::organization_admin::ListWindow;
 use aphel_kernel::application::organizations::OrganizationRegistration;
@@ -337,14 +335,18 @@ impl OrgDataStore {
         let mut map: ConfigKeyMap = BTreeMap::new();
 
         let all_pipelines = pipelines.list_pipelines().await?;
-        let stored = keys.keys(PIPELINE_ITEM).await?;
+        let stored = keys
+            .keys(ConfigReferenceKind::new("workflow.pipeline"))
+            .await?;
         let pipeline_keys = assign_keys(
             all_pipelines
                 .iter()
                 .map(|pipeline| (pipeline.id, pipeline.name.as_str())),
             &stored,
         );
-        let stored_stages = keys.keys(PIPELINE_STAGE_ITEM).await?;
+        let stored_stages = keys
+            .keys(ConfigReferenceKind::new("workflow.stage"))
+            .await?;
         for (pipeline, keyed) in all_pipelines.iter().zip(&pipeline_keys) {
             map.entry(ConfigKind::Pipeline)
                 .or_default()
@@ -369,7 +371,9 @@ impl OrgDataStore {
         }
 
         let reasons = pipelines.list_lost_reasons().await?;
-        let stored = keys.keys(LOST_REASON_ITEM).await?;
+        let stored = keys
+            .keys(ConfigReferenceKind::new("workflow.lost_reason"))
+            .await?;
         for (reason, keyed) in reasons.iter().zip(assign_keys(
             reasons
                 .iter()
@@ -382,7 +386,7 @@ impl OrgDataStore {
         }
 
         let tags = self.tags().await?;
-        let stored = keys.keys(TAG_ITEM).await?;
+        let stored = keys.keys(ConfigReferenceKind::new("tagging.tag")).await?;
         for ((id, _), keyed) in tags.iter().zip(assign_keys(
             tags.iter().map(|(id, name)| (*id, name.as_str())),
             &stored,

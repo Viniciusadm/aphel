@@ -23,7 +23,7 @@ use utoipa_axum::router::OpenApiRouter;
 use crate::domain::QuoteStatus;
 use aphel_kernel::application::fields::builtin::{field, record_field};
 use aphel_kernel::application::fields::{
-    RecordCapabilities, RecordRelation, RecordTypeDefinition, SystemField,
+    EntityTraits, RecordRelation, RecordTypeDefinition, SystemField,
 };
 use aphel_kernel::application::public_events::{
     PreviousValues, PublicEventDefinition, PublicResource, changed, deleted, event,
@@ -32,7 +32,7 @@ use aphel_kernel::application::shared::RecordType;
 use aphel_kernel::domain::access::{Permission, PermissionDefinition};
 use aphel_kernel::domain::fields::FieldType;
 use aphel_kernel::errors::AppError;
-use aphel_kernel::infrastructure::crm::seed::CrmDefaultsSeed;
+use aphel_kernel::infrastructure::defaults::seed::DefaultsSeed;
 use aphel_kernel::modules::builder::APHEL_VERSION;
 use aphel_kernel::modules::{AppBuilder, Manifest, Module};
 
@@ -126,22 +126,22 @@ pub(crate) const QUOTES_TABLE: &str = "quotes";
 
 fn status_label(status: QuoteStatus) -> (&'static str, &'static str) {
     match status {
-        QuoteStatus::Draft => ("Rascunho", "#6e7781"),
-        QuoteStatus::PendingApproval => ("Em aprovação", "#bf8700"),
-        QuoteStatus::Approved => ("Aprovada", "#1f6feb"),
-        QuoteStatus::Sent => ("Enviada", "#8250df"),
-        QuoteStatus::Accepted => ("Aceita", "#1a7f37"),
-        QuoteStatus::Rejected => ("Recusada", "#cf222e"),
-        QuoteStatus::Expired => ("Expirada", "#57606a"),
+        QuoteStatus::Draft => ("Draft", "#6e7781"),
+        QuoteStatus::PendingApproval => ("Pending approval", "#bf8700"),
+        QuoteStatus::Approved => ("Approved", "#1f6feb"),
+        QuoteStatus::Sent => ("Sent", "#8250df"),
+        QuoteStatus::Accepted => ("Accepted", "#1a7f37"),
+        QuoteStatus::Rejected => ("Rejected", "#cf222e"),
+        QuoteStatus::Expired => ("Expired", "#57606a"),
     }
 }
 
 fn status_field() -> Result<SystemField, AppError> {
     Ok(QuoteStatus::ALL.into_iter().fold(
-        field("status", "Situação", FieldType::Select)?,
+        field("status", crate::labels("Status"), FieldType::Select)?,
         |field, status| {
             let (label, color) = status_label(status);
-            field.with_option(status.as_str(), label, Some(color))
+            field.with_option(status.as_str(), crate::labels(label), Some(color))
         },
     ))
 }
@@ -149,68 +149,120 @@ fn status_field() -> Result<SystemField, AppError> {
 pub(crate) fn quote_definition() -> Result<RecordTypeDefinition, AppError> {
     Ok(
         RecordTypeDefinition::new(QUOTE, QUOTES_TABLE, Permission::QUOTES_READ)
-            .capabilities(RecordCapabilities::default().validation_rules())
+            .capabilities(EntityTraits::default().validation_rules())
             .update_permission(Permission::QUOTES_UPDATE)
             .title_field("title")
             .owner_column("owner_id")
             .soft_delete_column("deleted_at")
             .system_field(
-                field("title", "Título", FieldType::Text)?
+                field("title", crate::labels("Title"), FieldType::Text)?
                     .searchable()
                     .required(),
             )
-            .system_field(field("number", "Número", FieldType::Number)?)
-            .system_field(field("version", "Versão", FieldType::Number)?)
-            .system_field(field("is_current", "Versão atual", FieldType::Checkbox)?)
+            .system_field(field("number", crate::labels("Number"), FieldType::Number)?)
+            .system_field(field(
+                "version",
+                crate::labels("Version"),
+                FieldType::Number,
+            )?)
+            .system_field(field(
+                "is_current",
+                crate::labels("Current version"),
+                FieldType::Checkbox,
+            )?)
             .system_field(status_field()?)
             .system_field(record_field(
                 "deal_id",
-                "Oportunidade",
+                crate::labels("Deal"),
                 RecordType::DEAL.as_str(),
             )?)
             .system_field(record_field(
                 "contact_id",
-                "Contato",
+                crate::labels("Contact"),
                 RecordType::CONTACT.as_str(),
             )?)
             .system_field(record_field(
                 "company_id",
-                "Empresa",
+                crate::labels("Company"),
                 RecordType::COMPANY.as_str(),
             )?)
-            .system_field(field("owner_id", "Responsável", FieldType::User)?)
-            .system_field(field("currency", "Moeda", FieldType::Text)?)
-            .system_field(field("subtotal", "Subtotal", FieldType::Currency)?)
-            .system_field(field("discount_total", "Descontos", FieldType::Currency)?)
-            .system_field(field("tax_total", "Impostos", FieldType::Currency)?)
-            .system_field(field("total", "Total", FieldType::Currency)?)
-            .system_field(field("valid_until", "Válida até", FieldType::Date)?)
+            .system_field(field("owner_id", crate::labels("Owner"), FieldType::User)?)
+            .system_field(field(
+                "currency",
+                crate::labels("Currency"),
+                FieldType::Text,
+            )?)
+            .system_field(field(
+                "subtotal",
+                crate::labels("Subtotal"),
+                FieldType::Currency,
+            )?)
+            .system_field(field(
+                "discount_total",
+                crate::labels("Discounts"),
+                FieldType::Currency,
+            )?)
+            .system_field(field(
+                "tax_total",
+                crate::labels("Taxes"),
+                FieldType::Currency,
+            )?)
+            .system_field(field("total", crate::labels("Total"), FieldType::Currency)?)
+            .system_field(field(
+                "valid_until",
+                crate::labels("Valid until"),
+                FieldType::Date,
+            )?)
             .system_field(field(
                 "exceeds_discount_limit",
-                "Desconto acima do limite",
+                crate::labels("Discount above limit"),
                 FieldType::Checkbox,
             )?)
-            .system_field(field("sent_at", "Enviada em", FieldType::DateTime)?)
-            .system_field(field("accepted_at", "Aceita em", FieldType::DateTime)?)
-            .system_field(field("rejected_at", "Recusada em", FieldType::DateTime)?)
-            .system_field(field("created_by", "Criada por", FieldType::User)?)
-            .system_field(field("created_at", "Criada em", FieldType::DateTime)?)
-            .system_field(field("updated_at", "Atualizada em", FieldType::DateTime)?)
+            .system_field(field(
+                "sent_at",
+                crate::labels("Sent at"),
+                FieldType::DateTime,
+            )?)
+            .system_field(field(
+                "accepted_at",
+                crate::labels("Accepted at"),
+                FieldType::DateTime,
+            )?)
+            .system_field(field(
+                "rejected_at",
+                crate::labels("Rejected at"),
+                FieldType::DateTime,
+            )?)
+            .system_field(field(
+                "created_by",
+                crate::labels("Created by"),
+                FieldType::User,
+            )?)
+            .system_field(field(
+                "created_at",
+                crate::labels("Created at"),
+                FieldType::DateTime,
+            )?)
+            .system_field(field(
+                "updated_at",
+                crate::labels("Updated at"),
+                FieldType::DateTime,
+            )?)
             .relation(RecordRelation::belongs_to(
                 "deal",
-                "Oportunidade",
+                crate::labels("Deal"),
                 RecordType::DEAL,
                 "deal_id",
             ))
             .relation(RecordRelation::belongs_to(
                 "contact",
-                "Contato",
+                crate::labels("Contact"),
                 RecordType::CONTACT,
                 "contact_id",
             ))
             .relation(RecordRelation::belongs_to(
                 "company",
-                "Empresa",
+                crate::labels("Company"),
                 RecordType::COMPANY,
                 "company_id",
             )),
@@ -259,7 +311,7 @@ impl Module for QuotesModule {
             &[aphel_kernel::modules::HookUsage::Filter],
             "Totals of a quote (items, discounts and taxes) before they are saved",
         );
-        app.contribute(Arc::new(CrmDefaultsSeed(|connection| {
+        app.contribute(Arc::new(DefaultsSeed(|connection| {
             Box::pin(store::seed_quote_discount_policy(connection))
         })));
         app.entity(quote_definition()?.handler(Arc::new(http::QuoteHandler)))
@@ -284,4 +336,11 @@ impl Module for QuotesModule {
         }
         Ok(())
     }
+}
+
+pub(crate) fn labels(key: &str) -> aphel_kernel::application::fields::LocalizedLabels {
+    aphel_kernel::application::fields::LocalizedLabels::from_catalog(
+        include_str!("../locales/labels.json"),
+        key,
+    )
 }

@@ -415,7 +415,7 @@ impl JobHandler for Run {
             .resolve(&self.pool)
             .await?
             .restricted(|permission| plugin.manifest.allows(permission))
-            .through_plugin(&plugin.key);
+            .acting_as("plugin", &plugin.key);
         let Json(execution): Json<ExecutionContext> = row.try_get("execution")?;
         let result = execution
             .scope(MutationReceipt::scope(

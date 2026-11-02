@@ -1,3 +1,4 @@
+use crate::application::config_packages::ConfigReferenceKind;
 use std::collections::{BTreeMap, BTreeSet};
 use std::sync::Arc;
 
@@ -712,7 +713,7 @@ where
                     issues.push(PackageIssue::new(
                         format!("{path}.{property}"),
                         "unknown_record_type",
-                        "must be company, contact, deal, product or a custom object of the package or of the organization",
+                        "must be an available record type or a custom object from the package or installation",
                     ));
                 }
             }
@@ -827,7 +828,11 @@ where
                     self.objects
                         .grant_default_permissions(tx, &object.record_type(), None)
                         .await?;
-                    context.resolve(OBJECT_KIND, &object.key, object.id);
+                    context.resolve(
+                        ConfigReferenceKind::new("objects.object"),
+                        &object.key,
+                        object.id,
+                    );
                     changed = true;
                 }
                 ObjectOperation::Update(object, title_field) if decisions.executes(&item) => {
@@ -838,7 +843,11 @@ where
                     self.objects
                         .seed_system_fields(tx, &custom_record_definition(&object)?)
                         .await?;
-                    context.resolve(OBJECT_KIND, &object.key, object.id);
+                    context.resolve(
+                        ConfigReferenceKind::new("objects.object"),
+                        &object.key,
+                        object.id,
+                    );
                     changed = true;
                 }
                 ObjectOperation::Update(..) | ObjectOperation::Keep => {}

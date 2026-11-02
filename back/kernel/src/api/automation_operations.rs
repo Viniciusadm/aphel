@@ -1,3 +1,4 @@
+use crate::application::automations::gateway::USER;
 use std::sync::Arc;
 
 use async_trait::async_trait;
@@ -42,15 +43,16 @@ impl AutomationOperations for ApiAutomationOperations {
         state: &AppState,
         reference: Reference<'_>,
     ) -> Result<bool, AppError> {
-        let found = match reference {
-            Reference::User(id) => match UserId::new(id) {
+        let found = if reference.kind == USER {
+            match UserId::new(reference.id) {
                 Ok(user) => MySqlAccessRepository::new(state.db()?)
                     .load_access(&user)
                     .await?
                     .is_some(),
                 Err(_) => false,
-            },
-            _ => false,
+            }
+        } else {
+            false
         };
         Ok(found)
     }

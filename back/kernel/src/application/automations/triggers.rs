@@ -4,7 +4,7 @@ use serde_json::{Map, Value, json};
 
 use crate::application::automations::context::TriggerContext;
 use crate::application::automations::definition::TriggerSpec;
-use crate::application::fields::{FieldSet, RecordCapabilities};
+use crate::application::fields::{EntityTraits, FieldSet};
 use crate::application::query::Filter;
 use crate::application::shared::{DomainEvent, RecordRef};
 use crate::domain::custom_objects::is_custom_record_type;
@@ -17,14 +17,17 @@ pub const MANUAL: &str = "manual";
 pub const INCOMING_WEBHOOK: &str = "incoming_webhook";
 
 pub fn is_automatable(record_type: &str) -> bool {
-    is_custom_record_type(record_type) || has_capability(record_type, |caps| caps.automatable)
+    is_custom_record_type(record_type)
+        || has_capability(record_type, |caps| caps.has_trait("automations.subject"))
 }
 
 pub fn is_attached_to_parent(record_type: &str) -> bool {
-    has_capability(record_type, |caps| caps.attached_to_parent)
+    has_capability(record_type, |caps| {
+        caps.has_trait("records.attached_to_parent")
+    })
 }
 
-fn has_capability(record_type: &str, check: impl Fn(&RecordCapabilities) -> bool) -> bool {
+fn has_capability(record_type: &str, check: impl Fn(&EntityTraits) -> bool) -> bool {
     crate::modules::try_app().is_some_and(|app| {
         app.record_types()
             .capabilities(record_type)

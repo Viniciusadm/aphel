@@ -1,3 +1,4 @@
+use aphel_kernel::application::config_packages::ConfigReferenceKind;
 use std::collections::BTreeSet;
 
 use async_trait::async_trait;
@@ -10,8 +11,8 @@ use crate::domain::{LostReason, normalize_name};
 use crate::store::PipelineStore;
 use aphel_kernel::application::config_packages::sections::common::{check_key, diff};
 use aphel_kernel::application::config_packages::{
-    ApplyContext, ConfigKeyRepository, ConfigPackage, ConfigSection, Decisions, LOST_REASON_ITEM,
-    PackageIssue, PlanChange, PlanItem, assign_keys, parse_section,
+    ApplyContext, ConfigKeyRepository, ConfigPackage, ConfigSection, Decisions, PackageIssue,
+    PlanChange, PlanItem, assign_keys, parse_section,
 };
 use aphel_kernel::database::transaction::MySqlTx;
 use aphel_kernel::domain::access::AccessScope;
@@ -58,7 +59,10 @@ where
         AppError,
     > {
         let reasons = self.pipelines.list_lost_reasons().await?;
-        let stored = self.keys.keys(LOST_REASON_ITEM).await?;
+        let stored = self
+            .keys
+            .keys(ConfigReferenceKind::new("workflow.lost_reason"))
+            .await?;
         let keyed = assign_keys(
             reasons
                 .iter()
@@ -222,9 +226,18 @@ where
                 self.pipelines.update_lost_reason(tx, &plan.reason).await?;
             }
             self.keys
-                .assign(tx, LOST_REASON_ITEM, plan.reason.id, &plan.key)
+                .assign(
+                    tx,
+                    ConfigReferenceKind::new("workflow.lost_reason"),
+                    plan.reason.id,
+                    &plan.key,
+                )
                 .await?;
-            context.resolve(LOST_REASON_ITEM, &plan.key, plan.reason.id);
+            context.resolve(
+                ConfigReferenceKind::new("workflow.lost_reason"),
+                &plan.key,
+                plan.reason.id,
+            );
         }
         Ok(())
     }

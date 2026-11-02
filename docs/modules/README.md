@@ -200,7 +200,7 @@ Besides what is above, `AppBuilder` accepts:
 | Method | For |
 | --- | --- |
 | `record_type`, `extend(..).managed_field(..)` | New record type; custom field managed by code (no migration) |
-| `RecordTypeDefinition::capabilities(RecordCapabilities::default().automatable().validation_rules()..)` | What the type supports (automations, validation rules, import, export, bulk actions, privacy, notifications…; table in [`record-pipeline.md`](../architecture/record-pipeline.md#declared-capabilities)); declared `belongs_to` relations also define the embedded objects redacted by field permissions |
+| `RecordTypeDefinition::capabilities(EntityTraits::default().automatable().validation_rules()..)` | What the type supports (automations, validation rules, import, export, bulk actions, privacy, notifications…; table in [`record-pipeline.md`](../architecture/record-pipeline.md#declared-capabilities)); declared `belongs_to` relations also define the embedded objects redacted by field permissions |
 | `provide::<dyn T>` / `decorate::<dyn T>` | Swappable service read with `ctx.services`/`app.services().get::<dyn T>()` |
 | `contribute::<T>` | Typed contribution; readers use `App::contributions::<T>()` (enabled modules only) or `all_contributions` |
 | `widget`, `trigger`/`action` | Dashboard widget, automation trigger and action |
@@ -250,7 +250,7 @@ Typed contributions the kernel already reads:
 | --- | --- |
 | `ConfigSectionFactory` | Configuration package section, with application order (`aphel_kernel::infrastructure::config_packages`) |
 | `dyn ConfigSection<MySqlTx>` | Section without a factory (applied after the ordered ones) |
-| `CrmDefaultsSeed` | Default data written at installation |
+| `DefaultsSeed` | Default data written at installation |
 | `dyn FileReferenceSource` | Columns that reference files (above) |
 | `dyn PersonalTextSource` | Text columns with personal data (above) |
 | `TimeTriggerPlanner` | Plan of an automation time trigger |

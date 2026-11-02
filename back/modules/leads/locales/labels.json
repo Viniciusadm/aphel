@@ -1,0 +1,26 @@
+{
+  "Lifecycle stage": {
+    "pt-BR": "Estágio do ciclo de vida",
+    "en": "Lifecycle stage"
+  },
+  "Lead": {
+    "pt-BR": "Lead",
+    "en": "Lead"
+  },
+  "Qualified": {
+    "pt-BR": "Qualificado",
+    "en": "Qualified"
+  },
+  "Opportunity": {
+    "pt-BR": "Oportunidade",
+    "en": "Opportunity"
+  },
+  "Customer": {
+    "pt-BR": "Cliente",
+    "en": "Customer"
+  },
+  "Former customer": {
+    "pt-BR": "Ex-cliente",
+    "en": "Former customer"
+  }
+}

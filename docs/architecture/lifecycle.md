@@ -76,7 +76,7 @@ Lead sources: the `lead_forms` module sends `lifecycle_stage = lead` when creati
 
 ## Disqualification reasons
 
-`lead_disqualification_reasons`, seeded at installation (`seed_disqualification_reasons`, called by `seed_crm_defaults`). CRUD at `/api/v1/lead-disqualification-reasons` (list: `contacts.read`; write: `lifecycle.manage`), reordering at `PUT .../order`. Deleting a reason keeps the name in the disqualifications already recorded.
+`lead_disqualification_reasons`, seeded at installation (`seed_disqualification_reasons`, called by `seed_defaults`). CRUD at `/api/v1/lead-disqualification-reasons` (list: `contacts.read`; write: `lifecycle.manage`), reordering at `PUT .../order`. Deleting a reason keeps the name in the disqualifications already recorded.
 
 ## Report
 

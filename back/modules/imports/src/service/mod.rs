@@ -70,7 +70,7 @@ fn import_permission(record_type: &str, action: &str) -> Option<Permission> {
         .record_types()
         .require(record_type)
         .ok()
-        .filter(|definition| definition.capabilities.importable)?
+        .filter(|definition| definition.capabilities.has_trait("imports.importable"))?
         .action_permission(action)
 }
 
@@ -87,7 +87,7 @@ pub fn is_importable(record_type: &str) -> bool {
         || aphel_kernel::modules::app()
             .record_types()
             .capabilities(record_type)
-            .is_some_and(|capabilities| capabilities.importable)
+            .is_some_and(|capabilities| capabilities.has_trait("imports.importable"))
 }
 
 pub(super) fn require_importable(scope: &AccessScope, record_type: &str) -> Result<(), AppError> {

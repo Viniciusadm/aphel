@@ -152,7 +152,7 @@ fn double(start: usize, is_double: bool, double: TokenKind, single: TokenKind) -
 }
 
 fn string_token(characters: &[char], start: usize) -> Result<Token, FormulaError> {
-    let quote = characters[start];
+    let delimiter = characters[start];
     let mut text = String::new();
     let mut index = start + 1;
     while index < characters.len() {
@@ -161,7 +161,7 @@ fn string_token(characters: &[char], start: usize) -> Result<Token, FormulaError
                 text.push(characters[index + 1]);
                 index += 2;
             }
-            character if character == quote => {
+            character if character == delimiter => {
                 return Ok(Token {
                     kind: TokenKind::Text(text),
                     span: Span::new(start, index + 1),

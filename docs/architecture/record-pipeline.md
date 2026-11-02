@@ -93,7 +93,7 @@ Who uses it: automations (`HandlerAutomationGateway`), import (`imports::writer:
 
 ## Declared capabilities
 
-What applies only to some types becomes a capability in `RecordTypeDefinition.capabilities` (`RecordCapabilities`, `kernel/application/fields/capabilities.rs`), instead of a `match` on the type:
+What applies only to some types becomes a capability in `RecordTypeDefinition.capabilities` (`EntityTraits`, `kernel/application/fields/capabilities.rs`), instead of a `match` on the type:
 
 | Capability | Used by |
 | --- | --- |

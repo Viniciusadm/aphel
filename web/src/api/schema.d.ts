@@ -9114,16 +9114,18 @@ export interface components {
         AuditActorResponse: {
             email?: string | null;
             id?: string | null;
+            kind: string;
             name?: string | null;
             type: components["schemas"]["AuditActorTypeDto"];
         };
         /** @enum {string} */
-        AuditActorTypeDto: "user" | "system" | "api_token" | "automation" | "plugin";
+        AuditActorTypeDto: "user" | "system" | "api_token" | "automation" | "plugin" | "service";
         AuditCausationResponse: {
-            automation_id: string;
             chain: string[];
             /** Format: int32 */
             depth: number;
+            executor_id: string;
+            executor_kind: string;
             run_id: string;
         };
         AuditFieldChangeResponse: {
@@ -9591,11 +9593,13 @@ export interface components {
         CatalogDocument: {
             contracts: components["schemas"]["ContractInfo"][];
             events: components["schemas"]["EventEntry"][];
+            field_types: components["schemas"]["FieldTypeEntry"][];
             hooks: components["schemas"]["HookEntry"][];
             notification_kinds: components["schemas"]["NotificationKindEntry"][];
             operations: components["schemas"]["OperationInfo"][];
             permissions: components["schemas"]["PermissionEntry"][];
             plugins: components["schemas"]["PluginEntry"][];
+            reference_kinds: components["schemas"]["ReferenceKindEntry"][];
             version: string;
         };
         /** @enum {string} */
@@ -11142,11 +11146,13 @@ export interface components {
             data: {
                 contracts: components["schemas"]["ContractInfo"][];
                 events: components["schemas"]["EventEntry"][];
+                field_types: components["schemas"]["FieldTypeEntry"][];
                 hooks: components["schemas"]["HookEntry"][];
                 notification_kinds: components["schemas"]["NotificationKindEntry"][];
                 operations: components["schemas"]["OperationInfo"][];
                 permissions: components["schemas"]["PermissionEntry"][];
                 plugins: components["schemas"]["PluginEntry"][];
+                reference_kinds: components["schemas"]["ReferenceKindEntry"][];
                 version: string;
             };
         };
@@ -11924,6 +11930,9 @@ export interface components {
                 is_unique: boolean;
                 key: string;
                 label: string;
+                labels: {
+                    [key: string]: string;
+                };
                 /** @example null */
                 module_key?: string | null;
                 operators: components["schemas"]["FilterOperator"][];
@@ -14072,6 +14081,9 @@ export interface components {
                 is_unique: boolean;
                 key: string;
                 label: string;
+                labels: {
+                    [key: string]: string;
+                };
                 /** @example null */
                 module_key?: string | null;
                 operators: components["schemas"]["FilterOperator"][];
@@ -15680,6 +15692,9 @@ export interface components {
             is_unique: boolean;
             key: string;
             label: string;
+            labels: {
+                [key: string]: string;
+            };
             /** @example null */
             module_key?: string | null;
             operators: components["schemas"]["FilterOperator"][];
@@ -15695,8 +15710,15 @@ export interface components {
             operators: components["schemas"]["OperatorResponse"][];
             record_type: string;
         };
-        /** @enum {string} */
-        FieldType: "text" | "long_text" | "number" | "currency" | "date" | "datetime" | "select" | "multi_select" | "checkbox" | "url" | "email" | "phone" | "user" | "record" | "formula";
+        FieldType: string;
+        FieldTypeEntry: {
+            config: unknown;
+            enabled: boolean;
+            key: string;
+            operators: string[];
+            provider: string;
+            storage: string;
+        };
         FileResponse: {
             checksum: string;
             created_at: string;
@@ -18462,6 +18484,9 @@ export interface components {
                 is_unique: boolean;
                 key: string;
                 label: string;
+                labels: {
+                    [key: string]: string;
+                };
                 /** @example null */
                 module_key?: string | null;
                 operators: components["schemas"]["FilterOperator"][];
@@ -20530,6 +20555,11 @@ export interface components {
         };
         /** @enum {string} */
         RecurrenceWeekday: "mo" | "tu" | "we" | "th" | "fr" | "sa" | "su";
+        ReferenceKindEntry: {
+            enabled: boolean;
+            key: string;
+            provider: string;
+        };
         RegenerateRecoveryCodesRequest: {
             /** @example 123456 */
             code?: string | null;

@@ -1,3 +1,4 @@
+use aphel_contract_crm::traits;
 use serde_json::{Value, json};
 use uuid::Uuid;
 
@@ -424,13 +425,13 @@ async fn prepare_action(
     match action {
         BulkAction::MoveStage { .. }
             if !bulk_capabilities(ctx.registry(), record_type)
-                .is_some_and(|capabilities| capabilities.supports_stages) =>
+                .is_some_and(|capabilities| capabilities.has_trait(traits::STAGED)) =>
         {
             Err(invalid("action", "move_stage is only available for deals"))
         }
         BulkAction::EnrollInSequence { .. }
             if !bulk_capabilities(ctx.registry(), record_type)
-                .is_some_and(|capabilities| capabilities.supports_sequences) =>
+                .is_some_and(|capabilities| capabilities.has_trait(traits::SEQUENCEABLE)) =>
         {
             Err(invalid(
                 "action",

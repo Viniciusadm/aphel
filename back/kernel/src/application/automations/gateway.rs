@@ -83,16 +83,18 @@ impl WebhookCallResult {
 }
 
 #[derive(Debug, Clone, Copy, PartialEq, Eq)]
-pub enum Reference<'a> {
-    Operation {
-        operation: &'static str,
-        id: &'a str,
-    },
-    Stage(&'a str),
-    User(&'a str),
-    ActivityType(&'a str),
-    IncomingWebhook(&'a str),
+pub struct Reference<'a> {
+    pub kind: aphel_contract::ReferenceKind,
+    pub id: &'a str,
 }
+
+impl<'a> Reference<'a> {
+    pub const fn new(kind: aphel_contract::ReferenceKind, id: &'a str) -> Self {
+        Self { kind, id }
+    }
+}
+
+pub const USER: aphel_contract::ReferenceKind = aphel_contract::reference!("iam.user");
 
 #[async_trait]
 pub trait AutomationGateway: Send + Sync {
@@ -137,7 +139,7 @@ pub trait AutomationGateway: Send + Sync {
     async fn move_stage(
         &self,
         scope: &AccessScope,
-        deal: &RecordRef,
+        record: &RecordRef,
         stage_id: &str,
     ) -> Result<(), AppError>;
     async fn create_note(

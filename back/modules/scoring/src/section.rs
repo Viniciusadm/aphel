@@ -1,3 +1,4 @@
+use aphel_kernel::application::config_packages::ConfigReferenceKind;
 use std::collections::BTreeSet;
 
 use async_trait::async_trait;
@@ -423,7 +424,11 @@ impl ConfigSection<MySqlTx> for ScoringModelsSection {
                     .enqueue(tx, recalculate_job(plan.model.id))
                     .await?;
             }
-            context.resolve(SCORING_MODEL_ITEM, &plan.model.key, plan.model.id);
+            context.resolve(
+                ConfigReferenceKind::new("scoring.model"),
+                &plan.model.key,
+                plan.model.id,
+            );
         }
         Ok(())
     }

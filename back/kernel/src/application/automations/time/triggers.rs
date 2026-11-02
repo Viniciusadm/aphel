@@ -426,7 +426,7 @@ pub fn plan_violations(spec: &TriggerSpec, fields: &FieldSet) -> Vec<FieldViolat
     };
     match fields.find_active(&rule.field) {
         Some(field) if is_date_type(field.definition.field_type) => {
-            if rule.at.is_some() && field.definition.field_type != FieldType::Date {
+            if rule.at.is_some() && field.definition.field_type.base_type() != FieldType::Date {
                 violations.push(violation("at", "can only be used with date fields"));
             }
         }

@@ -1,4 +1,5 @@
 use aphel_contract_crm::CrmPermissions;
+use aphel_contract_crm::refs;
 use async_trait::async_trait;
 use chrono::SecondsFormat;
 use serde_json::{Value, json};
@@ -182,7 +183,7 @@ impl AutomationAction for CreateTask {
                 .reference(
                     &mut violations,
                     "activity_type_id",
-                    Reference::ActivityType(id),
+                    Reference::new(refs::ACTIVITY_TYPE, id),
                 )
                 .await?;
         }

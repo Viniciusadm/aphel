@@ -104,7 +104,7 @@ impl Module for CurrenciesModule {
             "Valor na moeda base",
             FieldType::Currency,
         )?;
-        let exchange_rate = field("exchange_rate", "Cotação", FieldType::Number)?;
+        let exchange_rate = field("exchange_rate", crate::labels("Quote"), FieldType::Number)?;
         app.extend("deal", |deal| {
             deal.system_field(amount_base.clone())
                 .system_field(exchange_rate.clone());
@@ -129,4 +129,11 @@ impl Module for CurrenciesModule {
         );
         Ok(())
     }
+}
+
+pub(crate) fn labels(key: &str) -> aphel_kernel::application::fields::LocalizedLabels {
+    aphel_kernel::application::fields::LocalizedLabels::from_catalog(
+        include_str!("../locales/labels.json"),
+        key,
+    )
 }

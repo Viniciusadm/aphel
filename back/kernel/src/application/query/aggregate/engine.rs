@@ -56,21 +56,27 @@ pub trait AggregatePorts: RecordQueryPorts {
 }
 
 fn groupable(field_type: FieldType) -> bool {
-    field_type != FieldType::LongText
+    field_type.base_type() != FieldType::LongText
 }
 
 fn temporal(field_type: FieldType) -> bool {
-    matches!(field_type, FieldType::Date | FieldType::DateTime)
+    matches!(
+        field_type.base_type(),
+        FieldType::Date | FieldType::DateTime
+    )
 }
 
 fn numeric(field_type: FieldType) -> bool {
-    matches!(field_type, FieldType::Number | FieldType::Currency)
+    matches!(
+        field_type.base_type(),
+        FieldType::Number | FieldType::Currency
+    )
 }
 
 fn functions_for(field_type: FieldType) -> Vec<AggregateFunction> {
     if numeric(field_type) {
         AggregateFunction::NUMERIC.to_vec()
-    } else if field_type == FieldType::MultiSelect {
+    } else if field_type.base_type() == FieldType::MultiSelect {
         Vec::new()
     } else {
         vec![AggregateFunction::Count]
@@ -100,7 +106,7 @@ fn zeros(metrics: &[MetricPlan]) -> Vec<Option<Decimal>> {
 
 fn normalize_key(field_type: FieldType, value: Option<String>) -> Option<String> {
     let value = value?;
-    match field_type {
+    match field_type.base_type() {
         FieldType::Checkbox => Some(
             match value.as_str() {
                 "1" => "true",
@@ -579,7 +585,7 @@ where
 
     fn labels_of(&self, scope: &AccessScope, field: &ResolvedField) -> GroupLabels {
         let definition = &field.definition;
-        match definition.field_type {
+        match definition.field_type.base_type() {
             FieldType::Select | FieldType::MultiSelect => {
                 let mut ordered: Vec<_> = definition.options.iter().collect();
                 ordered.sort_by_key(|option| option.position);

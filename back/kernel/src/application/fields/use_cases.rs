@@ -865,6 +865,7 @@ fn field_view(field: &ResolvedField) -> FieldView {
     let mut definition = field.definition.clone();
     definition.options.sort_by_key(|option| option.position);
     FieldView {
+        labels: field.labels.clone(),
         access: field.access,
         updated_at: field.updated_at,
         filterable: field.filterable(),

@@ -6,7 +6,7 @@ Usage: `veto` and `action` are registered with `app.on(Hook, priority, handler)`
 
 | Hook | Module | Usage | Argument | When | Listeners |
 | --- | --- | --- | --- | --- | --- |
-| `aphel_kernel::records::hooks::RecordArchiving` | `kernel` | veto | `RemovedRecord` | Before a custom record or company is archived; an error blocks the archive | plugins (action 50) |
+| `aphel_kernel::records::hooks::RecordArchiving` | `kernel` | veto | `RemovedRecord` | Before a record is archived; an error blocks the archive | plugins (action 50) |
 | `aphel_kernel::records::hooks::RecordCommitted` | `kernel` | action | `ChangedRecord` | After the transaction that wrote a record was committed | - |
 | `aphel_kernel::records::hooks::RecordDeleted` | `kernel` | action | `RemovedRecord` | After a record was deleted, inside the same transaction | leads (action 40), plugins (action 50) |
 | `aphel_kernel::records::hooks::RecordDeleting` | `kernel` | veto | `RemovedRecord` | Before a record is deleted; an error blocks the deletion (restrict relationships) | kernel (action 10), plugins (action 50) |

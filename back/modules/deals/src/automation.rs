@@ -1,3 +1,4 @@
+use aphel_contract_crm::refs;
 use aphel_contract_crm::{CrmPermissions, CrmRecordTypes};
 use std::sync::Arc;
 
@@ -174,7 +175,7 @@ impl AutomationAction for MoveStage {
         match text(config, "stage_id") {
             Some(id) => {
                 context
-                    .reference(&mut violations, "stage_id", Reference::Stage(id))
+                    .reference(&mut violations, "stage_id", Reference::new(refs::STAGE, id))
                     .await?
             }
             None => violations.push(context.violation("stage_id", "is required")),

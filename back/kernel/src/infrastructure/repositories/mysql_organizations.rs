@@ -12,7 +12,7 @@ use crate::domain::organizations::Organization;
 use crate::domain::users::UserStatus;
 use crate::errors::AppError;
 use crate::infrastructure::auth::SystemClock;
-use crate::infrastructure::crm::seed_crm_defaults;
+use crate::infrastructure::defaults::seed_defaults;
 use crate::infrastructure::fields::{seed_managed_fields, seed_system_fields};
 use crate::infrastructure::platform::{SharedAuditLog, SharedEventPublisher};
 use crate::infrastructure::repositories::mapper;
@@ -158,7 +158,7 @@ pub async fn insert_registration(
 
     seed_system_fields(&mut *connection, record_types).await?;
     seed_managed_fields(&mut *connection, record_types).await?;
-    seed_crm_defaults(&mut *connection).await?;
+    seed_defaults(&mut *connection).await?;
 
     Ok(())
 }

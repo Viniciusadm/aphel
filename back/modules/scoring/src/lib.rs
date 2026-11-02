@@ -48,10 +48,13 @@ const PUBLIC_EVENTS: &[PublicEventDefinition] = &[
 ];
 
 pub(crate) fn score_field(record_type: &RecordType) -> Result<SystemField, AppError> {
-    Ok(
-        SystemField::new(SCORE_FIELD, "Pontuação", FieldType::Number, SCORE_FIELD)?
-            .computed(primary_score(record_type)),
-    )
+    Ok(SystemField::new(
+        SCORE_FIELD,
+        crate::labels("Score"),
+        FieldType::Number,
+        SCORE_FIELD,
+    )?
+    .computed(primary_score(record_type)))
 }
 
 fn primary_score(record_type: &RecordType) -> ComputedColumn {
@@ -127,4 +130,11 @@ impl Module for ScoringModule {
         }
         Ok(())
     }
+}
+
+pub(crate) fn labels(key: &str) -> aphel_kernel::application::fields::LocalizedLabels {
+    aphel_kernel::application::fields::LocalizedLabels::from_catalog(
+        include_str!("../locales/labels.json"),
+        key,
+    )
 }

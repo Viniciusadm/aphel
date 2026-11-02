@@ -34,7 +34,7 @@ impl AuditLog<MySqlTx> for MySqlAuditLog {
         if let Some(execution) = &execution
             && execution.executor_kind == "plugin"
         {
-            entry.actor = crate::application::shared::Actor::Plugin(execution.executor.clone());
+            entry.actor = crate::application::shared::Actor::plugin(execution.executor.clone());
         }
         let (record_type, record_id) = match &entry.record {
             Some(record) => (

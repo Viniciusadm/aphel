@@ -1,3 +1,4 @@
+use crate::application::config_packages::ConfigReferenceKind;
 use std::collections::BTreeSet;
 
 use async_trait::async_trait;
@@ -295,7 +296,11 @@ where
             } else if !plan.conflicting && decisions.executes(&plan.item) {
                 self.rules.update(tx, &plan.rule).await?;
             }
-            context.resolve(VALIDATION_RULE_ITEM, &plan.rule.key, plan.rule.id);
+            context.resolve(
+                ConfigReferenceKind::new("validation_rules.rule"),
+                &plan.rule.key,
+                plan.rule.id,
+            );
         }
         Ok(())
     }

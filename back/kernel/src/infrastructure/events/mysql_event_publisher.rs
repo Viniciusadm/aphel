@@ -20,7 +20,7 @@ impl EventPublisher<MySqlTx> for MySqlEventPublisher {
     async fn publish(&self, tx: &mut MySqlTx, mut event: DomainEvent) -> Result<(), AppError> {
         if let Some(execution) = crate::application::shared::ExecutionContext::current() {
             if execution.executor_kind == "plugin" {
-                event.actor = crate::application::shared::Actor::Plugin(execution.executor.clone());
+                event.actor = crate::application::shared::Actor::plugin(execution.executor.clone());
             }
             event.execution = Some(execution);
         }

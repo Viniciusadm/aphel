@@ -1,5 +1,5 @@
 use crate::application::fields::{
-    CustomTypeLabels, RecordCapabilities, RecordRelation, RecordTypeDefinition, RecordTypeRegistry,
+    CustomTypeLabels, EntityTraits, RecordRelation, RecordTypeDefinition, RecordTypeRegistry,
     RelationPath, SystemField,
 };
 use crate::application::shared::RecordType;
@@ -17,7 +17,11 @@ pub struct CustomSchema {
     pub relationships: Vec<RelationshipDefinition>,
 }
 
-fn field(key: &str, label: &str, field_type: FieldType) -> Result<SystemField, AppError> {
+fn field(
+    key: &str,
+    label: impl Into<crate::application::fields::LocalizedLabels>,
+    field_type: FieldType,
+) -> Result<SystemField, AppError> {
     SystemField::new(key, label, field_type, key)
 }
 
@@ -38,7 +42,7 @@ pub fn custom_record_definition(object: &CustomObject) -> Result<RecordTypeDefin
         .ok_or_else(|| missing_permission(object))?;
     let mut definition = RecordTypeDefinition::new(record_type, CUSTOM_RECORDS_TABLE, read)
         .capabilities(
-            RecordCapabilities::default()
+            EntityTraits::default()
                 .importable()
                 .exportable()
                 .restore_order(3),
@@ -54,18 +58,30 @@ pub fn custom_record_definition(object: &CustomObject) -> Result<RecordTypeDefin
             icon: object.data.icon.clone(),
             color: object.data.color.clone(),
         })
-        .system_field(field(TITLE_FIELD, "Título", FieldType::Text)?.searchable());
+        .system_field(field(TITLE_FIELD, crate::labels("Title"), FieldType::Text)?.searchable());
     if object.data.owner_enabled {
         definition = definition.owner_column(OWNER_FIELD).system_field(field(
             OWNER_FIELD,
-            "Responsável",
+            crate::labels("Owner"),
             FieldType::User,
         )?);
     }
     Ok(definition
-        .system_field(field("created_by", "Criado por", FieldType::User)?)
-        .system_field(field("created_at", "Criado em", FieldType::DateTime)?)
-        .system_field(field("updated_at", "Atualizado em", FieldType::DateTime)?))
+        .system_field(field(
+            "created_by",
+            crate::labels("Created by"),
+            FieldType::User,
+        )?)
+        .system_field(field(
+            "created_at",
+            crate::labels("Created at"),
+            FieldType::DateTime,
+        )?)
+        .system_field(field(
+            "updated_at",
+            crate::labels("Updated at"),
+            FieldType::DateTime,
+        )?))
 }
 
 pub fn relationship_relation(

@@ -106,14 +106,7 @@ impl AutomationAction for OperationAction {
             && let Some(id) = text(config, check.field)
         {
             context
-                .reference(
-                    &mut violations,
-                    check.field,
-                    Reference::Operation {
-                        operation: check.exists_operation,
-                        id,
-                    },
-                )
+                .reference(&mut violations, check.field, Reference::new(check.kind, id))
                 .await?;
         }
         Ok(violations)
