@@ -43,7 +43,25 @@
     "member": "Membro",
     "role": "Papel",
     "team": "Equipe",
-    "organization": "Organização"
+    "organization": "Organização",
+    "contacts": {
+      "contact": "Contato"
+    },
+    "companies": {
+      "company": "Empresa"
+    },
+    "deals": {
+      "deal": "Oportunidade"
+    },
+    "activities": {
+      "activity": "Atividade"
+    },
+    "products": {
+      "product": "Produto"
+    },
+    "notes": {
+      "note": "Nota"
+    }
   },
   "changes": {
     "label": "Campos alterados",

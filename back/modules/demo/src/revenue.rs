@@ -19,11 +19,13 @@ use price_lists::domain::{PriceListItemInput, ReplacePriceListItemsCommand, Save
 use products::domain::{ProductInput, SaveProductCommand};
 use quotes::domain::{CreateQuoteCommand, QuoteInput};
 
-pub(crate) const EXCHANGE_RATE_RECORD_TYPE: RecordType = RecordType::from_static("exchange_rate");
-pub(crate) const PRICE_LIST_RECORD_TYPE: RecordType = RecordType::from_static("price_list");
-pub(crate) const QUOTE_RECORD_TYPE: RecordType = RecordType::from_static("quote");
+pub(crate) const EXCHANGE_RATE_RECORD_TYPE: RecordType =
+    RecordType::from_static("currencies.exchange_rate");
+pub(crate) const PRICE_LIST_RECORD_TYPE: RecordType =
+    RecordType::from_static("price_lists.price_list");
+pub(crate) const QUOTE_RECORD_TYPE: RecordType = RecordType::from_static("quotes.quote");
 pub(crate) const APPROVAL_POLICY_RECORD_TYPE: RecordType =
-    RecordType::from_static("approval_policy");
+    RecordType::from_static("approvals.approval_policy");
 pub(crate) const VALIDATION_RULE_RECORD_TYPE: RecordType =
     RecordType::from_static("validation_rule");
 

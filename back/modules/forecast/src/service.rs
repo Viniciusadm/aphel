@@ -36,7 +36,7 @@ use currencies::domain::{BASE_AMOUNT_FIELD, BASE_AMOUNT_METRIC};
 use deals::team::domain::CreditedUsers;
 use deals::team::service::{credited_from_owner_filter, credited_won_months};
 
-const DEAL: &str = "deal";
+const DEAL: &str = "deals.deal";
 const AMOUNT: &str = "amount";
 const PROBABILITY: &str = "probability";
 const EXPECTED_CLOSE_DATE: &str = "expected_close_date";

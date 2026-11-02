@@ -50,6 +50,18 @@ fn table_for(record_type: &RecordType) -> Result<&'static str, AppError> {
     }
 }
 
+fn extension_for(record_type: &RecordType) -> Result<&'static str, AppError> {
+    if *record_type == RecordType::CONTACT {
+        Ok("leads_contact_extension")
+    } else if *record_type == RecordType::COMPANY {
+        Ok("leads_company_extension")
+    } else {
+        Err(AppError::Validation(
+            "record has no lifecycle extension".to_owned(),
+        ))
+    }
+}
+
 #[derive(Clone)]
 pub(crate) struct HistoryStore {
     pool: MySqlPool,
@@ -498,9 +510,10 @@ impl LeadRecords {
         record_id: Uuid,
     ) -> Result<Option<Option<String>>, AppError> {
         let table = table_for(record_type)?;
+        let extension = extension_for(record_type)?;
         let row = sqlx::query(sqlx::AssertSqlSafe(format!(
-            "SELECT lifecycle_stage FROM {table} \
-             WHERE id = ? AND deleted_at IS NULL"
+            "SELECT e.lifecycle_stage FROM {table} r LEFT JOIN `{extension}` e ON e.record_id = r.id \
+             WHERE r.id = ? AND r.deleted_at IS NULL"
         )))
         .bind(record_id.to_string())
         .fetch_optional(&self.pool)
@@ -517,9 +530,10 @@ impl LeadRecords {
         record_id: Uuid,
     ) -> Result<Option<Option<String>>, AppError> {
         let table = table_for(record_type)?;
+        let extension = extension_for(record_type)?;
         let row = sqlx::query(sqlx::AssertSqlSafe(format!(
-            "SELECT lifecycle_stage FROM {table} \
-             WHERE id = ? AND deleted_at IS NULL"
+            "SELECT e.lifecycle_stage FROM {table} r LEFT JOIN `{extension}` e ON e.record_id = r.id \
+             WHERE r.id = ? AND r.deleted_at IS NULL"
         )))
         .bind(record_id.to_string())
         .fetch_optional(&mut **tx)
@@ -620,13 +634,14 @@ impl LeadRecords {
         visibility: &RecordScopeFilter,
     ) -> Result<Vec<(String, u64)>, AppError> {
         let table = table_for(record_type)?;
+        let extension = extension_for(record_type)?;
         let mut builder: QueryBuilder<MySql> = QueryBuilder::new(format!(
-            "SELECT {RECORD_ALIAS}.lifecycle_stage AS stage, COUNT(*) AS total \
-             FROM {table} {RECORD_ALIAS} WHERE {RECORD_ALIAS}.lifecycle_stage IS NOT NULL \
+            "SELECT e.lifecycle_stage AS stage, COUNT(*) AS total \
+             FROM {table} {RECORD_ALIAS} JOIN `{extension}` e ON e.record_id = {RECORD_ALIAS}.id WHERE e.lifecycle_stage IS NOT NULL \
              AND {RECORD_ALIAS}.archived_at IS NULL"
         ));
         self.push_visible(&mut builder, scope, record_type, visibility)?;
-        builder.push(format!(" GROUP BY {RECORD_ALIAS}.lifecycle_stage"));
+        builder.push(" GROUP BY e.lifecycle_stage");
         let rows = builder.build().fetch_all(&self.pool).await?;
         rows.iter()
             .map(|row| {

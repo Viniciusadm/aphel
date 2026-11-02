@@ -14,7 +14,16 @@
   "recordTypes": {
     "contact": "Contato",
     "company": "Empresa",
-    "deal": "Oportunidade"
+    "deal": "Oportunidade",
+    "contacts": {
+      "contact": "Contato"
+    },
+    "companies": {
+      "company": "Empresa"
+    },
+    "deals": {
+      "deal": "Oportunidade"
+    }
   },
   "visibility": {
     "private": {

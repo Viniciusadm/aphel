@@ -14,3 +14,9 @@ pub(crate) use mysql_references::MySqlReferenceChecker;
 pub use mysql_values::MySqlCustomFieldValueRepository;
 pub use permissions::{MySqlFieldPermissionPorts, MySqlFieldPermissionRepository};
 pub use ports::{MySqlCustomFieldPorts, MySqlFieldPorts};
+
+mod managed;
+pub use managed::{column_type, ensure_extension_schemas, ensure_managed_schema, managed_schema};
+
+mod entity_keys;
+pub(crate) use entity_keys::migrate_entity_keys;

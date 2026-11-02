@@ -1,10 +1,14 @@
-ALTER TABLE contacts
-  ADD COLUMN lifecycle_stage VARCHAR(64) NULL AFTER source,
-  ADD KEY contacts_lifecycle_stage_index (lifecycle_stage);
+CREATE TABLE leads_contact_extension (
+  record_id CHAR(36) NOT NULL PRIMARY KEY,
+  lifecycle_stage VARCHAR(64) NULL,
+  KEY leads_contact_stage_index (lifecycle_stage)
+) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci;
 
-ALTER TABLE companies
-  ADD COLUMN lifecycle_stage VARCHAR(64) NULL AFTER source,
-  ADD KEY companies_lifecycle_stage_index (lifecycle_stage);
+CREATE TABLE leads_company_extension (
+  record_id CHAR(36) NOT NULL PRIMARY KEY,
+  lifecycle_stage VARCHAR(64) NULL,
+  KEY leads_company_stage_index (lifecycle_stage)
+) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci;
 
 CREATE TABLE lifecycle_stage_history (
   id CHAR(36) NOT NULL,

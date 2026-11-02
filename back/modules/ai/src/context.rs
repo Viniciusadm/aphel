@@ -10,7 +10,6 @@ use aphel_kernel::errors::AppError;
 
 pub(crate) const RECORD_NOT_FOUND: &str = "ai_record_not_found";
 pub(crate) const UNSUPPORTED_RECORD_TYPE: &str = "ai_unsupported_record_type";
-pub(crate) const CONTEXT_RECORD_TYPES: [&str; 3] = ["contact", "company", "deal"];
 
 const MAX_CONTEXT_CHARS: usize = 30_000;
 const MAX_NOTE_CHARS: usize = 600;
@@ -177,13 +176,17 @@ fn text_field(value: &Value, key: &str) -> String {
         .to_owned()
 }
 
-pub(crate) fn ensure_context_type(record_type: &str) -> Result<(), AppError> {
-    if CONTEXT_RECORD_TYPES.contains(&record_type) {
+pub(crate) fn ensure_context_type(ctx: &Ctx<'_>, record_type: &str) -> Result<(), AppError> {
+    if ctx
+        .registry()
+        .definitions()
+        .any(|entity| entity.record_type.as_str() == record_type && entity.title_field.is_some())
+    {
         Ok(())
     } else {
         Err(AppError::validation_code(
             UNSUPPORTED_RECORD_TYPE,
-            "record_type must be contact, company or deal",
+            "record_type must name a registered entity with a title",
         ))
     }
 }
@@ -236,14 +239,14 @@ impl Collector<'_> {
                 "body".to_owned(),
                 json!(truncate(&text_field(&item, "body"), MAX_NOTE_CHARS)),
             );
-            self.source("note", &item, None);
+            self.source("notes.note", &item, None);
             notes.push(Value::Object(note));
         }
         notes
     }
 
     async fn activities(&mut self, record_type: &str, record_id: Uuid) -> Vec<Value> {
-        let Some(policy) = self.policy("activity").await else {
+        let Some(policy) = self.policy("activities.activity").await else {
             return Vec::new();
         };
         let items = records::activities(self.ctx, record_type, record_id, RELATED_LIMIT)
@@ -255,7 +258,7 @@ impl Collector<'_> {
                 &item,
                 &[
                     "title",
-                    "activity_type",
+                    "activities.activity_type",
                     "status",
                     "priority",
                     "due_at",
@@ -272,7 +275,7 @@ impl Collector<'_> {
                 );
             }
             self.source(
-                "activity",
+                "activities.activity",
                 &item,
                 item.get("title").and_then(Value::as_str).map(str::to_owned),
             );
@@ -292,8 +295,10 @@ impl Collector<'_> {
             return Vec::new();
         };
         let items = match record_type {
-            "deal" => records::deals(self.ctx, link_field, record_id, RELATED_LIMIT).await,
-            "contact" => records::contacts(self.ctx, link_field, record_id, RELATED_LIMIT).await,
+            "deals.deal" => records::deals(self.ctx, link_field, record_id, RELATED_LIMIT).await,
+            "contacts.contact" => {
+                records::contacts(self.ctx, link_field, record_id, RELATED_LIMIT).await
+            }
             _ => return Vec::new(),
         }
         .unwrap_or_default();
@@ -324,7 +329,7 @@ pub(crate) async fn build(
     include_personal: bool,
     depth: ContextDepth,
 ) -> Result<RecordContext, AppError> {
-    ensure_context_type(record_type)?;
+    ensure_context_type(ctx, record_type)?;
     let record_id = Uuid::parse_str(record_id).map_err(|_| record_not_found())?;
     let record = records::load(ctx, record_type, record_id)
         .await?
@@ -348,18 +353,23 @@ pub(crate) async fn build(
         context.insert("recent_notes".to_owned(), Value::Array(notes));
         context.insert("recent_activities".to_owned(), Value::Array(activities));
         match record_type {
-            "contact" => {
+            "contacts.contact" => {
                 let deals = collector
-                    .related("deal", "contact_id", record_id, &DEAL_KEYS)
+                    .related("deals.deal", "contact_id", record_id, &DEAL_KEYS)
                     .await;
                 context.insert("deals".to_owned(), Value::Array(deals));
             }
-            "company" => {
+            "companies.company" => {
                 let contacts = collector
-                    .related("contact", "company_id", record_id, &["name", "job_title"])
+                    .related(
+                        "contacts.contact",
+                        "company_id",
+                        record_id,
+                        &["name", "job_title"],
+                    )
                     .await;
                 let deals = collector
-                    .related("deal", "company_id", record_id, &DEAL_KEYS)
+                    .related("deals.deal", "company_id", record_id, &DEAL_KEYS)
                     .await;
                 context.insert("contacts".to_owned(), Value::Array(contacts));
                 context.insert("deals".to_owned(), Value::Array(deals));

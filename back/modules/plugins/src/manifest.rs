@@ -3,7 +3,7 @@ use serde_json::Value;
 
 use aphel_kernel::application::jobs::CronSchedule;
 use aphel_kernel::domain::access::{Permission, RecordScope, is_known_permission};
-use aphel_kernel::domain::custom_objects::{CUSTOM_OBJECT_PREFIX, object_record_type};
+use aphel_kernel::domain::custom_objects::is_custom_record_type;
 use aphel_kernel::domain::fields::FieldType;
 use aphel_kernel::errors::{AppError, FieldViolation};
 
@@ -71,7 +71,7 @@ pub struct PluginManifest {
     #[serde(default)]
     pub requires_aphel: Option<String>,
     #[serde(default)]
-    pub entities: Vec<EntitySpec>,
+    pub entities: Vec<EntityDeclaration>,
     #[serde(default)]
     pub fields: Vec<ExtensionField>,
     #[serde(default)]
@@ -272,93 +272,7 @@ pub struct ScheduleSpec {
     pub cron: String,
 }
 
-#[derive(Debug, Clone, PartialEq, Serialize, Deserialize)]
-pub struct EntitySpec {
-    pub key: String,
-    pub label: String,
-    pub label_plural: String,
-    #[serde(default)]
-    pub description: Option<String>,
-    #[serde(default)]
-    pub icon: Option<String>,
-    #[serde(default = "enabled")]
-    pub owner_enabled: bool,
-    #[serde(default)]
-    pub permission_scope: Option<String>,
-    #[serde(default)]
-    pub internal: bool,
-    #[serde(default)]
-    pub fields: Vec<FieldDef>,
-}
-
-#[derive(Debug, Clone, PartialEq, Serialize, Deserialize)]
-pub struct FieldDef {
-    pub key: String,
-    pub label: String,
-    #[serde(rename = "type")]
-    pub field_type: String,
-    #[serde(default)]
-    pub required: bool,
-    #[serde(default)]
-    pub searchable: bool,
-    #[serde(default)]
-    pub unique: bool,
-    #[serde(default)]
-    pub personal: bool,
-    #[serde(default)]
-    pub sensitive: bool,
-    #[serde(default)]
-    pub min: Option<Value>,
-    #[serde(default)]
-    pub max: Option<Value>,
-    #[serde(default)]
-    pub decimals: Option<u32>,
-    #[serde(default)]
-    pub max_length: Option<u32>,
-    #[serde(default)]
-    pub pattern: Option<String>,
-    #[serde(default)]
-    pub currency: Option<String>,
-    #[serde(default)]
-    pub default: Option<Value>,
-    #[serde(default)]
-    pub target: Option<String>,
-    #[serde(default)]
-    pub options: Vec<OptionDef>,
-}
-
-impl FieldDef {
-    pub fn config(
-        &self,
-    ) -> Result<
-        aphel_kernel::domain::fields::FieldConfig,
-        Vec<aphel_kernel::application::fields::ConfigError>,
-    > {
-        let mut object = serde_json::Map::new();
-        let mut put = |key: &str, value: Option<Value>| {
-            if let Some(value) = value {
-                object.insert(key.to_owned(), value);
-            }
-        };
-        put("min", self.min.clone());
-        put("max", self.max.clone());
-        put("decimals", self.decimals.map(Value::from));
-        put("max_length", self.max_length.map(Value::from));
-        put("pattern", self.pattern.clone().map(Value::String));
-        put("currency", self.currency.clone().map(Value::String));
-        put("default_value", self.default.clone());
-        put("target_record_type", self.target.clone().map(Value::String));
-        aphel_kernel::application::fields::config_from_json(&Value::Object(object))
-    }
-}
-
-#[derive(Debug, Clone, PartialEq, Serialize, Deserialize)]
-pub struct OptionDef {
-    pub value: String,
-    pub label: String,
-    #[serde(default)]
-    pub color: Option<String>,
-}
+pub use aphel_kernel::application::fields::{EntityDeclaration, FieldDef, OptionDef};
 
 #[derive(Debug, Clone, PartialEq, Serialize, Deserialize)]
 pub struct ExtensionField {
@@ -497,7 +411,7 @@ impl PluginManifest {
     }
 
     pub fn entity_record_type(&self, entity: &str) -> String {
-        object_record_type(&self.object_key(entity))
+        format!("{}.{entity}", self.key)
     }
 
     pub fn object_key(&self, entity: &str) -> String {
@@ -525,7 +439,7 @@ impl PluginManifest {
             })
     }
 
-    pub fn entity_scope(&self, entity: &EntitySpec) -> Option<RecordScope> {
+    pub fn entity_scope(&self, entity: &EntityDeclaration) -> Option<RecordScope> {
         entity
             .permission_scope
             .as_deref()
@@ -643,7 +557,7 @@ impl PluginManifest {
         catalog: HostCatalog<'_>,
     ) -> Result<(), AppError> {
         let mut violations = Vec::new();
-        if !is_key(&self.key, MAX_KEY_LENGTH) {
+        if self.key == "custom" || !is_key(&self.key, MAX_KEY_LENGTH) {
             violations.push(FieldViolation::new(
                 "key",
                 format!("must have up to {MAX_KEY_LENGTH} lowercase letters, digits or underscores and start with a letter"),
@@ -715,7 +629,7 @@ impl PluginManifest {
         }
         for (index, extension) in self.fields.iter().enumerate() {
             let path = format!("fields[{index}]");
-            if extension.record_type.starts_with(CUSTOM_OBJECT_PREFIX)
+            if is_custom_record_type(&extension.record_type)
                 && !self.entity_record_types().contains(&extension.record_type)
             {
                 violations.push(FieldViolation::new(
@@ -772,7 +686,10 @@ impl PluginManifest {
         }
         for (index, required) in self.requires.iter().enumerate() {
             if !Permission::parse(required.clone()).is_ok_and(|permission| {
-                is_known_permission(&permission) || required.starts_with(CUSTOM_OBJECT_PREFIX)
+                is_known_permission(&permission)
+                    || required
+                        .rsplit_once('.')
+                        .is_some_and(|(entity, _)| is_custom_record_type(entity))
             }) {
                 violations.push(FieldViolation::new(
                     format!("requires[{index}]"),
@@ -1234,8 +1151,14 @@ impl PluginManifest {
     }
 
     fn grantable(&self, permission: &Permission) -> bool {
-        is_known_permission(permission)
-            || permission.as_str().starts_with(CUSTOM_OBJECT_PREFIX)
+        self.entity_permissions()
+            .iter()
+            .any(|key| key == permission.as_str())
+            || is_known_permission(permission)
+            || permission
+                .as_str()
+                .rsplit_once('.')
+                .is_some_and(|(entity, _)| is_custom_record_type(entity))
             || self
                 .permissions
                 .iter()

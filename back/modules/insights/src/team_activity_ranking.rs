@@ -81,7 +81,7 @@ where
         let ranking = run(
             context,
             json!({
-                "record_type": "activity",
+                "record_type": "activities.activity",
                 "filter": with_subject(context, done_conditions())?,
                 "group_by": [{ "field": OWNER_FIELD }],
                 "metrics": [{ "fn": "count" }],
@@ -111,7 +111,7 @@ where
                 run(
                     context,
                     json!({
-                        "record_type": "activity",
+                        "record_type": "activities.activity",
                         "filter": with_subject(context, conditions)?,
                         "group_by": [{ "field": OWNER_FIELD }, { "field": TYPE_FIELD }],
                         "metrics": [{ "fn": "count" }],

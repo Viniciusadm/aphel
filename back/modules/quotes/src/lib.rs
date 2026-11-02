@@ -23,7 +23,7 @@ use utoipa_axum::router::OpenApiRouter;
 use crate::domain::QuoteStatus;
 use aphel_kernel::application::fields::builtin::{field, record_field};
 use aphel_kernel::application::fields::{
-    EntityTraits, RecordRelation, RecordTypeDefinition, SystemField,
+    EntityDefinition, EntityTraits, RecordRelation, SystemField,
 };
 use aphel_kernel::application::public_events::{
     PreviousValues, PublicEventDefinition, PublicResource, changed, deleted, event,
@@ -39,7 +39,7 @@ use aphel_kernel::modules::{AppBuilder, Manifest, Module};
 pub use hooks::{AcceptingQuote, DealItemsWriter, PricedQuote, QuoteAccepting, QuoteTotals};
 
 pub(crate) const QUOTE_RESOURCE: PublicResource =
-    PublicResource::new("quote", "QuoteDetailResponse");
+    PublicResource::new("quotes.quote", "QuoteDetailResponse");
 
 pub const KEY: &str = "quotes";
 
@@ -121,7 +121,7 @@ const PUBLIC_EVENTS: &[PublicEventDefinition] = &[
     ),
 ];
 
-pub(crate) const QUOTE: RecordType = RecordType::from_static("quote");
+pub(crate) const QUOTE: RecordType = RecordType::from_static("quotes.quote");
 pub(crate) const QUOTES_TABLE: &str = "quotes";
 
 fn status_label(status: QuoteStatus) -> (&'static str, &'static str) {
@@ -146,9 +146,9 @@ fn status_field() -> Result<SystemField, AppError> {
     ))
 }
 
-pub(crate) fn quote_definition() -> Result<RecordTypeDefinition, AppError> {
+pub(crate) fn quote_definition() -> Result<EntityDefinition, AppError> {
     Ok(
-        RecordTypeDefinition::new(QUOTE, QUOTES_TABLE, Permission::QUOTES_READ)
+        EntityDefinition::new(QUOTE, QUOTES_TABLE, Permission::QUOTES_READ)
             .capabilities(EntityTraits::default().validation_rules())
             .update_permission(Permission::QUOTES_UPDATE)
             .title_field("title")
@@ -298,6 +298,12 @@ impl Module for QuotesModule {
     }
 
     fn register(&self, app: &mut AppBuilder) -> Result<(), AppError> {
+        app.contribute(std::sync::Arc::new(
+            aphel_kernel::application::fields::EntityKeyAliases(&[
+                ("quote", "quotes.quote"),
+                ("quote_settings", "quotes.quote_settings"),
+            ]),
+        ));
         app.declare_hook(crate::hooks::QuoteAccepting, &[aphel_kernel::modules::HookUsage::Veto],
             "Before a quote is accepted (on its public page or manually by a user); an error blocks the acceptance",
         );

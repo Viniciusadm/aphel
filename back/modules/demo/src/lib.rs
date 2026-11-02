@@ -41,6 +41,13 @@ impl Module for DemoModule {
     }
 
     fn register(&self, app: &mut AppBuilder) -> Result<(), AppError> {
+        app.contribute(std::sync::Arc::new(
+            aphel_kernel::application::fields::EntityKeyAliases(&[
+                ("approval_policy", "approvals.approval_policy"),
+                ("exchange_rate", "currencies.exchange_rate"),
+                ("price_list", "price_lists.price_list"),
+            ]),
+        ));
         app.contribute::<dyn aphel_kernel::modules::ModuleCommand>(std::sync::Arc::new(
             cli::DemoCli,
         ));

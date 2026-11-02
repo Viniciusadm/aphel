@@ -4,7 +4,22 @@
     "company": "empresas",
     "deal": "oportunidades",
     "activity": "atividades",
-    "product": "produtos"
+    "product": "produtos",
+    "contacts": {
+      "contact": "contatos"
+    },
+    "companies": {
+      "company": "empresas"
+    },
+    "deals": {
+      "deal": "oportunidades"
+    },
+    "activities": {
+      "activity": "atividades"
+    },
+    "products": {
+      "product": "produtos"
+    }
   },
   "actions": {
     "import": "Importar"

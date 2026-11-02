@@ -1,9 +1,13 @@
+import { Users } from 'lucide-react'
 import { registerRecordResource } from '@/features/records/resources'
 
-export const CONTACT_RECORD_TYPE = 'contact'
+export const CONTACT_RECORD_TYPE = 'contacts.contact'
 export const CONTACTS_PATH = '/contacts'
 
 export const contactResource = registerRecordResource({
+  relatable: true,
+  icon: Users,
+  checkIn: true,
   recordType: CONTACT_RECORD_TYPE,
   createPermission: 'contacts.create',
   updatePermission: 'contacts.update',

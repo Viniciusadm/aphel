@@ -36,6 +36,9 @@ impl Module for SegmentsModule {
 
     fn register(&self, app: &mut AppBuilder) -> Result<(), AppError> {
         app.contribute(std::sync::Arc::new(
+            aphel_kernel::application::fields::EntityKeyAliases(&[("segment", "segments.segment")]),
+        ));
+        app.contribute(std::sync::Arc::new(
             aphel_kernel::infrastructure::custom_objects::RecordTypeScopedTable("segments"),
         ));
         app.openapi_tag(

@@ -20,7 +20,7 @@ use aphel_kernel::modules::Migration;
 
 use aphel_kernel::application::fields::builtin::{field, record_field, timestamps, with_fields};
 use aphel_kernel::application::fields::{
-    EntityTraits, RecordRelation, RecordTypeDefinition, RelationPath, SystemField,
+    EntityDefinition, EntityTraits, RecordRelation, RelationPath, SystemField,
 };
 use aphel_kernel::application::public_events::{
     PreviousValues, PublicEventDefinition, PublicResource, changed, deleted, event,
@@ -35,7 +35,8 @@ use aphel_kernel::infrastructure::query::aggregate::LookupTitleSource;
 use aphel_kernel::modules::builder::APHEL_VERSION;
 use aphel_kernel::modules::{AppBuilder, Manifest, Module};
 
-pub const ACTIVITY_RESOURCE: PublicResource = PublicResource::new("activity", "ActivityResponse");
+pub const ACTIVITY_RESOURCE: PublicResource =
+    PublicResource::new("activities.activity", "ActivityResponse");
 
 pub const KEY: &str = "activities";
 
@@ -154,8 +155,8 @@ fn activity_location_fields() -> Result<Vec<SystemField>, AppError> {
     ])
 }
 
-pub(crate) fn activity_definition() -> Result<RecordTypeDefinition, AppError> {
-    let definition = RecordTypeDefinition::new(
+pub(crate) fn activity_definition() -> Result<EntityDefinition, AppError> {
+    let definition = EntityDefinition::new(
         RecordType::ACTIVITY,
         "activities",
         Permission::ACTIVITIES_READ,
@@ -257,6 +258,38 @@ impl Module for ActivitiesModule {
     }
 
     fn register(&self, app: &mut AppBuilder) -> Result<(), AppError> {
+        app.entity(aphel_kernel::application::fields::builtin::with_fields(
+            aphel_kernel::application::fields::EntityDefinition::new(
+                aphel_kernel::application::shared::RecordType::from_static(
+                    "activities.activity_type",
+                ),
+                "activity_types",
+                aphel_kernel::domain::access::Permission::ACTIVITIES_READ,
+            )
+            .capabilities(
+                aphel_kernel::application::fields::EntityTraits::default()
+                    .with_trait("records.global"),
+            )
+            .title_field("name")
+            .system_field(aphel_kernel::application::fields::builtin::field(
+                "name",
+                "Name",
+                aphel_kernel::domain::fields::FieldType::Text,
+            )?)
+            .system_field(aphel_kernel::application::fields::builtin::field(
+                "is_active",
+                "Active",
+                aphel_kernel::domain::fields::FieldType::Checkbox,
+            )?),
+            aphel_kernel::application::fields::builtin::timestamps()?,
+        ));
+
+        app.contribute(std::sync::Arc::new(
+            aphel_kernel::application::fields::EntityKeyAliases(&[
+                ("activity", "activities.activity"),
+                ("activity_type", "activities.activity_type"),
+            ]),
+        ));
         app.contribute::<dyn aphel_kernel::modules::DigestSource>(std::sync::Arc::new(
             points::OpenTasks,
         ));
@@ -281,7 +314,7 @@ impl Module for ActivitiesModule {
         })));
         app.contribute(Arc::new(DefaultsProbe(seed::SEEDED_TABLE)));
         app.contribute(Arc::new(LookupTitleSource {
-            record_type: "activity_type",
+            record_type: "activities.activity_type",
             table: seed::SEEDED_TABLE,
             title_column: "name",
         }));

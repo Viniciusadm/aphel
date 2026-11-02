@@ -31,7 +31,7 @@ pub(crate) const APPROVAL_NOT_APPROVER: &str = "approval_not_approver";
 pub(crate) const APPROVAL_NOT_PENDING: &str = "approval_not_pending";
 pub(crate) const APPROVAL_RECORD_NOT_FOUND: &str = "record_not_found";
 
-pub(crate) const APPROVAL_POLICY_RECORD: &str = "approval_policy";
+pub(crate) const APPROVAL_POLICY_RECORD: &str = "approvals.approval_policy";
 
 pub(crate) const APPROVALS_OVERDUE_JOB: &str = "approvals.overdue";
 pub(crate) const APPROVALS_OVERDUE_CRON: &str = "0 */10 * * * *";

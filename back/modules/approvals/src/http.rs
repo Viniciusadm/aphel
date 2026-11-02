@@ -645,7 +645,7 @@ pub(crate) struct ApprovalPolicyResponse {
     #[schema(example = "Discount above 20%")]
     pub(crate) name: String,
     pub(crate) description: Option<String>,
-    #[schema(example = "deal")]
+    #[schema(example = "deals.deal")]
     pub(crate) record_type: String,
     pub(crate) moment: ApprovalMomentSchema,
     pub(crate) target_id: Option<String>,
@@ -783,7 +783,7 @@ pub(crate) struct ApprovalPolicyOrderRequest {
 #[derive(Debug, Default, Deserialize, IntoParams)]
 #[into_params(parameter_in = Query)]
 pub(crate) struct ApprovalPolicyListParams {
-    #[param(example = "deal")]
+    #[param(example = "deals.deal")]
     pub(crate) record_type: Option<String>,
     pub(crate) active: Option<bool>,
 }
@@ -995,7 +995,7 @@ impl From<SubmissionView> for ApprovalSubmissionResponse {
 #[derive(Debug, Deserialize, ToSchema)]
 #[serde(deny_unknown_fields)]
 pub(crate) struct ApprovalSubmitRequest {
-    #[schema(example = "deal")]
+    #[schema(example = "deals.deal")]
     pub(crate) record_type: String,
     pub(crate) record_id: String,
     pub(crate) moment: ApprovalMomentSchema,

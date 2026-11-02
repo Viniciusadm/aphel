@@ -11,8 +11,8 @@ use crate::application::custom_objects::{
 };
 use crate::application::fields::permissions::check_record_writes;
 use crate::application::fields::{
-    CustomFieldPorts, CustomFieldReader, CustomFieldWriter, FieldSet, RecordDraft, RecordPipeline,
-    RecordTypeDefinition, RecordWrite, WriteMode, custom_field_path, saving_unsupported,
+    CustomFieldPorts, CustomFieldReader, CustomFieldWriter, EntityDefinition, FieldSet,
+    RecordDraft, RecordPipeline, RecordWrite, WriteMode, custom_field_path, saving_unsupported,
 };
 use crate::application::files::RecordAccessChecker;
 use crate::application::organization_admin::Listing;
@@ -124,7 +124,7 @@ where
             .ok_or_else(custom_object_not_found)
     }
 
-    fn definition(&self, object: &CustomObject) -> Result<RecordTypeDefinition, AppError> {
+    fn definition(&self, object: &CustomObject) -> Result<EntityDefinition, AppError> {
         match self.ports.query().registry().require(&object.record_type()) {
             Ok(definition) => Ok(definition.clone()),
             Err(_) => custom_record_definition(object),
@@ -133,6 +133,12 @@ where
 
     pub async fn fields(&self, scope: &AccessScope, key: &str) -> Result<FieldSet, AppError> {
         let object = self.object(key)?;
+        if self.definition(object)?.storage != crate::application::fields::EntityStorage::Dynamic {
+            return Err(crate::records::operation_not_supported(
+                &object.record_type(),
+                "use the generic entity record routes for this storage backend",
+            ));
+        }
         let definition = self.definition(object)?;
         scope.record_filter(&definition.read_permission)?;
         FieldSet::for_scope(self.ports.query().definitions(), &definition, scope).await
@@ -541,25 +547,38 @@ where
         record_id: &str,
         ip: Option<String>,
     ) -> Result<(), AppError> {
+        let mut tx = self.ports.transactions().begin().await?;
+        self.delete_in_tx(&mut tx, scope, key, record_id, ip)
+            .await?;
+        self.ports.transactions().commit(tx).await
+    }
+
+    pub async fn delete_in_tx(
+        &self,
+        tx: &mut CustomRecordsTx<P>,
+        scope: &AccessScope,
+        key: &str,
+        record_id: &str,
+        ip: Option<String>,
+    ) -> Result<(), AppError> {
         let object = self.object(key)?.clone();
         let record_type = object.record_type();
         let current = self.allowed(scope, &object, record_id, "delete").await?;
         let now = self.ports.clock().now();
         let reference = RecordRef::new(RecordType::parse(record_type.as_str())?, current.id);
         let pipeline = self.ports.fields().pipeline();
-        let mut tx = self.ports.transactions().begin().await?;
-        pipeline.deleting(&mut tx, scope, &reference).await?;
+        pipeline.deleting(tx, scope, &reference).await?;
         self.ports
             .records()
-            .soft_delete(&mut tx, current.id, now)
+            .soft_delete(tx, current.id, now)
             .await?;
         self.ports
             .links()
-            .delete_record_links(&mut tx, current.id)
+            .delete_record_links(tx, current.id)
             .await?;
-        pipeline.deleted(&mut tx, scope, &reference).await?;
+        pipeline.deleted(tx, scope, &reference).await?;
         self.publish(
-            &mut tx,
+            tx,
             scope,
             &reference,
             record_event(&record_type, "deleted"),
@@ -572,7 +591,7 @@ where
             ip,
         )
         .await?;
-        self.ports.transactions().commit(tx).await
+        Ok(())
     }
 
     #[allow(clippy::too_many_arguments)]

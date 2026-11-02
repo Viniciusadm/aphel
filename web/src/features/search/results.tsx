@@ -14,15 +14,15 @@ export interface SearchRecordTypeIconProps {
 export function SearchRecordTypeIcon({ recordType, className }: SearchRecordTypeIconProps) {
   const props = { className, 'aria-hidden': true }
   switch (recordType) {
-    case 'contact':
+    case 'contacts.contact':
       return <User {...props} />
-    case 'company':
+    case 'companies.company':
       return <Building2 {...props} />
-    case 'deal':
+    case 'deals.deal':
       return <Handshake {...props} />
-    case 'activity':
+    case 'activities.activity':
       return <CalendarCheck {...props} />
-    case 'product':
+    case 'products.product':
       return <Package {...props} />
     default:
       return <FileText {...props} />

@@ -15,12 +15,12 @@ pub(crate) async fn temperature(
     connection: &mut MySqlConnection,
     contact_id: Uuid,
 ) -> Result<Option<i64>, AppError> {
-    let value: Option<Option<u8>> =
-        sqlx::query_scalar("SELECT lead_temperature FROM contacts WHERE id = ?")
+    let value: Option<Option<i64>> =
+        sqlx::query_scalar("SELECT CAST(lead_temperature AS SIGNED) FROM lead_pro_contact_extension WHERE record_id = ?")
             .bind(contact_id.to_string())
             .fetch_optional(connection)
             .await?;
-    Ok(value.flatten().map(i64::from))
+    Ok(value.flatten())
 }
 
 pub(crate) async fn set_temperature(
@@ -28,7 +28,7 @@ pub(crate) async fn set_temperature(
     contact_id: Uuid,
     temperature: i64,
 ) -> Result<(), AppError> {
-    sqlx::query("UPDATE contacts SET lead_temperature = ? WHERE id = ?")
+    sqlx::query("INSERT INTO lead_pro_contact_extension (lead_temperature, record_id) VALUES (?, ?) ON DUPLICATE KEY UPDATE lead_temperature = VALUES(lead_temperature)")
         .bind(temperature)
         .bind(contact_id.to_string())
         .execute(connection)
@@ -104,8 +104,8 @@ pub(crate) async fn cool_down(
     idle_since: DateTime<Utc>,
 ) -> Result<u64, AppError> {
     Ok(sqlx::query(
-        "UPDATE contacts c SET c.lead_temperature = GREATEST(CAST(c.lead_temperature AS SIGNED) - ?, 0) \
-         WHERE c.lead_temperature > 0 AND c.deleted_at IS NULL AND NOT EXISTS \
+        "UPDATE lead_pro_contact_extension e JOIN contacts c ON c.id = e.record_id SET e.lead_temperature = GREATEST(CAST(e.lead_temperature AS SIGNED) - ?, 0) \
+         WHERE e.lead_temperature > 0 AND c.deleted_at IS NULL AND NOT EXISTS \
          (SELECT 1 FROM lead_pro_touches t WHERE t.contact_id = c.id AND t.created_at >= ?)",
     )
     .bind(points)

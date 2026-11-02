@@ -8,7 +8,7 @@ use uuid::Uuid;
 
 use crate::domain::{Company, CompanyData, CompanyView, EmailEngagement};
 use aphel_kernel::Ctx;
-use aphel_kernel::application::fields::{RecordTypeDefinition, RecordTypeRegistry};
+use aphel_kernel::application::fields::{EntityDefinition, RecordTypeRegistry};
 use aphel_kernel::application::shared::RecordType;
 use aphel_kernel::database::transaction::MySqlTx;
 use aphel_kernel::domain::UserId;
@@ -81,7 +81,7 @@ impl CompanyStore {
         Self::new(ctx.pool().clone(), ctx.registry().clone())
     }
 
-    fn definition(&self) -> Result<&RecordTypeDefinition, AppError> {
+    fn definition(&self) -> Result<&EntityDefinition, AppError> {
         self.registry.require(RecordType::COMPANY.as_str())
     }
 

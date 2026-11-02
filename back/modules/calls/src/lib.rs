@@ -65,6 +65,12 @@ impl Module for CallsModule {
     }
 
     fn register(&self, app: &mut AppBuilder) -> Result<(), AppError> {
+        app.contribute(std::sync::Arc::new(
+            aphel_kernel::application::fields::EntityKeyAliases(&[
+                ("call_outcome", "calls.call_outcome"),
+                ("call_session", "calls.call_session"),
+            ]),
+        ));
         app.contribute(Arc::new(DefaultsSeed(|connection| {
             Box::pin(store::seed_call_outcomes(connection))
         })));

@@ -84,6 +84,12 @@ impl Module for AutomationsModule {
     }
 
     fn register(&self, app: &mut AppBuilder) -> Result<(), AppError> {
+        app.contribute(std::sync::Arc::new(
+            aphel_kernel::application::fields::EntityKeyAliases(&[(
+                "automation",
+                "automations.automation",
+            )]),
+        ));
         app.contribute::<dyn aphel_kernel::modules::HealthSource>(std::sync::Arc::new(
             points::AutomationFailures,
         ));

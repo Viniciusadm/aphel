@@ -17,7 +17,7 @@ use aphel_kernel::errors::{AppError, FieldViolation};
 use aphel_kernel::state::{runtime_pool, runtime_state};
 
 pub(crate) const GENERATE_ACTION: &str = "proposals.generate_proposal";
-const DEAL: &str = "deal";
+const DEAL: &str = "deals.deal";
 
 pub(crate) struct ProposalGeneratedTrigger;
 

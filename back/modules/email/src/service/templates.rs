@@ -344,9 +344,9 @@ pub(crate) async fn variables(
             ));
         }
         None => vec![
-            "contact".to_owned(),
-            "company".to_owned(),
-            "deal".to_owned(),
+            "contacts.contact".to_owned(),
+            "companies.company".to_owned(),
+            "deals.deal".to_owned(),
         ],
     };
     let mut variables = Vec::new();

@@ -375,7 +375,7 @@ pub(crate) struct ScoringModelResponse {
     pub(crate) id: String,
     #[schema(example = "lead_score")]
     pub(crate) key: String,
-    #[schema(example = "contact")]
+    #[schema(example = "contacts.contact")]
     pub(crate) record_type: String,
     #[schema(example = "Lead scoring")]
     pub(crate) name: String,
@@ -457,7 +457,7 @@ impl From<ScoringCriterionRequest> for CriterionInput {
 
 #[derive(Debug, Deserialize, ToSchema)]
 pub(crate) struct CreateScoringModelRequest {
-    #[schema(example = "contact")]
+    #[schema(example = "contacts.contact")]
     pub(crate) record_type: String,
     #[schema(example = "lead_score")]
     pub(crate) key: Option<String>,

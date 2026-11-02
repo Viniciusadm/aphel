@@ -3,7 +3,7 @@ use utoipa::ToSchema;
 
 use crate::errors::FieldViolation;
 
-pub const OFFERINGS: [&str; 3] = ["product", "service", "recurring"];
+pub const OFFERINGS: [&str; 3] = ["products.product", "service", "recurring"];
 pub const TEAM_SIZES: [&str; 4] = ["solo", "small", "medium", "large"];
 
 #[derive(Debug, Clone, Default, PartialEq, Eq, Deserialize, Serialize, ToSchema)]

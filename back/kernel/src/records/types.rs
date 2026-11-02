@@ -1,8 +1,8 @@
 use std::sync::Arc;
 
 use crate::application::fields::{
-    FieldSpec, ItemTable, ManagedField, MemberAccess, RecordHierarchy, RecordRelation,
-    RecordTypeDefinition, RecordTypeRegistry, SystemField,
+    EntityDefinition, FieldSpec, ItemTable, ManagedField, MemberAccess, RecordHierarchy,
+    RecordRelation, RecordTypeRegistry, SystemField,
 };
 use crate::application::shared::RecordType;
 use crate::errors::AppError;
@@ -20,6 +20,7 @@ pub struct RecordTypeExtension {
     module: &'static str,
     record_type: String,
     system_fields: Vec<SystemField>,
+    side_table: Option<crate::application::fields::ExtensionColumn>,
     relations: Vec<RecordRelation>,
     item_tables: Vec<ItemTable>,
     hierarchy: Option<String>,
@@ -34,6 +35,7 @@ impl RecordTypeExtension {
             module,
             record_type: record_type.to_owned(),
             system_fields: Vec::new(),
+            side_table: None,
             relations: Vec::new(),
             item_tables: Vec::new(),
             hierarchy: None,
@@ -45,6 +47,14 @@ impl RecordTypeExtension {
 
     pub fn record_type(&self) -> &str {
         &self.record_type
+    }
+
+    pub fn side_table(&mut self, table: &str, record_column: &str) -> &mut Self {
+        self.side_table = Some(crate::application::fields::ExtensionColumn {
+            table: table.to_owned(),
+            record_column: record_column.to_owned(),
+        });
+        self
     }
 
     pub fn system_field(&mut self, field: SystemField) -> &mut Self {
@@ -131,6 +141,16 @@ impl RecordTypeExtension {
 
     fn apply(self, registry: &mut RecordTypeRegistry) -> Result<(), AppError> {
         let module = self.module;
+        if self
+            .side_table
+            .as_ref()
+            .is_some_and(|table| !table.table.starts_with(&format!("{module}_")))
+        {
+            return Err(AppError::Configuration(
+                "extension tables must belong to the extender".to_owned(),
+            ));
+        }
+        let side_table = self.side_table;
         let record_type = self.record_type;
         let unknown = || {
             AppError::Configuration(format!(
@@ -150,6 +170,9 @@ impl RecordTypeExtension {
             .system_fields
             .extend(self.system_fields.into_iter().map(|mut field| {
                 field.contributed_by = Some(module);
+                if !field.is_computed() {
+                    field.extension = side_table.clone();
+                }
                 field
             }));
         definition
@@ -188,7 +211,7 @@ impl RecordTypeExtension {
 }
 
 pub fn describe_records(
-    definitions: &[Contribution<RecordTypeDefinition>],
+    definitions: &[Contribution<EntityDefinition>],
     extensions: &[Contribution<RecordTypeExtension>],
 ) -> Vec<RecordContributionInfo> {
     definitions
@@ -219,7 +242,7 @@ pub fn describe_records(
 }
 
 pub fn assemble_registry(
-    definitions: Vec<Contribution<RecordTypeDefinition>>,
+    definitions: Vec<Contribution<EntityDefinition>>,
     extensions: Vec<Contribution<RecordTypeExtension>>,
     custom_handler: Option<RecordHandlerFactory>,
 ) -> Result<RecordTypeRegistry, AppError> {

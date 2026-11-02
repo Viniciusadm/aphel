@@ -36,7 +36,25 @@
     "deal": "Oportunidades",
     "activity": "Tarefas",
     "product": "Produtos",
-    "note": "Notas"
+    "note": "Notas",
+    "contacts": {
+      "contact": "Contatos"
+    },
+    "companies": {
+      "company": "Empresas"
+    },
+    "deals": {
+      "deal": "Oportunidades"
+    },
+    "activities": {
+      "activity": "Tarefas"
+    },
+    "products": {
+      "product": "Produtos"
+    },
+    "notes": {
+      "note": "Notas"
+    }
   },
   "create": {
     "menu": "Criar novo"

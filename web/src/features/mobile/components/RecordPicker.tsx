@@ -4,7 +4,7 @@ import { useTranslation } from 'react-i18next'
 import { Button } from '@/components/ui/button'
 import { SEARCH_MIN_LENGTH, useGlobalSearch } from '@/features/search/api'
 import { useSearchRecordTypeLabel } from '@/features/search/links'
-import { CHECK_IN_RECORD_TYPES } from '../lib/record-route'
+import { checkInRecordTypes } from '../lib/record-route'
 import { Field } from '@/components/ui/field'
 import { SearchInput } from '@/components/ui/search-input'
 
@@ -27,7 +27,7 @@ export function RecordPicker({ value, onChange, required = false }: RecordPicker
   const typeLabel = useSearchRecordTypeLabel()
   const inputId = useId()
   const [query, setQuery] = useState('')
-  const search = useGlobalSearch({ q: value ? '' : query, types: [...CHECK_IN_RECORD_TYPES], limit: PICKER_LIMIT })
+  const search = useGlobalSearch({ q: value ? '' : query, types: checkInRecordTypes(), limit: PICKER_LIMIT })
   const hits = (search.data?.groups ?? []).flatMap((group) => group.items)
   const searching = !value && query.trim().length >= SEARCH_MIN_LENGTH
 

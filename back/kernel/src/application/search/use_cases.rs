@@ -7,7 +7,7 @@ use uuid::Uuid;
 
 use crate::application::access::Authorizer;
 use crate::application::fields::{
-    CustomFieldValueRepository, FieldDefinitionRepository, FieldSet, RecordTypeDefinition,
+    CustomFieldValueRepository, EntityDefinition, FieldDefinitionRepository, FieldSet,
 };
 use crate::application::organization_admin::ListWindow;
 use crate::application::query::{
@@ -128,7 +128,7 @@ where
         }
         let requested = self.requested_types(request.types.as_deref())?;
         let ordered_by_request = requested.is_some();
-        let definitions: Vec<&RecordTypeDefinition> = match requested {
+        let definitions: Vec<&EntityDefinition> = match requested {
             Some(types) => types
                 .iter()
                 .filter_map(|record_type| self.ports.registry().get(record_type))
@@ -191,7 +191,7 @@ where
     async fn search_type(
         &self,
         scope: &AccessScope,
-        definition: &RecordTypeDefinition,
+        definition: &EntityDefinition,
         visibility: &RecordScopeFilter,
         terms: &[String],
         limit: u32,
@@ -249,7 +249,7 @@ where
     async fn revalidate(
         &self,
         scope: &AccessScope,
-        definition: &RecordTypeDefinition,
+        definition: &EntityDefinition,
         visibility: &RecordScopeFilter,
         candidates: &[IndexCandidate],
     ) -> Result<(HashSet<Uuid>, u64), AppError> {
@@ -284,7 +284,7 @@ where
 
     async fn hits(
         &self,
-        definition: &RecordTypeDefinition,
+        definition: &EntityDefinition,
         fields: &FieldSet,
         visible_keys: &[String],
         page: Vec<IndexCandidate>,
@@ -352,7 +352,7 @@ where
             .collect())
     }
 
-    async fn type_index(&self, definition: &RecordTypeDefinition) -> Result<TypeIndex, AppError> {
+    async fn type_index(&self, definition: &EntityDefinition) -> Result<TypeIndex, AppError> {
         let fields = FieldSet::new(
             definition,
             self.ports
@@ -402,7 +402,7 @@ where
 
     async fn apply_rows(
         &self,
-        definition: &RecordTypeDefinition,
+        definition: &EntityDefinition,
         index: &TypeIndex,
         rows: Vec<crate::application::search::document::SourceRow>,
     ) -> Result<ReindexSummary, AppError> {

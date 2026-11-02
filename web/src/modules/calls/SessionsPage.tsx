@@ -23,7 +23,7 @@ import { callSessionPath } from './constants'
 import { callErrorKey } from './lib/errors'
 import { Field } from '@/components/ui/field'
 
-const CONTACT = 'contact'
+const CONTACT = 'contacts.contact'
 
 export function SessionsPage() {
   const { hasPermission } = useSession()

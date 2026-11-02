@@ -43,7 +43,7 @@ export function InboxItemRow({
   const deal = item.linked_deal
   const dealHref = deal ? getRecordResource('deal')?.detailPath?.(deal.deal_id) : undefined
   const amount = showAmounts && deal?.amount ? formatCurrency(deal.amount, formatting, deal.currency) : ''
-  const showDealSeparately = deal && !(item.record?.record_type === 'deal' && item.record.record_id === deal.deal_id)
+  const showDealSeparately = deal && !(item.record?.record_type === 'deals.deal' && item.record.record_id === deal.deal_id)
 
   return (
     <li

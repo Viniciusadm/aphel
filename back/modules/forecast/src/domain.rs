@@ -18,7 +18,7 @@ pub(crate) const DEFAULT_COMMIT_MIN_PROBABILITY: u8 = 90;
 
 pub(crate) const FORECAST_SETTINGS_UPDATED: &str = "forecast_settings.updated";
 pub(crate) const FORECAST_SETTINGS_RECORD_TYPE: RecordType =
-    RecordType::from_static("forecast_settings");
+    RecordType::from_static("forecast.forecast_settings");
 pub(crate) const MONTH_FORMAT: &str = "%Y-%m";
 pub(crate) const DATE_FORMAT: &str = "%Y-%m-%d";
 

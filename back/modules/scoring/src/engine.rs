@@ -16,21 +16,27 @@ use aphel_kernel::application::shared::{
 };
 use aphel_kernel::database::transaction::MySqlTx;
 use aphel_kernel::domain::access::AccessScope;
-use aphel_kernel::domain::custom_objects::CUSTOM_OBJECT_PREFIX;
+
 use aphel_kernel::errors::AppError;
 
 pub(crate) const SCORING_BATCH: usize = 100;
-pub(crate) const SCORED_RECORD_TYPES: [&str; 3] = ["contact", "company", "deal"];
 const LIFECYCLE_ACTIONS: [&str; 5] = ["created", "updated", "restored", "deleted", "purged"];
 const COMPANY_FIELD: &str = "company_id";
 
 pub(crate) fn is_scored_record_type(record_type: &str) -> bool {
-    SCORED_RECORD_TYPES.contains(&record_type) || record_type.starts_with(CUSTOM_OBJECT_PREFIX)
+    aphel_kernel::modules::app()
+        .record_types()
+        .require(record_type)
+        .is_ok_and(|definition| {
+            definition.capabilities.has_trait("scoring.subject") || definition.is_custom()
+        })
 }
 
 pub(crate) fn is_lifecycle_event(event_type: &str) -> bool {
-    event_type.split_once('.').is_some_and(|(prefix, action)| {
-        LIFECYCLE_ACTIONS.contains(&action) && is_scored_record_type(prefix)
+    event_type.rsplit_once('.').is_some_and(|(prefix, action)| {
+        LIFECYCLE_ACTIONS.contains(&action)
+            && aphel_kernel::application::shared::RecordType::parse(prefix)
+                .is_ok_and(|key| is_scored_record_type(key.as_str()))
     })
 }
 
@@ -109,8 +115,10 @@ impl<'a> ScoringEngine<'a> {
             && is_lifecycle_event(&event.event_type)
             && event
                 .event_type
-                .split_once('.')
-                .is_some_and(|(prefix, _)| prefix == record.record_type.as_str())
+                .rsplit_once('.')
+                .is_some_and(|(prefix, _)| {
+                    RecordType::parse(prefix).is_ok_and(|key| key == record.record_type)
+                })
         {
             let purged = event.event_type.ends_with(".purged");
             let deleted = purged || event.event_type.ends_with(".deleted");

@@ -14,7 +14,7 @@ fn timestamp(value: DateTime<Utc>) -> String {
 #[derive(Debug, Default, Deserialize, IntoParams)]
 #[into_params(parameter_in = Query)]
 pub(crate) struct SegmentListParams {
-    #[param(example = "contact")]
+    #[param(example = "contacts.contact")]
     pub(crate) record_type: Option<String>,
     pub(crate) counts: Option<bool>,
 }
@@ -22,7 +22,7 @@ pub(crate) struct SegmentListParams {
 #[derive(Debug, Deserialize, ToSchema)]
 #[serde(deny_unknown_fields)]
 pub(crate) struct CreateSegmentRequest {
-    #[schema(example = "contact")]
+    #[schema(example = "contacts.contact")]
     pub(crate) record_type: String,
     #[schema(example = "Hot leads in São Paulo")]
     pub(crate) name: String,
@@ -73,7 +73,7 @@ impl UpdateSegmentRequest {
 #[derive(Debug, Serialize, ToSchema)]
 pub(crate) struct SegmentResponse {
     pub(crate) id: String,
-    #[schema(example = "contact")]
+    #[schema(example = "contacts.contact")]
     pub(crate) record_type: String,
     pub(crate) name: String,
     pub(crate) description: Option<String>,

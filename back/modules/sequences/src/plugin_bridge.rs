@@ -35,9 +35,13 @@ pub(crate) async fn step_running(
     ctx: &mut HookCtx<'_>,
     step: &RunningStep,
 ) -> Result<(), AppError> {
-    forward_plugin_hook(ctx, STEP_RUNNING, "contact", step.contact_id, || {
-        step_json(step)
-    })
+    forward_plugin_hook(
+        ctx,
+        STEP_RUNNING,
+        "contacts.contact",
+        step.contact_id,
+        || step_json(step),
+    )
     .await
     .map(drop)
 }
@@ -45,7 +49,7 @@ pub(crate) async fn step_running(
 pub(crate) fn hooks() -> Vec<Arc<PluginHook>> {
     vec![Arc::new(PluginHook::new(
         STEP_RUNNING,
-        "contact",
+        "contacts.contact",
         PluginHookKind::Veto,
         "Before a sequence step runs for an enrolled contact; values: { enrollment_id, sequence_id, contact_id, enrolled_by, position, kind, template_id }. A definitive error removes the contact from the sequence, a transient one retries the step",
     ))]

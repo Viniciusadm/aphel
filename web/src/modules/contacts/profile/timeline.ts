@@ -3,7 +3,7 @@ import { api } from '@/api'
 import { recordTimelineSource } from '@/modules/timeline'
 import type { TimelineFetchPage, TimelinePage, TimelineSource } from '@/features/records/timeline'
 
-export type ProfileRecordType = 'contact' | 'company'
+export type ProfileRecordType = 'contacts.contact' | 'companies.company'
 
 export function timelineFetchPage(recordType: ProfileRecordType, recordId: string): TimelineFetchPage {
   return ({ cursor, kinds }) =>

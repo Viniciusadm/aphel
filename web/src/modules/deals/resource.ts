@@ -1,7 +1,8 @@
+import { Briefcase } from 'lucide-react'
 import { dealsKeys } from './api'
 import { registerRecordResource } from '@/features/records/resources'
 
-export const DEAL_RECORD_TYPE = 'deal'
+export const DEAL_RECORD_TYPE = 'deals.deal'
 export const DEALS_PATH = '/deals'
 
 export function dealPath(id: string) {
@@ -9,6 +10,9 @@ export function dealPath(id: string) {
 }
 
 export const dealResource = registerRecordResource({
+  relatable: true,
+  icon: Briefcase,
+  checkIn: true,
   recordType: DEAL_RECORD_TYPE,
   createPermission: 'deals.create',
   updatePermission: 'deals.update',

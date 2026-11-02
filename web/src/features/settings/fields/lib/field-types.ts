@@ -20,11 +20,11 @@ export const FIELD_TYPES = [
   'formula',
 ] as const satisfies readonly FieldType[]
 
-export const RECORD_TYPES = ['contact', 'company', 'deal', 'activity', 'product'] as const
+export const RECORD_TYPES = ['contacts.contact', 'companies.company', 'deals.deal', 'activities.activity', 'products.product'] as const
 
 export type KnownRecordType = (typeof RECORD_TYPES)[number]
 
-export const DEFAULT_RECORD_TYPE: KnownRecordType = 'contact'
+export const DEFAULT_RECORD_TYPE: KnownRecordType = 'contacts.contact'
 
 export const LABEL_MAX_LENGTH = 140
 export const KEY_MAX_LENGTH = 64

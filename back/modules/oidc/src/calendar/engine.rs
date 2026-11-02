@@ -39,7 +39,7 @@ pub(crate) const MAX_DESCRIPTION: usize = 5000;
 pub(crate) const MAX_REMOTE_ID: usize = 255;
 pub(crate) const PUSH_DELAY_SECONDS: i64 = 15;
 
-const CONTACT: &str = "contact";
+const CONTACT: &str = "contacts.contact";
 const MAX_ACTIVITY_TYPES: u64 = 1000;
 
 pub(crate) fn refresh_token_name(user_id: Uuid) -> String {

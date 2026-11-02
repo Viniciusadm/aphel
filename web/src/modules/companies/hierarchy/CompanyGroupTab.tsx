@@ -22,7 +22,7 @@ export interface CompanyGroupTabProps {
 
 type PickerMode = 'parent' | 'subsidiary'
 
-const COMPANY_RECORD_TYPE = 'company'
+const COMPANY_RECORD_TYPE = 'companies.company'
 
 function count(value: number | null | undefined, formatting: RecordFormatting): string {
   return value == null ? '—' : formatNumber(value, formatting)

@@ -408,7 +408,7 @@ pub(crate) struct CreateAutomationRequest {
     #[schema(example = "Follow up on sent proposal")]
     pub(crate) name: String,
     pub(crate) description: Option<String>,
-    #[schema(example = "deal")]
+    #[schema(example = "deals.deal")]
     pub(crate) record_type: String,
     #[schema(value_type = TriggerSchema)]
     pub(crate) trigger: Value,
@@ -733,15 +733,12 @@ impl From<DryRunResult> for DryRunResponse {
     }
 }
 
-const CATALOG_RECORD_TYPES: [&str; 4] = ["contact", "company", "deal", "activity"];
-const CUSTOM_SAMPLE: &str = "co_sample";
-
 #[derive(Debug, Serialize, ToSchema)]
 pub(crate) struct TriggerCatalogEntry {
     pub(crate) key: &'static str,
     pub(crate) label: &'static str,
     pub(crate) description: &'static str,
-    pub(crate) record_types: Vec<&'static str>,
+    pub(crate) record_types: Vec<String>,
     pub(crate) custom_objects: bool,
     pub(crate) manual: bool,
     pub(crate) time_based: bool,
@@ -750,16 +747,20 @@ pub(crate) struct TriggerCatalogEntry {
 }
 
 impl TriggerCatalogEntry {
-    pub(crate) fn from_trigger(trigger: &dyn AutomationTrigger) -> Self {
+    pub(crate) fn from_trigger(trigger: &dyn AutomationTrigger, entities: &[String]) -> Self {
         Self {
             key: trigger.key(),
             label: trigger.label(),
             description: trigger.description(),
-            record_types: CATALOG_RECORD_TYPES
-                .into_iter()
+            record_types: entities
+                .iter()
                 .filter(|record_type| trigger.supports(record_type))
+                .cloned()
                 .collect(),
-            custom_objects: trigger.supports(CUSTOM_SAMPLE),
+            custom_objects: entities.iter().any(|key| {
+                aphel_kernel::domain::custom_objects::is_custom_record_type(key)
+                    && trigger.supports(key)
+            }),
             manual: trigger.is_manual(),
             time_based: trigger.is_time_based(),
             options_schema: trigger.options_schema(),
@@ -772,7 +773,7 @@ pub(crate) struct ActionCatalogEntry {
     pub(crate) key: &'static str,
     pub(crate) label: &'static str,
     pub(crate) description: &'static str,
-    pub(crate) record_types: Vec<&'static str>,
+    pub(crate) record_types: Vec<String>,
     pub(crate) custom_objects: bool,
     pub(crate) secret_fields: Vec<&'static str>,
     #[schema(value_type = Object)]
@@ -780,16 +781,20 @@ pub(crate) struct ActionCatalogEntry {
 }
 
 impl ActionCatalogEntry {
-    pub(crate) fn from_action(action: &dyn AutomationAction) -> Self {
+    pub(crate) fn from_action(action: &dyn AutomationAction, entities: &[String]) -> Self {
         Self {
             key: action.key(),
             label: action.label(),
             description: action.description(),
-            record_types: CATALOG_RECORD_TYPES
-                .into_iter()
+            record_types: entities
+                .iter()
                 .filter(|record_type| action.supports(record_type))
+                .cloned()
                 .collect(),
-            custom_objects: action.supports(CUSTOM_SAMPLE),
+            custom_objects: entities.iter().any(|key| {
+                aphel_kernel::domain::custom_objects::is_custom_record_type(key)
+                    && action.supports(key)
+            }),
             secret_fields: action.secret_fields().to_vec(),
             config_schema: action.config_schema(),
         }

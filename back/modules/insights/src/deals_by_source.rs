@@ -57,7 +57,7 @@ impl DealsBySourceWidget {
         run(
             context,
             json!({
-                "record_type": "deal",
+                "record_type": "deals.deal",
                 "filter": with_subject(context, conditions)?,
                 "group_by": [{ "field": SOURCE_FIELD }],
                 "metrics": metrics,
@@ -109,7 +109,7 @@ where
         settings: &Value,
     ) -> Result<Value, AppError> {
         let (settings, _) = parse(settings).map_err(invalid_settings)?;
-        let fields = visible_fields(context, "deal").await?;
+        let fields = visible_fields(context, "deals.deal").await?;
         let currency = context.currency().await?;
         if !has_field(&fields, SOURCE_FIELD) {
             return Ok(json!({

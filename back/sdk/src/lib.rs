@@ -54,12 +54,20 @@ pub mod points {
 
 pub mod fields {
     pub use aphel_kernel::application::fields::{
-        EntityTraits, FieldSpec, FieldTypeDefinition, FieldValidator, LocalizedLabels,
-        RecordTypeDefinition, RecordTypeRegistry, SystemField,
+        DeletePolicy, EntityDeclaration, EntityDefinition, EntityIndex, EntityStorage,
+        EntityTraits, ExtensionColumn, FieldDef, FieldSpec, FieldTypeDefinition, FieldValidator,
+        LocalizedLabels, RecordTypeRegistry, ReferenceTarget, SoftReference, SystemField,
+        managed_table,
     };
     pub use aphel_kernel::application::query::FilterOperator;
     pub use aphel_kernel::domain::fields::{
         FieldConfig, FieldDefinition, FieldKey, FieldType, FieldValue, FieldValueError, RawValue,
         ValueColumn, validate_native_value,
+    };
+}
+
+pub mod records {
+    pub use aphel_kernel::records::{
+        EntityWriteBehavior, GenericRecordHandler, PendingCommit, RecordCtx, RecordTypeHandler,
     };
 }

@@ -1,0 +1,36 @@
+{
+  "key": "asset",
+  "label": "Asset",
+  "label_plural": "Assets",
+  "storage": "managed",
+  "owner_enabled": false,
+  "permission_scope": "organization",
+  "fields": [
+    {
+      "key": "name",
+      "label": "Name",
+      "type": "text",
+      "max_length": 140,
+      "required": true,
+      "searchable": true
+    },
+    {
+      "key": "score",
+      "label": "Score",
+      "type": "number",
+      "min": 0,
+      "max": 5,
+      "decimals": 0,
+      "default": 0
+    }
+  ],
+  "indexes": [
+    {
+      "key": "asset_name",
+      "fields": [
+        "name"
+      ],
+      "unique": false
+    }
+  ]
+}

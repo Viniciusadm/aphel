@@ -1,4 +1,4 @@
-use crate::application::fields::RecordTypeDefinition;
+use crate::application::fields::EntityDefinition;
 use crate::application::query::FilterOperator;
 use crate::domain::fields::{FieldDefinition, FieldType};
 
@@ -61,7 +61,7 @@ pub fn supports(field_type: FieldType, operator: FilterOperator) -> bool {
     operators_for(field_type).contains(&operator)
 }
 
-pub fn hierarchical_target(definition: &FieldDefinition) -> Option<RecordTypeDefinition> {
+pub fn hierarchical_target(definition: &FieldDefinition) -> Option<EntityDefinition> {
     if definition.field_type.base_type() != FieldType::Record {
         return None;
     }

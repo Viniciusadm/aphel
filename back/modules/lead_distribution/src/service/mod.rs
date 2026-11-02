@@ -35,7 +35,8 @@ pub(crate) const RULE_KEY_TAKEN: &str = "lead_distribution_rule_key_taken";
 pub(crate) const RULE_CREATED: &str = "lead_distribution_rule.created";
 pub(crate) const RULE_UPDATED: &str = "lead_distribution_rule.updated";
 pub(crate) const RULE_DELETED: &str = "lead_distribution_rule.deleted";
-pub(crate) const RULE_RECORD_TYPE: RecordType = RecordType::from_static("lead_distribution_rule");
+pub(crate) const RULE_RECORD_TYPE: RecordType =
+    RecordType::from_static("lead_distribution.lead_distribution_rule");
 pub(crate) const MAX_NAME_LENGTH: usize = 140;
 pub(crate) const MAX_DESCRIPTION_LENGTH: usize = 2000;
 pub(crate) const DEFAULT_SIMULATION: usize = 10;
@@ -110,7 +111,10 @@ fn allows(scope: &AccessScope, permission: &Permission) -> bool {
 }
 
 fn is_distributable(record_type: &str) -> bool {
-    matches!(record_type, "contact" | "company" | "deal") || is_custom_record_type(record_type)
+    matches!(
+        record_type,
+        "contacts.contact" | "companies.company" | "deals.deal"
+    ) || is_custom_record_type(record_type)
 }
 
 fn snapshot(rule: &DistributionRule) -> Value {

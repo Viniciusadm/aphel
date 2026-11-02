@@ -25,9 +25,23 @@ pub struct SystemFieldOption {
     pub color: Option<String>,
 }
 
+#[derive(Debug, Clone, PartialEq, Eq)]
+pub struct ExtensionColumn {
+    pub table: String,
+    pub record_column: String,
+}
+
+impl ExtensionColumn {
+    pub fn alias(&self) -> String {
+        format!("ext_{}", self.table)
+    }
+}
+
 #[derive(Debug, Clone, PartialEq)]
 pub struct SystemField {
     pub key: FieldKey,
+    pub writable: bool,
+    pub extension: Option<ExtensionColumn>,
     pub label: String,
     pub labels: super::LocalizedLabels,
     pub field_type: FieldType,
@@ -57,6 +71,8 @@ impl SystemField {
                 AppError::Configuration(format!("invalid system field key {key:?}"))
             })?,
             label: labels.default_text().to_owned(),
+            writable: true,
+            extension: None,
             labels,
             field_type,
             column: column.into(),
@@ -71,6 +87,11 @@ impl SystemField {
             computed: None,
             contributed_by: None,
         })
+    }
+
+    pub fn read_only(mut self) -> Self {
+        self.writable = false;
+        self
     }
 
     pub fn computed(mut self, computed: ComputedColumn) -> Self {
@@ -409,7 +430,13 @@ impl RecordHierarchy {
 }
 
 #[derive(Debug, Clone, PartialEq)]
-pub struct RecordTypeDefinition {
+pub struct EntityDefinition {
+    pub key: String,
+    pub event_prefix: String,
+    pub storage: super::EntityStorage,
+    pub generic_writes: bool,
+    pub indexes: Vec<super::EntityIndex>,
+    pub references: Vec<super::SoftReference>,
     pub record_type: RecordType,
     pub table: String,
     pub owner_column: Option<String>,
@@ -417,6 +444,8 @@ pub struct RecordTypeDefinition {
     pub deleted_column: Option<String>,
     pub archived_column: Option<String>,
     pub read_permission: Permission,
+    pub create_permission: Option<Permission>,
+    pub delete_permission: Option<Permission>,
     pub update_permission: Option<Permission>,
     pub system_fields: Vec<SystemField>,
     pub relations: Vec<RecordRelation>,
@@ -430,13 +459,19 @@ pub struct RecordTypeDefinition {
     pub handler: Option<RecordHandler>,
 }
 
-impl RecordTypeDefinition {
+impl EntityDefinition {
     pub fn new(
         record_type: RecordType,
         table: impl Into<String>,
         read_permission: Permission,
     ) -> Self {
         Self {
+            key: record_type.as_str().to_owned(),
+            event_prefix: record_type.as_str().to_owned(),
+            storage: super::EntityStorage::Table,
+            generic_writes: false,
+            indexes: Vec::new(),
+            references: Vec::new(),
             record_type,
             table: table.into(),
             owner_column: None,
@@ -444,6 +479,8 @@ impl RecordTypeDefinition {
             deleted_column: None,
             archived_column: None,
             read_permission,
+            create_permission: None,
+            delete_permission: None,
             update_permission: None,
             system_fields: Vec::new(),
             relations: Vec::new(),
@@ -456,6 +493,40 @@ impl RecordTypeDefinition {
             managed_fields: Vec::new(),
             handler: None,
         }
+    }
+
+    pub fn events(mut self, prefix: &str) -> Self {
+        self.event_prefix = prefix.to_owned();
+        self
+    }
+
+    pub fn reference(mut self, reference: super::SoftReference) -> Self {
+        self.references.push(reference);
+        self
+    }
+
+    pub fn generic_mutations(mut self, create: Permission, delete: Permission) -> Self {
+        self.generic_writes = true;
+        self.create_permission = Some(create);
+        self.delete_permission = Some(delete);
+        self
+    }
+
+    pub fn managed(mut self, key: &str) -> Self {
+        self.key = key.to_owned();
+        self.storage = super::EntityStorage::Managed;
+        self.generic_writes = true;
+        self.table = super::managed_table(key);
+        self
+    }
+
+    pub fn index(mut self, key: &str, fields: &[&str], unique: bool) -> Self {
+        self.indexes.push(super::EntityIndex {
+            key: key.to_owned(),
+            fields: fields.iter().map(|field| (*field).to_owned()).collect(),
+            unique,
+        });
+        self
     }
 
     pub fn with_trait<T: serde::Serialize>(mut self, key: &str, data: T) -> Self {
@@ -601,6 +672,55 @@ impl RecordTypeDefinition {
                 self.record_type
             ))
         };
+        RecordType::parse(self.key.clone()).map_err(|_| invalid("entity key", &self.key))?;
+        for field in &self.system_fields {
+            if let Some(extension) = &field.extension {
+                if !is_sql_identifier(&extension.table)
+                    || extension.table.len() > 58
+                    || !is_sql_identifier(&extension.record_column)
+                    || field.column == extension.record_column
+                    || field.required
+                {
+                    return Err(invalid("extension column", field.key.as_str()));
+                }
+                if self
+                    .system_fields
+                    .iter()
+                    .any(|other| other.extension.is_none() && other.column == field.column)
+                {
+                    return Err(invalid("shadowed extension column", &field.column));
+                }
+            }
+        }
+        let mut reference_fields = std::collections::BTreeSet::new();
+        for reference in &self.references {
+            if !reference_fields.insert(&reference.field) || !is_identifier(&reference.field, 64) {
+                return Err(invalid("reference field", &reference.field));
+            }
+            if self.storage != super::EntityStorage::Dynamic
+                && self.system_field_by_key(&reference.field).is_none()
+            {
+                return Err(invalid("unknown reference field", &reference.field));
+            }
+            if reference.on_delete == super::DeletePolicy::Clear
+                && self
+                    .system_field_by_key(&reference.field)
+                    .is_some_and(|field| field.required || !field.writable)
+            {
+                return Err(invalid("reference clear policy", &reference.field));
+            }
+            if let super::ReferenceTarget::Trait {
+                trait_key,
+                type_field,
+            } = &reference.target
+                && (!aphel_contract::is_valid_key(trait_key)
+                    || !is_identifier(type_field, 64)
+                    || (self.storage != super::EntityStorage::Dynamic
+                        && self.system_field_by_key(type_field).is_none()))
+            {
+                return Err(invalid("reference trait target", trait_key));
+            }
+        }
         let identifiers = std::iter::once(("table", self.table.as_str()))
             .chain(
                 self.owner_column
@@ -681,7 +801,9 @@ impl RecordTypeDefinition {
             if !keys.insert(field.key.as_str()) {
                 return Err(invalid("duplicated system field", field.key.as_str()));
             }
-            if field.field_type.base_type() == FieldType::MultiSelect {
+            if field.field_type.base_type() == FieldType::MultiSelect
+                && self.storage != super::EntityStorage::Managed
+            {
                 return Err(invalid("multi_select system field", field.key.as_str()));
             }
             if field.is_computed() && (field.searchable || field.required) {
@@ -712,7 +834,7 @@ pub fn is_option_value(value: &str) -> bool {
 
 #[derive(Debug, Clone, PartialEq, Default)]
 pub struct RecordTypeRegistry {
-    types: BTreeMap<RecordType, RecordTypeDefinition>,
+    types: BTreeMap<RecordType, EntityDefinition>,
     custom_schema: std::sync::Arc<CustomSchema>,
     custom_handler: Option<RecordHandlerFactory>,
 }
@@ -731,9 +853,15 @@ impl RecordTypeRegistry {
         self
     }
 
-    pub fn definition_mut(&mut self, record_type: &str) -> Option<&mut RecordTypeDefinition> {
+    pub fn definition_mut(&mut self, record_type: &str) -> Option<&mut EntityDefinition> {
         let record_type = RecordType::parse(record_type).ok()?;
-        self.types.get_mut(&record_type)
+        let key = self
+            .types
+            .values()
+            .find(|definition| definition.key == record_type.as_str())
+            .map(|definition| definition.record_type.clone())
+            .unwrap_or(record_type);
+        self.types.get_mut(&key)
     }
 
     pub fn handler(&self, record_type: &str) -> Result<Arc<dyn RecordTypeHandler>, AppError> {
@@ -741,14 +869,18 @@ impl RecordTypeRegistry {
         if let Some(handler) = &definition.handler {
             return Ok(handler.get().clone());
         }
+        if definition.storage != super::EntityStorage::Dynamic {
+            return Ok(Arc::new(crate::records::GenericRecordHandler::new(
+                definition.record_type.clone(),
+            )));
+        }
         self.custom_handler
             .as_ref()
-            .filter(|_| definition.is_custom())
             .map(|factory| factory.handler(&definition.record_type).get().clone())
-            .ok_or_else(|| operation_not_supported(record_type, "generic writes"))
+            .ok_or_else(|| operation_not_supported(record_type, "dynamic writes"))
     }
 
-    pub fn with_trait(&self, key: &str) -> impl Iterator<Item = &RecordTypeDefinition> {
+    pub fn with_trait(&self, key: &str) -> impl Iterator<Item = &EntityDefinition> {
         self.types
             .values()
             .filter(move |definition| definition.capabilities.has_trait(key))
@@ -757,13 +889,18 @@ impl RecordTypeRegistry {
     pub fn capabilities(&self, record_type: &str) -> Option<&EntityTraits> {
         RecordType::parse(record_type)
             .ok()
-            .and_then(|record_type| self.types.get(&record_type))
+            .and_then(|record_type| self.get(&record_type))
             .map(|definition| &definition.capabilities)
     }
 
-    pub fn register(mut self, definition: RecordTypeDefinition) -> Result<Self, AppError> {
+    pub fn register(mut self, definition: EntityDefinition) -> Result<Self, AppError> {
         definition.validate()?;
-        if self.types.contains_key(&definition.record_type) {
+        if self.types.contains_key(&definition.record_type)
+            || self
+                .types
+                .values()
+                .any(|existing| existing.key == definition.key)
+        {
             return Err(AppError::Configuration(format!(
                 "record type {} is already registered",
                 definition.record_type
@@ -776,8 +913,18 @@ impl RecordTypeRegistry {
 
     pub fn validate_relations(self) -> Result<Self, AppError> {
         for definition in self.types.values() {
+            for reference in &definition.references {
+                if let super::ReferenceTarget::Entity { entity } = &reference.target {
+                    self.require(entity).map_err(|_| {
+                        AppError::Configuration(format!(
+                            "entity {} references unknown entity {entity}",
+                            definition.key
+                        ))
+                    })?;
+                }
+            }
             for relation in &definition.relations {
-                if !self.types.contains_key(&relation.target) {
+                if self.get(&relation.target).is_none() {
                     return Err(AppError::Configuration(format!(
                         "record type {}: relation {} targets unknown record type {}",
                         definition.record_type, relation.key, relation.target
@@ -812,14 +959,18 @@ impl RecordTypeRegistry {
         Ok(())
     }
 
-    pub fn get(&self, record_type: &RecordType) -> Option<&RecordTypeDefinition> {
-        self.types.get(record_type)
+    pub fn get(&self, record_type: &RecordType) -> Option<&EntityDefinition> {
+        self.types.get(record_type).or_else(|| {
+            self.types
+                .values()
+                .find(|definition| definition.key == record_type.as_str())
+        })
     }
 
-    pub fn require(&self, record_type: &str) -> Result<&RecordTypeDefinition, AppError> {
+    pub fn require(&self, record_type: &str) -> Result<&EntityDefinition, AppError> {
         RecordType::parse(record_type)
             .ok()
-            .and_then(|record_type| self.types.get(&record_type))
+            .and_then(|record_type| self.get(&record_type))
             .ok_or_else(|| {
                 AppError::not_found_code(
                     RECORD_TYPE_NOT_FOUND,
@@ -837,7 +988,7 @@ impl RecordTypeRegistry {
         &self.custom_schema
     }
 
-    pub fn definitions(&self) -> impl Iterator<Item = &RecordTypeDefinition> {
+    pub fn definitions(&self) -> impl Iterator<Item = &EntityDefinition> {
         self.types.values()
     }
 }

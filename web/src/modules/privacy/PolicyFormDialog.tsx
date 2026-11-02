@@ -40,7 +40,7 @@ export function PolicyFormDialog({ policy, onClose }: PolicyFormDialogProps) {
   const [action, setAction] = useState<RetentionAction>(
     policy && isRetentionAction(policy.action) ? policy.action : 'archive_inactive',
   )
-  const [recordType, setRecordType] = useState(policy?.record_type ?? 'contact')
+  const [recordType, setRecordType] = useState(policy?.record_type ?? 'contacts.contact')
   const customObjects = useCustomObjectsAdmin()
   const recordTypeOptions = [
     ...RETENTION_RECORD_TYPES.map((value) => ({ value: value as string, label: t(`recordTypesPlural.${value}`) })),

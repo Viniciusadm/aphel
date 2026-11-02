@@ -4,7 +4,7 @@ use async_trait::async_trait;
 use sqlx::{MySql, MySqlPool, QueryBuilder, Row};
 use uuid::Uuid;
 
-use crate::application::fields::RecordTypeDefinition;
+use crate::application::fields::EntityDefinition;
 use crate::application::record_sharing::{RecordDirectory, RecordHeader};
 use crate::domain::UserId;
 use crate::domain::access::{AccessScope, RecordScopeFilter};
@@ -23,7 +23,7 @@ impl MySqlRecordDirectory {
     }
 }
 
-fn select(definition: &RecordTypeDefinition) -> QueryBuilder<MySql> {
+fn select(definition: &EntityDefinition) -> QueryBuilder<MySql> {
     let owner = definition.owner_column.as_deref().map_or_else(
         || "NULL".to_owned(),
         |column| format!("r.{}", quoted(column)),
@@ -54,7 +54,7 @@ impl RecordDirectory for MySqlRecordDirectory {
     async fn header(
         &self,
         scope: &AccessScope,
-        definition: &RecordTypeDefinition,
+        definition: &EntityDefinition,
         visibility: &RecordScopeFilter,
         record_id: Uuid,
     ) -> Result<Option<RecordHeader>, AppError> {
@@ -81,7 +81,7 @@ impl RecordDirectory for MySqlRecordDirectory {
     async fn visible_titles(
         &self,
         scope: &AccessScope,
-        definition: &RecordTypeDefinition,
+        definition: &EntityDefinition,
         visibility: &RecordScopeFilter,
         record_ids: &[Uuid],
     ) -> Result<HashMap<Uuid, Option<String>>, AppError> {

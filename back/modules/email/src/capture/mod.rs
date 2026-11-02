@@ -12,7 +12,7 @@ pub(crate) const EMAIL_BLOCKLIST_ADDED: &str = "email_blocklist.added";
 pub(crate) const EMAIL_BLOCKLIST_REMOVED: &str = "email_blocklist.removed";
 pub(crate) const EMAIL_BLOCK_NOT_FOUND: &str = "email_block_not_found";
 pub(crate) const EMAIL_BLOCK_EXISTS: &str = "email_block_exists";
-pub(crate) const EMAIL_BLOCK_RECORD_TYPE: RecordType = RecordType::from_static("email_block");
+pub(crate) const EMAIL_BLOCK_RECORD_TYPE: RecordType = RecordType::from_static("email.email_block");
 pub(crate) const MAX_BLOCK_REASON_LENGTH: usize = 500;
 
 pub(crate) const PERSONAL_DOMAINS: &[&str] = &[

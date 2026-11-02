@@ -84,7 +84,7 @@ pub(crate) fn enrollment_payload(enrollment: &EnrollmentView) -> Value {
         "status": enrollment.status.as_str(),
         "position": enrollment.current_position,
         "exit_reason": enrollment.exit_reason.map(|reason| reason.as_str()),
-        "records": [{ "record_type": "contact", "record_id": enrollment.contact_id }],
+        "records": [{ "record_type": "contacts.contact", "record_id": enrollment.contact_id }],
     })
 }
 

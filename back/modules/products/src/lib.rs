@@ -9,7 +9,7 @@ use std::sync::Arc;
 use aphel_kernel::modules::Migration;
 
 use aphel_kernel::application::fields::builtin::field;
-use aphel_kernel::application::fields::{EntityTraits, LabelNormalization, RecordTypeDefinition};
+use aphel_kernel::application::fields::{EntityDefinition, EntityTraits, LabelNormalization};
 use aphel_kernel::application::public_events::{
     PreviousValues, PublicEventDefinition, PublicResource, changed, deleted, event,
 };
@@ -24,7 +24,8 @@ pub const KEY: &str = "products";
 
 pub(crate) const PRODUCTS_EXPORT: Permission = Permission::from_static("products.export");
 
-pub const PRODUCT_RESOURCE: PublicResource = PublicResource::new("product", "ProductResponse");
+pub const PRODUCT_RESOURCE: PublicResource =
+    PublicResource::new("products.product", "ProductResponse");
 
 const PRODUCT_BULK_FIELDS: &[&str] = &["price", "unit", "recurrence", "term_months", "description"];
 
@@ -47,9 +48,9 @@ const PUBLIC_EVENTS: &[PublicEventDefinition] = &[
     ),
 ];
 
-pub(crate) fn product_definition() -> Result<RecordTypeDefinition, AppError> {
+pub(crate) fn product_definition() -> Result<EntityDefinition, AppError> {
     Ok(
-        RecordTypeDefinition::new(RecordType::PRODUCT, "products", Permission::PRODUCTS_READ)
+        EntityDefinition::new(RecordType::PRODUCT, "products", Permission::PRODUCTS_READ)
             .capabilities(
                 EntityTraits::default()
                     .relatable()
@@ -134,6 +135,9 @@ impl Module for ProductsModule {
     }
 
     fn register(&self, app: &mut AppBuilder) -> Result<(), AppError> {
+        app.contribute(std::sync::Arc::new(
+            aphel_kernel::application::fields::EntityKeyAliases(&[("product", "products.product")]),
+        ));
         app.entity(product_definition()?.handler(Arc::new(http::ProductHandler)))
             .openapi_tag(http::TAG, "Catalog of products and services")
             .routes(|_| http::router());

@@ -76,15 +76,22 @@ impl Module for LeadsModule {
             .depends_on(contacts::KEY, "*")
             .enabled_by_default()
             .depends_on(companies::KEY, "*")
-            .owned_tables(&["lead_disqualification_reasons", "lead_disqualifications", "lifecycle_settings", "lifecycle_stage_history"])
+            .owned_tables(&["lead_disqualification_reasons", "lead_disqualifications", "lifecycle_settings", "lifecycle_stage_history", "leads_contact_extension", "leads_company_extension"])
             .migration(Migration::new(
                 1,
                 "create leads",
                 include_str!("../migrations/0001_create_leads.sql"),
-            ))
+            ).replaces("df0a8bc948b3ee5324b8b4cc76d75e69d96c475e4dd01ece3c879ff4265cded9"))
+            .migration(Migration::new(2, "move lifecycle extensions", include_str!("../migrations/0002_move_lifecycle_extensions.sql")))
     }
 
     fn register(&self, app: &mut AppBuilder) -> Result<(), AppError> {
+        app.contribute(std::sync::Arc::new(
+            aphel_kernel::application::fields::EntityKeyAliases(&[(
+                "lead_disqualification_reason",
+                "leads.lead_disqualification_reason",
+            )]),
+        ));
         app.declare_hook(
             crate::hooks::LeadQualifying,
             &[aphel_kernel::modules::HookUsage::Veto],
@@ -136,11 +143,11 @@ impl Module for LeadsModule {
             Box::pin(store::seed_disqualification_reasons(connection))
         })));
         let stage = lifecycle_stage_field()?;
-        app.extend("contact", |contact| {
-            contact.system_field(stage.clone());
+        app.extend("contacts.contact", |contact| {
+            contact.side_table("leads_contact_extension", "record_id").system_field(stage.clone());
         })
-        .extend("company", |company| {
-            company.system_field(stage.clone());
+        .extend("companies.company", |company| {
+            company.side_table("leads_company_extension", "record_id").system_field(stage.clone());
         })
         .on(RecordValidating, LIFECYCLE_STAGE_PRIORITY, |ctx, args| {
             Box::pin(hooks::validate_stage(ctx, args))

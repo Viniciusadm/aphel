@@ -4,7 +4,22 @@
     "company": "companies",
     "deal": "deals",
     "activity": "activities",
-    "product": "products"
+    "product": "products",
+    "contacts": {
+      "contact": "contacts"
+    },
+    "companies": {
+      "company": "companies"
+    },
+    "deals": {
+      "deal": "deals"
+    },
+    "activities": {
+      "activity": "activities"
+    },
+    "products": {
+      "product": "products"
+    }
   },
   "action": "Export",
   "title": "Export {{recordType}}",

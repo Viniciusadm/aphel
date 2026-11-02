@@ -1,6 +1,6 @@
 # Automation engine
 
-Automations run **trigger → conditions/branches → actions** flows on any automatable record type (`contact`, `company`, `deal`, `activity` and `co_<key>` custom objects), without code. The engine runs in the worker, driven by the domain events in the outbox, keeps the history of every run and protects itself against cycles and duplicates. The visual interface belongs to session 18; everything here is usable through the API (`/api/v1/automations`).
+Automations run **trigger → conditions/branches → actions** flows on any automatable record type (`contact`, `company`, `deal`, `activity` and `custom.<key>` custom objects), without code. The engine runs in the worker, driven by the domain events in the outbox, keeps the history of every run and protects itself against cycles and duplicates. The visual interface belongs to session 18; everything here is usable through the API (`/api/v1/automations`).
 
 ## Pieces
 
@@ -113,7 +113,7 @@ The created task is linked to the deal and shows up in its history (`activity.cr
 | `time.record_stale` | all (`same_stage` and `no_activity` only where there is `stage_entered_at`/`last_activity_at`, currently `deal`) | sweep | `mode` (`no_update`, `no_activity`, `same_stage`), `days` (1–3650) |
 | `time.deal_rotting` | `deal` | sweep | none: uses the stage's `rotting_days` ("Deal stuck in stage") |
 | `time.schedule` | all | sweep | `cron` (with seconds, organization time zone, occurrences at least 15 min apart), `filter` (list AST), `segment_id` |
-| `email.received`, `email.sent`, `email.opened`, `email.clicked`, `email.bounced` | `contact`, `company`, `deal`, `co_<key>` | same (one publication per record linked to the conversation) | — |
+| `email.received`, `email.sent`, `email.opened`, `email.clicked`, `email.bounced` | `contact`, `company`, `deal`, `custom.<key>` | same (one publication per record linked to the conversation) | — |
 
 ### Time-based triggers
 
@@ -179,7 +179,7 @@ The engine uses the `Clock` contract (`kernel/application/security`, the same on
 | `send_email` (`recipients`, `subject`, `body`) | all | — | no |
 | `call_webhook` (`url`, `body`, `signing_secret`, `retry_safe`) | all | `settings.manage` | only with `retry_safe: true` |
 | `create_related_record` (`record_type`, `values`, `relationship`) | all | `<target>.create` (+ `<type>.update` to link) | no |
-| `send_owner_email` (`to`: an email field of the record or addresses, default `email`; `template_id` or `subject` + `body`; `tracking`) | `contact`, `company`, `deal`, `co_<key>` | `emails.send` and `<type>.read` | no |
+| `send_owner_email` (`to`: an email field of the record or addresses, default `email`; `template_id` or `subject` + `body`; `tracking`) | `contact`, `company`, `deal`, `custom.<key>` | `emails.send` and `<type>.read` | no |
 
 Users (`assignee`, `owner`, `recipients[]`) are `{ "type": "record_owner" }`, `{ "type": "user", "user_id" }` or `{ "type": "field", "field": "<user field>" }`. Actions go through the modules' use cases, so validation, field permissions, stage requirements, events, audit, notifications, search and outgoing webhooks work as they do for a change made through the interface.
 
@@ -244,7 +244,7 @@ Implement `AutomationTrigger` (kernel contract) and register it in the owning mo
 
 Time-based triggers do not listen to events (`listens_to` false); the sweep logic lives in `modules/automations/time/sweep.rs` and each one's plan in `kernel/application/automations/time/triggers.rs` (`parse_plan`).
 
-A new module gets the generic triggers automatically if it publishes `<type>.created|updated|deleted` with `record` and, on updates, `changes: [{ field, old, new }]`, and if the type is automatable: the owner declares `EntityTraits::automatable()` in the type definition (`is_automatable` reads the capability from the `App` registry; `co_*` custom objects are always automatable).
+A new module gets the generic triggers automatically if it publishes `<type>.created|updated|deleted` with `record` and, on updates, `changes: [{ field, old, new }]`, and if the type is automatable: the owner declares `EntityTraits::automatable()` in the type definition (`is_automatable` reads the capability from the `App` registry; `custom.*` custom objects are always automatable).
 
 The `create_task` action uses the `TaskOperations` service (`kernel/application/automations/operations.rs`), provided by the `activities` module (`modules/activities/operations.rs`), which resolves the default activity type and creates the activity through the module's use case. Without the module, the action fails with "tasks are not available in this installation". In templates (`{{record.<key>}}`), besides the type's active fields, `id`, `title`, `name`, `custom`, `created_at`, `updated_at` and the embedded `<base>` object of every `<base>_id` field of the type (e.g. `stage`, `owner`, `contact`, `company`) are available.
 
@@ -295,5 +295,5 @@ Segments are not part of packages: `segment` and `in_segment` conditions by key 
 - The development clock offset does not affect relative filters or the queue's `run_at`.
 - `record.updated` on deals fires one run per event: each event carries only its own fields (with no repetition between `deal.updated`, `deal.stage_changed`, `deal.pipeline_changed`, `deal.amount_changed`, `deal.owner_changed` and `deal.expected_close_date_changed`), so an automation filtered by `fields` fires once per change, but one without `fields` runs once per event when the same edit changes fields from different events (for example title and amount).
 - Updating activity fields through automations is not supported (only creating tasks and notes from them).
-- On custom objects, `create_task` creates the task without a link to the record (activities cannot yet be linked to `co_*`, pending from session 16).
+- On custom objects, `create_task` creates the task without a link to the record (activities cannot yet be linked to `custom.*`, pending from session 16).
 - Fixed users, `incoming_webhook_id` and ids inside filters are not translated to keys in configuration packages.

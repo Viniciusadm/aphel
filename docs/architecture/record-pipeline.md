@@ -83,7 +83,7 @@ Approval still runs before the validation rule (409 before 422).
 
 ## Per-type handlers
 
-`RecordTypeDefinition.handler` holds a `RecordTypeHandler` (`kernel/records/handler.rs`) with `create`, `update`, `delete`, `load`, `archive` and `restore` over `serde_json::Value`. The body has the format of the type's API request (system fields at the top level, `custom_fields` and, for custom objects, `relations`); the response is the record already serialized and filtered by field permissions. The context is `RecordCtx { scope, state }`.
+`EntityDefinition.handler` holds a `RecordTypeHandler` (`kernel/records/handler.rs`) with `create`, `update`, `delete`, `load`, `archive` and `restore` over `serde_json::Value`. The body has the format of the type's API request (system fields at the top level, `custom_fields` and, for custom objects, `relations`); the response is the record already serialized and filtered by field permissions. The context is `RecordCtx { scope, state }`.
 
 - Each owning module has its handler in `http.rs` (`ContactHandler`, `CompanyHandler`, `DealHandler`, `ActivityHandler`, `ProductHandler`, `QuoteHandler`…), calling `service::*` with `Ctx::from_state`; the custom objects one lives in `back/kernel/src/api/records.rs`. Generic helpers: `optional_record` (missing/no access becomes `None`) and `values_request::<Dto>(json)` in `kernel/records/handler.rs`. The contacts handler accepts `name` (split into first and last name) and the deals handler accepts `probability` as text and normalizes `currency`.
 - Custom objects: one generic handler per type (`CustomRecordHandler`), created by the `app.custom_record_handler(..)` factory.
@@ -93,7 +93,7 @@ Who uses it: automations (`HandlerAutomationGateway`), import (`imports::writer:
 
 ## Declared capabilities
 
-What applies only to some types becomes a capability in `RecordTypeDefinition.capabilities` (`EntityTraits`, `kernel/application/fields/capabilities.rs`), instead of a `match` on the type:
+What applies only to some types becomes a capability in `EntityDefinition.capabilities` (`EntityTraits`, `kernel/application/fields/capabilities.rs`), instead of a `match` on the type:
 
 | Capability | Used by |
 | --- | --- |
@@ -112,7 +112,7 @@ What applies only to some types becomes a capability in `RecordTypeDefinition.ca
 
 Besides the capabilities, the definition carries two structural declarations:
 
-- `hierarchy(parent_column)` (`RecordTypeDefinition::hierarchy` or `extend(..).hierarchy(..)`): the type is a tree over its own table. It enables the `in_group` operator on the type's `id` and on `record` fields that point to it (`hierarchical_target`), compiled into `WITH RECURSIVE` over the declared column (`Predicate::InGroup(RecordGroup)`). `companies` declares `parent_company_id`.
+- `hierarchy(parent_column)` (`EntityDefinition::hierarchy` or `extend(..).hierarchy(..)`): the type is a tree over its own table. It enables the `in_group` operator on the type's `id` and on `record` fields that point to it (`hierarchical_target`), compiled into `WITH RECURSIVE` over the declared column (`Predicate::InGroup(RecordGroup)`). `companies` declares `parent_company_id`.
 - `item_table(ItemTable)` (via `extend`): a table of child items that formulas aggregate (`SUM(items.total)`), with the exposed columns. `deal_items` declares `items` on `deal`.
 
 ## Registering and extending types
@@ -150,3 +150,11 @@ A system field declared via `extend(..).system_field(..)` or `.computed(..)` is 
 
 In the contact and company DTOs the values are flattened into the JSON (`#[serde(flatten)] contributed`, `additionalProperties` in the OpenAPI), on read and on write. Content validation belongs to the module that owns the field, via a hook (`RecordValidating`). Computed fields (`computed`) are read-only.
 - `aphel modules doctor` lists, per module, the hooks and the registered or extended types.
+
+## Entity storage and extensions
+
+`EntityDefinition` is shared by native, managed and dynamic storage. `GenericRecordHandler` orchestrates transactional mutations, scope, field permissions, hooks, audit and outbox events; `EntityWriteBehavior` supplies transactional domain writes when an entity needs them. Contacts use that behavior for normalization, duplicates and company links. Their read, delete and archive paths use the generic handler. Native public event prefixes can remain stable through `EntityDefinition::events`.
+
+Persistent extensions declare `RecordTypeExtension::side_table`. The extender owns the table, which uses a 1:1 record key and nullable contributed columns. The query compiler adds automatic joins; snapshots and standalone consumers use correlated expressions. Contributed writes upsert into the extender's table, and purge removes extension rows. `leads` and `lead_pro` demonstrate this without foreign `ALTER TABLE` statements. Lookup entities may declare the `records.global` trait: their read permission is still required, while the records are shared across its owner/team scopes.
+
+Soft references are part of the definition and are checked during validation and restoration. Deletion and purge enforce `restrict`, `clear` or `cascade` in the caller's transaction. Cascaded mutations use the dependent entity's registered handler; after-commit hooks run only after the transaction commits.

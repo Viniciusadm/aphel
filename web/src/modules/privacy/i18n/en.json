@@ -13,12 +13,33 @@
     "contact": "Contact",
     "company": "Company",
     "deal": "Deal",
-    "activity": "Activity"
+    "activity": "Activity",
+    "contacts": {
+      "contact": "Contact"
+    },
+    "companies": {
+      "company": "Company"
+    },
+    "deals": {
+      "deal": "Deal"
+    },
+    "activities": {
+      "activity": "Activity"
+    }
   },
   "recordTypesPlural": {
     "contact": "contacts",
     "company": "companies",
-    "deal": "deals"
+    "deal": "deals",
+    "contacts": {
+      "contact": "contacts"
+    },
+    "companies": {
+      "company": "companies"
+    },
+    "deals": {
+      "deal": "deals"
+    }
   },
   "subjectKinds": {
     "email": "email",

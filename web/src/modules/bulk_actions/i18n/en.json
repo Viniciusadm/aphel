@@ -133,7 +133,19 @@
       "contact": "Contacts",
       "company": "Companies",
       "deal": "Deals",
-      "product": "Products"
+      "product": "Products",
+      "contacts": {
+        "contact": "Contacts"
+      },
+      "companies": {
+        "company": "Companies"
+      },
+      "deals": {
+        "deal": "Deals"
+      },
+      "products": {
+        "product": "Products"
+      }
     },
     "counts": "{{succeeded}} changed, {{issues}} not changed of {{total}}",
     "open": "View report",

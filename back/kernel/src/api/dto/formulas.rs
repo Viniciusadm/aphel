@@ -29,7 +29,7 @@ pub enum FormulaValueKindSchema {
 
 #[derive(Debug, Deserialize, ToSchema)]
 pub struct FormulaPreviewRequest {
-    #[schema(example = "deal")]
+    #[schema(example = "deals.deal")]
     pub record_type: String,
     #[schema(example = "days_until(expected_close_date)")]
     pub expression: String,

@@ -21,6 +21,13 @@ pub async fn run(pool: &MySqlPool, app: &App) -> Result<(), AppError> {
     for entry in app.modules().iter().filter(|entry| entry.is_compatible()) {
         run_module(pool, entry).await?;
     }
+    for definition in app.record_types().definitions().filter(|definition| {
+        definition.storage == crate::application::fields::EntityStorage::Managed
+    }) {
+        crate::infrastructure::fields::ensure_managed_schema(pool, definition).await?;
+    }
+    crate::infrastructure::fields::ensure_extension_schemas(pool, app.record_types()).await?;
+    crate::infrastructure::fields::migrate_entity_keys(pool, app).await?;
     sync_required(pool, app).await
 }
 
@@ -48,7 +55,7 @@ async fn run_module(pool: &MySqlPool, entry: &LoadedModule) -> Result<(), AppErr
             .iter()
             .find(|(version, _)| *version == migration.version)
         {
-            if *stored != sum {
+            if *stored != sum && migration.previous_checksum != Some(stored.as_str()) {
                 return Err(AppError::Configuration(format!(
                     "module {key}: migration {} was changed after being applied",
                     migration.version

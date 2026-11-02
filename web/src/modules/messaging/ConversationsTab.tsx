@@ -19,7 +19,7 @@ export function ConversationsTab({ recordType, recordId }: RecordTabRenderProps)
     unread: false,
     search: '',
     page: 1,
-    ...(recordType === 'deal' ? { dealId: recordId } : { contactId: recordId }),
+    ...(recordType === 'deals.deal' ? { dealId: recordId } : { contactId: recordId }),
   }
   const conversations = useConversations(filters)
 
@@ -27,7 +27,7 @@ export function ConversationsTab({ recordType, recordId }: RecordTabRenderProps)
     <section className="flex flex-col gap-3" aria-label={t('tab.title')}>
       <div className="grid gap-0.5">
         <h2 className="text-base font-semibold">{t('tab.title')}</h2>
-        <p className="text-sm text-muted-foreground">{t(`tab.description.${recordType === 'deal' ? 'deal' : 'contact'}`)}</p>
+        <p className="text-sm text-muted-foreground">{t(`tab.description.${recordType === 'deals.deal' ? 'deal' : 'contact'}`)}</p>
       </div>
       {conversations.isPending ? (
         <div className="grid gap-2" aria-busy="true">

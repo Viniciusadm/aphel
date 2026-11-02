@@ -22,9 +22,7 @@ use crate::{
 use aphel_kernel::Ctx;
 use aphel_kernel::application::access::{AccessRepository, Authorizer, build_access_scope};
 use aphel_kernel::application::config_packages::APHEL_VERSION;
-use aphel_kernel::application::fields::{
-    CustomFieldReader, RecordTypeDefinition, RecordTypeRegistry,
-};
+use aphel_kernel::application::fields::{CustomFieldReader, EntityDefinition, RecordTypeRegistry};
 use aphel_kernel::application::files::{FileRepository, NewFile, sanitize_file_name, storage_key};
 use aphel_kernel::application::organization_admin::{ListWindow, Listing};
 use aphel_kernel::application::shared::{
@@ -436,8 +434,8 @@ fn row_id(row: &DataRow) -> Option<Uuid> {
         .and_then(|id| Uuid::parse_str(id).ok())
 }
 
-fn sorted_definitions(registry: &RecordTypeRegistry) -> Vec<&RecordTypeDefinition> {
-    let mut definitions: Vec<&RecordTypeDefinition> = registry.definitions().collect();
+fn sorted_definitions(registry: &RecordTypeRegistry) -> Vec<&EntityDefinition> {
+    let mut definitions: Vec<&EntityDefinition> = registry.definitions().collect();
     definitions.sort_by_key(|definition| {
         (
             record_priority(definition),

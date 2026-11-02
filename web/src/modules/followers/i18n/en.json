@@ -33,7 +33,25 @@
     "deal": "Deal",
     "activity": "Activity",
     "product": "Product",
-    "quote": "Quote"
+    "quote": "Quote",
+    "contacts": {
+      "contact": "Contact"
+    },
+    "companies": {
+      "company": "Company"
+    },
+    "deals": {
+      "deal": "Deal"
+    },
+    "activities": {
+      "activity": "Activity"
+    },
+    "products": {
+      "product": "Product"
+    },
+    "quotes": {
+      "quote": "Quote"
+    }
   },
   "pager": {
     "label": "Pagination",

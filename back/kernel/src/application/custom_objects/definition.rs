@@ -1,5 +1,5 @@
 use crate::application::fields::{
-    CustomTypeLabels, EntityTraits, RecordRelation, RecordTypeDefinition, RecordTypeRegistry,
+    CustomTypeLabels, EntityDefinition, EntityTraits, RecordRelation, RecordTypeRegistry,
     RelationPath, SystemField,
 };
 use crate::application::shared::RecordType;
@@ -32,7 +32,7 @@ fn missing_permission(object: &CustomObject) -> AppError {
     ))
 }
 
-pub fn custom_record_definition(object: &CustomObject) -> Result<RecordTypeDefinition, AppError> {
+pub fn custom_record_definition(object: &CustomObject) -> Result<EntityDefinition, AppError> {
     let record_type = RecordType::parse(object.record_type())?;
     let read = object
         .permission("read")
@@ -40,7 +40,28 @@ pub fn custom_record_definition(object: &CustomObject) -> Result<RecordTypeDefin
     let update = object
         .permission("update")
         .ok_or_else(|| missing_permission(object))?;
-    let mut definition = RecordTypeDefinition::new(record_type, CUSTOM_RECORDS_TABLE, read)
+    if let Some(declaration) = &object.entity_definition {
+        let declaration: crate::application::fields::EntityDeclaration =
+            serde_json::from_value(declaration.clone()).map_err(|error| {
+                AppError::Configuration(format!("invalid stored entity: {error}"))
+            })?;
+        if declaration.storage == crate::application::fields::EntityStorage::Managed {
+            let owner = object.module_key.as_deref().ok_or_else(|| {
+                AppError::Configuration("managed entities need an owner".to_owned())
+            })?;
+            let mut definition =
+                declaration.definition(&format!("{owner}.{}", declaration.key), read)?;
+            definition.record_type = record_type;
+            definition.custom = Some(CustomTypeLabels {
+                singular: object.data.label_singular.clone(),
+                plural: object.data.label_plural.clone(),
+                icon: object.data.icon.clone(),
+                color: object.data.color.clone(),
+            });
+            return Ok(definition);
+        }
+    }
+    let mut definition = EntityDefinition::new(record_type, CUSTOM_RECORDS_TABLE, read)
         .capabilities(
             EntityTraits::default()
                 .importable()
@@ -59,6 +80,24 @@ pub fn custom_record_definition(object: &CustomObject) -> Result<RecordTypeDefin
             color: object.data.color.clone(),
         })
         .system_field(field(TITLE_FIELD, crate::labels("Title"), FieldType::Text)?.searchable());
+    definition.storage = crate::application::fields::EntityStorage::Dynamic;
+    if let Some(declaration) = &object.entity_definition {
+        let declaration: crate::application::fields::EntityDeclaration =
+            serde_json::from_value(declaration.clone())
+                .map_err(|error| AppError::Configuration(error.to_string()))?;
+        definition.capabilities.traits.extend(declaration.traits);
+        definition.references = declaration.references;
+    }
+    definition.key = match &object.module_key {
+        Some(owner) => format!(
+            "{owner}.{}",
+            object
+                .key
+                .strip_prefix(&format!("{owner}_"))
+                .unwrap_or(&object.key)
+        ),
+        None => format!("custom.{}", object.key),
+    };
     if object.data.owner_enabled {
         definition = definition.owner_column(OWNER_FIELD).system_field(field(
             OWNER_FIELD,

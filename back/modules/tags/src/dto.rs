@@ -12,14 +12,14 @@ fn timestamp(value: DateTime<Utc>) -> String {
 #[derive(Debug, Default, Deserialize, IntoParams)]
 #[into_params(parameter_in = Query)]
 pub(crate) struct TagListParams {
-    #[param(example = "contact")]
+    #[param(example = "contacts.contact")]
     pub(crate) record_type: Option<String>,
 }
 
 #[derive(Debug, Default, Deserialize, IntoParams)]
 #[into_params(parameter_in = Query)]
 pub(crate) struct RecordTagLookupParams {
-    #[param(example = "contact")]
+    #[param(example = "contacts.contact")]
     pub(crate) record_type: String,
     #[param(example = "0190f1a2-0000-7000-8000-000000000001,0190f1a2-0000-7000-8000-000000000002")]
     pub(crate) ids: Option<String>,
@@ -46,7 +46,7 @@ pub(crate) struct CreateTagRequest {
     #[schema(example = "#1f6feb")]
     pub(crate) color: Option<String>,
     #[serde(default)]
-    #[schema(example = json!(["contact", "company"]))]
+    #[schema(example = json!(["contacts.contact", "companies.company"]))]
     pub(crate) record_types: Vec<String>,
 }
 

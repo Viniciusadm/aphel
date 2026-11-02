@@ -22,9 +22,7 @@ use crate::mysql::sql::{
 use crate::service::subject::{Redaction, SubjectMatcher};
 use crate::store::free_text_columns;
 use aphel_kernel::Ctx;
-use aphel_kernel::application::fields::{
-    RecordTypeDefinition, RecordTypeRegistry, is_sql_identifier,
-};
+use aphel_kernel::application::fields::{EntityDefinition, RecordTypeRegistry, is_sql_identifier};
 use aphel_kernel::application::organization_admin::{ListWindow, Listing};
 use aphel_kernel::application::shared::{RecordRef, RecordType};
 use aphel_kernel::database::transaction::MySqlTx;
@@ -263,7 +261,7 @@ impl PrivacyStore {
         }
     }
 
-    fn personal_definition(&self, record_type: &RecordType) -> Option<&RecordTypeDefinition> {
+    fn personal_definition(&self, record_type: &RecordType) -> Option<&EntityDefinition> {
         self.registry
             .get(record_type)
             .filter(|definition| definition.capabilities.has_trait("privacy.personal_data"))
@@ -271,7 +269,7 @@ impl PrivacyStore {
 
     async fn matching_ids(
         &self,
-        definition: &RecordTypeDefinition,
+        definition: &EntityDefinition,
         field: &PersonalField,
         matcher: &SubjectMatcher,
         limit: u32,
@@ -500,7 +498,7 @@ impl PrivacyStore {
 impl PrivacyStore {
     pub(crate) async fn search_records(
         &self,
-        definition: &RecordTypeDefinition,
+        definition: &EntityDefinition,
         fields: &[PersonalField],
         matcher: &SubjectMatcher,
         limit: u32,
@@ -889,7 +887,7 @@ impl PrivacyStore {
 
     pub(crate) async fn record_snapshot(
         &self,
-        definition: &RecordTypeDefinition,
+        definition: &EntityDefinition,
         record_id: Uuid,
     ) -> Result<Option<Value>, AppError> {
         let mut pairs: Vec<(String, String)> = vec![("id".to_owned(), "id".to_owned())];
@@ -1054,7 +1052,7 @@ impl PrivacyStore {
     pub(crate) async fn update_columns(
         &self,
         tx: &mut MySqlTx,
-        definition: &RecordTypeDefinition,
+        definition: &EntityDefinition,
         record_id: Uuid,
         assignments: &[ColumnAssignment],
     ) -> Result<bool, AppError> {
@@ -1269,7 +1267,7 @@ impl PrivacyStore {
     pub(crate) async fn mark_deleted(
         &self,
         tx: &mut MySqlTx,
-        definition: &RecordTypeDefinition,
+        definition: &EntityDefinition,
         record_id: Uuid,
         now: DateTime<Utc>,
     ) -> Result<bool, AppError> {
@@ -1297,10 +1295,12 @@ impl PrivacyStore {
         activity_id: Uuid,
     ) -> Result<bool, AppError> {
         let id = activity_id.to_string();
-        sqlx::query("DELETE FROM taggings WHERE record_type = 'activity' AND record_id = ?")
-            .bind(&id)
-            .execute(&mut **tx)
-            .await?;
+        sqlx::query(
+            "DELETE FROM taggings WHERE record_type = 'activities.activity' AND record_id = ?",
+        )
+        .bind(&id)
+        .execute(&mut **tx)
+        .await?;
         let result = sqlx::query("DELETE FROM activities WHERE id = ?")
             .bind(&id)
             .execute(&mut **tx)

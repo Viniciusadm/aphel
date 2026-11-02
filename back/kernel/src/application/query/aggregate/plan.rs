@@ -2,9 +2,7 @@ use chrono::{DateTime, Utc};
 use rust_decimal::Decimal;
 use uuid::Uuid;
 
-use crate::application::fields::{
-    ComputedColumn, RecordRelation, RecordTypeDefinition, SingleJoin,
-};
+use crate::application::fields::{ComputedColumn, EntityDefinition, RecordRelation, SingleJoin};
 use crate::application::query::{
     AggregateFunction, DurationUnit, FieldTarget, QueryPlan, TimeGranularity,
 };
@@ -15,7 +13,7 @@ use crate::domain::fields::{FieldType, ValueColumn};
 pub struct RelatedGroup {
     pub relation: RecordRelation,
     pub join: SingleJoin,
-    pub target: RecordTypeDefinition,
+    pub target: EntityDefinition,
     pub visibility: RecordScopeFilter,
 }
 
@@ -47,7 +45,7 @@ pub enum LabelSource {
     Tags,
     Records {
         record_type: String,
-        readable: Option<Box<(RecordTypeDefinition, RecordScopeFilter)>>,
+        readable: Option<Box<(EntityDefinition, RecordScopeFilter)>>,
     },
 }
 

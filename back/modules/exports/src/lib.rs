@@ -27,7 +27,6 @@ pub use generated::*;
 pub use model::*;
 pub use runtime::{ExportRunHandler, system_scope};
 pub use service::{EXPORT_NOT_FOUND, EXPORT_NOT_SUPPORTED, EXPORT_TOO_LARGE, export_not_found};
-pub use store::{LabelSource, config_label_source};
 
 pub const KEY: &str = "exports";
 
@@ -56,6 +55,9 @@ impl Module for ExportsModule {
     }
 
     fn register(&self, app: &mut AppBuilder) -> Result<(), AppError> {
+        app.contribute(std::sync::Arc::new(
+            aphel_kernel::application::fields::EntityKeyAliases(&[("export", "exports.export")]),
+        ));
         app.contribute::<dyn aphel_kernel::modules::FileReferenceSource>(std::sync::Arc::new(
             points::ExportFiles,
         ));

@@ -1,6 +1,7 @@
+import { Package } from 'lucide-react'
 import { registerRecordResource } from '@/features/records/resources'
 
-export const PRODUCT_RECORD_TYPE = 'product'
+export const PRODUCT_RECORD_TYPE = 'products.product'
 export const PRODUCTS_PATH = '/products'
 
 export function productPath(id: string) {
@@ -8,6 +9,8 @@ export function productPath(id: string) {
 }
 
 export const productResource = registerRecordResource({
+  relatable: true,
+  icon: Package,
   recordType: PRODUCT_RECORD_TYPE,
   createPermission: 'products.create',
   updatePermission: 'products.update',

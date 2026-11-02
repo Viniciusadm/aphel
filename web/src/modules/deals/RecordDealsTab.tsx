@@ -22,7 +22,7 @@ const STATUS_VARIANT: Record<DealStatus, BadgeProps['variant']> = {
 }
 
 export interface RecordDealsTabProps {
-  recordType: 'contact' | 'company'
+  recordType: 'contacts.contact' | 'companies.company'
   recordId: string
 }
 
@@ -32,7 +32,7 @@ export function RecordDealsTab({ recordType, recordId }: RecordDealsTabProps) {
   const queryClient = useQueryClient()
   const { hasPermission } = useSession()
   const [creating, setCreating] = useState(false)
-  const field = recordType === 'contact' ? 'contact_id' : 'company_id'
+  const field = recordType === 'contacts.contact' ? 'contact_id' : 'company_id'
   const queryKey = dealsKeys.related(field, recordId)
   const deals = useQuery({ queryKey, queryFn: () => dealsApi.related(field, recordId) })
   const canCreate = hasPermission('deals.create')

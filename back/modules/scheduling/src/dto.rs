@@ -206,7 +206,7 @@ impl From<MeetingBookingStatusSchema> for BookingStatus {
 #[derive(Debug, Clone, Deserialize, ToSchema)]
 #[serde(deny_unknown_fields)]
 pub(crate) struct MeetingQuestionRequest {
-    #[schema(example = "company")]
+    #[schema(example = "companies.company")]
     pub(crate) key: Option<String>,
     #[schema(example = "Company")]
     pub(crate) label: String,

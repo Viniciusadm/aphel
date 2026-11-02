@@ -3,7 +3,7 @@ import { useTranslation } from 'react-i18next'
 import { useCustomObjects } from '@/features/custom-records'
 import type { ActionCatalogEntry, AutomationCatalog, TriggerCatalogEntry } from '../types'
 
-export const CORE_RECORD_TYPES = ['contact', 'company', 'deal', 'activity'] as const
+export const CORE_RECORD_TYPES = ['contacts.contact', 'companies.company', 'deals.deal', 'activities.activity'] as const
 
 type Translate = (key: string, options?: Record<string, unknown>) => string
 
@@ -94,6 +94,6 @@ export function supportsRecordType(
   entry: Pick<TriggerCatalogEntry, 'record_types' | 'custom_objects'>,
   recordType: string,
 ): boolean {
-  if (recordType.startsWith('co_')) return entry.custom_objects
+  if (recordType.startsWith('custom.')) return entry.custom_objects
   return entry.record_types.includes(recordType)
 }

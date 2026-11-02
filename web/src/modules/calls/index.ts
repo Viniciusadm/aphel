@@ -20,7 +20,7 @@ export default defineModule({
     app.nav({ to: '/calls', label: 'nav.calls', icon: Phone, permission: 'activities.read', order: 180 })
     app.fieldType('phone', { Display: PhoneLink })
     app.timelineRenderer('activity', callAwareActivityRenderer)
-    app.slot('record.detail.header', { key: 'call-summary', recordTypes: ['activity'], render: ActivityCallPanel })
+    app.slot('record.detail.header', { key: 'call-summary', recordTypes: ['activities.activity'], render: ActivityCallPanel })
     app.quickAdd({
       key: 'call',
       label: 'quickAdd.options.call',

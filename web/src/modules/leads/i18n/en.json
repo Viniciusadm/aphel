@@ -62,7 +62,13 @@
     "recordType": "Records",
     "recordTypes": {
       "contact": "Contacts",
-      "company": "Companies"
+      "company": "Companies",
+      "contacts": {
+        "contact": "Contacts"
+      },
+      "companies": {
+        "company": "Companies"
+      }
     },
     "from": "From",
     "to": "To",

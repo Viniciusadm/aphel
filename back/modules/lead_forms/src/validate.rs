@@ -46,7 +46,7 @@ pub(crate) async fn contact_fields(
     scope: &AccessScope,
 ) -> Result<Vec<LeadFormTargetField>, AppError> {
     Ok(ctx
-        .field_set(scope, "contact")
+        .field_set(scope, "contacts.contact")
         .await?
         .active()
         .map(|field| LeadFormTargetField {

@@ -121,17 +121,17 @@ function PaletteBody({ mode, onModeChange, contextCommands, createActions }: Pal
   const recordTypeLabel = useCallback(
     (recordType: string) => {
     switch (recordType) {
-      case 'contact':
+      case 'contacts.contact':
         return t('recordTypes.contact')
-      case 'company':
+      case 'companies.company':
         return t('recordTypes.company')
-      case 'deal':
+      case 'deals.deal':
         return t('recordTypes.deal')
-      case 'activity':
+      case 'activities.activity':
         return t('recordTypes.activity')
-      case 'product':
+      case 'products.product':
         return t('recordTypes.product')
-      case 'note':
+      case 'notes.note':
         return t('recordTypes.note')
       default:
         return recordType

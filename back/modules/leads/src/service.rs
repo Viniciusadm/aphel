@@ -58,7 +58,7 @@ pub(crate) const DISQUALIFICATION_REASON_NOT_FOUND: &str = "disqualification_rea
 pub(crate) const DISQUALIFICATION_REASON_KEY_TAKEN: &str = "disqualification_reason_key_taken";
 pub(crate) const LIFECYCLE_RECORD_NOT_FOUND: &str = "record_not_found";
 pub(crate) const DISQUALIFICATION_REASON_RECORD_TYPE: RecordType =
-    RecordType::from_static("lead_disqualification_reason");
+    RecordType::from_static("leads.lead_disqualification_reason");
 
 pub(crate) const LIFECYCLE_SETTINGS_UPDATED: &str = "lifecycle.settings_updated";
 pub(crate) const DISQUALIFICATION_REASON_CREATED: &str = "lead_disqualification_reason.created";
@@ -849,7 +849,7 @@ pub(crate) async fn disqualify_lead(
         .is_some_and(|note| note.chars().count() > MAX_DISQUALIFICATION_NOTE_LENGTH)
     {
         violations.push(FieldViolation::new(
-            "note",
+            "notes.note",
             format!("must have at most {MAX_DISQUALIFICATION_NOTE_LENGTH} characters"),
         ));
     }

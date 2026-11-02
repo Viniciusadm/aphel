@@ -93,7 +93,8 @@ pub const CURRENCIES_RECALCULATE_JOB: &str = "currencies.recalculate";
 pub(crate) const EXCHANGE_RATES_SYNC_JOB: &str = "currencies.sync_rates";
 pub(crate) const EXCHANGE_RATES_SYNC_CRON: &str = "0 15 6 * * *";
 
-pub(crate) const EXCHANGE_RATE_RECORD_TYPE: RecordType = RecordType::from_static("exchange_rate");
+pub(crate) const EXCHANGE_RATE_RECORD_TYPE: RecordType =
+    RecordType::from_static("currencies.exchange_rate");
 pub const BASE_AMOUNT_FIELD: &str = "amount_base";
 pub const BASE_AMOUNT_METRIC: &str = "sum:amount_base";
 

@@ -45,7 +45,7 @@ export default defineModule({
 
 ### Record types
 
-Wherever a contribution takes record types (`recordTab`, slot `recordTypes`, `recordList`, `targetRecordTypes`), a selector applies: `'contact'`, a list, a pattern ending in `*` (`'co_*'` = all custom objects, `'*'` = all) or a function `(recordType) => boolean`.
+Wherever a contribution takes record types (`recordTab`, slot `recordTypes`, `recordList`, `targetRecordTypes`), a selector applies: `'contact'`, a list, a pattern ending in `*` (`'custom.*'` = all custom objects, `'*'` = all) or a function `(recordType) => boolean`.
 
 ### Contributions with hooks
 

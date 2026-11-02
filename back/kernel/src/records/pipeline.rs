@@ -139,6 +139,23 @@ impl RecordPipeline for MySqlRecordPipeline {
         }));
         state["proposed"] = proposed;
         state["phase"] = serde_json::json!("record.validating");
+        let mut reference_values = stored
+            .as_ref()
+            .and_then(|value| value.get("custom_fields"))
+            .and_then(Value::as_object)
+            .cloned()
+            .unwrap_or_default();
+        if let Some(values) = write.values.as_object() {
+            reference_values.extend(values.clone());
+        }
+        crate::records::references::validate(
+            tx,
+            scope,
+            &self.registry,
+            write.record,
+            &Value::Object(reference_values),
+        )
+        .await?;
         self.run(RecordValidating, tx, scope, &self.changed(write))
             .await
     }
@@ -198,6 +215,7 @@ impl RecordPipeline for MySqlRecordPipeline {
                 "before_available": true, "proposed": null, "persisted": null,
             }),
         );
+        crate::records::references::deleting(tx, &self.pool, &self.registry, record).await?;
         self.run(RecordDeleting, tx, scope, &self.removed(record))
             .await
     }
@@ -239,6 +257,17 @@ impl RecordPipeline for MySqlRecordPipeline {
         scope: &AccessScope,
         record: &RecordRef,
     ) -> Result<(), AppError> {
+        if let Some(snapshot) =
+            super::snapshot::capture(tx, &self.pool, &self.registry, record).await?
+        {
+            let mut values = snapshot["custom_fields"]
+                .as_object()
+                .cloned()
+                .unwrap_or_default();
+            values.extend(snapshot["values"].as_object().cloned().unwrap_or_default());
+            super::references::validate(tx, scope, &self.registry, record, &Value::Object(values))
+                .await?;
+        }
         if let Ok(definition) = self.registry.require(record.record_type.as_str()) {
             crate::infrastructure::fields::unique_values::reserve_record(tx, definition, record)
                 .await?;
@@ -253,6 +282,24 @@ impl RecordPipeline for MySqlRecordPipeline {
         scope: &AccessScope,
         record: &RecordRef,
     ) -> Result<PurgedRecord, AppError> {
+        crate::records::references::deleting(tx, &self.pool, &self.registry, record).await?;
+        if let Ok(definition) = self.registry.require(record.record_type.as_str()) {
+            let mut removed = std::collections::BTreeSet::new();
+            for field in &definition.system_fields {
+                if let Some(extension) = &field.extension
+                    && field.is_available()
+                    && removed.insert(&extension.table)
+                {
+                    sqlx::query(sqlx::AssertSqlSafe(format!(
+                        "DELETE FROM `{}` WHERE `{}` = ?",
+                        extension.table, extension.record_column
+                    )))
+                    .bind(record.record_id.to_string())
+                    .execute(&mut **tx)
+                    .await?;
+                }
+            }
+        }
         self.run(RecordPurged, tx, scope, &self.removed(record))
             .await?;
         MySqlCustomFieldValueRepository::new(self.pool.clone())

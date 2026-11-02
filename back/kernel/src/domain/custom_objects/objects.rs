@@ -4,7 +4,7 @@ use uuid::Uuid;
 use crate::domain::UserId;
 use crate::domain::access::Permission;
 
-pub const CUSTOM_OBJECT_PREFIX: &str = "co_";
+pub const CUSTOM_OBJECT_PREFIX: &str = "custom.";
 pub const MAX_OBJECT_KEY_LENGTH: usize = 40;
 pub const MAX_OBJECT_LABEL_LENGTH: usize = 80;
 pub const MAX_OBJECT_DESCRIPTION_LENGTH: usize = 500;
@@ -35,11 +35,20 @@ pub fn object_key_of(record_type: &str) -> Option<&str> {
 }
 
 pub fn is_custom_record_type(record_type: &str) -> bool {
-    object_key_of(record_type).is_some()
+    if object_key_of(record_type).is_some() {
+        return true;
+    }
+    record_type.split_once('.').is_some_and(|(owner, entity)| {
+        is_object_key(owner)
+            && is_object_key(entity)
+            && crate::modules::try_app().is_none_or(|app| app.module(owner).is_none())
+    })
 }
 
 pub fn object_permission(record_type: &str, action: &str) -> Option<Permission> {
-    object_key_of(record_type)?;
+    if !is_custom_record_type(record_type) {
+        return None;
+    }
     Permission::parse(format!("{record_type}.{action}")).ok()
 }
 
@@ -62,6 +71,7 @@ pub struct CustomObject {
     pub data: CustomObjectData,
     pub position: i32,
     pub module_key: Option<String>,
+    pub entity_definition: Option<serde_json::Value>,
     pub is_internal: bool,
     pub created_by: Option<UserId>,
     pub created_at: DateTime<Utc>,
@@ -70,7 +80,15 @@ pub struct CustomObject {
 
 impl CustomObject {
     pub fn record_type(&self) -> String {
-        object_record_type(&self.key)
+        match &self.module_key {
+            Some(owner) => format!(
+                "{owner}.{}",
+                self.key
+                    .strip_prefix(&format!("{owner}_"))
+                    .unwrap_or(&self.key)
+            ),
+            None => object_record_type(&self.key),
+        }
     }
 
     pub fn permission(&self, action: &str) -> Option<Permission> {

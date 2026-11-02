@@ -20,7 +20,7 @@ import type { BundlePricing, ProductBundle } from './types'
 import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from '@/components/ui/table'
 import { Field } from '@/components/ui/field'
 
-const PRODUCT_RECORD_TYPE = 'product'
+const PRODUCT_RECORD_TYPE = 'products.product'
 const PRICING: BundlePricing[] = ['fixed', 'sum']
 const QUANTITY_PATTERN = /^\d+([.,]\d{1,4})?$/
 const QUANTITY_DECIMALS = 4

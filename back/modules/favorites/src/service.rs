@@ -4,8 +4,8 @@ use uuid::Uuid;
 
 use crate::domain::{
     CreateFavoriteCommand, FAVORITE_ALREADY_EXISTS, FAVORITE_LIMIT_REACHED, FAVORITE_NOT_FOUND,
-    FAVORITE_TARGET_NOT_FOUND, FAVORITE_TITLE_COLUMNS, Favorite, FavoriteEntry, FavoriteKind,
-    MAX_FAVORITES, ReadableRecordType,
+    FAVORITE_TARGET_NOT_FOUND, Favorite, FavoriteEntry, FavoriteKind, MAX_FAVORITES,
+    ReadableRecordType,
 };
 use crate::store::FavoriteStore;
 use aphel_kernel::Ctx;
@@ -37,20 +37,12 @@ fn target_not_found() -> AppError {
     )
 }
 
-fn title_column(record_type: &RecordType) -> Option<&'static str> {
-    FAVORITE_TITLE_COLUMNS
-        .iter()
-        .find(|(kind, _)| *kind == record_type.as_str())
-        .map(|(_, column)| *column)
-}
-
 fn readable(ctx: &Ctx<'_>, record_type: &RecordType) -> Option<ReadableRecordType> {
-    let title_column = title_column(record_type)?;
     let definition = ctx.registry().get(record_type)?;
     let visibility = ctx.scope.filter_for(&definition.read_permission)?;
     Some(ReadableRecordType {
         definition: definition.clone(),
-        title_column,
+        title_column: definition.title_column()?.to_owned(),
         visibility,
     })
 }
@@ -191,7 +183,7 @@ async fn record_target(
     let definition = ctx
         .registry()
         .get(&record_type)
-        .filter(|_| title_column(&record_type).is_some())
+        .filter(|definition| definition.title_column().is_some())
         .ok_or_else(unsupported)?;
     ctx.scope.record_filter(&definition.read_permission)?;
     let readable = readable(ctx, &record_type).ok_or_else(unsupported)?;

@@ -27,9 +27,11 @@ impl Permission {
             && value.split('.').count() >= 2
             && segments.all(|segment| {
                 !segment.is_empty()
-                    && segment
-                        .chars()
-                        .all(|character| character.is_ascii_lowercase() || character == '_')
+                    && segment.chars().all(|character| {
+                        character.is_ascii_lowercase()
+                            || character.is_ascii_digit()
+                            || character == '_'
+                    })
             });
         if !valid {
             return Err(DomainValidationError::Invalid("permission"));

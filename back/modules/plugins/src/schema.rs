@@ -61,6 +61,28 @@ pub async fn validate_dependencies(
             ));
         }
     }
+    for entity in &manifest.entities {
+        for reference in &entity.references {
+            let aphel_kernel::application::fields::ReferenceTarget::Entity { entity: target } =
+                &reference.target
+            else {
+                continue;
+            };
+            if manifest.entity_record_types().contains(target) {
+                continue;
+            }
+            let target = registry.require(target)?;
+            if !manifest.allows(&target.read_permission) {
+                return Err(AppError::validation_code(
+                    "plugin_reference_permission_required",
+                    format!(
+                        "reference {} requires {}",
+                        reference.field, target.read_permission
+                    ),
+                ));
+            }
+        }
+    }
     for (_, field) in declared_fields(manifest) {
         if field.field_type != "record" {
             continue;
@@ -90,6 +112,26 @@ pub async fn validate_dependencies(
 }
 
 pub async fn check(state: &AppState, manifest: &PluginManifest) -> Result<(), AppError> {
+    for entity in &manifest.entities {
+        if entity.storage == aphel_kernel::application::fields::EntityStorage::Dynamic
+            && !entity.indexes.is_empty()
+        {
+            return Err(AppError::Validation(
+                "entity indexes require managed storage".to_owned(),
+            ));
+        }
+        if entity.storage == aphel_kernel::application::fields::EntityStorage::Table {
+            return Err(AppError::Validation(
+                "runtime entities cannot use native table storage".to_owned(),
+            ));
+        }
+        let key = format!("{}.{}", manifest.key, entity.key);
+        let permission = aphel_kernel::domain::access::Permission::parse(format!("{key}.read"))?;
+        let definition = entity.definition(&key, permission)?;
+        if entity.storage == aphel_kernel::application::fields::EntityStorage::Managed {
+            aphel_kernel::infrastructure::fields::managed_schema(&definition)?;
+        }
+    }
     validate_dependencies(state, manifest).await?;
     let pool = state.db()?;
     ensure_compatible(&pool, manifest).await?;
@@ -152,6 +194,36 @@ pub async fn apply(
     let pool = state.db()?;
     for entity in &manifest.entities {
         let object_key = manifest.object_key(&entity.key);
+        let storage: Option<Option<sqlx::types::Json<serde_json::Value>>> =
+            sqlx::query_scalar("SELECT entity_definition FROM custom_objects WHERE `key` = ?")
+                .bind(&object_key)
+                .fetch_optional(&pool)
+                .await?;
+        if let Some(stored) = storage {
+            let previous = stored
+                .and_then(|json| {
+                    serde_json::from_value::<aphel_kernel::application::fields::EntityDeclaration>(
+                        json.0,
+                    )
+                    .ok()
+                })
+                .map(|declaration| declaration.storage)
+                .unwrap_or(aphel_kernel::application::fields::EntityStorage::Dynamic);
+            if previous != entity.storage {
+                return Err(AppError::Configuration(
+                    "changing entity storage needs a data migration".to_owned(),
+                ));
+            }
+        }
+        if entity.storage == aphel_kernel::application::fields::EntityStorage::Managed {
+            let key = format!("{}.{}", manifest.key, entity.key);
+            let permission = aphel_kernel::domain::access::Permission::parse(format!(
+                "{}.read",
+                manifest.entity_record_type(&entity.key)
+            ))?;
+            let definition = entity.definition(&key, permission)?;
+            aphel_kernel::infrastructure::fields::ensure_managed_schema(&pool, &definition).await?;
+        }
         match object_owner(&pool, &object_key).await? {
             Some(Some(owner)) if owner == manifest.key => {
                 sqlx::query(
@@ -193,6 +265,10 @@ pub async fn apply(
                         ip: None,
                     },
                     ManagedObject {
+                        entity_definition: Some(
+                            serde_json::to_value(entity)
+                                .map_err(|error| AppError::Configuration(error.to_string()))?,
+                        ),
                         module_key: manifest.key.clone(),
                         permission_scope: manifest.entity_scope(entity),
                         internal: entity.internal,
@@ -201,6 +277,16 @@ pub async fn apply(
                 .await?;
             }
         }
+    }
+    for entity in &manifest.entities {
+        sqlx::query(
+            "UPDATE custom_objects SET entity_definition = ? WHERE `key` = ? AND module_key = ?",
+        )
+        .bind(sqlx::types::Json(entity))
+        .bind(manifest.object_key(&entity.key))
+        .bind(&manifest.key)
+        .execute(&pool)
+        .await?;
     }
     bump_schema(state).await?;
     let registry = state.registry().await?;
@@ -218,14 +304,23 @@ pub async fn apply(
         .await?;
         match existing {
             None => repository.insert(&mut tx, &definition).await?,
-            Some((id, Some(owner))) if owner == manifest.key => {
+            Some((id, owner))
+                if owner.as_deref() == Some(manifest.key.as_str())
+                    || (owner.is_none()
+                        && definition.is_system
+                        && registry.require(&record_type)?.storage
+                            == aphel_kernel::application::fields::EntityStorage::Managed) =>
+            {
                 definition.id = Uuid::parse_str(&id)
                     .map_err(|_| AppError::Internal(format!("invalid field id {id}")))?;
                 sqlx::query(
-                    "UPDATE field_definitions SET label = ?, is_required = ?, is_unique = ?, \
+                    "UPDATE field_definitions SET module_key = ?, is_system = ?, column_name = ?, label = ?, is_required = ?, is_unique = ?, \
                      is_searchable = ?, is_personal = ?, is_sensitive = ?, config = ?, \
                      is_active = TRUE WHERE id = ?",
                 )
+                .bind(&manifest.key)
+                .bind(definition.is_system)
+                .bind(&definition.column_name)
                 .bind(&definition.label)
                 .bind(definition.is_required)
                 .bind(definition.is_unique)
@@ -291,6 +386,20 @@ fn reserved_keys(manifest: &PluginManifest, entity_key: &str) -> Result<Vec<Stri
     else {
         return Ok(Vec::new());
     };
+    if entity.storage == aphel_kernel::application::fields::EntityStorage::Managed {
+        return Ok([
+            "id",
+            "created_at",
+            "updated_at",
+            "created_by",
+            "owner_id",
+            "deleted_at",
+            "archived_at",
+        ]
+        .into_iter()
+        .map(str::to_owned)
+        .collect());
+    }
     let now = chrono::Utc::now();
     let object = CustomObject {
         id: Uuid::nil(),
@@ -307,6 +416,7 @@ fn reserved_keys(manifest: &PluginManifest, entity_key: &str) -> Result<Vec<Stri
         },
         position: 0,
         module_key: Some(manifest.key.clone()),
+        entity_definition: None,
         is_internal: entity.internal,
         created_by: None,
         created_at: now,
@@ -343,14 +453,20 @@ async fn preflight(pool: &MySqlPool, manifest: &PluginManifest) -> Result<(), Ap
         {
             Some((_, entity_key)) => reserved_keys(manifest, entity_key)?.contains(&field.key),
             None => {
-                let owner: Option<Option<String>> = sqlx::query_scalar(
-                    "SELECT module_key FROM field_definitions WHERE record_type = ? AND `key` = ?",
-                )
-                .bind(&record_type)
-                .bind(&field.key)
-                .fetch_optional(pool)
-                .await?;
-                owner.is_some_and(|owner| owner.as_deref() != Some(manifest.key.as_str()))
+                let owner: Option<(Option<String>, bool, Option<String>)> = sqlx::query_as(
+                    "SELECT module_key, is_system, column_name FROM field_definitions WHERE record_type = ? AND `key` = ?",
+                ).bind(&record_type).bind(&field.key).fetch_optional(pool).await?;
+                let owned_managed = manifest.entities.iter().any(|entity| {
+                    entity.storage == aphel_kernel::application::fields::EntityStorage::Managed
+                        && manifest.entity_record_type(&entity.key) == record_type
+                });
+                owner.is_some_and(|(owner, system, column)| {
+                    owner.as_deref() != Some(manifest.key.as_str())
+                        && !(owned_managed
+                            && owner.is_none()
+                            && system
+                            && column.as_deref() == Some(field.key.as_str()))
+                })
             }
         };
         if taken {
@@ -521,8 +637,11 @@ fn definition(
         key: FieldKey::new(&field.key).map_err(|_| invalid("invalid key".to_owned()))?,
         label: field.label.clone(),
         field_type,
-        is_system: false,
-        column_name: None,
+        is_system: registry.require(record_type)?.storage
+            == aphel_kernel::application::fields::EntityStorage::Managed,
+        column_name: (registry.require(record_type)?.storage
+            == aphel_kernel::application::fields::EntityStorage::Managed)
+            .then(|| field.key.clone()),
         is_required: field.required,
         is_unique: field.unique,
         is_searchable: field.searchable,
@@ -625,6 +744,20 @@ pub async fn purge(state: &AppState, manifest: &PluginManifest) -> Result<(), Ap
     )
     .await?;
     tx.commit().await?;
+    for entity in &manifest.entities {
+        if entity.storage == aphel_kernel::application::fields::EntityStorage::Managed {
+            let table = aphel_kernel::application::fields::managed_table(&format!(
+                "{}.{}",
+                manifest.key, entity.key
+            ));
+            sqlx::raw_sql(sqlx::AssertSqlSafe(format!(
+                "DROP TABLE IF EXISTS `{table}`"
+            )))
+            .execute(&pool)
+            .await?;
+        }
+    }
+
     for key in orphans {
         if let Err(error) = state.storage.delete(&key).await {
             tracing::warn!(error = %error, "failed to remove a purged plugin file");

@@ -169,7 +169,7 @@ export function ActionEditor({ index, total, target, onMove, onRemove }: ActionE
         <Slot
           name="leadDistribution.ruleSelect"
           props={{
-            recordType: type === 'upsert_contact' ? 'contact' : 'deal',
+            recordType: type === 'upsert_contact' ? 'contacts.contact' : 'deals.deal',
             value: distributionRuleId || null,
             onChange: (ruleId) =>
               setValue(`actions.${index}.distribution_rule_id`, ruleId ?? '', { shouldDirty: true }),

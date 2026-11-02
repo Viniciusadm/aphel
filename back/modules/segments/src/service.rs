@@ -12,7 +12,7 @@ use aphel_kernel::Ctx;
 use aphel_kernel::application::access::Authorizer;
 use aphel_kernel::application::audit::{DiffOptions, diff_values};
 use aphel_kernel::application::fields::permissions::query_error;
-use aphel_kernel::application::fields::{FieldSet, RecordTypeDefinition};
+use aphel_kernel::application::fields::{EntityDefinition, FieldSet};
 use aphel_kernel::application::organization_admin::{ListWindow, Listing};
 use aphel_kernel::application::query::{
     Filter, RecordQuery, RecordQueryEngine, RecordQueryExecutor, RecordQueryPorts, ResolveContext,
@@ -264,7 +264,7 @@ async fn count(ctx: &Ctx<'_>, record_type: &RecordType, segment_id: Uuid) -> Opt
 
 async fn validate_filter(
     ctx: &Ctx<'_>,
-    definition: &RecordTypeDefinition,
+    definition: &EntityDefinition,
     filter: &Filter,
     violations: &mut Vec<FieldViolation>,
 ) -> Result<(), AppError> {
@@ -292,7 +292,7 @@ async fn validate_filter(
     Ok(())
 }
 
-fn readable<'c>(ctx: &'c Ctx<'_>, record_type: &str) -> Result<&'c RecordTypeDefinition, AppError> {
+fn readable<'c>(ctx: &'c Ctx<'_>, record_type: &str) -> Result<&'c EntityDefinition, AppError> {
     let definition = ctx.registry().require(record_type.trim())?;
     ctx.scope.record_filter(&definition.read_permission)?;
     Ok(definition)

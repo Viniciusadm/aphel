@@ -7,7 +7,7 @@ use uuid::Uuid;
 
 use crate::domain::TrashItem;
 use aphel_kernel::Ctx;
-use aphel_kernel::application::fields::RecordTypeDefinition;
+use aphel_kernel::application::fields::EntityDefinition;
 use aphel_kernel::application::organization_admin::{ListWindow, Listing};
 use aphel_kernel::application::shared::RecordType;
 use aphel_kernel::database::transaction::MySqlTx;
@@ -24,7 +24,7 @@ pub trait TrashExclusion: Send + Sync {
     fn push_hidden(
         &self,
         builder: &mut QueryBuilder<MySql>,
-        definition: &RecordTypeDefinition,
+        definition: &EntityDefinition,
         alias: &str,
     );
 }
@@ -39,13 +39,13 @@ pub(crate) enum TrashHidden {
 
 #[derive(Debug, Clone)]
 pub struct TrashSource {
-    pub(crate) definition: RecordTypeDefinition,
+    pub(crate) definition: EntityDefinition,
     pub(crate) subtitle_columns: Vec<String>,
     pub(crate) visibility: RecordScopeFilter,
 }
 
 impl TrashSource {
-    pub(crate) fn new(definition: RecordTypeDefinition) -> Self {
+    pub(crate) fn new(definition: EntityDefinition) -> Self {
         Self {
             definition,
             subtitle_columns: Vec::new(),
@@ -68,14 +68,14 @@ fn text(expression: String) -> String {
     format!("CAST({expression} AS CHAR CHARACTER SET utf8mb4) COLLATE utf8mb4_unicode_ci")
 }
 
-fn deleted_column(definition: &RecordTypeDefinition) -> String {
+fn deleted_column(definition: &EntityDefinition) -> String {
     aliased(
         "r",
         definition.deleted_column.as_deref().unwrap_or("deleted_at"),
     )
 }
 
-fn title_sql(definition: &RecordTypeDefinition) -> String {
+fn title_sql(definition: &EntityDefinition) -> String {
     text(aliased("r", definition.title_column().unwrap_or("id")))
 }
 
@@ -256,7 +256,7 @@ impl TrashStore {
     pub(crate) async fn restore(
         &self,
         tx: &mut MySqlTx,
-        definition: &RecordTypeDefinition,
+        definition: &EntityDefinition,
         record_id: Uuid,
     ) -> Result<bool, AppError> {
         let deleted = deleted_column(definition);
@@ -275,7 +275,7 @@ impl TrashStore {
     pub async fn purge(
         &self,
         tx: &mut MySqlTx,
-        definition: &RecordTypeDefinition,
+        definition: &EntityDefinition,
         record_id: Uuid,
     ) -> Result<bool, AppError> {
         let deleted = deleted_column(definition);
@@ -316,7 +316,7 @@ impl TrashStore {
 
     pub(crate) async fn expired(
         &self,
-        definition: &RecordTypeDefinition,
+        definition: &EntityDefinition,
         deleted_before: DateTime<Utc>,
         limit: u32,
         skip: &[Uuid],

@@ -3,7 +3,7 @@ import { useTranslation } from 'react-i18next'
 import { useCustomObjects } from '@/features/custom-records'
 import { recordDetailHref } from '@/features/records/links'
 
-export const CORE_RECORD_TYPES = ['contact', 'company', 'deal', 'activity', 'product', 'quote'] as const
+export const CORE_RECORD_TYPES = ['contacts.contact', 'companies.company', 'deals.deal', 'activities.activity', 'products.product', 'quotes.quote'] as const
 
 type CoreRecordType = (typeof CORE_RECORD_TYPES)[number]
 
@@ -26,7 +26,7 @@ export function useRecordTypeLabel() {
 export function followedRecordHref(recordType: string, recordId: string): string | undefined {
   const href = recordDetailHref(recordType, recordId)
   if (href) return href
-  if (recordType === 'quote') return `/quotes/${encodeURIComponent(recordId)}`
-  const key = recordType.startsWith('co_') ? recordType.slice(3) : null
+  if (recordType === 'quotes.quote') return `/quotes/${encodeURIComponent(recordId)}`
+  const key = recordType.startsWith('custom.') ? recordType.slice(7) : null
   return key ? `/objects/${encodeURIComponent(key)}/${encodeURIComponent(recordId)}` : undefined
 }

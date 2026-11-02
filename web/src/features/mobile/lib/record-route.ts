@@ -1,23 +1,23 @@
-export const CHECK_IN_RECORD_TYPES = ['contact', 'company', 'deal'] as const
+import { recordResources } from '@/features/records/resources'
 
-export type CheckInRecordType = (typeof CHECK_IN_RECORD_TYPES)[number]
+export type CheckInRecordType = string
 
 export interface RecordRouteMatch {
   recordType: CheckInRecordType
   recordId: string
 }
 
-const SEGMENT_RECORD_TYPES: Record<string, CheckInRecordType> = {
-  contacts: 'contact',
-  companies: 'company',
-  deals: 'deal',
+export function matchRecordRoute(pathname: string): RecordRouteMatch | null {
+  const match = /\/([0-9a-f]{8}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{12})\/?$/i.exec(pathname)
+  if (!match) return null
+  for (const resource of recordResources()) {
+    if (resource.checkIn && resource.detailPath?.(match[1]) === pathname.replace(/\/$/, '')) {
+      return { recordType: resource.recordType, recordId: match[1] }
+    }
+  }
+  return null
 }
 
-const RECORD_ROUTE = /^\/(contacts|companies|deals)\/([0-9a-f]{8}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{12})\/?$/i
-
-export function matchRecordRoute(pathname: string): RecordRouteMatch | null {
-  const match = RECORD_ROUTE.exec(pathname)
-  if (!match) return null
-  const recordType = SEGMENT_RECORD_TYPES[match[1].toLowerCase()]
-  return recordType ? { recordType, recordId: match[2] } : null
+export function checkInRecordTypes(): string[] {
+  return recordResources().filter((resource) => resource.checkIn).map((resource) => resource.recordType)
 }

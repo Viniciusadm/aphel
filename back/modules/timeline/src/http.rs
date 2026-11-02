@@ -166,7 +166,7 @@ impl From<TimelineKind> for TimelineKindSchema {
 #[derive(Debug, Deserialize, IntoParams)]
 #[into_params(parameter_in = Query)]
 pub(crate) struct TimelineParams {
-    #[param(example = "company")]
+    #[param(example = "companies.company")]
     pub(crate) record_type: String,
     pub(crate) record_id: String,
     pub(crate) cursor: Option<String>,

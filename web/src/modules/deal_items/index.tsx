@@ -8,7 +8,7 @@ import { RecurringRevenueWidget } from './recurring/RecurringRevenueWidget'
 import type { RecurringRevenueData } from './recurring/types'
 import { DEAL_ITEM_TIMELINE_RENDERERS } from './timeline'
 
-const DEAL_RECORD_TYPE = 'deal'
+const DEAL_RECORD_TYPE = 'deals.deal'
 
 const dealItemsModule = defineModule({
   key: 'deal_items',

@@ -115,7 +115,7 @@ impl From<Ineligibility> for LeadDistributionSkipReasonSchema {
 #[derive(Debug, Default, Deserialize, IntoParams)]
 #[into_params(parameter_in = Query)]
 pub(crate) struct LeadDistributionRuleListParams {
-    #[param(example = "deal")]
+    #[param(example = "deals.deal")]
     pub(crate) record_type: Option<String>,
     pub(crate) active: Option<bool>,
 }
@@ -172,7 +172,7 @@ impl From<LeadDistributionAssignmentSourceSchema> for AssignmentSource {
 pub(crate) struct LeadDistributionAssignmentListParams {
     pub(crate) rule_id: Option<String>,
     pub(crate) user_id: Option<String>,
-    #[param(example = "deal")]
+    #[param(example = "deals.deal")]
     pub(crate) record_type: Option<String>,
     pub(crate) source: Option<LeadDistributionAssignmentSourceSchema>,
 }
@@ -196,7 +196,7 @@ pub(crate) struct LeadDistributionAssignmentResponse {
     pub(crate) rule_name: String,
     pub(crate) user_id: Option<String>,
     pub(crate) user_name: Option<String>,
-    #[schema(example = "deal")]
+    #[schema(example = "deals.deal")]
     pub(crate) record_type: Option<String>,
     pub(crate) record_id: Option<String>,
     pub(crate) source: LeadDistributionAssignmentSourceSchema,
@@ -264,7 +264,7 @@ pub(crate) struct LeadDistributionRuleRequest {
     #[serde(default, deserialize_with = "double_option")]
     #[schema(value_type = Option<String>)]
     pub(crate) description: Option<Option<String>>,
-    #[schema(example = "deal")]
+    #[schema(example = "deals.deal")]
     pub(crate) record_type: Option<String>,
     pub(crate) strategy: Option<LeadDistributionStrategySchema>,
     pub(crate) is_active: Option<bool>,

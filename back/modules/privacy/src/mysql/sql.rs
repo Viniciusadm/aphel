@@ -5,7 +5,7 @@ use sqlx::{MySql, MySqlPool, QueryBuilder, Row};
 use uuid::Uuid;
 
 use crate::service::subject::SubjectMatcher;
-use aphel_kernel::application::fields::RecordTypeDefinition;
+use aphel_kernel::application::fields::EntityDefinition;
 use aphel_kernel::application::files::{
     FileReferenceColumn, FileReferenceSource, UserReference, declared_file_columns,
     unreferenced_file_condition,
@@ -216,7 +216,7 @@ pub(crate) fn push_text_match(
     builder.push(")");
 }
 
-pub(crate) fn record_title_sql(definition: &RecordTypeDefinition) -> (String, String) {
+pub(crate) fn record_title_sql(definition: &EntityDefinition) -> (String, String) {
     let title = format!("r.{}", definition.title_column().unwrap_or("title"));
     let columns = &definition
         .capabilities

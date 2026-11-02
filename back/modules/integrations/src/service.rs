@@ -33,7 +33,8 @@ pub(crate) const INTEGRATION_DEACTIVATED: &str = "integration.deactivated";
 pub(crate) const INTEGRATION_TESTED: &str = "integration.tested";
 pub(crate) const INTEGRATION_REMOVED: &str = "integration.removed";
 
-pub(crate) const INTEGRATION_RECORD_TYPE: RecordType = RecordType::from_static("integration");
+pub(crate) const INTEGRATION_RECORD_TYPE: RecordType =
+    RecordType::from_static("integrations.integration");
 
 #[derive(Clone)]
 pub(crate) struct IntegrationView {

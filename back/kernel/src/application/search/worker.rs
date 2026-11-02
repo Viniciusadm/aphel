@@ -153,7 +153,7 @@ where
         if event_type == CUSTOM_OBJECT_UPDATED {
             return true;
         }
-        event_type.split_once('.').is_some_and(|(prefix, _)| {
+        event_type.rsplit_once('.').is_some_and(|(prefix, _)| {
             is_custom_record_type(prefix) || self.registered(prefix).is_some()
         })
     }

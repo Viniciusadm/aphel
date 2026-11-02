@@ -2,17 +2,18 @@ use chrono::{DateTime, Utc};
 use serde_json::{Value, json};
 use uuid::Uuid;
 
-use aphel_kernel::application::fields::RecordTypeDefinition;
+use aphel_kernel::application::fields::EntityDefinition;
 use aphel_kernel::application::files::UserReference;
 use aphel_kernel::application::shared::{RecordRef, RecordType};
 use aphel_kernel::domain::fields::FieldType;
 use aphel_kernel::errors::{AppError, FieldViolation};
 
 pub(crate) const PRIVACY_REQUEST_RECORD_TYPE: RecordType =
-    RecordType::from_static("privacy_request");
+    RecordType::from_static("privacy.privacy_request");
 pub(crate) const RETENTION_POLICY_RECORD_TYPE: RecordType =
-    RecordType::from_static("retention_policy");
-pub(crate) const RETENTION_RUN_RECORD_TYPE: RecordType = RecordType::from_static("retention_run");
+    RecordType::from_static("privacy.retention_policy");
+pub(crate) const RETENTION_RUN_RECORD_TYPE: RecordType =
+    RecordType::from_static("privacy.retention_run");
 
 pub(crate) const PRIVACY_SUBJECT_SEARCHED: &str = "privacy.subject_searched";
 pub(crate) const PRIVACY_REQUEST_CREATED: &str = "privacy_request.created";
@@ -479,11 +480,11 @@ impl RetentionAction {
     }
 }
 
-pub(crate) fn supports_retention(definition: &RecordTypeDefinition) -> bool {
+pub(crate) fn supports_retention(definition: &EntityDefinition) -> bool {
     definition.deleted_column.is_some() && definition.archived_column.is_some()
 }
 
-pub(crate) fn tracks_last_activity(definition: &RecordTypeDefinition) -> bool {
+pub(crate) fn tracks_last_activity(definition: &EntityDefinition) -> bool {
     definition
         .system_fields
         .iter()

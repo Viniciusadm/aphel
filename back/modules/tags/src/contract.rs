@@ -8,7 +8,7 @@ use serde_json::json;
 use crate::dto::TagResponse;
 use crate::service;
 
-const NOT_ON_TAGS: &[&str] = &["activity"];
+const NOT_ON_TAGS: &[&str] = &["activities.activity"];
 
 fn config_schema() -> serde_json::Value {
     json!({

@@ -6,7 +6,7 @@ import { LeadsQuickFilter } from './LeadsQuickFilter'
 import { LifecycleRecordTab } from './LifecycleHistoryTab'
 import { leadsRoutes, lifecycleSettingsRoute } from './routes'
 
-const LIFECYCLE_RECORD_TYPES = ['contact', 'company']
+const LIFECYCLE_RECORD_TYPES = ['contacts.contact', 'companies.company']
 
 const leadsModule = defineModule({
   key: 'leads',

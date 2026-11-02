@@ -9,7 +9,6 @@ use std::sync::Arc;
 
 use serde_json::json;
 
-use leads::{LeadConverter, LeadConverting, LeadQualifying};
 use aphel_kernel::application::fields::SystemField;
 use aphel_kernel::application::public_events::{PublicEventDefinition, event};
 use aphel_kernel::domain::access::PermissionDefinition;
@@ -20,6 +19,7 @@ use aphel_kernel::modules::{
     AppBuilder, Manifest, Migration, Module, SettingField, SettingKind, WorkerParts,
 };
 use aphel_kernel::records::{RecordSaving, RecordValidating};
+use leads::{LeadConverter, LeadConverting, LeadQualifying};
 
 use crate::domain::{
     COOLDOWN_DAYS_SETTING, COOLDOWN_POINTS_SETTING, DEFAULT_COOLDOWN_DAYS, DEFAULT_COOLDOWN_POINTS,
@@ -66,12 +66,13 @@ impl Module for LeadPro {
             .depends_on(contacts::KEY, "*")
             .depends_on(leads::KEY, "*")
             .depends_on(deals::KEY, "*")
-            .enabled_by_default()
+            .enabled_by_default().owned_tables(&["lead_pro_touches", "lead_pro_contact_extension"])
             .migration(Migration::new(
                 1,
                 "lead temperature and touches",
                 include_str!("../migrations/0001_lead_pro.sql"),
-            ))
+            ).replaces("e9d00b2954dfc1ea2824899fbe3ce4313c84d9b43890e1ac1994c1343eb3dcb0"))
+            .migration(Migration::new(2, "move temperature to owned extension", include_str!("../migrations/0002_move_temperature.sql")))
             .uninstall_sql(include_str!("../migrations/uninstall.sql"))
             .setting(
                 temperature_setting(
@@ -115,8 +116,10 @@ impl Module for LeadPro {
             FieldType::Number,
             TEMPERATURE_FIELD,
         )?;
-        app.extend("contact", |contact| {
-            contact.system_field(field);
+        app.extend("contacts.contact", |contact| {
+            contact
+                .side_table("lead_pro_contact_extension", "record_id")
+                .system_field(field);
         });
         app.filter(RecordSaving, SAVING_PRIORITY, |ctx, saving| {
             Box::pin(hooks::default_temperature(ctx, saving))

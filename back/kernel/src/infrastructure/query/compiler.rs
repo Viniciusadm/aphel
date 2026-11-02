@@ -1,7 +1,7 @@
 use chrono::{Datelike, NaiveDate};
 use sqlx::{MySql, QueryBuilder};
 
-use crate::application::fields::{RecordTypeDefinition, RelationPath};
+use crate::application::fields::{EntityDefinition, RelationPath};
 use crate::application::query::{
     ArchivedFilter, FieldTarget, LIKE_ESCAPE, PlanCondition, PlanNode, PlanSort, PlanValue,
     Predicate, QueryPlan, RecordGroup, RelatedNode, SearchPlan,
@@ -57,7 +57,7 @@ fn record_column(column: &str) -> String {
 pub fn push_record_scope(
     builder: &mut QueryBuilder<MySql>,
     scope: &AccessScope,
-    definition: &RecordTypeDefinition,
+    definition: &EntityDefinition,
     visibility: &RecordScopeFilter,
 ) {
     push_record_scope_as(builder, scope, definition, visibility, RECORD_ALIAS);
@@ -66,7 +66,7 @@ pub fn push_record_scope(
 pub fn push_record_scope_as(
     builder: &mut QueryBuilder<MySql>,
     scope: &AccessScope,
-    definition: &RecordTypeDefinition,
+    definition: &EntityDefinition,
     visibility: &RecordScopeFilter,
     alias: &str,
 ) {
@@ -76,12 +76,15 @@ pub fn push_record_scope_as(
 pub(crate) fn push_record_scope_keyed(
     builder: &mut QueryBuilder<MySql>,
     scope: &AccessScope,
-    definition: &RecordTypeDefinition,
+    definition: &EntityDefinition,
     visibility: &RecordScopeFilter,
     alias: &str,
     record_key: &str,
 ) {
     push_partition(builder, definition, alias);
+    if definition.capabilities.has_trait("records.global") {
+        return;
+    }
     let (user_id, team_ids, shares) = match visibility {
         RecordScopeFilter::Organization => return,
         RecordScopeFilter::Owner { user_id, shares } => (user_id, &[][..], *shares),
@@ -134,7 +137,7 @@ pub(crate) fn push_record_scope_keyed(
 fn push_shared_access(
     builder: &mut QueryBuilder<MySql>,
     scope: &AccessScope,
-    definition: &RecordTypeDefinition,
+    definition: &EntityDefinition,
     record_key: &str,
     user_id: &UserId,
     shares: ShareReach,
@@ -168,7 +171,7 @@ fn push_shared_access(
 
 fn push_member_access(
     builder: &mut QueryBuilder<MySql>,
-    definition: &RecordTypeDefinition,
+    definition: &EntityDefinition,
     alias: &str,
     user_id: &UserId,
 ) {
@@ -189,7 +192,7 @@ fn push_member_access(
 
 pub fn push_partition(
     builder: &mut QueryBuilder<MySql>,
-    definition: &RecordTypeDefinition,
+    definition: &EntityDefinition,
     alias: &str,
 ) {
     if let Some(partition) = &definition.partition {
@@ -243,6 +246,28 @@ fn push_predicate(
     predicate: &Predicate,
     field_type: FieldType,
 ) {
+    if field_type.base_type() == FieldType::MultiSelect {
+        match predicate {
+            Predicate::In(values) => {
+                builder.push("(FALSE");
+                for value in values {
+                    builder.push(format!(" OR JSON_CONTAINS({column}, JSON_ARRAY("));
+                    push_value(builder, value);
+                    builder.push("))");
+                }
+                builder.push(")");
+            }
+            Predicate::Present => {
+                builder.push(format!(
+                    "({column} IS NOT NULL AND JSON_LENGTH({column}) > 0)"
+                ));
+            }
+            _ => {
+                builder.push("FALSE");
+            }
+        }
+        return;
+    }
     match predicate {
         Predicate::Compare(op, value) => {
             builder.push(format!("{column} {} ", op.sql()));
@@ -336,7 +361,7 @@ pub(crate) fn push_record_group(builder: &mut QueryBuilder<MySql>, group: &Recor
 pub(crate) fn push_live_record(
     builder: &mut QueryBuilder<MySql>,
     scope: &AccessScope,
-    definition: &RecordTypeDefinition,
+    definition: &EntityDefinition,
     visibility: &RecordScopeFilter,
     alias: &str,
 ) {
@@ -349,6 +374,8 @@ pub(crate) fn push_live_record(
 
 pub(crate) struct Compiler<'a> {
     pub(crate) scope: &'a AccessScope,
+    definition: &'a EntityDefinition,
+    joined_extensions: bool,
     pub(crate) record_type: &'a str,
     pub(crate) owner: Option<&'a str>,
     pub(crate) alias: String,
@@ -356,18 +383,20 @@ pub(crate) struct Compiler<'a> {
 }
 
 impl<'a> Compiler<'a> {
-    pub(crate) fn new(scope: &'a AccessScope, definition: &'a RecordTypeDefinition) -> Self {
+    pub(crate) fn new(scope: &'a AccessScope, definition: &'a EntityDefinition) -> Self {
         Self::aliased(scope, definition, RECORD_ALIAS, 0)
     }
 
     pub fn aliased(
         scope: &'a AccessScope,
-        definition: &'a RecordTypeDefinition,
+        definition: &'a EntityDefinition,
         alias: &str,
         depth: usize,
     ) -> Self {
         Self {
             scope,
+            definition,
+            joined_extensions: false,
             record_type: definition.record_type.as_str(),
             owner: definition.owner_column.as_deref(),
             alias: alias.to_owned(),
@@ -376,6 +405,17 @@ impl<'a> Compiler<'a> {
     }
 
     pub(crate) fn column(&self, column: &str) -> String {
+        if let Some(field) = self.definition.system_fields.iter().find(|field| {
+            field.column == column && field.extension.is_some() && field.is_available()
+        }) {
+            if self.joined_extensions {
+                return aliased(
+                    &field.extension.as_ref().expect("extension").alias(),
+                    column,
+                );
+            }
+            return crate::infrastructure::query::computed::system_expression(field, &self.alias);
+        }
         aliased(&self.alias, column)
     }
 
@@ -647,7 +687,7 @@ impl<'a> Compiler<'a> {
                                 builder,
                                 "m.option_id",
                                 &condition.predicate,
-                                condition.field_type,
+                                FieldType::Select,
                             );
                         }
                         other => {
@@ -764,8 +804,21 @@ pub fn push_where(
     scope: &AccessScope,
     plan: &QueryPlan,
 ) -> Result<(), AppError> {
+    push_where_with(
+        builder,
+        scope,
+        plan,
+        &Compiler::new(scope, &plan.record_type),
+    )
+}
+
+fn push_where_with(
+    builder: &mut QueryBuilder<MySql>,
+    scope: &AccessScope,
+    plan: &QueryPlan,
+    compiler: &Compiler<'_>,
+) -> Result<(), AppError> {
     let definition = &plan.record_type;
-    let compiler = Compiler::new(scope, definition);
     builder.push(" WHERE TRUE");
     if let Some(column) = &definition.deleted_column {
         builder.push(format!(" AND {} IS NULL", record_column(column)));
@@ -798,7 +851,8 @@ pub fn build_query(
     projection: Projection,
 ) -> Result<QueryBuilder<MySql>, AppError> {
     let definition = &plan.record_type;
-    let compiler = Compiler::new(scope, definition);
+    let mut compiler = Compiler::new(scope, definition);
+    compiler.joined_extensions = true;
     let table = quoted(&definition.table);
     let mut builder = match projection {
         Projection::Count => QueryBuilder::new(format!("SELECT COUNT(*) FROM {table} r")),
@@ -808,7 +862,25 @@ pub fn build_query(
             builder
         }
     };
-    push_where(&mut builder, scope, plan)?;
+    let mut joined = std::collections::BTreeSet::new();
+    for field in definition
+        .system_fields
+        .iter()
+        .filter(|field| field.is_available())
+    {
+        if let Some(extension) = &field.extension
+            && joined.insert(&extension.table)
+        {
+            builder.push(format!(
+                " LEFT JOIN `{}` {} ON {}.`{}` = r.id",
+                extension.table,
+                extension.alias(),
+                extension.alias(),
+                extension.record_column
+            ));
+        }
+    }
+    push_where_with(&mut builder, scope, plan, &compiler)?;
     if let Projection::Ids = projection {
         compiler.push_order(&mut builder, &plan.sort);
         builder

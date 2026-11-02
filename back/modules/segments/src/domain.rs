@@ -13,7 +13,7 @@ pub(crate) const SEGMENT_NAME_TAKEN: &str = "segment_name_taken";
 pub(crate) const SEGMENT_CREATED: &str = "segment.created";
 pub(crate) const SEGMENT_UPDATED: &str = "segment.updated";
 pub(crate) const SEGMENT_DELETED: &str = "segment.deleted";
-pub(crate) const SEGMENT_RECORD_TYPE: RecordType = RecordType::from_static("segment");
+pub(crate) const SEGMENT_RECORD_TYPE: RecordType = RecordType::from_static("segments.segment");
 
 pub(crate) const MAX_SEGMENT_NAME_LENGTH: usize = 140;
 pub(crate) const MAX_SEGMENT_DESCRIPTION_LENGTH: usize = 500;

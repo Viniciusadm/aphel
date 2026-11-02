@@ -34,7 +34,7 @@ function definition(steps: StepSpec[]) {
 export const AUTOMATION_EXAMPLES: AutomationExample[] = [
   {
     key: 'follow_up_proposal',
-    recordType: 'deal',
+    recordType: 'deals.deal',
     trigger: 'deal.stage_changed',
     build: ({ t, stages }) => {
       const stage = proposalStage(stages)
@@ -42,7 +42,7 @@ export const AUTOMATION_EXAMPLES: AutomationExample[] = [
       return {
         name: t('examples.follow_up_proposal.name'),
         description: t('examples.follow_up_proposal.description'),
-        record_type: 'deal',
+        record_type: 'deals.deal',
         trigger: stage ? { type: 'deal.stage_changed', to_stage_id: stage } : { type: 'deal.stage_changed' },
         definition: definition([
           {
@@ -82,12 +82,12 @@ export const AUTOMATION_EXAMPLES: AutomationExample[] = [
   },
   {
     key: 'stale_deal',
-    recordType: 'deal',
+    recordType: 'deals.deal',
     trigger: 'time.record_stale',
     build: ({ t, userId }) => ({
       name: t('examples.stale_deal.name'),
       description: t('examples.stale_deal.description'),
-      record_type: 'deal',
+      record_type: 'deals.deal',
       trigger: { type: 'time.record_stale', mode: 'no_update', days: 7 },
       definition: definition([
         { id: 'ainda_aberta', type: 'condition', filter: OPEN_DEAL, next: 'notificar_gestor' },
@@ -107,12 +107,12 @@ export const AUTOMATION_EXAMPLES: AutomationExample[] = [
   },
   {
     key: 'wait_then_task',
-    recordType: 'deal',
+    recordType: 'deals.deal',
     trigger: 'record.created',
     build: ({ t }) => ({
       name: t('examples.wait_then_task.name'),
       description: t('examples.wait_then_task.description'),
-      record_type: 'deal',
+      record_type: 'deals.deal',
       trigger: { type: 'record.created' },
       definition: definition([
         {
@@ -134,12 +134,12 @@ export const AUTOMATION_EXAMPLES: AutomationExample[] = [
   },
   {
     key: 'welcome_contact',
-    recordType: 'contact',
+    recordType: 'contacts.contact',
     trigger: 'record.created',
     build: ({ t }) => ({
       name: t('examples.welcome_contact.name'),
       description: t('examples.welcome_contact.description'),
-      record_type: 'contact',
+      record_type: 'contacts.contact',
       trigger: { type: 'record.created' },
       definition: definition([
         {
@@ -153,12 +153,12 @@ export const AUTOMATION_EXAMPLES: AutomationExample[] = [
   },
   {
     key: 'deal_won',
-    recordType: 'deal',
+    recordType: 'deals.deal',
     trigger: 'deal.won',
     build: ({ t }) => ({
       name: t('examples.deal_won.name'),
       description: t('examples.deal_won.description'),
-      record_type: 'deal',
+      record_type: 'deals.deal',
       trigger: { type: 'deal.won' },
       definition: definition([
         {

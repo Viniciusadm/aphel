@@ -83,7 +83,7 @@ function ValidationRulesSettings() {
           label={t('recordType')}
           coreLabel={(type) => tFields(`recordTypes.${type}`)}
           to={(type) => `${VALIDATION_RULES_PATH}/${type}`}
-          extraTypes={quotesActive ? [{ value: 'quote', label: tFields('recordTypes.quote') }] : []}
+          extraTypes={quotesActive ? [{ value: 'quotes.quote', label: tFields('recordTypes.quote') }] : []}
         />
         <Button onClick={() => setEditor({ rule: null })}>
           <Plus aria-hidden="true" />

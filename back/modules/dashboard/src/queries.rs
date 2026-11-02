@@ -7,7 +7,7 @@ use sqlx::types::Json;
 use sqlx::{MySql, MySqlPool, QueryBuilder, Row};
 use uuid::Uuid;
 
-use aphel_kernel::application::fields::{RecordTypeDefinition, RecordTypeRegistry};
+use aphel_kernel::application::fields::{EntityDefinition, RecordTypeRegistry};
 use aphel_kernel::application::files::UserReference;
 use aphel_kernel::application::organization_admin::ListWindow;
 use aphel_kernel::application::query::{ArchivedFilter, QueryPlan};
@@ -23,7 +23,7 @@ use aphel_kernel::state::runtime_state;
 use pipelines::domain::StageKind;
 use pipelines::store::PipelineStore;
 
-const NOTE_RECORD_TYPE: &str = "note";
+const NOTE_RECORD_TYPE: &str = "notes.note";
 const PAYLOAD_EVENT_PREFIXES: [&str; 1] = ["deal."];
 
 fn pool() -> Result<MySqlPool, AppError> {
@@ -89,7 +89,7 @@ pub(crate) struct RecentEvent {
 
 #[derive(Debug, Clone, PartialEq)]
 pub(crate) struct ReadableRecords {
-    pub(crate) definition: RecordTypeDefinition,
+    pub(crate) definition: EntityDefinition,
     pub(crate) visibility: RecordScopeFilter,
 }
 

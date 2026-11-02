@@ -10,7 +10,25 @@
     "deal": "Oportunidade",
     "activity": "Atividade",
     "product": "Produto",
-    "quote": "Cotação"
+    "quote": "Cotação",
+    "contacts": {
+      "contact": "Contato"
+    },
+    "companies": {
+      "company": "Empresa"
+    },
+    "deals": {
+      "deal": "Oportunidade"
+    },
+    "activities": {
+      "activity": "Atividade"
+    },
+    "products": {
+      "product": "Produto"
+    },
+    "quotes": {
+      "quote": "Cotação"
+    }
   },
   "status": {
     "pending": "Pendente",

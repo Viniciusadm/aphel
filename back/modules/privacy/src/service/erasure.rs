@@ -16,7 +16,7 @@ use crate::store::{ColumnAssignment, PrivacyStore, free_text_columns};
 use aphel_kernel::Ctx;
 use aphel_kernel::application::fields::{
     CustomFieldPorts, CustomFieldReader, CustomFieldValueRepository, CustomFieldWriter,
-    RecordTypeDefinition, custom_field_path,
+    EntityDefinition, custom_field_path,
 };
 use aphel_kernel::application::shared::{Actor, FieldChange, FileStorage, RecordRef, RecordType};
 use aphel_kernel::domain::access::AccessScope;
@@ -59,7 +59,7 @@ fn neutral_text(record_type: &str) -> &'static str {
 }
 
 pub(crate) fn anonymize_assignments(
-    definition: &RecordTypeDefinition,
+    definition: &EntityDefinition,
     fields: &[PersonalField],
 ) -> Vec<(String, ColumnAssignment)> {
     let mut assignments: Vec<(String, ColumnAssignment)> = Vec::new();
@@ -251,7 +251,7 @@ fn add_full_names(redaction: &mut Redaction, snapshot: &Value, fields: &[Persona
 
 async fn record_redaction(
     ctx: &Ctx<'_>,
-    definition: &RecordTypeDefinition,
+    definition: &EntityDefinition,
     record: &RecordRef,
     snapshot: &Value,
     fields: &[PersonalField],

@@ -18,15 +18,15 @@ export const MAX_POLICY_STEPS = 10;
 export const MIN_DUE_HOURS = 1;
 export const MAX_DUE_HOURS = 2160;
 export const APPROVALS_TAB_KEY = "approvals";
-export const QUOTE_RECORD_TYPE = "quote";
-export const DEAL_RECORD_TYPE = "deal";
+export const QUOTE_RECORD_TYPE = "quotes.quote";
+export const DEAL_RECORD_TYPE = "deals.deal";
 export const STAGE_RECORD_TYPES = [DEAL_RECORD_TYPE];
 export const CORE_RECORD_TYPES = [
-  "contact",
-  "company",
-  "deal",
-  "activity",
-  "product",
+  "contacts.contact",
+  "companies.company",
+  "deals.deal",
+  "activities.activity",
+  "products.product",
 ] as const;
 
 export const APPROVAL_STATUSES: ApprovalStatus[] = [

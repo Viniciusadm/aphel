@@ -55,7 +55,7 @@ const dealsModule = defineModule({
       order: 110,
       routes: [dealMemberRolesSettingsRoute],
     })
-    app.recordSection(['contact', 'company'], {
+    app.recordSection(['contacts.contact', 'companies.company'], {
       key: 'deals',
       label: 'related.tab',
       icon: Briefcase,

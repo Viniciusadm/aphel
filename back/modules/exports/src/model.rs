@@ -10,7 +10,7 @@ use aphel_kernel::domain::access::Permission;
 use aphel_kernel::domain::custom_objects::{is_custom_record_type, object_permission};
 use aphel_kernel::errors::AppError;
 
-pub(crate) const EXPORT_RECORD_TYPE: RecordType = RecordType::from_static("export");
+pub(crate) const EXPORT_RECORD_TYPE: RecordType = RecordType::from_static("exports.export");
 pub(crate) const EXPORT_RUN_JOB: &str = "export.run";
 pub(crate) const EXPORT_PAGE_SIZE: u64 = 500;
 pub(crate) const MAX_EXPORT_ROWS: u64 = 100_000;

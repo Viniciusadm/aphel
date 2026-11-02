@@ -260,7 +260,7 @@ pub fn record_operations() -> Vec<Arc<PluginOperation>> {
         Arc::new(
             PluginOperation::write(
                 "records.archive",
-                "Archive a record (hides it from default lists; not a deletion): { record_type, id }. Supported by contact, company, deal and custom object (co_*) records; other types fail with 422 record_operation_not_supported",
+                "Archive a record (hides it from default lists; not a deletion): { record_type, id }. Supported by contact, company, deal and custom object (custom.*) records; other types fail with 422 record_operation_not_supported",
                 archive,
             )
             .with_durable_mutations(),
@@ -268,7 +268,7 @@ pub fn record_operations() -> Vec<Arc<PluginOperation>> {
         Arc::new(
             PluginOperation::write(
                 "records.restore",
-                "Unarchive an archived record (not a trash restore): { record_type, id }. Supported by contact, company, deal and custom object (co_*) records; other types fail with 422 record_operation_not_supported",
+                "Unarchive an archived record (not a trash restore): { record_type, id }. Supported by contact, company, deal and custom object (custom.*) records; other types fail with 422 record_operation_not_supported",
                 restore,
             )
             .with_durable_mutations(),

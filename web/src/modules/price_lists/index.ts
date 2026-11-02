@@ -7,7 +7,7 @@ import { priceListRoutes } from './routes'
 export { PRICE_LISTS_PATH, priceListPath, priceListsApi, priceListsKeys, useActivePriceLists } from './api'
 export type { DiscountLimit, PriceList, PriceListAppliesTo, PriceListItem } from './types'
 
-const PRODUCT_RECORD_TYPE = 'product'
+const PRODUCT_RECORD_TYPE = 'products.product'
 const BUNDLE_TAB_KEY = 'bundle'
 
 const priceListsModule = defineModule({

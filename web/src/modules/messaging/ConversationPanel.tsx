@@ -120,7 +120,7 @@ function ConversationHeader({ conversation, onBack }: { conversation: Conversati
         <span className="flex min-w-0 items-center gap-1">
           <span className="text-muted-foreground">{t('links.contact')}:</span>
           {conversation.contact ? (
-            <LinkedRecordLabel recordType="contact" record={conversation.contact} />
+            <LinkedRecordLabel recordType="contacts.contact" record={conversation.contact} />
           ) : (
             <span className="text-muted-foreground">{t('links.none')}</span>
           )}
@@ -128,7 +128,7 @@ function ConversationHeader({ conversation, onBack }: { conversation: Conversati
         <span className="flex min-w-0 items-center gap-1">
           <span className="text-muted-foreground">{t('links.deal')}:</span>
           {conversation.deal ? (
-            <LinkedRecordLabel recordType="deal" record={conversation.deal} />
+            <LinkedRecordLabel recordType="deals.deal" record={conversation.deal} />
           ) : (
             <span className="text-muted-foreground">{t('links.none')}</span>
           )}
@@ -341,7 +341,7 @@ function Composer({ conversation }: { conversation: Conversation }) {
             name="composer.tools"
             props={{
               context: conversation.channel.kind === 'email' ? 'email' : 'message',
-              subject: contact ? { recordType: 'contact', recordId: contact.id } : undefined,
+              subject: contact ? { recordType: 'contacts.contact', recordId: contact.id } : undefined,
               value,
               onChange: setValue,
             }}

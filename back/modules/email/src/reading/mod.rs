@@ -9,7 +9,8 @@ use aphel_kernel::errors::AppError;
 pub(crate) const EMAIL_THREAD_NOT_FOUND: &str = "email_thread_not_found";
 pub(crate) const EMAIL_ATTACHMENT_NOT_FOUND: &str = "email_attachment_not_found";
 pub(crate) const EMAIL_THREAD_VISIBILITY_CHANGED: &str = "email_thread.visibility_changed";
-pub(crate) const EMAIL_THREAD_RECORD_TYPE: RecordType = RecordType::from_static("email_thread");
+pub(crate) const EMAIL_THREAD_RECORD_TYPE: RecordType =
+    RecordType::from_static("email.email_thread");
 
 pub(crate) fn thread_not_found() -> AppError {
     AppError::not_found_code(EMAIL_THREAD_NOT_FOUND, "e-mail conversation was not found")

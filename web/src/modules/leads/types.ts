@@ -3,7 +3,7 @@ import type { components } from '@/api'
 type Schemas = components['schemas']
 
 export type TransitionTrigger = 'deal_created' | 'deal_won' | 'all_deals_lost'
-export type LifecycleRecordType = 'contact' | 'company'
+export type LifecycleRecordType = 'contacts.contact' | 'companies.company'
 
 export type LifecycleStageOption = Schemas['LifecycleStageOptionResponse']
 export type LifecycleTransitionRule = Omit<Schemas['LifecycleTransitionRuleResponse'], 'trigger'> & {

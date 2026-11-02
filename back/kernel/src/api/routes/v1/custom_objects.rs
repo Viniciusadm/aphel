@@ -127,7 +127,7 @@ async fn list_custom_objects(
     tag = ADMIN_TAG,
     operation_id = "custom_objects_create",
     security(("session_cookie" = [])),
-    description = "Creates a custom object (permission `settings.manage`) and publishes `custom_object.created`. The `key` (lowercase letters and underscores, immutable) becomes the record type `co_<key>`, the API path `/objects/<key>/records` and the permissions `co_<key>.read|create|update|delete|export|archive`; managers get them with team scope and members with own scope (no export), administrators get everything. The object starts with a required text field `name` used as the record title (`title_field_key`). At most 50 custom objects can exist.",
+    description = "Creates a custom object (permission `settings.manage`) and publishes `custom_object.created`. The `key` (lowercase letters and underscores, immutable) becomes the record type `custom.<key>`, the API path `/objects/<key>/records` and the permissions `custom.<key>.read|create|update|delete|export|archive`; managers get them with team scope and members with own scope (no export), administrators get everything. The object starts with a required text field `name` used as the record title (`title_field_key`). At most 50 custom objects can exist.",
     request_body = CreateCustomObjectRequest,
     responses(
         (status = 201, description = "Custom object created", body = Data<CustomObjectAdminResponse>),
@@ -325,7 +325,7 @@ async fn list_relationships(
     tag = RELATIONSHIPS_TAG,
     operation_id = "relationships_create",
     security(("session_cookie" = [])),
-    description = "Creates a relationship between two record types (`company`, `contact`, `deal`, `product` or an active custom object `co_<key>`), permission `settings.manage`. `cardinality`: `one_to_one`, `one_to_many` (one `from` record, many `to` records) or `many_to_many`. `key` names the relation on the `from` type and `inverse_key` on the `to` type (both used in filters such as `company.industry` and in `related` filter nodes), `from_label` is shown on `from` records and `to_label` on `to` records. `required` makes every new `to` record of a custom object need a link. `on_delete` decides what happens when a `from` record is deleted: `restrict` (default) blocks the deletion while live linked records exist (409 `record_has_relations`), `unlink` lets it go and the links are removed when the record is purged. Publishes `relationship.created`.",
+    description = "Creates a relationship between two record types (`company`, `contact`, `deal`, `product` or an active custom object `custom.<key>`), permission `settings.manage`. `cardinality`: `one_to_one`, `one_to_many` (one `from` record, many `to` records) or `many_to_many`. `key` names the relation on the `from` type and `inverse_key` on the `to` type (both used in filters such as `company.industry` and in `related` filter nodes), `from_label` is shown on `from` records and `to_label` on `to` records. `required` makes every new `to` record of a custom object need a link. `on_delete` decides what happens when a `from` record is deleted: `restrict` (default) blocks the deletion while live linked records exist (409 `record_has_relations`), `unlink` lets it go and the links are removed when the record is purged. Publishes `relationship.created`.",
     request_body = CreateRelationshipRequest,
     responses(
         (status = 201, description = "Relationship created", body = Data<RelationshipResponse>),
@@ -455,7 +455,7 @@ async fn list_objects(
     responses(
         (status = 200, description = "Object schema", body = Data<ObjectSchemaResponse>),
         (status = 401, description = "Missing or invalid credentials (`unauthorized`, `invalid_api_token`)", body = ErrorEnvelope),
-        (status = 403, description = "Missing `co_<key>.read` (`permission_denied`, `insufficient_scope`)", body = ErrorEnvelope),
+        (status = 403, description = "Missing `custom.<key>.read` (`permission_denied`, `insufficient_scope`)", body = ErrorEnvelope),
         (status = 404, description = "Unknown or inactive object (`custom_object_not_found`)", body = ErrorEnvelope),
     )
 )]
@@ -511,7 +511,7 @@ async fn redacted_record(
     tag = RECORDS_TAG,
     operation_id = "objects_records_list",
     security(("session_cookie" = [])),
-    description = "Lists records of a custom object (permission `co_<key>.read`, scope own/team/organization by `owner_id`). Same query language as every listing: the JSON AST in `filter` or `filter[field][operator]=value` over `title`, `owner_id`, `created_at`, `updated_at` and custom fields, conditions on related records (`company.industry`) and `related` nodes (`{\"related\": {\"relationship\": \"company\", \"filter\": {...}}}`), `sort=field,-other`, `search`/`q` over the title and searchable fields and `archived=exclude|include|only`. Field permissions apply.",
+    description = "Lists records of a custom object (permission `custom.<key>.read`, scope own/team/organization by `owner_id`). Same query language as every listing: the JSON AST in `filter` or `filter[field][operator]=value` over `title`, `owner_id`, `created_at`, `updated_at` and custom fields, conditions on related records (`company.industry`) and `related` nodes (`{\"related\": {\"relationship\": \"company\", \"filter\": {...}}}`), `sort=field,-other`, `search`/`q` over the title and searchable fields and `archived=exclude|include|only`. Field permissions apply.",
     params(
         ("key" = String, Path, description = "Object key, such as `contract`"),
         RecordQueryParams,
@@ -521,7 +521,7 @@ async fn redacted_record(
     responses(
         (status = 200, description = "Page of records with their custom fields", body = Page<CustomRecordResponse>),
         (status = 401, description = "Missing or invalid credentials (`unauthorized`, `invalid_api_token`)", body = ErrorEnvelope),
-        (status = 403, description = "Missing `co_<key>.read` (`permission_denied`, `insufficient_scope`)", body = ErrorEnvelope),
+        (status = 403, description = "Missing `custom.<key>.read` (`permission_denied`, `insufficient_scope`)", body = ErrorEnvelope),
         (status = 404, description = "Unknown or inactive object (`custom_object_not_found`)", body = ErrorEnvelope),
         (status = 422, description = "Invalid filter, sort, search or pagination (`validation_error`, `field_not_accessible`)", body = ErrorEnvelope),
     )
@@ -552,13 +552,13 @@ async fn list_object_records(
     tag = RECORDS_TAG,
     operation_id = "objects_records_create",
     security(("session_cookie" = [])),
-    description = "Creates a record of a custom object (permission `co_<key>.create`) and publishes `co_<key>.created`. Values go in `custom_fields` (see `GET /objects/{key}/schema`); the `title` comes from the title field. `owner_id` defaults to the caller when the object has owners. `relations` links the new record in the same transaction: relation key → record id (or list of ids), and required relations must be present.",
+    description = "Creates a record of a custom object (permission `custom.<key>.create`) and publishes `custom.<key>.created`. Values go in `custom_fields` (see `GET /objects/{key}/schema`); the `title` comes from the title field. `owner_id` defaults to the caller when the object has owners. `relations` links the new record in the same transaction: relation key → record id (or list of ids), and required relations must be present.",
     params(("key" = String, Path, description = "Object key")),
     request_body = CustomRecordRequest,
     responses(
         (status = 201, description = "Record created", body = Data<CustomRecordResponse>),
         (status = 401, description = "Missing or invalid credentials (`unauthorized`, `invalid_api_token`)", body = ErrorEnvelope),
-        (status = 403, description = "Missing `co_<key>.create` (`permission_denied`, `insufficient_scope`)", body = ErrorEnvelope),
+        (status = 403, description = "Missing `custom.<key>.create` (`permission_denied`, `insufficient_scope`)", body = ErrorEnvelope),
         (status = 404, description = "Unknown or inactive object (`custom_object_not_found`)", body = ErrorEnvelope),
         (status = 422, description = "Invalid fields or relations (`validation_error` with `details.fields` such as `custom_fields.<key>` or `relations.<key>`), or fields the role cannot write (`field_not_accessible`, `field_read_only`)", body = ErrorEnvelope),
     )
@@ -595,7 +595,7 @@ async fn create_object_record(
     responses(
         (status = 200, description = "The record (archived records included)", body = Data<CustomRecordResponse>),
         (status = 401, description = "Missing or invalid credentials (`unauthorized`, `invalid_api_token`)", body = ErrorEnvelope),
-        (status = 403, description = "Missing `co_<key>.read` (`permission_denied`, `insufficient_scope`)", body = ErrorEnvelope),
+        (status = 403, description = "Missing `custom.<key>.read` (`permission_denied`, `insufficient_scope`)", body = ErrorEnvelope),
         (status = 404, description = "Unknown object (`custom_object_not_found`) or record not found, deleted or outside the read scope (`custom_record_not_found`)", body = ErrorEnvelope),
     )
 )]
@@ -619,7 +619,7 @@ async fn get_object_record(
     tag = RECORDS_TAG,
     operation_id = "objects_records_update",
     security(("session_cookie" = [])),
-    description = "Partially updates a record (permission `co_<key>.update`) and publishes `co_<key>.updated` with the changes. Omitted custom fields stay unchanged and `null` clears one. Links are changed through the relation endpoints. Send `If-Match` with the `updated_at` you read.",
+    description = "Partially updates a record (permission `custom.<key>.update`) and publishes `custom.<key>.updated` with the changes. Omitted custom fields stay unchanged and `null` clears one. Links are changed through the relation endpoints. Send `If-Match` with the `updated_at` you read.",
     params(
         ("key" = String, Path, description = "Object key"),
         ("record_id" = String, Path, description = "Record id"),
@@ -629,7 +629,7 @@ async fn get_object_record(
     responses(
         (status = 200, description = "Record updated", body = Data<CustomRecordResponse>),
         (status = 401, description = "Missing or invalid credentials (`unauthorized`, `invalid_api_token`)", body = ErrorEnvelope),
-        (status = 403, description = "Missing `co_<key>.update` or outside its scope (`permission_denied`, `insufficient_scope`)", body = ErrorEnvelope),
+        (status = 403, description = "Missing `custom.<key>.update` or outside its scope (`permission_denied`, `insufficient_scope`)", body = ErrorEnvelope),
         (status = 404, description = "Record not found (`custom_record_not_found`, `custom_object_not_found`)", body = ErrorEnvelope),
         (status = 409, description = "Changed since the `If-Match` version (`version_conflict`)", body = ErrorEnvelope),
         (status = 422, description = "Invalid fields (`validation_error`) or fields the role cannot write (`field_not_accessible`, `field_read_only`)", body = ErrorEnvelope),
@@ -663,7 +663,7 @@ async fn update_object_record(
     tag = RECORDS_TAG,
     operation_id = "objects_records_delete",
     security(("session_cookie" = [])),
-    description = "Deletes a record (soft delete, permission `co_<key>.delete`) and publishes `co_<key>.deleted`. Relationships with `on_delete: restrict` where the record is on the `from` side block the deletion while live linked records exist.",
+    description = "Deletes a record (soft delete, permission `custom.<key>.delete`) and publishes `custom.<key>.deleted`. Relationships with `on_delete: restrict` where the record is on the `from` side block the deletion while live linked records exist.",
     params(
         ("key" = String, Path, description = "Object key"),
         ("record_id" = String, Path, description = "Record id"),
@@ -671,7 +671,7 @@ async fn update_object_record(
     responses(
         (status = 204, description = "Record deleted"),
         (status = 401, description = "Missing or invalid credentials (`unauthorized`, `invalid_api_token`)", body = ErrorEnvelope),
-        (status = 403, description = "Missing `co_<key>.delete` or outside its scope (`permission_denied`, `insufficient_scope`)", body = ErrorEnvelope),
+        (status = 403, description = "Missing `custom.<key>.delete` or outside its scope (`permission_denied`, `insufficient_scope`)", body = ErrorEnvelope),
         (status = 404, description = "Record not found (`custom_record_not_found`, `custom_object_not_found`)", body = ErrorEnvelope),
         (status = 409, description = "Linked records block the deletion (`record_has_relations`)", body = ErrorEnvelope),
     )
@@ -695,7 +695,7 @@ async fn delete_object_record(
     tag = RECORDS_TAG,
     operation_id = "objects_records_archive",
     security(("session_cookie" = [])),
-    description = "Archives a record (permission `co_<key>.archive`) and publishes `co_<key>.archived`. Archived records leave the default listings (`archived=include|only` brings them back).",
+    description = "Archives a record (permission `custom.<key>.archive`) and publishes `custom.<key>.archived`. Archived records leave the default listings (`archived=include|only` brings them back).",
     params(
         ("key" = String, Path, description = "Object key"),
         ("record_id" = String, Path, description = "Record id"),
@@ -703,7 +703,7 @@ async fn delete_object_record(
     responses(
         (status = 200, description = "Record archived", body = Data<CustomRecordResponse>),
         (status = 401, description = "Missing or invalid credentials (`unauthorized`, `invalid_api_token`)", body = ErrorEnvelope),
-        (status = 403, description = "Missing `co_<key>.archive` (`permission_denied`, `insufficient_scope`)", body = ErrorEnvelope),
+        (status = 403, description = "Missing `custom.<key>.archive` (`permission_denied`, `insufficient_scope`)", body = ErrorEnvelope),
         (status = 404, description = "Record not found (`custom_record_not_found`, `custom_object_not_found`)", body = ErrorEnvelope),
     )
 )]
@@ -728,7 +728,7 @@ async fn archive_object_record(
     tag = RECORDS_TAG,
     operation_id = "objects_records_unarchive",
     security(("session_cookie" = [])),
-    description = "Restores an archived record (permission `co_<key>.archive`) and publishes `co_<key>.unarchived`.",
+    description = "Restores an archived record (permission `custom.<key>.archive`) and publishes `custom.<key>.unarchived`.",
     params(
         ("key" = String, Path, description = "Object key"),
         ("record_id" = String, Path, description = "Record id"),
@@ -736,7 +736,7 @@ async fn archive_object_record(
     responses(
         (status = 200, description = "Record restored", body = Data<CustomRecordResponse>),
         (status = 401, description = "Missing or invalid credentials (`unauthorized`, `invalid_api_token`)", body = ErrorEnvelope),
-        (status = 403, description = "Missing `co_<key>.archive` (`permission_denied`, `insufficient_scope`)", body = ErrorEnvelope),
+        (status = 403, description = "Missing `custom.<key>.archive` (`permission_denied`, `insufficient_scope`)", body = ErrorEnvelope),
         (status = 404, description = "Record not found (`custom_record_not_found`, `custom_object_not_found`)", body = ErrorEnvelope),
     )
 )]
@@ -763,7 +763,7 @@ async fn unarchive_object_record(
     security(("session_cookie" = [])),
     description = "Relations of any record (core or custom) defined by relationships, with the number of linked records the caller can see (`total` is null and `readable` false when the caller cannot read the other type).",
     params(
-        ("record_type" = String, Path, description = "Record type, such as `company` or `co_contract`"),
+        ("record_type" = String, Path, description = "Record type, such as `company` or `custom.contract`"),
         ("record_id" = String, Path, description = "Record id"),
     ),
     responses(

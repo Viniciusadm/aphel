@@ -102,6 +102,19 @@ impl RecordTypeHandler for CustomRecordHandler {
         Ok(pending)
     }
 
+    async fn delete_in_tx(
+        &self,
+        ctx: &RecordCtx<'_>,
+        tx: &mut MySqlTx,
+        id: Uuid,
+    ) -> Result<(), AppError> {
+        let key = self.object_key(ctx).await?;
+        custom_record_use_cases(ctx.state)
+            .await?
+            .delete_in_tx(tx, ctx.scope, &key, &id.to_string(), None)
+            .await
+    }
+
     async fn delete(&self, ctx: &RecordCtx<'_>, id: Uuid) -> Result<(), AppError> {
         let key = self.object_key(ctx).await?;
         custom_record_use_cases(ctx.state)

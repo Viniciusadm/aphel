@@ -11,7 +11,7 @@ use uuid::Uuid;
 use crate::application::fields::formulas::{
     AggregateColumn, AggregateFunction, AggregateQuery, AggregateSource, FormulaSource,
 };
-use crate::application::fields::{RecordTypeDefinition, RelationPath, SystemField};
+use crate::application::fields::{EntityDefinition, RelationPath, SystemField};
 use crate::application::shared::RecordType;
 use crate::domain::access::{AccessScope, RecordScopeFilter};
 use crate::domain::fields::{FORMULA_FIELD_TYPE, FieldType, FieldValue};
@@ -113,7 +113,7 @@ fn value_expression(column: Option<&AggregateColumn>) -> String {
 
 fn push_value_join(
     builder: &mut QueryBuilder<MySql>,
-    target: &RecordTypeDefinition,
+    target: &EntityDefinition,
     column: Option<&AggregateColumn>,
 ) {
     if let Some(AggregateColumn::Custom(field_id)) = column {
@@ -152,7 +152,7 @@ impl FormulaSource for MySqlFormulaSource {
     async fn system_values(
         &self,
         scope: &AccessScope,
-        definition: &RecordTypeDefinition,
+        definition: &EntityDefinition,
         fields: &[SystemField],
         record_ids: &[Uuid],
     ) -> Result<HashMap<Uuid, HashMap<String, FieldValue>>, AppError> {
@@ -332,7 +332,7 @@ impl FormulaSource for MySqlFormulaSource {
     async fn record_ids(
         &self,
         scope: &AccessScope,
-        definition: &RecordTypeDefinition,
+        definition: &EntityDefinition,
         after: Option<Uuid>,
         limit: u32,
     ) -> Result<Vec<Uuid>, AppError> {

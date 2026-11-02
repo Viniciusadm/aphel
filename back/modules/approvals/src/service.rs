@@ -14,7 +14,7 @@ use aphel_kernel::Ctx;
 use aphel_kernel::application::access::Authorizer;
 use aphel_kernel::application::audit::{DiffOptions, diff_values};
 use aphel_kernel::application::config_packages::is_config_key;
-use aphel_kernel::application::fields::{RecordTypeDefinition, RecordTypeRegistry};
+use aphel_kernel::application::fields::{EntityDefinition, RecordTypeRegistry};
 use aphel_kernel::application::organization_admin::{ListWindow, Listing};
 use aphel_kernel::application::query::Filter;
 use aphel_kernel::application::shared::{RecordRef, RecordType, ensure_version};
@@ -23,7 +23,7 @@ use aphel_kernel::domain::access::{AccessScope, Permission};
 use aphel_kernel::errors::{AppError, FieldViolation};
 use aphel_kernel::records::{RecordMutation, changes_payload, publish_mutation};
 
-pub(crate) const QUOTE_RECORD_TYPE: &str = "quote";
+pub(crate) const QUOTE_RECORD_TYPE: &str = "quotes.quote";
 pub(crate) const STAGE_FIELD: &str = "stage_id";
 const INVALID_POLICY: &str = "invalid approval policy";
 const POLICY_DELETED_REASON: &str = "policy_deleted";
@@ -299,7 +299,7 @@ pub(crate) async fn build_policy(
         ));
     }
     let shape = check_shape(registry, draft, &mut violations);
-    let definition: Option<&RecordTypeDefinition> = RecordType::parse(draft.record_type.trim())
+    let definition: Option<&EntityDefinition> = RecordType::parse(draft.record_type.trim())
         .ok()
         .and_then(|record_type| registry.get(&record_type));
     let mut target_id = None;
@@ -382,7 +382,7 @@ pub(crate) async fn build_policy(
 
 async fn build_steps(
     directory: &ApprovalDirectory,
-    definition: Option<&RecordTypeDefinition>,
+    definition: Option<&EntityDefinition>,
     inputs: &[StepInput],
     violations: &mut Vec<FieldViolation>,
 ) -> Result<Vec<PolicyStep>, AppError> {

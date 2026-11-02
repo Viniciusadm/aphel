@@ -3,13 +3,37 @@
     "company": "Empresa",
     "contact": "Contato",
     "deal": "Oportunidade",
-    "product": "Produto"
+    "product": "Produto",
+    "contacts": {
+      "contact": "Contato"
+    },
+    "companies": {
+      "company": "Empresa"
+    },
+    "deals": {
+      "deal": "Oportunidade"
+    },
+    "products": {
+      "product": "Produto"
+    }
   },
   "recordTypesPlural": {
     "company": "Empresas",
     "contact": "Contatos",
     "deal": "Oportunidades",
-    "product": "Produtos"
+    "product": "Produtos",
+    "contacts": {
+      "contact": "Contatos"
+    },
+    "companies": {
+      "company": "Empresas"
+    },
+    "deals": {
+      "deal": "Oportunidades"
+    },
+    "products": {
+      "product": "Produtos"
+    }
   },
   "errors": {
     "title": "Não foi possível concluir",

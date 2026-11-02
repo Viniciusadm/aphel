@@ -182,7 +182,7 @@ impl FavoriteStore {
         if ids.is_empty() {
             return Ok(HashMap::new());
         }
-        if !is_sql_identifier(readable.title_column) {
+        if !is_sql_identifier(&readable.title_column) {
             return Err(AppError::Internal(format!(
                 "invalid title column {}",
                 readable.title_column
@@ -191,7 +191,7 @@ impl FavoriteStore {
         let definition = &readable.definition;
         let mut builder = QueryBuilder::<MySql>::new(format!(
             "SELECT r.id, r.{} AS title FROM {} r WHERE TRUE",
-            quoted(readable.title_column),
+            quoted(&readable.title_column),
             quoted(&definition.table)
         ));
         if let Some(column) = &definition.deleted_column {

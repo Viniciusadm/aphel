@@ -76,7 +76,7 @@ impl EventConsumer for OwnerFollowConsumer {
 
     fn accepts(&self, event_type: &str) -> bool {
         event_type
-            .split_once('.')
+            .rsplit_once('.')
             .is_some_and(|(prefix, action)| OWNER_ACTIONS.contains(&action) && self.known(prefix))
     }
 
@@ -84,10 +84,13 @@ impl EventConsumer for OwnerFollowConsumer {
         let Some(record) = &event.record else {
             return Ok(());
         };
-        let Some((prefix, action)) = event.event_type.split_once('.') else {
+        let Some((prefix, action)) = event.event_type.rsplit_once('.') else {
             return Ok(());
         };
-        if prefix != record.record_type.as_str() {
+        if aphel_kernel::application::shared::RecordType::parse(prefix)
+            .ok()
+            .is_none_or(|key| key != record.record_type)
+        {
             return Ok(());
         }
         let Some(definition) = self.registry.get(&record.record_type) else {

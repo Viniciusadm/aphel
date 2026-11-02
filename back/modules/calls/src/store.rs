@@ -12,7 +12,7 @@ use crate::domain::{
     DEFAULT_CALL_OUTCOMES, SessionCounts, SessionItemStatus,
 };
 use aphel_kernel::Ctx;
-use aphel_kernel::application::fields::RecordTypeDefinition;
+use aphel_kernel::application::fields::EntityDefinition;
 use aphel_kernel::application::files::UserReference;
 use aphel_kernel::application::organization_admin::{ListWindow, Listing};
 use aphel_kernel::database::transaction::MySqlTx;
@@ -159,7 +159,7 @@ impl CallStore {
     pub(crate) async fn report(
         &self,
         scope: &AccessScope,
-        activities: &RecordTypeDefinition,
+        activities: &EntityDefinition,
         visibility: &RecordScopeFilter,
         filter: &CallReportFilter,
     ) -> Result<Vec<CallReportRow>, AppError> {

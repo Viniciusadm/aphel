@@ -710,7 +710,7 @@ async fn draft(
 
 async fn thread_record(ctx: &Ctx<'_>, thread_id: Uuid) -> Result<Option<RecordRef>, AppError> {
     let mut links = LinkStore::of(ctx).links_for_threads(&[thread_id]).await?;
-    links.sort_by_key(|link| link.record.record_type.as_str() != "contact");
+    links.sort_by_key(|link| link.record.record_type.as_str() != "contacts.contact");
     for link in links {
         if is_email_record_type(link.record.record_type.as_str())
             && can_read(ctx, &link.record).await?

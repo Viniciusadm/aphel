@@ -2,7 +2,7 @@ use std::collections::HashMap;
 
 use uuid::Uuid;
 
-use crate::application::fields::{FieldSet, RecordTypeDefinition, ResolvedField};
+use crate::application::fields::{EntityDefinition, FieldSet, ResolvedField};
 use crate::application::search::contents::is_content_key;
 use crate::application::search::text::{
     MAX_VALUE_LENGTH, normalize_content, phone_content, truncate,
@@ -166,7 +166,7 @@ fn entry(field: &IndexedField, raw: &str) -> Option<IndexEntry> {
 }
 
 pub fn build_document(
-    definition: &RecordTypeDefinition,
+    definition: &EntityDefinition,
     fields: &[IndexedField],
     row: &SourceRow,
     custom: &HashMap<Uuid, String>,

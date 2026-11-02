@@ -1,8 +1,8 @@
 {
-  "alter_table_on_foreign_tables": 4,
+  "alter_table_on_foreign_tables": 0,
   "conflict_and_menu_rule_usages": 15,
-  "cross_plugin_foreign_keys": 35,
-  "cross_plugin_sql_references": 164,
+  "cross_plugin_foreign_keys": 34,
+  "cross_plugin_sql_references": 156,
   "kernel_domain_words": 0,
   "kernel_permission_constants_for_plugins": 0,
   "kernel_public_modules": 462,
@@ -19,5 +19,5 @@
   "web_conflict_usages": 0,
   "web_feature_imports_from_plugins": 635,
   "web_imports_across_plugins": 91,
-  "web_shell_domain_words": 135
+  "web_shell_domain_words": 124
 }

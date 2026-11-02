@@ -7,7 +7,22 @@
     "company": "Companies",
     "deal": "Deals",
     "activity": "Tasks",
-    "product": "Products"
+    "product": "Products",
+    "contacts": {
+      "contact": "Contacts"
+    },
+    "companies": {
+      "company": "Companies"
+    },
+    "deals": {
+      "deal": "Deals"
+    },
+    "activities": {
+      "activity": "Tasks"
+    },
+    "products": {
+      "product": "Products"
+    }
   },
   "contexts": {
     "label": "Form",

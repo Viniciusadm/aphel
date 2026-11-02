@@ -100,7 +100,7 @@ function ReportEditor({ report }: { report: Report | null }) {
   const canManage = hasPermission(SETTINGS_MANAGE)
   const allowedTypes = REPORT_RECORD_TYPES.filter((type) => hasPermission(type.permission))
   const [initial] = useState(() =>
-    report ? draftFromReport(report) : emptyDraft(allowedTypes[0]?.recordType ?? 'deal'),
+    report ? draftFromReport(report) : emptyDraft(allowedTypes[0]?.recordType ?? 'deals.deal'),
   )
   const [draft, setDraft] = useState<ReportDraft>(initial)
   const [baseline, setBaseline] = useState(() => serializeDraft(initial))

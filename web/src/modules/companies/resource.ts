@@ -1,9 +1,13 @@
+import { Building2 } from 'lucide-react'
 import { registerRecordResource } from '@/features/records/resources'
 
-export const COMPANY_RECORD_TYPE = 'company'
+export const COMPANY_RECORD_TYPE = 'companies.company'
 export const COMPANIES_PATH = '/companies'
 
 export const companyResource = registerRecordResource({
+  relatable: true,
+  icon: Building2,
+  checkIn: true,
   recordType: COMPANY_RECORD_TYPE,
   createPermission: 'companies.create',
   updatePermission: 'companies.update',

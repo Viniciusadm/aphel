@@ -1047,7 +1047,7 @@ impl RecordTypeHandler for DealHandler {
     }
 
     fn record_type(&self) -> &str {
-        "deal"
+        "deals.deal"
     }
 
     async fn create(&self, ctx: &RecordCtx<'_>, values: Value) -> Result<Value, AppError> {

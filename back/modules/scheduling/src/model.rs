@@ -18,9 +18,10 @@ pub(crate) const MEETING_TYPE_UPDATED: &str = "meeting_type.updated";
 pub(crate) const MEETING_TYPE_DELETED: &str = "meeting_type.deleted";
 
 pub(crate) const AVAILABILITY_RECORD: RecordType =
-    RecordType::from_static("scheduling_availability");
-pub(crate) const MEETING_TYPE_RECORD: RecordType = RecordType::from_static("meeting_type");
-pub(crate) const BOOKING_RECORD: RecordType = RecordType::from_static("meeting_booking");
+    RecordType::from_static("scheduling.scheduling_availability");
+pub(crate) const MEETING_TYPE_RECORD: RecordType =
+    RecordType::from_static("scheduling.meeting_type");
+pub(crate) const BOOKING_RECORD: RecordType = RecordType::from_static("scheduling.meeting_booking");
 
 pub(crate) const MEETING_TYPE_NOT_FOUND: &str = "meeting_type_not_found";
 pub(crate) const MEETING_TYPE_SLUG_TAKEN: &str = "meeting_type_slug_taken";

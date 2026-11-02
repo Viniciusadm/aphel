@@ -5,7 +5,7 @@ use crate::application::access::Authorizer;
 use crate::application::custom_objects::{
     ChangeRecord, RecordLink, RecordLinkRepository, RecordSummary, RelationPorts, publish_change,
 };
-use crate::application::fields::{RecordRelation, RecordTypeDefinition};
+use crate::application::fields::{EntityDefinition, RecordRelation};
 use crate::application::files::RecordAccessChecker;
 use crate::application::organization_admin::{ListWindow, Listing};
 use crate::application::security::Clock;
@@ -319,7 +319,7 @@ where
         scope: &AccessScope,
         record_type: &str,
         record_id: &str,
-    ) -> Result<(&RecordTypeDefinition, RecordRef), AppError> {
+    ) -> Result<(&EntityDefinition, RecordRef), AppError> {
         let definition = self.ports.registry().require(record_type.trim())?;
         let record_id = Uuid::parse_str(record_id.trim()).map_err(|_| record_not_accessible())?;
         let record = RecordRef::new(definition.record_type.clone(), record_id);
@@ -332,7 +332,7 @@ where
 
     fn relation(
         &self,
-        definition: &RecordTypeDefinition,
+        definition: &EntityDefinition,
         relation_key: &str,
     ) -> Result<(RecordRelation, ResolvedRelation), AppError> {
         let relation = definition

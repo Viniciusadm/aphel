@@ -88,6 +88,12 @@ impl Module for ScoringModule {
 
     fn register(&self, app: &mut AppBuilder) -> Result<(), AppError> {
         app.contribute(std::sync::Arc::new(
+            aphel_kernel::application::fields::EntityKeyAliases(&[(
+                "scoring_model",
+                "scoring.scoring_model",
+            )]),
+        ));
+        app.contribute(std::sync::Arc::new(
             aphel_kernel::infrastructure::config_packages::ConfigSectionFactory::new(
                 220,
                 |pool, registry| {

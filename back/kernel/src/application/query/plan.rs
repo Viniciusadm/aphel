@@ -2,7 +2,7 @@ use chrono::{DateTime, NaiveDate, Utc};
 use rust_decimal::Decimal;
 use uuid::Uuid;
 
-use crate::application::fields::{ComputedColumn, RecordRelation, RecordTypeDefinition};
+use crate::application::fields::{ComputedColumn, EntityDefinition, RecordRelation};
 use crate::application::organization_admin::ListWindow;
 use crate::application::query::ArchivedFilter;
 use crate::domain::access::RecordScopeFilter;
@@ -48,7 +48,7 @@ pub struct RecordGroup {
 }
 
 impl RecordGroup {
-    pub fn of(definition: &RecordTypeDefinition, root: Uuid) -> Option<Self> {
+    pub fn of(definition: &EntityDefinition, root: Uuid) -> Option<Self> {
         let hierarchy = definition.available_hierarchy()?;
         Some(Self {
             root,
@@ -98,7 +98,7 @@ pub struct PlanCondition {
 #[derive(Debug, Clone, PartialEq)]
 pub struct RelatedNode {
     pub relation: RecordRelation,
-    pub target: RecordTypeDefinition,
+    pub target: EntityDefinition,
     pub visibility: RecordScopeFilter,
     pub node: Box<PlanNode>,
     pub negated: bool,
@@ -128,7 +128,7 @@ pub struct SearchPlan {
 
 #[derive(Debug, Clone, PartialEq)]
 pub struct QueryPlan {
-    pub record_type: RecordTypeDefinition,
+    pub record_type: EntityDefinition,
     pub visibility: RecordScopeFilter,
     pub filter: Option<PlanNode>,
     pub search: Option<SearchPlan>,

@@ -24,13 +24,43 @@
     "company": "Empresa",
     "deal": "Oportunidade",
     "activity": "Atividade",
-    "product": "Produto"
+    "product": "Produto",
+    "contacts": {
+      "contact": "Contato"
+    },
+    "companies": {
+      "company": "Empresa"
+    },
+    "deals": {
+      "deal": "Oportunidade"
+    },
+    "activities": {
+      "activity": "Atividade"
+    },
+    "products": {
+      "product": "Produto"
+    }
   },
   "recordTypesPlural": {
     "contact": "Contatos",
     "company": "Empresas",
     "deal": "Oportunidades",
     "activity": "Atividades",
-    "product": "Produtos"
+    "product": "Produtos",
+    "contacts": {
+      "contact": "Contatos"
+    },
+    "companies": {
+      "company": "Empresas"
+    },
+    "deals": {
+      "deal": "Oportunidades"
+    },
+    "activities": {
+      "activity": "Atividades"
+    },
+    "products": {
+      "product": "Produtos"
+    }
   }
 }

@@ -162,7 +162,19 @@
       "deal": "Oportunidades",
       "contact": "Contatos",
       "company": "Empresas",
-      "activity": "Atividades"
+      "activity": "Atividades",
+      "contacts": {
+        "contact": "Contatos"
+      },
+      "companies": {
+        "company": "Empresas"
+      },
+      "deals": {
+        "deal": "Oportunidades"
+      },
+      "activities": {
+        "activity": "Atividades"
+      }
     },
     "presets": {
       "today": "Hoje",

@@ -1,6 +1,6 @@
 # Approvals
 
-A generic approval engine over the installation's `RecordTypeRegistry` (`state.registry()`): it applies to the core types, to `quote` and to custom objects (`co_<key>`).
+A generic approval engine over the installation's `RecordTypeRegistry` (`state.registry()`): it applies to the core types, to `quote` and to custom objects (`custom.<key>`).
 
 ## Model
 

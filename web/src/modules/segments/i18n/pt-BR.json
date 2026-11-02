@@ -2,7 +2,16 @@
   "recordTypes": {
     "contact": "Contatos",
     "company": "Empresas",
-    "deal": "Oportunidades"
+    "deal": "Oportunidades",
+    "contacts": {
+      "contact": "Contatos"
+    },
+    "companies": {
+      "company": "Empresas"
+    },
+    "deals": {
+      "deal": "Oportunidades"
+    }
   },
   "page": {
     "title": "Segmentos",

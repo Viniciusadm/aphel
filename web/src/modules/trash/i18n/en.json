@@ -43,7 +43,25 @@
     "deal": "Deals",
     "product": "Products",
     "activity": "Activities",
-    "quote": "Quotes"
+    "quote": "Quotes",
+    "contacts": {
+      "contact": "Contacts"
+    },
+    "companies": {
+      "company": "Companies"
+    },
+    "deals": {
+      "deal": "Deals"
+    },
+    "activities": {
+      "activity": "Activities"
+    },
+    "products": {
+      "product": "Products"
+    },
+    "quotes": {
+      "quote": "Quotes"
+    }
   },
   "placeholders": {
     "retention": "E.g.: 30"

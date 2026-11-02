@@ -112,7 +112,7 @@ async fn summary(
     let ctx = Ctx::from_state(&state, &tenant.scope).await?;
     let scope = ctx.scope;
     scope.require(&USE)?;
-    crate::context::ensure_context_type(&request.record_type)?;
+    crate::context::ensure_context_type(&ctx, &request.record_type)?;
     let session = AiSession::open(&ctx, Feature::Summary).await?;
     let data = features::summary(&ctx, &session, &request.record_type, &request.record_id).await?;
     Ok(Json(Data { data }))
@@ -142,7 +142,7 @@ async fn next_actions(
     let ctx = Ctx::from_state(&state, &tenant.scope).await?;
     let scope = ctx.scope;
     scope.require(&USE)?;
-    crate::context::ensure_context_type(&request.record_type)?;
+    crate::context::ensure_context_type(&ctx, &request.record_type)?;
     let session = AiSession::open(&ctx, Feature::NextActions).await?;
     let data =
         features::next_actions(&ctx, &session, &request.record_type, &request.record_id).await?;
@@ -175,7 +175,7 @@ async fn compose(
     scope.require(&USE)?;
     features::validate_compose(&request)?;
     if let Some(record_type) = &request.record_type {
-        crate::context::ensure_context_type(record_type)?;
+        crate::context::ensure_context_type(&ctx, record_type)?;
     }
     let session = AiSession::open(&ctx, Feature::Compose).await?;
     let data = features::compose(&ctx, &session, request).await?;

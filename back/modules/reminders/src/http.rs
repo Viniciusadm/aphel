@@ -251,7 +251,7 @@ pub(crate) struct CreateReminderRequest {
     pub(crate) remind_at: String,
     #[schema(example = "Follow up on the proposal")]
     pub(crate) note: Option<String>,
-    #[schema(example = "deal")]
+    #[schema(example = "deals.deal")]
     pub(crate) record_type: Option<String>,
     pub(crate) record_id: Option<String>,
 }
@@ -304,7 +304,7 @@ impl UpdateReminderRequest {
 pub(crate) struct ReminderListParams {
     #[param(example = "pending")]
     pub(crate) status: Option<String>,
-    #[param(example = "deal")]
+    #[param(example = "deals.deal")]
     pub(crate) record_type: Option<String>,
     pub(crate) record_id: Option<String>,
 }

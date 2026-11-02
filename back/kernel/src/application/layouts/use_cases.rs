@@ -3,7 +3,7 @@ use uuid::Uuid;
 
 use crate::application::access::Authorizer;
 use crate::application::audit::{DiffOptions, diff_values};
-use crate::application::fields::{FieldDefinitionRepository, FieldSet, RecordTypeDefinition};
+use crate::application::fields::{EntityDefinition, FieldDefinitionRepository, FieldSet};
 use crate::application::layouts::{
     FORM_LAYOUT_RECORD_TYPE, FormLayout, FormLayoutEntry, FormLayoutRepository, LayoutContext,
     LayoutPorts, LayoutsTx, SaveLayoutCommand, StoredFormLayout, validate_layout,
@@ -143,7 +143,7 @@ where
         self.ports.transactions().commit(tx).await
     }
 
-    async fn field_set(&self, definition: &RecordTypeDefinition) -> Result<FieldSet, AppError> {
+    async fn field_set(&self, definition: &EntityDefinition) -> Result<FieldSet, AppError> {
         Ok(FieldSet::new(
             definition,
             self.ports

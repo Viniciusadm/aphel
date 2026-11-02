@@ -11,7 +11,7 @@ use crate::domain::{
     ContactData, ContactSummary, ContactView, NewContactCompanyLink,
 };
 use aphel_kernel::Ctx;
-use aphel_kernel::application::fields::{RecordTypeDefinition, RecordTypeRegistry};
+use aphel_kernel::application::fields::{EntityDefinition, RecordTypeRegistry};
 use aphel_kernel::application::organization_admin::{ListWindow, Listing};
 use aphel_kernel::application::shared::RecordType;
 use aphel_kernel::database::transaction::MySqlTx;
@@ -138,7 +138,7 @@ impl ContactStore {
         Ok(views)
     }
 
-    fn definition(&self, record_type: &RecordType) -> Result<&RecordTypeDefinition, AppError> {
+    fn definition(&self, record_type: &RecordType) -> Result<&EntityDefinition, AppError> {
         self.registry.require(record_type.as_str())
     }
 

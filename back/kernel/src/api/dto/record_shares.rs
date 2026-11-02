@@ -21,7 +21,7 @@ pub struct ShareGranteeResponse {
 #[derive(Debug, Serialize, ToSchema)]
 pub struct RecordShareResponse {
     pub id: String,
-    #[schema(example = "deal")]
+    #[schema(example = "deals.deal")]
     pub record_type: String,
     pub record_id: String,
     pub grantee: ShareGranteeResponse,

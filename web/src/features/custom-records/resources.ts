@@ -3,7 +3,9 @@ import type { components } from '@/api/schema'
 
 export type CustomObject = components['schemas']['CustomObjectResponse']
 
-export const CUSTOM_RECORD_TYPE_PREFIX = 'co_'
+export const CUSTOM_RECORD_TYPE_PREFIX = 'custom.'
+const objectKeys = new Map<string, string>()
+
 export const CUSTOM_RECORD_TITLE_FIELD = 'title'
 export const CUSTOM_RECORD_READ_ONLY_KEYS = [
   'id',
@@ -16,7 +18,7 @@ export const CUSTOM_RECORD_READ_ONLY_KEYS = [
 ]
 
 export function isCustomRecordType(recordType: string): boolean {
-  return recordType.startsWith(CUSTOM_RECORD_TYPE_PREFIX)
+  return objectKeys.has(recordType) || recordType.startsWith(CUSTOM_RECORD_TYPE_PREFIX)
 }
 
 export function customRecordType(key: string): string {
@@ -24,7 +26,7 @@ export function customRecordType(key: string): string {
 }
 
 export function customObjectKey(recordType: string): string {
-  return isCustomRecordType(recordType) ? recordType.slice(CUSTOM_RECORD_TYPE_PREFIX.length) : recordType
+  return objectKeys.get(recordType) ?? (recordType.startsWith(CUSTOM_RECORD_TYPE_PREFIX) ? recordType.slice(CUSTOM_RECORD_TYPE_PREFIX.length) : recordType)
 }
 
 export function customObjectPath(key: string): string {
@@ -44,7 +46,9 @@ export function objectPermission(object: Pick<CustomObject, 'record_type'>, acti
 }
 
 export function registerCustomObjectResources(objects: CustomObject[]) {
+  objectKeys.clear()
   for (const object of objects) {
+    objectKeys.set(object.record_type, object.key)
     registerRecordResource({
       recordType: object.record_type,
       createPermission: objectPermission(object, 'create'),

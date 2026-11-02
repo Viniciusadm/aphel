@@ -17,7 +17,7 @@ use std::sync::Arc;
 use aphel_kernel::modules::Migration;
 
 use aphel_kernel::application::fields::builtin::{field, record_field, timestamps, with_fields};
-use aphel_kernel::application::fields::{EntityTraits, RecordRelation, RecordTypeDefinition};
+use aphel_kernel::application::fields::{EntityDefinition, EntityTraits, RecordRelation};
 use aphel_kernel::application::public_events::{
     PreviousValues, PublicEventDefinition, PublicResource, changed, deleted, event,
 };
@@ -37,7 +37,7 @@ pub use hooks::{
     ManualAmountCalculator, StageChange,
 };
 
-pub const DEAL_RESOURCE: PublicResource = PublicResource::new("deal", "DealResponse");
+pub const DEAL_RESOURCE: PublicResource = PublicResource::new("deals.deal", "DealResponse");
 
 pub const KEY: &str = "deals";
 
@@ -149,6 +149,7 @@ const PUBLIC_EVENTS: &[PublicEventDefinition] = &[
 
 pub(crate) fn deal_capabilities() -> EntityTraits {
     EntityTraits::default()
+        .with_trait("scoring.subject")
         .relatable()
         .importable()
         .exportable()
@@ -167,8 +168,8 @@ pub(crate) fn deal_capabilities() -> EntityTraits {
         .restore_order(4)
 }
 
-pub(crate) fn deal_definition() -> Result<RecordTypeDefinition, AppError> {
-    let definition = RecordTypeDefinition::new(RecordType::DEAL, "deals", Permission::DEALS_READ)
+pub(crate) fn deal_definition() -> Result<EntityDefinition, AppError> {
+    let definition = EntityDefinition::new(RecordType::DEAL, "deals", Permission::DEALS_READ)
         .capabilities(deal_capabilities())
         .update_permission(Permission::DEALS_UPDATE)
         .title_field("title")
@@ -291,6 +292,12 @@ impl Module for DealsModule {
     }
 
     fn register(&self, app: &mut AppBuilder) -> Result<(), AppError> {
+        app.contribute(std::sync::Arc::new(
+            aphel_kernel::application::fields::EntityKeyAliases(&[
+                ("deal", "deals.deal"),
+                ("deal_member_role", "deals.deal_member_role"),
+            ]),
+        ));
         app.contribute::<dyn aphel_kernel::application::notifications::texts::NotificationTexts>(
             std::sync::Arc::new(crate::notifications::DealNotificationTexts),
         );
@@ -383,7 +390,7 @@ impl Module for DealsModule {
             .triggers(crate::automation::deal_closed_triggers())
             .action(Arc::new(crate::automation::MoveStage));
         app.entity(deal_definition()?.handler(Arc::new(http::DealHandler)))
-            .extend("deal", |deal| {
+            .extend("deals.deal", |deal| {
                 deal.member_access(DEAL_MEMBERS_TABLE, "deal_id", "user_id");
             })
             .provide::<dyn AmountCalculator>(Arc::new(ManualAmountCalculator))

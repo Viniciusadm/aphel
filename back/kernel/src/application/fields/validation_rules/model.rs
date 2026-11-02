@@ -5,7 +5,7 @@ use uuid::Uuid;
 use crate::application::fields::WriteMode;
 use crate::application::shared::RecordType;
 use crate::domain::UserId;
-use crate::domain::custom_objects::CUSTOM_OBJECT_PREFIX;
+use crate::domain::custom_objects::is_custom_record_type;
 
 pub const VALIDATION_RULE_FAILED: &str = "validation_rule_failed";
 pub const VALIDATION_RULE_NOT_FOUND: &str = "validation_rule_not_found";
@@ -23,7 +23,7 @@ pub const MAX_RULE_MESSAGE_LENGTH: usize = 500;
 pub const MAX_RULES_PER_RECORD_TYPE: usize = 100;
 
 pub fn is_validated_record_type(record_type: &str) -> bool {
-    record_type.starts_with(CUSTOM_OBJECT_PREFIX)
+    is_custom_record_type(record_type)
         || crate::modules::try_app().is_some_and(|app| {
             app.record_types()
                 .capabilities(record_type)

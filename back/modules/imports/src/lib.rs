@@ -67,6 +67,9 @@ impl Module for ImportsModule {
     }
 
     fn register(&self, app: &mut AppBuilder) -> Result<(), AppError> {
+        app.contribute(std::sync::Arc::new(
+            aphel_kernel::application::fields::EntityKeyAliases(&[("import", "imports.import")]),
+        ));
         app.contribute::<dyn aphel_kernel::application::notifications::texts::NotificationTexts>(
             std::sync::Arc::new(crate::notifications::ImportNotificationTexts),
         );

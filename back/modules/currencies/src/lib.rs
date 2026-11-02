@@ -28,7 +28,7 @@ pub use hooks::{CurrencyConverter, RateCurrencyConverter};
 pub const KEY: &str = "currencies";
 
 pub(crate) const EXCHANGE_RATE_RESOURCE: PublicResource =
-    PublicResource::new("exchange_rate", "ExchangeRateResponse");
+    PublicResource::new("currencies.exchange_rate", "ExchangeRateResponse");
 pub(crate) const CURRENCY_RESOURCE: PublicResource = PublicResource::payload("currency");
 pub(crate) const CURRENCY_BASE_RESOURCE: PublicResource = PublicResource::payload("currency_base");
 
@@ -91,6 +91,12 @@ impl Module for CurrenciesModule {
 
     fn register(&self, app: &mut AppBuilder) -> Result<(), AppError> {
         app.contribute(std::sync::Arc::new(
+            aphel_kernel::application::fields::EntityKeyAliases(&[(
+                "exchange_rate",
+                "currencies.exchange_rate",
+            )]),
+        ));
+        app.contribute(std::sync::Arc::new(
             aphel_kernel::infrastructure::config_packages::ConfigSectionFactory::new(
                 50,
                 |pool, registry| {
@@ -105,7 +111,7 @@ impl Module for CurrenciesModule {
             FieldType::Currency,
         )?;
         let exchange_rate = field("exchange_rate", crate::labels("Quote"), FieldType::Number)?;
-        app.extend("deal", |deal| {
+        app.extend("deals.deal", |deal| {
             deal.system_field(amount_base.clone())
                 .system_field(exchange_rate.clone());
         })

@@ -24,13 +24,43 @@
     "company": "Company",
     "deal": "Deal",
     "activity": "Activity",
-    "product": "Product"
+    "product": "Product",
+    "contacts": {
+      "contact": "Contact"
+    },
+    "companies": {
+      "company": "Company"
+    },
+    "deals": {
+      "deal": "Deal"
+    },
+    "activities": {
+      "activity": "Activity"
+    },
+    "products": {
+      "product": "Product"
+    }
   },
   "recordTypesPlural": {
     "contact": "Contacts",
     "company": "Companies",
     "deal": "Deals",
     "activity": "Activities",
-    "product": "Products"
+    "product": "Products",
+    "contacts": {
+      "contact": "Contacts"
+    },
+    "companies": {
+      "company": "Companies"
+    },
+    "deals": {
+      "deal": "Deals"
+    },
+    "activities": {
+      "activity": "Activities"
+    },
+    "products": {
+      "product": "Products"
+    }
   }
 }

@@ -8,8 +8,8 @@ use uuid::Uuid;
 
 use crate::application::fields::formulas::{AggregateColumn, AggregateFunction, AggregateSource};
 use crate::application::fields::{
-    CustomFieldValueRepository, FieldDefinitionRepository, RecordTypeDefinition,
-    RecordTypeRegistry, ReferenceChecker, SystemField,
+    CustomFieldValueRepository, EntityDefinition, FieldDefinitionRepository, RecordTypeRegistry,
+    ReferenceChecker, SystemField,
 };
 use crate::application::shared::{JobQueue, RecordType, TransactionManager};
 use crate::domain::access::AccessScope;
@@ -30,7 +30,7 @@ pub trait FormulaSource: Send + Sync {
     async fn system_values(
         &self,
         scope: &AccessScope,
-        definition: &RecordTypeDefinition,
+        definition: &EntityDefinition,
         fields: &[SystemField],
         record_ids: &[Uuid],
     ) -> Result<HashMap<Uuid, HashMap<String, FieldValue>>, AppError>;
@@ -48,7 +48,7 @@ pub trait FormulaSource: Send + Sync {
     async fn record_ids(
         &self,
         scope: &AccessScope,
-        definition: &RecordTypeDefinition,
+        definition: &EntityDefinition,
         after: Option<Uuid>,
         limit: u32,
     ) -> Result<Vec<Uuid>, AppError>;

@@ -3,7 +3,7 @@ use chrono::{DateTime, Utc};
 use uuid::Uuid;
 
 use crate::application::fields::{
-    CustomFieldValueRepository, FieldDefinitionRepository, RecordTypeDefinition, RecordTypeRegistry,
+    CustomFieldValueRepository, EntityDefinition, FieldDefinitionRepository, RecordTypeRegistry,
 };
 use crate::application::query::{QueryPlan, RecordQueryExecutor};
 use crate::application::search::contents::SearchContents;
@@ -16,7 +16,7 @@ use crate::modules::BoxFuture;
 
 #[derive(Debug, Clone, PartialEq)]
 pub struct IndexQuery<'a> {
-    pub definition: &'a RecordTypeDefinition,
+    pub definition: &'a EntityDefinition,
     pub visibility: &'a RecordScopeFilter,
     pub field_keys: &'a [String],
     pub terms: &'a [String],
@@ -73,13 +73,13 @@ pub trait SearchIndexRepository: Send + Sync {
 pub trait SearchSource: Send + Sync {
     async fn load(
         &self,
-        definition: &RecordTypeDefinition,
+        definition: &EntityDefinition,
         columns: &[(String, String)],
         record_ids: &[Uuid],
     ) -> Result<Vec<SourceRow>, AppError>;
     async fn scan(
         &self,
-        definition: &RecordTypeDefinition,
+        definition: &EntityDefinition,
         columns: &[(String, String)],
         after: Option<Uuid>,
         limit: u64,

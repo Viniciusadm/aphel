@@ -33,7 +33,7 @@ const RELATION_KEY_MAX_LENGTH = 64
 const LABEL_MAX_LENGTH = 100
 const CARDINALITIES: RelationshipCardinality[] = ['one_to_many', 'one_to_one', 'many_to_many']
 const ON_DELETE_OPTIONS: RelationshipOnDelete[] = ['restrict', 'unlink']
-const DEFAULT_FROM_TYPE = 'company'
+const DEFAULT_FROM_TYPE = 'companies.company'
 
 export interface RelationshipEditorDialogProps {
   relationship: Relationship | null
@@ -86,7 +86,7 @@ function RelationshipForm({ relationship, recordType, onClose, onSaved }: Relati
   const formId = useId()
   const { label, options } = useRecordTypeLabels()
   const editing = relationship !== null
-  const initialFrom = relationship?.from_type ?? (recordType === DEFAULT_FROM_TYPE ? 'contact' : DEFAULT_FROM_TYPE)
+  const initialFrom = relationship?.from_type ?? (recordType === DEFAULT_FROM_TYPE ? 'contacts.contact' : DEFAULT_FROM_TYPE)
   const initialTo = relationship?.to_type ?? recordType
   const [fromType, setFromType] = useState(initialFrom)
   const [toType, setToType] = useState(initialTo)

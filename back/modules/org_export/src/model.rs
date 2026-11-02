@@ -11,7 +11,7 @@ use aphel_kernel::errors::AppError;
 pub(crate) const ORG_EXPORT_FORMAT: &str = "aphel.organization_export";
 pub(crate) const ORG_EXPORT_FORMAT_VERSION: u32 = 1;
 pub(crate) const ORG_EXPORT_RECORD_TYPE: RecordType =
-    RecordType::from_static("organization_export");
+    RecordType::from_static("org_export.organization_export");
 pub(crate) const ORG_EXPORT_RUN_JOB: &str = "organization_export.run";
 pub(crate) const ORG_EXPORT_REQUESTED: &str = "organization_export.requested";
 pub(crate) const ORG_EXPORT_COMPLETED: &str = "organization_export.completed";

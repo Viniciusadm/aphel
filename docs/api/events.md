@@ -140,11 +140,11 @@ Records that stopped being visible before processing (e.g. private notes, record
 | `price_list.items_replaced` | Price list whose prices were replaced (items at `GET /price-lists/{id}/items`) | — |
 | `product_bundle.updated` | Product whose bundle was saved (`context`: `pricing`, `components`; components at `GET /products/{id}/bundle`) | — |
 | `product_bundle.removed` | Product that is no longer a bundle | — |
-| `co_<key>.created` | Custom object record | — |
-| `co_<key>.updated` | Custom object record | `{ <field>: <old value> }` |
-| `co_<key>.deleted` | `{ id }` | — |
-| `co_<key>.archived` | Custom object record | — |
-| `co_<key>.unarchived` | Custom object record | — |
+| `custom.<key>.created` | Custom object record | — |
+| `custom.<key>.updated` | Custom object record | `{ <field>: <old value> }` |
+| `custom.<key>.deleted` | `{ id }` | — |
+| `custom.<key>.archived` | Custom object record | — |
+| `custom.<key>.unarchived` | Custom object record | — |
 
 `data` schemas: `ContactResponse`, `CompanyResponse`, `DealResponse`, `ActivityResponse`, `NoteResponse`, `QuoteDetailResponse`, `ProductResponse`, `PriceListResponse`, `ExchangeRateResponse` and `CustomRecordResponse` in `/api/openapi.json`.
 
@@ -154,7 +154,7 @@ Records that stopped being visible before processing (e.g. private notes, record
 
 The `currency.provider_updated` event (change of the exchange rate provider) stays internal: the provider configuration may contain an address with a credential. The current base currency and the enabled currencies are at `GET /currencies`. A base currency change reaches integrations through `organization.updated` (with `currency` and `previous_currency`) and through `exchange_rate.rebased` (exchange rates converted to the new base).
 
-The `co_<key>.*` events exist for each active custom object of the organization (`co_contract.created` for the `contract` object) and appear with their concrete name in `GET /api/v1/events/catalog`. The record's fields are in `data.custom_fields`; each object's schema is described at runtime by `GET /api/v1/objects/{key}/schema`.
+The `custom.<key>.*` events exist for each active custom object of the organization (`custom.contract.created` for the `contract` object) and appear with their concrete name in `GET /api/v1/events/catalog`. The record's fields are in `data.custom_fields`; each object's schema is described at runtime by `GET /api/v1/objects/{key}/schema`.
 
 A single action can produce several events (e.g. moving a deal to the won stage produces `deal.stage_changed` and `deal.won`), each with its own `id`. Delivery order between events is not guaranteed; use `occurred_at`.
 
@@ -162,7 +162,7 @@ Configuration events with no use for integrations stay internal (they are not in
 
 ## In the code
 
-The catalog is `public_event_catalog()` in `back/kernel/src/application/public_events/catalog.rs`. The body is built by `PublicEventRenderer` (implementation `ApiPublicEventRenderer` in `back/modules/webhooks/src/outgoing/renderer.rs`): records whose type is in the `RecordTypeRegistry` are read through the `RecordTypeHandler`; the other resources (`note`, `exchange_rate`, `price_list`) through a `PublicResourceLoader` contributed by the owning module (`app.contribute::<dyn PublicResourceLoader>(..)`); payload resources use `payload_resource_data`. `previous` comes from `previous_values` according to the definition's `PreviousValues` (`Changes`, `FromTo`, `OldNew`, `Pipeline` or `Fields(&[(field, payload_key)])`). Making an event public means contributing it from the owning module with `app.public_event(..)` and adding a row to this table. Custom object events come from `custom_public_events()` (pattern `co_<key>.<action>`), resolved by `find_public_event` from the type prefix.
+The catalog is `public_event_catalog()` in `back/kernel/src/application/public_events/catalog.rs`. The body is built by `PublicEventRenderer` (implementation `ApiPublicEventRenderer` in `back/modules/webhooks/src/outgoing/renderer.rs`): records whose type is in the `RecordTypeRegistry` are read through the `RecordTypeHandler`; the other resources (`note`, `exchange_rate`, `price_list`) through a `PublicResourceLoader` contributed by the owning module (`app.contribute::<dyn PublicResourceLoader>(..)`); payload resources use `payload_resource_data`. `previous` comes from `previous_values` according to the definition's `PreviousValues` (`Changes`, `FromTo`, `OldNew`, `Pipeline` or `Fields(&[(field, payload_key)])`). Making an event public means contributing it from the owning module with `app.public_event(..)` and adding a row to this table. Custom object events come from `custom_public_events()` (pattern `custom.<key>.<action>`), resolved by `find_public_event` from the type prefix.
 
 ## Plugin events and outgoing webhooks
 

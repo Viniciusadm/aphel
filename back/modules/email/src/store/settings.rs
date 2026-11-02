@@ -229,20 +229,20 @@ impl DirectoryStore {
         }
         let ids: Vec<String> = contact_ids.iter().map(Uuid::to_string).collect();
         let mut builder = QueryBuilder::<MySql>::new(
-            "SELECT 'company' AS record_type, co.id FROM contacts c JOIN companies co \
+            "SELECT 'companies.company' AS record_type, co.id FROM contacts c JOIN companies co \
              ON co.id = c.company_id \
              WHERE co.deleted_at IS NULL AND co.archived_at IS NULL AND c.id IN ",
         );
         push_ids(&mut builder, ids.clone());
         builder.push(
-            " UNION SELECT 'company', co.id FROM contact_companies cc JOIN companies co \
+            " UNION SELECT 'companies.company', co.id FROM contact_companies cc JOIN companies co \
              ON co.id = cc.company_id \
              WHERE co.deleted_at IS NULL AND co.archived_at IS NULL AND cc.contact_id IN ",
         );
         push_ids(&mut builder, ids.clone());
         if include_open_deals {
             builder.push(
-                " UNION SELECT 'deal', d.id FROM deals d \
+                " UNION SELECT 'deals.deal', d.id FROM deals d \
                  WHERE d.status = 'open' AND d.deleted_at IS NULL AND d.archived_at IS NULL \
                  AND (d.contact_id IN ",
             );
@@ -257,7 +257,7 @@ impl DirectoryStore {
         rows.iter()
             .map(|row| {
                 let record_type: String = row.try_get("record_type")?;
-                let record_type = if record_type == "deal" {
+                let record_type = if record_type == "deals.deal" {
                     RecordType::DEAL
                 } else {
                     RecordType::COMPANY

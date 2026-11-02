@@ -24,7 +24,7 @@ pub struct ValidationRuleResponse {
     pub id: String,
     #[schema(example = "discount_needs_reason")]
     pub key: String,
-    #[schema(example = "deal")]
+    #[schema(example = "deals.deal")]
     pub record_type: String,
     #[schema(example = "Discount requires justification")]
     pub name: String,
@@ -75,7 +75,7 @@ pub struct ValidationRuleListParams {
 
 #[derive(Debug, Deserialize, ToSchema)]
 pub struct CreateValidationRuleRequest {
-    #[schema(example = "deal")]
+    #[schema(example = "deals.deal")]
     pub record_type: String,
     #[schema(example = "discount_needs_reason")]
     pub key: Option<String>,
@@ -138,7 +138,7 @@ impl UpdateValidationRuleRequest {
 
 #[derive(Debug, Deserialize, ToSchema)]
 pub struct ReorderValidationRulesRequest {
-    #[schema(example = "deal")]
+    #[schema(example = "deals.deal")]
     pub record_type: String,
     pub ids: Vec<String>,
 }
@@ -155,7 +155,7 @@ impl ReorderValidationRulesRequest {
 
 #[derive(Debug, Deserialize, ToSchema)]
 pub struct ValidationRulePreviewRequest {
-    #[schema(example = "deal")]
+    #[schema(example = "deals.deal")]
     pub record_type: String,
     #[schema(example = "amount > 10000 and is_blank(source)")]
     pub expression: String,

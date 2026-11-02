@@ -10,7 +10,7 @@ export type SegmentsPage = Schemas['Page_SegmentResponse']
 export type SegmentMember = Schemas['SegmentMemberResponse']
 export type SegmentMembersPage = Schemas['Page_SegmentMemberResponse']
 
-export const SEGMENT_RECORD_TYPES = ['contact', 'company', 'deal'] as const
+export const SEGMENT_RECORD_TYPES = ['contacts.contact', 'companies.company', 'deals.deal'] as const
 export type SegmentRecordType = (typeof SEGMENT_RECORD_TYPES)[number]
 export const SEGMENTS_PER_PAGE = 100
 export const MEMBERS_PER_PAGE = 25
@@ -18,9 +18,9 @@ export const MAX_SEGMENT_NAME_LENGTH = 140
 export const MAX_SEGMENT_DESCRIPTION_LENGTH = 500
 
 const READ_PERMISSION: Record<SegmentRecordType, string> = {
-  contact: 'contacts.read',
-  company: 'companies.read',
-  deal: 'deals.read',
+  'contacts.contact': 'contacts.read',
+  'companies.company': 'companies.read',
+  'deals.deal': 'deals.read',
 }
 
 export function segmentReadPermission(recordType: SegmentRecordType): string {

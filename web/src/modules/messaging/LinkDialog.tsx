@@ -77,7 +77,7 @@ function LinkForm({ conversation, onDone }: { conversation: Conversation; onDone
     >
       <Field id={`link-contact-${conversation.id}`} label={t('links.contact')}>
         {contactLocked && conversation.contact ? (
-          <LinkedRecordLabel recordType="contact" record={conversation.contact} />
+          <LinkedRecordLabel recordType="contacts.contact" record={conversation.contact} />
         ) : (
           <RecordFieldInput
             id={`link-contact-${conversation.id}`}
@@ -89,7 +89,7 @@ function LinkForm({ conversation, onDone }: { conversation: Conversation; onDone
       </Field>
       <Field id={`link-deal-${conversation.id}`} label={t('links.deal')}>
         {dealLocked && conversation.deal ? (
-          <LinkedRecordLabel recordType="deal" record={conversation.deal} />
+          <LinkedRecordLabel recordType="deals.deal" record={conversation.deal} />
         ) : (
           <RecordFieldInput
             id={`link-deal-${conversation.id}`}

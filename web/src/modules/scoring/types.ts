@@ -20,7 +20,7 @@ export const SCORING_SIGNALS: ScoringSignal[] = [
   'call_connected',
 ]
 
-export const SCORING_CORE_RECORD_TYPES = ['contact', 'company', 'deal'] as const
+export const SCORING_CORE_RECORD_TYPES = ['contacts.contact', 'companies.company', 'deals.deal'] as const
 
 export const SCORING_MANAGE = 'scoring.manage'
 

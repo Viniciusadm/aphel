@@ -755,7 +755,7 @@ export interface paths {
         };
         get: operations["automations_list"];
         put?: never;
-        /** @description Creates a draft automation over a record type (`contact`, `company`, `deal`, `activity` or `co_<key>`). `trigger` has a `type` from the catalog plus its options; `definition` is the step graph: `start` names the first step and each step is a `condition` (filter AST of the listings, with `trigger.*` paths evaluated over the event: `trigger.previous.<field>`, `trigger.changed_fields`, `trigger.payload.*`; when false the run ends), a `branch` (first matching `cases[]` or `default`) or an `action` (catalog `action` + `config`, whose strings accept templates such as `{{record.title}}`, `{{record.custom.cpf}}`, `{{trigger.previous.stage_id}}`, `{{now + 2d}}` and `{{today + 1w}}`). The graph must be acyclic, without orphan steps, and fields, templates, tags, stages and users are validated now (paths under `trigger.` and `definition.`). Write-only secrets of actions (such as `signing_secret` of `call_webhook`) go to the secret vault and come back only as `<field>_configured`. `key` defaults to a slug of the name. */
+        /** @description Creates a draft automation over a record type (`contact`, `company`, `deal`, `activity` or `custom.<key>`). `trigger` has a `type` from the catalog plus its options; `definition` is the step graph: `start` names the first step and each step is a `condition` (filter AST of the listings, with `trigger.*` paths evaluated over the event: `trigger.previous.<field>`, `trigger.changed_fields`, `trigger.payload.*`; when false the run ends), a `branch` (first matching `cases[]` or `default`) or an `action` (catalog `action` + `config`, whose strings accept templates such as `{{record.title}}`, `{{record.custom.cpf}}`, `{{trigger.previous.stage_id}}`, `{{now + 2d}}` and `{{today + 1w}}`). The graph must be acyclic, without orphan steps, and fields, templates, tags, stages and users are validated now (paths under `trigger.` and `definition.`). Write-only secrets of actions (such as `signing_secret` of `call_webhook`) go to the secret vault and come back only as `<field>_configured`. `key` defaults to a slug of the name. */
         post: operations["automations_create"];
         delete?: never;
         options?: never;
@@ -1861,7 +1861,7 @@ export interface paths {
         /** @description Lists the custom objects of the organization, active or not, ordered by position, with the number of live records (permission `settings.manage`). */
         get: operations["custom_objects_list"];
         put?: never;
-        /** @description Creates a custom object (permission `settings.manage`) and publishes `custom_object.created`. The `key` (lowercase letters and underscores, immutable) becomes the record type `co_<key>`, the API path `/objects/<key>/records` and the permissions `co_<key>.read|create|update|delete|export|archive`; managers get them with team scope and members with own scope (no export), administrators get everything. The object starts with a required text field `name` used as the record title (`title_field_key`). At most 50 custom objects can exist. */
+        /** @description Creates a custom object (permission `settings.manage`) and publishes `custom_object.created`. The `key` (lowercase letters and underscores, immutable) becomes the record type `custom.<key>`, the API path `/objects/<key>/records` and the permissions `custom.<key>.read|create|update|delete|export|archive`; managers get them with team scope and members with own scope (no export), administrators get everything. The object starts with a required text field `name` used as the record title (`title_field_key`). At most 50 custom objects can exist. */
         post: operations["custom_objects_create"];
         delete?: never;
         options?: never;
@@ -2890,6 +2890,54 @@ export interface paths {
         patch?: never;
         trace?: never;
     };
+    "/api/v1/entities": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        get: operations["entities_list"];
+        put?: never;
+        post?: never;
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
+    "/api/v1/entities/{entity}/records": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        get: operations["entity_records_list"];
+        put?: never;
+        post: operations["entity_records_create"];
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
+    "/api/v1/entities/{entity}/records/{id}": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        get: operations["entity_records_get"];
+        put?: never;
+        post?: never;
+        delete: operations["entity_records_delete"];
+        options?: never;
+        head?: never;
+        patch: operations["entity_records_update"];
+        trace?: never;
+    };
     "/api/v1/esign/requests": {
         parameters: {
             query?: never;
@@ -2965,7 +3013,7 @@ export interface paths {
             path?: never;
             cookie?: never;
         };
-        /** @description Stable list of public event types delivered by outgoing webhooks. Each delivery body is `{ id, type, actor: { type, id }, occurred_at, data, previous? }`: `data` is the resource as returned by its `GET /{resource}/{id}` (schema in `data_schema`; null when the event carries its own payload instead of a record), or only `{ id }` when `data_is_id_only`; `previous` carries the old values of the changed fields when `has_previous`. Any authenticated member can read it. The list also has the events of each active custom object (`co_<key>.created|updated|deleted|archived|unarchived`, data schema `CustomRecordResponse`). */
+        /** @description Stable list of public event types delivered by outgoing webhooks. Each delivery body is `{ id, type, actor: { type, id }, occurred_at, data, previous? }`: `data` is the resource as returned by its `GET /{resource}/{id}` (schema in `data_schema`; null when the event carries its own payload instead of a record), or only `{ id }` when `data_is_id_only`; `previous` carries the old values of the changed fields when `has_previous`. Any authenticated member can read it. The list also has the events of each active custom object (`custom.<key>.created|updated|deleted|archived|unarchived`, data schema `CustomRecordResponse`). */
         get: operations["events_catalog"];
         put?: never;
         post?: never;
@@ -5053,10 +5101,10 @@ export interface paths {
             path?: never;
             cookie?: never;
         };
-        /** @description Lists records of a custom object (permission `co_<key>.read`, scope own/team/organization by `owner_id`). Same query language as every listing: the JSON AST in `filter` or `filter[field][operator]=value` over `title`, `owner_id`, `created_at`, `updated_at` and custom fields, conditions on related records (`company.industry`) and `related` nodes (`{"related": {"relationship": "company", "filter": {...}}}`), `sort=field,-other`, `search`/`q` over the title and searchable fields and `archived=exclude|include|only`. Field permissions apply. */
+        /** @description Lists records of a custom object (permission `custom.<key>.read`, scope own/team/organization by `owner_id`). Same query language as every listing: the JSON AST in `filter` or `filter[field][operator]=value` over `title`, `owner_id`, `created_at`, `updated_at` and custom fields, conditions on related records (`company.industry`) and `related` nodes (`{"related": {"relationship": "company", "filter": {...}}}`), `sort=field,-other`, `search`/`q` over the title and searchable fields and `archived=exclude|include|only`. Field permissions apply. */
         get: operations["objects_records_list"];
         put?: never;
-        /** @description Creates a record of a custom object (permission `co_<key>.create`) and publishes `co_<key>.created`. Values go in `custom_fields` (see `GET /objects/{key}/schema`); the `title` comes from the title field. `owner_id` defaults to the caller when the object has owners. `relations` links the new record in the same transaction: relation key → record id (or list of ids), and required relations must be present. */
+        /** @description Creates a record of a custom object (permission `custom.<key>.create`) and publishes `custom.<key>.created`. Values go in `custom_fields` (see `GET /objects/{key}/schema`); the `title` comes from the title field. `owner_id` defaults to the caller when the object has owners. `relations` links the new record in the same transaction: relation key → record id (or list of ids), and required relations must be present. */
         post: operations["objects_records_create"];
         delete?: never;
         options?: never;
@@ -5074,11 +5122,11 @@ export interface paths {
         get: operations["objects_records_get"];
         put?: never;
         post?: never;
-        /** @description Deletes a record (soft delete, permission `co_<key>.delete`) and publishes `co_<key>.deleted`. Relationships with `on_delete: restrict` where the record is on the `from` side block the deletion while live linked records exist. */
+        /** @description Deletes a record (soft delete, permission `custom.<key>.delete`) and publishes `custom.<key>.deleted`. Relationships with `on_delete: restrict` where the record is on the `from` side block the deletion while live linked records exist. */
         delete: operations["objects_records_delete"];
         options?: never;
         head?: never;
-        /** @description Partially updates a record (permission `co_<key>.update`) and publishes `co_<key>.updated` with the changes. Omitted custom fields stay unchanged and `null` clears one. Links are changed through the relation endpoints. Send `If-Match` with the `updated_at` you read. */
+        /** @description Partially updates a record (permission `custom.<key>.update`) and publishes `custom.<key>.updated` with the changes. Omitted custom fields stay unchanged and `null` clears one. Links are changed through the relation endpoints. Send `If-Match` with the `updated_at` you read. */
         patch: operations["objects_records_update"];
         trace?: never;
     };
@@ -5091,7 +5139,7 @@ export interface paths {
         };
         get?: never;
         put?: never;
-        /** @description Archives a record (permission `co_<key>.archive`) and publishes `co_<key>.archived`. Archived records leave the default listings (`archived=include|only` brings them back). */
+        /** @description Archives a record (permission `custom.<key>.archive`) and publishes `custom.<key>.archived`. Archived records leave the default listings (`archived=include|only` brings them back). */
         post: operations["objects_records_archive"];
         delete?: never;
         options?: never;
@@ -5108,7 +5156,7 @@ export interface paths {
         };
         get?: never;
         put?: never;
-        /** @description Restores an archived record (permission `co_<key>.archive`) and publishes `co_<key>.unarchived`. */
+        /** @description Restores an archived record (permission `custom.<key>.archive`) and publishes `custom.<key>.unarchived`. */
         post: operations["objects_records_unarchive"];
         delete?: never;
         options?: never;
@@ -6979,7 +7027,7 @@ export interface paths {
         /** @description Lists the configurable relationships between record types (core or custom), optionally only those touching `record_type`. Members without `settings.manage` only see relationships between types they can read and get `link_count: null`. */
         get: operations["relationships_list"];
         put?: never;
-        /** @description Creates a relationship between two record types (`company`, `contact`, `deal`, `product` or an active custom object `co_<key>`), permission `settings.manage`. `cardinality`: `one_to_one`, `one_to_many` (one `from` record, many `to` records) or `many_to_many`. `key` names the relation on the `from` type and `inverse_key` on the `to` type (both used in filters such as `company.industry` and in `related` filter nodes), `from_label` is shown on `from` records and `to_label` on `to` records. `required` makes every new `to` record of a custom object need a link. `on_delete` decides what happens when a `from` record is deleted: `restrict` (default) blocks the deletion while live linked records exist (409 `record_has_relations`), `unlink` lets it go and the links are removed when the record is purged. Publishes `relationship.created`. */
+        /** @description Creates a relationship between two record types (`company`, `contact`, `deal`, `product` or an active custom object `custom.<key>`), permission `settings.manage`. `cardinality`: `one_to_one`, `one_to_many` (one `from` record, many `to` records) or `many_to_many`. `key` names the relation on the `from` type and `inverse_key` on the `to` type (both used in filters such as `company.industry` and in `related` filter nodes), `from_label` is shown on `from` records and `to_label` on `to` records. `required` makes every new `to` record of a custom object need a link. `on_delete` decides what happens when a `from` record is deleted: `restrict` (default) blocks the deletion while live linked records exist (409 `record_has_relations`), `unlink` lets it go and the links are removed when the record is purged. Publishes `relationship.created`. */
         post: operations["relationships_create"];
         delete?: never;
         options?: never;
@@ -8683,7 +8731,7 @@ export interface components {
             limit?: number | null;
             metrics?: components["schemas"]["AggregateMetric"][] | null;
             period?: null | components["schemas"]["AggregatePeriod"];
-            /** @example deal */
+            /** @example deals.deal */
             record_type: string;
             sort?: components["schemas"]["AggregateSort"][];
         };
@@ -8698,13 +8746,13 @@ export interface components {
             to: string;
         };
         AggregateRelationResponse: {
-            /** @example company */
+            /** @example companies.company */
             key: string;
             /** @example Company */
             label: string;
             readable: boolean;
             single: boolean;
-            /** @example company */
+            /** @example companies.company */
             target_record_type: string;
         };
         AggregateResultResponse: {
@@ -8712,7 +8760,7 @@ export interface components {
             metrics: components["schemas"]["AggregateMetricColumnResponse"][];
             period?: null | components["schemas"]["AggregateRangeResponse"];
             previous_period?: null | components["schemas"]["AggregateRangeResponse"];
-            /** @example deal */
+            /** @example deals.deal */
             record_type: string;
             rows: components["schemas"]["AggregateRowResponse"][];
             /** @example America/Sao_Paulo */
@@ -8734,7 +8782,7 @@ export interface components {
         AggregateSchemaResponse: {
             fields: components["schemas"]["AggregateFieldResponse"][];
             granularities: components["schemas"]["TimeGranularity"][];
-            /** @example deal */
+            /** @example deals.deal */
             record_type: string;
             relations: components["schemas"]["AggregateRelationResponse"][];
         };
@@ -8820,7 +8868,7 @@ export interface components {
         AiQueryRequest: {
             /** @example open deals above 10k with no activity in the last 30 days */
             question: string;
-            /** @example deal */
+            /** @example deals.deal */
             record_type: string;
         };
         AiQueryResult: {
@@ -8833,13 +8881,13 @@ export interface components {
         };
         AiRecordRequest: {
             record_id: string;
-            /** @example contact */
+            /** @example contacts.contact */
             record_type: string;
         };
         AiSource: {
             label?: string | null;
             record_id: string;
-            /** @example note */
+            /** @example notes.note */
             record_type: string;
         };
         AiStatus: {
@@ -9007,7 +9055,7 @@ export interface components {
             name: string;
             /** Format: int32 */
             position: number;
-            /** @example deal */
+            /** @example deals.deal */
             record_type: string;
             steps: components["schemas"]["ApprovalPolicyStepResponse"][];
             target_id?: string | null;
@@ -9084,7 +9132,7 @@ export interface components {
             moment: components["schemas"]["ApprovalMoment"];
             policy_key?: string | null;
             record_id: string;
-            /** @example deal */
+            /** @example deals.deal */
             record_type: string;
             target_id?: string | null;
         };
@@ -9100,7 +9148,7 @@ export interface components {
         AttachFileRequest: {
             file_id: string;
             record_id: string;
-            /** @example contact */
+            /** @example contacts.contact */
             record_type: string;
         };
         AttachmentResponse: {
@@ -9371,7 +9419,7 @@ export interface components {
         BulkExportRequest: {
             columns?: string[];
             format: components["schemas"]["ExportFormatDto"];
-            /** @example contact */
+            /** @example contacts.contact */
             record_type: string;
             selection: components["schemas"]["BulkSelectionRequest"];
         };
@@ -9396,7 +9444,7 @@ export interface components {
             params: Record<string, never>;
             /** Format: int64 */
             processed: number;
-            /** @example contact */
+            /** @example contacts.contact */
             record_type: string;
             requested_by: string;
             /** Format: int64 */
@@ -10180,7 +10228,7 @@ export interface components {
             owner_id?: string | null;
             priority?: null | components["schemas"]["ActivityPriority"];
             record_id?: string | null;
-            /** @example contact */
+            /** @example contacts.contact */
             record_type?: string | null;
             recurrence?: null | components["schemas"]["RecurrenceRuleRequest"];
             /**
@@ -10226,7 +10274,7 @@ export interface components {
             key?: string | null;
             /** @example Follow up on sent proposal */
             name: string;
-            /** @example deal */
+            /** @example deals.deal */
             record_type: string;
             trigger: components["schemas"]["AutomationTrigger"];
         };
@@ -10302,7 +10350,7 @@ export interface components {
         CreateFavoriteRequest: {
             favorite_type: components["schemas"]["FavoriteType"];
             record_id?: string | null;
-            /** @example contact */
+            /** @example contacts.contact */
             record_type?: string | null;
             view_id?: string | null;
         };
@@ -10363,7 +10411,7 @@ export interface components {
             body: string;
             pinned?: boolean | null;
             record_id: string;
-            /** @example contact */
+            /** @example contacts.contact */
             record_type: string;
             visibility?: null | components["schemas"]["NoteVisibility"];
         };
@@ -10405,9 +10453,9 @@ export interface components {
             cardinality: components["schemas"]["RelationshipCardinality"];
             /** @example Contracts */
             from_label: string;
-            /** @example company */
+            /** @example companies.company */
             from_type: string;
-            /** @example company */
+            /** @example companies.company */
             inverse_key: string;
             /** @example contracts */
             key: string;
@@ -10415,14 +10463,14 @@ export interface components {
             required?: boolean;
             /** @example Company */
             to_label: string;
-            /** @example co_contract */
+            /** @example custom.contract */
             to_type: string;
         };
         CreateReminderRequest: {
             /** @example Follow up on the proposal */
             note?: string | null;
             record_id?: string | null;
-            /** @example deal */
+            /** @example deals.deal */
             record_type?: string | null;
             /** @example 2026-10-22T13:00:00Z */
             remind_at: string;
@@ -10442,7 +10490,7 @@ export interface components {
             action: string;
             /** @example Archive inactive contacts */
             name: string;
-            /** @example contact */
+            /** @example contacts.contact */
             record_type?: string | null;
             /**
              * Format: int32
@@ -10494,7 +10542,7 @@ export interface components {
             /** @example lead_score */
             key?: string | null;
             name: string;
-            /** @example contact */
+            /** @example contacts.contact */
             record_type: string;
             /** Format: int64 */
             warm_from?: number | null;
@@ -10504,7 +10552,7 @@ export interface components {
             filter: components["schemas"]["FilterNode"];
             /** @example Hot leads in São Paulo */
             name: string;
-            /** @example contact */
+            /** @example contacts.contact */
             record_type: string;
         };
         CreateStageRequest: {
@@ -10531,8 +10579,8 @@ export interface components {
             name: string;
             /**
              * @example [
-             *       "contact",
-             *       "company"
+             *       "contacts.contact",
+             *       "companies.company"
              *     ]
              */
             record_types?: string[];
@@ -10551,7 +10599,7 @@ export interface components {
             key?: string | null;
             message: string;
             name: string;
-            /** @example deal */
+            /** @example deals.deal */
             record_type: string;
         };
         CreateViewRequest: {
@@ -10627,7 +10675,7 @@ export interface components {
             permissions: string[];
             /** Format: int32 */
             position: number;
-            /** @example co_contract */
+            /** @example custom.contract */
             record_type: string;
             /** @example name */
             title_field_key: string;
@@ -10647,7 +10695,7 @@ export interface components {
             custom_fields: Record<string, never>;
             id: string;
             owner_id?: string | null;
-            /** @example co_contract */
+            /** @example custom.contract */
             record_type: string;
             /** @example Contract 2026-001 */
             title: string;
@@ -10782,7 +10830,7 @@ export interface components {
                 metrics: components["schemas"]["AggregateMetricColumnResponse"][];
                 period?: null | components["schemas"]["AggregateRangeResponse"];
                 previous_period?: null | components["schemas"]["AggregateRangeResponse"];
-                /** @example deal */
+                /** @example deals.deal */
                 record_type: string;
                 rows: components["schemas"]["AggregateRowResponse"][];
                 /** @example America/Sao_Paulo */
@@ -10795,7 +10843,7 @@ export interface components {
             data: {
                 fields: components["schemas"]["AggregateFieldResponse"][];
                 granularities: components["schemas"]["TimeGranularity"][];
-                /** @example deal */
+                /** @example deals.deal */
                 record_type: string;
                 relations: components["schemas"]["AggregateRelationResponse"][];
             };
@@ -10917,7 +10965,7 @@ export interface components {
                 name: string;
                 /** Format: int32 */
                 position: number;
-                /** @example deal */
+                /** @example deals.deal */
                 record_type: string;
                 steps: components["schemas"]["ApprovalPolicyStepResponse"][];
                 target_id?: string | null;
@@ -11052,7 +11100,7 @@ export interface components {
                 params: Record<string, never>;
                 /** Format: int64 */
                 processed: number;
-                /** @example contact */
+                /** @example contacts.contact */
                 record_type: string;
                 requested_by: string;
                 /** Format: int64 */
@@ -11447,7 +11495,7 @@ export interface components {
                 custom_fields: Record<string, never>;
                 id: string;
                 owner_id?: string | null;
-                /** @example co_contract */
+                /** @example custom.contract */
                 record_type: string;
                 /** @example Contract 2026-001 */
                 title: string;
@@ -11681,7 +11729,7 @@ export interface components {
                 duplicate: components["schemas"]["DuplicateRecordSummaryResponse"];
                 id: string;
                 record: components["schemas"]["DuplicateRecordSummaryResponse"];
-                /** @example contact */
+                /** @example contacts.contact */
                 record_type: string;
                 resolved_at?: string | null;
                 /**
@@ -11879,7 +11927,7 @@ export interface components {
                 /** @example xlsx */
                 format: string;
                 id: string;
-                /** @example contact */
+                /** @example contacts.contact */
                 record_type: string;
                 requested_by: string;
                 /** Format: int64 */
@@ -11906,7 +11954,7 @@ export interface components {
         Data_FieldPermissionMatrixResponse: {
             data: {
                 fields: components["schemas"]["FieldPermissionFieldResponse"][];
-                /** @example contact */
+                /** @example contacts.contact */
                 record_type: string;
                 roles: components["schemas"]["FieldPermissionRoleResponse"][];
                 /** @example 2026-10-20T13:45:00Z */
@@ -12090,7 +12138,7 @@ export interface components {
                 mapping: (string | null)[];
                 options: components["schemas"]["ImportOptionsDto"];
                 preview: components["schemas"]["ImportPreviewRow"][];
-                /** @example contact */
+                /** @example contacts.contact */
                 record_type: string;
                 retry_of?: string | null;
                 /** Format: int32 */
@@ -12348,7 +12396,7 @@ export interface components {
                 disqualifications: components["schemas"]["LifecycleDisqualificationCountResponse"][];
                 /** @example 2026-01-01 */
                 from: string;
-                /** @example contact */
+                /** @example contacts.contact */
                 record_type: string;
                 stages: components["schemas"]["LifecycleStageReportResponse"][];
                 /** @example 2026-03-31 */
@@ -12621,7 +12669,7 @@ export interface components {
                 id: string;
                 pinned: boolean;
                 record_id: string;
-                /** @example contact */
+                /** @example contacts.contact */
                 record_type: string;
                 updated_at: string;
                 visibility: components["schemas"]["NoteVisibility"];
@@ -12636,11 +12684,11 @@ export interface components {
             data: {
                 /**
                  * @example [
-                 *       "co_contract.created",
-                 *       "co_contract.updated",
-                 *       "co_contract.deleted",
-                 *       "co_contract.archived",
-                 *       "co_contract.unarchived"
+                 *       "custom.contract.created",
+                 *       "custom.contract.updated",
+                 *       "custom.contract.deleted",
+                 *       "custom.contract.archived",
+                 *       "custom.contract.unarchived"
                  *     ]
                  */
                 events: string[];
@@ -13207,7 +13255,7 @@ export interface components {
                 grantee: components["schemas"]["ShareGranteeResponse"];
                 id: string;
                 record_id: string;
-                /** @example deal */
+                /** @example deals.deal */
                 record_type: string;
                 shared_by?: null | components["schemas"]["UserReferenceResponse"];
                 updated_at: string;
@@ -13240,10 +13288,10 @@ export interface components {
                 created_at: string;
                 /** @example Contracts */
                 from_label: string;
-                /** @example company */
+                /** @example companies.company */
                 from_type: string;
                 id: string;
-                /** @example company */
+                /** @example companies.company */
                 inverse_key: string;
                 /** @example contracts */
                 key: string;
@@ -13253,7 +13301,7 @@ export interface components {
                 required: boolean;
                 /** @example Company */
                 to_label: string;
-                /** @example co_contract */
+                /** @example custom.contract */
                 to_type: string;
                 /** @example 2026-10-20T13:45:00Z */
                 updated_at: string;
@@ -13304,7 +13352,7 @@ export interface components {
                 id: string;
                 name: string;
                 owner_id?: string | null;
-                /** @example deal */
+                /** @example deals.deal */
                 record_type: string;
                 settings: Record<string, never>;
                 team_id?: string | null;
@@ -13482,7 +13530,7 @@ export interface components {
                 /** @example Lead scoring */
                 name: string;
                 recalculated_at?: string | null;
-                /** @example contact */
+                /** @example contacts.contact */
                 record_type: string;
                 /** @example 2026-10-26T13:45:00Z */
                 updated_at: string;
@@ -13511,7 +13559,7 @@ export interface components {
                 /** Format: int64 */
                 member_count?: number | null;
                 name: string;
-                /** @example contact */
+                /** @example contacts.contact */
                 record_type: string;
                 /** @example 2026-10-20T13:45:00Z */
                 updated_at: string;
@@ -13716,7 +13764,7 @@ export interface components {
                 expires_at?: string | null;
                 id: string;
                 owner?: null | components["schemas"]["OwnerResponse"];
-                /** @example contact */
+                /** @example contacts.contact */
                 record_type: string;
                 subtitle?: string | null;
                 title: string;
@@ -13795,12 +13843,15 @@ export interface components {
                 name: string;
                 /** Format: int32 */
                 position: number;
-                /** @example deal */
+                /** @example deals.deal */
                 record_type: string;
                 /** @example 2026-10-20T13:45:00Z */
                 updated_at: string;
                 updated_by?: string | null;
             };
+        };
+        Data_Value: {
+            data: unknown;
         };
         Data_Vec_ActivityTypeResponse: {
             data: {
@@ -13852,7 +13903,7 @@ export interface components {
                 name: string;
                 /** Format: int32 */
                 position: number;
-                /** @example deal */
+                /** @example deals.deal */
                 record_type: string;
                 steps: components["schemas"]["ApprovalPolicyStepResponse"][];
                 target_id?: string | null;
@@ -13918,7 +13969,7 @@ export interface components {
                 permissions: string[];
                 /** Format: int32 */
                 position: number;
-                /** @example co_contract */
+                /** @example custom.contract */
                 record_type: string;
                 /** @example name */
                 title_field_key: string;
@@ -13989,7 +14040,7 @@ export interface components {
                  */
                 merge_fields: string[];
                 permissions: components["schemas"]["DuplicateTypePermissionsResponse"];
-                /** @example contact */
+                /** @example contacts.contact */
                 record_type: string;
                 rules: components["schemas"]["DuplicateRuleResponse"][];
             }[];
@@ -14025,7 +14076,7 @@ export interface components {
                 /** @example contact.first_name */
                 key: string;
                 label: string;
-                /** @example contact */
+                /** @example contacts.contact */
                 record_type: string;
             }[];
         };
@@ -14098,7 +14149,7 @@ export interface components {
         Data_Vec_IncomingActionTargetResponse: {
             data: {
                 fields: components["schemas"]["IncomingMappableFieldResponse"][];
-                /** @example contact */
+                /** @example contacts.contact */
                 record_type: string;
                 type: components["schemas"]["IncomingWebhookActionType"];
             }[];
@@ -14388,7 +14439,7 @@ export interface components {
                 /** @example A deal moved to another stage */
                 description: string;
                 has_previous: boolean;
-                /** @example deal */
+                /** @example deals.deal */
                 resource: string;
                 /** @example deal.stage_changed */
                 type: string;
@@ -14487,7 +14538,7 @@ export interface components {
                 required: boolean;
                 side: components["schemas"]["RelationSide"];
                 single: boolean;
-                /** @example co_contract */
+                /** @example custom.contract */
                 target_type: string;
                 /** Format: int64 */
                 total?: number | null;
@@ -14500,10 +14551,10 @@ export interface components {
                 created_at: string;
                 /** @example Contracts */
                 from_label: string;
-                /** @example company */
+                /** @example companies.company */
                 from_type: string;
                 id: string;
-                /** @example company */
+                /** @example companies.company */
                 inverse_key: string;
                 /** @example contracts */
                 key: string;
@@ -14513,7 +14564,7 @@ export interface components {
                 required: boolean;
                 /** @example Company */
                 to_label: string;
-                /** @example co_contract */
+                /** @example custom.contract */
                 to_type: string;
                 /** @example 2026-10-20T13:45:00Z */
                 updated_at: string;
@@ -14594,7 +14645,7 @@ export interface components {
                 /** @example Lead scoring */
                 name: string;
                 recalculated_at?: string | null;
-                /** @example contact */
+                /** @example contacts.contact */
                 record_type: string;
                 /** @example 2026-10-26T13:45:00Z */
                 updated_at: string;
@@ -14652,7 +14703,7 @@ export interface components {
             data: {
                 custom: boolean;
                 label?: string | null;
-                /** @example contact */
+                /** @example contacts.contact */
                 record_type: string;
             }[];
         };
@@ -14676,7 +14727,7 @@ export interface components {
                 name: string;
                 /** Format: int32 */
                 position: number;
-                /** @example deal */
+                /** @example deals.deal */
                 record_type: string;
                 /** @example 2026-10-20T13:45:00Z */
                 updated_at: string;
@@ -15150,7 +15201,7 @@ export interface components {
             duplicate: components["schemas"]["DuplicateRecordSummaryResponse"];
             id: string;
             record: components["schemas"]["DuplicateRecordSummaryResponse"];
-            /** @example contact */
+            /** @example contacts.contact */
             record_type: string;
             resolved_at?: string | null;
             /**
@@ -15173,7 +15224,7 @@ export interface components {
             mobile?: string | null;
             name?: string | null;
             phone?: string | null;
-            /** @example contact */
+            /** @example contacts.contact */
             record_type: string;
             /**
              * @example {
@@ -15234,7 +15285,7 @@ export interface components {
              */
             merge_fields: string[];
             permissions: components["schemas"]["DuplicateTypePermissionsResponse"];
-            /** @example contact */
+            /** @example contacts.contact */
             record_type: string;
             rules: components["schemas"]["DuplicateRuleResponse"][];
         };
@@ -15301,7 +15352,7 @@ export interface components {
         };
         EmailRecordInput: {
             record_id: string;
-            /** @example contact */
+            /** @example contacts.contact */
             record_type: string;
         };
         EmailTemplateResponse: {
@@ -15321,7 +15372,7 @@ export interface components {
             /** @example contact.first_name */
             key: string;
             label: string;
-            /** @example contact */
+            /** @example contacts.contact */
             record_type: string;
         };
         EmailThreadDetailResponse: components["schemas"]["EmailThreadResponse"] & {
@@ -15335,7 +15386,7 @@ export interface components {
             /** @example automatic */
             origin: string;
             record_id: string;
-            /** @example contact */
+            /** @example contacts.contact */
             record_type: string;
         };
         EmailThreadResponse: {
@@ -15542,7 +15593,7 @@ export interface components {
             /** @example xlsx */
             format: string;
             id: string;
-            /** @example contact */
+            /** @example contacts.contact */
             record_type: string;
             requested_by: string;
             /** Format: int64 */
@@ -15572,7 +15623,7 @@ export interface components {
             columns?: string[];
             filter?: null | components["schemas"]["FilterNode"];
             format: components["schemas"]["ExportFormatDto"];
-            /** @example contact */
+            /** @example contacts.contact */
             record_type: string;
             search?: string | null;
             /** @example -created_at,name */
@@ -15662,7 +15713,7 @@ export interface components {
         };
         FieldPermissionMatrixResponse: {
             fields: components["schemas"]["FieldPermissionFieldResponse"][];
-            /** @example contact */
+            /** @example contacts.contact */
             record_type: string;
             roles: components["schemas"]["FieldPermissionRoleResponse"][];
             /** @example 2026-10-20T13:45:00Z */
@@ -15753,7 +15804,7 @@ export interface components {
             /** @example owner */
             origin: string;
             record_id: string;
-            /** @example deal */
+            /** @example deals.deal */
             record_type: string;
             title?: string | null;
         };
@@ -15921,7 +15972,7 @@ export interface components {
             /** @example days_to_close */
             field_key?: string | null;
             record_id?: string | null;
-            /** @example deal */
+            /** @example deals.deal */
             record_type: string;
             result_type: components["schemas"]["FormulaResultType"];
         };
@@ -16101,7 +16152,7 @@ export interface components {
             mapping: (string | null)[];
             options: components["schemas"]["ImportOptionsDto"];
             preview: components["schemas"]["ImportPreviewRow"][];
-            /** @example contact */
+            /** @example contacts.contact */
             record_type: string;
             retry_of?: string | null;
             /** Format: int32 */
@@ -16159,7 +16210,7 @@ export interface components {
             /** @example Email */
             label: string;
             multiple: boolean;
-            /** @example company */
+            /** @example companies.company */
             relation_target?: string | null;
             required: boolean;
             /** @example name */
@@ -16182,7 +16233,7 @@ export interface components {
         ImportUploadForm: {
             /** Format: binary */
             file: string;
-            /** @example contact */
+            /** @example contacts.contact */
             record_type: string;
             retry_of?: string | null;
         };
@@ -16229,7 +16280,7 @@ export interface components {
             /** @example created */
             operation?: string | null;
             record_id?: string | null;
-            /** @example contact */
+            /** @example contacts.contact */
             record_type?: string | null;
             /** @example succeeded */
             status: string;
@@ -16237,7 +16288,7 @@ export interface components {
         };
         IncomingActionTargetResponse: {
             fields: components["schemas"]["IncomingMappableFieldResponse"][];
-            /** @example contact */
+            /** @example contacts.contact */
             record_type: string;
             type: components["schemas"]["IncomingWebhookActionType"];
         };
@@ -16590,7 +16641,7 @@ export interface components {
             created_at: string;
             id: string;
             record_id?: string | null;
-            /** @example deal */
+            /** @example deals.deal */
             record_type?: string | null;
             rule_id: string;
             rule_key: string;
@@ -16667,7 +16718,7 @@ export interface components {
             members?: components["schemas"]["LeadDistributionMemberRequest"][] | null;
             /** @example Website leads */
             name?: string | null;
-            /** @example deal */
+            /** @example deals.deal */
             record_type?: string | null;
             routing?: null | components["schemas"]["LeadDistributionRoutingRequest"];
             strategy?: null | components["schemas"]["LeadDistributionStrategy"];
@@ -16896,7 +16947,7 @@ export interface components {
             disqualifications: components["schemas"]["LifecycleDisqualificationCountResponse"][];
             /** @example 2026-01-01 */
             from: string;
-            /** @example contact */
+            /** @example contacts.contact */
             record_type: string;
             stages: components["schemas"]["LifecycleStageReportResponse"][];
             /** @example 2026-03-31 */
@@ -16965,7 +17016,7 @@ export interface components {
         };
         LinkEmailThreadRequest: {
             record_id: string;
-            /** @example deal */
+            /** @example deals.deal */
             record_type: string;
         };
         LinkRecordRequest: {
@@ -16993,7 +17044,7 @@ export interface components {
         };
         LinkedRecordResponse: {
             record_id: string;
-            /** @example deal */
+            /** @example deals.deal */
             record_type: string;
             title?: string | null;
         };
@@ -17014,7 +17065,7 @@ export interface components {
             provider?: string | null;
             provider_call_id?: string | null;
             record_id?: string | null;
-            /** @example contact */
+            /** @example contacts.contact */
             record_type?: string | null;
             recording_url?: string | null;
             title?: string | null;
@@ -17136,7 +17187,7 @@ export interface components {
         MeetingQuestionRequest: {
             /** @example job_title */
             contact_field?: string | null;
-            /** @example company */
+            /** @example companies.company */
             key?: string | null;
             kind?: null | components["schemas"]["MeetingQuestionKind"];
             /** @example Company */
@@ -17241,7 +17292,7 @@ export interface components {
                 [key: string]: string;
             };
             primary_id: string;
-            /** @example contact */
+            /** @example contacts.contact */
             record_type: string;
         };
         MergeResponse: {
@@ -17361,7 +17412,7 @@ export interface components {
             /** @example import */
             kind: string;
             links: string[];
-            /** @example deal */
+            /** @example deals.deal */
             record_type: string;
         };
         MigrationUploadForm: {
@@ -17518,7 +17569,7 @@ export interface components {
             id: string;
             pinned: boolean;
             record_id: string;
-            /** @example contact */
+            /** @example contacts.contact */
             record_type: string;
             updated_at: string;
             visibility: components["schemas"]["NoteVisibility"];
@@ -17569,23 +17620,23 @@ export interface components {
             title: string;
         };
         ObjectRelationResponse: {
-            /** @example company */
+            /** @example companies.company */
             key: string;
             /** @example Company */
             label: string;
             relationship_key?: string | null;
             single: boolean;
-            /** @example company */
+            /** @example companies.company */
             target_type: string;
         };
         ObjectSchemaResponse: {
             /**
              * @example [
-             *       "co_contract.created",
-             *       "co_contract.updated",
-             *       "co_contract.deleted",
-             *       "co_contract.archived",
-             *       "co_contract.unarchived"
+             *       "custom.contract.created",
+             *       "custom.contract.updated",
+             *       "custom.contract.deleted",
+             *       "custom.contract.archived",
+             *       "custom.contract.unarchived"
              *     ]
              */
             events: string[];
@@ -17925,7 +17976,7 @@ export interface components {
                 name: string;
                 /** Format: int32 */
                 position: number;
-                /** @example deal */
+                /** @example deals.deal */
                 record_type: string;
                 steps: components["schemas"]["ApprovalPolicyStepResponse"][];
                 target_id?: string | null;
@@ -18050,7 +18101,7 @@ export interface components {
                 params: Record<string, never>;
                 /** Format: int64 */
                 processed: number;
-                /** @example contact */
+                /** @example contacts.contact */
                 record_type: string;
                 requested_by: string;
                 /** Format: int64 */
@@ -18278,7 +18329,7 @@ export interface components {
                 custom_fields: Record<string, never>;
                 id: string;
                 owner_id?: string | null;
-                /** @example co_contract */
+                /** @example custom.contract */
                 record_type: string;
                 /** @example Contract 2026-001 */
                 title: string;
@@ -18356,7 +18407,7 @@ export interface components {
                 duplicate: components["schemas"]["DuplicateRecordSummaryResponse"];
                 id: string;
                 record: components["schemas"]["DuplicateRecordSummaryResponse"];
-                /** @example contact */
+                /** @example contacts.contact */
                 record_type: string;
                 resolved_at?: string | null;
                 /**
@@ -18423,7 +18474,7 @@ export interface components {
                 /** @example xlsx */
                 format: string;
                 id: string;
-                /** @example contact */
+                /** @example contacts.contact */
                 record_type: string;
                 requested_by: string;
                 /** Format: int64 */
@@ -18505,7 +18556,7 @@ export interface components {
                 /** @example owner */
                 origin: string;
                 record_id: string;
-                /** @example deal */
+                /** @example deals.deal */
                 record_type: string;
                 title?: string | null;
             }[];
@@ -18581,7 +18632,7 @@ export interface components {
                 mapping: (string | null)[];
                 options: components["schemas"]["ImportOptionsDto"];
                 preview: components["schemas"]["ImportPreviewRow"][];
-                /** @example contact */
+                /** @example contacts.contact */
                 record_type: string;
                 retry_of?: string | null;
                 /** Format: int32 */
@@ -18670,7 +18721,7 @@ export interface components {
                 created_at: string;
                 id: string;
                 record_id?: string | null;
-                /** @example deal */
+                /** @example deals.deal */
                 record_type?: string | null;
                 rule_id: string;
                 rule_key: string;
@@ -18838,7 +18889,7 @@ export interface components {
                 id: string;
                 pinned: boolean;
                 record_id: string;
-                /** @example contact */
+                /** @example contacts.contact */
                 record_type: string;
                 updated_at: string;
                 visibility: components["schemas"]["NoteVisibility"];
@@ -19055,7 +19106,7 @@ export interface components {
         Page_RelatedRecordResponse: {
             data: {
                 id: string;
-                /** @example co_contract */
+                /** @example custom.contract */
                 record_type: string;
                 title?: string | null;
             }[];
@@ -19103,7 +19154,7 @@ export interface components {
                 id: string;
                 name: string;
                 owner_id?: string | null;
-                /** @example deal */
+                /** @example deals.deal */
                 record_type: string;
                 settings: Record<string, never>;
                 team_id?: string | null;
@@ -19242,7 +19293,7 @@ export interface components {
                 /** Format: int64 */
                 member_count?: number | null;
                 name: string;
-                /** @example contact */
+                /** @example contacts.contact */
                 record_type: string;
                 /** @example 2026-10-20T13:45:00Z */
                 updated_at: string;
@@ -19338,11 +19389,15 @@ export interface components {
                 expires_at?: string | null;
                 id: string;
                 owner?: null | components["schemas"]["OwnerResponse"];
-                /** @example contact */
+                /** @example contacts.contact */
                 record_type: string;
                 subtitle?: string | null;
                 title: string;
             }[];
+            meta: components["schemas"]["PageMeta"];
+        };
+        Page_Value: {
+            data: unknown[];
             meta: components["schemas"]["PageMeta"];
         };
         Page_WebhookDeliveryResponse: {
@@ -19882,7 +19937,7 @@ export interface components {
         PrivacyTargetRecordResponse: {
             exists: boolean;
             id: string;
-            /** @example contact */
+            /** @example contacts.contact */
             record_type: string;
             title: string;
         };
@@ -20102,7 +20157,7 @@ export interface components {
             /** @example A deal moved to another stage */
             description: string;
             has_previous: boolean;
-            /** @example deal */
+            /** @example deals.deal */
             resource: string;
             /** @example deal.stage_changed */
             type: string;
@@ -20466,17 +20521,17 @@ export interface components {
         };
         RecordLinkRequest: {
             record_id: string;
-            /** @example contact */
+            /** @example contacts.contact */
             record_type: string;
         };
         RecordRefBody: {
             id: string;
-            /** @example contact */
+            /** @example contacts.contact */
             record_type: string;
         };
         RecordRefResponse: {
             id: string;
-            /** @example contact */
+            /** @example contacts.contact */
             record_type: string;
         };
         /** @enum {string} */
@@ -20506,7 +20561,7 @@ export interface components {
             grantee: components["schemas"]["ShareGranteeResponse"];
             id: string;
             record_id: string;
-            /** @example deal */
+            /** @example deals.deal */
             record_type: string;
             shared_by?: null | components["schemas"]["UserReferenceResponse"];
             updated_at: string;
@@ -20573,12 +20628,12 @@ export interface components {
         RelatedFilter: {
             filter: components["schemas"]["FilterNode"];
             none?: boolean;
-            /** @example company */
+            /** @example companies.company */
             relationship: string;
         };
         RelatedRecordResponse: {
             id: string;
-            /** @example co_contract */
+            /** @example custom.contract */
             record_type: string;
             title?: string | null;
         };
@@ -20592,7 +20647,7 @@ export interface components {
             required: boolean;
             side: components["schemas"]["RelationSide"];
             single: boolean;
-            /** @example co_contract */
+            /** @example custom.contract */
             target_type: string;
             /** Format: int64 */
             total?: number | null;
@@ -20609,10 +20664,10 @@ export interface components {
             created_at: string;
             /** @example Contracts */
             from_label: string;
-            /** @example company */
+            /** @example companies.company */
             from_type: string;
             id: string;
-            /** @example company */
+            /** @example companies.company */
             inverse_key: string;
             /** @example contracts */
             key: string;
@@ -20622,7 +20677,7 @@ export interface components {
             required: boolean;
             /** @example Company */
             to_label: string;
-            /** @example co_contract */
+            /** @example custom.contract */
             to_type: string;
             /** @example 2026-10-20T13:45:00Z */
             updated_at: string;
@@ -20707,7 +20762,7 @@ export interface components {
         };
         ReorderValidationRulesRequest: {
             ids: string[];
-            /** @example deal */
+            /** @example deals.deal */
             record_type: string;
         };
         ReplacePriceListItemsRequest: {
@@ -20745,7 +20800,7 @@ export interface components {
             id: string;
             name: string;
             owner_id?: string | null;
-            /** @example deal */
+            /** @example deals.deal */
             record_type: string;
             settings: Record<string, never>;
             team_id?: string | null;
@@ -21113,7 +21168,7 @@ export interface components {
             /** @example Lead scoring */
             name: string;
             recalculated_at?: string | null;
-            /** @example contact */
+            /** @example contacts.contact */
             record_type: string;
             /** @example 2026-10-26T13:45:00Z */
             updated_at: string;
@@ -21128,14 +21183,14 @@ export interface components {
         ScoringSignal: "email_opened" | "email_clicked" | "email_replied" | "meeting_booked" | "form_submitted" | "call_connected";
         SearchGroupResponse: {
             items: components["schemas"]["SearchHitResponse"][];
-            /** @example contact */
+            /** @example contacts.contact */
             record_type: string;
             /** Format: int64 */
             total: number;
         };
         SearchHitResponse: {
             id: string;
-            /** @example contact */
+            /** @example contacts.contact */
             record_type: string;
             /**
              * Format: double
@@ -21198,7 +21253,7 @@ export interface components {
             /** Format: int64 */
             member_count?: number | null;
             name: string;
-            /** @example contact */
+            /** @example contacts.contact */
             record_type: string;
             /** @example 2026-10-20T13:45:00Z */
             updated_at: string;
@@ -21487,7 +21542,7 @@ export interface components {
         };
         StartBulkRequest: {
             action: components["schemas"]["BulkActionRequest"];
-            /** @example contact */
+            /** @example contacts.contact */
             record_type: string;
             selection: components["schemas"]["BulkSelectionRequest"];
         };
@@ -21571,7 +21626,7 @@ export interface components {
             deleted: boolean;
             id: string;
             matched_fields: string[];
-            /** @example contact */
+            /** @example contacts.contact */
             record_type: string;
             subtitle?: string | null;
             title: string;
@@ -21774,7 +21829,7 @@ export interface components {
             expires_at?: string | null;
             id: string;
             owner?: null | components["schemas"]["OwnerResponse"];
-            /** @example contact */
+            /** @example contacts.contact */
             record_type: string;
             subtitle?: string | null;
             title: string;
@@ -21789,7 +21844,7 @@ export interface components {
         TrashTypeResponse: {
             custom: boolean;
             label?: string | null;
-            /** @example contact */
+            /** @example contacts.contact */
             record_type: string;
         };
         TriggerCatalogEntry: {
@@ -21913,7 +21968,7 @@ export interface components {
             name?: string | null;
         };
         UpdateDuplicateRulesRequest: {
-            /** @example contact */
+            /** @example contacts.contact */
             record_type: string;
             /**
              * @example {
@@ -22201,7 +22256,7 @@ export interface components {
             /** Format: binary */
             file: string;
             record_id?: string | null;
-            /** @example contact */
+            /** @example contacts.contact */
             record_type?: string | null;
         };
         UploadFileResponse: {
@@ -22219,7 +22274,7 @@ export interface components {
             /** @example amount > 10000 and is_blank(source) */
             expression: string;
             record_id?: string | null;
-            /** @example deal */
+            /** @example deals.deal */
             record_type: string;
         };
         ValidationRulePreviewResponse: {
@@ -22245,7 +22300,7 @@ export interface components {
             name: string;
             /** Format: int32 */
             position: number;
-            /** @example deal */
+            /** @example deals.deal */
             record_type: string;
             /** @example 2026-10-20T13:45:00Z */
             updated_at: string;
@@ -22429,7 +22484,7 @@ export interface operations {
     activities_list: {
         parameters: {
             query?: {
-                /** @example contact */
+                /** @example contacts.contact */
                 record_type?: string;
                 record_id?: string;
                 my_open?: boolean;
@@ -24272,7 +24327,7 @@ export interface operations {
     approval_policies_list: {
         parameters: {
             query?: {
-                /** @example deal */
+                /** @example deals.deal */
                 record_type?: string;
                 active?: boolean;
                 page?: number;
@@ -25163,7 +25218,7 @@ export interface operations {
     attachments_list: {
         parameters: {
             query: {
-                /** @example contact */
+                /** @example contacts.contact */
                 record_type: string;
                 /** @example 0190a8f2-7c1e-7b3a-9f00-000000000000 */
                 record_id: string;
@@ -35081,7 +35136,7 @@ export interface operations {
     duplicates_list: {
         parameters: {
             query?: {
-                /** @example contact */
+                /** @example contacts.contact */
                 record_type?: string;
                 /** @example pending */
                 status?: string;
@@ -35299,7 +35354,7 @@ export interface operations {
     duplicates_get_rules: {
         parameters: {
             query: {
-                /** @example contact */
+                /** @example contacts.contact */
                 record_type: string;
             };
             header?: never;
@@ -36334,7 +36389,7 @@ export interface operations {
             query?: {
                 /** @example all */
                 scope?: string;
-                /** @example contact */
+                /** @example contacts.contact */
                 record_type?: string;
             };
             header?: never;
@@ -36465,7 +36520,7 @@ export interface operations {
     email_templates_variables: {
         parameters: {
             query?: {
-                /** @example deal */
+                /** @example deals.deal */
                 record_type?: string;
             };
             header?: never;
@@ -36721,7 +36776,7 @@ export interface operations {
     email_threads_list: {
         parameters: {
             query: {
-                /** @example contact */
+                /** @example contacts.contact */
                 record_type: string;
                 record_id: string;
                 page?: number;
@@ -37546,6 +37601,254 @@ export interface operations {
             };
             /** @description Lookup expired (`enrichment_lookup_expired`), nothing to apply (`enrichment_nothing_to_apply`) or a value refused by the company validation (`validation_error`). `Idempotency-Key` already used with a different request (`idempotency_key_reused`) or longer than 255 characters (`validation_error`) */
             422: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["ErrorEnvelope"];
+                };
+            };
+            /** @description API token rate limit exceeded (`rate_limited`); see `Retry-After` and `X-RateLimit-*` */
+            429: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["ErrorEnvelope"];
+                };
+            };
+        };
+    };
+    entities_list: {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        requestBody?: never;
+        responses: {
+            200: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": Record<string, never>;
+                };
+            };
+            403: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["ErrorEnvelope"];
+                };
+            };
+            /** @description API token rate limit exceeded (`rate_limited`); see `Retry-After` and `X-RateLimit-*` */
+            429: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["ErrorEnvelope"];
+                };
+            };
+        };
+    };
+    entity_records_list: {
+        parameters: {
+            query?: never;
+            header?: never;
+            path: {
+                entity: string;
+            };
+            cookie?: never;
+        };
+        requestBody?: never;
+        responses: {
+            200: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["Page_Value"];
+                };
+            };
+            403: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["ErrorEnvelope"];
+                };
+            };
+            /** @description API token rate limit exceeded (`rate_limited`); see `Retry-After` and `X-RateLimit-*` */
+            429: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["ErrorEnvelope"];
+                };
+            };
+        };
+    };
+    entity_records_create: {
+        parameters: {
+            query?: never;
+            header?: {
+                /** @description Up to 255 printable ASCII characters. The same key with the same request (method, path and body) within 24 hours answers the stored response with the same status and body plus `Idempotent-Replayed: true`. Scoped to the credential (session cookie or API token); ignored without a credential. 5xx and 429 responses are not stored */
+                "Idempotency-Key"?: string;
+            };
+            path: {
+                entity: string;
+            };
+            cookie?: never;
+        };
+        requestBody: {
+            content: {
+                "application/json": unknown;
+            };
+        };
+        responses: {
+            201: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["Data_Value"];
+                };
+            };
+            /** @description The first request with this `Idempotency-Key` is still being processed (`idempotency_key_in_progress`) */
+            409: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["ErrorEnvelope"];
+                };
+            };
+            /** @description . `Idempotency-Key` already used with a different request (`idempotency_key_reused`) or longer than 255 characters (`validation_error`) */
+            422: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["ErrorEnvelope"];
+                };
+            };
+            /** @description API token rate limit exceeded (`rate_limited`); see `Retry-After` and `X-RateLimit-*` */
+            429: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["ErrorEnvelope"];
+                };
+            };
+        };
+    };
+    entity_records_get: {
+        parameters: {
+            query?: never;
+            header?: never;
+            path: {
+                entity: string;
+                id: string;
+            };
+            cookie?: never;
+        };
+        requestBody?: never;
+        responses: {
+            200: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["Data_Value"];
+                };
+            };
+            404: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["ErrorEnvelope"];
+                };
+            };
+            /** @description API token rate limit exceeded (`rate_limited`); see `Retry-After` and `X-RateLimit-*` */
+            429: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["ErrorEnvelope"];
+                };
+            };
+        };
+    };
+    entity_records_delete: {
+        parameters: {
+            query?: never;
+            header?: never;
+            path: {
+                entity: string;
+                id: string;
+            };
+            cookie?: never;
+        };
+        requestBody?: never;
+        responses: {
+            204: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content?: never;
+            };
+            409: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["ErrorEnvelope"];
+                };
+            };
+            /** @description API token rate limit exceeded (`rate_limited`); see `Retry-After` and `X-RateLimit-*` */
+            429: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["ErrorEnvelope"];
+                };
+            };
+        };
+    };
+    entity_records_update: {
+        parameters: {
+            query?: never;
+            header?: never;
+            path: {
+                entity: string;
+                id: string;
+            };
+            cookie?: never;
+        };
+        requestBody: {
+            content: {
+                "application/json": unknown;
+            };
+        };
+        responses: {
+            200: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["Data_Value"];
+                };
+            };
+            409: {
                 headers: {
                     [name: string]: unknown;
                 };
@@ -40442,7 +40745,7 @@ export interface operations {
     imports_list: {
         parameters: {
             query?: {
-                /** @example contact */
+                /** @example contacts.contact */
                 record_type?: string;
                 page?: number;
                 per_page?: number;
@@ -43008,7 +43311,7 @@ export interface operations {
             query?: {
                 rule_id?: string;
                 user_id?: string;
-                /** @example deal */
+                /** @example deals.deal */
                 record_type?: string;
                 source?: components["schemas"]["LeadDistributionAssignmentSource"];
                 page?: number;
@@ -43070,7 +43373,7 @@ export interface operations {
     lead_distribution_rules_list: {
         parameters: {
             query?: {
-                /** @example deal */
+                /** @example deals.deal */
                 record_type?: string;
                 active?: boolean;
                 page?: number;
@@ -44243,7 +44546,7 @@ export interface operations {
     lifecycle_report: {
         parameters: {
             query?: {
-                /** @example contact */
+                /** @example contacts.contact */
                 record_type?: string;
                 /** @example 2026-01-01 */
                 from?: string;
@@ -45201,7 +45504,7 @@ export interface operations {
     followed_records_list: {
         parameters: {
             query?: {
-                /** @example deal */
+                /** @example deals.deal */
                 record_type?: string;
                 page?: number;
                 per_page?: number;
@@ -47806,7 +48109,7 @@ export interface operations {
     notes_list: {
         parameters: {
             query: {
-                /** @example contact */
+                /** @example contacts.contact */
                 record_type: string;
                 record_id: string;
                 page?: number;
@@ -48917,7 +49220,7 @@ export interface operations {
                     "application/json": components["schemas"]["ErrorEnvelope"];
                 };
             };
-            /** @description Missing `co_<key>.read` (`permission_denied`, `insufficient_scope`) */
+            /** @description Missing `custom.<key>.read` (`permission_denied`, `insufficient_scope`) */
             403: {
                 headers: {
                     [name: string]: unknown;
@@ -48992,7 +49295,7 @@ export interface operations {
                     "application/json": components["schemas"]["ErrorEnvelope"];
                 };
             };
-            /** @description Missing `co_<key>.create` (`permission_denied`, `insufficient_scope`) */
+            /** @description Missing `custom.<key>.create` (`permission_denied`, `insufficient_scope`) */
             403: {
                 headers: {
                     [name: string]: unknown;
@@ -49071,7 +49374,7 @@ export interface operations {
                     "application/json": components["schemas"]["ErrorEnvelope"];
                 };
             };
-            /** @description Missing `co_<key>.read` (`permission_denied`, `insufficient_scope`) */
+            /** @description Missing `custom.<key>.read` (`permission_denied`, `insufficient_scope`) */
             403: {
                 headers: {
                     [name: string]: unknown;
@@ -49130,7 +49433,7 @@ export interface operations {
                     "application/json": components["schemas"]["ErrorEnvelope"];
                 };
             };
-            /** @description Missing `co_<key>.delete` or outside its scope (`permission_denied`, `insufficient_scope`) */
+            /** @description Missing `custom.<key>.delete` or outside its scope (`permission_denied`, `insufficient_scope`) */
             403: {
                 headers: {
                     [name: string]: unknown;
@@ -49207,7 +49510,7 @@ export interface operations {
                     "application/json": components["schemas"]["ErrorEnvelope"];
                 };
             };
-            /** @description Missing `co_<key>.update` or outside its scope (`permission_denied`, `insufficient_scope`) */
+            /** @description Missing `custom.<key>.update` or outside its scope (`permission_denied`, `insufficient_scope`) */
             403: {
                 headers: {
                     [name: string]: unknown;
@@ -49289,7 +49592,7 @@ export interface operations {
                     "application/json": components["schemas"]["ErrorEnvelope"];
                 };
             };
-            /** @description Missing `co_<key>.archive` (`permission_denied`, `insufficient_scope`) */
+            /** @description Missing `custom.<key>.archive` (`permission_denied`, `insufficient_scope`) */
             403: {
                 headers: {
                     [name: string]: unknown;
@@ -49371,7 +49674,7 @@ export interface operations {
                     "application/json": components["schemas"]["ErrorEnvelope"];
                 };
             };
-            /** @description Missing `co_<key>.archive` (`permission_denied`, `insufficient_scope`) */
+            /** @description Missing `custom.<key>.archive` (`permission_denied`, `insufficient_scope`) */
             403: {
                 headers: {
                     [name: string]: unknown;
@@ -49448,7 +49751,7 @@ export interface operations {
                     "application/json": components["schemas"]["ErrorEnvelope"];
                 };
             };
-            /** @description Missing `co_<key>.read` (`permission_denied`, `insufficient_scope`) */
+            /** @description Missing `custom.<key>.read` (`permission_denied`, `insufficient_scope`) */
             403: {
                 headers: {
                     [name: string]: unknown;
@@ -58024,7 +58327,7 @@ export interface operations {
     record_tags_lookup: {
         parameters: {
             query: {
-                /** @example contact */
+                /** @example contacts.contact */
                 record_type: string;
                 /** @example 0190f1a2-0000-7000-8000-000000000001,0190f1a2-0000-7000-8000-000000000002 */
                 ids?: string;
@@ -58429,7 +58732,7 @@ export interface operations {
             query?: never;
             header?: never;
             path: {
-                /** @description Record type, such as `deal` or `co_contract` */
+                /** @description Record type, such as `deal` or `custom.contract` */
                 record_type: string;
                 /** @description Record id */
                 record_id: string;
@@ -58490,7 +58793,7 @@ export interface operations {
             query?: never;
             header?: never;
             path: {
-                /** @description Record type, such as `company` or `co_contract` */
+                /** @description Record type, such as `company` or `custom.contract` */
                 record_type: string;
                 /** @description Record id */
                 record_id: string;
@@ -58777,7 +59080,7 @@ export interface operations {
             query?: never;
             header?: never;
             path: {
-                /** @description Record type, such as `deal` or `co_contract` */
+                /** @description Record type, such as `deal` or `custom.contract` */
                 record_type: string;
                 /** @description Record id */
                 record_id: string;
@@ -59326,7 +59629,7 @@ export interface operations {
             query?: {
                 /** @example pending */
                 status?: string;
-                /** @example deal */
+                /** @example deals.deal */
                 record_type?: string;
                 record_id?: string;
                 page?: number;
@@ -59615,7 +59918,7 @@ export interface operations {
     reports_list: {
         parameters: {
             query?: {
-                /** @example deal */
+                /** @example deals.deal */
                 record_type?: string;
                 page?: number;
                 per_page?: number;
@@ -62575,7 +62878,7 @@ export interface operations {
     segments_list: {
         parameters: {
             query?: {
-                /** @example contact */
+                /** @example contacts.contact */
                 record_type?: string;
                 counts?: boolean;
                 page?: number;
@@ -64213,7 +64516,7 @@ export interface operations {
     tags_list: {
         parameters: {
             query?: {
-                /** @example contact */
+                /** @example contacts.contact */
                 record_type?: string;
                 page?: number;
                 per_page?: number;
@@ -65328,7 +65631,7 @@ export interface operations {
     timeline_list: {
         parameters: {
             query: {
-                /** @example company */
+                /** @example companies.company */
                 record_type: string;
                 record_id: string;
                 cursor?: string;
@@ -65393,7 +65696,7 @@ export interface operations {
     trash_list: {
         parameters: {
             query?: {
-                /** @example contact */
+                /** @example contacts.contact */
                 record_type?: string;
                 search?: string;
                 page?: number;
@@ -65611,7 +65914,7 @@ export interface operations {
             query?: never;
             header?: never;
             path: {
-                /** @description Record type with a trash (`contact`, `company`, `deal`, `product`, `co_<key>`…) */
+                /** @description Record type with a trash (`contact`, `company`, `deal`, `product`, `custom.<key>`…) */
                 record_type: string;
                 /** @description Record id */
                 record_id: string;
@@ -65682,7 +65985,7 @@ export interface operations {
                 "Idempotency-Key"?: string;
             };
             path: {
-                /** @description Record type with a trash (`contact`, `company`, `deal`, `product`, `co_<key>`…) */
+                /** @description Record type with a trash (`contact`, `company`, `deal`, `product`, `custom.<key>`…) */
                 record_type: string;
                 /** @description Record id */
                 record_id: string;

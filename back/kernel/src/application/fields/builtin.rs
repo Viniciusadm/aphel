@@ -1,4 +1,4 @@
-use crate::application::fields::{RecordTypeDefinition, SystemField};
+use crate::application::fields::{EntityDefinition, SystemField};
 use crate::domain::fields::{FieldConfig, FieldType};
 use crate::errors::AppError;
 
@@ -29,20 +29,19 @@ pub fn timestamps() -> Result<Vec<SystemField>, AppError> {
             "created_at",
             crate::labels("Created at"),
             FieldType::DateTime,
-        )?,
+        )?
+        .read_only(),
         field(
             "updated_at",
             crate::labels("Updated at"),
             FieldType::DateTime,
-        )?,
+        )?
+        .read_only(),
     ])
 }
 
-pub fn with_fields(
-    definition: RecordTypeDefinition,
-    fields: Vec<SystemField>,
-) -> RecordTypeDefinition {
+pub fn with_fields(definition: EntityDefinition, fields: Vec<SystemField>) -> EntityDefinition {
     fields
         .into_iter()
-        .fold(definition, RecordTypeDefinition::system_field)
+        .fold(definition, EntityDefinition::system_field)
 }

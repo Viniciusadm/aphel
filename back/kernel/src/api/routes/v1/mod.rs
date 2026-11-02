@@ -33,3 +33,5 @@ pub mod teams;
 pub mod two_factor;
 pub mod validation_rules;
 pub mod views;
+
+pub(crate) mod entities;

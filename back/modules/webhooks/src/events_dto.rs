@@ -8,7 +8,7 @@ pub(crate) struct PublicEventTypeResponse {
     #[serde(rename = "type")]
     #[schema(example = "deal.stage_changed")]
     pub(crate) event_type: String,
-    #[schema(example = "deal")]
+    #[schema(example = "deals.deal")]
     pub(crate) resource: String,
     #[schema(example = "A deal moved to another stage")]
     pub(crate) description: String,

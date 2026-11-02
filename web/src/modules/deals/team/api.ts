@@ -11,7 +11,7 @@ import type {
   UpdateDealMemberRoleRequest,
 } from './types'
 
-const DEAL_RECORD_TYPE = 'deal'
+const DEAL_RECORD_TYPE = 'deals.deal'
 
 export const dealTeamKeys = {
   all: ['deal-team'] as const,

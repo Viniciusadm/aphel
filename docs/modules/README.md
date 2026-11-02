@@ -115,22 +115,27 @@ A plugin from another repository uses the same crates via `git` (`aphel-kernel =
 
 ### 2. Migrations
 
-`migrations/0001_lead_pro.sql` adds a column to another module's table and creates the plugin's table:
+`migrations/0001_lead_pro.sql` creates only plugin-owned tables:
 
 ```sql
-ALTER TABLE contacts
-  ADD COLUMN lead_temperature TINYINT UNSIGNED NULL,
-  ADD INDEX idx_contacts_lead_temperature (lead_temperature);
+CREATE TABLE lead_pro_contact_extension (
+  record_id CHAR(36) NOT NULL PRIMARY KEY,
+  lead_temperature DECIMAL(24,6) NULL,
+  KEY lead_pro_temperature_index (lead_temperature)
+) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci;
 
 CREATE TABLE lead_pro_touches (
-  id CHAR(36) NOT NULL,
+  id CHAR(36) NOT NULL PRIMARY KEY,
   contact_id CHAR(36) NOT NULL,
-  ...
-  CONSTRAINT fk_lead_pro_touches_contact FOREIGN KEY (contact_id) REFERENCES contacts (id) ON DELETE CASCADE
+  kind VARCHAR(64) NOT NULL,
+  event_id CHAR(36) NULL,
+  created_at DATETIME(6) NOT NULL,
+  UNIQUE KEY uq_lead_pro_touches_event (event_id),
+  KEY idx_lead_pro_touches_contact (contact_id, created_at)
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci;
 ```
 
-Tables with an FK to the core use the same charset and collation as the referenced tables. `migrations/uninstall.sql` undoes the schema (`DROP TABLE`, `ALTER TABLE contacts DROP COLUMN`) and only runs on `uninstall --purge`.
+The extension is keyed by the parent record without altering its table. The host joins its contributed columns. Migration 2 copies temperature values on upgrades; migration 1 accepts only its explicitly recorded historical checksum. Historical physical columns remain unused. Purge drops only the plugin's own tables.
 
 ### 3. Manifest and registration
 
@@ -152,8 +157,8 @@ impl Module for LeadPro {
     fn register(&self, app: &mut AppBuilder) -> Result<(), AppError> {
         app.permission(PermissionDefinition::administrative(READ)).grant_to(["admin", "manager", "member"]);
         let field = SystemField::new("lead_temperature", "Temperatura do lead", FieldType::Number, "lead_temperature")?;
-        app.extend("contact", |contact| {
-            contact.system_field(field);
+        app.extend("contacts.contact", |contact| {
+            contact.side_table("lead_pro_contact_extension", "record_id").system_field(field);
         });
         app.filter(RecordSaving, 20, |ctx, saving| Box::pin(hooks::default_temperature(ctx, saving)))
             .on(RecordValidating, 15, |ctx, changed| Box::pin(hooks::validate_temperature(ctx, changed)))
@@ -179,7 +184,7 @@ What each piece does:
 
 | Piece | Effect |
 | --- | --- |
-| `extend` + `SystemField` over the column | `lead_temperature` becomes a contributed system field: read and written by the kernel, it appears in the API, on the detail page, in columns, filters and sorting, in import/export and in automations |
+| `extend` + `side_table` + `SystemField` | `lead_temperature` becomes a contributed system field: read and written by the kernel, it appears in the API, on the detail page, in columns, filters and sorting, in import/export and in automations |
 | `filter::<RecordSaving>` | Fills in the initial temperature when a contact is created |
 | `on(RecordValidating, ..)` | Rejects a temperature outside 0–100 (422 with the field) |
 | `on(leads::LeadQualifying, ..)` | Veto: qualifying a cold lead responds 422 `lead_not_hot_enough` |
@@ -200,7 +205,7 @@ Besides what is above, `AppBuilder` accepts:
 | Method | For |
 | --- | --- |
 | `record_type`, `extend(..).managed_field(..)` | New record type; custom field managed by code (no migration) |
-| `RecordTypeDefinition::capabilities(EntityTraits::default().automatable().validation_rules()..)` | What the type supports (automations, validation rules, import, export, bulk actions, privacy, notifications…; table in [`record-pipeline.md`](../architecture/record-pipeline.md#declared-capabilities)); declared `belongs_to` relations also define the embedded objects redacted by field permissions |
+| `EntityDefinition::capabilities(EntityTraits::default().automatable().validation_rules()..)` | What the type supports (automations, validation rules, import, export, bulk actions, privacy, notifications…; table in [`record-pipeline.md`](../architecture/record-pipeline.md#declared-capabilities)); declared `belongs_to` relations also define the embedded objects redacted by field permissions |
 | `provide::<dyn T>` / `decorate::<dyn T>` | Swappable service read with `ctx.services`/`app.services().get::<dyn T>()` |
 | `contribute::<T>` | Typed contribution; readers use `App::contributions::<T>()` (enabled modules only) or `all_contributions` |
 | `widget`, `trigger`/`action` | Dashboard widget, automation trigger and action |

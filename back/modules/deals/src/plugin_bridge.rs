@@ -115,7 +115,7 @@ pub(crate) async fn closing(
 }
 
 pub(crate) fn hooks() -> Vec<Arc<PluginHook>> {
-    let deal = "deal";
+    let deal = "deals.deal";
     vec![
         Arc::new(PluginHook::new(
             STAGE_CHANGING,

@@ -12,7 +12,7 @@ pub(crate) const GOAL_ALREADY_EXISTS: &str = "goal_already_exists";
 pub(crate) const GOAL_CREATED: &str = "goal.created";
 pub(crate) const GOAL_UPDATED: &str = "goal.updated";
 pub(crate) const GOAL_DELETED: &str = "goal.deleted";
-pub(crate) const GOAL_RECORD_TYPE: RecordType = RecordType::from_static("goal");
+pub(crate) const GOAL_RECORD_TYPE: RecordType = RecordType::from_static("goals.goal");
 pub(crate) const MAX_GOAL_TARGET: &str = "9999999999999999.99";
 pub(crate) const DATE_FORMAT: &str = "%Y-%m-%d";
 

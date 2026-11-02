@@ -7,7 +7,7 @@ Every Aphel record type (company, contact, deal, activity and, later, custom mod
 | Piece | Where it lives | What it does |
 | --- | --- | --- |
 | `FieldType`, `FieldDefinition`, `FieldValue`, `validate_value` | `back/kernel/src/domain/fields` | Field types, configuration and value validation (pure, no database) |
-| `RecordTypeRegistry` / `RecordTypeDefinition` / `SystemField` | `back/kernel/src/application/fields/registry.rs` (native types in `builtin.rs`) | Declaration of record types: table, owner, deletion and archiving columns, read and edit permissions and system fields |
+| `RecordTypeRegistry` / `EntityDefinition` / `SystemField` | `back/kernel/src/application/fields/registry.rs` (native types in `builtin.rs`) | Declaration of record types: table, owner, deletion and archiving columns, read and edit permissions and system fields |
 | `FieldUseCases` | `back/kernel/src/application/fields/use_cases.rs` | Administration of fields and options (`settings.manage`), with event and audit |
 | `CustomFieldWriter` / `CustomFieldReader` | `back/kernel/src/application/fields/{writer,reader}.rs` | Validated writing and batch reading of custom values |
 | `Filter`, `RecordQuery`, `RecordQueryEngine` | `back/kernel/src/application/query` | Filter AST, resolution against the field registry and execution |
@@ -114,7 +114,7 @@ Performance reference (local MySQL 8, debug build): 10 thousand records with 5 c
    The product catalog (`product`, table `products`, no owner column: only organization scope sees the catalog) is declared in `back/modules/products/src/mod.rs` and goes into the same `builtin_record_types()`.
 
 ```rust
-RecordTypeDefinition::new(RecordType::CONTACT, "contacts", Permission::CONTACTS_READ)
+EntityDefinition::new(RecordType::CONTACT, "contacts", Permission::CONTACTS_READ)
     .update_permission(Permission::CONTACTS_UPDATE)
     .owner_column("owner_id")
     .soft_delete_column("deleted_at")
@@ -172,7 +172,7 @@ The `RecordQueryEngine` expands the condition into the segment's filter (`resolv
 { "field": "company_id", "operator": "in_group", "value": "<company_id>" }
 ```
 
-In the query string: `filter[company_id][in_group]=<id>`. The resolver accepts the operator only on types that declare a hierarchy (`RecordTypeDefinition::hierarchy`, declared by `companies` with `parent_company_id`) and on `record` fields that point to them (`hierarchical_target`/`operators_for_definition`, which also feeds the field schema's `operators`); the compiler generates `column IN (WITH RECURSIVE ... SELECT id FROM record_group)` over the declared table and parent column, filtering the soft-delete column, with values always bound. The subquery does not apply the companies' read scope: the filter says which group the record belongs to, and the scope of the queried type itself still applies. Details in [`company-hierarchy.md`](company-hierarchy.md).
+In the query string: `filter[company_id][in_group]=<id>`. The resolver accepts the operator only on types that declare a hierarchy (`EntityDefinition::hierarchy`, declared by `companies` with `parent_company_id`) and on `record` fields that point to them (`hierarchical_target`/`operators_for_definition`, which also feeds the field schema's `operators`); the compiler generates `column IN (WITH RECURSIVE ... SELECT id FROM record_group)` over the declared table and parent column, filtering the soft-delete column, with values always bound. The subquery does not apply the companies' read scope: the filter says which group the record belongs to, and the scope of the queried type itself still applies. Details in [`company-hierarchy.md`](company-hierarchy.md).
 
 ## Form layouts and conditional rules
 
@@ -247,7 +247,7 @@ Aggregatable relations (`FormulaWorkspace::context`): `items` on deals (deal ite
 
 ### Recalculation
 
-- **By event:** the `formulas.recalculate` consumer (`FormulaEventConsumer`, with the current registry via `CatalogEventConsumer`) accepts `contact.*`, `company.*`, `deal.*` (including `deal.item_*`), `activity.*`, `product.*`, `co_*.*`, `record.linked`/`record.unlinked` and `field.created|updated|activated`. For the event's record it recalculates the type's formulas (in topological order, so a formula that depends on a formula uses the new value) and goes up to the "parent" records that aggregate that type (up to 3 levels), also using the old value of the owner column in the event's `changes` (a deal that changed company recalculates both). Deleting a record aggregated through a relationship enqueues the full recalculation of the parent type (the links have already been deleted).
+- **By event:** the `formulas.recalculate` consumer (`FormulaEventConsumer`, with the current registry via `CatalogEventConsumer`) accepts `contact.*`, `company.*`, `deal.*` (including `deal.item_*`), `activity.*`, `product.*`, `custom.*.*`, `record.linked`/`record.unlinked` and `field.created|updated|activated`. For the event's record it recalculates the type's formulas (in topological order, so a formula that depends on a formula uses the new value) and goes up to the "parent" records that aggregate that type (up to 3 levels), also using the old value of the owner column in the event's `changes` (a deal that changed company recalculates both). Deleting a record aggregated through a relationship enqueues the full recalculation of the parent type (the links have already been deleted).
 - **In batch:** creating, changing or reactivating a `formula` field enqueues the `formulas.recalculate` job (`{ record_type, strict, depth }`), which goes through all records of the type in batches of 200 and then enqueues the types that aggregate this one.
 - **Daily:** `formulas.daily` runs every hour (`0 5 * * * *`) and, if there are formulas and the local date (organization time zone) has changed since the last time (`formula_daily_runs`, single row), enqueues the full recalculation of all types with formulas. This is what keeps `today()`/`days_until`/`days_since` correct and fixes any value that fell behind.
 - **No loop:** the recalculation writes directly through the `CustomFieldValueRepository` (without `CustomFieldWriter`, without a domain event and without audit), only when the value changes. So it does not generate `<type>.updated`, does not trigger automations or webhooks and does not come back to the consumer itself. The consequence is that a change in a calculated value does not appear in the timeline or trigger "field changed" triggers.

@@ -7,7 +7,7 @@ use crate::application::fields::permissions::{NOT_ACCESSIBLE_MESSAGE, query_erro
 use std::collections::BTreeSet;
 
 use crate::application::fields::{
-    FieldDefinitionRepository, FieldSet, RecordRelation, RecordTypeDefinition, RecordTypeRegistry,
+    EntityDefinition, FieldDefinitionRepository, FieldSet, RecordRelation, RecordTypeRegistry,
     ResolvedField, raw_from_json,
 };
 use crate::application::query::{
@@ -55,7 +55,7 @@ pub async fn load_related_sets<D>(
     registry: &RecordTypeRegistry,
     definitions: &D,
     scope: &AccessScope,
-    definition: &RecordTypeDefinition,
+    definition: &EntityDefinition,
     keys: &BTreeSet<String>,
 ) -> Result<RelatedFieldSets, AppError>
 where

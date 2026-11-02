@@ -32,10 +32,10 @@ pub(crate) const REPORT_TOTALS: &str = "report_totals";
 pub(crate) const DEALS_BY_STAGE: &str = "deals_by_stage";
 
 pub(crate) const RECORD_EVENT_TYPES: &[(&str, &[&str])] = &[
-    ("contact", &["contact.created"]),
-    ("company", &["company.created"]),
+    ("contacts.contact", &["contact.created"]),
+    ("companies.company", &["company.created"]),
     (
-        "deal",
+        "deals.deal",
         &[
             "deal.created",
             "deal.stage_changed",
@@ -45,7 +45,10 @@ pub(crate) const RECORD_EVENT_TYPES: &[(&str, &[&str])] = &[
             "deal.owner_changed",
         ],
     ),
-    ("activity", &["activity.created", "activity.completed"]),
+    (
+        "activities.activity",
+        &["activity.created", "activity.completed"],
+    ),
 ];
 
 pub(crate) const NOTE_EVENT_TYPES: &[&str] = &["note.created"];
@@ -150,7 +153,7 @@ async fn closed_deals<P: DashboardPorts>(
     }
     let won = period_totals(
         context,
-        "deal",
+        "deals.deal",
         vec![eq("status", "won")],
         metrics,
         "closed_at",
@@ -158,7 +161,7 @@ async fn closed_deals<P: DashboardPorts>(
     .await?;
     let lost = period_totals(
         context,
-        "deal",
+        "deals.deal",
         vec![eq("status", "lost")],
         vec![MetricSpec::count()],
         "closed_at",
@@ -581,7 +584,7 @@ where
     }
 
     fn category(&self) -> &str {
-        "activity"
+        "activities.activity"
     }
 
     fn required_permissions(&self) -> Vec<Permission> {
@@ -699,7 +702,7 @@ where
                 for (key, status) in [("won_deals", "won"), ("lost_deals", "lost")] {
                     let result = period_totals(
                         context,
-                        "deal",
+                        "deals.deal",
                         vec![eq("status", status)],
                         vec![MetricSpec::count()],
                         "closed_at",
@@ -725,7 +728,7 @@ where
                 );
                 let result = period_totals(
                     context,
-                    "activity",
+                    "activities.activity",
                     vec![eq("status", "done")],
                     vec![MetricSpec::count()],
                     "completed_at",

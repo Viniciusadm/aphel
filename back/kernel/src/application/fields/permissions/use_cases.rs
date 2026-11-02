@@ -10,7 +10,7 @@ use crate::application::fields::permissions::{
     PermissionRole, StoredFieldPermission, is_access_locked,
 };
 use crate::application::fields::{
-    FieldDefinitionRepository, FieldSet, RecordTypeDefinition, ResolvedField,
+    EntityDefinition, FieldDefinitionRepository, FieldSet, ResolvedField,
 };
 use crate::application::security::Clock;
 use crate::application::shared::{
@@ -177,7 +177,7 @@ where
         self.matrix(scope, record_type).await
     }
 
-    async fn field_set(&self, definition: &RecordTypeDefinition) -> Result<FieldSet, AppError> {
+    async fn field_set(&self, definition: &EntityDefinition) -> Result<FieldSet, AppError> {
         Ok(FieldSet::new(
             definition,
             self.ports
@@ -189,7 +189,7 @@ where
 
     fn validate(
         &self,
-        definition: &RecordTypeDefinition,
+        definition: &EntityDefinition,
         fields: &FieldSet,
         roles: &[PermissionRole],
         inputs: &[FieldPermissionInput],

@@ -5,17 +5,14 @@ use uuid::Uuid;
 
 use crate::DuplicateKey;
 use aphel_kernel::application::access::Authorizer;
-use aphel_kernel::application::fields::{
-    LabelNormalization, RecordTypeDefinition, RecordTypeRegistry,
-};
+use aphel_kernel::application::fields::{EntityDefinition, LabelNormalization, RecordTypeRegistry};
 use aphel_kernel::context::Ctx;
 use aphel_kernel::domain::UserId;
 use aphel_kernel::domain::access::AccessScope;
-use aphel_kernel::domain::custom_objects::is_custom_record_type;
+
 use aphel_kernel::errors::AppError;
 use aphel_kernel::infrastructure::query::compiler::push_record_scope;
 use aphel_kernel::records::normalize_domain;
-use exports::config_label_source;
 
 #[derive(Clone)]
 pub struct RecordLookups {
@@ -59,7 +56,7 @@ impl RecordLookups {
     fn record_label_query(
         &self,
         scope: &AccessScope,
-        definition: &RecordTypeDefinition,
+        definition: &EntityDefinition,
         label: &str,
     ) -> Result<Option<QueryBuilder<MySql>>, AppError> {
         let Some(title) = definition.title_column() else {
@@ -69,6 +66,9 @@ impl RecordLookups {
             "SELECT r.id FROM {} r WHERE TRUE",
             definition.table
         ));
+        if let Some(active) = definition.system_field_by_key("is_active") {
+            builder.push(format!(" AND r.{} = TRUE", active.column));
+        }
         if let Some(deleted) = &definition.deleted_column {
             builder.push(format!(" AND r.{deleted} IS NULL"));
         }
@@ -129,43 +129,13 @@ impl RecordLookups {
                 None => Ok(None),
             };
         }
-        if is_custom_record_type(record_type) {
-            return Ok(None);
-        }
-        let mut builder = match record_type {
-            "pipeline_stage" => {
-                let mut builder = QueryBuilder::new(
-                    "SELECT s.id FROM pipeline_stages s JOIN pipelines p ON p.id = s.pipeline_id \
-                     WHERE s.is_active = TRUE AND p.is_active = TRUE",
-                );
-                builder.push(" AND s.name = ");
-                builder.push_bind(label.to_owned());
-                builder.push(" ORDER BY p.is_default DESC, p.position, s.position");
-                builder
-            }
-            "pipeline" | "lost_reason" | "activity_type" => {
-                let Some(source) = config_label_source(record_type) else {
-                    return Ok(None);
-                };
-                let mut builder = QueryBuilder::new(format!(
-                    "SELECT id FROM {} WHERE is_active = TRUE",
-                    source.table
-                ));
-                builder.push(" AND name = ");
-                builder.push_bind(label.to_owned());
-                builder.push(" ORDER BY position, id");
-                builder
-            }
-            _ => return Ok(None),
-        };
-        builder.push(" LIMIT 1");
-        self.first_id(builder).await
+        Ok(None)
     }
 
     pub(crate) async fn find_duplicate(
         &self,
         scope: &AccessScope,
-        definition: &RecordTypeDefinition,
+        definition: &EntityDefinition,
         key: DuplicateKey,
         value: &str,
     ) -> Result<Option<Uuid>, AppError> {

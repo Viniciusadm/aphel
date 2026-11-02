@@ -13,7 +13,7 @@ Tables `scoring_models` + `scoring_criteria`.
 | Field | Meaning |
 | --- | --- |
 | `key` | Stable, unique key (snake_case), used by configuration packages and by the trigger. Generated from the name. Never changes. |
-| `record_type` | `contact`, `company`, `deal` or `co_<key>` (`is_scored_record_type`). Never changes. |
+| `record_type` | `contact`, `company`, `deal` or `custom.<key>` (`is_scored_record_type`). Never changes. |
 | `is_primary` | One primary model per type (unique by `primary_record_type`, a generated column). The type's first model becomes primary; marking another one unmarks the previous one. |
 | `is_active` | An inactive model does not compute scores and does not show up on the record detail. |
 | `warm_from` / `hot_from` | Bands: `score < warm_from` = `cold`, `< hot_from` = `warm`, otherwise `hot`. Default 30/70; `hot_from > warm_from`. |
@@ -55,7 +55,7 @@ Signals are stored per record (independent of models), so a new criterion or mod
 
 Everything goes through `ScoringEngine` and is idempotent: it computes the score from the state (filters + signals + clock), compares it with the stored one (`SELECT … FOR UPDATE`) and only writes what changed. A record with no points and no explanation has no row (score 0, cold band).
 
-- **`scoring.events` consumer**: signals (table above) and `<type>.created|updated|restored|deleted|purged` of `contact`, `company`, `deal` and `co_*`. Recalculates the affected records in the type's active models; every contact event recalculates the contact's current company, and a `company_id` change also recalculates the old one; `<type>.deleted` deletes the record's scores and `<type>.purged` (permanent deletion from the trash) also deletes the signals.
+- **`scoring.events` consumer**: signals (table above) and `<type>.created|updated|restored|deleted|purged` of `contact`, `company`, `deal` and `custom.*`. Recalculates the affected records in the type's active models; every contact event recalculates the contact's current company, and a `company_id` change also recalculates the old one; `<type>.deleted` deletes the record's scores and `<type>.purged` (permanent deletion from the trash) also deletes the signals.
 - **`scoring.recalculate` job** (`{ model_id }`): full recalculation of the model. Enqueued when the model is created, when criteria/bands/activation change, by `POST /scoring/models/{id}/recalculate` and by package installation.
 - **Daily `scoring.decay` job** (`0 30 3 * * *`): full recalculation of all active models. Applies decay and corrects drift from relative filters (dates, segments, relationships).
 
@@ -65,7 +65,7 @@ The full recalculation considers the union of: records matching some profile fil
 
 When a record's band changes, the engine publishes `score.band_changed` (`score.company_band_changed` for companies; `system` actor, record = the scored record) with `{ model, model_key, record_type, record_id, old_band, new_band, band, direction (up|down), old_score, score, changes }` and writes an audit entry, in the same transaction as the score.
 
-Automation trigger `score.band_changed` (`modules/scoring/automation.rs`, in `TriggerRegistry::builtin()`, listens to both events): types `contact`, `company`, `deal`, `co_*`; options `model_key`, `band` (`cold|warm|hot`, the new band) and `direction` (`up|down`).
+Automation trigger `score.band_changed` (`modules/scoring/automation.rs`, in `TriggerRegistry::builtin()`, listens to both events): types `contact`, `company`, `deal`, `custom.*`; options `model_key`, `band` (`cold|warm|hot`, the new band) and `direction` (`up|down`).
 
 The event is in the public catalog with the Contact resource (webhooks deliver only contact events; the catalog has one resource per event).
 

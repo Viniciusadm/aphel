@@ -13,8 +13,8 @@ use crate::store::{TrashHidden, TrashSource, TrashStore};
 use aphel_kernel::Ctx;
 use aphel_kernel::application::access::Authorizer;
 use aphel_kernel::application::fields::{
-    CustomFieldPorts, CustomFieldWriter, FieldSet, RecordPipeline, RecordTypeDefinition,
-    RecordWrite, WriteMode,
+    CustomFieldPorts, CustomFieldWriter, EntityDefinition, FieldSet, RecordPipeline, RecordWrite,
+    WriteMode,
 };
 use aphel_kernel::application::organization_admin::{ListWindow, Listing};
 use aphel_kernel::application::shared::{
@@ -33,7 +33,7 @@ fn instant(value: DateTime<Utc>) -> Value {
     json!(value.to_rfc3339_opts(chrono::SecondsFormat::Micros, true))
 }
 
-fn parse_type(ctx: &Ctx<'_>, value: &str) -> Result<RecordTypeDefinition, AppError> {
+fn parse_type(ctx: &Ctx<'_>, value: &str) -> Result<EntityDefinition, AppError> {
     trashable_type(ctx.registry(), value)
         .cloned()
         .ok_or_else(|| {
@@ -47,7 +47,7 @@ fn parse_type(ctx: &Ctx<'_>, value: &str) -> Result<RecordTypeDefinition, AppErr
         })
 }
 
-async fn source(ctx: &Ctx<'_>, definition: RecordTypeDefinition) -> Result<TrashSource, AppError> {
+async fn source(ctx: &Ctx<'_>, definition: EntityDefinition) -> Result<TrashSource, AppError> {
     let capabilities = &definition.capabilities;
     let contact_columns = capabilities.trait_columns(traits::CONTACT_POINTS);
     let candidates: Vec<String> = if contact_columns.is_empty() {
@@ -122,14 +122,14 @@ async fn retention(ctx: &Ctx<'_>) -> Result<u32, AppError> {
         .unwrap_or(DEFAULT_RETENTION_DAYS))
 }
 
-fn delete_permission(definition: &RecordTypeDefinition) -> Permission {
+fn delete_permission(definition: &EntityDefinition) -> Permission {
     definition
         .action_permission("delete")
         .or_else(|| definition.update_permission.clone())
         .unwrap_or_else(|| definition.read_permission.clone())
 }
 
-fn readable_types(ctx: &Ctx<'_>) -> Vec<(RecordTypeDefinition, RecordScopeFilter)> {
+fn readable_types(ctx: &Ctx<'_>) -> Vec<(EntityDefinition, RecordScopeFilter)> {
     trashable_types(ctx.registry())
         .into_iter()
         .filter_map(|definition| {
@@ -139,7 +139,7 @@ fn readable_types(ctx: &Ctx<'_>) -> Vec<(RecordTypeDefinition, RecordScopeFilter
         .collect()
 }
 
-pub(crate) fn types(ctx: &Ctx<'_>) -> Result<Vec<RecordTypeDefinition>, AppError> {
+pub(crate) fn types(ctx: &Ctx<'_>) -> Result<Vec<EntityDefinition>, AppError> {
     ctx.scope.require(&Permission::SETTINGS_MANAGE)?;
     Ok(readable_types(ctx)
         .into_iter()
@@ -192,7 +192,7 @@ async fn item(
     ctx: &Ctx<'_>,
     record_type: &str,
     record_id: &str,
-) -> Result<(RecordTypeDefinition, TrashItem), AppError> {
+) -> Result<(EntityDefinition, TrashItem), AppError> {
     let scope = ctx.scope;
     scope.require(&Permission::SETTINGS_MANAGE)?;
     let definition = parse_type(ctx, record_type)?;
@@ -293,7 +293,7 @@ pub(crate) async fn purge(
 async fn purge_item(
     ctx: &Ctx<'_>,
     actor: Actor,
-    definition: &RecordTypeDefinition,
+    definition: &EntityDefinition,
     item: &TrashItem,
     ip: Option<String>,
 ) -> Result<bool, AppError> {

@@ -3,12 +3,12 @@ use serde::{Deserialize, Serialize};
 use uuid::Uuid;
 
 use crate::{SourceRow, TextEncoding};
-use aphel_kernel::application::fields::{LabelNormalization, RecordTypeDefinition, SystemField};
+use aphel_kernel::application::fields::{EntityDefinition, LabelNormalization, SystemField};
 use aphel_kernel::application::shared::RecordType;
 use aphel_kernel::domain::UserId;
 use aphel_kernel::domain::fields::FieldType;
 
-pub(crate) const IMPORT_RECORD_TYPE: RecordType = RecordType::from_static("import");
+pub(crate) const IMPORT_RECORD_TYPE: RecordType = RecordType::from_static("imports.import");
 pub(crate) const IMPORT_RUN_JOB: &str = "import.run";
 pub(crate) const IMPORT_BATCH_SIZE: usize = 200;
 
@@ -133,7 +133,7 @@ pub(crate) struct DuplicateColumn {
 }
 
 impl DuplicateKey {
-    pub(crate) fn columns(&self, definition: &RecordTypeDefinition) -> Vec<DuplicateColumn> {
+    pub(crate) fn columns(&self, definition: &EntityDefinition) -> Vec<DuplicateColumn> {
         let stored =
             |field: &&SystemField| field.computed.is_none() && field.contributed_by.is_none();
         let of_type = |field_type: FieldType| {
@@ -183,7 +183,7 @@ impl DuplicateKey {
         }
     }
 
-    pub(crate) fn fallback_fields(&self, definition: &RecordTypeDefinition) -> Vec<String> {
+    pub(crate) fn fallback_fields(&self, definition: &EntityDefinition) -> Vec<String> {
         match self {
             Self::Domain => definition
                 .system_fields
@@ -197,11 +197,11 @@ impl DuplicateKey {
         }
     }
 
-    pub fn supported_by(&self, definition: &RecordTypeDefinition) -> bool {
+    pub fn supported_by(&self, definition: &EntityDefinition) -> bool {
         *self == Self::None || !self.columns(definition).is_empty()
     }
 
-    pub(crate) fn supported(definition: Option<&RecordTypeDefinition>) -> Vec<Self> {
+    pub(crate) fn supported(definition: Option<&EntityDefinition>) -> Vec<Self> {
         let mut keys: Vec<Self> = definition
             .map(|definition| {
                 DUPLICATE_KEYS
@@ -264,7 +264,7 @@ impl ImportOptions {
         )
     }
 
-    pub(crate) fn default_for_definition(definition: Option<&RecordTypeDefinition>) -> Self {
+    pub(crate) fn default_for_definition(definition: Option<&EntityDefinition>) -> Self {
         let duplicate_key = definition
             .and_then(|definition| {
                 [DuplicateKey::Domain, DuplicateKey::Email]

@@ -7,7 +7,7 @@ use sqlx::mysql::MySqlRow;
 use sqlx::{MySql, MySqlPool, QueryBuilder, Row};
 use uuid::Uuid;
 
-use crate::application::fields::{RecordTypeDefinition, SystemField};
+use crate::application::fields::{EntityDefinition, SystemField};
 use crate::database::transaction::MySqlTx;
 use crate::domain::fields::FieldType;
 use crate::errors::{AppError, FieldViolation};
@@ -17,7 +17,7 @@ use crate::records::InputValidator;
 const RECORD_ALIAS: &str = "r";
 const ID_COLUMN: &str = "contributed_record_id";
 
-pub fn contributed_fields(definition: &RecordTypeDefinition) -> Vec<&SystemField> {
+pub fn contributed_fields(definition: &EntityDefinition) -> Vec<&SystemField> {
     definition
         .system_fields
         .iter()
@@ -25,14 +25,14 @@ pub fn contributed_fields(definition: &RecordTypeDefinition) -> Vec<&SystemField
         .collect()
 }
 
-fn writable_fields(definition: &RecordTypeDefinition) -> Vec<&SystemField> {
+fn writable_fields(definition: &EntityDefinition) -> Vec<&SystemField> {
     contributed_fields(definition)
         .into_iter()
         .filter(|field| !field.is_computed())
         .collect()
 }
 
-pub fn is_writable_contributed(definition: &RecordTypeDefinition, key: &str) -> bool {
+pub fn is_writable_contributed(definition: &EntityDefinition, key: &str) -> bool {
     writable_fields(definition)
         .iter()
         .any(|field| field.key.as_str() == key)
@@ -40,7 +40,7 @@ pub fn is_writable_contributed(definition: &RecordTypeDefinition, key: &str) -> 
 
 pub async fn load_contributed(
     pool: &MySqlPool,
-    definition: &RecordTypeDefinition,
+    definition: &EntityDefinition,
     ids: &[Uuid],
 ) -> Result<HashMap<Uuid, Map<String, Value>>, AppError> {
     let fields = contributed_fields(definition);
@@ -104,6 +104,10 @@ pub(crate) fn decode(
             row.try_get::<Option<chrono::NaiveDate>, _>(column)?
                 .map(|date| date.to_string())
         ),
+        FieldType::MultiSelect => row
+            .try_get::<Option<sqlx::types::Json<Value>>, _>(column)?
+            .map(|json| json.0)
+            .unwrap_or(Value::Null),
         FieldType::DateTime => json!(
             row.try_get::<Option<chrono::DateTime<chrono::Utc>>, _>(column)?
                 .map(|at| at.to_rfc3339_opts(chrono::SecondsFormat::Secs, true))
@@ -113,7 +117,7 @@ pub(crate) fn decode(
 }
 
 pub fn contributed_input(
-    definition: &RecordTypeDefinition,
+    definition: &EntityDefinition,
     values: &Map<String, Value>,
 ) -> Map<String, Value> {
     values
@@ -124,7 +128,7 @@ pub fn contributed_input(
 }
 
 pub fn normalize_contributed(
-    definition: &RecordTypeDefinition,
+    definition: &EntityDefinition,
     input: &Map<String, Value>,
     violations: &mut Vec<FieldViolation>,
 ) -> Map<String, Value> {
@@ -177,7 +181,7 @@ fn normalize(field_type: FieldType, value: &Value) -> Result<Value, &'static str
 
 pub async fn write_contributed(
     tx: &mut MySqlTx,
-    definition: &RecordTypeDefinition,
+    definition: &EntityDefinition,
     record_id: Uuid,
     values: &Map<String, Value>,
 ) -> Result<(), AppError> {
@@ -185,6 +189,38 @@ pub async fn write_contributed(
         .into_iter()
         .filter(|field| values.contains_key(field.key.as_str()))
         .collect();
+    let mut extensions: std::collections::BTreeMap<&str, Vec<&SystemField>> =
+        std::collections::BTreeMap::new();
+    for field in &fields {
+        if let Some(extension) = &field.extension {
+            extensions.entry(&extension.table).or_default().push(field);
+        }
+    }
+    for (table, fields) in extensions {
+        let extension = fields[0].extension.as_ref().expect("extension");
+        let mut query = QueryBuilder::<MySql>::new(format!(
+            "INSERT INTO `{table}` (`{}`",
+            extension.record_column
+        ));
+        for field in &fields {
+            query.push(format!(", `{}`", field.column));
+        }
+        query.push(") VALUES (").push_bind(record_id.to_string());
+        for field in &fields {
+            query.push(", ");
+            push_extension_value(&mut query, &values[field.key.as_str()]);
+        }
+        query.push(") ON DUPLICATE KEY UPDATE ");
+        let mut separated = query.separated(", ");
+        for field in &fields {
+            separated.push(format!("`{}` = VALUES(`{}`)", field.column, field.column));
+        }
+        query.build().execute(&mut **tx).await?;
+    }
+    let fields = fields
+        .into_iter()
+        .filter(|field| field.extension.is_none())
+        .collect::<Vec<_>>();
     if fields.is_empty() {
         return Ok(());
     }
@@ -222,7 +258,7 @@ pub fn with_contributed(snapshot: Value, contributed: &Map<String, Value>) -> Va
 }
 
 pub fn merge_contributed(
-    definition: &RecordTypeDefinition,
+    definition: &EntityDefinition,
     current: &Map<String, Value>,
     input: &Map<String, Value>,
     validator: &mut InputValidator,
@@ -239,4 +275,21 @@ pub fn merge_contributed(
     }
     merged.extend(changes);
     merged
+}
+
+fn push_extension_value(builder: &mut QueryBuilder<MySql>, value: &Value) {
+    match value {
+        Value::Null => {
+            builder.push_bind(None::<String>);
+        }
+        Value::Bool(value) => {
+            builder.push_bind(*value);
+        }
+        Value::String(value) => {
+            builder.push_bind(value.clone());
+        }
+        value => {
+            builder.push_bind(value.to_string());
+        }
+    }
 }

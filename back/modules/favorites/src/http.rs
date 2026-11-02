@@ -54,7 +54,7 @@ impl From<FavoriteTypeSchema> for FavoriteKind {
 #[serde(deny_unknown_fields)]
 pub(crate) struct CreateFavoriteRequest {
     pub(crate) favorite_type: FavoriteTypeSchema,
-    #[schema(example = "contact")]
+    #[schema(example = "contacts.contact")]
     pub(crate) record_type: Option<String>,
     pub(crate) record_id: Option<String>,
     pub(crate) view_id: Option<String>,

@@ -38,7 +38,19 @@ const DOMAIN_WORDS: [&str; 15] = [
     "renewal",
     "pipelines",
 ];
-const FOREIGN_RECORD_LITERALS: [&str; 12] = [
+const FOREIGN_RECORD_LITERALS: [&str; 24] = [
+    "\"contacts.contact\"",
+    "\"companies.company\"",
+    "\"deals.deal\"",
+    "\"leads.lead\"",
+    "\"quotes.quote\"",
+    "\"proposals.proposal\"",
+    "\"activities.activity\"",
+    "\"products.product\"",
+    "\"notes.note\"",
+    "\"pipelines.pipeline\"",
+    "\"pipelines.pipeline_stage\"",
+    "\"pipelines.lost_reason\"",
     "\"contact\"",
     "\"company\"",
     "\"deal\"",

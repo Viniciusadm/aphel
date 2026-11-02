@@ -14,7 +14,7 @@ use aphel_kernel::modules::Migration;
 
 use aphel_kernel::application::fields::builtin::{field, record_field, timestamps, with_fields};
 use aphel_kernel::application::fields::{
-    EntityTraits, LabelNormalization, RecordRelation, RecordTypeDefinition, SystemField,
+    EntityDefinition, EntityTraits, LabelNormalization, RecordRelation, SystemField,
 };
 use aphel_kernel::application::public_events::{
     PreviousValues, PublicEventDefinition, PublicResource, changed, deleted, event,
@@ -26,7 +26,8 @@ use aphel_kernel::errors::AppError;
 use aphel_kernel::modules::builder::APHEL_VERSION;
 use aphel_kernel::modules::{AppBuilder, Manifest, Module};
 
-pub const CONTACT_RESOURCE: PublicResource = PublicResource::new("contact", "ContactResponse");
+pub const CONTACT_RESOURCE: PublicResource =
+    PublicResource::new("contacts.contact", "ContactResponse");
 
 pub const KEY: &str = "contacts";
 
@@ -84,6 +85,7 @@ const PUBLIC_EVENTS: &[PublicEventDefinition] = &[
 
 pub(crate) fn contact_capabilities() -> EntityTraits {
     EntityTraits::default()
+        .with_trait("scoring.subject")
         .relatable()
         .importable()
         .exportable()
@@ -103,9 +105,9 @@ pub(crate) fn contact_capabilities() -> EntityTraits {
         .restore_order(1)
 }
 
-pub(crate) fn contact_definition() -> Result<RecordTypeDefinition, AppError> {
+pub(crate) fn contact_definition() -> Result<EntityDefinition, AppError> {
     let definition =
-        RecordTypeDefinition::new(RecordType::CONTACT, "contacts", Permission::CONTACTS_READ)
+        EntityDefinition::new(RecordType::CONTACT, "contacts", Permission::CONTACTS_READ)
             .capabilities(contact_capabilities())
             .update_permission(Permission::CONTACTS_UPDATE)
             .title_field("name")
@@ -192,9 +194,20 @@ impl Module for ContactsModule {
     }
 
     fn register(&self, app: &mut AppBuilder) -> Result<(), AppError> {
-        app.entity(contact_definition()?.handler(Arc::new(http::ContactHandler)))
-            .openapi_tag(http::TAG, "Contacts and their companies")
-            .routes(|_| http::router());
+        app.contribute(std::sync::Arc::new(
+            aphel_kernel::application::fields::EntityKeyAliases(&[("contact", "contacts.contact")]),
+        ));
+        app.entity(
+            contact_definition()?
+                .events("contact")
+                .generic_mutations(Permission::CONTACTS_CREATE, Permission::CONTACTS_DELETE)
+                .handler(Arc::new(
+                    aphel_kernel::records::GenericRecordHandler::new(RecordType::CONTACT)
+                        .with_behavior(Arc::new(http::ContactBehavior)),
+                )),
+        )
+        .openapi_tag(http::TAG, "Contacts and their companies")
+        .routes(|_| http::router());
         for permission in RECORD_PERMISSIONS {
             let definition = PermissionDefinition::record(permission.clone());
             if permission == Permission::CONTACTS_ARCHIVE {

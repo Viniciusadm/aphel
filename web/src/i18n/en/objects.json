@@ -3,13 +3,37 @@
     "company": "Company",
     "contact": "Contact",
     "deal": "Deal",
-    "product": "Product"
+    "product": "Product",
+    "contacts": {
+      "contact": "Contact"
+    },
+    "companies": {
+      "company": "Company"
+    },
+    "deals": {
+      "deal": "Deal"
+    },
+    "products": {
+      "product": "Product"
+    }
   },
   "recordTypesPlural": {
     "company": "Companies",
     "contact": "Contacts",
     "deal": "Deals",
-    "product": "Products"
+    "product": "Products",
+    "contacts": {
+      "contact": "Contacts"
+    },
+    "companies": {
+      "company": "Companies"
+    },
+    "deals": {
+      "deal": "Deals"
+    },
+    "products": {
+      "product": "Products"
+    }
   },
   "errors": {
     "title": "Could not complete",

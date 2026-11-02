@@ -162,7 +162,19 @@
       "deal": "Deals",
       "contact": "Contacts",
       "company": "Companies",
-      "activity": "Activities"
+      "activity": "Activities",
+      "contacts": {
+        "contact": "Contacts"
+      },
+      "companies": {
+        "company": "Companies"
+      },
+      "deals": {
+        "deal": "Deals"
+      },
+      "activities": {
+        "activity": "Activities"
+      }
     },
     "presets": {
       "today": "Today",

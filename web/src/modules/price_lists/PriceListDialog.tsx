@@ -25,7 +25,7 @@ import { Field } from '@/components/ui/field'
 import { ToggleField } from '@/components/ui/toggle-field'
 
 const APPLIES_TO: PriceListAppliesTo[] = ['all', 'segment', 'companies']
-const COMPANY_RECORD_TYPE = 'company'
+const COMPANY_RECORD_TYPE = 'companies.company'
 
 export interface PriceListDialogProps {
   open: boolean

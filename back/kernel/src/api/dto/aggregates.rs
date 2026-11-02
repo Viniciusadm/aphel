@@ -86,7 +86,7 @@ pub struct AggregateSortSchema {
 #[derive(Debug, Clone, Deserialize, Serialize, ToSchema)]
 #[serde(deny_unknown_fields)]
 pub struct AggregateQueryRequest {
-    #[schema(example = "deal")]
+    #[schema(example = "deals.deal")]
     pub record_type: String,
     #[serde(default)]
     #[schema(value_type = Option<FilterNodeSchema>)]
@@ -294,7 +294,7 @@ impl From<AggregateRange> for AggregateRangeResponse {
 
 #[derive(Debug, Serialize, ToSchema)]
 pub struct AggregateResultResponse {
-    #[schema(example = "deal")]
+    #[schema(example = "deals.deal")]
     pub record_type: String,
     #[schema(example = "America/Sao_Paulo")]
     pub timezone: String,
@@ -357,11 +357,11 @@ impl From<AggregateFieldInfo> for AggregateFieldResponse {
 
 #[derive(Debug, Serialize, ToSchema)]
 pub struct AggregateRelationResponse {
-    #[schema(example = "company")]
+    #[schema(example = "companies.company")]
     pub key: String,
     #[schema(example = "Company")]
     pub label: String,
-    #[schema(example = "company")]
+    #[schema(example = "companies.company")]
     pub target_record_type: String,
     pub single: bool,
     pub readable: bool,
@@ -381,7 +381,7 @@ impl From<AggregateRelationInfo> for AggregateRelationResponse {
 
 #[derive(Debug, Serialize, ToSchema)]
 pub struct AggregateSchemaResponse {
-    #[schema(example = "deal")]
+    #[schema(example = "deals.deal")]
     pub record_type: String,
     #[schema(value_type = Vec<TimeGranularitySchema>)]
     pub granularities: Vec<String>,

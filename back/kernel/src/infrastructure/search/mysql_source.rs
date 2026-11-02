@@ -5,7 +5,7 @@ use sqlx::mysql::MySqlRow;
 use sqlx::{MySql, MySqlPool, QueryBuilder, Row};
 use uuid::Uuid;
 
-use crate::application::fields::RecordTypeDefinition;
+use crate::application::fields::EntityDefinition;
 use crate::application::search::{SearchSource, SourceRow};
 use crate::errors::AppError;
 use crate::infrastructure::query::compiler::{push_partition, quoted};
@@ -21,7 +21,7 @@ impl MySqlSearchSource {
     }
 }
 
-fn select(definition: &RecordTypeDefinition, columns: &[(String, String)]) -> QueryBuilder<MySql> {
+fn select(definition: &EntityDefinition, columns: &[(String, String)]) -> QueryBuilder<MySql> {
     let mut sql = String::from("SELECT r.id AS record_id");
     match &definition.owner_column {
         Some(owner) => sql.push_str(&format!(", r.{} AS record_owner", quoted(owner))),
@@ -75,7 +75,7 @@ fn source_row(row: &MySqlRow, columns: &[(String, String)]) -> Result<SourceRow,
 impl SearchSource for MySqlSearchSource {
     async fn load(
         &self,
-        definition: &RecordTypeDefinition,
+        definition: &EntityDefinition,
         columns: &[(String, String)],
         record_ids: &[Uuid],
     ) -> Result<Vec<SourceRow>, AppError> {
@@ -97,7 +97,7 @@ impl SearchSource for MySqlSearchSource {
 
     async fn scan(
         &self,
-        definition: &RecordTypeDefinition,
+        definition: &EntityDefinition,
         columns: &[(String, String)],
         after: Option<Uuid>,
         limit: u64,

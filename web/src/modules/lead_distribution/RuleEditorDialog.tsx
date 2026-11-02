@@ -40,7 +40,7 @@ import { useLeadDistributionText, type LeadDistributionKey } from './text'
 import { Page } from '@/components/ui/page'
 import { Field } from '@/components/ui/field'
 
-const BUILTIN_RECORD_TYPES = ['deal', 'contact', 'company'] as const
+const BUILTIN_RECORD_TYPES = ['deals.deal', 'contacts.contact', 'companies.company'] as const
 
 interface RuleEditorDialogProps {
   rule: DistributionRule | null

@@ -863,7 +863,7 @@ pub(crate) struct ReorderCallOutcomesRequest {
 #[derive(Debug, Deserialize, ToSchema)]
 #[serde(deny_unknown_fields)]
 pub(crate) struct LogCallRequest {
-    #[schema(example = "contact")]
+    #[schema(example = "contacts.contact")]
     pub(crate) record_type: Option<String>,
     pub(crate) record_id: Option<String>,
     pub(crate) direction: Option<CallDirectionSchema>,

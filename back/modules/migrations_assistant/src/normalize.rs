@@ -8,7 +8,7 @@ use imports::{ParsedSource, normalize_label};
 
 const MAX_DISTINCT_VALUES: usize = 200;
 const DERIVED_STATUS_HEADER: &str = "Aphel - Status";
-const DEAL_RECORD_TYPE: &str = "deal";
+const DEAL_RECORD_TYPE: &str = "deals.deal";
 const STATUS_TARGET: &str = "status";
 const WON_STATUS: &str = "won";
 const LOST_STATUS: &str = "lost";

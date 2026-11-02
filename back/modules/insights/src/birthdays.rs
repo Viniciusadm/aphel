@@ -26,7 +26,7 @@ use aphel_kernel::state::runtime_state;
 
 pub(crate) const BIRTHDAY_FIELD_SETTING: &str = "birthday_field";
 
-const CONTACT: &str = "contact";
+const CONTACT: &str = "contacts.contact";
 const DATE_FIELD_TYPE: &str = "date";
 const FIRST_YEAR: i32 = 1900;
 const YEARS_PER_QUERY: i32 = 40;

@@ -26,7 +26,7 @@ pub(crate) const DEAL_ITEM_REMOVED: &str = "deal.item_removed";
 pub(crate) const DEAL_ITEMS_REORDERED: &str = "deal.items_reordered";
 pub(crate) const DEAL_ITEM_SETTINGS_UPDATED: &str = "deal_item_settings.updated";
 pub(crate) const DEAL_ITEM_SETTINGS_RECORD_TYPE: RecordType =
-    RecordType::from_static("deal_item_settings");
+    RecordType::from_static("deal_items.deal_item_settings");
 
 pub(crate) const INVALID_DEAL_ITEM: &str = "invalid deal item";
 

@@ -104,7 +104,7 @@ const TAGS: &[(&str, &str)] = &[
     ),
     (
         "custom-objects",
-        "Custom objects of the organization (record types `co_<key>` with their own fields, permissions and relationships)",
+        "Custom objects of the organization (record types `custom.<key>` with their own fields, permissions and relationships)",
     ),
     (
         "objects",
@@ -187,6 +187,7 @@ fn routes() -> OpenApiRouter<AppState> {
         .merge(v1::system_jobs::router())
         .merge(v1::system::router())
         .merge(v1::platform_catalog::router())
+        .merge(v1::entities::router())
         .merge(v1::audit::router())
         .merge(v1::files::router())
         .merge(v1::fields::router())

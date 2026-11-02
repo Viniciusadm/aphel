@@ -13,12 +13,33 @@
     "contact": "Contato",
     "company": "Empresa",
     "deal": "Oportunidade",
-    "activity": "Atividade"
+    "activity": "Atividade",
+    "contacts": {
+      "contact": "Contato"
+    },
+    "companies": {
+      "company": "Empresa"
+    },
+    "deals": {
+      "deal": "Oportunidade"
+    },
+    "activities": {
+      "activity": "Atividade"
+    }
   },
   "recordTypesPlural": {
     "contact": "contatos",
     "company": "empresas",
-    "deal": "oportunidades"
+    "deal": "oportunidades",
+    "contacts": {
+      "contact": "contatos"
+    },
+    "companies": {
+      "company": "empresas"
+    },
+    "deals": {
+      "deal": "oportunidades"
+    }
   },
   "subjectKinds": {
     "email": "e-mail",

@@ -16,8 +16,8 @@ use crate::application::fields::formulas::{
     recalculate_job,
 };
 use crate::application::fields::{
-    CustomFieldValueRepository, FieldDefinitionRepository, FieldSet, MAX_CUSTOM_FIELDS,
-    MAX_OPTIONS, RecordTypeDefinition, RecordTypeRegistry, bounded_label, config_from_json,
+    CustomFieldValueRepository, EntityDefinition, FieldDefinitionRepository, FieldSet,
+    MAX_CUSTOM_FIELDS, MAX_OPTIONS, RecordTypeRegistry, bounded_label, config_from_json,
     config_to_json, field_definition_violations, is_option_value, normalize_color,
 };
 use crate::application::shared::{JobQueue, RecordType};
@@ -276,7 +276,7 @@ pub fn export_field(field: &FieldDefinition) -> PackageField {
 }
 
 pub fn projected_field_set(
-    definition: &RecordTypeDefinition,
+    definition: &EntityDefinition,
     existing: Vec<FieldDefinition>,
     package: &[PackageField],
 ) -> FieldSet {
@@ -505,7 +505,7 @@ where
 
     async fn compare(
         &self,
-        record_type: &RecordTypeDefinition,
+        record_type: &EntityDefinition,
         item: PlanItem,
         current: FieldDefinition,
         proposed: FieldDefinition,

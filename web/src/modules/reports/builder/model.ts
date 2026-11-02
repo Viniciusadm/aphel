@@ -17,10 +17,10 @@ export const DEFAULT_LIMIT = 500
 export const MAX_LIMIT = 1000
 
 export const REPORT_RECORD_TYPES = [
-  { recordType: 'deal', permission: 'deals.read' },
-  { recordType: 'contact', permission: 'contacts.read' },
-  { recordType: 'company', permission: 'companies.read' },
-  { recordType: 'activity', permission: 'activities.read' },
+  { recordType: 'deals.deal', permission: 'deals.read' },
+  { recordType: 'contacts.contact', permission: 'contacts.read' },
+  { recordType: 'companies.company', permission: 'companies.read' },
+  { recordType: 'activities.activity', permission: 'activities.read' },
 ] as const
 
 export type ReportRecordType = (typeof REPORT_RECORD_TYPES)[number]['recordType']

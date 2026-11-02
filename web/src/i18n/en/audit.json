@@ -43,7 +43,25 @@
     "member": "Member",
     "role": "Role",
     "team": "Team",
-    "organization": "Organization"
+    "organization": "Organization",
+    "contacts": {
+      "contact": "Contact"
+    },
+    "companies": {
+      "company": "Company"
+    },
+    "deals": {
+      "deal": "Deal"
+    },
+    "activities": {
+      "activity": "Activity"
+    },
+    "products": {
+      "product": "Product"
+    },
+    "notes": {
+      "note": "Note"
+    }
   },
   "changes": {
     "label": "Changed fields",

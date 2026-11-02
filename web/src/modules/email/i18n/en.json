@@ -14,7 +14,16 @@
   "recordTypes": {
     "contact": "Contact",
     "company": "Company",
-    "deal": "Deal"
+    "deal": "Deal",
+    "contacts": {
+      "contact": "Contact"
+    },
+    "companies": {
+      "company": "Company"
+    },
+    "deals": {
+      "deal": "Deal"
+    }
   },
   "visibility": {
     "private": {

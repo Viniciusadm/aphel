@@ -62,7 +62,13 @@
     "recordType": "Registros",
     "recordTypes": {
       "contact": "Contatos",
-      "company": "Empresas"
+      "company": "Empresas",
+      "contacts": {
+        "contact": "Contatos"
+      },
+      "companies": {
+        "company": "Empresas"
+      }
     },
     "from": "De",
     "to": "Até",

@@ -9,10 +9,10 @@ use crate::application::audit::{DiffOptions, diff_changes};
 use crate::application::fields::formulas::formula_definition_violations;
 use crate::application::fields::permissions::FieldAccessPolicy;
 use crate::application::fields::{
-    CreateFieldCommand, CustomFieldValueRepository, FieldDefinitionRepository, FieldOptionInput,
-    FieldPorts, FieldSchema, FieldSet, FieldView, FieldsTx, OperatorDescription,
-    RecordTypeDefinition, RecordTypeRegistry, ReorderCommand, ResolvedField, UpdateFieldCommand,
-    UpdateOptionCommand, config_from_json, config_to_json, is_option_value,
+    CreateFieldCommand, CustomFieldValueRepository, EntityDefinition, FieldDefinitionRepository,
+    FieldOptionInput, FieldPorts, FieldSchema, FieldSet, FieldView, FieldsTx, OperatorDescription,
+    RecordTypeRegistry, ReorderCommand, ResolvedField, UpdateFieldCommand, UpdateOptionCommand,
+    config_from_json, config_to_json, is_option_value,
 };
 use crate::application::organization_admin::{ListWindow, Listing};
 use crate::application::query::{FilterOperator, operators_for, operators_for_definition};
@@ -753,7 +753,7 @@ where
         &self,
         scope: &AccessScope,
         record_type: &str,
-    ) -> Result<(&RecordTypeDefinition, FieldSet), AppError> {
+    ) -> Result<(&EntityDefinition, FieldSet), AppError> {
         let definition = self.ports.registry().require(record_type)?;
         if scope.require(&Permission::SETTINGS_MANAGE).is_err()
             && scope.require(&definition.read_permission).is_err()
@@ -774,7 +774,7 @@ where
         Ok((definition, fields.with_access(&policy)))
     }
 
-    async fn field_set(&self, definition: &RecordTypeDefinition) -> Result<FieldSet, AppError> {
+    async fn field_set(&self, definition: &EntityDefinition) -> Result<FieldSet, AppError> {
         let definitions = self.ports.definitions();
         let versions = definitions.versions(&definition.record_type).await?;
         Ok(
@@ -786,7 +786,7 @@ where
     async fn load_fields(
         &self,
         record_type: &str,
-    ) -> Result<(&RecordTypeDefinition, FieldSet), AppError> {
+    ) -> Result<(&EntityDefinition, FieldSet), AppError> {
         let definition = self.ports.registry().require(record_type)?;
         let fields = self.field_set(definition).await?;
         Ok((definition, fields))
@@ -794,7 +794,7 @@ where
 
     async fn require_view(
         &self,
-        definition: &RecordTypeDefinition,
+        definition: &EntityDefinition,
         field_id: Uuid,
     ) -> Result<FieldView, AppError> {
         let fields = self.field_set(definition).await?;

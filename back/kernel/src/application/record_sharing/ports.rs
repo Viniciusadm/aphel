@@ -4,7 +4,7 @@ use async_trait::async_trait;
 use chrono::{DateTime, Utc};
 use uuid::Uuid;
 
-use crate::application::fields::{RecordTypeDefinition, RecordTypeRegistry};
+use crate::application::fields::{EntityDefinition, RecordTypeRegistry};
 use crate::application::record_sharing::{
     RecordHeader, RecordShare, ShareAccess, ShareGranteeType,
 };
@@ -30,14 +30,14 @@ pub trait RecordDirectory: Send + Sync {
     async fn header(
         &self,
         scope: &AccessScope,
-        definition: &RecordTypeDefinition,
+        definition: &EntityDefinition,
         visibility: &RecordScopeFilter,
         record_id: Uuid,
     ) -> Result<Option<RecordHeader>, AppError>;
     async fn visible_titles(
         &self,
         scope: &AccessScope,
-        definition: &RecordTypeDefinition,
+        definition: &EntityDefinition,
         visibility: &RecordScopeFilter,
         record_ids: &[Uuid],
     ) -> Result<HashMap<Uuid, Option<String>>, AppError>;

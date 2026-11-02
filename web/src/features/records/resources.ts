@@ -1,6 +1,10 @@
+import type { LucideIcon } from 'lucide-react'
 import type { RecordItem } from './types'
 
 export interface RecordResource {
+  icon?: LucideIcon
+  relatable?: boolean
+  checkIn?: boolean
   recordType: string
   basePath: string
   titleField: string
@@ -17,6 +21,10 @@ const resources = new Map<string, RecordResource>()
 export function registerRecordResource(resource: RecordResource): RecordResource {
   resources.set(resource.recordType, resource)
   return resource
+}
+
+export function recordResources(): readonly RecordResource[] {
+  return [...resources.values()]
 }
 
 export function getRecordResource(recordType: string): RecordResource | undefined {

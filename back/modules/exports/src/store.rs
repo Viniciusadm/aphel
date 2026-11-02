@@ -235,27 +235,6 @@ impl RecordRowStore {
     }
 }
 
-pub struct LabelSource {
-    pub table: String,
-    pub(crate) label: String,
-    pub(crate) soft_delete: bool,
-}
-
-pub fn config_label_source(kind: &str) -> Option<LabelSource> {
-    let table = match kind {
-        "pipeline" => "pipelines",
-        "pipeline_stage" => "pipeline_stages",
-        "lost_reason" => "lost_reasons",
-        "activity_type" => "activity_types",
-        _ => return None,
-    };
-    Some(LabelSource {
-        table: table.to_owned(),
-        label: "name".to_owned(),
-        soft_delete: false,
-    })
-}
-
 #[derive(Clone)]
 pub(crate) struct RecordLabelStore {
     pool: MySqlPool,
@@ -269,17 +248,6 @@ impl RecordLabelStore {
 
     pub(crate) fn of(ctx: &Ctx<'_>) -> Self {
         Self::new(ctx.pool().clone(), ctx.registry().clone())
-    }
-
-    fn label_source(&self, record_type: &str) -> Option<LabelSource> {
-        if let Ok(definition) = self.registry.require(record_type) {
-            return Some(LabelSource {
-                table: definition.table.clone(),
-                label: definition.title_column()?.to_owned(),
-                soft_delete: definition.deleted_column.is_some(),
-            });
-        }
-        config_label_source(record_type)
     }
 
     pub(crate) async fn user_labels(
@@ -307,21 +275,28 @@ impl RecordLabelStore {
         record_type: &str,
         record_ids: &[Uuid],
     ) -> Result<HashMap<Uuid, String>, AppError> {
-        let Some(source) = self.label_source(record_type) else {
+        let Ok(definition) = self.registry.require(record_type) else {
+            return Ok(HashMap::new());
+        };
+        let Some(title) = definition
+            .title_field
+            .as_deref()
+            .and_then(|key| definition.system_field_by_key(key))
+        else {
             return Ok(HashMap::new());
         };
         let mut labels = HashMap::new();
         for chunk in record_ids.chunks(LABEL_CHUNK) {
             let mut builder = QueryBuilder::new(format!(
-                "SELECT id, {} AS label FROM {} WHERE {}id IN (",
-                source.label,
-                source.table,
-                if source.soft_delete {
-                    "deleted_at IS NULL AND "
-                } else {
-                    ""
-                }
+                "SELECT r.id, {} AS label FROM {} r WHERE TRUE",
+                system_expression(title, "r"),
+                quoted(&definition.table)
             ));
+            push_partition(&mut builder, definition, "r");
+            if let Some(column) = &definition.deleted_column {
+                builder.push(format!(" AND r.{} IS NULL", quoted(column)));
+            }
+            builder.push(" AND r.id IN (");
             let mut ids = builder.separated(", ");
             for id in chunk {
                 ids.push_bind(id.to_string());

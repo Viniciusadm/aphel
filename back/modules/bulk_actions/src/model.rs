@@ -19,7 +19,8 @@ pub(crate) const MAX_BULK_RECORDS: u64 = 10_000;
 pub(crate) const MAX_SELECTED_IDS: usize = 10_000;
 pub(crate) const BULK_PAGE_SIZE: u64 = 500;
 
-pub(crate) const BULK_OPERATION_RECORD_TYPE: RecordType = RecordType::from_static("bulk_operation");
+pub(crate) const BULK_OPERATION_RECORD_TYPE: RecordType =
+    RecordType::from_static("bulk_actions.bulk_operation");
 pub(crate) const BULK_OPERATION_REQUESTED: &str = "bulk_operation.requested";
 pub(crate) const BULK_OPERATION_COMPLETED: &str = "bulk_operation.completed";
 pub(crate) const BULK_OPERATION_FAILED: &str = "bulk_operation.failed";

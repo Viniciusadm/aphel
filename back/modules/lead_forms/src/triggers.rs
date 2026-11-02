@@ -21,7 +21,7 @@ impl AutomationTrigger for SubmittedTrigger {
     }
 
     fn supports(&self, record_type: &str) -> bool {
-        record_type == "contact"
+        record_type == "contacts.contact"
     }
 
     fn listens_to(&self, event_type: &str) -> bool {

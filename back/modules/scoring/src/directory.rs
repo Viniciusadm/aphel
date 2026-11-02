@@ -7,7 +7,7 @@ use uuid::Uuid;
 
 use aphel_kernel::Ctx;
 use aphel_kernel::application::access::Authorizer;
-use aphel_kernel::application::fields::{FieldSet, RecordTypeDefinition, RecordTypeRegistry};
+use aphel_kernel::application::fields::{EntityDefinition, FieldSet, RecordTypeRegistry};
 use aphel_kernel::application::organization_admin::ListWindow;
 use aphel_kernel::application::query::{
     ArchivedFilter, Filter, FilterOperator, ID_FIELD, QueryPlan, RecordQuery, RecordQueryEngine,
@@ -47,7 +47,7 @@ impl ScoringDirectory {
     pub(crate) async fn plan(
         &self,
         elevated: &AccessScope,
-        definition: &RecordTypeDefinition,
+        definition: &EntityDefinition,
         filter: Filter,
     ) -> Result<Result<QueryPlan, AppError>, AppError> {
         let ports = self.ports();
@@ -91,7 +91,7 @@ impl ScoringDirectory {
     pub(crate) async fn query_ids(
         &self,
         scope: &AccessScope,
-        definition: &RecordTypeDefinition,
+        definition: &EntityDefinition,
         filter: Filter,
     ) -> Result<Vec<Uuid>, AppError> {
         let elevated = AccessScope::system().with_enabled_modules(scope.enabled_modules().to_vec());
@@ -135,7 +135,7 @@ impl ScoringDirectory {
     pub(crate) async fn filter_violations(
         &self,
         scope: &AccessScope,
-        definition: &RecordTypeDefinition,
+        definition: &EntityDefinition,
         filter: &Filter,
     ) -> Result<Vec<FieldViolation>, AppError> {
         let elevated = AccessScope::system().with_enabled_modules(scope.enabled_modules().to_vec());
@@ -166,7 +166,7 @@ impl ScoringDirectory {
     pub(crate) async fn matching_ids(
         &self,
         scope: &AccessScope,
-        definition: &RecordTypeDefinition,
+        definition: &EntityDefinition,
         filter: &Filter,
         record_ids: Option<&[Uuid]>,
     ) -> Result<Vec<Uuid>, AppError> {
@@ -181,7 +181,7 @@ impl ScoringDirectory {
     pub(crate) async fn existing_ids(
         &self,
         scope: &AccessScope,
-        definition: &RecordTypeDefinition,
+        definition: &EntityDefinition,
         record_ids: &[Uuid],
     ) -> Result<Vec<Uuid>, AppError> {
         if record_ids.is_empty() {
@@ -223,7 +223,7 @@ impl ScoringDirectory {
     pub(crate) async fn record_visible(
         &self,
         scope: &AccessScope,
-        definition: &RecordTypeDefinition,
+        definition: &EntityDefinition,
         record_id: Uuid,
     ) -> Result<bool, AppError> {
         self.record_accessible(scope, definition, &definition.read_permission, record_id)
@@ -233,7 +233,7 @@ impl ScoringDirectory {
     pub(crate) async fn record_accessible(
         &self,
         scope: &AccessScope,
-        definition: &RecordTypeDefinition,
+        definition: &EntityDefinition,
         permission: &Permission,
         record_id: Uuid,
     ) -> Result<bool, AppError> {

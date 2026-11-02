@@ -90,7 +90,12 @@ fn followed_targets(event: &DomainEvent) -> (Vec<RecordRef>, &'static str) {
         event_type => {
             let record = event.record.clone().filter(|record| {
                 event_type == DEAL_STAGE_CHANGED
-                    || event_type.strip_suffix(UPDATED_SUFFIX) == Some(record.record_type.as_str())
+                    || event_type
+                        .strip_suffix(UPDATED_SUFFIX)
+                        .and_then(|key| {
+                            aphel_kernel::application::shared::RecordType::parse(key).ok()
+                        })
+                        .is_some_and(|key| key == record.record_type)
             });
             (record.into_iter().collect(), "update")
         }

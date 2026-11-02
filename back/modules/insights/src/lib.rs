@@ -33,7 +33,7 @@ impl Module for InsightsModule {
                     BIRTHDAY_FIELD_SETTING,
                     "Campo de aniversário",
                     SettingKind::Field {
-                        record_type: "contact",
+                        record_type: "contacts.contact",
                         field_types: vec!["date"],
                     },
                 )

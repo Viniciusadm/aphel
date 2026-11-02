@@ -17,7 +17,7 @@ pub(crate) const REPORT_PERIOD_REQUIRED: &str = "report_period_required";
 pub(crate) const REPORT_CREATED: &str = "report.created";
 pub(crate) const REPORT_UPDATED: &str = "report.updated";
 pub(crate) const REPORT_DELETED: &str = "report.deleted";
-pub(crate) const REPORT_RECORD_TYPE: RecordType = RecordType::from_static("report");
+pub(crate) const REPORT_RECORD_TYPE: RecordType = RecordType::from_static("reports.report");
 
 pub(crate) const MAX_REPORT_NAME_LENGTH: usize = 140;
 pub(crate) const MAX_REPORT_DESCRIPTION_LENGTH: usize = 1000;
@@ -29,7 +29,7 @@ pub(crate) const REPORT_SCHEDULE_CREATED: &str = "report_schedule.created";
 pub(crate) const REPORT_SCHEDULE_UPDATED: &str = "report_schedule.updated";
 pub(crate) const REPORT_SCHEDULE_DELETED: &str = "report_schedule.deleted";
 pub(crate) const REPORT_SCHEDULE_RECORD_TYPE: RecordType =
-    RecordType::from_static("report_schedule");
+    RecordType::from_static("reports.report_schedule");
 pub(crate) const MAX_SCHEDULE_RECIPIENTS: usize = 50;
 pub(crate) const MAX_SCHEDULES_PER_REPORT: usize = 20;
 

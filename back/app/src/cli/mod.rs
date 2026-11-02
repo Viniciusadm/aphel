@@ -1,6 +1,7 @@
 mod catalog;
 mod db;
 mod doctor;
+mod entity_schema;
 mod healthcheck;
 mod migrate;
 mod modules;
@@ -59,6 +60,10 @@ pub(crate) enum Command {
     Db(DbCommand),
     #[command(about = "Print the OpenAPI document as JSON to stdout")]
     Openapi,
+    #[command(
+        about = "Generate managed entity DDL from a JSON declaration without connecting to a database"
+    )]
+    EntitySchema(entity_schema::EntitySchemaArgs),
     #[command(subcommand, about = "Manage the encryption of stored secrets")]
     Secrets(SecretsCommand),
     #[command(subcommand, about = "Maintain the global search index")]
@@ -131,6 +136,7 @@ pub(crate) async fn run() -> CliResult {
         Command::Migrate => migrate::run(config).await,
         Command::Db(command) => db::run(config, command).await,
         Command::Openapi => openapi::run(),
+        Command::EntitySchema(args) => entity_schema::run(args),
         Command::Secrets(command) => secrets::run(config, command).await,
         Command::Search(command) => search::run(config, command).await,
         Command::Doctor => doctor::run(config).await,

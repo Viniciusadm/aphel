@@ -73,7 +73,7 @@ async fn list_companies(
     let mut items: Vec<CompanyResponse> = listing.items.into_iter().map(Into::into).collect();
     if includes.contains("tags") {
         let ids: Vec<String> = items.iter().map(|item| item.id.clone()).collect();
-        let mut tags = record_tag_map(&state, &tenant.scope, "company", &ids).await?;
+        let mut tags = record_tag_map(&state, &tenant.scope, "companies.company", &ids).await?;
         for item in &mut items {
             item.tags = Some(tags.remove(&item.id).unwrap_or_default());
         }
@@ -163,7 +163,7 @@ async fn get_company(
         let mut tags = record_tag_map(
             &state,
             &tenant.scope,
-            "company",
+            "companies.company",
             std::slice::from_ref(&response.id),
         )
         .await?;
@@ -531,7 +531,7 @@ impl RecordTypeHandler for CompanyHandler {
     }
 
     fn record_type(&self) -> &str {
-        "company"
+        "companies.company"
     }
 
     async fn create(&self, ctx: &RecordCtx<'_>, values: Value) -> Result<Value, AppError> {

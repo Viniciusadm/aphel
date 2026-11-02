@@ -28,6 +28,7 @@ pub struct Migration {
     pub version: u32,
     pub description: &'static str,
     pub sql: &'static str,
+    pub previous_checksum: Option<&'static str>,
 }
 
 impl Migration {
@@ -36,7 +37,12 @@ impl Migration {
             version,
             description,
             sql,
+            previous_checksum: None,
         }
+    }
+    pub const fn replaces(mut self, checksum: &'static str) -> Self {
+        self.previous_checksum = Some(checksum);
+        self
     }
 }
 

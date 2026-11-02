@@ -35,7 +35,7 @@ pub(crate) const SOURCE_SETTING: &str = "source";
 pub(crate) const CNPJ_FIELD_SETTING: &str = "cnpj_field";
 pub(crate) const AUTOMATIC_SETTING: &str = "automatic";
 
-pub(crate) const COMPANY: &str = "company";
+pub(crate) const COMPANY: &str = "companies.company";
 
 pub(crate) struct DataItem {
     pub(crate) key: &'static str,

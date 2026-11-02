@@ -702,7 +702,7 @@ fn demo_fields() -> Vec<(&'static str, CreateFieldCommand)> {
     };
     vec![
         (
-            "company",
+            "companies.company",
             field(
                 "customer_tier",
                 crate::labels("Customer category"),
@@ -711,7 +711,7 @@ fn demo_fields() -> Vec<(&'static str, CreateFieldCommand)> {
             ),
         ),
         (
-            "contact",
+            "contacts.contact",
             field(
                 "preferred_channel",
                 crate::labels("Preferred channel"),
@@ -724,7 +724,7 @@ fn demo_fields() -> Vec<(&'static str, CreateFieldCommand)> {
             ),
         ),
         (
-            "deal",
+            "deals.deal",
             field(
                 "contract_months",
                 crate::labels("Contract duration (months)"),

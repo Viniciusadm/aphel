@@ -175,7 +175,7 @@ impl From<ParticipantView> for EmailParticipantResponse {
 
 #[derive(Debug, Serialize, ToSchema)]
 pub(crate) struct EmailThreadRecordResponse {
-    #[schema(example = "contact")]
+    #[schema(example = "contacts.contact")]
     pub(crate) record_type: String,
     pub(crate) record_id: String,
     #[schema(example = "automatic")]
@@ -403,7 +403,7 @@ impl From<ThreadDetail> for EmailThreadDetailResponse {
 #[derive(Debug, Deserialize, IntoParams)]
 #[into_params(parameter_in = Query)]
 pub(crate) struct EmailThreadsQueryParams {
-    #[param(example = "contact")]
+    #[param(example = "contacts.contact")]
     pub(crate) record_type: String,
     pub(crate) record_id: String,
 }
@@ -422,7 +422,7 @@ pub(crate) struct UpdateEmailThreadRequest {
 
 #[derive(Debug, Deserialize, ToSchema)]
 pub(crate) struct LinkEmailThreadRequest {
-    #[schema(example = "deal")]
+    #[schema(example = "deals.deal")]
     pub(crate) record_type: String,
     pub(crate) record_id: String,
 }

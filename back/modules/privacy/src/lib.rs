@@ -48,6 +48,13 @@ impl Module for PrivacyModule {
     }
 
     fn register(&self, app: &mut AppBuilder) -> Result<(), AppError> {
+        app.contribute(std::sync::Arc::new(
+            aphel_kernel::application::fields::EntityKeyAliases(&[
+                ("privacy_request", "privacy.privacy_request"),
+                ("retention_policy", "privacy.retention_policy"),
+                ("retention_run", "privacy.retention_run"),
+            ]),
+        ));
         app.contribute::<dyn aphel_kernel::modules::FileReferenceSource>(std::sync::Arc::new(
             points::PrivacyFiles,
         ));

@@ -23,8 +23,8 @@ use aphel_kernel::Ctx;
 use aphel_kernel::application::access::Authorizer;
 use aphel_kernel::application::custom_objects::RecordTypeCatalog;
 use aphel_kernel::application::fields::{
-    CustomFieldValueRepository, FieldDefinitionRepository, RecordTypeDefinition,
-    RecordTypeRegistry, raw_from_json,
+    CustomFieldValueRepository, EntityDefinition, FieldDefinitionRepository, RecordTypeRegistry,
+    raw_from_json,
 };
 use aphel_kernel::application::files::storage_key;
 use aphel_kernel::application::organizations::{
@@ -92,7 +92,7 @@ impl RestoreReport {
 type DatasetEntry = (&'static Dataset, String);
 
 struct RestoreData<'a> {
-    records: &'a [(&'a RecordTypeDefinition, String)],
+    records: &'a [(&'a EntityDefinition, String)],
     datasets: &'a [DatasetEntry],
 }
 
@@ -480,7 +480,7 @@ impl Restore<'_> {
             tx.commit().await?;
         }
 
-        let mut record_files: Vec<(&RecordTypeDefinition, String)> = Vec::new();
+        let mut record_files: Vec<(&EntityDefinition, String)> = Vec::new();
         for entry in manifest
             .entries
             .iter()

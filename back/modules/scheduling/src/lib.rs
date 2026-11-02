@@ -68,6 +68,16 @@ impl Module for SchedulingModule {
     }
 
     fn register(&self, app: &mut AppBuilder) -> Result<(), AppError> {
+        app.contribute(std::sync::Arc::new(
+            aphel_kernel::application::fields::EntityKeyAliases(&[
+                ("meeting_booking", "scheduling.meeting_booking"),
+                ("meeting_type", "scheduling.meeting_type"),
+                (
+                    "scheduling_availability",
+                    "scheduling.scheduling_availability",
+                ),
+            ]),
+        ));
         app.openapi_tag(
             http::TAG,
             "Scheduling links: availability, meeting types, team links and the public booking page",

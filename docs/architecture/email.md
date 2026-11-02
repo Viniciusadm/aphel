@@ -132,7 +132,7 @@ Code in `back/modules/email/{compose,templates,tracking}`, MySQL adapters in `ba
 ### Sending (`POST /api/v1/emails`, `emails.send`)
 
 1. Mailbox: `mailbox_id` (always the user's own), the one of the thread being replied to or the user's first `active` mailbox (`no_mailbox_available` without a mailbox; `mailbox_unavailable` with a `disconnected` mailbox).
-2. `record` (contact, company, deal or `co_<key>`) requires read access to the record. In a reply without `record`, the first readable record linked to the thread (contact first) provides the variables.
+2. `record` (contact, company, deal or `custom.<key>`) requires read access to the record. In a reply without `record`, the first readable record linked to the thread (contact first) provides the variables.
 3. Reply (`reply_to_message_id`): the message must belong to one of the user's mailboxes; it keeps the thread, `In-Reply-To` = the replied `Message-ID`, `References` = its references + that id, subject `reply_subject` (`Re: ...`).
 4. Subject and body come from the request or from the template (`template_id`), always rendered on the server (variables escaped in HTML, HTML sanitized; without `body_text`, the text is derived from the HTML).
 5. Attachments (`attachment_file_ids`): only files the user can download (`FileUseCases::download`: uploaded by them, linked to a readable record or `settings.manage`); up to 20 files and 25 MB. The attachment references the same `file_id` (no copy).
@@ -147,7 +147,7 @@ Code in `back/modules/email/{compose,templates,tracking}`, MySQL adapters in `ba
 ### Templates (`email_templates`)
 
 - Scope `organization` (writing requires `settings.manage`) or `personal` (only the owner sees and edits). A stable `key` (snake_case, unique among the organization's or the owner's templates, generated from the name when absent), an optional `record_type` (filters the list), subject and sanitized HTML. Events `email_template.created|updated|deleted` with audit.
-- Variables: `{{contact.<field>}}`, `{{company.<field>}}`, `{{deal.<field>}}`, `{{co_<key>.<field>}}`, `{{record.<field>}}` (the source record), `{{user.display_name}}`, `{{user.email}}` (the sender). A contact brings its company; a deal brings contact and company (each only if readable). Custom fields are included by key. A missing variable becomes empty text and appears in the preview's `missing_variables`.
+- Variables: `{{contact.<field>}}`, `{{company.<field>}}`, `{{deal.<field>}}`, `{{custom.<key>.<field>}}`, `{{record.<field>}}` (the source record), `{{user.display_name}}`, `{{user.email}}` (the sender). A contact brings its company; a deal brings contact and company (each only if readable). Custom fields are included by key. A missing variable becomes empty text and appears in the preview's `missing_variables`.
 - `GET /api/v1/email-templates/variables?record_type=` lists the readable variables (`FieldSet::for_scope`).
 - Configuration packages: `email_templates` section (`EmailTemplatesSection`), organization templates only, reconciled by `key`; installing creates or updates and never deletes.
 

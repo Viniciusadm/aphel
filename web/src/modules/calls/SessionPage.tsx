@@ -30,7 +30,7 @@ import type { CallSession, CallSessionItem, StartedCall } from './types'
 import { PageHeader } from '@/components/ui/page-header'
 import { Page } from '@/components/ui/page'
 
-const CONTACT = 'contact'
+const CONTACT = 'contacts.contact'
 
 export function SessionPage() {
   const { t } = useTranslation('calls')

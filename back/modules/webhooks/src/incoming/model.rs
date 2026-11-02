@@ -8,7 +8,7 @@ use aphel_kernel::application::shared::RecordType;
 use aphel_kernel::domain::UserId;
 
 pub(crate) const INCOMING_WEBHOOK_RECORD_TYPE: RecordType =
-    RecordType::from_static("incoming_webhook");
+    RecordType::from_static("webhooks.incoming_webhook");
 pub(crate) const SECRET_OWNER_TYPE: &str = "incoming_webhook";
 pub(crate) const SIGNING_SECRET_NAME: &str = "signing_secret";
 pub(crate) const HOOKS_PATH_PREFIX: &str = "/api/v1/hooks/";

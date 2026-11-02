@@ -13,7 +13,7 @@ import { formatDateTime, useRecordFormatting } from '@/features/records/formatti
 import { stageGuidanceApi, stageGuidanceKeys, useDealChecklist } from './api'
 import type { DealChecklist, DealChecklistItem } from './types'
 
-const DEAL_RECORD_TYPE = 'deal'
+const DEAL_RECORD_TYPE = 'deals.deal'
 
 export interface DealStageGuidancePanelProps {
   dealId: string

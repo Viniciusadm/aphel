@@ -1,6 +1,6 @@
 # Sharing and following records
 
-Two generic features on top of the `RecordTypeRegistry`, valid for every record type (core, `quote`, `product`, `co_<key>`):
+Two generic features on top of the `RecordTypeRegistry`, valid for every record type (core, `quote`, `product`, `custom.<key>`):
 
 - **Sharing** gives a user or team read or edit access to a record beyond what their role allows.
 - **Following** makes the user get notified about changes, activities, notes and emails of the record.
@@ -9,7 +9,7 @@ Sharing is kernel: `back/kernel/src/application/record_sharing` (use cases and p
 
 ## Data
 
-- `record_shares` (migration `2670`): `record_type` (the type key, including `co_<key>`), `record_id`, `grantee_type` (`user` or `team`), `grantee_id`, `access` (`read` or `edit`), `shared_by`, dates. Unique per record and grantee. The `(record_type, grantee_type, grantee_id, access, record_id)` index serves the scope filter subquery.
+- `record_shares` (migration `2670`): `record_type` (the type key, including `custom.<key>`), `record_id`, `grantee_type` (`user` or `team`), `grantee_id`, `access` (`read` or `edit`), `shared_by`, dates. Unique per record and grantee. The `(record_type, grantee_type, grantee_id, access, record_id)` index serves the scope filter subquery.
 - `record_followers` (migration `2671`): `record_type`, `record_id`, `user_id`, `origin` (`manual` or `owner`). Unique per record and user.
 - Administrative permission `records.share` (migration `2672` grants it to the system `admin` role; the admin already receives the whole catalog).
 

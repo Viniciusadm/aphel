@@ -9,7 +9,7 @@ use uuid::Uuid;
 
 use crate::domain::Segment;
 use aphel_kernel::Ctx;
-use aphel_kernel::application::fields::RecordTypeDefinition;
+use aphel_kernel::application::fields::EntityDefinition;
 use aphel_kernel::application::query::{Filter, SegmentSource};
 use aphel_kernel::application::shared::RecordType;
 use aphel_kernel::database::transaction::MySqlTx;
@@ -176,7 +176,7 @@ impl SegmentStore {
 
     pub(crate) async fn labels(
         &self,
-        definition: &RecordTypeDefinition,
+        definition: &EntityDefinition,
         record_ids: &[Uuid],
     ) -> Result<HashMap<Uuid, String>, AppError> {
         let mut labels = HashMap::new();

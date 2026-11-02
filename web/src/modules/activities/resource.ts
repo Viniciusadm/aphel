@@ -1,10 +1,12 @@
+import { CheckSquare } from 'lucide-react'
 import { registerRecordResource } from '@/features/records/resources'
 
-export const ACTIVITY_RECORD_TYPE = 'activity'
-export const ACTIVITY_TYPE_RECORD_TYPE = 'activity_type'
+export const ACTIVITY_RECORD_TYPE = 'activities.activity'
+export const ACTIVITY_TYPE_RECORD_TYPE = 'activities.activity_type'
 export const TASKS_PATH = '/tasks'
 
 export const activityResource = registerRecordResource({
+  icon: CheckSquare,
   recordType: ACTIVITY_RECORD_TYPE,
   createPermission: 'activities.create',
   updatePermission: 'activities.update',

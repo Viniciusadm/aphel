@@ -98,7 +98,7 @@ pub enum DispatchOutcome {
 
 pub fn record_path(record: &RecordRef) -> Option<String> {
     let record_type = record.record_type.as_str();
-    if let Some(key) = record_type.strip_prefix("co_") {
+    if let Some(key) = record_type.strip_prefix("custom.") {
         return Some(format!("/objects/{key}/{}", record.record_id));
     }
     let base = crate::modules::app()

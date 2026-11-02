@@ -209,7 +209,7 @@ impl AutomationRuntime {
             return true;
         };
         let record_event = event_type
-            .split_once('.')
+            .rsplit_once('.')
             .filter(|(_, suffix)| matches!(*suffix, "created" | "updated" | "deleted"));
         let triggers = TriggerRegistry::builtin();
         pairs.iter().any(|(record_type, trigger_key)| {
@@ -221,7 +221,8 @@ impl AutomationRuntime {
             }
             match (trigger_key.as_str(), record_event) {
                 (RECORD_CREATED | RECORD_UPDATED | RECORD_DELETED, Some((prefix, _))) => {
-                    prefix == record_type
+                    aphel_kernel::application::shared::RecordType::parse(prefix)
+                        .is_ok_and(|key| key.as_str() == record_type)
                 }
                 _ => true,
             }

@@ -5,7 +5,7 @@ use chrono::{DateTime, Utc};
 use uuid::Uuid;
 
 use crate::application::fields::{
-    CustomFieldPorts, FieldDefinitionRepository, RecordTypeDefinition, RecordTypeRegistry,
+    CustomFieldPorts, EntityDefinition, FieldDefinitionRepository, RecordTypeRegistry,
 };
 use crate::application::files::RecordAccessChecker;
 use crate::application::organization_admin::{ListWindow, Listing};
@@ -47,7 +47,7 @@ pub trait CustomObjectRepository: Send + Sync {
     async fn seed_system_fields(
         &self,
         tx: &mut Self::Tx,
-        definition: &RecordTypeDefinition,
+        definition: &EntityDefinition,
     ) -> Result<(), AppError>;
 }
 
@@ -93,7 +93,7 @@ pub trait RecordLinkRepository: Send + Sync {
     async fn linked_ids(
         &self,
         scope: &AccessScope,
-        target: &RecordTypeDefinition,
+        target: &EntityDefinition,
         visibility: &RecordScopeFilter,
         relationship_id: Uuid,
         inverse: bool,
@@ -130,7 +130,7 @@ pub trait RecordLinkRepository: Send + Sync {
     -> Result<(), AppError>;
     async fn titles(
         &self,
-        definition: &RecordTypeDefinition,
+        definition: &EntityDefinition,
         record_ids: &[Uuid],
     ) -> Result<HashMap<Uuid, String>, AppError>;
 }

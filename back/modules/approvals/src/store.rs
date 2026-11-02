@@ -18,7 +18,7 @@ use aphel_kernel::Ctx;
 use aphel_kernel::application::fields::formulas::{
     FormulaEngine, TypeFormulas, ValueKind, compile_formula,
 };
-use aphel_kernel::application::fields::{FieldSet, RecordTypeDefinition, RecordTypeRegistry};
+use aphel_kernel::application::fields::{EntityDefinition, FieldSet, RecordTypeRegistry};
 use aphel_kernel::application::organization_admin::{ListWindow, Listing};
 use aphel_kernel::application::query::{
     ArchivedFilter, Filter, FilterOperator, ID_FIELD, RecordQuery, RecordQueryEngine,
@@ -840,7 +840,7 @@ pub(crate) fn condition_scope(scope: &AccessScope) -> AccessScope {
 }
 
 fn condition_definition(
-    record_type: &RecordTypeDefinition,
+    record_type: &EntityDefinition,
     expression: &str,
 ) -> Result<FieldDefinition, AppError> {
     Ok(FieldDefinition {
@@ -887,7 +887,7 @@ impl ApprovalDirectory {
 
     fn state_query(
         scope: &AccessScope,
-        definition: &RecordTypeDefinition,
+        definition: &EntityDefinition,
         record_id: Uuid,
         visibility: Option<&RecordScopeFilter>,
     ) -> QueryBuilder<MySql> {
@@ -924,7 +924,7 @@ impl ApprovalDirectory {
     pub(crate) async fn filter_query(
         &self,
         scope: &AccessScope,
-        definition: &RecordTypeDefinition,
+        definition: &EntityDefinition,
         filter: &Filter,
         record_id: Uuid,
     ) -> Result<Result<aphel_kernel::application::query::QueryPlan, AppError>, AppError> {
@@ -973,7 +973,7 @@ impl ApprovalDirectory {
     pub(crate) async fn formula_matches(
         &self,
         scope: &AccessScope,
-        definition: &RecordTypeDefinition,
+        definition: &EntityDefinition,
         expression: &str,
         record_id: Uuid,
     ) -> Result<bool, AppError> {
@@ -1045,7 +1045,7 @@ impl ApprovalDirectory {
         &self,
         tx: &mut MySqlTx,
         scope: &AccessScope,
-        definition: &RecordTypeDefinition,
+        definition: &EntityDefinition,
         record_id: Uuid,
         visibility: Option<&RecordScopeFilter>,
     ) -> Result<Option<RecordState>, AppError> {
@@ -1057,7 +1057,7 @@ impl ApprovalDirectory {
     pub(crate) async fn record_state(
         &self,
         scope: &AccessScope,
-        definition: &RecordTypeDefinition,
+        definition: &EntityDefinition,
         record_id: Uuid,
         visibility: Option<&RecordScopeFilter>,
     ) -> Result<Option<RecordState>, AppError> {
@@ -1070,7 +1070,7 @@ impl ApprovalDirectory {
         &self,
         tx: &mut MySqlTx,
         scope: &AccessScope,
-        definition: &RecordTypeDefinition,
+        definition: &EntityDefinition,
         record_id: Uuid,
         condition: &PolicyCondition,
     ) -> Result<bool, AppError> {
@@ -1098,7 +1098,7 @@ impl ApprovalDirectory {
     pub(crate) async fn condition_violations(
         &self,
         scope: &AccessScope,
-        definition: &RecordTypeDefinition,
+        definition: &EntityDefinition,
         condition: &PolicyCondition,
     ) -> Result<Vec<FieldViolation>, AppError> {
         let elevated = condition_scope(scope);
@@ -1155,7 +1155,7 @@ impl ApprovalDirectory {
     pub(crate) async fn lockable_fields(
         &self,
         scope: &AccessScope,
-        definition: &RecordTypeDefinition,
+        definition: &EntityDefinition,
     ) -> Result<Vec<String>, AppError> {
         let elevated = condition_scope(scope);
         let definitions = MySqlFieldDefinitionRepository::new(self.pool.clone());
@@ -1237,7 +1237,7 @@ impl ApprovalDirectory {
 
     pub(crate) async fn record_titles(
         &self,
-        definition: &RecordTypeDefinition,
+        definition: &EntityDefinition,
         ids: &[Uuid],
     ) -> Result<HashMap<Uuid, String>, AppError> {
         let Some(column) = definition.title_column() else {

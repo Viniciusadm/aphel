@@ -23,7 +23,7 @@ pub(crate) fn router() -> OpenApiRouter<AppState> {
     tag = TAG,
     operation_id = "events_catalog",
     security(("session_cookie" = [])),
-    description = "Stable list of public event types delivered by outgoing webhooks. Each delivery body is `{ id, type, actor: { type, id }, occurred_at, data, previous? }`: `data` is the resource as returned by its `GET /{resource}/{id}` (schema in `data_schema`; null when the event carries its own payload instead of a record), or only `{ id }` when `data_is_id_only`; `previous` carries the old values of the changed fields when `has_previous`. Any authenticated member can read it. The list also has the events of each active custom object (`co_<key>.created|updated|deleted|archived|unarchived`, data schema `CustomRecordResponse`).",
+    description = "Stable list of public event types delivered by outgoing webhooks. Each delivery body is `{ id, type, actor: { type, id }, occurred_at, data, previous? }`: `data` is the resource as returned by its `GET /{resource}/{id}` (schema in `data_schema`; null when the event carries its own payload instead of a record), or only `{ id }` when `data_is_id_only`; `previous` carries the old values of the changed fields when `has_previous`. Any authenticated member can read it. The list also has the events of each active custom object (`custom.<key>.created|updated|deleted|archived|unarchived`, data schema `CustomRecordResponse`).",
     responses(
         (status = 200, description = "Public event types", body = Data<Vec<PublicEventTypeResponse>>),
         (status = 401, description = "Missing or invalid credentials (`unauthorized`, `invalid_api_token`)", body = ErrorEnvelope),

@@ -795,7 +795,7 @@ const fn steps(
         SourceStep {
             key: COMPANIES_STEP,
             kind: StepKind::Import,
-            record_type: "company",
+            record_type: "companies.company",
             file_hint: hints[0],
             duplicate_key: company_key,
             links: COMPANY_LINKS,
@@ -804,7 +804,7 @@ const fn steps(
         SourceStep {
             key: CONTACTS_STEP,
             kind: StepKind::Import,
-            record_type: "contact",
+            record_type: "contacts.contact",
             file_hint: hints[1],
             duplicate_key: DuplicateKey::Email,
             links: CONTACT_LINKS,
@@ -813,7 +813,7 @@ const fn steps(
         SourceStep {
             key: DEALS_STEP,
             kind: StepKind::Import,
-            record_type: "deal",
+            record_type: "deals.deal",
             file_hint: hints[2],
             duplicate_key: DuplicateKey::None,
             links: DEAL_LINKS,
@@ -822,7 +822,7 @@ const fn steps(
         SourceStep {
             key: ACTIVITIES_STEP,
             kind: StepKind::Activities,
-            record_type: "activity",
+            record_type: "activities.activity",
             file_hint: hints[3],
             duplicate_key: DuplicateKey::None,
             links: HISTORY_LINKS,
@@ -831,7 +831,7 @@ const fn steps(
         SourceStep {
             key: NOTES_STEP,
             kind: StepKind::Notes,
-            record_type: "note",
+            record_type: "notes.note",
             file_hint: hints[4],
             duplicate_key: DuplicateKey::None,
             links: HISTORY_LINKS,

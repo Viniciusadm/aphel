@@ -15,7 +15,7 @@ export type ImportRow = Schemas['ImportRowResponse']
 export type ImportRowsPage = Schemas['Page_ImportRowResponse']
 export type ImportJobsPage = Schemas['Page_ImportJobResponse']
 
-export const IMPORTABLE_RECORD_TYPES = ['contact', 'company', 'deal', 'product'] as const
+export const IMPORTABLE_RECORD_TYPES = ['contacts.contact', 'companies.company', 'deals.deal', 'products.product'] as const
 export const POLL_INTERVAL_MS = 2000
 export const ERROR_ROWS_PAGE_SIZE = 50
 export const HISTORY_PAGE_SIZE = 25
@@ -23,10 +23,10 @@ export const HISTORY_PAGE_SIZE = 25
 export type ImportableRecordType = (typeof IMPORTABLE_RECORD_TYPES)[number]
 
 const PERMISSION_PREFIX: Record<ImportableRecordType, string> = {
-  contact: 'contacts',
-  company: 'companies',
-  deal: 'deals',
-  product: 'products',
+  'contacts.contact': 'contacts',
+  'companies.company': 'companies',
+  'deals.deal': 'deals',
+  'products.product': 'products',
 }
 
 export function isImportable(recordType: string): recordType is ImportableRecordType {

@@ -3,7 +3,7 @@ import { api } from '@/api'
 import { recordsKeys } from '@/features/records/api'
 import type { CompanyGroupTotals, CompanyHierarchy } from './types'
 
-const COMPANY_RECORD_TYPE = 'company'
+const COMPANY_RECORD_TYPE = 'companies.company'
 
 export const companyHierarchyKeys = {
   all: ['company-hierarchy'] as const,

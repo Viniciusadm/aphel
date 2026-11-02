@@ -35,7 +35,7 @@ pub(crate) fn reminder_delivery_handler(pool: MySqlPool) -> Arc<dyn JobHandler> 
     );
     Arc::new(ReminderDeliveryHandler::new(
         notifications,
-        ReminderStore::new(pool),
+        ReminderStore::new(pool, Arc::new(RecordTypeRegistry::builtin())),
     ))
 }
 

@@ -30,7 +30,8 @@ pub(crate) fn band_changed_event(record_type: &str) -> &'static str {
     }
 }
 
-pub(crate) const SCORING_MODEL_RECORD: RecordType = RecordType::from_static("scoring_model");
+pub(crate) const SCORING_MODEL_RECORD: RecordType =
+    RecordType::from_static("scoring.scoring_model");
 
 pub(crate) const SCORING_EVENTS_CONSUMER: &str = "scoring.events";
 pub(crate) const SCORING_DECAY_JOB: &str = "scoring.decay";

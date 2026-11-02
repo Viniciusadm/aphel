@@ -35,7 +35,7 @@ pub(crate) const TAG_DELETED: &str = "tag.deleted";
 pub(crate) const RECORD_TAGGED: &str = "record.tagged";
 pub(crate) const RECORD_UNTAGGED: &str = "record.untagged";
 
-pub(crate) const TAG_RECORD_TYPE: RecordType = RecordType::from_static("tag");
+pub(crate) const TAG_RECORD_TYPE: RecordType = RecordType::from_static("tags.tag");
 pub(crate) const TAGGABLE_RECORD_TYPES: [RecordType; 3] =
     [RecordType::CONTACT, RecordType::COMPANY, RecordType::DEAL];
 pub(crate) const MAX_TAGS_PER_ORGANIZATION: usize = 500;
@@ -111,7 +111,7 @@ fn parse_record_types(values: &[String], violations: &mut Vec<FieldViolation>) -
             }
             Err(_) => violations.push(FieldViolation::new(
                 format!("record_types.{index}"),
-                "must be contact, company, deal or a custom object (co_<key>)",
+                "must be contact, company, deal or a custom object (custom.<key>)",
             )),
         }
     }

@@ -64,7 +64,7 @@ export function CompanyEnrichmentTab({ recordId, readOnly }: RecordTabRenderProp
   const { hasPermission } = useSession()
   const formatting = useRecordFormatting()
   const overview = useEnrichmentCompany(recordId)
-  const schema = useFieldSchema('company')
+  const schema = useFieldSchema('companies.company')
   const invalidate = useInvalidateEnrichment()
   const [typedCnpj, setTypedCnpj] = useState<string | null>(null)
   const [lookup, setLookup] = useState<EnrichmentLookup | null>(null)

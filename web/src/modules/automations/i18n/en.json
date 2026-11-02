@@ -58,7 +58,19 @@
     "contact": "Contact",
     "company": "Company",
     "deal": "Deal",
-    "activity": "Activity"
+    "activity": "Activity",
+    "contacts": {
+      "contact": "Contact"
+    },
+    "companies": {
+      "company": "Company"
+    },
+    "deals": {
+      "deal": "Deal"
+    },
+    "activities": {
+      "activity": "Activity"
+    }
   },
   "actionsBar": {
     "pause": "Pause",
@@ -361,35 +373,116 @@
     "runDepth": "Run depth"
   },
   "triggers": {
-    "record_created": { "label": "Record created", "description": "When a record of this type is created." },
-    "record_updated": { "label": "Record updated", "description": "When a record is changed; restrict it to specific fields if you want." },
-    "record_deleted": { "label": "Record deleted", "description": "When a record is deleted (conditions about it evaluate to false)." },
-    "deal_stage_changed": { "label": "Deal stage changed", "description": "When the deal enters (or leaves) a stage." },
-    "deal_won": { "label": "Deal won", "description": "When the deal is marked as won." },
-    "deal_lost": { "label": "Deal lost", "description": "When the deal is marked as lost." },
-    "activity_completed": { "label": "Activity completed", "description": "When an activity is completed (on the records linked to it)." },
-    "note_created": { "label": "Note created", "description": "When a note is added to the record." },
-    "manual": { "label": "Manual", "description": "Only runs when someone starts it on a record." },
-    "incoming_webhook": { "label": "Incoming webhook", "description": "When an incoming webhook creates or updates the record." },
-    "time_date_relative": { "label": "Record date", "description": "A period before or after a date field (e.g.: 3 days before the expected close)." },
-    "time_record_stale": { "label": "Stalled record", "description": "When the record goes days without updates, without activity or in the same stage." },
-    "time_deal_rotting": { "label": "Deal rotting in stage", "description": "When an open deal goes past the stage day limit (once per stage entry)." },
-    "time_schedule": { "label": "Scheduled", "description": "At set times, for each record matching the filter or segment." }
+    "record_created": {
+      "label": "Record created",
+      "description": "When a record of this type is created."
+    },
+    "record_updated": {
+      "label": "Record updated",
+      "description": "When a record is changed; restrict it to specific fields if you want."
+    },
+    "record_deleted": {
+      "label": "Record deleted",
+      "description": "When a record is deleted (conditions about it evaluate to false)."
+    },
+    "deal_stage_changed": {
+      "label": "Deal stage changed",
+      "description": "When the deal enters (or leaves) a stage."
+    },
+    "deal_won": {
+      "label": "Deal won",
+      "description": "When the deal is marked as won."
+    },
+    "deal_lost": {
+      "label": "Deal lost",
+      "description": "When the deal is marked as lost."
+    },
+    "activity_completed": {
+      "label": "Activity completed",
+      "description": "When an activity is completed (on the records linked to it)."
+    },
+    "note_created": {
+      "label": "Note created",
+      "description": "When a note is added to the record."
+    },
+    "manual": {
+      "label": "Manual",
+      "description": "Only runs when someone starts it on a record."
+    },
+    "incoming_webhook": {
+      "label": "Incoming webhook",
+      "description": "When an incoming webhook creates or updates the record."
+    },
+    "time_date_relative": {
+      "label": "Record date",
+      "description": "A period before or after a date field (e.g.: 3 days before the expected close)."
+    },
+    "time_record_stale": {
+      "label": "Stalled record",
+      "description": "When the record goes days without updates, without activity or in the same stage."
+    },
+    "time_deal_rotting": {
+      "label": "Deal rotting in stage",
+      "description": "When an open deal goes past the stage day limit (once per stage entry)."
+    },
+    "time_schedule": {
+      "label": "Scheduled",
+      "description": "At set times, for each record matching the filter or segment."
+    }
   },
   "actions": {
-    "create_task": { "label": "Create task", "description": "Creates a task linked to the record." },
-    "update_fields": { "label": "Update fields", "description": "Changes record fields (empty clears the field)." },
-    "assign_owner": { "label": "Change owner", "description": "Sets the record owner." },
-    "add_tag": { "label": "Add tag", "description": "Adds a tag to the record." },
-    "remove_tag": { "label": "Remove tag", "description": "Removes a tag from the record." },
-    "move_stage": { "label": "Move stage", "description": "Moves the deal to a stage (stage requirements still apply)." },
-    "create_note": { "label": "Create note", "description": "Adds a note to the record." },
-    "send_notification": { "label": "Send notification", "description": "Shows an in-app notification to the recipients." },
-    "send_email": { "label": "Send email", "description": "Sends an email to the recipients, according to their preferences." },
-    "call_webhook": { "label": "Call webhook", "description": "Sends a JSON POST to an external URL." },
-    "create_related_record": { "label": "Create related record", "description": "Creates a record of another type and optionally links it to the current one." },
-    "assign_by_rule": { "label": "Assign by rule", "description": "Assigns the owner using a lead distribution rule." },
-    "enroll_in_sequence": { "label": "Enroll in sequence", "description": "Enrolls the contact in a sequence; e-mails go out from the mailbox of the owner or of whoever published the automation." }
+    "create_task": {
+      "label": "Create task",
+      "description": "Creates a task linked to the record."
+    },
+    "update_fields": {
+      "label": "Update fields",
+      "description": "Changes record fields (empty clears the field)."
+    },
+    "assign_owner": {
+      "label": "Change owner",
+      "description": "Sets the record owner."
+    },
+    "add_tag": {
+      "label": "Add tag",
+      "description": "Adds a tag to the record."
+    },
+    "remove_tag": {
+      "label": "Remove tag",
+      "description": "Removes a tag from the record."
+    },
+    "move_stage": {
+      "label": "Move stage",
+      "description": "Moves the deal to a stage (stage requirements still apply)."
+    },
+    "create_note": {
+      "label": "Create note",
+      "description": "Adds a note to the record."
+    },
+    "send_notification": {
+      "label": "Send notification",
+      "description": "Shows an in-app notification to the recipients."
+    },
+    "send_email": {
+      "label": "Send email",
+      "description": "Sends an email to the recipients, according to their preferences."
+    },
+    "call_webhook": {
+      "label": "Call webhook",
+      "description": "Sends a JSON POST to an external URL."
+    },
+    "create_related_record": {
+      "label": "Create related record",
+      "description": "Creates a record of another type and optionally links it to the current one."
+    },
+    "assign_by_rule": {
+      "label": "Assign by rule",
+      "description": "Assigns the owner using a lead distribution rule."
+    },
+    "enroll_in_sequence": {
+      "label": "Enroll in sequence",
+      "description": "Enrolls the contact in a sequence; e-mails go out from the mailbox of the owner or of whoever published the automation."
+    }
   },
   "properties": {
     "title": "Title",
@@ -440,9 +533,21 @@
     "relationship": "Optional; keeps the new record linked to the current one."
   },
   "enums": {
-    "priority": { "low": "Low", "normal": "Normal", "high": "High", "urgent": "Urgent" },
-    "mode": { "no_update": "No updates", "no_activity": "No activity", "same_stage": "Same stage" },
-    "sender": { "record_owner": "Contact owner", "automation_author": "Who published the automation" }
+    "priority": {
+      "low": "Low",
+      "normal": "Normal",
+      "high": "High",
+      "urgent": "Urgent"
+    },
+    "mode": {
+      "no_update": "No updates",
+      "no_activity": "No activity",
+      "same_stage": "Same stage"
+    },
+    "sender": {
+      "record_owner": "Contact owner",
+      "automation_author": "Who published the automation"
+    }
   },
   "issues": {
     "required": "Required.",

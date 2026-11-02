@@ -90,7 +90,7 @@ pub(crate) async fn create(
     .await?;
     if record.is_none() && note.is_none() && violations.is_empty() {
         violations.push(FieldViolation::new(
-            "note",
+            "notes.note",
             "must be sent when the reminder has no record",
         ));
     }
@@ -165,7 +165,7 @@ pub(crate) async fn update(
     }
     if data.record.is_none() && data.note.is_none() && violations.is_empty() {
         violations.push(FieldViolation::new(
-            "note",
+            "notes.note",
             "must be sent when the reminder has no record",
         ));
     }

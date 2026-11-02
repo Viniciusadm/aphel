@@ -108,7 +108,7 @@ pub(crate) fn is_hidden_event(event_type: &str) -> bool {
 
 pub(crate) fn is_custom_record_change(event_type: &str) -> bool {
     event_type
-        .split_once('.')
+        .rsplit_once('.')
         .is_some_and(|(prefix, action)| action == "updated" && is_custom_record_type(prefix))
 }
 

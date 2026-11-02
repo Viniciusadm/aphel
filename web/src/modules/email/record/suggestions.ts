@@ -31,7 +31,7 @@ function addressesOf(recordType: string, record: RecordItem | undefined): EmailA
 
 export function useRecipientSuggestions(record: EmailRecordRef): EmailAddress[] {
   const current = useRecordItem(record.record_type, record.record_id)
-  const contactId = record.record_type !== 'contact' && typeof current.data?.contact_id === 'string' ? current.data.contact_id : null
+  const contactId = record.record_type !== 'contacts.contact' && typeof current.data?.contact_id === 'string' ? current.data.contact_id : null
   const contact = useRecordItem('contact', contactId)
   const threads = useRecordThreads(record, 1)
 

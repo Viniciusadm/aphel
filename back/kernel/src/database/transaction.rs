@@ -10,6 +10,8 @@ pub type DatabaseTransaction<'a> = Transaction<'a, MySql>;
 pub struct MySqlTx {
     inner: DatabaseTransaction<'static>,
     pub operation_id: Uuid,
+    pub(crate) reference_deletions: std::collections::HashSet<(String, Uuid)>,
+    pub(crate) after_commit: Vec<crate::modules::BoxFuture<'static, ()>>,
     pub(crate) receipt_lease: Option<super::receipt::ReceiptLease>,
     pub record_states: HashMap<(String, Uuid), Value>,
 }
@@ -20,6 +22,8 @@ impl From<DatabaseTransaction<'static>> for MySqlTx {
             inner,
             receipt_lease: None,
             operation_id: Uuid::now_v7(),
+            reference_deletions: Default::default(),
+            after_commit: Vec::new(),
             record_states: HashMap::new(),
         }
     }
@@ -40,10 +44,14 @@ impl DerefMut for MySqlTx {
 }
 
 impl MySqlTx {
-    pub async fn commit(self) -> Result<(), sqlx::Error> {
+    pub async fn commit(mut self) -> Result<(), sqlx::Error> {
+        let after_commit = std::mem::take(&mut self.after_commit);
         self.inner.commit().await?;
         if let Some(lease) = self.receipt_lease {
             lease.committed();
+        }
+        for effect in after_commit {
+            effect.await;
         }
         Ok(())
     }

@@ -110,6 +110,15 @@ impl Module for EmailModule {
     }
 
     fn register(&self, app: &mut AppBuilder) -> Result<(), AppError> {
+        app.contribute(std::sync::Arc::new(
+            aphel_kernel::application::fields::EntityKeyAliases(&[
+                ("email_block", "email.email_block"),
+                ("email_message", "email.email_message"),
+                ("email_template", "email.email_template"),
+                ("email_thread", "email.email_thread"),
+                ("mailbox", "email.mailbox"),
+            ]),
+        ));
         app.contribute::<dyn aphel_kernel::modules::FileReferenceSource>(std::sync::Arc::new(
             points::EmailFiles,
         ));

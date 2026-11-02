@@ -109,7 +109,7 @@ async fn list_automations(
     tag = TAG,
     operation_id = "automations_create",
     security(("session_cookie" = [])),
-    description = "Creates a draft automation over a record type (`contact`, `company`, `deal`, `activity` or `co_<key>`). `trigger` has a `type` from the catalog plus its options; `definition` is the step graph: `start` names the first step and each step is a `condition` (filter AST of the listings, with `trigger.*` paths evaluated over the event: `trigger.previous.<field>`, `trigger.changed_fields`, `trigger.payload.*`; when false the run ends), a `branch` (first matching `cases[]` or `default`) or an `action` (catalog `action` + `config`, whose strings accept templates such as `{{record.title}}`, `{{record.custom.cpf}}`, `{{trigger.previous.stage_id}}`, `{{now + 2d}}` and `{{today + 1w}}`). The graph must be acyclic, without orphan steps, and fields, templates, tags, stages and users are validated now (paths under `trigger.` and `definition.`). Write-only secrets of actions (such as `signing_secret` of `call_webhook`) go to the secret vault and come back only as `<field>_configured`. `key` defaults to a slug of the name.",
+    description = "Creates a draft automation over a record type (`contact`, `company`, `deal`, `activity` or `custom.<key>`). `trigger` has a `type` from the catalog plus its options; `definition` is the step graph: `start` names the first step and each step is a `condition` (filter AST of the listings, with `trigger.*` paths evaluated over the event: `trigger.previous.<field>`, `trigger.changed_fields`, `trigger.payload.*`; when false the run ends), a `branch` (first matching `cases[]` or `default`) or an `action` (catalog `action` + `config`, whose strings accept templates such as `{{record.title}}`, `{{record.custom.cpf}}`, `{{trigger.previous.stage_id}}`, `{{now + 2d}}` and `{{today + 1w}}`). The graph must be acyclic, without orphan steps, and fields, templates, tags, stages and users are validated now (paths under `trigger.` and `definition.`). Write-only secrets of actions (such as `signing_secret` of `call_webhook`) go to the secret vault and come back only as `<field>_configured`. `key` defaults to a slug of the name.",
     request_body = CreateAutomationRequest,
     responses(
         (status = 201, description = "Draft created (`automation.created`)", body = Data<AutomationResponse>),
@@ -149,16 +149,23 @@ async fn automation_catalog(
     State(state): State<AppState>,
     tenant: AuthContext,
 ) -> Result<Json<Data<AutomationCatalogResponse>>, ApiError> {
-    let (triggers, actions) = service::catalog(&Ctx::from_state(&state, &tenant.scope).await?)?;
+    let ctx = Ctx::from_state(&state, &tenant.scope).await?;
+    let entities = ctx
+        .registry()
+        .definitions()
+        .filter(|entity| tenant.scope.filter_for(&entity.read_permission).is_some())
+        .map(|entity| entity.key.clone())
+        .collect::<Vec<_>>();
+    let (triggers, actions) = service::catalog(&ctx)?;
     let triggers = triggers
         .all()
         .iter()
-        .map(|trigger| TriggerCatalogEntry::from_trigger(trigger.as_ref()))
+        .map(|trigger| TriggerCatalogEntry::from_trigger(trigger.as_ref(), &entities))
         .collect();
     let actions = actions
         .all()
         .iter()
-        .map(|action| ActionCatalogEntry::from_action(action.as_ref()))
+        .map(|action| ActionCatalogEntry::from_action(action.as_ref(), &entities))
         .collect();
     Ok(Json(Data::new(AutomationCatalogResponse::new(
         triggers, actions,

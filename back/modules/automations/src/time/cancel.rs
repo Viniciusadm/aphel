@@ -34,7 +34,9 @@ impl EventConsumer for WaitingRunsCanceller {
 
     async fn consume(&self, event: &DomainEvent) -> Result<(), AppError> {
         let Some(record) = event.record.as_ref().filter(|record| {
-            deleted_record_type(&event.event_type) == Some(record.record_type.as_str())
+            deleted_record_type(&event.event_type)
+                .and_then(|key| aphel_kernel::application::shared::RecordType::parse(key).ok())
+                .is_some_and(|key| key == record.record_type)
         }) else {
             return Ok(());
         };

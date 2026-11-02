@@ -14,8 +14,8 @@ use aphel_kernel::application::access::Authorizer;
 use aphel_kernel::application::audit::{DiffOptions, diff_values};
 use aphel_kernel::application::fields::permissions::check_record_writes;
 use aphel_kernel::application::fields::{
-    CustomFieldPorts, CustomFieldReader, CustomFieldWriter, RecordDraft, RecordPipeline,
-    RecordTypeDefinition, RecordWrite, WriteMode,
+    CustomFieldPorts, CustomFieldReader, CustomFieldWriter, EntityDefinition, RecordDraft,
+    RecordPipeline, RecordWrite, WriteMode,
 };
 use aphel_kernel::application::organization_admin::Listing;
 use aphel_kernel::application::query::{RecordQuery, RecordQueryEngine};
@@ -34,7 +34,7 @@ pub(crate) fn company_values(data: &CompanyData, contributed: &Map<String, Value
     with_contributed(company_snapshot(data), contributed)
 }
 
-pub(crate) fn view_values(definition: &RecordTypeDefinition, view: &CompanyView) -> Value {
+pub(crate) fn view_values(definition: &EntityDefinition, view: &CompanyView) -> Value {
     company_values(
         &view.company.data,
         &contributed_input(definition, &view.contributed),
@@ -192,7 +192,7 @@ pub async fn create_in_tx(
 async fn saving(
     ctx: &Ctx<'_>,
     tx: &mut MySqlTx,
-    definition: &RecordTypeDefinition,
+    definition: &EntityDefinition,
     record: &RecordRef,
     mode: WriteMode,
     (data, contributed): (CompanyData, Map<String, Value>),

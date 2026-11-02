@@ -4,7 +4,7 @@ use uuid::Uuid;
 
 use crate::application::fields::formulas::ValueKind;
 use crate::application::fields::{
-    FieldDefinitionRepository, FieldSet, ItemTable, RecordTypeDefinition, RecordTypeRegistry,
+    EntityDefinition, FieldDefinitionRepository, FieldSet, ItemTable, RecordTypeRegistry,
     RelationPath, ResolvedField,
 };
 use crate::application::shared::RecordType;
@@ -66,11 +66,11 @@ pub struct RelatedField {
 pub enum AggregateSource {
     Items(Box<ItemTable>),
     HasMany {
-        target: Box<RecordTypeDefinition>,
+        target: Box<EntityDefinition>,
         column: String,
     },
     Relationship {
-        target: Box<RecordTypeDefinition>,
+        target: Box<EntityDefinition>,
         relationship_id: Uuid,
         inverse: bool,
     },
@@ -103,7 +103,7 @@ impl FormulaRelation {
 
 #[derive(Debug, Clone, PartialEq)]
 pub struct FormulaContext {
-    pub record_type: RecordTypeDefinition,
+    pub record_type: EntityDefinition,
     pub fields: Vec<FormulaField>,
     pub relations: Vec<FormulaRelation>,
 }

@@ -67,7 +67,7 @@ impl From<RecordFollowers> for RecordFollowersResponse {
 
 #[derive(Debug, Serialize, ToSchema)]
 pub(crate) struct FollowedRecordResponse {
-    #[schema(example = "deal")]
+    #[schema(example = "deals.deal")]
     pub(crate) record_type: String,
     pub(crate) record_id: String,
     pub(crate) title: Option<String>,
@@ -91,7 +91,7 @@ impl From<FollowedRecord> for FollowedRecordResponse {
 #[derive(Debug, Deserialize, IntoParams)]
 #[into_params(parameter_in = Query)]
 pub(crate) struct FollowedRecordsParams {
-    #[param(example = "deal")]
+    #[param(example = "deals.deal")]
     pub(crate) record_type: Option<String>,
 }
 
@@ -103,7 +103,7 @@ pub(crate) struct FollowedRecordsParams {
     security(("session_cookie" = [])),
     description = "Active members who follow the record and whether the caller follows it. Followers are notified (`followed_record_activity`) of changes, new activities, notes and emails linked to the record while they can read it. The owner follows automatically (`origin: owner`).",
     params(
-        ("record_type" = String, Path, description = "Record type, such as `deal` or `co_contract`"),
+        ("record_type" = String, Path, description = "Record type, such as `deal` or `custom.contract`"),
         ("record_id" = String, Path, description = "Record id"),
     ),
     responses(

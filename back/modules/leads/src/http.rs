@@ -647,7 +647,7 @@ impl From<StageHistoryEntry> for LifecycleHistoryEntryResponse {
 #[derive(Debug, Deserialize, IntoParams)]
 #[into_params(parameter_in = Query)]
 pub(crate) struct LifecycleReportParams {
-    #[param(example = "contact")]
+    #[param(example = "contacts.contact")]
     pub(crate) record_type: Option<String>,
     #[param(example = "2026-01-01")]
     pub(crate) from: Option<String>,
@@ -717,7 +717,7 @@ impl From<DisqualificationCount> for LifecycleDisqualificationCountResponse {
 
 #[derive(Debug, Serialize, ToSchema)]
 pub(crate) struct LifecycleReportResponse {
-    #[schema(example = "contact")]
+    #[schema(example = "contacts.contact")]
     pub(crate) record_type: String,
     #[schema(example = "2026-01-01")]
     pub(crate) from: String,

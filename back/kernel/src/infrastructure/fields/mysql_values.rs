@@ -7,9 +7,7 @@ use sqlx::mysql::MySqlRow;
 use sqlx::{MySql, MySqlPool, QueryBuilder, Row};
 use uuid::Uuid;
 
-use crate::application::fields::{
-    CustomFieldValueRepository, RecordTypeDefinition, StoredFieldValue,
-};
+use crate::application::fields::{CustomFieldValueRepository, EntityDefinition, StoredFieldValue};
 use crate::application::shared::{RecordRef, RecordType};
 use crate::database::transaction::MySqlTx;
 use crate::domain::UserId;
@@ -193,7 +191,7 @@ impl CustomFieldValueRepository for MySqlCustomFieldValueRepository {
 
     async fn record_timestamp(
         &self,
-        definition: &RecordTypeDefinition,
+        definition: &EntityDefinition,
         column: &str,
         record_id: Uuid,
     ) -> Result<Option<DateTime<Utc>>, AppError> {
@@ -367,7 +365,7 @@ impl CustomFieldValueRepository for MySqlCustomFieldValueRepository {
     async fn is_taken(
         &self,
         tx: &mut MySqlTx,
-        definition: &RecordTypeDefinition,
+        definition: &EntityDefinition,
         record: &RecordRef,
         field: &FieldDefinition,
         value: &FieldValue,
@@ -397,7 +395,7 @@ impl CustomFieldValueRepository for MySqlCustomFieldValueRepository {
 
     async fn has_duplicates(
         &self,
-        definition: &RecordTypeDefinition,
+        definition: &EntityDefinition,
         field: &FieldDefinition,
     ) -> Result<bool, AppError> {
         let column = field.field_type.value_column();
@@ -426,7 +424,7 @@ impl CustomFieldValueRepository for MySqlCustomFieldValueRepository {
     async fn reserve_unique(
         &self,
         tx: &mut MySqlTx,
-        definition: &RecordTypeDefinition,
+        definition: &EntityDefinition,
         record: &RecordRef,
         field: &FieldDefinition,
     ) -> Result<(), AppError> {
@@ -446,7 +444,7 @@ impl CustomFieldValueRepository for MySqlCustomFieldValueRepository {
         &self,
         tx: &mut MySqlTx,
         scope: &AccessScope,
-        target: &RecordTypeDefinition,
+        target: &EntityDefinition,
         visibility: &RecordScopeFilter,
         record_ids: &[Uuid],
     ) -> Result<Option<Vec<Uuid>>, AppError> {
@@ -461,7 +459,7 @@ impl CustomFieldValueRepository for MySqlCustomFieldValueRepository {
     async fn rebuild_unique(
         &self,
         tx: &mut MySqlTx,
-        definition: &RecordTypeDefinition,
+        definition: &EntityDefinition,
         field: &FieldDefinition,
     ) -> Result<(), AppError> {
         unique_values::rebuild(tx, definition, field).await

@@ -1,3 +1,4 @@
+import { recordResources } from '@/features/records/resources'
 import { useQuery, useQueryClient } from '@tanstack/react-query'
 import { api } from '@/api'
 import type { components } from '@/api/schema'
@@ -14,7 +15,9 @@ export type UpdateRelationshipRequest = Schemas['UpdateRelationshipRequest']
 export const OBJECT_KEY_MAX_LENGTH = 40
 export const OBJECT_KEY_PATTERN = /^[a-z](?:_?[a-z])*$/
 export const RELATION_KEY_PATTERN = /^[a-z](?:_?[a-z0-9])*$/
-export const CORE_RELATIONSHIP_TYPES = ['company', 'contact', 'deal', 'product'] as const
+export function relationshipRecordTypes(): string[] {
+  return recordResources().filter((resource) => resource.relatable).map((resource) => resource.recordType)
+}
 
 export const objectsAdminKeys = {
   all: ['custom-objects-admin'] as const,

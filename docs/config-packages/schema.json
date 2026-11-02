@@ -110,7 +110,7 @@
         "record_type": {
           "anyOf": [
             { "enum": ["contact", "company", "deal"] },
-            { "type": "string", "pattern": "^co_[a-z](?:[a-z_]*[a-z])?$", "description": "Custom object with an owner" }
+            { "type": "string", "pattern": "^custom\\.[a-z](?:[a-z_]*[a-z])?$", "description": "Custom object with an owner" }
           ]
         },
         "strategy": { "enum": ["round_robin", "weighted", "least_loaded"] },
@@ -164,7 +164,7 @@
         "key": { "type": "string", "pattern": "^[a-z][a-z0-9]*(_[a-z0-9]+)*$", "maxLength": 64 },
         "name": { "type": "string", "minLength": 1, "maxLength": 140 },
         "description": { "type": "string", "maxLength": 2000 },
-        "record_type": { "type": "string", "description": "Record type (`deal`, `quote`, `co_<key>`...)" },
+        "record_type": { "type": "string", "description": "Record type (`deal`, `quote`, `custom.<key>`...)" },
         "moment": { "enum": ["stage_change", "quote_send", "on_demand"] },
         "target_stage": { "type": "string", "description": "Required for `stage_change`: `<pipeline key>.<stage key>` from the package or the organization" },
         "condition_kind": { "enum": ["always", "filter", "formula"], "default": "always" },
@@ -229,7 +229,7 @@
       "properties": {
         "key": { "$ref": "#/$defs/key" },
         "name": { "type": "string", "minLength": 1, "maxLength": 200 },
-        "record_type": { "type": "string", "description": "contact, company, deal or co_<key>; absent = any record" },
+        "record_type": { "type": "string", "description": "contact, company, deal or custom.<key>; absent = any record" },
         "subject": { "type": "string", "maxLength": 998 },
         "body_html": { "type": "string", "description": "HTML (sanitized on install), up to 512 KB" }
       }
@@ -244,13 +244,13 @@
     "recordType": {
       "anyOf": [
         { "enum": ["contact", "company", "deal", "activity", "product"] },
-        { "type": "string", "pattern": "^co_[a-z](?:[a-z_]*[a-z])?$", "description": "Custom object declared in custom_objects or already existing in the organization" }
+        { "type": "string", "pattern": "^custom\\.[a-z](?:[a-z_]*[a-z])?$", "description": "Custom object declared in custom_objects or already existing in the organization" }
       ]
     },
     "customObjects": {
       "type": "object",
       "additionalProperties": false,
-      "description": "Installed before fields: fields, layouts and views in the same package can use the co_<key> types declared here. Objects and relationships are matched by key; installing never deletes anything.",
+      "description": "Installed before fields: fields, layouts and views in the same package can use the custom.<key> types declared here. Objects and relationships are matched by key; installing never deletes anything.",
       "properties": {
         "objects": { "type": "array", "maxItems": 50, "items": { "$ref": "#/$defs/customObject" } },
         "relationships": { "type": "array", "maxItems": 200, "items": { "$ref": "#/$defs/relationship" } }
@@ -261,7 +261,7 @@
       "additionalProperties": false,
       "required": ["key", "label_singular", "label_plural"],
       "properties": {
-        "key": { "type": "string", "pattern": "^[a-z](?:[a-z_]*[a-z])?$", "maxLength": 40, "description": "Stable key; becomes the record type co_<key>" },
+        "key": { "type": "string", "pattern": "^[a-z](?:[a-z_]*[a-z])?$", "maxLength": 40, "description": "Stable key; becomes the record type custom.<key>" },
         "label_singular": { "type": "string", "minLength": 1, "maxLength": 80 },
         "label_plural": { "type": "string", "minLength": 1, "maxLength": 80 },
         "description": { "type": "string", "maxLength": 500 },
@@ -278,8 +278,8 @@
       "properties": {
         "key": { "type": "string", "pattern": "^[a-z_][a-z0-9_]*$", "maxLength": 48, "description": "Stable key of the relationship and name of the relation on the from type" },
         "inverse_key": { "type": "string", "pattern": "^[a-z_][a-z0-9_]*$", "maxLength": 48, "description": "Name of the relation on the to type" },
-        "from_type": { "type": "string", "description": "company, contact, deal, product or co_<key>" },
-        "to_type": { "type": "string", "description": "company, contact, deal, product or co_<key>" },
+        "from_type": { "type": "string", "description": "company, contact, deal, product or custom.<key>" },
+        "to_type": { "type": "string", "description": "company, contact, deal, product or custom.<key>" },
         "cardinality": { "enum": ["one_to_one", "one_to_many", "many_to_many"] },
         "from_label": { "type": "string", "minLength": 1, "maxLength": 80 },
         "to_label": { "type": "string", "minLength": 1, "maxLength": 80 },
@@ -406,7 +406,7 @@
       "required": ["key", "record_type", "name", "expression", "message"],
       "properties": {
         "key": { "$ref": "#/$defs/key" },
-        "record_type": { "type": "string", "description": "contact, company, deal, activity, product, quote or co_<key>" },
+        "record_type": { "type": "string", "description": "contact, company, deal, activity, product, quote or custom.<key>" },
         "name": { "type": "string", "minLength": 1, "maxLength": 120 },
         "expression": { "type": "string", "minLength": 1, "maxLength": 2000, "description": "Boolean formula of the error condition: true blocks the save" },
         "message": { "type": "string", "minLength": 1, "maxLength": 500 },
@@ -422,7 +422,7 @@
       "required": ["key", "record_type", "name"],
       "properties": {
         "key": { "$ref": "#/$defs/key" },
-        "record_type": { "type": "string", "description": "contact, company, deal or co_<key>" },
+        "record_type": { "type": "string", "description": "contact, company, deal or custom.<key>" },
         "name": { "type": "string", "minLength": 1, "maxLength": 120 },
         "description": { "type": "string", "maxLength": 500 },
         "primary": { "type": "boolean", "default": false, "description": "Primary model of the type, exposed in the score system field; setting it unsets the previous one" },
@@ -754,7 +754,7 @@
         "record_type": {
           "anyOf": [
             { "enum": ["contact", "company", "deal", "activity"] },
-            { "type": "string", "pattern": "^co_[a-z](?:[a-z_]*[a-z])?$", "description": "Custom object declared in custom_objects or already existing in the organization" }
+            { "type": "string", "pattern": "^custom\\.[a-z](?:[a-z_]*[a-z])?$", "description": "Custom object declared in custom_objects or already existing in the organization" }
           ]
         },
         "trigger": {

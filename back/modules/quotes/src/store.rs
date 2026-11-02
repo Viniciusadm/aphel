@@ -730,7 +730,7 @@ pub(crate) async fn seed_quote_discount_policy(
         "INSERT IGNORE INTO approval_policies (id, `key`, name, description, \
          record_type, moment, target_id, condition_kind, condition_filter, condition_formula, \
          locked_fields, due_hours, is_active, position) \
-         VALUES (?, ?, ?, ?, 'quote', 'quote_send', NULL, 'filter', CAST(? AS JSON), NULL, \
+         VALUES (?, ?, ?, ?, 'quotes.quote', 'quote_send', NULL, 'filter', CAST(? AS JSON), NULL, \
          JSON_ARRAY(), NULL, TRUE, 0)",
     )
     .bind(Uuid::now_v7().to_string())

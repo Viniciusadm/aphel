@@ -14,7 +14,8 @@ pub(crate) const EMAIL_TEMPLATE_KEY_TAKEN: &str = "email_template_key_taken";
 pub(crate) const EMAIL_TEMPLATE_CREATED: &str = "email_template.created";
 pub(crate) const EMAIL_TEMPLATE_UPDATED: &str = "email_template.updated";
 pub(crate) const EMAIL_TEMPLATE_DELETED: &str = "email_template.deleted";
-pub(crate) const EMAIL_TEMPLATE_RECORD: RecordType = RecordType::from_static("email_template");
+pub(crate) const EMAIL_TEMPLATE_RECORD: RecordType =
+    RecordType::from_static("email.email_template");
 
 pub(crate) fn template_not_found() -> AppError {
     AppError::not_found_code(EMAIL_TEMPLATE_NOT_FOUND, "e-mail template was not found")
@@ -157,5 +158,8 @@ pub struct RenderedEmail {
 }
 
 pub(crate) fn is_email_record_type(record_type: &str) -> bool {
-    matches!(record_type, "contact" | "company" | "deal") || is_custom_record_type(record_type)
+    matches!(
+        record_type,
+        "contacts.contact" | "companies.company" | "deals.deal"
+    ) || is_custom_record_type(record_type)
 }

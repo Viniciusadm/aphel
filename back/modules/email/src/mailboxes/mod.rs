@@ -13,7 +13,7 @@ pub(crate) const MAILBOX_NOT_FOUND: &str = "mailbox_not_found";
 pub(crate) const MAILBOX_ALREADY_CONNECTED: &str = "mailbox_already_connected";
 pub(crate) const MAILBOX_ADDRESS_MISMATCH: &str = "mailbox_address_mismatch";
 pub(crate) const MAILBOX_DISCONNECTED_CODE: &str = "mailbox_disconnected";
-pub(crate) const MAILBOX_RECORD_TYPE: RecordType = RecordType::from_static("mailbox");
+pub(crate) const MAILBOX_RECORD_TYPE: RecordType = RecordType::from_static("email.mailbox");
 pub(crate) const MAX_DISPLAY_NAME_LENGTH: usize = 200;
 pub(crate) const MAX_STATUS_REASON_LENGTH: usize = 500;
 

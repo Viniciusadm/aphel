@@ -43,7 +43,7 @@ pub struct CustomObjectResponse {
     pub id: String,
     #[schema(example = "contract")]
     pub key: String,
-    #[schema(example = "co_contract")]
+    #[schema(example = "custom.contract")]
     pub record_type: String,
     #[schema(example = "Contract")]
     pub label_singular: String,
@@ -193,11 +193,11 @@ pub struct RelationshipResponse {
     pub id: String,
     #[schema(example = "contracts")]
     pub key: String,
-    #[schema(example = "company")]
+    #[schema(example = "companies.company")]
     pub inverse_key: String,
-    #[schema(example = "company")]
+    #[schema(example = "companies.company")]
     pub from_type: String,
-    #[schema(example = "co_contract")]
+    #[schema(example = "custom.contract")]
     pub to_type: String,
     #[schema(value_type = CardinalitySchema)]
     pub cardinality: String,
@@ -251,11 +251,11 @@ pub struct RelationshipListParams {
 pub struct CreateRelationshipRequest {
     #[schema(example = "contracts")]
     pub key: String,
-    #[schema(example = "company")]
+    #[schema(example = "companies.company")]
     pub inverse_key: String,
-    #[schema(example = "company")]
+    #[schema(example = "companies.company")]
     pub from_type: String,
-    #[schema(example = "co_contract")]
+    #[schema(example = "custom.contract")]
     pub to_type: String,
     #[schema(value_type = CardinalitySchema)]
     pub cardinality: String,
@@ -344,7 +344,7 @@ impl CustomRecordRequest {
 #[derive(Debug, Serialize, ToSchema)]
 pub struct CustomRecordResponse {
     pub id: String,
-    #[schema(example = "co_contract")]
+    #[schema(example = "custom.contract")]
     pub record_type: String,
     #[schema(example = "Contract 2026-001")]
     pub title: String,
@@ -380,11 +380,11 @@ impl From<CustomRecordDetails> for CustomRecordResponse {
 
 #[derive(Debug, Serialize, ToSchema)]
 pub struct ObjectRelationResponse {
-    #[schema(example = "company")]
+    #[schema(example = "companies.company")]
     pub key: String,
     #[schema(example = "Company")]
     pub label: String,
-    #[schema(example = "company")]
+    #[schema(example = "companies.company")]
     pub target_type: String,
     pub single: bool,
     pub relationship_key: Option<String>,
@@ -409,7 +409,7 @@ pub struct ObjectSchemaResponse {
     pub relations: Vec<ObjectRelationResponse>,
     #[schema(example = "/api/v1/objects/contract/records")]
     pub records_path: String,
-    #[schema(example = json!(["co_contract.created", "co_contract.updated", "co_contract.deleted", "co_contract.archived", "co_contract.unarchived"]))]
+    #[schema(example = json!(["custom.contract.created", "custom.contract.updated", "custom.contract.deleted", "custom.contract.archived", "custom.contract.unarchived"]))]
     pub events: Vec<String>,
 }
 
@@ -419,7 +419,7 @@ pub struct RelationInfoResponse {
     pub key: String,
     #[schema(example = "Contracts")]
     pub label: String,
-    #[schema(example = "co_contract")]
+    #[schema(example = "custom.contract")]
     pub target_type: String,
     pub relationship_key: String,
     #[schema(value_type = RelationSideSchema)]
@@ -449,7 +449,7 @@ impl From<RelationInfo> for RelationInfoResponse {
 #[derive(Debug, Serialize, ToSchema)]
 pub struct RelatedRecordResponse {
     pub id: String,
-    #[schema(example = "co_contract")]
+    #[schema(example = "custom.contract")]
     pub record_type: String,
     pub title: Option<String>,
 }

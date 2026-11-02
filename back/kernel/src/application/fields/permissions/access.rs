@@ -226,7 +226,7 @@ impl FieldAccessPolicy {
             return;
         }
         let changed_field = event_type
-            .split_once('.')
+            .rsplit_once('.')
             .and_then(|(_, action)| action.strip_suffix("_changed"))
             .filter(|field| hidden.contains(*field));
         let Some(object) = payload.as_object_mut() else {

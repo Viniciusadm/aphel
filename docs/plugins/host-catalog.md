@@ -15,20 +15,20 @@ What this Aphel offers to runtime plugins besides records: the hooks a manifest 
 | `record.saved` | plugins | any | action | `values` and `changes`, inside the transaction |
 | `record.saving` | plugins | any | filter | The draft `values`/`custom_fields`; return changes |
 | `record.validating` | plugins | any | veto | `values` and `changes` of the write |
-| `activity.completing` | activities | `activity` | veto | Before an activity is completed; values: { activity, previous, type_key }. An error blocks it |
+| `activity.completing` | activities | `activities.activity` | veto | Before an activity is completed; values: { activity, previous, type_key }. An error blocks it |
 | `automation.action_running` | automations | any | veto | Before an automation action runs on a record (dry run and execution), for the record's type; values: { automation_id, run_id, step_id, action, record: { record_type, record_id }, config, dry_run }. An error skips the action |
-| `deal.losing` | deals | `deal` | veto | Before a deal is lost; values: { deal, previous, stage, lost_reason }. An error blocks it |
-| `deal.lost` | deals | `deal` | action | After a deal is lost, inside the transaction; values: { deal, previous, stage, lost_reason } |
-| `deal.stage_changing` | deals | `deal` | veto | Before a deal moves to another stage; values: { deal, previous, from, to }. An error blocks the move |
-| `deal.winning` | deals | `deal` | veto | Before a deal is won; values: { deal, previous, stage, lost_reason }. An error blocks it |
-| `deal.won` | deals | `deal` | action | After a deal is won, inside the transaction; values: { deal, previous, stage } |
+| `deal.losing` | deals | `deals.deal` | veto | Before a deal is lost; values: { deal, previous, stage, lost_reason }. An error blocks it |
+| `deal.lost` | deals | `deals.deal` | action | After a deal is lost, inside the transaction; values: { deal, previous, stage, lost_reason } |
+| `deal.stage_changing` | deals | `deals.deal` | veto | Before a deal moves to another stage; values: { deal, previous, from, to }. An error blocks the move |
+| `deal.winning` | deals | `deals.deal` | veto | Before a deal is won; values: { deal, previous, stage, lost_reason }. An error blocks it |
+| `deal.won` | deals | `deals.deal` | action | After a deal is won, inside the transaction; values: { deal, previous, stage } |
 | `email.outgoing` | email | `email` | filter | Before an e-mail is saved and sent; record_type is the linked record's type (or email when unlinked); values: { mailbox_id, sender_id, from, to, cc, bcc, subject, body: { text, html }, record, thread_id, scheduled, tracking }. Return { subject?, body?: { text?, html? } } to change them (html is sanitized) |
-| `lead.converted` | leads | `contact` | action | After a lead was converted, inside the transaction; values: { lead, deal_id, company_id } |
-| `lead.converting` | leads | `contact` | filter | Values of the deal (and optional company) a lead conversion creates; values: { contact_id, lead, deal, company }. Return { deal?: {..}, company?: {..} } to merge field values into them (a company object makes the conversion create a company when the contact has none) |
-| `lead.disqualifying` | leads | `contact` | veto | Before a lead is disqualified; values: { lead, reason: { id, key, name }, note }. An error blocks it |
-| `lead.qualifying` | leads | `contact` | veto | Before a lead is qualified in the lead inbox; values: { lead }. An error blocks the qualification |
-| `quote.accepting` | quotes | `quote` | veto | Before a quote is accepted (public page or manually); values: { quote, deal_id, acceptor: { name, email }, manual }. An error blocks the acceptance |
-| `sequence.step_running` | sequences | `contact` | veto | Before a sequence step runs for an enrolled contact; values: { enrollment_id, sequence_id, contact_id, enrolled_by, position, kind, template_id }. A definitive error removes the contact from the sequence, a transient one retries the step |
+| `lead.converted` | leads | `contacts.contact` | action | After a lead was converted, inside the transaction; values: { lead, deal_id, company_id } |
+| `lead.converting` | leads | `contacts.contact` | filter | Values of the deal (and optional company) a lead conversion creates; values: { contact_id, lead, deal, company }. Return { deal?: {..}, company?: {..} } to merge field values into them (a company object makes the conversion create a company when the contact has none) |
+| `lead.disqualifying` | leads | `contacts.contact` | veto | Before a lead is disqualified; values: { lead, reason: { id, key, name }, note }. An error blocks it |
+| `lead.qualifying` | leads | `contacts.contact` | veto | Before a lead is qualified in the lead inbox; values: { lead }. An error blocks the qualification |
+| `quote.accepting` | quotes | `quotes.quote` | veto | Before a quote is accepted (public page or manually); values: { quote, deal_id, acceptor: { name, email }, manual }. An error blocks the acceptance |
+| `sequence.step_running` | sequences | `contacts.contact` | veto | Before a sequence step runs for an enrolled contact; values: { enrollment_id, sequence_id, contact_id, enrolled_by, position, kind, template_id }. A definitive error removes the contact from the sequence, a transient one retries the step |
 
 ## Operations
 
@@ -92,8 +92,8 @@ Writing operations are refused inside hooks (409 `plugin_write_in_hook`). Each o
 | `quotes.new_version` | quotes | write | yes | Create a new version of the current quote: { id } |
 | `quotes.send` | quotes | write | yes | Queue the quote link e-mail to the customer: { id, to?: [{ address, name? }], cc?: [{ address, name? }], subject?, body_html?, mailbox_id? } |
 | `quotes.submit` | quotes | write | yes | Send a draft quote for approval (approved right away when no policy applies): { id, comment? } |
-| `records.archive` | plugins | write | yes | Archive a record (hides it from default lists; not a deletion): { record_type, id }. Supported by contact, company, deal and custom object (co_*) records; other types fail with 422 record_operation_not_supported |
-| `records.restore` | plugins | write | yes | Unarchive an archived record (not a trash restore): { record_type, id }. Supported by contact, company, deal and custom object (co_*) records; other types fail with 422 record_operation_not_supported |
+| `records.archive` | plugins | write | yes | Archive a record (hides it from default lists; not a deletion): { record_type, id }. Supported by contact, company, deal and custom object (custom.*) records; other types fail with 422 record_operation_not_supported |
+| `records.restore` | plugins | write | yes | Unarchive an archived record (not a trash restore): { record_type, id }. Supported by contact, company, deal and custom object (custom.*) records; other types fail with 422 record_operation_not_supported |
 | `reminders.create` | reminders | write | yes | Create a reminder for the acting user (needs a user actor): { remind_at, note?, record_type?, record_id? } |
 | `reminders.delete` | reminders | write | yes | Delete a reminder of the acting user (needs a user actor): { id } |
 | `reminders.list` | reminders | read | — | Reminders of the acting user sorted by remind_at (needs a user actor): { status?: pending\|sent\|dismissed, record_type?, record_id?, page?, per_page? } -> { data, total } |

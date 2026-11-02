@@ -96,7 +96,22 @@
       "company": "company(ies)",
       "deal": "deal(s)",
       "note": "note(s)",
-      "activity": "activity(ies)"
+      "activity": "activity(ies)",
+      "contacts": {
+        "contact": "contact(s)"
+      },
+      "companies": {
+        "company": "company(ies)"
+      },
+      "deals": {
+        "deal": "deal(s)"
+      },
+      "activities": {
+        "activity": "activity(ies)"
+      },
+      "notes": {
+        "note": "note(s)"
+      }
     }
   },
   "footer": {

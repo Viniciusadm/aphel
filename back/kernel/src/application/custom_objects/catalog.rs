@@ -68,7 +68,7 @@ impl RecordTypeCatalog {
             return Ok(Arc::new(CachedRegistry {
                 version: 0,
                 checked: Mutex::new(Instant::now()),
-                schema: Arc::new(CustomSchema::default()),
+                schema: Arc::new(self.builtin.custom_schema().clone()),
                 registry: self.builtin.clone(),
             }));
         };

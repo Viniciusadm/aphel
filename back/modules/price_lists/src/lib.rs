@@ -28,7 +28,7 @@ pub use hooks::{
 pub const KEY: &str = "price_lists";
 
 pub(crate) const PRICE_LIST_RESOURCE: PublicResource =
-    PublicResource::new("price_list", "PriceListResponse");
+    PublicResource::new("price_lists.price_list", "PriceListResponse");
 
 const PUBLIC_EVENTS: &[PublicEventDefinition] = &[
     event(
@@ -86,6 +86,12 @@ impl Module for PriceListsModule {
     }
 
     fn register(&self, app: &mut AppBuilder) -> Result<(), AppError> {
+        app.contribute(std::sync::Arc::new(
+            aphel_kernel::application::fields::EntityKeyAliases(&[(
+                "price_list",
+                "price_lists.price_list",
+            )]),
+        ));
         app.contribute(std::sync::Arc::new(
             aphel_kernel::infrastructure::config_packages::ConfigSectionFactory::new(
                 60,

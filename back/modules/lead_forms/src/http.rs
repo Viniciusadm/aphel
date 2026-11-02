@@ -479,7 +479,7 @@ async fn options(
     let ctx = Ctx::from_state(&state, scope).await?;
     let contact_fields = validate::target_fields(&ctx, scope).await?;
     let pipelines = validate::pipelines(&ctx, scope).await.unwrap_or_default();
-    let tags = tags::service::list(&ctx, Some("contact"))
+    let tags = tags::service::list(&ctx, Some("contacts.contact"))
         .await
         .map(|tags| {
             tags.into_iter()

@@ -4,7 +4,7 @@ use uuid::Uuid;
 
 use crate::application::access::Authorizer;
 use crate::application::auth::ClientMetadata;
-use crate::application::fields::RecordTypeDefinition;
+use crate::application::fields::EntityDefinition;
 use crate::application::files::UserReference;
 use crate::application::record_sharing::{
     MAX_RECORD_SHARES, NewRecordShare, RECORD_NOT_FOUND, RECORD_SHARE_EXISTS,
@@ -350,7 +350,7 @@ where
             .find(|share| share.id == share_id))
     }
 
-    fn definition(&self, record_type: &str) -> Result<RecordTypeDefinition, AppError> {
+    fn definition(&self, record_type: &str) -> Result<EntityDefinition, AppError> {
         self.ports.registry().require(record_type).cloned()
     }
 

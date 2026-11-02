@@ -12,7 +12,7 @@ import { useConditionSchema } from '../lib/condition-schema'
 
 const EMPTY_FILTER: FilterNode = { op: 'and', conditions: [] }
 
-const ACTIVITY_HOSTS = new Set(['contact', 'company', 'deal'])
+const ACTIVITY_HOSTS = new Set(['contacts.contact', 'companies.company', 'deals.deal'])
 
 interface RelationChoice {
   key: string
@@ -59,13 +59,13 @@ function relatedNode(draft: RelatedDraft): FilterRelated {
 
 function useRelationChoices(recordType: string): { choices: RelationChoice[]; loading: boolean } {
   const { t } = useTranslation('automations')
-  const aggregate = useAggregateSchema(recordType.startsWith('co_') || ACTIVITY_HOSTS.has(recordType) ? recordType : null)
+  const aggregate = useAggregateSchema(recordType.startsWith('custom.') || ACTIVITY_HOSTS.has(recordType) ? recordType : null)
   return useMemo(() => {
     const choices: RelationChoice[] = (aggregate.data?.relations ?? [])
       .filter((relation) => relation.readable)
       .map((relation) => ({ key: relation.key, label: relation.label, target: relation.target_record_type }))
     if (ACTIVITY_HOSTS.has(recordType) && !choices.some((choice) => choice.key === 'activities')) {
-      choices.push({ key: 'activities', label: t('conditions.activitiesRelation'), target: 'activity' })
+      choices.push({ key: 'activities', label: t('conditions.activitiesRelation'), target: 'activities.activity' })
     }
     return { choices, loading: aggregate.isPending && aggregate.fetchStatus !== 'idle' }
   }, [aggregate.data, aggregate.fetchStatus, aggregate.isPending, recordType, t])

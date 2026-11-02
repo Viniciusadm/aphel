@@ -36,7 +36,25 @@
     "deal": "Deals",
     "activity": "Tasks",
     "product": "Products",
-    "note": "Notes"
+    "note": "Notes",
+    "contacts": {
+      "contact": "Contacts"
+    },
+    "companies": {
+      "company": "Companies"
+    },
+    "deals": {
+      "deal": "Deals"
+    },
+    "activities": {
+      "activity": "Tasks"
+    },
+    "products": {
+      "product": "Products"
+    },
+    "notes": {
+      "note": "Notes"
+    }
   },
   "create": {
     "menu": "Create new"

@@ -22,7 +22,7 @@ fn timestamp(value: DateTime<Utc>) -> String {
 pub(crate) struct ImportUploadForm {
     #[schema(value_type = String, format = Binary)]
     pub(crate) file: FormFile,
-    #[schema(example = "contact")]
+    #[schema(example = "contacts.contact")]
     pub(crate) record_type: String,
     pub(crate) retry_of: Option<String>,
 }
@@ -156,7 +156,7 @@ pub(crate) struct ImportTargetResponse {
     pub(crate) field_type: String,
     pub(crate) required: bool,
     pub(crate) is_custom: bool,
-    #[schema(example = "company")]
+    #[schema(example = "companies.company")]
     pub(crate) relation_target: Option<String>,
     pub(crate) multiple: bool,
     #[schema(example = "name")]
@@ -187,7 +187,7 @@ pub(crate) struct ImportPreviewRow {
 #[derive(Debug, Serialize, ToSchema)]
 pub struct ImportJobResponse {
     pub(crate) id: String,
-    #[schema(example = "contact")]
+    #[schema(example = "contacts.contact")]
     pub(crate) record_type: String,
     #[schema(example = "draft")]
     pub(crate) status: String,
@@ -355,7 +355,7 @@ impl From<ImportRow> for ImportRowResponse {
 #[derive(Debug, Default, Deserialize, IntoParams)]
 #[into_params(parameter_in = Query)]
 pub(crate) struct ImportListParams {
-    #[param(example = "contact")]
+    #[param(example = "contacts.contact")]
     pub(crate) record_type: Option<String>,
 }
 

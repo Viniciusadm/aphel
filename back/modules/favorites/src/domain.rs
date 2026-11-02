@@ -1,7 +1,7 @@
 use chrono::{DateTime, Utc};
 use uuid::Uuid;
 
-use aphel_kernel::application::fields::RecordTypeDefinition;
+use aphel_kernel::application::fields::EntityDefinition;
 use aphel_kernel::application::shared::RecordType;
 use aphel_kernel::domain::access::RecordScopeFilter;
 
@@ -11,14 +11,6 @@ pub(crate) const FAVORITE_ALREADY_EXISTS: &str = "favorite_already_exists";
 pub(crate) const FAVORITE_LIMIT_REACHED: &str = "favorite_limit_reached";
 
 pub(crate) const MAX_FAVORITES: usize = 50;
-
-pub(crate) const FAVORITE_TITLE_COLUMNS: [(&str, &str); 5] = [
-    ("contact", "full_name"),
-    ("company", "name"),
-    ("deal", "title"),
-    ("activity", "title"),
-    ("product", "name"),
-];
 
 #[derive(Debug, Clone, Copy, PartialEq, Eq)]
 pub(crate) enum FavoriteKind {
@@ -65,8 +57,8 @@ impl Favorite {
 
 #[derive(Debug, Clone, PartialEq)]
 pub(crate) struct ReadableRecordType {
-    pub(crate) definition: RecordTypeDefinition,
-    pub(crate) title_column: &'static str,
+    pub(crate) definition: EntityDefinition,
+    pub(crate) title_column: String,
     pub(crate) visibility: RecordScopeFilter,
 }
 

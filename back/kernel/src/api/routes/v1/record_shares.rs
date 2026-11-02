@@ -47,7 +47,7 @@ pub async fn record_sharing_use_cases(
     security(("session_cookie" = [])),
     description = "Users and teams the record is shared with. Anyone who reads the record (read permission of its type, shares included) sees the list; `can_manage` tells whether the caller can change it (owner of the record or `records.share`).",
     params(
-        ("record_type" = String, Path, description = "Record type, such as `deal` or `co_contract`"),
+        ("record_type" = String, Path, description = "Record type, such as `deal` or `custom.contract`"),
         ("record_id" = String, Path, description = "Record id"),
     ),
     responses(

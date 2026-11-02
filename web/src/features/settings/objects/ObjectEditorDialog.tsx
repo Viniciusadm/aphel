@@ -211,7 +211,7 @@ function ObjectForm({ object, onClose, onSaved }: ObjectFormProps) {
             }}
           />
           <p id={`${formId}-key-hint`} className="text-xs text-muted-foreground">
-            {editing ? t('editor.keyLocked') : t('editor.keyHint', { recordType: `co_${key || '…'}` })}
+            {editing ? t('editor.keyLocked') : t('editor.keyHint', { recordType: `custom.${key || '…'}` })}
           </p>
           {fieldError('key')}
           </>}

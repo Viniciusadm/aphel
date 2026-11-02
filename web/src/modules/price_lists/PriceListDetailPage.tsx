@@ -20,7 +20,7 @@ import { Page } from '@/components/ui/page'
 import { PageHeader } from '@/components/ui/page-header'
 import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from '@/components/ui/table'
 
-const PRODUCT_RECORD_TYPE = 'product'
+const PRODUCT_RECORD_TYPE = 'products.product'
 const MONEY_PATTERN = /^\d+([.,]\d{1,2})?$/
 const QUANTITY_PATTERN = /^\d+([.,]\d{1,4})?$/
 

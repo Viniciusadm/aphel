@@ -20,7 +20,7 @@
             "schema": {
               "type": "string"
             },
-            "example": "contact"
+            "example": "contacts.contact"
           },
           {
             "name": "record_id",
@@ -2650,7 +2650,7 @@
             "schema": {
               "type": "string"
             },
-            "example": "deal"
+            "example": "deals.deal"
           },
           {
             "name": "active",
@@ -3946,7 +3946,7 @@
             "schema": {
               "type": "string"
             },
-            "example": "contact"
+            "example": "contacts.contact"
           },
           {
             "name": "record_id",
@@ -5215,7 +5215,7 @@
         "tags": [
           "automations"
         ],
-        "description": "Creates a draft automation over a record type (`contact`, `company`, `deal`, `activity` or `co_<key>`). `trigger` has a `type` from the catalog plus its options; `definition` is the step graph: `start` names the first step and each step is a `condition` (filter AST of the listings, with `trigger.*` paths evaluated over the event: `trigger.previous.<field>`, `trigger.changed_fields`, `trigger.payload.*`; when false the run ends), a `branch` (first matching `cases[]` or `default`) or an `action` (catalog `action` + `config`, whose strings accept templates such as `{{record.title}}`, `{{record.custom.cpf}}`, `{{trigger.previous.stage_id}}`, `{{now + 2d}}` and `{{today + 1w}}`). The graph must be acyclic, without orphan steps, and fields, templates, tags, stages and users are validated now (paths under `trigger.` and `definition.`). Write-only secrets of actions (such as `signing_secret` of `call_webhook`) go to the secret vault and come back only as `<field>_configured`. `key` defaults to a slug of the name.",
+        "description": "Creates a draft automation over a record type (`contact`, `company`, `deal`, `activity` or `custom.<key>`). `trigger` has a `type` from the catalog plus its options; `definition` is the step graph: `start` names the first step and each step is a `condition` (filter AST of the listings, with `trigger.*` paths evaluated over the event: `trigger.previous.<field>`, `trigger.changed_fields`, `trigger.payload.*`; when false the run ends), a `branch` (first matching `cases[]` or `default`) or an `action` (catalog `action` + `config`, whose strings accept templates such as `{{record.title}}`, `{{record.custom.cpf}}`, `{{trigger.previous.stage_id}}`, `{{now + 2d}}` and `{{today + 1w}}`). The graph must be acyclic, without orphan steps, and fields, templates, tags, stages and users are validated now (paths under `trigger.` and `definition.`). Write-only secrets of actions (such as `signing_secret` of `call_webhook`) go to the secret vault and come back only as `<field>_configured`. `key` defaults to a slug of the name.",
         "operationId": "automations_create",
         "parameters": [
           {
@@ -13437,7 +13437,7 @@
         "tags": [
           "custom-objects"
         ],
-        "description": "Creates a custom object (permission `settings.manage`) and publishes `custom_object.created`. The `key` (lowercase letters and underscores, immutable) becomes the record type `co_<key>`, the API path `/objects/<key>/records` and the permissions `co_<key>.read|create|update|delete|export|archive`; managers get them with team scope and members with own scope (no export), administrators get everything. The object starts with a required text field `name` used as the record title (`title_field_key`). At most 50 custom objects can exist.",
+        "description": "Creates a custom object (permission `settings.manage`) and publishes `custom_object.created`. The `key` (lowercase letters and underscores, immutable) becomes the record type `custom.<key>`, the API path `/objects/<key>/records` and the permissions `custom.<key>.read|create|update|delete|export|archive`; managers get them with team scope and members with own scope (no export), administrators get everything. The object starts with a required text field `name` used as the record title (`title_field_key`). At most 50 custom objects can exist.",
         "operationId": "custom_objects_create",
         "parameters": [
           {
@@ -17884,7 +17884,7 @@
             "schema": {
               "type": "string"
             },
-            "example": "contact"
+            "example": "contacts.contact"
           },
           {
             "name": "status",
@@ -18217,7 +18217,7 @@
             "schema": {
               "type": "string"
             },
-            "example": "contact"
+            "example": "contacts.contact"
           }
         ],
         "responses": {
@@ -19562,7 +19562,7 @@
             "schema": {
               "type": "string"
             },
-            "example": "contact"
+            "example": "contacts.contact"
           }
         ],
         "responses": {
@@ -19740,7 +19740,7 @@
             "schema": {
               "type": "string"
             },
-            "example": "deal"
+            "example": "deals.deal"
           }
         ],
         "responses": {
@@ -20075,7 +20075,7 @@
             "schema": {
               "type": "string"
             },
-            "example": "contact"
+            "example": "contacts.contact"
           },
           {
             "name": "record_id",
@@ -21280,6 +21280,391 @@
         ]
       }
     },
+    "/api/v1/entities": {
+      "get": {
+        "tags": [
+          "fields"
+        ],
+        "operationId": "entities_list",
+        "responses": {
+          "200": {
+            "description": "",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "object"
+                }
+              }
+            }
+          },
+          "403": {
+            "description": "",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ErrorEnvelope"
+                }
+              }
+            }
+          },
+          "429": {
+            "description": "API token rate limit exceeded (`rate_limited`); see `Retry-After` and `X-RateLimit-*`",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ErrorEnvelope"
+                }
+              }
+            }
+          }
+        },
+        "security": [
+          {
+            "session_cookie": []
+          },
+          {
+            "api_token": []
+          }
+        ]
+      }
+    },
+    "/api/v1/entities/{entity}/records": {
+      "get": {
+        "tags": [
+          "fields"
+        ],
+        "operationId": "entity_records_list",
+        "parameters": [
+          {
+            "name": "entity",
+            "in": "path",
+            "required": true,
+            "schema": {
+              "type": "string"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/Page_Value"
+                }
+              }
+            }
+          },
+          "403": {
+            "description": "",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ErrorEnvelope"
+                }
+              }
+            }
+          },
+          "429": {
+            "description": "API token rate limit exceeded (`rate_limited`); see `Retry-After` and `X-RateLimit-*`",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ErrorEnvelope"
+                }
+              }
+            }
+          }
+        },
+        "security": [
+          {
+            "session_cookie": []
+          },
+          {
+            "api_token": []
+          }
+        ]
+      },
+      "post": {
+        "tags": [
+          "fields"
+        ],
+        "operationId": "entity_records_create",
+        "parameters": [
+          {
+            "name": "entity",
+            "in": "path",
+            "required": true,
+            "schema": {
+              "type": "string"
+            }
+          },
+          {
+            "name": "Idempotency-Key",
+            "in": "header",
+            "description": "Up to 255 printable ASCII characters. The same key with the same request (method, path and body) within 24 hours answers the stored response with the same status and body plus `Idempotent-Replayed: true`. Scoped to the credential (session cookie or API token); ignored without a credential. 5xx and 429 responses are not stored",
+            "required": false,
+            "schema": {
+              "type": "string",
+              "maxLength": 255
+            }
+          }
+        ],
+        "requestBody": {
+          "content": {
+            "application/json": {
+              "schema": {}
+            }
+          },
+          "required": true
+        },
+        "responses": {
+          "201": {
+            "description": "",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/Data_Value"
+                }
+              }
+            }
+          },
+          "409": {
+            "description": "The first request with this `Idempotency-Key` is still being processed (`idempotency_key_in_progress`)",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ErrorEnvelope"
+                }
+              }
+            }
+          },
+          "422": {
+            "description": ". `Idempotency-Key` already used with a different request (`idempotency_key_reused`) or longer than 255 characters (`validation_error`)",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ErrorEnvelope"
+                }
+              }
+            }
+          },
+          "429": {
+            "description": "API token rate limit exceeded (`rate_limited`); see `Retry-After` and `X-RateLimit-*`",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ErrorEnvelope"
+                }
+              }
+            }
+          }
+        },
+        "security": [
+          {
+            "session_cookie": []
+          },
+          {
+            "api_token": []
+          }
+        ]
+      }
+    },
+    "/api/v1/entities/{entity}/records/{id}": {
+      "get": {
+        "tags": [
+          "fields"
+        ],
+        "operationId": "entity_records_get",
+        "parameters": [
+          {
+            "name": "entity",
+            "in": "path",
+            "required": true,
+            "schema": {
+              "type": "string"
+            }
+          },
+          {
+            "name": "id",
+            "in": "path",
+            "required": true,
+            "schema": {
+              "type": "string"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/Data_Value"
+                }
+              }
+            }
+          },
+          "404": {
+            "description": "",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ErrorEnvelope"
+                }
+              }
+            }
+          },
+          "429": {
+            "description": "API token rate limit exceeded (`rate_limited`); see `Retry-After` and `X-RateLimit-*`",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ErrorEnvelope"
+                }
+              }
+            }
+          }
+        },
+        "security": [
+          {
+            "session_cookie": []
+          },
+          {
+            "api_token": []
+          }
+        ]
+      },
+      "delete": {
+        "tags": [
+          "fields"
+        ],
+        "operationId": "entity_records_delete",
+        "parameters": [
+          {
+            "name": "entity",
+            "in": "path",
+            "required": true,
+            "schema": {
+              "type": "string"
+            }
+          },
+          {
+            "name": "id",
+            "in": "path",
+            "required": true,
+            "schema": {
+              "type": "string"
+            }
+          }
+        ],
+        "responses": {
+          "204": {
+            "description": ""
+          },
+          "409": {
+            "description": "",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ErrorEnvelope"
+                }
+              }
+            }
+          },
+          "429": {
+            "description": "API token rate limit exceeded (`rate_limited`); see `Retry-After` and `X-RateLimit-*`",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ErrorEnvelope"
+                }
+              }
+            }
+          }
+        },
+        "security": [
+          {
+            "session_cookie": []
+          },
+          {
+            "api_token": []
+          }
+        ]
+      },
+      "patch": {
+        "tags": [
+          "fields"
+        ],
+        "operationId": "entity_records_update",
+        "parameters": [
+          {
+            "name": "entity",
+            "in": "path",
+            "required": true,
+            "schema": {
+              "type": "string"
+            }
+          },
+          {
+            "name": "id",
+            "in": "path",
+            "required": true,
+            "schema": {
+              "type": "string"
+            }
+          }
+        ],
+        "requestBody": {
+          "content": {
+            "application/json": {
+              "schema": {}
+            }
+          },
+          "required": true
+        },
+        "responses": {
+          "200": {
+            "description": "",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/Data_Value"
+                }
+              }
+            }
+          },
+          "409": {
+            "description": "",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ErrorEnvelope"
+                }
+              }
+            }
+          },
+          "429": {
+            "description": "API token rate limit exceeded (`rate_limited`); see `Retry-After` and `X-RateLimit-*`",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ErrorEnvelope"
+                }
+              }
+            }
+          }
+        },
+        "security": [
+          {
+            "session_cookie": []
+          },
+          {
+            "api_token": []
+          }
+        ]
+      }
+    },
     "/api/v1/esign/requests": {
       "get": {
         "tags": [
@@ -21711,7 +22096,7 @@
         "tags": [
           "events"
         ],
-        "description": "Stable list of public event types delivered by outgoing webhooks. Each delivery body is `{ id, type, actor: { type, id }, occurred_at, data, previous? }`: `data` is the resource as returned by its `GET /{resource}/{id}` (schema in `data_schema`; null when the event carries its own payload instead of a record), or only `{ id }` when `data_is_id_only`; `previous` carries the old values of the changed fields when `has_previous`. Any authenticated member can read it. The list also has the events of each active custom object (`co_<key>.created|updated|deleted|archived|unarchived`, data schema `CustomRecordResponse`).",
+        "description": "Stable list of public event types delivered by outgoing webhooks. Each delivery body is `{ id, type, actor: { type, id }, occurred_at, data, previous? }`: `data` is the resource as returned by its `GET /{resource}/{id}` (schema in `data_schema`; null when the event carries its own payload instead of a record), or only `{ id }` when `data_is_id_only`; `previous` carries the old values of the changed fields when `has_previous`. Any authenticated member can read it. The list also has the events of each active custom object (`custom.<key>.created|updated|deleted|archived|unarchived`, data schema `CustomRecordResponse`).",
         "operationId": "events_catalog",
         "responses": {
           "200": {
@@ -25387,7 +25772,7 @@
             "schema": {
               "type": "string"
             },
-            "example": "contact"
+            "example": "contacts.contact"
           },
           {
             "name": "page",
@@ -28898,7 +29283,7 @@
             "schema": {
               "type": "string"
             },
-            "example": "deal"
+            "example": "deals.deal"
           },
           {
             "name": "source",
@@ -29008,7 +29393,7 @@
             "schema": {
               "type": "string"
             },
-            "example": "deal"
+            "example": "deals.deal"
           },
           {
             "name": "active",
@@ -30662,7 +31047,7 @@
             "schema": {
               "type": "string"
             },
-            "example": "contact"
+            "example": "contacts.contact"
           },
           {
             "name": "from",
@@ -31994,7 +32379,7 @@
             "schema": {
               "type": "string"
             },
-            "example": "deal"
+            "example": "deals.deal"
           },
           {
             "name": "page",
@@ -35598,7 +35983,7 @@
             "schema": {
               "type": "string"
             },
-            "example": "contact"
+            "example": "contacts.contact"
           },
           {
             "name": "record_id",
@@ -37049,7 +37434,7 @@
         "tags": [
           "objects"
         ],
-        "description": "Lists records of a custom object (permission `co_<key>.read`, scope own/team/organization by `owner_id`). Same query language as every listing: the JSON AST in `filter` or `filter[field][operator]=value` over `title`, `owner_id`, `created_at`, `updated_at` and custom fields, conditions on related records (`company.industry`) and `related` nodes (`{\"related\": {\"relationship\": \"company\", \"filter\": {...}}}`), `sort=field,-other`, `search`/`q` over the title and searchable fields and `archived=exclude|include|only`. Field permissions apply.",
+        "description": "Lists records of a custom object (permission `custom.<key>.read`, scope own/team/organization by `owner_id`). Same query language as every listing: the JSON AST in `filter` or `filter[field][operator]=value` over `title`, `owner_id`, `created_at`, `updated_at` and custom fields, conditions on related records (`company.industry`) and `related` nodes (`{\"related\": {\"relationship\": \"company\", \"filter\": {...}}}`), `sort=field,-other`, `search`/`q` over the title and searchable fields and `archived=exclude|include|only`. Field permissions apply.",
         "operationId": "objects_records_list",
         "parameters": [
           {
@@ -37151,7 +37536,7 @@
             }
           },
           "403": {
-            "description": "Missing `co_<key>.read` (`permission_denied`, `insufficient_scope`)",
+            "description": "Missing `custom.<key>.read` (`permission_denied`, `insufficient_scope`)",
             "content": {
               "application/json": {
                 "schema": {
@@ -37204,7 +37589,7 @@
         "tags": [
           "objects"
         ],
-        "description": "Creates a record of a custom object (permission `co_<key>.create`) and publishes `co_<key>.created`. Values go in `custom_fields` (see `GET /objects/{key}/schema`); the `title` comes from the title field. `owner_id` defaults to the caller when the object has owners. `relations` links the new record in the same transaction: relation key → record id (or list of ids), and required relations must be present.",
+        "description": "Creates a record of a custom object (permission `custom.<key>.create`) and publishes `custom.<key>.created`. Values go in `custom_fields` (see `GET /objects/{key}/schema`); the `title` comes from the title field. `owner_id` defaults to the caller when the object has owners. `relations` links the new record in the same transaction: relation key → record id (or list of ids), and required relations must be present.",
         "operationId": "objects_records_create",
         "parameters": [
           {
@@ -37259,7 +37644,7 @@
             }
           },
           "403": {
-            "description": "Missing `co_<key>.create` (`permission_denied`, `insufficient_scope`)",
+            "description": "Missing `custom.<key>.create` (`permission_denied`, `insufficient_scope`)",
             "content": {
               "application/json": {
                 "schema": {
@@ -37367,7 +37752,7 @@
             }
           },
           "403": {
-            "description": "Missing `co_<key>.read` (`permission_denied`, `insufficient_scope`)",
+            "description": "Missing `custom.<key>.read` (`permission_denied`, `insufficient_scope`)",
             "content": {
               "application/json": {
                 "schema": {
@@ -37410,7 +37795,7 @@
         "tags": [
           "objects"
         ],
-        "description": "Deletes a record (soft delete, permission `co_<key>.delete`) and publishes `co_<key>.deleted`. Relationships with `on_delete: restrict` where the record is on the `from` side block the deletion while live linked records exist.",
+        "description": "Deletes a record (soft delete, permission `custom.<key>.delete`) and publishes `custom.<key>.deleted`. Relationships with `on_delete: restrict` where the record is on the `from` side block the deletion while live linked records exist.",
         "operationId": "objects_records_delete",
         "parameters": [
           {
@@ -37447,7 +37832,7 @@
             }
           },
           "403": {
-            "description": "Missing `co_<key>.delete` or outside its scope (`permission_denied`, `insufficient_scope`)",
+            "description": "Missing `custom.<key>.delete` or outside its scope (`permission_denied`, `insufficient_scope`)",
             "content": {
               "application/json": {
                 "schema": {
@@ -37500,7 +37885,7 @@
         "tags": [
           "objects"
         ],
-        "description": "Partially updates a record (permission `co_<key>.update`) and publishes `co_<key>.updated` with the changes. Omitted custom fields stay unchanged and `null` clears one. Links are changed through the relation endpoints. Send `If-Match` with the `updated_at` you read.",
+        "description": "Partially updates a record (permission `custom.<key>.update`) and publishes `custom.<key>.updated` with the changes. Omitted custom fields stay unchanged and `null` clears one. Links are changed through the relation endpoints. Send `If-Match` with the `updated_at` you read.",
         "operationId": "objects_records_update",
         "parameters": [
           {
@@ -37566,7 +37951,7 @@
             }
           },
           "403": {
-            "description": "Missing `co_<key>.update` or outside its scope (`permission_denied`, `insufficient_scope`)",
+            "description": "Missing `custom.<key>.update` or outside its scope (`permission_denied`, `insufficient_scope`)",
             "content": {
               "application/json": {
                 "schema": {
@@ -37631,7 +38016,7 @@
         "tags": [
           "objects"
         ],
-        "description": "Archives a record (permission `co_<key>.archive`) and publishes `co_<key>.archived`. Archived records leave the default listings (`archived=include|only` brings them back).",
+        "description": "Archives a record (permission `custom.<key>.archive`) and publishes `custom.<key>.archived`. Archived records leave the default listings (`archived=include|only` brings them back).",
         "operationId": "objects_records_archive",
         "parameters": [
           {
@@ -37685,7 +38070,7 @@
             }
           },
           "403": {
-            "description": "Missing `co_<key>.archive` (`permission_denied`, `insufficient_scope`)",
+            "description": "Missing `custom.<key>.archive` (`permission_denied`, `insufficient_scope`)",
             "content": {
               "application/json": {
                 "schema": {
@@ -37750,7 +38135,7 @@
         "tags": [
           "objects"
         ],
-        "description": "Restores an archived record (permission `co_<key>.archive`) and publishes `co_<key>.unarchived`.",
+        "description": "Restores an archived record (permission `custom.<key>.archive`) and publishes `custom.<key>.unarchived`.",
         "operationId": "objects_records_unarchive",
         "parameters": [
           {
@@ -37804,7 +38189,7 @@
             }
           },
           "403": {
-            "description": "Missing `co_<key>.archive` (`permission_denied`, `insufficient_scope`)",
+            "description": "Missing `custom.<key>.archive` (`permission_denied`, `insufficient_scope`)",
             "content": {
               "application/json": {
                 "schema": {
@@ -37904,7 +38289,7 @@
             }
           },
           "403": {
-            "description": "Missing `co_<key>.read` (`permission_denied`, `insufficient_scope`)",
+            "description": "Missing `custom.<key>.read` (`permission_denied`, `insufficient_scope`)",
             "content": {
               "application/json": {
                 "schema": {
@@ -49749,7 +50134,7 @@
             "schema": {
               "type": "string"
             },
-            "example": "contact"
+            "example": "contacts.contact"
           },
           {
             "name": "ids",
@@ -50334,7 +50719,7 @@
           {
             "name": "record_type",
             "in": "path",
-            "description": "Record type, such as `deal` or `co_contract`",
+            "description": "Record type, such as `deal` or `custom.contract`",
             "required": true,
             "schema": {
               "type": "string"
@@ -50423,7 +50808,7 @@
           {
             "name": "record_type",
             "in": "path",
-            "description": "Record type, such as `company` or `co_contract`",
+            "description": "Record type, such as `company` or `custom.contract`",
             "required": true,
             "schema": {
               "type": "string"
@@ -50879,7 +51264,7 @@
           {
             "name": "record_type",
             "in": "path",
-            "description": "Record type, such as `deal` or `co_contract`",
+            "description": "Record type, such as `deal` or `custom.contract`",
             "required": true,
             "schema": {
               "type": "string"
@@ -51375,7 +51760,7 @@
         "tags": [
           "relationships"
         ],
-        "description": "Creates a relationship between two record types (`company`, `contact`, `deal`, `product` or an active custom object `co_<key>`), permission `settings.manage`. `cardinality`: `one_to_one`, `one_to_many` (one `from` record, many `to` records) or `many_to_many`. `key` names the relation on the `from` type and `inverse_key` on the `to` type (both used in filters such as `company.industry` and in `related` filter nodes), `from_label` is shown on `from` records and `to_label` on `to` records. `required` makes every new `to` record of a custom object need a link. `on_delete` decides what happens when a `from` record is deleted: `restrict` (default) blocks the deletion while live linked records exist (409 `record_has_relations`), `unlink` lets it go and the links are removed when the record is purged. Publishes `relationship.created`.",
+        "description": "Creates a relationship between two record types (`company`, `contact`, `deal`, `product` or an active custom object `custom.<key>`), permission `settings.manage`. `cardinality`: `one_to_one`, `one_to_many` (one `from` record, many `to` records) or `many_to_many`. `key` names the relation on the `from` type and `inverse_key` on the `to` type (both used in filters such as `company.industry` and in `related` filter nodes), `from_label` is shown on `from` records and `to_label` on `to` records. `required` makes every new `to` record of a custom object need a link. `on_delete` decides what happens when a `from` record is deleted: `restrict` (default) blocks the deletion while live linked records exist (409 `record_has_relations`), `unlink` lets it go and the links are removed when the record is purged. Publishes `relationship.created`.",
         "operationId": "relationships_create",
         "parameters": [
           {
@@ -51687,7 +52072,7 @@
             "schema": {
               "type": "string"
             },
-            "example": "deal"
+            "example": "deals.deal"
           },
           {
             "name": "record_id",
@@ -52113,7 +52498,7 @@
             "schema": {
               "type": "string"
             },
-            "example": "deal"
+            "example": "deals.deal"
           },
           {
             "name": "page",
@@ -56413,7 +56798,7 @@
             "schema": {
               "type": "string"
             },
-            "example": "contact"
+            "example": "contacts.contact"
           },
           {
             "name": "counts",
@@ -58782,7 +59167,7 @@
             "schema": {
               "type": "string"
             },
-            "example": "contact"
+            "example": "contacts.contact"
           },
           {
             "name": "page",
@@ -60313,7 +60698,7 @@
             "schema": {
               "type": "string"
             },
-            "example": "company"
+            "example": "companies.company"
           },
           {
             "name": "record_id",
@@ -60429,7 +60814,7 @@
             "schema": {
               "type": "string"
             },
-            "example": "contact"
+            "example": "contacts.contact"
           },
           {
             "name": "search",
@@ -60727,7 +61112,7 @@
           {
             "name": "record_type",
             "in": "path",
-            "description": "Record type with a trash (`contact`, `company`, `deal`, `product`, `co_<key>`…)",
+            "description": "Record type with a trash (`contact`, `company`, `deal`, `product`, `custom.<key>`…)",
             "required": true,
             "schema": {
               "type": "string"
@@ -60818,7 +61203,7 @@
           {
             "name": "record_type",
             "in": "path",
-            "description": "Record type with a trash (`contact`, `company`, `deal`, `product`, `co_<key>`…)",
+            "description": "Record type with a trash (`contact`, `company`, `deal`, `product`, `custom.<key>`…)",
             "required": true,
             "schema": {
               "type": "string"
@@ -64750,7 +65135,7 @@
           },
           "record_type": {
             "type": "string",
-            "example": "deal"
+            "example": "deals.deal"
           },
           "sort": {
             "type": "array",
@@ -64800,7 +65185,7 @@
         "properties": {
           "key": {
             "type": "string",
-            "example": "company"
+            "example": "companies.company"
           },
           "label": {
             "type": "string",
@@ -64814,7 +65199,7 @@
           },
           "target_record_type": {
             "type": "string",
-            "example": "company"
+            "example": "companies.company"
           }
         }
       },
@@ -64864,7 +65249,7 @@
           },
           "record_type": {
             "type": "string",
-            "example": "deal"
+            "example": "deals.deal"
           },
           "rows": {
             "type": "array",
@@ -64947,7 +65332,7 @@
           },
           "record_type": {
             "type": "string",
-            "example": "deal"
+            "example": "deals.deal"
           },
           "relations": {
             "type": "array",
@@ -65289,7 +65674,7 @@
           },
           "record_type": {
             "type": "string",
-            "example": "deal"
+            "example": "deals.deal"
           }
         }
       },
@@ -65334,7 +65719,7 @@
           },
           "record_type": {
             "type": "string",
-            "example": "contact"
+            "example": "contacts.contact"
           }
         }
       },
@@ -65356,7 +65741,7 @@
           },
           "record_type": {
             "type": "string",
-            "example": "note"
+            "example": "notes.note"
           }
         }
       },
@@ -65989,7 +66374,7 @@
           },
           "record_type": {
             "type": "string",
-            "example": "deal"
+            "example": "deals.deal"
           },
           "steps": {
             "type": "array",
@@ -66350,7 +66735,7 @@
           },
           "record_type": {
             "type": "string",
-            "example": "deal"
+            "example": "deals.deal"
           },
           "target_id": {
             "type": [
@@ -66411,7 +66796,7 @@
           },
           "record_type": {
             "type": "string",
-            "example": "contact"
+            "example": "contacts.contact"
           }
         }
       },
@@ -67586,7 +67971,7 @@
           },
           "record_type": {
             "type": "string",
-            "example": "contact"
+            "example": "contacts.contact"
           },
           "selection": {
             "$ref": "#/components/schemas/BulkSelectionRequest"
@@ -67682,7 +68067,7 @@
           },
           "record_type": {
             "type": "string",
-            "example": "contact"
+            "example": "contacts.contact"
           },
           "requested_by": {
             "type": "string"
@@ -70949,7 +71334,7 @@
               "string",
               "null"
             ],
-            "example": "contact"
+            "example": "contacts.contact"
           },
           "recurrence": {
             "oneOf": [
@@ -71090,7 +71475,7 @@
           },
           "record_type": {
             "type": "string",
-            "example": "deal"
+            "example": "deals.deal"
           },
           "trigger": {
             "$ref": "#/components/schemas/AutomationTrigger"
@@ -71364,7 +71749,7 @@
               "string",
               "null"
             ],
-            "example": "contact"
+            "example": "contacts.contact"
           },
           "view_id": {
             "type": [
@@ -71592,7 +71977,7 @@
           },
           "record_type": {
             "type": "string",
-            "example": "contact"
+            "example": "contacts.contact"
           },
           "visibility": {
             "oneOf": [
@@ -71754,11 +72139,11 @@
           },
           "from_type": {
             "type": "string",
-            "example": "company"
+            "example": "companies.company"
           },
           "inverse_key": {
             "type": "string",
-            "example": "company"
+            "example": "companies.company"
           },
           "key": {
             "type": "string",
@@ -71783,7 +72168,7 @@
           },
           "to_type": {
             "type": "string",
-            "example": "co_contract"
+            "example": "custom.contract"
           }
         }
       },
@@ -71811,7 +72196,7 @@
               "string",
               "null"
             ],
-            "example": "deal"
+            "example": "deals.deal"
           },
           "remind_at": {
             "type": "string",
@@ -71895,7 +72280,7 @@
               "string",
               "null"
             ],
-            "example": "contact"
+            "example": "contacts.contact"
           },
           "threshold_days": {
             "type": "integer",
@@ -72040,7 +72425,7 @@
           },
           "record_type": {
             "type": "string",
-            "example": "contact"
+            "example": "contacts.contact"
           },
           "warm_from": {
             "type": [
@@ -72074,7 +72459,7 @@
           },
           "record_type": {
             "type": "string",
-            "example": "contact"
+            "example": "contacts.contact"
           }
         },
         "additionalProperties": false
@@ -72152,8 +72537,8 @@
               "type": "string"
             },
             "example": [
-              "contact",
-              "company"
+              "contacts.contact",
+              "companies.company"
             ]
           }
         },
@@ -72227,7 +72612,7 @@
           },
           "record_type": {
             "type": "string",
-            "example": "deal"
+            "example": "deals.deal"
           }
         }
       },
@@ -72525,7 +72910,7 @@
           },
           "record_type": {
             "type": "string",
-            "example": "co_contract"
+            "example": "custom.contract"
           },
           "title_field_key": {
             "type": "string",
@@ -72601,7 +72986,7 @@
           },
           "record_type": {
             "type": "string",
-            "example": "co_contract"
+            "example": "custom.contract"
           },
           "title": {
             "type": "string",
@@ -73147,7 +73532,7 @@
               },
               "record_type": {
                 "type": "string",
-                "example": "deal"
+                "example": "deals.deal"
               },
               "rows": {
                 "type": "array",
@@ -73198,7 +73583,7 @@
               },
               "record_type": {
                 "type": "string",
-                "example": "deal"
+                "example": "deals.deal"
               },
               "relations": {
                 "type": "array",
@@ -73646,7 +74031,7 @@
               },
               "record_type": {
                 "type": "string",
-                "example": "deal"
+                "example": "deals.deal"
               },
               "steps": {
                 "type": "array",
@@ -74257,7 +74642,7 @@
               },
               "record_type": {
                 "type": "string",
-                "example": "contact"
+                "example": "contacts.contact"
               },
               "requested_by": {
                 "type": "string"
@@ -75980,7 +76365,7 @@
               },
               "record_type": {
                 "type": "string",
-                "example": "co_contract"
+                "example": "custom.contract"
               },
               "title": {
                 "type": "string",
@@ -76896,7 +77281,7 @@
               },
               "record_type": {
                 "type": "string",
-                "example": "contact"
+                "example": "contacts.contact"
               },
               "resolved_at": {
                 "type": [
@@ -77682,7 +78067,7 @@
               },
               "record_type": {
                 "type": "string",
-                "example": "contact"
+                "example": "contacts.contact"
               },
               "requested_by": {
                 "type": "string"
@@ -77786,7 +78171,7 @@
               },
               "record_type": {
                 "type": "string",
-                "example": "contact"
+                "example": "contacts.contact"
               },
               "roles": {
                 "type": "array",
@@ -78523,7 +78908,7 @@
               },
               "record_type": {
                 "type": "string",
-                "example": "contact"
+                "example": "contacts.contact"
               },
               "retry_of": {
                 "type": [
@@ -79521,7 +79906,7 @@
               },
               "record_type": {
                 "type": "string",
-                "example": "contact"
+                "example": "contacts.contact"
               },
               "stages": {
                 "type": "array",
@@ -80582,7 +80967,7 @@
               },
               "record_type": {
                 "type": "string",
-                "example": "contact"
+                "example": "contacts.contact"
               },
               "updated_at": {
                 "type": "string"
@@ -80638,11 +81023,11 @@
                   "type": "string"
                 },
                 "example": [
-                  "co_contract.created",
-                  "co_contract.updated",
-                  "co_contract.deleted",
-                  "co_contract.archived",
-                  "co_contract.unarchived"
+                  "custom.contract.created",
+                  "custom.contract.updated",
+                  "custom.contract.deleted",
+                  "custom.contract.archived",
+                  "custom.contract.unarchived"
                 ]
               },
               "fields": {
@@ -82955,7 +83340,7 @@
               },
               "record_type": {
                 "type": "string",
-                "example": "deal"
+                "example": "deals.deal"
               },
               "shared_by": {
                 "oneOf": [
@@ -83076,14 +83461,14 @@
               },
               "from_type": {
                 "type": "string",
-                "example": "company"
+                "example": "companies.company"
               },
               "id": {
                 "type": "string"
               },
               "inverse_key": {
                 "type": "string",
-                "example": "company"
+                "example": "companies.company"
               },
               "key": {
                 "type": "string",
@@ -83109,7 +83494,7 @@
               },
               "to_type": {
                 "type": "string",
-                "example": "co_contract"
+                "example": "custom.contract"
               },
               "updated_at": {
                 "type": "string",
@@ -83304,7 +83689,7 @@
               },
               "record_type": {
                 "type": "string",
-                "example": "deal"
+                "example": "deals.deal"
               },
               "settings": {
                 "type": "object"
@@ -83973,7 +84358,7 @@
               },
               "record_type": {
                 "type": "string",
-                "example": "contact"
+                "example": "contacts.contact"
               },
               "updated_at": {
                 "type": "string",
@@ -84072,7 +84457,7 @@
               },
               "record_type": {
                 "type": "string",
-                "example": "contact"
+                "example": "contacts.contact"
               },
               "updated_at": {
                 "type": "string",
@@ -84898,7 +85283,7 @@
               },
               "record_type": {
                 "type": "string",
-                "example": "contact"
+                "example": "contacts.contact"
               },
               "subtitle": {
                 "type": [
@@ -85171,7 +85556,7 @@
               },
               "record_type": {
                 "type": "string",
-                "example": "deal"
+                "example": "deals.deal"
               },
               "updated_at": {
                 "type": "string",
@@ -85185,6 +85570,15 @@
               }
             }
           }
+        }
+      },
+      "Data_Value": {
+        "type": "object",
+        "required": [
+          "data"
+        ],
+        "properties": {
+          "data": {}
         }
       },
       "Data_Vec_ActivityTypeResponse": {
@@ -85380,7 +85774,7 @@
                 },
                 "record_type": {
                   "type": "string",
-                  "example": "deal"
+                  "example": "deals.deal"
                 },
                 "steps": {
                   "type": "array",
@@ -85637,7 +86031,7 @@
                 },
                 "record_type": {
                   "type": "string",
-                  "example": "co_contract"
+                  "example": "custom.contract"
                 },
                 "title_field_key": {
                   "type": "string",
@@ -85867,7 +86261,7 @@
                 },
                 "record_type": {
                   "type": "string",
-                  "example": "contact"
+                  "example": "contacts.contact"
                 },
                 "rules": {
                   "type": "array",
@@ -86010,7 +86404,7 @@
                 },
                 "record_type": {
                   "type": "string",
-                  "example": "contact"
+                  "example": "contacts.contact"
                 }
               }
             }
@@ -86313,7 +86707,7 @@
                 },
                 "record_type": {
                   "type": "string",
-                  "example": "contact"
+                  "example": "contacts.contact"
                 },
                 "type": {
                   "$ref": "#/components/schemas/IncomingWebhookActionType"
@@ -87494,7 +87888,7 @@
                 },
                 "resource": {
                   "type": "string",
-                  "example": "deal"
+                  "example": "deals.deal"
                 },
                 "type": {
                   "type": "string",
@@ -87851,7 +88245,7 @@
                 },
                 "target_type": {
                   "type": "string",
-                  "example": "co_contract"
+                  "example": "custom.contract"
                 },
                 "total": {
                   "type": [
@@ -87904,14 +88298,14 @@
                 },
                 "from_type": {
                   "type": "string",
-                  "example": "company"
+                  "example": "companies.company"
                 },
                 "id": {
                   "type": "string"
                 },
                 "inverse_key": {
                   "type": "string",
-                  "example": "company"
+                  "example": "companies.company"
                 },
                 "key": {
                   "type": "string",
@@ -87937,7 +88331,7 @@
                 },
                 "to_type": {
                   "type": "string",
-                  "example": "co_contract"
+                  "example": "custom.contract"
                 },
                 "updated_at": {
                   "type": "string",
@@ -88238,7 +88632,7 @@
                 },
                 "record_type": {
                   "type": "string",
-                  "example": "contact"
+                  "example": "contacts.contact"
                 },
                 "updated_at": {
                   "type": "string",
@@ -88446,7 +88840,7 @@
                 },
                 "record_type": {
                   "type": "string",
-                  "example": "contact"
+                  "example": "contacts.contact"
                 }
               }
             }
@@ -88525,7 +88919,7 @@
                 },
                 "record_type": {
                   "type": "string",
-                  "example": "deal"
+                  "example": "deals.deal"
                 },
                 "updated_at": {
                   "type": "string",
@@ -90352,7 +90746,7 @@
           },
           "record_type": {
             "type": "string",
-            "example": "contact"
+            "example": "contacts.contact"
           },
           "resolved_at": {
             "type": [
@@ -90438,7 +90832,7 @@
           },
           "record_type": {
             "type": "string",
-            "example": "contact"
+            "example": "contacts.contact"
           },
           "values": {
             "type": "object",
@@ -90624,7 +91018,7 @@
           },
           "record_type": {
             "type": "string",
-            "example": "contact"
+            "example": "contacts.contact"
           },
           "rules": {
             "type": "array",
@@ -90896,7 +91290,7 @@
           },
           "record_type": {
             "type": "string",
-            "example": "contact"
+            "example": "contacts.contact"
           }
         }
       },
@@ -90969,7 +91363,7 @@
           },
           "record_type": {
             "type": "string",
-            "example": "contact"
+            "example": "contacts.contact"
           }
         }
       },
@@ -91026,7 +91420,7 @@
           },
           "record_type": {
             "type": "string",
-            "example": "contact"
+            "example": "contacts.contact"
           }
         }
       },
@@ -91866,7 +92260,7 @@
           },
           "record_type": {
             "type": "string",
-            "example": "contact"
+            "example": "contacts.contact"
           },
           "requested_by": {
             "type": "string"
@@ -91967,7 +92361,7 @@
           },
           "record_type": {
             "type": "string",
-            "example": "contact"
+            "example": "contacts.contact"
           },
           "search": {
             "type": [
@@ -92302,7 +92696,7 @@
           },
           "record_type": {
             "type": "string",
-            "example": "contact"
+            "example": "contacts.contact"
           },
           "roles": {
             "type": "array",
@@ -92685,7 +93079,7 @@
           },
           "record_type": {
             "type": "string",
-            "example": "deal"
+            "example": "deals.deal"
           },
           "title": {
             "type": [
@@ -93288,7 +93682,7 @@
           },
           "record_type": {
             "type": "string",
-            "example": "deal"
+            "example": "deals.deal"
           },
           "result_type": {
             "$ref": "#/components/schemas/FormulaResultType"
@@ -93988,7 +94382,7 @@
           },
           "record_type": {
             "type": "string",
-            "example": "contact"
+            "example": "contacts.contact"
           },
           "retry_of": {
             "type": [
@@ -94209,7 +94603,7 @@
               "string",
               "null"
             ],
-            "example": "company"
+            "example": "companies.company"
           },
           "required": {
             "type": "boolean"
@@ -94279,7 +94673,7 @@
           },
           "record_type": {
             "type": "string",
-            "example": "contact"
+            "example": "contacts.contact"
           },
           "retry_of": {
             "type": [
@@ -94481,7 +94875,7 @@
               "string",
               "null"
             ],
-            "example": "contact"
+            "example": "contacts.contact"
           },
           "status": {
             "type": "string",
@@ -94508,7 +94902,7 @@
           },
           "record_type": {
             "type": "string",
-            "example": "contact"
+            "example": "contacts.contact"
           },
           "type": {
             "$ref": "#/components/schemas/IncomingWebhookActionType"
@@ -95754,7 +96148,7 @@
               "string",
               "null"
             ],
-            "example": "deal"
+            "example": "deals.deal"
           },
           "rule_id": {
             "type": "string"
@@ -96059,7 +96453,7 @@
               "string",
               "null"
             ],
-            "example": "deal"
+            "example": "deals.deal"
           },
           "routing": {
             "oneOf": [
@@ -97015,7 +97409,7 @@
           },
           "record_type": {
             "type": "string",
-            "example": "contact"
+            "example": "contacts.contact"
           },
           "stages": {
             "type": "array",
@@ -97290,7 +97684,7 @@
           },
           "record_type": {
             "type": "string",
-            "example": "deal"
+            "example": "deals.deal"
           }
         }
       },
@@ -97393,7 +97787,7 @@
           },
           "record_type": {
             "type": "string",
-            "example": "deal"
+            "example": "deals.deal"
           },
           "title": {
             "type": [
@@ -97476,7 +97870,7 @@
               "string",
               "null"
             ],
-            "example": "contact"
+            "example": "contacts.contact"
           },
           "recording_url": {
             "type": [
@@ -97964,7 +98358,7 @@
               "string",
               "null"
             ],
-            "example": "company"
+            "example": "companies.company"
           },
           "kind": {
             "oneOf": [
@@ -98340,7 +98734,7 @@
           },
           "record_type": {
             "type": "string",
-            "example": "contact"
+            "example": "contacts.contact"
           }
         }
       },
@@ -98727,7 +99121,7 @@
           },
           "record_type": {
             "type": "string",
-            "example": "deal"
+            "example": "deals.deal"
           }
         }
       },
@@ -99356,7 +99750,7 @@
           },
           "record_type": {
             "type": "string",
-            "example": "contact"
+            "example": "contacts.contact"
           },
           "updated_at": {
             "type": "string"
@@ -99551,7 +99945,7 @@
         "properties": {
           "key": {
             "type": "string",
-            "example": "company"
+            "example": "companies.company"
           },
           "label": {
             "type": "string",
@@ -99568,7 +99962,7 @@
           },
           "target_type": {
             "type": "string",
-            "example": "company"
+            "example": "companies.company"
           }
         }
       },
@@ -99588,11 +99982,11 @@
               "type": "string"
             },
             "example": [
-              "co_contract.created",
-              "co_contract.updated",
-              "co_contract.deleted",
-              "co_contract.archived",
-              "co_contract.unarchived"
+              "custom.contract.created",
+              "custom.contract.updated",
+              "custom.contract.deleted",
+              "custom.contract.archived",
+              "custom.contract.unarchived"
             ]
           },
           "fields": {
@@ -100866,7 +101260,7 @@
                 },
                 "record_type": {
                   "type": "string",
-                  "example": "deal"
+                  "example": "deals.deal"
                 },
                 "steps": {
                   "type": "array",
@@ -101457,7 +101851,7 @@
                 },
                 "record_type": {
                   "type": "string",
-                  "example": "contact"
+                  "example": "contacts.contact"
                 },
                 "requested_by": {
                   "type": "string"
@@ -102527,7 +102921,7 @@
                 },
                 "record_type": {
                   "type": "string",
-                  "example": "co_contract"
+                  "example": "custom.contract"
                 },
                 "title": {
                   "type": "string",
@@ -102869,7 +103263,7 @@
                 },
                 "record_type": {
                   "type": "string",
-                  "example": "contact"
+                  "example": "contacts.contact"
                 },
                 "resolved_at": {
                   "type": [
@@ -103124,7 +103518,7 @@
                 },
                 "record_type": {
                   "type": "string",
-                  "example": "contact"
+                  "example": "contacts.contact"
                 },
                 "requested_by": {
                   "type": "string"
@@ -103439,7 +103833,7 @@
                 },
                 "record_type": {
                   "type": "string",
-                  "example": "deal"
+                  "example": "deals.deal"
                 },
                 "title": {
                   "type": [
@@ -103759,7 +104153,7 @@
                 },
                 "record_type": {
                   "type": "string",
-                  "example": "contact"
+                  "example": "contacts.contact"
                 },
                 "retry_of": {
                   "type": [
@@ -104087,7 +104481,7 @@
                     "string",
                     "null"
                   ],
-                  "example": "deal"
+                  "example": "deals.deal"
                 },
                 "rule_id": {
                   "type": "string"
@@ -104787,7 +105181,7 @@
                 },
                 "record_type": {
                   "type": "string",
-                  "example": "contact"
+                  "example": "contacts.contact"
                 },
                 "updated_at": {
                   "type": "string"
@@ -105599,7 +105993,7 @@
                 },
                 "record_type": {
                   "type": "string",
-                  "example": "co_contract"
+                  "example": "custom.contract"
                 },
                 "title": {
                   "type": [
@@ -105819,7 +106213,7 @@
                 },
                 "record_type": {
                   "type": "string",
-                  "example": "deal"
+                  "example": "deals.deal"
                 },
                 "settings": {
                   "type": "object"
@@ -106389,7 +106783,7 @@
                 },
                 "record_type": {
                   "type": "string",
-                  "example": "contact"
+                  "example": "contacts.contact"
                 },
                 "updated_at": {
                   "type": "string",
@@ -106780,7 +107174,7 @@
                 },
                 "record_type": {
                   "type": "string",
-                  "example": "contact"
+                  "example": "contacts.contact"
                 },
                 "subtitle": {
                   "type": [
@@ -106793,6 +107187,22 @@
                 }
               }
             }
+          },
+          "meta": {
+            "$ref": "#/components/schemas/PageMeta"
+          }
+        }
+      },
+      "Page_Value": {
+        "type": "object",
+        "required": [
+          "data",
+          "meta"
+        ],
+        "properties": {
+          "data": {
+            "type": "array",
+            "items": {}
           },
           "meta": {
             "$ref": "#/components/schemas/PageMeta"
@@ -108896,7 +109306,7 @@
           },
           "record_type": {
             "type": "string",
-            "example": "contact"
+            "example": "contacts.contact"
           },
           "title": {
             "type": "string"
@@ -109747,7 +110157,7 @@
           },
           "resource": {
             "type": "string",
-            "example": "deal"
+            "example": "deals.deal"
           },
           "type": {
             "type": "string",
@@ -111241,7 +111651,7 @@
           },
           "record_type": {
             "type": "string",
-            "example": "contact"
+            "example": "contacts.contact"
           }
         },
         "additionalProperties": false
@@ -111258,7 +111668,7 @@
           },
           "record_type": {
             "type": "string",
-            "example": "contact"
+            "example": "contacts.contact"
           }
         }
       },
@@ -111274,7 +111684,7 @@
           },
           "record_type": {
             "type": "string",
-            "example": "contact"
+            "example": "contacts.contact"
           }
         }
       },
@@ -111372,7 +111782,7 @@
           },
           "record_type": {
             "type": "string",
-            "example": "deal"
+            "example": "deals.deal"
           },
           "shared_by": {
             "oneOf": [
@@ -111610,7 +112020,7 @@
           },
           "relationship": {
             "type": "string",
-            "example": "company"
+            "example": "companies.company"
           }
         }
       },
@@ -111626,7 +112036,7 @@
           },
           "record_type": {
             "type": "string",
-            "example": "co_contract"
+            "example": "custom.contract"
           },
           "title": {
             "type": [
@@ -111674,7 +112084,7 @@
           },
           "target_type": {
             "type": "string",
-            "example": "co_contract"
+            "example": "custom.contract"
           },
           "total": {
             "type": [
@@ -111738,14 +112148,14 @@
           },
           "from_type": {
             "type": "string",
-            "example": "company"
+            "example": "companies.company"
           },
           "id": {
             "type": "string"
           },
           "inverse_key": {
             "type": "string",
-            "example": "company"
+            "example": "companies.company"
           },
           "key": {
             "type": "string",
@@ -111771,7 +112181,7 @@
           },
           "to_type": {
             "type": "string",
-            "example": "co_contract"
+            "example": "custom.contract"
           },
           "updated_at": {
             "type": "string",
@@ -112114,7 +112524,7 @@
           },
           "record_type": {
             "type": "string",
-            "example": "deal"
+            "example": "deals.deal"
           }
         }
       },
@@ -112276,7 +112686,7 @@
           },
           "record_type": {
             "type": "string",
-            "example": "deal"
+            "example": "deals.deal"
           },
           "settings": {
             "type": "object"
@@ -113538,7 +113948,7 @@
           },
           "record_type": {
             "type": "string",
-            "example": "contact"
+            "example": "contacts.contact"
           },
           "updated_at": {
             "type": "string",
@@ -113584,7 +113994,7 @@
           },
           "record_type": {
             "type": "string",
-            "example": "contact"
+            "example": "contacts.contact"
           },
           "total": {
             "type": "integer",
@@ -113607,7 +114017,7 @@
           },
           "record_type": {
             "type": "string",
-            "example": "contact"
+            "example": "contacts.contact"
           },
           "score": {
             "type": "number",
@@ -113843,7 +114253,7 @@
           },
           "record_type": {
             "type": "string",
-            "example": "contact"
+            "example": "contacts.contact"
           },
           "updated_at": {
             "type": "string",
@@ -114970,7 +115380,7 @@
           },
           "record_type": {
             "type": "string",
-            "example": "contact"
+            "example": "contacts.contact"
           },
           "selection": {
             "$ref": "#/components/schemas/BulkSelectionRequest"
@@ -115318,7 +115728,7 @@
           },
           "record_type": {
             "type": "string",
-            "example": "contact"
+            "example": "contacts.contact"
           },
           "subtitle": {
             "type": [
@@ -116096,7 +116506,7 @@
           },
           "record_type": {
             "type": "string",
-            "example": "contact"
+            "example": "contacts.contact"
           },
           "subtitle": {
             "type": [
@@ -116142,7 +116552,7 @@
           },
           "record_type": {
             "type": "string",
-            "example": "contact"
+            "example": "contacts.contact"
           }
         }
       },
@@ -116700,7 +117110,7 @@
         "properties": {
           "record_type": {
             "type": "string",
-            "example": "contact"
+            "example": "contacts.contact"
           },
           "rules": {
             "type": "object",
@@ -118013,7 +118423,7 @@
               "string",
               "null"
             ],
-            "example": "contact"
+            "example": "contacts.contact"
           }
         }
       },
@@ -118083,7 +118493,7 @@
           },
           "record_type": {
             "type": "string",
-            "example": "deal"
+            "example": "deals.deal"
           }
         }
       },
@@ -118168,7 +118578,7 @@
           },
           "record_type": {
             "type": "string",
-            "example": "deal"
+            "example": "deals.deal"
           },
           "updated_at": {
             "type": "string",
@@ -118938,7 +119348,7 @@
     },
     {
       "name": "custom-objects",
-      "description": "Custom objects of the organization (record types `co_<key>` with their own fields, permissions and relationships)"
+      "description": "Custom objects of the organization (record types `custom.<key>` with their own fields, permissions and relationships)"
     },
     {
       "name": "objects",

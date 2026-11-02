@@ -19,7 +19,6 @@ pub const FORMULAS_RECALCULATE_JOB: &str = "formulas.recalculate";
 pub const FORMULAS_DAILY_JOB: &str = "formulas.daily";
 pub const FORMULAS_DAILY_CRON: &str = "0 5 * * * *";
 
-const CUSTOM_RECORD_PREFIX: &str = "co_";
 const FIELD_EVENTS: [&str; 3] = ["field.created", "field.updated", "field.activated"];
 const LINK_EVENTS: [&str; 2] = ["record.linked", "record.unlinked"];
 
@@ -29,10 +28,10 @@ pub fn formulas_daily_schedule() -> ScheduledJobDefinition {
 }
 
 fn is_record_event(event_type: &str) -> bool {
-    let Some((record_type, _)) = event_type.split_once('.') else {
+    let Some((record_type, _)) = event_type.rsplit_once('.') else {
         return false;
     };
-    if record_type.starts_with(CUSTOM_RECORD_PREFIX) {
+    if crate::domain::custom_objects::is_custom_record_type(record_type) {
         return true;
     }
     let Ok(record_type) = RecordType::parse(record_type) else {

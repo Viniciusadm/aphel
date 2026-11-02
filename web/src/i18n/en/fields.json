@@ -9,7 +9,25 @@
     "deal": "Deals",
     "activity": "Activities",
     "product": "Products",
-    "quote": "Quotes"
+    "quote": "Quotes",
+    "contacts": {
+      "contact": "Contacts"
+    },
+    "companies": {
+      "company": "Companies"
+    },
+    "deals": {
+      "deal": "Deals"
+    },
+    "activities": {
+      "activity": "Activities"
+    },
+    "products": {
+      "product": "Products"
+    },
+    "quotes": {
+      "quote": "Quotes"
+    }
   },
   "types": {
     "text": "Text",

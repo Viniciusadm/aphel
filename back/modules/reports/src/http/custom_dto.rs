@@ -115,7 +115,7 @@ fn active() -> bool {
 #[derive(Debug, Default, Deserialize, IntoParams)]
 #[into_params(parameter_in = Query)]
 pub(crate) struct ListReportsParams {
-    #[param(example = "deal")]
+    #[param(example = "deals.deal")]
     pub(crate) record_type: Option<String>,
 }
 
@@ -192,7 +192,7 @@ impl UpdateReportRequest {
 #[derive(Debug, Serialize, ToSchema)]
 pub(crate) struct ReportResponse {
     pub(crate) id: String,
-    #[schema(example = "deal")]
+    #[schema(example = "deals.deal")]
     pub(crate) record_type: String,
     pub(crate) name: String,
     pub(crate) description: Option<String>,

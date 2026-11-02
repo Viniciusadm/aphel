@@ -5,12 +5,12 @@ import {
 } from "@/features/custom-records";
 
 const RECORD_PATHS: Record<string, string> = {
-  contact: "/contacts",
-  company: "/companies",
-  deal: "/deals",
-  activity: "/tasks",
-  product: "/products",
-  quote: "/quotes",
+  'contacts.contact': "/contacts",
+  'companies.company': "/companies",
+  'deals.deal': "/deals",
+  'activities.activity': "/tasks",
+  'products.product': "/products",
+  'quotes.quote': "/quotes",
 };
 
 export function recordPath(

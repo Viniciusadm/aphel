@@ -64,7 +64,7 @@ pub(crate) struct MigrationColumnResponse {
 pub(crate) struct MigrationStepResponse {
     #[schema(example = "deals")]
     pub(crate) key: String,
-    #[schema(example = "deal")]
+    #[schema(example = "deals.deal")]
     pub(crate) record_type: String,
     #[schema(example = "import")]
     pub(crate) kind: String,

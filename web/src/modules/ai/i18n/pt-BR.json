@@ -96,7 +96,22 @@
       "company": "empresa(s)",
       "deal": "oportunidade(s)",
       "note": "nota(s)",
-      "activity": "atividade(s)"
+      "activity": "atividade(s)",
+      "contacts": {
+        "contact": "contato(s)"
+      },
+      "companies": {
+        "company": "empresa(s)"
+      },
+      "deals": {
+        "deal": "oportunidade(s)"
+      },
+      "activities": {
+        "activity": "atividade(s)"
+      },
+      "notes": {
+        "note": "nota(s)"
+      }
     }
   },
   "footer": {

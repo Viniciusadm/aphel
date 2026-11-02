@@ -11,7 +11,7 @@ use crate::{
 use aphel_kernel::application::custom_objects::{
     TITLE_FIELD as CUSTOM_TITLE_FIELD, resolve_relation,
 };
-use aphel_kernel::application::fields::{FieldSet, RecordTypeDefinition, RecordTypeRegistry};
+use aphel_kernel::application::fields::{EntityDefinition, FieldSet, RecordTypeRegistry};
 use aphel_kernel::domain::custom_objects::RelationSide;
 use aphel_kernel::domain::fields::FieldType;
 use aphel_kernel::domain::fields::{normalize_email, normalize_phone};
@@ -306,7 +306,7 @@ fn split_labels(cell: &str) -> Vec<&str> {
 
 pub(super) fn duplicate_value(
     key: DuplicateKey,
-    definition: &RecordTypeDefinition,
+    definition: &EntityDefinition,
     values: &RecordValues,
 ) -> Option<String> {
     let mut fields: Vec<String> = key

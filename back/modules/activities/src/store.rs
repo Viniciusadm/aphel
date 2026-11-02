@@ -27,17 +27,41 @@ use aphel_kernel::infrastructure::fields::mysql_definitions::uuid_column;
 use aphel_kernel::infrastructure::query::compiler::push_record_scope;
 use aphel_kernel::infrastructure::repositories::mapper::{self, user_reference};
 
-pub fn record_title_sql(alias: &str) -> String {
-    format!(
-        "CASE {alias}.record_type \
-         WHEN 'contact' THEN (SELECT tc.full_name FROM contacts tc WHERE tc.id = {alias}.record_id) \
-         WHEN 'company' THEN (SELECT tco.name FROM companies tco WHERE tco.id = {alias}.record_id) \
-         WHEN 'deal' THEN (SELECT td.title FROM deals td WHERE td.id = {alias}.record_id) \
-         ELSE NULL END"
-    )
+pub fn record_title_sql(alias: &str, registry: &RecordTypeRegistry) -> String {
+    let mut expression = format!("CASE {alias}.record_type");
+    let mut count = 0;
+    for entity in registry.definitions() {
+        let Some(title) = entity
+            .title_field
+            .as_deref()
+            .and_then(|key| entity.system_field_by_key(key))
+        else {
+            continue;
+        };
+        if !title.is_available() {
+            continue;
+        }
+        count += 1;
+        expression.push_str(&format!(" WHEN '{}' THEN (SELECT {} FROM `{}` title_record WHERE title_record.id = {alias}.record_id", entity.record_type.as_str(), aphel_kernel::infrastructure::query::computed::system_expression(title, "title_record"), entity.table));
+        if let Some(column) = &entity.deleted_column {
+            expression.push_str(&format!(" AND title_record.`{column}` IS NULL"));
+        }
+        if let Some(partition) = &entity.partition {
+            expression.push_str(&format!(
+                " AND title_record.`{}` = '{}'",
+                partition.column, partition.value
+            ));
+        }
+        expression.push(')');
+    }
+    if count == 0 {
+        return "NULL".to_owned();
+    }
+    expression.push_str(" ELSE NULL END");
+    expression
 }
 
-pub fn activity_select(alias: &str) -> String {
+pub fn activity_select(alias: &str, registry: &RecordTypeRegistry) -> String {
     format!(
         "SELECT {alias}.id, {alias}.title, {alias}.activity_type_id, t.`key` AS type_key, t.name AS type_name, \
          t.icon AS type_icon, t.color AS type_color, {alias}.status, {alias}.priority, {alias}.due_at, \
@@ -57,7 +81,7 @@ pub fn activity_select(alias: &str) -> String {
          LEFT JOIN activity_recurrences rr ON rr.id = {alias}.recurrence_id \
          LEFT JOIN users ou ON ou.id = {alias}.owner_id \
          LEFT JOIN users cu ON cu.id = {alias}.created_by ",
-        title = record_title_sql(alias),
+        title = record_title_sql(alias, registry),
     )
 }
 
@@ -225,7 +249,7 @@ impl ActivityStore {
         let mut builder = QueryBuilder::<MySql>::new(format!(
             "SELECT l.activity_id, l.record_type, l.record_id, {} AS record_title \
              FROM activity_links l WHERE ",
-            record_title_sql("l")
+            record_title_sql("l", &self.registry)
         ));
         builder.push("l.activity_id IN (");
         let mut separated = builder.separated(", ");
@@ -422,7 +446,7 @@ impl ActivityStore {
         if ids.is_empty() {
             return Ok(Vec::new());
         }
-        let mut builder = QueryBuilder::<MySql>::new(activity_select("a"));
+        let mut builder = QueryBuilder::<MySql>::new(activity_select("a", &self.registry));
         builder
             .push("WHERE ")
             .push("a.deleted_at IS NULL AND a.id IN (");
@@ -503,7 +527,7 @@ impl ActivityStore {
              SELECT a.id AS activity_id, a.record_id AS deal_id, 0 AS position FROM activities a \
              WHERE ",
         );
-        builder.push("a.record_type = 'deal' AND a.id IN (");
+        builder.push("a.record_type = 'deals.deal' AND a.id IN (");
         let mut separated = builder.separated(", ");
         for id in ids {
             separated.push_bind(id.to_string());
@@ -512,7 +536,7 @@ impl ActivityStore {
             ") UNION ALL SELECT l.activity_id, l.record_id AS deal_id, 1 AS position FROM activity_links l \
              WHERE ",
         );
-        builder.push("l.record_type = 'deal' AND l.activity_id IN (");
+        builder.push("l.record_type = 'deals.deal' AND l.activity_id IN (");
         let mut separated = builder.separated(", ");
         for id in ids {
             separated.push_bind(id.to_string());

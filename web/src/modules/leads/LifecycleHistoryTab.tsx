@@ -108,7 +108,7 @@ export function LifecycleHistoryTab({ recordType, recordId }: LifecycleHistoryTa
 }
 
 function isLifecycleRecordType(recordType: string): recordType is LifecycleRecordType {
-  return recordType === 'contact' || recordType === 'company'
+  return recordType === 'contacts.contact' || recordType === 'companies.company'
 }
 
 export function LifecycleRecordTab({ recordType, recordId }: RecordTabRenderProps) {

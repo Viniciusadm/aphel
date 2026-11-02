@@ -43,7 +43,25 @@
     "deal": "Oportunidades",
     "product": "Produtos",
     "activity": "Atividades",
-    "quote": "Cotações"
+    "quote": "Cotações",
+    "contacts": {
+      "contact": "Contatos"
+    },
+    "companies": {
+      "company": "Empresas"
+    },
+    "deals": {
+      "deal": "Oportunidades"
+    },
+    "activities": {
+      "activity": "Atividades"
+    },
+    "products": {
+      "product": "Produtos"
+    },
+    "quotes": {
+      "quote": "Cotações"
+    }
   },
   "placeholders": {
     "retention": "Ex.: 30"

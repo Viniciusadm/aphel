@@ -42,7 +42,7 @@ impl DemoStore {
     }
 }
 
-const NOTE_TYPE: &str = "note";
+const NOTE_TYPE: &str = "notes.note";
 
 fn record_table(record_type: &RecordType) -> Option<String> {
     if record_type.as_str() == NOTE_TYPE {
@@ -85,11 +85,11 @@ const MODULE_CLEANUP_BEFORE_RECORDS: [(&str, &str); 6] = [
     ("approval_requests", TRACKED_RECORDS),
     ("approval_policies", "approval_policy"),
     ("validation_rules", "validation_rule"),
-    ("quotes", "quote"),
+    ("quotes", "quotes.quote"),
     ("price_lists", "price_list"),
     ("exchange_rates", "exchange_rate"),
 ];
-const MODULE_CLEANUP_AFTER_RECORDS: [(&str, &str); 1] = [("products", "product")];
+const MODULE_CLEANUP_AFTER_RECORDS: [(&str, &str); 1] = [("products", "products.product")];
 
 async fn table_exists(tx: &mut MySqlTx, table: &str) -> Result<bool, AppError> {
     let found: Option<i64> = sqlx::query_scalar(
@@ -312,7 +312,7 @@ impl DemoStore {
             ),
             format!(
                 "DELETE FROM notes WHERE id IN {} OR (record_type, record_id) IN {tracked}",
-                tracked_of("note")
+                tracked_of("notes.note")
             ),
             format!("DELETE FROM activity_links WHERE (record_type, record_id) IN {tracked}"),
             format!(
@@ -320,13 +320,16 @@ impl DemoStore {
             ),
             format!(
                 "DELETE FROM activities WHERE id IN {}",
-                tracked_of("activity")
+                tracked_of("activities.activity")
             ),
-            format!("DELETE FROM deals WHERE id IN {}", tracked_of("deal")),
-            format!("DELETE FROM contacts WHERE id IN {}", tracked_of("contact")),
+            format!("DELETE FROM deals WHERE id IN {}", tracked_of("deals.deal")),
+            format!(
+                "DELETE FROM contacts WHERE id IN {}",
+                tracked_of("contacts.contact")
+            ),
             format!(
                 "DELETE FROM companies WHERE id IN {}",
-                tracked_of("company")
+                tracked_of("companies.company")
             ),
             format!(
                 "DELETE FROM field_definitions WHERE id IN {}",

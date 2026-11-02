@@ -28,7 +28,7 @@ config/items/lost_reason.jsonl
 config/items/tag.jsonl
 config/items/activity_type.jsonl
 members.jsonl
-records/<type>.jsonl              one per record type (company, contact, deal, activity, product, co_<key>, types from other modules)
+records/<type>.jsonl              one per record type (company, contact, deal, activity, product, custom.<key>, types from other modules)
 relations/contact_companies.jsonl
 relations/deal_contacts.jsonl
 relations/record_relations.jsonl
@@ -58,7 +58,7 @@ files/blobs/<file_id>             binary content of each attachment
   "organization": { "name": "Demo", "locale": "pt-BR", "timezone": "America/Sao_Paulo", "currency": "BRL" },
   "include_files": true,
   "counts": {
-    "records": { "company": 20, "contact": 60, "deal": 40, "activity": 70, "product": 0, "co_imovel": 3 },
+    "records": { "company": 20, "contact": 60, "deal": 40, "activity": 70, "product": 0, "custom.imovel": 3 },
     "datasets": { "notes": 25, "attachments": 3, "taggings": 6, "…": 0 },
     "members": 2, "files": 3, "file_bytes": 6212, "missing_files": 0, "archive_bytes": 0
   },
@@ -86,7 +86,7 @@ Each line:
 
 - `row` carries **all the columns** of the type's table, including archived and deleted (trash) records, so the restore reproduces the complete state. Dates and times in UTC (`YYYY-MM-DDTHH:MM:SS.ffffffZ`), dates without time as `YYYY-MM-DD`, money and decimals as text (`"15000.00"`), booleans as `0`/`1`, JSON as JSON.
 - `custom_fields` uses the field's **stable key** (`fields[].key` from the configuration package); select comes as the option's `value`, multi-select as a list, user as the user id and related record as the record id.
-- Custom object types appear as `co_<key>` (table `custom_records`); the title also appears in `custom_fields.name`.
+- Custom object types appear as `custom.<key>` (table `custom_records`); the title also appears in `custom_fields.name`.
 - References to users (`owner_id`, `created_by`, `author_id`…) are ids from the source installation; `members.jsonl` contains each of them.
 
 ### Configuration (`config/`)

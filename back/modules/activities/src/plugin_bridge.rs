@@ -58,9 +58,13 @@ pub(crate) async fn completing(
     ctx: &mut HookCtx<'_>,
     completing: &CompletingActivity,
 ) -> Result<(), AppError> {
-    forward_plugin_hook(ctx, COMPLETING, "activity", completing.id, || {
-        completing_json(completing)
-    })
+    forward_plugin_hook(
+        ctx,
+        COMPLETING,
+        "activities.activity",
+        completing.id,
+        || completing_json(completing),
+    )
     .await
     .map(drop)
 }
@@ -68,7 +72,7 @@ pub(crate) async fn completing(
 pub(crate) fn hooks() -> Vec<Arc<PluginHook>> {
     vec![Arc::new(PluginHook::new(
         COMPLETING,
-        "activity",
+        "activities.activity",
         PluginHookKind::Veto,
         "Before an activity is completed; values: { activity, previous, type_key }. An error blocks it",
     ))]

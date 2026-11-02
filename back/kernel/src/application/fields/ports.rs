@@ -7,7 +7,7 @@ use uuid::Uuid;
 use crate::application::custom_objects::RecordLinkRepository;
 use crate::application::fields::permissions::FieldAccessRule;
 use crate::application::fields::{
-    ConditionalRules, RecordPipeline, RecordTypeDefinition, RecordTypeRegistry,
+    ConditionalRules, EntityDefinition, RecordPipeline, RecordTypeRegistry,
 };
 use crate::application::security::Clock;
 use crate::application::shared::{
@@ -75,7 +75,7 @@ pub trait CustomFieldValueRepository: Send + Sync {
 
     async fn record_timestamp(
         &self,
-        _definition: &RecordTypeDefinition,
+        _definition: &EntityDefinition,
         _column: &str,
         _record_id: Uuid,
     ) -> Result<Option<DateTime<Utc>>, AppError> {
@@ -105,20 +105,20 @@ pub trait CustomFieldValueRepository: Send + Sync {
     async fn is_taken(
         &self,
         tx: &mut Self::Tx,
-        definition: &RecordTypeDefinition,
+        definition: &EntityDefinition,
         record: &RecordRef,
         field: &FieldDefinition,
         value: &FieldValue,
     ) -> Result<bool, AppError>;
     async fn has_duplicates(
         &self,
-        definition: &RecordTypeDefinition,
+        definition: &EntityDefinition,
         field: &FieldDefinition,
     ) -> Result<bool, AppError>;
     async fn reserve_unique(
         &self,
         _tx: &mut Self::Tx,
-        _definition: &RecordTypeDefinition,
+        _definition: &EntityDefinition,
         _record: &RecordRef,
         _field: &FieldDefinition,
     ) -> Result<(), AppError> {
@@ -136,7 +136,7 @@ pub trait CustomFieldValueRepository: Send + Sync {
         &self,
         _tx: &mut Self::Tx,
         _scope: &AccessScope,
-        _target: &RecordTypeDefinition,
+        _target: &EntityDefinition,
         _visibility: &RecordScopeFilter,
         _record_ids: &[Uuid],
     ) -> Result<Option<Vec<Uuid>>, AppError> {
@@ -145,7 +145,7 @@ pub trait CustomFieldValueRepository: Send + Sync {
     async fn rebuild_unique(
         &self,
         _tx: &mut Self::Tx,
-        _definition: &RecordTypeDefinition,
+        _definition: &EntityDefinition,
         _field: &FieldDefinition,
     ) -> Result<(), AppError> {
         Ok(())
@@ -158,7 +158,7 @@ pub trait ReferenceChecker: Send + Sync {
     async fn existing_records(
         &self,
         scope: &AccessScope,
-        target: &RecordTypeDefinition,
+        target: &EntityDefinition,
         visibility: &RecordScopeFilter,
         record_ids: &[Uuid],
     ) -> Result<Vec<Uuid>, AppError>;

@@ -40,6 +40,12 @@ impl Module for LeadDistributionModule {
     }
 
     fn register(&self, app: &mut AppBuilder) -> Result<(), AppError> {
+        app.contribute(std::sync::Arc::new(
+            aphel_kernel::application::fields::EntityKeyAliases(&[(
+                "lead_distribution_rule",
+                "lead_distribution.lead_distribution_rule",
+            )]),
+        ));
         app.openapi_tag(
             http::TAG,
             "Automatic lead distribution rules (round robin, weighted, least loaded, routing by field), their simulation and the rotation state used by automations, incoming webhooks and imports",

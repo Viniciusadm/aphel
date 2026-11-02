@@ -17,7 +17,7 @@ use crate::service::erasure::erased_event;
 use crate::service::{Mutation, definition, publish, remove_stored_files, require_privacy};
 use crate::store::{PrivacyStore, RetentionStore};
 use aphel_kernel::Ctx;
-use aphel_kernel::application::fields::{CustomFieldWriter, RecordTypeDefinition};
+use aphel_kernel::application::fields::{CustomFieldWriter, EntityDefinition};
 use aphel_kernel::application::files::UserReference;
 use aphel_kernel::application::organization_admin::{ListWindow, Listing};
 use aphel_kernel::application::shared::{
@@ -168,7 +168,7 @@ async fn require_policy(ctx: &Ctx<'_>, policy_id: Uuid) -> Result<RetentionPolic
 fn policy_definition(
     ctx: &Ctx<'_>,
     policy_record_type: Option<&str>,
-) -> Result<Option<RecordTypeDefinition>, AppError> {
+) -> Result<Option<EntityDefinition>, AppError> {
     policy_record_type
         .map(|record_type| definition(ctx, record_type))
         .transpose()
@@ -685,7 +685,7 @@ async fn apply_policy(
 
 async fn archive_for_retention(
     ctx: &Ctx<'_>,
-    definition: &RecordTypeDefinition,
+    definition: &EntityDefinition,
     record_id: Uuid,
     title: &str,
     run: &RetentionRun,
@@ -728,7 +728,7 @@ async fn archive_for_retention(
 async fn purge_for_retention(
     ctx: &Ctx<'_>,
     storage: &dyn FileStorage,
-    definition: &RecordTypeDefinition,
+    definition: &EntityDefinition,
     record_id: Uuid,
     run: &RetentionRun,
 ) -> Result<(bool, u64), AppError> {

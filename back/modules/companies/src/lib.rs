@@ -15,7 +15,7 @@ use aphel_kernel::modules::Migration;
 
 use aphel_kernel::application::fields::builtin::{field, record_field, timestamps, with_fields};
 use aphel_kernel::application::fields::{
-    EntityTraits, LabelNormalization, RecordRelation, RecordTypeDefinition,
+    EntityDefinition, EntityTraits, LabelNormalization, RecordRelation,
 };
 use aphel_kernel::application::public_events::{
     PreviousValues, PublicEventDefinition, PublicResource, changed, deleted, event,
@@ -27,7 +27,8 @@ use aphel_kernel::errors::AppError;
 use aphel_kernel::modules::builder::APHEL_VERSION;
 use aphel_kernel::modules::{AppBuilder, Manifest, Module};
 
-pub const COMPANY_RESOURCE: PublicResource = PublicResource::new("company", "CompanyResponse");
+pub const COMPANY_RESOURCE: PublicResource =
+    PublicResource::new("companies.company", "CompanyResponse");
 
 pub const KEY: &str = "companies";
 
@@ -85,6 +86,7 @@ const PUBLIC_EVENTS: &[PublicEventDefinition] = &[
 
 pub(crate) fn company_capabilities() -> EntityTraits {
     EntityTraits::default()
+        .with_trait("scoring.subject")
         .relatable()
         .importable()
         .exportable()
@@ -102,9 +104,9 @@ pub(crate) fn company_capabilities() -> EntityTraits {
         .restore_order(0)
 }
 
-pub(crate) fn company_definition() -> Result<RecordTypeDefinition, AppError> {
+pub(crate) fn company_definition() -> Result<EntityDefinition, AppError> {
     let definition =
-        RecordTypeDefinition::new(RecordType::COMPANY, "companies", Permission::COMPANIES_READ)
+        EntityDefinition::new(RecordType::COMPANY, "companies", Permission::COMPANIES_READ)
             .capabilities(company_capabilities())
             .update_permission(Permission::COMPANIES_UPDATE)
             .title_field("name")
@@ -198,6 +200,12 @@ impl Module for CompaniesModule {
     }
 
     fn register(&self, app: &mut AppBuilder) -> Result<(), AppError> {
+        app.contribute(std::sync::Arc::new(
+            aphel_kernel::application::fields::EntityKeyAliases(&[(
+                "company",
+                "companies.company",
+            )]),
+        ));
         app.entity(company_definition()?.handler(Arc::new(http::CompanyHandler)))
             .openapi_tag(http::TAG, "Companies")
             .routes(|_| http::router().merge(hierarchy::http::router()))

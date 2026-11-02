@@ -48,6 +48,12 @@ impl Module for DealItemsModule {
     }
 
     fn register(&self, app: &mut AppBuilder) -> Result<(), AppError> {
+        app.contribute(std::sync::Arc::new(
+            aphel_kernel::application::fields::EntityKeyAliases(&[(
+                "deal_item_settings",
+                "deal_items.deal_item_settings",
+            )]),
+        ));
         let revenue_fields = [
             field("mrr", crate::labels("MRR"), FieldType::Currency)?,
             field("arr", crate::labels("ARR"), FieldType::Currency)?,
@@ -67,7 +73,7 @@ impl Module for DealItemsModule {
                 FieldType::Date,
             )?,
         ];
-        app.extend("deal", |deal| {
+        app.extend("deals.deal", |deal| {
             for revenue_field in revenue_fields {
                 deal.system_field(revenue_field);
             }

@@ -58,7 +58,7 @@ impl From<RecordSummary> for DuplicateRecordSummaryResponse {
 #[derive(Debug, Serialize, ToSchema)]
 pub(crate) struct DuplicateCandidateResponse {
     pub(crate) id: String,
-    #[schema(example = "contact")]
+    #[schema(example = "contacts.contact")]
     pub(crate) record_type: String,
     pub(crate) record: DuplicateRecordSummaryResponse,
     pub(crate) duplicate: DuplicateRecordSummaryResponse,
@@ -88,7 +88,7 @@ impl From<CandidateView> for DuplicateCandidateResponse {
 #[derive(Debug, Deserialize, IntoParams)]
 #[into_params(parameter_in = Query)]
 pub(crate) struct DuplicateListParams {
-    #[param(example = "contact")]
+    #[param(example = "contacts.contact")]
     pub(crate) record_type: Option<String>,
     #[param(example = "pending")]
     pub(crate) status: Option<String>,
@@ -106,7 +106,7 @@ impl From<DuplicateListParams> for CandidateQuery {
 #[derive(Debug, Deserialize, IntoParams)]
 #[into_params(parameter_in = Query)]
 pub(crate) struct DuplicateRulesParams {
-    #[param(example = "contact")]
+    #[param(example = "contacts.contact")]
     pub(crate) record_type: String,
 }
 
@@ -140,7 +140,7 @@ impl DuplicateRulesResponse {
 
 #[derive(Debug, Deserialize, ToSchema)]
 pub(crate) struct UpdateDuplicateRulesRequest {
-    #[schema(example = "contact")]
+    #[schema(example = "contacts.contact")]
     pub(crate) record_type: String,
     #[schema(example = json!({ "email": true, "phone": false }))]
     pub(crate) rules: BTreeMap<String, bool>,
@@ -148,7 +148,7 @@ pub(crate) struct UpdateDuplicateRulesRequest {
 
 #[derive(Debug, Default, Deserialize, ToSchema)]
 pub(crate) struct DuplicateCheckRequest {
-    #[schema(example = "contact")]
+    #[schema(example = "contacts.contact")]
     pub(crate) record_type: String,
     pub(crate) exclude_id: Option<String>,
     pub(crate) name: Option<String>,
@@ -186,7 +186,7 @@ impl From<DuplicateCheckRequest> for DuplicateProbeInput {
 
 #[derive(Debug, Deserialize, ToSchema)]
 pub(crate) struct MergeRequest {
-    #[schema(example = "contact")]
+    #[schema(example = "contacts.contact")]
     pub(crate) record_type: String,
     pub(crate) primary_id: String,
     pub(crate) duplicate_id: String,
@@ -244,7 +244,7 @@ pub(crate) struct DuplicateTypePermissionsResponse {
 
 #[derive(Debug, Serialize, ToSchema)]
 pub(crate) struct DuplicateTypeResponse {
-    #[schema(example = "contact")]
+    #[schema(example = "contacts.contact")]
     pub(crate) record_type: String,
     pub(crate) label: Option<String>,
     pub(crate) custom: bool,

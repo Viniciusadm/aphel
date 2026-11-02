@@ -132,32 +132,32 @@ pub const fn deleted(
     }
 }
 
-pub const CUSTOM_EVENT_PATTERN_PREFIX: &str = "co_<key>";
+pub const CUSTOM_EVENT_PATTERN_PREFIX: &str = "custom.<key>";
 
 const CUSTOM_CATALOG: &[PublicEventDefinition] = &[
     event(
-        "co_<key>.created",
+        "custom.<key>.created",
         PublicResource::CUSTOM_RECORD,
         "A record of a custom object was created",
     ),
     changed(
-        "co_<key>.updated",
+        "custom.<key>.updated",
         PublicResource::CUSTOM_RECORD,
         "Fields of a record of a custom object changed",
         PreviousValues::Changes,
     ),
     deleted(
-        "co_<key>.deleted",
+        "custom.<key>.deleted",
         PublicResource::CUSTOM_RECORD,
         "A record of a custom object was deleted",
     ),
     event(
-        "co_<key>.archived",
+        "custom.<key>.archived",
         PublicResource::CUSTOM_RECORD,
         "A record of a custom object was archived",
     ),
     event(
-        "co_<key>.unarchived",
+        "custom.<key>.unarchived",
         PublicResource::CUSTOM_RECORD,
         "A record of a custom object was unarchived",
     ),
@@ -182,7 +182,7 @@ pub fn custom_public_events() -> &'static [PublicEventDefinition] {
 
 pub fn custom_event_record_type(event_type: &str) -> Option<&str> {
     event_type
-        .split_once('.')
+        .rsplit_once('.')
         .map(|(prefix, _)| prefix)
         .filter(|prefix| is_custom_record_type(prefix))
 }
@@ -193,12 +193,12 @@ pub fn find_public_event(event_type: &str) -> Option<PublicEventDefinition> {
     {
         return Some(definition);
     }
-    let (_, action) = event_type.split_once('.')?;
+    let (_, action) = event_type.rsplit_once('.')?;
     custom_event_record_type(event_type)?;
     CUSTOM_CATALOG.iter().copied().find(|definition| {
         definition
             .event_type
-            .split_once('.')
+            .rsplit_once('.')
             .is_some_and(|(_, candidate)| candidate == action)
     })
 }

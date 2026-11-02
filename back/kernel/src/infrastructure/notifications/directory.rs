@@ -7,7 +7,7 @@ use chrono_tz::Tz;
 use sqlx::{AssertSqlSafe, MySqlPool, Row};
 
 use crate::application::access::{AccessRepository, build_access_scope};
-use crate::application::fields::{RecordTypeDefinition, RecordTypeRegistry};
+use crate::application::fields::{EntityDefinition, RecordTypeRegistry};
 use crate::application::files::RecordAccessChecker;
 use crate::application::notifications::{
     DueTask, NotificationDirectory, Recipient, RecordFollowerSource, RecordSummary,
@@ -49,7 +49,7 @@ impl MySqlNotificationDirectory {
     }
 }
 
-fn summary_query(definition: &RecordTypeDefinition) -> Option<String> {
+fn summary_query(definition: &EntityDefinition) -> Option<String> {
     if !definition.capabilities.has_trait("notifications.subject") {
         return None;
     }

@@ -1,3 +1,4 @@
+use aphel_contract_crm::CrmPermissions;
 pub mod domain;
 pub(crate) mod guidance;
 pub(crate) mod hooks;
@@ -21,10 +22,10 @@ use aphel_kernel::modules::builder::APHEL_VERSION;
 use aphel_kernel::modules::{AppBuilder, Manifest, Module};
 use aphel_kernel::records::RecordValidating;
 
-const DEAL_RESOURCE: PublicResource = PublicResource::new("deal", "DealResponse");
+const DEAL_RESOURCE: PublicResource = PublicResource::new("deals.deal", "DealResponse");
 
 pub const KEY: &str = "pipelines";
-pub(crate) const DEAL_RECORD_TYPE: &str = "deal";
+pub(crate) const DEAL_RECORD_TYPE: &str = "deals.deal";
 pub(crate) const STAGE_REQUIREMENTS_PRIORITY: i32 = 5;
 pub(crate) const STAGE_CHECKLIST_PRIORITY: i32 = 20;
 
@@ -60,13 +61,94 @@ impl Module for PipelinesModule {
     }
 
     fn register(&self, app: &mut AppBuilder) -> Result<(), AppError> {
+        app.entity(aphel_kernel::application::fields::builtin::with_fields(
+            aphel_kernel::application::fields::EntityDefinition::new(
+                aphel_kernel::application::shared::RecordType::from_static("pipelines.pipeline"),
+                "pipelines",
+                aphel_kernel::domain::access::Permission::DEALS_READ,
+            )
+            .capabilities(
+                aphel_kernel::application::fields::EntityTraits::default()
+                    .with_trait("records.global"),
+            )
+            .title_field("name")
+            .system_field(aphel_kernel::application::fields::builtin::field(
+                "name",
+                "Name",
+                aphel_kernel::domain::fields::FieldType::Text,
+            )?)
+            .system_field(aphel_kernel::application::fields::builtin::field(
+                "is_active",
+                "Active",
+                aphel_kernel::domain::fields::FieldType::Checkbox,
+            )?),
+            aphel_kernel::application::fields::builtin::timestamps()?,
+        ));
+
+        app.entity(aphel_kernel::application::fields::builtin::with_fields(
+            aphel_kernel::application::fields::EntityDefinition::new(
+                aphel_kernel::application::shared::RecordType::from_static(
+                    "pipelines.pipeline_stage",
+                ),
+                "pipeline_stages",
+                aphel_kernel::domain::access::Permission::DEALS_READ,
+            )
+            .capabilities(
+                aphel_kernel::application::fields::EntityTraits::default()
+                    .with_trait("records.global"),
+            )
+            .title_field("name")
+            .system_field(aphel_kernel::application::fields::builtin::field(
+                "name",
+                "Name",
+                aphel_kernel::domain::fields::FieldType::Text,
+            )?)
+            .system_field(aphel_kernel::application::fields::builtin::field(
+                "is_active",
+                "Active",
+                aphel_kernel::domain::fields::FieldType::Checkbox,
+            )?),
+            aphel_kernel::application::fields::builtin::timestamps()?,
+        ));
+
+        app.entity(aphel_kernel::application::fields::builtin::with_fields(
+            aphel_kernel::application::fields::EntityDefinition::new(
+                aphel_kernel::application::shared::RecordType::from_static("pipelines.lost_reason"),
+                "lost_reasons",
+                aphel_kernel::domain::access::Permission::DEALS_READ,
+            )
+            .capabilities(
+                aphel_kernel::application::fields::EntityTraits::default()
+                    .with_trait("records.global"),
+            )
+            .title_field("name")
+            .system_field(aphel_kernel::application::fields::builtin::field(
+                "name",
+                "Name",
+                aphel_kernel::domain::fields::FieldType::Text,
+            )?)
+            .system_field(aphel_kernel::application::fields::builtin::field(
+                "is_active",
+                "Active",
+                aphel_kernel::domain::fields::FieldType::Checkbox,
+            )?),
+            aphel_kernel::application::fields::builtin::timestamps()?,
+        ));
+
+        app.contribute(std::sync::Arc::new(
+            aphel_kernel::application::fields::EntityKeyAliases(&[
+                ("lost_reason", "pipelines.lost_reason"),
+                ("pipeline", "pipelines.pipeline"),
+                ("pipeline_stage", "pipelines.pipeline_stage"),
+            ]),
+        ));
         app.contribute(std::sync::Arc::new(aphel_kernel::application::config_packages::versioning::fragments::NestedFragmentLayout {
             section: "pipelines", parent_kind: "pipeline", child_kind: "stage", children_field: "stages",
         }));
         for (record_type, table) in [
-            ("pipeline", "pipelines"),
-            ("pipeline_stage", "pipeline_stages"),
-            ("lost_reason", "lost_reasons"),
+            ("pipelines.pipeline", "pipelines"),
+            ("pipelines.pipeline_stage", "pipeline_stages"),
+            ("pipelines.lost_reason", "lost_reasons"),
         ] {
             app.contribute(std::sync::Arc::new(
                 aphel_kernel::infrastructure::query::aggregate::LookupTitleSource {

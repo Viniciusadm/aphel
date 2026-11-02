@@ -7,7 +7,7 @@ use uuid::Uuid;
 use crate::application::access::{Authorizer, PERMISSION_DENIED};
 use crate::application::audit::{DiffOptions, diff_changes};
 use crate::application::fields::permissions::{NOT_ACCESSIBLE_MESSAGE, query_error};
-use crate::application::fields::{FieldSet, RecordTypeDefinition};
+use crate::application::fields::{EntityDefinition, FieldSet};
 use crate::application::organization_admin::{ListWindow, Listing};
 use crate::application::query::{
     Filter, RelatedFieldSets, ResolveContext, SortSpec, load_related_sets,
@@ -345,7 +345,7 @@ where
         &self,
         scope: &AccessScope,
         record_type: &str,
-    ) -> Result<&RecordTypeDefinition, AppError> {
+    ) -> Result<&EntityDefinition, AppError> {
         let definition = self.ports.registry().require(record_type)?;
         scope.require(&definition.read_permission)?;
         Ok(definition)
@@ -354,7 +354,7 @@ where
     async fn require_view(
         &self,
         scope: &AccessScope,
-        definition: &RecordTypeDefinition,
+        definition: &EntityDefinition,
         view_id: &str,
     ) -> Result<SavedView, AppError> {
         Uuid::parse_str(view_id)
@@ -430,7 +430,7 @@ where
     async fn view_violations(
         &self,
         scope: &AccessScope,
-        definition: &RecordTypeDefinition,
+        definition: &EntityDefinition,
         view: &SavedView,
     ) -> Result<Vec<FieldViolation>, AppError> {
         let mut violations = Vec::new();

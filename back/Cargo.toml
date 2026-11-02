@@ -1,6 +1,6 @@
 [workspace]
 resolver = "3"
-members = ["kernel", "contract", "contracts/*", "sdk", "modules/*", "app", "xtask"]
+members = ["kernel", "contract", "contracts/*", "sdk", "modules/*", "plugins/*", "app", "xtask"]
 default-members = ["app"]
 
 [workspace.package]

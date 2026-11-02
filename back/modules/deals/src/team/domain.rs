@@ -31,7 +31,7 @@ pub(crate) const DEAL_MEMBER_UPDATED: &str = "deal.member_updated";
 pub(crate) const DEAL_MEMBER_REMOVED: &str = "deal.member_removed";
 
 pub(crate) const DEAL_MEMBER_ROLE_RECORD_TYPE: RecordType =
-    RecordType::from_static("deal_member_role");
+    RecordType::from_static("deals.deal_member_role");
 pub(crate) const DEAL_MEMBER_ROLE_CREATED: &str = "deal_member_role.created";
 pub(crate) const DEAL_MEMBER_ROLE_UPDATED: &str = "deal_member_role.updated";
 pub(crate) const DEAL_MEMBER_ROLE_DELETED: &str = "deal_member_role.deleted";

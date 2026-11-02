@@ -30,14 +30,14 @@ pub(crate) struct AiStatus {
 
 #[derive(Debug, Clone, Deserialize, ToSchema)]
 pub(crate) struct AiRecordRequest {
-    #[schema(example = "contact")]
+    #[schema(example = "contacts.contact")]
     pub(crate) record_type: String,
     pub(crate) record_id: String,
 }
 
 #[derive(Debug, Clone, Serialize, ToSchema)]
 pub(crate) struct AiSource {
-    #[schema(example = "note")]
+    #[schema(example = "notes.note")]
     pub(crate) record_type: String,
     pub(crate) record_id: String,
     pub(crate) label: Option<String>,
@@ -105,7 +105,7 @@ pub(crate) struct AiComposition {
 
 #[derive(Debug, Clone, Deserialize, ToSchema)]
 pub(crate) struct AiQueryRequest {
-    #[schema(example = "deal")]
+    #[schema(example = "deals.deal")]
     pub(crate) record_type: String,
     #[schema(example = "open deals above 10k with no activity in the last 30 days")]
     pub(crate) question: String,

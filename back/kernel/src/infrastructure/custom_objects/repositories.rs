@@ -11,14 +11,12 @@ use crate::application::custom_objects::{
     CustomObjectRepository, CustomRecordRepository, RecordLink, RecordLinkRepository,
     RelationshipRepository, record_has_relations,
 };
-use crate::application::fields::{RecordTypeDefinition, RecordTypeRegistry};
+use crate::application::fields::{EntityDefinition, RecordTypeRegistry};
 use crate::application::organization_admin::{ListWindow, Listing};
 use crate::application::shared::RecordRef;
 use crate::database::transaction::MySqlTx;
 use crate::domain::access::{AccessScope, RecordScope, RecordScopeFilter};
-use crate::domain::custom_objects::{
-    CustomObject, CustomRecord, OnDelete, RelationshipDefinition, is_custom_record_type,
-};
+use crate::domain::custom_objects::{CustomObject, CustomRecord, OnDelete, RelationshipDefinition};
 use crate::errors::AppError;
 use crate::infrastructure::custom_objects::rows::{
     OBJECT_COLUMNS, RELATIONSHIP_COLUMNS, object_from_row, relationship_from_row,
@@ -29,8 +27,6 @@ use crate::infrastructure::repositories::mapper;
 use crate::infrastructure::repositories::mapper::{
     instant, optional_instant, optional_user, push_ids,
 };
-
-const CUSTOM_RECORDS: &str = "custom_records";
 
 const RECORD_TYPE_TABLES: [&str; 8] = [
     "custom_field_multi_values",
@@ -127,8 +123,8 @@ impl CustomObjectRepository for MySqlCustomObjectRepository {
         sqlx::query(
             "INSERT INTO custom_objects (id, `key`, label_singular, label_plural, \
              description, icon, color, title_field_key, owner_enabled, is_active, position, \
-             module_key, is_internal, created_by, created_at, updated_at) \
-             VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)",
+             module_key, entity_definition, is_internal, created_by, created_at, updated_at) \
+             VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)",
         )
         .bind(object.id.to_string())
         .bind(&object.key)
@@ -142,6 +138,7 @@ impl CustomObjectRepository for MySqlCustomObjectRepository {
         .bind(object.data.is_active)
         .bind(object.position)
         .bind(&object.module_key)
+        .bind(object.entity_definition.as_ref().map(sqlx::types::Json))
         .bind(object.is_internal)
         .bind(
             object
@@ -269,7 +266,7 @@ impl CustomObjectRepository for MySqlCustomObjectRepository {
     async fn seed_system_fields(
         &self,
         tx: &mut Self::Tx,
-        definition: &RecordTypeDefinition,
+        definition: &EntityDefinition,
     ) -> Result<(), AppError> {
         let registry = RecordTypeRegistry::empty().register(definition.clone())?;
         seed_system_fields(tx, &registry).await
@@ -397,9 +394,6 @@ impl MySqlRecordLinkRepository {
     }
 
     fn table_of(&self, record_type: &str) -> Option<String> {
-        if is_custom_record_type(record_type) {
-            return Some(CUSTOM_RECORDS.to_owned());
-        }
         self.registry
             .require(record_type)
             .ok()
@@ -422,7 +416,7 @@ impl RecordLinkRepository for MySqlRecordLinkRepository {
     async fn linked_ids(
         &self,
         scope: &AccessScope,
-        target: &RecordTypeDefinition,
+        target: &EntityDefinition,
         visibility: &RecordScopeFilter,
         relationship_id: Uuid,
         inverse: bool,
@@ -597,7 +591,7 @@ impl RecordLinkRepository for MySqlRecordLinkRepository {
 
     async fn titles(
         &self,
-        definition: &RecordTypeDefinition,
+        definition: &EntityDefinition,
         record_ids: &[Uuid],
     ) -> Result<HashMap<Uuid, String>, AppError> {
         let Some(column) = definition.title_column() else {

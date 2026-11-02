@@ -12,7 +12,7 @@ use crate::mysql::sql::{
     unreferenced_file_predicate, user_reference, uuid_column,
 };
 use aphel_kernel::Ctx;
-use aphel_kernel::application::fields::{RecordTypeDefinition, is_sql_identifier};
+use aphel_kernel::application::fields::{EntityDefinition, is_sql_identifier};
 use aphel_kernel::application::organization_admin::{ListWindow, Listing};
 use aphel_kernel::database::transaction::MySqlTx;
 use aphel_kernel::errors::AppError;
@@ -73,7 +73,7 @@ fn run_from_row(row: &MySqlRow) -> Result<RetentionRun, AppError> {
 fn push_candidates(
     builder: &mut QueryBuilder<MySql>,
     action: RetentionAction,
-    definition: &RecordTypeDefinition,
+    definition: &EntityDefinition,
     threshold: DateTime<Utc>,
 ) -> Result<(), AppError> {
     let (Some(deleted), Some(archived)) = (
@@ -406,7 +406,7 @@ impl RetentionStore {
     pub(crate) async fn count_candidates(
         &self,
         action: RetentionAction,
-        definition: Option<&RecordTypeDefinition>,
+        definition: Option<&EntityDefinition>,
         threshold: DateTime<Utc>,
     ) -> Result<u64, AppError> {
         let count: i64 = match action {
@@ -448,7 +448,7 @@ impl RetentionStore {
     pub(crate) async fn record_candidates(
         &self,
         action: RetentionAction,
-        definition: &RecordTypeDefinition,
+        definition: &EntityDefinition,
         threshold: DateTime<Utc>,
         limit: u32,
     ) -> Result<Vec<(Uuid, String)>, AppError> {
@@ -473,7 +473,7 @@ impl RetentionStore {
     pub(crate) async fn archive_record(
         &self,
         tx: &mut MySqlTx,
-        definition: &RecordTypeDefinition,
+        definition: &EntityDefinition,
         record_id: Uuid,
         now: DateTime<Utc>,
     ) -> Result<bool, AppError> {

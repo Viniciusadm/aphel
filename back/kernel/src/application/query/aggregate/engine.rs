@@ -7,7 +7,7 @@ use rust_decimal::Decimal;
 
 use crate::application::access::Authorizer;
 use crate::application::fields::permissions::{NOT_ACCESSIBLE_MESSAGE, query_error};
-use crate::application::fields::{FieldSet, RecordTypeDefinition, ResolvedField};
+use crate::application::fields::{EntityDefinition, FieldSet, ResolvedField};
 use crate::application::organization_admin::ListWindow;
 use crate::application::query::{
     AggregateFieldInfo, AggregateFunction, AggregateGroupColumn, AggregateMetricColumn,
@@ -158,7 +158,7 @@ where
     async fn related_sets(
         &self,
         scope: &AccessScope,
-        definition: &RecordTypeDefinition,
+        definition: &EntityDefinition,
         keys: &BTreeSet<String>,
     ) -> Result<RelatedFieldSets, AppError> {
         load_related_sets(

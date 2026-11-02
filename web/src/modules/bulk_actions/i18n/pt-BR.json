@@ -133,7 +133,19 @@
       "contact": "Contatos",
       "company": "Empresas",
       "deal": "Oportunidades",
-      "product": "Produtos"
+      "product": "Produtos",
+      "contacts": {
+        "contact": "Contatos"
+      },
+      "companies": {
+        "company": "Empresas"
+      },
+      "deals": {
+        "deal": "Oportunidades"
+      },
+      "products": {
+        "product": "Produtos"
+      }
     },
     "counts": "{{succeeded}} alterados, {{issues}} não alterados de {{total}}",
     "open": "Ver relatório",

@@ -4,7 +4,7 @@ use chrono::{DateTime, Utc};
 use uuid::Uuid;
 
 use crate::application::fields::permissions::{FieldAccess, FieldAccessPolicy};
-use crate::application::fields::{FieldDefinitionRepository, RecordTypeDefinition, SystemField};
+use crate::application::fields::{EntityDefinition, FieldDefinitionRepository, SystemField};
 use crate::domain::access::AccessScope;
 use crate::domain::fields::FieldDefinition;
 use crate::errors::AppError;
@@ -49,12 +49,12 @@ impl ResolvedField {
 
 #[derive(Debug, Clone, PartialEq)]
 pub struct FieldSet {
-    pub record_type: RecordTypeDefinition,
+    pub record_type: EntityDefinition,
     fields: Vec<ResolvedField>,
 }
 
 impl FieldSet {
-    pub fn new(record_type: &RecordTypeDefinition, mut definitions: Vec<FieldDefinition>) -> Self {
+    pub fn new(record_type: &EntityDefinition, mut definitions: Vec<FieldDefinition>) -> Self {
         definitions.sort_by_key(|definition| definition.position);
         let fields = definitions
             .into_iter()
@@ -85,7 +85,7 @@ impl FieldSet {
                 definition.column_name = Some(system.column.clone());
                 definition.is_required = system.required;
                 definition.is_active = system.is_available();
-                let access = if system.is_computed() {
+                let access = if system.is_computed() || !system.writable {
                     FieldAccess::ReadOnly
                 } else {
                     FieldAccess::Editable
@@ -119,7 +119,7 @@ impl FieldSet {
 
     pub async fn for_scope<D>(
         definitions: &D,
-        record_type: &RecordTypeDefinition,
+        record_type: &EntityDefinition,
         scope: &AccessScope,
     ) -> Result<Self, AppError>
     where

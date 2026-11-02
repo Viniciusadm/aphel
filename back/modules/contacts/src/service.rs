@@ -15,8 +15,8 @@ use aphel_kernel::application::access::Authorizer;
 use aphel_kernel::application::audit::{DiffOptions, diff_values};
 use aphel_kernel::application::fields::permissions::check_record_writes;
 use aphel_kernel::application::fields::{
-    CustomFieldPorts, CustomFieldReader, CustomFieldWriter, RecordDraft, RecordPipeline,
-    RecordTypeDefinition, RecordWrite, ReferenceChecker, WriteMode,
+    CustomFieldPorts, CustomFieldReader, CustomFieldWriter, EntityDefinition, RecordDraft,
+    RecordPipeline, RecordWrite, ReferenceChecker, WriteMode,
 };
 use aphel_kernel::application::organization_admin::{ListWindow, Listing};
 use aphel_kernel::application::query::{RecordQuery, RecordQueryEngine};
@@ -37,7 +37,7 @@ pub fn contact_values(data: &ContactData, contributed: &Map<String, Value>) -> V
     with_contributed(contact_snapshot(data), contributed)
 }
 
-pub(crate) fn view_values(definition: &RecordTypeDefinition, view: &ContactView) -> Value {
+pub(crate) fn view_values(definition: &EntityDefinition, view: &ContactView) -> Value {
     contact_values(
         &view.contact.data,
         &contributed_input(definition, &view.contributed),
@@ -88,6 +88,15 @@ pub struct CreatedContact {
 }
 
 impl CreatedContact {
+    pub fn into_pending(self) -> PendingCommit {
+        PendingCommit {
+            record: self.record,
+            mode: WriteMode::Create,
+            changes: self.changes,
+            values: self.values,
+        }
+    }
+
     pub fn id(&self) -> Uuid {
         self.record.record_id
     }
@@ -214,7 +223,7 @@ pub async fn create_in_tx(
 async fn saving(
     ctx: &Ctx<'_>,
     tx: &mut MySqlTx,
-    definition: &RecordTypeDefinition,
+    definition: &EntityDefinition,
     record: &RecordRef,
     mode: WriteMode,
     (data, contributed): (ContactData, Map<String, Value>),

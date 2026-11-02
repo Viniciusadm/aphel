@@ -25,7 +25,16 @@
   "recordTypes": {
     "contact": "Contatos",
     "company": "Empresas",
-    "deal": "Oportunidades"
+    "deal": "Oportunidades",
+    "contacts": {
+      "contact": "Contatos"
+    },
+    "companies": {
+      "company": "Empresas"
+    },
+    "deals": {
+      "deal": "Oportunidades"
+    }
   },
   "strategies": {
     "round_robin": "Rodízio",

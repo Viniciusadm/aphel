@@ -25,7 +25,7 @@ use aphel_kernel::records::RecordValidating;
 
 pub use hooks::{ApprovalGate, EngineApprovalGate, approval_gate};
 
-const DEAL_RESOURCE: PublicResource = PublicResource::new("deal", "DealResponse");
+const DEAL_RESOURCE: PublicResource = PublicResource::new("deals.deal", "DealResponse");
 
 pub const KEY: &str = "approvals";
 pub(crate) const APPROVAL_PRIORITY: i32 = 10;
@@ -92,6 +92,12 @@ impl Module for ApprovalsModule {
     }
 
     fn register(&self, app: &mut AppBuilder) -> Result<(), AppError> {
+        app.contribute(std::sync::Arc::new(
+            aphel_kernel::application::fields::EntityKeyAliases(&[(
+                "approval_policy",
+                "approvals.approval_policy",
+            )]),
+        ));
         app.contribute::<dyn aphel_kernel::application::notifications::texts::NotificationTexts>(
             std::sync::Arc::new(crate::notifications::ApprovalNotificationTexts),
         );

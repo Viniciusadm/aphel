@@ -359,7 +359,7 @@ pub(crate) async fn accept(
         .is_some_and(|note| note.chars().count() > MAX_COMMENT_LENGTH)
     {
         violations.push(FieldViolation::new(
-            "note",
+            "notes.note",
             format!("must have at most {MAX_COMMENT_LENGTH} characters"),
         ));
     }

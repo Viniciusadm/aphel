@@ -89,7 +89,7 @@ fn summary<'a>(ctx: &'a Ctx<'_>, input: Value) -> OperationFuture<'a> {
     Box::pin(async move {
         let request: AiRecordRequest = operation_input(input)?;
         ctx.scope.require(&USE)?;
-        ensure_context_type(&request.record_type)?;
+        ensure_context_type(ctx, &request.record_type)?;
         let session = AiSession::open(ctx, Feature::Summary).await?;
         operation_output(
             features::summary(ctx, &session, &request.record_type, &request.record_id).await?,
@@ -101,7 +101,7 @@ fn next_actions<'a>(ctx: &'a Ctx<'_>, input: Value) -> OperationFuture<'a> {
     Box::pin(async move {
         let request: AiRecordRequest = operation_input(input)?;
         ctx.scope.require(&USE)?;
-        ensure_context_type(&request.record_type)?;
+        ensure_context_type(ctx, &request.record_type)?;
         let session = AiSession::open(ctx, Feature::NextActions).await?;
         operation_output(
             features::next_actions(ctx, &session, &request.record_type, &request.record_id).await?,
@@ -115,7 +115,7 @@ fn compose<'a>(ctx: &'a Ctx<'_>, input: Value) -> OperationFuture<'a> {
         ctx.scope.require(&USE)?;
         features::validate_compose(&request)?;
         if let Some(record_type) = &request.record_type {
-            ensure_context_type(record_type)?;
+            ensure_context_type(ctx, record_type)?;
         }
         let session = AiSession::open(ctx, Feature::Compose).await?;
         operation_output(features::compose(ctx, &session, request).await?)

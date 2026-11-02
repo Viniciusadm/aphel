@@ -1,6 +1,8 @@
+use aphel_kernel::application::fields::RecordTypeRegistry;
 use chrono::{DateTime, NaiveDateTime, Utc};
 use sqlx::mysql::MySqlRow;
 use sqlx::{MySql, MySqlPool, QueryBuilder, Row};
+use std::sync::Arc;
 use uuid::Uuid;
 
 use crate::domain::{
@@ -23,23 +25,24 @@ pub(crate) const MAX_DUE_REMINDERS_PER_RUN: u32 = 1000;
 #[derive(Clone)]
 pub(crate) struct ReminderStore {
     pool: MySqlPool,
+    registry: Arc<RecordTypeRegistry>,
 }
 
 impl ReminderStore {
-    pub(crate) fn new(pool: MySqlPool) -> Self {
-        Self { pool }
+    pub(crate) fn new(pool: MySqlPool, registry: Arc<RecordTypeRegistry>) -> Self {
+        Self { pool, registry }
     }
 
     pub(crate) fn of(ctx: &Ctx<'_>) -> Self {
-        Self::new(ctx.pool().clone())
+        Self::new(ctx.pool().clone(), ctx.registry().clone())
     }
 }
 
-fn reminder_select() -> String {
+fn reminder_select(registry: &RecordTypeRegistry) -> String {
     format!(
         "SELECT r.id, r.record_type, r.record_id, {} AS record_title, r.remind_at, r.note, r.status, \
          r.sent_at, r.created_at, r.updated_at FROM reminders r ",
-        record_title_sql("r")
+        record_title_sql("r", registry)
     )
 }
 
@@ -100,7 +103,7 @@ impl ReminderStore {
         push_owner(&mut count, scope);
         push_filter(&mut count, filter);
         let total: i64 = count.build_query_scalar().fetch_one(&self.pool).await?;
-        let mut builder = QueryBuilder::<MySql>::new(reminder_select());
+        let mut builder = QueryBuilder::<MySql>::new(reminder_select(&self.registry));
         push_owner(&mut builder, scope);
         push_filter(&mut builder, filter);
         builder
@@ -123,7 +126,7 @@ impl ReminderStore {
         scope: &AccessScope,
         id: Uuid,
     ) -> Result<Option<ReminderView>, AppError> {
-        let mut builder = QueryBuilder::<MySql>::new(reminder_select());
+        let mut builder = QueryBuilder::<MySql>::new(reminder_select(&self.registry));
         push_owner(&mut builder, scope);
         builder.push(" AND r.id = ").push_bind(id.to_string());
         let row = builder.build().fetch_optional(&self.pool).await?;

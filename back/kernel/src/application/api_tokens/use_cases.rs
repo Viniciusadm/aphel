@@ -118,7 +118,13 @@ fn creator_scopes(scope: &AccessScope) -> Vec<ApiTokenScope> {
                 .grants()
                 .map(|grant| grant.permission)
                 .filter(|permission| {
-                    is_custom_record_type(permission.as_str().split('.').next().unwrap_or_default())
+                    is_custom_record_type(
+                        permission
+                            .as_str()
+                            .rsplit_once('.')
+                            .map(|(resource, _)| resource)
+                            .unwrap_or_default(),
+                    )
                 }),
         )
         .filter(|permission| scope.scope_for(permission).is_some())

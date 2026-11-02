@@ -28,7 +28,7 @@ use crate::store::DealStore;
 use aphel_kernel::Ctx;
 use aphel_kernel::application::access::Authorizer;
 use aphel_kernel::application::audit::{DiffOptions, diff_values};
-use aphel_kernel::application::fields::RecordTypeDefinition;
+use aphel_kernel::application::fields::EntityDefinition;
 use aphel_kernel::application::fields::permissions::check_record_writes;
 use aphel_kernel::application::fields::{
     CustomFieldPorts, CustomFieldReader, CustomFieldWriter, FieldSet, RecordDraft, RecordPipeline,
@@ -1024,7 +1024,7 @@ fn deal_values(deal: &Deal, contributed: &Map<String, Value>) -> Value {
     with_contributed(deal_snapshot(deal), contributed)
 }
 
-fn split_contributed(definition: &RecordTypeDefinition, input: &mut DealInput) {
+fn split_contributed(definition: &EntityDefinition, input: &mut DealInput) {
     let moved: Vec<String> = input
         .custom_fields
         .keys()

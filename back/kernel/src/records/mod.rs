@@ -26,3 +26,8 @@ pub use types::{RecordContributionInfo, RecordTypeExtension};
 pub use version::lock_version;
 
 pub mod snapshot;
+
+mod generic;
+pub use generic::{EntityWriteBehavior, GenericRecordHandler};
+
+pub(crate) mod references;

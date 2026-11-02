@@ -32,7 +32,7 @@ import { PageHeader } from '@/components/ui/page-header'
 import { Field } from '@/components/ui/field'
 
 const NO_PRICE_LIST = '__none__'
-const QUOTE_RECORD_TYPE = 'quote'
+const QUOTE_RECORD_TYPE = 'quotes.quote'
 
 interface HeaderDraft {
   title: string

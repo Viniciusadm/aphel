@@ -7,9 +7,9 @@ use uuid::Uuid;
 use crate::application::access::Authorizer;
 use crate::application::fields::permissions::{FieldAccess, FieldAccessPolicy, check_access};
 use crate::application::fields::{
-    ConditionalRules, CustomFieldPorts, CustomFieldValueRepository, FieldDefinitionRepository,
-    FieldSet, PurgedRecord, RecordPipeline, RecordTypeDefinition, ReferenceChecker, load_values,
-    raw_from_json, value_to_json,
+    ConditionalRules, CustomFieldPorts, CustomFieldValueRepository, EntityDefinition,
+    FieldDefinitionRepository, FieldSet, PurgedRecord, RecordPipeline, ReferenceChecker,
+    load_values, raw_from_json, value_to_json,
 };
 use crate::application::shared::{FieldChange, RecordRef};
 use crate::domain::UserId;
@@ -276,7 +276,7 @@ where
 
     async fn complete_created_at(
         &self,
-        definition: &RecordTypeDefinition,
+        definition: &EntityDefinition,
         fields: &FieldSet,
         record: &RecordRef,
         merged: &mut Map<String, Value>,
@@ -413,7 +413,7 @@ where
     async fn check_uniqueness(
         &self,
         tx: &mut P::Tx,
-        record_type: &RecordTypeDefinition,
+        record_type: &EntityDefinition,
         record: &RecordRef,
         writes: &[(PendingWrite, Value)],
     ) -> Result<Vec<FieldViolation>, AppError> {

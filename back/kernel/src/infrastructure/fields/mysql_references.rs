@@ -2,7 +2,7 @@ use async_trait::async_trait;
 use sqlx::{MySql, MySqlPool, QueryBuilder};
 use uuid::Uuid;
 
-use crate::application::fields::{RecordTypeDefinition, ReferenceChecker};
+use crate::application::fields::{EntityDefinition, ReferenceChecker};
 use crate::database::transaction::MySqlTx;
 use crate::domain::UserId;
 use crate::domain::access::{AccessScope, RecordScopeFilter};
@@ -42,7 +42,7 @@ impl ReferenceChecker for MySqlReferenceChecker {
     async fn existing_records(
         &self,
         scope: &AccessScope,
-        target: &RecordTypeDefinition,
+        target: &EntityDefinition,
         visibility: &RecordScopeFilter,
         record_ids: &[Uuid],
     ) -> Result<Vec<Uuid>, AppError> {
@@ -57,7 +57,7 @@ impl ReferenceChecker for MySqlReferenceChecker {
 
 fn existing_records_query(
     scope: &AccessScope,
-    target: &RecordTypeDefinition,
+    target: &EntityDefinition,
     visibility: &RecordScopeFilter,
     record_ids: &[Uuid],
 ) -> QueryBuilder<MySql> {
@@ -87,7 +87,7 @@ fn parsed(found: Vec<String>) -> Vec<Uuid> {
 pub(crate) async fn existing_records_in(
     tx: &mut MySqlTx,
     scope: &AccessScope,
-    target: &RecordTypeDefinition,
+    target: &EntityDefinition,
     visibility: &RecordScopeFilter,
     record_ids: &[Uuid],
 ) -> Result<Vec<Uuid>, AppError> {

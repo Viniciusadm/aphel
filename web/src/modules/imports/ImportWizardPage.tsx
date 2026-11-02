@@ -29,7 +29,7 @@ export function ImportWizardPage() {
   const { id } = useParams()
   const [params] = useSearchParams()
   const job = useImportJob(id)
-  const recordType = job.data?.record_type ?? params.get('record_type') ?? 'contact'
+  const recordType = job.data?.record_type ?? params.get('record_type') ?? 'contacts.contact'
 
   let body
   if (!id) {

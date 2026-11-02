@@ -114,10 +114,10 @@ async fn summary(
     conversation: StoredConversation,
 ) -> ConversationSummary {
     let contact = cache
-        .resolve(ctx, scope, "contact", conversation.contact_id)
+        .resolve(ctx, scope, "contacts.contact", conversation.contact_id)
         .await;
     let deal = cache
-        .resolve(ctx, scope, "deal", conversation.deal_id)
+        .resolve(ctx, scope, "deals.deal", conversation.deal_id)
         .await;
     ConversationSummary {
         id: conversation.id,
@@ -617,12 +617,12 @@ async fn link(
     let mut checked = HashSet::new();
     for (record_type, field, old, new) in [
         (
-            "contact",
+            "contacts.contact",
             "contact_id",
             current.contact_id,
             request.contact_id,
         ),
-        ("deal", "deal_id", current.deal_id, request.deal_id),
+        ("deals.deal", "deal_id", current.deal_id, request.deal_id),
     ] {
         if old == new {
             continue;

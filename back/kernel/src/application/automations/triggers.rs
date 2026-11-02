@@ -93,9 +93,12 @@ pub fn event_context(trigger_type: &str, event: &DomainEvent) -> TriggerContext 
 
 pub fn record_event<'a>(event: &'a DomainEvent, action: &str) -> Option<&'a RecordRef> {
     let record = event.record.as_ref()?;
-    let (prefix, suffix) = event.event_type.split_once('.')?;
-    (suffix == action && prefix == record.record_type.as_str() && is_automatable(prefix))
-        .then_some(record)
+    let (prefix, suffix) = event.event_type.rsplit_once('.')?;
+    (suffix == action
+        && crate::application::shared::RecordType::parse(prefix)
+            .is_ok_and(|key| key == record.record_type)
+        && is_automatable(prefix))
+    .then_some(record)
 }
 
 pub fn changes(payload: &Value) -> (Vec<String>, Map<String, Value>) {

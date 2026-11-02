@@ -32,7 +32,7 @@ pub(crate) fn approvals_overdue_schedule() -> ScheduledJobDefinition {
 
 fn is_record_deletion(event_type: &str) -> bool {
     event_type
-        .split_once('.')
+        .rsplit_once('.')
         .is_some_and(|(prefix, action)| action == "deleted" && !prefix.starts_with("approval"))
 }
 

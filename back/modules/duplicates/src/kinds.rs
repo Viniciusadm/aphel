@@ -1,7 +1,7 @@
 use crate::domain::{DuplicateFamily, DuplicateRule};
 use aphel_contract_crm::traits;
 use aphel_kernel::application::fields::{
-    LabelAlias, RecordTypeDefinition, RecordTypeRegistry, SystemField,
+    EntityDefinition, LabelAlias, RecordTypeRegistry, SystemField,
 };
 use aphel_kernel::application::shared::RecordType;
 use aphel_kernel::domain::access::Permission;
@@ -15,7 +15,7 @@ const UNMERGEABLE_KEYS: &[&str] = &["id", "created_by", "created_at", "updated_a
 
 #[derive(Debug, Clone)]
 pub(crate) struct DuplicateType {
-    pub(crate) definition: RecordTypeDefinition,
+    pub(crate) definition: EntityDefinition,
     pub(crate) family: DuplicateFamily,
     pub(crate) read: Permission,
     pub(crate) create: Permission,
@@ -24,7 +24,7 @@ pub(crate) struct DuplicateType {
 }
 
 impl DuplicateType {
-    pub(crate) fn from_definition(definition: &RecordTypeDefinition) -> Option<Self> {
+    pub(crate) fn from_definition(definition: &EntityDefinition) -> Option<Self> {
         definition.title_column()?;
         definition.deleted_column.as_ref()?;
         let family = DuplicateFamily::of(definition.record_type.as_str());

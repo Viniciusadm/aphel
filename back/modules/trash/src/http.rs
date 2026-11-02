@@ -129,7 +129,7 @@ async fn update_trash_settings(
     operation_id = "trash_restore",
     security(("session_cookie" = [])),
     params(
-        ("record_type" = String, Path, description = "Record type with a trash (`contact`, `company`, `deal`, `product`, `co_<key>`…)"),
+        ("record_type" = String, Path, description = "Record type with a trash (`contact`, `company`, `deal`, `product`, `custom.<key>`…)"),
         ("record_id" = String, Path, description = "Record id"),
     ),
     responses(
@@ -159,7 +159,7 @@ async fn restore_record(
     operation_id = "trash_purge",
     security(("session_cookie" = [])),
     params(
-        ("record_type" = String, Path, description = "Record type with a trash (`contact`, `company`, `deal`, `product`, `co_<key>`…)"),
+        ("record_type" = String, Path, description = "Record type with a trash (`contact`, `company`, `deal`, `product`, `custom.<key>`…)"),
         ("record_id" = String, Path, description = "Record id"),
     ),
     responses(

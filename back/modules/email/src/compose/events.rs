@@ -9,7 +9,7 @@ use aphel_kernel::application::shared::{
 use aphel_kernel::database::transaction::MySqlTx;
 use aphel_kernel::errors::AppError;
 
-pub(crate) const EMAIL_MESSAGE_RECORD: RecordType = RecordType::from_static("email_message");
+pub(crate) const EMAIL_MESSAGE_RECORD: RecordType = RecordType::from_static("email.email_message");
 
 pub(crate) fn email_record(message: &EmailMessageView) -> RecordRef {
     RecordRef::new(EMAIL_MESSAGE_RECORD, message.id)

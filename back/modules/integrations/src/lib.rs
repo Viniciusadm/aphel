@@ -31,6 +31,12 @@ impl Module for IntegrationsModule {
     }
 
     fn register(&self, app: &mut AppBuilder) -> Result<(), AppError> {
+        app.contribute(std::sync::Arc::new(
+            aphel_kernel::application::fields::EntityKeyAliases(&[(
+                "integration",
+                "integrations.integration",
+            )]),
+        ));
         app.contribute::<dyn aphel_kernel::modules::HealthSource>(std::sync::Arc::new(
             points::IntegrationFailures,
         ));

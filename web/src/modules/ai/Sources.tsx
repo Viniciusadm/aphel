@@ -3,14 +3,13 @@ import { getRecordResource } from '@/features/records/resources'
 import { useModuleTranslation } from '@/kernel/modules/i18n'
 import { AI_KEY, type AiSource } from './api'
 
-const LINKED_TYPES = new Set(['contact', 'company', 'deal'])
 
 export function Sources({ sources }: { sources: AiSource[] }) {
   const t = useModuleTranslation(AI_KEY)
   if (sources.length === 0) return null
   const counts = new Map<string, number>()
   for (const source of sources) counts.set(source.record_type, (counts.get(source.record_type) ?? 0) + 1)
-  const linked = sources.filter((source) => LINKED_TYPES.has(source.record_type) && source.label)
+  const linked = sources.filter((source) => getRecordResource(source.record_type)?.detailPath && source.label)
 
   return (
     <details className="text-xs text-muted-foreground">

@@ -170,7 +170,7 @@ impl TimelineStore {
     fn definition(
         &self,
         record_type: &RecordType,
-    ) -> Result<&aphel_kernel::application::fields::RecordTypeDefinition, AppError> {
+    ) -> Result<&aphel_kernel::application::fields::EntityDefinition, AppError> {
         self.registry.get(record_type).ok_or_else(|| {
             AppError::Configuration(format!("record type {record_type} is not registered"))
         })
@@ -183,7 +183,7 @@ impl TimelineStore {
         visibility: &RecordScopeFilter,
     ) -> Result<Vec<TimelineEntry>, AppError> {
         let subject = &request.subject;
-        let mut builder = QueryBuilder::<MySql>::new(activity_select("r"));
+        let mut builder = QueryBuilder::<MySql>::new(activity_select("r", &self.registry));
         builder
             .push("WHERE ")
             .push("r.deleted_at IS NULL AND ((r.record_type = ")
@@ -343,7 +343,7 @@ impl TimelineStore {
              LEFT JOIN users u ON e.actor_type = 'user' AND u.id = e.actor_id \
              LEFT JOIN automations au ON e.actor_type = 'automation' AND au.id = e.actor_id \
              WHERE ",
-            record_title_sql("e")
+            record_title_sql("e", &self.registry)
         ));
         builder
             .push("((e.record_type = ")

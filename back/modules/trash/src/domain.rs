@@ -1,7 +1,7 @@
 use chrono::{DateTime, Duration, Utc};
 use uuid::Uuid;
 
-use aphel_kernel::application::fields::{RecordTypeDefinition, RecordTypeRegistry};
+use aphel_kernel::application::fields::{EntityDefinition, RecordTypeRegistry};
 use aphel_kernel::application::files::UserReference;
 use aphel_kernel::application::shared::RecordType;
 
@@ -9,11 +9,11 @@ pub(crate) const DEFAULT_RETENTION_DAYS: u32 = 30;
 pub(crate) const MIN_RETENTION_DAYS: u32 = 1;
 pub(crate) const MAX_RETENTION_DAYS: u32 = 365;
 
-pub fn is_trashable(definition: &RecordTypeDefinition) -> bool {
+pub fn is_trashable(definition: &EntityDefinition) -> bool {
     definition.deleted_column.is_some() && definition.title_column().is_some()
 }
 
-pub fn trashable_types(registry: &RecordTypeRegistry) -> Vec<RecordTypeDefinition> {
+pub fn trashable_types(registry: &RecordTypeRegistry) -> Vec<EntityDefinition> {
     registry
         .definitions()
         .filter(|definition| is_trashable(definition))
@@ -24,7 +24,7 @@ pub fn trashable_types(registry: &RecordTypeRegistry) -> Vec<RecordTypeDefinitio
 pub fn trashable_type<'a>(
     registry: &'a RecordTypeRegistry,
     record_type: &str,
-) -> Option<&'a RecordTypeDefinition> {
+) -> Option<&'a EntityDefinition> {
     let record_type = RecordType::parse(record_type.trim()).ok()?;
     registry
         .get(&record_type)

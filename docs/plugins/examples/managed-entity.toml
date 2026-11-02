@@ -1,0 +1,34 @@
+key = "example_records"
+name = "Managed entity example"
+version = "1.0.0"
+api = 1
+
+[[entities]]
+key = "asset"
+label = "Asset"
+label_plural = "Assets"
+storage = "managed"
+owner_enabled = false
+permission_scope = "organization"
+
+[[entities.fields]]
+key = "name"
+label = "Name"
+type = "text"
+max_length = 140
+required = true
+searchable = true
+
+[[entities.fields]]
+key = "score"
+label = "Score"
+type = "number"
+min = 0
+max = 5
+decimals = 0
+default = 0
+
+[[entities.indexes]]
+key = "asset_name"
+fields = ["name"]
+unique = false

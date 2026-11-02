@@ -6,7 +6,16 @@
   "recordTypes": {
     "contact": "Contacts",
     "company": "Companies",
-    "deal": "Deals"
+    "deal": "Deals",
+    "contacts": {
+      "contact": "Contacts"
+    },
+    "companies": {
+      "company": "Companies"
+    },
+    "deals": {
+      "deal": "Deals"
+    }
   },
   "bands": {
     "cold": "Cold",

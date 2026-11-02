@@ -10,7 +10,7 @@ import './slots'
 export { QUOTE_RECORD_TYPE } from './resource'
 export type { QuoteEditorSlotProps } from './slots'
 
-const DEAL_RECORD_TYPE = 'deal'
+const DEAL_RECORD_TYPE = 'deals.deal'
 
 const quotesModule = defineModule({
   key: 'quotes',

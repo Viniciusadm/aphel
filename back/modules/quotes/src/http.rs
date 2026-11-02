@@ -1501,7 +1501,7 @@ impl RecordTypeHandler for QuoteHandler {
     }
 
     fn record_type(&self) -> &str {
-        "quote"
+        "quotes.quote"
     }
 
     async fn create(&self, ctx: &RecordCtx<'_>, values: Value) -> Result<Value, AppError> {

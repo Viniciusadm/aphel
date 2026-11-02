@@ -222,7 +222,7 @@ The 84 `*Ports` traits with associated types bound to `Tx` were made to inject f
 
 ### 2.6 Record types as handlers: the end of `match "contact"`
 
-`RecordTypeDefinition` gains a `RecordTypeHandler`, an object with generic operations over JSON:
+`EntityDefinition` gains a `RecordTypeHandler`, an object with generic operations over JSON:
 
 ```rust
 #[async_trait]

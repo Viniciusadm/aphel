@@ -22,7 +22,7 @@ pub(crate) struct SubjectSearchRequest {
 
 #[derive(Debug, Serialize, ToSchema)]
 pub(crate) struct RecordRefResponse {
-    #[schema(example = "contact")]
+    #[schema(example = "contacts.contact")]
     pub(crate) record_type: String,
     pub(crate) id: String,
 }
@@ -38,7 +38,7 @@ impl From<&RecordRef> for RecordRefResponse {
 
 #[derive(Debug, Serialize, ToSchema)]
 pub(crate) struct SubjectRecordResponse {
-    #[schema(example = "contact")]
+    #[schema(example = "contacts.contact")]
     pub(crate) record_type: String,
     pub(crate) id: String,
     pub(crate) title: String,
@@ -186,7 +186,7 @@ impl From<SubjectSearchResult> for SubjectSearchResponse {
 
 #[derive(Debug, Deserialize, ToSchema)]
 pub(crate) struct RecordRefBody {
-    #[schema(example = "contact")]
+    #[schema(example = "contacts.contact")]
     pub(crate) record_type: String,
     pub(crate) id: String,
 }
@@ -375,7 +375,7 @@ impl From<PrivacyRequest> for PrivacyRequestResponse {
 
 #[derive(Debug, Serialize, ToSchema)]
 pub(crate) struct PrivacyTargetRecordResponse {
-    #[schema(example = "contact")]
+    #[schema(example = "contacts.contact")]
     pub(crate) record_type: String,
     pub(crate) id: String,
     pub(crate) title: String,
@@ -461,7 +461,7 @@ pub(crate) struct CreateRetentionPolicyBody {
     pub(crate) name: String,
     #[schema(example = "archive_inactive")]
     pub(crate) action: String,
-    #[schema(example = "contact")]
+    #[schema(example = "contacts.contact")]
     pub(crate) record_type: Option<String>,
     #[schema(example = 1095, minimum = 1, maximum = 36500)]
     pub(crate) threshold_days: u32,

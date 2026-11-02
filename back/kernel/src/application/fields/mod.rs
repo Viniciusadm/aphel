@@ -34,3 +34,12 @@ pub use field_types::{FieldTypeDefinition, FieldValidator};
 
 mod labels;
 pub use labels::LocalizedLabels;
+
+mod storage;
+pub use storage::{EntityIndex, EntityKeyAliases, EntityStorage, managed_table};
+
+mod declaration;
+pub use declaration::{EntityDeclaration, FieldDef, OptionDef};
+
+mod references;
+pub use references::{DeletePolicy, ReferenceTarget, SoftReference};

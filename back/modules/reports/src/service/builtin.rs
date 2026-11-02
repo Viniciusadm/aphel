@@ -34,8 +34,8 @@ use pipelines::domain::pipeline_visible;
 use pipelines::store::PipelineStore;
 
 const AMOUNT_FIELD: &str = "amount";
-const DEAL: &str = "deal";
-const ACTIVITY: &str = "activity";
+const DEAL: &str = "deals.deal";
+const ACTIVITY: &str = "activities.activity";
 
 struct DealPlans {
     fields: FieldSet,

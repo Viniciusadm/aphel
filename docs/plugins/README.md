@@ -39,7 +39,7 @@ requires = ["deals.read", "contacts.read"]   # core permissions the plugin uses 
 events = ["deal.won"]          # domain events the backend receives ("deal.*" works too)
 
 [[entities]]                   # new record types: custom objects managed by the plugin
-key = "horse"                  # record type co_equine_horse, object key equine_horse
+key = "horse"                  # record type equine.horse, object key equine_horse
 label = "Cavalo"
 label_plural = "Cavalos"
 icon = "star"
@@ -63,18 +63,18 @@ unique = true                  # enforced by the database (text, number, url, em
 key = "sire"
 label = "Pai"
 type = "record"
-target = "co_equine_horse"     # record fields may point to any record type, including custom objects
+target = "equine.horse"     # record fields may point to any record type, including custom objects
 
 [[fields]]                     # fields added to existing record types (managed custom fields)
 record_type = "deal"
 key = "horse"
 label = "Cavalo negociado"
 type = "record"
-target = "co_equine_horse"
+target = "equine.horse"
 
 [[hooks]]                      # record.* or a domain hook such as deal.winning (see the host catalog)
 hook = "record.validating"
-record_types = ["deal", "co_equine_horse"]
+record_types = ["deal", "equine.horse"]
 priority = 25                  # order among plugins (lower first)
 
 operations = ["notes.create", "tagging.apply"]   # module operations called with invoke
@@ -82,7 +82,7 @@ operations = ["notes.create", "tagging.apply"]   # module operations called with
 [[routes]]                     # served at /api/v1/p/<key><path>
 method = "GET"
 path = "/horses/{id}/pedigree"
-permission = "co_equine_horse.read"   # a core, entity or declared permission; omitted = any signed-in user
+permission = "equine.horse.read"   # a core, entity or declared permission; omitted = any signed-in user
 
 [[routes]]                     # public route: /api/v1/public/p/<key><path>, no session
 method = "POST"
@@ -99,7 +99,7 @@ grant_to = ["manager"]         # roles that receive it on install, upgrade and "
 key = "groom"                  # role key; also receives grants on upgrade when it exists
 label = "Tratador"
 description = "Cuida dos cavalos"
-permissions = ["co_equine_horse.read", "co_equine_horse.update", "equine.export_pedigree"]
+permissions = ["equine.horse.read", "equine.horse.update", "equine.export_pedigree"]
 scope = "organization"         # own | team | organization (default organization)
 
 [http]
@@ -134,7 +134,7 @@ type = "secret"                # stored encrypted, never returned by the API (no
 key = "request_exam"
 label = "Solicitar exame"
 description = "Pede um exame ao laboratório"
-record_types = ["co_equine_horse"]   # record types the action runs on (empty = any)
+record_types = ["equine.horse"]   # record types the action runs on (empty = any)
 retry_safe = true              # the automation may retry it after a failure
 inputs = [
   { key = "exam", label = "Exame", type = "select", options = ["aie", "mormo"], required = true },
@@ -144,7 +144,7 @@ inputs = [
 [[emits]]                      # events the plugin publishes: "plugin.<key>.<name>", usable as automation triggers
 name = "exam_expired"
 label = "Exame vencido"
-record_types = ["co_equine_horse"]
+record_types = ["equine.horse"]
 
 [[notifications]]              # notification kinds "<key>_<name>" in every user's preferences
 name = "exam_expiring"
@@ -158,7 +158,7 @@ push_default = false
 name = "horses_for_sale"
 title = "Cavalos à venda"
 category = "equine"            # optional, default "plugins"
-permission = "co_equine_horse.read"     # optional: the viewer needs it
+permission = "equine.horse.read"     # optional: the viewer needs it
 size = "medium"                # small | medium | large
 uses_period = false            # default true: the dashboard period is passed
 default_settings = { limit = 5 }
@@ -172,9 +172,9 @@ What the declarations become:
 
 | Declaration | Effect |
 | --- | --- |
-| `entities` | A custom object `co_<key>_<entity>` with `module_key = <key>`. It appears in the menu, lists, detail pages, forms, filters, search, import/export, automations and webhooks like any custom object. Administrators cannot edit or delete it by hand (409 `custom_object_managed_by_module`). Its permissions are `co_<key>_<entity>.read\|create\|update\|delete\|archive\|export` |
+| `entities` | A custom object `custom.<key>_<entity>` with `module_key = <key>`. It appears in the menu, lists, detail pages, forms, filters, search, import/export, automations and webhooks like any custom object. Administrators cannot edit or delete it by hand (409 `custom_object_managed_by_module`). Its permissions are `custom.<key>_<entity>.read\|create\|update\|delete\|archive\|export` |
 | `fields` | Custom fields with `module_key = <key>` on existing types (`deal`, `contact`, …), locked like any managed field (409 `field_managed_by_module`) and written by every record API through `custom_fields` |
-| `requires` | Core permissions (or `co_*` permissions) the plugin may use. Unknown permissions make the manifest invalid |
+| `requires` | Core permissions (or `custom.*` permissions) the plugin may use. Unknown permissions make the manifest invalid |
 | `permissions` | Entries in the permission catalog and the role editor (grouped by plugin key), granted with `organization` scope to the `grant_to` roles that exist on install, upgrade and "reapply grants", toggled with enable/disable and removed with their grants on uninstall. A key already used gives 409 `permission_already_registered` |
 | `entities[].permission_scope` | Scope of the default grants of the entity permissions to the system `manager` and `member` roles (otherwise `team` for managers and `own` for members). Shared operational records use `organization`; personal ones keep `own`. Existing grants are never narrowed or widened, only missing ones are added |
 | `entities[].fields[].unique` | Database-enforced uniqueness (case-insensitive for text) on text, number, url, email and phone fields: a reservation row per value in `custom_field_unique_values`, written in the same transaction as the value, released when the record is deleted and taken again (or refused) when it is restored. A concurrent duplicate fails with 422 and a `custom_fields.<key>` violation, whatever API writes it. Declaring `unique` on a field that already has duplicates is refused with 409 `plugin_field_unique_conflict` (with the duplicated record ids in `details.conflicts`) before anything is written, also in the dry run; removing `unique` keeps the data and drops the reservations |
@@ -235,7 +235,7 @@ Conflicts between plugins are detected on install, upgrade and enable: two plugi
 Every call the plugin makes runs with **the actor's scope ∩ the plugin's capabilities**. The capabilities are:
 - `requires`,
 - the declared `permissions`,
-- the permissions of the plugin's own entities (`co_<key>_*`).
+- the permissions of the plugin's own entities (`custom.<key>_*`).
 
 A plugin never gets more than it declared, and never more than the person behind the action.
 
@@ -323,14 +323,14 @@ impl Plugin for Equine {
     fn on_hook(&self, ctx: &Ctx, call: &HookCall) -> Result<HookOutcome> {
         if call.is(hooks::VALIDATING, "deal") && call.changed("status").is_some_and(|change| change.new == "won") {
             let deal = ctx.records().get("deal", &call.record_id)?;
-            // read the horse with ctx.records().get("co_equine_horse", id) and veto:
+            // read the horse with ctx.records().get("equine.horse", id) and veto:
             return Err(PluginError::new("equine_exam_expired", "exames vencidos"));
         }
         Ok(HookOutcome::default())
     }
 
     fn on_event(&self, ctx: &Ctx, event: &Event) -> Result<()> {
-        // event.event_type == "deal.won": ctx.records().update("co_equine_horse", id, json!({ "custom_fields": { "status": "sold" } }))
+        // event.event_type == "deal.won": ctx.records().update("equine.horse", id, json!({ "custom_fields": { "status": "sold" } }))
         Ok(())
     }
 
@@ -524,7 +524,7 @@ export default definePlugin({
     return {}
   },
   onEvent(ctx, event) {
-    if (event.type === 'deal.won') ctx.deferEffect('mark-sold', { kind: 'update', record_type: 'co_equine_horse', id, values: { custom_fields: { status: 'sold' } } })
+    if (event.type === 'deal.won') ctx.deferEffect('mark-sold', { kind: 'update', record_type: 'equine.horse', id, values: { custom_fields: { status: 'sold' } } })
   },
   onRoute(ctx, request) {
     if (request.is('GET', '/horses/{id}/pedigree')) return ok({ id: request.params.id })
@@ -533,7 +533,7 @@ export default definePlugin({
     return { requested: call.input.exam }
   },
   onWidget(ctx, request) {
-    return { total: ctx.records.list('co_equine_horse', { perPage: 1 }).total }
+    return { total: ctx.records.list('equine.horse', { perPage: 1 }).total }
   },
 })
 ```
@@ -588,9 +588,9 @@ export default defineModule({
   key: 'equine',                                   // the plugin key
   translations: { 'pt-BR': ptBR, en },             // objects (or loaders); read with useModuleTranslation('equine')
   register(app) {
-    app.recordTab('co_equine_horse', { key: 'equine.pedigree', label: 'pedigree.title', render: PedigreeTab })
+    app.recordTab('equine.horse', { key: 'equine.pedigree', label: 'pedigree.title', render: PedigreeTab })
     app.recordTab('contact', { key: 'equine.horses', label: 'contactTab', render: ContactHorsesTab })
-    app.slot('record.detail.header', { recordTypes: ['co_equine_horse'], render: ExamBadges })
+    app.slot('record.detail.header', { recordTypes: ['equine.horse'], render: ExamBadges })
   },
 })
 ```
@@ -692,3 +692,27 @@ The compiled module `plugins` ([`back/modules/plugins`](../../back/modules/plugi
 ## Plugin events and outgoing webhooks
 
 Enabled plugins expose their `[[emits]]` declarations in `/api/v1/events/catalog` as `plugin.<key>.<name>`. These events support exact and wildcard outgoing webhook subscriptions. The webhook `data` is exactly the JSON object passed to `ctx.emit`, including nested values and sensitive-looking keys. Plugin authors are responsible for selecting public content; associated records are not loaded or added to the payload. Disabling or uninstalling a plugin removes its declarations after runtime refresh; existing queued deliveries retain their retry behavior.
+
+## Entity storage and generic record routes
+
+The common runtime model is `EntityDefinition`. Native builders, plugin `EntityDeclaration`s and objects created in administration all project into this model. `EntityStorage` distinguishes native `table`, generated `managed` and EAV `dynamic` storage. Existing plugin manifests default to `dynamic`; runtime plugins cannot choose native tables.
+
+A declaration with `storage = "managed"` gets its own deterministic table, typed columns and declared indexes. Installation serializes schema updates with a database lock. Upgrades may add nullable columns and indexes; changing existing column types, changing index definitions, adding required columns to an existing table or switching storage backends requires a data migration. Indexes must fit the storage key limit; set `max_length` when indexing text. Removing a declared field preserves its column and data. Purging the owning plugin drops its generated tables.
+
+[`examples/managed-entity.toml`](examples/managed-entity.toml) is a manifest fragment declaring `example_records.asset`, including a bounded name column and an index. It needs the usual plugin component to become an installable package. It has not been installed as a verification instance, in keeping with the repository's no-tests rule.
+
+`GET /api/v1/entities` lists readable entity definitions and their storage. Record lists and mutations use `/api/v1/entities/{entity}/records` and `/api/v1/entities/{entity}/records/{id}`. Entity keys and record types use `<plugin>.<entity>`; organization-created objects use `custom.<key>`. Existing native record aliases are accepted at input boundaries and normalized. A transactional migration rewrites stored identities and dynamic permission/event prefixes. Native public event names stay stable. Managed entities use the generic handler with field validation, field permissions, record scope, hooks, audit, outbox events and custom fields. Versioned updates accept `If-Match`.
+
+Native tables without a behaviour handler must explicitly opt into generic writes with `generic_mutations(create_permission, delete_permission)` and declare their update permission. `contacts` uses the default handler for transaction orchestration, generic reads, deletion and archival. Its `EntityWriteBehavior` preserves contact normalization, duplicates and company-link invariants in transactional writes. Dynamic object routes remain available for dynamic storage; managed records use the generic entity routes.
+
+Generate a managed entity schema without a database:
+
+```sh
+cargo run --manifest-path back/Cargo.toml -p aphel -- entity-schema --key example_records.asset docs/plugins/examples/managed-entity.json
+```
+
+The JSON declaration and TOML plugin example describe the same entity. The command uses the same schema generator as installation; its SQL is recorded in `docs/plugins/examples/managed-entity.sql`.
+
+Soft references are declared with `field`, `target` and `on_delete`. A target is `{ "kind": "entity", "entity": "example_records.asset" }` or `{ "kind": "trait", "trait_key": "inventory.asset", "type_field": "asset_type" }`. Trait references store the entity key in a companion field. Deletion policies are `restrict` (default), `clear` and `cascade`; clear fields must be optional. Policies execute in the deletion transaction and cascades are bounded to 1000 records. Dependent entities must support transactional mutations. References are validated on writes and restoration, with the actor's target read scope.
+
+Native extensions use `RecordTypeExtension::side_table(table, record_column)`. The extender owns that table; the host provisions nullable contributed columns and joins them for query filters and sorting. A scalar expression handles snapshots and standalone query consumers. Purging the parent removes its extension rows. The `leads` module now keeps lifecycle stages in its own extension tables; upgrading copies existing stage values and leaves historical physical columns unused.

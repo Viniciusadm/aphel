@@ -7,9 +7,9 @@ use aphel_kernel::domain::UserId;
 pub(crate) use crate::outgoing::{WebhookRequest, WebhookResponse};
 
 pub(crate) const WEBHOOK_ENDPOINT_RECORD_TYPE: RecordType =
-    RecordType::from_static("webhook_endpoint");
+    RecordType::from_static("webhooks.webhook_endpoint");
 pub(crate) const WEBHOOK_DELIVERY_RECORD_TYPE: RecordType =
-    RecordType::from_static("webhook_delivery");
+    RecordType::from_static("webhooks.webhook_delivery");
 pub(crate) const SIGNING_SECRET_OWNER: &str = "webhook_endpoint";
 pub(crate) const SIGNING_SECRET_NAME: &str = "signing_secret";
 pub(crate) const SIGNING_SECRET_PREFIX: &str = "whsec_";

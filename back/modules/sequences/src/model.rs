@@ -7,9 +7,9 @@ use crate::domain::{
 use aphel_kernel::application::shared::RecordType;
 use aphel_kernel::domain::UserId;
 
-pub(crate) const SEQUENCE_RECORD_TYPE: RecordType = RecordType::from_static("sequence");
+pub(crate) const SEQUENCE_RECORD_TYPE: RecordType = RecordType::from_static("sequences.sequence");
 pub(crate) const SEQUENCE_ENROLLMENT_RECORD_TYPE: RecordType =
-    RecordType::from_static("sequence_enrollment");
+    RecordType::from_static("sequences.sequence_enrollment");
 
 pub(crate) const SEQUENCE_CREATED: &str = "sequence.created";
 pub(crate) const SEQUENCE_UPDATED: &str = "sequence.updated";

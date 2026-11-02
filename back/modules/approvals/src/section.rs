@@ -400,7 +400,7 @@ where
             .into_iter()
             .flatten()
             .filter_map(|object| object.get("key").and_then(Value::as_str))
-            .map(|key| format!("co_{key}"))
+            .map(|key| format!("custom.{key}"))
             .collect();
         let index = self.index().await?;
         let mut keys = BTreeSet::new();

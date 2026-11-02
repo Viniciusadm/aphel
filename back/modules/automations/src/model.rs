@@ -10,7 +10,8 @@ use aphel_kernel::domain::automations::{
     AutomationStatus, RunStatus, SkipReason, StepKind, StepStatus,
 };
 
-pub(crate) const AUTOMATION_RECORD_TYPE: RecordType = RecordType::from_static("automation");
+pub(crate) const AUTOMATION_RECORD_TYPE: RecordType =
+    RecordType::from_static("automations.automation");
 
 pub(crate) const AUTOMATION_CREATED: &str = "automation.created";
 pub(crate) const AUTOMATION_UPDATED: &str = "automation.updated";

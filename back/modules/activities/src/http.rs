@@ -852,7 +852,7 @@ impl From<ActivityRecurrenceView> for ActivityRecurrenceResponse {
 
 #[derive(Debug, Serialize, ToSchema)]
 pub struct LinkedRecordResponse {
-    #[schema(example = "deal")]
+    #[schema(example = "deals.deal")]
     pub(crate) record_type: String,
     pub(crate) record_id: String,
     pub(crate) title: Option<String>,
@@ -1007,7 +1007,7 @@ impl From<ActivityRecord> for ActivityResponse {
 #[derive(Debug, Deserialize, ToSchema)]
 #[serde(deny_unknown_fields)]
 pub(crate) struct RecordLinkRequest {
-    #[schema(example = "contact")]
+    #[schema(example = "contacts.contact")]
     pub(crate) record_type: String,
     pub(crate) record_id: String,
 }
@@ -1033,7 +1033,7 @@ pub(crate) struct CreateActivityRequest {
     pub(crate) due_at: Option<String>,
     pub(crate) completed_at: Option<String>,
     pub(crate) owner_id: Option<String>,
-    #[schema(example = "contact")]
+    #[schema(example = "contacts.contact")]
     pub(crate) record_type: Option<String>,
     pub(crate) record_id: Option<String>,
     pub(crate) links: Option<Vec<RecordLinkRequest>>,
@@ -1169,7 +1169,7 @@ impl UpdateActivityRequest {
 #[derive(Debug, Default, Deserialize, IntoParams)]
 #[into_params(parameter_in = Query)]
 pub(crate) struct ActivityListParams {
-    #[param(example = "contact")]
+    #[param(example = "contacts.contact")]
     pub(crate) record_type: Option<String>,
     pub(crate) record_id: Option<String>,
     pub(crate) my_open: Option<bool>,
@@ -1437,7 +1437,7 @@ impl RecordTypeHandler for ActivityHandler {
     }
 
     fn record_type(&self) -> &str {
-        "activity"
+        "activities.activity"
     }
 
     async fn create(&self, ctx: &RecordCtx<'_>, values: Value) -> Result<Value, AppError> {

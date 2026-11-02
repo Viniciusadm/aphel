@@ -36,7 +36,7 @@ pub(crate) async fn accepting(
     ctx: &mut HookCtx<'_>,
     accepting: &AcceptingQuote,
 ) -> Result<(), AppError> {
-    forward_plugin_hook(ctx, ACCEPTING, "quote", accepting.quote_id(), || {
+    forward_plugin_hook(ctx, ACCEPTING, "quotes.quote", accepting.quote_id(), || {
         accepting_json(accepting)
     })
     .await
@@ -46,7 +46,7 @@ pub(crate) async fn accepting(
 pub(crate) fn hooks() -> Vec<Arc<PluginHook>> {
     vec![Arc::new(PluginHook::new(
         ACCEPTING,
-        "quote",
+        "quotes.quote",
         PluginHookKind::Veto,
         "Before a quote is accepted (public page or manually); values: { quote, deal_id, acceptor: { name, email }, manual }. An error blocks the acceptance",
     ))]

@@ -17,7 +17,7 @@ use aphel_kernel::application::data_subject::{
     DataSubjectAction, DataSubjectRequest, DataSubjectSource, affected_items,
 };
 use aphel_kernel::application::fields::{
-    CustomFieldPorts, FieldDefinitionRepository, RecordTypeDefinition,
+    CustomFieldPorts, EntityDefinition, FieldDefinitionRepository,
 };
 use aphel_kernel::application::shared::{
     Actor, AuditEntry, AuditLog, DomainEvent, EventPublisher, FieldChange, FileStorage, RecordRef,
@@ -90,16 +90,13 @@ pub(crate) async fn run_external_sources(
     sections
 }
 
-pub(crate) fn definition(
-    ctx: &Ctx<'_>,
-    record_type: &str,
-) -> Result<RecordTypeDefinition, AppError> {
+pub(crate) fn definition(ctx: &Ctx<'_>, record_type: &str) -> Result<EntityDefinition, AppError> {
     ctx.registry().require(record_type).cloned()
 }
 
 pub(crate) async fn personal_fields(
     ctx: &Ctx<'_>,
-    definition: &RecordTypeDefinition,
+    definition: &EntityDefinition,
 ) -> Result<Vec<PersonalField>, AppError> {
     let definitions = ctx
         .fields()

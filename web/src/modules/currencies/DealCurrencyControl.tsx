@@ -7,7 +7,7 @@ import type { RecordItem } from '@/features/records/types'
 import { useCurrencySettings } from './api'
 import { currencyErrorKey } from './errors'
 
-const DEAL_RECORD_TYPE = 'deal'
+const DEAL_RECORD_TYPE = 'deals.deal'
 const RATE_DECIMALS = 10
 
 interface DealCurrencyControlProps {

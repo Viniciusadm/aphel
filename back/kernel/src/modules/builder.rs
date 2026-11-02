@@ -8,7 +8,7 @@ use crate::api::state::AppState;
 use crate::application::automations::actions::AutomationAction;
 use crate::application::automations::triggers::AutomationTrigger;
 use crate::application::dashboard::WidgetProvider;
-use crate::application::fields::{RecordTypeDefinition, RecordTypeRegistry};
+use crate::application::fields::{EntityDefinition, RecordTypeRegistry};
 use crate::application::jobs::ScheduledJobDefinition;
 use crate::application::module_admin::Compatibility;
 use crate::application::public_events::PublicEventDefinition;
@@ -108,7 +108,7 @@ pub struct AppBuilder {
     widgets: Vec<Contribution<DashboardWidget>>,
     triggers: Vec<Contribution<Trigger>>,
     actions: Vec<Contribution<Action>>,
-    record_types: Vec<Contribution<RecordTypeDefinition>>,
+    record_types: Vec<Contribution<EntityDefinition>>,
     record_extensions: Vec<Contribution<RecordTypeExtension>>,
     custom_record_handler: Option<RecordHandlerFactory>,
     contributions: Contributions,
@@ -365,7 +365,10 @@ impl AppBuilder {
         self
     }
 
-    pub fn entity(&mut self, definition: RecordTypeDefinition) -> &mut Self {
+    pub fn entity(&mut self, mut definition: EntityDefinition) -> &mut Self {
+        if !definition.key.contains('.') {
+            definition.key = format!("{}.{}", self.current, definition.key);
+        }
         let contribution = self.contribution(DEFAULT_PRIORITY, definition);
         self.record_types.push(contribution);
         self
@@ -516,6 +519,18 @@ impl AppBuilder {
             self.custom_record_handler.take(),
         )?);
 
+        for definition in record_types.definitions() {
+            for field in &definition.system_fields {
+                if let (Some(extension), Some(owner)) = (&field.extension, field.contributed_by)
+                    && let Some(entry) = modules.iter_mut().find(|entry| entry.key() == owner)
+                {
+                    let table = crate::modules::intern::intern(&extension.table);
+                    if !entry.manifest.owned_tables.contains(&table) {
+                        entry.manifest.base.owned_tables.push(table);
+                    }
+                }
+            }
+        }
         let app = App {
             record_types,
             record_contributions,

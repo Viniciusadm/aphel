@@ -1,6 +1,8 @@
-ALTER TABLE contacts
-  ADD COLUMN lead_temperature TINYINT UNSIGNED NULL,
-  ADD INDEX idx_contacts_lead_temperature (lead_temperature);
+CREATE TABLE lead_pro_contact_extension (
+  record_id CHAR(36) NOT NULL PRIMARY KEY,
+  lead_temperature DECIMAL(24,6) NULL,
+  KEY lead_pro_temperature_index (lead_temperature)
+) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci;
 
 CREATE TABLE lead_pro_touches (
   id CHAR(36) NOT NULL,
@@ -10,6 +12,5 @@ CREATE TABLE lead_pro_touches (
   created_at DATETIME(6) NOT NULL,
   PRIMARY KEY (id),
   UNIQUE KEY uq_lead_pro_touches_event (event_id),
-  KEY idx_lead_pro_touches_contact (contact_id, created_at),
-  CONSTRAINT fk_lead_pro_touches_contact FOREIGN KEY (contact_id) REFERENCES contacts (id) ON DELETE CASCADE
+  KEY idx_lead_pro_touches_contact (contact_id, created_at)
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci;

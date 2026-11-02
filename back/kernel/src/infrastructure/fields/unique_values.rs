@@ -1,7 +1,7 @@
 use sqlx::{MySql, QueryBuilder, Row};
 use uuid::Uuid;
 
-use crate::application::fields::{RecordTypeDefinition, custom_field_path};
+use crate::application::fields::{EntityDefinition, custom_field_path};
 use crate::application::shared::RecordRef;
 use crate::database::transaction::MySqlTx;
 use crate::domain::fields::{FieldDefinition, FieldValueError};
@@ -38,7 +38,7 @@ async fn lock_field(tx: &mut MySqlTx, field_id: Uuid) -> Result<(), AppError> {
 
 async fn is_live(
     tx: &mut MySqlTx,
-    definition: &RecordTypeDefinition,
+    definition: &EntityDefinition,
     record_id: &str,
 ) -> Result<bool, AppError> {
     let mut builder: QueryBuilder<MySql> = QueryBuilder::new(format!(
@@ -100,7 +100,7 @@ pub async fn release_record(tx: &mut MySqlTx, record: &RecordRef) -> Result<(), 
 
 pub async fn reserve(
     tx: &mut MySqlTx,
-    definition: &RecordTypeDefinition,
+    definition: &EntityDefinition,
     record: &RecordRef,
     field: &FieldDefinition,
 ) -> Result<(), AppError> {
@@ -164,7 +164,7 @@ pub async fn reserve(
 
 pub async fn reserve_record(
     tx: &mut MySqlTx,
-    definition: &RecordTypeDefinition,
+    definition: &EntityDefinition,
     record: &RecordRef,
 ) -> Result<(), AppError> {
     let fields = crate::infrastructure::fields::mysql_definitions::unique_fields(
@@ -180,7 +180,7 @@ pub async fn reserve_record(
 
 pub async fn rebuild(
     tx: &mut MySqlTx,
-    definition: &RecordTypeDefinition,
+    definition: &EntityDefinition,
     field: &FieldDefinition,
 ) -> Result<(), AppError> {
     lock_field(tx, field.id).await?;
@@ -227,7 +227,7 @@ pub async fn rebuild(
 
 pub async fn duplicated_records(
     pool: &sqlx::MySqlPool,
-    definition: &RecordTypeDefinition,
+    definition: &EntityDefinition,
     field: &FieldDefinition,
     limit: u32,
 ) -> Result<Vec<Uuid>, AppError> {
@@ -256,7 +256,7 @@ pub async fn duplicated_records(
         .collect())
 }
 
-fn push_live(builder: &mut QueryBuilder<MySql>, definition: &RecordTypeDefinition) {
+fn push_live(builder: &mut QueryBuilder<MySql>, definition: &EntityDefinition) {
     if let Some(deleted) = &definition.deleted_column {
         builder.push(format!(
             " AND NOT EXISTS (SELECT 1 FROM {} r WHERE r.id = v.record_id AND r.{} IS NOT NULL)",

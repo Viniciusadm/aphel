@@ -52,7 +52,7 @@ const leadProModule = defineModule({
     })
     app.slot('record.detail.actions', {
       key: `${LEAD_PRO_KEY}.touch`,
-      recordTypes: ['contact'],
+      recordTypes: ['contacts.contact'],
       permission: READ_PERMISSION,
       render: TouchButton,
     })

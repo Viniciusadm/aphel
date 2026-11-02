@@ -4,7 +4,7 @@ use async_trait::async_trait;
 use sqlx::{MySql, MySqlPool, QueryBuilder};
 
 use crate::application::access::Authorizer;
-use crate::application::fields::{RecordTypeDefinition, RecordTypeRegistry};
+use crate::application::fields::{EntityDefinition, RecordTypeRegistry};
 use crate::application::files::{RecordAccessChecker, UNSUPPORTED_RECORD_TYPE};
 use crate::application::organization_admin::ListWindow;
 use crate::application::query::{
@@ -29,7 +29,7 @@ impl MySqlRecordAccessChecker {
         Self { pool, registry }
     }
 
-    fn definition(&self, record: &RecordRef) -> Result<&RecordTypeDefinition, AppError> {
+    fn definition(&self, record: &RecordRef) -> Result<&EntityDefinition, AppError> {
         self.registry.get(&record.record_type).ok_or_else(|| {
             AppError::validation_code(
                 UNSUPPORTED_RECORD_TYPE,
@@ -41,7 +41,7 @@ impl MySqlRecordAccessChecker {
     async fn visible_with(
         &self,
         scope: &AccessScope,
-        definition: &RecordTypeDefinition,
+        definition: &EntityDefinition,
         permission: &Permission,
         record: &RecordRef,
     ) -> Result<bool, AppError> {

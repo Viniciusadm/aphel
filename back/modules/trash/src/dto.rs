@@ -3,11 +3,11 @@ use utoipa::{IntoParams, ToSchema};
 
 use crate::domain::{TrashEntry, TrashItem, TrashQuery, TrashSettings};
 use aphel_kernel::api::dto::common::{OwnerResponse, timestamp};
-use aphel_kernel::application::fields::RecordTypeDefinition;
+use aphel_kernel::application::fields::EntityDefinition;
 
 #[derive(Debug, Serialize, ToSchema)]
 pub(crate) struct TrashItemResponse {
-    #[schema(example = "contact")]
+    #[schema(example = "contacts.contact")]
     pub(crate) record_type: String,
     pub(crate) id: String,
     pub(crate) title: String,
@@ -42,7 +42,7 @@ impl From<TrashItem> for TrashItemResponse {
 #[derive(Debug, Deserialize, IntoParams)]
 #[into_params(parameter_in = Query)]
 pub(crate) struct TrashListParams {
-    #[param(example = "contact")]
+    #[param(example = "contacts.contact")]
     pub(crate) record_type: Option<String>,
     pub(crate) search: Option<String>,
 }
@@ -72,14 +72,14 @@ impl From<TrashSettings> for TrashSettingsBody {
 
 #[derive(Debug, Serialize, ToSchema)]
 pub(crate) struct TrashTypeResponse {
-    #[schema(example = "contact")]
+    #[schema(example = "contacts.contact")]
     pub(crate) record_type: String,
     pub(crate) label: Option<String>,
     pub(crate) custom: bool,
 }
 
-impl From<&RecordTypeDefinition> for TrashTypeResponse {
-    fn from(definition: &RecordTypeDefinition) -> Self {
+impl From<&EntityDefinition> for TrashTypeResponse {
+    fn from(definition: &EntityDefinition) -> Self {
         Self {
             record_type: definition.record_type.as_str().to_owned(),
             label: definition

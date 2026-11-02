@@ -11,7 +11,7 @@ use crate::domain::{
 use crate::store::{ApprovalDirectory, ApprovalStore};
 use aphel_kernel::Ctx;
 use aphel_kernel::application::access::Authorizer;
-use aphel_kernel::application::fields::{RecordTypeDefinition, RecordWrite, WriteMode};
+use aphel_kernel::application::fields::{EntityDefinition, RecordWrite, WriteMode};
 use aphel_kernel::application::shared::{
     Actor, AuditEntry, AuditLog, DomainEvent, EventPublisher, FieldChange, RecordRef,
 };
@@ -79,7 +79,7 @@ pub(crate) fn record_not_found() -> AppError {
     AppError::not_found_code(APPROVAL_RECORD_NOT_FOUND, "record was not found")
 }
 
-pub(crate) fn update_permission(definition: &RecordTypeDefinition) -> Result<Permission, AppError> {
+pub(crate) fn update_permission(definition: &EntityDefinition) -> Result<Permission, AppError> {
     definition
         .update_permission
         .clone()
@@ -169,10 +169,7 @@ fn check_target(checkpoint: &ApprovalCheckpoint) -> Result<(), AppError> {
     }
 }
 
-fn definition<'r>(
-    ctx: &'r Ctx<'_>,
-    record: &RecordRef,
-) -> Result<&'r RecordTypeDefinition, AppError> {
+fn definition<'r>(ctx: &'r Ctx<'_>, record: &RecordRef) -> Result<&'r EntityDefinition, AppError> {
     ctx.registry().require(record.record_type.as_str())
 }
 

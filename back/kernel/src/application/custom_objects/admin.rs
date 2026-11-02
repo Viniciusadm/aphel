@@ -103,6 +103,7 @@ pub struct CreateObjectCommand {
 
 #[derive(Debug, Clone, PartialEq, Eq)]
 pub struct ManagedObject {
+    pub entity_definition: Option<Value>,
     pub module_key: String,
     pub permission_scope: Option<RecordScope>,
     pub internal: bool,
@@ -419,6 +420,9 @@ where
                 .max()
                 .map_or(0, |position| position + 1),
             module_key: managed.as_ref().map(|managed| managed.module_key.clone()),
+            entity_definition: managed
+                .as_ref()
+                .and_then(|managed| managed.entity_definition.clone()),
             is_internal: managed.as_ref().is_some_and(|managed| managed.internal),
             created_by: Some(scope.user_id().clone()),
             created_at: now,
@@ -451,10 +455,12 @@ where
             .objects()
             .seed_system_fields(&mut tx, &definition)
             .await?;
-        self.ports
-            .definitions()
-            .insert(&mut tx, &title_field)
-            .await?;
+        if definition.storage == crate::application::fields::EntityStorage::Dynamic {
+            self.ports
+                .definitions()
+                .insert(&mut tx, &title_field)
+                .await?;
+        }
         self.ports
             .objects()
             .grant_default_permissions(

@@ -2,10 +2,11 @@ use std::sync::Arc;
 
 use async_trait::async_trait;
 
+use aphel_kernel::Ctx;
+use aphel_kernel::database::transaction::MySqlTx;
+use aphel_kernel::errors::AppError;
 use leads::hooks::{Conversion, ConvertLeadCommand};
 use leads::{Lead, LeadConverter};
-use aphel_kernel::Ctx;
-use aphel_kernel::errors::AppError;
 
 use crate::domain::CONVERTED_TOUCH;
 use crate::store;
@@ -17,13 +18,12 @@ impl LeadConverter for WithTouches {
     async fn convert(
         &self,
         ctx: &Ctx<'_>,
+        tx: &mut MySqlTx,
         lead: &Lead,
         command: &ConvertLeadCommand,
     ) -> Result<Conversion, AppError> {
-        let conversion = self.0.convert(ctx, lead, command).await?;
-        let mut tx = ctx.begin().await?;
-        store::insert_touch(&mut tx, lead.id(), CONVERTED_TOUCH, None, ctx.now()).await?;
-        tx.commit().await?;
+        let conversion = self.0.convert(ctx, tx, lead, command).await?;
+        store::insert_touch(tx, lead.id(), CONVERTED_TOUCH, None, ctx.now()).await?;
         Ok(conversion)
     }
 }

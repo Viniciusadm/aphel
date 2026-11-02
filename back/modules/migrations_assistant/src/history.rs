@@ -21,10 +21,10 @@ use imports::store::RecordLookups;
 pub(crate) const MAX_HISTORY_ROWS: usize = 5_000;
 pub(crate) const MAX_REPORTED_ERRORS: usize = 100;
 pub(crate) const HISTORY_TOO_MANY_ROWS: &str = "too_many_rows";
-const DEAL_TYPE: &str = "deal";
-const CONTACT_TYPE: &str = "contact";
-const COMPANY_TYPE: &str = "company";
-const ACTIVITY_TYPE_LOOKUP: &str = "activity_type";
+const DEAL_TYPE: &str = "deals.deal";
+const CONTACT_TYPE: &str = "contacts.contact";
+const COMPANY_TYPE: &str = "companies.company";
+const ACTIVITY_TYPE_LOOKUP: &str = "activities.activity_type";
 const DEFAULT_ACTIVITY_TITLE: &str = "Atividade migrada";
 const NOON: NaiveTime = match NaiveTime::from_hms_opt(12, 0, 0) {
     Some(time) => time,

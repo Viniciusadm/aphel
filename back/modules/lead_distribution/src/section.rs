@@ -90,7 +90,10 @@ fn default_active() -> bool {
 }
 
 fn is_distributable(record_type: &str) -> bool {
-    matches!(record_type, "contact" | "company" | "deal") || is_custom_record_type(record_type)
+    matches!(
+        record_type,
+        "contacts.contact" | "companies.company" | "deals.deal"
+    ) || is_custom_record_type(record_type)
 }
 
 struct Directory {
@@ -452,7 +455,7 @@ fn validate_rule(index: usize, rule: &PackageRule, issues: &mut Vec<PackageIssue
         issues.push(PackageIssue::new(
             path("record_type"),
             "invalid_record_type",
-            "must be contact, company, deal or a custom object (co_<key>)",
+            "must be contact, company, deal or a custom object (custom.<key>)",
         ));
     }
     if DistributionStrategy::parse(rule.strategy.trim()).is_none() {

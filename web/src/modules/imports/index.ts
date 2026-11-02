@@ -1,6 +1,5 @@
 import { Upload } from 'lucide-react'
 import { defineModule } from '@/kernel/modules/define'
-import { IMPORTABLE_RECORD_TYPES, importPermission } from './api'
 import { ImportAction } from './ImportAction'
 import { importsRoutes } from './routes'
 
@@ -18,10 +17,7 @@ const importsModule = defineModule({
       order: 120,
       lazy: async () => ({ Component: (await import('./ImportHistoryPage')).ImportHistoryPage }),
     })
-    for (const recordType of IMPORTABLE_RECORD_TYPES) {
-      app.slot('record.list.actions', { key: recordType, recordTypes: recordType, permission: importPermission(recordType)!, order: 2000, render: ImportAction })
-    }
-    app.slot('record.list.actions', { key: 'custom', recordTypes: 'co_*', order: 2000, render: ImportAction })
+    app.slot('record.list.actions', { key: 'records', order: 2000, render: ImportAction })
   },
 })
 

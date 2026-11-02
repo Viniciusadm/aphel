@@ -1,4 +1,4 @@
-use aphel_kernel::application::fields::RecordTypeDefinition;
+use aphel_kernel::application::fields::EntityDefinition;
 
 #[derive(Debug, Clone, Copy, PartialEq, Eq)]
 pub(crate) struct Dataset {
@@ -209,7 +209,7 @@ pub(crate) fn column_role(table: &str, column: &str) -> ColumnRole {
     }
 }
 
-pub(crate) fn record_priority(definition: &RecordTypeDefinition) -> u8 {
+pub(crate) fn record_priority(definition: &EntityDefinition) -> u8 {
     definition.capabilities.restore_order
 }
 

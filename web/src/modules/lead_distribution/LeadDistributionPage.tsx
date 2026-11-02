@@ -37,7 +37,7 @@ function LeadDistributionSection() {
   const remove = useDistributionMutation((rule: DistributionRule) => leadDistributionApi.remove(rule.id))
 
   const recordTypeLabel = (recordType: string) => {
-    if (recordType === 'deal' || recordType === 'contact' || recordType === 'company') {
+    if (recordType === 'deals.deal' || recordType === 'contacts.contact' || recordType === 'companies.company') {
       return t(`recordTypes.${recordType}`)
     }
     return objects.data?.find((object) => object.record_type === recordType)?.label_plural ?? recordType

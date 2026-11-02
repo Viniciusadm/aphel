@@ -46,7 +46,7 @@ Distribution rules choose the owner of a record (`contact`, `company`, `deal` or
 { "id": "distribuir", "type": "action", "action": "assign_by_rule", "config": { "rule_id": "<rule id>", "field": "owner_id" } }
 ```
 
-- Types: `contact`, `company`, `deal` and `co_*` with an owner. `field` (default `owner_id`) must be a user field of the type. Required permission: `<type>.update`.
+- Types: `contact`, `company`, `deal` and `custom.*` with an owner. `field` (default `owner_id`) must be a user field of the type. Required permission: `<type>.update`.
 - Validation on save/publish: the rule exists, is active and distributes the same `record_type`.
 - `describe` (dry run): returns who would receive it now (`user_id`, `user_name`, `selection`, `route_index`) without advancing the round robin.
 - Execution: stores `{ rule_id, field, user_id, user_name, selection, route_index, reused }`. Inactive rule → fails with `lead_distribution_rule_inactive`; no one eligible → fails with `lead_distribution_no_eligible_member`; no route and `fallback: none` → success with `{ user_id: null, skipped: "no_route" }`.

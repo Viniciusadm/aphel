@@ -8,9 +8,9 @@ use utoipa::ToSchema;
 
 use crate::manifest::PLUGIN_EVENT_PREFIX;
 use crate::registry;
+use aphel_kernel::application::public_events::custom_event_record_type;
 use aphel_kernel::application::shared::{DomainEvent, EventConsumer};
 use aphel_kernel::domain::access::AccessScope;
-use aphel_kernel::domain::custom_objects::CUSTOM_OBJECT_PREFIX;
 use aphel_kernel::errors::AppError;
 use aphel_kernel::state::runtime_state;
 
@@ -66,7 +66,8 @@ impl EventConsumer for ChangeFeedConsumer {
     }
 
     fn accepts(&self, event_type: &str) -> bool {
-        event_type.starts_with(CUSTOM_OBJECT_PREFIX) || event_type.starts_with(PLUGIN_EVENT_PREFIX)
+        custom_event_record_type(event_type).is_some()
+            || event_type.starts_with(PLUGIN_EVENT_PREFIX)
     }
 
     async fn consume(&self, event: &DomainEvent) -> Result<(), AppError> {

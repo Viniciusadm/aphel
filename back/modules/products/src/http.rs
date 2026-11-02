@@ -365,7 +365,7 @@ impl RecordTypeHandler for ProductHandler {
     }
 
     fn record_type(&self) -> &str {
-        "product"
+        "products.product"
     }
 
     async fn create(&self, ctx: &RecordCtx<'_>, values: Value) -> Result<Value, AppError> {

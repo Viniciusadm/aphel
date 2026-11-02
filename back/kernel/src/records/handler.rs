@@ -120,6 +120,18 @@ pub trait RecordTypeHandler: Send + Sync {
         ))
     }
 
+    async fn delete_in_tx(
+        &self,
+        _ctx: &RecordCtx<'_>,
+        _tx: &mut MySqlTx,
+        _id: Uuid,
+    ) -> Result<(), AppError> {
+        Err(operation_not_supported(
+            self.record_type(),
+            "transactional deletion",
+        ))
+    }
+
     async fn delete(&self, ctx: &RecordCtx<'_>, id: Uuid) -> Result<(), AppError>;
 
     async fn load(&self, ctx: &RecordCtx<'_>, id: Uuid) -> Result<Option<Value>, AppError>;

@@ -14,6 +14,12 @@ pub(crate) fn computed_expression(computed: &ComputedColumn, alias: &str) -> Str
 }
 
 pub fn system_expression(field: &SystemField, alias: &str) -> String {
+    if let Some(extension) = &field.extension {
+        return format!(
+            "(SELECT e.`{}` FROM `{}` e WHERE e.`{}` = {alias}.id)",
+            field.column, extension.table, extension.record_column
+        );
+    }
     match &field.computed {
         Some(computed) => computed_expression(computed, alias),
         None => aliased(alias, &field.column),

@@ -13,7 +13,7 @@ use crate::table::report_table;
 use aphel_kernel::Ctx;
 use aphel_kernel::application::access::{Authorizer, PERMISSION_DENIED};
 use aphel_kernel::application::audit::{DiffOptions, diff_changes};
-use aphel_kernel::application::fields::RecordTypeDefinition;
+use aphel_kernel::application::fields::EntityDefinition;
 use aphel_kernel::application::fields::permissions::query_error;
 use aphel_kernel::application::query::{AggregateEngine, AggregateQuery, AggregateResult};
 use aphel_kernel::application::shared::{FieldChange, RecordRef, RecordType, ensure_version};
@@ -273,7 +273,7 @@ pub(crate) fn encode_report(
 pub(crate) fn readable<'c>(
     ctx: &'c Ctx<'_>,
     record_type: &str,
-) -> Result<&'c RecordTypeDefinition, AppError> {
+) -> Result<&'c EntityDefinition, AppError> {
     let definition = ctx.registry().require(record_type)?;
     ctx.scope.require(&definition.read_permission)?;
     Ok(definition)

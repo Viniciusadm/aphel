@@ -901,7 +901,7 @@ pub(crate) async fn update_settings(
         scope,
         now,
         RecordMutation {
-            record: RecordRef::new(RecordType::from_static("quote_settings"), record_id),
+            record: RecordRef::new(RecordType::from_static("quotes.quote_settings"), record_id),
             event_type: QUOTE_SETTINGS_UPDATED,
             payload: changes_payload(&changes),
             changes,

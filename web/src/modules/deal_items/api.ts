@@ -12,7 +12,7 @@ export type DiscountType = Schemas['DiscountType']
 
 export const DISCOUNT_TYPES: DiscountType[] = ['none', 'percent', 'amount']
 
-const DEAL_RECORD_TYPE = 'deal'
+const DEAL_RECORD_TYPE = 'deals.deal'
 
 export const dealItemsKeys = {
   all: ['deal-items'] as const,

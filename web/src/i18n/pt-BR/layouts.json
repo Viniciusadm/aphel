@@ -7,7 +7,22 @@
     "company": "Empresas",
     "deal": "Oportunidades",
     "activity": "Tarefas",
-    "product": "Produtos"
+    "product": "Produtos",
+    "contacts": {
+      "contact": "Contatos"
+    },
+    "companies": {
+      "company": "Empresas"
+    },
+    "deals": {
+      "deal": "Oportunidades"
+    },
+    "activities": {
+      "activity": "Tarefas"
+    },
+    "products": {
+      "product": "Produtos"
+    }
   },
   "contexts": {
     "label": "Formulário",

@@ -58,7 +58,19 @@
     "contact": "Contato",
     "company": "Empresa",
     "deal": "Oportunidade",
-    "activity": "Atividade"
+    "activity": "Atividade",
+    "contacts": {
+      "contact": "Contato"
+    },
+    "companies": {
+      "company": "Empresa"
+    },
+    "deals": {
+      "deal": "Oportunidade"
+    },
+    "activities": {
+      "activity": "Atividade"
+    }
   },
   "actionsBar": {
     "pause": "Pausar",
@@ -361,35 +373,116 @@
     "runDepth": "Profundidade da execução"
   },
   "triggers": {
-    "record_created": { "label": "Registro criado", "description": "Quando um registro deste tipo é criado." },
-    "record_updated": { "label": "Registro atualizado", "description": "Quando um registro é alterado; restrinja a campos específicos se quiser." },
-    "record_deleted": { "label": "Registro excluído", "description": "Quando um registro é excluído (as condições sobre ele ficam falsas)." },
-    "deal_stage_changed": { "label": "Oportunidade mudou de etapa", "description": "Quando a oportunidade entra (ou sai) de uma etapa." },
-    "deal_won": { "label": "Oportunidade ganha", "description": "Quando a oportunidade é marcada como ganha." },
-    "deal_lost": { "label": "Oportunidade perdida", "description": "Quando a oportunidade é marcada como perdida." },
-    "activity_completed": { "label": "Atividade concluída", "description": "Quando uma atividade é concluída (nos registros vinculados a ela)." },
-    "note_created": { "label": "Nota criada", "description": "Quando uma nota é adicionada ao registro." },
-    "manual": { "label": "Manual", "description": "Só executa quando alguém inicia em um registro." },
-    "incoming_webhook": { "label": "Webhook de entrada", "description": "Quando um webhook de entrada cria ou atualiza o registro." },
-    "time_date_relative": { "label": "Data do registro", "description": "Um tempo antes ou depois de um campo de data (ex.: 3 dias antes do fechamento previsto)." },
-    "time_record_stale": { "label": "Registro parado", "description": "Quando o registro fica dias sem atualização, sem atividade ou na mesma etapa." },
-    "time_deal_rotting": { "label": "Negócio parado na etapa", "description": "Quando a oportunidade aberta passa do limite de dias da etapa (uma vez por entrada na etapa)." },
-    "time_schedule": { "label": "Agendado", "description": "Em horários definidos, para cada registro que casa com o filtro ou segmento." }
+    "record_created": {
+      "label": "Registro criado",
+      "description": "Quando um registro deste tipo é criado."
+    },
+    "record_updated": {
+      "label": "Registro atualizado",
+      "description": "Quando um registro é alterado; restrinja a campos específicos se quiser."
+    },
+    "record_deleted": {
+      "label": "Registro excluído",
+      "description": "Quando um registro é excluído (as condições sobre ele ficam falsas)."
+    },
+    "deal_stage_changed": {
+      "label": "Oportunidade mudou de etapa",
+      "description": "Quando a oportunidade entra (ou sai) de uma etapa."
+    },
+    "deal_won": {
+      "label": "Oportunidade ganha",
+      "description": "Quando a oportunidade é marcada como ganha."
+    },
+    "deal_lost": {
+      "label": "Oportunidade perdida",
+      "description": "Quando a oportunidade é marcada como perdida."
+    },
+    "activity_completed": {
+      "label": "Atividade concluída",
+      "description": "Quando uma atividade é concluída (nos registros vinculados a ela)."
+    },
+    "note_created": {
+      "label": "Nota criada",
+      "description": "Quando uma nota é adicionada ao registro."
+    },
+    "manual": {
+      "label": "Manual",
+      "description": "Só executa quando alguém inicia em um registro."
+    },
+    "incoming_webhook": {
+      "label": "Webhook de entrada",
+      "description": "Quando um webhook de entrada cria ou atualiza o registro."
+    },
+    "time_date_relative": {
+      "label": "Data do registro",
+      "description": "Um tempo antes ou depois de um campo de data (ex.: 3 dias antes do fechamento previsto)."
+    },
+    "time_record_stale": {
+      "label": "Registro parado",
+      "description": "Quando o registro fica dias sem atualização, sem atividade ou na mesma etapa."
+    },
+    "time_deal_rotting": {
+      "label": "Negócio parado na etapa",
+      "description": "Quando a oportunidade aberta passa do limite de dias da etapa (uma vez por entrada na etapa)."
+    },
+    "time_schedule": {
+      "label": "Agendado",
+      "description": "Em horários definidos, para cada registro que casa com o filtro ou segmento."
+    }
   },
   "actions": {
-    "create_task": { "label": "Criar tarefa", "description": "Cria uma tarefa vinculada ao registro." },
-    "update_fields": { "label": "Atualizar campos", "description": "Altera campos do registro (vazio limpa o campo)." },
-    "assign_owner": { "label": "Trocar responsável", "description": "Define o responsável pelo registro." },
-    "add_tag": { "label": "Adicionar etiqueta", "description": "Adiciona uma etiqueta ao registro." },
-    "remove_tag": { "label": "Remover etiqueta", "description": "Remove uma etiqueta do registro." },
-    "move_stage": { "label": "Mover de etapa", "description": "Move a oportunidade para uma etapa (requisitos da etapa continuam valendo)." },
-    "create_note": { "label": "Criar nota", "description": "Adiciona uma nota ao registro." },
-    "send_notification": { "label": "Enviar notificação", "description": "Mostra uma notificação no app para os destinatários." },
-    "send_email": { "label": "Enviar e-mail", "description": "Envia um e-mail para os destinatários, conforme as preferências deles." },
-    "call_webhook": { "label": "Chamar webhook", "description": "Faz um POST JSON para uma URL externa." },
-    "create_related_record": { "label": "Criar registro relacionado", "description": "Cria um registro de outro tipo e, opcionalmente, vincula ao atual." },
-    "assign_by_rule": { "label": "Distribuir por regra", "description": "Atribui o responsável usando uma regra de distribuição de leads." },
-    "enroll_in_sequence": { "label": "Inscrever em sequência", "description": "Inscreve o contato numa sequência; os e-mails saem pela caixa do responsável ou de quem publicou a automação." }
+    "create_task": {
+      "label": "Criar tarefa",
+      "description": "Cria uma tarefa vinculada ao registro."
+    },
+    "update_fields": {
+      "label": "Atualizar campos",
+      "description": "Altera campos do registro (vazio limpa o campo)."
+    },
+    "assign_owner": {
+      "label": "Trocar responsável",
+      "description": "Define o responsável pelo registro."
+    },
+    "add_tag": {
+      "label": "Adicionar etiqueta",
+      "description": "Adiciona uma etiqueta ao registro."
+    },
+    "remove_tag": {
+      "label": "Remover etiqueta",
+      "description": "Remove uma etiqueta do registro."
+    },
+    "move_stage": {
+      "label": "Mover de etapa",
+      "description": "Move a oportunidade para uma etapa (requisitos da etapa continuam valendo)."
+    },
+    "create_note": {
+      "label": "Criar nota",
+      "description": "Adiciona uma nota ao registro."
+    },
+    "send_notification": {
+      "label": "Enviar notificação",
+      "description": "Mostra uma notificação no app para os destinatários."
+    },
+    "send_email": {
+      "label": "Enviar e-mail",
+      "description": "Envia um e-mail para os destinatários, conforme as preferências deles."
+    },
+    "call_webhook": {
+      "label": "Chamar webhook",
+      "description": "Faz um POST JSON para uma URL externa."
+    },
+    "create_related_record": {
+      "label": "Criar registro relacionado",
+      "description": "Cria um registro de outro tipo e, opcionalmente, vincula ao atual."
+    },
+    "assign_by_rule": {
+      "label": "Distribuir por regra",
+      "description": "Atribui o responsável usando uma regra de distribuição de leads."
+    },
+    "enroll_in_sequence": {
+      "label": "Inscrever em sequência",
+      "description": "Inscreve o contato numa sequência; os e-mails saem pela caixa do responsável ou de quem publicou a automação."
+    }
   },
   "properties": {
     "title": "Título",
@@ -440,9 +533,21 @@
     "relationship": "Opcional; deixa o novo registro ligado ao atual."
   },
   "enums": {
-    "priority": { "low": "Baixa", "normal": "Normal", "high": "Alta", "urgent": "Urgente" },
-    "mode": { "no_update": "Sem atualização", "no_activity": "Sem atividade", "same_stage": "Na mesma etapa" },
-    "sender": { "record_owner": "Responsável pelo contato", "automation_author": "Quem publicou a automação" }
+    "priority": {
+      "low": "Baixa",
+      "normal": "Normal",
+      "high": "Alta",
+      "urgent": "Urgente"
+    },
+    "mode": {
+      "no_update": "Sem atualização",
+      "no_activity": "Sem atividade",
+      "same_stage": "Na mesma etapa"
+    },
+    "sender": {
+      "record_owner": "Responsável pelo contato",
+      "automation_author": "Quem publicou a automação"
+    }
   },
   "issues": {
     "required": "Obrigatório.",

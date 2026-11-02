@@ -22,7 +22,7 @@ use aphel_kernel::errors::AppError;
 use aphel_kernel::modules::builder::APHEL_VERSION;
 use aphel_kernel::modules::{AppBuilder, Manifest, Module};
 
-pub(crate) const NOTE_RESOURCE: PublicResource = PublicResource::new("note", "NoteResponse");
+pub(crate) const NOTE_RESOURCE: PublicResource = PublicResource::new("notes.note", "NoteResponse");
 
 pub const KEY: &str = "notes";
 
@@ -55,6 +55,9 @@ impl Module for NotesModule {
     }
 
     fn register(&self, app: &mut AppBuilder) -> Result<(), AppError> {
+        app.contribute(std::sync::Arc::new(
+            aphel_kernel::application::fields::EntityKeyAliases(&[("note", "notes.note")]),
+        ));
         app.contribute::<dyn aphel_kernel::application::notifications::texts::NotificationTexts>(
             std::sync::Arc::new(crate::notifications::NoteNotificationTexts),
         );

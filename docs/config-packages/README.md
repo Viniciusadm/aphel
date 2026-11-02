@@ -20,12 +20,12 @@ A configuration package describes **how an organization works**, without any bus
   "sections": {
     "custom_objects": {
       "objects": [{ "key": "contract", "label_singular": "Contrato", "label_plural": "Contratos", "icon": "file-text" }],
-      "relationships": [{ "key": "contracts", "inverse_key": "company", "from_type": "company", "to_type": "co_contract",
+      "relationships": [{ "key": "contracts", "inverse_key": "company", "from_type": "company", "to_type": "custom.contract",
                           "cardinality": "one_to_many", "from_label": "Contratos", "to_label": "Empresa",
                           "required": true, "on_delete": "restrict" }]
     },
     "fields": [
-      { "record_type": "co_contract", "key": "name", "label": "Nome", "type": "text", "required": true, "searchable": true },
+      { "record_type": "custom.contract", "key": "name", "label": "Nome", "type": "text", "required": true, "searchable": true },
       { "record_type": "company", "key": "segment", "label": "Segmento", "type": "select",
         "options": [{ "value": "industry", "label": "Indústria", "color": "#1f6feb" }] }
     ],
@@ -67,7 +67,7 @@ Pipelines, stages, loss reasons, tags and views had no key in the database: the 
 
 A pipeline with `"default": true` that does not find a pipeline with the same key reuses the **organization's default pipeline** (if it does not have a stored key yet). Installing a package never changes which pipeline is the default.
 
-Custom objects and relationships already have their own key (the object's `key`, which becomes the `co_<key>` type, and the relationship's `key`). The `custom_objects` section is installed **before** `fields`, and `fields`, `layouts` and `views` recognize the `co_<key>` types declared in the same package even before they exist in the organization. A new object automatically gets the `name` title field, unless the package declares `name` for the type in `fields`. An existing relationship with different types, inverse key or cardinality becomes an unresolvable conflict (`relationship_incompatible`); labels, `required` and `on_delete` are updated. Inactive objects are not exported (nor the relationships that touch them).
+Custom objects and relationships already have their own key (the object's `key`, which becomes the `custom.<key>` type, and the relationship's `key`). The `custom_objects` section is installed **before** `fields`, and `fields`, `layouts` and `views` recognize the `custom.<key>` types declared in the same package even before they exist in the organization. A new object automatically gets the `name` title field, unless the package declares `name` for the type in `fields`. An existing relationship with different types, inverse key or cardinality becomes an unresolvable conflict (`relationship_incompatible`); labels, `required` and `on_delete` are updated. Inactive objects are not exported (nor the relationships that touch them).
 
 References between sections are also by key: `entry_required_fields`/`exit_required_fields` mention deal field keys; layouts and views mention field keys and option values; the `deals_by_stage` widget mentions the pipeline in `settings.pipeline`.
 
@@ -141,7 +141,7 @@ The `dashboard` section stores the **organization's** default layout (`dashboard
 
 ## Automations
 
-The `automations` section (session 17) is installed last, after `custom_objects`, `fields`, `pipelines`, `activity_types` and `tags`. Each item carries `key` (the automation's own key, `^[a-z][a-z0-9_]{0,63}$`), `name`, `description`, `record_type` (`contact`, `company`, `deal`, `activity` or `co_<key>` from the package or the organization), `trigger` and `definition` (the current draft, in the same format as the automations API):
+The `automations` section (session 17) is installed last, after `custom_objects`, `fields`, `pipelines`, `activity_types` and `tags`. Each item carries `key` (the automation's own key, `^[a-z][a-z0-9_]{0,63}$`), `name`, `description`, `record_type` (`contact`, `company`, `deal`, `activity` or `custom.<key>` from the package or the organization), `trigger` and `definition` (the current draft, in the same format as the automations API):
 
 ```json
 "automations": [

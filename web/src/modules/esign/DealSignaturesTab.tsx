@@ -227,7 +227,7 @@ function SendDialog({ dealId, open, onOpenChange }: SendDialogProps) {
   const t = useModuleTranslation(ESIGN_KEY)
   const queryClient = useQueryClient()
   const invalidate = useInvalidateEsign()
-  const attachments = useAttachments({ recordType: 'deal', recordId: dealId })
+  const attachments = useAttachments({ recordType: 'deals.deal', recordId: dealId })
   const deal = useQuery({
     queryKey: [...esignKeys.all, 'deal', dealId],
     queryFn: () => api.get<Deal>(`/v1/deals/${encodeURIComponent(dealId)}`),

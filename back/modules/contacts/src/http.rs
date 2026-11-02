@@ -38,9 +38,7 @@ use aphel_kernel::errors::AppError;
 use aphel_kernel::records::{
     AddressInput, merge_survivor, possible_duplicates, serialize_nested_records,
 };
-use aphel_kernel::records::{
-    PendingCommit, RecordCtx, RecordTypeHandler, optional_record, values_request,
-};
+use aphel_kernel::records::{PendingCommit, RecordCtx, values_request};
 use tags::dto::TagSummary;
 use tags::http::{RECORD_INCLUDES, record_tag_map};
 
@@ -85,7 +83,7 @@ async fn list_contacts(
     let mut items: Vec<ContactResponse> = listing.items.into_iter().map(Into::into).collect();
     if includes.contains("tags") {
         let ids: Vec<String> = items.iter().map(|item| item.id.clone()).collect();
-        let mut tags = record_tag_map(&state, &tenant.scope, "contact", &ids).await?;
+        let mut tags = record_tag_map(&state, &tenant.scope, "contacts.contact", &ids).await?;
         for item in &mut items {
             item.tags = Some(tags.remove(&item.id).unwrap_or_default());
         }
@@ -174,7 +172,7 @@ async fn get_contact(
         let mut tags = record_tag_map(
             &state,
             &tenant.scope,
-            "contact",
+            "contacts.contact",
             std::slice::from_ref(&response.id),
         )
         .await?;
@@ -869,56 +867,25 @@ fn contact_body(values: Value) -> Value {
     Value::Object(body)
 }
 
-pub(crate) struct ContactHandler;
+pub(crate) struct ContactBehavior;
 
 #[async_trait]
-impl RecordTypeHandler for ContactHandler {
-    fn durable_mutations(&self) -> bool {
-        true
-    }
-
-    fn record_type(&self) -> &str {
-        "contact"
-    }
-
-    async fn create(&self, ctx: &RecordCtx<'_>, values: Value) -> Result<Value, AppError> {
+impl aphel_kernel::records::EntityWriteBehavior for ContactBehavior {
+    async fn create(
+        &self,
+        ctx: &RecordCtx<'_>,
+        tx: &mut MySqlTx,
+        values: Value,
+    ) -> Result<PendingCommit, AppError> {
         let command =
             values_request::<ContactRequest>(contact_body(values))?.into_command(None, None);
-        let details =
-            service::create(&Ctx::from_state(ctx.state, ctx.scope).await?, command).await?;
-        redacted(
-            ctx.state,
-            ctx.scope,
-            &RecordType::CONTACT,
-            ContactResponse::from(details),
-        )
-        .await
+        let created =
+            service::create_in_tx(&Ctx::from_state(ctx.state, ctx.scope).await?, tx, command)
+                .await?;
+        Ok(created.into_pending())
     }
 
     async fn update(
-        &self,
-        ctx: &RecordCtx<'_>,
-        id: Uuid,
-        values: Value,
-    ) -> Result<Value, AppError> {
-        let command =
-            values_request::<ContactRequest>(contact_body(values))?.into_command(None, None);
-        let details = service::update(
-            &Ctx::from_state(ctx.state, ctx.scope).await?,
-            &id.to_string(),
-            command,
-        )
-        .await?;
-        redacted(
-            ctx.state,
-            ctx.scope,
-            &RecordType::CONTACT,
-            ContactResponse::from(details),
-        )
-        .await
-    }
-
-    async fn update_in_tx(
         &self,
         ctx: &RecordCtx<'_>,
         tx: &mut MySqlTx,
@@ -935,52 +902,6 @@ impl RecordTypeHandler for ContactHandler {
         )
         .await?;
         Ok(pending)
-    }
-
-    async fn delete(&self, ctx: &RecordCtx<'_>, id: Uuid) -> Result<(), AppError> {
-        service::delete(
-            &Ctx::from_state(ctx.state, ctx.scope).await?,
-            &id.to_string(),
-            None,
-        )
-        .await
-    }
-
-    async fn load(&self, ctx: &RecordCtx<'_>, id: Uuid) -> Result<Option<Value>, AppError> {
-        let module_ctx = Ctx::from_state(ctx.state, ctx.scope).await?;
-        let Some(details) = optional_record(service::get(&module_ctx, &id.to_string()).await)?
-        else {
-            return Ok(None);
-        };
-        Ok(Some(
-            redacted(
-                ctx.state,
-                ctx.scope,
-                &RecordType::CONTACT,
-                ContactResponse::from(details),
-            )
-            .await?,
-        ))
-    }
-
-    async fn archive(&self, ctx: &RecordCtx<'_>, id: Uuid) -> Result<(), AppError> {
-        service::archive(
-            &Ctx::from_state(ctx.state, ctx.scope).await?,
-            &id.to_string(),
-            None,
-        )
-        .await
-        .map(|_| ())
-    }
-
-    async fn restore(&self, ctx: &RecordCtx<'_>, id: Uuid) -> Result<(), AppError> {
-        service::unarchive(
-            &Ctx::from_state(ctx.state, ctx.scope).await?,
-            &id.to_string(),
-            None,
-        )
-        .await
-        .map(|_| ())
     }
 }
 
