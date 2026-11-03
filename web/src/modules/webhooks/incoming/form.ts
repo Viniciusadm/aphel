@@ -103,7 +103,7 @@ export function toRequestBody(values: WebhookFormValues): CreateIncomingWebhookB
 
 export function samplePayload(actions: ActionFormValues[]): Record<string, string> {
   const sample: Record<string, string> = {}
-  const pattern = /\$\.([A-Za-z0-9_-]+)/g
+  const pattern = /\$\.payload\.([A-Za-z0-9_-]+)/g
   for (const action of actions) {
     for (const field of action.fields) {
       for (const match of field.expression.matchAll(pattern)) {

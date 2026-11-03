@@ -113,7 +113,7 @@ export function ActionEditor({ index, total, onMove, onRemove }: ActionEditorPro
             </NativeSelect>
             <Input
               aria-label={t('actions.expression')}
-              placeholder={t('actions.expressionPlaceholder', { template: '{{ $.nome }}' })}
+              placeholder={t('actions.expressionPlaceholder', { template: '{{ $.payload.name }}' })}
               className="font-mono text-xs"
               {...register(`actions.${index}.fields.${mappingIndex}.expression`)}
             />
