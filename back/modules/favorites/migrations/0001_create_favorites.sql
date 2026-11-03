@@ -9,9 +9,7 @@ CREATE TABLE favorites (
   position INT NOT NULL DEFAULT 0,
   created_at DATETIME(6) NOT NULL DEFAULT CURRENT_TIMESTAMP(6),
   PRIMARY KEY (id),
-  UNIQUE KEY favorites_target_unique (user_id, favorite_type, target_id),
+  UNIQUE KEY favorites_target_unique (user_id, favorite_type, record_type, target_id),
   KEY favorites_user_position_index (user_id, position),
-  KEY favorites_view_fk_index (view_id),
-  CONSTRAINT favorites_user_fk FOREIGN KEY (user_id) REFERENCES users (id) ON DELETE CASCADE,
-  CONSTRAINT favorites_view_fk FOREIGN KEY (view_id) REFERENCES saved_views (id) ON DELETE CASCADE
+  CONSTRAINT favorites_user_fk FOREIGN KEY (user_id) REFERENCES users (id) ON DELETE CASCADE
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci;

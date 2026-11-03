@@ -108,3 +108,5 @@ pub mod dashboard;
 pub mod timeline;
 
 pub mod privacy;
+
+pub mod favorites;

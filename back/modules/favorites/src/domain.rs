@@ -1,9 +1,7 @@
 use chrono::{DateTime, Utc};
 use uuid::Uuid;
 
-use aphel_kernel::application::fields::EntityDefinition;
 use aphel_kernel::application::shared::RecordType;
-use aphel_kernel::domain::access::RecordScopeFilter;
 
 pub(crate) const FAVORITE_NOT_FOUND: &str = "favorite_not_found";
 pub(crate) const FAVORITE_TARGET_NOT_FOUND: &str = "favorite_target_not_found";
@@ -53,19 +51,6 @@ impl Favorite {
     pub(crate) fn view_id(&self) -> Option<Uuid> {
         (self.kind == FavoriteKind::View).then_some(self.target_id)
     }
-}
-
-#[derive(Debug, Clone, PartialEq)]
-pub(crate) struct ReadableRecordType {
-    pub(crate) definition: EntityDefinition,
-    pub(crate) title_column: String,
-    pub(crate) visibility: RecordScopeFilter,
-}
-
-#[derive(Debug, Clone, PartialEq, Eq)]
-pub(crate) struct VisibleView {
-    pub(crate) record_type: RecordType,
-    pub(crate) name: String,
 }
 
 #[derive(Debug, Clone, PartialEq)]

@@ -1,3 +1,4 @@
+use aphel_kernel::application::fields::CustomFieldPorts;
 use std::collections::{BTreeSet, HashMap};
 
 use uuid::Uuid;
@@ -5,7 +6,6 @@ use uuid::Uuid;
 use crate::domain::{
     CreateFavoriteCommand, FAVORITE_ALREADY_EXISTS, FAVORITE_LIMIT_REACHED, FAVORITE_NOT_FOUND,
     FAVORITE_TARGET_NOT_FOUND, Favorite, FavoriteEntry, FavoriteKind, MAX_FAVORITES,
-    ReadableRecordType,
 };
 use crate::store::FavoriteStore;
 use aphel_kernel::Ctx;
@@ -37,16 +37,6 @@ fn target_not_found() -> AppError {
     )
 }
 
-fn readable(ctx: &Ctx<'_>, record_type: &RecordType) -> Option<ReadableRecordType> {
-    let definition = ctx.registry().get(record_type)?;
-    let visibility = ctx.scope.filter_for(&definition.read_permission)?;
-    Some(ReadableRecordType {
-        definition: definition.clone(),
-        title_column: definition.title_column()?.to_owned(),
-        visibility,
-    })
-}
-
 fn readable_view(ctx: &Ctx<'_>, record_type: &RecordType) -> bool {
     ctx.registry()
         .get(record_type)
@@ -54,7 +44,6 @@ fn readable_view(ctx: &Ctx<'_>, record_type: &RecordType) -> bool {
 }
 
 async fn resolve(ctx: &Ctx<'_>, favorites: Vec<Favorite>) -> Result<Vec<FavoriteEntry>, AppError> {
-    let store = FavoriteStore::of(ctx);
     let mut record_ids: HashMap<RecordType, Vec<Uuid>> = HashMap::new();
     let mut view_ids = Vec::new();
     for favorite in &favorites {
@@ -68,18 +57,34 @@ async fn resolve(ctx: &Ctx<'_>, favorites: Vec<Favorite>) -> Result<Vec<Favorite
     }
     let mut record_titles: HashMap<(RecordType, Uuid), String> = HashMap::new();
     for (record_type, ids) in record_ids {
-        let Some(readable) = readable(ctx, &record_type) else {
-            continue;
-        };
-        let titles = store.record_titles(ctx.scope, &readable, &ids).await?;
-        for (id, title) in titles {
-            record_titles.insert((record_type.clone(), id), title);
+        for id in ids {
+            let reference = aphel_kernel::application::shared::RecordRef::parse(
+                record_type.as_str(),
+                &id.to_string(),
+            )?;
+            if let Some(label) = aphel_sdk::records::visible_record_label(
+                ctx.pool(),
+                ctx.registry(),
+                ctx.fields().definitions(),
+                ctx.scope,
+                &reference,
+            )
+            .await?
+            {
+                record_titles.insert(
+                    (record_type.clone(), id),
+                    label
+                        .title
+                        .filter(|title| !title.trim().is_empty())
+                        .unwrap_or_else(|| id.to_string()),
+                );
+            }
         }
     }
     let views = if view_ids.is_empty() {
         HashMap::new()
     } else {
-        store.visible_views(ctx.scope, &view_ids).await?
+        visible_views(ctx, &view_ids).await?
     };
     Ok(favorites
         .into_iter()
@@ -90,7 +95,10 @@ async fn resolve(ctx: &Ctx<'_>, favorites: Vec<Favorite>) -> Result<Vec<Favorite
                 }
                 FavoriteKind::View => views
                     .get(&favorite.target_id)
-                    .filter(|view| readable_view(ctx, &view.record_type))
+                    .filter(|view| {
+                        view.record_type == favorite.record_type
+                            && readable_view(ctx, &view.record_type)
+                    })
                     .map(|view| view.name.clone()),
             };
             FavoriteEntry {
@@ -118,7 +126,7 @@ pub(crate) async fn create(
         FavoriteKind::View => view_target(ctx, &command).await?,
     };
     if store
-        .find_target(ctx.scope, kind, target_id)
+        .find_target(ctx.scope, kind, &record_type, target_id)
         .await?
         .is_some()
     {
@@ -180,18 +188,25 @@ async fn record_target(
     };
     let record_type = RecordType::parse(raw_type).map_err(|_| unsupported())?;
     let record_id = parse_id(command.record_id.as_deref(), "record_id")?;
-    let definition = ctx
-        .registry()
-        .get(&record_type)
-        .filter(|definition| definition.title_column().is_some())
-        .ok_or_else(unsupported)?;
+    let definition = ctx.registry().get(&record_type).ok_or_else(unsupported)?;
     ctx.scope.record_filter(&definition.read_permission)?;
-    let readable = readable(ctx, &record_type).ok_or_else(unsupported)?;
-    let title = FavoriteStore::of(ctx)
-        .record_titles(ctx.scope, &readable, &[record_id])
-        .await?
-        .remove(&record_id)
-        .ok_or_else(target_not_found)?;
+    let reference = aphel_kernel::application::shared::RecordRef::parse(
+        record_type.as_str(),
+        &record_id.to_string(),
+    )?;
+    let label = aphel_sdk::records::visible_record_label(
+        ctx.pool(),
+        ctx.registry(),
+        ctx.fields().definitions(),
+        ctx.scope,
+        &reference,
+    )
+    .await?
+    .ok_or_else(target_not_found)?;
+    let title = label
+        .title
+        .filter(|title| !title.trim().is_empty())
+        .unwrap_or_else(|| record_id.to_string());
     Ok((record_type, record_id, title))
 }
 
@@ -200,8 +215,7 @@ async fn view_target(
     command: &CreateFavoriteCommand,
 ) -> Result<(RecordType, Uuid, String), AppError> {
     let view_id = parse_id(command.view_id.as_deref(), "view_id")?;
-    let view = FavoriteStore::of(ctx)
-        .visible_views(ctx.scope, &[view_id])
+    let view = visible_views(ctx, &[view_id])
         .await?
         .remove(&view_id)
         .ok_or_else(target_not_found)?;
@@ -255,4 +269,28 @@ pub(crate) async fn reorder(ctx: &Ctx<'_>, ids: &[String]) -> Result<Vec<Favorit
         tx.commit().await?;
     }
     list(ctx).await
+}
+
+async fn visible_views(
+    ctx: &Ctx<'_>,
+    ids: &[Uuid],
+) -> Result<HashMap<Uuid, aphel_sdk::favorites::FavoriteViewTarget>, AppError> {
+    let sources = ctx
+        .app()
+        .contributions::<dyn aphel_sdk::favorites::FavoriteViewSource>();
+    if sources.len() > 1 {
+        return Err(AppError::Configuration(
+            "duplicate saved-view favorite source".into(),
+        ));
+    }
+    let Some(source) = sources.into_iter().next() else {
+        return Ok(HashMap::new());
+    };
+    let views = source.visible(ctx, ids).await?;
+    if views.keys().any(|id| !ids.contains(id)) {
+        return Err(AppError::Configuration(
+            "favorite source returned an unrequested target".into(),
+        ));
+    }
+    Ok(views)
 }

@@ -871,6 +871,7 @@ name = "aphel-mod-favorites"
 version = "0.1.0"
 dependencies = [
  "aphel-kernel",
+ "aphel-sdk",
  "axum",
  "chrono",
  "serde",
@@ -1671,6 +1672,7 @@ version = "0.1.0"
 dependencies = [
  "aphel-kernel",
  "aphel-mod-config-packages",
+ "aphel-sdk",
  "async-trait",
  "axum",
  "chrono",

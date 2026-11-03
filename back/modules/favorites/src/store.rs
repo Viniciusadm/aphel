@@ -1,20 +1,14 @@
-use std::collections::HashMap;
-
 use chrono::NaiveDateTime;
 use sqlx::mysql::MySqlRow;
-use sqlx::{MySql, MySqlPool, QueryBuilder, Row};
+use sqlx::{MySqlPool, Row};
 use uuid::Uuid;
 
-use crate::domain::{
-    FAVORITE_ALREADY_EXISTS, Favorite, FavoriteKind, ReadableRecordType, VisibleView,
-};
+use crate::domain::{FAVORITE_ALREADY_EXISTS, Favorite, FavoriteKind};
 use aphel_kernel::Ctx;
-use aphel_kernel::application::fields::is_sql_identifier;
 use aphel_kernel::application::shared::RecordType;
 use aphel_kernel::database::transaction::MySqlTx;
 use aphel_kernel::domain::access::AccessScope;
 use aphel_kernel::errors::AppError;
-use aphel_kernel::infrastructure::query::compiler::{push_record_scope, quoted};
 use aphel_kernel::infrastructure::repositories::mapper;
 
 const FAVORITE_COLUMNS: &str =
@@ -51,15 +45,6 @@ fn favorite_from_row(row: &MySqlRow) -> Result<Favorite, AppError> {
     })
 }
 
-fn push_ids(builder: &mut QueryBuilder<MySql>, ids: &[Uuid]) {
-    builder.push(" IN (");
-    let mut separated = builder.separated(", ");
-    for id in ids {
-        separated.push_bind(id.to_string());
-    }
-    builder.push(")");
-}
-
 fn is_unique_violation(error: &sqlx::Error) -> bool {
     matches!(error, sqlx::Error::Database(database_error) if database_error.is_unique_violation())
 }
@@ -93,14 +78,16 @@ impl FavoriteStore {
         &self,
         scope: &AccessScope,
         kind: FavoriteKind,
+        record_type: &RecordType,
         target_id: Uuid,
     ) -> Result<Option<Favorite>, AppError> {
         let row = sqlx::query(sqlx::AssertSqlSafe(format!(
             "SELECT {FAVORITE_COLUMNS} FROM favorites WHERE user_id = ? \
-             AND favorite_type = ? AND target_id = ?"
+             AND favorite_type = ? AND record_type = ? AND target_id = ?"
         )))
         .bind(scope.user_id().as_str())
         .bind(kind.as_str())
+        .bind(record_type.as_str())
         .bind(target_id.to_string())
         .fetch_optional(&self.pool)
         .await?;
@@ -171,85 +158,5 @@ impl FavoriteStore {
             .await?;
         }
         Ok(())
-    }
-
-    pub(crate) async fn record_titles(
-        &self,
-        scope: &AccessScope,
-        readable: &ReadableRecordType,
-        ids: &[Uuid],
-    ) -> Result<HashMap<Uuid, String>, AppError> {
-        if ids.is_empty() {
-            return Ok(HashMap::new());
-        }
-        if !is_sql_identifier(&readable.title_column) {
-            return Err(AppError::Internal(format!(
-                "invalid title column {}",
-                readable.title_column
-            )));
-        }
-        let definition = &readable.definition;
-        let mut builder = QueryBuilder::<MySql>::new(format!(
-            "SELECT r.id, r.{} AS title FROM {} r WHERE TRUE",
-            quoted(&readable.title_column),
-            quoted(&definition.table)
-        ));
-        if let Some(column) = &definition.deleted_column {
-            builder.push(format!(" AND r.{} IS NULL", quoted(column)));
-        }
-        push_record_scope(&mut builder, scope, definition, &readable.visibility);
-        builder.push(" AND r.id");
-        push_ids(&mut builder, ids);
-        let rows: Vec<(String, Option<String>)> =
-            builder.build_query_as().fetch_all(&self.pool).await?;
-        let mut titles = HashMap::new();
-        for (id, title) in rows {
-            let title = title
-                .map(|title| title.trim().to_owned())
-                .filter(|title| !title.is_empty())
-                .unwrap_or_else(|| id.clone());
-            titles.insert(uuid_value(&id, "id")?, title);
-        }
-        Ok(titles)
-    }
-
-    pub(crate) async fn visible_views(
-        &self,
-        scope: &AccessScope,
-        ids: &[Uuid],
-    ) -> Result<HashMap<Uuid, VisibleView>, AppError> {
-        if ids.is_empty() {
-            return Ok(HashMap::new());
-        }
-        let mut builder =
-            QueryBuilder::<MySql>::new("SELECT id, record_type, name FROM saved_views WHERE ");
-        builder.push("id");
-        push_ids(&mut builder, ids);
-        builder
-            .push(" AND (visibility = 'organization' OR owner_id = ")
-            .push_bind(scope.user_id().as_str().to_owned());
-        if !scope.team_ids().is_empty() {
-            builder.push(" OR (visibility = 'team' AND team_id IN (");
-            let mut teams = builder.separated(", ");
-            for team in scope.team_ids() {
-                teams.push_bind(team.as_str().to_owned());
-            }
-            builder.push("))");
-        }
-        builder.push(")");
-        let rows: Vec<(String, String, String)> =
-            builder.build_query_as().fetch_all(&self.pool).await?;
-        let mut views = HashMap::new();
-        for (id, record_type, name) in rows {
-            views.insert(
-                uuid_value(&id, "id")?,
-                VisibleView {
-                    record_type: RecordType::parse(record_type.clone())
-                        .map_err(|_| mapper::invalid_column("record_type", &record_type))?,
-                    name,
-                },
-            );
-        }
-        Ok(views)
     }
 }

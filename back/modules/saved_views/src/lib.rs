@@ -1,5 +1,6 @@
 pub mod application;
 pub mod dto;
+mod favorites;
 mod http;
 pub mod infrastructure;
 pub mod section;
@@ -30,6 +31,9 @@ impl Module for SavedViewsModule {
         .owned_tables(&["saved_views", "saved_view_user_defaults"])
     }
     fn register(&self, app: &mut AppBuilder) -> Result<(), AppError> {
+        app.contribute::<dyn aphel_sdk::favorites::FavoriteViewSource>(std::sync::Arc::new(
+            favorites::SavedViewFavorites,
+        ));
         app.contribute(std::sync::Arc::new(
             ::config_packages::application::versioning::fragments::SectionFragmentLayout {
                 section: "views",
