@@ -1,4 +1,7 @@
-import { useCustomObjectLabel } from '@/features/custom-records/api'
+import { entityLabel, useEntityLabel } from '@/sdk/entities'
+import { recordListPath } from '@/features/records/links'
+import { Field } from '@/components/ui/field'
+import { NativeSelect } from '@/components/ui/native-select'
 import type { ReactNode } from 'react'
 import { useTranslation } from 'react-i18next'
 import { useParams, useSearchParams } from 'react-router'
@@ -6,8 +9,7 @@ import { PageLoader } from '@/components/feedback'
 import { EmptyState } from '@/components/ui/empty-state'
 import { ErrorState } from '@/components/ui/error-state'
 import { cn } from '@/lib/utils'
-import { isFinished, isImportable, supportsImport, isRunning, useImportJob, type ImportJob } from './api'
-import { LIST_PATHS } from './mapping'
+import { isFinished, useImportEntities, isRunning, useImportJob, type ImportJob } from './api'
 import { MappingStep } from './steps/MappingStep'
 import { ResultStep } from './steps/ResultStep'
 import { RunStep } from './steps/RunStep'
@@ -27,13 +29,20 @@ function stepOf(job: ImportJob | undefined): Step {
 
 export function ImportWizardPage() {
   const { id } = useParams()
-  const [params] = useSearchParams()
+  const [params, setParams] = useSearchParams()
+  const entities = useImportEntities()
+  const { t, i18n } = useTranslation('imports')
   const job = useImportJob(id)
-  const recordType = job.data?.record_type ?? params.get('record_type') ?? 'people.person'
+  const recordType = job.data?.record_type ?? params.get('record_type') ?? entities.data?.[0]?.record_type ?? ''
 
   let body
   if (!id) {
-    body = <UploadStep recordType={recordType} />
+    body = <div className="grid gap-4">
+      <Field label={t('upload.recordType')}>{(control) => <NativeSelect {...control} value={recordType} onChange={(event) => setParams({ record_type: event.target.value })}>
+        {(entities.data ?? []).map((entity) => <option key={entity.record_type} value={entity.record_type}>{entityLabel(entity, i18n.language, entity.record_type)}</option>)}
+      </NativeSelect>}</Field>
+      <UploadStep key={recordType} recordType={recordType} />
+    </div>
   } else if (job.isPending) {
     body = <PageLoader />
   } else if (job.isError) {
@@ -50,9 +59,11 @@ export function ImportWizardPage() {
       )
   }
 
+  if (entities.isPending) return <PageLoader />
+  if (entities.isError) return <ErrorState onRetry={() => void entities.refetch()} />
   return (
     <ImportLayout recordType={recordType} step={id ? stepOf(job.data) : 'upload'}>
-      {supportsImport(recordType) ? body : <ImportUnsupported />}
+      {entities.data?.some((entity) => entity.record_type === recordType) ? body : <ImportUnsupported />}
     </ImportLayout>
   )
 }
@@ -70,13 +81,12 @@ interface ImportLayoutProps {
 
 function ImportLayout({ recordType, step, children }: ImportLayoutProps) {
   const { t } = useTranslation('imports')
-  const customLabel = useCustomObjectLabel(recordType)
-  const typeLabel = isImportable(recordType) ? t(`recordTypes.${recordType}`) : (customLabel ?? recordType)
+  const typeLabel = useEntityLabel(recordType)
   const current = STEPS.indexOf(step)
   return (
     <Page>
       <PageHeader
-        back={{ to: LIST_PATHS[recordType] ?? '/', label: t('wizard.back') }}
+        back={{ to: recordListPath(recordType) ?? '/', label: t('wizard.back') }}
         title={t('wizard.title', { recordType: typeLabel })}
       />
       <ol aria-label={t('wizard.stepsLabel')} className="flex flex-wrap gap-2 text-sm">

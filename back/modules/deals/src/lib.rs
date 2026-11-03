@@ -1,3 +1,4 @@
+use aphel_sdk::imports::ImportTraits;
 mod dashboard;
 mod followers;
 mod reports;
@@ -183,6 +184,10 @@ pub(crate) fn deal_capabilities() -> EntityTraits {
         .with_trait("scoring.subject")
         .relatable()
         .importable()
+        .import_policy(
+            serde_json::from_str(include_str!("../locales/imports.json"))
+                .expect("owner import metadata"),
+        )
         .exportable()
         .monetary(aphel_sdk::money::MonetaryMapping {
             amount_field: "amount".into(),

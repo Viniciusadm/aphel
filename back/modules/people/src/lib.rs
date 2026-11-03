@@ -1,3 +1,4 @@
+use aphel_sdk::imports::ImportTraits;
 mod dashboard;
 mod timeline;
 use aphel_sdk::party::{
@@ -92,6 +93,10 @@ pub(crate) fn contact_capabilities() -> EntityTraits {
         .with_trait("scoring.subject")
         .relatable()
         .importable()
+        .import_policy(
+            serde_json::from_str(include_str!("../locales/imports.json"))
+                .expect("owner import metadata"),
+        )
         .exportable()
         .with_trait(traits::SEQUENCEABLE)
         .personal_data()

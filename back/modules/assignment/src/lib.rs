@@ -1,3 +1,4 @@
+mod selector;
 use aphel_contract_automation::AutomationBuilder;
 use aphel_sdk::assignment::AssignmentPermissions;
 pub(crate) mod automation;
@@ -41,6 +42,9 @@ impl Module for AssignmentModule {
     }
 
     fn register(&self, app: &mut AppBuilder) -> Result<(), AppError> {
+        app.contribute::<dyn aphel_sdk::assignment::AssignmentSelector>(std::sync::Arc::new(
+            selector::NativeAssignmentSelector,
+        ));
         app.contract(aphel_sdk::assignment::DESCRIPTOR);
         app.contribute::<dyn aphel_sdk::points::ReferenceProvider>(Arc::new(AssignmentRuleRefs));
         app.openapi_tag(

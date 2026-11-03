@@ -73,7 +73,11 @@ impl PrivacySource for ImportPrivacy {
         let mut builder = QueryBuilder::<MySql>::new(
             "SELECT r.import_job_id, r.row_index, r.record_id, r.status, j.record_type, j.file_name, j.created_at FROM import_rows r JOIN import_jobs j ON j.id = r.import_job_id WHERE ",
         );
-        push_text_match(&mut builder, "CAST(r.raw AS CHAR)", matcher);
+        push_text_match(
+            &mut builder,
+            "CONCAT_WS(' ', CAST(r.raw AS CHAR),j.file_name,CAST(j.headers AS CHAR),CAST(r.errors AS CHAR))",
+            matcher,
+        );
         builder
             .push(" ORDER BY j.created_at DESC, r.import_job_id, r.row_index LIMIT ")
             .push_bind(limit);
@@ -142,41 +146,106 @@ impl PrivacySource for ImportPrivacy {
     ) -> Result<SourceOutcome, AppError> {
         ctx.scope.require(&Permission::PRIVACY_MANAGE)?;
         let targets = targets(request.items)?;
-        if request.records.is_empty() && targets.is_empty() {
+        let mentions = request.redaction.mentions_only();
+        if request.records.is_empty() && targets.is_empty() && mentions.is_empty() {
             return Ok(SourceOutcome::default());
         }
         let mut builder = QueryBuilder::<MySql>::new(
-            "SELECT r.import_job_id, r.row_index FROM import_rows r JOIN import_jobs j ON j.id = r.import_job_id WHERE ",
+            "SELECT r.import_job_id, r.row_index, r.record_id, j.record_type FROM import_rows r JOIN import_jobs j ON j.id = r.import_job_id WHERE (",
         );
         selection(&mut builder, request.records, &targets);
-        builder.push(" FOR UPDATE");
+        for term in mentions.values() {
+            builder.push(" OR LOWER(CONCAT_WS(' ',CAST(r.raw AS CHAR),CAST(r.errors AS CHAR),j.file_name,CAST(j.headers AS CHAR),CAST(j.preview AS CHAR))) LIKE ")
+                .push_bind(aphel_sdk::privacy::sql::contains_pattern(term));
+        }
+        builder.push(") ORDER BY r.import_job_id,r.row_index");
         let rows = builder.build().fetch_all(&mut **tx).await?;
         let mut jobs = std::collections::BTreeSet::new();
         for row in &rows {
+            jobs.insert(row.try_get::<String, _>("import_job_id")?);
+        }
+        let mut file_ids = Vec::new();
+        for job in &jobs {
+            let row = sqlx::query("SELECT status, file_id, error_file_id, headers FROM import_jobs WHERE id = ? FOR UPDATE").bind(job).fetch_one(&mut **tx).await?;
+            let status: String = row.try_get("status")?;
+            if matches!(status.as_str(), "queued" | "running") {
+                return Err(AppError::conflict_code(
+                    "privacy_import_busy",
+                    "an affected import is still queued or running",
+                ));
+            }
+            for column in ["file_id", "error_file_id"] {
+                if let Some(id) = row.try_get::<Option<String>, _>(column)? {
+                    file_ids.push(Uuid::parse_str(&id).map_err(|_| {
+                        AppError::Internal("invalid stored import file identity".into())
+                    })?);
+                }
+            }
+            let sqlx::types::Json(headers): sqlx::types::Json<Vec<String>> =
+                row.try_get("headers")?;
+            let headers: Vec<_> = (1..=headers.len()).map(|index| index.to_string()).collect();
+            sqlx::query("UPDATE import_jobs SET file_id = NULL, error_file_id = NULL, file_name = 'redacted-import.csv', preview = JSON_ARRAY(), headers = ?, privacy_redacted_at = ?, updated_at = ?, failure_reason = 'privacy_redacted', status = IF(status = 'draft','failed',status), finished_at = COALESCE(finished_at,?) WHERE id = ?")
+                .bind(sqlx::types::Json(headers)).bind(request.at.naive_utc()).bind(request.at.naive_utc()).bind(request.at.naive_utc()).bind(job).execute(&mut **tx).await?;
+        }
+        let mut affected = 0;
+        for row in &rows {
             let job: String = row.try_get("import_job_id")?;
             let index: u32 = row.try_get("row_index")?;
-            sqlx::query("UPDATE import_rows SET raw = ?, errors = NULL, record_id = NULL WHERE import_job_id = ? AND row_index = ?").bind(sqlx::types::Json(json!({"redacted":true}))).bind(&job).bind(index).execute(&mut **tx).await?;
-            jobs.insert(job);
-        }
-        for job in jobs {
-            let preview: Option<sqlx::types::Json<Value>> =
-                sqlx::query_scalar("SELECT preview FROM import_jobs WHERE id = ? FOR UPDATE")
-                    .bind(&job)
-                    .fetch_optional(&mut **tx)
-                    .await?;
-            if let Some(sqlx::types::Json(mut preview)) = preview
-                && request.redaction.apply(&mut preview)
-            {
-                sqlx::query("UPDATE import_jobs SET preview = ? WHERE id = ?")
-                    .bind(sqlx::types::Json(preview))
-                    .bind(job)
-                    .execute(&mut **tx)
-                    .await?;
+            let kind: String = row.try_get("record_type")?;
+            let record_id: Option<String> = row.try_get("record_id")?;
+            let selected = targets
+                .iter()
+                .any(|(id, number)| id.to_string() == job && *number == index)
+                || request.records.iter().any(|record| {
+                    record.record_type.as_str() == kind
+                        && record_id.as_deref() == Some(record.record_id.to_string().as_str())
+                });
+            if selected {
+                sqlx::query("UPDATE import_rows SET raw = JSON_ARRAY(), errors = NULL, record_id = NULL, status = 'skipped', action = NULL WHERE import_job_id = ? AND row_index = ?").bind(&job).bind(index).execute(&mut **tx).await?;
+                affected += 1;
+            } else {
+                let row = sqlx::query("SELECT raw,errors FROM import_rows WHERE import_job_id = ? AND row_index = ? FOR UPDATE").bind(&job).bind(index).fetch_one(&mut **tx).await?;
+                let sqlx::types::Json(mut raw): sqlx::types::Json<Value> = row.try_get("raw")?;
+                let errors: Option<sqlx::types::Json<Value>> = row.try_get("errors")?;
+                let mut errors = errors.map(|value| value.0).unwrap_or(Value::Null);
+                let changed = mentions.apply(&mut raw) | mentions.apply(&mut errors);
+                if changed {
+                    sqlx::query("UPDATE import_rows SET raw = ?, errors = ? WHERE import_job_id = ? AND row_index = ?").bind(sqlx::types::Json(raw)).bind((!errors.is_null()).then_some(sqlx::types::Json(errors))).bind(&job).bind(index).execute(&mut **tx).await?;
+                    affected += 1;
+                }
             }
         }
+        for job in jobs {
+            let rows = sqlx::query("SELECT status,action,COUNT(*) total FROM import_rows WHERE import_job_id = ? GROUP BY status,action").bind(&job).fetch_all(&mut **tx).await?;
+            let mut totals = crate::ImportTotals::default();
+            for row in rows {
+                let count: i64 = row.try_get("total")?;
+                let count = u64::try_from(count)
+                    .map_err(|_| AppError::Internal("invalid import row count".into()))?;
+                totals.total += count;
+                let status: String = row.try_get("status")?;
+                let action: Option<String> = row.try_get("action")?;
+                match (status.as_str(), action.as_deref()) {
+                    ("pending", _) => totals.pending += count,
+                    ("imported", Some("updated")) => totals.updated += count,
+                    ("imported", _) => totals.imported += count,
+                    ("skipped", _) => totals.skipped += count,
+                    ("failed", _) => totals.failed += count,
+                    _ => return Err(AppError::Internal("invalid stored import row state".into())),
+                }
+            }
+            sqlx::query("UPDATE import_jobs SET totals = ? WHERE id = ?")
+                .bind(sqlx::types::Json(totals))
+                .bind(job)
+                .execute(&mut **tx)
+                .await?;
+        }
+        file_ids.sort();
+        file_ids.dedup();
+        let storage_keys = aphel_sdk::files::delete_unreferenced_files(tx, &file_ids).await?;
         Ok(SourceOutcome {
-            affected: rows.len() as u64,
-            storage_keys: Vec::new(),
+            affected,
+            storage_keys,
         })
     }
     async fn redact(

@@ -1,3 +1,4 @@
+use aphel_sdk::imports::ImportTraits;
 use std::collections::HashMap;
 
 use chrono_tz::Tz;
@@ -5,12 +6,10 @@ use serde_json::Value;
 use uuid::Uuid;
 
 use crate::{
-    CellValue, DuplicateKey, ImportTarget, READ_ONLY_IMPORT_KEYS, RecordValues, RowError,
-    RowOutcome, check_value, coerce_cell,
+    CellValue, DuplicateKey, ImportTarget, RecordValues, RowError, RowOutcome, check_value,
+    coerce_cell,
 };
-use aphel_kernel::application::custom_objects::{
-    TITLE_FIELD as CUSTOM_TITLE_FIELD, resolve_relation,
-};
+use aphel_kernel::application::custom_objects::resolve_relation;
 
 use aphel_kernel::application::fields::{EntityDefinition, FieldSet, RecordTypeRegistry};
 use aphel_kernel::domain::custom_objects::RelationSide;
@@ -244,53 +243,64 @@ impl RowEvaluator<'_> {
 
 pub const RELATION_TARGET_PREFIX: &str = "relations.";
 
-pub fn import_targets(fields: &FieldSet, registry: &RecordTypeRegistry) -> Vec<ImportTarget> {
-    let custom_object = fields.record_type.is_custom();
-    let title_stand_in = fields
-        .record_type
-        .title_field
-        .as_deref()
-        .and_then(|key| fields.find_active(key))
-        .filter(|field| field.is_system() && field.is_editable() && !field.definition.is_required)
-        .map(|field| field.key().to_owned());
-    let mut targets: Vec<ImportTarget> = fields
+pub fn import_targets(
+    fields: &FieldSet,
+    registry: &RecordTypeRegistry,
+) -> Result<Vec<ImportTarget>, AppError> {
+    let policy = fields.record_type.capabilities.import_policy_data()?;
+    let creatable = |target: Option<&str>| -> Result<bool, AppError> {
+        target
+            .and_then(|key| registry.require(key).ok())
+            .map(|definition| {
+                definition
+                    .capabilities
+                    .import_policy_data()
+                    .map(|policy| policy.label_creation)
+            })
+            .unwrap_or(Ok(false))
+    };
+    let mut targets: Vec<_> = fields
         .active()
-        .filter(|field| field.is_editable() && !READ_ONLY_IMPORT_KEYS.contains(&field.key()))
-        .filter(|field| !(custom_object && field.key() == CUSTOM_TITLE_FIELD))
-        .map(|field| ImportTarget {
-            key: field.key().to_owned(),
-            label: field.definition.label.clone(),
-            field_type: field.definition.field_type,
-            required: field.definition.is_required,
-            is_custom: !field.is_system(),
-            relation_target: None,
-            multiple: false,
-            satisfied_by: title_stand_in.clone().filter(|_| {
-                field.definition.is_required
-                    && field.is_system()
-                    && field.definition.field_type.base_type() == FieldType::Text
-            }),
+        .filter(|field| {
+            field.is_editable() && !policy.excluded_fields.iter().any(|key| key == field.key())
         })
-        .collect();
-    if custom_object {
-        let relationships = &registry.custom_schema().relationships;
-        for relation in &fields.record_type.relations {
-            let Some(resolved) = resolve_relation(relationships, relation) else {
-                continue;
-            };
-            targets.push(ImportTarget {
-                key: format!("{RELATION_TARGET_PREFIX}{}", relation.key),
-                label: relation.label.clone(),
-                field_type: FieldType::Record,
-                required: resolved.relationship.required && resolved.side == RelationSide::To,
-                is_custom: false,
-                relation_target: Some(relation.target.as_str().to_owned()),
-                multiple: !resolved.relationship.single(resolved.side),
-                satisfied_by: None,
-            });
-        }
+        .map(|field| {
+            Ok(ImportTarget {
+                key: field.key().to_owned(),
+                label: field.definition.label.clone(),
+                field_type: field.definition.field_type,
+                required: field.definition.is_required,
+                is_custom: !field.is_system(),
+                relation_target: None,
+                multiple: false,
+                satisfied_by: policy.satisfied_by.get(field.key()).cloned(),
+                aliases: policy.aliases.get(field.key()).cloned().unwrap_or_default(),
+                can_create_reference: creatable(
+                    field.definition.config.target_record_type.as_deref(),
+                )?,
+            })
+        })
+        .collect::<Result<Vec<_>, AppError>>()?;
+    for relation in &fields.record_type.relations {
+        let Some(resolved) = resolve_relation(&registry.custom_schema().relationships, relation)
+        else {
+            continue;
+        };
+        let key = format!("{RELATION_TARGET_PREFIX}{}", relation.key);
+        targets.push(ImportTarget {
+            aliases: policy.aliases.get(&key).cloned().unwrap_or_default(),
+            can_create_reference: creatable(Some(relation.target.as_str()))?,
+            key,
+            label: relation.label.clone(),
+            field_type: FieldType::Record,
+            required: resolved.relationship.required && resolved.side == RelationSide::To,
+            is_custom: false,
+            relation_target: Some(relation.target.as_str().to_owned()),
+            multiple: !resolved.relationship.single(resolved.side),
+            satisfied_by: None,
+        });
     }
-    targets
+    Ok(targets)
 }
 
 pub(crate) const MULTIPLE_VALUE_SEPARATORS: [char; 3] = [';', '|', '\n'];

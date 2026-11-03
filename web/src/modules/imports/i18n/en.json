@@ -1,26 +1,4 @@
 {
-  "recordTypes": {
-    "contact": "people",
-    "company": "organizations",
-    "deal": "deals",
-    "activity": "tasks",
-    "product": "products",
-    "people": {
-      "person": "people"
-    },
-    "organizations": {
-      "organization": "organizations"
-    },
-    "deals": {
-      "deal": "deals"
-    },
-    "tasks": {
-      "task": "tasks"
-    },
-    "products": {
-      "product": "products"
-    }
-  },
   "actions": {
     "import": "Import"
   },
@@ -42,7 +20,8 @@
     "fileLabel": "CSV file or spreadsheet",
     "submit": "Upload and continue",
     "uploading": "Uploading…",
-    "required": "Choose a file to continue."
+    "required": "Choose a file to continue.",
+    "recordType": "Record type"
   },
   "mapping": {
     "title": "Match columns to fields",
@@ -60,7 +39,7 @@
     "options": "Duplicates and relationships",
     "duplicateKey": "Find duplicates by",
     "duplicateStrategy": "When a duplicate is found",
-    "createCompanies": "Create organizations that do not exist",
+    "createReferences": "Create missing referenced records when their owner permits it",
     "keys": {
       "none": "Do not check",
       "email": "Email",
@@ -116,7 +95,8 @@
     "retryHint": "Use it when the cause was outside the file, such as an owner who was not a member yet.",
     "errorsTitle": "Failed rows",
     "goToList": "See {{recordType}}",
-    "newImport": "New import"
+    "newImport": "New import",
+    "redacted": "Personal data and original files were removed. This import cannot be changed or retried."
   },
   "status": {
     "draft": "Draft",

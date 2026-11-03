@@ -82,7 +82,7 @@ export function FollowingPage() {
             }}
           >
             <option value="">{t('page.allTypes')}</option>
-            {(entities.data ?? []).map((entity) => (
+            {(entities.data ?? []).filter((entity) => entity.access.read).map((entity) => (
               <option key={entity.record_type} value={entity.record_type}>
                 {typeLabel(entity.record_type)}
               </option>

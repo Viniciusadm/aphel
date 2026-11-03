@@ -29,38 +29,8 @@ impl RecordValues {
     }
 }
 
-pub(crate) const READ_ONLY_IMPORT_KEYS: &[&str] = &[
-    "created_by",
-    "created_at",
-    "updated_at",
-    "closed_at",
-    "stage_entered_at",
-    "last_activity_at",
-    "status",
-    "lost_reason_id",
-    "last_contacted_at",
-    "last_email_received_at",
-    "last_email_sent_at",
-    "interaction_count",
-    "last_contacted_by",
-    "amount_base",
-    "exchange_rate",
-    "mrr",
-    "arr",
-    "tcv",
-    "renewal_of_deal_id",
-    "days_in_stage",
-    "is_rotting",
-    "rotting_at",
-];
-
 pub(crate) fn import_body(values: &RecordValues) -> Value {
-    let mut body = Map::new();
-    for key in values.system.keys() {
-        if let Some(text) = values.text(key) {
-            body.insert(key.clone(), Value::String(text.to_owned()));
-        }
-    }
+    let mut body = values.system.clone();
     if !values.custom.is_empty() {
         body.insert(
             "custom_fields".to_owned(),
@@ -93,7 +63,7 @@ fn import_handler(
     record_type: &str,
 ) -> Result<Arc<dyn RecordTypeHandler>, AppError> {
     let registry = ctx.registry();
-    if !is_importable(record_type) || registry.require(record_type).is_err() {
+    if !is_importable(ctx, record_type) || registry.require(record_type).is_err() {
         return Err(unsupported(record_type));
     }
     registry.handler(record_type)
@@ -131,10 +101,7 @@ pub(crate) async fn update_record(
 ) -> Result<Uuid, AppError> {
     let handler = import_handler(ctx, record_type)?;
     let state = import_state(ctx, import_id);
-    let mut body = import_body(values);
-    if let Value::Object(fields) = &mut body {
-        fields.remove("relations");
-    }
+    let body = import_body(values);
     handler
         .update(&RecordCtx::new(ctx.scope, &state), record_id, body)
         .await?;

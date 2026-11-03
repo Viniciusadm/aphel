@@ -1,7 +1,8 @@
 import { PaginationSummary } from '@/components/ui/pagination-summary'
 import { FieldError as SharedFieldError } from '@/components/ui/field-error'
 import { CircleAlert, CircleCheck, Download, RotateCcw } from 'lucide-react'
-import { useCustomObjectLabel } from '@/features/custom-records/api'
+import { useEntityLabel } from '@/sdk/entities'
+import { recordListPath } from '@/features/records/links'
 import { useState } from 'react'
 import { useTranslation } from 'react-i18next'
 import { Link } from 'react-router'
@@ -11,8 +12,7 @@ import { Button } from '@/components/ui/button'
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card'
 import { fileDownloadUrl } from '@/features/files'
 import { Pagination } from '@/components/ui/pagination'
-import { ERROR_ROWS_PAGE_SIZE, isImportable, useImportRows, useRetryFailed, type ImportJob } from '../api'
-import { LIST_PATHS } from '../mapping'
+import { ERROR_ROWS_PAGE_SIZE, useImportRows, useRetryFailed, type ImportJob } from '../api'
 import { RowErrors } from './RowErrors'
 import { UploadStep } from './UploadStep'
 
@@ -29,8 +29,7 @@ export function ResultStep({ job }: ResultStepProps) {
   const hasFailures = job.totals.failed > 0
   const rows = useImportRows(job.id, 'failed', page, hasFailures)
   const completed = job.status === 'completed'
-  const customLabel = useCustomObjectLabel(job.record_type)
-  const typeLabel = isImportable(job.record_type) ? t(`recordTypes.${job.record_type}`) : (customLabel ?? job.record_type)
+  const typeLabel = useEntityLabel(job.record_type)
 
   return (
     <div className="grid min-w-0 gap-4">
@@ -45,7 +44,7 @@ export function ResultStep({ job }: ResultStepProps) {
             {completed ? t('result.completed') : t('result.failed')}
             <Badge variant={completed ? 'success' : 'destructive'}>{t(`status.${completed ? 'completed' : 'failed'}`)}</Badge>
           </CardTitle>
-          {job.failure_reason && <CardDescription>{job.failure_reason}</CardDescription>}
+          {job.privacy_redacted_at ? <CardDescription>{t('result.redacted')}</CardDescription> : job.failure_reason && <CardDescription>{job.failure_reason}</CardDescription>}
         </CardHeader>
         <CardContent className="grid gap-4">
           <dl className="grid grid-cols-2 gap-3 sm:grid-cols-5">
@@ -65,14 +64,14 @@ export function ResultStep({ job }: ResultStepProps) {
                 </a>
               </Button>
             )}
-            {hasFailures && (
+            {hasFailures && !job.privacy_redacted_at && (
               <Button variant="outline" disabled={retry.isPending} onClick={() => retry.mutate()}>
                 <RotateCcw aria-hidden />
                 {t('result.retry')}
               </Button>
             )}
             <Button asChild variant="ghost">
-              <Link to={LIST_PATHS[job.record_type] ?? '/'}>{t('result.goToList', { recordType: typeLabel })}</Link>
+              <Link to={recordListPath(job.record_type) ?? '/'}>{t('result.goToList', { recordType: typeLabel })}</Link>
             </Button>
             <Button asChild variant="ghost">
               <Link to={`/imports/new?record_type=${encodeURIComponent(job.record_type)}`}>{t('result.newImport')}</Link>
@@ -87,7 +86,7 @@ export function ResultStep({ job }: ResultStepProps) {
         </CardContent>
       </Card>
 
-      {hasFailures && (
+      {hasFailures && !job.privacy_redacted_at && (
         <>
           <Card>
             <CardHeader>

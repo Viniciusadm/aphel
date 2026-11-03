@@ -93,7 +93,7 @@ impl From<DuplicateStrategyDto> for DuplicateStrategy {
 pub(crate) struct ImportOptionsDto {
     pub(crate) duplicate_key: DuplicateKeyDto,
     pub(crate) duplicate_strategy: DuplicateStrategyDto,
-    pub(crate) create_missing_companies: bool,
+    pub(crate) create_missing_references: bool,
     #[serde(default)]
     pub(crate) distribution_rule_id: Option<String>,
 }
@@ -103,7 +103,7 @@ impl From<ImportOptions> for ImportOptionsDto {
         Self {
             duplicate_key: options.duplicate_key.into(),
             duplicate_strategy: options.duplicate_strategy.into(),
-            create_missing_companies: options.create_missing_companies,
+            create_missing_references: options.create_missing_references,
             distribution_rule_id: options.distribution_rule_id,
         }
     }
@@ -114,7 +114,7 @@ impl From<ImportOptionsDto> for ImportOptions {
         Self {
             duplicate_key: options.duplicate_key.into(),
             duplicate_strategy: options.duplicate_strategy.into(),
-            create_missing_companies: options.create_missing_companies,
+            create_missing_references: options.create_missing_references,
             distribution_rule_id: options
                 .distribution_rule_id
                 .map(|id| id.trim().to_owned())
@@ -148,6 +148,7 @@ impl From<ImportTotals> for ImportTotalsResponse {
 
 #[derive(Debug, Serialize, ToSchema)]
 pub(crate) struct ImportTargetResponse {
+    pub(crate) can_create_reference: bool,
     #[schema(example = "email")]
     pub(crate) key: String,
     #[schema(example = "Email")]
@@ -166,6 +167,7 @@ pub(crate) struct ImportTargetResponse {
 impl From<ImportTarget> for ImportTargetResponse {
     fn from(target: ImportTarget) -> Self {
         Self {
+            can_create_reference: target.can_create_reference,
             key: target.key,
             label: target.label,
             field_type: target.field_type.as_str().to_owned(),
@@ -191,7 +193,8 @@ pub struct ImportJobResponse {
     pub(crate) record_type: String,
     #[schema(example = "draft")]
     pub(crate) status: String,
-    pub(crate) file_id: String,
+    pub(crate) file_id: Option<String>,
+    pub(crate) privacy_redacted_at: Option<String>,
     pub(crate) file_name: String,
     #[schema(example = "utf-8")]
     pub(crate) encoding: String,
@@ -221,7 +224,8 @@ impl From<ImportJob> for ImportJobResponse {
             id: job.id.to_string(),
             record_type: job.record_type,
             status: job.status.as_str().to_owned(),
-            file_id: job.file_id.to_string(),
+            file_id: job.file_id.map(|id| id.to_string()),
+            privacy_redacted_at: job.privacy_redacted_at.map(timestamp),
             file_name: job.file_name,
             encoding: job.encoding.as_str().to_owned(),
             delimiter: delimiter_label(job.delimiter),

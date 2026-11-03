@@ -7,6 +7,6 @@ export interface DistributionRuleSelectProps {
 
 declare module '@/kernel/modules/slots' {
   interface SlotPropsMap {
-    'leadDistribution.ruleSelect': DistributionRuleSelectProps
+    'assignment.ruleSelect': DistributionRuleSelectProps
   }
 }

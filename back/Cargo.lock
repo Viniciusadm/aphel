@@ -305,6 +305,14 @@ dependencies = [
 ]
 
 [[package]]
+name = "aphel-contract-imports"
+version = "0.1.0"
+dependencies = [
+ "aphel-contract",
+ "serde",
+]
+
+[[package]]
 name = "aphel-contract-line-items"
 version = "0.1.0"
 dependencies = [
@@ -988,7 +996,6 @@ name = "aphel-mod-imports"
 version = "0.1.0"
 dependencies = [
  "aphel-kernel",
- "aphel-mod-assignment",
  "aphel-mod-exports",
  "aphel-mod-notifications",
  "aphel-sdk",
@@ -1994,6 +2001,7 @@ dependencies = [
  "aphel-contract-calendar",
  "aphel-contract-deals",
  "aphel-contract-documents",
+ "aphel-contract-imports",
  "aphel-contract-line-items",
  "aphel-contract-messaging",
  "aphel-contract-money",

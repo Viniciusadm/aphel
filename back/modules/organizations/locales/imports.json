@@ -1,0 +1,107 @@
+{
+  "excluded_fields": [
+    "created_by",
+    "created_at",
+    "updated_at",
+    "last_contacted_at",
+    "last_email_received_at",
+    "last_email_sent_at",
+    "interaction_count",
+    "last_contacted_by"
+  ],
+  "aliases": {
+    "name": [
+      "nome completo",
+      "full name",
+      "contato",
+      "nome do contato"
+    ],
+    "email": [
+      "e mail",
+      "email",
+      "mail",
+      "endereco de e mail",
+      "endereco de email",
+      "correio eletronico"
+    ],
+    "phone": [
+      "telefone",
+      "fone",
+      "tel",
+      "telefone fixo",
+      "phone"
+    ],
+    "owner_id": [
+      "responsavel",
+      "dono",
+      "proprietario",
+      "vendedor",
+      "owner",
+      "email do responsavel",
+      "e mail do responsavel"
+    ],
+    "domain": [
+      "dominio",
+      "domain"
+    ],
+    "website": [
+      "site",
+      "website",
+      "url",
+      "pagina",
+      "home page"
+    ],
+    "industry": [
+      "segmento",
+      "setor",
+      "ramo",
+      "industria"
+    ],
+    "size_range": [
+      "porte",
+      "tamanho",
+      "funcionarios"
+    ],
+    "address_street": [
+      "endereco",
+      "logradouro",
+      "rua",
+      "avenida"
+    ],
+    "address_number": [
+      "numero",
+      "n",
+      "no"
+    ],
+    "address_complement": [
+      "complemento"
+    ],
+    "address_district": [
+      "bairro"
+    ],
+    "address_city": [
+      "cidade",
+      "municipio"
+    ],
+    "address_state": [
+      "estado",
+      "uf"
+    ],
+    "address_postal_code": [
+      "cep",
+      "codigo postal"
+    ],
+    "address_country": [
+      "pais"
+    ],
+    "source": [
+      "origem",
+      "fonte",
+      "canal"
+    ],
+    "description": [
+      "descricao"
+    ]
+  },
+  "label_creation": true
+}

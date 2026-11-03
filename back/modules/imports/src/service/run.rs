@@ -1,3 +1,4 @@
+use aphel_sdk::imports::ImportTraits;
 use std::collections::HashMap;
 use std::time::Instant;
 
@@ -25,12 +26,10 @@ use aphel_kernel::application::shared::{
     Actor, AuditEntry, AuditLog, DomainEvent, EventPublisher, FieldChange, JobQueue, RecordRef,
 };
 use aphel_kernel::context::Ctx;
-use aphel_kernel::domain::custom_objects::is_custom_record_type;
 use aphel_kernel::errors::AppError;
 use aphel_kernel::infrastructure::repositories::mysql_access::build_requester_scope;
 use aphel_kernel::infrastructure::storage::MySqlFileRepository;
 use aphel_kernel::records::normalize_domain;
-use assignment::{self, AssignRequest, AssignmentSource, RULE_NOT_FOUND};
 use exports::{
     CSV_MIME_TYPE, ExportCell, GeneratedFile, discard_generated_file, encode_csv,
     store_generated_file, system_scope,
@@ -60,12 +59,13 @@ pub(crate) async fn run(
         return Ok(RunProgress::Finished);
     };
     if job.created_by != request.requested_by
+        || job.privacy_redacted_at.is_some()
         || matches!(job.status, ImportStatus::Draft)
         || job.status.is_finished()
     {
         return Ok(RunProgress::Finished);
     }
-    if require_importable(&scope, &job.record_type).is_err() {
+    if require_importable(ctx, &job.record_type).is_err() {
         fail(
             ctx,
             request,
@@ -85,7 +85,7 @@ pub(crate) async fn run(
     }
 
     let fields = field_set(ctx, &job.record_type).await?;
-    let targets = import_targets(&fields, ctx.registry());
+    let targets = import_targets(&fields, ctx.registry())?;
     let evaluator = RowEvaluator {
         fields: &fields,
         targets: &targets,
@@ -493,7 +493,7 @@ pub(super) async fn resolve(
             planned.set_record(&record, id);
             continue;
         }
-        let creation = if job.options.create_missing_companies {
+        let creation = if job.options.create_missing_references {
             creation_plan(ctx, &record.target, cache).await?
         } else {
             None
@@ -546,13 +546,18 @@ async fn build_creation_plan(
     ctx: &Ctx<'_>,
     target: &str,
 ) -> Result<Option<CreationPlan>, AppError> {
-    if !is_importable(target)
-        || is_custom_record_type(target)
-        || require_importable(ctx.scope, target).is_err()
-    {
+    if !is_importable(ctx, target) || require_importable(ctx, target).is_err() {
         return Ok(None);
     }
     let fields = field_set(ctx, target).await?;
+    if !fields
+        .record_type
+        .capabilities
+        .import_policy_data()?
+        .label_creation
+    {
+        return Ok(None);
+    }
     let writable = |key: &str| {
         fields
             .find_active(key)
@@ -606,9 +611,10 @@ pub(super) async fn distribution_rule_usable(
     rule_id: &str,
     record_type: &str,
 ) -> Result<bool, AppError> {
-    Ok(assignment::service::check(ctx, rule_id)
-        .await?
-        .is_some_and(|rule| rule.is_active && rule.record_type == record_type))
+    match assignment_selector(ctx)? {
+        Some(selector) => selector.usable(ctx, rule_id, record_type).await,
+        None => Ok(false),
+    }
 }
 
 async fn distribute_owner(
@@ -620,17 +626,32 @@ async fn distribute_owner(
 ) -> Result<Option<String>, AppError> {
     let mut merged = values.custom.clone();
     merged.extend(values.system.clone());
-    let request = AssignRequest {
-        rule_id,
-        record_type: &job.record_type,
-        record: None,
-        values: &merged,
-        source: AssignmentSource::Import,
-        idempotency_key: Some(format!("import:{}:{row_index}", job.id)),
+    let Some(selector) = assignment_selector(ctx)? else {
+        return Ok(None);
     };
-    match assignment::service::assign(ctx, request, &assignment::service::PickOnly).await {
-        Ok(outcome) => Ok(outcome.user_id().map(|user_id| user_id.as_str().to_owned())),
-        Err(AppError::Coded { code, .. }) if code == RULE_NOT_FOUND => Ok(None),
-        Err(error) => Err(error),
+    Ok(selector
+        .select(
+            ctx,
+            rule_id,
+            &job.record_type,
+            &merged,
+            "import",
+            format!("import:{}:{row_index}", job.id),
+        )
+        .await?
+        .map(|user| user.as_str().to_owned()))
+}
+
+fn assignment_selector(
+    ctx: &Ctx<'_>,
+) -> Result<Option<std::sync::Arc<dyn aphel_sdk::assignment::AssignmentSelector>>, AppError> {
+    let selectors = ctx
+        .app()
+        .contributions::<dyn aphel_sdk::assignment::AssignmentSelector>();
+    if selectors.len() > 1 {
+        return Err(AppError::Configuration(
+            "duplicate assignment selector".into(),
+        ));
     }
+    Ok(selectors.into_iter().next())
 }

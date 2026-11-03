@@ -1,0 +1,22 @@
+{
+  "excluded_fields": [
+    "created_by",
+    "created_at",
+    "updated_at"
+  ],
+  "aliases": {
+    "name": [
+      "nome completo",
+      "full name",
+      "contato",
+      "nome do contato"
+    ],
+    "description": [
+      "descricao"
+    ],
+    "currency": [
+      "moeda"
+    ]
+  },
+  "label_creation": false
+}

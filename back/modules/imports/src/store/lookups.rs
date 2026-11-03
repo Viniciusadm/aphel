@@ -1,137 +1,132 @@
-use std::sync::Arc;
-
-use sqlx::{MySql, MySqlPool, QueryBuilder};
-use uuid::Uuid;
-
 use crate::DuplicateKey;
-use aphel_kernel::application::access::Authorizer;
+use aphel_kernel::Ctx;
 use aphel_kernel::application::fields::{EntityDefinition, LabelNormalization, RecordTypeRegistry};
-use aphel_kernel::context::Ctx;
-use aphel_kernel::domain::UserId;
-use aphel_kernel::domain::access::AccessScope;
-
+use aphel_kernel::application::organization_admin::ListWindow;
+use aphel_kernel::application::query::{
+    ArchivedFilter, Filter, FilterOperator, RecordQuery, RecordQueryEngine, SortSpec,
+};
+use aphel_kernel::domain::{UserId, access::AccessScope};
 use aphel_kernel::errors::AppError;
-use aphel_kernel::infrastructure::query::compiler::push_record_scope;
+use aphel_kernel::infrastructure::query::MySqlRecordQueryPorts;
 use aphel_kernel::records::normalize_domain;
+use sqlx::MySqlPool;
+use std::sync::Arc;
+use uuid::Uuid;
 
 #[derive(Clone)]
 pub struct RecordLookups {
     pool: MySqlPool,
     registry: Arc<RecordTypeRegistry>,
 }
-
 impl RecordLookups {
     pub(crate) fn new(pool: MySqlPool, registry: Arc<RecordTypeRegistry>) -> Self {
         Self { pool, registry }
     }
-
     pub fn of(ctx: &Ctx<'_>) -> Self {
         Self::new(ctx.pool().clone(), ctx.registry().clone())
     }
-
-    fn scoped(
-        &self,
-        builder: &mut QueryBuilder<MySql>,
-        scope: &AccessScope,
-        record_type: &str,
-    ) -> Result<(), AppError> {
-        let Ok(definition) = self.registry.require(record_type) else {
-            return Ok(());
-        };
-        let visibility = scope.record_filter(&definition.read_permission)?;
-        push_record_scope(builder, scope, definition, &visibility);
-        Ok(())
-    }
-
-    async fn first_id(&self, mut builder: QueryBuilder<MySql>) -> Result<Option<Uuid>, AppError> {
-        let found: Option<String> = builder
-            .build_query_scalar()
-            .fetch_optional(&self.pool)
-            .await?;
-        Ok(found.and_then(|id| Uuid::parse_str(&id).ok()))
-    }
-}
-
-impl RecordLookups {
-    fn record_label_query(
+    async fn first(
         &self,
         scope: &AccessScope,
         definition: &EntityDefinition,
-        label: &str,
-    ) -> Result<Option<QueryBuilder<MySql>>, AppError> {
-        let Some(title) = definition.title_column() else {
-            return Ok(None);
-        };
-        let mut builder = QueryBuilder::new(format!(
-            "SELECT r.id FROM {} r WHERE TRUE",
-            definition.table
-        ));
-        if let Some(active) = definition.system_field_by_key("is_active") {
-            builder.push(format!(" AND r.{} = TRUE", active.column));
-        }
-        if let Some(deleted) = &definition.deleted_column {
-            builder.push(format!(" AND r.{deleted} IS NULL"));
-        }
-        builder
-            .push(format!(" AND (r.{title} = "))
-            .push_bind(label.to_owned());
-        for alias in &definition.capabilities.label_aliases {
-            let value = match alias.normalization {
-                LabelNormalization::Exact => Some(label.to_owned()),
-                LabelNormalization::Lowercase => Some(label.to_lowercase()),
-                LabelNormalization::Domain => {
-                    normalize_domain(label).filter(|_| !label.contains(' '))
-                }
-            };
-            if let Some(value) = value {
-                builder
-                    .push(format!(" OR r.{} = ", alias.column))
-                    .push_bind(value);
-            }
-        }
-        builder.push(")");
-        self.scoped(&mut builder, scope, definition.record_type.as_str())?;
-        builder
-            .push(format!(" ORDER BY r.{title} = "))
-            .push_bind(label.to_owned())
-            .push(" DESC, r.created_at, r.id");
-        Ok(Some(builder))
+        filter: Filter,
+    ) -> Result<Option<Uuid>, AppError> {
+        let ports = MySqlRecordQueryPorts::new(self.pool.clone(), self.registry.clone());
+        Ok(RecordQueryEngine::new(&ports)
+            .query(
+                scope,
+                definition.record_type.as_str(),
+                RecordQuery {
+                    filter: Some(filter),
+                    sort: vec![SortSpec::asc("created_at"), SortSpec::asc("id")],
+                    search: None,
+                    archived: ArchivedFilter::Include,
+                    window: ListWindow {
+                        offset: 0,
+                        limit: 1,
+                    },
+                },
+            )
+            .await?
+            .items
+            .into_iter()
+            .next())
     }
-}
-
-impl RecordLookups {
     pub async fn find_member_by_email(&self, email: &str) -> Result<Option<UserId>, AppError> {
-        let found: Option<String> = sqlx::query_scalar(
-            "SELECT u.id FROM users u \
-             JOIN users m ON m.id = u.id \
-             WHERE m.status = 'active' AND u.status = 'active' \
-             AND u.email = ? LIMIT 1",
+        let id: Option<String> = sqlx::query_scalar(
+            "SELECT id FROM users WHERE status = 'active' AND email = ? LIMIT 1",
         )
         .bind(email.trim().to_lowercase())
         .fetch_optional(&self.pool)
         .await?;
-        Ok(found.and_then(|id| UserId::new(id).ok()))
+        id.map(|id| {
+            UserId::new(id).map_err(|_| AppError::Internal("invalid stored member identity".into()))
+        })
+        .transpose()
     }
-
     pub async fn find_record_by_label(
         &self,
         scope: &AccessScope,
         record_type: &str,
         label: &str,
     ) -> Result<Option<Uuid>, AppError> {
-        let label = label.trim();
-        if let Ok(definition) = self.registry.require(record_type) {
-            return match self.record_label_query(scope, definition, label)? {
-                Some(mut builder) => {
-                    builder.push(" LIMIT 1");
-                    self.first_id(builder).await
-                }
-                None => Ok(None),
-            };
+        let Ok(definition) = self.registry.require(record_type) else {
+            return Ok(None);
+        };
+        let Some(title) = definition.title_field.as_deref() else {
+            return Ok(None);
+        };
+        let base = || {
+            definition
+                .system_field_by_key("is_active")
+                .map(|_| {
+                    Filter::condition("is_active", FilterOperator::Eq, serde_json::json!(true))
+                })
+                .into_iter()
+                .collect::<Vec<_>>()
+        };
+        let mut conditions = base();
+        conditions.push(Filter::condition(
+            title,
+            FilterOperator::Eq,
+            serde_json::json!(label.trim()),
+        ));
+        if let Some(id) = self
+            .first(scope, definition, Filter::and(conditions))
+            .await?
+        {
+            return Ok(Some(id));
         }
-        Ok(None)
+        let aliases: Vec<_> = definition
+            .capabilities
+            .label_aliases
+            .iter()
+            .filter_map(|alias| {
+                let field = definition
+                    .system_fields
+                    .iter()
+                    .find(|field| field.column == alias.column)?;
+                let value = match alias.normalization {
+                    LabelNormalization::Exact => Some(label.trim().to_owned()),
+                    LabelNormalization::Lowercase => Some(label.trim().to_lowercase()),
+                    LabelNormalization::Domain => {
+                        normalize_domain(label).filter(|_| !label.contains(' '))
+                    }
+                }?;
+                Some(Filter::condition(
+                    field.key.as_str(),
+                    FilterOperator::Eq,
+                    serde_json::json!(value),
+                ))
+            })
+            .collect();
+        if aliases.is_empty() {
+            return Ok(None);
+        }
+        let mut conditions = base();
+        conditions.push(Filter::or(aliases));
+        self.first(scope, definition, Filter::and(conditions)).await
     }
-
     pub(crate) async fn find_duplicate(
         &self,
         scope: &AccessScope,
@@ -139,30 +134,16 @@ impl RecordLookups {
         key: DuplicateKey,
         value: &str,
     ) -> Result<Option<Uuid>, AppError> {
-        let columns = key.columns(definition);
-        if columns.is_empty() {
+        let filters: Vec<_> = key
+            .columns(definition)
+            .into_iter()
+            .map(|column| {
+                Filter::condition(column.field, FilterOperator::Eq, serde_json::json!(value))
+            })
+            .collect();
+        if filters.is_empty() {
             return Ok(None);
         }
-        let mut builder = QueryBuilder::new(format!(
-            "SELECT r.id FROM {} r WHERE TRUE",
-            definition.table
-        ));
-        if let Some(deleted) = &definition.deleted_column {
-            builder.push(format!(" AND r.{deleted} IS NULL"));
-        }
-        builder.push(" AND (");
-        for (index, column) in columns.iter().enumerate() {
-            if index > 0 {
-                builder.push(" OR ");
-            }
-            builder
-                .push(format!("r.{} = ", column.column))
-                .push_bind(value.to_owned());
-        }
-        builder.push(")");
-        let visibility = scope.record_filter(&definition.read_permission)?;
-        push_record_scope(&mut builder, scope, definition, &visibility);
-        builder.push(" ORDER BY r.created_at, r.id LIMIT 1");
-        self.first_id(builder).await
+        self.first(scope, definition, Filter::or(filters)).await
     }
 }

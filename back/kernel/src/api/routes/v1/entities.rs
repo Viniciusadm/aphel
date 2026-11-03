@@ -29,10 +29,21 @@ async fn entities(
     tenant: AuthContext,
 ) -> Result<Json<Data<Vec<Value>>>, ApiError> {
     let registry = state.registry().await?;
-    let items = registry.definitions().filter(|entity| tenant.scope.require(&entity.read_permission).is_ok()).map(|entity| json!({
-        "key":entity.key, "record_type":entity.record_type.as_str(), "storage": entity.storage,
-        "title_field": entity.title_field, "labels": entity.capabilities.plural_labels_value().or_else(|| entity.custom.as_ref().map(|labels| labels.plural.clone().into())).unwrap_or_else(|| entity.record_type.as_str().to_owned().into()), "traits": entity.capabilities.traits, "indexes": entity.indexes, "references": entity.references
-    })).collect();
+    let app = crate::modules::app();
+    let items = registry.definitions().filter(|entity| {
+        let enabled = app.record_contributions().iter().find(|entry|entry.registers.as_ref() == Some(&entity.record_type)).is_none_or(|entry|app.is_enabled(entry.module));
+        enabled && (tenant.scope.require(&entity.read_permission).is_ok() || entity.action_permission("create").is_some_and(|permission|tenant.scope.require(&permission).is_ok()))
+    }).map(|entity| {
+        let create = entity.action_permission("create");
+        let update = entity.action_permission("update");
+        json!({
+            "key":entity.key,"record_type":entity.record_type.as_str(),"storage":entity.storage,"title_field":entity.title_field,
+            "labels":entity.capabilities.plural_labels_value().or_else(||entity.custom.as_ref().map(|labels|labels.plural.clone().into())).unwrap_or_else(||entity.record_type.as_str().to_owned().into()),
+            "traits":entity.capabilities.traits,"indexes":entity.indexes,"references":entity.references,
+            "permissions":{"read":entity.read_permission.as_str(),"create":create.as_ref().map(|permission|permission.as_str()),"update":update.as_ref().map(|permission|permission.as_str())},
+            "access":{"read":tenant.scope.require(&entity.read_permission).is_ok(),"create":create.is_some_and(|permission|tenant.scope.require(&permission).is_ok()),"update":update.is_some_and(|permission|tenant.scope.require(&permission).is_ok())},
+        })
+    }).collect();
     Ok(Json(Data::new(items)))
 }
 

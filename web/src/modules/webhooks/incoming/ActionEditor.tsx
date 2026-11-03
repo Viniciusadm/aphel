@@ -167,7 +167,7 @@ export function ActionEditor({ index, total, target, onMove, onRemove }: ActionE
 
       {(type === 'upsert_contact' || type === 'create_deal') && (
         <Slot
-          name="leadDistribution.ruleSelect"
+          name="assignment.ruleSelect"
           props={{
             recordType: type === 'upsert_contact' ? 'people.person' : 'deals.deal',
             value: distributionRuleId || null,

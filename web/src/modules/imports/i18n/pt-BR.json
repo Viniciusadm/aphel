@@ -1,26 +1,4 @@
 {
-  "recordTypes": {
-    "contact": "contatos",
-    "company": "empresas",
-    "deal": "oportunidades",
-    "activity": "atividades",
-    "product": "produtos",
-    "people": {
-      "person": "contatos"
-    },
-    "organizations": {
-      "organization": "empresas"
-    },
-    "deals": {
-      "deal": "oportunidades"
-    },
-    "tasks": {
-      "task": "atividades"
-    },
-    "products": {
-      "product": "produtos"
-    }
-  },
   "actions": {
     "import": "Importar"
   },
@@ -42,7 +20,8 @@
     "fileLabel": "Arquivo CSV ou planilha",
     "submit": "Enviar e continuar",
     "uploading": "Enviando…",
-    "required": "Escolha um arquivo para continuar."
+    "required": "Escolha um arquivo para continuar.",
+    "recordType": "Tipo de registro"
   },
   "mapping": {
     "title": "Relacione as colunas aos campos",
@@ -60,7 +39,7 @@
     "options": "Duplicatas e relacionamentos",
     "duplicateKey": "Identificar duplicatas por",
     "duplicateStrategy": "Quando encontrar uma duplicata",
-    "createCompanies": "Criar empresas que não existirem",
+    "createReferences": "Criar registros referenciados ausentes quando o módulo permitir",
     "keys": {
       "none": "Não verificar",
       "email": "E-mail",
@@ -116,7 +95,8 @@
     "retryHint": "Use quando o problema estava fora do arquivo, como um responsável que ainda não era membro.",
     "errorsTitle": "Linhas com erro",
     "goToList": "Ver {{recordType}}",
-    "newImport": "Nova importação"
+    "newImport": "Nova importação",
+    "redacted": "Os dados pessoais e arquivos originais foram removidos. Esta importação não pode ser alterada ou repetida."
   },
   "status": {
     "draft": "Rascunho",

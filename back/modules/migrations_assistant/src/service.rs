@@ -26,9 +26,9 @@ pub(crate) struct MigrationHistory {
     pub(crate) report: HistoryReport,
 }
 
-fn step_permission(step: &SourceStep) -> Option<Permission> {
+fn step_permission(ctx: &Ctx<'_>, step: &SourceStep) -> Option<Permission> {
     match step.kind {
-        StepKind::Import => create_permission(step.record_type),
+        StepKind::Import => create_permission(ctx, step.record_type),
         StepKind::Activities => Some(Permission::TASKS_CREATE),
         StepKind::Notes => Some(Permission::NOTES_CREATE),
     }
@@ -79,7 +79,7 @@ pub(crate) async fn preview(
     command: &MigrationFileCommand,
 ) -> Result<MigrationPreview, AppError> {
     let (tool, step) = resolve_step(&command.source, &command.step)?;
-    let permission = step_permission(step).ok_or_else(source_not_found)?;
+    let permission = step_permission(ctx, step).ok_or_else(source_not_found)?;
     ctx.scope.require(&permission)?;
     let parsed = parse_source(&command.content)?;
     let members = MemberStore::of(ctx).active_members().await?;
@@ -174,7 +174,7 @@ pub(crate) async fn create_import(
             options: ImportOptions {
                 duplicate_key,
                 duplicate_strategy: DuplicateStrategy::Skip,
-                create_missing_companies: true,
+                create_missing_references: true,
                 distribution_rule_id: None,
             },
         },

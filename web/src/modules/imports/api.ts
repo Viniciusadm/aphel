@@ -1,5 +1,5 @@
 import { keepPreviousData, useMutation, useQuery, useQueryClient } from '@tanstack/react-query'
-import { isCustomRecordType } from '@/features/custom-records/resources'
+import { useEntities } from '@/sdk/entities'
 import { api } from '@/api'
 import type { components } from '@/api/schema'
 
@@ -15,31 +15,13 @@ export type ImportRow = Schemas['ImportRowResponse']
 export type ImportRowsPage = Schemas['Page_ImportRowResponse']
 export type ImportJobsPage = Schemas['Page_ImportJobResponse']
 
-export const IMPORTABLE_RECORD_TYPES = ['people.person', 'organizations.organization', 'deals.deal', 'products.product'] as const
 export const POLL_INTERVAL_MS = 2000
 export const ERROR_ROWS_PAGE_SIZE = 50
 export const HISTORY_PAGE_SIZE = 25
 
-export type ImportableRecordType = (typeof IMPORTABLE_RECORD_TYPES)[number]
-
-const PERMISSION_PREFIX: Record<ImportableRecordType, string> = {
-  'people.person': 'people',
-  'organizations.organization': 'organizations',
-  'deals.deal': 'deals',
-  'products.product': 'products',
-}
-
-export function isImportable(recordType: string): recordType is ImportableRecordType {
-  return (IMPORTABLE_RECORD_TYPES as readonly string[]).includes(recordType)
-}
-
-export function supportsImport(recordType: string): boolean {
-  return isImportable(recordType) || isCustomRecordType(recordType)
-}
-
-export function importPermission(recordType: string): string | null {
-  if (isCustomRecordType(recordType)) return `${recordType}.create`
-  return isImportable(recordType) ? `${PERMISSION_PREFIX[recordType]}.create` : null
+export function useImportEntities() {
+  const query = useEntities()
+  return { ...query, data: query.data?.filter((entity) => entity.traits['imports.importable'] === true && entity.access.create) }
 }
 
 export function isRunning(status: string | undefined): boolean {

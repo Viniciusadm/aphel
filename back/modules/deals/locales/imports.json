@@ -1,0 +1,90 @@
+{
+  "excluded_fields": [
+    "created_by",
+    "created_at",
+    "updated_at",
+    "closed_at",
+    "stage_entered_at",
+    "last_activity_at",
+    "status",
+    "lost_reason_id",
+    "last_contacted_at",
+    "last_email_received_at",
+    "last_email_sent_at",
+    "interaction_count",
+    "last_contacted_by",
+    "amount_base",
+    "exchange_rate",
+    "mrr",
+    "arr",
+    "tcv",
+    "renewal_of_deal_id",
+    "days_in_stage",
+    "is_rotting",
+    "rotting_at"
+  ],
+  "aliases": {
+    "company_id": [
+      "empresa",
+      "companhia",
+      "organizacao",
+      "company",
+      "razao social",
+      "nome da empresa",
+      "cliente"
+    ],
+    "owner_id": [
+      "responsavel",
+      "dono",
+      "proprietario",
+      "vendedor",
+      "owner",
+      "email do responsavel",
+      "e mail do responsavel"
+    ],
+    "source": [
+      "origem",
+      "fonte",
+      "canal"
+    ],
+    "title": [
+      "titulo",
+      "oportunidade",
+      "negocio",
+      "nome da oportunidade",
+      "deal"
+    ],
+    "amount": [
+      "valor",
+      "valor total",
+      "preco",
+      "montante"
+    ],
+    "stage_id": [
+      "etapa",
+      "fase",
+      "estagio"
+    ],
+    "pipeline_id": [
+      "funil",
+      "pipeline"
+    ],
+    "contact_id": [
+      "contato",
+      "email do contato",
+      "e mail do contato"
+    ],
+    "expected_close_date": [
+      "previsao de fechamento",
+      "data de fechamento",
+      "fechamento"
+    ],
+    "probability": [
+      "probabilidade"
+    ],
+    "currency": [
+      "moeda"
+    ]
+  },
+  "label_creation": false
+}

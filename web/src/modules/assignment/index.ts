@@ -21,7 +21,7 @@ const leadDistributionModule = defineModule({
         { path: 'assignment/:id/edit', lazy: async () => ({ Component: (await import('./RuleEditorPage')).RuleEditorPage }) },
       ],
     })
-    app.slot('leadDistribution.ruleSelect', {
+    app.slot('assignment.ruleSelect', {
       key: 'rule-select',
       permission: ASSIGNMENT_MANAGE,
       render: DistributionRuleSelect,

@@ -32,7 +32,6 @@ use aphel_kernel::application::shared::{
 use aphel_kernel::context::Ctx;
 use aphel_kernel::domain::UserId;
 use aphel_kernel::domain::access::{AccessScope, Permission};
-use aphel_kernel::domain::custom_objects::{is_custom_record_type, object_permission};
 use aphel_kernel::errors::{AppError, FieldViolation};
 use aphel_kernel::infrastructure::storage::MySqlFileRepository;
 use exports::{CSV_MIME_TYPE, discard_generated_file, read_file_content};
@@ -62,45 +61,33 @@ fn import_not_editable() -> AppError {
     )
 }
 
-fn import_permission(record_type: &str, action: &str) -> Option<Permission> {
-    if is_custom_record_type(record_type) {
-        return object_permission(record_type, action);
+fn import_permission(ctx: &Ctx<'_>, record_type: &str, action: &str) -> Option<Permission> {
+    let definition = ctx.registry().require(record_type).ok()?;
+    if !is_importable(ctx, record_type) {
+        return None;
     }
-    aphel_kernel::modules::app()
-        .record_types()
-        .require(record_type)
-        .ok()
-        .filter(|definition| definition.capabilities.has_trait("imports.importable"))?
-        .action_permission(action)
+    definition.action_permission(action)
 }
-
-pub fn create_permission(record_type: &str) -> Option<Permission> {
-    import_permission(record_type, "create")
+pub fn create_permission(ctx: &Ctx<'_>, record_type: &str) -> Option<Permission> {
+    import_permission(ctx, record_type, "create")
 }
-
-pub fn update_permission(record_type: &str) -> Option<Permission> {
-    import_permission(record_type, "update")
+pub fn update_permission(ctx: &Ctx<'_>, record_type: &str) -> Option<Permission> {
+    import_permission(ctx, record_type, "update")
 }
-
-pub fn is_importable(record_type: &str) -> bool {
-    is_custom_record_type(record_type)
-        || aphel_kernel::modules::app()
-            .record_types()
-            .capabilities(record_type)
-            .is_some_and(|capabilities| capabilities.has_trait("imports.importable"))
+pub fn is_importable(ctx: &Ctx<'_>, record_type: &str) -> bool {
+    ctx.registry().require(record_type).is_ok_and(|definition| {
+        definition.capabilities.has_trait("imports.importable")
+            && aphel_sdk::records::enabled(ctx, &definition.record_type)
+    })
 }
-
-pub(super) fn require_importable(scope: &AccessScope, record_type: &str) -> Result<(), AppError> {
-    if !is_importable(record_type) {
-        return Err(AppError::validation_code(
+pub(super) fn require_importable(ctx: &Ctx<'_>, record_type: &str) -> Result<(), AppError> {
+    let permission = create_permission(ctx, record_type).ok_or_else(|| {
+        AppError::validation_code(
             IMPORT_NOT_SUPPORTED,
             format!("{record_type} records cannot be imported"),
-        ));
-    }
-    let permission = create_permission(record_type).ok_or_else(|| {
-        AppError::validation_code(IMPORT_NOT_SUPPORTED, "unsupported record type")
+        )
     })?;
-    scope.require(&permission).map(|_| ())
+    ctx.scope.require(&permission).map(|_| ())
 }
 
 pub fn is_row_error(error: &AppError) -> bool {
@@ -209,10 +196,10 @@ pub async fn create(
     command: CreateImportCommand,
 ) -> Result<ImportDetails, AppError> {
     let scope = ctx.scope;
-    require_importable(scope, &command.record_type)?;
+    require_importable(ctx, &command.record_type)?;
     let source = parse_source(&command.content)?;
     let fields = field_set(ctx, &command.record_type).await?;
-    let targets = import_targets(&fields, ctx.registry());
+    let targets = import_targets(&fields, ctx.registry())?;
     let previous = match command.retry_of.as_deref().map(str::trim) {
         None | Some("") => None,
         Some(id) => {
@@ -283,7 +270,8 @@ pub async fn create(
     let job = ImportJob {
         id: Uuid::now_v7(),
         record_type: command.record_type.clone(),
-        file_id,
+        file_id: Some(file_id),
+        privacy_redacted_at: None,
         file_name,
         status: ImportStatus::Draft,
         encoding: source.encoding,
@@ -329,7 +317,7 @@ pub async fn create(
 pub(crate) async fn get(ctx: &Ctx<'_>, import_id: &str) -> Result<ImportDetails, AppError> {
     let job = visible(ctx, import_id).await?;
     let fields = field_set(ctx, &job.record_type).await?;
-    let targets = import_targets(&fields, ctx.registry());
+    let targets = import_targets(&fields, ctx.registry())?;
     Ok(ImportDetails::new(job, targets, &fields))
 }
 
@@ -360,7 +348,7 @@ pub async fn configure(
         return Err(import_not_editable());
     }
     let fields = field_set(ctx, &job.record_type).await?;
-    let targets = import_targets(&fields, ctx.registry());
+    let targets = import_targets(&fields, ctx.registry())?;
     let mut violations = Vec::new();
     if command.mapping.len() != job.headers.len() {
         violations.push(FieldViolation::new(
@@ -441,10 +429,10 @@ pub async fn configure(
 
 pub(crate) async fn validate(ctx: &Ctx<'_>, import_id: &str) -> Result<ValidationReport, AppError> {
     let job = owned(ctx, import_id).await?;
-    require_importable(ctx.scope, &job.record_type)?;
+    require_importable(ctx, &job.record_type)?;
     let source = parse_source(&file_content(ctx, &job).await?)?;
     let fields = field_set(ctx, &job.record_type).await?;
-    let targets = import_targets(&fields, ctx.registry());
+    let targets = import_targets(&fields, ctx.registry())?;
     let evaluator = RowEvaluator {
         fields: &fields,
         targets: &targets,
@@ -486,18 +474,18 @@ pub(crate) async fn start(
 ) -> Result<ImportDetails, AppError> {
     let scope = ctx.scope;
     let mut job = owned(ctx, import_id).await?;
-    require_importable(scope, &job.record_type)?;
+    require_importable(ctx, &job.record_type)?;
     if job.status != ImportStatus::Draft {
         return Err(import_not_editable());
     }
     if job.options.duplicate_strategy == DuplicateStrategy::Update
         && job.options.duplicate_key != DuplicateKey::None
-        && let Some(permission) = update_permission(&job.record_type)
+        && let Some(permission) = update_permission(ctx, &job.record_type)
     {
         scope.require(&permission)?;
     }
     let fields = field_set(ctx, &job.record_type).await?;
-    let targets = import_targets(&fields, ctx.registry());
+    let targets = import_targets(&fields, ctx.registry())?;
     check_mapping_complete(&job, &targets)?;
     let source = parse_source(&file_content(ctx, &job).await?)?;
 
@@ -553,8 +541,8 @@ pub(crate) async fn retry_failed(
 ) -> Result<ImportDetails, AppError> {
     let scope = ctx.scope;
     let mut job = owned(ctx, import_id).await?;
-    require_importable(scope, &job.record_type)?;
-    if !job.status.is_finished() || job.totals.failed == 0 {
+    require_importable(ctx, &job.record_type)?;
+    if job.privacy_redacted_at.is_some() || !job.status.is_finished() || job.totals.failed == 0 {
         return Err(AppError::conflict_code(
             IMPORT_NOT_RETRYABLE,
             "only finished imports with failed rows can be retried",
@@ -587,7 +575,7 @@ pub(crate) async fn retry_failed(
         .await?;
     tx.commit().await?;
     let fields = field_set(ctx, &job.record_type).await?;
-    let targets = import_targets(&fields, ctx.registry());
+    let targets = import_targets(&fields, ctx.registry())?;
     Ok(ImportDetails::new(job, targets, &fields))
 }
 
@@ -622,7 +610,12 @@ fn check_mapping_complete(job: &ImportJob, targets: &[ImportTarget]) -> Result<(
 
 async fn file_content(ctx: &Ctx<'_>, job: &ImportJob) -> Result<Bytes, AppError> {
     let file = MySqlFileRepository::new(ctx.pool().clone())
-        .find_file(job.file_id)
+        .find_file(job.file_id.ok_or_else(|| {
+            AppError::conflict_code(
+                IMPORT_NOT_RETRYABLE,
+                "the original import file was removed by a privacy request",
+            )
+        })?)
         .await?
         .ok_or_else(|| AppError::not_found_code(IMPORT_NOT_FOUND, "the import file was removed"))?;
     read_file_content(ctx.storage()?.as_ref(), &file.storage_key).await

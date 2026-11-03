@@ -129,7 +129,6 @@ pub(crate) const DUPLICATE_KEYS: [DuplicateKey; 4] = [
 #[derive(Debug, Clone, PartialEq, Eq)]
 pub(crate) struct DuplicateColumn {
     pub(crate) field: String,
-    pub(crate) column: String,
 }
 
 impl DuplicateKey {
@@ -144,7 +143,6 @@ impl DuplicateKey {
                 .filter(|field| field.field_type == field_type)
                 .map(|field| DuplicateColumn {
                     field: field.key.as_str().to_owned(),
-                    column: field.column.clone(),
                 })
                 .collect::<Vec<_>>()
         };
@@ -165,7 +163,6 @@ impl DuplicateKey {
                         .find(|field| field.column == alias.column)
                         .map(|field| DuplicateColumn {
                             field: field.key.as_str().to_owned(),
-                            column: field.column.clone(),
                         })
                 })
                 .collect(),
@@ -176,7 +173,6 @@ impl DuplicateKey {
                 .filter(stored)
                 .map(|field| DuplicateColumn {
                     field: field.key.as_str().to_owned(),
-                    column: field.column.clone(),
                 })
                 .into_iter()
                 .collect(),
@@ -239,7 +235,7 @@ pub enum DuplicateStrategy {
 pub struct ImportOptions {
     pub duplicate_key: DuplicateKey,
     pub duplicate_strategy: DuplicateStrategy,
-    pub create_missing_companies: bool,
+    pub create_missing_references: bool,
     pub distribution_rule_id: Option<String>,
 }
 
@@ -248,7 +244,7 @@ impl Default for ImportOptions {
         Self {
             duplicate_key: DuplicateKey::None,
             duplicate_strategy: DuplicateStrategy::Skip,
-            create_missing_companies: true,
+            create_missing_references: true,
             distribution_rule_id: None,
         }
     }
@@ -330,6 +326,8 @@ impl RowError {
 
 #[derive(Debug, Clone, PartialEq, Eq)]
 pub struct ImportTarget {
+    pub(crate) aliases: Vec<String>,
+    pub(crate) can_create_reference: bool,
     pub key: String,
     pub(crate) label: String,
     pub(crate) field_type: FieldType,
@@ -344,7 +342,8 @@ pub struct ImportTarget {
 pub struct ImportJob {
     pub id: Uuid,
     pub(crate) record_type: String,
-    pub(crate) file_id: Uuid,
+    pub(crate) file_id: Option<Uuid>,
+    pub(crate) privacy_redacted_at: Option<DateTime<Utc>>,
     pub(crate) file_name: String,
     pub(crate) status: ImportStatus,
     pub(crate) encoding: TextEncoding,

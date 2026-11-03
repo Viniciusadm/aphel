@@ -79189,7 +79189,6 @@
               "id",
               "record_type",
               "status",
-              "file_id",
               "file_name",
               "encoding",
               "delimiter",
@@ -79239,7 +79238,10 @@
                 ]
               },
               "file_id": {
-                "type": "string"
+                "type": [
+                  "string",
+                  "null"
+                ]
               },
               "file_name": {
                 "type": "string"
@@ -79276,6 +79278,12 @@
                 "items": {
                   "$ref": "#/components/schemas/ImportPreviewRow"
                 }
+              },
+              "privacy_redacted_at": {
+                "type": [
+                  "string",
+                  "null"
+                ]
               },
               "record_type": {
                 "type": "string",
@@ -94791,7 +94799,6 @@
           "id",
           "record_type",
           "status",
-          "file_id",
           "file_name",
           "encoding",
           "delimiter",
@@ -94841,7 +94848,10 @@
             ]
           },
           "file_id": {
-            "type": "string"
+            "type": [
+              "string",
+              "null"
+            ]
           },
           "file_name": {
             "type": "string"
@@ -94878,6 +94888,12 @@
             "items": {
               "$ref": "#/components/schemas/ImportPreviewRow"
             }
+          },
+          "privacy_redacted_at": {
+            "type": [
+              "string",
+              "null"
+            ]
           },
           "record_type": {
             "type": "string",
@@ -94923,10 +94939,10 @@
         "required": [
           "duplicate_key",
           "duplicate_strategy",
-          "create_missing_companies"
+          "create_missing_references"
         ],
         "properties": {
-          "create_missing_companies": {
+          "create_missing_references": {
             "type": "boolean"
           },
           "distribution_rule_id": {
@@ -95054,6 +95070,7 @@
       "ImportTargetResponse": {
         "type": "object",
         "required": [
+          "can_create_reference",
           "key",
           "label",
           "field_type",
@@ -95062,6 +95079,9 @@
           "multiple"
         ],
         "properties": {
+          "can_create_reference": {
+            "type": "boolean"
+          },
           "field_type": {
             "type": "string",
             "example": "email"
@@ -104822,7 +104842,6 @@
                 "id",
                 "record_type",
                 "status",
-                "file_id",
                 "file_name",
                 "encoding",
                 "delimiter",
@@ -104872,7 +104891,10 @@
                   ]
                 },
                 "file_id": {
-                  "type": "string"
+                  "type": [
+                    "string",
+                    "null"
+                  ]
                 },
                 "file_name": {
                   "type": "string"
@@ -104909,6 +104931,12 @@
                   "items": {
                     "$ref": "#/components/schemas/ImportPreviewRow"
                   }
+                },
+                "privacy_redacted_at": {
+                  "type": [
+                    "string",
+                    "null"
+                  ]
                 },
                 "record_type": {
                   "type": "string",

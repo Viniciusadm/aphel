@@ -17,7 +17,7 @@ import {
   type ImportOptions,
   type ImportValidation,
 } from '../api'
-import { acceptsMultiple, delimiterLabel, duplicateKeysFor, missingRequired, supportsCompanyCreation } from '../mapping'
+import { acceptsMultiple, delimiterLabel, duplicateKeysFor, missingRequired, supportsReferenceCreation } from '../mapping'
 import { ValidationReport } from './ValidationReport'
 import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from '@/components/ui/table'
 import { Field } from '@/components/ui/field'
@@ -165,12 +165,12 @@ export function MappingStep({ job }: MappingStepProps) {
               ))}
             </NativeSelect>}
           </Field>
-          {supportsCompanyCreation(job.record_type, job.targets) && (
-            <ToggleField label={t('mapping.createCompanies')} checked={options.create_missing_companies} onCheckedChange={(checked) => changeOptions({ create_missing_companies: checked === true })} className="sm:col-span-2" />
+          {supportsReferenceCreation(job.targets) && (
+            <ToggleField label={t('mapping.createReferences')} checked={options.create_missing_references} onCheckedChange={(checked) => changeOptions({ create_missing_references: checked === true })} className="sm:col-span-2" />
           )}
           <div className="sm:col-span-2">
             <Slot
-              name="leadDistribution.ruleSelect"
+              name="assignment.ruleSelect"
               props={{
                 recordType: job.record_type,
                 value: options.distribution_rule_id ?? null,

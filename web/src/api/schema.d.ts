@@ -12218,7 +12218,7 @@ export interface components {
                 encoding: string;
                 error_file_id?: string | null;
                 failure_reason?: string | null;
-                file_id: string;
+                file_id?: string | null;
                 file_name: string;
                 finished_at?: string | null;
                 headers: string[];
@@ -12226,6 +12226,7 @@ export interface components {
                 mapping: (string | null)[];
                 options: components["schemas"]["ImportOptionsDto"];
                 preview: components["schemas"]["ImportPreviewRow"][];
+                privacy_redacted_at?: string | null;
                 /** @example people.person */
                 record_type: string;
                 retry_of?: string | null;
@@ -16267,7 +16268,7 @@ export interface components {
             encoding: string;
             error_file_id?: string | null;
             failure_reason?: string | null;
-            file_id: string;
+            file_id?: string | null;
             file_name: string;
             finished_at?: string | null;
             headers: string[];
@@ -16275,6 +16276,7 @@ export interface components {
             mapping: (string | null)[];
             options: components["schemas"]["ImportOptionsDto"];
             preview: components["schemas"]["ImportPreviewRow"][];
+            privacy_redacted_at?: string | null;
             /** @example people.person */
             record_type: string;
             retry_of?: string | null;
@@ -16288,7 +16290,7 @@ export interface components {
             updated_at: string;
         };
         ImportOptionsDto: {
-            create_missing_companies: boolean;
+            create_missing_references: boolean;
             distribution_rule_id?: string | null;
             duplicate_key: components["schemas"]["DuplicateKeyDto"];
             duplicate_strategy: components["schemas"]["DuplicateStrategyDto"];
@@ -16320,6 +16322,7 @@ export interface components {
             status: string;
         };
         ImportTargetResponse: {
+            can_create_reference: boolean;
             /** @example email */
             field_type: string;
             is_custom: boolean;
@@ -18837,7 +18840,7 @@ export interface components {
                 encoding: string;
                 error_file_id?: string | null;
                 failure_reason?: string | null;
-                file_id: string;
+                file_id?: string | null;
                 file_name: string;
                 finished_at?: string | null;
                 headers: string[];
@@ -18845,6 +18848,7 @@ export interface components {
                 mapping: (string | null)[];
                 options: components["schemas"]["ImportOptionsDto"];
                 preview: components["schemas"]["ImportPreviewRow"][];
+                privacy_redacted_at?: string | null;
                 /** @example people.person */
                 record_type: string;
                 retry_of?: string | null;

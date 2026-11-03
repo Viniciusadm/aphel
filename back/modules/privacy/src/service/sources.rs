@@ -156,6 +156,9 @@ pub(crate) async fn erase(
             "a requested privacy source is unavailable".to_owned(),
         ));
     }
+    let mut tx = ctx.begin().await?;
+    let mut outcomes = Vec::new();
+    let mut skipped = 0;
     for source in sources {
         let ids = item_ids(&request.targets, source.key());
         let action = match request.kind {
@@ -169,27 +172,46 @@ pub(crate) async fn erase(
             RecordType::from_static("privacy.source"),
             Uuid::from_bytes(bytes),
         );
-        let result=async{
-            let mut tx=ctx.begin().await?;
-            if !crate::store::PrivacyStore::of(ctx).claim_item(&mut tx,request.id,&marker).await?{return Ok::<_,AppError>(None);}
-            let operation=SourceRequest{id:request.id,action,records:&request.targets.records,items:&ids,redaction,at:ctx.now()};
-            let outcome=source.erase(ctx,&mut tx,&operation).await?;
-            let mentions=source.redact(ctx,&mut tx,redaction).await?;
-            publish(ctx,&mut tx,Mutation{actor:Actor::System,event_type:"privacy_request.source_erased".into(),record:RecordRef::new(crate::domain::PRIVACY_REQUEST_RECORD_TYPE,request.id),payload:json!({"source":source.key(),"affected":outcome.affected,"mentions":mentions}),changes:vec![FieldChange::new("source",Value::Null,json!(source.key())),FieldChange::new("affected",Value::Null,json!(outcome.affected))],now:ctx.now(),ip:None}).await?;
-            tx.commit().await?;Ok(Some((outcome,mentions)))
-        }.await;
-        match result {
-            Ok(Some((outcome, mentions))) => {
-                *report.source_items.entry(source.key().into()).or_default() +=
-                    outcome.affected + mentions;
-                report.files += remove_stored_files(storage, &outcome.storage_keys).await;
-            }
-            Ok(None) => report.skipped += 1,
-            Err(error) => {
-                tracing::warn!(source=source.key(),error=%error,"privacy source erasure failed");
-                report.errors += 1;
-            }
+        if !crate::store::PrivacyStore::of(ctx)
+            .claim_item(&mut tx, request.id, &marker)
+            .await?
+        {
+            skipped += 1;
+            continue;
         }
+        let operation = SourceRequest {
+            id: request.id,
+            action,
+            records: &request.targets.records,
+            items: &ids,
+            redaction,
+            at: ctx.now(),
+        };
+        let outcome = source
+            .erase(ctx, &mut tx, &operation)
+            .await
+            .map_err(|error| {
+                tracing::warn!(source=source.key(),error=%error,"privacy source erasure failed");
+                error
+            })?;
+        let mentions = source.redact(ctx, &mut tx, redaction).await?;
+        publish(ctx,&mut tx,Mutation {
+            actor:Actor::System,event_type:"privacy_request.source_erased".into(),
+            record:RecordRef::new(crate::domain::PRIVACY_REQUEST_RECORD_TYPE,request.id),
+            payload:json!({"source":source.key(),"affected":outcome.affected,"mentions":mentions}),
+            changes:vec![FieldChange::new("source",Value::Null,json!(source.key())),FieldChange::new("affected",Value::Null,json!(outcome.affected))],
+            now:ctx.now(),ip:None,
+        }).await?;
+        outcomes.push((source.key().to_owned(), outcome, mentions));
     }
+    tx.commit().await?;
+    report.skipped += skipped;
+    let mut storage_keys = std::collections::BTreeSet::new();
+    for (key, outcome, mentions) in outcomes {
+        *report.source_items.entry(key).or_default() += outcome.affected + mentions;
+        storage_keys.extend(outcome.storage_keys);
+    }
+    report.files +=
+        remove_stored_files(storage, &storage_keys.into_iter().collect::<Vec<_>>()).await;
     Ok(())
 }

@@ -1,3 +1,4 @@
+import { entityLabel, useEntities } from '@/sdk/entities'
 import { PaginationSummary } from '@/components/ui/pagination-summary'
 import { useState } from 'react'
 import { useTranslation } from 'react-i18next'
@@ -10,7 +11,7 @@ import { fileDownloadUrl } from '@/features/files'
 import { formatDateTime, useRecordFormatting } from '@/features/records/formatting'
 import { ListSkeleton } from '@/features/settings/components/ListSkeleton'
 import { Pagination } from '@/components/ui/pagination'
-import { HISTORY_PAGE_SIZE, isImportable, isRunning, useImportHistory, type ImportJob } from './api'
+import { HISTORY_PAGE_SIZE, isRunning, useImportHistory, type ImportJob } from './api'
 import { PageHeader } from '@/components/ui/page-header'
 import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from '@/components/ui/table'
 import { Page } from '@/components/ui/page'
@@ -26,13 +27,14 @@ const STATUS_VARIANTS: Record<string, BadgeVariant> = {
 }
 
 export function ImportHistoryPage() {
-  const { t } = useTranslation('imports')
+  const { t, i18n } = useTranslation('imports')
+  const entities = useEntities()
   const formatting = useRecordFormatting()
   const [page, setPage] = useState(1)
   const imports = useImportHistory(page)
 
   const recordTypeLabel = (recordType: string) =>
-    isImportable(recordType) ? t(`recordTypes.${recordType}`) : recordType
+    entityLabel(entities.data?.find((entity) => entity.record_type === recordType), i18n.language, recordType)
 
   const totalsText = (job: ImportJob) =>
     job.status === 'draft'

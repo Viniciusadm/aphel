@@ -1,7 +1,7 @@
 CREATE TABLE import_jobs (
   id CHAR(36) NOT NULL,
   record_type VARCHAR(64) NOT NULL,
-  file_id CHAR(36) NOT NULL,
+  file_id CHAR(36) NULL,
   file_name VARCHAR(255) NOT NULL,
   status VARCHAR(16) NOT NULL,
   encoding VARCHAR(16) NOT NULL,
@@ -20,6 +20,7 @@ CREATE TABLE import_jobs (
   updated_at DATETIME(6) NOT NULL DEFAULT CURRENT_TIMESTAMP(6),
   started_at DATETIME(6) NULL,
   finished_at DATETIME(6) NULL,
+  privacy_redacted_at DATETIME(6) NULL,
   PRIMARY KEY (id),
   KEY import_jobs_created_at_index (created_at),
   KEY import_jobs_created_by_index (created_by, created_at),

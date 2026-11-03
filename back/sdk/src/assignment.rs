@@ -29,3 +29,22 @@ impl AssignmentPermissions for crate::access::Permission {
     const ASSIGNMENT_MANAGE: crate::access::Permission =
         crate::access::Permission::from_static("assignment.manage");
 }
+
+#[async_trait::async_trait]
+pub trait AssignmentSelector: Send + Sync {
+    async fn usable(
+        &self,
+        ctx: &crate::Ctx<'_>,
+        rule: &str,
+        record_type: &str,
+    ) -> Result<bool, AppError>;
+    async fn select(
+        &self,
+        ctx: &crate::Ctx<'_>,
+        rule: &str,
+        record_type: &str,
+        values: &serde_json::Map<String, serde_json::Value>,
+        source: &str,
+        idempotency_key: String,
+    ) -> Result<Option<aphel_kernel::domain::UserId>, AppError>;
+}

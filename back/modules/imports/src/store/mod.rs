@@ -25,7 +25,7 @@ const ROW_INSERT_CHUNK: usize = 500;
 
 const JOB_COLUMNS: &str = "id, record_type, file_id, file_name, status, encoding, \
      delimiter, headers, preview, row_count, mapping, options, totals, error_file_id, retry_of, \
-     failure_reason, created_by, created_at, updated_at, started_at, finished_at";
+     failure_reason, created_by, created_at, updated_at, started_at, finished_at, privacy_redacted_at";
 
 #[derive(Clone)]
 pub(crate) struct ImportStore {
@@ -84,7 +84,10 @@ fn job_from_row(row: &MySqlRow) -> Result<ImportJob, AppError> {
     Ok(ImportJob {
         id: uuid_column(row, "id")?,
         record_type: row.try_get("record_type")?,
-        file_id: uuid_column(row, "file_id")?,
+        file_id: optional_uuid(row, "file_id")?,
+        privacy_redacted_at: row
+            .try_get::<Option<NaiveDateTime>, _>("privacy_redacted_at")?
+            .map(mapper::utc),
         file_name: row.try_get("file_name")?,
         status: ImportStatus::parse(&status)
             .ok_or_else(|| mapper::invalid_column("status", &status))?,
@@ -152,11 +155,11 @@ impl ImportStore {
     ) -> Result<(), AppError> {
         sqlx::query(AssertSqlSafe(format!(
             "INSERT INTO import_jobs ({JOB_COLUMNS}) \
-             VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)"
+             VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)"
         )))
         .bind(job.id.to_string())
         .bind(&job.record_type)
-        .bind(job.file_id.to_string())
+        .bind(job.file_id.map(|id| id.to_string()))
         .bind(&job.file_name)
         .bind(job.status.as_str())
         .bind(job.encoding.as_str())
@@ -175,12 +178,29 @@ impl ImportStore {
         .bind(mapper::naive(job.updated_at))
         .bind(job.started_at.map(mapper::naive))
         .bind(job.finished_at.map(mapper::naive))
+        .bind(job.privacy_redacted_at.map(mapper::naive))
         .execute(&mut **tx)
         .await?;
         Ok(())
     }
 
     pub(crate) async fn save_job(&self, tx: &mut MySqlTx, job: &ImportJob) -> Result<(), AppError> {
+        let redacted: Option<Option<NaiveDateTime>> = sqlx::query_scalar(
+            "SELECT privacy_redacted_at FROM import_jobs WHERE id = ? FOR UPDATE",
+        )
+        .bind(job.id.to_string())
+        .fetch_optional(&mut **tx)
+        .await?;
+        match redacted {
+            Some(None) => {}
+            Some(Some(_)) => {
+                return Err(AppError::conflict_code(
+                    crate::IMPORT_NOT_RETRYABLE,
+                    "privacy-redacted imports cannot be changed or retried",
+                ));
+            }
+            None => return Err(crate::import_not_found()),
+        }
         sqlx::query(
             "UPDATE import_jobs SET status = ?, row_count = ?, mapping = ?, options = ?, totals = ?, \
              error_file_id = ?, failure_reason = ?, updated_at = ?, started_at = ?, finished_at = ? \

@@ -1,3 +1,4 @@
+use aphel_sdk::imports::ImportTraits;
 use aphel_sdk::party::{
     ContactPoint, ContactPointKind, ContactPoints, PartyTraits, address_fields, phone_field,
 };
@@ -90,6 +91,10 @@ pub(crate) fn company_capabilities() -> EntityTraits {
         .with_trait("scoring.subject")
         .relatable()
         .importable()
+        .import_policy(
+            serde_json::from_str(include_str!("../locales/imports.json"))
+                .expect("owner import metadata"),
+        )
         .exportable()
         .personal_data()
         .notifies()

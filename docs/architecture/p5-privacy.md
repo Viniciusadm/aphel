@@ -24,7 +24,7 @@ D4 prohibits automated tests, probes and runtime instances. Compilation, strict 
 - [ ] Verify source retries after commit, partial failures, unavailable owners and orphan-file cleanup failures.
 - [ ] Inspect note privacy, task links, duplicate cleanup, webhook payload redaction and retained data from disabled contributors under privacy.manage.
 - [ ] Inspect recent notes/tasks and owner-declared recency fields when previewing and running retention.
-- [ ] Review uploaded import originals, generated error files and active-import coordination during the imports lifecycle work in P5.16. Row/preview redaction does not establish complete removal of all original-file copies.
+- [ ] Exercise uploaded originals, generated error files, active-import coordination and atomic native-source rollback implemented in P5.16; see [the import review](p5-imports.md).
 - [ ] Inspect external plugin sources and export package limits, attachment handling and expiry.
 
 Privacy still consumes notification, search and export implementation utilities; their shared capability boundaries are part of P5.22–P5.24. This step removes the host's foreign business-table SQL, not all remaining repository dependencies or all product privacy limitations.

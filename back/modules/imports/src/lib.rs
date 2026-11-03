@@ -68,6 +68,7 @@ impl Module for ImportsModule {
     }
 
     fn register(&self, app: &mut AppBuilder) -> Result<(), AppError> {
+        app.contract(aphel_sdk::imports::DESCRIPTOR);
         app.contribute::<dyn aphel_sdk::privacy::PrivacySource>(std::sync::Arc::new(
             privacy::ImportPrivacy,
         ));

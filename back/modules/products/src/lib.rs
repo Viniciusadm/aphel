@@ -1,3 +1,4 @@
+use aphel_sdk::imports::ImportTraits;
 pub mod domain;
 pub mod http;
 pub mod service;
@@ -55,6 +56,10 @@ pub(crate) fn product_definition() -> Result<EntityDefinition, AppError> {
                 EntityTraits::default()
                     .relatable()
                     .importable()
+                    .import_policy(
+                        serde_json::from_str(include_str!("../locales/imports.json"))
+                            .expect("owner import metadata"),
+                    )
                     .exportable()
                     .validation_rules()
                     .bulk_fields(PRODUCT_BULK_FIELDS)
