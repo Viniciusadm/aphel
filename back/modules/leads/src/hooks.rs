@@ -14,34 +14,59 @@ use aphel_kernel::database::transaction::MySqlTx;
 use aphel_kernel::errors::{AppError, FieldViolation};
 use aphel_kernel::modules::{Hook, HookCtx};
 use aphel_kernel::records::PendingCommit;
-use aphel_kernel::records::{ChangedRecord, RecordCtx, RemovedRecord};
-use people::domain::ContactView;
+use aphel_kernel::records::{ChangedRecord, RemovedRecord};
 
 #[derive(Debug, Clone, PartialEq)]
 pub struct Lead {
-    pub contact: ContactView,
+    pub values: Map<String, Value>,
+    id: Uuid,
+    pub(crate) updated_at: chrono::DateTime<chrono::Utc>,
 }
-
 impl Lead {
-    pub fn new(contact: ContactView) -> Self {
-        Self { contact }
+    pub fn from_record(value: Value) -> Result<Self, AppError> {
+        let values = value
+            .as_object()
+            .cloned()
+            .ok_or_else(|| AppError::Internal("the lead record is not an object".into()))?;
+        let id = values
+            .get("id")
+            .and_then(Value::as_str)
+            .and_then(|v| Uuid::parse_str(v).ok())
+            .ok_or_else(|| AppError::Internal("the lead has no identity".into()))?;
+        let updated_at = values
+            .get("updated_at")
+            .and_then(Value::as_str)
+            .and_then(|v| chrono::DateTime::parse_from_rfc3339(v).ok())
+            .map(|v| v.with_timezone(&chrono::Utc))
+            .ok_or_else(|| AppError::Forbidden("the lead record version is not readable".into()))?;
+        Ok(Self {
+            values,
+            id,
+            updated_at,
+        })
     }
-
     pub fn id(&self) -> Uuid {
-        self.contact.contact.id
+        self.id
     }
-
+    pub fn company_id(&self) -> Option<Uuid> {
+        self.values
+            .get("company_id")
+            .and_then(Value::as_str)
+            .and_then(|id| Uuid::parse_str(id).ok())
+    }
     pub(crate) fn name(&self) -> String {
-        self.contact.contact.full_name()
+        self.values
+            .get("full_name")
+            .and_then(Value::as_str)
+            .filter(|name| !name.trim().is_empty())
+            .map(str::to_owned)
+            .unwrap_or_else(|| self.id.to_string())
     }
-
     pub(crate) fn stage(&self) -> Option<&str> {
-        self.contact
-            .contributed
+        self.values
             .get(LIFECYCLE_STAGE_FIELD)
             .and_then(Value::as_str)
     }
-
     pub(crate) fn is_open(&self) -> bool {
         matches!(self.stage(), Some(LEAD_STAGE) | Some(QUALIFIED_STAGE))
     }
@@ -155,7 +180,6 @@ pub trait LeadConverter: Send + Sync {
 pub struct DealLeadConverter;
 
 pub(crate) fn deal_values(lead: &Lead, command: &ConvertLeadCommand) -> Map<String, Value> {
-    let data = &lead.contact.contact.data;
     let title = command
         .title
         .as_deref()
@@ -175,10 +199,10 @@ pub(crate) fn deal_values(lead: &Lead, command: &ConvertLeadCommand) -> Map<Stri
     if let Some(currency) = &command.currency {
         deal.insert("currency".to_owned(), json!(currency));
     }
-    if let Some(company_id) = data.company_id {
+    if let Some(company_id) = lead.company_id() {
         deal.insert("company_id".to_owned(), json!(company_id.to_string()));
     }
-    if let Some(source) = &data.source {
+    if let Some(source) = lead.values.get("source").filter(|value| !value.is_null()) {
         deal.insert("source".to_owned(), json!(source));
     }
     deal
@@ -201,27 +225,22 @@ impl LeadConverter for DealLeadConverter {
         let conversion = ctx
             .apply_hook(LeadConverting, tx, super::KEY, conversion)
             .await?;
-        let state = ctx.state();
-        let record_ctx = RecordCtx::new(ctx.scope, &state);
-        let registry = ctx.registry();
         let mut deal = conversion.deal;
         let mut company_id = None;
         let mut pending = Vec::new();
         if let Some(company) = conversion.company
-            && lead.contact.contact.data.company_id.is_none()
+            && lead.company_id().is_none()
         {
-            let created = registry
-                .handler(RecordType::COMPANY.as_str())?
-                .create_in_tx(&record_ctx, tx, Value::Object(company))
+            let created = ctx
+                .create_record_in_tx(tx, RecordType::COMPANY.as_str(), Value::Object(company))
                 .await?;
             let id = created.record.record_id;
             pending.push(created);
             deal.insert("company_id".to_owned(), json!(id.to_string()));
             company_id = Some(id);
         }
-        let created = registry
-            .handler(RecordType::DEAL.as_str())?
-            .create_in_tx(&record_ctx, tx, Value::Object(deal))
+        let created = ctx
+            .create_record_in_tx(tx, RecordType::DEAL.as_str(), Value::Object(deal))
             .await?;
         let deal_id = created.record.record_id;
         pending.push(created);

@@ -33,17 +33,29 @@ pub(crate) const LIFECYCLE_STAGE_PRIORITY: i32 = 40;
 const PUBLIC_EVENTS: &[PublicEventDefinition] = &[
     event(
         "lead.qualified",
-        people::CONTACT_RESOURCE,
+        aphel_kernel::application::public_events::PublicResource::new(
+            "people.person",
+            "ContactResponse",
+        )
+        .with_nested(&[("company", "organizations.organization")]),
         "A lead was qualified in the lead inbox (the contact moved from `lead` to `qualified`)",
     ),
     event(
         "lead.disqualified",
-        people::CONTACT_RESOURCE,
+        aphel_kernel::application::public_events::PublicResource::new(
+            "people.person",
+            "ContactResponse",
+        )
+        .with_nested(&[("company", "organizations.organization")]),
         "A lead was disqualified in the lead inbox with a reason",
     ),
     event(
         "lead.converted",
-        people::CONTACT_RESOURCE,
+        aphel_kernel::application::public_events::PublicResource::new(
+            "people.person",
+            "ContactResponse",
+        )
+        .with_nested(&[("company", "organizations.organization")]),
         "A lead was converted: a deal was created with the contact and the contact moved to the converted stage",
     ),
 ];
@@ -65,6 +77,28 @@ pub(crate) fn lifecycle_stage_field() -> Result<SystemField, AppError> {
     ))
 }
 
+fn extend_lifecycle(
+    definition: &mut aphel_kernel::application::fields::EntityDefinition,
+) -> Result<(), AppError> {
+    let table = match definition.record_type.as_str() {
+        "people.person" => "leads_contact_extension",
+        "organizations.organization" => "leads_company_extension",
+        _ => return Ok(()),
+    };
+    if definition.system_field_by_key("lifecycle_stage").is_some() {
+        return Err(AppError::Configuration(
+            "the lifecycle stage field is already declared".into(),
+        ));
+    }
+    let mut field = lifecycle_stage_field()?;
+    field.extension = Some(aphel_kernel::application::fields::ExtensionColumn {
+        table: table.into(),
+        record_column: "record_id".into(),
+    });
+    definition.system_fields.push(field);
+    Ok(())
+}
+
 pub struct LeadsModule;
 
 impl Module for LeadsModule {
@@ -73,19 +107,31 @@ impl Module for LeadsModule {
             .description(
                 "Lifecycle stages of people and organizations, automatic transitions, the lead inbox (qualify, disqualify, convert) and disqualification reasons",
             )
-            .depends_on(people::KEY, "*")
             .enabled_by_default()
-            .depends_on(organizations::KEY, "*")
             .owned_tables(&["lead_disqualification_reasons", "lead_disqualifications", "lifecycle_settings", "lifecycle_stage_history", "leads_contact_extension", "leads_company_extension"])
             .migration(Migration::new(
                 1,
                 "create leads",
                 include_str!("../migrations/0001_create_leads.sql"),
             ))
-            .migration(Migration::new(2, "move lifecycle extensions", include_str!("../migrations/0002_move_lifecycle_extensions.sql")))
     }
 
     fn register(&self, app: &mut AppBuilder) -> Result<(), AppError> {
+        app.on(
+            aphel_kernel::records::RecordPurged,
+            LIFECYCLE_STAGE_PRIORITY,
+            |ctx, args| {
+                Box::pin(async move {
+                    if args.record_type.as_str() == "people.person" {
+                        sqlx::query("DELETE FROM lead_disqualifications WHERE contact_id = ?")
+                            .bind(args.record.record_id.to_string())
+                            .execute(&mut **ctx.tx)
+                            .await?;
+                    }
+                    Ok(())
+                })
+            },
+        );
         app.declare_hook(
             crate::hooks::LeadQualifying,
             &[aphel_kernel::modules::HookUsage::Veto],
@@ -133,13 +179,7 @@ impl Module for LeadsModule {
         app.contribute(Arc::new(DefaultsSeed(|connection| {
             Box::pin(store::seed_disqualification_reasons(connection))
         })));
-        let stage = lifecycle_stage_field()?;
-        app.extend("people.person", |contact| {
-            contact.side_table("leads_contact_extension", "record_id").system_field(stage.clone());
-        })
-        .extend("organizations.organization", |company| {
-            company.side_table("leads_company_extension", "record_id").system_field(stage.clone());
-        })
+        app.transform_entities("leads.lifecycle",extend_lifecycle)
         .on(RecordValidating, LIFECYCLE_STAGE_PRIORITY, |ctx, args| {
             Box::pin(hooks::validate_stage(ctx, args))
         })

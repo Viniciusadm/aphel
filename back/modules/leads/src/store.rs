@@ -15,17 +15,18 @@ use crate::domain::{
 };
 use aphel_kernel::Ctx;
 use aphel_kernel::application::fields::RecordTypeRegistry;
+use aphel_kernel::application::organization_admin::ListWindow;
+use aphel_kernel::application::query::{ArchivedFilter, QueryPlan};
 use aphel_kernel::application::shared::RecordType;
 use aphel_kernel::database::transaction::MySqlTx;
 use aphel_kernel::domain::UserId;
 use aphel_kernel::domain::access::{AccessScope, RecordScopeFilter};
 use aphel_kernel::errors::AppError;
 use aphel_kernel::infrastructure::fields::mysql_definitions::uuid_column;
-use aphel_kernel::infrastructure::query::compiler::push_record_scope_as;
+use aphel_kernel::infrastructure::query::compiler::push_record_ids_subquery;
 use aphel_kernel::infrastructure::repositories::mapper;
 
 const REASON_COLUMNS: &str = "id, `key`, name, is_active, position, created_at, updated_at";
-const RECORD_ALIAS: &str = "r";
 
 fn optional_uuid(row: &MySqlRow, column: &str) -> Result<Option<Uuid>, AppError> {
     let value: Option<String> = row.try_get(column)?;
@@ -35,19 +36,6 @@ fn optional_uuid(row: &MySqlRow, column: &str) -> Result<Option<Uuid>, AppError>
                 .map_err(|_| AppError::Internal(format!("invalid uuid in column {column}")))
         })
         .transpose()
-}
-
-fn table_for(record_type: &RecordType) -> Result<&'static str, AppError> {
-    if *record_type == RecordType::CONTACT {
-        Ok("people")
-    } else if *record_type == RecordType::COMPANY {
-        Ok("organizations")
-    } else {
-        Err(AppError::Internal(format!(
-            "{} has no lifecycle stage",
-            record_type.as_str()
-        )))
-    }
 }
 
 fn extension_for(record_type: &RecordType) -> Result<&'static str, AppError> {
@@ -443,19 +431,30 @@ impl LeadRecords {
         Self::new(ctx.pool().clone(), ctx.registry().clone())
     }
 
-    fn push_visible(
+    async fn visible_plan(
         &self,
-        builder: &mut QueryBuilder<MySql>,
         scope: &AccessScope,
         record_type: &RecordType,
         visibility: &RecordScopeFilter,
-    ) -> Result<(), AppError> {
-        let definition = self.registry.get(record_type).ok_or_else(|| {
-            AppError::Internal(format!("{} is not registered", record_type.as_str()))
-        })?;
-        builder.push(format!(" AND {RECORD_ALIAS}.deleted_at IS NULL"));
-        push_record_scope_as(builder, scope, definition, visibility, RECORD_ALIAS);
-        Ok(())
+        archived: ArchivedFilter,
+    ) -> Result<QueryPlan, AppError> {
+        let plan = QueryPlan {
+            record_type: self.registry.require(record_type.as_str())?.clone(),
+            visibility: visibility.clone(),
+            filter: None,
+            search: None,
+            sort: Vec::new(),
+            archived,
+            window: ListWindow {
+                offset: 0,
+                limit: 1,
+            },
+        };
+        Ok(
+            aphel_kernel::records::constrain_query(&self.pool, scope, &plan)
+                .await?
+                .unwrap_or(plan),
+        )
     }
 }
 
@@ -491,17 +490,36 @@ impl LeadRecords {
         &self,
         scope: &AccessScope,
         record_type: &RecordType,
-        visibility: &RecordScopeFilter,
         record_id: Uuid,
     ) -> Result<bool, AppError> {
-        let table = table_for(record_type)?;
-        let mut builder: QueryBuilder<MySql> = QueryBuilder::new(format!(
-            "SELECT COUNT(*) FROM {table} {RECORD_ALIAS} WHERE {RECORD_ALIAS}.id = "
-        ));
-        builder.push_bind(record_id.to_string());
-        self.push_visible(&mut builder, scope, record_type, visibility)?;
-        let count: i64 = builder.build_query_scalar().fetch_one(&self.pool).await?;
-        Ok(count > 0)
+        use aphel_kernel::application::query::{
+            Filter, FilterOperator, RecordQuery, RecordQueryEngine,
+        };
+        let ports = aphel_kernel::infrastructure::query::MySqlRecordQueryPorts::new(
+            self.pool.clone(),
+            self.registry.clone(),
+        );
+        Ok(!RecordQueryEngine::new(&ports)
+            .query(
+                scope,
+                record_type.as_str(),
+                RecordQuery {
+                    filter: Some(Filter::condition(
+                        "id",
+                        FilterOperator::Eq,
+                        json!(record_id),
+                    )),
+                    archived: ArchivedFilter::Include,
+                    window: ListWindow {
+                        offset: 0,
+                        limit: 1,
+                    },
+                    ..RecordQuery::default()
+                },
+            )
+            .await?
+            .items
+            .is_empty())
     }
 
     pub(crate) async fn current_stage(
@@ -509,18 +527,18 @@ impl LeadRecords {
         record_type: &RecordType,
         record_id: Uuid,
     ) -> Result<Option<Option<String>>, AppError> {
-        let table = table_for(record_type)?;
+        let scope = AccessScope::system();
+        if !self.visible(&scope, record_type, record_id).await? {
+            return Ok(None);
+        }
         let extension = extension_for(record_type)?;
-        let row = sqlx::query(sqlx::AssertSqlSafe(format!(
-            "SELECT e.lifecycle_stage FROM {table} r LEFT JOIN `{extension}` e ON e.record_id = r.id \
-             WHERE r.id = ? AND r.deleted_at IS NULL"
+        let row: Option<(Option<String>,)> = sqlx::query_as(sqlx::AssertSqlSafe(format!(
+            "SELECT lifecycle_stage FROM `{extension}` WHERE record_id = ?"
         )))
         .bind(record_id.to_string())
         .fetch_optional(&self.pool)
         .await?;
-        row.map(|row| row.try_get::<Option<String>, _>("lifecycle_stage"))
-            .transpose()
-            .map_err(Into::into)
+        Ok(Some(row.and_then(|row| row.0)))
     }
 
     pub async fn current_stage_in(
@@ -529,67 +547,50 @@ impl LeadRecords {
         record_type: &RecordType,
         record_id: Uuid,
     ) -> Result<Option<Option<String>>, AppError> {
-        let table = table_for(record_type)?;
+        if aphel_sdk::records::lock_entity_version(
+            tx,
+            self.registry.require(record_type.as_str())?,
+            record_id,
+        )
+        .await?
+        .is_none()
+        {
+            return Ok(None);
+        }
         let extension = extension_for(record_type)?;
-        let row = sqlx::query(sqlx::AssertSqlSafe(format!(
-            "SELECT e.lifecycle_stage FROM {table} r LEFT JOIN `{extension}` e ON e.record_id = r.id \
-             WHERE r.id = ? AND r.deleted_at IS NULL"
+        let row: Option<(Option<String>,)> = sqlx::query_as(sqlx::AssertSqlSafe(format!(
+            "SELECT lifecycle_stage FROM `{extension}` WHERE record_id = ?"
         )))
         .bind(record_id.to_string())
         .fetch_optional(&mut **tx)
         .await?;
-        row.map(|row| row.try_get::<Option<String>, _>("lifecycle_stage"))
-            .transpose()
-            .map_err(Into::into)
+        Ok(Some(row.and_then(|row| row.0)))
     }
 
     pub(crate) async fn deal_parties(
         &self,
         deal_id: Uuid,
     ) -> Result<Option<DealParties>, AppError> {
-        let row = sqlx::query("SELECT contact_id, company_id FROM deals WHERE id = ?")
-            .bind(deal_id.to_string())
-            .fetch_optional(&self.pool)
-            .await?;
-        row.map(|row| {
-            Ok(DealParties {
-                contact_id: optional_uuid(&row, "contact_id")?,
-                company_id: optional_uuid(&row, "company_id")?,
-            })
-        })
-        .transpose()
+        let app = aphel_kernel::modules::app();
+        let Some(source) = app.services().get::<dyn aphel_sdk::deals::DealLifecycle>() else {
+            return Ok(None);
+        };
+        source.parties(&self.pool, deal_id).await
     }
 
     pub(crate) async fn deal_outcomes(
         &self,
         record_type: &RecordType,
         record_id: Uuid,
-    ) -> Result<DealOutcomes, AppError> {
-        let column = if *record_type == RecordType::COMPANY {
-            "company_id"
-        } else {
-            "contact_id"
+    ) -> Result<Option<DealOutcomes>, AppError> {
+        let app = aphel_kernel::modules::app();
+        let Some(source) = app.services().get::<dyn aphel_sdk::deals::DealLifecycle>() else {
+            return Ok(None);
         };
-        let rows = sqlx::query(sqlx::AssertSqlSafe(format!(
-            "SELECT status, COUNT(*) AS total FROM deals \
-             WHERE {column} = ? AND deleted_at IS NULL GROUP BY status"
-        )))
-        .bind(record_id.to_string())
-        .fetch_all(&self.pool)
-        .await?;
-        let mut outcomes = DealOutcomes::default();
-        for row in rows {
-            let status: String = row.try_get("status")?;
-            let total: i64 = row.try_get("total")?;
-            let total = total.max(0) as u64;
-            match status.as_str() {
-                "open" => outcomes.open += total,
-                "won" => outcomes.won += total,
-                "lost" => outcomes.lost += total,
-                _ => {}
-            }
-        }
-        Ok(outcomes)
+        source
+            .outcomes(&self.pool, record_type, record_id)
+            .await
+            .map(Some)
     }
 
     pub(crate) async fn report_spans(
@@ -599,19 +600,19 @@ impl LeadRecords {
         visibility: &RecordScopeFilter,
         since: DateTime<Utc>,
     ) -> Result<Vec<HistorySpan>, AppError> {
-        let table = table_for(record_type)?;
-        let mut builder: QueryBuilder<MySql> = QueryBuilder::new(format!(
-            "SELECT h.record_id, h.to_stage, h.entered_at, h.left_at \
-             FROM lifecycle_stage_history h JOIN {table} {RECORD_ALIAS} ON {RECORD_ALIAS}.id = h.record_id \
-             WHERE "
-        ));
+        let plan = self
+            .visible_plan(scope, record_type, visibility, ArchivedFilter::Include)
+            .await?;
+        let mut builder = QueryBuilder::<MySql>::new(
+            "SELECT h.record_id,h.to_stage,h.entered_at,h.left_at FROM lifecycle_stage_history h WHERE h.record_type = ",
+        );
         builder
-            .push("h.record_type = ")
             .push_bind(record_type.as_str().to_owned())
             .push(" AND h.entered_at >= ")
-            .push_bind(mapper::naive(since));
-        self.push_visible(&mut builder, scope, record_type, visibility)?;
-        builder.push(" ORDER BY h.record_id, h.entered_at");
+            .push_bind(mapper::naive(since))
+            .push(" AND h.record_id IN (");
+        push_record_ids_subquery(&mut builder, scope, &plan)?;
+        builder.push(") ORDER BY h.record_id,h.entered_at");
         let rows = builder.build().fetch_all(&self.pool).await?;
         rows.iter()
             .map(|row| {
@@ -633,15 +634,15 @@ impl LeadRecords {
         record_type: &RecordType,
         visibility: &RecordScopeFilter,
     ) -> Result<Vec<(String, u64)>, AppError> {
-        let table = table_for(record_type)?;
+        let plan = self
+            .visible_plan(scope, record_type, visibility, ArchivedFilter::Exclude)
+            .await?;
         let extension = extension_for(record_type)?;
-        let mut builder: QueryBuilder<MySql> = QueryBuilder::new(format!(
-            "SELECT e.lifecycle_stage AS stage, COUNT(*) AS total \
-             FROM {table} {RECORD_ALIAS} JOIN `{extension}` e ON e.record_id = {RECORD_ALIAS}.id WHERE e.lifecycle_stage IS NOT NULL \
-             AND {RECORD_ALIAS}.archived_at IS NULL"
+        let mut builder = QueryBuilder::<MySql>::new(format!(
+            "SELECT e.lifecycle_stage AS stage,COUNT(*) AS total FROM `{extension}` e WHERE e.lifecycle_stage IS NOT NULL AND e.record_id IN ("
         ));
-        self.push_visible(&mut builder, scope, record_type, visibility)?;
-        builder.push(" GROUP BY e.lifecycle_stage");
+        push_record_ids_subquery(&mut builder, scope, &plan)?;
+        builder.push(") GROUP BY e.lifecycle_stage");
         let rows = builder.build().fetch_all(&self.pool).await?;
         rows.iter()
             .map(|row| {
@@ -657,18 +658,24 @@ impl LeadRecords {
         visibility: &RecordScopeFilter,
         window: &ReportWindow,
     ) -> Result<Vec<DisqualificationCount>, AppError> {
-        let mut builder: QueryBuilder<MySql> = QueryBuilder::new(format!(
-            "SELECT q.reason_id, q.reason_name, COUNT(*) AS total FROM lead_disqualifications q \
-             JOIN people {RECORD_ALIAS} ON {RECORD_ALIAS}.id = q.contact_id \
-             WHERE "
-        ));
+        let plan = self
+            .visible_plan(
+                scope,
+                &RecordType::CONTACT,
+                visibility,
+                ArchivedFilter::Include,
+            )
+            .await?;
+        let mut builder = QueryBuilder::<MySql>::new(
+            "SELECT q.reason_id,q.reason_name,COUNT(*) AS total FROM lead_disqualifications q WHERE q.created_at >= ",
+        );
         builder
-            .push("q.created_at >= ")
             .push_bind(mapper::naive(window.start()))
             .push(" AND q.created_at < ")
-            .push_bind(mapper::naive(window.end()));
-        self.push_visible(&mut builder, scope, &RecordType::CONTACT, visibility)?;
-        builder.push(" GROUP BY q.reason_id, q.reason_name ORDER BY total DESC, q.reason_name");
+            .push_bind(mapper::naive(window.end()))
+            .push(" AND q.contact_id IN (");
+        push_record_ids_subquery(&mut builder, scope, &plan)?;
+        builder.push(") GROUP BY q.reason_id,q.reason_name ORDER BY total DESC,q.reason_name");
         let rows = builder.build().fetch_all(&self.pool).await?;
         rows.iter()
             .map(|row| {

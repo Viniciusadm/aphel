@@ -120206,6 +120206,10 @@
       "description": "Integration center: providers, configuration, connection test and activation"
     },
     {
+      "name": "lifecycle",
+      "description": "Lifecycle stages of people and organizations: automatic transitions, stage history, conversion report, lead inbox actions (qualify, disqualify, convert) and disqualification reasons"
+    },
+    {
       "name": "line-items",
       "description": "Scoped record line items and total policy"
     },
@@ -120288,10 +120292,6 @@
     {
       "name": "email tracking",
       "description": "Open and click tracking settings, objections and the public tracking endpoints"
-    },
-    {
-      "name": "lifecycle",
-      "description": "Lifecycle stages of people and organizations: automatic transitions, stage history, conversion report, lead inbox actions (qualify, disqualify, convert) and disqualification reasons"
     },
     {
       "name": "plugins",

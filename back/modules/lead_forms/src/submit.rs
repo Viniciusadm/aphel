@@ -504,8 +504,12 @@ async fn create_deal(
     if let Some(source) = &form.definition.source {
         deal_values.insert("source".to_owned(), json!(source));
     }
-    let lead = Lead::new(people::service::visible(ctx, &contact_id.to_string()).await?);
-    let has_company = lead.contact.contact.data.company_id.is_some();
+    let lead = Lead::from_record(
+        ctx.load_record(RecordType::CONTACT.as_str(), contact_id)
+            .await?
+            .ok_or_else(|| AppError::NotFound("the created person is unavailable".into()))?,
+    )?;
+    let has_company = lead.company_id().is_some();
     let mut tx = ctx.begin().await?;
     let conversion = ctx
         .apply_hook(

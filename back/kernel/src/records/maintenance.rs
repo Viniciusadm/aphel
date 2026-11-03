@@ -282,3 +282,28 @@ pub async fn purge_entity(
     push_partition(&mut builder, definition, "r");
     Ok(builder.build().execute(&mut **tx).await?.rows_affected() > 0)
 }
+
+pub async fn lock_entity_version(
+    tx: &mut MySqlTx,
+    definition: &EntityDefinition,
+    id: Uuid,
+) -> Result<Option<chrono::DateTime<chrono::Utc>>, AppError> {
+    let column = definition
+        .system_field_by_key("updated_at")
+        .and_then(|field| field.stored_column())
+        .ok_or_else(|| AppError::Configuration("the entity has no stored record version".into()))?;
+    let mut query = QueryBuilder::<MySql>::new(format!(
+        "SELECT r.{} FROM {} r WHERE r.id = ",
+        quoted(column),
+        quoted(&definition.table)
+    ));
+    query.push_bind(id.to_string());
+    push_partition(&mut query, definition, "r");
+    if let Some(column) = &definition.deleted_column {
+        query.push(format!(" AND r.{} IS NULL", quoted(column)));
+    }
+    query.push(" FOR UPDATE");
+    let version: Option<NaiveDateTime> =
+        query.build_query_scalar().fetch_optional(&mut **tx).await?;
+    Ok(version.map(|value| value.and_utc()))
+}

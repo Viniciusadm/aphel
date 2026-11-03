@@ -65,6 +65,17 @@ CREATE TABLE lead_disqualifications (
   KEY lead_disqualifications_contact_index (contact_id, created_at),
   KEY lead_disqualifications_period_index (created_at),
   KEY lead_disqualifications_reason_fk_index (reason_id),
-  CONSTRAINT lead_disqualifications_contact_fk FOREIGN KEY (contact_id) REFERENCES people (id) ON DELETE CASCADE,
   CONSTRAINT lead_disqualifications_reason_fk FOREIGN KEY (reason_id) REFERENCES lead_disqualification_reasons (id) ON DELETE SET NULL
+) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci;
+
+CREATE TABLE leads_contact_extension (
+  record_id CHAR(36) NOT NULL PRIMARY KEY,
+  lifecycle_stage VARCHAR(64) NULL,
+  KEY leads_contact_stage_index (lifecycle_stage)
+) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci;
+
+CREATE TABLE leads_company_extension (
+  record_id CHAR(36) NOT NULL PRIMARY KEY,
+  lifecycle_stage VARCHAR(64) NULL,
+  KEY leads_company_stage_index (lifecycle_stage)
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci;

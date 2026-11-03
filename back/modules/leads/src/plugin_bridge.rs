@@ -12,7 +12,6 @@ use aphel_kernel::modules::{
     HookCtx, OperationFuture, PluginHook, PluginHookKind, PluginOperation, forward_plugin_hook,
     operation_input, operation_output,
 };
-use people::domain::contact_snapshot;
 
 pub(crate) const QUALIFYING: &str = "lead.qualifying";
 pub(crate) const DISQUALIFYING: &str = "lead.disqualifying";
@@ -22,15 +21,7 @@ pub(crate) const CONVERTED: &str = "lead.converted";
 const CONTACT: &str = "people.person";
 
 fn lead_json(lead: &Lead) -> Value {
-    let contact = &lead.contact.contact;
-    let mut values = contact_snapshot(&contact.data);
-    if let Value::Object(map) = &mut values {
-        map.insert("id".to_owned(), json!(lead.id()));
-        for (key, value) in &lead.contact.contributed {
-            map.entry(key.clone()).or_insert_with(|| value.clone());
-        }
-    }
-    values
+    Value::Object(lead.values.clone())
 }
 
 pub(crate) async fn qualifying(ctx: &mut HookCtx<'_>, lead: &Lead) -> Result<(), AppError> {

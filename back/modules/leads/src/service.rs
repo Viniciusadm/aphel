@@ -8,7 +8,7 @@ use uuid::Uuid;
 
 use ::config_packages::application::{is_config_key, key_from_name};
 use aphel_kernel::application::access::Authorizer;
-use aphel_kernel::application::audit::{DiffOptions, diff_changes, diff_values};
+use aphel_kernel::application::audit::{DiffOptions, diff_changes};
 use std::sync::Arc;
 
 use async_trait::async_trait;
@@ -30,11 +30,7 @@ use crate::store::{HistoryStore, LeadRecords, ReasonStore, SettingsStore};
 use aphel_kernel::Ctx;
 use aphel_kernel::application::custom_objects::{CatalogEventConsumer, RecordTypeCatalog};
 
-use aphel_kernel::application::fields::permissions::check_record_writes;
-use aphel_kernel::application::fields::{
-    CustomFieldPorts, CustomFieldWriter, RecordDraft, RecordPipeline, RecordTypeRegistry,
-    RecordWrite, WriteMode,
-};
+use aphel_kernel::application::fields::RecordTypeRegistry;
 use aphel_kernel::application::shared::EventConsumer;
 use aphel_kernel::application::shared::{
     Actor, AuditEntry, AuditLog, DomainEvent, EventPublisher, FieldChange, RecordRef, RecordType,
@@ -45,15 +41,8 @@ use aphel_kernel::domain::access::{AccessScope, Permission};
 use aphel_kernel::errors::{AppError, FieldViolation};
 use aphel_kernel::infrastructure::audit::MySqlAuditLog;
 use aphel_kernel::infrastructure::events::MySqlEventPublisher;
-use aphel_kernel::records::{
-    InputValidator, RecordMutation, changes_payload, contributed_input, is_writable_contributed,
-    merge_contributed, merge_violations, publish_mutation, write_contributed,
-};
-use deals::domain::{DEAL_CREATED, DEAL_DELETED, DEAL_LOST, DEAL_REOPENED, DEAL_WON};
-use organizations::domain::{CompanyInput, SaveCompanyCommand};
-use people::domain::{CONTACT_UPDATED, ContactInput, SaveContactCommand, apply_contact_input};
-use people::service::contact_values;
-use people::store::ContactStore;
+
+use aphel_sdk::deals::{DEAL_CREATED, DEAL_DELETED, DEAL_LOST, DEAL_REOPENED, DEAL_WON};
 
 pub(crate) const DISQUALIFICATION_REASON_NOT_FOUND: &str = "disqualification_reason_not_found";
 pub(crate) const DISQUALIFICATION_REASON_KEY_TAKEN: &str = "disqualification_reason_key_taken";
@@ -602,6 +591,22 @@ pub(crate) async fn reorder_reasons(
     ReasonStore::new(ctx.pool().clone()).list(true).await
 }
 
+async fn require_lifecycle_field(ctx: &Ctx<'_>, record_type: &RecordType) -> Result<(), AppError> {
+    if !aphel_sdk::records::enabled(ctx, record_type) {
+        return Err(lifecycle_record_not_found());
+    }
+    let fields = ctx.field_set(ctx.scope, record_type.as_str()).await?;
+    if fields
+        .find_active(LIFECYCLE_STAGE_FIELD)
+        .is_none_or(|field| field.is_hidden())
+    {
+        return Err(AppError::Forbidden(
+            "the lifecycle stage field is not readable".into(),
+        ));
+    }
+    Ok(())
+}
+
 pub(crate) async fn history(
     ctx: &Ctx<'_>,
     record_type: &str,
@@ -610,10 +615,11 @@ pub(crate) async fn history(
     let scope = ctx.scope;
     let record_type =
         parse_lifecycle_record_type(record_type).ok_or_else(lifecycle_record_not_found)?;
-    let visibility = scope.record_filter(&read_permission(&record_type))?;
+    scope.record_filter(&read_permission(&record_type))?;
+    require_lifecycle_field(ctx, &record_type).await?;
     let record_id = Uuid::parse_str(record_id.trim()).map_err(|_| lifecycle_record_not_found())?;
     if !LeadRecords::of(ctx)
-        .visible(scope, &record_type, &visibility, record_id)
+        .visible(scope, &record_type, record_id)
         .await?
     {
         return Err(lifecycle_record_not_found());
@@ -658,6 +664,7 @@ pub(crate) async fn report(
         return Err(AppError::invalid_fields("invalid report", violations));
     }
     let visibility = scope.record_filter(&read_permission(&record_type))?;
+    require_lifecycle_field(ctx, &record_type).await?;
     let window = ReportWindow { from, to };
     let records = LeadRecords::of(ctx);
     let options = records.stage_options(&record_type).await?;
@@ -775,9 +782,22 @@ struct StageMove {
 }
 
 async fn lead(ctx: &Ctx<'_>, contact_id: &str) -> Result<Lead, AppError> {
-    Ok(Lead::new(
-        people::service::changeable(ctx, contact_id, &Permission::CONTACTS_UPDATE).await?,
-    ))
+    ctx.scope.require(&Permission::CONTACTS_UPDATE)?;
+    let id = Uuid::parse_str(contact_id).map_err(|_| not_lead())?;
+    if !ctx
+        .can_access_record(
+            &RecordRef::new(RecordType::CONTACT, id),
+            &Permission::CONTACTS_UPDATE,
+        )
+        .await?
+    {
+        return Err(not_lead());
+    }
+    Lead::from_record(
+        ctx.load_record(RecordType::CONTACT.as_str(), id)
+            .await?
+            .ok_or_else(not_lead)?,
+    )
 }
 
 pub(crate) async fn qualify_lead(
@@ -916,17 +936,14 @@ pub(crate) async fn convert_lead(
         return Err(not_lead());
     }
     let mut tx = ctx.begin().await?;
-    let updated_at: chrono::NaiveDateTime = sqlx::query_scalar(
-        "SELECT updated_at FROM people WHERE id = ? AND deleted_at IS NULL FOR UPDATE",
+    let updated_at = aphel_sdk::records::lock_entity_version(
+        &mut tx,
+        ctx.registry().require(RecordType::CONTACT.as_str())?,
+        lead.id(),
     )
-    .bind(lead.id().to_string())
-    .fetch_optional(&mut *tx)
     .await?
     .ok_or_else(not_lead)?;
-    aphel_kernel::application::shared::ensure_version(
-        Some(lead.contact.contact.updated_at()),
-        updated_at.and_utc(),
-    )?;
+    ensure_version(Some(lead.updated_at), updated_at)?;
     let to_stage = SettingsStore::new(ctx.pool().clone())
         .get()
         .await?
@@ -984,19 +1001,7 @@ async fn move_stage_in_tx(
     stage_move: StageMove,
 ) -> Result<Option<aphel_kernel::records::PendingCommit>, AppError> {
     let scope = ctx.scope;
-    let view = &stage_move.lead.contact;
-    let registry = ctx.registry().clone();
-    let definition = registry.require(RecordType::CONTACT.as_str())?;
-    let old = &view.contact.data;
-    let old_contributed = contributed_input(definition, &view.contributed);
-    let mut stage = Map::new();
-    stage.insert(LIFECYCLE_STAGE_FIELD.to_owned(), json!(stage_move.to_stage));
-    let mut validator = InputValidator::new();
-    let mut contributed = merge_contributed(definition, &old_contributed, &stage, &mut validator);
-    let mut data = old.clone();
-    let record = RecordRef::new(RecordType::CONTACT, view.contact.id);
-    let fields = ctx.fields();
-    let pipeline = fields.pipeline();
+    let record = RecordRef::new(RecordType::CONTACT, stage_move.lead.id());
     match &stage_move.action {
         StageAction::Qualify => {
             ctx.run_hook(LeadQualifying, tx, super::KEY, &stage_move.lead)
@@ -1008,79 +1013,13 @@ async fn move_stage_in_tx(
         }
         StageAction::Convert(_) => {}
     }
-    let values = contact_values(&data, &contributed);
-    let draft = pipeline
-        .saving(
-            tx,
-            scope,
-            RecordDraft::new(record.clone(), WriteMode::Update, &values, Map::new()),
-        )
-        .await?;
-    let changed = draft.changed_values(&values);
-    if !changed.is_empty() {
-        let contributed_changes: Map<String, Value> = changed
-            .iter()
-            .filter(|(key, _)| is_writable_contributed(definition, key))
-            .map(|(key, value)| (key.clone(), value.clone()))
-            .collect();
-        contributed = merge_contributed(
-            definition,
-            &contributed,
-            &contributed_changes,
-            &mut validator,
-        );
-        data = apply_contact_input(&data, ContactInput::from_values(&changed), &mut validator);
-    }
-    merge_violations(validator, Ok(Vec::new()), "invalid contact")?;
-    let old_snapshot = contact_values(old, &old_contributed);
-    let new_snapshot = contact_values(&data, &contributed);
-    check_record_writes(
-        fields.definitions(),
-        scope,
-        &RecordType::CONTACT,
-        &[LIFECYCLE_STAGE_FIELD],
-        &old_snapshot,
-        &new_snapshot,
-    )
-    .await?;
-    let mut changes = diff_values(&old_snapshot, &new_snapshot, &DiffOptions::default())?;
-    changes.extend(
-        CustomFieldWriter::new(&fields)
-            .with_record_values(&new_snapshot)
-            .apply(tx, scope, &record, &draft.custom_fields, WriteMode::Update)
-            .await?,
-    );
+    let pending = ctx.update_record_in_tx(tx, RecordType::CONTACT.as_str(), stage_move.lead.id(), json!({ LIFECYCLE_STAGE_FIELD: stage_move.to_stage, "_expected_updated_at": stage_move.lead.updated_at })).await?;
+    let changes = pending
+        .as_ref()
+        .map(|pending| pending.changes.clone())
+        .unwrap_or_default();
     let now = ctx.now();
     let actor = Actor::from_scope(scope);
-    let write = RecordWrite {
-        record: &record,
-        mode: WriteMode::Update,
-        changes: &changes,
-        values: &new_snapshot,
-    };
-    if !changes.is_empty() {
-        pipeline.validate(tx, scope, &write).await?;
-        ContactStore::of(ctx)
-            .update(tx, view.contact.id, &data, now)
-            .await?;
-        write_contributed(tx, definition, view.contact.id, &contributed).await?;
-        pipeline.saved(tx, scope, &write).await?;
-        publish_mutation(
-            ctx.events(),
-            ctx.audit(),
-            tx,
-            scope,
-            now,
-            RecordMutation {
-                record: record.clone(),
-                event_type: CONTACT_UPDATED,
-                payload: changes_payload(&changes),
-                changes: changes.clone(),
-                ip: stage_move.ip.clone(),
-            },
-        )
-        .await?;
-    }
     let mut audit_changes = changes.clone();
     if let StageAction::Disqualify(disqualification, _) = &stage_move.action {
         audit_changes.push(FieldChange::new(
@@ -1098,10 +1037,12 @@ async fn move_stage_in_tx(
     }
     let mut payload = stage_move.payload;
     if let Value::Object(map) = &mut payload {
-        map.insert("name".to_owned(), json!(view.contact.full_name()));
+        map.insert("name".to_owned(), json!(stage_move.lead.name()));
         map.insert(
             "from_stage".to_owned(),
-            old_contributed
+            stage_move
+                .lead
+                .values
                 .get(LIFECYCLE_STAGE_FIELD)
                 .cloned()
                 .unwrap_or(Value::Null),
@@ -1137,14 +1078,7 @@ async fn move_stage_in_tx(
         }
         StageAction::Qualify => {}
     }
-    Ok(
-        (!changes.is_empty()).then_some(aphel_kernel::records::PendingCommit {
-            record,
-            mode: WriteMode::Update,
-            changes,
-            values: new_snapshot,
-        }),
-    )
+    Ok(pending)
 }
 
 pub(crate) const LIFECYCLE_TRANSITIONS_CONSUMER: &str = "lifecycle.transitions";
@@ -1199,36 +1133,10 @@ impl LifecycleTransitions {
         stage: &str,
     ) -> Result<(), AppError> {
         let ctx = self.ctx(scope);
-        let id = record_id.to_string();
         let mut contributed = Map::new();
         contributed.insert(LIFECYCLE_STAGE_FIELD.to_owned(), json!(stage));
-        if *record_type == RecordType::COMPANY {
-            organizations::service::update(
-                &ctx,
-                &id,
-                SaveCompanyCommand {
-                    input: CompanyInput {
-                        contributed,
-                        ..CompanyInput::default()
-                    },
-                    ..SaveCompanyCommand::default()
-                },
-            )
+        ctx.update_record(record_type.as_str(), record_id, Value::Object(contributed))
             .await?;
-        } else {
-            people::service::update(
-                &ctx,
-                &id,
-                SaveContactCommand {
-                    input: ContactInput {
-                        contributed,
-                        ..ContactInput::default()
-                    },
-                    ..SaveContactCommand::default()
-                },
-            )
-            .await?;
-        }
         Ok(())
     }
 
@@ -1241,7 +1149,9 @@ impl LifecycleTransitions {
     ) -> Result<(), AppError> {
         let records = LeadRecords::new(self.pool.clone(), self.registry.clone());
         if rule.trigger == TransitionTrigger::AllDealsLost {
-            let outcomes = records.deal_outcomes(&record_type, record_id).await?;
+            let Some(outcomes) = records.deal_outcomes(&record_type, record_id).await? else {
+                return Ok(());
+            };
             if outcomes.open > 0 || outcomes.won > 0 || outcomes.lost == 0 {
                 return Ok(());
             }

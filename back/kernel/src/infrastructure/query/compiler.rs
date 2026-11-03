@@ -934,3 +934,15 @@ pub fn push_reference_subquery(
     builder.push("))");
     Ok(())
 }
+
+pub fn push_record_ids_subquery(
+    builder: &mut QueryBuilder<MySql>,
+    scope: &AccessScope,
+    plan: &QueryPlan,
+) -> Result<(), AppError> {
+    builder.push(format!(
+        "SELECT r.id FROM {} r",
+        quoted(&plan.record_type.table)
+    ));
+    push_where(builder, scope, plan)
+}

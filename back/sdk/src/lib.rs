@@ -72,8 +72,8 @@ pub mod records {
     pub use aphel_kernel::records::{
         EntityWriteBehavior, GenericRecordHandler, PendingCommit, RecordCtx, RecordTypeHandler,
         StoredTextField, TextAssignment, TextComparison, archive_entity, existing_entity_ids,
-        inspect_entity, mark_entity_deleted, matching_entity_text_ids, purge_entity,
-        update_entity_text,
+        inspect_entity, lock_entity_version, mark_entity_deleted, matching_entity_text_ids,
+        purge_entity, update_entity_text,
     };
     pub fn enabled(
         ctx: &aphel_kernel::Ctx<'_>,

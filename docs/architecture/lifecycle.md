@@ -13,13 +13,13 @@ All of this is the `leads` module (`back/modules/leads`, session 31), which depe
 | `store.rs` | SQL (`SettingsStore`, `ReasonStore`, `HistoryStore`, `LeadRecords`) |
 | `section.rs` | `lifecycle` package section |
 | `http.rs` | routes and DTOs |
-| `migrations/0001_create_leads.sql` | `lifecycle_stage` column in `people` and `organizations`, history, configuration, reasons and disqualifications |
+| `migrations/0001_create_leads.sql` | Owned lifecycle extension tables, history, configuration, reasons and disqualifications |
 
 Web: `web/src/features/leads`.
 
 ## Contributed field
 
-`people` and `organizations` do not know about the stage. `leads` creates the column in its own migration and declares the field with `app.extend("contact" | "company", |t| t.system_field(lifecycle_stage_field()))`. A system field declared by another module is a **contributed field** (`SystemField.contributed_by`): the kernel reads the values (`kernel::records::load_contributed`), validates the type (`merge_contributed`) and writes them (`write_contributed`) generically, and the contact and company DTOs flatten them into the JSON (`#[serde(flatten)] contributed`). That is why `lifecycle_stage` is still part of the API read and write bodies, imports, bulk actions, automations and incoming webhooks, with no lifecycle code in `people`/`organizations`. See [`record-pipeline.md`](record-pipeline.md#contributed-fields).
+`people` and `organizations` do not own lifecycle data. Leads contributes `lifecycle_stage` through a registry transform and stores it in its own `leads_contact_extension` and `leads_company_extension` tables. The core reads, validates and writes these contributed fields through declared side-table metadata. The same fields are available to owner handlers, imports, bulk actions, automations and incoming webhooks without lifecycle implementation calls in people or organizations. Fresh schemas create these tables directly; there is no legacy-column copy/adoption migration. See [the P5.20 review](p5-leads.md).
 
 ## Validation and history (same transaction)
 
@@ -44,7 +44,7 @@ Organization configuration in `lifecycle_settings` (single row) (`GET`/`PUT /api
 
 No-downgrade rule: a transition only changes the record when the current stage is in `from_stages` (or it is empty and `from_empty` is true), and never when it is already at the target. That is why a customer who opens a new deal stays `customer`, and losing a deal only sends back to `qualified` those still in `opportunity`. `all_deals_lost` also requires the contact or company to have at least one lost deal and no open or won ones (deals in the trash do not count).
 
-Execution: the `lifecycle.transitions` consumer (`CatalogEventConsumer`, current registry) with system scope (`AccessScope::system()`, all permissions, `system` user). It reads the deal's contact and company and calls `people::service::update`/`organizations::service::update` with only `lifecycle_stage` in the contributed fields, which publish `contact.updated`/`company.updated` with `changes` (automation triggers) and go through the guard (history). A target that is not an active option of that type, or a nonexistent record, is ignored with a warning in the log (no retry).
+Execution: the `lifecycle.transitions` consumer (`CatalogEventConsumer`, current registry) with system scope (`AccessScope::system()`, all permissions, `system` user). It obtains commercial parties/outcomes through the deals SDK capability and calls the registered owner handler through `Ctx::update_record` with only `lifecycle_stage`, which publish `contact.updated`/`company.updated` with `changes` (automation triggers) and go through the guard (history). A target that is not an active option of that type, or a nonexistent record, is ignored with a warning in the log (no retry).
 
 ## Lead inbox
 
@@ -70,7 +70,7 @@ Other modules and plugins extend the lead inbox without editing `leads` (types i
 | `LeadConverted` | action | in the stage transaction, after writing | `ConvertedLead { lead, deal_id, company_id }` |
 | `dyn LeadConverter` | service | `convert_lead` resolves it from the container | default `DealLeadConverter`: creates the company (optional) and the deal through the `RecordTypeHandler` of the `company` and `deal` types, without importing the deals code |
 
-`Lead` is a view over the contact (`ContactView`) with `stage()` and `is_open()`. An `Err` from an action or filter rolls back the operation. To replace the conversion: `app.provide::<dyn LeadConverter>(..)`; to wrap the default one: `app.decorate::<dyn LeadConverter>(|inner| ..)`.
+`Lead` carries an owner-produced scoped record snapshot, identity and precise version, with lifecycle helpers. An `Err` from an action or filter rolls back the operation. To replace the conversion: `app.provide::<dyn LeadConverter>(..)`; to wrap the default one: `app.decorate::<dyn LeadConverter>(|inner| ..)`.
 
 Lead sources: the `lead_forms` module sends `lifecycle_stage = lead` when creating the contact (when the field exists and the form did not map another value), and email capture creates people in `lead`.
 

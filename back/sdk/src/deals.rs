@@ -1,5 +1,5 @@
 use crate::AppError;
-pub use aphel_contract_deals::DealRevenue;
+pub use aphel_contract_deals::*;
 use aphel_kernel::database::transaction::MySqlTx;
 use async_trait::async_trait;
 use chrono::{DateTime, NaiveDate, Utc};
@@ -50,4 +50,19 @@ pub trait RevenueCalculator: Send + Sync {
         items: &[crate::line_items::LineItem],
         won_on: Option<NaiveDate>,
     );
+}
+
+#[async_trait]
+pub trait DealLifecycle: Send + Sync {
+    async fn parties(
+        &self,
+        pool: &sqlx::MySqlPool,
+        id: Uuid,
+    ) -> Result<Option<DealParties>, AppError>;
+    async fn outcomes(
+        &self,
+        pool: &sqlx::MySqlPool,
+        entity: &crate::shared::RecordType,
+        id: Uuid,
+    ) -> Result<DealOutcomes, AppError>;
 }

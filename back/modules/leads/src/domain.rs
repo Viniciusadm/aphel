@@ -235,18 +235,7 @@ pub struct StageOption {
     pub is_active: bool,
 }
 
-#[derive(Debug, Clone, Copy, PartialEq, Eq)]
-pub(crate) struct DealParties {
-    pub(crate) contact_id: Option<Uuid>,
-    pub(crate) company_id: Option<Uuid>,
-}
-
-#[derive(Debug, Clone, Copy, PartialEq, Eq, Default)]
-pub(crate) struct DealOutcomes {
-    pub(crate) open: u64,
-    pub(crate) won: u64,
-    pub(crate) lost: u64,
-}
+pub(crate) use aphel_sdk::deals::{DealOutcomes, DealParties};
 
 pub(crate) const DEFAULT_REPORT_DAYS: i64 = 90;
 pub(crate) const MAX_REPORT_DAYS: i64 = 731;

@@ -1,3 +1,4 @@
+mod lifecycle;
 use aphel_sdk::imports::ImportTraits;
 mod dashboard;
 mod followers;
@@ -358,6 +359,7 @@ impl Module for DealsModule {
     }
 
     fn register(&self, app: &mut AppBuilder) -> Result<(), AppError> {
+        app.provide::<dyn aphel_sdk::deals::DealLifecycle>(Arc::new(lifecycle::Lifecycle));
         app.contribute::<dyn aphel_sdk::followers::FollowedEventSource>(std::sync::Arc::new(
             followers::DealsFollowedEvents,
         ));

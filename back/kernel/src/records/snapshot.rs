@@ -1,5 +1,5 @@
 use serde_json::{Map, Value, json};
-use sqlx::{MySql, QueryBuilder};
+use sqlx::{MySql, QueryBuilder, Row};
 
 use crate::application::fields::{
     FieldDefinitionRepository, FieldSet, RecordTypeRegistry, value_to_json,
@@ -49,11 +49,20 @@ pub async fn capture(
     for (index, field) in fields.iter().enumerate() {
         values.insert(
             field.key.as_str().to_owned(),
-            super::contributed::decode_record_field(
-                &row,
-                &format!("snapshot_{index}"),
-                field.field_type,
-            )?,
+            if field.key.as_str() == "updated_at" {
+                json!(
+                    row.try_get::<Option<chrono::DateTime<chrono::Utc>>, _>(&*format!(
+                        "snapshot_{index}"
+                    ))?
+                    .map(|value| value.to_rfc3339_opts(chrono::SecondsFormat::Micros, true))
+                )
+            } else {
+                super::contributed::decode_record_field(
+                    &row,
+                    &format!("snapshot_{index}"),
+                    field.field_type,
+                )?
+            },
         );
     }
     let field_set = FieldSet::new(

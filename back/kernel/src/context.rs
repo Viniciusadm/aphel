@@ -116,14 +116,50 @@ impl<'a> Ctx<'a> {
         })
     }
 
+    fn ensure_record_enabled(&self, entity: &str) -> Result<(), AppError> {
+        let definition = self.registry.require(entity)?;
+        if self
+            .app
+            .record_contributions()
+            .iter()
+            .find(|entry| entry.registers.as_ref() == Some(&definition.record_type))
+            .is_some_and(|entry| !self.app.is_enabled(entry.module))
+        {
+            return Err(crate::modules::module_disabled());
+        }
+        Ok(())
+    }
+
+    fn record_handler(
+        &self,
+        entity: &str,
+    ) -> Result<Arc<dyn crate::records::RecordTypeHandler>, AppError> {
+        self.ensure_record_enabled(entity)?;
+        self.registry.handler(entity)
+    }
+
+    pub async fn can_access_record(
+        &self,
+        record: &crate::application::shared::RecordRef,
+        permission: &crate::domain::access::Permission,
+    ) -> Result<bool, AppError> {
+        self.ensure_record_enabled(record.record_type.as_str())?;
+        use crate::application::files::RecordAccessChecker;
+        crate::infrastructure::records::MySqlRecordAccessChecker::new(
+            self.pool.clone(),
+            self.registry.clone(),
+        )
+        .can_with(self.scope, record, permission)
+        .await
+    }
+
     pub async fn load_record(
         &self,
         record_type: &str,
         id: uuid::Uuid,
     ) -> Result<Option<serde_json::Value>, AppError> {
         let state = self.state();
-        self.registry
-            .handler(record_type)?
+        self.record_handler(record_type)?
             .load(&crate::records::RecordCtx::new(self.scope, &state), id)
             .await
     }
@@ -134,8 +170,7 @@ impl<'a> Ctx<'a> {
         values: serde_json::Value,
     ) -> Result<serde_json::Value, AppError> {
         let state = self.state();
-        self.registry
-            .handler(record_type)?
+        self.record_handler(record_type)?
             .create(&crate::records::RecordCtx::new(self.scope, &state), values)
             .await
     }
@@ -147,10 +182,43 @@ impl<'a> Ctx<'a> {
         values: serde_json::Value,
     ) -> Result<serde_json::Value, AppError> {
         let state = self.state();
-        self.registry
-            .handler(record_type)?
+        self.record_handler(record_type)?
             .update(
                 &crate::records::RecordCtx::new(self.scope, &state),
+                id,
+                values,
+            )
+            .await
+    }
+
+    pub async fn create_record_in_tx(
+        &self,
+        tx: &mut MySqlTx,
+        entity: &str,
+        values: serde_json::Value,
+    ) -> Result<crate::records::PendingCommit, AppError> {
+        let state = self.state();
+        self.record_handler(entity)?
+            .create_in_tx(
+                &crate::records::RecordCtx::new(self.scope, &state),
+                tx,
+                values,
+            )
+            .await
+    }
+
+    pub async fn update_record_in_tx(
+        &self,
+        tx: &mut MySqlTx,
+        entity: &str,
+        id: uuid::Uuid,
+        values: serde_json::Value,
+    ) -> Result<Option<crate::records::PendingCommit>, AppError> {
+        let state = self.state();
+        self.record_handler(entity)?
+            .update_in_tx(
+                &crate::records::RecordCtx::new(self.scope, &state),
+                tx,
                 id,
                 values,
             )

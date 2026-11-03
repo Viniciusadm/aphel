@@ -17,17 +17,17 @@ pub(crate) const DEAL_NOT_FOUND: &str = "deal_not_found";
 pub(crate) const NO_DEFAULT_PIPELINE: &str = "no_default_pipeline";
 pub(crate) const DEAL_AMOUNT_MANAGED_BY_ITEMS: &str = "deal_amount_managed_by_items";
 
-pub const DEAL_CREATED: &str = "deal.created";
+pub use aphel_sdk::deals::DEAL_CREATED;
 pub const DEAL_UPDATED: &str = "deal.updated";
 pub(crate) const DEAL_STAGE_CHANGED: &str = "deal.stage_changed";
 pub(crate) const DEAL_PIPELINE_CHANGED: &str = "deal.pipeline_changed";
 pub const DEAL_AMOUNT_CHANGED: &str = "deal.amount_changed";
 pub(crate) const DEAL_OWNER_CHANGED: &str = "deal.owner_changed";
 pub(crate) const DEAL_EXPECTED_CLOSE_DATE_CHANGED: &str = "deal.expected_close_date_changed";
-pub const DEAL_WON: &str = "deal.won";
-pub const DEAL_LOST: &str = "deal.lost";
-pub const DEAL_REOPENED: &str = "deal.reopened";
-pub const DEAL_DELETED: &str = "deal.deleted";
+pub use aphel_sdk::deals::DEAL_DELETED;
+pub use aphel_sdk::deals::DEAL_LOST;
+pub use aphel_sdk::deals::DEAL_REOPENED;
+pub use aphel_sdk::deals::DEAL_WON;
 pub(crate) const DEAL_ARCHIVED: &str = "deal.archived";
 pub(crate) const DEAL_UNARCHIVED: &str = "deal.unarchived";
 
