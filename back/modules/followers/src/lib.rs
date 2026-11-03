@@ -23,9 +23,7 @@ pub struct FollowersModule;
 impl Module for FollowersModule {
     fn manifest(&self) -> Manifest {
         Manifest::new(KEY, "Followers", APHEL_VERSION)
-            .description(
-                "Following records to be notified of their changes, tasks, notes and emails",
-            )
+            .description("Following registered records and owner-provided events")
             .enabled_by_default()
             .owned_tables(&["record_followers"])
             .migration(Migration::new(
@@ -41,7 +39,7 @@ impl Module for FollowersModule {
         );
         app.openapi_tag(
             http::TAG,
-            "Following records to be notified of their changes, tasks, notes and emails",
+            "Following registered records and owner-provided events",
         )
         .routes(|_| http::router());
         app.contribute(std::sync::Arc::new(NotificationKindDefinition {

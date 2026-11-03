@@ -151,6 +151,11 @@ pub trait RecordFollowerSource: Send + Sync {
 
 #[async_trait]
 pub trait NotificationDirectory: Send + Sync {
+    async fn visible_title(
+        &self,
+        user_id: &UserId,
+        record: &RecordRef,
+    ) -> Result<Option<String>, AppError>;
     async fn recipient(&self, user_id: &UserId) -> Result<Option<Recipient>, AppError>;
     async fn record_summary(&self, record: &RecordRef) -> Result<Option<RecordSummary>, AppError>;
     async fn can_read(&self, user_id: &UserId, record: &RecordRef) -> Result<bool, AppError>;

@@ -1,4 +1,5 @@
 mod dashboard;
+mod followers;
 mod privacy;
 mod timeline;
 use aphel_contract_automation::AutomationBuilder;
@@ -59,6 +60,9 @@ impl Module for NotesModule {
     }
 
     fn register(&self, app: &mut AppBuilder) -> Result<(), AppError> {
+        app.contribute::<dyn aphel_sdk::followers::FollowedEventSource>(std::sync::Arc::new(
+            followers::NotesFollowedEvents,
+        ));
         app.contribute::<dyn aphel_sdk::dashboard::DashboardEventScope>(std::sync::Arc::new(
             dashboard::NoteDashboardEvents,
         ));

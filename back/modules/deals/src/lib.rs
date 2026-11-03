@@ -1,4 +1,5 @@
 mod dashboard;
+mod followers;
 mod reports;
 use aphel_sdk::privacy::PrivacyTraits;
 mod line_items;
@@ -354,6 +355,9 @@ impl Module for DealsModule {
     }
 
     fn register(&self, app: &mut AppBuilder) -> Result<(), AppError> {
+        app.contribute::<dyn aphel_sdk::followers::FollowedEventSource>(std::sync::Arc::new(
+            followers::DealsFollowedEvents,
+        ));
         app.contribute::<dyn aphel_sdk::dashboard::DashboardSource>(std::sync::Arc::new(
             dashboard::widgets::DealSummarySource,
         ));

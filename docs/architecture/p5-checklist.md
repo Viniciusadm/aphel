@@ -42,7 +42,7 @@ Implementation note: P5.1 connects people and organizations as providers and dup
 - [x] **P5.12** ⇄ `reports`. Review and pending manual acceptance: [entity reports](p5-reports.md).
 - [x] **P5.13** ⇄ `dashboard`. Review and pending manual acceptance: [dashboard sources](p5-dashboard.md).
 - [x] **P5.14** ⇄ `favorites`. Review and pending manual acceptance: [favorites sources](p5-favorites.md).
-- [ ] **P5.15** ⇄ `followers`
+- [x] **P5.15** ⇄ `followers`. Review and pending manual acceptance: [followed-event sources](p5-followers.md).
 - [ ] **P5.16** ⇄ `imports`
 - [ ] **P5.17** ⇄ `webhooks`
 - [ ] **P5.18** ⇄ `sso`, free of CRM dependencies

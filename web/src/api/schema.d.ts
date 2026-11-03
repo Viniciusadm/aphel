@@ -6757,7 +6757,7 @@ export interface paths {
             path?: never;
             cookie?: never;
         };
-        /** @description Active members who follow the record and whether the caller follows it. Followers are notified (`followed_record_activity`) of changes, new tasks, notes and emails linked to the record while they can read it. The owner follows automatically (`origin: owner`). */
+        /** @description Active members who follow the record and whether the caller follows it. Followers are notified (`followed_record_activity`) of generic record changes and owner-provided related events while the source and target remain readable. The owner follows automatically (`origin: owner`). */
         get: operations["record_followers_list"];
         put?: never;
         post?: never;

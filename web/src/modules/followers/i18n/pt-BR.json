@@ -27,32 +27,6 @@
     "manual": "Seguido por você",
     "owner": "Responsável"
   },
-  "recordTypes": {
-    "contact": "Contato",
-    "company": "Empresa",
-    "deal": "Oportunidade",
-    "activity": "Atividade",
-    "product": "Produto",
-    "quote": "Cotação",
-    "people": {
-      "person": "Contato"
-    },
-    "organizations": {
-      "organization": "Empresa"
-    },
-    "deals": {
-      "deal": "Oportunidade"
-    },
-    "tasks": {
-      "task": "Atividade"
-    },
-    "products": {
-      "product": "Produto"
-    },
-    "quotes": {
-      "quote": "Cotação"
-    }
-  },
   "pager": {
     "label": "Paginação",
     "summary": "Página {{page}} de {{pages}} · {{total}} registros",

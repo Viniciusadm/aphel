@@ -31,7 +31,7 @@ async fn entities(
     let registry = state.registry().await?;
     let items = registry.definitions().filter(|entity| tenant.scope.require(&entity.read_permission).is_ok()).map(|entity| json!({
         "key":entity.key, "record_type":entity.record_type.as_str(), "storage": entity.storage,
-        "title_field": entity.title_field, "traits": entity.capabilities.traits, "indexes": entity.indexes, "references": entity.references
+        "title_field": entity.title_field, "labels": entity.capabilities.plural_labels_value().or_else(|| entity.custom.as_ref().map(|labels| labels.plural.clone().into())).unwrap_or_else(|| entity.record_type.as_str().to_owned().into()), "traits": entity.capabilities.traits, "indexes": entity.indexes, "references": entity.references
     })).collect();
     Ok(Json(Data::new(items)))
 }

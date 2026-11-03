@@ -71,6 +71,30 @@ fn summary_query(definition: &EntityDefinition) -> Option<String> {
 
 #[async_trait]
 impl NotificationDirectory for MySqlNotificationDirectory {
+    async fn visible_title(
+        &self,
+        user_id: &UserId,
+        record: &RecordRef,
+    ) -> Result<Option<String>, AppError> {
+        let Some(access) = self.access.load_access(user_id).await? else {
+            return Ok(None);
+        };
+        let scope = build_access_scope(user_id.clone(), access);
+        let registry = self.current_registry().await;
+        let definitions = aphel_kernel::infrastructure::fields::MySqlFieldDefinitionRepository::new(
+            self.pool.clone(),
+        );
+        Ok(aphel_sdk::records::visible_record_label(
+            &self.pool,
+            &registry,
+            &definitions,
+            &scope,
+            record,
+        )
+        .await?
+        .map(|label| label.title.unwrap_or_else(|| record.record_id.to_string())))
+    }
+
     async fn recipient(&self, user_id: &UserId) -> Result<Option<Recipient>, AppError> {
         let row = sqlx::query(
             "SELECT u.id, u.display_name, u.email, COALESCE(u.locale, o.locale) AS locale FROM users u \

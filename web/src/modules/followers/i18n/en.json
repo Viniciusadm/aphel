@@ -27,32 +27,6 @@
     "manual": "Followed by you",
     "owner": "Owner"
   },
-  "recordTypes": {
-    "contact": "Contact",
-    "company": "Company",
-    "deal": "Deal",
-    "activity": "Activity",
-    "product": "Product",
-    "quote": "Quote",
-    "people": {
-      "person": "Contact"
-    },
-    "organizations": {
-      "organization": "Company"
-    },
-    "deals": {
-      "deal": "Deal"
-    },
-    "tasks": {
-      "task": "Activity"
-    },
-    "products": {
-      "product": "Product"
-    },
-    "quotes": {
-      "quote": "Quote"
-    }
-  },
   "pager": {
     "label": "Pagination",
     "summary": "Page {{page}} of {{pages}} · {{total}} records",

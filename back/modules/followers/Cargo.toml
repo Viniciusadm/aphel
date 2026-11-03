@@ -7,6 +7,7 @@ license.workspace = true
 publish = false
 
 [dependencies]
+aphel-sdk.workspace = true
 notifications = { package = "aphel-mod-notifications", path = "../notifications" }
 aphel-kernel.workspace = true
 axum.workspace = true

@@ -1,4 +1,5 @@
 mod dashboard;
+mod followers;
 use aphel_sdk::privacy::PrivacyTraits;
 mod privacy;
 mod timeline;
@@ -265,6 +266,9 @@ impl Module for TasksModule {
     }
 
     fn register(&self, app: &mut AppBuilder) -> Result<(), AppError> {
+        app.contribute::<dyn aphel_sdk::followers::FollowedEventSource>(std::sync::Arc::new(
+            followers::TasksFollowedEvents,
+        ));
         app.contribute::<dyn aphel_sdk::dashboard::DashboardSource>(std::sync::Arc::new(
             dashboard::TaskSummarySource,
         ));

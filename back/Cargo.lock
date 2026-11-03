@@ -888,6 +888,7 @@ version = "0.1.0"
 dependencies = [
  "aphel-kernel",
  "aphel-mod-notifications",
+ "aphel-sdk",
  "async-trait",
  "axum",
  "chrono",
@@ -1248,6 +1249,7 @@ version = "0.1.0"
 dependencies = [
  "aphel-contract-automation",
  "aphel-kernel",
+ "aphel-sdk",
  "async-trait",
  "axum",
  "base64 0.22.1",

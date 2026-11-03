@@ -1,5 +1,5 @@
 use ::notifications::application::NotificationView;
-use ::notifications::application::texts::{NotificationTexts, data_text};
+use ::notifications::application::texts::NotificationTexts;
 use aphel_kernel::application::mail::MailLocale;
 use std::collections::HashMap;
 
@@ -19,87 +19,81 @@ use aphel_kernel::errors::AppError;
 use aphel_kernel::infrastructure::fields::MySqlFieldDefinitionRepository;
 use aphel_kernel::state::runtime_pool;
 
-const ACTIVITY_CREATED: &str = "activity.created";
-const NOTE_CREATED: &str = "note.created";
-const EMAIL_RECEIVED: &str = "email.received";
-const EMAIL_SENT: &str = "email.sent";
-const DEAL_STAGE_CHANGED: &str = "deal.stage_changed";
-const UPDATED_SUFFIX: &str = ".updated";
-const PRIVATE_VISIBILITY: &str = "private";
 const MAX_BODY_CHANGES: usize = 3;
 const MAX_VALUE_LENGTH: usize = 80;
 const EMPTY_VALUE: &str = "—";
 
 pub(crate) const FOLLOWERS_SOURCE_ORDER: i32 = 100;
 
-const FOLLOWED_EVENTS: [&str; 5] = [
-    ACTIVITY_CREATED,
-    NOTE_CREATED,
-    EMAIL_RECEIVED,
-    EMAIL_SENT,
-    DEAL_STAGE_CHANGED,
-];
-
 pub(crate) struct FollowedRecordNotifications;
 
-fn text(payload: &Value, key: &str) -> Option<String> {
-    payload.get(key).and_then(Value::as_str).map(str::to_owned)
-}
+type FollowedSignal = (
+    Option<std::sync::Arc<dyn aphel_sdk::followers::FollowedEventSource>>,
+    aphel_sdk::followers::FollowedEvent,
+);
 
-fn parent_record(payload: &Value) -> Option<RecordRef> {
-    let record_type = payload.get("record_type").and_then(Value::as_str)?;
-    let record_id = payload.get("record_id").and_then(Value::as_str)?;
-    RecordRef::parse(record_type, record_id).ok()
-}
-
-fn is_private(payload: &Value) -> bool {
-    payload.get("visibility").and_then(Value::as_str) == Some(PRIVATE_VISIBILITY)
-}
-
-fn followed_targets(event: &DomainEvent) -> (Vec<RecordRef>, &'static str) {
-    let payload = &event.payload;
-    match event.event_type.as_str() {
-        ACTIVITY_CREATED => {
-            let mut records: Vec<RecordRef> = parent_record(payload).into_iter().collect();
-            for link in payload
-                .get("links")
-                .and_then(Value::as_array)
-                .into_iter()
-                .flatten()
-            {
-                if let Some(record) = parent_record(link)
-                    && !records.contains(&record)
-                {
-                    records.push(record);
-                }
-            }
-            (records, "activity")
-        }
-        NOTE_CREATED => {
-            if is_private(payload) {
-                return (Vec::new(), "note");
-            }
-            (parent_record(payload).into_iter().collect(), "note")
-        }
-        EMAIL_RECEIVED | EMAIL_SENT => {
-            if is_private(payload) {
-                return (Vec::new(), "email");
-            }
-            (event.record.clone().into_iter().collect(), "email")
-        }
-        event_type => {
-            let record = event.record.clone().filter(|record| {
-                event_type == DEAL_STAGE_CHANGED
-                    || event_type
-                        .strip_suffix(UPDATED_SUFFIX)
-                        .and_then(|key| {
-                            aphel_kernel::application::shared::RecordType::parse(key).ok()
-                        })
-                        .is_some_and(|key| key == record.record_type)
-            });
-            (record.into_iter().collect(), "update")
+fn followed_event(event: &DomainEvent) -> Result<Option<FollowedSignal>, AppError> {
+    let sources = aphel_kernel::modules::app()
+        .contributions::<dyn aphel_sdk::followers::FollowedEventSource>();
+    let mut keys = std::collections::HashSet::new();
+    for source in &sources {
+        if source.key().is_empty()
+            || source.key().len() > 64
+            || !source.key().bytes().all(|byte| {
+                byte.is_ascii_lowercase()
+                    || byte.is_ascii_digit()
+                    || matches!(byte, b'_' | b'.' | b'-')
+            })
+            || !keys.insert(source.key().to_owned())
+        {
+            return Err(AppError::Configuration(
+                "invalid or duplicate followed-event source".into(),
+            ));
         }
     }
+    let mut matching = sources
+        .into_iter()
+        .filter(|source| source.accepts(&event.event_type));
+    if let Some(source) = matching.next() {
+        if matching.next().is_some() {
+            return Err(AppError::Configuration(
+                "ambiguous followed-event sources".into(),
+            ));
+        }
+        return Ok(source.signal(event).map(|signal| (Some(source), signal)));
+    }
+    let Some(record) = event.record.clone() else {
+        return Ok(None);
+    };
+    let Some(prefix) = event.event_type.strip_suffix(".updated") else {
+        return Ok(None);
+    };
+    let registry = aphel_kernel::modules::app().record_types();
+    if registry
+        .get(&record.record_type)
+        .map(|definition| definition.event_prefix.as_str())
+        .unwrap_or(record.record_type.as_str())
+        != prefix
+    {
+        return Ok(None);
+    }
+    Ok(Some((
+        None,
+        aphel_sdk::followers::FollowedEvent {
+            targets: vec![record],
+            required_records: Vec::new(),
+            body: None,
+            body_field: None,
+            changes: true,
+            headline: aphel_sdk::fields::LocalizedLabels(std::collections::BTreeMap::from([
+                ("en".into(), "{{actor}} changed a record you follow".into()),
+                (
+                    "pt-BR".into(),
+                    "{{actor}} alterou um registro que você segue".into(),
+                ),
+            ])),
+        },
+    )))
 }
 
 struct Change {
@@ -250,7 +244,11 @@ async fn visible_changes(
 #[async_trait]
 impl NotificationSource for FollowedRecordNotifications {
     fn accepts(&self, event_type: &str) -> bool {
-        FOLLOWED_EVENTS.contains(&event_type) || event_type.ends_with(UPDATED_SUFFIX)
+        event_type.ends_with(".updated")
+            || aphel_kernel::modules::app()
+                .contributions::<dyn aphel_sdk::followers::FollowedEventSource>()
+                .iter()
+                .any(|source| source.accepts(event_type))
     }
 
     fn order(&self) -> i32 {
@@ -262,20 +260,46 @@ impl NotificationSource for FollowedRecordNotifications {
         context: &NotificationSourceContext<'_>,
         event: &DomainEvent,
     ) -> Result<Vec<NotificationIntent>, AppError> {
-        let (records, activity) = followed_targets(event);
+        let Some((source, mut signal)) = followed_event(event)? else {
+            return Ok(Vec::new());
+        };
+        if signal.targets.len() > 200 || signal.required_records.len() > 200 {
+            return Err(AppError::Configuration(
+                "followed-event target limit exceeded".into(),
+            ));
+        }
+        if signal.body_field.as_ref().is_some_and(|(record, _)| {
+            !signal.required_records.contains(record) && !signal.targets.contains(record)
+        }) {
+            return Err(AppError::Configuration(
+                "followed-event body lacks a readable record requirement".into(),
+            ));
+        }
+        signal.targets.sort_by(|left, right| {
+            left.record_type
+                .as_str()
+                .cmp(right.record_type.as_str())
+                .then_with(|| left.record_id.cmp(&right.record_id))
+        });
+        signal.targets.dedup();
+        let activity = source
+            .as_ref()
+            .map(|source| source.key())
+            .unwrap_or("update");
+        let pool = runtime_pool()?;
         let kind = FOLLOWED_RECORD_ACTIVITY_NOTIFICATION;
         let mut seen: Vec<UserId> = context.notified.to_vec();
         seen.extend(context.actor.cloned());
-        let changes = if activity == "update" {
+        let changes = if signal.changes {
             payload_changes(&event.payload)
         } else {
             Vec::new()
         };
         let mut intents = Vec::new();
-        for record in records {
+        for record in &signal.targets {
             let followers: Vec<UserId> = context
                 .directory
-                .followers(&record)
+                .followers(record)
                 .await?
                 .into_iter()
                 .filter(|follower| !seen.contains(follower))
@@ -283,61 +307,72 @@ impl NotificationSource for FollowedRecordNotifications {
             if followers.is_empty() {
                 continue;
             }
-            let title = context
-                .directory
-                .record_summary(&record)
-                .await?
-                .map(|summary| summary.title)
-                .or_else(|| {
-                    (activity == "update")
-                        .then(|| {
-                            ["title", "name", "full_name"]
-                                .into_iter()
-                                .find_map(|key| text(&event.payload, key))
-                        })
-                        .flatten()
-                })
-                .unwrap_or_default();
             let descriptions = if changes.is_empty() {
                 None
             } else {
-                Some(ChangeDescriptions::load(&record).await?)
+                Some(ChangeDescriptions::load(record).await?)
             };
             for follower in followers {
                 if seen.contains(&follower) {
                     continue;
                 }
-                seen.push(follower.clone());
-                if !context.directory.can_read(&follower, &record).await? {
+                let Some(title) = context.directory.visible_title(&follower, record).await? else {
+                    continue;
+                };
+                let mut readable = true;
+                for required in &signal.required_records {
+                    if !context.directory.can_read(&follower, required).await? {
+                        readable = false;
+                        break;
+                    }
+                }
+                if !readable {
+                    continue;
+                }
+                if let Some(source) = &source
+                    && !source.visible(&pool, &follower, event).await?
+                {
                     continue;
                 }
                 let (items, change_body) = match &descriptions {
                     Some(descriptions) => {
-                        visible_changes(&record, &follower, &changes, descriptions).await?
+                        visible_changes(record, &follower, &changes, descriptions).await?
                     }
                     None => (Vec::new(), None),
                 };
                 if !changes.is_empty() && items.is_empty() {
                     continue;
                 }
-                let body = match activity {
-                    "activity" | "note" => text(&event.payload, "title"),
-                    _ => change_body,
-                };
+                let mut body = signal.body.clone().or(change_body);
+                if let Some((body_record, field)) = &signal.body_field {
+                    let redaction =
+                        user_field_redaction(&pool, Some(&follower), &body_record.record_type)
+                            .await?;
+                    if redaction.hides_path(field) {
+                        body = None;
+                    }
+                }
                 let mut data = Map::new();
                 data.insert("activity".to_owned(), json!(activity));
+                data.insert("headline".to_owned(), json!(signal.headline.0));
                 data.insert("event_type".to_owned(), json!(event.event_type));
                 data.insert("record_type".to_owned(), json!(record.record_type.as_str()));
                 data.insert("record_id".to_owned(), json!(record.record_id.to_string()));
                 if !items.is_empty() {
                     data.insert("changes".to_owned(), Value::Array(items));
                 }
+                seen.push(follower.clone());
                 intents.push(
                     NotificationIntent::new(
                         follower,
                         kind,
                         title.clone(),
-                        event_dedupe(event, kind),
+                        format!(
+                            "{}:{}:{}",
+                            event_dedupe(event, kind),
+                            record.record_type.as_str(),
+                            record.record_id
+                        ),
                     )
                     .with_body(body)
                     .with_record(Some(record.clone()))
@@ -359,18 +394,8 @@ impl NotificationTexts for FollowerNotificationTexts {
         if view.kind != FOLLOWED_RECORD_ACTIVITY_NOTIFICATION {
             return None;
         }
-        let en = locale == MailLocale::En;
-        Some(match data_text(view, "activity") {
-            Some("activity") if en => format!("{actor} added an activity to a record you follow"),
-            Some("activity") => {
-                format!("{actor} adicionou uma atividade a um registro que você segue")
-            }
-            Some("note") if en => format!("{actor} added a note to a record you follow"),
-            Some("note") => format!("{actor} adicionou uma nota a um registro que você segue"),
-            Some("email") if en => "A record you follow has a new email".to_owned(),
-            Some("email") => "Um registro que você segue tem um novo e-mail".to_owned(),
-            _ if en => format!("{actor} changed a record you follow"),
-            _ => format!("{actor} alterou um registro que você segue"),
-        })
+        let labels: aphel_sdk::fields::LocalizedLabels =
+            serde_json::from_value(view.data.get("headline")?.clone()).ok()?;
+        Some(labels.get(locale.html_lang()).replace("{{actor}}", actor))
     }
 }

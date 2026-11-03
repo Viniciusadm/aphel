@@ -1,4 +1,4 @@
-use std::collections::BTreeMap;
+use aphel_kernel::application::fields::CustomFieldPorts;
 
 use async_trait::async_trait;
 use uuid::Uuid;
@@ -11,7 +11,7 @@ use aphel_kernel::Ctx;
 use aphel_kernel::application::access::Authorizer;
 use aphel_kernel::application::organization_admin::{ListWindow, Listing};
 use aphel_kernel::application::record_sharing::{RecordDirectory, record_not_found};
-use aphel_kernel::application::shared::{RecordRef, RecordType};
+use aphel_kernel::application::shared::RecordRef;
 use aphel_kernel::domain::UserId;
 use aphel_kernel::errors::AppError;
 use aphel_kernel::infrastructure::record_sharing::MySqlRecordDirectory;
@@ -84,38 +84,23 @@ pub(crate) async fn followed(
     let follows = FollowerStore::of(ctx)
         .followed(ctx.scope.user_id(), record_type, MAX_FOLLOWED_RECORDS)
         .await?;
-    let mut by_type: BTreeMap<RecordType, Vec<Uuid>> = BTreeMap::new();
-    for follow in &follows {
-        by_type
-            .entry(follow.record.record_type.clone())
-            .or_default()
-            .push(follow.record.record_id);
-    }
-    let directory = directory(ctx);
-    let mut titles = BTreeMap::new();
-    for (record_type, ids) in by_type {
-        let Some(definition) = ctx.registry().get(&record_type) else {
-            continue;
-        };
-        let Some(visibility) = ctx.scope.filter_for(&definition.read_permission) else {
-            continue;
-        };
-        let visible = directory
-            .visible_titles(ctx.scope, definition, &visibility, &ids)
-            .await?;
-        for (id, title) in visible {
-            titles.insert((record_type.clone(), id), title);
+    let mut visible = Vec::new();
+    for follow in follows {
+        if let Some(label) = aphel_sdk::records::visible_record_label(
+            ctx.pool(),
+            ctx.registry(),
+            ctx.fields().definitions(),
+            ctx.scope,
+            &follow.record,
+        )
+        .await?
+        {
+            visible.push(FollowedRecord {
+                follow,
+                title: label.title,
+            });
         }
     }
-    let visible: Vec<FollowedRecord> = follows
-        .into_iter()
-        .filter_map(|follow| {
-            let title = titles
-                .get(&(follow.record.record_type.clone(), follow.record.record_id))?
-                .clone();
-            Some(FollowedRecord { follow, title })
-        })
-        .collect();
     let total = visible.len() as u64;
     let items = visible
         .into_iter()
@@ -143,6 +128,9 @@ async fn readable(
     record_id: &str,
 ) -> Result<RecordRef, AppError> {
     let definition = ctx.registry().require(record_type)?;
+    if !aphel_sdk::records::enabled(ctx, &definition.record_type) {
+        return Err(record_not_found());
+    }
     let visibility = ctx.scope.record_filter(&definition.read_permission)?;
     let id = Uuid::parse_str(record_id.trim()).map_err(|_| record_not_found())?;
     directory(ctx)

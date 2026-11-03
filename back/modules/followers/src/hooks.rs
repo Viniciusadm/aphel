@@ -10,7 +10,7 @@ use aphel_kernel::application::custom_objects::{CatalogEventConsumer, RecordType
 
 use aphel_kernel::application::fields::RecordTypeRegistry;
 use aphel_kernel::application::record_sharing::RecordDirectory;
-use aphel_kernel::application::shared::{DomainEvent, EventConsumer, RecordType};
+use aphel_kernel::application::shared::{DomainEvent, EventConsumer};
 use aphel_kernel::database::receipt;
 use aphel_kernel::domain::access::{AccessScope, RecordScopeFilter};
 use aphel_kernel::domain::custom_objects::is_custom_record_type;
@@ -52,9 +52,10 @@ impl OwnerFollowConsumer {
 
     fn known(&self, record_type: &str) -> bool {
         is_custom_record_type(record_type)
-            || RecordType::parse(record_type)
-                .ok()
-                .is_some_and(|record_type| self.registry.get(&record_type).is_some())
+            || self
+                .registry
+                .definitions()
+                .any(|definition| definition.event_prefix == record_type)
     }
 }
 
@@ -88,15 +89,12 @@ impl EventConsumer for OwnerFollowConsumer {
         let Some((prefix, action)) = event.event_type.rsplit_once('.') else {
             return Ok(());
         };
-        if aphel_kernel::application::shared::RecordType::parse(prefix)
-            .ok()
-            .is_none_or(|key| key != record.record_type)
-        {
-            return Ok(());
-        }
         let Some(definition) = self.registry.get(&record.record_type) else {
             return Ok(());
         };
+        if definition.event_prefix != prefix {
+            return Ok(());
+        }
         let Some(owner_column) = definition.owner_column.as_deref() else {
             return Ok(());
         };

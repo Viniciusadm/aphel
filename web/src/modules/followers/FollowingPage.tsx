@@ -1,3 +1,4 @@
+import { useEntities } from '@/sdk/entities'
 import { BellRing } from 'lucide-react'
 import { createElement, useState } from 'react'
 import { useTranslation } from 'react-i18next'
@@ -10,7 +11,7 @@ import { recordTypeIcon } from '@/features/records/links'
 import { NativeSelect } from '@/features/records/filters/NativeSelect'
 import { formatDateTime, useRecordFormatting } from '@/features/records/formatting'
 import { FOLLOWED_PER_PAGE, useFollowedRecords } from './api'
-import { CORE_RECORD_TYPES, followedRecordHref, useRecordTypeLabel } from './labels'
+import { followedRecordHref, useRecordTypeLabel } from './labels'
 import type { FollowedRecord } from './types'
 import { PageHeader } from '@/components/ui/page-header'
 import { Field } from '@/components/ui/field'
@@ -18,6 +19,7 @@ import { Page } from '@/components/ui/page'
 
 export function FollowingPage() {
   const { t } = useTranslation('followers')
+  const entities = useEntities()
   const [recordType, setRecordType] = useState('')
   const [page, setPage] = useState(1)
   const followed = useFollowedRecords(recordType, page)
@@ -80,9 +82,9 @@ export function FollowingPage() {
             }}
           >
             <option value="">{t('page.allTypes')}</option>
-            {CORE_RECORD_TYPES.map((type) => (
-              <option key={type} value={type}>
-                {typeLabel(type)}
+            {(entities.data ?? []).map((entity) => (
+              <option key={entity.record_type} value={entity.record_type}>
+                {typeLabel(entity.record_type)}
               </option>
             ))}
           </NativeSelect>}

@@ -110,3 +110,5 @@ pub mod timeline;
 pub mod privacy;
 
 pub mod favorites;
+
+pub mod followers;
