@@ -126,7 +126,7 @@ impl Module for EmailModule {
             "The records an incoming e-mail is linked to automatically by the mailbox synchronization",
         );
         app.contribute::<dyn FileReferenceSource>(Arc::new(EmailFileReferences));
-        app.contribute::<dyn timeline::domain::TimelineEventExtension>(std::sync::Arc::new(
+        app.contribute::<dyn aphel_sdk::timeline::TimelineEventExtension>(std::sync::Arc::new(
             store::timeline::EmailTimeline,
         ));
         app.contribute(std::sync::Arc::new(

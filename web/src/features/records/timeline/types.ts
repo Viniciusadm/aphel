@@ -44,4 +44,5 @@ export interface TimelineKindOption {
 export interface TimelineSource {
   fetchPage: TimelineFetchPage
   kindOptions?: TimelineKindOption[]
+  fetchKindOptions?: () => Promise<TimelineKindOption[]>
 }

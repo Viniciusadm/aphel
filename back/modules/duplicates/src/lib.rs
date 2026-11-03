@@ -10,6 +10,7 @@ pub(crate) mod plugin_bridge;
 pub(crate) mod scan;
 pub(crate) mod service;
 pub(crate) mod store;
+mod timeline;
 
 use aphel_kernel::modules::Migration;
 
@@ -46,6 +47,9 @@ impl Module for DuplicatesModule {
     }
 
     fn register(&self, app: &mut AppBuilder) -> Result<(), AppError> {
+        app.contribute::<dyn aphel_sdk::timeline::TimelineEventScope>(std::sync::Arc::new(
+            timeline::MergedEvents,
+        ));
         app.openapi_tag(
             http::TAG,
             "Duplicate detection rules, the duplicate queue and record merging",

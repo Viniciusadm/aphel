@@ -67,6 +67,16 @@ pub mod records {
     pub use aphel_kernel::records::{
         EntityWriteBehavior, GenericRecordHandler, PendingCommit, RecordCtx, RecordTypeHandler,
     };
+    pub fn enabled(
+        ctx: &aphel_kernel::Ctx<'_>,
+        record_type: &aphel_kernel::application::shared::RecordType,
+    ) -> bool {
+        ctx.app()
+            .record_contributions()
+            .iter()
+            .find(|contribution| contribution.registers.as_ref() == Some(record_type))
+            .is_none_or(|contribution| ctx.app().is_enabled(contribution.module))
+    }
 }
 
 pub mod party;
@@ -88,3 +98,5 @@ pub mod line_items;
 pub mod deals;
 
 pub mod dashboard;
+
+pub mod timeline;

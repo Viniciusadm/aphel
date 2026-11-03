@@ -1,4 +1,5 @@
 mod line_items;
+mod timeline;
 use aphel_sdk::line_items::LineItemTraits;
 mod financials;
 use aphel_sdk::assignment::AssignmentTraits;
@@ -337,6 +338,28 @@ impl Module for DealsModule {
     }
 
     fn register(&self, app: &mut AppBuilder) -> Result<(), AppError> {
+        app.contribute(std::sync::Arc::new(
+            aphel_sdk::timeline::KindDefinition::new("deal_stage", "Stages", "Etapas")
+                .events(&["deal.stage_changed"]),
+        ));
+        app.contribute(std::sync::Arc::new(
+            aphel_sdk::timeline::KindDefinition::new(
+                "deal_change",
+                "Deal changes",
+                "Alterações de oportunidades",
+            )
+            .events(&[
+                "deal.amount_changed",
+                "deal.owner_changed",
+                "deal.expected_close_date_changed",
+                "deal.won",
+                "deal.lost",
+                "deal.reopened",
+            ]),
+        ));
+        app.contribute::<dyn aphel_sdk::timeline::TimelineEventScope>(std::sync::Arc::new(
+            timeline::RelatedEvents,
+        ));
         app.contribute::<dyn aphel_sdk::line_items::LineItemProjection>(Arc::new(
             line_items::Projection,
         ));

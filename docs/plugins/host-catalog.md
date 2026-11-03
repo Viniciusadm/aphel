@@ -114,5 +114,6 @@ Writing operations are refused inside hooks (409 `plugin_write_in_hook`). Each o
 | `tagging.list` | tags | read | — | Tags of the organization with their usage, optionally only those allowed on a record type: { record_type? } -> { data } |
 | `tagging.remove` | tags | write | yes | Remove a tag from a record the actor can edit: { record_type, record_id, tag_id } -> { changed, tags } |
 | `tasks.complete` | tasks | write | yes | Mark an open activity as done now: { id } |
-| `timeline.page` | timeline | read | — | Timeline of a record the actor can read, newest first: { record_type, record_id, cursor?, kinds?: "activity,note,deal_stage,deal_change,record_change,attachment,event", per_page? } -> { data, meta: { next_cursor } } |
+| `timeline.kinds` | timeline | read | — | Available timeline kinds and localized labels: { record_type, record_id } |
+| `timeline.page` | timeline | read | — | Owner-authorized record timeline, newest first: { record_type, record_id, cursor?, kinds?: comma-separated contributed keys, per_page? } -> { data, meta: { next_cursor } } |
 | `workflow.list` | workflow | read | — | Pipelines visible to the actor with their stages: {} -> { data } |

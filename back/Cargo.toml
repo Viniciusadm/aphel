@@ -16,6 +16,7 @@ aphel-contract = { path = "contract" }
 aphel-contract-messaging = { path = "contracts/messaging" }
 aphel-contract-assignment = { path = "contracts/assignment" }
 aphel-contract-documents = { path = "contracts/documents" }
+aphel-contract-timeline = { path = "contracts/timeline" }
 aphel-contract-deals = { path = "contracts/deals" }
 aphel-contract-line-items = { path = "contracts/line_items" }
 aphel-contract-money = { path = "contracts/money" }

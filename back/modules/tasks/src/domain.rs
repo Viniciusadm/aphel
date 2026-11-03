@@ -355,11 +355,7 @@ pub struct ActivityTypeSummary {
     pub color: Option<String>,
 }
 
-#[derive(Debug, Clone, PartialEq, Eq)]
-pub struct LinkedRecord {
-    pub record: RecordRef,
-    pub title: Option<String>,
-}
+pub use aphel_sdk::timeline::LinkedRecord;
 
 #[derive(Debug, Clone, PartialEq, Eq)]
 pub struct ActivityView {

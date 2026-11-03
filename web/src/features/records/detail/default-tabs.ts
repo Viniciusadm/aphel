@@ -29,6 +29,7 @@ export function useDefaultRecordTabs({ recordType, recordId, readOnly = false, t
               queryKey: recordsKeys.detail(recordType, recordId),
               fetchPage: timeline.fetchPage,
               kindOptions: timeline.kindOptions,
+              fetchKindOptions: timeline.fetchKindOptions,
             })
           : createElement(RecordTabPlaceholder, { icon: History, description: t('placeholders.timeline') }),
       },

@@ -1,3 +1,4 @@
+mod timeline;
 use aphel_sdk::assignment::AssignmentTraits;
 mod calendar_source;
 use aphel_contract_automation::AutomationBuilder;
@@ -254,6 +255,9 @@ impl Module for TasksModule {
     }
 
     fn register(&self, app: &mut AppBuilder) -> Result<(), AppError> {
+        app.contribute::<dyn aphel_sdk::timeline::TimelineSource>(std::sync::Arc::new(
+            timeline::TasksTimeline,
+        ));
         app.contribute(std::sync::Arc::new(
             ::config_packages::application::versioning::fragments::SectionFragmentLayout {
                 section: "task_types",

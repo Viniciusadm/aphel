@@ -1,5 +1,5 @@
 import { TimelineFilters } from './TimelineFilters'
-import { useInfiniteQuery } from '@tanstack/react-query'
+import { useInfiniteQuery, useQuery } from '@tanstack/react-query'
 import { LoaderCircle } from 'lucide-react'
 import { useEffect, useMemo, useRef, useState } from 'react'
 import { useTranslation } from 'react-i18next'
@@ -17,6 +17,7 @@ export interface TimelineProps {
   queryKey: readonly unknown[]
   fetchPage: TimelineFetchPage
   kindOptions?: TimelineKindOption[]
+  fetchKindOptions?: () => Promise<TimelineKindOption[]>
   limit?: number
   autoLoad?: boolean
   now?: Date
@@ -48,7 +49,9 @@ function TimelineSkeleton() {
   )
 }
 
-export function Timeline({ queryKey, fetchPage, kindOptions = [], autoLoad = true, limit, now, className }: TimelineProps) {
+const EMPTY_KIND_OPTIONS: TimelineKindOption[] = []
+
+export function Timeline({ queryKey, fetchPage, kindOptions: fixedOptions = EMPTY_KIND_OPTIONS, fetchKindOptions, autoLoad = true, limit, now, className }: TimelineProps) {
   const { t } = useTranslation('records-detail')
   const formatting = useRecordFormatting()
   const labelFor = useDayLabel()
@@ -56,9 +59,13 @@ export function Timeline({ queryKey, fetchPage, kindOptions = [], autoLoad = tru
   const sentinelRef = useRef<HTMLDivElement>(null)
   const [mountedAt] = useState(() => new Date())
 
+  const kindQuery = useQuery({ queryKey: [...queryKey, 'timeline-kinds', formatting.locale], queryFn: fetchKindOptions ?? (() => Promise.resolve(fixedOptions)), enabled: Boolean(fetchKindOptions) })
+  const kindOptions = kindQuery.data ?? fixedOptions
+  const selectedKinds = useMemo(() => fetchKindOptions && kindQuery.data ? kinds.filter((key) => kindOptions.some((option) => option.kind === key)) : kinds, [fetchKindOptions, kindQuery.data, kinds, kindOptions])
+
   const query = useInfiniteQuery({
-    queryKey: [...queryKey, 'timeline', { kinds }],
-    queryFn: ({ pageParam }) => fetchPage({ cursor: pageParam, kinds }),
+    queryKey: [...queryKey, 'timeline', { kinds: selectedKinds }],
+    queryFn: ({ pageParam }) => fetchPage({ cursor: pageParam, kinds: selectedKinds }),
     initialPageParam: null as string | null,
     getNextPageParam: (lastPage) => lastPage.meta?.next_cursor ?? undefined,
   })
@@ -66,8 +73,8 @@ export function Timeline({ queryKey, fetchPage, kindOptions = [], autoLoad = tru
 
   const groups = useMemo(() => {
     const items = query.data?.pages.flatMap((page) => page.data) ?? []
-    return groupTimelineByDay(filterTimelineItems(items, kinds).slice(0, limit), formatting.timezone)
-  }, [query.data, kinds, formatting.timezone, limit])
+    return groupTimelineByDay(filterTimelineItems(items, selectedKinds).slice(0, limit), formatting.timezone)
+  }, [query.data, selectedKinds, formatting.timezone, limit])
 
   useEffect(() => {
     const sentinel = sentinelRef.current

@@ -8,7 +8,7 @@ use crate::domain::EmailVisibility;
 use aphel_kernel::application::shared::RecordRef;
 use aphel_kernel::domain::access::AccessScope;
 use aphel_kernel::errors::AppError;
-use timeline::domain::{TimelineEntry, TimelineEventExtension, TimelineRequest};
+use aphel_sdk::timeline::{TimelineEntry, TimelineEventExtension, TimelineRequest};
 
 pub(crate) const EMAIL_EVENT_SQL: &str =
     "(e.event_type LIKE 'email.%' OR e.event_type LIKE 'email!_thread.%' ESCAPE '!')";
@@ -205,9 +205,20 @@ impl TimelineEventExtension for EmailTimeline {
         builder: &mut QueryBuilder<MySql>,
         scope: &AccessScope,
         subject: &RecordRef,
-        request: &TimelineRequest,
+        _request: &TimelineRequest,
     ) {
-        push_email_visibility(builder, scope, subject, request.emails);
+        use aphel_contract_crm::CrmPermissions;
+        use aphel_kernel::application::access::Authorizer;
+        let enabled = aphel_kernel::modules::app().is_enabled(crate::KEY);
+        push_email_visibility(
+            builder,
+            scope,
+            subject,
+            enabled
+                && scope
+                    .require(&aphel_kernel::domain::access::Permission::EMAILS_READ)
+                    .is_ok(),
+        );
     }
 
     async fn enrich(

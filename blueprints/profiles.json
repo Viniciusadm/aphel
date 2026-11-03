@@ -2,6 +2,7 @@
   {
     "key": "freelancer",
     "modules": [
+      "timeline",
       "dashboard",
       "reminders",
       "favorites",
@@ -40,6 +41,7 @@
   {
     "key": "agency",
     "modules": [
+      "timeline",
       "dashboard",
       "reminders",
       "favorites",
@@ -88,6 +90,7 @@
   {
     "key": "real_estate",
     "modules": [
+      "timeline",
       "dashboard",
       "reminders",
       "favorites",
@@ -130,6 +133,7 @@
   {
     "key": "consultancy",
     "modules": [
+      "timeline",
       "dashboard",
       "reminders",
       "favorites",
@@ -173,6 +177,7 @@
   {
     "key": "saas",
     "modules": [
+      "timeline",
       "dashboard",
       "reminders",
       "favorites",
@@ -219,6 +224,7 @@
   {
     "key": "sales",
     "modules": [
+      "timeline",
       "dashboard",
       "reminders",
       "favorites",
@@ -266,6 +272,7 @@
   {
     "key": "other",
     "modules": [
+      "timeline",
       "dashboard",
       "reminders",
       "favorites",

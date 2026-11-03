@@ -1,6 +1,7 @@
 pub mod gateway;
 pub mod gateway_impl;
 mod operation_action;
+mod timeline;
 use aphel_contract_automation::AutomationBuilder;
 pub(crate) mod actions;
 pub(crate) mod clock;
@@ -88,6 +89,9 @@ impl Module for AutomationsModule {
     }
 
     fn register(&self, app: &mut AppBuilder) -> Result<(), AppError> {
+        app.contribute::<dyn aphel_sdk::timeline::TimelineEventExtension>(std::sync::Arc::new(
+            timeline::AutomationActors,
+        ));
         app.contribute(std::sync::Arc::new(
             ::config_packages::application::versioning::fragments::SectionFragmentLayout {
                 section: "automations",

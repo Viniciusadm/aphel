@@ -1,3 +1,4 @@
+mod timeline;
 use aphel_sdk::party::{
     ContactPoint, ContactPointKind, ContactPoints, PartyTraits, address_fields, phone_field,
 };
@@ -200,6 +201,9 @@ impl Module for PeopleModule {
     }
 
     fn register(&self, app: &mut AppBuilder) -> Result<(), AppError> {
+        app.contribute::<dyn aphel_sdk::timeline::TimelineEventScope>(std::sync::Arc::new(
+            timeline::RelatedEvents,
+        ));
         app.contract(aphel_sdk::party::DESCRIPTOR);
         app.entity(
             contact_definition()?

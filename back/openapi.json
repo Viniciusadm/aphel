@@ -59416,7 +59416,7 @@
             "schema": {
               "type": "string"
             },
-            "example": "activity,note,deal_stage"
+            "example": "record_change,event"
           },
           {
             "name": "per_page",
@@ -59433,7 +59433,7 @@
         ],
         "responses": {
           "200": {
-            "description": "Activities (main link or additional links), visible notes and domain events of the record, newest first; for a company also the events of its people and deals. `kinds` is a comma separated list of activity, note, deal_stage, deal_change, record_change, attachment and event. Answers `{ data, meta: { next_cursor } }`: pass `meta.next_cursor` back as `cursor` for the next page (null on the last one)",
+            "description": "Entries from enabled owner-authorized sources, newest first. `kinds` is a comma separated list of contributed keys from `/timeline/kinds`. Answers `{ data, meta: { next_cursor } }`: pass `meta.next_cursor` back as `cursor` for the next page (null on the last one)",
             "content": {
               "application/json": {
                 "schema": {
@@ -59468,6 +59468,92 @@
               "application/json": {
                 "schema": {
                   "$ref": "#/components/schemas/ErrorEnvelope"
+                }
+              }
+            }
+          },
+          "429": {
+            "description": "API token rate limit exceeded (`rate_limited`); see `Retry-After` and `X-RateLimit-*`",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ErrorEnvelope"
+                }
+              }
+            }
+          }
+        },
+        "security": [
+          {
+            "session_cookie": []
+          },
+          {
+            "api_token": []
+          }
+        ]
+      }
+    },
+    "/api/v1/timeline/kinds": {
+      "get": {
+        "tags": [
+          "timeline"
+        ],
+        "operationId": "timeline_kinds",
+        "parameters": [
+          {
+            "name": "record_type",
+            "in": "query",
+            "required": true,
+            "schema": {
+              "type": "string"
+            },
+            "example": "organizations.organization"
+          },
+          {
+            "name": "record_id",
+            "in": "query",
+            "required": true,
+            "schema": {
+              "type": "string"
+            }
+          },
+          {
+            "name": "cursor",
+            "in": "query",
+            "required": false,
+            "schema": {
+              "type": "string"
+            }
+          },
+          {
+            "name": "kinds",
+            "in": "query",
+            "required": false,
+            "schema": {
+              "type": "string"
+            },
+            "example": "record_change,event"
+          },
+          {
+            "name": "per_page",
+            "in": "query",
+            "required": false,
+            "schema": {
+              "type": "integer",
+              "format": "int32",
+              "maximum": 100,
+              "minimum": 1
+            },
+            "example": 25
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "Contributed timeline kinds and localized labels for an accessible record",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/Data_Vec_TimelineKindResponse"
                 }
               }
             }
@@ -89379,6 +89465,38 @@
           }
         }
       },
+      "Data_Vec_TimelineKindResponse": {
+        "type": "object",
+        "required": [
+          "data"
+        ],
+        "properties": {
+          "data": {
+            "type": "array",
+            "items": {
+              "type": "object",
+              "required": [
+                "key",
+                "labels"
+              ],
+              "properties": {
+                "key": {
+                  "type": "string"
+                },
+                "labels": {
+                  "type": "object",
+                  "additionalProperties": {
+                    "type": "string"
+                  },
+                  "propertyNames": {
+                    "type": "string"
+                  }
+                }
+              }
+            }
+          }
+        }
+      },
       "Data_Vec_TrackingObjectionResponse": {
         "type": "object",
         "required": [
@@ -116953,7 +117071,7 @@
             "example": "activity:0190a8f2-7c1e-7b3a-9f00-000000000000"
           },
           "kind": {
-            "$ref": "#/components/schemas/TimelineKind"
+            "type": "string"
           },
           "metadata": {
             "type": "object"
@@ -116976,17 +117094,26 @@
           }
         }
       },
-      "TimelineKind": {
-        "type": "string",
-        "enum": [
-          "activity",
-          "note",
-          "deal_stage",
-          "deal_change",
-          "record_change",
-          "attachment",
-          "event"
-        ]
+      "TimelineKindResponse": {
+        "type": "object",
+        "required": [
+          "key",
+          "labels"
+        ],
+        "properties": {
+          "key": {
+            "type": "string"
+          },
+          "labels": {
+            "type": "object",
+            "additionalProperties": {
+              "type": "string"
+            },
+            "propertyNames": {
+              "type": "string"
+            }
+          }
+        }
       },
       "TimelineMeta": {
         "type": "object",

@@ -1,3 +1,4 @@
+mod timeline;
 use aphel_contract_automation::AutomationBuilder;
 pub(crate) mod automation;
 pub mod domain;
@@ -56,6 +57,9 @@ impl Module for NotesModule {
     }
 
     fn register(&self, app: &mut AppBuilder) -> Result<(), AppError> {
+        app.contribute::<dyn aphel_sdk::timeline::TimelineSource>(std::sync::Arc::new(
+            timeline::NotesTimeline,
+        ));
         app.contribute::<dyn ::notifications::application::texts::NotificationTexts>(
             std::sync::Arc::new(crate::notifications::NoteNotificationTexts),
         );

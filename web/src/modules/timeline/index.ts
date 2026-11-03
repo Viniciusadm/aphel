@@ -6,12 +6,11 @@ import { recordTimelineSource } from './source'
 export { TIMELINE_MODULE_KEY, timelineApi, type TimelineTarget } from './api'
 export { TimelineLine, TimelineRecordLink } from './contents'
 export { timelineRenderer } from './renderers'
-export { TIMELINE_KINDS, recordTimelineSource, timelineKindOptions, type TimelineKindKey } from './source'
+export { recordTimelineSource, timelineKindOptions } from './source'
 export { asObject, asText, eventType, nameOf, payloadOf, type TimelinePayload } from './text'
 
 const timelineModule = defineModule({
   key: TIMELINE_MODULE_KEY,
-  required: true,
   translations: { 'pt-BR': () => import('./i18n/pt-BR.json'), en: () => import('./i18n/en.json') },
   register(app) {
     app.timelineSource(recordTimelineSource)

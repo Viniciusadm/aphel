@@ -8,11 +8,9 @@ import { useModuleTranslation } from '@/kernel/modules/i18n'
 import { TIMELINE_MODULE_KEY } from './api'
 import { asObject, asText, eventType, nameOf, payloadOf } from './text'
 
-const RECORD_TYPE_KEYS = ['contact', 'company', 'deal'] as const
-const RECORD_ACTIONS = ['created', 'updated', 'deleted', 'archived', 'unarchived'] as const
+const RECORD_ACTIONS = ['created', 'updated', 'deleted', 'restored', 'archived', 'unarchived', 'purged'] as const
 const MAX_CHANGES = 6
 
-type RecordTypeKey = (typeof RECORD_TYPE_KEYS)[number]
 type RecordAction = (typeof RECORD_ACTIONS)[number]
 
 export function TimelineRecordLink({ record }: { record?: TimelineRecordReference | null }) {
@@ -46,18 +44,17 @@ function displayValue(value: unknown): string {
 
 export function RecordChangeTimelineContent({ item }: { item: TimelineItem }) {
   const t = useModuleTranslation(TIMELINE_MODULE_KEY)
-  const [prefix = '', action = ''] = eventType(item).split('.')
-  const recordType = (RECORD_TYPE_KEYS as readonly string[]).includes(prefix) ? (prefix as RecordTypeKey) : null
+  const action = eventType(item).split('.').at(-1) ?? ''
   const knownAction = (RECORD_ACTIONS as readonly string[]).includes(action) ? (action as RecordAction) : null
   const changes = Array.isArray(payloadOf(item).changes) ? (payloadOf(item).changes as unknown[]) : []
-  const schemaType = item.record?.record_type ?? prefix
+  const schemaType = item.record?.record_type ?? asText(item.metadata.record_type) ?? ''
   const schema = useFieldSchema(schemaType, knownAction === 'updated' && changes.length > 0)
   const fieldLabels = useMemo(
     () => new Map((schema.data?.fields ?? []).map((field) => [field.key, field.label])),
     [schema.data],
   )
   const text =
-    recordType && knownAction ? t(`timeline.records.${recordType}.${knownAction}`) : t('timeline.recordChanged')
+    knownAction ? t(`timeline.actions.${knownAction}`) : t('timeline.recordChanged')
   return (
     <div className="grid min-w-0 gap-1">
       <TimelineLine text={text} item={item} />

@@ -6,7 +6,6 @@ pub const REQUIRED: &[&str] = &[
     "organizations",
     "deals",
     "notes",
-    "timeline",
     "tags",
     "integrations",
     "plugins",

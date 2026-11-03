@@ -7889,6 +7889,22 @@ export interface paths {
         patch?: never;
         trace?: never;
     };
+    "/api/v1/timeline/kinds": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        get: operations["timeline_kinds"];
+        put?: never;
+        post?: never;
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
     "/api/v1/trash": {
         parameters: {
             query?: never;
@@ -14842,6 +14858,14 @@ export interface components {
                 /** @example voip.twilio */
                 key: string;
                 label: string;
+            }[];
+        };
+        Data_Vec_TimelineKindResponse: {
+            data: {
+                key: string;
+                labels: {
+                    [key: string]: string;
+                };
             }[];
         };
         Data_Vec_TrackingObjectionResponse: {
@@ -21963,14 +21987,18 @@ export interface components {
             body?: string | null;
             /** @example activity:0190a8f2-7c1e-7b3a-9f00-000000000000 */
             id: string;
-            kind: components["schemas"]["TimelineKind"];
+            kind: string;
             metadata: Record<string, never>;
             occurred_at: string;
             record?: null | components["schemas"]["TimelineRecordResponse"];
             title: string;
         };
-        /** @enum {string} */
-        TimelineKind: "activity" | "note" | "deal_stage" | "deal_change" | "record_change" | "attachment" | "event";
+        TimelineKindResponse: {
+            key: string;
+            labels: {
+                [key: string]: string;
+            };
+        };
         TimelineMeta: {
             /** @example MjAyNi0xMC0yMFQxMzo0NTowMFp8YWN0aXZpdHk6MDE5MA */
             next_cursor?: string | null;
@@ -64824,7 +64852,7 @@ export interface operations {
                 record_type: string;
                 record_id: string;
                 cursor?: string;
-                /** @example activity,note,deal_stage */
+                /** @example record_change,event */
                 kinds?: string;
                 /** @example 25 */
                 per_page?: number;
@@ -64835,7 +64863,7 @@ export interface operations {
         };
         requestBody?: never;
         responses: {
-            /** @description Activities (main link or additional links), visible notes and domain events of the record, newest first; for a company also the events of its people and deals. `kinds` is a comma separated list of activity, note, deal_stage, deal_change, record_change, attachment and event. Answers `{ data, meta: { next_cursor } }`: pass `meta.next_cursor` back as `cursor` for the next page (null on the last one) */
+            /** @description Entries from enabled owner-authorized sources, newest first. `kinds` is a comma separated list of contributed keys from `/timeline/kinds`. Answers `{ data, meta: { next_cursor } }`: pass `meta.next_cursor` back as `cursor` for the next page (null on the last one) */
             200: {
                 headers: {
                     [name: string]: unknown;
@@ -64869,6 +64897,44 @@ export interface operations {
                 };
                 content: {
                     "application/json": components["schemas"]["ErrorEnvelope"];
+                };
+            };
+            /** @description API token rate limit exceeded (`rate_limited`); see `Retry-After` and `X-RateLimit-*` */
+            429: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["ErrorEnvelope"];
+                };
+            };
+        };
+    };
+    timeline_kinds: {
+        parameters: {
+            query: {
+                /** @example organizations.organization */
+                record_type: string;
+                record_id: string;
+                cursor?: string;
+                /** @example record_change,event */
+                kinds?: string;
+                /** @example 25 */
+                per_page?: number;
+            };
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        requestBody?: never;
+        responses: {
+            /** @description Contributed timeline kinds and localized labels for an accessible record */
+            200: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["Data_Vec_TimelineKindResponse"];
                 };
             };
             /** @description API token rate limit exceeded (`rate_limited`); see `Retry-After` and `X-RateLimit-*` */

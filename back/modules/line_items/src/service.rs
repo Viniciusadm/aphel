@@ -706,6 +706,9 @@ async fn ensure_amount_writable(ctx: &Ctx<'_>, record: &RecordRef) -> Result<(),
     check_access([(amount_access(ctx, record).await?, "amount".to_owned())])
 }
 async fn authorize(ctx: &Ctx<'_>, record: &RecordRef, write: bool) -> Result<(), AppError> {
+    if !aphel_sdk::records::enabled(ctx, &record.record_type) {
+        return Err(aphel_kernel::modules::module_disabled());
+    }
     let definition = ctx.registry().require(record.record_type.as_str())?;
     if definition.capabilities.line_item_mapping()?.is_none() {
         return Err(item_not_found());

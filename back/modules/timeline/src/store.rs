@@ -1,416 +1,100 @@
-use aphel_contract_crm::CrmRecordTypes;
-use std::sync::Arc;
-
+use aphel_kernel::{
+    Ctx,
+    application::{files::UserReference, shared::RecordRef},
+    domain::UserId,
+    errors::AppError,
+    infrastructure::repositories::mapper,
+};
+use aphel_sdk::timeline::{
+    KindDefinition, LinkedRecord, TimelineEntry, TimelineEventExtension, TimelineEventScope,
+    TimelineRequest, TimelineSource, push_cursor,
+};
 use chrono::NaiveDateTime;
 use serde_json::{Value, json};
-use sqlx::mysql::MySqlRow;
-use sqlx::types::Json;
-use sqlx::{MySql, MySqlPool, QueryBuilder, Row};
-
-use crate::domain::{
-    TimelineCursor, TimelineEntry, TimelineEventExtension, TimelineKind, TimelineRequest,
-    known_event_types, timeline_kind_for_event,
-};
-use aphel_kernel::Ctx;
-use aphel_kernel::application::fields::RecordTypeRegistry;
-use aphel_kernel::application::organization_admin::ListWindow;
-use aphel_kernel::application::query::{
-    ArchivedFilter, CompareOp, FieldTarget, PlanCondition, PlanNode, PlanValue, Predicate,
-    QueryPlan,
-};
-use aphel_kernel::application::shared::{RecordRef, RecordType};
-use aphel_kernel::domain::access::{AccessScope, RecordScopeFilter};
-use aphel_kernel::domain::fields::FieldType;
-use aphel_kernel::errors::AppError;
-use aphel_kernel::infrastructure::query::compiler::{push_record_scope, push_where, quoted};
-use aphel_kernel::infrastructure::repositories::mapper;
-use aphel_kernel::infrastructure::repositories::mapper::user_reference;
-use aphel_kernel::records::constrain_query;
-use notes::domain::note_preview;
-use notes::store::note_from_row;
-use tasks::domain::{ActivityView, LinkedRecord, instant};
-use tasks::store::{activity_from_row, activity_select, linked_record, record_title_sql};
-
-#[derive(Clone)]
-pub(crate) struct TimelineStore {
-    pool: MySqlPool,
-    registry: Arc<RecordTypeRegistry>,
-}
-
-fn push_cursor(
-    builder: &mut QueryBuilder<MySql>,
-    instant_sql: &str,
-    id_sql: &str,
-    prefix: &str,
-    cursor: Option<&TimelineCursor>,
-) {
-    let Some(cursor) = cursor else {
-        return;
-    };
-    let at = mapper::naive(cursor.occurred_at);
-    builder
-        .push(format!(" AND ({instant_sql} < "))
-        .push_bind(at)
-        .push(format!(" OR ({instant_sql} = "))
-        .push_bind(at)
-        .push(format!(" AND CONCAT('{prefix}', {id_sql}) < "))
-        .push_bind(cursor.item_id.clone())
-        .push("))");
-}
-
-fn push_list(builder: &mut QueryBuilder<MySql>, values: impl IntoIterator<Item = &'static str>) {
-    builder.push("(");
-    let mut separated = builder.separated(", ");
-    for value in values {
-        separated.push_bind(value);
+use sqlx::{MySql, QueryBuilder, Row};
+pub(crate) struct Events;
+fn matches(builder: &mut QueryBuilder<MySql>, kind: &KindDefinition) {
+    builder.push("(1 = 0");
+    for event in &kind.event_types {
+        builder.push(" OR e.event_type = ").push_bind(event.clone());
+    }
+    for prefix in &kind.event_prefixes {
+        builder
+            .push(" OR LEFT(e.event_type, ")
+            .push_bind(prefix.len() as u32)
+            .push(") = ")
+            .push_bind(prefix.clone());
     }
     builder.push(")");
 }
-
-fn user_json(entry: &Option<aphel_kernel::application::files::UserReference>) -> Value {
-    entry
-        .as_ref()
-        .map(|user| json!({ "id": user.id.as_str(), "display_name": user.display_name }))
-        .unwrap_or(Value::Null)
-}
-
-fn activity_entry(
-    activity: ActivityView,
-    occurred_at: NaiveDateTime,
-    subject: &RecordRef,
-) -> TimelineEntry {
-    let record = activity
-        .record
-        .clone()
-        .filter(|linked| &linked.record != subject);
-    TimelineEntry {
-        id: format!("activity:{}", activity.id),
-        kind: TimelineKind::Activity,
-        occurred_at: mapper::utc(occurred_at),
-        actor: activity
-            .created_by
-            .clone()
-            .or_else(|| activity.owner.clone()),
-        title: activity.title.clone(),
-        body: activity.description.clone(),
-        record,
-        metadata: json!({
-            "activity_id": activity.id.to_string(),
-            "status": activity.status.as_str(),
-            "priority": activity.priority.as_str(),
-            "due_at": activity.due_at.map(instant),
-            "completed_at": activity.completed_at.map(instant),
-            "duration_minutes": activity.duration_minutes,
-            "activity_type": {
-                "id": activity.activity_type.id.to_string(),
-                "key": activity.activity_type.key,
-                "name": activity.activity_type.name,
-                "icon": activity.activity_type.icon,
-                "color": activity.activity_type.color,
-            },
-            "owner": user_json(&activity.owner),
-            "location": activity.location.as_ref().map(|location| json!({
-                "latitude": location.latitude.to_string(),
-                "longitude": location.longitude.to_string(),
-                "accuracy_m": location.accuracy_m,
-                "captured_at": instant(location.captured_at),
-                "map_url": location.map_url(),
-            })),
-        }),
+#[async_trait::async_trait]
+impl TimelineSource for Events {
+    fn key(&self) -> &'static str {
+        "event"
     }
-}
-
-fn event_entry(row: &MySqlRow, subject: &RecordRef) -> Result<Option<TimelineEntry>, AppError> {
-    let event_type: String = row.try_get("event_type")?;
-    let Some(kind) = timeline_kind_for_event(&event_type) else {
-        return Ok(None);
-    };
-    let id: String = row.try_get("id")?;
-    let occurred_at: NaiveDateTime = row.try_get("occurred_at")?;
-    let Json(payload): Json<Value> = row.try_get("payload")?;
-    let record: Option<LinkedRecord> =
-        linked_record(row, "record_type", "record_id", "record_title")?;
-    let automation = match (
-        row.try_get::<Option<String>, _>("actor_automation_id")?,
-        row.try_get::<Option<String>, _>("actor_automation_name")?,
-    ) {
-        (Some(id), Some(name)) => json!({ "id": id, "name": name }),
-        _ => Value::Null,
-    };
-    Ok(Some(TimelineEntry {
-        id: format!("event:{id}"),
-        kind,
-        occurred_at: mapper::utc(occurred_at),
-        actor: user_reference(row, "actor_user_id", "actor_name")?,
-        title: event_type.clone(),
-        body: None,
-        metadata: json!({
-            "event_id": id,
-            "event_type": event_type,
-            "record_type": record.as_ref().map(|linked| linked.record.record_type.as_str().to_owned()),
-            "record_id": record.as_ref().map(|linked| linked.record.record_id.to_string()),
-            "payload": payload,
-            "automation": automation,
-        }),
-        record: record.filter(|linked| &linked.record != subject),
-    }))
-}
-
-const CUSTOM_RECORD_CHANGE_SQL: &str = "e.event_type LIKE 'co!_%.updated' ESCAPE '!' AND e.record_type = SUBSTRING_INDEX(e.event_type, '.', 1)";
-
-impl TimelineStore {
-    pub(crate) fn of(ctx: &Ctx<'_>) -> Self {
-        Self::new(ctx.pool().clone(), ctx.registry().clone())
+    fn kinds(&self) -> Vec<KindDefinition> {
+        vec![
+            KindDefinition::new("attachment", "Files", "Arquivos").events(&[
+                aphel_kernel::application::files::ATTACHMENT_ADDED,
+                aphel_kernel::application::files::ATTACHMENT_REMOVED,
+            ]),
+            KindDefinition::new("record_change", "Changes", "Alterações"),
+            KindDefinition::new("event", "Other events", "Outros eventos"),
+        ]
     }
-
-    pub(crate) fn new(pool: MySqlPool, registry: Arc<RecordTypeRegistry>) -> Self {
-        Self { pool, registry }
-    }
-
-    fn definition(
+    async fn entries(
         &self,
-        record_type: &RecordType,
-    ) -> Result<&aphel_kernel::application::fields::EntityDefinition, AppError> {
-        self.registry.get(record_type).ok_or_else(|| {
-            AppError::Configuration(format!("record type {record_type} is not registered"))
-        })
-    }
-
-    async fn tasks(
-        &self,
-        scope: &AccessScope,
+        ctx: &Ctx<'_>,
         request: &TimelineRequest,
-        visibility: &RecordScopeFilter,
     ) -> Result<Vec<TimelineEntry>, AppError> {
-        let subject = &request.subject;
-        let mut builder = QueryBuilder::<MySql>::new(activity_select("r", &self.registry));
-        builder
-            .push("WHERE ")
-            .push("r.deleted_at IS NULL AND ((r.record_type = ")
-            .push_bind(subject.record_type.as_str().to_owned())
-            .push(" AND r.record_id = ")
-            .push_bind(subject.record_id.to_string())
-            .push(") OR r.id IN (SELECT l.activity_id FROM task_links l WHERE ")
-            .push("l.record_type = ")
-            .push_bind(subject.record_type.as_str().to_owned())
-            .push(" AND l.record_id = ")
-            .push_bind(subject.record_id.to_string())
-            .push("))");
-        push_record_scope(
-            &mut builder,
-            scope,
-            self.definition(&RecordType::ACTIVITY)?,
-            visibility,
-        );
-        push_cursor(
-            &mut builder,
-            "COALESCE(r.completed_at, r.created_at)",
-            "r.id",
-            "activity:",
-            request.cursor.as_ref(),
-        );
-        builder
-            .push(" ORDER BY occurred_at DESC, r.id DESC LIMIT ")
-            .push_bind(request.limit);
-        let rows = builder.build().fetch_all(&self.pool).await?;
-        rows.iter()
-            .map(|row| {
-                let occurred_at: NaiveDateTime = row.try_get("occurred_at")?;
-                Ok(activity_entry(
-                    activity_from_row(row)?,
-                    occurred_at,
-                    subject,
-                ))
+        let kinds = crate::domain::kinds(ctx)?;
+        if !request.kinds.iter().any(|key| {
+            kinds.iter().any(|kind| {
+                &kind.key == key
+                    && (key == "event"
+                        || !kind.event_types.is_empty()
+                        || !kind.event_prefixes.is_empty())
             })
-            .collect()
-    }
-
-    async fn notes(
-        &self,
-        scope: &AccessScope,
-        request: &TimelineRequest,
-    ) -> Result<Vec<TimelineEntry>, AppError> {
-        let subject = &request.subject;
+        }) {
+            return Ok(Vec::new());
+        }
         let mut builder = QueryBuilder::<MySql>::new(
-            "SELECT n.id, n.author_id, au.display_name AS author_name, n.record_type, n.record_id, \
-             n.body, n.visibility, n.pinned, n.created_at, n.updated_at \
-             FROM notes n LEFT JOIN users au ON au.id = n.author_id WHERE ",
+            "SELECT e.id, e.event_type, e.record_type, e.record_id, e.payload, e.occurred_at, e.actor_type, e.actor_id, u.display_name AS actor_name FROM domain_events e LEFT JOIN users u ON e.actor_type = 'user' AND u.id = e.actor_id WHERE ((e.record_type = ",
         );
         builder
-            .push("n.record_type = ")
-            .push_bind(subject.record_type.as_str().to_owned())
-            .push(" AND n.record_id = ")
-            .push_bind(subject.record_id.to_string())
-            .push(" AND n.deleted_at IS NULL AND (n.visibility = 'team' OR n.author_id = ")
-            .push_bind(scope.user_id().as_str().to_owned())
-            .push(")");
-        push_cursor(
-            &mut builder,
-            "n.created_at",
-            "n.id",
-            "note:",
-            request.cursor.as_ref(),
-        );
-        builder
-            .push(" ORDER BY n.created_at DESC, n.id DESC LIMIT ")
-            .push_bind(request.limit);
-        let rows = builder.build().fetch_all(&self.pool).await?;
-        rows.iter()
-            .map(|row| {
-                let note = note_from_row(row)?;
-                Ok(TimelineEntry {
-                    id: format!("note:{}", note.id),
-                    kind: TimelineKind::Note,
-                    occurred_at: note.created_at,
-                    actor: note.author.clone(),
-                    title: note_preview(&note.body),
-                    metadata: json!({
-                        "note_id": note.id.to_string(),
-                        "visibility": note.visibility.as_str(),
-                        "pinned": note.pinned,
-                        "author_id": note.author_id().map(|author| author.as_str().to_owned()),
-                        "updated_at": instant(note.updated_at),
-                    }),
-                    body: Some(note.body),
-                    record: None,
-                })
-            })
-            .collect()
-    }
-
-    async fn related_plan(
-        &self,
-        scope: &AccessScope,
-        record_type: &RecordType,
-        company_id: &str,
-        visibility: &RecordScopeFilter,
-    ) -> Result<QueryPlan, AppError> {
-        let plan = QueryPlan {
-            record_type: self.definition(record_type)?.clone(),
-            visibility: visibility.clone(),
-            filter: Some(PlanNode::Condition(PlanCondition {
-                target: FieldTarget::System {
-                    column: "company_id".to_owned(),
-                },
-                field_type: FieldType::Record,
-                predicate: Predicate::Compare(
-                    CompareOp::Eq,
-                    PlanValue::Text(company_id.to_owned()),
-                ),
-                negated: false,
-            })),
-            search: None,
-            sort: Vec::new(),
-            archived: ArchivedFilter::Include,
-            window: ListWindow {
-                offset: 0,
-                limit: 1,
-            },
-        };
-        Ok(constrain_query(&self.pool, scope, &plan)
-            .await?
-            .unwrap_or(plan))
-    }
-
-    fn push_related(
-        builder: &mut QueryBuilder<MySql>,
-        scope: &AccessScope,
-        plan: &QueryPlan,
-    ) -> Result<(), AppError> {
-        builder
-            .push(" OR (e.record_type = ")
-            .push_bind(plan.record_type.record_type.as_str().to_owned())
-            .push(format!(
-                " AND e.record_id IN (SELECT r.id FROM {} r",
-                quoted(&plan.record_type.table)
-            ));
-        push_where(builder, scope, plan)?;
-        builder.push("))");
-        Ok(())
-    }
-
-    async fn events(
-        &self,
-        scope: &AccessScope,
-        request: &TimelineRequest,
-    ) -> Result<Vec<TimelineEntry>, AppError> {
-        let subject = &request.subject;
-        let mut builder = QueryBuilder::<MySql>::new(format!(
-            "SELECT e.id, e.event_type, e.record_type, e.record_id, e.payload, e.occurred_at, \
-             u.id AS actor_user_id, u.display_name AS actor_name, \
-             au.id AS actor_automation_id, au.name AS actor_automation_name, {} AS record_title \
-             FROM domain_events e \
-             LEFT JOIN users u ON e.actor_type = 'user' AND u.id = e.actor_id \
-             LEFT JOIN automations au ON e.actor_type = 'automation' AND au.id = e.actor_id \
-             WHERE ",
-            record_title_sql("e", &self.registry)
-        ));
-        builder
-            .push("((e.record_type = ")
-            .push_bind(subject.record_type.as_str().to_owned())
+            .push_bind(request.subject.record_type.as_str().to_owned())
             .push(" AND e.record_id = ")
-            .push_bind(subject.record_id.to_string())
+            .push_bind(request.subject.record_id.to_string())
             .push(")");
-        builder
-            .push(" OR (e.record_type = ")
-            .push_bind(subject.record_type.as_str().to_owned())
-            .push(" AND e.record_id IN (SELECT m.merged_id FROM record_merges m WHERE ")
-            .push("m.record_type = ")
-            .push_bind(subject.record_type.as_str().to_owned())
-            .push(" AND m.survivor_id = ")
-            .push_bind(subject.record_id.to_string())
-            .push("))");
-        let company_id = subject.record_id.to_string();
-        if let Some(visibility) = &request.related_contacts {
-            let plan = self
-                .related_plan(scope, &RecordType::CONTACT, &company_id, visibility)
-                .await?;
-            Self::push_related(&mut builder, scope, &plan)?;
+        for scope in ctx.app().contributions::<dyn TimelineEventScope>() {
+            scope.extend(ctx, &mut builder, &request.subject).await?;
         }
-        if let Some(visibility) = &request.related_deals {
-            let plan = self
-                .related_plan(scope, &RecordType::DEAL, &company_id, visibility)
-                .await?;
-            Self::push_related(&mut builder, scope, &plan)?;
+        builder.push(")");
+        for prefix in crate::domain::hidden_prefixes(ctx) {
+            builder
+                .push(" AND LEFT(e.event_type, ")
+                .push_bind(prefix.len() as u32)
+                .push(") <> ")
+                .push_bind(prefix);
         }
-        builder.push(") AND e.event_type NOT LIKE 'note.%' AND e.event_type NOT LIKE 'activity.%'");
-        let extensions =
-            aphel_kernel::modules::app().all_contributions::<dyn TimelineEventExtension>();
-        for (_, extension) in &extensions {
-            extension.restrict(&mut builder, scope, subject, request);
+        for (_, extension) in ctx.app().all_contributions::<dyn TimelineEventExtension>() {
+            extension.restrict(&mut builder, ctx.scope, &request.subject, request);
         }
-
-        let event_kinds: Vec<TimelineKind> = request
-            .kinds
-            .iter()
-            .copied()
-            .filter(TimelineKind::is_event)
-            .collect();
-        let all_event_kinds = TimelineKind::ALL
-            .iter()
-            .filter(|kind| kind.is_event())
-            .count();
-        if event_kinds.len() < all_event_kinds {
-            builder.push(" AND (1 = 0");
-            for kind in event_kinds {
-                if kind == TimelineKind::Event {
-                    builder.push(" OR (NOT (");
-                    builder.push(CUSTOM_RECORD_CHANGE_SQL);
-                    builder.push(") AND e.event_type NOT IN ");
-                    push_list(&mut builder, known_event_types());
-                    builder.push(")");
-                } else {
-                    builder.push(" OR e.event_type IN ");
-                    push_list(&mut builder, kind.event_types().iter().copied());
-                    if kind == TimelineKind::RecordChange {
-                        builder.push(" OR (");
-                        builder.push(CUSTOM_RECORD_CHANGE_SQL);
-                        builder.push(")");
-                    }
+        builder.push(" AND (1 = 0");
+        for kind in kinds.iter().filter(|kind| request.wants(&kind.key)) {
+            if kind.key == "event" {
+                builder.push(" OR NOT (1 = 0");
+                for known in kinds.iter().filter(|known| known.key != "event") {
+                    builder.push(" OR ");
+                    matches(&mut builder, known);
                 }
+                builder.push(")");
+            } else if !kind.event_types.is_empty() || !kind.event_prefixes.is_empty() {
+                builder.push(" OR ");
+                matches(&mut builder, kind);
             }
-            builder.push(")");
         }
+        builder.push(")");
         push_cursor(
             &mut builder,
             "e.occurred_at",
@@ -421,37 +105,60 @@ impl TimelineStore {
         builder
             .push(" ORDER BY e.occurred_at DESC, e.id DESC LIMIT ")
             .push_bind(request.limit);
-        let rows = builder.build().fetch_all(&self.pool).await?;
+        let rows = builder.build().fetch_all(ctx.pool()).await?;
         let mut entries = Vec::with_capacity(rows.len());
-        for row in &rows {
-            if let Some(entry) = event_entry(row, subject)? {
-                entries.push(entry);
-            }
+        for row in rows {
+            let event_type: String = row.try_get("event_type")?;
+            let id: String = row.try_get("id")?;
+            let record_type: String = row.try_get("record_type")?;
+            let record_id: String = row.try_get("record_id")?;
+            let reference = RecordRef::parse(&record_type, &record_id)?;
+            let actor_type: String = row.try_get("actor_type")?;
+            let actor_id: Option<String> = row.try_get("actor_id")?;
+            let actor_name: Option<String> = row.try_get("actor_name")?;
+            let actor = if actor_type == "user" {
+                actor_id
+                    .as_ref()
+                    .zip(actor_name)
+                    .map(|(id, display_name)| {
+                        Ok::<UserReference, AppError>(UserReference {
+                            id: UserId::new(id.clone())?,
+                            display_name,
+                        })
+                    })
+                    .transpose()?
+            } else {
+                None
+            };
+            let sqlx::types::Json(payload): sqlx::types::Json<Value> = row.try_get("payload")?;
+            let record = if reference == request.subject {
+                None
+            } else {
+                let title = match ctx
+                    .load_record(reference.record_type.as_str(), reference.record_id)
+                    .await?
+                {
+                    Some(value) => ctx
+                        .registry()
+                        .require(reference.record_type.as_str())?
+                        .title_column()
+                        .and_then(|key| value.get(key))
+                        .and_then(Value::as_str)
+                        .map(str::to_owned),
+                    None => None,
+                };
+                Some(LinkedRecord {
+                    record: reference,
+                    title,
+                })
+            };
+            entries.push(TimelineEntry { id: format!("event:{id}"), kind: crate::domain::event_kind(&event_type, &kinds), occurred_at: mapper::utc(row.try_get::<NaiveDateTime, _>("occurred_at")?), actor, title: event_type.clone(), body: None, record,
+                metadata: json!({"event_id":id, "event_type":event_type, "record_type":record_type, "record_id":record_id, "payload":payload, "service_actor":{"kind":actor_type,"id":actor_id}}) });
         }
-        for (_, extension) in &extensions {
-            extension.enrich(&self.pool, scope, &mut entries).await?;
-        }
-        Ok(entries)
-    }
-}
-
-impl TimelineStore {
-    pub(crate) async fn entries(
-        &self,
-        scope: &AccessScope,
-        request: &TimelineRequest,
-    ) -> Result<Vec<TimelineEntry>, AppError> {
-        let mut entries = Vec::new();
-        if request.wants(TimelineKind::Activity)
-            && let Some(visibility) = &request.tasks
-        {
-            entries.extend(self.tasks(scope, request, visibility).await?);
-        }
-        if request.wants(TimelineKind::Note) && request.notes {
-            entries.extend(self.notes(scope, request).await?);
-        }
-        if request.wants_events() {
-            entries.extend(self.events(scope, request).await?);
+        for (_, extension) in ctx.app().all_contributions::<dyn TimelineEventExtension>() {
+            extension
+                .enrich(ctx.pool(), ctx.scope, &mut entries)
+                .await?;
         }
         Ok(entries)
     }

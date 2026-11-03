@@ -9,6 +9,7 @@ export interface TimelineTarget {
 }
 
 export const timelineApi = {
+  kinds: (target: TimelineTarget) => api.get<{ key: string; labels: Record<string, string> }[]>('/v1/timeline/kinds', { query: { record_type: target.recordType, record_id: target.recordId } }),
   page: (target: TimelineTarget, cursor: string | null, kinds: string[]) =>
     api.get<TimelinePage>('/v1/timeline', {
       query: {

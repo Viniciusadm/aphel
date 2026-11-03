@@ -15,13 +15,14 @@ pub struct TimelineModule;
 impl Module for TimelineModule {
     fn manifest(&self) -> Manifest {
         Manifest::new(KEY, "Timeline", APHEL_VERSION)
-            .description("Unified timeline of a record: tasks, notes, e-mails and domain events")
-            .optional(tasks::KEY)
-            .optional(notes::KEY)
-            .required()
+            .description("Owner-contributed record timeline")
     }
 
     fn register(&self, app: &mut AppBuilder) -> Result<(), AppError> {
+        app.contract(aphel_sdk::timeline::DESCRIPTOR);
+        app.contribute::<dyn aphel_sdk::timeline::TimelineSource>(std::sync::Arc::new(
+            store::Events,
+        ));
         app.openapi_tag(http::TAG, "Unified timeline of a record")
             .routes(|_| http::router());
         for operation in plugin_bridge::operations() {

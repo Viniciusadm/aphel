@@ -891,3 +891,31 @@ pub fn build_query(
     }
     Ok(builder)
 }
+
+pub fn push_reference_subquery(
+    builder: &mut QueryBuilder<MySql>,
+    scope: &AccessScope,
+    plan: &QueryPlan,
+    reference_alias: &str,
+    type_column: &str,
+    id_column: &str,
+) -> Result<(), AppError> {
+    for identifier in [reference_alias, type_column, id_column] {
+        if !crate::application::fields::is_sql_identifier(identifier) {
+            return Err(AppError::Configuration(
+                "invalid reference query identifier".to_owned(),
+            ));
+        }
+    }
+    builder
+        .push(format!(" OR ({} = ", aliased(reference_alias, type_column)))
+        .push_bind(plan.record_type.record_type.as_str().to_owned())
+        .push(format!(
+            " AND {} IN (SELECT r.id FROM {} r",
+            aliased(reference_alias, id_column),
+            quoted(&plan.record_type.table)
+        ));
+    push_where(builder, scope, plan)?;
+    builder.push("))");
+    Ok(())
+}

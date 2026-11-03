@@ -24,7 +24,7 @@ forecast = { path = "modules/forecast" }
 tasks = { path = "modules/tasks" }
 notes = { path = "modules/notes", required = true }
 reminders = { path = "modules/reminders" }
-timeline = { path = "modules/timeline", required = true }
+timeline = { path = "modules/timeline" }
 favorites = { path = "modules/favorites" }
 themes = { path = "modules/themes" }
 followers = { path = "modules/followers" }

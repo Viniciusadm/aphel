@@ -351,6 +351,14 @@ dependencies = [
 ]
 
 [[package]]
+name = "aphel-contract-timeline"
+version = "0.1.0"
+dependencies = [
+ "aphel-contract",
+ "serde",
+]
+
+[[package]]
 name = "aphel-contract-workflow"
 version = "0.1.0"
 dependencies = [
@@ -751,7 +759,6 @@ dependencies = [
  "aphel-mod-organizations",
  "aphel-mod-people",
  "aphel-mod-privacy",
- "aphel-mod-timeline",
  "aphel-sdk",
  "async-imap",
  "async-trait",
@@ -1217,6 +1224,7 @@ dependencies = [
  "aphel-kernel",
  "aphel-mod-notifications",
  "aphel-mod-search",
+ "aphel-sdk",
  "async-trait",
  "axum",
  "chrono",
@@ -1869,10 +1877,8 @@ dependencies = [
 name = "aphel-mod-timeline"
 version = "0.1.0"
 dependencies = [
- "aphel-contract-crm",
  "aphel-kernel",
- "aphel-mod-notes",
- "aphel-mod-tasks",
+ "aphel-sdk",
  "async-trait",
  "axum",
  "chrono",
@@ -1989,6 +1995,7 @@ dependencies = [
  "aphel-contract-messaging",
  "aphel-contract-money",
  "aphel-contract-party",
+ "aphel-contract-timeline",
  "aphel-contract-workflow",
  "aphel-kernel",
  "async-trait",
