@@ -1,5 +1,5 @@
 use crate::modules::manifest::Migration;
-use sha2::{Digest, Sha256, Sha384};
+use sha2::{Digest, Sha256};
 use sqlx::{MySqlConnection, MySqlPool, Row};
 use tracing::info;
 
@@ -27,8 +27,6 @@ pub async fn run(pool: &MySqlPool, app: &App) -> Result<(), AppError> {
         crate::infrastructure::fields::ensure_managed_schema(pool, definition).await?;
     }
     crate::infrastructure::fields::ensure_extension_schemas(pool, app.record_types()).await?;
-    crate::infrastructure::fields::migrate_entity_keys(pool, app).await?;
-    sync_adopted_features(pool, app).await?;
     sync_required(pool, app).await
 }
 
@@ -56,7 +54,7 @@ async fn run_module(pool: &MySqlPool, entry: &LoadedModule) -> Result<(), AppErr
             .iter()
             .find(|(version, _)| *version == migration.version)
         {
-            if *stored != sum && migration.previous_checksum != Some(stored.as_str()) {
+            if *stored != sum {
                 return Err(AppError::Configuration(format!(
                     "module {key}: migration {} was changed after being applied",
                     migration.version
@@ -68,38 +66,15 @@ async fn run_module(pool: &MySqlPool, entry: &LoadedModule) -> Result<(), AppErr
             "applying module migration {key} {} ({})",
             migration.version, migration.description
         );
-        let adopted = if let Some(version) = migration.legacy_core_version {
-            let previous =
-                sqlx::query("SELECT checksum, success FROM _sqlx_migrations WHERE version = ?")
-                    .bind(version)
-                    .fetch_optional(pool)
-                    .await?;
-            if let Some(previous) = previous {
-                let stored: Vec<u8> = previous.try_get("checksum")?;
-                let success: bool = previous.try_get("success")?;
-                if !success || stored != Sha384::digest(migration.sql.as_bytes()).as_slice() {
-                    return Err(AppError::Configuration(format!(
-                        "module {key}: legacy migration {version} checksum or status mismatch"
-                    )));
-                }
-                true
-            } else {
-                false
-            }
-        } else {
-            false
-        };
-        if !adopted {
-            sqlx::raw_sql(migration.sql)
-                .execute(pool)
-                .await
-                .map_err(|error| {
-                    AppError::Persistence(format!(
-                        "module {key} migration {} failed: {error}",
-                        migration.version
-                    ))
-                })?;
-        }
+        sqlx::raw_sql(migration.sql)
+            .execute(pool)
+            .await
+            .map_err(|error| {
+                AppError::Persistence(format!(
+                    "module {key} migration {} failed: {error}",
+                    migration.version
+                ))
+            })?;
         sqlx::query(
             "INSERT INTO module_migrations (module_key, version, description, checksum) VALUES (?, ?, ?, ?)",
         )
@@ -206,28 +181,4 @@ pub async fn apply_enabled_grants(
         }
     }
     Ok(granted)
-}
-
-async fn sync_adopted_features(pool: &MySqlPool, app: &App) -> Result<(), AppError> {
-    for entry in app.modules().iter().filter(|entry| entry.is_compatible()) {
-        let Some(version) = entry.manifest.legacy_core_feature else {
-            continue;
-        };
-        let legacy: bool = sqlx::query_scalar(
-            "SELECT EXISTS(SELECT 1 FROM _sqlx_migrations WHERE version = ? AND success = TRUE)",
-        )
-        .bind(version)
-        .fetch_one(pool)
-        .await?;
-        if !legacy {
-            continue;
-        }
-        let mut connection = pool.acquire().await?;
-        let inserted = sqlx::query("INSERT IGNORE INTO installed_modules (module_key, enabled, settings, installed_version, enabled_at) VALUES (?, TRUE, JSON_OBJECT(), ?, CURRENT_TIMESTAMP(6))")
-            .bind(entry.key()).bind(entry.manifest.version).execute(&mut *connection).await?.rows_affected() > 0;
-        if inserted {
-            apply_grants(&mut connection, app, entry.key()).await?;
-        }
-    }
-    Ok(())
 }

@@ -16,15 +16,11 @@ impl Module for ValidationRulesModule {
         )
         .plugin_toml(include_str!("../plugin.toml"))
         .enabled_by_default()
-        .adopts_core_feature(2550)
-        .migration(
-            aphel_kernel::modules::Migration::new(
-                1,
-                "create validation rules",
-                include_str!("../migrations/2550_create_validation_rules.sql"),
-            )
-            .adopts_core(2550),
-        )
+        .migration(aphel_kernel::modules::Migration::new(
+            1,
+            "create validation rules",
+            include_str!("../migrations/2550_create_validation_rules.sql"),
+        ))
         .owned_tables(&["validation_rules"])
     }
     fn register(&self, app: &mut AppBuilder) -> Result<(), AppError> {

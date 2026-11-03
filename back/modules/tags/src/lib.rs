@@ -58,9 +58,6 @@ impl Module for TagsModule {
             },
         ));
 
-        app.contribute(std::sync::Arc::new(
-            aphel_kernel::application::fields::EntityKeyAliases(&[("tag", "tags.tag")]),
-        ));
         contract::register(app);
         app.contribute(std::sync::Arc::new(
             ::config_packages::infrastructure::ConfigSectionFactory::new(100, |pool, registry| {

@@ -28,8 +28,6 @@ pub struct Migration {
     pub version: u32,
     pub description: &'static str,
     pub sql: &'static str,
-    pub legacy_core_version: Option<i64>,
-    pub previous_checksum: Option<&'static str>,
 }
 
 impl Migration {
@@ -38,17 +36,7 @@ impl Migration {
             version,
             description,
             sql,
-            previous_checksum: None,
-            legacy_core_version: None,
         }
-    }
-    pub const fn adopts_core(mut self, version: i64) -> Self {
-        self.legacy_core_version = Some(version);
-        self
-    }
-    pub const fn replaces(mut self, checksum: &'static str) -> Self {
-        self.previous_checksum = Some(checksum);
-        self
     }
 }
 

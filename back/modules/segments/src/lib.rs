@@ -23,7 +23,7 @@ impl Module for SegmentsModule {
     fn manifest(&self) -> Manifest {
         Manifest::new(KEY, "Segments", APHEL_VERSION)
             .description(
-                "Named dynamic filters of records, usable as the in_segment filter condition",
+                "Named dynamic filters of records, usable as the in_saved_filter filter condition",
             )
             .enabled_by_default()
             .owned_tables(&["segments"])
@@ -36,14 +36,11 @@ impl Module for SegmentsModule {
 
     fn register(&self, app: &mut AppBuilder) -> Result<(), AppError> {
         app.contribute(std::sync::Arc::new(
-            aphel_kernel::application::fields::EntityKeyAliases(&[("segment", "segments.segment")]),
-        ));
-        app.contribute(std::sync::Arc::new(
             aphel_kernel::infrastructure::custom_objects::RecordTypeScopedTable("segments"),
         ));
         app.openapi_tag(
             http::TAG,
-            "Segments: named dynamic filters with member count, usable as the `in_segment` filter condition",
+            "Segments: named dynamic filters with member count, usable as the `in_saved_filter` filter condition",
         )
         .routes(|_| http::router());
         app.provide::<dyn FilterSourceResolver>(Arc::new(hooks::StoredFilterSources));

@@ -46,9 +46,6 @@ impl Module for GoalsModule {
     }
 
     fn register(&self, app: &mut AppBuilder) -> Result<(), AppError> {
-        app.contribute(std::sync::Arc::new(
-            aphel_kernel::application::fields::EntityKeyAliases(&[("goal", "goals.goal")]),
-        ));
         app.openapi_tag(
             http::TAG,
             "Sales goals per user, team or organization and their progress",

@@ -17,15 +17,11 @@ impl Module for RecordLayoutsModule {
         )
         .plugin_toml(include_str!("../plugin.toml"))
         .enabled_by_default()
-        .adopts_core_feature(950)
-        .migration(
-            aphel_kernel::modules::Migration::new(
-                1,
-                "create form layouts",
-                include_str!("../migrations/0950_create_form_layouts.sql"),
-            )
-            .adopts_core(950),
-        )
+        .migration(aphel_kernel::modules::Migration::new(
+            1,
+            "create form layouts",
+            include_str!("../migrations/0950_create_form_layouts.sql"),
+        ))
         .owned_tables(&["form_layouts"])
     }
     fn register(&self, app: &mut AppBuilder) -> Result<(), AppError> {

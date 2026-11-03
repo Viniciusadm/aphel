@@ -38,39 +38,26 @@ impl aphel_kernel::modules::Module for NotificationsModule {
         )
         .plugin_toml(include_str!("../plugin.toml"))
         .enabled_by_default()
-        .adopts_core_feature(730)
-        .migration(
-            aphel_kernel::modules::Migration::new(
-                1,
-                "create notifications",
-                include_str!("../migrations/0730_create_notifications.sql"),
-            )
-            .adopts_core(730),
-        )
-        .migration(
-            aphel_kernel::modules::Migration::new(
-                2,
-                "create notification preferences",
-                include_str!("../migrations/0731_create_notification_preferences.sql"),
-            )
-            .adopts_core(731),
-        )
-        .migration(
-            aphel_kernel::modules::Migration::new(
-                3,
-                "create push subscriptions",
-                include_str!("../migrations/2711_create_push_subscriptions.sql"),
-            )
-            .adopts_core(2711),
-        )
-        .migration(
-            aphel_kernel::modules::Migration::new(
-                4,
-                "add notifications pushed at",
-                include_str!("../migrations/2712_add_notifications_pushed_at.sql"),
-            )
-            .adopts_core(2712),
-        )
+        .migration(aphel_kernel::modules::Migration::new(
+            1,
+            "create notifications",
+            include_str!("../migrations/0730_create_notifications.sql"),
+        ))
+        .migration(aphel_kernel::modules::Migration::new(
+            2,
+            "create notification preferences",
+            include_str!("../migrations/0731_create_notification_preferences.sql"),
+        ))
+        .migration(aphel_kernel::modules::Migration::new(
+            3,
+            "create push subscriptions",
+            include_str!("../migrations/2711_create_push_subscriptions.sql"),
+        ))
+        .migration(aphel_kernel::modules::Migration::new(
+            4,
+            "add notifications pushed at",
+            include_str!("../migrations/2712_add_notifications_pushed_at.sql"),
+        ))
         .owned_tables(&[
             "notifications",
             "notification_preferences",

@@ -150,13 +150,6 @@ impl Module for PipelinesModule {
         ));
 
         app.contribute(std::sync::Arc::new(
-            aphel_kernel::application::fields::EntityKeyAliases(&[
-                ("lost_reason", "pipelines.lost_reason"),
-                ("pipeline", "pipelines.pipeline"),
-                ("pipeline_stage", "pipelines.pipeline_stage"),
-            ]),
-        ));
-        app.contribute(std::sync::Arc::new(
             ::config_packages::application::versioning::fragments::NestedFragmentLayout {
                 section: "pipelines",
                 parent_kind: "pipeline",

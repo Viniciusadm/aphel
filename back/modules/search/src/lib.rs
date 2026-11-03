@@ -13,23 +13,16 @@ impl Module for SearchModule {
         Manifest::new(KEY, "Search", aphel_kernel::modules::builder::APHEL_VERSION)
             .plugin_toml(include_str!("../plugin.toml"))
             .enabled_by_default()
-            .adopts_core_feature(1510)
-            .migration(
-                aphel_kernel::modules::Migration::new(
-                    1,
-                    "create search index",
-                    include_str!("../migrations/1510_create_search_index.sql"),
-                )
-                .adopts_core(1510),
-            )
-            .migration(
-                aphel_kernel::modules::Migration::new(
-                    2,
-                    "create search index terms",
-                    include_str!("../migrations/1511_create_search_index_terms.sql"),
-                )
-                .adopts_core(1511),
-            )
+            .migration(aphel_kernel::modules::Migration::new(
+                1,
+                "create search index",
+                include_str!("../migrations/1510_create_search_index.sql"),
+            ))
+            .migration(aphel_kernel::modules::Migration::new(
+                2,
+                "create search index terms",
+                include_str!("../migrations/1511_create_search_index_terms.sql"),
+            ))
             .owned_tables(&["search_index", "search_index_terms"])
     }
     fn register(&self, app: &mut AppBuilder) -> Result<(), AppError> {

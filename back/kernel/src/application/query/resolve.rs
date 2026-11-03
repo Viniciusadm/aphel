@@ -696,7 +696,7 @@ impl FilterResolver<'_> {
         match operator {
             IsEmpty => Ok((Predicate::Present, true)),
             IsNotEmpty => Ok((Predicate::Present, false)),
-            InSavedFilter => Err("in_segment cannot be used with this field".to_owned()),
+            InSavedFilter => Err("in_saved_filter cannot be used with this field".to_owned()),
             InGroup => {
                 let root = single_id(value)?;
                 let group = hierarchical_target(&field.definition)

@@ -19,16 +19,14 @@ Installer profiles, their answer validation and configuration templates live in 
 - `session.revoked` runs inside the session revocation transaction. Notifications contributes push-subscription cleanup for single-session, all-session, other-session and member revocation paths.
 - `OrganizationConfigExtension` supplies optional settings defaults/validation. Marketplace and webhooks own their configuration projections; the core preserves unrelated settings through flattened JSON extensions.
 - `ConfigSectionFactory`, `SectionFragmentLayout` and `NestedFragmentLayout` describe portable configuration and fragment reconciliation. Object administration, layouts, views, validation rules and native domains register their own sections. Fragment processing has no fixed section-name dispatch.
-- `FilterSourceResolver` expands saved predicates; `ReferenceSetField`/`ReferenceSetStorage` describe contributed multi-reference filtering and aggregate labels. The legacy `in_segment` JSON operator spelling remains compatible.
+- `FilterSourceResolver` expands saved predicates; `ReferenceSetField`/`ReferenceSetStorage` describe contributed multi-reference filtering and aggregate labels. Saved-filter predicates use the `in_saved_filter` JSON operator.
 - `CatalogExtension` adds owner projections, including notification kinds, to the host catalog.
 
-## Persistent installations
+## Fresh-installation schema
 
-Moved migration SQL is byte-for-byte unchanged. `Migration::adopts_core(version)` checks the SQLx SHA-384 checksum and success flag before recording the migration under its plugin owner. New databases execute the SQL only through that owner. Core migration validation permits historical versions whose files moved to a compiled plugin. The generic stable-reference table `config_item_keys` remains host metadata because historical core vocabulary migrations update its reference-kind column.
+The project has no production deployment or persisted data to preserve. The user explicitly approved rewriting schemas for fresh installations. Migration adoption, legacy entity aliases, checksum-replacement exceptions and automatic module activation from historical core migrations have been removed. Normal schema creation and migration checksums remain.
 
-`Manifest::adopts_core_feature(version)` uses an old core migration as an upgrade marker. It inserts enabled state and grants only when no module state exists, so an administrator's explicit disable survives subsequent runs. Fresh installations have no removed core migration marker and follow installer selection.
-
-SMTP settings are core `mail` configuration. Update `mail_password` to store a secret in the vault; omission preserves it and `null` clears it. Responses expose only `mail_secret_configured`. `SMTP_HOST`, `SMTP_FROM`, `SMTP_PORT`, `SMTP_SECURITY`, `SMTP_USERNAME` and `SMTP_PASSWORD` remain infrastructure fallback. The integrations plugin contributes a legacy transport so existing SMTP integrations keep working while installations migrate to core mail settings. Webhook signing and delivery headers are constructed by capability owners; the core HTTP transport only enforces network/header safety.
+SMTP settings are core `mail` configuration. Update `mail_password` to store a secret in the vault; omission preserves it and `null` clears it. Responses expose only `mail_secret_configured`. `SMTP_HOST`, `SMTP_FROM`, `SMTP_PORT`, `SMTP_SECURITY`, `SMTP_USERNAME` and `SMTP_PASSWORD` remain infrastructure fallback. Setup and settings use the same core mail form; there is no SMTP integration compatibility transport. Webhook signing and delivery headers are constructed by capability owners; the core HTTP transport only enforces network/header safety.
 
 ## Architecture accounting and remaining phases
 
@@ -36,4 +34,4 @@ Extracted files now count as plugin code rather than kernel code. P4 therefore r
 
 P5 still dissolves native plugin dependencies and replaces the transitional CRM contract, including base-currency ownership and source-driven dashboard/webhook projections. P7/P8 own the remaining web composition and blueprint-selection changes. These phases are not replaced by capability extraction.
 
-Validation follows D4: compilation, strict Clippy, formatting, static architecture/module checks, TypeScript/lint and production OpenAPI/catalog generation. No tests, database probes, smoke runs or scratch instances are written or run. Migration compatibility is reviewed statically; it is not claimed as database execution evidence.
+Validation follows D4: compilation, strict Clippy, formatting, static architecture/module checks, TypeScript/lint and production OpenAPI/catalog generation. No tests, database probes, smoke runs or scratch instances are written or run. Schema changes are reviewed statically; database execution is not claimed as evidence.

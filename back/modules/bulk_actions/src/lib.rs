@@ -36,12 +36,6 @@ impl Module for BulkActionsModule {
     }
 
     fn register(&self, app: &mut AppBuilder) -> Result<(), AppError> {
-        app.contribute(std::sync::Arc::new(
-            aphel_kernel::application::fields::EntityKeyAliases(&[(
-                "bulk_operation",
-                "bulk_actions.bulk_operation",
-            )]),
-        ));
         app.openapi_tag(http::TAG, "Bulk actions over selected records or every record of a filter, with progress and report")
             .routes(|_| http::router());
         for definition in notifications::notification_kinds() {

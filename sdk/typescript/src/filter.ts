@@ -26,7 +26,7 @@ export type FilterOperator =
   | 'within_last_days'
   | 'within_next_days'
   | 'older_than_days'
-  | 'in_segment'
+  | 'in_saved_filter'
   | (string & {})
 
 export type FilterScalar = string | number | boolean | Date | null

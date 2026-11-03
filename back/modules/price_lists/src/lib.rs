@@ -87,12 +87,6 @@ impl Module for PriceListsModule {
 
     fn register(&self, app: &mut AppBuilder) -> Result<(), AppError> {
         app.contribute(std::sync::Arc::new(
-            aphel_kernel::application::fields::EntityKeyAliases(&[(
-                "price_list",
-                "price_lists.price_list",
-            )]),
-        ));
-        app.contribute(std::sync::Arc::new(
             ::config_packages::infrastructure::ConfigSectionFactory::new(60, |pool, registry| {
                 let _ = registry;
                 std::sync::Arc::new(crate::section::PriceListsSection::new(pool.clone()))

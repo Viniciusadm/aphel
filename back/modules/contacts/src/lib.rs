@@ -201,9 +201,6 @@ impl Module for ContactsModule {
 
     fn register(&self, app: &mut AppBuilder) -> Result<(), AppError> {
         app.contract(aphel_sdk::party::DESCRIPTOR);
-        app.contribute(std::sync::Arc::new(
-            aphel_kernel::application::fields::EntityKeyAliases(&[("contact", "contacts.contact")]),
-        ));
         app.entity(
             contact_definition()?
                 .events("contact")

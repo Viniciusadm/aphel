@@ -2,7 +2,7 @@
 
 P5.1 introduces `aphel-contract-party`. It depends only on the contract primitives and serde, with no kernel, database, plugin, runtime or CRM dependency. `party.contact_points` describes contact fields on any entity. It does not prescribe a person/company record type or storage table.
 
-`ContactPoint` identifies an entity field and its channel (`email`, `phone`, `web`). `ContactPoints::new` derives the ordered, unique `columns` projection used by existing summary consumers. Serialized metadata carries both the channel mappings and that projection. Deserialization accepts the old columns-only format as well as points-only metadata; typed points are authoritative when present. Legacy metadata without channel information does not guess a channel.
+`ContactPoint` identifies an entity field and its channel (`email`, `phone`, `web`). `ContactPoints` stores those mappings once; summary columns are derived in stable, unique order for consumers.
 
 The native SDK exposes `PartyTraits` for publishing and reading the mapping. SQL-facing summary consumers receive only valid SQL identifiers. Generic phone/address field helpers and their existing bilingual labels have moved from the transitional CRM contract to `aphel_sdk::party`; field keys, Brazilian phone defaults and address labels are preserved.
 
@@ -47,7 +47,7 @@ These are static review results and manual acceptance cases. No database instanc
 
 ## P5.2 migration boundary
 
-The next slice maps native module identities from `contacts`/`companies` to `people`/`organizations`, and entity identities from `contacts.contact`/`companies.company` to `people.person`/`organizations.organization`. Compatibility work must account for installed module state, migration history, role grants, stored entity references and configuration JSON before changing those identities. Existing API paths can remain compatibility routes while canonical entities change.
+The next slice changes native module identities from `contacts`/`companies` to `people`/`organizations`, and entity identities from `contacts.contact`/`companies.company` to `people.person`/`organizations.organization`. There is no production data to preserve: schemas, references and callers will use the new names directly, without identity migration or compatibility aliases.
 
 The current contacts crate also imports the company's `EmailEngagement` model, row mapper and not-found error and declares a direct module dependency. Its migrations contain company foreign keys, and its store reads company tables. Replacing only the crate import would leave the P5 dependency and schema gates unresolved. Contact/company linking must move to declared references and owner operations or entity queries, with the per-plugin acceptance cases above retained.
 

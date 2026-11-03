@@ -22,16 +22,7 @@ impl RecordType {
     }
 
     pub fn parse(value: impl Into<String>) -> Result<Self, AppError> {
-        let mut value = value.into();
-        if let Some(app) = crate::modules::try_app()
-            && let Some((_, canonical)) = app
-                .all_contributions::<crate::application::fields::EntityKeyAliases>()
-                .iter()
-                .flat_map(|(_, aliases)| aliases.0.iter())
-                .find(|(legacy, _)| *legacy == value)
-        {
-            value = (*canonical).to_owned();
-        }
+        let value = value.into();
         let mut characters = value.chars();
         let valid = value.len() <= MAX_RECORD_TYPE_LENGTH
             && characters

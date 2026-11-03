@@ -28,6 +28,3 @@ pub fn managed_table(key: &str) -> String {
             .collect::<String>()
     )
 }
-
-#[derive(Debug, Clone, Copy)]
-pub struct EntityKeyAliases(pub &'static [(&'static str, &'static str)]);

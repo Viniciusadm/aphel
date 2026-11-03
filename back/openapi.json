@@ -56932,7 +56932,7 @@
         },
         "responses": {
           "201": {
-            "description": "Segment created (`segment.created`). The filter is the same AST of the listings and is evaluated on every use; it cannot reference other segments (`in_segment`)",
+            "description": "Segment created (`segment.created`). The filter is the same AST of the listings and is evaluated on every use; it cannot reference other segments (`in_saved_filter`)",
             "content": {
               "application/json": {
                 "schema": {
@@ -92968,7 +92968,7 @@
           "within_next_days",
           "older_than_days",
           "anniversary",
-          "in_segment",
+          "in_saved_filter",
           "in_group"
         ]
       },
@@ -119455,7 +119455,7 @@
     },
     {
       "name": "segments",
-      "description": "Segments: named dynamic filters with member count, usable as the `in_segment` filter condition"
+      "description": "Segments: named dynamic filters with member count, usable as the `in_saved_filter` filter condition"
     },
     {
       "name": "price-lists",

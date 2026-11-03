@@ -164,7 +164,7 @@ impl Module for MessagingModule {
                 "create messaging channels, conversations and messages",
                 include_str!("../migrations/0001_messaging.sql"),
             ))
-            .migration(Migration::new(2, "create communication opt outs", include_str!("../migrations/2830_create_communication_opt_outs.sql")).adopts_core(2830))
+            .migration(Migration::new(2, "create communication opt outs", include_str!("../migrations/2830_create_communication_opt_outs.sql")))
     }
 
     fn register(&self, app: &mut AppBuilder) -> Result<(), AppError> {

@@ -11,7 +11,7 @@
   "layer_direction_violations": 18,
   "plugin_bridge_files": 32,
   "plugin_crates_depending_on_plugin_crates": 57,
-  "plugin_kernel_paths": 84,
+  "plugin_kernel_paths": 83,
   "plugin_manifest_problems": 0,
   "plugin_state_escapes": 94,
   "plugins_with_literal_record_types": 54,

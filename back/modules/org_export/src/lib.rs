@@ -55,12 +55,6 @@ impl Module for OrgExportModule {
     }
 
     fn register(&self, app: &mut AppBuilder) -> Result<(), AppError> {
-        app.contribute(std::sync::Arc::new(
-            aphel_kernel::application::fields::EntityKeyAliases(&[(
-                "organization_export",
-                "org_export.organization_export",
-            )]),
-        ));
         app.contribute::<dyn aphel_kernel::modules::FileReferenceSource>(std::sync::Arc::new(
             points::OrganizationExportFiles,
         ));

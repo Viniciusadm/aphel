@@ -293,12 +293,6 @@ impl Module for DealsModule {
     }
 
     fn register(&self, app: &mut AppBuilder) -> Result<(), AppError> {
-        app.contribute(std::sync::Arc::new(
-            aphel_kernel::application::fields::EntityKeyAliases(&[
-                ("deal", "deals.deal"),
-                ("deal_member_role", "deals.deal_member_role"),
-            ]),
-        ));
         app.contribute::<dyn ::notifications::application::texts::NotificationTexts>(
             std::sync::Arc::new(crate::notifications::DealNotificationTexts),
         );

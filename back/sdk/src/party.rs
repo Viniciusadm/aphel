@@ -26,9 +26,8 @@ impl PartyTraits for EntityTraits {
             .map(|points| {
                 points
                     .columns()
-                    .iter()
+                    .into_iter()
                     .filter(|column| aphel_kernel::application::fields::is_sql_identifier(column))
-                    .cloned()
                     .collect()
             })
             .unwrap_or_default()

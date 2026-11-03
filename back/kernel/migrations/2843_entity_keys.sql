@@ -1,6 +1,0 @@
-CREATE TABLE entity_key_aliases (
-  legacy_key VARCHAR(100) NOT NULL PRIMARY KEY,
-  entity_key VARCHAR(100) NOT NULL,
-  owner_key VARCHAR(64) NOT NULL,
-  applied BOOLEAN NOT NULL DEFAULT FALSE
-) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci;

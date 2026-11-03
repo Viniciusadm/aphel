@@ -78,7 +78,7 @@ const TRIGGER_REFERENCES: [(&str, &str, ReferenceKind); 3] = [
 ];
 
 const SEQUENCES_SECTION: &str = "sequences";
-const IN_SEGMENT_OPERATOR: &str = "in_segment";
+const IN_SEGMENT_OPERATOR: &str = "in_saved_filter";
 
 #[derive(Debug, Clone, PartialEq, Serialize, Deserialize)]
 #[serde(deny_unknown_fields)]

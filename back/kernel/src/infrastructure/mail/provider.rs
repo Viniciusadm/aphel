@@ -85,13 +85,6 @@ impl SmtpMailerProvider {
             };
             return Ok(Some(Arc::new(SmtpMailer::with_timeout(&settings, None)?)));
         }
-        for source in crate::modules::app()
-            .contributions::<dyn crate::application::mail::MailTransportSource>()
-        {
-            if let Some(mailer) = source.mailer(&self.pool, &self.vault).await? {
-                return Ok(Some(mailer));
-            }
-        }
         Ok(None)
     }
     pub async fn is_configured(&self) -> Result<bool, AppError> {

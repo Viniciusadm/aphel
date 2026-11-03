@@ -16,7 +16,6 @@ impl Module for ObjectsModule {
         )
         .plugin_toml(include_str!("../plugin.toml"))
         .enabled_by_default()
-        .adopts_core_feature(730)
     }
     fn register(&self, app: &mut AppBuilder) -> Result<(), AppError> {
         app.contribute(std::sync::Arc::new(

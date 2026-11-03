@@ -15777,7 +15777,7 @@ export interface components {
         };
         FilterNode: components["schemas"]["FilterGroup"] | components["schemas"]["FilterCondition"] | components["schemas"]["FilterRelated"];
         /** @enum {string} */
-        FilterOperator: "eq" | "neq" | "contains" | "not_contains" | "starts_with" | "gt" | "gte" | "lt" | "lte" | "between" | "in" | "not_in" | "is_empty" | "is_not_empty" | "today" | "yesterday" | "tomorrow" | "this_week" | "last_week" | "next_week" | "this_month" | "last_month" | "next_month" | "this_year" | "within_last_days" | "within_next_days" | "older_than_days" | "anniversary" | "in_segment" | "in_group";
+        FilterOperator: "eq" | "neq" | "contains" | "not_contains" | "starts_with" | "gt" | "gte" | "lt" | "lte" | "between" | "in" | "not_in" | "is_empty" | "is_not_empty" | "today" | "yesterday" | "tomorrow" | "this_week" | "last_week" | "next_week" | "this_month" | "last_month" | "next_month" | "this_year" | "within_last_days" | "within_next_days" | "older_than_days" | "anniversary" | "in_saved_filter" | "in_group";
         FilterRelated: {
             related: components["schemas"]["RelatedFilter"];
         };
@@ -62949,7 +62949,7 @@ export interface operations {
             };
         };
         responses: {
-            /** @description Segment created (`segment.created`). The filter is the same AST of the listings and is evaluated on every use; it cannot reference other segments (`in_segment`) */
+            /** @description Segment created (`segment.created`). The filter is the same AST of the listings and is evaluated on every use; it cannot reference other segments (`in_saved_filter`) */
             201: {
                 headers: {
                     [name: string]: unknown;

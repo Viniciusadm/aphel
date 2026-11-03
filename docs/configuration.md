@@ -208,4 +208,4 @@ Keep one `.env` per environment (development, staging, production), outside the 
 
 `GET`/`PATCH /api/v1/organization/settings` expose core `mail` settings (`host`, `port`, `from`, `username`, `security`: `starttls`, `tls` or `none`). The outgoing-email settings page is available without the integrations plugin. `mail_password` is write-only: omit it to preserve the vault secret, send a value to replace it or `null` to remove it. Responses contain `mail_secret_configured`, never the password.
 
-When no core SMTP host is configured, infrastructure can supply `SMTP_HOST`, `SMTP_PORT`, `SMTP_FROM`, `SMTP_USERNAME`, `SMTP_PASSWORD` and `SMTP_SECURITY`. The integrations plugin also contributes the legacy SMTP transport for installations that still use an integration record. Configuring core mail takes precedence over that legacy transport. An installation without a configured transport reports `mail_not_configured`.
+When no core SMTP host is configured, infrastructure can supply `SMTP_HOST`, `SMTP_PORT`, `SMTP_FROM`, `SMTP_USERNAME`, `SMTP_PASSWORD` and `SMTP_SECURITY`. An installation without a configured transport reports `mail_not_configured`.

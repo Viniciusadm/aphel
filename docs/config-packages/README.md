@@ -104,7 +104,7 @@ Conflicts (`conflict.code`, `conflict.resolvable`):
 | `tag_name_taken` | Another tag with the same name already exists | No |
 | `automation_record_type_mismatch` | Automation with the same key and a different `record_type` | No |
 | `non_portable_reference` | Automation mentions ids that may not exist in the organization (fixed user, incoming webhook, uuid in a filter or value) | Yes (installs the draft as is) |
-| `non_portable_reference` (view) | The filter of the view to create or change mentions ids (user, team, record, tag, stage…) or uses `in_segment` | Yes (installs the view **without** those conditions) |
+| `non_portable_reference` (view) | The filter of the view to create or change mentions ids (user, team, record, tag, stage…) or uses `in_saved_filter` | Yes (installs the view **without** those conditions) |
 | `relationship_incompatible` | Relationship with the same key and different types, inverse key or cardinality | No |
 | `relationship_key_collision` | The relationship's key (or inverse key) is already used by a system field, a custom field (from the organization or the package) or another relation of the same record type | No |
 
@@ -165,9 +165,9 @@ Reference translations (export replaces the id with the key; installation does t
 | `trigger.from_stage_id`/`to_stage_id` | `trigger.from_stage`/`to_stage`: `<pipeline>.<stage>` |
 | `config.sequence_id` (`enroll_in_sequence`) | `config.sequence`: sequence key (from the package's or the organization's `sequences` section) |
 | `trigger.segment_id` (`time.schedule`) | `trigger.segment`: `"<record_type>/<segment name>"` |
-| `value` of `in_segment` conditions (in any filter of the trigger or the definition) | `"<record_type>/<segment name>"` instead of the uuid |
+| `value` of `in_saved_filter` conditions (in any filter of the trigger or the definition) | `"<record_type>/<segment name>"` instead of the uuid |
 
-Segments are not part of packages: `trigger.segment` and `in_segment` conditions by key must point to a segment that already exists in the organization (otherwise validation reports `unknown_reference`); a uuid in `in_segment` stays as is.
+Segments are not part of packages: `trigger.segment` and `in_saved_filter` conditions by key must point to a segment that already exists in the organization (otherwise validation reports `unknown_reference`); a uuid in `in_saved_filter` stays as is.
 
 Validation checks for a unique key, name (1–140), `record_type`, known triggers and actions compatible with the type, the flow structure (`structure_violations`) and that every reference by key exists in the package or in the organization; at most 200 automations per package (and per installation). Secrets never go into the package: the export removes `signing_secret`/`signing_secret_configured` from `call_webhook` and validation refuses those fields (`secret_not_portable`); after installing, configure the secret on the screen.
 

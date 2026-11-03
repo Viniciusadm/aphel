@@ -36,12 +36,6 @@ impl Module for ForecastModule {
     }
 
     fn register(&self, app: &mut AppBuilder) -> Result<(), AppError> {
-        app.contribute(std::sync::Arc::new(
-            aphel_kernel::application::fields::EntityKeyAliases(&[(
-                "forecast_settings",
-                "forecast.forecast_settings",
-            )]),
-        ));
         app.openapi_tag(
             http::TAG,
             "Revenue forecast: organization settings and the forecast per month",

@@ -10,7 +10,7 @@ import { useSaveConfiguration, type OrganizationConfiguration } from '../general
 import { NativeSelect } from '../organization/components/NativeSelect'
 import { MailNotConfiguredNotice } from './MailNotConfiguredNotice'
 
-function MailForm({ configuration }: { configuration: OrganizationConfiguration }) {
+export function MailSettingsForm({ configuration }: { configuration: OrganizationConfiguration }) {
   const { t } = useTranslation('settings')
   const save = useSaveConfiguration()
   const [mail, setMail] = useState(configuration.mail)
@@ -56,5 +56,5 @@ function MailForm({ configuration }: { configuration: OrganizationConfiguration 
 
 export function OutgoingEmailPage() {
   const { t } = useTranslation('settings')
-  return <Page><PageHeader title={t('configuration.mail.title')} description={t('configuration.mail.description')} /><MailNotConfiguredNotice showLink={false} /><ConfigurationGate>{(configuration) => <MailForm configuration={configuration} />}</ConfigurationGate></Page>
+  return <Page><PageHeader title={t('configuration.mail.title')} description={t('configuration.mail.description')} /><MailNotConfiguredNotice showLink={false} /><ConfigurationGate>{(configuration) => <MailSettingsForm configuration={configuration} />}</ConfigurationGate></Page>
 }

@@ -298,12 +298,6 @@ impl Module for QuotesModule {
     }
 
     fn register(&self, app: &mut AppBuilder) -> Result<(), AppError> {
-        app.contribute(std::sync::Arc::new(
-            aphel_kernel::application::fields::EntityKeyAliases(&[
-                ("quote", "quotes.quote"),
-                ("quote_settings", "quotes.quote_settings"),
-            ]),
-        ));
         app.declare_hook(crate::hooks::QuoteAccepting, &[aphel_kernel::modules::HookUsage::Veto],
             "Before a quote is accepted (on its public page or manually by a user); an error blocks the acceptance",
         );

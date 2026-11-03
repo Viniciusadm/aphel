@@ -32,7 +32,7 @@ export function isSegmentRecordType(value: string | null | undefined): value is 
 }
 
 export function segmentCondition(segmentId: string): FilterNode {
-  return { field: 'segment', operator: 'in_segment', value: segmentId }
+  return { field: 'segment', operator: 'in_saved_filter', value: segmentId }
 }
 
 export interface SegmentBody {

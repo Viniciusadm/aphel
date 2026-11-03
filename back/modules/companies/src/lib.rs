@@ -205,12 +205,6 @@ impl Module for CompaniesModule {
 
     fn register(&self, app: &mut AppBuilder) -> Result<(), AppError> {
         app.contract(aphel_sdk::party::DESCRIPTOR);
-        app.contribute(std::sync::Arc::new(
-            aphel_kernel::application::fields::EntityKeyAliases(&[(
-                "company",
-                "companies.company",
-            )]),
-        ));
         app.entity(company_definition()?.handler(Arc::new(http::CompanyHandler)))
             .openapi_tag(http::TAG, "Companies")
             .routes(|_| http::router().merge(hierarchy::http::router()))

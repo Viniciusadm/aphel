@@ -91,12 +91,6 @@ impl Module for CurrenciesModule {
 
     fn register(&self, app: &mut AppBuilder) -> Result<(), AppError> {
         app.contribute(std::sync::Arc::new(
-            aphel_kernel::application::fields::EntityKeyAliases(&[(
-                "exchange_rate",
-                "currencies.exchange_rate",
-            )]),
-        ));
-        app.contribute(std::sync::Arc::new(
             ::config_packages::infrastructure::ConfigSectionFactory::new(50, |pool, registry| {
                 let _ = registry;
                 std::sync::Arc::new(crate::section::CurrenciesSection::new(pool.clone()))

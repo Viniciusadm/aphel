@@ -1,14 +1,13 @@
 import { useTranslation } from 'react-i18next'
-import { SMTP_PROVIDER_KEY, SmtpIntegrationPanel } from '@/features/settings/email/SmtpIntegrationPanel'
-import { useIntegrations } from '@/features/settings/email/integration/api'
+import { MailSettingsForm } from '@/features/settings/email/OutgoingEmailPage'
+import { ConfigurationGate } from '@/features/settings/general/ConfigurationGate'
+import { useOrganizationConfiguration } from '@/features/settings/general/api'
 import { SetupStepFrame } from '@/kernel/setup'
 
 export function EmailStep({ onDone }: { onDone: () => void }) {
   const { t } = useTranslation('setup')
-  const integrations = useIntegrations()
-  const configured = integrations.data?.some(
-    (integration) => integration.provider_key === SMTP_PROVIDER_KEY && integration.configured,
-  )
+  const configuration = useOrganizationConfiguration()
+  const configured = configuration.data?.mail_configured
 
   return (
     <SetupStepFrame
@@ -17,7 +16,7 @@ export function EmailStep({ onDone }: { onDone: () => void }) {
       primary={configured ? { label: t('email.continue'), onClick: onDone } : undefined}
       secondary={configured ? undefined : { label: t('actions.later'), onClick: onDone }}
     >
-      <SmtpIntegrationPanel />
+      <ConfigurationGate>{(settings) => <MailSettingsForm configuration={settings} />}</ConfigurationGate>
       {!configured && <p className="text-sm text-muted-foreground">{t('email.later')}</p>}
     </SetupStepFrame>
   )

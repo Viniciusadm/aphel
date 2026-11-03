@@ -76,7 +76,7 @@ async fn list_segments(
     security(("session_cookie" = [])),
     request_body = CreateSegmentRequest,
     responses(
-        (status = 201, description = "Segment created (`segment.created`). The filter is the same AST of the listings and is evaluated on every use; it cannot reference other segments (`in_segment`)", body = Data<SegmentResponse>),
+        (status = 201, description = "Segment created (`segment.created`). The filter is the same AST of the listings and is evaluated on every use; it cannot reference other segments (`in_saved_filter`)", body = Data<SegmentResponse>),
         (status = 401, description = "Missing or invalid credentials (`unauthorized`, `invalid_api_token`)", body = ErrorEnvelope),
         (status = 403, description = "Missing `settings.manage` or `<type>.read` (`permission_denied`, `insufficient_scope`)", body = ErrorEnvelope),
         (status = 409, description = "Another segment of the type already has this name (`segment_name_taken`)", body = ErrorEnvelope),

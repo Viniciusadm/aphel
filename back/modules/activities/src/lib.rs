@@ -298,12 +298,6 @@ impl Module for ActivitiesModule {
             aphel_kernel::application::fields::builtin::timestamps()?,
         ));
 
-        app.contribute(std::sync::Arc::new(
-            aphel_kernel::application::fields::EntityKeyAliases(&[
-                ("activity", "activities.activity"),
-                ("activity_type", "activities.activity_type"),
-            ]),
-        ));
         app.contribute::<dyn ::notifications::DigestSource>(std::sync::Arc::new(points::OpenTasks));
         app.contribute::<dyn ::notifications::application::texts::NotificationTexts>(
             std::sync::Arc::new(crate::notifications::ActivityNotificationTexts),

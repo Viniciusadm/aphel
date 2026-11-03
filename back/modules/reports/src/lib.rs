@@ -58,12 +58,6 @@ impl Module for ReportsModule {
 
     fn register(&self, app: &mut AppBuilder) -> Result<(), AppError> {
         app.contribute(std::sync::Arc::new(
-            aphel_kernel::application::fields::EntityKeyAliases(&[
-                ("report", "reports.report"),
-                ("report_schedule", "reports.report_schedule"),
-            ]),
-        ));
-        app.contribute(std::sync::Arc::new(
             aphel_kernel::infrastructure::custom_objects::RecordTypeScopedTable("reports"),
         ));
         app.openapi_tag(

@@ -37,42 +37,24 @@ impl ContactPoint {
 }
 
 #[derive(Debug, Clone, Default, PartialEq, Eq, Serialize, Deserialize)]
-#[serde(from = "ContactPointMapping")]
-pub struct ContactPoints {
-    columns: Vec<String>,
-    points: Vec<ContactPoint>,
-}
-#[derive(Default, Deserialize)]
 #[serde(default)]
-struct ContactPointMapping {
-    columns: Vec<String>,
+pub struct ContactPoints {
     points: Vec<ContactPoint>,
-}
-impl From<ContactPointMapping> for ContactPoints {
-    fn from(mapping: ContactPointMapping) -> Self {
-        if mapping.points.is_empty() {
-            Self {
-                columns: mapping.columns,
-                points: Vec::new(),
-            }
-        } else {
-            Self::new(mapping.points)
-        }
-    }
 }
 impl ContactPoints {
     pub fn new(points: impl IntoIterator<Item = ContactPoint>) -> Self {
-        let points: Vec<_> = points.into_iter().collect();
+        Self {
+            points: points.into_iter().collect(),
+        }
+    }
+    pub fn columns(&self) -> Vec<String> {
         let mut columns = Vec::new();
-        for point in &points {
+        for point in &self.points {
             if !columns.contains(&point.field) {
                 columns.push(point.field.clone());
             }
         }
-        Self { columns, points }
-    }
-    pub fn columns(&self) -> &[String] {
-        &self.columns
+        columns
     }
     pub fn fields(&self, kind: ContactPointKind) -> impl Iterator<Item = &str> {
         self.points

@@ -141,7 +141,7 @@
     "within_next_days": "nos próximos",
     "older_than_days": "há mais de",
     "anniversary": "faz aniversário nos próximos",
-    "in_segment": "está no segmento",
+    "in_saved_filter": "está no segmento",
     "in_group": "pertence ao grupo"
   },
   "dateOperators": {

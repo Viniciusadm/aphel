@@ -282,9 +282,9 @@ The `automations` section (`modules/automations/section.rs`) exports each automa
 | `config.sequence_id` (`enroll_in_sequence`) | `config.sequence`: sequence key (from the package's `sequences` section or from the organization) |
 | `trigger.from_stage_id`/`to_stage_id` (`deal.stage_changed`) | `trigger.from_stage`/`to_stage`: `<pipeline>.<stage>` |
 | `trigger.segment_id` (`time.schedule`) | `trigger.segment`: `<record_type>/<segment name>` |
-| `value` of `in_segment` conditions (in any filter of the trigger or of the definition) | `"<record_type>/<segment name>"` instead of the uuid |
+| `value` of `in_saved_filter` conditions (in any filter of the trigger or of the definition) | `"<record_type>/<segment name>"` instead of the uuid |
 
-Segments are not part of packages: `segment` and `in_segment` conditions by key must point to a segment that already exists in the organization (otherwise validation reports `unknown_reference`); a uuid in `in_segment` is left as is. Every reference by key is checked during validation (`unknown_reference`); if it still does not resolve when applying, installation fails with a validation error listing the items that were not installed.
+Segments are not part of packages: `segment` and `in_saved_filter` conditions by key must point to a segment that already exists in the organization (otherwise validation reports `unknown_reference`); a uuid in `in_saved_filter` is left as is. Every reference by key is checked during validation (`unknown_reference`); if it still does not resolve when applying, installation fails with a validation error listing the items that were not installed.
 
 ## Known limitations
 

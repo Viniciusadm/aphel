@@ -81,17 +81,11 @@ impl Module for LeadsModule {
                 1,
                 "create leads",
                 include_str!("../migrations/0001_create_leads.sql"),
-            ).replaces("df0a8bc948b3ee5324b8b4cc76d75e69d96c475e4dd01ece3c879ff4265cded9"))
+            ))
             .migration(Migration::new(2, "move lifecycle extensions", include_str!("../migrations/0002_move_lifecycle_extensions.sql")))
     }
 
     fn register(&self, app: &mut AppBuilder) -> Result<(), AppError> {
-        app.contribute(std::sync::Arc::new(
-            aphel_kernel::application::fields::EntityKeyAliases(&[(
-                "lead_disqualification_reason",
-                "leads.lead_disqualification_reason",
-            )]),
-        ));
         app.declare_hook(
             crate::hooks::LeadQualifying,
             &[aphel_kernel::modules::HookUsage::Veto],

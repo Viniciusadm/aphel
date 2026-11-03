@@ -22,7 +22,7 @@ Session 25, track B. Three pieces that the quote (track A) consumes through the 
   2. a `segment` list whose segment contains the company;
   3. the currency's default list.
 
-  Within the same level, the one with the most recent `valid_from` wins (a dated list beats an undated one) and, on a tie, the most recently created one. Segment membership is evaluated by the `RecordQueryEngine` (`in_segment` + `id`) with an organization-wide full read scope (`MySqlSegmentMembership`): the list applies according to the organization's configuration, not according to the visibility of whoever is quoting. An invalid segment filter counts as "not a member".
+  Within the same level, the one with the most recent `valid_from` wins (a dated list beats an undated one) and, on a tie, the most recently created one. Segment membership is evaluated by the `RecordQueryEngine` (`in_saved_filter` + `id`) with an organization-wide full read scope (`MySqlSegmentMembership`): the list applies according to the organization's configuration, not according to the visibility of whoever is quoting. An invalid segment filter counts as "not a member".
 - `price(price_list_id, product_id, quantity, on)`: `None` when the list does not exist, is inactive or outside its validity period, or does not have the product (the quote falls back to the catalog price). Tiers: the one with the highest `min_quantity` that does not exceed the quantity applies; below all of them, the lowest tier.
 - `find` returns the list even if inactive or expired (the quote shows the list it used).
 

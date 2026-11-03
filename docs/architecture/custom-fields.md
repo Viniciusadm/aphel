@@ -159,10 +159,10 @@ Operators `in`, `not_in`, `is_empty`, `is_not_empty`, compiled as `[NOT] EXISTS`
 A segment (`segments`) is a saved filter with a name and a record type; `GET /api/v1/segments/{id}/members` lists the members with `RecordQuery` and the count comes from `?counts=true`. As a condition in the AST:
 
 ```json
-{ "field": "segment", "operator": "in_segment", "value": "<segment_id>" }
+{ "field": "segment", "operator": "in_saved_filter", "value": "<segment_id>" }
 ```
 
-The `RecordQueryEngine` expands the condition into the segment's filter (`resolve_query_with` + `SegmentResolution`). The kernel does not read the `segments` table: `MySqlRecordQueryExecutor::segment` asks for the filter from the `dyn SegmentSourceResolver` service (`kernel/application/query/segments.rs`), provided by the `segments` module (`back/modules/segments`, `app.provide`); without the service the condition responds `segment was not found`. A segment cannot reference another one. Queries outside the `RecordQueryEngine` that need to accept segments load the filters (`SegmentFilters`) and call `resolve_query_with(.., SegmentResolution::Expand(&segments))`: this is the case of the deals Kanban (`modules/deals/src/service.rs`), the approval policies and the scoring directory. Whatever still calls `resolve_query` directly (dashboard widgets) responds 422 for `in_segment`.
+The `RecordQueryEngine` expands the condition into the segment's filter (`resolve_query_with` + `SegmentResolution`). The kernel does not read the `segments` table: `MySqlRecordQueryExecutor::segment` asks for the filter from the `dyn SegmentSourceResolver` service (`kernel/application/query/segments.rs`), provided by the `segments` module (`back/modules/segments`, `app.provide`); without the service the condition responds `segment was not found`. A segment cannot reference another one. Queries outside the `RecordQueryEngine` that need to accept segments load the filters (`SegmentFilters`) and call `resolve_query_with(.., SegmentResolution::Expand(&segments))`: this is the case of the deals Kanban (`modules/deals/src/service.rs`), the approval policies and the scoring directory. Whatever still calls `resolve_query` directly (dashboard widgets) responds 422 for `in_saved_filter`.
 
 ## Company groups
 
@@ -187,7 +187,7 @@ In the query string: `filter[company_id][in_group]=<id>`. The resolver accepts t
 ```
 
 - Nonexistent, inactive or repeated fields are refused; required fields missing from the create layout go into the first column. A required field does not accept `visible_when`; the `view` layout only accepts `visible_when`; conditions only reference fields of the same layout.
-- Conditions use the same filter AST, evaluated in memory over the form values (`kernel/application/layouts/conditions.rs` and `web/src/features/records/form/lib/conditions.ts`, with the same semantics as the engine: case-insensitive text, negations include empty values, relative dates in the organization's time zone). Operators or fields the form does not know (`in_segment`, `tags`) evaluate as "does not match". Both evaluators run against the same cases in `back/tests/integration/fixtures/conditional_rules.json`.
+- Conditions use the same filter AST, evaluated in memory over the form values (`kernel/application/layouts/conditions.rs` and `web/src/features/records/form/lib/conditions.ts`, with the same semantics as the engine: case-insensitive text, negations include empty values, relative dates in the organization's time zone). Operators or fields the form does not know (`in_saved_filter`, `tags`) evaluate as "does not match". Both evaluators run against the same cases in `back/tests/integration/fixtures/conditional_rules.json`.
 - **Backend validation:** the `CustomFieldWriter` calls the `ConditionalRules` port (`LayoutConditionalRules` in production) with the record's system values after the change plus the merged custom ones. A field required by `required_when` and left empty becomes a 422 in `details.fields` (`<key>` or `custom_fields.<key>`). A field hidden by `visible_when` is not required. Creation uses the `create` layout; editing uses `edit`, or `create` when there is no `edit`.
 - On the web, `RecordForm` renders the layout and evaluates the rules on every change; the side panel of the record page uses the `view` layout. The editor is at `/settings/layouts/:recordType`.
 

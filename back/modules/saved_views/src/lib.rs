@@ -17,23 +17,16 @@ impl Module for SavedViewsModule {
         )
         .plugin_toml(include_str!("../plugin.toml"))
         .enabled_by_default()
-        .adopts_core_feature(404)
-        .migration(
-            aphel_kernel::modules::Migration::new(
-                1,
-                "create saved views",
-                include_str!("../migrations/0404_create_saved_views.sql"),
-            )
-            .adopts_core(404),
-        )
-        .migration(
-            aphel_kernel::modules::Migration::new(
-                2,
-                "create saved view user defaults",
-                include_str!("../migrations/0405_create_saved_view_user_defaults.sql"),
-            )
-            .adopts_core(405),
-        )
+        .migration(aphel_kernel::modules::Migration::new(
+            1,
+            "create saved views",
+            include_str!("../migrations/0404_create_saved_views.sql"),
+        ))
+        .migration(aphel_kernel::modules::Migration::new(
+            2,
+            "create saved view user defaults",
+            include_str!("../migrations/0405_create_saved_view_user_defaults.sql"),
+        ))
         .owned_tables(&["saved_views", "saved_view_user_defaults"])
     }
     fn register(&self, app: &mut AppBuilder) -> Result<(), AppError> {

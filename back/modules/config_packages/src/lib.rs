@@ -18,23 +18,16 @@ impl Module for ConfigPackagesModule {
         )
         .plugin_toml(include_str!("../plugin.toml"))
         .enabled_by_default()
-        .adopts_core_feature(1000)
-        .migration(
-            aphel_kernel::modules::Migration::new(
-                1,
-                "create config package installs",
-                include_str!("../migrations/1000_create_config_package_installs.sql"),
-            )
-            .adopts_core(1000),
-        )
-        .migration(
-            aphel_kernel::modules::Migration::new(
-                2,
-                "create config package versions",
-                include_str!("../migrations/2170_create_config_package_versions.sql"),
-            )
-            .adopts_core(2170),
-        )
+        .migration(aphel_kernel::modules::Migration::new(
+            1,
+            "create config package installs",
+            include_str!("../migrations/1000_create_config_package_installs.sql"),
+        ))
+        .migration(aphel_kernel::modules::Migration::new(
+            2,
+            "create config package versions",
+            include_str!("../migrations/2170_create_config_package_versions.sql"),
+        ))
         .owned_tables(&[
             "config_package_installs",
             "config_package_versions",

@@ -101,12 +101,6 @@ impl Module for AutomationsModule {
             },
         ));
 
-        app.contribute(std::sync::Arc::new(
-            aphel_kernel::application::fields::EntityKeyAliases(&[(
-                "automation",
-                "automations.automation",
-            )]),
-        ));
         app.contribute::<dyn aphel_kernel::modules::HealthSource>(std::sync::Arc::new(
             points::AutomationFailures,
         ));

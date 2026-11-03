@@ -746,7 +746,7 @@
       "type": "object",
       "additionalProperties": false,
       "required": ["key", "name", "record_type", "trigger", "definition"],
-      "description": "Automation installed as a draft; configuration references by key (tag, stage as <pipeline>.<stage>, activity_type, sequence, from_stage/to_stage, segment and the value of in_segment conditions as <record_type>/<segment name>) and no secrets",
+      "description": "Automation installed as a draft; configuration references by key (tag, stage as <pipeline>.<stage>, activity_type, sequence, from_stage/to_stage, segment and the value of in_saved_filter conditions as <record_type>/<segment name>) and no secrets",
       "properties": {
         "key": { "type": "string", "pattern": "^[a-z][a-z0-9_]{0,63}$" },
         "name": { "type": "string", "minLength": 1, "maxLength": 140 },

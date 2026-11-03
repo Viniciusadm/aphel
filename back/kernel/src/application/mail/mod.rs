@@ -22,15 +22,6 @@ pub mod resolver;
 pub use resolver::*;
 
 #[async_trait::async_trait]
-pub trait MailTransportSource: Send + Sync {
-    async fn mailer(
-        &self,
-        pool: &sqlx::MySqlPool,
-        vault: &crate::infrastructure::platform::SharedSecretVault,
-    ) -> Result<Option<SharedMailer>, crate::errors::AppError>;
-}
-
-#[async_trait::async_trait]
 pub trait MailRecipientPolicy: Send + Sync {
     async fn check(
         &self,

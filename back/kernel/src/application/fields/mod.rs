@@ -34,7 +34,7 @@ mod labels;
 pub use labels::LocalizedLabels;
 
 mod storage;
-pub use storage::{EntityIndex, EntityKeyAliases, EntityStorage, managed_table};
+pub use storage::{EntityIndex, EntityStorage, managed_table};
 
 mod declaration;
 pub use declaration::{EntityDeclaration, FieldDef, OptionDef};

@@ -84,12 +84,6 @@ impl Module for SequencesModule {
     }
 
     fn register(&self, app: &mut AppBuilder) -> Result<(), AppError> {
-        app.contribute(std::sync::Arc::new(
-            aphel_kernel::application::fields::EntityKeyAliases(&[
-                ("sequence", "sequences.sequence"),
-                ("sequence_enrollment", "sequences.sequence_enrollment"),
-            ]),
-        ));
         app.declare_hook(crate::hooks::StepRunning, &[aphel_kernel::modules::HookUsage::Veto],
             "Before a sequence step runs; a definitive error removes the contact from the sequence, a transient one retries the job",
         );

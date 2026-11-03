@@ -16,15 +16,11 @@ impl Module for FormulasModule {
         )
         .plugin_toml(include_str!("../plugin.toml"))
         .enabled_by_default()
-        .adopts_core_feature(1870)
-        .migration(
-            aphel_kernel::modules::Migration::new(
-                1,
-                "create formula daily runs",
-                include_str!("../migrations/1870_create_formula_daily_runs.sql"),
-            )
-            .adopts_core(1870),
-        )
+        .migration(aphel_kernel::modules::Migration::new(
+            1,
+            "create formula daily runs",
+            include_str!("../migrations/1870_create_formula_daily_runs.sql"),
+        ))
         .owned_tables(&["formula_daily_runs"])
     }
     fn register(&self, app: &mut AppBuilder) -> Result<(), AppError> {

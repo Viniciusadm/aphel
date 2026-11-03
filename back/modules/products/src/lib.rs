@@ -135,9 +135,6 @@ impl Module for ProductsModule {
     }
 
     fn register(&self, app: &mut AppBuilder) -> Result<(), AppError> {
-        app.contribute(std::sync::Arc::new(
-            aphel_kernel::application::fields::EntityKeyAliases(&[("product", "products.product")]),
-        ));
         app.entity(product_definition()?.handler(Arc::new(http::ProductHandler)))
             .openapi_tag(http::TAG, "Catalog of products and services")
             .routes(|_| http::router());
