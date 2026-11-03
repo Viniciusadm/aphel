@@ -26,7 +26,7 @@ Implementation note: P5.1 connects people and organizations as providers and dup
 
 **5.4 Messaging**
 
-- [ ] **P5.5** `messaging` contract, with `email` as a channel.
+- [x] **P5.5** `messaging` contract, with `email` as a channel.
 
 **5.5 Supporting capabilities**
 

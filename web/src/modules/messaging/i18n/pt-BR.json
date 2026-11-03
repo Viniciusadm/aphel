@@ -21,7 +21,8 @@
   },
   "kinds": {
     "whatsapp": "WhatsApp",
-    "email": "E-mail"
+    "email": "E-mail",
+    "other": "Mensagem"
   },
   "status": {
     "open": "Aberta",
@@ -125,7 +126,8 @@
     "placeholder": "Escreva a resposta (Ctrl+Enter envia)",
     "emailPlaceholder": "Escreva o e-mail de resposta (Ctrl+Enter envia)",
     "windowUntil": "Janela do WhatsApp até {{date}}",
-    "send": "Enviar"
+    "send": "Enviar",
+    "windowClosed": "A janela de resposta foi encerrada. Use um modelo aprovado para continuar."
   },
   "errors": {
     "whatsapp_window_closed": "Passaram mais de 24 horas desde a última mensagem do cliente. O WhatsApp só aceita mensagens de modelo aprovadas até o cliente escrever de novo.",
@@ -146,7 +148,8 @@
     "imap_error": "O servidor IMAP retornou um erro.",
     "smtp_auth_failed": "O servidor SMTP recusou usuário ou senha.",
     "smtp_rejected": "O servidor SMTP recusou a mensagem.",
-    "smtp_error": "O servidor SMTP não aceitou a mensagem agora."
+    "smtp_error": "O servidor SMTP não aceitou a mensagem agora.",
+    "messaging_provider_unavailable": "O provedor deste canal está indisponível. Ative seu módulo para continuar."
   },
   "channels": {
     "title": "Canais de mensagem",
@@ -185,63 +188,21 @@
   },
   "editor": {
     "editTitle": "Editar {{name}}",
-    "newTitle": {
-      "whatsapp": "Novo canal de WhatsApp",
-      "email": "Nova caixa de e-mail"
-    },
-    "help": {
-      "whatsapp": "Use os dados do app na Meta for Developers (WhatsApp > Configuração da API). Depois de salvar, configure a URL do webhook e o token de verificação na Meta e assine o campo \"messages\".",
-      "email": "Informe os servidores IMAP (para receber) e SMTP (para enviar). A caixa é lida a cada 2 minutos, só a INBOX, a partir das mensagens que chegarem depois de conectar."
-    },
     "name": "Nome do canal",
     "actingUser": "Usuário de execução",
     "actingUserHint": "Em nome de quem as mensagens recebidas buscam e criam contatos. Vazio: configuração do módulo ou quem criou o canal.",
     "connection": "Conexão",
-    "config": {
-      "phone_number_id": "Phone number ID",
-      "business_account_id": "WhatsApp Business Account ID",
-      "display_phone_number": "Número exibido",
-      "address": "Endereço de e-mail",
-      "display_name": "Nome do remetente",
-      "imap_host": "Servidor IMAP",
-      "imap_port": "Porta IMAP",
-      "imap_username": "Usuário IMAP",
-      "smtp_host": "Servidor SMTP",
-      "smtp_port": "Porta SMTP",
-      "smtp_username": "Usuário SMTP",
-      "smtp_security": "Segurança SMTP"
-    },
-    "hints": {
-      "phone_number_id": "Identificador numérico do número, não o telefone.",
-      "display_phone_number": "Opcional, em formato internacional (+55 11 99999-0000).",
-      "imap_port": "993 (TLS).",
-      "imap_username": "Vazio: o endereço de e-mail.",
-      "smtp_port": "465 (TLS) ou 587 (STARTTLS).",
-      "smtp_username": "Vazio: o usuário IMAP.",
-      "access_token": "Token permanente de um usuário do sistema com a permissão whatsapp_business_messaging.",
-      "app_secret": "Chave secreta do app (Configurações > Básico), usada para validar a assinatura do webhook.",
-      "verify_token": "Um texto aleatório que você também informa na Meta ao configurar o webhook.",
-      "smtp_password": "Vazio: usa a senha IMAP."
-    },
-    "security": {
-      "tls": "TLS (porta 465)",
-      "starttls": "STARTTLS (porta 587)"
-    },
     "credentials": "Credenciais",
     "credentialsHelp": "Ficam cifradas no servidor e nunca voltam para a tela. Deixe em branco para manter o valor atual.",
-    "secrets": {
-      "access_token": "Token de acesso",
-      "app_secret": "App secret",
-      "verify_token": "Token de verificação do webhook",
-      "imap_password": "Senha IMAP",
-      "smtp_password": "Senha SMTP"
-    },
     "secretConfigured": "Configurado. Preencha só para trocar.",
     "keepSecret": "•••••••• (configurado)",
-    "reuseImapPassword": "Remover a senha SMTP e usar a senha IMAP",
     "active": "Canal ativo (recebe e envia mensagens)",
     "namePlaceholder": "Ex.: WhatsApp comercial",
-    "valuePlaceholder": "Digite o valor"
+    "valuePlaceholder": "Digite o valor",
+    "newChannel": "Novo canal {{name}}",
+    "providerHelp": "Configure a conexão com {{name}}.",
+    "providerUnavailable": "O provedor está indisponível. Ative seu módulo para editar este canal.",
+    "clearCredential": "Limpar {{name}}"
   },
   "tab": {
     "label": "Conversas",

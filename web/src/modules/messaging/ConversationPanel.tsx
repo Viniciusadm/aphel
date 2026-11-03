@@ -38,7 +38,7 @@ export function ConversationPanel({ conversationId, onBack }: { conversationId: 
   const queryClient = useQueryClient()
   const detail = useConversation(conversationId)
   const markedRead = useRef(false)
-  const unread = detail.data?.data.conversation.unread_count ?? 0
+  const unread = detail.data?.conversation.unread_count ?? 0
 
   useEffect(() => {
     if (unread === 0 || markedRead.current) return
@@ -65,7 +65,7 @@ export function ConversationPanel({ conversationId, onBack }: { conversationId: 
       </div>
     )
   }
-  const { conversation, messages, total_messages } = detail.data.data
+  const { conversation, messages, total_messages } = detail.data
   return (
     <div className="flex min-h-0 w-full flex-col">
       <ConversationHeader conversation={conversation} onBack={onBack} />
@@ -273,18 +273,22 @@ function Composer({ conversation }: { conversation: Conversation }) {
   const [value, setValue] = useState('')
   const [sending, setSending] = useState(false)
   const [error, setError] = useState<string | null>(null)
-  const [now] = useState(() => Date.now())
+  const [now, setNow] = useState(() => Date.now())
+  useEffect(() => {
+    const timer = setInterval(() => setNow(Date.now()), 10_000)
+    return () => clearInterval(timer)
+  }, [])
 
   if (!hasPermission(REPLY_PERMISSION)) {
     return <p className="border-t p-3 text-sm text-muted-foreground">{t('composer.readOnly')}</p>
   }
-  if (!conversation.channel.is_active) {
+  if (!conversation.channel.is_active || !conversation.channel.available) {
     return <p className="border-t p-3 text-sm text-muted-foreground">{t('composer.channelInactive')}</p>
   }
   const windowEnd = conversation.reply_window_ends_at ? Date.parse(conversation.reply_window_ends_at) : null
-  const windowClosed = conversation.channel.kind === 'whatsapp' && (windowEnd === null || windowEnd < now)
+  const windowClosed = conversation.channel.reply_window_seconds !== null && (windowEnd === null || windowEnd < now)
   if (windowClosed) {
-    return <p className="border-t p-3 text-sm text-muted-foreground">{t('errors.whatsapp_window_closed')}</p>
+    return <p className="border-t p-3 text-sm text-muted-foreground">{t('composer.windowClosed')}</p>
   }
   const contact = conversation.contact?.accessible ? conversation.contact : null
 
@@ -318,8 +322,8 @@ function Composer({ conversation }: { conversation: Conversation }) {
         id={`reply-${conversation.id}`}
         value={value}
         rows={3}
-        maxLength={conversation.channel.kind === 'whatsapp' ? 4096 : 100000}
-        placeholder={t(conversation.channel.kind === 'email' ? 'composer.emailPlaceholder' : 'composer.placeholder')}
+        maxLength={conversation.channel.max_body_chars}
+        placeholder={t(conversation.channel.uses_references ? 'composer.emailPlaceholder' : 'composer.placeholder')}
         onChange={(event) => setValue(event.target.value)}
         onKeyDown={(event) => {
           if (event.key === 'Enter' && (event.ctrlKey || event.metaKey)) {
@@ -341,7 +345,7 @@ function Composer({ conversation }: { conversation: Conversation }) {
           <Slot
             name="composer.tools"
             props={{
-              context: conversation.channel.kind === 'email' ? 'email' : 'message',
+              context: conversation.channel.uses_references ? 'email' : 'message',
               subject: contact ? { recordType: 'people.person', recordId: contact.id } : undefined,
               value,
               onChange: setValue,

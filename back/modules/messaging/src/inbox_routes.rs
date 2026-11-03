@@ -27,7 +27,7 @@ use crate::model::{
     AssignRequest, ConversationChannel, ConversationDetail, ConversationStatus,
     ConversationSummary, LinkRequest, LinkedRecord, MessageItem, ReplyRequest, StatusRequest,
 };
-use crate::sending::{self, whatsapp_window_end};
+use crate::sending::{self, reply_window_end};
 use crate::store::{
     self, AssigneeFilter, ConversationFilter, StoredChannel, StoredConversation, StoredMessage,
 };
@@ -122,13 +122,23 @@ async fn summary(
     ConversationSummary {
         id: conversation.id,
         channel: ConversationChannel {
+            available: aphel_sdk::messaging::channel_provider(channel.kind.as_str()).is_ok(),
+            uses_references: aphel_sdk::messaging::compiled_channel_provider(channel.kind.as_str())
+                .is_some_and(|provider| provider.uses_references()),
+            max_body_chars: aphel_sdk::messaging::compiled_channel_provider(channel.kind.as_str())
+                .map_or(0, |provider| provider.max_body_chars()),
+            reply_window_seconds: aphel_sdk::messaging::compiled_channel_provider(
+                channel.kind.as_str(),
+            )
+            .and_then(|provider| provider.reply_window())
+            .map(|window| window.seconds),
             id: channel.id,
             name: channel.name.clone(),
-            kind: channel.kind,
+            kind: channel.kind.clone(),
             address: channel.address(),
             is_active: channel.is_active,
         },
-        reply_window_ends_at: whatsapp_window_end(channel, &conversation).map(timestamp),
+        reply_window_ends_at: reply_window_end(channel, &conversation).map(timestamp),
         status: ConversationStatus::parse(&conversation.status).unwrap_or(ConversationStatus::Open),
         peer: conversation.peer,
         peer_name: conversation.peer_name,

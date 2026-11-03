@@ -1,0 +1,96 @@
+{
+  "key": "whatsapp",
+  "label": {
+    "en": "WhatsApp",
+    "pt-BR": "WhatsApp"
+  },
+  "fields": [
+    {
+      "key": "phone_number_id",
+      "input_type": "text",
+      "required": true,
+      "label": {
+        "en": "Phone number ID",
+        "pt-BR": "Phone number ID"
+      },
+      "hint": {
+        "en": "Numeric id of the number, not the phone itself.",
+        "pt-BR": "Identificador numérico do número, não o telefone."
+      },
+      "options": []
+    },
+    {
+      "key": "business_account_id",
+      "input_type": "text",
+      "required": false,
+      "label": {
+        "en": "WhatsApp Business Account ID",
+        "pt-BR": "WhatsApp Business Account ID"
+      },
+      "hint": {
+        "en": "",
+        "pt-BR": ""
+      },
+      "options": []
+    },
+    {
+      "key": "display_phone_number",
+      "input_type": "text",
+      "required": false,
+      "label": {
+        "en": "Displayed number",
+        "pt-BR": "Número exibido"
+      },
+      "hint": {
+        "en": "Optional, in international format (+1 555 000 0000).",
+        "pt-BR": "Opcional, em formato internacional (+55 11 99999-0000)."
+      },
+      "options": []
+    }
+  ],
+  "secrets": [
+    {
+      "key": "access_token",
+      "input_type": "password",
+      "required": true,
+      "label": {
+        "en": "Access token",
+        "pt-BR": "Token de acesso"
+      },
+      "hint": {
+        "en": "Permanent token of a system user with the whatsapp_business_messaging permission.",
+        "pt-BR": "Token permanente de um usuário do sistema com a permissão whatsapp_business_messaging."
+      },
+      "options": []
+    },
+    {
+      "key": "app_secret",
+      "input_type": "password",
+      "required": true,
+      "label": {
+        "en": "App secret",
+        "pt-BR": "App secret"
+      },
+      "hint": {
+        "en": "App secret (Settings > Basic), used to validate the webhook signature.",
+        "pt-BR": "Chave secreta do app (Configurações > Básico), usada para validar a assinatura do webhook."
+      },
+      "options": []
+    },
+    {
+      "key": "verify_token",
+      "input_type": "password",
+      "required": true,
+      "label": {
+        "en": "Webhook verify token",
+        "pt-BR": "Token de verificação do webhook"
+      },
+      "hint": {
+        "en": "A random text you also enter at Meta when setting the webhook.",
+        "pt-BR": "Um texto aleatório que você também informa na Meta ao configurar o webhook."
+      },
+      "options": []
+    }
+  ],
+  "defaults": {}
+}

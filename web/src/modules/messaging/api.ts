@@ -1,3 +1,5 @@
+import type { components } from '@/api/schema'
+import i18n from '@/i18n'
 import { keepPreviousData, useQuery, useQueryClient } from '@tanstack/react-query'
 import { api } from '@/api'
 
@@ -7,10 +9,9 @@ export const REPLY_PERMISSION = 'messaging.reply'
 export const MANAGE_CHANNELS_PERMISSION = 'messaging.manage_channels'
 export const CONVERSATIONS_PER_PAGE = 25
 export const CONVERSATION_STATUSES = ['open', 'pending', 'resolved'] as const
-export const CHANNEL_KINDS = ['whatsapp', 'email'] as const
 export const POLL_INTERVAL_MS = 20_000
 
-export type ChannelKind = (typeof CHANNEL_KINDS)[number]
+export type ChannelKind = string
 export type ConversationStatus = (typeof CONVERSATION_STATUSES)[number]
 export type AssigneeFilter = 'any' | 'me' | 'none'
 
@@ -63,6 +64,10 @@ export interface LinkedRecord {
 }
 
 export interface ConversationChannel {
+  available: boolean
+  uses_references: boolean
+  max_body_chars: number
+  reply_window_seconds: number | null
   id: string
   name: string
   kind: ChannelKind
@@ -146,10 +151,10 @@ function channelPath(id: string, action?: string) {
 
 export const messagingApi = {
   channels: () => api.get<{ data: Channel[]; meta: ListMeta }>(`${BASE}/channels`),
-  createChannel: (body: ChannelBody) => api.post<{ data: Channel }>(`${BASE}/channels`, body),
-  updateChannel: (id: string, body: ChannelBody) => api.put<{ data: Channel }>(channelPath(id), body),
+  createChannel: (body: ChannelBody) => api.post<Channel>(`${BASE}/channels`, body),
+  updateChannel: (id: string, body: ChannelBody) => api.put<Channel>(channelPath(id), body),
   deleteChannel: (id: string) => api.delete<void>(channelPath(id)),
-  testChannel: (id: string) => api.post<{ data: ChannelTestResult }>(channelPath(id, 'test')),
+  testChannel: (id: string) => api.post<ChannelTestResult>(channelPath(id, 'test')),
   conversations: (filters: ConversationFilters) =>
     api.get<{ data: Conversation[]; meta: ListMeta }>(`${BASE}/conversations`, {
       query: {
@@ -164,14 +169,14 @@ export const messagingApi = {
         per_page: CONVERSATIONS_PER_PAGE,
       },
     }),
-  conversation: (id: string) => api.get<{ data: ConversationDetail }>(conversationPath(id)),
-  reply: (id: string, body: string) => api.post<{ data: Message }>(conversationPath(id, 'messages'), { body }),
+  conversation: (id: string) => api.get<ConversationDetail>(conversationPath(id)),
+  reply: (id: string, body: string) => api.post<Message>(conversationPath(id, 'messages'), { body }),
   assign: (id: string, userId: string | null) =>
-    api.put<{ data: Conversation }>(conversationPath(id, 'assignee'), { user_id: userId }),
+    api.put<Conversation>(conversationPath(id, 'assignee'), { user_id: userId }),
   setStatus: (id: string, status: ConversationStatus) =>
-    api.put<{ data: Conversation }>(conversationPath(id, 'status'), { status }),
+    api.put<Conversation>(conversationPath(id, 'status'), { status }),
   link: (id: string, contactId: string | null, dealId: string | null) =>
-    api.put<{ data: Conversation }>(conversationPath(id, 'links'), { contact_id: contactId, deal_id: dealId }),
+    api.put<Conversation>(conversationPath(id, 'links'), { contact_id: contactId, deal_id: dealId }),
   markRead: (id: string) => api.post<void>(conversationPath(id, 'read')),
 }
 
@@ -209,4 +214,12 @@ export function inboxPath(conversationId?: string) {
 
 export function peerLabel(conversation: Pick<Conversation, 'peer' | 'peer_name'>) {
   return conversation.peer_name?.trim() || conversation.peer
+}
+
+export type ChannelDefinition = components['schemas']['ChannelDefinition']
+export function useChannelProviders(enabled = true) {
+  return useQuery({ queryKey: [...messagingKeys.all, 'providers'], queryFn: () => api.get<ChannelDefinition[]>(`${BASE}/providers`), enabled, staleTime: 30_000 })
+}
+export function channelText(labels: Record<string,string>): string {
+  return labels[i18n.resolvedLanguage ?? i18n.language] ?? labels.en ?? Object.values(labels)[0] ?? ''
 }

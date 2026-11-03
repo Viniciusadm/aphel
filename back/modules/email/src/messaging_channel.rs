@@ -1,7 +1,7 @@
 use std::collections::BTreeMap;
 
-use ::email::store::imap::{FolderState, INBOX, ImapCursor};
-use ::email::{
+use crate::store::imap::{FolderState, INBOX, ImapCursor};
+use crate::{
     EmailAddress, FetchedEmail, IMAP_PROVIDER, MailProviderError, MailProviderErrorKind,
     MailboxAccount, MailboxCredentials, ProviderEmail, SharedMailboxProvider, SyncRequest,
 };
@@ -10,12 +10,12 @@ use chrono::{Duration, Utc};
 use serde_json::{Map, Value, json};
 use uuid::Uuid;
 
-use super::{
+use aphel_kernel::errors::FieldViolation;
+use aphel_sdk::messaging::text::{self, normalize_email, normalize_message_id};
+use aphel_sdk::messaging::{
     ChannelContext, ChannelError, FetchBatch, FetchState, InboundMessage, MessagingChannel,
     OutgoingMessage, SentMessage, ValidatedConfig,
 };
-use crate::text::{self, normalize_email, normalize_message_id};
-use aphel_kernel::errors::FieldViolation;
 
 pub(crate) const IMAP_PASSWORD: &str = "imap_password";
 pub(crate) const SMTP_PASSWORD: &str = "smtp_password";
@@ -96,7 +96,7 @@ fn demo_mode() -> bool {
 }
 
 fn provider() -> Result<SharedMailboxProvider, ChannelError> {
-    ::email::store::mail_providers()
+    crate::store::mail_providers()
         .find(IMAP_PROVIDER)
         .ok_or_else(|| {
             ChannelError::permanent(
@@ -247,6 +247,19 @@ fn inbox_state(cursor: &Value) -> Option<FolderState> {
 
 #[async_trait]
 impl MessagingChannel for EmailChannel {
+    fn definition(&self) -> aphel_sdk::messaging::ChannelDefinition {
+        serde_json::from_str(include_str!("../locales/messaging-email.json"))
+            .expect("valid channel definition")
+    }
+    fn key(&self) -> &'static str {
+        "email"
+    }
+    fn contact_kind(&self) -> aphel_sdk::party::ContactPointKind {
+        aphel_sdk::party::ContactPointKind::Email
+    }
+    fn uses_references(&self) -> bool {
+        true
+    }
     fn secret_names(&self) -> &'static [&'static str] {
         &[IMAP_PASSWORD, SMTP_PASSWORD]
     }

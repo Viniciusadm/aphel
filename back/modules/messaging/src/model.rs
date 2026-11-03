@@ -96,6 +96,10 @@ pub(crate) struct LinkedRecord {
 
 #[derive(Debug, Clone, Serialize, ToSchema)]
 pub(crate) struct ConversationChannel {
+    pub(crate) available: bool,
+    pub(crate) uses_references: bool,
+    pub(crate) max_body_chars: usize,
+    pub(crate) reply_window_seconds: Option<i64>,
     #[schema(value_type = String)]
     pub(crate) id: Uuid,
     pub(crate) name: String,

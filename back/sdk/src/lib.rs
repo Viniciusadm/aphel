@@ -74,3 +74,5 @@ pub mod party;
 pub mod workflow;
 
 pub mod calendar;
+
+pub mod messaging;

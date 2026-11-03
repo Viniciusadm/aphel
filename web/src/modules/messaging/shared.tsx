@@ -7,7 +7,7 @@ import { useModuleTranslation } from '@/kernel/modules/i18n'
 import { MESSAGING_KEY, type ChannelKind, type ConversationStatus, type LinkedRecord } from './api'
 
 export function ChannelIcon({ kind, className }: { kind: ChannelKind; className?: string }) {
-  const Icon = kind === 'whatsapp' ? MessageCircle : Mail
+  const Icon = kind === 'email' ? Mail : MessageCircle
   return <Icon className={cn('size-4 shrink-0', className)} aria-hidden="true" />
 }
 

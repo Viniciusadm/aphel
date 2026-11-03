@@ -278,6 +278,16 @@ dependencies = [
 ]
 
 [[package]]
+name = "aphel-contract-messaging"
+version = "0.1.0"
+dependencies = [
+ "aphel-contract",
+ "serde",
+ "serde_json",
+ "utoipa",
+]
+
+[[package]]
 name = "aphel-contract-party"
 version = "0.1.0"
 dependencies = [
@@ -1071,9 +1081,9 @@ dependencies = [
  "aphel-contract-crm",
  "aphel-kernel",
  "aphel-mod-deals",
- "aphel-mod-email",
  "aphel-mod-people",
  "aphel-mod-tasks",
+ "aphel-sdk",
  "async-trait",
  "axum",
  "chrono",
@@ -1904,6 +1914,7 @@ dependencies = [
  "aphel-contract",
  "aphel-contract-automation",
  "aphel-contract-calendar",
+ "aphel-contract-messaging",
  "aphel-contract-party",
  "aphel-contract-workflow",
  "aphel-kernel",

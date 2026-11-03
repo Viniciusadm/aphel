@@ -18,7 +18,7 @@ export function MessageEventContent({ item }: { item: TimelineItem }) {
   const payload = payloadOf(item)
   const eventType = String(item.metadata.event_type ?? '')
   const action = eventType.split('.')[1] ?? 'received'
-  const channel = text(payload, 'channel_name') ?? t(`kinds.${text(payload, 'channel_kind') ?? 'whatsapp'}`)
+  const channel = text(payload, 'channel_name') ?? t('kinds.other')
   const peer = text(payload, 'peer_name') ?? text(payload, 'peer') ?? ''
   const excerpt = text(payload, 'excerpt')
   const subject = text(payload, 'subject')

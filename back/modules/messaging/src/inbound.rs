@@ -129,13 +129,17 @@ async fn contact_by_peer(
     peer: &str,
     field_keys: &[String],
 ) -> Option<Uuid> {
-    let keys: Vec<&str> = match kind {
-        ChannelKind::Email => vec!["email"],
-        ChannelKind::Whatsapp => vec!["mobile", "phone"],
-    }
-    .into_iter()
-    .filter(|key| field_keys.iter().any(|field| field == key))
-    .collect();
+    use aphel_sdk::party::PartyTraits;
+    let provider = aphel_sdk::messaging::channel_provider(kind.as_str()).ok()?;
+    let mapping = ctx
+        .registry()
+        .get(&RecordType::CONTACT)?
+        .capabilities
+        .contact_points()?;
+    let keys: Vec<&str> = mapping
+        .fields(provider.contact_kind())
+        .filter(|key| field_keys.iter().any(|field| field == key))
+        .collect();
     if keys.is_empty() {
         return None;
     }
@@ -192,7 +196,8 @@ async fn resolve_contact(
             .collect(),
         Err(_) => Vec::new(),
     };
-    if let Some(id) = contact_by_peer(ctx, scope, channel.kind, &message.from, &keys).await {
+    if let Some(id) = contact_by_peer(ctx, scope, channel.kind.clone(), &message.from, &keys).await
+    {
         return Ok(Some(id));
     }
     if !actor::creates_unknown_contacts(ctx).await?
@@ -217,12 +222,17 @@ async fn resolve_contact(
             Value::String(text::truncate(&last_name, 140)),
         );
     }
-    let target = match channel.kind {
-        ChannelKind::Email => Some("email"),
-        ChannelKind::Whatsapp => ["mobile", "phone"]
-            .into_iter()
-            .find(|key| keys.iter().any(|field| field == key)),
-    };
+    use aphel_sdk::party::PartyTraits;
+    let provider = aphel_sdk::messaging::channel_provider(channel.kind.as_str())?;
+    let mapping = ctx
+        .registry()
+        .get(&RecordType::CONTACT)
+        .and_then(|entity| entity.capabilities.contact_points());
+    let target = mapping.as_ref().and_then(|mapping| {
+        mapping
+            .fields(provider.contact_kind())
+            .find(|key| keys.iter().any(|field| field == key))
+    });
     if let Some(target) = target {
         values.insert(target.to_owned(), Value::String(message.from.clone()));
     }
@@ -246,21 +256,18 @@ async fn existing_conversation(
     message: &InboundMessage,
 ) -> Result<Option<StoredConversation>, AppError> {
     let pool = ctx.pool().clone();
-    match channel.kind {
-        ChannelKind::Whatsapp => {
-            store::latest_conversation_with_peer(&pool, channel.id, &message.from).await
-        }
-        ChannelKind::Email => {
-            let ids: Vec<String> = message
-                .in_reply_to
-                .iter()
-                .chain(message.references.iter())
-                .cloned()
-                .collect();
-            match store::conversation_by_message_ids(&pool, channel.id, &ids).await? {
-                Some(id) => store::find_conversation(&pool, id).await,
-                None => Ok(None),
-            }
+    if !aphel_sdk::messaging::channel_provider(channel.kind.as_str())?.uses_references() {
+        store::latest_conversation_with_peer(&pool, channel.id, &message.from).await
+    } else {
+        let ids: Vec<String> = message
+            .in_reply_to
+            .iter()
+            .chain(message.references.iter())
+            .cloned()
+            .collect();
+        match store::conversation_by_message_ids(&pool, channel.id, &ids).await? {
+            Some(id) => store::find_conversation(&pool, id).await,
+            None => Ok(None),
         }
     }
 }

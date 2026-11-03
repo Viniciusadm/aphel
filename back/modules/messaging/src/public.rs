@@ -53,9 +53,13 @@ async fn limit(limiter: &SharedRateLimiter, key: &str) -> Result<(), AppError> {
 
 async fn resolve(ctx: &Ctx<'_>, channel_id: &str) -> Result<StoredChannel, AppError> {
     let id = Uuid::parse_str(channel_id).map_err(|_| channel_not_found())?;
-    store::find_channel_for_webhook(ctx.pool(), id, ChannelKind::Whatsapp)
-        .await?
-        .ok_or_else(channel_not_found)
+    store::find_channel_for_webhook(
+        ctx.pool(),
+        id,
+        ChannelKind::parse("whatsapp").expect("channel key"),
+    )
+    .await?
+    .ok_or_else(channel_not_found)
 }
 
 async fn channel_secret(

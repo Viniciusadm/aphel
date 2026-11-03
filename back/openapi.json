@@ -31608,6 +31608,44 @@
         ]
       }
     },
+    "/api/v1/messaging/providers": {
+      "get": {
+        "tags": [
+          "messaging"
+        ],
+        "operationId": "messaging_providers",
+        "responses": {
+          "200": {
+            "description": "Enabled channel provider definitions with localized labels and configuration metadata; credentials are never included",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/Data_Vec_ChannelDefinition"
+                }
+              }
+            }
+          },
+          "429": {
+            "description": "API token rate limit exceeded (`rate_limited`); see `Retry-After` and `X-RateLimit-*`",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ErrorEnvelope"
+                }
+              }
+            }
+          }
+        },
+        "security": [
+          {
+            "session_cookie": []
+          },
+          {
+            "api_token": []
+          }
+        ]
+      }
+    },
     "/api/v1/microsoft/calendar/connect": {
       "post": {
         "tags": [
@@ -69420,12 +69458,120 @@
           }
         }
       },
+      "ChannelDefinition": {
+        "type": "object",
+        "required": [
+          "key",
+          "label",
+          "fields",
+          "secrets",
+          "defaults"
+        ],
+        "properties": {
+          "defaults": {
+            "type": "object",
+            "additionalProperties": {
+              "type": "string"
+            },
+            "propertyNames": {
+              "type": "string"
+            }
+          },
+          "fields": {
+            "type": "array",
+            "items": {
+              "$ref": "#/components/schemas/ChannelField"
+            }
+          },
+          "key": {
+            "type": "string"
+          },
+          "label": {
+            "type": "object",
+            "additionalProperties": {
+              "type": "string"
+            },
+            "propertyNames": {
+              "type": "string"
+            }
+          },
+          "secrets": {
+            "type": "array",
+            "items": {
+              "$ref": "#/components/schemas/ChannelField"
+            }
+          }
+        }
+      },
+      "ChannelField": {
+        "type": "object",
+        "required": [
+          "key",
+          "input_type",
+          "required",
+          "label",
+          "hint",
+          "options"
+        ],
+        "properties": {
+          "hint": {
+            "type": "object",
+            "additionalProperties": {
+              "type": "string"
+            },
+            "propertyNames": {
+              "type": "string"
+            }
+          },
+          "input_type": {
+            "type": "string"
+          },
+          "key": {
+            "type": "string"
+          },
+          "label": {
+            "type": "object",
+            "additionalProperties": {
+              "type": "string"
+            },
+            "propertyNames": {
+              "type": "string"
+            }
+          },
+          "options": {
+            "type": "array",
+            "items": {
+              "$ref": "#/components/schemas/ChannelOption"
+            }
+          },
+          "required": {
+            "type": "boolean"
+          }
+        }
+      },
       "ChannelKind": {
-        "type": "string",
-        "enum": [
-          "whatsapp",
-          "email"
-        ]
+        "type": "string"
+      },
+      "ChannelOption": {
+        "type": "object",
+        "required": [
+          "value",
+          "label"
+        ],
+        "properties": {
+          "label": {
+            "type": "object",
+            "additionalProperties": {
+              "type": "string"
+            },
+            "propertyNames": {
+              "type": "string"
+            }
+          },
+          "value": {
+            "type": "string"
+          }
+        }
       },
       "ChannelRequest": {
         "type": "object",
@@ -71001,6 +71147,9 @@
       "ConversationChannel": {
         "type": "object",
         "required": [
+          "available",
+          "uses_references",
+          "max_body_chars",
           "id",
           "name",
           "kind",
@@ -71011,6 +71160,9 @@
           "address": {
             "type": "string"
           },
+          "available": {
+            "type": "boolean"
+          },
           "id": {
             "type": "string"
           },
@@ -71020,8 +71172,22 @@
           "kind": {
             "$ref": "#/components/schemas/ChannelKind"
           },
+          "max_body_chars": {
+            "type": "integer",
+            "minimum": 0
+          },
           "name": {
             "type": "string"
+          },
+          "reply_window_seconds": {
+            "type": [
+              "integer",
+              "null"
+            ],
+            "format": "int64"
+          },
+          "uses_references": {
+            "type": "boolean"
           }
         }
       },
@@ -86074,6 +86240,62 @@
                 },
                 "updated_at": {
                   "type": "string"
+                }
+              }
+            }
+          }
+        }
+      },
+      "Data_Vec_ChannelDefinition": {
+        "type": "object",
+        "required": [
+          "data"
+        ],
+        "properties": {
+          "data": {
+            "type": "array",
+            "items": {
+              "type": "object",
+              "required": [
+                "key",
+                "label",
+                "fields",
+                "secrets",
+                "defaults"
+              ],
+              "properties": {
+                "defaults": {
+                  "type": "object",
+                  "additionalProperties": {
+                    "type": "string"
+                  },
+                  "propertyNames": {
+                    "type": "string"
+                  }
+                },
+                "fields": {
+                  "type": "array",
+                  "items": {
+                    "$ref": "#/components/schemas/ChannelField"
+                  }
+                },
+                "key": {
+                  "type": "string"
+                },
+                "label": {
+                  "type": "object",
+                  "additionalProperties": {
+                    "type": "string"
+                  },
+                  "propertyNames": {
+                    "type": "string"
+                  }
+                },
+                "secrets": {
+                  "type": "array",
+                  "items": {
+                    "$ref": "#/components/schemas/ChannelField"
+                  }
                 }
               }
             }

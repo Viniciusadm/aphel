@@ -106,6 +106,26 @@ async fn read_json(
 
 #[async_trait]
 impl MessagingChannel for WhatsappChannel {
+    fn definition(&self) -> aphel_sdk::messaging::ChannelDefinition {
+        serde_json::from_str(include_str!("../../locales/messaging-whatsapp.json"))
+            .expect("valid channel definition")
+    }
+    fn key(&self) -> &'static str {
+        "whatsapp"
+    }
+    fn contact_kind(&self) -> aphel_sdk::party::ContactPointKind {
+        aphel_sdk::party::ContactPointKind::Phone
+    }
+    fn uses_references(&self) -> bool {
+        false
+    }
+    fn reply_window(&self) -> Option<aphel_sdk::messaging::ReplyWindow> {
+        Some(aphel_sdk::messaging::ReplyWindow {
+            seconds: 86400,
+            code: WHATSAPP_WINDOW_CLOSED,
+            message: "the channel reply window has closed; an approved template is required",
+        })
+    }
     fn secret_names(&self) -> &'static [&'static str] {
         &[ACCESS_TOKEN, APP_SECRET, VERIFY_TOKEN]
     }

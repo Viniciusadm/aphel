@@ -17,7 +17,8 @@ import { Skeleton } from '@/components/ui/skeleton'
 import { formatDateTime, useRecordFormatting } from '@/features/records/formatting'
 import { useModuleTranslation } from '@/kernel/modules/i18n'
 import {
-  CHANNEL_KINDS,
+  useChannelProviders,
+  channelText,
   MESSAGING_KEY,
   MANAGE_CHANNELS_PERMISSION,
   messagingApi,
@@ -39,6 +40,7 @@ export function ChannelsPage() {
   const { hasPermission } = useSession()
   const canManage = hasPermission(MANAGE_CHANNELS_PERMISSION)
   const channels = useChannels(canManage)
+  const providers = useChannelProviders(canManage)
   const invalidate = useInvalidateMessaging()
   const [editing, setEditing] = useState<Editing | null>(null)
   const [deleting, setDeleting] = useState<Channel | null>(null)
@@ -49,10 +51,10 @@ export function ChannelsPage() {
 
   const newButtons = (
     <div className="flex flex-wrap gap-2">
-      {CHANNEL_KINDS.map((kind) => (
-        <Button key={kind} size="sm" onClick={() => setEditing({ kind, channel: null })}>
+      {(providers.data ?? []).map((provider) => (
+        <Button key={provider.key} size="sm" onClick={() => setEditing({ kind: provider.key, channel: null })}>
           <Plus aria-hidden="true" />
-          {t(`channels.new.${kind}`)}
+          {channelText(provider.label)}
         </Button>
       ))}
     </div>
@@ -154,7 +156,7 @@ function ChannelRow({
   const test = async () => {
     setTesting(true)
     try {
-      const result = (await messagingApi.testChannel(channel.id)).data
+      const result = await messagingApi.testChannel(channel.id)
       if (result.ok) {
         notifySuccess(t('channels.testOk'), { description: result.detail ?? undefined })
       } else {
@@ -191,7 +193,7 @@ function ChannelRow({
         <div className="grid min-w-0 flex-1 gap-1">
           <div className="flex flex-wrap items-center gap-2">
             <p className="truncate font-medium">{channel.name}</p>
-            <Badge variant="outline">{t(`kinds.${channel.kind}`)}</Badge>
+            <Badge variant="outline">{t(channel.kind === 'email' ? 'kinds.email' : channel.kind === 'whatsapp' ? 'kinds.whatsapp' : 'kinds.other')}</Badge>
             <Badge variant={statusVariant(channel)}>
               {channel.is_active ? t(`channelStatus.${channel.status}`, { defaultValue: channel.status }) : t('channelStatus.inactive')}
             </Badge>

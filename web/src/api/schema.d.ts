@@ -4307,6 +4307,22 @@ export interface paths {
         patch?: never;
         trace?: never;
     };
+    "/api/v1/messaging/providers": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        get: operations["messaging_providers"];
+        put?: never;
+        post?: never;
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
     "/api/v1/microsoft/calendar/connect": {
         parameters: {
             query?: never;
@@ -9775,8 +9791,36 @@ export interface components {
             next: number;
             reset: boolean;
         };
-        /** @enum {string} */
-        ChannelKind: "whatsapp" | "email";
+        ChannelDefinition: {
+            defaults: {
+                [key: string]: string;
+            };
+            fields: components["schemas"]["ChannelField"][];
+            key: string;
+            label: {
+                [key: string]: string;
+            };
+            secrets: components["schemas"]["ChannelField"][];
+        };
+        ChannelField: {
+            hint: {
+                [key: string]: string;
+            };
+            input_type: string;
+            key: string;
+            label: {
+                [key: string]: string;
+            };
+            options: components["schemas"]["ChannelOption"][];
+            required: boolean;
+        };
+        ChannelKind: string;
+        ChannelOption: {
+            label: {
+                [key: string]: string;
+            };
+            value: string;
+        };
         ChannelRequest: {
             acting_user_id?: string | null;
             clear_secrets?: string[];
@@ -10151,10 +10195,15 @@ export interface components {
         };
         ConversationChannel: {
             address: string;
+            available: boolean;
             id: string;
             is_active: boolean;
             kind: components["schemas"]["ChannelKind"];
+            max_body_chars: number;
             name: string;
+            /** Format: int64 */
+            reply_window_seconds?: number | null;
+            uses_references: boolean;
         };
         ConversationDetail: {
             conversation: components["schemas"]["ConversationSummary"];
@@ -13983,6 +14032,19 @@ export interface components {
                 /** Format: int32 */
                 position: number;
                 updated_at: string;
+            }[];
+        };
+        Data_Vec_ChannelDefinition: {
+            data: {
+                defaults: {
+                    [key: string]: string;
+                };
+                fields: components["schemas"]["ChannelField"][];
+                key: string;
+                label: {
+                    [key: string]: string;
+                };
+                secrets: components["schemas"]["ChannelField"][];
             }[];
         };
         Data_Vec_CustomObjectAdminResponse: {
@@ -45064,6 +45126,35 @@ export interface operations {
                 };
                 content: {
                     "application/json": components["schemas"]["ErrorEnvelope"];
+                };
+            };
+            /** @description API token rate limit exceeded (`rate_limited`); see `Retry-After` and `X-RateLimit-*` */
+            429: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["ErrorEnvelope"];
+                };
+            };
+        };
+    };
+    messaging_providers: {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        requestBody?: never;
+        responses: {
+            /** @description Enabled channel provider definitions with localized labels and configuration metadata; credentials are never included */
+            200: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["Data_Vec_ChannelDefinition"];
                 };
             };
             /** @description API token rate limit exceeded (`rate_limited`); see `Retry-After` and `X-RateLimit-*` */

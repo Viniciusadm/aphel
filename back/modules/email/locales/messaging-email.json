@@ -1,0 +1,185 @@
+{
+  "key": "email",
+  "label": {
+    "en": "E-mail",
+    "pt-BR": "E-mail"
+  },
+  "fields": [
+    {
+      "key": "address",
+      "input_type": "email",
+      "required": true,
+      "label": {
+        "en": "E-mail address",
+        "pt-BR": "Endereço de e-mail"
+      },
+      "hint": {
+        "en": "",
+        "pt-BR": ""
+      },
+      "options": []
+    },
+    {
+      "key": "display_name",
+      "input_type": "text",
+      "required": false,
+      "label": {
+        "en": "Sender name",
+        "pt-BR": "Nome do remetente"
+      },
+      "hint": {
+        "en": "",
+        "pt-BR": ""
+      },
+      "options": []
+    },
+    {
+      "key": "imap_host",
+      "input_type": "text",
+      "required": true,
+      "label": {
+        "en": "IMAP server",
+        "pt-BR": "Servidor IMAP"
+      },
+      "hint": {
+        "en": "",
+        "pt-BR": ""
+      },
+      "options": []
+    },
+    {
+      "key": "imap_port",
+      "input_type": "number",
+      "required": false,
+      "label": {
+        "en": "IMAP port",
+        "pt-BR": "Porta IMAP"
+      },
+      "hint": {
+        "en": "993 (TLS).",
+        "pt-BR": "993 (TLS)."
+      },
+      "options": []
+    },
+    {
+      "key": "imap_username",
+      "input_type": "text",
+      "required": false,
+      "label": {
+        "en": "IMAP user",
+        "pt-BR": "Usuário IMAP"
+      },
+      "hint": {
+        "en": "Empty: the e-mail address.",
+        "pt-BR": "Vazio: o endereço de e-mail."
+      },
+      "options": []
+    },
+    {
+      "key": "smtp_host",
+      "input_type": "text",
+      "required": true,
+      "label": {
+        "en": "SMTP server",
+        "pt-BR": "Servidor SMTP"
+      },
+      "hint": {
+        "en": "",
+        "pt-BR": ""
+      },
+      "options": []
+    },
+    {
+      "key": "smtp_port",
+      "input_type": "number",
+      "required": false,
+      "label": {
+        "en": "SMTP port",
+        "pt-BR": "Porta SMTP"
+      },
+      "hint": {
+        "en": "465 (TLS) or 587 (STARTTLS).",
+        "pt-BR": "465 (TLS) ou 587 (STARTTLS)."
+      },
+      "options": []
+    },
+    {
+      "key": "smtp_username",
+      "input_type": "text",
+      "required": false,
+      "label": {
+        "en": "SMTP user",
+        "pt-BR": "Usuário SMTP"
+      },
+      "hint": {
+        "en": "Empty: the IMAP user.",
+        "pt-BR": "Vazio: o usuário IMAP."
+      },
+      "options": []
+    },
+    {
+      "key": "smtp_security",
+      "input_type": "select",
+      "required": false,
+      "label": {
+        "en": "SMTP security",
+        "pt-BR": "Segurança SMTP"
+      },
+      "hint": {
+        "en": "",
+        "pt-BR": ""
+      },
+      "options": [
+        {
+          "value": "tls",
+          "label": {
+            "en": "TLS (port 465)",
+            "pt-BR": "TLS (porta 465)"
+          }
+        },
+        {
+          "value": "starttls",
+          "label": {
+            "en": "STARTTLS (port 587)",
+            "pt-BR": "STARTTLS (porta 587)"
+          }
+        }
+      ]
+    }
+  ],
+  "secrets": [
+    {
+      "key": "imap_password",
+      "input_type": "password",
+      "required": true,
+      "label": {
+        "en": "IMAP password",
+        "pt-BR": "Senha IMAP"
+      },
+      "hint": {
+        "en": "",
+        "pt-BR": ""
+      },
+      "options": []
+    },
+    {
+      "key": "smtp_password",
+      "input_type": "password",
+      "required": false,
+      "label": {
+        "en": "SMTP password",
+        "pt-BR": "Senha SMTP"
+      },
+      "hint": {
+        "en": "Empty: uses the IMAP password.",
+        "pt-BR": "Vazio: usa a senha IMAP."
+      },
+      "options": []
+    }
+  ],
+  "defaults": {
+    "imap_port": "993",
+    "smtp_port": "465",
+    "smtp_security": "tls"
+  }
+}

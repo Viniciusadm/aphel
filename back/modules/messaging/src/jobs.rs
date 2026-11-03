@@ -1,3 +1,4 @@
+use aphel_sdk::messaging::channel_provider;
 use std::sync::Arc;
 
 use async_trait::async_trait;
@@ -156,9 +157,7 @@ async fn poll_channel(ctx: &Ctx<'_>, channel: &StoredChannel) -> Result<Option<S
         uid_validity: channel.imap_uid_validity,
         last_uid: channel.imap_last_uid,
     };
-    let batch = match channel
-        .kind
-        .handler()
+    let batch = match channel_provider(channel.kind.as_str())?
         .fetch(&context, state, POLL_BATCH)
         .await
     {
@@ -201,7 +200,9 @@ impl JobHandler for PollChannelHandler {
         let Some(channel) = store::find_channel(ctx.pool(), channel_id).await? else {
             return Ok(());
         };
-        if !channel.is_active || !channel.kind.handler().polls() {
+        if !channel.is_active
+            || !channel_provider(channel.kind.as_str()).is_ok_and(|provider| provider.polls())
+        {
             return Ok(());
         }
         let error = poll_channel(&ctx, &channel).await?;

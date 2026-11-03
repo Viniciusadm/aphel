@@ -1,12 +1,12 @@
+use aphel_sdk::messaging::channel_provider;
 use chrono::Duration as ChronoDuration;
 use serde_json::{Value, json};
 use uuid::Uuid;
 
 use crate::actor;
-use crate::channels::{self, ChannelContext, ChannelError, ChannelKind, OutgoingMessage};
+use crate::channels::{self, ChannelContext, ChannelError, OutgoingMessage};
 use crate::errors::{
-    self, CHANNEL_INACTIVE, INVALID_REPLY, WHATSAPP_WINDOW_CLOSED, channel_not_found,
-    conversation_not_found,
+    self, CHANNEL_INACTIVE, INVALID_REPLY, channel_not_found, conversation_not_found,
 };
 use crate::inbound::{audit_conversation, message_payload, preview, publish_on_records};
 use crate::store::{self, StoredChannel, StoredConversation, StoredMessage};
@@ -19,18 +19,16 @@ use aphel_kernel::errors::{AppError, FieldViolation};
 
 pub(crate) const SEND_JOB: &str = "send";
 pub(crate) const SEND_ATTEMPTS: u32 = 5;
-const WHATSAPP_WINDOW_HOURS: i64 = 24;
 
-pub(crate) fn whatsapp_window_end(
+pub(crate) fn reply_window_end(
     channel: &StoredChannel,
     conversation: &StoredConversation,
 ) -> Option<chrono::NaiveDateTime> {
-    if channel.kind != ChannelKind::Whatsapp {
-        return None;
-    }
+    let window =
+        aphel_sdk::messaging::compiled_channel_provider(channel.kind.as_str())?.reply_window()?;
     conversation
         .last_inbound_at
-        .map(|at| at + ChronoDuration::hours(WHATSAPP_WINDOW_HOURS))
+        .map(|at| at + ChronoDuration::seconds(window.seconds))
 }
 
 fn reply_subject(conversation: &StoredConversation) -> Option<String> {
@@ -63,7 +61,7 @@ pub(crate) async fn queue_reply(
         ));
     }
     let body = text::clean_body(body);
-    let max = channel.kind.handler().max_body_chars();
+    let max = channel_provider(channel.kind.as_str())?.max_body_chars();
     if body.is_empty() {
         return Err(AppError::invalid_fields_code(
             INVALID_REPLY,
@@ -81,13 +79,10 @@ pub(crate) async fn queue_reply(
             )],
         ));
     }
-    if channel.kind == ChannelKind::Whatsapp
-        && whatsapp_window_end(&channel, &conversation).is_none_or(|end| end < text::now())
+    if let Some(window) = channel_provider(channel.kind.as_str())?.reply_window()
+        && reply_window_end(&channel, &conversation).is_none_or(|end| end < text::now())
     {
-        return Err(AppError::validation_code(
-            WHATSAPP_WINDOW_CLOSED,
-            "more than 24 hours since the last message from the customer; WhatsApp only accepts approved template messages now",
-        ));
+        return Err(AppError::validation_code(window.code, window.message));
     }
     let now = text::now();
     let mut tx = ctx.begin().await?;
@@ -102,9 +97,10 @@ pub(crate) async fn queue_reply(
         external_id: None,
         sender: channel.address(),
         sender_name: None,
-        subject: match channel.kind {
-            ChannelKind::Email => reply_subject(&conversation),
-            ChannelKind::Whatsapp => None,
+        subject: if channel_provider(channel.kind.as_str())?.uses_references() {
+            reply_subject(&conversation)
+        } else {
+            None
         },
         body,
         message_type: "text".to_owned(),
@@ -185,7 +181,7 @@ async fn outgoing(
         in_reply_to: None,
         references: Vec::new(),
     };
-    if channel.kind == ChannelKind::Email
+    if channel_provider(channel.kind.as_str())?.uses_references()
         && let Some(last) = store::last_inbound_message(ctx.pool(), conversation.id).await?
         && let Some(id) = last.external_id.filter(|id| !id.starts_with("imap-"))
     {
@@ -276,7 +272,10 @@ pub(crate) async fn deliver(
         config: &channel.config,
         credentials: &credentials,
     };
-    match channel.kind.handler().send(&context, &outgoing).await {
+    match channel_provider(channel.kind.as_str())?
+        .send(&context, &outgoing)
+        .await
+    {
         Ok(sent) => {
             let references = (!outgoing.references.is_empty())
                 .then(|| text::truncate(&outgoing.references.join(" "), 8000));

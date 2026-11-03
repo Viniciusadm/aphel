@@ -168,6 +168,10 @@ impl Module for MessagingModule {
     }
 
     fn register(&self, app: &mut AppBuilder) -> Result<(), AppError> {
+        app.contract(aphel_sdk::messaging::DESCRIPTOR);
+        app.contribute::<dyn aphel_sdk::messaging::MessagingChannel>(std::sync::Arc::new(
+            channels::whatsapp::WhatsappChannel,
+        ));
         app.openapi_tag(opt_out_http::TAG, "Communication opt-outs")
             .routes(|_| opt_out_http::router());
         app.contribute::<dyn aphel_kernel::application::mail::MailRecipientPolicy>(
@@ -197,7 +201,7 @@ impl Module for MessagingModule {
                 .iter()
                 .map(|channel| json!({
                     "channel_id": channel.id,
-                    "secrets": channel.kind.handler().secret_names(),
+                    "secrets": aphel_sdk::messaging::compiled_channel_provider(channel.kind.as_str()).map(|provider| provider.secret_names()).unwrap_or_default(),
                     "note": "credentials are encrypted and never exported",
                 }))
                 .collect::<Vec<Value>>()

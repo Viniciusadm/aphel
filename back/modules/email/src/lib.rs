@@ -1,3 +1,4 @@
+mod messaging_channel;
 use aphel_contract_automation::AutomationBuilder;
 pub(crate) mod capture;
 pub mod compose;
@@ -111,6 +112,10 @@ impl Module for EmailModule {
     }
 
     fn register(&self, app: &mut AppBuilder) -> Result<(), AppError> {
+        app.contract(aphel_sdk::messaging::DESCRIPTOR);
+        app.contribute::<dyn aphel_sdk::messaging::MessagingChannel>(Arc::new(
+            messaging_channel::EmailChannel,
+        ));
         app.contribute::<dyn aphel_kernel::modules::FileReferenceSource>(std::sync::Arc::new(
             points::EmailFiles,
         ));

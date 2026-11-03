@@ -21,7 +21,8 @@
   },
   "kinds": {
     "whatsapp": "WhatsApp",
-    "email": "E-mail"
+    "email": "E-mail",
+    "other": "Message"
   },
   "status": {
     "open": "Open",
@@ -125,7 +126,8 @@
     "placeholder": "Write the reply (Ctrl+Enter sends)",
     "emailPlaceholder": "Write the reply e-mail (Ctrl+Enter sends)",
     "windowUntil": "WhatsApp window until {{date}}",
-    "send": "Send"
+    "send": "Send",
+    "windowClosed": "The reply window has closed. Use an approved template to continue."
   },
   "errors": {
     "whatsapp_window_closed": "More than 24 hours passed since the customer's last message. WhatsApp only accepts approved template messages until the customer writes again.",
@@ -146,7 +148,8 @@
     "imap_error": "The IMAP server returned an error.",
     "smtp_auth_failed": "The SMTP server rejected the user name or password.",
     "smtp_rejected": "The SMTP server rejected the message.",
-    "smtp_error": "The SMTP server could not take the message now."
+    "smtp_error": "The SMTP server could not take the message now.",
+    "messaging_provider_unavailable": "This channel provider is unavailable. Enable its module to continue."
   },
   "channels": {
     "title": "Messaging channels",
@@ -185,63 +188,21 @@
   },
   "editor": {
     "editTitle": "Edit {{name}}",
-    "newTitle": {
-      "whatsapp": "New WhatsApp channel",
-      "email": "New mailbox"
-    },
-    "help": {
-      "whatsapp": "Use the app data from Meta for Developers (WhatsApp > API Setup). After saving, set the webhook URL and verify token at Meta and subscribe to the \"messages\" field.",
-      "email": "Enter the IMAP (receive) and SMTP (send) servers. The mailbox is read every 2 minutes, INBOX only, starting with messages that arrive after connecting."
-    },
     "name": "Channel name",
     "actingUser": "Acting user",
     "actingUserHint": "On whose behalf incoming messages look up and create people. Empty: module setting or whoever created the channel.",
     "connection": "Connection",
-    "config": {
-      "phone_number_id": "Phone number ID",
-      "business_account_id": "WhatsApp Business Account ID",
-      "display_phone_number": "Displayed number",
-      "address": "E-mail address",
-      "display_name": "Sender name",
-      "imap_host": "IMAP server",
-      "imap_port": "IMAP port",
-      "imap_username": "IMAP user",
-      "smtp_host": "SMTP server",
-      "smtp_port": "SMTP port",
-      "smtp_username": "SMTP user",
-      "smtp_security": "SMTP security"
-    },
-    "hints": {
-      "phone_number_id": "Numeric id of the number, not the phone itself.",
-      "display_phone_number": "Optional, in international format (+1 555 000 0000).",
-      "imap_port": "993 (TLS).",
-      "imap_username": "Empty: the e-mail address.",
-      "smtp_port": "465 (TLS) or 587 (STARTTLS).",
-      "smtp_username": "Empty: the IMAP user.",
-      "access_token": "Permanent token of a system user with the whatsapp_business_messaging permission.",
-      "app_secret": "App secret (Settings > Basic), used to validate the webhook signature.",
-      "verify_token": "A random text you also enter at Meta when setting the webhook.",
-      "smtp_password": "Empty: uses the IMAP password."
-    },
-    "security": {
-      "tls": "TLS (port 465)",
-      "starttls": "STARTTLS (port 587)"
-    },
     "credentials": "Credentials",
     "credentialsHelp": "Encrypted on the server and never sent back. Leave empty to keep the current value.",
-    "secrets": {
-      "access_token": "Access token",
-      "app_secret": "App secret",
-      "verify_token": "Webhook verify token",
-      "imap_password": "IMAP password",
-      "smtp_password": "SMTP password"
-    },
     "secretConfigured": "Configured. Fill in only to replace it.",
     "keepSecret": "•••••••• (configured)",
-    "reuseImapPassword": "Remove the SMTP password and use the IMAP password",
     "active": "Active channel (receives and sends messages)",
     "namePlaceholder": "E.g.: Sales WhatsApp",
-    "valuePlaceholder": "Enter the value"
+    "valuePlaceholder": "Enter the value",
+    "newChannel": "New {{name}} channel",
+    "providerHelp": "Configure the connection to {{name}}.",
+    "providerUnavailable": "The provider is unavailable. Enable its module to edit this channel.",
+    "clearCredential": "Clear {{name}}"
   },
   "tab": {
     "label": "Conversations",

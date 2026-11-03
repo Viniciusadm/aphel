@@ -1,3 +1,4 @@
+use aphel_sdk::messaging::channel_provider;
 use std::collections::BTreeMap;
 use std::sync::LazyLock;
 use std::time::Duration;
@@ -41,6 +42,7 @@ static TEST_LIMITER: LazyLock<SharedRateLimiter> =
 
 pub(crate) fn router() -> OpenApiRouter<AppState> {
     OpenApiRouter::new()
+        .routes(routes!(list_providers))
         .routes(routes!(list_channels, create_channel))
         .routes(routes!(get_channel, update_channel, delete_channel))
         .routes(routes!(test_channel))
@@ -51,7 +53,7 @@ fn parse_id(value: &str) -> Result<Uuid, AppError> {
 }
 
 pub(crate) fn webhook_url(ctx: &Ctx<'_>, channel: &StoredChannel) -> Option<String> {
-    (channel.kind == ChannelKind::Whatsapp).then(|| {
+    (channel.kind == ChannelKind::parse("whatsapp").expect("channel key")).then(|| {
         format!(
             "{}{PUBLIC_WHATSAPP_PATH}/{}",
             ctx.state()
@@ -77,7 +79,7 @@ async fn response(
     };
     Ok(ChannelResponse {
         id: channel.id,
-        kind: channel.kind,
+        kind: channel.kind.clone(),
         address: channel.address(),
         name: channel.name.clone(),
         is_active: channel.is_active,
@@ -125,9 +127,9 @@ async fn validate(
                 "kind",
                 "o tipo do canal não pode mudar",
             ));
-            channel.kind
+            channel.kind.clone()
         }
-        (_, Some((channel, _))) => channel.kind,
+        (_, Some((channel, _))) => channel.kind.clone(),
         (Some(kind), None) => kind,
         (None, None) => {
             return Err(AppError::invalid_fields(
@@ -136,7 +138,7 @@ async fn validate(
             ));
         }
     };
-    let handler = kind.handler();
+    let handler = channel_provider(kind.as_str())?;
     let name = text::single_line(&request.name, 200);
     if name.is_empty() || name.chars().count() > 120 {
         violations.push(FieldViolation::new(
@@ -397,7 +399,7 @@ async fn create_channel(
     let now = text::now();
     let channel = StoredChannel {
         id: Uuid::now_v7(),
-        kind: validated.kind,
+        kind: validated.kind.clone(),
         name: validated.name.clone(),
         config: validated.config.clone(),
         is_active: validated.is_active,
@@ -621,7 +623,10 @@ async fn test_channel(
         config: &channel.config,
         credentials: &credentials,
     };
-    let result = match channel.kind.handler().test(&context).await {
+    let result = match channel_provider(channel.kind.as_str())?
+        .test(&context)
+        .await
+    {
         Ok(detail) => {
             store::record_channel_check(&pool, &channel, None).await?;
             ChannelTestResult {
@@ -642,4 +647,19 @@ async fn test_channel(
         }
     };
     Ok(Json(Data { data: result }))
+}
+
+#[utoipa::path(get,path="/messaging/providers",tag=TAG,operation_id="messaging_providers",security(("session_cookie"=[])),responses((status=200,description="Enabled channel provider definitions with localized labels and configuration metadata; credentials are never included",body=Data<Vec<aphel_sdk::messaging::ChannelDefinition>>)))]
+async fn list_providers(
+    State(state): State<AppState>,
+    auth: AuthContext,
+) -> Result<Json<Data<Vec<aphel_sdk::messaging::ChannelDefinition>>>, ApiError> {
+    auth.scope.require(&MANAGE_CHANNELS)?;
+    let providers = state
+        .app
+        .contributions::<dyn aphel_sdk::messaging::MessagingChannel>()
+        .into_iter()
+        .map(|provider| provider.definition())
+        .collect();
+    Ok(Json(Data::new(providers)))
 }

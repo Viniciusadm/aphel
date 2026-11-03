@@ -30,7 +30,9 @@ pub(crate) struct StoredChannel {
 
 impl StoredChannel {
     pub(crate) fn address(&self) -> String {
-        self.kind.handler().address(&self.config)
+        aphel_sdk::messaging::compiled_channel_provider(self.kind.as_str())
+            .map(|provider| provider.address(&self.config))
+            .unwrap_or_default()
     }
 }
 

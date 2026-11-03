@@ -1,3 +1,5 @@
+import { ErrorState } from '@/components/ui/error-state'
+import { Skeleton } from '@/components/ui/skeleton'
 import { NativeSelect } from '@/components/ui/native-select'
 import { Loader2 } from 'lucide-react'
 import { useState } from 'react'
@@ -16,49 +18,8 @@ import {
 } from '@/components/ui/dialog'
 import { Input } from '@/components/ui/input'
 import { useModuleTranslation } from '@/kernel/modules/i18n'
-import { MESSAGING_KEY, messagingApi, type Channel, type ChannelBody, type ChannelKind } from './api'
+import { MESSAGING_KEY, messagingApi, type Channel, type ChannelBody, type ChannelKind, type ChannelDefinition, useChannelProviders, channelText } from './api'
 import { Field } from '@/components/ui/field'
-
-interface FieldSpec {
-  key: string
-  type?: 'text' | 'number' | 'email'
-  required?: boolean
-}
-
-const CONFIG_FIELDS: Record<ChannelKind, FieldSpec[]> = {
-  whatsapp: [
-    { key: 'phone_number_id', required: true },
-    { key: 'business_account_id' },
-    { key: 'display_phone_number' },
-  ],
-  email: [
-    { key: 'address', type: 'email', required: true },
-    { key: 'display_name' },
-    { key: 'imap_host', required: true },
-    { key: 'imap_port', type: 'number' },
-    { key: 'imap_username' },
-    { key: 'smtp_host', required: true },
-    { key: 'smtp_port', type: 'number' },
-    { key: 'smtp_username' },
-  ],
-}
-
-const SECRET_FIELDS: Record<ChannelKind, { key: string; required: boolean }[]> = {
-  whatsapp: [
-    { key: 'access_token', required: true },
-    { key: 'app_secret', required: true },
-    { key: 'verify_token', required: true },
-  ],
-  email: [
-    { key: 'imap_password', required: true },
-    { key: 'smtp_password', required: false },
-  ],
-}
-
-const DEFAULTS: Record<ChannelKind, Record<string, string>> = {
-  whatsapp: {},
-  email: { imap_port: '993', smtp_port: '465', smtp_security: 'tls' },
-}
 
 interface Editing {
   kind: ChannelKind
@@ -73,22 +34,26 @@ interface ChannelEditorDialogProps {
 
 export function ChannelEditorDialog({ editing, onOpenChange, onSaved }: ChannelEditorDialogProps) {
   const t = useModuleTranslation(MESSAGING_KEY)
+  const providers = useChannelProviders(editing !== null)
+  const provider = providers.data?.find((item) => item.key === editing?.kind)
   return (
     <Dialog open={editing !== null} onOpenChange={onOpenChange}>
       <DialogContent size="xl">
-        {editing && (
+        {editing && !provider && (providers.isPending ? <Skeleton className="h-40" /> : <ErrorState title={t('editor.providerUnavailable')} onRetry={() => void providers.refetch()} />)}
+        {editing && provider && (
           <>
             <DialogHeader>
               <DialogTitle>
                 {editing.channel
                   ? t('editor.editTitle', { name: editing.channel.name })
-                  : t(`editor.newTitle.${editing.kind}`)}
+                  : t('editor.newChannel', { name: channelText(provider.label) })}
               </DialogTitle>
-              <DialogDescription>{t(`editor.help.${editing.kind}`)}</DialogDescription>
+              <DialogDescription>{t('editor.providerHelp', { name: channelText(provider.label) })}</DialogDescription>
             </DialogHeader>
             <ChannelForm
               key={editing.channel?.id ?? editing.kind}
               editing={editing}
+              provider={provider}
               onCancel={() => onOpenChange(false)}
               onSaved={onSaved}
             />
@@ -99,8 +64,8 @@ export function ChannelEditorDialog({ editing, onOpenChange, onSaved }: ChannelE
   )
 }
 
-function initialConfig(editing: Editing): Record<string, string> {
-  const values: Record<string, string> = { ...DEFAULTS[editing.kind] }
+function initialConfig(editing: Editing, provider: ChannelDefinition): Record<string, string> {
+  const values: Record<string, string> = { ...provider.defaults }
   for (const [key, value] of Object.entries(editing.channel?.config ?? {})) {
     if (value !== null && value !== undefined) values[key] = String(value)
   }
@@ -115,10 +80,12 @@ function fieldErrors(error: unknown): Record<string, string> {
 
 function ChannelForm({
   editing,
+  provider,
   onCancel,
   onSaved,
 }: {
   editing: Editing
+  provider: ChannelDefinition
   onCancel: () => void
   onSaved: (channel: Channel, created: boolean) => void
 }) {
@@ -127,9 +94,9 @@ function ChannelForm({
   const [name, setName] = useState(channel?.name ?? '')
   const [isActive, setIsActive] = useState(channel?.is_active ?? true)
   const [actingUserId, setActingUserId] = useState<string | null>(channel?.acting_user_id ?? null)
-  const [config, setConfig] = useState<Record<string, string>>(() => initialConfig(editing))
+  const [config, setConfig] = useState<Record<string, string>>(() => initialConfig(editing, provider))
   const [secrets, setSecrets] = useState<Record<string, string>>({})
-  const [clearSmtp, setClearSmtp] = useState(false)
+  const [clearSecrets, setClearSecrets] = useState<string[]>([])
   const [errors, setErrors] = useState<Record<string, string>>({})
   const [saving, setSaving] = useState(false)
 
@@ -144,19 +111,19 @@ function ChannelForm({
       config: Object.fromEntries(
         Object.entries(config).map(([key, value]) => [
           key,
-          CONFIG_FIELDS[kind].find((field) => field.key === key)?.type === 'number' && value.trim()
+          provider.fields.find((field) => field.key === key)?.input_type === 'number' && value.trim()
             ? Number(value)
             : value.trim() || null,
         ]),
       ),
       secrets: Object.fromEntries(Object.entries(secrets).filter(([, value]) => value.trim() !== '')),
-      clear_secrets: clearSmtp ? ['smtp_password'] : [],
+      clear_secrets: clearSecrets,
     }
     try {
       const saved = channel
         ? await messagingApi.updateChannel(channel.id, body)
         : await messagingApi.createChannel(body)
-      onSaved(saved.data, channel === null)
+      onSaved(saved, channel === null)
     } catch (error) {
       const found = fieldErrors(error)
       setErrors(found)
@@ -199,51 +166,44 @@ function ChannelForm({
 
       <fieldset className="grid gap-4 sm:grid-cols-2">
         <legend className="mb-2 text-sm font-semibold">{t('editor.connection')}</legend>
-        {CONFIG_FIELDS[kind].map((field) => (
+        {provider.fields.map((field) => (
           <Field
             key={field.key}
             id={`${prefix}-${field.key}`}
-            label={t(`editor.config.${field.key}`)}
-            description={t(`editor.hints.${field.key}`, { defaultValue: '' }) || undefined}
+            label={channelText(field.label)}
+            description={channelText(field.hint) || undefined}
             error={errors[`config.${field.key}`]}
           >
+            {field.input_type === 'select' ? (
+              <NativeSelect id={`${prefix}-${field.key}`} value={config[field.key] ?? ''} onValueChange={(value) => setConfig((current) => ({ ...current, [field.key]: value }))}>
+                {field.options.map((option) => <option key={option.value} value={option.value}>{channelText(option.label)}</option>)}
+              </NativeSelect>
+            ) : (
             <Input placeholder={t('editor.valuePlaceholder')}
               id={`${prefix}-${field.key}`}
-              type={field.type ?? 'text'}
-              inputMode={field.type === 'number' ? 'numeric' : undefined}
+              type={field.input_type}
+              inputMode={field.input_type === 'number' ? 'numeric' : undefined}
               value={config[field.key] ?? ''}
               required={field.required}
               onChange={(event) => setConfig((current) => ({ ...current, [field.key]: event.target.value }))}
               aria-invalid={errors[`config.${field.key}`] ? true : undefined}
             />
+            )}
           </Field>
         ))}
-        {kind === 'email' && (
-          <Field
-            id={`${prefix}-smtp-security`}
-            label={t('editor.config.smtp_security')}
-            error={errors['config.smtp_security']}
-          >
-            <NativeSelect value={config.smtp_security ?? 'tls'}
-              onValueChange={(value) => setConfig((current) => ({ ...current, smtp_security: value }))} id={`${prefix}-smtp-security`}>
-                <option value="tls">{t('editor.security.tls')}</option>
-                <option value="starttls">{t('editor.security.starttls')}</option>
-              </NativeSelect>
-          </Field>
-        )}
       </fieldset>
 
       <fieldset className="grid gap-4 sm:grid-cols-2">
         <legend className="mb-1 text-sm font-semibold">{t('editor.credentials')}</legend>
         <p className="text-xs text-muted-foreground sm:col-span-2">{t('editor.credentialsHelp')}</p>
-        {SECRET_FIELDS[kind].map((field) => {
+        {provider.secrets.map((field) => {
           const configured = channel?.secrets?.[field.key] === true
           return (
             <Field
               key={field.key}
               id={`${prefix}-${field.key}`}
-              label={t(`editor.secrets.${field.key}`)}
-              description={configured ? t('editor.secretConfigured') : t(`editor.hints.${field.key}`, { defaultValue: '' }) || undefined}
+              label={channelText(field.label)}
+              description={configured ? t('editor.secretConfigured') : channelText(field.hint) || undefined}
               error={errors[`secrets.${field.key}`]}
             >
               <Input
@@ -259,12 +219,12 @@ function ChannelForm({
             </Field>
           )
         })}
-        {kind === 'email' && channel?.secrets?.smtp_password && (
-          <label className="flex items-center gap-2 text-sm sm:col-span-2">
-            <Checkbox checked={clearSmtp} onCheckedChange={(checked) => setClearSmtp(checked === true)} />
-            {t('editor.reuseImapPassword')}
+        {provider.secrets.filter((field) => !field.required && channel?.secrets?.[field.key]).map((field) => (
+          <label key={field.key} className="flex items-center gap-2 text-sm sm:col-span-2">
+            <Checkbox checked={clearSecrets.includes(field.key)} onCheckedChange={(checked) => setClearSecrets((current) => checked === true ? [...current, field.key] : current.filter((key) => key !== field.key))} />
+            {t('editor.clearCredential', { name: channelText(field.label) })}
           </label>
-        )}
+        ))}
       </fieldset>
 
       <label className="flex items-center gap-2 text-sm">
