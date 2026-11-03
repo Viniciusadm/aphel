@@ -3,7 +3,6 @@ use serde_json::json;
 use uuid::Uuid;
 
 use crate::{ACTIVITY_TYPE_KEY, ContactFieldOption, MAPPABLE_CONTACT_FIELDS};
-use activities::domain::{ActivityScheduleInput, CreateActivityCommand, UpdateActivityCommand};
 use aphel_kernel::Ctx;
 use aphel_kernel::application::access::{AccessRepository, build_access_scope};
 use aphel_kernel::application::fields::FieldDefinitionRepository;
@@ -18,6 +17,7 @@ use aphel_kernel::errors::AppError;
 use aphel_kernel::infrastructure::fields::MySqlFieldDefinitionRepository;
 use aphel_kernel::infrastructure::repositories::mysql_access::MySqlAccessRepository;
 use aphel_kernel::records::PendingCommit;
+use tasks::domain::{ActivityScheduleInput, CreateActivityCommand, UpdateActivityCommand};
 
 fn mappable_custom(field_type: FieldType) -> bool {
     matches!(
@@ -67,7 +67,7 @@ pub(crate) async fn meeting_activity_type(
     ctx: &Ctx<'_>,
     scope: &AccessScope,
 ) -> Result<Option<Uuid>, AppError> {
-    Ok(activities::types::list(
+    Ok(tasks::types::list(
         &ctx.with_scope(scope),
         false,
         ListWindow {
@@ -89,9 +89,9 @@ pub(crate) async fn create_activity_in_tx(
     record: RecordRef,
 ) -> Result<Uuid, AppError> {
     let mut prepared =
-        activities::service::prepare_create(ctx, command, ActivityScheduleInput::default()).await?;
+        tasks::service::prepare_create(ctx, command, ActivityScheduleInput::default()).await?;
     prepared.data.record = Some(record);
-    activities::service::insert_prepared(ctx, tx, &prepared).await?;
+    tasks::service::insert_prepared(ctx, tx, &prepared).await?;
     Ok(prepared.id)
 }
 
@@ -102,7 +102,7 @@ pub(crate) async fn update_activity_in_tx(
     activity_id: Uuid,
     command: UpdateActivityCommand,
 ) -> Result<Option<PendingCommit>, AppError> {
-    activities::service::update_in_tx(
+    tasks::service::update_in_tx(
         &ctx.with_scope(scope),
         tx,
         &activity_id.to_string(),

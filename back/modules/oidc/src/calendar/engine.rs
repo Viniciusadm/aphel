@@ -17,10 +17,10 @@ use crate::sso::login::credentials;
 use crate::sso::oauth::{self, INVALID_GRANT};
 use crate::sso::settings;
 use crate::support;
-use ::activities::domain::{
+use ::tasks::domain::{
     ActivityRecord, CreateActivityCommand, RecordLinkInput, UpdateActivityCommand,
 };
-use ::activities::{service as activities, types as activity_types};
+use ::tasks::{service as tasks, types as task_types};
 use aphel_kernel::Ctx;
 use aphel_kernel::application::organization_admin::ListWindow;
 use aphel_kernel::application::query::{Filter, FilterOperator, RecordQuery, RecordQueryEngine};
@@ -115,7 +115,7 @@ pub(crate) async fn access_token(
 
 async fn meeting_type(ctx: &Ctx<'_>, key: &str) -> Result<Uuid, AppError> {
     let meeting_key = configured_meeting_key(ctx, key).await?;
-    let listing = activity_types::list(
+    let listing = task_types::list(
         ctx,
         true,
         ListWindow {
@@ -236,7 +236,7 @@ async fn load_activity(
     ctx: &Ctx<'_>,
     activity_id: Uuid,
 ) -> Result<Option<ActivityRecord>, AppError> {
-    match activities::get(ctx, &activity_id.to_string()).await {
+    match tasks::get(ctx, &activity_id.to_string()).await {
         Ok(activity) => Ok(Some(activity)),
         Err(error) if is_not_found(&error) => Ok(None),
         Err(error) => Err(error),
@@ -244,7 +244,7 @@ async fn load_activity(
 }
 
 async fn delete_activity(ctx: &Ctx<'_>, activity_id: Uuid) -> Result<(), AppError> {
-    match activities::delete(ctx, &activity_id.to_string(), None).await {
+    match tasks::delete(ctx, &activity_id.to_string(), None).await {
         Ok(()) => Ok(()),
         Err(error) if is_not_found(&error) => Ok(()),
         Err(error) => Err(error),
@@ -303,7 +303,7 @@ impl SyncContext<'_> {
             return Ok(false);
         }
         let finished = event.end.unwrap_or(start) < Utc::now();
-        let created = activities::create(
+        let created = tasks::create(
             self.ctx,
             CreateActivityCommand {
                 title: remote_title(event),
@@ -375,7 +375,7 @@ impl SyncContext<'_> {
             self.connection.account_email.as_deref(),
         )
         .await?;
-        let updated = activities::update(
+        let updated = tasks::update(
             self.ctx,
             &link.activity_id.to_string(),
             UpdateActivityCommand {

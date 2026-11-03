@@ -2,8 +2,6 @@ use aphel_contract_crm::CrmRecordTypes;
 use serde_json::{Value, json};
 use uuid::Uuid;
 
-use activities::domain::ListActivitiesQuery;
-use activities::http::ActivityResponse;
 use aphel_kernel::application::organization_admin::ListWindow;
 use aphel_kernel::application::query::{
     ArchivedFilter, Filter, FilterOperator, RecordQuery, RecordQueryEngine,
@@ -16,6 +14,8 @@ use deals::http::DealResponse;
 use notes::domain::ListNotesQuery;
 use notes::http::NoteResponse;
 use people::http::ContactResponse;
+use tasks::domain::ListActivitiesQuery;
+use tasks::http::ActivityResponse;
 
 pub(crate) struct FieldOption {
     pub(crate) value: String,
@@ -156,16 +156,16 @@ pub(crate) async fn notes(
         .collect()
 }
 
-pub(crate) async fn activities(
+pub(crate) async fn tasks(
     ctx: &Ctx<'_>,
     record_type: &str,
     record_id: Uuid,
     limit: u64,
 ) -> Result<Vec<Value>, AppError> {
-    if !ctx.app().is_enabled(activities::KEY) {
+    if !ctx.app().is_enabled(tasks::KEY) {
         return Ok(Vec::new());
     }
-    let listing = activities::service::list(
+    let listing = tasks::service::list(
         ctx,
         ListActivitiesQuery {
             record_type: Some(record_type.to_owned()),

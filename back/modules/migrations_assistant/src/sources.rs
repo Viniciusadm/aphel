@@ -79,7 +79,7 @@ impl StepKind {
     pub(crate) fn as_str(&self) -> &'static str {
         match self {
             Self::Import => "import",
-            Self::Activities => "activities",
+            Self::Activities => "tasks",
             Self::Notes => "notes",
         }
     }
@@ -114,7 +114,7 @@ impl SourceTool {
 pub(crate) const COMPANIES_STEP: &str = "organizations";
 pub(crate) const CONTACTS_STEP: &str = "people";
 pub(crate) const DEALS_STEP: &str = "deals";
-pub(crate) const ACTIVITIES_STEP: &str = "activities";
+pub(crate) const TASKS_STEP: &str = "tasks";
 pub(crate) const NOTES_STEP: &str = "notes";
 
 pub(crate) const TITLE_COLUMN: &str = "title";
@@ -782,7 +782,7 @@ struct StepRules {
     organizations: &'static [ColumnRule],
     people: &'static [ColumnRule],
     deals: &'static [ColumnRule],
-    activities: &'static [ColumnRule],
+    tasks: &'static [ColumnRule],
     notes: &'static [ColumnRule],
 }
 
@@ -820,13 +820,13 @@ const fn steps(
             columns: rules.deals,
         },
         SourceStep {
-            key: ACTIVITIES_STEP,
+            key: TASKS_STEP,
             kind: StepKind::Activities,
-            record_type: "activities.activity",
+            record_type: "tasks.task",
             file_hint: hints[3],
             duplicate_key: DuplicateKey::None,
             links: HISTORY_LINKS,
-            columns: rules.activities,
+            columns: rules.tasks,
         },
         SourceStep {
             key: NOTES_STEP,
@@ -1161,14 +1161,14 @@ const PIPEDRIVE_STEPS: [SourceStep; 5] = steps(
         organizations: PIPEDRIVE_COMPANIES,
         people: PIPEDRIVE_CONTACTS,
         deals: PIPEDRIVE_DEALS,
-        activities: PIPEDRIVE_ACTIVITIES,
+        tasks: PIPEDRIVE_ACTIVITIES,
         notes: PIPEDRIVE_NOTES,
     },
     [
         "organizations.csv",
         "people.csv",
         "deals.csv",
-        "activities.csv",
+        "tasks.csv",
         "notes.csv",
     ],
     DuplicateKey::Name,
@@ -1178,7 +1178,7 @@ const HUBSPOT_STEPS: [SourceStep; 5] = steps(
         organizations: HUBSPOT_COMPANIES,
         people: HUBSPOT_CONTACTS,
         deals: HUBSPOT_DEALS,
-        activities: HUBSPOT_ACTIVITIES,
+        tasks: HUBSPOT_ACTIVITIES,
         notes: HUBSPOT_NOTES,
     },
     [
@@ -1195,7 +1195,7 @@ const RD_STEPS: [SourceStep; 5] = steps(
         organizations: RD_COMPANIES,
         people: RD_CONTACTS,
         deals: RD_DEALS,
-        activities: RD_ACTIVITIES,
+        tasks: RD_ACTIVITIES,
         notes: RD_NOTES,
     },
     [
@@ -1212,7 +1212,7 @@ const AGENDOR_STEPS: [SourceStep; 5] = steps(
         organizations: AGENDOR_COMPANIES,
         people: AGENDOR_CONTACTS,
         deals: AGENDOR_DEALS,
-        activities: AGENDOR_ACTIVITIES,
+        tasks: AGENDOR_ACTIVITIES,
         notes: AGENDOR_NOTES,
     },
     [

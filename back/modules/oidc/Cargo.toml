@@ -9,7 +9,7 @@ publish = false
 [dependencies]
 aphel-contract-crm.workspace = true
 aphel-kernel.workspace = true
-activities = { package = "aphel-mod-activities", path = "../activities" }
+tasks = { package = "aphel-mod-tasks", path = "../tasks" }
 email = { package = "aphel-mod-email", path = "../email" }
 scheduling = { package = "aphel-mod-scheduling", path = "../scheduling" }
 form_urlencoded.workspace = true

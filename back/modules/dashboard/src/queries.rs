@@ -259,7 +259,7 @@ pub(crate) async fn pending_activities(
     }
     let mut builder = QueryBuilder::<MySql>::new(
         "SELECT a.id, a.title, a.priority, a.due_at, a.owner_id, u.display_name AS owner_name, \
-         a.record_type, a.record_id FROM activities a LEFT JOIN users u ON u.id = a.owner_id \
+         a.record_type, a.record_id FROM tasks a LEFT JOIN users u ON u.id = a.owner_id \
          WHERE a.id",
     );
     push_ids(&mut builder, &ids);
@@ -268,7 +268,7 @@ pub(crate) async fn pending_activities(
     let mut items = HashMap::new();
     for row in &rows {
         let id: String = row.try_get("id")?;
-        let id = uuid_column(&id, "activities.id")?;
+        let id = uuid_column(&id, "tasks.id")?;
         let link = link_column(row, "record_type", "record_id")?;
         if let Some(link) = &link {
             links.push(link.clone());

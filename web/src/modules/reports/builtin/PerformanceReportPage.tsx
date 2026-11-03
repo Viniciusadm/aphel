@@ -82,7 +82,7 @@ function Totals({ report }: { report: PerformanceReport }) {
       />
       {report.activities_visible && (
         <StatTile
-          label={t('performance.metrics.activities')}
+          label={t('performance.metrics.tasks')}
           value={format.count(totals.activities_done ?? 0)}
           delta={
             before && <Delta current={totals.activities_done} previous={before.activities_done} format={format.count} />
@@ -181,7 +181,7 @@ function PerformanceTable({ report }: { report: PerformanceReport }) {
           <TableHead scope="col" className="pr-3 text-right">{t('performance.metrics.conversion')}</TableHead>
           <TableHead scope="col" className="pr-3 text-right">{t('performance.metrics.cycle')}</TableHead>
           {report.activities_visible && (
-            <TableHead scope="col" className="text-right">{t('performance.metrics.activities')}</TableHead>
+            <TableHead scope="col" className="text-right">{t('performance.metrics.tasks')}</TableHead>
           )}
         </TableRow>
       </TableHeader>

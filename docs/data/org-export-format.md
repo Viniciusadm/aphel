@@ -33,9 +33,9 @@ relations/people_organizations.jsonl
 relations/deal_contacts.jsonl
 relations/record_relations.jsonl
 relations/taggings.jsonl
-relations/activity_links.jsonl
+relations/task_links.jsonl
 relations/attachments.jsonl
-data/activity_recurrences.jsonl
+data/task_recurrences.jsonl
 data/deal_items.jsonl
 history/notes.jsonl
 history/domain_events.jsonl
@@ -109,9 +109,9 @@ Original table rows, in the same pattern as `row`:
 | `relations/deal_contacts.jsonl` | Additional people of deals |
 | `relations/record_relations.jsonl` | Custom relationships (`relationship_id` + `from_id` → `to_id`) |
 | `relations/taggings.jsonl` | Tags applied to records |
-| `relations/activity_links.jsonl` | Extra records linked to activities |
+| `relations/task_links.jsonl` | Extra records linked to tasks |
 | `relations/attachments.jsonl` | Attachment → record (`record_type`, `record_id`, `file_id`) |
-| `data/activity_recurrences.jsonl` | Recurring task rules |
+| `data/task_recurrences.jsonl` | Recurring task rules |
 | `data/deal_items.jsonl` | Products and items of deals |
 | `history/notes.jsonl` | Record notes |
 | `history/domain_events.jsonl` | Domain events whose record is of an exported type (or a note): they feed the timeline |
@@ -153,7 +153,7 @@ If the restore fails after creating the installation, whatever was written is un
 5. **Configuration id mapping:** each pipeline, stage, loss reason, tag, activity type and relationship is found in the target by the key from `keys.json`. Items that do not exist in the target (usually inactive ones) are recreated from `config/items/`.
 6. **Users:** the users from `members.jsonl` are recreated with the same id, email, name, role (by key; an unknown role becomes `member`), status, language and password hash. Those that could not be created (invalid email) become empty references and are listed in the report (`unmapped_members`).
 7. **Data ids:** the original ids are preserved.
-8. **Data:** in a single transaction, it writes files (content rewritten to the target storage, with the checksum verified), recurrences, records (organizations, people, products, custom objects, deals, activities, types from other modules), custom field values by key, links, notes, timeline events (written as already dispatched, without triggering automations, webhooks or notifications) and stage history. It finishes with the `organization.restored` event and audit entry. If anything fails, none of the data is written and the files already copied are removed.
+8. **Data:** in a single transaction, it writes files (content rewritten to the target storage, with the checksum verified), recurrences, records (organizations, people, products, custom objects, deals, tasks, types from other modules), custom field values by key, links, notes, timeline events (written as already dispatched, without triggering automations, webhooks or notifications) and stage history. It finishes with the `organization.restored` event and audit entry. If anything fails, none of the data is written and the files already copied are removed.
 9. **Search:** rebuilds the global search index.
 
 The command prints a JSON report with counts per type and dataset, files, custom values, recreated configuration items, mapped and unmapped members, skipped lines and warnings.

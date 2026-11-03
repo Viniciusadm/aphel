@@ -45,10 +45,7 @@ pub(crate) const RECORD_EVENT_TYPES: &[(&str, &[&str])] = &[
             "deal.owner_changed",
         ],
     ),
-    (
-        "activities.activity",
-        &["activity.created", "activity.completed"],
-    ),
+    ("tasks.task", &["activity.created", "activity.completed"]),
 ];
 
 pub(crate) const NOTE_EVENT_TYPES: &[&str] = &["note.created"];
@@ -380,7 +377,7 @@ where
     }
 
     fn required_permissions(&self) -> Vec<Permission> {
-        vec![Permission::ACTIVITIES_READ]
+        vec![Permission::TASKS_READ]
     }
 
     fn uses_period(&self) -> bool {
@@ -408,10 +405,10 @@ where
         let settings = pending_settings(settings).map_err(|violations| {
             AppError::invalid_fields("invalid widget settings", violations)
         })?;
-        let Some(activities) = context.planner(&RecordType::ACTIVITY).await? else {
+        let Some(tasks) = context.planner(&RecordType::ACTIVITY).await? else {
             return Err(AppError::forbidden_code(
                 aphel_kernel::application::access::PERMISSION_DENIED,
-                "missing permission activities.read",
+                "missing permission tasks.read",
             ));
         };
         let visibility = ActivityFieldVisibility::load(context).await?;
@@ -435,7 +432,7 @@ where
         };
         let overdue = activity_bucket(
             context,
-            &activities,
+            &tasks,
             with(vec![before("due_at", context.now)]),
             settings.limit,
             visibility,
@@ -443,7 +440,7 @@ where
         .await?;
         let due_today = activity_bucket(
             context,
-            &activities,
+            &tasks,
             with(vec![
                 at_or_after("due_at", context.now),
                 before("due_at", start_tomorrow),
@@ -454,7 +451,7 @@ where
         .await?;
         let due_tomorrow = activity_bucket(
             context,
-            &activities,
+            &tasks,
             with(vec![
                 at_or_after("due_at", start_tomorrow),
                 before("due_at", end_tomorrow),
@@ -584,7 +581,7 @@ where
     }
 
     fn category(&self) -> &str {
-        "activities.activity"
+        "tasks.task"
     }
 
     fn required_permissions(&self) -> Vec<Permission> {
@@ -592,7 +589,7 @@ where
             Permission::CONTACTS_READ,
             Permission::COMPANIES_READ,
             Permission::DEALS_READ,
-            Permission::ACTIVITIES_READ,
+            Permission::TASKS_READ,
         ]
     }
 
@@ -667,7 +664,7 @@ where
         vec![
             Permission::CONTACTS_READ,
             Permission::DEALS_READ,
-            Permission::ACTIVITIES_READ,
+            Permission::TASKS_READ,
         ]
     }
 
@@ -728,7 +725,7 @@ where
                 );
                 let result = period_totals(
                     context,
-                    "activities.activity",
+                    "tasks.task",
                     vec![eq("status", "done")],
                     vec![MetricSpec::count()],
                     "completed_at",

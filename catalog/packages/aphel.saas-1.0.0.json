@@ -242,7 +242,7 @@
         "name": "Faltou integração"
       }
     ],
-    "activity_types": [
+    "task_types": [
       {
         "key": "demo",
         "name": "Demo",

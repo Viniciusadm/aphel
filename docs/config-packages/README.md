@@ -39,7 +39,7 @@ A configuration package describes **how an organization works**, without any bus
       ] }
     ],
     "lost_reasons": [{ "key": "preco", "name": "Preço" }],
-    "activity_types": [{ "key": "visit", "name": "Visita", "icon": "map-pin", "color": "#16a34a" }],
+    "task_types": [{ "key": "visit", "name": "Visita", "icon": "map-pin", "color": "#16a34a" }],
     "tags": [{ "key": "investidor", "name": "Investidor", "color": "#f59e0b", "record_types": ["contact"] }],
     "layouts": [{ "record_type": "deal", "context": "create", "layout": { "tabs": [] } }],
     "views": [{ "key": "abertas", "record_type": "deal", "name": "Abertas",
@@ -108,7 +108,7 @@ Conflicts (`conflict.code`, `conflict.resolvable`):
 | `relationship_incompatible` | Relationship with the same key and different types, inverse key or cardinality | No |
 | `relationship_key_collision` | The relationship's key (or inverse key) is already used by a system field, a custom field (from the organization or the package) or another relation of the same record type | No |
 
-Guarantees: installation **never deletes anything** (options, stages, fields and organization items that the package does not mention stay as they are) and **never touches business records** (people, organizations, deals, activities, field values). New stages come in the package's order; stages that only the organization has stay after the stage that preceded them.
+Guarantees: installation **never deletes anything** (options, stages, fields and organization items that the package does not mention stay as they are) and **never touches business records** (people, organizations, deals, tasks, field values). New stages come in the package's order; stages that only the organization has stay after the stage that preceded them.
 
 ## Applying
 
@@ -141,7 +141,7 @@ The `dashboard` section stores the **organization's** default layout (`dashboard
 
 ## Automations
 
-The `automations` section (session 17) is installed last, after `custom_objects`, `fields`, `workflow`, `activity_types` and `tags`. Each item carries `key` (the automation's own key, `^[a-z][a-z0-9_]{0,63}$`), `name`, `description`, `record_type` (`contact`, `company`, `deal`, `activity` or `custom.<key>` from the package or the organization), `trigger` and `definition` (the current draft, in the same format as the automations API):
+The `automations` section (session 17) is installed last, after `custom_objects`, `fields`, `workflow`, `task_types` and `tags`. Each item carries `key` (the automation's own key, `^[a-z][a-z0-9_]{0,63}$`), `name`, `description`, `record_type` (`contact`, `company`, `deal`, `activity` or `custom.<key>` from the package or the organization), `trigger` and `definition` (the current draft, in the same format as the automations API):
 
 ```json
 "automations": [

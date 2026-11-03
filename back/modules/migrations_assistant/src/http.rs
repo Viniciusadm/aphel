@@ -42,7 +42,7 @@ pub(crate) fn router() -> OpenApiRouter<AppState> {
     operation_id = "migration_assistant_sources",
     security(("session_cookie" = [])),
     responses(
-        (status = 200, description = "Supported source CRMs (Pipedrive, HubSpot, RD Station CRM, Agendor), the suggested import order (organizations, people, deals, then activities and notes, whose `kind` sends them to `/migration-assistant/history`) and the columns recognized in each export, with the Aphel field and the conversion applied. Headers were inferred from public documentation and may vary by account language and version", body = Data<Vec<MigrationSourceResponse>>),
+        (status = 200, description = "Supported source CRMs (Pipedrive, HubSpot, RD Station CRM, Agendor), the suggested import order (organizations, people, deals, then tasks and notes, whose `kind` sends them to `/migration-assistant/history`) and the columns recognized in each export, with the Aphel field and the conversion applied. Headers were inferred from public documentation and may vary by account language and version", body = Data<Vec<MigrationSourceResponse>>),
         (status = 401, description = "Missing or invalid session", body = ErrorEnvelope),
     )
 )]
@@ -130,10 +130,10 @@ async fn create_migration_import(
     security(("session_cookie" = [])),
     request_body(content = MigrationUploadForm, content_type = "multipart/form-data"),
     responses(
-        (status = 200, description = "Migrates the activities or notes exported by the source tool (steps `activities` and `notes`, up to 5 000 rows per file) right away through the activities and notes use cases (validation, permission, event and audit per row). Each row is linked to the deal (by title), contact (by e-mail or name) and company (by name) already in Aphel, so import organizations, people and deals first; activity types are matched by name and owners by name or e-mail, done tasks keep their due date as completion. Notes need a linked record. Attachments are not part of the CSV exports and are not migrated. Rows that fail are listed in `report.errors` (first 100). Requires `activities.create` or `notes.create`", body = Data<MigrationHistoryResponse>),
+        (status = 200, description = "Migrates the tasks or notes exported by the source tool (steps `tasks` and `notes`, up to 5 000 rows per file) right away through the tasks and notes use cases (validation, permission, event and audit per row). Each row is linked to the deal (by title), contact (by e-mail or name) and company (by name) already in Aphel, so import organizations, people and deals first; activity types are matched by name and owners by name or e-mail, done tasks keep their due date as completion. Notes need a linked record. Attachments are not part of the CSV exports and are not migrated. Rows that fail are listed in `report.errors` (first 100). Requires `tasks.create` or `notes.create`", body = Data<MigrationHistoryResponse>),
         (status = 401, description = "Missing or invalid session", body = ErrorEnvelope),
-        (status = 403, description = "Missing `activities.create` or `notes.create` (`permission_denied`)", body = ErrorEnvelope),
-        (status = 404, description = "Unknown source or step, or the activities or notes module is disabled (`migration_source_not_found`)", body = ErrorEnvelope),
+        (status = 403, description = "Missing `tasks.create` or `notes.create` (`permission_denied`)", body = ErrorEnvelope),
+        (status = 404, description = "Unknown source or step, or the tasks or notes module is disabled (`migration_source_not_found`)", body = ErrorEnvelope),
         (status = 413, description = "The file exceeds the upload limit of the organization settings (`file_too_large`)", body = ErrorEnvelope),
         (status = 422, description = "Invalid form, a organizations/people/deals step (`migration_history_step`), empty or invalid file or more than 5 000 rows (`empty_import`, `invalid_csv`, `too_many_rows`, `too_many_columns`)", body = ErrorEnvelope),
     )

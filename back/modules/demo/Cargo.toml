@@ -11,7 +11,7 @@ config_packages = { package = "aphel-mod-config-packages", path = "../config_pac
 validation_rules = { package = "aphel-mod-validation-rules", path = "../validation_rules" }
 aphel-contract-crm.workspace = true
 aphel-kernel.workspace = true
-activities = { package = "aphel-mod-activities", path = "../activities" }
+tasks = { package = "aphel-mod-tasks", path = "../tasks" }
 approvals = { package = "aphel-mod-approvals", path = "../approvals" }
 currencies = { package = "aphel-mod-currencies", path = "../currencies" }
 deal_items = { package = "aphel-mod-deal-items", path = "../deal_items" }

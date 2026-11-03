@@ -34,7 +34,7 @@ pub(crate) fn router() -> OpenApiRouter<AppState> {
     security(("session_cookie" = [])),
     params(TrashListParams, PaginationQuery),
     responses(
-        (status = 200, description = "Deleted records of every type with a trash (soft-deleted types with a title: people, organizations, deals, products, activities, quotes, custom objects…), most recently deleted first, with the date they will be purged. Only records the user could read (read scope of each type: own, team or organization, plus shares) are listed; types the user cannot read are left out. Records merged into another one are not listed", body = Page<TrashItemResponse>),
+        (status = 200, description = "Deleted records of every type with a trash (soft-deleted types with a title: people, organizations, deals, products, tasks, quotes, custom objects…), most recently deleted first, with the date they will be purged. Only records the user could read (read scope of each type: own, team or organization, plus shares) are listed; types the user cannot read are left out. Records merged into another one are not listed", body = Page<TrashItemResponse>),
         (status = 401, description = "Missing or invalid credentials (`unauthorized`, `invalid_api_token`)", body = ErrorEnvelope),
         (status = 403, description = "Missing `settings.manage` (`permission_denied`, `insufficient_scope`)", body = ErrorEnvelope),
         (status = 422, description = "Invalid record type or pagination (`validation_error`)", body = ErrorEnvelope),

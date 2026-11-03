@@ -15,10 +15,8 @@ pub struct TimelineModule;
 impl Module for TimelineModule {
     fn manifest(&self) -> Manifest {
         Manifest::new(KEY, "Timeline", APHEL_VERSION)
-            .description(
-                "Unified timeline of a record: activities, notes, e-mails and domain events",
-            )
-            .optional(activities::KEY)
+            .description("Unified timeline of a record: tasks, notes, e-mails and domain events")
+            .optional(tasks::KEY)
             .optional(notes::KEY)
             .required()
     }

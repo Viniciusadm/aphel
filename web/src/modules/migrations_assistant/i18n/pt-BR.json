@@ -33,7 +33,7 @@
       "description": "Envie o CSV de negócios (oportunidades), geralmente {{file}}.",
       "links": "Cada negócio é ligado à empresa e à pessoa pelo nome, e às etapas e funis que você indicar abaixo."
     },
-    "activities": {
+    "tasks": {
       "title": "Atividades",
       "description": "Envie o CSV de atividades ou tarefas, geralmente {{file}}.",
       "links": "Importe empresas, pessoas e negócios antes: cada atividade é ligada ao negócio pelo título, à pessoa pelo e-mail ou nome e à empresa pelo nome. Tipos são reconhecidos pelo nome e tarefas concluídas mantêm a data."

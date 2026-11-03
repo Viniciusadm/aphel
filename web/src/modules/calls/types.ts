@@ -1,5 +1,5 @@
 import type { components } from '@/api'
-import type { Activity } from '@/modules/activities/api'
+import type { Activity } from '@/modules/tasks/api'
 
 type Schemas = components['schemas']
 

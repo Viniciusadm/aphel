@@ -377,7 +377,7 @@ pub(crate) struct SubjectSearchResult {
     pub(crate) records: Vec<SubjectRecord>,
     pub(crate) notes: Vec<SubjectNote>,
     pub(crate) attachments: Vec<AttachmentData>,
-    pub(crate) activities: Vec<SubjectActivity>,
+    pub(crate) tasks: Vec<SubjectActivity>,
     pub(crate) import_rows: Vec<SubjectImportRow>,
 }
 
@@ -651,7 +651,7 @@ pub(crate) struct RunReport {
     pub(crate) notes: u64,
     pub(crate) attachments: u64,
     pub(crate) files: u64,
-    pub(crate) activities: u64,
+    pub(crate) tasks: u64,
     pub(crate) import_rows: u64,
     pub(crate) history_entries: u64,
     pub(crate) external_items: u64,
@@ -666,7 +666,7 @@ impl RunReport {
             "notes": self.notes,
             "attachments": self.attachments,
             "files": self.files,
-            "activities": self.activities,
+            "tasks": self.tasks,
             "import_rows": self.import_rows,
             "history_entries": self.history_entries,
             "external_items": self.external_items,

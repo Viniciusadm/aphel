@@ -55,7 +55,7 @@ export const AUTOMATION_EXAMPLES: AutomationExample[] = [
                 { field: 'status', operator: 'eq', value: 'open' },
                 {
                   related: {
-                    relationship: 'activities',
+                    relationship: 'tasks',
                     none: true,
                     filter: {
                       op: 'and',

@@ -155,7 +155,7 @@ where
 fn task_intent(task: &DueTaskReminder) -> NotificationIntent {
     NotificationIntent::new(
         task.owner_id.clone(),
-        activities::notifications::TASK_DUE_NOTIFICATION,
+        tasks::notifications::TASK_DUE_NOTIFICATION,
         task.title.clone(),
         format!("task_reminder:{}:{}", task.id, task.reminder_at.timestamp()),
     )
@@ -205,7 +205,7 @@ where
         for task in directory.open_tasks_due(None, now, end).await? {
             let intent = NotificationIntent::new(
                 task.owner_id.clone(),
-                activities::notifications::TASK_DUE_NOTIFICATION,
+                tasks::notifications::TASK_DUE_NOTIFICATION,
                 task.title.clone(),
                 format!("task_due_today:{}:{date}", task.id),
             )

@@ -197,7 +197,7 @@
         "name": "Deadline conflicts with my schedule"
       }
     ],
-    "activity_types": [
+    "task_types": [
       {
         "key": "follow_up",
         "name": "Follow-up",

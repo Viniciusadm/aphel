@@ -8,7 +8,6 @@ use uuid::Uuid;
 use crate::domain::{
     DueReminder, DueTaskReminder, ReminderData, ReminderFilter, ReminderStatus, ReminderView,
 };
-use activities::store::{linked_record, record_title_sql};
 use aphel_kernel::Ctx;
 use aphel_kernel::application::organization_admin::{ListWindow, Listing};
 use aphel_kernel::application::shared::RecordRef;
@@ -19,6 +18,7 @@ use aphel_kernel::domain::users::UserStatus;
 use aphel_kernel::errors::AppError;
 use aphel_kernel::infrastructure::fields::mysql_definitions::uuid_column;
 use aphel_kernel::infrastructure::repositories::mapper;
+use tasks::store::{linked_record, record_title_sql};
 
 pub(crate) const MAX_DUE_REMINDERS_PER_RUN: u32 = 1000;
 
@@ -217,7 +217,7 @@ impl ReminderStore {
     ) -> Result<Vec<DueTaskReminder>, AppError> {
         let rows = sqlx::query(
             "SELECT a.id, a.owner_id, a.title, a.due_at, a.reminder_at, a.reminder_minutes_before \
-             FROM activities a \
+             FROM tasks a \
              JOIN users m ON m.id = a.owner_id \
              WHERE a.status = 'open' AND a.reminder_sent_at IS NULL AND a.reminder_at > ? AND a.reminder_at <= ? \
              AND a.deleted_at IS NULL AND a.due_at IS NOT NULL AND m.status = ? \
@@ -250,7 +250,7 @@ impl ReminderStore {
         now: DateTime<Utc>,
     ) -> Result<(), AppError> {
         sqlx::query(
-            "UPDATE activities SET reminder_sent_at = ?, updated_at = updated_at \
+            "UPDATE tasks SET reminder_sent_at = ?, updated_at = updated_at \
              WHERE id = ? AND reminder_at = ? AND reminder_sent_at IS NULL",
         )
         .bind(mapper::naive(now))

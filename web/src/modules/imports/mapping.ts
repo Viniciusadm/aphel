@@ -4,7 +4,7 @@ export const LIST_PATHS: Record<string, string> = {
   'people.person': '/people',
   'organizations.organization': '/organizations',
   'deals.deal': '/deals',
-  'activities.activity': '/activities',
+  'tasks.task': '/tasks',
 }
 
 type DeclaredJob = ImportJob & { duplicate_keys?: DuplicateKey[] }

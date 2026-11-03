@@ -3,7 +3,7 @@ import { useTranslation } from 'react-i18next'
 import { useCustomObjects } from '@/features/custom-records'
 import type { ActionCatalogEntry, AutomationCatalog, TriggerCatalogEntry } from '../types'
 
-export const CORE_RECORD_TYPES = ['people.person', 'organizations.organization', 'deals.deal', 'activities.activity'] as const
+export const CORE_RECORD_TYPES = ['people.person', 'organizations.organization', 'deals.deal', 'tasks.task'] as const
 
 type Translate = (key: string, options?: Record<string, unknown>) => string
 

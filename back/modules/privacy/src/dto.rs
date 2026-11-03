@@ -166,7 +166,7 @@ pub(crate) struct SubjectSearchResponse {
     pub(crate) records: Vec<SubjectRecordResponse>,
     pub(crate) notes: Vec<SubjectNoteResponse>,
     pub(crate) attachments: Vec<SubjectAttachmentResponse>,
-    pub(crate) activities: Vec<SubjectActivityResponse>,
+    pub(crate) tasks: Vec<SubjectActivityResponse>,
     pub(crate) import_rows: Vec<SubjectImportRowResponse>,
 }
 
@@ -178,7 +178,7 @@ impl From<SubjectSearchResult> for SubjectSearchResponse {
             records: result.records.into_iter().map(Into::into).collect(),
             notes: result.notes.into_iter().map(Into::into).collect(),
             attachments: result.attachments.into_iter().map(Into::into).collect(),
-            activities: result.activities.into_iter().map(Into::into).collect(),
+            tasks: result.tasks.into_iter().map(Into::into).collect(),
             import_rows: result.import_rows.into_iter().map(Into::into).collect(),
         }
     }
@@ -295,7 +295,7 @@ pub(crate) struct PrivacyReportResponse {
     pub(crate) notes: u64,
     pub(crate) attachments: u64,
     pub(crate) files: u64,
-    pub(crate) activities: u64,
+    pub(crate) tasks: u64,
     pub(crate) import_rows: u64,
     pub(crate) history_entries: u64,
     pub(crate) external_items: u64,
@@ -311,7 +311,7 @@ impl From<&Value> for PrivacyReportResponse {
             notes: number("notes"),
             attachments: number("attachments"),
             files: number("files"),
-            activities: number("activities"),
+            tasks: number("tasks"),
             import_rows: number("import_rows"),
             history_entries: number("history_entries"),
             external_items: number("external_items"),

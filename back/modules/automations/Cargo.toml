@@ -15,7 +15,7 @@ record_layouts = { package = "aphel-mod-record-layouts", path = "../record_layou
 aphel-contract-crm.workspace = true
 aphel-kernel.workspace = true
 aphel-sdk.workspace = true
-activities = { package = "aphel-mod-activities", path = "../activities" }
+tasks = { package = "aphel-mod-tasks", path = "../tasks" }
 tags = { package = "aphel-mod-tags", path = "../tags" }
 axum.workspace = true
 async-trait.workspace = true

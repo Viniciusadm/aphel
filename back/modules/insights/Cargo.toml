@@ -10,7 +10,7 @@ publish = false
 dashboard = { package = "aphel-mod-dashboard", path = "../dashboard" }
 aphel-contract-crm.workspace = true
 aphel-kernel.workspace = true
-activities = { package = "aphel-mod-activities", path = "../activities" }
+tasks = { package = "aphel-mod-tasks", path = "../tasks" }
 deals = { package = "aphel-mod-deals", path = "../deals" }
 async-trait.workspace = true
 chrono.workspace = true

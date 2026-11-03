@@ -34,8 +34,8 @@
     "deals": {
       "deal": "Oportunidade"
     },
-    "activities": {
-      "activity": "Atividade"
+    "tasks": {
+      "task": "Atividade"
     },
     "products": {
       "product": "Produto"
@@ -56,8 +56,8 @@
     "deals": {
       "deal": "Oportunidades"
     },
-    "activities": {
-      "activity": "Atividades"
+    "tasks": {
+      "task": "Atividades"
     },
     "products": {
       "product": "Produtos"

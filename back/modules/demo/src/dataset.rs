@@ -236,7 +236,7 @@ pub(crate) struct DemoDataset {
     pub(crate) organizations: Vec<DemoCompany>,
     pub(crate) people: Vec<DemoContact>,
     pub(crate) deals: Vec<DemoDeal>,
-    pub(crate) activities: Vec<DemoActivity>,
+    pub(crate) tasks: Vec<DemoActivity>,
     pub(crate) notes: Vec<DemoNote>,
 }
 
@@ -349,11 +349,11 @@ pub(crate) fn generate(
         })
         .collect();
 
-    let mut activities = Vec::new();
+    let mut tasks = Vec::new();
     for (index, deal) in deals.iter().enumerate() {
         let open = matches!(deal.outcome, DemoDealOutcome::Open { .. });
         let completed_due = deal.created_at + Duration::days(random.between(1, 5));
-        activities.push(DemoActivity {
+        tasks.push(DemoActivity {
             title: random.pick(&TASK_TITLES).to_string(),
             type_key: random.pick(&ACTIVITY_KEYS).to_string(),
             target: DemoTarget::Deal(index),
@@ -368,7 +368,7 @@ pub(crate) fn generate(
                 1 => now + Duration::hours(random.between(2, 8)),
                 _ => now + Duration::days(random.between(1, 14)),
             };
-            activities.push(DemoActivity {
+            tasks.push(DemoActivity {
                 title: random.pick(&TASK_TITLES).to_string(),
                 type_key: random.pick(&ACTIVITY_KEYS).to_string(),
                 target: DemoTarget::Deal(index),
@@ -381,7 +381,7 @@ pub(crate) fn generate(
     }
     for contact_index in (0..people.len()).step_by(6) {
         let overdue = contact_index % 12 == 0;
-        activities.push(DemoActivity {
+        tasks.push(DemoActivity {
             title: "Retomar contato".to_owned(),
             type_key: "call".to_owned(),
             target: DemoTarget::Contact(contact_index),
@@ -418,7 +418,7 @@ pub(crate) fn generate(
         organizations,
         people,
         deals,
-        activities,
+        tasks,
         notes,
     }
 }

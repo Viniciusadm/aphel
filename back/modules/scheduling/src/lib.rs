@@ -56,7 +56,7 @@ impl Module for SchedulingModule {
             .description(
                 "Scheduling links: availability, meeting types, team links and the public booking page",
             )
-            .depends_on(activities::KEY, "*")
+            .depends_on(tasks::KEY, "*")
             .depends_on(people::KEY, "*")
             .optional("lead_distribution")
             .enabled_by_default()

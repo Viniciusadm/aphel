@@ -372,10 +372,10 @@ impl PrivacyStore {
             return Ok(Vec::new());
         }
         let mut direct =
-            QueryBuilder::new("SELECT a.id, a.record_type, a.record_id FROM activities a WHERE ");
+            QueryBuilder::new("SELECT a.id, a.record_type, a.record_id FROM tasks a WHERE ");
         push_refs(&mut direct, "a.record_type", "a.record_id", records);
         let mut linked = QueryBuilder::new(
-            "SELECT l.activity_id AS id, l.record_type, l.record_id FROM activity_links l WHERE ",
+            "SELECT l.activity_id AS id, l.record_type, l.record_id FROM task_links l WHERE ",
         );
         push_refs(&mut linked, "l.record_type", "l.record_id", records);
         let mut result = Vec::new();
@@ -594,7 +594,7 @@ impl PrivacyStore {
             .map(|(id, record)| (id, Some(record), MatchReason::Record))
             .collect();
         let mut mentions =
-            QueryBuilder::new("SELECT a.id, a.record_type, a.record_id FROM activities a WHERE (");
+            QueryBuilder::new("SELECT a.id, a.record_type, a.record_id FROM tasks a WHERE (");
         push_text_match(&mut mentions, "a.title", matcher);
         mentions.push(" OR ");
         push_text_match(&mut mentions, "COALESCE(a.description, '')", matcher);
@@ -614,9 +614,8 @@ impl PrivacyStore {
             return Ok(Vec::new());
         }
         let ids: Vec<Uuid> = reasons.iter().map(|(id, _, _)| *id).collect();
-        let mut builder = QueryBuilder::new(
-            "SELECT a.id, a.title, a.status, a.due_at FROM activities a WHERE a.id",
-        );
+        let mut builder =
+            QueryBuilder::new("SELECT a.id, a.title, a.status, a.due_at FROM tasks a WHERE a.id");
         push_ids(&mut builder, &ids);
         let mut details = HashMap::new();
         for row in &builder.build().fetch_all(&self.pool).await? {
@@ -986,7 +985,7 @@ impl PrivacyStore {
         let mut builder = QueryBuilder::new(
             "SELECT a.*, t.name AS type_name, CAST(a.location_latitude AS DOUBLE) AS latitude, \
              CAST(a.location_longitude AS DOUBLE) AS longitude \
-             FROM activities a LEFT JOIN activity_types t ON t.id = a.activity_type_id \
+             FROM tasks a LEFT JOIN task_types t ON t.id = a.activity_type_id \
              WHERE a.id",
         );
         push_ids(&mut builder, &ids);
@@ -1295,13 +1294,11 @@ impl PrivacyStore {
         activity_id: Uuid,
     ) -> Result<bool, AppError> {
         let id = activity_id.to_string();
-        sqlx::query(
-            "DELETE FROM taggings WHERE record_type = 'activities.activity' AND record_id = ?",
-        )
-        .bind(&id)
-        .execute(&mut **tx)
-        .await?;
-        let result = sqlx::query("DELETE FROM activities WHERE id = ?")
+        sqlx::query("DELETE FROM taggings WHERE record_type = 'tasks.task' AND record_id = ?")
+            .bind(&id)
+            .execute(&mut **tx)
+            .await?;
+        let result = sqlx::query("DELETE FROM tasks WHERE id = ?")
             .bind(&id)
             .execute(&mut **tx)
             .await?;

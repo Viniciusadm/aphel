@@ -35,7 +35,7 @@
         "workflow": { "type": "array", "maxItems": 50, "items": { "$ref": "#/$defs/pipeline" } },
         "lost_reasons": { "type": "array", "maxItems": 100, "items": { "$ref": "#/$defs/lostReason" } },
         "pipeline_renewals": { "type": "array", "items": { "$ref": "#/$defs/pipelineRenewal" } },
-        "activity_types": { "type": "array", "maxItems": 100, "items": { "$ref": "#/$defs/activityType" } },
+        "task_types": { "type": "array", "maxItems": 100, "items": { "$ref": "#/$defs/activityType" } },
         "deal_member_roles": { "type": "array", "maxItems": 50, "items": { "$ref": "#/$defs/dealMemberRole" } },
         "lifecycle": { "$ref": "#/$defs/lifecycle" },
         "validation_rules": { "type": "array", "maxItems": 500, "items": { "$ref": "#/$defs/validationRule" } },

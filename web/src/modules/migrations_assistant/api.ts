@@ -80,5 +80,5 @@ export function writeStepImports(source: string, imports: Record<string, string>
 
 export function stepKind(step: MigrationStep): StepKind {
   const kind = (step as MigrationStep & { kind?: string }).kind
-  return kind === 'activities' || kind === 'notes' ? kind : 'import'
+  return kind === 'tasks' || kind === 'notes' ? kind : 'import'
 }

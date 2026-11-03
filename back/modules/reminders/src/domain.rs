@@ -1,11 +1,11 @@
 use chrono::{DateTime, Utc};
 use uuid::Uuid;
 
-use activities::domain::LinkedRecord;
 use aphel_kernel::application::organization_admin::ListWindow;
 use aphel_kernel::application::shared::RecordRef;
 use aphel_kernel::domain::UserId;
 use aphel_kernel::errors::AppError;
+use tasks::domain::LinkedRecord;
 
 pub(crate) const MAX_REMINDER_NOTE_LENGTH: usize = 500;
 

@@ -1,7 +1,6 @@
 use serde_json::{Map, Value, json};
 use uuid::Uuid;
 
-use activities::domain::CreateActivityCommand;
 use aphel_kernel::Ctx;
 use aphel_kernel::application::fields::FieldDefinitionRepository;
 use aphel_kernel::application::organization_admin::ListWindow;
@@ -14,6 +13,7 @@ use aphel_kernel::infrastructure::fields::MySqlFieldDefinitionRepository;
 use deals::domain::DealInput;
 use lead_distribution::{AssignRequest, AssignmentSource, RULE_NOT_FOUND};
 use people::domain::SaveContactCommand;
+use tasks::domain::CreateActivityCommand;
 
 fn missing_is_false(result: Result<bool, AppError>) -> Result<bool, AppError> {
     match result {
@@ -105,7 +105,7 @@ pub(crate) async fn create_activity(
     ctx: &Ctx<'_>,
     command: CreateActivityCommand,
 ) -> Result<Uuid, AppError> {
-    Ok(activities::service::create(ctx, command).await?.activity.id)
+    Ok(tasks::service::create(ctx, command).await?.activity.id)
 }
 
 pub(crate) async fn stage_in_pipeline(
@@ -136,7 +136,7 @@ pub(crate) async fn activity_type_active(
     }
     let system = AccessScope::system();
     missing_is_false(
-        activities::types::get(&ctx.with_scope(&system), activity_type_id)
+        tasks::types::get(&ctx.with_scope(&system), activity_type_id)
             .await
             .map(|activity_type| activity_type.is_active),
     )

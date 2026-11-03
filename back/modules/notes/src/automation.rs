@@ -62,7 +62,7 @@ impl AutomationAction for CreateNote {
         "Criar nota"
     }
     fn description(&self) -> &'static str {
-        "Adds a Markdown note to the record (the parent record when the automation runs on activities)"
+        "Adds a Markdown note to the record (the parent record when the automation runs on tasks)"
     }
     fn config_schema(&self) -> Value {
         json!({

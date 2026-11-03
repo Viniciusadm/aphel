@@ -231,7 +231,7 @@
         "name": "Missing integration"
       }
     ],
-    "activity_types": [
+    "task_types": [
       {
         "key": "demo",
         "name": "Demo",

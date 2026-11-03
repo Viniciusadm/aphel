@@ -30,7 +30,7 @@ export function SessionsPage() {
   const { hasPermission } = useSession()
   return (
     <div className="grid gap-6 lg:grid-cols-[minmax(0,22rem)_minmax(0,1fr)]">
-      {hasPermission('activities.create') && <StartSessionCard />}
+      {hasPermission('tasks.create') && <StartSessionCard />}
       <SessionList />
     </div>
   )

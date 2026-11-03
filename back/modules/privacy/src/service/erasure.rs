@@ -131,7 +131,7 @@ pub(crate) async fn erase(
             Ok(Some(erased)) => {
                 report.records += 1;
                 if record.record_type == RecordType::ACTIVITY {
-                    report.activities += 1;
+                    report.tasks += 1;
                 }
                 report.notes += erased.notes;
                 report.attachments += erased.attachments;

@@ -20,11 +20,11 @@ Every error comes out in the `{ "error": { "code", "message", "details" } }` env
 
 | Code | HTTP | Area |
 | --- | --- | --- |
-| `activity_already_completed` | 409 | activities |
-| `activity_already_open` | 409 | activities |
-| `activity_not_found` | 404 | activities |
-| `activity_type_key_taken` | 409 | activities |
-| `activity_type_not_found` | 404 | activities |
+| `activity_already_completed` | 409 | tasks |
+| `activity_already_open` | 409 | tasks |
+| `activity_not_found` | 404 | tasks |
+| `activity_type_key_taken` | 409 | tasks |
+| `activity_type_not_found` | 404 | tasks |
 | `already_attached` | 409 | files |
 | `already_linked` | 409 | people |
 | `already_member` | 409 | organization_admin |
@@ -125,7 +125,7 @@ Every error comes out in the `{ "error": { "code", "message", "details" } }` env
 | `invalid_two_factor_code` | 422 | auth |
 | `invalid_webhook_payload` | 422 | incoming_webhooks |
 | `invalid_webhook_signature` | 401 | incoming_webhooks |
-| `last_active_activity_type` | 409 | activities |
+| `last_active_activity_type` | 409 | tasks |
 | `last_admin` | 409 | organization_admin |
 | `last_lost_reason` | 409 | workflow |
 | `layout_context_not_found` | 404 | layouts |
@@ -154,7 +154,7 @@ Every error comes out in the `{ "error": { "code", "message", "details" } }` env
 | `organization_export_not_ready` | 409 | organization-exports |
 | `organization_not_empty` | 409 | organization-exports (the backup is only restored on an empty installation, before the installer) |
 | `organization_not_found` | 404 | modules (organization data unavailable to the module) |
-| `permission_denied` | 403 | activities, auth, organizations, dashboard, fields, files, notes, organization_admin, workflow, tags, timeline, views |
+| `permission_denied` | 403 | tasks, auth, organizations, dashboard, fields, files, notes, organization_admin, workflow, tags, timeline, views |
 | `pipeline_has_deals` | 409 | workflow |
 | `pipeline_limit_reached` | 409 | workflow |
 | `pipeline_not_found` | 404 | workflow |
@@ -322,14 +322,14 @@ Whoever creates a new code adds the row to this table and cites it in the respon
 | `price_list_key_taken` | 409 | price-lists (price list key already used in the organization) |
 | `product_bundle_not_found` | 404 | products (the product is not a bundle) |
 | `product_bundle_nested` | 409 | products (the product is a component of another bundle and cannot become a bundle) |
-| `validation_rule_failed` | 422 | people, organizations, deals, activities, products, quotes, objects (the write violates validation rules; `details.fields[]` carries `{ field, message }` for each violated rule: `field` is the highlighted field — `custom_fields.<key>` for a custom one — or `record`, and `message` is the rule's message) |
+| `validation_rule_failed` | 422 | people, organizations, deals, tasks, products, quotes, objects (the write violates validation rules; `details.fields[]` carries `{ field, message }` for each violated rule: `field` is the highlighted field — `custom_fields.<key>` for a custom one — or `record`, and `message` is the rule's message) |
 | `validation_rule_not_found` | 404 | validation-rules (rule does not exist) |
 | `stage_checklist_incomplete` | 422 | deals (moving stage or winning with required checklist items of the current stage pending; `details.fields[]` carries `checklist.<key>` with the item label) |
 | `company_hierarchy_cycle` | 422 | organizations (`parent_company_id` is the company itself or one of its subsidiaries, at any level; `details.fields[]` carries `parent_company_id`) |
 | `company_hierarchy_too_deep` | 422 | organizations (the group would have more than 10 levels counting the subtree of the moved company; `details.fields[]` carries `parent_company_id`) |
 | `checklist_item_not_found` | 404 | deals (checklist item does not exist or belongs to another pipeline) |
 | `approval_required` | 409 | deals, objects, quotes and any write that goes through an approval point (the change requires approval; `details` carries `{ record_type, record_id, moment, target_id, policies: [{ id, key, name }] }` — request it with `POST /approval-requests`) |
-| `approval_pending` | 409 | people, organizations, deals, activities, products, quotes, objects (there is a pending approval request: locked field changed or a change awaiting approval; `details` carries `{ request_id, record_type, record_id, moment, target_id }` and, when it is a field lock, `fields`) |
+| `approval_pending` | 409 | people, organizations, deals, tasks, products, quotes, objects (there is a pending approval request: locked field changed or a change awaiting approval; `details` carries `{ request_id, record_type, record_id, moment, target_id }` and, when it is a field lock, `fields`) |
 | `approval_policy_not_found` | 404 | approvals (approval policy does not exist) |
 | `approval_policy_key_taken` | 409 | approvals (policy key already used in the organization) |
 | `approval_request_not_found` | 404 | approvals (approval request does not exist or is invisible to the user) |
@@ -340,7 +340,7 @@ Whoever creates a new code adds the row to this table and cites it in the respon
 | `stage_requirements_inaccessible` | 422 | deals (the stage requires empty fields that the user cannot fill due to field permissions; `details.fields[]` points to the fields and the message says there are requirements on fields without access) |
 | `currency_mismatch` | 422 | quotes (accepting the quote while syncing a deal in another currency) |
 | `invalid_spreadsheet` | 422 | imports (the uploaded file is not a valid XLSX/CSV spreadsheet) |
-| `migration_history_step` | 422 | migrations_assistant (history step — activities and notes — sent to the import route, or import step sent to the history route) |
+| `migration_history_step` | 422 | migrations_assistant (history step — tasks and notes — sent to the import route, or import step sent to the history route) |
 | `retention_not_supported` | 422 | privacy (retention policy that archives a record type without archiving support) |
 | `module_disabled` | 404 | modules (route of a disabled module) |
 | `module_confirmation_required` | 422 | modules |

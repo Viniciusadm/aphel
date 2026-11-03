@@ -140,7 +140,7 @@ impl Module for MessagingModule {
             )
             .depends_on(people::KEY, "*")
             .optional(deals::KEY)
-            .optional(activities::KEY)
+            .optional(tasks::KEY)
             .setting(
                 SettingField::new(
                     SETTING_CREATE_CONTACTS,

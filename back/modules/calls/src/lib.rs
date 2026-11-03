@@ -27,12 +27,12 @@ pub(crate) const KEY: &str = "calls";
 const PUBLIC_EVENTS: &[PublicEventDefinition] = &[
     event(
         "call.logged",
-        activities::ACTIVITY_RESOURCE,
+        tasks::ACTIVITY_RESOURCE,
         "A call was logged as an activity (details in `call`: direction, outcome, duration)",
     ),
     changed(
         "call.updated",
-        activities::ACTIVITY_RESOURCE,
+        tasks::ACTIVITY_RESOURCE,
         "The details of a logged call changed",
         PreviousValues::Changes,
     ),
@@ -43,8 +43,8 @@ pub struct CallsModule;
 impl Module for CallsModule {
     fn manifest(&self) -> Manifest {
         Manifest::new(KEY, "Calls", APHEL_VERSION)
-            .description("Call logging as activities, call outcomes, call sessions, telephony providers and the calls report")
-            .depends_on(activities::KEY, "*")
+            .description("Call logging as tasks, call outcomes, call sessions, telephony providers and the calls report")
+            .depends_on(tasks::KEY, "*")
             .enabled_by_default()
             .owned_tables(&["activity_calls", "call_outcomes", "call_session_items", "call_sessions"])
             .migration(Migration::new(
@@ -70,7 +70,7 @@ impl Module for CallsModule {
         })));
         app.openapi_tag(
             http::TAG,
-            "Call logging as activities, call outcomes, call sessions over saved views and the calls report",
+            "Call logging as tasks, call outcomes, call sessions over saved views and the calls report",
         )
         .routes(|_| http::router())
         .provide::<dyn TelephonyRouter>(telephony::shared_router())

@@ -175,7 +175,7 @@ pub(crate) async fn subjects(ctx: &Ctx<'_>) -> Result<SubjectOptions, AppError> 
         ctx.scope,
         &[
             Permission::DEALS_READ,
-            Permission::ACTIVITIES_READ,
+            Permission::TASKS_READ,
             Permission::CONTACTS_READ,
         ],
         directory,

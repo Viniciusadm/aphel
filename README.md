@@ -4,7 +4,7 @@
 
 **Aphel** is an open source CRM that is modular, configurable and extensible, ready to be used by freelancers, agencies, real estate agencies, consultancies, SaaS organizations and sales teams.
 
-The core (people, organizations, deals, activities and history) is the same for everyone; fields, workflow, automations and modules adapt to each company without changing the code. It runs as **a single binary** (Rust) with the web interface (React) embedded, on top of MySQL. Each installation serves **one company** (the organization): to serve another company, spin up another installation with its own database.
+The core (people, organizations, deals, tasks and history) is the same for everyone; fields, workflow, automations and modules adapt to each company without changing the code. It runs as **a single binary** (Rust) with the web interface (React) embedded, on top of MySQL. Each installation serves **one company** (the organization): to serve another company, spin up another installation with its own database.
 
 > Current version: **0.1** (first usable version). See what already exists in [Features](#features-in-v01).
 
@@ -28,7 +28,7 @@ The images will be added to `docs/images/` later. To capture them, use an instal
 - **Audit:** a log of who changed what and when, with diffs and sensitive data hidden.
 - **Contacts and organizations:** complete records, linking people to several organizations, normalized phone numbers (E.164), archiving.
 - **Deals:** pipeline with stages, Kanban with drag and drop (and a keyboard "Move to" menu), won and lost with reason, amounts per stage.
-- **Tasks and activities:** tasks with due date and assignee, logging of calls and meetings, "My tasks", reminders.
+- **Tasks and tasks:** tasks with due date and assignee, logging of calls and meetings, "My tasks", reminders.
 - **Notes and timeline:** Markdown notes with mentions (`@name`), unified timeline per record.
 - **Custom fields and saved views:** 14 field types, advanced filters (AND/OR), sorting, columns and personal, team or organization views.
 - **Files and attachments:** upload with type checking, authenticated download, local disk or S3-compatible storage.

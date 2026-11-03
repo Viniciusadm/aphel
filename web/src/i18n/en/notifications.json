@@ -63,7 +63,7 @@
     "approval_requested": { "label": "Approval request", "description": "When an approval request reaches a step where you are an approver." },
     "approval_decided": { "label": "Approval decided", "description": "When an approval request of yours is approved, rejected or cancelled." },
     "approval_overdue": { "label": "Approval overdue", "description": "When an approval request waiting for you passes its due time." },
-    "followed_record_activity": { "label": "Records I follow", "description": "Changes, new activities, notes and emails on records you follow (while you can read them)." }
+    "followed_record_activity": { "label": "Records I follow", "description": "Changes, new tasks, notes and emails on records you follow (while you can read them)." }
   },
   "channels": {
     "in_app": "In Aphel",

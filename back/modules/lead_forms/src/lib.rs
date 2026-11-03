@@ -117,7 +117,7 @@ impl Module for LeadFormsModule {
             .depends_on(people::KEY, "*")
             .optional(leads::KEY)
             .optional(deals::KEY)
-            .optional(activities::KEY)
+            .optional(tasks::KEY)
             .optional(lead_distribution::KEY)
             .migration(Migration::new(
                 1,

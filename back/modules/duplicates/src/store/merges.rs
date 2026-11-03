@@ -168,9 +168,9 @@ impl MergeStore {
         };
         let mut moved = BTreeMap::new();
         moved.insert(
-            "activities".to_owned(),
-            step.record_rows(tx, "activities").await?
-                + step.unique_record_rows(tx, "activity_links").await?,
+            "tasks".to_owned(),
+            step.record_rows(tx, "tasks").await?
+                + step.unique_record_rows(tx, "task_links").await?,
         );
         moved.insert("notes".to_owned(), step.record_rows(tx, "notes").await?);
         moved.insert(

@@ -7,22 +7,18 @@ use aphel_kernel::errors::AppError;
 use crate::records::CrmRecordTypes;
 
 pub fn activities_relation() -> RecordRelation {
-    RecordRelation::new(
-        "activities",
-        crate::labels("Activities"),
-        RecordType::ACTIVITY,
-    )
-    .path(RelationPath::PolymorphicMany {
-        type_column: "record_type".to_owned(),
-        id_column: "record_id".to_owned(),
-    })
-    .path(RelationPath::Linked {
-        table: "activity_links".to_owned(),
-        source_type_column: Some("record_type".to_owned()),
-        source_id_column: "record_id".to_owned(),
-        target_type_column: None,
-        target_id_column: "activity_id".to_owned(),
-    })
+    RecordRelation::new("tasks", crate::labels("Activities"), RecordType::ACTIVITY)
+        .path(RelationPath::PolymorphicMany {
+            type_column: "record_type".to_owned(),
+            id_column: "record_id".to_owned(),
+        })
+        .path(RelationPath::Linked {
+            table: "task_links".to_owned(),
+            source_type_column: Some("record_type".to_owned()),
+            source_id_column: "record_id".to_owned(),
+            target_type_column: None,
+            target_id_column: "activity_id".to_owned(),
+        })
 }
 
 pub fn email_engagement_fields() -> Result<Vec<SystemField>, AppError> {

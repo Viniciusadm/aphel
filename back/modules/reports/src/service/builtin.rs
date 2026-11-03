@@ -35,7 +35,7 @@ use workflow::store::PipelineStore;
 
 const AMOUNT_FIELD: &str = "amount";
 const DEAL: &str = "deals.deal";
-const ACTIVITY: &str = "activities.activity";
+const ACTIVITY: &str = "tasks.task";
 
 struct DealPlans {
     fields: FieldSet,
@@ -519,9 +519,9 @@ pub(crate) async fn performance(
         "created_at",
     )
     .await?;
-    let activities_visible = dimension.activity_field().is_some()
-        && scope.filter_for(&Permission::ACTIVITIES_READ).is_some();
-    let activities = match dimension.activity_field() {
+    let activities_visible =
+        dimension.activity_field().is_some() && scope.filter_for(&Permission::TASKS_READ).is_some();
+    let tasks = match dimension.activity_field() {
         Some(group) if activities_visible => {
             let mut conditions = vec![eq("status", "done")];
             if let Some(id) = pipeline_id {
@@ -568,7 +568,7 @@ pub(crate) async fn performance(
     let won_amounts = grouped_decimal(&won, BASE_AMOUNT_METRIC);
     let lost_counts = grouped(&lost, "count");
     let created_counts = grouped(&created, "count");
-    let activity_counts = activities
+    let activity_counts = tasks
         .as_ref()
         .map(|result| grouped(result, "count"))
         .unwrap_or_default();
@@ -619,7 +619,7 @@ pub(crate) async fn performance(
             } else {
                 cycles.get(key).copied().flatten()
             },
-            activities_done: activities.as_ref().map(|_| count(&activity_counts)),
+            activities_done: tasks.as_ref().map(|_| count(&activity_counts)),
         }
     };
     let mut rows: Vec<PerformanceRow> = labels
@@ -669,15 +669,13 @@ pub(crate) async fn performance(
             } else {
                 cycle_total.first().and_then(|row| row.average_seconds)
             },
-            activities_done: activities
-                .as_ref()
-                .map(|result| whole(pick(result, "count"))),
+            activities_done: tasks.as_ref().map(|result| whole(pick(result, "count"))),
         }
     };
     let truncated = won.truncated
         || lost.truncated
         || created.truncated
-        || activities.as_ref().is_some_and(|result| result.truncated);
+        || tasks.as_ref().is_some_and(|result| result.truncated);
     Ok(PerformanceReport {
         dimension,
         currency: reports.currency().await?,
@@ -685,7 +683,7 @@ pub(crate) async fn performance(
         period: current,
         previous_period: previous,
         amounts_visible: amounts,
-        activities_visible: activities.is_some(),
+        activities_visible: tasks.is_some(),
         totals: totals_for(false),
         previous_totals: compare.then(|| totals_for(true)),
         rows,

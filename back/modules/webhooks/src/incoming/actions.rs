@@ -8,13 +8,13 @@ use crate::incoming::{
     ContactAction, ContactMatch, DealAction, FieldCatalog, MappingExpression, WebhookAction,
     scalar_text,
 };
-use activities::domain::{CreateActivityCommand, RecordLinkInput};
 use aphel_kernel::Ctx;
 use aphel_kernel::application::shared::RecordType;
 use aphel_kernel::errors::{AppError, CodedKind};
 use aphel_kernel::records::AddressInput;
 use deals::domain::DealInput;
 use people::domain::{ContactInput, SaveContactCommand};
+use tasks::domain::{CreateActivityCommand, RecordLinkInput};
 
 pub(crate) const CREATED: &str = "created";
 pub(crate) const UPDATED: &str = "updated";

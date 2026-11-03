@@ -105,7 +105,7 @@ async fn public_meeting_type(
     path = "/public/book/{slug}/slots",
     tag = TAG,
     operation_id = "scheduling_public_slots",
-    description = "Free start times of the link between `from` and `to` (RFC 3339, at most 42 days apart), no session. Only free slots are returned, never anything about the host's other commitments: open activities with time and duration, other bookings, the connected Google/Microsoft calendars (busy times only), buffers, minimum notice, daily limit and horizon are applied before. For team links the slots of all eligible members are merged.",
+    description = "Free start times of the link between `from` and `to` (RFC 3339, at most 42 days apart), no session. Only free slots are returned, never anything about the host's other commitments: open tasks with time and duration, other bookings, the connected Google/Microsoft calendars (busy times only), buffers, minimum notice, daily limit and horizon are applied before. For team links the slots of all eligible members are merged.",
     params(("slug" = String, Path, description = "Slug of the scheduling link"), PublicSlotsParams),
     responses(
         (status = 200, description = "Free slots", body = Data<PublicSlotsResponse>),

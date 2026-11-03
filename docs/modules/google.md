@@ -43,7 +43,7 @@ Same flow as [`oidc`](oidc.md#flow), with Google's fixed endpoints (`accounts.go
   - new and within the window → creates an activity of type `meeting_type`, owner = the user, with the event's title, start, duration and description, status `done` if it has already ended; attendees whose email belongs to an **existing contact** become links of the activity (unknown emails do **not** create people; with `import_scope = with_contacts` an event without a contact is ignored);
   - already linked and changed → updates the title, time, duration, description and adds contact links (existing links remain);
   - cancelled/deleted → deletes the activity (it goes to the core's trash) and the link.
-  Changes go through the core's use cases (`/v1/activities`) with the user's permissions: regular events, audit, automations and notifications.
+  Changes go through the core's use cases (`/v1/tasks`) with the user's permissions: regular events, audit, automations and notifications.
 - **CRM → calendar**: the `google.calendar_export` consumer receives `activity.created|updated|deleted` for meetings (type `meeting_type`) of connected users and schedules the `google.calendar_push` job 15 s later (grouping consecutive edits). It creates/updates (`sendUpdates=none`) or deletes the event in the primary calendar with title, start, end (duration; 30 min if empty) and description. **Attendees are not sent**, so invitations are never sent to customers.
 - **Mapping** in `google_calendar_links` (`activity_id`, `remote_id`, `remote_etag`, `remote_updated_at`, `local_updated_at`, `last_synced_at`). Loops are avoided like this: after each write the module stores the resulting local `updated_at`; the export ignores an activity whose `updated_at` is not newer than the stored one (it is the sync itself).
 - **Conflict**: if both sides changed since the last sync, it compares Google's `updated` with the CRM's `updated_at` and the most recent change wins (if the CRM won, the change is sent to the calendar again).
@@ -100,5 +100,5 @@ Same flow as [`oidc`](oidc.md#flow), with Google's fixed endpoints (`accounts.go
 - Email: no push notifications (Pub/Sub `users.watch`); the mailbox is read on the core's sync schedule. Only new messages (`messageAdded`): label changes, reads or deletions in Gmail are not reflected.
 - No push notifications (webhooks) from Google in this version: the calendar is read every 5 minutes.
 - Only the primary calendar (`primary`); all-day events are ignored; attendees are not exported.
-- Recurring CRM activities are exported occurrence by occurrence (as the occurrences exist in the CRM); recurring Google events are imported per instance.
+- Recurring CRM tasks are exported occurrence by occurrence (as the occurrences exist in the CRM); recurring Google events are imported per instance.
 - Conflict comparison with second precision.

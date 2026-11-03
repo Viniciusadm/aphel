@@ -121,7 +121,7 @@ impl Module for AutomationsModule {
                     tags::TagStore::new(pool.clone()),
                     workflow::store::PipelineStore::new(pool.clone()),
                     ::config_packages::infrastructure::MySqlConfigKeyRepository::new(pool.clone()),
-                    activities::store::ActivityTypeStore::new(pool.clone()),
+                    tasks::store::ActivityTypeStore::new(pool.clone()),
                 ))
             }),
         ));

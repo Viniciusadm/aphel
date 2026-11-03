@@ -8,7 +8,7 @@ const RECORD_PATHS: Record<string, string> = {
   'people.person': "/people",
   'organizations.organization': "/organizations",
   'deals.deal': "/deals",
-  'activities.activity': "/tasks",
+  'tasks.task': "/tasks",
   'products.product': "/products",
   'quotes.quote': "/quotes",
 };

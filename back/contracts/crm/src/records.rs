@@ -14,8 +14,8 @@ impl CrmRecordTypes for RecordType {
     const CONTACT: RecordType = RecordType::from_static("people.person");
     const COMPANY: RecordType = RecordType::from_static("organizations.organization");
     const DEAL: RecordType = RecordType::from_static("deals.deal");
-    const ACTIVITY: RecordType = RecordType::from_static("activities.activity");
+    const ACTIVITY: RecordType = RecordType::from_static("tasks.task");
     const PRODUCT: RecordType = RecordType::from_static("products.product");
     const NOTE: RecordType = RecordType::from_static("notes.note");
-    const ACTIVITY_TYPE: RecordType = RecordType::from_static("activities.activity_type");
+    const ACTIVITY_TYPE: RecordType = RecordType::from_static("tasks.type");
 }

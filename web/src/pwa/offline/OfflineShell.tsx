@@ -19,7 +19,7 @@ import { persistRecordTabs } from './record-tabs'
 import { claimOfflineStorage, installOfflineSignOutCleanup, watchSessionExpiry } from './session'
 
 const FLUSH_INTERVAL_MS = 30_000
-const INVALIDATED_QUERY_ROOTS = [['activities'], ['notes'], ['records'], ['calls']] as const
+const INVALIDATED_QUERY_ROOTS = [['tasks'], ['notes'], ['records'], ['calls']] as const
 
 installOfflineSignOutCleanup()
 

@@ -9,7 +9,7 @@ const RECORD_TAB_QUERIES: KeyMatcher[] = [
   (key) => key[0] === 'records' && key[2] === 'detail' && key[4] === 'timeline',
   (key) => key[0] === 'files' && key[1] === 'attachments' && key.length === 4,
   (key) => key[0] === 'notes' && key.length === 3,
-  (key) => key[0] === 'activities' && key[1] === 'record' && key.length === 4,
+  (key) => key[0] === 'tasks' && key[1] === 'record' && key.length === 4,
 ]
 
 function tabCacheKey(queryKey: QueryKey): string | null {

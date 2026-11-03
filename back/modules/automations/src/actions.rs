@@ -38,7 +38,7 @@ fn activity_field_violations(
         {
             violations.push(context.violation(
                 &format!("values.{key}"),
-                "cannot be changed by an automation on activities",
+                "cannot be changed by an automation on tasks",
             ));
         }
     }
@@ -410,7 +410,7 @@ impl AutomationAction for CreateRelatedRecord {
         if !is_automatable(target) || target == RecordType::ACTIVITY.as_str() {
             violations.push(context.violation(
                 "record_type",
-                "must be contact, company, deal or a custom object (use create_task for activities)",
+                "must be contact, company, deal or a custom object (use create_task for tasks)",
             ));
             return Ok(violations);
         }

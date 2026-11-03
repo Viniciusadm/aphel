@@ -16,8 +16,6 @@ use crate::domain::{
     UpdateCallCommand, UpdateCallOutcomeCommand,
 };
 use crate::service;
-use activities::domain::ActivityRecord;
-use activities::http::ActivityResponse;
 use aphel_kernel::Ctx;
 use aphel_kernel::api::dto::common::{
     Data, ErrorEnvelope, Page, double_option, timestamp as instant,
@@ -33,6 +31,8 @@ use aphel_kernel::api::state::AppState;
 use aphel_kernel::application::shared::RecordType;
 use aphel_kernel::domain::access::AccessScope;
 use aphel_kernel::errors::AppError;
+use tasks::domain::ActivityRecord;
+use tasks::http::ActivityResponse;
 
 pub(crate) const TAG: &str = "calls";
 
@@ -161,7 +161,7 @@ pub(crate) struct CallActivityResponse {
     responses(
         (status = 201, description = "Call logged as a done activity of the `call` type with the call details in `call` (`activity.created` and `call.logged`). `direction` defaults to `outbound`; `outcome_key` is one of the active call outcomes of the organization; `duration_seconds` (0–86400) also fills `duration_minutes`, rounded up; `notes` become the description; `occurred_at` is the completion time (default now); `title` defaults to `<call type> · <outcome>`. `provider` + `provider_call_id` tie the call to a telephony module (unique)", body = Data<CallActivityResponse>),
         (status = 401, description = UNAUTHORIZED, body = ErrorEnvelope),
-        (status = 403, description = "Missing `activities.create` (`permission_denied`, `insufficient_scope`)", body = ErrorEnvelope),
+        (status = 403, description = "Missing `tasks.create` (`permission_denied`, `insufficient_scope`)", body = ErrorEnvelope),
         (status = 422, description = "Invalid fields, unknown or inactive outcome, unreadable record (`validation_error`) or no call activity type (`call_activity_type_missing`)", body = ErrorEnvelope),
     )
 )]
@@ -198,7 +198,7 @@ async fn log_call(
     responses(
         (status = 200, description = "Call details updated (`call.updated` with `changes`); only the sent fields change, `null` clears duration, phone number or recording", body = Data<CallActivityResponse>),
         (status = 401, description = UNAUTHORIZED, body = ErrorEnvelope),
-        (status = 403, description = "Missing `activities.update` for this activity (`permission_denied`, `insufficient_scope`)", body = ErrorEnvelope),
+        (status = 403, description = "Missing `tasks.update` for this activity (`permission_denied`, `insufficient_scope`)", body = ErrorEnvelope),
         (status = 404, description = "Activity not found (`activity_not_found`) or it is not a logged call (`call_not_found`)", body = ErrorEnvelope),
         (status = 409, description = "The call changed after the `If-Match` version (`version_conflict`)", body = ErrorEnvelope),
         (status = 422, description = "Invalid fields or unknown outcome (`validation_error`)", body = ErrorEnvelope),
@@ -233,7 +233,7 @@ async fn update_call(
     responses(
         (status = 200, description = "Address of the call recording: asked to the telephony provider of the call when it is enabled (it may expire at `expires_at`), otherwise the stored `recording_url`", body = Data<CallRecordingResponse>),
         (status = 401, description = UNAUTHORIZED, body = ErrorEnvelope),
-        (status = 403, description = "Missing `activities.read` (`permission_denied`, `insufficient_scope`)", body = ErrorEnvelope),
+        (status = 403, description = "Missing `tasks.read` (`permission_denied`, `insufficient_scope`)", body = ErrorEnvelope),
         (status = 404, description = "Activity not found (`activity_not_found`), not a call (`call_not_found`) or without recording (`call_recording_not_found`)", body = ErrorEnvelope),
     )
 )]
@@ -257,7 +257,7 @@ async fn call_recording(
     responses(
         (status = 200, description = "Call event of a telephony module (`provider` is `<module>.<provider>`, enabled for the organization). The first event of a `provider_call_id` logs the call as the acting user (`call.logged`; without `outcome_key` the first active outcome that is connected when `duration_seconds` > 0, or not connected otherwise); the next ones update its details (`call.updated`). Modules send it with `report_call_event`", body = Data<CallActivityResponse>),
         (status = 401, description = UNAUTHORIZED, body = ErrorEnvelope),
-        (status = 403, description = "Missing `activities.create` (or `activities.update` for an existing call) (`permission_denied`, `insufficient_scope`)", body = ErrorEnvelope),
+        (status = 403, description = "Missing `tasks.create` (or `tasks.update` for an existing call) (`permission_denied`, `insufficient_scope`)", body = ErrorEnvelope),
         (status = 404, description = "Unknown or disabled telephony provider (`telephony_provider_not_found`)", body = ErrorEnvelope),
         (status = 422, description = "Invalid fields (`validation_error`)", body = ErrorEnvelope),
     )
@@ -287,7 +287,7 @@ async fn call_event(
     responses(
         (status = 200, description = "Telephony providers of the modules enabled for the organization. Without any, the web app dials with `tel:`", body = Data<Vec<TelephonyProviderResponse>>),
         (status = 401, description = UNAUTHORIZED, body = ErrorEnvelope),
-        (status = 403, description = "Missing `activities.read` (`permission_denied`, `insufficient_scope`)", body = ErrorEnvelope),
+        (status = 403, description = "Missing `tasks.read` (`permission_denied`, `insufficient_scope`)", body = ErrorEnvelope),
     )
 )]
 async fn list_providers(
@@ -313,7 +313,7 @@ async fn list_providers(
     responses(
         (status = 200, description = "Call started by the telephony provider (click to call). Nothing is logged yet: the provider reports the call with `POST /calls/events` using the returned `provider_call_id`, or the user logs it with `POST /calls`", body = Data<StartedCallResponse>),
         (status = 401, description = UNAUTHORIZED, body = ErrorEnvelope),
-        (status = 403, description = "Missing `activities.create` (`permission_denied`, `insufficient_scope`)", body = ErrorEnvelope),
+        (status = 403, description = "Missing `tasks.create` (`permission_denied`, `insufficient_scope`)", body = ErrorEnvelope),
         (status = 404, description = "Unknown or disabled telephony provider (`telephony_provider_not_found`)", body = ErrorEnvelope),
         (status = 422, description = "Missing phone number or unreadable record (`validation_error`)", body = ErrorEnvelope),
     )
@@ -339,9 +339,9 @@ async fn start_call(
     security(("session_cookie" = [])),
     params(CallReportParams),
     responses(
-        (status = 200, description = "Logged calls per owner and outcome in the period (`from` inclusive, `to` exclusive; dates `YYYY-MM-DD` in the organization time zone — `to` includes the whole day — or RFC 3339 instants; default the last 30 days, at most 366 days), only over the call activities the user can read (`activities.read` scope). `owner_id=me` keeps the user's calls. `connected` counts the outcomes marked as connected", body = Data<CallReportResponse>),
+        (status = 200, description = "Logged calls per owner and outcome in the period (`from` inclusive, `to` exclusive; dates `YYYY-MM-DD` in the organization time zone — `to` includes the whole day — or RFC 3339 instants; default the last 30 days, at most 366 days), only over the call tasks the user can read (`tasks.read` scope). `owner_id=me` keeps the user's calls. `connected` counts the outcomes marked as connected", body = Data<CallReportResponse>),
         (status = 401, description = UNAUTHORIZED, body = ErrorEnvelope),
-        (status = 403, description = "Missing `activities.read` (`permission_denied`, `insufficient_scope`)", body = ErrorEnvelope),
+        (status = 403, description = "Missing `tasks.read` (`permission_denied`, `insufficient_scope`)", body = ErrorEnvelope),
         (status = 422, description = "Invalid period or owner (`validation_error`)", body = ErrorEnvelope),
     )
 )]
@@ -368,7 +368,7 @@ async fn call_report(
     responses(
         (status = 200, description = "Call outcomes of the organization in their order (active only unless `include_inactive=true`). The system ones (`answered`, `voicemail`, `no_answer`, `wrong_number`) are created with the organization", body = Data<Vec<CallOutcomeResponse>>),
         (status = 401, description = UNAUTHORIZED, body = ErrorEnvelope),
-        (status = 403, description = "Missing `activities.read` or `settings.manage` (`permission_denied`, `insufficient_scope`)", body = ErrorEnvelope),
+        (status = 403, description = "Missing `tasks.read` or `settings.manage` (`permission_denied`, `insufficient_scope`)", body = ErrorEnvelope),
     )
 )]
 async fn list_outcomes(
@@ -493,7 +493,7 @@ async fn reorder_outcomes(
     responses(
         (status = 200, description = "Call sessions of the user, newest first (`active=true` keeps the ones still in progress)", body = Page<CallSessionResponse>),
         (status = 401, description = UNAUTHORIZED, body = ErrorEnvelope),
-        (status = 403, description = "Missing `activities.read` (`permission_denied`, `insufficient_scope`)", body = ErrorEnvelope),
+        (status = 403, description = "Missing `tasks.read` (`permission_denied`, `insufficient_scope`)", body = ErrorEnvelope),
     )
 )]
 async fn list_sessions(
@@ -525,7 +525,7 @@ async fn list_sessions(
     responses(
         (status = 201, description = "Call session started from a saved view of people visible to the user (`call_session.started`): the people matching the view filter and sort under the user's read scope (at most 500) become the queue, kept for the session. `script` defaults to the `call_script` text in the view settings; `name` to the view name", body = Data<CallSessionResponse>),
         (status = 401, description = UNAUTHORIZED, body = ErrorEnvelope),
-        (status = 403, description = "Missing `activities.create` or `people.read` (`permission_denied`, `insufficient_scope`)", body = ErrorEnvelope),
+        (status = 403, description = "Missing `tasks.create` or `people.read` (`permission_denied`, `insufficient_scope`)", body = ErrorEnvelope),
         (status = 404, description = "View not found, not visible or not of people (`call_session_view_not_found`)", body = ErrorEnvelope),
         (status = 422, description = "The view has no people (`call_session_empty`) or invalid fields (`validation_error`)", body = ErrorEnvelope),
     )
@@ -554,7 +554,7 @@ async fn start_session(
     responses(
         (status = 200, description = "Session with counts and the `current` contact of the queue (null once completed)", body = Data<CallSessionResponse>),
         (status = 401, description = UNAUTHORIZED, body = ErrorEnvelope),
-        (status = 403, description = "Missing `activities.read` (`permission_denied`, `insufficient_scope`)", body = ErrorEnvelope),
+        (status = 403, description = "Missing `tasks.read` (`permission_denied`, `insufficient_scope`)", body = ErrorEnvelope),
         (status = 404, description = "Session not found or of another user (`call_session_not_found`)", body = ErrorEnvelope),
     )
 )]
@@ -578,7 +578,7 @@ async fn get_session(
     responses(
         (status = 200, description = "Queue of the session in order, with the status of each contact (`pending`, `logged`, `skipped`) and the last call logged for it", body = Page<CallSessionItemResponse>),
         (status = 401, description = UNAUTHORIZED, body = ErrorEnvelope),
-        (status = 403, description = "Missing `activities.read` (`permission_denied`, `insufficient_scope`)", body = ErrorEnvelope),
+        (status = 403, description = "Missing `tasks.read` (`permission_denied`, `insufficient_scope`)", body = ErrorEnvelope),
         (status = 404, description = "Session not found or of another user (`call_session_not_found`)", body = ErrorEnvelope),
     )
 )]
@@ -612,7 +612,7 @@ async fn session_items(
     responses(
         (status = 201, description = "Call logged for the contact at `position` (default the current one), in the same transaction that marks it as `logged` and moves the session to the next pending contact (after it, then from the start). When no pending contact remains the session is completed (`call_session.completed`)", body = Data<SessionCallResponse>),
         (status = 401, description = UNAUTHORIZED, body = ErrorEnvelope),
-        (status = 403, description = "Missing `activities.create` (`permission_denied`, `insufficient_scope`)", body = ErrorEnvelope),
+        (status = 403, description = "Missing `tasks.create` (`permission_denied`, `insufficient_scope`)", body = ErrorEnvelope),
         (status = 404, description = "Session not found (`call_session_not_found`) or no contact at the position (`call_session_item_not_found`)", body = ErrorEnvelope),
         (status = 409, description = "The session is completed (`call_session_completed`)", body = ErrorEnvelope),
         (status = 422, description = "Invalid fields, unknown outcome or the contact is no longer readable (`validation_error`)", body = ErrorEnvelope),
@@ -651,7 +651,7 @@ async fn session_call(
     responses(
         (status = 200, description = "Contact at `position` (default the current one) marked as `skipped` when still pending, and the session moves to the next pending contact; completed when none remains", body = Data<CallSessionResponse>),
         (status = 401, description = UNAUTHORIZED, body = ErrorEnvelope),
-        (status = 403, description = "Missing `activities.create` (`permission_denied`, `insufficient_scope`)", body = ErrorEnvelope),
+        (status = 403, description = "Missing `tasks.create` (`permission_denied`, `insufficient_scope`)", body = ErrorEnvelope),
         (status = 404, description = "Session not found (`call_session_not_found`) or no contact at the position (`call_session_item_not_found`)", body = ErrorEnvelope),
         (status = 409, description = "The session is completed (`call_session_completed`)", body = ErrorEnvelope),
     )
@@ -684,7 +684,7 @@ async fn session_skip(
     responses(
         (status = 200, description = "Session moved to the contact at `position` (go back or jump ahead); a contact already logged can be called again", body = Data<CallSessionResponse>),
         (status = 401, description = UNAUTHORIZED, body = ErrorEnvelope),
-        (status = 403, description = "Missing `activities.create` (`permission_denied`, `insufficient_scope`)", body = ErrorEnvelope),
+        (status = 403, description = "Missing `tasks.create` (`permission_denied`, `insufficient_scope`)", body = ErrorEnvelope),
         (status = 404, description = "Session not found (`call_session_not_found`)", body = ErrorEnvelope),
         (status = 409, description = "The session is completed (`call_session_completed`)", body = ErrorEnvelope),
         (status = 422, description = "Position outside the queue (`validation_error`)", body = ErrorEnvelope),
@@ -715,7 +715,7 @@ async fn session_cursor(
     responses(
         (status = 200, description = "Session completed before the end of the queue (`call_session.completed`)", body = Data<CallSessionResponse>),
         (status = 401, description = UNAUTHORIZED, body = ErrorEnvelope),
-        (status = 403, description = "Missing `activities.create` (`permission_denied`, `insufficient_scope`)", body = ErrorEnvelope),
+        (status = 403, description = "Missing `tasks.create` (`permission_denied`, `insufficient_scope`)", body = ErrorEnvelope),
         (status = 404, description = "Session not found (`call_session_not_found`)", body = ErrorEnvelope),
         (status = 409, description = "The session is already completed (`call_session_completed`)", body = ErrorEnvelope),
     )

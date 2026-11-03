@@ -23,8 +23,8 @@
     "deals": {
       "deal": "Deal"
     },
-    "activities": {
-      "activity": "Activity"
+    "tasks": {
+      "task": "Activity"
     }
   },
   "recordTypesPlural": {
@@ -50,7 +50,7 @@
   "search": {
     "label": "Data subject's email, phone or document",
     "placeholder": "maria@example.com or +55 11 98765-4321",
-    "hint": "The search covers fields marked as personal data, notes, attachments, activities and import rows. The searched term is not stored; the search is recorded in the audit log.",
+    "hint": "The search covers fields marked as personal data, notes, attachments, tasks and import rows. The searched term is not stored; the search is recorded in the audit log.",
     "submit": "Search",
     "searching": "Searching…",
     "introTitle": "Find a data subject's data",
@@ -62,7 +62,7 @@
     "selectNone": "Clear selection",
     "groups": {
       "records": "Records",
-      "activities": "Activities",
+      "tasks": "Activities",
       "notes": "Notes",
       "attachments": "Attachments",
       "importRows": "Import rows"
@@ -97,7 +97,7 @@
     "delete": "Delete permanently"
   },
   "kindDescriptions": {
-    "export": "Builds a .zip file with the data of the records, notes, activities and attachments.",
+    "export": "Builds a .zip file with the data of the records, notes, tasks and attachments.",
     "anonymize": "Replaces personal data with neutral values and removes notes and attachments. Deals, amounts, stages and dates stay in the sales history.",
     "delete": "Deletes the records, custom values, notes, attachments and files. Cannot be undone."
   },
@@ -165,7 +165,7 @@
     "notes": "Notes",
     "attachments": "Attachments",
     "files": "Files",
-    "activities": "Activities",
+    "tasks": "Activities",
     "import_rows": "Import rows",
     "history_entries": "History entries",
     "external_items": "Plugin items",
@@ -227,7 +227,7 @@
     "purge_orphan_files": "Clean unused files"
   },
   "actionHints": {
-    "archive_inactive": "Uses the last change of the record, its activities and notes.",
+    "archive_inactive": "Uses the last change of the record, its tasks and notes.",
     "purge_archived": "Deletes the record, custom values, notes, attachments and files. Cannot be undone.",
     "purge_audit_logs": "The oldest change history no longer shows in the audit log.",
     "purge_security_events": "Logins, password changes and other security events of the organization.",

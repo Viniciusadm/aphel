@@ -1,0 +1,62 @@
+{
+  "page": {
+    "title": "Calendário",
+    "description": "Tarefas com prazo e reuniões por mês, semana ou dia."
+  },
+  "nav": {
+    "today": "Hoje",
+    "previous": "Anterior",
+    "next": "Próximo"
+  },
+  "views": {
+    "label": "Visualização",
+    "month": "Mês",
+    "week": "Semana",
+    "day": "Dia"
+  },
+  "filters": {
+    "owner": "Responsável",
+    "allOwners": "Todos os responsáveis",
+    "me": "{{name}} (eu)",
+    "team": "Equipe",
+    "allTeams": "Todas as equipes",
+    "type": "Tipo",
+    "allTypes": "Todos os tipos"
+  },
+  "grid": {
+    "month": "Calendário do mês",
+    "more_one": "+{{count}} mais",
+    "more_other": "+{{count}} mais",
+    "less": "Mostrar menos",
+    "empty": "Nada agendado neste período."
+  },
+  "event": {
+    "label": "{{title}}, {{time}}",
+    "open": "Abrir",
+    "reschedule": "Remarcar",
+    "duration_one": "{{count}} minuto",
+    "duration_other": "{{count}} minutos"
+  },
+  "status": {
+    "open": "Aberta",
+    "done": "Concluída",
+    "canceled": "Cancelada"
+  },
+  "create": {
+    "onDay": "Nova tarefa em {{day}}",
+    "hint": "Clique em um horário vazio para criar uma tarefa."
+  },
+  "reschedule": {
+    "title": "Remarcar atividade",
+    "description": "Escolha o novo prazo de “{{title}}”.",
+    "dueAt": "Novo prazo",
+    "cancel": "Cancelar",
+    "save": "Remarcar",
+    "done": "“{{title}}” remarcada",
+    "failed": "Não foi possível remarcar a atividade.",
+    "conflict": "A atividade mudou enquanto você editava. Os dados foram recarregados; tente de novo."
+  },
+  "truncated": "Mostrando {{shown}} de {{total}} atividades neste período. Use os filtros para ver o restante.",
+  "dragHint": "Arraste uma atividade para outro dia ou horário para remarcar.",
+  "navigation": "Calendário"
+}

@@ -16,7 +16,7 @@ function RankingTooltip({ active, payload }: { active?: boolean; payload?: { pay
   return (
     <div className="rounded-md border bg-popover px-3 py-2 text-xs text-popover-foreground shadow-md">
       <p className="font-medium">{bar.label}</p>
-      <p>{t('ranking.activities', { count: bar.count })}</p>
+      <p>{t('ranking.tasks', { count: bar.count })}</p>
     </div>
   )
 }
@@ -65,7 +65,7 @@ export function TeamActivityRankingWidget({ data }: { data: TeamActivityRankingD
             <div className="flex min-w-0 items-center gap-2">
               <span className="min-w-6 shrink-0 text-xs font-medium text-muted-foreground tabular-nums">{t('ranking.position', { position: row.position })}</span>
               <span className="truncate font-medium">{nameOf(row)}</span>
-              <span className="ml-auto shrink-0 tabular-nums">{t('ranking.activities', { count: row.count })}</span>
+              <span className="ml-auto shrink-0 tabular-nums">{t('ranking.tasks', { count: row.count })}</span>
             </div>
             {data.by_type && row.types.length > 0 && (
               <ul className="flex flex-wrap gap-1 pl-7" aria-label={t('ranking.byTypeLabel', { name: nameOf(row) })}>

@@ -13,7 +13,6 @@ use crate::{
 };
 use ::config_packages::application::{ApplyCommand, ConfigPackageUseCases, PackageSource};
 use ::config_packages::infrastructure::MySqlConfigPackagePorts;
-use activities::domain::CreateActivityCommand;
 use aphel_kernel::Ctx;
 use aphel_kernel::application::access::{AccessRepository, build_access_scope};
 use aphel_kernel::application::fields::{CreateFieldCommand, FieldOptionInput, FieldUseCases};
@@ -34,6 +33,7 @@ use onboarding::domain::CompleteOnboardingCommand;
 use onboarding::service::ONBOARDING_NOT_PENDING;
 use organizations::domain::{CompanyInput, SaveCompanyCommand};
 use people::domain::{ContactInput, SaveContactCommand};
+use tasks::domain::CreateActivityCommand;
 use workflow::seed::{STAGE_KIND_LOST, STAGE_KIND_OPEN, STAGE_KIND_WON};
 
 pub(crate) const DEMO_SEEDED: &str = "demo.seeded";
@@ -551,10 +551,10 @@ async fn seed_activities(
     catalog: &DemoCatalog,
     state: &mut SeedState,
 ) -> Result<(), AppError> {
-    let fallback_type = catalog.activity_types.values().next().cloned();
-    for activity in &dataset.activities {
+    let fallback_type = catalog.task_types.values().next().cloned();
+    for activity in &dataset.tasks {
         let Some(activity_type_id) = catalog
-            .activity_types
+            .task_types
             .get(&activity.type_key)
             .cloned()
             .or_else(|| fallback_type.clone())
@@ -564,7 +564,7 @@ async fn seed_activities(
             ));
         };
         let (record_type, record_id) = state.target(activity.target);
-        let id = activities::service::create(
+        let id = tasks::service::create(
             ctx,
             CreateActivityCommand {
                 title: activity.title.clone(),

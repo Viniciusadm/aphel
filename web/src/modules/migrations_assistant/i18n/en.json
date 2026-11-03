@@ -1,7 +1,7 @@
 {
   "page": {
     "title": "Migrate from another CRM",
-    "description": "Bring organizations, people, deals (with their won or lost status), activities and notes exported from another CRM. The assistant recognizes the export columns, converts dates, amounts and phone numbers and prepares the imports already mapped.",
+    "description": "Bring organizations, people, deals (with their won or lost status), tasks and notes exported from another CRM. The assistant recognizes the export columns, converts dates, amounts and phone numbers and prepares the imports already mapped.",
     "inferredHeaders": "The recognized column names come from the public documentation of each tool and may vary with the account language and version. Columns that are not recognized can be mapped by hand when reviewing the import."
   },
   "source": {
@@ -33,9 +33,9 @@
       "description": "Upload the deals (opportunities) CSV, usually {{file}}.",
       "links": "Each deal is linked to the company and the person by name, and to the stages and workflow you choose below."
     },
-    "activities": {
+    "tasks": {
       "title": "Activities",
-      "description": "Upload the activities or tasks CSV, usually {{file}}.",
+      "description": "Upload the tasks or tasks CSV, usually {{file}}.",
       "links": "Import organizations, people and deals first: each activity is linked to the deal by title, to the person by e-mail or name and to the company by name. Types are matched by name and done tasks keep their date."
     },
     "notes": {

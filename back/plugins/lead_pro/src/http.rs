@@ -169,7 +169,7 @@ async fn board(
     operation_id = "lead_pro_contact_temperature",
     security(("session_cookie" = [])),
     params(("contact_id" = String, Path, description = "Contact id")),
-    description = "Temperature of a lead, the hot threshold and its latest touches (activities, notes, e-mails, meetings, manual touches and the conversion). Requires `lead_pro.read` and read access to the contact.",
+    description = "Temperature of a lead, the hot threshold and its latest touches (tasks, notes, e-mails, meetings, manual touches and the conversion). Requires `lead_pro.read` and read access to the contact.",
     responses(
         (status = 200, description = "Temperature of the lead", body = LeadTemperatureEnvelope),
         (status = 401, description = "Missing or invalid credentials (`unauthorized`)"),

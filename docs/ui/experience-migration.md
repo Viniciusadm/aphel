@@ -9,7 +9,7 @@ Desktop navigation groups work, CRM, operations, insights and administration. Si
 ## Coverage inventory
 
 - Shell, dashboard, search and following: shared page hierarchy, searchable grouped navigation and mobile destinations.
-- Contacts, organizations, leads, deals, activities, products and custom objects: shared record overview, domain field priorities, full detail destination, contextual collections and dedicated editing.
+- Contacts, organizations, leads, deals, tasks, products and custom objects: shared record overview, domain field priorities, full detail destination, contextual collections and dedicated editing.
 - Record collections, segments and relation lists using RecordListView or RecordTable: mobile cards, sorting, selection, row actions and saved-view behavior. Specialized comparison tables retain contained horizontal scrolling.
 - Deals: desktop board and a mobile stage overview with totals, grouped records and an optional horizontal board, including explicit stage and pipeline movement, validation and existing approval flows.
 - Tasks: related route views through AreaNavigation. Calendar keeps its purpose-specific representations and existing mobile agenda behavior.

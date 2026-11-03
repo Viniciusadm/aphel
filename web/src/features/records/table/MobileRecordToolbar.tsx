@@ -42,7 +42,7 @@ interface MobileRecordToolbarProps {
 
 export function MobileRecordToolbar({ recordType, schema: baseSchema, titleField, resetColumns, view, search, onSearch, options, allowArchived, dateFields, onApply }: MobileRecordToolbarProps) {
   const { t } = useTranslation('records-table')
-  const { t: calendar } = useTranslation('calendar')
+  const { t: calendar } = useTranslation('records-calendar')
   const { t: common } = useTranslation()
   const { schema, extensions } = useFilterSchema(baseSchema)
   const [open, setOpen] = useState(false)

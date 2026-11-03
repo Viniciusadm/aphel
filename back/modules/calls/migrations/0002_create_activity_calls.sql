@@ -14,5 +14,5 @@ CREATE TABLE activity_calls (
   UNIQUE KEY activity_calls_provider_unique (provider, provider_call_id),
   KEY activity_calls_outcome_index (outcome_key),
   KEY activity_calls_session_index (session_id),
-  CONSTRAINT activity_calls_activity_fk FOREIGN KEY (activity_id) REFERENCES activities (id) ON DELETE CASCADE
+  CONSTRAINT activity_calls_activity_fk FOREIGN KEY (activity_id) REFERENCES tasks (id) ON DELETE CASCADE
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci;

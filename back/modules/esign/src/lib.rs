@@ -170,7 +170,7 @@ impl Module for EsignModule {
                 "Sends PDFs attached to deals for electronic signature on Clicksign and tracks their status through webhooks. It has no legal validity of its own: validity comes from the provider",
             )
             .optional(deals::KEY)
-            .optional(activities::KEY)
+            .optional(tasks::KEY)
             .setting(
                 SettingField::new(
                     ENVIRONMENT_SETTING,

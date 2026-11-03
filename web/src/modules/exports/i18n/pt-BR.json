@@ -14,8 +14,8 @@
     "deals": {
       "deal": "oportunidades"
     },
-    "activities": {
-      "activity": "atividades"
+    "tasks": {
+      "task": "atividades"
     },
     "products": {
       "product": "produtos"

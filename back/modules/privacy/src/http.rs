@@ -61,7 +61,7 @@ fn no_store() -> HeaderMap {
     security(("session_cookie" = [])),
     request_body = SubjectSearchRequest,
     responses(
-        (status = 200, description = "Where the data subject appears: records whose personal fields (system or custom, `is_personal`) match the e-mail (lowercase), phone (E.164 or digits) or document (digits) — or contain the text otherwise —, notes that mention the term or belong to those records, their attachments and activities, and import rows whose raw data contains the term (up to 100 per group). The term goes in the body so it never reaches URLs or access logs; the search is audited (`privacy.subject_searched`) without the term", body = Data<SubjectSearchResponse>),
+        (status = 200, description = "Where the data subject appears: records whose personal fields (system or custom, `is_personal`) match the e-mail (lowercase), phone (E.164 or digits) or document (digits) — or contain the text otherwise —, notes that mention the term or belong to those records, their attachments and tasks, and import rows whose raw data contains the term (up to 100 per group). The term goes in the body so it never reaches URLs or access logs; the search is audited (`privacy.subject_searched`) without the term", body = Data<SubjectSearchResponse>),
         (status = 401, description = "Missing or invalid credentials (`unauthorized`, `invalid_api_token`)", body = ErrorEnvelope),
         (status = 403, description = "Missing `privacy.manage` (`permission_denied`, `insufficient_scope`)", body = ErrorEnvelope),
         (status = 422, description = "Term shorter than 3 or longer than 255 characters (`invalid_subject_term`)", body = ErrorEnvelope),
@@ -283,7 +283,7 @@ async fn list_policies(
     security(("session_cookie" = [])),
     request_body = CreateRetentionPolicyBody,
     responses(
-        (status = 201, description = "Policy created disabled (`retention_policy.created`). Actions: `archive_inactive` (people, organizations or deals without updates, activities or notes for N days), `purge_archived` (deletes for good records archived N days ago, with their files), `purge_audit_logs`, `purge_security_events`, `purge_domain_events` (dispatched events; the timeline loses that history) and `purge_orphan_files` (files no longer referenced, also removed from the storage). The trash keeps its own retention (`trash.purge`)", body = Data<RetentionPolicyResponse>),
+        (status = 201, description = "Policy created disabled (`retention_policy.created`). Actions: `archive_inactive` (people, organizations or deals without updates, tasks or notes for N days), `purge_archived` (deletes for good records archived N days ago, with their files), `purge_audit_logs`, `purge_security_events`, `purge_domain_events` (dispatched events; the timeline loses that history) and `purge_orphan_files` (files no longer referenced, also removed from the storage). The trash keeps its own retention (`trash.purge`)", body = Data<RetentionPolicyResponse>),
         (status = 401, description = "Missing or invalid credentials (`unauthorized`, `invalid_api_token`)", body = ErrorEnvelope),
         (status = 403, description = "Missing `privacy.manage` (`permission_denied`, `insufficient_scope`)", body = ErrorEnvelope),
         (status = 422, description = "Invalid name, action, record type or threshold (`validation_error`), or 50 policies already (`retention_policy_limit`)", body = ErrorEnvelope),

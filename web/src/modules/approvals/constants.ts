@@ -25,7 +25,7 @@ export const CORE_RECORD_TYPES = [
   "people.person",
   "organizations.organization",
   "deals.deal",
-  "activities.activity",
+  "tasks.task",
   "products.product",
 ] as const;
 

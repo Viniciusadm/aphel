@@ -6,7 +6,7 @@ const SECTIONS = [
   'fields',
   'workflow',
   'lost_reasons',
-  'activity_types',
+  'task_types',
   'deal_member_roles',
   'currencies',
   'tags',

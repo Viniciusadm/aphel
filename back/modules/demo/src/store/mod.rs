@@ -18,7 +18,7 @@ use privacy::mysql::sql::{file_reference_columns, unreferenced_file_predicate};
 
 const TRACKED_SELECT: &str = "SELECT record_type, record_id FROM demo_records";
 const BUSINESS_TABLES: [&str; 7] = [
-    "activities",
+    "tasks",
     "deals",
     "people",
     "organizations",
@@ -204,8 +204,8 @@ impl DemoStore {
         )
         .fetch_all(&self.pool)
         .await?;
-        let activity_types = sqlx::query(
-            "SELECT `key`, id FROM activity_types WHERE is_active = TRUE ORDER BY position, id",
+        let task_types = sqlx::query(
+            "SELECT `key`, id FROM task_types WHERE is_active = TRUE ORDER BY position, id",
         )
         .fetch_all(&self.pool)
         .await?
@@ -215,7 +215,7 @@ impl DemoStore {
         Ok(DemoCatalog {
             stages,
             lost_reason_ids,
-            activity_types,
+            task_types,
         })
     }
 
@@ -314,14 +314,11 @@ impl DemoStore {
                 "DELETE FROM notes WHERE id IN {} OR (record_type, record_id) IN {tracked}",
                 tracked_of("notes.note")
             ),
-            format!("DELETE FROM activity_links WHERE (record_type, record_id) IN {tracked}"),
+            format!("DELETE FROM task_links WHERE (record_type, record_id) IN {tracked}"),
             format!(
-                "UPDATE activities SET record_type = NULL, record_id = NULL WHERE (record_type, record_id) IN {tracked}"
+                "UPDATE tasks SET record_type = NULL, record_id = NULL WHERE (record_type, record_id) IN {tracked}"
             ),
-            format!(
-                "DELETE FROM activities WHERE id IN {}",
-                tracked_of("activities.activity")
-            ),
+            format!("DELETE FROM tasks WHERE id IN {}", tracked_of("tasks.task")),
             format!("DELETE FROM deals WHERE id IN {}", tracked_of("deals.deal")),
             format!(
                 "DELETE FROM people WHERE id IN {}",

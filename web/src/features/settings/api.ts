@@ -114,10 +114,11 @@ export function usePermissionCatalog() {
   })
 }
 
-export function useTeams() {
+export function useTeams(enabled = true) {
   return useQuery({
     queryKey: settingsKeys.teams(),
     queryFn: () => fetchAllPages(settingsApi.listTeams),
+    enabled,
   })
 }
 

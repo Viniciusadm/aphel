@@ -1,7 +1,7 @@
 import type { ReactNode } from 'react'
 import { useTranslation } from 'react-i18next'
 import { cn } from '@/lib/utils'
-import { formatDayTitle } from './dates'
+import { formatDayTitle } from '@/sdk/calendar/dates'
 
 export interface AgendaListProps<T> {
   days: string[]
@@ -24,7 +24,7 @@ export function AgendaList<T>({
   dayAction,
   emptyLabel,
 }: AgendaListProps<T>) {
-  const { t } = useTranslation('calendar')
+  const { t } = useTranslation('records-calendar')
   const withItems = days.filter((key) => (itemsByDay.get(key)?.length ?? 0) > 0)
   if (withItems.length === 0) {
     return <p className="rounded-md border px-3 py-6 text-center text-sm text-muted-foreground">{emptyLabel ?? t('grid.empty')}</p>

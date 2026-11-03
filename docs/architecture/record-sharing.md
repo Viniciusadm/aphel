@@ -3,7 +3,7 @@
 Two generic features on top of the `RecordTypeRegistry`, valid for every record type (core, `quote`, `product`, `custom.<key>`):
 
 - **Sharing** gives a user or team read or edit access to a record beyond what their role allows.
-- **Following** makes the user get notified about changes, activities, notes and emails of the record.
+- **Following** makes the user get notified about changes, tasks, notes and emails of the record.
 
 Sharing is kernel: `back/kernel/src/application/record_sharing` (use cases and ports), `back/kernel/src/infrastructure/record_sharing` (MySQL), routes in `kernel/api/routes/v1/record_shares.rs` and web in `web/src/features/records/sharing`. Followers are the `followers` module: `back/modules/followers` (`service.rs`, `store.rs`, `http.rs`, the `followers.owners` consumer in `hooks.rs`) and `web/src/modules/followers` (button in the `record.detail.actions` slot, `/following` page). Kernel notifications get the followers through the `dyn RecordFollowerSource` service (`kernel/application/notifications/ports.rs`), provided by the module; without the module, nobody is notified as a follower.
 

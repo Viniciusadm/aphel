@@ -18,7 +18,6 @@ use crate::{
     MeetingEventPayload, MeetingType, PublicBooking, PublicMeetingType, Slot, SlotWindow,
     TOKEN_KEY_NAME, TOKEN_KEY_OWNER, email_job_payload,
 };
-use activities::domain::{CreateActivityCommand, UpdateActivityCommand};
 use aphel_kernel::Ctx;
 use aphel_kernel::application::secrets::{SecretKey, SecretVault};
 use aphel_kernel::application::shared::{
@@ -33,6 +32,7 @@ use aphel_kernel::records::{AddressInput, PendingCommit};
 use email::domain::normalize_address;
 use people::domain::{ContactInput, SaveContactCommand};
 use people::service::CreatedContact;
+use tasks::domain::{CreateActivityCommand, UpdateActivityCommand};
 
 const BUSY_MARGIN_DAYS: i64 = 1;
 

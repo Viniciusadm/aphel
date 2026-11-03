@@ -11,7 +11,7 @@ config_packages = { package = "aphel-mod-config-packages", path = "../config_pac
 saved_views = { package = "aphel-mod-saved-views", path = "../saved_views" }
 aphel-contract-crm.workspace = true
 aphel-kernel.workspace = true
-activities = { package = "aphel-mod-activities", path = "../activities" }
+tasks = { package = "aphel-mod-tasks", path = "../tasks" }
 axum.workspace = true
 async-trait.workspace = true
 chrono.workspace = true

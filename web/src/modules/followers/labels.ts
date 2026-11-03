@@ -3,7 +3,7 @@ import { useTranslation } from 'react-i18next'
 import { useCustomObjects } from '@/features/custom-records'
 import { recordDetailHref } from '@/features/records/links'
 
-export const CORE_RECORD_TYPES = ['people.person', 'organizations.organization', 'deals.deal', 'activities.activity', 'products.product', 'quotes.quote'] as const
+export const CORE_RECORD_TYPES = ['people.person', 'organizations.organization', 'deals.deal', 'tasks.task', 'products.product', 'quotes.quote'] as const
 
 type CoreRecordType = (typeof CORE_RECORD_TYPES)[number]
 

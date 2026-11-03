@@ -18,7 +18,7 @@ export function PhoneLink({ value }: FieldDisplayProps) {
   const record = useDisplayRecord()
   const { t } = useTranslation('calls')
   const session = useContext(SessionContext)
-  const canLog = session?.hasPermission('activities.create') ?? false
+  const canLog = session?.hasPermission('tasks.create') ?? false
   const providers = useTelephonyProviders(canLog)
   const [open, setOpen] = useState(false)
   const [started, setStarted] = useState<StartedCall | null>(null)

@@ -2,7 +2,7 @@
 
 Aphel provides tools to help the organization process personal data in accordance with the Brazilian General Data Protection Law (LGPD, Law 13.709/2018). They are in **Settings › Privacy** and require the `privacy.manage` permission (administrators already have it).
 
-> **Important:** software does not guarantee compliance. LGPD depends on the company's processes: defining the legal basis for each processing activity, appointing the data protection officer (DPO), responding to data subjects within the deadline, keeping records of processing activities, assessing risks, training the team and taking care of copies that live outside Aphel (spreadsheets, emails, backups, integrated systems). The features below support that work, but do not replace it.
+> **Important:** software does not guarantee compliance. LGPD depends on the company's processes: defining the legal basis for each processing activity, appointing the data protection officer (DPO), responding to data subjects within the deadline, keeping records of processing tasks, assessing risks, training the team and taking care of copies that live outside Aphel (spreadsheets, emails, backups, integrated systems). The features below support that work, but do not replace it.
 
 ## What Aphel offers
 
@@ -18,7 +18,7 @@ Aphel provides tools to help the organization process personal data in accordanc
 
 The search takes an email, phone or document (CPF, CNPJ, etc.) and looks for:
 
-- **Records** (people, organizations, deals and activities) whose fields marked as personal — system or custom — contain the value. Email is compared in lowercase; phone in the international E.164 format (the same one the people module stores, with Brazil as the default country) and also by digits only; documents by digits only. Any other text is searched as a substring.
+- **Records** (people, organizations, deals and tasks) whose fields marked as personal — system or custom — contain the value. Email is compared in lowercase; phone in the international E.164 format (the same one the people module stores, with Brazil as the default country) and also by digits only; documents by digits only. Any other text is searched as a substring.
 - **Notes** that mention the term or belong to the records found.
 - **Attachments** of the records found.
 - **Activities** linked to the records found or that mention the term.
@@ -32,7 +32,7 @@ Only fields marked as personal are included in the search. If the organization s
 
 From the results, select the items and record the request:
 
-- **Export data** — generates a `.zip` with `dados.json` (system and custom fields of each record, notes, activities, attachment metadata, notes that mention the data subject and import rows) and the `anexos/` folder with the files (up to 256 MB of attachments per export; the rest are listed with `omitted_by_size_limit`). The download is authenticated (`GET /api/v1/privacy/requests/{id}/download`), recorded in the audit log, and the file is deleted automatically 30 days after completion. Whoever executed it receives the notification "Your export is ready". The package includes **all** of the data subject's fields, including those hidden from the requester's role: reading is done with the system scope, because the data subject has a right to all of their data and the `privacy.manage` permission of whoever recorded and executed the request has already been required.
+- **Export data** — generates a `.zip` with `dados.json` (system and custom fields of each record, notes, tasks, attachment metadata, notes that mention the data subject and import rows) and the `anexos/` folder with the files (up to 256 MB of attachments per export; the rest are listed with `omitted_by_size_limit`). The download is authenticated (`GET /api/v1/privacy/requests/{id}/download`), recorded in the audit log, and the file is deleted automatically 30 days after completion. Whoever executed it receives the notification "Your export is ready". The package includes **all** of the data subject's fields, including those hidden from the requester's role: reading is done with the system scope, because the data subject has a right to all of their data and the `privacy.manage` permission of whoever recorded and executed the request has already been required.
 - **Anonymize** — replaces personal fields with neutral values: required text fields receive "Titular anonimizado" (people) or "Anonimizado" (other types); the others are left empty. Personal custom values are deleted. The record's free texts (contact notes, company and activity description, deal loss note), the record's notes and attachments (including the file in storage) and the duplicate suggestions are also deleted. **Deals, amounts, stages, workflow and dates are kept**, so that reports and the sales history remain correct.
 - **Delete permanently** — deletes the record, custom values, notes, attachments and files, tags and links, through the same path as permanent deletion from the trash. Activities linked to a deleted contact lose the link; select them too if they need to go.
 

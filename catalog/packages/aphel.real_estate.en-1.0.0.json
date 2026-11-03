@@ -370,7 +370,7 @@
         "name": "Lost interest after showing"
       }
     ],
-    "activity_types": [
+    "task_types": [
       {
         "key": "visit",
         "name": "Showing",

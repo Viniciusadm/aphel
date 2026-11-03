@@ -53,8 +53,8 @@
     "deals": {
       "deal": "Oportunidade"
     },
-    "activities": {
-      "activity": "Atividade"
+    "tasks": {
+      "task": "Atividade"
     },
     "products": {
       "product": "Produto"

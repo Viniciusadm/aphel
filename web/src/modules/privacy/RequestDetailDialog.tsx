@@ -32,7 +32,7 @@ const REPORT_KEYS = [
   'notes',
   'attachments',
   'files',
-  'activities',
+  'tasks',
   'import_rows',
   'history_entries',
   'external_items',

@@ -1,7 +1,7 @@
 import type { ComponentType, ReactNode } from 'react'
 import { useTranslation } from 'react-i18next'
 import { cn } from '@/lib/utils'
-import { formatDayNumber, formatDayTitle, formatWeekdayShort } from './dates'
+import { formatDayNumber, formatDayTitle, formatWeekdayShort } from '@/sdk/calendar/dates'
 import type { DayCellProps } from './MonthGrid'
 
 function PlainCell({ className, children }: DayCellProps) {
@@ -27,7 +27,7 @@ export function WeekColumns<T>({
   renderItem,
   Cell = PlainCell,
 }: WeekColumnsProps<T>) {
-  const { t } = useTranslation('calendar')
+  const { t } = useTranslation('records-calendar')
   return (
     <div className="min-w-0 overflow-hidden rounded-md border" role="grid" aria-label={t('grid.week')}>
       <div className="grid grid-cols-7 border-b bg-muted/40" role="row">

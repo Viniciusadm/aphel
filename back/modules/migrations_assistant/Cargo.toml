@@ -10,7 +10,7 @@ publish = false
 aphel-contract-crm.workspace = true
 aphel-kernel.workspace = true
 imports = { package = "aphel-mod-imports", path = "../imports" }
-activities = { package = "aphel-mod-activities", path = "../activities" }
+tasks = { package = "aphel-mod-tasks", path = "../tasks" }
 notes = { package = "aphel-mod-notes", path = "../notes" }
 axum.workspace = true
 chrono.workspace = true

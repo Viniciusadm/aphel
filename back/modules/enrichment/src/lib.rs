@@ -245,7 +245,7 @@ impl Module for EnrichmentModule {
             )
             .requires_aphel("0.1.0")
             .optional(deals::KEY)
-            .optional(activities::KEY);
+            .optional(tasks::KEY);
         manifest.base = manifest
             .base
             .permission(

@@ -93,7 +93,7 @@ fn metric_source(metric: GoalMetric) -> MetricSource {
             metric: MetricSpec::count(),
         },
         GoalMetric::ActivitiesDone => MetricSource {
-            record_type: "activities.activity",
+            record_type: "tasks.task",
             status: Some("done"),
             period_field: "completed_at",
             metric: MetricSpec::count(),

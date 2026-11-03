@@ -15,9 +15,9 @@
   "plugin_manifest_problems": 0,
   "plugin_state_escapes": 94,
   "plugins_with_literal_record_types": 54,
-  "required_plugins": 13,
+  "required_plugins": 11,
   "web_conflict_usages": 0,
-  "web_feature_imports_from_plugins": 701,
-  "web_imports_across_plugins": 116,
+  "web_feature_imports_from_plugins": 694,
+  "web_imports_across_plugins": 115,
   "web_shell_domain_words": 94
 }

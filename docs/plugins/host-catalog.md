@@ -15,7 +15,7 @@ What this Aphel offers to runtime plugins besides records: the hooks a manifest 
 | `record.saved` | plugins | any | action | `values` and `changes`, inside the transaction |
 | `record.saving` | plugins | any | filter | The draft `values`/`custom_fields`; return changes |
 | `record.validating` | plugins | any | veto | `values` and `changes` of the write |
-| `activity.completing` | activities | `activities.activity` | veto | Before an activity is completed; values: { activity, previous, type_key }. An error blocks it |
+| `activity.completing` | tasks | `tasks.task` | veto | Before an activity is completed; values: { activity, previous, type_key }. An error blocks it |
 | `automation.action_running` | automations | any | veto | Before an automation action runs on a record (dry run and execution), for the record's type; values: { automation_id, run_id, step_id, action, record: { record_type, record_id }, config, dry_run }. An error skips the action |
 | `deal.losing` | deals | `deals.deal` | veto | Before a deal is lost; values: { deal, previous, stage, lost_reason }. An error blocks it |
 | `deal.lost` | deals | `deals.deal` | action | After a deal is lost, inside the transaction; values: { deal, previous, stage, lost_reason } |
@@ -36,7 +36,6 @@ Writing operations are refused inside hooks (409 `plugin_write_in_hook`). Each o
 
 | Operation | Module | Access | Durable | Input and result |
 | --- | --- | --- | --- | --- |
-| `activities.complete` | activities | write | yes | Mark an open activity as done now: { id } |
 | `ai.complete` | ai | write | no | Free completion with the configured AI provider, counted in the daily and per-user limits and logged as feature plugin: { system?, prompt } or { system?, messages: [{ role: user\|assistant, content }] }, max_tokens? (1-4096, default 1024), temperature? (0-1) -> { text, input_tokens, output_tokens, provider, model } |
 | `ai.compose` | ai | write | no | Write or rewrite a text: { context: note\|email\|message, instruction, draft?, record_type?, record_id? } -> { text, sources, provider, model } |
 | `ai.next_actions` | ai | write | no | Up to 5 suggested next actions for a record: { record_type: contact\|company\|deal, record_id } -> { suggestions: [{ title, due_in_days, reason }], sources, provider, model } |
@@ -84,7 +83,6 @@ Writing operations are refused inside hooks (409 `plugin_write_in_hook`). Each o
 | `notes.list` | notes | read | — | Notes of a record visible to the actor: { record_type, record_id, page?, per_page? } -> { data, total } |
 | `notes.pin` | notes | write | yes | Pin or unpin a note: { id, pinned } |
 | `notes.update` | notes | write | yes | Edit a note: { id, body?, visibility?, pinned? } |
-| `workflow.list` | workflow | read | — | Pipelines visible to the actor with their stages: {} -> { data } |
 | `price_lists.list` | price_lists | read | — | Price lists, the default of each currency first: { currency?, active?, search?, page?, per_page? } -> { data, total } |
 | `price_lists.resolve` | price_lists | read | — | Unit price of a product from a price list (quantity tiers applied): { product_id, price_list_id? , currency? (required without price_list_id; picks the list for the company or the currency default), company_id?, quantity? (default 1), on? (YYYY-MM-DD, default today) } -> { price_list: { id, name, currency } \| null, unit_price (string) \| null, currency, quantity, on } |
 | `proposals.generate` | proposals | write | yes | Generate a PDF proposal for a deal and attach it (needs proposals.generate and edit access to the deal; the default active template when none is given): { deal_id, template_id?, template_key?, quote_id? } |
@@ -115,4 +113,6 @@ Writing operations are refused inside hooks (409 `plugin_write_in_hook`). Each o
 | `tagging.get` | tags | read | — | One tag by id: { id } -> tag |
 | `tagging.list` | tags | read | — | Tags of the organization with their usage, optionally only those allowed on a record type: { record_type? } -> { data } |
 | `tagging.remove` | tags | write | yes | Remove a tag from a record the actor can edit: { record_type, record_id, tag_id } -> { changed, tags } |
+| `tasks.complete` | tasks | write | yes | Mark an open activity as done now: { id } |
 | `timeline.page` | timeline | read | — | Timeline of a record the actor can read, newest first: { record_type, record_id, cursor?, kinds?: "activity,note,deal_stage,deal_change,record_change,attachment,event", per_page? } -> { data, meta: { next_cursor } } |
+| `workflow.list` | workflow | read | — | Pipelines visible to the actor with their stages: {} -> { data } |

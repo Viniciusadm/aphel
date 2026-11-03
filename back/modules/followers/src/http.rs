@@ -101,7 +101,7 @@ pub(crate) struct FollowedRecordsParams {
     tag = TAG,
     operation_id = "record_followers_list",
     security(("session_cookie" = [])),
-    description = "Active members who follow the record and whether the caller follows it. Followers are notified (`followed_record_activity`) of changes, new activities, notes and emails linked to the record while they can read it. The owner follows automatically (`origin: owner`).",
+    description = "Active members who follow the record and whether the caller follows it. Followers are notified (`followed_record_activity`) of changes, new tasks, notes and emails linked to the record while they can read it. The owner follows automatically (`origin: owner`).",
     params(
         ("record_type" = String, Path, description = "Record type, such as `deal` or `custom.contract`"),
         ("record_id" = String, Path, description = "Record id"),

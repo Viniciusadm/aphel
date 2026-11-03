@@ -29,5 +29,5 @@ CREATE TABLE call_session_items (
   KEY call_session_items_contact_index (contact_id),
   KEY call_session_items_activity_index (activity_id),
   CONSTRAINT call_session_items_session_fk FOREIGN KEY (session_id) REFERENCES call_sessions (id) ON DELETE CASCADE,
-  CONSTRAINT call_session_items_activity_fk FOREIGN KEY (activity_id) REFERENCES activities (id) ON DELETE SET NULL
+  CONSTRAINT call_session_items_activity_fk FOREIGN KEY (activity_id) REFERENCES tasks (id) ON DELETE SET NULL
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci;

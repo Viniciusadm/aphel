@@ -172,8 +172,8 @@
       "deals": {
         "deal": "Deals"
       },
-      "activities": {
-        "activity": "Activities"
+      "tasks": {
+        "task": "Activities"
       }
     },
     "presets": {
@@ -356,7 +356,7 @@
         "lostHint": "{{value}} lost",
         "conversion": "Conversion",
         "cycle": "Average cycle",
-        "activities": "Completed activities"
+        "tasks": "Completed tasks"
       },
       "chart": {
         "amountTitle": "Won amount",

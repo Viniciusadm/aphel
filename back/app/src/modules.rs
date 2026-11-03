@@ -5,9 +5,7 @@ pub const REQUIRED: &[&str] = &[
     "people",
     "organizations",
     "currencies",
-    "workflow",
     "deals",
-    "activities",
     "notes",
     "timeline",
     "tags",
@@ -61,7 +59,7 @@ pub fn compiled() -> Vec<Box<dyn Module>> {
         #[cfg(feature = "plugins")]
         Box::new(module_forecast::ForecastModule),
         #[cfg(feature = "plugins")]
-        Box::new(module_activities::ActivitiesModule),
+        Box::new(module_tasks::TasksModule),
         #[cfg(feature = "plugins")]
         Box::new(module_notes::NotesModule),
         #[cfg(feature = "plugins")]
@@ -148,6 +146,8 @@ pub fn compiled() -> Vec<Box<dyn Module>> {
         Box::new(module_enrichment::EnrichmentModule),
         #[cfg(feature = "plugins")]
         Box::new(module_messaging::MessagingModule),
+        #[cfg(feature = "plugins")]
+        Box::new(module_calendar::CalendarModule),
     ]
 }
 

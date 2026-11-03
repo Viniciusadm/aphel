@@ -23,8 +23,8 @@
     "deals": {
       "deal": "Oportunidade"
     },
-    "activities": {
-      "activity": "Atividade"
+    "tasks": {
+      "task": "Atividade"
     }
   },
   "recordTypesPlural": {
@@ -62,7 +62,7 @@
     "selectNone": "Limpar seleção",
     "groups": {
       "records": "Registros",
-      "activities": "Atividades",
+      "tasks": "Atividades",
       "notes": "Notas",
       "attachments": "Anexos",
       "importRows": "Linhas de importação"
@@ -165,7 +165,7 @@
     "notes": "Notas",
     "attachments": "Anexos",
     "files": "Arquivos",
-    "activities": "Atividades",
+    "tasks": "Atividades",
     "import_rows": "Linhas de importação",
     "history_entries": "Entradas do histórico",
     "external_items": "Itens de plugins",

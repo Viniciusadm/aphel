@@ -200,7 +200,7 @@
         "name": "Prazo incompatível com a agenda"
       }
     ],
-    "activity_types": [
+    "task_types": [
       {
         "key": "follow_up",
         "name": "Acompanhamento",

@@ -172,8 +172,8 @@
       "deals": {
         "deal": "Oportunidades"
       },
-      "activities": {
-        "activity": "Atividades"
+      "tasks": {
+        "task": "Atividades"
       }
     },
     "presets": {
@@ -356,7 +356,7 @@
         "lostHint": "{{value}} perdidas",
         "conversion": "Conversão",
         "cycle": "Ciclo médio",
-        "activities": "Atividades realizadas"
+        "tasks": "Atividades realizadas"
       },
       "chart": {
         "amountTitle": "Valor ganho",

@@ -55,7 +55,7 @@ where
     }
 
     fn required_permissions(&self) -> Vec<Permission> {
-        vec![Permission::ACTIVITIES_READ]
+        vec![Permission::TASKS_READ]
     }
 
     fn default_size(&self) -> WidgetSize {
@@ -79,7 +79,7 @@ where
         let ranking = run(
             context,
             json!({
-                "record_type": "activities.activity",
+                "record_type": "tasks.task",
                 "filter": with_subject(context, done_conditions())?,
                 "group_by": [{ "field": OWNER_FIELD }],
                 "metrics": [{ "fn": "count" }],
@@ -109,7 +109,7 @@ where
                 run(
                     context,
                     json!({
-                        "record_type": "activities.activity",
+                        "record_type": "tasks.task",
                         "filter": with_subject(context, conditions)?,
                         "group_by": [{ "field": OWNER_FIELD }, { "field": TYPE_FIELD }],
                         "metrics": [{ "fn": "count" }],

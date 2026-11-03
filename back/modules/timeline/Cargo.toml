@@ -9,7 +9,7 @@ publish = false
 [dependencies]
 aphel-contract-crm.workspace = true
 aphel-kernel.workspace = true
-activities = { package = "aphel-mod-activities", path = "../activities" }
+tasks = { package = "aphel-mod-tasks", path = "../tasks" }
 notes = { package = "aphel-mod-notes", path = "../notes" }
 axum.workspace = true
 async-trait.workspace = true

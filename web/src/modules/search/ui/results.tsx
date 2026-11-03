@@ -20,7 +20,7 @@ export function SearchRecordTypeIcon({ recordType, className }: SearchRecordType
       return <Building2 {...props} />
     case 'deals.deal':
       return <Handshake {...props} />
-    case 'activities.activity':
+    case 'tasks.task':
       return <CalendarCheck {...props} />
     case 'products.product':
       return <Package {...props} />

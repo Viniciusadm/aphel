@@ -19,7 +19,7 @@ const moduleLabels: Record<string, SettingsKey> = {
   people: 'permissions.modules.people',
   organizations: 'permissions.modules.organizations',
   deals: 'permissions.modules.deals',
-  activities: 'permissions.modules.activities',
+  tasks: 'permissions.modules.tasks',
   notes: 'permissions.modules.notes',
   emails: 'permissions.modules.emails',
   sequences: 'permissions.modules.sequences',

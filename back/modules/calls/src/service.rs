@@ -13,9 +13,6 @@ use crate::telephony::{TelephonyRecordingRequest, TelephonyRouter, TelephonyStar
 use ::config_packages::application::{is_config_key, key_from_name};
 use ::saved_views::application::{SavedViewRepository, is_visible};
 use ::saved_views::infrastructure::MySqlSavedViewRepository;
-use activities::domain::{ActivityRecord, ActivityScheduleInput, CreateActivityCommand, instant};
-use activities::service::{self as activity_service, PreparedActivity, record_access};
-use activities::types::require_activity_type_reader;
 use aphel_kernel::Ctx;
 use aphel_kernel::application::access::{Authorizer, PERMISSION_DENIED};
 use aphel_kernel::application::audit::{DiffOptions, diff_changes};
@@ -32,6 +29,9 @@ use aphel_kernel::database::transaction::MySqlTx;
 use aphel_kernel::domain::UserId;
 use aphel_kernel::domain::access::{AccessScope, Permission};
 use aphel_kernel::errors::{AppError, FieldViolation};
+use tasks::domain::{ActivityRecord, ActivityScheduleInput, CreateActivityCommand, instant};
+use tasks::service::{self as activity_service, PreparedActivity, record_access};
+use tasks::types::require_activity_type_reader;
 
 pub(crate) fn telephony(ctx: &Ctx<'_>) -> Result<Arc<dyn TelephonyRouter>, AppError> {
     ctx.services().require::<dyn TelephonyRouter>()
@@ -168,7 +168,7 @@ pub(crate) async fn update(
     activity_id: &str,
     command: UpdateCallCommand,
 ) -> Result<ActivityRecord, AppError> {
-    ctx.scope.require(&Permission::ACTIVITIES_UPDATE)?;
+    ctx.scope.require(&Permission::TASKS_UPDATE)?;
     let record = activity_service::get(ctx, activity_id).await?;
     let id = record.activity.id;
     if !record_access(ctx)
@@ -231,7 +231,7 @@ pub(crate) async fn record_event(
     ctx: &Ctx<'_>,
     command: CallEventCommand,
 ) -> Result<ActivityRecord, AppError> {
-    ctx.scope.require(&Permission::ACTIVITIES_CREATE)?;
+    ctx.scope.require(&Permission::TASKS_CREATE)?;
     let mut violations = Vec::new();
     let provider = optional_text(
         Some(&command.provider),
@@ -298,7 +298,7 @@ pub(crate) async fn record_event(
 }
 
 pub(crate) async fn providers(ctx: &Ctx<'_>) -> Result<Vec<(String, String)>, AppError> {
-    ctx.scope.require(&Permission::ACTIVITIES_READ)?;
+    ctx.scope.require(&Permission::TASKS_READ)?;
     Ok(telephony(ctx)?
         .providers(ctx.scope)
         .iter()
@@ -310,7 +310,7 @@ pub(crate) async fn start(
     ctx: &Ctx<'_>,
     command: StartCallCommand,
 ) -> Result<StartedCallView, AppError> {
-    ctx.scope.require(&Permission::ACTIVITIES_CREATE)?;
+    ctx.scope.require(&Permission::TASKS_CREATE)?;
     let provider = telephony(ctx)?
         .provider(ctx.scope, command.provider.trim())
         .ok_or_else(provider_not_found)?;
@@ -391,7 +391,7 @@ pub(crate) async fn recording(
 }
 
 pub(crate) async fn report(ctx: &Ctx<'_>, query: CallReportQuery) -> Result<CallReport, AppError> {
-    let visibility = ctx.scope.record_filter(&Permission::ACTIVITIES_READ)?;
+    let visibility = ctx.scope.record_filter(&Permission::TASKS_READ)?;
     let timezone = ctx.query().executor().timezone().await?;
     let now = ctx.now();
     let mut violations = Vec::new();
@@ -546,7 +546,7 @@ pub(crate) async fn prepare_call(
     session_id: Option<Uuid>,
     infer_outcome: bool,
 ) -> Result<PreparedCall, AppError> {
-    ctx.scope.require(&Permission::ACTIVITIES_CREATE)?;
+    ctx.scope.require(&Permission::TASKS_CREATE)?;
     let mut violations = Vec::new();
     let direction = command.direction.unwrap_or_default();
     let duration_seconds = parse_duration(command.duration_seconds, &mut violations);
@@ -1138,7 +1138,7 @@ pub(crate) async fn start_session(
     ctx: &Ctx<'_>,
     command: StartCallSessionCommand,
 ) -> Result<CallSessionView, AppError> {
-    ctx.scope.require(&Permission::ACTIVITIES_CREATE)?;
+    ctx.scope.require(&Permission::TASKS_CREATE)?;
     let view_not_found = || {
         AppError::not_found_code(
             CALL_SESSION_VIEW_NOT_FOUND,
@@ -1231,14 +1231,14 @@ pub(crate) async fn list_sessions(
     active_only: bool,
     window: ListWindow,
 ) -> Result<Listing<CallSession>, AppError> {
-    ctx.scope.require(&Permission::ACTIVITIES_READ)?;
+    ctx.scope.require(&Permission::TASKS_READ)?;
     CallSessionStore::of(ctx)
         .list(ctx.scope, active_only, window)
         .await
 }
 
 pub(crate) async fn get_session(ctx: &Ctx<'_>, id: &str) -> Result<CallSessionView, AppError> {
-    ctx.scope.require(&Permission::ACTIVITIES_READ)?;
+    ctx.scope.require(&Permission::TASKS_READ)?;
     let session = owned_session(ctx, id).await?;
     session_view(ctx, session).await
 }
@@ -1248,7 +1248,7 @@ pub(crate) async fn session_items(
     id: &str,
     window: ListWindow,
 ) -> Result<Listing<CallSessionItem>, AppError> {
-    ctx.scope.require(&Permission::ACTIVITIES_READ)?;
+    ctx.scope.require(&Permission::TASKS_READ)?;
     let session = owned_session(ctx, id).await?;
     CallSessionStore::of(ctx).items(session.id, window).await
 }
@@ -1258,7 +1258,7 @@ pub(crate) async fn log_in_session(
     id: &str,
     command: SessionCallCommand,
 ) -> Result<(ActivityRecord, CallSessionView), AppError> {
-    ctx.scope.require(&Permission::ACTIVITIES_CREATE)?;
+    ctx.scope.require(&Permission::TASKS_CREATE)?;
     let session = active_session(ctx, id).await?;
     let position = command.position.unwrap_or(session.position);
     let item = CallSessionStore::of(ctx)
@@ -1312,7 +1312,7 @@ pub(crate) async fn skip_in_session(
     position: Option<u32>,
     ip: Option<String>,
 ) -> Result<CallSessionView, AppError> {
-    ctx.scope.require(&Permission::ACTIVITIES_CREATE)?;
+    ctx.scope.require(&Permission::TASKS_CREATE)?;
     let session = active_session(ctx, id).await?;
     let position = position.unwrap_or(session.position);
     let item = CallSessionStore::of(ctx)
@@ -1344,7 +1344,7 @@ pub(crate) async fn move_session(
     id: &str,
     position: u32,
 ) -> Result<CallSessionView, AppError> {
-    ctx.scope.require(&Permission::ACTIVITIES_CREATE)?;
+    ctx.scope.require(&Permission::TASKS_CREATE)?;
     let session = active_session(ctx, id).await?;
     if position >= session.total {
         return Err(AppError::invalid_fields(
@@ -1371,7 +1371,7 @@ pub(crate) async fn finish_session(
     id: &str,
     ip: Option<String>,
 ) -> Result<CallSessionView, AppError> {
-    ctx.scope.require(&Permission::ACTIVITIES_CREATE)?;
+    ctx.scope.require(&Permission::TASKS_CREATE)?;
     let session = active_session(ctx, id).await?;
     let mut tx = ctx.begin().await?;
     let mut locked = lock_active(ctx, &mut tx, session.id).await?;

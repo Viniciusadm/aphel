@@ -53,8 +53,8 @@
     "deals": {
       "deal": "Deal"
     },
-    "activities": {
-      "activity": "Activity"
+    "tasks": {
+      "task": "Activity"
     },
     "products": {
       "product": "Product"

@@ -22,7 +22,7 @@ Implementation note: P5.1 connects people and organizations as providers and dup
 
 **5.3 Tasks and calendar**
 
-- [ ] **P5.4** `tasks` and `calendar` extracted from `activities`.
+- [x] **P5.4** `tasks` and `calendar` extracted from `activities`.
 
 **5.4 Messaging**
 

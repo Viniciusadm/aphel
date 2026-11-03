@@ -16,8 +16,6 @@ use ::config_packages::application::{
     ApplyContext, ConfigKeyRepository, ConfigPackage, ConfigSection, Decisions, PackageIssue,
     PlanChange, PlanItem, assign_keys, parse_section,
 };
-use activities::section::{ACTIVITY_TYPES_SECTION, PackageActivityType};
-use activities::store::ActivityTypeStore;
 use aphel_contract_automation::application::actions::{ActionRegistry, configured_flag};
 use aphel_contract_automation::application::definition::{
     AutomationDefinition, MAX_DEFINITION_BYTES, TriggerSpec, parse_definition, parse_trigger,
@@ -30,6 +28,8 @@ use aphel_kernel::domain::access::AccessScope;
 use aphel_kernel::errors::AppError;
 use tags::TagStore;
 use tags::section::{PackageTag, TAGS_SECTION};
+use tasks::section::{ACTIVITY_TYPES_SECTION, PackageActivityType};
+use tasks::store::ActivityTypeStore;
 use workflow::section::{PIPELINES_SECTION, keyed_pipelines, parse_pipelines, stage_item_key};
 use workflow::store::PipelineStore;
 
@@ -102,7 +102,7 @@ struct StageEntry {
 #[derive(Default)]
 struct KeyIndex {
     tags: Vec<(Uuid, String)>,
-    activity_types: Vec<(Uuid, String)>,
+    task_types: Vec<(Uuid, String)>,
     workflow: Vec<(Uuid, String)>,
     stages: Vec<StageEntry>,
     sequences: Vec<(Uuid, String)>,
@@ -114,7 +114,7 @@ impl KeyIndex {
         let id = Uuid::parse_str(id.trim()).ok()?;
         match kind {
             ReferenceKind::Tag => find_key(&self.tags, id),
-            ReferenceKind::ActivityType => find_key(&self.activity_types, id),
+            ReferenceKind::ActivityType => find_key(&self.task_types, id),
             ReferenceKind::Sequence => find_key(&self.sequences, id),
             ReferenceKind::Segment => find_key(&self.segments, id),
             ReferenceKind::Stage => self
@@ -188,7 +188,7 @@ pub(crate) struct AutomationsSection<K> {
     tags: TagStore,
     workflow: PipelineStore,
     keys: K,
-    activity_types: ActivityTypeStore,
+    task_types: ActivityTypeStore,
     triggers: TriggerRegistry,
     actions: ActionRegistry,
 }
@@ -203,7 +203,7 @@ where
         tags: TagStore,
         workflow: PipelineStore,
         keys: K,
-        activity_types: ActivityTypeStore,
+        task_types: ActivityTypeStore,
     ) -> Self {
         Self {
             registry,
@@ -211,7 +211,7 @@ where
             tags,
             workflow,
             keys,
-            activity_types,
+            task_types,
             triggers: TriggerRegistry::builtin(),
             actions: ActionRegistry::builtin(),
         }
@@ -235,8 +235,8 @@ where
         .into_iter()
         .map(|keyed| (keyed.id, keyed.key))
         .collect();
-        let activity_types = self
-            .activity_types
+        let task_types = self
+            .task_types
             .list(true)
             .await?
             .into_iter()
@@ -273,7 +273,7 @@ where
         }
         Ok(KeyIndex {
             tags,
-            activity_types,
+            task_types,
             workflow,
             stages,
             sequences: self.automations.sequence_keys().await?,
@@ -998,7 +998,7 @@ where
         available
             .entry(ReferenceKind::ActivityType)
             .or_default()
-            .extend(index.activity_types.iter().map(|(_, key)| key.clone()));
+            .extend(index.task_types.iter().map(|(_, key)| key.clone()));
         available
             .entry(ReferenceKind::Sequence)
             .or_default()
@@ -1111,7 +1111,7 @@ where
                         .resolved(ConfigReferenceKind::new("tasks.activity_type"), key)
                         .or_else(|| {
                             index
-                                .activity_types
+                                .task_types
                                 .iter()
                                 .find(|(_, known)| known == key)
                                 .map(|(id, _)| *id)

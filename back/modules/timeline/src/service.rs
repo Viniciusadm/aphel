@@ -93,8 +93,8 @@ pub(crate) async fn page(ctx: &Ctx<'_>, query: TimelineQuery) -> Result<Timeline
 
     let is_company = subject.record_type == RecordType::COMPANY;
     let request = TimelineRequest {
-        activities: if kinds.contains(&TimelineKind::Activity) {
-            scope.record_filter(&Permission::ACTIVITIES_READ).ok()
+        tasks: if kinds.contains(&TimelineKind::Activity) {
+            scope.record_filter(&Permission::TASKS_READ).ok()
         } else {
             None
         },

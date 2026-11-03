@@ -307,7 +307,7 @@
         "name": "Cliente internalizou o serviço"
       }
     ],
-    "activity_types": [
+    "task_types": [
       {
         "key": "briefing",
         "name": "Briefing",

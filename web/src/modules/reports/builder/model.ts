@@ -20,7 +20,7 @@ export const REPORT_RECORD_TYPES = [
   { recordType: 'deals.deal', permission: 'deals.read' },
   { recordType: 'people.person', permission: 'people.read' },
   { recordType: 'organizations.organization', permission: 'organizations.read' },
-  { recordType: 'activities.activity', permission: 'activities.read' },
+  { recordType: 'tasks.task', permission: 'tasks.read' },
 ] as const
 
 export type ReportRecordType = (typeof REPORT_RECORD_TYPES)[number]['recordType']

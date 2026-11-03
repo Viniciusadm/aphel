@@ -96,7 +96,7 @@ impl CallStore {
         activity_id: Uuid,
     ) -> Result<Option<ActivityCallView>, AppError> {
         let row = sqlx::query(sqlx::AssertSqlSafe(format!(
-            "SELECT {columns} FROM activities a {joins}\
+            "SELECT {columns} FROM tasks a {joins}\
              WHERE a.id = ? AND a.deleted_at IS NULL AND a_call.activity_id IS NOT NULL",
             columns = call_columns_sql("a"),
             joins = call_joins_sql("a"),
@@ -118,7 +118,7 @@ impl CallStore {
             return Ok(HashMap::new());
         }
         let mut builder = QueryBuilder::<MySql>::new(format!(
-            "SELECT a.id AS activity_id, {columns} FROM activities a {joins}\
+            "SELECT a.id AS activity_id, {columns} FROM tasks a {joins}\
              WHERE a_call.activity_id IS NOT NULL AND a.id IN (",
             columns = call_columns_sql("a"),
             joins = call_joins_sql("a"),
@@ -145,7 +145,7 @@ impl CallStore {
     ) -> Result<Option<Uuid>, AppError> {
         let id: Option<String> = sqlx::query_scalar(
             "SELECT c.activity_id FROM activity_calls c \
-             JOIN activities a ON a.id = c.activity_id AND a.deleted_at IS NULL \
+             JOIN tasks a ON a.id = c.activity_id AND a.deleted_at IS NULL \
              WHERE c.provider = ? AND c.provider_call_id = ?",
         )
         .bind(provider)
@@ -159,14 +159,14 @@ impl CallStore {
     pub(crate) async fn report(
         &self,
         scope: &AccessScope,
-        activities: &EntityDefinition,
+        tasks: &EntityDefinition,
         visibility: &RecordScopeFilter,
         filter: &CallReportFilter,
     ) -> Result<Vec<CallReportRow>, AppError> {
         let mut builder = QueryBuilder::<MySql>::new(
             "SELECT a.owner_id, u.display_name AS owner_name, c.outcome_key, \
              COUNT(*) AS calls, CAST(COALESCE(SUM(c.duration_seconds), 0) AS UNSIGNED) AS duration_seconds \
-             FROM activities a \
+             FROM tasks a \
              JOIN activity_calls c ON c.activity_id = a.id \
              LEFT JOIN users u ON u.id = a.owner_id \
              WHERE a.deleted_at IS NULL AND COALESCE(a.completed_at, a.created_at) >= ",
@@ -180,7 +180,7 @@ impl CallStore {
                 .push(" AND a.owner_id = ")
                 .push_bind(owner.as_str().to_owned());
         }
-        push_record_scope_as(&mut builder, scope, activities, visibility, "a");
+        push_record_scope_as(&mut builder, scope, tasks, visibility, "a");
         builder.push(" GROUP BY a.owner_id, u.display_name, c.outcome_key");
         let rows = builder.build().fetch_all(&self.pool).await?;
         rows.iter()
@@ -366,7 +366,7 @@ impl CallOutcomeStore {
 
     pub(crate) async fn call_activity_type(&self) -> Result<Option<CallActivityType>, AppError> {
         let row =
-            sqlx::query("SELECT id, name FROM activity_types WHERE `key` = ? AND is_active = TRUE")
+            sqlx::query("SELECT id, name FROM task_types WHERE `key` = ? AND is_active = TRUE")
                 .bind(CALL_ACTIVITY_TYPE_KEY)
                 .fetch_optional(&self.pool)
                 .await?;

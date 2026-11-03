@@ -1,6 +1,6 @@
 import { Phone } from 'lucide-react'
 import { createElement } from 'react'
-import { ACTIVITY_TIMELINE_RENDERERS } from '@/modules/activities/timeline/renderers'
+import { ACTIVITY_TIMELINE_RENDERERS } from '@/modules/tasks/timeline/renderers'
 import type { TimelineRenderer } from '@/features/records/timeline'
 import { CallTimelineContent } from './CallTimelineContent'
 

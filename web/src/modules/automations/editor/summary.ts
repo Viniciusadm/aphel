@@ -38,7 +38,7 @@ export function useFilterText(schema: FieldSchema | undefined) {
       const parts = nodes.map((node) => {
         if ('related' in node) {
           const relation =
-            node.related.relationship === 'activities' ? t('conditions.activitiesRelation').toLowerCase() : node.related.relationship
+            node.related.relationship === 'tasks' ? t('conditions.activitiesRelation').toLowerCase() : node.related.relationship
           return node.related.none ? t('summary.relatedNone', { relation }) : t('summary.relatedExists', { relation })
         }
         return describeNode(node, { schema, t: tableT, formatting, users: users.data ?? [] })

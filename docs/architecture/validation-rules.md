@@ -38,7 +38,7 @@ The rule is evaluated against the record's **proposed state**:
 - system fields: `RecordWrite.values` (snapshot after the write); on edit, system fields that are not part of the snapshot (computed ones, such as `days_in_stage`) come from the stored state;
 - custom fields: read **inside the transaction** after the `CustomFieldWriter` writes;
 - formula fields: recalculated in order over these values;
-- aggregations over relationships (`sum(items.total)`, `count(activities)`): evaluated against the **stored state** (child records do not change when the parent is written); on creation they are 0 (`count`/`sum`) or empty.
+- aggregations over relationships (`sum(items.total)`, `count(tasks)`): evaluated against the **stored state** (child records do not change when the parent is written); on creation they are 0 (`count`/`sum`) or empty.
 
 The rule is compiled (the formula engine's parser + analyzer) on save: it must result in a boolean and reference active fields of the type. If a field it uses is removed later, the rule no longer compiles and is ignored on write (with a warning in the log) until it is fixed.
 

@@ -397,7 +397,7 @@ impl OrgDataStore {
         }
 
         for (kind, table) in [
-            (ConfigKind::ActivityType, "activity_types"),
+            (ConfigKind::ActivityType, "task_types"),
             (ConfigKind::Relationship, "relationship_definitions"),
         ] {
             let rows = sqlx::query(AssertSqlSafe(format!("SELECT id, `key` FROM {table}")))

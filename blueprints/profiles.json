@@ -29,7 +29,10 @@
       "record_layouts",
       "formulas",
       "validation_rules",
-      "config_packages"
+      "config_packages",
+      "calendar",
+      "tasks",
+      "workflow"
     ]
   },
   {
@@ -71,7 +74,10 @@
       "record_layouts",
       "formulas",
       "validation_rules",
-      "config_packages"
+      "config_packages",
+      "calendar",
+      "tasks",
+      "workflow"
     ]
   },
   {
@@ -108,7 +114,10 @@
       "record_layouts",
       "formulas",
       "validation_rules",
-      "config_packages"
+      "config_packages",
+      "calendar",
+      "tasks",
+      "workflow"
     ]
   },
   {
@@ -145,7 +154,10 @@
       "record_layouts",
       "formulas",
       "validation_rules",
-      "config_packages"
+      "config_packages",
+      "calendar",
+      "tasks",
+      "workflow"
     ]
   },
   {
@@ -185,7 +197,10 @@
       "record_layouts",
       "formulas",
       "validation_rules",
-      "config_packages"
+      "config_packages",
+      "calendar",
+      "tasks",
+      "workflow"
     ]
   },
   {
@@ -227,7 +242,10 @@
       "record_layouts",
       "formulas",
       "validation_rules",
-      "config_packages"
+      "config_packages",
+      "calendar",
+      "tasks",
+      "workflow"
     ]
   },
   {
@@ -258,7 +276,10 @@
       "record_layouts",
       "formulas",
       "validation_rules",
-      "config_packages"
+      "config_packages",
+      "calendar",
+      "tasks",
+      "workflow"
     ]
   }
 ]

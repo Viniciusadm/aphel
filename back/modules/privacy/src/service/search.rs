@@ -36,7 +36,7 @@ pub(crate) async fn search_subject(
     }
     let refs: Vec<RecordRef> = records.iter().map(|record| record.record.clone()).collect();
     let notes = store.search_notes(&matcher, &refs, SEARCH_LIMIT).await?;
-    let activities = store
+    let tasks = store
         .search_activities(&matcher, &refs, SEARCH_LIMIT)
         .await?;
     let attachments = store.attachments(&refs).await?;
@@ -47,7 +47,7 @@ pub(crate) async fn search_subject(
         records,
         notes,
         attachments,
-        activities,
+        tasks,
         import_rows,
     };
 
@@ -66,7 +66,7 @@ pub(crate) async fn search_subject(
                     "records": result.records.len(),
                     "notes": result.notes.len(),
                     "attachments": result.attachments.len(),
-                    "activities": result.activities.len(),
+                    "tasks": result.tasks.len(),
                     "import_rows": result.import_rows.len(),
                 }),
             ),

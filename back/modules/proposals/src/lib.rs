@@ -52,7 +52,7 @@ impl Module for ProposalsModule {
             .description("Document templates and PDF proposals generated from deals")
             .requires_aphel("0.1.0")
             .optional(deals::KEY)
-            .optional(activities::KEY)
+            .optional(tasks::KEY)
             .migration(Migration::new(
                 1,
                 "create proposal templates, counters and documents",

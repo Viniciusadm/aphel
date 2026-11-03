@@ -74,7 +74,7 @@ Web Push on iOS/iPadOS (16.4+) only works with Aphel **installed on the Home Scr
 
 ## Offline use
 
-Aphel works with a poor connection in two areas: reading data already seen (last opened records and today's agenda) and creating activities and notes, which go into a local queue and are sent on reconnect. All the code lives in `web/src/pwa/offline/`.
+Aphel works with a poor connection in two areas: reading data already seen (last opened records and today's agenda) and creating tasks and notes, which go into a local queue and are sent on reconnect. All the code lives in `web/src/pwa/offline/`.
 
 ### Local storage
 
@@ -124,7 +124,7 @@ Flushing the queue (`flushOutbox`) runs at app start, on the `online` event, whe
 - Uses a cross-tab lock (`navigator.locks.request(..., { ifAvailable: true })`; without Web Locks, a lease with a deadline in `localStorage`), plus an in-tab lock.
 - Sends, in creation order, only the items of the session's user, re-reading each item before sending and always reusing the same key.
 - Result per item:
-  - 2xx (including replay with `Idempotent-Replayed: true`): removes it, shows a toast and invalidates the `activities`, `notes` and `records` queries (detail, timeline and active lists).
+  - 2xx (including replay with `Idempotent-Replayed: true`): removes it, shows a toast and invalidates the `tasks`, `notes` and `records` queries (detail, timeline and active lists).
   - Network: keeps it pending with exponential backoff (5 s up to 5 min) and stops sending the rest.
   - 5xx, 429, 408 and 409 `idempotency_key_in_progress`: keeps it pending with exponential backoff.
   - 401: keeps it pending and stops; resumes sending after the next sign-in.
@@ -156,8 +156,8 @@ To keep the fingerprint the same, the body is normalized (`JSON.parse(JSON.strin
 
 Code in `web/src/features/mobile`, mounted by the `MobileShell` at the end of the `AppLayout` and visible only below `md`.
 
-- **Bottom navigation** (`MobileNav`, fixed, with `env(safe-area-inset-bottom)`): Today (`/today`), Search (`/search`), Add ("Quick add" sheet), Inbox (`/inbox`, the activities inbox — email has no global inbox, only a per-record tab) and More (opens the `MobileSidebar`). The `main` element gets bottom padding on mobile so it does not sit under the bar. With no home screen set in preferences, `/` goes to Today on mobile (`HomeRedirect`).
-- **Today** (`TodayPage`): the user's agenda for the day (`GET /calendar` with the user's `owner_id`, from the start to the end of the day in the organization's time zone) and overdue/today's tasks (`GET /activities/inbox?owner=me`), read through `useOfflineQuery` (`agenda:today`, `tasks:today`) with a notice when they come from the local cache.
+- **Bottom navigation** (`MobileNav`, fixed, with `env(safe-area-inset-bottom)`): Today (`/today`), Search (`/search`), Add ("Quick add" sheet), Inbox (`/inbox`, the tasks inbox — email has no global inbox, only a per-record tab) and More (opens the `MobileSidebar`). The `main` element gets bottom padding on mobile so it does not sit under the bar. With no home screen set in preferences, `/` goes to Today on mobile (`HomeRedirect`).
+- **Today** (`TodayPage`): the user's agenda for the day (`GET /calendar` with the user's `owner_id`, from the start to the end of the day in the organization's time zone) and overdue/today's tasks (`GET /tasks/inbox?owner=me`), read through `useOfflineQuery` (`agenda:today`, `tasks:today`) with a notice when they come from the local cache.
 - **Quick add** (`QuickAddSheet`, bottom sheet): contact (name, phone, email), activity, note and completed call (`POST /calls` with outcome, direction and duration), with an optional link to a contact/company/deal through global search (`RecordPicker`; required for notes). Activity, note and check-in go through `submitWithOutbox` (`queued` shows "It will be sent when you reconnect"); contact and call require a connection.
 - **Dictation**: description, note and notes fields use the Web Speech API (`SpeechRecognition`/`webkitSpeechRecognition`, `pt-BR`, partial results on screen); without support, the button disappears and a notice remains.
 - **Touch**: boards (deals and custom objects) use `useBoardSensors` — `MouseSensor` (6 px distance) + `TouchSensor` with long press (250 ms, 5 px tolerance), so as not to steal scrolling — and columns with horizontal scrolling and `scroll-snap` on mobile. The record detail header, tabs and spacing were adjusted for narrow screens.
@@ -166,7 +166,7 @@ Code in `web/src/features/mobile`, mounted by the `MobileShell` at the end of th
 
 - Floating "Check-in" button on the contact, company and deal detail (mobile) and an option in "Quick add": creates a **completed** activity of type `visit` (or `meeting`, or the first active type) linked to the record.
 - Location is optional: `navigator.geolocation.getCurrentPosition` with `enableHighAccuracy`, a 15 s timeout and a 30 s cache, requested when the form opens; if denied/unavailable, the check-in is saved without it (the user can try again or discard).
-- API: `location: { latitude, longitude, accuracy_m, captured_at } | null` on `POST`/`PATCH /activities` (latitude −90..90, longitude −180..180, 6 decimal places, accuracy 0..100000 m, `captured_at` defaults to now and is never in the future; `null` on `PATCH` removes it). The response includes `map_url` (OpenStreetMap). Columns `activities.location_*` (migration `2730`), in the activity's event/audit and in the timeline metadata; "View on map" appears on the activity row, on the timeline and on the Today screen.
+- API: `location: { latitude, longitude, accuracy_m, captured_at } | null` on `POST`/`PATCH /tasks` (latitude −90..90, longitude −180..180, 6 decimal places, accuracy 0..100000 m, `captured_at` defaults to now and is never in the future; `null` on `PATCH` removes it). The response includes `map_url` (OpenStreetMap). Columns `tasks.location_*` (migration `2730`), in the activity's event/audit and in the timeline metadata; "View on map" appears on the activity row, on the timeline and on the Today screen.
 - Activity system fields: `location_latitude`, `location_longitude` (number, personal data), `location_accuracy_m` (number) and `location_captured_at` (date-time), filterable and sortable by the query engine. There is no geolocation field type: the four fields are written only through the `location` object (writing it counts as writing all four for the field policy) and hiding `location_latitude`/`location_longitude` removes `location` from the response.
 
 ## How to test manually

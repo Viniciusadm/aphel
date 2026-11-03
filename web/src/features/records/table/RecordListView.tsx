@@ -463,7 +463,7 @@ interface LayoutToggleProps {
 }
 
 function LayoutToggle({ layout, onChange, fields, fieldKey, onFieldChange }: LayoutToggleProps) {
-  const { t } = useTranslation('calendar')
+  const { t } = useTranslation('records-calendar')
   return (
     <div className="flex min-w-0 flex-wrap items-center gap-2">
       <SegmentedControl

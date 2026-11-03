@@ -1,6 +1,6 @@
 # Scheduling links
 
-The `scheduling` module (`back/modules/scheduling`, depends on `activities` and `people`, optional `lead_distribution`): use cases at the module root, `store/` (MySQL, CRM gateway, confirmation email), internal routes in `http.rs` and public ones in `public_http.rs`, the module migration `0001_create_scheduling.sql` (formerly `2330`–`2332`), the booking email worker and the `meeting.*` triggers registered in the module's `register`. Web: `web/src/modules/scheduling` (`/scheduling`, and the public pages `/book/:slug`, `/book/manage/:token`).
+The `scheduling` module (`back/modules/scheduling`, depends on `tasks` and `people`, optional `lead_distribution`): use cases at the module root, `store/` (MySQL, CRM gateway, confirmation email), internal routes in `http.rs` and public ones in `public_http.rs`, the module migration `0001_create_scheduling.sql` (formerly `2330`–`2332`), the booking email worker and the `meeting.*` triggers registered in the module's `register`. Web: `web/src/modules/scheduling` (`/scheduling`, and the public pages `/book/:slug`, `/book/manage/:token`).
 
 ## Model
 
@@ -16,7 +16,7 @@ Per-record permission `scheduling.manage`: `own` manages one's own availability 
 
 `slots::free_slots` is pure: it generates the start times in the host's time zone, applies minimum notice, horizon, daily limit (counting bookings) and before/after buffers against the busy times. Busy =
 
-- the host's open activities with `due_at` and `duration_minutes` (from any record);
+- the host's open tasks with `due_at` and `duration_minutes` (from any record);
 - `pending`/`confirmed` bookings;
 - external calendars through the `CalendarAvailability` port, contributed by modules with `app.contribute::<dyn scheduling::CalendarAvailability>(..)` (only enabled modules and connected users). Google and Microsoft implement it via `oidc::calendar::availability` (`CalendarApi::busy`: Google `events.list` without transparent, canceled or declined events; Microsoft `calendarView` without `free`/`workingElsewhere`), with the OAuth scopes already requested (`calendar.events` and `Calendars.ReadWrite`; Google's `freeBusy` would require a new scope).
 
@@ -29,7 +29,7 @@ Team link: the members come from `resolve_pool` of the `lead_distribution` rule 
 Booking is a single transaction:
 
 1. Before the transaction, the availability row of each candidate host is created with the defaults if it does not exist yet (`INSERT IGNORE`, outside the transaction). That way the following `SELECT .. FOR UPDATE` always locks an existing row, with no gap lock or deadlock between concurrent bookings for the same new host; whoever loses the race waits for the lock and gets 409 `booking_slot_unavailable` if the slot was taken.
-2. In the transaction: choose the host, lock the availability, check the bookings again, find the contact by email or create it through the people use case (`people::service::create_in_tx`), owner = host, with the mapped answers (if the mapping is rejected, a savepoint is rolled back and the contact is created with only name and email). Create the `meeting` activity linked to the contact and assigned to the host through the activities use case (`prepare_create` + `insert_prepared`), write the booking already `confirmed`, publish `meeting.booked` (`MeetingEventPayload`, record = contact, actor `system`), audit and enqueue `scheduling.booking_email` for the guest and the host. Any failure rolls everything back: no contact, activity or booking is left behind. The writes use the host's scope with full permissions (`booking_scope`), allowed only if the host is an active member with `scheduling.manage`.
+2. In the transaction: choose the host, lock the availability, check the bookings again, find the contact by email or create it through the people use case (`people::service::create_in_tx`), owner = host, with the mapped answers (if the mapping is rejected, a savepoint is rolled back and the contact is created with only name and email). Create the `meeting` activity linked to the contact and assigned to the host through the tasks use case (`prepare_create` + `insert_prepared`), write the booking already `confirmed`, publish `meeting.booked` (`MeetingEventPayload`, record = contact, actor `system`), audit and enqueue `scheduling.booking_email` for the guest and the host. Any failure rolls everything back: no contact, activity or booking is left behind. The writes use the host's scope with full permissions (`booking_scope`), allowed only if the host is an active member with `scheduling.manage`.
 3. After the commit, the `RecordCommitted` hook of the created contact runs.
 
 Existing contact: if there is already a contact with the guest's email, the booking is linked to it (product decision: the email is the guest's identity). The existing contact is not changed and does not get mapped answers, and the person booking sees nothing about it (the public API returns only the booking).

@@ -1,4 +1,4 @@
-REST API of Aphel CRM. Everything the interface does goes through here: people, organizations, deals, activities, custom fields, imports and configuration.
+REST API of Aphel CRM. Everything the interface does goes through here: people, organizations, deals, tasks, custom fields, imports and configuration.
 
 ## Authentication
 

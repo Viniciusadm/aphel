@@ -15,7 +15,7 @@
   },
   "page": {
     "title": "Records I follow",
-    "description": "You are notified of changes, activities, notes and emails of these records.",
+    "description": "You are notified of changes, tasks, notes and emails of these records.",
     "typeFilter": "Type",
     "allTypes": "All types",
     "emptyTitle": "You do not follow any record",
@@ -43,8 +43,8 @@
     "deals": {
       "deal": "Deal"
     },
-    "activities": {
-      "activity": "Activity"
+    "tasks": {
+      "task": "Activity"
     },
     "products": {
       "product": "Product"

@@ -15,7 +15,6 @@ use crate::{
     SEQUENCE_COMPLETED, SEQUENCE_EXITED, SEQUENCE_STEP_EXECUTED, SentSequenceEmail, SequenceEmail,
     SequenceStep, SequenceTask, SequenceView, StepRun, truncate,
 };
-use activities::domain::CreateActivityCommand;
 use aphel_kernel::Ctx;
 use aphel_kernel::application::organization_admin::ListWindow;
 use aphel_kernel::application::shared::{
@@ -30,6 +29,7 @@ use email::compose::{RecordInput, SendEmailCommand};
 use email::service::{sender, templates};
 use email::templates::PreviewCommand;
 use email::tracking::address_hash;
+use tasks::domain::CreateActivityCommand;
 
 pub(crate) const SEQUENCES_TICK_JOB: &str = "sequences.tick";
 pub(crate) const SEQUENCES_TICK_CRON: &str = "0 * * * * *";
@@ -316,7 +316,7 @@ async fn render_draft(ctx: &Ctx<'_>, email: &SequenceEmail) -> Result<RenderedDr
 }
 
 async fn create_activity(ctx: &Ctx<'_>, task: SequenceTask) -> Result<Uuid, AppError> {
-    let types = activities::types::list(
+    let types = tasks::types::list(
         ctx,
         false,
         ListWindow {
@@ -337,7 +337,7 @@ async fn create_activity(ctx: &Ctx<'_>, task: SequenceTask) -> Result<Uuid, AppE
         .or_else(|| types.first())
         .map(|activity_type| activity_type.id.to_string())
         .ok_or_else(|| AppError::Validation("there is no active activity type".to_owned()))?;
-    let record = activities::service::create(
+    let record = tasks::service::create(
         ctx,
         CreateActivityCommand {
             title: task.title,

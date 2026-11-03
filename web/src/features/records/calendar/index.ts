@@ -1,6 +1,6 @@
 export { AgendaList } from './AgendaList'
 export type { AgendaListProps } from './AgendaList'
-export * from './dates'
+export * from '@/sdk/calendar/dates'
 export * from './layout'
 export { MonthGrid } from './MonthGrid'
 export type { DayCellProps, MonthGridProps } from './MonthGrid'

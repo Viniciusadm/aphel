@@ -3,7 +3,7 @@
   "format_version": 1,
   "min_aphel_version": "0.1.0",
   "name": "Agency",
-  "description": "For marketing, design and development agencies: new projects and contract renewals in separate workflow, with scope, contracted services, monthly retainer, and briefing and presentation activities.",
+  "description": "For marketing, design and development agencies: new projects and contract renewals in separate workflow, with scope, contracted services, monthly retainer, and briefing and presentation tasks.",
   "author": "Aphel",
   "locale": "en",
   "sections": {
@@ -302,7 +302,7 @@
         "name": "Client took the work in-house"
       }
     ],
-    "activity_types": [
+    "task_types": [
       {
         "key": "briefing",
         "name": "Briefing",

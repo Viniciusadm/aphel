@@ -7,10 +7,10 @@ import { Button } from '@/components/ui/button'
 import { EmptyState } from '@/components/ui/empty-state'
 import { ErrorState } from '@/components/ui/error-state'
 import { Skeleton } from '@/components/ui/skeleton'
-import { activitiesApi, useActivityTypes } from '@/modules/activities/api'
+import { activitiesApi, useActivityTypes } from '@/modules/tasks/api'
 import { useModuleTranslation } from '@/kernel/modules/i18n'
 import type { RecordTabRenderProps } from '@/kernel/modules/define'
-import { useInvalidateActivitiesForRecord } from './activities'
+import { useInvalidateActivitiesForRecord } from './tasks'
 import { AI_KEY, aiApi, useAiStatus, type AiActionSuggestion } from './api'
 import { AiErrorMessage, AiFooter } from './AiNotice'
 import { Sources } from './Sources'
@@ -169,7 +169,7 @@ function SuggestionRow({ suggestion, recordType, recordId, created, onCreated }:
   const types = useActivityTypes()
   const invalidate = useInvalidateActivitiesForRecord(recordType, recordId)
   const taskType = types.data?.find((type) => type.key === TASK_TYPE_KEY && type.is_active) ?? types.data?.find((type) => type.is_active)
-  const canCreate = hasPermission('activities.create') && Boolean(taskType)
+  const canCreate = hasPermission('tasks.create') && Boolean(taskType)
 
   const create = useMutation({
     mutationFn: () =>

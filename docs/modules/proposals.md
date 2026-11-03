@@ -1,6 +1,6 @@
 # Proposals module (`proposals`)
 
-Generates PDF proposals from **document templates** with variables from the deal, the contact, the company and the items table. The PDF is attached to the deal and the `proposal.generated` event can trigger automations. It is a regular module (former extension, session 35) that follows the [module guide](README.md): it depends only on `aphel-kernel` and, as optional dependencies, on `deals` and `activities`.
+Generates PDF proposals from **document templates** with variables from the deal, the contact, the company and the items table. The PDF is attached to the deal and the `proposal.generated` event can trigger automations. It is a regular module (former extension, session 35) that follows the [module guide](README.md): it depends only on `aphel-kernel` and, as optional dependencies, on `deals` and `tasks`.
 
 | Piece | Where it lives |
 | --- | --- |

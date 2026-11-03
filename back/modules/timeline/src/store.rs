@@ -11,8 +11,6 @@ use crate::domain::{
     TimelineCursor, TimelineEntry, TimelineEventExtension, TimelineKind, TimelineRequest,
     known_event_types, timeline_kind_for_event,
 };
-use activities::domain::{ActivityView, LinkedRecord, instant};
-use activities::store::{activity_from_row, activity_select, linked_record, record_title_sql};
 use aphel_kernel::Ctx;
 use aphel_kernel::application::fields::RecordTypeRegistry;
 use aphel_kernel::application::organization_admin::ListWindow;
@@ -30,6 +28,8 @@ use aphel_kernel::infrastructure::repositories::mapper::user_reference;
 use aphel_kernel::records::constrain_query;
 use notes::domain::note_preview;
 use notes::store::note_from_row;
+use tasks::domain::{ActivityView, LinkedRecord, instant};
+use tasks::store::{activity_from_row, activity_select, linked_record, record_title_sql};
 
 #[derive(Clone)]
 pub(crate) struct TimelineStore {
@@ -176,7 +176,7 @@ impl TimelineStore {
         })
     }
 
-    async fn activities(
+    async fn tasks(
         &self,
         scope: &AccessScope,
         request: &TimelineRequest,
@@ -190,7 +190,7 @@ impl TimelineStore {
             .push_bind(subject.record_type.as_str().to_owned())
             .push(" AND r.record_id = ")
             .push_bind(subject.record_id.to_string())
-            .push(") OR r.id IN (SELECT l.activity_id FROM activity_links l WHERE ")
+            .push(") OR r.id IN (SELECT l.activity_id FROM task_links l WHERE ")
             .push("l.record_type = ")
             .push_bind(subject.record_type.as_str().to_owned())
             .push(" AND l.record_id = ")
@@ -443,9 +443,9 @@ impl TimelineStore {
     ) -> Result<Vec<TimelineEntry>, AppError> {
         let mut entries = Vec::new();
         if request.wants(TimelineKind::Activity)
-            && let Some(visibility) = &request.activities
+            && let Some(visibility) = &request.tasks
         {
-            entries.extend(self.activities(scope, request, visibility).await?);
+            entries.extend(self.tasks(scope, request, visibility).await?);
         }
         if request.wants(TimelineKind::Note) && request.notes {
             entries.extend(self.notes(scope, request).await?);

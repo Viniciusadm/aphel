@@ -310,7 +310,7 @@
         "name": "Project canceled by customer"
       }
     ],
-    "activity_types": [
+    "task_types": [
       {
         "key": "demo",
         "name": "Demo",

@@ -217,7 +217,7 @@ pub(crate) struct MergeResponse {
     pub(crate) record_type: String,
     pub(crate) survivor_id: String,
     pub(crate) merged_id: String,
-    #[schema(example = json!({ "activities": 2, "notes": 1 }))]
+    #[schema(example = json!({ "tasks": 2, "notes": 1 }))]
     pub(crate) moved: BTreeMap<String, u64>,
 }
 

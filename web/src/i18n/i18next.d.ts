@@ -1,5 +1,4 @@
 import 'i18next'
-import type activitiesNamespace from '../modules/activities/i18n/pt-BR.json'
 import type aiNamespace from '../modules/ai/i18n/pt-BR.json'
 import type apiTokensNamespace from './pt-BR/api-tokens.json'
 import type approvalsNamespace from '../modules/approvals/i18n/pt-BR.json'
@@ -7,7 +6,7 @@ import type auditNamespace from './pt-BR/audit.json'
 import type authNamespace from './pt-BR/auth.json'
 import type automationsNamespace from '../modules/automations/i18n/pt-BR.json'
 import type bulkActionsNamespace from '../modules/bulk_actions/i18n/pt-BR.json'
-import type calendarNamespace from './pt-BR/calendar.json'
+import type calendarNamespace from '../modules/calendar/i18n/pt-BR.json'
 import type callsNamespace from '../modules/calls/i18n/pt-BR.json'
 import type catalogNamespace from './pt-BR/catalog.json'
 import type commandPaletteNamespace from './pt-BR/command-palette.json'
@@ -66,6 +65,7 @@ import type proposalsNamespace from '../modules/proposals/i18n/pt-BR.json'
 import type pwaNamespace from './pt-BR/pwa.json'
 import type quotesNamespace from '../modules/quotes/i18n/pt-BR.json'
 import type recordsNamespace from './pt-BR/records.json'
+import type recordsCalendarNamespace from './pt-BR/records-calendar.json'
 import type recordsDetailNamespace from './pt-BR/records-detail.json'
 import type recordsFormNamespace from './pt-BR/records-form.json'
 import type recordsTableNamespace from './pt-BR/records-table.json'
@@ -82,6 +82,7 @@ import type setupNamespace from './pt-BR/setup.json'
 import type sharingNamespace from './pt-BR/sharing.json'
 import type systemNamespace from './pt-BR/system.json'
 import type tagsNamespace from '../modules/tags/i18n/pt-BR.json'
+import type tasksNamespace from '../modules/tasks/i18n/pt-BR.json'
 import type themesNamespace from '../modules/themes/i18n/pt-BR.json'
 import type timelineNamespace from '../modules/timeline/i18n/pt-BR.json'
 import type trashNamespace from '../modules/trash/i18n/pt-BR.json'
@@ -95,7 +96,6 @@ declare module 'i18next' {
   interface CustomTypeOptions {
     defaultNS: 'common'
     resources: {
-      activities: typeof activitiesNamespace
       ai: typeof aiNamespace
       'api-tokens': typeof apiTokensNamespace
       approvals: typeof approvalsNamespace
@@ -162,6 +162,7 @@ declare module 'i18next' {
       pwa: typeof pwaNamespace
       quotes: typeof quotesNamespace
       records: typeof recordsNamespace
+      'records-calendar': typeof recordsCalendarNamespace
       'records-detail': typeof recordsDetailNamespace
       'records-form': typeof recordsFormNamespace
       'records-table': typeof recordsTableNamespace
@@ -178,6 +179,7 @@ declare module 'i18next' {
       sharing: typeof sharingNamespace
       system: typeof systemNamespace
       tags: typeof tagsNamespace
+      tasks: typeof tasksNamespace
       themes: typeof themesNamespace
       timeline: typeof timelineNamespace
       trash: typeof trashNamespace

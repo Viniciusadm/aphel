@@ -1,84 +1,4 @@
 export interface paths {
-    "/api/v1/activities": {
-        parameters: {
-            query?: never;
-            header?: never;
-            path?: never;
-            cookie?: never;
-        };
-        get: operations["activities_list"];
-        put?: never;
-        post: operations["activities_create"];
-        delete?: never;
-        options?: never;
-        head?: never;
-        patch?: never;
-        trace?: never;
-    };
-    "/api/v1/activities/inbox": {
-        parameters: {
-            query?: never;
-            header?: never;
-            path?: never;
-            cookie?: never;
-        };
-        get: operations["activities_inbox"];
-        put?: never;
-        post?: never;
-        delete?: never;
-        options?: never;
-        head?: never;
-        patch?: never;
-        trace?: never;
-    };
-    "/api/v1/activities/{activity_id}": {
-        parameters: {
-            query?: never;
-            header?: never;
-            path?: never;
-            cookie?: never;
-        };
-        get: operations["activities_get"];
-        put?: never;
-        post?: never;
-        delete: operations["activities_delete"];
-        options?: never;
-        head?: never;
-        patch: operations["activities_update"];
-        trace?: never;
-    };
-    "/api/v1/activities/{activity_id}/complete": {
-        parameters: {
-            query?: never;
-            header?: never;
-            path?: never;
-            cookie?: never;
-        };
-        get?: never;
-        put?: never;
-        post: operations["activities_complete"];
-        delete?: never;
-        options?: never;
-        head?: never;
-        patch?: never;
-        trace?: never;
-    };
-    "/api/v1/activities/{activity_id}/reopen": {
-        parameters: {
-            query?: never;
-            header?: never;
-            path?: never;
-            cookie?: never;
-        };
-        get?: never;
-        put?: never;
-        post: operations["activities_reopen"];
-        delete?: never;
-        options?: never;
-        head?: never;
-        patch?: never;
-        trace?: never;
-    };
     "/api/v1/activity-types": {
         parameters: {
             query?: never;
@@ -86,9 +6,9 @@ export interface paths {
             path?: never;
             cookie?: never;
         };
-        get: operations["activity_types_list"];
+        get: operations["task_types_list"];
         put?: never;
-        post: operations["activity_types_create"];
+        post: operations["task_types_create"];
         delete?: never;
         options?: never;
         head?: never;
@@ -103,7 +23,7 @@ export interface paths {
             cookie?: never;
         };
         get?: never;
-        put: operations["activity_types_reorder"];
+        put: operations["task_types_reorder"];
         post?: never;
         delete?: never;
         options?: never;
@@ -118,13 +38,13 @@ export interface paths {
             path?: never;
             cookie?: never;
         };
-        get: operations["activity_types_get"];
+        get: operations["task_types_get"];
         put?: never;
         post?: never;
         delete?: never;
         options?: never;
         head?: never;
-        patch: operations["activity_types_update"];
+        patch: operations["task_types_update"];
         trace?: never;
     };
     "/api/v1/activity-types/{activity_type_id}/activate": {
@@ -136,7 +56,7 @@ export interface paths {
         };
         get?: never;
         put?: never;
-        post: operations["activity_types_activate"];
+        post: operations["task_types_activate"];
         delete?: never;
         options?: never;
         head?: never;
@@ -152,7 +72,7 @@ export interface paths {
         };
         get?: never;
         put?: never;
-        post: operations["activity_types_deactivate"];
+        post: operations["task_types_deactivate"];
         delete?: never;
         options?: never;
         head?: never;
@@ -1006,6 +926,22 @@ export interface paths {
         patch?: never;
         trace?: never;
     };
+    "/api/v1/calendar/{source}/{id}": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        get?: never;
+        put?: never;
+        post?: never;
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch: operations["calendar_reschedule"];
+        trace?: never;
+    };
     "/api/v1/calls": {
         parameters: {
             query?: never;
@@ -1709,7 +1645,7 @@ export interface paths {
             path?: never;
             cookie?: never;
         };
-        /** @description Users and teams whose numbers the current user can follow on the dashboard, from the broadest read scope among `deals.read`, `activities.read` and `people.read`: `own` → only the user; `team` → the teams of the user and their members; `organization` → every member and team. Use the ids as `user_id`/`team_id` of the widget data. */
+        /** @description Users and teams whose numbers the current user can follow on the dashboard, from the broadest read scope among `deals.read`, `tasks.read` and `people.read`: `own` → only the user; `team` → the teams of the user and their members; `organization` → every member and team. Use the ids as `user_id`/`team_id` of the widget data. */
         get: operations["dashboard_subjects_list"];
         put?: never;
         post?: never;
@@ -6204,7 +6140,7 @@ export interface paths {
             path?: never;
             cookie?: never;
         };
-        /** @description Free start times of the link between `from` and `to` (RFC 3339, at most 42 days apart), no session. Only free slots are returned, never anything about the host's other commitments: open activities with time and duration, other bookings, the connected Google/Microsoft calendars (busy times only), buffers, minimum notice, daily limit and horizon are applied before. For team links the slots of all eligible members are merged. */
+        /** @description Free start times of the link between `from` and `to` (RFC 3339, at most 42 days apart), no session. Only free slots are returned, never anything about the host's other commitments: open tasks with time and duration, other bookings, the connected Google/Microsoft calendars (busy times only), buffers, minimum notice, daily limit and horizon are applied before. For team links the slots of all eligible members are merged. */
         get: operations["scheduling_public_slots"];
         put?: never;
         post?: never;
@@ -6739,7 +6675,7 @@ export interface paths {
             path?: never;
             cookie?: never;
         };
-        /** @description Active members who follow the record and whether the caller follows it. Followers are notified (`followed_record_activity`) of changes, new activities, notes and emails linked to the record while they can read it. The owner follows automatically (`origin: owner`). */
+        /** @description Active members who follow the record and whether the caller follows it. Followers are notified (`followed_record_activity`) of changes, new tasks, notes and emails linked to the record while they can read it. The owner follows automatically (`origin: owner`). */
         get: operations["record_followers_list"];
         put?: never;
         post?: never;
@@ -6946,7 +6882,7 @@ export interface paths {
             path?: never;
             cookie?: never;
         };
-        /** @description Sales performance grouped by `dimension` (`owner`, default; `team` of the owner, where an owner in two teams counts in both; `source`; `pipeline`), optionally limited to one pipeline, under the read scope of `deals.read` and `activities.read` (`own` sees only their numbers) and the field permissions of the role. Per row and in `totals`: `created` (deals created in the period), `won`/`won_amount` and `lost` (closed in the period), `conversion_rate` (won / (won + lost)), `average_cycle_seconds` (creation to closing of the deals won in the period) and `activities_done` (activities completed in the period, only for `owner`/`team` and with `activities.read`; with `pipeline_id`, only activities linked to deals of that pipeline). `key` is the user, team, source or pipeline id (null groups the deals without one) and `label` its name. Totals are computed apart, never by summing the rows. With `compare_to_previous=true`, every row and the totals carry `previous` for the period right before. */
+        /** @description Sales performance grouped by `dimension` (`owner`, default; `team` of the owner, where an owner in two teams counts in both; `source`; `pipeline`), optionally limited to one pipeline, under the read scope of `deals.read` and `tasks.read` (`own` sees only their numbers) and the field permissions of the role. Per row and in `totals`: `created` (deals created in the period), `won`/`won_amount` and `lost` (closed in the period), `conversion_rate` (won / (won + lost)), `average_cycle_seconds` (creation to closing of the deals won in the period) and `activities_done` (tasks completed in the period, only for `owner`/`team` and with `tasks.read`; with `pipeline_id`, only tasks linked to deals of that pipeline). `key` is the user, team, source or pipeline id (null groups the deals without one) and `label` its name. Totals are computed apart, never by summing the rows. With `compare_to_previous=true`, every row and the totals carry `previous` for the period right before. */
         get: operations["reports_builtin_performance"];
         put?: never;
         post?: never;
@@ -7275,7 +7211,7 @@ export interface paths {
             path?: never;
             cookie?: never;
         };
-        /** @description Unified search over every registered record type (people, organizations, deals, activities and any type added to the record type registry). `q` must have between 2 and 100 characters; it is folded to lowercase without accents and split into words of at least 2 characters, and every word must match (substring match through an n-gram index) one of the indexed fields of the record. A term that looks like a phone number (only digits, spaces and `+()-./`, 6 to 15 digits) is searched by its digits, so `11 99999-8888`, `999998888` and `+55 11 99999-8888` all find `+5511999998888`. Indexed fields: searchable system fields and custom fields flagged searchable of the text, long text, e-mail, phone and URL types; sensitive fields are never indexed. Each type is searched only when the caller has its read permission, with the own/team/organization scope of that permission, the pipeline restriction of deals, soft delete, archive and merges applied by revalidating the candidates through the record query engine; fields hidden from the role are neither matched nor used for `title`/`subtitle`. `types` (comma separated) limits and orders the groups (unknown types answer 422); without it groups come by best relevance. `limit` is per type (default 5, max 20) and items are ordered by relevance (`score`). `total` counts the visible matches among the first 100 candidates of the type. Types without matches are omitted. The index is updated by the `search.index` consumer and rebuilt with `aphel search reindex`. */
+        /** @description Unified search over every registered record type (people, organizations, deals, tasks and any type added to the record type registry). `q` must have between 2 and 100 characters; it is folded to lowercase without accents and split into words of at least 2 characters, and every word must match (substring match through an n-gram index) one of the indexed fields of the record. A term that looks like a phone number (only digits, spaces and `+()-./`, 6 to 15 digits) is searched by its digits, so `11 99999-8888`, `999998888` and `+55 11 99999-8888` all find `+5511999998888`. Indexed fields: searchable system fields and custom fields flagged searchable of the text, long text, e-mail, phone and URL types; sensitive fields are never indexed. Each type is searched only when the caller has its read permission, with the own/team/organization scope of that permission, the pipeline restriction of deals, soft delete, archive and merges applied by revalidating the candidates through the record query engine; fields hidden from the role are neither matched nor used for `title`/`subtitle`. `types` (comma separated) limits and orders the groups (unknown types answer 422); without it groups come by best relevance. `limit` is per type (default 5, max 20) and items are ordered by relevance (`score`). `total` counts the visible matches among the first 100 candidates of the type. Types without matches are omitted. The index is updated by the `search.index` consumer and rebuilt with `aphel search reindex`. */
         get: operations["search"];
         put?: never;
         post?: never;
@@ -7711,6 +7647,86 @@ export interface paths {
         options?: never;
         head?: never;
         patch: operations["tags_update"];
+        trace?: never;
+    };
+    "/api/v1/tasks": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        get: operations["activities_list"];
+        put?: never;
+        post: operations["activities_create"];
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
+    "/api/v1/tasks/inbox": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        get: operations["activities_inbox"];
+        put?: never;
+        post?: never;
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
+    "/api/v1/tasks/{activity_id}": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        get: operations["activities_get"];
+        put?: never;
+        post?: never;
+        delete: operations["activities_delete"];
+        options?: never;
+        head?: never;
+        patch: operations["activities_update"];
+        trace?: never;
+    };
+    "/api/v1/tasks/{activity_id}/complete": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        get?: never;
+        put?: never;
+        post: operations["activities_complete"];
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
+    "/api/v1/tasks/{activity_id}/reopen": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        get?: never;
+        put?: never;
+        post: operations["activities_reopen"];
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
         trace?: never;
     };
     "/api/v1/teams": {
@@ -9500,6 +9516,13 @@ export interface components {
         };
         /** @enum {string} */
         BundlePricing: "fixed" | "sum";
+        CalendarCategory: {
+            color?: string | null;
+            icon?: string | null;
+            id: string;
+            name: string;
+            source?: string;
+        };
         CalendarConnectUrl: {
             url: string;
         };
@@ -9517,10 +9540,30 @@ export interface components {
             /** @example active */
             status: string;
         };
+        CalendarOwner: {
+            display_name: string;
+            id: string;
+        };
+        CalendarRecord: {
+            can_update: boolean;
+            category: components["schemas"]["CalendarCategory"];
+            due_at: string;
+            /** Format: int64 */
+            duration_minutes?: number | null;
+            finished: boolean;
+            href: string;
+            id: string;
+            owner?: null | components["schemas"]["CalendarOwner"];
+            record_id: string;
+            source: string;
+            status: string;
+            title: string;
+            updated_at: string;
+        };
         CalendarResponse: {
+            categories: components["schemas"]["CalendarCategory"][];
             from: string;
-            items: components["schemas"]["ActivityResponse"][];
-            /** @example America/Sao_Paulo */
+            items: components["schemas"]["CalendarRecord"][];
             timezone: string;
             to: string;
             /** Format: int64 */
@@ -11119,9 +11162,9 @@ export interface components {
         };
         Data_CalendarResponse: {
             data: {
+                categories: components["schemas"]["CalendarCategory"][];
                 from: string;
-                items: components["schemas"]["ActivityResponse"][];
-                /** @example America/Sao_Paulo */
+                items: components["schemas"]["CalendarRecord"][];
                 timezone: string;
                 to: string;
                 /** Format: int64 */
@@ -12518,8 +12561,8 @@ export interface components {
                 merged_id: string;
                 /**
                  * @example {
-                 *       "activities": 2,
-                 *       "notes": 1
+                 *       "notes": 1,
+                 *       "tasks": 2
                  *     }
                  */
                 moved: {
@@ -13666,7 +13709,6 @@ export interface components {
         };
         Data_SubjectSearchResponse: {
             data: {
-                activities: components["schemas"]["SubjectActivityResponse"][];
                 attachments: components["schemas"]["SubjectAttachmentResponse"][];
                 import_rows: components["schemas"]["SubjectImportRowResponse"][];
                 /** @example email */
@@ -13675,6 +13717,7 @@ export interface components {
                 label: string;
                 notes: components["schemas"]["SubjectNoteResponse"][];
                 records: components["schemas"]["SubjectRecordResponse"][];
+                tasks: components["schemas"]["SubjectActivityResponse"][];
             };
         };
         Data_SystemOverviewResponse: {
@@ -17305,8 +17348,8 @@ export interface components {
             merged_id: string;
             /**
              * @example {
-             *       "activities": 2,
-             *       "notes": 1
+             *       "notes": 1,
+             *       "tasks": 2
              *     }
              */
             moved: {
@@ -19884,8 +19927,6 @@ export interface components {
         };
         PrivacyReportResponse: {
             /** Format: int64 */
-            activities: number;
-            /** Format: int64 */
             attachments: number;
             /** Format: int64 */
             errors: number;
@@ -19903,6 +19944,8 @@ export interface components {
             records: number;
             /** Format: int64 */
             skipped: number;
+            /** Format: int64 */
+            tasks: number;
         };
         PrivacyRequestDetailResponse: {
             import_rows: components["schemas"]["PrivacyImportRowResponse"][];
@@ -20872,6 +20915,9 @@ export interface components {
         };
         /** @enum {string} */
         ReportVisualization: "table" | "bar" | "line" | "pie" | "number";
+        RescheduleRequest: {
+            due_at: string;
+        };
         ResetPasswordRequest: {
             password: string;
             token: string;
@@ -21664,7 +21710,6 @@ export interface components {
             term: string;
         };
         SubjectSearchResponse: {
-            activities: components["schemas"]["SubjectActivityResponse"][];
             attachments: components["schemas"]["SubjectAttachmentResponse"][];
             import_rows: components["schemas"]["SubjectImportRowResponse"][];
             /** @example email */
@@ -21673,6 +21718,7 @@ export interface components {
             label: string;
             notes: components["schemas"]["SubjectNoteResponse"][];
             records: components["schemas"]["SubjectRecordResponse"][];
+            tasks: components["schemas"]["SubjectActivityResponse"][];
         };
         SubmitQuoteRequest: {
             comment?: string | null;
@@ -22502,571 +22548,7 @@ export interface components {
 }
 export type $defs = Record<string, never>;
 export interface operations {
-    activities_list: {
-        parameters: {
-            query?: {
-                /** @example people.person */
-                record_type?: string;
-                record_id?: string;
-                my_open?: boolean;
-                /** @example {"op":"and","conditions":[{"field":"name","operator":"contains","value":"ana"}]} */
-                filter?: string;
-                /** @example -created_at,name */
-                sort?: string;
-                search?: string;
-                /** @example exclude */
-                archived?: string;
-                page?: number;
-                per_page?: number;
-            };
-            header?: never;
-            path?: never;
-            cookie?: never;
-        };
-        requestBody?: never;
-        responses: {
-            /** @description Activities visible to the user. `record_type` + `record_id` keep the activities of a record (main link or additional links); `my_open=true` keeps the open activities owned by the user, sorted by due date unless `sort` is sent (otherwise newest first). Besides `filter` as JSON, simple conditions go as `filter[field][operator]=value` (`filter[status][eq]=open`, `filter[due_at][lt]=2026-01-01`), combined with `and`. `activity_type`, `owner`, `record` and `links` are always embedded */
-            200: {
-                headers: {
-                    [name: string]: unknown;
-                };
-                content: {
-                    "application/json": components["schemas"]["Page_ActivityResponse"];
-                };
-            };
-            /** @description Missing or invalid credentials (`unauthorized`, `invalid_api_token`) */
-            401: {
-                headers: {
-                    [name: string]: unknown;
-                };
-                content: {
-                    "application/json": components["schemas"]["ErrorEnvelope"];
-                };
-            };
-            /** @description Missing `activities.read` or read access to the record (`permission_denied`, `insufficient_scope`) */
-            403: {
-                headers: {
-                    [name: string]: unknown;
-                };
-                content: {
-                    "application/json": components["schemas"]["ErrorEnvelope"];
-                };
-            };
-            /** @description Invalid filter, sort, record reference or pagination (`validation_error` with `details.fields`); unknown record type (`unsupported_record_type`) */
-            422: {
-                headers: {
-                    [name: string]: unknown;
-                };
-                content: {
-                    "application/json": components["schemas"]["ErrorEnvelope"];
-                };
-            };
-            /** @description API token rate limit exceeded (`rate_limited`); see `Retry-After` and `X-RateLimit-*` */
-            429: {
-                headers: {
-                    [name: string]: unknown;
-                };
-                content: {
-                    "application/json": components["schemas"]["ErrorEnvelope"];
-                };
-            };
-        };
-    };
-    activities_create: {
-        parameters: {
-            query?: never;
-            header?: {
-                /** @description Up to 255 printable ASCII characters. The same key with the same request (method, path and body) within 24 hours answers the stored response with the same status and body plus `Idempotent-Replayed: true`. Scoped to the credential (session cookie or API token); ignored without a credential. 5xx and 429 responses are not stored */
-                "Idempotency-Key"?: string;
-            };
-            path?: never;
-            cookie?: never;
-        };
-        requestBody: {
-            content: {
-                "application/json": components["schemas"]["CreateActivityRequest"];
-            };
-        };
-        responses: {
-            /** @description Activity created. Without `activity_type_id` the active `task` type (or the first active type) is used. Without `owner_id` the user is the owner; `status=done` logs an activity that already happened (`completed_at` defaults to now). `reminder_minutes_before` notifies the owner that many minutes before `due_at` (omitted: 60; `null`: no reminder). `recurrence` turns an open activity with `due_at` into the first occurrence of a series (daily, weekly on `by_weekday`, monthly on `month_day` — the last day of shorter months —, yearly; `interval`, and `until` or `count`), computed in the organization time zone; completing an occurrence creates the next one. `location` (`latitude` −90..90, `longitude` −180..180, optional `accuracy_m` in meters and `captured_at`, default now, never in the future) records where the activity happened, as in a visit check-in; it is stored with 6 decimal places and answered with a `map_url` (also flattened as `location_*`). Enabled modules may add keys to the answer, such as `call` from the calls module */
-            201: {
-                headers: {
-                    [name: string]: unknown;
-                };
-                content: {
-                    "application/json": components["schemas"]["Data_ActivityResponse"];
-                };
-            };
-            /** @description Missing or invalid credentials (`unauthorized`, `invalid_api_token`) */
-            401: {
-                headers: {
-                    [name: string]: unknown;
-                };
-                content: {
-                    "application/json": components["schemas"]["ErrorEnvelope"];
-                };
-            };
-            /** @description Missing `activities.create` (`permission_denied`, `insufficient_scope`) */
-            403: {
-                headers: {
-                    [name: string]: unknown;
-                };
-                content: {
-                    "application/json": components["schemas"]["ErrorEnvelope"];
-                };
-            };
-            /** @description The first request with this `Idempotency-Key` is still being processed (`idempotency_key_in_progress`) */
-            409: {
-                headers: {
-                    [name: string]: unknown;
-                };
-                content: {
-                    "application/json": components["schemas"]["ErrorEnvelope"];
-                };
-            };
-            /** @description Invalid fields, inactive type, unknown owner, unreadable linked record or invalid custom fields (`validation_error`). `Idempotency-Key` already used with a different request (`idempotency_key_reused`) or longer than 255 characters (`validation_error`) */
-            422: {
-                headers: {
-                    [name: string]: unknown;
-                };
-                content: {
-                    "application/json": components["schemas"]["ErrorEnvelope"];
-                };
-            };
-            /** @description API token rate limit exceeded (`rate_limited`); see `Retry-After` and `X-RateLimit-*` */
-            429: {
-                headers: {
-                    [name: string]: unknown;
-                };
-                content: {
-                    "application/json": components["schemas"]["ErrorEnvelope"];
-                };
-            };
-        };
-    };
-    activities_inbox: {
-        parameters: {
-            query?: {
-                /** @example me */
-                owner?: string;
-                team_id?: string;
-                /** @example due */
-                sort?: string;
-            };
-            header?: never;
-            path?: never;
-            cookie?: never;
-        };
-        requestBody?: never;
-        responses: {
-            /** @description Open activities in four groups by due date in the organization time zone (`overdue`, `today`, `upcoming`, `no_due`), at most 500. `owner=me` (default) keeps the user's activities, `owner=team` the ones owned by members of `team_id` (or of the user's teams) and `owner=all` everything the user can read. `sort=due` (default), `priority` (urgent first) or `value` (amount of the linked deal, largest first), always followed by due date. `linked_deal` is the main or first linked deal the user can read (needs `deals.read`); its `amount` is `null` when the field is hidden from the user (`deal_amounts_visible=false`) */
-            200: {
-                headers: {
-                    [name: string]: unknown;
-                };
-                content: {
-                    "application/json": components["schemas"]["Data_InboxResponse"];
-                };
-            };
-            /** @description Missing or invalid credentials (`unauthorized`, `invalid_api_token`) */
-            401: {
-                headers: {
-                    [name: string]: unknown;
-                };
-                content: {
-                    "application/json": components["schemas"]["ErrorEnvelope"];
-                };
-            };
-            /** @description Missing `activities.read` (`permission_denied`, `insufficient_scope`) */
-            403: {
-                headers: {
-                    [name: string]: unknown;
-                };
-                content: {
-                    "application/json": components["schemas"]["ErrorEnvelope"];
-                };
-            };
-            /** @description Invalid `owner` or `sort` (`validation_error`) */
-            422: {
-                headers: {
-                    [name: string]: unknown;
-                };
-                content: {
-                    "application/json": components["schemas"]["ErrorEnvelope"];
-                };
-            };
-            /** @description API token rate limit exceeded (`rate_limited`); see `Retry-After` and `X-RateLimit-*` */
-            429: {
-                headers: {
-                    [name: string]: unknown;
-                };
-                content: {
-                    "application/json": components["schemas"]["ErrorEnvelope"];
-                };
-            };
-        };
-    };
-    activities_get: {
-        parameters: {
-            query?: never;
-            header?: never;
-            path: {
-                /** @description Activity id */
-                activity_id: string;
-            };
-            cookie?: never;
-        };
-        requestBody?: never;
-        responses: {
-            /** @description The activity with its custom fields */
-            200: {
-                headers: {
-                    [name: string]: unknown;
-                };
-                content: {
-                    "application/json": components["schemas"]["Data_ActivityResponse"];
-                };
-            };
-            /** @description Missing or invalid credentials (`unauthorized`, `invalid_api_token`) */
-            401: {
-                headers: {
-                    [name: string]: unknown;
-                };
-                content: {
-                    "application/json": components["schemas"]["ErrorEnvelope"];
-                };
-            };
-            /** @description Missing `activities.read` (`permission_denied`, `insufficient_scope`) */
-            403: {
-                headers: {
-                    [name: string]: unknown;
-                };
-                content: {
-                    "application/json": components["schemas"]["ErrorEnvelope"];
-                };
-            };
-            /** @description Activity not found or outside the user's scope (`activity_not_found`) */
-            404: {
-                headers: {
-                    [name: string]: unknown;
-                };
-                content: {
-                    "application/json": components["schemas"]["ErrorEnvelope"];
-                };
-            };
-            /** @description API token rate limit exceeded (`rate_limited`); see `Retry-After` and `X-RateLimit-*` */
-            429: {
-                headers: {
-                    [name: string]: unknown;
-                };
-                content: {
-                    "application/json": components["schemas"]["ErrorEnvelope"];
-                };
-            };
-        };
-    };
-    activities_delete: {
-        parameters: {
-            query?: never;
-            header?: never;
-            path: {
-                /** @description Activity id */
-                activity_id: string;
-            };
-            cookie?: never;
-        };
-        requestBody?: never;
-        responses: {
-            /** @description Activity deleted */
-            204: {
-                headers: {
-                    [name: string]: unknown;
-                };
-                content?: never;
-            };
-            /** @description Missing or invalid credentials (`unauthorized`, `invalid_api_token`) */
-            401: {
-                headers: {
-                    [name: string]: unknown;
-                };
-                content: {
-                    "application/json": components["schemas"]["ErrorEnvelope"];
-                };
-            };
-            /** @description Missing `activities.delete` for this activity (`permission_denied`, `insufficient_scope`) */
-            403: {
-                headers: {
-                    [name: string]: unknown;
-                };
-                content: {
-                    "application/json": components["schemas"]["ErrorEnvelope"];
-                };
-            };
-            /** @description Activity not found (`activity_not_found`) */
-            404: {
-                headers: {
-                    [name: string]: unknown;
-                };
-                content: {
-                    "application/json": components["schemas"]["ErrorEnvelope"];
-                };
-            };
-            /** @description API token rate limit exceeded (`rate_limited`); see `Retry-After` and `X-RateLimit-*` */
-            429: {
-                headers: {
-                    [name: string]: unknown;
-                };
-                content: {
-                    "application/json": components["schemas"]["ErrorEnvelope"];
-                };
-            };
-        };
-    };
-    activities_update: {
-        parameters: {
-            query?: never;
-            header?: {
-                /** @description `updated_at` of the activity as last read (ISO-8601); when it changed since, the update is refused with 409 `version_conflict` */
-                "If-Match"?: string | null;
-            };
-            path: {
-                /** @description Activity id */
-                activity_id: string;
-            };
-            cookie?: never;
-        };
-        requestBody: {
-            content: {
-                "application/json": components["schemas"]["UpdateActivityRequest"];
-            };
-        };
-        responses: {
-            /** @description Activity updated; only the sent fields change. Changing `due_at` or `reminder_minutes_before`, or reopening, re-arms the reminder. On an occurrence of a recurring series, `apply_to=this` (default) changes only this occurrence and `apply_to=following` also updates the series template (title, type, owner, priority, description, duration, reminder, links and, when `due_at` changes, the anchor of the schedule) used by the next occurrences. `recurrence` replaces the rule from this occurrence on (or starts a series); `recurrence: null` ends it. Completing an occurrence (`status=done`) creates the next one once. `location` replaces the check-in location; `location: null` removes it */
-            200: {
-                headers: {
-                    [name: string]: unknown;
-                };
-                content: {
-                    "application/json": components["schemas"]["Data_ActivityResponse"];
-                };
-            };
-            /** @description Missing or invalid credentials (`unauthorized`, `invalid_api_token`) */
-            401: {
-                headers: {
-                    [name: string]: unknown;
-                };
-                content: {
-                    "application/json": components["schemas"]["ErrorEnvelope"];
-                };
-            };
-            /** @description Missing `activities.update` for this activity (`permission_denied`, `insufficient_scope`) */
-            403: {
-                headers: {
-                    [name: string]: unknown;
-                };
-                content: {
-                    "application/json": components["schemas"]["ErrorEnvelope"];
-                };
-            };
-            /** @description Activity not found (`activity_not_found`) */
-            404: {
-                headers: {
-                    [name: string]: unknown;
-                };
-                content: {
-                    "application/json": components["schemas"]["ErrorEnvelope"];
-                };
-            };
-            /** @description The activity changed after the `If-Match` version (`version_conflict`) */
-            409: {
-                headers: {
-                    [name: string]: unknown;
-                };
-                content: {
-                    "application/json": components["schemas"]["ErrorEnvelope"];
-                };
-            };
-            /** @description Invalid fields or custom fields (`validation_error`) */
-            422: {
-                headers: {
-                    [name: string]: unknown;
-                };
-                content: {
-                    "application/json": components["schemas"]["ErrorEnvelope"];
-                };
-            };
-            /** @description API token rate limit exceeded (`rate_limited`); see `Retry-After` and `X-RateLimit-*` */
-            429: {
-                headers: {
-                    [name: string]: unknown;
-                };
-                content: {
-                    "application/json": components["schemas"]["ErrorEnvelope"];
-                };
-            };
-        };
-    };
-    activities_complete: {
-        parameters: {
-            query?: never;
-            header?: {
-                /** @description Up to 255 printable ASCII characters. The same key with the same request (method, path and body) within 24 hours answers the stored response with the same status and body plus `Idempotent-Replayed: true`. Scoped to the credential (session cookie or API token); ignored without a credential. 5xx and 429 responses are not stored */
-                "Idempotency-Key"?: string;
-            };
-            path: {
-                /** @description Activity id */
-                activity_id: string;
-            };
-            cookie?: never;
-        };
-        requestBody?: never;
-        responses: {
-            /** @description Activity marked as done now */
-            200: {
-                headers: {
-                    [name: string]: unknown;
-                };
-                content: {
-                    "application/json": components["schemas"]["Data_ActivityResponse"];
-                };
-            };
-            /** @description Missing or invalid credentials (`unauthorized`, `invalid_api_token`) */
-            401: {
-                headers: {
-                    [name: string]: unknown;
-                };
-                content: {
-                    "application/json": components["schemas"]["ErrorEnvelope"];
-                };
-            };
-            /** @description Missing `activities.update` for this activity (`permission_denied`, `insufficient_scope`) */
-            403: {
-                headers: {
-                    [name: string]: unknown;
-                };
-                content: {
-                    "application/json": components["schemas"]["ErrorEnvelope"];
-                };
-            };
-            /** @description Activity not found (`activity_not_found`) */
-            404: {
-                headers: {
-                    [name: string]: unknown;
-                };
-                content: {
-                    "application/json": components["schemas"]["ErrorEnvelope"];
-                };
-            };
-            /** @description The activity is already done (`activity_already_completed`). The first request with this `Idempotency-Key` is still being processed (`idempotency_key_in_progress`) */
-            409: {
-                headers: {
-                    [name: string]: unknown;
-                };
-                content: {
-                    "application/json": components["schemas"]["ErrorEnvelope"];
-                };
-            };
-            /** @description `Idempotency-Key` already used with a different request (`idempotency_key_reused`) or longer than 255 characters (`validation_error`) */
-            422: {
-                headers: {
-                    [name: string]: unknown;
-                };
-                content: {
-                    "application/json": components["schemas"]["ErrorEnvelope"];
-                };
-            };
-            /** @description API token rate limit exceeded (`rate_limited`); see `Retry-After` and `X-RateLimit-*` */
-            429: {
-                headers: {
-                    [name: string]: unknown;
-                };
-                content: {
-                    "application/json": components["schemas"]["ErrorEnvelope"];
-                };
-            };
-        };
-    };
-    activities_reopen: {
-        parameters: {
-            query?: never;
-            header?: {
-                /** @description Up to 255 printable ASCII characters. The same key with the same request (method, path and body) within 24 hours answers the stored response with the same status and body plus `Idempotent-Replayed: true`. Scoped to the credential (session cookie or API token); ignored without a credential. 5xx and 429 responses are not stored */
-                "Idempotency-Key"?: string;
-            };
-            path: {
-                /** @description Activity id */
-                activity_id: string;
-            };
-            cookie?: never;
-        };
-        requestBody?: never;
-        responses: {
-            /** @description Activity open again */
-            200: {
-                headers: {
-                    [name: string]: unknown;
-                };
-                content: {
-                    "application/json": components["schemas"]["Data_ActivityResponse"];
-                };
-            };
-            /** @description Missing or invalid credentials (`unauthorized`, `invalid_api_token`) */
-            401: {
-                headers: {
-                    [name: string]: unknown;
-                };
-                content: {
-                    "application/json": components["schemas"]["ErrorEnvelope"];
-                };
-            };
-            /** @description Missing `activities.update` for this activity (`permission_denied`, `insufficient_scope`) */
-            403: {
-                headers: {
-                    [name: string]: unknown;
-                };
-                content: {
-                    "application/json": components["schemas"]["ErrorEnvelope"];
-                };
-            };
-            /** @description Activity not found (`activity_not_found`) */
-            404: {
-                headers: {
-                    [name: string]: unknown;
-                };
-                content: {
-                    "application/json": components["schemas"]["ErrorEnvelope"];
-                };
-            };
-            /** @description The activity is already open (`activity_already_open`). The first request with this `Idempotency-Key` is still being processed (`idempotency_key_in_progress`) */
-            409: {
-                headers: {
-                    [name: string]: unknown;
-                };
-                content: {
-                    "application/json": components["schemas"]["ErrorEnvelope"];
-                };
-            };
-            /** @description `Idempotency-Key` already used with a different request (`idempotency_key_reused`) or longer than 255 characters (`validation_error`) */
-            422: {
-                headers: {
-                    [name: string]: unknown;
-                };
-                content: {
-                    "application/json": components["schemas"]["ErrorEnvelope"];
-                };
-            };
-            /** @description API token rate limit exceeded (`rate_limited`); see `Retry-After` and `X-RateLimit-*` */
-            429: {
-                headers: {
-                    [name: string]: unknown;
-                };
-                content: {
-                    "application/json": components["schemas"]["ErrorEnvelope"];
-                };
-            };
-        };
-    };
-    activity_types_list: {
+    task_types_list: {
         parameters: {
             query?: {
                 include_inactive?: boolean;
@@ -23099,7 +22581,7 @@ export interface operations {
                     "application/json": components["schemas"]["ErrorEnvelope"];
                 };
             };
-            /** @description Missing `activities.read` and `settings.manage` (`permission_denied`, `insufficient_scope`) */
+            /** @description Missing `tasks.read` and `settings.manage` (`permission_denied`, `insufficient_scope`) */
             403: {
                 headers: {
                     [name: string]: unknown;
@@ -23128,7 +22610,7 @@ export interface operations {
             };
         };
     };
-    activity_types_create: {
+    task_types_create: {
         parameters: {
             query?: never;
             header?: {
@@ -23200,7 +22682,7 @@ export interface operations {
             };
         };
     };
-    activity_types_reorder: {
+    task_types_reorder: {
         parameters: {
             query?: never;
             header?: never;
@@ -23260,7 +22742,7 @@ export interface operations {
             };
         };
     };
-    activity_types_get: {
+    task_types_get: {
         parameters: {
             query?: never;
             header?: never;
@@ -23290,7 +22772,7 @@ export interface operations {
                     "application/json": components["schemas"]["ErrorEnvelope"];
                 };
             };
-            /** @description Missing `activities.read` and `settings.manage` (`permission_denied`, `insufficient_scope`) */
+            /** @description Missing `tasks.read` and `settings.manage` (`permission_denied`, `insufficient_scope`) */
             403: {
                 headers: {
                     [name: string]: unknown;
@@ -23319,7 +22801,7 @@ export interface operations {
             };
         };
     };
-    activity_types_update: {
+    task_types_update: {
         parameters: {
             query?: never;
             header?: {
@@ -23403,7 +22885,7 @@ export interface operations {
             };
         };
     };
-    activity_types_activate: {
+    task_types_activate: {
         parameters: {
             query?: never;
             header?: {
@@ -23483,7 +22965,7 @@ export interface operations {
             };
         };
     };
-    activity_types_deactivate: {
+    task_types_deactivate: {
         parameters: {
             query?: never;
             header?: {
@@ -23498,7 +22980,7 @@ export interface operations {
         };
         requestBody?: never;
         responses: {
-            /** @description Activity type hidden from new activities; existing activities keep it */
+            /** @description Activity type hidden from new tasks; existing tasks keep it */
             200: {
                 headers: {
                     [name: string]: unknown;
@@ -23856,7 +23338,7 @@ export interface operations {
             };
         };
         responses: {
-            /** @description Up to 5 suggested next actions (`title`, `due_in_days`, `reason`). Nothing is created: the client turns a suggestion into a task only when the user asks, through `POST /api/v1/activities` */
+            /** @description Up to 5 suggested next actions (`title`, `due_in_days`, `reason`). Nothing is created: the client turns a suggestion into a task only when the user asks, through `POST /api/v1/tasks` */
             200: {
                 headers: {
                     [name: string]: unknown;
@@ -27445,14 +26927,12 @@ export interface operations {
     calendar_get: {
         parameters: {
             query: {
-                /** @example 2026-10-01T03:00:00Z */
                 from: string;
-                /** @example 2026-11-01T03:00:00Z */
                 to: string;
                 owner_id?: string;
                 team_id?: string;
-                activity_type_id?: string;
-                /** @example open */
+                category_id?: string;
+                source?: string;
                 status?: string;
             };
             header?: never;
@@ -27461,7 +26941,7 @@ export interface operations {
         };
         requestBody?: never;
         responses: {
-            /** @description Activities the user can read with `due_at` in `[from, to)` (at most 62 days), sorted by due date, at most 1000 (`truncated` when there are more). Optional filters: `owner_id`, `team_id` (owner is a member of the team), `activity_type_id` and `status`. Meetings carry `duration_minutes`. Field permissions apply: hidden fields are removed and filtering by a hidden field answers 422 `field_not_accessible` */
+            /** @description Authorized entries from enabled calendar sources, sorted by start time; range at most 62 days, at most 1000 entries */
             200: {
                 headers: {
                     [name: string]: unknown;
@@ -27470,26 +26950,51 @@ export interface operations {
                     "application/json": components["schemas"]["Data_CalendarResponse"];
                 };
             };
-            /** @description Missing or invalid credentials (`unauthorized`, `invalid_api_token`) */
-            401: {
-                headers: {
-                    [name: string]: unknown;
-                };
-                content: {
-                    "application/json": components["schemas"]["ErrorEnvelope"];
-                };
-            };
-            /** @description Missing `activities.read` (`permission_denied`, `insufficient_scope`) */
-            403: {
-                headers: {
-                    [name: string]: unknown;
-                };
-                content: {
-                    "application/json": components["schemas"]["ErrorEnvelope"];
-                };
-            };
-            /** @description Missing or invalid range, range longer than 62 days or invalid filter (`validation_error`, `field_not_accessible`) */
+            /** @description Invalid range or source filter */
             422: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["ErrorEnvelope"];
+                };
+            };
+            /** @description API token rate limit exceeded (`rate_limited`); see `Retry-After` and `X-RateLimit-*` */
+            429: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["ErrorEnvelope"];
+                };
+            };
+        };
+    };
+    calendar_reschedule: {
+        parameters: {
+            query?: never;
+            header?: never;
+            path: {
+                source: string;
+                id: string;
+            };
+            cookie?: never;
+        };
+        requestBody: {
+            content: {
+                "application/json": components["schemas"]["RescheduleRequest"];
+            };
+        };
+        responses: {
+            /** @description Entry rescheduled by its owner; owner permissions and version checks apply */
+            204: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content?: never;
+            };
+            /** @description Version conflict */
+            409: {
                 headers: {
                     [name: string]: unknown;
                 };
@@ -27542,7 +27047,7 @@ export interface operations {
                     "application/json": components["schemas"]["ErrorEnvelope"];
                 };
             };
-            /** @description Missing `activities.create` (`permission_denied`, `insufficient_scope`) */
+            /** @description Missing `tasks.create` (`permission_denied`, `insufficient_scope`) */
             403: {
                 headers: {
                     [name: string]: unknown;
@@ -27614,7 +27119,7 @@ export interface operations {
                     "application/json": components["schemas"]["ErrorEnvelope"];
                 };
             };
-            /** @description Missing `activities.create` (or `activities.update` for an existing call) (`permission_denied`, `insufficient_scope`) */
+            /** @description Missing `tasks.create` (or `tasks.update` for an existing call) (`permission_denied`, `insufficient_scope`) */
             403: {
                 headers: {
                     [name: string]: unknown;
@@ -27690,7 +27195,7 @@ export interface operations {
                     "application/json": components["schemas"]["ErrorEnvelope"];
                 };
             };
-            /** @description Missing `activities.read` or `settings.manage` (`permission_denied`, `insufficient_scope`) */
+            /** @description Missing `tasks.read` or `settings.manage` (`permission_denied`, `insufficient_scope`) */
             403: {
                 headers: {
                     [name: string]: unknown;
@@ -27953,7 +27458,7 @@ export interface operations {
                     "application/json": components["schemas"]["ErrorEnvelope"];
                 };
             };
-            /** @description Missing `activities.read` (`permission_denied`, `insufficient_scope`) */
+            /** @description Missing `tasks.read` (`permission_denied`, `insufficient_scope`) */
             403: {
                 headers: {
                     [name: string]: unknown;
@@ -27989,7 +27494,7 @@ export interface operations {
         };
         requestBody?: never;
         responses: {
-            /** @description Logged calls per owner and outcome in the period (`from` inclusive, `to` exclusive; dates `YYYY-MM-DD` in the organization time zone — `to` includes the whole day — or RFC 3339 instants; default the last 30 days, at most 366 days), only over the call activities the user can read (`activities.read` scope). `owner_id=me` keeps the user's calls. `connected` counts the outcomes marked as connected */
+            /** @description Logged calls per owner and outcome in the period (`from` inclusive, `to` exclusive; dates `YYYY-MM-DD` in the organization time zone — `to` includes the whole day — or RFC 3339 instants; default the last 30 days, at most 366 days), only over the call tasks the user can read (`tasks.read` scope). `owner_id=me` keeps the user's calls. `connected` counts the outcomes marked as connected */
             200: {
                 headers: {
                     [name: string]: unknown;
@@ -28007,7 +27512,7 @@ export interface operations {
                     "application/json": components["schemas"]["ErrorEnvelope"];
                 };
             };
-            /** @description Missing `activities.read` (`permission_denied`, `insufficient_scope`) */
+            /** @description Missing `tasks.read` (`permission_denied`, `insufficient_scope`) */
             403: {
                 headers: {
                     [name: string]: unknown;
@@ -28067,7 +27572,7 @@ export interface operations {
                     "application/json": components["schemas"]["ErrorEnvelope"];
                 };
             };
-            /** @description Missing `activities.read` (`permission_denied`, `insufficient_scope`) */
+            /** @description Missing `tasks.read` (`permission_denied`, `insufficient_scope`) */
             403: {
                 headers: {
                     [name: string]: unknown;
@@ -28121,7 +27626,7 @@ export interface operations {
                     "application/json": components["schemas"]["ErrorEnvelope"];
                 };
             };
-            /** @description Missing `activities.create` or `people.read` (`permission_denied`, `insufficient_scope`) */
+            /** @description Missing `tasks.create` or `people.read` (`permission_denied`, `insufficient_scope`) */
             403: {
                 headers: {
                     [name: string]: unknown;
@@ -28198,7 +27703,7 @@ export interface operations {
                     "application/json": components["schemas"]["ErrorEnvelope"];
                 };
             };
-            /** @description Missing `activities.read` (`permission_denied`, `insufficient_scope`) */
+            /** @description Missing `tasks.read` (`permission_denied`, `insufficient_scope`) */
             403: {
                 headers: {
                     [name: string]: unknown;
@@ -28264,7 +27769,7 @@ export interface operations {
                     "application/json": components["schemas"]["ErrorEnvelope"];
                 };
             };
-            /** @description Missing `activities.create` (`permission_denied`, `insufficient_scope`) */
+            /** @description Missing `tasks.create` (`permission_denied`, `insufficient_scope`) */
             403: {
                 headers: {
                     [name: string]: unknown;
@@ -28348,7 +27853,7 @@ export interface operations {
                     "application/json": components["schemas"]["ErrorEnvelope"];
                 };
             };
-            /** @description Missing `activities.create` (`permission_denied`, `insufficient_scope`) */
+            /** @description Missing `tasks.create` (`permission_denied`, `insufficient_scope`) */
             403: {
                 headers: {
                     [name: string]: unknown;
@@ -28428,7 +27933,7 @@ export interface operations {
                     "application/json": components["schemas"]["ErrorEnvelope"];
                 };
             };
-            /** @description Missing `activities.create` (`permission_denied`, `insufficient_scope`) */
+            /** @description Missing `tasks.create` (`permission_denied`, `insufficient_scope`) */
             403: {
                 headers: {
                     [name: string]: unknown;
@@ -28508,7 +28013,7 @@ export interface operations {
                     "application/json": components["schemas"]["ErrorEnvelope"];
                 };
             };
-            /** @description Missing `activities.read` (`permission_denied`, `insufficient_scope`) */
+            /** @description Missing `tasks.read` (`permission_denied`, `insufficient_scope`) */
             403: {
                 headers: {
                     [name: string]: unknown;
@@ -28574,7 +28079,7 @@ export interface operations {
                     "application/json": components["schemas"]["ErrorEnvelope"];
                 };
             };
-            /** @description Missing `activities.create` (`permission_denied`, `insufficient_scope`) */
+            /** @description Missing `tasks.create` (`permission_denied`, `insufficient_scope`) */
             403: {
                 headers: {
                     [name: string]: unknown;
@@ -28655,7 +28160,7 @@ export interface operations {
                     "application/json": components["schemas"]["ErrorEnvelope"];
                 };
             };
-            /** @description Missing `activities.create` (`permission_denied`, `insufficient_scope`) */
+            /** @description Missing `tasks.create` (`permission_denied`, `insufficient_scope`) */
             403: {
                 headers: {
                     [name: string]: unknown;
@@ -28739,7 +28244,7 @@ export interface operations {
                     "application/json": components["schemas"]["ErrorEnvelope"];
                 };
             };
-            /** @description Missing `activities.update` for this activity (`permission_denied`, `insufficient_scope`) */
+            /** @description Missing `tasks.update` for this activity (`permission_denied`, `insufficient_scope`) */
             403: {
                 headers: {
                     [name: string]: unknown;
@@ -28816,7 +28321,7 @@ export interface operations {
                     "application/json": components["schemas"]["ErrorEnvelope"];
                 };
             };
-            /** @description Missing `activities.read` (`permission_denied`, `insufficient_scope`) */
+            /** @description Missing `tasks.read` (`permission_denied`, `insufficient_scope`) */
             403: {
                 headers: {
                     [name: string]: unknown;
@@ -31190,7 +30695,7 @@ export interface operations {
         };
         requestBody?: never;
         responses: {
-            /** @description Data of a widget, computed under the read scope of the user and the time zone of the organization. `period` defaults to `month` and is ignored by widgets with `uses_period = false`; `settings` is a JSON object validated by the widget. Shapes of `data`: `sales_indicators` → currency, open_count, pipeline_amount, forecast_amount (amount × probability of the deal or of its stage), won_count, won_amount, lost_count, conversion_rate (won / (won + lost) in the period, null without closed deals); `pending_center` (settings stale_days, only_mine, limit) → overdue, due_today and due_tomorrow (`{ count, items }` of open activities) and stale_deals (`{ count, stale_days, items }`, null without `deals.read`); `recent_activity` (settings limit) → items of the latest events of records the user can read; `report_totals` → contacts_total, open_deals, won_deals, lost_deals, pending_tasks, completed_activities (null when the permission is missing); `deals_by_stage` (settings pipeline_id) → pipeline, currency and stages with count and amount. Every monetary value (`*_amount`, `amount`) is a decimal string with two places next to its `currency`. `user_id` or `team_id` (one of them, from `GET /dashboard/subjects`) limits every widget to the records owned by that user or by the members of that team, on top of the read scope; with `compare_to_previous=true`, widgets that use the period also compute the period right before (`previous_period`) and return it in `data.previous` (`sales_indicators`: won_count, won_amount, lost_count, conversion_rate; `report_totals`: won_deals, lost_deals, completed_activities) */
+            /** @description Data of a widget, computed under the read scope of the user and the time zone of the organization. `period` defaults to `month` and is ignored by widgets with `uses_period = false`; `settings` is a JSON object validated by the widget. Shapes of `data`: `sales_indicators` → currency, open_count, pipeline_amount, forecast_amount (amount × probability of the deal or of its stage), won_count, won_amount, lost_count, conversion_rate (won / (won + lost) in the period, null without closed deals); `pending_center` (settings stale_days, only_mine, limit) → overdue, due_today and due_tomorrow (`{ count, items }` of open tasks) and stale_deals (`{ count, stale_days, items }`, null without `deals.read`); `recent_activity` (settings limit) → items of the latest events of records the user can read; `report_totals` → contacts_total, open_deals, won_deals, lost_deals, pending_tasks, completed_activities (null when the permission is missing); `deals_by_stage` (settings pipeline_id) → pipeline, currency and stages with count and amount. Every monetary value (`*_amount`, `amount`) is a decimal string with two places next to its `currency`. `user_id` or `team_id` (one of them, from `GET /dashboard/subjects`) limits every widget to the records owned by that user or by the members of that team, on top of the read scope; with `compare_to_previous=true`, widgets that use the period also compute the period right before (`previous_period`) and return it in `data.previous` (`sales_indicators`: won_count, won_amount, lost_count, conversion_rate; `report_totals`: won_deals, lost_deals, completed_activities) */
             200: {
                 headers: {
                     [name: string]: unknown;
@@ -45823,7 +45328,7 @@ export interface operations {
             };
         };
         responses: {
-            /** @description Migrates the activities or notes exported by the source tool (steps `activities` and `notes`, up to 5 000 rows per file) right away through the activities and notes use cases (validation, permission, event and audit per row). Each row is linked to the deal (by title), contact (by e-mail or name) and company (by name) already in Aphel, so import organizations, people and deals first; activity types are matched by name and owners by name or e-mail, done tasks keep their due date as completion. Notes need a linked record. Attachments are not part of the CSV exports and are not migrated. Rows that fail are listed in `report.errors` (first 100). Requires `activities.create` or `notes.create` */
+            /** @description Migrates the tasks or notes exported by the source tool (steps `tasks` and `notes`, up to 5 000 rows per file) right away through the tasks and notes use cases (validation, permission, event and audit per row). Each row is linked to the deal (by title), contact (by e-mail or name) and company (by name) already in Aphel, so import organizations, people and deals first; activity types are matched by name and owners by name or e-mail, done tasks keep their due date as completion. Notes need a linked record. Attachments are not part of the CSV exports and are not migrated. Rows that fail are listed in `report.errors` (first 100). Requires `tasks.create` or `notes.create` */
             200: {
                 headers: {
                     [name: string]: unknown;
@@ -45841,7 +45346,7 @@ export interface operations {
                     "application/json": components["schemas"]["ErrorEnvelope"];
                 };
             };
-            /** @description Missing `activities.create` or `notes.create` (`permission_denied`) */
+            /** @description Missing `tasks.create` or `notes.create` (`permission_denied`) */
             403: {
                 headers: {
                     [name: string]: unknown;
@@ -45850,7 +45355,7 @@ export interface operations {
                     "application/json": components["schemas"]["ErrorEnvelope"];
                 };
             };
-            /** @description Unknown source or step, or the activities or notes module is disabled (`migration_source_not_found`) */
+            /** @description Unknown source or step, or the tasks or notes module is disabled (`migration_source_not_found`) */
             404: {
                 headers: {
                     [name: string]: unknown;
@@ -46086,7 +45591,7 @@ export interface operations {
         };
         requestBody?: never;
         responses: {
-            /** @description Supported source CRMs (Pipedrive, HubSpot, RD Station CRM, Agendor), the suggested import order (organizations, people, deals, then activities and notes, whose `kind` sends them to `/migration-assistant/history`) and the columns recognized in each export, with the Aphel field and the conversion applied. Headers were inferred from public documentation and may vary by account language and version */
+            /** @description Supported source CRMs (Pipedrive, HubSpot, RD Station CRM, Agendor), the suggested import order (organizations, people, deals, then tasks and notes, whose `kind` sends them to `/migration-assistant/history`) and the columns recognized in each export, with the Aphel field and the conversion applied. Headers were inferred from public documentation and may vary by account language and version */
             200: {
                 headers: {
                     [name: string]: unknown;
@@ -53181,7 +52686,7 @@ export interface operations {
             };
         };
         responses: {
-            /** @description Policy created disabled (`retention_policy.created`). Actions: `archive_inactive` (people, organizations or deals without updates, activities or notes for N days), `purge_archived` (deletes for good records archived N days ago, with their files), `purge_audit_logs`, `purge_security_events`, `purge_domain_events` (dispatched events; the timeline loses that history) and `purge_orphan_files` (files no longer referenced, also removed from the storage). The trash keeps its own retention (`trash.purge`) */
+            /** @description Policy created disabled (`retention_policy.created`). Actions: `archive_inactive` (people, organizations or deals without updates, tasks or notes for N days), `purge_archived` (deletes for good records archived N days ago, with their files), `purge_audit_logs`, `purge_security_events`, `purge_domain_events` (dispatched events; the timeline loses that history) and `purge_orphan_files` (files no longer referenced, also removed from the storage). The trash keeps its own retention (`trash.purge`) */
             201: {
                 headers: {
                     [name: string]: unknown;
@@ -53762,7 +53267,7 @@ export interface operations {
             };
         };
         responses: {
-            /** @description Where the data subject appears: records whose personal fields (system or custom, `is_personal`) match the e-mail (lowercase), phone (E.164 or digits) or document (digits) — or contain the text otherwise —, notes that mention the term or belong to those records, their attachments and activities, and import rows whose raw data contains the term (up to 100 per group). The term goes in the body so it never reaches URLs or access logs; the search is audited (`privacy.subject_searched`) without the term */
+            /** @description Where the data subject appears: records whose personal fields (system or custom, `is_personal`) match the e-mail (lowercase), phone (E.164 or digits) or document (digits) — or contain the text otherwise —, notes that mention the term or belong to those records, their attachments and tasks, and import rows whose raw data contains the term (up to 100 per group). The term goes in the body so it never reaches URLs or access logs; the search is audited (`privacy.subject_searched`) without the term */
             200: {
                 headers: {
                     [name: string]: unknown;
@@ -60786,7 +60291,7 @@ export interface operations {
         };
         requestBody?: never;
         responses: {
-            /** @description Meeting type and its booking history deleted (`meeting_type.deleted`); the meeting activities stay in the CRM */
+            /** @description Meeting type and its booking history deleted (`meeting_type.deleted`); the meeting tasks stay in the CRM */
             204: {
                 headers: {
                     [name: string]: unknown;
@@ -63773,6 +63278,570 @@ export interface operations {
             };
         };
     };
+    activities_list: {
+        parameters: {
+            query?: {
+                /** @example people.person */
+                record_type?: string;
+                record_id?: string;
+                my_open?: boolean;
+                /** @example {"op":"and","conditions":[{"field":"name","operator":"contains","value":"ana"}]} */
+                filter?: string;
+                /** @example -created_at,name */
+                sort?: string;
+                search?: string;
+                /** @example exclude */
+                archived?: string;
+                page?: number;
+                per_page?: number;
+            };
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        requestBody?: never;
+        responses: {
+            /** @description Activities visible to the user. `record_type` + `record_id` keep the tasks of a record (main link or additional links); `my_open=true` keeps the open tasks owned by the user, sorted by due date unless `sort` is sent (otherwise newest first). Besides `filter` as JSON, simple conditions go as `filter[field][operator]=value` (`filter[status][eq]=open`, `filter[due_at][lt]=2026-01-01`), combined with `and`. `activity_type`, `owner`, `record` and `links` are always embedded */
+            200: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["Page_ActivityResponse"];
+                };
+            };
+            /** @description Missing or invalid credentials (`unauthorized`, `invalid_api_token`) */
+            401: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["ErrorEnvelope"];
+                };
+            };
+            /** @description Missing `tasks.read` or read access to the record (`permission_denied`, `insufficient_scope`) */
+            403: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["ErrorEnvelope"];
+                };
+            };
+            /** @description Invalid filter, sort, record reference or pagination (`validation_error` with `details.fields`); unknown record type (`unsupported_record_type`) */
+            422: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["ErrorEnvelope"];
+                };
+            };
+            /** @description API token rate limit exceeded (`rate_limited`); see `Retry-After` and `X-RateLimit-*` */
+            429: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["ErrorEnvelope"];
+                };
+            };
+        };
+    };
+    activities_create: {
+        parameters: {
+            query?: never;
+            header?: {
+                /** @description Up to 255 printable ASCII characters. The same key with the same request (method, path and body) within 24 hours answers the stored response with the same status and body plus `Idempotent-Replayed: true`. Scoped to the credential (session cookie or API token); ignored without a credential. 5xx and 429 responses are not stored */
+                "Idempotency-Key"?: string;
+            };
+            path?: never;
+            cookie?: never;
+        };
+        requestBody: {
+            content: {
+                "application/json": components["schemas"]["CreateActivityRequest"];
+            };
+        };
+        responses: {
+            /** @description Activity created. Without `activity_type_id` the active `task` type (or the first active type) is used. Without `owner_id` the user is the owner; `status=done` logs an activity that already happened (`completed_at` defaults to now). `reminder_minutes_before` notifies the owner that many minutes before `due_at` (omitted: 60; `null`: no reminder). `recurrence` turns an open activity with `due_at` into the first occurrence of a series (daily, weekly on `by_weekday`, monthly on `month_day` — the last day of shorter months —, yearly; `interval`, and `until` or `count`), computed in the organization time zone; completing an occurrence creates the next one. `location` (`latitude` −90..90, `longitude` −180..180, optional `accuracy_m` in meters and `captured_at`, default now, never in the future) records where the activity happened, as in a visit check-in; it is stored with 6 decimal places and answered with a `map_url` (also flattened as `location_*`). Enabled modules may add keys to the answer, such as `call` from the calls module */
+            201: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["Data_ActivityResponse"];
+                };
+            };
+            /** @description Missing or invalid credentials (`unauthorized`, `invalid_api_token`) */
+            401: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["ErrorEnvelope"];
+                };
+            };
+            /** @description Missing `tasks.create` (`permission_denied`, `insufficient_scope`) */
+            403: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["ErrorEnvelope"];
+                };
+            };
+            /** @description The first request with this `Idempotency-Key` is still being processed (`idempotency_key_in_progress`) */
+            409: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["ErrorEnvelope"];
+                };
+            };
+            /** @description Invalid fields, inactive type, unknown owner, unreadable linked record or invalid custom fields (`validation_error`). `Idempotency-Key` already used with a different request (`idempotency_key_reused`) or longer than 255 characters (`validation_error`) */
+            422: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["ErrorEnvelope"];
+                };
+            };
+            /** @description API token rate limit exceeded (`rate_limited`); see `Retry-After` and `X-RateLimit-*` */
+            429: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["ErrorEnvelope"];
+                };
+            };
+        };
+    };
+    activities_inbox: {
+        parameters: {
+            query?: {
+                /** @example me */
+                owner?: string;
+                team_id?: string;
+                /** @example due */
+                sort?: string;
+            };
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        requestBody?: never;
+        responses: {
+            /** @description Open tasks in four groups by due date in the organization time zone (`overdue`, `today`, `upcoming`, `no_due`), at most 500. `owner=me` (default) keeps the user's tasks, `owner=team` the ones owned by members of `team_id` (or of the user's teams) and `owner=all` everything the user can read. `sort=due` (default), `priority` (urgent first) or `value` (amount of the linked deal, largest first), always followed by due date. `linked_deal` is the main or first linked deal the user can read (needs `deals.read`); its `amount` is `null` when the field is hidden from the user (`deal_amounts_visible=false`) */
+            200: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["Data_InboxResponse"];
+                };
+            };
+            /** @description Missing or invalid credentials (`unauthorized`, `invalid_api_token`) */
+            401: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["ErrorEnvelope"];
+                };
+            };
+            /** @description Missing `tasks.read` (`permission_denied`, `insufficient_scope`) */
+            403: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["ErrorEnvelope"];
+                };
+            };
+            /** @description Invalid `owner` or `sort` (`validation_error`) */
+            422: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["ErrorEnvelope"];
+                };
+            };
+            /** @description API token rate limit exceeded (`rate_limited`); see `Retry-After` and `X-RateLimit-*` */
+            429: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["ErrorEnvelope"];
+                };
+            };
+        };
+    };
+    activities_get: {
+        parameters: {
+            query?: never;
+            header?: never;
+            path: {
+                /** @description Activity id */
+                activity_id: string;
+            };
+            cookie?: never;
+        };
+        requestBody?: never;
+        responses: {
+            /** @description The activity with its custom fields */
+            200: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["Data_ActivityResponse"];
+                };
+            };
+            /** @description Missing or invalid credentials (`unauthorized`, `invalid_api_token`) */
+            401: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["ErrorEnvelope"];
+                };
+            };
+            /** @description Missing `tasks.read` (`permission_denied`, `insufficient_scope`) */
+            403: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["ErrorEnvelope"];
+                };
+            };
+            /** @description Activity not found or outside the user's scope (`activity_not_found`) */
+            404: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["ErrorEnvelope"];
+                };
+            };
+            /** @description API token rate limit exceeded (`rate_limited`); see `Retry-After` and `X-RateLimit-*` */
+            429: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["ErrorEnvelope"];
+                };
+            };
+        };
+    };
+    activities_delete: {
+        parameters: {
+            query?: never;
+            header?: never;
+            path: {
+                /** @description Activity id */
+                activity_id: string;
+            };
+            cookie?: never;
+        };
+        requestBody?: never;
+        responses: {
+            /** @description Activity deleted */
+            204: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content?: never;
+            };
+            /** @description Missing or invalid credentials (`unauthorized`, `invalid_api_token`) */
+            401: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["ErrorEnvelope"];
+                };
+            };
+            /** @description Missing `tasks.delete` for this activity (`permission_denied`, `insufficient_scope`) */
+            403: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["ErrorEnvelope"];
+                };
+            };
+            /** @description Activity not found (`activity_not_found`) */
+            404: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["ErrorEnvelope"];
+                };
+            };
+            /** @description API token rate limit exceeded (`rate_limited`); see `Retry-After` and `X-RateLimit-*` */
+            429: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["ErrorEnvelope"];
+                };
+            };
+        };
+    };
+    activities_update: {
+        parameters: {
+            query?: never;
+            header?: {
+                /** @description `updated_at` of the activity as last read (ISO-8601); when it changed since, the update is refused with 409 `version_conflict` */
+                "If-Match"?: string | null;
+            };
+            path: {
+                /** @description Activity id */
+                activity_id: string;
+            };
+            cookie?: never;
+        };
+        requestBody: {
+            content: {
+                "application/json": components["schemas"]["UpdateActivityRequest"];
+            };
+        };
+        responses: {
+            /** @description Activity updated; only the sent fields change. Changing `due_at` or `reminder_minutes_before`, or reopening, re-arms the reminder. On an occurrence of a recurring series, `apply_to=this` (default) changes only this occurrence and `apply_to=following` also updates the series template (title, type, owner, priority, description, duration, reminder, links and, when `due_at` changes, the anchor of the schedule) used by the next occurrences. `recurrence` replaces the rule from this occurrence on (or starts a series); `recurrence: null` ends it. Completing an occurrence (`status=done`) creates the next one once. `location` replaces the check-in location; `location: null` removes it */
+            200: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["Data_ActivityResponse"];
+                };
+            };
+            /** @description Missing or invalid credentials (`unauthorized`, `invalid_api_token`) */
+            401: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["ErrorEnvelope"];
+                };
+            };
+            /** @description Missing `tasks.update` for this activity (`permission_denied`, `insufficient_scope`) */
+            403: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["ErrorEnvelope"];
+                };
+            };
+            /** @description Activity not found (`activity_not_found`) */
+            404: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["ErrorEnvelope"];
+                };
+            };
+            /** @description The activity changed after the `If-Match` version (`version_conflict`) */
+            409: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["ErrorEnvelope"];
+                };
+            };
+            /** @description Invalid fields or custom fields (`validation_error`) */
+            422: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["ErrorEnvelope"];
+                };
+            };
+            /** @description API token rate limit exceeded (`rate_limited`); see `Retry-After` and `X-RateLimit-*` */
+            429: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["ErrorEnvelope"];
+                };
+            };
+        };
+    };
+    activities_complete: {
+        parameters: {
+            query?: never;
+            header?: {
+                /** @description Up to 255 printable ASCII characters. The same key with the same request (method, path and body) within 24 hours answers the stored response with the same status and body plus `Idempotent-Replayed: true`. Scoped to the credential (session cookie or API token); ignored without a credential. 5xx and 429 responses are not stored */
+                "Idempotency-Key"?: string;
+            };
+            path: {
+                /** @description Activity id */
+                activity_id: string;
+            };
+            cookie?: never;
+        };
+        requestBody?: never;
+        responses: {
+            /** @description Activity marked as done now */
+            200: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["Data_ActivityResponse"];
+                };
+            };
+            /** @description Missing or invalid credentials (`unauthorized`, `invalid_api_token`) */
+            401: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["ErrorEnvelope"];
+                };
+            };
+            /** @description Missing `tasks.update` for this activity (`permission_denied`, `insufficient_scope`) */
+            403: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["ErrorEnvelope"];
+                };
+            };
+            /** @description Activity not found (`activity_not_found`) */
+            404: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["ErrorEnvelope"];
+                };
+            };
+            /** @description The activity is already done (`activity_already_completed`). The first request with this `Idempotency-Key` is still being processed (`idempotency_key_in_progress`) */
+            409: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["ErrorEnvelope"];
+                };
+            };
+            /** @description `Idempotency-Key` already used with a different request (`idempotency_key_reused`) or longer than 255 characters (`validation_error`) */
+            422: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["ErrorEnvelope"];
+                };
+            };
+            /** @description API token rate limit exceeded (`rate_limited`); see `Retry-After` and `X-RateLimit-*` */
+            429: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["ErrorEnvelope"];
+                };
+            };
+        };
+    };
+    activities_reopen: {
+        parameters: {
+            query?: never;
+            header?: {
+                /** @description Up to 255 printable ASCII characters. The same key with the same request (method, path and body) within 24 hours answers the stored response with the same status and body plus `Idempotent-Replayed: true`. Scoped to the credential (session cookie or API token); ignored without a credential. 5xx and 429 responses are not stored */
+                "Idempotency-Key"?: string;
+            };
+            path: {
+                /** @description Activity id */
+                activity_id: string;
+            };
+            cookie?: never;
+        };
+        requestBody?: never;
+        responses: {
+            /** @description Activity open again */
+            200: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["Data_ActivityResponse"];
+                };
+            };
+            /** @description Missing or invalid credentials (`unauthorized`, `invalid_api_token`) */
+            401: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["ErrorEnvelope"];
+                };
+            };
+            /** @description Missing `tasks.update` for this activity (`permission_denied`, `insufficient_scope`) */
+            403: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["ErrorEnvelope"];
+                };
+            };
+            /** @description Activity not found (`activity_not_found`) */
+            404: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["ErrorEnvelope"];
+                };
+            };
+            /** @description The activity is already open (`activity_already_open`). The first request with this `Idempotency-Key` is still being processed (`idempotency_key_in_progress`) */
+            409: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["ErrorEnvelope"];
+                };
+            };
+            /** @description `Idempotency-Key` already used with a different request (`idempotency_key_reused`) or longer than 255 characters (`validation_error`) */
+            422: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["ErrorEnvelope"];
+                };
+            };
+            /** @description API token rate limit exceeded (`rate_limited`); see `Retry-After` and `X-RateLimit-*` */
+            429: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["ErrorEnvelope"];
+                };
+            };
+        };
+    };
     teams_list: {
         parameters: {
             query?: {
@@ -64653,7 +64722,7 @@ export interface operations {
         };
         requestBody?: never;
         responses: {
-            /** @description Deleted records of every type with a trash (soft-deleted types with a title: people, organizations, deals, products, activities, quotes, custom objects…), most recently deleted first, with the date they will be purged. Only records the user could read (read scope of each type: own, team or organization, plus shares) are listed; types the user cannot read are left out. Records merged into another one are not listed */
+            /** @description Deleted records of every type with a trash (soft-deleted types with a title: people, organizations, deals, products, tasks, quotes, custom objects…), most recently deleted first, with the date they will be purged. Only records the user could read (read scope of each type: own, team or organization, plus shares) are listed; types the user cannot read are left out. Records merged into another one are not listed */
             200: {
                 headers: {
                     [name: string]: unknown;

@@ -245,20 +245,20 @@ impl Collector<'_> {
         notes
     }
 
-    async fn activities(&mut self, record_type: &str, record_id: Uuid) -> Vec<Value> {
-        let Some(policy) = self.policy("activities.activity").await else {
+    async fn tasks(&mut self, record_type: &str, record_id: Uuid) -> Vec<Value> {
+        let Some(policy) = self.policy("tasks.task").await else {
             return Vec::new();
         };
-        let items = records::activities(self.ctx, record_type, record_id, RELATED_LIMIT)
+        let items = records::tasks(self.ctx, record_type, record_id, RELATED_LIMIT)
             .await
             .unwrap_or_default();
-        let mut activities = Vec::new();
+        let mut tasks = Vec::new();
         for item in items {
             let mut projected = project(
                 &item,
                 &[
                     "title",
-                    "activities.activity_type",
+                    "tasks.type",
                     "status",
                     "priority",
                     "due_at",
@@ -275,13 +275,13 @@ impl Collector<'_> {
                 );
             }
             self.source(
-                "activities.activity",
+                "tasks.task",
                 &item,
                 item.get("title").and_then(Value::as_str).map(str::to_owned),
             );
-            activities.push(policy.sanitize(&projected));
+            tasks.push(policy.sanitize(&projected));
         }
-        activities
+        tasks
     }
 
     async fn related(
@@ -349,9 +349,9 @@ pub(crate) async fn build(
     context.insert("record".to_owned(), policy.sanitize(&record));
     if depth == ContextDepth::Full {
         let notes = collector.notes(record_type, record_id).await;
-        let activities = collector.activities(record_type, record_id).await;
+        let tasks = collector.tasks(record_type, record_id).await;
         context.insert("recent_notes".to_owned(), Value::Array(notes));
-        context.insert("recent_activities".to_owned(), Value::Array(activities));
+        context.insert("recent_activities".to_owned(), Value::Array(tasks));
         match record_type {
             "people.person" => {
                 let deals = collector

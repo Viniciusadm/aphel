@@ -1,6 +1,6 @@
 {
   "title": "Welcome to Aphel",
-  "description": "Summary of your sales, pending work and activities.",
+  "description": "Summary of your sales, pending work and tasks.",
   "period": {
     "label": "Period",
     "presets": {
@@ -46,7 +46,7 @@
   },
   "states": {
     "emptyLayoutTitle": "Your dashboard is empty",
-    "emptyLayoutDescription": "Add widgets to follow sales, pending work and activities.",
+    "emptyLayoutDescription": "Add widgets to follow sales, pending work and tasks.",
     "widgetEmpty": "Nothing here for the period.",
     "widgetError": "This widget could not be loaded.",
     "unsupported": "This widget cannot be shown in this version.",

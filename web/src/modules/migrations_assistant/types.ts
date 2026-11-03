@@ -2,8 +2,8 @@ import type { components } from '@/api'
 
 type Schemas = components['schemas']
 
-export type StepKey = 'organizations' | 'people' | 'deals' | 'activities' | 'notes'
-export type StepKind = 'import' | 'activities' | 'notes'
+export type StepKey = 'organizations' | 'people' | 'deals' | 'tasks' | 'notes'
+export type StepKind = 'import' | 'tasks' | 'notes'
 export type DateOrder = 'day_first' | 'month_first'
 export type DecimalSeparator = 'comma' | 'dot'
 

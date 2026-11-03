@@ -11,7 +11,7 @@ aphel-contract-automation.workspace = true
 config_packages = { package = "aphel-mod-config-packages", path = "../config_packages" }
 aphel-contract-crm.workspace = true
 aphel-kernel.workspace = true
-activities = { package = "aphel-mod-activities", path = "../activities" }
+tasks = { package = "aphel-mod-tasks", path = "../tasks" }
 deal_items = { package = "aphel-mod-deal-items", path = "../deal_items" }
 deals = { package = "aphel-mod-deals", path = "../deals" }
 quotes = { package = "aphel-mod-quotes", path = "../quotes" }

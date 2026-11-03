@@ -283,7 +283,7 @@ async fn update_meeting_type(
     security(("session_cookie" = [])),
     params(("meeting_type_id" = String, Path, description = "Meeting type id")),
     responses(
-        (status = 204, description = "Meeting type and its booking history deleted (`meeting_type.deleted`); the meeting activities stay in the CRM"),
+        (status = 204, description = "Meeting type and its booking history deleted (`meeting_type.deleted`); the meeting tasks stay in the CRM"),
         (status = 401, description = "Missing or invalid credentials (`unauthorized`, `invalid_api_token`)", body = ErrorEnvelope),
         (status = 403, description = "Missing `scheduling.manage` (`permission_denied`, `insufficient_scope`)", body = ErrorEnvelope),
         (status = 404, description = "Not found or outside your scope (`meeting_type_not_found`)", body = ErrorEnvelope),

@@ -72,7 +72,7 @@ impl AutomationTrigger for RecordStale {
         "Registro parado"
     }
     fn description(&self) -> &'static str {
-        "Runs once per stop when a record goes `days` days without updates (`no_update`), without activities (`no_activity`, deals) or in the same stage (`same_stage`, deals); a new stop only counts after the record changes again"
+        "Runs once per stop when a record goes `days` days without updates (`no_update`), without tasks (`no_activity`, deals) or in the same stage (`same_stage`, deals); a new stop only counts after the record changes again"
     }
     fn options_schema(&self) -> Value {
         json!({

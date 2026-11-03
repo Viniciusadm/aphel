@@ -2,7 +2,7 @@
 
 Reference module for **contributed widgets** on the dashboard (`app.widget(..)` with `WidgetProvider`). It has no tables, routes, permissions or events of its own: the data comes from the kernel's aggregation engine and record query engine (`AggregateEngine`, `RecordQuery`), from the `contact` `RecordTypeHandler` and from the scope's field set, always with the scope of the user viewing the dashboard (`own`/`team`/`organization` visibility and hidden fields already applied by the core).
 
-- Backend: `back/modules/insights` (crate `aphel-mod-insights`, struct `InsightsModule`; `deals` and `activities` optional).
+- Backend: `back/modules/insights` (crate `aphel-mod-insights`, struct `InsightsModule`; `deals` and `tasks` optional).
 - Frontend: `web/src/modules/insights` (renderers, i18n in the `insights` namespace).
 
 ## Module settings
@@ -25,9 +25,9 @@ All of them validate their settings in `normalize_settings` (types, limits and *
 
 ### `insights.team_activity_ranking` — Team activity ranking
 
-- Permission: `activities.read`. Uses the period (field `completed_at`) and the person/team filter.
+- Permission: `tasks.read`. Uses the period (field `completed_at`) and the person/team filter.
 - Settings: `limit` (1 to 20, default 5), `by_type` (default `false`).
-- Aggregation: activities with `status = done` grouped by `owner_id` (the group label is already the user's name), top N by count. With `by_type`, a second aggregation by `owner_id` + `activity_type_id` restricted to the owners in the top N (label = type name).
+- Aggregation: tasks with `status = done` grouped by `owner_id` (the group label is already the user's name), top N by count. With `by_type`, a second aggregation by `owner_id` + `activity_type_id` restricted to the owners in the top N (label = type name).
 
 ### `insights.birthdays` — This month's birthdays
 

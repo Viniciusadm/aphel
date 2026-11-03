@@ -14,13 +14,13 @@ organizations = { path = "modules/organizations", required = true }
 leads = { path = "modules/leads" }
 scoring = { path = "modules/scoring" }
 currencies = { path = "modules/currencies", required = true }
-workflow = { path = "modules/workflow", required = true }
+workflow = { path = "modules/workflow" }
 deals = { path = "modules/deals", required = true }
 deal_items = { path = "modules/deal_items" }
 renewals = { path = "modules/renewals" }
 goals = { path = "modules/goals" }
 forecast = { path = "modules/forecast" }
-activities = { path = "modules/activities", required = true }
+tasks = { path = "modules/tasks" }
 notes = { path = "modules/notes", required = true }
 reminders = { path = "modules/reminders" }
 timeline = { path = "modules/timeline", required = true }
@@ -64,3 +64,5 @@ microsoft = { path = "modules/microsoft" }
 esign = { path = "modules/esign" }
 enrichment = { path = "modules/enrichment" }
 messaging = { path = "modules/messaging" }
+
+calendar = { path = "modules/calendar" }

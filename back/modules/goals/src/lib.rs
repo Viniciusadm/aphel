@@ -28,7 +28,7 @@ impl Module for GoalsModule {
     fn manifest(&self) -> Manifest {
         Manifest::new(KEY, "Goals", APHEL_VERSION)
             .description(
-                "Sales goals per user, team or organization (won amount, won deals, completed activities, new people) and their progress",
+                "Sales goals per user, team or organization (won amount, won deals, completed tasks, new people) and their progress",
             )
             .depends_on(deals::KEY, "*")
             .enabled_by_default()

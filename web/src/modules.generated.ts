@@ -20,7 +20,7 @@ import dealItemsModule from '@modules/deal_items'
 import renewalsModule from '@modules/renewals'
 import goalsModule from '@modules/goals'
 import forecastModule from '@modules/forecast'
-import activitiesModule from '@modules/activities'
+import tasksModule from '@modules/tasks'
 import notesModule from '@modules/notes'
 import timelineModule from '@modules/timeline'
 import favoritesModule from '@modules/favorites'
@@ -61,6 +61,7 @@ import microsoftModule from '@modules/microsoft'
 import esignModule from '@modules/esign'
 import enrichmentModule from '@modules/enrichment'
 import messagingModule from '@modules/messaging'
+import calendarModule from '@modules/calendar'
 
 export const MODULES: WebModule[] = [
   kernelModule,
@@ -84,7 +85,7 @@ export const MODULES: WebModule[] = [
   renewalsModule,
   goalsModule,
   forecastModule,
-  activitiesModule,
+  tasksModule,
   notesModule,
   timelineModule,
   favoritesModule,
@@ -125,4 +126,5 @@ export const MODULES: WebModule[] = [
   esignModule,
   enrichmentModule,
   messagingModule,
+  calendarModule,
 ]

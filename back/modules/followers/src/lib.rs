@@ -24,7 +24,7 @@ impl Module for FollowersModule {
     fn manifest(&self) -> Manifest {
         Manifest::new(KEY, "Followers", APHEL_VERSION)
             .description(
-                "Following records to be notified of their changes, activities, notes and emails",
+                "Following records to be notified of their changes, tasks, notes and emails",
             )
             .enabled_by_default()
             .owned_tables(&["record_followers"])
@@ -41,7 +41,7 @@ impl Module for FollowersModule {
         );
         app.openapi_tag(
             http::TAG,
-            "Following records to be notified of their changes, activities, notes and emails",
+            "Following records to be notified of their changes, tasks, notes and emails",
         )
         .routes(|_| http::router());
         app.contribute(std::sync::Arc::new(NotificationKindDefinition {

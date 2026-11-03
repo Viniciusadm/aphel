@@ -149,11 +149,11 @@ name = "aphel"
 version = "0.1.0"
 dependencies = [
  "aphel-kernel",
- "aphel-mod-activities",
  "aphel-mod-ai",
  "aphel-mod-approvals",
  "aphel-mod-automations",
  "aphel-mod-bulk-actions",
+ "aphel-mod-calendar",
  "aphel-mod-calls",
  "aphel-mod-config-packages",
  "aphel-mod-currencies",
@@ -207,6 +207,7 @@ dependencies = [
  "aphel-mod-segments",
  "aphel-mod-sequences",
  "aphel-mod-tags",
+ "aphel-mod-tasks",
  "aphel-mod-themes",
  "aphel-mod-timeline",
  "aphel-mod-trash",
@@ -257,6 +258,15 @@ dependencies = [
  "utoipa",
  "utoipa-axum",
  "uuid",
+]
+
+[[package]]
+name = "aphel-contract-calendar"
+version = "0.1.0"
+dependencies = [
+ "aphel-contract",
+ "serde",
+ "utoipa",
 ]
 
 [[package]]
@@ -363,38 +373,15 @@ dependencies = [
 ]
 
 [[package]]
-name = "aphel-mod-activities"
-version = "0.1.0"
-dependencies = [
- "aphel-contract-automation",
- "aphel-contract-crm",
- "aphel-kernel",
- "aphel-mod-config-packages",
- "aphel-mod-notifications",
- "aphel-sdk",
- "async-trait",
- "axum",
- "chrono",
- "chrono-tz",
- "rust_decimal",
- "serde",
- "serde_json",
- "sqlx",
- "utoipa",
- "utoipa-axum",
- "uuid",
-]
-
-[[package]]
 name = "aphel-mod-ai"
 version = "0.1.0"
 dependencies = [
  "aphel-contract-crm",
  "aphel-kernel",
- "aphel-mod-activities",
  "aphel-mod-deals",
  "aphel-mod-notes",
  "aphel-mod-people",
+ "aphel-mod-tasks",
  "async-trait",
  "axum",
  "chrono",
@@ -438,11 +425,11 @@ dependencies = [
  "aphel-contract-automation",
  "aphel-contract-crm",
  "aphel-kernel",
- "aphel-mod-activities",
  "aphel-mod-config-packages",
  "aphel-mod-notifications",
  "aphel-mod-record-layouts",
  "aphel-mod-tags",
+ "aphel-mod-tasks",
  "aphel-mod-workflow",
  "aphel-sdk",
  "async-trait",
@@ -483,14 +470,27 @@ dependencies = [
 ]
 
 [[package]]
+name = "aphel-mod-calendar"
+version = "0.1.0"
+dependencies = [
+ "aphel-kernel",
+ "aphel-sdk",
+ "axum",
+ "chrono",
+ "serde",
+ "utoipa",
+ "utoipa-axum",
+]
+
+[[package]]
 name = "aphel-mod-calls"
 version = "0.1.0"
 dependencies = [
  "aphel-contract-crm",
  "aphel-kernel",
- "aphel-mod-activities",
  "aphel-mod-config-packages",
  "aphel-mod-saved-views",
+ "aphel-mod-tasks",
  "async-trait",
  "axum",
  "chrono",
@@ -633,7 +633,6 @@ version = "0.1.0"
 dependencies = [
  "aphel-contract-crm",
  "aphel-kernel",
- "aphel-mod-activities",
  "aphel-mod-approvals",
  "aphel-mod-config-packages",
  "aphel-mod-currencies",
@@ -647,6 +646,7 @@ dependencies = [
  "aphel-mod-privacy",
  "aphel-mod-products",
  "aphel-mod-quotes",
+ "aphel-mod-tasks",
  "aphel-mod-validation-rules",
  "aphel-mod-workflow",
  "async-trait",
@@ -734,9 +734,9 @@ dependencies = [
  "aphel-contract-automation",
  "aphel-contract-crm",
  "aphel-kernel",
- "aphel-mod-activities",
  "aphel-mod-deals",
  "aphel-mod-organizations",
+ "aphel-mod-tasks",
  "async-trait",
  "axum",
  "chrono",
@@ -756,9 +756,9 @@ dependencies = [
  "aphel-contract-automation",
  "aphel-contract-crm",
  "aphel-kernel",
- "aphel-mod-activities",
  "aphel-mod-deals",
  "aphel-mod-quotes",
+ "aphel-mod-tasks",
  "async-trait",
  "axum",
  "base64 0.22.1",
@@ -950,9 +950,9 @@ version = "0.1.0"
 dependencies = [
  "aphel-contract-crm",
  "aphel-kernel",
- "aphel-mod-activities",
  "aphel-mod-dashboard",
  "aphel-mod-deals",
+ "aphel-mod-tasks",
  "async-trait",
  "chrono",
  "rust_decimal",
@@ -1004,12 +1004,12 @@ dependencies = [
  "aphel-contract-automation",
  "aphel-contract-crm",
  "aphel-kernel",
- "aphel-mod-activities",
  "aphel-mod-deals",
  "aphel-mod-lead-distribution",
  "aphel-mod-leads",
  "aphel-mod-people",
  "aphel-mod-tags",
+ "aphel-mod-tasks",
  "aphel-mod-workflow",
  "axum",
  "chrono",
@@ -1070,10 +1070,10 @@ dependencies = [
  "aphel-contract-automation",
  "aphel-contract-crm",
  "aphel-kernel",
- "aphel-mod-activities",
  "aphel-mod-deals",
  "aphel-mod-email",
  "aphel-mod-people",
+ "aphel-mod-tasks",
  "async-trait",
  "axum",
  "chrono",
@@ -1116,9 +1116,9 @@ version = "0.1.0"
 dependencies = [
  "aphel-contract-crm",
  "aphel-kernel",
- "aphel-mod-activities",
  "aphel-mod-imports",
  "aphel-mod-notes",
+ "aphel-mod-tasks",
  "axum",
  "bytes",
  "chrono",
@@ -1211,9 +1211,9 @@ version = "0.1.0"
 dependencies = [
  "aphel-contract-crm",
  "aphel-kernel",
- "aphel-mod-activities",
  "aphel-mod-email",
  "aphel-mod-scheduling",
+ "aphel-mod-tasks",
  "async-trait",
  "axum",
  "base64 0.22.1",
@@ -1431,11 +1431,11 @@ dependencies = [
  "aphel-contract-automation",
  "aphel-contract-crm",
  "aphel-kernel",
- "aphel-mod-activities",
  "aphel-mod-config-packages",
  "aphel-mod-deal-items",
  "aphel-mod-deals",
  "aphel-mod-quotes",
+ "aphel-mod-tasks",
  "async-trait",
  "axum",
  "bytes",
@@ -1512,8 +1512,8 @@ version = "0.1.0"
 dependencies = [
  "aphel-contract-crm",
  "aphel-kernel",
- "aphel-mod-activities",
  "aphel-mod-notifications",
+ "aphel-mod-tasks",
  "async-trait",
  "axum",
  "chrono",
@@ -1611,10 +1611,10 @@ dependencies = [
  "aphel-contract-automation",
  "aphel-contract-crm",
  "aphel-kernel",
- "aphel-mod-activities",
  "aphel-mod-email",
  "aphel-mod-lead-distribution",
  "aphel-mod-people",
+ "aphel-mod-tasks",
  "async-trait",
  "axum",
  "base64 0.22.1",
@@ -1704,12 +1704,12 @@ dependencies = [
  "aphel-contract-automation",
  "aphel-contract-crm",
  "aphel-kernel",
- "aphel-mod-activities",
  "aphel-mod-config-packages",
  "aphel-mod-deals",
  "aphel-mod-email",
  "aphel-mod-people",
  "aphel-mod-scheduling",
+ "aphel-mod-tasks",
  "async-trait",
  "axum",
  "chrono",
@@ -1745,6 +1745,29 @@ dependencies = [
 ]
 
 [[package]]
+name = "aphel-mod-tasks"
+version = "0.1.0"
+dependencies = [
+ "aphel-contract-automation",
+ "aphel-contract-crm",
+ "aphel-kernel",
+ "aphel-mod-config-packages",
+ "aphel-mod-notifications",
+ "aphel-sdk",
+ "async-trait",
+ "axum",
+ "chrono",
+ "chrono-tz",
+ "rust_decimal",
+ "serde",
+ "serde_json",
+ "sqlx",
+ "utoipa",
+ "utoipa-axum",
+ "uuid",
+]
+
+[[package]]
 name = "aphel-mod-themes"
 version = "0.1.0"
 dependencies = [
@@ -1770,8 +1793,8 @@ version = "0.1.0"
 dependencies = [
  "aphel-contract-crm",
  "aphel-kernel",
- "aphel-mod-activities",
  "aphel-mod-notes",
+ "aphel-mod-tasks",
  "async-trait",
  "axum",
  "chrono",
@@ -1833,11 +1856,11 @@ dependencies = [
  "aphel-contract-automation",
  "aphel-contract-crm",
  "aphel-kernel",
- "aphel-mod-activities",
  "aphel-mod-deals",
  "aphel-mod-lead-distribution",
  "aphel-mod-notifications",
  "aphel-mod-people",
+ "aphel-mod-tasks",
  "aphel-mod-workflow",
  "aphel-sdk",
  "async-trait",
@@ -1880,10 +1903,12 @@ version = "0.1.0"
 dependencies = [
  "aphel-contract",
  "aphel-contract-automation",
+ "aphel-contract-calendar",
  "aphel-contract-party",
  "aphel-contract-workflow",
  "aphel-kernel",
  "async-trait",
+ "chrono",
  "serde_json",
  "sqlx",
  "uuid",

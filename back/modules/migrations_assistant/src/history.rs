@@ -11,12 +11,12 @@ use crate::{
     DEAL_COLUMN, DESCRIPTION_COLUMN, DONE_COLUMN, DUE_AT_COLUMN, NormalizedFile, OWNER_COLUMN,
     StepKind, TITLE_COLUMN,
 };
-use activities::domain::{CreateActivityCommand, RecordLinkInput};
 use aphel_kernel::application::query::{RecordQueryExecutor, RecordQueryPorts};
 use aphel_kernel::application::shared::RecordType;
 use aphel_kernel::context::Ctx;
 use aphel_kernel::errors::AppError;
 use imports::store::RecordLookups;
+use tasks::domain::{CreateActivityCommand, RecordLinkInput};
 
 pub(crate) const MAX_HISTORY_ROWS: usize = 5_000;
 pub(crate) const MAX_REPORTED_ERRORS: usize = 100;
@@ -24,7 +24,7 @@ pub(crate) const HISTORY_TOO_MANY_ROWS: &str = "too_many_rows";
 const DEAL_TYPE: &str = "deals.deal";
 const CONTACT_TYPE: &str = "people.person";
 const COMPANY_TYPE: &str = "organizations.organization";
-const ACTIVITY_TYPE_LOOKUP: &str = "activities.activity_type";
+const ACTIVITY_TYPE_LOOKUP: &str = "tasks.type";
 const DEFAULT_ACTIVITY_TITLE: &str = "Atividade migrada";
 const NOON: NaiveTime = match NaiveTime::from_hms_opt(12, 0, 0) {
     Some(time) => time,
@@ -181,7 +181,7 @@ pub(crate) async fn run(
     if file.rows.len() > MAX_HISTORY_ROWS {
         return Err(AppError::validation_code(
             HISTORY_TOO_MANY_ROWS,
-            format!("activities and notes are migrated in files of up to {MAX_HISTORY_ROWS} rows"),
+            format!("tasks and notes are migrated in files of up to {MAX_HISTORY_ROWS} rows"),
         ));
     }
     let timezone = ctx.query().executor().timezone().await?;
@@ -245,7 +245,7 @@ async fn create_activity(
     };
     let mut links = links.into_iter();
     let primary = links.next();
-    activities::service::create(
+    tasks::service::create(
         ctx,
         CreateActivityCommand {
             title: title.unwrap_or(DEFAULT_ACTIVITY_TITLE).to_owned(),

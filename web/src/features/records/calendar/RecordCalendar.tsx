@@ -38,7 +38,7 @@ import {
   zonedDayKey,
   zonedInstant,
   zonedMinutes,
-} from './dates'
+} from '@/sdk/calendar/dates'
 import { MonthGrid, type DayCellProps } from './MonthGrid'
 import { SMALL_SCREEN_QUERY, useMediaQuery } from './useMediaQuery'
 import { WeekColumns } from './WeekColumns'
@@ -119,7 +119,7 @@ export function RecordCalendar({
   archived,
   onRecordClick,
 }: RecordCalendarProps) {
-  const { t } = useTranslation('calendar')
+  const { t } = useTranslation('records-calendar')
   const formatting = useRecordFormatting()
   const navigate = useNavigate()
   const small = useMediaQuery(SMALL_SCREEN_QUERY)

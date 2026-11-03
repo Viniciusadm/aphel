@@ -29,7 +29,7 @@ pub(crate) struct MigrationHistory {
 fn step_permission(step: &SourceStep) -> Option<Permission> {
     match step.kind {
         StepKind::Import => create_permission(step.record_type),
-        StepKind::Activities => Some(Permission::ACTIVITIES_CREATE),
+        StepKind::Activities => Some(Permission::TASKS_CREATE),
         StepKind::Notes => Some(Permission::NOTES_CREATE),
     }
 }
@@ -106,7 +106,7 @@ pub(crate) async fn create_import(
     if preview.step.kind != StepKind::Import {
         return Err(AppError::validation_code(
             MIGRATION_HISTORY_STEP,
-            "activities and notes are migrated with POST /migration-assistant/history",
+            "tasks and notes are migrated with POST /migration-assistant/history",
         ));
     }
     let content = encode(&preview.file)?;
@@ -196,7 +196,7 @@ pub(crate) async fn migrate_history(
     }
     let module = match preview.step.kind {
         StepKind::Notes => notes::KEY,
-        _ => activities::KEY,
+        _ => tasks::KEY,
     };
     if !ctx.app().is_enabled(module) {
         return Err(source_not_found());

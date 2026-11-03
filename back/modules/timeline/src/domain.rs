@@ -1,7 +1,6 @@
 use async_trait::async_trait;
 use sqlx::{MySql, MySqlPool, QueryBuilder};
 
-use activities::domain::LinkedRecord;
 use aphel_kernel::application::files::UserReference;
 use aphel_kernel::application::shared::RecordRef;
 use aphel_kernel::domain::access::{AccessScope, RecordScopeFilter};
@@ -10,6 +9,7 @@ use aphel_kernel::errors::AppError;
 use chrono::{DateTime, Utc};
 use serde_json::Value;
 use std::collections::BTreeSet;
+use tasks::domain::LinkedRecord;
 
 pub(crate) const DEFAULT_TIMELINE_PAGE_SIZE: u32 = 25;
 pub(crate) const MAX_TIMELINE_PAGE_SIZE: u32 = 100;
@@ -198,7 +198,7 @@ pub struct TimelineRequest {
     pub(crate) kinds: BTreeSet<TimelineKind>,
     pub(crate) cursor: Option<TimelineCursor>,
     pub(crate) limit: u32,
-    pub(crate) activities: Option<RecordScopeFilter>,
+    pub(crate) tasks: Option<RecordScopeFilter>,
     pub(crate) notes: bool,
     pub(crate) related_contacts: Option<RecordScopeFilter>,
     pub(crate) related_deals: Option<RecordScopeFilter>,

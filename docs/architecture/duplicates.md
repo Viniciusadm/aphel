@@ -13,7 +13,7 @@ The `duplicates` module (`back/modules/duplicates`, web in `web/src/modules/dupl
 
 `POST /duplicates/merge` accepts `If-Match` with the primary record's `updated_at` (409 `version_conflict` when it has changed; the versions of both records are also rechecked with `FOR UPDATE` inside the transaction). Everything in one transaction:
 
-1. The loser's links (activities, notes, attachments, tags, relationships, references from record-type fields and the type's own links) move to the primary (organizations: the loser's child organizations move to the primary first); `record_merges` stores the redirection and the pair's candidates become `merged`.
+1. The loser's links (tasks, notes, attachments, tags, relationships, references from record-type fields and the type's own links) move to the primary (organizations: the loser's child organizations move to the primary first); `record_merges` stores the redirection and the pair's candidates become `merged`.
 2. The loser is deleted through the pipeline: `RecordDeleting` (`restrict` relationships can block), soft deletion, `RecordDeleted` and the `<type>.deleted` event with `merged_into`.
 3. The chosen values are written to the primary (system and custom; hidden fields only fill empty values). Since the loser is already deleted in the same transaction and the uniqueness check ignores deleted records, the value of an `is_unique` field can come from the loser.
 4. If something changed on the primary, the update goes through the pipeline: `RecordValidating` (validation rules, approvals…), `RecordSaved`, the `<type>.updated` event and `RecordCommitted` after the commit.

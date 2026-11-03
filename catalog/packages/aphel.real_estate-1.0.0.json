@@ -379,7 +379,7 @@
         "name": "Desistiu após a visita"
       }
     ],
-    "activity_types": [
+    "task_types": [
       {
         "key": "visit",
         "name": "Visita",

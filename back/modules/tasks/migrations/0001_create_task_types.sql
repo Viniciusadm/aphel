@@ -1,0 +1,15 @@
+CREATE TABLE task_types (
+  id CHAR(36) NOT NULL,
+  `key` VARCHAR(64) NOT NULL,
+  name VARCHAR(140) NOT NULL,
+  icon VARCHAR(64) NULL,
+  color VARCHAR(7) NULL,
+  is_system BOOLEAN NOT NULL DEFAULT FALSE,
+  is_active BOOLEAN NOT NULL DEFAULT TRUE,
+  position INT NOT NULL DEFAULT 0,
+  created_at DATETIME(6) NOT NULL DEFAULT CURRENT_TIMESTAMP(6),
+  updated_at DATETIME(6) NOT NULL DEFAULT CURRENT_TIMESTAMP(6) ON UPDATE CURRENT_TIMESTAMP(6),
+  PRIMARY KEY (id),
+  UNIQUE KEY task_types_key_unique (`key`),
+  KEY task_types_position_index (position)
+) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci;

@@ -30,7 +30,13 @@ impl StagedRecordSource for DealStages {
             return Ok(HashMap::new());
         };
         let fields = ctx.field_set(ctx.scope, RecordType::DEAL.as_str()).await?;
-        if fields.find_active("stage_id").is_none() || fields.find_active("pipeline_id").is_none() {
+        if fields
+            .find_active("stage_id")
+            .is_none_or(|field| field.is_hidden())
+            || fields
+                .find_active("pipeline_id")
+                .is_none_or(|field| field.is_hidden())
+        {
             return Ok(HashMap::new());
         }
         let definition = ctx.registry().require(RecordType::DEAL.as_str())?;

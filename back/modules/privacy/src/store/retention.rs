@@ -107,13 +107,13 @@ fn push_candidates(
             }
             builder
                 .push(
-                    " AND NOT EXISTS (SELECT 1 FROM activities a WHERE a.record_type = ",
+                    " AND NOT EXISTS (SELECT 1 FROM tasks a WHERE a.record_type = ",
                 )
                 .push_bind(record_type.clone())
                 .push(" AND a.record_id = r.id AND a.updated_at >= ")
                 .push_bind(threshold)
                 .push(
-                    ") AND NOT EXISTS (SELECT 1 FROM activity_links l JOIN activities a ON a.id = l.activity_id \
+                    ") AND NOT EXISTS (SELECT 1 FROM task_links l JOIN tasks a ON a.id = l.activity_id \
                      WHERE l.record_type = ",
                 )
                 .push_bind(record_type.clone())

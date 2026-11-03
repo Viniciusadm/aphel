@@ -106,8 +106,8 @@
       "deals": {
         "deal": "oportunidade(s)"
       },
-      "activities": {
-        "activity": "atividade(s)"
+      "tasks": {
+        "task": "atividade(s)"
       },
       "notes": {
         "note": "nota(s)"

@@ -45,7 +45,7 @@ const FOREIGN_RECORD_LITERALS: [&str; 24] = [
     "\"leads.lead\"",
     "\"quotes.quote\"",
     "\"proposals.proposal\"",
-    "\"activities.activity\"",
+    "\"tasks.task\"",
     "\"products.product\"",
     "\"notes.note\"",
     "\"workflow.pipeline\"",

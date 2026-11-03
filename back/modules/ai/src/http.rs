@@ -126,7 +126,7 @@ async fn summary(
     security(("session_cookie" = [])),
     request_body = AiRecordRequest,
     responses(
-        (status = 200, description = "Up to 5 suggested next actions (`title`, `due_in_days`, `reason`). Nothing is created: the client turns a suggestion into a task only when the user asks, through `POST /api/v1/activities`", body = Data<AiNextActions>),
+        (status = 200, description = "Up to 5 suggested next actions (`title`, `due_in_days`, `reason`). Nothing is created: the client turns a suggestion into a task only when the user asks, through `POST /api/v1/tasks`", body = Data<AiNextActions>),
         (status = 403, description = "Missing `ai.use` or read access (`permission_denied`), or feature turned off (`ai_feature_disabled`)", body = ErrorEnvelope),
         (status = 404, description = "Record not found or not visible (`ai_record_not_found`)", body = ErrorEnvelope),
         (status = 422, description = "Unsupported record type (`ai_unsupported_record_type`) or the model declined (`ai_refused`)", body = ErrorEnvelope),

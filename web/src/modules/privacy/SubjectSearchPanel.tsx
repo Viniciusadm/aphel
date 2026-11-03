@@ -33,7 +33,7 @@ function rowKey(jobId: string, index: number) {
 function allKeys(result: SubjectSearch): string[] {
   return [
     ...result.records.map((record) => recordKey(record.record_type, record.id)),
-    ...result.activities.map((activity) => recordKey('activity', activity.id)),
+    ...result.tasks.map((activity) => recordKey('activity', activity.id)),
     ...result.notes.map((note) => noteKey(note.id)),
     ...result.import_rows.map((row) => rowKey(row.import_job_id, row.row_index)),
   ]
@@ -157,9 +157,9 @@ export function SubjectSearchPanel({ onRequestCreated }: SubjectSearchPanelProps
             </ResultGroup>
           )}
 
-          {result.activities.length > 0 && (
-            <ResultGroup title={t('search.groups.activities')} count={result.activities.length}>
-              {result.activities.map((activity) => {
+          {result.tasks.length > 0 && (
+            <ResultGroup title={t('search.groups.tasks')} count={result.tasks.length}>
+              {result.tasks.map((activity) => {
                 const key = recordKey('activity', activity.id)
                 return (
                   <SelectableItem key={key} id={key} checked={selected.has(key)} onChange={(checked) => toggle(key, checked)}>

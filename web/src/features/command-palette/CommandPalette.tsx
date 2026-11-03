@@ -129,7 +129,7 @@ function PaletteBody({ mode, onModeChange, contextCommands, createActions }: Pal
         return t('recordTypes.company')
       case 'deals.deal':
         return t('recordTypes.deal')
-      case 'activities.activity':
+      case 'tasks.task':
         return t('recordTypes.activity')
       case 'products.product':
         return t('recordTypes.product')

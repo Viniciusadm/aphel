@@ -1,7 +1,7 @@
 import { useState, type ComponentType, type ReactNode } from 'react'
 import { useTranslation } from 'react-i18next'
 import { cn } from '@/lib/utils'
-import { formatDayNumber, formatDayTitle, formatWeekdayShort, monthGrid, sameMonth } from './dates'
+import { formatDayNumber, formatDayTitle, formatWeekdayShort, monthGrid, sameMonth } from '@/sdk/calendar/dates'
 
 export interface DayCellProps {
   dayKey: string
@@ -42,7 +42,7 @@ export function MonthGrid<T>({
   Cell = PlainCell,
   weekStartsOn,
 }: MonthGridProps<T>) {
-  const { t } = useTranslation('calendar')
+  const { t } = useTranslation('records-calendar')
   const [expanded, setExpanded] = useState<string | null>(null)
   const days = monthGrid(monthKey, weekStartsOn)
 

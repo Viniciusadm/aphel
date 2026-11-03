@@ -575,7 +575,7 @@ impl SchedulingStore {
     ) -> Result<Vec<BusyInterval>, AppError> {
         let mut builder = QueryBuilder::<MySql>::new(
             "SELECT due_at AS starts_at, DATE_ADD(due_at, INTERVAL duration_minutes MINUTE) AS ends_at \
-             FROM activities WHERE owner_id = ",
+             FROM tasks WHERE owner_id = ",
         );
         builder
             .push_bind(user_id.as_str().to_owned())

@@ -3,7 +3,7 @@
     "contact": "people",
     "company": "organizations",
     "deal": "deals",
-    "activity": "activities",
+    "activity": "tasks",
     "product": "products",
     "people": {
       "person": "people"
@@ -14,8 +14,8 @@
     "deals": {
       "deal": "deals"
     },
-    "activities": {
-      "activity": "activities"
+    "tasks": {
+      "task": "tasks"
     },
     "products": {
       "product": "products"

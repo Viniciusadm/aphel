@@ -18,8 +18,8 @@
   },
   "dialog": {
     "title": "Pending uploads",
-    "offlineDescription": "You are offline. Notes and activities you create are saved on this device and sent when the connection is back.",
-    "onlineDescription": "Notes and activities created offline are sent automatically, only once.",
+    "offlineDescription": "You are offline. Notes and tasks you create are saved on this device and sent when the connection is back.",
+    "onlineDescription": "Notes and tasks created offline are sent automatically, only once.",
     "empty": "Nothing pending."
   },
   "pending": {

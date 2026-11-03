@@ -1,6 +1,6 @@
 # Trash
 
-`trash` module (`back/modules/trash`, web in `web/src/modules/trash`). Lists, restores and permanently deletes soft-deleted records (`deleted_at`) of every type that has a title (people, organizations, deals, activities, quotes, custom objects…). Retention (1–365 days, default 30) lives in `trash_settings` and the `trash.purge` job (daily) deletes what has expired.
+`trash` module (`back/modules/trash`, web in `web/src/modules/trash`). Lists, restores and permanently deletes soft-deleted records (`deleted_at`) of every type that has a title (people, organizations, deals, tasks, quotes, custom objects…). Retention (1–365 days, default 30) lives in `trash_settings` and the `trash.purge` job (daily) deletes what has expired.
 
 ## Access
 
@@ -18,4 +18,4 @@ Records merged into another one do not appear in the trash and cannot be restore
 
 ## Permanently delete
 
-`DELETE /api/v1/trash/{tipo}/{id}` (and the retention job) calls `CustomFieldWriter::purge_record`, which runs the `RecordPurged` hook and deletes custom values and `record_relations`. Each module removes what it stores for the record in its `RecordPurged` handler (`notes`, `tags`, `activities`, `duplicates`). The pipeline itself (kernel) deletes the attachment links (and the file rows left without references) and the shares, and clears the record-type fields that pointed to it, so privacy and retention have the same effect. The trash only deletes the record's row, publishes `<type>.purged` with audit and, after the commit, removes from storage the files returned in `PurgedRecord::orphan_storage_keys`.
+`DELETE /api/v1/trash/{tipo}/{id}` (and the retention job) calls `CustomFieldWriter::purge_record`, which runs the `RecordPurged` hook and deletes custom values and `record_relations`. Each module removes what it stores for the record in its `RecordPurged` handler (`notes`, `tags`, `tasks`, `duplicates`). The pipeline itself (kernel) deletes the attachment links (and the file rows left without references) and the shares, and clears the record-type fields that pointed to it, so privacy and retention have the same effect. The trash only deletes the record's row, publishes `<type>.purged` with audit and, after the commit, removes from storage the files returned in `PurgedRecord::orphan_storage_keys`.

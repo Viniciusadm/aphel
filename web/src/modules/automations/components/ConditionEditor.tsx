@@ -65,8 +65,8 @@ function useRelationChoices(recordType: string): { choices: RelationChoice[]; lo
     const choices: RelationChoice[] = (aggregate.data?.relations ?? [])
       .filter((relation) => relation.readable)
       .map((relation) => ({ key: relation.key, label: relation.label, target: relation.target_record_type }))
-    if (ACTIVITY_HOSTS.has(recordType) && !choices.some((choice) => choice.key === 'activities')) {
-      choices.push({ key: 'activities', label: t('conditions.activitiesRelation'), target: 'activities.activity' })
+    if (ACTIVITY_HOSTS.has(recordType) && !choices.some((choice) => choice.key === 'tasks')) {
+      choices.push({ key: 'tasks', label: t('conditions.activitiesRelation'), target: 'tasks.task' })
     }
     return { choices, loading: aggregate.isPending && aggregate.fetchStatus !== 'idle' }
   }, [aggregate.data, aggregate.fetchStatus, aggregate.isPending, recordType, t])

@@ -117,7 +117,7 @@ pub(crate) async fn build_export(
     }
     let mut activities_by_record: HashMap<RecordRef, Vec<Value>> = HashMap::new();
     for activity in privacy.record_activities(records).await? {
-        report.activities += 1;
+        report.tasks += 1;
         if let Some(record) = &activity.record {
             activities_by_record
                 .entry(record.clone())
@@ -189,7 +189,7 @@ pub(crate) async fn build_export(
             "fields": fields,
             "custom_fields": custom,
             "notes": notes_by_record.remove(record).unwrap_or_default(),
-            "activities": activities_by_record.remove(record).unwrap_or_default(),
+            "tasks": activities_by_record.remove(record).unwrap_or_default(),
             "attachments": attachments_by_record.remove(record).unwrap_or_default(),
         }));
     }

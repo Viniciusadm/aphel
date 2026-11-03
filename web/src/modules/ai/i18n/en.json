@@ -41,7 +41,7 @@
     },
     "feature_next_actions": {
       "label": "Next-action suggestions",
-      "help": "Suggests the next activities from the record history"
+      "help": "Suggests the next tasks from the record history"
     },
     "feature_compose": {
       "label": "Writing assistant",
@@ -78,7 +78,7 @@
     "personalOff": "Not sent (personal fields and people's names are left out)",
     "off": "Off",
     "sends": {
-      "summary": "Sends the contact, company or deal fields, the 10 latest notes and 10 latest activities and, when relevant, up to 10 linked deals and people. Receives a summary text.",
+      "summary": "Sends the contact, company or deal fields, the 10 latest notes and 10 latest tasks and, when relevant, up to 10 linked deals and people. Receives a summary text.",
       "next_actions": "Sends the same data as the summary plus today's date. Receives task suggestions; nothing is created without your click.",
       "compose": "Sends the instruction, the draft text and, if you tick it, the current record fields. Receives the suggested text; nothing is saved without your click.",
       "query": "Sends the question and the list of filterable fields (key, name, type and options). No record data is sent. Receives a filter, which is validated and shown before applying."
@@ -106,8 +106,8 @@
       "deals": {
         "deal": "deal(s)"
       },
-      "activities": {
-        "activity": "activity(ies)"
+      "tasks": {
+        "task": "activity(ies)"
       },
       "notes": {
         "note": "note(s)"

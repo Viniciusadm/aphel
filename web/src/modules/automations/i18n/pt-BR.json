@@ -68,8 +68,8 @@
     "deals": {
       "deal": "Oportunidade"
     },
-    "activities": {
-      "activity": "Atividade"
+    "tasks": {
+      "task": "Atividade"
     }
   },
   "actionsBar": {

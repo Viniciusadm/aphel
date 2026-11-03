@@ -63,11 +63,11 @@ Each type declares its relations in the `RecordTypeRegistry` (`RecordRelation` w
 | Type | Relation | Path |
 | --- | --- | --- |
 | Deal | `company`, `contact` | `BelongsTo` (`company_id`, `contact_id`) |
-| Deal, contact, company | `activities` | `PolymorphicMany` (`activities.record_type/record_id`) or `Linked` (`activity_links`) |
+| Deal, contact, company | `tasks` | `PolymorphicMany` (`tasks.record_type/record_id`) or `Linked` (`task_links`) |
 | Contact | `company` | `BelongsTo` (`company_id`) |
 | Contact | `deals` | `HasMany` (`deals.contact_id`) |
 | Company | `people`, `deals` | `HasMany` (`company_id`) |
-| Activity | `contact`, `company`, `deal` | `Polymorphic` (main record) or `Linked` (`activity_links`) |
+| Activity | `contact`, `company`, `deal` | `Polymorphic` (main record) or `Linked` (`task_links`) |
 | Any type connected by a configurable relationship (session 16) | `key` on the `from` type, `inverse_key` on the `to` type | `Relationship` (`record_relations`), single-record when the cardinality allows it (`to` in `one_to_many`, both in `one_to_one`) |
 
 Rules to avoid duplicating totals:

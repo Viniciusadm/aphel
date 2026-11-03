@@ -1,0 +1,62 @@
+{
+  "page": {
+    "title": "Calendar",
+    "description": "Tasks with due dates and meetings by month, week or day."
+  },
+  "nav": {
+    "today": "Today",
+    "previous": "Previous",
+    "next": "Next"
+  },
+  "views": {
+    "label": "View",
+    "month": "Month",
+    "week": "Week",
+    "day": "Day"
+  },
+  "filters": {
+    "owner": "Owner",
+    "allOwners": "All owners",
+    "me": "{{name}} (me)",
+    "team": "Team",
+    "allTeams": "All teams",
+    "type": "Type",
+    "allTypes": "All types"
+  },
+  "grid": {
+    "month": "Month calendar",
+    "more_one": "+{{count}} more",
+    "more_other": "+{{count}} more",
+    "less": "Show less",
+    "empty": "Nothing scheduled in this period."
+  },
+  "event": {
+    "label": "{{title}}, {{time}}",
+    "open": "Open",
+    "reschedule": "Reschedule",
+    "duration_one": "{{count}} minute",
+    "duration_other": "{{count}} minutes"
+  },
+  "status": {
+    "open": "Open",
+    "done": "Done",
+    "canceled": "Canceled"
+  },
+  "create": {
+    "onDay": "New task on {{day}}",
+    "hint": "Click an empty time slot to create a task."
+  },
+  "reschedule": {
+    "title": "Reschedule activity",
+    "description": "Choose the new due date of “{{title}}”.",
+    "dueAt": "New due date",
+    "cancel": "Cancel",
+    "save": "Reschedule",
+    "done": "“{{title}}” rescheduled",
+    "failed": "The activity could not be rescheduled.",
+    "conflict": "The activity changed while you were editing. The data was reloaded; try again."
+  },
+  "truncated": "Showing {{shown}} of {{total}} tasks in this period. Use the filters to see the rest.",
+  "dragHint": "Drag an activity to another day or time to reschedule it.",
+  "navigation": "Calendar"
+}
