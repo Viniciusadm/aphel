@@ -116,7 +116,7 @@
         ]
       }
     ],
-    "pipelines": [
+    "workflow": [
       {
         "key": "projetos",
         "name": "Projects",

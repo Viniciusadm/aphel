@@ -12,7 +12,7 @@
     "organization": "Organization",
     "teams": "Teams",
     "fields": "Fields",
-    "pipelines": "Sales pipelines",
+    "workflow": "Sales workflow",
     "audit": "Audit log",
     "activityTypes": "Activity types",
     "tags": "Tags",
@@ -348,7 +348,7 @@
     "activityTypes": {
       "description": "Activity types such as call, meeting and task."
     },
-    "pipelines": {
+    "workflow": {
       "description": "Pipelines and stages deals move through."
     },
     "forecast": {

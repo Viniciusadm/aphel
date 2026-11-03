@@ -12,8 +12,8 @@ use aphel_kernel::database::transaction::MySqlTx;
 use aphel_kernel::errors::AppError;
 use aphel_kernel::modules::{Hook, HookCtx};
 use aphel_kernel::records::QueryConstraints;
-use pipelines::domain::{LostReason, PipelineStage, pipeline_restriction, sees_every_pipeline};
-use pipelines::store::PipelineStore;
+use workflow::domain::{LostReason, PipelineStage, pipeline_restriction, sees_every_pipeline};
+use workflow::store::PipelineStore;
 
 #[derive(Debug, Clone, PartialEq)]
 pub struct StageChange {
@@ -161,10 +161,10 @@ pub(crate) async fn restrict_search(
     if plan.record_type.record_type != RecordType::DEAL || sees_every_pipeline(ctx.scope) {
         return Ok(plan);
     }
-    let pipelines = PipelineStore::new(ctx.pool.clone())
+    let workflow = PipelineStore::new(ctx.pool.clone())
         .list_pipelines()
         .await?;
-    if let Some(pipeline_ids) = pipeline_restriction(ctx.scope, &pipelines) {
+    if let Some(pipeline_ids) = pipeline_restriction(ctx.scope, &workflow) {
         restrict_to_pipelines(&mut plan, &pipeline_ids);
     }
     Ok(plan)
@@ -177,10 +177,10 @@ pub(crate) async fn restrict_query(
     if constraints.record_type != RecordType::DEAL || sees_every_pipeline(ctx.scope) {
         return Ok(constraints);
     }
-    let pipelines = PipelineStore::new(ctx.pool.clone())
+    let workflow = PipelineStore::new(ctx.pool.clone())
         .list_pipelines()
         .await?;
-    if let Some(pipeline_ids) = pipeline_restriction(ctx.scope, &pipelines) {
+    if let Some(pipeline_ids) = pipeline_restriction(ctx.scope, &workflow) {
         constraints
             .conditions
             .push(pipeline_condition(&pipeline_ids));

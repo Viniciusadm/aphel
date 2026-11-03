@@ -7,7 +7,7 @@ import { Button } from '@/components/ui/button'
 import { ErrorState } from '@/components/ui/error-state'
 import { Input } from '@/components/ui/input'
 import { Textarea } from '@/components/ui/textarea'
-import { usePipelines } from '@/modules/pipelines/api'
+import { usePipelines } from '@/modules/workflow/api'
 import { useQuoteMutations, useQuoteSettings } from './api'
 import type { QuoteSettings } from './types'
 import { PageHeader } from '@/components/ui/page-header'
@@ -37,7 +37,7 @@ function SettingsForm({ settings }: { settings: QuoteSettings }) {
   const { t } = useTranslation('quotes')
   const { hasPermission } = useSession()
   const canEdit = hasPermission('settings.manage')
-  const pipelines = usePipelines()
+  const workflow = usePipelines()
   const mutations = useQuoteMutations()
   const [days, setDays] = useState(settings.default_valid_days?.toString() ?? '')
   const [terms, setTerms] = useState(settings.default_terms ?? '')
@@ -98,7 +98,7 @@ function SettingsForm({ settings }: { settings: QuoteSettings }) {
           <h3 className="text-sm font-medium">{t('settings.acceptStages')}</h3>
           <p className="text-xs text-muted-foreground">{t('settings.acceptStagesHint')}</p>
         </div>
-        {(pipelines.data ?? []).map((pipeline) => (
+        {(workflow.data ?? []).map((pipeline) => (
           <div key={pipeline.id} className="grid gap-2 sm:grid-cols-[12rem_minmax(0,1fr)] sm:items-center">
             <p className="text-sm font-medium">{pipeline.name}</p>
             <NativeSelect value={stages[pipeline.id] ?? NO_MOVE}

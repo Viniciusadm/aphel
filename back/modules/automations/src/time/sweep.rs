@@ -1,4 +1,3 @@
-use aphel_contract_crm::CrmRecordTypes;
 use std::sync::Arc;
 
 use async_trait::async_trait;
@@ -18,6 +17,7 @@ use aphel_contract_automation::application::gateway::{AutomationGateway, SharedA
 use aphel_contract_automation::application::time::triggers::{
     CREATED_AT_FIELD, DueRule, ScheduleRule, TimePlan, parse_plan,
 };
+use aphel_contract_automation::application::time::triggers::{TimeCatchUp, contributed_planner};
 use aphel_contract_automation::domain::RunStatus;
 use aphel_kernel::Ctx;
 use aphel_kernel::application::fields::FieldSet;
@@ -25,12 +25,9 @@ use aphel_kernel::application::jobs::ScheduledJobDefinition;
 use aphel_kernel::application::organization_admin::ListWindow;
 use aphel_kernel::application::query::{ArchivedFilter, RecordQuery, SortSpec};
 use aphel_kernel::application::security::Clock;
-use aphel_kernel::application::shared::{
-    Actor, JobContext, JobHandler, JobQueue, RecordRef, RecordType,
-};
+use aphel_kernel::application::shared::{Actor, JobContext, JobHandler, JobQueue, RecordRef};
 use aphel_kernel::domain::access::AccessScope;
 use aphel_kernel::errors::AppError;
-use pipelines::rotting::{TIME_DEAL_ROTTING, rotting_catch_up_filter};
 
 pub(crate) const TIME_SWEEP_JOB: &str = "automations.time_sweep";
 pub(crate) const TIME_SWEEP_CRON: &str = "0 * * * * *";
@@ -161,10 +158,23 @@ impl TimeTriggerSweep {
         let context = target.context(active, ctx, now);
         let mut fired = 0;
         if starting
-            && version.trigger.kind == TIME_DEAL_ROTTING
+            && contributed_planner(&version.trigger.kind)
+                .is_some_and(|planner| planner.catch_up.is_some())
             && let TimePlan::Due(rule) = &plan
         {
-            fired += self.catch_up(&context, rule, None).await?;
+            fired += self
+                .catch_up(
+                    &context,
+                    rule,
+                    None,
+                    &contributed_planner(&version.trigger.kind).and_then(|planner| {
+                        planner
+                            .catch_up
+                            .as_ref()
+                            .map(|policy| (policy.filter)(None))
+                    }),
+                )
+                .await?;
         }
         fired += match plan {
             TimePlan::Due(rule) => self.due(&context, &rule, &mut cursor, budget).await?,
@@ -176,11 +186,17 @@ impl TimeTriggerSweep {
         Ok(fired)
     }
 
-    pub(crate) async fn catch_up_rotting_stage(&self, stage_id: Uuid) -> Result<usize, AppError> {
+    pub(crate) async fn catch_up_trigger(
+        &self,
+        record_type: &str,
+        kind: &str,
+        key: Uuid,
+        policy: &TimeCatchUp,
+    ) -> Result<usize, AppError> {
         let system = AccessScope::system();
         let ctx = self.0.ctx(&system).await?;
         let automations = AutomationStore::of(&ctx)
-            .active_for(RecordType::DEAL.as_str(), TIME_DEAL_ROTTING)
+            .active_for(record_type, kind)
             .await?;
         let now = automation_clock().now();
         let mut fired = 0;
@@ -192,7 +208,14 @@ impl TimeTriggerSweep {
                 continue;
             };
             let context = target.context(active, &ctx, now);
-            fired += self.catch_up(&context, &rule, Some(stage_id)).await?;
+            fired += self
+                .catch_up(
+                    &context,
+                    &rule,
+                    Some(key),
+                    &Some((policy.filter)(Some(key))),
+                )
+                .await?;
         }
         Ok(fired)
     }
@@ -201,14 +224,15 @@ impl TimeTriggerSweep {
         &self,
         context: &SweepContext<'_>,
         rule: &DueRule,
-        stage_id: Option<Uuid>,
+        _key: Option<Uuid>,
+        catch_up_filter: &Option<aphel_kernel::application::query::Filter>,
     ) -> Result<usize, AppError> {
         let record_type = context.active.automation.record_type.as_str();
         let mut offset = 0;
         let mut fired = 0;
         loop {
             let query = RecordQuery {
-                filter: Some(rotting_catch_up_filter(stage_id)),
+                filter: catch_up_filter.clone(),
                 sort: vec![SortSpec::asc(&rule.field)],
                 archived: ArchivedFilter::Exclude,
                 window: ListWindow {

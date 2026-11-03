@@ -5,7 +5,7 @@
   "id": "aphel.agency.en",
   "version": "1.0.0",
   "name": "Agency",
-  "description": "For marketing, design and development agencies: new projects and contract renewals in separate pipelines, with scope, contracted services, monthly retainer, and briefing and presentation activities.",
+  "description": "For marketing, design and development agencies: new projects and contract renewals in separate workflow, with scope, contracted services, monthly retainer, and briefing and presentation activities.",
   "author": "Aphel",
   "locale": "en",
   "sections": {
@@ -172,7 +172,7 @@
         ]
       }
     ],
-    "pipelines": [
+    "workflow": [
       {
         "key": "novos_projetos",
         "name": "New projects",

@@ -9,7 +9,7 @@ The migration assistant (*Settings → Migrate from another CRM*) brings into Ap
 1. **Choose the source tool.** Each one defines the date format (day/month or month/day when the date uses slashes) and the decimal separator of amounts.
 2. **Import in the suggested order:** organizations → people → deals. Each step creates a draft import; review the mapping, **start** it and wait for it to finish before the next one, so that links find the records already imported.
 3. **Upload the step's CSV.** The assistant shows the recognized columns, the unrecognized ones, how many values were converted, conversion problems and the first converted rows — without writing anything.
-4. **Adjust the mappings** when the file has pipelines, stages or owners: for each distinct source value, choose the Aphel pipeline, stage or member (or keep the value from the file).
+4. **Adjust the mappings** when the file has workflow, stages or owners: for each distinct source value, choose the Aphel pipeline, stage or member (or keep the value from the file).
 5. **Create the import.** The converted file becomes a draft import with the mapping pre-filled and these options:
    - organizations: duplicates by **name** (HubSpot: by **domain**), skipping existing ones;
    - people: duplicates by **email**;
@@ -21,7 +21,7 @@ The migration assistant (*Settings → Migrate from another CRM*) brings into Ap
 
 - People → company: through the company/organization column, matched against the organizations' **name**.
 - Deals → company and person: through the organization/company and person/contact columns, matched against the company name and the contact's name (or email).
-- Deals → pipeline and stage: by name. Use the assistant's mappings to translate the source stages (`Qualified`, `Proposta enviada`…) into your pipeline's stages; stages without a mapping must exist in Aphel with the same name. Create the pipelines and stages before importing the deals.
+- Deals → pipeline and stage: by name. Use the assistant's mappings to translate the source stages (`Qualified`, `Proposta enviada`…) into your pipeline's stages; stages without a mapping must exist in Aphel with the same name. Create the workflow and stages before importing the deals.
 - Owners: by email or by the **display name** of an active member. Without a match, the record is left without an owner (the row does not fail).
 
 ### Conversions applied

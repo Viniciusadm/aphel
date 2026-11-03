@@ -38,6 +38,6 @@ impl aphel_sdk::points::ReferenceProvider for StageRefs {
     }
 
     async fn exists(&self, ctx: &Ctx<'_>, id: &str) -> Result<bool, AppError> {
-        aphel_sdk::points::lookup_exists(pipelines::service::get_stage(ctx, id).await)
+        aphel_sdk::points::lookup_exists(workflow::service::get_stage(ctx, id).await)
     }
 }

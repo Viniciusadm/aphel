@@ -7,9 +7,6 @@ pub trait CrmRecordTypes {
     const ACTIVITY: RecordType;
     const PRODUCT: RecordType;
     const NOTE: RecordType;
-    const PIPELINE: RecordType;
-    const PIPELINE_STAGE: RecordType;
-    const LOST_REASON: RecordType;
     const ACTIVITY_TYPE: RecordType;
 }
 
@@ -20,8 +17,5 @@ impl CrmRecordTypes for RecordType {
     const ACTIVITY: RecordType = RecordType::from_static("activities.activity");
     const PRODUCT: RecordType = RecordType::from_static("products.product");
     const NOTE: RecordType = RecordType::from_static("notes.note");
-    const PIPELINE: RecordType = RecordType::from_static("pipelines.pipeline");
-    const PIPELINE_STAGE: RecordType = RecordType::from_static("pipelines.pipeline_stage");
-    const LOST_REASON: RecordType = RecordType::from_static("pipelines.lost_reason");
     const ACTIVITY_TYPE: RecordType = RecordType::from_static("activities.activity_type");
 }

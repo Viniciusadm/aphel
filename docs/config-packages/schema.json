@@ -2,7 +2,7 @@
   "$schema": "https://json-schema.org/draft/2020-12/schema",
   "$id": "https://aphel-crm.dev/schemas/aphel-config/v1.json",
   "title": "Aphel configuration package (aphel-config)",
-  "description": "Describes how an organization works: custom objects and relationships, fields, options, pipelines, stages and stage rules, lost reasons, activity types, tags, form layouts, views and the default dashboard. Items reference each other by stable key, never by id.",
+  "description": "Describes how an organization works: custom objects and relationships, fields, options, workflow, stages and stage rules, lost reasons, activity types, tags, form layouts, views and the default dashboard. Items reference each other by stable key, never by id.",
   "type": "object",
   "additionalProperties": false,
   "required": ["format", "format_version", "min_aphel_version", "name", "locale"],
@@ -32,7 +32,7 @@
       "properties": {
         "custom_objects": { "$ref": "#/$defs/customObjects" },
         "fields": { "type": "array", "items": { "$ref": "#/$defs/field" } },
-        "pipelines": { "type": "array", "maxItems": 50, "items": { "$ref": "#/$defs/pipeline" } },
+        "workflow": { "type": "array", "maxItems": 50, "items": { "$ref": "#/$defs/pipeline" } },
         "lost_reasons": { "type": "array", "maxItems": 100, "items": { "$ref": "#/$defs/lostReason" } },
         "pipeline_renewals": { "type": "array", "items": { "$ref": "#/$defs/pipelineRenewal" } },
         "activity_types": { "type": "array", "maxItems": 100, "items": { "$ref": "#/$defs/activityType" } },

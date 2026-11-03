@@ -6,7 +6,7 @@ The official catalog lives in [`catalog/`](../../catalog) in this repository and
 
 A template is an `aphel-config` package with an `id` and a `version`. Before opening the pull request:
 
-- **Scope:** configuration for a type of business (fields, pipelines, loss reasons, activity types, tags, layouts, views, dashboard, automations, custom objects). No customer records, users, emails or secrets: the format does not even accept them, and the review rejects real data in descriptions and examples.
+- **Scope:** configuration for a type of business (fields, workflow, loss reasons, activity types, tags, layouts, views, dashboard, automations, custom objects). No customer records, users, emails or secrets: the format does not even accept them, and the review rejects real data in descriptions and examples.
 - **Identity:** `id` in the `<author>.<template>` format (e.g. `acme.clinicas`). The `aphel.` prefix is reserved for templates maintained by the project.
 - **Stable keys:** items are matched by `key` across versions. Renaming a key is equivalent to removing the old item and creating another; avoid it, and when it is unavoidable publish it as a major version and explain it in the description.
 - **Versions:** SemVer. A published file never changes; a fix is a new version. `min_aphel_version` must be the lowest version in which the package passes validation (`POST /api/v1/config-package-versions/compare` returns `valid: true`).

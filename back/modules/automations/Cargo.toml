@@ -7,6 +7,7 @@ license.workspace = true
 publish = false
 
 [dependencies]
+workflow = { package = "aphel-mod-workflow", path = "../workflow" }
 aphel-contract-automation.workspace = true
 notifications = { package = "aphel-mod-notifications", path = "../notifications" }
 config_packages = { package = "aphel-mod-config-packages", path = "../config_packages" }
@@ -15,7 +16,6 @@ aphel-contract-crm.workspace = true
 aphel-kernel.workspace = true
 aphel-sdk.workspace = true
 activities = { package = "aphel-mod-activities", path = "../activities" }
-pipelines = { package = "aphel-mod-pipelines", path = "../pipelines" }
 tags = { package = "aphel-mod-tags", path = "../tags" }
 axum.workspace = true
 async-trait.workspace = true

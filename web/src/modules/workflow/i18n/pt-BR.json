@@ -1,0 +1,235 @@
+{
+  "settings": {
+    "title": "Funis e motivos de perda",
+    "description": "Crie um funil para cada processo, defina quais equipes enxergam cada um, organize as etapas e os motivos de perda."
+  },
+  "actions": {
+    "cancel": "Cancelar",
+    "makeDefault": "Tornar padrão",
+    "activate": "Reativar",
+    "deactivate": "Desativar",
+    "remove": "Excluir"
+  },
+  "list": {
+    "title": "Funis",
+    "description": "O funil padrão abre primeiro no Kanban e recebe os registros criados sem funil.",
+    "new": "Novo funil",
+    "select": "Editar o funil {{name}}",
+    "moveUp": "Mover o funil {{name}} para cima",
+    "moveDown": "Mover o funil {{name}} para baixo",
+    "stages_one": "{{count}} etapa",
+    "stages_other": "{{count}} etapas"
+  },
+  "badges": {
+    "default": "Padrão",
+    "inactive": "Inativo",
+    "restricted_one": "{{count}} equipe",
+    "restricted_other": "{{count}} equipes"
+  },
+  "fields": {
+    "name": "Nome do funil",
+    "nameRequired": "Informe o nome do funil."
+  },
+  "create": {
+    "title": "Novo funil",
+    "description": "O funil começa com as etapas padrão, que você pode ajustar depois.",
+    "confirm": "Criar funil",
+    "done": "Funil criado"
+  },
+  "done": {
+    "default": "Funil padrão alterado",
+    "activate": "Funil reativado",
+    "deactivate": "Funil desativado",
+    "remove": "Funil excluído"
+  },
+  "teams": {
+    "legend": "Equipes com acesso",
+    "description": "Sem equipes marcadas, todos enxergam o funil. Administradores sempre enxergam todos os funis.",
+    "empty": "Nenhuma equipe cadastrada.",
+    "loadError": "Não foi possível carregar as equipes.",
+    "save": "Salvar equipes",
+    "saved": "Equipes do funil atualizadas"
+  },
+  "remove": {
+    "title": "Excluir o funil {{name}}",
+    "description": "O funil e as etapas dele serão excluídos definitivamente.",
+    "withRecords_one": "O funil tem {{count}} registro. Escolha o funil e as etapas que vão recebê-lo.",
+    "withRecords_other": "O funil tem {{count}} registros. Escolha o funil e as etapas que vão recebê-los.",
+    "noTarget": "Não há outro funil ativo para receber os registros. Crie ou reative um antes.",
+    "target": "Mover registros para o funil",
+    "mapping": "Etapa de destino",
+    "stageLabel_one": "{{name}} ({{count}} registro)",
+    "stageLabel_other": "{{name}} ({{count}} registros)",
+    "noCompatible": "Nenhuma etapa do mesmo tipo",
+    "confirm": "Excluir funil"
+  },
+  "rules": {
+    "entry": "Campos obrigatórios para entrar",
+    "entryDescription": "O registro só entra nesta etapa com estes campos preenchidos.",
+    "exit": "Campos obrigatórios para sair",
+    "exitDescription": "O registro só sai desta etapa com estes campos preenchidos.",
+    "noFields": "Nenhum campo disponível.",
+    "badge_one": "{{count}} regra",
+    "badge_other": "{{count}} regras"
+  },
+  "errors": {
+    "defaultPipelineRequired": "O funil padrão não pode ser desativado nem excluído, e um funil inativo não pode ser o padrão. Escolha outro funil padrão antes.",
+    "pipelineHasRecords": "O funil tem registros. Escolha um funil de destino para movê-los.",
+    "pipelineLimitReached": "A organização atingiu o limite de funis."
+  },
+  "editor": {
+    "settings": {
+      "title": "Funil e motivos de perda",
+      "description": "Organize etapas do fluxo de trabalho e motivos de cancelamento.",
+      "inactive": "Inativa",
+      "moveUp": "Mover {{name}} para cima",
+      "moveDown": "Mover {{name}} para baixo",
+      "errors": {
+        "title": "Não foi possível concluir",
+        "stageHasRecords": "A etapa tem registros. Escolha uma etapa de destino para movê-los.",
+        "closingStagesRequired": "O funil precisa manter ao menos uma etapa ativa em andamento, uma de ganho e uma de perda.",
+        "lastLostReason": "Mantenha ao menos um motivo de perda ativo."
+      },
+      "pipeline": {
+        "name": "Nome do funil",
+        "renamed": "Funil renomeado"
+      },
+      "stages": {
+        "title": "Etapas",
+        "description": "As etapas aparecem nesta ordem no Kanban. Etapas de ganho e perda fecham o registro.",
+        "new": "Nova etapa",
+        "newTitle": "Nova etapa",
+        "editTitle": "Editar etapa",
+        "dialogDescription": "Defina o nome, a probabilidade de fechamento e o tipo da etapa.",
+        "name": "Nome",
+        "nameRequired": "Informe o nome da etapa.",
+        "probability": "Probabilidade (%)",
+        "probabilityInvalid": "Use um número inteiro entre 0 e 100.",
+        "kind": "Tipo",
+        "kindLocked": "O tipo não pode mudar enquanto a etapa tiver registros.",
+        "created": "Etapa criada",
+        "updated": "Etapa atualizada",
+        "activated": "Etapa reativada",
+        "deactivated": "Etapa desativada",
+        "deleted": "Etapa excluída",
+        "summary_one": "{{probability}}% · {{count}} registro",
+        "summary_other": "{{probability}}% · {{count}} registros",
+        "edit": "Editar {{name}}",
+        "deactivate": "Desativar {{name}}",
+        "activate": "Reativar {{name}}",
+        "delete": "Excluir {{name}}"
+      },
+      "removal": {
+        "deactivateTitle": "Desativar a etapa {{name}}",
+        "deleteTitle": "Excluir a etapa {{name}}",
+        "deactivateDescription": "A etapa deixa de aparecer no Kanban e pode ser reativada depois.",
+        "deleteDescription": "A etapa será excluída definitivamente.",
+        "withRecords_one": "A etapa tem {{count}} registro. Escolha para qual etapa ele será movido.",
+        "withRecords_other": "A etapa tem {{count}} registros. Escolha para qual etapa eles serão movidos.",
+        "noTarget": "Não há outra etapa ativa do mesmo tipo para receber os registros. Crie uma antes.",
+        "target": "Mover registros para",
+        "deactivateConfirm": "Desativar",
+        "deleteConfirm": "Excluir"
+      },
+      "lostReasons": {
+        "title": "Motivos de perda",
+        "description": "Motivos oferecidos ao marcar um registro como cancelado. Desative os que não usa mais.",
+        "new": "Novo motivo",
+        "add": "Adicionar",
+        "name": "Nome do motivo",
+        "created": "Motivo criado",
+        "edit": "Renomear {{name}}",
+        "deactivate": "Desativar {{name}}",
+        "activate": "Reativar {{name}}"
+      }
+    },
+    "kind": {
+      "open": "Em andamento",
+      "won": "Ganho",
+      "lost": "Perda"
+    },
+    "actions": {
+      "cancel": "Cancelar",
+      "save": "Salvar"
+    },
+    "placeholders": {
+      "lostReason": "Ex.: Preço alto",
+      "pipelineName": "Ex.: Vendas",
+      "probability": "Ex.: 50",
+      "stageName": "Ex.: Proposta enviada"
+    }
+  },
+  "guidance": {
+    "editor": {
+      "title": "Guia da etapa",
+      "description": "Orientação e checklist da etapa. Conclua os itens obrigatórios antes de avançar ou concluir o registro.",
+      "guidance": "Orientação",
+      "guidanceHint": "Aceita markdown: **negrito**, _itálico_, listas e links.",
+      "items": "Checklist",
+      "noItems": "Nenhum item no checklist.",
+      "addItem": "Adicionar item",
+      "itemLabel": "Item {{index}}",
+      "required": "Obrigatório para avançar",
+      "removeItem": "Remover item {{index}}",
+      "moveUp": "Mover item {{index}} para cima",
+      "moveDown": "Mover item {{index}} para baixo",
+      "save": "Salvar guia",
+      "saved": "Guia da etapa salvo.",
+      "error": "Não foi possível salvar o guia da etapa.",
+      "conflict": "O guia foi alterado por outra pessoa. Feche e abra a etapa novamente.",
+      "labelRequired": "Preencha o texto de todos os itens."
+    },
+    "panel": {
+      "tab": "Guia da etapa",
+      "title": "Guia da etapa {{stage}}",
+      "empty": "Esta etapa não tem orientação nem checklist.",
+      "progress": "{{done}} de {{total}} itens feitos",
+      "requiredPending_one": "{{count}} item obrigatório pendente para avançar.",
+      "requiredPending_other": "{{count}} itens obrigatórios pendentes para avançar.",
+      "required": "Obrigatório",
+      "doneBy": "Feito por {{name}} em {{date}}",
+      "doneAt": "Feito em {{date}}",
+      "error": "Não foi possível atualizar o checklist."
+    },
+    "errors": {
+      "checklistIncomplete": "Conclua os itens obrigatórios do guia da etapa antes de avançar: {{items}}."
+    },
+    "placeholders": {
+      "checklistItem": "Ex.: Confirmar orçamento",
+      "guidance": "Oriente o time sobre esta etapa"
+    }
+  },
+  "rotting": {
+    "stage": {
+      "label": "Dias para considerar parado",
+      "description": "Oportunidades abertas que ficarem mais dias que isso na etapa aparecem como paradas. Deixe vazio para não usar limite.",
+      "invalid": "Informe um número inteiro entre 1 e 3650 ou deixe vazio.",
+      "openOnly": "Só vale para etapas abertas.",
+      "summary_one": "Parado após {{count}} dia",
+      "summary_other": "Parado após {{count}} dias"
+    },
+    "badge": {
+      "label_one": "Parado há {{count}} dia",
+      "label_other": "Parado há {{count}} dias",
+      "title": "Passou do limite de {{limit}} dias da etapa",
+      "daysInStage_one": "{{count}} dia na etapa",
+      "daysInStage_other": "{{count}} dias na etapa"
+    },
+    "filter": {
+      "label": "Parados",
+      "description": "Mostrar só registros paradas na etapa"
+    },
+    "placeholders": {
+      "days": "Ex.: 14"
+    }
+  },
+  "placeholders": {
+    "pipelineName": "Ex.: Vendas",
+    "lostReason": "Ex.: Preço alto",
+    "stageName": "Ex.: Proposta enviada",
+    "probability": "Ex.: 50",
+    "guidance": "Oriente o time sobre esta etapa",
+    "checklistItem": "Ex.: Confirmar orçamento",
+    "days": "Ex.: 14"
+  }
+}

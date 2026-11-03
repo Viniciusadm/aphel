@@ -5,7 +5,7 @@
   "id": "aphel.real_estate.en",
   "version": "1.0.0",
   "name": "Real Estate",
-  "description": "For real estate agencies and agents: sales and rental pipelines, property details, rental fields that only appear when the deal is a rental, showings, inspections and client profile tags.",
+  "description": "For real estate agencies and agents: sales and rental workflow, property details, rental fields that only appear when the deal is a rental, showings, inspections and client profile tags.",
   "author": "Aphel",
   "locale": "en",
   "sections": {
@@ -225,7 +225,7 @@
         }
       }
     ],
-    "pipelines": [
+    "workflow": [
       {
         "key": "venda",
         "name": "Sales",

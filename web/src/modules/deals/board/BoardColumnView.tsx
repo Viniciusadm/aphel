@@ -5,7 +5,7 @@ import { Badge } from '@/components/ui/badge'
 import { Button } from '@/components/ui/button'
 import { formatCurrency, type RecordFormatting } from '@/features/records/formatting'
 import { cn } from '@/lib/utils'
-import type { PipelineStage } from '@/modules/pipelines/types'
+import type { PipelineStage } from '@/modules/workflow/types'
 import type { BoardColumn } from '../types'
 import { DealCard } from './DealCard'
 

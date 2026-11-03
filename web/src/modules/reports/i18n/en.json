@@ -389,7 +389,7 @@
     "filters": {
       "dimension": "Group by",
       "pipeline": "Pipeline",
-      "allPipelines": "All pipelines",
+      "allPipelines": "All workflow",
       "defaultPipeline": "Default pipeline"
     },
     "dimensions": {

@@ -59,7 +59,7 @@ pub(crate) const WEBHOOK_SECRET_WARNING: &str = "webhook_endpoints: signing secr
 pub(crate) const DATASETS: &[Dataset] = &[
     Dataset::new("teams", "data", true),
     Dataset::new("team_memberships", "data", true),
-    Dataset::new("pipeline_teams", "data", true),
+    Dataset::new("workflow_teams", "data", true),
     Dataset::new("goals", "data", true),
     Dataset::new("segments", "data", true),
     Dataset::new("reports", "data", true),
@@ -140,8 +140,8 @@ impl ConfigKind {
 
     pub(crate) fn table(&self) -> &'static str {
         match self {
-            Self::Pipeline => "pipelines",
-            Self::PipelineStage => "pipeline_stages",
+            Self::Pipeline => "workflow",
+            Self::PipelineStage => "workflow_stages",
             Self::LostReason => "lost_reasons",
             Self::Tag => "tags",
             Self::ActivityType => "activity_types",

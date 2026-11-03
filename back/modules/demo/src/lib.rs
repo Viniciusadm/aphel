@@ -29,7 +29,7 @@ impl Module for DemoModule {
             )
             .depends_on(onboarding::KEY, "*")
             .optional(currencies::KEY)
-            .optional(pipelines::KEY)
+            .optional(workflow::KEY)
             .optional(products::KEY)
             .optional(price_lists::KEY)
             .optional(deal_items::KEY)

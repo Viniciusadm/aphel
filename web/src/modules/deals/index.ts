@@ -1,3 +1,5 @@
+import { rottingOf } from '@/modules/workflow/rotting/lib'
+import { RottingDealBadge } from './RottingDealBadge'
 import { Briefcase, Users, UsersRound } from 'lucide-react'
 import { SETTINGS_MANAGE } from '@/features/settings/lib/permissions'
 import { defineModule } from '@/kernel/modules/define'
@@ -34,6 +36,8 @@ const dealsModule = defineModule({
     },
   },
   register(app) {
+    app.slot('deals.badges', { key: 'rotting', render: RottingDealBadge })
+    app.filter('deals.tone', (tone, { deal }) => (rottingOf(deal).isRotting ? 'warning' : tone))
     app.routes(dealsRoutes)
     app.nav({ to: DEALS_PATH, label: 'nav.deals', icon: Briefcase, permission: ['deals.read'], order: 50 })
     app.createAction({

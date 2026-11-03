@@ -30,7 +30,7 @@ The organization can create its own entities (contracts, properties, equipment, 
 
 The `RecordTypeRegistry` is not static: `AppState.record_types` is a `RecordTypeCatalog`, a single cache for the installation:
 
-- `builtin()` returns the core registry (contact, company, deal, activity, product), used where only core types make sense (pipelines, forecast, goals, duplicates, incoming webhooks, demo).
+- `builtin()` returns the core registry (contact, company, deal, activity, product), used where only core types make sense (workflow, forecast, goals, duplicates, incoming webhooks, demo).
 - `registry()` (on `AppState`, `state.registry().await?`) returns the current registry: core + one `EntityDefinition` per **active** object + one `RecordRelation` on each end of each relationship. The registry also carries the schema (`schema()`/`state.custom_schema()`: objects and relationships).
 - The cache stores a single registry together with the `custom_schema_version` (`organization_settings`). Each resolution reads the version (a primary key lookup) and rebuilds only when it has changed, so `serve`, `worker` and multiple instances see the change on the next request, without relying on messages between processes. The administration handlers still call `invalidate` (`state.record_types.invalidate()`) in the process that made the change.
 

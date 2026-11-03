@@ -21,7 +21,7 @@ use aphel_kernel::infrastructure::repositories::mapper;
 use deals::team::domain::CreditedUsers;
 use deals::team::store::{push_credit_share, push_credited_filter};
 
-const DEALS_FROM: &str = " FROM deals r JOIN pipeline_stages fs ON fs.id = r.stage_id ";
+const DEALS_FROM: &str = " FROM deals r JOIN workflow_stages fs ON fs.id = r.stage_id ";
 
 fn probability(source: ProbabilitySource) -> &'static str {
     match source {

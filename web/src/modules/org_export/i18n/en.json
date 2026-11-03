@@ -19,7 +19,7 @@
     "relations": "Links between records: people and organizations, custom relationships, tags and attachments",
     "history": "Notes, stage history and timeline events",
     "files": "Files attached to records",
-    "config": "Configuration package (fields, pipelines, layouts, views, automations and the other sections)",
+    "config": "Configuration package (fields, workflow, layouts, views, automations and the other sections)",
     "manifest": "Manifest with format version, Aphel version, counts and SHA-256 checksums"
   },
   "restore": {

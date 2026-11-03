@@ -92,7 +92,7 @@ async fn preview_migration_file(
     security(("session_cookie" = [])),
     request_body(content = MigrationUploadForm, content_type = "multipart/form-data"),
     responses(
-        (status = 201, description = "Converts the CSV of the source tool (dates, money, phones, owners, deal status and the `maps` of stages, pipelines and owners), stores it as a draft import (`POST /imports`) and pre-fills its mapping and options (duplicates by the step key, missing organizations created by name). Review and start it with the import endpoints (`/imports/{import_id}`). Requires `<type>.create`", body = Data<MigrationImportResponse>),
+        (status = 201, description = "Converts the CSV of the source tool (dates, money, phones, owners, deal status and the `maps` of stages, workflow and owners), stores it as a draft import (`POST /imports`) and pre-fills its mapping and options (duplicates by the step key, missing organizations created by name). Review and start it with the import endpoints (`/imports/{import_id}`). Requires `<type>.create`", body = Data<MigrationImportResponse>),
         (status = 401, description = "Missing or invalid session", body = ErrorEnvelope),
         (status = 403, description = "Missing `<type>.create` (`permission_denied`)", body = ErrorEnvelope),
         (status = 404, description = "Unknown source or step (`migration_source_not_found`)", body = ErrorEnvelope),

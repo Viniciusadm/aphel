@@ -25,8 +25,8 @@ use aphel_kernel::database::transaction::MySqlTx;
 use aphel_kernel::domain::UserId;
 use aphel_kernel::domain::access::AccessScope;
 use aphel_kernel::errors::AppError;
-use pipelines::section::{PIPELINES_SECTION, keyed_pipelines, parse_pipelines, stage_item_key};
-use pipelines::store::PipelineStore;
+use workflow::section::{PIPELINES_SECTION, keyed_pipelines, parse_pipelines, stage_item_key};
+use workflow::store::PipelineStore;
 
 pub(crate) const APPROVAL_POLICIES_SECTION: &str = "approval_policies";
 const APPROVAL_POLICY_KIND: &str = "approval_policy";
@@ -141,14 +141,14 @@ struct KeyedPipeline {
 }
 
 struct Index {
-    pipelines: Vec<KeyedPipeline>,
+    workflow: Vec<KeyedPipeline>,
     roles: Vec<(Uuid, String)>,
     members: Vec<(UserId, String)>,
 }
 
 impl Index {
     fn stage_reference(&self, stage_id: Uuid) -> Option<String> {
-        self.pipelines.iter().find_map(|pipeline| {
+        self.workflow.iter().find_map(|pipeline| {
             pipeline
                 .stages
                 .iter()
@@ -158,7 +158,7 @@ impl Index {
     }
 
     fn pipeline(&self, key: &str) -> Option<&KeyedPipeline> {
-        self.pipelines.iter().find(|pipeline| pipeline.key == key)
+        self.workflow.iter().find(|pipeline| pipeline.key == key)
     }
 
     fn role_key(&self, id: Uuid) -> Option<&str> {
@@ -204,7 +204,7 @@ pub(crate) struct ApprovalPoliciesSection<K> {
     registry: Arc<RecordTypeRegistry>,
     repository: ApprovalStore,
     directory: ApprovalDirectory,
-    pipelines: PipelineStore,
+    workflow: PipelineStore,
     keys: K,
 }
 
@@ -216,14 +216,14 @@ where
         registry: Arc<RecordTypeRegistry>,
         repository: ApprovalStore,
         directory: ApprovalDirectory,
-        pipelines: PipelineStore,
+        workflow: PipelineStore,
         keys: K,
     ) -> Self {
         Self {
             registry,
             repository,
             directory,
-            pipelines,
+            workflow,
             keys,
         }
     }
@@ -233,9 +233,9 @@ where
             .keys
             .keys(ConfigReferenceKind::new("workflow.stage"))
             .await?;
-        let mut pipelines = Vec::new();
-        for (pipeline, keyed) in keyed_pipelines(&self.pipelines, &self.keys).await? {
-            let stages = self.pipelines.list_stages(pipeline.id).await?;
+        let mut workflow = Vec::new();
+        for (pipeline, keyed) in keyed_pipelines(&self.workflow, &self.keys).await? {
+            let stages = self.workflow.list_stages(pipeline.id).await?;
             let ids: BTreeSet<Uuid> = stages.iter().map(|stage| stage.id).collect();
             let stored: HashMap<Uuid, String> = stored_stages
                 .iter()
@@ -246,13 +246,13 @@ where
                 stages.iter().map(|stage| (stage.id, stage.name.as_str())),
                 &stored,
             );
-            pipelines.push(KeyedPipeline {
+            workflow.push(KeyedPipeline {
                 key: keyed.key,
                 stages: keys.into_iter().map(|item| (item.id, item.key)).collect(),
             });
         }
         Ok(Index {
-            pipelines,
+            workflow,
             roles: self.directory.role_keys().await?,
             members: self.directory.member_emails().await?,
         })

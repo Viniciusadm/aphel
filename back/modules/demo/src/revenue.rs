@@ -12,10 +12,10 @@ use approvals::domain::{PolicyCommand, StepInput};
 use currencies::domain::{CreateExchangeRateCommand, SetCurrenciesCommand};
 use deal_items::domain::{DealItemInput, SaveDealItemCommand};
 use deals::team::domain::AddDealMemberCommand;
-use pipelines::domain::UpdateStageCommand;
 use price_lists::domain::{PriceListItemInput, ReplacePriceListItemsCommand, SavePriceListCommand};
 use products::domain::{ProductInput, SaveProductCommand};
 use quotes::domain::{CreateQuoteCommand, QuoteInput};
+use workflow::domain::UpdateStageCommand;
 
 pub(crate) const EXCHANGE_RATE_RECORD_TYPE: RecordType =
     RecordType::from_static("currencies.exchange_rate");
@@ -133,15 +133,15 @@ pub(crate) async fn seed_rates(
 }
 
 pub(crate) async fn seed_rotting(ctx: &Ctx<'_>, open_stages: &[&str]) -> Result<(), AppError> {
-    if !enabled(ctx, pipelines::KEY) {
+    if !enabled(ctx, workflow::KEY) {
         return Ok(());
     }
     for (index, stage_id) in open_stages.iter().enumerate() {
-        let current = pipelines::service::get_stage(ctx, stage_id).await?;
+        let current = workflow::service::get_stage(ctx, stage_id).await?;
         if current.rotting_days.is_some() {
             continue;
         }
-        pipelines::service::update_stage(
+        workflow::service::update_stage(
             ctx,
             stage_id,
             UpdateStageCommand {

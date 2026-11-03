@@ -6,7 +6,7 @@ import { Badge } from '@/components/ui/badge'
 import { Button } from '@/components/ui/button'
 import { formatDateTime, useRecordFormatting } from '@/features/records/formatting'
 import type { Note, NoteVisibility } from '../api'
-import { Markdown } from './Markdown'
+import { Markdown } from '@/components/markdown'
 import { useNotePermissions } from '../lib/permissions'
 import { NoteEditor } from './NoteEditor'
 

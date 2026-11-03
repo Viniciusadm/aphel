@@ -15,7 +15,7 @@ activities = { package = "aphel-mod-activities", path = "../activities" }
 approvals = { package = "aphel-mod-approvals", path = "../approvals" }
 currencies = { package = "aphel-mod-currencies", path = "../currencies" }
 deal_items = { package = "aphel-mod-deal-items", path = "../deal_items" }
-pipelines = { package = "aphel-mod-pipelines", path = "../pipelines" }
+workflow = { package = "aphel-mod-workflow", path = "../workflow" }
 price_lists = { package = "aphel-mod-price-lists", path = "../price_lists" }
 products = { package = "aphel-mod-products", path = "../products" }
 quotes = { package = "aphel-mod-quotes", path = "../quotes" }

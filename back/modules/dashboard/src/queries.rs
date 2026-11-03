@@ -20,8 +20,8 @@ use aphel_kernel::errors::AppError;
 use aphel_kernel::infrastructure::repositories::mapper::utc;
 use aphel_kernel::records::constrain_query;
 use aphel_kernel::state::runtime_state;
-use pipelines::domain::StageKind;
-use pipelines::store::PipelineStore;
+use workflow::domain::StageKind;
+use workflow::store::PipelineStore;
 
 const NOTE_RECORD_TYPE: &str = "notes.note";
 const PAYLOAD_EVENT_PREFIXES: [&str; 1] = ["deal."];
@@ -124,7 +124,7 @@ pub(crate) async fn deal_totals(
         scope,
         plan,
         "COUNT(*), SUM(r.amount_base), SUM(r.amount_base * COALESCE(r.probability, \
-         (SELECT ps.probability FROM pipeline_stages ps WHERE ps.id = r.stage_id)) / 100)",
+         (SELECT ps.probability FROM workflow_stages ps WHERE ps.id = r.stage_id)) / 100)",
         "",
     )?;
     let (count, amount, forecast): (i64, Option<Decimal>, Option<Decimal>) =
@@ -162,7 +162,7 @@ pub(crate) async fn stale_deals(
         "SELECT d.id, d.title, d.amount, d.currency, s.name AS stage_name, d.owner_id, \
          u.display_name AS owner_name, \
          GREATEST(d.updated_at, COALESCE(d.last_activity_at, d.updated_at)) AS last_touched_at \
-         FROM deals d JOIN pipeline_stages s ON s.id = d.stage_id \
+         FROM deals d JOIN workflow_stages s ON s.id = d.stage_id \
          LEFT JOIN users u ON u.id = d.owner_id WHERE d.id",
     );
     push_ids(&mut builder, &ids);

@@ -13,6 +13,7 @@ license = "AGPL-3.0-only"
 aphel-contract-automation = { path = "contracts/automation" }
 aphel-kernel = { path = "kernel" }
 aphel-contract = { path = "contract" }
+aphel-contract-workflow = { path = "contracts/workflow" }
 aphel-contract-party = { path = "contracts/party" }
 aphel-contract-crm = { path = "contracts/crm" }
 aphel-contract-tagging = { path = "contracts/tagging" }

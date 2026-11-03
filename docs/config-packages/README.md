@@ -1,6 +1,6 @@
 # Configuration packages (`aphel-config`)
 
-A configuration package describes **how an organization works**, without any business data: custom fields and their options, pipelines with stages and stage rules, loss reasons, activity types, tags, form layouts (with conditional rules), organization views, the default dashboard and automations (as drafts). The same format is used to export an organization's configuration, install it in another one and distribute the business templates embedded in the binary (B2B, agency, freelancer, real estate, SaaS).
+A configuration package describes **how an organization works**, without any business data: custom fields and their options, workflow with stages and stage rules, loss reasons, activity types, tags, form layouts (with conditional rules), organization views, the default dashboard and automations (as drafts). The same format is used to export an organization's configuration, install it in another one and distribute the business templates embedded in the binary (B2B, agency, freelancer, real estate, SaaS).
 
 - JSON Schema: [`schema.json`](schema.json)
 - Built-in templates: [`blueprints/templates/`](../../blueprints/templates) (one `<key>.json` file per template; the template key is the file name)
@@ -29,7 +29,7 @@ A configuration package describes **how an organization works**, without any bus
       { "record_type": "company", "key": "segment", "label": "Segmento", "type": "select",
         "options": [{ "value": "industry", "label": "Indústria", "color": "#1f6feb" }] }
     ],
-    "pipelines": [
+    "workflow": [
       { "key": "vendas", "name": "Vendas", "default": true, "stages": [
         { "key": "prospeccao", "name": "Prospecção", "kind": "open", "probability": 10 },
         { "key": "proposta", "name": "Proposta", "kind": "open", "probability": 50,
@@ -61,7 +61,7 @@ A configuration package describes **how an organization works**, without any bus
 
 ### Stable keys
 
-Items reference each other **by key, never by id**: fields and options (`key`/`value`, which already exist in Aphel), activity types (`key`), pipelines, stages (unique within the pipeline), loss reasons, tags and views (unique per record type). Keys follow `snake_case` (up to 64 characters).
+Items reference each other **by key, never by id**: fields and options (`key`/`value`, which already exist in Aphel), activity types (`key`), workflow, stages (unique within the pipeline), loss reasons, tags and views (unique per record type). Keys follow `snake_case` (up to 64 characters).
 
 Pipelines, stages, loss reasons, tags and views had no key in the database: the `config_item_keys` table stores the key of each item from the first package installation that mentions it. While an item has no stored key, its key is **derived from the name** (`Prospecção` → `prospeccao`, with a `_2` suffix in case of repetition). That is why the templates use keys equal to the ones derived from the seeded items (`prospeccao`, `qualificacao`, `proposta`, `negociacao`, `ganho`, `perdido`…), to reuse them instead of duplicating them.
 
@@ -79,7 +79,7 @@ References between sections are also by key: `entry_required_fields`/`exit_requi
 - valid keys without repetition, names, colors, icons, probabilities, field types, field configuration (`config`), options;
 - cross references: a field mentioned by a stage, layout, view or conditional rule must exist **in the package or in the organization**; the same goes for a pipeline mentioned by the dashboard;
 - `formula` fields (`type: "formula"` with `config.expression` and `config.result_type`): the expression is compiled against the package's and the organization's fields, checking syntax, result type and cycles (`invalid_formula`, `formula_cycle`); after installing, the types with a created or changed formula are recalculated by the `formulas.recalculate` job;
-- each module's rules: a pipeline with `open`, `won` and `lost` stages; system field keys are reserved; layouts go through the same `validate_layout` as the screen; views through the same `validate_view_query`; limits (200 custom fields per type, 500 options, 50 pipelines…).
+- each module's rules: a pipeline with `open`, `won` and `lost` stages; system field keys are reserved; layouts go through the same `validate_layout` as the screen; views through the same `validate_view_query`; limits (200 custom fields per type, 500 options, 50 workflow…).
 
 Features that are off do not invalidate a package: a section that belongs to a disabled module is neither validated nor applied and comes back in `skipped_sections`; references to system fields of a disabled module (e.g. `mrr` from `deal_items` in a layout, a view column or sort, or a stage's required fields) are removed before validating and come back in `skipped_fields` as `<record_type>.<field>`, and a view whose filter uses one is left out. Everything else in the package is installed normally.
 
@@ -131,7 +131,7 @@ All of them require `settings.manage`.
 
 ## Export
 
-Exports only what is portable: **active** custom objects and the relationships between exported (or core) types, **active** custom fields (with active options), active pipelines and stages, active loss reasons and activity types, all tags, saved layouts, views with `organization` visibility, the organization's default dashboard (when it exists) and the current draft of all automations (without secrets). Left out are team-based pipeline visibility, private and team views and any reference to a user or record.
+Exports only what is portable: **active** custom objects and the relationships between exported (or core) types, **active** custom fields (with active options), active workflow and stages, active loss reasons and activity types, all tags, saved layouts, views with `organization` visibility, the organization's default dashboard (when it exists) and the current draft of all automations (without secrets). Left out are team-based pipeline visibility, private and team views and any reference to a user or record.
 
 Round trip: exporting from A, installing into a new organization B and exporting B produces the same sections.
 
@@ -141,7 +141,7 @@ The `dashboard` section stores the **organization's** default layout (`dashboard
 
 ## Automations
 
-The `automations` section (session 17) is installed last, after `custom_objects`, `fields`, `pipelines`, `activity_types` and `tags`. Each item carries `key` (the automation's own key, `^[a-z][a-z0-9_]{0,63}$`), `name`, `description`, `record_type` (`contact`, `company`, `deal`, `activity` or `custom.<key>` from the package or the organization), `trigger` and `definition` (the current draft, in the same format as the automations API):
+The `automations` section (session 17) is installed last, after `custom_objects`, `fields`, `workflow`, `activity_types` and `tags`. Each item carries `key` (the automation's own key, `^[a-z][a-z0-9_]{0,63}$`), `name`, `description`, `record_type` (`contact`, `company`, `deal`, `activity` or `custom.<key>` from the package or the organization), `trigger` and `definition` (the current draft, in the same format as the automations API):
 
 ```json
 "automations": [
@@ -160,7 +160,7 @@ Reference translations (export replaces the id with the key; installation does t
 | In the organization | In the package |
 | --- | --- |
 | `config.tag_id` (`add_tag`/`remove_tag`) | `config.tag`: tag key (the same as in the `tags` section) |
-| `config.stage_id` (`move_stage`) | `config.stage`: `<pipeline>.<stage>` (the same keys as in the `pipelines` section) |
+| `config.stage_id` (`move_stage`) | `config.stage`: `<pipeline>.<stage>` (the same keys as in the `workflow` section) |
 | `config.activity_type_id` (`create_task`) | `config.activity_type`: activity type key |
 | `trigger.from_stage_id`/`to_stage_id` | `trigger.from_stage`/`to_stage`: `<pipeline>.<stage>` |
 | `config.sequence_id` (`enroll_in_sequence`) | `config.sequence`: sequence key (from the package's or the organization's `sequences` section) |
@@ -202,7 +202,7 @@ The `discount_limits` section carries the maximum discount per role (`role` = ro
 
 ## Renewals
 
-The `pipeline_renewals` section (session 24) is installed after `pipelines` and `lost_reasons`. Each item configures the automatic renewal of a pipeline's won deals: `pipeline` (source pipeline key), `enabled`, `days_before` (0–365), `target_pipeline` and `target_stage` (keys of the pipeline and of an open, active stage where the renewal is created, from the package or the organization), `title_prefix` (up to 60 characters) and `owner` (`original` or `none`). Installing creates or updates the pipeline's configuration, with the installer as the author (the renewal runs with their permissions), and never creates or changes deals.
+The `pipeline_renewals` section (session 24) is installed after `workflow` and `lost_reasons`. Each item configures the automatic renewal of a pipeline's won deals: `pipeline` (source pipeline key), `enabled`, `days_before` (0–365), `target_pipeline` and `target_stage` (keys of the pipeline and of an open, active stage where the renewal is created, from the package or the organization), `title_prefix` (up to 60 characters) and `owner` (`original` or `none`). Installing creates or updates the pipeline's configuration, with the installer as the author (the renewal runs with their permissions), and never creates or changes deals.
 
 ## New section
 

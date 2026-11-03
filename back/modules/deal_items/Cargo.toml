@@ -13,7 +13,7 @@ aphel-contract-crm.workspace = true
 aphel-kernel.workspace = true
 currencies = { package = "aphel-mod-currencies", path = "../currencies" }
 deals = { package = "aphel-mod-deals", path = "../deals" }
-pipelines = { package = "aphel-mod-pipelines", path = "../pipelines" }
+workflow = { package = "aphel-mod-workflow", path = "../workflow" }
 products = { package = "aphel-mod-products", path = "../products" }
 quotes = { package = "aphel-mod-quotes", path = "../quotes" }
 axum.workspace = true

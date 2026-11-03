@@ -1881,40 +1881,6 @@ export interface paths {
         patch?: never;
         trace?: never;
     };
-    "/api/v1/deals/{deal_id}/checklist": {
-        parameters: {
-            query?: never;
-            header?: never;
-            path?: never;
-            cookie?: never;
-        };
-        /** @description Guidance and checklist of the current stage of the deal with the progress of the deal (who checked each item and when). Needs read access to the deal. */
-        get: operations["deal_checklist_get"];
-        put?: never;
-        post?: never;
-        delete?: never;
-        options?: never;
-        head?: never;
-        patch?: never;
-        trace?: never;
-    };
-    "/api/v1/deals/{deal_id}/checklist/{item_id}": {
-        parameters: {
-            query?: never;
-            header?: never;
-            path?: never;
-            cookie?: never;
-        };
-        get?: never;
-        /** @description Checks (`done: true`) or unchecks an item of a stage checklist of the deal's pipeline and publishes `deal.checklist_item_checked` or `deal.checklist_item_unchecked`. Needs permission to update the deal. */
-        put: operations["deal_checklist_item_update"];
-        post?: never;
-        delete?: never;
-        options?: never;
-        head?: never;
-        patch?: never;
-        trace?: never;
-    };
     "/api/v1/deals/{deal_id}/items": {
         parameters: {
             query?: never;
@@ -5435,7 +5401,7 @@ export interface paths {
             path?: never;
             cookie?: never;
         };
-        /** @description Renewal settings saved for the pipelines of the organization. Needs `settings.manage`. */
+        /** @description Renewal settings saved for the workflow of the organization. Needs `settings.manage`. */
         get: operations["pipeline_renewals_list"];
         put?: never;
         post?: never;
@@ -5452,7 +5418,7 @@ export interface paths {
             path?: never;
             cookie?: never;
         };
-        get: operations["pipeline_stages_list"];
+        get: operations["workflow_stages_list"];
         put?: never;
         post?: never;
         delete?: never;
@@ -5468,13 +5434,13 @@ export interface paths {
             path?: never;
             cookie?: never;
         };
-        get: operations["pipeline_stages_get"];
+        get: operations["workflow_stages_get"];
         put?: never;
         post?: never;
-        delete: operations["pipeline_stages_delete"];
+        delete: operations["workflow_stages_delete"];
         options?: never;
         head?: never;
-        patch: operations["pipeline_stages_update"];
+        patch: operations["workflow_stages_update"];
         trace?: never;
     };
     "/api/v1/pipeline-stages/{stage_id}/activate": {
@@ -5486,7 +5452,7 @@ export interface paths {
         };
         get?: never;
         put?: never;
-        post: operations["pipeline_stages_activate"];
+        post: operations["workflow_stages_activate"];
         delete?: never;
         options?: never;
         head?: never;
@@ -5502,7 +5468,7 @@ export interface paths {
         };
         get?: never;
         put?: never;
-        post: operations["pipeline_stages_deactivate"];
+        post: operations["workflow_stages_deactivate"];
         delete?: never;
         options?: never;
         head?: never;
@@ -5516,156 +5482,10 @@ export interface paths {
             path?: never;
             cookie?: never;
         };
-        /** @description Guidance (markdown) and checklist of a pipeline stage. Readable by anyone who reads deals. */
-        get: operations["pipeline_stage_guidance_get"];
-        /** @description Saves the guidance and the checklist of a stage and publishes `pipeline.stage_guidance_updated`. `items` replaces the whole checklist in the given order: items are matched by `id` (or `key`), new ones get a `key` from the label, and items left out are removed with their progress. `required` items must be done before a deal **advances** from the stage (moves to a stage of greater position in the same pipeline, or is won); moving back, to another pipeline or losing does not check the checklist. Needs `settings.manage`. */
-        put: operations["pipeline_stage_guidance_update"];
-        post?: never;
-        delete?: never;
-        options?: never;
-        head?: never;
-        patch?: never;
-        trace?: never;
-    };
-    "/api/v1/pipelines": {
-        parameters: {
-            query?: never;
-            header?: never;
-            path?: never;
-            cookie?: never;
-        };
-        get: operations["pipelines_list"];
-        put?: never;
-        post: operations["pipelines_create"];
-        delete?: never;
-        options?: never;
-        head?: never;
-        patch?: never;
-        trace?: never;
-    };
-    "/api/v1/pipelines/order": {
-        parameters: {
-            query?: never;
-            header?: never;
-            path?: never;
-            cookie?: never;
-        };
-        get?: never;
-        put: operations["pipelines_reorder"];
-        post?: never;
-        delete?: never;
-        options?: never;
-        head?: never;
-        patch?: never;
-        trace?: never;
-    };
-    "/api/v1/pipelines/{pipeline_id}": {
-        parameters: {
-            query?: never;
-            header?: never;
-            path?: never;
-            cookie?: never;
-        };
-        get: operations["pipelines_get"];
-        put?: never;
-        post?: never;
-        delete: operations["pipelines_delete"];
-        options?: never;
-        head?: never;
-        patch: operations["pipelines_update"];
-        trace?: never;
-    };
-    "/api/v1/pipelines/{pipeline_id}/activate": {
-        parameters: {
-            query?: never;
-            header?: never;
-            path?: never;
-            cookie?: never;
-        };
-        get?: never;
-        put?: never;
-        post: operations["pipelines_activate"];
-        delete?: never;
-        options?: never;
-        head?: never;
-        patch?: never;
-        trace?: never;
-    };
-    "/api/v1/pipelines/{pipeline_id}/deactivate": {
-        parameters: {
-            query?: never;
-            header?: never;
-            path?: never;
-            cookie?: never;
-        };
-        get?: never;
-        put?: never;
-        post: operations["pipelines_deactivate"];
-        delete?: never;
-        options?: never;
-        head?: never;
-        patch?: never;
-        trace?: never;
-    };
-    "/api/v1/pipelines/{pipeline_id}/default": {
-        parameters: {
-            query?: never;
-            header?: never;
-            path?: never;
-            cookie?: never;
-        };
-        get?: never;
-        put?: never;
-        post: operations["pipelines_set_default"];
-        delete?: never;
-        options?: never;
-        head?: never;
-        patch?: never;
-        trace?: never;
-    };
-    "/api/v1/pipelines/{pipeline_id}/renewal": {
-        parameters: {
-            query?: never;
-            header?: never;
-            path?: never;
-            cookie?: never;
-        };
-        /** @description Automatic renewal of the won deals of the pipeline. While never saved, returns the defaults (`configured: false`, disabled, 30 days, first open stage of the same pipeline). Needs `settings.manage`. */
-        get: operations["pipeline_renewal_get"];
-        /** @description Saves the automatic renewal of the pipeline and publishes `pipeline.renewal_updated`. When enabled, the `renewals.scan` job (hourly) creates, for each won deal of the pipeline whose `contract_end` is at most `days_before` days ahead (organization timezone, until `contract_end`), one renewal deal in `target_stage_id` with `renewal_of_deal_id` pointing to the original, the same contact, company and currency, the owner of the original (`owner_mode = original`) or no owner (`none`), the title `title_prefix + title`, `contract_start` the day after the original `contract_end` and a copy of the recurring items; then publishes `deal.renewal_created`. Each deal is renewed only once. The renewal runs with the permissions of whoever saved the settings last. Fields left out keep their value. Needs `settings.manage`. */
-        put: operations["pipeline_renewal_update"];
-        post?: never;
-        delete?: never;
-        options?: never;
-        head?: never;
-        patch?: never;
-        trace?: never;
-    };
-    "/api/v1/pipelines/{pipeline_id}/stages": {
-        parameters: {
-            query?: never;
-            header?: never;
-            path?: never;
-            cookie?: never;
-        };
-        get?: never;
-        put?: never;
-        post: operations["pipelines_create_stage"];
-        delete?: never;
-        options?: never;
-        head?: never;
-        patch?: never;
-        trace?: never;
-    };
-    "/api/v1/pipelines/{pipeline_id}/stages/order": {
-        parameters: {
-            query?: never;
-            header?: never;
-            path?: never;
-            cookie?: never;
-        };
-        get?: never;
-        put: operations["pipelines_reorder_stages"];
+        /** @description Guidance (markdown) and checklist of a pipeline stage. Readable by anyone who reads records. */
+        get: operations["workflow_stage_guidance_get"];
+        /** @description Saves the guidance and the checklist of a stage and publishes `pipeline.stage_guidance_updated`. `items` replaces the whole checklist in the given order: items are matched by `id` (or `key`), new ones get a `key` from the label, and items left out are removed with their progress. `required` items must be done before a record **advances** from the stage (moves to a stage of greater position in the same pipeline, or is won); moving back, to another pipeline or losing does not check the checklist. Needs `settings.manage`. */
+        put: operations["workflow_stage_guidance_update"];
         post?: never;
         delete?: never;
         options?: never;
@@ -8430,6 +8250,202 @@ export interface paths {
         patch?: never;
         trace?: never;
     };
+    "/api/v1/workflow": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        get: operations["pipelines_list"];
+        put?: never;
+        post: operations["pipelines_create"];
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
+    "/api/v1/workflow/order": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        get?: never;
+        put: operations["pipelines_reorder"];
+        post?: never;
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
+    "/api/v1/workflow/records/{record_type}/{record_id}/checklist": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        /** @description Guidance and checklist of the current stage of the record with the progress of the record (who checked each item and when). Needs read access to the record. */
+        get: operations["record_checklist_get"];
+        put?: never;
+        post?: never;
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
+    "/api/v1/workflow/records/{record_type}/{record_id}/checklist/{item_id}": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        get?: never;
+        /** @description Checks (`done: true`) or unchecks an item of a stage checklist of the record's pipeline and publishes `record.checklist_item_checked` or `record.checklist_item_unchecked`. Needs permission to update the record. */
+        put: operations["record_checklist_item_update"];
+        post?: never;
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
+    "/api/v1/workflow/required-fields": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        get: operations["workflow_required_fields"];
+        put?: never;
+        post?: never;
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
+    "/api/v1/workflow/{pipeline_id}": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        get: operations["pipelines_get"];
+        put?: never;
+        post?: never;
+        delete: operations["pipelines_delete"];
+        options?: never;
+        head?: never;
+        patch: operations["pipelines_update"];
+        trace?: never;
+    };
+    "/api/v1/workflow/{pipeline_id}/activate": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        get?: never;
+        put?: never;
+        post: operations["pipelines_activate"];
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
+    "/api/v1/workflow/{pipeline_id}/deactivate": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        get?: never;
+        put?: never;
+        post: operations["pipelines_deactivate"];
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
+    "/api/v1/workflow/{pipeline_id}/default": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        get?: never;
+        put?: never;
+        post: operations["pipelines_set_default"];
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
+    "/api/v1/workflow/{pipeline_id}/renewal": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        /** @description Automatic renewal of the won deals of the pipeline. While never saved, returns the defaults (`configured: false`, disabled, 30 days, first open stage of the same pipeline). Needs `settings.manage`. */
+        get: operations["pipeline_renewal_get"];
+        /** @description Saves the automatic renewal of the pipeline and publishes `pipeline.renewal_updated`. When enabled, the `renewals.scan` job (hourly) creates, for each won deal of the pipeline whose `contract_end` is at most `days_before` days ahead (organization timezone, until `contract_end`), one renewal deal in `target_stage_id` with `renewal_of_deal_id` pointing to the original, the same contact, company and currency, the owner of the original (`owner_mode = original`) or no owner (`none`), the title `title_prefix + title`, `contract_start` the day after the original `contract_end` and a copy of the recurring items; then publishes `deal.renewal_created`. Each deal is renewed only once. The renewal runs with the permissions of whoever saved the settings last. Fields left out keep their value. Needs `settings.manage`. */
+        put: operations["pipeline_renewal_update"];
+        post?: never;
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
+    "/api/v1/workflow/{pipeline_id}/stages": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        get?: never;
+        put?: never;
+        post: operations["pipelines_create_stage"];
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
+    "/api/v1/workflow/{pipeline_id}/stages/order": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        get?: never;
+        put: operations["pipelines_reorder_stages"];
+        post?: never;
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
     "/health": {
         parameters: {
             query?: never;
@@ -10658,6 +10674,9 @@ export interface components {
             record_type: string;
             /** @example name */
             title_field_key: string;
+            traits: {
+                [key: string]: unknown;
+            };
             /** @example 2026-10-20T13:45:00Z */
             updated_at: string;
         };
@@ -11499,16 +11518,6 @@ export interface components {
                 users: components["schemas"]["DashboardSubjectUser"][];
             };
         };
-        Data_DealChecklistResponse: {
-            data: {
-                deal_id: string;
-                guidance: string;
-                items: components["schemas"]["DealChecklistItemResponse"][];
-                required_pending: number;
-                stage_id: string;
-                stage_name: string;
-            };
-        };
         Data_DealItemResponse: {
             data: {
                 /** @example 13500.00 */
@@ -12322,9 +12331,9 @@ export interface components {
             data: {
                 contact_fields: components["schemas"]["LeadFormTargetField"][];
                 distribution_rules: components["schemas"]["LeadFormDistributionRuleOption"][];
-                pipelines: components["schemas"]["LeadFormPipelineOption"][];
                 tags: components["schemas"]["LeadFormTagOption"][];
                 users: components["schemas"]["LeadFormUserOption"][];
+                workflow: components["schemas"]["LeadFormPipelineOption"][];
             };
         };
         Data_LeadFormPublicDefinition: {
@@ -12834,12 +12843,10 @@ export interface components {
         Data_PipelineStageResponse: {
             data: {
                 created_at: string;
-                /** Format: int64 */
-                deal_count?: number | null;
                 /**
                  * @example [
-                 *       "amount",
-                 *       "expected_close_date"
+                 *       "owner_id",
+                 *       "due_at"
                  *     ]
                  */
                 entry_required_fields: string[];
@@ -12857,6 +12864,8 @@ export interface components {
                  * @example 50
                  */
                 probability: number;
+                /** Format: int64 */
+                record_count?: number | null;
                 /**
                  * Format: int32
                  * @example 7
@@ -13218,6 +13227,17 @@ export interface components {
                 webhooks: components["schemas"]["FailureResponse"][];
                 /** Format: int64 */
                 window_days: number;
+            };
+        };
+        Data_RecordChecklistResponse: {
+            data: {
+                guidance: string;
+                items: components["schemas"]["RecordChecklistItemResponse"][];
+                record_id: string;
+                record_type: string;
+                required_pending: number;
+                stage_id: string;
+                stage_name: string;
             };
         };
         Data_RecordFollowersResponse: {
@@ -13955,6 +13975,9 @@ export interface components {
                 record_type: string;
                 /** @example name */
                 title_field_key: string;
+                traits: {
+                    [key: string]: unknown;
+                };
                 /** @example 2026-10-20T13:45:00Z */
                 updated_at: string;
             }[];
@@ -14655,6 +14678,12 @@ export interface components {
                 user_agent?: string | null;
             }[];
         };
+        Data_Vec_StageFieldChoice: {
+            data: {
+                key: string;
+                label: string;
+            }[];
+        };
         Data_Vec_TagSummary: {
             data: {
                 /** @example #1f6feb */
@@ -14852,26 +14881,6 @@ export interface components {
         };
         /** @enum {string} */
         DealAmountMode: "manual" | "items";
-        DealChecklistItemResponse: {
-            done: boolean;
-            /** @example 2026-10-20T13:45:00Z */
-            done_at?: string | null;
-            done_by?: null | components["schemas"]["ChecklistUserResponse"];
-            id: string;
-            key: string;
-            label: string;
-            /** Format: int32 */
-            position: number;
-            required: boolean;
-        };
-        DealChecklistResponse: {
-            deal_id: string;
-            guidance: string;
-            items: components["schemas"]["DealChecklistItemResponse"][];
-            required_pending: number;
-            stage_id: string;
-            stage_name: string;
-        };
         DealItemRequest: {
             discount_type?: null | components["schemas"]["DiscountType"];
             discount_value?: null | components["schemas"]["DecimalInput"];
@@ -16804,9 +16813,9 @@ export interface components {
         LeadFormOptions: {
             contact_fields: components["schemas"]["LeadFormTargetField"][];
             distribution_rules: components["schemas"]["LeadFormDistributionRuleOption"][];
-            pipelines: components["schemas"]["LeadFormPipelineOption"][];
             tags: components["schemas"]["LeadFormTagOption"][];
             users: components["schemas"]["LeadFormUserOption"][];
+            workflow: components["schemas"]["LeadFormPipelineOption"][];
         };
         LeadFormPipelineOption: {
             id: string;
@@ -18938,12 +18947,10 @@ export interface components {
         Page_PipelineStageResponse: {
             data: {
                 created_at: string;
-                /** Format: int64 */
-                deal_count?: number | null;
                 /**
                  * @example [
-                 *       "amount",
-                 *       "expected_close_date"
+                 *       "owner_id",
+                 *       "due_at"
                  *     ]
                  */
                 entry_required_fields: string[];
@@ -18961,6 +18968,8 @@ export interface components {
                  * @example 50
                  */
                 probability: number;
+                /** Format: int64 */
+                record_count?: number | null;
                 /**
                  * Format: int32
                  * @example 7
@@ -19588,12 +19597,10 @@ export interface components {
         };
         PipelineStageResponse: {
             created_at: string;
-            /** Format: int64 */
-            deal_count?: number | null;
             /**
              * @example [
-             *       "amount",
-             *       "expected_close_date"
+             *       "owner_id",
+             *       "due_at"
              *     ]
              */
             entry_required_fields: string[];
@@ -19611,6 +19618,8 @@ export interface components {
              * @example 50
              */
             probability: number;
+            /** Format: int64 */
+            record_count?: number | null;
             /**
              * Format: int32
              * @example 7
@@ -20499,6 +20508,27 @@ export interface components {
             target: string;
             /** @example money */
             transform: string;
+        };
+        RecordChecklistItemResponse: {
+            done: boolean;
+            /** @example 2026-10-20T13:45:00Z */
+            done_at?: string | null;
+            done_by?: null | components["schemas"]["ChecklistUserResponse"];
+            id: string;
+            key: string;
+            label: string;
+            /** Format: int32 */
+            position: number;
+            required: boolean;
+        };
+        RecordChecklistResponse: {
+            guidance: string;
+            items: components["schemas"]["RecordChecklistItemResponse"][];
+            record_id: string;
+            record_type: string;
+            required_pending: number;
+            stage_id: string;
+            stage_name: string;
         };
         RecordFollowerResponse: {
             followed_at: string;
@@ -21487,6 +21517,10 @@ export interface components {
             required: boolean;
             url: string;
         };
+        StageFieldChoice: {
+            key: string;
+            label: string;
+        };
         StageFunnelResponse: {
             /** Format: int64 */
             advanced: number;
@@ -22187,8 +22221,8 @@ export interface components {
         UpdateStageRequest: {
             /**
              * @example [
-             *       "amount",
-             *       "expected_close_date"
+             *       "owner_id",
+             *       "due_at"
              *     ]
              */
             entry_required_fields?: string[] | null;
@@ -31674,7 +31708,7 @@ export interface operations {
         };
         requestBody?: never;
         responses: {
-            /** @description Deals visible under the `deals.read` scope and in pipelines open to the user's teams, filtered, searched and sorted through the record query engine. Besides `filter` as JSON, simple conditions go as `filter[field][operator]=value` (`filter[status][eq]=open`, `filter[amount][gte]=1000`, `filter[stage_id][in]=a,b`), combined with `and`. Default order: newest first. `stage`, `contact`, `company`, `owner` and `lost_reason` are always embedded; `include` accepts those names */
+            /** @description Deals visible under the `deals.read` scope and in workflow open to the user's teams, filtered, searched and sorted through the record query engine. Besides `filter` as JSON, simple conditions go as `filter[field][operator]=value` (`filter[status][eq]=open`, `filter[amount][gte]=1000`, `filter[stage_id][in]=a,b`), combined with `and`. Default order: newest first. `stage`, `contact`, `company`, `owner` and `lost_reason` are always embedded; `include` accepts those names */
             200: {
                 headers: {
                     [name: string]: unknown;
@@ -32146,130 +32180,6 @@ export interface operations {
             };
             /** @description `Idempotency-Key` already used with a different request (`idempotency_key_reused`) or longer than 255 characters (`validation_error`) */
             422: {
-                headers: {
-                    [name: string]: unknown;
-                };
-                content: {
-                    "application/json": components["schemas"]["ErrorEnvelope"];
-                };
-            };
-            /** @description API token rate limit exceeded (`rate_limited`); see `Retry-After` and `X-RateLimit-*` */
-            429: {
-                headers: {
-                    [name: string]: unknown;
-                };
-                content: {
-                    "application/json": components["schemas"]["ErrorEnvelope"];
-                };
-            };
-        };
-    };
-    deal_checklist_get: {
-        parameters: {
-            query?: never;
-            header?: never;
-            path: {
-                /** @description Deal id */
-                deal_id: string;
-            };
-            cookie?: never;
-        };
-        requestBody?: never;
-        responses: {
-            /** @description Checklist of the current stage */
-            200: {
-                headers: {
-                    [name: string]: unknown;
-                };
-                content: {
-                    "application/json": components["schemas"]["Data_DealChecklistResponse"];
-                };
-            };
-            /** @description Missing or invalid credentials (`unauthorized`, `invalid_api_token`) */
-            401: {
-                headers: {
-                    [name: string]: unknown;
-                };
-                content: {
-                    "application/json": components["schemas"]["ErrorEnvelope"];
-                };
-            };
-            /** @description Missing `deals.read` (`permission_denied`, `insufficient_scope`) */
-            403: {
-                headers: {
-                    [name: string]: unknown;
-                };
-                content: {
-                    "application/json": components["schemas"]["ErrorEnvelope"];
-                };
-            };
-            /** @description Deal not found or not visible (`deal_not_found`) */
-            404: {
-                headers: {
-                    [name: string]: unknown;
-                };
-                content: {
-                    "application/json": components["schemas"]["ErrorEnvelope"];
-                };
-            };
-            /** @description API token rate limit exceeded (`rate_limited`); see `Retry-After` and `X-RateLimit-*` */
-            429: {
-                headers: {
-                    [name: string]: unknown;
-                };
-                content: {
-                    "application/json": components["schemas"]["ErrorEnvelope"];
-                };
-            };
-        };
-    };
-    deal_checklist_item_update: {
-        parameters: {
-            query?: never;
-            header?: never;
-            path: {
-                /** @description Deal id */
-                deal_id: string;
-                /** @description Checklist item id */
-                item_id: string;
-            };
-            cookie?: never;
-        };
-        requestBody: {
-            content: {
-                "application/json": components["schemas"]["ToggleChecklistItemRequest"];
-            };
-        };
-        responses: {
-            /** @description Checklist of the current stage after the change */
-            200: {
-                headers: {
-                    [name: string]: unknown;
-                };
-                content: {
-                    "application/json": components["schemas"]["Data_DealChecklistResponse"];
-                };
-            };
-            /** @description Missing or invalid credentials (`unauthorized`, `invalid_api_token`) */
-            401: {
-                headers: {
-                    [name: string]: unknown;
-                };
-                content: {
-                    "application/json": components["schemas"]["ErrorEnvelope"];
-                };
-            };
-            /** @description Missing `deals.update` (`permission_denied`, `insufficient_scope`) */
-            403: {
-                headers: {
-                    [name: string]: unknown;
-                };
-                content: {
-                    "application/json": components["schemas"]["ErrorEnvelope"];
-                };
-            };
-            /** @description Deal not found or not editable (`deal_not_found`) or item not in the deal's pipeline (`checklist_item_not_found`) */
-            404: {
                 headers: {
                     [name: string]: unknown;
                 };
@@ -42788,7 +42698,7 @@ export interface operations {
         };
         requestBody?: never;
         responses: {
-            /** @description What the form editor can pick: writable contact fields (system and custom), active pipelines and stages, contact tags, active users and active lead distribution rules for people. Lists the current user cannot read come back empty */
+            /** @description What the form editor can pick: writable contact fields (system and custom), active workflow and stages, contact tags, active users and active lead distribution rules for people. Lists the current user cannot read come back empty */
             200: {
                 headers: {
                     [name: string]: unknown;
@@ -43340,7 +43250,7 @@ export interface operations {
                     "application/json": components["schemas"]["ErrorEnvelope"];
                 };
             };
-            /** @description Missing `deals.read` and `settings.manage` (`permission_denied`, `insufficient_scope`) */
+            /** @description Missing `records.read` and `settings.manage` (`permission_denied`, `insufficient_scope`) */
             403: {
                 headers: {
                     [name: string]: unknown;
@@ -43531,7 +43441,7 @@ export interface operations {
                     "application/json": components["schemas"]["ErrorEnvelope"];
                 };
             };
-            /** @description Missing `deals.read` and `settings.manage` (`permission_denied`, `insufficient_scope`) */
+            /** @description Missing `records.read` and `settings.manage` (`permission_denied`, `insufficient_scope`) */
             403: {
                 headers: {
                     [name: string]: unknown;
@@ -46003,7 +45913,7 @@ export interface operations {
             };
         };
         responses: {
-            /** @description Converts the CSV of the source tool (dates, money, phones, owners, deal status and the `maps` of stages, pipelines and owners), stores it as a draft import (`POST /imports`) and pre-fills its mapping and options (duplicates by the step key, missing organizations created by name). Review and start it with the import endpoints (`/imports/{import_id}`). Requires `<type>.create` */
+            /** @description Converts the CSV of the source tool (dates, money, phones, owners, deal status and the `maps` of stages, workflow and owners), stores it as a draft import (`POST /imports`) and pre-fills its mapping and options (duplicates by the step key, missing organizations created by name). Review and start it with the import endpoints (`/imports/{import_id}`). Requires `<type>.create` */
             201: {
                 headers: {
                     [name: string]: unknown;
@@ -50912,7 +50822,7 @@ export interface operations {
             };
         };
     };
-    pipeline_stages_list: {
+    workflow_stages_list: {
         parameters: {
             query?: {
                 pipeline_id?: string;
@@ -50945,7 +50855,7 @@ export interface operations {
                     "application/json": components["schemas"]["ErrorEnvelope"];
                 };
             };
-            /** @description Missing `deals.read` and `settings.manage` (`permission_denied`, `insufficient_scope`) */
+            /** @description Missing `records.read` and `settings.manage` (`permission_denied`, `insufficient_scope`) */
             403: {
                 headers: {
                     [name: string]: unknown;
@@ -50983,7 +50893,7 @@ export interface operations {
             };
         };
     };
-    pipeline_stages_get: {
+    workflow_stages_get: {
         parameters: {
             query?: never;
             header?: never;
@@ -51013,7 +50923,7 @@ export interface operations {
                     "application/json": components["schemas"]["ErrorEnvelope"];
                 };
             };
-            /** @description Missing `deals.read` and `settings.manage` (`permission_denied`, `insufficient_scope`) */
+            /** @description Missing `records.read` and `settings.manage` (`permission_denied`, `insufficient_scope`) */
             403: {
                 headers: {
                     [name: string]: unknown;
@@ -51042,7 +50952,7 @@ export interface operations {
             };
         };
     };
-    pipeline_stages_delete: {
+    workflow_stages_delete: {
         parameters: {
             query?: {
                 target_stage_id?: string;
@@ -51056,7 +50966,7 @@ export interface operations {
         };
         requestBody?: never;
         responses: {
-            /** @description Stage deleted; its deals (including deleted ones) move to `target_stage_id`. Publishes `pipeline_stage.deleted` */
+            /** @description Stage deleted; its records (including deleted ones) move to `target_stage_id`. Publishes `pipeline_stage.deleted` */
             204: {
                 headers: {
                     [name: string]: unknown;
@@ -51090,7 +51000,7 @@ export interface operations {
                     "application/json": components["schemas"]["ErrorEnvelope"];
                 };
             };
-            /** @description The stage has deals and no target was given (`stage_has_deals`), or the pipeline would lose its last open, won or lost stage (`closing_stages_required`) */
+            /** @description The stage has records and no target was given (`stage_has_records`), or the pipeline would lose its last open, won or lost stage (`closing_stages_required`) */
             409: {
                 headers: {
                     [name: string]: unknown;
@@ -51119,7 +51029,7 @@ export interface operations {
             };
         };
     };
-    pipeline_stages_update: {
+    workflow_stages_update: {
         parameters: {
             query?: never;
             header?: {
@@ -51138,7 +51048,7 @@ export interface operations {
             };
         };
         responses: {
-            /** @description Stage renamed or changed, including the fields required to enter (`entry_required_fields`) or leave it (`exit_required_fields`): system fields `amount`, `currency`, `probability`, `expected_close_date`, `contact_id`, `company_id`, `owner_id`, `source` or active custom fields. `rotting_days` (1 to 3650, `null` clears it, open stages only) marks deals that stay longer in the stage as rotting. Publishes `pipeline_stage.updated` */
+            /** @description Stage renamed or changed, including the fields required to enter (`entry_required_fields`) or leave it (`exit_required_fields`): editable fields declared by staged record providers. `rotting_days` (1 to 3650, `null` clears it, open stages only) marks records that stay longer in the stage as rotting. Publishes `pipeline_stage.updated` */
             200: {
                 headers: {
                     [name: string]: unknown;
@@ -51174,7 +51084,7 @@ export interface operations {
                     "application/json": components["schemas"]["ErrorEnvelope"];
                 };
             };
-            /** @description The kind of a stage with deals cannot change (`stage_has_deals`), or the pipeline would lose its last open, won or lost stage (`closing_stages_required`), or the stage changed after the `If-Match` version (`version_conflict`) */
+            /** @description The kind of a stage with records cannot change (`stage_has_records`), or the pipeline would lose its last open, won or lost stage (`closing_stages_required`), or the stage changed after the `If-Match` version (`version_conflict`) */
             409: {
                 headers: {
                     [name: string]: unknown;
@@ -51203,7 +51113,7 @@ export interface operations {
             };
         };
     };
-    pipeline_stages_activate: {
+    workflow_stages_activate: {
         parameters: {
             query?: never;
             header?: {
@@ -51283,7 +51193,7 @@ export interface operations {
             };
         };
     };
-    pipeline_stages_deactivate: {
+    workflow_stages_deactivate: {
         parameters: {
             query?: never;
             header?: {
@@ -51302,7 +51212,7 @@ export interface operations {
             };
         };
         responses: {
-            /** @description Stage deactivated; its deals move to `target_stage_id` (another active stage of the same kind). Publishes `pipeline_stage.deactivated` and `deal.stage_changed` for each moved deal */
+            /** @description Stage deactivated; its records move to `target_stage_id` (another active stage of the same kind). Publishes `pipeline_stage.deactivated` and `record.stage_changed` for each moved record */
             200: {
                 headers: {
                     [name: string]: unknown;
@@ -51338,7 +51248,7 @@ export interface operations {
                     "application/json": components["schemas"]["ErrorEnvelope"];
                 };
             };
-            /** @description The stage has deals and no target was given (`stage_has_deals`), or the pipeline would lose its last open, won or lost stage (`closing_stages_required`). The first request with this `Idempotency-Key` is still being processed (`idempotency_key_in_progress`) */
+            /** @description The stage has records and no target was given (`stage_has_records`), or the pipeline would lose its last open, won or lost stage (`closing_stages_required`). The first request with this `Idempotency-Key` is still being processed (`idempotency_key_in_progress`) */
             409: {
                 headers: {
                     [name: string]: unknown;
@@ -51367,7 +51277,7 @@ export interface operations {
             };
         };
     };
-    pipeline_stage_guidance_get: {
+    workflow_stage_guidance_get: {
         parameters: {
             query?: never;
             header?: never;
@@ -51397,7 +51307,7 @@ export interface operations {
                     "application/json": components["schemas"]["ErrorEnvelope"];
                 };
             };
-            /** @description Missing `deals.read` (`permission_denied`, `insufficient_scope`) */
+            /** @description Missing `records.read` (`permission_denied`, `insufficient_scope`) */
             403: {
                 headers: {
                     [name: string]: unknown;
@@ -51426,7 +51336,7 @@ export interface operations {
             };
         };
     };
-    pipeline_stage_guidance_update: {
+    workflow_stage_guidance_update: {
         parameters: {
             query?: never;
             header?: {
@@ -51491,958 +51401,6 @@ export interface operations {
                 };
             };
             /** @description Guidance too long, too many items, invalid or duplicated keys, invalid labels (`validation_error` with `details.fields`) */
-            422: {
-                headers: {
-                    [name: string]: unknown;
-                };
-                content: {
-                    "application/json": components["schemas"]["ErrorEnvelope"];
-                };
-            };
-            /** @description API token rate limit exceeded (`rate_limited`); see `Retry-After` and `X-RateLimit-*` */
-            429: {
-                headers: {
-                    [name: string]: unknown;
-                };
-                content: {
-                    "application/json": components["schemas"]["ErrorEnvelope"];
-                };
-            };
-        };
-    };
-    pipelines_list: {
-        parameters: {
-            query?: {
-                page?: number;
-                per_page?: number;
-            };
-            header?: never;
-            path?: never;
-            cookie?: never;
-        };
-        requestBody?: never;
-        responses: {
-            /** @description Pipelines of the organization in order with their stages (active and inactive) and the number of deals in each stage. Pipelines restricted to teams (`team_ids`) only show up for members of those teams (sub-teams included) and for users with `settings.manage` */
-            200: {
-                headers: {
-                    [name: string]: unknown;
-                };
-                content: {
-                    "application/json": components["schemas"]["Page_PipelineResponse"];
-                };
-            };
-            /** @description Missing or invalid credentials (`unauthorized`, `invalid_api_token`) */
-            401: {
-                headers: {
-                    [name: string]: unknown;
-                };
-                content: {
-                    "application/json": components["schemas"]["ErrorEnvelope"];
-                };
-            };
-            /** @description Missing `deals.read` and `settings.manage` (`permission_denied`, `insufficient_scope`) */
-            403: {
-                headers: {
-                    [name: string]: unknown;
-                };
-                content: {
-                    "application/json": components["schemas"]["ErrorEnvelope"];
-                };
-            };
-            /** @description Invalid pagination (`validation_error`) */
-            422: {
-                headers: {
-                    [name: string]: unknown;
-                };
-                content: {
-                    "application/json": components["schemas"]["ErrorEnvelope"];
-                };
-            };
-            /** @description API token rate limit exceeded (`rate_limited`); see `Retry-After` and `X-RateLimit-*` */
-            429: {
-                headers: {
-                    [name: string]: unknown;
-                };
-                content: {
-                    "application/json": components["schemas"]["ErrorEnvelope"];
-                };
-            };
-        };
-    };
-    pipelines_create: {
-        parameters: {
-            query?: never;
-            header?: {
-                /** @description Up to 255 printable ASCII characters. The same key with the same request (method, path and body) within 24 hours answers the stored response with the same status and body plus `Idempotent-Replayed: true`. Scoped to the credential (session cookie or API token); ignored without a credential. 5xx and 429 responses are not stored */
-                "Idempotency-Key"?: string;
-            };
-            path?: never;
-            cookie?: never;
-        };
-        requestBody: {
-            content: {
-                "application/json": components["schemas"]["CreatePipelineRequest"];
-            };
-        };
-        responses: {
-            /** @description Pipeline created at the end of the list with the given stages (or the default ones) and teams; the first pipeline of an organization becomes the default. Publishes `pipeline.created` */
-            201: {
-                headers: {
-                    [name: string]: unknown;
-                };
-                content: {
-                    "application/json": components["schemas"]["Data_PipelineResponse"];
-                };
-            };
-            /** @description Missing or invalid credentials (`unauthorized`, `invalid_api_token`) */
-            401: {
-                headers: {
-                    [name: string]: unknown;
-                };
-                content: {
-                    "application/json": components["schemas"]["ErrorEnvelope"];
-                };
-            };
-            /** @description Missing `settings.manage` (`permission_denied`, `insufficient_scope`) */
-            403: {
-                headers: {
-                    [name: string]: unknown;
-                };
-                content: {
-                    "application/json": components["schemas"]["ErrorEnvelope"];
-                };
-            };
-            /** @description The stages lack an open, won or lost stage (`closing_stages_required`), or the organization reached the limit of pipelines (`pipeline_limit_reached`). The first request with this `Idempotency-Key` is still being processed (`idempotency_key_in_progress`) */
-            409: {
-                headers: {
-                    [name: string]: unknown;
-                };
-                content: {
-                    "application/json": components["schemas"]["ErrorEnvelope"];
-                };
-            };
-            /** @description Invalid name, teams or stages (`validation_error`). `Idempotency-Key` already used with a different request (`idempotency_key_reused`) or longer than 255 characters (`validation_error`) */
-            422: {
-                headers: {
-                    [name: string]: unknown;
-                };
-                content: {
-                    "application/json": components["schemas"]["ErrorEnvelope"];
-                };
-            };
-            /** @description API token rate limit exceeded (`rate_limited`); see `Retry-After` and `X-RateLimit-*` */
-            429: {
-                headers: {
-                    [name: string]: unknown;
-                };
-                content: {
-                    "application/json": components["schemas"]["ErrorEnvelope"];
-                };
-            };
-        };
-    };
-    pipelines_reorder: {
-        parameters: {
-            query?: never;
-            header?: never;
-            path?: never;
-            cookie?: never;
-        };
-        requestBody: {
-            content: {
-                "application/json": components["schemas"]["ReorderRequest"];
-            };
-        };
-        responses: {
-            /** @description Pipelines reordered; publishes `pipeline.reordered` */
-            200: {
-                headers: {
-                    [name: string]: unknown;
-                };
-                content: {
-                    "application/json": components["schemas"]["Data_Vec_PipelineResponse"];
-                };
-            };
-            /** @description Missing or invalid credentials (`unauthorized`, `invalid_api_token`) */
-            401: {
-                headers: {
-                    [name: string]: unknown;
-                };
-                content: {
-                    "application/json": components["schemas"]["ErrorEnvelope"];
-                };
-            };
-            /** @description Missing `settings.manage` (`permission_denied`, `insufficient_scope`) */
-            403: {
-                headers: {
-                    [name: string]: unknown;
-                };
-                content: {
-                    "application/json": components["schemas"]["ErrorEnvelope"];
-                };
-            };
-            /** @description The ids must list every pipeline exactly once (`validation_error`) */
-            422: {
-                headers: {
-                    [name: string]: unknown;
-                };
-                content: {
-                    "application/json": components["schemas"]["ErrorEnvelope"];
-                };
-            };
-            /** @description API token rate limit exceeded (`rate_limited`); see `Retry-After` and `X-RateLimit-*` */
-            429: {
-                headers: {
-                    [name: string]: unknown;
-                };
-                content: {
-                    "application/json": components["schemas"]["ErrorEnvelope"];
-                };
-            };
-        };
-    };
-    pipelines_get: {
-        parameters: {
-            query?: never;
-            header?: never;
-            path: {
-                /** @description Pipeline id */
-                pipeline_id: string;
-            };
-            cookie?: never;
-        };
-        requestBody?: never;
-        responses: {
-            /** @description Pipeline with its stages */
-            200: {
-                headers: {
-                    [name: string]: unknown;
-                };
-                content: {
-                    "application/json": components["schemas"]["Data_PipelineResponse"];
-                };
-            };
-            /** @description Missing or invalid credentials (`unauthorized`, `invalid_api_token`) */
-            401: {
-                headers: {
-                    [name: string]: unknown;
-                };
-                content: {
-                    "application/json": components["schemas"]["ErrorEnvelope"];
-                };
-            };
-            /** @description Missing `deals.read` and `settings.manage` (`permission_denied`, `insufficient_scope`) */
-            403: {
-                headers: {
-                    [name: string]: unknown;
-                };
-                content: {
-                    "application/json": components["schemas"]["ErrorEnvelope"];
-                };
-            };
-            /** @description Pipeline not found or restricted to other teams (`pipeline_not_found`) */
-            404: {
-                headers: {
-                    [name: string]: unknown;
-                };
-                content: {
-                    "application/json": components["schemas"]["ErrorEnvelope"];
-                };
-            };
-            /** @description API token rate limit exceeded (`rate_limited`); see `Retry-After` and `X-RateLimit-*` */
-            429: {
-                headers: {
-                    [name: string]: unknown;
-                };
-                content: {
-                    "application/json": components["schemas"]["ErrorEnvelope"];
-                };
-            };
-        };
-    };
-    pipelines_delete: {
-        parameters: {
-            query?: never;
-            header?: never;
-            path: {
-                /** @description Pipeline id */
-                pipeline_id: string;
-            };
-            cookie?: never;
-        };
-        requestBody: {
-            content: {
-                "application/json": components["schemas"]["PipelineRemovalRequest"];
-            };
-        };
-        responses: {
-            /** @description Pipeline deleted with its stages; its deals (including deleted ones) move to `target_pipeline_id`, each stage to `stage_mapping[stage_id]` or to the first active stage of the same kind. Publishes `pipeline.deleted` and `deal.pipeline_changed`/`deal.stage_changed` for each moved deal */
-            204: {
-                headers: {
-                    [name: string]: unknown;
-                };
-                content?: never;
-            };
-            /** @description Missing or invalid credentials (`unauthorized`, `invalid_api_token`) */
-            401: {
-                headers: {
-                    [name: string]: unknown;
-                };
-                content: {
-                    "application/json": components["schemas"]["ErrorEnvelope"];
-                };
-            };
-            /** @description Missing `settings.manage` (`permission_denied`, `insufficient_scope`) */
-            403: {
-                headers: {
-                    [name: string]: unknown;
-                };
-                content: {
-                    "application/json": components["schemas"]["ErrorEnvelope"];
-                };
-            };
-            /** @description Pipeline not found (`pipeline_not_found`) */
-            404: {
-                headers: {
-                    [name: string]: unknown;
-                };
-                content: {
-                    "application/json": components["schemas"]["ErrorEnvelope"];
-                };
-            };
-            /** @description The default pipeline cannot be deleted (`default_pipeline_required`), or the pipeline has deals and no target was given (`pipeline_has_deals`) */
-            409: {
-                headers: {
-                    [name: string]: unknown;
-                };
-                content: {
-                    "application/json": components["schemas"]["ErrorEnvelope"];
-                };
-            };
-            /** @description Invalid target pipeline or stage mapping (`validation_error`) */
-            422: {
-                headers: {
-                    [name: string]: unknown;
-                };
-                content: {
-                    "application/json": components["schemas"]["ErrorEnvelope"];
-                };
-            };
-            /** @description API token rate limit exceeded (`rate_limited`); see `Retry-After` and `X-RateLimit-*` */
-            429: {
-                headers: {
-                    [name: string]: unknown;
-                };
-                content: {
-                    "application/json": components["schemas"]["ErrorEnvelope"];
-                };
-            };
-        };
-    };
-    pipelines_update: {
-        parameters: {
-            query?: never;
-            header?: {
-                /** @description `updated_at` of the pipeline as last read (ISO-8601); when it changed since, the update is refused with 409 `version_conflict` */
-                "If-Match"?: string | null;
-            };
-            path: {
-                /** @description Pipeline id */
-                pipeline_id: string;
-            };
-            cookie?: never;
-        };
-        requestBody: {
-            content: {
-                "application/json": components["schemas"]["UpdatePipelineRequest"];
-            };
-        };
-        responses: {
-            /** @description Pipeline renamed or restricted to teams (`team_ids`, empty for everyone); publishes `pipeline.updated` */
-            200: {
-                headers: {
-                    [name: string]: unknown;
-                };
-                content: {
-                    "application/json": components["schemas"]["Data_PipelineResponse"];
-                };
-            };
-            /** @description Missing or invalid credentials (`unauthorized`, `invalid_api_token`) */
-            401: {
-                headers: {
-                    [name: string]: unknown;
-                };
-                content: {
-                    "application/json": components["schemas"]["ErrorEnvelope"];
-                };
-            };
-            /** @description Missing `settings.manage` (`permission_denied`, `insufficient_scope`) */
-            403: {
-                headers: {
-                    [name: string]: unknown;
-                };
-                content: {
-                    "application/json": components["schemas"]["ErrorEnvelope"];
-                };
-            };
-            /** @description Pipeline not found (`pipeline_not_found`) */
-            404: {
-                headers: {
-                    [name: string]: unknown;
-                };
-                content: {
-                    "application/json": components["schemas"]["ErrorEnvelope"];
-                };
-            };
-            /** @description The pipeline changed after the `If-Match` version (`version_conflict`) */
-            409: {
-                headers: {
-                    [name: string]: unknown;
-                };
-                content: {
-                    "application/json": components["schemas"]["ErrorEnvelope"];
-                };
-            };
-            /** @description Invalid name or teams (`validation_error`) */
-            422: {
-                headers: {
-                    [name: string]: unknown;
-                };
-                content: {
-                    "application/json": components["schemas"]["ErrorEnvelope"];
-                };
-            };
-            /** @description API token rate limit exceeded (`rate_limited`); see `Retry-After` and `X-RateLimit-*` */
-            429: {
-                headers: {
-                    [name: string]: unknown;
-                };
-                content: {
-                    "application/json": components["schemas"]["ErrorEnvelope"];
-                };
-            };
-        };
-    };
-    pipelines_activate: {
-        parameters: {
-            query?: never;
-            header?: {
-                /** @description Up to 255 printable ASCII characters. The same key with the same request (method, path and body) within 24 hours answers the stored response with the same status and body plus `Idempotent-Replayed: true`. Scoped to the credential (session cookie or API token); ignored without a credential. 5xx and 429 responses are not stored */
-                "Idempotency-Key"?: string;
-            };
-            path: {
-                /** @description Pipeline id */
-                pipeline_id: string;
-            };
-            cookie?: never;
-        };
-        requestBody?: never;
-        responses: {
-            /** @description Pipeline active again; publishes `pipeline.activated` */
-            200: {
-                headers: {
-                    [name: string]: unknown;
-                };
-                content: {
-                    "application/json": components["schemas"]["Data_PipelineResponse"];
-                };
-            };
-            /** @description Missing or invalid credentials (`unauthorized`, `invalid_api_token`) */
-            401: {
-                headers: {
-                    [name: string]: unknown;
-                };
-                content: {
-                    "application/json": components["schemas"]["ErrorEnvelope"];
-                };
-            };
-            /** @description Missing `settings.manage` (`permission_denied`, `insufficient_scope`) */
-            403: {
-                headers: {
-                    [name: string]: unknown;
-                };
-                content: {
-                    "application/json": components["schemas"]["ErrorEnvelope"];
-                };
-            };
-            /** @description Pipeline not found (`pipeline_not_found`) */
-            404: {
-                headers: {
-                    [name: string]: unknown;
-                };
-                content: {
-                    "application/json": components["schemas"]["ErrorEnvelope"];
-                };
-            };
-            /** @description The first request with this `Idempotency-Key` is still being processed (`idempotency_key_in_progress`) */
-            409: {
-                headers: {
-                    [name: string]: unknown;
-                };
-                content: {
-                    "application/json": components["schemas"]["ErrorEnvelope"];
-                };
-            };
-            /** @description `Idempotency-Key` already used with a different request (`idempotency_key_reused`) or longer than 255 characters (`validation_error`) */
-            422: {
-                headers: {
-                    [name: string]: unknown;
-                };
-                content: {
-                    "application/json": components["schemas"]["ErrorEnvelope"];
-                };
-            };
-            /** @description API token rate limit exceeded (`rate_limited`); see `Retry-After` and `X-RateLimit-*` */
-            429: {
-                headers: {
-                    [name: string]: unknown;
-                };
-                content: {
-                    "application/json": components["schemas"]["ErrorEnvelope"];
-                };
-            };
-        };
-    };
-    pipelines_deactivate: {
-        parameters: {
-            query?: never;
-            header?: {
-                /** @description Up to 255 printable ASCII characters. The same key with the same request (method, path and body) within 24 hours answers the stored response with the same status and body plus `Idempotent-Replayed: true`. Scoped to the credential (session cookie or API token); ignored without a credential. 5xx and 429 responses are not stored */
-                "Idempotency-Key"?: string;
-            };
-            path: {
-                /** @description Pipeline id */
-                pipeline_id: string;
-            };
-            cookie?: never;
-        };
-        requestBody?: never;
-        responses: {
-            /** @description Pipeline deactivated: its deals stay where they are, but no deal can be created in or moved into it. Publishes `pipeline.deactivated` */
-            200: {
-                headers: {
-                    [name: string]: unknown;
-                };
-                content: {
-                    "application/json": components["schemas"]["Data_PipelineResponse"];
-                };
-            };
-            /** @description Missing or invalid credentials (`unauthorized`, `invalid_api_token`) */
-            401: {
-                headers: {
-                    [name: string]: unknown;
-                };
-                content: {
-                    "application/json": components["schemas"]["ErrorEnvelope"];
-                };
-            };
-            /** @description Missing `settings.manage` (`permission_denied`, `insufficient_scope`) */
-            403: {
-                headers: {
-                    [name: string]: unknown;
-                };
-                content: {
-                    "application/json": components["schemas"]["ErrorEnvelope"];
-                };
-            };
-            /** @description Pipeline not found (`pipeline_not_found`) */
-            404: {
-                headers: {
-                    [name: string]: unknown;
-                };
-                content: {
-                    "application/json": components["schemas"]["ErrorEnvelope"];
-                };
-            };
-            /** @description The default pipeline cannot be deactivated (`default_pipeline_required`). The first request with this `Idempotency-Key` is still being processed (`idempotency_key_in_progress`) */
-            409: {
-                headers: {
-                    [name: string]: unknown;
-                };
-                content: {
-                    "application/json": components["schemas"]["ErrorEnvelope"];
-                };
-            };
-            /** @description `Idempotency-Key` already used with a different request (`idempotency_key_reused`) or longer than 255 characters (`validation_error`) */
-            422: {
-                headers: {
-                    [name: string]: unknown;
-                };
-                content: {
-                    "application/json": components["schemas"]["ErrorEnvelope"];
-                };
-            };
-            /** @description API token rate limit exceeded (`rate_limited`); see `Retry-After` and `X-RateLimit-*` */
-            429: {
-                headers: {
-                    [name: string]: unknown;
-                };
-                content: {
-                    "application/json": components["schemas"]["ErrorEnvelope"];
-                };
-            };
-        };
-    };
-    pipelines_set_default: {
-        parameters: {
-            query?: never;
-            header?: {
-                /** @description Up to 255 printable ASCII characters. The same key with the same request (method, path and body) within 24 hours answers the stored response with the same status and body plus `Idempotent-Replayed: true`. Scoped to the credential (session cookie or API token); ignored without a credential. 5xx and 429 responses are not stored */
-                "Idempotency-Key"?: string;
-            };
-            path: {
-                /** @description Pipeline id */
-                pipeline_id: string;
-            };
-            cookie?: never;
-        };
-        requestBody?: never;
-        responses: {
-            /** @description Pipeline is now the default one (Kanban and new deals without a pipeline); publishes `pipeline.default_changed` */
-            200: {
-                headers: {
-                    [name: string]: unknown;
-                };
-                content: {
-                    "application/json": components["schemas"]["Data_PipelineResponse"];
-                };
-            };
-            /** @description Missing or invalid credentials (`unauthorized`, `invalid_api_token`) */
-            401: {
-                headers: {
-                    [name: string]: unknown;
-                };
-                content: {
-                    "application/json": components["schemas"]["ErrorEnvelope"];
-                };
-            };
-            /** @description Missing `settings.manage` (`permission_denied`, `insufficient_scope`) */
-            403: {
-                headers: {
-                    [name: string]: unknown;
-                };
-                content: {
-                    "application/json": components["schemas"]["ErrorEnvelope"];
-                };
-            };
-            /** @description Pipeline not found (`pipeline_not_found`) */
-            404: {
-                headers: {
-                    [name: string]: unknown;
-                };
-                content: {
-                    "application/json": components["schemas"]["ErrorEnvelope"];
-                };
-            };
-            /** @description An inactive pipeline cannot be the default one (`default_pipeline_required`). The first request with this `Idempotency-Key` is still being processed (`idempotency_key_in_progress`) */
-            409: {
-                headers: {
-                    [name: string]: unknown;
-                };
-                content: {
-                    "application/json": components["schemas"]["ErrorEnvelope"];
-                };
-            };
-            /** @description `Idempotency-Key` already used with a different request (`idempotency_key_reused`) or longer than 255 characters (`validation_error`) */
-            422: {
-                headers: {
-                    [name: string]: unknown;
-                };
-                content: {
-                    "application/json": components["schemas"]["ErrorEnvelope"];
-                };
-            };
-            /** @description API token rate limit exceeded (`rate_limited`); see `Retry-After` and `X-RateLimit-*` */
-            429: {
-                headers: {
-                    [name: string]: unknown;
-                };
-                content: {
-                    "application/json": components["schemas"]["ErrorEnvelope"];
-                };
-            };
-        };
-    };
-    pipeline_renewal_get: {
-        parameters: {
-            query?: never;
-            header?: never;
-            path: {
-                /** @description Pipeline id */
-                pipeline_id: string;
-            };
-            cookie?: never;
-        };
-        requestBody?: never;
-        responses: {
-            /** @description Renewal settings of the pipeline */
-            200: {
-                headers: {
-                    [name: string]: unknown;
-                };
-                content: {
-                    "application/json": components["schemas"]["Data_RenewalSettingsResponse"];
-                };
-            };
-            /** @description Missing or invalid credentials (`unauthorized`, `invalid_api_token`) */
-            401: {
-                headers: {
-                    [name: string]: unknown;
-                };
-                content: {
-                    "application/json": components["schemas"]["ErrorEnvelope"];
-                };
-            };
-            /** @description Missing `settings.manage` (`permission_denied`, `insufficient_scope`) */
-            403: {
-                headers: {
-                    [name: string]: unknown;
-                };
-                content: {
-                    "application/json": components["schemas"]["ErrorEnvelope"];
-                };
-            };
-            /** @description Pipeline not found (`pipeline_not_found`) */
-            404: {
-                headers: {
-                    [name: string]: unknown;
-                };
-                content: {
-                    "application/json": components["schemas"]["ErrorEnvelope"];
-                };
-            };
-            /** @description API token rate limit exceeded (`rate_limited`); see `Retry-After` and `X-RateLimit-*` */
-            429: {
-                headers: {
-                    [name: string]: unknown;
-                };
-                content: {
-                    "application/json": components["schemas"]["ErrorEnvelope"];
-                };
-            };
-        };
-    };
-    pipeline_renewal_update: {
-        parameters: {
-            query?: never;
-            header?: {
-                /** @description `updated_at` of the settings as read (ISO-8601); ignored while never saved */
-                "If-Match"?: string | null;
-            };
-            path: {
-                /** @description Pipeline id */
-                pipeline_id: string;
-            };
-            cookie?: never;
-        };
-        requestBody: {
-            content: {
-                "application/json": components["schemas"]["RenewalSettingsRequest"];
-            };
-        };
-        responses: {
-            /** @description Renewal settings saved */
-            200: {
-                headers: {
-                    [name: string]: unknown;
-                };
-                content: {
-                    "application/json": components["schemas"]["Data_RenewalSettingsResponse"];
-                };
-            };
-            /** @description Missing or invalid credentials (`unauthorized`, `invalid_api_token`) */
-            401: {
-                headers: {
-                    [name: string]: unknown;
-                };
-                content: {
-                    "application/json": components["schemas"]["ErrorEnvelope"];
-                };
-            };
-            /** @description Missing `settings.manage` (`permission_denied`, `insufficient_scope`) */
-            403: {
-                headers: {
-                    [name: string]: unknown;
-                };
-                content: {
-                    "application/json": components["schemas"]["ErrorEnvelope"];
-                };
-            };
-            /** @description Pipeline not found (`pipeline_not_found`) */
-            404: {
-                headers: {
-                    [name: string]: unknown;
-                };
-                content: {
-                    "application/json": components["schemas"]["ErrorEnvelope"];
-                };
-            };
-            /** @description The settings changed since the `If-Match` version (`version_conflict`) */
-            409: {
-                headers: {
-                    [name: string]: unknown;
-                };
-                content: {
-                    "application/json": components["schemas"]["ErrorEnvelope"];
-                };
-            };
-            /** @description Invalid days, target pipeline/stage (must be an active open stage of the target pipeline), prefix or owner mode (`validation_error` with `details.fields`) */
-            422: {
-                headers: {
-                    [name: string]: unknown;
-                };
-                content: {
-                    "application/json": components["schemas"]["ErrorEnvelope"];
-                };
-            };
-            /** @description API token rate limit exceeded (`rate_limited`); see `Retry-After` and `X-RateLimit-*` */
-            429: {
-                headers: {
-                    [name: string]: unknown;
-                };
-                content: {
-                    "application/json": components["schemas"]["ErrorEnvelope"];
-                };
-            };
-        };
-    };
-    pipelines_create_stage: {
-        parameters: {
-            query?: never;
-            header?: {
-                /** @description Up to 255 printable ASCII characters. The same key with the same request (method, path and body) within 24 hours answers the stored response with the same status and body plus `Idempotent-Replayed: true`. Scoped to the credential (session cookie or API token); ignored without a credential. 5xx and 429 responses are not stored */
-                "Idempotency-Key"?: string;
-            };
-            path: {
-                /** @description Pipeline id */
-                pipeline_id: string;
-            };
-            cookie?: never;
-        };
-        requestBody: {
-            content: {
-                "application/json": components["schemas"]["CreateStageRequest"];
-            };
-        };
-        responses: {
-            /** @description Stage created; open stages go after the last open stage, won and lost stages at the end. `entry_required_fields`/`exit_required_fields` list deal fields that must be filled to enter or leave it. Publishes `pipeline_stage.created` */
-            201: {
-                headers: {
-                    [name: string]: unknown;
-                };
-                content: {
-                    "application/json": components["schemas"]["Data_PipelineStageResponse"];
-                };
-            };
-            /** @description Missing or invalid credentials (`unauthorized`, `invalid_api_token`) */
-            401: {
-                headers: {
-                    [name: string]: unknown;
-                };
-                content: {
-                    "application/json": components["schemas"]["ErrorEnvelope"];
-                };
-            };
-            /** @description Missing `settings.manage` (`permission_denied`, `insufficient_scope`) */
-            403: {
-                headers: {
-                    [name: string]: unknown;
-                };
-                content: {
-                    "application/json": components["schemas"]["ErrorEnvelope"];
-                };
-            };
-            /** @description Pipeline not found (`pipeline_not_found`) */
-            404: {
-                headers: {
-                    [name: string]: unknown;
-                };
-                content: {
-                    "application/json": components["schemas"]["ErrorEnvelope"];
-                };
-            };
-            /** @description The first request with this `Idempotency-Key` is still being processed (`idempotency_key_in_progress`) */
-            409: {
-                headers: {
-                    [name: string]: unknown;
-                };
-                content: {
-                    "application/json": components["schemas"]["ErrorEnvelope"];
-                };
-            };
-            /** @description Invalid name, kind, probability or required fields (`validation_error`). `Idempotency-Key` already used with a different request (`idempotency_key_reused`) or longer than 255 characters (`validation_error`) */
-            422: {
-                headers: {
-                    [name: string]: unknown;
-                };
-                content: {
-                    "application/json": components["schemas"]["ErrorEnvelope"];
-                };
-            };
-            /** @description API token rate limit exceeded (`rate_limited`); see `Retry-After` and `X-RateLimit-*` */
-            429: {
-                headers: {
-                    [name: string]: unknown;
-                };
-                content: {
-                    "application/json": components["schemas"]["ErrorEnvelope"];
-                };
-            };
-        };
-    };
-    pipelines_reorder_stages: {
-        parameters: {
-            query?: never;
-            header?: never;
-            path: {
-                /** @description Pipeline id */
-                pipeline_id: string;
-            };
-            cookie?: never;
-        };
-        requestBody: {
-            content: {
-                "application/json": components["schemas"]["ReorderRequest"];
-            };
-        };
-        responses: {
-            /** @description Stages reordered; publishes `pipeline_stage.reordered` */
-            200: {
-                headers: {
-                    [name: string]: unknown;
-                };
-                content: {
-                    "application/json": components["schemas"]["Data_PipelineResponse"];
-                };
-            };
-            /** @description Missing or invalid credentials (`unauthorized`, `invalid_api_token`) */
-            401: {
-                headers: {
-                    [name: string]: unknown;
-                };
-                content: {
-                    "application/json": components["schemas"]["ErrorEnvelope"];
-                };
-            };
-            /** @description Missing `settings.manage` (`permission_denied`, `insufficient_scope`) */
-            403: {
-                headers: {
-                    [name: string]: unknown;
-                };
-                content: {
-                    "application/json": components["schemas"]["ErrorEnvelope"];
-                };
-            };
-            /** @description Pipeline not found (`pipeline_not_found`) */
-            404: {
-                headers: {
-                    [name: string]: unknown;
-                };
-                content: {
-                    "application/json": components["schemas"]["ErrorEnvelope"];
-                };
-            };
-            /** @description The ids must list every stage of the pipeline exactly once (`validation_error`) */
             422: {
                 headers: {
                     [name: string]: unknown;
@@ -68042,6 +67000,1115 @@ export interface operations {
             };
             /** @description Outgoing webhooks are not configured (`configuration_error`) */
             503: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["ErrorEnvelope"];
+                };
+            };
+        };
+    };
+    pipelines_list: {
+        parameters: {
+            query?: {
+                page?: number;
+                per_page?: number;
+            };
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        requestBody?: never;
+        responses: {
+            /** @description Pipelines of the organization in order with their stages (active and inactive) and the number of records in each stage. Pipelines restricted to teams (`team_ids`) only show up for members of those teams (sub-teams included) and for users with `settings.manage` */
+            200: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["Page_PipelineResponse"];
+                };
+            };
+            /** @description Missing or invalid credentials (`unauthorized`, `invalid_api_token`) */
+            401: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["ErrorEnvelope"];
+                };
+            };
+            /** @description Missing `records.read` and `settings.manage` (`permission_denied`, `insufficient_scope`) */
+            403: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["ErrorEnvelope"];
+                };
+            };
+            /** @description Invalid pagination (`validation_error`) */
+            422: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["ErrorEnvelope"];
+                };
+            };
+            /** @description API token rate limit exceeded (`rate_limited`); see `Retry-After` and `X-RateLimit-*` */
+            429: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["ErrorEnvelope"];
+                };
+            };
+        };
+    };
+    pipelines_create: {
+        parameters: {
+            query?: never;
+            header?: {
+                /** @description Up to 255 printable ASCII characters. The same key with the same request (method, path and body) within 24 hours answers the stored response with the same status and body plus `Idempotent-Replayed: true`. Scoped to the credential (session cookie or API token); ignored without a credential. 5xx and 429 responses are not stored */
+                "Idempotency-Key"?: string;
+            };
+            path?: never;
+            cookie?: never;
+        };
+        requestBody: {
+            content: {
+                "application/json": components["schemas"]["CreatePipelineRequest"];
+            };
+        };
+        responses: {
+            /** @description Pipeline created at the end of the list with the given stages (or the default ones) and teams; the first pipeline of an organization becomes the default. Publishes `pipeline.created` */
+            201: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["Data_PipelineResponse"];
+                };
+            };
+            /** @description Missing or invalid credentials (`unauthorized`, `invalid_api_token`) */
+            401: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["ErrorEnvelope"];
+                };
+            };
+            /** @description Missing `settings.manage` (`permission_denied`, `insufficient_scope`) */
+            403: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["ErrorEnvelope"];
+                };
+            };
+            /** @description The stages lack an open, won or lost stage (`closing_stages_required`), or the organization reached the limit of workflow (`pipeline_limit_reached`). The first request with this `Idempotency-Key` is still being processed (`idempotency_key_in_progress`) */
+            409: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["ErrorEnvelope"];
+                };
+            };
+            /** @description Invalid name, teams or stages (`validation_error`). `Idempotency-Key` already used with a different request (`idempotency_key_reused`) or longer than 255 characters (`validation_error`) */
+            422: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["ErrorEnvelope"];
+                };
+            };
+            /** @description API token rate limit exceeded (`rate_limited`); see `Retry-After` and `X-RateLimit-*` */
+            429: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["ErrorEnvelope"];
+                };
+            };
+        };
+    };
+    pipelines_reorder: {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        requestBody: {
+            content: {
+                "application/json": components["schemas"]["ReorderRequest"];
+            };
+        };
+        responses: {
+            /** @description Pipelines reordered; publishes `pipeline.reordered` */
+            200: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["Data_Vec_PipelineResponse"];
+                };
+            };
+            /** @description Missing or invalid credentials (`unauthorized`, `invalid_api_token`) */
+            401: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["ErrorEnvelope"];
+                };
+            };
+            /** @description Missing `settings.manage` (`permission_denied`, `insufficient_scope`) */
+            403: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["ErrorEnvelope"];
+                };
+            };
+            /** @description The ids must list every pipeline exactly once (`validation_error`) */
+            422: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["ErrorEnvelope"];
+                };
+            };
+            /** @description API token rate limit exceeded (`rate_limited`); see `Retry-After` and `X-RateLimit-*` */
+            429: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["ErrorEnvelope"];
+                };
+            };
+        };
+    };
+    record_checklist_get: {
+        parameters: {
+            query?: never;
+            header?: never;
+            path: {
+                /** @description Staged entity key */
+                record_type: string;
+                /** @description Record id */
+                record_id: string;
+            };
+            cookie?: never;
+        };
+        requestBody?: never;
+        responses: {
+            /** @description Checklist of the current stage */
+            200: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["Data_RecordChecklistResponse"];
+                };
+            };
+            /** @description Missing or invalid credentials (`unauthorized`, `invalid_api_token`) */
+            401: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["ErrorEnvelope"];
+                };
+            };
+            /** @description Missing `records.read` (`permission_denied`, `insufficient_scope`) */
+            403: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["ErrorEnvelope"];
+                };
+            };
+            /** @description Record not found or not visible (`record_not_found`) */
+            404: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["ErrorEnvelope"];
+                };
+            };
+            /** @description API token rate limit exceeded (`rate_limited`); see `Retry-After` and `X-RateLimit-*` */
+            429: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["ErrorEnvelope"];
+                };
+            };
+        };
+    };
+    record_checklist_item_update: {
+        parameters: {
+            query?: never;
+            header?: never;
+            path: {
+                /** @description Staged entity key */
+                record_type: string;
+                /** @description Record id */
+                record_id: string;
+                /** @description Checklist item id */
+                item_id: string;
+            };
+            cookie?: never;
+        };
+        requestBody: {
+            content: {
+                "application/json": components["schemas"]["ToggleChecklistItemRequest"];
+            };
+        };
+        responses: {
+            /** @description Checklist of the current stage after the change */
+            200: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["Data_RecordChecklistResponse"];
+                };
+            };
+            /** @description Missing or invalid credentials (`unauthorized`, `invalid_api_token`) */
+            401: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["ErrorEnvelope"];
+                };
+            };
+            /** @description Missing `records.update` (`permission_denied`, `insufficient_scope`) */
+            403: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["ErrorEnvelope"];
+                };
+            };
+            /** @description Record not found or not editable (`record_not_found`) or item not in the record's pipeline (`checklist_item_not_found`) */
+            404: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["ErrorEnvelope"];
+                };
+            };
+            /** @description API token rate limit exceeded (`rate_limited`); see `Retry-After` and `X-RateLimit-*` */
+            429: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["ErrorEnvelope"];
+                };
+            };
+        };
+    };
+    workflow_required_fields: {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        requestBody?: never;
+        responses: {
+            /** @description Editable fields from staged entity providers */
+            200: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["Data_Vec_StageFieldChoice"];
+                };
+            };
+            /** @description API token rate limit exceeded (`rate_limited`); see `Retry-After` and `X-RateLimit-*` */
+            429: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["ErrorEnvelope"];
+                };
+            };
+        };
+    };
+    pipelines_get: {
+        parameters: {
+            query?: never;
+            header?: never;
+            path: {
+                /** @description Pipeline id */
+                pipeline_id: string;
+            };
+            cookie?: never;
+        };
+        requestBody?: never;
+        responses: {
+            /** @description Pipeline with its stages */
+            200: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["Data_PipelineResponse"];
+                };
+            };
+            /** @description Missing or invalid credentials (`unauthorized`, `invalid_api_token`) */
+            401: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["ErrorEnvelope"];
+                };
+            };
+            /** @description Missing `records.read` and `settings.manage` (`permission_denied`, `insufficient_scope`) */
+            403: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["ErrorEnvelope"];
+                };
+            };
+            /** @description Pipeline not found or restricted to other teams (`pipeline_not_found`) */
+            404: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["ErrorEnvelope"];
+                };
+            };
+            /** @description API token rate limit exceeded (`rate_limited`); see `Retry-After` and `X-RateLimit-*` */
+            429: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["ErrorEnvelope"];
+                };
+            };
+        };
+    };
+    pipelines_delete: {
+        parameters: {
+            query?: never;
+            header?: never;
+            path: {
+                /** @description Pipeline id */
+                pipeline_id: string;
+            };
+            cookie?: never;
+        };
+        requestBody: {
+            content: {
+                "application/json": components["schemas"]["PipelineRemovalRequest"];
+            };
+        };
+        responses: {
+            /** @description Pipeline deleted with its stages; its records (including deleted ones) move to `target_pipeline_id`, each stage to `stage_mapping[stage_id]` or to the first active stage of the same kind. Publishes `pipeline.deleted` and `record.pipeline_changed`/`record.stage_changed` for each moved record */
+            204: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content?: never;
+            };
+            /** @description Missing or invalid credentials (`unauthorized`, `invalid_api_token`) */
+            401: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["ErrorEnvelope"];
+                };
+            };
+            /** @description Missing `settings.manage` (`permission_denied`, `insufficient_scope`) */
+            403: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["ErrorEnvelope"];
+                };
+            };
+            /** @description Pipeline not found (`pipeline_not_found`) */
+            404: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["ErrorEnvelope"];
+                };
+            };
+            /** @description The default pipeline cannot be deleted (`default_pipeline_required`), or the pipeline has records and no target was given (`pipeline_has_records`) */
+            409: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["ErrorEnvelope"];
+                };
+            };
+            /** @description Invalid target pipeline or stage mapping (`validation_error`) */
+            422: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["ErrorEnvelope"];
+                };
+            };
+            /** @description API token rate limit exceeded (`rate_limited`); see `Retry-After` and `X-RateLimit-*` */
+            429: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["ErrorEnvelope"];
+                };
+            };
+        };
+    };
+    pipelines_update: {
+        parameters: {
+            query?: never;
+            header?: {
+                /** @description `updated_at` of the pipeline as last read (ISO-8601); when it changed since, the update is refused with 409 `version_conflict` */
+                "If-Match"?: string | null;
+            };
+            path: {
+                /** @description Pipeline id */
+                pipeline_id: string;
+            };
+            cookie?: never;
+        };
+        requestBody: {
+            content: {
+                "application/json": components["schemas"]["UpdatePipelineRequest"];
+            };
+        };
+        responses: {
+            /** @description Pipeline renamed or restricted to teams (`team_ids`, empty for everyone); publishes `pipeline.updated` */
+            200: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["Data_PipelineResponse"];
+                };
+            };
+            /** @description Missing or invalid credentials (`unauthorized`, `invalid_api_token`) */
+            401: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["ErrorEnvelope"];
+                };
+            };
+            /** @description Missing `settings.manage` (`permission_denied`, `insufficient_scope`) */
+            403: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["ErrorEnvelope"];
+                };
+            };
+            /** @description Pipeline not found (`pipeline_not_found`) */
+            404: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["ErrorEnvelope"];
+                };
+            };
+            /** @description The pipeline changed after the `If-Match` version (`version_conflict`) */
+            409: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["ErrorEnvelope"];
+                };
+            };
+            /** @description Invalid name or teams (`validation_error`) */
+            422: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["ErrorEnvelope"];
+                };
+            };
+            /** @description API token rate limit exceeded (`rate_limited`); see `Retry-After` and `X-RateLimit-*` */
+            429: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["ErrorEnvelope"];
+                };
+            };
+        };
+    };
+    pipelines_activate: {
+        parameters: {
+            query?: never;
+            header?: {
+                /** @description Up to 255 printable ASCII characters. The same key with the same request (method, path and body) within 24 hours answers the stored response with the same status and body plus `Idempotent-Replayed: true`. Scoped to the credential (session cookie or API token); ignored without a credential. 5xx and 429 responses are not stored */
+                "Idempotency-Key"?: string;
+            };
+            path: {
+                /** @description Pipeline id */
+                pipeline_id: string;
+            };
+            cookie?: never;
+        };
+        requestBody?: never;
+        responses: {
+            /** @description Pipeline active again; publishes `pipeline.activated` */
+            200: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["Data_PipelineResponse"];
+                };
+            };
+            /** @description Missing or invalid credentials (`unauthorized`, `invalid_api_token`) */
+            401: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["ErrorEnvelope"];
+                };
+            };
+            /** @description Missing `settings.manage` (`permission_denied`, `insufficient_scope`) */
+            403: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["ErrorEnvelope"];
+                };
+            };
+            /** @description Pipeline not found (`pipeline_not_found`) */
+            404: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["ErrorEnvelope"];
+                };
+            };
+            /** @description The first request with this `Idempotency-Key` is still being processed (`idempotency_key_in_progress`) */
+            409: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["ErrorEnvelope"];
+                };
+            };
+            /** @description `Idempotency-Key` already used with a different request (`idempotency_key_reused`) or longer than 255 characters (`validation_error`) */
+            422: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["ErrorEnvelope"];
+                };
+            };
+            /** @description API token rate limit exceeded (`rate_limited`); see `Retry-After` and `X-RateLimit-*` */
+            429: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["ErrorEnvelope"];
+                };
+            };
+        };
+    };
+    pipelines_deactivate: {
+        parameters: {
+            query?: never;
+            header?: {
+                /** @description Up to 255 printable ASCII characters. The same key with the same request (method, path and body) within 24 hours answers the stored response with the same status and body plus `Idempotent-Replayed: true`. Scoped to the credential (session cookie or API token); ignored without a credential. 5xx and 429 responses are not stored */
+                "Idempotency-Key"?: string;
+            };
+            path: {
+                /** @description Pipeline id */
+                pipeline_id: string;
+            };
+            cookie?: never;
+        };
+        requestBody?: never;
+        responses: {
+            /** @description Pipeline deactivated: its records stay where they are, but no record can be created in or moved into it. Publishes `pipeline.deactivated` */
+            200: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["Data_PipelineResponse"];
+                };
+            };
+            /** @description Missing or invalid credentials (`unauthorized`, `invalid_api_token`) */
+            401: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["ErrorEnvelope"];
+                };
+            };
+            /** @description Missing `settings.manage` (`permission_denied`, `insufficient_scope`) */
+            403: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["ErrorEnvelope"];
+                };
+            };
+            /** @description Pipeline not found (`pipeline_not_found`) */
+            404: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["ErrorEnvelope"];
+                };
+            };
+            /** @description The default pipeline cannot be deactivated (`default_pipeline_required`). The first request with this `Idempotency-Key` is still being processed (`idempotency_key_in_progress`) */
+            409: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["ErrorEnvelope"];
+                };
+            };
+            /** @description `Idempotency-Key` already used with a different request (`idempotency_key_reused`) or longer than 255 characters (`validation_error`) */
+            422: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["ErrorEnvelope"];
+                };
+            };
+            /** @description API token rate limit exceeded (`rate_limited`); see `Retry-After` and `X-RateLimit-*` */
+            429: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["ErrorEnvelope"];
+                };
+            };
+        };
+    };
+    pipelines_set_default: {
+        parameters: {
+            query?: never;
+            header?: {
+                /** @description Up to 255 printable ASCII characters. The same key with the same request (method, path and body) within 24 hours answers the stored response with the same status and body plus `Idempotent-Replayed: true`. Scoped to the credential (session cookie or API token); ignored without a credential. 5xx and 429 responses are not stored */
+                "Idempotency-Key"?: string;
+            };
+            path: {
+                /** @description Pipeline id */
+                pipeline_id: string;
+            };
+            cookie?: never;
+        };
+        requestBody?: never;
+        responses: {
+            /** @description Pipeline is now the default one (Kanban and new records without a pipeline); publishes `pipeline.default_changed` */
+            200: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["Data_PipelineResponse"];
+                };
+            };
+            /** @description Missing or invalid credentials (`unauthorized`, `invalid_api_token`) */
+            401: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["ErrorEnvelope"];
+                };
+            };
+            /** @description Missing `settings.manage` (`permission_denied`, `insufficient_scope`) */
+            403: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["ErrorEnvelope"];
+                };
+            };
+            /** @description Pipeline not found (`pipeline_not_found`) */
+            404: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["ErrorEnvelope"];
+                };
+            };
+            /** @description An inactive pipeline cannot be the default one (`default_pipeline_required`). The first request with this `Idempotency-Key` is still being processed (`idempotency_key_in_progress`) */
+            409: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["ErrorEnvelope"];
+                };
+            };
+            /** @description `Idempotency-Key` already used with a different request (`idempotency_key_reused`) or longer than 255 characters (`validation_error`) */
+            422: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["ErrorEnvelope"];
+                };
+            };
+            /** @description API token rate limit exceeded (`rate_limited`); see `Retry-After` and `X-RateLimit-*` */
+            429: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["ErrorEnvelope"];
+                };
+            };
+        };
+    };
+    pipeline_renewal_get: {
+        parameters: {
+            query?: never;
+            header?: never;
+            path: {
+                /** @description Pipeline id */
+                pipeline_id: string;
+            };
+            cookie?: never;
+        };
+        requestBody?: never;
+        responses: {
+            /** @description Renewal settings of the pipeline */
+            200: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["Data_RenewalSettingsResponse"];
+                };
+            };
+            /** @description Missing or invalid credentials (`unauthorized`, `invalid_api_token`) */
+            401: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["ErrorEnvelope"];
+                };
+            };
+            /** @description Missing `settings.manage` (`permission_denied`, `insufficient_scope`) */
+            403: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["ErrorEnvelope"];
+                };
+            };
+            /** @description Pipeline not found (`pipeline_not_found`) */
+            404: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["ErrorEnvelope"];
+                };
+            };
+            /** @description API token rate limit exceeded (`rate_limited`); see `Retry-After` and `X-RateLimit-*` */
+            429: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["ErrorEnvelope"];
+                };
+            };
+        };
+    };
+    pipeline_renewal_update: {
+        parameters: {
+            query?: never;
+            header?: {
+                /** @description `updated_at` of the settings as read (ISO-8601); ignored while never saved */
+                "If-Match"?: string | null;
+            };
+            path: {
+                /** @description Pipeline id */
+                pipeline_id: string;
+            };
+            cookie?: never;
+        };
+        requestBody: {
+            content: {
+                "application/json": components["schemas"]["RenewalSettingsRequest"];
+            };
+        };
+        responses: {
+            /** @description Renewal settings saved */
+            200: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["Data_RenewalSettingsResponse"];
+                };
+            };
+            /** @description Missing or invalid credentials (`unauthorized`, `invalid_api_token`) */
+            401: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["ErrorEnvelope"];
+                };
+            };
+            /** @description Missing `settings.manage` (`permission_denied`, `insufficient_scope`) */
+            403: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["ErrorEnvelope"];
+                };
+            };
+            /** @description Pipeline not found (`pipeline_not_found`) */
+            404: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["ErrorEnvelope"];
+                };
+            };
+            /** @description The settings changed since the `If-Match` version (`version_conflict`) */
+            409: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["ErrorEnvelope"];
+                };
+            };
+            /** @description Invalid days, target pipeline/stage (must be an active open stage of the target pipeline), prefix or owner mode (`validation_error` with `details.fields`) */
+            422: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["ErrorEnvelope"];
+                };
+            };
+            /** @description API token rate limit exceeded (`rate_limited`); see `Retry-After` and `X-RateLimit-*` */
+            429: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["ErrorEnvelope"];
+                };
+            };
+        };
+    };
+    pipelines_create_stage: {
+        parameters: {
+            query?: never;
+            header?: {
+                /** @description Up to 255 printable ASCII characters. The same key with the same request (method, path and body) within 24 hours answers the stored response with the same status and body plus `Idempotent-Replayed: true`. Scoped to the credential (session cookie or API token); ignored without a credential. 5xx and 429 responses are not stored */
+                "Idempotency-Key"?: string;
+            };
+            path: {
+                /** @description Pipeline id */
+                pipeline_id: string;
+            };
+            cookie?: never;
+        };
+        requestBody: {
+            content: {
+                "application/json": components["schemas"]["CreateStageRequest"];
+            };
+        };
+        responses: {
+            /** @description Stage created; open stages go after the last open stage, won and lost stages at the end. `entry_required_fields`/`exit_required_fields` list record fields that must be filled to enter or leave it. Publishes `pipeline_stage.created` */
+            201: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["Data_PipelineStageResponse"];
+                };
+            };
+            /** @description Missing or invalid credentials (`unauthorized`, `invalid_api_token`) */
+            401: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["ErrorEnvelope"];
+                };
+            };
+            /** @description Missing `settings.manage` (`permission_denied`, `insufficient_scope`) */
+            403: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["ErrorEnvelope"];
+                };
+            };
+            /** @description Pipeline not found (`pipeline_not_found`) */
+            404: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["ErrorEnvelope"];
+                };
+            };
+            /** @description The first request with this `Idempotency-Key` is still being processed (`idempotency_key_in_progress`) */
+            409: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["ErrorEnvelope"];
+                };
+            };
+            /** @description Invalid name, kind, probability or required fields (`validation_error`). `Idempotency-Key` already used with a different request (`idempotency_key_reused`) or longer than 255 characters (`validation_error`) */
+            422: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["ErrorEnvelope"];
+                };
+            };
+            /** @description API token rate limit exceeded (`rate_limited`); see `Retry-After` and `X-RateLimit-*` */
+            429: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["ErrorEnvelope"];
+                };
+            };
+        };
+    };
+    pipelines_reorder_stages: {
+        parameters: {
+            query?: never;
+            header?: never;
+            path: {
+                /** @description Pipeline id */
+                pipeline_id: string;
+            };
+            cookie?: never;
+        };
+        requestBody: {
+            content: {
+                "application/json": components["schemas"]["ReorderRequest"];
+            };
+        };
+        responses: {
+            /** @description Stages reordered; publishes `pipeline_stage.reordered` */
+            200: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["Data_PipelineResponse"];
+                };
+            };
+            /** @description Missing or invalid credentials (`unauthorized`, `invalid_api_token`) */
+            401: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["ErrorEnvelope"];
+                };
+            };
+            /** @description Missing `settings.manage` (`permission_denied`, `insufficient_scope`) */
+            403: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["ErrorEnvelope"];
+                };
+            };
+            /** @description Pipeline not found (`pipeline_not_found`) */
+            404: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["ErrorEnvelope"];
+                };
+            };
+            /** @description The ids must list every stage of the pipeline exactly once (`validation_error`) */
+            422: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["ErrorEnvelope"];
+                };
+            };
+            /** @description API token rate limit exceeded (`rate_limited`); see `Retry-After` and `X-RateLimit-*` */
+            429: {
                 headers: {
                     [name: string]: unknown;
                 };

@@ -44,7 +44,7 @@ impl From<ValueMapsInput> for ValueMaps {
     fn from(input: ValueMapsInput) -> Self {
         Self {
             stages: input.stage_id,
-            pipelines: input.pipeline_id,
+            workflow: input.pipeline_id,
             owners: input.owner_id,
         }
     }

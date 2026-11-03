@@ -6,6 +6,6 @@ pub(crate) mod triggers;
 
 pub(crate) use cancel::WaitingRunsCanceller;
 pub(crate) use resume::{WaitingRunsResumer, resume_waiting_schedule};
-pub(crate) use rotting::RottingCatchUp;
+pub(crate) use rotting::TimeCatchUpConsumer;
 pub(crate) use sweep::{TimeTriggerSweep, time_sweep_schedule};
 pub(crate) use triggers::time_triggers;

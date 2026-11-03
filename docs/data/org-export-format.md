@@ -91,9 +91,9 @@ Each line:
 
 ### Configuration (`config/`)
 
-- `package.json` is the organization's configuration package ([format](../config-packages/README.md)), with all registered sections: fields, pipelines, loss reasons, activity types, tags, layouts, organization views, dashboard, custom objects and relationships, automations and extension sections.
+- `package.json` is the organization's configuration package ([format](../config-packages/README.md)), with all registered sections: fields, workflow, loss reasons, activity types, tags, layouts, organization views, dashboard, custom objects and relationships, automations and extension sections.
 - `keys.json` maps the source id of each item referenced by the data to its stable key: `{ "pipeline": { "<id>": "vendas" }, "pipeline_stage": { "<id>": "vendas/proposta" }, "lost_reason": {…}, "tag": {…}, "activity_type": {…}, "relationship": {…} }`. Stages use `pipeline/stage`.
-- `items/*.jsonl` carries the original rows of pipelines, stages, loss reasons, tags and activity types, **including inactive ones** (which the configuration package does not export), to recreate whatever is missing.
+- `items/*.jsonl` carries the original rows of workflow, stages, loss reasons, tags and activity types, **including inactive ones** (which the configuration package does not export), to recreate whatever is missing.
 
 ### Members (`members.jsonl`)
 

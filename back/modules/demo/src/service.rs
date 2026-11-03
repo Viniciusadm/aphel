@@ -34,7 +34,7 @@ use onboarding::domain::CompleteOnboardingCommand;
 use onboarding::service::ONBOARDING_NOT_PENDING;
 use organizations::domain::{CompanyInput, SaveCompanyCommand};
 use people::domain::{ContactInput, SaveContactCommand};
-use pipelines::seed::{STAGE_KIND_LOST, STAGE_KIND_OPEN, STAGE_KIND_WON};
+use workflow::seed::{STAGE_KIND_LOST, STAGE_KIND_OPEN, STAGE_KIND_WON};
 
 pub(crate) const DEMO_SEEDED: &str = "demo.seeded";
 pub(crate) const DEMO_TEMPLATE: &str = "b2b";

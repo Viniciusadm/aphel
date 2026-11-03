@@ -120,7 +120,7 @@ pub(crate) struct DirectoryMember {
 #[derive(Debug, Clone, PartialEq, Eq, Default)]
 pub(crate) struct ValueMaps {
     pub(crate) stages: HashMap<String, String>,
-    pub(crate) pipelines: HashMap<String, String>,
+    pub(crate) workflow: HashMap<String, String>,
     pub(crate) owners: HashMap<String, String>,
 }
 
@@ -134,7 +134,7 @@ impl ValueMaps {
         };
         Self {
             stages: fold(self.stages),
-            pipelines: fold(self.pipelines),
+            workflow: fold(self.workflow),
             owners: fold(self.owners),
         }
     }
@@ -330,7 +330,7 @@ fn convert(
         Transform::Owner => owner(raw, members, maps),
         Transform::EmployeeCount => employee_range(raw),
         Transform::Stage => Some(mapped(raw, &maps.stages)),
-        Transform::Pipeline => Some(mapped(raw, &maps.pipelines)),
+        Transform::Pipeline => Some(mapped(raw, &maps.workflow)),
         Transform::Status => deal_status(raw).map(str::to_owned),
         Transform::Done => done_flag(raw).map(str::to_owned),
     }

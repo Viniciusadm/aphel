@@ -20,8 +20,8 @@ use ::config_packages::application::{
 use aphel_kernel::database::transaction::MySqlTx;
 use aphel_kernel::domain::access::AccessScope;
 use aphel_kernel::errors::AppError;
-use pipelines::section::{keyed_pipelines, package_pipeline_keys};
-use pipelines::store::PipelineStore;
+use workflow::section::{keyed_pipelines, package_pipeline_keys};
+use workflow::store::PipelineStore;
 
 pub(crate) const DASHBOARD_SECTION: &str = "dashboard";
 const DASHBOARD_KIND: &str = "dashboard_layout";
@@ -49,7 +49,7 @@ pub(crate) struct PackageWidget {
 pub(crate) struct DashboardSection<K> {
     widget_keys: Vec<String>,
     layouts: LayoutStore,
-    pipelines: PipelineStore,
+    workflow: PipelineStore,
     keys: K,
 }
 
@@ -60,13 +60,13 @@ where
     pub(crate) fn new(
         widget_keys: Vec<String>,
         layouts: LayoutStore,
-        pipelines: PipelineStore,
+        workflow: PipelineStore,
         keys: K,
     ) -> Self {
         Self {
             widget_keys,
             layouts,
-            pipelines,
+            workflow,
             keys,
         }
     }
@@ -76,7 +76,7 @@ where
         package: &PackageDashboard,
         context: Option<&ApplyContext>,
     ) -> Result<Value, AppError> {
-        let existing = keyed_pipelines(&self.pipelines, &self.keys).await?;
+        let existing = keyed_pipelines(&self.workflow, &self.keys).await?;
         let mut widgets = Vec::new();
         for (index, widget) in package.widgets.iter().enumerate() {
             let mut settings = widget.settings.clone();
@@ -133,7 +133,7 @@ where
         else {
             return Ok(None);
         };
-        let existing = keyed_pipelines(&self.pipelines, &self.keys).await?;
+        let existing = keyed_pipelines(&self.workflow, &self.keys).await?;
         for widget in &mut dashboard.widgets {
             for setting in NON_PORTABLE_SETTINGS {
                 if widget.settings.contains_key(setting) {
@@ -291,7 +291,7 @@ where
         let mut pipeline_keys: BTreeSet<String> =
             package_pipeline_keys(package).into_iter().collect();
         pipeline_keys.extend(
-            keyed_pipelines(&self.pipelines, &self.keys)
+            keyed_pipelines(&self.workflow, &self.keys)
                 .await?
                 .into_iter()
                 .map(|(_, keyed)| keyed.key),

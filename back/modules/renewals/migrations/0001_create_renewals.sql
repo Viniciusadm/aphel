@@ -14,9 +14,9 @@ CREATE TABLE pipeline_renewal_settings (
   KEY pipeline_renewal_settings_target_pipeline_fk_index (target_pipeline_id),
   KEY pipeline_renewal_settings_target_stage_fk_index (target_stage_id),
   KEY pipeline_renewal_settings_updated_by_fk_index (updated_by),
-  CONSTRAINT pipeline_renewal_settings_pipeline_fk FOREIGN KEY (pipeline_id) REFERENCES pipelines (id) ON DELETE CASCADE,
-  CONSTRAINT pipeline_renewal_settings_target_pipeline_fk FOREIGN KEY (target_pipeline_id) REFERENCES pipelines (id) ON DELETE CASCADE,
-  CONSTRAINT pipeline_renewal_settings_target_stage_fk FOREIGN KEY (target_stage_id) REFERENCES pipeline_stages (id) ON DELETE CASCADE,
+  CONSTRAINT pipeline_renewal_settings_pipeline_fk FOREIGN KEY (pipeline_id) REFERENCES workflow (id) ON DELETE CASCADE,
+  CONSTRAINT pipeline_renewal_settings_target_pipeline_fk FOREIGN KEY (target_pipeline_id) REFERENCES workflow (id) ON DELETE CASCADE,
+  CONSTRAINT pipeline_renewal_settings_target_stage_fk FOREIGN KEY (target_stage_id) REFERENCES workflow_stages (id) ON DELETE CASCADE,
   CONSTRAINT pipeline_renewal_settings_updated_by_fk FOREIGN KEY (updated_by) REFERENCES users (id) ON DELETE SET NULL
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci;
 

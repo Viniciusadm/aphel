@@ -15,7 +15,7 @@ people = { package = "aphel-mod-people", path = "../people" }
 deals = { package = "aphel-mod-deals", path = "../deals" }
 leads = { package = "aphel-mod-leads", path = "../leads" }
 lead_distribution = { package = "aphel-mod-lead-distribution", path = "../lead_distribution" }
-pipelines = { package = "aphel-mod-pipelines", path = "../pipelines" }
+workflow = { package = "aphel-mod-workflow", path = "../workflow" }
 tags = { package = "aphel-mod-tags", path = "../tags" }
 form_urlencoded.workspace = true
 axum.workspace = true

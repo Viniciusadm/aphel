@@ -233,7 +233,7 @@ pub(crate) struct LeadFormUserOption {
 #[derive(Debug, Clone, Serialize, ToSchema)]
 pub(crate) struct LeadFormOptions {
     pub(crate) contact_fields: Vec<LeadFormTargetField>,
-    pub(crate) pipelines: Vec<LeadFormPipelineOption>,
+    pub(crate) workflow: Vec<LeadFormPipelineOption>,
     pub(crate) tags: Vec<LeadFormTagOption>,
     pub(crate) users: Vec<LeadFormUserOption>,
     pub(crate) distribution_rules: Vec<LeadFormDistributionRuleOption>,

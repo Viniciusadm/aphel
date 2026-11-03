@@ -14,12 +14,12 @@ import { Skeleton } from '@/components/ui/skeleton'
 import { formatCurrency, useRecordFormatting } from '@/features/records/formatting'
 import { recordsKeys } from '@/features/records/api'
 
-import { activePipelines, usePipelines } from '@/modules/pipelines/api'
+import { activePipelines, usePipelines } from '@/modules/workflow/api'
 import { BOARD_PER_COLUMN, dealsApi, dealsKeys, type BoardRequest } from '../api'
 import { MovePipelineDialog, type PipelineMoveChoice } from '../MovePipelineDialog'
 import { requirementFieldsFromError } from '../requirements'
 import { DEAL_RECORD_TYPE } from '../resource'
-import type { PipelineStage } from '@/modules/pipelines/types'
+import type { PipelineStage } from '@/modules/workflow/types'
 import type { Board, Deal } from '../types'
 import { useDealMoveFlow, type DealMoveRequest } from '../useDealMoveFlow'
 import { appendColumnPage, findColumn, locateDeal } from './board-state'
@@ -61,14 +61,14 @@ export function DealsBoard({ request, canMove }: DealsBoardProps) {
   const [loadingStage, setLoadingStage] = useState<string | null>(null)
 
   const columns = board.data?.columns
-  const pipelines = usePipelines()
+  const workflow = usePipelines()
   const pipelineId = board.data?.pipeline.id
   const allStages = useMemo(
-    () => pipelines.data?.find((pipeline) => pipeline.id === pipelineId)?.stages ?? EMPTY_STAGES,
-    [pipelines.data, pipelineId],
+    () => workflow.data?.find((pipeline) => pipeline.id === pipelineId)?.stages ?? EMPTY_STAGES,
+    [workflow.data, pipelineId],
   )
   const stages = useMemo(() => allStages.filter((stage) => stage.is_active), [allStages])
-  const canMovePipeline = activePipelines(pipelines.data).length > 1
+  const canMovePipeline = activePipelines(workflow.data).length > 1
 
   const execute = useCallback(
     async (request: DealMoveRequest) => {
@@ -180,7 +180,7 @@ export function DealsBoard({ request, canMove }: DealsBoardProps) {
 
   const confirmPipelineMove = (deal: Deal, choice: PipelineMoveChoice) => {
     setMovingPipeline(null)
-    const target = pipelines.data
+    const target = workflow.data
       ?.find((pipeline) => pipeline.id === choice.pipelineId)
       ?.stages.find((stage) => stage.id === choice.stageId)
     start(

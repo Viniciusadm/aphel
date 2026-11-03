@@ -35,7 +35,7 @@ Record pages open an overview with upcoming work and recent activity. Full colle
 
 Full editing opens `/records/:recordType/:recordId/edit`, preserves the previous record location and guards unsaved changes. Short creation and contextual actions continue to use dialogs. Form layout groups render as vertical chapters with section links; their persisted schema is unchanged.
 
-`RecordTable` uses cards on mobile, including selection, multi-field sorting, row actions and disclosure of additional selected columns. Keep server queries and pagination shared across presentations. Mobile pipelines show one selected stage and explicit movement actions.
+`RecordTable` uses cards on mobile, including selection, multi-field sorting, row actions and disclosure of additional selected columns. Keep server queries and pagination shared across presentations. Mobile workflow show one selected stage and explicit movement actions.
 
 Use `app.recordSection` for module contributions. It supports an optional group and summary renderer. `recordTab`, existing record filters, record page options and `?tab=` URLs remain compatibility interfaces. The `UrlTabs` export adapts its existing contract to contextual sections.
 

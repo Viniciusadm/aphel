@@ -8,7 +8,7 @@ import {
 } from '@/components/ui/dialog'
 import { Skeleton } from '@/components/ui/skeleton'
 import { Textarea } from '@/components/ui/textarea'
-import { useLostReasons } from '@/modules/pipelines/api'
+import { useLostReasons } from '@/modules/workflow/api'
 import { NativeSelect } from '@/components/ui/native-select'
 import { Field } from '@/components/ui/field'
 

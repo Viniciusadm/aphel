@@ -51,6 +51,7 @@ export function registerCustomObjectResources(objects: CustomObject[]) {
     objectKeys.set(object.record_type, object.key)
     registerRecordResource({
       recordType: object.record_type,
+      traits: object.traits,
       createPermission: objectPermission(object, 'create'),
       updatePermission: objectPermission(object, 'update'),
       basePath: customRecordsApiPath(object.key),

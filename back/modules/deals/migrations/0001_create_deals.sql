@@ -49,8 +49,8 @@ CREATE TABLE deals (
   UNIQUE KEY deals_renewal_of_unique (renewal_of_deal_id),
   KEY deals_currency_index (status, currency),
   CONSTRAINT deals_owner_fk FOREIGN KEY (owner_id) REFERENCES users (id) ON DELETE SET NULL,
-  CONSTRAINT deals_pipeline_fk FOREIGN KEY (pipeline_id) REFERENCES pipelines (id),
-  CONSTRAINT deals_stage_fk FOREIGN KEY (stage_id) REFERENCES pipeline_stages (id),
+  CONSTRAINT deals_pipeline_fk FOREIGN KEY (pipeline_id) REFERENCES workflow (id),
+  CONSTRAINT deals_stage_fk FOREIGN KEY (stage_id) REFERENCES workflow_stages (id),
   CONSTRAINT deals_lost_reason_fk FOREIGN KEY (lost_reason_id) REFERENCES lost_reasons (id) ON DELETE SET NULL,
   CONSTRAINT deals_contact_fk FOREIGN KEY (contact_id) REFERENCES people (id) ON DELETE SET NULL,
   CONSTRAINT deals_company_fk FOREIGN KEY (company_id) REFERENCES organizations (id) ON DELETE SET NULL,
@@ -83,19 +83,6 @@ CREATE TABLE deal_stage_history (
   KEY deal_stage_history_deal_index (deal_id, entered_at),
   KEY deal_stage_history_stage_index (stage_id, entered_at),
   CONSTRAINT deal_stage_history_deal_fk FOREIGN KEY (deal_id) REFERENCES deals (id) ON DELETE CASCADE
-) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci;
-
-CREATE TABLE deal_checklist_progress (
-  deal_id CHAR(36) NOT NULL,
-  item_id CHAR(36) NOT NULL,
-  done_by CHAR(36) NULL,
-  done_at DATETIME(6) NOT NULL DEFAULT CURRENT_TIMESTAMP(6),
-  PRIMARY KEY (deal_id, item_id),
-  KEY deal_checklist_progress_item_fk_index (item_id),
-  KEY deal_checklist_progress_done_by_fk_index (done_by),
-  CONSTRAINT deal_checklist_progress_deal_fk FOREIGN KEY (deal_id) REFERENCES deals (id) ON DELETE CASCADE,
-  CONSTRAINT deal_checklist_progress_item_fk FOREIGN KEY (item_id) REFERENCES pipeline_stage_checklist_items (id) ON DELETE CASCADE,
-  CONSTRAINT deal_checklist_progress_done_by_fk FOREIGN KEY (done_by) REFERENCES users (id) ON DELETE SET NULL
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci;
 
 CREATE TABLE deal_member_roles (

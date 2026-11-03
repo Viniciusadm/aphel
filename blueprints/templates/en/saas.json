@@ -135,7 +135,7 @@
         "type": "text"
       }
     ],
-    "pipelines": [
+    "workflow": [
       {
         "key": "assinaturas",
         "name": "Subscriptions",

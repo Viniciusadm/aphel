@@ -57,11 +57,11 @@ use currencies::{
     CurrencyConverter,
     domain::{base_amount, currency_not_enabled},
 };
-use pipelines::domain::{
+use workflow::domain::{
     LostReason, PIPELINE_NOT_FOUND, Pipeline, PipelineStage, StageKind, first_active_of_kind,
     parse_id, pipeline_ref, pipeline_visible, sees_every_pipeline, stage_ref, valid_probability,
 };
-use pipelines::store::PipelineStore;
+use workflow::store::PipelineStore;
 
 const STAGE_FIELDS: [&str; 7] = [
     "pipeline_id",
@@ -1772,17 +1772,17 @@ async fn default_visible_pipeline(ctx: &Ctx<'_>) -> Result<Option<Pipeline>, App
     if sees_every_pipeline(scope) {
         return PipelineStore::of(ctx).default_pipeline().await;
     }
-    let pipelines: Vec<Pipeline> = PipelineStore::of(ctx)
+    let workflow: Vec<Pipeline> = PipelineStore::of(ctx)
         .list_pipelines()
         .await?
         .into_iter()
         .filter(|pipeline| pipeline.is_active && pipeline_visible(scope, pipeline))
         .collect();
-    Ok(pipelines
+    Ok(workflow
         .iter()
         .find(|pipeline| pipeline.is_default)
         .or_else(|| {
-            pipelines
+            workflow
                 .iter()
                 .min_by_key(|pipeline| (pipeline.position, pipeline.id))
         })
@@ -1797,10 +1797,10 @@ async fn pipeline_event(
     if current.deal.pipeline_id == deal.pipeline_id {
         return Ok(None);
     }
-    let pipelines = PipelineStore::of(ctx);
-    let from = pipelines.find_pipeline(current.deal.pipeline_id).await?;
-    let to = pipelines.find_pipeline(deal.pipeline_id).await?;
-    let to_stage = pipelines.find_stage(deal.stage_id).await?;
+    let workflow = PipelineStore::of(ctx);
+    let from = workflow.find_pipeline(current.deal.pipeline_id).await?;
+    let to = workflow.find_pipeline(deal.pipeline_id).await?;
+    let to_stage = workflow.find_stage(deal.stage_id).await?;
     Ok(Some((
         DEAL_PIPELINE_CHANGED,
         json!({

@@ -1273,7 +1273,7 @@ impl ApprovalDirectory {
             return Ok(HashMap::new());
         }
         let mut builder =
-            QueryBuilder::<MySql>::new("SELECT id, name FROM pipeline_stages WHERE id IN (");
+            QueryBuilder::<MySql>::new("SELECT id, name FROM workflow_stages WHERE id IN (");
         let mut separated = builder.separated(", ");
         for id in ids {
             separated.push_bind(id.to_string());
@@ -1281,7 +1281,7 @@ impl ApprovalDirectory {
         separated.push_unseparated(")");
         let rows: Vec<(String, String)> = builder.build_query_as().fetch_all(&self.pool).await?;
         rows.into_iter()
-            .map(|(id, name)| Ok((parse_uuid(&id, "pipeline_stages.id")?, name)))
+            .map(|(id, name)| Ok((parse_uuid(&id, "workflow_stages.id")?, name)))
             .collect()
     }
 

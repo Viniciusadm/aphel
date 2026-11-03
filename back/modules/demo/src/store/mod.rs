@@ -184,8 +184,8 @@ impl DemoStore {
 
     pub(crate) async fn catalog(&self) -> Result<DemoCatalog, AppError> {
         let stages = sqlx::query(
-            "SELECT s.id, s.kind FROM pipeline_stages s \
-             JOIN pipelines p ON p.id = s.pipeline_id \
+            "SELECT s.id, s.kind FROM workflow_stages s \
+             JOIN workflow p ON p.id = s.pipeline_id \
              WHERE p.is_default = TRUE AND s.is_active = TRUE \
              ORDER BY s.position, s.id",
         )

@@ -1,4 +1,5 @@
 use aphel_contract_crm::CrmRecordTypes;
+use aphel_sdk::workflow::WorkflowRecordTypes;
 use serde_json::{Value, json};
 use uuid::Uuid;
 
@@ -21,9 +22,9 @@ use aphel_kernel::records::{RecordMutation, changes_payload, publish_mutation};
 use deal_items::domain::item_command;
 use deals::domain::Deal;
 use deals::domain::{DealInput, DealRevenue, MAX_DEAL_TITLE_LENGTH, date};
-use pipelines::domain::{Pipeline, StageKind, first_active_of_kind, parse_id, pipeline_not_found};
-use pipelines::store::PipelineStore;
 use products::domain::{DealItem, ProductRecurrence};
+use workflow::domain::{Pipeline, StageKind, first_active_of_kind, parse_id, pipeline_not_found};
+use workflow::store::PipelineStore;
 
 use aphel_kernel::application::shared::money_text;
 
@@ -149,17 +150,17 @@ async fn apply_target(
     settings: &mut RenewalSettings,
     violations: &mut Vec<FieldViolation>,
 ) -> Result<(), AppError> {
-    let pipelines = PipelineStore::of(ctx);
+    let workflow = PipelineStore::of(ctx);
     if let Some(value) = &command.target_pipeline_id {
         let target = match parse_id(value) {
-            Some(id) => pipelines.find_pipeline(id).await?,
+            Some(id) => workflow.find_pipeline(id).await?,
             None => None,
         };
         match target {
             Some(target) if target.id != settings.target_pipeline_id => {
                 settings.target_pipeline_id = target.id;
                 if command.target_stage_id.is_none() {
-                    let stages = pipelines.list_stages(target.id).await?;
+                    let stages = workflow.list_stages(target.id).await?;
                     settings.target_stage_id = first_active_of_kind(&stages, StageKind::Open)
                         .map_or(Uuid::nil(), |stage| stage.id);
                 }
@@ -180,7 +181,7 @@ async fn apply_target(
             }
         }
     }
-    match pipelines.find_stage(settings.target_stage_id).await? {
+    match workflow.find_stage(settings.target_stage_id).await? {
         Some(stage) if stage.pipeline_id != settings.target_pipeline_id => {
             violations.push(FieldViolation::new(
                 "target_stage_id",

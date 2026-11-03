@@ -70,3 +70,5 @@ pub mod records {
 }
 
 pub mod party;
+
+pub mod workflow;

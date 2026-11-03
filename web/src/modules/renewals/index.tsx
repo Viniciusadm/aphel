@@ -27,7 +27,7 @@ const renewalsModule = defineModule({
     },
   },
   register(app) {
-    app.slot('pipelines.settings.sections', {
+    app.slot('workflow.settings.sections', {
       key: 'renewal',
       permission: 'settings.manage',
       render: PipelineRenewalSection,

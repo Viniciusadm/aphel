@@ -25,7 +25,7 @@ use aphel_kernel::infrastructure::query::compiler::{
 };
 use aphel_kernel::infrastructure::repositories::mapper::{invalid_column, naive, utc};
 use aphel_kernel::records::constrain_query;
-use pipelines::domain::StageKind;
+use workflow::domain::StageKind;
 
 const DEAL_SELECT: &str = "SELECT r.id, r.owner_id, r.pipeline_id, r.stage_id, r.title, r.amount, \
      r.currency, r.amount_base, r.exchange_rate, r.mrr, r.arr, r.tcv, r.contract_start, \
@@ -36,7 +36,7 @@ const DEAL_SELECT: &str = "SELECT r.id, r.owner_id, r.pipeline_id, r.stage_id, r
      c.full_name AS contact_name, co.name AS company_name, u.display_name AS owner_name, \
      lr.name AS lost_reason_name \
      FROM deals r \
-     JOIN pipeline_stages s ON s.id = r.stage_id \
+     JOIN workflow_stages s ON s.id = r.stage_id \
      LEFT JOIN people c ON c.id = r.contact_id AND c.deleted_at IS NULL \
      LEFT JOIN organizations co ON co.id = r.company_id AND co.deleted_at IS NULL \
      LEFT JOIN users u ON u.id = r.owner_id \
@@ -112,7 +112,7 @@ fn deal_from_row(row: &MySqlRow) -> Result<DealRecord, AppError> {
         id: deal.stage_id,
         name: row.try_get("stage_name")?,
         kind: StageKind::parse(&stage_kind)
-            .ok_or_else(|| invalid_column("pipeline_stages.kind", &stage_kind))?,
+            .ok_or_else(|| invalid_column("workflow_stages.kind", &stage_kind))?,
         probability: row.try_get("stage_probability")?,
         rotting_days: row.try_get("stage_rotting_days")?,
     };

@@ -5,8 +5,8 @@ import {
   Dialog,
   DialogContent,
 } from '@/components/ui/dialog'
-import { activePipelines, usePipelines } from '@/modules/pipelines/api'
-import type { Pipeline, StageKind } from '@/modules/pipelines/types'
+import { activePipelines, usePipelines } from '@/modules/workflow/api'
+import type { Pipeline, StageKind } from '@/modules/workflow/types'
 import type { Deal } from './types'
 import { NativeSelect } from '@/components/ui/native-select'
 import { Field } from '@/components/ui/field'
@@ -37,8 +37,8 @@ function defaultStageId(pipeline: Pipeline | undefined, kind: StageKind): string
 
 function MovePipelineForm({ deal, pending, onOpenChange, onConfirm }: Omit<MovePipelineDialogProps, 'open'>) {
   const { t } = useTranslation('deals', { keyPrefix: 'pipeline' })
-  const pipelines = usePipelines()
-  const targets = activePipelines(pipelines.data).filter((pipeline) => pipeline.id !== deal?.pipeline_id)
+  const workflow = usePipelines()
+  const targets = activePipelines(workflow.data).filter((pipeline) => pipeline.id !== deal?.pipeline_id)
   const [pipelineId, setPipelineId] = useState(targets[0]?.id ?? '')
   const pipeline = targets.find((item) => item.id === pipelineId)
   const [stageId, setStageId] = useState(() => defaultStageId(pipeline, stageKindOf(deal)))

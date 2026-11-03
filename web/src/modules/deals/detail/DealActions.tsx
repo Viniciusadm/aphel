@@ -21,14 +21,14 @@ import { isApprovalGateError } from '@/modules/approvals/errors'
 import { recordsKeys } from '@/features/records/api'
 
 import type { RecordItem } from '@/features/records/types'
-import { activePipelines, usePipelines } from '@/modules/pipelines/api'
+import { activePipelines, usePipelines } from '@/modules/workflow/api'
 import { dealsApi, dealsKeys } from '../api'
 import { LostReasonDialog, type LostReasonChoice } from '../LostReasonDialog'
 import { MovePipelineDialog } from '../MovePipelineDialog'
 import { requirementFieldsFromError } from '../requirements'
 import { useDealMoveFlow, type DealMoveRequest } from '../useDealMoveFlow'
 import { DEAL_RECORD_TYPE, DEALS_PATH } from '../resource'
-import type { PipelineStage, StageKind } from '@/modules/pipelines/types'
+import type { PipelineStage, StageKind } from '@/modules/workflow/types'
 import type { Deal } from '../types'
 
 export interface DealActionsProps {
@@ -93,7 +93,7 @@ export function DealActions({ record }: DealActionsProps) {
   const queryClient = useQueryClient()
   const { hasPermission } = useSession()
   const deal = record as unknown as Deal
-  const pipelines = usePipelines()
+  const workflow = usePipelines()
   const [losing, setLosing] = useState(false)
   const [movingPipeline, setMovingPipeline] = useState(false)
   const { t: tp } = useTranslation('deals', { keyPrefix: 'pipeline' })
@@ -134,11 +134,11 @@ export function DealActions({ record }: DealActionsProps) {
     },
   })
 
-  const pipeline = pipelines.data?.find((item) => item.id === deal.pipeline_id)
+  const pipeline = workflow.data?.find((item) => item.id === deal.pipeline_id)
   const allStages = pipeline?.stages ?? []
   const stages = allStages.filter((stage) => stage.is_active && stage.id !== deal.stage_id)
   const currentStage = allStages.find((stage) => stage.id === deal.stage_id)
-  const canMovePipeline = activePipelines(pipelines.data).some((item) => item.id !== deal.pipeline_id)
+  const canMovePipeline = activePipelines(workflow.data).some((item) => item.id !== deal.pipeline_id)
   const busy = action.isPending
   const wonStage = closingStage(allStages, 'won')
   const lostStage = closingStage(allStages, 'lost')
@@ -247,7 +247,7 @@ export function DealActions({ record }: DealActionsProps) {
         onOpenChange={setMovingPipeline}
         onConfirm={(choice) => {
           setMovingPipeline(false)
-          const target = pipelines.data
+          const target = workflow.data
             ?.find((item) => item.id === choice.pipelineId)
             ?.stages.find((stage) => stage.id === choice.stageId)
           flow.start(

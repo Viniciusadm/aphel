@@ -28,10 +28,10 @@ use aphel_kernel::application::fields::RecordTypeRegistry;
 use aphel_kernel::database::transaction::MySqlTx;
 use aphel_kernel::domain::access::AccessScope;
 use aphel_kernel::errors::AppError;
-use pipelines::section::{PIPELINES_SECTION, keyed_pipelines, parse_pipelines, stage_item_key};
-use pipelines::store::PipelineStore;
 use tags::TagStore;
 use tags::section::{PackageTag, TAGS_SECTION};
+use workflow::section::{PIPELINES_SECTION, keyed_pipelines, parse_pipelines, stage_item_key};
+use workflow::store::PipelineStore;
 
 pub(crate) const AUTOMATIONS_SECTION: &str = "automations";
 const AUTOMATION_KIND: &str = "automation";
@@ -103,7 +103,7 @@ struct StageEntry {
 struct KeyIndex {
     tags: Vec<(Uuid, String)>,
     activity_types: Vec<(Uuid, String)>,
-    pipelines: Vec<(Uuid, String)>,
+    workflow: Vec<(Uuid, String)>,
     stages: Vec<StageEntry>,
     sequences: Vec<(Uuid, String)>,
     segments: Vec<(Uuid, String)>,
@@ -133,7 +133,7 @@ impl KeyIndex {
     }
 
     fn pipeline_id(&self, key: &str) -> Option<Uuid> {
-        self.pipelines
+        self.workflow
             .iter()
             .find(|(_, known)| known == key)
             .map(|(id, _)| *id)
@@ -186,7 +186,7 @@ pub(crate) struct AutomationsSection<K> {
     registry: Arc<RecordTypeRegistry>,
     automations: AutomationStore,
     tags: TagStore,
-    pipelines: PipelineStore,
+    workflow: PipelineStore,
     keys: K,
     activity_types: ActivityTypeStore,
     triggers: TriggerRegistry,
@@ -201,7 +201,7 @@ where
         registry: Arc<RecordTypeRegistry>,
         automations: AutomationStore,
         tags: TagStore,
-        pipelines: PipelineStore,
+        workflow: PipelineStore,
         keys: K,
         activity_types: ActivityTypeStore,
     ) -> Self {
@@ -209,7 +209,7 @@ where
             registry,
             automations,
             tags,
-            pipelines,
+            workflow,
             keys,
             activity_types,
             triggers: TriggerRegistry::builtin(),
@@ -246,18 +246,18 @@ where
             .keys
             .keys(ConfigReferenceKind::new("workflow.stage"))
             .await?;
-        let mut pipelines = Vec::new();
+        let mut workflow = Vec::new();
         let mut stages = Vec::new();
-        for (pipeline, keyed) in keyed_pipelines(&self.pipelines, &self.keys).await? {
-            let pipeline_stages = self.pipelines.list_stages(pipeline.id).await?;
-            let ids: BTreeSet<Uuid> = pipeline_stages.iter().map(|stage| stage.id).collect();
+        for (pipeline, keyed) in keyed_pipelines(&self.workflow, &self.keys).await? {
+            let workflow_stages = self.workflow.list_stages(pipeline.id).await?;
+            let ids: BTreeSet<Uuid> = workflow_stages.iter().map(|stage| stage.id).collect();
             let stored: HashMap<Uuid, String> = stored_stages
                 .iter()
                 .filter(|(id, _)| ids.contains(id))
                 .map(|(id, key)| (*id, key.clone()))
                 .collect();
             for stage in assign_keys(
-                pipeline_stages
+                workflow_stages
                     .iter()
                     .map(|stage| (stage.id, stage.name.as_str())),
                 &stored,
@@ -269,12 +269,12 @@ where
                     key: stage.key,
                 });
             }
-            pipelines.push((pipeline.id, keyed.key));
+            workflow.push((pipeline.id, keyed.key));
         }
         Ok(KeyIndex {
             tags,
             activity_types,
-            pipelines,
+            workflow,
             stages,
             sequences: self.automations.sequence_keys().await?,
             segments: self.automations.segment_keys().await?,
@@ -926,9 +926,9 @@ fn package_available(package: &ConfigPackage) -> BTreeMap<ReferenceKind, BTreeSe
                     .map(str::to_owned),
             );
     }
-    if let Some(Ok(pipelines)) = package.section(PIPELINES_SECTION).map(parse_pipelines) {
+    if let Some(Ok(workflow)) = package.section(PIPELINES_SECTION).map(parse_pipelines) {
         let stages = available.entry(ReferenceKind::Stage).or_default();
-        for pipeline in pipelines {
+        for pipeline in workflow {
             for stage in pipeline.stages {
                 stages.insert(format!("{}.{}", pipeline.key, stage.key));
             }

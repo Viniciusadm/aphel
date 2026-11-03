@@ -18,7 +18,7 @@ import {
 import { Input } from '@/components/ui/input'
 import { Skeleton } from '@/components/ui/skeleton'
 import { Textarea } from '@/components/ui/textarea'
-import { defaultPipeline, usePipelines } from '@/modules/pipelines/api'
+import { defaultPipeline, usePipelines } from '@/modules/workflow/api'
 import { NativeSelect } from '@/features/records/filters/NativeSelect'
 import { ActionEditor } from './ActionEditor'
 import {
@@ -89,7 +89,7 @@ function EditorBody({ webhook, onCancel, onSaved }: EditorBodyProps) {
   const { t } = useTranslation('webhooks', { keyPrefix: 'incoming' })
   const formId = useId()
   const targets = useActionTargets()
-  const pipelines = usePipelines()
+  const workflow = usePipelines()
   const [newActionType, setNewActionType] = useState<ActionType>('upsert_contact')
   const [serverErrors, setServerErrors] = useState<ServerFieldError[]>([])
   const form = useForm<WebhookFormValues>({
@@ -102,7 +102,7 @@ function EditorBody({ webhook, onCancel, onSaved }: EditorBodyProps) {
   const signed = webhook ? webhook.secret_configured : generateSecret
 
   const applyTemplate = () => {
-    const pipeline = defaultPipeline(pipelines.data)
+    const pipeline = defaultPipeline(workflow.data)
     const stage = pipeline?.stages.find((item) => item.is_active)
     actions.replace(siteFormTemplate(pipeline?.id ?? '', stage?.id ?? ''))
   }

@@ -7,7 +7,7 @@ import { Checkbox } from '@/components/ui/checkbox'
 import { ErrorState } from '@/components/ui/error-state'
 import { Input } from '@/components/ui/input'
 import { Skeleton } from '@/components/ui/skeleton'
-import type { Pipeline } from '@/modules/pipelines/types'
+import type { Pipeline } from '@/modules/workflow/types'
 import { NativeSelect } from '@/features/records/filters/NativeSelect'
 import { useRenewalSettings, useSaveRenewalSettings } from './api'
 import type { RenewalOwnerMode, RenewalSettings } from './types'
@@ -36,18 +36,18 @@ function draftOf(settings: RenewalSettings): Draft {
   }
 }
 
-function openStages(pipelines: Pipeline[], pipelineId: string) {
-  return (pipelines.find((pipeline) => pipeline.id === pipelineId)?.stages ?? []).filter(
+function openStages(workflow: Pipeline[], pipelineId: string) {
+  return (workflow.find((pipeline) => pipeline.id === pipelineId)?.stages ?? []).filter(
     (stage) => stage.kind === 'open' && stage.is_active,
   )
 }
 
 export interface PipelineRenewalSectionProps {
   pipeline: Pipeline
-  pipelines: Pipeline[]
+  workflow: Pipeline[]
 }
 
-export function PipelineRenewalSection({ pipeline, pipelines }: PipelineRenewalSectionProps) {
+export function PipelineRenewalSection({ pipeline, workflow }: PipelineRenewalSectionProps) {
   const { t } = useTranslation('renewals')
   const settings = useRenewalSettings(pipeline.id)
 
@@ -67,7 +67,7 @@ export function PipelineRenewalSection({ pipeline, pipelines }: PipelineRenewalS
             key={settings.data.updated_at ?? 'new'}
             pipelineId={pipeline.id}
             settings={settings.data}
-            pipelines={pipelines}
+            workflow={workflow}
           />
         )}
       </CardContent>
@@ -78,10 +78,10 @@ export function PipelineRenewalSection({ pipeline, pipelines }: PipelineRenewalS
 interface RenewalFormProps {
   pipelineId: string
   settings: RenewalSettings
-  pipelines: Pipeline[]
+  workflow: Pipeline[]
 }
 
-function RenewalForm({ pipelineId, settings, pipelines }: RenewalFormProps) {
+function RenewalForm({ pipelineId, settings, workflow }: RenewalFormProps) {
   const { t } = useTranslation('renewals')
   const save = useSaveRenewalSettings(pipelineId)
   const [draft, setDraft] = useState<Draft>(() => draftOf(settings))
@@ -93,7 +93,7 @@ function RenewalForm({ pipelineId, settings, pipelines }: RenewalFormProps) {
     prefix: useId(),
     owner: useId(),
   }
-  const stages = openStages(pipelines, draft.target_pipeline_id)
+  const stages = openStages(workflow, draft.target_pipeline_id)
   const days = Number(draft.days_before)
   const daysValid = Number.isInteger(days) && days >= 0 && days <= MAX_DAYS_BEFORE
   const stageValid = stages.some((stage) => stage.id === draft.target_stage_id)
@@ -167,11 +167,11 @@ function RenewalForm({ pipelineId, settings, pipelines }: RenewalFormProps) {
               const targetPipelineId = event.target.value
               update({
                 target_pipeline_id: targetPipelineId,
-                target_stage_id: openStages(pipelines, targetPipelineId)[0]?.id ?? '',
+                target_stage_id: openStages(workflow, targetPipelineId)[0]?.id ?? '',
               })
             }}
           >
-            {pipelines.map((item) => (
+            {workflow.map((item) => (
               <option key={item.id} value={item.id}>
                 {item.name}
               </option>

@@ -7,6 +7,7 @@ license.workspace = true
 publish = false
 
 [dependencies]
+aphel-sdk.workspace = true
 notifications = { package = "aphel-mod-notifications", path = "../notifications" }
 config_packages = { package = "aphel-mod-config-packages", path = "../config_packages" }
 dashboard = { package = "aphel-mod-dashboard", path = "../dashboard" }
@@ -14,7 +15,7 @@ aphel-contract-crm.workspace = true
 aphel-kernel.workspace = true
 deal_items = { package = "aphel-mod-deal-items", path = "../deal_items" }
 deals = { package = "aphel-mod-deals", path = "../deals" }
-pipelines = { package = "aphel-mod-pipelines", path = "../pipelines" }
+workflow = { package = "aphel-mod-workflow", path = "../workflow" }
 products = { package = "aphel-mod-products", path = "../products" }
 axum.workspace = true
 async-trait.workspace = true

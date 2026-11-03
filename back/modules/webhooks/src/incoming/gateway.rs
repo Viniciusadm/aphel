@@ -121,7 +121,7 @@ pub(crate) async fn stage_in_pipeline(
     }
     let system = AccessScope::system();
     missing_is_false(
-        pipelines::service::get_stage(&ctx.with_scope(&system), stage_id)
+        workflow::service::get_stage(&ctx.with_scope(&system), stage_id)
             .await
             .map(|stage| stage.pipeline_id == pipeline_id && stage.is_active),
     )

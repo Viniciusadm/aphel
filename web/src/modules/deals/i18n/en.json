@@ -93,7 +93,7 @@
   "pipeline": {
     "filter": {
       "label": "Filter by pipeline",
-      "all": "All pipelines",
+      "all": "All workflow",
       "inactive": "{{name}} (inactive)"
     },
     "move": {

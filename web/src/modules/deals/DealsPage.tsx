@@ -27,8 +27,8 @@ import { hasExplicitQuery, viewDensity } from '@/modules/saved_views/ui/urlState
 import { applyFilters } from '@/kernel/modules/filters'
 import { Slot } from '@/kernel/modules/Slot'
 import { cn } from '@/lib/utils'
-import { activePipelines, defaultPipeline, usePipelines } from '@/modules/pipelines/api'
-import type { Pipeline } from '@/modules/pipelines/types'
+import { activePipelines, defaultPipeline, usePipelines } from '@/modules/workflow/api'
+import type { Pipeline } from '@/modules/workflow/types'
 import { dealsKeys } from './api'
 import { pipelineFromFilter, withPipelineFilter } from './pipeline-filter'
 import { DealsBoard } from './board/DealsBoard'
@@ -103,10 +103,10 @@ function BoardToolbar({ filter, children }: { filter: FilterNode | null; childre
 
 function PipelineFilterSelect() {
   const { t } = useTranslation('deals', { keyPrefix: 'pipeline' })
-  const pipelines = usePipelines()
+  const workflow = usePipelines()
   const [urlState, setUrlState] = useListUrlState()
   const selected = pipelineFromFilter(urlState.filter ?? null) ?? ''
-  const options = pipelines.data ?? []
+  const options = workflow.data ?? []
   if (options.length < 2) return null
 
   return (
@@ -133,11 +133,11 @@ function PipelineFilterSelect() {
 }
 
 function useBoardPipeline(activeView?: SavedView) {
-  const pipelines = usePipelines()
+  const workflow = usePipelines()
   const [searchParams] = useSearchParams()
   const requested = searchParams.get(DEALS_PIPELINE_PARAM) ?? viewPipeline(activeView)
-  const pipeline = pipelines.data?.find((item) => item.id === requested) ?? defaultPipeline(pipelines.data)
-  return { pipelines, pipeline }
+  const pipeline = workflow.data?.find((item) => item.id === requested) ?? defaultPipeline(workflow.data)
+  return { workflow, pipeline }
 }
 
 function entryStage(pipeline: Pipeline | undefined) {
@@ -149,10 +149,10 @@ function entryStage(pipeline: Pipeline | undefined) {
 function BoardMode({ canMove, presentation }: { canMove: boolean; presentation: ReactNode }) {
   const { t } = useTranslation('deals')
   const { viewsQuery, views, activeView } = useBoardViews()
-  const { pipelines, pipeline } = useBoardPipeline(activeView)
+  const { workflow, pipeline } = useBoardPipeline(activeView)
   const [urlState, setUrlState] = useListUrlState()
   const [searchParams, setSearchParams] = useSearchParams()
-  const selectable = activePipelines(pipelines.data)
+  const selectable = activePipelines(workflow.data)
   const options = pipeline && !pipeline.is_active ? [...selectable, pipeline] : selectable
   const pipelineParam = searchParams.get(DEALS_PIPELINE_PARAM)
   const filter = urlState.filter !== undefined ? urlState.filter : (activeView?.filter ?? null)
@@ -190,8 +190,8 @@ function BoardMode({ canMove, presentation }: { canMove: boolean; presentation: 
       return next
     })
 
-  if (pipelines.isPending) return <Skeleton className="h-96 w-full" />
-  if (pipelines.isError) return <ErrorState title={t('board.loadError')} onRetry={() => void pipelines.refetch()} />
+  if (workflow.isPending) return <Skeleton className="h-96 w-full" />
+  if (workflow.isError) return <ErrorState title={t('board.loadError')} onRetry={() => void workflow.refetch()} />
 
   return (
     <div className="flex min-h-0 min-w-0 flex-1 flex-col gap-3">
@@ -253,11 +253,11 @@ export function DealsPage() {
   const canCreate = hasPermission('deals.create')
   const canMove = hasPermission('deals.update')
   const { views: kanbanViews, activeView: activeKanbanView } = useBoardViews()
-  const { pipelines, pipeline: boardPipeline } = useBoardPipeline(activeKanbanView)
+  const { workflow, pipeline: boardPipeline } = useBoardPipeline(activeKanbanView)
   const [listState] = useListUrlState()
   const tablePipelineId = pipelineFromFilter(listState.filter ?? null)
   const targetPipeline =
-    mode === 'board' ? boardPipeline : pipelines.data?.find((item) => item.id === tablePipelineId)
+    mode === 'board' ? boardPipeline : workflow.data?.find((item) => item.id === tablePipelineId)
   const targetStage = entryStage(targetPipeline)
   const presetValues =
     targetPipeline && targetStage ? { pipeline_id: targetPipeline.id, stage_id: targetStage.id } : undefined

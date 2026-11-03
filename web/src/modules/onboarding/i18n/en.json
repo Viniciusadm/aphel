@@ -84,11 +84,11 @@
   "setup": {
     "step": "Starting setup",
     "title": "Pick your starting setup",
-    "description": "A template creates the fields, pipelines, tags and views of a CRM ready for your business. Nothing is deleted and you can adjust everything later.",
-    "descriptionFor": "Based on what you told us ({{business}}), this is the setup we recommend. It creates fields, pipelines, tags and views; nothing is deleted and you can adjust everything later.",
+    "description": "A template creates the fields, workflow, tags and views of a CRM ready for your business. Nothing is deleted and you can adjust everything later.",
+    "descriptionFor": "Based on what you told us ({{business}}), this is the setup we recommend. It creates fields, workflow, tags and views; nothing is deleted and you can adjust everything later.",
     "preview": "What will be created",
     "task": {
-      "progress": "Preparing pipelines, fields and views for your business…",
+      "progress": "Preparing workflow, fields and views for your business…",
       "applied_one": "{{name}} setup applied: {{count}} item created for your business.",
       "applied_other": "{{name}} setup applied: {{count}} items created for your business.",
       "failed": "The starting setup for your business could not be applied. You can finish it from the “Finish setting up” notice or in Settings › Initial assistant."

@@ -86,8 +86,8 @@ function EditorBody({ form, onCancel, onSaved }: EditorBodyProps) {
   const { control, register, handleSubmit, formState, setValue } = methods
   const fields = useFieldArray({ control, name: 'fields' })
   const values = useWatch({ control }) as LeadFormValues
-  const pipelines = options.data?.pipelines ?? []
-  const pipeline = pipelines.find((item) => item.id === values.pipeline_id)
+  const workflow = options.data?.workflow ?? []
+  const pipeline = workflow.find((item) => item.id === values.pipeline_id)
   const errorText = (key?: string) => (key ? t(key) : null)
   const rootFieldsError = formState.errors.fields?.message ?? formState.errors.fields?.root?.message
 
@@ -273,7 +273,7 @@ function EditorBody({ form, onCancel, onSaved }: EditorBodyProps) {
                         })}
                       >
                         <option value="">{t('editor.choose')}</option>
-                        {pipelines.map((item) => (
+                        {workflow.map((item) => (
                           <option key={item.id} value={item.id}>
                             {item.name}
                           </option>

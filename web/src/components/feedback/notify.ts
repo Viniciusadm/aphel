@@ -48,7 +48,7 @@ export function ruleErrorMessage(error: unknown): string | null {
     case 'validation_rule_failed':
       return messages.join(' ')
     case 'stage_checklist_incomplete':
-      return i18n.t('guidance.errors.checklistIncomplete', { ns: 'pipelines', items: messages.join(', ') })
+      return i18n.t('guidance.errors.checklistIncomplete', { ns: 'workflow', items: messages.join(', ') })
     default:
       return null
   }

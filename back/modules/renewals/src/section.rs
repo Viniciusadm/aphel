@@ -21,9 +21,9 @@ use ::config_packages::infrastructure::MySqlConfigKeyRepository;
 use aphel_kernel::database::transaction::MySqlTx;
 use aphel_kernel::domain::access::AccessScope;
 use aphel_kernel::errors::AppError;
-use pipelines::domain::{Pipeline, StageKind};
-use pipelines::section::{PIPELINES_SECTION, keyed_pipelines, parse_pipelines, stage_item_key};
-use pipelines::store::PipelineStore;
+use workflow::domain::{Pipeline, StageKind};
+use workflow::section::{PIPELINES_SECTION, keyed_pipelines, parse_pipelines, stage_item_key};
+use workflow::store::PipelineStore;
 
 pub(crate) const PIPELINE_RENEWALS_SECTION: &str = "pipeline_renewals";
 const PIPELINE_RENEWAL_KIND: &str = "pipeline_renewal";
@@ -74,16 +74,16 @@ struct KeyedPipeline {
 }
 
 struct Index {
-    pipelines: Vec<KeyedPipeline>,
+    workflow: Vec<KeyedPipeline>,
 }
 
 impl Index {
     fn by_key(&self, key: &str) -> Option<&KeyedPipeline> {
-        self.pipelines.iter().find(|pipeline| pipeline.key == key)
+        self.workflow.iter().find(|pipeline| pipeline.key == key)
     }
 
     fn by_id(&self, id: Uuid) -> Option<&KeyedPipeline> {
-        self.pipelines
+        self.workflow
             .iter()
             .find(|pipeline| pipeline.pipeline.id == id)
     }
@@ -106,14 +106,14 @@ fn parse(content: &Value) -> Result<Vec<PackagePipelineRenewal>, AppError> {
 
 pub(crate) struct PipelineRenewalsSection {
     renewals: RenewalStore,
-    pipelines: PipelineStore,
+    workflow: PipelineStore,
     keys: MySqlConfigKeyRepository,
 }
 
 pub(crate) fn pipeline_renewals_section(pool: &MySqlPool) -> PipelineRenewalsSection {
     PipelineRenewalsSection {
         renewals: RenewalStore::new(pool.clone()),
-        pipelines: PipelineStore::new(pool.clone()),
+        workflow: PipelineStore::new(pool.clone()),
         keys: MySqlConfigKeyRepository::new(pool.clone()),
     }
 }
@@ -124,9 +124,9 @@ impl PipelineRenewalsSection {
             .keys
             .keys(ConfigReferenceKind::new("workflow.stage"))
             .await?;
-        let mut pipelines = Vec::new();
-        for (pipeline, keyed) in keyed_pipelines(&self.pipelines, &self.keys).await? {
-            let stages = self.pipelines.list_stages(pipeline.id).await?;
+        let mut workflow = Vec::new();
+        for (pipeline, keyed) in keyed_pipelines(&self.workflow, &self.keys).await? {
+            let stages = self.workflow.list_stages(pipeline.id).await?;
             let ids: BTreeSet<Uuid> = stages.iter().map(|stage| stage.id).collect();
             let stored: HashMap<Uuid, String> = stored_stages
                 .iter()
@@ -137,7 +137,7 @@ impl PipelineRenewalsSection {
                 stages.iter().map(|stage| (stage.id, stage.name.as_str())),
                 &stored,
             );
-            pipelines.push(KeyedPipeline {
+            workflow.push(KeyedPipeline {
                 stages: stages
                     .iter()
                     .zip(keys)
@@ -152,7 +152,7 @@ impl PipelineRenewalsSection {
                 pipeline,
             });
         }
-        Ok(Index { pipelines })
+        Ok(Index { workflow })
     }
 
     fn portable(

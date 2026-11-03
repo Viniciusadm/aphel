@@ -2,6 +2,7 @@ import type { LucideIcon } from 'lucide-react'
 import type { RecordItem } from './types'
 
 export interface RecordResource {
+  traits?: Record<string, unknown>
   icon?: LucideIcon
   relatable?: boolean
   checkIn?: boolean

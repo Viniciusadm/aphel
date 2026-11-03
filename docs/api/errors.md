@@ -43,7 +43,7 @@ Every error comes out in the `{ "error": { "code", "message", "details" } }` env
 | `bulk_not_supported` | 422 | bulk_actions |
 | `bulk_operation_not_found` | 404 | bulk_actions |
 | `bulk_too_large` | 422 | bulk_actions |
-| `closing_stages_required` | 409 | pipelines |
+| `closing_stages_required` | 409 | workflow |
 | `company_not_found` | 404 | organizations |
 | `config_package_install_not_found` | 404 | config_packages |
 | `contact_not_found` | 404 | people |
@@ -59,7 +59,7 @@ Every error comes out in the `{ "error": { "code", "message", "details" } }` env
 | `deal_item_not_found` | 404 | deal_items |
 | `deal_items_limit_reached` | 422 | deal_items |
 | `deal_not_found` | 404 | deals |
-| `default_pipeline_required` | 409 | pipelines |
+| `default_pipeline_required` | 409 | workflow |
 | `demo_already_seeded` | 409 | demo (the installation already has records; use `aphel demo remove` or `--force`) |
 | `demo_not_installed` | 409 | demo (installation without an active administrator; run the installer first) |
 | `duplicate_candidate_not_found` | 404 | duplicates |
@@ -127,7 +127,7 @@ Every error comes out in the `{ "error": { "code", "message", "details" } }` env
 | `invalid_webhook_signature` | 401 | incoming_webhooks |
 | `last_active_activity_type` | 409 | activities |
 | `last_admin` | 409 | organization_admin |
-| `last_lost_reason` | 409 | pipelines |
+| `last_lost_reason` | 409 | workflow |
 | `layout_context_not_found` | 404 | layouts |
 | `lead_distribution_no_eligible_member` | 422 | lead_distribution (automation `assign_by_rule` step) |
 | `lead_distribution_record_type_mismatch` | 422 | lead_distribution |
@@ -138,7 +138,7 @@ Every error comes out in the `{ "error": { "code", "message", "details" } }` env
 | `linked_record_not_found` | 404 | custom_objects |
 | `login_locked` | 429 | auth |
 | `logo_not_found` | 404 | organizations |
-| `lost_reason_not_found` | 404 | pipelines |
+| `lost_reason_not_found` | 404 | workflow |
 | `member_not_found` | 404 | organization_admin |
 | `merge_same_record` | 422 | duplicates |
 | `migration_source_not_found` | 404 | migration-assistant |
@@ -154,11 +154,11 @@ Every error comes out in the `{ "error": { "code", "message", "details" } }` env
 | `organization_export_not_ready` | 409 | organization-exports |
 | `organization_not_empty` | 409 | organization-exports (the backup is only restored on an empty installation, before the installer) |
 | `organization_not_found` | 404 | modules (organization data unavailable to the module) |
-| `permission_denied` | 403 | activities, auth, organizations, dashboard, fields, files, notes, organization_admin, pipelines, tags, timeline, views |
-| `pipeline_has_deals` | 409 | pipelines |
-| `pipeline_limit_reached` | 409 | pipelines |
-| `pipeline_not_found` | 404 | pipelines |
-| `pipeline_stage_not_found` | 404 | pipelines |
+| `permission_denied` | 403 | activities, auth, organizations, dashboard, fields, files, notes, organization_admin, workflow, tags, timeline, views |
+| `pipeline_has_deals` | 409 | workflow |
+| `pipeline_limit_reached` | 409 | workflow |
+| `pipeline_not_found` | 404 | workflow |
+| `pipeline_stage_not_found` | 404 | workflow |
 | `plan_outdated` | 409 | config_packages |
 | `product_currency_mismatch` | 422 | deal_items |
 | `product_not_found` | 404 | products |
@@ -200,7 +200,7 @@ Every error comes out in the `{ "error": { "code", "message", "details" } }` env
 | `segment_not_found` | 404 | segments |
 | `session_not_found` | 404 | security |
 | `sso_required` | 403 | auth (password login refused: the organization requires single sign-on for the email's domain) |
-| `stage_has_deals` | 409 | pipelines |
+| `stage_has_deals` | 409 | workflow |
 | `stage_requirements_missing` | 422 | deals |
 | `system_field_locked` | 422 | fields |
 | `system_role_locked` | 409 | organization_admin |

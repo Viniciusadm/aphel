@@ -15,7 +15,7 @@ import {
 import { Input } from '@/components/ui/input'
 import { toast } from '@/components/ui/toast-store'
 import { dealPath } from '@/modules/deals/resource'
-import { defaultPipeline, usePipelines } from '@/modules/pipelines/api'
+import { defaultPipeline, usePipelines } from '@/modules/workflow/api'
 import { NativeSelect } from '@/features/records/filters/NativeSelect'
 import { useLeadActions } from './api'
 import type { LeadTarget } from './DisqualifyLeadDialog'
@@ -46,11 +46,11 @@ function ConvertForm({ lead, onClose }: { lead: LeadTarget; onClose: () => void 
   const { t } = useTranslation('leads')
   const formId = useId()
   const navigate = useNavigate()
-  const pipelines = usePipelines()
+  const workflow = usePipelines()
   const { convert } = useLeadActions()
   const activePipelines = useMemo(
-    () => (pipelines.data ?? []).filter((pipeline) => pipeline.is_active),
-    [pipelines.data],
+    () => (workflow.data ?? []).filter((pipeline) => pipeline.is_active),
+    [workflow.data],
   )
   const [pipelineChoice, setPipelineChoice] = useState<string | null>(null)
   const pipelineId = pipelineChoice ?? defaultPipeline(activePipelines)?.id ?? ''
@@ -107,7 +107,7 @@ function ConvertForm({ lead, onClose }: { lead: LeadTarget; onClose: () => void 
             <NativeSelect
             {...control}
             value={pipelineId}
-            disabled={pipelines.isPending}
+            disabled={workflow.isPending}
             aria-invalid={pipelineError ? true : undefined}
             onChange={(event) => {
               setPipelineChoice(event.target.value)

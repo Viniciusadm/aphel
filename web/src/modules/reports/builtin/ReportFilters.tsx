@@ -1,5 +1,5 @@
 import { useTranslation } from 'react-i18next'
-import { usePipelines } from '@/modules/pipelines/api'
+import { usePipelines } from '@/modules/workflow/api'
 import { PeriodSelector } from '@/modules/dashboard/PeriodSelector'
 import { CompareToggle } from '@/modules/dashboard/SubjectSelector'
 import { PERFORMANCE_DIMENSIONS, type PerformanceDimension } from './api'
@@ -15,7 +15,7 @@ export interface ReportFiltersProps {
 
 export function ReportFilters({ state, allPipelines = false, withDimension = false }: ReportFiltersProps) {
   const { t } = useTranslation('reports', { keyPrefix: 'builtin' })
-  const pipelines = usePipelines()
+  const workflow = usePipelines()
   const { filters } = state
 
   return (
@@ -41,11 +41,11 @@ export function ReportFilters({ state, allPipelines = false, withDimension = fal
             className="w-full sm:w-52"
           {...control}
           value={filters.pipelineId ?? ''}
-          disabled={pipelines.isPending}
+          disabled={workflow.isPending}
           onChange={(event) => state.setPipeline(event.target.value || null)}
         >
           <option value="">{allPipelines ? t('filters.allPipelines') : t('filters.defaultPipeline')}</option>
-          {(pipelines.data ?? []).map((pipeline) => (
+          {(workflow.data ?? []).map((pipeline) => (
             <option key={pipeline.id} value={pipeline.id}>
               {pipeline.name}
             </option>

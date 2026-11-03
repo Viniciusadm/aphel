@@ -11,7 +11,7 @@
   },
   "sections": {
     "fields": "Custom fields",
-    "pipelines": "Pipelines and stages",
+    "workflow": "Pipelines and stages",
     "lost_reasons": "Lost reasons",
     "activity_types": "Activity types",
     "deal_member_roles": "Deal team roles",
@@ -89,7 +89,7 @@
     "namePlaceholder": "Default: organization name",
     "author": "Author",
     "packageDescription": "Description",
-    "hint": "Only portable settings are included: active fields and options, pipelines, reasons, activity types, tags, layouts, organization views and the default dashboard. No contact, company or deal is exported.",
+    "hint": "Only portable settings are included: active fields and options, workflow, reasons, activity types, tags, layouts, organization views and the default dashboard. No contact, company or deal is exported.",
     "submit": "Export and download",
     "exporting": "Exporting…",
     "done": "File {{file}} downloaded.",

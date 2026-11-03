@@ -12,7 +12,7 @@
     "organization": "Organização",
     "teams": "Equipes",
     "fields": "Campos",
-    "pipelines": "Funis de venda",
+    "workflow": "Funis de venda",
     "audit": "Auditoria",
     "activityTypes": "Tipos de atividade",
     "tags": "Etiquetas",
@@ -348,7 +348,7 @@
     "activityTypes": {
       "description": "Tipos de atividade, como ligação, reunião e tarefa."
     },
-    "pipelines": {
+    "workflow": {
       "description": "Funis e etapas pelos quais os negócios passam."
     },
     "forecast": {

@@ -14,6 +14,7 @@ export const dealResource = registerRecordResource({
   icon: Briefcase,
   checkIn: true,
   recordType: DEAL_RECORD_TYPE,
+  traits: { 'workflow.staged': { stage_field: 'stage_id' } },
   createPermission: 'deals.create',
   updatePermission: 'deals.update',
   collectionQueryKeys: [dealsKeys.boards()],

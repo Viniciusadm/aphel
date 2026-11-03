@@ -7,7 +7,7 @@ import { localizeViolationMessage } from '@/api'
 import { Button } from '@/components/ui/button'
 import { Input } from '@/components/ui/input'
 import { useActivityTypes } from '@/modules/activities/api'
-import { usePipelines } from '@/modules/pipelines/api'
+import { usePipelines } from '@/modules/workflow/api'
 import { NativeSelect } from '@/features/records/filters/NativeSelect'
 import { Slot } from '@/kernel/modules/Slot'
 import type { ActionTarget, MatchableField } from './api'
@@ -41,16 +41,16 @@ export function ActionEditor({ index, total, target, onMove, onRemove }: ActionE
   const matchBy = useWatch({ control, name: `actions.${index}.match_by` })
   const distributionRuleId = useWatch({ control, name: `actions.${index}.distribution_rule_id` })
   const mappings = useFieldArray({ control, name: `actions.${index}.fields` })
-  const pipelines = usePipelines()
+  const workflow = usePipelines()
   const activityTypes = useActivityTypes()
   const errors = formState.errors.actions?.[index]
 
   const stages = useMemo(
     () =>
-      (pipelines.data ?? [])
+      (workflow.data ?? [])
         .find((pipeline) => pipeline.id === pipelineId)
         ?.stages.filter((stage) => stage.is_active) ?? [],
-    [pipelines.data, pipelineId],
+    [workflow.data, pipelineId],
   )
   const fieldOptions: MatchableField[] = target?.fields ?? []
   const uniqueFields = fieldOptions.filter((field) => field.is_custom && field.is_unique)
@@ -134,7 +134,7 @@ export function ActionEditor({ index, total, target, onMove, onRemove }: ActionE
               })}
             >
               <option value="">{t('actions.choose')}</option>
-              {(pipelines.data ?? [])
+              {(workflow.data ?? [])
                 .filter((pipeline) => pipeline.is_active)
                 .map((pipeline) => (
                   <option key={pipeline.id} value={pipeline.id}>

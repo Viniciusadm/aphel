@@ -36,8 +36,8 @@ use aphel_kernel::errors::{AppError, FieldViolation};
 use aphel_kernel::records::{
     PendingCommit, RecordCtx, RecordTypeHandler, optional_record, values_request,
 };
-use pipelines::http::{PipelineStageResponse, PipelineSummaryResponse, StageKindSchema};
-use pipelines::rotting::RottingState;
+use workflow::http::{PipelineStageResponse, PipelineSummaryResponse, StageKindSchema};
+use workflow::rotting::RottingState;
 
 pub(crate) const TAG: &str = "deals";
 
@@ -71,7 +71,7 @@ fn query_params<T>(query: Result<Query<T>, QueryRejection>) -> Result<T, AppErro
     security(("session_cookie" = [])),
     params(RecordQueryParams, PaginationQuery, IncludeQuery),
     responses(
-        (status = 200, description = "Deals visible under the `deals.read` scope and in pipelines open to the user's teams, filtered, searched and sorted through the record query engine. Besides `filter` as JSON, simple conditions go as `filter[field][operator]=value` (`filter[status][eq]=open`, `filter[amount][gte]=1000`, `filter[stage_id][in]=a,b`), combined with `and`. Default order: newest first. `stage`, `contact`, `company`, `owner` and `lost_reason` are always embedded; `include` accepts those names", body = Page<DealResponse>),
+        (status = 200, description = "Deals visible under the `deals.read` scope and in workflow open to the user's teams, filtered, searched and sorted through the record query engine. Besides `filter` as JSON, simple conditions go as `filter[field][operator]=value` (`filter[status][eq]=open`, `filter[amount][gte]=1000`, `filter[stage_id][in]=a,b`), combined with `and`. Default order: newest first. `stage`, `contact`, `company`, `owner` and `lost_reason` are always embedded; `include` accepts those names", body = Page<DealResponse>),
         (status = 401, description = "Missing or invalid credentials (`unauthorized`, `invalid_api_token`)", body = ErrorEnvelope),
         (status = 403, description = "Missing `deals.read` (`permission_denied`, `insufficient_scope`)", body = ErrorEnvelope),
         (status = 422, description = "Invalid filter, sort, search, include or pagination (`validation_error` with `details.fields`)", body = ErrorEnvelope),

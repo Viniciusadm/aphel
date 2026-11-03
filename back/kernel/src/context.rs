@@ -116,6 +116,18 @@ impl<'a> Ctx<'a> {
         })
     }
 
+    pub async fn load_record(
+        &self,
+        record_type: &str,
+        id: uuid::Uuid,
+    ) -> Result<Option<serde_json::Value>, AppError> {
+        let state = self.state();
+        self.registry
+            .handler(record_type)?
+            .load(&crate::records::RecordCtx::new(self.scope, &state), id)
+            .await
+    }
+
     pub fn storage(&self) -> Result<SharedFileStorage, AppError> {
         self.storage.clone().ok_or_else(|| {
             AppError::Configuration("file storage is not available in this context".to_owned())

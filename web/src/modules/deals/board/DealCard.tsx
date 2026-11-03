@@ -18,7 +18,7 @@ import { useFilters } from '@/kernel/modules/filters'
 import { Slot } from '@/kernel/modules/Slot'
 import { cn } from '@/lib/utils'
 import { dealPath } from '../resource'
-import type { PipelineStage } from '@/modules/pipelines/types'
+import type { PipelineStage } from '@/modules/workflow/types'
 import type { Deal } from '../types'
 import { daysInStage } from './board-state'
 

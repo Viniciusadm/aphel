@@ -190,7 +190,6 @@ dependencies = [
  "aphel-mod-org-export",
  "aphel-mod-organizations",
  "aphel-mod-people",
- "aphel-mod-pipelines",
  "aphel-mod-plugins",
  "aphel-mod-price-lists",
  "aphel-mod-privacy",
@@ -213,6 +212,7 @@ dependencies = [
  "aphel-mod-trash",
  "aphel-mod-validation-rules",
  "aphel-mod-webhooks",
+ "aphel-mod-workflow",
  "axum",
  "base64 0.22.1",
  "chrono",
@@ -281,6 +281,15 @@ version = "0.1.0"
 dependencies = [
  "aphel-contract",
  "serde",
+]
+
+[[package]]
+name = "aphel-contract-workflow"
+version = "0.1.0"
+dependencies = [
+ "aphel-contract",
+ "serde",
+ "uuid",
 ]
 
 [[package]]
@@ -409,7 +418,7 @@ dependencies = [
  "aphel-mod-config-packages",
  "aphel-mod-formulas",
  "aphel-mod-notifications",
- "aphel-mod-pipelines",
+ "aphel-mod-workflow",
  "async-trait",
  "axum",
  "chrono",
@@ -432,9 +441,9 @@ dependencies = [
  "aphel-mod-activities",
  "aphel-mod-config-packages",
  "aphel-mod-notifications",
- "aphel-mod-pipelines",
  "aphel-mod-record-layouts",
  "aphel-mod-tags",
+ "aphel-mod-workflow",
  "aphel-sdk",
  "async-trait",
  "axum",
@@ -550,7 +559,7 @@ dependencies = [
  "aphel-kernel",
  "aphel-mod-config-packages",
  "aphel-mod-currencies",
- "aphel-mod-pipelines",
+ "aphel-mod-workflow",
  "async-trait",
  "axum",
  "chrono",
@@ -575,9 +584,9 @@ dependencies = [
  "aphel-mod-currencies",
  "aphel-mod-dashboard",
  "aphel-mod-deals",
- "aphel-mod-pipelines",
  "aphel-mod-products",
  "aphel-mod-quotes",
+ "aphel-mod-workflow",
  "async-trait",
  "axum",
  "chrono",
@@ -603,7 +612,7 @@ dependencies = [
  "aphel-mod-notifications",
  "aphel-mod-organizations",
  "aphel-mod-people",
- "aphel-mod-pipelines",
+ "aphel-mod-workflow",
  "aphel-sdk",
  "async-trait",
  "axum",
@@ -634,12 +643,12 @@ dependencies = [
  "aphel-mod-onboarding",
  "aphel-mod-organizations",
  "aphel-mod-people",
- "aphel-mod-pipelines",
  "aphel-mod-price-lists",
  "aphel-mod-privacy",
  "aphel-mod-products",
  "aphel-mod-quotes",
  "aphel-mod-validation-rules",
+ "aphel-mod-workflow",
  "async-trait",
  "axum",
  "chrono",
@@ -1000,8 +1009,8 @@ dependencies = [
  "aphel-mod-lead-distribution",
  "aphel-mod-leads",
  "aphel-mod-people",
- "aphel-mod-pipelines",
  "aphel-mod-tags",
+ "aphel-mod-workflow",
  "axum",
  "chrono",
  "form_urlencoded",
@@ -1250,8 +1259,8 @@ dependencies = [
  "aphel-mod-config-packages",
  "aphel-mod-exports",
  "aphel-mod-notifications",
- "aphel-mod-pipelines",
  "aphel-mod-search",
+ "aphel-mod-workflow",
  "aphel-sdk",
  "async-trait",
  "axum",
@@ -1303,26 +1312,6 @@ dependencies = [
  "async-trait",
  "axum",
  "chrono",
- "serde",
- "serde_json",
- "sqlx",
- "utoipa",
- "utoipa-axum",
- "uuid",
-]
-
-[[package]]
-name = "aphel-mod-pipelines"
-version = "0.1.0"
-dependencies = [
- "aphel-contract-automation",
- "aphel-contract-crm",
- "aphel-kernel",
- "aphel-mod-config-packages",
- "async-trait",
- "axum",
- "chrono",
- "rust_decimal",
  "serde",
  "serde_json",
  "sqlx",
@@ -1547,8 +1536,9 @@ dependencies = [
  "aphel-mod-deal-items",
  "aphel-mod-deals",
  "aphel-mod-notifications",
- "aphel-mod-pipelines",
  "aphel-mod-products",
+ "aphel-mod-workflow",
+ "aphel-sdk",
  "async-trait",
  "axum",
  "chrono",
@@ -1573,8 +1563,8 @@ dependencies = [
  "aphel-mod-dashboard",
  "aphel-mod-deals",
  "aphel-mod-exports",
- "aphel-mod-pipelines",
  "aphel-mod-saved-views",
+ "aphel-mod-workflow",
  "async-trait",
  "axum",
  "bytes",
@@ -1848,7 +1838,7 @@ dependencies = [
  "aphel-mod-lead-distribution",
  "aphel-mod-notifications",
  "aphel-mod-people",
- "aphel-mod-pipelines",
+ "aphel-mod-workflow",
  "aphel-sdk",
  "async-trait",
  "axum",
@@ -1867,14 +1857,36 @@ dependencies = [
 ]
 
 [[package]]
+name = "aphel-mod-workflow"
+version = "0.1.0"
+dependencies = [
+ "aphel-kernel",
+ "aphel-mod-config-packages",
+ "aphel-sdk",
+ "async-trait",
+ "axum",
+ "chrono",
+ "serde",
+ "serde_json",
+ "sqlx",
+ "utoipa",
+ "utoipa-axum",
+ "uuid",
+]
+
+[[package]]
 name = "aphel-sdk"
 version = "0.1.0"
 dependencies = [
  "aphel-contract",
  "aphel-contract-automation",
  "aphel-contract-party",
+ "aphel-contract-workflow",
  "aphel-kernel",
+ "async-trait",
  "serde_json",
+ "sqlx",
+ "uuid",
 ]
 
 [[package]]

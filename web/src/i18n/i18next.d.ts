@@ -59,7 +59,6 @@ import type orgExportNamespace from '../modules/org_export/i18n/pt-BR.json'
 import type organizationSettingsNamespace from './pt-BR/organization-settings.json'
 import type organizationsNamespace from '../modules/organizations/i18n/pt-BR.json'
 import type peopleNamespace from '../modules/people/i18n/pt-BR.json'
-import type pipelinesNamespace from '../modules/pipelines/i18n/pt-BR.json'
 import type priceListsNamespace from '../modules/price_lists/i18n/pt-BR.json'
 import type privacyNamespace from '../modules/privacy/i18n/pt-BR.json'
 import type productsNamespace from '../modules/products/i18n/pt-BR.json'
@@ -90,6 +89,7 @@ import type twoFactorNamespace from './pt-BR/two-factor.json'
 import type validationMessagesNamespace from './pt-BR/validation-messages.json'
 import type validationRulesNamespace from './pt-BR/validation-rules.json'
 import type webhooksNamespace from '../modules/webhooks/i18n/pt-BR.json'
+import type workflowNamespace from '../modules/workflow/i18n/pt-BR.json'
 
 declare module 'i18next' {
   interface CustomTypeOptions {
@@ -155,7 +155,6 @@ declare module 'i18next' {
       'organization-settings': typeof organizationSettingsNamespace
       organizations: typeof organizationsNamespace
       people: typeof peopleNamespace
-      pipelines: typeof pipelinesNamespace
       price_lists: typeof priceListsNamespace
       privacy: typeof privacyNamespace
       products: typeof productsNamespace
@@ -186,6 +185,7 @@ declare module 'i18next' {
       'validation-messages': typeof validationMessagesNamespace
       'validation-rules': typeof validationRulesNamespace
       webhooks: typeof webhooksNamespace
+      workflow: typeof workflowNamespace
     }
   }
 }

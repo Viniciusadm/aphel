@@ -65,7 +65,7 @@ impl Module for DashboardModule {
             130,
             |pool, registry| {
                 let _ = registry;
-                std::sync::Arc::new(crate::section::DashboardSection::new(crate::engine::WidgetRegistry::<crate::repository::MySqlDashboardPorts>::builtin().providers().map(|provider| provider.key().to_owned()).collect(), crate::store::LayoutStore::new(pool.clone()), pipelines::store::PipelineStore::new(pool.clone()), ::config_packages::infrastructure::MySqlConfigKeyRepository::new(pool.clone())))
+                std::sync::Arc::new(crate::section::DashboardSection::new(crate::engine::WidgetRegistry::<crate::repository::MySqlDashboardPorts>::builtin().providers().map(|provider| provider.key().to_owned()).collect(), crate::store::LayoutStore::new(pool.clone()), workflow::store::PipelineStore::new(pool.clone()), ::config_packages::infrastructure::MySqlConfigKeyRepository::new(pool.clone())))
             },
         )));
         app.openapi_tag(

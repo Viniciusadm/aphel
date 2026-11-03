@@ -72,12 +72,12 @@ pub(crate) async fn target_fields(
         .collect())
 }
 
-pub(crate) async fn pipelines(
+pub(crate) async fn workflow(
     ctx: &Ctx<'_>,
     scope: &AccessScope,
 ) -> Result<Vec<LeadFormPipelineOption>, AppError> {
-    let pipelines = pipelines::service::list_pipelines(&ctx.with_scope(scope)).await?;
-    Ok(pipelines
+    let workflow = workflow::service::list_pipelines(&ctx.with_scope(scope)).await?;
+    Ok(workflow
         .into_iter()
         .filter(|view| view.pipeline.is_active)
         .map(|view| LeadFormPipelineOption {
@@ -282,8 +282,8 @@ async fn validate_deal(
             "must be a decimal number with up to 2 decimal places",
         ));
     }
-    let pipelines = pipelines(ctx, actor).await.unwrap_or_default();
-    match pipelines
+    let workflow = workflow(ctx, actor).await.unwrap_or_default();
+    match workflow
         .iter()
         .find(|pipeline| pipeline.id == deal.pipeline_id)
     {

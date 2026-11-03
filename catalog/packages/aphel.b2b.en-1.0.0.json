@@ -210,7 +210,7 @@
         "type": "date"
       }
     ],
-    "pipelines": [
+    "workflow": [
       {
         "key": "vendas_b2b",
         "name": "B2B Sales",

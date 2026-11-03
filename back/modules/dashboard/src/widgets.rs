@@ -19,7 +19,7 @@ use aphel_kernel::application::shared::RecordType;
 use aphel_kernel::domain::access::Permission;
 use aphel_kernel::errors::{AppError, FieldViolation};
 use currencies::domain::{BASE_AMOUNT_FIELD, BASE_AMOUNT_METRIC};
-use pipelines::rotting::stale_deal_filter;
+use workflow::rotting::stale_record_filter;
 
 use crate::queries::{
     self, PendingActivity, ReadableRecords, RecentEvent, RecentEventsRequest, RecordLink, StaleDeal,
@@ -470,7 +470,7 @@ where
                 let cutoff = context.now - chrono::Duration::days(settings.stale_days);
                 let mut conditions = vec![
                     eq("status", "open"),
-                    stale_deal_filter(vec![
+                    stale_record_filter(vec![
                         before("updated_at", cutoff),
                         Filter::or(vec![
                             is_empty("last_activity_at"),

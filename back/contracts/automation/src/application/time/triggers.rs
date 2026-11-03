@@ -263,9 +263,16 @@ pub fn allowed_keys(spec: &TriggerSpec, allowed: &[&str]) -> Vec<FieldViolation>
         .collect()
 }
 
+pub struct TimeCatchUp {
+    pub record_types: &'static [&'static str],
+    pub event_type: &'static str,
+    pub event_key: fn(&aphel_kernel::application::shared::DomainEvent) -> Option<Uuid>,
+    pub filter: fn(Option<Uuid>) -> Filter,
+}
 pub struct TimeTriggerPlanner {
     pub kind: &'static str,
     pub plan: fn(&TriggerSpec) -> Result<TimePlan, Vec<FieldViolation>>,
+    pub catch_up: Option<TimeCatchUp>,
 }
 
 pub fn parse_plan(spec: &TriggerSpec) -> Result<TimePlan, Vec<FieldViolation>> {
@@ -443,4 +450,11 @@ pub fn plan_violations(spec: &TriggerSpec, fields: &FieldSet) -> Vec<FieldViolat
 
 pub fn schema_filter() -> Value {
     json!({ "type": "object", "description": "Filter AST of the listings" })
+}
+
+pub fn contributed_planner(kind: &str) -> Option<std::sync::Arc<TimeTriggerPlanner>> {
+    aphel_kernel::modules::app()
+        .contributions::<TimeTriggerPlanner>()
+        .into_iter()
+        .find(|planner| planner.kind == kind)
 }

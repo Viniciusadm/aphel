@@ -14,11 +14,11 @@ Plan: §7.7. Target of each module: §4.3. Evidence: §1.3, §1.7. Before any ne
 - [x] **P5.1** `party` contract and `party.contact_points` trait (§5.2).
 - [x] **P5.2** `people` and `organizations`.
 
-Implementation note: P5.1 connects people and organizations as providers and duplicates, trash and privacy as consumers. The contract is kernel/CRM-free; SDK helpers preserve existing field metadata. Plugin-specific review and pending manual acceptance cases are tracked in [the party migration checklist](p5-party.md). P5.2 introduces the people/organizations plugin, schema, API and web identities for fresh installations. P5.3 onward remains pending.
+Implementation note: P5.1 connects people and organizations as providers and duplicates, trash and privacy as consumers. The contract is kernel/CRM-free; SDK helpers preserve existing field metadata. Plugin-specific review and pending manual acceptance cases are tracked in [the party migration checklist](p5-party.md). P5.2 introduces the people/organizations plugin, schema, API and web identities for fresh installations. P5.3 introduces the staged contract, provider-owned assignment operations and generic checklist progress. Review and pending manual acceptance: [workflow checklist](p5-workflow.md).
 
 **5.2 Workflow**
 
-- [ ] **P5.3** `workflow` extracted from `pipelines`, with no knowledge of `deal`.
+- [x] **P5.3** `workflow` extracted from `pipelines`, with no knowledge of `deal`.
 
 **5.3 Tasks and calendar**
 

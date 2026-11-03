@@ -106,7 +106,7 @@ impl Module for ApprovalsModule {
                     registry.clone(),
                     crate::store::ApprovalStore::new(pool.clone()),
                     crate::store::ApprovalDirectory::new(pool.clone(), registry.clone()),
-                    pipelines::store::PipelineStore::new(pool.clone()),
+                    workflow::store::PipelineStore::new(pool.clone()),
                     ::config_packages::infrastructure::MySqlConfigKeyRepository::new(pool.clone()),
                 ))
             }),

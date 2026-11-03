@@ -1,36 +1,44 @@
-use std::sync::Arc;
-
-use async_trait::async_trait;
-
 use crate::runtime::AutomationRuntime;
 use crate::time::sweep::TimeTriggerSweep;
+use aphel_contract_automation::application::time::triggers::TimeTriggerPlanner;
 use aphel_kernel::application::shared::{DomainEvent, EventConsumer};
 use aphel_kernel::errors::AppError;
-use pipelines::rotting::{PIPELINE_STAGE_ROTTING_TIGHTENED, tightened_stage};
-
-pub(crate) const ROTTING_CATCH_UP_CONSUMER: &str = "automations.rotting_catch_up";
-
-pub(crate) struct RottingCatchUp(pub(crate) Arc<AutomationRuntime>);
-
+use async_trait::async_trait;
+use std::sync::Arc;
+pub(crate) struct TimeCatchUpConsumer(pub(crate) Arc<AutomationRuntime>);
 #[async_trait]
-impl EventConsumer for RottingCatchUp {
+impl EventConsumer for TimeCatchUpConsumer {
     fn name(&self) -> &str {
-        ROTTING_CATCH_UP_CONSUMER
+        "automations.time_catch_up"
     }
-
     fn accepts(&self, event_type: &str) -> bool {
-        event_type == PIPELINE_STAGE_ROTTING_TIGHTENED
+        aphel_kernel::modules::app()
+            .contributions::<TimeTriggerPlanner>()
+            .iter()
+            .any(|planner| {
+                planner
+                    .catch_up
+                    .as_ref()
+                    .is_some_and(|policy| policy.event_type == event_type)
+            })
     }
-
     async fn consume(&self, event: &DomainEvent) -> Result<(), AppError> {
-        let Some(stage_id) = tightened_stage(event) else {
-            return Ok(());
-        };
-        let fired = TimeTriggerSweep(self.0.clone())
-            .catch_up_rotting_stage(stage_id)
-            .await?;
-        if fired > 0 {
-            tracing::info!(fired, stage = %stage_id, "rotting catch-up queued automation runs");
+        for planner in aphel_kernel::modules::app().contributions::<TimeTriggerPlanner>() {
+            let Some(policy) = planner
+                .catch_up
+                .as_ref()
+                .filter(|policy| policy.event_type == event.event_type)
+            else {
+                continue;
+            };
+            let Some(key) = (policy.event_key)(event) else {
+                continue;
+            };
+            for record_type in policy.record_types {
+                TimeTriggerSweep(self.0.clone())
+                    .catch_up_trigger(record_type, planner.kind, key, policy)
+                    .await?;
+            }
         }
         Ok(())
     }

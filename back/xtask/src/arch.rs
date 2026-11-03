@@ -36,7 +36,7 @@ const DOMAIN_WORDS: [&str; 15] = [
     "proposals",
     "crm",
     "renewal",
-    "pipelines",
+    "workflow",
 ];
 const FOREIGN_RECORD_LITERALS: [&str; 24] = [
     "\"people.person\"",
@@ -48,9 +48,9 @@ const FOREIGN_RECORD_LITERALS: [&str; 24] = [
     "\"activities.activity\"",
     "\"products.product\"",
     "\"notes.note\"",
-    "\"pipelines.pipeline\"",
-    "\"pipelines.pipeline_stage\"",
-    "\"pipelines.lost_reason\"",
+    "\"workflow.pipeline\"",
+    "\"workflow.stage\"",
+    "\"workflow.lost_reason\"",
     "\"contact\"",
     "\"company\"",
     "\"deal\"",

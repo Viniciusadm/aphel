@@ -2,9 +2,9 @@
 
 Two organization settings that come in as **handlers of the `RecordValidating` hook** of the record pipeline ([`record-pipeline.md`](record-pipeline.md)) and therefore apply to every record write, whether it comes from the form, inline editing, the API, import, automations or bulk actions: all these paths use the same use cases, and the use cases for contact, company, deal (create, edit, move stage, win, lose, reopen), activity, product, quote and custom object call `fields().pipeline().validate(&mut tx, scope, &RecordWrite { .. })` inside the transaction, after writing the custom fields and before publishing events.
 
-The two guards are registered by the `pipelines` module (checklist, priority 20) and the `kernel` module (validation rule, priority 30, in `back/kernel/src/kernel_module.rs`, after approval and before lifecycle):
+The two guards are registered by the `workflow` module (checklist, priority 20) and the `kernel` module (validation rule, priority 30, in `back/kernel/src/kernel_module.rs`, after approval and before lifecycle):
 
-- `StageChecklistGuard` (`modules/pipelines/hooks.rs`);
+- `StageChecklistGuard` (`modules/workflow/hooks.rs`);
 - `ValidationRuleGuard` (`kernel/application/fields/validation_rules/guard.rs`).
 
 ## Validation rules
@@ -60,11 +60,11 @@ Section `validation_rules` (`ValidationRulesSection`): a list of `{ key, record_
 
 ## Stage guidance
 
-Code: `modules/pipelines/guidance`, `modules/pipelines/guidance`, API in `api/routes/v1/stage_guidance.rs`, web in `web/src/features/pipelines/guidance` (editor in the stage dialog and the "Stage guidance" panel in the deal detail). Tables `pipeline_stage_guidance`, `pipeline_stage_checklist_items` and `deal_checklist_progress` (migrations `2551`–`2552`).
+Code: `modules/workflow/guidance`, `modules/workflow/guidance`, API in `api/routes/v1/stage_guidance.rs`, web in `web/src/features/workflow/guidance` (editor in the stage dialog and the "Stage guidance" panel in the deal detail). Tables `workflow_stage_guidance`, `workflow_stage_checklist_items` and `deal_checklist_progress` (migrations `2551`–`2552`).
 
 - Each stage has markdown guidance and a checklist (items with a `key` that is stable within the stage, label, required or not, and order).
 - Progress is per deal and item (who checked it and when). Checking/unchecking requires being able to edit the deal and publishes `deal.checklist_item_checked` / `deal.checklist_item_unchecked` with audit (`checklist.<key>` in the changes).
-- **Required items of the current stage must be done to move forward**: going to a stage with a higher position in the same pipeline or winning the deal. Going back a stage, moving to another pipeline, losing and reopening do not require the checklist. Neither does creating the deal directly in a stage. The rejection is **422 `stage_checklist_incomplete`** with `details.fields[]` = `{ field: "checklist.<key>", message: <item label> }`. Stage field requirements (`modules/pipelines/requirements.rs`, `stage_requirements_missing`) are still checked first, in the use case; the checklist is checked in the guard, inside the transaction. When a required empty field is hidden or read-only for whoever is moving the deal, the rejection changes to **422 `stage_requirements_inaccessible`** (same `details.fields`, with the message indicating the inaccessible field): the user cannot resolve it on their own and the interface should not open the fill-in form; ask someone who can see the field or adjust the field permissions. The requirement is never ignored.
+- **Required items of the current stage must be done to move forward**: going to a stage with a higher position in the same pipeline or winning the deal. Going back a stage, moving to another pipeline, losing and reopening do not require the checklist. Neither does creating the deal directly in a stage. The rejection is **422 `stage_checklist_incomplete`** with `details.fields[]` = `{ field: "checklist.<key>", message: <item label> }`. Stage field requirements (`modules/workflow/requirements.rs`, `stage_requirements_missing`) are still checked first, in the use case; the checklist is checked in the guard, inside the transaction. When a required empty field is hidden or read-only for whoever is moving the deal, the rejection changes to **422 `stage_requirements_inaccessible`** (same `details.fields`, with the message indicating the inaccessible field): the user cannot resolve it on their own and the interface should not open the fill-in form; ask someone who can see the field or adjust the field permissions. The requirement is never ignored.
 
 ### API
 

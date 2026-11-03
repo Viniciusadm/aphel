@@ -7,7 +7,7 @@ import { type ComposerSubject } from '@/kernel/modules/slots'
 import { MentionInput } from '@/modules/notifications/ui'
 import { NativeSelect } from '@/features/records/filters/NativeSelect'
 import type { NoteVisibility } from '../api'
-import { Markdown } from './Markdown'
+import { Markdown } from '@/components/markdown'
 import { Field } from '@/components/ui/field'
 
 export const MAX_NOTE_LENGTH = 50_000

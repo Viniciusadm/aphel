@@ -22,7 +22,7 @@ Desktop navigation groups work, CRM, operations, insights and administration. Si
 - Approvals: native queue and status selectors replace navigation-shaped filters.
 - Price lists, privacy, configuration packages and theme editing: independent functions use contextual workspaces. Theme preview retains a small mode selector.
 - Sequences, proposals, quotes, lead forms, imports, exports, bulk history, duplicates and merge flows: existing collection/editor or sequential workflows retained; shared navigation, record contributions and controls are migrated.
-- Goals, forecast, scoring, distribution, currencies, pipelines, tags and specialized modules: shared shell and controls apply; contributed record content uses the section API.
+- Goals, forecast, scoring, distribution, currencies, workflow, tags and specialized modules: shared shell and controls apply; contributed record content uses the section API.
 - Organization, users, teams, roles, fields, object definitions, layouts, validation, integrations, webhooks, storage, modules, catalog, notifications, account security, audit, trash and system: existing searchable settings architecture and dedicated pages retained. Multi-function configuration pages use contextual sections.
 - Authentication, installation, public booking and public quotes: standalone flows retained; shared inputs, dialogs, menus and touch targets apply.
 

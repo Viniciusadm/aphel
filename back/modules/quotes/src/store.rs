@@ -694,7 +694,7 @@ impl QuoteStore {
         stage_id: Uuid,
     ) -> Result<bool, AppError> {
         let exists: bool = sqlx::query_scalar(
-            "SELECT EXISTS(SELECT 1 FROM pipeline_stages WHERE pipeline_id = ? AND id = ?)",
+            "SELECT EXISTS(SELECT 1 FROM workflow_stages WHERE pipeline_id = ? AND id = ?)",
         )
         .bind(pipeline_id.to_string())
         .bind(stage_id.to_string())

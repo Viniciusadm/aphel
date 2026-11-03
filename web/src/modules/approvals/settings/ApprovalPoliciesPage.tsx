@@ -8,7 +8,7 @@ import { Checkbox } from '@/components/ui/checkbox'
 import { EmptyState } from '@/components/ui/empty-state'
 import { ErrorState } from '@/components/ui/error-state'
 import { toast } from '@/components/ui/toast-store'
-import { usePipelines } from '@/modules/pipelines/api'
+import { usePipelines } from '@/modules/workflow/api'
 import { RequirePermission } from '@/features/settings/components/RequirePermission'
 import { approvalsApi, useApprovalPolicies, usePolicyMutation } from '../api'
 import { APPROVALS_MANAGE_PERMISSION } from '../constants'
@@ -150,9 +150,9 @@ interface PolicyRowProps {
 function PolicyRow({ policy, first, last, busy, onMoveUp, onMoveDown, onToggle, onEdit, onRemove }: PolicyRowProps) {
   const { t } = useTranslation('approvals')
   const recordTypeLabel = useRecordTypeLabel()
-  const pipelines = usePipelines()
+  const workflow = usePipelines()
   const stage = policy.target_id
-    ? pipelines.data?.flatMap((pipeline) => pipeline.stages).find((item) => item.id === policy.target_id)
+    ? workflow.data?.flatMap((pipeline) => pipeline.stages).find((item) => item.id === policy.target_id)
     : undefined
 
   return (

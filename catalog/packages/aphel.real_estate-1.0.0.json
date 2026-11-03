@@ -234,7 +234,7 @@
         }
       }
     ],
-    "pipelines": [
+    "workflow": [
       {
         "key": "venda",
         "name": "Venda",

@@ -31,7 +31,7 @@
     "deals": {
       "title": "Deals",
       "description": "Upload the deals (opportunities) CSV, usually {{file}}.",
-      "links": "Each deal is linked to the company and the person by name, and to the stages and pipelines you choose below."
+      "links": "Each deal is linked to the company and the person by name, and to the stages and workflow you choose below."
     },
     "activities": {
       "title": "Activities",

@@ -466,7 +466,7 @@ async fn distribution_rules(
     operation_id = "lead_forms_options",
     security(("session_cookie" = [])),
     responses(
-        (status = 200, description = "What the form editor can pick: writable contact fields (system and custom), active pipelines and stages, contact tags, active users and active lead distribution rules for people. Lists the current user cannot read come back empty", body = Data<LeadFormOptions>),
+        (status = 200, description = "What the form editor can pick: writable contact fields (system and custom), active workflow and stages, contact tags, active users and active lead distribution rules for people. Lists the current user cannot read come back empty", body = Data<LeadFormOptions>),
         (status = 403, description = "Missing `lead_forms.manage` (`permission_denied`)", body = ErrorEnvelope),
     )
 )]
@@ -478,7 +478,7 @@ async fn options(
     scope.require(&MANAGE)?;
     let ctx = Ctx::from_state(&state, scope).await?;
     let contact_fields = validate::target_fields(&ctx, scope).await?;
-    let pipelines = validate::pipelines(&ctx, scope).await.unwrap_or_default();
+    let workflow = validate::workflow(&ctx, scope).await.unwrap_or_default();
     let tags = tags::service::list(&ctx, Some("people.person"))
         .await
         .map(|tags| {
@@ -517,7 +517,7 @@ async fn options(
     Ok(Json(Data {
         data: LeadFormOptions {
             contact_fields,
-            pipelines,
+            workflow,
             tags,
             users,
             distribution_rules,

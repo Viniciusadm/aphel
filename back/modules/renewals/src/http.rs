@@ -16,7 +16,7 @@ use aphel_kernel::api::error::ApiError;
 use aphel_kernel::api::extractors::{AuthContext, ClientInfo, IfMatch, JsonBody};
 use aphel_kernel::api::state::AppState;
 
-pub(crate) const TAG: &str = "pipelines";
+pub(crate) const TAG: &str = "workflow";
 
 pub(crate) fn router() -> OpenApiRouter<AppState> {
     OpenApiRouter::new()
@@ -133,7 +133,7 @@ impl RenewalSettingsRequest {
     tag = TAG,
     operation_id = "pipeline_renewals_list",
     security(("session_cookie" = [])),
-    description = "Renewal settings saved for the pipelines of the organization. Needs `settings.manage`.",
+    description = "Renewal settings saved for the workflow of the organization. Needs `settings.manage`.",
     responses(
         (status = 200, description = "Saved renewal settings", body = Data<Vec<RenewalSettingsResponse>>),
         (status = 401, description = "Missing or invalid credentials (`unauthorized`, `invalid_api_token`)", body = ErrorEnvelope),
@@ -152,7 +152,7 @@ async fn list_pipeline_renewals(
 
 #[utoipa::path(
     get,
-    path = "/pipelines/{pipeline_id}/renewal",
+    path = "/workflow/{pipeline_id}/renewal",
     tag = TAG,
     operation_id = "pipeline_renewal_get",
     security(("session_cookie" = [])),
@@ -177,7 +177,7 @@ async fn get_pipeline_renewal(
 
 #[utoipa::path(
     put,
-    path = "/pipelines/{pipeline_id}/renewal",
+    path = "/workflow/{pipeline_id}/renewal",
     tag = TAG,
     operation_id = "pipeline_renewal_update",
     security(("session_cookie" = [])),

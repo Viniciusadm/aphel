@@ -16,7 +16,7 @@ activities = { package = "aphel-mod-activities", path = "../activities" }
 people = { package = "aphel-mod-people", path = "../people" }
 deals = { package = "aphel-mod-deals", path = "../deals" }
 lead_distribution = { package = "aphel-mod-lead-distribution", path = "../lead_distribution" }
-pipelines = { package = "aphel-mod-pipelines", path = "../pipelines" }
+workflow = { package = "aphel-mod-workflow", path = "../workflow" }
 form_urlencoded.workspace = true
 axum.workspace = true
 async-trait.workspace = true

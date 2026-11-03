@@ -1,3 +1,7 @@
+use aphel_sdk::workflow::WorkflowRecordTypes;
+mod workflow_source;
+use aphel_sdk::workflow::WorkflowTraits;
+mod rotting;
 use aphel_contract_automation::AutomationBuilder;
 pub(crate) mod automation;
 pub mod domain;
@@ -11,7 +15,6 @@ pub mod service;
 pub mod store;
 pub mod team;
 
-use aphel_contract_crm::traits;
 use aphel_contract_crm::{CrmPermissions, CrmRecordTypes, activities_relation};
 use std::sync::Arc;
 
@@ -154,7 +157,12 @@ pub(crate) fn deal_capabilities() -> EntityTraits {
         .relatable()
         .importable()
         .exportable()
-        .with_trait(traits::STAGED)
+        .staged(aphel_sdk::workflow::StagedMapping {
+            state_field: Some("status".to_owned()),
+            active_state: Some("open".to_owned()),
+            completed_states: vec!["won".to_owned()],
+            ..Default::default()
+        })
         .personal_data()
         .notifies()
         .automatable()
@@ -273,13 +281,12 @@ impl Module for DealsModule {
         Manifest::new(KEY, "Deals", APHEL_VERSION)
             .description("Deals, stage changes, the Kanban board and the team of each deal")
             .required()
-            .depends_on(pipelines::KEY, "*")
+            .depends_on(workflow::KEY, "*")
             .depends_on(currencies::KEY, "*")
             .depends_on(people::KEY, "*")
             .depends_on(organizations::KEY, "*")
             .owned_tables(&[
                 "deals",
-                "deal_checklist_progress",
                 "deal_contacts",
                 "deal_member_roles",
                 "deal_members",
@@ -293,6 +300,39 @@ impl Module for DealsModule {
     }
 
     fn register(&self, app: &mut AppBuilder) -> Result<(), AppError> {
+        app.contribute::<dyn aphel_sdk::workflow::StagedRecordSource>(std::sync::Arc::new(
+            workflow_source::DealStages,
+        ));
+        let mut outcome = Ok(());
+        app.extend(RecordType::DEAL.as_str(), |deal| {
+            outcome = ::workflow::rotting::rotting_fields(&aphel_sdk::workflow::StagedMapping {
+                state_field: Some("status".into()),
+                active_state: Some("open".into()),
+                ..Default::default()
+            })
+            .and_then(|fields| {
+                fields
+                    .into_iter()
+                    .try_for_each(|field| deal.computed(field).map(|_| ()))
+            });
+        });
+        outcome?;
+        app.trigger(std::sync::Arc::new(rotting::DealRotting));
+        app.contribute(std::sync::Arc::new(
+            aphel_contract_automation::application::time::triggers::TimeTriggerPlanner {
+                kind: rotting::TIME_DEAL_ROTTING,
+                plan: rotting::rotting_plan,
+                catch_up: Some(
+                    aphel_contract_automation::application::time::triggers::TimeCatchUp {
+                        record_types: &["deals.deal"],
+                        event_type: ::workflow::rotting::PIPELINE_STAGE_ROTTING_TIGHTENED,
+                        event_key: ::workflow::rotting::tightened_stage,
+                        filter: ::workflow::rotting::rotting_catch_up_filter,
+                    },
+                ),
+            },
+        ));
+
         app.contribute::<dyn ::notifications::application::texts::NotificationTexts>(
             std::sync::Arc::new(crate::notifications::DealNotificationTexts),
         );

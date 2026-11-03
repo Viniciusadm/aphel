@@ -1,4 +1,4 @@
-import type { PipelineStage, StageKind } from '@/modules/pipelines/types'
+import type { PipelineStage, StageKind } from '@/modules/workflow/types'
 import type { Board, BoardColumn, Deal, DealStatus } from '../types'
 
 export interface DealLocation {

@@ -32,13 +32,13 @@ use currencies::domain::base_amount;
 use deals::domain::{
     DEAL_AMOUNT_CHANGED, DEAL_UPDATED, DealRecord, deal_not_found, revenue_changes,
 };
-use pipelines::domain::parse_id;
 use products::domain::{
     DealAmountMode, DealItem, DealItemData, DiscountKind, MAX_ITEM_NAME_LENGTH, MAX_ITEMS_PER_DEAL,
     MAX_PRODUCT_UNIT_LENGTH, MONEY_DECIMALS, QUANTITY_DECIMALS, items_total, normalize_quantity,
     parse_money,
 };
 use products::store::ProductStore;
+use workflow::domain::parse_id;
 
 struct Stamp {
     deal_id: Uuid,

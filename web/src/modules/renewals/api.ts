@@ -8,7 +8,7 @@ export const renewalsKeys = {
 }
 
 function renewalPath(pipelineId: string) {
-  return `/v1/pipelines/${encodeURIComponent(pipelineId)}/renewal`
+  return `/v1/workflow/${encodeURIComponent(pipelineId)}/renewal`
 }
 
 export const renewalsApi = {

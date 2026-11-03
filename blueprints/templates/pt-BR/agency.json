@@ -173,7 +173,7 @@
         ]
       }
     ],
-    "pipelines": [
+    "workflow": [
       {
         "key": "novos_projetos",
         "name": "Novos projetos",

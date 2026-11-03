@@ -8,7 +8,7 @@ import { Button } from '@/components/ui/button'
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card'
 import { ErrorState } from '@/components/ui/error-state'
 import { Input } from '@/components/ui/input'
-import { usePipelines } from '@/modules/pipelines/api'
+import { usePipelines } from '@/modules/workflow/api'
 import { useImportJob } from '@/modules/imports/api'
 import { NativeSelect } from '@/features/records/filters/NativeSelect'
 import { useAllMembers } from '@/features/settings/api'
@@ -437,10 +437,10 @@ function PreviewPanel({ preview, maps, onMapsChange }: PreviewPanelProps) {
 function ValueMapEditors({ preview, maps, onMapsChange }: PreviewPanelProps) {
   const { t } = useTranslation('migrations_assistant')
   const targetLabel = useTargetLabel()
-  const pipelines = usePipelines()
+  const workflow = usePipelines()
   const members = useAllMembers()
   const options = useMemo(() => {
-    const active = (pipelines.data ?? []).filter((pipeline) => pipeline.is_active)
+    const active = (workflow.data ?? []).filter((pipeline) => pipeline.is_active)
     return {
       pipeline_id: active.map((pipeline) => ({ value: pipeline.name, label: pipeline.name })),
       stage_id: active.flatMap((pipeline) =>
@@ -452,7 +452,7 @@ function ValueMapEditors({ preview, maps, onMapsChange }: PreviewPanelProps) {
         .filter((member) => member.status === 'active')
         .map((member) => ({ value: member.email, label: `${member.display_name} <${member.email}>` })),
     }
-  }, [pipelines.data, members.data])
+  }, [workflow.data, members.data])
 
   const editors = MAPPABLE.filter((target) => (preview.distinct[target]?.length ?? 0) > 0)
   if (editors.length === 0) return null

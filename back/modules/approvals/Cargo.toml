@@ -13,7 +13,7 @@ config_packages = { package = "aphel-mod-config-packages", path = "../config_pac
 formulas = { package = "aphel-mod-formulas", path = "../formulas" }
 aphel-contract-crm.workspace = true
 aphel-kernel.workspace = true
-pipelines = { package = "aphel-mod-pipelines", path = "../pipelines" }
+workflow = { package = "aphel-mod-workflow", path = "../workflow" }
 axum.workspace = true
 async-trait.workspace = true
 chrono.workspace = true

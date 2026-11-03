@@ -4,7 +4,7 @@ import { useModuleConfigPackageLabels } from '@/kernel/modules/config-packages'
 
 const SECTIONS = [
   'fields',
-  'pipelines',
+  'workflow',
   'lost_reasons',
   'activity_types',
   'deal_member_roles',

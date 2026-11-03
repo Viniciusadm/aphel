@@ -28,7 +28,7 @@ Authenticated (`/api/v1/lead-forms`, permission `lead_forms.manage`):
 | `DELETE` | `/forms/{id}` | Deletes the form and its history (people and deals remain); event `lead_form.deleted` |
 | `POST` | `/forms/{id}/rotate-public-id` | New `public_id`; the old codes stop working immediately |
 | `GET` | `/forms/{id}/submissions?status=&page=&per_page=` | History (`accepted`, `spam`, `failed`) |
-| `GET` | `/options` | Writable contact fields, active pipelines/stages, contact tags and users (lists the user cannot read come back empty) |
+| `GET` | `/options` | Writable contact fields, active workflow/stages, contact tags and users (lists the user cannot read come back empty) |
 
 Public (`/api/v1/public/lead-forms`, no authentication and no `X-Requested-With`):
 

@@ -12973,7 +12973,7 @@
         ],
         "responses": {
           "200": {
-            "description": "Deals visible under the `deals.read` scope and in pipelines open to the user's teams, filtered, searched and sorted through the record query engine. Besides `filter` as JSON, simple conditions go as `filter[field][operator]=value` (`filter[status][eq]=open`, `filter[amount][gte]=1000`, `filter[stage_id][in]=a,b`), combined with `and`. Default order: newest first. `stage`, `contact`, `company`, `owner` and `lost_reason` are always embedded; `include` accepts those names",
+            "description": "Deals visible under the `deals.read` scope and in workflow open to the user's teams, filtered, searched and sorted through the record query engine. Besides `filter` as JSON, simple conditions go as `filter[field][operator]=value` (`filter[status][eq]=open`, `filter[amount][gte]=1000`, `filter[stage_id][in]=a,b`), combined with `and`. Default order: newest first. `stage`, `contact`, `company`, `owner` and `lost_reason` are always embedded; `include` accepts those names",
             "content": {
               "application/json": {
                 "schema": {
@@ -13652,185 +13652,6 @@
           },
           "422": {
             "description": "`Idempotency-Key` already used with a different request (`idempotency_key_reused`) or longer than 255 characters (`validation_error`)",
-            "content": {
-              "application/json": {
-                "schema": {
-                  "$ref": "#/components/schemas/ErrorEnvelope"
-                }
-              }
-            }
-          },
-          "429": {
-            "description": "API token rate limit exceeded (`rate_limited`); see `Retry-After` and `X-RateLimit-*`",
-            "content": {
-              "application/json": {
-                "schema": {
-                  "$ref": "#/components/schemas/ErrorEnvelope"
-                }
-              }
-            }
-          }
-        },
-        "security": [
-          {
-            "session_cookie": []
-          },
-          {
-            "api_token": []
-          }
-        ]
-      }
-    },
-    "/api/v1/deals/{deal_id}/checklist": {
-      "get": {
-        "tags": [
-          "deals"
-        ],
-        "description": "Guidance and checklist of the current stage of the deal with the progress of the deal (who checked each item and when). Needs read access to the deal.",
-        "operationId": "deal_checklist_get",
-        "parameters": [
-          {
-            "name": "deal_id",
-            "in": "path",
-            "description": "Deal id",
-            "required": true,
-            "schema": {
-              "type": "string"
-            }
-          }
-        ],
-        "responses": {
-          "200": {
-            "description": "Checklist of the current stage",
-            "content": {
-              "application/json": {
-                "schema": {
-                  "$ref": "#/components/schemas/Data_DealChecklistResponse"
-                }
-              }
-            }
-          },
-          "401": {
-            "description": "Missing or invalid credentials (`unauthorized`, `invalid_api_token`)",
-            "content": {
-              "application/json": {
-                "schema": {
-                  "$ref": "#/components/schemas/ErrorEnvelope"
-                }
-              }
-            }
-          },
-          "403": {
-            "description": "Missing `deals.read` (`permission_denied`, `insufficient_scope`)",
-            "content": {
-              "application/json": {
-                "schema": {
-                  "$ref": "#/components/schemas/ErrorEnvelope"
-                }
-              }
-            }
-          },
-          "404": {
-            "description": "Deal not found or not visible (`deal_not_found`)",
-            "content": {
-              "application/json": {
-                "schema": {
-                  "$ref": "#/components/schemas/ErrorEnvelope"
-                }
-              }
-            }
-          },
-          "429": {
-            "description": "API token rate limit exceeded (`rate_limited`); see `Retry-After` and `X-RateLimit-*`",
-            "content": {
-              "application/json": {
-                "schema": {
-                  "$ref": "#/components/schemas/ErrorEnvelope"
-                }
-              }
-            }
-          }
-        },
-        "security": [
-          {
-            "session_cookie": []
-          },
-          {
-            "api_token": []
-          }
-        ]
-      }
-    },
-    "/api/v1/deals/{deal_id}/checklist/{item_id}": {
-      "put": {
-        "tags": [
-          "deals"
-        ],
-        "description": "Checks (`done: true`) or unchecks an item of a stage checklist of the deal's pipeline and publishes `deal.checklist_item_checked` or `deal.checklist_item_unchecked`. Needs permission to update the deal.",
-        "operationId": "deal_checklist_item_update",
-        "parameters": [
-          {
-            "name": "deal_id",
-            "in": "path",
-            "description": "Deal id",
-            "required": true,
-            "schema": {
-              "type": "string"
-            }
-          },
-          {
-            "name": "item_id",
-            "in": "path",
-            "description": "Checklist item id",
-            "required": true,
-            "schema": {
-              "type": "string"
-            }
-          }
-        ],
-        "requestBody": {
-          "content": {
-            "application/json": {
-              "schema": {
-                "$ref": "#/components/schemas/ToggleChecklistItemRequest"
-              }
-            }
-          },
-          "required": true
-        },
-        "responses": {
-          "200": {
-            "description": "Checklist of the current stage after the change",
-            "content": {
-              "application/json": {
-                "schema": {
-                  "$ref": "#/components/schemas/Data_DealChecklistResponse"
-                }
-              }
-            }
-          },
-          "401": {
-            "description": "Missing or invalid credentials (`unauthorized`, `invalid_api_token`)",
-            "content": {
-              "application/json": {
-                "schema": {
-                  "$ref": "#/components/schemas/ErrorEnvelope"
-                }
-              }
-            }
-          },
-          "403": {
-            "description": "Missing `deals.update` (`permission_denied`, `insufficient_scope`)",
-            "content": {
-              "application/json": {
-                "schema": {
-                  "$ref": "#/components/schemas/ErrorEnvelope"
-                }
-              }
-            }
-          },
-          "404": {
-            "description": "Deal not found or not editable (`deal_not_found`) or item not in the deal's pipeline (`checklist_item_not_found`)",
             "content": {
               "application/json": {
                 "schema": {
@@ -28519,7 +28340,7 @@
         "operationId": "lead_forms_options",
         "responses": {
           "200": {
-            "description": "What the form editor can pick: writable contact fields (system and custom), active pipelines and stages, contact tags, active users and active lead distribution rules for people. Lists the current user cannot read come back empty",
+            "description": "What the form editor can pick: writable contact fields (system and custom), active workflow and stages, contact tags, active users and active lead distribution rules for people. Lists the current user cannot read come back empty",
             "content": {
               "application/json": {
                 "schema": {
@@ -29259,7 +29080,7 @@
     "/api/v1/lost-reasons": {
       "get": {
         "tags": [
-          "pipelines"
+          "workflow"
         ],
         "operationId": "lost_reasons_list",
         "parameters": [
@@ -29325,7 +29146,7 @@
             }
           },
           "403": {
-            "description": "Missing `deals.read` and `settings.manage` (`permission_denied`, `insufficient_scope`)",
+            "description": "Missing `records.read` and `settings.manage` (`permission_denied`, `insufficient_scope`)",
             "content": {
               "application/json": {
                 "schema": {
@@ -29366,7 +29187,7 @@
       },
       "post": {
         "tags": [
-          "pipelines"
+          "workflow"
         ],
         "operationId": "lost_reasons_create",
         "parameters": [
@@ -29466,7 +29287,7 @@
     "/api/v1/lost-reasons/order": {
       "put": {
         "tags": [
-          "pipelines"
+          "workflow"
         ],
         "operationId": "lost_reasons_reorder",
         "requestBody": {
@@ -29544,7 +29365,7 @@
     "/api/v1/lost-reasons/{reason_id}": {
       "get": {
         "tags": [
-          "pipelines"
+          "workflow"
         ],
         "operationId": "lost_reasons_get",
         "parameters": [
@@ -29580,7 +29401,7 @@
             }
           },
           "403": {
-            "description": "Missing `deals.read` and `settings.manage` (`permission_denied`, `insufficient_scope`)",
+            "description": "Missing `records.read` and `settings.manage` (`permission_denied`, `insufficient_scope`)",
             "content": {
               "application/json": {
                 "schema": {
@@ -29621,7 +29442,7 @@
       },
       "patch": {
         "tags": [
-          "pipelines"
+          "workflow"
         ],
         "operationId": "lost_reasons_update",
         "parameters": [
@@ -33009,7 +32830,7 @@
         },
         "responses": {
           "201": {
-            "description": "Converts the CSV of the source tool (dates, money, phones, owners, deal status and the `maps` of stages, pipelines and owners), stores it as a draft import (`POST /imports`) and pre-fills its mapping and options (duplicates by the step key, missing organizations created by name). Review and start it with the import endpoints (`/imports/{import_id}`). Requires `<type>.create`",
+            "description": "Converts the CSV of the source tool (dates, money, phones, owners, deal status and the `maps` of stages, workflow and owners), stores it as a draft import (`POST /imports`) and pre-fills its mapping and options (duplicates by the step key, missing organizations created by name). Review and start it with the import endpoints (`/imports/{import_id}`). Requires `<type>.create`",
             "content": {
               "application/json": {
                 "schema": {
@@ -39766,9 +39587,9 @@
     "/api/v1/pipeline-renewals": {
       "get": {
         "tags": [
-          "pipelines"
+          "workflow"
         ],
-        "description": "Renewal settings saved for the pipelines of the organization. Needs `settings.manage`.",
+        "description": "Renewal settings saved for the workflow of the organization. Needs `settings.manage`.",
         "operationId": "pipeline_renewals_list",
         "responses": {
           "200": {
@@ -39825,9 +39646,9 @@
     "/api/v1/pipeline-stages": {
       "get": {
         "tags": [
-          "pipelines"
+          "workflow"
         ],
-        "operationId": "pipeline_stages_list",
+        "operationId": "workflow_stages_list",
         "parameters": [
           {
             "name": "pipeline_id",
@@ -39899,7 +39720,7 @@
             }
           },
           "403": {
-            "description": "Missing `deals.read` and `settings.manage` (`permission_denied`, `insufficient_scope`)",
+            "description": "Missing `records.read` and `settings.manage` (`permission_denied`, `insufficient_scope`)",
             "content": {
               "application/json": {
                 "schema": {
@@ -39952,9 +39773,9 @@
     "/api/v1/pipeline-stages/{stage_id}": {
       "get": {
         "tags": [
-          "pipelines"
+          "workflow"
         ],
-        "operationId": "pipeline_stages_get",
+        "operationId": "workflow_stages_get",
         "parameters": [
           {
             "name": "stage_id",
@@ -39988,7 +39809,7 @@
             }
           },
           "403": {
-            "description": "Missing `deals.read` and `settings.manage` (`permission_denied`, `insufficient_scope`)",
+            "description": "Missing `records.read` and `settings.manage` (`permission_denied`, `insufficient_scope`)",
             "content": {
               "application/json": {
                 "schema": {
@@ -40029,9 +39850,9 @@
       },
       "delete": {
         "tags": [
-          "pipelines"
+          "workflow"
         ],
-        "operationId": "pipeline_stages_delete",
+        "operationId": "workflow_stages_delete",
         "parameters": [
           {
             "name": "stage_id",
@@ -40053,7 +39874,7 @@
         ],
         "responses": {
           "204": {
-            "description": "Stage deleted; its deals (including deleted ones) move to `target_stage_id`. Publishes `pipeline_stage.deleted`"
+            "description": "Stage deleted; its records (including deleted ones) move to `target_stage_id`. Publishes `pipeline_stage.deleted`"
           },
           "401": {
             "description": "Missing or invalid credentials (`unauthorized`, `invalid_api_token`)",
@@ -40086,7 +39907,7 @@
             }
           },
           "409": {
-            "description": "The stage has deals and no target was given (`stage_has_deals`), or the pipeline would lose its last open, won or lost stage (`closing_stages_required`)",
+            "description": "The stage has records and no target was given (`stage_has_records`), or the pipeline would lose its last open, won or lost stage (`closing_stages_required`)",
             "content": {
               "application/json": {
                 "schema": {
@@ -40127,9 +39948,9 @@
       },
       "patch": {
         "tags": [
-          "pipelines"
+          "workflow"
         ],
-        "operationId": "pipeline_stages_update",
+        "operationId": "workflow_stages_update",
         "parameters": [
           {
             "name": "stage_id",
@@ -40165,7 +39986,7 @@
         },
         "responses": {
           "200": {
-            "description": "Stage renamed or changed, including the fields required to enter (`entry_required_fields`) or leave it (`exit_required_fields`): system fields `amount`, `currency`, `probability`, `expected_close_date`, `contact_id`, `company_id`, `owner_id`, `source` or active custom fields. `rotting_days` (1 to 3650, `null` clears it, open stages only) marks deals that stay longer in the stage as rotting. Publishes `pipeline_stage.updated`",
+            "description": "Stage renamed or changed, including the fields required to enter (`entry_required_fields`) or leave it (`exit_required_fields`): editable fields declared by staged record providers. `rotting_days` (1 to 3650, `null` clears it, open stages only) marks records that stay longer in the stage as rotting. Publishes `pipeline_stage.updated`",
             "content": {
               "application/json": {
                 "schema": {
@@ -40205,7 +40026,7 @@
             }
           },
           "409": {
-            "description": "The kind of a stage with deals cannot change (`stage_has_deals`), or the pipeline would lose its last open, won or lost stage (`closing_stages_required`), or the stage changed after the `If-Match` version (`version_conflict`)",
+            "description": "The kind of a stage with records cannot change (`stage_has_records`), or the pipeline would lose its last open, won or lost stage (`closing_stages_required`), or the stage changed after the `If-Match` version (`version_conflict`)",
             "content": {
               "application/json": {
                 "schema": {
@@ -40248,9 +40069,9 @@
     "/api/v1/pipeline-stages/{stage_id}/activate": {
       "post": {
         "tags": [
-          "pipelines"
+          "workflow"
         ],
-        "operationId": "pipeline_stages_activate",
+        "operationId": "workflow_stages_activate",
         "parameters": [
           {
             "name": "stage_id",
@@ -40357,9 +40178,9 @@
     "/api/v1/pipeline-stages/{stage_id}/deactivate": {
       "post": {
         "tags": [
-          "pipelines"
+          "workflow"
         ],
-        "operationId": "pipeline_stages_deactivate",
+        "operationId": "workflow_stages_deactivate",
         "parameters": [
           {
             "name": "stage_id",
@@ -40393,7 +40214,7 @@
         },
         "responses": {
           "200": {
-            "description": "Stage deactivated; its deals move to `target_stage_id` (another active stage of the same kind). Publishes `pipeline_stage.deactivated` and `deal.stage_changed` for each moved deal",
+            "description": "Stage deactivated; its records move to `target_stage_id` (another active stage of the same kind). Publishes `pipeline_stage.deactivated` and `record.stage_changed` for each moved record",
             "content": {
               "application/json": {
                 "schema": {
@@ -40433,7 +40254,7 @@
             }
           },
           "409": {
-            "description": "The stage has deals and no target was given (`stage_has_deals`), or the pipeline would lose its last open, won or lost stage (`closing_stages_required`). The first request with this `Idempotency-Key` is still being processed (`idempotency_key_in_progress`)",
+            "description": "The stage has records and no target was given (`stage_has_records`), or the pipeline would lose its last open, won or lost stage (`closing_stages_required`). The first request with this `Idempotency-Key` is still being processed (`idempotency_key_in_progress`)",
             "content": {
               "application/json": {
                 "schema": {
@@ -40476,10 +40297,10 @@
     "/api/v1/pipeline-stages/{stage_id}/guidance": {
       "get": {
         "tags": [
-          "pipelines"
+          "workflow"
         ],
-        "description": "Guidance (markdown) and checklist of a pipeline stage. Readable by anyone who reads deals.",
-        "operationId": "pipeline_stage_guidance_get",
+        "description": "Guidance (markdown) and checklist of a pipeline stage. Readable by anyone who reads records.",
+        "operationId": "workflow_stage_guidance_get",
         "parameters": [
           {
             "name": "stage_id",
@@ -40513,7 +40334,7 @@
             }
           },
           "403": {
-            "description": "Missing `deals.read` (`permission_denied`, `insufficient_scope`)",
+            "description": "Missing `records.read` (`permission_denied`, `insufficient_scope`)",
             "content": {
               "application/json": {
                 "schema": {
@@ -40554,10 +40375,10 @@
       },
       "put": {
         "tags": [
-          "pipelines"
+          "workflow"
         ],
-        "description": "Saves the guidance and the checklist of a stage and publishes `pipeline.stage_guidance_updated`. `items` replaces the whole checklist in the given order: items are matched by `id` (or `key`), new ones get a `key` from the label, and items left out are removed with their progress. `required` items must be done before a deal **advances** from the stage (moves to a stage of greater position in the same pipeline, or is won); moving back, to another pipeline or losing does not check the checklist. Needs `settings.manage`.",
-        "operationId": "pipeline_stage_guidance_update",
+        "description": "Saves the guidance and the checklist of a stage and publishes `pipeline.stage_guidance_updated`. `items` replaces the whole checklist in the given order: items are matched by `id` (or `key`), new ones get a `key` from the label, and items left out are removed with their progress. `required` items must be done before a record **advances** from the stage (moves to a stage of greater position in the same pipeline, or is won); moving back, to another pipeline or losing does not check the checklist. Needs `settings.manage`.",
+        "operationId": "workflow_stage_guidance_update",
         "parameters": [
           {
             "name": "stage_id",
@@ -40644,1318 +40465,6 @@
           },
           "422": {
             "description": "Guidance too long, too many items, invalid or duplicated keys, invalid labels (`validation_error` with `details.fields`)",
-            "content": {
-              "application/json": {
-                "schema": {
-                  "$ref": "#/components/schemas/ErrorEnvelope"
-                }
-              }
-            }
-          },
-          "429": {
-            "description": "API token rate limit exceeded (`rate_limited`); see `Retry-After` and `X-RateLimit-*`",
-            "content": {
-              "application/json": {
-                "schema": {
-                  "$ref": "#/components/schemas/ErrorEnvelope"
-                }
-              }
-            }
-          }
-        },
-        "security": [
-          {
-            "session_cookie": []
-          },
-          {
-            "api_token": []
-          }
-        ]
-      }
-    },
-    "/api/v1/pipelines": {
-      "get": {
-        "tags": [
-          "pipelines"
-        ],
-        "operationId": "pipelines_list",
-        "parameters": [
-          {
-            "name": "page",
-            "in": "query",
-            "required": false,
-            "schema": {
-              "type": "integer",
-              "format": "int32",
-              "default": 1,
-              "minimum": 1
-            }
-          },
-          {
-            "name": "per_page",
-            "in": "query",
-            "required": false,
-            "schema": {
-              "type": "integer",
-              "format": "int32",
-              "default": 25,
-              "maximum": 100,
-              "minimum": 1
-            }
-          }
-        ],
-        "responses": {
-          "200": {
-            "description": "Pipelines of the organization in order with their stages (active and inactive) and the number of deals in each stage. Pipelines restricted to teams (`team_ids`) only show up for members of those teams (sub-teams included) and for users with `settings.manage`",
-            "content": {
-              "application/json": {
-                "schema": {
-                  "$ref": "#/components/schemas/Page_PipelineResponse"
-                }
-              }
-            }
-          },
-          "401": {
-            "description": "Missing or invalid credentials (`unauthorized`, `invalid_api_token`)",
-            "content": {
-              "application/json": {
-                "schema": {
-                  "$ref": "#/components/schemas/ErrorEnvelope"
-                }
-              }
-            }
-          },
-          "403": {
-            "description": "Missing `deals.read` and `settings.manage` (`permission_denied`, `insufficient_scope`)",
-            "content": {
-              "application/json": {
-                "schema": {
-                  "$ref": "#/components/schemas/ErrorEnvelope"
-                }
-              }
-            }
-          },
-          "422": {
-            "description": "Invalid pagination (`validation_error`)",
-            "content": {
-              "application/json": {
-                "schema": {
-                  "$ref": "#/components/schemas/ErrorEnvelope"
-                }
-              }
-            }
-          },
-          "429": {
-            "description": "API token rate limit exceeded (`rate_limited`); see `Retry-After` and `X-RateLimit-*`",
-            "content": {
-              "application/json": {
-                "schema": {
-                  "$ref": "#/components/schemas/ErrorEnvelope"
-                }
-              }
-            }
-          }
-        },
-        "security": [
-          {
-            "session_cookie": []
-          },
-          {
-            "api_token": []
-          }
-        ]
-      },
-      "post": {
-        "tags": [
-          "pipelines"
-        ],
-        "operationId": "pipelines_create",
-        "parameters": [
-          {
-            "name": "Idempotency-Key",
-            "in": "header",
-            "description": "Up to 255 printable ASCII characters. The same key with the same request (method, path and body) within 24 hours answers the stored response with the same status and body plus `Idempotent-Replayed: true`. Scoped to the credential (session cookie or API token); ignored without a credential. 5xx and 429 responses are not stored",
-            "required": false,
-            "schema": {
-              "type": "string",
-              "maxLength": 255
-            }
-          }
-        ],
-        "requestBody": {
-          "content": {
-            "application/json": {
-              "schema": {
-                "$ref": "#/components/schemas/CreatePipelineRequest"
-              }
-            }
-          },
-          "required": true
-        },
-        "responses": {
-          "201": {
-            "description": "Pipeline created at the end of the list with the given stages (or the default ones) and teams; the first pipeline of an organization becomes the default. Publishes `pipeline.created`",
-            "content": {
-              "application/json": {
-                "schema": {
-                  "$ref": "#/components/schemas/Data_PipelineResponse"
-                }
-              }
-            }
-          },
-          "401": {
-            "description": "Missing or invalid credentials (`unauthorized`, `invalid_api_token`)",
-            "content": {
-              "application/json": {
-                "schema": {
-                  "$ref": "#/components/schemas/ErrorEnvelope"
-                }
-              }
-            }
-          },
-          "403": {
-            "description": "Missing `settings.manage` (`permission_denied`, `insufficient_scope`)",
-            "content": {
-              "application/json": {
-                "schema": {
-                  "$ref": "#/components/schemas/ErrorEnvelope"
-                }
-              }
-            }
-          },
-          "409": {
-            "description": "The stages lack an open, won or lost stage (`closing_stages_required`), or the organization reached the limit of pipelines (`pipeline_limit_reached`). The first request with this `Idempotency-Key` is still being processed (`idempotency_key_in_progress`)",
-            "content": {
-              "application/json": {
-                "schema": {
-                  "$ref": "#/components/schemas/ErrorEnvelope"
-                }
-              }
-            }
-          },
-          "422": {
-            "description": "Invalid name, teams or stages (`validation_error`). `Idempotency-Key` already used with a different request (`idempotency_key_reused`) or longer than 255 characters (`validation_error`)",
-            "content": {
-              "application/json": {
-                "schema": {
-                  "$ref": "#/components/schemas/ErrorEnvelope"
-                }
-              }
-            }
-          },
-          "429": {
-            "description": "API token rate limit exceeded (`rate_limited`); see `Retry-After` and `X-RateLimit-*`",
-            "content": {
-              "application/json": {
-                "schema": {
-                  "$ref": "#/components/schemas/ErrorEnvelope"
-                }
-              }
-            }
-          }
-        },
-        "security": [
-          {
-            "session_cookie": []
-          },
-          {
-            "api_token": []
-          }
-        ]
-      }
-    },
-    "/api/v1/pipelines/order": {
-      "put": {
-        "tags": [
-          "pipelines"
-        ],
-        "operationId": "pipelines_reorder",
-        "requestBody": {
-          "content": {
-            "application/json": {
-              "schema": {
-                "$ref": "#/components/schemas/ReorderRequest"
-              }
-            }
-          },
-          "required": true
-        },
-        "responses": {
-          "200": {
-            "description": "Pipelines reordered; publishes `pipeline.reordered`",
-            "content": {
-              "application/json": {
-                "schema": {
-                  "$ref": "#/components/schemas/Data_Vec_PipelineResponse"
-                }
-              }
-            }
-          },
-          "401": {
-            "description": "Missing or invalid credentials (`unauthorized`, `invalid_api_token`)",
-            "content": {
-              "application/json": {
-                "schema": {
-                  "$ref": "#/components/schemas/ErrorEnvelope"
-                }
-              }
-            }
-          },
-          "403": {
-            "description": "Missing `settings.manage` (`permission_denied`, `insufficient_scope`)",
-            "content": {
-              "application/json": {
-                "schema": {
-                  "$ref": "#/components/schemas/ErrorEnvelope"
-                }
-              }
-            }
-          },
-          "422": {
-            "description": "The ids must list every pipeline exactly once (`validation_error`)",
-            "content": {
-              "application/json": {
-                "schema": {
-                  "$ref": "#/components/schemas/ErrorEnvelope"
-                }
-              }
-            }
-          },
-          "429": {
-            "description": "API token rate limit exceeded (`rate_limited`); see `Retry-After` and `X-RateLimit-*`",
-            "content": {
-              "application/json": {
-                "schema": {
-                  "$ref": "#/components/schemas/ErrorEnvelope"
-                }
-              }
-            }
-          }
-        },
-        "security": [
-          {
-            "session_cookie": []
-          },
-          {
-            "api_token": []
-          }
-        ]
-      }
-    },
-    "/api/v1/pipelines/{pipeline_id}": {
-      "get": {
-        "tags": [
-          "pipelines"
-        ],
-        "operationId": "pipelines_get",
-        "parameters": [
-          {
-            "name": "pipeline_id",
-            "in": "path",
-            "description": "Pipeline id",
-            "required": true,
-            "schema": {
-              "type": "string"
-            }
-          }
-        ],
-        "responses": {
-          "200": {
-            "description": "Pipeline with its stages",
-            "content": {
-              "application/json": {
-                "schema": {
-                  "$ref": "#/components/schemas/Data_PipelineResponse"
-                }
-              }
-            }
-          },
-          "401": {
-            "description": "Missing or invalid credentials (`unauthorized`, `invalid_api_token`)",
-            "content": {
-              "application/json": {
-                "schema": {
-                  "$ref": "#/components/schemas/ErrorEnvelope"
-                }
-              }
-            }
-          },
-          "403": {
-            "description": "Missing `deals.read` and `settings.manage` (`permission_denied`, `insufficient_scope`)",
-            "content": {
-              "application/json": {
-                "schema": {
-                  "$ref": "#/components/schemas/ErrorEnvelope"
-                }
-              }
-            }
-          },
-          "404": {
-            "description": "Pipeline not found or restricted to other teams (`pipeline_not_found`)",
-            "content": {
-              "application/json": {
-                "schema": {
-                  "$ref": "#/components/schemas/ErrorEnvelope"
-                }
-              }
-            }
-          },
-          "429": {
-            "description": "API token rate limit exceeded (`rate_limited`); see `Retry-After` and `X-RateLimit-*`",
-            "content": {
-              "application/json": {
-                "schema": {
-                  "$ref": "#/components/schemas/ErrorEnvelope"
-                }
-              }
-            }
-          }
-        },
-        "security": [
-          {
-            "session_cookie": []
-          },
-          {
-            "api_token": []
-          }
-        ]
-      },
-      "delete": {
-        "tags": [
-          "pipelines"
-        ],
-        "operationId": "pipelines_delete",
-        "parameters": [
-          {
-            "name": "pipeline_id",
-            "in": "path",
-            "description": "Pipeline id",
-            "required": true,
-            "schema": {
-              "type": "string"
-            }
-          }
-        ],
-        "requestBody": {
-          "content": {
-            "application/json": {
-              "schema": {
-                "$ref": "#/components/schemas/PipelineRemovalRequest"
-              }
-            }
-          },
-          "required": true
-        },
-        "responses": {
-          "204": {
-            "description": "Pipeline deleted with its stages; its deals (including deleted ones) move to `target_pipeline_id`, each stage to `stage_mapping[stage_id]` or to the first active stage of the same kind. Publishes `pipeline.deleted` and `deal.pipeline_changed`/`deal.stage_changed` for each moved deal"
-          },
-          "401": {
-            "description": "Missing or invalid credentials (`unauthorized`, `invalid_api_token`)",
-            "content": {
-              "application/json": {
-                "schema": {
-                  "$ref": "#/components/schemas/ErrorEnvelope"
-                }
-              }
-            }
-          },
-          "403": {
-            "description": "Missing `settings.manage` (`permission_denied`, `insufficient_scope`)",
-            "content": {
-              "application/json": {
-                "schema": {
-                  "$ref": "#/components/schemas/ErrorEnvelope"
-                }
-              }
-            }
-          },
-          "404": {
-            "description": "Pipeline not found (`pipeline_not_found`)",
-            "content": {
-              "application/json": {
-                "schema": {
-                  "$ref": "#/components/schemas/ErrorEnvelope"
-                }
-              }
-            }
-          },
-          "409": {
-            "description": "The default pipeline cannot be deleted (`default_pipeline_required`), or the pipeline has deals and no target was given (`pipeline_has_deals`)",
-            "content": {
-              "application/json": {
-                "schema": {
-                  "$ref": "#/components/schemas/ErrorEnvelope"
-                }
-              }
-            }
-          },
-          "422": {
-            "description": "Invalid target pipeline or stage mapping (`validation_error`)",
-            "content": {
-              "application/json": {
-                "schema": {
-                  "$ref": "#/components/schemas/ErrorEnvelope"
-                }
-              }
-            }
-          },
-          "429": {
-            "description": "API token rate limit exceeded (`rate_limited`); see `Retry-After` and `X-RateLimit-*`",
-            "content": {
-              "application/json": {
-                "schema": {
-                  "$ref": "#/components/schemas/ErrorEnvelope"
-                }
-              }
-            }
-          }
-        },
-        "security": [
-          {
-            "session_cookie": []
-          },
-          {
-            "api_token": []
-          }
-        ]
-      },
-      "patch": {
-        "tags": [
-          "pipelines"
-        ],
-        "operationId": "pipelines_update",
-        "parameters": [
-          {
-            "name": "pipeline_id",
-            "in": "path",
-            "description": "Pipeline id",
-            "required": true,
-            "schema": {
-              "type": "string"
-            }
-          },
-          {
-            "name": "If-Match",
-            "in": "header",
-            "description": "`updated_at` of the pipeline as last read (ISO-8601); when it changed since, the update is refused with 409 `version_conflict`",
-            "required": false,
-            "schema": {
-              "type": [
-                "string",
-                "null"
-              ]
-            }
-          }
-        ],
-        "requestBody": {
-          "content": {
-            "application/json": {
-              "schema": {
-                "$ref": "#/components/schemas/UpdatePipelineRequest"
-              }
-            }
-          },
-          "required": true
-        },
-        "responses": {
-          "200": {
-            "description": "Pipeline renamed or restricted to teams (`team_ids`, empty for everyone); publishes `pipeline.updated`",
-            "content": {
-              "application/json": {
-                "schema": {
-                  "$ref": "#/components/schemas/Data_PipelineResponse"
-                }
-              }
-            }
-          },
-          "401": {
-            "description": "Missing or invalid credentials (`unauthorized`, `invalid_api_token`)",
-            "content": {
-              "application/json": {
-                "schema": {
-                  "$ref": "#/components/schemas/ErrorEnvelope"
-                }
-              }
-            }
-          },
-          "403": {
-            "description": "Missing `settings.manage` (`permission_denied`, `insufficient_scope`)",
-            "content": {
-              "application/json": {
-                "schema": {
-                  "$ref": "#/components/schemas/ErrorEnvelope"
-                }
-              }
-            }
-          },
-          "404": {
-            "description": "Pipeline not found (`pipeline_not_found`)",
-            "content": {
-              "application/json": {
-                "schema": {
-                  "$ref": "#/components/schemas/ErrorEnvelope"
-                }
-              }
-            }
-          },
-          "409": {
-            "description": "The pipeline changed after the `If-Match` version (`version_conflict`)",
-            "content": {
-              "application/json": {
-                "schema": {
-                  "$ref": "#/components/schemas/ErrorEnvelope"
-                }
-              }
-            }
-          },
-          "422": {
-            "description": "Invalid name or teams (`validation_error`)",
-            "content": {
-              "application/json": {
-                "schema": {
-                  "$ref": "#/components/schemas/ErrorEnvelope"
-                }
-              }
-            }
-          },
-          "429": {
-            "description": "API token rate limit exceeded (`rate_limited`); see `Retry-After` and `X-RateLimit-*`",
-            "content": {
-              "application/json": {
-                "schema": {
-                  "$ref": "#/components/schemas/ErrorEnvelope"
-                }
-              }
-            }
-          }
-        },
-        "security": [
-          {
-            "session_cookie": []
-          },
-          {
-            "api_token": []
-          }
-        ]
-      }
-    },
-    "/api/v1/pipelines/{pipeline_id}/activate": {
-      "post": {
-        "tags": [
-          "pipelines"
-        ],
-        "operationId": "pipelines_activate",
-        "parameters": [
-          {
-            "name": "pipeline_id",
-            "in": "path",
-            "description": "Pipeline id",
-            "required": true,
-            "schema": {
-              "type": "string"
-            }
-          },
-          {
-            "name": "Idempotency-Key",
-            "in": "header",
-            "description": "Up to 255 printable ASCII characters. The same key with the same request (method, path and body) within 24 hours answers the stored response with the same status and body plus `Idempotent-Replayed: true`. Scoped to the credential (session cookie or API token); ignored without a credential. 5xx and 429 responses are not stored",
-            "required": false,
-            "schema": {
-              "type": "string",
-              "maxLength": 255
-            }
-          }
-        ],
-        "responses": {
-          "200": {
-            "description": "Pipeline active again; publishes `pipeline.activated`",
-            "content": {
-              "application/json": {
-                "schema": {
-                  "$ref": "#/components/schemas/Data_PipelineResponse"
-                }
-              }
-            }
-          },
-          "401": {
-            "description": "Missing or invalid credentials (`unauthorized`, `invalid_api_token`)",
-            "content": {
-              "application/json": {
-                "schema": {
-                  "$ref": "#/components/schemas/ErrorEnvelope"
-                }
-              }
-            }
-          },
-          "403": {
-            "description": "Missing `settings.manage` (`permission_denied`, `insufficient_scope`)",
-            "content": {
-              "application/json": {
-                "schema": {
-                  "$ref": "#/components/schemas/ErrorEnvelope"
-                }
-              }
-            }
-          },
-          "404": {
-            "description": "Pipeline not found (`pipeline_not_found`)",
-            "content": {
-              "application/json": {
-                "schema": {
-                  "$ref": "#/components/schemas/ErrorEnvelope"
-                }
-              }
-            }
-          },
-          "409": {
-            "description": "The first request with this `Idempotency-Key` is still being processed (`idempotency_key_in_progress`)",
-            "content": {
-              "application/json": {
-                "schema": {
-                  "$ref": "#/components/schemas/ErrorEnvelope"
-                }
-              }
-            }
-          },
-          "422": {
-            "description": "`Idempotency-Key` already used with a different request (`idempotency_key_reused`) or longer than 255 characters (`validation_error`)",
-            "content": {
-              "application/json": {
-                "schema": {
-                  "$ref": "#/components/schemas/ErrorEnvelope"
-                }
-              }
-            }
-          },
-          "429": {
-            "description": "API token rate limit exceeded (`rate_limited`); see `Retry-After` and `X-RateLimit-*`",
-            "content": {
-              "application/json": {
-                "schema": {
-                  "$ref": "#/components/schemas/ErrorEnvelope"
-                }
-              }
-            }
-          }
-        },
-        "security": [
-          {
-            "session_cookie": []
-          },
-          {
-            "api_token": []
-          }
-        ]
-      }
-    },
-    "/api/v1/pipelines/{pipeline_id}/deactivate": {
-      "post": {
-        "tags": [
-          "pipelines"
-        ],
-        "operationId": "pipelines_deactivate",
-        "parameters": [
-          {
-            "name": "pipeline_id",
-            "in": "path",
-            "description": "Pipeline id",
-            "required": true,
-            "schema": {
-              "type": "string"
-            }
-          },
-          {
-            "name": "Idempotency-Key",
-            "in": "header",
-            "description": "Up to 255 printable ASCII characters. The same key with the same request (method, path and body) within 24 hours answers the stored response with the same status and body plus `Idempotent-Replayed: true`. Scoped to the credential (session cookie or API token); ignored without a credential. 5xx and 429 responses are not stored",
-            "required": false,
-            "schema": {
-              "type": "string",
-              "maxLength": 255
-            }
-          }
-        ],
-        "responses": {
-          "200": {
-            "description": "Pipeline deactivated: its deals stay where they are, but no deal can be created in or moved into it. Publishes `pipeline.deactivated`",
-            "content": {
-              "application/json": {
-                "schema": {
-                  "$ref": "#/components/schemas/Data_PipelineResponse"
-                }
-              }
-            }
-          },
-          "401": {
-            "description": "Missing or invalid credentials (`unauthorized`, `invalid_api_token`)",
-            "content": {
-              "application/json": {
-                "schema": {
-                  "$ref": "#/components/schemas/ErrorEnvelope"
-                }
-              }
-            }
-          },
-          "403": {
-            "description": "Missing `settings.manage` (`permission_denied`, `insufficient_scope`)",
-            "content": {
-              "application/json": {
-                "schema": {
-                  "$ref": "#/components/schemas/ErrorEnvelope"
-                }
-              }
-            }
-          },
-          "404": {
-            "description": "Pipeline not found (`pipeline_not_found`)",
-            "content": {
-              "application/json": {
-                "schema": {
-                  "$ref": "#/components/schemas/ErrorEnvelope"
-                }
-              }
-            }
-          },
-          "409": {
-            "description": "The default pipeline cannot be deactivated (`default_pipeline_required`). The first request with this `Idempotency-Key` is still being processed (`idempotency_key_in_progress`)",
-            "content": {
-              "application/json": {
-                "schema": {
-                  "$ref": "#/components/schemas/ErrorEnvelope"
-                }
-              }
-            }
-          },
-          "422": {
-            "description": "`Idempotency-Key` already used with a different request (`idempotency_key_reused`) or longer than 255 characters (`validation_error`)",
-            "content": {
-              "application/json": {
-                "schema": {
-                  "$ref": "#/components/schemas/ErrorEnvelope"
-                }
-              }
-            }
-          },
-          "429": {
-            "description": "API token rate limit exceeded (`rate_limited`); see `Retry-After` and `X-RateLimit-*`",
-            "content": {
-              "application/json": {
-                "schema": {
-                  "$ref": "#/components/schemas/ErrorEnvelope"
-                }
-              }
-            }
-          }
-        },
-        "security": [
-          {
-            "session_cookie": []
-          },
-          {
-            "api_token": []
-          }
-        ]
-      }
-    },
-    "/api/v1/pipelines/{pipeline_id}/default": {
-      "post": {
-        "tags": [
-          "pipelines"
-        ],
-        "operationId": "pipelines_set_default",
-        "parameters": [
-          {
-            "name": "pipeline_id",
-            "in": "path",
-            "description": "Pipeline id",
-            "required": true,
-            "schema": {
-              "type": "string"
-            }
-          },
-          {
-            "name": "Idempotency-Key",
-            "in": "header",
-            "description": "Up to 255 printable ASCII characters. The same key with the same request (method, path and body) within 24 hours answers the stored response with the same status and body plus `Idempotent-Replayed: true`. Scoped to the credential (session cookie or API token); ignored without a credential. 5xx and 429 responses are not stored",
-            "required": false,
-            "schema": {
-              "type": "string",
-              "maxLength": 255
-            }
-          }
-        ],
-        "responses": {
-          "200": {
-            "description": "Pipeline is now the default one (Kanban and new deals without a pipeline); publishes `pipeline.default_changed`",
-            "content": {
-              "application/json": {
-                "schema": {
-                  "$ref": "#/components/schemas/Data_PipelineResponse"
-                }
-              }
-            }
-          },
-          "401": {
-            "description": "Missing or invalid credentials (`unauthorized`, `invalid_api_token`)",
-            "content": {
-              "application/json": {
-                "schema": {
-                  "$ref": "#/components/schemas/ErrorEnvelope"
-                }
-              }
-            }
-          },
-          "403": {
-            "description": "Missing `settings.manage` (`permission_denied`, `insufficient_scope`)",
-            "content": {
-              "application/json": {
-                "schema": {
-                  "$ref": "#/components/schemas/ErrorEnvelope"
-                }
-              }
-            }
-          },
-          "404": {
-            "description": "Pipeline not found (`pipeline_not_found`)",
-            "content": {
-              "application/json": {
-                "schema": {
-                  "$ref": "#/components/schemas/ErrorEnvelope"
-                }
-              }
-            }
-          },
-          "409": {
-            "description": "An inactive pipeline cannot be the default one (`default_pipeline_required`). The first request with this `Idempotency-Key` is still being processed (`idempotency_key_in_progress`)",
-            "content": {
-              "application/json": {
-                "schema": {
-                  "$ref": "#/components/schemas/ErrorEnvelope"
-                }
-              }
-            }
-          },
-          "422": {
-            "description": "`Idempotency-Key` already used with a different request (`idempotency_key_reused`) or longer than 255 characters (`validation_error`)",
-            "content": {
-              "application/json": {
-                "schema": {
-                  "$ref": "#/components/schemas/ErrorEnvelope"
-                }
-              }
-            }
-          },
-          "429": {
-            "description": "API token rate limit exceeded (`rate_limited`); see `Retry-After` and `X-RateLimit-*`",
-            "content": {
-              "application/json": {
-                "schema": {
-                  "$ref": "#/components/schemas/ErrorEnvelope"
-                }
-              }
-            }
-          }
-        },
-        "security": [
-          {
-            "session_cookie": []
-          },
-          {
-            "api_token": []
-          }
-        ]
-      }
-    },
-    "/api/v1/pipelines/{pipeline_id}/renewal": {
-      "get": {
-        "tags": [
-          "pipelines"
-        ],
-        "description": "Automatic renewal of the won deals of the pipeline. While never saved, returns the defaults (`configured: false`, disabled, 30 days, first open stage of the same pipeline). Needs `settings.manage`.",
-        "operationId": "pipeline_renewal_get",
-        "parameters": [
-          {
-            "name": "pipeline_id",
-            "in": "path",
-            "description": "Pipeline id",
-            "required": true,
-            "schema": {
-              "type": "string"
-            }
-          }
-        ],
-        "responses": {
-          "200": {
-            "description": "Renewal settings of the pipeline",
-            "content": {
-              "application/json": {
-                "schema": {
-                  "$ref": "#/components/schemas/Data_RenewalSettingsResponse"
-                }
-              }
-            }
-          },
-          "401": {
-            "description": "Missing or invalid credentials (`unauthorized`, `invalid_api_token`)",
-            "content": {
-              "application/json": {
-                "schema": {
-                  "$ref": "#/components/schemas/ErrorEnvelope"
-                }
-              }
-            }
-          },
-          "403": {
-            "description": "Missing `settings.manage` (`permission_denied`, `insufficient_scope`)",
-            "content": {
-              "application/json": {
-                "schema": {
-                  "$ref": "#/components/schemas/ErrorEnvelope"
-                }
-              }
-            }
-          },
-          "404": {
-            "description": "Pipeline not found (`pipeline_not_found`)",
-            "content": {
-              "application/json": {
-                "schema": {
-                  "$ref": "#/components/schemas/ErrorEnvelope"
-                }
-              }
-            }
-          },
-          "429": {
-            "description": "API token rate limit exceeded (`rate_limited`); see `Retry-After` and `X-RateLimit-*`",
-            "content": {
-              "application/json": {
-                "schema": {
-                  "$ref": "#/components/schemas/ErrorEnvelope"
-                }
-              }
-            }
-          }
-        },
-        "security": [
-          {
-            "session_cookie": []
-          },
-          {
-            "api_token": []
-          }
-        ]
-      },
-      "put": {
-        "tags": [
-          "pipelines"
-        ],
-        "description": "Saves the automatic renewal of the pipeline and publishes `pipeline.renewal_updated`. When enabled, the `renewals.scan` job (hourly) creates, for each won deal of the pipeline whose `contract_end` is at most `days_before` days ahead (organization timezone, until `contract_end`), one renewal deal in `target_stage_id` with `renewal_of_deal_id` pointing to the original, the same contact, company and currency, the owner of the original (`owner_mode = original`) or no owner (`none`), the title `title_prefix + title`, `contract_start` the day after the original `contract_end` and a copy of the recurring items; then publishes `deal.renewal_created`. Each deal is renewed only once. The renewal runs with the permissions of whoever saved the settings last. Fields left out keep their value. Needs `settings.manage`.",
-        "operationId": "pipeline_renewal_update",
-        "parameters": [
-          {
-            "name": "pipeline_id",
-            "in": "path",
-            "description": "Pipeline id",
-            "required": true,
-            "schema": {
-              "type": "string"
-            }
-          },
-          {
-            "name": "If-Match",
-            "in": "header",
-            "description": "`updated_at` of the settings as read (ISO-8601); ignored while never saved",
-            "required": false,
-            "schema": {
-              "type": [
-                "string",
-                "null"
-              ]
-            }
-          }
-        ],
-        "requestBody": {
-          "content": {
-            "application/json": {
-              "schema": {
-                "$ref": "#/components/schemas/RenewalSettingsRequest"
-              }
-            }
-          },
-          "required": true
-        },
-        "responses": {
-          "200": {
-            "description": "Renewal settings saved",
-            "content": {
-              "application/json": {
-                "schema": {
-                  "$ref": "#/components/schemas/Data_RenewalSettingsResponse"
-                }
-              }
-            }
-          },
-          "401": {
-            "description": "Missing or invalid credentials (`unauthorized`, `invalid_api_token`)",
-            "content": {
-              "application/json": {
-                "schema": {
-                  "$ref": "#/components/schemas/ErrorEnvelope"
-                }
-              }
-            }
-          },
-          "403": {
-            "description": "Missing `settings.manage` (`permission_denied`, `insufficient_scope`)",
-            "content": {
-              "application/json": {
-                "schema": {
-                  "$ref": "#/components/schemas/ErrorEnvelope"
-                }
-              }
-            }
-          },
-          "404": {
-            "description": "Pipeline not found (`pipeline_not_found`)",
-            "content": {
-              "application/json": {
-                "schema": {
-                  "$ref": "#/components/schemas/ErrorEnvelope"
-                }
-              }
-            }
-          },
-          "409": {
-            "description": "The settings changed since the `If-Match` version (`version_conflict`)",
-            "content": {
-              "application/json": {
-                "schema": {
-                  "$ref": "#/components/schemas/ErrorEnvelope"
-                }
-              }
-            }
-          },
-          "422": {
-            "description": "Invalid days, target pipeline/stage (must be an active open stage of the target pipeline), prefix or owner mode (`validation_error` with `details.fields`)",
-            "content": {
-              "application/json": {
-                "schema": {
-                  "$ref": "#/components/schemas/ErrorEnvelope"
-                }
-              }
-            }
-          },
-          "429": {
-            "description": "API token rate limit exceeded (`rate_limited`); see `Retry-After` and `X-RateLimit-*`",
-            "content": {
-              "application/json": {
-                "schema": {
-                  "$ref": "#/components/schemas/ErrorEnvelope"
-                }
-              }
-            }
-          }
-        },
-        "security": [
-          {
-            "session_cookie": []
-          },
-          {
-            "api_token": []
-          }
-        ]
-      }
-    },
-    "/api/v1/pipelines/{pipeline_id}/stages": {
-      "post": {
-        "tags": [
-          "pipelines"
-        ],
-        "operationId": "pipelines_create_stage",
-        "parameters": [
-          {
-            "name": "pipeline_id",
-            "in": "path",
-            "description": "Pipeline id",
-            "required": true,
-            "schema": {
-              "type": "string"
-            }
-          },
-          {
-            "name": "Idempotency-Key",
-            "in": "header",
-            "description": "Up to 255 printable ASCII characters. The same key with the same request (method, path and body) within 24 hours answers the stored response with the same status and body plus `Idempotent-Replayed: true`. Scoped to the credential (session cookie or API token); ignored without a credential. 5xx and 429 responses are not stored",
-            "required": false,
-            "schema": {
-              "type": "string",
-              "maxLength": 255
-            }
-          }
-        ],
-        "requestBody": {
-          "content": {
-            "application/json": {
-              "schema": {
-                "$ref": "#/components/schemas/CreateStageRequest"
-              }
-            }
-          },
-          "required": true
-        },
-        "responses": {
-          "201": {
-            "description": "Stage created; open stages go after the last open stage, won and lost stages at the end. `entry_required_fields`/`exit_required_fields` list deal fields that must be filled to enter or leave it. Publishes `pipeline_stage.created`",
-            "content": {
-              "application/json": {
-                "schema": {
-                  "$ref": "#/components/schemas/Data_PipelineStageResponse"
-                }
-              }
-            }
-          },
-          "401": {
-            "description": "Missing or invalid credentials (`unauthorized`, `invalid_api_token`)",
-            "content": {
-              "application/json": {
-                "schema": {
-                  "$ref": "#/components/schemas/ErrorEnvelope"
-                }
-              }
-            }
-          },
-          "403": {
-            "description": "Missing `settings.manage` (`permission_denied`, `insufficient_scope`)",
-            "content": {
-              "application/json": {
-                "schema": {
-                  "$ref": "#/components/schemas/ErrorEnvelope"
-                }
-              }
-            }
-          },
-          "404": {
-            "description": "Pipeline not found (`pipeline_not_found`)",
-            "content": {
-              "application/json": {
-                "schema": {
-                  "$ref": "#/components/schemas/ErrorEnvelope"
-                }
-              }
-            }
-          },
-          "409": {
-            "description": "The first request with this `Idempotency-Key` is still being processed (`idempotency_key_in_progress`)",
-            "content": {
-              "application/json": {
-                "schema": {
-                  "$ref": "#/components/schemas/ErrorEnvelope"
-                }
-              }
-            }
-          },
-          "422": {
-            "description": "Invalid name, kind, probability or required fields (`validation_error`). `Idempotency-Key` already used with a different request (`idempotency_key_reused`) or longer than 255 characters (`validation_error`)",
-            "content": {
-              "application/json": {
-                "schema": {
-                  "$ref": "#/components/schemas/ErrorEnvelope"
-                }
-              }
-            }
-          },
-          "429": {
-            "description": "API token rate limit exceeded (`rate_limited`); see `Retry-After` and `X-RateLimit-*`",
-            "content": {
-              "application/json": {
-                "schema": {
-                  "$ref": "#/components/schemas/ErrorEnvelope"
-                }
-              }
-            }
-          }
-        },
-        "security": [
-          {
-            "session_cookie": []
-          },
-          {
-            "api_token": []
-          }
-        ]
-      }
-    },
-    "/api/v1/pipelines/{pipeline_id}/stages/order": {
-      "put": {
-        "tags": [
-          "pipelines"
-        ],
-        "operationId": "pipelines_reorder_stages",
-        "parameters": [
-          {
-            "name": "pipeline_id",
-            "in": "path",
-            "description": "Pipeline id",
-            "required": true,
-            "schema": {
-              "type": "string"
-            }
-          }
-        ],
-        "requestBody": {
-          "content": {
-            "application/json": {
-              "schema": {
-                "$ref": "#/components/schemas/ReorderRequest"
-              }
-            }
-          },
-          "required": true
-        },
-        "responses": {
-          "200": {
-            "description": "Stages reordered; publishes `pipeline_stage.reordered`",
-            "content": {
-              "application/json": {
-                "schema": {
-                  "$ref": "#/components/schemas/Data_PipelineResponse"
-                }
-              }
-            }
-          },
-          "401": {
-            "description": "Missing or invalid credentials (`unauthorized`, `invalid_api_token`)",
-            "content": {
-              "application/json": {
-                "schema": {
-                  "$ref": "#/components/schemas/ErrorEnvelope"
-                }
-              }
-            }
-          },
-          "403": {
-            "description": "Missing `settings.manage` (`permission_denied`, `insufficient_scope`)",
-            "content": {
-              "application/json": {
-                "schema": {
-                  "$ref": "#/components/schemas/ErrorEnvelope"
-                }
-              }
-            }
-          },
-          "404": {
-            "description": "Pipeline not found (`pipeline_not_found`)",
-            "content": {
-              "application/json": {
-                "schema": {
-                  "$ref": "#/components/schemas/ErrorEnvelope"
-                }
-              }
-            }
-          },
-          "422": {
-            "description": "The ids must list every stage of the pipeline exactly once (`validation_error`)",
             "content": {
               "application/json": {
                 "schema": {
@@ -64108,6 +62617,1553 @@
         ]
       }
     },
+    "/api/v1/workflow": {
+      "get": {
+        "tags": [
+          "workflow"
+        ],
+        "operationId": "pipelines_list",
+        "parameters": [
+          {
+            "name": "page",
+            "in": "query",
+            "required": false,
+            "schema": {
+              "type": "integer",
+              "format": "int32",
+              "default": 1,
+              "minimum": 1
+            }
+          },
+          {
+            "name": "per_page",
+            "in": "query",
+            "required": false,
+            "schema": {
+              "type": "integer",
+              "format": "int32",
+              "default": 25,
+              "maximum": 100,
+              "minimum": 1
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "Pipelines of the organization in order with their stages (active and inactive) and the number of records in each stage. Pipelines restricted to teams (`team_ids`) only show up for members of those teams (sub-teams included) and for users with `settings.manage`",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/Page_PipelineResponse"
+                }
+              }
+            }
+          },
+          "401": {
+            "description": "Missing or invalid credentials (`unauthorized`, `invalid_api_token`)",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ErrorEnvelope"
+                }
+              }
+            }
+          },
+          "403": {
+            "description": "Missing `records.read` and `settings.manage` (`permission_denied`, `insufficient_scope`)",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ErrorEnvelope"
+                }
+              }
+            }
+          },
+          "422": {
+            "description": "Invalid pagination (`validation_error`)",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ErrorEnvelope"
+                }
+              }
+            }
+          },
+          "429": {
+            "description": "API token rate limit exceeded (`rate_limited`); see `Retry-After` and `X-RateLimit-*`",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ErrorEnvelope"
+                }
+              }
+            }
+          }
+        },
+        "security": [
+          {
+            "session_cookie": []
+          },
+          {
+            "api_token": []
+          }
+        ]
+      },
+      "post": {
+        "tags": [
+          "workflow"
+        ],
+        "operationId": "pipelines_create",
+        "parameters": [
+          {
+            "name": "Idempotency-Key",
+            "in": "header",
+            "description": "Up to 255 printable ASCII characters. The same key with the same request (method, path and body) within 24 hours answers the stored response with the same status and body plus `Idempotent-Replayed: true`. Scoped to the credential (session cookie or API token); ignored without a credential. 5xx and 429 responses are not stored",
+            "required": false,
+            "schema": {
+              "type": "string",
+              "maxLength": 255
+            }
+          }
+        ],
+        "requestBody": {
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/CreatePipelineRequest"
+              }
+            }
+          },
+          "required": true
+        },
+        "responses": {
+          "201": {
+            "description": "Pipeline created at the end of the list with the given stages (or the default ones) and teams; the first pipeline of an organization becomes the default. Publishes `pipeline.created`",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/Data_PipelineResponse"
+                }
+              }
+            }
+          },
+          "401": {
+            "description": "Missing or invalid credentials (`unauthorized`, `invalid_api_token`)",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ErrorEnvelope"
+                }
+              }
+            }
+          },
+          "403": {
+            "description": "Missing `settings.manage` (`permission_denied`, `insufficient_scope`)",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ErrorEnvelope"
+                }
+              }
+            }
+          },
+          "409": {
+            "description": "The stages lack an open, won or lost stage (`closing_stages_required`), or the organization reached the limit of workflow (`pipeline_limit_reached`). The first request with this `Idempotency-Key` is still being processed (`idempotency_key_in_progress`)",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ErrorEnvelope"
+                }
+              }
+            }
+          },
+          "422": {
+            "description": "Invalid name, teams or stages (`validation_error`). `Idempotency-Key` already used with a different request (`idempotency_key_reused`) or longer than 255 characters (`validation_error`)",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ErrorEnvelope"
+                }
+              }
+            }
+          },
+          "429": {
+            "description": "API token rate limit exceeded (`rate_limited`); see `Retry-After` and `X-RateLimit-*`",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ErrorEnvelope"
+                }
+              }
+            }
+          }
+        },
+        "security": [
+          {
+            "session_cookie": []
+          },
+          {
+            "api_token": []
+          }
+        ]
+      }
+    },
+    "/api/v1/workflow/order": {
+      "put": {
+        "tags": [
+          "workflow"
+        ],
+        "operationId": "pipelines_reorder",
+        "requestBody": {
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/ReorderRequest"
+              }
+            }
+          },
+          "required": true
+        },
+        "responses": {
+          "200": {
+            "description": "Pipelines reordered; publishes `pipeline.reordered`",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/Data_Vec_PipelineResponse"
+                }
+              }
+            }
+          },
+          "401": {
+            "description": "Missing or invalid credentials (`unauthorized`, `invalid_api_token`)",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ErrorEnvelope"
+                }
+              }
+            }
+          },
+          "403": {
+            "description": "Missing `settings.manage` (`permission_denied`, `insufficient_scope`)",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ErrorEnvelope"
+                }
+              }
+            }
+          },
+          "422": {
+            "description": "The ids must list every pipeline exactly once (`validation_error`)",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ErrorEnvelope"
+                }
+              }
+            }
+          },
+          "429": {
+            "description": "API token rate limit exceeded (`rate_limited`); see `Retry-After` and `X-RateLimit-*`",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ErrorEnvelope"
+                }
+              }
+            }
+          }
+        },
+        "security": [
+          {
+            "session_cookie": []
+          },
+          {
+            "api_token": []
+          }
+        ]
+      }
+    },
+    "/api/v1/workflow/records/{record_type}/{record_id}/checklist": {
+      "get": {
+        "tags": [
+          "records"
+        ],
+        "description": "Guidance and checklist of the current stage of the record with the progress of the record (who checked each item and when). Needs read access to the record.",
+        "operationId": "record_checklist_get",
+        "parameters": [
+          {
+            "name": "record_type",
+            "in": "path",
+            "description": "Staged entity key",
+            "required": true,
+            "schema": {
+              "type": "string"
+            }
+          },
+          {
+            "name": "record_id",
+            "in": "path",
+            "description": "Record id",
+            "required": true,
+            "schema": {
+              "type": "string"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "Checklist of the current stage",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/Data_RecordChecklistResponse"
+                }
+              }
+            }
+          },
+          "401": {
+            "description": "Missing or invalid credentials (`unauthorized`, `invalid_api_token`)",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ErrorEnvelope"
+                }
+              }
+            }
+          },
+          "403": {
+            "description": "Missing `records.read` (`permission_denied`, `insufficient_scope`)",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ErrorEnvelope"
+                }
+              }
+            }
+          },
+          "404": {
+            "description": "Record not found or not visible (`record_not_found`)",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ErrorEnvelope"
+                }
+              }
+            }
+          },
+          "429": {
+            "description": "API token rate limit exceeded (`rate_limited`); see `Retry-After` and `X-RateLimit-*`",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ErrorEnvelope"
+                }
+              }
+            }
+          }
+        },
+        "security": [
+          {
+            "session_cookie": []
+          },
+          {
+            "api_token": []
+          }
+        ]
+      }
+    },
+    "/api/v1/workflow/records/{record_type}/{record_id}/checklist/{item_id}": {
+      "put": {
+        "tags": [
+          "records"
+        ],
+        "description": "Checks (`done: true`) or unchecks an item of a stage checklist of the record's pipeline and publishes `record.checklist_item_checked` or `record.checklist_item_unchecked`. Needs permission to update the record.",
+        "operationId": "record_checklist_item_update",
+        "parameters": [
+          {
+            "name": "record_type",
+            "in": "path",
+            "description": "Staged entity key",
+            "required": true,
+            "schema": {
+              "type": "string"
+            }
+          },
+          {
+            "name": "record_id",
+            "in": "path",
+            "description": "Record id",
+            "required": true,
+            "schema": {
+              "type": "string"
+            }
+          },
+          {
+            "name": "item_id",
+            "in": "path",
+            "description": "Checklist item id",
+            "required": true,
+            "schema": {
+              "type": "string"
+            }
+          }
+        ],
+        "requestBody": {
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/ToggleChecklistItemRequest"
+              }
+            }
+          },
+          "required": true
+        },
+        "responses": {
+          "200": {
+            "description": "Checklist of the current stage after the change",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/Data_RecordChecklistResponse"
+                }
+              }
+            }
+          },
+          "401": {
+            "description": "Missing or invalid credentials (`unauthorized`, `invalid_api_token`)",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ErrorEnvelope"
+                }
+              }
+            }
+          },
+          "403": {
+            "description": "Missing `records.update` (`permission_denied`, `insufficient_scope`)",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ErrorEnvelope"
+                }
+              }
+            }
+          },
+          "404": {
+            "description": "Record not found or not editable (`record_not_found`) or item not in the record's pipeline (`checklist_item_not_found`)",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ErrorEnvelope"
+                }
+              }
+            }
+          },
+          "429": {
+            "description": "API token rate limit exceeded (`rate_limited`); see `Retry-After` and `X-RateLimit-*`",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ErrorEnvelope"
+                }
+              }
+            }
+          }
+        },
+        "security": [
+          {
+            "session_cookie": []
+          },
+          {
+            "api_token": []
+          }
+        ]
+      }
+    },
+    "/api/v1/workflow/required-fields": {
+      "get": {
+        "tags": [
+          "workflow"
+        ],
+        "operationId": "workflow_required_fields",
+        "responses": {
+          "200": {
+            "description": "Editable fields from staged entity providers",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/Data_Vec_StageFieldChoice"
+                }
+              }
+            }
+          },
+          "429": {
+            "description": "API token rate limit exceeded (`rate_limited`); see `Retry-After` and `X-RateLimit-*`",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ErrorEnvelope"
+                }
+              }
+            }
+          }
+        },
+        "security": [
+          {
+            "session_cookie": []
+          },
+          {
+            "api_token": []
+          }
+        ]
+      }
+    },
+    "/api/v1/workflow/{pipeline_id}": {
+      "get": {
+        "tags": [
+          "workflow"
+        ],
+        "operationId": "pipelines_get",
+        "parameters": [
+          {
+            "name": "pipeline_id",
+            "in": "path",
+            "description": "Pipeline id",
+            "required": true,
+            "schema": {
+              "type": "string"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "Pipeline with its stages",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/Data_PipelineResponse"
+                }
+              }
+            }
+          },
+          "401": {
+            "description": "Missing or invalid credentials (`unauthorized`, `invalid_api_token`)",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ErrorEnvelope"
+                }
+              }
+            }
+          },
+          "403": {
+            "description": "Missing `records.read` and `settings.manage` (`permission_denied`, `insufficient_scope`)",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ErrorEnvelope"
+                }
+              }
+            }
+          },
+          "404": {
+            "description": "Pipeline not found or restricted to other teams (`pipeline_not_found`)",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ErrorEnvelope"
+                }
+              }
+            }
+          },
+          "429": {
+            "description": "API token rate limit exceeded (`rate_limited`); see `Retry-After` and `X-RateLimit-*`",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ErrorEnvelope"
+                }
+              }
+            }
+          }
+        },
+        "security": [
+          {
+            "session_cookie": []
+          },
+          {
+            "api_token": []
+          }
+        ]
+      },
+      "delete": {
+        "tags": [
+          "workflow"
+        ],
+        "operationId": "pipelines_delete",
+        "parameters": [
+          {
+            "name": "pipeline_id",
+            "in": "path",
+            "description": "Pipeline id",
+            "required": true,
+            "schema": {
+              "type": "string"
+            }
+          }
+        ],
+        "requestBody": {
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/PipelineRemovalRequest"
+              }
+            }
+          },
+          "required": true
+        },
+        "responses": {
+          "204": {
+            "description": "Pipeline deleted with its stages; its records (including deleted ones) move to `target_pipeline_id`, each stage to `stage_mapping[stage_id]` or to the first active stage of the same kind. Publishes `pipeline.deleted` and `record.pipeline_changed`/`record.stage_changed` for each moved record"
+          },
+          "401": {
+            "description": "Missing or invalid credentials (`unauthorized`, `invalid_api_token`)",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ErrorEnvelope"
+                }
+              }
+            }
+          },
+          "403": {
+            "description": "Missing `settings.manage` (`permission_denied`, `insufficient_scope`)",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ErrorEnvelope"
+                }
+              }
+            }
+          },
+          "404": {
+            "description": "Pipeline not found (`pipeline_not_found`)",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ErrorEnvelope"
+                }
+              }
+            }
+          },
+          "409": {
+            "description": "The default pipeline cannot be deleted (`default_pipeline_required`), or the pipeline has records and no target was given (`pipeline_has_records`)",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ErrorEnvelope"
+                }
+              }
+            }
+          },
+          "422": {
+            "description": "Invalid target pipeline or stage mapping (`validation_error`)",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ErrorEnvelope"
+                }
+              }
+            }
+          },
+          "429": {
+            "description": "API token rate limit exceeded (`rate_limited`); see `Retry-After` and `X-RateLimit-*`",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ErrorEnvelope"
+                }
+              }
+            }
+          }
+        },
+        "security": [
+          {
+            "session_cookie": []
+          },
+          {
+            "api_token": []
+          }
+        ]
+      },
+      "patch": {
+        "tags": [
+          "workflow"
+        ],
+        "operationId": "pipelines_update",
+        "parameters": [
+          {
+            "name": "pipeline_id",
+            "in": "path",
+            "description": "Pipeline id",
+            "required": true,
+            "schema": {
+              "type": "string"
+            }
+          },
+          {
+            "name": "If-Match",
+            "in": "header",
+            "description": "`updated_at` of the pipeline as last read (ISO-8601); when it changed since, the update is refused with 409 `version_conflict`",
+            "required": false,
+            "schema": {
+              "type": [
+                "string",
+                "null"
+              ]
+            }
+          }
+        ],
+        "requestBody": {
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/UpdatePipelineRequest"
+              }
+            }
+          },
+          "required": true
+        },
+        "responses": {
+          "200": {
+            "description": "Pipeline renamed or restricted to teams (`team_ids`, empty for everyone); publishes `pipeline.updated`",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/Data_PipelineResponse"
+                }
+              }
+            }
+          },
+          "401": {
+            "description": "Missing or invalid credentials (`unauthorized`, `invalid_api_token`)",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ErrorEnvelope"
+                }
+              }
+            }
+          },
+          "403": {
+            "description": "Missing `settings.manage` (`permission_denied`, `insufficient_scope`)",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ErrorEnvelope"
+                }
+              }
+            }
+          },
+          "404": {
+            "description": "Pipeline not found (`pipeline_not_found`)",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ErrorEnvelope"
+                }
+              }
+            }
+          },
+          "409": {
+            "description": "The pipeline changed after the `If-Match` version (`version_conflict`)",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ErrorEnvelope"
+                }
+              }
+            }
+          },
+          "422": {
+            "description": "Invalid name or teams (`validation_error`)",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ErrorEnvelope"
+                }
+              }
+            }
+          },
+          "429": {
+            "description": "API token rate limit exceeded (`rate_limited`); see `Retry-After` and `X-RateLimit-*`",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ErrorEnvelope"
+                }
+              }
+            }
+          }
+        },
+        "security": [
+          {
+            "session_cookie": []
+          },
+          {
+            "api_token": []
+          }
+        ]
+      }
+    },
+    "/api/v1/workflow/{pipeline_id}/activate": {
+      "post": {
+        "tags": [
+          "workflow"
+        ],
+        "operationId": "pipelines_activate",
+        "parameters": [
+          {
+            "name": "pipeline_id",
+            "in": "path",
+            "description": "Pipeline id",
+            "required": true,
+            "schema": {
+              "type": "string"
+            }
+          },
+          {
+            "name": "Idempotency-Key",
+            "in": "header",
+            "description": "Up to 255 printable ASCII characters. The same key with the same request (method, path and body) within 24 hours answers the stored response with the same status and body plus `Idempotent-Replayed: true`. Scoped to the credential (session cookie or API token); ignored without a credential. 5xx and 429 responses are not stored",
+            "required": false,
+            "schema": {
+              "type": "string",
+              "maxLength": 255
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "Pipeline active again; publishes `pipeline.activated`",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/Data_PipelineResponse"
+                }
+              }
+            }
+          },
+          "401": {
+            "description": "Missing or invalid credentials (`unauthorized`, `invalid_api_token`)",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ErrorEnvelope"
+                }
+              }
+            }
+          },
+          "403": {
+            "description": "Missing `settings.manage` (`permission_denied`, `insufficient_scope`)",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ErrorEnvelope"
+                }
+              }
+            }
+          },
+          "404": {
+            "description": "Pipeline not found (`pipeline_not_found`)",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ErrorEnvelope"
+                }
+              }
+            }
+          },
+          "409": {
+            "description": "The first request with this `Idempotency-Key` is still being processed (`idempotency_key_in_progress`)",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ErrorEnvelope"
+                }
+              }
+            }
+          },
+          "422": {
+            "description": "`Idempotency-Key` already used with a different request (`idempotency_key_reused`) or longer than 255 characters (`validation_error`)",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ErrorEnvelope"
+                }
+              }
+            }
+          },
+          "429": {
+            "description": "API token rate limit exceeded (`rate_limited`); see `Retry-After` and `X-RateLimit-*`",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ErrorEnvelope"
+                }
+              }
+            }
+          }
+        },
+        "security": [
+          {
+            "session_cookie": []
+          },
+          {
+            "api_token": []
+          }
+        ]
+      }
+    },
+    "/api/v1/workflow/{pipeline_id}/deactivate": {
+      "post": {
+        "tags": [
+          "workflow"
+        ],
+        "operationId": "pipelines_deactivate",
+        "parameters": [
+          {
+            "name": "pipeline_id",
+            "in": "path",
+            "description": "Pipeline id",
+            "required": true,
+            "schema": {
+              "type": "string"
+            }
+          },
+          {
+            "name": "Idempotency-Key",
+            "in": "header",
+            "description": "Up to 255 printable ASCII characters. The same key with the same request (method, path and body) within 24 hours answers the stored response with the same status and body plus `Idempotent-Replayed: true`. Scoped to the credential (session cookie or API token); ignored without a credential. 5xx and 429 responses are not stored",
+            "required": false,
+            "schema": {
+              "type": "string",
+              "maxLength": 255
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "Pipeline deactivated: its records stay where they are, but no record can be created in or moved into it. Publishes `pipeline.deactivated`",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/Data_PipelineResponse"
+                }
+              }
+            }
+          },
+          "401": {
+            "description": "Missing or invalid credentials (`unauthorized`, `invalid_api_token`)",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ErrorEnvelope"
+                }
+              }
+            }
+          },
+          "403": {
+            "description": "Missing `settings.manage` (`permission_denied`, `insufficient_scope`)",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ErrorEnvelope"
+                }
+              }
+            }
+          },
+          "404": {
+            "description": "Pipeline not found (`pipeline_not_found`)",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ErrorEnvelope"
+                }
+              }
+            }
+          },
+          "409": {
+            "description": "The default pipeline cannot be deactivated (`default_pipeline_required`). The first request with this `Idempotency-Key` is still being processed (`idempotency_key_in_progress`)",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ErrorEnvelope"
+                }
+              }
+            }
+          },
+          "422": {
+            "description": "`Idempotency-Key` already used with a different request (`idempotency_key_reused`) or longer than 255 characters (`validation_error`)",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ErrorEnvelope"
+                }
+              }
+            }
+          },
+          "429": {
+            "description": "API token rate limit exceeded (`rate_limited`); see `Retry-After` and `X-RateLimit-*`",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ErrorEnvelope"
+                }
+              }
+            }
+          }
+        },
+        "security": [
+          {
+            "session_cookie": []
+          },
+          {
+            "api_token": []
+          }
+        ]
+      }
+    },
+    "/api/v1/workflow/{pipeline_id}/default": {
+      "post": {
+        "tags": [
+          "workflow"
+        ],
+        "operationId": "pipelines_set_default",
+        "parameters": [
+          {
+            "name": "pipeline_id",
+            "in": "path",
+            "description": "Pipeline id",
+            "required": true,
+            "schema": {
+              "type": "string"
+            }
+          },
+          {
+            "name": "Idempotency-Key",
+            "in": "header",
+            "description": "Up to 255 printable ASCII characters. The same key with the same request (method, path and body) within 24 hours answers the stored response with the same status and body plus `Idempotent-Replayed: true`. Scoped to the credential (session cookie or API token); ignored without a credential. 5xx and 429 responses are not stored",
+            "required": false,
+            "schema": {
+              "type": "string",
+              "maxLength": 255
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "Pipeline is now the default one (Kanban and new records without a pipeline); publishes `pipeline.default_changed`",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/Data_PipelineResponse"
+                }
+              }
+            }
+          },
+          "401": {
+            "description": "Missing or invalid credentials (`unauthorized`, `invalid_api_token`)",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ErrorEnvelope"
+                }
+              }
+            }
+          },
+          "403": {
+            "description": "Missing `settings.manage` (`permission_denied`, `insufficient_scope`)",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ErrorEnvelope"
+                }
+              }
+            }
+          },
+          "404": {
+            "description": "Pipeline not found (`pipeline_not_found`)",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ErrorEnvelope"
+                }
+              }
+            }
+          },
+          "409": {
+            "description": "An inactive pipeline cannot be the default one (`default_pipeline_required`). The first request with this `Idempotency-Key` is still being processed (`idempotency_key_in_progress`)",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ErrorEnvelope"
+                }
+              }
+            }
+          },
+          "422": {
+            "description": "`Idempotency-Key` already used with a different request (`idempotency_key_reused`) or longer than 255 characters (`validation_error`)",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ErrorEnvelope"
+                }
+              }
+            }
+          },
+          "429": {
+            "description": "API token rate limit exceeded (`rate_limited`); see `Retry-After` and `X-RateLimit-*`",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ErrorEnvelope"
+                }
+              }
+            }
+          }
+        },
+        "security": [
+          {
+            "session_cookie": []
+          },
+          {
+            "api_token": []
+          }
+        ]
+      }
+    },
+    "/api/v1/workflow/{pipeline_id}/renewal": {
+      "get": {
+        "tags": [
+          "workflow"
+        ],
+        "description": "Automatic renewal of the won deals of the pipeline. While never saved, returns the defaults (`configured: false`, disabled, 30 days, first open stage of the same pipeline). Needs `settings.manage`.",
+        "operationId": "pipeline_renewal_get",
+        "parameters": [
+          {
+            "name": "pipeline_id",
+            "in": "path",
+            "description": "Pipeline id",
+            "required": true,
+            "schema": {
+              "type": "string"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "Renewal settings of the pipeline",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/Data_RenewalSettingsResponse"
+                }
+              }
+            }
+          },
+          "401": {
+            "description": "Missing or invalid credentials (`unauthorized`, `invalid_api_token`)",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ErrorEnvelope"
+                }
+              }
+            }
+          },
+          "403": {
+            "description": "Missing `settings.manage` (`permission_denied`, `insufficient_scope`)",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ErrorEnvelope"
+                }
+              }
+            }
+          },
+          "404": {
+            "description": "Pipeline not found (`pipeline_not_found`)",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ErrorEnvelope"
+                }
+              }
+            }
+          },
+          "429": {
+            "description": "API token rate limit exceeded (`rate_limited`); see `Retry-After` and `X-RateLimit-*`",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ErrorEnvelope"
+                }
+              }
+            }
+          }
+        },
+        "security": [
+          {
+            "session_cookie": []
+          },
+          {
+            "api_token": []
+          }
+        ]
+      },
+      "put": {
+        "tags": [
+          "workflow"
+        ],
+        "description": "Saves the automatic renewal of the pipeline and publishes `pipeline.renewal_updated`. When enabled, the `renewals.scan` job (hourly) creates, for each won deal of the pipeline whose `contract_end` is at most `days_before` days ahead (organization timezone, until `contract_end`), one renewal deal in `target_stage_id` with `renewal_of_deal_id` pointing to the original, the same contact, company and currency, the owner of the original (`owner_mode = original`) or no owner (`none`), the title `title_prefix + title`, `contract_start` the day after the original `contract_end` and a copy of the recurring items; then publishes `deal.renewal_created`. Each deal is renewed only once. The renewal runs with the permissions of whoever saved the settings last. Fields left out keep their value. Needs `settings.manage`.",
+        "operationId": "pipeline_renewal_update",
+        "parameters": [
+          {
+            "name": "pipeline_id",
+            "in": "path",
+            "description": "Pipeline id",
+            "required": true,
+            "schema": {
+              "type": "string"
+            }
+          },
+          {
+            "name": "If-Match",
+            "in": "header",
+            "description": "`updated_at` of the settings as read (ISO-8601); ignored while never saved",
+            "required": false,
+            "schema": {
+              "type": [
+                "string",
+                "null"
+              ]
+            }
+          }
+        ],
+        "requestBody": {
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/RenewalSettingsRequest"
+              }
+            }
+          },
+          "required": true
+        },
+        "responses": {
+          "200": {
+            "description": "Renewal settings saved",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/Data_RenewalSettingsResponse"
+                }
+              }
+            }
+          },
+          "401": {
+            "description": "Missing or invalid credentials (`unauthorized`, `invalid_api_token`)",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ErrorEnvelope"
+                }
+              }
+            }
+          },
+          "403": {
+            "description": "Missing `settings.manage` (`permission_denied`, `insufficient_scope`)",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ErrorEnvelope"
+                }
+              }
+            }
+          },
+          "404": {
+            "description": "Pipeline not found (`pipeline_not_found`)",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ErrorEnvelope"
+                }
+              }
+            }
+          },
+          "409": {
+            "description": "The settings changed since the `If-Match` version (`version_conflict`)",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ErrorEnvelope"
+                }
+              }
+            }
+          },
+          "422": {
+            "description": "Invalid days, target pipeline/stage (must be an active open stage of the target pipeline), prefix or owner mode (`validation_error` with `details.fields`)",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ErrorEnvelope"
+                }
+              }
+            }
+          },
+          "429": {
+            "description": "API token rate limit exceeded (`rate_limited`); see `Retry-After` and `X-RateLimit-*`",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ErrorEnvelope"
+                }
+              }
+            }
+          }
+        },
+        "security": [
+          {
+            "session_cookie": []
+          },
+          {
+            "api_token": []
+          }
+        ]
+      }
+    },
+    "/api/v1/workflow/{pipeline_id}/stages": {
+      "post": {
+        "tags": [
+          "workflow"
+        ],
+        "operationId": "pipelines_create_stage",
+        "parameters": [
+          {
+            "name": "pipeline_id",
+            "in": "path",
+            "description": "Pipeline id",
+            "required": true,
+            "schema": {
+              "type": "string"
+            }
+          },
+          {
+            "name": "Idempotency-Key",
+            "in": "header",
+            "description": "Up to 255 printable ASCII characters. The same key with the same request (method, path and body) within 24 hours answers the stored response with the same status and body plus `Idempotent-Replayed: true`. Scoped to the credential (session cookie or API token); ignored without a credential. 5xx and 429 responses are not stored",
+            "required": false,
+            "schema": {
+              "type": "string",
+              "maxLength": 255
+            }
+          }
+        ],
+        "requestBody": {
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/CreateStageRequest"
+              }
+            }
+          },
+          "required": true
+        },
+        "responses": {
+          "201": {
+            "description": "Stage created; open stages go after the last open stage, won and lost stages at the end. `entry_required_fields`/`exit_required_fields` list record fields that must be filled to enter or leave it. Publishes `pipeline_stage.created`",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/Data_PipelineStageResponse"
+                }
+              }
+            }
+          },
+          "401": {
+            "description": "Missing or invalid credentials (`unauthorized`, `invalid_api_token`)",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ErrorEnvelope"
+                }
+              }
+            }
+          },
+          "403": {
+            "description": "Missing `settings.manage` (`permission_denied`, `insufficient_scope`)",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ErrorEnvelope"
+                }
+              }
+            }
+          },
+          "404": {
+            "description": "Pipeline not found (`pipeline_not_found`)",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ErrorEnvelope"
+                }
+              }
+            }
+          },
+          "409": {
+            "description": "The first request with this `Idempotency-Key` is still being processed (`idempotency_key_in_progress`)",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ErrorEnvelope"
+                }
+              }
+            }
+          },
+          "422": {
+            "description": "Invalid name, kind, probability or required fields (`validation_error`). `Idempotency-Key` already used with a different request (`idempotency_key_reused`) or longer than 255 characters (`validation_error`)",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ErrorEnvelope"
+                }
+              }
+            }
+          },
+          "429": {
+            "description": "API token rate limit exceeded (`rate_limited`); see `Retry-After` and `X-RateLimit-*`",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ErrorEnvelope"
+                }
+              }
+            }
+          }
+        },
+        "security": [
+          {
+            "session_cookie": []
+          },
+          {
+            "api_token": []
+          }
+        ]
+      }
+    },
+    "/api/v1/workflow/{pipeline_id}/stages/order": {
+      "put": {
+        "tags": [
+          "workflow"
+        ],
+        "operationId": "pipelines_reorder_stages",
+        "parameters": [
+          {
+            "name": "pipeline_id",
+            "in": "path",
+            "description": "Pipeline id",
+            "required": true,
+            "schema": {
+              "type": "string"
+            }
+          }
+        ],
+        "requestBody": {
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/ReorderRequest"
+              }
+            }
+          },
+          "required": true
+        },
+        "responses": {
+          "200": {
+            "description": "Stages reordered; publishes `pipeline_stage.reordered`",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/Data_PipelineResponse"
+                }
+              }
+            }
+          },
+          "401": {
+            "description": "Missing or invalid credentials (`unauthorized`, `invalid_api_token`)",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ErrorEnvelope"
+                }
+              }
+            }
+          },
+          "403": {
+            "description": "Missing `settings.manage` (`permission_denied`, `insufficient_scope`)",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ErrorEnvelope"
+                }
+              }
+            }
+          },
+          "404": {
+            "description": "Pipeline not found (`pipeline_not_found`)",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ErrorEnvelope"
+                }
+              }
+            }
+          },
+          "422": {
+            "description": "The ids must list every stage of the pipeline exactly once (`validation_error`)",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ErrorEnvelope"
+                }
+              }
+            }
+          },
+          "429": {
+            "description": "API token rate limit exceeded (`rate_limited`); see `Retry-After` and `X-RateLimit-*`",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ErrorEnvelope"
+                }
+              }
+            }
+          }
+        },
+        "security": [
+          {
+            "session_cookie": []
+          },
+          {
+            "api_token": []
+          }
+        ]
+      }
+    },
     "/health": {
       "get": {
         "tags": [
@@ -72759,6 +72815,7 @@
       "CustomObjectResponse": {
         "type": "object",
         "required": [
+          "traits",
           "id",
           "key",
           "record_type",
@@ -72845,6 +72902,13 @@
           "title_field_key": {
             "type": "string",
             "example": "name"
+          },
+          "traits": {
+            "type": "object",
+            "additionalProperties": {},
+            "propertyNames": {
+              "type": "string"
+            }
           },
           "updated_at": {
             "type": "string",
@@ -76380,49 +76444,6 @@
           }
         }
       },
-      "Data_DealChecklistResponse": {
-        "type": "object",
-        "required": [
-          "data"
-        ],
-        "properties": {
-          "data": {
-            "type": "object",
-            "required": [
-              "deal_id",
-              "stage_id",
-              "stage_name",
-              "guidance",
-              "items",
-              "required_pending"
-            ],
-            "properties": {
-              "deal_id": {
-                "type": "string"
-              },
-              "guidance": {
-                "type": "string"
-              },
-              "items": {
-                "type": "array",
-                "items": {
-                  "$ref": "#/components/schemas/DealChecklistItemResponse"
-                }
-              },
-              "required_pending": {
-                "type": "integer",
-                "minimum": 0
-              },
-              "stage_id": {
-                "type": "string"
-              },
-              "stage_name": {
-                "type": "string"
-              }
-            }
-          }
-        }
-      },
       "Data_DealItemResponse": {
         "type": "object",
         "required": [
@@ -79586,7 +79607,7 @@
             "type": "object",
             "required": [
               "contact_fields",
-              "pipelines",
+              "workflow",
               "tags",
               "users",
               "distribution_rules"
@@ -79604,12 +79625,6 @@
                   "$ref": "#/components/schemas/LeadFormDistributionRuleOption"
                 }
               },
-              "pipelines": {
-                "type": "array",
-                "items": {
-                  "$ref": "#/components/schemas/LeadFormPipelineOption"
-                }
-              },
               "tags": {
                 "type": "array",
                 "items": {
@@ -79620,6 +79635,12 @@
                 "type": "array",
                 "items": {
                   "$ref": "#/components/schemas/LeadFormUserOption"
+                }
+              },
+              "workflow": {
+                "type": "array",
+                "items": {
+                  "$ref": "#/components/schemas/LeadFormPipelineOption"
                 }
               }
             }
@@ -81613,22 +81634,14 @@
               "created_at": {
                 "type": "string"
               },
-              "deal_count": {
-                "type": [
-                  "integer",
-                  "null"
-                ],
-                "format": "int64",
-                "minimum": 0
-              },
               "entry_required_fields": {
                 "type": "array",
                 "items": {
                   "type": "string"
                 },
                 "example": [
-                  "amount",
-                  "expected_close_date"
+                  "owner_id",
+                  "due_at"
                 ]
               },
               "exit_required_fields": {
@@ -81661,6 +81674,14 @@
                 "type": "integer",
                 "format": "int32",
                 "example": 50,
+                "minimum": 0
+              },
+              "record_count": {
+                "type": [
+                  "integer",
+                  "null"
+                ],
+                "format": "int64",
                 "minimum": 0
               },
               "rotting_days": {
@@ -83185,6 +83206,53 @@
               "window_days": {
                 "type": "integer",
                 "format": "int64"
+              }
+            }
+          }
+        }
+      },
+      "Data_RecordChecklistResponse": {
+        "type": "object",
+        "required": [
+          "data"
+        ],
+        "properties": {
+          "data": {
+            "type": "object",
+            "required": [
+              "record_type",
+              "record_id",
+              "stage_id",
+              "stage_name",
+              "guidance",
+              "items",
+              "required_pending"
+            ],
+            "properties": {
+              "guidance": {
+                "type": "string"
+              },
+              "items": {
+                "type": "array",
+                "items": {
+                  "$ref": "#/components/schemas/RecordChecklistItemResponse"
+                }
+              },
+              "record_id": {
+                "type": "string"
+              },
+              "record_type": {
+                "type": "string"
+              },
+              "required_pending": {
+                "type": "integer",
+                "minimum": 0
+              },
+              "stage_id": {
+                "type": "string"
+              },
+              "stage_name": {
+                "type": "string"
               }
             }
           }
@@ -85875,6 +85943,7 @@
             "items": {
               "type": "object",
               "required": [
+                "traits",
                 "id",
                 "key",
                 "record_type",
@@ -85961,6 +86030,13 @@
                 "title_field_key": {
                   "type": "string",
                   "example": "name"
+                },
+                "traits": {
+                  "type": "object",
+                  "additionalProperties": {},
+                  "propertyNames": {
+                    "type": "string"
+                  }
                 },
                 "updated_at": {
                   "type": "string",
@@ -88637,6 +88713,32 @@
           }
         }
       },
+      "Data_Vec_StageFieldChoice": {
+        "type": "object",
+        "required": [
+          "data"
+        ],
+        "properties": {
+          "data": {
+            "type": "array",
+            "items": {
+              "type": "object",
+              "required": [
+                "key",
+                "label"
+              ],
+              "properties": {
+                "key": {
+                  "type": "string"
+                },
+                "label": {
+                  "type": "string"
+                }
+              }
+            }
+          }
+        }
+      },
       "Data_Vec_TagSummary": {
         "type": "object",
         "required": [
@@ -89374,90 +89476,6 @@
           "manual",
           "items"
         ]
-      },
-      "DealChecklistItemResponse": {
-        "type": "object",
-        "required": [
-          "id",
-          "key",
-          "label",
-          "required",
-          "position",
-          "done"
-        ],
-        "properties": {
-          "done": {
-            "type": "boolean"
-          },
-          "done_at": {
-            "type": [
-              "string",
-              "null"
-            ],
-            "example": "2026-10-20T13:45:00Z"
-          },
-          "done_by": {
-            "oneOf": [
-              {
-                "type": "null"
-              },
-              {
-                "$ref": "#/components/schemas/ChecklistUserResponse"
-              }
-            ]
-          },
-          "id": {
-            "type": "string"
-          },
-          "key": {
-            "type": "string"
-          },
-          "label": {
-            "type": "string"
-          },
-          "position": {
-            "type": "integer",
-            "format": "int32"
-          },
-          "required": {
-            "type": "boolean"
-          }
-        }
-      },
-      "DealChecklistResponse": {
-        "type": "object",
-        "required": [
-          "deal_id",
-          "stage_id",
-          "stage_name",
-          "guidance",
-          "items",
-          "required_pending"
-        ],
-        "properties": {
-          "deal_id": {
-            "type": "string"
-          },
-          "guidance": {
-            "type": "string"
-          },
-          "items": {
-            "type": "array",
-            "items": {
-              "$ref": "#/components/schemas/DealChecklistItemResponse"
-            }
-          },
-          "required_pending": {
-            "type": "integer",
-            "minimum": 0
-          },
-          "stage_id": {
-            "type": "string"
-          },
-          "stage_name": {
-            "type": "string"
-          }
-        }
       },
       "DealItemRequest": {
         "type": "object",
@@ -96778,7 +96796,7 @@
         "type": "object",
         "required": [
           "contact_fields",
-          "pipelines",
+          "workflow",
           "tags",
           "users",
           "distribution_rules"
@@ -96796,12 +96814,6 @@
               "$ref": "#/components/schemas/LeadFormDistributionRuleOption"
             }
           },
-          "pipelines": {
-            "type": "array",
-            "items": {
-              "$ref": "#/components/schemas/LeadFormPipelineOption"
-            }
-          },
           "tags": {
             "type": "array",
             "items": {
@@ -96812,6 +96824,12 @@
             "type": "array",
             "items": {
               "$ref": "#/components/schemas/LeadFormUserOption"
+            }
+          },
+          "workflow": {
+            "type": "array",
+            "items": {
+              "$ref": "#/components/schemas/LeadFormPipelineOption"
             }
           }
         }
@@ -105355,22 +105373,14 @@
                 "created_at": {
                   "type": "string"
                 },
-                "deal_count": {
-                  "type": [
-                    "integer",
-                    "null"
-                  ],
-                  "format": "int64",
-                  "minimum": 0
-                },
                 "entry_required_fields": {
                   "type": "array",
                   "items": {
                     "type": "string"
                   },
                   "example": [
-                    "amount",
-                    "expected_close_date"
+                    "owner_id",
+                    "due_at"
                   ]
                 },
                 "exit_required_fields": {
@@ -105403,6 +105413,14 @@
                   "type": "integer",
                   "format": "int32",
                   "example": 50,
+                  "minimum": 0
+                },
+                "record_count": {
+                  "type": [
+                    "integer",
+                    "null"
+                  ],
+                  "format": "int64",
                   "minimum": 0
                 },
                 "rotting_days": {
@@ -107808,22 +107826,14 @@
           "created_at": {
             "type": "string"
           },
-          "deal_count": {
-            "type": [
-              "integer",
-              "null"
-            ],
-            "format": "int64",
-            "minimum": 0
-          },
           "entry_required_fields": {
             "type": "array",
             "items": {
               "type": "string"
             },
             "example": [
-              "amount",
-              "expected_close_date"
+              "owner_id",
+              "due_at"
             ]
           },
           "exit_required_fields": {
@@ -107856,6 +107866,14 @@
             "type": "integer",
             "format": "int32",
             "example": 50,
+            "minimum": 0
+          },
+          "record_count": {
+            "type": [
+              "integer",
+              "null"
+            ],
+            "format": "int64",
             "minimum": 0
           },
           "rotting_days": {
@@ -111522,6 +111540,94 @@
           }
         }
       },
+      "RecordChecklistItemResponse": {
+        "type": "object",
+        "required": [
+          "id",
+          "key",
+          "label",
+          "required",
+          "position",
+          "done"
+        ],
+        "properties": {
+          "done": {
+            "type": "boolean"
+          },
+          "done_at": {
+            "type": [
+              "string",
+              "null"
+            ],
+            "example": "2026-10-20T13:45:00Z"
+          },
+          "done_by": {
+            "oneOf": [
+              {
+                "type": "null"
+              },
+              {
+                "$ref": "#/components/schemas/ChecklistUserResponse"
+              }
+            ]
+          },
+          "id": {
+            "type": "string"
+          },
+          "key": {
+            "type": "string"
+          },
+          "label": {
+            "type": "string"
+          },
+          "position": {
+            "type": "integer",
+            "format": "int32"
+          },
+          "required": {
+            "type": "boolean"
+          }
+        }
+      },
+      "RecordChecklistResponse": {
+        "type": "object",
+        "required": [
+          "record_type",
+          "record_id",
+          "stage_id",
+          "stage_name",
+          "guidance",
+          "items",
+          "required_pending"
+        ],
+        "properties": {
+          "guidance": {
+            "type": "string"
+          },
+          "items": {
+            "type": "array",
+            "items": {
+              "$ref": "#/components/schemas/RecordChecklistItemResponse"
+            }
+          },
+          "record_id": {
+            "type": "string"
+          },
+          "record_type": {
+            "type": "string"
+          },
+          "required_pending": {
+            "type": "integer",
+            "minimum": 0
+          },
+          "stage_id": {
+            "type": "string"
+          },
+          "stage_name": {
+            "type": "string"
+          }
+        }
+      },
       "RecordFollowerResponse": {
         "type": "object",
         "required": [
@@ -115142,6 +115248,21 @@
           }
         }
       },
+      "StageFieldChoice": {
+        "type": "object",
+        "required": [
+          "key",
+          "label"
+        ],
+        "properties": {
+          "key": {
+            "type": "string"
+          },
+          "label": {
+            "type": "string"
+          }
+        }
+      },
       "StageFunnelResponse": {
         "type": "object",
         "required": [
@@ -118063,8 +118184,8 @@
               "type": "string"
             },
             "example": [
-              "amount",
-              "expected_close_date"
+              "owner_id",
+              "due_at"
             ]
           },
           "exit_required_fields": {
@@ -119366,60 +119487,12 @@
       "description": "Lifecycle stages of people and organizations: automatic transitions, stage history, conversion report, lead inbox actions (qualify, disqualify, convert) and disqualification reasons"
     },
     {
-      "name": "pipelines",
-      "description": "Pipelines, stages and lost reasons"
-    },
-    {
-      "name": "deals",
-      "description": "Deals, stage changes and the Kanban board"
-    },
-    {
-      "name": "deal-members",
-      "description": "Team of a deal (members, roles and revenue credit split) and the configurable member roles"
-    },
-    {
-      "name": "ai",
-      "description": "AI assistant: record summaries, next actions, writing help and natural language queries"
-    },
-    {
-      "name": "enrichment",
-      "description": "Company enrichment by CNPJ from public sources"
-    },
-    {
-      "name": "esign",
-      "description": "Sends PDFs attached to deals for electronic signature on Clicksign and tracks their status through webhooks"
-    },
-    {
-      "name": "forecast",
-      "description": "Revenue forecast: organization settings and the forecast per month"
-    },
-    {
-      "name": "goals",
-      "description": "Sales goals per user, team or organization and their progress"
-    },
-    {
-      "name": "lead-forms",
-      "description": "Public forms that create people and deals"
-    },
-    {
-      "name": "communication",
-      "description": "Communication opt-outs"
-    },
-    {
-      "name": "messaging",
-      "description": "Shared inbox for WhatsApp Cloud API and email (IMAP/SMTP)"
-    },
-    {
       "name": "plugins",
       "description": "Runtime plugins: install, enable, disable, configure and uninstall .aphelplugin packages, and call their routes"
     },
     {
       "name": "products",
       "description": "Catalog of products and services"
-    },
-    {
-      "name": "proposals",
-      "description": "Proposal templates and PDF proposals generated from deals"
     },
     {
       "name": "layouts",
@@ -119460,18 +119533,6 @@
     {
       "name": "price-lists",
       "description": "Price lists by currency, segment or company with validity periods and quantity tiers, and the maximum discount per role"
-    },
-    {
-      "name": "quotes",
-      "description": "Quotes of deals: versions, items, discounts and taxes, approval, sending, the signed public page and acceptance"
-    },
-    {
-      "name": "deal-items",
-      "description": "Line items of a deal (products or free items) and the deal amount mode"
-    },
-    {
-      "name": "demo",
-      "description": "Demonstration environment status"
     },
     {
       "name": "sequences",
@@ -119516,6 +119577,66 @@
     {
       "name": "incoming-webhooks",
       "description": "Incoming webhooks: secret URLs that create or update records from external systems"
+    },
+    {
+      "name": "workflow",
+      "description": "Pipelines, stages and lost reasons"
+    },
+    {
+      "name": "deals",
+      "description": "Deals, stage changes and the Kanban board"
+    },
+    {
+      "name": "deal-members",
+      "description": "Team of a deal (members, roles and revenue credit split) and the configurable member roles"
+    },
+    {
+      "name": "ai",
+      "description": "AI assistant: record summaries, next actions, writing help and natural language queries"
+    },
+    {
+      "name": "enrichment",
+      "description": "Company enrichment by CNPJ from public sources"
+    },
+    {
+      "name": "esign",
+      "description": "Sends PDFs attached to deals for electronic signature on Clicksign and tracks their status through webhooks"
+    },
+    {
+      "name": "forecast",
+      "description": "Revenue forecast: organization settings and the forecast per month"
+    },
+    {
+      "name": "goals",
+      "description": "Sales goals per user, team or organization and their progress"
+    },
+    {
+      "name": "lead-forms",
+      "description": "Public forms that create people and deals"
+    },
+    {
+      "name": "communication",
+      "description": "Communication opt-outs"
+    },
+    {
+      "name": "messaging",
+      "description": "Shared inbox for WhatsApp Cloud API and email (IMAP/SMTP)"
+    },
+    {
+      "name": "proposals",
+      "description": "Proposal templates and PDF proposals generated from deals"
+    },
+    {
+      "name": "quotes",
+      "description": "Quotes of deals: versions, items, discounts and taxes, approval, sending, the signed public page and acceptance"
+    },
+    {
+      "name": "deal-items",
+      "description": "Line items of a deal (products or free items) and the deal amount mode"
+    },
+    {
+      "name": "demo",
+      "description": "Demonstration environment status"
     }
   ]
 }

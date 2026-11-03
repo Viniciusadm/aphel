@@ -4,7 +4,7 @@ Before writing a template or a module, open an issue with the `proposta` label d
 
 1. **Who uses it and what problem it solves.** Type of business, team size, what is done outside the CRM today.
 2. **Why it does not fit in the core** (for modules) or **why it is not just a variation of an existing template** (for templates). Some things stay out of the core on purpose: finance, inventory, help desk, mass marketing and native e-signature come in as modules or integrations.
-3. **What changes in the configuration** (templates): pipelines and stages, fields with type and options, automations. A draft of the exported package helps.
+3. **What changes in the configuration** (templates): workflow and stages, fields with type and options, automations. A draft of the exported package helps.
 4. **Extension points used** (modules): routes, widgets, automation actions, package sections, permissions and events. If a hook, service or contribution is missing in the kernel or in the owning module, propose the extension point in the same issue (catalog in [hooks](../modules/hooks.md)).
 5. **Personal data and secrets:** which fields are personal or sensitive and where the credentials are kept (always in the secret vault).
 

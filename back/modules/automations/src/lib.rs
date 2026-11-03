@@ -42,7 +42,7 @@ use aphel_kernel::errors::AppError;
 use aphel_kernel::modules::builder::APHEL_VERSION;
 use aphel_kernel::modules::{AppBuilder, Manifest, Module, WorkerEnv, WorkerParts};
 use time::{
-    RottingCatchUp, TimeTriggerSweep, WaitingRunsCanceller, WaitingRunsResumer,
+    TimeCatchUpConsumer, TimeTriggerSweep, WaitingRunsCanceller, WaitingRunsResumer,
     resume_waiting_schedule, time_sweep_schedule,
 };
 use triggers::{Manual, RecordCreated, RecordDeleted, RecordUpdated};
@@ -119,7 +119,7 @@ impl Module for AutomationsModule {
                     registry.clone(),
                     crate::store::AutomationStore::new(pool.clone()),
                     tags::TagStore::new(pool.clone()),
-                    pipelines::store::PipelineStore::new(pool.clone()),
+                    workflow::store::PipelineStore::new(pool.clone()),
                     ::config_packages::infrastructure::MySqlConfigKeyRepository::new(pool.clone()),
                     activities::store::ActivityTypeStore::new(pool.clone()),
                 ))
@@ -169,7 +169,7 @@ fn worker(env: &WorkerEnv) -> WorkerParts {
         .consumer(Arc::new(AutomationTriggerConsumer(runtime.clone())))
         .handler(Arc::new(AutomationRunHandler(runtime.clone())))
         .consumer(Arc::new(WaitingRunsCanceller(runtime.clone())))
-        .consumer(Arc::new(RottingCatchUp(runtime.clone())))
+        .consumer(Arc::new(TimeCatchUpConsumer(runtime.clone())))
         .handler(Arc::new(TimeTriggerSweep(runtime.clone())))
         .handler(Arc::new(WaitingRunsResumer(runtime)))
         .schedules(vec![time_sweep_schedule(), resume_waiting_schedule()])

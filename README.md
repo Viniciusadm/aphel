@@ -4,7 +4,7 @@
 
 **Aphel** is an open source CRM that is modular, configurable and extensible, ready to be used by freelancers, agencies, real estate agencies, consultancies, SaaS organizations and sales teams.
 
-The core (people, organizations, deals, activities and history) is the same for everyone; fields, pipelines, automations and modules adapt to each company without changing the code. It runs as **a single binary** (Rust) with the web interface (React) embedded, on top of MySQL. Each installation serves **one company** (the organization): to serve another company, spin up another installation with its own database.
+The core (people, organizations, deals, activities and history) is the same for everyone; fields, workflow, automations and modules adapt to each company without changing the code. It runs as **a single binary** (Rust) with the web interface (React) embedded, on top of MySQL. Each installation serves **one company** (the organization): to serve another company, spin up another installation with its own database.
 
 > Current version: **0.1** (first usable version). See what already exists in [Features](#features-in-v01).
 

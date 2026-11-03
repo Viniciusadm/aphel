@@ -78,7 +78,7 @@ async fn renewal_deals(
     let mut builder: QueryBuilder<MySql> = QueryBuilder::new(
         "SELECT d.id, d.title, d.amount, d.currency, s.name AS stage_name, d.contract_end, \
          d.owner_id, u.display_name AS owner_name FROM deals d \
-         JOIN pipeline_stages s ON s.id = d.stage_id \
+         JOIN workflow_stages s ON s.id = d.stage_id \
          LEFT JOIN users u ON u.id = d.owner_id WHERE d.id IN (",
     );
     let mut separated = builder.separated(", ");

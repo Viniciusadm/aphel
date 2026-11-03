@@ -14,7 +14,7 @@ organizations = { path = "modules/organizations", required = true }
 leads = { path = "modules/leads" }
 scoring = { path = "modules/scoring" }
 currencies = { path = "modules/currencies", required = true }
-pipelines = { path = "modules/pipelines", required = true }
+workflow = { path = "modules/workflow", required = true }
 deals = { path = "modules/deals", required = true }
 deal_items = { path = "modules/deal_items" }
 renewals = { path = "modules/renewals" }

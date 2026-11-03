@@ -11,7 +11,7 @@ use crate::domain::builtin::{
 use ::dashboard::engine::PeriodQuery;
 use dashboard::dto::{DashboardPeriodResponse, PeriodPresetSchema};
 use deals::http::money;
-use pipelines::domain::StageKind;
+use workflow::domain::StageKind;
 
 fn optional_money(value: Option<Decimal>) -> Option<String> {
     value.map(money)

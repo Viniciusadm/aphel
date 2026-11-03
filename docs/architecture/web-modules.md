@@ -71,7 +71,7 @@ Labels (`label`, `description`) are i18n keys in the module's namespace; use `ns
 | `app.sidebar` | Sidebar, below the navigation (desktop and mobile; e.g. favorites) | `{ collapsed?, onNavigate? }` |
 | `deals.badges` | Deal badges on the Kanban card and in the table | `{ deal, placement: 'card' \| 'list' }` |
 | `deals.detail.fieldLocks` | Deal page (no UI; locks fields, e.g. amount managed by the items) | `{ dealId, lockFields }` |
-| `pipelines.settings.sections` | End of a pipeline's settings (e.g. renewal) | `{ pipeline, pipelines }` |
+| `workflow.settings.sections` | End of a pipeline's settings (e.g. renewal) | `{ pipeline, workflow }` |
 | `products.list.header` | Product list header (e.g. link to the price lists) | `{}` |
 | `quotes.editor.sidebar` | Side column of the quote editor (e.g. approvals) | `{ recordType, recordId }` |
 

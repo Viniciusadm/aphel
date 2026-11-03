@@ -28,10 +28,10 @@ use aphel_kernel::application::query::{
 use aphel_kernel::domain::access::{Permission, RecordScopeFilter};
 use aphel_kernel::errors::{AppError, FieldViolation};
 use currencies::domain::{BASE_AMOUNT_FIELD, BASE_AMOUNT_METRIC};
-use pipelines::domain::PIPELINE_NOT_FOUND;
-use pipelines::domain::StageKind;
-use pipelines::domain::pipeline_visible;
-use pipelines::store::PipelineStore;
+use workflow::domain::PIPELINE_NOT_FOUND;
+use workflow::domain::StageKind;
+use workflow::domain::pipeline_visible;
+use workflow::store::PipelineStore;
 
 const AMOUNT_FIELD: &str = "amount";
 const DEAL: &str = "deals.deal";

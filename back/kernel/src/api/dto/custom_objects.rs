@@ -39,6 +39,7 @@ pub enum RelationSideSchema {
 
 #[derive(Debug, Serialize, ToSchema)]
 pub struct CustomObjectResponse {
+    pub traits: std::collections::BTreeMap<String, Value>,
     pub id: String,
     #[schema(example = "contract")]
     pub key: String,
@@ -70,6 +71,9 @@ pub struct CustomObjectResponse {
 impl From<&CustomObject> for CustomObjectResponse {
     fn from(object: &CustomObject) -> Self {
         Self {
+            traits: crate::application::custom_objects::custom_record_definition(object)
+                .map(|definition| definition.capabilities.traits)
+                .unwrap_or_default(),
             id: object.id.to_string(),
             key: object.key.clone(),
             record_type: object.record_type(),

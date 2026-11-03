@@ -1,11 +1,22 @@
 import { isApiError } from '@/api'
 import { fieldViolations } from '@/features/records/fields'
-import { REQUIRABLE_SYSTEM_FIELDS, requiredStageFields } from '@/modules/pipelines/requirements'
-import type { PipelineStage } from '@/modules/pipelines/types'
+import { requiredStageFields } from '@/modules/workflow/requirements'
+import type { PipelineStage } from '@/modules/workflow/types'
 import type { Deal } from './types'
 
 export const STAGE_REQUIREMENTS_MISSING = 'stage_requirements_missing'
 export const STAGE_REQUIREMENTS_INACCESSIBLE = 'stage_requirements_inaccessible'
+
+export const REQUIRABLE_SYSTEM_FIELDS = [
+  'amount',
+  'currency',
+  'probability',
+  'expected_close_date',
+  'contact_id',
+  'company_id',
+  'owner_id',
+  'source',
+] as const
 
 const SYSTEM_KEYS = new Set<string>(REQUIRABLE_SYSTEM_FIELDS)
 

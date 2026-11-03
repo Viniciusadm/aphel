@@ -22,7 +22,7 @@ use aphel_kernel::errors::AppError;
 use aphel_kernel::infrastructure::query::compiler::quoted;
 use aphel_kernel::infrastructure::repositories::mapper;
 use aphel_kernel::infrastructure::repositories::mysql_organization_profile::insert_registration;
-use pipelines::store::PipelineStore;
+use workflow::store::PipelineStore;
 
 pub(crate) type ConfigKeyMap = BTreeMap<ConfigKind, BTreeMap<Uuid, String>>;
 
@@ -330,11 +330,11 @@ impl OrgDataStore {
     }
 
     pub(crate) async fn config_keys(&self) -> Result<ConfigKeyMap, AppError> {
-        let pipelines = PipelineStore::new(self.pool.clone());
+        let workflow = PipelineStore::new(self.pool.clone());
         let keys = MySqlConfigKeyRepository::new(self.pool.clone());
         let mut map: ConfigKeyMap = BTreeMap::new();
 
-        let all_pipelines = pipelines.list_pipelines().await?;
+        let all_pipelines = workflow.list_pipelines().await?;
         let stored = keys
             .keys(ConfigReferenceKind::new("workflow.pipeline"))
             .await?;
@@ -351,7 +351,7 @@ impl OrgDataStore {
             map.entry(ConfigKind::Pipeline)
                 .or_default()
                 .insert(pipeline.id, keyed.key.clone());
-            let stages = pipelines.list_stages(pipeline.id).await?;
+            let stages = workflow.list_stages(pipeline.id).await?;
             let stored: HashMap<Uuid, String> = stages
                 .iter()
                 .filter_map(|stage| {
@@ -370,7 +370,7 @@ impl OrgDataStore {
             }
         }
 
-        let reasons = pipelines.list_lost_reasons().await?;
+        let reasons = workflow.list_lost_reasons().await?;
         let stored = keys
             .keys(ConfigReferenceKind::new("workflow.lost_reason"))
             .await?;

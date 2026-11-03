@@ -7,6 +7,10 @@ license.workspace = true
 publish = false
 
 [dependencies]
+aphel-contract-workflow.workspace = true
+async-trait.workspace = true
+sqlx.workspace = true
+uuid.workspace = true
 aphel-contract-party.workspace = true
 serde_json.workspace = true
 aphel-contract-automation.workspace = true

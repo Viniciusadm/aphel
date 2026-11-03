@@ -12,7 +12,7 @@ import { Skeleton } from '@/components/ui/skeleton'
 import { Textarea } from '@/components/ui/textarea'
 import { toast } from '@/components/ui/toast-store'
 import { useCustomObjects } from '@/features/custom-records'
-import { usePipelines } from '@/modules/pipelines/api'
+import { usePipelines } from '@/modules/workflow/api'
 import { useFieldSchema } from '@/features/records/api'
 
 import { activeFields } from '@/features/records/fields'
@@ -56,19 +56,19 @@ export interface PolicyEditorDialogProps {
 }
 
 export function PolicyEditorDialog({ open, policy, onOpenChange }: PolicyEditorDialogProps) {
-  const pipelines = usePipelines()
+  const workflow = usePipelines()
   return (
     <Dialog open={open} onOpenChange={onOpenChange}>
       <DialogContent size="xl">
         {open &&
-          (pipelines.isPending ? (
+          (workflow.isPending ? (
             <Skeleton className="h-64 w-full" />
           ) : (
             <PolicyForm
               key={policy?.id ?? 'new'}
               policy={policy}
               pipelineOfStage={(stageId) =>
-                pipelines.data?.find((pipeline) => pipeline.stages.some((stage) => stage.id === stageId))?.id ?? ''
+                workflow.data?.find((pipeline) => pipeline.stages.some((stage) => stage.id === stageId))?.id ?? ''
               }
               onOpenChange={onOpenChange}
             />
@@ -93,7 +93,7 @@ function PolicyForm({ policy, pipelineOfStage, onOpenChange }: PolicyFormProps) 
   const [errors, setErrors] = useState<FormErrors>({})
   const objects = useCustomObjects()
   const quoteAvailable = useQuoteRecordTypeAvailable()
-  const pipelines = usePipelines()
+  const workflow = usePipelines()
   const schema = useFieldSchema(draft.recordType)
   const recordTypeLabel = useRecordTypeLabel()
 
@@ -113,7 +113,7 @@ function PolicyForm({ policy, pipelineOfStage, onOpenChange }: PolicyFormProps) 
   }, [quoteAvailable.data, objects.data, draft.recordType])
 
   const moments = availableMoments(draft.recordType)
-  const pipeline = pipelines.data?.find((item) => item.id === draft.pipelineId)
+  const pipeline = workflow.data?.find((item) => item.id === draft.pipelineId)
   const lockable = schema.data ? activeFields(schema.data) : []
 
   const patch = (next: Partial<PolicyDraft>) => setDraft((current) => ({ ...current, ...next }))
@@ -294,7 +294,7 @@ function PolicyForm({ policy, pipelineOfStage, onOpenChange }: PolicyFormProps) 
                 onChange={(event) => patch({ pipelineId: event.target.value, targetId: '' })}
               >
                 <option value="">{t('form.choose')}</option>
-                {(pipelines.data ?? []).map((item) => (
+                {(workflow.data ?? []).map((item) => (
                   <option key={item.id} value={item.id}>
                     {item.name}
                   </option>

@@ -14,7 +14,7 @@ use aphel_kernel::errors::AppError;
 use aphel_kernel::infrastructure::query::compiler::{push_where, quoted};
 use aphel_kernel::infrastructure::repositories::mapper::{invalid_column, naive};
 use aphel_kernel::records::constrain_query;
-use pipelines::domain::StageKind;
+use workflow::domain::StageKind;
 
 type StageDurationRow = (String, i64, Option<Decimal>, i64, Option<Decimal>);
 
@@ -45,7 +45,7 @@ fn records(plan: &QueryPlan) -> String {
     quoted(&plan.record_type.table)
 }
 
-fn push_pipeline_stages(builder: &mut QueryBuilder<MySql>, alias: &str, pipeline_id: Uuid) {
+fn push_workflow_stages(builder: &mut QueryBuilder<MySql>, alias: &str, pipeline_id: Uuid) {
     builder
         .push(format!(" AND {alias}.pipeline_id = "))
         .push_bind(pipeline_id.to_string())
@@ -67,14 +67,14 @@ impl BuiltinReportStore {
     ) -> Result<Option<ReportPipeline>, AppError> {
         let pipeline: Option<(String, String)> = match pipeline_id {
             Some(id) => {
-                sqlx::query_as("SELECT id, name FROM pipelines WHERE id = ?")
+                sqlx::query_as("SELECT id, name FROM workflow WHERE id = ?")
                     .bind(id.to_string())
                     .fetch_optional(&self.pool)
                     .await?
             }
             None => {
                 sqlx::query_as(
-                    "SELECT id, name FROM pipelines WHERE is_active \
+                    "SELECT id, name FROM workflow WHERE is_active \
                      ORDER BY is_default DESC, position, id LIMIT 1",
                 )
                 .fetch_optional(&self.pool)
@@ -85,7 +85,7 @@ impl BuiltinReportStore {
             return Ok(None);
         };
         let rows: Vec<(String, String, String, i32, u8)> = sqlx::query_as(
-            "SELECT id, name, kind, position, probability FROM pipeline_stages \
+            "SELECT id, name, kind, position, probability FROM workflow_stages \
              WHERE pipeline_id = ? AND is_active ORDER BY position, id",
         )
         .bind(&id)
@@ -95,17 +95,17 @@ impl BuiltinReportStore {
             .into_iter()
             .map(|(stage_id, stage_name, kind, position, probability)| {
                 Ok(ReportStage {
-                    id: uuid_column(&stage_id, "pipeline_stages.id")?,
+                    id: uuid_column(&stage_id, "workflow_stages.id")?,
                     name: stage_name,
                     kind: StageKind::parse(&kind)
-                        .ok_or_else(|| invalid_column("pipeline_stages.kind", &kind))?,
+                        .ok_or_else(|| invalid_column("workflow_stages.kind", &kind))?,
                     position,
                     probability,
                 })
             })
             .collect::<Result<Vec<_>, AppError>>()?;
         Ok(Some(ReportPipeline {
-            id: uuid_column(&id, "pipelines.id")?,
+            id: uuid_column(&id, "workflow.id")?,
             name,
             stages,
         }))
@@ -123,15 +123,15 @@ impl BuiltinReportStore {
             "SELECT CAST(GREATEST(COALESCE(f.furthest, cs.position), COALESCE(cs.position, f.furthest)) AS SIGNED) AS furthest_position, \
              r.status, COUNT(*), SUM(r.amount_base) FROM {} r \
              LEFT JOIN (SELECT h.deal_id, MAX(ps.position) AS furthest FROM deal_stage_history h \
-             JOIN pipeline_stages ps ON ps.id = h.stage_id WHERE 1 = 1",
+             JOIN workflow_stages ps ON ps.id = h.stage_id WHERE 1 = 1",
             records(plan)
         ));
-        push_pipeline_stages(&mut builder, "ps", pipeline_id);
+        push_workflow_stages(&mut builder, "ps", pipeline_id);
         builder.push(
             " GROUP BY h.deal_id) f ON f.deal_id = r.id \
-             LEFT JOIN pipeline_stages cs ON cs.id = r.stage_id",
+             LEFT JOIN workflow_stages cs ON cs.id = r.stage_id",
         );
-        push_pipeline_stages(&mut builder, "cs", pipeline_id);
+        push_workflow_stages(&mut builder, "cs", pipeline_id);
         push_where(&mut builder, scope, plan)?;
         builder.push(" GROUP BY furthest_position, r.status");
         let rows: Vec<(Option<i64>, String, i64, Option<Decimal>)> =
@@ -159,10 +159,10 @@ impl BuiltinReportStore {
             "SELECT l.stage_id, COUNT(*), SUM(r.amount_base) FROM {} r \
              LEFT JOIN (SELECT ranked.deal_id, ranked.stage_id FROM (\
              SELECT h.deal_id, h.stage_id, ROW_NUMBER() OVER (PARTITION BY h.deal_id ORDER BY h.entered_at DESC, h.id DESC) AS entry_rank \
-             FROM deal_stage_history h JOIN pipeline_stages ps ON ps.id = h.stage_id WHERE 1 = 1",
+             FROM deal_stage_history h JOIN workflow_stages ps ON ps.id = h.stage_id WHERE 1 = 1",
             records(plan)
         ));
-        push_pipeline_stages(&mut builder, "ps", pipeline_id);
+        push_workflow_stages(&mut builder, "ps", pipeline_id);
         builder.push(") ranked WHERE ranked.entry_rank = 1) l ON l.deal_id = r.id");
         push_where(&mut builder, scope, plan)?;
         builder.push(" GROUP BY l.stage_id");
@@ -207,8 +207,8 @@ impl BuiltinReportStore {
         ));
         builder
             .push_bind(pipeline_id.to_string())
-            .push(")) t ON t.deal_id = r.id JOIN pipeline_stages ps ON ps.id = t.stage_id");
-        push_pipeline_stages(&mut builder, "ps", pipeline_id);
+            .push(")) t ON t.deal_id = r.id JOIN workflow_stages ps ON ps.id = t.stage_id");
+        push_workflow_stages(&mut builder, "ps", pipeline_id);
         push_where(&mut builder, scope, plan)?;
         builder
             .push(" AND t.entered_at >= ")

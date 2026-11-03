@@ -4,7 +4,7 @@ use uuid::Uuid;
 
 use ::dashboard::engine::PeriodQuery;
 use ::dashboard::engine_domain::ResolvedPeriod;
-use pipelines::domain::StageKind;
+use workflow::domain::StageKind;
 #[derive(Debug, Clone, Copy, PartialEq, Eq)]
 pub(crate) enum PerformanceDimension {
     Owner,
