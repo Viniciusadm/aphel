@@ -28,10 +28,10 @@ use aphel_kernel::errors::{AppError, FieldViolation};
 use aphel_sdk::dashboard::{PeriodQuery, instant_value, parse_period};
 use aphel_sdk::dashboard::{ResolvedPeriod, previous_period, resolve_period};
 use aphel_sdk::money::{BASE_AMOUNT_FIELD, BASE_AMOUNT_METRIC};
-use workflow::domain::PIPELINE_NOT_FOUND;
-use workflow::domain::StageKind;
-use workflow::domain::pipeline_visible;
-use workflow::store::PipelineStore;
+use aphel_sdk::workflow::PIPELINE_NOT_FOUND;
+use aphel_sdk::workflow::StageKind;
+use aphel_sdk::workflow::WorkflowReader;
+use aphel_sdk::workflow::pipeline_visible;
 
 const AMOUNT_FIELD: &str = "amount";
 const DEAL: &str = "deals.deal";
@@ -125,7 +125,7 @@ async fn visible_pipeline_id(
     ctx: &Ctx<'_>,
     pipeline_id: Option<Uuid>,
 ) -> Result<Option<Uuid>, AppError> {
-    let store = PipelineStore::of(ctx);
+    let store = WorkflowReader::of(ctx)?;
     if let Some(id) = pipeline_id {
         return match store.find_pipeline(id).await? {
             Some(pipeline) if pipeline_visible(ctx.scope, &pipeline) => Ok(Some(pipeline.id)),
@@ -250,7 +250,7 @@ pub(crate) async fn conversion(
     }
     let pipeline_id = parse_pipeline(&query.pipeline_id)?;
     let (current, previous) = periods(&plans, &query.period, query.compare_to_previous)?;
-    let reports = BuiltinReportStore::of(ctx);
+    let reports = BuiltinReportStore::of(ctx)?;
     let currency = reports.currency().await?;
     let timezone = plans.context.timezone.name().to_owned();
     let amounts_visible = plans.amounts_visible();
@@ -292,7 +292,7 @@ async fn conversion_snapshot(
     pipeline: &ReportPipeline,
     period: ResolvedPeriod,
 ) -> Result<ConversionSnapshot, AppError> {
-    let reports = BuiltinReportStore::of(ctx);
+    let reports = BuiltinReportStore::of(ctx)?;
     let amounts = plans.amounts_visible();
     let money = |value: Decimal| amounts.then_some(value);
     let pipeline_condition = eq("pipeline_id", pipeline.id.to_string());
@@ -545,7 +545,7 @@ pub(crate) async fn performance(
         conditions.extend(within("closed_at", range));
         plans.plan(conditions)
     };
-    let reports = BuiltinReportStore::of(ctx);
+    let reports = BuiltinReportStore::of(ctx)?;
     let cycle_rows = reports
         .cycle_times(scope, &won_plan(range_of(&current))?, Some(dimension))
         .await?;

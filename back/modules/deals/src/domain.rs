@@ -9,7 +9,7 @@ use aphel_kernel::application::query::RecordQuery;
 use aphel_kernel::application::shared::FieldChange;
 use aphel_kernel::domain::UserId;
 use aphel_kernel::errors::{AppError, FieldViolation};
-use workflow::domain::{Pipeline, PipelineStage, StageKind};
+use aphel_sdk::workflow::{Pipeline, PipelineStage, StageKind};
 
 pub(crate) use aphel_kernel::application::shared::normalize_currency_code as normalize_currency;
 

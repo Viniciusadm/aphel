@@ -10,3 +10,6 @@ publish = false
 aphel-contract.workspace = true
 serde.workspace = true
 uuid = { workspace = true, features = ["serde"] }
+
+chrono.workspace = true
+serde_json.workspace = true

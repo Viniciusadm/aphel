@@ -15,7 +15,7 @@ use aphel_kernel::modules::{
     HookCtx, OperationFuture, PluginHook, PluginHookKind, PluginOperation, forward_plugin_hook,
     operation_input, operation_output,
 };
-use workflow::domain::PipelineStage;
+use aphel_sdk::workflow::PipelineStage;
 
 pub(crate) const STAGE_CHANGING: &str = "deal.stage_changing";
 pub(crate) const WINNING: &str = "deal.winning";

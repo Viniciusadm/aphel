@@ -7,8 +7,8 @@ use aphel_kernel::application::shared::RecordType;
 use aphel_kernel::errors::AppError;
 use aphel_kernel::modules::{Hook, HookCtx};
 use aphel_kernel::records::QueryConstraints;
-use workflow::domain::{LostReason, PipelineStage, pipeline_restriction, sees_every_pipeline};
-use workflow::store::PipelineStore;
+use aphel_sdk::workflow::WorkflowReader;
+use aphel_sdk::workflow::{LostReason, PipelineStage, pipeline_restriction, sees_every_pipeline};
 
 #[derive(Debug, Clone, PartialEq)]
 pub struct StageChange {
@@ -104,7 +104,7 @@ pub(crate) async fn restrict_search(
     if plan.record_type.record_type != RecordType::DEAL || sees_every_pipeline(ctx.scope) {
         return Ok(plan);
     }
-    let workflow = PipelineStore::new(ctx.pool.clone())
+    let workflow = WorkflowReader::new(ctx.pool.clone(), ctx.services)?
         .list_pipelines()
         .await?;
     if let Some(pipeline_ids) = pipeline_restriction(ctx.scope, &workflow) {
@@ -120,7 +120,7 @@ pub(crate) async fn restrict_query(
     if constraints.record_type != RecordType::DEAL || sees_every_pipeline(ctx.scope) {
         return Ok(constraints);
     }
-    let workflow = PipelineStore::new(ctx.pool.clone())
+    let workflow = WorkflowReader::new(ctx.pool.clone(), ctx.services)?
         .list_pipelines()
         .await?;
     if let Some(pipeline_ids) = pipeline_restriction(ctx.scope, &workflow) {

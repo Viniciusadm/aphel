@@ -1,3 +1,4 @@
+mod catalog;
 mod dashboard;
 pub mod domain;
 pub(crate) mod guidance;
@@ -57,6 +58,13 @@ impl Module for WorkflowModule {
     }
 
     fn register(&self, app: &mut AppBuilder) -> Result<(), AppError> {
+        app.transform_entities("workflow.staged", rotting::extend_staged);
+        app.contribute::<dyn aphel_sdk::points::ReferenceProvider>(std::sync::Arc::new(
+            catalog::StageRefs,
+        ));
+        app.provide::<dyn aphel_sdk::workflow::WorkflowCatalog>(std::sync::Arc::new(
+            catalog::NativeWorkflowCatalog,
+        ));
         app.contribute::<dyn aphel_sdk::dashboard::DashboardReferenceCatalog>(std::sync::Arc::new(
             dashboard::WorkflowDashboardReferences,
         ));

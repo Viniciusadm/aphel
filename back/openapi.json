@@ -120218,6 +120218,26 @@
       "description": "Enabled currencies of the organization and dated exchange rates to the base currency"
     },
     {
+      "name": "deals",
+      "description": "Deals, stage changes and the Kanban board"
+    },
+    {
+      "name": "deals-reports",
+      "description": "Deal conversion and sales performance reports"
+    },
+    {
+      "name": "deal-members",
+      "description": "Team of a deal (members, roles and revenue credit split) and the configurable member roles"
+    },
+    {
+      "name": "forecast",
+      "description": "Revenue forecast: organization settings and the forecast per month"
+    },
+    {
+      "name": "goals",
+      "description": "Sales goals per user, team or organization and their progress"
+    },
+    {
       "name": "notes",
       "description": "Notes attached to records"
     },
@@ -120314,6 +120334,10 @@
       "description": "Price lists by currency, segment or company with validity periods and quantity tiers, and the maximum discount per role"
     },
     {
+      "name": "quotes",
+      "description": "Quotes of deals: versions, items, discounts and taxes, approval, sending, the signed public page and acceptance"
+    },
+    {
       "name": "sso",
       "description": "Single sign-on with any corporate OpenID Connect provider"
     },
@@ -120338,12 +120362,40 @@
       "description": "Activity types of the organization"
     },
     {
+      "name": "ai",
+      "description": "AI assistant: record summaries, next actions, writing help and natural language queries"
+    },
+    {
       "name": "calls",
       "description": "Call logging as tasks, call outcomes, call sessions over saved views and the calls report"
     },
     {
+      "name": "enrichment",
+      "description": "Company enrichment by CNPJ from public sources"
+    },
+    {
+      "name": "esign",
+      "description": "Sends PDFs attached to deals for electronic signature on Clicksign and tracks their status through webhooks"
+    },
+    {
+      "name": "lead-forms",
+      "description": "Public forms that create people and deals"
+    },
+    {
+      "name": "communication",
+      "description": "Communication opt-outs"
+    },
+    {
+      "name": "messaging",
+      "description": "Shared inbox for WhatsApp Cloud API and email (IMAP/SMTP)"
+    },
+    {
       "name": "migration-assistant",
       "description": "Assisted migration from other CRMs (Pipedrive, HubSpot, RD Station CRM, Agendor): recognized columns, conversion of their CSV exports and pre-filled imports"
+    },
+    {
+      "name": "proposals",
+      "description": "Proposal templates and PDF proposals generated from deals"
     },
     {
       "name": "reminders",
@@ -120392,58 +120444,6 @@
     {
       "name": "workflow",
       "description": "Pipelines, stages and lost reasons"
-    },
-    {
-      "name": "deals",
-      "description": "Deals, stage changes and the Kanban board"
-    },
-    {
-      "name": "deals-reports",
-      "description": "Deal conversion and sales performance reports"
-    },
-    {
-      "name": "deal-members",
-      "description": "Team of a deal (members, roles and revenue credit split) and the configurable member roles"
-    },
-    {
-      "name": "ai",
-      "description": "AI assistant: record summaries, next actions, writing help and natural language queries"
-    },
-    {
-      "name": "enrichment",
-      "description": "Company enrichment by CNPJ from public sources"
-    },
-    {
-      "name": "esign",
-      "description": "Sends PDFs attached to deals for electronic signature on Clicksign and tracks their status through webhooks"
-    },
-    {
-      "name": "forecast",
-      "description": "Revenue forecast: organization settings and the forecast per month"
-    },
-    {
-      "name": "goals",
-      "description": "Sales goals per user, team or organization and their progress"
-    },
-    {
-      "name": "lead-forms",
-      "description": "Public forms that create people and deals"
-    },
-    {
-      "name": "communication",
-      "description": "Communication opt-outs"
-    },
-    {
-      "name": "messaging",
-      "description": "Shared inbox for WhatsApp Cloud API and email (IMAP/SMTP)"
-    },
-    {
-      "name": "proposals",
-      "description": "Proposal templates and PDF proposals generated from deals"
-    },
-    {
-      "name": "quotes",
-      "description": "Quotes of deals: versions, items, discounts and taxes, approval, sending, the signed public page and acceptance"
     },
     {
       "name": "demo",

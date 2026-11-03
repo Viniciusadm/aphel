@@ -1,8 +1,6 @@
 use std::collections::HashMap;
 
 use chrono::{DateTime, Utc};
-use serde_json::{Value, json};
-use uuid::Uuid;
 
 use aphel_kernel::application::access::{Authorizer, PERMISSION_DENIED};
 use aphel_kernel::domain::access::{AccessScope, Permission};
@@ -40,88 +38,10 @@ pub(crate) const MAX_STAGES_PER_PIPELINE: usize = 50;
 pub(crate) const MAX_PIPELINES: usize = 50;
 pub(crate) const MAX_LOST_REASONS: usize = 100;
 pub(crate) const MAX_PIPELINE_NAME_LENGTH: usize = 140;
-pub(crate) const MAX_PROBABILITY: u8 = 100;
 pub(crate) const MAX_REQUIRED_FIELDS: usize = 30;
 pub(crate) const MAX_PIPELINE_TEAMS: usize = 50;
 
-#[derive(Debug, Clone, Copy, PartialEq, Eq, Hash)]
-pub enum StageKind {
-    Open,
-    Won,
-    Lost,
-}
-
-impl StageKind {
-    pub fn as_str(&self) -> &'static str {
-        match self {
-            Self::Open => "open",
-            Self::Won => "won",
-            Self::Lost => "lost",
-        }
-    }
-
-    pub fn parse(value: &str) -> Option<Self> {
-        match value {
-            "open" => Some(Self::Open),
-            "won" => Some(Self::Won),
-            "lost" => Some(Self::Lost),
-            _ => None,
-        }
-    }
-}
-
-#[derive(Debug, Clone, PartialEq, Eq)]
-pub struct Pipeline {
-    pub id: Uuid,
-    pub name: String,
-    pub is_default: bool,
-    pub position: i32,
-    pub is_active: bool,
-    pub(crate) team_ids: Vec<Uuid>,
-    pub(crate) created_at: DateTime<Utc>,
-    pub(crate) updated_at: DateTime<Utc>,
-}
-
-impl Pipeline {
-    pub(crate) fn is_restricted(&self) -> bool {
-        !self.team_ids.is_empty()
-    }
-
-    pub(crate) fn visible_to_teams<'a>(&self, mut team_ids: impl Iterator<Item = &'a str>) -> bool {
-        !self.is_restricted()
-            || team_ids.any(|team| {
-                self.team_ids
-                    .iter()
-                    .any(|allowed| allowed.to_string() == team)
-            })
-    }
-}
-
-#[derive(Debug, Clone, PartialEq, Eq)]
-pub struct PipelineStage {
-    pub id: Uuid,
-    pub pipeline_id: Uuid,
-    pub name: String,
-    pub position: i32,
-    pub probability: u8,
-    pub rotting_days: Option<u16>,
-    pub kind: StageKind,
-    pub is_active: bool,
-    pub(crate) entry_required_fields: Vec<String>,
-    pub(crate) exit_required_fields: Vec<String>,
-    pub(crate) created_at: DateTime<Utc>,
-    pub(crate) updated_at: DateTime<Utc>,
-}
-
-#[derive(Debug, Clone, PartialEq, Eq)]
-pub struct LostReason {
-    pub id: Uuid,
-    pub name: String,
-    pub(crate) position: i32,
-    pub is_active: bool,
-    pub(crate) created_at: DateTime<Utc>,
-    pub(crate) updated_at: DateTime<Utc>,
-}
+pub use aphel_sdk::workflow::{LostReason, Pipeline, PipelineStage, StageKind};
 
 pub(crate) fn normalize_name(value: &str) -> Option<String> {
     let name = value.trim();
@@ -131,11 +51,7 @@ pub(crate) fn normalize_name(value: &str) -> Option<String> {
     Some(name.to_owned())
 }
 
-pub fn valid_probability(value: i64) -> Option<u8> {
-    u8::try_from(value)
-        .ok()
-        .filter(|probability| *probability <= MAX_PROBABILITY)
-}
+pub use aphel_sdk::workflow::valid_probability;
 
 pub(crate) fn keeps_closing_stages(stages: &[PipelineStage]) -> bool {
     let active = |kind: StageKind| {
@@ -146,12 +62,7 @@ pub(crate) fn keeps_closing_stages(stages: &[PipelineStage]) -> bool {
     active(StageKind::Won) && active(StageKind::Lost) && active(StageKind::Open)
 }
 
-pub fn first_active_of_kind(stages: &[PipelineStage], kind: StageKind) -> Option<&PipelineStage> {
-    stages
-        .iter()
-        .filter(|stage| stage.is_active && stage.kind == kind)
-        .min_by_key(|stage| (stage.position, stage.id))
-}
+pub use aphel_sdk::workflow::first_active_of_kind;
 
 pub(crate) fn map_stage_by_kind<'a>(
     target_stages: &'a [PipelineStage],
@@ -177,14 +88,9 @@ pub(crate) fn open_stage_insert_index(stages: &[PipelineStage]) -> usize {
         .map_or(0, |index| index + 1)
 }
 
-pub fn sees_every_pipeline(scope: &AccessScope) -> bool {
-    scope.require(&Permission::SETTINGS_MANAGE).is_ok()
-}
+pub use aphel_sdk::workflow::sees_every_pipeline;
 
-pub fn pipeline_visible(scope: &AccessScope, pipeline: &Pipeline) -> bool {
-    sees_every_pipeline(scope)
-        || pipeline.visible_to_teams(scope.team_ids().iter().map(|team| team.as_str()))
-}
+pub use aphel_sdk::workflow::pipeline_visible;
 
 pub(crate) fn visible_pipelines(scope: &AccessScope, workflow: Vec<Pipeline>) -> Vec<Pipeline> {
     workflow
@@ -193,18 +99,7 @@ pub(crate) fn visible_pipelines(scope: &AccessScope, workflow: Vec<Pipeline>) ->
         .collect()
 }
 
-pub fn pipeline_restriction(scope: &AccessScope, workflow: &[Pipeline]) -> Option<Vec<Uuid>> {
-    if sees_every_pipeline(scope) || !workflow.iter().any(Pipeline::is_restricted) {
-        return None;
-    }
-    Some(
-        workflow
-            .iter()
-            .filter(|pipeline| pipeline_visible(scope, pipeline))
-            .map(|pipeline| pipeline.id)
-            .collect(),
-    )
-}
+pub use aphel_sdk::workflow::pipeline_restriction;
 
 #[derive(Debug, Clone, PartialEq, Eq, Default)]
 pub(crate) struct UpdatePipelineCommand {
@@ -299,13 +194,9 @@ pub struct PipelineView {
 
 pub use aphel_sdk::workflow::StageUsage;
 
-pub fn pipeline_ref(pipeline: &Pipeline) -> Value {
-    json!({ "id": pipeline.id.to_string(), "name": pipeline.name })
-}
+pub use aphel_sdk::workflow::pipeline_ref;
 
-pub fn stage_ref(stage: &PipelineStage) -> Value {
-    json!({ "id": stage.id.to_string(), "name": stage.name })
-}
+pub use aphel_sdk::workflow::stage_ref;
 
 pub(crate) fn require_records_reader(scope: &AccessScope) -> Result<(), AppError> {
     if scope

@@ -1,4 +1,3 @@
-use ::workflow::rotting::{ROTTING_AT_FIELD, STAGE_ENTERED_COLUMN};
 use aphel_contract_automation::application::definition::TriggerSpec;
 use aphel_contract_automation::application::time::triggers::{DueRule, TimePlan};
 use aphel_contract_automation::application::triggers::{AutomationTrigger, TriggerCandidate};
@@ -7,6 +6,7 @@ use aphel_kernel::application::fields::FieldSet;
 use aphel_kernel::application::query::{Filter, FilterOperator};
 use aphel_kernel::application::shared::{DomainEvent, RecordType};
 use aphel_kernel::errors::FieldViolation;
+use aphel_sdk::workflow::rotting::{ROTTING_AT_FIELD, STAGE_ENTERED_COLUMN};
 use chrono::Duration;
 use serde_json::{Value, json};
 pub const TIME_DEAL_ROTTING: &str = "time.deal_rotting";

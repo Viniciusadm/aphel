@@ -28,16 +28,3 @@ impl StageOperations for AutomationStages {
         .map(|_| ())
     }
 }
-
-pub(crate) struct StageRefs;
-
-#[async_trait]
-impl aphel_sdk::points::ReferenceProvider for StageRefs {
-    fn kind(&self) -> aphel_sdk::ReferenceKind {
-        aphel_contract_crm::refs::STAGE
-    }
-
-    async fn exists(&self, ctx: &Ctx<'_>, id: &str) -> Result<bool, AppError> {
-        aphel_sdk::points::lookup_exists(workflow::service::get_stage(ctx, id).await)
-    }
-}

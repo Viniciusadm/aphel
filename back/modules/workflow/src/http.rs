@@ -12,9 +12,8 @@ use utoipa_axum::routes;
 
 use crate::domain::{
     CreateLostReasonCommand, CreatePipelineCommand, CreateStageCommand, LostReason, NewStageInput,
-    Pipeline, PipelineRemovalCommand, PipelineStage, PipelineView, ReorderCommand, StageKind,
-    StageRemovalCommand, StageView, UpdateLostReasonCommand, UpdatePipelineCommand,
-    UpdateStageCommand,
+    PipelineRemovalCommand, PipelineView, ReorderCommand, StageRemovalCommand, StageView,
+    UpdateLostReasonCommand, UpdatePipelineCommand, UpdateStageCommand,
 };
 use crate::service;
 use aphel_kernel::Ctx;
@@ -730,102 +729,13 @@ fn instant(value: DateTime<Utc>) -> String {
     value.to_rfc3339_opts(SecondsFormat::Secs, true)
 }
 
-#[derive(Debug, Clone, Copy, Serialize, Deserialize, ToSchema)]
-#[serde(rename_all = "snake_case")]
-#[schema(as = StageKind)]
-pub enum StageKindSchema {
-    Open,
-    Won,
-    Lost,
-}
-
-impl From<StageKind> for StageKindSchema {
-    fn from(kind: StageKind) -> Self {
-        match kind {
-            StageKind::Open => Self::Open,
-            StageKind::Won => Self::Won,
-            StageKind::Lost => Self::Lost,
-        }
-    }
-}
-
-impl From<StageKindSchema> for StageKind {
-    fn from(kind: StageKindSchema) -> Self {
-        match kind {
-            StageKindSchema::Open => Self::Open,
-            StageKindSchema::Won => Self::Won,
-            StageKindSchema::Lost => Self::Lost,
-        }
-    }
-}
-
-#[derive(Debug, Serialize, ToSchema)]
-pub struct PipelineStageResponse {
-    pub(crate) id: String,
-    pub(crate) pipeline_id: String,
-    #[schema(example = "Proposal")]
-    pub(crate) name: String,
-    pub(crate) position: i32,
-    #[schema(example = 50)]
-    pub(crate) probability: u8,
-    #[schema(example = 7)]
-    pub(crate) rotting_days: Option<u16>,
-    pub(crate) kind: StageKindSchema,
-    pub(crate) is_active: bool,
-    #[schema(example = json!(["owner_id", "due_at"]))]
-    pub(crate) entry_required_fields: Vec<String>,
-    pub(crate) exit_required_fields: Vec<String>,
-    #[serde(skip_serializing_if = "Option::is_none")]
-    pub(crate) record_count: Option<u64>,
-    pub(crate) created_at: String,
-    pub(crate) updated_at: String,
-}
-
-impl From<PipelineStage> for PipelineStageResponse {
-    fn from(stage: PipelineStage) -> Self {
-        Self {
-            id: stage.id.to_string(),
-            pipeline_id: stage.pipeline_id.to_string(),
-            name: stage.name,
-            position: stage.position,
-            probability: stage.probability,
-            rotting_days: stage.rotting_days,
-            kind: stage.kind.into(),
-            is_active: stage.is_active,
-            entry_required_fields: stage.entry_required_fields,
-            exit_required_fields: stage.exit_required_fields,
-            record_count: None,
-            created_at: instant(stage.created_at),
-            updated_at: instant(stage.updated_at),
-        }
-    }
-}
+pub use aphel_sdk::workflow::{PipelineStageResponse, PipelineSummaryResponse, StageKindSchema};
 
 impl From<StageView> for PipelineStageResponse {
     fn from(view: StageView) -> Self {
         Self {
             record_count: Some(view.record_count),
             ..view.stage.into()
-        }
-    }
-}
-
-#[derive(Debug, Serialize, ToSchema)]
-pub struct PipelineSummaryResponse {
-    pub(crate) id: String,
-    #[schema(example = "Sales pipeline")]
-    pub(crate) name: String,
-    pub(crate) is_default: bool,
-    pub(crate) is_active: bool,
-}
-
-impl From<Pipeline> for PipelineSummaryResponse {
-    fn from(pipeline: Pipeline) -> Self {
-        Self {
-            id: pipeline.id.to_string(),
-            name: pipeline.name,
-            is_default: pipeline.is_default,
-            is_active: pipeline.is_active,
         }
     }
 }

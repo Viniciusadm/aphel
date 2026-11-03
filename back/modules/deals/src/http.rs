@@ -36,8 +36,8 @@ use aphel_kernel::errors::{AppError, FieldViolation};
 use aphel_kernel::records::{
     PendingCommit, RecordCtx, RecordTypeHandler, optional_record, values_request,
 };
-use workflow::http::{PipelineStageResponse, PipelineSummaryResponse, StageKindSchema};
-use workflow::rotting::RottingState;
+use aphel_sdk::workflow::RottingState;
+use aphel_sdk::workflow::{PipelineStageResponse, PipelineSummaryResponse, StageKindSchema};
 
 pub(crate) const TAG: &str = "deals";
 

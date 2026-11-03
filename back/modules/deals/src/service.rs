@@ -53,11 +53,11 @@ use aphel_kernel::records::{
     load_contributed, merge_contributed, with_contributed, write_contributed,
 };
 use aphel_sdk::money::{CurrencyConverter, base_amount, currency_not_enabled};
-use workflow::domain::{
+use aphel_sdk::workflow::WorkflowReader;
+use aphel_sdk::workflow::{
     LostReason, PIPELINE_NOT_FOUND, Pipeline, PipelineStage, StageKind, first_active_of_kind,
     parse_id, pipeline_ref, pipeline_visible, sees_every_pipeline, stage_ref, valid_probability,
 };
-use workflow::store::PipelineStore;
 
 const STAGE_FIELDS: [&str; 7] = [
     "pipeline_id",
@@ -273,7 +273,7 @@ async fn create_record(
     if let Some(currency) = input.currency.as_deref() {
         apply_currency(&mut deal, currency, &mut violations);
     }
-    apply_fields(ctx, tx, &mut deal, &input, &mut violations).await?;
+    apply_fields(ctx, &mut deal, &input, &mut violations).await?;
     let target = resolve_target(ctx, None, &deal, &input, &mut violations).await?;
     check("invalid deal", violations)?;
     check_field_access(ctx, &input, &Value::Null, &deal_values(&deal, &contributed)).await?;
@@ -453,7 +453,7 @@ async fn update_record(
     if let Some(currency) = input.currency.as_deref() {
         apply_currency(&mut deal, currency, &mut violations);
     }
-    apply_fields(ctx, tx, &mut deal, &input, &mut violations).await?;
+    apply_fields(ctx, &mut deal, &input, &mut violations).await?;
     if deal.amount != current.deal.amount && amount_locked(ctx, deal.id).await? {
         return Err(AppError::invalid_fields_code(
             DEAL_AMOUNT_MANAGED_BY_ITEMS,
@@ -637,7 +637,7 @@ pub(crate) async fn move_to_pipeline(
     {
         Some(stage_id) => stage_id.to_owned(),
         None => {
-            let stages = PipelineStore::of(ctx).list_stages(pipeline.id).await?;
+            let stages = WorkflowReader::of(ctx)?.list_stages(pipeline.id).await?;
             match first_active_of_kind(&stages, current.stage.kind) {
                 Some(stage) => stage.id.to_string(),
                 None => {
@@ -761,7 +761,7 @@ pub(crate) async fn board(ctx: &Ctx<'_>, query: BoardQuery) -> Result<Board, App
     let scope = ctx.scope;
     let planner = planner(ctx, query.query.filter.as_ref()).await?;
     let pipeline = board_pipeline(ctx, query.pipeline_id.as_deref()).await?;
-    let mut stages: Vec<PipelineStage> = PipelineStore::of(ctx)
+    let mut stages: Vec<PipelineStage> = WorkflowReader::of(ctx)?
         .list_stages(pipeline.id)
         .await?
         .into_iter()
@@ -1100,7 +1100,6 @@ fn apply_currency(deal: &mut Deal, currency: &str, violations: &mut Vec<FieldVio
 
 async fn apply_fields(
     ctx: &Ctx<'_>,
-    tx: &mut MySqlTx,
     deal: &mut Deal,
     input: &DealInput,
     violations: &mut Vec<FieldViolation>,
@@ -1162,7 +1161,7 @@ async fn apply_fields(
             Some(value) => match parse_reference(value, "contact_id", violations) {
                 Some(id) if id == deal.contact_id.unwrap_or_default() => Some(id),
                 Some(id) => {
-                    if DealStore::of(ctx).contact_name(tx, id).await?.is_none() {
+                    if !reference_visible(ctx, &RecordType::CONTACT, id).await? {
                         violations.push(FieldViolation::new("contact_id", "contact was not found"));
                     }
                     Some(id)
@@ -1177,7 +1176,7 @@ async fn apply_fields(
             Some(value) => match parse_reference(value, "company_id", violations) {
                 Some(id) if id == deal.company_id.unwrap_or_default() => Some(id),
                 Some(id) => {
-                    if DealStore::of(ctx).company_name(tx, id).await?.is_none() {
+                    if !reference_visible(ctx, &RecordType::COMPANY, id).await? {
                         violations.push(FieldViolation::new("company_id", "company was not found"));
                     }
                     Some(id)
@@ -1441,7 +1440,7 @@ async fn resolve_target(
                     Some(pipeline) => Some(pipeline),
                     None => match current {
                         Some(record) => {
-                            PipelineStore::of(ctx)
+                            WorkflowReader::of(ctx)?
                                 .find_pipeline(record.deal.pipeline_id)
                                 .await?
                         }
@@ -1465,7 +1464,7 @@ async fn resolve_target(
                         .map(|record| record.stage.kind)
                         .unwrap_or(StageKind::Open),
                 };
-                let stages = PipelineStore::of(ctx).list_stages(pipeline.id).await?;
+                let stages = WorkflowReader::of(ctx)?.list_stages(pipeline.id).await?;
                 match first_active_of_kind(&stages, kind) {
                     Some(stage) => Some(stage.clone()),
                     None => {
@@ -1477,7 +1476,7 @@ async fn resolve_target(
                     }
                 }
             } else if lost_reason_changed {
-                PipelineStore::of(ctx).find_stage(deal.stage_id).await?
+                WorkflowReader::of(ctx)?.find_stage(deal.stage_id).await?
             } else {
                 None
             }
@@ -1517,7 +1516,7 @@ async fn resolve_target(
             None => deal.lost_reason_note.clone(),
         };
         match reason_id {
-            Some(reason_id) => match PipelineStore::of(ctx).find_lost_reason(reason_id).await? {
+            Some(reason_id) => match WorkflowReader::of(ctx)?.find_lost_reason(reason_id).await? {
                 Some(reason) if reason.is_active || Some(reason.id) == deal.lost_reason_id => {
                     lost = Some(LostDetails {
                         reason_id: reason.id,
@@ -1544,7 +1543,7 @@ async fn resolve_target(
         violations.push(transition_violation(DealTransitionError::StageInactive));
     }
     if Some(stage.pipeline_id) != current.map(|record| record.deal.pipeline_id) {
-        let active = PipelineStore::of(ctx)
+        let active = WorkflowReader::of(ctx)?
             .find_pipeline(stage.pipeline_id)
             .await?
             .is_some_and(|pipeline| pipeline.is_active);
@@ -1771,7 +1770,7 @@ pub async fn require(
     let Some(id) = parse_id(deal_id) else {
         return Err(deal_not_found());
     };
-    let record = DealStore::of(ctx)
+    let mut record = DealStore::of(ctx)
         .find(scope, visibility, id)
         .await?
         .ok_or_else(deal_not_found)?;
@@ -1781,19 +1780,20 @@ pub async fn require(
     {
         return Err(deal_not_found());
     }
+    hydrate_records(ctx, std::slice::from_mut(&mut record)).await?;
     Ok(record)
 }
 
 async fn visible_pipeline(ctx: &Ctx<'_>, pipeline_id: Uuid) -> Result<Option<Pipeline>, AppError> {
     let scope = ctx.scope;
-    Ok(PipelineStore::of(ctx)
+    Ok(WorkflowReader::of(ctx)?
         .find_pipeline(pipeline_id)
         .await?
         .filter(|pipeline| pipeline_visible(scope, pipeline)))
 }
 
 async fn visible_stage(ctx: &Ctx<'_>, stage_id: Uuid) -> Result<Option<PipelineStage>, AppError> {
-    let Some(stage) = PipelineStore::of(ctx).find_stage(stage_id).await? else {
+    let Some(stage) = WorkflowReader::of(ctx)?.find_stage(stage_id).await? else {
         return Ok(None);
     };
     Ok(visible_pipeline(ctx, stage.pipeline_id)
@@ -1804,9 +1804,9 @@ async fn visible_stage(ctx: &Ctx<'_>, stage_id: Uuid) -> Result<Option<PipelineS
 async fn default_visible_pipeline(ctx: &Ctx<'_>) -> Result<Option<Pipeline>, AppError> {
     let scope = ctx.scope;
     if sees_every_pipeline(scope) {
-        return PipelineStore::of(ctx).default_pipeline().await;
+        return WorkflowReader::of(ctx)?.default_pipeline().await;
     }
-    let workflow: Vec<Pipeline> = PipelineStore::of(ctx)
+    let workflow: Vec<Pipeline> = WorkflowReader::of(ctx)?
         .list_pipelines()
         .await?
         .into_iter()
@@ -1831,7 +1831,7 @@ async fn pipeline_event(
     if current.deal.pipeline_id == deal.pipeline_id {
         return Ok(None);
     }
-    let workflow = PipelineStore::of(ctx);
+    let workflow = WorkflowReader::of(ctx)?;
     let from = workflow.find_pipeline(current.deal.pipeline_id).await?;
     let to = workflow.find_pipeline(deal.pipeline_id).await?;
     let to_stage = workflow.find_stage(deal.stage_id).await?;
@@ -1844,6 +1844,107 @@ async fn pipeline_event(
             "to_stage": to_stage.as_ref().map(stage_ref),
         }),
     )))
+}
+
+async fn reference_visible(ctx: &Ctx<'_>, entity: &RecordType, id: Uuid) -> Result<bool, AppError> {
+    let query = ctx.query();
+    Ok(aphel_sdk::records::visible_record_labels(
+        ctx.pool(),
+        ctx.registry(),
+        query.definitions(),
+        ctx.scope,
+        entity,
+        &[id],
+    )
+    .await?
+    .contains_key(&id))
+}
+
+async fn hydrate_records(ctx: &Ctx<'_>, records: &mut [DealRecord]) -> Result<(), AppError> {
+    if records.is_empty() {
+        return Ok(());
+    }
+    let workflow = WorkflowReader::of(ctx)?;
+    let pipelines: std::collections::BTreeSet<_> = records
+        .iter()
+        .map(|record| record.deal.pipeline_id)
+        .collect();
+    let pipelines: Vec<_> = pipelines.into_iter().collect();
+    let stages: HashMap<_, _> = workflow
+        .stages_for_pipelines(&pipelines)
+        .await?
+        .into_iter()
+        .map(|stage| (stage.id, stage))
+        .collect();
+    let reasons: HashMap<_, _> = workflow
+        .list_lost_reasons()
+        .await?
+        .into_iter()
+        .map(|reason| (reason.id, reason.name))
+        .collect();
+    let query = ctx.query();
+    let people: Vec<_> = records
+        .iter()
+        .filter_map(|record| record.deal.contact_id)
+        .collect::<std::collections::BTreeSet<_>>()
+        .into_iter()
+        .collect();
+    let organizations: Vec<_> = records
+        .iter()
+        .filter_map(|record| record.deal.company_id)
+        .collect::<std::collections::BTreeSet<_>>()
+        .into_iter()
+        .collect();
+    let people = aphel_sdk::records::visible_record_labels(
+        ctx.pool(),
+        ctx.registry(),
+        query.definitions(),
+        ctx.scope,
+        &RecordType::CONTACT,
+        &people,
+    )
+    .await?;
+    let organizations = aphel_sdk::records::visible_record_labels(
+        ctx.pool(),
+        ctx.registry(),
+        query.definitions(),
+        ctx.scope,
+        &RecordType::COMPANY,
+        &organizations,
+    )
+    .await?;
+    for record in records {
+        if let Some(stage) = stages.get(&record.deal.stage_id) {
+            record.stage = crate::domain::StageSummary {
+                id: stage.id,
+                name: stage.name.clone(),
+                kind: stage.kind,
+                probability: stage.probability,
+                rotting_days: stage.rotting_days,
+            };
+        } else {
+            record.stage.name = record.deal.stage_id.to_string();
+        }
+        record.contact = record.deal.contact_id.and_then(|id| {
+            people.get(&id).map(|label| crate::domain::NamedRef {
+                id,
+                name: label.title.clone().unwrap_or_else(|| id.to_string()),
+            })
+        });
+        record.company = record.deal.company_id.and_then(|id| {
+            organizations.get(&id).map(|label| crate::domain::NamedRef {
+                id,
+                name: label.title.clone().unwrap_or_else(|| id.to_string()),
+            })
+        });
+        record.lost_reason = record.deal.lost_reason_id.and_then(|id| {
+            reasons.get(&id).map(|name| crate::domain::NamedRef {
+                id,
+                name: name.clone(),
+            })
+        });
+    }
+    Ok(())
 }
 
 async fn view(ctx: &Ctx<'_>, record: DealRecord) -> Result<DealView, AppError> {
@@ -1869,9 +1970,9 @@ async fn views(ctx: &Ctx<'_>, ids: &[Uuid]) -> Result<Vec<DealView>, AppError> {
     if ids.is_empty() {
         return Ok(Vec::new());
     }
-    let mut records: HashMap<Uuid, DealRecord> = DealStore::of(ctx)
-        .load(ids)
-        .await?
+    let mut loaded = DealStore::of(ctx).load(ids).await?;
+    hydrate_records(ctx, &mut loaded).await?;
+    let mut records: HashMap<Uuid, DealRecord> = loaded
         .into_iter()
         .map(|record| (record.deal.id, record))
         .collect();

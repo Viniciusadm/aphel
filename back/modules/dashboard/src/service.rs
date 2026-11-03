@@ -81,6 +81,7 @@ type Widgets = WidgetRegistry<MySqlDashboardPorts>;
 
 fn widget_ports(ctx: &Ctx<'_>) -> MySqlDashboardPorts {
     MySqlDashboardPorts::new(
+        ctx.app().shared_services(),
         ctx.pool().clone(),
         ctx.query(),
         std::sync::Arc::new(MySqlDashboardRepository::new(ctx.pool().clone())),

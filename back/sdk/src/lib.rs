@@ -66,7 +66,9 @@ pub mod fields {
 mod record_labels;
 
 pub mod records {
-    pub use crate::record_labels::{VisibleRecordLabel, visible_record_label};
+    pub use crate::record_labels::{
+        VisibleRecordLabel, visible_record_label, visible_record_labels,
+    };
     pub use aphel_kernel::records::{
         EntityWriteBehavior, GenericRecordHandler, PendingCommit, RecordCtx, RecordTypeHandler,
         StoredTextField, TextAssignment, TextComparison, archive_entity, existing_entity_ids,

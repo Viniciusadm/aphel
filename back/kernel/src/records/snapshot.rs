@@ -49,7 +49,11 @@ pub async fn capture(
     for (index, field) in fields.iter().enumerate() {
         values.insert(
             field.key.as_str().to_owned(),
-            super::contributed::decode(&row, &format!("snapshot_{index}"), field.field_type)?,
+            super::contributed::decode_record_field(
+                &row,
+                &format!("snapshot_{index}"),
+                field.field_type,
+            )?,
         );
     }
     let field_set = FieldSet::new(

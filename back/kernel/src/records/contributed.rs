@@ -74,7 +74,7 @@ pub async fn load_contributed(
         for (index, field) in fields.iter().enumerate() {
             map.insert(
                 field.key.as_str().to_owned(),
-                decode(row, &format!("contributed_{index}"), field.field_type)?,
+                decode_record_field(row, &format!("contributed_{index}"), field.field_type)?,
             );
         }
         values.insert(id, map);
@@ -82,7 +82,7 @@ pub async fn load_contributed(
     Ok(values)
 }
 
-pub(crate) fn decode(
+pub fn decode_record_field(
     row: &MySqlRow,
     column: &str,
     field_type: FieldType,

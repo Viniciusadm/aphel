@@ -13,9 +13,6 @@ config_packages = { package = "aphel-mod-config-packages", path = "../config_pac
 aphel-contract-crm.workspace = true
 aphel-kernel.workspace = true
 aphel-sdk.workspace = true
-organizations = { package = "aphel-mod-organizations", path = "../organizations" }
-people = { package = "aphel-mod-people", path = "../people" }
-workflow = { package = "aphel-mod-workflow", path = "../workflow" }
 axum.workspace = true
 async-trait.workspace = true
 chrono.workspace = true

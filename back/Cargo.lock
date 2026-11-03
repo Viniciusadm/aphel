@@ -389,7 +389,9 @@ name = "aphel-contract-workflow"
 version = "0.1.0"
 dependencies = [
  "aphel-contract",
+ "chrono",
  "serde",
+ "serde_json",
  "uuid",
 ]
 
@@ -671,9 +673,6 @@ dependencies = [
  "aphel-kernel",
  "aphel-mod-config-packages",
  "aphel-mod-notifications",
- "aphel-mod-organizations",
- "aphel-mod-people",
- "aphel-mod-workflow",
  "aphel-sdk",
  "async-trait",
  "axum",

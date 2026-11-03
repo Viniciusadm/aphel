@@ -97,6 +97,7 @@ pub struct AppBuilder {
 
     record_types: Vec<Contribution<EntityDefinition>>,
     record_extensions: Vec<Contribution<RecordTypeExtension>>,
+    entity_transforms: Vec<crate::application::fields::RegistryTransform>,
     custom_record_handler: Option<RecordHandlerFactory>,
     contributions: Contributions,
     enabled: Arc<EnabledModules>,
@@ -151,6 +152,7 @@ impl AppBuilder {
 
             record_types: Vec::new(),
             record_extensions: Vec::new(),
+            entity_transforms: Vec::new(),
             custom_record_handler: None,
             contributions: HashMap::new(),
             enabled,
@@ -321,6 +323,20 @@ impl AppBuilder {
         self
     }
 
+    pub fn transform_entities(
+        &mut self,
+        key: &'static str,
+        apply: fn(&mut EntityDefinition) -> Result<(), AppError>,
+    ) -> &mut Self {
+        self.entity_transforms
+            .push(crate::application::fields::RegistryTransform {
+                module: self.current,
+                key,
+                apply,
+            });
+        self
+    }
+
     pub fn extend<F>(&mut self, record_type: &str, extend: F) -> &mut Self
     where
         F: FnOnce(&mut RecordTypeExtension),
@@ -458,6 +474,7 @@ impl AppBuilder {
         let record_types = Arc::new(assemble_registry(
             std::mem::take(&mut self.record_types),
             std::mem::take(&mut self.record_extensions),
+            std::mem::take(&mut self.entity_transforms),
             self.custom_record_handler.take(),
         )?);
 
@@ -479,7 +496,7 @@ impl AppBuilder {
             modules,
             routes: self.routes,
             hooks: self.hooks,
-            services: self.services,
+            services: Arc::new(self.services),
             catalog: self.catalog,
             workers: self.workers,
 
@@ -627,7 +644,7 @@ pub struct App {
     modules: Vec<LoadedModule>,
     routes: Vec<Contribution<RouteContribution>>,
     hooks: HookBus,
-    services: Services,
+    services: Arc<Services>,
     catalog: Catalog,
     workers: Vec<Contribution<WorkerFactory>>,
 
@@ -708,6 +725,10 @@ impl App {
 
     pub fn hooks(&self) -> &HookBus {
         &self.hooks
+    }
+
+    pub fn shared_services(&self) -> Arc<Services> {
+        self.services.clone()
     }
 
     pub fn services(&self) -> &Services {

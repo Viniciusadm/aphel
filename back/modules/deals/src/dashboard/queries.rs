@@ -7,6 +7,8 @@ use aphel_kernel::infrastructure::query::compiler::{Projection, build_query, quo
 use aphel_kernel::infrastructure::repositories::mapper::invalid_column;
 use aphel_kernel::infrastructure::repositories::mapper::utc;
 use aphel_kernel::records::constrain_query;
+use aphel_sdk::workflow::StageKind;
+use aphel_sdk::workflow::WorkflowReader;
 use chrono::NaiveDateTime;
 use chrono::{DateTime, Utc};
 use rust_decimal::Decimal;
@@ -15,8 +17,6 @@ use sqlx::mysql::MySqlRow;
 use sqlx::{Execute, MySql, MySqlPool, QueryBuilder, Row};
 use std::collections::HashMap;
 use uuid::Uuid;
-use workflow::domain::StageKind;
-use workflow::store::PipelineStore;
 
 fn uuid_column(value: &str, column: &str) -> Result<Uuid, AppError> {
     Uuid::parse_str(value).map_err(|_| invalid_column(column, value))
@@ -75,8 +75,11 @@ pub(crate) struct DashboardPipeline {
     pub(crate) stages: Vec<DashboardStage>,
 }
 
+type ForecastRow = (String, String, Option<u8>, i64, Option<Decimal>);
+
 pub(crate) async fn deal_totals(
     pool: &MySqlPool,
+    services: &aphel_kernel::modules::Services,
     scope: &AccessScope,
     plan: &QueryPlan,
 ) -> Result<DealTotals, AppError> {
@@ -85,19 +88,37 @@ pub(crate) async fn deal_totals(
     let (statement, arguments) = aggregate_query(
         scope,
         plan,
-        "COUNT(*), SUM(r.amount_base), SUM(r.amount_base * COALESCE(r.probability, \
-         (SELECT ps.probability FROM workflow_stages ps WHERE ps.id = r.stage_id)) / 100)",
-        "",
+        "r.pipeline_id, r.stage_id, r.probability, COUNT(*), SUM(r.amount_base)",
+        " GROUP BY r.pipeline_id, r.stage_id, r.probability",
     )?;
-    let (count, amount, forecast): (i64, Option<Decimal>, Option<Decimal>) =
-        sqlx::query_as_with(sqlx::AssertSqlSafe(statement), arguments)
-            .fetch_one(pool)
-            .await?;
-    Ok(DealTotals {
-        count: u64::try_from(count).unwrap_or_default(),
-        amount: amount.unwrap_or_default(),
-        forecast: forecast.unwrap_or_default(),
-    })
+    let rows: Vec<ForecastRow> = sqlx::query_as_with(sqlx::AssertSqlSafe(statement), arguments)
+        .fetch_all(pool)
+        .await?;
+    let pipelines: Vec<_> = rows
+        .iter()
+        .map(|(id, ..)| uuid_column(id, "deals.pipeline_id"))
+        .collect::<Result<std::collections::BTreeSet<_>, _>>()?
+        .into_iter()
+        .collect();
+    let workflow = WorkflowReader::new(pool.clone(), services)?;
+    let stages: HashMap<_, _> = workflow
+        .stages_for_pipelines(&pipelines)
+        .await?
+        .into_iter()
+        .map(|stage| (stage.id, stage.probability))
+        .collect();
+    let mut totals = DealTotals::default();
+    for (_, stage, probability, count, amount) in rows {
+        let amount = amount.unwrap_or_default();
+        let stage = uuid_column(&stage, "deals.stage_id")?;
+        let probability = probability.or_else(|| stages.get(&stage).copied());
+        totals.count += u64::try_from(count).unwrap_or_default();
+        totals.amount += amount;
+        if let Some(probability) = probability {
+            totals.forecast += amount * Decimal::from(probability) / Decimal::from(100);
+        }
+    }
+    Ok(totals)
 }
 
 pub(crate) async fn stage_aggregates(
@@ -130,21 +151,22 @@ pub(crate) async fn stage_aggregates(
 
 pub(crate) async fn pipeline(
     pool: &MySqlPool,
+    services: &aphel_kernel::modules::Services,
     scope: &AccessScope,
     pipeline_id: Option<Uuid>,
 ) -> Result<Option<DashboardPipeline>, AppError> {
-    let store = PipelineStore::new(pool.clone());
+    let store = WorkflowReader::new(pool.clone(), services)?;
     let pipeline = match pipeline_id {
         Some(id) => store
             .find_pipeline(id)
             .await?
-            .filter(|pipeline| workflow::domain::pipeline_visible(scope, pipeline)),
+            .filter(|pipeline| aphel_sdk::workflow::pipeline_visible(scope, pipeline)),
         None => store
             .list_pipelines()
             .await?
             .into_iter()
             .filter(|pipeline| {
-                pipeline.is_active && workflow::domain::pipeline_visible(scope, pipeline)
+                pipeline.is_active && aphel_sdk::workflow::pipeline_visible(scope, pipeline)
             })
             .min_by_key(|pipeline| (!pipeline.is_default, pipeline.position, pipeline.id)),
     };
@@ -184,6 +206,7 @@ pub(crate) struct StaleDeal {
 
 pub(crate) async fn stale_deals(
     pool: &MySqlPool,
+    services: &aphel_kernel::modules::Services,
     scope: &AccessScope,
     plan: &QueryPlan,
 ) -> Result<Vec<StaleDeal>, AppError> {
@@ -192,14 +215,32 @@ pub(crate) async fn stale_deals(
         return Ok(Vec::new());
     }
     let mut builder = QueryBuilder::<MySql>::new(
-        "SELECT d.id, d.title, d.amount, d.currency, s.name AS stage_name, d.owner_id, \
+        "SELECT d.id, d.title, d.amount, d.currency, d.stage_id, d.pipeline_id, d.owner_id, \
          u.display_name AS owner_name, \
          GREATEST(d.updated_at, COALESCE(d.last_activity_at, d.updated_at)) AS last_touched_at \
-         FROM deals d JOIN workflow_stages s ON s.id = d.stage_id \
+         FROM deals d \
          LEFT JOIN users u ON u.id = d.owner_id WHERE d.id",
     );
     push_ids(&mut builder, &ids);
     let rows = builder.build().fetch_all(pool).await?;
+    let pipelines: Vec<_> = rows
+        .iter()
+        .map(|row| {
+            uuid_column(
+                &row.try_get::<String, _>("pipeline_id")?,
+                "deals.pipeline_id",
+            )
+        })
+        .collect::<Result<std::collections::BTreeSet<_>, AppError>>()?
+        .into_iter()
+        .collect();
+    let workflow = WorkflowReader::new(pool.clone(), services)?;
+    let stages: HashMap<_, _> = workflow
+        .stages_for_pipelines(&pipelines)
+        .await?
+        .into_iter()
+        .map(|stage| (stage.id, stage.name))
+        .collect();
     let mut items = HashMap::new();
     for row in &rows {
         let id: String = row.try_get("id")?;
@@ -212,7 +253,14 @@ pub(crate) async fn stale_deals(
                 title: row.try_get("title")?,
                 amount: row.try_get("amount")?,
                 currency: row.try_get("currency")?,
-                stage_name: row.try_get("stage_name")?,
+                stage_name: {
+                    let stage =
+                        uuid_column(&row.try_get::<String, _>("stage_id")?, "deals.stage_id")?;
+                    stages
+                        .get(&stage)
+                        .cloned()
+                        .unwrap_or_else(|| stage.to_string())
+                },
                 owner: user_column(row, "owner_id", "owner_name")?,
                 last_touched_at: utc(touched),
             },

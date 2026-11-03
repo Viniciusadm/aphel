@@ -25,22 +25,17 @@ use aphel_kernel::infrastructure::query::compiler::{
 };
 use aphel_kernel::infrastructure::repositories::mapper::{invalid_column, naive, utc};
 use aphel_kernel::records::constrain_query;
-use workflow::domain::StageKind;
+use aphel_sdk::workflow::StageKind;
 
 const DEAL_SELECT: &str = "SELECT r.id, r.owner_id, r.pipeline_id, r.stage_id, r.title, r.amount, \
      r.currency, r.amount_base, r.exchange_rate, r.mrr, r.arr, r.tcv, r.contract_start, \
      r.contract_end, r.renewal_of_deal_id, r.probability, r.expected_close_date, r.status, r.closed_at, r.lost_reason_id, \
      r.lost_reason_note, r.source, r.contact_id, r.company_id, r.stage_entered_at, \
      r.last_activity_at, r.created_by, r.archived_at, r.created_at, r.updated_at, \
-     s.name AS stage_name, s.kind AS stage_kind, s.probability AS stage_probability, s.rotting_days AS stage_rotting_days, \
-     c.full_name AS contact_name, co.name AS company_name, u.display_name AS owner_name, \
-     lr.name AS lost_reason_name \
-     FROM deals r \
-     JOIN workflow_stages s ON s.id = r.stage_id \
-     LEFT JOIN people c ON c.id = r.contact_id AND c.deleted_at IS NULL \
-     LEFT JOIN organizations co ON co.id = r.company_id AND co.deleted_at IS NULL \
+     '' AS stage_name, r.status AS stage_kind, 0 AS stage_probability, NULL AS stage_rotting_days, \
+     NULL AS contact_name, NULL AS company_name, u.display_name AS owner_name, \
+     NULL AS lost_reason_name FROM deals r \
      LEFT JOIN users u ON u.id = r.owner_id \
-     LEFT JOIN lost_reasons lr ON lr.id = r.lost_reason_id \
      WHERE r.deleted_at IS NULL";
 
 pub fn parse_uuid(value: &str, column: &str) -> Result<Uuid, AppError> {
@@ -284,34 +279,6 @@ impl DealStore {
         Ok(currency.unwrap_or_else(|| {
             aphel_kernel::domain::organization_profile::DEFAULT_CURRENCY.to_owned()
         }))
-    }
-
-    pub(crate) async fn contact_name(
-        &self,
-        tx: &mut MySqlTx,
-        contact_id: Uuid,
-    ) -> Result<Option<String>, AppError> {
-        Ok(
-            sqlx::query_scalar("SELECT full_name FROM people WHERE id = ? AND deleted_at IS NULL")
-                .bind(contact_id.to_string())
-                .fetch_optional(&mut **tx)
-                .await?,
-        )
-    }
-
-    pub(crate) async fn company_name(
-        &self,
-        tx: &mut MySqlTx,
-        company_id: Uuid,
-    ) -> Result<Option<String>, AppError> {
-        Ok(
-            sqlx::query_scalar(
-                "SELECT name FROM organizations WHERE id = ? AND deleted_at IS NULL",
-            )
-            .bind(company_id.to_string())
-            .fetch_optional(&mut **tx)
-            .await?,
-        )
     }
 
     pub(crate) async fn member_name(&self, user_id: &UserId) -> Result<Option<String>, AppError> {

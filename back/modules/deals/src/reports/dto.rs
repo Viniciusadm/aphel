@@ -11,7 +11,7 @@ use crate::reports::domain::{
 };
 use aphel_sdk::dashboard::PeriodQuery;
 use aphel_sdk::dashboard::dto::{DashboardPeriodResponse, PeriodPresetSchema};
-use workflow::domain::StageKind;
+use aphel_sdk::workflow::StageKind;
 
 fn optional_money(value: Option<Decimal>) -> Option<String> {
     value.map(money)

@@ -49,7 +49,7 @@ Implementation note: P5.1 connects people and organizations as providers and dup
 
 **5.7 Thin domain plugins**
 
-- [ ] **P5.19** ⇄ `deals`
+- [x] **P5.19** ⇄ `deals`. Review and pending manual acceptance: [deal ownership](p5-deals.md).
 - [ ] **P5.20** ⇄ `leads`
 - [ ] **P5.21** ⇄ `quotes`, `proposals`
 - [ ] **P5.22** ⇄ Remaining domain plugins from §4.3

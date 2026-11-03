@@ -4,7 +4,7 @@ use uuid::Uuid;
 
 use aphel_sdk::dashboard::PeriodQuery;
 use aphel_sdk::dashboard::ResolvedPeriod;
-use workflow::domain::StageKind;
+use aphel_sdk::workflow::StageKind;
 #[derive(Debug, Clone, Copy, PartialEq, Eq)]
 pub(crate) enum PerformanceDimension {
     Owner,

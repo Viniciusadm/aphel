@@ -14,22 +14,22 @@ use aphel_kernel::errors::AppError;
 use aphel_kernel::infrastructure::query::compiler::{push_where, quoted};
 use aphel_kernel::infrastructure::repositories::mapper::{invalid_column, naive};
 use aphel_kernel::records::constrain_query;
-use workflow::domain::StageKind;
+use aphel_sdk::workflow::{PipelineStage, WorkflowReader};
 
 type StageDurationRow = (String, i64, Option<Decimal>, i64, Option<Decimal>);
 
 #[derive(Clone)]
 pub(crate) struct BuiltinReportStore {
     pool: MySqlPool,
+    workflow: WorkflowReader,
 }
 
 impl BuiltinReportStore {
-    pub(crate) fn new(pool: MySqlPool) -> Self {
-        Self { pool }
-    }
-
-    pub(crate) fn of(ctx: &Ctx<'_>) -> Self {
-        Self::new(ctx.pool().clone())
+    pub(crate) fn of(ctx: &Ctx<'_>) -> Result<Self, AppError> {
+        Ok(Self {
+            pool: ctx.pool().clone(),
+            workflow: WorkflowReader::of(ctx)?,
+        })
     }
 }
 
@@ -43,6 +43,31 @@ fn count_of(value: i64) -> u64 {
 
 fn records(plan: &QueryPlan) -> String {
     quoted(&plan.record_type.table)
+}
+
+fn push_stage_catalog(builder: &mut QueryBuilder<MySql>, stages: &[PipelineStage]) {
+    builder.push("(");
+    if stages.is_empty() {
+        builder.push(
+            "SELECT NULL AS id, NULL AS pipeline_id, NULL AS position, NULL AS kind WHERE FALSE",
+        );
+    }
+    for (index, stage) in stages.iter().enumerate() {
+        if index > 0 {
+            builder.push(" UNION ALL ");
+        }
+        builder
+            .push("SELECT ")
+            .push_bind(stage.id.to_string())
+            .push(" AS id, ")
+            .push_bind(stage.pipeline_id.to_string())
+            .push(" AS pipeline_id, ")
+            .push_bind(stage.position)
+            .push(" AS position, ")
+            .push_bind(stage.kind.as_str().to_owned())
+            .push(" AS kind");
+    }
+    builder.push(")");
 }
 
 fn push_workflow_stages(builder: &mut QueryBuilder<MySql>, alias: &str, pipeline_id: Uuid) {
@@ -65,48 +90,30 @@ impl BuiltinReportStore {
         &self,
         pipeline_id: Option<Uuid>,
     ) -> Result<Option<ReportPipeline>, AppError> {
-        let pipeline: Option<(String, String)> = match pipeline_id {
-            Some(id) => {
-                sqlx::query_as("SELECT id, name FROM workflow WHERE id = ?")
-                    .bind(id.to_string())
-                    .fetch_optional(&self.pool)
-                    .await?
-            }
-            None => {
-                sqlx::query_as(
-                    "SELECT id, name FROM workflow WHERE is_active \
-                     ORDER BY is_default DESC, position, id LIMIT 1",
-                )
-                .fetch_optional(&self.pool)
-                .await?
-            }
+        let pipeline = match pipeline_id {
+            Some(id) => self.workflow.find_pipeline(id).await?,
+            None => self.workflow.default_pipeline().await?,
         };
-        let Some((id, name)) = pipeline else {
+        let Some(pipeline) = pipeline else {
             return Ok(None);
         };
-        let rows: Vec<(String, String, String, i32, u8)> = sqlx::query_as(
-            "SELECT id, name, kind, position, probability FROM workflow_stages \
-             WHERE pipeline_id = ? AND is_active ORDER BY position, id",
-        )
-        .bind(&id)
-        .fetch_all(&self.pool)
-        .await?;
-        let stages = rows
+        let stages = self
+            .workflow
+            .list_stages(pipeline.id)
+            .await?
             .into_iter()
-            .map(|(stage_id, stage_name, kind, position, probability)| {
-                Ok(ReportStage {
-                    id: uuid_column(&stage_id, "workflow_stages.id")?,
-                    name: stage_name,
-                    kind: StageKind::parse(&kind)
-                        .ok_or_else(|| invalid_column("workflow_stages.kind", &kind))?,
-                    position,
-                    probability,
-                })
+            .filter(|stage| stage.is_active)
+            .map(|stage| ReportStage {
+                id: stage.id,
+                name: stage.name,
+                kind: stage.kind,
+                position: stage.position,
+                probability: stage.probability,
             })
-            .collect::<Result<Vec<_>, AppError>>()?;
+            .collect();
         Ok(Some(ReportPipeline {
-            id: uuid_column(&id, "workflow.id")?,
-            name,
+            id: pipeline.id,
+            name: pipeline.name,
             stages,
         }))
     }
@@ -123,14 +130,19 @@ impl BuiltinReportStore {
             "SELECT CAST(GREATEST(COALESCE(f.furthest, cs.position), COALESCE(cs.position, f.furthest)) AS SIGNED) AS furthest_position, \
              r.status, COUNT(*), SUM(r.amount_base) FROM {} r \
              LEFT JOIN (SELECT h.deal_id, MAX(ps.position) AS furthest FROM deal_stage_history h \
-             JOIN workflow_stages ps ON ps.id = h.stage_id WHERE 1 = 1",
+             JOIN ",
             records(plan)
         ));
+        let stages = self.workflow.list_stages(pipeline_id).await?;
+        push_stage_catalog(&mut builder, &stages);
+        builder.push(" ps ON ps.id = h.stage_id WHERE 1 = 1");
         push_workflow_stages(&mut builder, "ps", pipeline_id);
         builder.push(
             " GROUP BY h.deal_id) f ON f.deal_id = r.id \
-             LEFT JOIN workflow_stages cs ON cs.id = r.stage_id",
+             LEFT JOIN ",
         );
+        push_stage_catalog(&mut builder, &stages);
+        builder.push(" cs ON cs.id = r.stage_id");
         push_workflow_stages(&mut builder, "cs", pipeline_id);
         push_where(&mut builder, scope, plan)?;
         builder.push(" GROUP BY furthest_position, r.status");
@@ -159,9 +171,12 @@ impl BuiltinReportStore {
             "SELECT l.stage_id, COUNT(*), SUM(r.amount_base) FROM {} r \
              LEFT JOIN (SELECT ranked.deal_id, ranked.stage_id FROM (\
              SELECT h.deal_id, h.stage_id, ROW_NUMBER() OVER (PARTITION BY h.deal_id ORDER BY h.entered_at DESC, h.id DESC) AS entry_rank \
-             FROM deal_stage_history h JOIN workflow_stages ps ON ps.id = h.stage_id WHERE 1 = 1",
+             FROM deal_stage_history h JOIN ",
             records(plan)
         ));
+        let stages = self.workflow.list_stages(pipeline_id).await?;
+        push_stage_catalog(&mut builder, &stages);
+        builder.push(" ps ON ps.id = h.stage_id WHERE 1 = 1");
         push_workflow_stages(&mut builder, "ps", pipeline_id);
         builder.push(") ranked WHERE ranked.entry_rank = 1) l ON l.deal_id = r.id");
         push_where(&mut builder, scope, plan)?;
@@ -207,7 +222,10 @@ impl BuiltinReportStore {
         ));
         builder
             .push_bind(pipeline_id.to_string())
-            .push(")) t ON t.deal_id = r.id JOIN workflow_stages ps ON ps.id = t.stage_id");
+            .push(")) t ON t.deal_id = r.id JOIN ");
+        let stages = self.workflow.list_stages(pipeline_id).await?;
+        push_stage_catalog(&mut builder, &stages);
+        builder.push(" ps ON ps.id = t.stage_id");
         push_workflow_stages(&mut builder, "ps", pipeline_id);
         push_where(&mut builder, scope, plan)?;
         builder

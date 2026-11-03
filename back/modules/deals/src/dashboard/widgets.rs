@@ -16,11 +16,11 @@ use aphel_sdk::dashboard::{
 };
 use aphel_sdk::dashboard::{DashboardSource, WidgetPorts};
 use aphel_sdk::money::{BASE_AMOUNT_FIELD, BASE_AMOUNT_METRIC};
+use aphel_sdk::workflow::rotting::stale_record_filter;
 use async_trait::async_trait;
 use chrono::{DateTime, Utc};
 use rust_decimal::{Decimal, prelude::ToPrimitive};
 use serde_json::{Map, Value, json};
-use workflow::rotting::stale_record_filter;
 const SALES_INDICATORS: &str = "sales_indicators";
 const DEALS_BY_STAGE: &str = "deals_by_stage";
 const AGGREGATE_LIMIT: u64 = 1;
@@ -159,7 +159,13 @@ where
             ));
         };
         let open_plan = planner.plan(vec![eq("status", "open")], Vec::new(), AGGREGATE_LIMIT)?;
-        let open = queries::deal_totals(context.ports.pool(), context.scope, &open_plan).await?;
+        let open = queries::deal_totals(
+            context.ports.pool(),
+            context.ports.services(),
+            context.scope,
+            &open_plan,
+        )
+        .await?;
         let (closed, previous) = closed_deals(context).await?;
         let mut data = Map::new();
         data.insert("currency".to_owned(), json!(context.currency().await?));
@@ -275,8 +281,13 @@ where
             );
         }
         let currency = context.currency().await?;
-        let Some(pipeline) =
-            queries::pipeline(context.ports.pool(), context.scope, pipeline_id).await?
+        let Some(pipeline) = queries::pipeline(
+            context.ports.pool(),
+            context.ports.services(),
+            context.scope,
+            pipeline_id,
+        )
+        .await?
         else {
             return Ok(json!({ "pipeline": null, "currency": currency, "stages": [] }));
         };
@@ -368,7 +379,13 @@ impl aphel_sdk::dashboard::DashboardSource for DealPendingSource {
                     Vec::new()
                 } else {
                     let plan = listing_plan(&deals, conditions, "updated_at", limit)?;
-                    queries::stale_deals(context.ports.pool(), context.scope, &plan).await?
+                    queries::stale_deals(
+                        context.ports.pool(),
+                        context.ports.services(),
+                        context.scope,
+                        &plan,
+                    )
+                    .await?
                 };
                 json!({
                     "count": total,

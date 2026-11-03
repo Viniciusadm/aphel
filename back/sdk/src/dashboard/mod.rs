@@ -13,17 +13,20 @@ pub use provider::*;
 use std::sync::Arc;
 pub use subject::*;
 pub struct WidgetPorts {
+    services: Arc<aphel_kernel::modules::Services>,
     pool: sqlx::MySqlPool,
     query: MySqlRecordQueryPorts,
     repository: Arc<dyn DashboardRepository>,
 }
 impl WidgetPorts {
     pub fn new(
+        services: Arc<aphel_kernel::modules::Services>,
         pool: sqlx::MySqlPool,
         query: MySqlRecordQueryPorts,
         repository: Arc<dyn DashboardRepository>,
     ) -> Self {
         Self {
+            services,
             pool,
             query,
             repository,
@@ -31,6 +34,9 @@ impl WidgetPorts {
     }
 }
 impl DashboardPorts for WidgetPorts {
+    fn services(&self) -> &aphel_kernel::modules::Services {
+        &self.services
+    }
     fn pool(&self) -> &sqlx::MySqlPool {
         &self.pool
     }

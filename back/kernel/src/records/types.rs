@@ -244,6 +244,7 @@ pub fn describe_records(
 pub fn assemble_registry(
     definitions: Vec<Contribution<EntityDefinition>>,
     extensions: Vec<Contribution<RecordTypeExtension>>,
+    transforms: Vec<crate::application::fields::RegistryTransform>,
     custom_handler: Option<RecordHandlerFactory>,
 ) -> Result<RecordTypeRegistry, AppError> {
     let mut registry = RecordTypeRegistry::empty();
@@ -257,6 +258,9 @@ pub fn assemble_registry(
     }
     for contribution in extensions {
         contribution.item.apply(&mut registry)?;
+    }
+    for transform in transforms {
+        registry = registry.with_transform(transform)?;
     }
     Ok(registry
         .validate_relations()?

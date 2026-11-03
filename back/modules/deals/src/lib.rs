@@ -200,6 +200,7 @@ pub(crate) fn deal_capabilities() -> EntityTraits {
             active_states: vec!["open".into()],
         })
         .staged(aphel_sdk::workflow::StagedMapping {
+            rotting: true,
             state_field: Some("status".to_owned()),
             active_state: Some("open".to_owned()),
             completed_states: vec!["won".to_owned()],
@@ -341,10 +342,7 @@ impl Module for DealsModule {
         Manifest::new(KEY, "Deals", APHEL_VERSION)
             .description("Deals, stage changes, the Kanban board and the team of each deal")
             .required()
-            .depends_on(workflow::KEY, "*")
             .depends_on(aphel_sdk::money::KEY, "*")
-            .depends_on(people::KEY, "*")
-            .depends_on(organizations::KEY, "*")
             .owned_tables(&[
                 "deals",
                 "deal_contacts",
@@ -400,7 +398,6 @@ impl Module for DealsModule {
         app.contribute::<dyn aphel_sdk::workflow::StagedRecordSource>(std::sync::Arc::new(
             workflow_source::DealStages,
         ));
-        let mut outcome = Ok(());
         app.extend(RecordType::DEAL.as_str(), |deal| {
             let mut items = aphel_kernel::application::fields::ItemTable::new(
                 "items",
@@ -416,19 +413,7 @@ impl Module for DealsModule {
             .column("tax_percent", crate::labels("Tax"));
             items.contributed_by = Some(aphel_sdk::line_items::KEY);
             deal.item_table(items);
-
-            outcome = ::workflow::rotting::rotting_fields(&aphel_sdk::workflow::StagedMapping {
-                state_field: Some("status".into()),
-                active_state: Some("open".into()),
-                ..Default::default()
-            })
-            .and_then(|fields| {
-                fields
-                    .into_iter()
-                    .try_for_each(|field| deal.computed(field).map(|_| ()))
-            });
         });
-        outcome?;
         app.trigger(std::sync::Arc::new(rotting::DealRotting));
         app.contribute(std::sync::Arc::new(
             aphel_contract_automation::application::time::triggers::TimeTriggerPlanner {
@@ -437,9 +422,9 @@ impl Module for DealsModule {
                 catch_up: Some(
                     aphel_contract_automation::application::time::triggers::TimeCatchUp {
                         record_types: &["deals.deal"],
-                        event_type: ::workflow::rotting::PIPELINE_STAGE_ROTTING_TIGHTENED,
-                        event_key: ::workflow::rotting::tightened_stage,
-                        filter: ::workflow::rotting::rotting_catch_up_filter,
+                        event_type: aphel_sdk::workflow::rotting::PIPELINE_STAGE_ROTTING_TIGHTENED,
+                        event_key: aphel_sdk::workflow::rotting::tightened_stage,
+                        filter: aphel_sdk::workflow::rotting::rotting_catch_up_filter,
                     },
                 ),
             },
@@ -507,9 +492,7 @@ impl Module for DealsModule {
         for operation in plugin_bridge::operations() {
             app.contribute::<aphel_kernel::modules::PluginOperation>(operation);
         }
-        app.contribute::<dyn aphel_sdk::points::ReferenceProvider>(std::sync::Arc::new(
-            operations::StageRefs,
-        ));
+
         app.provide::<dyn aphel_contract_automation::application::StageOperations>(
             std::sync::Arc::new(operations::AutomationStages),
         );

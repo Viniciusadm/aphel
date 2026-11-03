@@ -840,8 +840,39 @@ pub fn is_option_value(value: &str) -> bool {
     is_identifier(value, MAX_IDENTIFIER_LENGTH)
 }
 
+#[derive(Debug, Clone)]
+pub struct RegistryTransform {
+    pub module: &'static str,
+    pub key: &'static str,
+    pub apply: fn(&mut EntityDefinition) -> Result<(), AppError>,
+}
+impl PartialEq for RegistryTransform {
+    fn eq(&self, other: &Self) -> bool {
+        self.module == other.module
+            && self.key == other.key
+            && std::ptr::fn_addr_eq(self.apply, other.apply)
+    }
+}
+impl RegistryTransform {
+    fn transform(&self, definition: &mut EntityDefinition) -> Result<(), AppError> {
+        let existing: std::collections::BTreeSet<_> = definition
+            .system_fields
+            .iter()
+            .map(|field| field.key.clone())
+            .collect();
+        (self.apply)(definition)?;
+        for field in &mut definition.system_fields {
+            if !existing.contains(&field.key) {
+                field.contributed_by = Some(self.module);
+            }
+        }
+        definition.validate()
+    }
+}
+
 #[derive(Debug, Clone, PartialEq, Default)]
 pub struct RecordTypeRegistry {
+    transforms: Vec<RegistryTransform>,
     types: BTreeMap<RecordType, EntityDefinition>,
     custom_schema: std::sync::Arc<CustomSchema>,
     custom_handler: Option<RecordHandlerFactory>,
@@ -901,7 +932,10 @@ impl RecordTypeRegistry {
             .map(|definition| &definition.capabilities)
     }
 
-    pub fn register(mut self, definition: EntityDefinition) -> Result<Self, AppError> {
+    pub fn register(mut self, mut definition: EntityDefinition) -> Result<Self, AppError> {
+        for transform in &self.transforms {
+            transform.transform(&mut definition)?;
+        }
         definition.validate()?;
         if self.types.contains_key(&definition.record_type)
             || self
@@ -916,6 +950,24 @@ impl RecordTypeRegistry {
         }
         self.types
             .insert(definition.record_type.clone(), definition);
+        Ok(self)
+    }
+
+    pub fn with_transform(mut self, transform: RegistryTransform) -> Result<Self, AppError> {
+        if self
+            .transforms
+            .iter()
+            .any(|existing| existing.module == transform.module && existing.key == transform.key)
+        {
+            return Err(AppError::Configuration(format!(
+                "duplicate entity transform {}:{}",
+                transform.module, transform.key
+            )));
+        }
+        for definition in self.types.values_mut() {
+            transform.transform(definition)?;
+        }
+        self.transforms.push(transform);
         Ok(self)
     }
 
