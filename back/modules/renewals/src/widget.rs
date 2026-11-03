@@ -8,7 +8,7 @@ use serde_json::{Map, Value, json};
 use sqlx::{MySql, QueryBuilder, Row};
 use uuid::Uuid;
 
-use deal_items::widgets::{base_revenue, money};
+use deals_revenue::widgets::{base_revenue, money};
 
 use ::dashboard::engine::{DashboardPorts, SettingsReader, WidgetContext, WidgetProvider};
 use ::dashboard::engine_domain::local_today;

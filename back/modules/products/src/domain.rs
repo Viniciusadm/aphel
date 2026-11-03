@@ -1,7 +1,12 @@
-use std::str::FromStr;
+pub use aphel_sdk::line_items::{
+    AmountMode, DiscountKind, LineAmounts, LineData, LineTotalError, MAX_ITEM_NAME_LENGTH,
+    MAX_LINES_PER_RECORD, MAX_TERM_MONTHS, MAX_UNIT_LENGTH, MONEY_DECIMALS, QUANTITY_DECIMALS,
+    Recurrence, money, money_limit, normalize_money, normalize_quantity, parse_money,
+    parse_term_months, round_money, term_violation,
+};
 
 use chrono::{DateTime, Utc};
-use rust_decimal::{Decimal, RoundingStrategy};
+use rust_decimal::Decimal;
 use serde_json::{Map, Value, json};
 use uuid::Uuid;
 
@@ -18,57 +23,8 @@ use aphel_kernel::records::{
 
 pub use aphel_kernel::application::shared::normalize_currency_code as normalize_currency;
 
-pub(crate) const MAX_TERM_MONTHS: u16 = 600;
-
-pub fn parse_term_months(text: &str) -> Option<u16> {
-    let text = text.trim();
-    let value = text.parse::<u16>().ok().or_else(|| {
-        text.parse::<f64>()
-            .ok()
-            .filter(|value| value.fract() == 0.0 && *value >= 0.0 && *value <= f64::from(u16::MAX))
-            .map(|value| value as u16)
-    })?;
-    (1..=MAX_TERM_MONTHS).contains(&value).then_some(value)
-}
-
-pub fn term_violation() -> String {
-    format!("must be a whole number of months between 1 and {MAX_TERM_MONTHS}")
-}
-
 pub(crate) const MAX_PRODUCT_NAME_LENGTH: usize = 255;
 pub(crate) const MAX_PRODUCT_CODE_LENGTH: usize = 64;
-pub const MAX_PRODUCT_UNIT_LENGTH: usize = 32;
-pub const MONEY_DECIMALS: u32 = 2;
-pub(crate) const MAX_MONEY_DIGITS: u32 = 16;
-
-#[derive(Debug, Clone, Copy, PartialEq, Eq, Hash, Default)]
-pub enum ProductRecurrence {
-    #[default]
-    None,
-    Monthly,
-    Quarterly,
-    Yearly,
-}
-
-impl ProductRecurrence {
-    pub(crate) const ALL: [Self; 4] = [Self::None, Self::Monthly, Self::Quarterly, Self::Yearly];
-
-    pub fn as_str(&self) -> &'static str {
-        match self {
-            Self::None => "none",
-            Self::Monthly => "monthly",
-            Self::Quarterly => "quarterly",
-            Self::Yearly => "yearly",
-        }
-    }
-
-    pub fn parse(value: &str) -> Option<Self> {
-        Self::ALL
-            .into_iter()
-            .find(|recurrence| recurrence.as_str() == value)
-    }
-}
-
 #[derive(Debug, Clone, PartialEq, Eq)]
 pub struct ProductData {
     pub name: String,
@@ -77,7 +33,7 @@ pub struct ProductData {
     pub price: Decimal,
     pub currency: String,
     pub unit: Option<String>,
-    pub recurrence: ProductRecurrence,
+    pub recurrence: Recurrence,
     pub term_months: Option<u16>,
     pub is_active: bool,
 }
@@ -91,7 +47,7 @@ impl Default for ProductData {
             price: Decimal::ZERO,
             currency: String::new(),
             unit: None,
-            recurrence: ProductRecurrence::None,
+            recurrence: Recurrence::None,
             term_months: None,
             is_active: true,
         }
@@ -105,160 +61,6 @@ pub struct Product {
     pub(crate) created_by: Option<UserId>,
     pub(crate) created_at: DateTime<Utc>,
     pub(crate) updated_at: DateTime<Utc>,
-}
-
-pub fn money(value: Decimal) -> String {
-    format!("{:.2}", value.round_dp(2))
-}
-
-pub fn round_money(value: Decimal) -> Decimal {
-    value.round_dp_with_strategy(MONEY_DECIMALS, RoundingStrategy::MidpointAwayFromZero)
-}
-
-pub fn money_limit() -> Decimal {
-    Decimal::from(10_i64.pow(MAX_MONEY_DIGITS))
-}
-
-pub fn normalize_money(value: Decimal) -> Option<Decimal> {
-    let amount = round_money(value);
-    (amount >= Decimal::ZERO && amount < money_limit()).then_some(amount)
-}
-
-pub const MAX_ITEM_NAME_LENGTH: usize = 255;
-pub const MAX_ITEMS_PER_DEAL: usize = 200;
-pub const QUANTITY_DECIMALS: u32 = 4;
-pub(crate) const MAX_QUANTITY_DIGITS: u32 = 12;
-
-#[derive(Debug, Clone, Copy, PartialEq, Eq, Hash, Default)]
-pub enum DiscountKind {
-    #[default]
-    None,
-    Percent,
-    Amount,
-}
-
-impl DiscountKind {
-    pub fn as_str(&self) -> &'static str {
-        match self {
-            Self::None => "none",
-            Self::Percent => "percent",
-            Self::Amount => "amount",
-        }
-    }
-
-    pub fn parse(value: &str) -> Option<Self> {
-        match value {
-            "none" => Some(Self::None),
-            "percent" => Some(Self::Percent),
-            "amount" => Some(Self::Amount),
-            _ => None,
-        }
-    }
-}
-
-#[derive(Debug, Clone, Copy, PartialEq, Eq, Hash, Default)]
-pub enum DealAmountMode {
-    #[default]
-    Manual,
-    Items,
-}
-
-impl DealAmountMode {
-    pub fn as_str(&self) -> &'static str {
-        match self {
-            Self::Manual => "manual",
-            Self::Items => "items",
-        }
-    }
-
-    pub fn parse(value: &str) -> Option<Self> {
-        match value {
-            "manual" => Some(Self::Manual),
-            "items" => Some(Self::Items),
-            _ => None,
-        }
-    }
-}
-
-#[derive(Debug, Clone, PartialEq, Eq, Default)]
-pub struct DealItemData {
-    pub product_id: Option<Uuid>,
-    pub name: String,
-    pub unit: Option<String>,
-    pub quantity: Decimal,
-    pub unit_price: Decimal,
-    pub discount_kind: DiscountKind,
-    pub discount_value: Decimal,
-    pub recurrence: ProductRecurrence,
-    pub term_months: Option<u16>,
-}
-
-#[derive(Debug, Clone, Copy, PartialEq, Eq)]
-pub enum LineTotalError {
-    PercentOutOfRange,
-    TooLarge,
-}
-
-#[derive(Debug, Clone, Copy, PartialEq, Eq)]
-pub struct LineAmounts {
-    pub gross: Decimal,
-    pub discount: Decimal,
-    pub total: Decimal,
-}
-
-impl DealItemData {
-    pub fn amounts(&self) -> Result<LineAmounts, LineTotalError> {
-        let gross = self
-            .quantity
-            .checked_mul(self.unit_price)
-            .map(round_money)
-            .filter(|gross| *gross < money_limit())
-            .ok_or(LineTotalError::TooLarge)?;
-        let discount = match self.discount_kind {
-            DiscountKind::None => Decimal::ZERO,
-            DiscountKind::Percent => {
-                if self.discount_value > Decimal::ONE_HUNDRED {
-                    return Err(LineTotalError::PercentOutOfRange);
-                }
-                round_money(gross * self.discount_value / Decimal::ONE_HUNDRED)
-            }
-            DiscountKind::Amount => self.discount_value,
-        };
-        let discount = discount.min(gross);
-        Ok(LineAmounts {
-            gross,
-            discount,
-            total: gross - discount,
-        })
-    }
-}
-
-pub(crate) fn quantity_limit() -> Decimal {
-    Decimal::from(10_i64.pow(MAX_QUANTITY_DIGITS))
-}
-
-pub fn normalize_quantity(value: Decimal) -> Option<Decimal> {
-    let quantity =
-        value.round_dp_with_strategy(QUANTITY_DECIMALS, RoundingStrategy::MidpointAwayFromZero);
-    (quantity > Decimal::ZERO && quantity < quantity_limit()).then(|| quantity.normalize())
-}
-
-#[derive(Debug, Clone, PartialEq, Eq)]
-pub struct DealItem {
-    pub id: Uuid,
-    pub deal_id: Uuid,
-    pub data: DealItemData,
-    pub total: Decimal,
-    pub amount_base: Option<Decimal>,
-    pub exchange_rate: Option<Decimal>,
-    pub position: i32,
-    pub created_by: Option<UserId>,
-    pub created_at: DateTime<Utc>,
-    pub updated_at: DateTime<Utc>,
-}
-
-pub fn items_total(items: &[DealItem]) -> Decimal {
-    items.iter().map(|item| item.total).sum()
 }
 
 #[derive(Debug, Clone, Default, PartialEq, Eq)]
@@ -330,14 +132,6 @@ pub fn product_not_found() -> AppError {
     AppError::not_found_code(PRODUCT_NOT_FOUND, "product was not found")
 }
 
-pub fn parse_money(text: &str) -> Option<Decimal> {
-    let text = text.trim();
-    Decimal::from_str(text)
-        .ok()
-        .or_else(|| Decimal::from_scientific(text).ok())
-        .and_then(normalize_money)
-}
-
 pub(crate) fn product_snapshot(data: &ProductData) -> Value {
     let mut map = Map::new();
     insert_text(&mut map, "name", Some(&data.name));
@@ -394,12 +188,12 @@ pub(crate) fn apply_product_input(
         }
     }
     if let Some(value) = input.unit {
-        data.unit = validator.text("unit", value, MAX_PRODUCT_UNIT_LENGTH);
+        data.unit = validator.text("unit", value, MAX_UNIT_LENGTH);
     }
     if let Some(value) = input.recurrence {
         match value.as_deref().map(str::trim) {
-            None | Some("") => data.recurrence = ProductRecurrence::None,
-            Some(text) => match ProductRecurrence::parse(text) {
+            None | Some("") => data.recurrence = Recurrence::None,
+            Some(text) => match Recurrence::parse(text) {
                 Some(recurrence) => data.recurrence = recurrence,
                 None => {
                     validator.violation("recurrence", "must be none, monthly, quarterly or yearly")
@@ -416,7 +210,7 @@ pub(crate) fn apply_product_input(
             },
         }
     }
-    if data.recurrence == ProductRecurrence::None {
+    if data.recurrence == Recurrence::None {
         data.term_months = None;
     }
     if let Some(Some(active)) = input.is_active {

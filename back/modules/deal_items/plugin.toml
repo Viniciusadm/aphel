@@ -1,5 +1,0 @@
-key = "deal_items"
-name = "Deal items"
-version = "0.1.0"
-layer = "domain"
-runtime = "native"

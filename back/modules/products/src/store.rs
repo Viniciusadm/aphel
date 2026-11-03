@@ -4,7 +4,7 @@ use sqlx::mysql::MySqlRow;
 use sqlx::{MySql, MySqlPool, QueryBuilder, Row};
 use uuid::Uuid;
 
-use crate::domain::{Product, ProductData, ProductRecurrence};
+use crate::domain::{Product, ProductData, Recurrence};
 use aphel_kernel::Ctx;
 use aphel_kernel::database::transaction::MySqlTx;
 use aphel_kernel::domain::UserId;
@@ -28,7 +28,7 @@ fn product_from_row(row: &MySqlRow) -> Result<Product, AppError> {
             price: row.try_get::<Decimal, _>("price")?,
             currency: row.try_get("currency")?,
             unit: row.try_get("unit")?,
-            recurrence: ProductRecurrence::parse(&recurrence)
+            recurrence: Recurrence::parse(&recurrence)
                 .ok_or_else(|| mapper::invalid_column("products.recurrence", &recurrence))?,
             term_months: row.try_get::<Option<u16>, _>("term_months")?,
             is_active: row.try_get("is_active")?,

@@ -1,5 +1,4 @@
 use std::collections::HashMap;
-use std::sync::Arc;
 
 use async_trait::async_trait;
 use sqlx::mysql::{MySqlArguments, MySqlRow};
@@ -7,7 +6,7 @@ use sqlx::{Execute, MySql, MySqlPool, QueryBuilder, Row};
 use uuid::Uuid;
 
 use crate::engine::{
-    DashboardPorts, DashboardRepository, SubjectDirectory, SubjectTeam, SubjectUser, WidgetRegistry,
+    DashboardRepository, SubjectDirectory, SubjectTeam, SubjectUser, WidgetRegistry,
 };
 use aphel_kernel::application::fields::RecordTypeRegistry;
 use aphel_kernel::application::files::UserReference;
@@ -15,7 +14,6 @@ use aphel_kernel::application::query::QueryPlan;
 use aphel_kernel::domain::access::AccessScope;
 use aphel_kernel::domain::{TeamId, UserId};
 use aphel_kernel::errors::AppError;
-use aphel_kernel::infrastructure::query::MySqlRecordQueryPorts;
 use aphel_kernel::infrastructure::query::compiler::{Projection, build_query, push_where, quoted};
 use aphel_kernel::infrastructure::repositories::mapper::invalid_column;
 use aphel_kernel::records::constrain_query;
@@ -244,32 +242,7 @@ impl DashboardRepository for MySqlDashboardRepository {
     }
 }
 
-pub struct MySqlDashboardPorts {
-    query: MySqlRecordQueryPorts,
-    repository: MySqlDashboardRepository,
-}
-
-impl MySqlDashboardPorts {
-    pub fn new(pool: MySqlPool, registry: Arc<RecordTypeRegistry>) -> Self {
-        Self {
-            query: MySqlRecordQueryPorts::new(pool.clone(), registry),
-            repository: MySqlDashboardRepository::new(pool),
-        }
-    }
-}
-
-impl DashboardPorts for MySqlDashboardPorts {
-    type Query = MySqlRecordQueryPorts;
-    type Dashboard = MySqlDashboardRepository;
-
-    fn query(&self) -> &Self::Query {
-        &self.query
-    }
-
-    fn dashboard(&self) -> &Self::Dashboard {
-        &self.repository
-    }
-}
+pub use aphel_sdk::dashboard::WidgetPorts as MySqlDashboardPorts;
 
 impl WidgetRegistry<MySqlDashboardPorts> {
     pub fn builtin() -> Self {

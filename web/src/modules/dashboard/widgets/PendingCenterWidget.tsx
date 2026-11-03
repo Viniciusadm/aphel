@@ -5,7 +5,7 @@ import { useTranslation } from 'react-i18next'
 import { Link } from 'react-router'
 import { formatCurrency, formatDateTime, useRecordFormatting } from '@/features/records/formatting'
 import { cn } from '@/lib/utils'
-import type { Bucket, PendingActivityItem, PendingCenterData, StaleDealItem } from '../types'
+import type { Bucket, PendingActivityItem, PendingCenterData, StaleLineItem } from '../types'
 import { RecordLinkText } from '@/kernel/widgets/shared'
 
 interface SectionProps<T> {
@@ -67,7 +67,7 @@ export function PendingCenterWidget({ data }: { data: PendingCenterData }) {
       </p>
     </div>
   )
-  const deal = (item: StaleDealItem) => (
+  const deal = (item: StaleLineItem) => (
     <div className="grid min-w-0 gap-0.5">
       <Link to={`/deals/${encodeURIComponent(item.id)}`} className="truncate font-medium hover:underline">
         {item.title}

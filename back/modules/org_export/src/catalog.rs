@@ -78,7 +78,7 @@ pub(crate) const DATASETS: &[Dataset] = &[
     Dataset::new("favorites", "relations", false).excluding("favorite_type", "view"),
     Dataset::new("deal_members", "relations", false),
     Dataset::new("deal_renewals", "relations", false),
-    Dataset::new("deal_items", "data", false),
+    Dataset::new("line_items", "data", false),
     Dataset::new("quote_items", "data", false),
     Dataset::new("quote_counters", "data", false).upsert(),
     Dataset::new("activity_calls", "data", false),

@@ -15,8 +15,8 @@ import type commonNamespace from './pt-BR/common.json'
 import type configPackageVersioningNamespace from './pt-BR/config-package-versioning.json'
 import type configPackagesNamespace from './pt-BR/config-packages.json'
 import type dashboardNamespace from '../modules/dashboard/i18n/pt-BR.json'
-import type dealItemsNamespace from '../modules/deal_items/i18n/pt-BR.json'
 import type dealsNamespace from '../modules/deals/i18n/pt-BR.json'
+import type dealsRevenueNamespace from '../modules/deals_revenue/i18n/pt-BR.json'
 import type demoNamespace from './pt-BR/demo.json'
 import type duplicatesNamespace from '../modules/duplicates/i18n/pt-BR.json'
 import type emailNamespace from '../modules/email/i18n/pt-BR.json'
@@ -41,6 +41,7 @@ import type layoutsNamespace from './pt-BR/layouts.json'
 import type leadFormsNamespace from '../modules/lead_forms/i18n/pt-BR.json'
 import type leadProNamespace from '../modules/lead_pro/i18n/pt-BR.json'
 import type leadsNamespace from '../modules/leads/i18n/pt-BR.json'
+import type lineItemsNamespace from '../modules/line_items/i18n/pt-BR.json'
 import type messagingNamespace from '../modules/messaging/i18n/pt-BR.json'
 import type microsoftNamespace from '../modules/microsoft/i18n/pt-BR.json'
 import type migrationsAssistantNamespace from '../modules/migrations_assistant/i18n/pt-BR.json'
@@ -112,8 +113,8 @@ declare module 'i18next' {
       'config-package-versioning': typeof configPackageVersioningNamespace
       'config-packages': typeof configPackagesNamespace
       dashboard: typeof dashboardNamespace
-      deal_items: typeof dealItemsNamespace
       deals: typeof dealsNamespace
+      deals_revenue: typeof dealsRevenueNamespace
       demo: typeof demoNamespace
       duplicates: typeof duplicatesNamespace
       email: typeof emailNamespace
@@ -138,6 +139,7 @@ declare module 'i18next' {
       lead_forms: typeof leadFormsNamespace
       lead_pro: typeof leadProNamespace
       leads: typeof leadsNamespace
+      line_items: typeof lineItemsNamespace
       messaging: typeof messagingNamespace
       microsoft: typeof microsoftNamespace
       migrations_assistant: typeof migrationsAssistantNamespace

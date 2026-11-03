@@ -368,6 +368,7 @@ pub struct ItemTable {
     pub table: String,
     pub parent_column: String,
     pub columns: Vec<ItemColumn>,
+    pub partition: Option<(String, String)>,
     pub contributed_by: Option<&'static str>,
 }
 
@@ -386,8 +387,14 @@ impl ItemTable {
             table: table.to_owned(),
             parent_column: parent_column.to_owned(),
             columns: Vec::new(),
+            partition: None,
             contributed_by: None,
         }
+    }
+
+    pub fn partition(mut self, column: &str, value: &str) -> Self {
+        self.partition = Some((column.to_owned(), value.to_owned()));
+        self
     }
 
     pub fn column(mut self, column: &str, label: impl Into<super::LocalizedLabels>) -> Self {
@@ -412,6 +419,7 @@ impl ItemTable {
             self.parent_column.as_str(),
         ]
         .into_iter()
+        .chain(self.partition.iter().map(|(column, _)| column.as_str()))
         .chain(self.columns.iter().map(|column| column.column.as_str()))
     }
 }

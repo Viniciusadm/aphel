@@ -22,7 +22,7 @@ use aphel_kernel::domain::access::{AccessScope, RecordScopeFilter};
 use aphel_kernel::errors::AppError;
 use aphel_kernel::infrastructure::query::compiler::push_record_scope_as;
 use aphel_kernel::infrastructure::repositories::mapper;
-use products::domain::{DealItemData, DiscountKind, ProductRecurrence};
+use aphel_sdk::line_items::{DiscountKind, Recurrence};
 
 const QUOTE_SELECT: &str = "SELECT r.id, r.deal_id, r.number, r.version, r.is_current, \
      r.title, r.status, r.owner_id, r.contact_id, r.company_id, r.currency, r.price_list_id, \
@@ -209,7 +209,7 @@ fn item_from_row(row: &MySqlRow) -> Result<QuoteItem, AppError> {
             discount_kind: discount_kind(row, "discount_type")?,
             discount_value: row.try_get("discount_value")?,
             tax_percent: row.try_get("tax_percent")?,
-            recurrence: ProductRecurrence::parse(&recurrence)
+            recurrence: Recurrence::parse(&recurrence)
                 .ok_or_else(|| mapper::invalid_column("quote_items.recurrence", &recurrence))?,
             term_months: row.try_get::<Option<u16>, _>("term_months")?,
             components: components_from_json(&components),
@@ -258,37 +258,6 @@ impl QuoteStore {
 
     pub(crate) fn of(ctx: &Ctx<'_>) -> Self {
         Self::new(ctx.pool().clone(), ctx.registry().clone())
-    }
-
-    pub(crate) async fn deal_items(&self, deal_id: Uuid) -> Result<Vec<DealItemData>, AppError> {
-        let rows = sqlx::query(
-            "SELECT product_id, name, unit, quantity, unit_price, discount_type, discount_value, \
-             recurrence, term_months FROM deal_items WHERE deal_id = ? ORDER BY position, created_at",
-        )
-        .bind(deal_id.to_string())
-        .fetch_all(&self.pool)
-        .await?;
-        rows.iter()
-            .map(|row| {
-                let discount: String = row.try_get("discount_type")?;
-                let recurrence: String = row.try_get("recurrence")?;
-                Ok(DealItemData {
-                    product_id: optional_uuid(row, "product_id")?,
-                    name: row.try_get("name")?,
-                    unit: row.try_get("unit")?,
-                    quantity: row.try_get("quantity")?,
-                    unit_price: row.try_get("unit_price")?,
-                    discount_kind: DiscountKind::parse(&discount).ok_or_else(|| {
-                        mapper::invalid_column("deal_items.discount_type", &discount)
-                    })?,
-                    discount_value: row.try_get("discount_value")?,
-                    recurrence: ProductRecurrence::parse(&recurrence).ok_or_else(|| {
-                        mapper::invalid_column("deal_items.recurrence", &recurrence)
-                    })?,
-                    term_months: row.try_get::<Option<u16>, _>("term_months")?,
-                })
-            })
-            .collect()
     }
 
     fn select() -> QueryBuilder<MySql> {

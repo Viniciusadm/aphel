@@ -1,3 +1,4 @@
+import { LineItemAmountLock } from './LineItemAmountLock'
 import { rottingOf } from '@/modules/workflow/rotting/lib'
 import { RottingDealBadge } from './RottingDealBadge'
 import { Briefcase, Users, UsersRound } from 'lucide-react'
@@ -36,6 +37,7 @@ const dealsModule = defineModule({
     },
   },
   register(app) {
+    app.slot('deals.detail.fieldLocks', { key: 'line-item-amount', render: LineItemAmountLock })
     app.slot('deals.badges', { key: 'rotting', render: RottingDealBadge })
     app.filter('deals.tone', (tone, { deal }) => (rottingOf(deal).isRotting ? 'warning' : tone))
     app.routes(dealsRoutes)

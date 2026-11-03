@@ -216,6 +216,11 @@ impl FormulaSource for MySqlFormulaSource {
                 ));
                 builder.push(format!("t.{parent} IN "));
                 push_ids(&mut builder, record_ids);
+                if let Some((column, value)) = &table.partition {
+                    builder
+                        .push(format!(" AND t.{column} = "))
+                        .push_bind(value.clone());
+                }
                 builder.push(format!(" GROUP BY t.{parent}"));
             }
             AggregateSource::HasMany { target, column } => {

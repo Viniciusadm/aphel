@@ -47,9 +47,10 @@ use aphel_kernel::records::{
     InputValidator, RecordMutation, changes_payload, merge_violations, parse_record_id,
     publish_mutation, value_patch,
 };
+use aphel_sdk::line_items::{DiscountKind, parse_money};
 use approvals::domain::APPROVAL_PENDING;
 use price_lists::domain::PriceListSelection;
-use products::domain::{DiscountKind, parse_money};
+
 use scheduling::token::{decode_key, generate_key};
 
 use aphel_kernel::application::shared::money_text;
@@ -328,9 +329,9 @@ pub async fn create(ctx: &Ctx<'_>, command: CreateQuoteCommand) -> Result<QuoteD
             .await?
             .map(|price_list| price_list.id);
     }
-    let inputs = if command.from_deal_items {
+    let inputs = if command.from_line_items {
         QuoteGateway::of(ctx)
-            .deal_items(deal.id)
+            .line_items(deal.id)
             .await?
             .iter()
             .map(item_input_from_deal)

@@ -39,7 +39,7 @@ impl Module for RenewalsModule {
             .enabled_by_default()
             .depends_on(deals::KEY, "*")
             .depends_on(workflow::KEY, "*")
-            .optional(deal_items::KEY)
+            .optional(aphel_sdk::line_items::KEY)
             .owned_tables(&["deal_renewals", "pipeline_renewal_settings"])
             .migration(Migration::new(
                 1,

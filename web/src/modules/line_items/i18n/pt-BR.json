@@ -1,0 +1,112 @@
+{
+  "items": {
+    "tab": "Itens",
+    "title": "Itens do registro",
+    "addProduct": "Adicionar do catálogo",
+    "addFree": "Item livre",
+    "add": "Adicionar",
+    "cancel": "Cancelar",
+    "freeNamePlaceholder": "Descrição do item",
+    "searchPlaceholder": "Buscar produto por nome ou código",
+    "catalog": "Produtos do catálogo",
+    "catalogEmpty": "Nenhum produto ativo encontrado.",
+    "catalogError": "Não foi possível carregar o catálogo.",
+    "otherCurrency": "Preço em {{currency}}: moeda diferente do registro",
+    "fromCatalog": "Item do catálogo",
+    "unitPriceHint": "{{price}} por unidade",
+    "empty": "Nenhum item nesta oportunidade",
+    "emptyDescription": "Adicione produtos do catálogo ou itens livres com quantidade, preço e desconto.",
+    "loadError": "Não foi possível carregar os itens.",
+    "noAccessTitle": "Valores restritos",
+    "noAccessDescription": "Seu papel não pode ver o valor das oportunidades, por isso os itens ficam ocultos.",
+    "columns": {
+      "item": "Item",
+      "quantity": "Qtd.",
+      "unitPrice": "Preço unitário",
+      "discount": "Desconto",
+      "total": "Total",
+      "tax": "Imposto (%)"
+    },
+    "discountType": "Tipo de desconto",
+    "discountValue": "Valor do desconto",
+    "discountTypes": {
+      "none": "Sem desconto",
+      "percent": "%",
+      "amount": "Valor"
+    },
+    "moveUp": "Mover para cima",
+    "moveDown": "Mover para baixo",
+    "remove": "Remover {{name}}",
+    "removeTitle": "Remover item?",
+    "removeDescription": "{{name}} será removido do registro.",
+    "removeConfirm": "Remover",
+    "subtotal": "Subtotal",
+    "discounts": "Descontos",
+    "total": "Total",
+    "autoNotice": "O valor deste registro é calculado automaticamente pela soma dos itens e não pode ser editado diretamente.",
+    "autoNoticeEmpty": "Quando houver itens, o valor do registro passa a ser a soma deles.",
+    "manualNotice": "Os itens são informativos: o valor do registro continua manual.",
+    "amountDiffers": "Valor do registro: {{amount}}. Total dos itens: {{total}}.",
+    "noAmount": "sem valor",
+    "applyTotal": "Usar total como valor",
+    "applied": "Valor do registro atualizado."
+  },
+  "recurrences": {
+    "none": "Cobrança única",
+    "monthly": "Mensal",
+    "quarterly": "Trimestral",
+    "yearly": "Anual"
+  },
+  "item": {
+    "recurrence": "Frequência de cobrança",
+    "term": "Prazo",
+    "termLabel": "Prazo em meses",
+    "termPlaceholder": "12",
+    "months": "meses",
+    "monthly": "{{amount}}/mês"
+  },
+  "timeline": {
+    "someone": "Alguém",
+    "someItem": "um item",
+    "added": "{{actor}} adicionou o item {{name}}",
+    "updated": "{{actor}} alterou o item {{name}}",
+    "removed": "{{actor}} removeu o item {{name}}",
+    "reordered": "{{actor}} reordenou os itens",
+    "changedFields": "Campos alterados: {{fields}}",
+    "fields": {
+      "name": "descrição",
+      "product": "produto",
+      "unit": "unidade",
+      "quantity": "quantidade",
+      "unitPrice": "preço unitário",
+      "discountType": "tipo de desconto",
+      "discountValue": "desconto",
+      "recurrence": "frequência de cobrança",
+      "term": "prazo",
+      "total": "total"
+    }
+  },
+  "placeholders": {
+    "item": "Ex.: Licença anual",
+    "quantity": "1",
+    "unitPrice": "0,00",
+    "discount": "0"
+  },
+  "settings": {
+    "title": "Produtos e itens",
+    "description": "Defina como o valor das oportunidades se relaciona com os itens.",
+    "amountMode": "Valor do registro",
+    "modes": {
+      "manual": "Manual",
+      "items": "Soma dos itens"
+    },
+    "modeHints": {
+      "manual": "O valor é digitado na oportunidade; os itens são apenas informativos.",
+      "items": "Oportunidades com itens têm o valor calculado automaticamente e o campo fica somente leitura. Oportunidades sem itens continuam manuais."
+    },
+    "switchHint": "Os valores atuais não são reescritos: cado registro passa a seguir a soma na próxima alteração dos itens ou ao usar \"Usar total como valor\".",
+    "save": "Salvar",
+    "saved": "Configuração salva.",
+    "conflict": "A configuração foi alterada por outra pessoa. Recarregamos os dados."
+  }
+}

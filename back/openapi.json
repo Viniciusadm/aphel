@@ -11512,166 +11512,6 @@
         ]
       }
     },
-    "/api/v1/deal-items/settings": {
-      "get": {
-        "tags": [
-          "deal-items"
-        ],
-        "description": "Returns how the deal amount relates to its items in the organization (permission `deals.read` or `settings.manage`): `manual` (default; the amount is typed and items are informative) or `items` (the amount of a deal with items is the sum of its items). `updated_at` is `null` while never saved.",
-        "operationId": "deal_item_settings_get",
-        "responses": {
-          "200": {
-            "description": "Deal item settings",
-            "content": {
-              "application/json": {
-                "schema": {
-                  "$ref": "#/components/schemas/Data_DealItemSettingsResponse"
-                }
-              }
-            }
-          },
-          "401": {
-            "description": "Missing or invalid credentials (`unauthorized`, `invalid_api_token`)",
-            "content": {
-              "application/json": {
-                "schema": {
-                  "$ref": "#/components/schemas/ErrorEnvelope"
-                }
-              }
-            }
-          },
-          "403": {
-            "description": "Missing `deals.read` and `settings.manage` (`permission_denied`, `insufficient_scope`)",
-            "content": {
-              "application/json": {
-                "schema": {
-                  "$ref": "#/components/schemas/ErrorEnvelope"
-                }
-              }
-            }
-          },
-          "429": {
-            "description": "API token rate limit exceeded (`rate_limited`); see `Retry-After` and `X-RateLimit-*`",
-            "content": {
-              "application/json": {
-                "schema": {
-                  "$ref": "#/components/schemas/ErrorEnvelope"
-                }
-              }
-            }
-          }
-        },
-        "security": [
-          {
-            "session_cookie": []
-          },
-          {
-            "api_token": []
-          }
-        ]
-      },
-      "patch": {
-        "tags": [
-          "deal-items"
-        ],
-        "description": "Changes the amount mode of the organization (permission `settings.manage`) and publishes `deal_item_settings.updated`. Switching to `items` does not rewrite existing amounts: each deal follows the sum from the next change of its items (or `POST /deals/{deal_id}/items/apply-total`). Deals without items keep a manual amount.",
-        "operationId": "deal_item_settings_update",
-        "parameters": [
-          {
-            "name": "If-Match",
-            "in": "header",
-            "description": "`updated_at` of the settings as read (ISO-8601, quotes optional); ignored while the settings were never saved",
-            "required": false,
-            "schema": {
-              "type": [
-                "string",
-                "null"
-              ]
-            }
-          }
-        ],
-        "requestBody": {
-          "content": {
-            "application/json": {
-              "schema": {
-                "$ref": "#/components/schemas/UpdateDealItemSettingsRequest"
-              }
-            }
-          },
-          "required": true
-        },
-        "responses": {
-          "200": {
-            "description": "Settings updated",
-            "content": {
-              "application/json": {
-                "schema": {
-                  "$ref": "#/components/schemas/Data_DealItemSettingsResponse"
-                }
-              }
-            }
-          },
-          "401": {
-            "description": "Missing or invalid credentials (`unauthorized`, `invalid_api_token`)",
-            "content": {
-              "application/json": {
-                "schema": {
-                  "$ref": "#/components/schemas/ErrorEnvelope"
-                }
-              }
-            }
-          },
-          "403": {
-            "description": "Missing `settings.manage` (`permission_denied`, `insufficient_scope`)",
-            "content": {
-              "application/json": {
-                "schema": {
-                  "$ref": "#/components/schemas/ErrorEnvelope"
-                }
-              }
-            }
-          },
-          "409": {
-            "description": "The settings changed since the `If-Match` version (`version_conflict`)",
-            "content": {
-              "application/json": {
-                "schema": {
-                  "$ref": "#/components/schemas/ErrorEnvelope"
-                }
-              }
-            }
-          },
-          "422": {
-            "description": "Invalid `amount_mode` or malformed `If-Match` (`validation_error`)",
-            "content": {
-              "application/json": {
-                "schema": {
-                  "$ref": "#/components/schemas/ErrorEnvelope"
-                }
-              }
-            }
-          },
-          "429": {
-            "description": "API token rate limit exceeded (`rate_limited`); see `Retry-After` and `X-RateLimit-*`",
-            "content": {
-              "application/json": {
-                "schema": {
-                  "$ref": "#/components/schemas/ErrorEnvelope"
-                }
-              }
-            }
-          }
-        },
-        "security": [
-          {
-            "session_cookie": []
-          },
-          {
-            "api_token": []
-          }
-        ]
-      }
-    },
     "/api/v1/deal-member-roles": {
       "get": {
         "tags": [
@@ -12863,644 +12703,6 @@
           },
           "422": {
             "description": "`Idempotency-Key` already used with a different request (`idempotency_key_reused`) or longer than 255 characters (`validation_error`)",
-            "content": {
-              "application/json": {
-                "schema": {
-                  "$ref": "#/components/schemas/ErrorEnvelope"
-                }
-              }
-            }
-          },
-          "429": {
-            "description": "API token rate limit exceeded (`rate_limited`); see `Retry-After` and `X-RateLimit-*`",
-            "content": {
-              "application/json": {
-                "schema": {
-                  "$ref": "#/components/schemas/ErrorEnvelope"
-                }
-              }
-            }
-          }
-        },
-        "security": [
-          {
-            "session_cookie": []
-          },
-          {
-            "api_token": []
-          }
-        ]
-      }
-    },
-    "/api/v1/deals/{deal_id}/items": {
-      "get": {
-        "tags": [
-          "deal-items"
-        ],
-        "description": "Lists the items (products or free lines) of a deal in their order, with the totals (permission `deals.read` on the deal, including the pipeline restriction by team). Amounts are in the currency of the deal. `amount_mode` is the organization setting and `amount_managed` is `true` when the deal amount is the sum of the items (mode `items` and at least one item); then `amount` cannot be changed directly on the deal. Requires the `amount` field of deals to be visible for the role.",
-        "operationId": "deal_items_list",
-        "parameters": [
-          {
-            "name": "deal_id",
-            "in": "path",
-            "description": "Deal id",
-            "required": true,
-            "schema": {
-              "type": "string"
-            }
-          }
-        ],
-        "responses": {
-          "200": {
-            "description": "Items and totals of the deal",
-            "content": {
-              "application/json": {
-                "schema": {
-                  "$ref": "#/components/schemas/Data_DealItemsResponse"
-                }
-              }
-            }
-          },
-          "401": {
-            "description": "Missing or invalid credentials (`unauthorized`, `invalid_api_token`)",
-            "content": {
-              "application/json": {
-                "schema": {
-                  "$ref": "#/components/schemas/ErrorEnvelope"
-                }
-              }
-            }
-          },
-          "403": {
-            "description": "Missing `deals.read` (`permission_denied`, `insufficient_scope`)",
-            "content": {
-              "application/json": {
-                "schema": {
-                  "$ref": "#/components/schemas/ErrorEnvelope"
-                }
-              }
-            }
-          },
-          "404": {
-            "description": "Deal not found or not visible (`deal_not_found`)",
-            "content": {
-              "application/json": {
-                "schema": {
-                  "$ref": "#/components/schemas/ErrorEnvelope"
-                }
-              }
-            }
-          },
-          "422": {
-            "description": "The `amount` field of deals is hidden for the role (`field_not_accessible`)",
-            "content": {
-              "application/json": {
-                "schema": {
-                  "$ref": "#/components/schemas/ErrorEnvelope"
-                }
-              }
-            }
-          },
-          "429": {
-            "description": "API token rate limit exceeded (`rate_limited`); see `Retry-After` and `X-RateLimit-*`",
-            "content": {
-              "application/json": {
-                "schema": {
-                  "$ref": "#/components/schemas/ErrorEnvelope"
-                }
-              }
-            }
-          }
-        },
-        "security": [
-          {
-            "session_cookie": []
-          },
-          {
-            "api_token": []
-          }
-        ]
-      },
-      "post": {
-        "tags": [
-          "deal-items"
-        ],
-        "description": "Adds an item at the end of a deal (permission `deals.update` on the deal) and publishes `deal.item_added`. With `product_id` (an active product in the currency of the deal) the name, unit and unit price are copied from the product unless sent; without it the item is free and `name` is required. `quantity` defaults to 1 (greater than zero, up to 4 decimals). `discount_type` is `none` (default), `percent` (0–100) or `amount`; the line total is `quantity × unit_price − discount`, rounded to 2 places and never negative. In the `items` amount mode the deal amount becomes the sum of the items in the same transaction and `deal.amount_changed` is published (which requires `amount` to be editable for the role). `recurrence` (`none` = one-time, default, `monthly`, `quarterly`, `yearly`) and `term_months` (1–600, only for recurring items) are copied from the product unless sent. After every change of the items the deal gets `mrr` (sum of the monthly value of the recurring items: line total ÷ 1, 3 or 12), `arr` (`mrr × 12`), `tcv` (one-time totals plus monthly value × term, 12 months when the item has no term) and, when it has `contract_start` (filled with the win date of a won deal), `contract_end` = start + longest term − 1 day; changes publish `deal.updated` with `changes` and `source: items`. At most 200 items per deal.",
-        "operationId": "deal_items_create",
-        "parameters": [
-          {
-            "name": "deal_id",
-            "in": "path",
-            "description": "Deal id",
-            "required": true,
-            "schema": {
-              "type": "string"
-            }
-          },
-          {
-            "name": "Idempotency-Key",
-            "in": "header",
-            "description": "Up to 255 printable ASCII characters. The same key with the same request (method, path and body) within 24 hours answers the stored response with the same status and body plus `Idempotent-Replayed: true`. Scoped to the credential (session cookie or API token); ignored without a credential. 5xx and 429 responses are not stored",
-            "required": false,
-            "schema": {
-              "type": "string",
-              "maxLength": 255
-            }
-          }
-        ],
-        "requestBody": {
-          "content": {
-            "application/json": {
-              "schema": {
-                "$ref": "#/components/schemas/DealItemRequest"
-              }
-            }
-          },
-          "required": true
-        },
-        "responses": {
-          "201": {
-            "description": "Item added",
-            "content": {
-              "application/json": {
-                "schema": {
-                  "$ref": "#/components/schemas/Data_DealItemResponse"
-                }
-              }
-            }
-          },
-          "401": {
-            "description": "Missing or invalid credentials (`unauthorized`, `invalid_api_token`)",
-            "content": {
-              "application/json": {
-                "schema": {
-                  "$ref": "#/components/schemas/ErrorEnvelope"
-                }
-              }
-            }
-          },
-          "403": {
-            "description": "Missing `deals.update` on the deal (`permission_denied`, `insufficient_scope`)",
-            "content": {
-              "application/json": {
-                "schema": {
-                  "$ref": "#/components/schemas/ErrorEnvelope"
-                }
-              }
-            }
-          },
-          "404": {
-            "description": "Deal not found or not visible (`deal_not_found`)",
-            "content": {
-              "application/json": {
-                "schema": {
-                  "$ref": "#/components/schemas/ErrorEnvelope"
-                }
-              }
-            }
-          },
-          "409": {
-            "description": "The first request with this `Idempotency-Key` is still being processed (`idempotency_key_in_progress`)",
-            "content": {
-              "application/json": {
-                "schema": {
-                  "$ref": "#/components/schemas/ErrorEnvelope"
-                }
-              }
-            }
-          },
-          "422": {
-            "description": "Invalid item (`validation_error` with fields such as `name`, `quantity`, `discount_value` or an unknown/inactive `product_id`), product in another currency (`product_currency_mismatch`), item limit reached (`deal_items_limit_reached`) or `amount` not editable in the `items` mode (`field_not_accessible`, `field_read_only`). `Idempotency-Key` already used with a different request (`idempotency_key_reused`) or longer than 255 characters (`validation_error`)",
-            "content": {
-              "application/json": {
-                "schema": {
-                  "$ref": "#/components/schemas/ErrorEnvelope"
-                }
-              }
-            }
-          },
-          "429": {
-            "description": "API token rate limit exceeded (`rate_limited`); see `Retry-After` and `X-RateLimit-*`",
-            "content": {
-              "application/json": {
-                "schema": {
-                  "$ref": "#/components/schemas/ErrorEnvelope"
-                }
-              }
-            }
-          }
-        },
-        "security": [
-          {
-            "session_cookie": []
-          },
-          {
-            "api_token": []
-          }
-        ]
-      }
-    },
-    "/api/v1/deals/{deal_id}/items/apply-total": {
-      "post": {
-        "tags": [
-          "deal-items"
-        ],
-        "description": "Sets the deal amount to the total of its items now, in any amount mode (permission `deals.update` on the deal and `amount` editable for the role). Useful in the `manual` mode, or right after switching to `items`, since switching does not rewrite existing amounts. Publishes `deal.amount_changed` when the amount changes.",
-        "operationId": "deal_items_apply_total",
-        "parameters": [
-          {
-            "name": "deal_id",
-            "in": "path",
-            "description": "Deal id",
-            "required": true,
-            "schema": {
-              "type": "string"
-            }
-          },
-          {
-            "name": "Idempotency-Key",
-            "in": "header",
-            "description": "Up to 255 printable ASCII characters. The same key with the same request (method, path and body) within 24 hours answers the stored response with the same status and body plus `Idempotent-Replayed: true`. Scoped to the credential (session cookie or API token); ignored without a credential. 5xx and 429 responses are not stored",
-            "required": false,
-            "schema": {
-              "type": "string",
-              "maxLength": 255
-            }
-          }
-        ],
-        "responses": {
-          "200": {
-            "description": "Items and totals after the update",
-            "content": {
-              "application/json": {
-                "schema": {
-                  "$ref": "#/components/schemas/Data_DealItemsResponse"
-                }
-              }
-            }
-          },
-          "401": {
-            "description": "Missing or invalid credentials (`unauthorized`, `invalid_api_token`)",
-            "content": {
-              "application/json": {
-                "schema": {
-                  "$ref": "#/components/schemas/ErrorEnvelope"
-                }
-              }
-            }
-          },
-          "403": {
-            "description": "Missing `deals.update` on the deal (`permission_denied`, `insufficient_scope`)",
-            "content": {
-              "application/json": {
-                "schema": {
-                  "$ref": "#/components/schemas/ErrorEnvelope"
-                }
-              }
-            }
-          },
-          "404": {
-            "description": "Deal not found or not visible (`deal_not_found`)",
-            "content": {
-              "application/json": {
-                "schema": {
-                  "$ref": "#/components/schemas/ErrorEnvelope"
-                }
-              }
-            }
-          },
-          "409": {
-            "description": "The first request with this `Idempotency-Key` is still being processed (`idempotency_key_in_progress`)",
-            "content": {
-              "application/json": {
-                "schema": {
-                  "$ref": "#/components/schemas/ErrorEnvelope"
-                }
-              }
-            }
-          },
-          "422": {
-            "description": "The deal has no items (`deal_has_no_items`) or `amount` is not editable for the role (`field_not_accessible`, `field_read_only`). `Idempotency-Key` already used with a different request (`idempotency_key_reused`) or longer than 255 characters (`validation_error`)",
-            "content": {
-              "application/json": {
-                "schema": {
-                  "$ref": "#/components/schemas/ErrorEnvelope"
-                }
-              }
-            }
-          },
-          "429": {
-            "description": "API token rate limit exceeded (`rate_limited`); see `Retry-After` and `X-RateLimit-*`",
-            "content": {
-              "application/json": {
-                "schema": {
-                  "$ref": "#/components/schemas/ErrorEnvelope"
-                }
-              }
-            }
-          }
-        },
-        "security": [
-          {
-            "session_cookie": []
-          },
-          {
-            "api_token": []
-          }
-        ]
-      }
-    },
-    "/api/v1/deals/{deal_id}/items/order": {
-      "put": {
-        "tags": [
-          "deal-items"
-        ],
-        "description": "Replaces the order of the items of a deal (permission `deals.update` on the deal); `item_ids` must list every item exactly once. Publishes `deal.items_reordered` when the order changes.",
-        "operationId": "deal_items_reorder",
-        "parameters": [
-          {
-            "name": "deal_id",
-            "in": "path",
-            "description": "Deal id",
-            "required": true,
-            "schema": {
-              "type": "string"
-            }
-          }
-        ],
-        "requestBody": {
-          "content": {
-            "application/json": {
-              "schema": {
-                "$ref": "#/components/schemas/ReorderDealItemsRequest"
-              }
-            }
-          },
-          "required": true
-        },
-        "responses": {
-          "200": {
-            "description": "Items in the new order",
-            "content": {
-              "application/json": {
-                "schema": {
-                  "$ref": "#/components/schemas/Data_DealItemsResponse"
-                }
-              }
-            }
-          },
-          "401": {
-            "description": "Missing or invalid credentials (`unauthorized`, `invalid_api_token`)",
-            "content": {
-              "application/json": {
-                "schema": {
-                  "$ref": "#/components/schemas/ErrorEnvelope"
-                }
-              }
-            }
-          },
-          "403": {
-            "description": "Missing `deals.update` on the deal (`permission_denied`, `insufficient_scope`)",
-            "content": {
-              "application/json": {
-                "schema": {
-                  "$ref": "#/components/schemas/ErrorEnvelope"
-                }
-              }
-            }
-          },
-          "404": {
-            "description": "Deal not found or not visible (`deal_not_found`)",
-            "content": {
-              "application/json": {
-                "schema": {
-                  "$ref": "#/components/schemas/ErrorEnvelope"
-                }
-              }
-            }
-          },
-          "422": {
-            "description": "`item_ids` is not a permutation of the items (`validation_error`)",
-            "content": {
-              "application/json": {
-                "schema": {
-                  "$ref": "#/components/schemas/ErrorEnvelope"
-                }
-              }
-            }
-          },
-          "429": {
-            "description": "API token rate limit exceeded (`rate_limited`); see `Retry-After` and `X-RateLimit-*`",
-            "content": {
-              "application/json": {
-                "schema": {
-                  "$ref": "#/components/schemas/ErrorEnvelope"
-                }
-              }
-            }
-          }
-        },
-        "security": [
-          {
-            "session_cookie": []
-          },
-          {
-            "api_token": []
-          }
-        ]
-      }
-    },
-    "/api/v1/deals/{deal_id}/items/{item_id}": {
-      "delete": {
-        "tags": [
-          "deal-items"
-        ],
-        "operationId": "deal_items_delete",
-        "parameters": [
-          {
-            "name": "deal_id",
-            "in": "path",
-            "description": "Deal id",
-            "required": true,
-            "schema": {
-              "type": "string"
-            }
-          },
-          {
-            "name": "item_id",
-            "in": "path",
-            "description": "Item id",
-            "required": true,
-            "schema": {
-              "type": "string"
-            }
-          }
-        ],
-        "responses": {
-          "204": {
-            "description": "Item removed; publishes `deal.item_removed`. In the `items` amount mode the deal amount is recalculated (removing the last item sets it to `0.00`)"
-          },
-          "401": {
-            "description": "Missing or invalid credentials (`unauthorized`, `invalid_api_token`)",
-            "content": {
-              "application/json": {
-                "schema": {
-                  "$ref": "#/components/schemas/ErrorEnvelope"
-                }
-              }
-            }
-          },
-          "403": {
-            "description": "Missing `deals.update` on the deal (`permission_denied`, `insufficient_scope`)",
-            "content": {
-              "application/json": {
-                "schema": {
-                  "$ref": "#/components/schemas/ErrorEnvelope"
-                }
-              }
-            }
-          },
-          "404": {
-            "description": "Deal or item not found (`deal_not_found`, `deal_item_not_found`)",
-            "content": {
-              "application/json": {
-                "schema": {
-                  "$ref": "#/components/schemas/ErrorEnvelope"
-                }
-              }
-            }
-          },
-          "422": {
-            "description": "`amount` not editable in the `items` mode (`field_not_accessible`, `field_read_only`)",
-            "content": {
-              "application/json": {
-                "schema": {
-                  "$ref": "#/components/schemas/ErrorEnvelope"
-                }
-              }
-            }
-          },
-          "429": {
-            "description": "API token rate limit exceeded (`rate_limited`); see `Retry-After` and `X-RateLimit-*`",
-            "content": {
-              "application/json": {
-                "schema": {
-                  "$ref": "#/components/schemas/ErrorEnvelope"
-                }
-              }
-            }
-          }
-        },
-        "security": [
-          {
-            "session_cookie": []
-          },
-          {
-            "api_token": []
-          }
-        ]
-      },
-      "patch": {
-        "tags": [
-          "deal-items"
-        ],
-        "description": "Partially updates an item of a deal (permission `deals.update` on the deal) and publishes `deal.item_updated` with the changes; omitted properties stay unchanged. Changing `product_id` copies name, unit and unit price of the new product unless sent; `product_id: null` turns it into a free item keeping its values. In the `items` amount mode the deal amount is recalculated in the same transaction (`deal.amount_changed`).",
-        "operationId": "deal_items_update",
-        "parameters": [
-          {
-            "name": "deal_id",
-            "in": "path",
-            "description": "Deal id",
-            "required": true,
-            "schema": {
-              "type": "string"
-            }
-          },
-          {
-            "name": "item_id",
-            "in": "path",
-            "description": "Item id",
-            "required": true,
-            "schema": {
-              "type": "string"
-            }
-          },
-          {
-            "name": "If-Match",
-            "in": "header",
-            "description": "`updated_at` of the item as read (ISO-8601, quotes optional); the update fails with 409 when it changed since",
-            "required": false,
-            "schema": {
-              "type": [
-                "string",
-                "null"
-              ]
-            }
-          }
-        ],
-        "requestBody": {
-          "content": {
-            "application/json": {
-              "schema": {
-                "$ref": "#/components/schemas/DealItemRequest"
-              }
-            }
-          },
-          "required": true
-        },
-        "responses": {
-          "200": {
-            "description": "Item updated",
-            "content": {
-              "application/json": {
-                "schema": {
-                  "$ref": "#/components/schemas/Data_DealItemResponse"
-                }
-              }
-            }
-          },
-          "401": {
-            "description": "Missing or invalid credentials (`unauthorized`, `invalid_api_token`)",
-            "content": {
-              "application/json": {
-                "schema": {
-                  "$ref": "#/components/schemas/ErrorEnvelope"
-                }
-              }
-            }
-          },
-          "403": {
-            "description": "Missing `deals.update` on the deal (`permission_denied`, `insufficient_scope`)",
-            "content": {
-              "application/json": {
-                "schema": {
-                  "$ref": "#/components/schemas/ErrorEnvelope"
-                }
-              }
-            }
-          },
-          "404": {
-            "description": "Deal or item not found (`deal_not_found`, `deal_item_not_found`)",
-            "content": {
-              "application/json": {
-                "schema": {
-                  "$ref": "#/components/schemas/ErrorEnvelope"
-                }
-              }
-            }
-          },
-          "409": {
-            "description": "The item changed since the `If-Match` version (`version_conflict`)",
-            "content": {
-              "application/json": {
-                "schema": {
-                  "$ref": "#/components/schemas/ErrorEnvelope"
-                }
-              }
-            }
-          },
-          "422": {
-            "description": "Invalid item or malformed `If-Match` (`validation_error`), product in another currency (`product_currency_mismatch`) or `amount` not editable in the `items` mode (`field_not_accessible`, `field_read_only`)",
             "content": {
               "application/json": {
                 "schema": {
@@ -27538,6 +26740,858 @@
           },
           "422": {
             "description": "Unknown trigger or stage (`validation_error` with `details.fields`)",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ErrorEnvelope"
+                }
+              }
+            }
+          },
+          "429": {
+            "description": "API token rate limit exceeded (`rate_limited`); see `Retry-After` and `X-RateLimit-*`",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ErrorEnvelope"
+                }
+              }
+            }
+          }
+        },
+        "security": [
+          {
+            "session_cookie": []
+          },
+          {
+            "api_token": []
+          }
+        ]
+      }
+    },
+    "/api/v1/line-items/settings": {
+      "get": {
+        "tags": [
+          "line-items"
+        ],
+        "description": "Scoped line items. Parent entity permissions and monetary field access apply; mutations, audit and owner projections share one transaction.",
+        "operationId": "line_item_settings_get",
+        "responses": {
+          "200": {
+            "description": "Line item settings",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/Data_LineItemSettingsResponse"
+                }
+              }
+            }
+          },
+          "401": {
+            "description": "Missing or invalid credentials (`unauthorized`, `invalid_api_token`)",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ErrorEnvelope"
+                }
+              }
+            }
+          },
+          "403": {
+            "description": "Missing `line_items.read` and `settings.manage` (`permission_denied`, `insufficient_scope`)",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ErrorEnvelope"
+                }
+              }
+            }
+          },
+          "429": {
+            "description": "API token rate limit exceeded (`rate_limited`); see `Retry-After` and `X-RateLimit-*`",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ErrorEnvelope"
+                }
+              }
+            }
+          }
+        },
+        "security": [
+          {
+            "session_cookie": []
+          },
+          {
+            "api_token": []
+          }
+        ]
+      },
+      "patch": {
+        "tags": [
+          "line-items"
+        ],
+        "description": "Scoped line items. Parent entity permissions and monetary field access apply; mutations, audit and owner projections share one transaction.",
+        "operationId": "line_item_settings_update",
+        "parameters": [
+          {
+            "name": "If-Match",
+            "in": "header",
+            "description": "`updated_at` of the settings as read (ISO-8601, quotes optional); ignored while the settings were never saved",
+            "required": false,
+            "schema": {
+              "type": [
+                "string",
+                "null"
+              ]
+            }
+          }
+        ],
+        "requestBody": {
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/UpdateLineItemSettingsRequest"
+              }
+            }
+          },
+          "required": true
+        },
+        "responses": {
+          "200": {
+            "description": "Settings updated",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/Data_LineItemSettingsResponse"
+                }
+              }
+            }
+          },
+          "401": {
+            "description": "Missing or invalid credentials (`unauthorized`, `invalid_api_token`)",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ErrorEnvelope"
+                }
+              }
+            }
+          },
+          "403": {
+            "description": "Missing `settings.manage` (`permission_denied`, `insufficient_scope`)",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ErrorEnvelope"
+                }
+              }
+            }
+          },
+          "409": {
+            "description": "The settings changed since the `If-Match` version (`version_conflict`)",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ErrorEnvelope"
+                }
+              }
+            }
+          },
+          "422": {
+            "description": "Invalid `amount_mode` or malformed `If-Match` (`validation_error`)",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ErrorEnvelope"
+                }
+              }
+            }
+          },
+          "429": {
+            "description": "API token rate limit exceeded (`rate_limited`); see `Retry-After` and `X-RateLimit-*`",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ErrorEnvelope"
+                }
+              }
+            }
+          }
+        },
+        "security": [
+          {
+            "session_cookie": []
+          },
+          {
+            "api_token": []
+          }
+        ]
+      }
+    },
+    "/api/v1/line-items/{record_type}/{record_id}/items": {
+      "get": {
+        "tags": [
+          "line-items"
+        ],
+        "description": "Scoped line items. Parent entity permissions and monetary field access apply; mutations, audit and owner projections share one transaction.",
+        "operationId": "line_items_list",
+        "parameters": [
+          {
+            "name": "record_type",
+            "in": "path",
+            "description": "Entity key",
+            "required": true,
+            "schema": {
+              "type": "string"
+            }
+          },
+          {
+            "name": "record_id",
+            "in": "path",
+            "description": "Record id",
+            "required": true,
+            "schema": {
+              "type": "string"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "Items and totals of the record",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/Data_LineItemsResponse"
+                }
+              }
+            }
+          },
+          "401": {
+            "description": "Missing or invalid credentials (`unauthorized`, `invalid_api_token`)",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ErrorEnvelope"
+                }
+              }
+            }
+          },
+          "403": {
+            "description": "Missing the parent entity read permission (`permission_denied`, `insufficient_scope`)",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ErrorEnvelope"
+                }
+              }
+            }
+          },
+          "404": {
+            "description": "Record not found, not visible or not attachable (`line_item_not_found`)",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ErrorEnvelope"
+                }
+              }
+            }
+          },
+          "422": {
+            "description": "A declared monetary field is hidden for the role (`field_not_accessible`)",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ErrorEnvelope"
+                }
+              }
+            }
+          },
+          "429": {
+            "description": "API token rate limit exceeded (`rate_limited`); see `Retry-After` and `X-RateLimit-*`",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ErrorEnvelope"
+                }
+              }
+            }
+          }
+        },
+        "security": [
+          {
+            "session_cookie": []
+          },
+          {
+            "api_token": []
+          }
+        ]
+      },
+      "post": {
+        "tags": [
+          "line-items"
+        ],
+        "description": "Scoped line items. Parent entity permissions and monetary field access apply; mutations, audit and owner projections share one transaction.",
+        "operationId": "line_items_create",
+        "parameters": [
+          {
+            "name": "record_type",
+            "in": "path",
+            "description": "Entity key",
+            "required": true,
+            "schema": {
+              "type": "string"
+            }
+          },
+          {
+            "name": "record_id",
+            "in": "path",
+            "description": "Record id",
+            "required": true,
+            "schema": {
+              "type": "string"
+            }
+          },
+          {
+            "name": "Idempotency-Key",
+            "in": "header",
+            "description": "Up to 255 printable ASCII characters. The same key with the same request (method, path and body) within 24 hours answers the stored response with the same status and body plus `Idempotent-Replayed: true`. Scoped to the credential (session cookie or API token); ignored without a credential. 5xx and 429 responses are not stored",
+            "required": false,
+            "schema": {
+              "type": "string",
+              "maxLength": 255
+            }
+          }
+        ],
+        "requestBody": {
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/LineItemRequest"
+              }
+            }
+          },
+          "required": true
+        },
+        "responses": {
+          "201": {
+            "description": "Item added",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/Data_LineItemResponse"
+                }
+              }
+            }
+          },
+          "401": {
+            "description": "Missing or invalid credentials (`unauthorized`, `invalid_api_token`)",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ErrorEnvelope"
+                }
+              }
+            }
+          },
+          "403": {
+            "description": "Missing the parent entity update permission (`permission_denied`, `insufficient_scope`)",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ErrorEnvelope"
+                }
+              }
+            }
+          },
+          "404": {
+            "description": "Record not found, not visible or not attachable (`line_item_not_found`)",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ErrorEnvelope"
+                }
+              }
+            }
+          },
+          "409": {
+            "description": "The first request with this `Idempotency-Key` is still being processed (`idempotency_key_in_progress`)",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ErrorEnvelope"
+                }
+              }
+            }
+          },
+          "422": {
+            "description": "Invalid item (`validation_error` with fields such as `name`, `quantity`, `discount_value` or an unknown/inactive `product_id`), product in another currency (`product_currency_mismatch`), item limit reached (`line_items_limit_reached`) or `amount` not editable in the `items` mode (`field_not_accessible`, `field_read_only`). `Idempotency-Key` already used with a different request (`idempotency_key_reused`) or longer than 255 characters (`validation_error`)",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ErrorEnvelope"
+                }
+              }
+            }
+          },
+          "429": {
+            "description": "API token rate limit exceeded (`rate_limited`); see `Retry-After` and `X-RateLimit-*`",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ErrorEnvelope"
+                }
+              }
+            }
+          }
+        },
+        "security": [
+          {
+            "session_cookie": []
+          },
+          {
+            "api_token": []
+          }
+        ]
+      }
+    },
+    "/api/v1/line-items/{record_type}/{record_id}/items/apply-total": {
+      "post": {
+        "tags": [
+          "line-items"
+        ],
+        "description": "Scoped line items. Parent entity permissions and monetary field access apply; mutations, audit and owner projections share one transaction.",
+        "operationId": "line_items_apply_total",
+        "parameters": [
+          {
+            "name": "record_type",
+            "in": "path",
+            "description": "Entity key",
+            "required": true,
+            "schema": {
+              "type": "string"
+            }
+          },
+          {
+            "name": "record_id",
+            "in": "path",
+            "description": "Record id",
+            "required": true,
+            "schema": {
+              "type": "string"
+            }
+          },
+          {
+            "name": "Idempotency-Key",
+            "in": "header",
+            "description": "Up to 255 printable ASCII characters. The same key with the same request (method, path and body) within 24 hours answers the stored response with the same status and body plus `Idempotent-Replayed: true`. Scoped to the credential (session cookie or API token); ignored without a credential. 5xx and 429 responses are not stored",
+            "required": false,
+            "schema": {
+              "type": "string",
+              "maxLength": 255
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "Items and totals after the update",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/Data_LineItemsResponse"
+                }
+              }
+            }
+          },
+          "401": {
+            "description": "Missing or invalid credentials (`unauthorized`, `invalid_api_token`)",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ErrorEnvelope"
+                }
+              }
+            }
+          },
+          "403": {
+            "description": "Missing the parent entity update permission (`permission_denied`, `insufficient_scope`)",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ErrorEnvelope"
+                }
+              }
+            }
+          },
+          "404": {
+            "description": "Record not found, not visible or not attachable (`line_item_not_found`)",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ErrorEnvelope"
+                }
+              }
+            }
+          },
+          "409": {
+            "description": "The first request with this `Idempotency-Key` is still being processed (`idempotency_key_in_progress`)",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ErrorEnvelope"
+                }
+              }
+            }
+          },
+          "422": {
+            "description": "The parent has no items (`record_has_no_items`) or `amount` is not editable for the role (`field_not_accessible`, `field_read_only`). `Idempotency-Key` already used with a different request (`idempotency_key_reused`) or longer than 255 characters (`validation_error`)",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ErrorEnvelope"
+                }
+              }
+            }
+          },
+          "429": {
+            "description": "API token rate limit exceeded (`rate_limited`); see `Retry-After` and `X-RateLimit-*`",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ErrorEnvelope"
+                }
+              }
+            }
+          }
+        },
+        "security": [
+          {
+            "session_cookie": []
+          },
+          {
+            "api_token": []
+          }
+        ]
+      }
+    },
+    "/api/v1/line-items/{record_type}/{record_id}/items/order": {
+      "put": {
+        "tags": [
+          "line-items"
+        ],
+        "description": "Scoped line items. Parent entity permissions and monetary field access apply; mutations, audit and owner projections share one transaction.",
+        "operationId": "line_items_reorder",
+        "parameters": [
+          {
+            "name": "record_type",
+            "in": "path",
+            "description": "Entity key",
+            "required": true,
+            "schema": {
+              "type": "string"
+            }
+          },
+          {
+            "name": "record_id",
+            "in": "path",
+            "description": "Record id",
+            "required": true,
+            "schema": {
+              "type": "string"
+            }
+          }
+        ],
+        "requestBody": {
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/ReorderLineItemsRequest"
+              }
+            }
+          },
+          "required": true
+        },
+        "responses": {
+          "200": {
+            "description": "Items in the new order",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/Data_LineItemsResponse"
+                }
+              }
+            }
+          },
+          "401": {
+            "description": "Missing or invalid credentials (`unauthorized`, `invalid_api_token`)",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ErrorEnvelope"
+                }
+              }
+            }
+          },
+          "403": {
+            "description": "Missing the parent entity update permission (`permission_denied`, `insufficient_scope`)",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ErrorEnvelope"
+                }
+              }
+            }
+          },
+          "404": {
+            "description": "Record not found, not visible or not attachable (`line_item_not_found`)",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ErrorEnvelope"
+                }
+              }
+            }
+          },
+          "422": {
+            "description": "`item_ids` is not a permutation of the items (`validation_error`)",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ErrorEnvelope"
+                }
+              }
+            }
+          },
+          "429": {
+            "description": "API token rate limit exceeded (`rate_limited`); see `Retry-After` and `X-RateLimit-*`",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ErrorEnvelope"
+                }
+              }
+            }
+          }
+        },
+        "security": [
+          {
+            "session_cookie": []
+          },
+          {
+            "api_token": []
+          }
+        ]
+      }
+    },
+    "/api/v1/line-items/{record_type}/{record_id}/items/{item_id}": {
+      "delete": {
+        "tags": [
+          "line-items"
+        ],
+        "operationId": "line_items_delete",
+        "parameters": [
+          {
+            "name": "record_type",
+            "in": "path",
+            "description": "Entity key",
+            "required": true,
+            "schema": {
+              "type": "string"
+            }
+          },
+          {
+            "name": "record_id",
+            "in": "path",
+            "description": "Record id",
+            "required": true,
+            "schema": {
+              "type": "string"
+            }
+          },
+          {
+            "name": "item_id",
+            "in": "path",
+            "description": "Item id",
+            "required": true,
+            "schema": {
+              "type": "string"
+            }
+          }
+        ],
+        "responses": {
+          "204": {
+            "description": "Item removed; publishes `line_items.item_removed`. In the `items` amount mode the parent amount is recalculated (removing the last item sets it to `0.00`)"
+          },
+          "401": {
+            "description": "Missing or invalid credentials (`unauthorized`, `invalid_api_token`)",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ErrorEnvelope"
+                }
+              }
+            }
+          },
+          "403": {
+            "description": "Missing the parent entity update permission (`permission_denied`, `insufficient_scope`)",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ErrorEnvelope"
+                }
+              }
+            }
+          },
+          "404": {
+            "description": "Record or item not found (`line_item_not_found`)",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ErrorEnvelope"
+                }
+              }
+            }
+          },
+          "422": {
+            "description": "`amount` not editable in the `items` mode (`field_not_accessible`, `field_read_only`)",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ErrorEnvelope"
+                }
+              }
+            }
+          },
+          "429": {
+            "description": "API token rate limit exceeded (`rate_limited`); see `Retry-After` and `X-RateLimit-*`",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ErrorEnvelope"
+                }
+              }
+            }
+          }
+        },
+        "security": [
+          {
+            "session_cookie": []
+          },
+          {
+            "api_token": []
+          }
+        ]
+      },
+      "patch": {
+        "tags": [
+          "line-items"
+        ],
+        "description": "Scoped line items. Parent entity permissions and monetary field access apply; mutations, audit and owner projections share one transaction.",
+        "operationId": "line_items_update",
+        "parameters": [
+          {
+            "name": "record_type",
+            "in": "path",
+            "description": "Entity key",
+            "required": true,
+            "schema": {
+              "type": "string"
+            }
+          },
+          {
+            "name": "record_id",
+            "in": "path",
+            "description": "Record id",
+            "required": true,
+            "schema": {
+              "type": "string"
+            }
+          },
+          {
+            "name": "item_id",
+            "in": "path",
+            "description": "Item id",
+            "required": true,
+            "schema": {
+              "type": "string"
+            }
+          },
+          {
+            "name": "If-Match",
+            "in": "header",
+            "description": "`updated_at` of the item as read (ISO-8601, quotes optional); the update fails with 409 when it changed since",
+            "required": false,
+            "schema": {
+              "type": [
+                "string",
+                "null"
+              ]
+            }
+          }
+        ],
+        "requestBody": {
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/LineItemRequest"
+              }
+            }
+          },
+          "required": true
+        },
+        "responses": {
+          "200": {
+            "description": "Item updated",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/Data_LineItemResponse"
+                }
+              }
+            }
+          },
+          "401": {
+            "description": "Missing or invalid credentials (`unauthorized`, `invalid_api_token`)",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ErrorEnvelope"
+                }
+              }
+            }
+          },
+          "403": {
+            "description": "Missing the parent entity update permission (`permission_denied`, `insufficient_scope`)",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ErrorEnvelope"
+                }
+              }
+            }
+          },
+          "404": {
+            "description": "Record or item not found (`line_item_not_found`)",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ErrorEnvelope"
+                }
+              }
+            }
+          },
+          "409": {
+            "description": "The item changed since the `If-Match` version (`version_conflict`)",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ErrorEnvelope"
+                }
+              }
+            }
+          },
+          "422": {
+            "description": "Invalid item or malformed `If-Match` (`validation_error`), product in another currency (`product_currency_mismatch`) or `amount` not editable in the `items` mode (`field_not_accessible`, `field_read_only`)",
             "content": {
               "application/json": {
                 "schema": {
@@ -46826,7 +46880,7 @@
         "tags": [
           "quotes"
         ],
-        "description": "Creates a quote for a deal (permissions `quotes.create` and read access to the deal) with the next number of the organization, version 1 and status `draft`, and publishes `quote.created`. The currency, contact and company come from the deal; the owner defaults to the caller; `valid_until` and `terms` default to the quote settings; the price list defaults to the best active list for the currency and company. `from_deal_items: true` copies the deal items; otherwise send `items`. Items with `product_id` and no `unit_price` take the price of the chosen price list (or the product price); bundles enter as one line with their components. Totals are computed on the server: line = quantity × unit price − line discount; the total discount applies to the sum of the lines after their discounts and is prorated among them before the tax; tax = line tax % over the prorated line.",
+        "description": "Creates a quote for a deal (permissions `quotes.create` and read access to the deal) with the next number of the organization, version 1 and status `draft`, and publishes `quote.created`. The currency, contact and company come from the deal; the owner defaults to the caller; `valid_until` and `terms` default to the quote settings; the price list defaults to the best active list for the currency and company. `from_line_items: true` copies the deal items; otherwise send `items`. Items with `product_id` and no `unit_price` take the price of the chosen price list (or the product price); bundles enter as one line with their components. Totals are computed on the server: line = quantity × unit price − line discount; the total discount applies to the sum of the lines after their discounts and is prorated among them before the tax; tax = line tax % over the prorated line.",
         "operationId": "quotes_create",
         "parameters": [
           {
@@ -66050,6 +66104,13 @@
           }
         }
       },
+      "AmountMode": {
+        "type": "string",
+        "enum": [
+          "manual",
+          "items"
+        ]
+      },
       "ApiTokenLimitsDto": {
         "type": "object",
         "required": [
@@ -76852,221 +76913,6 @@
           }
         }
       },
-      "Data_DealItemResponse": {
-        "type": "object",
-        "required": [
-          "data"
-        ],
-        "properties": {
-          "data": {
-            "type": "object",
-            "required": [
-              "id",
-              "deal_id",
-              "name",
-              "quantity",
-              "unit_price",
-              "discount_type",
-              "discount_value",
-              "gross",
-              "discount_amount",
-              "total",
-              "recurrence",
-              "position",
-              "created_at",
-              "updated_at"
-            ],
-            "properties": {
-              "amount_base": {
-                "type": [
-                  "string",
-                  "null"
-                ],
-                "example": "13500.00"
-              },
-              "created_at": {
-                "type": "string",
-                "example": "2026-10-20T13:45:00Z"
-              },
-              "created_by": {
-                "type": [
-                  "string",
-                  "null"
-                ]
-              },
-              "deal_id": {
-                "type": "string"
-              },
-              "discount_amount": {
-                "type": "string",
-                "example": "300.00"
-              },
-              "discount_type": {
-                "$ref": "#/components/schemas/DiscountType"
-              },
-              "discount_value": {
-                "type": "string",
-                "example": "10.00"
-              },
-              "exchange_rate": {
-                "type": [
-                  "string",
-                  "null"
-                ],
-                "example": "5.4"
-              },
-              "gross": {
-                "type": "string",
-                "example": "3000.00"
-              },
-              "id": {
-                "type": "string"
-              },
-              "monthly_amount": {
-                "type": [
-                  "string",
-                  "null"
-                ],
-                "example": "225.00"
-              },
-              "name": {
-                "type": "string"
-              },
-              "position": {
-                "type": "integer",
-                "format": "int32"
-              },
-              "product_id": {
-                "type": [
-                  "string",
-                  "null"
-                ]
-              },
-              "quantity": {
-                "type": "string",
-                "example": "2"
-              },
-              "recurrence": {
-                "$ref": "#/components/schemas/ProductRecurrence"
-              },
-              "term_months": {
-                "type": [
-                  "integer",
-                  "null"
-                ],
-                "format": "int32",
-                "example": 12,
-                "minimum": 0
-              },
-              "total": {
-                "type": "string",
-                "example": "2700.00"
-              },
-              "unit": {
-                "type": [
-                  "string",
-                  "null"
-                ]
-              },
-              "unit_price": {
-                "type": "string",
-                "example": "1500.00"
-              },
-              "updated_at": {
-                "type": "string",
-                "example": "2026-10-20T13:45:00Z"
-              }
-            }
-          }
-        }
-      },
-      "Data_DealItemSettingsResponse": {
-        "type": "object",
-        "required": [
-          "data"
-        ],
-        "properties": {
-          "data": {
-            "type": "object",
-            "required": [
-              "amount_mode"
-            ],
-            "properties": {
-              "amount_mode": {
-                "$ref": "#/components/schemas/DealAmountMode"
-              },
-              "updated_at": {
-                "type": [
-                  "string",
-                  "null"
-                ],
-                "example": "2026-10-20T13:45:00Z"
-              }
-            }
-          }
-        }
-      },
-      "Data_DealItemsResponse": {
-        "type": "object",
-        "required": [
-          "data"
-        ],
-        "properties": {
-          "data": {
-            "type": "object",
-            "required": [
-              "deal_id",
-              "currency",
-              "items",
-              "subtotal",
-              "discount_total",
-              "total",
-              "amount_mode",
-              "amount_managed"
-            ],
-            "properties": {
-              "amount_managed": {
-                "type": "boolean"
-              },
-              "amount_mode": {
-                "$ref": "#/components/schemas/DealAmountMode"
-              },
-              "currency": {
-                "type": "string",
-                "example": "BRL"
-              },
-              "deal_amount": {
-                "type": [
-                  "string",
-                  "null"
-                ],
-                "example": "2700.00"
-              },
-              "deal_id": {
-                "type": "string"
-              },
-              "discount_total": {
-                "type": "string",
-                "example": "300.00"
-              },
-              "items": {
-                "type": "array",
-                "items": {
-                  "$ref": "#/components/schemas/DealItemResponse"
-                }
-              },
-              "subtotal": {
-                "type": "string",
-                "example": "3000.00"
-              },
-              "total": {
-                "type": "string",
-                "example": "2700.00"
-              }
-            }
-          }
-        }
-      },
       "Data_DealMemberResponse": {
         "type": "object",
         "required": [
@@ -80320,6 +80166,241 @@
           }
         }
       },
+      "Data_LineItemResponse": {
+        "type": "object",
+        "required": [
+          "data"
+        ],
+        "properties": {
+          "data": {
+            "type": "object",
+            "required": [
+              "id",
+              "record_type",
+              "record_id",
+              "name",
+              "quantity",
+              "unit_price",
+              "discount_type",
+              "discount_value",
+              "tax_percent",
+              "tax",
+              "gross",
+              "discount_amount",
+              "total",
+              "recurrence",
+              "position",
+              "created_at",
+              "updated_at"
+            ],
+            "properties": {
+              "amount_base": {
+                "type": [
+                  "string",
+                  "null"
+                ],
+                "example": "13500.00"
+              },
+              "created_at": {
+                "type": "string",
+                "example": "2026-10-20T13:45:00Z"
+              },
+              "created_by": {
+                "type": [
+                  "string",
+                  "null"
+                ]
+              },
+              "discount_amount": {
+                "type": "string",
+                "example": "300.00"
+              },
+              "discount_type": {
+                "$ref": "#/components/schemas/DiscountType"
+              },
+              "discount_value": {
+                "type": "string",
+                "example": "10.00"
+              },
+              "exchange_rate": {
+                "type": [
+                  "string",
+                  "null"
+                ],
+                "example": "5.4"
+              },
+              "gross": {
+                "type": "string",
+                "example": "3000.00"
+              },
+              "id": {
+                "type": "string"
+              },
+              "monthly_amount": {
+                "type": [
+                  "string",
+                  "null"
+                ],
+                "example": "225.00"
+              },
+              "name": {
+                "type": "string"
+              },
+              "position": {
+                "type": "integer",
+                "format": "int32"
+              },
+              "product_id": {
+                "type": [
+                  "string",
+                  "null"
+                ]
+              },
+              "quantity": {
+                "type": "string",
+                "example": "2"
+              },
+              "record_id": {
+                "type": "string"
+              },
+              "record_type": {
+                "type": "string"
+              },
+              "recurrence": {
+                "$ref": "#/components/schemas/Recurrence"
+              },
+              "tax": {
+                "type": "string"
+              },
+              "tax_percent": {
+                "type": "string"
+              },
+              "term_months": {
+                "type": [
+                  "integer",
+                  "null"
+                ],
+                "format": "int32",
+                "example": 12,
+                "minimum": 0
+              },
+              "total": {
+                "type": "string",
+                "example": "2700.00"
+              },
+              "unit": {
+                "type": [
+                  "string",
+                  "null"
+                ]
+              },
+              "unit_price": {
+                "type": "string",
+                "example": "1500.00"
+              },
+              "updated_at": {
+                "type": "string",
+                "example": "2026-10-20T13:45:00Z"
+              }
+            }
+          }
+        }
+      },
+      "Data_LineItemSettingsResponse": {
+        "type": "object",
+        "required": [
+          "data"
+        ],
+        "properties": {
+          "data": {
+            "type": "object",
+            "required": [
+              "amount_mode"
+            ],
+            "properties": {
+              "amount_mode": {
+                "$ref": "#/components/schemas/AmountMode"
+              },
+              "updated_at": {
+                "type": [
+                  "string",
+                  "null"
+                ],
+                "example": "2026-10-20T13:45:00Z"
+              }
+            }
+          }
+        }
+      },
+      "Data_LineItemsResponse": {
+        "type": "object",
+        "required": [
+          "data"
+        ],
+        "properties": {
+          "data": {
+            "type": "object",
+            "required": [
+              "record_type",
+              "record_id",
+              "currency",
+              "items",
+              "subtotal",
+              "discount_total",
+              "total",
+              "amount_mode",
+              "amount_managed",
+              "can_apply_total"
+            ],
+            "properties": {
+              "amount_managed": {
+                "type": "boolean"
+              },
+              "amount_mode": {
+                "$ref": "#/components/schemas/AmountMode"
+              },
+              "can_apply_total": {
+                "type": "boolean"
+              },
+              "currency": {
+                "type": "string",
+                "example": "BRL"
+              },
+              "discount_total": {
+                "type": "string",
+                "example": "300.00"
+              },
+              "items": {
+                "type": "array",
+                "items": {
+                  "$ref": "#/components/schemas/LineItemResponse"
+                }
+              },
+              "record_amount": {
+                "type": [
+                  "string",
+                  "null"
+                ],
+                "example": "2700.00"
+              },
+              "record_id": {
+                "type": "string"
+              },
+              "record_type": {
+                "type": "string"
+              },
+              "subtotal": {
+                "type": "string",
+                "example": "3000.00"
+              },
+              "total": {
+                "type": "string",
+                "example": "2700.00"
+              }
+            }
+          }
+        }
+      },
       "Data_LinkRecordResponse": {
         "type": "object",
         "required": [
@@ -82721,7 +82802,7 @@
                 "example": "1500.00"
               },
               "recurrence": {
-                "$ref": "#/components/schemas/ProductRecurrence"
+                "$ref": "#/components/schemas/Recurrence"
               },
               "term_months": {
                 "type": [
@@ -89967,287 +90048,6 @@
                 ]
               }
             }
-          }
-        }
-      },
-      "DealAmountMode": {
-        "type": "string",
-        "enum": [
-          "manual",
-          "items"
-        ]
-      },
-      "DealItemRequest": {
-        "type": "object",
-        "properties": {
-          "discount_type": {
-            "oneOf": [
-              {
-                "type": "null"
-              },
-              {
-                "$ref": "#/components/schemas/DiscountType"
-              }
-            ]
-          },
-          "discount_value": {
-            "oneOf": [
-              {
-                "type": "null"
-              },
-              {
-                "$ref": "#/components/schemas/DecimalInput"
-              }
-            ]
-          },
-          "name": {
-            "type": [
-              "string",
-              "null"
-            ],
-            "example": "Onboarding"
-          },
-          "product_id": {
-            "type": [
-              "string",
-              "null"
-            ]
-          },
-          "quantity": {
-            "oneOf": [
-              {
-                "type": "null"
-              },
-              {
-                "$ref": "#/components/schemas/DecimalInput"
-              }
-            ]
-          },
-          "recurrence": {
-            "oneOf": [
-              {
-                "type": "null"
-              },
-              {
-                "$ref": "#/components/schemas/ProductRecurrence"
-              }
-            ]
-          },
-          "term_months": {
-            "type": [
-              "integer",
-              "null"
-            ],
-            "format": "int64",
-            "example": 12
-          },
-          "unit": {
-            "type": [
-              "string",
-              "null"
-            ],
-            "example": "hour"
-          },
-          "unit_price": {
-            "oneOf": [
-              {
-                "type": "null"
-              },
-              {
-                "$ref": "#/components/schemas/DecimalInput"
-              }
-            ]
-          }
-        }
-      },
-      "DealItemResponse": {
-        "type": "object",
-        "required": [
-          "id",
-          "deal_id",
-          "name",
-          "quantity",
-          "unit_price",
-          "discount_type",
-          "discount_value",
-          "gross",
-          "discount_amount",
-          "total",
-          "recurrence",
-          "position",
-          "created_at",
-          "updated_at"
-        ],
-        "properties": {
-          "amount_base": {
-            "type": [
-              "string",
-              "null"
-            ],
-            "example": "13500.00"
-          },
-          "created_at": {
-            "type": "string",
-            "example": "2026-10-20T13:45:00Z"
-          },
-          "created_by": {
-            "type": [
-              "string",
-              "null"
-            ]
-          },
-          "deal_id": {
-            "type": "string"
-          },
-          "discount_amount": {
-            "type": "string",
-            "example": "300.00"
-          },
-          "discount_type": {
-            "$ref": "#/components/schemas/DiscountType"
-          },
-          "discount_value": {
-            "type": "string",
-            "example": "10.00"
-          },
-          "exchange_rate": {
-            "type": [
-              "string",
-              "null"
-            ],
-            "example": "5.4"
-          },
-          "gross": {
-            "type": "string",
-            "example": "3000.00"
-          },
-          "id": {
-            "type": "string"
-          },
-          "monthly_amount": {
-            "type": [
-              "string",
-              "null"
-            ],
-            "example": "225.00"
-          },
-          "name": {
-            "type": "string"
-          },
-          "position": {
-            "type": "integer",
-            "format": "int32"
-          },
-          "product_id": {
-            "type": [
-              "string",
-              "null"
-            ]
-          },
-          "quantity": {
-            "type": "string",
-            "example": "2"
-          },
-          "recurrence": {
-            "$ref": "#/components/schemas/ProductRecurrence"
-          },
-          "term_months": {
-            "type": [
-              "integer",
-              "null"
-            ],
-            "format": "int32",
-            "example": 12,
-            "minimum": 0
-          },
-          "total": {
-            "type": "string",
-            "example": "2700.00"
-          },
-          "unit": {
-            "type": [
-              "string",
-              "null"
-            ]
-          },
-          "unit_price": {
-            "type": "string",
-            "example": "1500.00"
-          },
-          "updated_at": {
-            "type": "string",
-            "example": "2026-10-20T13:45:00Z"
-          }
-        }
-      },
-      "DealItemSettingsResponse": {
-        "type": "object",
-        "required": [
-          "amount_mode"
-        ],
-        "properties": {
-          "amount_mode": {
-            "$ref": "#/components/schemas/DealAmountMode"
-          },
-          "updated_at": {
-            "type": [
-              "string",
-              "null"
-            ],
-            "example": "2026-10-20T13:45:00Z"
-          }
-        }
-      },
-      "DealItemsResponse": {
-        "type": "object",
-        "required": [
-          "deal_id",
-          "currency",
-          "items",
-          "subtotal",
-          "discount_total",
-          "total",
-          "amount_mode",
-          "amount_managed"
-        ],
-        "properties": {
-          "amount_managed": {
-            "type": "boolean"
-          },
-          "amount_mode": {
-            "$ref": "#/components/schemas/DealAmountMode"
-          },
-          "currency": {
-            "type": "string",
-            "example": "BRL"
-          },
-          "deal_amount": {
-            "type": [
-              "string",
-              "null"
-            ],
-            "example": "2700.00"
-          },
-          "deal_id": {
-            "type": "string"
-          },
-          "discount_total": {
-            "type": "string",
-            "example": "300.00"
-          },
-          "items": {
-            "type": "array",
-            "items": {
-              "$ref": "#/components/schemas/DealItemResponse"
-            }
-          },
-          "subtotal": {
-            "type": "string",
-            "example": "3000.00"
-          },
-          "total": {
-            "type": "string",
-            "example": "2700.00"
           }
         }
       },
@@ -98082,6 +97882,274 @@
           "trigger": {
             "type": "string",
             "example": "deal_won"
+          }
+        }
+      },
+      "LineItemRequest": {
+        "type": "object",
+        "properties": {
+          "discount_type": {
+            "oneOf": [
+              {
+                "type": "null"
+              },
+              {
+                "$ref": "#/components/schemas/DiscountType"
+              }
+            ]
+          },
+          "discount_value": {},
+          "name": {
+            "type": [
+              "string",
+              "null"
+            ],
+            "example": "Onboarding"
+          },
+          "product_id": {
+            "type": [
+              "string",
+              "null"
+            ]
+          },
+          "quantity": {},
+          "recurrence": {
+            "oneOf": [
+              {
+                "type": "null"
+              },
+              {
+                "$ref": "#/components/schemas/Recurrence"
+              }
+            ]
+          },
+          "tax_percent": {},
+          "term_months": {
+            "type": [
+              "integer",
+              "null"
+            ],
+            "format": "int64",
+            "example": 12
+          },
+          "unit": {
+            "type": [
+              "string",
+              "null"
+            ],
+            "example": "hour"
+          },
+          "unit_price": {}
+        }
+      },
+      "LineItemResponse": {
+        "type": "object",
+        "required": [
+          "id",
+          "record_type",
+          "record_id",
+          "name",
+          "quantity",
+          "unit_price",
+          "discount_type",
+          "discount_value",
+          "tax_percent",
+          "tax",
+          "gross",
+          "discount_amount",
+          "total",
+          "recurrence",
+          "position",
+          "created_at",
+          "updated_at"
+        ],
+        "properties": {
+          "amount_base": {
+            "type": [
+              "string",
+              "null"
+            ],
+            "example": "13500.00"
+          },
+          "created_at": {
+            "type": "string",
+            "example": "2026-10-20T13:45:00Z"
+          },
+          "created_by": {
+            "type": [
+              "string",
+              "null"
+            ]
+          },
+          "discount_amount": {
+            "type": "string",
+            "example": "300.00"
+          },
+          "discount_type": {
+            "$ref": "#/components/schemas/DiscountType"
+          },
+          "discount_value": {
+            "type": "string",
+            "example": "10.00"
+          },
+          "exchange_rate": {
+            "type": [
+              "string",
+              "null"
+            ],
+            "example": "5.4"
+          },
+          "gross": {
+            "type": "string",
+            "example": "3000.00"
+          },
+          "id": {
+            "type": "string"
+          },
+          "monthly_amount": {
+            "type": [
+              "string",
+              "null"
+            ],
+            "example": "225.00"
+          },
+          "name": {
+            "type": "string"
+          },
+          "position": {
+            "type": "integer",
+            "format": "int32"
+          },
+          "product_id": {
+            "type": [
+              "string",
+              "null"
+            ]
+          },
+          "quantity": {
+            "type": "string",
+            "example": "2"
+          },
+          "record_id": {
+            "type": "string"
+          },
+          "record_type": {
+            "type": "string"
+          },
+          "recurrence": {
+            "$ref": "#/components/schemas/Recurrence"
+          },
+          "tax": {
+            "type": "string"
+          },
+          "tax_percent": {
+            "type": "string"
+          },
+          "term_months": {
+            "type": [
+              "integer",
+              "null"
+            ],
+            "format": "int32",
+            "example": 12,
+            "minimum": 0
+          },
+          "total": {
+            "type": "string",
+            "example": "2700.00"
+          },
+          "unit": {
+            "type": [
+              "string",
+              "null"
+            ]
+          },
+          "unit_price": {
+            "type": "string",
+            "example": "1500.00"
+          },
+          "updated_at": {
+            "type": "string",
+            "example": "2026-10-20T13:45:00Z"
+          }
+        }
+      },
+      "LineItemSettingsResponse": {
+        "type": "object",
+        "required": [
+          "amount_mode"
+        ],
+        "properties": {
+          "amount_mode": {
+            "$ref": "#/components/schemas/AmountMode"
+          },
+          "updated_at": {
+            "type": [
+              "string",
+              "null"
+            ],
+            "example": "2026-10-20T13:45:00Z"
+          }
+        }
+      },
+      "LineItemsResponse": {
+        "type": "object",
+        "required": [
+          "record_type",
+          "record_id",
+          "currency",
+          "items",
+          "subtotal",
+          "discount_total",
+          "total",
+          "amount_mode",
+          "amount_managed",
+          "can_apply_total"
+        ],
+        "properties": {
+          "amount_managed": {
+            "type": "boolean"
+          },
+          "amount_mode": {
+            "$ref": "#/components/schemas/AmountMode"
+          },
+          "can_apply_total": {
+            "type": "boolean"
+          },
+          "currency": {
+            "type": "string",
+            "example": "BRL"
+          },
+          "discount_total": {
+            "type": "string",
+            "example": "300.00"
+          },
+          "items": {
+            "type": "array",
+            "items": {
+              "$ref": "#/components/schemas/LineItemResponse"
+            }
+          },
+          "record_amount": {
+            "type": [
+              "string",
+              "null"
+            ],
+            "example": "2700.00"
+          },
+          "record_id": {
+            "type": "string"
+          },
+          "record_type": {
+            "type": "string"
+          },
+          "subtotal": {
+            "type": "string",
+            "example": "3000.00"
+          },
+          "total": {
+            "type": "string",
+            "example": "2700.00"
           }
         }
       },
@@ -106231,7 +106299,7 @@
                   "example": "1500.00"
                 },
                 "recurrence": {
-                  "$ref": "#/components/schemas/ProductRecurrence"
+                  "$ref": "#/components/schemas/Recurrence"
                 },
                 "term_months": {
                   "type": [
@@ -109843,15 +109911,6 @@
           }
         }
       },
-      "ProductRecurrence": {
-        "type": "string",
-        "enum": [
-          "none",
-          "monthly",
-          "quarterly",
-          "yearly"
-        ]
-      },
       "ProductRequest": {
         "type": "object",
         "properties": {
@@ -109910,7 +109969,7 @@
                 "type": "null"
               },
               {
-                "$ref": "#/components/schemas/ProductRecurrence"
+                "$ref": "#/components/schemas/Recurrence"
               }
             ]
           },
@@ -109988,7 +110047,7 @@
             "example": "1500.00"
           },
           "recurrence": {
-            "$ref": "#/components/schemas/ProductRecurrence"
+            "$ref": "#/components/schemas/Recurrence"
           },
           "term_months": {
             "type": [
@@ -111620,7 +111679,7 @@
               }
             ]
           },
-          "from_deal_items": {
+          "from_line_items": {
             "type": [
               "boolean",
               "null"
@@ -112407,6 +112466,15 @@
           }
         }
       },
+      "Recurrence": {
+        "type": "string",
+        "enum": [
+          "none",
+          "monthly",
+          "quarterly",
+          "yearly"
+        ]
+      },
       "RecurrenceApplyTo": {
         "type": "string",
         "enum": [
@@ -112976,20 +113044,6 @@
           }
         }
       },
-      "ReorderDealItemsRequest": {
-        "type": "object",
-        "required": [
-          "item_ids"
-        ],
-        "properties": {
-          "item_ids": {
-            "type": "array",
-            "items": {
-              "type": "string"
-            }
-          }
-        }
-      },
       "ReorderDealMemberRolesRequest": {
         "type": "object",
         "required": [
@@ -113034,6 +113088,20 @@
           }
         },
         "additionalProperties": false
+      },
+      "ReorderLineItemsRequest": {
+        "type": "object",
+        "required": [
+          "item_ids"
+        ],
+        "properties": {
+          "item_ids": {
+            "type": "array",
+            "items": {
+              "type": "string"
+            }
+          }
+        }
       },
       "ReorderRequest": {
         "type": "object",
@@ -117595,21 +117663,6 @@
           }
         }
       },
-      "UpdateDealItemSettingsRequest": {
-        "type": "object",
-        "properties": {
-          "amount_mode": {
-            "oneOf": [
-              {
-                "type": "null"
-              },
-              {
-                "$ref": "#/components/schemas/DealAmountMode"
-              }
-            ]
-          }
-        }
-      },
       "UpdateDealMemberRequest": {
         "type": "object",
         "properties": {
@@ -118011,6 +118064,21 @@
           }
         },
         "additionalProperties": false
+      },
+      "UpdateLineItemSettingsRequest": {
+        "type": "object",
+        "properties": {
+          "amount_mode": {
+            "oneOf": [
+              {
+                "type": "null"
+              },
+              {
+                "$ref": "#/components/schemas/AmountMode"
+              }
+            ]
+          }
+        }
       },
       "UpdateLostReasonRequest": {
         "type": "object",
@@ -119907,6 +119975,10 @@
       "description": "Integration center: providers, configuration, connection test and activation"
     },
     {
+      "name": "line-items",
+      "description": "Scoped record line items and total policy"
+    },
+    {
       "name": "catalog",
       "description": "Plugin and configuration marketplace"
     },
@@ -120141,10 +120213,6 @@
     {
       "name": "quotes",
       "description": "Quotes of deals: versions, items, discounts and taxes, approval, sending, the signed public page and acceptance"
-    },
-    {
-      "name": "deal-items",
-      "description": "Line items of a deal (products or free items) and the deal amount mode"
     },
     {
       "name": "demo",

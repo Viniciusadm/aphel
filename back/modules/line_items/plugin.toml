@@ -1,0 +1,5 @@
+key = "line_items"
+name = "Line items"
+version = "0.1.0"
+layer = "capability"
+runtime = "native"

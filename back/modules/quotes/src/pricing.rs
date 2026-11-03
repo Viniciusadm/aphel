@@ -14,12 +14,13 @@ use aphel_kernel::Ctx;
 use aphel_kernel::domain::access::AccessScope;
 use aphel_kernel::errors::AppError;
 use aphel_kernel::records::InputValidator;
-use price_lists::domain::PriceRequest;
-use products::domain::{
-    DealItemData, DiscountKind, MAX_ITEM_NAME_LENGTH, MAX_PRODUCT_UNIT_LENGTH, MONEY_DECIMALS,
-    Product, ProductRecurrence, QUANTITY_DECIMALS, normalize_quantity, parse_money,
-    parse_term_months, term_violation,
+use aphel_sdk::line_items::{
+    DiscountKind, LineData, MAX_ITEM_NAME_LENGTH, MAX_UNIT_LENGTH, MONEY_DECIMALS,
+    QUANTITY_DECIMALS, Recurrence, normalize_quantity, parse_money, parse_term_months,
+    term_violation,
 };
+use price_lists::domain::PriceRequest;
+use products::domain::Product;
 use products::store::ProductStore;
 
 pub(crate) struct PricingContext<'a> {
@@ -40,7 +41,7 @@ fn blank(value: &Option<String>) -> bool {
     value.as_deref().is_none_or(|text| text.trim().is_empty())
 }
 
-pub(crate) fn item_input_from_deal(item: &DealItemData) -> QuoteItemInput {
+pub(crate) fn item_input_from_deal(item: &LineData) -> QuoteItemInput {
     QuoteItemInput {
         product_id: item.product_id.map(|id| id.to_string()),
         name: Some(item.name.clone()),
@@ -50,7 +51,7 @@ pub(crate) fn item_input_from_deal(item: &DealItemData) -> QuoteItemInput {
         unit_price: Some(format!("{:.2}", item.unit_price.round_dp(2))),
         discount_type: Some(item.discount_kind.as_str().to_owned()),
         discount_value: Some(format!("{:.2}", item.discount_value.round_dp(2))),
-        tax_percent: None,
+        tax_percent: Some(item.tax_percent.to_string()),
         recurrence: Some(item.recurrence.as_str().to_owned()),
         term_months: item.term_months.map(|months| months.to_string()),
     }
@@ -201,7 +202,7 @@ async fn resolve_item(
         );
     }
     if input.unit.is_some() {
-        data.unit = validator.text(&path("unit"), input.unit, MAX_PRODUCT_UNIT_LENGTH);
+        data.unit = validator.text(&path("unit"), input.unit, MAX_UNIT_LENGTH);
     }
     match input.discount_type.as_deref().map(str::trim) {
         None | Some("") => {}
@@ -246,7 +247,7 @@ async fn resolve_item(
     }
     match input.recurrence.as_deref().map(str::trim) {
         None | Some("") => {}
-        Some(text) => match ProductRecurrence::parse(text) {
+        Some(text) => match Recurrence::parse(text) {
             Some(recurrence) => data.recurrence = recurrence,
             None => validator.violation(
                 &path("recurrence"),
@@ -260,7 +261,7 @@ async fn resolve_item(
             None => validator.violation(&path("term_months"), term_violation()),
         }
     }
-    if data.recurrence == ProductRecurrence::None {
+    if data.recurrence == Recurrence::None {
         data.term_months = None;
     }
     Ok(data)
@@ -299,9 +300,9 @@ async fn product_price(
     Ok((product.data.currency == context.currency).then_some(product.data.price))
 }
 
-pub(crate) fn deal_item_from_quote(item: &QuoteItem, with_product: bool) -> DealItemData {
+pub(crate) fn deal_item_from_quote(item: &QuoteItem, with_product: bool) -> LineData {
     let discount = item.amounts.discount();
-    DealItemData {
+    LineData {
         product_id: item.data.product_id.filter(|_| with_product),
         name: item.data.name.clone(),
         unit: item.data.unit.clone(),
@@ -313,6 +314,7 @@ pub(crate) fn deal_item_from_quote(item: &QuoteItem, with_product: bool) -> Deal
             DiscountKind::None
         },
         discount_value: discount,
+        tax_percent: item.data.tax_percent,
         recurrence: item.data.recurrence,
         term_months: item.data.term_months,
     }

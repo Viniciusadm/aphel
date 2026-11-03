@@ -1,0 +1,27 @@
+{
+  "panel": {
+    "tab": "Receita",
+    "mrr": "MRR",
+    "arr": "ARR",
+    "tcv": "Valor total do contrato (TCV)",
+    "contractStart": "Início do contrato",
+    "contractEnd": "Fim do contrato",
+    "empty": "—",
+    "hint": "MRR, ARR e TCV são calculados a partir dos itens recorrentes. O fim do contrato é o início mais o maior prazo dos itens (12 meses quando o item não tem prazo), menos um dia.",
+    "emptyTitle": "Sem receita recorrente",
+    "emptyDescription": "Defina a frequência de cobrança dos itens para calcular MRR, ARR e o período do contrato.",
+    "renewalOf": "Renovação de",
+    "renewedBy": "Renovada em"
+  },
+  "widgets": {
+    "hidden": "Oculto",
+    "recurring_revenue": {
+      "title": "Receita recorrente ganha",
+      "mrr": "MRR ganho",
+      "arr": "ARR ganho",
+      "tcv": "TCV ganho",
+      "wonCount": "Contratos recorrentes ganhos",
+      "partial": "Valores na moeda base; oportunidades sem cotação ficaram de fora da soma."
+    }
+  }
+}

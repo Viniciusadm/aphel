@@ -1,0 +1,5 @@
+key = "deals_revenue"
+name = "Deal revenue"
+version = "0.1.0"
+layer = "domain"
+runtime = "native"

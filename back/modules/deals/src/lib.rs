@@ -1,3 +1,6 @@
+mod line_items;
+use aphel_sdk::line_items::LineItemTraits;
+mod financials;
 use aphel_sdk::assignment::AssignmentTraits;
 use aphel_sdk::money::MoneyTraits;
 use aphel_sdk::workflow::WorkflowRecordTypes;
@@ -39,8 +42,7 @@ use aphel_kernel::modules::{AppBuilder, Manifest, Module};
 use aphel_kernel::records::{RecordQueryFilter, SearchPlanFilter};
 
 pub use hooks::{
-    AmountCalculator, ClosingDeal, DealLosing, DealLost, DealStageChanging, DealWinning, DealWon,
-    ManualAmountCalculator, StageChange,
+    ClosingDeal, DealLosing, DealLost, DealStageChanging, DealWinning, DealWon, StageChange,
 };
 
 pub const DEAL_RESOURCE: PublicResource = PublicResource::new("deals.deal", "DealResponse");
@@ -155,6 +157,11 @@ const PUBLIC_EVENTS: &[PublicEventDefinition] = &[
 
 pub(crate) fn deal_capabilities() -> EntityTraits {
     EntityTraits::default()
+        .line_items(aphel_sdk::line_items::LineItemMapping {
+            currency_field: "currency".into(),
+            amount_field: Some("amount".into()),
+            exchange_rate_field: Some("exchange_rate".into()),
+        })
         .with_trait("scoring.subject")
         .relatable()
         .importable()
@@ -194,6 +201,23 @@ pub(crate) fn deal_definition() -> Result<EntityDefinition, AppError> {
         .capabilities(deal_capabilities())
         .update_permission(Permission::DEALS_UPDATE)
         .title_field("title")
+        .system_field(field("mrr", crate::labels("MRR"), FieldType::Currency)?)
+        .system_field(field("arr", crate::labels("ARR"), FieldType::Currency)?)
+        .system_field(field(
+            "tcv",
+            crate::labels("Total contract value"),
+            FieldType::Currency,
+        )?)
+        .system_field(field(
+            "contract_start",
+            crate::labels("Contract start"),
+            FieldType::Date,
+        )?)
+        .system_field(field(
+            "contract_end",
+            crate::labels("Contract end"),
+            FieldType::Date,
+        )?)
         .owner_column("owner_id")
         .soft_delete_column("deleted_at")
         .archive_column("archived_at")
@@ -313,11 +337,30 @@ impl Module for DealsModule {
     }
 
     fn register(&self, app: &mut AppBuilder) -> Result<(), AppError> {
+        app.contribute::<dyn aphel_sdk::line_items::LineItemProjection>(Arc::new(
+            line_items::Projection,
+        ));
+        app.provide::<dyn aphel_sdk::deals::DealFinancials>(Arc::new(financials::Financials));
         app.contribute::<dyn aphel_sdk::workflow::StagedRecordSource>(std::sync::Arc::new(
             workflow_source::DealStages,
         ));
         let mut outcome = Ok(());
         app.extend(RecordType::DEAL.as_str(), |deal| {
+            let mut items = aphel_kernel::application::fields::ItemTable::new(
+                "items",
+                crate::labels("Items"),
+                "line_items",
+                "record_id",
+            )
+            .partition("record_type", RecordType::DEAL.as_str())
+            .column("total", crate::labels("Total"))
+            .column("quantity", crate::labels("Quantity"))
+            .column("unit_price", crate::labels("Unit price"))
+            .column("discount_value", crate::labels("Discount"))
+            .column("tax_percent", crate::labels("Tax"));
+            items.contributed_by = Some(aphel_sdk::line_items::KEY);
+            deal.item_table(items);
+
             outcome = ::workflow::rotting::rotting_fields(&aphel_sdk::workflow::StagedMapping {
                 state_field: Some("status".into()),
                 active_state: Some("open".into()),
@@ -438,7 +481,6 @@ impl Module for DealsModule {
             .extend("deals.deal", |deal| {
                 deal.member_access(DEAL_MEMBERS_TABLE, "deal_id", "user_id");
             })
-            .provide::<dyn AmountCalculator>(Arc::new(ManualAmountCalculator))
             .openapi_tag(http::TAG, "Deals, stage changes and the Kanban board")
             .routes(|_| http::router())
             .consumer(|env| Arc::new(runtime::DealLastActivityConsumer::new(env.pool.clone())))

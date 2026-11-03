@@ -9,7 +9,6 @@ use aphel_kernel::Ctx;
 use aphel_kernel::application::shared::RecordType;
 use aphel_kernel::errors::{AppError, CodedKind};
 use approvals::domain::{PolicyCommand, StepInput};
-use deal_items::domain::{DealItemInput, SaveDealItemCommand};
 use deals::team::domain::AddDealMemberCommand;
 use money::domain::{CreateExchangeRateCommand, SetCurrenciesCommand};
 use price_lists::domain::{PriceListItemInput, ReplacePriceListItemsCommand, SavePriceListCommand};
@@ -276,12 +275,12 @@ pub(crate) async fn seed_price_list(
     Ok(Some(list.id))
 }
 
-pub(crate) async fn seed_deal_items(
+pub(crate) async fn seed_line_items(
     ctx: &Ctx<'_>,
     open_deals: &[Uuid],
     products: &[DemoProduct],
 ) -> Result<Vec<Uuid>, AppError> {
-    if products.is_empty() || !enabled(ctx, deal_items::KEY) {
+    if products.is_empty() || !enabled(ctx, aphel_sdk::line_items::KEY) {
         return Ok(Vec::new());
     }
     let mut with_items = Vec::new();
@@ -299,24 +298,35 @@ pub(crate) async fn seed_deal_items(
                 "1".to_owned(),
             ),
         ];
+        let mut items = Vec::new();
         for (kind, quantity) in lines {
             let Some(product) = products.iter().find(|product| product.kind == kind) else {
                 continue;
             };
-            deal_items::service::add(
+            let Some(product) = aphel_sdk::line_items::catalog_item(ctx, product.id).await? else {
+                continue;
+            };
+            items.push(aphel_sdk::line_items::LineData {
+                product_id: Some(product.id),
+                name: product.name,
+                unit: product.unit,
+                quantity: quantity
+                    .parse()
+                    .map_err(|_| AppError::Internal("invalid seed quantity".to_owned()))?,
+                unit_price: product.price,
+                recurrence: product.recurrence,
+                term_months: product.term_months,
+                ..Default::default()
+            });
+        }
+        ctx.services()
+            .require::<dyn aphel_sdk::line_items::LineItemsPort>()?
+            .replace(
                 ctx,
-                &deal_id.to_string(),
-                SaveDealItemCommand {
-                    input: DealItemInput {
-                        product_id: Some(Some(product.id.to_string())),
-                        quantity: Some(Some(quantity)),
-                        ..DealItemInput::default()
-                    },
-                    ..SaveDealItemCommand::default()
-                },
+                &aphel_kernel::application::shared::RecordRef::new(RecordType::DEAL, *deal_id),
+                items,
             )
             .await?;
-        }
         with_items.push(*deal_id);
     }
     Ok(with_items)
@@ -335,7 +345,7 @@ pub(crate) async fn seed_quotes(ctx: &Ctx<'_>, deals: &[Uuid]) -> Result<Vec<Uui
             ctx,
             CreateQuoteCommand {
                 deal_id: deal_id.to_string(),
-                from_deal_items: true,
+                from_line_items: true,
                 input: QuoteInput {
                     valid_until: Some(Some(valid_until.clone())),
                     terms: text("Pagamento em 30 dias. Proposta válida pelo prazo indicado."),

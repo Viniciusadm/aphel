@@ -16,7 +16,8 @@ import scoringModule from '@modules/scoring'
 import moneyModule from '@modules/money'
 import workflowModule from '@modules/workflow'
 import dealsModule from '@modules/deals'
-import dealItemsModule from '@modules/deal_items'
+import lineItemsModule from '@modules/line_items'
+import dealsRevenueModule from '@modules/deals_revenue'
 import renewalsModule from '@modules/renewals'
 import goalsModule from '@modules/goals'
 import forecastModule from '@modules/forecast'
@@ -81,7 +82,8 @@ export const MODULES: WebModule[] = [
   moneyModule,
   workflowModule,
   dealsModule,
-  dealItemsModule,
+  lineItemsModule,
+  dealsRevenueModule,
   renewalsModule,
   goalsModule,
   forecastModule,

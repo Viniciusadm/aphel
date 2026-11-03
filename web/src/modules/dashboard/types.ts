@@ -79,7 +79,7 @@ export interface PendingActivityItem {
   record: RecordRef | null
 }
 
-export interface StaleDealItem {
+export interface StaleLineItem {
   id: string
   title: string
   amount: string | null
@@ -98,7 +98,7 @@ export interface PendingCenterData {
   overdue: Bucket<PendingActivityItem>
   due_today: Bucket<PendingActivityItem>
   due_tomorrow: Bucket<PendingActivityItem>
-  stale_deals: (Bucket<StaleDealItem> & { stale_days: number }) | null
+  stale_deals: (Bucket<StaleLineItem> & { stale_days: number }) | null
 }
 
 export interface RecentEventItem {

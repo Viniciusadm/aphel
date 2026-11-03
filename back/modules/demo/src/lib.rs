@@ -32,7 +32,7 @@ impl Module for DemoModule {
             .optional(workflow::KEY)
             .optional(products::KEY)
             .optional(price_lists::KEY)
-            .optional(deal_items::KEY)
+            .optional(aphel_sdk::line_items::KEY)
             .optional(quotes::KEY)
             .optional(approvals::KEY)
             .enabled_by_default()

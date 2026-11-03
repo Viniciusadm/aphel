@@ -3,9 +3,7 @@ use rust_decimal::Decimal;
 use serde_json::{Value, json};
 use uuid::Uuid;
 
-use crate::domain::{DealItemsOutcome, QuoteDeal, QuoteEmail};
-use crate::hooks::DealItemsWriter;
-use crate::store::QuoteStore;
+use crate::domain::{LineItemsOutcome, QuoteDeal, QuoteEmail};
 use aphel_kernel::Ctx;
 use aphel_kernel::application::access::{AccessRepository, build_access_scope};
 use aphel_kernel::application::shared::{RecordRef, RecordType};
@@ -15,6 +13,8 @@ use aphel_kernel::domain::access::AccessScope;
 use aphel_kernel::errors::{AppError, CodedKind};
 use aphel_kernel::infrastructure::repositories::mysql_access::MySqlAccessRepository;
 use aphel_kernel::records::RecordCtx;
+use aphel_sdk::line_items::LineData;
+use aphel_sdk::line_items::LineItemsPort;
 use approvals::approval_gate;
 use approvals::domain::{
     ApprovalCheckpoint, ApprovalRequestSummary, ApprovalSubmission, SubmissionOutcome,
@@ -25,7 +25,6 @@ use price_lists::domain::{
     BundleExpansion, PriceListSelection, PriceListSummary, PriceRequest, ResolvedPrice,
 };
 use price_lists::{bundle_expander, discount_limits, price_list_resolver};
-use products::domain::DealItemData;
 
 use aphel_kernel::application::shared::money_text;
 
@@ -131,8 +130,16 @@ impl<'a, 'b> QuoteGateway<'a, 'b> {
         })
     }
 
-    pub(crate) async fn deal_items(&self, deal_id: Uuid) -> Result<Vec<DealItemData>, AppError> {
-        QuoteStore::of(self.ctx).deal_items(deal_id).await
+    pub(crate) async fn line_items(&self, deal_id: Uuid) -> Result<Vec<LineData>, AppError> {
+        match self.ctx.services().get::<dyn LineItemsPort>() {
+            Some(port) => Ok(port
+                .rows(self.ctx, &RecordRef::new(RecordType::DEAL, deal_id))
+                .await?
+                .into_iter()
+                .map(|item| item.data)
+                .collect()),
+            None => Ok(Vec::new()),
+        }
     }
 
     pub(crate) async fn contact_email(
@@ -188,15 +195,23 @@ impl<'a, 'b> QuoteGateway<'a, 'b> {
         .map(|_| ())
     }
 
-    pub(crate) async fn replace_deal_items(
+    pub(crate) async fn replace_line_items(
         &self,
         scope: &AccessScope,
         deal_id: Uuid,
-        items: Vec<DealItemData>,
-    ) -> Result<DealItemsOutcome, AppError> {
-        match self.ctx.services().get::<dyn DealItemsWriter>() {
-            Some(writer) => writer.replace(self.ctx, scope, deal_id, items).await,
-            None => Ok(DealItemsOutcome {
+        items: Vec<LineData>,
+    ) -> Result<LineItemsOutcome, AppError> {
+        match self.ctx.services().get::<dyn LineItemsPort>() {
+            Some(writer) => Ok(LineItemsOutcome {
+                amount_managed: writer
+                    .replace(
+                        &self.ctx.with_scope(scope),
+                        &RecordRef::new(RecordType::DEAL, deal_id),
+                        items,
+                    )
+                    .await?,
+            }),
+            None => Ok(LineItemsOutcome {
                 amount_managed: false,
             }),
         }

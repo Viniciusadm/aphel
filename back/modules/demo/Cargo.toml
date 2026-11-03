@@ -15,7 +15,6 @@ aphel-kernel.workspace = true
 tasks = { package = "aphel-mod-tasks", path = "../tasks" }
 approvals = { package = "aphel-mod-approvals", path = "../approvals" }
 money = { package = "aphel-mod-money", path = "../money" }
-deal_items = { package = "aphel-mod-deal-items", path = "../deal_items" }
 workflow = { package = "aphel-mod-workflow", path = "../workflow" }
 price_lists = { package = "aphel-mod-price-lists", path = "../price_lists" }
 products = { package = "aphel-mod-products", path = "../products" }

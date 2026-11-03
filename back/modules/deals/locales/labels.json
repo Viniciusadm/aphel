@@ -78,5 +78,49 @@
   "Lost": {
     "pt-BR": "Perdida",
     "en": "Lost"
+  },
+  "MRR": {
+    "pt-BR": "MRR",
+    "en": "MRR"
+  },
+  "ARR": {
+    "pt-BR": "ARR",
+    "en": "ARR"
+  },
+  "Total contract value": {
+    "pt-BR": "Valor total do contrato",
+    "en": "Total contract value"
+  },
+  "Contract start": {
+    "pt-BR": "Início do contrato",
+    "en": "Contract start"
+  },
+  "Contract end": {
+    "pt-BR": "Fim do contrato",
+    "en": "Contract end"
+  },
+  "Items": {
+    "en": "Items",
+    "pt-BR": "Itens"
+  },
+  "Total": {
+    "en": "Total",
+    "pt-BR": "Total"
+  },
+  "Quantity": {
+    "en": "Quantity",
+    "pt-BR": "Quantidade"
+  },
+  "Unit price": {
+    "en": "Unit price",
+    "pt-BR": "Preço unitário"
+  },
+  "Discount": {
+    "en": "Discount",
+    "pt-BR": "Desconto"
+  },
+  "Tax": {
+    "en": "Tax",
+    "pt-BR": "Imposto"
   }
 }

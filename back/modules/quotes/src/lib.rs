@@ -36,7 +36,7 @@ use aphel_kernel::infrastructure::defaults::seed::DefaultsSeed;
 use aphel_kernel::modules::builder::APHEL_VERSION;
 use aphel_kernel::modules::{AppBuilder, Manifest, Module};
 
-pub use hooks::{AcceptingQuote, DealItemsWriter, PricedQuote, QuoteAccepting, QuoteTotals};
+pub use hooks::{AcceptingQuote, PricedQuote, QuoteAccepting, QuoteTotals};
 
 pub(crate) const QUOTE_RESOURCE: PublicResource =
     PublicResource::new("quotes.quote", "QuoteDetailResponse");

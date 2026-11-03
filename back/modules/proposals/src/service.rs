@@ -420,8 +420,8 @@ pub(crate) async fn render_data(
     data.company = related_record(ctx, "organizations.organization", company_id.as_deref()).await?;
     data.items = match &quote {
         Some(quote) => Some(Items::from_quote(quote)),
-        None => match records::deal_items(ctx, deal_id).await {
-            Ok(items) => Some(Items::from_api(&items)),
+        None => match records::line_items(ctx, deal_id).await {
+            Ok(items) => Some(Items::from_lines(&items)),
             Err(error) if is_tolerated(&error) || is_validation(&error) => None,
             Err(error) => return Err(error),
         },

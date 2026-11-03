@@ -263,12 +263,12 @@ fn text(value: &Value, key: &str) -> String {
 
 impl Items {
     pub(crate) fn from_quote(value: &Value) -> Self {
-        let mut items = Self::from_api(value);
+        let mut items = Self::from_quote_value(value);
         items.discount_total = text(value, "discount_total");
         items
     }
 
-    pub(crate) fn from_api(value: &Value) -> Self {
+    pub(crate) fn from_quote_value(value: &Value) -> Self {
         let rows = value
             .get("items")
             .and_then(Value::as_array)
@@ -294,6 +294,33 @@ impl Items {
             subtotal: text(value, "subtotal"),
             discount_total: text(value, "discount_total"),
             total: text(value, "total"),
+        }
+    }
+    pub(crate) fn from_lines(value: &aphel_sdk::line_items::LineItemSummary) -> Self {
+        use aphel_sdk::line_items::money;
+        Self {
+            currency: value.currency.clone(),
+            rows: value
+                .items
+                .iter()
+                .map(|item| {
+                    let amounts = item.data.amounts().ok();
+                    ItemRow {
+                        name: item.data.name.clone(),
+                        unit: item.data.unit.clone(),
+                        quantity: item.data.quantity.normalize().to_string(),
+                        unit_price: money(item.data.unit_price),
+                        discount_type: item.data.discount_kind.as_str().to_owned(),
+                        discount_value: money(item.data.discount_value),
+                        discount_amount: amounts
+                            .map_or_else(|| "0.00".to_owned(), |amounts| money(amounts.discount)),
+                        total: money(item.total),
+                    }
+                })
+                .collect(),
+            subtotal: money(value.subtotal),
+            discount_total: money(value.discount_total),
+            total: money(value.total),
         }
     }
 }

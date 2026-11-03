@@ -50,7 +50,9 @@ pub fn compiled() -> Vec<Box<dyn Module>> {
         #[cfg(feature = "plugins")]
         Box::new(module_deals::DealsModule),
         #[cfg(feature = "plugins")]
-        Box::new(module_deal_items::DealItemsModule),
+        Box::new(module_line_items::LineItemsModule),
+        #[cfg(feature = "plugins")]
+        Box::new(module_deals_revenue::DealsRevenueModule),
         #[cfg(feature = "plugins")]
         Box::new(module_renewals::RenewalsModule),
         #[cfg(feature = "plugins")]

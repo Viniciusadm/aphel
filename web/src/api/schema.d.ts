@@ -1687,24 +1687,6 @@ export interface paths {
         patch?: never;
         trace?: never;
     };
-    "/api/v1/deal-items/settings": {
-        parameters: {
-            query?: never;
-            header?: never;
-            path?: never;
-            cookie?: never;
-        };
-        /** @description Returns how the deal amount relates to its items in the organization (permission `deals.read` or `settings.manage`): `manual` (default; the amount is typed and items are informative) or `items` (the amount of a deal with items is the sum of its items). `updated_at` is `null` while never saved. */
-        get: operations["deal_item_settings_get"];
-        put?: never;
-        post?: never;
-        delete?: never;
-        options?: never;
-        head?: never;
-        /** @description Changes the amount mode of the organization (permission `settings.manage`) and publishes `deal_item_settings.updated`. Switching to `items` does not rewrite existing amounts: each deal follows the sum from the next change of its items (or `POST /deals/{deal_id}/items/apply-total`). Deals without items keep a manual amount. */
-        patch: operations["deal_item_settings_update"];
-        trace?: never;
-    };
     "/api/v1/deal-member-roles": {
         parameters: {
             query?: never;
@@ -1815,75 +1797,6 @@ export interface paths {
         options?: never;
         head?: never;
         patch?: never;
-        trace?: never;
-    };
-    "/api/v1/deals/{deal_id}/items": {
-        parameters: {
-            query?: never;
-            header?: never;
-            path?: never;
-            cookie?: never;
-        };
-        /** @description Lists the items (products or free lines) of a deal in their order, with the totals (permission `deals.read` on the deal, including the pipeline restriction by team). Amounts are in the currency of the deal. `amount_mode` is the organization setting and `amount_managed` is `true` when the deal amount is the sum of the items (mode `items` and at least one item); then `amount` cannot be changed directly on the deal. Requires the `amount` field of deals to be visible for the role. */
-        get: operations["deal_items_list"];
-        put?: never;
-        /** @description Adds an item at the end of a deal (permission `deals.update` on the deal) and publishes `deal.item_added`. With `product_id` (an active product in the currency of the deal) the name, unit and unit price are copied from the product unless sent; without it the item is free and `name` is required. `quantity` defaults to 1 (greater than zero, up to 4 decimals). `discount_type` is `none` (default), `percent` (0–100) or `amount`; the line total is `quantity × unit_price − discount`, rounded to 2 places and never negative. In the `items` amount mode the deal amount becomes the sum of the items in the same transaction and `deal.amount_changed` is published (which requires `amount` to be editable for the role). `recurrence` (`none` = one-time, default, `monthly`, `quarterly`, `yearly`) and `term_months` (1–600, only for recurring items) are copied from the product unless sent. After every change of the items the deal gets `mrr` (sum of the monthly value of the recurring items: line total ÷ 1, 3 or 12), `arr` (`mrr × 12`), `tcv` (one-time totals plus monthly value × term, 12 months when the item has no term) and, when it has `contract_start` (filled with the win date of a won deal), `contract_end` = start + longest term − 1 day; changes publish `deal.updated` with `changes` and `source: items`. At most 200 items per deal. */
-        post: operations["deal_items_create"];
-        delete?: never;
-        options?: never;
-        head?: never;
-        patch?: never;
-        trace?: never;
-    };
-    "/api/v1/deals/{deal_id}/items/apply-total": {
-        parameters: {
-            query?: never;
-            header?: never;
-            path?: never;
-            cookie?: never;
-        };
-        get?: never;
-        put?: never;
-        /** @description Sets the deal amount to the total of its items now, in any amount mode (permission `deals.update` on the deal and `amount` editable for the role). Useful in the `manual` mode, or right after switching to `items`, since switching does not rewrite existing amounts. Publishes `deal.amount_changed` when the amount changes. */
-        post: operations["deal_items_apply_total"];
-        delete?: never;
-        options?: never;
-        head?: never;
-        patch?: never;
-        trace?: never;
-    };
-    "/api/v1/deals/{deal_id}/items/order": {
-        parameters: {
-            query?: never;
-            header?: never;
-            path?: never;
-            cookie?: never;
-        };
-        get?: never;
-        /** @description Replaces the order of the items of a deal (permission `deals.update` on the deal); `item_ids` must list every item exactly once. Publishes `deal.items_reordered` when the order changes. */
-        put: operations["deal_items_reorder"];
-        post?: never;
-        delete?: never;
-        options?: never;
-        head?: never;
-        patch?: never;
-        trace?: never;
-    };
-    "/api/v1/deals/{deal_id}/items/{item_id}": {
-        parameters: {
-            query?: never;
-            header?: never;
-            path?: never;
-            cookie?: never;
-        };
-        get?: never;
-        put?: never;
-        post?: never;
-        delete: operations["deal_items_delete"];
-        options?: never;
-        head?: never;
-        /** @description Partially updates an item of a deal (permission `deals.update` on the deal) and publishes `deal.item_updated` with the changes; omitted properties stay unchanged. Changing `product_id` copies name, unit and unit price of the new product unless sent; `product_id: null` turns it into a free item keeping its values. In the `items` amount mode the deal amount is recalculated in the same transaction (`deal.amount_changed`). */
-        patch: operations["deal_items_update"];
         trace?: never;
     };
     "/api/v1/deals/{deal_id}/lost": {
@@ -3807,6 +3720,93 @@ export interface paths {
         options?: never;
         head?: never;
         patch?: never;
+        trace?: never;
+    };
+    "/api/v1/line-items/settings": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        /** @description Scoped line items. Parent entity permissions and monetary field access apply; mutations, audit and owner projections share one transaction. */
+        get: operations["line_item_settings_get"];
+        put?: never;
+        post?: never;
+        delete?: never;
+        options?: never;
+        head?: never;
+        /** @description Scoped line items. Parent entity permissions and monetary field access apply; mutations, audit and owner projections share one transaction. */
+        patch: operations["line_item_settings_update"];
+        trace?: never;
+    };
+    "/api/v1/line-items/{record_type}/{record_id}/items": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        /** @description Scoped line items. Parent entity permissions and monetary field access apply; mutations, audit and owner projections share one transaction. */
+        get: operations["line_items_list"];
+        put?: never;
+        /** @description Scoped line items. Parent entity permissions and monetary field access apply; mutations, audit and owner projections share one transaction. */
+        post: operations["line_items_create"];
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
+    "/api/v1/line-items/{record_type}/{record_id}/items/apply-total": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        get?: never;
+        put?: never;
+        /** @description Scoped line items. Parent entity permissions and monetary field access apply; mutations, audit and owner projections share one transaction. */
+        post: operations["line_items_apply_total"];
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
+    "/api/v1/line-items/{record_type}/{record_id}/items/order": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        get?: never;
+        /** @description Scoped line items. Parent entity permissions and monetary field access apply; mutations, audit and owner projections share one transaction. */
+        put: operations["line_items_reorder"];
+        post?: never;
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
+    "/api/v1/line-items/{record_type}/{record_id}/items/{item_id}": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        get?: never;
+        put?: never;
+        post?: never;
+        delete: operations["line_items_delete"];
+        options?: never;
+        head?: never;
+        /** @description Scoped line items. Parent entity permissions and monetary field access apply; mutations, audit and owner projections share one transaction. */
+        patch: operations["line_items_update"];
         trace?: never;
     };
     "/api/v1/lost-reasons": {
@@ -6505,7 +6505,7 @@ export interface paths {
         /** @description Lists quotes (permission `quotes.read`, scoped by owner). Only the current version of each quote is listed unless `include_versions=true`. Filters accept the JSON AST in `filter` or `filter[field][operator]=value` (`filter[status][eq]=sent`, `filter[deal_id][eq]=<id>`, `filter[total][gte]=1000`, `filter[exceeds_discount_limit][eq]=true`). `sort=field,-other`; `search` (or `q`) matches the title. */
         get: operations["quotes_list"];
         put?: never;
-        /** @description Creates a quote for a deal (permissions `quotes.create` and read access to the deal) with the next number of the organization, version 1 and status `draft`, and publishes `quote.created`. The currency, contact and company come from the deal; the owner defaults to the caller; `valid_until` and `terms` default to the quote settings; the price list defaults to the best active list for the currency and company. `from_deal_items: true` copies the deal items; otherwise send `items`. Items with `product_id` and no `unit_price` take the price of the chosen price list (or the product price); bundles enter as one line with their components. Totals are computed on the server: line = quantity × unit price − line discount; the total discount applies to the sum of the lines after their discounts and is prorated among them before the tax; tax = line tax % over the prorated line. */
+        /** @description Creates a quote for a deal (permissions `quotes.create` and read access to the deal) with the next number of the organization, version 1 and status `draft`, and publishes `quote.created`. The currency, contact and company come from the deal; the owner defaults to the caller; `valid_until` and `terms` default to the quote settings; the price list defaults to the best active list for the currency and company. `from_line_items: true` copies the deal items; otherwise send `items`. Items with `product_id` and no `unit_price` take the price of the chosen price list (or the product price); bundles enter as one line with their components. Totals are computed on the server: line = quantity × unit price − line discount; the total discount applies to the sum of the lines after their discounts and is prorated among them before the tax; tax = line tax % over the prorated line. */
         post: operations["quotes_create"];
         delete?: never;
         options?: never;
@@ -8990,6 +8990,8 @@ export interface components {
             /** Format: int64 */
             output_tokens: number;
         };
+        /** @enum {string} */
+        AmountMode: "manual" | "items";
         ApiTokenLimitsDto: {
             /** Format: int32 */
             limit: number;
@@ -11633,72 +11635,6 @@ export interface components {
                 users: components["schemas"]["DashboardSubjectUser"][];
             };
         };
-        Data_DealItemResponse: {
-            data: {
-                /** @example 13500.00 */
-                amount_base?: string | null;
-                /** @example 2026-10-20T13:45:00Z */
-                created_at: string;
-                created_by?: string | null;
-                deal_id: string;
-                /** @example 300.00 */
-                discount_amount: string;
-                discount_type: components["schemas"]["DiscountType"];
-                /** @example 10.00 */
-                discount_value: string;
-                /** @example 5.4 */
-                exchange_rate?: string | null;
-                /** @example 3000.00 */
-                gross: string;
-                id: string;
-                /** @example 225.00 */
-                monthly_amount?: string | null;
-                name: string;
-                /** Format: int32 */
-                position: number;
-                product_id?: string | null;
-                /** @example 2 */
-                quantity: string;
-                recurrence: components["schemas"]["ProductRecurrence"];
-                /**
-                 * Format: int32
-                 * @example 12
-                 */
-                term_months?: number | null;
-                /** @example 2700.00 */
-                total: string;
-                unit?: string | null;
-                /** @example 1500.00 */
-                unit_price: string;
-                /** @example 2026-10-20T13:45:00Z */
-                updated_at: string;
-            };
-        };
-        Data_DealItemSettingsResponse: {
-            data: {
-                amount_mode: components["schemas"]["DealAmountMode"];
-                /** @example 2026-10-20T13:45:00Z */
-                updated_at?: string | null;
-            };
-        };
-        Data_DealItemsResponse: {
-            data: {
-                amount_managed: boolean;
-                amount_mode: components["schemas"]["DealAmountMode"];
-                /** @example BRL */
-                currency: string;
-                /** @example 2700.00 */
-                deal_amount?: string | null;
-                deal_id: string;
-                /** @example 300.00 */
-                discount_total: string;
-                items: components["schemas"]["DealItemResponse"][];
-                /** @example 3000.00 */
-                subtotal: string;
-                /** @example 2700.00 */
-                total: string;
-            };
-        };
         Data_DealMemberResponse: {
             data: {
                 added_by?: string | null;
@@ -12516,6 +12452,77 @@ export interface components {
                 updated_at?: string | null;
             };
         };
+        Data_LineItemResponse: {
+            data: {
+                /** @example 13500.00 */
+                amount_base?: string | null;
+                /** @example 2026-10-20T13:45:00Z */
+                created_at: string;
+                created_by?: string | null;
+                /** @example 300.00 */
+                discount_amount: string;
+                discount_type: components["schemas"]["DiscountType"];
+                /** @example 10.00 */
+                discount_value: string;
+                /** @example 5.4 */
+                exchange_rate?: string | null;
+                /** @example 3000.00 */
+                gross: string;
+                id: string;
+                /** @example 225.00 */
+                monthly_amount?: string | null;
+                name: string;
+                /** Format: int32 */
+                position: number;
+                product_id?: string | null;
+                /** @example 2 */
+                quantity: string;
+                record_id: string;
+                record_type: string;
+                recurrence: components["schemas"]["Recurrence"];
+                tax: string;
+                tax_percent: string;
+                /**
+                 * Format: int32
+                 * @example 12
+                 */
+                term_months?: number | null;
+                /** @example 2700.00 */
+                total: string;
+                unit?: string | null;
+                /** @example 1500.00 */
+                unit_price: string;
+                /** @example 2026-10-20T13:45:00Z */
+                updated_at: string;
+            };
+        };
+        Data_LineItemSettingsResponse: {
+            data: {
+                amount_mode: components["schemas"]["AmountMode"];
+                /** @example 2026-10-20T13:45:00Z */
+                updated_at?: string | null;
+            };
+        };
+        Data_LineItemsResponse: {
+            data: {
+                amount_managed: boolean;
+                amount_mode: components["schemas"]["AmountMode"];
+                can_apply_total: boolean;
+                /** @example BRL */
+                currency: string;
+                /** @example 300.00 */
+                discount_total: string;
+                items: components["schemas"]["LineItemResponse"][];
+                /** @example 2700.00 */
+                record_amount?: string | null;
+                record_id: string;
+                record_type: string;
+                /** @example 3000.00 */
+                subtotal: string;
+                /** @example 2700.00 */
+                total: string;
+            };
+        };
         Data_LinkRecordResponse: {
             data: {
                 linked: boolean;
@@ -13129,7 +13136,7 @@ export interface components {
                 name: string;
                 /** @example 1500.00 */
                 price: string;
-                recurrence: components["schemas"]["ProductRecurrence"];
+                recurrence: components["schemas"]["Recurrence"];
                 /**
                  * Format: int32
                  * @example 12
@@ -15015,85 +15022,6 @@ export interface components {
                 settings: Record<string, never>;
                 subject?: null | components["schemas"]["WidgetSubjectResponse"];
             };
-        };
-        /** @enum {string} */
-        DealAmountMode: "manual" | "items";
-        DealItemRequest: {
-            discount_type?: null | components["schemas"]["DiscountType"];
-            discount_value?: null | components["schemas"]["DecimalInput"];
-            /** @example Onboarding */
-            name?: string | null;
-            product_id?: string | null;
-            quantity?: null | components["schemas"]["DecimalInput"];
-            recurrence?: null | components["schemas"]["ProductRecurrence"];
-            /**
-             * Format: int64
-             * @example 12
-             */
-            term_months?: number | null;
-            /** @example hour */
-            unit?: string | null;
-            unit_price?: null | components["schemas"]["DecimalInput"];
-        };
-        DealItemResponse: {
-            /** @example 13500.00 */
-            amount_base?: string | null;
-            /** @example 2026-10-20T13:45:00Z */
-            created_at: string;
-            created_by?: string | null;
-            deal_id: string;
-            /** @example 300.00 */
-            discount_amount: string;
-            discount_type: components["schemas"]["DiscountType"];
-            /** @example 10.00 */
-            discount_value: string;
-            /** @example 5.4 */
-            exchange_rate?: string | null;
-            /** @example 3000.00 */
-            gross: string;
-            id: string;
-            /** @example 225.00 */
-            monthly_amount?: string | null;
-            name: string;
-            /** Format: int32 */
-            position: number;
-            product_id?: string | null;
-            /** @example 2 */
-            quantity: string;
-            recurrence: components["schemas"]["ProductRecurrence"];
-            /**
-             * Format: int32
-             * @example 12
-             */
-            term_months?: number | null;
-            /** @example 2700.00 */
-            total: string;
-            unit?: string | null;
-            /** @example 1500.00 */
-            unit_price: string;
-            /** @example 2026-10-20T13:45:00Z */
-            updated_at: string;
-        };
-        DealItemSettingsResponse: {
-            amount_mode: components["schemas"]["DealAmountMode"];
-            /** @example 2026-10-20T13:45:00Z */
-            updated_at?: string | null;
-        };
-        DealItemsResponse: {
-            amount_managed: boolean;
-            amount_mode: components["schemas"]["DealAmountMode"];
-            /** @example BRL */
-            currency: string;
-            /** @example 2700.00 */
-            deal_amount?: string | null;
-            deal_id: string;
-            /** @example 300.00 */
-            discount_total: string;
-            items: components["schemas"]["DealItemResponse"][];
-            /** @example 3000.00 */
-            subtotal: string;
-            /** @example 2700.00 */
-            total: string;
         };
         DealMemberResponse: {
             added_by?: string | null;
@@ -17137,6 +17065,89 @@ export interface components {
             target_stage: string;
             /** @example deal_won */
             trigger: string;
+        };
+        LineItemRequest: {
+            discount_type?: null | components["schemas"]["DiscountType"];
+            discount_value?: unknown;
+            /** @example Onboarding */
+            name?: string | null;
+            product_id?: string | null;
+            quantity?: unknown;
+            recurrence?: null | components["schemas"]["Recurrence"];
+            tax_percent?: unknown;
+            /**
+             * Format: int64
+             * @example 12
+             */
+            term_months?: number | null;
+            /** @example hour */
+            unit?: string | null;
+            unit_price?: unknown;
+        };
+        LineItemResponse: {
+            /** @example 13500.00 */
+            amount_base?: string | null;
+            /** @example 2026-10-20T13:45:00Z */
+            created_at: string;
+            created_by?: string | null;
+            /** @example 300.00 */
+            discount_amount: string;
+            discount_type: components["schemas"]["DiscountType"];
+            /** @example 10.00 */
+            discount_value: string;
+            /** @example 5.4 */
+            exchange_rate?: string | null;
+            /** @example 3000.00 */
+            gross: string;
+            id: string;
+            /** @example 225.00 */
+            monthly_amount?: string | null;
+            name: string;
+            /** Format: int32 */
+            position: number;
+            product_id?: string | null;
+            /** @example 2 */
+            quantity: string;
+            record_id: string;
+            record_type: string;
+            recurrence: components["schemas"]["Recurrence"];
+            tax: string;
+            tax_percent: string;
+            /**
+             * Format: int32
+             * @example 12
+             */
+            term_months?: number | null;
+            /** @example 2700.00 */
+            total: string;
+            unit?: string | null;
+            /** @example 1500.00 */
+            unit_price: string;
+            /** @example 2026-10-20T13:45:00Z */
+            updated_at: string;
+        };
+        LineItemSettingsResponse: {
+            amount_mode: components["schemas"]["AmountMode"];
+            /** @example 2026-10-20T13:45:00Z */
+            updated_at?: string | null;
+        };
+        LineItemsResponse: {
+            amount_managed: boolean;
+            amount_mode: components["schemas"]["AmountMode"];
+            can_apply_total: boolean;
+            /** @example BRL */
+            currency: string;
+            /** @example 300.00 */
+            discount_total: string;
+            items: components["schemas"]["LineItemResponse"][];
+            /** @example 2700.00 */
+            record_amount?: string | null;
+            record_id: string;
+            record_type: string;
+            /** @example 3000.00 */
+            subtotal: string;
+            /** @example 2700.00 */
+            total: string;
         };
         LinkCompanyRequest: {
             company_id: string;
@@ -19185,7 +19196,7 @@ export interface components {
                 name: string;
                 /** @example 1500.00 */
                 price: string;
-                recurrence: components["schemas"]["ProductRecurrence"];
+                recurrence: components["schemas"]["Recurrence"];
                 /**
                  * Format: int32
                  * @example 12
@@ -20101,8 +20112,6 @@ export interface components {
             /** @example 2026-10-22T13:45:00Z */
             updated_at: string;
         };
-        /** @enum {string} */
-        ProductRecurrence: "none" | "monthly" | "quarterly" | "yearly";
         ProductRequest: {
             /** @example CONS-01 */
             code?: string | null;
@@ -20114,7 +20123,7 @@ export interface components {
             /** @example Monthly consulting */
             name?: string | null;
             price?: null | components["schemas"]["DecimalInput"];
-            recurrence?: null | components["schemas"]["ProductRecurrence"];
+            recurrence?: null | components["schemas"]["Recurrence"];
             /**
              * Format: int64
              * @example 12
@@ -20137,7 +20146,7 @@ export interface components {
             name: string;
             /** @example 1500.00 */
             price: string;
-            recurrence: components["schemas"]["ProductRecurrence"];
+            recurrence: components["schemas"]["Recurrence"];
             /**
              * Format: int32
              * @example 12
@@ -20535,7 +20544,7 @@ export interface components {
             deal_id?: string | null;
             discount_type?: null | components["schemas"]["QuoteDiscountType"];
             discount_value?: null | components["schemas"]["DecimalInput"];
-            from_deal_items?: boolean | null;
+            from_line_items?: boolean | null;
             items?: components["schemas"]["QuoteItemRequest"][] | null;
             notes?: string | null;
             owner_id?: string | null;
@@ -20748,6 +20757,8 @@ export interface components {
             recovery_codes: string[];
         };
         /** @enum {string} */
+        Recurrence: "none" | "monthly" | "quarterly" | "yearly";
+        /** @enum {string} */
         RecurrenceApplyTo: "this" | "following";
         /** @enum {string} */
         RecurrenceFrequency: "daily" | "weekly" | "monthly" | "yearly";
@@ -20906,9 +20917,6 @@ export interface components {
         ReorderCustomObjectsRequest: {
             keys: string[];
         };
-        ReorderDealItemsRequest: {
-            item_ids: string[];
-        };
         ReorderDealMemberRolesRequest: {
             ids: string[];
         };
@@ -20917,6 +20925,9 @@ export interface components {
         };
         ReorderFavoritesRequest: {
             ids: string[];
+        };
+        ReorderLineItemsRequest: {
+            item_ids: string[];
         };
         ReorderRequest: {
             ids: string[];
@@ -22120,9 +22131,6 @@ export interface components {
             /** @example contract_number */
             title_field_key?: string | null;
         };
-        UpdateDealItemSettingsRequest: {
-            amount_mode?: null | components["schemas"]["DealAmountMode"];
-        };
         UpdateDealMemberRequest: {
             credit_percent?: null | components["schemas"]["DecimalInput"];
             role_id?: string | null;
@@ -22219,6 +22227,9 @@ export interface components {
             name?: string | null;
             /** Format: int32 */
             signature_tolerance_seconds?: number | null;
+        };
+        UpdateLineItemSettingsRequest: {
+            amount_mode?: null | components["schemas"]["AmountMode"];
         };
         UpdateLostReasonRequest: {
             is_active?: boolean | null;
@@ -30789,125 +30800,6 @@ export interface operations {
             };
         };
     };
-    deal_item_settings_get: {
-        parameters: {
-            query?: never;
-            header?: never;
-            path?: never;
-            cookie?: never;
-        };
-        requestBody?: never;
-        responses: {
-            /** @description Deal item settings */
-            200: {
-                headers: {
-                    [name: string]: unknown;
-                };
-                content: {
-                    "application/json": components["schemas"]["Data_DealItemSettingsResponse"];
-                };
-            };
-            /** @description Missing or invalid credentials (`unauthorized`, `invalid_api_token`) */
-            401: {
-                headers: {
-                    [name: string]: unknown;
-                };
-                content: {
-                    "application/json": components["schemas"]["ErrorEnvelope"];
-                };
-            };
-            /** @description Missing `deals.read` and `settings.manage` (`permission_denied`, `insufficient_scope`) */
-            403: {
-                headers: {
-                    [name: string]: unknown;
-                };
-                content: {
-                    "application/json": components["schemas"]["ErrorEnvelope"];
-                };
-            };
-            /** @description API token rate limit exceeded (`rate_limited`); see `Retry-After` and `X-RateLimit-*` */
-            429: {
-                headers: {
-                    [name: string]: unknown;
-                };
-                content: {
-                    "application/json": components["schemas"]["ErrorEnvelope"];
-                };
-            };
-        };
-    };
-    deal_item_settings_update: {
-        parameters: {
-            query?: never;
-            header?: {
-                /** @description `updated_at` of the settings as read (ISO-8601, quotes optional); ignored while the settings were never saved */
-                "If-Match"?: string | null;
-            };
-            path?: never;
-            cookie?: never;
-        };
-        requestBody: {
-            content: {
-                "application/json": components["schemas"]["UpdateDealItemSettingsRequest"];
-            };
-        };
-        responses: {
-            /** @description Settings updated */
-            200: {
-                headers: {
-                    [name: string]: unknown;
-                };
-                content: {
-                    "application/json": components["schemas"]["Data_DealItemSettingsResponse"];
-                };
-            };
-            /** @description Missing or invalid credentials (`unauthorized`, `invalid_api_token`) */
-            401: {
-                headers: {
-                    [name: string]: unknown;
-                };
-                content: {
-                    "application/json": components["schemas"]["ErrorEnvelope"];
-                };
-            };
-            /** @description Missing `settings.manage` (`permission_denied`, `insufficient_scope`) */
-            403: {
-                headers: {
-                    [name: string]: unknown;
-                };
-                content: {
-                    "application/json": components["schemas"]["ErrorEnvelope"];
-                };
-            };
-            /** @description The settings changed since the `If-Match` version (`version_conflict`) */
-            409: {
-                headers: {
-                    [name: string]: unknown;
-                };
-                content: {
-                    "application/json": components["schemas"]["ErrorEnvelope"];
-                };
-            };
-            /** @description Invalid `amount_mode` or malformed `If-Match` (`validation_error`) */
-            422: {
-                headers: {
-                    [name: string]: unknown;
-                };
-                content: {
-                    "application/json": components["schemas"]["ErrorEnvelope"];
-                };
-            };
-            /** @description API token rate limit exceeded (`rate_limited`); see `Retry-After` and `X-RateLimit-*` */
-            429: {
-                headers: {
-                    [name: string]: unknown;
-                };
-                content: {
-                    "application/json": components["schemas"]["ErrorEnvelope"];
-                };
-            };
-        };
-    };
     deal_member_roles_list: {
         parameters: {
             query?: {
@@ -31722,464 +31614,6 @@ export interface operations {
                 };
             };
             /** @description `Idempotency-Key` already used with a different request (`idempotency_key_reused`) or longer than 255 characters (`validation_error`) */
-            422: {
-                headers: {
-                    [name: string]: unknown;
-                };
-                content: {
-                    "application/json": components["schemas"]["ErrorEnvelope"];
-                };
-            };
-            /** @description API token rate limit exceeded (`rate_limited`); see `Retry-After` and `X-RateLimit-*` */
-            429: {
-                headers: {
-                    [name: string]: unknown;
-                };
-                content: {
-                    "application/json": components["schemas"]["ErrorEnvelope"];
-                };
-            };
-        };
-    };
-    deal_items_list: {
-        parameters: {
-            query?: never;
-            header?: never;
-            path: {
-                /** @description Deal id */
-                deal_id: string;
-            };
-            cookie?: never;
-        };
-        requestBody?: never;
-        responses: {
-            /** @description Items and totals of the deal */
-            200: {
-                headers: {
-                    [name: string]: unknown;
-                };
-                content: {
-                    "application/json": components["schemas"]["Data_DealItemsResponse"];
-                };
-            };
-            /** @description Missing or invalid credentials (`unauthorized`, `invalid_api_token`) */
-            401: {
-                headers: {
-                    [name: string]: unknown;
-                };
-                content: {
-                    "application/json": components["schemas"]["ErrorEnvelope"];
-                };
-            };
-            /** @description Missing `deals.read` (`permission_denied`, `insufficient_scope`) */
-            403: {
-                headers: {
-                    [name: string]: unknown;
-                };
-                content: {
-                    "application/json": components["schemas"]["ErrorEnvelope"];
-                };
-            };
-            /** @description Deal not found or not visible (`deal_not_found`) */
-            404: {
-                headers: {
-                    [name: string]: unknown;
-                };
-                content: {
-                    "application/json": components["schemas"]["ErrorEnvelope"];
-                };
-            };
-            /** @description The `amount` field of deals is hidden for the role (`field_not_accessible`) */
-            422: {
-                headers: {
-                    [name: string]: unknown;
-                };
-                content: {
-                    "application/json": components["schemas"]["ErrorEnvelope"];
-                };
-            };
-            /** @description API token rate limit exceeded (`rate_limited`); see `Retry-After` and `X-RateLimit-*` */
-            429: {
-                headers: {
-                    [name: string]: unknown;
-                };
-                content: {
-                    "application/json": components["schemas"]["ErrorEnvelope"];
-                };
-            };
-        };
-    };
-    deal_items_create: {
-        parameters: {
-            query?: never;
-            header?: {
-                /** @description Up to 255 printable ASCII characters. The same key with the same request (method, path and body) within 24 hours answers the stored response with the same status and body plus `Idempotent-Replayed: true`. Scoped to the credential (session cookie or API token); ignored without a credential. 5xx and 429 responses are not stored */
-                "Idempotency-Key"?: string;
-            };
-            path: {
-                /** @description Deal id */
-                deal_id: string;
-            };
-            cookie?: never;
-        };
-        requestBody: {
-            content: {
-                "application/json": components["schemas"]["DealItemRequest"];
-            };
-        };
-        responses: {
-            /** @description Item added */
-            201: {
-                headers: {
-                    [name: string]: unknown;
-                };
-                content: {
-                    "application/json": components["schemas"]["Data_DealItemResponse"];
-                };
-            };
-            /** @description Missing or invalid credentials (`unauthorized`, `invalid_api_token`) */
-            401: {
-                headers: {
-                    [name: string]: unknown;
-                };
-                content: {
-                    "application/json": components["schemas"]["ErrorEnvelope"];
-                };
-            };
-            /** @description Missing `deals.update` on the deal (`permission_denied`, `insufficient_scope`) */
-            403: {
-                headers: {
-                    [name: string]: unknown;
-                };
-                content: {
-                    "application/json": components["schemas"]["ErrorEnvelope"];
-                };
-            };
-            /** @description Deal not found or not visible (`deal_not_found`) */
-            404: {
-                headers: {
-                    [name: string]: unknown;
-                };
-                content: {
-                    "application/json": components["schemas"]["ErrorEnvelope"];
-                };
-            };
-            /** @description The first request with this `Idempotency-Key` is still being processed (`idempotency_key_in_progress`) */
-            409: {
-                headers: {
-                    [name: string]: unknown;
-                };
-                content: {
-                    "application/json": components["schemas"]["ErrorEnvelope"];
-                };
-            };
-            /** @description Invalid item (`validation_error` with fields such as `name`, `quantity`, `discount_value` or an unknown/inactive `product_id`), product in another currency (`product_currency_mismatch`), item limit reached (`deal_items_limit_reached`) or `amount` not editable in the `items` mode (`field_not_accessible`, `field_read_only`). `Idempotency-Key` already used with a different request (`idempotency_key_reused`) or longer than 255 characters (`validation_error`) */
-            422: {
-                headers: {
-                    [name: string]: unknown;
-                };
-                content: {
-                    "application/json": components["schemas"]["ErrorEnvelope"];
-                };
-            };
-            /** @description API token rate limit exceeded (`rate_limited`); see `Retry-After` and `X-RateLimit-*` */
-            429: {
-                headers: {
-                    [name: string]: unknown;
-                };
-                content: {
-                    "application/json": components["schemas"]["ErrorEnvelope"];
-                };
-            };
-        };
-    };
-    deal_items_apply_total: {
-        parameters: {
-            query?: never;
-            header?: {
-                /** @description Up to 255 printable ASCII characters. The same key with the same request (method, path and body) within 24 hours answers the stored response with the same status and body plus `Idempotent-Replayed: true`. Scoped to the credential (session cookie or API token); ignored without a credential. 5xx and 429 responses are not stored */
-                "Idempotency-Key"?: string;
-            };
-            path: {
-                /** @description Deal id */
-                deal_id: string;
-            };
-            cookie?: never;
-        };
-        requestBody?: never;
-        responses: {
-            /** @description Items and totals after the update */
-            200: {
-                headers: {
-                    [name: string]: unknown;
-                };
-                content: {
-                    "application/json": components["schemas"]["Data_DealItemsResponse"];
-                };
-            };
-            /** @description Missing or invalid credentials (`unauthorized`, `invalid_api_token`) */
-            401: {
-                headers: {
-                    [name: string]: unknown;
-                };
-                content: {
-                    "application/json": components["schemas"]["ErrorEnvelope"];
-                };
-            };
-            /** @description Missing `deals.update` on the deal (`permission_denied`, `insufficient_scope`) */
-            403: {
-                headers: {
-                    [name: string]: unknown;
-                };
-                content: {
-                    "application/json": components["schemas"]["ErrorEnvelope"];
-                };
-            };
-            /** @description Deal not found or not visible (`deal_not_found`) */
-            404: {
-                headers: {
-                    [name: string]: unknown;
-                };
-                content: {
-                    "application/json": components["schemas"]["ErrorEnvelope"];
-                };
-            };
-            /** @description The first request with this `Idempotency-Key` is still being processed (`idempotency_key_in_progress`) */
-            409: {
-                headers: {
-                    [name: string]: unknown;
-                };
-                content: {
-                    "application/json": components["schemas"]["ErrorEnvelope"];
-                };
-            };
-            /** @description The deal has no items (`deal_has_no_items`) or `amount` is not editable for the role (`field_not_accessible`, `field_read_only`). `Idempotency-Key` already used with a different request (`idempotency_key_reused`) or longer than 255 characters (`validation_error`) */
-            422: {
-                headers: {
-                    [name: string]: unknown;
-                };
-                content: {
-                    "application/json": components["schemas"]["ErrorEnvelope"];
-                };
-            };
-            /** @description API token rate limit exceeded (`rate_limited`); see `Retry-After` and `X-RateLimit-*` */
-            429: {
-                headers: {
-                    [name: string]: unknown;
-                };
-                content: {
-                    "application/json": components["schemas"]["ErrorEnvelope"];
-                };
-            };
-        };
-    };
-    deal_items_reorder: {
-        parameters: {
-            query?: never;
-            header?: never;
-            path: {
-                /** @description Deal id */
-                deal_id: string;
-            };
-            cookie?: never;
-        };
-        requestBody: {
-            content: {
-                "application/json": components["schemas"]["ReorderDealItemsRequest"];
-            };
-        };
-        responses: {
-            /** @description Items in the new order */
-            200: {
-                headers: {
-                    [name: string]: unknown;
-                };
-                content: {
-                    "application/json": components["schemas"]["Data_DealItemsResponse"];
-                };
-            };
-            /** @description Missing or invalid credentials (`unauthorized`, `invalid_api_token`) */
-            401: {
-                headers: {
-                    [name: string]: unknown;
-                };
-                content: {
-                    "application/json": components["schemas"]["ErrorEnvelope"];
-                };
-            };
-            /** @description Missing `deals.update` on the deal (`permission_denied`, `insufficient_scope`) */
-            403: {
-                headers: {
-                    [name: string]: unknown;
-                };
-                content: {
-                    "application/json": components["schemas"]["ErrorEnvelope"];
-                };
-            };
-            /** @description Deal not found or not visible (`deal_not_found`) */
-            404: {
-                headers: {
-                    [name: string]: unknown;
-                };
-                content: {
-                    "application/json": components["schemas"]["ErrorEnvelope"];
-                };
-            };
-            /** @description `item_ids` is not a permutation of the items (`validation_error`) */
-            422: {
-                headers: {
-                    [name: string]: unknown;
-                };
-                content: {
-                    "application/json": components["schemas"]["ErrorEnvelope"];
-                };
-            };
-            /** @description API token rate limit exceeded (`rate_limited`); see `Retry-After` and `X-RateLimit-*` */
-            429: {
-                headers: {
-                    [name: string]: unknown;
-                };
-                content: {
-                    "application/json": components["schemas"]["ErrorEnvelope"];
-                };
-            };
-        };
-    };
-    deal_items_delete: {
-        parameters: {
-            query?: never;
-            header?: never;
-            path: {
-                /** @description Deal id */
-                deal_id: string;
-                /** @description Item id */
-                item_id: string;
-            };
-            cookie?: never;
-        };
-        requestBody?: never;
-        responses: {
-            /** @description Item removed; publishes `deal.item_removed`. In the `items` amount mode the deal amount is recalculated (removing the last item sets it to `0.00`) */
-            204: {
-                headers: {
-                    [name: string]: unknown;
-                };
-                content?: never;
-            };
-            /** @description Missing or invalid credentials (`unauthorized`, `invalid_api_token`) */
-            401: {
-                headers: {
-                    [name: string]: unknown;
-                };
-                content: {
-                    "application/json": components["schemas"]["ErrorEnvelope"];
-                };
-            };
-            /** @description Missing `deals.update` on the deal (`permission_denied`, `insufficient_scope`) */
-            403: {
-                headers: {
-                    [name: string]: unknown;
-                };
-                content: {
-                    "application/json": components["schemas"]["ErrorEnvelope"];
-                };
-            };
-            /** @description Deal or item not found (`deal_not_found`, `deal_item_not_found`) */
-            404: {
-                headers: {
-                    [name: string]: unknown;
-                };
-                content: {
-                    "application/json": components["schemas"]["ErrorEnvelope"];
-                };
-            };
-            /** @description `amount` not editable in the `items` mode (`field_not_accessible`, `field_read_only`) */
-            422: {
-                headers: {
-                    [name: string]: unknown;
-                };
-                content: {
-                    "application/json": components["schemas"]["ErrorEnvelope"];
-                };
-            };
-            /** @description API token rate limit exceeded (`rate_limited`); see `Retry-After` and `X-RateLimit-*` */
-            429: {
-                headers: {
-                    [name: string]: unknown;
-                };
-                content: {
-                    "application/json": components["schemas"]["ErrorEnvelope"];
-                };
-            };
-        };
-    };
-    deal_items_update: {
-        parameters: {
-            query?: never;
-            header?: {
-                /** @description `updated_at` of the item as read (ISO-8601, quotes optional); the update fails with 409 when it changed since */
-                "If-Match"?: string | null;
-            };
-            path: {
-                /** @description Deal id */
-                deal_id: string;
-                /** @description Item id */
-                item_id: string;
-            };
-            cookie?: never;
-        };
-        requestBody: {
-            content: {
-                "application/json": components["schemas"]["DealItemRequest"];
-            };
-        };
-        responses: {
-            /** @description Item updated */
-            200: {
-                headers: {
-                    [name: string]: unknown;
-                };
-                content: {
-                    "application/json": components["schemas"]["Data_DealItemResponse"];
-                };
-            };
-            /** @description Missing or invalid credentials (`unauthorized`, `invalid_api_token`) */
-            401: {
-                headers: {
-                    [name: string]: unknown;
-                };
-                content: {
-                    "application/json": components["schemas"]["ErrorEnvelope"];
-                };
-            };
-            /** @description Missing `deals.update` on the deal (`permission_denied`, `insufficient_scope`) */
-            403: {
-                headers: {
-                    [name: string]: unknown;
-                };
-                content: {
-                    "application/json": components["schemas"]["ErrorEnvelope"];
-                };
-            };
-            /** @description Deal or item not found (`deal_not_found`, `deal_item_not_found`) */
-            404: {
-                headers: {
-                    [name: string]: unknown;
-                };
-                content: {
-                    "application/json": components["schemas"]["ErrorEnvelope"];
-                };
-            };
-            /** @description The item changed since the `If-Match` version (`version_conflict`) */
-            409: {
-                headers: {
-                    [name: string]: unknown;
-                };
-                content: {
-                    "application/json": components["schemas"]["ErrorEnvelope"];
-                };
-            };
-            /** @description Invalid item or malformed `If-Match` (`validation_error`), product in another currency (`product_currency_mismatch`) or `amount` not editable in the `items` mode (`field_not_accessible`, `field_read_only`) */
             422: {
                 headers: {
                     [name: string]: unknown;
@@ -42260,6 +41694,595 @@ export interface operations {
                 };
             };
             /** @description Unknown trigger or stage (`validation_error` with `details.fields`) */
+            422: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["ErrorEnvelope"];
+                };
+            };
+            /** @description API token rate limit exceeded (`rate_limited`); see `Retry-After` and `X-RateLimit-*` */
+            429: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["ErrorEnvelope"];
+                };
+            };
+        };
+    };
+    line_item_settings_get: {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        requestBody?: never;
+        responses: {
+            /** @description Line item settings */
+            200: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["Data_LineItemSettingsResponse"];
+                };
+            };
+            /** @description Missing or invalid credentials (`unauthorized`, `invalid_api_token`) */
+            401: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["ErrorEnvelope"];
+                };
+            };
+            /** @description Missing `line_items.read` and `settings.manage` (`permission_denied`, `insufficient_scope`) */
+            403: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["ErrorEnvelope"];
+                };
+            };
+            /** @description API token rate limit exceeded (`rate_limited`); see `Retry-After` and `X-RateLimit-*` */
+            429: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["ErrorEnvelope"];
+                };
+            };
+        };
+    };
+    line_item_settings_update: {
+        parameters: {
+            query?: never;
+            header?: {
+                /** @description `updated_at` of the settings as read (ISO-8601, quotes optional); ignored while the settings were never saved */
+                "If-Match"?: string | null;
+            };
+            path?: never;
+            cookie?: never;
+        };
+        requestBody: {
+            content: {
+                "application/json": components["schemas"]["UpdateLineItemSettingsRequest"];
+            };
+        };
+        responses: {
+            /** @description Settings updated */
+            200: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["Data_LineItemSettingsResponse"];
+                };
+            };
+            /** @description Missing or invalid credentials (`unauthorized`, `invalid_api_token`) */
+            401: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["ErrorEnvelope"];
+                };
+            };
+            /** @description Missing `settings.manage` (`permission_denied`, `insufficient_scope`) */
+            403: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["ErrorEnvelope"];
+                };
+            };
+            /** @description The settings changed since the `If-Match` version (`version_conflict`) */
+            409: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["ErrorEnvelope"];
+                };
+            };
+            /** @description Invalid `amount_mode` or malformed `If-Match` (`validation_error`) */
+            422: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["ErrorEnvelope"];
+                };
+            };
+            /** @description API token rate limit exceeded (`rate_limited`); see `Retry-After` and `X-RateLimit-*` */
+            429: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["ErrorEnvelope"];
+                };
+            };
+        };
+    };
+    line_items_list: {
+        parameters: {
+            query?: never;
+            header?: never;
+            path: {
+                /** @description Entity key */
+                record_type: string;
+                /** @description Record id */
+                record_id: string;
+            };
+            cookie?: never;
+        };
+        requestBody?: never;
+        responses: {
+            /** @description Items and totals of the record */
+            200: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["Data_LineItemsResponse"];
+                };
+            };
+            /** @description Missing or invalid credentials (`unauthorized`, `invalid_api_token`) */
+            401: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["ErrorEnvelope"];
+                };
+            };
+            /** @description Missing the parent entity read permission (`permission_denied`, `insufficient_scope`) */
+            403: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["ErrorEnvelope"];
+                };
+            };
+            /** @description Record not found, not visible or not attachable (`line_item_not_found`) */
+            404: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["ErrorEnvelope"];
+                };
+            };
+            /** @description A declared monetary field is hidden for the role (`field_not_accessible`) */
+            422: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["ErrorEnvelope"];
+                };
+            };
+            /** @description API token rate limit exceeded (`rate_limited`); see `Retry-After` and `X-RateLimit-*` */
+            429: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["ErrorEnvelope"];
+                };
+            };
+        };
+    };
+    line_items_create: {
+        parameters: {
+            query?: never;
+            header?: {
+                /** @description Up to 255 printable ASCII characters. The same key with the same request (method, path and body) within 24 hours answers the stored response with the same status and body plus `Idempotent-Replayed: true`. Scoped to the credential (session cookie or API token); ignored without a credential. 5xx and 429 responses are not stored */
+                "Idempotency-Key"?: string;
+            };
+            path: {
+                /** @description Entity key */
+                record_type: string;
+                /** @description Record id */
+                record_id: string;
+            };
+            cookie?: never;
+        };
+        requestBody: {
+            content: {
+                "application/json": components["schemas"]["LineItemRequest"];
+            };
+        };
+        responses: {
+            /** @description Item added */
+            201: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["Data_LineItemResponse"];
+                };
+            };
+            /** @description Missing or invalid credentials (`unauthorized`, `invalid_api_token`) */
+            401: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["ErrorEnvelope"];
+                };
+            };
+            /** @description Missing the parent entity update permission (`permission_denied`, `insufficient_scope`) */
+            403: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["ErrorEnvelope"];
+                };
+            };
+            /** @description Record not found, not visible or not attachable (`line_item_not_found`) */
+            404: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["ErrorEnvelope"];
+                };
+            };
+            /** @description The first request with this `Idempotency-Key` is still being processed (`idempotency_key_in_progress`) */
+            409: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["ErrorEnvelope"];
+                };
+            };
+            /** @description Invalid item (`validation_error` with fields such as `name`, `quantity`, `discount_value` or an unknown/inactive `product_id`), product in another currency (`product_currency_mismatch`), item limit reached (`line_items_limit_reached`) or `amount` not editable in the `items` mode (`field_not_accessible`, `field_read_only`). `Idempotency-Key` already used with a different request (`idempotency_key_reused`) or longer than 255 characters (`validation_error`) */
+            422: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["ErrorEnvelope"];
+                };
+            };
+            /** @description API token rate limit exceeded (`rate_limited`); see `Retry-After` and `X-RateLimit-*` */
+            429: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["ErrorEnvelope"];
+                };
+            };
+        };
+    };
+    line_items_apply_total: {
+        parameters: {
+            query?: never;
+            header?: {
+                /** @description Up to 255 printable ASCII characters. The same key with the same request (method, path and body) within 24 hours answers the stored response with the same status and body plus `Idempotent-Replayed: true`. Scoped to the credential (session cookie or API token); ignored without a credential. 5xx and 429 responses are not stored */
+                "Idempotency-Key"?: string;
+            };
+            path: {
+                /** @description Entity key */
+                record_type: string;
+                /** @description Record id */
+                record_id: string;
+            };
+            cookie?: never;
+        };
+        requestBody?: never;
+        responses: {
+            /** @description Items and totals after the update */
+            200: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["Data_LineItemsResponse"];
+                };
+            };
+            /** @description Missing or invalid credentials (`unauthorized`, `invalid_api_token`) */
+            401: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["ErrorEnvelope"];
+                };
+            };
+            /** @description Missing the parent entity update permission (`permission_denied`, `insufficient_scope`) */
+            403: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["ErrorEnvelope"];
+                };
+            };
+            /** @description Record not found, not visible or not attachable (`line_item_not_found`) */
+            404: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["ErrorEnvelope"];
+                };
+            };
+            /** @description The first request with this `Idempotency-Key` is still being processed (`idempotency_key_in_progress`) */
+            409: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["ErrorEnvelope"];
+                };
+            };
+            /** @description The parent has no items (`record_has_no_items`) or `amount` is not editable for the role (`field_not_accessible`, `field_read_only`). `Idempotency-Key` already used with a different request (`idempotency_key_reused`) or longer than 255 characters (`validation_error`) */
+            422: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["ErrorEnvelope"];
+                };
+            };
+            /** @description API token rate limit exceeded (`rate_limited`); see `Retry-After` and `X-RateLimit-*` */
+            429: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["ErrorEnvelope"];
+                };
+            };
+        };
+    };
+    line_items_reorder: {
+        parameters: {
+            query?: never;
+            header?: never;
+            path: {
+                /** @description Entity key */
+                record_type: string;
+                /** @description Record id */
+                record_id: string;
+            };
+            cookie?: never;
+        };
+        requestBody: {
+            content: {
+                "application/json": components["schemas"]["ReorderLineItemsRequest"];
+            };
+        };
+        responses: {
+            /** @description Items in the new order */
+            200: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["Data_LineItemsResponse"];
+                };
+            };
+            /** @description Missing or invalid credentials (`unauthorized`, `invalid_api_token`) */
+            401: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["ErrorEnvelope"];
+                };
+            };
+            /** @description Missing the parent entity update permission (`permission_denied`, `insufficient_scope`) */
+            403: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["ErrorEnvelope"];
+                };
+            };
+            /** @description Record not found, not visible or not attachable (`line_item_not_found`) */
+            404: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["ErrorEnvelope"];
+                };
+            };
+            /** @description `item_ids` is not a permutation of the items (`validation_error`) */
+            422: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["ErrorEnvelope"];
+                };
+            };
+            /** @description API token rate limit exceeded (`rate_limited`); see `Retry-After` and `X-RateLimit-*` */
+            429: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["ErrorEnvelope"];
+                };
+            };
+        };
+    };
+    line_items_delete: {
+        parameters: {
+            query?: never;
+            header?: never;
+            path: {
+                /** @description Entity key */
+                record_type: string;
+                /** @description Record id */
+                record_id: string;
+                /** @description Item id */
+                item_id: string;
+            };
+            cookie?: never;
+        };
+        requestBody?: never;
+        responses: {
+            /** @description Item removed; publishes `line_items.item_removed`. In the `items` amount mode the parent amount is recalculated (removing the last item sets it to `0.00`) */
+            204: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content?: never;
+            };
+            /** @description Missing or invalid credentials (`unauthorized`, `invalid_api_token`) */
+            401: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["ErrorEnvelope"];
+                };
+            };
+            /** @description Missing the parent entity update permission (`permission_denied`, `insufficient_scope`) */
+            403: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["ErrorEnvelope"];
+                };
+            };
+            /** @description Record or item not found (`line_item_not_found`) */
+            404: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["ErrorEnvelope"];
+                };
+            };
+            /** @description `amount` not editable in the `items` mode (`field_not_accessible`, `field_read_only`) */
+            422: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["ErrorEnvelope"];
+                };
+            };
+            /** @description API token rate limit exceeded (`rate_limited`); see `Retry-After` and `X-RateLimit-*` */
+            429: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["ErrorEnvelope"];
+                };
+            };
+        };
+    };
+    line_items_update: {
+        parameters: {
+            query?: never;
+            header?: {
+                /** @description `updated_at` of the item as read (ISO-8601, quotes optional); the update fails with 409 when it changed since */
+                "If-Match"?: string | null;
+            };
+            path: {
+                /** @description Entity key */
+                record_type: string;
+                /** @description Record id */
+                record_id: string;
+                /** @description Item id */
+                item_id: string;
+            };
+            cookie?: never;
+        };
+        requestBody: {
+            content: {
+                "application/json": components["schemas"]["LineItemRequest"];
+            };
+        };
+        responses: {
+            /** @description Item updated */
+            200: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["Data_LineItemResponse"];
+                };
+            };
+            /** @description Missing or invalid credentials (`unauthorized`, `invalid_api_token`) */
+            401: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["ErrorEnvelope"];
+                };
+            };
+            /** @description Missing the parent entity update permission (`permission_denied`, `insufficient_scope`) */
+            403: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["ErrorEnvelope"];
+                };
+            };
+            /** @description Record or item not found (`line_item_not_found`) */
+            404: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["ErrorEnvelope"];
+                };
+            };
+            /** @description The item changed since the `If-Match` version (`version_conflict`) */
+            409: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["ErrorEnvelope"];
+                };
+            };
+            /** @description Invalid item or malformed `If-Match` (`validation_error`), product in another currency (`product_currency_mismatch`) or `amount` not editable in the `items` mode (`field_not_accessible`, `field_read_only`) */
             422: {
                 headers: {
                     [name: string]: unknown;

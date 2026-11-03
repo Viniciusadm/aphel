@@ -113,7 +113,7 @@ What applies only to some types becomes a capability in `EntityDefinition.capabi
 Besides the capabilities, the definition carries two structural declarations:
 
 - `hierarchy(parent_column)` (`EntityDefinition::hierarchy` or `extend(..).hierarchy(..)`): the type is a tree over its own table. It enables the `in_group` operator on the type's `id` and on `record` fields that point to it (`hierarchical_target`), compiled into `WITH RECURSIVE` over the declared column (`Predicate::InGroup(RecordGroup)`). `organizations` declares `parent_company_id`.
-- `item_table(ItemTable)` (via `extend`): a table of child items that formulas aggregate (`SUM(items.total)`), with the exposed columns. `deal_items` declares `items` on `deal`.
+- `item_table(ItemTable)` (via `extend`): a table of child items that formulas aggregate (`SUM(items.total)`), with the exposed columns. `line_items` declares `items` on `deal`.
 
 ## Registering and extending types
 

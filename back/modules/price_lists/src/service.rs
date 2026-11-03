@@ -31,10 +31,8 @@ use aphel_kernel::database::transaction::MySqlTx;
 use aphel_kernel::domain::access::Permission;
 use aphel_kernel::errors::{AppError, FieldViolation};
 use aphel_kernel::records::{InputValidator, MAX_LONG_TEXT_LENGTH, Patch, changes_payload};
-use products::domain::{
-    MONEY_DECIMALS, QUANTITY_DECIMALS, normalize_currency, normalize_quantity, parse_money,
-    require_catalog,
-};
+use aphel_sdk::line_items::{MONEY_DECIMALS, QUANTITY_DECIMALS, normalize_quantity, parse_money};
+use products::domain::{normalize_currency, require_catalog};
 const INVALID_PRICE_LIST: &str = "invalid price list";
 const INVALID_ITEMS: &str = "invalid price list items";
 const INVALID_LIMITS: &str = "invalid discount limits";

@@ -16,7 +16,8 @@ scoring = { path = "modules/scoring" }
 money = { path = "modules/money" }
 workflow = { path = "modules/workflow" }
 deals = { path = "modules/deals", required = true }
-deal_items = { path = "modules/deal_items" }
+line_items = { path = "modules/line_items" }
+deals_revenue = { path = "modules/deals_revenue" }
 renewals = { path = "modules/renewals" }
 goals = { path = "modules/goals" }
 forecast = { path = "modules/forecast" }

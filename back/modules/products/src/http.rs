@@ -11,7 +11,7 @@ use utoipa_axum::router::OpenApiRouter;
 use utoipa_axum::routes;
 use uuid::Uuid;
 
-use crate::domain::{ProductDetails, ProductInput, ProductRecurrence, SaveProductCommand, money};
+use crate::domain::{ProductDetails, ProductInput, Recurrence, SaveProductCommand, money};
 use crate::service;
 use aphel_kernel::Ctx;
 use aphel_kernel::api::dto::common::{
@@ -218,32 +218,32 @@ async fn delete_product(
 
 #[derive(Debug, Clone, Copy, Serialize, Deserialize, ToSchema)]
 #[serde(rename_all = "snake_case")]
-#[schema(as = ProductRecurrence)]
-pub enum ProductRecurrenceSchema {
+#[schema(as = Recurrence)]
+pub enum RecurrenceSchema {
     None,
     Monthly,
     Quarterly,
     Yearly,
 }
 
-impl From<ProductRecurrence> for ProductRecurrenceSchema {
-    fn from(value: ProductRecurrence) -> Self {
+impl From<Recurrence> for RecurrenceSchema {
+    fn from(value: Recurrence) -> Self {
         match value {
-            ProductRecurrence::None => Self::None,
-            ProductRecurrence::Monthly => Self::Monthly,
-            ProductRecurrence::Quarterly => Self::Quarterly,
-            ProductRecurrence::Yearly => Self::Yearly,
+            Recurrence::None => Self::None,
+            Recurrence::Monthly => Self::Monthly,
+            Recurrence::Quarterly => Self::Quarterly,
+            Recurrence::Yearly => Self::Yearly,
         }
     }
 }
 
-impl From<ProductRecurrenceSchema> for ProductRecurrence {
-    fn from(value: ProductRecurrenceSchema) -> Self {
+impl From<RecurrenceSchema> for Recurrence {
+    fn from(value: RecurrenceSchema) -> Self {
         match value {
-            ProductRecurrenceSchema::None => Self::None,
-            ProductRecurrenceSchema::Monthly => Self::Monthly,
-            ProductRecurrenceSchema::Quarterly => Self::Quarterly,
-            ProductRecurrenceSchema::Yearly => Self::Yearly,
+            RecurrenceSchema::None => Self::None,
+            RecurrenceSchema::Monthly => Self::Monthly,
+            RecurrenceSchema::Quarterly => Self::Quarterly,
+            RecurrenceSchema::Yearly => Self::Yearly,
         }
     }
 }
@@ -269,8 +269,8 @@ pub(crate) struct ProductRequest {
     #[schema(value_type = Option<String>, example = "hour")]
     pub(crate) unit: Option<Option<String>>,
     #[serde(default, deserialize_with = "double_option")]
-    #[schema(value_type = Option<ProductRecurrenceSchema>)]
-    pub(crate) recurrence: Option<Option<ProductRecurrenceSchema>>,
+    #[schema(value_type = Option<RecurrenceSchema>)]
+    pub(crate) recurrence: Option<Option<RecurrenceSchema>>,
     #[serde(default, deserialize_with = "double_option")]
     #[schema(value_type = Option<i64>, example = 12)]
     pub(crate) term_months: Option<Option<Value>>,
@@ -297,7 +297,7 @@ impl ProductRequest {
                 currency: self.currency,
                 unit: self.unit,
                 recurrence: self.recurrence.map(|value| {
-                    value.map(|recurrence| ProductRecurrence::from(recurrence).as_str().to_owned())
+                    value.map(|recurrence| Recurrence::from(recurrence).as_str().to_owned())
                 }),
                 term_months: self.term_months.map(|value| value.and_then(decimal_text)),
                 is_active: self.is_active,
@@ -320,7 +320,7 @@ pub(crate) struct ProductResponse {
     #[schema(example = "BRL")]
     pub(crate) currency: String,
     pub(crate) unit: Option<String>,
-    pub(crate) recurrence: ProductRecurrenceSchema,
+    pub(crate) recurrence: RecurrenceSchema,
     #[schema(example = 12)]
     pub(crate) term_months: Option<u16>,
     pub(crate) is_active: bool,

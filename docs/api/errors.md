@@ -54,10 +54,10 @@ Every error comes out in the `{ "error": { "code", "message", "details" } }` env
 | `custom_object_not_found` | 404 | custom_objects |
 | `custom_record_not_found` | 404 | custom_objects |
 | `deal_amount_managed_by_items` | 422 | deals |
-| `deal_currency_has_items` | 422 | deal_items (the currency of a deal with items cannot be changed: the item prices are in the current currency; remove the items first) |
-| `deal_has_no_items` | 422 | deal_items |
-| `deal_item_not_found` | 404 | deal_items |
-| `deal_items_limit_reached` | 422 | deal_items |
+| `record_currency_has_items` | 422 | line_items (the currency of a deal with items cannot be changed: the item prices are in the current currency; remove the items first) |
+| `record_has_no_items` | 422 | line_items |
+| `line_item_not_found` | 404 | line_items |
+| `line_items_limit_reached` | 422 | line_items |
 | `deal_not_found` | 404 | deals |
 | `default_pipeline_required` | 409 | workflow |
 | `demo_already_seeded` | 409 | demo (the installation already has records; use `aphel demo remove` or `--force`) |
@@ -160,7 +160,7 @@ Every error comes out in the `{ "error": { "code", "message", "details" } }` env
 | `pipeline_not_found` | 404 | workflow |
 | `pipeline_stage_not_found` | 404 | workflow |
 | `plan_outdated` | 409 | config_packages |
-| `product_currency_mismatch` | 422 | deal_items |
+| `product_currency_mismatch` | 422 | line_items |
 | `product_not_found` | 404 | products |
 | `quote_already_accepted` | 409 | quotes |
 | `quote_closed` | 409 | quotes (public link: already accepted or declined) |

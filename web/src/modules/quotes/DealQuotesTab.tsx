@@ -29,7 +29,7 @@ export function DealQuotesTab({ dealId }: DealQuotesTabProps) {
 
   const create = async (fromItems: boolean) => {
     try {
-      const quote = await mutations.create.mutateAsync({ deal_id: dealId, from_deal_items: fromItems })
+      const quote = await mutations.create.mutateAsync({ deal_id: dealId, from_line_items: fromItems })
       notifySuccess(t('deal.created'))
       void navigate(quotePath(quote.id))
     } catch (error) {

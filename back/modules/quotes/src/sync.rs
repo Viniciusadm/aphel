@@ -115,7 +115,7 @@ async fn apply_to_deal(ctx: &Ctx<'_>, quote: &Quote) -> Result<Option<SyncFailur
     }
     let items = QuoteStore::of(ctx).items(quote.id).await?;
     let outcome = gateway
-        .replace_deal_items(
+        .replace_line_items(
             scope,
             deal.id,
             items

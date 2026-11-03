@@ -27,3 +27,5 @@ utoipa.workspace = true
 utoipa-axum.workspace = true
 uuid.workspace = true
 rust_decimal.workspace = true
+
+chrono-tz.workspace = true

@@ -48,8 +48,6 @@ Writing operations are refused inside hooks (409 `plugin_write_in_hook`). Each o
 | `assignment.assign` | assignment | write | yes | Pick the next owner of a record with a lead distribution rule and set its owner_id (needs update access to the record): { record_type, record_id, rule? (rule id; optional when exactly one active rule distributes the type), idempotency_key? } -> { rule_id, user_id, user_name, selection, route_index, reused, skipped } |
 | `calls.log` | calls | write | yes | Log a call as an activity: { outcome_key, record_type?, record_id?, direction?: inbound\|outbound, duration_seconds?, phone_number?, recording_url?, title?, notes?, occurred_at?, provider?, provider_call_id?, custom_fields? } -> the activity |
 | `currencies.convert` | money | read | — | Today's exchange rate of a currency to the base currency: { currency } -> { base, currency, enabled, rate }; or convert an amount: { amount, from, to? (default: base currency) } -> { amount, from, to, base, rate, converted } (decimals as strings, rate/converted null when a rate is missing) |
-| `deal_items.list` | deal_items | read | — | Line items and totals of a deal: { deal_id } |
-| `deal_items.replace` | deal_items | write | yes | Replace all line items of a deal: { deal_id, items: [{ product_id?, name?, unit?, quantity?, unit_price?, discount_type?: none\|percent\|amount, discount_value?, recurrence?: none\|monthly\|quarterly\|yearly, term_months? }] } |
 | `deals.move_pipeline` | deals | write | yes | Move a deal to another pipeline: { id, pipeline_id, stage_id?, lost_reason_id?, lost_reason_note?, fields? } |
 | `deals.move_stage` | deals | write | yes | Move a deal to a stage (a won/lost stage wins/loses it): { id, stage_id, lost_reason_id?, lost_reason_note?, fields? } |
 | `duplicates.check` | duplicates | read | — | Visible records the enabled rules consider possible duplicates of the given values (at most 10); nothing is stored: { record_type, exclude_id?, name?, first_name?, last_name?, email?, phone?, mobile?, company_id?, domain?, website?, values?: { field_key: text } } -> [{ record_id, title, rules }] |
@@ -76,6 +74,8 @@ Writing operations are refused inside hooks (409 `plugin_write_in_hook`). Each o
 | `leads.convert` | leads | write | yes | Convert an open lead into a deal: { contact_id, pipeline_id, stage_id?, title?, amount?, currency? } -> { contact_id, lifecycle_stage, deal_id } |
 | `leads.disqualify` | leads | write | yes | Disqualify an open lead with a reason: { contact_id, reason_id, note? } -> { contact_id, lifecycle_stage, deal_id } |
 | `leads.qualify` | leads | write | yes | Qualify a contact in the lead stage: { contact_id } -> { contact_id, lifecycle_stage, deal_id } |
+| `line_items.list` | line_items | read | — | Line items and totals of a record: { record_type, record_id } |
+| `line_items.replace` | line_items | write | yes | Replace all line items of a record: { record_type, record_id, items: [{ product_id?, name?, unit?, quantity?, unit_price?, discount_type?: none\|percent\|amount, discount_value?, tax_percent?, recurrence?: none\|monthly\|quarterly\|yearly, term_months? }] } |
 | `messaging.reply` | messaging | write | yes | Queue a reply in a shared inbox conversation (needs messaging view and reply permissions): { conversation_id, body } |
 | `notes.create` | notes | write | yes | Create a note on a record: { record_type, record_id, body, visibility?: team\|private, pinned? } |
 | `notes.delete` | notes | write | yes | Delete a note: { id } |

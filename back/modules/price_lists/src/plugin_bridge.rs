@@ -16,7 +16,8 @@ use aphel_kernel::errors::{AppError, FieldViolation};
 use aphel_kernel::modules::{
     OperationFuture, OperationPage, PluginOperation, operation_input, operation_output,
 };
-use products::domain::{normalize_currency, normalize_quantity, parse_money, require_catalog};
+use aphel_sdk::line_items::{normalize_quantity, parse_money};
+use products::domain::{normalize_currency, require_catalog};
 
 #[derive(Deserialize)]
 struct ListInput {

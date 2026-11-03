@@ -94,7 +94,10 @@ fn valid_widget_id(id: &str) -> bool {
 type Widgets = WidgetRegistry<MySqlDashboardPorts>;
 
 fn widget_ports(ctx: &Ctx<'_>) -> MySqlDashboardPorts {
-    MySqlDashboardPorts::new(ctx.pool().clone(), ctx.registry().clone())
+    MySqlDashboardPorts::new(
+        ctx.query(),
+        std::sync::Arc::new(MySqlDashboardRepository::new(ctx.pool().clone())),
+    )
 }
 
 pub(crate) fn catalog(ctx: &Ctx<'_>) -> Vec<WidgetDescriptor> {

@@ -55,7 +55,7 @@ The kernel does not appear in the file: it is always compiled.
 
 The generated files are committed (the IDE works without running the xtask). `make lint` and CI run `modules sync --check`, which fails if any of them is out of date.
 
-The module type is `<PascalCase of the key>Module` (`deal_items` → `DealItemsModule`), unless the crate declares another one:
+The module type is `<PascalCase of the key>Module` (`line_items` → `LineItemsModule`), unless the crate declares another one:
 
 ```toml
 [package.metadata.aphel]

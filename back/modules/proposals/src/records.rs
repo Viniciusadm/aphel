@@ -13,7 +13,6 @@ use aphel_kernel::errors::{AppError, CodedKind};
 use aphel_kernel::infrastructure::repositories::mysql_organization_profile::find_organization;
 use aphel_kernel::infrastructure::repositories::mysql_users::MySqlUserRepository;
 use aphel_kernel::records::RecordCtx;
-use deal_items::http::DealItemsResponse;
 
 use crate::format::Locale;
 
@@ -141,11 +140,18 @@ pub(crate) async fn quote(ctx: &Ctx<'_>, quote_id: Uuid) -> Result<Value, AppErr
     quotes::http::quote_detail(&ctx.state(), ctx.scope, details).await
 }
 
-pub(crate) async fn deal_items(ctx: &Ctx<'_>, deal_id: Uuid) -> Result<Value, AppError> {
-    if !ctx.app().is_enabled(deal_items::KEY) {
-        return Err(aphel_kernel::modules::module_disabled());
-    }
-    let summary = deal_items::service::summary(ctx, &deal_id.to_string()).await?;
-    serde_json::to_value(DealItemsResponse::from(summary))
-        .map_err(|error| AppError::Internal(error.to_string()))
+pub(crate) async fn line_items(
+    ctx: &Ctx<'_>,
+    deal_id: Uuid,
+) -> Result<aphel_sdk::line_items::LineItemSummary, AppError> {
+    ctx.services()
+        .require::<dyn aphel_sdk::line_items::LineItemsPort>()?
+        .summary(
+            ctx,
+            &aphel_kernel::application::shared::RecordRef::parse(
+                "deals.deal",
+                &deal_id.to_string(),
+            )?,
+        )
+        .await
 }

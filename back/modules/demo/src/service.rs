@@ -649,9 +649,9 @@ async fn seed_revenue(
         .filter(|(deal, _)| matches!(deal.outcome, DemoDealOutcome::Open { .. }))
         .map(|(_, id)| *id)
         .collect();
-    let with_items = revenue::seed_deal_items(ctx, &open_deals, &products).await?;
+    let with_items = revenue::seed_line_items(ctx, &open_deals, &products).await?;
     if !with_items.is_empty() {
-        *state.counts.entry("deal_items".to_owned()).or_default() += with_items.len() as u64;
+        *state.counts.entry("line_items".to_owned()).or_default() += with_items.len() as u64;
     }
     for id in revenue::seed_quotes(ctx, &with_items).await? {
         track(store, state, revenue::QUOTE_RECORD_TYPE, id).await?;

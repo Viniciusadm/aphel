@@ -1,14 +1,9 @@
 use aphel_contract_crm::CrmRecordTypes;
-use async_trait::async_trait;
-use rust_decimal::Decimal;
-use uuid::Uuid;
 
 use crate::domain::{Deal, StageSummary};
 use crate::service::{pipeline_condition, restrict_to_pipelines};
-use aphel_kernel::Ctx;
 use aphel_kernel::application::query::QueryPlan;
 use aphel_kernel::application::shared::RecordType;
-use aphel_kernel::database::transaction::MySqlTx;
 use aphel_kernel::errors::AppError;
 use aphel_kernel::modules::{Hook, HookCtx};
 use aphel_kernel::records::QueryConstraints;
@@ -100,58 +95,6 @@ pub struct DealLost;
 
 impl Hook for DealLost {
     type Args = ClosingDeal;
-}
-
-#[async_trait]
-pub trait AmountCalculator: Send + Sync {
-    async fn amount_locked(&self, ctx: &Ctx<'_>, deal_id: Uuid) -> Result<bool, AppError>;
-
-    async fn refresh_revenue(&self, ctx: &Ctx<'_>, deal: &mut Deal) -> Result<(), AppError>;
-
-    async fn sync_rate(
-        &self,
-        tx: &mut MySqlTx,
-        deal_id: Uuid,
-        rate: Option<Decimal>,
-    ) -> Result<(), AppError>;
-
-    async fn sync_currency_rate(
-        &self,
-        tx: &mut MySqlTx,
-        currency: &str,
-        rate: Option<Decimal>,
-    ) -> Result<(), AppError>;
-}
-
-pub struct ManualAmountCalculator;
-
-#[async_trait]
-impl AmountCalculator for ManualAmountCalculator {
-    async fn amount_locked(&self, _ctx: &Ctx<'_>, _deal_id: Uuid) -> Result<bool, AppError> {
-        Ok(false)
-    }
-
-    async fn refresh_revenue(&self, _ctx: &Ctx<'_>, _deal: &mut Deal) -> Result<(), AppError> {
-        Ok(())
-    }
-
-    async fn sync_rate(
-        &self,
-        _tx: &mut MySqlTx,
-        _deal_id: Uuid,
-        _rate: Option<Decimal>,
-    ) -> Result<(), AppError> {
-        Ok(())
-    }
-
-    async fn sync_currency_rate(
-        &self,
-        _tx: &mut MySqlTx,
-        _currency: &str,
-        _rate: Option<Decimal>,
-    ) -> Result<(), AppError> {
-        Ok(())
-    }
 }
 
 pub(crate) async fn restrict_search(

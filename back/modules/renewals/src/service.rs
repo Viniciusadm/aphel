@@ -19,10 +19,10 @@ use aphel_kernel::application::shared::{
 use aphel_kernel::domain::access::Permission;
 use aphel_kernel::errors::{AppError, FieldViolation};
 use aphel_kernel::records::{RecordMutation, changes_payload, publish_mutation};
-use deal_items::domain::item_command;
+use aphel_sdk::line_items::{LineItem, Recurrence};
 use deals::domain::Deal;
 use deals::domain::{DealInput, DealRevenue, MAX_DEAL_TITLE_LENGTH, date};
-use products::domain::{DealItem, ProductRecurrence};
+
 use workflow::domain::{Pipeline, StageKind, first_active_of_kind, parse_id, pipeline_not_found};
 use workflow::store::PipelineStore;
 
@@ -230,7 +230,7 @@ async fn pipeline(ctx: &Ctx<'_>, pipeline_id: &str) -> Result<Pipeline, AppError
 }
 
 fn items_enabled(ctx: &Ctx<'_>) -> bool {
-    ctx.app().is_enabled(deal_items::KEY)
+    ctx.app().is_enabled(aphel_sdk::line_items::KEY)
 }
 
 pub(crate) async fn renew(
@@ -263,16 +263,23 @@ pub(crate) async fn renew(
     finish(ctx, &original, existing.deal_id).await
 }
 
-async fn recurring_items(ctx: &Ctx<'_>, deal_id: Uuid) -> Result<Vec<DealItem>, AppError> {
+async fn recurring_items(ctx: &Ctx<'_>, deal_id: Uuid) -> Result<Vec<LineItem>, AppError> {
     if !items_enabled(ctx) {
         return Ok(Vec::new());
     }
-    Ok(deal_items::service::summary(ctx, &deal_id.to_string())
+    Ok(ctx
+        .services()
+        .require::<dyn aphel_sdk::line_items::LineItemsPort>()?
+        .rows(
+            ctx,
+            &aphel_kernel::application::shared::RecordRef::parse(
+                "deals.deal",
+                &deal_id.to_string(),
+            )?,
+        )
         .await?
-        .items
         .into_iter()
-        .map(|line| line.item)
-        .filter(|item| item.data.recurrence != ProductRecurrence::None)
+        .filter(|item| item.data.recurrence != Recurrence::None)
         .collect())
 }
 
@@ -280,7 +287,7 @@ async fn create(
     ctx: &Ctx<'_>,
     settings: &RenewalSettings,
     original: &Deal,
-    recurring: &[DealItem],
+    recurring: &[LineItem],
 ) -> Result<Uuid, AppError> {
     let amount = if recurring.is_empty() {
         original.amount
@@ -336,27 +343,25 @@ async fn create(
 async fn copy_items(
     ctx: &Ctx<'_>,
     renewal_id: Uuid,
-    recurring: &[DealItem],
+    recurring: &[LineItem],
 ) -> Result<(), AppError> {
     if recurring.is_empty() || !items_enabled(ctx) {
         return Ok(());
     }
-    let renewal = renewal_id.to_string();
-    if !deal_items::service::summary(ctx, &renewal)
-        .await?
-        .items
-        .is_empty()
-    {
+    let record =
+        aphel_kernel::application::shared::RecordRef::parse("deals.deal", &renewal_id.to_string())?;
+    let port = ctx
+        .services()
+        .require::<dyn aphel_sdk::line_items::LineItemsPort>()?;
+    if !port.rows(ctx, &record).await?.is_empty() {
         return Ok(());
     }
-    for item in recurring {
-        if deal_items::service::add(ctx, &renewal, item_command(&item.data, true))
-            .await
-            .is_err()
-        {
-            deal_items::service::add(ctx, &renewal, item_command(&item.data, false)).await?;
-        }
-    }
+    port.replace(
+        ctx,
+        &record,
+        recurring.iter().map(|item| item.data.clone()).collect(),
+    )
+    .await?;
     Ok(())
 }
 

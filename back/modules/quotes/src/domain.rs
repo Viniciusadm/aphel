@@ -1,3 +1,4 @@
+use aphel_sdk::line_items::line_discount;
 use std::collections::BTreeMap;
 
 use chrono::{DateTime, NaiveDate, Utc};
@@ -8,8 +9,8 @@ use uuid::Uuid;
 use aphel_kernel::application::fields::permissions::provided_key;
 use aphel_kernel::domain::UserId;
 use aphel_kernel::records::Patch;
+use aphel_sdk::line_items::{DiscountKind, Recurrence, money_limit, round_money};
 use email::EmailAddress;
-use products::domain::{DiscountKind, ProductRecurrence, money_limit, round_money};
 
 pub(crate) const MAX_QUOTE_TITLE_LENGTH: usize = 255;
 pub(crate) const MAX_QUOTE_ITEMS: usize = 200;
@@ -93,7 +94,7 @@ pub(crate) struct QuoteItemData {
     pub(crate) discount_kind: DiscountKind,
     pub(crate) discount_value: Decimal,
     pub(crate) tax_percent: Decimal,
-    pub(crate) recurrence: ProductRecurrence,
+    pub(crate) recurrence: Recurrence,
     pub(crate) term_months: Option<u16>,
     pub(crate) components: Vec<QuoteItemComponent>,
 }
@@ -150,16 +151,6 @@ fn valid_percent(value: Decimal) -> bool {
     value >= Decimal::ZERO && value <= Decimal::ONE_HUNDRED
 }
 
-fn line_discount(gross: Decimal, kind: DiscountKind, value: Decimal) -> Option<Decimal> {
-    let discount = match kind {
-        DiscountKind::None => Decimal::ZERO,
-        DiscountKind::Percent if !valid_percent(value) => return None,
-        DiscountKind::Percent => percent_of(gross, value),
-        DiscountKind::Amount => value,
-    };
-    Some(discount.clamp(Decimal::ZERO, gross))
-}
-
 fn allocate(total: Decimal, nets: &[Decimal]) -> Vec<Decimal> {
     let base: Decimal = nets.iter().copied().sum();
     let mut shares = vec![Decimal::ZERO; nets.len()];
@@ -188,14 +179,22 @@ pub(crate) fn compute_totals(
         if !valid_percent(item.tax_percent) {
             return Err(TotalsError::ItemTaxOutOfRange(index));
         }
-        let gross = item
-            .quantity
-            .checked_mul(item.unit_price)
-            .map(round_money)
-            .filter(|gross| *gross < money_limit())
-            .ok_or(TotalsError::ItemTooLarge(index))?;
-        let item_discount = line_discount(gross, item.discount_kind, item.discount_value)
-            .ok_or(TotalsError::ItemPercentOutOfRange(index))?;
+        let amounts = aphel_sdk::line_items::LineData {
+            quantity: item.quantity,
+            unit_price: item.unit_price,
+            discount_kind: item.discount_kind,
+            discount_value: item.discount_value,
+            ..Default::default()
+        }
+        .amounts()
+        .map_err(|error| match error {
+            aphel_sdk::line_items::LineTotalError::PercentOutOfRange => {
+                TotalsError::ItemPercentOutOfRange(index)
+            }
+            _ => TotalsError::ItemTooLarge(index),
+        })?;
+        let gross = amounts.gross;
+        let item_discount = amounts.discount;
         lines.push(LineBreakdown {
             gross,
             item_discount,
@@ -417,7 +416,7 @@ impl QuoteInput {
 #[derive(Debug, Clone, Default, PartialEq)]
 pub struct CreateQuoteCommand {
     pub deal_id: String,
-    pub from_deal_items: bool,
+    pub from_line_items: bool,
     pub input: QuoteInput,
     pub items: Option<Vec<QuoteItemInput>>,
     pub custom_fields: Map<String, Value>,
@@ -584,6 +583,6 @@ pub(crate) struct QuoteEmail {
 }
 
 #[derive(Debug, Clone, Copy, PartialEq, Eq)]
-pub struct DealItemsOutcome {
+pub struct LineItemsOutcome {
     pub amount_managed: bool,
 }

@@ -42,9 +42,9 @@ use aphel_kernel::domain::UserId;
 use aphel_kernel::domain::access::AccessScope;
 use aphel_kernel::errors::AppError;
 use aphel_kernel::records::{RecordCtx, RecordTypeHandler, optional_record, values_request};
+use aphel_sdk::line_items::{DiscountKind, money};
 use deals::http::DecimalInputSchema;
 use email::dto::email_outbound::EmailAddressDto;
-use products::domain::{DiscountKind, money};
 
 pub(crate) const TAG: &str = "quotes";
 
@@ -114,7 +114,7 @@ async fn list_quotes(
     tag = TAG,
     operation_id = "quotes_create",
     security(("session_cookie" = [])),
-    description = "Creates a quote for a deal (permissions `quotes.create` and read access to the deal) with the next number of the organization, version 1 and status `draft`, and publishes `quote.created`. The currency, contact and company come from the deal; the owner defaults to the caller; `valid_until` and `terms` default to the quote settings; the price list defaults to the best active list for the currency and company. `from_deal_items: true` copies the deal items; otherwise send `items`. Items with `product_id` and no `unit_price` take the price of the chosen price list (or the product price); bundles enter as one line with their components. Totals are computed on the server: line = quantity × unit price − line discount; the total discount applies to the sum of the lines after their discounts and is prorated among them before the tax; tax = line tax % over the prorated line.",
+    description = "Creates a quote for a deal (permissions `quotes.create` and read access to the deal) with the next number of the organization, version 1 and status `draft`, and publishes `quote.created`. The currency, contact and company come from the deal; the owner defaults to the caller; `valid_until` and `terms` default to the quote settings; the price list defaults to the best active list for the currency and company. `from_line_items: true` copies the deal items; otherwise send `items`. Items with `product_id` and no `unit_price` take the price of the chosen price list (or the product price); bundles enter as one line with their components. Totals are computed on the server: line = quantity × unit price − line discount; the total discount applies to the sum of the lines after their discounts and is prorated among them before the tax; tax = line tax % over the prorated line.",
     request_body = QuoteRequest,
     responses(
         (status = 201, description = "Quote created", body = Data<QuoteDetailResponse>),
@@ -829,7 +829,7 @@ pub(crate) struct QuoteRequest {
     #[serde(default)]
     pub(crate) deal_id: Option<String>,
     #[serde(default)]
-    pub(crate) from_deal_items: Option<bool>,
+    pub(crate) from_line_items: Option<bool>,
     #[serde(default, deserialize_with = "double_option")]
     #[schema(value_type = Option<String>, example = "Onboarding proposal")]
     pub(crate) title: Option<Option<String>>,
@@ -892,7 +892,7 @@ impl QuoteRequest {
     pub(crate) fn into_create(mut self, ip: Option<String>) -> CreateQuoteCommand {
         CreateQuoteCommand {
             deal_id: self.deal_id.take().unwrap_or_default(),
-            from_deal_items: self.from_deal_items.unwrap_or(false),
+            from_line_items: self.from_line_items.unwrap_or(false),
             input: self.input(),
             items: self.items(),
             custom_fields: self.custom_fields.take().unwrap_or_default(),

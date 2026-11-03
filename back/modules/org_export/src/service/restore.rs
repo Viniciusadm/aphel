@@ -432,7 +432,7 @@ impl Restore<'_> {
             .map(|definition| definition.table.clone())
             .collect();
         business_tables.extend(
-            ["notes", "attachments", "deal_items"]
+            ["notes", "attachments", "line_items"]
                 .into_iter()
                 .map(str::to_owned),
         );

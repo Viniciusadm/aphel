@@ -135,6 +135,9 @@ impl Module for ProductsModule {
     }
 
     fn register(&self, app: &mut AppBuilder) -> Result<(), AppError> {
+        app.contribute::<dyn aphel_sdk::line_items::ItemCatalog>(std::sync::Arc::new(
+            LineItemCatalog,
+        ));
         app.entity(product_definition()?.handler(Arc::new(http::ProductHandler)))
             .openapi_tag(http::TAG, "Catalog of products and services")
             .routes(|_| http::router());
@@ -162,4 +165,39 @@ pub(crate) fn labels(key: &str) -> aphel_kernel::application::fields::LocalizedL
         include_str!("../locales/labels.json"),
         key,
     )
+}
+
+struct LineItemCatalog;
+#[async_trait::async_trait]
+impl aphel_sdk::line_items::ItemCatalog for LineItemCatalog {
+    fn record_type(&self) -> aphel_kernel::application::shared::RecordType {
+        aphel_kernel::application::shared::RecordType::from_static("products.product")
+    }
+    async fn item(
+        &self,
+        ctx: &aphel_sdk::Ctx<'_>,
+        id: uuid::Uuid,
+    ) -> Result<Option<aphel_sdk::line_items::CatalogItem>, AppError> {
+        use aphel_kernel::application::access::Authorizer;
+        if ctx.scope.require(&Permission::PRODUCTS_READ).is_err()
+            && ctx
+                .scope
+                .require(&aphel_kernel::domain::access::Permission::SETTINGS_MANAGE)
+                .is_err()
+        {
+            return Ok(None);
+        }
+        Ok(store::ProductStore::of(ctx).find(id).await?.map(|item| {
+            aphel_sdk::line_items::CatalogItem {
+                id: item.id,
+                name: item.data.name,
+                unit: item.data.unit,
+                currency: item.data.currency,
+                price: item.data.price,
+                recurrence: item.data.recurrence,
+                term_months: item.data.term_months,
+                active: item.data.is_active,
+            }
+        }))
+    }
 }

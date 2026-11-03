@@ -82,3 +82,9 @@ pub mod assignment;
 pub mod money;
 
 pub mod documents;
+
+pub mod line_items;
+
+pub mod deals;
+
+pub mod dashboard;

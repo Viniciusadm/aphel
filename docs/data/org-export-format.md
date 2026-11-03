@@ -36,7 +36,7 @@ relations/taggings.jsonl
 relations/task_links.jsonl
 relations/attachments.jsonl
 data/task_recurrences.jsonl
-data/deal_items.jsonl
+data/line_items.jsonl
 history/notes.jsonl
 history/domain_events.jsonl
 history/deal_stage_history.jsonl
@@ -112,7 +112,7 @@ Original table rows, in the same pattern as `row`:
 | `relations/task_links.jsonl` | Extra records linked to tasks |
 | `relations/attachments.jsonl` | Attachment → record (`record_type`, `record_id`, `file_id`) |
 | `data/task_recurrences.jsonl` | Recurring task rules |
-| `data/deal_items.jsonl` | Products and items of deals |
+| `data/line_items.jsonl` | Products and items of deals |
 | `history/notes.jsonl` | Record notes |
 | `history/domain_events.jsonl` | Domain events whose record is of an exported type (or a note): they feed the timeline |
 | `history/deal_stage_history.jsonl` | Stage history of deals (conversion reports) |

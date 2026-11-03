@@ -67,23 +67,6 @@
     "applyTotal": "Use total as amount",
     "applied": "Deal amount updated."
   },
-  "settings": {
-    "title": "Products and items",
-    "description": "Choose how the deal amount relates to its items.",
-    "amountMode": "Deal amount",
-    "modes": {
-      "manual": "Manual",
-      "items": "Sum of items"
-    },
-    "modeHints": {
-      "manual": "The amount is typed on the deal; items are informative only.",
-      "items": "Deals with items get their amount calculated automatically and the field becomes read-only. Deals without items stay manual."
-    },
-    "switchHint": "Current amounts are not rewritten: each deal follows the sum on the next change of its items or with \"Use total as amount\".",
-    "save": "Save",
-    "saved": "Settings saved.",
-    "conflict": "Someone else changed the settings. The data was reloaded."
-  },
   "nav": {
     "products": "Products"
   }

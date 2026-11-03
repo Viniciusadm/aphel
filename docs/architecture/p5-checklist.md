@@ -33,7 +33,7 @@ Implementation note: P5.1 connects people and organizations as providers and dup
 - [x] **P5.6** ⇄ `assignment`
 - [x] **P5.7** ⇄ `money`
 - [x] **P5.8** ⇄ `documents` (§6)
-- [ ] **P5.9** ⇄ `line-items` (§6)
+- [x] **P5.9** ⇄ `line-items` (§6). Review and pending manual acceptance: [line items](p5-line-items.md).
 
 **5.6 Generic modules become source-driven**
 

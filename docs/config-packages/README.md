@@ -81,7 +81,7 @@ References between sections are also by key: `entry_required_fields`/`exit_requi
 - `formula` fields (`type: "formula"` with `config.expression` and `config.result_type`): the expression is compiled against the package's and the organization's fields, checking syntax, result type and cycles (`invalid_formula`, `formula_cycle`); after installing, the types with a created or changed formula are recalculated by the `formulas.recalculate` job;
 - each module's rules: a pipeline with `open`, `won` and `lost` stages; system field keys are reserved; layouts go through the same `validate_layout` as the screen; views through the same `validate_view_query`; limits (200 custom fields per type, 500 options, 50 workflow…).
 
-Features that are off do not invalidate a package: a section that belongs to a disabled module is neither validated nor applied and comes back in `skipped_sections`; references to system fields of a disabled module (e.g. `mrr` from `deal_items` in a layout, a view column or sort, or a stage's required fields) are removed before validating and come back in `skipped_fields` as `<record_type>.<field>`, and a view whose filter uses one is left out. Everything else in the package is installed normally.
+Features that are off do not invalidate a package: a section that belongs to a disabled module is neither validated nor applied and comes back in `skipped_sections`; references to system fields of a disabled module (e.g. `mrr` from `line_items` in a layout, a view column or sort, or a stage's required fields) are removed before validating and come back in `skipped_fields` as `<record_type>.<field>`, and a view whose filter uses one is left out. Everything else in the package is installed normally.
 
 ## Installation plan
 
@@ -192,7 +192,7 @@ The `sequences` section (session 23) is installed after `email_templates`. Each 
 
 The `currencies` section (session 24) is the list of currencies enabled besides the base one (ISO 4217 codes, at most 30), for example `"currencies": ["USD", "EUR"]`. Installing only enables the missing ones (it never disables) and ignores the organization's base currency; exchange rates are not part of the package.
 
-The `deal_items` section carries the deal items configuration: `{ "amount_mode": "manual" | "items" }` (in `items` mode the deal amount is the sum of the items). Installing only changes the mode when it differs from the current one; omitting the property keeps the value.
+The `line_items` section carries the deal items configuration: `{ "amount_mode": "manual" | "items" }` (in `items` mode the deal amount is the sum of the items). Installing only changes the mode when it differs from the current one; omitting the property keeps the value.
 
 ## Price lists and discount limits
 

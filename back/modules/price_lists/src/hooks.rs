@@ -16,8 +16,8 @@ use crate::store::{BundleStore, DiscountLimitStore, PriceListStore, SegmentMembe
 use aphel_kernel::Ctx;
 use aphel_kernel::domain::UserId;
 use aphel_kernel::errors::AppError;
+use aphel_sdk::line_items::round_money;
 use aphel_sdk::money::organization_today;
-use products::domain::round_money;
 
 #[async_trait]
 pub trait PriceListResolver: Send + Sync {

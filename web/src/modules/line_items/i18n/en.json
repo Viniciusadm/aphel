@@ -1,0 +1,112 @@
+{
+  "items": {
+    "tab": "Items",
+    "title": "Record items",
+    "addProduct": "Add from catalog",
+    "addFree": "Free item",
+    "add": "Add",
+    "cancel": "Cancel",
+    "freeNamePlaceholder": "Item description",
+    "searchPlaceholder": "Search products by name or code",
+    "catalog": "Catalog products",
+    "catalogEmpty": "No active product found.",
+    "catalogError": "Could not load the catalog.",
+    "otherCurrency": "Priced in {{currency}}: different from the record currency",
+    "fromCatalog": "Catalog item",
+    "unitPriceHint": "{{price}} per unit",
+    "empty": "No items in this record",
+    "emptyDescription": "Add catalog products or free items with quantity, price and discount.",
+    "loadError": "Could not load the items.",
+    "noAccessTitle": "Restricted amounts",
+    "noAccessDescription": "Your role cannot see record amounts, so the items are hidden.",
+    "columns": {
+      "item": "Item",
+      "quantity": "Qty",
+      "unitPrice": "Unit price",
+      "discount": "Discount",
+      "total": "Total",
+      "tax": "Tax (%)"
+    },
+    "discountType": "Discount type",
+    "discountValue": "Discount value",
+    "discountTypes": {
+      "none": "No discount",
+      "percent": "%",
+      "amount": "Amount"
+    },
+    "moveUp": "Move up",
+    "moveDown": "Move down",
+    "remove": "Remove {{name}}",
+    "removeTitle": "Remove item?",
+    "removeDescription": "{{name}} will be removed from the record.",
+    "removeConfirm": "Remove",
+    "subtotal": "Subtotal",
+    "discounts": "Discounts",
+    "total": "Total",
+    "autoNotice": "The amount of this record is the sum of its items and cannot be edited directly.",
+    "autoNoticeEmpty": "Once it has items, the record amount becomes their sum.",
+    "manualNotice": "Items are informative: the record amount stays manual.",
+    "amountDiffers": "Deal amount: {{amount}}. Items total: {{total}}.",
+    "noAmount": "no amount",
+    "applyTotal": "Use total as amount",
+    "applied": "Deal amount updated."
+  },
+  "recurrences": {
+    "none": "One-time",
+    "monthly": "Monthly",
+    "quarterly": "Quarterly",
+    "yearly": "Yearly"
+  },
+  "item": {
+    "recurrence": "Billing frequency",
+    "term": "Term",
+    "termLabel": "Term in months",
+    "termPlaceholder": "12",
+    "months": "months",
+    "monthly": "{{amount}}/month"
+  },
+  "timeline": {
+    "someone": "Someone",
+    "someItem": "an item",
+    "added": "{{actor}} added the item {{name}}",
+    "updated": "{{actor}} changed the item {{name}}",
+    "removed": "{{actor}} removed the item {{name}}",
+    "reordered": "{{actor}} reordered the items",
+    "changedFields": "Changed fields: {{fields}}",
+    "fields": {
+      "name": "description",
+      "product": "product",
+      "unit": "unit",
+      "quantity": "quantity",
+      "unitPrice": "unit price",
+      "discountType": "discount type",
+      "discountValue": "discount",
+      "recurrence": "billing frequency",
+      "term": "term",
+      "total": "total"
+    }
+  },
+  "placeholders": {
+    "item": "E.g.: Annual license",
+    "quantity": "1",
+    "unitPrice": "0.00",
+    "discount": "0"
+  },
+  "settings": {
+    "title": "Products and items",
+    "description": "Choose how the record amount relates to its items.",
+    "amountMode": "Record amount",
+    "modes": {
+      "manual": "Manual",
+      "items": "Sum of items"
+    },
+    "modeHints": {
+      "manual": "The amount is typed on the deal; items are informative only.",
+      "items": "Deals with items get their amount calculated automatically and the field becomes read-only. Deals without items stay manual."
+    },
+    "switchHint": "Current amounts are not rewritten: each record follows the sum on the next change of its items or with \"Use total as amount\".",
+    "save": "Save",
+    "saved": "Settings saved.",
+    "conflict": "Someone else changed the settings. The data was reloaded."
+  }
+}

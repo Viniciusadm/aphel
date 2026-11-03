@@ -1,0 +1,27 @@
+{
+  "panel": {
+    "tab": "Revenue",
+    "mrr": "MRR",
+    "arr": "ARR",
+    "tcv": "Total contract value (TCV)",
+    "contractStart": "Contract start",
+    "contractEnd": "Contract end",
+    "empty": "—",
+    "hint": "MRR, ARR and TCV come from the recurring items. The contract ends on the start plus the longest item term (12 months when an item has no term), minus one day.",
+    "emptyTitle": "No recurring revenue",
+    "emptyDescription": "Set the billing frequency of the items to calculate MRR, ARR and the contract period.",
+    "renewalOf": "Renewal of",
+    "renewedBy": "Renewed in"
+  },
+  "widgets": {
+    "hidden": "Hidden",
+    "recurring_revenue": {
+      "title": "Won recurring revenue",
+      "mrr": "Won MRR",
+      "arr": "Won ARR",
+      "tcv": "Won TCV",
+      "wonCount": "Recurring contracts won",
+      "partial": "Amounts in the base currency; deals without an exchange rate were left out of the sum."
+    }
+  }
+}

@@ -21,8 +21,7 @@ use crate::domain::{
     normalize_optional_text, normalize_title, revenue_changes, transition_violation,
 };
 use crate::hooks::{
-    AmountCalculator, ClosingDeal, DealLosing, DealLost, DealStageChanging, DealWinning, DealWon,
-    StageChange,
+    ClosingDeal, DealLosing, DealLost, DealStageChanging, DealWinning, DealWon, StageChange,
 };
 use crate::store::DealStore;
 use aphel_kernel::Ctx;
@@ -93,8 +92,17 @@ fn check(message: &str, violations: Vec<FieldViolation>) -> Result<(), AppError>
     }
 }
 
-fn calculator(ctx: &Ctx<'_>) -> Result<std::sync::Arc<dyn AmountCalculator>, AppError> {
-    ctx.services().require::<dyn AmountCalculator>()
+async fn amount_locked(ctx: &Ctx<'_>, id: Uuid) -> Result<bool, AppError> {
+    match ctx
+        .services()
+        .get::<dyn aphel_sdk::line_items::LineItemsPort>()
+    {
+        Some(port) => {
+            port.managed(ctx, &RecordRef::new(RecordType::DEAL, id))
+                .await
+        }
+        None => Ok(false),
+    }
 }
 
 struct StageTarget {
@@ -446,7 +454,7 @@ async fn update_record(
         apply_currency(&mut deal, currency, &mut violations);
     }
     apply_fields(ctx, tx, &mut deal, &input, &mut violations).await?;
-    if deal.amount != current.deal.amount && calculator(ctx)?.amount_locked(ctx, deal.id).await? {
+    if deal.amount != current.deal.amount && amount_locked(ctx, deal.id).await? {
         return Err(AppError::invalid_fields_code(
             DEAL_AMOUNT_MANAGED_BY_ITEMS,
             "the amount of this deal is the sum of its items",
@@ -1217,7 +1225,28 @@ async fn refresh_contract(
     if !needs_contract_refresh(Some(current), deal, contract_end_provided) {
         return Ok(());
     }
-    calculator(ctx)?.refresh_revenue(ctx, deal).await
+    if let (Some(items), Some(calculator)) = (
+        ctx.services()
+            .get::<dyn aphel_sdk::line_items::LineItemsPort>(),
+        ctx.services()
+            .get::<dyn aphel_sdk::deals::RevenueCalculator>(),
+    ) {
+        let system = aphel_kernel::domain::access::AccessScope::system();
+        let rows = items
+            .rows(
+                &ctx.with_scope(&system),
+                &RecordRef::new(RecordType::DEAL, deal.id),
+            )
+            .await?;
+        use aphel_kernel::application::query::RecordQueryExecutor;
+        let timezone = ctx.query().executor().timezone().await?;
+        let won_on = deal
+            .closed_at
+            .filter(|_| deal.status == DealStatus::Won)
+            .map(|at| at.with_timezone(&timezone).date_naive());
+        calculator.project(&mut deal.revenue, &rows, won_on);
+    }
+    Ok(())
 }
 
 async fn convert_deal(
@@ -1251,9 +1280,17 @@ async fn sync_converted_items(
     current: &Deal,
     deal: &Deal,
 ) -> Result<(), AppError> {
-    if current.revenue.exchange_rate != deal.revenue.exchange_rate {
-        calculator(ctx)?
-            .sync_rate(tx, deal.id, deal.revenue.exchange_rate)
+    if current.revenue.exchange_rate != deal.revenue.exchange_rate
+        && let Some(items) = ctx
+            .services()
+            .get::<dyn aphel_sdk::line_items::LineItemsPort>()
+    {
+        items
+            .sync_rate(
+                tx,
+                &RecordRef::new(RecordType::DEAL, deal.id),
+                deal.revenue.exchange_rate,
+            )
             .await?;
     }
     Ok(())

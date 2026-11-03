@@ -23,7 +23,8 @@ use ::config_packages::application::{
 use aphel_kernel::database::transaction::MySqlTx;
 use aphel_kernel::domain::access::AccessScope;
 use aphel_kernel::errors::AppError;
-use products::domain::{normalize_currency, parse_money};
+use aphel_sdk::line_items::parse_money;
+use products::domain::normalize_currency;
 
 pub(crate) const PRICE_LISTS_SECTION: &str = "price_lists";
 pub(crate) const DISCOUNT_LIMITS_SECTION: &str = "discount_limits";

@@ -1,14 +1,7 @@
-use async_trait::async_trait;
 use uuid::Uuid;
 
-use crate::domain::{
-    DealItemsOutcome, Quote, QuoteAcceptance, QuoteDiscount, QuoteItemData, TotalsBreakdown,
-};
-use aphel_kernel::Ctx;
-use aphel_kernel::domain::access::AccessScope;
-use aphel_kernel::errors::AppError;
+use crate::domain::{Quote, QuoteAcceptance, QuoteDiscount, QuoteItemData, TotalsBreakdown};
 use aphel_kernel::modules::Hook;
-use products::domain::DealItemData;
 
 #[derive(Debug, Clone, PartialEq)]
 pub struct AcceptingQuote {
@@ -70,15 +63,4 @@ pub struct QuoteTotals;
 
 impl Hook for QuoteTotals {
     type Args = PricedQuote;
-}
-
-#[async_trait]
-pub trait DealItemsWriter: Send + Sync {
-    async fn replace(
-        &self,
-        ctx: &Ctx<'_>,
-        scope: &AccessScope,
-        deal_id: Uuid,
-        items: Vec<DealItemData>,
-    ) -> Result<DealItemsOutcome, AppError>;
 }

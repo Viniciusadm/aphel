@@ -41,10 +41,10 @@
         "validation_rules": { "type": "array", "maxItems": 500, "items": { "$ref": "#/$defs/validationRule" } },
         "stage_guidance": { "type": "array", "items": { "$ref": "#/$defs/stageGuidance" } },
         "currencies": { "type": "array", "maxItems": 30, "uniqueItems": true, "items": { "type": "string", "pattern": "^[A-Za-z]{3}$" } },
-        "deal_items": {
+        "line_items": {
           "type": "object",
           "additionalProperties": false,
-          "description": "Deal item settings (module deal_items); an omitted `amount_mode` keeps the current value",
+          "description": "Deal item settings (module line_items); an omitted `amount_mode` keeps the current value",
           "properties": {
             "amount_mode": { "enum": ["manual", "items"] }
           }

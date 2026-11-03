@@ -10,7 +10,6 @@ use sqlx::MySqlPool;
 use uuid::Uuid;
 
 use crate::domain::{DEAL_CREATED, DEAL_STAGE_CHANGED, StageTransitionEntry};
-use crate::hooks::AmountCalculator;
 use crate::store::DealStore;
 use aphel_kernel::application::fields::RecordTypeRegistry;
 use aphel_kernel::application::shared::{DomainEvent, EventConsumer, RecordType};
@@ -178,9 +177,12 @@ impl CurrencyRecalculateHandler {
             Some(currency) => vec![currency.to_owned()],
             None => deals.open_currencies().await?,
         };
-        let calculator = aphel_kernel::modules::app()
+        let items = aphel_kernel::modules::app()
             .services()
-            .require::<dyn AmountCalculator>()?;
+            .get::<dyn aphel_sdk::line_items::LineItemsPort>();
+        let financials = aphel_kernel::modules::app()
+            .services()
+            .require::<dyn aphel_sdk::deals::DealFinancials>()?;
         let mut updated = 0;
         for code in codes {
             let rate = if code == context.base {
@@ -191,7 +193,20 @@ impl CurrencyRecalculateHandler {
             let mut tx =
                 aphel_kernel::database::transaction::MySqlTx::from(self.pool.begin().await?);
             updated += deals.apply_open_rate(&mut tx, &code, rate).await?;
-            calculator.sync_currency_rate(&mut tx, &code, rate).await?;
+            if let Some(items) = &items {
+                for id in financials.open_ids(&mut tx, &code).await? {
+                    items
+                        .sync_rate(
+                            &mut tx,
+                            &aphel_kernel::application::shared::RecordRef::new(
+                                RecordType::DEAL,
+                                id,
+                            ),
+                            rate,
+                        )
+                        .await?;
+                }
+            }
             tx.commit().await?;
         }
         Ok(updated)

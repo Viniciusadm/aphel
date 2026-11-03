@@ -10,8 +10,3 @@ export const productsRoutes: RouteObject[] = [
     ],
   },
 ]
-
-export const productsSettingsRoute: RouteObject = {
-  path: 'products',
-  lazy: async () => ({ Component: (await import('./settings/DealItemSettingsPage')).DealItemSettingsPage }),
-}

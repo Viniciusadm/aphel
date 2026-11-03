@@ -1,0 +1,29 @@
+pub mod period;
+pub mod ports;
+pub mod provider;
+pub mod subject;
+use aphel_kernel::infrastructure::query::MySqlRecordQueryPorts;
+pub use period::*;
+pub use ports::*;
+pub use provider::*;
+use std::sync::Arc;
+pub use subject::*;
+pub struct WidgetPorts {
+    query: MySqlRecordQueryPorts,
+    repository: Arc<dyn DashboardRepository>,
+}
+impl WidgetPorts {
+    pub fn new(query: MySqlRecordQueryPorts, repository: Arc<dyn DashboardRepository>) -> Self {
+        Self { query, repository }
+    }
+}
+impl DashboardPorts for WidgetPorts {
+    type Query = MySqlRecordQueryPorts;
+    type Dashboard = dyn DashboardRepository;
+    fn query(&self) -> &Self::Query {
+        &self.query
+    }
+    fn dashboard(&self) -> &Self::Dashboard {
+        self.repository.as_ref()
+    }
+}
