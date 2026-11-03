@@ -347,7 +347,7 @@
       }
     },
     {
-      "id": "aphel.module.oidc",
+      "id": "aphel.module.sso",
       "kind": "module",
       "name": "Single sign-on (OIDC)",
       "description": "Single sign-on with any corporate OpenID Connect provider (Okta, Keycloak, Auth0, Entra ID…)",
@@ -360,8 +360,8 @@
         "sso"
       ],
       "module": {
-        "key": "oidc",
-        "install_notes": "Já incluído no build padrão (back/aphel.modules.toml). Para um build enxuto, mantenha a linha `oidc` nesse arquivo, rode make modules, compile e habilite em Configurações > Módulos."
+        "key": "sso",
+        "install_notes": "Já incluído no build padrão (back/aphel.modules.toml). Para um build enxuto, mantenha a linha `sso` nesse arquivo, rode make modules, compile e habilite em Configurações > Módulos."
       }
     },
     {

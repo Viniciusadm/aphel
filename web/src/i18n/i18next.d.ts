@@ -53,7 +53,6 @@ import type notesNamespace from '../modules/notes/i18n/pt-BR.json'
 import type notificationsNamespace from './pt-BR/notifications.json'
 import type objectsNamespace from './pt-BR/objects.json'
 import type offlineNamespace from './pt-BR/offline.json'
-import type oidcNamespace from '../modules/oidc/i18n/pt-BR.json'
 import type onboardingNamespace from '../modules/onboarding/i18n/pt-BR.json'
 import type orgExportNamespace from '../modules/org_export/i18n/pt-BR.json'
 import type organizationSettingsNamespace from './pt-BR/organization-settings.json'
@@ -81,6 +80,7 @@ import type sequencesNamespace from '../modules/sequences/i18n/pt-BR.json'
 import type settingsNamespace from './pt-BR/settings.json'
 import type setupNamespace from './pt-BR/setup.json'
 import type sharingNamespace from './pt-BR/sharing.json'
+import type ssoNamespace from '../modules/sso/i18n/pt-BR.json'
 import type systemNamespace from './pt-BR/system.json'
 import type tagsNamespace from '../modules/tags/i18n/pt-BR.json'
 import type tasksNamespace from '../modules/tasks/i18n/pt-BR.json'
@@ -151,7 +151,6 @@ declare module 'i18next' {
       notifications: typeof notificationsNamespace
       objects: typeof objectsNamespace
       offline: typeof offlineNamespace
-      oidc: typeof oidcNamespace
       onboarding: typeof onboardingNamespace
       org_export: typeof orgExportNamespace
       'organization-settings': typeof organizationSettingsNamespace
@@ -179,6 +178,7 @@ declare module 'i18next' {
       settings: typeof settingsNamespace
       setup: typeof setupNamespace
       sharing: typeof sharingNamespace
+      sso: typeof ssoNamespace
       system: typeof systemNamespace
       tags: typeof tagsNamespace
       tasks: typeof tasksNamespace

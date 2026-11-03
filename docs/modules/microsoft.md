@@ -4,7 +4,7 @@
 - **Outlook calendar sync** (PLAN 5.8) via Microsoft Graph (`/me/calendarView/delta` and `/me/events`), in both directions, with "last change wins".
 - **Outlook / Microsoft 365 mailbox** (session 22): the `microsoft.outlook` provider of the core individual email ([email.md](../architecture/email.md)); each user connects their own mailbox in **My account → Email mailboxes**.
 
-Depends on the `oidc` module (crate `aphel-mod-oidc`, `depends_on("oidc")`, see [oidc.md](oidc.md)) and uses the same calendar engine as the [`google`](google.md#calendar) module — the sync, mapping, conflict and error behavior is identical; only what differs is described here.
+Depends on the `sso` module (crate `aphel-mod-sso`, `depends_on("sso")`, see [sso.md](sso.md)) and uses the same calendar engine as the [`google`](google.md#calendar) module — the sync, mapping, conflict and error behavior is identical; only what differs is described here.
 
 ## Configure in Microsoft Entra ID
 
@@ -33,7 +33,7 @@ Microsoft does not send `email_verified`. Decision:
 2. Otherwise, the `preferred_username` is used (the work account's UPN, whose domain must be verified in the home directory) **only if the domain is in `domains`**. The `email` claim is never used without `xms_edov`, because the `mail` attribute can be edited in the directory.
 3. Otherwise: `email_not_verified`.
 
-The issuer must be `https://login.microsoftonline.com/{tid}/v2.0`; with `tenant` = GUID, the `tid` must match (accounts from other directories are refused). Endpoints: `https://login.microsoftonline.com/{tenant}/oauth2/v2.0/{authorize,token}`, `prompt=select_account`. Other rules, routes and `sso_error` codes: the same as in [`oidc`](oidc.md#flow). Setting `tenant` = directory ID is recommended whenever only your own company uses Aphel.
+The issuer must be `https://login.microsoftonline.com/{tid}/v2.0`; with `tenant` = GUID, the `tid` must match (accounts from other directories are refused). Endpoints: `https://login.microsoftonline.com/{tenant}/oauth2/v2.0/{authorize,token}`, `prompt=select_account`. Other rules, routes and `sso_error` codes: the same as in [`sso`](sso.md#flow). Setting `tenant` = directory ID is recommended whenever only your own company uses Aphel.
 
 ## Calendar
 

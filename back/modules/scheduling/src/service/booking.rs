@@ -1,9 +1,10 @@
 use aphel_contract_crm::{CrmPermissions, CrmRecordTypes};
+use aphel_sdk::calendar::BusyInterval;
+use aphel_sdk::calendar::CalendarAvailability;
 use chrono::{DateTime, Duration, SecondsFormat, Utc};
 use serde_json::{Map, Value, json};
 use uuid::Uuid;
 
-use crate::CalendarAvailability;
 use crate::service::crm;
 use crate::service::distribution::{self, HostPick, WeightedHost};
 use crate::slots::{HostCalendar, SlotRules, free_slots, merge_slots};
@@ -13,7 +14,7 @@ use crate::validation::{parse_instant, parse_timezone};
 use crate::{
     ACTIVITY_TYPE_KEY, Availability, BOOKING_EMAIL_JOB, BOOKING_NOT_CHANGEABLE, BOOKING_NOT_FOUND,
     BOOKING_RECORD, BOOKING_REJECTED, BOOKING_SLOT_UNAVAILABLE, BookCommand, Booking,
-    BookingStatus, BusyInterval, MAX_ANSWER_CHARS, MAX_CANCEL_REASON_CHARS, MAX_GUEST_NAME_CHARS,
+    BookingStatus, MAX_ANSWER_CHARS, MAX_CANCEL_REASON_CHARS, MAX_GUEST_NAME_CHARS,
     MAX_WINDOW_DAYS, MEETING_BOOKED, MEETING_CANCELED, MEETING_RESCHEDULED, MEETING_TYPE_NOT_FOUND,
     MeetingEventPayload, MeetingType, PublicBooking, PublicMeetingType, Slot, SlotWindow,
     TOKEN_KEY_NAME, TOKEN_KEY_OWNER, email_job_payload,

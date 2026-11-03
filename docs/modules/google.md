@@ -6,7 +6,7 @@ Three features, independent of each other within the same module:
 - **Google Calendar sync** (PLAN 5.8): each user connects their own calendar; CRM meetings go to the primary calendar and calendar events with CRM people become meetings in the CRM, in both directions, with "the last change wins".
 - **Gmail mailbox** (session 22): `google.gmail` provider for the core's individual email ([email.md](../architecture/email.md)); each user connects their own Gmail in **My account → Email mailboxes**.
 
-The OAuth/OIDC code and the sync engine come from the `oidc` module (crate `aphel-mod-oidc`, see [oidc.md](oidc.md)); `google` declares `depends_on("oidc")`, so `oidc` must be in the build and enabled.
+The OAuth/OIDC code and the sync engine come from the `sso` module (crate `aphel-mod-sso`, see [sso.md](sso.md)); `google` declares `depends_on("sso")`, so `sso` must be in the build and enabled.
 
 ## Configure in the Google Cloud Console
 
@@ -26,7 +26,7 @@ The OAuth/OIDC code and the sync engine come from the `oidc` module (crate `aphe
 
 ## Login
 
-Same flow as [`oidc`](oidc.md#flow), with Google's fixed endpoints (`accounts.google.com`), `prompt=select_account`, issuer `https://accounts.google.com` and the `email_verified = true` requirement. Starts at `GET /api/v1/public/google/login?login_hint=&redirect=`; failures go back to `/login?sso_error=<code>` (same codes as `oidc`). No login token is stored.
+Same flow as [`sso`](sso.md#flow), with Google's fixed endpoints (`accounts.google.com`), `prompt=select_account`, issuer `https://accounts.google.com` and the `email_verified = true` requirement. Starts at `GET /api/v1/public/google/login?login_hint=&redirect=`; failures go back to `/login?sso_error=<code>` (same codes as `sso`). No login token is stored.
 
 ## Calendar
 

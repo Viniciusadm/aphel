@@ -35726,54 +35726,6 @@
         ]
       }
     },
-    "/api/v1/oidc/status": {
-      "get": {
-        "tags": [
-          "oidc"
-        ],
-        "operationId": "oidc_status",
-        "responses": {
-          "200": {
-            "description": "Single sign-on configuration summary (never the client secret) and the callback URL to register at the identity provider",
-            "content": {
-              "application/json": {
-                "schema": {
-                  "$ref": "#/components/schemas/Data_SsoLoginStatus"
-                }
-              }
-            }
-          },
-          "404": {
-            "description": "Module disabled (`module_disabled`)",
-            "content": {
-              "application/json": {
-                "schema": {
-                  "$ref": "#/components/schemas/ErrorEnvelope"
-                }
-              }
-            }
-          },
-          "429": {
-            "description": "API token rate limit exceeded (`rate_limited`); see `Retry-After` and `X-RateLimit-*`",
-            "content": {
-              "application/json": {
-                "schema": {
-                  "$ref": "#/components/schemas/ErrorEnvelope"
-                }
-              }
-            }
-          }
-        },
-        "security": [
-          {
-            "session_cookie": []
-          },
-          {
-            "api_token": []
-          }
-        ]
-      }
-    },
     "/api/v1/onboarding": {
       "get": {
         "tags": [
@@ -46480,76 +46432,6 @@
         }
       }
     },
-    "/api/v1/public/oidc/callback": {
-      "get": {
-        "tags": [
-          "oidc"
-        ],
-        "operationId": "oidc_public_callback",
-        "parameters": [
-          {
-            "name": "state",
-            "in": "query",
-            "required": false,
-            "schema": {
-              "type": "string"
-            }
-          },
-          {
-            "name": "code",
-            "in": "query",
-            "required": false,
-            "schema": {
-              "type": "string"
-            }
-          },
-          {
-            "name": "error",
-            "in": "query",
-            "required": false,
-            "schema": {
-              "type": "string"
-            }
-          }
-        ],
-        "responses": {
-          "302": {
-            "description": "Validates the single-use `state`, exchanges the code, validates the id token (`iss`, `aud`, `exp`, `nonce`) and requires `email_verified`. Signs in the active member with that e-mail and redirects to the requested path (or `/login/two-factor`) with the session cookie; on failure redirects to `/login?sso_error=<code>` (`no_account`, `invalid_state`, `access_denied`, `email_not_verified`, `domain_not_allowed`, `token_exchange_failed`, `invalid_token`, `sso_failed`)"
-          }
-        }
-      }
-    },
-    "/api/v1/public/oidc/login": {
-      "get": {
-        "tags": [
-          "oidc"
-        ],
-        "operationId": "oidc_public_login",
-        "parameters": [
-          {
-            "name": "redirect",
-            "in": "query",
-            "required": false,
-            "schema": {
-              "type": "string"
-            }
-          },
-          {
-            "name": "login_hint",
-            "in": "query",
-            "required": false,
-            "schema": {
-              "type": "string"
-            }
-          }
-        ],
-        "responses": {
-          "302": {
-            "description": "Redirects to the identity provider (authorization code + PKCE). `login_hint` (the e-mail typed on the login screen) is optional and forwarded to the provider; `redirect` is accepted only as a relative path. On failure redirects to `/login?sso_error=<code>` (`no_account`, `sso_disabled`, `sso_not_configured`, `domain_not_allowed`, `invalid_request`, `provider_unavailable`, `rate_limited`)"
-          }
-        }
-      }
-    },
     "/api/v1/public/plugins": {
       "get": {
         "tags": [
@@ -46803,6 +46685,76 @@
                 }
               }
             }
+          }
+        }
+      }
+    },
+    "/api/v1/public/sso/callback": {
+      "get": {
+        "tags": [
+          "sso"
+        ],
+        "operationId": "sso_public_callback",
+        "parameters": [
+          {
+            "name": "state",
+            "in": "query",
+            "required": false,
+            "schema": {
+              "type": "string"
+            }
+          },
+          {
+            "name": "code",
+            "in": "query",
+            "required": false,
+            "schema": {
+              "type": "string"
+            }
+          },
+          {
+            "name": "error",
+            "in": "query",
+            "required": false,
+            "schema": {
+              "type": "string"
+            }
+          }
+        ],
+        "responses": {
+          "302": {
+            "description": "Validates the single-use `state`, exchanges the code, validates the id token (`iss`, `aud`, `exp`, `nonce`) and requires `email_verified`. Signs in the active member with that e-mail and redirects to the requested path (or `/login/two-factor`) with the session cookie; on failure redirects to `/login?sso_error=<code>` (`no_account`, `invalid_state`, `access_denied`, `email_not_verified`, `domain_not_allowed`, `token_exchange_failed`, `invalid_token`, `sso_failed`)"
+          }
+        }
+      }
+    },
+    "/api/v1/public/sso/login": {
+      "get": {
+        "tags": [
+          "sso"
+        ],
+        "operationId": "sso_public_login",
+        "parameters": [
+          {
+            "name": "redirect",
+            "in": "query",
+            "required": false,
+            "schema": {
+              "type": "string"
+            }
+          },
+          {
+            "name": "login_hint",
+            "in": "query",
+            "required": false,
+            "schema": {
+              "type": "string"
+            }
+          }
+        ],
+        "responses": {
+          "302": {
+            "description": "Redirects to the identity provider (authorization code + PKCE). `login_hint` (the e-mail typed on the login screen) is optional and forwarded to the provider; `redirect` is accepted only as a relative path. On failure redirects to `/login?sso_error=<code>` (`no_account`, `sso_disabled`, `sso_not_configured`, `domain_not_allowed`, `invalid_request`, `provider_unavailable`, `rate_limited`)"
           }
         }
       }
@@ -56562,6 +56514,54 @@
           },
           "404": {
             "description": "Sequence not found (`sequence_not_found`)",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ErrorEnvelope"
+                }
+              }
+            }
+          },
+          "429": {
+            "description": "API token rate limit exceeded (`rate_limited`); see `Retry-After` and `X-RateLimit-*`",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ErrorEnvelope"
+                }
+              }
+            }
+          }
+        },
+        "security": [
+          {
+            "session_cookie": []
+          },
+          {
+            "api_token": []
+          }
+        ]
+      }
+    },
+    "/api/v1/sso/status": {
+      "get": {
+        "tags": [
+          "sso"
+        ],
+        "operationId": "sso_status",
+        "responses": {
+          "200": {
+            "description": "Single sign-on configuration summary (never the client secret) and the callback URL to register at the identity provider",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/Data_SsoLoginStatus"
+                }
+              }
+            }
+          },
+          "404": {
+            "description": "Module disabled (`module_disabled`)",
             "content": {
               "application/json": {
                 "schema": {
@@ -120230,18 +120230,6 @@
       "description": "Object administration"
     },
     {
-      "name": "oidc",
-      "description": "Single sign-on with any corporate OpenID Connect provider"
-    },
-    {
-      "name": "google",
-      "description": "Login with Google, Google Calendar meeting sync and Gmail mailboxes"
-    },
-    {
-      "name": "microsoft",
-      "description": "Login with a Microsoft account (Entra ID), Outlook calendar meeting sync and Outlook mailboxes"
-    },
-    {
       "name": "onboarding",
       "description": "First-run setup assistant of the organization: questions, template recommendation and state"
     },
@@ -120324,6 +120312,18 @@
     {
       "name": "price-lists",
       "description": "Price lists by currency, segment or company with validity periods and quantity tiers, and the maximum discount per role"
+    },
+    {
+      "name": "sso",
+      "description": "Single sign-on with any corporate OpenID Connect provider"
+    },
+    {
+      "name": "google",
+      "description": "Login with Google, Google Calendar meeting sync and Gmail mailboxes"
+    },
+    {
+      "name": "microsoft",
+      "description": "Login with a Microsoft account (Entra ID), Outlook calendar meeting sync and Outlook mailboxes"
     },
     {
       "name": "tags",

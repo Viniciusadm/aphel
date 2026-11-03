@@ -7,6 +7,7 @@ license.workspace = true
 publish = false
 
 [dependencies]
+sso = { package = "aphel-mod-sso", path = "../sso" }
 aphel-contract-automation.workspace = true
 config_packages = { package = "aphel-mod-config-packages", path = "../config_packages" }
 aphel-contract-crm.workspace = true
@@ -40,3 +41,6 @@ ammonia.workspace = true
 rustls.workspace = true
 tokio-rustls.workspace = true
 webpki-roots.workspace = true
+
+reqwest.workspace = true
+form_urlencoded.workspace = true

@@ -1,5 +1,5 @@
 import { useModuleTranslation } from '@/kernel/modules/i18n'
-import { ProviderSettingsPanel } from '../oidc/shared/components'
+import { ProviderSettingsPanel } from '../sso/shared/components'
 import type { ModuleSettingsPanelProps } from '@/kernel/modules/define'
 import { GOOGLE_PANEL_STEPS } from './api'
 

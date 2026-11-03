@@ -45,7 +45,7 @@ Implementation note: P5.1 connects people and organizations as providers and dup
 - [x] **P5.15** ⇄ `followers`. Review and pending manual acceptance: [followed-event sources](p5-followers.md).
 - [x] **P5.16** ⇄ `imports`. Review and pending manual acceptance: [entity-driven imports](p5-imports.md).
 - [x] **P5.17** ⇄ `webhooks`. Review and pending manual acceptance: [entity-driven webhooks](p5-webhooks.md).
-- [ ] **P5.18** ⇄ `sso`, free of CRM dependencies
+- [x] **P5.18** ⇄ `sso`, free of CRM dependencies. Review and pending manual acceptance: [SSO ownership](p5-sso.md).
 
 **5.7 Thin domain plugins**
 
@@ -63,4 +63,4 @@ Implementation note: P5.1 connects people and organizations as providers and dup
 
 - [ ] No plugin depends on another plugin crate.
 - [ ] Cross-plugin SQL and foreign keys are zero.
-- [ ] `oidc` or its successor has no CRM dependency.
+- [ ] `sso` or its successor has no CRM dependency.

@@ -364,9 +364,9 @@ Whoever creates a new code adds the row to this table and cites it in the respon
 | `esign_signed_document_unavailable` | 503 | esign (the signed PDF is not yet available at Clicksign; the job retries) |
 | `messaging_invalid_payload` | 422 | messaging (WhatsApp webhook body is not JSON) |
 | `messaging_payload_too_large` | 422 | messaging (webhook body over 1 MB) |
-| `sso_not_configured` | 422 | oidc, google, microsoft (`client_id`/`client_secret` not configured) |
-| `invalid_state` | 422 | oidc, google, microsoft (OAuth callback `state` does not exist, expired or was already used) |
-| `invalid_grant` | 422 | oidc, google, microsoft (the provider rejected the code or the refresh token) |
+| `sso_not_configured` | 422 | sso, google, microsoft (`client_id`/`client_secret` not configured) |
+| `invalid_state` | 422 | sso, google, microsoft (OAuth callback `state` does not exist, expired or was already used) |
+| `invalid_grant` | 422 | sso, google, microsoft (the provider rejected the code or the refresh token) |
 | `calendar_not_connected` | 422 | google, microsoft (user's calendar not connected) |
 | `calendar_no_refresh_token` | 422 | google, microsoft (the provider did not grant offline access to the calendar) |
 | `calendar_authorization_revoked` | 422 | google, microsoft (calendar authorization revoked or expired; connect again) |

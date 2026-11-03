@@ -1,5 +1,5 @@
 import { useModuleTranslation } from '@/kernel/modules/i18n'
-import { ProviderPage } from '../oidc/shared/components'
+import { ProviderPage } from '../sso/shared/components'
 import { MICROSOFT_KEY } from './api'
 
 export function MicrosoftPage() {

@@ -56,7 +56,7 @@ import proposalsModule from '@modules/proposals'
 import insightsModule from '@modules/insights'
 import leadFormsModule from '@modules/lead_forms'
 import aiModule from '@modules/ai'
-import oidcModule from '@modules/oidc'
+import ssoModule from '@modules/sso'
 import googleModule from '@modules/google'
 import microsoftModule from '@modules/microsoft'
 import esignModule from '@modules/esign'
@@ -122,7 +122,7 @@ export const MODULES: WebModule[] = [
   insightsModule,
   leadFormsModule,
   aiModule,
-  oidcModule,
+  ssoModule,
   googleModule,
   microsoftModule,
   esignModule,

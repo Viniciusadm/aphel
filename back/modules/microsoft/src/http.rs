@@ -14,11 +14,11 @@ use aphel_kernel::api::error::{ApiError, app_error};
 use aphel_kernel::api::extractors::{AuthContext, ClientInfo};
 use aphel_kernel::api::state::AppState;
 use aphel_kernel::domain::access::AccessScope;
-use oidc::calendar::connect;
-use oidc::calendar::{CalendarConnectUrl, CalendarStatus};
-use oidc::mail::connect as mail_connect;
-use oidc::sso::status::{SsoLoginStatus, login_status};
-use oidc::sso::{CallbackQuery, ClientContext, StartQuery, handle_callback, start_login};
+use email::oauth::connect as mail_connect;
+use sso::sso::status::{SsoLoginStatus, login_status};
+use sso::sso::{CallbackQuery, ClientContext, StartQuery, handle_callback, start_login};
+use tasks::remote_calendar::connect;
+use tasks::remote_calendar::{CalendarConnectUrl, CalendarStatus};
 
 pub(crate) const TAG: &str = "microsoft";
 

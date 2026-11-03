@@ -1,5 +1,6 @@
 mod dashboard;
 mod followers;
+pub mod remote_calendar;
 use aphel_sdk::privacy::PrivacyTraits;
 mod privacy;
 mod timeline;

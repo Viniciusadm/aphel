@@ -1,8 +1,9 @@
+use aphel_sdk::calendar::BusyInterval;
 use std::collections::{BTreeSet, HashMap};
 
 use chrono::{DateTime, Datelike, Duration, NaiveDate, NaiveTime, TimeZone, Utc};
 
-use crate::{Availability, BusyInterval, Slot};
+use crate::{Availability, Slot};
 
 #[derive(Debug, Clone, Copy, PartialEq, Eq)]
 pub(crate) struct SlotRules {

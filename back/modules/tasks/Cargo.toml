@@ -7,6 +7,7 @@ license.workspace = true
 publish = false
 
 [dependencies]
+sso = { package = "aphel-mod-sso", path = "../sso" }
 aphel-contract-automation.workspace = true
 notifications = { package = "aphel-mod-notifications", path = "../notifications" }
 config_packages = { package = "aphel-mod-config-packages", path = "../config_packages" }
@@ -24,3 +25,7 @@ utoipa-axum.workspace = true
 uuid.workspace = true
 rust_decimal.workspace = true
 chrono-tz.workspace = true
+
+form_urlencoded.workspace = true
+tracing.workspace = true
+reqwest.workspace = true

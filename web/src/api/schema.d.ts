@@ -4931,22 +4931,6 @@ export interface paths {
         patch?: never;
         trace?: never;
     };
-    "/api/v1/oidc/status": {
-        parameters: {
-            query?: never;
-            header?: never;
-            path?: never;
-            cookie?: never;
-        };
-        get: operations["oidc_status"];
-        put?: never;
-        post?: never;
-        delete?: never;
-        options?: never;
-        head?: never;
-        patch?: never;
-        trace?: never;
-    };
     "/api/v1/onboarding": {
         parameters: {
             query?: never;
@@ -6393,38 +6377,6 @@ export interface paths {
         patch?: never;
         trace?: never;
     };
-    "/api/v1/public/oidc/callback": {
-        parameters: {
-            query?: never;
-            header?: never;
-            path?: never;
-            cookie?: never;
-        };
-        get: operations["oidc_public_callback"];
-        put?: never;
-        post?: never;
-        delete?: never;
-        options?: never;
-        head?: never;
-        patch?: never;
-        trace?: never;
-    };
-    "/api/v1/public/oidc/login": {
-        parameters: {
-            query?: never;
-            header?: never;
-            path?: never;
-            cookie?: never;
-        };
-        get: operations["oidc_public_login"];
-        put?: never;
-        post?: never;
-        delete?: never;
-        options?: never;
-        head?: never;
-        patch?: never;
-        trace?: never;
-    };
     "/api/v1/public/plugins": {
         parameters: {
             query?: never;
@@ -6487,6 +6439,38 @@ export interface paths {
         put?: never;
         /** @description Rejects an open quote with an optional reason (no session). Publishes `quote.rejected` (and `deal.quote_rejected`). */
         post: operations["quotes_public_reject"];
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
+    "/api/v1/public/sso/callback": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        get: operations["sso_public_callback"];
+        put?: never;
+        post?: never;
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
+    "/api/v1/public/sso/login": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        get: operations["sso_public_login"];
+        put?: never;
+        post?: never;
         delete?: never;
         options?: never;
         head?: never;
@@ -7561,6 +7545,22 @@ export interface paths {
         };
         /** @description Enrollment counts and metrics per step: `executed` (steps run), `sent` (e-mails sent or tasks created), `opened` (tracked e-mails opened), `replied` (replies received in the conversation), `bounced`, `failed` and `exits` (enrollments that left the sequence right after the step). Counts follow the `sequences.read` scope over who enrolled. */
         get: operations["sequences_metrics"];
+        put?: never;
+        post?: never;
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
+    "/api/v1/sso/status": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        get: operations["sso_status"];
         put?: never;
         post?: never;
         delete?: never;
@@ -48157,44 +48157,6 @@ export interface operations {
             };
         };
     };
-    oidc_status: {
-        parameters: {
-            query?: never;
-            header?: never;
-            path?: never;
-            cookie?: never;
-        };
-        requestBody?: never;
-        responses: {
-            /** @description Single sign-on configuration summary (never the client secret) and the callback URL to register at the identity provider */
-            200: {
-                headers: {
-                    [name: string]: unknown;
-                };
-                content: {
-                    "application/json": components["schemas"]["Data_SsoLoginStatus"];
-                };
-            };
-            /** @description Module disabled (`module_disabled`) */
-            404: {
-                headers: {
-                    [name: string]: unknown;
-                };
-                content: {
-                    "application/json": components["schemas"]["ErrorEnvelope"];
-                };
-            };
-            /** @description API token rate limit exceeded (`rate_limited`); see `Retry-After` and `X-RateLimit-*` */
-            429: {
-                headers: {
-                    [name: string]: unknown;
-                };
-                content: {
-                    "application/json": components["schemas"]["ErrorEnvelope"];
-                };
-            };
-        };
-    };
     onboarding_get: {
         parameters: {
             query?: never;
@@ -55900,49 +55862,6 @@ export interface operations {
             };
         };
     };
-    oidc_public_callback: {
-        parameters: {
-            query?: {
-                state?: string;
-                code?: string;
-                error?: string;
-            };
-            header?: never;
-            path?: never;
-            cookie?: never;
-        };
-        requestBody?: never;
-        responses: {
-            /** @description Validates the single-use `state`, exchanges the code, validates the id token (`iss`, `aud`, `exp`, `nonce`) and requires `email_verified`. Signs in the active member with that e-mail and redirects to the requested path (or `/login/two-factor`) with the session cookie; on failure redirects to `/login?sso_error=<code>` (`no_account`, `invalid_state`, `access_denied`, `email_not_verified`, `domain_not_allowed`, `token_exchange_failed`, `invalid_token`, `sso_failed`) */
-            302: {
-                headers: {
-                    [name: string]: unknown;
-                };
-                content?: never;
-            };
-        };
-    };
-    oidc_public_login: {
-        parameters: {
-            query?: {
-                redirect?: string;
-                login_hint?: string;
-            };
-            header?: never;
-            path?: never;
-            cookie?: never;
-        };
-        requestBody?: never;
-        responses: {
-            /** @description Redirects to the identity provider (authorization code + PKCE). `login_hint` (the e-mail typed on the login screen) is optional and forwarded to the provider; `redirect` is accepted only as a relative path. On failure redirects to `/login?sso_error=<code>` (`no_account`, `sso_disabled`, `sso_not_configured`, `domain_not_allowed`, `invalid_request`, `provider_unavailable`, `rate_limited`) */
-            302: {
-                headers: {
-                    [name: string]: unknown;
-                };
-                content?: never;
-            };
-        };
-    };
     plugins_web: {
         parameters: {
             query?: never;
@@ -56133,6 +56052,49 @@ export interface operations {
                 content: {
                     "application/json": components["schemas"]["ErrorEnvelope"];
                 };
+            };
+        };
+    };
+    sso_public_callback: {
+        parameters: {
+            query?: {
+                state?: string;
+                code?: string;
+                error?: string;
+            };
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        requestBody?: never;
+        responses: {
+            /** @description Validates the single-use `state`, exchanges the code, validates the id token (`iss`, `aud`, `exp`, `nonce`) and requires `email_verified`. Signs in the active member with that e-mail and redirects to the requested path (or `/login/two-factor`) with the session cookie; on failure redirects to `/login?sso_error=<code>` (`no_account`, `invalid_state`, `access_denied`, `email_not_verified`, `domain_not_allowed`, `token_exchange_failed`, `invalid_token`, `sso_failed`) */
+            302: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content?: never;
+            };
+        };
+    };
+    sso_public_login: {
+        parameters: {
+            query?: {
+                redirect?: string;
+                login_hint?: string;
+            };
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        requestBody?: never;
+        responses: {
+            /** @description Redirects to the identity provider (authorization code + PKCE). `login_hint` (the e-mail typed on the login screen) is optional and forwarded to the provider; `redirect` is accepted only as a relative path. On failure redirects to `/login?sso_error=<code>` (`no_account`, `sso_disabled`, `sso_not_configured`, `domain_not_allowed`, `invalid_request`, `provider_unavailable`, `rate_limited`) */
+            302: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content?: never;
             };
         };
     };
@@ -62854,6 +62816,44 @@ export interface operations {
                 };
             };
             /** @description Sequence not found (`sequence_not_found`) */
+            404: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["ErrorEnvelope"];
+                };
+            };
+            /** @description API token rate limit exceeded (`rate_limited`); see `Retry-After` and `X-RateLimit-*` */
+            429: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["ErrorEnvelope"];
+                };
+            };
+        };
+    };
+    sso_status: {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        requestBody?: never;
+        responses: {
+            /** @description Single sign-on configuration summary (never the client secret) and the callback URL to register at the identity provider */
+            200: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["Data_SsoLoginStatus"];
+                };
+            };
+            /** @description Module disabled (`module_disabled`) */
             404: {
                 headers: {
                     [name: string]: unknown;

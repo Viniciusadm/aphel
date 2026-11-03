@@ -1,16 +1,13 @@
-use async_trait::async_trait;
 use chrono::{DateTime, Utc};
 use chrono_tz::Tz;
 use serde::Serialize;
 use serde_json::{Map, Value};
 use uuid::Uuid;
 
-use aphel_kernel::Ctx;
 use aphel_kernel::application::organization_admin::ListWindow;
 use aphel_kernel::application::shared::RecordType;
 use aphel_kernel::domain::UserId;
 use aphel_kernel::domain::access::RecordScopeFilter;
-use aphel_kernel::errors::AppError;
 
 pub(crate) const AVAILABILITY_UPDATED: &str = "scheduling_availability.updated";
 pub(crate) const MEETING_TYPE_CREATED: &str = "meeting_type.created";
@@ -350,18 +347,6 @@ pub(crate) struct Booking {
     pub(crate) updated_at: DateTime<Utc>,
 }
 
-#[derive(Debug, Clone, Copy, PartialEq, Eq)]
-pub struct BusyInterval {
-    pub starts_at: DateTime<Utc>,
-    pub ends_at: DateTime<Utc>,
-}
-
-impl BusyInterval {
-    pub fn new(starts_at: DateTime<Utc>, ends_at: DateTime<Utc>) -> Self {
-        Self { starts_at, ends_at }
-    }
-}
-
 #[derive(Debug, Clone, Copy, PartialEq, Eq, PartialOrd, Ord)]
 pub(crate) struct Slot {
     pub(crate) starts_at: DateTime<Utc>,
@@ -476,19 +461,6 @@ pub(crate) struct PublicBooking {
     pub(crate) organization_name: String,
     pub(crate) host_timezone: Tz,
     pub(crate) manage_token: String,
-}
-
-#[async_trait]
-pub trait CalendarAvailability: Send + Sync {
-    fn key(&self) -> &str;
-
-    async fn busy(
-        &self,
-        ctx: &Ctx<'_>,
-        user_id: &UserId,
-        from: DateTime<Utc>,
-        to: DateTime<Utc>,
-    ) -> Result<Option<Vec<BusyInterval>>, AppError>;
 }
 
 #[derive(Debug, Clone, PartialEq, Eq)]

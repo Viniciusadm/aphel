@@ -12,13 +12,13 @@ use aphel_kernel::api::sso::LoginProvider;
 use aphel_kernel::domain::access::{Permission, PermissionDefinition};
 use aphel_kernel::errors::{AppError, FieldViolation};
 use aphel_kernel::modules::{AppBuilder, Manifest, Migration, Module};
+use aphel_sdk::calendar::CalendarAvailability;
 use email::MailboxProvider;
-use oidc::IdentityLogin;
-use oidc::calendar::availability::CalendarBusy;
-use oidc::calendar::jobs;
-use oidc::calendar::model::calendar_setting_fields;
-use oidc::sso::settings::{login_setting_fields, validate_login_settings};
-use scheduling::CalendarAvailability;
+use sso::IdentityLogin;
+use sso::sso::settings::{login_setting_fields, validate_login_settings};
+use tasks::remote_calendar::availability::CalendarBusy;
+use tasks::remote_calendar::jobs;
+use tasks::remote_calendar::model::calendar_setting_fields;
 
 pub(crate) use mail::GmailProvider;
 pub(crate) use provider::GoogleProvider;
@@ -38,7 +38,7 @@ impl Module for GoogleModule {
                 "Sign-in with Google, meeting sync with Google Calendar and Gmail mailboxes",
             )
             .requires_aphel("0.1.0")
-            .depends_on(oidc::KEY, "*");
+            .depends_on(sso::KEY, "*");
         for field in login_setting_fields()
             .into_iter()
             .chain(calendar_setting_fields())

@@ -18,7 +18,7 @@ Per-record permission `scheduling.manage`: `own` manages one's own availability 
 
 - the host's open tasks with `due_at` and `duration_minutes` (from any record);
 - `pending`/`confirmed` bookings;
-- external calendars through the `CalendarAvailability` port, contributed by modules with `app.contribute::<dyn scheduling::CalendarAvailability>(..)` (only enabled modules and connected users). Google and Microsoft implement it via `oidc::calendar::availability` (`CalendarApi::busy`: Google `events.list` without transparent, canceled or declined events; Microsoft `calendarView` without `free`/`workingElsewhere`), with the OAuth scopes already requested (`calendar.events` and `Calendars.ReadWrite`; Google's `freeBusy` would require a new scope).
+- external calendars through the `CalendarAvailability` port, contributed by modules with `app.contribute::<dyn aphel_sdk::calendar::CalendarAvailability>(..)` (only enabled modules and connected users). Google and Microsoft implement it via `tasks::remote_calendar::availability` (`CalendarApi::busy`: Google `events.list` without transparent, canceled or declined events; Microsoft `calendarView` without `free`/`workingElsewhere`), with the OAuth scopes already requested (`calendar.events` and `Calendars.ReadWrite`; Google's `freeBusy` would require a new scope).
 
 If an external calendar fails, the host has no slots (fail closed). The public API only returns free `{ starts_at, ends_at }` pairs, never appointment data.
 

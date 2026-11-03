@@ -1,13 +1,13 @@
 import { CalendarDays } from 'lucide-react'
 import { defineModule } from '@/kernel/modules/define'
 import { MICROSOFT_CALENDAR_PERMISSION, MICROSOFT_KEY } from './api'
-import { SSO_SHARED_KEY } from '@/modules/oidc/shared/api'
+import { SSO_SHARED_KEY } from '@/modules/sso/shared/api'
 import { MicrosoftSettingsPanel } from './SettingsPanel'
 
 const microsoftModule = defineModule({
   key: MICROSOFT_KEY,
   translations: { 'pt-BR': () => import('./i18n/pt-BR.json'), en: () => import('./i18n/en.json') },
-  namespaces: { [SSO_SHARED_KEY]: { 'pt-BR': () => import('@/modules/oidc/i18n/pt-BR.json'), en: () => import('@/modules/oidc/i18n/en.json') } },
+  namespaces: { [SSO_SHARED_KEY]: { 'pt-BR': () => import('@/modules/sso/i18n/pt-BR.json'), en: () => import('@/modules/sso/i18n/en.json') } },
   settingsPanel: MicrosoftSettingsPanel,
   register(app) {
     app.routes([

@@ -1,15 +1,23 @@
 use aphel_contract::{Contract, ContractDescriptor, KeyEntry, KeyKind, contract};
+use chrono::{DateTime, Utc};
 use serde::{Deserialize, Serialize};
 use utoipa::ToSchema;
 
 pub const CONTRACT: Contract = contract!("calendar", "1.0.0");
 pub const DESCRIPTOR: ContractDescriptor = ContractDescriptor {
     contract: CONTRACT,
-    entries: &[KeyEntry::new(
-        "calendar.source",
-        KeyKind::ExtensionPoint,
-        "Authorized calendar entries supplied by their owner",
-    )],
+    entries: &[
+        KeyEntry::new(
+            "calendar.source",
+            KeyKind::ExtensionPoint,
+            "Authorized calendar entries supplied by their owner",
+        ),
+        KeyEntry::new(
+            "calendar.availability",
+            KeyKind::ExtensionPoint,
+            "Owner-provided busy intervals for a member",
+        ),
+    ],
 };
 
 #[derive(Debug, Clone, Deserialize, Serialize, ToSchema)]
@@ -57,4 +65,16 @@ pub struct CalendarBatch {
     pub items: Vec<CalendarRecord>,
     pub total: u64,
     pub truncated: bool,
+}
+
+#[derive(Debug, Clone, Copy, PartialEq, Eq)]
+pub struct BusyInterval {
+    pub starts_at: DateTime<Utc>,
+    pub ends_at: DateTime<Utc>,
+}
+
+impl BusyInterval {
+    pub fn new(starts_at: DateTime<Utc>, ends_at: DateTime<Utc>) -> Self {
+        Self { starts_at, ends_at }
+    }
 }

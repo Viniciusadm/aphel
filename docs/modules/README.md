@@ -15,7 +15,7 @@ In Aphel **everything is a module**: people, deals, automations, the integration
 | Path | Crate | What it is |
 | --- | --- | --- |
 | `back/kernel` | `aphel-kernel` | Platform: `Module`, `AppBuilder`/`App`, `HookBus`, `Services`, record pipeline, field and query engine, events, jobs, authentication, platform HTTP API, core migrations (`back/kernel/migrations`) and the `kernel` module (`KernelModule`) |
-| `back/modules/<key>` | `aphel-mod-<key>` | Modules that ship with Aphel (`people`, `deals`, `leads`, `email`, `automations`, `oidc`…), each with `src/` and `migrations/` |
+| `back/modules/<key>` | `aphel-mod-<key>` | Modules that ship with Aphel (`people`, `deals`, `leads`, `email`, `automations`, `sso`…), each with `src/` and `migrations/` |
 | `back/plugins/<key>` | free (e.g. `aphel-lead-pro`) | Local third-party plugins |
 | `back/app` | `aphel` | The binary: `main`, CLI (`serve`, `worker`, `migrate`, `modules`…) and the generated registry `src/modules.rs` |
 | `back/xtask` | `xtask` | `modules sync`: generates the registries from `aphel.modules.toml` |
@@ -300,4 +300,4 @@ To turn it off in an installation, disable it in Integrations › Modules (`/int
 
 ## Module guides
 
-[`ai`](ai.md), [`enrichment`](enrichment.md), [`esign`](esign.md), [`google`](google.md), [`insights`](insights.md), [`lead_forms`](lead_forms.md), [`messaging`](messaging.md), [`microsoft`](microsoft.md), [`oidc`](oidc.md) and [`proposals`](proposals.md).
+[`ai`](ai.md), [`enrichment`](enrichment.md), [`esign`](esign.md), [`google`](google.md), [`insights`](insights.md), [`lead_forms`](lead_forms.md), [`messaging`](messaging.md), [`microsoft`](microsoft.md), [`sso`](sso.md) and [`proposals`](proposals.md).

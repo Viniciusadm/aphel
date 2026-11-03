@@ -1,25 +1,25 @@
 use async_trait::async_trait;
 use chrono::{DateTime, SecondsFormat, Utc};
-use oidc::calendar::http::encode_segment;
-use oidc::mail::connect::connect_path;
-use oidc::mail::http::{bytes, json, text};
-use oidc::mail::mime::{build, encode_base64, parse_remote};
-use oidc::mail::tokens::{with_access, with_account_access};
-use oidc::mail::{
+use email::oauth::connect::connect_path;
+use email::oauth::http::{bytes, json, text};
+use email::oauth::mime::{build, encode_base64, parse_remote};
+use email::oauth::tokens::{with_access, with_account_access};
+use email::oauth::{
     MAIL_API_FAILED, MAIL_CURSOR_EXPIRED, MAIL_NOT_FOUND, MailOAuth, fetch_concurrently,
 };
-use oidc::sso::oauth::http_client;
+use sso::sso::oauth::http_client;
+use tasks::remote_calendar::http::encode_segment;
 
 use aphel_kernel::domain::access::AccessScope;
 use aphel_kernel::errors::AppError;
+use email::oauth::{provider_ctx, provider_error, provider_state};
 use email::{
     ConnectedMailbox, FetchedEmail, MailProviderError, MailboxAccount, MailboxConnectRequest,
     MailboxConnectionKind, MailboxCredentials, MailboxProvider, ProviderEmail, SentEmail,
     SyncBatch, SyncRequest,
 };
-use oidc::errors::error_code;
-use oidc::mail::{provider_ctx, provider_error, provider_state};
 use serde_json::{Map, Value, json};
+use sso::errors::error_code;
 
 use crate::KEY;
 use crate::provider::{GRAPH_URL, MicrosoftProvider};

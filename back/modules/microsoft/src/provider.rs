@@ -1,22 +1,22 @@
 use async_trait::async_trait;
 use axum::response::Response;
 use chrono::{DateTime, NaiveDateTime, Utc};
-use oidc::calendar::connect::complete_connection;
-use oidc::calendar::engine::parse_instant;
-use oidc::calendar::http::{encode_segment, send};
-use oidc::calendar::{
+use email::oauth::connect::PURPOSE_MAIL;
+use sso::errors::internal;
+use sso::sso::login::{EMAIL_NOT_VERIFIED, failure};
+use sso::sso::oauth::http_client;
+use sso::sso::settings::{self, LoginSettings};
+use sso::sso::{IdTokenClaims, IdentityProvider, ProviderEndpoints, StoredState};
+use tasks::remote_calendar::connect::complete_connection;
+use tasks::remote_calendar::engine::parse_instant;
+use tasks::remote_calendar::http::{encode_segment, send};
+use tasks::remote_calendar::{
     CalendarApi, CalendarSpec, LocalEvent, RemoteChanges, RemoteEvent, SyncWindow,
 };
-use oidc::errors::internal;
-use oidc::mail::connect::PURPOSE_MAIL;
-use oidc::sso::login::{EMAIL_NOT_VERIFIED, failure};
-use oidc::sso::oauth::http_client;
-use oidc::sso::settings::{self, LoginSettings};
-use oidc::sso::{IdTokenClaims, IdentityProvider, ProviderEndpoints, StoredState};
 
 use aphel_kernel::Ctx;
 use aphel_kernel::errors::AppError;
-use scheduling::BusyInterval;
+use aphel_sdk::calendar::BusyInterval;
 use serde_json::{Value, json};
 
 use crate::{
@@ -128,7 +128,7 @@ impl IdentityProvider for MicrosoftProvider {
 
     async fn complete_purpose(&self, ctx: &Ctx<'_>, state: &StoredState, code: &str) -> Response {
         if state.purpose == PURPOSE_MAIL {
-            return oidc::mail::connect::complete(ctx, self, state, code).await;
+            return email::oauth::connect::complete(ctx, self, state, code).await;
         }
         complete_connection(ctx, self, state, code).await
     }

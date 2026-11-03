@@ -9,3 +9,5 @@ publish = false
 aphel-contract.workspace = true
 serde.workspace = true
 utoipa.workspace = true
+
+chrono.workspace = true

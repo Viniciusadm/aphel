@@ -1,5 +1,6 @@
 mod followers;
 mod messaging_channel;
+pub mod oauth;
 use aphel_contract_automation::AutomationBuilder;
 pub(crate) mod capture;
 pub mod compose;

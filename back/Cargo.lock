@@ -187,7 +187,6 @@ dependencies = [
  "aphel-mod-notes",
  "aphel-mod-notifications",
  "aphel-mod-objects",
- "aphel-mod-oidc",
  "aphel-mod-onboarding",
  "aphel-mod-org-export",
  "aphel-mod-organizations",
@@ -208,6 +207,7 @@ dependencies = [
  "aphel-mod-search",
  "aphel-mod-segments",
  "aphel-mod-sequences",
+ "aphel-mod-sso",
  "aphel-mod-tags",
  "aphel-mod-tasks",
  "aphel-mod-themes",
@@ -275,6 +275,7 @@ name = "aphel-contract-calendar"
 version = "0.1.0"
 dependencies = [
  "aphel-contract",
+ "chrono",
  "serde",
  "utoipa",
 ]
@@ -782,6 +783,7 @@ dependencies = [
  "aphel-mod-leads",
  "aphel-mod-organizations",
  "aphel-mod-people",
+ "aphel-mod-sso",
  "aphel-sdk",
  "async-imap",
  "async-trait",
@@ -789,12 +791,14 @@ dependencies = [
  "base64 0.22.1",
  "bytes",
  "chrono",
+ "form_urlencoded",
  "futures",
  "getrandom 0.4.3",
  "hmac",
  "lettre",
  "mail-parser",
  "regex",
+ "reqwest",
  "rustls",
  "serde",
  "serde_json",
@@ -989,8 +993,9 @@ version = "0.1.0"
 dependencies = [
  "aphel-kernel",
  "aphel-mod-email",
- "aphel-mod-oidc",
- "aphel-mod-scheduling",
+ "aphel-mod-sso",
+ "aphel-mod-tasks",
+ "aphel-sdk",
  "async-trait",
  "axum",
  "chrono",
@@ -1181,8 +1186,9 @@ version = "0.1.0"
 dependencies = [
  "aphel-kernel",
  "aphel-mod-email",
- "aphel-mod-oidc",
- "aphel-mod-scheduling",
+ "aphel-mod-sso",
+ "aphel-mod-tasks",
+ "aphel-sdk",
  "async-trait",
  "axum",
  "chrono",
@@ -1308,35 +1314,6 @@ dependencies = [
  "sha2 0.11.1",
  "sqlx",
  "tokio",
- "tracing",
- "utoipa",
- "utoipa-axum",
- "uuid",
-]
-
-[[package]]
-name = "aphel-mod-oidc"
-version = "0.1.0"
-dependencies = [
- "aphel-contract-crm",
- "aphel-kernel",
- "aphel-mod-email",
- "aphel-mod-scheduling",
- "aphel-mod-tasks",
- "async-trait",
- "axum",
- "base64 0.22.1",
- "chrono",
- "form_urlencoded",
- "futures",
- "getrandom 0.4.3",
- "lettre",
- "mail-parser",
- "reqwest",
- "serde",
- "serde_json",
- "sha2 0.11.1",
- "sqlx",
  "tracing",
  "utoipa",
  "utoipa-axum",
@@ -1721,6 +1698,7 @@ dependencies = [
  "aphel-mod-email",
  "aphel-mod-people",
  "aphel-mod-tasks",
+ "aphel-sdk",
  "async-trait",
  "axum",
  "base64 0.22.1",
@@ -1830,6 +1808,28 @@ dependencies = [
 ]
 
 [[package]]
+name = "aphel-mod-sso"
+version = "0.1.0"
+dependencies = [
+ "aphel-kernel",
+ "async-trait",
+ "axum",
+ "base64 0.22.1",
+ "chrono",
+ "form_urlencoded",
+ "getrandom 0.4.3",
+ "reqwest",
+ "serde",
+ "serde_json",
+ "sha2 0.11.1",
+ "sqlx",
+ "tracing",
+ "utoipa",
+ "utoipa-axum",
+ "uuid",
+]
+
+[[package]]
 name = "aphel-mod-tags"
 version = "0.1.0"
 dependencies = [
@@ -1859,15 +1859,19 @@ dependencies = [
  "aphel-kernel",
  "aphel-mod-config-packages",
  "aphel-mod-notifications",
+ "aphel-mod-sso",
  "aphel-sdk",
  "async-trait",
  "axum",
  "chrono",
  "chrono-tz",
+ "form_urlencoded",
+ "reqwest",
  "rust_decimal",
  "serde",
  "serde_json",
  "sqlx",
+ "tracing",
  "utoipa",
  "utoipa-axum",
  "uuid",

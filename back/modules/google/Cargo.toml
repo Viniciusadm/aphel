@@ -7,10 +7,11 @@ license.workspace = true
 publish = false
 
 [dependencies]
+aphel-sdk.workspace = true
+tasks = { package = "aphel-mod-tasks", path = "../tasks" }
 aphel-kernel.workspace = true
 email = { package = "aphel-mod-email", path = "../email" }
-oidc = { package = "aphel-mod-oidc", path = "../oidc" }
-scheduling = { package = "aphel-mod-scheduling", path = "../scheduling" }
+sso = { package = "aphel-mod-sso", path = "../sso" }
 axum.workspace = true
 async-trait.workspace = true
 chrono.workspace = true

@@ -1,3 +1,4 @@
+use aphel_sdk::calendar::BusyInterval;
 use chrono::{DateTime, Duration, NaiveDateTime, Utc};
 use chrono_tz::Tz;
 use serde_json::{Map, Value, json};
@@ -7,9 +8,8 @@ use sqlx::{MySql, MySqlPool, QueryBuilder, Row};
 use uuid::Uuid;
 
 use crate::{
-    Availability, Booking, BookingFilter, BookingStatus, BusyInterval, HostProfile, LocationKind,
-    MeetingType, MeetingTypeFilter, OrganizationProfile, Question, QuestionKind, WeeklyInterval,
-    parse_clock,
+    Availability, Booking, BookingFilter, BookingStatus, HostProfile, LocationKind, MeetingType,
+    MeetingTypeFilter, OrganizationProfile, Question, QuestionKind, WeeklyInterval, parse_clock,
 };
 use aphel_kernel::Ctx;
 use aphel_kernel::application::organization_admin::Listing;

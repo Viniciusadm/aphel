@@ -2,23 +2,23 @@ use std::collections::HashSet;
 
 use async_trait::async_trait;
 use chrono::{DateTime, Utc};
-use oidc::mail::connect::connect_path;
-use oidc::mail::http::{json, text};
-use oidc::mail::mime::{decode_base64url, encode_base64url, parse_remote};
-use oidc::mail::tokens::{with_access, with_account_access};
-use oidc::mail::{MAIL_API_FAILED, MAIL_NOT_FOUND, MailOAuth, fetch_concurrently};
-use oidc::sso::oauth::http_client;
+use email::oauth::connect::connect_path;
+use email::oauth::http::{json, text};
+use email::oauth::mime::{decode_base64url, encode_base64url, parse_remote};
+use email::oauth::tokens::{with_access, with_account_access};
+use email::oauth::{MAIL_API_FAILED, MAIL_NOT_FOUND, MailOAuth, fetch_concurrently};
+use sso::sso::oauth::http_client;
 
 use aphel_kernel::domain::access::AccessScope;
 use aphel_kernel::errors::AppError;
+use email::oauth::{provider_ctx, provider_error, provider_state};
 use email::{
     ConnectedMailbox, FetchedEmail, MailProviderError, MailboxAccount, MailboxConnectRequest,
     MailboxConnectionKind, MailboxCredentials, MailboxProvider, ProviderEmail, SentEmail,
     SyncBatch, SyncRequest,
 };
-use oidc::errors::error_code;
-use oidc::mail::{provider_ctx, provider_error, provider_state};
 use serde_json::{Value, json};
+use sso::errors::error_code;
 
 use crate::KEY;
 use crate::provider::GoogleProvider;
@@ -419,7 +419,7 @@ impl MailboxProvider for GmailProvider {
         let state = provider_state()?;
         let scope = AccessScope::system();
         let ctx = provider_ctx(&state, &scope).await?;
-        let raw = encode_base64url(&oidc::mail::mime::build(mail).map_err(provider_error)?);
+        let raw = encode_base64url(&email::oauth::mime::build(mail).map_err(provider_error)?);
         let raw = raw.as_str();
         let in_reply_to = mail.in_reply_to.as_deref();
         let (sent, refreshed) =

@@ -25,7 +25,7 @@ use aphel_kernel::errors::AppError;
 use aphel_kernel::modules::builder::APHEL_VERSION;
 use aphel_kernel::modules::{AppBuilder, Manifest, Module};
 
-pub use model::*;
+pub(crate) use model::*;
 pub use payload::*;
 
 pub(crate) const KEY: &str = "scheduling";

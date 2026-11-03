@@ -59,7 +59,7 @@ proposals = { path = "modules/proposals" }
 insights = { path = "modules/insights" }
 lead_forms = { path = "modules/lead_forms" }
 ai = { path = "modules/ai" }
-oidc = { path = "modules/oidc" }
+sso = { path = "modules/sso" }
 google = { path = "modules/google" }
 microsoft = { path = "modules/microsoft" }
 esign = { path = "modules/esign" }
