@@ -363,5 +363,67 @@
       "title": "Desempenho",
       "description": "Acompanhe resultados e compare o desempenho da operação."
     }
+  },
+  "dashboard": {
+    "states": {
+      "emptyLayoutTitle": "Seu painel está vazio",
+      "emptyLayoutDescription": "Adicione widgets para acompanhar vendas, pendências e atividades.",
+      "widgetEmpty": "Nada por aqui no período.",
+      "widgetError": "Não foi possível carregar este widget.",
+      "unsupported": "Este widget não pode ser exibido nesta versão.",
+      "saveError": "Não foi possível salvar o painel.",
+      "noData": "—"
+    },
+    "widgets": {
+      "sales_indicators": {
+        "title": "Indicadores de vendas",
+        "openCount": "Oportunidades abertas",
+        "pipelineAmount": "Valor do pipeline",
+        "forecastAmount": "Receita prevista",
+        "forecastHint": "Valor × probabilidade",
+        "won": "Ganhas no período",
+        "lost": "Perdidas no período",
+        "conversionRate": "Taxa de conversão",
+        "wonAmount": "{{amount}} ganhos"
+      },
+      "deals_by_stage": {
+        "title": "Oportunidades por etapa",
+        "chartLabel": "Oportunidades por etapa do funil {{pipeline}}",
+        "count": "Quantidade",
+        "amount": "Valor",
+        "deals_one": "{{count}} oportunidade",
+        "deals_other": "{{count}} oportunidades",
+        "noPipeline": "Nenhum funil encontrado."
+      },
+      "pending_center": {
+        "title": "Central de pendências",
+        "overdue": "Tarefas atrasadas",
+        "dueToday": "Vencendo hoje",
+        "dueTomorrow": "Vencendo amanhã",
+        "staleDeals": "Sem atualização há {{count}} dias",
+        "staleDealsNoPermission": "Sem acesso a oportunidades",
+        "noItems": "Nenhuma",
+        "more": "e mais {{count}}",
+        "staleDays": "Dias sem atualização",
+        "onlyMine": "Só as minhas",
+        "dueAt": "Prazo: {{date}}",
+        "lastTouched": "Última atualização: {{date}}",
+        "allClear": "Tudo em dia! Nenhuma pendência."
+      }
+    },
+    "summary": {
+      "openDeals": "Oportunidades abertas",
+      "wonDeals": "Ganhas no período",
+      "lostDeals": "Perdidas no período"
+    },
+    "events": {
+      "created": "criou a oportunidade",
+      "stage_changed": "moveu a oportunidade",
+      "won": "ganhou a oportunidade",
+      "lost": "perdeu a oportunidade",
+      "reopened": "reabriu a oportunidade",
+      "owner_changed": "trocou o responsável da oportunidade"
+    },
+    "stageChange": "{{from}} → {{to}}"
   }
 }

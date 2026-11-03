@@ -1,6 +1,6 @@
 import { useTranslation } from 'react-i18next'
 import { formatCurrency, formatNumber, useRecordFormatting } from '@/features/records/formatting'
-import type { SalesIndicatorsData } from '../types'
+import type { SalesIndicatorsData } from './types'
 import { Delta, StatTile } from '@/kernel/widgets/shared'
 
 function amountOf(value: string | undefined): number | null {
@@ -10,7 +10,7 @@ function amountOf(value: string | undefined): number | null {
 }
 
 export function SalesIndicatorsWidget({ data }: { data: SalesIndicatorsData }) {
-  const { t } = useTranslation('dashboard')
+  const { t } = useTranslation('deals', { keyPrefix: 'dashboard' })
   const formatting = useRecordFormatting()
   const money = (value: string | number) => formatCurrency(value, formatting, data.currency)
   const count = (value: number) => formatNumber(value, formatting)
@@ -21,10 +21,10 @@ export function SalesIndicatorsWidget({ data }: { data: SalesIndicatorsData }) {
   return (
     <dl className="grid grid-cols-1 gap-3 sm:grid-cols-2 lg:grid-cols-3">
       <StatTile label={t('widgets.sales_indicators.openCount')} value={count(data.open_count)} />
-      <StatTile label={t('widgets.sales_indicators.pipelineAmount')} value={money(data.pipeline_amount)} />
+      <StatTile label={t('widgets.sales_indicators.pipelineAmount')} value={data.pipeline_amount !== undefined ? money(data.pipeline_amount) : t('states.noData')} />
       <StatTile
         label={t('widgets.sales_indicators.forecastAmount')}
-        value={money(data.forecast_amount)}
+        value={data.forecast_amount !== undefined ? money(data.forecast_amount) : t('states.noData')}
         hint={t('widgets.sales_indicators.forecastHint')}
       />
       <StatTile

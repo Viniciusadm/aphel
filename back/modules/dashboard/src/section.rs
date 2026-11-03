@@ -1,5 +1,6 @@
-use ::config_packages::application::ConfigReferenceKind;
-use std::collections::BTreeSet;
+use aphel_sdk::dashboard::{DashboardReferenceCatalog, WidgetReferenceSetting};
+use sqlx::MySqlPool;
+use std::collections::{BTreeSet, HashMap};
 
 use async_trait::async_trait;
 use serde::{Deserialize, Serialize};
@@ -14,20 +15,15 @@ use crate::layout::{
 };
 use crate::store::LayoutStore;
 use ::config_packages::application::{
-    ApplyContext, ConfigKeyRepository, ConfigPackage, ConfigSection, Decisions, PackageIssue,
-    PlanChange, PlanItem, parse_section,
+    ApplyContext, ConfigPackage, ConfigSection, Decisions, PackageIssue, PlanChange, PlanItem,
+    parse_section,
 };
 use aphel_kernel::database::transaction::MySqlTx;
 use aphel_kernel::domain::access::AccessScope;
 use aphel_kernel::errors::AppError;
-use workflow::section::{keyed_pipelines, package_pipeline_keys};
-use workflow::store::PipelineStore;
 
 pub(crate) const DASHBOARD_SECTION: &str = "dashboard";
 const DASHBOARD_KIND: &str = "dashboard_layout";
-const PIPELINE_SETTING: &str = "pipeline";
-const PIPELINE_ID_SETTING: &str = "pipeline_id";
-const NON_PORTABLE_SETTINGS: [&str; 1] = ["report_id"];
 
 #[derive(Debug, Clone, PartialEq, Serialize, Deserialize)]
 #[serde(deny_unknown_fields)]
@@ -46,55 +42,71 @@ pub(crate) struct PackageWidget {
     pub(crate) settings: Map<String, Value>,
 }
 
-pub(crate) struct DashboardSection<K> {
-    widget_keys: Vec<String>,
+pub(crate) struct DashboardSection {
+    widgets: HashMap<String, Vec<WidgetReferenceSetting>>,
     layouts: LayoutStore,
-    workflow: PipelineStore,
-    keys: K,
+    pool: MySqlPool,
 }
 
-impl<K> DashboardSection<K>
-where
-    K: ConfigKeyRepository,
-{
+impl DashboardSection {
     pub(crate) fn new(
-        widget_keys: Vec<String>,
+        widgets: HashMap<String, Vec<WidgetReferenceSetting>>,
         layouts: LayoutStore,
-        workflow: PipelineStore,
-        keys: K,
+        pool: MySqlPool,
     ) -> Self {
         Self {
-            widget_keys,
+            widgets,
             layouts,
-            workflow,
-            keys,
+            pool,
         }
     }
-
+    fn catalog(
+        kind: aphel_sdk::ReferenceKind,
+    ) -> Result<Option<std::sync::Arc<dyn DashboardReferenceCatalog>>, AppError> {
+        let catalogs: Vec<_> = aphel_kernel::modules::app()
+            .contributions::<dyn DashboardReferenceCatalog>()
+            .into_iter()
+            .filter(|catalog| catalog.kind() == kind)
+            .collect();
+        if catalogs.len() > 1 {
+            return Err(AppError::Configuration(
+                "duplicate dashboard reference catalog".into(),
+            ));
+        }
+        Ok(catalogs.into_iter().next())
+    }
     async fn layout_for(
         &self,
         package: &PackageDashboard,
         context: Option<&ApplyContext>,
     ) -> Result<Value, AppError> {
-        let existing = keyed_pipelines(&self.workflow, &self.keys).await?;
         let mut widgets = Vec::new();
         for (index, widget) in package.widgets.iter().enumerate() {
             let mut settings = widget.settings.clone();
-            if let Some(pipeline) = settings.remove(PIPELINE_SETTING) {
-                let pipeline_id = pipeline.as_str().and_then(|key| {
-                    context
-                        .and_then(|context| {
-                            context.resolved(ConfigReferenceKind::new("workflow.pipeline"), key)
+            for reference in self.widgets.get(&widget.key).into_iter().flatten() {
+                let Some(package_field) = reference.package_field else {
+                    continue;
+                };
+                if let Some(value) = settings.remove(package_field) {
+                    let catalog = Self::catalog(reference.kind)?;
+                    let keys = match catalog {
+                        Some(catalog) => catalog.keys(&self.pool).await?,
+                        None => HashMap::new(),
+                    };
+                    let id = value
+                        .as_str()
+                        .and_then(|key| {
+                            context
+                                .and_then(|context| context.resolved(reference.kind, key))
+                                .or_else(|| {
+                                    keys.iter()
+                                        .find(|(_, stored)| stored.as_str() == key)
+                                        .map(|(id, _)| *id)
+                                })
                         })
-                        .or_else(|| {
-                            existing
-                                .iter()
-                                .find(|(_, keyed)| keyed.key == key)
-                                .map(|(pipeline, _)| pipeline.id)
-                        })
-                        .map(|id| id.to_string())
-                });
-                settings.insert(PIPELINE_ID_SETTING.to_owned(), json!(pipeline_id));
+                        .map(|id| id.to_string());
+                    settings.insert(reference.field.into(), json!(id));
+                }
             }
             widgets.push(LayoutWidget {
                 id: format!(
@@ -133,26 +145,24 @@ where
         else {
             return Ok(None);
         };
-        let existing = keyed_pipelines(&self.workflow, &self.keys).await?;
         for widget in &mut dashboard.widgets {
-            for setting in NON_PORTABLE_SETTINGS {
-                if widget.settings.contains_key(setting) {
-                    widget.settings.insert(setting.to_owned(), Value::Null);
+            for reference in self.widgets.get(&widget.key).into_iter().flatten() {
+                let Some(value) = widget.settings.remove(reference.field) else {
+                    continue;
+                };
+                if let Some(package_field) = reference.package_field {
+                    let keys = match Self::catalog(reference.kind)? {
+                        Some(catalog) => catalog.keys(&self.pool).await?,
+                        None => HashMap::new(),
+                    };
+                    let key = value
+                        .as_str()
+                        .and_then(|id| Uuid::parse_str(id).ok())
+                        .and_then(|id| keys.get(&id).cloned());
+                    widget.settings.insert(package_field.into(), json!(key));
+                } else {
+                    widget.settings.insert(reference.field.into(), Value::Null);
                 }
-            }
-            if let Some(pipeline_id) = widget.settings.remove(PIPELINE_ID_SETTING) {
-                let key = pipeline_id
-                    .as_str()
-                    .and_then(|id| Uuid::parse_str(id).ok())
-                    .and_then(|id| {
-                        existing
-                            .iter()
-                            .find(|(pipeline, _)| pipeline.id == id)
-                            .map(|(_, keyed)| keyed.key.clone())
-                    });
-                widget
-                    .settings
-                    .insert(PIPELINE_SETTING.to_owned(), json!(key));
             }
         }
         Ok(Some(dashboard))
@@ -211,11 +221,6 @@ fn normalize(mut dashboard: PackageDashboard) -> PackageDashboard {
     if dashboard.period.is_none() {
         dashboard.period = Some(LayoutPeriod::default().preset);
     }
-    for widget in &mut dashboard.widgets {
-        if widget.settings.get(PIPELINE_SETTING) == Some(&Value::Null) {
-            widget.settings.remove(PIPELINE_SETTING);
-        }
-    }
     dashboard
 }
 
@@ -243,10 +248,7 @@ fn parse(content: &Value) -> Result<PackageDashboard, AppError> {
 }
 
 #[async_trait]
-impl<K> ConfigSection<MySqlTx> for DashboardSection<K>
-where
-    K: ConfigKeyRepository,
-{
+impl ConfigSection<MySqlTx> for DashboardSection {
     fn key(&self) -> &'static str {
         DASHBOARD_SECTION
     }
@@ -288,17 +290,9 @@ where
                 "must be today, last_7_days, month or quarter",
             ));
         }
-        let mut pipeline_keys: BTreeSet<String> =
-            package_pipeline_keys(package).into_iter().collect();
-        pipeline_keys.extend(
-            keyed_pipelines(&self.workflow, &self.keys)
-                .await?
-                .into_iter()
-                .map(|(_, keyed)| keyed.key),
-        );
         for (index, widget) in dashboard.widgets.iter().enumerate() {
             let path = format!("widgets.{index}");
-            if !self.widget_keys.contains(&widget.key) {
+            if !self.widgets.contains_key(&widget.key) {
                 issues.push(PackageIssue::new(
                     format!("{path}.key"),
                     "unknown_widget",
@@ -320,34 +314,34 @@ where
                     format!("must have at most {MAX_WIDGET_SETTINGS_BYTES} bytes"),
                 ));
             }
-            if widget.settings.contains_key(PIPELINE_ID_SETTING) {
-                issues.push(PackageIssue::new(
-                    format!("{path}.settings.{PIPELINE_ID_SETTING}"),
-                    "not_portable",
-                    "reference the pipeline by its key in settings.pipeline",
-                ));
-            }
-            for setting in NON_PORTABLE_SETTINGS {
+            for reference in self.widgets.get(&widget.key).into_iter().flatten() {
                 if widget
                     .settings
-                    .get(setting)
+                    .get(reference.field)
                     .is_some_and(|value| !value.is_null())
                 {
                     issues.push(PackageIssue::new(
-                        format!("{path}.settings.{setting}"),
+                        format!("{path}.settings.{}", reference.field),
                         "not_portable",
-                        "references a record of the organization and must be null in a package",
+                        "use the portable reference key or null in a package",
                     ));
                 }
-            }
-            match widget.settings.get(PIPELINE_SETTING) {
-                None | Some(Value::Null) => {}
-                Some(Value::String(key)) if pipeline_keys.contains(key) => {}
-                Some(_) => issues.push(PackageIssue::new(
-                    format!("{path}.settings.{PIPELINE_SETTING}"),
-                    "unknown_pipeline",
-                    "must be the key of a pipeline of the package or of the organization",
-                )),
+                if let Some(package_field) = reference.package_field {
+                    let mut keys = BTreeSet::new();
+                    if let Some(catalog) = Self::catalog(reference.kind)? {
+                        keys.extend(catalog.package_keys(&package.sections));
+                        keys.extend(catalog.keys(&self.pool).await?.into_values());
+                    }
+                    match widget.settings.get(package_field) {
+                        None | Some(Value::Null) => {}
+                        Some(Value::String(key)) if keys.contains(key) => {}
+                        Some(_) => issues.push(PackageIssue::new(
+                            format!("{path}.settings.{package_field}"),
+                            "unknown_reference",
+                            "must be an available reference key of the package or installation",
+                        )),
+                    }
+                }
             }
         }
         Ok(issues)

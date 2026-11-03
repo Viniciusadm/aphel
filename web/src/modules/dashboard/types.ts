@@ -55,52 +55,6 @@ export interface UserRef {
 
 export type RecordRef = WidgetRecordRef
 
-export interface ClosedDealsTotals {
-  won_count: number
-  won_amount?: string
-  lost_count: number
-  conversion_rate: number | null
-}
-
-export interface SalesIndicatorsData extends ClosedDealsTotals {
-  currency: string
-  open_count: number
-  pipeline_amount: string
-  forecast_amount: string
-  previous: ClosedDealsTotals | null
-}
-
-export interface PendingActivityItem {
-  id: string
-  title: string
-  priority: string | null
-  due_at: string | null
-  owner: UserRef | null
-  record: RecordRef | null
-}
-
-export interface StaleLineItem {
-  id: string
-  title: string
-  amount: string | null
-  currency: string
-  stage_name: string
-  owner: UserRef | null
-  last_touched_at: string
-}
-
-export interface Bucket<T> {
-  count: number
-  items: T[]
-}
-
-export interface PendingCenterData {
-  overdue: Bucket<PendingActivityItem>
-  due_today: Bucket<PendingActivityItem>
-  due_tomorrow: Bucket<PendingActivityItem>
-  stale_deals: (Bucket<StaleLineItem> & { stale_days: number }) | null
-}
-
 export interface RecentEventItem {
   id: string
   event_type: string
@@ -112,35 +66,4 @@ export interface RecentEventItem {
 
 export interface RecentActivityData {
   items: RecentEventItem[]
-}
-
-export interface ReportTotalsPrevious {
-  won_deals: number | null
-  lost_deals: number | null
-  completed_activities: number | null
-}
-
-export interface ReportTotalsData {
-  contacts_total: number | null
-  open_deals: number | null
-  won_deals: number | null
-  lost_deals: number | null
-  pending_tasks: number | null
-  completed_activities: number | null
-  previous?: ReportTotalsPrevious | null
-}
-
-export interface StageBar {
-  id: string
-  name: string
-  kind: 'open' | 'won' | 'lost'
-  probability: number
-  count: number
-  amount: string
-}
-
-export interface DealsByStageData {
-  pipeline: { id: string; name: string } | null
-  currency: string
-  stages: StageBar[]
 }

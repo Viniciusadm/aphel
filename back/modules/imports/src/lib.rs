@@ -74,7 +74,7 @@ impl Module for ImportsModule {
         app.contribute::<dyn ::notifications::application::texts::NotificationTexts>(
             std::sync::Arc::new(crate::notifications::ImportNotificationTexts),
         );
-        app.contribute::<dyn ::dashboard::repository::RecentEventExclusion>(Arc::new(
+        app.contribute::<dyn aphel_sdk::dashboard::RecentEventExclusion>(Arc::new(
             dashboard::ImportedEventsExclusion,
         ));
         app.contribute::<dyn ::notifications::application::NotificationSource>(

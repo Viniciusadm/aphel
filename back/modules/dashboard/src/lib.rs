@@ -16,10 +16,7 @@ use std::sync::Arc;
 
 use aphel_kernel::modules::Migration;
 
-use crate::widgets::{
-    DealsByStageWidget, PendingCenterWidget, RecentActivityWidget, ReportTotalsWidget,
-    SalesIndicatorsWidget,
-};
+use crate::widgets::{PendingCenterWidget, RecentActivityWidget, ReportTotalsWidget};
 use aphel_kernel::errors::AppError;
 use aphel_kernel::modules::builder::APHEL_VERSION;
 use aphel_kernel::modules::{AppBuilder, Manifest, Module};
@@ -65,7 +62,7 @@ impl Module for DashboardModule {
             130,
             |pool, registry| {
                 let _ = registry;
-                std::sync::Arc::new(crate::section::DashboardSection::new(crate::engine::WidgetRegistry::<crate::repository::MySqlDashboardPorts>::builtin().providers().map(|provider| provider.key().to_owned()).collect(), crate::store::LayoutStore::new(pool.clone()), workflow::store::PipelineStore::new(pool.clone()), ::config_packages::infrastructure::MySqlConfigKeyRepository::new(pool.clone())))
+                std::sync::Arc::new(crate::section::DashboardSection::new(crate::engine::WidgetRegistry::<crate::repository::MySqlDashboardPorts>::builtin().providers().map(|provider| (provider.key().to_owned(), provider.reference_settings())).collect(), crate::store::LayoutStore::new(pool.clone()), pool.clone()))
             },
         )));
         app.openapi_tag(
@@ -73,12 +70,10 @@ impl Module for DashboardModule {
             "Dashboard widgets, their data and the per-user layout",
         )
         .routes(|_| http::router());
-        let widgets: [DashboardWidget; 5] = [
-            Arc::new(SalesIndicatorsWidget),
+        let widgets: [DashboardWidget; 3] = [
             Arc::new(PendingCenterWidget),
             Arc::new(RecentActivityWidget),
             Arc::new(ReportTotalsWidget),
-            Arc::new(DealsByStageWidget),
         ];
         for widget in widgets {
             app.contribute::<dyn crate::engine::WidgetProvider<crate::repository::MySqlDashboardPorts>>(widget);

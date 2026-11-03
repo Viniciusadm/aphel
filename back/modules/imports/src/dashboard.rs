@@ -1,6 +1,6 @@
 use sqlx::{MySql, QueryBuilder};
 
-use ::dashboard::repository::RecentEventExclusion;
+use aphel_sdk::dashboard::RecentEventExclusion;
 
 use crate::writer::IMPORT_EVENT_ORIGIN;
 

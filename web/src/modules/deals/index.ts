@@ -1,3 +1,10 @@
+import { DealsDashboardEventLabel } from './dashboard/EventLabel'
+import { DealPendingSections, type DealPendingData } from './dashboard/PendingSections'
+import { SalesIndicatorsWidget } from './dashboard/SalesIndicatorsWidget'
+import { DealsByStageWidget } from './dashboard/DealsByStageWidget'
+import type { SalesIndicatorsData, DealsByStageData } from './dashboard/types'
+import { createElement } from 'react'
+import { DealsSummary } from './dashboard/Summary'
 import { DealReportLibraryCards } from './reports/LibraryCards'
 import { dealReportRoutes } from './reports/routes'
 import { LineItemAmountLock } from './LineItemAmountLock'
@@ -39,6 +46,11 @@ const dealsModule = defineModule({
     },
   },
   register(app) {
+    app.filter('dashboard.eventLabel', (label, { event }) => event.event_type.startsWith('deal.') ? createElement(DealsDashboardEventLabel, { event }) : label)
+    app.slot('dashboard.source', { key: 'deals.summary', render: ({ collection, source, data }) => collection === 'summary' && source === 'deals.summary' ? createElement(DealsSummary, { data: data as Record<string, unknown> }) : null })
+    app.slot('dashboard.source', { key: 'deals.stale', render: ({ collection, source, data }) => collection === 'pending' && source === 'deals.stale' ? createElement(DealPendingSections, { data: data as DealPendingData }) : null })
+    app.widget('sales_indicators', { render: (data) => createElement(SalesIndicatorsWidget, { data: data as SalesIndicatorsData }) })
+    app.widget('deals_by_stage', { render: (data) => createElement(DealsByStageWidget, { data: data as DealsByStageData }), isEmpty: (data) => { const stages = data as DealsByStageData; return stages.pipeline !== null && stages.stages.every((stage) => stage.count === 0) } })
     app.slot('deals.detail.fieldLocks', { key: 'line-item-amount', render: LineItemAmountLock })
     app.slot('deals.badges', { key: 'rotting', render: RottingDealBadge })
     app.filter('deals.tone', (tone, { deal }) => (rottingOf(deal).isRotting ? 'warning' : tone))

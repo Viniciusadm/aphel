@@ -81,5 +81,23 @@
       "phone": "(00) 00000-0000",
       "email": "nome@exemplo.com"
     }
+  },
+  "dashboard": {
+    "states": {
+      "emptyLayoutTitle": "Seu painel está vazio",
+      "emptyLayoutDescription": "Adicione widgets para acompanhar vendas, pendências e atividades.",
+      "widgetEmpty": "Nada por aqui no período.",
+      "widgetError": "Não foi possível carregar este widget.",
+      "unsupported": "Este widget não pode ser exibido nesta versão.",
+      "saveError": "Não foi possível salvar o painel.",
+      "noData": "—"
+    },
+    "widgets": {},
+    "summary": {
+      "contactsTotal": "Contatos"
+    },
+    "events": {
+      "created": "criou o contato"
+    }
   }
 }

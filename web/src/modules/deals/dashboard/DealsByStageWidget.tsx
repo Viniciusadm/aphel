@@ -1,7 +1,7 @@
 import { useTranslation } from 'react-i18next'
 import { Bar, BarChart, CartesianGrid, ResponsiveContainer, Tooltip, XAxis, YAxis } from 'recharts'
 import { formatCurrency, formatNumber, useRecordFormatting } from '@/features/records/formatting'
-import type { DealsByStageData, StageBar } from '../types'
+import type { DealsByStageData, StageBar } from './types'
 
 interface TooltipProps {
   active?: boolean
@@ -10,7 +10,7 @@ interface TooltipProps {
 }
 
 function StageTooltip({ active, payload, currency }: TooltipProps) {
-  const { t } = useTranslation('dashboard')
+  const { t } = useTranslation('deals', { keyPrefix: 'dashboard' })
   const formatting = useRecordFormatting()
   const stage = active ? payload?.[0]?.payload : undefined
   if (!stage) return null
@@ -18,13 +18,13 @@ function StageTooltip({ active, payload, currency }: TooltipProps) {
     <div className="rounded-md border bg-popover px-3 py-2 text-xs text-popover-foreground shadow-md">
       <p className="font-medium">{stage.name}</p>
       <p>{t('widgets.deals_by_stage.deals', { count: stage.count })}</p>
-      <p className="text-muted-foreground">{formatCurrency(stage.amount, formatting, currency)}</p>
+      <p className="text-muted-foreground">{stage.amount !== undefined ? formatCurrency(stage.amount, formatting, currency) : t('states.noData')}</p>
     </div>
   )
 }
 
 export function DealsByStageWidget({ data }: { data: DealsByStageData }) {
-  const { t } = useTranslation('dashboard')
+  const { t } = useTranslation('deals', { keyPrefix: 'dashboard' })
   const formatting = useRecordFormatting()
   if (!data.pipeline) {
     return <p className="text-sm text-muted-foreground">{t('widgets.deals_by_stage.noPipeline')}</p>
@@ -72,7 +72,7 @@ export function DealsByStageWidget({ data }: { data: DealsByStageData }) {
               <tr key={stage.id}>
                 <th scope="row">{stage.name}</th>
                 <td>{formatNumber(stage.count, formatting)}</td>
-                <td>{formatCurrency(stage.amount, formatting, data.currency)}</td>
+                <td>{stage.amount !== undefined ? formatCurrency(stage.amount, formatting, data.currency) : t('states.noData')}</td>
               </tr>
             ))}
           </tbody>

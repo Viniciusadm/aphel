@@ -1,6 +1,6 @@
 {
   "title": "Bem-vindo ao Aphel",
-  "description": "Resumo das suas vendas, pendências e atividades.",
+  "description": "Visão geral dos seus módulos instalados.",
   "period": {
     "label": "Período",
     "presets": {
@@ -54,31 +54,10 @@
     "noData": "—"
   },
   "widgets": {
-    "sales_indicators": {
-      "title": "Indicadores de vendas",
-      "openCount": "Oportunidades abertas",
-      "pipelineAmount": "Valor do pipeline",
-      "forecastAmount": "Receita prevista",
-      "forecastHint": "Valor × probabilidade",
-      "won": "Ganhas no período",
-      "lost": "Perdidas no período",
-      "conversionRate": "Taxa de conversão",
-      "wonAmount": "{{amount}} ganhos"
-    },
     "pending_center": {
       "title": "Central de pendências",
-      "overdue": "Tarefas atrasadas",
-      "dueToday": "Vencendo hoje",
-      "dueTomorrow": "Vencendo amanhã",
-      "staleDeals": "Sem atualização há {{count}} dias",
-      "staleDealsNoPermission": "Sem acesso a oportunidades",
-      "noItems": "Nenhuma",
-      "more": "e mais {{count}}",
       "staleDays": "Dias sem atualização",
-      "onlyMine": "Só as minhas",
-      "dueAt": "Prazo: {{date}}",
-      "lastTouched": "Última atualização: {{date}}",
-      "allClear": "Tudo em dia! Nenhuma pendência."
+      "onlyMine": "Só as minhas"
     },
     "recent_activity": {
       "title": "Atividades recentes",
@@ -86,48 +65,11 @@
       "limit": "Quantidade de itens"
     },
     "report_totals": {
-      "title": "Relatório resumido",
-      "contactsTotal": "Contatos",
-      "openDeals": "Oportunidades abertas",
-      "wonDeals": "Ganhas no período",
-      "lostDeals": "Perdidas no período",
-      "pendingTasks": "Tarefas pendentes",
-      "completedActivities": "Atividades realizadas no período"
-    },
-    "deals_by_stage": {
-      "title": "Oportunidades por etapa",
-      "chartLabel": "Oportunidades por etapa do funil {{pipeline}}",
-      "count": "Quantidade",
-      "amount": "Valor",
-      "deals_one": "{{count}} oportunidade",
-      "deals_other": "{{count}} oportunidades",
-      "noPipeline": "Nenhum funil encontrado."
+      "title": "Relatório resumido"
     }
   },
   "events": {
-    "contact": {
-      "created": "criou o contato"
-    },
-    "company": {
-      "created": "criou a empresa"
-    },
-    "deal": {
-      "created": "criou a oportunidade",
-      "stage_changed": "moveu a oportunidade",
-      "won": "ganhou a oportunidade",
-      "lost": "perdeu a oportunidade",
-      "reopened": "reabriu a oportunidade",
-      "owner_changed": "trocou o responsável da oportunidade"
-    },
-    "activity": {
-      "created": "criou a atividade",
-      "completed": "concluiu a atividade"
-    },
-    "note": {
-      "created": "adicionou uma nota em"
-    },
-    "fallback": "registrou um evento em",
-    "stageChange": "{{from}} → {{to}}"
+    "fallback": "registrou um evento em"
   },
   "subject": {
     "label": "Resultados de",

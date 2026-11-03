@@ -415,5 +415,41 @@
     "count": "Ex.: 10",
     "typeName": "Ex.: Reunião",
     "colorHex": "#3B82F6"
+  },
+  "dashboard": {
+    "states": {
+      "emptyLayoutTitle": "Seu painel está vazio",
+      "emptyLayoutDescription": "Adicione widgets para acompanhar vendas, pendências e atividades.",
+      "widgetEmpty": "Nada por aqui no período.",
+      "widgetError": "Não foi possível carregar este widget.",
+      "unsupported": "Este widget não pode ser exibido nesta versão.",
+      "saveError": "Não foi possível salvar o painel.",
+      "noData": "—"
+    },
+    "widgets": {
+      "pending_center": {
+        "title": "Central de pendências",
+        "overdue": "Tarefas atrasadas",
+        "dueToday": "Vencendo hoje",
+        "dueTomorrow": "Vencendo amanhã",
+        "staleDeals": "Sem atualização há {{count}} dias",
+        "staleDealsNoPermission": "Sem acesso a oportunidades",
+        "noItems": "Nenhuma",
+        "more": "e mais {{count}}",
+        "staleDays": "Dias sem atualização",
+        "onlyMine": "Só as minhas",
+        "dueAt": "Prazo: {{date}}",
+        "lastTouched": "Última atualização: {{date}}",
+        "allClear": "Tudo em dia! Nenhuma pendência."
+      }
+    },
+    "summary": {
+      "pendingTasks": "Tarefas pendentes",
+      "completedActivities": "Atividades realizadas no período"
+    },
+    "events": {
+      "created": "criou a atividade",
+      "completed": "concluiu a atividade"
+    }
   }
 }

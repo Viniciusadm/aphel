@@ -1,6 +1,6 @@
 {
   "title": "Welcome to Aphel",
-  "description": "Summary of your sales, pending work and tasks.",
+  "description": "Overview from your installed modules.",
   "period": {
     "label": "Period",
     "presets": {
@@ -54,31 +54,10 @@
     "noData": "—"
   },
   "widgets": {
-    "sales_indicators": {
-      "title": "Sales indicators",
-      "openCount": "Open deals",
-      "pipelineAmount": "Pipeline value",
-      "forecastAmount": "Forecast revenue",
-      "forecastHint": "Value × probability",
-      "won": "Won in the period",
-      "lost": "Lost in the period",
-      "conversionRate": "Conversion rate",
-      "wonAmount": "{{amount}} won"
-    },
     "pending_center": {
       "title": "Pending work",
-      "overdue": "Overdue tasks",
-      "dueToday": "Due today",
-      "dueTomorrow": "Due tomorrow",
-      "staleDeals": "No update for {{count}} days",
-      "staleDealsNoPermission": "No access to deals",
-      "noItems": "None",
-      "more": "and {{count}} more",
       "staleDays": "Days without update",
-      "onlyMine": "Only mine",
-      "dueAt": "Due: {{date}}",
-      "lastTouched": "Last update: {{date}}",
-      "allClear": "All clear! Nothing pending."
+      "onlyMine": "Only mine"
     },
     "recent_activity": {
       "title": "Recent activity",
@@ -86,48 +65,11 @@
       "limit": "Number of items"
     },
     "report_totals": {
-      "title": "Summary report",
-      "contactsTotal": "Contacts",
-      "openDeals": "Open deals",
-      "wonDeals": "Won in the period",
-      "lostDeals": "Lost in the period",
-      "pendingTasks": "Pending tasks",
-      "completedActivities": "Activities done in the period"
-    },
-    "deals_by_stage": {
-      "title": "Deals by stage",
-      "chartLabel": "Deals by stage of the {{pipeline}} pipeline",
-      "count": "Count",
-      "amount": "Value",
-      "deals_one": "{{count}} deal",
-      "deals_other": "{{count}} deals",
-      "noPipeline": "No pipeline found."
+      "title": "Summary report"
     }
   },
   "events": {
-    "contact": {
-      "created": "created the contact"
-    },
-    "company": {
-      "created": "created the company"
-    },
-    "deal": {
-      "created": "created the deal",
-      "stage_changed": "moved the deal",
-      "won": "won the deal",
-      "lost": "lost the deal",
-      "reopened": "reopened the deal",
-      "owner_changed": "changed the owner of the deal"
-    },
-    "activity": {
-      "created": "created the activity",
-      "completed": "completed the activity"
-    },
-    "note": {
-      "created": "added a note to"
-    },
-    "fallback": "recorded an event on",
-    "stageChange": "{{from}} → {{to}}"
+    "fallback": "recorded an event on"
   },
   "subject": {
     "label": "Results of",

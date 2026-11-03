@@ -13,6 +13,7 @@ pub trait DashboardRepository: Send + Sync {
 }
 
 pub trait DashboardPorts: Send + Sync {
+    fn pool(&self) -> &sqlx::MySqlPool;
     type Query: AggregatePorts;
     type Dashboard: DashboardRepository + ?Sized;
 

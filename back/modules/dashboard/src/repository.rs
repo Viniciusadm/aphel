@@ -1,20 +1,19 @@
 use std::collections::HashMap;
 
 use async_trait::async_trait;
-use sqlx::mysql::{MySqlArguments, MySqlRow};
-use sqlx::{Execute, MySql, MySqlPool, QueryBuilder, Row};
+use sqlx::mysql::MySqlRow;
+use sqlx::{MySqlPool, Row};
 use uuid::Uuid;
 
 use crate::engine::{
     DashboardRepository, SubjectDirectory, SubjectTeam, SubjectUser, WidgetRegistry,
 };
-use aphel_kernel::application::fields::RecordTypeRegistry;
 use aphel_kernel::application::files::UserReference;
 use aphel_kernel::application::query::QueryPlan;
 use aphel_kernel::domain::access::AccessScope;
 use aphel_kernel::domain::{TeamId, UserId};
 use aphel_kernel::errors::AppError;
-use aphel_kernel::infrastructure::query::compiler::{Projection, build_query, push_where, quoted};
+use aphel_kernel::infrastructure::query::compiler::{Projection, build_query};
 use aphel_kernel::infrastructure::repositories::mapper::invalid_column;
 use aphel_kernel::records::constrain_query;
 
@@ -58,120 +57,12 @@ pub fn link_column(
     }
 }
 
-pub fn aggregate_query(
-    scope: &AccessScope,
-    plan: &QueryPlan,
-    select: &str,
-    suffix: &str,
-) -> Result<(String, MySqlArguments), AppError> {
-    let mut count = build_query(scope, plan, Projection::Count)?;
-    let table = quoted(&plan.record_type.table);
-    let prefix = format!("SELECT COUNT(*) FROM {table} r");
-    let sql = count.sql().as_str().to_owned();
-    let Some(conditions) = sql.strip_prefix(&prefix) else {
-        return Err(AppError::Internal(
-            "unexpected shape of the record count query".to_owned(),
-        ));
-    };
-    let statement = format!("SELECT {select} FROM {table} r{conditions}{suffix}");
-    let arguments = count
-        .build()
-        .take_arguments()
-        .map_err(|error| AppError::Internal(error.to_string()))?
-        .unwrap_or_default();
-    Ok((statement, arguments))
-}
-
-pub fn push_ids(builder: &mut QueryBuilder<MySql>, ids: &[Uuid]) {
-    builder.push(" IN (");
-    let mut separated = builder.separated(", ");
-    for id in ids {
-        separated.push_bind(id.to_string());
-    }
-    builder.push(")");
-}
-
-pub fn in_order<T>(ids: &[Uuid], mut items: HashMap<Uuid, T>) -> Vec<T> {
-    ids.iter().filter_map(|id| items.remove(id)).collect()
-}
-
-pub async fn record_titles(
-    pool: &MySqlPool,
-    registry: &RecordTypeRegistry,
-    links: &[(String, Uuid)],
-) -> Result<HashMap<(String, Uuid), String>, AppError> {
-    let mut titles = HashMap::new();
-    let mut record_types: Vec<&str> = links.iter().map(|(kind, _)| kind.as_str()).collect();
-    record_types.sort_unstable();
-    record_types.dedup();
-    for record_type in record_types {
-        let Ok(definition) = registry.require(record_type) else {
-            continue;
-        };
-        let Some(column) = definition.title_column() else {
-            continue;
-        };
-        let ids: Vec<Uuid> = links
-            .iter()
-            .filter(|(kind, _)| kind == record_type)
-            .map(|(_, id)| *id)
-            .collect();
-        let mut builder = QueryBuilder::<MySql>::new(format!(
-            "SELECT id, {} FROM {} WHERE id",
-            quoted(column),
-            quoted(&definition.table)
-        ));
-        push_ids(&mut builder, &ids);
-        let rows: Vec<(String, Option<String>)> = builder.build_query_as().fetch_all(pool).await?;
-        for (id, title) in rows {
-            if let Some(title) = title {
-                titles.insert((record_type.to_owned(), uuid_column(&id, "id")?), title);
-            }
-        }
-    }
-    Ok(titles)
-}
-
-pub trait RecentEventExclusion: Send + Sync {
-    fn exclude(&self, builder: &mut QueryBuilder<MySql>);
-}
-
-pub fn push_readable(
-    builder: &mut QueryBuilder<MySql>,
-    scope: &AccessScope,
-    type_column: &str,
-    id_column: &str,
-    plan: &QueryPlan,
-) -> Result<(), AppError> {
-    let definition = &plan.record_type;
-    builder
-        .push(format!(" OR ({type_column} = "))
-        .push_bind(definition.record_type.as_str().to_owned())
-        .push(format!(
-            " AND {id_column} IN (SELECT r.id FROM {} r",
-            quoted(&definition.table)
-        ));
-    push_where(builder, scope, plan)?;
-    builder.push("))");
-    Ok(())
-}
+pub use aphel_sdk::dashboard::RecentEventExclusion;
 
 impl MySqlDashboardRepository {
     pub fn new(pool: MySqlPool) -> Self {
         Self { pool }
     }
-}
-
-pub async fn record_ids(
-    pool: &MySqlPool,
-    scope: &AccessScope,
-    plan: &QueryPlan,
-) -> Result<Vec<Uuid>, AppError> {
-    let constrained = constrain_query(pool, scope, plan).await?;
-    let plan = constrained.as_ref().unwrap_or(plan);
-    let mut builder = build_query(scope, plan, Projection::Ids)?;
-    let rows: Vec<String> = builder.build_query_scalar().fetch_all(pool).await?;
-    rows.iter().map(|id| uuid_column(id, "id")).collect()
 }
 
 #[async_trait]

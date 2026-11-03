@@ -40,7 +40,7 @@ Implementation note: P5.1 connects people and organizations as providers and dup
 - [x] **P5.10** ⇄ `timeline`. Review and pending manual acceptance: [timeline sources](p5-timeline.md).
 - [x] **P5.11** ⇄ `privacy`. Review and pending manual acceptance: [privacy sources](p5-privacy.md).
 - [x] **P5.12** ⇄ `reports`. Review and pending manual acceptance: [entity reports](p5-reports.md).
-- [ ] **P5.13** ⇄ `dashboard`
+- [x] **P5.13** ⇄ `dashboard`. Review and pending manual acceptance: [dashboard sources](p5-dashboard.md).
 - [ ] **P5.14** ⇄ `favorites`
 - [ ] **P5.15** ⇄ `followers`
 - [ ] **P5.16** ⇄ `imports`

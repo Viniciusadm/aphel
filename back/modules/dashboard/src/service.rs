@@ -1,5 +1,3 @@
-use aphel_contract_crm::{CrmPermissions, CrmRecordTypes};
-use aphel_kernel::domain::access::Permission;
 use std::collections::HashSet;
 
 use chrono::{DateTime, Utc};
@@ -17,27 +15,15 @@ use crate::layout::{
 };
 use crate::repository::{MySqlDashboardPorts, MySqlDashboardRepository};
 use crate::store::LayoutStore;
-use crate::widgets::{
-    DEALS_BY_STAGE, PENDING_CENTER, RECENT_ACTIVITY, REPORT_TOTALS, SALES_INDICATORS,
-};
+
 use aphel_kernel::application::access::PERMISSION_DENIED;
-use aphel_kernel::application::fields::permissions::{FieldAccess, FieldAccessPolicy};
 use aphel_kernel::application::query::{RecordQueryExecutor, RecordQueryPorts};
 use aphel_kernel::application::security::Clock;
-use aphel_kernel::application::shared::RecordType;
 use aphel_kernel::context::Ctx;
 use aphel_kernel::domain::access::AccessScope;
 use aphel_kernel::errors::{AppError, FieldViolation};
 
 pub(crate) const WIDGET_NOT_FOUND: &str = "widget_not_found";
-
-pub(crate) const DEFAULT_LAYOUT_WIDGETS: [(&str, WidgetSize); 5] = [
-    (SALES_INDICATORS, WidgetSize::Large),
-    (PENDING_CENTER, WidgetSize::Medium),
-    (RECENT_ACTIVITY, WidgetSize::Medium),
-    (REPORT_TOTALS, WidgetSize::Large),
-    (DEALS_BY_STAGE, WidgetSize::Large),
-];
 
 #[derive(Debug, Clone, PartialEq)]
 pub(crate) struct WidgetData {
@@ -95,6 +81,7 @@ type Widgets = WidgetRegistry<MySqlDashboardPorts>;
 
 fn widget_ports(ctx: &Ctx<'_>) -> MySqlDashboardPorts {
     MySqlDashboardPorts::new(
+        ctx.pool().clone(),
         ctx.query(),
         std::sync::Arc::new(MySqlDashboardRepository::new(ctx.pool().clone())),
     )
@@ -153,12 +140,7 @@ pub(crate) async fn widget_data(
         compare_to_previous,
         previous_period: previous,
     };
-    let mut data = provider.data(&context, &settings).await?;
-    let deal_access =
-        FieldAccessPolicy::load(ports.query().definitions(), scope, &RecordType::DEAL).await?;
-    if deal_access.key_access(AMOUNT_FIELD) == FieldAccess::Hidden {
-        remove_amounts(&mut data);
-    }
+    let data = provider.data(&context, &settings).await?;
     Ok(WidgetData {
         key: provider.key().to_owned(),
         period: provider.uses_period().then_some(period),
@@ -174,28 +156,32 @@ pub(crate) async fn subjects(ctx: &Ctx<'_>) -> Result<SubjectOptions, AppError> 
     let directory = MySqlDashboardRepository::new(ctx.pool().clone())
         .subject_directory()
         .await?;
-    Ok(visible_subjects(
-        ctx.scope,
-        &[
-            Permission::DEALS_READ,
-            Permission::TASKS_READ,
-            Permission::CONTACTS_READ,
-        ],
-        directory,
-    ))
+    let permissions: Vec<_> = ctx
+        .registry()
+        .definitions()
+        .map(|definition| definition.read_permission.clone())
+        .collect();
+    Ok(visible_subjects(ctx.scope, &permissions, directory))
 }
 
 fn default_layout_with(registry: &Widgets, scope: &AccessScope) -> DashboardLayout {
-    let widgets = DEFAULT_LAYOUT_WIDGETS
-        .iter()
-        .filter_map(|(key, size)| {
-            let provider = registry.get(key)?;
-            provider.is_available(scope).then(|| LayoutWidget {
-                id: format!("default-{}", key.replace(['_', '.'], "-")),
-                key: (*key).to_owned(),
-                size: size.as_str().to_owned(),
-                settings: provider.default_settings(),
-            })
+    let mut defaults: Vec<_> = registry
+        .available(scope)
+        .filter_map(|provider| provider.default_order().map(|order| (order, provider)))
+        .collect();
+    defaults.sort_by(|(left_order, left), (right_order, right)| {
+        left_order
+            .cmp(right_order)
+            .then_with(|| left.key().cmp(right.key()))
+    });
+    let widgets = defaults
+        .into_iter()
+        .take(MAX_LAYOUT_WIDGETS)
+        .map(|(_, provider)| LayoutWidget {
+            id: format!("default-{}", provider.key().replace(['_', '.'], "-")),
+            key: provider.key().to_owned(),
+            size: provider.default_size().as_str().to_owned(),
+            settings: provider.default_settings(),
         })
         .collect();
     DashboardLayout {
@@ -426,18 +412,5 @@ fn validate_layout(
             "invalid dashboard layout",
             violations,
         ))
-    }
-}
-
-const AMOUNT_FIELD: &str = "amount";
-
-fn remove_amounts(value: &mut Value) {
-    match value {
-        Value::Object(object) => {
-            object.retain(|key, _| key != AMOUNT_FIELD && !key.ends_with("_amount"));
-            object.values_mut().for_each(remove_amounts);
-        }
-        Value::Array(items) => items.iter_mut().for_each(remove_amounts),
-        _ => {}
     }
 }

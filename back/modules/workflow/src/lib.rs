@@ -1,3 +1,4 @@
+mod dashboard;
 pub mod domain;
 pub(crate) mod guidance;
 pub(crate) mod hooks;
@@ -56,6 +57,9 @@ impl Module for WorkflowModule {
     }
 
     fn register(&self, app: &mut AppBuilder) -> Result<(), AppError> {
+        app.contribute::<dyn aphel_sdk::dashboard::DashboardReferenceCatalog>(std::sync::Arc::new(
+            dashboard::WorkflowDashboardReferences,
+        ));
         app.contract(aphel_sdk::workflow::DESCRIPTOR);
         app.permission(
             aphel_kernel::domain::access::PermissionDefinition::administrative(

@@ -9,9 +9,7 @@ publish = false
 [dependencies]
 aphel-sdk.workspace = true
 config_packages = { package = "aphel-mod-config-packages", path = "../config_packages" }
-aphel-contract-crm.workspace = true
 aphel-kernel.workspace = true
-workflow = { package = "aphel-mod-workflow", path = "../workflow" }
 axum.workspace = true
 async-trait.workspace = true
 chrono.workspace = true

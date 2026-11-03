@@ -27,6 +27,13 @@ impl<P> WidgetProvider<P> for SavedReportWidget
 where
     P: DashboardPorts,
 {
+    fn reference_settings(&self) -> Vec<aphel_sdk::dashboard::WidgetReferenceSetting> {
+        vec![aphel_sdk::dashboard::WidgetReferenceSetting {
+            field: REPORT_ID_SETTING,
+            package_field: None,
+            kind: aphel_sdk::ReferenceKind::new("reports.report"),
+        }]
+    }
     fn key(&self) -> &str {
         SAVED_REPORT_WIDGET
     }

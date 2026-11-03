@@ -1,3 +1,5 @@
+import { NotesDashboardEventLabel } from './dashboard/EventLabel'
+import { createElement } from 'react'
 import { NotebookPen } from 'lucide-react'
 import { defineModule } from '@/kernel/modules/define'
 import { NoteQuickForm } from './NoteQuickForm'
@@ -8,6 +10,7 @@ const notesModule = defineModule({
   required: true,
   translations: { 'pt-BR': () => import('./i18n/pt-BR.json'), en: () => import('./i18n/en.json') },
   register(app) {
+    app.filter('dashboard.eventLabel', (label, { event }) => event.event_type.startsWith('note.') ? createElement(NotesDashboardEventLabel, { event }) : label)
     app.filter('records.detailTabs', withNotesTab)
     app.quickAdd({
       key: 'note',

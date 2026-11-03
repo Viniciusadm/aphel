@@ -81,5 +81,10 @@
   },
   "createAction": {
     "label": "Nova empresa"
+  },
+  "dashboard": {
+    "events": {
+      "created": "criou a empresa"
+    }
   }
 }

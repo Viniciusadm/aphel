@@ -11,6 +11,7 @@ import { activeContributions, moduleState, useModuleState, type ModuleState } fr
 import type { SettingsMenuGroup } from './settings'
 
 export interface FilterMap {
+  'dashboard.eventLabel': { value: import('react').ReactNode; context: { event: { event_type: string; payload: Record<string, unknown> | null } } }
   'records.columns': { value: FieldDefinition[]; context: { recordType: string } }
   'records.formLayout': { value: FormLayout | null; context: { recordType?: string; mode: RecordFormMode } }
   'records.detailTabs': { value: RecordTab[]; context: { recordType: string; record: RecordItem; readOnly: boolean } }

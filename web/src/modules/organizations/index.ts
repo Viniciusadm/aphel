@@ -1,3 +1,5 @@
+import { OrganizationsDashboardEventLabel } from './dashboard/EventLabel'
+import { createElement } from 'react'
 import { Building2 } from 'lucide-react'
 import { defineModule } from '@/kernel/modules/define'
 import { CreateCompanyDialog } from './create-action'
@@ -9,6 +11,7 @@ const companiesModule = defineModule({
   required: true,
   translations: { 'pt-BR': () => import('./i18n/pt-BR.json'), en: () => import('./i18n/en.json') },
   register(app) {
+    app.filter('dashboard.eventLabel', (label, { event }) => event.event_type.startsWith('company.') ? createElement(OrganizationsDashboardEventLabel, { event }) : label)
     app.routes(companiesRoutes)
     app.nav({ to: COMPANIES_PATH, label: 'nav.organizations', icon: Building2, permission: ['organizations.read'], order: 40 })
     app.createAction({

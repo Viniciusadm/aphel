@@ -62,5 +62,10 @@
       "created": "Nota salva em {{title}}.",
       "outboxLabel": "Nota em {{title}}"
     }
+  },
+  "dashboard": {
+    "events": {
+      "created": "adicionou uma nota em"
+    }
   }
 }

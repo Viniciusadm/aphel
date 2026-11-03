@@ -9,7 +9,6 @@ publish = false
 [dependencies]
 aphel-sdk.workspace = true
 notifications = { package = "aphel-mod-notifications", path = "../notifications" }
-dashboard = { package = "aphel-mod-dashboard", path = "../dashboard" }
 aphel-kernel.workspace = true
 exports = { package = "aphel-mod-exports", path = "../exports" }
 assignment = { package = "aphel-mod-assignment", path = "../assignment" }

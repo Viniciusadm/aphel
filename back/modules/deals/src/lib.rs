@@ -1,3 +1,4 @@
+mod dashboard;
 mod reports;
 use aphel_sdk::privacy::PrivacyTraits;
 mod line_items;
@@ -353,6 +354,14 @@ impl Module for DealsModule {
     }
 
     fn register(&self, app: &mut AppBuilder) -> Result<(), AppError> {
+        app.contribute::<dyn aphel_sdk::dashboard::DashboardSource>(std::sync::Arc::new(
+            dashboard::widgets::DealSummarySource,
+        ));
+        app.contribute::<dyn aphel_sdk::dashboard::DashboardSource>(Arc::new(
+            dashboard::widgets::DealPendingSource,
+        ));
+        app.contribute::<dyn aphel_sdk::dashboard::WidgetProvider<aphel_sdk::dashboard::WidgetPorts>>(std::sync::Arc::new(dashboard::widgets::SalesIndicatorsWidget));
+        app.contribute::<dyn aphel_sdk::dashboard::WidgetProvider<aphel_sdk::dashboard::WidgetPorts>>(std::sync::Arc::new(dashboard::widgets::DealsByStageWidget));
         app.contribute(std::sync::Arc::new(
             aphel_sdk::timeline::KindDefinition::new("deal_stage", "Stages", "Etapas")
                 .events(&["deal.stage_changed"]),

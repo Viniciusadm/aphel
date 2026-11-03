@@ -81,5 +81,23 @@
       "phone": "(000) 000-0000",
       "email": "name@example.com"
     }
+  },
+  "dashboard": {
+    "states": {
+      "emptyLayoutTitle": "Your dashboard is empty",
+      "emptyLayoutDescription": "Add widgets to follow sales, pending work and tasks.",
+      "widgetEmpty": "Nothing here for the period.",
+      "widgetError": "This widget could not be loaded.",
+      "unsupported": "This widget cannot be shown in this version.",
+      "saveError": "The dashboard could not be saved.",
+      "noData": "—"
+    },
+    "widgets": {},
+    "summary": {
+      "contactsTotal": "Contacts"
+    },
+    "events": {
+      "created": "created the contact"
+    }
   }
 }

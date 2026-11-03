@@ -1,3 +1,4 @@
+mod dashboard;
 mod privacy;
 mod timeline;
 use aphel_contract_automation::AutomationBuilder;
@@ -58,6 +59,9 @@ impl Module for NotesModule {
     }
 
     fn register(&self, app: &mut AppBuilder) -> Result<(), AppError> {
+        app.contribute::<dyn aphel_sdk::dashboard::DashboardEventScope>(std::sync::Arc::new(
+            dashboard::NoteDashboardEvents,
+        ));
         app.contribute::<dyn aphel_sdk::privacy::PrivacySource>(std::sync::Arc::new(
             privacy::NotesPrivacy,
         ));

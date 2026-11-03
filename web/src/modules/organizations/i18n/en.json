@@ -81,5 +81,10 @@
   },
   "createAction": {
     "label": "New company"
+  },
+  "dashboard": {
+    "events": {
+      "created": "created the company"
+    }
   }
 }

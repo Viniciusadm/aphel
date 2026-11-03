@@ -626,10 +626,8 @@ dependencies = [
 name = "aphel-mod-dashboard"
 version = "0.1.0"
 dependencies = [
- "aphel-contract-crm",
  "aphel-kernel",
  "aphel-mod-config-packages",
- "aphel-mod-workflow",
  "aphel-sdk",
  "async-trait",
  "axum",
@@ -989,7 +987,6 @@ version = "0.1.0"
 dependencies = [
  "aphel-kernel",
  "aphel-mod-assignment",
- "aphel-mod-dashboard",
  "aphel-mod-exports",
  "aphel-mod-notifications",
  "aphel-sdk",

@@ -192,6 +192,14 @@ where
             .all(|permission| scope.scope_for(permission).is_some())
     }
 
+    fn reference_settings(&self) -> Vec<super::WidgetReferenceSetting> {
+        Vec::new()
+    }
+
+    fn default_order(&self) -> Option<i32> {
+        None
+    }
+
     fn default_size(&self) -> WidgetSize {
         WidgetSize::Medium
     }

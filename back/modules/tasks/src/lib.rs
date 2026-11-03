@@ -1,3 +1,4 @@
+mod dashboard;
 use aphel_sdk::privacy::PrivacyTraits;
 mod privacy;
 mod timeline;
@@ -264,6 +265,12 @@ impl Module for TasksModule {
     }
 
     fn register(&self, app: &mut AppBuilder) -> Result<(), AppError> {
+        app.contribute::<dyn aphel_sdk::dashboard::DashboardSource>(std::sync::Arc::new(
+            dashboard::TaskSummarySource,
+        ));
+        app.contribute::<dyn aphel_sdk::dashboard::DashboardSource>(Arc::new(
+            dashboard::TaskPendingSource,
+        ));
         app.contribute::<dyn aphel_sdk::privacy::PrivacySource>(std::sync::Arc::new(
             privacy::TasksPrivacy,
         ));

@@ -1645,7 +1645,7 @@ export interface paths {
             path?: never;
             cookie?: never;
         };
-        /** @description Users and teams whose numbers the current user can follow on the dashboard, from the broadest read scope among `deals.read`, `tasks.read` and `people.read`: `own` → only the user; `team` → the teams of the user and their members; `organization` → every member and team. Use the ids as `user_id`/`team_id` of the widget data. */
+        /** @description Users and teams whose numbers the current user can follow on the dashboard, from the broadest read scope among registered entities: `own` → only the user; `team` → the teams of the user and their members; `organization` → every member and team. Use the ids as `user_id`/`team_id` of the widget data. */
         get: operations["dashboard_subjects_list"];
         put?: never;
         post?: never;
@@ -30808,7 +30808,7 @@ export interface operations {
         };
         requestBody?: never;
         responses: {
-            /** @description Data of a widget, computed under the read scope of the user and the time zone of the organization. `period` defaults to `month` and is ignored by widgets with `uses_period = false`; `settings` is a JSON object validated by the widget. Shapes of `data`: `sales_indicators` → currency, open_count, pipeline_amount, forecast_amount (amount × probability of the deal or of its stage), won_count, won_amount, lost_count, conversion_rate (won / (won + lost) in the period, null without closed deals); `pending_center` (settings stale_days, only_mine, limit) → overdue, due_today and due_tomorrow (`{ count, items }` of open tasks) and stale_deals (`{ count, stale_days, items }`, null without `deals.read`); `recent_activity` (settings limit) → items of the latest events of records the user can read; `report_totals` → contacts_total, open_deals, won_deals, lost_deals, pending_tasks, completed_activities (null when the permission is missing); `deals_by_stage` (settings pipeline_id) → pipeline, currency and stages with count and amount. Every monetary value (`*_amount`, `amount`) is a decimal string with two places next to its `currency`. `user_id` or `team_id` (one of them, from `GET /dashboard/subjects`) limits every widget to the records owned by that user or by the members of that team, on top of the read scope; with `compare_to_previous=true`, widgets that use the period also compute the period right before (`previous_period`) and return it in `data.previous` (`sales_indicators`: won_count, won_amount, lost_count, conversion_rate; `report_totals`: won_deals, lost_deals, completed_activities) */
+            /** @description Widget data under the caller read scope, field policy, selected user/team and organization timezone. Providers own their payloads and validate their settings. Collection widgets return namespaced source sections; recent events merge registered entity scopes and owner-provided visibility rules. Period-aware providers can return previous-period values */
             200: {
                 headers: {
                     [name: string]: unknown;

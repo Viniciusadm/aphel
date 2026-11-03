@@ -1,3 +1,8 @@
+import { TasksDashboardEventLabel } from './dashboard/EventLabel'
+import { TaskPendingSections } from './dashboard/PendingSections'
+import type { TaskPendingData } from './dashboard/types'
+import { createElement } from 'react'
+import { TasksSummary } from './dashboard/Summary'
 import { CalendarCreateDialog } from "./CalendarCreateDialog"
 import { CalendarCheck, CheckSquare, Inbox, MapPin } from 'lucide-react'
 import { SETTINGS_MANAGE } from '@/features/settings/lib/permissions'
@@ -18,6 +23,9 @@ const activitiesModule = defineModule({
   key: 'tasks',
   translations: { 'pt-BR': () => import('./i18n/pt-BR.json'), en: () => import('./i18n/en.json') },
   register(app) {
+    app.filter('dashboard.eventLabel', (label, { event }) => event.event_type.startsWith('activity.') ? createElement(TasksDashboardEventLabel, { event }) : label)
+    app.slot('dashboard.source', { key: 'tasks.summary', render: ({ collection, source, data }) => collection === 'summary' && source === 'tasks.summary' ? createElement(TasksSummary, { data: data as Record<string, unknown> }) : null })
+    app.slot('dashboard.source', { key: 'tasks.pending', render: ({ collection, source, data }) => collection === 'pending' && source === 'tasks.pending' ? createElement(TaskPendingSections, { data: data as TaskPendingData }) : null })
     app.slot('calendar.create', { key: 'tasks', permission: 'tasks.create', render: CalendarCreateDialog })
     app.routes([...activitiesRoutes, ...inboxRoutes])
     app.nav({ to: '/tasks', label: 'nav.tasks', icon: CheckSquare, permission: TASKS_READ, order: 80 })
