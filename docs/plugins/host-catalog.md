@@ -23,12 +23,12 @@ What this Aphel offers to runtime plugins besides records: the hooks a manifest 
 | `deal.winning` | deals | `deals.deal` | veto | Before a deal is won; values: { deal, previous, stage, lost_reason }. An error blocks it |
 | `deal.won` | deals | `deals.deal` | action | After a deal is won, inside the transaction; values: { deal, previous, stage } |
 | `email.outgoing` | email | `email` | filter | Before an e-mail is saved and sent; record_type is the linked record's type (or email when unlinked); values: { mailbox_id, sender_id, from, to, cc, bcc, subject, body: { text, html }, record, thread_id, scheduled, tracking }. Return { subject?, body?: { text?, html? } } to change them (html is sanitized) |
-| `lead.converted` | leads | `contacts.contact` | action | After a lead was converted, inside the transaction; values: { lead, deal_id, company_id } |
-| `lead.converting` | leads | `contacts.contact` | filter | Values of the deal (and optional company) a lead conversion creates; values: { contact_id, lead, deal, company }. Return { deal?: {..}, company?: {..} } to merge field values into them (a company object makes the conversion create a company when the contact has none) |
-| `lead.disqualifying` | leads | `contacts.contact` | veto | Before a lead is disqualified; values: { lead, reason: { id, key, name }, note }. An error blocks it |
-| `lead.qualifying` | leads | `contacts.contact` | veto | Before a lead is qualified in the lead inbox; values: { lead }. An error blocks the qualification |
+| `lead.converted` | leads | `people.person` | action | After a lead was converted, inside the transaction; values: { lead, deal_id, company_id } |
+| `lead.converting` | leads | `people.person` | filter | Values of the deal (and optional company) a lead conversion creates; values: { contact_id, lead, deal, company }. Return { deal?: {..}, company?: {..} } to merge field values into them (a company object makes the conversion create a company when the contact has none) |
+| `lead.disqualifying` | leads | `people.person` | veto | Before a lead is disqualified; values: { lead, reason: { id, key, name }, note }. An error blocks it |
+| `lead.qualifying` | leads | `people.person` | veto | Before a lead is qualified in the lead inbox; values: { lead }. An error blocks the qualification |
 | `quote.accepting` | quotes | `quotes.quote` | veto | Before a quote is accepted (public page or manually); values: { quote, deal_id, acceptor: { name, email }, manual }. An error blocks the acceptance |
-| `sequence.step_running` | sequences | `contacts.contact` | veto | Before a sequence step runs for an enrolled contact; values: { enrollment_id, sequence_id, contact_id, enrolled_by, position, kind, template_id }. A definitive error removes the contact from the sequence, a transient one retries the step |
+| `sequence.step_running` | sequences | `people.person` | veto | Before a sequence step runs for an enrolled contact; values: { enrollment_id, sequence_id, contact_id, enrolled_by, position, kind, template_id }. A definitive error removes the contact from the sequence, a transient one retries the step |
 
 ## Operations
 

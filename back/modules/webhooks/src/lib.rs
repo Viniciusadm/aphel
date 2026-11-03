@@ -85,7 +85,7 @@ impl Module for WebhooksModule {
         app.contribute::<dyn PersonalTextSource>(Arc::new(WebhookPersonalText));
         app.trigger(Arc::new(automation::IncomingWebhook))
             .action(Arc::new(automation::CallWebhook));
-        app.contribute::<dyn aphel_kernel::application::organizations::OrganizationConfigExtension>(Arc::new(settings::DeliveryConfiguration));
+        app.contribute::<dyn aphel_kernel::application::organization_profile::OrganizationConfigExtension>(Arc::new(settings::DeliveryConfiguration));
         app.contribute::<dyn aphel_kernel::application::outbound_http::OutboundHttpPolicy>(
             Arc::new(settings::DeliveryConfiguration),
         );

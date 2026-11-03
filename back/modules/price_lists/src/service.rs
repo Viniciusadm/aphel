@@ -581,7 +581,7 @@ async fn apply(
     if let Some(applies_to) = command.applies_to {
         match PriceListAppliesTo::parse(applies_to.trim()) {
             Some(value) => list.applies_to = value,
-            None => validator.violation("applies_to", "must be all, segment or companies"),
+            None => validator.violation("applies_to", "must be all, segment or organizations"),
         }
     }
     apply_segment(ctx, &mut list, command.segment_id, validator).await?;
@@ -606,7 +606,7 @@ async fn apply(
     if list.is_default && list.applies_to != PriceListAppliesTo::All {
         validator.violation(
             "is_default",
-            "only a price list that applies to all companies can be the default of its currency",
+            "only a price list that applies to all organizations can be the default of its currency",
         );
     }
     Ok(list)
@@ -628,7 +628,7 @@ async fn apply_segment(
                 Some(record_type) if record_type == RecordType::COMPANY.as_str() => {
                     list.segment_id = Some(segment_id);
                 }
-                Some(_) => validator.violation("segment_id", "must be a segment of companies"),
+                Some(_) => validator.violation("segment_id", "must be a segment of organizations"),
                 None => validator.violation("segment_id", "is not a segment of the organization"),
             }
         }
@@ -649,10 +649,10 @@ async fn apply_segment(
 async fn apply_companies(
     ctx: &Ctx<'_>,
     list: &mut PriceList,
-    companies: Option<Vec<String>>,
+    organizations: Option<Vec<String>>,
     validator: &mut InputValidator,
 ) -> Result<(), AppError> {
-    if let Some(values) = companies {
+    if let Some(values) = organizations {
         let mut ids = Vec::new();
         for (index, value) in values.iter().enumerate() {
             match Uuid::parse_str(value.trim()) {
@@ -666,7 +666,7 @@ async fn apply_companies(
         if ids.len() > MAX_PRICE_LIST_COMPANIES {
             validator.violation(
                 "company_ids",
-                format!("a price list can name at most {MAX_PRICE_LIST_COMPANIES} companies"),
+                format!("a price list can name at most {MAX_PRICE_LIST_COMPANIES} organizations"),
             );
         }
         let existing: BTreeSet<Uuid> = PriceListStore::of(ctx)
@@ -677,16 +677,16 @@ async fn apply_companies(
         if ids.iter().any(|id| !existing.contains(id)) {
             validator.violation(
                 "company_ids",
-                "must only list companies of the organization",
+                "must only list organizations of the organization",
             );
         }
         list.company_ids = ids;
     }
-    if list.applies_to == PriceListAppliesTo::Companies {
+    if list.applies_to == PriceListAppliesTo::Organizations {
         if list.company_ids.is_empty() {
             validator.violation(
                 "company_ids",
-                "must list at least one company when the price list applies to companies",
+                "must list at least one company when the price list applies to organizations",
             );
         }
     } else {

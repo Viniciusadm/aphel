@@ -1,8 +1,8 @@
 import type { DuplicateKey, ImportJob, ImportTarget } from './api'
 
 export const LIST_PATHS: Record<string, string> = {
-  'contacts.contact': '/contacts',
-  'companies.company': '/companies',
+  'people.person': '/people',
+  'organizations.organization': '/organizations',
   'deals.deal': '/deals',
   'activities.activity': '/activities',
 }
@@ -19,7 +19,7 @@ export function acceptsMultiple(target: DeclaredTarget): boolean {
 }
 
 export function supportsCompanyCreation(recordType: string, targets: ImportTarget[]): boolean {
-  return recordType !== 'companies.company' && targets.some((target) => target.key === 'company_id')
+  return recordType !== 'organizations.organization' && targets.some((target) => target.key === 'company_id')
 }
 
 export function missingRequired(targets: DeclaredTarget[], mapping: (string | null)[]): ImportTarget[] {

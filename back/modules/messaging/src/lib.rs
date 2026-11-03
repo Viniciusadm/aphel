@@ -138,7 +138,7 @@ impl Module for MessagingModule {
             .description(
                 "Shared inbox for WhatsApp Cloud API and email (IMAP/SMTP), with conversations on the contact timeline",
             )
-            .depends_on(contacts::KEY, "*")
+            .depends_on(people::KEY, "*")
             .optional(deals::KEY)
             .optional(activities::KEY)
             .setting(

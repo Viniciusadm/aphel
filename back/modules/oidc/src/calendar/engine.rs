@@ -39,7 +39,7 @@ pub(crate) const MAX_DESCRIPTION: usize = 5000;
 pub(crate) const MAX_REMOTE_ID: usize = 255;
 pub(crate) const PUSH_DELAY_SECONDS: i64 = 15;
 
-const CONTACT: &str = "contacts.contact";
+const CONTACT: &str = "people.person";
 const MAX_ACTIVITY_TYPES: u64 = 1000;
 
 pub(crate) fn refresh_token_name(user_id: Uuid) -> String {
@@ -214,7 +214,7 @@ fn contact_link(id: &Uuid) -> RecordLinkInput {
     }
 }
 
-fn merged_links(activity: &ActivityRecord, contacts: &[Uuid]) -> Vec<RecordLinkInput> {
+fn merged_links(activity: &ActivityRecord, people: &[Uuid]) -> Vec<RecordLinkInput> {
     let mut links: Vec<RecordLinkInput> = activity
         .activity
         .links
@@ -224,7 +224,7 @@ fn merged_links(activity: &ActivityRecord, contacts: &[Uuid]) -> Vec<RecordLinkI
             record_id: linked.record.record_id.to_string(),
         })
         .collect();
-    for link in contacts.iter().map(contact_link) {
+    for link in people.iter().map(contact_link) {
         if !links.contains(&link) {
             links.push(link);
         }
@@ -293,13 +293,13 @@ impl SyncContext<'_> {
         if !self.window.contains(start) {
             return Ok(false);
         }
-        let contacts = contacts_for(
+        let people = contacts_for(
             self.ctx,
             &event.attendees,
             self.connection.account_email.as_deref(),
         )
         .await?;
-        if contacts.is_empty() && !self.import_all {
+        if people.is_empty() && !self.import_all {
             return Ok(false);
         }
         let finished = event.end.unwrap_or(start) < Utc::now();
@@ -311,7 +311,7 @@ impl SyncContext<'_> {
                 status: Some(if finished { "done" } else { "open" }.to_owned()),
                 due_at: Some(instant(start)),
                 owner_id: Some(self.user_id.to_string()),
-                links: contacts.iter().map(contact_link).collect(),
+                links: people.iter().map(contact_link).collect(),
                 duration_minutes: Some(duration_minutes(start, event.end)),
                 description: remote_description(event),
                 ..CreateActivityCommand::default()
@@ -369,7 +369,7 @@ impl SyncContext<'_> {
             .await?;
             return Ok(false);
         }
-        let contacts = contacts_for(
+        let people = contacts_for(
             self.ctx,
             &event.attendees,
             self.connection.account_email.as_deref(),
@@ -383,7 +383,7 @@ impl SyncContext<'_> {
                 due_at: Some(Some(instant(start))),
                 duration_minutes: Some(Some(duration_minutes(start, event.end))),
                 description: Some(remote_description(event)),
-                links: Some(merged_links(&activity, &contacts)),
+                links: Some(merged_links(&activity, &people)),
                 ..UpdateActivityCommand::default()
             },
         )

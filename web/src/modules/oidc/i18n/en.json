@@ -58,7 +58,7 @@
     },
     "calendar": {
       "title": "{{provider}} calendar",
-      "description": "Your CRM meetings go to your {{provider}} calendar and calendar events with CRM contacts become meetings here. When both sides change, the latest change wins.",
+      "description": "Your CRM meetings go to your {{provider}} calendar and calendar events with CRM people become meetings here. When both sides change, the latest change wins.",
       "notConfigured": "An administrator must configure the module Client ID and Client secret before calendars can be connected.",
       "disconnected": "Your {{provider}} calendar is not connected.",
       "noPermission": "You are not allowed to connect the calendar.",

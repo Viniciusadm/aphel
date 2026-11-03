@@ -54,7 +54,7 @@
     "day": "Day {{day}}",
     "today": "Today",
     "more_one": "and {{count}} more contact",
-    "more_other": "and {{count}} more contacts",
+    "more_other": "and {{count}} more people",
     "truncated": "There are too many dates to list them all; some birthdays may be missing."
   },
   "widgets": {

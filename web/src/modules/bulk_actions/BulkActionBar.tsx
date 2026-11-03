@@ -76,7 +76,7 @@ export function BulkActionBar(context: BulkActionContext) {
   const allowed = (entry: MenuEntry, type: BulkRecordType) =>
     (entry.requires ? hasPermission(entry.requires) : hasPermission(bulkPermission(type, entry.permission))) &&
     (!entry.dealsOnly || type === 'deals.deal') &&
-    (!entry.contactsOnly || type === 'contacts.contact') &&
+    (!entry.contactsOnly || type === 'people.person') &&
     (!entry.reference || references[entry.reference])
   const primary = PRIMARY.filter((entry) => allowed(entry, recordType))
   const more = MORE.filter((entry) => allowed(entry, recordType))

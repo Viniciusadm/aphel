@@ -2,8 +2,8 @@ use aphel_kernel::errors::AppError;
 use aphel_kernel::modules::{App, AppBuilder, Module};
 
 pub const REQUIRED: &[&str] = &[
-    "contacts",
-    "companies",
+    "people",
+    "organizations",
     "currencies",
     "pipelines",
     "deals",
@@ -39,9 +39,9 @@ pub fn compiled() -> Vec<Box<dyn Module>> {
         #[cfg(feature = "plugins")]
         Box::new(module_marketplace::MarketplaceModule),
         #[cfg(feature = "plugins")]
-        Box::new(module_contacts::ContactsModule),
+        Box::new(module_people::PeopleModule),
         #[cfg(feature = "plugins")]
-        Box::new(module_companies::CompaniesModule),
+        Box::new(module_organizations::OrganizationsModule),
         #[cfg(feature = "plugins")]
         Box::new(module_leads::LeadsModule),
         #[cfg(feature = "plugins")]

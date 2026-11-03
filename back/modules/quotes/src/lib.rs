@@ -283,8 +283,8 @@ impl Module for QuotesModule {
             .owned_tables(&["quotes", "quote_counters", "quote_items", "quote_settings"])
             .optional(price_lists::KEY)
             .optional(approvals::KEY)
-            .optional(companies::KEY)
-            .optional(contacts::KEY)
+            .optional(organizations::KEY)
+            .optional(people::KEY)
             .migration(Migration::new(
                 1,
                 "create quotes",

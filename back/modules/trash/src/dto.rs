@@ -7,7 +7,7 @@ use aphel_kernel::application::fields::EntityDefinition;
 
 #[derive(Debug, Serialize, ToSchema)]
 pub(crate) struct TrashItemResponse {
-    #[schema(example = "contacts.contact")]
+    #[schema(example = "people.person")]
     pub(crate) record_type: String,
     pub(crate) id: String,
     pub(crate) title: String,
@@ -42,7 +42,7 @@ impl From<TrashItem> for TrashItemResponse {
 #[derive(Debug, Deserialize, IntoParams)]
 #[into_params(parameter_in = Query)]
 pub(crate) struct TrashListParams {
-    #[param(example = "contacts.contact")]
+    #[param(example = "people.person")]
     pub(crate) record_type: Option<String>,
     pub(crate) search: Option<String>,
 }
@@ -72,7 +72,7 @@ impl From<TrashSettings> for TrashSettingsBody {
 
 #[derive(Debug, Serialize, ToSchema)]
 pub(crate) struct TrashTypeResponse {
-    #[schema(example = "contacts.contact")]
+    #[schema(example = "people.person")]
     pub(crate) record_type: String,
     pub(crate) label: Option<String>,
     pub(crate) custom: bool,

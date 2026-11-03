@@ -30,7 +30,7 @@ pub(crate) struct AiStatus {
 
 #[derive(Debug, Clone, Deserialize, ToSchema)]
 pub(crate) struct AiRecordRequest {
-    #[schema(example = "contacts.contact")]
+    #[schema(example = "people.person")]
     pub(crate) record_type: String,
     pub(crate) record_id: String,
 }

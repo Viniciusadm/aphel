@@ -13,7 +13,7 @@ use object_store::{
     GetOptions, ObjectStore, PutMultipartOptions, PutOptions, PutPayload, WriteMultipart,
 };
 
-use crate::application::organizations::{ObjectStoreSettings, StorageSettings};
+use crate::application::organization_profile::{ObjectStoreSettings, StorageSettings};
 use crate::application::shared::{ByteStream, FileStorage, SharedFileStorage};
 use crate::domain::Secret;
 use crate::errors::AppError;

@@ -22,8 +22,8 @@ export const QUOTE_RECORD_TYPE = "quotes.quote";
 export const DEAL_RECORD_TYPE = "deals.deal";
 export const STAGE_RECORD_TYPES = [DEAL_RECORD_TYPE];
 export const CORE_RECORD_TYPES = [
-  "contacts.contact",
-  "companies.company",
+  "people.person",
+  "organizations.organization",
   "deals.deal",
   "activities.activity",
   "products.product",

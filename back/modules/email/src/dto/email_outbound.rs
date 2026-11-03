@@ -32,7 +32,7 @@ impl From<EmailAddressDto> for EmailAddress {
 
 #[derive(Debug, Clone, Serialize, Deserialize, ToSchema)]
 pub(crate) struct EmailRecordInput {
-    #[schema(example = "contacts.contact")]
+    #[schema(example = "people.person")]
     pub(crate) record_type: String,
     pub(crate) record_id: String,
 }
@@ -170,7 +170,7 @@ impl From<EmailTemplateView> for EmailTemplateResponse {
 pub(crate) struct EmailTemplatesQuery {
     #[param(example = "all")]
     pub(crate) scope: Option<String>,
-    #[param(example = "contacts.contact")]
+    #[param(example = "people.person")]
     pub(crate) record_type: Option<String>,
 }
 
@@ -237,7 +237,7 @@ pub(crate) struct EmailTemplateVariableResponse {
     #[schema(example = "contact.first_name")]
     pub(crate) key: String,
     pub(crate) label: String,
-    #[schema(example = "contacts.contact")]
+    #[schema(example = "people.person")]
     pub(crate) record_type: String,
 }
 

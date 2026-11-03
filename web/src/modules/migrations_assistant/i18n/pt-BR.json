@@ -18,12 +18,12 @@
   "steps": {
     "title": "Importe nesta ordem a partir do {{source}}",
     "description": "Cada etapa cria uma importação em rascunho. Revise o mapeamento e inicie antes de seguir para a próxima, para que os vínculos encontrem os registros já importados.",
-    "companies": {
+    "organizations": {
       "title": "Empresas",
       "description": "Envie o CSV de empresas (organizações), geralmente {{file}}.",
       "links": "As empresas vêm primeiro para que pessoas e negócios possam ser ligados a elas."
     },
-    "contacts": {
+    "people": {
       "title": "Pessoas",
       "description": "Envie o CSV de pessoas (contatos), geralmente {{file}}.",
       "links": "Cada pessoa é ligada à empresa pelo nome; empresas que não existirem são criadas."

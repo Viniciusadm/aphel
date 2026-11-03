@@ -111,8 +111,8 @@ impl SourceTool {
     }
 }
 
-pub(crate) const COMPANIES_STEP: &str = "companies";
-pub(crate) const CONTACTS_STEP: &str = "contacts";
+pub(crate) const COMPANIES_STEP: &str = "organizations";
+pub(crate) const CONTACTS_STEP: &str = "people";
 pub(crate) const DEALS_STEP: &str = "deals";
 pub(crate) const ACTIVITIES_STEP: &str = "activities";
 pub(crate) const NOTES_STEP: &str = "notes";
@@ -779,8 +779,8 @@ const DEAL_LINKS: &[&str] = &[COMPANIES_STEP, CONTACTS_STEP];
 const HISTORY_LINKS: &[&str] = &[COMPANIES_STEP, CONTACTS_STEP, DEALS_STEP];
 
 struct StepRules {
-    companies: &'static [ColumnRule],
-    contacts: &'static [ColumnRule],
+    organizations: &'static [ColumnRule],
+    people: &'static [ColumnRule],
     deals: &'static [ColumnRule],
     activities: &'static [ColumnRule],
     notes: &'static [ColumnRule],
@@ -795,20 +795,20 @@ const fn steps(
         SourceStep {
             key: COMPANIES_STEP,
             kind: StepKind::Import,
-            record_type: "companies.company",
+            record_type: "organizations.organization",
             file_hint: hints[0],
             duplicate_key: company_key,
             links: COMPANY_LINKS,
-            columns: rules.companies,
+            columns: rules.organizations,
         },
         SourceStep {
             key: CONTACTS_STEP,
             kind: StepKind::Import,
-            record_type: "contacts.contact",
+            record_type: "people.person",
             file_hint: hints[1],
             duplicate_key: DuplicateKey::Email,
             links: CONTACT_LINKS,
-            columns: rules.contacts,
+            columns: rules.people,
         },
         SourceStep {
             key: DEALS_STEP,
@@ -1158,8 +1158,8 @@ const AGENDOR_NOTES: &[ColumnRule] = &[
 
 const PIPEDRIVE_STEPS: [SourceStep; 5] = steps(
     StepRules {
-        companies: PIPEDRIVE_COMPANIES,
-        contacts: PIPEDRIVE_CONTACTS,
+        organizations: PIPEDRIVE_COMPANIES,
+        people: PIPEDRIVE_CONTACTS,
         deals: PIPEDRIVE_DEALS,
         activities: PIPEDRIVE_ACTIVITIES,
         notes: PIPEDRIVE_NOTES,
@@ -1175,15 +1175,15 @@ const PIPEDRIVE_STEPS: [SourceStep; 5] = steps(
 );
 const HUBSPOT_STEPS: [SourceStep; 5] = steps(
     StepRules {
-        companies: HUBSPOT_COMPANIES,
-        contacts: HUBSPOT_CONTACTS,
+        organizations: HUBSPOT_COMPANIES,
+        people: HUBSPOT_CONTACTS,
         deals: HUBSPOT_DEALS,
         activities: HUBSPOT_ACTIVITIES,
         notes: HUBSPOT_NOTES,
     },
     [
-        "companies.csv",
-        "contacts.csv",
+        "organizations.csv",
+        "people.csv",
         "deals.csv",
         "tasks.csv",
         "notes.csv",
@@ -1192,8 +1192,8 @@ const HUBSPOT_STEPS: [SourceStep; 5] = steps(
 );
 const RD_STEPS: [SourceStep; 5] = steps(
     StepRules {
-        companies: RD_COMPANIES,
-        contacts: RD_CONTACTS,
+        organizations: RD_COMPANIES,
+        people: RD_CONTACTS,
         deals: RD_DEALS,
         activities: RD_ACTIVITIES,
         notes: RD_NOTES,
@@ -1209,8 +1209,8 @@ const RD_STEPS: [SourceStep; 5] = steps(
 );
 const AGENDOR_STEPS: [SourceStep; 5] = steps(
     StepRules {
-        companies: AGENDOR_COMPANIES,
-        contacts: AGENDOR_CONTACTS,
+        organizations: AGENDOR_COMPANIES,
+        people: AGENDOR_CONTACTS,
         deals: AGENDOR_DEALS,
         activities: AGENDOR_ACTIVITIES,
         notes: AGENDOR_NOTES,

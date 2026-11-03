@@ -10,7 +10,7 @@ publish = false
 config_packages = { package = "aphel-mod-config-packages", path = "../config_packages" }
 aphel-contract-crm.workspace = true
 aphel-kernel.workspace = true
-companies = { package = "aphel-mod-companies", path = "../companies" }
+organizations = { package = "aphel-mod-organizations", path = "../organizations" }
 currencies = { package = "aphel-mod-currencies", path = "../currencies" }
 deals = { package = "aphel-mod-deals", path = "../deals" }
 products = { package = "aphel-mod-products", path = "../products" }

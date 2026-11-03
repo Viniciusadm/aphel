@@ -117,7 +117,7 @@ async fn create_api_token(
     operation_id = "api_tokens_scopes",
     security(("session_cookie" = [])),
     responses(
-        (status = 200, description = "Scopes the current user can grant, derived from their permissions (`contacts.read` → `contacts:read`, any other action → `<resource>:write`)", body = Data<Vec<ApiTokenScopeResponse>>),
+        (status = 200, description = "Scopes the current user can grant, derived from their permissions (`people.read` → `people:read`, any other action → `<resource>:write`)", body = Data<Vec<ApiTokenScopeResponse>>),
         (status = 401, description = "Missing or invalid session", body = ErrorEnvelope),
         (status = 403, description = "Called with an API token (`api_token_not_allowed`)", body = ErrorEnvelope),
     )

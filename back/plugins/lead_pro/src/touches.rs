@@ -92,7 +92,7 @@ async fn contact_exists(
     contact_id: Uuid,
 ) -> Result<bool, AppError> {
     Ok(sqlx::query_scalar(
-        "SELECT EXISTS(SELECT 1 FROM contacts WHERE id = ? AND deleted_at IS NULL)",
+        "SELECT EXISTS(SELECT 1 FROM people WHERE id = ? AND deleted_at IS NULL)",
     )
     .bind(contact_id.to_string())
     .fetch_one(connection)
@@ -142,7 +142,7 @@ impl TouchConsumer {
             format!("lead_pro_hot:{contact_id}:{}", heating.after),
         );
         intent.record = Some(RecordRef::new(RecordType::CONTACT, contact_id));
-        intent.link = Some(format!("/contacts/{contact_id}"));
+        intent.link = Some(format!("/people/{contact_id}"));
         intent.data = json!({ "temperature": heating.after });
         dispatch(&ports, intent).await?;
         Ok(())
@@ -210,7 +210,7 @@ impl JobHandler for Cooldown {
         }
         let idle_since = chrono::Utc::now() - Duration::days(settings.cooldown_days.max(1));
         let cooled = store::cool_down(&self.pool, settings.cooldown_points, idle_since).await?;
-        tracing::debug!(contacts = cooled, "lead_pro cooldown applied");
+        tracing::debug!(people = cooled, "lead_pro cooldown applied");
         Ok(())
     }
 }

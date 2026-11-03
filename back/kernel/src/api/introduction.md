@@ -1,11 +1,11 @@
-REST API of Aphel CRM. Everything the interface does goes through here: contacts, companies, deals, activities, custom fields, imports and configuration.
+REST API of Aphel CRM. Everything the interface does goes through here: people, organizations, deals, activities, custom fields, imports and configuration.
 
 ## Authentication
 
-Create a token in **Settings → API tokens**, choosing the scopes (`contacts:read`, `deals:write`…) and the expiration. The token is shown only once; send it on every request:
+Create a token in **Settings → API tokens**, choosing the scopes (`people:read`, `deals:write`…) and the expiration. The token is shown only once; send it on every request:
 
 ```bash
-curl -H "Authorization: Bearer aphel_3f9a1c2b_…" https://your-aphel.example.com/api/v1/contacts
+curl -H "Authorization: Bearer aphel_3f9a1c2b_…" https://your-aphel.example.com/api/v1/people
 ```
 
 The token acts on behalf of whoever created it and can never do more than that person can **at the time of the request**: the effective permission is the intersection of the scopes with that person's current permissions. A revoked or expired token, or one belonging to a deactivated user, responds `401 invalid_api_token`; insufficient scope, `403 insufficient_scope`. Session and account routes (`/auth/*`, `/api-tokens`) only accept the browser session.
@@ -31,7 +31,7 @@ curl -G -H "Authorization: Bearer $APHEL_TOKEN" "$APHEL_URL/api/v1/deals" \
   --data-urlencode "sort=-amount,title"
 
 # full form: the filter tree as JSON
-curl -G -H "Authorization: Bearer $APHEL_TOKEN" "$APHEL_URL/api/v1/contacts" \
+curl -G -H "Authorization: Bearer $APHEL_TOKEN" "$APHEL_URL/api/v1/people" \
   --data-urlencode 'filter={"op":"or","conditions":[{"field":"email","operator":"contains","value":"@acme"},{"field":"city","operator":"eq","value":"Recife"}]}'
 ```
 
@@ -51,9 +51,9 @@ Always `{ "error": { "code", "message", "details" } }`. Decide based on the `cod
 ```bash
 export APHEL_URL=https://your-aphel.example.com APHEL_TOKEN=aphel_…
 company=$(curl -s -X POST -H "Authorization: Bearer $APHEL_TOKEN" -H "Content-Type: application/json" \
-  -d '{"name":"Acme Ltda","custom_fields":{}}' "$APHEL_URL/api/v1/companies" | jq -r .data.id)
+  -d '{"name":"Acme Ltda","custom_fields":{}}' "$APHEL_URL/api/v1/organizations" | jq -r .data.id)
 contact=$(curl -s -X POST -H "Authorization: Bearer $APHEL_TOKEN" -H "Content-Type: application/json" \
-  -d "{\"first_name\":\"Bruna\",\"company_id\":\"$company\",\"custom_fields\":{}}" "$APHEL_URL/api/v1/contacts" | jq -r .data.id)
+  -d "{\"first_name\":\"Bruna\",\"company_id\":\"$company\",\"custom_fields\":{}}" "$APHEL_URL/api/v1/people" | jq -r .data.id)
 curl -s -X POST -H "Authorization: Bearer $APHEL_TOKEN" -H "Content-Type: application/json" \
   -d "{\"title\":\"Acme onboarding\",\"amount\":\"15000.00\",\"currency\":\"BRL\",\"company_id\":\"$company\",\"contact_id\":\"$contact\",\"custom_fields\":{}}" \
   "$APHEL_URL/api/v1/deals"

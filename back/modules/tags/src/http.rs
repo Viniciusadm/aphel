@@ -98,7 +98,7 @@ async fn list_tags(
     security(("session_cookie" = [])),
     request_body = CreateTagRequest,
     responses(
-        (status = 201, description = "Tag created (`tag.created`). Empty `record_types` means the tag can be used on contacts, companies and deals", body = Data<TagResponse>),
+        (status = 201, description = "Tag created (`tag.created`). Empty `record_types` means the tag can be used on people, organizations and deals", body = Data<TagResponse>),
         (status = 401, description = "Missing or invalid credentials (`unauthorized`, `invalid_api_token`)", body = ErrorEnvelope),
         (status = 403, description = "Missing `settings.manage` (`permission_denied`, `insufficient_scope`)", body = ErrorEnvelope),
         (status = 409, description = "Another tag already has this name (`tag_name_taken`)", body = ErrorEnvelope),

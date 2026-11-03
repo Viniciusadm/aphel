@@ -190,7 +190,7 @@
       "id": "aphel.saas.en",
       "kind": "template",
       "name": "SaaS",
-      "description": "For subscription software companies: from trial to closed subscription, with plan, MRR, number of seats, trial end and renewal date.",
+      "description": "For subscription software organizations: from trial to closed subscription, with plan, MRR, number of seats, trial end and renewal date.",
       "author": "Aphel",
       "version": "1.0.0",
       "min_aphel_version": "0.1.0",
@@ -233,7 +233,7 @@
       "min_aphel_version": "0.1.0",
       "license": "AGPL-3.0-or-later",
       "tags": [
-        "companies",
+        "organizations",
         "cnpj"
       ],
       "module": {
@@ -297,7 +297,7 @@
       "id": "aphel.module.lead-forms",
       "kind": "module",
       "name": "Lead forms",
-      "description": "Public forms that create contacts and deals",
+      "description": "Public forms that create people and deals",
       "author": "Aphel",
       "version": "0.1.0",
       "min_aphel_version": "0.1.0",

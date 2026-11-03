@@ -8,7 +8,7 @@
     },
     "acting_user_email": {
       "label": "Acting user",
-      "help": "E-mail of the user on whose behalf webhooks and mailbox reading look up and create contacts, when the channel does not set one. Empty: whoever created the channel."
+      "help": "E-mail of the user on whose behalf webhooks and mailbox reading look up and create people, when the channel does not set one. Empty: whoever created the channel."
     }
   },
   "nav": {
@@ -52,7 +52,7 @@
     "document": "Document",
     "sticker": "Sticker",
     "location": "Location",
-    "contacts": "Shared contact",
+    "people": "Shared contact",
     "reaction": "Reaction",
     "button": "Button reply",
     "interactive": "Interactive reply",
@@ -195,7 +195,7 @@
     },
     "name": "Channel name",
     "actingUser": "Acting user",
-    "actingUserHint": "On whose behalf incoming messages look up and create contacts. Empty: module setting or whoever created the channel.",
+    "actingUserHint": "On whose behalf incoming messages look up and create people. Empty: module setting or whoever created the channel.",
     "connection": "Connection",
     "config": {
       "phone_number_id": "Phone number ID",

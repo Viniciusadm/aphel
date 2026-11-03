@@ -58,7 +58,7 @@ impl OutboundStore {
             return Ok(HashMap::new());
         }
         let mut builder = QueryBuilder::<MySql>::new(
-            "SELECT id, LOWER(email) AS email FROM contacts WHERE deleted_at IS NULL AND email IN (",
+            "SELECT id, LOWER(email) AS email FROM people WHERE deleted_at IS NULL AND email IN (",
         );
         let mut separated = builder.separated(", ");
         for address in addresses {
@@ -66,12 +66,12 @@ impl OutboundStore {
         }
         separated.push_unseparated(") ORDER BY created_at, id");
         let rows = builder.build().fetch_all(&self.pool).await?;
-        let mut contacts = HashMap::new();
+        let mut people = HashMap::new();
         for row in &rows {
             let email: String = row.try_get("email")?;
-            contacts.entry(email).or_insert(uuid_column(row, "id")?);
+            people.entry(email).or_insert(uuid_column(row, "id")?);
         }
-        Ok(contacts)
+        Ok(people)
     }
 
     pub(crate) async fn sender_profile(

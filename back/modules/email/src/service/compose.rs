@@ -144,7 +144,7 @@ pub async fn enqueue_in_tx(
         .chain(&draft.bcc)
         .map(|recipient| recipient.address.clone())
         .collect();
-    let contacts = OutboundStore::of(ctx)
+    let people = OutboundStore::of(ctx)
         .contacts_by_address(&recipients)
         .await?;
     let body_file = store_body(ctx, sender, &draft.body).await?;
@@ -157,7 +157,7 @@ pub async fn enqueue_in_tx(
         id,
         &message_id,
         &body_file,
-        &contacts,
+        &people,
         command.ip,
     )
     .await?;
@@ -349,7 +349,7 @@ async fn compose(
         .chain(&draft.bcc)
         .map(|recipient| recipient.address.clone())
         .collect();
-    let contacts = OutboundStore::of(ctx)
+    let people = OutboundStore::of(ctx)
         .contacts_by_address(&recipients)
         .await?;
     let body_file = store_body(ctx, sender, &draft.body).await?;
@@ -362,7 +362,7 @@ async fn compose(
         email_id,
         &message_id,
         &body_file,
-        &contacts,
+        &people,
         command.ip.clone(),
     )
     .await;
@@ -710,7 +710,7 @@ async fn draft(
 
 async fn thread_record(ctx: &Ctx<'_>, thread_id: Uuid) -> Result<Option<RecordRef>, AppError> {
     let mut links = LinkStore::of(ctx).links_for_threads(&[thread_id]).await?;
-    links.sort_by_key(|link| link.record.record_type.as_str() != "contacts.contact");
+    links.sort_by_key(|link| link.record.record_type.as_str() != "people.person");
     for link in links {
         if is_email_record_type(link.record.record_type.as_str())
             && can_read(ctx, &link.record).await?
@@ -780,7 +780,7 @@ async fn persist_draft_in_tx(
     email_id: Uuid,
     message_id: &str,
     body_file: &NewFile,
-    contacts: &HashMap<String, Uuid>,
+    people: &HashMap<String, Uuid>,
     ip: Option<String>,
 ) -> Result<(), AppError> {
     let scope = ctx.scope;
@@ -801,7 +801,7 @@ async fn persist_draft_in_tx(
             role,
             address: recipient.address.clone(),
             name: recipient.name.clone(),
-            contact_id: contacts.get(&recipient.address).copied(),
+            contact_id: people.get(&recipient.address).copied(),
         }));
     }
     let preview_source = draft
@@ -875,7 +875,7 @@ async fn persist_draft_in_tx(
     if let Some(record) = &draft.record {
         linked.push(record.clone());
     }
-    for contact_id in contacts.values() {
+    for contact_id in people.values() {
         let contact = RecordRef::new(RecordType::CONTACT, *contact_id);
         if !linked.contains(&contact) {
             linked.push(contact);

@@ -21,7 +21,7 @@ pub struct FormFile {
 pub struct UploadFileForm {
     #[schema(value_type = String, format = Binary)]
     pub file: FormFile,
-    #[schema(example = "contacts.contact")]
+    #[schema(example = "people.person")]
     pub record_type: Option<String>,
     pub record_id: Option<String>,
 }
@@ -29,7 +29,7 @@ pub struct UploadFileForm {
 #[derive(Debug, Deserialize, ToSchema)]
 pub struct AttachFileRequest {
     pub file_id: String,
-    #[schema(example = "contacts.contact")]
+    #[schema(example = "people.person")]
     pub record_type: String,
     pub record_id: String,
 }
@@ -37,7 +37,7 @@ pub struct AttachFileRequest {
 #[derive(Debug, Deserialize, IntoParams)]
 #[into_params(parameter_in = Query)]
 pub struct AttachmentsQueryParams {
-    #[param(example = "contacts.contact")]
+    #[param(example = "people.person")]
     pub record_type: String,
     #[param(example = "0190a8f2-7c1e-7b3a-9f00-000000000000")]
     pub record_id: String,

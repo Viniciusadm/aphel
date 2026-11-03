@@ -33,7 +33,7 @@ impl SecretKey {
     pub fn organization(name: impl Into<String>) -> Self {
         Self::new(
             Self::ORGANIZATION_OWNER,
-            crate::domain::organizations::ORGANIZATION_RECORD_ID,
+            crate::domain::organization_profile::ORGANIZATION_RECORD_ID,
             name,
         )
     }

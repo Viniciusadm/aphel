@@ -14,8 +14,8 @@ pub trait CrmRecordTypes {
 }
 
 impl CrmRecordTypes for RecordType {
-    const CONTACT: RecordType = RecordType::from_static("contacts.contact");
-    const COMPANY: RecordType = RecordType::from_static("companies.company");
+    const CONTACT: RecordType = RecordType::from_static("people.person");
+    const COMPANY: RecordType = RecordType::from_static("organizations.organization");
     const DEAL: RecordType = RecordType::from_static("deals.deal");
     const ACTIVITY: RecordType = RecordType::from_static("activities.activity");
     const PRODUCT: RecordType = RecordType::from_static("products.product");

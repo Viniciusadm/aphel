@@ -114,7 +114,7 @@ async fn summary(
     conversation: StoredConversation,
 ) -> ConversationSummary {
     let contact = cache
-        .resolve(ctx, scope, "contacts.contact", conversation.contact_id)
+        .resolve(ctx, scope, "people.person", conversation.contact_id)
         .await;
     let deal = cache
         .resolve(ctx, scope, "deals.deal", conversation.deal_id)
@@ -617,7 +617,7 @@ async fn link(
     let mut checked = HashSet::new();
     for (record_type, field, old, new) in [
         (
-            "contacts.contact",
+            "people.person",
             "contact_id",
             current.contact_id,
             request.contact_id,

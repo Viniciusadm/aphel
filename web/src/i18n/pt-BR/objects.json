@@ -4,11 +4,11 @@
     "contact": "Contato",
     "deal": "Oportunidade",
     "product": "Produto",
-    "contacts": {
-      "contact": "Contato"
+    "people": {
+      "person": "Contato"
     },
-    "companies": {
-      "company": "Empresa"
+    "organizations": {
+      "organization": "Empresa"
     },
     "deals": {
       "deal": "Oportunidade"
@@ -22,11 +22,11 @@
     "contact": "Contatos",
     "deal": "Oportunidades",
     "product": "Produtos",
-    "contacts": {
-      "contact": "Contatos"
+    "people": {
+      "person": "Contatos"
     },
-    "companies": {
-      "company": "Empresas"
+    "organizations": {
+      "organization": "Empresas"
     },
     "deals": {
       "deal": "Oportunidades"

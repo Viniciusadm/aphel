@@ -22,7 +22,7 @@ const leadProModule = defineModule({
         kinds: {
           lead_pro_hot: {
             label: 'Lead got hot',
-            description: 'When one of your contacts reaches the hot lead temperature of Lead Pro.',
+            description: 'When one of your people reaches the hot lead temperature of Lead Pro.',
           },
         },
       },
@@ -52,7 +52,7 @@ const leadProModule = defineModule({
     })
     app.slot('record.detail.actions', {
       key: `${LEAD_PRO_KEY}.touch`,
-      recordTypes: ['contacts.contact'],
+      recordTypes: ['people.person'],
       permission: READ_PERMISSION,
       render: TouchButton,
     })

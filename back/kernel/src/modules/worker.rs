@@ -8,7 +8,7 @@ use crate::application::auth::AuthSettings;
 use crate::application::custom_objects::RecordTypeCatalog;
 use crate::application::jobs::ScheduledJobDefinition;
 use crate::application::mail::SharedMailer;
-use crate::application::organizations::PublicBaseUrl;
+use crate::application::organization_profile::PublicBaseUrl;
 use crate::application::shared::{
     DomainEvent, EventConsumer, JobContext, JobHandler, SharedFileStorage,
 };

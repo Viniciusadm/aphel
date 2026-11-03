@@ -14,9 +14,9 @@ export interface SearchRecordTypeIconProps {
 export function SearchRecordTypeIcon({ recordType, className }: SearchRecordTypeIconProps) {
   const props = { className, 'aria-hidden': true }
   switch (recordType) {
-    case 'contacts.contact':
+    case 'people.person':
       return <User {...props} />
-    case 'companies.company':
+    case 'organizations.organization':
       return <Building2 {...props} />
     case 'deals.deal':
       return <Handshake {...props} />

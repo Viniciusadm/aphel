@@ -134,11 +134,11 @@
       "company": "Empresas",
       "deal": "Oportunidades",
       "product": "Produtos",
-      "contacts": {
-        "contact": "Contatos"
+      "people": {
+        "person": "Contatos"
       },
-      "companies": {
-        "company": "Empresas"
+      "organizations": {
+        "organization": "Empresas"
       },
       "deals": {
         "deal": "Oportunidades"

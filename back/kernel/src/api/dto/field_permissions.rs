@@ -56,7 +56,7 @@ pub struct FieldPermissionFieldResponse {
 
 #[derive(Debug, Serialize, ToSchema)]
 pub struct FieldPermissionMatrixResponse {
-    #[schema(example = "contacts.contact")]
+    #[schema(example = "people.person")]
     pub record_type: String,
     pub roles: Vec<FieldPermissionRoleResponse>,
     pub fields: Vec<FieldPermissionFieldResponse>,

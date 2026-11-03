@@ -10,7 +10,7 @@ use aphel_kernel::context::Ctx;
 use aphel_kernel::domain::UserId;
 use aphel_kernel::domain::access::AccessScope;
 use aphel_kernel::errors::{AppError, CodedKind};
-use aphel_kernel::infrastructure::repositories::mysql_organizations::find_organization;
+use aphel_kernel::infrastructure::repositories::mysql_organization_profile::find_organization;
 use aphel_kernel::infrastructure::repositories::mysql_users::MySqlUserRepository;
 use aphel_kernel::records::RecordCtx;
 use deal_items::http::DealItemsResponse;

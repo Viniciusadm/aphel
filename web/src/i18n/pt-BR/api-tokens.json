@@ -47,8 +47,8 @@
     "write": "Escrever"
   },
   "resources": {
-    "contacts": "Contatos",
-    "companies": "Empresas",
+    "people": "Contatos",
+    "organizations": "Empresas",
     "deals": "Oportunidades",
     "activities": "Atividades",
     "notes": "Notas",

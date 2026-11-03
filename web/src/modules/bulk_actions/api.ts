@@ -14,7 +14,7 @@ export type BulkSelection = Schemas['BulkSelectionRequest']
 export type BulkExportFormat = Schemas['ExportFormatDto']
 export type ExportJob = Schemas['ExportJobResponse']
 
-export const BULK_RECORD_TYPES = ['contacts.contact', 'companies.company', 'deals.deal', 'products.product'] as const
+export const BULK_RECORD_TYPES = ['people.person', 'organizations.organization', 'deals.deal', 'products.product'] as const
 export type BulkRecordType = (typeof BULK_RECORD_TYPES)[number]
 export const POLL_INTERVAL_MS = 2000
 export const REPORT_PAGE_SIZE = 50
@@ -22,15 +22,15 @@ export const HISTORY_PAGE_SIZE = 25
 export const MAX_EXPORT_IDS = 100
 
 const PERMISSION_PREFIX: Record<BulkRecordType, string> = {
-  'contacts.contact': 'contacts',
-  'companies.company': 'companies',
+  'people.person': 'people',
+  'organizations.organization': 'organizations',
   'deals.deal': 'deals',
   'products.product': 'products',
 }
 
 export const BULK_SYSTEM_FIELDS: Record<BulkRecordType, readonly string[]> = {
-  'contacts.contact': ['first_name', 'last_name', 'email', 'phone', 'mobile', 'job_title', 'company_id', 'owner_id', 'source', 'notes'],
-  'companies.company': ['name', 'domain', 'website', 'industry', 'size_range', 'phone', 'email', 'owner_id', 'description', 'source'],
+  'people.person': ['first_name', 'last_name', 'email', 'phone', 'mobile', 'job_title', 'company_id', 'owner_id', 'source', 'notes'],
+  'organizations.organization': ['name', 'domain', 'website', 'industry', 'size_range', 'phone', 'email', 'owner_id', 'description', 'source'],
   'deals.deal': ['title', 'amount', 'currency', 'probability', 'expected_close_date', 'contact_id', 'company_id', 'owner_id', 'source'],
   'products.product': ['price', 'unit', 'recurrence', 'term_months', 'description'],
 }

@@ -36,8 +36,8 @@ export const RETENTION_ACTIONS = [
 ] as const
 export type RetentionAction = (typeof RETENTION_ACTIONS)[number]
 
-export const RETENTION_RECORD_TYPES = ['contacts.contact', 'companies.company', 'deals.deal'] as const
-export const TARGET_RECORD_TYPES = ['contacts.contact', 'companies.company', 'deals.deal', 'activities.activity'] as const
+export const RETENTION_RECORD_TYPES = ['people.person', 'organizations.organization', 'deals.deal'] as const
+export const TARGET_RECORD_TYPES = ['people.person', 'organizations.organization', 'deals.deal', 'activities.activity'] as const
 export type TargetRecordType = (typeof TARGET_RECORD_TYPES)[number]
 
 export const REQUESTS_PER_PAGE = 20

@@ -4,7 +4,7 @@ use crate::application::auth::{AuthPorts, AuthSettings};
 use crate::application::mail::SharedMailer;
 use crate::infrastructure::auth::{Argon2PasswordHasher, Sha256SecureTokens, SystemClock};
 use crate::infrastructure::repositories::mysql_access::MySqlAccessRepository;
-use crate::infrastructure::repositories::mysql_organizations::MySqlOrganizationRepository;
+use crate::infrastructure::repositories::mysql_organization_profile::MySqlOrganizationRepository;
 use crate::infrastructure::repositories::mysql_sessions::MySqlSessionRepository;
 use crate::infrastructure::repositories::mysql_user_tokens::MySqlUserTokenRepository;
 use crate::infrastructure::repositories::mysql_users::MySqlUserRepository;
@@ -15,7 +15,7 @@ pub struct MySqlAuthPorts {
     users: MySqlUserRepository,
     sessions: MySqlSessionRepository,
     tokens: MySqlUserTokenRepository,
-    organizations: MySqlOrganizationRepository,
+    organization_profile: MySqlOrganizationRepository,
     access: MySqlAccessRepository,
     mailer: SharedMailer,
     monitor: MySqlLoginMonitor,
@@ -35,7 +35,7 @@ impl MySqlAuthPorts {
             users: MySqlUserRepository::new(pool.clone()),
             sessions: MySqlSessionRepository::new(pool.clone()),
             tokens: MySqlUserTokenRepository::new(pool.clone()),
-            organizations: MySqlOrganizationRepository::new(pool.clone()),
+            organization_profile: MySqlOrganizationRepository::new(pool.clone()),
             access: MySqlAccessRepository::new(pool),
             mailer,
         }
@@ -46,7 +46,7 @@ impl AuthPorts for MySqlAuthPorts {
     type Users = MySqlUserRepository;
     type Sessions = MySqlSessionRepository;
     type Tokens = MySqlUserTokenRepository;
-    type Organizations = MySqlOrganizationRepository;
+    type OrganizationProfile = MySqlOrganizationRepository;
     type Access = MySqlAccessRepository;
     type Hasher = Argon2PasswordHasher;
     type Secrets = Sha256SecureTokens;
@@ -67,8 +67,8 @@ impl AuthPorts for MySqlAuthPorts {
         &self.tokens
     }
 
-    fn organizations(&self) -> &Self::Organizations {
-        &self.organizations
+    fn organization_profile(&self) -> &Self::OrganizationProfile {
+        &self.organization_profile
     }
 
     fn access(&self) -> &Self::Access {

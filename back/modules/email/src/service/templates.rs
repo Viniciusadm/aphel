@@ -344,8 +344,8 @@ pub(crate) async fn variables(
             ));
         }
         None => vec![
-            "contacts.contact".to_owned(),
-            "companies.company".to_owned(),
+            "people.person".to_owned(),
+            "organizations.organization".to_owned(),
             "deals.deal".to_owned(),
         ],
     };

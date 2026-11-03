@@ -30,7 +30,7 @@ const activitiesModule = defineModule({
       icon: CheckSquare,
       permission: 'activities.create',
       recordType: ACTIVITY_RECORD_TYPE,
-      targetRecordTypes: ['contacts.contact', 'companies.company', 'deals.deal'],
+      targetRecordTypes: ['people.person', 'organizations.organization', 'deals.deal'],
       order: 40,
       render: CreateTaskDialog,
     })

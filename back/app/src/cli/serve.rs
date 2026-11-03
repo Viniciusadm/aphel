@@ -9,7 +9,7 @@ use aphel_kernel::api;
 use aphel_kernel::api::state::AppState;
 use aphel_kernel::application::custom_objects::RecordTypeCatalog;
 use aphel_kernel::application::fields::RecordTypeRegistry;
-use aphel_kernel::application::organizations::PublicBaseUrl;
+use aphel_kernel::application::organization_profile::PublicBaseUrl;
 use aphel_kernel::config::AppConfig;
 use aphel_kernel::database;
 use aphel_kernel::infrastructure::custom_objects::{
@@ -20,7 +20,7 @@ use aphel_kernel::infrastructure::fields::sync_system_fields;
 use aphel_kernel::infrastructure::jobs::{shutdown_channel, termination_signal};
 use aphel_kernel::infrastructure::mail::SmtpMailerProvider;
 use aphel_kernel::infrastructure::noop::UnavailableSecretVault;
-use aphel_kernel::infrastructure::organizations::{
+use aphel_kernel::infrastructure::organization_profile::{
     organization_config_catalog, spawn_config_refresh,
 };
 use aphel_kernel::infrastructure::platform::SharedSecretVault;

@@ -22,7 +22,7 @@ CREATE TABLE price_lists (
   KEY price_lists_created_by_fk_index (created_by),
   CONSTRAINT price_lists_segment_fk FOREIGN KEY (segment_id) REFERENCES segments (id) ON DELETE SET NULL,
   CONSTRAINT price_lists_created_by_fk FOREIGN KEY (created_by) REFERENCES users (id) ON DELETE SET NULL,
-  CONSTRAINT price_lists_applies_to_check CHECK (applies_to IN ('all', 'segment', 'companies'))
+  CONSTRAINT price_lists_applies_to_check CHECK (applies_to IN ('all', 'segment', 'organizations'))
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci;
 
 CREATE TABLE price_list_companies (
@@ -31,7 +31,7 @@ CREATE TABLE price_list_companies (
   PRIMARY KEY (price_list_id, company_id),
   KEY price_list_companies_company_fk_index (company_id),
   CONSTRAINT price_list_companies_price_list_fk FOREIGN KEY (price_list_id) REFERENCES price_lists (id) ON DELETE CASCADE,
-  CONSTRAINT price_list_companies_company_fk FOREIGN KEY (company_id) REFERENCES companies (id) ON DELETE CASCADE
+  CONSTRAINT price_list_companies_company_fk FOREIGN KEY (company_id) REFERENCES organizations (id) ON DELETE CASCADE
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci;
 
 CREATE TABLE price_list_items (

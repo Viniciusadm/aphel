@@ -1,7 +1,7 @@
 use async_trait::async_trait;
 use chrono::{DateTime, Utc};
 
-use crate::application::organizations::{OrganizationConfig, OrganizationRegistration};
+use crate::application::organization_profile::{OrganizationConfig, OrganizationRegistration};
 use crate::application::security::{Clock, PasswordHasher};
 use crate::application::shared::{AuditLog, EventPublisher, TransactionManager};
 use crate::errors::AppError;

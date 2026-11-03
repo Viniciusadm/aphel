@@ -27,9 +27,9 @@
     "key": "Key"
   },
   "appliesTo": {
-    "all": "All companies",
+    "all": "All organizations",
     "segment": "Company segment",
-    "companies": "Specific companies"
+    "organizations": "Specific organizations"
   },
   "badges": {
     "default": "Default",
@@ -56,8 +56,8 @@
     "appliesTo": "Applies to",
     "segment": "Segment",
     "segmentPlaceholder": "Choose a company segment",
-    "segmentHint": "Applies to the companies in the segment when the quote is made.",
-    "companies": "Companies",
+    "segmentHint": "Applies to the organizations in the segment when the quote is made.",
+    "organizations": "Companies",
     "company": "Company {{position}}",
     "removeCompany": "Remove company",
     "addCompany": "Add company",
@@ -67,7 +67,7 @@
     "validityHint": "Leave blank for no limit. Dates are inclusive.",
     "active": "Active",
     "default": "Default list for {{currency}}",
-    "defaultHint": "Used when no company or segment list applies. Only lists for all companies can be the default; checking it replaces the previous default.",
+    "defaultHint": "Used when no company or segment list applies. Only lists for all organizations can be the default; checking it replaces the previous default.",
     "cancel": "Cancel",
     "save": "Save",
     "created": "Price list created.",
@@ -80,8 +80,8 @@
     "deleted": "Price list deleted.",
     "deleteTitle": "Delete price list?",
     "deleteDescription": "The list \"{{name}}\" and all its prices will be removed. Existing quotes keep the prices they used.",
-    "companies_one": "{{count}} company",
-    "companies_other": "{{count}} companies"
+    "organizations_one": "{{count}} company",
+    "organizations_other": "{{count}} organizations"
   },
   "items": {
     "title": "Prices",

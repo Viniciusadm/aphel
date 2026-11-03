@@ -59,11 +59,11 @@
     "company": "Company",
     "deal": "Deal",
     "activity": "Activity",
-    "contacts": {
-      "contact": "Contact"
+    "people": {
+      "person": "Contact"
     },
-    "companies": {
-      "company": "Company"
+    "organizations": {
+      "organization": "Company"
     },
     "deals": {
       "deal": "Deal"

@@ -7,11 +7,11 @@
     "contact": "Contatos",
     "company": "Empresas",
     "deal": "Oportunidades",
-    "contacts": {
-      "contact": "Contatos"
+    "people": {
+      "person": "Contatos"
     },
-    "companies": {
-      "company": "Empresas"
+    "organizations": {
+      "organization": "Empresas"
     },
     "deals": {
       "deal": "Oportunidades"

@@ -11,10 +11,10 @@ use crate::api::dto::organization_settings::{
 use crate::api::error::ApiError;
 use crate::api::extractors::{AuthContext, ClientInfo, JsonBody};
 use crate::api::state::AppState;
-use crate::application::organizations::OrganizationConfigUseCases;
+use crate::application::organization_profile::OrganizationConfigUseCases;
 use crate::domain::Secret;
 use crate::errors::AppError;
-use crate::infrastructure::organizations::MySqlOrganizationConfigPorts;
+use crate::infrastructure::organization_profile::MySqlOrganizationConfigPorts;
 
 pub const TAG: &str = "organization";
 

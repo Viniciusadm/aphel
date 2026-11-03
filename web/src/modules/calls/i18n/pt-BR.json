@@ -74,12 +74,12 @@
     "emptyTitle": "Nenhuma sessão ainda",
     "emptyDescription": "Inicie uma sessão para ligar para os contatos de uma visão, um após o outro.",
     "startedAt": "Iniciada em {{date}}",
-    "contacts_one": "{{count}} contato",
-    "contacts_other": "{{count}} contatos",
     "status": {
       "active": "Em andamento",
       "completed": "Encerrada"
-    }
+    },
+    "people_one": "{{count}} contato",
+    "people_other": "{{count}} contatos"
   },
   "session": {
     "back": "Voltar para ligações",

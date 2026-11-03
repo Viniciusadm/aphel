@@ -52,7 +52,7 @@ export function BirthdaysWidget({ data }: { data: BirthdaysData }) {
             >
               {item.day}
             </span>
-            <Link to={`/contacts/${encodeURIComponent(item.id)}`} className="min-w-0 truncate font-medium hover:underline">
+            <Link to={`/people/${encodeURIComponent(item.id)}`} className="min-w-0 truncate font-medium hover:underline">
               {item.name}
             </Link>
             {item.is_today && (

@@ -120,7 +120,7 @@ impl PriceListStore {
     async fn with_companies(&self, mut lists: Vec<PriceList>) -> Result<Vec<PriceList>, AppError> {
         let ids: Vec<Uuid> = lists
             .iter()
-            .filter(|list| list.applies_to == PriceListAppliesTo::Companies)
+            .filter(|list| list.applies_to == PriceListAppliesTo::Organizations)
             .map(|list| list.id)
             .collect();
         if ids.is_empty() {
@@ -132,15 +132,15 @@ impl PriceListStore {
         builder.push(" AND price_list_id");
         push_uuid_list(&mut builder, &ids);
         let rows = builder.build().fetch_all(&self.pool).await?;
-        let mut companies: HashMap<Uuid, Vec<Uuid>> = HashMap::new();
+        let mut organizations: HashMap<Uuid, Vec<Uuid>> = HashMap::new();
         for row in &rows {
-            companies
+            organizations
                 .entry(uuid_column(row, "price_list_id")?)
                 .or_default()
                 .push(uuid_column(row, "company_id")?);
         }
         for list in &mut lists {
-            if let Some(ids) = companies.remove(&list.id) {
+            if let Some(ids) = organizations.remove(&list.id) {
                 list.company_ids = ids;
             }
         }
@@ -313,8 +313,9 @@ impl PriceListStore {
             sqlx::query_scalar("SELECT currency FROM organization_settings WHERE id = 1")
                 .fetch_optional(&self.pool)
                 .await?;
-        Ok(currency
-            .unwrap_or_else(|| aphel_kernel::domain::organizations::DEFAULT_CURRENCY.to_owned()))
+        Ok(currency.unwrap_or_else(|| {
+            aphel_kernel::domain::organization_profile::DEFAULT_CURRENCY.to_owned()
+        }))
     }
 
     pub(crate) async fn currency_enabled(&self, currency: &str) -> Result<bool, AppError> {
@@ -345,7 +346,7 @@ impl PriceListStore {
         &self,
         company_ids: &[Uuid],
     ) -> Result<Vec<Uuid>, AppError> {
-        self.existing_ids("companies", company_ids).await
+        self.existing_ids("organizations", company_ids).await
     }
 
     pub(crate) async fn existing_products(

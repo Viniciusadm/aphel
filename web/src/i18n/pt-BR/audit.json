@@ -44,11 +44,11 @@
     "role": "Papel",
     "team": "Equipe",
     "organization": "Organização",
-    "contacts": {
-      "contact": "Contato"
+    "people": {
+      "person": "Contato"
     },
-    "companies": {
-      "company": "Empresa"
+    "organizations": {
+      "organization": "Empresa"
     },
     "deals": {
       "deal": "Oportunidade"

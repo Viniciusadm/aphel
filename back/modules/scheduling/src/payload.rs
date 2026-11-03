@@ -29,7 +29,7 @@ impl MeetingEventPayload {
             "host_user_id": self.host_user_id.as_str(),
             "starts_at": self.starts_at.to_rfc3339_opts(SecondsFormat::Secs, true),
             "ends_at": self.ends_at.to_rfc3339_opts(SecondsFormat::Secs, true),
-            "records": [{ "record_type": "contacts.contact", "record_id": self.contact_id }],
+            "records": [{ "record_type": "people.person", "record_id": self.contact_id }],
         })
     }
 }

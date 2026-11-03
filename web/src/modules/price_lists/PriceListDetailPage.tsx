@@ -116,8 +116,8 @@ function PriceListDetail({ list }: { list: PriceList }) {
           <div className="grid gap-0.5">
             <dt className="text-muted-foreground">{t('columns.appliesTo')}</dt>
             <dd>
-              {list.applies_to === 'companies'
-                ? t('detail.companies', { count: list.company_ids.length })
+              {list.applies_to === 'organizations'
+                ? t('detail.organizations', { count: list.company_ids.length })
                 : t(`appliesTo.${list.applies_to}`)}
             </dd>
           </div>

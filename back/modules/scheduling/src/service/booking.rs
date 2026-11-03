@@ -26,13 +26,13 @@ use aphel_kernel::application::shared::{
 };
 use aphel_kernel::database::transaction::MySqlTx;
 use aphel_kernel::domain::access::{AccessScope, Permission, PermissionSet, RoleKey};
-use aphel_kernel::domain::organizations::ORGANIZATION_RECORD_ID;
+use aphel_kernel::domain::organization_profile::ORGANIZATION_RECORD_ID;
 use aphel_kernel::domain::{Secret, UserId};
 use aphel_kernel::errors::{AppError, FieldViolation};
 use aphel_kernel::records::{AddressInput, PendingCommit};
-use contacts::domain::{ContactInput, SaveContactCommand};
-use contacts::service::CreatedContact;
 use email::domain::normalize_address;
+use people::domain::{ContactInput, SaveContactCommand};
+use people::service::CreatedContact;
 
 const BUSY_MARGIN_DAYS: i64 = 1;
 
@@ -715,7 +715,7 @@ async fn create_contact_attempt(
     command: SaveContactCommand,
 ) -> Result<CreatedContact, AppError> {
     savepoint(tx, CONTACT_SAVEPOINT).await?;
-    let created = contacts::service::create_in_tx(ctx, tx, command).await;
+    let created = people::service::create_in_tx(ctx, tx, command).await;
     if created.is_err() {
         rollback_to_savepoint(tx, CONTACT_SAVEPOINT).await?;
     }
@@ -873,7 +873,7 @@ async fn find_or_create_contact(
     let created = match create_contact_attempt(ctx, tx, mapped).await {
         Ok(created) => created,
         Err(AppError::InvalidFields { .. } | AppError::CodedFields { .. }) => {
-            contacts::service::create_in_tx(
+            people::service::create_in_tx(
                 ctx,
                 tx,
                 SaveContactCommand {

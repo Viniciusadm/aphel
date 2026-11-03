@@ -197,8 +197,8 @@
       "granted": "Concedida"
     },
     "modules": {
-      "contacts": "Contatos",
-      "companies": "Empresas",
+      "people": "Contatos",
+      "organizations": "Empresas",
       "deals": "Oportunidades",
       "activities": "Tarefas e atividades",
       "notes": "Notas",

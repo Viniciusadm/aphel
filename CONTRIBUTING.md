@@ -50,7 +50,7 @@ If you changed an API route or DTO, also regenerate the committed document: `car
   - `feat:` new feature or visible behavior change.
   - `fix:` bug fix.
   - `chore:` maintenance, dependencies, build, CI, documentation, refactoring without behavior change.
-- Examples: `feat: export companies to XLSX`, `fix: make the Kanban total respect the owner filter`.
+- Examples: `feat: export organizations to XLSX`, `fix: make the Kanban total respect the owner filter`.
 - Prefer small, cohesive commits. Do not mix a large refactoring with a bug fix.
 
 ## Pull requests

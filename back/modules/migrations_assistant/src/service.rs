@@ -191,7 +191,7 @@ pub(crate) async fn migrate_history(
     if preview.step.kind == StepKind::Import {
         return Err(AppError::validation_code(
             MIGRATION_HISTORY_STEP,
-            "companies, contacts and deals are migrated with POST /migration-assistant/imports",
+            "organizations, people and deals are migrated with POST /migration-assistant/imports",
         ));
     }
     let module = match preview.step.kind {

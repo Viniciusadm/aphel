@@ -37,11 +37,11 @@
     "activity": "Tarefas",
     "product": "Produtos",
     "note": "Notas",
-    "contacts": {
-      "contact": "Contatos"
+    "people": {
+      "person": "Contatos"
     },
-    "companies": {
-      "company": "Empresas"
+    "organizations": {
+      "organization": "Empresas"
     },
     "deals": {
       "deal": "Oportunidades"

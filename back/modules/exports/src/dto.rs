@@ -31,7 +31,7 @@ impl From<ExportFormatDto> for ExportFormat {
 #[derive(Debug, Deserialize, ToSchema)]
 #[serde(deny_unknown_fields)]
 pub(crate) struct ExportRequest {
-    #[schema(example = "contacts.contact")]
+    #[schema(example = "people.person")]
     pub(crate) record_type: String,
     pub(crate) format: ExportFormatDto,
     #[schema(value_type = Option<FilterNodeSchema>)]
@@ -96,7 +96,7 @@ impl ExportRequest {
 #[derive(Debug, Serialize, ToSchema)]
 pub struct ExportJobResponse {
     pub(crate) id: String,
-    #[schema(example = "contacts.contact")]
+    #[schema(example = "people.person")]
     pub(crate) record_type: String,
     #[schema(example = "xlsx")]
     pub(crate) format: String,

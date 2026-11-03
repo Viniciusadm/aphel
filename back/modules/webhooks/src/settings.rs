@@ -1,4 +1,6 @@
-use aphel_kernel::application::organizations::{OrganizationConfig, OrganizationConfigExtension};
+use aphel_kernel::application::organization_profile::{
+    OrganizationConfig, OrganizationConfigExtension,
+};
 use aphel_kernel::config::OutboundHttpConfig;
 use aphel_kernel::errors::FieldViolation;
 use serde::{Deserialize, Serialize};

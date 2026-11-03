@@ -12,10 +12,10 @@ use aphel_kernel::application::shared::RecordType;
 use aphel_kernel::context::Ctx;
 use aphel_kernel::errors::{AppError, CodedKind};
 use aphel_kernel::records::RecordCtx;
-use contacts::http::ContactResponse;
 use deals::http::DealResponse;
 use notes::domain::ListNotesQuery;
 use notes::http::NoteResponse;
+use people::http::ContactResponse;
 
 pub(crate) struct FieldOption {
     pub(crate) value: String,
@@ -207,16 +207,16 @@ pub(crate) async fn deals(
         .await
 }
 
-pub(crate) async fn contacts(
+pub(crate) async fn people(
     ctx: &Ctx<'_>,
     link_field: &str,
     record_id: Uuid,
     limit: u64,
 ) -> Result<Vec<Value>, AppError> {
-    if !ctx.app().is_enabled(contacts::KEY) {
+    if !ctx.app().is_enabled(people::KEY) {
         return Ok(Vec::new());
     }
-    let listing = contacts::service::list(
+    let listing = people::service::list(
         ctx,
         listing_query(link_filter(link_field, record_id), limit),
     )

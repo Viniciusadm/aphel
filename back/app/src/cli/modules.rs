@@ -10,7 +10,7 @@ use crate::cli::doctor::connect_quietly;
 use aphel_kernel::api::state::AppState;
 use aphel_kernel::application::custom_objects::RecordTypeCatalog;
 use aphel_kernel::application::fields::RecordTypeRegistry;
-use aphel_kernel::application::organizations::{OrganizationConfigCatalog, PublicBaseUrl};
+use aphel_kernel::application::organization_profile::{OrganizationConfigCatalog, PublicBaseUrl};
 use aphel_kernel::config::AppConfig;
 use aphel_kernel::domain::access::AccessScope;
 use aphel_kernel::errors::AppError;

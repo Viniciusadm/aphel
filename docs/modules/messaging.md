@@ -10,7 +10,7 @@ Code: `back/modules/messaging` (crate `aphel-mod-messaging`, `MessagingModule`) 
    - **Create a contact for unknown senders** (`create_unknown_contacts`, on by default): when a message arrives from a phone number or email address without a contact, the contact is created (the WhatsApp profile name or the email sender's name, and the phone in `mobile`/`phone` or the email address). When off, the conversation stays without a contact until someone links one.
    - **Acting user** (`acting_user_email`, optional): see [On whose behalf](#on-whose-behalf).
 2. Permissions (administrators already have all of them):
-   - `messaging.view`: see the inbox, the conversations and the **Conversations** tab of contacts and deals.
+   - `messaging.view`: see the inbox, the conversations and the **Conversations** tab of people and deals.
    - `messaging.reply`: reply, assign, change status and link contact/deal.
    - `messaging.manage_channels`: create, edit, test and delete channels and credentials.
 3. **Inbox → Channels** (`/messaging/channels`) → **WhatsApp** or **E-mail**, fill in and save. **Test** checks the credentials and shows the result; the channel status becomes "Working" or "Error" with the last error message.
@@ -51,7 +51,7 @@ The channel has no IMAP/SMTP stack of its own: it uses the `imap` provider from 
 
 ### On whose behalf
 
-Webhooks and jobs have no signed-in user, so the module builds a user's scope (`actor::scope_for_user`, on top of `build_access_scope`) to act. The module acts, in this order, as: the **channel's acting user** (a channel field), the **module's acting user** (`acting_user_email`) or **whoever created the channel**, as long as they are an active member. That user must be able to read contacts (to find the sender) and create contacts (to create unknown ones); the events and audit entries of received messages are recorded on their behalf. Webhook verification and signature checks use the channel secrets read from the `SecretVault` without a user, and processing runs in the `inbound` job. Without any valid member, email reading records the error on the channel and messages already accepted are stored without contact, event or audit entry.
+Webhooks and jobs have no signed-in user, so the module builds a user's scope (`actor::scope_for_user`, on top of `build_access_scope`) to act. The module acts, in this order, as: the **channel's acting user** (a channel field), the **module's acting user** (`acting_user_email`) or **whoever created the channel**, as long as they are an active member. That user must be able to read people (to find the sender) and create people (to create unknown ones); the events and audit entries of received messages are recorded on their behalf. Webhook verification and signature checks use the channel secrets read from the `SecretVault` without a user, and processing runs in the `inbound` job. Without any valid member, email reading records the error on the channel and messages already accepted are stored without contact, event or audit entry.
 
 Replies are sent with the scope of whoever replied (or the acting user, if that person was deactivated).
 
@@ -101,7 +101,7 @@ Visibility: anyone with `messaging.view` sees all conversations (shared inbox). 
 
 Message payload: `conversation_id`, `message_id`, `channel_id`, `channel_kind`, `channel_name`, `direction`, `peer`, `peer_name`, `subject`, `excerpt` (up to 280 characters), `message_type`, `status`, `contact_id`, `deal_id`. Every mutation writes an audit entry in the same transaction (without the message body).
 
-Automation triggers: **Message received** (`message.received`) and **Message sent** (`message.sent`), for contacts and deals.
+Automation triggers: **Message received** (`message.received`) and **Message sent** (`message.sent`), for people and deals.
 
 Jobs: `messaging.send` (up to 5 attempts; permanent errors such as a closed window, a rejected token or an invalid recipient fail immediately), `messaging.inbound`, `messaging.poll` (scheduled, `0 */2 * * * *`) and `messaging.poll_channel`.
 

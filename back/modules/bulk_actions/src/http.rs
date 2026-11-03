@@ -39,7 +39,7 @@ pub(crate) fn router() -> OpenApiRouter<AppState> {
         (status = 200, description = "Up to 200 records: applied right away and returned `completed`. Each record goes through the same use case of the single action (validation, permission, event and audit); records the user cannot change are `skipped` and listed in `/bulk-operations/{id}/items`", body = Data<BulkOperationResponse>),
         (status = 202, description = "More than 200 records: queued as `bulk.run` (`background: true`). Poll `GET /bulk-operations/{id}` for progress; it finishes with `bulk_operation.completed` or `bulk_operation.failed` (`Actor::System`, `requested_by` in the payload)", body = Data<BulkOperationResponse>),
         (status = 401, description = "Missing or invalid credentials (`unauthorized`, `invalid_api_token`)", body = ErrorEnvelope),
-        (status = 403, description = "Missing `<type>.read` or the permission the action needs (`<type>.update`, `<type>.archive`, `<type>.delete` or, for `enroll_in_sequence` on contacts, `sequences.enroll`) (`permission_denied`, `insufficient_scope`)", body = ErrorEnvelope),
+        (status = 403, description = "Missing `<type>.read` or the permission the action needs (`<type>.update`, `<type>.archive`, `<type>.delete` or, for `enroll_in_sequence` on people, `sequences.enroll`) (`permission_denied`, `insufficient_scope`)", body = ErrorEnvelope),
         (status = 422, description = "Unsupported record type (`bulk_not_supported`), invalid action, empty selection (`bulk_empty_selection`), invalid filter or more than 10 000 records (`bulk_too_large`); other field errors use `validation_error`", body = ErrorEnvelope),
     )
 )]

@@ -11,11 +11,11 @@
     "activity": "Activity",
     "product": "Product",
     "quote": "Quote",
-    "contacts": {
-      "contact": "Contact"
+    "people": {
+      "person": "Contact"
     },
-    "companies": {
-      "company": "Company"
+    "organizations": {
+      "organization": "Company"
     },
     "deals": {
       "deal": "Deal"

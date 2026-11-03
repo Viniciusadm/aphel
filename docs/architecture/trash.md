@@ -1,6 +1,6 @@
 # Trash
 
-`trash` module (`back/modules/trash`, web in `web/src/modules/trash`). Lists, restores and permanently deletes soft-deleted records (`deleted_at`) of every type that has a title (contacts, companies, deals, activities, quotes, custom objects…). Retention (1–365 days, default 30) lives in `trash_settings` and the `trash.purge` job (daily) deletes what has expired.
+`trash` module (`back/modules/trash`, web in `web/src/modules/trash`). Lists, restores and permanently deletes soft-deleted records (`deleted_at`) of every type that has a title (people, organizations, deals, activities, quotes, custom objects…). Retention (1–365 days, default 30) lives in `trash_settings` and the `trash.purge` job (daily) deletes what has expired.
 
 ## Access
 

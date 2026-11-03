@@ -34,11 +34,11 @@
     "activity": "Atividade",
     "product": "Produto",
     "quote": "Cotação",
-    "contacts": {
-      "contact": "Contato"
+    "people": {
+      "person": "Contato"
     },
-    "companies": {
-      "company": "Empresa"
+    "organizations": {
+      "organization": "Empresa"
     },
     "deals": {
       "deal": "Oportunidade"

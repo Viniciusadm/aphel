@@ -74,7 +74,7 @@ impl Module for PriceListsModule {
                 "Price lists by currency, segment or company with validity periods and quantity tiers, product bundles and the maximum discount per role",
             )
             .depends_on(products::KEY, "*")
-            .optional(companies::KEY)
+            .optional(organizations::KEY)
             .optional(segments::KEY)
             .enabled_by_default()
             .owned_tables(&["price_lists", "price_list_companies", "price_list_items", "product_bundle_components", "product_bundles", "role_discount_limits"])

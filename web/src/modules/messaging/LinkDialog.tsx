@@ -77,7 +77,7 @@ function LinkForm({ conversation, onDone }: { conversation: Conversation; onDone
     >
       <Field id={`link-contact-${conversation.id}`} label={t('links.contact')}>
         {contactLocked && conversation.contact ? (
-          <LinkedRecordLabel recordType="contacts.contact" record={conversation.contact} />
+          <LinkedRecordLabel recordType="people.person" record={conversation.contact} />
         ) : (
           <RecordFieldInput
             id={`link-contact-${conversation.id}`}

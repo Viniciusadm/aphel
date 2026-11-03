@@ -45,19 +45,19 @@ const SEQUENCE_CONTEXT: &[&str] = &[
 const PUBLIC_EVENTS: &[PublicEventDefinition] = &[
     event(
         "sequence.enrolled",
-        contacts::CONTACT_RESOURCE,
+        people::CONTACT_RESOURCE,
         "A contact was enrolled in a sequence",
     )
     .with_context(SEQUENCE_CONTEXT),
     event(
         "sequence.completed",
-        contacts::CONTACT_RESOURCE,
+        people::CONTACT_RESOURCE,
         "A contact went through every step of a sequence",
     )
     .with_context(SEQUENCE_CONTEXT),
     event(
         "sequence.exited",
-        contacts::CONTACT_RESOURCE,
+        people::CONTACT_RESOURCE,
         "A contact left a sequence (reply, meeting, deal won or lost, bounce, objection or removal)",
     )
     .with_context(SEQUENCE_CONTEXT),
@@ -72,7 +72,7 @@ impl Module for SequencesModule {
                 "Sales sequences (cadences): steps, enrollments, automatic exits, sending limits and per-step metrics",
             )
             .depends_on(email::KEY, "*")
-            .depends_on(contacts::KEY, "*")
+            .depends_on(people::KEY, "*")
             .depends_on(activities::KEY, "*")
             .enabled_by_default()
             .owned_tables(&["sequence_enrollments", "sequence_step_runs", "sequence_steps", "sequences"])

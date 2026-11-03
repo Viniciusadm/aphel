@@ -37,7 +37,7 @@
     },
     "feature_summary": {
       "label": "Record summary",
-      "help": "Summarizes the history and data of contacts, companies and deals"
+      "help": "Summarizes the history and data of people, organizations and deals"
     },
     "feature_next_actions": {
       "label": "Next-action suggestions",
@@ -78,7 +78,7 @@
     "personalOff": "Not sent (personal fields and people's names are left out)",
     "off": "Off",
     "sends": {
-      "summary": "Sends the contact, company or deal fields, the 10 latest notes and 10 latest activities and, when relevant, up to 10 linked deals and contacts. Receives a summary text.",
+      "summary": "Sends the contact, company or deal fields, the 10 latest notes and 10 latest activities and, when relevant, up to 10 linked deals and people. Receives a summary text.",
       "next_actions": "Sends the same data as the summary plus today's date. Receives task suggestions; nothing is created without your click.",
       "compose": "Sends the instruction, the draft text and, if you tick it, the current record fields. Receives the suggested text; nothing is saved without your click.",
       "query": "Sends the question and the list of filterable fields (key, name, type and options). No record data is sent. Receives a filter, which is validated and shown before applying."
@@ -97,11 +97,11 @@
       "deal": "deal(s)",
       "note": "note(s)",
       "activity": "activity(ies)",
-      "contacts": {
-        "contact": "contact(s)"
+      "people": {
+        "person": "contact(s)"
       },
-      "companies": {
-        "company": "company(ies)"
+      "organizations": {
+        "organization": "company(ies)"
       },
       "deals": {
         "deal": "deal(s)"
@@ -215,8 +215,8 @@
     "question": "Question",
     "placeholder": {
       "default": "E.g. created in the last 30 days with no owner",
-      "contact": "E.g. contacts from São Paulo created this month without e-mail",
-      "company": "E.g. companies created this year that are mine",
+      "contact": "E.g. people from São Paulo created this month without e-mail",
+      "company": "E.g. organizations created this year that are mine",
       "deal": "E.g. open deals above 10k expected to close this month"
     },
     "sends": "Only the question and the field list go to the AI; no record is sent.",

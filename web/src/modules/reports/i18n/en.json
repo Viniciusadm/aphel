@@ -163,11 +163,11 @@
       "contact": "Contacts",
       "company": "Companies",
       "activity": "Activities",
-      "contacts": {
-        "contact": "Contacts"
+      "people": {
+        "person": "Contacts"
       },
-      "companies": {
-        "company": "Companies"
+      "organizations": {
+        "organization": "Companies"
       },
       "deals": {
         "deal": "Deals"

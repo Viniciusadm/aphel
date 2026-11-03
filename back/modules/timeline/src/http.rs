@@ -36,7 +36,7 @@ pub(crate) fn router() -> OpenApiRouter<AppState> {
     security(("session_cookie" = [])),
     params(TimelineParams),
     responses(
-        (status = 200, description = "Activities (main link or additional links), visible notes and domain events of the record, newest first; for a company also the events of its contacts and deals. `kinds` is a comma separated list of activity, note, deal_stage, deal_change, record_change, attachment and event. Answers `{ data, meta: { next_cursor } }`: pass `meta.next_cursor` back as `cursor` for the next page (null on the last one)", body = TimelinePageResponse),
+        (status = 200, description = "Activities (main link or additional links), visible notes and domain events of the record, newest first; for a company also the events of its people and deals. `kinds` is a comma separated list of activity, note, deal_stage, deal_change, record_change, attachment and event. Answers `{ data, meta: { next_cursor } }`: pass `meta.next_cursor` back as `cursor` for the next page (null on the last one)", body = TimelinePageResponse),
         (status = 401, description = "Missing or invalid credentials (`unauthorized`, `invalid_api_token`)", body = ErrorEnvelope),
         (status = 403, description = "Missing read access to the record (`permission_denied`, `insufficient_scope`)", body = ErrorEnvelope),
         (status = 422, description = "Invalid record reference, kinds, cursor or page size (`validation_error`); unknown record type (`unsupported_record_type`)", body = ErrorEnvelope),
@@ -166,7 +166,7 @@ impl From<TimelineKind> for TimelineKindSchema {
 #[derive(Debug, Deserialize, IntoParams)]
 #[into_params(parameter_in = Query)]
 pub(crate) struct TimelineParams {
-    #[param(example = "companies.company")]
+    #[param(example = "organizations.organization")]
     pub(crate) record_type: String,
     pub(crate) record_id: String,
     pub(crate) cursor: Option<String>,

@@ -37,11 +37,11 @@
     "activity": "Tasks",
     "product": "Products",
     "note": "Notes",
-    "contacts": {
-      "contact": "Contacts"
+    "people": {
+      "person": "Contacts"
     },
-    "companies": {
-      "company": "Companies"
+    "organizations": {
+      "organization": "Companies"
     },
     "deals": {
       "deal": "Deals"
@@ -93,7 +93,7 @@
     "description": "Settings that apply only to you, in every organization.",
     "shortcuts": {
       "label": "Keyboard shortcuts",
-      "description": "Single-key shortcuts such as “g c” for contacts, “c” to create and “?” for help. Ctrl+K (or Cmd+K) keeps opening the palette when they are off.",
+      "description": "Single-key shortcuts such as “g c” for people, “c” to create and “?” for help. Ctrl+K (or Cmd+K) keeps opening the palette when they are off.",
       "showList": "Show the list of shortcuts"
     },
     "saved": "Preferences saved",

@@ -5,8 +5,8 @@ import {
 } from "@/features/custom-records";
 
 const RECORD_PATHS: Record<string, string> = {
-  'contacts.contact': "/contacts",
-  'companies.company': "/companies",
+  'people.person': "/people",
+  'organizations.organization': "/organizations",
   'deals.deal': "/deals",
   'activities.activity': "/tasks",
   'products.product': "/products",

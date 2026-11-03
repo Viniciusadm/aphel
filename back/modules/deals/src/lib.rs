@@ -275,8 +275,8 @@ impl Module for DealsModule {
             .required()
             .depends_on(pipelines::KEY, "*")
             .depends_on(currencies::KEY, "*")
-            .depends_on(contacts::KEY, "*")
-            .depends_on(companies::KEY, "*")
+            .depends_on(people::KEY, "*")
+            .depends_on(organizations::KEY, "*")
             .owned_tables(&[
                 "deals",
                 "deal_checklist_progress",

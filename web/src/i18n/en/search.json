@@ -1,7 +1,7 @@
 {
   "page": {
     "title": "Search",
-    "description": "Find contacts, companies, deals and activities by name, email, phone and other fields.",
+    "description": "Find people, organizations, deals and activities by name, email, phone and other fields.",
     "placeholder": "Search by name, email, phone…",
     "inputLabel": "Search term",
     "promptTitle": "What are you looking for?",
@@ -25,11 +25,11 @@
     "deal": "Deal",
     "activity": "Activity",
     "product": "Product",
-    "contacts": {
-      "contact": "Contact"
+    "people": {
+      "person": "Contact"
     },
-    "companies": {
-      "company": "Company"
+    "organizations": {
+      "organization": "Company"
     },
     "deals": {
       "deal": "Deal"
@@ -47,11 +47,11 @@
     "deal": "Deals",
     "activity": "Activities",
     "product": "Products",
-    "contacts": {
-      "contact": "Contacts"
+    "people": {
+      "person": "Contacts"
     },
-    "companies": {
-      "company": "Companies"
+    "organizations": {
+      "organization": "Companies"
     },
     "deals": {
       "deal": "Deals"

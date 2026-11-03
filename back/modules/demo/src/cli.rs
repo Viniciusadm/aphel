@@ -19,7 +19,7 @@ use aphel_kernel::infrastructure::audit::MySqlAuditLog;
 use aphel_kernel::infrastructure::defaults::sync_defaults;
 use aphel_kernel::infrastructure::events::MySqlEventPublisher;
 use aphel_kernel::infrastructure::fields::sync_system_fields;
-use aphel_kernel::infrastructure::organizations::organization_config_catalog;
+use aphel_kernel::infrastructure::organization_profile::organization_config_catalog;
 use aphel_kernel::infrastructure::secrets::build_secret_vault;
 use aphel_kernel::infrastructure::storage::DynamicFileStorage;
 use aphel_kernel::modules::{CommandResult, ModuleCommand, connect_with_modules};

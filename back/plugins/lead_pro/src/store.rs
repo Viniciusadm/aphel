@@ -41,7 +41,7 @@ pub(crate) async fn owner(
     contact_id: Uuid,
 ) -> Result<Option<String>, AppError> {
     let owner: Option<Option<String>> =
-        sqlx::query_scalar("SELECT owner_id FROM contacts WHERE id = ? AND deleted_at IS NULL")
+        sqlx::query_scalar("SELECT owner_id FROM people WHERE id = ? AND deleted_at IS NULL")
             .bind(contact_id.to_string())
             .fetch_optional(connection)
             .await?;
@@ -104,7 +104,7 @@ pub(crate) async fn cool_down(
     idle_since: DateTime<Utc>,
 ) -> Result<u64, AppError> {
     Ok(sqlx::query(
-        "UPDATE lead_pro_contact_extension e JOIN contacts c ON c.id = e.record_id SET e.lead_temperature = GREATEST(CAST(e.lead_temperature AS SIGNED) - ?, 0) \
+        "UPDATE lead_pro_contact_extension e JOIN people c ON c.id = e.record_id SET e.lead_temperature = GREATEST(CAST(e.lead_temperature AS SIGNED) - ?, 0) \
          WHERE e.lead_temperature > 0 AND c.deleted_at IS NULL AND NOT EXISTS \
          (SELECT 1 FROM lead_pro_touches t WHERE t.contact_id = c.id AND t.created_at >= ?)",
     )

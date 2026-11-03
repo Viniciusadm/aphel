@@ -296,8 +296,8 @@ impl Collector<'_> {
         };
         let items = match record_type {
             "deals.deal" => records::deals(self.ctx, link_field, record_id, RELATED_LIMIT).await,
-            "contacts.contact" => {
-                records::contacts(self.ctx, link_field, record_id, RELATED_LIMIT).await
+            "people.person" => {
+                records::people(self.ctx, link_field, record_id, RELATED_LIMIT).await
             }
             _ => return Vec::new(),
         }
@@ -353,16 +353,16 @@ pub(crate) async fn build(
         context.insert("recent_notes".to_owned(), Value::Array(notes));
         context.insert("recent_activities".to_owned(), Value::Array(activities));
         match record_type {
-            "contacts.contact" => {
+            "people.person" => {
                 let deals = collector
                     .related("deals.deal", "contact_id", record_id, &DEAL_KEYS)
                     .await;
                 context.insert("deals".to_owned(), Value::Array(deals));
             }
-            "companies.company" => {
-                let contacts = collector
+            "organizations.organization" => {
+                let people = collector
                     .related(
-                        "contacts.contact",
+                        "people.person",
                         "company_id",
                         record_id,
                         &["name", "job_title"],
@@ -371,7 +371,7 @@ pub(crate) async fn build(
                 let deals = collector
                     .related("deals.deal", "company_id", record_id, &DEAL_KEYS)
                     .await;
-                context.insert("contacts".to_owned(), Value::Array(contacts));
+                context.insert("people".to_owned(), Value::Array(people));
                 context.insert("deals".to_owned(), Value::Array(deals));
             }
             _ => {}

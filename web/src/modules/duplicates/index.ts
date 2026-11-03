@@ -15,7 +15,7 @@ const duplicatesModule = defineModule({
       label: 'settings:tabs.duplicates',
       description: 'settings:items.duplicates.description',
       icon: CopyCheck,
-      permission: 'contacts.read',
+      permission: 'people.read',
       order: 100,
       routes: duplicatesSettingsRoutes,
     })

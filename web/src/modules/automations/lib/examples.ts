@@ -134,12 +134,12 @@ export const AUTOMATION_EXAMPLES: AutomationExample[] = [
   },
   {
     key: 'welcome_contact',
-    recordType: 'contacts.contact',
+    recordType: 'people.person',
     trigger: 'record.created',
     build: ({ t }) => ({
       name: t('examples.welcome_contact.name'),
       description: t('examples.welcome_contact.description'),
-      record_type: 'contacts.contact',
+      record_type: 'people.person',
       trigger: { type: 'record.created' },
       definition: definition([
         {

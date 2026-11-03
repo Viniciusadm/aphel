@@ -504,7 +504,7 @@ async fn create_deal(
     if let Some(source) = &form.definition.source {
         deal_values.insert("source".to_owned(), json!(source));
     }
-    let lead = Lead::new(contacts::service::visible(ctx, &contact_id.to_string()).await?);
+    let lead = Lead::new(people::service::visible(ctx, &contact_id.to_string()).await?);
     let has_company = lead.contact.contact.data.company_id.is_some();
     let mut tx = ctx.begin().await?;
     let conversion = ctx
@@ -600,7 +600,7 @@ pub(crate) async fn accept(
             context,
             OWNER_UNAVAILABLE,
             format!(
-                "the acting user {} is no longer a member or lost the permission to create contacts or deals",
+                "the acting user {} is no longer a member or lost the permission to create people or deals",
                 form.acting_user()
             ),
         )

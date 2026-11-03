@@ -297,7 +297,7 @@ function EnrollmentsSection({ sequence }: { sequence: Sequence }) {
             {enrollments.data.data.map((enrollment) => (
               <TableRow key={enrollment.id} className="align-top">
                 <TableCell>
-                  <Link to={`/contacts/${encodeURIComponent(enrollment.contact_id)}`} className="font-medium hover:underline">
+                  <Link to={`/people/${encodeURIComponent(enrollment.contact_id)}`} className="font-medium hover:underline">
                     {enrollment.contact_name}
                   </Link>
                   {enrollment.contact_email && (

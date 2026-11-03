@@ -44,7 +44,7 @@ At query time, the `@<key>` key only goes into the `MATCH` if the role has the s
 
 Phone numbers (E.164, `+5511999998888`) are stored as digits only (`5511999998888`). Since n-grams match any contiguous substring, `11999998888`, `999998888` and `5511999998888` all find the same number. Phone-like text in text fields also gets a digits-only version.
 
-**Title and subtitle**: the title is the first indexed system text field with a value (in definition order: `name` for contacts and companies, `title` for deals and activities); the subtitle is the next indexed field with a value that is not contained in the title (for contacts, the email or phone; for companies, the domain).
+**Title and subtitle**: the title is the first indexed system text field with a value (in definition order: `name` for people and organizations, `title` for deals and activities); the subtitle is the next indexed field with a value that is not contained in the title (for people, the email or phone; for organizations, the domain).
 
 ## Query
 

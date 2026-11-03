@@ -26,7 +26,7 @@ function defaultPeriod(): { from: string; to: string } {
 
 export function LifecycleReportPage() {
   const { t } = useTranslation('leads')
-  const [recordType, setRecordType] = useState<LifecycleRecordType>('contacts.contact')
+  const [recordType, setRecordType] = useState<LifecycleRecordType>('people.person')
   const [period, setPeriod] = useState(defaultPeriod)
   const query = useMemo(() => ({ record_type: recordType, ...period }), [recordType, period])
   const report = useLifecycleReport(query)
@@ -127,7 +127,7 @@ function ReportContent({ report }: { report: LifecycleReport }) {
           </Table>
         </CardContent>
       </Card>
-      {report.record_type === 'contacts.contact' && (
+      {report.record_type === 'people.person' && (
         <Card>
           <CardHeader>
             <CardTitle>{t('report.disqualificationsTitle')}</CardTitle>

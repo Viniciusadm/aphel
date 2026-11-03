@@ -63,7 +63,7 @@ impl AutomationAction for EnrollInSequence {
     }
 
     fn supports(&self, record_type: &str) -> bool {
-        record_type == "contacts.contact"
+        record_type == "people.person"
     }
 
     fn required_permissions(&self, record_type: &str, _config: &Value) -> Vec<Permission> {

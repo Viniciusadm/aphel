@@ -74,7 +74,7 @@
       },
       "sales": {
         "label": "B2B sales",
-        "description": "A sales team selling products or services to other companies."
+        "description": "A sales team selling products or services to other organizations."
       },
       "other": {
         "label": "Other",
@@ -156,7 +156,7 @@
     "title": "All set!",
     "description": "Your workspace is ready to use.",
     "next": {
-      "import": "Bring your contacts and companies from a spreadsheet.",
+      "import": "Bring your people and organizations from a spreadsheet.",
       "invite": "Invite your team from Settings › Members.",
       "customize": "Adjust fields, pipelines and features whenever you need."
     },

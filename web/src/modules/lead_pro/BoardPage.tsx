@@ -35,7 +35,7 @@ export function BoardPage() {
           {board.data.data.map((lead) => (
             <li key={lead.contact_id} className="flex items-center justify-between gap-3 rounded-md border bg-card px-4 py-3">
               <div className="grid min-w-0">
-                <Link to={`/contacts/${lead.contact_id}`} className="truncate font-medium text-primary hover:underline">
+                <Link to={`/people/${lead.contact_id}`} className="truncate font-medium text-primary hover:underline">
                   {lead.name}
                 </Link>
                 {lead.email && <span className="truncate text-sm text-muted-foreground">{lead.email}</span>}

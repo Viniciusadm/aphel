@@ -2,8 +2,8 @@ use serde::{Deserialize, Serialize};
 use utoipa::ToSchema;
 
 use crate::api::dto::common::double_option;
-use crate::application::organizations::UpdateOrganizationCommand;
-use crate::domain::organizations::Organization;
+use crate::application::organization_profile::UpdateOrganizationCommand;
+use crate::domain::organization_profile::Organization;
 
 #[derive(Debug, Serialize, ToSchema)]
 pub struct OrganizationResponse {

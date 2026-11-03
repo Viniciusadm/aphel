@@ -14,7 +14,7 @@ web = "../../../web/src/modules/lead_pro"
 notifications = { package = "aphel-mod-notifications", path = "../../modules/notifications" }
 aphel-contract-crm.workspace = true
 aphel-kernel.workspace = true
-contacts = { package = "aphel-mod-contacts", path = "../../modules/contacts" }
+people = { package = "aphel-mod-people", path = "../../modules/people" }
 leads = { package = "aphel-mod-leads", path = "../../modules/leads" }
 deals = { package = "aphel-mod-deals", path = "../../modules/deals" }
 async-trait.workspace = true

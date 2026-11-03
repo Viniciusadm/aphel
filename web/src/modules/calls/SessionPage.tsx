@@ -14,7 +14,7 @@ import { ErrorState } from '@/components/ui/error-state'
 import { Skeleton } from '@/components/ui/skeleton'
 import { toast } from '@/components/ui/toast-store'
 import { recordTimelineSource } from '@/modules/timeline'
-import { contactResource } from '@/modules/contacts/resource'
+import { contactResource } from '@/modules/people/resource'
 import { recordsKeys } from '@/features/records/api'
 
 import { recordPath, recordTitle } from '@/features/records/resources'
@@ -31,7 +31,7 @@ import type { CallSession, CallSessionItem, StartedCall } from './types'
 import { PageHeader } from '@/components/ui/page-header'
 import { Page } from '@/components/ui/page'
 
-const CONTACT = 'contacts.contact'
+const CONTACT = 'people.person'
 
 export function SessionPage() {
   const { t } = useTranslation('calls')

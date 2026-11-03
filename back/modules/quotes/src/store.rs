@@ -612,8 +612,8 @@ impl QuoteStore {
              c.full_name AS contact_name, co.name AS company_name \
              FROM (SELECT 1 AS anchor) x \
              LEFT JOIN users u ON u.id = ? \
-             LEFT JOIN contacts c ON c.id = ? \
-             LEFT JOIN companies co ON co.id = ?",
+             LEFT JOIN people c ON c.id = ? \
+             LEFT JOIN organizations co ON co.id = ?",
         )
         .bind(quote.owner_id.as_ref().map(UserId::as_str))
         .bind(quote.contact_id.map(|id| id.to_string()))

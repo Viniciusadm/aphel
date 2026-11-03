@@ -201,12 +201,12 @@ impl MergeStore {
                             .await?,
                 );
                 moved.insert(
-                    "companies".to_owned(),
-                    step.unique_column_rows(tx, "contact_companies", "contact_id")
+                    "organizations".to_owned(),
+                    step.unique_column_rows(tx, "people_organizations", "contact_id")
                         .await?,
                 );
                 sqlx::query(
-                    "DELETE l FROM contact_companies l JOIN contacts c ON c.id = l.contact_id \
+                    "DELETE l FROM people_organizations l JOIN people c ON c.id = l.contact_id \
                      WHERE l.contact_id = ? AND l.company_id = c.company_id",
                 )
                 .bind(step.to.as_str())
@@ -215,14 +215,11 @@ impl MergeStore {
             }
             DuplicateFamily::Company => {
                 moved.insert(
-                    "contacts".to_owned(),
-                    step.update(
-                        tx,
-                        "UPDATE contacts SET company_id = ? WHERE company_id = ?",
-                    )
-                    .await?
+                    "people".to_owned(),
+                    step.update(tx, "UPDATE people SET company_id = ? WHERE company_id = ?")
+                        .await?
                         + step
-                            .unique_column_rows(tx, "contact_companies", "company_id")
+                            .unique_column_rows(tx, "people_organizations", "company_id")
                             .await?,
                 );
                 moved.insert(
@@ -231,7 +228,7 @@ impl MergeStore {
                         .await?,
                 );
                 sqlx::query(
-                    "DELETE l FROM contact_companies l JOIN contacts c ON c.id = l.contact_id \
+                    "DELETE l FROM people_organizations l JOIN people c ON c.id = l.contact_id \
                      WHERE l.company_id = ? AND c.company_id = l.company_id",
                 )
                 .bind(step.to.as_str())

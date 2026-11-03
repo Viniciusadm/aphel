@@ -302,7 +302,7 @@ pub(crate) fn parse_webhook(payload: &Value, phone_number_id: &str) -> WhatsappW
             continue;
         }
         let profiles: Vec<(&str, &str)> = value
-            .get("contacts")
+            .get("people")
             .and_then(Value::as_array)
             .into_iter()
             .flatten()

@@ -13,7 +13,7 @@ pub mod jobs;
 pub mod mail;
 pub(crate) mod module_admin;
 pub mod organization_admin;
-pub mod organizations;
+pub mod organization_profile;
 pub mod outbound_http;
 pub mod public_events;
 pub mod query;

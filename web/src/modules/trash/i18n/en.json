@@ -1,6 +1,6 @@
 {
   "title": "Trash",
-  "description": "Deleted records (contacts, companies, deals, products, activities, quotes and custom objects) stay here until they are purged. Restore one to bring it back with its links.",
+  "description": "Deleted records (people, organizations, deals, products, activities, quotes and custom objects) stay here until they are purged. Restore one to bring it back with its links.",
   "search": "Search the trash",
   "allTypes": "All types",
   "columns": {
@@ -44,11 +44,11 @@
     "product": "Products",
     "activity": "Activities",
     "quote": "Quotes",
-    "contacts": {
-      "contact": "Contacts"
+    "people": {
+      "person": "Contacts"
     },
-    "companies": {
-      "company": "Companies"
+    "organizations": {
+      "organization": "Companies"
     },
     "deals": {
       "deal": "Deals"

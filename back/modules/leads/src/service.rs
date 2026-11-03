@@ -49,11 +49,11 @@ use aphel_kernel::records::{
     InputValidator, RecordMutation, changes_payload, contributed_input, is_writable_contributed,
     merge_contributed, merge_violations, publish_mutation, write_contributed,
 };
-use companies::domain::{CompanyInput, SaveCompanyCommand};
-use contacts::domain::{CONTACT_UPDATED, ContactInput, SaveContactCommand, apply_contact_input};
-use contacts::service::contact_values;
-use contacts::store::ContactStore;
 use deals::domain::{DEAL_CREATED, DEAL_DELETED, DEAL_LOST, DEAL_REOPENED, DEAL_WON};
+use organizations::domain::{CompanyInput, SaveCompanyCommand};
+use people::domain::{CONTACT_UPDATED, ContactInput, SaveContactCommand, apply_contact_input};
+use people::service::contact_values;
+use people::store::ContactStore;
 
 pub(crate) const DISQUALIFICATION_REASON_NOT_FOUND: &str = "disqualification_reason_not_found";
 pub(crate) const DISQUALIFICATION_REASON_KEY_TAKEN: &str = "disqualification_reason_key_taken";
@@ -776,7 +776,7 @@ struct StageMove {
 
 async fn lead(ctx: &Ctx<'_>, contact_id: &str) -> Result<Lead, AppError> {
     Ok(Lead::new(
-        contacts::service::changeable(ctx, contact_id, &Permission::CONTACTS_UPDATE).await?,
+        people::service::changeable(ctx, contact_id, &Permission::CONTACTS_UPDATE).await?,
     ))
 }
 
@@ -917,7 +917,7 @@ pub(crate) async fn convert_lead(
     }
     let mut tx = ctx.begin().await?;
     let updated_at: chrono::NaiveDateTime = sqlx::query_scalar(
-        "SELECT updated_at FROM contacts WHERE id = ? AND deleted_at IS NULL FOR UPDATE",
+        "SELECT updated_at FROM people WHERE id = ? AND deleted_at IS NULL FOR UPDATE",
     )
     .bind(lead.id().to_string())
     .fetch_optional(&mut *tx)
@@ -1203,7 +1203,7 @@ impl LifecycleTransitions {
         let mut contributed = Map::new();
         contributed.insert(LIFECYCLE_STAGE_FIELD.to_owned(), json!(stage));
         if *record_type == RecordType::COMPANY {
-            companies::service::update(
+            organizations::service::update(
                 &ctx,
                 &id,
                 SaveCompanyCommand {
@@ -1216,7 +1216,7 @@ impl LifecycleTransitions {
             )
             .await?;
         } else {
-            contacts::service::update(
+            people::service::update(
                 &ctx,
                 &id,
                 SaveContactCommand {

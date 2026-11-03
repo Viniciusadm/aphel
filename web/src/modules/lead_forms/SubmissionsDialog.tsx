@@ -141,7 +141,7 @@ function SubmissionRow({ form, submission }: { form: LeadForm; submission: LeadF
       )}
       <div className="flex flex-wrap gap-3 text-xs">
         {submission.contact_id && (
-          <Link className="text-primary hover:underline" to={`/contacts/${encodeURIComponent(submission.contact_id)}`}>
+          <Link className="text-primary hover:underline" to={`/people/${encodeURIComponent(submission.contact_id)}`}>
             {submission.contact_created ? t('submissions.contactCreated') : t('submissions.contactReused')}
           </Link>
         )}

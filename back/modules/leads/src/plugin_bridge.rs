@@ -12,14 +12,14 @@ use aphel_kernel::modules::{
     HookCtx, OperationFuture, PluginHook, PluginHookKind, PluginOperation, forward_plugin_hook,
     operation_input, operation_output,
 };
-use contacts::domain::contact_snapshot;
+use people::domain::contact_snapshot;
 
 pub(crate) const QUALIFYING: &str = "lead.qualifying";
 pub(crate) const DISQUALIFYING: &str = "lead.disqualifying";
 pub(crate) const CONVERTING: &str = "lead.converting";
 pub(crate) const CONVERTED: &str = "lead.converted";
 
-const CONTACT: &str = "contacts.contact";
+const CONTACT: &str = "people.person";
 
 fn lead_json(lead: &Lead) -> Value {
     let contact = &lead.contact.contact;

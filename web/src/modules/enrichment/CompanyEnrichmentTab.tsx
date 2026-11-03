@@ -65,7 +65,7 @@ export function CompanyEnrichmentTab({ recordId, readOnly }: RecordTabRenderProp
   const { hasPermission } = useSession()
   const formatting = useRecordFormatting()
   const overview = useEnrichmentCompany(recordId)
-  const schema = useFieldSchema('companies.company')
+  const schema = useFieldSchema('organizations.organization')
   const invalidate = useInvalidateEnrichment()
   const [typedCnpj, setTypedCnpj] = useState<string | null>(null)
   const [lookup, setLookup] = useState<EnrichmentLookup | null>(null)
@@ -73,7 +73,7 @@ export function CompanyEnrichmentTab({ recordId, readOnly }: RecordTabRenderProp
   const [searching, setSearching] = useState(false)
   const [applying, setApplying] = useState(false)
   const canLookup = !readOnly && hasPermission(USE_PERMISSION)
-  const canApply = canLookup && hasPermission('companies.update')
+  const canApply = canLookup && hasPermission('organizations.update')
 
   const cnpj = typedCnpj ?? overview.data?.cnpj ?? ''
 

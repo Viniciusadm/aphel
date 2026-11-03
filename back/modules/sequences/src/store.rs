@@ -394,7 +394,7 @@ const ENROLLMENT_SELECT: &str = "SELECT e.id, e.sequence_id, s.name AS sequence_
      e.completed_at, e.exited_at, e.created_at, e.updated_at \
      FROM sequence_enrollments e \
      JOIN sequences s ON s.id = e.sequence_id \
-     JOIN contacts c ON c.id = e.contact_id \
+     JOIN people c ON c.id = e.contact_id \
      LEFT JOIN users u ON u.id = e.enrolled_by \
      WHERE TRUE";
 
@@ -672,7 +672,7 @@ impl EnrollmentStore {
     pub(crate) async fn live_contact_emails(&self) -> Result<Vec<(Uuid, String)>, AppError> {
         let rows = sqlx::query(
             "SELECT DISTINCT e.contact_id, c.email FROM sequence_enrollments e \
-             JOIN contacts c ON c.id = e.contact_id \
+             JOIN people c ON c.id = e.contact_id \
              WHERE e.status IN ('active', 'paused') \
              AND c.email IS NOT NULL",
         )
@@ -986,7 +986,7 @@ impl DirectoryStore {
         contact_id: Uuid,
     ) -> Result<Option<ContactTarget>, AppError> {
         let row = sqlx::query(
-            "SELECT id, full_name, email, deleted_at FROM contacts \
+            "SELECT id, full_name, email, deleted_at FROM people \
              WHERE id = ?",
         )
         .bind(contact_id.to_string())

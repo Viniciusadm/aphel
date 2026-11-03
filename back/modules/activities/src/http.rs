@@ -1007,7 +1007,7 @@ impl From<ActivityRecord> for ActivityResponse {
 #[derive(Debug, Deserialize, ToSchema)]
 #[serde(deny_unknown_fields)]
 pub(crate) struct RecordLinkRequest {
-    #[schema(example = "contacts.contact")]
+    #[schema(example = "people.person")]
     pub(crate) record_type: String,
     pub(crate) record_id: String,
 }
@@ -1033,7 +1033,7 @@ pub(crate) struct CreateActivityRequest {
     pub(crate) due_at: Option<String>,
     pub(crate) completed_at: Option<String>,
     pub(crate) owner_id: Option<String>,
-    #[schema(example = "contacts.contact")]
+    #[schema(example = "people.person")]
     pub(crate) record_type: Option<String>,
     pub(crate) record_id: Option<String>,
     pub(crate) links: Option<Vec<RecordLinkRequest>>,
@@ -1169,7 +1169,7 @@ impl UpdateActivityRequest {
 #[derive(Debug, Default, Deserialize, IntoParams)]
 #[into_params(parameter_in = Query)]
 pub(crate) struct ActivityListParams {
-    #[param(example = "contacts.contact")]
+    #[param(example = "people.person")]
     pub(crate) record_type: Option<String>,
     pub(crate) record_id: Option<String>,
     pub(crate) my_open: Option<bool>,

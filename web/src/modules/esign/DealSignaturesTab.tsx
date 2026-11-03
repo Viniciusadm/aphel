@@ -236,7 +236,7 @@ function SendDialog({ dealId, open, onOpenChange }: SendDialogProps) {
   const contactId = deal.data?.contact_id ?? null
   const contact = useQuery({
     queryKey: [...esignKeys.all, 'contact', contactId],
-    queryFn: () => api.get<Contact>(`/v1/contacts/${encodeURIComponent(contactId!)}`),
+    queryFn: () => api.get<Contact>(`/v1/people/${encodeURIComponent(contactId!)}`),
     enabled: open && Boolean(contactId),
   })
   const [fileId, setFileId] = useState<string | null>(null)

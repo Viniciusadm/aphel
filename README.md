@@ -2,9 +2,9 @@
 
 [![License: AGPL-3.0-or-later](https://img.shields.io/badge/license-AGPL--3.0--or--later-blue.svg)](LICENSE)
 
-**Aphel** is an open source CRM that is modular, configurable and extensible, ready to be used by freelancers, agencies, real estate agencies, consultancies, SaaS companies and sales teams.
+**Aphel** is an open source CRM that is modular, configurable and extensible, ready to be used by freelancers, agencies, real estate agencies, consultancies, SaaS organizations and sales teams.
 
-The core (contacts, companies, deals, activities and history) is the same for everyone; fields, pipelines, automations and modules adapt to each company without changing the code. It runs as **a single binary** (Rust) with the web interface (React) embedded, on top of MySQL. Each installation serves **one company** (the organization): to serve another company, spin up another installation with its own database.
+The core (people, organizations, deals, activities and history) is the same for everyone; fields, pipelines, automations and modules adapt to each company without changing the code. It runs as **a single binary** (Rust) with the web interface (React) embedded, on top of MySQL. Each installation serves **one company** (the organization): to serve another company, spin up another installation with its own database.
 
 > Current version: **0.1** (first usable version). See what already exists in [Features](#features-in-v01).
 
@@ -16,8 +16,8 @@ The images will be added to `docs/images/` later. To capture them, use an instal
 | --- | --- | --- |
 | `docs/images/dashboard.png` | Dashboard | `/` |
 | `docs/images/deals-kanban.png` | Deals on the Kanban board | `/deals` |
-| `docs/images/contact-detail.png` | Contact detail with timeline | `/contacts/<id>` |
-| `docs/images/contacts-list.png` | Contact list with a filter applied | `/contacts` |
+| `docs/images/contact-detail.png` | Contact detail with timeline | `/people/<id>` |
+| `docs/images/people-list.png` | Contact list with a filter applied | `/people` |
 | `docs/images/settings-fields.png` | Custom fields | `/settings/fields/contact` |
 | `docs/images/mobile.png` | Kanban on mobile (390 px, dark theme) | `/deals` |
 
@@ -26,7 +26,7 @@ The images will be added to `docs/images/` later. To capture them, use an instal
 - **Accounts and access:** first administrator created by the installer, other users by invitation, session sign-in, email verification, forgot password and 2FA.
 - **Permissions:** roles (administrator, manager, member and custom), per-module permissions with scope (own, team, organization), teams and sub-teams.
 - **Audit:** a log of who changed what and when, with diffs and sensitive data hidden.
-- **Contacts and companies:** complete records, linking contacts to several companies, normalized phone numbers (E.164), archiving.
+- **Contacts and organizations:** complete records, linking people to several organizations, normalized phone numbers (E.164), archiving.
 - **Deals:** pipeline with stages, Kanban with drag and drop (and a keyboard "Move to" menu), won and lost with reason, amounts per stage.
 - **Tasks and activities:** tasks with due date and assignee, logging of calls and meetings, "My tasks", reminders.
 - **Notes and timeline:** Markdown notes with mentions (`@name`), unified timeline per record.

@@ -5,7 +5,7 @@ Rules that every `/api/v1` resource follows. They apply to whoever writes routes
 ## Basics
 
 - `/api/v1` prefix, JSON in UTF-8, property names in `snake_case`.
-- Resources in the **plural** and paths in `kebab-case` (`/contacts`, `/pipeline-stages`, `/lost-reasons`). Non-CRUD actions become sub-resources with `POST` (`POST /deals/{id}/won`, `POST /contacts/{id}/archive`).
+- Resources in the **plural** and paths in `kebab-case` (`/people`, `/pipeline-stages`, `/lost-reasons`). Non-CRUD actions become sub-resources with `POST` (`POST /deals/{id}/won`, `POST /people/{id}/archive`).
 - IDs are UUID v7 as text. Enumerations are strings in `snake_case`.
 - A `POST` that creates responds **201**; `DELETE` responds **204** with no body; other successes respond **200**.
 
@@ -13,7 +13,7 @@ Rules that every `/api/v1` resource follows. They apply to whoever writes routes
 
 - **Browser:** `aphel_session` session cookie. Non-`GET` requests require `X-Requested-With: aphel`, except on public routes (`/api/v1/public/…` and `/api/v1/hooks/…`).
 - **Integrations:** `Authorization: Bearer aphel_<prefix>_<secret>`, created in **Settings → API tokens**. With Bearer the cookie is ignored and the CSRF header is not required.
-- Scopes `<resource>:read` / `<resource>:write`, derived from permissions (`contacts.read` → `contacts:read`; `contacts.create|update|delete|archive|export` → `contacts:write`; `settings.manage` → `settings:write`). A token never has more power than the user who created it **at the time of use**: the effective permission is the intersection of the scopes with the creator's current permissions. Routes that require no permission (e.g. listing tags, pipelines) accept any valid token.
+- Scopes `<resource>:read` / `<resource>:write`, derived from permissions (`people.read` → `people:read`; `people.create|update|delete|archive|export` → `people:write`; `settings.manage` → `settings:write`). A token never has more power than the user who created it **at the time of use**: the effective permission is the intersection of the scopes with the creator's current permissions. Routes that require no permission (e.g. listing tags, pipelines) accept any valid token.
 - Session and account routes (`/auth/*`, `/api-tokens`) do **not** accept tokens (403 `api_token_not_allowed`).
 - Invalid, revoked or expired token, or one whose creator is deactivated → 401 `invalid_api_token`. Insufficient scope → 403 `insufficient_scope`.
 - Per-token limit in a sliding window (default 600 requests/60 s, adjustable in Settings → API tokens → Limits). Every Bearer response carries `X-RateLimit-Limit`, `X-RateLimit-Remaining` and `X-RateLimit-Reset` (seconds until a slot frees up); when exceeded, 429 `rate_limited` with `Retry-After`.

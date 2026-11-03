@@ -386,7 +386,7 @@ pub(crate) async fn send(
     }
     for signer in &signers {
         if let Some(contact_id) = signer.contact_id {
-            load_record(ctx, scope, "contacts.contact", contact_id)
+            load_record(ctx, scope, "people.person", contact_id)
                 .await?
                 .ok_or_else(|| {
                     AppError::invalid_fields_code(

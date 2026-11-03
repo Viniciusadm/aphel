@@ -32,7 +32,7 @@ pub struct SearchResponse {
 
 #[derive(Debug, Serialize, ToSchema)]
 pub struct SearchGroupResponse {
-    #[schema(example = "contacts.contact")]
+    #[schema(example = "people.person")]
     pub record_type: String,
     pub total: u64,
     pub items: Vec<SearchHitResponse>,
@@ -41,7 +41,7 @@ pub struct SearchGroupResponse {
 #[derive(Debug, Serialize, ToSchema)]
 pub struct SearchHitResponse {
     pub id: String,
-    #[schema(example = "contacts.contact")]
+    #[schema(example = "people.person")]
     pub record_type: String,
     #[schema(example = "Maria Silva")]
     pub title: String,

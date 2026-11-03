@@ -14,7 +14,7 @@ use aphel_kernel::application::shared::{
     Actor, AuditEntry, AuditLog, DomainEvent, EventPublisher, FieldChange, RecordRef,
 };
 use aphel_kernel::domain::access::Permission;
-use aphel_kernel::domain::organizations::DEFAULT_LOCALE;
+use aphel_kernel::domain::organization_profile::DEFAULT_LOCALE;
 use aphel_kernel::errors::{AppError, FieldViolation};
 
 pub const ONBOARDING_NOT_PENDING: &str = "onboarding_not_pending";

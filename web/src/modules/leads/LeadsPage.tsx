@@ -9,7 +9,7 @@ import { toast } from '@/components/ui/toast-store'
 import { RecordListView } from '@/features/records/table'
 import { Overridable } from '@/kernel/modules/Overridable'
 import type { RecordItem } from '@/features/records/types'
-import { contactResource } from '@/modules/contacts/resource'
+import { contactResource } from '@/modules/people/resource'
 import { useLeadActions } from './api'
 import { CONTACT_RECORD_TYPE, LEAD_INBOX_FILTER, LEADS_REPORT_PATH } from './constants'
 import { ConvertLeadDialog } from './ConvertLeadDialog'
@@ -23,7 +23,7 @@ export function LeadsPage() {
   const { t } = useTranslation('leads')
   const navigate = useNavigate()
   const { hasPermission } = useSession()
-  const canUpdate = hasPermission('contacts.update')
+  const canUpdate = hasPermission('people.update')
   const canConvert = canUpdate && hasPermission('deals.create')
   const { qualify } = useLeadActions()
   const [disqualifying, setDisqualifying] = useState<LeadTarget | null>(null)

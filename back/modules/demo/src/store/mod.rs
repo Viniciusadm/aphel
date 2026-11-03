@@ -20,8 +20,8 @@ const TRACKED_SELECT: &str = "SELECT record_type, record_id FROM demo_records";
 const BUSINESS_TABLES: [&str; 7] = [
     "activities",
     "deals",
-    "contacts",
-    "companies",
+    "people",
+    "organizations",
     "products",
     "custom_records",
     "notes",
@@ -324,12 +324,12 @@ impl DemoStore {
             ),
             format!("DELETE FROM deals WHERE id IN {}", tracked_of("deals.deal")),
             format!(
-                "DELETE FROM contacts WHERE id IN {}",
-                tracked_of("contacts.contact")
+                "DELETE FROM people WHERE id IN {}",
+                tracked_of("people.person")
             ),
             format!(
-                "DELETE FROM companies WHERE id IN {}",
-                tracked_of("companies.company")
+                "DELETE FROM organizations WHERE id IN {}",
+                tracked_of("organizations.organization")
             ),
             format!(
                 "DELETE FROM field_definitions WHERE id IN {}",

@@ -8,10 +8,10 @@ use crate::application::installer::{FirstOrganization, InstallationRepository, I
 use crate::database::transaction::MySqlTx;
 use crate::errors::AppError;
 use crate::infrastructure::auth::{Argon2PasswordHasher, SystemClock};
-use crate::infrastructure::organizations::settings::write_configuration;
+use crate::infrastructure::organization_profile::settings::write_configuration;
 use crate::infrastructure::platform::{SharedAuditLog, SharedEventPublisher, SharedSecretVault};
 use crate::infrastructure::repositories::mapper;
-use crate::infrastructure::repositories::mysql_organizations::insert_registration;
+use crate::infrastructure::repositories::mysql_organization_profile::insert_registration;
 use crate::infrastructure::transactions::MySqlTransactionManager;
 
 #[derive(Clone)]

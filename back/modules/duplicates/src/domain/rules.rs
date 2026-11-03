@@ -8,8 +8,8 @@ pub(crate) enum DuplicateFamily {
 impl DuplicateFamily {
     pub(crate) fn of(record_type: &str) -> Self {
         match record_type {
-            "contacts.contact" => Self::Contact,
-            "companies.company" => Self::Company,
+            "people.person" => Self::Contact,
+            "organizations.organization" => Self::Company,
             _ => Self::Generic,
         }
     }

@@ -6,7 +6,7 @@ export const AI_KEY = 'ai'
 export const AI_PATH = '/ai'
 export const USE_PERMISSION = 'ai.use'
 export const VIEW_USAGE_PERMISSION = 'ai.view_usage'
-export const AI_RECORD_TYPES = ['contacts.contact', 'companies.company', 'deals.deal']
+export const AI_RECORD_TYPES = ['people.person', 'organizations.organization', 'deals.deal']
 export const CALLS_PER_PAGE = 20
 export const AI_FEATURES = ['summary', 'next_actions', 'compose', 'query'] as const
 

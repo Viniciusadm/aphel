@@ -273,7 +273,7 @@ impl From<NoteVisibilitySchema> for NoteVisibility {
 #[derive(Debug, Serialize, ToSchema)]
 pub struct NoteResponse {
     pub(crate) id: String,
-    #[schema(example = "contacts.contact")]
+    #[schema(example = "people.person")]
     pub(crate) record_type: String,
     pub(crate) record_id: String,
     pub(crate) author_id: Option<String>,
@@ -306,7 +306,7 @@ impl From<NoteView> for NoteResponse {
 #[derive(Debug, Deserialize, IntoParams)]
 #[into_params(parameter_in = Query)]
 pub(crate) struct NotesQueryParams {
-    #[param(example = "contacts.contact")]
+    #[param(example = "people.person")]
     pub(crate) record_type: String,
     pub(crate) record_id: String,
 }
@@ -323,7 +323,7 @@ impl From<NotesQueryParams> for ListNotesQuery {
 #[derive(Debug, Deserialize, ToSchema)]
 #[serde(deny_unknown_fields)]
 pub(crate) struct CreateNoteRequest {
-    #[schema(example = "contacts.contact")]
+    #[schema(example = "people.person")]
     pub(crate) record_type: String,
     pub(crate) record_id: String,
     pub(crate) body: String,

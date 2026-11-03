@@ -31,17 +31,17 @@ All of them validate their settings in `normalize_settings` (types, limits and *
 
 ### `insights.birthdays` — This month's birthdays
 
-- Permission: `contacts.read`. Uses neither the period nor the person filter (organization-wide list within the user's visibility).
+- Permission: `people.read`. Uses neither the period nor the person filter (organization-wide list within the user's visibility).
 - Widget setting: `limit` (5 to 50, default 10).
 - "Current month" is computed in the organization's time zone (`request.timezone`).
 - States: `not_configured` (no `birthday_field`), `field_unavailable` (field deleted, of another type or hidden from the role) and `ok`.
 
 **Strategy (the AST filter has no "month regardless of year"):**
 
-1. For each 40-year block from 1900 to the current year, an aggregation with an `or` of `between [YYYY-MM-01, YYYY-MM-last]` on the configured field, `group_by` on the field with `day` granularity and `count` (limit of 1000 groups). Result: the existing dates in the month and how many contacts there are on each one (the total shown comes from here).
-2. The dates are sorted by day starting from today (days already past go at the end) until they cover `limit` contacts.
+1. For each 40-year block from 1900 to the current year, an aggregation with an `or` of `between [YYYY-MM-01, YYYY-MM-last]` on the configured field, `group_by` on the field with `day` granularity and `count` (limit of 1000 groups). Result: the existing dates in the month and how many people there are on each one (the total shown comes from here).
+2. The dates are sorted by day starting from today (days already past go at the end) until they cover `limit` people.
 3. `find_records` in blocks of 40 dates (`or` of `eq`), sorted by name, up to `limit` ids.
-4. `get_record` on each id for name and date (with hidden fields already removed); the list comes out sorted by day and name, with a `/contacts/<id>` link.
+4. `get_record` on each id for name and date (with hidden fields already removed); the list comes out sorted by day and name, with a `/people/<id>` link.
 
 Known limits: dates before 1900 are left out; if a 40-year block has more than 1000 distinct dates in the month, the response comes with `truncated: true` and the widget shows a warning. The cost is 4 aggregations + up to `limit/40` searches + up to `limit` reads per load.
 

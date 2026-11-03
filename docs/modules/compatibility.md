@@ -40,7 +40,7 @@ Removing or renaming a stable item, changing a signature, changing when or in wh
 
 - Numbered within the module, applied in order and recorded in `module_migrations (module_key, version, checksum)`; modules run in load order (dependencies first).
 - An applied migration never changes; fix it with a new one.
-- A plugin may alter other modules' tables (`ALTER TABLE contacts ADD COLUMN ..`) as long as it declares `depends_on` on the owner and reverts the change in `uninstall_sql`.
+- A plugin may alter other modules' tables (`ALTER TABLE people ADD COLUMN ..`) as long as it declares `depends_on` on the owner and reverts the change in `uninstall_sql`.
 - `aphel modules uninstall <key> --purge` runs `uninstall_sql` and deletes the module's migration records, which run again if it is reinstalled.
 
 ## Third-party plugins

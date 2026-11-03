@@ -33,7 +33,7 @@ impl ApiTokenListParams {
 pub struct CreateApiTokenRequest {
     #[schema(example = "Website integration")]
     pub name: String,
-    #[schema(example = json!(["contacts:read", "contacts:write", "deals:write"]))]
+    #[schema(example = json!(["people:read", "people:write", "deals:write"]))]
     pub scopes: Vec<String>,
     #[schema(value_type = Option<String>, format = DateTime, example = "2027-01-31T23:59:59Z")]
     pub expires_at: Option<DateTime<Utc>>,
@@ -58,7 +58,7 @@ pub struct ApiTokenResponse {
     pub name: String,
     #[schema(example = "aphel_3f9a1c2b")]
     pub token_prefix: String,
-    #[schema(example = json!(["contacts:read", "contacts:write"]))]
+    #[schema(example = json!(["people:read", "people:write"]))]
     pub scopes: Vec<String>,
     pub created_by: String,
     pub created_by_name: Option<String>,
@@ -111,9 +111,9 @@ impl From<CreatedApiToken> for CreatedApiTokenResponse {
 
 #[derive(Debug, Serialize, ToSchema)]
 pub struct ApiTokenScopeResponse {
-    #[schema(example = "contacts:read")]
+    #[schema(example = "people:read")]
     pub scope: String,
-    #[schema(example = "contacts")]
+    #[schema(example = "people")]
     pub resource: String,
     #[schema(example = "read")]
     pub access: String,

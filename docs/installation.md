@@ -250,7 +250,7 @@ The interactive API documentation is at `/api/docs` and the OpenAPI document at 
 
 ## Demo data
 
-To explore Aphel with fictitious data (companies, contacts, deals in every stage, tasks, notes and sample custom fields), use the `demo` subcommand after the installer. It populates the current installation:
+To explore Aphel with fictitious data (organizations, people, deals in every stage, tasks, notes and sample custom fields), use the `demo` subcommand after the installer. It populates the current installation:
 
 ```bash
 aphel demo seed

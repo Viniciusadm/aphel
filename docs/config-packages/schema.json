@@ -590,7 +590,7 @@
         "color": { "$ref": "#/$defs/color" },
         "record_types": {
           "type": "array",
-          "description": "Empty = applies to contacts, companies and deals",
+          "description": "Empty = applies to people, organizations and deals",
           "items": { "enum": ["contact", "company", "deal"] }
         }
       }

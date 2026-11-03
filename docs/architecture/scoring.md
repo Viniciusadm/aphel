@@ -2,7 +2,7 @@
 
 Scoring models that add up points from the record's **profile** (`RecordQuery` filters) and **behavior** (signals coming from domain events), with decay over time, cold/warm/hot bands, an automation trigger when a band is crossed and an explanation of the score on the record detail.
 
-Code: `scoring` module (`back/modules/scoring`, session 31; depends on `contacts` and `companies`, enabled by default): `domain.rs` (model, signals, calculation), `engine.rs` (`ScoringEngine` over `&Ctx`), `service.rs` (use cases as functions over `&Ctx`), `runtime.rs` (worker consumer and jobs, `ScoringRuntime`), `store.rs` (`ModelStore`, `ScoreStore`), `directory.rs` (queries through the record engine), `automation.rs` (trigger), `section.rs` (package), `http.rs` (API `/api/v1/scoring`) and `migrations/0001_create_scoring.sql`. Web: `web/src/features/settings/scoring` (route `/settings/scoring` and the "Score" tab on the contact and company detail).
+Code: `scoring` module (`back/modules/scoring`, session 31; depends on `people` and `organizations`, enabled by default): `domain.rs` (model, signals, calculation), `engine.rs` (`ScoringEngine` over `&Ctx`), `service.rs` (use cases as functions over `&Ctx`), `runtime.rs` (worker consumer and jobs, `ScoringRuntime`), `store.rs` (`ModelStore`, `ScoreStore`), `directory.rs` (queries through the record engine), `automation.rs` (trigger), `section.rs` (package), `http.rs` (API `/api/v1/scoring`) and `migrations/0001_create_scoring.sql`. Web: `web/src/features/settings/scoring` (route `/settings/scoring` and the "Score" tab on the contact and company detail).
 
 `mod.rs` registers everything by itself: the `score` field on `contact` and `company` (`app.extend(.., |t| t.computed(score_field(..)))`), the `scoring.events` consumer, the `scoring.recalculate`/`scoring.decay` jobs and the schedule (`app.worker`), the routes, the OpenAPI tag, the `scoring.manage` permission (granted to `admin` via `grant_to`) and the public events `score.band_changed` (contact) and `score.company_band_changed` (company). With the module disabled, the consumer, jobs and routes stop (the `score` field stays in the record type registry).
 
@@ -49,7 +49,7 @@ points × max(0, 1 − age_in_days / decay_days)
 
 Signals are stored per record (independent of models), so a new criterion or model starts counting the history within the decay window. Signals are only recorded when the organization has at least one model (active or not).
 
-**Company:** contacts' signals count toward company models through the contact's current company (`contacts.company_id`, non-deleted contacts), in addition to the signals linked directly to the company.
+**Company:** people' signals count toward company models through the contact's current company (`people.company_id`, non-deleted people), in addition to the signals linked directly to the company.
 
 ## Recalculation
 
@@ -63,7 +63,7 @@ The full recalculation considers the union of: records matching some profile fil
 
 ## Bands and automation
 
-When a record's band changes, the engine publishes `score.band_changed` (`score.company_band_changed` for companies; `system` actor, record = the scored record) with `{ model, model_key, record_type, record_id, old_band, new_band, band, direction (up|down), old_score, score, changes }` and writes an audit entry, in the same transaction as the score.
+When a record's band changes, the engine publishes `score.band_changed` (`score.company_band_changed` for organizations; `system` actor, record = the scored record) with `{ model, model_key, record_type, record_id, old_band, new_band, band, direction (up|down), old_score, score, changes }` and writes an audit entry, in the same transaction as the score.
 
 Automation trigger `score.band_changed` (`modules/scoring/automation.rs`, in `TriggerRegistry::builtin()`, listens to both events): types `contact`, `company`, `deal`, `custom.*`; options `model_key`, `band` (`cold|warm|hot`, the new band) and `direction` (`up|down`).
 
@@ -103,4 +103,4 @@ Section `scoring_models` (`scoring::section::ScoringModelsSection`): `{ key, rec
 - Signals of permanently deleted records stay in `scoring_signals` (no cleanup on purge).
 - Signals prior to the organization's first model are not recorded.
 - `score` only exists as a system field on contact and company; for deals and custom objects the score is only available in the API and in the explanation.
-- The consumer does not recalculate companies when a company profile filter depends on contact data (`contacts` relationship); the daily job corrects it.
+- The consumer does not recalculate organizations when a company profile filter depends on contact data (`people` relationship); the daily job corrects it.

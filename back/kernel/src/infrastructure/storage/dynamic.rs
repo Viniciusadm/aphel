@@ -6,7 +6,7 @@ use bytes::Bytes;
 use futures::StreamExt;
 use uuid::Uuid;
 
-use crate::application::organizations::{
+use crate::application::organization_profile::{
     OrganizationConfig, OrganizationConfigCatalog, StorageProbe, StorageSettings,
     storage_secret_key,
 };

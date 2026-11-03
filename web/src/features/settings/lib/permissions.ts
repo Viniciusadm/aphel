@@ -16,8 +16,8 @@ export const RECORDS_SHARE = 'records.share'
 type SettingsKey = ParseKeys<'settings'>
 
 const moduleLabels: Record<string, SettingsKey> = {
-  contacts: 'permissions.modules.contacts',
-  companies: 'permissions.modules.companies',
+  people: 'permissions.modules.people',
+  organizations: 'permissions.modules.organizations',
   deals: 'permissions.modules.deals',
   activities: 'permissions.modules.activities',
   notes: 'permissions.modules.notes',

@@ -11,7 +11,7 @@
     "description": "Contacts with a temperature of {{threshold}} or more, hottest first.",
     "loading": "Loading the lead temperatures…",
     "empty": "No hot leads",
-    "emptyDescription": "Touches on contacts (activities, notes, e-mails and meetings) raise the temperature.",
+    "emptyDescription": "Touches on people (activities, notes, e-mails and meetings) raise the temperature.",
     "noAccess": "No access to hot leads",
     "noAccessDescription": "Ask an administrator for the permission to see Lead Pro."
   },

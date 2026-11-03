@@ -35,7 +35,7 @@ version = "2.0.0"              # semver
 description = "Stud farm"
 api = 1                        # plugin API version
 requires_aphel = ">=0.1.0"
-requires = ["deals.read", "contacts.read"]   # core permissions the plugin uses (see Capabilities)
+requires = ["deals.read", "people.read"]   # core permissions the plugin uses (see Capabilities)
 events = ["deal.won"]          # domain events the backend receives ("deal.*" works too)
 
 [[entities]]                   # new record types: custom objects managed by the plugin
@@ -249,7 +249,7 @@ A plugin never gets more than it declared, and never more than the person behind
 
 The installer is the administrator who installed the plugin; an upgrade makes the upgrading administrator the installer, because they give the consent again. If the installer is deactivated, events, schedules and public routes fail with 503 `plugin_owner_inactive` until someone reinstalls the plugin.
 
-Referencing a record counts as reading it. Writing a `record` field (for example, a contact in `owner_contact`) is validated with the plugin's scope, so the plugin needs read access to the referenced type (`contacts.read`). Without it, the reference is reported as not found.
+Referencing a record counts as reading it. Writing a `record` field (for example, a contact in `owner_contact`) is validated with the plugin's scope, so the plugin needs read access to the referenced type (`people.read`). Without it, the reference is reported as not found.
 
 ## Consent
 
@@ -295,7 +295,7 @@ Operations that act on the user's own data (favorites, reminders, following) nee
 | `action` | Runs inside the transaction after the change; an error rolls it back |
 
 Generic record hooks:
-- `record.saving` (filter), `record.validating`, `record.deleting` and `record.archiving` (veto, the last one for custom records and companies) and `record.saved` (action) run inside the transaction.
+- `record.saving` (filter), `record.validating`, `record.deleting` and `record.archiving` (veto, the last one for custom records and organizations) and `record.saved` (action) run inside the transaction.
 - `record.committed` runs after the commit; its errors are only logged.
 - `record.deleted`, `record.restored` and `record.purged` (action) run inside the transaction of the deletion, restore or purge.
 
@@ -703,7 +703,7 @@ A declaration with `storage = "managed"` gets its own deterministic table, typed
 
 `GET /api/v1/entities` lists readable entity definitions and their storage. Record lists and mutations use `/api/v1/entities/{entity}/records` and `/api/v1/entities/{entity}/records/{id}`. Entity keys and record types use `<plugin>.<entity>`; organization-created objects use `custom.<key>`. Existing native record aliases are accepted at input boundaries and normalized. A transactional migration rewrites stored identities and dynamic permission/event prefixes. Native public event names stay stable. Managed entities use the generic handler with field validation, field permissions, record scope, hooks, audit, outbox events and custom fields. Versioned updates accept `If-Match`.
 
-Native tables without a behaviour handler must explicitly opt into generic writes with `generic_mutations(create_permission, delete_permission)` and declare their update permission. `contacts` uses the default handler for transaction orchestration, generic reads, deletion and archival. Its `EntityWriteBehavior` preserves contact normalization, duplicates and company-link invariants in transactional writes. Dynamic object routes remain available for dynamic storage; managed records use the generic entity routes.
+Native tables without a behaviour handler must explicitly opt into generic writes with `generic_mutations(create_permission, delete_permission)` and declare their update permission. `people` uses the default handler for transaction orchestration, generic reads, deletion and archival. Its `EntityWriteBehavior` preserves contact normalization, duplicates and company-link invariants in transactional writes. Dynamic object routes remain available for dynamic storage; managed records use the generic entity routes.
 
 Generate a managed entity schema without a database:
 

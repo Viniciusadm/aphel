@@ -12,7 +12,7 @@ use crate::application::auth::{
     SessionStage, UserRepository, UserTokenPurpose, UserTokenRecord, UserTokenRepository,
 };
 use crate::application::mail::{EmailMessage, MailLocale, Mailer, templates};
-use crate::application::organizations::OrganizationRepository;
+use crate::application::organization_profile::OrganizationRepository;
 use crate::application::security::{
     Clock, LoginAttempt, LoginFailure, LoginMonitor, PasswordHasher, SecureTokens,
     password_violation,
@@ -383,7 +383,7 @@ where
         let (_, user) = self.pending_invitation(token).await?;
         let organization = self
             .ports
-            .organizations()
+            .organization_profile()
             .find()
             .await?
             .ok_or_else(invalid_token)?;
@@ -505,7 +505,7 @@ where
     }
 
     async fn overview(&self, user: User, scope: AccessScope) -> Result<AccountOverview, AppError> {
-        let organization = self.ports.organizations().find().await?;
+        let organization = self.ports.organization_profile().find().await?;
         let two_factor = self.ports.two_factor().status(&user.id, &scope).await?;
         Ok(AccountOverview {
             user,

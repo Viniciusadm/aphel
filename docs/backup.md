@@ -138,7 +138,7 @@ Through the API (all non-GET calls with `X-Requested-With: aphel`):
 | Step | Call | Result |
 | --- | --- | --- |
 | Installation (organization "Teste Backup" + admin `ana@backup.test`) | `POST /api/v1/installer` | 201 |
-| Contact "Carlos Restaurado" | `POST /api/v1/contacts` | 201, mobile normalized to `+5511988887777` |
+| Contact "Carlos Restaurado" | `POST /api/v1/people` | 201, mobile normalized to `+5511988887777` |
 | Attachment `anexo.csv` on the contact | `POST /api/v1/files` (multipart with `record_type=contact` and `record_id`) | 201; file written to `src-run/storage/2026/10/<id>`, SHA-256 `bf82f810…8923e` |
 
 ### 3. Backup with Aphel running
@@ -171,7 +171,7 @@ Aphel pointing to the destination (`DATABASE_URL=...:3322/aphel`, running in `ds
 | --- | --- |
 | Boot | No pending migrations (37 applied), no errors or warnings in the log |
 | `POST /api/v1/auth/login` with `ana@backup.test` | 200 |
-| `GET /api/v1/contacts/{id}` and search `?search=Restaurado` | 200, contact found (`total: 1`) |
+| `GET /api/v1/people/{id}` and search `?search=Restaurado` | 200, contact found (`total: 1`) |
 | `GET /api/v1/attachments?record_type=contact&record_id={id}` | 200, one attachment |
 | `GET /api/v1/files/{id}` (download) | 200, SHA-256 identical to the original file's |
 | Session cookie issued by the source | Still valid at the destination (`GET /auth/me` 200) |

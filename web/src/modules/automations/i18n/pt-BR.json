@@ -59,11 +59,11 @@
     "company": "Empresa",
     "deal": "Oportunidade",
     "activity": "Atividade",
-    "contacts": {
-      "contact": "Contato"
+    "people": {
+      "person": "Contato"
     },
-    "companies": {
-      "company": "Empresa"
+    "organizations": {
+      "organization": "Empresa"
     },
     "deals": {
       "deal": "Oportunidade"

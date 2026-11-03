@@ -18,7 +18,7 @@ import type {
 } from './types'
 
 const id = encodeURIComponent
-const CONTACT: LifecycleRecordType = 'contacts.contact'
+const CONTACT: LifecycleRecordType = 'people.person'
 const REASONS_PATH = '/v1/lead-disqualification-reasons'
 
 export const lifecycleKeys = {

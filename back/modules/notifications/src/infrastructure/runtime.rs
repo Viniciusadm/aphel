@@ -25,7 +25,7 @@ pub struct NotificationWorkerParts {
 pub fn notification_worker_parts(
     pool: MySqlPool,
     mailers: SharedOrganizationMailerResolver,
-    app_base_url: impl Into<aphel_kernel::application::organizations::PublicBaseUrl>,
+    app_base_url: impl Into<aphel_kernel::application::organization_profile::PublicBaseUrl>,
 ) -> NotificationWorkerParts {
     let purge = crate::infrastructure::notifications_purge_handler(pool.clone());
     let ports = MySqlNotificationPorts::new(
@@ -54,7 +54,7 @@ pub fn notification_worker_parts(
 struct OrganizationNotificationEmailHandler {
     ports: MySqlNotificationPorts,
     mailers: SharedOrganizationMailerResolver,
-    app_base_url: aphel_kernel::application::organizations::PublicBaseUrl,
+    app_base_url: aphel_kernel::application::organization_profile::PublicBaseUrl,
 }
 
 #[async_trait]

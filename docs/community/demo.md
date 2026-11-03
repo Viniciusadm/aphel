@@ -27,7 +27,7 @@ Variables: `DEMO_MODE`, `DEMO_USER_EMAIL` (default `demo@aphel.demo`), `DEMO_USE
 
 ## Demo visitor
 
-`aphel demo seed` creates the user `DEMO_USER_EMAIL` (or, if it already exists, resets the password, turns off 2FA, ends sessions and deletes the tokens of that user), with its own role `demo_visitor` ("Visitante da demonstração"): read, create, edit, delete and archive records (contacts, companies, deals, activities, notes, products and goals) with organization scope, **without** export, settings, users and roles, audit, privacy, automations, lead distribution, system or organization export. Outside `DEMO_MODE`, the visitor is only created if `--visitor-email` is given.
+`aphel demo seed` creates the user `DEMO_USER_EMAIL` (or, if it already exists, resets the password, turns off 2FA, ends sessions and deletes the tokens of that user), with its own role `demo_visitor` ("Visitante da demonstração"): read, create, edit, delete and archive records (people, organizations, deals, activities, notes, products and goals) with organization scope, **without** export, settings, users and roles, audit, privacy, automations, lead distribution, system or organization export. Outside `DEMO_MODE`, the visitor is only created if `--visitor-email` is given.
 
 ## Daily reset
 

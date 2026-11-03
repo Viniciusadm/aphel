@@ -3,11 +3,11 @@
     "contact": "Contacts",
     "company": "Companies",
     "deal": "Deals",
-    "contacts": {
-      "contact": "Contacts"
+    "people": {
+      "person": "Contacts"
     },
-    "companies": {
-      "company": "Companies"
+    "organizations": {
+      "organization": "Companies"
     },
     "deals": {
       "deal": "Deals"
@@ -28,7 +28,7 @@
   },
   "settings": {
     "title": "Tags",
-    "description": "Tags label contacts, companies and deals and can be used in filters, segments and bulk actions.",
+    "description": "Tags label people, organizations and deals and can be used in filters, segments and bulk actions.",
     "new": "New tag",
     "newTitle": "New tag",
     "editTitle": "Edit tag",

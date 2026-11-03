@@ -6,7 +6,7 @@
 
 Aphel has 251 thousand lines of backend code in one crate (`back/src`) and 106 thousand in the frontend. It **already has an extension system**: the `aphel-extension-api` crate, 10 extensions in `back/extensions/*` behind `ext-<key>` features, and `web/src/extensions`. That system, however, is a side door:
 
-- The business modules (contacts, deals, leads...) do not use this system. They are hand-stitched into the core.
+- The business modules (people, deals, leads...) do not use this system. They are hand-stitched into the core.
 - An extension can only **add** things: routes, widgets, actions, providers and new types. It cannot:
   - intercept a core operation before or during its execution;
   - change data in transit;
@@ -38,7 +38,7 @@ Decisions made with you:
 | 9 | 84 `*Ports` traits with associated types bound to `Tx`, plus 83 `MySql*Ports` impls | `application/*/ports.rs`, `infrastructure/repositories/*` | Replacing a behavior requires rewriting the generic bundle. Each module carries 35 to 50 lines of getters |
 | 10 | Migrations in a single folder, with `NNXX_` ranges per session | `back/migrations` (195 files) | The module does not own its schema and cannot be removed |
 | 11 | Default permission grants in SQL migrations | 9 `*_grant_*_permissions.sql` files | Module permissions depend on SQL in the core |
-| 12 | Extensions restricted to `ext_<key>_*` tables | `extensions/migrations.rs` (`foreign_tables()`) | It is not possible to `ALTER TABLE contacts` or extend an entity |
+| 12 | Extensions restricted to `ext_<key>_*` tables | `extensions/migrations.rs` (`foreign_tables()`) | It is not possible to `ALTER TABLE people` or extend an entity |
 | 13 | Web: central lists | `app/routes.tsx` (25 imports), `layout/navigation.ts` (`NAVIGATION_ITEMS`), `settings/lib/sections.ts` and `settings/routes.tsx`, `i18n/index.ts` (85 JSON files and `NAMESPACES`) | Every new screen or translation requires editing the core |
 | 14 | Web: screens compose tabs through direct imports | `ContactDetailPage.tsx` uses `useLifecycleTab`, `useScoringTab`, `withRelationsTab`... | A module cannot inject anything into another without editing the file |
 | 15 | Web: closed field types | `switch` in `components/fields/FieldInput.tsx:43` and `records/display/FieldValueDisplay.tsx:85` | There is no plugin field type |
@@ -72,7 +72,7 @@ web/src/
   modules/<key>/     one package per module (index.ts + screens + i18n)
 ```
 
-**A single concept: module.** The modules that ship with Aphel, the former "extensions" and third-party plugins have the same format, the same API and the same lifecycle. There is no "business core": `contacts` is a module like any other, it just comes enabled by default.
+**A single concept: module.** The modules that ship with Aphel, the former "extensions" and third-party plugins have the same format, the same API and the same lifecycle. There is no "business core": `people` is a module like any other, it just comes enabled by default.
 
 **The kernel (`aphel-kernel`) contains only:**
 
@@ -85,7 +85,7 @@ web/src/
 
 **Modules** are everything else. Some are business modules:
 
-- `contacts`, `companies`, `deals`, `pipelines`, `activities`, `notes`;
+- `people`, `organizations`, `deals`, `pipelines`, `activities`, `notes`;
 - `leads` (the current `lifecycle`), `scoring`, `lead_distribution`;
 - `products`, `price_lists`, `quotes`, `approvals`, `deal_items`, `renewals`, `currencies`;
 - `email`, `sequences`, `scheduling`, `calls`.
@@ -144,7 +144,7 @@ The `AppBuilder` is the only contribution point. Each call is tagged with the mo
 
 `AppState` keeps 18 platform fields plus `app`. `serve` and the worker build the same `App`, which eliminates the worker's fake `AppState`.
 
-**Enabling or disabling without restarting** works like it does today with extensions. Everything that was compiled registers itself. Each contribution stores the module key, and dispatch, whether of a hook, route, consumer, job or menu, checks the cached enabled set (`installed_modules`, renamed from `installed_extensions`, invalidated on write). Modules marked `required` in the build manifest, such as `contacts`, cannot be disabled. The current dependency check still applies.
+**Enabling or disabling without restarting** works like it does today with extensions. Everything that was compiled registers itself. Each contribution stores the module key, and dispatch, whether of a hook, route, consumer, job or menu, checks the cached enabled set (`installed_modules`, renamed from `installed_extensions`, invalidated on write). Modules marked `required` in the build manifest, such as `people`, cannot be disabled. The current dependency check still applies.
 
 ### 2.3 Hooks: actions, filters and vetoes, typed and synchronous
 
@@ -201,7 +201,7 @@ There are three levels, from the finest to the coarsest:
 
 1. **Filter:** changes data in the middle of an existing flow.
 2. **Replaceable service:** each module exposes the swappable parts as `Arc<dyn Trait>` in the `Services` container, for example:
-   - `contacts::DuplicateDetector`;
+   - `people::DuplicateDetector`;
    - `leads::LeadConverter`;
    - `deals::AmountCalculator`;
    - `email::Sender`.
@@ -246,9 +246,9 @@ The roughly 20 `match` blocks disappear. A new plugin type automatically gets im
 There are four ways, none of which touch the owning module:
 
 1. **Code-managed field (EAV):** `managed_field(..)`. No migration needed. It shows up in forms, filters, columns, imports and the API automatically, because everything is schema-driven.
-2. **Own column:** the plugin's migration can do `ALTER TABLE contacts ADD COLUMN ...` (the `ext_<key>_` restriction is dropped), and `extend` declares a `SystemField` over that column. It is faster for filtering and sorting.
-3. **1:1 or 1:N side table** (`leadpro_contact_insights` with an FK to `contacts`), plus `relation(..)` or `computed(..)` on the type. This makes the fields filterable via `EXISTS` in `RecordQuery`.
-4. **Behavior:** hooks and filters over the type, plus Rust *extension traits* over the module's public types (`impl LeadProExt for contacts::Contact`) for "new methods".
+2. **Own column:** the plugin's migration can do `ALTER TABLE people ADD COLUMN ...` (the `ext_<key>_` restriction is dropped), and `extend` declares a `SystemField` over that column. It is faster for filtering and sorting.
+3. **1:1 or 1:N side table** (`leadpro_contact_insights` with an FK to `people`), plus `relation(..)` or `computed(..)` on the type. This makes the fields filterable via `EXISTS` in `RecordQuery`.
+4. **Behavior:** hooks and filters over the type, plus Rust *extension traits* over the module's public types (`impl LeadProExt for people::Contact`) for "new methods".
 
 ### 2.8 Dependencies between modules
 
@@ -271,7 +271,7 @@ There are four ways, none of which touch the owning module:
 
 ```toml
 [modules]
-contacts = { path = "modules/contacts", required = true }
+people = { path = "modules/people", required = true }
 leads = { path = "modules/leads" }
 lead_pro = { path = "plugins/lead_pro" }
 lead_pro_git = { git = "https://github.com/acme/aphel-lead-pro", tag = "v1.2.0" }
@@ -279,7 +279,7 @@ lead_pro_git = { git = "https://github.com/acme/aphel-lead-pro", tag = "v1.2.0" 
 
 `cargo xtask modules sync` (or `make modules`) generates two things:
 
-- **On the backend:** the dependencies in `app/Cargo.toml` and `app/src/modules.rs` (`vec![Box::new(contacts::Module), ...]`).
+- **On the backend:** the dependencies in `app/Cargo.toml` and `app/src/modules.rs` (`vec![Box::new(people::Module), ...]`).
 - **On the web:** `web/src/modules.generated.ts` with the web packages of the same modules and the path of each one.
 
 Installing a plugin means adding a line and running `make build`. Removing it means deleting the line. No kernel file is edited.
@@ -314,7 +314,7 @@ What changes on the web:
 - **Named slots** (`<Slot name="..." props={..} />`) in the generic blocks of `features/records`:
   - detail header and actions, field panel, tabs, list row and bulk actions, form sections, sidebar;
   - dashboard, note or email composer, user menu.
-- **Overridable components** (`<Overridable id="contacts.DetailPage" .../>`) in the main screens of each module.
+- **Overridable components** (`<Overridable id="people.DetailPage" .../>`) in the main screens of each module.
 - **Frontend filters** (`applyFilters('records.columns', cols, ctx)`), for columns, form layout, menu items and command palette commands.
 - **Field type registry:** `FieldInput` and `FieldValueDisplay` query the registry instead of the `switch`. Native types are registered by the kernel.
 - Module pages (`ContactDetailPage`) no longer import tabs from other modules. `leads` and `scoring` register their tabs on `contact`.
@@ -331,11 +331,11 @@ In Aphel, **a Lead is a contact** with `lifecycle_stage = lead`. Today this conc
 - the hooks `LeadQualifying`, `LeadConverting` and `LeadDisqualifying`;
 - the `dyn LeadConverter` service.
 
-The plugin extends all of this without editing `contacts` or `leads`.
+The plugin extends all of this without editing `people` or `leads`.
 
 ```
 back/plugins/lead_pro/
-  Cargo.toml          aphel-kernel, aphel-mod-contacts, aphel-mod-leads, aphel-mod-deals
+  Cargo.toml          aphel-kernel, aphel-mod-people, aphel-mod-leads, aphel-mod-deals
   migrations/0001_lead_pro.sql
   src/lib.rs  hooks.rs  scoring.rs  converter.rs  http.rs
 web/src/modules/lead_pro/   index.ts  pages/  components/  i18n/
@@ -344,8 +344,8 @@ web/src/modules/lead_pro/   index.ts  pages/  components/  i18n/
 `migrations/0001_lead_pro.sql`:
 
 ```sql
-ALTER TABLE contacts ADD COLUMN lead_temperature TINYINT NULL, ADD INDEX idx_contacts_lead_temperature (lead_temperature);
-CREATE TABLE lead_pro_touches (id CHAR(36) PRIMARY KEY, contact_id CHAR(36) NOT NULL, kind VARCHAR(32) NOT NULL, created_at DATETIME(3) NOT NULL, FOREIGN KEY (contact_id) REFERENCES contacts(id) ON DELETE CASCADE);
+ALTER TABLE people ADD COLUMN lead_temperature TINYINT NULL, ADD INDEX idx_contacts_lead_temperature (lead_temperature);
+CREATE TABLE lead_pro_touches (id CHAR(36) PRIMARY KEY, contact_id CHAR(36) NOT NULL, kind VARCHAR(32) NOT NULL, created_at DATETIME(3) NOT NULL, FOREIGN KEY (contact_id) REFERENCES people(id) ON DELETE CASCADE);
 ```
 
 `src/lib.rs`:
@@ -393,7 +393,7 @@ impl Module for LeadPro {
 ```rust
 pub async fn require_temperature(ctx: &mut HookCtx<'_>, args: &leads::LeadQualifyingArgs<'_>) -> Result<(), AppError> {
     let threshold = ctx.settings::<i64>("lead_pro", "hot_threshold")?;
-    match contacts::store::get_column::<i64>(ctx.tx(), args.lead.id, "lead_temperature").await? {
+    match people::store::get_column::<i64>(ctx.tx(), args.lead.id, "lead_temperature").await? {
         Some(value) if value >= threshold => Ok(()),
         _ => Err(AppError::unprocessable("lead_not_hot_enough")),
     }
@@ -420,7 +420,7 @@ The order is designed to keep the binary compiling after every session. First th
 |---|---|---|
 | **29 Module kernel** | Foundation | `Module` trait, `Manifest`, `AppBuilder`, `App`, `HookBus` (action, filter and veto with priority), `Services` (provide and decorate). Open catalogs of permissions (with `grant_to`), public events (the `PublicResource` enum goes away), notification kinds (the enum goes away), OpenAPI tags, routes and worker parts. `installed_extensions` → `installed_modules`; `extension_migrations` → `module_migrations`. Create `aphel modules list\|doctor\|uninstall` |
 | **30 Record pipeline** | Foundation | `records::save/delete` in the kernel, with the hooks `RecordSaving`, `RecordValidating`, `RecordSaved`, `RecordCommitted`, `RecordDeleting`, `RecordQueryFilter` and `RecordSerializing`. The `record_write_guard()` chain becomes hooks registered by approvals, pipelines, validation_rules and leads. `RecordTypeHandler` and `extend`/`managed_field`. The ~20 `match "contact"` blocks switch to the handler. `AutomationGateway` leaves `api/` |
-| **31 Pilot: contacts, companies, leads, scoring** | Foundation | Move to `src/modules/<key>/` in the new pattern (concrete `Ctx`, no `*Ports`), with migrations consolidated per module, `Lead*` hooks and the `LeadConverter` service. Validates the design before scaling |
+| **31 Pilot: people, organizations, leads, scoring** | Foundation | Move to `src/modules/<key>/` in the new pattern (concrete `Ctx`, no `*Ports`), with migrations consolidated per module, `Lead*` hooks and the `LeadConverter` service. Validates the design before scaling |
 | **32 Web kernel** | Foundation + parallel | `defineModule`, registries for routes, menu, settings and i18n, `Slot`, `Overridable`, `applyFilters`, field type registry, gating via `/api/v1/modules`. Convert the 10 web extensions and the pilots |
 | **33 Revenue modules** | Parallel (4) | deals, pipelines, deal_items, renewals, currencies · products, price_lists, quotes, approvals · activities, notes, reminders, calls · forecast, goals |
 | **34 Communication and platform modules** | Parallel (4) | email, sequences, scheduling · automations, webhooks, integrations · imports, exports, bulk_actions, org_export, privacy · timeline, tags, followers, record_sharing, favorites, trash, duplicates, search, dashboard, reports, config_packages, demo |
@@ -486,7 +486,7 @@ The order is designed to keep the binary compiling after every session. First th
 - **`ALTER TABLE` on another module's table** couples the schema. Removing the plugin requires an `uninstall.sql` to clean up columns. Without it, the column is left orphaned, but it is harmless.
 - **The end of generic `*Ports`** no longer allows fakes for unit tests. Today this does not matter, because tests are forbidden. When they come back, the natural path is integration tests with MySQL.
 - **Size of the migration:** about 250 thousand lines reorganized in eight sessions. The biggest risk is in sessions 30, 31 and 36, which cut cycles between modules (for example email ↔ sequences ↔ quotes in the worker). The pilot exists to fix the design before scaling.
-- **Enabling and disabling at run time** keeps the cost of checking the enabled set on every dispatch, with an in-memory cache invalidated on write. Disabling `contacts` is blocked by `required` and by dependencies.
+- **Enabling and disabling at run time** keeps the cost of checking the enabled set on every dispatch, with an in-memory cache invalidated on write. Disabling `people` is blocked by `required` and by dependencies.
 - **Web:** everything stays in the main bundle, with `lazy` pages. A disabled module still adds to the download, but executes nothing.
 
 ---
@@ -495,7 +495,7 @@ The order is designed to keep the binary compiling after every session. First th
 
 1. **Session 29:** module kernel (`Module`/`AppBuilder`/`HookBus`/`Services`, open catalogs, `installed_modules`, `module_migrations`).
 2. **Session 30:** record pipeline with hooks and `RecordTypeHandler`. The end of per-type `match` blocks and of `AutomationGateway` in `api/`.
-3. **Session 31:** pilot of contacts, companies, leads and scoring in the new pattern, without `*Ports`.
+3. **Session 31:** pilot of people, organizations, leads and scoring in the new pattern, without `*Ports`.
 4. **Session 32:** web kernel (`defineModule`, slots, overrides, filters, field types, registries for routes, menu, settings and i18n).
 5. **Sessions 33–34:** migration of the remaining modules in parallel.
 6. **Session 35:** former extensions as modules; removal of `aphel-extension-api`.

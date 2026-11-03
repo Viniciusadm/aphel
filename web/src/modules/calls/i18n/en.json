@@ -52,18 +52,18 @@
     "lastActiveOutcome": "The organization needs at least one active outcome.",
     "versionConflict": "Someone else changed this. Reload and try again.",
     "sessionCompleted": "This session is already finished.",
-    "sessionEmpty": "The view has no contacts to call.",
+    "sessionEmpty": "The view has no people to call.",
     "viewNotFound": "Contact view not found.",
     "providerNotFound": "The telephony provider is not available.",
     "noCallType": "The organization has no active Call activity type."
   },
   "start": {
     "title": "New call session",
-    "description": "Pick a saved view of contacts: its contacts become the session queue.",
+    "description": "Pick a saved view of people: its people become the session queue.",
     "view": "Contact view",
     "pickView": "Pick a view",
     "viewRequired": "Pick the contact view.",
-    "viewHint": "Uses the view filter and sort, up to 500 contacts.",
+    "viewHint": "Uses the view filter and sort, up to 500 people.",
     "name": "Session name",
     "script": "Script",
     "scriptPlaceholder": "Talking points shown during the calls",
@@ -72,24 +72,24 @@
   "sessions": {
     "title": "My sessions",
     "emptyTitle": "No sessions yet",
-    "emptyDescription": "Start a session to call the contacts of a view one after another.",
+    "emptyDescription": "Start a session to call the people of a view one after another.",
     "startedAt": "Started on {{date}}",
-    "contacts_one": "{{count}} contact",
-    "contacts_other": "{{count}} contacts",
     "status": {
       "active": "In progress",
       "completed": "Finished"
-    }
+    },
+    "people_one": "{{count}} contact",
+    "people_other": "{{count}} people"
   },
   "session": {
     "back": "Back to calls",
-    "progress": "{{done}} of {{total}} contacts",
+    "progress": "{{done}} of {{total}} people",
     "counts": "{{logged}} logged, {{skipped}} skipped",
     "finish": "Finish session",
     "finishTitle": "Finish the session?",
-    "finishDescription": "The {{pending}} pending contacts are left without a call in this session.",
+    "finishDescription": "The {{pending}} pending people are left without a call in this session.",
     "completedTitle": "Session finished",
-    "completedDescription": "{{logged}} calls logged and {{skipped}} contacts skipped.",
+    "completedDescription": "{{logged}} calls logged and {{skipped}} people skipped.",
     "backToSessions": "See sessions",
     "position": "Contact {{position}} of {{total}}",
     "unknownContact": "Contact unavailable",

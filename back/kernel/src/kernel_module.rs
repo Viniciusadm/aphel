@@ -95,7 +95,7 @@ impl Module for KernelModule {
         );
         declare_record_hooks(app);
         register_record_hooks(app);
-        for definition in crate::application::organizations::ORGANIZATION_PUBLIC_EVENTS {
+        for definition in crate::application::organization_profile::ORGANIZATION_PUBLIC_EVENTS {
             app.public_event(*definition);
         }
         app.openapi_tag("health", "Service health")

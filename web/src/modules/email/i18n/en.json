@@ -15,11 +15,11 @@
     "contact": "Contact",
     "company": "Company",
     "deal": "Deal",
-    "contacts": {
-      "contact": "Contact"
+    "people": {
+      "person": "Contact"
     },
-    "companies": {
-      "company": "Company"
+    "organizations": {
+      "organization": "Company"
     },
     "deals": {
       "deal": "Deal"
@@ -242,9 +242,9 @@
   "capture": {
     "title": "Contact capture",
     "description": "What Aphel may create or link on its own from synced emails. Everything starts off.",
-    "createContacts": "Create contacts for unknown senders",
+    "createContacts": "Create people for unknown senders",
     "createContactsDescription": "Only when messages were exchanged both ways with the address.",
-    "createCompanies": "Create companies from the domain",
+    "createCompanies": "Create organizations from the domain",
     "createCompaniesDescription": "Personal email domains and blocklisted ones are ignored.",
     "linkOpenDeals": "Link to open deals",
     "linkOpenDealsDescription": "The conversation also shows up on the contact's open deals.",

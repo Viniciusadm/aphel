@@ -99,8 +99,9 @@ impl ProductStore {
             sqlx::query_scalar("SELECT currency FROM organization_settings WHERE id = 1")
                 .fetch_optional(&self.pool)
                 .await?;
-        Ok(currency
-            .unwrap_or_else(|| aphel_kernel::domain::organizations::DEFAULT_CURRENCY.to_owned()))
+        Ok(currency.unwrap_or_else(|| {
+            aphel_kernel::domain::organization_profile::DEFAULT_CURRENCY.to_owned()
+        }))
     }
 
     pub(crate) async fn insert(&self, tx: &mut MySqlTx, product: &Product) -> Result<(), AppError> {

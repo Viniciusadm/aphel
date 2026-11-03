@@ -4,7 +4,7 @@ use uuid::Uuid;
 use crate::application::installer::{
     FirstOrganization, InstallCommand, Installation, InstallationRepository, InstallerPorts,
 };
-use crate::application::organizations::{
+use crate::application::organization_profile::{
     NewOrganization, NewOwner, OrganizationConfig, normalize_public_base_url,
     organization_registration, validate_organization_name, validate_preferences,
 };

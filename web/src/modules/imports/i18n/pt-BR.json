@@ -5,11 +5,11 @@
     "deal": "oportunidades",
     "activity": "atividades",
     "product": "produtos",
-    "contacts": {
-      "contact": "contatos"
+    "people": {
+      "person": "contatos"
     },
-    "companies": {
-      "company": "empresas"
+    "organizations": {
+      "organization": "empresas"
     },
     "deals": {
       "deal": "oportunidades"

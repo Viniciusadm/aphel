@@ -163,11 +163,11 @@
       "contact": "Contatos",
       "company": "Empresas",
       "activity": "Atividades",
-      "contacts": {
-        "contact": "Contatos"
+      "people": {
+        "person": "Contatos"
       },
-      "companies": {
-        "company": "Empresas"
+      "organizations": {
+        "organization": "Empresas"
       },
       "deals": {
         "deal": "Oportunidades"

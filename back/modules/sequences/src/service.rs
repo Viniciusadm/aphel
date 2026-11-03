@@ -84,7 +84,7 @@ pub(crate) fn enrollment_payload(enrollment: &EnrollmentView) -> Value {
         "status": enrollment.status.as_str(),
         "position": enrollment.current_position,
         "exit_reason": enrollment.exit_reason.map(|reason| reason.as_str()),
-        "records": [{ "record_type": "contacts.contact", "record_id": enrollment.contact_id }],
+        "records": [{ "record_type": "people.person", "record_id": enrollment.contact_id }],
     })
 }
 
@@ -729,7 +729,7 @@ pub async fn enroll(ctx: &Ctx<'_>, command: EnrollCommand) -> Result<EnrollmentV
         if mailbox_id.is_none() {
             return Err(AppError::validation_code(
                 NO_MAILBOX_AVAILABLE,
-                "connect a mailbox before enrolling contacts in a sequence that sends e-mails",
+                "connect a mailbox before enrolling people in a sequence that sends e-mails",
             ));
         }
     }

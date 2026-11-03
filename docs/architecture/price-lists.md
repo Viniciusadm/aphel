@@ -6,8 +6,8 @@ Session 25, track B. Three pieces that the quote (track A) consumes through the 
 
 | Table | What it stores |
 | --- | --- |
-| `price_lists` | Price list: stable, unique `key`, name, description, `currency` (enabled in the organization, `organization_currencies`), `applies_to` (`all`, `segment`, `companies`), `segment_id` (company segment), `valid_from`/`valid_to` (optional, inclusive), `is_active`, `is_default` (at most one default per currency, guaranteed by the generated column `default_marker`) |
-| `price_list_companies` | Companies of a list with `applies_to = companies` |
+| `price_lists` | Price list: stable, unique `key`, name, description, `currency` (enabled in the organization, `organization_currencies`), `applies_to` (`all`, `segment`, `organizations`), `segment_id` (company segment), `valid_from`/`valid_to` (optional, inclusive), `is_active`, `is_default` (at most one default per currency, guaranteed by the generated column `default_marker`) |
+| `price_list_companies` | Companies of a list with `applies_to = organizations` |
 | `price_list_items` | A product's price in the list: `unit_price` and `min_quantity` (tier; unique per product) |
 | `product_bundles` | The product is a bundle: `pricing` (`fixed` or `sum`) |
 | `product_bundle_components` | Bundle components with quantity and position |
@@ -18,7 +18,7 @@ Session 25, track B. Three pieces that the quote (track A) consumes through the 
 `MySqlPriceListResolver::new(pool)` delegates to `PriceListService` (`modules/price_lists/hooks.rs`).
 
 - `default_for(currency, company_id, on)` only considers lists that are active, in the currency and valid on `on`, in this order:
-  1. a `companies` list that includes the company;
+  1. a `organizations` list that includes the company;
   2. a `segment` list whose segment contains the company;
   3. the currency's default list.
 

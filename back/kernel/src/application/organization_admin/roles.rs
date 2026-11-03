@@ -12,7 +12,7 @@ use crate::application::organization_admin::{
     CreateRoleCommand, GrantInput, ListWindow, Listing, OrganizationAdminPorts,
     OrganizationAdminUseCases, RoleChanges, RoleRepository, RoleView, UpdateRoleCommand,
 };
-use crate::application::organizations::NewRole;
+use crate::application::organization_profile::NewRole;
 use crate::application::security::{NewSecurityEvent, SecurityEventKind, record_quietly};
 use crate::application::shared::ensure_version;
 use crate::application::shared::{RecordType, TransactionManager};

@@ -12,7 +12,7 @@ const goalsModule = defineModule({
       to: '/goals',
       label: 'nav.goals',
       icon: Target,
-      permission: ['deals.read', 'activities.read', 'contacts.read'],
+      permission: ['deals.read', 'activities.read', 'people.read'],
       order: 140,
     })
     app.widget('goals_progress', {

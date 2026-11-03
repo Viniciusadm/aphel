@@ -26,7 +26,7 @@ Every error comes out in the `{ "error": { "code", "message", "details" } }` env
 | `activity_type_key_taken` | 409 | activities |
 | `activity_type_not_found` | 404 | activities |
 | `already_attached` | 409 | files |
-| `already_linked` | 409 | contacts |
+| `already_linked` | 409 | people |
 | `already_member` | 409 | organization_admin |
 | `api_token_not_allowed` | 403 | auth |
 | `api_token_not_found` | 404 | api_tokens |
@@ -44,9 +44,9 @@ Every error comes out in the `{ "error": { "code", "message", "details" } }` env
 | `bulk_operation_not_found` | 404 | bulk_actions |
 | `bulk_too_large` | 422 | bulk_actions |
 | `closing_stages_required` | 409 | pipelines |
-| `company_not_found` | 404 | companies |
+| `company_not_found` | 404 | organizations |
 | `config_package_install_not_found` | 404 | config_packages |
-| `contact_not_found` | 404 | contacts |
+| `contact_not_found` | 404 | people |
 | `csrf_header_missing` | 403 | geral |
 | `current_session_not_revocable` | 422 | security |
 | `custom_object_has_records` | 409 | custom_objects |
@@ -134,7 +134,7 @@ Every error comes out in the `{ "error": { "code", "message", "details" } }` env
 | `lead_distribution_rule_inactive` | 422 | lead_distribution (automation `assign_by_rule` step) |
 | `lead_distribution_rule_key_taken` | 409 | lead_distribution |
 | `lead_distribution_rule_not_found` | 404 | lead_distribution |
-| `link_not_found` | 404 | contacts |
+| `link_not_found` | 404 | people |
 | `linked_record_not_found` | 404 | custom_objects |
 | `login_locked` | 429 | auth |
 | `logo_not_found` | 404 | organizations |
@@ -154,7 +154,7 @@ Every error comes out in the `{ "error": { "code", "message", "details" } }` env
 | `organization_export_not_ready` | 409 | organization-exports |
 | `organization_not_empty` | 409 | organization-exports (the backup is only restored on an empty installation, before the installer) |
 | `organization_not_found` | 404 | modules (organization data unavailable to the module) |
-| `permission_denied` | 403 | activities, auth, companies, dashboard, fields, files, notes, organization_admin, pipelines, tags, timeline, views |
+| `permission_denied` | 403 | activities, auth, organizations, dashboard, fields, files, notes, organization_admin, pipelines, tags, timeline, views |
 | `pipeline_has_deals` | 409 | pipelines |
 | `pipeline_limit_reached` | 409 | pipelines |
 | `pipeline_not_found` | 404 | pipelines |
@@ -300,8 +300,8 @@ Whoever creates a new code adds the row to this table and cites it in the respon
 | `last_active_call_outcome` | 409 | calls (the organization needs at least one active outcome) |
 | `telephony_provider_not_found` | 404 | calls (telephony provider does not exist or belongs to a disabled module) |
 | `call_session_not_found` | 404 | calls (call session does not exist or belongs to another user) |
-| `call_session_view_not_found` | 404 | calls (saved view does not exist, is invisible to the user or is not a contacts view) |
-| `call_session_empty` | 422 | calls (the view has no contacts for the queue) |
+| `call_session_view_not_found` | 404 | calls (saved view does not exist, is invisible to the user or is not a people view) |
+| `call_session_empty` | 422 | calls (the view has no people for the queue) |
 | `call_session_completed` | 409 | calls (the session has already ended) |
 | `call_session_item_not_found` | 404 | calls (there is no contact at that position in the queue) |
 | `deal_member_not_found` | 404 | deal-members (member does not exist on the deal team) |
@@ -322,14 +322,14 @@ Whoever creates a new code adds the row to this table and cites it in the respon
 | `price_list_key_taken` | 409 | price-lists (price list key already used in the organization) |
 | `product_bundle_not_found` | 404 | products (the product is not a bundle) |
 | `product_bundle_nested` | 409 | products (the product is a component of another bundle and cannot become a bundle) |
-| `validation_rule_failed` | 422 | contacts, companies, deals, activities, products, quotes, objects (the write violates validation rules; `details.fields[]` carries `{ field, message }` for each violated rule: `field` is the highlighted field — `custom_fields.<key>` for a custom one — or `record`, and `message` is the rule's message) |
+| `validation_rule_failed` | 422 | people, organizations, deals, activities, products, quotes, objects (the write violates validation rules; `details.fields[]` carries `{ field, message }` for each violated rule: `field` is the highlighted field — `custom_fields.<key>` for a custom one — or `record`, and `message` is the rule's message) |
 | `validation_rule_not_found` | 404 | validation-rules (rule does not exist) |
 | `stage_checklist_incomplete` | 422 | deals (moving stage or winning with required checklist items of the current stage pending; `details.fields[]` carries `checklist.<key>` with the item label) |
-| `company_hierarchy_cycle` | 422 | companies (`parent_company_id` is the company itself or one of its subsidiaries, at any level; `details.fields[]` carries `parent_company_id`) |
-| `company_hierarchy_too_deep` | 422 | companies (the group would have more than 10 levels counting the subtree of the moved company; `details.fields[]` carries `parent_company_id`) |
+| `company_hierarchy_cycle` | 422 | organizations (`parent_company_id` is the company itself or one of its subsidiaries, at any level; `details.fields[]` carries `parent_company_id`) |
+| `company_hierarchy_too_deep` | 422 | organizations (the group would have more than 10 levels counting the subtree of the moved company; `details.fields[]` carries `parent_company_id`) |
 | `checklist_item_not_found` | 404 | deals (checklist item does not exist or belongs to another pipeline) |
 | `approval_required` | 409 | deals, objects, quotes and any write that goes through an approval point (the change requires approval; `details` carries `{ record_type, record_id, moment, target_id, policies: [{ id, key, name }] }` — request it with `POST /approval-requests`) |
-| `approval_pending` | 409 | contacts, companies, deals, activities, products, quotes, objects (there is a pending approval request: locked field changed or a change awaiting approval; `details` carries `{ request_id, record_type, record_id, moment, target_id }` and, when it is a field lock, `fields`) |
+| `approval_pending` | 409 | people, organizations, deals, activities, products, quotes, objects (there is a pending approval request: locked field changed or a change awaiting approval; `details` carries `{ request_id, record_type, record_id, moment, target_id }` and, when it is a field lock, `fields`) |
 | `approval_policy_not_found` | 404 | approvals (approval policy does not exist) |
 | `approval_policy_key_taken` | 409 | approvals (policy key already used in the organization) |
 | `approval_request_not_found` | 404 | approvals (approval request does not exist or is invisible to the user) |

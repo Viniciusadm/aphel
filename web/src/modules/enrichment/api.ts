@@ -59,7 +59,7 @@ export const enrichmentKeys = {
 
 export const enrichmentApi = {
   company: (companyId: string) =>
-    api.get<EnrichmentCompanyOverview>(`${BASE}/companies/${encodeURIComponent(companyId)}`),
+    api.get<EnrichmentCompanyOverview>(`${BASE}/organizations/${encodeURIComponent(companyId)}`),
   lookup: (companyId: string, cnpj?: string) =>
     api.post<EnrichmentLookup>(`${BASE}/lookups`, { company_id: companyId, cnpj: cnpj || undefined }),
   apply: (lookupId: string, items: string[]) =>

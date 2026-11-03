@@ -1142,7 +1142,7 @@ pub(crate) async fn start_session(
     let view_not_found = || {
         AppError::not_found_code(
             CALL_SESSION_VIEW_NOT_FOUND,
-            "saved view of contacts was not found",
+            "saved view of people was not found",
         )
     };
     let view_id = Uuid::parse_str(command.view_id.trim()).map_err(|_| view_not_found())?;
@@ -1192,7 +1192,7 @@ pub(crate) async fn start_session(
     if listing.items.is_empty() {
         return Err(AppError::validation_code(
             CALL_SESSION_EMPTY,
-            "the view has no contacts to call",
+            "the view has no people to call",
         ));
     }
     let now = ctx.now();

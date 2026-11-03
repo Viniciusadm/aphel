@@ -39,9 +39,9 @@ fn optional_uuid(row: &MySqlRow, column: &str) -> Result<Option<Uuid>, AppError>
 
 fn table_for(record_type: &RecordType) -> Result<&'static str, AppError> {
     if *record_type == RecordType::CONTACT {
-        Ok("contacts")
+        Ok("people")
     } else if *record_type == RecordType::COMPANY {
-        Ok("companies")
+        Ok("organizations")
     } else {
         Err(AppError::Internal(format!(
             "{} has no lifecycle stage",
@@ -659,7 +659,7 @@ impl LeadRecords {
     ) -> Result<Vec<DisqualificationCount>, AppError> {
         let mut builder: QueryBuilder<MySql> = QueryBuilder::new(format!(
             "SELECT q.reason_id, q.reason_name, COUNT(*) AS total FROM lead_disqualifications q \
-             JOIN contacts {RECORD_ALIAS} ON {RECORD_ALIAS}.id = q.contact_id \
+             JOIN people {RECORD_ALIAS} ON {RECORD_ALIAS}.id = q.contact_id \
              WHERE "
         ));
         builder

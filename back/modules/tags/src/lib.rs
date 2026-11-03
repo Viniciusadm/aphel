@@ -26,7 +26,7 @@ pub struct TagsModule;
 impl Module for TagsModule {
     fn manifest(&self) -> Manifest {
         Manifest::new(KEY, "Tags", APHEL_VERSION)
-            .description("Tags of the organization and tagging of contacts, companies, deals and custom objects")
+            .description("Tags of the organization and tagging of people, organizations, deals and custom objects")
             .required()
             .plugin_toml(include_str!("../plugin.toml"))
             .owned_tables(&["tags", "taggings"])
@@ -70,7 +70,7 @@ impl Module for TagsModule {
         ));
         app.openapi_tag(
             http::TAG,
-            "Tags of the organization and tagging of contacts, companies and deals",
+            "Tags of the organization and tagging of people, organizations and deals",
         )
         .routes(|_| http::router());
         app.on(

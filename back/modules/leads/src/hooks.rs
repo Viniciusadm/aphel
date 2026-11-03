@@ -15,7 +15,7 @@ use aphel_kernel::errors::{AppError, FieldViolation};
 use aphel_kernel::modules::{Hook, HookCtx};
 use aphel_kernel::records::PendingCommit;
 use aphel_kernel::records::{ChangedRecord, RecordCtx, RemovedRecord};
-use contacts::domain::ContactView;
+use people::domain::ContactView;
 
 #[derive(Debug, Clone, PartialEq)]
 pub struct Lead {

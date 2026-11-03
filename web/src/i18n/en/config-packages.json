@@ -150,7 +150,7 @@
   },
   "apply": {
     "confirmTitle": "Apply “{{name}}”?",
-    "confirmDescription": "{{create}} items will be created and {{update}} updated. Nothing is deleted and no record (contacts, companies, deals, activities or field values) is changed.",
+    "confirmDescription": "{{create}} items will be created and {{update}} updated. Nothing is deleted and no record (people, organizations, deals, activities or field values) is changed.",
     "confirm": "Apply package",
     "success": "Package “{{name}}” applied",
     "summary": "{{create}} created, {{update}} updated, {{skipped}} skipped."

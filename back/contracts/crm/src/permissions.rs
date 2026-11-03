@@ -53,18 +53,18 @@ pub trait CrmPermissions {
 }
 
 impl CrmPermissions for Permission {
-    const CONTACTS_READ: Permission = Permission::from_static("contacts.read");
-    const CONTACTS_CREATE: Permission = Permission::from_static("contacts.create");
-    const CONTACTS_UPDATE: Permission = Permission::from_static("contacts.update");
-    const CONTACTS_DELETE: Permission = Permission::from_static("contacts.delete");
-    const CONTACTS_EXPORT: Permission = Permission::from_static("contacts.export");
-    const CONTACTS_ARCHIVE: Permission = Permission::from_static("contacts.archive");
-    const COMPANIES_READ: Permission = Permission::from_static("companies.read");
-    const COMPANIES_CREATE: Permission = Permission::from_static("companies.create");
-    const COMPANIES_UPDATE: Permission = Permission::from_static("companies.update");
-    const COMPANIES_DELETE: Permission = Permission::from_static("companies.delete");
-    const COMPANIES_EXPORT: Permission = Permission::from_static("companies.export");
-    const COMPANIES_ARCHIVE: Permission = Permission::from_static("companies.archive");
+    const CONTACTS_READ: Permission = Permission::from_static("people.read");
+    const CONTACTS_CREATE: Permission = Permission::from_static("people.create");
+    const CONTACTS_UPDATE: Permission = Permission::from_static("people.update");
+    const CONTACTS_DELETE: Permission = Permission::from_static("people.delete");
+    const CONTACTS_EXPORT: Permission = Permission::from_static("people.export");
+    const CONTACTS_ARCHIVE: Permission = Permission::from_static("people.archive");
+    const COMPANIES_READ: Permission = Permission::from_static("organizations.read");
+    const COMPANIES_CREATE: Permission = Permission::from_static("organizations.create");
+    const COMPANIES_UPDATE: Permission = Permission::from_static("organizations.update");
+    const COMPANIES_DELETE: Permission = Permission::from_static("organizations.delete");
+    const COMPANIES_EXPORT: Permission = Permission::from_static("organizations.export");
+    const COMPANIES_ARCHIVE: Permission = Permission::from_static("organizations.archive");
     const DEALS_READ: Permission = Permission::from_static("deals.read");
     const DEALS_CREATE: Permission = Permission::from_static("deals.create");
     const DEALS_UPDATE: Permission = Permission::from_static("deals.update");

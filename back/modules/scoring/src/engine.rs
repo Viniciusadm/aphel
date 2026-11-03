@@ -91,7 +91,7 @@ impl<'a> ScoringEngine<'a> {
         }
         let active: Vec<&ScoringModel> = models.iter().filter(|model| model.is_active).collect();
         let mut affected: BTreeMap<String, BTreeSet<Uuid>> = BTreeMap::new();
-        let mut contacts = Vec::new();
+        let mut people = Vec::new();
         if let Some(hit) = signal_hit(event) {
             for record in &hit.records {
                 ScoreStore::of(self.ctx)
@@ -108,7 +108,7 @@ impl<'a> ScoringEngine<'a> {
                     .or_default()
                     .insert(record.record_id);
                 if record.record_type == RecordType::CONTACT {
-                    contacts.push(record.record_id);
+                    people.push(record.record_id);
                 }
             }
         } else if let Some(record) = &event.record
@@ -138,14 +138,14 @@ impl<'a> ScoringEngine<'a> {
                     .insert(record.record_id);
             }
             if record.record_type == RecordType::CONTACT {
-                let companies = affected
+                let organizations = affected
                     .entry(RecordType::COMPANY.as_str().to_owned())
                     .or_default();
-                companies.extend(changed_companies(event));
-                contacts.push(record.record_id);
+                organizations.extend(changed_companies(event));
+                people.push(record.record_id);
             }
         }
-        self.recalculate_affected(&scope, &active, affected, &contacts)
+        self.recalculate_affected(&scope, &active, affected, &people)
             .await
     }
 
@@ -161,12 +161,12 @@ impl<'a> ScoringEngine<'a> {
             .entry(record.record_type.as_str().to_owned())
             .or_default()
             .insert(record.record_id);
-        let contacts = if record.record_type == RecordType::CONTACT {
+        let people = if record.record_type == RecordType::CONTACT {
             vec![record.record_id]
         } else {
             Vec::new()
         };
-        self.recalculate_affected(&scope, &active, affected, &contacts)
+        self.recalculate_affected(&scope, &active, affected, &people)
             .await?;
         Ok(())
     }
@@ -176,18 +176,18 @@ impl<'a> ScoringEngine<'a> {
         scope: &AccessScope,
         active: &[&ScoringModel],
         mut affected: BTreeMap<String, BTreeSet<Uuid>>,
-        contacts: &[Uuid],
+        people: &[Uuid],
     ) -> Result<(), AppError> {
         let company_type = RecordType::COMPANY;
         let company = company_type.as_str();
-        if !contacts.is_empty() && active.iter().any(|model| model.record_type == company) {
-            let companies = ScoringDirectory::of(self.ctx)
-                .companies_of_contacts(contacts)
+        if !people.is_empty() && active.iter().any(|model| model.record_type == company) {
+            let organizations = ScoringDirectory::of(self.ctx)
+                .companies_of_contacts(people)
                 .await?;
             affected
                 .entry(company.to_owned())
                 .or_default()
-                .extend(companies.into_values());
+                .extend(organizations.into_values());
         }
         for model in active {
             let Some(ids) = affected.get(&model.record_type) else {

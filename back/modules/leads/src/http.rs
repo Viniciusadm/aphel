@@ -70,7 +70,7 @@ async fn get_lifecycle_settings(
     tag = TAG,
     operation_id = "lifecycle_settings_update",
     security(("session_cookie" = [])),
-    description = "Saves the lifecycle settings and publishes `lifecycle.settings_updated`. Each item of `rules` changes one trigger (`deal_created`, `deal_won`, `all_deals_lost`); omitted triggers and properties keep their value. `target_stage` must be an active option of the `lifecycle_stage` field of contacts and `from_stages` options of the field. `disqualified_stage` is the stage given to a disqualified lead (`null` clears the stage). The transitions run in the worker (`lifecycle.transitions` consumer) and update the contact and the company of the deal through their use cases (`contact.updated`/`company.updated` with `changes`). Needs `lifecycle.manage`.",
+    description = "Saves the lifecycle settings and publishes `lifecycle.settings_updated`. Each item of `rules` changes one trigger (`deal_created`, `deal_won`, `all_deals_lost`); omitted triggers and properties keep their value. `target_stage` must be an active option of the `lifecycle_stage` field of people and `from_stages` options of the field. `disqualified_stage` is the stage given to a disqualified lead (`null` clears the stage). The transitions run in the worker (`lifecycle.transitions` consumer) and update the contact and the company of the deal through their use cases (`contact.updated`/`company.updated` with `changes`). Needs `lifecycle.manage`.",
     params(("If-Match" = Option<String>, Header, description = "`updated_at` of the settings as read (ISO-8601); ignored while never saved")),
     request_body = LifecycleSettingsRequest,
     responses(
@@ -106,7 +106,7 @@ async fn update_lifecycle_settings(
     responses(
         (status = 200, description = "Reasons to disqualify a lead in their order (active only unless `include_inactive=true`). Six reasons are created with the organization", body = Data<Vec<DisqualificationReasonResponse>>),
         (status = 401, description = UNAUTHORIZED, body = ErrorEnvelope),
-        (status = 403, description = "Missing `contacts.read` (`permission_denied`, `insufficient_scope`)", body = ErrorEnvelope),
+        (status = 403, description = "Missing `people.read` (`permission_denied`, `insufficient_scope`)", body = ErrorEnvelope),
     )
 )]
 async fn list_reasons(
@@ -264,7 +264,7 @@ async fn reorder_reasons(
     responses(
         (status = 200, description = "Stage history", body = Data<Vec<LifecycleHistoryEntryResponse>>),
         (status = 401, description = UNAUTHORIZED, body = ErrorEnvelope),
-        (status = 403, description = "Missing `contacts.read`/`companies.read` (`permission_denied`, `insufficient_scope`)", body = ErrorEnvelope),
+        (status = 403, description = "Missing `people.read`/`organizations.read` (`permission_denied`, `insufficient_scope`)", body = ErrorEnvelope),
         (status = 404, description = "Unknown record type, or record not found or not visible (`record_not_found`)", body = ErrorEnvelope),
     )
 )]
@@ -290,12 +290,12 @@ async fn lifecycle_history(
     tag = TAG,
     operation_id = "lifecycle_report",
     security(("session_cookie" = [])),
-    description = "Lifecycle report built from the stage history of the records visible to the user (read scope of `contacts.read` or `companies.read`). Stages follow the order of the active options of the field. For each stage: `current` records in it now (not archived), `entered` records that entered it in the period (UTC days, `from`–`to` inclusive, default the last 90 days, at most 731), `converted` of those that later reached any later stage (skipping counts), `conversion_rate` = converted / entered, and `average_days` spent in the stage by the entries of the period that already left it (`completed`). For contacts, also the disqualifications of the period by reason.",
+    description = "Lifecycle report built from the stage history of the records visible to the user (read scope of `people.read` or `organizations.read`). Stages follow the order of the active options of the field. For each stage: `current` records in it now (not archived), `entered` records that entered it in the period (UTC days, `from`–`to` inclusive, default the last 90 days, at most 731), `converted` of those that later reached any later stage (skipping counts), `conversion_rate` = converted / entered, and `average_days` spent in the stage by the entries of the period that already left it (`completed`). For people, also the disqualifications of the period by reason.",
     params(LifecycleReportParams),
     responses(
         (status = 200, description = "Lifecycle report", body = Data<LifecycleReportResponse>),
         (status = 401, description = UNAUTHORIZED, body = ErrorEnvelope),
-        (status = 403, description = "Missing `contacts.read`/`companies.read` (`permission_denied`, `insufficient_scope`)", body = ErrorEnvelope),
+        (status = 403, description = "Missing `people.read`/`organizations.read` (`permission_denied`, `insufficient_scope`)", body = ErrorEnvelope),
         (status = 422, description = "Invalid record type or period (`validation_error` with `details.fields`)", body = ErrorEnvelope),
     )
 )]
@@ -318,12 +318,12 @@ async fn lifecycle_report(
     tag = TAG,
     operation_id = "leads_qualify",
     security(("session_cookie" = [])),
-    description = "Moves a contact in `lead` to `qualified` and publishes `contact.updated` (with `changes`) and `lead.qualified`, in the same transaction as the stage history. Needs `contacts.update` on the contact.",
+    description = "Moves a contact in `lead` to `qualified` and publishes `contact.updated` (with `changes`) and `lead.qualified`, in the same transaction as the stage history. Needs `people.update` on the contact.",
     params(("contact_id" = String, Path, description = "Contact id")),
     responses(
         (status = 200, description = "Lead qualified", body = Data<LeadActionResponse>),
         (status = 401, description = UNAUTHORIZED, body = ErrorEnvelope),
-        (status = 403, description = "Missing `contacts.update` on the contact or the field is read only (`permission_denied`, `field_read_only`)", body = ErrorEnvelope),
+        (status = 403, description = "Missing `people.update` on the contact or the field is read only (`permission_denied`, `field_read_only`)", body = ErrorEnvelope),
         (status = 404, description = "Contact not found or not visible (`contact_not_found`)", body = ErrorEnvelope),
         (status = 409, description = "The contact is not in `lead` (`contact_not_lead`)", body = ErrorEnvelope),
         (status = 422, description = "The stage `qualified` is not an active option (`validation_error`)", body = ErrorEnvelope),
@@ -350,13 +350,13 @@ async fn qualify_lead(
     tag = TAG,
     operation_id = "leads_disqualify",
     security(("session_cookie" = [])),
-    description = "Disqualifies a contact in `lead` or `qualified` with an active reason and an optional note (kept in the disqualification and the audit, not in the event). The stage becomes the `disqualified_stage` of the lifecycle settings (none by default). Publishes `contact.updated` (when the stage changes) and `lead.disqualified`. Needs `contacts.update` on the contact.",
+    description = "Disqualifies a contact in `lead` or `qualified` with an active reason and an optional note (kept in the disqualification and the audit, not in the event). The stage becomes the `disqualified_stage` of the lifecycle settings (none by default). Publishes `contact.updated` (when the stage changes) and `lead.disqualified`. Needs `people.update` on the contact.",
     params(("contact_id" = String, Path, description = "Contact id")),
     request_body = DisqualifyLeadRequest,
     responses(
         (status = 200, description = "Lead disqualified", body = Data<LeadActionResponse>),
         (status = 401, description = UNAUTHORIZED, body = ErrorEnvelope),
-        (status = 403, description = "Missing `contacts.update` on the contact or the field is read only (`permission_denied`, `field_read_only`)", body = ErrorEnvelope),
+        (status = 403, description = "Missing `people.update` on the contact or the field is read only (`permission_denied`, `field_read_only`)", body = ErrorEnvelope),
         (status = 404, description = "Contact not found or not visible (`contact_not_found`)", body = ErrorEnvelope),
         (status = 409, description = "The contact is not in `lead` or `qualified` (`contact_not_lead`)", body = ErrorEnvelope),
         (status = 422, description = "Unknown or inactive reason, or note too long (`validation_error` with `details.fields`)", body = ErrorEnvelope),
@@ -384,13 +384,13 @@ async fn disqualify_lead(
     tag = TAG,
     operation_id = "leads_convert",
     security(("session_cookie" = [])),
-    description = "Converts a contact in `lead` or `qualified`: creates a deal through the deals use case (permission `deals.create`; `deal.created`) in `pipeline_id` (and `stage_id`, default the first open stage), with the contact, its primary company and its source; the title defaults to the contact name. Then moves the contact to the target stage of the `deal_created` rule (`opportunity` by default) and publishes `contact.updated` and `lead.converted` with `deal_id`. Needs `contacts.update` on the contact.",
+    description = "Converts a contact in `lead` or `qualified`: creates a deal through the deals use case (permission `deals.create`; `deal.created`) in `pipeline_id` (and `stage_id`, default the first open stage), with the contact, its primary company and its source; the title defaults to the contact name. Then moves the contact to the target stage of the `deal_created` rule (`opportunity` by default) and publishes `contact.updated` and `lead.converted` with `deal_id`. Needs `people.update` on the contact.",
     params(("contact_id" = String, Path, description = "Contact id")),
     request_body = ConvertLeadRequest,
     responses(
         (status = 200, description = "Lead converted", body = Data<LeadActionResponse>),
         (status = 401, description = UNAUTHORIZED, body = ErrorEnvelope),
-        (status = 403, description = "Missing `deals.create` or `contacts.update` on the contact (`permission_denied`, `insufficient_scope`)", body = ErrorEnvelope),
+        (status = 403, description = "Missing `deals.create` or `people.update` on the contact (`permission_denied`, `insufficient_scope`)", body = ErrorEnvelope),
         (status = 404, description = "Contact or pipeline not found (`contact_not_found`, `pipeline_not_found`)", body = ErrorEnvelope),
         (status = 409, description = "The contact is not in `lead` or `qualified` (`contact_not_lead`)", body = ErrorEnvelope),
         (status = 422, description = "Invalid deal (`validation_error` with `details.fields`)", body = ErrorEnvelope),
@@ -647,7 +647,7 @@ impl From<StageHistoryEntry> for LifecycleHistoryEntryResponse {
 #[derive(Debug, Deserialize, IntoParams)]
 #[into_params(parameter_in = Query)]
 pub(crate) struct LifecycleReportParams {
-    #[param(example = "contacts.contact")]
+    #[param(example = "people.person")]
     pub(crate) record_type: Option<String>,
     #[param(example = "2026-01-01")]
     pub(crate) from: Option<String>,
@@ -717,7 +717,7 @@ impl From<DisqualificationCount> for LifecycleDisqualificationCountResponse {
 
 #[derive(Debug, Serialize, ToSchema)]
 pub(crate) struct LifecycleReportResponse {
-    #[schema(example = "contacts.contact")]
+    #[schema(example = "people.person")]
     pub(crate) record_type: String,
     #[schema(example = "2026-01-01")]
     pub(crate) from: String,

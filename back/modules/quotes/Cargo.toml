@@ -10,8 +10,8 @@ publish = false
 aphel-contract-crm.workspace = true
 aphel-kernel.workspace = true
 approvals = { package = "aphel-mod-approvals", path = "../approvals" }
-companies = { package = "aphel-mod-companies", path = "../companies" }
-contacts = { package = "aphel-mod-contacts", path = "../contacts" }
+organizations = { package = "aphel-mod-organizations", path = "../organizations" }
+people = { package = "aphel-mod-people", path = "../people" }
 deals = { package = "aphel-mod-deals", path = "../deals" }
 email = { package = "aphel-mod-email", path = "../email" }
 price_lists = { package = "aphel-mod-price-lists", path = "../price_lists" }

@@ -3,7 +3,7 @@ use chrono::{DateTime, Duration, Utc};
 use crate::application::auth::SessionRecord;
 use crate::application::auth::two_factor::TwoFactorStatus;
 use crate::domain::access::AccessScope;
-use crate::domain::organizations::Organization;
+use crate::domain::organization_profile::Organization;
 use crate::domain::users::User;
 use crate::domain::{Secret, SessionId};
 use crate::errors::AppError;
@@ -98,7 +98,7 @@ pub struct InvitationPreview {
 
 #[derive(Debug, Clone, PartialEq, Eq)]
 pub struct AuthSettings {
-    pub app_base_url: crate::application::organizations::PublicBaseUrl,
+    pub app_base_url: crate::application::organization_profile::PublicBaseUrl,
     pub session_ttl: Duration,
     pub email_verification_ttl: Duration,
     pub password_reset_ttl: Duration,
@@ -111,7 +111,7 @@ pub struct AuthSettings {
 impl Default for AuthSettings {
     fn default() -> Self {
         Self {
-            app_base_url: crate::application::organizations::PublicBaseUrl::default(),
+            app_base_url: crate::application::organization_profile::PublicBaseUrl::default(),
             session_ttl: Duration::days(30),
             email_verification_ttl: Duration::hours(48),
             password_reset_ttl: Duration::hours(1),

@@ -63,11 +63,11 @@
     "recordTypes": {
       "contact": "Contatos",
       "company": "Empresas",
-      "contacts": {
-        "contact": "Contatos"
+      "people": {
+        "person": "Contatos"
       },
-      "companies": {
-        "company": "Empresas"
+      "organizations": {
+        "organization": "Empresas"
       }
     },
     "from": "De",

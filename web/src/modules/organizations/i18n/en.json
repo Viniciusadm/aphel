@@ -1,0 +1,85 @@
+{
+  "list": {
+    "title": "Companies",
+    "description": "Organizations your team works with.",
+    "new": "New company"
+  },
+  "dialog": {
+    "title": "New company",
+    "description": "Fill in the main details. Other fields can be edited later."
+  },
+  "detail": {
+    "back": "Back to organizations"
+  },
+  "people": {
+    "title": "Company people",
+    "empty": "No people linked to this company.",
+    "loadError": "Could not load the company people.",
+    "primary": "Primary company",
+    "more": "Showing {{shown}} of {{total}} people."
+  },
+  "hierarchy": {
+    "tab": "Group",
+    "loadError": "Could not load the company group.",
+    "save": "Save",
+    "totals": {
+      "title": "Group totals",
+      "loadError": "Could not load the group totals.",
+      "organizations": "Companies in the group",
+      "people": "Contacts",
+      "openDeals": "Open deals",
+      "won": "Won revenue",
+      "dealsCount_one": "{{count}} deal",
+      "dealsCount_other": "{{count}} deals"
+    },
+    "tree": {
+      "title": "Group structure",
+      "root": "Parent",
+      "archived": "Archived",
+      "restricted": "Company without access",
+      "unnamed": "Unnamed",
+      "alone": "This company is not part of a group yet. Set a parent company or add subsidiaries.",
+      "truncated": "The group has more organizations than shown.",
+      "maxDepth_one": "A group can have at most {{count}} level.",
+      "maxDepth_other": "A group can have at most {{count}} levels.",
+      "openDeals_one": "{{count}} open deal",
+      "openDeals_other": "{{count}} open deals",
+      "people_one": "{{count}} contact",
+      "people_other": "{{count}} people"
+    },
+    "parent": {
+      "set": "Set parent company",
+      "change": "Change parent company",
+      "remove": "Remove parent company",
+      "title": "Parent company",
+      "description": "Choose the company this one is a subsidiary of.",
+      "picker": "Parent company",
+      "saved": "Parent company updated.",
+      "removed": "Parent company removed.",
+      "removeTitle": "Remove the parent company?",
+      "removeDescription": "This company and its subsidiaries become a group of their own."
+    },
+    "subsidiary": {
+      "add": "Add subsidiary",
+      "title": "Add subsidiary",
+      "description": "Choose the company that becomes a subsidiary of this one. If it already has another parent, the parent is replaced.",
+      "picker": "Subsidiary",
+      "saved": "Subsidiary added."
+    },
+    "errors": {
+      "title": "Could not change the group",
+      "cycle": "A company cannot be the parent of itself or of a company above it in the group.",
+      "tooDeep": "The group would have more levels than allowed.",
+      "forbidden": "You are not allowed to change this company.",
+      "notFound": "Company not found.",
+      "invalid": "The chosen company is not valid.",
+      "generic": "Try again in a moment."
+    }
+  },
+  "nav": {
+    "organizations": "Companies"
+  },
+  "createAction": {
+    "label": "New company"
+  }
+}

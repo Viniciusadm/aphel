@@ -4,11 +4,11 @@
     "company": "Companies",
     "deal": "Deals",
     "product": "Products",
-    "contacts": {
-      "contact": "Contacts"
+    "people": {
+      "person": "Contacts"
     },
-    "companies": {
-      "company": "Companies"
+    "organizations": {
+      "organization": "Companies"
     },
     "deals": {
       "deal": "Deals"

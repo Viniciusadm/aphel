@@ -63,11 +63,11 @@
     "recordTypes": {
       "contact": "Contacts",
       "company": "Companies",
-      "contacts": {
-        "contact": "Contacts"
+      "people": {
+        "person": "Contacts"
       },
-      "companies": {
-        "company": "Companies"
+      "organizations": {
+        "organization": "Companies"
       }
     },
     "from": "From",
@@ -155,7 +155,7 @@
   },
   "quickFilter": {
     "label": "Leads only",
-    "description": "Show only contacts in the lead stage"
+    "description": "Show only people in the lead stage"
   },
   "nav": {
     "leads": "Leads"

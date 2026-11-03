@@ -152,7 +152,7 @@ async fn reset_layout(
     tag = TAG,
     operation_id = "dashboard_subjects_list",
     security(("session_cookie" = [])),
-    description = "Users and teams whose numbers the current user can follow on the dashboard, from the broadest read scope among `deals.read`, `activities.read` and `contacts.read`: `own` → only the user; `team` → the teams of the user and their members; `organization` → every member and team. Use the ids as `user_id`/`team_id` of the widget data.",
+    description = "Users and teams whose numbers the current user can follow on the dashboard, from the broadest read scope among `deals.read`, `activities.read` and `people.read`: `own` → only the user; `team` → the teams of the user and their members; `organization` → every member and team. Use the ids as `user_id`/`team_id` of the widget data.",
     responses(
         (status = 200, description = "Selectable users and teams", body = Data<DashboardSubjectsResponse>),
         (status = 401, description = "Missing or invalid credentials (`unauthorized`, `invalid_api_token`)", body = ErrorEnvelope),

@@ -8,11 +8,11 @@ The native SDK exposes `PartyTraits` for publishing and reading the mapping. SQL
 
 ## Connected providers and consumers
 
-- `contacts` declares email, mobile and phone mappings and publishes the party contract descriptor.
-- `companies` declares domain and email mappings and publishes the same contract descriptor as another provider.
+- `people` declares email, mobile and phone mappings and publishes the party contract descriptor.
+- `organizations` declares domain and email mappings and publishes the same contract descriptor as another provider.
 - `duplicates`, `trash` and `privacy` read the shared SDK projection instead of the CRM trait constant.
 
-The host catalog lists each provider. No provider depends on the other through the new contract. Existing direct dependencies and SQL between the native contacts/companies plugins are migration debt for P5.2, not resolved by this slice.
+The host catalog lists each provider. No provider depends on the other through the new contract. Existing direct dependencies and SQL between the native people/organizations plugins are migration debt for P5.2, not resolved by this slice.
 
 ## D4 review checklist per plugin
 
@@ -45,12 +45,14 @@ These are static review results and manual acceptance cases. No database instanc
 - [x] Subject subtitles use the shared party projection; matching, permissions and redaction are unchanged in this slice.
 - [ ] Manually confirm subject lookup, export and erasure after the P5.2 migration.
 
-## P5.2 migration boundary
+## P5.2 implementation
 
-The next slice changes native module identities from `contacts`/`companies` to `people`/`organizations`, and entity identities from `contacts.contact`/`companies.company` to `people.person`/`organizations.organization`. There is no production data to preserve: schemas, references and callers will use the new names directly, without identity migration or compatibility aliases.
+The native plugins are now `people` and `organizations`, with canonical entities `people.person` and `organizations.organization`. Their owned schemas use `people`, `people_organizations` and `organizations`. The build selection, profiles, permissions, native consumers, web modules, routes and translated entity keys use the new identities directly.
 
-The current contacts crate also imports the company's `EmailEngagement` model, row mapper and not-found error and declares a direct module dependency. Its migrations contain company foreign keys, and its store reads company tables. Replacing only the crate import would leave the P5 dependency and schema gates unresolved. Contact/company linking must move to declared references and owner operations or entity queries, with the per-plugin acceptance cases above retained.
+The kernel's installation/profile code is named `organization_profile`, distinguishing the instance's settings from records owned by the organizations plugin. There is no identity rewrite job or compatibility alias.
+
+P5.2 intentionally leaves the existing contacts/organization linking behavior in the people plugin while later P5 slices replace its direct dependency and cross-plugin SQL. The zero-dependency, SQL and foreign-key gates apply to the completed P5 phase, not this identity step.
 
 ## Remaining scope
 
-P5.2 still introduces the `people` and `organizations` plugin identities, migrates persisted identities and removes the corresponding direct dependencies. The remaining P5 contracts, capabilities, owner-provided sources and schema cleanup are pending. This slice does not claim that P5's zero-dependency/SQL/foreign-key gates have passed.
+P5.3 extracts workflow from pipelines, followed by tasks/calendar and messaging. Native dependency dissolution, owner-provided sources, schema cleanup and P5's zero-dependency/SQL/foreign-key gates remain pending.

@@ -21,7 +21,7 @@ pub enum EmailDelivery {
 pub struct NotificationEmailHandler<P, M> {
     ports: P,
     mailer: M,
-    app_base_url: aphel_kernel::application::organizations::PublicBaseUrl,
+    app_base_url: aphel_kernel::application::organization_profile::PublicBaseUrl,
 }
 
 impl<P, M> NotificationEmailHandler<P, M>
@@ -32,7 +32,7 @@ where
     pub fn new(
         ports: P,
         mailer: M,
-        app_base_url: impl Into<aphel_kernel::application::organizations::PublicBaseUrl>,
+        app_base_url: impl Into<aphel_kernel::application::organization_profile::PublicBaseUrl>,
     ) -> Self {
         Self {
             ports,

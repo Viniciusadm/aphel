@@ -31,7 +31,7 @@ pub(crate) const SUBMITTED: &str = "lead_form.submitted";
 
 const PUBLIC_EVENTS: &[PublicEventDefinition] = &[event(
     SUBMITTED,
-    contacts::CONTACT_RESOURCE,
+    people::CONTACT_RESOURCE,
     "A lead form was submitted, creating or updating the contact",
 )];
 pub(crate) const FORM_NOT_FOUND: &str = "lead_form_not_found";
@@ -113,8 +113,8 @@ pub struct LeadFormsModule;
 impl Module for LeadFormsModule {
     fn manifest(&self) -> Manifest {
         Manifest::new(KEY, "Lead forms", APHEL_VERSION)
-            .description("Public forms that create contacts and deals")
-            .depends_on(contacts::KEY, "*")
+            .description("Public forms that create people and deals")
+            .depends_on(people::KEY, "*")
             .optional(leads::KEY)
             .optional(deals::KEY)
             .optional(activities::KEY)
@@ -127,7 +127,7 @@ impl Module for LeadFormsModule {
     }
 
     fn register(&self, app: &mut AppBuilder) -> Result<(), AppError> {
-        app.openapi_tag(TAG, "Public forms that create contacts and deals")
+        app.openapi_tag(TAG, "Public forms that create people and deals")
             .routes(|_| http::router())
             .public_routes(|_| public_http::router())
             .trigger(triggers::submitted_trigger());

@@ -116,7 +116,7 @@ pub(crate) fn account_security_use_cases(
 pub(crate) fn security_email_handler(
     pool: MySqlPool,
     mailer: SharedMailer,
-    app_base_url: impl Into<crate::application::organizations::PublicBaseUrl>,
+    app_base_url: impl Into<crate::application::organization_profile::PublicBaseUrl>,
 ) -> Arc<dyn JobHandler> {
     Arc::new(SecurityEmailHandler::new(
         MySqlUserRepository::new(pool),

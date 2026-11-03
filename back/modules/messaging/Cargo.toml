@@ -11,7 +11,7 @@ aphel-contract-automation.workspace = true
 aphel-contract-crm.workspace = true
 aphel-kernel.workspace = true
 activities = { package = "aphel-mod-activities", path = "../activities" }
-contacts = { package = "aphel-mod-contacts", path = "../contacts" }
+people = { package = "aphel-mod-people", path = "../people" }
 deals = { package = "aphel-mod-deals", path = "../deals" }
 email = { package = "aphel-mod-email", path = "../email" }
 axum.workspace = true

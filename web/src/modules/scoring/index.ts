@@ -3,7 +3,7 @@ import { defineModule } from '@/kernel/modules/define'
 import { RecordScorePanel } from './RecordScorePanel'
 import { scoringSettingsRoute } from './routes'
 
-const SCORED_RECORD_TYPES = ['contacts.contact', 'companies.company']
+const SCORED_RECORD_TYPES = ['people.person', 'organizations.organization']
 
 const scoringModule = defineModule({
   key: 'scoring',

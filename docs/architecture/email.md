@@ -6,9 +6,9 @@ Extension points:
 
 - `email::Sender` service (`send`/`send_as_owner` over `&Ctx`, default `MailboxSender`, through the user's mailbox). Other modules (`quotes`, `sequences`) send through it (`email::service::sender()`), never by calling the use case directly.
 - `email::OutgoingEmail` hook (filter over `OutgoingMessage`: recipients, subject, body and tracking) applied after the draft is assembled and before it is saved and sent, in a discarded transaction; with no recipient or an empty subject the send is refused (422).
-- `email::InboundLinking` hook (filter over `LinkingEmail.records`) applied during sync with the records the imported message will link automatically (contacts and open deals); the result replaces the list.
+- `email::InboundLinking` hook (filter over `LinkingEmail.records`) applied during sync with the records the imported message will link automatically (people and open deals); the result replaces the list.
 
-Each user connects their own mailbox. Messages synced or sent through Aphel become threads linked to contacts, companies, deals and custom objects. The shared inbox of the `messaging` module remains separate (pending: unify its email channel with the `MailboxProvider`).
+Each user connects their own mailbox. Messages synced or sent through Aphel become threads linked to people, organizations, deals and custom objects. The shared inbox of the `messaging` module remains separate (pending: unify its email channel with the `MailboxProvider`).
 
 ## Model
 
@@ -94,22 +94,22 @@ A message is only imported if it has at least one external, non-blocked particip
 
 ### Links
 
-- Automatic, for each imported message: external participant → contact by `email` (deleted or archived contacts are excluded); contact → primary company and additional companies (`contact_companies`) that are not deleted/archived → the contact's `open` deals (`deals.contact_id` or `deal_contacts`) when `link_open_deals` is enabled.
+- Automatic, for each imported message: external participant → contact by `email` (deleted or archived people are excluded); contact → primary company and additional organizations (`people_organizations`) that are not deleted/archived → the contact's `open` deals (`deals.contact_id` or `deal_contacts`) when `link_open_deals` is enabled.
 - Manual: `POST /email-threads/{id}/links` and `DELETE .../links/{record_type}/{record_id}` require full access to the thread and read access to the record; they publish `email_thread.linked|unlinked` (record = the linked record, payload with `thread_id`) with audit. A confirmed automatic link becomes manual. A new message can recreate a removed automatic link.
 
 ### Capture (disabled by default)
 
-`/api/v1/email-settings/capture` (`settings.manage`, `email_capture_settings.updated` with audit): `create_contacts`, `create_companies`, `link_open_deals` (enabled by default) and `initial_history_days` (default `history_days` for new mailboxes). With `create_contacts`, an unknown sender (inbound) or `to`/`cc` recipient (outbound) becomes a contact when there is already a message in the opposite direction with the same mailbox (two-way exchange). With `create_companies`, the company is found by domain or created (name derived from the domain); personal domains never become companies. Everything goes through the contacts and companies use cases with the mailbox owner's scope (regular `contact.created`/`company.created` events, `source = email`); previous threads with the address are linked to the new contact. The created contact only gets `lifecycle_stage = lead` when the `lead` option exists and is active in the contacts' `lifecycle_stage` field; otherwise it is created without a stage. A permission failure for the owner only produces a warning in the log.
+`/api/v1/email-settings/capture` (`settings.manage`, `email_capture_settings.updated` with audit): `create_contacts`, `create_companies`, `link_open_deals` (enabled by default) and `initial_history_days` (default `history_days` for new mailboxes). With `create_contacts`, an unknown sender (inbound) or `to`/`cc` recipient (outbound) becomes a contact when there is already a message in the opposite direction with the same mailbox (two-way exchange). With `create_companies`, the company is found by domain or created (name derived from the domain); personal domains never become organizations. Everything goes through the people and organizations use cases with the mailbox owner's scope (regular `contact.created`/`company.created` events, `source = email`); previous threads with the address are linked to the new contact. The created contact only gets `lifecycle_stage = lead` when the `lead` option exists and is active in the people' `lifecycle_stage` field; otherwise it is created without a stage. A permission failure for the owner only produces a warning in the log.
 
 ### Computed fields
 
-Contacts and companies have `last_contacted_at`, `last_email_received_at`, `last_email_sent_at`, `interaction_count` and `last_contacted_by` (the user who owns the mailbox of the most recent message), table columns (migrations `2213`/`2214`) declared as system fields (filterable and sortable through `RecordQuery`, rejected by `CustomFieldWriter` and excluded from import). The `email.engagement` consumer recalculates the record's values from `email_record_links` + `email_messages` (only `received`/`sent` of kind `message`) on each `email.received|sent` and `email_thread.linked|unlinked`; the recalculation is idempotent and does not change `updated_at`. Decision: the values also aggregate `private` and `metadata` threads, because they are relationship metadata (when contact happened, how many messages and who spoke last) and do not depend on who is reading. The recalculation SQL reads only `direction`, `sent_at`/`created_at`, the message id and the mailbox owner; never subject, participants, snippet, body or attachments, so nothing from the content of a private thread appears on the record. The `/contacts` and `/companies` responses do not include these fields yet (pending).
+Contacts and organizations have `last_contacted_at`, `last_email_received_at`, `last_email_sent_at`, `interaction_count` and `last_contacted_by` (the user who owns the mailbox of the most recent message), table columns (migrations `2213`/`2214`) declared as system fields (filterable and sortable through `RecordQuery`, rejected by `CustomFieldWriter` and excluded from import). The `email.engagement` consumer recalculates the record's values from `email_record_links` + `email_messages` (only `received`/`sent` of kind `message`) on each `email.received|sent` and `email_thread.linked|unlinked`; the recalculation is idempotent and does not change `updated_at`. Decision: the values also aggregate `private` and `metadata` threads, because they are relationship metadata (when contact happened, how many messages and who spoke last) and do not depend on who is reading. The recalculation SQL reads only `direction`, `sent_at`/`created_at`, the message id and the mailbox owner; never subject, participants, snippet, body or attachments, so nothing from the content of a private thread appears on the record. The `/people` and `/organizations` responses do not include these fields yet (pending).
 
 ### Reading and timeline
 
 - `GET /email-threads?record_type=&record_id=` (read access to the record), `/email-threads/mine`, `/email-threads/{id}` and the attachment download require `emails.read`. A non-owner only sees non-`private` threads with at least one readable linked record; with `metadata`, snippet, body and attachments come out empty; `tracking` and `failure_reason` are owner-only; HTML is sanitized with `ammonia`. Only the owner can change visibility (`email_thread.visibility_changed` with audit).
 - Email files (body and attachments not linked to records) can only be downloaded by the owner at `/api/v1/files/{id}` (treated as a generated file in `generated_kind`).
-- Timeline: `email.*` and `email_thread.*` events only appear on the timeline of the event's own record (without repeating those of contacts and deals on the company), are hidden for users without `emails.read` and for other owners' `private` threads, and the item gets `metadata.email = { thread_id, subject, direction, access, snippet (null in metadata), from }`, read at query time (`modules/email/store/timeline.rs`).
+- Timeline: `email.*` and `email_thread.*` events only appear on the timeline of the event's own record (without repeating those of people and deals on the company), are hidden for users without `emails.read` and for other owners' `private` threads, and the item gets `metadata.email = { thread_id, subject, direction, access, snippet (null in metadata), from }`, read at query time (`modules/email/store/timeline.rs`).
 
 ### `messaging` email channel
 
@@ -121,7 +121,7 @@ Mailpit has no IMAP. To validate sync: `docker run -d -p 127.0.0.1:3025:3025 -p 
 
 ### Pending
 
-- Expose the computed fields in the contacts and companies responses.
+- Expose the computed fields in the people and organizations responses.
 
 Gmail and Outlook (providers `google.gmail` and `microsoft.outlook`): see the email sections of [`docs/modules/google.md`](../modules/google.md) and [`docs/modules/microsoft.md`](../modules/microsoft.md).
 
@@ -137,7 +137,7 @@ Code in `back/modules/email/{compose,templates,tracking}`, MySQL adapters in `ba
 4. Subject and body come from the request or from the template (`template_id`), always rendered on the server (variables escaped in HTML, HTML sanitized; without `body_text`, the text is derived from the HTML).
 5. Attachments (`attachment_file_ids`): only files the user can download (`FileUseCases::download`: uploaded by them, linked to a readable record or `settings.manage`); up to 20 files and 25 MB. The attachment references the same `file_id` (no copy).
 6. `Message-ID` = `<uuid v7 without hyphens>@<sender domain>`. Convention: the database and `OutgoingEmail` store ids **without** `<>`; the provider adds the brackets (the core IMAP/SMTP uses `bracket`).
-7. One transaction saves a new thread (if it is not a reply), the body file (`EmailBody` in `FileStorage`, a row in `files` with the sender as `uploaded_by`), the `sending` (or `scheduled`) message with participants (`contact_id` of contacts by email), the thread's `automatic` link to the source record and to the recipient contacts, and `refresh_thread`.
+7. One transaction saves a new thread (if it is not a reply), the body file (`EmailBody` in `FileStorage`, a row in `files` with the sender as `uploaded_by`), the `sending` (or `scheduled`) message with participants (`contact_id` of people by email), the thread's `automatic` link to the source record and to the recipient people, and `refresh_thread`.
 8. After the commit, the provider (`state.mail_providers.require_for(scope, mailbox.provider)`, credentials from the vault) sends. Success: `sent`, `sent_at`, `provider_message_id`, refreshed credentials (`SentEmail.credentials`) saved to the vault, `email.sent` once per linked record + audit (`email_message`: status, subject, recipients, number of blind copies and attachments, tracking; never the body). Failure: `failed` + `failure_reason`, `email.failed` and audit, and the API responds with the `mail_provider_*` error.
 
 ### Scheduled sending
@@ -166,7 +166,7 @@ The `email.reply_detection` consumer (`EmailEngagementConsumer`, stable name) li
 ### Automation
 
 - `send_owner_email` action ("Send email from the owner's mailbox", `retry_safe = false`, requires `emails.send` and read access to the type): sends from the first active mailbox of the **record owner** (`owner_id`), to the record's email field (default `email`) or fixed addresses (`to: [{ "type": "field", "field": "email" } | { "type": "address", "address": "..." }]`), with `template_id` (template variables) or `subject` + `body` (`{{record.*}}` templates of the automation engine), optional `tracking`. It goes through the `AutomationGateway::send_owner_email` port, implemented in `ApiAutomationOperations` (`kernel/api/automation_operations.rs`) with `email::service::compose::send_as_owner` (the same use case as the API; actor `Actor::Automation` and `causation` in the events). Without a recipient, the step ends with `sent: false`.
-- Triggers `email.received`, `email.sent`, `email.opened`, `email.clicked`, `email.bounced` for contacts, companies, deals and custom objects: they fire for the record of each publication of the event (one per linked record).
+- Triggers `email.received`, `email.sent`, `email.opened`, `email.clicked`, `email.bounced` for people, organizations, deals and custom objects: they fire for the record of each publication of the event (one per linked record).
 
 ### Local testing of track B
 

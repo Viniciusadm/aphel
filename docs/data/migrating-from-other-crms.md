@@ -1,25 +1,25 @@
 # Migrate from another CRM
 
-The migration assistant (*Settings → Migrate from another CRM*) brings into Aphel companies, people and deals exported as CSV from **Pipedrive**, **HubSpot**, **RD Station CRM** and **Agendor**. It is not a new importer: it converts the source tool's file and creates a regular, already-mapped import in the CSV importer, which you review and start on the import screen.
+The migration assistant (*Settings → Migrate from another CRM*) brings into Aphel organizations, people and deals exported as CSV from **Pipedrive**, **HubSpot**, **RD Station CRM** and **Agendor**. It is not a new importer: it converts the source tool's file and creates a regular, already-mapped import in the CSV importer, which you review and start on the import screen.
 
 > **Warning:** the column names recognized below were gathered from each tool's public documentation and from typical exports. They **may vary** depending on the account language, the product version and each company's custom fields. Unrecognized columns remain in the file and can be mapped manually (including to custom fields) when reviewing the import.
 
 ## How it works
 
 1. **Choose the source tool.** Each one defines the date format (day/month or month/day when the date uses slashes) and the decimal separator of amounts.
-2. **Import in the suggested order:** companies → people → deals. Each step creates a draft import; review the mapping, **start** it and wait for it to finish before the next one, so that links find the records already imported.
+2. **Import in the suggested order:** organizations → people → deals. Each step creates a draft import; review the mapping, **start** it and wait for it to finish before the next one, so that links find the records already imported.
 3. **Upload the step's CSV.** The assistant shows the recognized columns, the unrecognized ones, how many values were converted, conversion problems and the first converted rows — without writing anything.
 4. **Adjust the mappings** when the file has pipelines, stages or owners: for each distinct source value, choose the Aphel pipeline, stage or member (or keep the value from the file).
 5. **Create the import.** The converted file becomes a draft import with the mapping pre-filled and these options:
-   - companies: duplicates by **name** (HubSpot: by **domain**), skipping existing ones;
+   - organizations: duplicates by **name** (HubSpot: by **domain**), skipping existing ones;
    - people: duplicates by **email**;
    - deals: no duplicate check;
-   - referenced companies that do not exist are created by name.
+   - referenced organizations that do not exist are created by name.
 6. **Review and start** on the import screen (`/imports/<id>`), which validates row by row and generates the error CSV to fix and re-import.
 
 ### Links between files
 
-- People → company: through the company/organization column, matched against the companies' **name**.
+- People → company: through the company/organization column, matched against the organizations' **name**.
 - Deals → company and person: through the organization/company and person/contact columns, matched against the company name and the contact's name (or email).
 - Deals → pipeline and stage: by name. Use the assistant's mappings to translate the source stages (`Qualified`, `Proposta enviada`…) into your pipeline's stages; stages without a mapping must exist in Aphel with the same name. Create the pipelines and stages before importing the deals.
 - Owners: by email or by the **display name** of an active member. Without a match, the record is left without an owner (the row does not fail).
@@ -39,7 +39,7 @@ The migration assistant (*Settings → Migrate from another CRM*) brings into Ap
 
 ### What is not migrated
 
-Activities, tasks, notes, attachments and history are not imported by the assistant (the CSV importer accepts companies, contacts, deals and custom objects). Neither is the won/lost **status** of deals: they all come in as open, in the indicated stage; mark them as won or lost afterwards (or use final stages). Tags and custom fields from the source can be mapped manually during review, as long as they exist in Aphel.
+Activities, tasks, notes, attachments and history are not imported by the assistant (the CSV importer accepts organizations, people, deals and custom objects). Neither is the won/lost **status** of deals: they all come in as open, in the indicated stage; mark them as won or lost afterwards (or use final stages). Tags and custom fields from the source can be mapped manually during review, as long as they exist in Aphel.
 
 ## API
 
@@ -107,7 +107,7 @@ Dates are month/day/year when they use slashes (ISO `YYYY-MM-DD` dates are alway
 
 Dates are month/day/year when they use slashes (ISO `YYYY-MM-DD` dates are always accepted); decimal point (`1,500.00`).
 
-**Companies** (`company`, typical file `companies.csv`)
+**Companies** (`company`, typical file `organizations.csv`)
 
 | Aphel field | Recognized headers | Conversion |
 | --- | --- | --- |
@@ -123,7 +123,7 @@ Dates are month/day/year when they use slashes (ISO `YYYY-MM-DD` dates are alway
 | Owner (`owner_id`) | `Company owner`, `HubSpot Owner`, `Proprietário da empresa`, `Proprietário do HubSpot` | name → member email |
 | Description (`description`) | `Description`, `Descrição` | — |
 
-**People** (`contact`, typical file `contacts.csv`)
+**People** (`contact`, typical file `people.csv`)
 
 | Aphel field | Recognized headers | Conversion |
 | --- | --- | --- |

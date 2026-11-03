@@ -385,7 +385,7 @@ const SESSION_COLUMNS: &str = "id, user_id, view_id, name, script, status, posit
 
 const ITEM_SELECT: &str = "SELECT i.position, i.contact_id, c.full_name AS contact_name, i.status, \
      i.activity_id, i.outcome_key, i.handled_at FROM call_session_items i \
-     LEFT JOIN contacts c ON c.id = i.contact_id \
+     LEFT JOIN people c ON c.id = i.contact_id \
      AND c.deleted_at IS NULL ";
 
 #[derive(Clone)]

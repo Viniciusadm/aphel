@@ -283,7 +283,7 @@ async fn list_policies(
     security(("session_cookie" = [])),
     request_body = CreateRetentionPolicyBody,
     responses(
-        (status = 201, description = "Policy created disabled (`retention_policy.created`). Actions: `archive_inactive` (contacts, companies or deals without updates, activities or notes for N days), `purge_archived` (deletes for good records archived N days ago, with their files), `purge_audit_logs`, `purge_security_events`, `purge_domain_events` (dispatched events; the timeline loses that history) and `purge_orphan_files` (files no longer referenced, also removed from the storage). The trash keeps its own retention (`trash.purge`)", body = Data<RetentionPolicyResponse>),
+        (status = 201, description = "Policy created disabled (`retention_policy.created`). Actions: `archive_inactive` (people, organizations or deals without updates, activities or notes for N days), `purge_archived` (deletes for good records archived N days ago, with their files), `purge_audit_logs`, `purge_security_events`, `purge_domain_events` (dispatched events; the timeline loses that history) and `purge_orphan_files` (files no longer referenced, also removed from the storage). The trash keeps its own retention (`trash.purge`)", body = Data<RetentionPolicyResponse>),
         (status = 401, description = "Missing or invalid credentials (`unauthorized`, `invalid_api_token`)", body = ErrorEnvelope),
         (status = 403, description = "Missing `privacy.manage` (`permission_denied`, `insufficient_scope`)", body = ErrorEnvelope),
         (status = 422, description = "Invalid name, action, record type or threshold (`validation_error`), or 50 policies already (`retention_policy_limit`)", body = ErrorEnvelope),

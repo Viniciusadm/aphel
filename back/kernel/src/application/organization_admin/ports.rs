@@ -3,7 +3,7 @@ use chrono::{DateTime, Utc};
 
 use crate::application::auth::NewUserToken;
 use crate::application::mail::Mailer;
-use crate::application::organizations::NewRole;
+use crate::application::organization_profile::NewRole;
 use crate::application::security::{Clock, SecureTokens};
 use crate::application::shared::{AuditLog, EventPublisher, TransactionManager};
 use crate::domain::access::{PermissionGrant, RoleKey};

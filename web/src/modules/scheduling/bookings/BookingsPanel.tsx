@@ -37,7 +37,7 @@ function BookingRow({ booking, now, onCancel }: BookingRowProps) {
       </div>
       <div className="grid min-w-0 gap-0.5">
         {booking.contact_id ? (
-          <Link to={`/contacts/${booking.contact_id}`} className="truncate text-sm font-medium hover:underline">
+          <Link to={`/people/${booking.contact_id}`} className="truncate text-sm font-medium hover:underline">
             {booking.guest_name}
           </Link>
         ) : (

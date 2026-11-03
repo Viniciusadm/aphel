@@ -24,8 +24,8 @@ import type { PriceList, PriceListAppliesTo, PriceListRequest } from './types'
 import { Field } from '@/components/ui/field'
 import { ToggleField } from '@/components/ui/toggle-field'
 
-const APPLIES_TO: PriceListAppliesTo[] = ['all', 'segment', 'companies']
-const COMPANY_RECORD_TYPE = 'companies.company'
+const APPLIES_TO: PriceListAppliesTo[] = ['all', 'segment', 'organizations']
+const COMPANY_RECORD_TYPE = 'organizations.organization'
 
 export interface PriceListDialogProps {
   open: boolean
@@ -95,7 +95,7 @@ function PriceListForm({ list, onClose, onSaved }: PriceListFormProps) {
       currency: selectedCurrency || undefined,
       applies_to: appliesTo,
       segment_id: appliesTo === 'segment' ? segmentId || null : null,
-      company_ids: appliesTo === 'companies' ? companyIds : [],
+      company_ids: appliesTo === 'organizations' ? companyIds : [],
       valid_from: validFrom || null,
       valid_to: validTo || null,
       is_active: isActive,
@@ -226,9 +226,9 @@ function PriceListForm({ list, onClose, onSaved }: PriceListFormProps) {
             </>}
           </Field>
         )}
-        {appliesTo === 'companies' && (
+        {appliesTo === 'organizations' && (
           <fieldset className="grid gap-2">
-            <legend className="mb-1.5 text-sm font-medium">{t('form.companies')}</legend>
+            <legend className="mb-1.5 text-sm font-medium">{t('form.organizations')}</legend>
             {companyIds.map((companyId, index) => (
               <div key={companyId} className="flex items-center gap-2">
                 <div className="min-w-0 flex-1">

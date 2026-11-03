@@ -199,14 +199,14 @@ function CaptureForm({ initial }: { initial: CaptureSettings }) {
     >
       <UnsavedChangesGuard when={dirty} />
       <ToggleRow
-        id={`${formId}-contacts`}
+        id={`${formId}-people`}
         label={t('capture.createContacts')}
         description={t('capture.createContactsDescription')}
         checked={values.create_contacts}
         onChange={(checked) => setValues((current) => ({ ...current, create_contacts: checked }))}
       />
       <ToggleRow
-        id={`${formId}-companies`}
+        id={`${formId}-organizations`}
         label={t('capture.createCompanies')}
         description={t('capture.createCompaniesDescription')}
         checked={values.create_companies}

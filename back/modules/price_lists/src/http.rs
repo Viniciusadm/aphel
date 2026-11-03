@@ -93,7 +93,7 @@ async fn list_price_lists(
     security(("session_cookie" = [])),
     request_body = PriceListRequest,
     responses(
-        (status = 201, description = "Price list created (`price_list.created`). `currency` defaults to the organization currency and must be enabled; `applies_to` is `all` (default), `segment` (with a company `segment_id`) or `companies` (with `company_ids`); `valid_from`/`valid_to` (inclusive, optional) bound when it is in effect. Marking `is_default` (only for `all`) replaces the previous default of the currency. `key` is generated from the name when omitted", body = Data<PriceListResponse>),
+        (status = 201, description = "Price list created (`price_list.created`). `currency` defaults to the organization currency and must be enabled; `applies_to` is `all` (default), `segment` (with a company `segment_id`) or `organizations` (with `company_ids`); `valid_from`/`valid_to` (inclusive, optional) bound when it is in effect. Marking `is_default` (only for `all`) replaces the previous default of the currency. `key` is generated from the name when omitted", body = Data<PriceListResponse>),
         (status = 401, description = UNAUTHORIZED, body = ErrorEnvelope),
         (status = 403, description = FORBIDDEN_WRITE, body = ErrorEnvelope),
         (status = 409, description = "Another price list uses the key (`price_list_key_taken`)", body = ErrorEnvelope),
@@ -435,7 +435,7 @@ async fn delete_product_bundle(
 pub(crate) enum PriceListAppliesToSchema {
     All,
     Segment,
-    Companies,
+    Organizations,
 }
 
 impl From<PriceListAppliesTo> for PriceListAppliesToSchema {
@@ -443,7 +443,7 @@ impl From<PriceListAppliesTo> for PriceListAppliesToSchema {
         match value {
             PriceListAppliesTo::All => Self::All,
             PriceListAppliesTo::Segment => Self::Segment,
-            PriceListAppliesTo::Companies => Self::Companies,
+            PriceListAppliesTo::Organizations => Self::Organizations,
         }
     }
 }
@@ -453,7 +453,7 @@ impl From<PriceListAppliesToSchema> for PriceListAppliesTo {
         match value {
             PriceListAppliesToSchema::All => Self::All,
             PriceListAppliesToSchema::Segment => Self::Segment,
-            PriceListAppliesToSchema::Companies => Self::Companies,
+            PriceListAppliesToSchema::Organizations => Self::Organizations,
         }
     }
 }

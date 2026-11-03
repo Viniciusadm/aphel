@@ -12,10 +12,8 @@ import type callsNamespace from '../modules/calls/i18n/pt-BR.json'
 import type catalogNamespace from './pt-BR/catalog.json'
 import type commandPaletteNamespace from './pt-BR/command-palette.json'
 import type commonNamespace from './pt-BR/common.json'
-import type companiesNamespace from '../modules/companies/i18n/pt-BR.json'
 import type configPackageVersioningNamespace from './pt-BR/config-package-versioning.json'
 import type configPackagesNamespace from './pt-BR/config-packages.json'
-import type contactsNamespace from '../modules/contacts/i18n/pt-BR.json'
 import type currenciesNamespace from '../modules/currencies/i18n/pt-BR.json'
 import type dashboardNamespace from '../modules/dashboard/i18n/pt-BR.json'
 import type dealItemsNamespace from '../modules/deal_items/i18n/pt-BR.json'
@@ -59,6 +57,8 @@ import type oidcNamespace from '../modules/oidc/i18n/pt-BR.json'
 import type onboardingNamespace from '../modules/onboarding/i18n/pt-BR.json'
 import type orgExportNamespace from '../modules/org_export/i18n/pt-BR.json'
 import type organizationSettingsNamespace from './pt-BR/organization-settings.json'
+import type organizationsNamespace from '../modules/organizations/i18n/pt-BR.json'
+import type peopleNamespace from '../modules/people/i18n/pt-BR.json'
 import type pipelinesNamespace from '../modules/pipelines/i18n/pt-BR.json'
 import type priceListsNamespace from '../modules/price_lists/i18n/pt-BR.json'
 import type privacyNamespace from '../modules/privacy/i18n/pt-BR.json'
@@ -108,10 +108,8 @@ declare module 'i18next' {
       catalog: typeof catalogNamespace
       'command-palette': typeof commandPaletteNamespace
       common: typeof commonNamespace
-      companies: typeof companiesNamespace
       'config-package-versioning': typeof configPackageVersioningNamespace
       'config-packages': typeof configPackagesNamespace
-      contacts: typeof contactsNamespace
       currencies: typeof currenciesNamespace
       dashboard: typeof dashboardNamespace
       deal_items: typeof dealItemsNamespace
@@ -155,6 +153,8 @@ declare module 'i18next' {
       onboarding: typeof onboardingNamespace
       org_export: typeof orgExportNamespace
       'organization-settings': typeof organizationSettingsNamespace
+      organizations: typeof organizationsNamespace
+      people: typeof peopleNamespace
       pipelines: typeof pipelinesNamespace
       price_lists: typeof priceListsNamespace
       privacy: typeof privacyNamespace

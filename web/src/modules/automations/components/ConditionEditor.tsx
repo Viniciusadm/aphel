@@ -13,7 +13,7 @@ import { useConditionSchema } from '../lib/condition-schema'
 
 const EMPTY_FILTER: FilterNode = { op: 'and', conditions: [] }
 
-const ACTIVITY_HOSTS = new Set(['contacts.contact', 'companies.company', 'deals.deal'])
+const ACTIVITY_HOSTS = new Set(['people.person', 'organizations.organization', 'deals.deal'])
 
 interface RelationChoice {
   key: string

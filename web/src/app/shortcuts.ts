@@ -11,8 +11,8 @@ export interface GoShortcut {
 
 export const GO_SHORTCUTS: GoShortcut[] = [
   { key: 'h', to: '/' },
-  { key: 'c', to: '/contacts' },
-  { key: 'e', to: '/companies' },
+  { key: 'c', to: '/people' },
+  { key: 'e', to: '/organizations' },
   { key: 'd', to: '/deals' },
   { key: 'p', to: '/products' },
   { key: 't', to: '/tasks' },

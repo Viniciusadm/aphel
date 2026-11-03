@@ -87,7 +87,7 @@ pub(crate) async fn list(
     let mut violations = Vec::new();
     let record_type = duplicate_type(
         ctx.registry(),
-        query.record_type.as_deref().unwrap_or("contacts.contact"),
+        query.record_type.as_deref().unwrap_or("people.person"),
     )
     .or_else(|| {
         violations.push(FieldViolation::new(

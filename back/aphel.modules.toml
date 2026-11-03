@@ -9,8 +9,8 @@ formulas = { path = "modules/formulas" }
 validation_rules = { path = "modules/validation_rules" }
 
 marketplace = { path = "modules/marketplace" }
-contacts = { path = "modules/contacts", required = true }
-companies = { path = "modules/companies", required = true }
+people = { path = "modules/people", required = true }
+organizations = { path = "modules/organizations", required = true }
 leads = { path = "modules/leads" }
 scoring = { path = "modules/scoring" }
 currencies = { path = "modules/currencies", required = true }

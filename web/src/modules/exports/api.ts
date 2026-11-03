@@ -10,15 +10,15 @@ export type ExportRequest = Schemas['ExportRequest']
 export type ExportFormat = Schemas['ExportFormatDto']
 export type ExportJobsPage = Schemas['Page_ExportJobResponse']
 
-export const EXPORTABLE_RECORD_TYPES = ['contacts.contact', 'companies.company', 'deals.deal', 'activities.activity', 'products.product'] as const
+export const EXPORTABLE_RECORD_TYPES = ['people.person', 'organizations.organization', 'deals.deal', 'activities.activity', 'products.product'] as const
 const POLL_INTERVAL_MS = 2000
 export const HISTORY_PAGE_SIZE = 25
 
 export type ExportableRecordType = (typeof EXPORTABLE_RECORD_TYPES)[number]
 
 const PERMISSION_PREFIX: Record<ExportableRecordType, string> = {
-  'contacts.contact': 'contacts',
-  'companies.company': 'companies',
+  'people.person': 'people',
+  'organizations.organization': 'organizations',
   'deals.deal': 'deals',
   'activities.activity': 'activities',
   'products.product': 'products',

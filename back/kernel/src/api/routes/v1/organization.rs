@@ -11,9 +11,9 @@ use crate::api::dto::organization::{OrganizationResponse, UpdateOrganizationRequ
 use crate::api::error::ApiError;
 use crate::api::extractors::{AuthContext, ClientInfo, JsonBody};
 use crate::api::state::AppState;
-use crate::application::organizations::OrganizationUseCases;
+use crate::application::organization_profile::OrganizationUseCases;
 use crate::errors::AppError;
-use crate::infrastructure::repositories::mysql_organizations::MySqlOrganizationPorts;
+use crate::infrastructure::repositories::mysql_organization_profile::MySqlOrganizationPorts;
 
 pub const TAG: &str = "organization";
 

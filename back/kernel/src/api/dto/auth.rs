@@ -125,7 +125,7 @@ impl From<&User> for MeUser {
 
 #[derive(Debug, Serialize, ToSchema)]
 pub struct PermissionGrantDto {
-    #[schema(example = "contacts.read")]
+    #[schema(example = "people.read")]
     pub permission: String,
     pub scope: RecordScopeDto,
 }

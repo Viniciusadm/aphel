@@ -13,8 +13,8 @@ use aphel_kernel::Ctx;
 use aphel_kernel::application::shared::RecordType;
 use aphel_kernel::errors::{AppError, CodedKind};
 use aphel_kernel::records::AddressInput;
-use contacts::domain::{ContactInput, SaveContactCommand};
 use deals::domain::DealInput;
+use people::domain::{ContactInput, SaveContactCommand};
 
 pub(crate) const CREATED: &str = "created";
 pub(crate) const UPDATED: &str = "updated";

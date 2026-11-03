@@ -107,7 +107,7 @@
     "sequenceAlreadyEnrolled": "The contact is already in this sequence.",
     "sequenceWithoutEmail": "The contact has no e-mail.",
     "sequenceObjected": "The contact objected to e-mail tracking.",
-    "noMailbox": "Connect a mailbox to enroll contacts."
+    "noMailbox": "Connect a mailbox to enroll people."
   },
   "history": {
     "title": "Bulk actions",
@@ -134,11 +134,11 @@
       "company": "Companies",
       "deal": "Deals",
       "product": "Products",
-      "contacts": {
-        "contact": "Contacts"
+      "people": {
+        "person": "Contacts"
       },
-      "companies": {
-        "company": "Companies"
+      "organizations": {
+        "organization": "Companies"
       },
       "deals": {
         "deal": "Deals"

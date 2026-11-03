@@ -586,10 +586,10 @@ fn raw_body(
 }
 
 async fn organization() -> Result<String, AppError> {
-    use aphel_kernel::application::organizations::OrganizationRepository;
+    use aphel_kernel::application::organization_profile::OrganizationRepository;
     let pool = runtime_pool()?;
     let organization =
-        aphel_kernel::infrastructure::repositories::mysql_organizations::MySqlOrganizationRepository::new(pool)
+        aphel_kernel::infrastructure::repositories::mysql_organization_profile::MySqlOrganizationRepository::new(pool)
             .find()
             .await?
             .ok_or_else(|| {

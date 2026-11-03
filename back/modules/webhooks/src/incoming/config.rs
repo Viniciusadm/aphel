@@ -192,7 +192,7 @@ fn validate_contact_match(
             if !catalog.is_unique_custom(ActionKind::UpsertContact, key) {
                 violations.push(FieldViolation::new(
                     format!("{path}.match_field"),
-                    "must be an active unique custom field of contacts",
+                    "must be an active unique custom field of people",
                 ));
             } else if !contact.fields.contains_key(key) {
                 violations.push(FieldViolation::new(

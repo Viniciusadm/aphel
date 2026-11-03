@@ -97,11 +97,11 @@
       "deal": "oportunidade(s)",
       "note": "nota(s)",
       "activity": "atividade(s)",
-      "contacts": {
-        "contact": "contato(s)"
+      "people": {
+        "person": "contato(s)"
       },
-      "companies": {
-        "company": "empresa(s)"
+      "organizations": {
+        "organization": "empresa(s)"
       },
       "deals": {
         "deal": "oportunidade(s)"

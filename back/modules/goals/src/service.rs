@@ -99,7 +99,7 @@ fn metric_source(metric: GoalMetric) -> MetricSource {
             metric: MetricSpec::count(),
         },
         GoalMetric::NewContacts => MetricSource {
-            record_type: "contacts.contact",
+            record_type: "people.person",
             status: None,
             period_field: "created_at",
             metric: MetricSpec::count(),

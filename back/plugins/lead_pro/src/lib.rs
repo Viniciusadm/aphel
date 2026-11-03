@@ -38,7 +38,7 @@ const CONVERTING_PRIORITY: i32 = 10;
 
 const PUBLIC_EVENTS: &[PublicEventDefinition] = &[event(
     TEMPERATURE_CHANGED,
-    contacts::CONTACT_RESOURCE,
+    people::CONTACT_RESOURCE,
     "The lead temperature of the contact changed after a touch (activity, note, e-mail, meeting or manual)",
 )];
 
@@ -63,7 +63,7 @@ impl Module for LeadPro {
                 "Lead temperature: interactions warm up the contact, qualification requires a hot lead and conversion carries the temperature over to the deal",
             )
             .requires_aphel("0.1.0")
-            .depends_on(contacts::KEY, "*")
+            .depends_on(people::KEY, "*")
             .depends_on(leads::KEY, "*")
             .depends_on(deals::KEY, "*")
             .enabled_by_default().owned_tables(&["lead_pro_touches", "lead_pro_contact_extension"])
@@ -116,7 +116,7 @@ impl Module for LeadPro {
             FieldType::Number,
             TEMPERATURE_FIELD,
         )?;
-        app.extend("contacts.contact", |contact| {
+        app.extend("people.person", |contact| {
             contact
                 .side_table("lead_pro_contact_extension", "record_id")
                 .system_field(field);

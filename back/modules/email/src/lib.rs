@@ -89,8 +89,8 @@ impl Module for EmailModule {
             .description(
                 "Personal mailboxes, synchronization, conversations linked to records, sending, templates and tracking",
             )
-            .depends_on(contacts::KEY, "*")
-            .depends_on(companies::KEY, "*")
+            .depends_on(people::KEY, "*")
+            .depends_on(organizations::KEY, "*")
             .enabled_by_default()
             .owned_tables(&["mailboxes", "mailbox_sync_failures"])
             .migration(Migration::new(

@@ -40,7 +40,7 @@ use aphel_kernel::application::shared::{
 };
 use aphel_kernel::database::transaction::MySqlTx;
 use aphel_kernel::domain::access::{Permission, RecordScopeFilter};
-use aphel_kernel::domain::organizations::ORGANIZATION_RECORD_ID;
+use aphel_kernel::domain::organization_profile::ORGANIZATION_RECORD_ID;
 use aphel_kernel::domain::{Secret, UserId};
 use aphel_kernel::errors::{AppError, FieldViolation};
 use aphel_kernel::records::{

@@ -6,14 +6,14 @@ import { LeadsQuickFilter } from './LeadsQuickFilter'
 import { LifecycleRecordTab } from './LifecycleHistoryTab'
 import { leadsRoutes, lifecycleSettingsRoute } from './routes'
 
-const LIFECYCLE_RECORD_TYPES = ['contacts.contact', 'companies.company']
+const LIFECYCLE_RECORD_TYPES = ['people.person', 'organizations.organization']
 
 const leadsModule = defineModule({
   key: 'leads',
   translations: { 'pt-BR': () => import('./i18n/pt-BR.json'), en: () => import('./i18n/en.json') },
   register(app) {
     app.routes(leadsRoutes)
-    app.nav({ to: LEADS_PATH, label: 'nav.leads', icon: UserPlus, permission: ['contacts.read'], order: 30 })
+    app.nav({ to: LEADS_PATH, label: 'nav.leads', icon: UserPlus, permission: ['people.read'], order: 30 })
     app.settings('organization', {
       group: 'sales',
       path: 'lifecycle',
@@ -33,7 +33,7 @@ const leadsModule = defineModule({
     app.slot('record.detail.actions', {
       key: 'lead-actions',
       recordTypes: [CONTACT_RECORD_TYPE],
-      permission: 'contacts.update',
+      permission: 'people.update',
       render: LeadRecordActions,
     })
     app.slot('record.list.toolbar', {

@@ -1,7 +1,7 @@
 {
   "page": {
     "title": "Migrate from another CRM",
-    "description": "Bring companies, people, deals (with their won or lost status), activities and notes exported from another CRM. The assistant recognizes the export columns, converts dates, amounts and phone numbers and prepares the imports already mapped.",
+    "description": "Bring organizations, people, deals (with their won or lost status), activities and notes exported from another CRM. The assistant recognizes the export columns, converts dates, amounts and phone numbers and prepares the imports already mapped.",
     "inferredHeaders": "The recognized column names come from the public documentation of each tool and may vary with the account language and version. Columns that are not recognized can be mapped by hand when reviewing the import."
   },
   "source": {
@@ -18,15 +18,15 @@
   "steps": {
     "title": "Import in this order from {{source}}",
     "description": "Each step creates a draft import. Review the mapping and start it before moving to the next one, so links find the records already imported.",
-    "companies": {
+    "organizations": {
       "title": "Companies",
-      "description": "Upload the companies (organizations) CSV, usually {{file}}.",
+      "description": "Upload the organizations (organizations) CSV, usually {{file}}.",
       "links": "Companies come first so people and deals can be linked to them."
     },
-    "contacts": {
+    "people": {
       "title": "People",
-      "description": "Upload the people (contacts) CSV, usually {{file}}.",
-      "links": "Each person is linked to the company by name; missing companies are created."
+      "description": "Upload the people (people) CSV, usually {{file}}.",
+      "links": "Each person is linked to the company by name; missing organizations are created."
     },
     "deals": {
       "title": "Deals",
@@ -36,7 +36,7 @@
     "activities": {
       "title": "Activities",
       "description": "Upload the activities or tasks CSV, usually {{file}}.",
-      "links": "Import companies, people and deals first: each activity is linked to the deal by title, to the person by e-mail or name and to the company by name. Types are matched by name and done tasks keep their date."
+      "links": "Import organizations, people and deals first: each activity is linked to the deal by title, to the person by e-mail or name and to the company by name. Types are matched by name and done tasks keep their date."
     },
     "notes": {
       "title": "Notes",

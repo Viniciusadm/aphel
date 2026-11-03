@@ -9,8 +9,8 @@ import recordLayoutsModule from '@modules/record_layouts'
 import formulasModule from '@modules/formulas'
 import validationRulesModule from '@modules/validation_rules'
 import marketplaceModule from '@modules/marketplace'
-import contactsModule from '@modules/contacts'
-import companiesModule from '@modules/companies'
+import peopleModule from '@modules/people'
+import organizationsModule from '@modules/organizations'
 import leadsModule from '@modules/leads'
 import scoringModule from '@modules/scoring'
 import currenciesModule from '@modules/currencies'
@@ -73,8 +73,8 @@ export const MODULES: WebModule[] = [
   formulasModule,
   validationRulesModule,
   marketplaceModule,
-  contactsModule,
-  companiesModule,
+  peopleModule,
+  organizationsModule,
   leadsModule,
   scoringModule,
   currenciesModule,

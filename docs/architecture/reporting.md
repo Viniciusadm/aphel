@@ -66,13 +66,13 @@ Each type declares its relations in the `RecordTypeRegistry` (`RecordRelation` w
 | Deal, contact, company | `activities` | `PolymorphicMany` (`activities.record_type/record_id`) or `Linked` (`activity_links`) |
 | Contact | `company` | `BelongsTo` (`company_id`) |
 | Contact | `deals` | `HasMany` (`deals.contact_id`) |
-| Company | `contacts`, `deals` | `HasMany` (`company_id`) |
+| Company | `people`, `deals` | `HasMany` (`company_id`) |
 | Activity | `contact`, `company`, `deal` | `Polymorphic` (main record) or `Linked` (`activity_links`) |
 | Any type connected by a configurable relationship (session 16) | `key` on the `from` type, `inverse_key` on the `to` type | `Relationship` (`record_relations`), single-record when the cardinality allows it (`to` in `one_to_many`, both in `one_to_one`) |
 
 Rules to avoid duplicating totals:
 
-1. **Filters on related records** (`company.industry eq "Varejo"`, `deals.status eq "won"` on companies) become `EXISTS (...)` — never `JOIN` — and mean "there is at least one related record, visible to the user and not deleted, that meets the condition". Each condition is evaluated independently: two conditions on `deals` inside an `and` can be met by different deals. Archived related records count; deleted ones do not.
+1. **Filters on related records** (`company.industry eq "Varejo"`, `deals.status eq "won"` on organizations) become `EXISTS (...)` — never `JOIN` — and mean "there is at least one related record, visible to the user and not deleted, that meets the condition". Each condition is evaluated independently: two conditions on `deals` inside an `and` can be met by different deals. Archived related records count; deleted ones do not.
 2. **Grouping by a related field** is only allowed on single-record relations (`BelongsTo`, like `company.*` on deals, or a single-record `Relationship`, like `company.*` on contracts of a custom object). The `LEFT JOIN` brings at most one row per record; an invisible or deleted related record falls into the empty group.
 3. **Metrics** use only fields of the type itself and count distinct records.
 4. Multi-valued groupings (`tags`, multi-select, `owner_team` with an owner in two teams) put the same record in more than one group, on purpose. That is why **totals** are computed in a separate query, without grouping, and never by summing the rows.

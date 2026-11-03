@@ -5,7 +5,7 @@
   "id": "aphel.saas.en",
   "version": "1.0.0",
   "name": "SaaS",
-  "description": "For subscription software companies: from trial to closed subscription, with plan, MRR, number of seats, trial end and renewal date.",
+  "description": "For subscription software organizations: from trial to closed subscription, with plan, MRR, number of seats, trial end and renewal date.",
   "author": "Aphel",
   "locale": "en",
   "sections": {

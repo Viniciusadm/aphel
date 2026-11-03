@@ -32,8 +32,8 @@ pub(crate) const REPORT_TOTALS: &str = "report_totals";
 pub(crate) const DEALS_BY_STAGE: &str = "deals_by_stage";
 
 pub(crate) const RECORD_EVENT_TYPES: &[(&str, &[&str])] = &[
-    ("contacts.contact", &["contact.created"]),
-    ("companies.company", &["company.created"]),
+    ("people.person", &["contact.created"]),
+    ("organizations.organization", &["company.created"]),
     (
         "deals.deal",
         &[
@@ -687,11 +687,11 @@ where
         _settings: &Value,
     ) -> Result<Value, AppError> {
         let mut totals = Map::new();
-        let contacts = match context.planner(&RecordType::CONTACT).await? {
+        let people = match context.planner(&RecordType::CONTACT).await? {
             Some(planner) => json!(count(context, &planner, Vec::new()).await?),
             None => Value::Null,
         };
-        totals.insert("contacts_total".to_owned(), contacts);
+        totals.insert("contacts_total".to_owned(), people);
         let mut previous = Map::new();
         match context.planner(&RecordType::DEAL).await? {
             Some(planner) => {

@@ -41,7 +41,7 @@ pub(crate) fn price_list_key_taken() -> AppError {
 pub(crate) enum PriceListAppliesTo {
     All,
     Segment,
-    Companies,
+    Organizations,
 }
 
 impl PriceListAppliesTo {
@@ -49,7 +49,7 @@ impl PriceListAppliesTo {
         match self {
             Self::All => "all",
             Self::Segment => "segment",
-            Self::Companies => "companies",
+            Self::Organizations => "organizations",
         }
     }
 
@@ -57,7 +57,7 @@ impl PriceListAppliesTo {
         match value {
             "all" => Some(Self::All),
             "segment" => Some(Self::Segment),
-            "companies" => Some(Self::Companies),
+            "organizations" => Some(Self::Organizations),
             _ => None,
         }
     }

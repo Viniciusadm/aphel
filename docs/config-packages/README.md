@@ -108,7 +108,7 @@ Conflicts (`conflict.code`, `conflict.resolvable`):
 | `relationship_incompatible` | Relationship with the same key and different types, inverse key or cardinality | No |
 | `relationship_key_collision` | The relationship's key (or inverse key) is already used by a system field, a custom field (from the organization or the package) or another relation of the same record type | No |
 
-Guarantees: installation **never deletes anything** (options, stages, fields and organization items that the package does not mention stay as they are) and **never touches business records** (contacts, companies, deals, activities, field values). New stages come in the package's order; stages that only the organization has stay after the stage that preceded them.
+Guarantees: installation **never deletes anything** (options, stages, fields and organization items that the package does not mention stay as they are) and **never touches business records** (people, organizations, deals, activities, field values). New stages come in the package's order; stages that only the organization has stay after the stage that preceded them.
 
 ## Applying
 
@@ -196,7 +196,7 @@ The `deal_items` section carries the deal items configuration: `{ "amount_mode":
 
 ## Price lists and discount limits
 
-The `price_lists` section (session 25) carries the price lists that apply to all companies (`applies_to = all`; segment or company-specific lists are not exported), by stable key: name, description, currency, validity (`valid_from`/`valid_to`), active, currency default and items referenced by **product code** (`product_code`, `unit_price`, optional `min_quantity`, default 1). Installing creates the missing lists and updates the existing ones by key (the application scope is kept); items are replaced when they change. The currency must be enabled (or come in the same package's `currencies` section), otherwise the item is in conflict; nonexistent product codes generate a resolvable conflict (applying ignores those prices). Products are never created or changed.
+The `price_lists` section (session 25) carries the price lists that apply to all organizations (`applies_to = all`; segment or company-specific lists are not exported), by stable key: name, description, currency, validity (`valid_from`/`valid_to`), active, currency default and items referenced by **product code** (`product_code`, `unit_price`, optional `min_quantity`, default 1). Installing creates the missing lists and updates the existing ones by key (the application scope is kept); items are replaced when they change. The currency must be enabled (or come in the same package's `currencies` section), otherwise the item is in conflict; nonexistent product codes generate a resolvable conflict (applying ignores those prices). Products are never created or changed.
 
 The `discount_limits` section carries the maximum discount per role (`role` = role key, `max_discount_percent` as text or `null` for no limit). A nonexistent role becomes an unresolvable conflict.
 

@@ -11,9 +11,9 @@ use aphel_kernel::domain::access::AccessScope;
 use aphel_kernel::domain::fields::FieldDefinition;
 use aphel_kernel::errors::AppError;
 use aphel_kernel::infrastructure::fields::MySqlFieldDefinitionRepository;
-use contacts::domain::SaveContactCommand;
 use deals::domain::DealInput;
 use lead_distribution::{AssignRequest, AssignmentSource, RULE_NOT_FOUND};
+use people::domain::SaveContactCommand;
 
 fn missing_is_false(result: Result<bool, AppError>) -> Result<bool, AppError> {
     match result {
@@ -69,7 +69,7 @@ async fn first_contact(ctx: &Ctx<'_>, filter: Filter) -> Result<Option<Uuid>, Ap
         },
         ..RecordQuery::default()
     };
-    Ok(contacts::service::list(ctx, query)
+    Ok(people::service::list(ctx, query)
         .await?
         .items
         .first()
@@ -80,11 +80,7 @@ pub(crate) async fn create_contact(
     ctx: &Ctx<'_>,
     command: SaveContactCommand,
 ) -> Result<Uuid, AppError> {
-    Ok(contacts::service::create(ctx, command)
-        .await?
-        .view
-        .contact
-        .id)
+    Ok(people::service::create(ctx, command).await?.view.contact.id)
 }
 
 pub(crate) async fn update_contact(
@@ -93,7 +89,7 @@ pub(crate) async fn update_contact(
     command: SaveContactCommand,
 ) -> Result<Uuid, AppError> {
     Ok(
-        contacts::service::update(ctx, &contact_id.to_string(), command)
+        people::service::update(ctx, &contact_id.to_string(), command)
             .await?
             .view
             .contact

@@ -13,7 +13,7 @@ aphel-contract-crm.workspace = true
 aphel-kernel.workspace = true
 aphel-sdk.workspace = true
 activities = { package = "aphel-mod-activities", path = "../activities" }
-contacts = { package = "aphel-mod-contacts", path = "../contacts" }
+people = { package = "aphel-mod-people", path = "../people" }
 deals = { package = "aphel-mod-deals", path = "../deals" }
 lead_distribution = { package = "aphel-mod-lead-distribution", path = "../lead_distribution" }
 pipelines = { package = "aphel-mod-pipelines", path = "../pipelines" }

@@ -403,7 +403,7 @@ impl ScoreStore {
         if record_type == RecordType::COMPANY.as_str() {
             builder.push(format!(
                 " UNION ALL SELECT c.company_id AS target_id, {columns} FROM scoring_signals s \
-                 JOIN contacts c ON c.id = s.record_id \
+                 JOIN people c ON c.id = s.record_id \
                  WHERE "
             ));
             builder

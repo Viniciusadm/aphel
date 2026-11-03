@@ -2,7 +2,7 @@ use super::{SmtpMailer, SmtpSecurity, SmtpSettings};
 use crate::application::mail::{
     EmailAttachment, EmailMessage, MAIL_NOT_CONFIGURED, Mailer, SharedMailer,
 };
-use crate::application::organizations::MailStatus;
+use crate::application::organization_profile::MailStatus;
 use crate::application::secrets::SecretVault;
 use crate::errors::AppError;
 use crate::infrastructure::platform::SharedSecretVault;
@@ -73,7 +73,7 @@ impl SmtpMailerProvider {
                     .vault
                     .reveal(
                         &crate::domain::access::AccessScope::system(),
-                        &crate::application::organizations::mail_secret_key(),
+                        &crate::application::organization_profile::mail_secret_key(),
                     )
                     .await?
                 {

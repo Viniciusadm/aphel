@@ -15,11 +15,11 @@
     "contact": "Contato",
     "company": "Empresa",
     "deal": "Oportunidade",
-    "contacts": {
-      "contact": "Contato"
+    "people": {
+      "person": "Contato"
     },
-    "companies": {
-      "company": "Empresa"
+    "organizations": {
+      "organization": "Empresa"
     },
     "deals": {
       "deal": "Oportunidade"

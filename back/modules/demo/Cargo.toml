@@ -19,8 +19,8 @@ pipelines = { package = "aphel-mod-pipelines", path = "../pipelines" }
 price_lists = { package = "aphel-mod-price-lists", path = "../price_lists" }
 products = { package = "aphel-mod-products", path = "../products" }
 quotes = { package = "aphel-mod-quotes", path = "../quotes" }
-companies = { package = "aphel-mod-companies", path = "../companies" }
-contacts = { package = "aphel-mod-contacts", path = "../contacts" }
+organizations = { package = "aphel-mod-organizations", path = "../organizations" }
+people = { package = "aphel-mod-people", path = "../people" }
 deals = { package = "aphel-mod-deals", path = "../deals" }
 notes = { package = "aphel-mod-notes", path = "../notes" }
 onboarding = { package = "aphel-mod-onboarding", path = "../onboarding" }

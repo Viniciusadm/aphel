@@ -7,7 +7,7 @@ use crate::application::auth::{AuthSettings, AuthUseCases};
 use crate::application::custom_objects::{CustomSchema, RecordTypeCatalog};
 use crate::application::fields::RecordTypeRegistry;
 use crate::application::mail::SharedMailer;
-use crate::application::organizations::{
+use crate::application::organization_profile::{
     ApiTokenLimits, OrganizationConfig, OrganizationConfigCatalog, PublicBaseUrl,
 };
 use crate::application::security::{NoopSecurityEventRecorder, SharedSecurityEventRecorder};
@@ -23,7 +23,7 @@ use crate::infrastructure::mail::{MemoryMailer, SmtpMailerProvider};
 use crate::infrastructure::noop::{
     NoopAuditLog, NoopEventPublisher, NoopJobQueue, UnavailableFileStorage, UnavailableSecretVault,
 };
-use crate::infrastructure::organizations::organization_config_catalog;
+use crate::infrastructure::organization_profile::organization_config_catalog;
 use crate::infrastructure::outbound_http::OutboundHttpNetwork;
 pub use crate::infrastructure::platform::{
     SharedAuditLog, SharedEventPublisher, SharedJobQueue, SharedSecretVault,

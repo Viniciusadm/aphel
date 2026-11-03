@@ -1,5 +1,7 @@
 use crate::application::{BUILTIN_CATALOG_SOURCE, CatalogSettings};
-use aphel_kernel::application::organizations::{OrganizationConfig, OrganizationConfigExtension};
+use aphel_kernel::application::organization_profile::{
+    OrganizationConfig, OrganizationConfigExtension,
+};
 use aphel_kernel::errors::FieldViolation;
 use serde::{Deserialize, Serialize};
 use serde_json::Value;

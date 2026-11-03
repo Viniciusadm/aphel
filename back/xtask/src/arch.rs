@@ -23,9 +23,9 @@ const CORE_PERMISSION_AREAS: [&str; 6] =
 const SQL_TABLE_KEYWORDS: [&str; 6] = ["FROM", "JOIN", "INTO", "UPDATE", "TABLE", "EXISTS"];
 const DOMAIN_WORDS: [&str; 15] = [
     "contact",
-    "contacts",
+    "people",
     "company",
-    "companies",
+    "organizations",
     "deal",
     "deals",
     "lead",
@@ -39,8 +39,8 @@ const DOMAIN_WORDS: [&str; 15] = [
     "pipelines",
 ];
 const FOREIGN_RECORD_LITERALS: [&str; 24] = [
-    "\"contacts.contact\"",
-    "\"companies.company\"",
+    "\"people.person\"",
+    "\"organizations.organization\"",
     "\"deals.deal\"",
     "\"leads.lead\"",
     "\"quotes.quote\"",

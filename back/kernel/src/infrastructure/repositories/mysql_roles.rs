@@ -8,7 +8,7 @@ use crate::application::organization_admin::{
     ListWindow, Listing, ROLE_IN_USE, ROLE_KEY_TAKEN, RoleChanges, RoleRepository, RoleSummary,
     RoleView,
 };
-use crate::application::organizations::NewRole;
+use crate::application::organization_profile::NewRole;
 use crate::database::transaction::MySqlTx;
 use crate::domain::RoleId;
 use crate::domain::access::{Permission, PermissionGrant, RecordScope, RoleKey};

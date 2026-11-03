@@ -19,7 +19,7 @@ impl Module for MarketplaceModule {
         .enabled_by_default()
     }
     fn register(&self, app: &mut AppBuilder) -> Result<(), AppError> {
-        app.contribute::<dyn aphel_kernel::application::organizations::OrganizationConfigExtension>(std::sync::Arc::new(settings::SourceConfiguration));
+        app.contribute::<dyn aphel_kernel::application::organization_profile::OrganizationConfigExtension>(std::sync::Arc::new(settings::SourceConfiguration));
         app.openapi_tag(http::TAG, "Plugin and configuration marketplace")
             .routes(|_| http::router());
         Ok(())

@@ -1,6 +1,6 @@
 # "CNPJ enrichment" module (`enrichment`)
 
-Looks up public data of Brazilian companies by **CNPJ** (BrasilAPI and ReceitaWS) and fills the chosen fields of the **company**, recording the **source** (provider, CNPJ and lookup date) of each filled field. Code in `back/modules/enrichment` (crate `aphel-mod-enrichment`, struct `EnrichmentModule`) and `web/src/modules/enrichment`. It ships in the default build (`back/aphel.modules.toml`), disabled until an administrator enables it.
+Looks up public data of Brazilian organizations by **CNPJ** (BrasilAPI and ReceitaWS) and fills the chosen fields of the **company**, recording the **source** (provider, CNPJ and lookup date) of each filled field. Code in `back/modules/enrichment` (crate `aphel-mod-enrichment`, struct `EnrichmentModule`) and `web/src/modules/enrichment`. It ships in the default build (`back/aphel.modules.toml`), disabled until an administrator enables it.
 
 **It is never automatic without configuration**: the default path is manual (look up, compare, select and apply). Only with "Allow automatic enrichment" turned on does the `enrichment.enrich_company` automation action fill fields without a click.
 
@@ -11,7 +11,7 @@ Looks up public data of Brazilian companies by **CNPJ** (BrasilAPI and ReceitaWS
    - **CNPJ field** (optional): the company text field that holds the CNPJ. Without it, the CNPJ is typed during the lookup (and, if the field is configured, the typed CNPJ can also be saved to it).
    - **Mapping**: for each piece of data (legal name, trade name, main activity/CNAE, company size, registration status, opening date, full address, street, number, complement, district, city, state, postal code, phone, email) choose the company field that receives it; empty = do not fill. Defaults: address in the system address fields, phone in `phone`, email in `email`, activity in `industry`.
    - **Allow automatic enrichment** (off by default).
-2. Grant the **Look up CNPJ and apply public data** permission (`enrichment.use`). Applying also requires `companies.update` (the core field permissions apply).
+2. Grant the **Look up CNPJ and apply public data** permission (`enrichment.use`). Applying also requires `organizations.update` (the core field permissions apply).
 3. On the company, **Enrichment** tab: the CNPJ comes from the configured field (or type it) → **Look up**. The list shows, item by item, the current value × the new one, the target field and the source. Select what to apply → **Apply**. The "Fields filled by enrichment" section shows the source, the CNPJ and the date of each field.
 
 ## Settings
@@ -27,16 +27,16 @@ There are no secrets: both sources are public and keyless.
 
 ## Permissions, events and automation
 
-- `enrichment.use`: look up and apply (with `companies.read`/`companies.update`).
+- `enrichment.use`: look up and apply (with `organizations.read`/`organizations.update`).
 - Event `company.enriched` (`record = company`), declared and offered as the "Company enriched by CNPJ" trigger. Payload: `company_id`, `cnpj`, `source`, `fetched_at`, `fields` and `changes: [{ field, old, new }]` (fields hidden from the reader are masked in the timeline by the core). Audit in the same transaction with the changes and the source.
 - Writing the fields goes through the company's `RecordTypeHandler::update` (`ctx.registry().handler("company")`), so the company also publishes `company.updated` with the core's audit, validation and permissions.
-- Automation action **Enrich company by CNPJ** (`enrichment.enrich_company`, `company` records): requires `enrichment.use`, `companies.read` and `companies.update`; it only validates and runs with `automatic` turned on (`enrichment_automatic_disabled`). By default it fills only empty fields; `{ "overwrite": true }` replaces values.
+- Automation action **Enrich company by CNPJ** (`enrichment.enrich_company`, `company` records): requires `enrichment.use`, `organizations.read` and `organizations.update`; it only validates and runs with `automatic` turned on (`enrichment_automatic_disabled`). By default it fills only empty fields; `{ "overwrite": true }` replaces values.
 
 ## Routes (`/api/v1/enrichment`)
 
 | Method | Path | What it does |
 | --- | --- | --- |
-| `GET` | `/companies/{company_id}` | CNPJ field and current value, source mode, `automatic` and the source of each field already filled |
+| `GET` | `/organizations/{company_id}` | CNPJ field and current value, source mode, `automatic` and the source of each field already filled |
 | `POST` | `/lookups` | `{ company_id, cnpj? }` → 201 with the field-by-field proposal (`data_key`, `field_key`, `current`, `proposed`, `changed`). Writes nothing to the company |
 | `POST` | `/lookups/{lookup_id}/apply` | `{ items: ["legal_name", ...], only_blank? }` → writes the chosen items, records the sources and publishes `company.enriched` |
 

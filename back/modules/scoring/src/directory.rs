@@ -199,7 +199,7 @@ impl ScoringDirectory {
             return Ok(HashMap::new());
         }
         let mut builder = QueryBuilder::<MySql>::new(
-            "SELECT id, company_id FROM contacts WHERE company_id IS NOT NULL AND id IN (",
+            "SELECT id, company_id FROM people WHERE company_id IS NOT NULL AND id IN (",
         );
         let mut separated = builder.separated(", ");
         for id in contact_ids {
@@ -210,10 +210,10 @@ impl ScoringDirectory {
         rows.iter()
             .map(|row| {
                 Ok((
-                    parse_uuid(&row.try_get::<String, _>("id")?, "contacts.id")?,
+                    parse_uuid(&row.try_get::<String, _>("id")?, "people.id")?,
                     parse_uuid(
                         &row.try_get::<String, _>("company_id")?,
-                        "contacts.company_id",
+                        "people.company_id",
                     )?,
                 ))
             })

@@ -22,7 +22,7 @@
   "picker": {
     "label": "Link to a record (optional)",
     "labelRequired": "Record",
-    "placeholder": "Search contacts, companies or deals",
+    "placeholder": "Search people, organizations or deals",
     "results": "Search results",
     "searching": "Searching...",
     "empty": "No records found.",

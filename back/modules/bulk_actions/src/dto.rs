@@ -133,7 +133,7 @@ impl BulkSelectionRequest {
 #[derive(Debug, Deserialize, ToSchema)]
 #[serde(deny_unknown_fields)]
 pub(crate) struct StartBulkRequest {
-    #[schema(example = "contacts.contact")]
+    #[schema(example = "people.person")]
     pub(crate) record_type: String,
     pub(crate) action: BulkActionRequest,
     pub(crate) selection: BulkSelectionRequest,
@@ -153,7 +153,7 @@ impl StartBulkRequest {
 #[derive(Debug, Deserialize, ToSchema)]
 #[serde(deny_unknown_fields)]
 pub(crate) struct BulkExportRequest {
-    #[schema(example = "contacts.contact")]
+    #[schema(example = "people.person")]
     pub(crate) record_type: String,
     pub(crate) format: ExportFormatDto,
     #[serde(default)]
@@ -197,7 +197,7 @@ impl BulkItemsParams {
 #[derive(Debug, Serialize, ToSchema)]
 pub(crate) struct BulkOperationResponse {
     pub(crate) id: String,
-    #[schema(example = "contacts.contact")]
+    #[schema(example = "people.person")]
     pub(crate) record_type: String,
     #[schema(example = "assign_owner")]
     pub(crate) action: String,

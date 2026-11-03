@@ -6,7 +6,7 @@ export type TabGroupKey = (typeof TAB_GROUP_ORDER)[number]
 
 const GROUP_PATTERNS: Record<Exclude<TabGroupKey, 'more'>, RegExp> = {
   activity: /^(timeline|tasks|notes|files|activities|calls)/,
-  relationships: /^(related|deals|group|contacts|companies|leads|quotes|products)/,
+  relationships: /^(related|deals|group|people|organizations|leads|quotes|products)/,
   communication: /^(email|emails|messaging|sequences|sequence)/,
   insights: /^(scoring|score|lifecycle|history|ai|lead_pro|temperature|forecast)/,
 }

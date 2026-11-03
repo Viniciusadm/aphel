@@ -56,7 +56,7 @@ pub(crate) async fn find_contact_by_email(
         },
         ..RecordQuery::default()
     };
-    Ok(contacts::service::list(ctx, query)
+    Ok(people::service::list(ctx, query)
         .await?
         .items
         .first()

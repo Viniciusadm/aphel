@@ -14,11 +14,11 @@
     "company": "Empresa",
     "deal": "Oportunidade",
     "activity": "Atividade",
-    "contacts": {
-      "contact": "Contato"
+    "people": {
+      "person": "Contato"
     },
-    "companies": {
-      "company": "Empresa"
+    "organizations": {
+      "organization": "Empresa"
     },
     "deals": {
       "deal": "Oportunidade"
@@ -31,11 +31,11 @@
     "contact": "contatos",
     "company": "empresas",
     "deal": "oportunidades",
-    "contacts": {
-      "contact": "contatos"
+    "people": {
+      "person": "contatos"
     },
-    "companies": {
-      "company": "empresas"
+    "organizations": {
+      "organization": "empresas"
     },
     "deals": {
       "deal": "oportunidades"

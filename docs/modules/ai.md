@@ -1,6 +1,6 @@
 # `ai` module — AI assistant
 
-Optional AI for Aphel: summaries of contacts, companies and deals, next-action suggestions, a writing assistant in the editors and natural-language queries that become a **validated filter**. It ships disabled and does nothing until an administrator enables it and configures a provider.
+Optional AI for Aphel: summaries of people, organizations and deals, next-action suggestions, a writing assistant in the editors and natural-language queries that become a **validated filter**. It ships disabled and does nothing until an administrator enables it and configures a provider.
 
 - Backend: crate `aphel-mod-ai` (`back/modules/ai`, struct `AiModule`, in the default build via `back/aphel.modules.toml`; `deals` and `activities` optional).
 - Web: `web/src/modules/ai` (**AI** tab on records, **AI assistant** button in the editors, **Ask AI** button on lists, `/ai` page, panel in the module settings).
@@ -35,7 +35,7 @@ The provider is only called when a user clicks an AI button. All data leaves **w
 
 | Feature | Receiving service | What is sent | What is never sent | What comes back |
 | --- | --- | --- | --- | --- |
-| Summary (`POST /summary`) | Configured provider (`provider` + `base_url` + `model`) | Fields of the contact/company/deal (system and custom), names of references (owner, company, contact, stage, tags), up to 10 recent notes (text up to 600 characters, author if personal data is on), up to 10 recent activities (title, type, status, priority, dates, description up to 400 characters); contact: up to 10 of its deals; company: up to 10 contacts (name, job title) and 10 deals; organization language and today's date. Context limited to 30 thousand characters | `is_sensitive` fields; fields hidden from the user's role; records outside visibility; internal ids; with `send_personal_data` off, `is_personal` fields and people's names | Summary text |
+| Summary (`POST /summary`) | Configured provider (`provider` + `base_url` + `model`) | Fields of the contact/company/deal (system and custom), names of references (owner, company, contact, stage, tags), up to 10 recent notes (text up to 600 characters, author if personal data is on), up to 10 recent activities (title, type, status, priority, dates, description up to 400 characters); contact: up to 10 of its deals; company: up to 10 people (name, job title) and 10 deals; organization language and today's date. Context limited to 30 thousand characters | `is_sensitive` fields; fields hidden from the user's role; records outside visibility; internal ids; with `send_personal_data` off, `is_personal` fields and people's names | Summary text |
 | Next actions (`POST /next-actions`) | Configured provider | Same as the summary | Same as the summary | Up to 5 suggestions `{ title, due_in_days, reason }` (validated JSON). Nothing is created: the UI creates the task (`POST /api/v1/activities`, type `task`, linked to the record) only when the user clicks |
 | Writing (`POST /compose`) | Configured provider | Instruction, current editor draft (up to 20 thousand characters) and, if the user checks the option, the record fields (without notes or activities) | Same as the summary | Suggested text; the editor only changes when the user clicks **Replace text**/**Append** |
 | Query (`POST /query`) | Configured provider | Question (up to 500 characters), record type, today's date and the list of **non-sensitive** filterable fields visible to the user (key, label, type, operators and up to 60 options) | Any record data | AST filter + explanation; the backend validates it and counts the results before responding |
@@ -72,7 +72,7 @@ Creating a task from a suggestion also requires `activities.create`. Configuring
 | `POST /query` | `{ record_type, question }` → `{ data: { filter, total, explanation, provider, model } }` (any readable record type, including custom objects) |
 | `GET /calls` | `feature`, `status` (`success`/`error`), `page`, `per_page` (up to 100) → `{ data: [calls], meta: { total, page, per_page, used_today, daily_limit, last_30_days: { calls, errors, input_tokens, output_tokens } } }` |
 
-`sources` lists the records used as context (`{ record_type, record_id, label }`: the record, notes, activities, related deals and contacts).
+`sources` lists the records used as context (`{ record_type, record_id, label }`: the record, notes, activities, related deals and people).
 
 ### Error codes
 

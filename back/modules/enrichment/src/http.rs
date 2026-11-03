@@ -173,11 +173,11 @@ pub(crate) struct ApplyEnrichmentLookup {
 
 #[utoipa::path(
     get,
-    path = "/enrichment/companies/{company_id}",
+    path = "/enrichment/organizations/{company_id}",
     tag = TAG,
     operation_id = "enrichment_company",
     security(("session_cookie" = [])),
-    description = "Enrichment state of a company: configured CNPJ field and its value, source mode, whether automatic enrichment is allowed and the source (provider, CNPJ, date) of every field filled by the module. Requires `enrichment.use` and `companies.read`.",
+    description = "Enrichment state of a company: configured CNPJ field and its value, source mode, whether automatic enrichment is allowed and the source (provider, CNPJ, date) of every field filled by the module. Requires `enrichment.use` and `organizations.read`.",
     params(("company_id" = String, Path, description = "Company id")),
     responses(
         (status = 200, description = "Company enrichment state", body = Data<EnrichmentCompanyOverview>),
@@ -239,7 +239,7 @@ async fn company_overview(
     tag = TAG,
     operation_id = "enrichment_lookup",
     security(("session_cookie" = [])),
-    description = "Looks up the company CNPJ (typed or read from the configured CNPJ field) in the configured public source (BrasilAPI, ReceitaWS or BrasilAPI with ReceitaWS as fallback) and returns the proposal field by field (current x new value). Nothing is written to the company: apply with `POST /lookups/{lookup_id}/apply` within 60 minutes. Requires `enrichment.use` and `companies.read`.",
+    description = "Looks up the company CNPJ (typed or read from the configured CNPJ field) in the configured public source (BrasilAPI, ReceitaWS or BrasilAPI with ReceitaWS as fallback) and returns the proposal field by field (current x new value). Nothing is written to the company: apply with `POST /lookups/{lookup_id}/apply` within 60 minutes. Requires `enrichment.use` and `organizations.read`.",
     request_body = CreateEnrichmentLookup,
     responses(
         (status = 201, description = "Lookup result", body = Data<EnrichmentLookup>),
@@ -272,7 +272,7 @@ async fn create_lookup(
     tag = TAG,
     operation_id = "enrichment_apply",
     security(("session_cookie" = [])),
-    description = "Writes the chosen items of a lookup to the mapped company fields through the core (same permissions and validation as editing the company), records the source of each filled field and publishes `company.enriched` with `changes`. `only_blank` skips fields that already have a value. Requires `enrichment.use` and `companies.update`.",
+    description = "Writes the chosen items of a lookup to the mapped company fields through the core (same permissions and validation as editing the company), records the source of each filled field and publishes `company.enriched` with `changes`. `only_blank` skips fields that already have a value. Requires `enrichment.use` and `organizations.update`.",
     params(("lookup_id" = String, Path, description = "Lookup id")),
     request_body = ApplyEnrichmentLookup,
     responses(

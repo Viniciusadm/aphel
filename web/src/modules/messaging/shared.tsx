@@ -17,7 +17,7 @@ export function StatusBadge({ status }: { status: ConversationStatus }) {
   return <Badge variant={variant}>{t(`status.${status}`)}</Badge>
 }
 
-export function LinkedRecordLabel({ recordType, record }: { recordType: 'contacts.contact' | 'deals.deal'; record: LinkedRecord }) {
+export function LinkedRecordLabel({ recordType, record }: { recordType: 'people.person' | 'deals.deal'; record: LinkedRecord }) {
   const t = useModuleTranslation(MESSAGING_KEY)
   if (!record.accessible) {
     return <span className="text-muted-foreground">{t(`links.${recordType}Hidden`)}</span>

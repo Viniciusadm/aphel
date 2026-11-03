@@ -75,7 +75,7 @@ async fn list_scoring_models(
     tag = TAG,
     operation_id = "scoring_models_create",
     security(("session_cookie" = [])),
-    description = "Creates a scoring model (`scoring_model.created`) for a record type (`contact`, `company`, `deal` or a custom object) and queues a full recalculation. Criteria are `profile` (a `filter` in the same format as views, validated against the fields of the type; `points` when the record matches) or `behavior` (a `signal`: `email_opened`, `email_clicked`, `email_replied`, `meeting_booked`, `form_submitted`, `call_connected`; `points` per occurrence, optional `max_points` cap and `decay_days`: an occurrence loses its points linearly until zero after that many days). Signals of contacts also count for the scoring models of their company. Bands: cold below `warm_from` (default 30), warm below `hot_from` (default 70), hot from there. The first model of a record type becomes its primary model, exposed as the read-only `score` field. Needs `scoring.manage`.",
+    description = "Creates a scoring model (`scoring_model.created`) for a record type (`contact`, `company`, `deal` or a custom object) and queues a full recalculation. Criteria are `profile` (a `filter` in the same format as views, validated against the fields of the type; `points` when the record matches) or `behavior` (a `signal`: `email_opened`, `email_clicked`, `email_replied`, `meeting_booked`, `form_submitted`, `call_connected`; `points` per occurrence, optional `max_points` cap and `decay_days`: an occurrence loses its points linearly until zero after that many days). Signals of people also count for the scoring models of their company. Bands: cold below `warm_from` (default 30), warm below `hot_from` (default 70), hot from there. The first model of a record type becomes its primary model, exposed as the read-only `score` field. Needs `scoring.manage`.",
     request_body = CreateScoringModelRequest,
     responses(
         (status = 201, description = "Scoring model created", body = Data<ScoringModelResponse>),
@@ -375,7 +375,7 @@ pub(crate) struct ScoringModelResponse {
     pub(crate) id: String,
     #[schema(example = "lead_score")]
     pub(crate) key: String,
-    #[schema(example = "contacts.contact")]
+    #[schema(example = "people.person")]
     pub(crate) record_type: String,
     #[schema(example = "Lead scoring")]
     pub(crate) name: String,
@@ -457,7 +457,7 @@ impl From<ScoringCriterionRequest> for CriterionInput {
 
 #[derive(Debug, Deserialize, ToSchema)]
 pub(crate) struct CreateScoringModelRequest {
-    #[schema(example = "contacts.contact")]
+    #[schema(example = "people.person")]
     pub(crate) record_type: String,
     #[schema(example = "lead_score")]
     pub(crate) key: Option<String>,

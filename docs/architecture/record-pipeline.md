@@ -25,7 +25,7 @@ Notes:
 
 - The audit diff is computed after `RecordSaving`, so it reflects the values changed by the filters.
 - `validate` sits where the old `RecordWriteGuard` used to be: on updates, before the system write when the guard needs to read the previous state from the database (approval, checklist). `saved` comes after all writes.
-- Contacts, companies, deals and lead transitions reapply the system values changed by `RecordSaving` (`ContactInput::from_values`, `CompanyInput::from_values`, `DealInput::with_record_values`; the deal recomputes stage, currency and revenue with the filtered input). Products reapply everything (`ProductInput::from_values`); activities reapply `title`, `priority`, `due_at`, `description`, `duration_minutes`, `reminder_minutes_before` and `owner_id`; quotes reapply `title`, `owner_id`, `valid_until`, `terms` and `notes` (the ones that do not affect price); custom objects reapply `owner_id` (when an owner is enabled). Reapplied values go through the same validation as the API input (422 with the field). A change to any other system value of these types (activity status and links, currency, quote price list and discount, derived object title) is rejected with the internal error `record_saving_unsupported` (`saving_unsupported(record, key)`).
+- Contacts, organizations, deals and lead transitions reapply the system values changed by `RecordSaving` (`ContactInput::from_values`, `CompanyInput::from_values`, `DealInput::with_record_values`; the deal recomputes stage, currency and revenue with the filtered input). Products reapply everything (`ProductInput::from_values`); activities reapply `title`, `priority`, `due_at`, `description`, `duration_minutes`, `reminder_minutes_before` and `owner_id`; quotes reapply `title`, `owner_id`, `valid_until`, `terms` and `notes` (the ones that do not affect price); custom objects reapply `owner_id` (when an owner is enabled). Reapplied values go through the same validation as the API input (422 with the field). A change to any other system value of these types (activity status and links, currency, quote price list and discount, derived object title) is rejected with the internal error `record_saving_unsupported` (`saving_unsupported(record, key)`).
 
 ## Generic hooks
 
@@ -85,7 +85,7 @@ Approval still runs before the validation rule (409 before 422).
 
 `EntityDefinition.handler` holds a `RecordTypeHandler` (`kernel/records/handler.rs`) with `create`, `update`, `delete`, `load`, `archive` and `restore` over `serde_json::Value`. The body has the format of the type's API request (system fields at the top level, `custom_fields` and, for custom objects, `relations`); the response is the record already serialized and filtered by field permissions. The context is `RecordCtx { scope, state }`.
 
-- Each owning module has its handler in `http.rs` (`ContactHandler`, `CompanyHandler`, `DealHandler`, `ActivityHandler`, `ProductHandler`, `QuoteHandler`…), calling `service::*` with `Ctx::from_state`; the custom objects one lives in `back/kernel/src/api/records.rs`. Generic helpers: `optional_record` (missing/no access becomes `None`) and `values_request::<Dto>(json)` in `kernel/records/handler.rs`. The contacts handler accepts `name` (split into first and last name) and the deals handler accepts `probability` as text and normalizes `currency`.
+- Each owning module has its handler in `http.rs` (`ContactHandler`, `CompanyHandler`, `DealHandler`, `ActivityHandler`, `ProductHandler`, `QuoteHandler`…), calling `service::*` with `Ctx::from_state`; the custom objects one lives in `back/kernel/src/api/records.rs`. Generic helpers: `optional_record` (missing/no access becomes `None`) and `values_request::<Dto>(json)` in `kernel/records/handler.rs`. The people handler accepts `name` (split into first and last name) and the deals handler accepts `probability` as text and normalizes `currency`.
 - Custom objects: one generic handler per type (`CustomRecordHandler`), created by the `app.custom_record_handler(..)` factory.
 - Usage: `registry.handler(record_type)?` (`state.registry().await?`). A type without a handler responds with 422 `record_operation_not_supported`.
 
@@ -112,7 +112,7 @@ What applies only to some types becomes a capability in `EntityDefinition.capabi
 
 Besides the capabilities, the definition carries two structural declarations:
 
-- `hierarchy(parent_column)` (`EntityDefinition::hierarchy` or `extend(..).hierarchy(..)`): the type is a tree over its own table. It enables the `in_group` operator on the type's `id` and on `record` fields that point to it (`hierarchical_target`), compiled into `WITH RECURSIVE` over the declared column (`Predicate::InGroup(RecordGroup)`). `companies` declares `parent_company_id`.
+- `hierarchy(parent_column)` (`EntityDefinition::hierarchy` or `extend(..).hierarchy(..)`): the type is a tree over its own table. It enables the `in_group` operator on the type's `id` and on `record` fields that point to it (`hierarchical_target`), compiled into `WITH RECURSIVE` over the declared column (`Predicate::InGroup(RecordGroup)`). `organizations` declares `parent_company_id`.
 - `item_table(ItemTable)` (via `extend`): a table of child items that formulas aggregate (`SUM(items.total)`), with the exposed columns. `deal_items` declares `items` on `deal`.
 
 ## Registering and extending types
@@ -134,7 +134,7 @@ app.extend("contact", |contact| {
 - `record_type(def)` registers a type; `extend(key, |t| ..)` adds system fields (computed ones too, with `computed`), relations, `member_access`, `hierarchy`, item tables (`item_table`), managed fields and a handler to a type from another module.
 - `managed_field(FieldSpec)` creates a custom field (EAV) defined in code: `sync_system_fields` (boot, `aphel migrate`, installer) writes the definition with `module_key` and, on later syncs, updates label, type and configuration. A field that no compiled module declares anymore loses its `module_key` on sync (the values stay and the administrator takes over managing it). The field appears in forms, filters, columns, import and the API like any custom field, but the UI cannot edit it: changing it, deactivating it or touching its options responds with 409 `field_managed_by_module`, and `FieldResponse.module_key` tells the owner.
 - The `App` builds the final registry (`app.record_types()`), and `RecordTypeRegistry::builtin()` returns a copy of it; the `RecordTypeCatalog` adds the custom objects.
-- Each module registers its own type (`companies`, `contacts`, `deals`, `activities`, `products`, `quotes`); `deals` declares the deal team (`deal_members`) via `extend("deal", ..)`; `leads` and `scoring` extend `contact` and `company` (`lifecycle_stage` and `score`). Each former extension registers its own types.
+- Each module registers its own type (`organizations`, `people`, `deals`, `activities`, `products`, `quotes`); `deals` declares the deal team (`deal_members`) via `extend("deal", ..)`; `leads` and `scoring` extend `contact` and `company` (`lifecycle_stage` and `score`). Each former extension registers its own types.
 
 ## Contributed fields
 

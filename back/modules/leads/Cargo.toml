@@ -10,8 +10,8 @@ publish = false
 config_packages = { package = "aphel-mod-config-packages", path = "../config_packages" }
 aphel-contract-crm.workspace = true
 aphel-kernel.workspace = true
-companies = { package = "aphel-mod-companies", path = "../companies" }
-contacts = { package = "aphel-mod-contacts", path = "../contacts" }
+organizations = { package = "aphel-mod-organizations", path = "../organizations" }
+people = { package = "aphel-mod-people", path = "../people" }
 deals = { package = "aphel-mod-deals", path = "../deals" }
 axum.workspace = true
 async-trait.workspace = true

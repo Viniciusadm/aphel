@@ -414,14 +414,10 @@ pub(crate) async fn render_data(
     };
     let deal = load_deal(ctx, deal_id).await?;
     let text = |value: &Value, key: &str| value.get(key).and_then(Value::as_str).map(str::to_owned);
-    data.contact = related_record(
-        ctx,
-        "contacts.contact",
-        text(&deal, "contact_id").as_deref(),
-    )
-    .await?;
+    data.contact =
+        related_record(ctx, "people.person", text(&deal, "contact_id").as_deref()).await?;
     let company_id = text(&deal, "company_id").or_else(|| text(&data.contact, "company_id"));
-    data.company = related_record(ctx, "companies.company", company_id.as_deref()).await?;
+    data.company = related_record(ctx, "organizations.organization", company_id.as_deref()).await?;
     data.items = match &quote {
         Some(quote) => Some(Items::from_quote(quote)),
         None => match records::deal_items(ctx, deal_id).await {

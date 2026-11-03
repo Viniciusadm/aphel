@@ -16,7 +16,7 @@
   },
   "contents": {
     "records": "Records of every type, including custom objects, as JSON Lines, with custom fields by key",
-    "relations": "Links between records: contacts and companies, custom relationships, tags and attachments",
+    "relations": "Links between records: people and organizations, custom relationships, tags and attachments",
     "history": "Notes, stage history and timeline events",
     "files": "Files attached to records",
     "config": "Configuration package (fields, pipelines, layouts, views, automations and the other sections)",

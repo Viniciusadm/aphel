@@ -67,10 +67,10 @@ pub(crate) async fn handle(ctx: &Ctx<'_>, event: &DomainEvent) -> Result<(), App
                         .await?,
                 );
             }
-            let contacts: Vec<Uuid> = event_record(event, &RecordType::CONTACT)
+            let people: Vec<Uuid> = event_record(event, &RecordType::CONTACT)
                 .into_iter()
                 .collect();
-            live_enrollments.extend(live(&enrollments, &contacts).await?);
+            live_enrollments.extend(live(&enrollments, &people).await?);
             exit_all(ctx, live_enrollments, ExitReason::Replied, now).await
         }
         EMAIL_OPENED => {
@@ -88,26 +88,26 @@ pub(crate) async fn handle(ctx: &Ctx<'_>, event: &DomainEvent) -> Result<(), App
                         .await?,
                 );
             }
-            let contacts: Vec<Uuid> = event_record(event, &RecordType::CONTACT)
+            let people: Vec<Uuid> = event_record(event, &RecordType::CONTACT)
                 .into_iter()
                 .collect();
-            live_enrollments.extend(live(&enrollments, &contacts).await?);
+            live_enrollments.extend(live(&enrollments, &people).await?);
             exit_all(ctx, live_enrollments, ExitReason::Bounced, now).await
         }
         MEETING_BOOKED => {
-            let contacts: Vec<Uuid> = uuid_field(payload, "contact_id")
+            let people: Vec<Uuid> = uuid_field(payload, "contact_id")
                 .or_else(|| event_record(event, &RecordType::CONTACT))
                 .into_iter()
                 .collect();
-            let live_enrollments = live(&enrollments, &contacts).await?;
+            let live_enrollments = live(&enrollments, &people).await?;
             exit_all(ctx, live_enrollments, ExitReason::MeetingBooked, now).await
         }
         DEAL_WON | DEAL_LOST => {
             let Some(deal_id) = event_record(event, &RecordType::DEAL) else {
                 return Ok(());
             };
-            let contacts = DirectoryStore::of(ctx).deal_contacts(deal_id).await?;
-            let live_enrollments = live(&enrollments, &contacts).await?;
+            let people = DirectoryStore::of(ctx).deal_contacts(deal_id).await?;
+            let live_enrollments = live(&enrollments, &people).await?;
             let reason = if event.event_type == DEAL_WON {
                 ExitReason::DealWon
             } else {
@@ -116,10 +116,10 @@ pub(crate) async fn handle(ctx: &Ctx<'_>, event: &DomainEvent) -> Result<(), App
             exit_all(ctx, live_enrollments, reason, now).await
         }
         CONTACT_DELETED => {
-            let contacts: Vec<Uuid> = event_record(event, &RecordType::CONTACT)
+            let people: Vec<Uuid> = event_record(event, &RecordType::CONTACT)
                 .into_iter()
                 .collect();
-            let live_enrollments = live(&enrollments, &contacts).await?;
+            let live_enrollments = live(&enrollments, &people).await?;
             exit_all(ctx, live_enrollments, ExitReason::ContactDeleted, now).await
         }
         EMAIL_TRACKING_OBJECTION_ADDED => {
@@ -129,29 +129,26 @@ pub(crate) async fn handle(ctx: &Ctx<'_>, event: &DomainEvent) -> Result<(), App
             let Some(hash) = DirectoryStore::of(ctx).objection_hash(objection_id).await? else {
                 return Ok(());
             };
-            let contacts: Vec<Uuid> = enrollments
+            let people: Vec<Uuid> = enrollments
                 .live_contact_emails()
                 .await?
                 .into_iter()
                 .filter(|(_, email)| address_hash(email) == hash)
                 .map(|(contact_id, _)| contact_id)
                 .collect();
-            let live_enrollments = live(&enrollments, &contacts).await?;
+            let live_enrollments = live(&enrollments, &people).await?;
             exit_all(ctx, live_enrollments, ExitReason::Objection, now).await
         }
         _ => Ok(()),
     }
 }
 
-async fn live(
-    enrollments: &EnrollmentStore,
-    contacts: &[Uuid],
-) -> Result<BTreeSet<Uuid>, AppError> {
-    if contacts.is_empty() {
+async fn live(enrollments: &EnrollmentStore, people: &[Uuid]) -> Result<BTreeSet<Uuid>, AppError> {
+    if people.is_empty() {
         return Ok(BTreeSet::new());
     }
     Ok(enrollments
-        .live_for_contacts(contacts)
+        .live_for_contacts(people)
         .await?
         .into_iter()
         .map(|enrollment| enrollment.id)

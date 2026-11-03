@@ -9,7 +9,7 @@ Monorepo package in [`sdk/typescript`](../../sdk/typescript) (ESM, no runtime de
 | Piece | What it is |
 | --- | --- |
 | `src/schema.ts` | Types generated with `openapi-typescript` (`npm run generate`). Not kept in git: it is generated from `back/openapi.json` during the build and in CI |
-| `AphelClient` | `get`/`post`/`put`/`patch`/`delete` typed by the OpenAPI path (`'/api/v1/contacts/{contact_id}'`), `send` (response with status, headers, rate limit and `replayed`), `paginate`/`listAll` |
+| `AphelClient` | `get`/`post`/`put`/`patch`/`delete` typed by the OpenAPI path (`'/api/v1/people/{contact_id}'`), `send` (response with status, headers, rate limit and `replayed`), `paginate`/`listAll` |
 | `AphelApiError` | Error built from the `{ "error": { "code", "message", "details" } }` envelope, with `status`, `code`, `details`, `fieldErrors`, `retryAfter` |
 | `buildFilterQuery` | `{ amount: { gte: 1000 }, stage_id: { in: ['a', 'b'] } }` → `filter[amount][gte]=1000&filter[stage_id][in]=a,b` |
 | Options | `path`, `query`, `body`, `filter`, `filterTree` (AST as JSON), `include`, `sort`, `ifMatch` (the `updated_at` that was read), `idempotencyKey` (`true` generates a UUID), `headers`, `signal`, `timeoutMs` on the client |
@@ -29,7 +29,7 @@ npm pack                               # .tgz package ready to install
 import { createAphelClient, isAphelApiError, unwrap } from '@aphel-crm/sdk'
 
 const aphel = createAphelClient({ baseUrl: 'https://crm.yourcompany.com', token: process.env.APHEL_TOKEN })
-const contact = unwrap(await aphel.post('/api/v1/contacts', { body: { first_name: 'Bruna' }, idempotencyKey: true }))
+const contact = unwrap(await aphel.post('/api/v1/people', { body: { first_name: 'Bruna' }, idempotencyKey: true }))
 for await (const deal of aphel.paginate('/api/v1/deals', { filter: { status: 'open' } })) console.log(deal.title)
 ```
 
@@ -39,7 +39,7 @@ The SDK follows the `/api/v1` contract ([versioning.md](versioning.md)). Since t
 
 ## Best practices
 
-- Keep the token out of the code (environment variable or vault). It has scopes (`contacts:write`, `deals:read`, ...) and is never worth more than the current permissions of the user who created it.
+- Keep the token out of the code (environment variable or vault). It has scopes (`people:write`, `deals:read`, ...) and is never worth more than the current permissions of the user who created it.
 - Use `Idempotency-Key` on a `POST` that may be repeated (queues, retries).
 - Use `If-Match` with the `updated_at` you read so you do not overwrite someone else's changes; handle 409 `version_conflict` by re-reading the record.
 - Respect `429 rate_limited` and the `Retry-After` header (`AphelApiError.retryAfter`).

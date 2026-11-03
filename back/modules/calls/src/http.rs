@@ -523,11 +523,11 @@ async fn list_sessions(
     security(("session_cookie" = [])),
     request_body = StartCallSessionRequest,
     responses(
-        (status = 201, description = "Call session started from a saved view of contacts visible to the user (`call_session.started`): the contacts matching the view filter and sort under the user's read scope (at most 500) become the queue, kept for the session. `script` defaults to the `call_script` text in the view settings; `name` to the view name", body = Data<CallSessionResponse>),
+        (status = 201, description = "Call session started from a saved view of people visible to the user (`call_session.started`): the people matching the view filter and sort under the user's read scope (at most 500) become the queue, kept for the session. `script` defaults to the `call_script` text in the view settings; `name` to the view name", body = Data<CallSessionResponse>),
         (status = 401, description = UNAUTHORIZED, body = ErrorEnvelope),
-        (status = 403, description = "Missing `activities.create` or `contacts.read` (`permission_denied`, `insufficient_scope`)", body = ErrorEnvelope),
-        (status = 404, description = "View not found, not visible or not of contacts (`call_session_view_not_found`)", body = ErrorEnvelope),
-        (status = 422, description = "The view has no contacts (`call_session_empty`) or invalid fields (`validation_error`)", body = ErrorEnvelope),
+        (status = 403, description = "Missing `activities.create` or `people.read` (`permission_denied`, `insufficient_scope`)", body = ErrorEnvelope),
+        (status = 404, description = "View not found, not visible or not of people (`call_session_view_not_found`)", body = ErrorEnvelope),
+        (status = 422, description = "The view has no people (`call_session_empty`) or invalid fields (`validation_error`)", body = ErrorEnvelope),
     )
 )]
 async fn start_session(
@@ -863,7 +863,7 @@ pub(crate) struct ReorderCallOutcomesRequest {
 #[derive(Debug, Deserialize, ToSchema)]
 #[serde(deny_unknown_fields)]
 pub(crate) struct LogCallRequest {
-    #[schema(example = "contacts.contact")]
+    #[schema(example = "people.person")]
     pub(crate) record_type: Option<String>,
     pub(crate) record_id: Option<String>,
     pub(crate) direction: Option<CallDirectionSchema>,

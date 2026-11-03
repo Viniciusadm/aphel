@@ -28,12 +28,12 @@ use aphel_kernel::infrastructure::auth::Argon2PasswordHasher;
 use aphel_kernel::infrastructure::fields::MySqlFieldPorts;
 use aphel_kernel::infrastructure::repositories::mysql_access::MySqlAccessRepository;
 use aphel_kernel::records::AddressInput;
-use companies::domain::{CompanyInput, SaveCompanyCommand};
-use contacts::domain::{ContactInput, SaveContactCommand};
 use deals::domain::{DealInput, LoseDealCommand, MoveDealCommand};
 use notes::domain::CreateNoteCommand;
 use onboarding::domain::CompleteOnboardingCommand;
 use onboarding::service::ONBOARDING_NOT_PENDING;
+use organizations::domain::{CompanyInput, SaveCompanyCommand};
+use people::domain::{ContactInput, SaveContactCommand};
 use pipelines::seed::{STAGE_KIND_LOST, STAGE_KIND_OPEN, STAGE_KIND_WON};
 
 pub(crate) const DEMO_SEEDED: &str = "demo.seeded";
@@ -49,8 +49,8 @@ pub(crate) const DEMO_FIELD_RECORD_TYPE: RecordType = RecordType::from_static("f
 const FOREIGN_CURRENCY_EVERY: usize = 5;
 
 struct SeedState {
-    companies: Vec<Uuid>,
-    contacts: Vec<Uuid>,
+    organizations: Vec<Uuid>,
+    people: Vec<Uuid>,
     deals: Vec<Uuid>,
     counts: BTreeMap<String, u64>,
 }
@@ -58,8 +58,8 @@ struct SeedState {
 impl SeedState {
     fn target(&self, target: DemoTarget) -> (RecordType, Uuid) {
         match target {
-            DemoTarget::Company(index) => (RecordType::COMPANY, self.companies[index]),
-            DemoTarget::Contact(index) => (RecordType::CONTACT, self.contacts[index]),
+            DemoTarget::Company(index) => (RecordType::COMPANY, self.organizations[index]),
+            DemoTarget::Contact(index) => (RecordType::CONTACT, self.people[index]),
             DemoTarget::Deal(index) => (RecordType::DEAL, self.deals[index]),
         }
     }
@@ -120,8 +120,8 @@ pub(crate) async fn seed(
     let dataset = generate(now, open_stages.len(), catalog.lost_reason_ids.len());
 
     let mut state = SeedState {
-        companies: Vec::new(),
-        contacts: Vec::new(),
+        organizations: Vec::new(),
+        people: Vec::new(),
         deals: Vec::new(),
         counts: BTreeMap::new(),
     };
@@ -386,8 +386,8 @@ async fn seed_companies(
     dataset: &DemoDataset,
     state: &mut SeedState,
 ) -> Result<(), AppError> {
-    for company in &dataset.companies {
-        let id = companies::service::create(
+    for company in &dataset.organizations {
+        let id = organizations::service::create(
             ctx,
             SaveCompanyCommand {
                 input: CompanyInput {
@@ -420,7 +420,7 @@ async fn seed_companies(
         store
             .backdate(&record, company.created_at, company.created_at)
             .await?;
-        state.companies.push(id);
+        state.organizations.push(id);
     }
     Ok(())
 }
@@ -431,8 +431,8 @@ async fn seed_contacts(
     dataset: &DemoDataset,
     state: &mut SeedState,
 ) -> Result<(), AppError> {
-    for contact in &dataset.contacts {
-        let id = contacts::service::create(
+    for contact in &dataset.people {
+        let id = people::service::create(
             ctx,
             SaveContactCommand {
                 input: ContactInput {
@@ -441,7 +441,7 @@ async fn seed_contacts(
                     email: text(&contact.email),
                     mobile: text(&contact.mobile),
                     job_title: text(&contact.job_title),
-                    company_id: text(&state.companies[contact.company_index].to_string()),
+                    company_id: text(&state.organizations[contact.company_index].to_string()),
                     source: text(&contact.source),
                     ..ContactInput::default()
                 },
@@ -458,7 +458,7 @@ async fn seed_contacts(
         store
             .backdate(&record, contact.created_at, contact.created_at)
             .await?;
-        state.contacts.push(id);
+        state.people.push(id);
     }
     Ok(())
 }
@@ -488,8 +488,8 @@ async fn seed_deals(
                         .format("%Y-%m-%d")
                         .to_string(),
                 )),
-                contact_id: Some(Some(state.contacts[deal.contact_index].to_string())),
-                company_id: Some(Some(state.companies[deal.company_index].to_string())),
+                contact_id: Some(Some(state.people[deal.contact_index].to_string())),
+                company_id: Some(Some(state.organizations[deal.company_index].to_string())),
                 source: Some(Some("Demonstração".to_owned())),
                 currency,
                 custom_fields: custom(&[("contract_months", json!(deal.contract_months))]),
@@ -700,7 +700,7 @@ fn demo_fields() -> Vec<(&'static str, CreateFieldCommand)> {
     };
     vec![
         (
-            "companies.company",
+            "organizations.organization",
             field(
                 "customer_tier",
                 crate::labels("Customer category"),
@@ -709,7 +709,7 @@ fn demo_fields() -> Vec<(&'static str, CreateFieldCommand)> {
             ),
         ),
         (
-            "contacts.contact",
+            "people.person",
             field(
                 "preferred_channel",
                 crate::labels("Preferred channel"),

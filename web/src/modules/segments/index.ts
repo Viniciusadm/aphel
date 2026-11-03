@@ -26,7 +26,7 @@ const segmentsModule = defineModule({
       to: '/segments',
       label: 'nav.segments',
       icon: Layers,
-      permission: ['contacts.read', 'companies.read', 'deals.read'],
+      permission: ['people.read', 'organizations.read', 'deals.read'],
       order: 120,
     })
   },

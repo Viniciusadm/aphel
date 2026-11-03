@@ -1,6 +1,6 @@
 # "Lead forms" module (`lead_forms`)
 
-Public forms, hosted by Aphel or embedded in the customer's website, that create (or reuse) a **contact** and optionally a **deal** on each submission. It is a regular module (former extension, session 35): `back/modules/lead_forms` (crate `aphel-mod-lead_forms`, struct `LeadFormsModule`, depends on `contacts` and, optionally, on `leads`, `deals`, `activities` and `lead_distribution`) and `web/src/modules/lead_forms`. Authenticated routes under `/api/v1/lead-forms` and public ones under `/api/v1/public/lead-forms/`.
+Public forms, hosted by Aphel or embedded in the customer's website, that create (or reuse) a **contact** and optionally a **deal** on each submission. It is a regular module (former extension, session 35): `back/modules/lead_forms` (crate `aphel-mod-lead_forms`, struct `LeadFormsModule`, depends on `people` and, optionally, on `leads`, `deals`, `activities` and `lead_distribution`) and `web/src/modules/lead_forms`. Authenticated routes under `/api/v1/lead-forms` and public ones under `/api/v1/public/lead-forms/`.
 
 ## For users
 
@@ -8,7 +8,7 @@ Public forms, hosted by Aphel or embedded in the customer's website, that create
 2. Grant the **Manage lead forms** permission (`lead_forms.manage`) to the roles that will configure forms (administrator already has it).
 3. **Forms** menu (`/lead-forms`) → **New form**:
    - **Fields**: label, identifier, type (text, email, phone, long text, option list, checkbox), required and order. Each field can **save to the contact** in a system or custom field. "Full name" splits first and last name. A required field must go to the name (or full name).
-   - **Create records as**: records are created with this user's permissions (by default, whoever created the form), who must be able to create contacts (and deals, if configured).
+   - **Create records as**: records are created with this user's permissions (by default, whoever created the form), who must be able to create people (and deals, if configured).
    - **Contact**: reuse the contact when the email already exists, source and tag.
    - **Deal** (optional): pipeline, stage, title from a template (`{{identificador}}` inserts an answer, `{{form}}` the form name) and amount.
    - **After submission**: button text, success message or redirect URL.
@@ -25,7 +25,7 @@ Authenticated (`/api/v1/lead-forms`, permission `lead_forms.manage`):
 | `POST` | `/forms` | Creates (generates an opaque `public_id`, `f_` + 32 random hex characters); event `lead_form.created` |
 | `GET` | `/forms/{id}` | Detail |
 | `PUT` | `/forms/{id}` | Replaces the configuration (keeps the `public_id`); event `lead_form.updated` |
-| `DELETE` | `/forms/{id}` | Deletes the form and its history (contacts and deals remain); event `lead_form.deleted` |
+| `DELETE` | `/forms/{id}` | Deletes the form and its history (people and deals remain); event `lead_form.deleted` |
 | `POST` | `/forms/{id}/rotate-public-id` | New `public_id`; the old codes stop working immediately |
 | `GET` | `/forms/{id}/submissions?status=&page=&per_page=` | History (`accepted`, `spam`, `failed`) |
 | `GET` | `/options` | Writable contact fields, active pipelines/stages, contact tags and users (lists the user cannot read come back empty) |
@@ -73,7 +73,7 @@ Response: `{ "data": { "status": "accepted", "success_message": ..., "redirect_u
 
 ## What an accepted submission does
 
-1. Loads the scope of the acting user (`build_access_scope`). If they are no longer a member, are deactivated or cannot create contacts (or deals, when configured), the submission fails with 503 `lead_form_owner_unavailable` and is kept in the history as `failed`.
+1. Loads the scope of the acting user (`build_access_scope`). If they are no longer a member, are deactivated or cannot create people (or deals, when configured), the submission fails with 503 `lead_form_owner_unavailable` and is kept in the history as `failed`.
 2. With "reuse contact" and a field saving to `email`, it looks for a contact visible to that user with the same email (`ctx.query()`, the record query engine). Otherwise it creates the contact through the `RecordTypeHandler::create` of `contact` (`ctx.registry().handler("contact")`), with the configured source if the `source` field was not mapped. If the CRM rejects the contact, the submission is `failed` and the visitor gets 422 `lead_form_invalid_submission` (fields identified by their identifier) or 503 `lead_form_submission_failed`.
 3. Applies the tag (`tags::service::tag_record`, from the `tags` module) and creates the deal linked to the contact through the `deal` handler (`{ title, pipeline_id, stage_id, contact_id, amount, source }`). Failures here do not lose the lead: the submission stays `accepted` with `error_code` `lead_form_tag_failed` or `lead_form_deal_failed`.
 4. In the same transaction: writes `lead_forms_submissions`, publishes **`lead_form.submitted`** (with `record` = contact; payload `form_id`, `form_name`, `submission_id`, `contact_id`, `contact_created`, `deal_id`) and writes the audit.
@@ -112,6 +112,6 @@ In the history, `error_code` can also be `lead_form_tag_failed` or `lead_form_de
 ## Known limitations
 
 - The rate limit is in memory and per process; behind a proxy, the IP seen is the proxy's (the host does not read `X-Forwarded-For`).
-- Email deduplication respects the acting user's visibility: if they only see their own contacts, a contact of another owner with the same email is not found.
+- Email deduplication respects the acting user's visibility: if they only see their own people, a contact of another owner with the same email is not found.
 - The list value saved into a contact select field must be the field option's key (use "value | label" in the options).
 - There is no concurrent version control (`If-Match`) on `PUT`: the last one to save wins.

@@ -46,7 +46,7 @@ pub(crate) async fn contact_fields(
     scope: &AccessScope,
 ) -> Result<Vec<LeadFormTargetField>, AppError> {
     Ok(ctx
-        .field_set(scope, "contacts.contact")
+        .field_set(scope, "people.person")
         .await?
         .active()
         .map(|field| LeadFormTargetField {
@@ -338,7 +338,7 @@ pub(crate) async fn validate_request(
             if !can(actor, &Permission::CONTACTS_CREATE) {
                 violations.push(FieldViolation::new(
                     "acting_user_id",
-                    "the acting user cannot create contacts",
+                    "the acting user cannot create people",
                 ));
             }
             if definition.deal.is_some() && !can(actor, &Permission::DEALS_CREATE) {
@@ -413,7 +413,7 @@ pub(crate) async fn validate_request(
         if !usable {
             violations.push(FieldViolation::new(
                 "distribution_rule_id",
-                "must be an active lead distribution rule for contacts",
+                "must be an active lead distribution rule for people",
             ));
         }
     }

@@ -30,13 +30,13 @@ use aphel_kernel::database::transaction::MySqlTx;
 use aphel_kernel::domain::access::{AccessScope, Permission, RecordScopeFilter};
 use aphel_kernel::errors::{AppError, FieldViolation};
 use aphel_kernel::records::{changes_payload, permission_denied};
-use companies::domain::{CompanyView, company_not_found, company_snapshot};
-use companies::hierarchy::{HierarchyStore, Reparent, blocked_parents, reparent_children};
-use companies::store::CompanyStore;
-use contacts::domain::{ContactView, NewContactCompanyLink, contact_not_found, contact_snapshot};
-use contacts::store::ContactStore;
 use leads::service::record_stage_history;
 use leads::store::LeadRecords;
+use organizations::domain::{CompanyView, company_not_found, company_snapshot};
+use organizations::hierarchy::{HierarchyStore, Reparent, blocked_parents, reparent_children};
+use organizations::store::CompanyStore;
+use people::domain::{ContactView, NewContactCompanyLink, contact_not_found, contact_snapshot};
+use people::store::ContactStore;
 
 const STAGE_FIELD: &str = "lifecycle_stage";
 
@@ -308,19 +308,19 @@ async fn load_custom(
 
 async fn contact_for(
     ctx: &Ctx<'_>,
-    contacts: &ContactStore,
+    people: &ContactStore,
     id: Uuid,
     permission: &Permission,
 ) -> Result<ContactView, AppError> {
     let scope = ctx.scope;
     let read = scope.record_filter(&Permission::CONTACTS_READ)?;
-    let view = contacts
+    let view = people
         .find(scope, &read, id)
         .await?
         .ok_or_else(contact_not_found)?;
     let allowed = scope.record_filter(permission)?;
     if allowed != RecordScopeFilter::Organization
-        && contacts.find(scope, &allowed, id).await?.is_none()
+        && people.find(scope, &allowed, id).await?.is_none()
     {
         return Err(permission_denied());
     }
@@ -329,19 +329,19 @@ async fn contact_for(
 
 async fn company_for(
     ctx: &Ctx<'_>,
-    companies: &CompanyStore,
+    organizations: &CompanyStore,
     id: Uuid,
     permission: &Permission,
 ) -> Result<CompanyView, AppError> {
     let scope = ctx.scope;
     let read = scope.record_filter(&Permission::COMPANIES_READ)?;
-    let view = companies
+    let view = organizations
         .find(scope, &read, id)
         .await?
         .ok_or_else(company_not_found)?;
     let allowed = scope.record_filter(permission)?;
     if allowed != RecordScopeFilter::Organization
-        && companies.find(scope, &allowed, id).await?.is_none()
+        && organizations.find(scope, &allowed, id).await?.is_none()
     {
         return Err(permission_denied());
     }
@@ -605,9 +605,9 @@ async fn merge_contacts(
 ) -> Result<MergeOutcome, AppError> {
     let fields = read.fields;
     let scope = ctx.scope;
-    let contacts = ContactStore::of(ctx);
-    let primary = contact_for(ctx, &contacts, primary_id, &Permission::CONTACTS_UPDATE).await?;
-    let duplicate = contact_for(ctx, &contacts, duplicate_id, &Permission::CONTACTS_DELETE).await?;
+    let people = ContactStore::of(ctx);
+    let primary = contact_for(ctx, &people, primary_id, &Permission::CONTACTS_UPDATE).await?;
+    let duplicate = contact_for(ctx, &people, duplicate_id, &Permission::CONTACTS_DELETE).await?;
     let (primary_custom, duplicate_custom) =
         load_custom(ctx, &kind, primary_id, duplicate_id).await?;
     let plan = plan_merge(
@@ -640,7 +640,7 @@ async fn merge_contacts(
     for company_id in [old.company_id, source.company_id].into_iter().flatten() {
         if merged.company_id != Some(company_id)
             && !extra_companies.contains(&company_id)
-            && contacts
+            && people
                 .find_link(scope, primary_id, company_id)
                 .await?
                 .is_none()
@@ -657,10 +657,10 @@ async fn merge_contacts(
     let moved = retire_duplicate(ctx, &mut tx, &kind, (primary_id, duplicate_id), now).await?;
     let custom = apply_custom(ctx, &mut tx, &kind, primary_id, &snapshot, &plan).await?;
     if &merged != old {
-        contacts.update(&mut tx, primary_id, &merged, now).await?;
+        people.update(&mut tx, primary_id, &merged, now).await?;
     }
     for company_id in extra_companies {
-        contacts
+        people
             .insert_link(
                 &mut tx,
                 &NewContactCompanyLink {
@@ -706,11 +706,22 @@ async fn merge_companies(
 ) -> Result<MergeOutcome, AppError> {
     let fields = read.fields;
     let scope = ctx.scope;
-    let companies = CompanyStore::of(ctx);
+    let organizations = CompanyStore::of(ctx);
     let hierarchy = HierarchyStore::of(ctx);
-    let primary = company_for(ctx, &companies, primary_id, &Permission::COMPANIES_UPDATE).await?;
-    let duplicate =
-        company_for(ctx, &companies, duplicate_id, &Permission::COMPANIES_DELETE).await?;
+    let primary = company_for(
+        ctx,
+        &organizations,
+        primary_id,
+        &Permission::COMPANIES_UPDATE,
+    )
+    .await?;
+    let duplicate = company_for(
+        ctx,
+        &organizations,
+        duplicate_id,
+        &Permission::COMPANIES_DELETE,
+    )
+    .await?;
     let (primary_custom, duplicate_custom) =
         load_custom(ctx, &kind, primary_id, duplicate_id).await?;
     let plan = plan_merge(
@@ -771,7 +782,9 @@ async fn merge_companies(
     let moved = retire_duplicate(ctx, &mut tx, &kind, (primary_id, duplicate_id), now).await?;
     let custom = apply_custom(ctx, &mut tx, &kind, primary_id, &snapshot, &plan).await?;
     if &merged != old {
-        companies.update(&mut tx, primary_id, &merged, now).await?;
+        organizations
+            .update(&mut tx, primary_id, &merged, now)
+            .await?;
     }
     let mut changes = redact_hidden(
         diff_values(&company_snapshot(old), &snapshot, &DiffOptions::default())?,

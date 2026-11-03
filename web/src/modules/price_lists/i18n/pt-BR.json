@@ -29,7 +29,7 @@
   "appliesTo": {
     "all": "Todas as empresas",
     "segment": "Segmento de empresas",
-    "companies": "Empresas específicas"
+    "organizations": "Empresas específicas"
   },
   "badges": {
     "default": "Padrão",
@@ -57,7 +57,7 @@
     "segment": "Segmento",
     "segmentPlaceholder": "Escolha um segmento de empresas",
     "segmentHint": "Vale para as empresas que estiverem no segmento no momento da cotação.",
-    "companies": "Empresas",
+    "organizations": "Empresas",
     "company": "Empresa {{position}}",
     "removeCompany": "Remover empresa",
     "addCompany": "Adicionar empresa",
@@ -80,8 +80,8 @@
     "deleted": "Tabela de preço excluída.",
     "deleteTitle": "Excluir tabela de preço?",
     "deleteDescription": "A tabela \"{{name}}\" e todos os seus preços serão removidos. Cotações já feitas mantêm os preços que usaram.",
-    "companies_one": "{{count}} empresa",
-    "companies_other": "{{count}} empresas"
+    "organizations_one": "{{count}} empresa",
+    "organizations_other": "{{count}} empresas"
   },
   "items": {
     "title": "Preços",

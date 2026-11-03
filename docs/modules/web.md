@@ -119,8 +119,8 @@ Module routes are behind the `ModuleGate`. The root `/` belongs to `dashboard`; 
 
 | Id | Screen |
 | --- | --- |
-| `contacts.ListPage`, `contacts.DetailPage` | Contact list and detail |
-| `companies.ListPage`, `companies.DetailPage` | Company list and detail |
+| `people.ListPage`, `people.DetailPage` | Contact list and detail |
+| `organizations.ListPage`, `organizations.DetailPage` | Company list and detail |
 | `leads.Page` | Lead inbox |
 
 To make a screen of your module overridable, wrap it in `<Overridable id="<key>.<Screen>" component={Screen} props={..} />`.

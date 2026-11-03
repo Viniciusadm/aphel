@@ -67,7 +67,7 @@ pub(crate) const DATASETS: &[Dataset] = &[
     Dataset::new("meeting_types", "data", true),
     Dataset::new(WEBHOOK_ENDPOINTS_DATASET, "data", true).warning(WEBHOOK_SECRET_WARNING),
     Dataset::new("activity_recurrences", "data", true),
-    Dataset::new("contact_companies", "relations", false),
+    Dataset::new("people_organizations", "relations", false),
     Dataset::new("deal_contacts", "relations", false),
     Dataset::new("record_relations", "relations", false),
     Dataset::new("taggings", "relations", false),

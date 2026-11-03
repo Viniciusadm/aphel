@@ -24,7 +24,7 @@ import { callSessionPath } from './constants'
 import { callErrorKey } from './lib/errors'
 import { Field } from '@/components/ui/field'
 
-const CONTACT = 'contacts.contact'
+const CONTACT = 'people.person'
 
 export function SessionsPage() {
   const { hasPermission } = useSession()
@@ -186,7 +186,7 @@ function SessionList() {
                     </span>
                   </div>
                   <span className="text-xs text-muted-foreground tabular-nums">
-                    {t('sessions.contacts', { count: session.total })}
+                    {t('sessions.people', { count: session.total })}
                   </span>
                   <Badge variant={done ? 'secondary' : 'success'}>{t(`sessions.status.${session.status}`)}</Badge>
                 </Link>

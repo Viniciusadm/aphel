@@ -2,7 +2,7 @@ use serde::{Deserialize, Serialize};
 use utoipa::ToSchema;
 
 use crate::api::dto::common::double_option;
-use crate::application::organizations::{
+use crate::application::organization_profile::{
     ApiTokenLimits, MailSettings, ObjectStoreSettings, OrganizationConfigView, SecretChange,
     StorageSettings, StorageTestOutcome, UpdateOrganizationConfig,
 };

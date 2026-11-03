@@ -153,14 +153,14 @@ where
 pub struct SecurityEmailHandler<U, M> {
     users: U,
     mailer: M,
-    app_base_url: crate::application::organizations::PublicBaseUrl,
+    app_base_url: crate::application::organization_profile::PublicBaseUrl,
 }
 
 impl<U, M> SecurityEmailHandler<U, M> {
     pub fn new(
         users: U,
         mailer: M,
-        app_base_url: impl Into<crate::application::organizations::PublicBaseUrl>,
+        app_base_url: impl Into<crate::application::organization_profile::PublicBaseUrl>,
     ) -> Self {
         Self {
             users,

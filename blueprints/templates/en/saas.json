@@ -3,7 +3,7 @@
   "format_version": 1,
   "min_aphel_version": "0.1.0",
   "name": "SaaS",
-  "description": "For subscription software companies: from trial to closed subscription, with plan, MRR, number of seats, trial end and renewal date.",
+  "description": "For subscription software organizations: from trial to closed subscription, with plan, MRR, number of seats, trial end and renewal date.",
   "author": "Aphel",
   "locale": "en",
   "sections": {

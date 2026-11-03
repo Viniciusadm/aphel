@@ -44,7 +44,7 @@ const aphel = createAphelClient({
 
 const organization = unwrap(await aphel.get('/api/v1/organization'))
 
-const page = await aphel.get('/api/v1/contacts', {
+const page = await aphel.get('/api/v1/people', {
   query: { page: 1, per_page: 50 },
   filter: { email: { contains: '@acme.com.br' }, created_at: { gte: '2026-01-01' } },
   sort: ['-created_at'],
@@ -52,14 +52,14 @@ const page = await aphel.get('/api/v1/contacts', {
 console.log(page.meta.total, page.data.map((contact) => contact.email))
 
 const contact = unwrap(
-  await aphel.post('/api/v1/contacts', {
+  await aphel.post('/api/v1/people', {
     body: { first_name: 'Bruna', last_name: 'Lima', email: 'bruna@acme.com.br' },
     idempotencyKey: true,
   }),
 )
 
 try {
-  await aphel.patch('/api/v1/contacts/{contact_id}', {
+  await aphel.patch('/api/v1/people/{contact_id}', {
     path: { contact_id: contact.id },
     body: { job_title: 'Sales director' },
     ifMatch: contact.updated_at,

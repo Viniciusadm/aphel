@@ -12,8 +12,8 @@ config_packages = { package = "aphel-mod-config-packages", path = "../config_pac
 aphel-contract-crm.workspace = true
 aphel-kernel.workspace = true
 calls = { package = "aphel-mod-calls", path = "../calls" }
-companies = { package = "aphel-mod-companies", path = "../companies" }
-contacts = { package = "aphel-mod-contacts", path = "../contacts" }
+organizations = { package = "aphel-mod-organizations", path = "../organizations" }
+people = { package = "aphel-mod-people", path = "../people" }
 email = { package = "aphel-mod-email", path = "../email" }
 scheduling = { package = "aphel-mod-scheduling", path = "../scheduling" }
 axum.workspace = true

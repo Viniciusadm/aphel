@@ -154,7 +154,7 @@ impl PriceListResolver for CatalogPriceListResolver {
             let specific = candidates
                 .iter()
                 .filter(|candidate| {
-                    candidate.list.applies_to == PriceListAppliesTo::Companies
+                    candidate.list.applies_to == PriceListAppliesTo::Organizations
                         && candidate.matches_company
                 })
                 .max_by(most_specific);

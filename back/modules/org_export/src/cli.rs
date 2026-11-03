@@ -22,7 +22,7 @@ use aphel_kernel::errors::AppError;
 use aphel_kernel::infrastructure::audit::MySqlAuditLog;
 use aphel_kernel::infrastructure::custom_objects::MySqlCustomSchemaSource;
 use aphel_kernel::infrastructure::events::MySqlEventPublisher;
-use aphel_kernel::infrastructure::organizations::organization_config_catalog;
+use aphel_kernel::infrastructure::organization_profile::organization_config_catalog;
 use aphel_kernel::infrastructure::repositories::mysql_access::MySqlAccessRepository;
 use aphel_kernel::infrastructure::secrets::build_secret_vault;
 use aphel_kernel::infrastructure::storage::DynamicFileStorage;

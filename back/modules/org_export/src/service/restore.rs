@@ -27,7 +27,7 @@ use aphel_kernel::application::fields::{
     raw_from_json,
 };
 use aphel_kernel::application::files::storage_key;
-use aphel_kernel::application::organizations::{
+use aphel_kernel::application::organization_profile::{
     NewOrganization, NewOwner, organization_registration,
 };
 use aphel_kernel::application::shared::{

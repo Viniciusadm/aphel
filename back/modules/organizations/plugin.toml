@@ -1,0 +1,5 @@
+key = "organizations"
+name = "Organizations"
+version = "0.1.0"
+layer = "capability"
+runtime = "native"

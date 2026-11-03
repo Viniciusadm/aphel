@@ -138,7 +138,7 @@
     "new": "New webhook",
     "listLabel": "Incoming webhooks",
     "emptyTitle": "No incoming webhooks",
-    "emptyDescription": "Create a webhook to turn form submissions into contacts and deals.",
+    "emptyDescription": "Create a webhook to turn form submissions into people and deals.",
     "active": "Active",
     "inactive": "Inactive",
     "signed": "Signed",

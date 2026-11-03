@@ -111,7 +111,7 @@ fn allows(scope: &AccessScope, permission: &Permission) -> bool {
 fn is_distributable(record_type: &str) -> bool {
     matches!(
         record_type,
-        "contacts.contact" | "companies.company" | "deals.deal"
+        "people.person" | "organizations.organization" | "deals.deal"
     ) || is_custom_record_type(record_type)
 }
 

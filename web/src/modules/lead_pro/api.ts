@@ -45,8 +45,8 @@ const leadProKeys = {
 
 export const leadProApi = {
   board: () => api.get<HotLeadList>(`${BASE}/board`),
-  temperature: (contactId: string) => api.get<LeadTemperature>(`${BASE}/contacts/${contactId}`),
-  touch: (contactId: string) => api.post<LeadTemperature>(`${BASE}/contacts/${contactId}/touches`),
+  temperature: (contactId: string) => api.get<LeadTemperature>(`${BASE}/people/${contactId}`),
+  touch: (contactId: string) => api.post<LeadTemperature>(`${BASE}/people/${contactId}/touches`),
 }
 
 export function useHotLeads() {

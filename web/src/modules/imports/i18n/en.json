@@ -1,15 +1,15 @@
 {
   "recordTypes": {
-    "contact": "contacts",
-    "company": "companies",
+    "contact": "people",
+    "company": "organizations",
     "deal": "deals",
     "activity": "activities",
     "product": "products",
-    "contacts": {
-      "contact": "contacts"
+    "people": {
+      "person": "people"
     },
-    "companies": {
-      "company": "companies"
+    "organizations": {
+      "organization": "organizations"
     },
     "deals": {
       "deal": "deals"
@@ -60,7 +60,7 @@
     "options": "Duplicates and relationships",
     "duplicateKey": "Find duplicates by",
     "duplicateStrategy": "When a duplicate is found",
-    "createCompanies": "Create companies that do not exist",
+    "createCompanies": "Create organizations that do not exist",
     "keys": {
       "none": "Do not check",
       "email": "Email",

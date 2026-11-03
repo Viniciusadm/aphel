@@ -311,7 +311,7 @@ pub(crate) struct IncomingActionOutcomeResponse {
     pub(crate) status: String,
     #[schema(example = "created")]
     pub(crate) operation: Option<String>,
-    #[schema(example = "contacts.contact")]
+    #[schema(example = "people.person")]
     pub(crate) record_type: Option<String>,
     pub(crate) record_id: Option<String>,
     pub(crate) error: Option<IncomingActionErrorResponse>,
@@ -439,7 +439,7 @@ impl From<MappableField> for IncomingMappableFieldResponse {
 pub(crate) struct IncomingActionTargetResponse {
     #[serde(rename = "type")]
     pub(crate) action_type: IncomingWebhookActionTypeSchema,
-    #[schema(example = "contacts.contact")]
+    #[schema(example = "people.person")]
     pub(crate) record_type: String,
     pub(crate) fields: Vec<IncomingMappableFieldResponse>,
 }

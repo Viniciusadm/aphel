@@ -112,9 +112,9 @@ pub struct RelationshipListParams {
 pub struct CreateRelationshipRequest {
     #[schema(example = "contracts")]
     pub key: String,
-    #[schema(example = "companies.company")]
+    #[schema(example = "organizations.organization")]
     pub inverse_key: String,
-    #[schema(example = "companies.company")]
+    #[schema(example = "organizations.organization")]
     pub from_type: String,
     #[schema(example = "custom.contract")]
     pub to_type: String,

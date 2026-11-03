@@ -16,7 +16,7 @@ use crate::{BOOKING_EMAIL_JOB, BookingStatus};
 use aphel_kernel::Ctx;
 use aphel_kernel::api::state::AppState;
 use aphel_kernel::application::mail::{CalendarInvite, EmailMessage, Mailer, SharedMailer};
-use aphel_kernel::application::organizations::PublicBaseUrl;
+use aphel_kernel::application::organization_profile::PublicBaseUrl;
 use aphel_kernel::application::shared::{JobContext, JobHandler};
 use aphel_kernel::domain::access::AccessScope;
 use aphel_kernel::errors::AppError;

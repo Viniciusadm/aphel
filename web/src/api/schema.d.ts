@@ -168,7 +168,7 @@ export interface paths {
         };
         get?: never;
         put?: never;
-        /** @description Aggregates records of a type under the read scope of the caller (`own`/`team`/`organization`) and the field permissions of the role, in the time zone of the organization. `group_by` (up to 3) accepts system and custom fields (select, multi-select and user included), `tags`, `owner_team` (team of the owner; an owner in two teams counts in both) and fields of a single related record such as `company.industry` on deals; date fields take a `granularity` (`day`, `week` starting on Monday, `month`, `quarter`, `year`, default `day`) and their bucket key is the first day of the bucket (`YYYY-MM-DD`). `metrics` (up to 10, default `[{"fn":"count"}]`): `count` (distinct records, or records with a value when `field` is given) and `sum`/`avg`/`min`/`max` over number or currency fields of the type itself; the key of a metric is `fn` or `fn:field`. A duration metric takes two date or date and time fields of the type itself, `field` (start) and `to` (end), and a `unit` (`days`, the default, or `hours`): it applies `fn` (`count`/`sum`/`avg`/`min`/`max`) to the time between both dates of each record (fractional, records missing either date are skipped), such as `{"fn":"avg","field":"created_at","to":"closed_at"}` for the average days to close; its key is `fn:field..to:unit`. `filter` is the same AST of the listings and also accepts conditions on related records (`company.industry`, `deals.status` on companies), each evaluated as "there is a related record visible to the caller that matches" so totals are never duplicated, and `owner_team` with `in`/`not_in`/`is_empty`/`is_not_empty`. `period` limits a date field to a preset (`today`, `yesterday`, `last_7_days`, `last_30_days`, `week`, `last_week`, `month`, `last_month`, `quarter`, `last_quarter`, `year`, `last_year`) or a `custom` range (`from`/`to`, at most 731 days); with `compare_to_previous` every row and the totals also carry `previous`, computed over the period right before (whole months shift by months, any other range by its length) and matched bucket by bucket when grouping by the period field. Rows grouped only by the period field fill empty buckets with zero. `sort` takes group fields or metric keys (default: groups ascending, select options in the order of their position, empty values last); `limit` defaults to 500 (max 1000) and `truncated` tells when more groups exist. Values are decimal strings; sums ignore the currency of each record. */
+        /** @description Aggregates records of a type under the read scope of the caller (`own`/`team`/`organization`) and the field permissions of the role, in the time zone of the organization. `group_by` (up to 3) accepts system and custom fields (select, multi-select and user included), `tags`, `owner_team` (team of the owner; an owner in two teams counts in both) and fields of a single related record such as `company.industry` on deals; date fields take a `granularity` (`day`, `week` starting on Monday, `month`, `quarter`, `year`, default `day`) and their bucket key is the first day of the bucket (`YYYY-MM-DD`). `metrics` (up to 10, default `[{"fn":"count"}]`): `count` (distinct records, or records with a value when `field` is given) and `sum`/`avg`/`min`/`max` over number or currency fields of the type itself; the key of a metric is `fn` or `fn:field`. A duration metric takes two date or date and time fields of the type itself, `field` (start) and `to` (end), and a `unit` (`days`, the default, or `hours`): it applies `fn` (`count`/`sum`/`avg`/`min`/`max`) to the time between both dates of each record (fractional, records missing either date are skipped), such as `{"fn":"avg","field":"created_at","to":"closed_at"}` for the average days to close; its key is `fn:field..to:unit`. `filter` is the same AST of the listings and also accepts conditions on related records (`company.industry`, `deals.status` on organization_profile), each evaluated as "there is a related record visible to the caller that matches" so totals are never duplicated, and `owner_team` with `in`/`not_in`/`is_empty`/`is_not_empty`. `period` limits a date field to a preset (`today`, `yesterday`, `last_7_days`, `last_30_days`, `week`, `last_week`, `month`, `last_month`, `quarter`, `last_quarter`, `year`, `last_year`) or a `custom` range (`from`/`to`, at most 731 days); with `compare_to_previous` every row and the totals also carry `previous`, computed over the period right before (whole months shift by months, any other range by its length) and matched bucket by bucket when grouping by the period field. Rows grouped only by the period field fill empty buckets with zero. `sort` takes group fields or metric keys (default: groups ascending, select options in the order of their position, empty values last); `limit` defaults to 500 (max 1000) and `truncated` tells when more groups exist. Values are decimal strings; sums ignore the currency of each record. */
         post: operations["aggregates_run"];
         delete?: never;
         options?: never;
@@ -1377,124 +1377,6 @@ export interface paths {
         patch?: never;
         trace?: never;
     };
-    "/api/v1/companies": {
-        parameters: {
-            query?: never;
-            header?: never;
-            path?: never;
-            cookie?: never;
-        };
-        /** @description Lists the companies visible to the user (permission `companies.read`, limited by its record scope). Filters accept the JSON AST in `filter` or simple conditions as `filter[field][operator]=value` (`filter[industry][eq]=Varejo`, `filter[owner_id][in]=a,b`, `filter[domain]=acme.com.br` means `eq`), combined with `and`. `sort=field,-other` (up to 3); without `sort`, newest first. `search` (or its alias `q`) matches name, domain, email and phone; phone terms are normalized to E.164. `archived=exclude|include|only` (default `exclude`). The owner is always embedded; `include=tags` also embeds the tags of each company. */
-        get: operations["companies_list"];
-        put?: never;
-        /** @description Creates a company (permission `companies.create`) and publishes `company.created`. Email is lowercased, phone normalized to E.164 and the domain taken from the website when missing; the owner defaults to the current user. Custom fields go in `custom_fields`. `possible_duplicates` (only in this response, empty when none) lists visible companies that the duplicate rules match (a warning, never an error); those pairs also enter the duplicate queue. */
-        post: operations["companies_create"];
-        delete?: never;
-        options?: never;
-        head?: never;
-        patch?: never;
-        trace?: never;
-    };
-    "/api/v1/companies/{company_id}": {
-        parameters: {
-            query?: never;
-            header?: never;
-            path?: never;
-            cookie?: never;
-        };
-        /** @description Returns a company with its custom fields and owner (permission `companies.read`). The id of a company merged into another one answers the company that absorbed it (compare `id`). `include=tags` embeds its tags. */
-        get: operations["companies_get"];
-        put?: never;
-        post?: never;
-        delete: operations["companies_delete"];
-        options?: never;
-        head?: never;
-        /** @description Partially updates a company (permission `companies.update` on this company) and publishes `company.updated` with the changes. Omitted properties stay unchanged and `null` clears an optional one; `custom_fields` only touches the keys sent. Send `If-Match` with the `updated_at` you read to avoid overwriting someone else's change. */
-        patch: operations["companies_update"];
-        trace?: never;
-    };
-    "/api/v1/companies/{company_id}/archive": {
-        parameters: {
-            query?: never;
-            header?: never;
-            path?: never;
-            cookie?: never;
-        };
-        get?: never;
-        put?: never;
-        post: operations["companies_archive"];
-        delete?: never;
-        options?: never;
-        head?: never;
-        patch?: never;
-        trace?: never;
-    };
-    "/api/v1/companies/{company_id}/contacts": {
-        parameters: {
-            query?: never;
-            header?: never;
-            path?: never;
-            cookie?: never;
-        };
-        get: operations["companies_list_contacts"];
-        put?: never;
-        post?: never;
-        delete?: never;
-        options?: never;
-        head?: never;
-        patch?: never;
-        trace?: never;
-    };
-    "/api/v1/companies/{company_id}/group-totals": {
-        parameters: {
-            query?: never;
-            header?: never;
-            path?: never;
-            cookie?: never;
-        };
-        /** @description Totals of a company and all its subsidiaries, at any level (permission `companies.read`). Only records the caller can read count: `companies_count` (readable companies of the group, the company included), `contacts_count` (contacts whose company is in the group; null without `contacts.read`), `open_deals_count`/`open_deals_amount` and `won_deals_count`/`won_amount` (deals whose company is in the group, amounts summed over `amount_base` in the base `currency` of the organization; null without `deals.read`, amounts null when `amount_base` is hidden). Archived contacts and deals are left out. */
-        get: operations["companies_group_totals"];
-        put?: never;
-        post?: never;
-        delete?: never;
-        options?: never;
-        head?: never;
-        patch?: never;
-        trace?: never;
-    };
-    "/api/v1/companies/{company_id}/hierarchy": {
-        parameters: {
-            query?: never;
-            header?: never;
-            path?: never;
-            cookie?: never;
-        };
-        /** @description Company group of a company (permission `companies.read`): `root_id` is the top company of the group and `nodes` lists the group depth-first (siblings by name), each with `parent_id` and `depth` (0 = root). Companies the caller cannot read are left out, except when they sit on the path between the root and a readable company: then they appear with `accessible = false` and no data, so the tree keeps its shape. `contacts_count`, `open_deals_count` and `open_deals_amount` (sum of `amount_base`, in the base `currency` of the organization) count only records the caller can read; they are null without `contacts.read`/`deals.read` (or when `amount_base` is hidden). `subsidiaries` counts the direct subsidiaries listed. Up to 1000 companies (`truncated` tells when there are more). `max_depth` is the deepest group allowed when setting `parent_company_id`. */
-        get: operations["companies_hierarchy"];
-        put?: never;
-        post?: never;
-        delete?: never;
-        options?: never;
-        head?: never;
-        patch?: never;
-        trace?: never;
-    };
-    "/api/v1/companies/{company_id}/unarchive": {
-        parameters: {
-            query?: never;
-            header?: never;
-            path?: never;
-            cookie?: never;
-        };
-        get?: never;
-        put?: never;
-        post: operations["companies_unarchive"];
-        delete?: never;
-        options?: never;
-        head?: never;
-        patch?: never;
-        trace?: never;
-    };
     "/api/v1/config-package-versions": {
         parameters: {
             query?: never;
@@ -1671,106 +1553,6 @@ export interface paths {
         patch?: never;
         trace?: never;
     };
-    "/api/v1/contacts": {
-        parameters: {
-            query?: never;
-            header?: never;
-            path?: never;
-            cookie?: never;
-        };
-        /** @description Lists the contacts visible to the user (permission `contacts.read`, limited by its record scope). Filters accept the JSON AST in `filter` or simple conditions as `filter[field][operator]=value` (`filter[email][contains]=acme`, `filter[owner_id][in]=a,b`, `filter[company_id]=<id>` means `eq`), combined with `and`. `sort=field,-other` (up to 3); without `sort`, newest first. `search` (or its alias `q`) matches name, email, phone and mobile; phone terms are normalized to E.164. `archived=exclude|include|only` (default `exclude`). The owner and the primary company are always embedded; `include=tags` also embeds the tags of each contact. */
-        get: operations["contacts_list"];
-        put?: never;
-        /** @description Creates a contact (permission `contacts.create`) and publishes `contact.created`. Email is lowercased and phones normalized to E.164; `name` is derived from first and last names; the owner defaults to the current user. Custom fields go in `custom_fields`. `possible_duplicates` (only in this response, empty when none) lists visible contacts that the duplicate rules match (a warning, never an error); those pairs also enter the duplicate queue. */
-        post: operations["contacts_create"];
-        delete?: never;
-        options?: never;
-        head?: never;
-        patch?: never;
-        trace?: never;
-    };
-    "/api/v1/contacts/{contact_id}": {
-        parameters: {
-            query?: never;
-            header?: never;
-            path?: never;
-            cookie?: never;
-        };
-        /** @description Returns a contact with its custom fields, owner and primary company (permission `contacts.read`). The id of a contact merged into another one answers the contact that absorbed it (compare `id`). `include=tags` embeds its tags. */
-        get: operations["contacts_get"];
-        put?: never;
-        post?: never;
-        delete: operations["contacts_delete"];
-        options?: never;
-        head?: never;
-        /** @description Partially updates a contact (permission `contacts.update` on this contact) and publishes `contact.updated` with the changes. Omitted properties stay unchanged and `null` clears an optional one; `custom_fields` only touches the keys sent. Send `If-Match` with the `updated_at` you read to avoid overwriting someone else's change. */
-        patch: operations["contacts_update"];
-        trace?: never;
-    };
-    "/api/v1/contacts/{contact_id}/archive": {
-        parameters: {
-            query?: never;
-            header?: never;
-            path?: never;
-            cookie?: never;
-        };
-        get?: never;
-        put?: never;
-        post: operations["contacts_archive"];
-        delete?: never;
-        options?: never;
-        head?: never;
-        patch?: never;
-        trace?: never;
-    };
-    "/api/v1/contacts/{contact_id}/companies": {
-        parameters: {
-            query?: never;
-            header?: never;
-            path?: never;
-            cookie?: never;
-        };
-        get: operations["contacts_list_companies"];
-        put?: never;
-        post: operations["contacts_link_company"];
-        delete?: never;
-        options?: never;
-        head?: never;
-        patch?: never;
-        trace?: never;
-    };
-    "/api/v1/contacts/{contact_id}/companies/{company_id}": {
-        parameters: {
-            query?: never;
-            header?: never;
-            path?: never;
-            cookie?: never;
-        };
-        get?: never;
-        put?: never;
-        post?: never;
-        delete: operations["contacts_unlink_company"];
-        options?: never;
-        head?: never;
-        patch?: never;
-        trace?: never;
-    };
-    "/api/v1/contacts/{contact_id}/unarchive": {
-        parameters: {
-            query?: never;
-            header?: never;
-            path?: never;
-            cookie?: never;
-        };
-        get?: never;
-        put?: never;
-        post: operations["contacts_unarchive"];
-        delete?: never;
-        options?: never;
-        head?: never;
-        patch?: never;
-        trace?: never;
-    };
     "/api/v1/currencies": {
         parameters: {
             query?: never;
@@ -1927,7 +1709,7 @@ export interface paths {
             path?: never;
             cookie?: never;
         };
-        /** @description Users and teams whose numbers the current user can follow on the dashboard, from the broadest read scope among `deals.read`, `activities.read` and `contacts.read`: `own` → only the user; `team` → the teams of the user and their members; `organization` → every member and team. Use the ids as `user_id`/`team_id` of the widget data. */
+        /** @description Users and teams whose numbers the current user can follow on the dashboard, from the broadest read scope among `deals.read`, `activities.read` and `people.read`: `own` → only the user; `team` → the teams of the user and their members; `organization` → every member and team. Use the ids as `user_id`/`team_id` of the widget data. */
         get: operations["dashboard_subjects_list"];
         put?: never;
         post?: never;
@@ -2797,7 +2579,7 @@ export interface paths {
         };
         get?: never;
         put?: never;
-        /** @description Queues an e-mail from one of the user's own mailboxes (`mailbox_id`, or the first active one). `record` links the conversation to a contact, company, deal or custom object (read access required) and fills the `{{contact.first_name}}`-style variables of `subject`/`body_html`/`template_id`; recipients that are contacts are linked too. `reply_to_message_id` keeps the conversation (`In-Reply-To`, `References`, `Re:` subject). `attachment_file_ids` are files the user can download (`/api/v1/files`). Every e-mail is stored as `scheduled` and delivered by the worker (`email.send_scheduled`); a future `scheduled_at` delays delivery. `tracking` asks for open/click tracking when the organization allows it (default from `/email-settings/tracking`); it is always off when a recipient objected. Queue acceptance publishes `email.scheduled`; delivery publishes `email.sent` once per linked record. */
+        /** @description Queues an e-mail from one of the user's own mailboxes (`mailbox_id`, or the first active one). `record` links the conversation to a contact, company, deal or custom object (read access required) and fills the `{{contact.first_name}}`-style variables of `subject`/`body_html`/`template_id`; recipients that are people are linked too. `reply_to_message_id` keeps the conversation (`In-Reply-To`, `References`, `Re:` subject). `attachment_file_ids` are files the user can download (`/api/v1/files`). Every e-mail is stored as `scheduled` and delivered by the worker (`email.send_scheduled`); a future `scheduled_at` delays delivery. `tracking` asks for open/click tracking when the organization allows it (default from `/email-settings/tracking`); it is always off when a recipient objected. Queue acceptance publishes `email.scheduled`; delivery publishes `email.sent` once per linked record. */
         post: operations["emails_send"];
         delete?: never;
         options?: never;
@@ -2839,23 +2621,6 @@ export interface paths {
         patch?: never;
         trace?: never;
     };
-    "/api/v1/enrichment/companies/{company_id}": {
-        parameters: {
-            query?: never;
-            header?: never;
-            path?: never;
-            cookie?: never;
-        };
-        /** @description Enrichment state of a company: configured CNPJ field and its value, source mode, whether automatic enrichment is allowed and the source (provider, CNPJ, date) of every field filled by the module. Requires `enrichment.use` and `companies.read`. */
-        get: operations["enrichment_company"];
-        put?: never;
-        post?: never;
-        delete?: never;
-        options?: never;
-        head?: never;
-        patch?: never;
-        trace?: never;
-    };
     "/api/v1/enrichment/lookups": {
         parameters: {
             query?: never;
@@ -2865,7 +2630,7 @@ export interface paths {
         };
         get?: never;
         put?: never;
-        /** @description Looks up the company CNPJ (typed or read from the configured CNPJ field) in the configured public source (BrasilAPI, ReceitaWS or BrasilAPI with ReceitaWS as fallback) and returns the proposal field by field (current x new value). Nothing is written to the company: apply with `POST /lookups/{lookup_id}/apply` within 60 minutes. Requires `enrichment.use` and `companies.read`. */
+        /** @description Looks up the company CNPJ (typed or read from the configured CNPJ field) in the configured public source (BrasilAPI, ReceitaWS or BrasilAPI with ReceitaWS as fallback) and returns the proposal field by field (current x new value). Nothing is written to the company: apply with `POST /lookups/{lookup_id}/apply` within 60 minutes. Requires `enrichment.use` and `organizations.read`. */
         post: operations["enrichment_lookup"];
         delete?: never;
         options?: never;
@@ -2882,8 +2647,25 @@ export interface paths {
         };
         get?: never;
         put?: never;
-        /** @description Writes the chosen items of a lookup to the mapped company fields through the core (same permissions and validation as editing the company), records the source of each filled field and publishes `company.enriched` with `changes`. `only_blank` skips fields that already have a value. Requires `enrichment.use` and `companies.update`. */
+        /** @description Writes the chosen items of a lookup to the mapped company fields through the core (same permissions and validation as editing the company), records the source of each filled field and publishes `company.enriched` with `changes`. `only_blank` skips fields that already have a value. Requires `enrichment.use` and `organizations.update`. */
         post: operations["enrichment_apply"];
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
+    "/api/v1/enrichment/organizations/{company_id}": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        /** @description Enrichment state of a company: configured CNPJ field and its value, source mode, whether automatic enrichment is allowed and the source (provider, CNPJ, date) of every field filled by the module. Requires `enrichment.use` and `organizations.read`. */
+        get: operations["enrichment_company"];
+        put?: never;
+        post?: never;
         delete?: never;
         options?: never;
         head?: never;
@@ -4095,7 +3877,7 @@ export interface paths {
         };
         get?: never;
         put?: never;
-        /** @description Converts a contact in `lead` or `qualified`: creates a deal through the deals use case (permission `deals.create`; `deal.created`) in `pipeline_id` (and `stage_id`, default the first open stage), with the contact, its primary company and its source; the title defaults to the contact name. Then moves the contact to the target stage of the `deal_created` rule (`opportunity` by default) and publishes `contact.updated` and `lead.converted` with `deal_id`. Needs `contacts.update` on the contact. */
+        /** @description Converts a contact in `lead` or `qualified`: creates a deal through the deals use case (permission `deals.create`; `deal.created`) in `pipeline_id` (and `stage_id`, default the first open stage), with the contact, its primary company and its source; the title defaults to the contact name. Then moves the contact to the target stage of the `deal_created` rule (`opportunity` by default) and publishes `contact.updated` and `lead.converted` with `deal_id`. Needs `people.update` on the contact. */
         post: operations["leads_convert"];
         delete?: never;
         options?: never;
@@ -4112,7 +3894,7 @@ export interface paths {
         };
         get?: never;
         put?: never;
-        /** @description Disqualifies a contact in `lead` or `qualified` with an active reason and an optional note (kept in the disqualification and the audit, not in the event). The stage becomes the `disqualified_stage` of the lifecycle settings (none by default). Publishes `contact.updated` (when the stage changes) and `lead.disqualified`. Needs `contacts.update` on the contact. */
+        /** @description Disqualifies a contact in `lead` or `qualified` with an active reason and an optional note (kept in the disqualification and the audit, not in the event). The stage becomes the `disqualified_stage` of the lifecycle settings (none by default). Publishes `contact.updated` (when the stage changes) and `lead.disqualified`. Needs `people.update` on the contact. */
         post: operations["leads_disqualify"];
         delete?: never;
         options?: never;
@@ -4129,7 +3911,7 @@ export interface paths {
         };
         get?: never;
         put?: never;
-        /** @description Moves a contact in `lead` to `qualified` and publishes `contact.updated` (with `changes`) and `lead.qualified`, in the same transaction as the stage history. Needs `contacts.update` on the contact. */
+        /** @description Moves a contact in `lead` to `qualified` and publishes `contact.updated` (with `changes`) and `lead.qualified`, in the same transaction as the stage history. Needs `people.update` on the contact. */
         post: operations["leads_qualify"];
         delete?: never;
         options?: never;
@@ -4161,7 +3943,7 @@ export interface paths {
             path?: never;
             cookie?: never;
         };
-        /** @description Lifecycle report built from the stage history of the records visible to the user (read scope of `contacts.read` or `companies.read`). Stages follow the order of the active options of the field. For each stage: `current` records in it now (not archived), `entered` records that entered it in the period (UTC days, `from`–`to` inclusive, default the last 90 days, at most 731), `converted` of those that later reached any later stage (skipping counts), `conversion_rate` = converted / entered, and `average_days` spent in the stage by the entries of the period that already left it (`completed`). For contacts, also the disqualifications of the period by reason. */
+        /** @description Lifecycle report built from the stage history of the records visible to the user (read scope of `people.read` or `organizations.read`). Stages follow the order of the active options of the field. For each stage: `current` records in it now (not archived), `entered` records that entered it in the period (UTC days, `from`–`to` inclusive, default the last 90 days, at most 731), `converted` of those that later reached any later stage (skipping counts), `conversion_rate` = converted / entered, and `average_days` spent in the stage by the entries of the period that already left it (`completed`). For people, also the disqualifications of the period by reason. */
         get: operations["lifecycle_report"];
         put?: never;
         post?: never;
@@ -4180,7 +3962,7 @@ export interface paths {
         };
         /** @description Automatic lifecycle transitions and the stage given to disqualified leads, with the lifecycle stages of the contact field. While never saved, returns the defaults (`configured: false`): `deal_created` → `opportunity` (from lead, qualified, former customer or no stage; also on reopening), `deal_won` → `customer` (from any stage but customer), `all_deals_lost` → `qualified` (only from opportunity, when the contact or company has lost deals and no open or won deal; also evaluated when a deal is deleted). A rule never applies when the record is outside `from_stages` (and `from_empty` for records without stage), so it never demotes a record by itself. Needs `lifecycle.manage`. */
         get: operations["lifecycle_settings_get"];
-        /** @description Saves the lifecycle settings and publishes `lifecycle.settings_updated`. Each item of `rules` changes one trigger (`deal_created`, `deal_won`, `all_deals_lost`); omitted triggers and properties keep their value. `target_stage` must be an active option of the `lifecycle_stage` field of contacts and `from_stages` options of the field. `disqualified_stage` is the stage given to a disqualified lead (`null` clears the stage). The transitions run in the worker (`lifecycle.transitions` consumer) and update the contact and the company of the deal through their use cases (`contact.updated`/`company.updated` with `changes`). Needs `lifecycle.manage`. */
+        /** @description Saves the lifecycle settings and publishes `lifecycle.settings_updated`. Each item of `rules` changes one trigger (`deal_created`, `deal_won`, `all_deals_lost`); omitted triggers and properties keep their value. `target_stage` must be an active option of the `lifecycle_stage` field of people and `from_stages` options of the field. `disqualified_stage` is the stage given to a disqualified lead (`null` clears the stage). The transitions run in the worker (`lifecycle.transitions` consumer) and update the contact and the company of the deal through their use cases (`contact.updated`/`company.updated` with `changes`). Needs `lifecycle.manage`. */
         put: operations["lifecycle_settings_update"];
         post?: never;
         delete?: never;
@@ -5406,6 +5188,224 @@ export interface paths {
         /** @description Changes who must use two-factor authentication in the organization: `none`, `admins` (members with the system administrator role) or `everyone`. Members covered by the policy without a second factor can only reach their security settings until they enable it (`403 two_factor_setup_required`); API tokens are not affected. Publishes `organization.two_factor_policy_changed` with audit. Requires `settings.manage`. */
         put: operations["two_factor_update_policy"];
         post?: never;
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
+    "/api/v1/organizations": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        /** @description Lists the organizations visible to the user (permission `organizations.read`, limited by its record scope). Filters accept the JSON AST in `filter` or simple conditions as `filter[field][operator]=value` (`filter[industry][eq]=Varejo`, `filter[owner_id][in]=a,b`, `filter[domain]=acme.com.br` means `eq`), combined with `and`. `sort=field,-other` (up to 3); without `sort`, newest first. `search` (or its alias `q`) matches name, domain, email and phone; phone terms are normalized to E.164. `archived=exclude|include|only` (default `exclude`). The owner is always embedded; `include=tags` also embeds the tags of each company. */
+        get: operations["companies_list"];
+        put?: never;
+        /** @description Creates a company (permission `organizations.create`) and publishes `company.created`. Email is lowercased, phone normalized to E.164 and the domain taken from the website when missing; the owner defaults to the current user. Custom fields go in `custom_fields`. `possible_duplicates` (only in this response, empty when none) lists visible organizations that the duplicate rules match (a warning, never an error); those pairs also enter the duplicate queue. */
+        post: operations["companies_create"];
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
+    "/api/v1/organizations/{company_id}": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        /** @description Returns a company with its custom fields and owner (permission `organizations.read`). The id of a company merged into another one answers the company that absorbed it (compare `id`). `include=tags` embeds its tags. */
+        get: operations["companies_get"];
+        put?: never;
+        post?: never;
+        delete: operations["companies_delete"];
+        options?: never;
+        head?: never;
+        /** @description Partially updates a company (permission `organizations.update` on this company) and publishes `company.updated` with the changes. Omitted properties stay unchanged and `null` clears an optional one; `custom_fields` only touches the keys sent. Send `If-Match` with the `updated_at` you read to avoid overwriting someone else's change. */
+        patch: operations["companies_update"];
+        trace?: never;
+    };
+    "/api/v1/organizations/{company_id}/archive": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        get?: never;
+        put?: never;
+        post: operations["companies_archive"];
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
+    "/api/v1/organizations/{company_id}/group-totals": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        /** @description Totals of a company and all its subsidiaries, at any level (permission `organizations.read`). Only records the caller can read count: `companies_count` (readable organizations of the group, the company included), `contacts_count` (people whose company is in the group; null without `people.read`), `open_deals_count`/`open_deals_amount` and `won_deals_count`/`won_amount` (deals whose company is in the group, amounts summed over `amount_base` in the base `currency` of the organization; null without `deals.read`, amounts null when `amount_base` is hidden). Archived people and deals are left out. */
+        get: operations["companies_group_totals"];
+        put?: never;
+        post?: never;
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
+    "/api/v1/organizations/{company_id}/hierarchy": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        /** @description Company group of a company (permission `organizations.read`): `root_id` is the top company of the group and `nodes` lists the group depth-first (siblings by name), each with `parent_id` and `depth` (0 = root). Companies the caller cannot read are left out, except when they sit on the path between the root and a readable company: then they appear with `accessible = false` and no data, so the tree keeps its shape. `contacts_count`, `open_deals_count` and `open_deals_amount` (sum of `amount_base`, in the base `currency` of the organization) count only records the caller can read; they are null without `people.read`/`deals.read` (or when `amount_base` is hidden). `subsidiaries` counts the direct subsidiaries listed. Up to 1000 organizations (`truncated` tells when there are more). `max_depth` is the deepest group allowed when setting `parent_company_id`. */
+        get: operations["companies_hierarchy"];
+        put?: never;
+        post?: never;
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
+    "/api/v1/organizations/{company_id}/people": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        get: operations["companies_list_contacts"];
+        put?: never;
+        post?: never;
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
+    "/api/v1/organizations/{company_id}/unarchive": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        get?: never;
+        put?: never;
+        post: operations["companies_unarchive"];
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
+    "/api/v1/people": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        /** @description Lists the people visible to the user (permission `people.read`, limited by its record scope). Filters accept the JSON AST in `filter` or simple conditions as `filter[field][operator]=value` (`filter[email][contains]=acme`, `filter[owner_id][in]=a,b`, `filter[company_id]=<id>` means `eq`), combined with `and`. `sort=field,-other` (up to 3); without `sort`, newest first. `search` (or its alias `q`) matches name, email, phone and mobile; phone terms are normalized to E.164. `archived=exclude|include|only` (default `exclude`). The owner and the primary company are always embedded; `include=tags` also embeds the tags of each contact. */
+        get: operations["contacts_list"];
+        put?: never;
+        /** @description Creates a contact (permission `people.create`) and publishes `contact.created`. Email is lowercased and phones normalized to E.164; `name` is derived from first and last names; the owner defaults to the current user. Custom fields go in `custom_fields`. `possible_duplicates` (only in this response, empty when none) lists visible people that the duplicate rules match (a warning, never an error); those pairs also enter the duplicate queue. */
+        post: operations["contacts_create"];
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
+    "/api/v1/people/{contact_id}": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        /** @description Returns a contact with its custom fields, owner and primary company (permission `people.read`). The id of a contact merged into another one answers the contact that absorbed it (compare `id`). `include=tags` embeds its tags. */
+        get: operations["contacts_get"];
+        put?: never;
+        post?: never;
+        delete: operations["contacts_delete"];
+        options?: never;
+        head?: never;
+        /** @description Partially updates a contact (permission `people.update` on this contact) and publishes `contact.updated` with the changes. Omitted properties stay unchanged and `null` clears an optional one; `custom_fields` only touches the keys sent. Send `If-Match` with the `updated_at` you read to avoid overwriting someone else's change. */
+        patch: operations["contacts_update"];
+        trace?: never;
+    };
+    "/api/v1/people/{contact_id}/archive": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        get?: never;
+        put?: never;
+        post: operations["contacts_archive"];
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
+    "/api/v1/people/{contact_id}/organizations": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        get: operations["contacts_list_companies"];
+        put?: never;
+        post: operations["contacts_link_company"];
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
+    "/api/v1/people/{contact_id}/organizations/{company_id}": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        get?: never;
+        put?: never;
+        post?: never;
+        delete: operations["contacts_unlink_company"];
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
+    "/api/v1/people/{contact_id}/unarchive": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        get?: never;
+        put?: never;
+        post: operations["contacts_unarchive"];
         delete?: never;
         options?: never;
         head?: never;
@@ -7389,7 +7389,7 @@ export interface paths {
         /** @description Lead scoring models of the organization with their criteria, primary model first within each record type. Needs `scoring.manage`. */
         get: operations["scoring_models_list"];
         put?: never;
-        /** @description Creates a scoring model (`scoring_model.created`) for a record type (`contact`, `company`, `deal` or a custom object) and queues a full recalculation. Criteria are `profile` (a `filter` in the same format as views, validated against the fields of the type; `points` when the record matches) or `behavior` (a `signal`: `email_opened`, `email_clicked`, `email_replied`, `meeting_booked`, `form_submitted`, `call_connected`; `points` per occurrence, optional `max_points` cap and `decay_days`: an occurrence loses its points linearly until zero after that many days). Signals of contacts also count for the scoring models of their company. Bands: cold below `warm_from` (default 30), warm below `hot_from` (default 70), hot from there. The first model of a record type becomes its primary model, exposed as the read-only `score` field. Needs `scoring.manage`. */
+        /** @description Creates a scoring model (`scoring_model.created`) for a record type (`contact`, `company`, `deal` or a custom object) and queues a full recalculation. Criteria are `profile` (a `filter` in the same format as views, validated against the fields of the type; `points` when the record matches) or `behavior` (a `signal`: `email_opened`, `email_clicked`, `email_replied`, `meeting_booked`, `form_submitted`, `call_connected`; `points` per occurrence, optional `max_points` cap and `decay_days`: an occurrence loses its points linearly until zero after that many days). Signals of people also count for the scoring models of their company. Bands: cold below `warm_from` (default 30), warm below `hot_from` (default 70), hot from there. The first model of a record type becomes its primary model, exposed as the read-only `score` field. Needs `scoring.manage`. */
         post: operations["scoring_models_create"];
         delete?: never;
         options?: never;
@@ -7455,7 +7455,7 @@ export interface paths {
             path?: never;
             cookie?: never;
         };
-        /** @description Unified search over every registered record type (contacts, companies, deals, activities and any type added to the record type registry). `q` must have between 2 and 100 characters; it is folded to lowercase without accents and split into words of at least 2 characters, and every word must match (substring match through an n-gram index) one of the indexed fields of the record. A term that looks like a phone number (only digits, spaces and `+()-./`, 6 to 15 digits) is searched by its digits, so `11 99999-8888`, `999998888` and `+55 11 99999-8888` all find `+5511999998888`. Indexed fields: searchable system fields and custom fields flagged searchable of the text, long text, e-mail, phone and URL types; sensitive fields are never indexed. Each type is searched only when the caller has its read permission, with the own/team/organization scope of that permission, the pipeline restriction of deals, soft delete, archive and merges applied by revalidating the candidates through the record query engine; fields hidden from the role are neither matched nor used for `title`/`subtitle`. `types` (comma separated) limits and orders the groups (unknown types answer 422); without it groups come by best relevance. `limit` is per type (default 5, max 20) and items are ordered by relevance (`score`). `total` counts the visible matches among the first 100 candidates of the type. Types without matches are omitted. The index is updated by the `search.index` consumer and rebuilt with `aphel search reindex`. */
+        /** @description Unified search over every registered record type (people, organizations, deals, activities and any type added to the record type registry). `q` must have between 2 and 100 characters; it is folded to lowercase without accents and split into words of at least 2 characters, and every word must match (substring match through an n-gram index) one of the indexed fields of the record. A term that looks like a phone number (only digits, spaces and `+()-./`, 6 to 15 digits) is searched by its digits, so `11 99999-8888`, `999998888` and `+55 11 99999-8888` all find `+5511999998888`. Indexed fields: searchable system fields and custom fields flagged searchable of the text, long text, e-mail, phone and URL types; sensitive fields are never indexed. Each type is searched only when the caller has its read permission, with the own/team/organization scope of that permission, the pipeline restriction of deals, soft delete, archive and merges applied by revalidating the candidates through the record query engine; fields hidden from the role are neither matched nor used for `title`/`subtitle`. `types` (comma separated) limits and orders the groups (unknown types answer 422); without it groups come by best relevance. `limit` is per type (default 5, max 20) and items are ordered by relevance (`score`). `total` counts the visible matches among the first 100 candidates of the type. Types without matches are omitted. The index is updated by the `search.index` consumer and rebuilt with `aphel search reindex`. */
         get: operations["search"];
         put?: never;
         post?: never;
@@ -8746,13 +8746,13 @@ export interface components {
             to: string;
         };
         AggregateRelationResponse: {
-            /** @example companies.company */
+            /** @example organization_profile.organization */
             key: string;
             /** @example Company */
             label: string;
             readable: boolean;
             single: boolean;
-            /** @example companies.company */
+            /** @example organization_profile.organization */
             target_record_type: string;
         };
         AggregateResultResponse: {
@@ -8881,7 +8881,7 @@ export interface components {
         };
         AiRecordRequest: {
             record_id: string;
-            /** @example contacts.contact */
+            /** @example people.person */
             record_type: string;
         };
         AiSource: {
@@ -8949,8 +8949,8 @@ export interface components {
             revoked_at?: string | null;
             /**
              * @example [
-             *       "contacts:read",
-             *       "contacts:write"
+             *       "people:read",
+             *       "people:write"
              *     ]
              */
             scopes: string[];
@@ -8960,9 +8960,9 @@ export interface components {
         ApiTokenScopeResponse: {
             /** @example read */
             access: string;
-            /** @example contacts */
+            /** @example people */
             resource: string;
-            /** @example contacts:read */
+            /** @example people:read */
             scope: string;
         };
         ApplyCatalogVersionRequest: {
@@ -9148,7 +9148,7 @@ export interface components {
         AttachFileRequest: {
             file_id: string;
             record_id: string;
-            /** @example contacts.contact */
+            /** @example people.person */
             record_type: string;
         };
         AttachmentResponse: {
@@ -9419,7 +9419,7 @@ export interface components {
         BulkExportRequest: {
             columns?: string[];
             format: components["schemas"]["ExportFormatDto"];
-            /** @example contacts.contact */
+            /** @example people.person */
             record_type: string;
             selection: components["schemas"]["BulkSelectionRequest"];
         };
@@ -9444,7 +9444,7 @@ export interface components {
             params: Record<string, never>;
             /** Format: int64 */
             processed: number;
-            /** @example contacts.contact */
+            /** @example people.person */
             record_type: string;
             requested_by: string;
             /** Format: int64 */
@@ -10207,7 +10207,7 @@ export interface components {
             owner_id?: string | null;
             priority?: null | components["schemas"]["ActivityPriority"];
             record_id?: string | null;
-            /** @example contacts.contact */
+            /** @example people.person */
             record_type?: string | null;
             recurrence?: null | components["schemas"]["RecurrenceRuleRequest"];
             /**
@@ -10239,8 +10239,8 @@ export interface components {
             name: string;
             /**
              * @example [
-             *       "contacts:read",
-             *       "contacts:write",
+             *       "people:read",
+             *       "people:write",
              *       "deals:write"
              *     ]
              */
@@ -10329,7 +10329,7 @@ export interface components {
         CreateFavoriteRequest: {
             favorite_type: components["schemas"]["FavoriteType"];
             record_id?: string | null;
-            /** @example contacts.contact */
+            /** @example people.person */
             record_type?: string | null;
             view_id?: string | null;
         };
@@ -10390,7 +10390,7 @@ export interface components {
             body: string;
             pinned?: boolean | null;
             record_id: string;
-            /** @example contacts.contact */
+            /** @example people.person */
             record_type: string;
             visibility?: null | components["schemas"]["NoteVisibility"];
         };
@@ -10432,9 +10432,9 @@ export interface components {
             cardinality: components["schemas"]["RelationshipCardinality"];
             /** @example Contracts */
             from_label: string;
-            /** @example companies.company */
+            /** @example organizations.organization */
             from_type: string;
-            /** @example companies.company */
+            /** @example organizations.organization */
             inverse_key: string;
             /** @example contracts */
             key: string;
@@ -10467,9 +10467,9 @@ export interface components {
         CreateRetentionPolicyBody: {
             /** @example archive_inactive */
             action: string;
-            /** @example Archive inactive contacts */
+            /** @example Archive inactive people */
             name: string;
-            /** @example contacts.contact */
+            /** @example people.person */
             record_type?: string | null;
             /**
              * Format: int32
@@ -10521,7 +10521,7 @@ export interface components {
             /** @example lead_score */
             key?: string | null;
             name: string;
-            /** @example contacts.contact */
+            /** @example people.person */
             record_type: string;
             /** Format: int64 */
             warm_from?: number | null;
@@ -10531,7 +10531,7 @@ export interface components {
             filter: components["schemas"]["FilterNode"];
             /** @example Hot leads in São Paulo */
             name: string;
-            /** @example contacts.contact */
+            /** @example people.person */
             record_type: string;
         };
         CreateStageRequest: {
@@ -10558,8 +10558,8 @@ export interface components {
             name: string;
             /**
              * @example [
-             *       "contacts.contact",
-             *       "companies.company"
+             *       "people.person",
+             *       "organizations.organization"
              *     ]
              */
             record_types?: string[];
@@ -10901,8 +10901,8 @@ export interface components {
                 revoked_at?: string | null;
                 /**
                  * @example [
-                 *       "contacts:read",
-                 *       "contacts:write"
+                 *       "people:read",
+                 *       "people:write"
                  *     ]
                  */
                 scopes: string[];
@@ -11079,7 +11079,7 @@ export interface components {
                 params: Record<string, never>;
                 /** Format: int64 */
                 processed: number;
-                /** @example contacts.contact */
+                /** @example people.person */
                 record_type: string;
                 requested_by: string;
                 /** Format: int64 */
@@ -11709,7 +11709,7 @@ export interface components {
                 duplicate: components["schemas"]["DuplicateRecordSummaryResponse"];
                 id: string;
                 record: components["schemas"]["DuplicateRecordSummaryResponse"];
-                /** @example contacts.contact */
+                /** @example people.person */
                 record_type: string;
                 resolved_at?: string | null;
                 /**
@@ -11907,7 +11907,7 @@ export interface components {
                 /** @example xlsx */
                 format: string;
                 id: string;
-                /** @example contacts.contact */
+                /** @example people.person */
                 record_type: string;
                 requested_by: string;
                 /** Format: int64 */
@@ -11934,7 +11934,7 @@ export interface components {
         Data_FieldPermissionMatrixResponse: {
             data: {
                 fields: components["schemas"]["FieldPermissionFieldResponse"][];
-                /** @example contacts.contact */
+                /** @example people.person */
                 record_type: string;
                 roles: components["schemas"]["FieldPermissionRoleResponse"][];
                 /** @example 2026-10-20T13:45:00Z */
@@ -12118,7 +12118,7 @@ export interface components {
                 mapping: (string | null)[];
                 options: components["schemas"]["ImportOptionsDto"];
                 preview: components["schemas"]["ImportPreviewRow"][];
-                /** @example contacts.contact */
+                /** @example people.person */
                 record_type: string;
                 retry_of?: string | null;
                 /** Format: int32 */
@@ -12376,7 +12376,7 @@ export interface components {
                 disqualifications: components["schemas"]["LifecycleDisqualificationCountResponse"][];
                 /** @example 2026-01-01 */
                 from: string;
-                /** @example contacts.contact */
+                /** @example people.person */
                 record_type: string;
                 stages: components["schemas"]["LifecycleStageReportResponse"][];
                 /** @example 2026-03-31 */
@@ -12649,7 +12649,7 @@ export interface components {
                 id: string;
                 pinned: boolean;
                 record_id: string;
-                /** @example contacts.contact */
+                /** @example people.person */
                 record_type: string;
                 updated_at: string;
                 visibility: components["schemas"]["NoteVisibility"];
@@ -13270,10 +13270,10 @@ export interface components {
                 created_at: string;
                 /** @example Contracts */
                 from_label: string;
-                /** @example companies.company */
+                /** @example organization_profile.organization */
                 from_type: string;
                 id: string;
-                /** @example companies.company */
+                /** @example organization_profile.organization */
                 inverse_key: string;
                 /** @example contracts */
                 key: string;
@@ -13512,7 +13512,7 @@ export interface components {
                 /** @example Lead scoring */
                 name: string;
                 recalculated_at?: string | null;
-                /** @example contacts.contact */
+                /** @example people.person */
                 record_type: string;
                 /** @example 2026-10-26T13:45:00Z */
                 updated_at: string;
@@ -13541,7 +13541,7 @@ export interface components {
                 /** Format: int64 */
                 member_count?: number | null;
                 name: string;
-                /** @example contacts.contact */
+                /** @example people.person */
                 record_type: string;
                 /** @example 2026-10-20T13:45:00Z */
                 updated_at: string;
@@ -13746,7 +13746,7 @@ export interface components {
                 expires_at?: string | null;
                 id: string;
                 owner?: null | components["schemas"]["OwnerResponse"];
-                /** @example contacts.contact */
+                /** @example people.person */
                 record_type: string;
                 subtitle?: string | null;
                 title: string;
@@ -13858,9 +13858,9 @@ export interface components {
             data: {
                 /** @example read */
                 access: string;
-                /** @example contacts */
+                /** @example people */
                 resource: string;
-                /** @example contacts:read */
+                /** @example people:read */
                 scope: string;
             }[];
         };
@@ -14022,7 +14022,7 @@ export interface components {
                  */
                 merge_fields: string[];
                 permissions: components["schemas"]["DuplicateTypePermissionsResponse"];
-                /** @example contacts.contact */
+                /** @example people.person */
                 record_type: string;
                 rules: components["schemas"]["DuplicateRuleResponse"][];
             }[];
@@ -14058,7 +14058,7 @@ export interface components {
                 /** @example contact.first_name */
                 key: string;
                 label: string;
-                /** @example contacts.contact */
+                /** @example people.person */
                 record_type: string;
             }[];
         };
@@ -14131,7 +14131,7 @@ export interface components {
         Data_Vec_IncomingActionTargetResponse: {
             data: {
                 fields: components["schemas"]["IncomingMappableFieldResponse"][];
-                /** @example contacts.contact */
+                /** @example people.person */
                 record_type: string;
                 type: components["schemas"]["IncomingWebhookActionType"];
             }[];
@@ -14300,7 +14300,7 @@ export interface components {
             data: {
                 description?: string | null;
                 label?: string | null;
-                /** @example contacts.read */
+                /** @example people.read */
                 permission: string;
                 record_scoped: boolean;
             }[];
@@ -14533,10 +14533,10 @@ export interface components {
                 created_at: string;
                 /** @example Contracts */
                 from_label: string;
-                /** @example companies.company */
+                /** @example organization_profile.organization */
                 from_type: string;
                 id: string;
-                /** @example companies.company */
+                /** @example organization_profile.organization */
                 inverse_key: string;
                 /** @example contracts */
                 key: string;
@@ -14627,7 +14627,7 @@ export interface components {
                 /** @example Lead scoring */
                 name: string;
                 recalculated_at?: string | null;
-                /** @example contacts.contact */
+                /** @example people.person */
                 record_type: string;
                 /** @example 2026-10-26T13:45:00Z */
                 updated_at: string;
@@ -14685,7 +14685,7 @@ export interface components {
             data: {
                 custom: boolean;
                 label?: string | null;
-                /** @example contacts.contact */
+                /** @example people.person */
                 record_type: string;
             }[];
         };
@@ -15183,7 +15183,7 @@ export interface components {
             duplicate: components["schemas"]["DuplicateRecordSummaryResponse"];
             id: string;
             record: components["schemas"]["DuplicateRecordSummaryResponse"];
-            /** @example contacts.contact */
+            /** @example people.person */
             record_type: string;
             resolved_at?: string | null;
             /**
@@ -15206,7 +15206,7 @@ export interface components {
             mobile?: string | null;
             name?: string | null;
             phone?: string | null;
-            /** @example contacts.contact */
+            /** @example people.person */
             record_type: string;
             /**
              * @example {
@@ -15249,11 +15249,11 @@ export interface components {
         /** @enum {string} */
         DuplicateStrategyDto: "skip" | "update" | "create";
         DuplicateTypePermissionsResponse: {
-            /** @example contacts.delete */
+            /** @example people.delete */
             delete: string;
-            /** @example contacts.read */
+            /** @example people.read */
             read: string;
-            /** @example contacts.update */
+            /** @example people.update */
             update: string;
         };
         DuplicateTypeResponse: {
@@ -15267,7 +15267,7 @@ export interface components {
              */
             merge_fields: string[];
             permissions: components["schemas"]["DuplicateTypePermissionsResponse"];
-            /** @example contacts.contact */
+            /** @example people.person */
             record_type: string;
             rules: components["schemas"]["DuplicateRuleResponse"][];
         };
@@ -15334,7 +15334,7 @@ export interface components {
         };
         EmailRecordInput: {
             record_id: string;
-            /** @example contacts.contact */
+            /** @example people.person */
             record_type: string;
         };
         EmailTemplateResponse: {
@@ -15354,7 +15354,7 @@ export interface components {
             /** @example contact.first_name */
             key: string;
             label: string;
-            /** @example contacts.contact */
+            /** @example people.person */
             record_type: string;
         };
         EmailThreadDetailResponse: components["schemas"]["EmailThreadResponse"] & {
@@ -15368,7 +15368,7 @@ export interface components {
             /** @example automatic */
             origin: string;
             record_id: string;
-            /** @example contacts.contact */
+            /** @example people.person */
             record_type: string;
         };
         EmailThreadResponse: {
@@ -15575,7 +15575,7 @@ export interface components {
             /** @example xlsx */
             format: string;
             id: string;
-            /** @example contacts.contact */
+            /** @example people.person */
             record_type: string;
             requested_by: string;
             /** Format: int64 */
@@ -15605,7 +15605,7 @@ export interface components {
             columns?: string[];
             filter?: null | components["schemas"]["FilterNode"];
             format: components["schemas"]["ExportFormatDto"];
-            /** @example contacts.contact */
+            /** @example people.person */
             record_type: string;
             search?: string | null;
             /** @example -created_at,name */
@@ -15695,7 +15695,7 @@ export interface components {
         };
         FieldPermissionMatrixResponse: {
             fields: components["schemas"]["FieldPermissionFieldResponse"][];
-            /** @example contacts.contact */
+            /** @example people.person */
             record_type: string;
             roles: components["schemas"]["FieldPermissionRoleResponse"][];
             /** @example 2026-10-20T13:45:00Z */
@@ -16134,7 +16134,7 @@ export interface components {
             mapping: (string | null)[];
             options: components["schemas"]["ImportOptionsDto"];
             preview: components["schemas"]["ImportPreviewRow"][];
-            /** @example contacts.contact */
+            /** @example people.person */
             record_type: string;
             retry_of?: string | null;
             /** Format: int32 */
@@ -16192,7 +16192,7 @@ export interface components {
             /** @example Email */
             label: string;
             multiple: boolean;
-            /** @example companies.company */
+            /** @example organizations.organization */
             relation_target?: string | null;
             required: boolean;
             /** @example name */
@@ -16215,7 +16215,7 @@ export interface components {
         ImportUploadForm: {
             /** Format: binary */
             file: string;
-            /** @example contacts.contact */
+            /** @example people.person */
             record_type: string;
             retry_of?: string | null;
         };
@@ -16262,7 +16262,7 @@ export interface components {
             /** @example created */
             operation?: string | null;
             record_id?: string | null;
-            /** @example contacts.contact */
+            /** @example people.person */
             record_type?: string | null;
             /** @example succeeded */
             status: string;
@@ -16270,7 +16270,7 @@ export interface components {
         };
         IncomingActionTargetResponse: {
             fields: components["schemas"]["IncomingMappableFieldResponse"][];
-            /** @example contacts.contact */
+            /** @example people.person */
             record_type: string;
             type: components["schemas"]["IncomingWebhookActionType"];
         };
@@ -16929,7 +16929,7 @@ export interface components {
             disqualifications: components["schemas"]["LifecycleDisqualificationCountResponse"][];
             /** @example 2026-01-01 */
             from: string;
-            /** @example contacts.contact */
+            /** @example people.person */
             record_type: string;
             stages: components["schemas"]["LifecycleStageReportResponse"][];
             /** @example 2026-03-31 */
@@ -17047,7 +17047,7 @@ export interface components {
             provider?: string | null;
             provider_call_id?: string | null;
             record_id?: string | null;
-            /** @example contacts.contact */
+            /** @example people.person */
             record_type?: string | null;
             recording_url?: string | null;
             title?: string | null;
@@ -17184,7 +17184,7 @@ export interface components {
         MeetingQuestionRequest: {
             /** @example job_title */
             contact_field?: string | null;
-            /** @example companies.company */
+            /** @example organizations.organization */
             key?: string | null;
             kind?: null | components["schemas"]["MeetingQuestionKind"];
             /** @example Company */
@@ -17289,7 +17289,7 @@ export interface components {
                 [key: string]: string;
             };
             primary_id: string;
-            /** @example contacts.contact */
+            /** @example people.person */
             record_type: string;
         };
         MergeResponse: {
@@ -17544,8 +17544,8 @@ export interface components {
             /**
              * @example [
              *       "deals",
-             *       "contacts",
-             *       "companies"
+             *       "people",
+             *       "organization_profile"
              *     ]
              */
             order?: string[];
@@ -17566,7 +17566,7 @@ export interface components {
             id: string;
             pinned: boolean;
             record_id: string;
-            /** @example contacts.contact */
+            /** @example people.person */
             record_type: string;
             updated_at: string;
             visibility: components["schemas"]["NoteVisibility"];
@@ -17612,13 +17612,13 @@ export interface components {
             title: string;
         };
         ObjectRelationResponse: {
-            /** @example companies.company */
+            /** @example organization_profile.organization */
             key: string;
             /** @example Company */
             label: string;
             relationship_key?: string | null;
             single: boolean;
-            /** @example companies.company */
+            /** @example organization_profile.organization */
             target_type: string;
         };
         ObjectSchemaResponse: {
@@ -17939,8 +17939,8 @@ export interface components {
                 revoked_at?: string | null;
                 /**
                  * @example [
-                 *       "contacts:read",
-                 *       "contacts:write"
+                 *       "people:read",
+                 *       "people:write"
                  *     ]
                  */
                 scopes: string[];
@@ -18095,7 +18095,7 @@ export interface components {
                 params: Record<string, never>;
                 /** Format: int64 */
                 processed: number;
-                /** @example contacts.contact */
+                /** @example people.person */
                 record_type: string;
                 requested_by: string;
                 /** Format: int64 */
@@ -18401,7 +18401,7 @@ export interface components {
                 duplicate: components["schemas"]["DuplicateRecordSummaryResponse"];
                 id: string;
                 record: components["schemas"]["DuplicateRecordSummaryResponse"];
-                /** @example contacts.contact */
+                /** @example people.person */
                 record_type: string;
                 resolved_at?: string | null;
                 /**
@@ -18468,7 +18468,7 @@ export interface components {
                 /** @example xlsx */
                 format: string;
                 id: string;
-                /** @example contacts.contact */
+                /** @example people.person */
                 record_type: string;
                 requested_by: string;
                 /** Format: int64 */
@@ -18626,7 +18626,7 @@ export interface components {
                 mapping: (string | null)[];
                 options: components["schemas"]["ImportOptionsDto"];
                 preview: components["schemas"]["ImportPreviewRow"][];
-                /** @example contacts.contact */
+                /** @example people.person */
                 record_type: string;
                 retry_of?: string | null;
                 /** Format: int32 */
@@ -18883,7 +18883,7 @@ export interface components {
                 id: string;
                 pinned: boolean;
                 record_id: string;
-                /** @example contacts.contact */
+                /** @example people.person */
                 record_type: string;
                 updated_at: string;
                 visibility: components["schemas"]["NoteVisibility"];
@@ -19287,7 +19287,7 @@ export interface components {
                 /** Format: int64 */
                 member_count?: number | null;
                 name: string;
-                /** @example contacts.contact */
+                /** @example people.person */
                 record_type: string;
                 /** @example 2026-10-20T13:45:00Z */
                 updated_at: string;
@@ -19383,7 +19383,7 @@ export interface components {
                 expires_at?: string | null;
                 id: string;
                 owner?: null | components["schemas"]["OwnerResponse"];
-                /** @example contacts.contact */
+                /** @example people.person */
                 record_type: string;
                 subtitle?: string | null;
                 title: string;
@@ -19548,7 +19548,7 @@ export interface components {
         PermissionDefinitionResponse: {
             description?: string | null;
             label?: string | null;
-            /** @example contacts.read */
+            /** @example people.read */
             permission: string;
             record_scoped: boolean;
         };
@@ -19558,12 +19558,12 @@ export interface components {
             record_scoped: boolean;
         };
         PermissionGrantDto: {
-            /** @example contacts.read */
+            /** @example people.read */
             permission: string;
             scope: components["schemas"]["RecordScopeDto"];
         };
         PermissionGrantRequest: {
-            /** @example contacts.read */
+            /** @example people.read */
             permission: string;
             scope: components["schemas"]["RecordScopeDto"];
         };
@@ -19804,7 +19804,7 @@ export interface components {
             warnings: components["schemas"]["IssueResponse"][];
         };
         /** @enum {string} */
-        PriceListAppliesTo: "all" | "segment" | "companies";
+        PriceListAppliesTo: "all" | "segment" | "organizations";
         PriceListItemRequest: {
             min_quantity?: null | components["schemas"]["DecimalInput"];
             product_id: string;
@@ -19931,7 +19931,7 @@ export interface components {
         PrivacyTargetRecordResponse: {
             exists: boolean;
             id: string;
-            /** @example contacts.contact */
+            /** @example people.person */
             record_type: string;
             title: string;
         };
@@ -20515,17 +20515,17 @@ export interface components {
         };
         RecordLinkRequest: {
             record_id: string;
-            /** @example contacts.contact */
+            /** @example people.person */
             record_type: string;
         };
         RecordRefBody: {
             id: string;
-            /** @example contacts.contact */
+            /** @example people.person */
             record_type: string;
         };
         RecordRefResponse: {
             id: string;
-            /** @example contacts.contact */
+            /** @example people.person */
             record_type: string;
         };
         /** @enum {string} */
@@ -20622,7 +20622,7 @@ export interface components {
         RelatedFilter: {
             filter: components["schemas"]["FilterNode"];
             none?: boolean;
-            /** @example companies.company */
+            /** @example organization_profile.organization */
             relationship: string;
         };
         RelatedRecordResponse: {
@@ -20658,10 +20658,10 @@ export interface components {
             created_at: string;
             /** @example Contracts */
             from_label: string;
-            /** @example companies.company */
+            /** @example organization_profile.organization */
             from_type: string;
             id: string;
-            /** @example companies.company */
+            /** @example organization_profile.organization */
             inverse_key: string;
             /** @example contracts */
             key: string;
@@ -21162,7 +21162,7 @@ export interface components {
             /** @example Lead scoring */
             name: string;
             recalculated_at?: string | null;
-            /** @example contacts.contact */
+            /** @example people.person */
             record_type: string;
             /** @example 2026-10-26T13:45:00Z */
             updated_at: string;
@@ -21177,14 +21177,14 @@ export interface components {
         ScoringSignal: "email_opened" | "email_clicked" | "email_replied" | "meeting_booked" | "form_submitted" | "call_connected";
         SearchGroupResponse: {
             items: components["schemas"]["SearchHitResponse"][];
-            /** @example contacts.contact */
+            /** @example people.person */
             record_type: string;
             /** Format: int64 */
             total: number;
         };
         SearchHitResponse: {
             id: string;
-            /** @example contacts.contact */
+            /** @example people.person */
             record_type: string;
             /**
              * Format: double
@@ -21247,7 +21247,7 @@ export interface components {
             /** Format: int64 */
             member_count?: number | null;
             name: string;
-            /** @example contacts.contact */
+            /** @example people.person */
             record_type: string;
             /** @example 2026-10-20T13:45:00Z */
             updated_at: string;
@@ -21536,7 +21536,7 @@ export interface components {
         };
         StartBulkRequest: {
             action: components["schemas"]["BulkActionRequest"];
-            /** @example contacts.contact */
+            /** @example people.person */
             record_type: string;
             selection: components["schemas"]["BulkSelectionRequest"];
         };
@@ -21620,7 +21620,7 @@ export interface components {
             deleted: boolean;
             id: string;
             matched_fields: string[];
-            /** @example contacts.contact */
+            /** @example people.person */
             record_type: string;
             subtitle?: string | null;
             title: string;
@@ -21823,7 +21823,7 @@ export interface components {
             expires_at?: string | null;
             id: string;
             owner?: null | components["schemas"]["OwnerResponse"];
-            /** @example contacts.contact */
+            /** @example people.person */
             record_type: string;
             subtitle?: string | null;
             title: string;
@@ -21838,7 +21838,7 @@ export interface components {
         TrashTypeResponse: {
             custom: boolean;
             label?: string | null;
-            /** @example contacts.contact */
+            /** @example people.person */
             record_type: string;
         };
         TriggerCatalogEntry: {
@@ -21962,7 +21962,7 @@ export interface components {
             name?: string | null;
         };
         UpdateDuplicateRulesRequest: {
-            /** @example contacts.contact */
+            /** @example people.person */
             record_type: string;
             /**
              * @example {
@@ -22252,7 +22252,7 @@ export interface components {
             /** Format: binary */
             file: string;
             record_id?: string | null;
-            /** @example contacts.contact */
+            /** @example people.person */
             record_type?: string | null;
         };
         UploadFileResponse: {
@@ -22471,7 +22471,7 @@ export interface operations {
     activities_list: {
         parameters: {
             query?: {
-                /** @example contacts.contact */
+                /** @example people.person */
                 record_type?: string;
                 record_id?: string;
                 my_open?: boolean;
@@ -24211,7 +24211,7 @@ export interface operations {
         };
         requestBody?: never;
         responses: {
-            /** @description Scopes the current user can grant, derived from their permissions (`contacts.read` → `contacts:read`, any other action → `<resource>:write`) */
+            /** @description Scopes the current user can grant, derived from their permissions (`people.read` → `people:read`, any other action → `<resource>:write`) */
             200: {
                 headers: {
                     [name: string]: unknown;
@@ -25205,7 +25205,7 @@ export interface operations {
     attachments_list: {
         parameters: {
             query: {
-                /** @example contacts.contact */
+                /** @example people.person */
                 record_type: string;
                 /** @example 0190a8f2-7c1e-7b3a-9f00-000000000000 */
                 record_id: string;
@@ -27184,7 +27184,7 @@ export interface operations {
                     "application/json": components["schemas"]["ErrorEnvelope"];
                 };
             };
-            /** @description Missing `<type>.read` or the permission the action needs (`<type>.update`, `<type>.archive`, `<type>.delete` or, for `enroll_in_sequence` on contacts, `sequences.enroll`) (`permission_denied`, `insufficient_scope`) */
+            /** @description Missing `<type>.read` or the permission the action needs (`<type>.update`, `<type>.archive`, `<type>.delete` or, for `enroll_in_sequence` on people, `sequences.enroll`) (`permission_denied`, `insufficient_scope`) */
             403: {
                 headers: {
                     [name: string]: unknown;
@@ -28069,7 +28069,7 @@ export interface operations {
             };
         };
         responses: {
-            /** @description Call session started from a saved view of contacts visible to the user (`call_session.started`): the contacts matching the view filter and sort under the user's read scope (at most 500) become the queue, kept for the session. `script` defaults to the `call_script` text in the view settings; `name` to the view name */
+            /** @description Call session started from a saved view of people visible to the user (`call_session.started`): the people matching the view filter and sort under the user's read scope (at most 500) become the queue, kept for the session. `script` defaults to the `call_script` text in the view settings; `name` to the view name */
             201: {
                 headers: {
                     [name: string]: unknown;
@@ -28087,7 +28087,7 @@ export interface operations {
                     "application/json": components["schemas"]["ErrorEnvelope"];
                 };
             };
-            /** @description Missing `activities.create` or `contacts.read` (`permission_denied`, `insufficient_scope`) */
+            /** @description Missing `activities.create` or `people.read` (`permission_denied`, `insufficient_scope`) */
             403: {
                 headers: {
                     [name: string]: unknown;
@@ -28096,7 +28096,7 @@ export interface operations {
                     "application/json": components["schemas"]["ErrorEnvelope"];
                 };
             };
-            /** @description View not found, not visible or not of contacts (`call_session_view_not_found`) */
+            /** @description View not found, not visible or not of people (`call_session_view_not_found`) */
             404: {
                 headers: {
                     [name: string]: unknown;
@@ -28114,7 +28114,7 @@ export interface operations {
                     "application/json": components["schemas"]["ErrorEnvelope"];
                 };
             };
-            /** @description The view has no contacts (`call_session_empty`) or invalid fields (`validation_error`). `Idempotency-Key` already used with a different request (`idempotency_key_reused`) or longer than 255 characters (`validation_error`) */
+            /** @description The view has no people (`call_session_empty`) or invalid fields (`validation_error`). `Idempotency-Key` already used with a different request (`idempotency_key_reused`) or longer than 255 characters (`validation_error`) */
             422: {
                 headers: {
                     [name: string]: unknown;
@@ -29264,700 +29264,6 @@ export interface operations {
             };
         };
     };
-    companies_list: {
-        parameters: {
-            query?: {
-                /** @example {"op":"and","conditions":[{"field":"name","operator":"contains","value":"ana"}]} */
-                filter?: string;
-                /** @example -created_at,name */
-                sort?: string;
-                search?: string;
-                /** @example exclude */
-                archived?: string;
-                /** @example acme */
-                q?: string;
-                /** @example company,owner */
-                include?: string;
-                page?: number;
-                per_page?: number;
-            };
-            header?: never;
-            path?: never;
-            cookie?: never;
-        };
-        requestBody?: never;
-        responses: {
-            /** @description Page of companies with their custom fields */
-            200: {
-                headers: {
-                    [name: string]: unknown;
-                };
-                content: {
-                    "application/json": components["schemas"]["Page_CompanyResponse"];
-                };
-            };
-            /** @description Missing or invalid credentials (`unauthorized`, `invalid_api_token`) */
-            401: {
-                headers: {
-                    [name: string]: unknown;
-                };
-                content: {
-                    "application/json": components["schemas"]["ErrorEnvelope"];
-                };
-            };
-            /** @description Missing `companies.read` (`permission_denied`, `insufficient_scope`) */
-            403: {
-                headers: {
-                    [name: string]: unknown;
-                };
-                content: {
-                    "application/json": components["schemas"]["ErrorEnvelope"];
-                };
-            };
-            /** @description Invalid filter, sort, search, include or pagination (`validation_error` with `details.fields`) */
-            422: {
-                headers: {
-                    [name: string]: unknown;
-                };
-                content: {
-                    "application/json": components["schemas"]["ErrorEnvelope"];
-                };
-            };
-        };
-    };
-    companies_create: {
-        parameters: {
-            query?: never;
-            header?: {
-                /** @description Up to 255 printable ASCII characters. The same key with the same request (method, path and body) within 24 hours answers the stored response with the same status and body plus `Idempotent-Replayed: true`. Scoped to the credential (session cookie or API token); ignored without a credential. 5xx and 429 responses are not stored */
-                "Idempotency-Key"?: string;
-            };
-            path?: never;
-            cookie?: never;
-        };
-        requestBody: {
-            content: {
-                "application/json": components["schemas"]["CompanyRequest"];
-            };
-        };
-        responses: {
-            /** @description Company created */
-            201: {
-                headers: {
-                    [name: string]: unknown;
-                };
-                content: {
-                    "application/json": components["schemas"]["Data_CompanyResponse"];
-                };
-            };
-            /** @description Missing or invalid credentials (`unauthorized`, `invalid_api_token`) */
-            401: {
-                headers: {
-                    [name: string]: unknown;
-                };
-                content: {
-                    "application/json": components["schemas"]["ErrorEnvelope"];
-                };
-            };
-            /** @description Missing `companies.create` (`permission_denied`, `insufficient_scope`) */
-            403: {
-                headers: {
-                    [name: string]: unknown;
-                };
-                content: {
-                    "application/json": components["schemas"]["ErrorEnvelope"];
-                };
-            };
-            /** @description The first request with this `Idempotency-Key` is still being processed (`idempotency_key_in_progress`) */
-            409: {
-                headers: {
-                    [name: string]: unknown;
-                };
-                content: {
-                    "application/json": components["schemas"]["ErrorEnvelope"];
-                };
-            };
-            /** @description Invalid system or custom fields (`validation_error`, fields such as `name` or `custom_fields.<key>`). `Idempotency-Key` already used with a different request (`idempotency_key_reused`) or longer than 255 characters (`validation_error`) */
-            422: {
-                headers: {
-                    [name: string]: unknown;
-                };
-                content: {
-                    "application/json": components["schemas"]["ErrorEnvelope"];
-                };
-            };
-            /** @description API token rate limit exceeded (`rate_limited`); see `Retry-After` and `X-RateLimit-*` */
-            429: {
-                headers: {
-                    [name: string]: unknown;
-                };
-                content: {
-                    "application/json": components["schemas"]["ErrorEnvelope"];
-                };
-            };
-        };
-    };
-    companies_get: {
-        parameters: {
-            query?: {
-                /** @example company,owner */
-                include?: string;
-            };
-            header?: never;
-            path: {
-                /** @description Company id */
-                company_id: string;
-            };
-            cookie?: never;
-        };
-        requestBody?: never;
-        responses: {
-            /** @description The company */
-            200: {
-                headers: {
-                    [name: string]: unknown;
-                };
-                content: {
-                    "application/json": components["schemas"]["Data_CompanyResponse"];
-                };
-            };
-            /** @description Missing or invalid credentials (`unauthorized`, `invalid_api_token`) */
-            401: {
-                headers: {
-                    [name: string]: unknown;
-                };
-                content: {
-                    "application/json": components["schemas"]["ErrorEnvelope"];
-                };
-            };
-            /** @description Missing `companies.read` (`permission_denied`, `insufficient_scope`) */
-            403: {
-                headers: {
-                    [name: string]: unknown;
-                };
-                content: {
-                    "application/json": components["schemas"]["ErrorEnvelope"];
-                };
-            };
-            /** @description Company not found or not visible (`company_not_found`) */
-            404: {
-                headers: {
-                    [name: string]: unknown;
-                };
-                content: {
-                    "application/json": components["schemas"]["ErrorEnvelope"];
-                };
-            };
-            /** @description Unknown relationship in `include` (`validation_error`) */
-            422: {
-                headers: {
-                    [name: string]: unknown;
-                };
-                content: {
-                    "application/json": components["schemas"]["ErrorEnvelope"];
-                };
-            };
-            /** @description API token rate limit exceeded (`rate_limited`); see `Retry-After` and `X-RateLimit-*` */
-            429: {
-                headers: {
-                    [name: string]: unknown;
-                };
-                content: {
-                    "application/json": components["schemas"]["ErrorEnvelope"];
-                };
-            };
-        };
-    };
-    companies_delete: {
-        parameters: {
-            query?: never;
-            header?: never;
-            path: {
-                /** @description Company id */
-                company_id: string;
-            };
-            cookie?: never;
-        };
-        requestBody?: never;
-        responses: {
-            /** @description Company moved to the trash (soft delete); publishes `company.deleted`. Restore it through `POST /trash/company/{id}/restore` */
-            204: {
-                headers: {
-                    [name: string]: unknown;
-                };
-                content?: never;
-            };
-            /** @description Missing or invalid credentials (`unauthorized`, `invalid_api_token`) */
-            401: {
-                headers: {
-                    [name: string]: unknown;
-                };
-                content: {
-                    "application/json": components["schemas"]["ErrorEnvelope"];
-                };
-            };
-            /** @description Missing `companies.delete` for this company (`permission_denied`, `insufficient_scope`) */
-            403: {
-                headers: {
-                    [name: string]: unknown;
-                };
-                content: {
-                    "application/json": components["schemas"]["ErrorEnvelope"];
-                };
-            };
-            /** @description Company not found or not visible (`company_not_found`) */
-            404: {
-                headers: {
-                    [name: string]: unknown;
-                };
-                content: {
-                    "application/json": components["schemas"]["ErrorEnvelope"];
-                };
-            };
-            /** @description API token rate limit exceeded (`rate_limited`); see `Retry-After` and `X-RateLimit-*` */
-            429: {
-                headers: {
-                    [name: string]: unknown;
-                };
-                content: {
-                    "application/json": components["schemas"]["ErrorEnvelope"];
-                };
-            };
-        };
-    };
-    companies_update: {
-        parameters: {
-            query?: never;
-            header?: {
-                /** @description `updated_at` of the company as read (ISO-8601, quotes optional); the update fails with 409 when it changed since */
-                "If-Match"?: string | null;
-            };
-            path: {
-                /** @description Company id */
-                company_id: string;
-            };
-            cookie?: never;
-        };
-        requestBody: {
-            content: {
-                "application/json": components["schemas"]["CompanyRequest"];
-            };
-        };
-        responses: {
-            /** @description Company updated */
-            200: {
-                headers: {
-                    [name: string]: unknown;
-                };
-                content: {
-                    "application/json": components["schemas"]["Data_CompanyResponse"];
-                };
-            };
-            /** @description Missing or invalid credentials (`unauthorized`, `invalid_api_token`) */
-            401: {
-                headers: {
-                    [name: string]: unknown;
-                };
-                content: {
-                    "application/json": components["schemas"]["ErrorEnvelope"];
-                };
-            };
-            /** @description Missing `companies.update` for this company (`permission_denied`, `insufficient_scope`) */
-            403: {
-                headers: {
-                    [name: string]: unknown;
-                };
-                content: {
-                    "application/json": components["schemas"]["ErrorEnvelope"];
-                };
-            };
-            /** @description Company not found or not visible (`company_not_found`) */
-            404: {
-                headers: {
-                    [name: string]: unknown;
-                };
-                content: {
-                    "application/json": components["schemas"]["ErrorEnvelope"];
-                };
-            };
-            /** @description The company changed since the `If-Match` version (`version_conflict`) */
-            409: {
-                headers: {
-                    [name: string]: unknown;
-                };
-                content: {
-                    "application/json": components["schemas"]["ErrorEnvelope"];
-                };
-            };
-            /** @description Invalid system or custom fields or malformed `If-Match` (`validation_error`) */
-            422: {
-                headers: {
-                    [name: string]: unknown;
-                };
-                content: {
-                    "application/json": components["schemas"]["ErrorEnvelope"];
-                };
-            };
-            /** @description API token rate limit exceeded (`rate_limited`); see `Retry-After` and `X-RateLimit-*` */
-            429: {
-                headers: {
-                    [name: string]: unknown;
-                };
-                content: {
-                    "application/json": components["schemas"]["ErrorEnvelope"];
-                };
-            };
-        };
-    };
-    companies_archive: {
-        parameters: {
-            query?: never;
-            header?: {
-                /** @description Up to 255 printable ASCII characters. The same key with the same request (method, path and body) within 24 hours answers the stored response with the same status and body plus `Idempotent-Replayed: true`. Scoped to the credential (session cookie or API token); ignored without a credential. 5xx and 429 responses are not stored */
-                "Idempotency-Key"?: string;
-            };
-            path: {
-                /** @description Company id */
-                company_id: string;
-            };
-            cookie?: never;
-        };
-        requestBody?: never;
-        responses: {
-            /** @description Company archived (hidden from listings unless `archived=include|only`); publishes `company.archived` */
-            200: {
-                headers: {
-                    [name: string]: unknown;
-                };
-                content: {
-                    "application/json": components["schemas"]["Data_CompanyResponse"];
-                };
-            };
-            /** @description Missing or invalid credentials (`unauthorized`, `invalid_api_token`) */
-            401: {
-                headers: {
-                    [name: string]: unknown;
-                };
-                content: {
-                    "application/json": components["schemas"]["ErrorEnvelope"];
-                };
-            };
-            /** @description Missing `companies.update` for this company (`permission_denied`, `insufficient_scope`) */
-            403: {
-                headers: {
-                    [name: string]: unknown;
-                };
-                content: {
-                    "application/json": components["schemas"]["ErrorEnvelope"];
-                };
-            };
-            /** @description Company not found or not visible (`company_not_found`) */
-            404: {
-                headers: {
-                    [name: string]: unknown;
-                };
-                content: {
-                    "application/json": components["schemas"]["ErrorEnvelope"];
-                };
-            };
-            /** @description The first request with this `Idempotency-Key` is still being processed (`idempotency_key_in_progress`) */
-            409: {
-                headers: {
-                    [name: string]: unknown;
-                };
-                content: {
-                    "application/json": components["schemas"]["ErrorEnvelope"];
-                };
-            };
-            /** @description `Idempotency-Key` already used with a different request (`idempotency_key_reused`) or longer than 255 characters (`validation_error`) */
-            422: {
-                headers: {
-                    [name: string]: unknown;
-                };
-                content: {
-                    "application/json": components["schemas"]["ErrorEnvelope"];
-                };
-            };
-            /** @description API token rate limit exceeded (`rate_limited`); see `Retry-After` and `X-RateLimit-*` */
-            429: {
-                headers: {
-                    [name: string]: unknown;
-                };
-                content: {
-                    "application/json": components["schemas"]["ErrorEnvelope"];
-                };
-            };
-        };
-    };
-    companies_list_contacts: {
-        parameters: {
-            query?: {
-                page?: number;
-                per_page?: number;
-            };
-            header?: never;
-            path: {
-                /** @description Company id */
-                company_id: string;
-            };
-            cookie?: never;
-        };
-        requestBody?: never;
-        responses: {
-            /** @description Contacts of the company the user can read: those whose primary company it is first, then the additional links */
-            200: {
-                headers: {
-                    [name: string]: unknown;
-                };
-                content: {
-                    "application/json": components["schemas"]["Page_CompanyContactResponse"];
-                };
-            };
-            /** @description Missing or invalid credentials (`unauthorized`, `invalid_api_token`) */
-            401: {
-                headers: {
-                    [name: string]: unknown;
-                };
-                content: {
-                    "application/json": components["schemas"]["ErrorEnvelope"];
-                };
-            };
-            /** @description Missing `companies.read` or `contacts.read` (`permission_denied`, `insufficient_scope`) */
-            403: {
-                headers: {
-                    [name: string]: unknown;
-                };
-                content: {
-                    "application/json": components["schemas"]["ErrorEnvelope"];
-                };
-            };
-            /** @description Company not found or not visible (`company_not_found`) */
-            404: {
-                headers: {
-                    [name: string]: unknown;
-                };
-                content: {
-                    "application/json": components["schemas"]["ErrorEnvelope"];
-                };
-            };
-            /** @description Invalid pagination (`validation_error`) */
-            422: {
-                headers: {
-                    [name: string]: unknown;
-                };
-                content: {
-                    "application/json": components["schemas"]["ErrorEnvelope"];
-                };
-            };
-            /** @description API token rate limit exceeded (`rate_limited`); see `Retry-After` and `X-RateLimit-*` */
-            429: {
-                headers: {
-                    [name: string]: unknown;
-                };
-                content: {
-                    "application/json": components["schemas"]["ErrorEnvelope"];
-                };
-            };
-        };
-    };
-    companies_group_totals: {
-        parameters: {
-            query?: never;
-            header?: never;
-            path: {
-                /** @description Company id */
-                company_id: string;
-            };
-            cookie?: never;
-        };
-        requestBody?: never;
-        responses: {
-            /** @description Totals of the group */
-            200: {
-                headers: {
-                    [name: string]: unknown;
-                };
-                content: {
-                    "application/json": components["schemas"]["Data_CompanyGroupTotalsResponse"];
-                };
-            };
-            /** @description Missing or invalid credentials (`unauthorized`, `invalid_api_token`) */
-            401: {
-                headers: {
-                    [name: string]: unknown;
-                };
-                content: {
-                    "application/json": components["schemas"]["ErrorEnvelope"];
-                };
-            };
-            /** @description Missing `companies.read` (`permission_denied`, `insufficient_scope`) */
-            403: {
-                headers: {
-                    [name: string]: unknown;
-                };
-                content: {
-                    "application/json": components["schemas"]["ErrorEnvelope"];
-                };
-            };
-            /** @description Company not found or not visible (`company_not_found`) */
-            404: {
-                headers: {
-                    [name: string]: unknown;
-                };
-                content: {
-                    "application/json": components["schemas"]["ErrorEnvelope"];
-                };
-            };
-            /** @description API token rate limit exceeded (`rate_limited`); see `Retry-After` and `X-RateLimit-*` */
-            429: {
-                headers: {
-                    [name: string]: unknown;
-                };
-                content: {
-                    "application/json": components["schemas"]["ErrorEnvelope"];
-                };
-            };
-        };
-    };
-    companies_hierarchy: {
-        parameters: {
-            query?: never;
-            header?: never;
-            path: {
-                /** @description Company id */
-                company_id: string;
-            };
-            cookie?: never;
-        };
-        requestBody?: never;
-        responses: {
-            /** @description Company group */
-            200: {
-                headers: {
-                    [name: string]: unknown;
-                };
-                content: {
-                    "application/json": components["schemas"]["Data_CompanyHierarchyResponse"];
-                };
-            };
-            /** @description Missing or invalid credentials (`unauthorized`, `invalid_api_token`) */
-            401: {
-                headers: {
-                    [name: string]: unknown;
-                };
-                content: {
-                    "application/json": components["schemas"]["ErrorEnvelope"];
-                };
-            };
-            /** @description Missing `companies.read` (`permission_denied`, `insufficient_scope`) */
-            403: {
-                headers: {
-                    [name: string]: unknown;
-                };
-                content: {
-                    "application/json": components["schemas"]["ErrorEnvelope"];
-                };
-            };
-            /** @description Company not found or not visible (`company_not_found`) */
-            404: {
-                headers: {
-                    [name: string]: unknown;
-                };
-                content: {
-                    "application/json": components["schemas"]["ErrorEnvelope"];
-                };
-            };
-            /** @description API token rate limit exceeded (`rate_limited`); see `Retry-After` and `X-RateLimit-*` */
-            429: {
-                headers: {
-                    [name: string]: unknown;
-                };
-                content: {
-                    "application/json": components["schemas"]["ErrorEnvelope"];
-                };
-            };
-        };
-    };
-    companies_unarchive: {
-        parameters: {
-            query?: never;
-            header?: {
-                /** @description Up to 255 printable ASCII characters. The same key with the same request (method, path and body) within 24 hours answers the stored response with the same status and body plus `Idempotent-Replayed: true`. Scoped to the credential (session cookie or API token); ignored without a credential. 5xx and 429 responses are not stored */
-                "Idempotency-Key"?: string;
-            };
-            path: {
-                /** @description Company id */
-                company_id: string;
-            };
-            cookie?: never;
-        };
-        requestBody?: never;
-        responses: {
-            /** @description Company restored from the archive; publishes `company.unarchived` */
-            200: {
-                headers: {
-                    [name: string]: unknown;
-                };
-                content: {
-                    "application/json": components["schemas"]["Data_CompanyResponse"];
-                };
-            };
-            /** @description Missing or invalid credentials (`unauthorized`, `invalid_api_token`) */
-            401: {
-                headers: {
-                    [name: string]: unknown;
-                };
-                content: {
-                    "application/json": components["schemas"]["ErrorEnvelope"];
-                };
-            };
-            /** @description Missing `companies.update` for this company (`permission_denied`, `insufficient_scope`) */
-            403: {
-                headers: {
-                    [name: string]: unknown;
-                };
-                content: {
-                    "application/json": components["schemas"]["ErrorEnvelope"];
-                };
-            };
-            /** @description Company not found or not visible (`company_not_found`) */
-            404: {
-                headers: {
-                    [name: string]: unknown;
-                };
-                content: {
-                    "application/json": components["schemas"]["ErrorEnvelope"];
-                };
-            };
-            /** @description The first request with this `Idempotency-Key` is still being processed (`idempotency_key_in_progress`) */
-            409: {
-                headers: {
-                    [name: string]: unknown;
-                };
-                content: {
-                    "application/json": components["schemas"]["ErrorEnvelope"];
-                };
-            };
-            /** @description `Idempotency-Key` already used with a different request (`idempotency_key_reused`) or longer than 255 characters (`validation_error`) */
-            422: {
-                headers: {
-                    [name: string]: unknown;
-                };
-                content: {
-                    "application/json": components["schemas"]["ErrorEnvelope"];
-                };
-            };
-            /** @description API token rate limit exceeded (`rate_limited`); see `Retry-After` and `X-RateLimit-*` */
-            429: {
-                headers: {
-                    [name: string]: unknown;
-                };
-                content: {
-                    "application/json": components["schemas"]["ErrorEnvelope"];
-                };
-            };
-        };
-    };
     config_package_versions_list: {
         parameters: {
             query?: never;
@@ -30636,716 +29942,6 @@ export interface operations {
             };
             /** @description Unknown template (`template_not_found`) */
             404: {
-                headers: {
-                    [name: string]: unknown;
-                };
-                content: {
-                    "application/json": components["schemas"]["ErrorEnvelope"];
-                };
-            };
-            /** @description API token rate limit exceeded (`rate_limited`); see `Retry-After` and `X-RateLimit-*` */
-            429: {
-                headers: {
-                    [name: string]: unknown;
-                };
-                content: {
-                    "application/json": components["schemas"]["ErrorEnvelope"];
-                };
-            };
-        };
-    };
-    contacts_list: {
-        parameters: {
-            query?: {
-                /** @example {"op":"and","conditions":[{"field":"name","operator":"contains","value":"ana"}]} */
-                filter?: string;
-                /** @example -created_at,name */
-                sort?: string;
-                search?: string;
-                /** @example exclude */
-                archived?: string;
-                /** @example acme */
-                q?: string;
-                /** @example company,owner */
-                include?: string;
-                page?: number;
-                per_page?: number;
-            };
-            header?: never;
-            path?: never;
-            cookie?: never;
-        };
-        requestBody?: never;
-        responses: {
-            /** @description Page of contacts with their custom fields */
-            200: {
-                headers: {
-                    [name: string]: unknown;
-                };
-                content: {
-                    "application/json": components["schemas"]["Page_ContactResponse"];
-                };
-            };
-            /** @description Missing or invalid credentials (`unauthorized`, `invalid_api_token`) */
-            401: {
-                headers: {
-                    [name: string]: unknown;
-                };
-                content: {
-                    "application/json": components["schemas"]["ErrorEnvelope"];
-                };
-            };
-            /** @description Missing `contacts.read` (`permission_denied`, `insufficient_scope`) */
-            403: {
-                headers: {
-                    [name: string]: unknown;
-                };
-                content: {
-                    "application/json": components["schemas"]["ErrorEnvelope"];
-                };
-            };
-            /** @description Invalid filter, sort, search, include or pagination (`validation_error` with `details.fields`) */
-            422: {
-                headers: {
-                    [name: string]: unknown;
-                };
-                content: {
-                    "application/json": components["schemas"]["ErrorEnvelope"];
-                };
-            };
-        };
-    };
-    contacts_create: {
-        parameters: {
-            query?: never;
-            header?: {
-                /** @description Up to 255 printable ASCII characters. The same key with the same request (method, path and body) within 24 hours answers the stored response with the same status and body plus `Idempotent-Replayed: true`. Scoped to the credential (session cookie or API token); ignored without a credential. 5xx and 429 responses are not stored */
-                "Idempotency-Key"?: string;
-            };
-            path?: never;
-            cookie?: never;
-        };
-        requestBody: {
-            content: {
-                "application/json": components["schemas"]["ContactRequest"];
-            };
-        };
-        responses: {
-            /** @description Contact created */
-            201: {
-                headers: {
-                    [name: string]: unknown;
-                };
-                content: {
-                    "application/json": components["schemas"]["Data_ContactResponse"];
-                };
-            };
-            /** @description Missing or invalid credentials (`unauthorized`, `invalid_api_token`) */
-            401: {
-                headers: {
-                    [name: string]: unknown;
-                };
-                content: {
-                    "application/json": components["schemas"]["ErrorEnvelope"];
-                };
-            };
-            /** @description Missing `contacts.create` (`permission_denied`, `insufficient_scope`) */
-            403: {
-                headers: {
-                    [name: string]: unknown;
-                };
-                content: {
-                    "application/json": components["schemas"]["ErrorEnvelope"];
-                };
-            };
-            /** @description The first request with this `Idempotency-Key` is still being processed (`idempotency_key_in_progress`) */
-            409: {
-                headers: {
-                    [name: string]: unknown;
-                };
-                content: {
-                    "application/json": components["schemas"]["ErrorEnvelope"];
-                };
-            };
-            /** @description Invalid system or custom fields (`validation_error`, fields such as `email` or `custom_fields.<key>`). `Idempotency-Key` already used with a different request (`idempotency_key_reused`) or longer than 255 characters (`validation_error`) */
-            422: {
-                headers: {
-                    [name: string]: unknown;
-                };
-                content: {
-                    "application/json": components["schemas"]["ErrorEnvelope"];
-                };
-            };
-        };
-    };
-    contacts_get: {
-        parameters: {
-            query?: {
-                /** @example company,owner */
-                include?: string;
-            };
-            header?: never;
-            path: {
-                /** @description Contact id */
-                contact_id: string;
-            };
-            cookie?: never;
-        };
-        requestBody?: never;
-        responses: {
-            /** @description The contact */
-            200: {
-                headers: {
-                    [name: string]: unknown;
-                };
-                content: {
-                    "application/json": components["schemas"]["Data_ContactResponse"];
-                };
-            };
-            /** @description Missing or invalid credentials (`unauthorized`, `invalid_api_token`) */
-            401: {
-                headers: {
-                    [name: string]: unknown;
-                };
-                content: {
-                    "application/json": components["schemas"]["ErrorEnvelope"];
-                };
-            };
-            /** @description Missing `contacts.read` (`permission_denied`, `insufficient_scope`) */
-            403: {
-                headers: {
-                    [name: string]: unknown;
-                };
-                content: {
-                    "application/json": components["schemas"]["ErrorEnvelope"];
-                };
-            };
-            /** @description Contact not found or not visible (`contact_not_found`) */
-            404: {
-                headers: {
-                    [name: string]: unknown;
-                };
-                content: {
-                    "application/json": components["schemas"]["ErrorEnvelope"];
-                };
-            };
-            /** @description Unknown relationship in `include` (`validation_error`) */
-            422: {
-                headers: {
-                    [name: string]: unknown;
-                };
-                content: {
-                    "application/json": components["schemas"]["ErrorEnvelope"];
-                };
-            };
-            /** @description API token rate limit exceeded (`rate_limited`); see `Retry-After` and `X-RateLimit-*` */
-            429: {
-                headers: {
-                    [name: string]: unknown;
-                };
-                content: {
-                    "application/json": components["schemas"]["ErrorEnvelope"];
-                };
-            };
-        };
-    };
-    contacts_delete: {
-        parameters: {
-            query?: never;
-            header?: never;
-            path: {
-                /** @description Contact id */
-                contact_id: string;
-            };
-            cookie?: never;
-        };
-        requestBody?: never;
-        responses: {
-            /** @description Contact moved to the trash (soft delete); publishes `contact.deleted`. Restore it through `POST /trash/contact/{id}/restore` */
-            204: {
-                headers: {
-                    [name: string]: unknown;
-                };
-                content?: never;
-            };
-            /** @description Missing or invalid credentials (`unauthorized`, `invalid_api_token`) */
-            401: {
-                headers: {
-                    [name: string]: unknown;
-                };
-                content: {
-                    "application/json": components["schemas"]["ErrorEnvelope"];
-                };
-            };
-            /** @description Missing `contacts.delete` for this contact (`permission_denied`, `insufficient_scope`) */
-            403: {
-                headers: {
-                    [name: string]: unknown;
-                };
-                content: {
-                    "application/json": components["schemas"]["ErrorEnvelope"];
-                };
-            };
-            /** @description Contact not found or not visible (`contact_not_found`) */
-            404: {
-                headers: {
-                    [name: string]: unknown;
-                };
-                content: {
-                    "application/json": components["schemas"]["ErrorEnvelope"];
-                };
-            };
-            /** @description API token rate limit exceeded (`rate_limited`); see `Retry-After` and `X-RateLimit-*` */
-            429: {
-                headers: {
-                    [name: string]: unknown;
-                };
-                content: {
-                    "application/json": components["schemas"]["ErrorEnvelope"];
-                };
-            };
-        };
-    };
-    contacts_update: {
-        parameters: {
-            query?: never;
-            header?: {
-                /** @description `updated_at` of the contact as read (ISO-8601, quotes optional); the update fails with 409 when it changed since */
-                "If-Match"?: string | null;
-            };
-            path: {
-                /** @description Contact id */
-                contact_id: string;
-            };
-            cookie?: never;
-        };
-        requestBody: {
-            content: {
-                "application/json": components["schemas"]["ContactRequest"];
-            };
-        };
-        responses: {
-            /** @description Contact updated */
-            200: {
-                headers: {
-                    [name: string]: unknown;
-                };
-                content: {
-                    "application/json": components["schemas"]["Data_ContactResponse"];
-                };
-            };
-            /** @description Missing or invalid credentials (`unauthorized`, `invalid_api_token`) */
-            401: {
-                headers: {
-                    [name: string]: unknown;
-                };
-                content: {
-                    "application/json": components["schemas"]["ErrorEnvelope"];
-                };
-            };
-            /** @description Missing `contacts.update` for this contact (`permission_denied`, `insufficient_scope`) */
-            403: {
-                headers: {
-                    [name: string]: unknown;
-                };
-                content: {
-                    "application/json": components["schemas"]["ErrorEnvelope"];
-                };
-            };
-            /** @description Contact not found or not visible (`contact_not_found`) */
-            404: {
-                headers: {
-                    [name: string]: unknown;
-                };
-                content: {
-                    "application/json": components["schemas"]["ErrorEnvelope"];
-                };
-            };
-            /** @description The contact changed since the `If-Match` version (`version_conflict`) */
-            409: {
-                headers: {
-                    [name: string]: unknown;
-                };
-                content: {
-                    "application/json": components["schemas"]["ErrorEnvelope"];
-                };
-            };
-            /** @description Invalid system or custom fields or malformed `If-Match` (`validation_error`) */
-            422: {
-                headers: {
-                    [name: string]: unknown;
-                };
-                content: {
-                    "application/json": components["schemas"]["ErrorEnvelope"];
-                };
-            };
-            /** @description API token rate limit exceeded (`rate_limited`); see `Retry-After` and `X-RateLimit-*` */
-            429: {
-                headers: {
-                    [name: string]: unknown;
-                };
-                content: {
-                    "application/json": components["schemas"]["ErrorEnvelope"];
-                };
-            };
-        };
-    };
-    contacts_archive: {
-        parameters: {
-            query?: never;
-            header?: {
-                /** @description Up to 255 printable ASCII characters. The same key with the same request (method, path and body) within 24 hours answers the stored response with the same status and body plus `Idempotent-Replayed: true`. Scoped to the credential (session cookie or API token); ignored without a credential. 5xx and 429 responses are not stored */
-                "Idempotency-Key"?: string;
-            };
-            path: {
-                /** @description Contact id */
-                contact_id: string;
-            };
-            cookie?: never;
-        };
-        requestBody?: never;
-        responses: {
-            /** @description Contact archived (hidden from listings unless `archived=include|only`); publishes `contact.archived` */
-            200: {
-                headers: {
-                    [name: string]: unknown;
-                };
-                content: {
-                    "application/json": components["schemas"]["Data_ContactResponse"];
-                };
-            };
-            /** @description Missing or invalid credentials (`unauthorized`, `invalid_api_token`) */
-            401: {
-                headers: {
-                    [name: string]: unknown;
-                };
-                content: {
-                    "application/json": components["schemas"]["ErrorEnvelope"];
-                };
-            };
-            /** @description Missing `contacts.update` for this contact (`permission_denied`, `insufficient_scope`) */
-            403: {
-                headers: {
-                    [name: string]: unknown;
-                };
-                content: {
-                    "application/json": components["schemas"]["ErrorEnvelope"];
-                };
-            };
-            /** @description Contact not found or not visible (`contact_not_found`) */
-            404: {
-                headers: {
-                    [name: string]: unknown;
-                };
-                content: {
-                    "application/json": components["schemas"]["ErrorEnvelope"];
-                };
-            };
-            /** @description The first request with this `Idempotency-Key` is still being processed (`idempotency_key_in_progress`) */
-            409: {
-                headers: {
-                    [name: string]: unknown;
-                };
-                content: {
-                    "application/json": components["schemas"]["ErrorEnvelope"];
-                };
-            };
-            /** @description `Idempotency-Key` already used with a different request (`idempotency_key_reused`) or longer than 255 characters (`validation_error`) */
-            422: {
-                headers: {
-                    [name: string]: unknown;
-                };
-                content: {
-                    "application/json": components["schemas"]["ErrorEnvelope"];
-                };
-            };
-            /** @description API token rate limit exceeded (`rate_limited`); see `Retry-After` and `X-RateLimit-*` */
-            429: {
-                headers: {
-                    [name: string]: unknown;
-                };
-                content: {
-                    "application/json": components["schemas"]["ErrorEnvelope"];
-                };
-            };
-        };
-    };
-    contacts_list_companies: {
-        parameters: {
-            query?: {
-                page?: number;
-                per_page?: number;
-            };
-            header?: never;
-            path: {
-                /** @description Contact id */
-                contact_id: string;
-            };
-            cookie?: never;
-        };
-        requestBody?: never;
-        responses: {
-            /** @description Companies of the contact: the primary one (`contacts.company_id`) first, then the additional links with their roles. Only companies the user can read are listed */
-            200: {
-                headers: {
-                    [name: string]: unknown;
-                };
-                content: {
-                    "application/json": components["schemas"]["Page_ContactCompanyLinkResponse"];
-                };
-            };
-            /** @description Missing or invalid credentials (`unauthorized`, `invalid_api_token`) */
-            401: {
-                headers: {
-                    [name: string]: unknown;
-                };
-                content: {
-                    "application/json": components["schemas"]["ErrorEnvelope"];
-                };
-            };
-            /** @description Missing `contacts.read` (`permission_denied`, `insufficient_scope`) */
-            403: {
-                headers: {
-                    [name: string]: unknown;
-                };
-                content: {
-                    "application/json": components["schemas"]["ErrorEnvelope"];
-                };
-            };
-            /** @description Contact not found or not visible (`contact_not_found`) */
-            404: {
-                headers: {
-                    [name: string]: unknown;
-                };
-                content: {
-                    "application/json": components["schemas"]["ErrorEnvelope"];
-                };
-            };
-            /** @description Invalid pagination (`validation_error`) */
-            422: {
-                headers: {
-                    [name: string]: unknown;
-                };
-                content: {
-                    "application/json": components["schemas"]["ErrorEnvelope"];
-                };
-            };
-            /** @description API token rate limit exceeded (`rate_limited`); see `Retry-After` and `X-RateLimit-*` */
-            429: {
-                headers: {
-                    [name: string]: unknown;
-                };
-                content: {
-                    "application/json": components["schemas"]["ErrorEnvelope"];
-                };
-            };
-        };
-    };
-    contacts_link_company: {
-        parameters: {
-            query?: never;
-            header?: {
-                /** @description Up to 255 printable ASCII characters. The same key with the same request (method, path and body) within 24 hours answers the stored response with the same status and body plus `Idempotent-Replayed: true`. Scoped to the credential (session cookie or API token); ignored without a credential. 5xx and 429 responses are not stored */
-                "Idempotency-Key"?: string;
-            };
-            path: {
-                /** @description Contact id */
-                contact_id: string;
-            };
-            cookie?: never;
-        };
-        requestBody: {
-            content: {
-                "application/json": components["schemas"]["LinkCompanyRequest"];
-            };
-        };
-        responses: {
-            /** @description Additional company linked to the contact; publishes `contact.company_linked` */
-            201: {
-                headers: {
-                    [name: string]: unknown;
-                };
-                content: {
-                    "application/json": components["schemas"]["Data_ContactCompanyLinkResponse"];
-                };
-            };
-            /** @description Missing or invalid credentials (`unauthorized`, `invalid_api_token`) */
-            401: {
-                headers: {
-                    [name: string]: unknown;
-                };
-                content: {
-                    "application/json": components["schemas"]["ErrorEnvelope"];
-                };
-            };
-            /** @description Missing `contacts.update` for this contact (`permission_denied`, `insufficient_scope`) */
-            403: {
-                headers: {
-                    [name: string]: unknown;
-                };
-                content: {
-                    "application/json": components["schemas"]["ErrorEnvelope"];
-                };
-            };
-            /** @description Contact not found or not visible (`contact_not_found`) */
-            404: {
-                headers: {
-                    [name: string]: unknown;
-                };
-                content: {
-                    "application/json": components["schemas"]["ErrorEnvelope"];
-                };
-            };
-            /** @description The company is already linked or is the primary company (`already_linked`). The first request with this `Idempotency-Key` is still being processed (`idempotency_key_in_progress`) */
-            409: {
-                headers: {
-                    [name: string]: unknown;
-                };
-                content: {
-                    "application/json": components["schemas"]["ErrorEnvelope"];
-                };
-            };
-            /** @description Unknown or invisible company, or invalid role (`validation_error`). `Idempotency-Key` already used with a different request (`idempotency_key_reused`) or longer than 255 characters (`validation_error`) */
-            422: {
-                headers: {
-                    [name: string]: unknown;
-                };
-                content: {
-                    "application/json": components["schemas"]["ErrorEnvelope"];
-                };
-            };
-            /** @description API token rate limit exceeded (`rate_limited`); see `Retry-After` and `X-RateLimit-*` */
-            429: {
-                headers: {
-                    [name: string]: unknown;
-                };
-                content: {
-                    "application/json": components["schemas"]["ErrorEnvelope"];
-                };
-            };
-        };
-    };
-    contacts_unlink_company: {
-        parameters: {
-            query?: never;
-            header?: never;
-            path: {
-                /** @description Contact id */
-                contact_id: string;
-                /** @description Company id */
-                company_id: string;
-            };
-            cookie?: never;
-        };
-        requestBody?: never;
-        responses: {
-            /** @description Additional link removed (the primary company is changed through `company_id`); publishes `contact.company_unlinked` */
-            204: {
-                headers: {
-                    [name: string]: unknown;
-                };
-                content?: never;
-            };
-            /** @description Missing or invalid credentials (`unauthorized`, `invalid_api_token`) */
-            401: {
-                headers: {
-                    [name: string]: unknown;
-                };
-                content: {
-                    "application/json": components["schemas"]["ErrorEnvelope"];
-                };
-            };
-            /** @description Missing `contacts.update` for this contact (`permission_denied`, `insufficient_scope`) */
-            403: {
-                headers: {
-                    [name: string]: unknown;
-                };
-                content: {
-                    "application/json": components["schemas"]["ErrorEnvelope"];
-                };
-            };
-            /** @description Contact not found (`contact_not_found`) or not linked (`link_not_found`) */
-            404: {
-                headers: {
-                    [name: string]: unknown;
-                };
-                content: {
-                    "application/json": components["schemas"]["ErrorEnvelope"];
-                };
-            };
-            /** @description API token rate limit exceeded (`rate_limited`); see `Retry-After` and `X-RateLimit-*` */
-            429: {
-                headers: {
-                    [name: string]: unknown;
-                };
-                content: {
-                    "application/json": components["schemas"]["ErrorEnvelope"];
-                };
-            };
-        };
-    };
-    contacts_unarchive: {
-        parameters: {
-            query?: never;
-            header?: {
-                /** @description Up to 255 printable ASCII characters. The same key with the same request (method, path and body) within 24 hours answers the stored response with the same status and body plus `Idempotent-Replayed: true`. Scoped to the credential (session cookie or API token); ignored without a credential. 5xx and 429 responses are not stored */
-                "Idempotency-Key"?: string;
-            };
-            path: {
-                /** @description Contact id */
-                contact_id: string;
-            };
-            cookie?: never;
-        };
-        requestBody?: never;
-        responses: {
-            /** @description Contact restored from the archive; publishes `contact.unarchived` */
-            200: {
-                headers: {
-                    [name: string]: unknown;
-                };
-                content: {
-                    "application/json": components["schemas"]["Data_ContactResponse"];
-                };
-            };
-            /** @description Missing or invalid credentials (`unauthorized`, `invalid_api_token`) */
-            401: {
-                headers: {
-                    [name: string]: unknown;
-                };
-                content: {
-                    "application/json": components["schemas"]["ErrorEnvelope"];
-                };
-            };
-            /** @description Missing `contacts.update` for this contact (`permission_denied`, `insufficient_scope`) */
-            403: {
-                headers: {
-                    [name: string]: unknown;
-                };
-                content: {
-                    "application/json": components["schemas"]["ErrorEnvelope"];
-                };
-            };
-            /** @description Contact not found or not visible (`contact_not_found`) */
-            404: {
-                headers: {
-                    [name: string]: unknown;
-                };
-                content: {
-                    "application/json": components["schemas"]["ErrorEnvelope"];
-                };
-            };
-            /** @description The first request with this `Idempotency-Key` is still being processed (`idempotency_key_in_progress`) */
-            409: {
-                headers: {
-                    [name: string]: unknown;
-                };
-                content: {
-                    "application/json": components["schemas"]["ErrorEnvelope"];
-                };
-            };
-            /** @description `Idempotency-Key` already used with a different request (`idempotency_key_reused`) or longer than 255 characters (`validation_error`) */
-            422: {
                 headers: {
                     [name: string]: unknown;
                 };
@@ -35123,7 +33719,7 @@ export interface operations {
     duplicates_list: {
         parameters: {
             query?: {
-                /** @example contacts.contact */
+                /** @example people.person */
                 record_type?: string;
                 /** @example pending */
                 status?: string;
@@ -35273,7 +33869,7 @@ export interface operations {
             };
         };
         responses: {
-            /** @description Merges `duplicate_id` into `primary_id` in one transaction. `fields` chooses, per field key (system or custom), which record's value stays (`primary` or `duplicate`); omitted fields keep the primary value unless it is empty. Fields hidden from the user cannot be chosen: their values stay on the primary and are only filled from the duplicate when empty (redacted in the audit). Activities, notes, attachments, tags, relationships, record references, deals and company links (contacts), contacts and deals (companies) or rows of other types that point to it (other types) move to the primary; the duplicate goes to the trash and its id redirects to the primary. The duplicate keeps its own custom values in the trash (restoring it brings them back), while the moved links stay with the primary. Both writes go through the record pipeline: the primary update runs validation rules, approvals and the other `RecordValidating` hooks and publishes `<type>.updated` (when something changed), the duplicate runs `RecordDeleting`/`RecordDeleted` and publishes `<type>.deleted`; `<type>.merged` is published as well */
+            /** @description Merges `duplicate_id` into `primary_id` in one transaction. `fields` chooses, per field key (system or custom), which record's value stays (`primary` or `duplicate`); omitted fields keep the primary value unless it is empty. Fields hidden from the user cannot be chosen: their values stay on the primary and are only filled from the duplicate when empty (redacted in the audit). Activities, notes, attachments, tags, relationships, record references, deals and company links (people), people and deals (organizations) or rows of other types that point to it (other types) move to the primary; the duplicate goes to the trash and its id redirects to the primary. The duplicate keeps its own custom values in the trash (restoring it brings them back), while the moved links stay with the primary. Both writes go through the record pipeline: the primary update runs validation rules, approvals and the other `RecordValidating` hooks and publishes `<type>.updated` (when something changed), the duplicate runs `RecordDeleting`/`RecordDeleted` and publishes `<type>.deleted`; `<type>.merged` is published as well */
             200: {
                 headers: {
                     [name: string]: unknown;
@@ -35318,7 +33914,7 @@ export interface operations {
                     "application/json": components["schemas"]["ErrorEnvelope"];
                 };
             };
-            /** @description Invalid record type, unknown field or side (`fields.<key>`), invalid custom value, a validation rule (`validation_rule_failed`), the same record twice (`merge_same_record`) or, for companies, moving the children of the duplicate would break the hierarchy (`company_hierarchy_cycle`, `company_hierarchy_too_deep`). `Idempotency-Key` already used with a different request (`idempotency_key_reused`) or longer than 255 characters (`validation_error`) */
+            /** @description Invalid record type, unknown field or side (`fields.<key>`), invalid custom value, a validation rule (`validation_rule_failed`), the same record twice (`merge_same_record`) or, for organizations, moving the children of the duplicate would break the hierarchy (`company_hierarchy_cycle`, `company_hierarchy_too_deep`). `Idempotency-Key` already used with a different request (`idempotency_key_reused`) or longer than 255 characters (`validation_error`) */
             422: {
                 headers: {
                     [name: string]: unknown;
@@ -35341,7 +33937,7 @@ export interface operations {
     duplicates_get_rules: {
         parameters: {
             query: {
-                /** @example contacts.contact */
+                /** @example people.person */
                 record_type: string;
             };
             header?: never;
@@ -35350,7 +33946,7 @@ export interface operations {
         };
         requestBody?: never;
         responses: {
-            /** @description Detection rules of the record type. Contacts: `email`, `phone`, `name_company` (similar name and same company); companies: `domain`, `name`; other types: `identifier` (same value in an identifier column, when the type declares one) and `name` (similar title). Every rule is enabled by default */
+            /** @description Detection rules of the record type. Contacts: `email`, `phone`, `name_company` (similar name and same company); organizations: `domain`, `name`; other types: `identifier` (same value in an identifier column, when the type declares one) and `name` (similar title). Every rule is enabled by default */
             200: {
                 headers: {
                     [name: string]: unknown;
@@ -35532,7 +34128,7 @@ export interface operations {
         };
         requestBody?: never;
         responses: {
-            /** @description Record types with duplicate detection that the user can read: contacts, companies and every type that declares identifier columns (`label_aliases`, e.g. products by code) or is a custom object. Each comes with its rules (`identifier` and `name` for generic types), the system fields the merge screen may offer (fields hidden from the user are left out) and the permissions needed to merge */
+            /** @description Record types with duplicate detection that the user can read: people, organizations and every type that declares identifier columns (`label_aliases`, e.g. products by code) or is a custom object. Each comes with its rules (`identifier` and `name` for generic types), the system fields the merge screen may offer (fields hidden from the user are left out) and the permissions needed to merge */
             200: {
                 headers: {
                     [name: string]: unknown;
@@ -36376,7 +34972,7 @@ export interface operations {
             query?: {
                 /** @example all */
                 scope?: string;
-                /** @example contacts.contact */
+                /** @example people.person */
                 record_type?: string;
             };
             header?: never;
@@ -36763,7 +35359,7 @@ export interface operations {
     email_threads_list: {
         parameters: {
             query: {
-                /** @example contacts.contact */
+                /** @example people.person */
                 record_type: string;
                 record_id: string;
                 page?: number;
@@ -37400,56 +35996,6 @@ export interface operations {
             };
         };
     };
-    enrichment_company: {
-        parameters: {
-            query?: never;
-            header?: never;
-            path: {
-                /** @description Company id */
-                company_id: string;
-            };
-            cookie?: never;
-        };
-        requestBody?: never;
-        responses: {
-            /** @description Company enrichment state */
-            200: {
-                headers: {
-                    [name: string]: unknown;
-                };
-                content: {
-                    "application/json": components["schemas"]["Data_EnrichmentCompanyOverview"];
-                };
-            };
-            /** @description Missing permission (`permission_denied`) */
-            403: {
-                headers: {
-                    [name: string]: unknown;
-                };
-                content: {
-                    "application/json": components["schemas"]["ErrorEnvelope"];
-                };
-            };
-            /** @description Company not found or not visible (`company_not_found`) or module disabled (`module_disabled`) */
-            404: {
-                headers: {
-                    [name: string]: unknown;
-                };
-                content: {
-                    "application/json": components["schemas"]["ErrorEnvelope"];
-                };
-            };
-            /** @description API token rate limit exceeded (`rate_limited`); see `Retry-After` and `X-RateLimit-*` */
-            429: {
-                headers: {
-                    [name: string]: unknown;
-                };
-                content: {
-                    "application/json": components["schemas"]["ErrorEnvelope"];
-                };
-            };
-        };
-    };
     enrichment_lookup: {
         parameters: {
             query?: never;
@@ -37588,6 +36134,56 @@ export interface operations {
             };
             /** @description Lookup expired (`enrichment_lookup_expired`), nothing to apply (`enrichment_nothing_to_apply`) or a value refused by the company validation (`validation_error`). `Idempotency-Key` already used with a different request (`idempotency_key_reused`) or longer than 255 characters (`validation_error`) */
             422: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["ErrorEnvelope"];
+                };
+            };
+            /** @description API token rate limit exceeded (`rate_limited`); see `Retry-After` and `X-RateLimit-*` */
+            429: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["ErrorEnvelope"];
+                };
+            };
+        };
+    };
+    enrichment_company: {
+        parameters: {
+            query?: never;
+            header?: never;
+            path: {
+                /** @description Company id */
+                company_id: string;
+            };
+            cookie?: never;
+        };
+        requestBody?: never;
+        responses: {
+            /** @description Company enrichment state */
+            200: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["Data_EnrichmentCompanyOverview"];
+                };
+            };
+            /** @description Missing permission (`permission_denied`) */
+            403: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["ErrorEnvelope"];
+                };
+            };
+            /** @description Company not found or not visible (`company_not_found`) or module disabled (`module_disabled`) */
+            404: {
                 headers: {
                     [name: string]: unknown;
                 };
@@ -40732,7 +39328,7 @@ export interface operations {
     imports_list: {
         parameters: {
             query?: {
-                /** @example contacts.contact */
+                /** @example people.person */
                 record_type?: string;
                 page?: number;
                 per_page?: number;
@@ -43000,7 +41596,7 @@ export interface operations {
                     "application/json": components["schemas"]["ErrorEnvelope"];
                 };
             };
-            /** @description Missing `contacts.read` (`permission_denied`, `insufficient_scope`) */
+            /** @description Missing `people.read` (`permission_denied`, `insufficient_scope`) */
             403: {
                 headers: {
                     [name: string]: unknown;
@@ -44010,7 +42606,7 @@ export interface operations {
         };
         requestBody?: never;
         responses: {
-            /** @description Form and its submission history deleted (contacts and deals created by it stay). Publishes `lead_form.deleted` */
+            /** @description Form and its submission history deleted (people and deals created by it stay). Publishes `lead_form.deleted` */
             204: {
                 headers: {
                     [name: string]: unknown;
@@ -44192,7 +42788,7 @@ export interface operations {
         };
         requestBody?: never;
         responses: {
-            /** @description What the form editor can pick: writable contact fields (system and custom), active pipelines and stages, contact tags, active users and active lead distribution rules for contacts. Lists the current user cannot read come back empty */
+            /** @description What the form editor can pick: writable contact fields (system and custom), active pipelines and stages, contact tags, active users and active lead distribution rules for people. Lists the current user cannot read come back empty */
             200: {
                 headers: {
                     [name: string]: unknown;
@@ -44258,7 +42854,7 @@ export interface operations {
                     "application/json": components["schemas"]["ErrorEnvelope"];
                 };
             };
-            /** @description Missing `deals.create` or `contacts.update` on the contact (`permission_denied`, `insufficient_scope`) */
+            /** @description Missing `deals.create` or `people.update` on the contact (`permission_denied`, `insufficient_scope`) */
             403: {
                 headers: {
                     [name: string]: unknown;
@@ -44342,7 +42938,7 @@ export interface operations {
                     "application/json": components["schemas"]["ErrorEnvelope"];
                 };
             };
-            /** @description Missing `contacts.update` on the contact or the field is read only (`permission_denied`, `field_read_only`) */
+            /** @description Missing `people.update` on the contact or the field is read only (`permission_denied`, `field_read_only`) */
             403: {
                 headers: {
                     [name: string]: unknown;
@@ -44422,7 +43018,7 @@ export interface operations {
                     "application/json": components["schemas"]["ErrorEnvelope"];
                 };
             };
-            /** @description Missing `contacts.update` on the contact or the field is read only (`permission_denied`, `field_read_only`) */
+            /** @description Missing `people.update` on the contact or the field is read only (`permission_denied`, `field_read_only`) */
             403: {
                 headers: {
                     [name: string]: unknown;
@@ -44501,7 +43097,7 @@ export interface operations {
                     "application/json": components["schemas"]["ErrorEnvelope"];
                 };
             };
-            /** @description Missing `contacts.read`/`companies.read` (`permission_denied`, `insufficient_scope`) */
+            /** @description Missing `people.read`/`organizations.read` (`permission_denied`, `insufficient_scope`) */
             403: {
                 headers: {
                     [name: string]: unknown;
@@ -44533,7 +43129,7 @@ export interface operations {
     lifecycle_report: {
         parameters: {
             query?: {
-                /** @example contacts.contact */
+                /** @example people.person */
                 record_type?: string;
                 /** @example 2026-01-01 */
                 from?: string;
@@ -44564,7 +43160,7 @@ export interface operations {
                     "application/json": components["schemas"]["ErrorEnvelope"];
                 };
             };
-            /** @description Missing `contacts.read`/`companies.read` (`permission_denied`, `insufficient_scope`) */
+            /** @description Missing `people.read`/`organizations.read` (`permission_denied`, `insufficient_scope`) */
             403: {
                 headers: {
                     [name: string]: unknown;
@@ -47317,7 +45913,7 @@ export interface operations {
             };
         };
         responses: {
-            /** @description Migrates the activities or notes exported by the source tool (steps `activities` and `notes`, up to 5 000 rows per file) right away through the activities and notes use cases (validation, permission, event and audit per row). Each row is linked to the deal (by title), contact (by e-mail or name) and company (by name) already in Aphel, so import companies, contacts and deals first; activity types are matched by name and owners by name or e-mail, done tasks keep their due date as completion. Notes need a linked record. Attachments are not part of the CSV exports and are not migrated. Rows that fail are listed in `report.errors` (first 100). Requires `activities.create` or `notes.create` */
+            /** @description Migrates the activities or notes exported by the source tool (steps `activities` and `notes`, up to 5 000 rows per file) right away through the activities and notes use cases (validation, permission, event and audit per row). Each row is linked to the deal (by title), contact (by e-mail or name) and company (by name) already in Aphel, so import organizations, people and deals first; activity types are matched by name and owners by name or e-mail, done tasks keep their due date as completion. Notes need a linked record. Attachments are not part of the CSV exports and are not migrated. Rows that fail are listed in `report.errors` (first 100). Requires `activities.create` or `notes.create` */
             200: {
                 headers: {
                     [name: string]: unknown;
@@ -47371,7 +45967,7 @@ export interface operations {
                     "application/json": components["schemas"]["ErrorEnvelope"];
                 };
             };
-            /** @description Invalid form, a companies/contacts/deals step (`migration_history_step`), empty or invalid file or more than 5 000 rows (`empty_import`, `invalid_csv`, `too_many_rows`, `too_many_columns`). `Idempotency-Key` already used with a different request (`idempotency_key_reused`) or longer than 255 characters (`validation_error`) */
+            /** @description Invalid form, a organizations/people/deals step (`migration_history_step`), empty or invalid file or more than 5 000 rows (`empty_import`, `invalid_csv`, `too_many_rows`, `too_many_columns`). `Idempotency-Key` already used with a different request (`idempotency_key_reused`) or longer than 255 characters (`validation_error`) */
             422: {
                 headers: {
                     [name: string]: unknown;
@@ -47407,7 +46003,7 @@ export interface operations {
             };
         };
         responses: {
-            /** @description Converts the CSV of the source tool (dates, money, phones, owners, deal status and the `maps` of stages, pipelines and owners), stores it as a draft import (`POST /imports`) and pre-fills its mapping and options (duplicates by the step key, missing companies created by name). Review and start it with the import endpoints (`/imports/{import_id}`). Requires `<type>.create` */
+            /** @description Converts the CSV of the source tool (dates, money, phones, owners, deal status and the `maps` of stages, pipelines and owners), stores it as a draft import (`POST /imports`) and pre-fills its mapping and options (duplicates by the step key, missing organizations created by name). Review and start it with the import endpoints (`/imports/{import_id}`). Requires `<type>.create` */
             201: {
                 headers: {
                     [name: string]: unknown;
@@ -47580,7 +46176,7 @@ export interface operations {
         };
         requestBody?: never;
         responses: {
-            /** @description Supported source CRMs (Pipedrive, HubSpot, RD Station CRM, Agendor), the suggested import order (companies, contacts, deals, then activities and notes, whose `kind` sends them to `/migration-assistant/history`) and the columns recognized in each export, with the Aphel field and the conversion applied. Headers were inferred from public documentation and may vary by account language and version */
+            /** @description Supported source CRMs (Pipedrive, HubSpot, RD Station CRM, Agendor), the suggested import order (organizations, people, deals, then activities and notes, whose `kind` sends them to `/migration-assistant/history`) and the columns recognized in each export, with the Aphel field and the conversion applied. Headers were inferred from public documentation and may vary by account language and version */
             200: {
                 headers: {
                     [name: string]: unknown;
@@ -48096,7 +46692,7 @@ export interface operations {
     notes_list: {
         parameters: {
             query: {
-                /** @example contacts.contact */
+                /** @example people.person */
                 record_type: string;
                 record_id: string;
                 page?: number;
@@ -50818,6 +49414,1410 @@ export interface operations {
             };
         };
     };
+    companies_list: {
+        parameters: {
+            query?: {
+                /** @example {"op":"and","conditions":[{"field":"name","operator":"contains","value":"ana"}]} */
+                filter?: string;
+                /** @example -created_at,name */
+                sort?: string;
+                search?: string;
+                /** @example exclude */
+                archived?: string;
+                /** @example acme */
+                q?: string;
+                /** @example company,owner */
+                include?: string;
+                page?: number;
+                per_page?: number;
+            };
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        requestBody?: never;
+        responses: {
+            /** @description Page of organizations with their custom fields */
+            200: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["Page_CompanyResponse"];
+                };
+            };
+            /** @description Missing or invalid credentials (`unauthorized`, `invalid_api_token`) */
+            401: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["ErrorEnvelope"];
+                };
+            };
+            /** @description Missing `organizations.read` (`permission_denied`, `insufficient_scope`) */
+            403: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["ErrorEnvelope"];
+                };
+            };
+            /** @description Invalid filter, sort, search, include or pagination (`validation_error` with `details.fields`) */
+            422: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["ErrorEnvelope"];
+                };
+            };
+        };
+    };
+    companies_create: {
+        parameters: {
+            query?: never;
+            header?: {
+                /** @description Up to 255 printable ASCII characters. The same key with the same request (method, path and body) within 24 hours answers the stored response with the same status and body plus `Idempotent-Replayed: true`. Scoped to the credential (session cookie or API token); ignored without a credential. 5xx and 429 responses are not stored */
+                "Idempotency-Key"?: string;
+            };
+            path?: never;
+            cookie?: never;
+        };
+        requestBody: {
+            content: {
+                "application/json": components["schemas"]["CompanyRequest"];
+            };
+        };
+        responses: {
+            /** @description Company created */
+            201: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["Data_CompanyResponse"];
+                };
+            };
+            /** @description Missing or invalid credentials (`unauthorized`, `invalid_api_token`) */
+            401: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["ErrorEnvelope"];
+                };
+            };
+            /** @description Missing `organizations.create` (`permission_denied`, `insufficient_scope`) */
+            403: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["ErrorEnvelope"];
+                };
+            };
+            /** @description The first request with this `Idempotency-Key` is still being processed (`idempotency_key_in_progress`) */
+            409: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["ErrorEnvelope"];
+                };
+            };
+            /** @description Invalid system or custom fields (`validation_error`, fields such as `name` or `custom_fields.<key>`). `Idempotency-Key` already used with a different request (`idempotency_key_reused`) or longer than 255 characters (`validation_error`) */
+            422: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["ErrorEnvelope"];
+                };
+            };
+            /** @description API token rate limit exceeded (`rate_limited`); see `Retry-After` and `X-RateLimit-*` */
+            429: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["ErrorEnvelope"];
+                };
+            };
+        };
+    };
+    companies_get: {
+        parameters: {
+            query?: {
+                /** @example company,owner */
+                include?: string;
+            };
+            header?: never;
+            path: {
+                /** @description Company id */
+                company_id: string;
+            };
+            cookie?: never;
+        };
+        requestBody?: never;
+        responses: {
+            /** @description The company */
+            200: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["Data_CompanyResponse"];
+                };
+            };
+            /** @description Missing or invalid credentials (`unauthorized`, `invalid_api_token`) */
+            401: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["ErrorEnvelope"];
+                };
+            };
+            /** @description Missing `organizations.read` (`permission_denied`, `insufficient_scope`) */
+            403: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["ErrorEnvelope"];
+                };
+            };
+            /** @description Company not found or not visible (`company_not_found`) */
+            404: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["ErrorEnvelope"];
+                };
+            };
+            /** @description Unknown relationship in `include` (`validation_error`) */
+            422: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["ErrorEnvelope"];
+                };
+            };
+            /** @description API token rate limit exceeded (`rate_limited`); see `Retry-After` and `X-RateLimit-*` */
+            429: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["ErrorEnvelope"];
+                };
+            };
+        };
+    };
+    companies_delete: {
+        parameters: {
+            query?: never;
+            header?: never;
+            path: {
+                /** @description Company id */
+                company_id: string;
+            };
+            cookie?: never;
+        };
+        requestBody?: never;
+        responses: {
+            /** @description Company moved to the trash (soft delete); publishes `company.deleted`. Restore it through `POST /trash/company/{id}/restore` */
+            204: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content?: never;
+            };
+            /** @description Missing or invalid credentials (`unauthorized`, `invalid_api_token`) */
+            401: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["ErrorEnvelope"];
+                };
+            };
+            /** @description Missing `organizations.delete` for this company (`permission_denied`, `insufficient_scope`) */
+            403: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["ErrorEnvelope"];
+                };
+            };
+            /** @description Company not found or not visible (`company_not_found`) */
+            404: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["ErrorEnvelope"];
+                };
+            };
+            /** @description API token rate limit exceeded (`rate_limited`); see `Retry-After` and `X-RateLimit-*` */
+            429: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["ErrorEnvelope"];
+                };
+            };
+        };
+    };
+    companies_update: {
+        parameters: {
+            query?: never;
+            header?: {
+                /** @description `updated_at` of the company as read (ISO-8601, quotes optional); the update fails with 409 when it changed since */
+                "If-Match"?: string | null;
+            };
+            path: {
+                /** @description Company id */
+                company_id: string;
+            };
+            cookie?: never;
+        };
+        requestBody: {
+            content: {
+                "application/json": components["schemas"]["CompanyRequest"];
+            };
+        };
+        responses: {
+            /** @description Company updated */
+            200: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["Data_CompanyResponse"];
+                };
+            };
+            /** @description Missing or invalid credentials (`unauthorized`, `invalid_api_token`) */
+            401: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["ErrorEnvelope"];
+                };
+            };
+            /** @description Missing `organizations.update` for this company (`permission_denied`, `insufficient_scope`) */
+            403: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["ErrorEnvelope"];
+                };
+            };
+            /** @description Company not found or not visible (`company_not_found`) */
+            404: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["ErrorEnvelope"];
+                };
+            };
+            /** @description The company changed since the `If-Match` version (`version_conflict`) */
+            409: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["ErrorEnvelope"];
+                };
+            };
+            /** @description Invalid system or custom fields or malformed `If-Match` (`validation_error`) */
+            422: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["ErrorEnvelope"];
+                };
+            };
+            /** @description API token rate limit exceeded (`rate_limited`); see `Retry-After` and `X-RateLimit-*` */
+            429: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["ErrorEnvelope"];
+                };
+            };
+        };
+    };
+    companies_archive: {
+        parameters: {
+            query?: never;
+            header?: {
+                /** @description Up to 255 printable ASCII characters. The same key with the same request (method, path and body) within 24 hours answers the stored response with the same status and body plus `Idempotent-Replayed: true`. Scoped to the credential (session cookie or API token); ignored without a credential. 5xx and 429 responses are not stored */
+                "Idempotency-Key"?: string;
+            };
+            path: {
+                /** @description Company id */
+                company_id: string;
+            };
+            cookie?: never;
+        };
+        requestBody?: never;
+        responses: {
+            /** @description Company archived (hidden from listings unless `archived=include|only`); publishes `company.archived` */
+            200: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["Data_CompanyResponse"];
+                };
+            };
+            /** @description Missing or invalid credentials (`unauthorized`, `invalid_api_token`) */
+            401: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["ErrorEnvelope"];
+                };
+            };
+            /** @description Missing `organizations.update` for this company (`permission_denied`, `insufficient_scope`) */
+            403: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["ErrorEnvelope"];
+                };
+            };
+            /** @description Company not found or not visible (`company_not_found`) */
+            404: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["ErrorEnvelope"];
+                };
+            };
+            /** @description The first request with this `Idempotency-Key` is still being processed (`idempotency_key_in_progress`) */
+            409: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["ErrorEnvelope"];
+                };
+            };
+            /** @description `Idempotency-Key` already used with a different request (`idempotency_key_reused`) or longer than 255 characters (`validation_error`) */
+            422: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["ErrorEnvelope"];
+                };
+            };
+            /** @description API token rate limit exceeded (`rate_limited`); see `Retry-After` and `X-RateLimit-*` */
+            429: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["ErrorEnvelope"];
+                };
+            };
+        };
+    };
+    companies_group_totals: {
+        parameters: {
+            query?: never;
+            header?: never;
+            path: {
+                /** @description Company id */
+                company_id: string;
+            };
+            cookie?: never;
+        };
+        requestBody?: never;
+        responses: {
+            /** @description Totals of the group */
+            200: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["Data_CompanyGroupTotalsResponse"];
+                };
+            };
+            /** @description Missing or invalid credentials (`unauthorized`, `invalid_api_token`) */
+            401: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["ErrorEnvelope"];
+                };
+            };
+            /** @description Missing `organizations.read` (`permission_denied`, `insufficient_scope`) */
+            403: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["ErrorEnvelope"];
+                };
+            };
+            /** @description Company not found or not visible (`company_not_found`) */
+            404: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["ErrorEnvelope"];
+                };
+            };
+            /** @description API token rate limit exceeded (`rate_limited`); see `Retry-After` and `X-RateLimit-*` */
+            429: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["ErrorEnvelope"];
+                };
+            };
+        };
+    };
+    companies_hierarchy: {
+        parameters: {
+            query?: never;
+            header?: never;
+            path: {
+                /** @description Company id */
+                company_id: string;
+            };
+            cookie?: never;
+        };
+        requestBody?: never;
+        responses: {
+            /** @description Company group */
+            200: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["Data_CompanyHierarchyResponse"];
+                };
+            };
+            /** @description Missing or invalid credentials (`unauthorized`, `invalid_api_token`) */
+            401: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["ErrorEnvelope"];
+                };
+            };
+            /** @description Missing `organizations.read` (`permission_denied`, `insufficient_scope`) */
+            403: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["ErrorEnvelope"];
+                };
+            };
+            /** @description Company not found or not visible (`company_not_found`) */
+            404: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["ErrorEnvelope"];
+                };
+            };
+            /** @description API token rate limit exceeded (`rate_limited`); see `Retry-After` and `X-RateLimit-*` */
+            429: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["ErrorEnvelope"];
+                };
+            };
+        };
+    };
+    companies_list_contacts: {
+        parameters: {
+            query?: {
+                page?: number;
+                per_page?: number;
+            };
+            header?: never;
+            path: {
+                /** @description Company id */
+                company_id: string;
+            };
+            cookie?: never;
+        };
+        requestBody?: never;
+        responses: {
+            /** @description Contacts of the company the user can read: those whose primary company it is first, then the additional links */
+            200: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["Page_CompanyContactResponse"];
+                };
+            };
+            /** @description Missing or invalid credentials (`unauthorized`, `invalid_api_token`) */
+            401: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["ErrorEnvelope"];
+                };
+            };
+            /** @description Missing `organizations.read` or `people.read` (`permission_denied`, `insufficient_scope`) */
+            403: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["ErrorEnvelope"];
+                };
+            };
+            /** @description Company not found or not visible (`company_not_found`) */
+            404: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["ErrorEnvelope"];
+                };
+            };
+            /** @description Invalid pagination (`validation_error`) */
+            422: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["ErrorEnvelope"];
+                };
+            };
+            /** @description API token rate limit exceeded (`rate_limited`); see `Retry-After` and `X-RateLimit-*` */
+            429: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["ErrorEnvelope"];
+                };
+            };
+        };
+    };
+    companies_unarchive: {
+        parameters: {
+            query?: never;
+            header?: {
+                /** @description Up to 255 printable ASCII characters. The same key with the same request (method, path and body) within 24 hours answers the stored response with the same status and body plus `Idempotent-Replayed: true`. Scoped to the credential (session cookie or API token); ignored without a credential. 5xx and 429 responses are not stored */
+                "Idempotency-Key"?: string;
+            };
+            path: {
+                /** @description Company id */
+                company_id: string;
+            };
+            cookie?: never;
+        };
+        requestBody?: never;
+        responses: {
+            /** @description Company restored from the archive; publishes `company.unarchived` */
+            200: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["Data_CompanyResponse"];
+                };
+            };
+            /** @description Missing or invalid credentials (`unauthorized`, `invalid_api_token`) */
+            401: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["ErrorEnvelope"];
+                };
+            };
+            /** @description Missing `organizations.update` for this company (`permission_denied`, `insufficient_scope`) */
+            403: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["ErrorEnvelope"];
+                };
+            };
+            /** @description Company not found or not visible (`company_not_found`) */
+            404: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["ErrorEnvelope"];
+                };
+            };
+            /** @description The first request with this `Idempotency-Key` is still being processed (`idempotency_key_in_progress`) */
+            409: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["ErrorEnvelope"];
+                };
+            };
+            /** @description `Idempotency-Key` already used with a different request (`idempotency_key_reused`) or longer than 255 characters (`validation_error`) */
+            422: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["ErrorEnvelope"];
+                };
+            };
+            /** @description API token rate limit exceeded (`rate_limited`); see `Retry-After` and `X-RateLimit-*` */
+            429: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["ErrorEnvelope"];
+                };
+            };
+        };
+    };
+    contacts_list: {
+        parameters: {
+            query?: {
+                /** @example {"op":"and","conditions":[{"field":"name","operator":"contains","value":"ana"}]} */
+                filter?: string;
+                /** @example -created_at,name */
+                sort?: string;
+                search?: string;
+                /** @example exclude */
+                archived?: string;
+                /** @example acme */
+                q?: string;
+                /** @example company,owner */
+                include?: string;
+                page?: number;
+                per_page?: number;
+            };
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        requestBody?: never;
+        responses: {
+            /** @description Page of people with their custom fields */
+            200: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["Page_ContactResponse"];
+                };
+            };
+            /** @description Missing or invalid credentials (`unauthorized`, `invalid_api_token`) */
+            401: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["ErrorEnvelope"];
+                };
+            };
+            /** @description Missing `people.read` (`permission_denied`, `insufficient_scope`) */
+            403: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["ErrorEnvelope"];
+                };
+            };
+            /** @description Invalid filter, sort, search, include or pagination (`validation_error` with `details.fields`) */
+            422: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["ErrorEnvelope"];
+                };
+            };
+        };
+    };
+    contacts_create: {
+        parameters: {
+            query?: never;
+            header?: {
+                /** @description Up to 255 printable ASCII characters. The same key with the same request (method, path and body) within 24 hours answers the stored response with the same status and body plus `Idempotent-Replayed: true`. Scoped to the credential (session cookie or API token); ignored without a credential. 5xx and 429 responses are not stored */
+                "Idempotency-Key"?: string;
+            };
+            path?: never;
+            cookie?: never;
+        };
+        requestBody: {
+            content: {
+                "application/json": components["schemas"]["ContactRequest"];
+            };
+        };
+        responses: {
+            /** @description Contact created */
+            201: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["Data_ContactResponse"];
+                };
+            };
+            /** @description Missing or invalid credentials (`unauthorized`, `invalid_api_token`) */
+            401: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["ErrorEnvelope"];
+                };
+            };
+            /** @description Missing `people.create` (`permission_denied`, `insufficient_scope`) */
+            403: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["ErrorEnvelope"];
+                };
+            };
+            /** @description The first request with this `Idempotency-Key` is still being processed (`idempotency_key_in_progress`) */
+            409: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["ErrorEnvelope"];
+                };
+            };
+            /** @description Invalid system or custom fields (`validation_error`, fields such as `email` or `custom_fields.<key>`). `Idempotency-Key` already used with a different request (`idempotency_key_reused`) or longer than 255 characters (`validation_error`) */
+            422: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["ErrorEnvelope"];
+                };
+            };
+        };
+    };
+    contacts_get: {
+        parameters: {
+            query?: {
+                /** @example company,owner */
+                include?: string;
+            };
+            header?: never;
+            path: {
+                /** @description Contact id */
+                contact_id: string;
+            };
+            cookie?: never;
+        };
+        requestBody?: never;
+        responses: {
+            /** @description The contact */
+            200: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["Data_ContactResponse"];
+                };
+            };
+            /** @description Missing or invalid credentials (`unauthorized`, `invalid_api_token`) */
+            401: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["ErrorEnvelope"];
+                };
+            };
+            /** @description Missing `people.read` (`permission_denied`, `insufficient_scope`) */
+            403: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["ErrorEnvelope"];
+                };
+            };
+            /** @description Contact not found or not visible (`contact_not_found`) */
+            404: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["ErrorEnvelope"];
+                };
+            };
+            /** @description Unknown relationship in `include` (`validation_error`) */
+            422: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["ErrorEnvelope"];
+                };
+            };
+            /** @description API token rate limit exceeded (`rate_limited`); see `Retry-After` and `X-RateLimit-*` */
+            429: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["ErrorEnvelope"];
+                };
+            };
+        };
+    };
+    contacts_delete: {
+        parameters: {
+            query?: never;
+            header?: never;
+            path: {
+                /** @description Contact id */
+                contact_id: string;
+            };
+            cookie?: never;
+        };
+        requestBody?: never;
+        responses: {
+            /** @description Contact moved to the trash (soft delete); publishes `contact.deleted`. Restore it through `POST /trash/contact/{id}/restore` */
+            204: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content?: never;
+            };
+            /** @description Missing or invalid credentials (`unauthorized`, `invalid_api_token`) */
+            401: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["ErrorEnvelope"];
+                };
+            };
+            /** @description Missing `people.delete` for this contact (`permission_denied`, `insufficient_scope`) */
+            403: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["ErrorEnvelope"];
+                };
+            };
+            /** @description Contact not found or not visible (`contact_not_found`) */
+            404: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["ErrorEnvelope"];
+                };
+            };
+            /** @description API token rate limit exceeded (`rate_limited`); see `Retry-After` and `X-RateLimit-*` */
+            429: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["ErrorEnvelope"];
+                };
+            };
+        };
+    };
+    contacts_update: {
+        parameters: {
+            query?: never;
+            header?: {
+                /** @description `updated_at` of the contact as read (ISO-8601, quotes optional); the update fails with 409 when it changed since */
+                "If-Match"?: string | null;
+            };
+            path: {
+                /** @description Contact id */
+                contact_id: string;
+            };
+            cookie?: never;
+        };
+        requestBody: {
+            content: {
+                "application/json": components["schemas"]["ContactRequest"];
+            };
+        };
+        responses: {
+            /** @description Contact updated */
+            200: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["Data_ContactResponse"];
+                };
+            };
+            /** @description Missing or invalid credentials (`unauthorized`, `invalid_api_token`) */
+            401: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["ErrorEnvelope"];
+                };
+            };
+            /** @description Missing `people.update` for this contact (`permission_denied`, `insufficient_scope`) */
+            403: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["ErrorEnvelope"];
+                };
+            };
+            /** @description Contact not found or not visible (`contact_not_found`) */
+            404: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["ErrorEnvelope"];
+                };
+            };
+            /** @description The contact changed since the `If-Match` version (`version_conflict`) */
+            409: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["ErrorEnvelope"];
+                };
+            };
+            /** @description Invalid system or custom fields or malformed `If-Match` (`validation_error`) */
+            422: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["ErrorEnvelope"];
+                };
+            };
+            /** @description API token rate limit exceeded (`rate_limited`); see `Retry-After` and `X-RateLimit-*` */
+            429: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["ErrorEnvelope"];
+                };
+            };
+        };
+    };
+    contacts_archive: {
+        parameters: {
+            query?: never;
+            header?: {
+                /** @description Up to 255 printable ASCII characters. The same key with the same request (method, path and body) within 24 hours answers the stored response with the same status and body plus `Idempotent-Replayed: true`. Scoped to the credential (session cookie or API token); ignored without a credential. 5xx and 429 responses are not stored */
+                "Idempotency-Key"?: string;
+            };
+            path: {
+                /** @description Contact id */
+                contact_id: string;
+            };
+            cookie?: never;
+        };
+        requestBody?: never;
+        responses: {
+            /** @description Contact archived (hidden from listings unless `archived=include|only`); publishes `contact.archived` */
+            200: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["Data_ContactResponse"];
+                };
+            };
+            /** @description Missing or invalid credentials (`unauthorized`, `invalid_api_token`) */
+            401: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["ErrorEnvelope"];
+                };
+            };
+            /** @description Missing `people.update` for this contact (`permission_denied`, `insufficient_scope`) */
+            403: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["ErrorEnvelope"];
+                };
+            };
+            /** @description Contact not found or not visible (`contact_not_found`) */
+            404: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["ErrorEnvelope"];
+                };
+            };
+            /** @description The first request with this `Idempotency-Key` is still being processed (`idempotency_key_in_progress`) */
+            409: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["ErrorEnvelope"];
+                };
+            };
+            /** @description `Idempotency-Key` already used with a different request (`idempotency_key_reused`) or longer than 255 characters (`validation_error`) */
+            422: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["ErrorEnvelope"];
+                };
+            };
+            /** @description API token rate limit exceeded (`rate_limited`); see `Retry-After` and `X-RateLimit-*` */
+            429: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["ErrorEnvelope"];
+                };
+            };
+        };
+    };
+    contacts_list_companies: {
+        parameters: {
+            query?: {
+                page?: number;
+                per_page?: number;
+            };
+            header?: never;
+            path: {
+                /** @description Contact id */
+                contact_id: string;
+            };
+            cookie?: never;
+        };
+        requestBody?: never;
+        responses: {
+            /** @description Companies of the contact: the primary one (`people.company_id`) first, then the additional links with their roles. Only organizations the user can read are listed */
+            200: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["Page_ContactCompanyLinkResponse"];
+                };
+            };
+            /** @description Missing or invalid credentials (`unauthorized`, `invalid_api_token`) */
+            401: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["ErrorEnvelope"];
+                };
+            };
+            /** @description Missing `people.read` (`permission_denied`, `insufficient_scope`) */
+            403: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["ErrorEnvelope"];
+                };
+            };
+            /** @description Contact not found or not visible (`contact_not_found`) */
+            404: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["ErrorEnvelope"];
+                };
+            };
+            /** @description Invalid pagination (`validation_error`) */
+            422: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["ErrorEnvelope"];
+                };
+            };
+            /** @description API token rate limit exceeded (`rate_limited`); see `Retry-After` and `X-RateLimit-*` */
+            429: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["ErrorEnvelope"];
+                };
+            };
+        };
+    };
+    contacts_link_company: {
+        parameters: {
+            query?: never;
+            header?: {
+                /** @description Up to 255 printable ASCII characters. The same key with the same request (method, path and body) within 24 hours answers the stored response with the same status and body plus `Idempotent-Replayed: true`. Scoped to the credential (session cookie or API token); ignored without a credential. 5xx and 429 responses are not stored */
+                "Idempotency-Key"?: string;
+            };
+            path: {
+                /** @description Contact id */
+                contact_id: string;
+            };
+            cookie?: never;
+        };
+        requestBody: {
+            content: {
+                "application/json": components["schemas"]["LinkCompanyRequest"];
+            };
+        };
+        responses: {
+            /** @description Additional company linked to the contact; publishes `contact.company_linked` */
+            201: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["Data_ContactCompanyLinkResponse"];
+                };
+            };
+            /** @description Missing or invalid credentials (`unauthorized`, `invalid_api_token`) */
+            401: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["ErrorEnvelope"];
+                };
+            };
+            /** @description Missing `people.update` for this contact (`permission_denied`, `insufficient_scope`) */
+            403: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["ErrorEnvelope"];
+                };
+            };
+            /** @description Contact not found or not visible (`contact_not_found`) */
+            404: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["ErrorEnvelope"];
+                };
+            };
+            /** @description The company is already linked or is the primary company (`already_linked`). The first request with this `Idempotency-Key` is still being processed (`idempotency_key_in_progress`) */
+            409: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["ErrorEnvelope"];
+                };
+            };
+            /** @description Unknown or invisible company, or invalid role (`validation_error`). `Idempotency-Key` already used with a different request (`idempotency_key_reused`) or longer than 255 characters (`validation_error`) */
+            422: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["ErrorEnvelope"];
+                };
+            };
+            /** @description API token rate limit exceeded (`rate_limited`); see `Retry-After` and `X-RateLimit-*` */
+            429: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["ErrorEnvelope"];
+                };
+            };
+        };
+    };
+    contacts_unlink_company: {
+        parameters: {
+            query?: never;
+            header?: never;
+            path: {
+                /** @description Contact id */
+                contact_id: string;
+                /** @description Company id */
+                company_id: string;
+            };
+            cookie?: never;
+        };
+        requestBody?: never;
+        responses: {
+            /** @description Additional link removed (the primary company is changed through `company_id`); publishes `contact.company_unlinked` */
+            204: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content?: never;
+            };
+            /** @description Missing or invalid credentials (`unauthorized`, `invalid_api_token`) */
+            401: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["ErrorEnvelope"];
+                };
+            };
+            /** @description Missing `people.update` for this contact (`permission_denied`, `insufficient_scope`) */
+            403: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["ErrorEnvelope"];
+                };
+            };
+            /** @description Contact not found (`contact_not_found`) or not linked (`link_not_found`) */
+            404: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["ErrorEnvelope"];
+                };
+            };
+            /** @description API token rate limit exceeded (`rate_limited`); see `Retry-After` and `X-RateLimit-*` */
+            429: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["ErrorEnvelope"];
+                };
+            };
+        };
+    };
+    contacts_unarchive: {
+        parameters: {
+            query?: never;
+            header?: {
+                /** @description Up to 255 printable ASCII characters. The same key with the same request (method, path and body) within 24 hours answers the stored response with the same status and body plus `Idempotent-Replayed: true`. Scoped to the credential (session cookie or API token); ignored without a credential. 5xx and 429 responses are not stored */
+                "Idempotency-Key"?: string;
+            };
+            path: {
+                /** @description Contact id */
+                contact_id: string;
+            };
+            cookie?: never;
+        };
+        requestBody?: never;
+        responses: {
+            /** @description Contact restored from the archive; publishes `contact.unarchived` */
+            200: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["Data_ContactResponse"];
+                };
+            };
+            /** @description Missing or invalid credentials (`unauthorized`, `invalid_api_token`) */
+            401: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["ErrorEnvelope"];
+                };
+            };
+            /** @description Missing `people.update` for this contact (`permission_denied`, `insufficient_scope`) */
+            403: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["ErrorEnvelope"];
+                };
+            };
+            /** @description Contact not found or not visible (`contact_not_found`) */
+            404: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["ErrorEnvelope"];
+                };
+            };
+            /** @description The first request with this `Idempotency-Key` is still being processed (`idempotency_key_in_progress`) */
+            409: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["ErrorEnvelope"];
+                };
+            };
+            /** @description `Idempotency-Key` already used with a different request (`idempotency_key_reused`) or longer than 255 characters (`validation_error`) */
+            422: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["ErrorEnvelope"];
+                };
+            };
+            /** @description API token rate limit exceeded (`rate_limited`); see `Retry-After` and `X-RateLimit-*` */
+            429: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["ErrorEnvelope"];
+                };
+            };
+        };
+    };
     permissions_list: {
         parameters: {
             query?: never;
@@ -53350,7 +53350,7 @@ export interface operations {
             };
         };
         responses: {
-            /** @description Price list created (`price_list.created`). `currency` defaults to the organization currency and must be enabled; `applies_to` is `all` (default), `segment` (with a company `segment_id`) or `companies` (with `company_ids`); `valid_from`/`valid_to` (inclusive, optional) bound when it is in effect. Marking `is_default` (only for `all`) replaces the previous default of the currency. `key` is generated from the name when omitted */
+            /** @description Price list created (`price_list.created`). `currency` defaults to the organization currency and must be enabled; `applies_to` is `all` (default), `segment` (with a company `segment_id`) or `organizations` (with `company_ids`); `valid_from`/`valid_to` (inclusive, optional) bound when it is in effect. Marking `is_default` (only for `all`) replaces the previous default of the currency. `key` is generated from the name when omitted */
             201: {
                 headers: {
                     [name: string]: unknown;
@@ -54223,7 +54223,7 @@ export interface operations {
             };
         };
         responses: {
-            /** @description Policy created disabled (`retention_policy.created`). Actions: `archive_inactive` (contacts, companies or deals without updates, activities or notes for N days), `purge_archived` (deletes for good records archived N days ago, with their files), `purge_audit_logs`, `purge_security_events`, `purge_domain_events` (dispatched events; the timeline loses that history) and `purge_orphan_files` (files no longer referenced, also removed from the storage). The trash keeps its own retention (`trash.purge`) */
+            /** @description Policy created disabled (`retention_policy.created`). Actions: `archive_inactive` (people, organizations or deals without updates, activities or notes for N days), `purge_archived` (deletes for good records archived N days ago, with their files), `purge_audit_logs`, `purge_security_events`, `purge_domain_events` (dispatched events; the timeline loses that history) and `purge_orphan_files` (files no longer referenced, also removed from the storage). The trash keeps its own retention (`trash.purge`) */
             201: {
                 headers: {
                     [name: string]: unknown;
@@ -58314,7 +58314,7 @@ export interface operations {
     record_tags_lookup: {
         parameters: {
             query: {
-                /** @example contacts.contact */
+                /** @example people.person */
                 record_type: string;
                 /** @example 0190f1a2-0000-7000-8000-000000000001,0190f1a2-0000-7000-8000-000000000002 */
                 ids?: string;
@@ -62865,7 +62865,7 @@ export interface operations {
     segments_list: {
         parameters: {
             query?: {
-                /** @example contacts.contact */
+                /** @example people.person */
                 record_type?: string;
                 counts?: boolean;
                 page?: number;
@@ -64503,7 +64503,7 @@ export interface operations {
     tags_list: {
         parameters: {
             query?: {
-                /** @example contacts.contact */
+                /** @example people.person */
                 record_type?: string;
                 page?: number;
                 per_page?: number;
@@ -64568,7 +64568,7 @@ export interface operations {
             };
         };
         responses: {
-            /** @description Tag created (`tag.created`). Empty `record_types` means the tag can be used on contacts, companies and deals */
+            /** @description Tag created (`tag.created`). Empty `record_types` means the tag can be used on people, organizations and deals */
             201: {
                 headers: {
                     [name: string]: unknown;
@@ -65618,7 +65618,7 @@ export interface operations {
     timeline_list: {
         parameters: {
             query: {
-                /** @example companies.company */
+                /** @example organizations.organization */
                 record_type: string;
                 record_id: string;
                 cursor?: string;
@@ -65633,7 +65633,7 @@ export interface operations {
         };
         requestBody?: never;
         responses: {
-            /** @description Activities (main link or additional links), visible notes and domain events of the record, newest first; for a company also the events of its contacts and deals. `kinds` is a comma separated list of activity, note, deal_stage, deal_change, record_change, attachment and event. Answers `{ data, meta: { next_cursor } }`: pass `meta.next_cursor` back as `cursor` for the next page (null on the last one) */
+            /** @description Activities (main link or additional links), visible notes and domain events of the record, newest first; for a company also the events of its people and deals. `kinds` is a comma separated list of activity, note, deal_stage, deal_change, record_change, attachment and event. Answers `{ data, meta: { next_cursor } }`: pass `meta.next_cursor` back as `cursor` for the next page (null on the last one) */
             200: {
                 headers: {
                     [name: string]: unknown;
@@ -65683,7 +65683,7 @@ export interface operations {
     trash_list: {
         parameters: {
             query?: {
-                /** @example contacts.contact */
+                /** @example people.person */
                 record_type?: string;
                 search?: string;
                 page?: number;
@@ -65695,7 +65695,7 @@ export interface operations {
         };
         requestBody?: never;
         responses: {
-            /** @description Deleted records of every type with a trash (soft-deleted types with a title: contacts, companies, deals, products, activities, quotes, custom objects…), most recently deleted first, with the date they will be purged. Only records the user could read (read scope of each type: own, team or organization, plus shares) are listed; types the user cannot read are left out. Records merged into another one are not listed */
+            /** @description Deleted records of every type with a trash (soft-deleted types with a title: people, organizations, deals, products, activities, quotes, custom objects…), most recently deleted first, with the date they will be purged. Only records the user could read (read scope of each type: own, team or organization, plus shares) are listed; types the user cannot read are left out. Records merged into another one are not listed */
             200: {
                 headers: {
                     [name: string]: unknown;

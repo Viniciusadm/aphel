@@ -6,7 +6,7 @@ export interface ReportsTab {
   anyPermission: string[]
 }
 
-export const RECORD_READ_PERMISSIONS = ['contacts.read', 'companies.read', 'deals.read', 'activities.read']
+export const RECORD_READ_PERMISSIONS = ['people.read', 'organizations.read', 'deals.read', 'activities.read']
 
 export const REPORTS_TABS: ReportsTab[] = [
   { path: 'conversion', labelKey: 'tabs.conversion', anyPermission: ['deals.read'] },

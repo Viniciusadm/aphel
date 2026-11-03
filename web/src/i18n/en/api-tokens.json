@@ -47,8 +47,8 @@
     "write": "Write"
   },
   "resources": {
-    "contacts": "Contacts",
-    "companies": "Companies",
+    "people": "Contacts",
+    "organizations": "Companies",
     "deals": "Deals",
     "activities": "Activities",
     "notes": "Notes",

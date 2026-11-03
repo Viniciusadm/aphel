@@ -37,8 +37,8 @@ const DEAL_SELECT: &str = "SELECT r.id, r.owner_id, r.pipeline_id, r.stage_id, r
      lr.name AS lost_reason_name \
      FROM deals r \
      JOIN pipeline_stages s ON s.id = r.stage_id \
-     LEFT JOIN contacts c ON c.id = r.contact_id AND c.deleted_at IS NULL \
-     LEFT JOIN companies co ON co.id = r.company_id AND co.deleted_at IS NULL \
+     LEFT JOIN people c ON c.id = r.contact_id AND c.deleted_at IS NULL \
+     LEFT JOIN organizations co ON co.id = r.company_id AND co.deleted_at IS NULL \
      LEFT JOIN users u ON u.id = r.owner_id \
      LEFT JOIN lost_reasons lr ON lr.id = r.lost_reason_id \
      WHERE r.deleted_at IS NULL";
@@ -281,8 +281,9 @@ impl DealStore {
             sqlx::query_scalar("SELECT currency FROM organization_settings WHERE id = 1")
                 .fetch_optional(&self.pool)
                 .await?;
-        Ok(currency
-            .unwrap_or_else(|| aphel_kernel::domain::organizations::DEFAULT_CURRENCY.to_owned()))
+        Ok(currency.unwrap_or_else(|| {
+            aphel_kernel::domain::organization_profile::DEFAULT_CURRENCY.to_owned()
+        }))
     }
 
     pub(crate) async fn contact_name(
@@ -291,12 +292,10 @@ impl DealStore {
         contact_id: Uuid,
     ) -> Result<Option<String>, AppError> {
         Ok(
-            sqlx::query_scalar(
-                "SELECT full_name FROM contacts WHERE id = ? AND deleted_at IS NULL",
-            )
-            .bind(contact_id.to_string())
-            .fetch_optional(&mut **tx)
-            .await?,
+            sqlx::query_scalar("SELECT full_name FROM people WHERE id = ? AND deleted_at IS NULL")
+                .bind(contact_id.to_string())
+                .fetch_optional(&mut **tx)
+                .await?,
         )
     }
 
@@ -306,10 +305,12 @@ impl DealStore {
         company_id: Uuid,
     ) -> Result<Option<String>, AppError> {
         Ok(
-            sqlx::query_scalar("SELECT name FROM companies WHERE id = ? AND deleted_at IS NULL")
-                .bind(company_id.to_string())
-                .fetch_optional(&mut **tx)
-                .await?,
+            sqlx::query_scalar(
+                "SELECT name FROM organizations WHERE id = ? AND deleted_at IS NULL",
+            )
+            .bind(company_id.to_string())
+            .fetch_optional(&mut **tx)
+            .await?,
         )
     }
 

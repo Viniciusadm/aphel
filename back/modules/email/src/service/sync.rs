@@ -38,10 +38,10 @@ use aphel_kernel::database::transaction::MySqlTx;
 use aphel_kernel::domain::UserId;
 use aphel_kernel::errors::AppError;
 use aphel_kernel::infrastructure::repositories::mysql_access::MySqlAccessRepository;
-use companies::domain::{CompanyInput, SaveCompanyCommand};
-use contacts::domain::{ContactInput, SaveContactCommand};
 use leads::domain::{LEAD_STAGE, LIFECYCLE_STAGE_FIELD};
 use leads::store::LeadRecords;
+use organizations::domain::{CompanyInput, SaveCompanyCommand};
+use people::domain::{ContactInput, SaveContactCommand};
 
 const MAX_BACKOFF_MINUTES: i64 = 360;
 const BODY_FILE_NAME: &str = "message.json";
@@ -390,19 +390,19 @@ async fn import(
         email.auto_submitted.as_deref(),
     );
     let external: Vec<String> = external.into_iter().collect();
-    let mut contacts: BTreeMap<String, Uuid> = BTreeMap::new();
+    let mut people: BTreeMap<String, Uuid> = BTreeMap::new();
     for found in directory.contacts_by_address(&external).await? {
-        contacts.entry(found.address).or_insert(found.contact_id);
+        people.entry(found.address).or_insert(found.contact_id);
     }
     let mut captured: Vec<(String, Uuid)> = Vec::new();
     if context.capture.create_contacts && kind == EmailKind::Message {
         for (address, name) in capture_candidates(&participants, direction, &external) {
-            if contacts.contains_key(&address) {
+            if people.contains_key(&address) {
                 continue;
             }
             match capture_contact(ctx, mailbox, &context.capture, &address, name, direction).await {
                 Ok(Some(contact_id)) => {
-                    contacts.insert(address.clone(), contact_id);
+                    people.insert(address.clone(), contact_id);
                     captured.push((address, contact_id));
                 }
                 Ok(None) => {}
@@ -414,7 +414,7 @@ async fn import(
         }
     }
     for participant in &mut participants {
-        participant.contact_id = contacts.get(&participant.address).copied();
+        participant.contact_id = people.get(&participant.address).copied();
     }
 
     let thread_lookup: Vec<String> = header_id(email.in_reply_to.as_deref())
@@ -441,7 +441,7 @@ async fn import(
         }
         None => (Uuid::now_v7(), mailbox.default_visibility, Vec::new()),
     };
-    let contact_ids: Vec<Uuid> = contacts
+    let contact_ids: Vec<Uuid> = people
         .values()
         .copied()
         .collect::<BTreeSet<_>>()
@@ -603,7 +603,7 @@ async fn import(
     for record in &new_links {
         link(&links, &mut tx, thread_id, record, now).await?;
     }
-    for (address, contact_id) in &contacts {
+    for (address, contact_id) in &people {
         emails
             .set_participant_contact(&mut tx, thread_id, address, Some(*contact_id))
             .await?;
@@ -787,7 +787,7 @@ async fn create_contact(
     if lead_stage_active(ctx).await? {
         input = input.contributed(LIFECYCLE_STAGE_FIELD, json!(LEAD_STAGE));
     }
-    let created = contacts::service::create(
+    let created = people::service::create(
         ctx,
         SaveContactCommand {
             input,
@@ -808,7 +808,7 @@ async fn lead_stage_active(ctx: &Ctx<'_>) -> Result<bool, AppError> {
 }
 
 async fn create_company(ctx: &Ctx<'_>, name: &str, domain: &str) -> Result<Uuid, AppError> {
-    let created = companies::service::create(
+    let created = organizations::service::create(
         ctx,
         SaveCompanyCommand {
             input: CompanyInput {

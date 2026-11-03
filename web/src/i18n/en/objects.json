@@ -4,11 +4,11 @@
     "contact": "Contact",
     "deal": "Deal",
     "product": "Product",
-    "contacts": {
-      "contact": "Contact"
+    "people": {
+      "person": "Contact"
     },
-    "companies": {
-      "company": "Company"
+    "organizations": {
+      "organization": "Company"
     },
     "deals": {
       "deal": "Deal"
@@ -22,11 +22,11 @@
     "contact": "Contacts",
     "deal": "Deals",
     "product": "Products",
-    "contacts": {
-      "contact": "Contacts"
+    "people": {
+      "person": "Contacts"
     },
-    "companies": {
-      "company": "Companies"
+    "organizations": {
+      "organization": "Companies"
     },
     "deals": {
       "deal": "Deals"
@@ -134,7 +134,7 @@
   },
   "relationships": {
     "title": "Relationships",
-    "description": "Link this object to companies, contacts, deals, products or other objects.",
+    "description": "Link this object to organizations, people, deals, products or other objects.",
     "new": "New relationship",
     "loadError": "Could not load relationships.",
     "empty": "No relationships configured for this object.",

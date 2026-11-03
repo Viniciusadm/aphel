@@ -10,7 +10,7 @@ publish = false
 aphel-contract-crm.workspace = true
 aphel-kernel.workspace = true
 activities = { package = "aphel-mod-activities", path = "../activities" }
-contacts = { package = "aphel-mod-contacts", path = "../contacts" }
+people = { package = "aphel-mod-people", path = "../people" }
 deals = { package = "aphel-mod-deals", path = "../deals" }
 notes = { package = "aphel-mod-notes", path = "../notes" }
 axum.workspace = true

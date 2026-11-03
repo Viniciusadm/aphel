@@ -69,7 +69,7 @@ async fn list_duplicates(
     operation_id = "duplicates_types",
     security(("session_cookie" = [])),
     responses(
-        (status = 200, description = "Record types with duplicate detection that the user can read: contacts, companies and every type that declares identifier columns (`label_aliases`, e.g. products by code) or is a custom object. Each comes with its rules (`identifier` and `name` for generic types), the system fields the merge screen may offer (fields hidden from the user are left out) and the permissions needed to merge", body = Data<Vec<DuplicateTypeResponse>>),
+        (status = 200, description = "Record types with duplicate detection that the user can read: people, organizations and every type that declares identifier columns (`label_aliases`, e.g. products by code) or is a custom object. Each comes with its rules (`identifier` and `name` for generic types), the system fields the merge screen may offer (fields hidden from the user are left out) and the permissions needed to merge", body = Data<Vec<DuplicateTypeResponse>>),
         (status = 401, description = "Missing or invalid credentials (`unauthorized`, `invalid_api_token`)", body = ErrorEnvelope),
     )
 )]
@@ -187,7 +187,7 @@ async fn scan_duplicates(
     security(("session_cookie" = [])),
     params(DuplicateRulesParams),
     responses(
-        (status = 200, description = "Detection rules of the record type. Contacts: `email`, `phone`, `name_company` (similar name and same company); companies: `domain`, `name`; other types: `identifier` (same value in an identifier column, when the type declares one) and `name` (similar title). Every rule is enabled by default", body = Data<DuplicateRulesResponse>),
+        (status = 200, description = "Detection rules of the record type. Contacts: `email`, `phone`, `name_company` (similar name and same company); organizations: `domain`, `name`; other types: `identifier` (same value in an identifier column, when the type declares one) and `name` (similar title). Every rule is enabled by default", body = Data<DuplicateRulesResponse>),
         (status = 401, description = "Missing or invalid credentials (`unauthorized`, `invalid_api_token`)", body = ErrorEnvelope),
         (status = 403, description = "Missing the read permission of the record type (`permission_denied`, `insufficient_scope`)", body = ErrorEnvelope),
         (status = 422, description = "Invalid record type (`validation_error`)", body = ErrorEnvelope),
@@ -245,12 +245,12 @@ async fn update_rules(
     ),
     request_body = MergeRequest,
     responses(
-        (status = 200, description = "Merges `duplicate_id` into `primary_id` in one transaction. `fields` chooses, per field key (system or custom), which record's value stays (`primary` or `duplicate`); omitted fields keep the primary value unless it is empty. Fields hidden from the user cannot be chosen: their values stay on the primary and are only filled from the duplicate when empty (redacted in the audit). Activities, notes, attachments, tags, relationships, record references, deals and company links (contacts), contacts and deals (companies) or rows of other types that point to it (other types) move to the primary; the duplicate goes to the trash and its id redirects to the primary. The duplicate keeps its own custom values in the trash (restoring it brings them back), while the moved links stay with the primary. Both writes go through the record pipeline: the primary update runs validation rules, approvals and the other `RecordValidating` hooks and publishes `<type>.updated` (when something changed), the duplicate runs `RecordDeleting`/`RecordDeleted` and publishes `<type>.deleted`; `<type>.merged` is published as well", body = Data<MergeResponse>),
+        (status = 200, description = "Merges `duplicate_id` into `primary_id` in one transaction. `fields` chooses, per field key (system or custom), which record's value stays (`primary` or `duplicate`); omitted fields keep the primary value unless it is empty. Fields hidden from the user cannot be chosen: their values stay on the primary and are only filled from the duplicate when empty (redacted in the audit). Activities, notes, attachments, tags, relationships, record references, deals and company links (people), people and deals (organizations) or rows of other types that point to it (other types) move to the primary; the duplicate goes to the trash and its id redirects to the primary. The duplicate keeps its own custom values in the trash (restoring it brings them back), while the moved links stay with the primary. Both writes go through the record pipeline: the primary update runs validation rules, approvals and the other `RecordValidating` hooks and publishes `<type>.updated` (when something changed), the duplicate runs `RecordDeleting`/`RecordDeleted` and publishes `<type>.deleted`; `<type>.merged` is published as well", body = Data<MergeResponse>),
         (status = 401, description = "Missing or invalid credentials (`unauthorized`, `invalid_api_token`)", body = ErrorEnvelope),
         (status = 403, description = "Missing update permission on the primary or delete permission on the duplicate (`permission_denied`, `insufficient_scope`)", body = ErrorEnvelope),
         (status = 404, description = "Record not found or not visible (`contact_not_found`, `company_not_found`, `record_not_found`)", body = ErrorEnvelope),
         (status = 409, description = "The primary changed since the `If-Match` version, or one of the records changed or was merged while the merge was prepared (`version_conflict`); an approval blocks the update (`approval_required`, `approval_pending`); a restrict relationship blocks the deletion of the duplicate", body = ErrorEnvelope),
-        (status = 422, description = "Invalid record type, unknown field or side (`fields.<key>`), invalid custom value, a validation rule (`validation_rule_failed`), the same record twice (`merge_same_record`) or, for companies, moving the children of the duplicate would break the hierarchy (`company_hierarchy_cycle`, `company_hierarchy_too_deep`)", body = ErrorEnvelope),
+        (status = 422, description = "Invalid record type, unknown field or side (`fields.<key>`), invalid custom value, a validation rule (`validation_rule_failed`), the same record twice (`merge_same_record`) or, for organizations, moving the children of the duplicate would break the hierarchy (`company_hierarchy_cycle`, `company_hierarchy_too_deep`)", body = ErrorEnvelope),
     )
 )]
 async fn merge_records(

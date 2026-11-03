@@ -93,7 +93,7 @@ pub struct FilterRelatedSchema {
 #[derive(Deserialize, ToSchema)]
 #[schema(as = RelatedFilter)]
 pub struct RelatedFilterSchema {
-    #[schema(example = "companies.company")]
+    #[schema(example = "organization_profile.organization")]
     pub relationship: String,
     #[schema(no_recursion)]
     pub filter: Box<FilterNodeSchema>,

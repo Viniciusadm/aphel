@@ -25,7 +25,7 @@ impl AutomationTrigger for MessagingTrigger {
     }
 
     fn supports(&self, record_type: &str) -> bool {
-        matches!(record_type, "contacts.contact" | "deals.deal")
+        matches!(record_type, "people.person" | "deals.deal")
     }
 
     fn listens_to(&self, event_type: &str) -> bool {

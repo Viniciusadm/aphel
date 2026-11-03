@@ -333,7 +333,7 @@ async fn rotate_public_id(
     security(("session_cookie" = [])),
     params(("form_id" = String, Path, description = "Form id")),
     responses(
-        (status = 204, description = "Form and its submission history deleted (contacts and deals created by it stay). Publishes `lead_form.deleted`"),
+        (status = 204, description = "Form and its submission history deleted (people and deals created by it stay). Publishes `lead_form.deleted`"),
         (status = 403, description = "Missing `lead_forms.manage` (`permission_denied`)", body = ErrorEnvelope),
         (status = 404, description = "Form not found (`lead_form_not_found`)", body = ErrorEnvelope),
     )
@@ -466,7 +466,7 @@ async fn distribution_rules(
     operation_id = "lead_forms_options",
     security(("session_cookie" = [])),
     responses(
-        (status = 200, description = "What the form editor can pick: writable contact fields (system and custom), active pipelines and stages, contact tags, active users and active lead distribution rules for contacts. Lists the current user cannot read come back empty", body = Data<LeadFormOptions>),
+        (status = 200, description = "What the form editor can pick: writable contact fields (system and custom), active pipelines and stages, contact tags, active users and active lead distribution rules for people. Lists the current user cannot read come back empty", body = Data<LeadFormOptions>),
         (status = 403, description = "Missing `lead_forms.manage` (`permission_denied`)", body = ErrorEnvelope),
     )
 )]
@@ -479,7 +479,7 @@ async fn options(
     let ctx = Ctx::from_state(&state, scope).await?;
     let contact_fields = validate::target_fields(&ctx, scope).await?;
     let pipelines = validate::pipelines(&ctx, scope).await.unwrap_or_default();
-    let tags = tags::service::list(&ctx, Some("contacts.contact"))
+    let tags = tags::service::list(&ctx, Some("people.person"))
         .await
         .map(|tags| {
             tags.into_iter()

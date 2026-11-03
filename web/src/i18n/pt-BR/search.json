@@ -25,11 +25,11 @@
     "deal": "Oportunidade",
     "activity": "Atividade",
     "product": "Produto",
-    "contacts": {
-      "contact": "Contato"
+    "people": {
+      "person": "Contato"
     },
-    "companies": {
-      "company": "Empresa"
+    "organizations": {
+      "organization": "Empresa"
     },
     "deals": {
       "deal": "Oportunidade"
@@ -47,11 +47,11 @@
     "deal": "Oportunidades",
     "activity": "Atividades",
     "product": "Produtos",
-    "contacts": {
-      "contact": "Contatos"
+    "people": {
+      "person": "Contatos"
     },
-    "companies": {
-      "company": "Empresas"
+    "organizations": {
+      "organization": "Empresas"
     },
     "deals": {
       "deal": "Oportunidades"

@@ -78,7 +78,7 @@ fn contact_id(raw: &str) -> Result<Uuid, AppError> {
 }
 
 async fn temperature_of(ctx: &Ctx<'_>, id: Uuid) -> Result<LeadTemperatureResponse, AppError> {
-    contacts::service::get(ctx, &id.to_string()).await?;
+    people::service::get(ctx, &id.to_string()).await?;
     let settings = LeadProSettings::load(ctx.pool()).await?;
     let mut connection = ctx.pool().acquire().await?;
     let temperature = store::temperature(&mut connection, id).await?;
@@ -105,7 +105,7 @@ async fn temperature_of(ctx: &Ctx<'_>, id: Uuid) -> Result<LeadTemperatureRespon
     tag = TAG,
     operation_id = "lead_pro_board",
     security(("session_cookie" = [])),
-    description = "Lists the hottest leads the user can see (contacts at or above the hot threshold of the `lead_pro` settings), hottest first. Requires `lead_pro.read`.",
+    description = "Lists the hottest leads the user can see (people at or above the hot threshold of the `lead_pro` settings), hottest first. Requires `lead_pro.read`.",
     responses(
         (status = 200, description = "Hot leads", body = HotLeadList),
         (status = 401, description = "Missing or invalid credentials (`unauthorized`)"),
@@ -120,7 +120,7 @@ async fn board(
     let ctx = Ctx::from_state(&state, &tenant.scope).await?;
     ctx.scope.require(&READ)?;
     let settings = LeadProSettings::load(ctx.pool()).await?;
-    let listing = contacts::service::list(
+    let listing = people::service::list(
         &ctx,
         RecordQuery {
             filter: Some(Filter::condition(
@@ -164,7 +164,7 @@ async fn board(
 
 #[utoipa::path(
     get,
-    path = "/lead-pro/contacts/{contact_id}",
+    path = "/lead-pro/people/{contact_id}",
     tag = TAG,
     operation_id = "lead_pro_contact_temperature",
     security(("session_cookie" = [])),
@@ -191,7 +191,7 @@ async fn temperature(
 
 #[utoipa::path(
     post,
-    path = "/lead-pro/contacts/{contact_id}/touches",
+    path = "/lead-pro/people/{contact_id}/touches",
     tag = TAG,
     operation_id = "lead_pro_contact_touch",
     security(("session_cookie" = [])),
@@ -212,7 +212,7 @@ async fn register_touch(
     let ctx = Ctx::from_state(&state, &tenant.scope).await?;
     ctx.scope.require(&READ)?;
     let id = contact_id(&contact)?;
-    contacts::service::get(&ctx, &id.to_string()).await?;
+    people::service::get(&ctx, &id.to_string()).await?;
     heat(&ctx, id, MANUAL_TOUCH, None).await?;
     Ok(Json(LeadTemperatureEnvelope {
         data: temperature_of(&ctx, id).await?,

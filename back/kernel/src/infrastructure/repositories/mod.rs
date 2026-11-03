@@ -3,7 +3,7 @@ pub mod mysql_access;
 pub mod mysql_directory;
 pub(crate) mod mysql_members;
 pub(crate) mod mysql_organization_admin;
-pub mod mysql_organizations;
+pub mod mysql_organization_profile;
 pub(crate) mod mysql_roles;
 pub(crate) mod mysql_sessions;
 pub(crate) mod mysql_teams;

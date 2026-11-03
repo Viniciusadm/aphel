@@ -10,7 +10,7 @@ use crate::application::user_preferences::{
 #[serde(deny_unknown_fields)]
 pub struct NavigationPreferencesDto {
     #[serde(default)]
-    #[schema(example = json!(["deals", "contacts", "companies"]))]
+    #[schema(example = json!(["deals", "people", "organization_profile"]))]
     pub order: Vec<String>,
     #[serde(default)]
     #[schema(example = json!(["products"]))]

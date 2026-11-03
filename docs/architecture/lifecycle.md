@@ -1,8 +1,8 @@
 # Lifecycle and lead inbox
 
-The lifecycle stage (`lifecycle_stage`) is a `select` system field of contacts and companies. The options come from the `field_options` table and can be configured on the fields screen; the stored value is the option's `value`. Defaults: `lead`, `qualified`, `opportunity`, `customer`, `former_customer`.
+The lifecycle stage (`lifecycle_stage`) is a `select` system field of people and organizations. The options come from the `field_options` table and can be configured on the fields screen; the stored value is the option's `value`. Defaults: `lead`, `qualified`, `opportunity`, `customer`, `former_customer`.
 
-All of this is the `leads` module (`back/modules/leads`, session 31), which depends on `contacts` and `companies` and is enabled by default (it can be disabled at `/api/v1/modules`):
+All of this is the `leads` module (`back/modules/leads`, session 31), which depends on `people` and `organizations` and is enabled by default (it can be disabled at `/api/v1/modules`):
 
 | File | Contents |
 | --- | --- |
@@ -13,13 +13,13 @@ All of this is the `leads` module (`back/modules/leads`, session 31), which depe
 | `store.rs` | SQL (`SettingsStore`, `ReasonStore`, `HistoryStore`, `LeadRecords`) |
 | `section.rs` | `lifecycle` package section |
 | `http.rs` | routes and DTOs |
-| `migrations/0001_create_leads.sql` | `lifecycle_stage` column in `contacts` and `companies`, history, configuration, reasons and disqualifications |
+| `migrations/0001_create_leads.sql` | `lifecycle_stage` column in `people` and `organizations`, history, configuration, reasons and disqualifications |
 
 Web: `web/src/features/leads`.
 
 ## Contributed field
 
-`contacts` and `companies` do not know about the stage. `leads` creates the column in its own migration and declares the field with `app.extend("contact" | "company", |t| t.system_field(lifecycle_stage_field()))`. A system field declared by another module is a **contributed field** (`SystemField.contributed_by`): the kernel reads the values (`kernel::records::load_contributed`), validates the type (`merge_contributed`) and writes them (`write_contributed`) generically, and the contact and company DTOs flatten them into the JSON (`#[serde(flatten)] contributed`). That is why `lifecycle_stage` is still part of the API read and write bodies, imports, bulk actions, automations and incoming webhooks, with no lifecycle code in `contacts`/`companies`. See [`record-pipeline.md`](record-pipeline.md#contributed-fields).
+`people` and `organizations` do not know about the stage. `leads` creates the column in its own migration and declares the field with `app.extend("contact" | "company", |t| t.system_field(lifecycle_stage_field()))`. A system field declared by another module is a **contributed field** (`SystemField.contributed_by`): the kernel reads the values (`kernel::records::load_contributed`), validates the type (`merge_contributed`) and writes them (`write_contributed`) generically, and the contact and company DTOs flatten them into the JSON (`#[serde(flatten)] contributed`). That is why `lifecycle_stage` is still part of the API read and write bodies, imports, bulk actions, automations and incoming webhooks, with no lifecycle code in `people`/`organizations`. See [`record-pipeline.md`](record-pipeline.md#contributed-fields).
 
 ## Validation and history (same transaction)
 
@@ -28,7 +28,7 @@ Every contact and company write goes through the record pipeline ([`record-pipel
 1. rejects a value that is not an **active** option of the field for the record's type (422 `validation_error` with `details.fields[].field = "lifecycle_stage"`);
 2. closes the open `lifecycle_stage_history` entry (`left_at`) and opens the new one (`from_stage`, `to_stage`, `entered_at`, actor), in the write's `&mut Tx`.
 
-Why a hook and not a port in the contact and company use cases: the hook already runs inside the transaction on every write path (API, imports, automations, incoming webhooks, extensions through the host, email capture, consumers), receives the changes with old and new values and does not require `contacts`/`companies` to call `leads`. With the module disabled the hook does not run (any value is accepted and there is no history). Clearing the stage only closes the open entry. Creating with a stage already opens the first entry.
+Why a hook and not a port in the contact and company use cases: the hook already runs inside the transaction on every write path (API, imports, automations, incoming webhooks, extensions through the host, email capture, consumers), receives the changes with old and new values and does not require `people`/`organizations` to call `leads`. With the module disabled the hook does not run (any value is accepted and there is no history). Clearing the stage only closes the open entry. Creating with a stage already opens the first entry.
 
 Deleting a contact or company closes the open entry (`RecordDeleted` hook, `hooks::close_stage`). Restoring from the trash reopens the entry with the current stage (`RecordRestored` hook). Merging duplicates does not go through the guard; for that the module exposes `leads::service::record_stage_history(ctx, tx, record, from, to)` (records the transition if it changed), called within the same transaction.
 
@@ -44,17 +44,17 @@ Organization configuration in `lifecycle_settings` (single row) (`GET`/`PUT /api
 
 No-downgrade rule: a transition only changes the record when the current stage is in `from_stages` (or it is empty and `from_empty` is true), and never when it is already at the target. That is why a customer who opens a new deal stays `customer`, and losing a deal only sends back to `qualified` those still in `opportunity`. `all_deals_lost` also requires the contact or company to have at least one lost deal and no open or won ones (deals in the trash do not count).
 
-Execution: the `lifecycle.transitions` consumer (`CatalogEventConsumer`, current registry) with system scope (`AccessScope::system()`, all permissions, `system` user). It reads the deal's contact and company and calls `contacts::service::update`/`companies::service::update` with only `lifecycle_stage` in the contributed fields, which publish `contact.updated`/`company.updated` with `changes` (automation triggers) and go through the guard (history). A target that is not an active option of that type, or a nonexistent record, is ignored with a warning in the log (no retry).
+Execution: the `lifecycle.transitions` consumer (`CatalogEventConsumer`, current registry) with system scope (`AccessScope::system()`, all permissions, `system` user). It reads the deal's contact and company and calls `people::service::update`/`organizations::service::update` with only `lifecycle_stage` in the contributed fields, which publish `contact.updated`/`company.updated` with `changes` (automation triggers) and go through the guard (history). A target that is not an active option of that type, or a nonexistent record, is ignored with a warning in the log (no retry).
 
 ## Lead inbox
 
-`/leads` in the web app lists contacts with `lifecycle_stage = lead` through `RecordListView` (prop `baseFilter`, combined with `and` with the user's filters and views). Actions:
+`/leads` in the web app lists people with `lifecycle_stage = lead` through `RecordListView` (prop `baseFilter`, combined with `and` with the user's filters and views). Actions:
 
 - `POST /api/v1/leads/{contact_id}/qualify`: `lead` → `qualified`.
 - `POST /api/v1/leads/{contact_id}/disqualify` (`reason_id`, `note`): from `lead` or `qualified` to the configured `disqualified_stage` (default: no stage). Writes `lead_disqualifications` (reason with the name copied, note, original stage, actor).
 - `POST /api/v1/leads/{contact_id}/convert` (`pipeline_id`, `stage_id`, `title`, `amount`, `currency`): from `lead` or `qualified`. Creates the deal through the `dyn LeadConverter` service (see below) and then changes the stage to the target of the `deal_created` rule (default `opportunity`), even with the rule turned off.
 
-Permissions: `contacts.update` on the contact (with the record scope and the field permission for `lifecycle_stage`) and, to convert, `deals.create`. Outside the expected stage: 409 `contact_not_lead`.
+Permissions: `people.update` on the contact (with the record scope and the field permission for `lifecycle_stage`) and, to convert, `deals.create`. Outside the expected stage: 409 `contact_not_lead`.
 
 Each action writes the stage, `contact.updated` (with `changes`), `lead.qualified|disqualified|converted` (public catalog, contact resource) and the audit entry in the same transaction. Conversion takes two transactions: first the deal (`deal.created`), then the stage. If the second one fails, the deal stays created and the transitions consumer still moves the contact to `opportunity`.
 
@@ -72,22 +72,22 @@ Other modules and plugins extend the lead inbox without editing `leads` (types i
 
 `Lead` is a view over the contact (`ContactView`) with `stage()` and `is_open()`. An `Err` from an action or filter rolls back the operation. To replace the conversion: `app.provide::<dyn LeadConverter>(..)`; to wrap the default one: `app.decorate::<dyn LeadConverter>(|inner| ..)`.
 
-Lead sources: the `lead_forms` module sends `lifecycle_stage = lead` when creating the contact (when the field exists and the form did not map another value), and email capture creates contacts in `lead`.
+Lead sources: the `lead_forms` module sends `lifecycle_stage = lead` when creating the contact (when the field exists and the form did not map another value), and email capture creates people in `lead`.
 
 ## Disqualification reasons
 
-`lead_disqualification_reasons`, seeded at installation (`seed_disqualification_reasons`, called by `seed_defaults`). CRUD at `/api/v1/lead-disqualification-reasons` (list: `contacts.read`; write: `lifecycle.manage`), reordering at `PUT .../order`. Deleting a reason keeps the name in the disqualifications already recorded.
+`lead_disqualification_reasons`, seeded at installation (`seed_disqualification_reasons`, called by `seed_defaults`). CRUD at `/api/v1/lead-disqualification-reasons` (list: `people.read`; write: `lifecycle.manage`), reordering at `PUT .../order`. Deleting a reason keeps the name in the disqualifications already recorded.
 
 ## Report
 
-`GET /api/v1/lifecycle/report?record_type=contact|company&from=&to=` (inclusive UTC dates, default 90 days, maximum 731), with the read scope of `contacts.read`/`companies.read`. Stages in the order of the active options (old values found in the history come at the end, marked as inactive). Per stage:
+`GET /api/v1/lifecycle/report?record_type=contact|company&from=&to=` (inclusive UTC dates, default 90 days, maximum 731), with the read scope of `people.read`/`organizations.read`. Stages in the order of the active options (old values found in the history come at the end, marked as inactive). Per stage:
 
 - `current`: records in the stage now (excluding archived ones);
 - `entered`: records that entered the stage in the period;
 - `converted`/`conversion_rate`: of those that entered, how many later reached any stage at a higher position (skipping a stage counts);
 - `average_days`/`completed`: average time in the stage for the period's entries that have already left it.
 
-For contacts, it includes the period's disqualifications by reason. Web: `/leads/report`.
+For people, it includes the period's disqualifications by reason. Web: `/leads/report`.
 
 ## Configuration packages
 

@@ -14,11 +14,11 @@
     "company": "Company",
     "deal": "Deal",
     "activity": "Activity",
-    "contacts": {
-      "contact": "Contact"
+    "people": {
+      "person": "Contact"
     },
-    "companies": {
-      "company": "Company"
+    "organizations": {
+      "organization": "Company"
     },
     "deals": {
       "deal": "Deal"
@@ -28,14 +28,14 @@
     }
   },
   "recordTypesPlural": {
-    "contact": "contacts",
-    "company": "companies",
+    "contact": "people",
+    "company": "organizations",
     "deal": "deals",
-    "contacts": {
-      "contact": "contacts"
+    "people": {
+      "person": "people"
     },
-    "companies": {
-      "company": "companies"
+    "organizations": {
+      "organization": "organizations"
     },
     "deals": {
       "deal": "deals"

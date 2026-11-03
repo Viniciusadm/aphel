@@ -46,7 +46,7 @@ const messagingModule = defineModule({
       icon: RadioTower,
       permission: [MANAGE_CHANNELS_PERMISSION],
     })
-    app.recordSection(['contacts.contact', 'deals.deal'], {
+    app.recordSection(['people.person', 'deals.deal'], {
       key: `${MESSAGING_KEY}.conversations`,
       label: 'tab.label',
       icon: MessagesSquare,

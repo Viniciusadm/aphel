@@ -54,8 +54,8 @@ CREATE TABLE quotes (
   KEY quotes_created_by_fk_index (created_by),
   CONSTRAINT quotes_deal_fk FOREIGN KEY (deal_id) REFERENCES deals (id) ON DELETE CASCADE,
   CONSTRAINT quotes_owner_fk FOREIGN KEY (owner_id) REFERENCES users (id) ON DELETE SET NULL,
-  CONSTRAINT quotes_contact_fk FOREIGN KEY (contact_id) REFERENCES contacts (id) ON DELETE SET NULL,
-  CONSTRAINT quotes_company_fk FOREIGN KEY (company_id) REFERENCES companies (id) ON DELETE SET NULL,
+  CONSTRAINT quotes_contact_fk FOREIGN KEY (contact_id) REFERENCES people (id) ON DELETE SET NULL,
+  CONSTRAINT quotes_company_fk FOREIGN KEY (company_id) REFERENCES organizations (id) ON DELETE SET NULL,
   CONSTRAINT quotes_sent_by_fk FOREIGN KEY (sent_by) REFERENCES users (id) ON DELETE SET NULL,
   CONSTRAINT quotes_created_by_fk FOREIGN KEY (created_by) REFERENCES users (id) ON DELETE SET NULL
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci;

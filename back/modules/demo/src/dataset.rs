@@ -233,8 +233,8 @@ pub(crate) struct DemoNote {
 
 #[derive(Debug, Clone, PartialEq)]
 pub(crate) struct DemoDataset {
-    pub(crate) companies: Vec<DemoCompany>,
-    pub(crate) contacts: Vec<DemoContact>,
+    pub(crate) organizations: Vec<DemoCompany>,
+    pub(crate) people: Vec<DemoContact>,
     pub(crate) deals: Vec<DemoDeal>,
     pub(crate) activities: Vec<DemoActivity>,
     pub(crate) notes: Vec<DemoNote>,
@@ -250,7 +250,7 @@ pub(crate) fn generate(
         now - Duration::days(random.between(low, high)) - Duration::minutes(random.between(0, 600))
     };
 
-    let companies: Vec<DemoCompany> = COMPANY_NAMES
+    let organizations: Vec<DemoCompany> = COMPANY_NAMES
         .iter()
         .enumerate()
         .map(|(index, name)| {
@@ -274,13 +274,13 @@ pub(crate) fn generate(
         })
         .collect();
 
-    let mut contacts = Vec::new();
-    for company_index in 0..companies.len() {
+    let mut people = Vec::new();
+    for company_index in 0..organizations.len() {
         for slot in 0..CONTACTS_PER_COMPANY {
             let position = company_index * CONTACTS_PER_COMPANY + slot;
             let first_name = FIRST_NAMES[position % FIRST_NAMES.len()];
             let last_name = LAST_NAMES[(position * 7 + company_index) % LAST_NAMES.len()];
-            contacts.push(DemoContact {
+            people.push(DemoContact {
                 company_index,
                 first_name: first_name.to_owned(),
                 last_name: last_name.to_owned(),
@@ -288,7 +288,7 @@ pub(crate) fn generate(
                     "{}.{}@{}",
                     slugify(first_name),
                     slugify(last_name),
-                    companies[company_index].domain
+                    organizations[company_index].domain
                 ),
                 mobile: format!(
                     "+55 11 9{:04}-{:04}",
@@ -307,7 +307,7 @@ pub(crate) fn generate(
     let lost_reason_count = lost_reason_count.max(1);
     let deals: Vec<DemoDeal> = (0..DEAL_COUNT)
         .map(|index| {
-            let company_index = index % companies.len();
+            let company_index = index % organizations.len();
             let contact_index = company_index * CONTACTS_PER_COMPANY + index % CONTACTS_PER_COMPANY;
             let outcome = match index % 10 {
                 0 | 1 => DemoDealOutcome::Won {
@@ -335,7 +335,7 @@ pub(crate) fn generate(
                 title: format!(
                     "{} - {}",
                     random.pick(&PRODUCTS),
-                    companies[company_index].name
+                    organizations[company_index].name
                 ),
                 company_index,
                 contact_index,
@@ -379,7 +379,7 @@ pub(crate) fn generate(
             });
         }
     }
-    for contact_index in (0..contacts.len()).step_by(6) {
+    for contact_index in (0..people.len()).step_by(6) {
         let overdue = contact_index % 12 == 0;
         activities.push(DemoActivity {
             title: "Retomar contato".to_owned(),
@@ -392,7 +392,7 @@ pub(crate) fn generate(
             },
             completed_at: None,
             priority: "low".to_owned(),
-            created_at: contacts[contact_index].created_at,
+            created_at: people[contact_index].created_at,
         });
     }
 
@@ -405,18 +405,18 @@ pub(crate) fn generate(
             created_at: deal.created_at + Duration::hours(random.between(2, 48)),
         });
     }
-    for company_index in (0..companies.len()).step_by(4) {
+    for company_index in (0..organizations.len()).step_by(4) {
         notes.push(DemoNote {
             target: DemoTarget::Company(company_index),
             body: random.pick(&NOTE_BODIES).to_string(),
             pinned: false,
-            created_at: companies[company_index].created_at + Duration::days(1),
+            created_at: organizations[company_index].created_at + Duration::days(1),
         });
     }
 
     DemoDataset {
-        companies,
-        contacts,
+        organizations,
+        people,
         deals,
         activities,
         notes,

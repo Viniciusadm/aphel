@@ -3,7 +3,7 @@ import { useTranslation } from 'react-i18next'
 import { useCustomObjects } from '@/features/custom-records/api'
 import { isCustomRecordType } from '@/features/custom-records/resources'
 
-export const CORE_EMAIL_RECORD_TYPES = ['contacts.contact', 'companies.company', 'deals.deal'] as const
+export const CORE_EMAIL_RECORD_TYPES = ['people.person', 'organizations.organization', 'deals.deal'] as const
 
 export function supportsEmails(recordType: string): boolean {
   return (CORE_EMAIL_RECORD_TYPES as readonly string[]).includes(recordType) || isCustomRecordType(recordType)

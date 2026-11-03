@@ -357,11 +357,11 @@ impl From<AggregateFieldInfo> for AggregateFieldResponse {
 
 #[derive(Debug, Serialize, ToSchema)]
 pub struct AggregateRelationResponse {
-    #[schema(example = "companies.company")]
+    #[schema(example = "organization_profile.organization")]
     pub key: String,
     #[schema(example = "Company")]
     pub label: String,
-    #[schema(example = "companies.company")]
+    #[schema(example = "organization_profile.organization")]
     pub target_record_type: String,
     pub single: bool,
     pub readable: bool,

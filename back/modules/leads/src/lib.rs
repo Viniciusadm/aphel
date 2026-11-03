@@ -33,17 +33,17 @@ pub(crate) const LIFECYCLE_STAGE_PRIORITY: i32 = 40;
 const PUBLIC_EVENTS: &[PublicEventDefinition] = &[
     event(
         "lead.qualified",
-        contacts::CONTACT_RESOURCE,
+        people::CONTACT_RESOURCE,
         "A lead was qualified in the lead inbox (the contact moved from `lead` to `qualified`)",
     ),
     event(
         "lead.disqualified",
-        contacts::CONTACT_RESOURCE,
+        people::CONTACT_RESOURCE,
         "A lead was disqualified in the lead inbox with a reason",
     ),
     event(
         "lead.converted",
-        contacts::CONTACT_RESOURCE,
+        people::CONTACT_RESOURCE,
         "A lead was converted: a deal was created with the contact and the contact moved to the converted stage",
     ),
 ];
@@ -71,11 +71,11 @@ impl Module for LeadsModule {
     fn manifest(&self) -> Manifest {
         Manifest::new(KEY, "Leads", APHEL_VERSION)
             .description(
-                "Lifecycle stages of contacts and companies, automatic transitions, the lead inbox (qualify, disqualify, convert) and disqualification reasons",
+                "Lifecycle stages of people and organizations, automatic transitions, the lead inbox (qualify, disqualify, convert) and disqualification reasons",
             )
-            .depends_on(contacts::KEY, "*")
+            .depends_on(people::KEY, "*")
             .enabled_by_default()
-            .depends_on(companies::KEY, "*")
+            .depends_on(organizations::KEY, "*")
             .owned_tables(&["lead_disqualification_reasons", "lead_disqualifications", "lifecycle_settings", "lifecycle_stage_history", "leads_contact_extension", "leads_company_extension"])
             .migration(Migration::new(
                 1,
@@ -134,10 +134,10 @@ impl Module for LeadsModule {
             Box::pin(store::seed_disqualification_reasons(connection))
         })));
         let stage = lifecycle_stage_field()?;
-        app.extend("contacts.contact", |contact| {
+        app.extend("people.person", |contact| {
             contact.side_table("leads_contact_extension", "record_id").system_field(stage.clone());
         })
-        .extend("companies.company", |company| {
+        .extend("organizations.organization", |company| {
             company.side_table("leads_company_extension", "record_id").system_field(stage.clone());
         })
         .on(RecordValidating, LIFECYCLE_STAGE_PRIORITY, |ctx, args| {
@@ -155,7 +155,7 @@ impl Module for LeadsModule {
         .provide::<dyn LeadConverter>(Arc::new(DealLeadConverter))
         .openapi_tag(
             http::TAG,
-            "Lifecycle stages of contacts and companies: automatic transitions, stage history, conversion report, lead inbox actions (qualify, disqualify, convert) and disqualification reasons",
+            "Lifecycle stages of people and organizations: automatic transitions, stage history, conversion report, lead inbox actions (qualify, disqualify, convert) and disqualification reasons",
         )
         .routes(|_| http::router());
         app.permission(PermissionDefinition::administrative(

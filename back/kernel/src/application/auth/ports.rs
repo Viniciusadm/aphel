@@ -5,7 +5,7 @@ use serde_json::Value;
 use crate::application::access::AccessRepository;
 use crate::application::auth::two_factor::TwoFactorGate;
 use crate::application::mail::Mailer;
-use crate::application::organizations::OrganizationRepository;
+use crate::application::organization_profile::OrganizationRepository;
 use crate::application::security::{Clock, LoginMonitor, PasswordHasher, SecureTokens};
 use crate::domain::users::User;
 use crate::domain::{NonEmptyString, SessionId, UserId};
@@ -169,7 +169,7 @@ pub trait AuthPorts: Send + Sync {
     type Users: UserRepository;
     type Sessions: SessionRepository;
     type Tokens: UserTokenRepository;
-    type Organizations: OrganizationRepository;
+    type OrganizationProfile: OrganizationRepository;
     type Access: AccessRepository;
     type Hasher: PasswordHasher;
     type Secrets: SecureTokens;
@@ -181,7 +181,7 @@ pub trait AuthPorts: Send + Sync {
     fn users(&self) -> &Self::Users;
     fn sessions(&self) -> &Self::Sessions;
     fn tokens(&self) -> &Self::Tokens;
-    fn organizations(&self) -> &Self::Organizations;
+    fn organization_profile(&self) -> &Self::OrganizationProfile;
     fn access(&self) -> &Self::Access;
     fn hasher(&self) -> &Self::Hasher;
     fn secrets(&self) -> &Self::Secrets;

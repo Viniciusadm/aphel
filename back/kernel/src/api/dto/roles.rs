@@ -11,7 +11,7 @@ use crate::domain::access::{PermissionDefinition, permission_catalog};
 
 #[derive(Debug, Serialize, ToSchema)]
 pub struct PermissionDefinitionResponse {
-    #[schema(example = "contacts.read")]
+    #[schema(example = "people.read")]
     pub permission: String,
     pub record_scoped: bool,
     pub label: Option<String>,
@@ -78,7 +78,7 @@ impl From<RoleView> for RoleResponse {
 
 #[derive(Debug, Deserialize, ToSchema)]
 pub struct PermissionGrantRequest {
-    #[schema(example = "contacts.read")]
+    #[schema(example = "people.read")]
     pub permission: String,
     pub scope: RecordScopeDto,
 }

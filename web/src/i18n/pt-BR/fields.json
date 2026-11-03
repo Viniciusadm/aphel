@@ -10,11 +10,11 @@
     "activity": "Atividades",
     "product": "Produtos",
     "quote": "Cotações",
-    "contacts": {
-      "contact": "Contatos"
+    "people": {
+      "person": "Contatos"
     },
-    "companies": {
-      "company": "Empresas"
+    "organizations": {
+      "organization": "Empresas"
     },
     "deals": {
       "deal": "Negócios"

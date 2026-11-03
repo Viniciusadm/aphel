@@ -8,7 +8,7 @@ use sqlx::MySqlPool;
 use sqlx::mysql::MySqlPoolOptions;
 
 use crate::cli::CliResult;
-use aphel_kernel::application::organizations::{StorageSettings, storage_secret_key};
+use aphel_kernel::application::organization_profile::{StorageSettings, storage_secret_key};
 use aphel_kernel::application::shared::SharedFileStorage;
 use aphel_kernel::application::system::doctor::{
     DoctorCheck, DoctorReport, DoctorStatus, collect_settings, is_sensitive_name, render_markdown,
@@ -18,7 +18,7 @@ use aphel_kernel::application::system::upgrade::{MIN_MYSQL_MAJOR, mysql_version_
 use aphel_kernel::application::system::{APHEL_VERSION, MigrationStatus, WORKER_ROLE};
 use aphel_kernel::config::AppConfig;
 use aphel_kernel::domain::access::AccessScope;
-use aphel_kernel::infrastructure::organizations::organization_config_catalog;
+use aphel_kernel::infrastructure::organization_profile::organization_config_catalog;
 use aphel_kernel::infrastructure::secrets::EncryptionKeyring;
 use aphel_kernel::infrastructure::secrets::build_secret_vault;
 use aphel_kernel::infrastructure::storage::build_file_storage;

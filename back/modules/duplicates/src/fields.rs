@@ -1,6 +1,6 @@
 use aphel_kernel::records::Address;
-use companies::domain::CompanyData;
-use contacts::domain::ContactData;
+use organizations::domain::CompanyData;
+use people::domain::ContactData;
 
 pub(crate) const CONTACT_MERGE_KEYS: &[&str] = &[
     "first_name",

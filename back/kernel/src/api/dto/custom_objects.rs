@@ -100,9 +100,9 @@ pub struct RelationshipResponse {
     pub id: String,
     #[schema(example = "contracts")]
     pub key: String,
-    #[schema(example = "companies.company")]
+    #[schema(example = "organization_profile.organization")]
     pub inverse_key: String,
-    #[schema(example = "companies.company")]
+    #[schema(example = "organization_profile.organization")]
     pub from_type: String,
     #[schema(example = "custom.contract")]
     pub to_type: String,
@@ -210,11 +210,11 @@ impl From<CustomRecordDetails> for CustomRecordResponse {
 
 #[derive(Debug, Serialize, ToSchema)]
 pub struct ObjectRelationResponse {
-    #[schema(example = "companies.company")]
+    #[schema(example = "organization_profile.organization")]
     pub key: String,
     #[schema(example = "Company")]
     pub label: String,
-    #[schema(example = "companies.company")]
+    #[schema(example = "organization_profile.organization")]
     pub target_type: String,
     pub single: bool,
     pub relationship_key: Option<String>,

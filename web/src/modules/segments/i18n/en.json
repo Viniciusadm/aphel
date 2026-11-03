@@ -3,11 +3,11 @@
     "contact": "Contacts",
     "company": "Companies",
     "deal": "Deals",
-    "contacts": {
-      "contact": "Contacts"
+    "people": {
+      "person": "Contacts"
     },
-    "companies": {
-      "company": "Companies"
+    "organizations": {
+      "organization": "Companies"
     },
     "deals": {
       "deal": "Deals"
@@ -22,7 +22,7 @@
     "emptyTitle": "No segments yet",
     "emptyDescription": "Create a segment to track a group of records that match a filter.",
     "noAccessTitle": "No access",
-    "noAccessDescription": "You are not allowed to view contacts, companies or deals.",
+    "noAccessDescription": "You are not allowed to view people, organizations or deals.",
     "count_one": "{{count}} record",
     "count_other": "{{count}} records",
     "countUnavailable": "Invalid filter",

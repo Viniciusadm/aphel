@@ -4,7 +4,7 @@ use serde::{Deserialize, Serialize};
 use serde_json::Value;
 
 use crate::application::PackageIssue;
-use aphel_kernel::application::organizations::SUPPORTED_LOCALES;
+use aphel_kernel::application::organization_profile::SUPPORTED_LOCALES;
 
 pub const PACKAGE_FORMAT: &str = "aphel-config";
 pub const FORMAT_VERSION: u32 = 1;

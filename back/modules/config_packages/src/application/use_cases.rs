@@ -18,7 +18,7 @@ use aphel_kernel::application::shared::{
     TransactionManager,
 };
 use aphel_kernel::domain::access::{AccessScope, Permission};
-use aphel_kernel::domain::organizations::DEFAULT_LOCALE;
+use aphel_kernel::domain::organization_profile::DEFAULT_LOCALE;
 use aphel_kernel::errors::{AppError, FieldViolation};
 
 pub const CONFIG_PACKAGE_APPLIED: &str = "config_package.applied";

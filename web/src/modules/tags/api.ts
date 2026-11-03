@@ -13,7 +13,7 @@ export type UpdateTagBody = Schemas['UpdateTagRequest']
 export type TaggingResult = Schemas['TaggingResponse']
 export type RecordTagsEntry = Schemas['RecordTagsEntry']
 
-export const TAGGABLE_RECORD_TYPES = ['contacts.contact', 'companies.company', 'deals.deal'] as const
+export const TAGGABLE_RECORD_TYPES = ['people.person', 'organizations.organization', 'deals.deal'] as const
 export type TaggableRecordType = (typeof TAGGABLE_RECORD_TYPES)[number]
 export const DEFAULT_TAG_COLOR = '#64748b'
 export const MAX_TAG_NAME_LENGTH = 60
@@ -21,8 +21,8 @@ export const TAGS_PER_PAGE = 100
 export const MAX_LOOKUP_IDS = 100
 
 const UPDATE_PERMISSION: Record<TaggableRecordType, string> = {
-  'contacts.contact': 'contacts.update',
-  'companies.company': 'companies.update',
+  'people.person': 'people.update',
+  'organizations.organization': 'organizations.update',
   'deals.deal': 'deals.update',
 }
 

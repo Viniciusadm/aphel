@@ -3,7 +3,7 @@
 Three features, independent of each other within the same module:
 
 - **Sign in with Google** (PLAN 12.7): a "Continue with Google" button for the configured Google Workspace domains, linking to the existing user by verified email; the administrator can require single sign-on for those domains.
-- **Google Calendar sync** (PLAN 5.8): each user connects their own calendar; CRM meetings go to the primary calendar and calendar events with CRM contacts become meetings in the CRM, in both directions, with "the last change wins".
+- **Google Calendar sync** (PLAN 5.8): each user connects their own calendar; CRM meetings go to the primary calendar and calendar events with CRM people become meetings in the CRM, in both directions, with "the last change wins".
 - **Gmail mailbox** (session 22): `google.gmail` provider for the core's individual email ([email.md](../architecture/email.md)); each user connects their own Gmail in **My account → Email mailboxes**.
 
 The OAuth/OIDC code and the sync engine come from the `oidc` module (crate `aphel-mod-oidc`, see [oidc.md](oidc.md)); `google` declares `depends_on("oidc")`, so `oidc` must be in the build and enabled.
@@ -40,7 +40,7 @@ Same flow as [`oidc`](oidc.md#flow), with Google's fixed endpoints (`accounts.go
 
 - The scheduled job `google.calendar_sync_all` runs every 5 minutes and enqueues `google.calendar_sync` per connection (also triggered by **Sync now**).
 - **Calendar → CRM**: `events.list` of the primary calendar (`singleEvents=true`, `showDeleted=true`); the first load covers from 30 days ago to 90 days ahead and then uses the incremental `syncToken` (410 → full load again). For each timed event (all-day events are ignored):
-  - new and within the window → creates an activity of type `meeting_type`, owner = the user, with the event's title, start, duration and description, status `done` if it has already ended; attendees whose email belongs to an **existing contact** become links of the activity (unknown emails do **not** create contacts; with `import_scope = with_contacts` an event without a contact is ignored);
+  - new and within the window → creates an activity of type `meeting_type`, owner = the user, with the event's title, start, duration and description, status `done` if it has already ended; attendees whose email belongs to an **existing contact** become links of the activity (unknown emails do **not** create people; with `import_scope = with_contacts` an event without a contact is ignored);
   - already linked and changed → updates the title, time, duration, description and adds contact links (existing links remain);
   - cancelled/deleted → deletes the activity (it goes to the core's trash) and the link.
   Changes go through the core's use cases (`/v1/activities`) with the user's permissions: regular events, audit, automations and notifications.

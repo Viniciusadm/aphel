@@ -435,7 +435,7 @@ async fn prepare_action(
         {
             Err(invalid(
                 "action",
-                "enroll_in_sequence is only available for contacts",
+                "enroll_in_sequence is only available for people",
             ))
         }
         BulkAction::EnrollInSequence { sequence_id } => {

@@ -33,17 +33,17 @@ pub(crate) const KEY: &str = "scheduling";
 const PUBLIC_EVENTS: &[PublicEventDefinition] = &[
     event(
         "meeting.booked",
-        contacts::CONTACT_RESOURCE,
+        people::CONTACT_RESOURCE,
         "The contact booked a meeting through a scheduling link",
     ),
     event(
         "meeting.rescheduled",
-        contacts::CONTACT_RESOURCE,
+        people::CONTACT_RESOURCE,
         "A meeting booked by the contact through a scheduling link was rescheduled",
     ),
     event(
         "meeting.canceled",
-        contacts::CONTACT_RESOURCE,
+        people::CONTACT_RESOURCE,
         "A meeting booked by the contact through a scheduling link was canceled",
     ),
 ];
@@ -57,7 +57,7 @@ impl Module for SchedulingModule {
                 "Scheduling links: availability, meeting types, team links and the public booking page",
             )
             .depends_on(activities::KEY, "*")
-            .depends_on(contacts::KEY, "*")
+            .depends_on(people::KEY, "*")
             .optional("lead_distribution")
             .enabled_by_default()
             .owned_tables(&["meeting_bookings", "meeting_types"])
