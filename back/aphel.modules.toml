@@ -13,7 +13,7 @@ people = { path = "modules/people", required = true }
 organizations = { path = "modules/organizations", required = true }
 leads = { path = "modules/leads" }
 scoring = { path = "modules/scoring" }
-currencies = { path = "modules/currencies", required = true }
+money = { path = "modules/money" }
 workflow = { path = "modules/workflow" }
 deals = { path = "modules/deals", required = true }
 deal_items = { path = "modules/deal_items" }

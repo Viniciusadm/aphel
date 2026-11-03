@@ -73,7 +73,7 @@ impl CurrencyStore {
 
     pub(crate) async fn enabled(&self) -> Result<Vec<EnabledCurrency>, AppError> {
         let rows: Vec<(String, NaiveDateTime, Option<String>)> = sqlx::query_as(
-            "SELECT currency, enabled_at, enabled_by FROM organization_currencies \
+            "SELECT currency, enabled_at, enabled_by FROM money_currencies \
              ORDER BY currency",
         )
         .fetch_all(&self.pool)
@@ -93,7 +93,7 @@ impl CurrencyStore {
 
     pub(crate) async fn enabled_codes(&self) -> Result<Vec<String>, AppError> {
         Ok(sqlx::query_scalar(
-            "SELECT c.currency FROM organization_currencies c \
+            "SELECT c.currency FROM money_currencies c \
              JOIN organization_settings o ON o.id = 1 \
              WHERE c.currency <> o.currency ORDER BY c.currency",
         )
@@ -103,7 +103,7 @@ impl CurrencyStore {
 
     pub(crate) async fn is_enabled(&self, currency: &str) -> Result<bool, AppError> {
         Ok(sqlx::query_scalar(
-            "SELECT EXISTS(SELECT 1 FROM organization_currencies WHERE currency = ?) \
+            "SELECT EXISTS(SELECT 1 FROM money_currencies WHERE currency = ?) \
              OR EXISTS(SELECT 1 FROM organization_settings WHERE id = 1 AND currency = ?)",
         )
         .bind(currency)
@@ -120,7 +120,7 @@ impl CurrencyStore {
         at: DateTime<Utc>,
     ) -> Result<(), AppError> {
         sqlx::query(
-            "INSERT IGNORE INTO organization_currencies (currency, enabled_by, enabled_at) \
+            "INSERT IGNORE INTO money_currencies (currency, enabled_by, enabled_at) \
              VALUES (?, ?, ?)",
         )
         .bind(currency)
@@ -132,7 +132,7 @@ impl CurrencyStore {
     }
 
     pub(crate) async fn disable(&self, tx: &mut MySqlTx, currency: &str) -> Result<(), AppError> {
-        sqlx::query("DELETE FROM organization_currencies WHERE currency = ?")
+        sqlx::query("DELETE FROM money_currencies WHERE currency = ?")
             .bind(currency)
             .execute(&mut **tx)
             .await?;
@@ -151,10 +151,11 @@ impl CurrencyStore {
                     .push_bind(currency.clone());
             }
         };
-        let mut count = QueryBuilder::new("SELECT COUNT(*) FROM exchange_rates");
+        let mut count = QueryBuilder::new("SELECT COUNT(*) FROM money_exchange_rates");
         push_conditions(&mut count);
         let total: i64 = count.build_query_scalar().fetch_one(&self.pool).await?;
-        let mut select = QueryBuilder::new(format!("SELECT {RATE_COLUMNS} FROM exchange_rates"));
+        let mut select =
+            QueryBuilder::new(format!("SELECT {RATE_COLUMNS} FROM money_exchange_rates"));
         push_conditions(&mut select);
         select
             .push(" ORDER BY effective_date DESC, currency, id LIMIT ")
@@ -170,7 +171,7 @@ impl CurrencyStore {
 
     pub(crate) async fn find_rate(&self, id: Uuid) -> Result<Option<ExchangeRate>, AppError> {
         sqlx::query(sqlx::AssertSqlSafe(format!(
-            "SELECT {RATE_COLUMNS} FROM exchange_rates WHERE id = ?"
+            "SELECT {RATE_COLUMNS} FROM money_exchange_rates WHERE id = ?"
         )))
         .bind(id.to_string())
         .fetch_optional(&self.pool)
@@ -186,7 +187,7 @@ impl CurrencyStore {
         date: NaiveDate,
     ) -> Result<Option<ExchangeRate>, AppError> {
         sqlx::query(sqlx::AssertSqlSafe(format!(
-            "SELECT {RATE_COLUMNS} FROM exchange_rates \
+            "SELECT {RATE_COLUMNS} FROM money_exchange_rates \
              WHERE currency = ? AND effective_date <= ? \
              ORDER BY effective_date DESC LIMIT 1"
         )))
@@ -205,7 +206,7 @@ impl CurrencyStore {
         date: NaiveDate,
     ) -> Result<Option<ExchangeRate>, AppError> {
         sqlx::query(sqlx::AssertSqlSafe(format!(
-            "SELECT {RATE_COLUMNS} FROM exchange_rates \
+            "SELECT {RATE_COLUMNS} FROM money_exchange_rates \
              WHERE currency = ? AND effective_date = ?"
         )))
         .bind(currency)
@@ -223,7 +224,7 @@ impl CurrencyStore {
         rate: &ExchangeRate,
     ) -> Result<(), AppError> {
         sqlx::query(
-            "INSERT INTO exchange_rates (id, currency, effective_date, rate, source, \
+            "INSERT INTO money_exchange_rates (id, currency, effective_date, rate, source, \
              provider, created_by, created_at, updated_at) VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?)",
         )
         .bind(rate.id.to_string())
@@ -246,7 +247,7 @@ impl CurrencyStore {
         rate: &ExchangeRate,
     ) -> Result<(), AppError> {
         sqlx::query(
-            "UPDATE exchange_rates SET effective_date = ?, rate = ?, source = ?, provider = ?, \
+            "UPDATE money_exchange_rates SET effective_date = ?, rate = ?, source = ?, provider = ?, \
              updated_at = ? WHERE id = ?",
         )
         .bind(rate.effective_date)
@@ -261,7 +262,7 @@ impl CurrencyStore {
     }
 
     pub(crate) async fn delete_rate(&self, tx: &mut MySqlTx, id: Uuid) -> Result<(), AppError> {
-        sqlx::query("DELETE FROM exchange_rates WHERE id = ?")
+        sqlx::query("DELETE FROM money_exchange_rates WHERE id = ?")
             .bind(id.to_string())
             .execute(&mut **tx)
             .await?;
@@ -270,7 +271,7 @@ impl CurrencyStore {
 
     pub(crate) async fn provider_settings(&self) -> Result<RatesProviderSettings, AppError> {
         let row: Option<(String, Option<String>, Option<NaiveDateTime>)> = sqlx::query_as(
-            "SELECT rates_provider, rates_provider_url, last_synced_at FROM currency_settings \
+            "SELECT rates_provider, rates_provider_url, last_synced_at FROM money_settings \
              WHERE id = 1",
         )
         .fetch_optional(&self.pool)
@@ -292,7 +293,7 @@ impl CurrencyStore {
         at: DateTime<Utc>,
     ) -> Result<(), AppError> {
         sqlx::query(
-            "INSERT INTO currency_settings (id, rates_provider, rates_provider_url, updated_by, \
+            "INSERT INTO money_settings (id, rates_provider, rates_provider_url, updated_by, \
              updated_at) VALUES (1, ?, ?, ?, ?) AS incoming ON DUPLICATE KEY UPDATE \
              rates_provider = incoming.rates_provider, \
              rates_provider_url = incoming.rates_provider_url, \
@@ -309,7 +310,7 @@ impl CurrencyStore {
 
     pub(crate) async fn mark_synced(&self, at: DateTime<Utc>) -> Result<(), AppError> {
         sqlx::query(
-            "INSERT INTO currency_settings (id, last_synced_at) VALUES (1, ?) AS incoming \
+            "INSERT INTO money_settings (id, last_synced_at) VALUES (1, ?) AS incoming \
              ON DUPLICATE KEY UPDATE last_synced_at = incoming.last_synced_at",
         )
         .bind(mapper::naive(at))
@@ -322,11 +323,11 @@ impl CurrencyStore {
         &self,
         tx: &mut MySqlTx,
     ) -> Result<Option<String>, AppError> {
-        sqlx::query("INSERT IGNORE INTO currency_settings (id) VALUES (1)")
+        sqlx::query("INSERT IGNORE INTO money_settings (id) VALUES (1)")
             .execute(&mut **tx)
             .await?;
         Ok(
-            sqlx::query_scalar("SELECT rates_base FROM currency_settings WHERE id = 1 FOR UPDATE")
+            sqlx::query_scalar("SELECT rates_base FROM money_settings WHERE id = 1 FOR UPDATE")
                 .fetch_one(&mut **tx)
                 .await?,
         )
@@ -337,7 +338,7 @@ impl CurrencyStore {
         tx: &mut MySqlTx,
         base: &str,
     ) -> Result<(), AppError> {
-        sqlx::query("UPDATE currency_settings SET rates_base = ? WHERE id = 1")
+        sqlx::query("UPDATE money_settings SET rates_base = ? WHERE id = 1")
             .bind(base)
             .execute(&mut **tx)
             .await?;
@@ -357,7 +358,7 @@ impl CurrencyStore {
         tx: &mut MySqlTx,
     ) -> Result<Vec<ExchangeRate>, AppError> {
         sqlx::query(sqlx::AssertSqlSafe(format!(
-            "SELECT {RATE_COLUMNS} FROM exchange_rates ORDER BY currency, effective_date FOR UPDATE"
+            "SELECT {RATE_COLUMNS} FROM money_exchange_rates ORDER BY currency, effective_date FOR UPDATE"
         )))
         .fetch_all(&mut **tx)
         .await?
@@ -373,7 +374,7 @@ impl CurrencyStore {
         date: NaiveDate,
     ) -> Result<Option<ExchangeRate>, AppError> {
         sqlx::query(sqlx::AssertSqlSafe(format!(
-            "SELECT {RATE_COLUMNS} FROM exchange_rates \
+            "SELECT {RATE_COLUMNS} FROM money_exchange_rates \
              WHERE currency = ? AND effective_date = ? FOR UPDATE"
         )))
         .bind(currency)

@@ -4,8 +4,7 @@ import { defineModule } from '@/kernel/modules/define'
 import { currenciesSettingsRoute } from './routes'
 
 const currenciesModule = defineModule({
-  key: 'currencies',
-  required: true,
+  key: 'money',
   translations: { 'pt-BR': () => import('./i18n/pt-BR.json'), en: () => import('./i18n/en.json') },
   register(app) {
     app.settings('organization', {

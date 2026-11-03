@@ -32,7 +32,7 @@ use aphel_kernel::database::transaction::MySqlTx;
 use aphel_kernel::domain::access::Permission;
 use aphel_kernel::errors::{AppError, FieldViolation};
 use aphel_kernel::records::{RecordMutation, publish_mutation};
-use currencies::domain::{BASE_AMOUNT_FIELD, BASE_AMOUNT_METRIC};
+use aphel_sdk::money::{BASE_AMOUNT_FIELD, BASE_AMOUNT_METRIC};
 use deals::team::domain::CreditedUsers;
 use deals::team::service::{credited_from_owner_filter, credited_won_months};
 

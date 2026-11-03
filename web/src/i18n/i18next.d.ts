@@ -14,7 +14,6 @@ import type commandPaletteNamespace from './pt-BR/command-palette.json'
 import type commonNamespace from './pt-BR/common.json'
 import type configPackageVersioningNamespace from './pt-BR/config-package-versioning.json'
 import type configPackagesNamespace from './pt-BR/config-packages.json'
-import type currenciesNamespace from '../modules/currencies/i18n/pt-BR.json'
 import type dashboardNamespace from '../modules/dashboard/i18n/pt-BR.json'
 import type dealItemsNamespace from '../modules/deal_items/i18n/pt-BR.json'
 import type dealsNamespace from '../modules/deals/i18n/pt-BR.json'
@@ -47,6 +46,7 @@ import type microsoftNamespace from '../modules/microsoft/i18n/pt-BR.json'
 import type migrationsAssistantNamespace from '../modules/migrations_assistant/i18n/pt-BR.json'
 import type mobileNamespace from './pt-BR/mobile.json'
 import type modulesNamespace from './pt-BR/modules.json'
+import type moneyNamespace from '../modules/money/i18n/pt-BR.json'
 import type navigationSettingsNamespace from './pt-BR/navigation-settings.json'
 import type notesNamespace from '../modules/notes/i18n/pt-BR.json'
 import type notificationsNamespace from './pt-BR/notifications.json'
@@ -111,7 +111,6 @@ declare module 'i18next' {
       common: typeof commonNamespace
       'config-package-versioning': typeof configPackageVersioningNamespace
       'config-packages': typeof configPackagesNamespace
-      currencies: typeof currenciesNamespace
       dashboard: typeof dashboardNamespace
       deal_items: typeof dealItemsNamespace
       deals: typeof dealsNamespace
@@ -144,6 +143,7 @@ declare module 'i18next' {
       migrations_assistant: typeof migrationsAssistantNamespace
       mobile: typeof mobileNamespace
       modules: typeof modulesNamespace
+      money: typeof moneyNamespace
       'navigation-settings': typeof navigationSettingsNamespace
       notes: typeof notesNamespace
       notifications: typeof notificationsNamespace

@@ -48,7 +48,7 @@ export function CurrenciesSettingsPage() {
 }
 
 function CurrenciesSettings() {
-  const { t } = useTranslation('currencies')
+  const { t } = useTranslation('money')
   const settings = useCurrencySettings()
   return (
     <Page>
@@ -69,7 +69,7 @@ function CurrenciesSettings() {
 }
 
 function EnabledCurrencies({ settings }: { settings: CurrencySettings }) {
-  const { t } = useTranslation('currencies')
+  const { t } = useTranslation('money')
   const { hasPermission } = useSession()
   const canEdit = hasPermission(SETTINGS_MANAGE)
   const formatting = useRecordFormatting()
@@ -192,7 +192,7 @@ function EnabledCurrencies({ settings }: { settings: CurrencySettings }) {
 }
 
 function ExchangeRates({ settings }: { settings: CurrencySettings }) {
-  const { t } = useTranslation('currencies')
+  const { t } = useTranslation('money')
   const { hasPermission } = useSession()
   const canEdit = hasPermission(SETTINGS_MANAGE)
   const formatting = useRecordFormatting()
@@ -359,7 +359,7 @@ interface RateDialogProps {
 }
 
 function RateDialog({ editor, currencies, today, onClose, onSaved }: RateDialogProps) {
-  const { t } = useTranslation('currencies')
+  const { t } = useTranslation('money')
   const editing = editor?.rate ?? null
   return (
     <Dialog open={editor !== null} onOpenChange={(open) => !open && onClose()}>
@@ -392,7 +392,7 @@ interface RateFormProps {
 }
 
 function RateForm({ editing, currencies, today, onClose, onSaved }: RateFormProps) {
-  const { t } = useTranslation('currencies')
+  const { t } = useTranslation('money')
   const formId = useId()
   const [currency, setCurrency] = useState(editing?.currency ?? currencies[0] ?? '')
   const [date, setDate] = useState(editing?.effective_date ?? today)

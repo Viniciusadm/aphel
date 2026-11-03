@@ -87,7 +87,7 @@ const MODULE_CLEANUP_BEFORE_RECORDS: [(&str, &str); 6] = [
     ("validation_rules", "validation_rule"),
     ("quotes", "quotes.quote"),
     ("price_lists", "price_list"),
-    ("exchange_rates", "exchange_rate"),
+    ("money_exchange_rates", "exchange_rate"),
 ];
 const MODULE_CLEANUP_AFTER_RECORDS: [(&str, &str); 1] = [("products", "products.product")];
 

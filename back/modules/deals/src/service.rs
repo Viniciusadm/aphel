@@ -53,10 +53,7 @@ use aphel_kernel::records::{
     InputValidator, PendingCommit, changes_payload, contributed_input, is_writable_contributed,
     load_contributed, merge_contributed, with_contributed, write_contributed,
 };
-use currencies::{
-    CurrencyConverter,
-    domain::{base_amount, currency_not_enabled},
-};
+use aphel_sdk::money::{CurrencyConverter, base_amount, currency_not_enabled};
 use workflow::domain::{
     LostReason, PIPELINE_NOT_FOUND, Pipeline, PipelineStage, StageKind, first_active_of_kind,
     parse_id, pipeline_ref, pipeline_visible, sees_every_pipeline, stage_ref, valid_probability,

@@ -6,7 +6,7 @@ Session 25, track B. Three pieces that the quote (track A) consumes through the 
 
 | Table | What it stores |
 | --- | --- |
-| `price_lists` | Price list: stable, unique `key`, name, description, `currency` (enabled in the organization, `organization_currencies`), `applies_to` (`all`, `segment`, `organizations`), `segment_id` (company segment), `valid_from`/`valid_to` (optional, inclusive), `is_active`, `is_default` (at most one default per currency, guaranteed by the generated column `default_marker`) |
+| `price_lists` | Price list: stable, unique `key`, name, description, `currency` (enabled in the organization, `money_currencies`), `applies_to` (`all`, `segment`, `organizations`), `segment_id` (company segment), `valid_from`/`valid_to` (optional, inclusive), `is_active`, `is_default` (at most one default per currency, guaranteed by the generated column `default_marker`) |
 | `price_list_companies` | Companies of a list with `applies_to = organizations` |
 | `price_list_items` | A product's price in the list: `unit_price` and `min_quantity` (tier; unique per product) |
 | `product_bundles` | The product is a bundle: `pricing` (`fixed` or `sum`) |

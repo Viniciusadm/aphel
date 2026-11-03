@@ -18,7 +18,7 @@ use aphel_kernel::application::query::{
 use aphel_kernel::application::shared::RecordType;
 use aphel_kernel::domain::access::Permission;
 use aphel_kernel::errors::{AppError, FieldViolation};
-use currencies::domain::{BASE_AMOUNT_FIELD, BASE_AMOUNT_METRIC};
+use aphel_sdk::money::{BASE_AMOUNT_FIELD, BASE_AMOUNT_METRIC};
 use workflow::rotting::stale_record_filter;
 
 use crate::queries::{

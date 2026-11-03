@@ -28,7 +28,7 @@ use aphel_kernel::database::transaction::MySqlTx;
 use aphel_kernel::domain::access::Permission;
 use aphel_kernel::errors::{AppError, FieldViolation};
 use aphel_kernel::records::{InputValidator, RecordMutation, changes_payload, publish_mutation};
-use currencies::domain::base_amount;
+use aphel_sdk::money::base_amount;
 use deals::domain::{
     DEAL_AMOUNT_CHANGED, DEAL_UPDATED, DealRecord, deal_not_found, revenue_changes,
 };

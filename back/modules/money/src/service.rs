@@ -1,4 +1,3 @@
-use aphel_contract_crm::CrmPermissions;
 use std::collections::BTreeSet;
 use std::str::FromStr;
 
@@ -59,7 +58,9 @@ pub(crate) fn require_reader(scope: &AccessScope) -> Result<(), AppError> {
     if scope.require(&Permission::SETTINGS_MANAGE).is_ok() {
         return Ok(());
     }
-    scope.require(&Permission::DEALS_READ).map(|_| ())
+    scope
+        .require(&aphel_sdk::money::READ_PERMISSION)
+        .map(|_| ())
 }
 
 fn parse_rate(value: &str, violations: &mut Vec<FieldViolation>) -> Option<Decimal> {

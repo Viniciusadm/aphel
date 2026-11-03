@@ -1,4 +1,5 @@
 use aphel_sdk::assignment::AssignmentTraits;
+use aphel_sdk::money::MoneyTraits;
 use aphel_sdk::workflow::WorkflowRecordTypes;
 mod workflow_source;
 use aphel_sdk::workflow::WorkflowTraits;
@@ -158,6 +159,12 @@ pub(crate) fn deal_capabilities() -> EntityTraits {
         .relatable()
         .importable()
         .exportable()
+        .monetary(aphel_sdk::money::MonetaryMapping {
+            amount_field: "amount".into(),
+            currency_field: "currency".into(),
+            base_amount_field: "amount_base".into(),
+            exchange_rate_field: "exchange_rate".into(),
+        })
         .workload(aphel_sdk::assignment::WorkloadMapping {
             state_field: "status".into(),
             active_states: vec!["open".into()],
@@ -275,7 +282,8 @@ pub(crate) fn deal_definition() -> Result<EntityDefinition, AppError> {
             RecordType::CONTACT,
             "contact_id",
         ))
-        .relation(activities_relation());
+        .relation(activities_relation())
+        .system_fields(aphel_sdk::money::base_currency_fields()?);
     Ok(with_fields(definition, timestamps()?))
 }
 
@@ -287,7 +295,7 @@ impl Module for DealsModule {
             .description("Deals, stage changes, the Kanban board and the team of each deal")
             .required()
             .depends_on(workflow::KEY, "*")
-            .depends_on(currencies::KEY, "*")
+            .depends_on(aphel_sdk::money::KEY, "*")
             .depends_on(people::KEY, "*")
             .depends_on(organizations::KEY, "*")
             .owned_tables(&[
@@ -434,8 +442,10 @@ impl Module for DealsModule {
             .openapi_tag(http::TAG, "Deals, stage changes and the Kanban board")
             .routes(|_| http::router())
             .consumer(|env| Arc::new(runtime::DealLastActivityConsumer::new(env.pool.clone())))
-            .consumer(|env| Arc::new(runtime::DealStageHistoryConsumer::new(env.pool.clone())))
-            .job(|env| Arc::new(runtime::CurrencyRecalculateHandler::new(env.pool.clone())));
+            .consumer(|env| Arc::new(runtime::DealStageHistoryConsumer::new(env.pool.clone())));
+        app.contribute::<dyn aphel_sdk::money::MoneyRecalculationSource>(Arc::new(
+            runtime::DealRecalculation,
+        ));
         for permission in RECORD_PERMISSIONS {
             let definition = PermissionDefinition::record(permission.clone());
             if permission == Permission::DEALS_ARCHIVE {

@@ -19,20 +19,20 @@ export const currenciesKeys = {
 }
 
 export const currenciesApi = {
-  settings: () => api.get<CurrencySettings>('/v1/currencies'),
-  setCurrencies: (currencies: string[]) => api.put<CurrencySettings>('/v1/currencies', { currencies }),
+  settings: () => api.get<CurrencySettings>('/v1/money/currencies'),
+  setCurrencies: (currencies: string[]) => api.put<CurrencySettings>('/v1/money/currencies', { currencies }),
   listRates: (currency: string, page: number) =>
-    api.get<ExchangeRatesPage>('/v1/currencies/rates', {
+    api.get<ExchangeRatesPage>('/v1/money/currencies/rates', {
       query: { currency: currency || undefined, page, per_page: RATES_PER_PAGE },
     }),
-  createRate: (body: CreateExchangeRateRequest) => api.post<ExchangeRate>('/v1/currencies/rates', body),
+  createRate: (body: CreateExchangeRateRequest) => api.post<ExchangeRate>('/v1/money/currencies/rates', body),
   updateRate: (id: string, body: UpdateExchangeRateRequest, version: string) =>
-    api.patch<ExchangeRate>(`/v1/currencies/rates/${encodeURIComponent(id)}`, body, {
+    api.patch<ExchangeRate>(`/v1/money/currencies/rates/${encodeURIComponent(id)}`, body, {
       headers: { 'If-Match': version },
     }),
-  deleteRate: (id: string) => api.delete<void>(`/v1/currencies/rates/${encodeURIComponent(id)}`),
-  updateProvider: (body: UpdateRatesProviderRequest) => api.put<CurrencySettings>('/v1/currencies/provider', body),
-  syncRates: () => api.post<ExchangeRatesSync>('/v1/currencies/rates/sync'),
+  deleteRate: (id: string) => api.delete<void>(`/v1/money/currencies/rates/${encodeURIComponent(id)}`),
+  updateProvider: (body: UpdateRatesProviderRequest) => api.put<CurrencySettings>('/v1/money/currencies/provider', body),
+  syncRates: () => api.post<ExchangeRatesSync>('/v1/money/currencies/rates/sync'),
 }
 
 export function useCurrencySettings(enabled = true) {
@@ -56,3 +56,5 @@ export function useInvalidateCurrencies() {
   const queryClient = useQueryClient()
   return () => queryClient.invalidateQueries({ queryKey: currenciesKeys.all })
 }
+
+export { currencyErrorKey } from './errors'

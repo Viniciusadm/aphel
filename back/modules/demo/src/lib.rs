@@ -28,7 +28,7 @@ impl Module for DemoModule {
                 "Fictional demo data (seed, removal and reset) and the public demo mode status",
             )
             .depends_on(onboarding::KEY, "*")
-            .optional(currencies::KEY)
+            .optional(aphel_sdk::money::KEY)
             .optional(workflow::KEY)
             .optional(products::KEY)
             .optional(price_lists::KEY)

@@ -337,8 +337,8 @@ Taken from the build (`aphel modules doctor` lists the same contributions per mo
 | `automations` | `automation.run`, `automations.time_sweep`, `automations.resume_waiting` | `automations.time_sweep` (`0 * * * * *`), `automations.resume_waiting` (`30 * * * * *`) | `automations.trigger`, `automations.cancel_waiting`, `automations.rotting_catch_up` |
 | `bulk_actions` | `bulk.run` | | `bulk_actions.notifications` |
 | `organizations` | | | `organizations.hierarchy_restore` |
-| `currencies` | `currencies.sync_rates` | `currencies.sync_rates` (`0 15 6 * * *`) | `currencies.base_currency` |
-| `deals` | `currencies.recalculate` | | `deals.last_activity`, `reports.deal_stage_history`, `deals.team_notifications` |
+| `currencies` | `money.sync_rates` | `money.sync_rates` (`0 15 6 * * *`) | `money.base_currency` |
+| `deals` | `money.recalculate` | | `deals.last_activity`, `reports.deal_stage_history`, `deals.team_notifications` |
 | `duplicates` | `duplicates.scan` | `duplicates.scan` (`0 15 3 * * *`) | |
 | `email` | `email.send_scheduled`, `email.sync`, `email.sync.mailbox` | `email.sync` (`0 * * * * *`) | `email.reply_detection`, `email.engagement` |
 | `esign` | `esign.attach_signed` | | |

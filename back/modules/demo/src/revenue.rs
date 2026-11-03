@@ -9,16 +9,16 @@ use aphel_kernel::Ctx;
 use aphel_kernel::application::shared::RecordType;
 use aphel_kernel::errors::{AppError, CodedKind};
 use approvals::domain::{PolicyCommand, StepInput};
-use currencies::domain::{CreateExchangeRateCommand, SetCurrenciesCommand};
 use deal_items::domain::{DealItemInput, SaveDealItemCommand};
 use deals::team::domain::AddDealMemberCommand;
+use money::domain::{CreateExchangeRateCommand, SetCurrenciesCommand};
 use price_lists::domain::{PriceListItemInput, ReplacePriceListItemsCommand, SavePriceListCommand};
 use products::domain::{ProductInput, SaveProductCommand};
 use quotes::domain::{CreateQuoteCommand, QuoteInput};
 use workflow::domain::UpdateStageCommand;
 
 pub(crate) const EXCHANGE_RATE_RECORD_TYPE: RecordType =
-    RecordType::from_static("currencies.exchange_rate");
+    RecordType::from_static("money.exchange_rate");
 pub(crate) const PRICE_LIST_RECORD_TYPE: RecordType =
     RecordType::from_static("price_lists.price_list");
 pub(crate) const QUOTE_RECORD_TYPE: RecordType = RecordType::from_static("quotes.quote");
@@ -73,10 +73,10 @@ pub(crate) fn enabled(ctx: &Ctx<'_>, module: &str) -> bool {
 pub(crate) async fn seed_currency(
     ctx: &Ctx<'_>,
 ) -> Result<Option<(&'static str, &'static str)>, AppError> {
-    if !enabled(ctx, currencies::KEY) {
+    if !enabled(ctx, aphel_sdk::money::KEY) {
         return Ok(None);
     }
-    let settings = currencies::service::settings(ctx).await?;
+    let settings = money::service::settings(ctx).await?;
     let Some((code, rate)) = FOREIGN_CURRENCIES
         .into_iter()
         .find(|(code, _)| *code != settings.base)
@@ -91,7 +91,7 @@ pub(crate) async fn seed_currency(
         .collect();
     if !codes.iter().any(|existing| existing == code) {
         codes.push(code.to_owned());
-        currencies::service::set_currencies(
+        money::service::set_currencies(
             ctx,
             SetCurrenciesCommand {
                 currencies: codes,
@@ -113,7 +113,7 @@ pub(crate) async fn seed_rates(
         let effective_date = (today - Duration::days(days))
             .format("%Y-%m-%d")
             .to_string();
-        match currencies::service::create_rate(
+        match money::service::create_rate(
             ctx,
             CreateExchangeRateCommand {
                 currency: code.to_owned(),

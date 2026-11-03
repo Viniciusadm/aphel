@@ -14,21 +14,19 @@ use std::sync::Arc;
 
 use aphel_kernel::modules::Migration;
 
-use aphel_kernel::application::fields::builtin::field;
 use aphel_kernel::application::public_events::{
     PreviousValues, PublicEventDefinition, PublicResource, changed, deleted, event,
 };
-use aphel_kernel::domain::fields::FieldType;
 use aphel_kernel::errors::AppError;
 use aphel_kernel::modules::builder::APHEL_VERSION;
 use aphel_kernel::modules::{AppBuilder, Manifest, Module};
 
-pub use hooks::{CurrencyConverter, RateCurrencyConverter};
+use hooks::{CurrencyConverter, RateCurrencyConverter};
 
-pub const KEY: &str = "currencies";
+pub const KEY: &str = "money";
 
 pub(crate) const EXCHANGE_RATE_RESOURCE: PublicResource =
-    PublicResource::new("currencies.exchange_rate", "ExchangeRateResponse");
+    PublicResource::new("money.exchange_rate", "ExchangeRateResponse");
 pub(crate) const CURRENCY_RESOURCE: PublicResource = PublicResource::payload("currency");
 pub(crate) const CURRENCY_BASE_RESOURCE: PublicResource = PublicResource::payload("currency_base");
 
@@ -67,16 +65,15 @@ const PUBLIC_EVENTS: &[PublicEventDefinition] = &[
     ),
 ];
 
-pub struct CurrenciesModule;
+pub struct MoneyModule;
 
-impl Module for CurrenciesModule {
+impl Module for MoneyModule {
     fn manifest(&self) -> Manifest {
-        Manifest::new(KEY, "Currencies", APHEL_VERSION)
+        Manifest::new(KEY, "Money", APHEL_VERSION)
             .description(
                 "Enabled currencies of the organization, dated exchange rates and the conversion of amounts to the base currency",
             )
-            .required()
-            .owned_tables(&["currency_settings", "exchange_rates", "organization_currencies"])
+            .owned_tables(&["money_settings", "money_exchange_rates", "money_currencies"])
             .migration(Migration::new(
                 1,
                 "create currencies",
@@ -85,7 +82,7 @@ impl Module for CurrenciesModule {
             .migration(Migration::new(
                 2,
                 "create currency settings",
-                include_str!("../migrations/0002_create_currency_settings.sql"),
+                include_str!("../migrations/0002_create_money_settings.sql"),
             ))
     }
 
@@ -96,23 +93,55 @@ impl Module for CurrenciesModule {
                 std::sync::Arc::new(crate::section::CurrenciesSection::new(pool.clone()))
             }),
         ));
-        let amount_base = field(
-            domain::BASE_AMOUNT_FIELD,
-            "Valor na moeda base",
-            FieldType::Currency,
-        )?;
-        let exchange_rate = field("exchange_rate", crate::labels("Quote"), FieldType::Number)?;
-        app.extend("deals.deal", |deal| {
-            deal.system_field(amount_base.clone())
-                .system_field(exchange_rate.clone());
-        })
-        .provide::<dyn CurrencyConverter>(Arc::new(RateCurrencyConverter))
+        app.contract(aphel_sdk::money::DESCRIPTOR);
+        use aphel_kernel::application::fields::{
+            EntityDefinition, EntityTraits,
+            builtin::{field, timestamps, with_fields},
+        };
+        use aphel_kernel::application::shared::RecordType;
+        use aphel_kernel::domain::fields::FieldType;
+        app.entity(with_fields(
+            EntityDefinition::new(
+                RecordType::from_static("money.exchange_rate"),
+                "money_exchange_rates",
+                aphel_sdk::money::READ_PERMISSION,
+            )
+            .capabilities(
+                EntityTraits::default()
+                    .with_trait("records.global")
+                    .localized_labels(aphel_kernel::application::fields::LocalizedLabels(
+                        std::collections::BTreeMap::from([
+                            ("en".into(), "Exchange rates".into()),
+                            ("pt-BR".into(), "Taxas de câmbio".into()),
+                        ]),
+                    )),
+            )
+            .title_field("currency")
+            .system_field(field("currency", labels("Currency"), FieldType::Text)?)
+            .system_field(field(
+                "effective_date",
+                labels("Effective date"),
+                FieldType::Date,
+            )?)
+            .system_field(field("rate", labels("Rate"), FieldType::Number)?)
+            .system_field(field("created_by", labels("Created by"), FieldType::User)?),
+            timestamps()?,
+        ));
+        app.permission(
+            aphel_kernel::domain::access::PermissionDefinition::administrative(
+                aphel_sdk::money::READ_PERMISSION,
+            ),
+        )
+        .grant_to(["admin", "manager", "member"]);
+        app.provide::<dyn CurrencyConverter>(Arc::new(RateCurrencyConverter))
+        .provide::<dyn aphel_sdk::money::MoneyRates>(Arc::new(RateCurrencyConverter))
         .openapi_tag(
             http::TAG,
             "Enabled currencies of the organization and dated exchange rates to the base currency",
         )
         .routes(|_| http::router())
         .job(|env| runtime::exchange_rates_sync_handler(env.pool.clone()))
+        .job(|env| Arc::new(runtime::MoneyRecalculateHandler::new(env.pool.clone())))
         .schedule(runtime::exchange_rates_sync_schedule())
         .consumer(|env| Arc::new(runtime::BaseCurrencyConsumer::new(env.pool.clone())));
         for definition in PUBLIC_EVENTS {
@@ -128,7 +157,7 @@ impl Module for CurrenciesModule {
     }
 }
 
-pub(crate) fn labels(key: &str) -> aphel_kernel::application::fields::LocalizedLabels {
+fn labels(key: &str) -> aphel_kernel::application::fields::LocalizedLabels {
     aphel_kernel::application::fields::LocalizedLabels::from_catalog(
         include_str!("../locales/labels.json"),
         key,

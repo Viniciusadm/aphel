@@ -7,6 +7,9 @@ license.workspace = true
 publish = false
 
 [dependencies]
+aphel-contract-money.workspace = true
+chrono-tz.workspace = true
+rust_decimal.workspace = true
 aphel-contract-assignment.workspace = true
 aphel-contract-messaging.workspace = true
 aphel-contract-calendar.workspace = true

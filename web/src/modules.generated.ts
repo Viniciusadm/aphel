@@ -13,7 +13,7 @@ import peopleModule from '@modules/people'
 import organizationsModule from '@modules/organizations'
 import leadsModule from '@modules/leads'
 import scoringModule from '@modules/scoring'
-import currenciesModule from '@modules/currencies'
+import moneyModule from '@modules/money'
 import workflowModule from '@modules/workflow'
 import dealsModule from '@modules/deals'
 import dealItemsModule from '@modules/deal_items'
@@ -78,7 +78,7 @@ export const MODULES: WebModule[] = [
   organizationsModule,
   leadsModule,
   scoringModule,
-  currenciesModule,
+  moneyModule,
   workflowModule,
   dealsModule,
   dealItemsModule,

@@ -17,7 +17,7 @@ const PROVIDERS: RatesProviderKey[] = ['manual', 'frankfurter']
 const URL_PATTERN = /^https?:\/\/\S+$/i
 
 export function RatesProviderSettings({ settings }: { settings: CurrencySettings }) {
-  const { t } = useTranslation('currencies')
+  const { t } = useTranslation('money')
   const { hasPermission } = useSession()
   const canEdit = hasPermission(SETTINGS_MANAGE)
   const formatting = useRecordFormatting()

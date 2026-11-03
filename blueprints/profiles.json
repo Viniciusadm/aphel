@@ -32,7 +32,8 @@
       "config_packages",
       "calendar",
       "tasks",
-      "workflow"
+      "workflow",
+      "money"
     ]
   },
   {
@@ -77,7 +78,8 @@
       "config_packages",
       "calendar",
       "tasks",
-      "workflow"
+      "workflow",
+      "money"
     ]
   },
   {
@@ -117,7 +119,8 @@
       "config_packages",
       "calendar",
       "tasks",
-      "workflow"
+      "workflow",
+      "money"
     ]
   },
   {
@@ -157,7 +160,8 @@
       "config_packages",
       "calendar",
       "tasks",
-      "workflow"
+      "workflow",
+      "money"
     ]
   },
   {
@@ -200,7 +204,8 @@
       "config_packages",
       "calendar",
       "tasks",
-      "workflow"
+      "workflow",
+      "money"
     ]
   },
   {
@@ -245,7 +250,8 @@
       "config_packages",
       "calendar",
       "tasks",
-      "workflow"
+      "workflow",
+      "money"
     ]
   },
   {
@@ -279,7 +285,8 @@
       "config_packages",
       "calendar",
       "tasks",
-      "workflow"
+      "workflow",
+      "money"
     ]
   }
 ]

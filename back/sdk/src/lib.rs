@@ -78,3 +78,5 @@ pub mod calendar;
 pub mod messaging;
 
 pub mod assignment;
+
+pub mod money;

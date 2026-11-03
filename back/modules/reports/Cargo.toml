@@ -7,10 +7,10 @@ license.workspace = true
 publish = false
 
 [dependencies]
+aphel-sdk.workspace = true
 saved_views = { package = "aphel-mod-saved-views", path = "../saved_views" }
 aphel-contract-crm.workspace = true
 aphel-kernel.workspace = true
-currencies = { package = "aphel-mod-currencies", path = "../currencies" }
 dashboard = { package = "aphel-mod-dashboard", path = "../dashboard" }
 deals = { package = "aphel-mod-deals", path = "../deals" }
 exports = { package = "aphel-mod-exports", path = "../exports" }

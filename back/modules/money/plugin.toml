@@ -1,5 +1,5 @@
-key = "currencies"
-name = "Currencies"
+key = "money"
+name = "Money"
 version = "0.1.0"
 layer = "capability"
 runtime = "native"

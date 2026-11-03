@@ -220,5 +220,10 @@
   },
   "placeholders": {
     "note": "Conte o que aconteceu"
+  },
+  "currency": {
+    "currency": "Moeda da oportunidade",
+    "converted": "≈ {{amount}} (cotação {{rate}})",
+    "notConverted": "Sem cotação para {{base}}"
   }
 }

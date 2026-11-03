@@ -1,0 +1,18 @@
+{
+  "Currency": {
+    "en": "Currency",
+    "pt-BR": "Moeda"
+  },
+  "Effective date": {
+    "en": "Effective date",
+    "pt-BR": "Data de vigência"
+  },
+  "Rate": {
+    "en": "Rate",
+    "pt-BR": "Taxa de câmbio"
+  },
+  "Created by": {
+    "en": "Created by",
+    "pt-BR": "Criado por"
+  }
+}

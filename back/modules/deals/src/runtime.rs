@@ -13,12 +13,10 @@ use crate::domain::{DEAL_CREATED, DEAL_STAGE_CHANGED, StageTransitionEntry};
 use crate::hooks::AmountCalculator;
 use crate::store::DealStore;
 use aphel_kernel::application::fields::RecordTypeRegistry;
-use aphel_kernel::application::shared::{
-    DomainEvent, EventConsumer, JobContext, JobHandler, RecordType,
-};
+use aphel_kernel::application::shared::{DomainEvent, EventConsumer, RecordType};
 use aphel_kernel::errors::AppError;
-use currencies::domain::{CURRENCIES_RECALCULATE_JOB, normalize_currency_code, organization_today};
-use currencies::store::CurrencyStore;
+use aphel_sdk::money::MoneyRates;
+use aphel_sdk::money::organization_today;
 
 pub(crate) const DEALS_LAST_ACTIVITY_CONSUMER: &str = "deals.last_activity";
 pub(crate) const DEAL_STAGE_HISTORY_CONSUMER: &str = "reports.deal_stage_history";
@@ -168,8 +166,10 @@ impl CurrencyRecalculateHandler {
     }
 
     async fn recalculate(&self, currency: Option<&str>) -> Result<u64, AppError> {
-        let currencies = CurrencyStore::new(self.pool.clone());
-        let Some(context) = currencies.find_context().await? else {
+        let currencies = aphel_kernel::modules::app()
+            .services()
+            .require::<dyn MoneyRates>()?;
+        let Some(context) = currencies.context(&self.pool).await? else {
             return Ok(0);
         };
         let deals = store(self.pool.clone());
@@ -186,10 +186,7 @@ impl CurrencyRecalculateHandler {
             let rate = if code == context.base {
                 Some(Decimal::ONE)
             } else {
-                currencies
-                    .rate_on(&code, today)
-                    .await?
-                    .map(|rate| rate.rate)
+                currencies.rate_on(&self.pool, &code, today).await?
             };
             let mut tx =
                 aphel_kernel::database::transaction::MySqlTx::from(self.pool.begin().await?);
@@ -201,23 +198,12 @@ impl CurrencyRecalculateHandler {
     }
 }
 
+pub(crate) struct DealRecalculation;
 #[async_trait]
-impl JobHandler for CurrencyRecalculateHandler {
-    fn kind(&self) -> &str {
-        CURRENCIES_RECALCULATE_JOB
-    }
-
-    async fn handle(&self, _context: &JobContext, payload: Value) -> Result<(), AppError> {
-        let currency = payload
-            .get("currency")
-            .and_then(Value::as_str)
-            .and_then(normalize_currency_code);
-        let updated = self.recalculate(currency.as_deref()).await?;
-        tracing::info!(
-            currency = currency.as_deref().unwrap_or("*"),
-            updated,
-            "open deals converted to the base currency"
-        );
-        Ok(())
+impl aphel_sdk::money::MoneyRecalculationSource for DealRecalculation {
+    async fn recalculate(&self, pool: &MySqlPool, currency: Option<&str>) -> Result<u64, AppError> {
+        CurrencyRecalculateHandler::new(pool.clone())
+            .recalculate(currency)
+            .await
     }
 }

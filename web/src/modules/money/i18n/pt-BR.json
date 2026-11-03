@@ -1,9 +1,9 @@
 {
   "title": "Moedas e câmbio",
-  "description": "Habilite as moedas usadas nas oportunidades e cadastre as cotações para converter os valores à moeda base nos relatórios, previsão, metas e painéis.",
+  "description": "Habilite moedas e taxas de câmbio para registros e agregações monetárias.",
   "enabled": {
     "title": "Moedas habilitadas",
-    "description": "{{base}} é a moeda base da organização e está sempre habilitada. Oportunidades e itens só podem usar moedas habilitadas.",
+    "description": "{{base}} é a moeda base e está sempre habilitada. Registros monetários podem usar as moedas habilitadas.",
     "listLabel": "Moedas habilitadas",
     "base": "Moeda base",
     "currentRate": "1 = {{rate}} {{base}} desde {{date}}",
@@ -17,7 +17,7 @@
   },
   "rates": {
     "title": "Cotações",
-    "description": "Valor de uma unidade da moeda em {{base}}. Vale a cotação mais recente com data até hoje; oportunidades abertas são recalculadas quando uma cotação muda, e as ganhas ou perdidas mantêm a cotação do fechamento.",
+    "description": "Valor de uma unidade da moeda em {{base}}. Vale a cotação vigente mais recente. O dono de cada tipo de registro define quando recalcular os valores ou manter a cotação de fechamento.",
     "filter": "Filtrar por moeda",
     "allCurrencies": "Todas as moedas",
     "new": "Nova cotação",
@@ -32,7 +32,7 @@
     "edit": "Editar cotação",
     "delete": "Excluir cotação",
     "deleteTitle": "Excluir cotação?",
-    "deleteDescription": "As oportunidades abertas voltam a usar a cotação anterior da moeda, se houver.",
+    "deleteDescription": "Registros monetários ativos usam a cotação anterior vigente, quando disponível.",
     "created": "Cotação cadastrada",
     "updated": "Cotação atualizada",
     "deleted": "Cotação excluída",
@@ -53,11 +53,6 @@
       "manual": "Manual",
       "integration": "Integração"
     }
-  },
-  "deal": {
-    "currency": "Moeda da oportunidade",
-    "converted": "≈ {{amount}} (cotação {{rate}})",
-    "notConverted": "Sem cotação para {{base}}"
   },
   "errors": {
     "currency_not_enabled": "A moeda não está habilitada na organização.",

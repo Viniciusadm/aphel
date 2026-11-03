@@ -220,5 +220,10 @@
   },
   "placeholders": {
     "note": "Tell us what happened"
+  },
+  "currency": {
+    "currency": "Deal currency",
+    "converted": "≈ {{amount}} (rate {{rate}})",
+    "notConverted": "No rate to {{base}}"
   }
 }

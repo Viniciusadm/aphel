@@ -31,7 +31,7 @@ use aphel_kernel::domain::access::{AccessScope, Permission, RecordScope};
 use aphel_kernel::domain::{TeamId, UserId};
 use aphel_kernel::errors::{AppError, FieldViolation};
 use aphel_kernel::records::{RecordMutation, publish_mutation};
-use currencies::domain::BASE_AMOUNT_FIELD;
+use aphel_sdk::money::BASE_AMOUNT_FIELD;
 use deals::team::domain::CreditedUsers;
 use deals::team::service::credited_won_total;
 

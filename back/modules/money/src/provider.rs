@@ -81,7 +81,7 @@ impl ExchangeRateProvider for FrankfurterProvider {
             .get(format!("{}/latest", self.base_url))
             .query(&[("from", currency), ("to", base)])
             .header(ACCEPT, "application/json")
-            .header(USER_AGENT, "Aphel-CRM-Currencies/1.0")
+            .header(USER_AGENT, "Aphel-Money/1.0")
             .send()
             .await
             .map_err(|error| {

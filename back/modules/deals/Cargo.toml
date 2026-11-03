@@ -15,7 +15,6 @@ aphel-kernel.workspace = true
 aphel-sdk.workspace = true
 organizations = { package = "aphel-mod-organizations", path = "../organizations" }
 people = { package = "aphel-mod-people", path = "../people" }
-currencies = { package = "aphel-mod-currencies", path = "../currencies" }
 workflow = { package = "aphel-mod-workflow", path = "../workflow" }
 axum.workspace = true
 async-trait.workspace = true

@@ -1,13 +1,13 @@
-CREATE TABLE organization_currencies (
+CREATE TABLE money_currencies (
   currency CHAR(3) NOT NULL,
   enabled_by CHAR(36) NULL,
   enabled_at DATETIME(6) NOT NULL DEFAULT CURRENT_TIMESTAMP(6),
   PRIMARY KEY (currency),
-  KEY organization_currencies_enabled_by_index (enabled_by),
-  CONSTRAINT organization_currencies_enabled_by_fk FOREIGN KEY (enabled_by) REFERENCES users (id) ON DELETE SET NULL
+  KEY money_currencies_enabled_by_index (enabled_by),
+  CONSTRAINT money_currencies_enabled_by_fk FOREIGN KEY (enabled_by) REFERENCES users (id) ON DELETE SET NULL
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci;
 
-CREATE TABLE exchange_rates (
+CREATE TABLE money_exchange_rates (
   id CHAR(36) NOT NULL,
   currency CHAR(3) NOT NULL,
   effective_date DATE NOT NULL,

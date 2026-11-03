@@ -4,7 +4,6 @@ use aphel_kernel::modules::{App, AppBuilder, Module};
 pub const REQUIRED: &[&str] = &[
     "people",
     "organizations",
-    "currencies",
     "deals",
     "notes",
     "timeline",
@@ -45,7 +44,7 @@ pub fn compiled() -> Vec<Box<dyn Module>> {
         #[cfg(feature = "plugins")]
         Box::new(module_scoring::ScoringModule),
         #[cfg(feature = "plugins")]
-        Box::new(module_currencies::CurrenciesModule),
+        Box::new(module_money::MoneyModule),
         #[cfg(feature = "plugins")]
         Box::new(module_workflow::WorkflowModule),
         #[cfg(feature = "plugins")]

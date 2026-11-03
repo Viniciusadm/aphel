@@ -7,13 +7,14 @@ license.workspace = true
 publish = false
 
 [dependencies]
+aphel-sdk.workspace = true
 config_packages = { package = "aphel-mod-config-packages", path = "../config_packages" }
 validation_rules = { package = "aphel-mod-validation-rules", path = "../validation_rules" }
 aphel-contract-crm.workspace = true
 aphel-kernel.workspace = true
 tasks = { package = "aphel-mod-tasks", path = "../tasks" }
 approvals = { package = "aphel-mod-approvals", path = "../approvals" }
-currencies = { package = "aphel-mod-currencies", path = "../currencies" }
+money = { package = "aphel-mod-money", path = "../money" }
 deal_items = { package = "aphel-mod-deal-items", path = "../deal_items" }
 workflow = { package = "aphel-mod-workflow", path = "../workflow" }
 price_lists = { package = "aphel-mod-price-lists", path = "../price_lists" }

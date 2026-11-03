@@ -6,12 +6,9 @@ use crate::store::CurrencyStore;
 use aphel_kernel::Ctx;
 use aphel_kernel::errors::AppError;
 
-#[async_trait]
-pub trait CurrencyConverter: Send + Sync {
-    async fn conversion(&self, ctx: &Ctx<'_>, currency: &str) -> Result<Conversion, AppError>;
-}
+pub(crate) use aphel_sdk::money::CurrencyConverter;
 
-pub struct RateCurrencyConverter;
+pub(crate) struct RateCurrencyConverter;
 
 #[async_trait]
 impl CurrencyConverter for RateCurrencyConverter {
@@ -35,5 +32,26 @@ impl CurrencyConverter for RateCurrencyConverter {
             enabled,
             rate,
         })
+    }
+}
+
+#[async_trait]
+impl aphel_sdk::money::MoneyRates for RateCurrencyConverter {
+    async fn context(
+        &self,
+        pool: &sqlx::MySqlPool,
+    ) -> Result<Option<aphel_sdk::money::CurrencyContext>, AppError> {
+        CurrencyStore::new(pool.clone()).find_context().await
+    }
+    async fn rate_on(
+        &self,
+        pool: &sqlx::MySqlPool,
+        currency: &str,
+        date: chrono::NaiveDate,
+    ) -> Result<Option<Decimal>, AppError> {
+        Ok(CurrencyStore::new(pool.clone())
+            .rate_on(currency, date)
+            .await?
+            .map(|rate| rate.rate))
     }
 }

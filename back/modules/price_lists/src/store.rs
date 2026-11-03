@@ -321,7 +321,7 @@ impl PriceListStore {
     pub(crate) async fn currency_enabled(&self, currency: &str) -> Result<bool, AppError> {
         let enabled: bool = sqlx::query_scalar(
             "SELECT EXISTS(SELECT 1 FROM organization_settings WHERE id = 1 AND currency = ?) \
-             OR EXISTS(SELECT 1 FROM organization_currencies WHERE currency = ?)",
+             OR EXISTS(SELECT 1 FROM money_currencies WHERE currency = ?)",
         )
         .bind(currency)
         .bind(currency)

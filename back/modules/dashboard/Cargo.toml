@@ -7,10 +7,10 @@ license.workspace = true
 publish = false
 
 [dependencies]
+aphel-sdk.workspace = true
 config_packages = { package = "aphel-mod-config-packages", path = "../config_packages" }
 aphel-contract-crm.workspace = true
 aphel-kernel.workspace = true
-currencies = { package = "aphel-mod-currencies", path = "../currencies" }
 workflow = { package = "aphel-mod-workflow", path = "../workflow" }
 axum.workspace = true
 async-trait.workspace = true

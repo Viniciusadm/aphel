@@ -28,7 +28,7 @@ const UNAUTHORIZED: &str = "Missing or invalid credentials (`unauthorized`, `inv
 const FORBIDDEN_MANAGE: &str =
     "Missing `settings.manage` (`permission_denied`, `insufficient_scope`)";
 const FORBIDDEN_READ: &str =
-    "Missing `deals.read` or `settings.manage` (`permission_denied`, `insufficient_scope`)";
+    "Missing `money.read` or `settings.manage` (`permission_denied`, `insufficient_scope`)";
 
 pub(crate) fn router() -> OpenApiRouter<AppState> {
     OpenApiRouter::new()
@@ -41,13 +41,13 @@ pub(crate) fn router() -> OpenApiRouter<AppState> {
 
 #[utoipa::path(
     put,
-    path = "/currencies/provider",
+    path = "/money/currencies/provider",
     tag = TAG,
     operation_id = "currencies_provider_update",
     security(("session_cookie" = [])),
     request_body = UpdateRatesProviderRequest,
     responses(
-        (status = 200, description = "Exchange rate provider configured (`currency.provider_updated`). `manual` turns the automatic fetching off; `frankfurter` fetches the daily rates of the European Central Bank from the public Frankfurter API (no key; `url` points to a self-hosted instance, empty uses https://api.frankfurter.app). The `currencies.sync_rates` job fetches every day at 06:15 UTC", body = Data<CurrencySettingsResponse>),
+        (status = 200, description = "Exchange rate provider configured (`currency.provider_updated`). `manual` turns the automatic fetching off; `frankfurter` fetches the daily rates of the European Central Bank from the public Frankfurter API (no key; `url` points to a self-hosted instance, empty uses https://api.frankfurter.app). The `money.sync_rates` job fetches every day at 06:15 UTC", body = Data<CurrencySettingsResponse>),
         (status = 401, description = UNAUTHORIZED, body = ErrorEnvelope),
         (status = 403, description = FORBIDDEN_MANAGE, body = ErrorEnvelope),
         (status = 422, description = "Unknown provider or invalid address (`validation_error`)", body = ErrorEnvelope),
@@ -73,12 +73,12 @@ async fn update_provider(
 
 #[utoipa::path(
     post,
-    path = "/currencies/rates/sync",
+    path = "/money/currencies/rates/sync",
     tag = TAG,
     operation_id = "currencies_rates_sync",
     security(("session_cookie" = [])),
     responses(
-        (status = 200, description = "Today's rates fetched now from the configured provider for every enabled currency. A new rate publishes `exchange_rate.created` and a changed one `exchange_rate.updated` (source `integration`); a manual rate of the same date is kept. Currencies the provider does not know are listed in `failed`. Open deals are converted again in the background", body = Data<ExchangeRatesSyncResponse>),
+        (status = 200, description = "Today's rates fetched now from the configured provider for every enabled currency. A new rate publishes `exchange_rate.created` and a changed one `exchange_rate.updated` (source `integration`); a manual rate of the same date is kept. Currencies the provider does not know are listed in `failed`. Active monetary records are converted again in the background", body = Data<ExchangeRatesSyncResponse>),
         (status = 401, description = UNAUTHORIZED, body = ErrorEnvelope),
         (status = 403, description = FORBIDDEN_MANAGE, body = ErrorEnvelope),
         (status = 422, description = "No provider configured (`exchange_rate_provider_not_configured`)", body = ErrorEnvelope),
@@ -96,7 +96,7 @@ async fn sync_rates(
 
 #[utoipa::path(
     get,
-    path = "/currencies/rates/{rate_id}",
+    path = "/money/currencies/rates/{rate_id}",
     tag = TAG,
     operation_id = "currencies_rates_get",
     security(("session_cookie" = [])),
@@ -119,12 +119,12 @@ async fn get_rate(
 
 #[utoipa::path(
     get,
-    path = "/currencies",
+    path = "/money/currencies",
     tag = TAG,
     operation_id = "currencies_get",
     security(("session_cookie" = [])),
     responses(
-        (status = 200, description = "Currencies of the organization: the base currency (the organization currency, always first and enabled, rate 1) and the other enabled ones with the rate in effect today (`today`, in the organization time zone): the latest rate dated on or before today. Deals and items can only use enabled currencies; their `amount_base` is `amount × rate`, rounded to cents", body = Data<CurrencySettingsResponse>),
+        (status = 200, description = "Currencies of the organization: the base currency (the organization currency, always first and enabled, rate 1) and the other enabled ones with the rate in effect today (`today`, in the organization time zone): the latest rate dated on or before today. Monetary records can only use enabled currencies; their `amount_base` is `amount × rate`, rounded to cents", body = Data<CurrencySettingsResponse>),
         (status = 401, description = UNAUTHORIZED, body = ErrorEnvelope),
         (status = 403, description = FORBIDDEN_READ, body = ErrorEnvelope),
     )
@@ -139,13 +139,13 @@ async fn get_currencies(
 
 #[utoipa::path(
     put,
-    path = "/currencies",
+    path = "/money/currencies",
     tag = TAG,
     operation_id = "currencies_set",
     security(("session_cookie" = [])),
     request_body = SetCurrenciesRequest,
     responses(
-        (status = 200, description = "Enabled currencies replaced by the list (ISO 4217 codes, at most 30; the base currency is always enabled and ignored in the list). Publishes `currency.enabled` or `currency.disabled` per change. Disabling keeps the deals already in the currency, but new deals and currency changes can no longer use it", body = Data<CurrencySettingsResponse>),
+        (status = 200, description = "Enabled currencies replaced by the list (ISO 4217 codes, at most 30; the base currency is always enabled and ignored in the list). Publishes `currency.enabled` or `currency.disabled` per change. Disabling keeps the monetary records already in the currency, but new monetary records and currency changes can no longer use it", body = Data<CurrencySettingsResponse>),
         (status = 401, description = UNAUTHORIZED, body = ErrorEnvelope),
         (status = 403, description = FORBIDDEN_MANAGE, body = ErrorEnvelope),
         (status = 422, description = "Invalid currency code or too many currencies (`validation_error`)", body = ErrorEnvelope),
@@ -167,7 +167,7 @@ async fn set_currencies(
 
 #[utoipa::path(
     get,
-    path = "/currencies/rates",
+    path = "/money/currencies/rates",
     tag = TAG,
     operation_id = "currencies_rates_list",
     security(("session_cookie" = [])),
@@ -200,13 +200,13 @@ async fn list_rates(
 
 #[utoipa::path(
     post,
-    path = "/currencies/rates",
+    path = "/money/currencies/rates",
     tag = TAG,
     operation_id = "currencies_rates_create",
     security(("session_cookie" = [])),
     request_body = CreateExchangeRateRequest,
     responses(
-        (status = 201, description = "Manual exchange rate created (`exchange_rate.created`); `effective_date` defaults to today in the organization time zone and `rate` is a positive number with up to 10 decimal places. Open deals in the currency and their items are converted again in the background (`currencies.recalculate`; won and lost deals keep the rate of when they closed). A future date is applied on that day", body = Data<ExchangeRateResponse>),
+        (status = 201, description = "Manual exchange rate created (`exchange_rate.created`); `effective_date` defaults to today in the organization time zone and `rate` is a positive number with up to 10 decimal places. Active monetary records in the currency and their items are converted again in the background (`money.recalculate`; completed records retain their closing conversion). A future date is applied on that day", body = Data<ExchangeRateResponse>),
         (status = 401, description = UNAUTHORIZED, body = ErrorEnvelope),
         (status = 403, description = FORBIDDEN_MANAGE, body = ErrorEnvelope),
         (status = 409, description = "The currency already has a rate on this date (`exchange_rate_exists`)", body = ErrorEnvelope),
@@ -229,7 +229,7 @@ async fn create_rate(
 
 #[utoipa::path(
     patch,
-    path = "/currencies/rates/{rate_id}",
+    path = "/money/currencies/rates/{rate_id}",
     tag = TAG,
     operation_id = "currencies_rates_update",
     security(("session_cookie" = [])),
@@ -239,7 +239,7 @@ async fn create_rate(
     ),
     request_body = UpdateExchangeRateRequest,
     responses(
-        (status = 200, description = "Exchange rate updated (`exchange_rate.updated` with the changes); an edited rate becomes `manual`. Open deals in the currency are converted again in the background", body = Data<ExchangeRateResponse>),
+        (status = 200, description = "Exchange rate updated (`exchange_rate.updated` with the changes); an edited rate becomes `manual`. Active monetary records in the currency are converted again in the background", body = Data<ExchangeRateResponse>),
         (status = 401, description = UNAUTHORIZED, body = ErrorEnvelope),
         (status = 403, description = FORBIDDEN_MANAGE, body = ErrorEnvelope),
         (status = 404, description = "Rate not found (`exchange_rate_not_found`)", body = ErrorEnvelope),
@@ -266,13 +266,13 @@ async fn update_rate(
 
 #[utoipa::path(
     delete,
-    path = "/currencies/rates/{rate_id}",
+    path = "/money/currencies/rates/{rate_id}",
     tag = TAG,
     operation_id = "currencies_rates_delete",
     security(("session_cookie" = [])),
     params(("rate_id" = String, Path, description = "Exchange rate id")),
     responses(
-        (status = 204, description = "Exchange rate removed (`exchange_rate.deleted`); open deals in the currency fall back to the previous rate, or to no conversion (`amount_base` empty) when none is left"),
+        (status = 204, description = "Exchange rate removed (`exchange_rate.deleted`); active monetary records in the currency fall back to the previous rate, or to no conversion (`amount_base` empty) when none is left"),
         (status = 401, description = UNAUTHORIZED, body = ErrorEnvelope),
         (status = 403, description = FORBIDDEN_MANAGE, body = ErrorEnvelope),
         (status = 404, description = "Rate not found (`exchange_rate_not_found`)", body = ErrorEnvelope),

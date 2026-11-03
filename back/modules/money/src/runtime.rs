@@ -14,7 +14,7 @@ use aphel_kernel::application::shared::{
 };
 use aphel_kernel::errors::AppError;
 
-pub(crate) const CURRENCIES_BASE_CONSUMER: &str = "currencies.base_currency";
+pub(crate) const CURRENCIES_BASE_CONSUMER: &str = "money.base_currency";
 const ORGANIZATION_UPDATED: &str = "organization.updated";
 
 pub(crate) fn exchange_rates_sync_schedule() -> ScheduledJobDefinition {
@@ -99,6 +99,33 @@ impl EventConsumer for BaseCurrencyConsumer {
         }
         if rebase(&self.ports, &event.actor).await?.is_none() {
             self.ports.jobs.enqueue_now(recalculation_job(None)).await?;
+        }
+        Ok(())
+    }
+}
+
+pub(crate) struct MoneyRecalculateHandler {
+    pool: MySqlPool,
+}
+impl MoneyRecalculateHandler {
+    pub(crate) fn new(pool: MySqlPool) -> Self {
+        Self { pool }
+    }
+}
+#[async_trait]
+impl JobHandler for MoneyRecalculateHandler {
+    fn kind(&self) -> &str {
+        aphel_sdk::money::RECALCULATE_JOB
+    }
+    async fn handle(&self, _context: &JobContext, payload: Value) -> Result<(), AppError> {
+        let currency = payload
+            .get("currency")
+            .and_then(Value::as_str)
+            .and_then(aphel_sdk::money::normalize_currency_code);
+        for source in aphel_kernel::modules::app()
+            .contributions::<dyn aphel_sdk::money::MoneyRecalculationSource>()
+        {
+            source.recalculate(&self.pool, currency.as_deref()).await?;
         }
         Ok(())
     }
