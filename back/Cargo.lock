@@ -343,6 +343,14 @@ dependencies = [
 ]
 
 [[package]]
+name = "aphel-contract-privacy"
+version = "0.1.0"
+dependencies = [
+ "aphel-contract",
+ "serde",
+]
+
+[[package]]
 name = "aphel-contract-tagging"
 version = "0.1.0"
 dependencies = [
@@ -758,7 +766,6 @@ dependencies = [
  "aphel-mod-leads",
  "aphel-mod-organizations",
  "aphel-mod-people",
- "aphel-mod-privacy",
  "aphel-sdk",
  "async-imap",
  "async-trait",
@@ -985,6 +992,7 @@ dependencies = [
  "aphel-mod-dashboard",
  "aphel-mod-exports",
  "aphel-mod-notifications",
+ "aphel-sdk",
  "async-trait",
  "axum",
  "bytes",
@@ -1467,12 +1475,10 @@ dependencies = [
 name = "aphel-mod-privacy"
 version = "0.1.0"
 dependencies = [
- "aphel-contract-crm",
  "aphel-kernel",
  "aphel-mod-exports",
  "aphel-mod-notifications",
  "aphel-mod-search",
- "aphel-mod-trash",
  "aphel-sdk",
  "async-trait",
  "axum",
@@ -1995,6 +2001,7 @@ dependencies = [
  "aphel-contract-messaging",
  "aphel-contract-money",
  "aphel-contract-party",
+ "aphel-contract-privacy",
  "aphel-contract-timeline",
  "aphel-contract-workflow",
  "aphel-kernel",
@@ -2004,6 +2011,7 @@ dependencies = [
  "rust_decimal",
  "serde",
  "serde_json",
+ "sha2 0.11.1",
  "sqlx",
  "uuid",
 ]

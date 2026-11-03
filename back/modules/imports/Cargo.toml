@@ -7,6 +7,7 @@ license.workspace = true
 publish = false
 
 [dependencies]
+aphel-sdk.workspace = true
 notifications = { package = "aphel-mod-notifications", path = "../notifications" }
 dashboard = { package = "aphel-mod-dashboard", path = "../dashboard" }
 aphel-kernel.workspace = true

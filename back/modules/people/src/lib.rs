@@ -128,6 +128,7 @@ pub(crate) fn contact_definition() -> Result<EntityDefinition, AppError> {
                     FieldType::Text,
                     "full_name",
                 )?
+                .read_only()
                 .searchable()
                 .personal(),
             )

@@ -38,7 +38,7 @@ Implementation note: P5.1 connects people and organizations as providers and dup
 **5.6 Generic modules become source-driven**
 
 - [x] **P5.10** ⇄ `timeline`. Review and pending manual acceptance: [timeline sources](p5-timeline.md).
-- [ ] **P5.11** ⇄ `privacy`
+- [x] **P5.11** ⇄ `privacy`. Review and pending manual acceptance: [privacy sources](p5-privacy.md).
 - [ ] **P5.12** ⇄ `reports`
 - [ ] **P5.13** ⇄ `dashboard`
 - [ ] **P5.14** ⇄ `favorites`

@@ -31,3 +31,10 @@ mod generic;
 pub use generic::{EntityWriteBehavior, GenericRecordHandler};
 
 pub(crate) mod references;
+
+mod maintenance;
+pub use maintenance::{
+    StoredTextField, TextAssignment, TextComparison, archive_entity, existing_entity_ids,
+    inspect_entity, mark_entity_deleted, matching_entity_text_ids, purge_entity,
+    update_entity_text,
+};

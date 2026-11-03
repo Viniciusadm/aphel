@@ -25,7 +25,6 @@ use aphel_kernel::application::shared::{
 };
 use aphel_kernel::domain::access::AccessScope;
 use aphel_kernel::errors::{AppError, FieldViolation};
-use trash::{TrashStore, is_trashable};
 
 pub(crate) const RETENTION_BATCH_SIZE: u32 = 200;
 pub(crate) const LOG_PURGE_BATCH_SIZE: u32 = 5_000;
@@ -362,7 +361,7 @@ pub(crate) async fn preview_policy(
     let definition = policy_definition(ctx, policy.record_type.as_deref())?;
     let store = RetentionStore::of(ctx);
     let affected = store
-        .count_candidates(policy.action, definition.as_ref(), threshold_at)
+        .count_candidates(ctx, policy.action, definition.as_ref(), threshold_at)
         .await?;
     store.save_preview(policy.id, affected, now).await?;
     Ok(RetentionPreview {
@@ -618,7 +617,13 @@ async fn apply_policy(
                 .ok_or_else(|| AppError::Internal("policy without record type".to_owned()))?;
             loop {
                 let candidates = store
-                    .record_candidates(policy.action, &definition, threshold, RETENTION_BATCH_SIZE)
+                    .record_candidates(
+                        ctx,
+                        policy.action,
+                        &definition,
+                        threshold,
+                        RETENTION_BATCH_SIZE,
+                    )
                     .await?;
                 let mut progressed = false;
                 for (record_id, title) in &candidates {
@@ -732,7 +737,7 @@ async fn purge_for_retention(
     record_id: Uuid,
     run: &RetentionRun,
 ) -> Result<(bool, u64), AppError> {
-    if !is_trashable(definition) {
+    if !supports_retention(definition) {
         return Ok((false, 0));
     }
     let record = RecordRef::new(definition.record_type.clone(), record_id);
@@ -746,10 +751,7 @@ async fn purge_for_retention(
     privacy
         .mark_deleted(&mut tx, definition, record_id, now)
         .await?;
-    if !TrashStore::of(ctx)
-        .purge(&mut tx, definition, record_id)
-        .await?
-    {
+    if !aphel_sdk::records::purge_entity(&mut tx, definition, record_id).await? {
         return Ok((false, 0));
     }
     publish(

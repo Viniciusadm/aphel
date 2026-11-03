@@ -850,6 +850,21 @@ pub fn build_query(
     plan: &QueryPlan,
     projection: Projection,
 ) -> Result<QueryBuilder<MySql>, AppError> {
+    build_query_inner(scope, plan, projection, true)
+}
+pub fn build_query_unwindowed(
+    scope: &AccessScope,
+    plan: &QueryPlan,
+    projection: Projection,
+) -> Result<QueryBuilder<MySql>, AppError> {
+    build_query_inner(scope, plan, projection, false)
+}
+fn build_query_inner(
+    scope: &AccessScope,
+    plan: &QueryPlan,
+    projection: Projection,
+    windowed: bool,
+) -> Result<QueryBuilder<MySql>, AppError> {
     let definition = &plan.record_type;
     let mut compiler = Compiler::new(scope, definition);
     compiler.joined_extensions = true;
@@ -881,7 +896,7 @@ pub fn build_query(
         }
     }
     push_where_with(&mut builder, scope, plan, &compiler)?;
-    if let Projection::Ids = projection {
+    if windowed && matches!(projection, Projection::Ids) {
         compiler.push_order(&mut builder, &plan.sort);
         builder
             .push(" LIMIT ")

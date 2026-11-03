@@ -20,10 +20,13 @@ pub(crate) async fn search_subject(
     let definitions: Vec<_> = ctx
         .registry()
         .definitions()
-        .filter(|definition| !definition.is_custom())
+        .filter(|definition| definition.capabilities.has_trait("privacy.personal_data"))
         .cloned()
         .collect();
     for definition in &definitions {
+        if !aphel_sdk::privacy::sql::table_exists(ctx, &definition.table).await? {
+            continue;
+        }
         let fields = personal_fields(ctx, definition).await?;
         if fields.is_empty() {
             continue;
@@ -35,20 +38,25 @@ pub(crate) async fn search_subject(
         );
     }
     let refs: Vec<RecordRef> = records.iter().map(|record| record.record.clone()).collect();
-    let notes = store.search_notes(&matcher, &refs, SEARCH_LIMIT).await?;
-    let tasks = store
-        .search_activities(&matcher, &refs, SEARCH_LIMIT)
-        .await?;
+    let mut items = Vec::new();
+    let mut sources = Vec::new();
+    for source in super::sources::available(ctx).await? {
+        let found = source.search(ctx, &matcher, &refs, SEARCH_LIMIT).await?;
+        super::sources::validate_items(source.as_ref(), &found, SEARCH_LIMIT)?;
+        sources.push(crate::domain::PrivacySourceInfo {
+            key: source.key().into(),
+            labels: source.labels().0,
+        });
+        items.extend(found);
+    }
     let attachments = store.attachments(&refs).await?;
-    let import_rows = store.search_import_rows(&matcher, SEARCH_LIMIT).await?;
     let result = SubjectSearchResult {
         kind: matcher.kind,
         label: matcher.label(),
         records,
-        notes,
+        items,
+        sources,
         attachments,
-        tasks,
-        import_rows,
     };
 
     let mut tx = ctx.begin().await?;
@@ -64,10 +72,8 @@ pub(crate) async fn search_subject(
                 json!(null),
                 json!({
                     "records": result.records.len(),
-                    "notes": result.notes.len(),
+                    "items": result.items.len(),
                     "attachments": result.attachments.len(),
-                    "tasks": result.tasks.len(),
-                    "import_rows": result.import_rows.len(),
                 }),
             ),
         ],

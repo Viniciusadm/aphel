@@ -1,3 +1,4 @@
+mod privacy;
 mod timeline;
 use aphel_contract_automation::AutomationBuilder;
 pub(crate) mod automation;
@@ -57,6 +58,9 @@ impl Module for NotesModule {
     }
 
     fn register(&self, app: &mut AppBuilder) -> Result<(), AppError> {
+        app.contribute::<dyn aphel_sdk::privacy::PrivacySource>(std::sync::Arc::new(
+            privacy::NotesPrivacy,
+        ));
         app.contribute::<dyn aphel_sdk::timeline::TimelineSource>(std::sync::Arc::new(
             timeline::NotesTimeline,
         ));

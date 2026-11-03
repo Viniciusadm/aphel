@@ -123,7 +123,7 @@ impl Module for PluginsModule {
         app.contribute::<dyn aphel_kernel::application::public_events::RuntimePublicEventSource>(
             Arc::new(registry::PublicEvents),
         );
-        app.contribute::<dyn aphel_kernel::application::data_subject::DataSubjectSource>(Arc::new(
+        app.contribute::<dyn aphel_sdk::privacy::DataSubjectSource>(Arc::new(
             data_subject::PluginDataSubjects,
         ));
         app.contribute::<dyn AutomationActionSource>(Arc::new(automation::PluginActions))

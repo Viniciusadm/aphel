@@ -1,4 +1,4 @@
-import { FileText, Paperclip, Search, UserSearch } from 'lucide-react'
+import { Paperclip, Search, UserSearch } from 'lucide-react'
 import { useId, useState, type FormEvent, type ReactNode } from 'react'
 import { useTranslation } from 'react-i18next'
 import { Badge } from '@/components/ui/badge'
@@ -7,10 +7,9 @@ import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card'
 import { Checkbox } from '@/components/ui/checkbox'
 import { EmptyState } from '@/components/ui/empty-state'
 import { Input } from '@/components/ui/input'
-import { formatDateTime, useRecordFormatting } from '@/features/records/formatting'
-import { useSubjectSearch, type SubjectSearch } from './api'
+import { usePrivacyCatalog, useSubjectSearch, type SubjectSearch } from './api'
 import { CreateRequestDialog, type RequestSelection } from './CreateRequestDialog'
-import { usePrivacyErrors } from './lib/shared'
+import { localizedLabel, usePrivacyErrors } from './lib/shared'
 import { RecordLink } from './RecordLink'
 import { Field } from '@/components/ui/field'
 
@@ -19,40 +18,33 @@ interface SubjectSearchPanelProps {
 }
 
 function recordKey(recordType: string, id: string) {
-  return `record:${recordType}:${id}`
+  return JSON.stringify(['record', recordType, id])
 }
 
-function noteKey(id: string) {
-  return `note:${id}`
-}
-
-function rowKey(jobId: string, index: number) {
-  return `row:${jobId}:${index}`
+function itemKey(source: string, id: string) {
+  return JSON.stringify(['item', source, id])
 }
 
 function allKeys(result: SubjectSearch): string[] {
   return [
     ...result.records.map((record) => recordKey(record.record_type, record.id)),
-    ...result.tasks.map((activity) => recordKey('activity', activity.id)),
-    ...result.notes.map((note) => noteKey(note.id)),
-    ...result.import_rows.map((row) => rowKey(row.import_job_id, row.row_index)),
+    ...result.items.map((item) => itemKey(item.source, item.id)),
   ]
 }
 
 function selectionFrom(keys: Set<string>): RequestSelection {
-  const selection: RequestSelection = { records: [], notes: [], import_rows: [] }
+  const selection: RequestSelection = { records: [], items: [] }
   for (const key of keys) {
-    const [kind, first, second] = key.split(':')
-    if (kind === 'record' && first && second) selection.records.push({ record_type: first, id: second })
-    else if (kind === 'note' && first) selection.notes.push(first)
-    else if (kind === 'row' && first && second) selection.import_rows.push({ import_job_id: first, row_index: Number(second) })
+    const [kind, source, id] = JSON.parse(key) as [string, string, string]
+    if (kind === 'record') selection.records.push({ record_type: source, id })
+    else if (kind === 'item') selection.items.push({ source, id })
   }
   return selection
 }
 
 export function SubjectSearchPanel({ onRequestCreated }: SubjectSearchPanelProps) {
-  const { t } = useTranslation('privacy')
-  const formatting = useRecordFormatting()
+  const { t, i18n } = useTranslation('privacy')
+  const catalog = usePrivacyCatalog()
   const inputId = useId()
   const hintId = useId()
   const search = useSubjectSearch()
@@ -140,7 +132,7 @@ export function SubjectSearchPanel({ onRequestCreated }: SubjectSearchPanelProps
                 return (
                   <SelectableItem key={key} id={key} checked={selected.has(key)} onChange={(checked) => toggle(key, checked)}>
                     <div className="flex flex-wrap items-center gap-2">
-                      <Badge variant="outline">{t(`recordTypes.${record.record_type as 'contact'}`)}</Badge>
+                      <Badge variant="outline">{localizedLabel(catalog.data?.entities.find((entity) => entity.record_type === record.record_type)?.labels ?? {}, i18n.language, record.record_type)}</Badge>
                       <RecordLink recordType={record.record_type} id={record.id} title={record.title || record.id} />
                       {record.archived && <Badge variant="secondary">{t('search.archived')}</Badge>}
                       {record.deleted && <Badge variant="warning">{t('search.deleted')}</Badge>}
@@ -157,39 +149,21 @@ export function SubjectSearchPanel({ onRequestCreated }: SubjectSearchPanelProps
             </ResultGroup>
           )}
 
-          {result.tasks.length > 0 && (
-            <ResultGroup title={t('search.groups.tasks')} count={result.tasks.length}>
-              {result.tasks.map((activity) => {
-                const key = recordKey('activity', activity.id)
-                return (
-                  <SelectableItem key={key} id={key} checked={selected.has(key)} onChange={(checked) => toggle(key, checked)}>
-                    <span className="font-medium break-words">{activity.title}</span>
-                    <p className="text-xs text-muted-foreground">
-                      {t(`search.reason.${activity.reason as 'mention'}`)}
-                      {activity.due_at ? ` · ${formatDateTime(activity.due_at, formatting)}` : ''}
-                    </p>
-                  </SelectableItem>
-                )
+          {result.sources.map((source) => {
+            const items = result.items.filter((item) => item.source === source.key)
+            if (items.length === 0) return null
+            return <ResultGroup key={source.key} title={localizedLabel(source.labels, i18n.language, source.key)} count={items.length}>
+              {items.map((item) => {
+                const key = itemKey(item.source, item.id)
+                return <SelectableItem key={key} id={key} checked={selected.has(key)} onChange={(checked) => toggle(key, checked)}>
+                  {item.record
+                    ? <RecordLink recordType={item.record.record_type} id={item.record.id} title={item.title} />
+                    : <span className="font-medium break-words">{item.title}</span>}
+                  {item.excerpt && <p className="text-sm break-words whitespace-pre-line">{item.excerpt}</p>}
+                </SelectableItem>
               })}
             </ResultGroup>
-          )}
-
-          {result.notes.length > 0 && (
-            <ResultGroup title={t('search.groups.notes')} count={result.notes.length}>
-              {result.notes.map((note) => {
-                const key = noteKey(note.id)
-                return (
-                  <SelectableItem key={key} id={key} checked={selected.has(key)} onChange={(checked) => toggle(key, checked)}>
-                    <p className="text-sm break-words whitespace-pre-line">{note.excerpt}</p>
-                    <p className="flex flex-wrap items-center gap-1 text-xs text-muted-foreground">
-                      <FileText className="size-3" aria-hidden="true" />
-                      {t(`search.reason.${note.reason as 'mention'}`)} · {formatDateTime(note.created_at, formatting)}
-                    </p>
-                  </SelectableItem>
-                )
-              })}
-            </ResultGroup>
-          )}
+          })}
 
           {result.attachments.length > 0 && (
             <ResultGroup title={t('search.groups.attachments')} count={result.attachments.length}>
@@ -202,22 +176,6 @@ export function SubjectSearchPanel({ onRequestCreated }: SubjectSearchPanelProps
                   </li>
                 ))}
               </ul>
-            </ResultGroup>
-          )}
-
-          {result.import_rows.length > 0 && (
-            <ResultGroup title={t('search.groups.importRows')} count={result.import_rows.length}>
-              {result.import_rows.map((row) => {
-                const key = rowKey(row.import_job_id, row.row_index)
-                return (
-                  <SelectableItem key={key} id={key} checked={selected.has(key)} onChange={(checked) => toggle(key, checked)}>
-                    <span className="font-medium break-all">{row.file_name ?? row.import_job_id}</span>
-                    <p className="text-xs text-muted-foreground">
-                      {t('search.row', { row: row.row_index + 1 })} · {formatDateTime(row.created_at, formatting)}
-                    </p>
-                  </SelectableItem>
-                )
-              })}
             </ResultGroup>
           )}
 

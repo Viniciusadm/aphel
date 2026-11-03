@@ -3,7 +3,6 @@ pub(crate) mod api_tokens;
 pub mod audit;
 pub mod auth;
 pub mod custom_objects;
-pub mod data_subject;
 pub mod directory;
 pub mod fields;
 pub mod files;

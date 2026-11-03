@@ -30,6 +30,7 @@ const DOWNLOAD_CONTENT_SECURITY_POLICY: &str = "default-src 'none'; sandbox";
 pub(crate) fn router() -> OpenApiRouter<AppState> {
     OpenApiRouter::new()
         .routes(routes!(search_subject))
+        .routes(routes!(catalog))
         .routes(routes!(list_requests, create_request))
         .routes(routes!(get_request))
         .routes(routes!(execute_request))
@@ -482,4 +483,61 @@ async fn list_runs(
         listing.total,
         pagination,
     )))
+}
+
+#[utoipa::path(
+    get,
+    path = "/privacy/catalog",
+    tag = TAG,
+    operation_id = "privacy_catalog",
+    security(("session_cookie" = [])),
+    responses(
+        (status = 200, description = "Available privacy sources and entity policies", body = Data<crate::dto::PrivacyCatalogResponse>),
+        (status = 403, description = "Missing privacy.manage", body = ErrorEnvelope),
+    )
+)]
+async fn catalog(
+    State(state): State<AppState>,
+    tenant: AuthContext,
+) -> Result<(HeaderMap, Json<Data<crate::dto::PrivacyCatalogResponse>>), ApiError> {
+    let ctx = Ctx::from_state(&state, &tenant.scope).await?;
+    crate::service::require_privacy(ctx.scope)?;
+    let mut entities = Vec::new();
+    for definition in ctx.registry().definitions() {
+        let personal_data = definition.capabilities.has_trait("privacy.personal_data");
+        let retention = crate::domain::supports_retention(definition);
+        if !(personal_data || retention)
+            || !aphel_sdk::privacy::sql::table_exists(&ctx, &definition.table).await?
+        {
+            continue;
+        }
+        entities.push(crate::dto::PrivacyEntityResponse {
+            record_type: definition.record_type.as_str().into(),
+            labels: definition
+                .capabilities
+                .plural_labels_value()
+                .unwrap_or_else(|| definition.record_type.as_str().to_owned().into())
+                .0,
+            personal_data,
+            retention,
+        });
+    }
+    entities.sort_by(|left, right| left.record_type.cmp(&right.record_type));
+    let sources = crate::service::sources::available(&ctx)
+        .await?
+        .into_iter()
+        .map(|source| {
+            crate::dto::PrivacySourceResponse::from(crate::domain::PrivacySourceInfo {
+                key: source.key().into(),
+                labels: source.labels().0,
+            })
+        })
+        .collect();
+    Ok((
+        no_store(),
+        Json(Data::new(crate::dto::PrivacyCatalogResponse {
+            entities,
+            sources,
+        })),
+    ))
 }

@@ -276,19 +276,9 @@ impl TrashStore {
         &self,
         tx: &mut MySqlTx,
         definition: &EntityDefinition,
-        record_id: Uuid,
+        id: Uuid,
     ) -> Result<bool, AppError> {
-        let deleted = deleted_column(definition);
-        let mut builder = QueryBuilder::<MySql>::new(format!(
-            "DELETE r FROM {} r WHERE r.id = ",
-            definition.table
-        ));
-        builder
-            .push_bind(record_id.to_string())
-            .push(format!(" AND {deleted} IS NOT NULL"));
-        push_partition(&mut builder, definition, "r");
-        let result = builder.build().execute(&mut **tx).await?;
-        Ok(result.rows_affected() > 0)
+        aphel_sdk::records::purge_entity(tx, definition, id).await
     }
 
     pub(crate) async fn retention_days(&self) -> Result<Option<u32>, AppError> {

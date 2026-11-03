@@ -1,4 +1,4 @@
-use std::collections::{BTreeMap, HashMap, HashSet};
+use std::collections::{BTreeMap, HashMap};
 use std::sync::Arc;
 
 use chrono::{DateTime, Utc};
@@ -9,20 +9,17 @@ use sqlx::{MySql, MySqlPool, QueryBuilder, Row};
 use uuid::Uuid;
 
 use crate::domain::{
-    ActivityData, ActivityLocation, AttachmentData, FieldSource, ImportRowData, ImportRowTarget,
-    MatchReason, NoteData, PersonalField, PrivacyRequest, PrivacyRequestFilter, PrivacyRequestKind,
-    PrivacyRequestStatus, PrivacyTargets, StoredFileRef, SubjectActivity, SubjectImportRow,
-    SubjectKind, SubjectNote, SubjectRecord,
+    AttachmentData, FieldSource, PersonalField, PrivacyRequest, PrivacyRequestFilter,
+    PrivacyRequestKind, PrivacyRequestStatus, PrivacyTargets, StoredFileRef, SubjectKind,
+    SubjectRecord,
 };
 use crate::mysql::sql::{
     contains_pattern, file_reference_columns, instant, optional_instant, optional_uuid,
-    personal_text_columns, phone_digits, push_ids, push_refs, push_text_match, record_title_sql,
-    unreferenced_file_predicate, user_reference, uuid_column,
+    phone_digits, push_ids, push_refs, unreferenced_file_predicate, user_reference, uuid_column,
 };
 use crate::service::subject::{Redaction, SubjectMatcher};
-use crate::store::free_text_columns;
 use aphel_kernel::Ctx;
-use aphel_kernel::application::fields::{EntityDefinition, RecordTypeRegistry, is_sql_identifier};
+use aphel_kernel::application::fields::{EntityDefinition, RecordTypeRegistry};
 use aphel_kernel::application::organization_admin::{ListWindow, Listing};
 use aphel_kernel::application::shared::{RecordRef, RecordType};
 use aphel_kernel::database::transaction::MySqlTx;
@@ -30,21 +27,7 @@ use aphel_kernel::domain::fields::FieldType;
 use aphel_kernel::errors::AppError;
 use aphel_kernel::infrastructure::repositories::mapper;
 
-#[derive(Debug, Clone, PartialEq, Eq)]
-pub(crate) struct ColumnAssignment {
-    pub(crate) column: String,
-    pub(crate) value: Option<String>,
-}
-
-const EXCERPT_LENGTH: usize = 200;
-
-fn excerpt(body: &str) -> String {
-    let mut text: String = body.chars().take(EXCERPT_LENGTH).collect();
-    if body.chars().count() > EXCERPT_LENGTH {
-        text.push('…');
-    }
-    text
-}
+pub(crate) use aphel_sdk::records::TextAssignment as ColumnAssignment;
 
 fn record_ref(
     row: &MySqlRow,
@@ -59,85 +42,6 @@ fn record_ref(
             .map(|record_type| RecordRef::new(record_type, id)),
         _ => None,
     })
-}
-
-fn push_field_match(
-    builder: &mut QueryBuilder<MySql>,
-    expression: &str,
-    field_type: FieldType,
-    matcher: &SubjectMatcher,
-) -> bool {
-    match matcher.kind {
-        SubjectKind::Email => {
-            let Some(email) = &matcher.email else {
-                return false;
-            };
-            match field_type.base_type() {
-                FieldType::Email => {
-                    builder
-                        .push(format!("LOWER({expression}) = "))
-                        .push_bind(email.clone());
-                }
-                FieldType::Text | FieldType::LongText | FieldType::Url => {
-                    builder
-                        .push(format!("LOWER({expression}) LIKE "))
-                        .push_bind(contains_pattern(email));
-                }
-                _ => return false,
-            }
-            true
-        }
-        SubjectKind::Phone | SubjectKind::Document => {
-            let digits = phone_digits(matcher);
-            match field_type.base_type() {
-                FieldType::Phone | FieldType::Text | FieldType::LongText => {
-                    builder.push("(");
-                    let mut first = true;
-                    if field_type.base_type() == FieldType::Phone
-                        && let Some(phone) = &matcher.phone
-                    {
-                        builder
-                            .push(format!("{expression} = "))
-                            .push_bind(phone.clone());
-                        first = false;
-                    }
-                    for value in &digits {
-                        if !first {
-                            builder.push(" OR ");
-                        }
-                        first = false;
-                        if field_type.base_type() == FieldType::LongText {
-                            builder
-                                .push(format!("REGEXP_REPLACE({expression}, '[^0-9]', '') LIKE "))
-                                .push_bind(contains_pattern(value));
-                        } else {
-                            builder
-                                .push(format!("REGEXP_REPLACE({expression}, '[^0-9]', '') = "))
-                                .push_bind(value.clone());
-                        }
-                    }
-                    if first {
-                        builder.push("FALSE");
-                    }
-                    builder.push(")");
-                    true
-                }
-                _ => false,
-            }
-        }
-        SubjectKind::Text => {
-            let Some(text) = &matcher.text else {
-                return false;
-            };
-            if !field_type.is_textual() {
-                return false;
-            }
-            builder
-                .push(format!("{expression} LIKE "))
-                .push_bind(contains_pattern(text));
-            true
-        }
-    }
 }
 
 fn request_from_row(row: &MySqlRow) -> Result<PrivacyRequest, AppError> {
@@ -156,7 +60,7 @@ fn request_from_row(row: &MySqlRow) -> Result<PrivacyRequest, AppError> {
             .ok_or_else(|| mapper::invalid_column("subject_kind", &subject_kind))?,
         subject_label: row.try_get("subject_label")?,
         subject_hash: row.try_get("subject_hash")?,
-        targets: PrivacyTargets::from_json(&targets),
+        targets: PrivacyTargets::from_json(&targets)?,
         due_at: instant(row, "due_at")?,
         requested_by: user_reference(row, "requested_by", "requested_by_name")?,
         executed_by: user_reference(row, "executed_by", "executed_by_name")?,
@@ -175,21 +79,6 @@ const REQUEST_SELECT: &str = "SELECT p.*, ur.display_name AS requested_by_name, 
      LEFT JOIN users ur ON ur.id = p.requested_by \
      LEFT JOIN users ue ON ue.id = p.executed_by";
 
-fn note_from_row(row: &MySqlRow) -> Result<Option<NoteData>, AppError> {
-    let Some(record) = record_ref(row, "record_type", "record_id")? else {
-        return Ok(None);
-    };
-    Ok(Some(NoteData {
-        id: uuid_column(row, "id")?,
-        record,
-        body: row.try_get("body")?,
-        visibility: row.try_get("visibility")?,
-        author: row.try_get("author_name")?,
-        created_at: instant(row, "created_at")?,
-        updated_at: instant(row, "updated_at")?,
-    }))
-}
-
 fn attachment_from_row(row: &MySqlRow) -> Result<Option<AttachmentData>, AppError> {
     let Some(record) = record_ref(row, "record_type", "record_id")? else {
         return Ok(None);
@@ -203,36 +92,6 @@ fn attachment_from_row(row: &MySqlRow) -> Result<Option<AttachmentData>, AppErro
         size: row.try_get::<u64, _>("size")?,
         record,
         created_at: instant(row, "created_at")?,
-    }))
-}
-
-fn push_import_rows(builder: &mut QueryBuilder<MySql>, rows: &[ImportRowTarget]) {
-    builder.push("(");
-    for (index, row) in rows.iter().enumerate() {
-        if index > 0 {
-            builder.push(" OR ");
-        }
-        builder
-            .push("(r.import_job_id = ")
-            .push_bind(row.import_job_id.to_string())
-            .push(" AND r.row_index = ")
-            .push_bind(row.row_index)
-            .push(")");
-    }
-    builder.push(")");
-}
-
-fn activity_location(row: &MySqlRow) -> Result<Option<ActivityLocation>, AppError> {
-    let latitude: Option<f64> = row.try_get("latitude")?;
-    let longitude: Option<f64> = row.try_get("longitude")?;
-    let (Some(latitude), Some(longitude)) = (latitude, longitude) else {
-        return Ok(None);
-    };
-    Ok(Some(ActivityLocation {
-        latitude,
-        longitude,
-        accuracy_m: row.try_get("location_accuracy_m")?,
-        captured_at: optional_instant(row, "location_captured_at")?,
     }))
 }
 
@@ -274,52 +133,38 @@ impl PrivacyStore {
         matcher: &SubjectMatcher,
         limit: u32,
     ) -> Result<Vec<Uuid>, AppError> {
-        let mut builder = match &field.source {
-            FieldSource::Column(column) => {
-                if !is_sql_identifier(column) {
+        use aphel_sdk::records::{StoredTextField, TextComparison, matching_entity_text_ids};
+        let comparison = match matcher.kind {
+            SubjectKind::Email => {
+                let Some(email) = &matcher.email else {
+                    return Ok(Vec::new());
+                };
+                if field.field_type.base_type() == FieldType::Email {
+                    TextComparison::EqualFolded(email.clone())
+                } else if field.field_type.is_textual() {
+                    TextComparison::ContainsFolded(vec![email.clone()])
+                } else {
                     return Ok(Vec::new());
                 }
-                let mut builder = QueryBuilder::new(format!(
-                    "SELECT r.id FROM {} r WHERE TRUE",
-                    definition.table
-                ));
-                builder.push(" AND ");
-                if !push_field_match(
-                    &mut builder,
-                    &format!("r.{column}"),
-                    field.field_type,
-                    matcher,
-                ) {
-                    return Ok(Vec::new());
-                }
-                builder
             }
-            FieldSource::Custom(field_id) => {
-                let mut builder = QueryBuilder::new(
-                    "SELECT v.record_id AS id FROM custom_field_values v WHERE v.record_type = ",
-                );
-                builder
-                    .push_bind(definition.record_type.as_str().to_owned())
-                    .push(" AND v.field_id = ")
-                    .push_bind(field_id.to_string())
-                    .push(" AND ");
-                if !push_field_match(
-                    &mut builder,
-                    "COALESCE(v.value_text, v.value_long_text)",
-                    field.field_type,
-                    matcher,
-                ) {
+            SubjectKind::Phone | SubjectKind::Document => {
+                if !field.field_type.is_textual() {
                     return Ok(Vec::new());
                 }
-                builder
+                TextComparison::DigitsContain(phone_digits(matcher))
+            }
+            SubjectKind::Text => {
+                if !field.field_type.is_textual() {
+                    return Ok(Vec::new());
+                }
+                TextComparison::ContainsFolded(matcher.text.iter().cloned().collect())
             }
         };
-        builder.push(" LIMIT ").push_bind(i64::from(limit));
-        let ids: Vec<String> = builder.build_query_scalar().fetch_all(&self.pool).await?;
-        Ok(ids
-            .into_iter()
-            .filter_map(|id| Uuid::parse_str(&id).ok())
-            .collect())
+        let storage = match &field.source {
+            FieldSource::Column(column) => StoredTextField::Column(column),
+            FieldSource::Custom(id) => StoredTextField::Custom(*id),
+        };
+        matching_entity_text_ids(&self.pool, definition, storage, &comparison, limit).await
     }
 
     async fn titles(
@@ -327,70 +172,51 @@ impl PrivacyStore {
         record_type: &RecordType,
         ids: &[Uuid],
     ) -> Result<Vec<(Uuid, String, Option<String>, bool, bool)>, AppError> {
+        use aphel_sdk::party::PartyTraits;
         let Some(definition) = self.personal_definition(record_type) else {
             return Ok(Vec::new());
         };
-        if ids.is_empty() {
-            return Ok(Vec::new());
-        }
-        let table = &definition.table;
-        let (title, subtitle) = record_title_sql(definition);
-        let is_set = |column: Option<&str>| {
-            column.map_or_else(
-                || "FALSE".to_owned(),
-                |column| format!("r.{column} IS NOT NULL"),
-            )
-        };
-        let archived = is_set(definition.archived_column.as_deref());
-        let deleted = is_set(definition.deleted_column.as_deref());
-        let mut builder = QueryBuilder::new(format!(
-            "SELECT r.id, {title} AS title, {subtitle} AS subtitle, CAST({archived} AS SIGNED) AS archived, \
-             CAST({deleted} AS SIGNED) AS deleted FROM {table} r WHERE TRUE"
-        ));
-        builder.push(" AND r.id");
-        push_ids(&mut builder, ids);
-        let rows = builder.build().fetch_all(&self.pool).await?;
-        rows.iter()
-            .map(|row| {
-                Ok((
-                    uuid_column(row, "id")?,
-                    row.try_get::<Option<String>, _>("title")?
-                        .unwrap_or_default(),
-                    row.try_get("subtitle")?,
-                    row.try_get::<i64, _>("archived")? != 0,
-                    row.try_get::<i64, _>("deleted")? != 0,
-                ))
-            })
-            .collect()
-    }
-
-    async fn linked_activities(
-        &self,
-        records: &[RecordRef],
-    ) -> Result<Vec<(Uuid, RecordRef)>, AppError> {
-        if records.is_empty() {
-            return Ok(Vec::new());
-        }
-        let mut direct =
-            QueryBuilder::new("SELECT a.id, a.record_type, a.record_id FROM tasks a WHERE ");
-        push_refs(&mut direct, "a.record_type", "a.record_id", records);
-        let mut linked = QueryBuilder::new(
-            "SELECT l.activity_id AS id, l.record_type, l.record_id FROM task_links l WHERE ",
-        );
-        push_refs(&mut linked, "l.record_type", "l.record_id", records);
         let mut result = Vec::new();
-        let mut seen = HashSet::new();
-        for rows in [
-            direct.build().fetch_all(&self.pool).await?,
-            linked.build().fetch_all(&self.pool).await?,
-        ] {
-            for row in &rows {
-                let id = uuid_column(row, "id")?;
-                if let Some(record) = record_ref(row, "record_type", "record_id")?
-                    && seen.insert((id, record.clone()))
-                {
-                    result.push((id, record));
-                }
+        for id in ids {
+            let record = RecordRef::new(record_type.clone(), *id);
+            if let Some(snapshot) =
+                aphel_sdk::records::inspect_entity(&self.pool, &self.registry, &record).await?
+            {
+                let value = |key: &str| {
+                    snapshot
+                        .get("values")
+                        .and_then(|values| values.get(key))
+                        .or_else(|| {
+                            snapshot
+                                .get("custom_fields")
+                                .and_then(|values| values.get(key))
+                        })
+                };
+                let title = definition
+                    .title_field
+                    .as_deref()
+                    .and_then(value)
+                    .and_then(Value::as_str)
+                    .unwrap_or_default()
+                    .to_owned();
+                let subtitle = definition
+                    .capabilities
+                    .contact_point_columns()
+                    .iter()
+                    .find_map(|column| value(column).and_then(Value::as_str).map(str::to_owned));
+                result.push((
+                    *id,
+                    title,
+                    subtitle,
+                    snapshot
+                        .get("archived")
+                        .and_then(Value::as_bool)
+                        .unwrap_or(false),
+                    snapshot
+                        .get("deleted")
+                        .and_then(Value::as_bool)
+                        .unwrap_or(false),
+                ));
             }
         }
         Ok(result)
@@ -444,13 +270,13 @@ impl PrivacyStore {
             return Ok(0);
         }
         let mut updated = 0;
-        for target in personal_text_columns(&self.pool).await? {
+        for (table, column) in [("domain_events", "payload"), ("audit_logs", "changes")] {
             let mut after = String::new();
             loop {
                 let mut builder = QueryBuilder::new(format!(
                     "SELECT id, CAST({column} AS CHAR) AS content FROM {table} WHERE id > ",
-                    column = target.column,
-                    table = target.table,
+                    column = column,
+                    table = table,
                 ));
                 builder.push_bind(after.clone()).push(" AND (");
                 for (index, pattern) in patterns.iter().enumerate() {
@@ -458,7 +284,7 @@ impl PrivacyStore {
                         builder.push(" OR ");
                     }
                     builder
-                        .push(format!("LOWER(CAST({} AS CHAR)) LIKE ", target.column))
+                        .push(format!("LOWER(CAST({} AS CHAR)) LIKE ", column))
                         .push_bind(pattern.clone());
                 }
                 builder
@@ -475,8 +301,8 @@ impl PrivacyStore {
                     {
                         sqlx::query(sqlx::AssertSqlSafe(format!(
                             "UPDATE {table} SET {column} = ? WHERE id = ?",
-                            table = target.table,
-                            column = target.column,
+                            table = table,
+                            column = column,
                         )))
                         .bind(redacted)
                         .bind(&id)
@@ -527,154 +353,6 @@ impl PrivacyStore {
             .collect())
     }
 
-    pub(crate) async fn search_notes(
-        &self,
-        matcher: &SubjectMatcher,
-        records: &[RecordRef],
-        limit: u32,
-    ) -> Result<Vec<SubjectNote>, AppError> {
-        let mut notes: Vec<SubjectNote> = Vec::new();
-        let mut seen = HashSet::new();
-        let mut mentions = QueryBuilder::new(
-            "SELECT n.id, n.record_type, n.record_id, n.body, n.created_at FROM notes n WHERE ",
-        );
-        push_text_match(&mut mentions, "n.body", matcher);
-        mentions
-            .push(" ORDER BY n.created_at DESC LIMIT ")
-            .push_bind(i64::from(limit));
-        let mut batches = vec![(
-            MatchReason::Mention,
-            mentions.build().fetch_all(&self.pool).await?,
-        )];
-        if !records.is_empty() {
-            let mut owned = QueryBuilder::new(
-                "SELECT n.id, n.record_type, n.record_id, n.body, n.created_at FROM notes n WHERE ",
-            );
-            push_refs(&mut owned, "n.record_type", "n.record_id", records);
-            owned
-                .push(" ORDER BY n.created_at DESC LIMIT ")
-                .push_bind(i64::from(limit));
-            batches.push((
-                MatchReason::Record,
-                owned.build().fetch_all(&self.pool).await?,
-            ));
-        }
-        for (reason, rows) in batches {
-            for row in &rows {
-                let id = uuid_column(row, "id")?;
-                let Some(record) = record_ref(row, "record_type", "record_id")? else {
-                    continue;
-                };
-                if !seen.insert(id) {
-                    continue;
-                }
-                let body: String = row.try_get("body")?;
-                notes.push(SubjectNote {
-                    id,
-                    record,
-                    excerpt: excerpt(&body),
-                    created_at: instant(row, "created_at")?,
-                    reason,
-                });
-            }
-        }
-        Ok(notes)
-    }
-
-    pub(crate) async fn search_activities(
-        &self,
-        matcher: &SubjectMatcher,
-        records: &[RecordRef],
-        limit: u32,
-    ) -> Result<Vec<SubjectActivity>, AppError> {
-        let mut reasons: Vec<(Uuid, Option<RecordRef>, MatchReason)> = self
-            .linked_activities(records)
-            .await?
-            .into_iter()
-            .map(|(id, record)| (id, Some(record), MatchReason::Record))
-            .collect();
-        let mut mentions =
-            QueryBuilder::new("SELECT a.id, a.record_type, a.record_id FROM tasks a WHERE (");
-        push_text_match(&mut mentions, "a.title", matcher);
-        mentions.push(" OR ");
-        push_text_match(&mut mentions, "COALESCE(a.description, '')", matcher);
-        mentions.push(") LIMIT ").push_bind(i64::from(limit));
-        for row in &mentions.build().fetch_all(&self.pool).await? {
-            let id = uuid_column(row, "id")?;
-            if !reasons.iter().any(|(existing, _, _)| *existing == id) {
-                reasons.push((
-                    id,
-                    record_ref(row, "record_type", "record_id")?,
-                    MatchReason::Mention,
-                ));
-            }
-        }
-        reasons.truncate(limit as usize);
-        if reasons.is_empty() {
-            return Ok(Vec::new());
-        }
-        let ids: Vec<Uuid> = reasons.iter().map(|(id, _, _)| *id).collect();
-        let mut builder =
-            QueryBuilder::new("SELECT a.id, a.title, a.status, a.due_at FROM tasks a WHERE a.id");
-        push_ids(&mut builder, &ids);
-        let mut details = HashMap::new();
-        for row in &builder.build().fetch_all(&self.pool).await? {
-            details.insert(
-                uuid_column(row, "id")?,
-                (
-                    row.try_get::<String, _>("title")?,
-                    row.try_get::<String, _>("status")?,
-                    optional_instant(row, "due_at")?,
-                ),
-            );
-        }
-        Ok(reasons
-            .into_iter()
-            .filter_map(|(id, record, reason)| {
-                let (title, status, due_at) = details.get(&id)?.clone();
-                Some(SubjectActivity {
-                    id,
-                    title,
-                    status,
-                    record,
-                    due_at,
-                    reason,
-                })
-            })
-            .collect())
-    }
-
-    pub(crate) async fn search_import_rows(
-        &self,
-        matcher: &SubjectMatcher,
-        limit: u32,
-    ) -> Result<Vec<SubjectImportRow>, AppError> {
-        let mut builder = QueryBuilder::new(
-            "SELECT r.import_job_id, r.row_index, r.record_id, r.status, j.record_type, j.file_name, j.created_at \
-             FROM import_rows r JOIN import_jobs j ON j.id = r.import_job_id WHERE ",
-        );
-        push_text_match(&mut builder, "CAST(r.raw AS CHAR)", matcher);
-        builder
-            .push(" ORDER BY j.created_at DESC, r.row_index LIMIT ")
-            .push_bind(i64::from(limit));
-        let rows = builder.build().fetch_all(&self.pool).await?;
-        rows.iter()
-            .map(|row| {
-                Ok(SubjectImportRow {
-                    target: ImportRowTarget {
-                        import_job_id: uuid_column(row, "import_job_id")?,
-                        row_index: row.try_get::<u32, _>("row_index")?,
-                    },
-                    record_type: row.try_get("record_type")?,
-                    record_id: optional_uuid(row, "record_id")?,
-                    status: row.try_get("status")?,
-                    file_name: row.try_get("file_name")?,
-                    created_at: instant(row, "created_at")?,
-                })
-            })
-            .collect()
-    }
-
     pub(crate) async fn attachments(
         &self,
         records: &[RecordRef],
@@ -703,53 +381,19 @@ impl PrivacyStore {
         &self,
         targets: &PrivacyTargets,
     ) -> Result<PrivacyTargets, AppError> {
-        let mut existing = PrivacyTargets::default();
+        let mut existing = PrivacyTargets {
+            records: Vec::new(),
+            items: targets.items.clone(),
+        };
         for (record_type, ids) in group_by_type(&targets.records) {
-            let Some(table) = self
-                .personal_definition(&record_type)
-                .map(|definition| definition.table.clone())
-            else {
+            let Some(definition) = self.personal_definition(&record_type) else {
                 continue;
             };
-            let mut builder = QueryBuilder::new(format!("SELECT id FROM {table} WHERE TRUE"));
-            builder.push(" AND id");
-            push_ids(&mut builder, &ids);
-            let found: HashSet<String> = builder
-                .build_query_scalar::<String>()
-                .fetch_all(&self.pool)
-                .await?
-                .into_iter()
-                .collect();
-            existing.records.extend(
-                ids.into_iter()
-                    .filter(|id| found.contains(&id.to_string()))
-                    .map(|id| RecordRef::new(record_type.clone(), id)),
-            );
-        }
-        if !targets.notes.is_empty() {
-            let mut builder = QueryBuilder::new("SELECT id FROM notes WHERE TRUE");
-            builder.push(" AND id");
-            push_ids(&mut builder, &targets.notes);
-            let found: HashSet<String> = builder
-                .build_query_scalar::<String>()
-                .fetch_all(&self.pool)
-                .await?
-                .into_iter()
-                .collect();
-            existing.notes = targets
-                .notes
-                .iter()
-                .copied()
-                .filter(|id| found.contains(&id.to_string()))
-                .collect();
-        }
-        if !targets.import_rows.is_empty() {
-            existing.import_rows = self
-                .import_rows(&targets.import_rows)
-                .await?
-                .into_iter()
-                .map(|row| row.target)
-                .collect();
+            for id in aphel_sdk::records::existing_entity_ids(&self.pool, definition, &ids).await? {
+                existing
+                    .records
+                    .push(RecordRef::new(record_type.clone(), id));
+            }
         }
         Ok(existing)
     }
@@ -887,217 +531,25 @@ impl PrivacyStore {
     pub(crate) async fn record_snapshot(
         &self,
         definition: &EntityDefinition,
-        record_id: Uuid,
+        id: Uuid,
     ) -> Result<Option<Value>, AppError> {
-        let mut pairs: Vec<(String, String)> = vec![("id".to_owned(), "id".to_owned())];
-        for field in &definition.system_fields {
-            if let Some(column) = field.stored_column() {
-                pairs.push((field.key.as_str().to_owned(), column.to_owned()));
-            }
-        }
-        for column in free_text_columns(definition) {
-            if !pairs.iter().any(|(_, existing)| existing == column) {
-                pairs.push((column.clone(), column.clone()));
-            }
-        }
-        for column in [&definition.archived_column, &definition.deleted_column]
-            .into_iter()
-            .flatten()
-        {
-            if !pairs.iter().any(|(_, existing)| existing == column) {
-                pairs.push((column.clone(), column.clone()));
-            }
-        }
-        let arguments: Vec<String> = pairs
-            .iter()
-            .filter(|(key, column)| is_sql_identifier(key) && is_sql_identifier(column))
-            .map(|(key, column)| format!("'{key}', r.{column}"))
-            .collect();
-        let row = sqlx::query(sqlx::AssertSqlSafe(format!(
-            "SELECT JSON_OBJECT({}) AS snapshot FROM {} r WHERE r.id = ?",
-            arguments.join(", "),
-            definition.table
-        )))
-        .bind(record_id.to_string())
-        .fetch_optional(&self.pool)
-        .await?;
-        match row {
-            Some(row) => {
-                let Json(snapshot): Json<Value> = row.try_get("snapshot")?;
-                Ok(Some(snapshot))
-            }
-            None => Ok(None),
-        }
-    }
-
-    pub(crate) async fn record_notes(
-        &self,
-        records: &[RecordRef],
-    ) -> Result<Vec<NoteData>, AppError> {
-        if records.is_empty() {
-            return Ok(Vec::new());
-        }
-        let mut builder = QueryBuilder::new(
-            "SELECT n.*, u.display_name AS author_name FROM notes n LEFT JOIN users u ON u.id = n.author_id \
-             WHERE ",
-        );
-        push_refs(&mut builder, "n.record_type", "n.record_id", records);
-        builder.push(" ORDER BY n.created_at");
-        let rows = builder.build().fetch_all(&self.pool).await?;
-        Ok(rows
-            .iter()
-            .map(note_from_row)
-            .collect::<Result<Vec<_>, _>>()?
-            .into_iter()
-            .flatten()
-            .collect())
-    }
-
-    pub(crate) async fn notes_by_id(&self, ids: &[Uuid]) -> Result<Vec<NoteData>, AppError> {
-        if ids.is_empty() {
-            return Ok(Vec::new());
-        }
-        let mut builder = QueryBuilder::new(
-            "SELECT n.*, u.display_name AS author_name FROM notes n LEFT JOIN users u ON u.id = n.author_id \
-             WHERE n.id",
-        );
-        push_ids(&mut builder, ids);
-        builder.push(" ORDER BY n.created_at");
-        let rows = builder.build().fetch_all(&self.pool).await?;
-        Ok(rows
-            .iter()
-            .map(note_from_row)
-            .collect::<Result<Vec<_>, _>>()?
-            .into_iter()
-            .flatten()
-            .collect())
-    }
-
-    pub(crate) async fn record_activities(
-        &self,
-        records: &[RecordRef],
-    ) -> Result<Vec<ActivityData>, AppError> {
-        let links = self.linked_activities(records).await?;
-        if links.is_empty() {
-            return Ok(Vec::new());
-        }
-        let ids: Vec<Uuid> = links.iter().map(|(id, _)| *id).collect();
-        let mut builder = QueryBuilder::new(
-            "SELECT a.*, t.name AS type_name, CAST(a.location_latitude AS DOUBLE) AS latitude, \
-             CAST(a.location_longitude AS DOUBLE) AS longitude \
-             FROM tasks a LEFT JOIN task_types t ON t.id = a.activity_type_id \
-             WHERE a.id",
-        );
-        push_ids(&mut builder, &ids);
-        let rows = builder.build().fetch_all(&self.pool).await?;
-        let mut by_id = HashMap::new();
-        for row in &rows {
-            by_id.insert(
-                uuid_column(row, "id")?,
-                ActivityData {
-                    id: uuid_column(row, "id")?,
-                    title: row.try_get("title")?,
-                    description: row.try_get("description")?,
-                    activity_type: row.try_get("type_name")?,
-                    status: row.try_get("status")?,
-                    priority: row.try_get("priority")?,
-                    due_at: optional_instant(row, "due_at")?,
-                    completed_at: optional_instant(row, "completed_at")?,
-                    record: None,
-                    location: activity_location(row)?,
-                    created_at: instant(row, "created_at")?,
-                },
-            );
-        }
-        Ok(links
-            .into_iter()
-            .filter_map(|(id, record)| {
-                let mut activity = by_id.get(&id)?.clone();
-                activity.record = Some(record);
-                Some(activity)
-            })
-            .collect())
-    }
-
-    pub(crate) async fn import_rows(
-        &self,
-        rows: &[ImportRowTarget],
-    ) -> Result<Vec<ImportRowData>, AppError> {
-        if rows.is_empty() {
-            return Ok(Vec::new());
-        }
-        let mut builder = QueryBuilder::new(
-            "SELECT r.import_job_id, r.row_index, r.status, r.record_id, r.raw FROM import_rows r WHERE ",
-        );
-        push_import_rows(&mut builder, rows);
-        let found = builder.build().fetch_all(&self.pool).await?;
-        found
-            .iter()
-            .map(|row| {
-                let Json(raw): Json<Value> = row.try_get("raw")?;
-                Ok(ImportRowData {
-                    target: ImportRowTarget {
-                        import_job_id: uuid_column(row, "import_job_id")?,
-                        row_index: row.try_get::<u32, _>("row_index")?,
-                    },
-                    status: row.try_get("status")?,
-                    record_id: optional_uuid(row, "record_id")?,
-                    raw,
-                })
-            })
-            .collect()
+        Ok(aphel_sdk::records::inspect_entity(
+            &self.pool,
+            &self.registry,
+            &RecordRef::new(definition.record_type.clone(), id),
+        )
+        .await?
+        .and_then(|mut value| value.get_mut("values").map(Value::take)))
     }
 
     pub(crate) async fn update_columns(
         &self,
         tx: &mut MySqlTx,
         definition: &EntityDefinition,
-        record_id: Uuid,
+        id: Uuid,
         assignments: &[ColumnAssignment],
     ) -> Result<bool, AppError> {
-        let allowed: HashSet<&str> = definition
-            .system_fields
-            .iter()
-            .filter_map(|field| field.stored_column())
-            .chain(free_text_columns(definition).iter().map(String::as_str))
-            .collect();
-        let valid: Vec<&ColumnAssignment> = assignments
-            .iter()
-            .filter(|assignment| {
-                is_sql_identifier(&assignment.column)
-                    && allowed.contains(assignment.column.as_str())
-            })
-            .collect();
-        if valid.is_empty() {
-            return Ok(false);
-        }
-        let mut builder = QueryBuilder::new(format!("UPDATE {} SET ", definition.table));
-        {
-            let mut separated = builder.separated(", ");
-            for assignment in &valid {
-                separated
-                    .push(format!("{} = ", assignment.column))
-                    .push_bind_unseparated(assignment.value.clone());
-            }
-        }
-        builder
-            .push(" WHERE id = ")
-            .push_bind(record_id.to_string());
-        let result = builder.build().execute(&mut **tx).await?;
-        Ok(result.rows_affected() > 0)
-    }
-
-    pub(crate) async fn delete_record_notes(
-        &self,
-        tx: &mut MySqlTx,
-        record: &RecordRef,
-    ) -> Result<u64, AppError> {
-        let result = sqlx::query("DELETE FROM notes WHERE record_type = ? AND record_id = ?")
-            .bind(record.record_type.as_str())
-            .bind(record.record_id.to_string())
-            .execute(&mut **tx)
-            .await?;
-        Ok(result.rows_affected())
+        aphel_sdk::records::update_entity_text(tx, definition, id, assignments).await
     }
 
     pub(crate) async fn claim_item(
@@ -1115,21 +567,6 @@ impl PrivacyStore {
         .execute(&mut **tx)
         .await?;
         Ok(result.rows_affected() > 0)
-    }
-
-    pub(crate) async fn delete_notes(
-        &self,
-        tx: &mut MySqlTx,
-        ids: &[Uuid],
-    ) -> Result<u64, AppError> {
-        if ids.is_empty() {
-            return Ok(0);
-        }
-        let mut builder = QueryBuilder::new("DELETE FROM notes WHERE TRUE");
-        builder.push(" AND id");
-        push_ids(&mut builder, ids);
-        let result = builder.build().execute(&mut **tx).await?;
-        Ok(result.rows_affected())
     }
 
     pub(crate) async fn count_record_attachments(
@@ -1193,23 +630,6 @@ impl PrivacyStore {
         Ok((removed, files))
     }
 
-    pub(crate) async fn delete_duplicate_candidates(
-        &self,
-        tx: &mut MySqlTx,
-        record: &RecordRef,
-    ) -> Result<(), AppError> {
-        sqlx::query(
-            "DELETE FROM duplicate_candidates WHERE record_type = ? \
-             AND (record_id = ? OR duplicate_id = ?)",
-        )
-        .bind(record.record_type.as_str())
-        .bind(record.record_id.to_string())
-        .bind(record.record_id.to_string())
-        .execute(&mut **tx)
-        .await?;
-        Ok(())
-    }
-
     pub(crate) async fn redact_history(
         &self,
         tx: &mut MySqlTx,
@@ -1228,81 +648,14 @@ impl PrivacyStore {
         Ok(audit + events)
     }
 
-    pub(crate) async fn redact_import_rows(
-        &self,
-        tx: &mut MySqlTx,
-        rows: &[ImportRowTarget],
-        redaction: &Redaction,
-    ) -> Result<u64, AppError> {
-        if rows.is_empty() {
-            return Ok(0);
-        }
-        let mut builder = QueryBuilder::new(
-            "SELECT r.import_job_id, r.row_index, r.raw FROM import_rows r WHERE ",
-        );
-        push_import_rows(&mut builder, rows);
-        builder.push(" FOR UPDATE");
-        let found = builder.build().fetch_all(&mut **tx).await?;
-        let mut updated = 0;
-        for row in &found {
-            let job: String = row.try_get("import_job_id")?;
-            let index: u32 = row.try_get("row_index")?;
-            let Json(mut raw): Json<Value> = row.try_get("raw")?;
-            if redaction.apply(&mut raw) {
-                sqlx::query(
-                    "UPDATE import_rows SET raw = ? WHERE import_job_id = ? AND row_index = ?",
-                )
-                .bind(Json(raw))
-                .bind(job)
-                .bind(index)
-                .execute(&mut **tx)
-                .await?;
-                updated += 1;
-            }
-        }
-        Ok(updated)
-    }
-
     pub(crate) async fn mark_deleted(
         &self,
         tx: &mut MySqlTx,
         definition: &EntityDefinition,
-        record_id: Uuid,
+        id: Uuid,
         now: DateTime<Utc>,
     ) -> Result<bool, AppError> {
-        let Some(column) = definition
-            .deleted_column
-            .as_deref()
-            .filter(|column| is_sql_identifier(column))
-        else {
-            return Ok(false);
-        };
-        let result = sqlx::query(sqlx::AssertSqlSafe(format!(
-            "UPDATE {} SET {column} = COALESCE({column}, ?) WHERE id = ?",
-            definition.table
-        )))
-        .bind(mapper::naive(now))
-        .bind(record_id.to_string())
-        .execute(&mut **tx)
-        .await?;
-        Ok(result.rows_affected() > 0)
-    }
-
-    pub(crate) async fn delete_activity(
-        &self,
-        tx: &mut MySqlTx,
-        activity_id: Uuid,
-    ) -> Result<bool, AppError> {
-        let id = activity_id.to_string();
-        sqlx::query("DELETE FROM taggings WHERE record_type = 'tasks.task' AND record_id = ?")
-            .bind(&id)
-            .execute(&mut **tx)
-            .await?;
-        let result = sqlx::query("DELETE FROM tasks WHERE id = ?")
-            .bind(&id)
-            .execute(&mut **tx)
-            .await?;
-        Ok(result.rows_affected() > 0)
+        aphel_sdk::records::mark_entity_deleted(tx, definition, id, now).await
     }
 
     pub(crate) async fn delete_file_rows(

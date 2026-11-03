@@ -22,18 +22,15 @@ import {
   type PrivacyRequest,
   type PrivacyRequestDetail,
 } from './api'
-import { usePrivacyErrors } from './lib/shared'
+import { localizedLabel, usePrivacyErrors } from './lib/shared'
 import { RecordLink } from './RecordLink'
 import { StatusBadge } from './StatusBadge'
 import { Alert } from '@/components/ui/alert'
 
 const REPORT_KEYS = [
   'records',
-  'notes',
   'attachments',
   'files',
-  'tasks',
-  'import_rows',
   'history_entries',
   'external_items',
   'skipped',
@@ -136,17 +133,17 @@ function RequestDetailBody({ detail, onClose }: { detail: PrivacyRequestDetail; 
         </Alert>
       )}
 
-      {request.result && <Report request={request} />}
+      {request.result && <Report request={request} sources={detail.sources} />}
 
       <section className="grid gap-2">
         <h3 className="text-sm font-medium">{t('detail.targets')}</h3>
-        {detail.records.length === 0 && detail.notes.length === 0 && detail.import_rows.length === 0 ? (
+        {detail.records.length === 0 && detail.items.length === 0 ? (
           <p className="text-sm text-muted-foreground">{t('detail.noTargets')}</p>
         ) : (
           <ul className="grid gap-1 text-sm">
             {detail.records.map((record) => (
               <li key={`${record.record_type}:${record.id}`} className="flex min-w-0 flex-wrap items-center gap-2">
-                <Badge variant="outline">{t(`recordTypes.${record.record_type as 'contact'}`)}</Badge>
+                <Badge variant="outline">{record.record_type}</Badge>
                 {record.exists ? (
                   <RecordLink recordType={record.record_type} id={record.id} title={record.title || record.id} />
                 ) : (
@@ -154,10 +151,9 @@ function RequestDetailBody({ detail, onClose }: { detail: PrivacyRequestDetail; 
                 )}
               </li>
             ))}
-            {detail.notes.length > 0 && <li className="text-muted-foreground">{t('detail.notes', { count: detail.notes.length })}</li>}
-            {detail.import_rows.length > 0 && (
-              <li className="text-muted-foreground">{t('detail.importRows', { count: detail.import_rows.length })}</li>
-            )}
+            {detail.items.map((item) => <li key={JSON.stringify([item.source, item.id])} className="text-muted-foreground">
+              {item.source}: {item.id}
+            </li>)}
           </ul>
         )}
       </section>
@@ -219,8 +215,8 @@ function Info({ label, children }: { label: string; children: ReactNode }) {
   )
 }
 
-function Report({ request }: { request: PrivacyRequest }) {
-  const { t } = useTranslation('privacy')
+function Report({ request, sources }: { request: PrivacyRequest; sources: PrivacyRequestDetail['sources'] }) {
+  const { t, i18n } = useTranslation('privacy')
   const result = request.result
   if (!result) return null
   return (
@@ -233,6 +229,10 @@ function Report({ request }: { request: PrivacyRequest }) {
             <dd className="text-lg font-semibold tabular-nums">{result[key]}</dd>
           </div>
         ))}
+        {Object.entries(result.source_items).map(([key, count]) => <div key={key} className="rounded-md border px-3 py-2">
+          <dt className="text-xs text-muted-foreground">{localizedLabel(sources.find((source) => source.key === key)?.labels ?? {}, i18n.language, key)}</dt>
+          <dd className="text-lg font-semibold tabular-nums">{count}</dd>
+        </div>)}
       </dl>
     </section>
   )

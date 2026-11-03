@@ -1,16 +1,13 @@
-use aphel_sdk::party::PartyTraits;
 use chrono::{DateTime, Utc};
 use sqlx::mysql::MySqlRow;
 use sqlx::{MySql, MySqlPool, QueryBuilder, Row};
 use uuid::Uuid;
 
 use crate::service::subject::SubjectMatcher;
-use aphel_kernel::application::fields::EntityDefinition;
 use aphel_kernel::application::files::{
     FileReferenceColumn, FileReferenceSource, UserReference, declared_file_columns,
     unreferenced_file_condition,
 };
-use aphel_kernel::application::security::{PersonalTextColumn, declared_personal_text_columns};
 use aphel_kernel::application::shared::RecordRef;
 use aphel_kernel::domain::UserId;
 use aphel_kernel::errors::AppError;
@@ -66,20 +63,6 @@ pub async fn file_reference_columns(
         .await?
         .into_iter()
         .map(|(table, column)| FileReferenceColumn::new(table, column))
-        .collect())
-}
-
-pub(crate) async fn personal_text_columns(
-    pool: &MySqlPool,
-) -> Result<Vec<PersonalTextColumn>, AppError> {
-    let declared = declared_personal_text_columns(aphel_kernel::modules::app())
-        .into_iter()
-        .map(|target| (target.table, target.column))
-        .collect();
-    Ok(existing_columns(pool, declared)
-        .await?
-        .into_iter()
-        .map(|(table, column)| PersonalTextColumn::new(table, column))
         .collect())
 }
 
@@ -180,56 +163,4 @@ pub(crate) fn phone_digits(matcher: &SubjectMatcher) -> Vec<String> {
         }
     }
     digits
-}
-
-pub(crate) fn push_text_match(
-    builder: &mut QueryBuilder<MySql>,
-    expression: &str,
-    matcher: &SubjectMatcher,
-) {
-    if let Some(email) = &matcher.email {
-        builder
-            .push(format!("LOWER({expression}) LIKE "))
-            .push_bind(contains_pattern(email));
-        return;
-    }
-    if let Some(text) = &matcher.text {
-        builder
-            .push(format!("{expression} LIKE "))
-            .push_bind(contains_pattern(text));
-        return;
-    }
-    let digits = phone_digits(matcher);
-    if digits.is_empty() {
-        builder.push("FALSE");
-        return;
-    }
-    builder.push("(");
-    for (index, value) in digits.iter().enumerate() {
-        if index > 0 {
-            builder.push(" OR ");
-        }
-        builder
-            .push(format!("REGEXP_REPLACE({expression}, '[^0-9]', '') LIKE "))
-            .push_bind(contains_pattern(value));
-    }
-    builder.push(")");
-}
-
-pub(crate) fn record_title_sql(definition: &EntityDefinition) -> (String, String) {
-    let title = format!("r.{}", definition.title_column().unwrap_or("title"));
-    let columns = &definition.capabilities.contact_point_columns();
-    let subtitle = if columns.is_empty() {
-        "CAST(NULL AS CHAR CHARACTER SET utf8mb4)".to_owned()
-    } else {
-        format!(
-            "COALESCE({})",
-            columns
-                .iter()
-                .map(|column| format!("r.{column}"))
-                .collect::<Vec<_>>()
-                .join(", ")
-        )
-    };
-    (title, subtitle)
 }

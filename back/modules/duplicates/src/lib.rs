@@ -7,6 +7,7 @@ pub(crate) mod http;
 pub(crate) mod kinds;
 pub(crate) mod model;
 pub(crate) mod plugin_bridge;
+mod privacy;
 pub(crate) mod scan;
 pub(crate) mod service;
 pub(crate) mod store;
@@ -47,6 +48,9 @@ impl Module for DuplicatesModule {
     }
 
     fn register(&self, app: &mut AppBuilder) -> Result<(), AppError> {
+        app.contribute::<dyn aphel_sdk::privacy::PrivacySource>(std::sync::Arc::new(
+            privacy::DuplicatePrivacy,
+        ));
         app.contribute::<dyn aphel_sdk::timeline::TimelineEventScope>(std::sync::Arc::new(
             timeline::MergedEvents,
         ));

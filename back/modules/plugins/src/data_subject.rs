@@ -3,11 +3,9 @@ use serde_json::{Value, json};
 
 use crate::registry;
 use crate::runtime::on_data_subject;
-use aphel_kernel::application::data_subject::{
-    DataSubjectOutcome, DataSubjectRequest, DataSubjectSource,
-};
 use aphel_kernel::errors::AppError;
 use aphel_kernel::state::runtime_pool;
+use aphel_sdk::privacy::{DataSubjectOutcome, DataSubjectRequest, DataSubjectSource};
 
 pub const PRIVACY_REQUEST_TYPE: &str = "privacy_request";
 

@@ -4,7 +4,6 @@ pub mod events;
 pub mod lockout;
 pub mod login;
 pub mod notices;
-pub mod personal_text;
 
 pub use account::*;
 pub use devices::*;
@@ -12,7 +11,6 @@ pub use events::*;
 pub use lockout::*;
 pub use login::*;
 pub use notices::*;
-pub use personal_text::*;
 
 use chrono::{DateTime, Utc};
 

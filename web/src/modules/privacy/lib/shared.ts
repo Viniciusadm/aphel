@@ -47,3 +47,7 @@ export function endOfDayIso(date: string): string | undefined {
   const parsed = new Date(`${date}T23:59:59`)
   return Number.isNaN(parsed.getTime()) ? undefined : parsed.toISOString()
 }
+
+export function localizedLabel(labels: Record<string, string>, locale: string, fallback: string): string {
+  return labels[locale] ?? labels[locale.split('-')[0]] ?? labels.en ?? Object.values(labels)[0] ?? fallback
+}

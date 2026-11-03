@@ -6,6 +6,7 @@ pub(crate) mod http;
 pub(crate) mod mapping;
 pub(crate) mod model;
 pub(crate) mod notifications;
+mod privacy;
 pub(crate) mod runtime;
 pub mod service;
 pub(crate) mod source;
@@ -67,6 +68,9 @@ impl Module for ImportsModule {
     }
 
     fn register(&self, app: &mut AppBuilder) -> Result<(), AppError> {
+        app.contribute::<dyn aphel_sdk::privacy::PrivacySource>(std::sync::Arc::new(
+            privacy::ImportPrivacy,
+        ));
         app.contribute::<dyn ::notifications::application::texts::NotificationTexts>(
             std::sync::Arc::new(crate::notifications::ImportNotificationTexts),
         );

@@ -1,3 +1,4 @@
+use aphel_sdk::privacy::PrivacyTraits;
 mod line_items;
 mod timeline;
 use aphel_sdk::line_items::LineItemTraits;
@@ -158,6 +159,19 @@ const PUBLIC_EVENTS: &[PublicEventDefinition] = &[
 
 pub(crate) fn deal_capabilities() -> EntityTraits {
     EntityTraits::default()
+        .retention_mapping(aphel_sdk::privacy::RetentionMapping {
+            recency_fields: vec!["last_activity_at".to_owned()],
+        })
+        .privacy_policy(aphel_sdk::privacy::EntityPrivacyPolicy {
+            protected_fields: vec![
+                "currency".to_owned(),
+                "status".to_owned(),
+                "pipeline_id".to_owned(),
+                "stage_id".to_owned(),
+                "stage_entered_at".to_owned(),
+                "amount".to_owned(),
+            ],
+        })
         .line_items(aphel_sdk::line_items::LineItemMapping {
             currency_field: "currency".into(),
             amount_field: Some("amount".into()),

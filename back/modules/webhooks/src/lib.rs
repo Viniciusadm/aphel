@@ -1,3 +1,4 @@
+mod privacy;
 pub mod settings;
 use aphel_contract_automation::AutomationBuilder;
 pub(crate) mod automation;
@@ -11,7 +12,6 @@ mod points;
 
 use std::sync::Arc;
 
-use aphel_kernel::application::security::{PersonalTextColumn, PersonalTextSource};
 use aphel_kernel::modules::Migration;
 
 use ::notifications::domain::{ALL_CHANNELS, NotificationKindDefinition};
@@ -29,21 +29,6 @@ const NOTIFICATION_KINDS: &[NotificationKindDefinition] = &[NotificationKindDefi
     email_default: true,
     push_default: false,
 }];
-
-#[derive(Debug, Clone, Copy, Default)]
-pub(crate) struct WebhookPersonalText;
-
-impl PersonalTextSource for WebhookPersonalText {
-    fn personal_text_columns(&self) -> Vec<PersonalTextColumn> {
-        vec![
-            PersonalTextColumn::new("webhook_deliveries", "body"),
-            PersonalTextColumn::new("webhook_deliveries", "response_body"),
-            PersonalTextColumn::new("incoming_webhook_requests", "body"),
-            PersonalTextColumn::new("incoming_webhook_requests", "headers"),
-            PersonalTextColumn::new("incoming_webhook_requests", "results"),
-        ]
-    }
-}
 
 pub struct WebhooksModule;
 
@@ -82,7 +67,7 @@ impl Module for WebhooksModule {
         app.contribute::<dyn aphel_sdk::points::ReferenceProvider>(std::sync::Arc::new(
             operations::IncomingWebhookRefs,
         ));
-        app.contribute::<dyn PersonalTextSource>(Arc::new(WebhookPersonalText));
+        app.contribute::<dyn aphel_sdk::privacy::PrivacySource>(Arc::new(privacy::WebhookPrivacy));
         app.trigger(Arc::new(automation::IncomingWebhook))
             .action(Arc::new(automation::CallWebhook));
         app.contribute::<dyn aphel_kernel::application::organization_profile::OrganizationConfigExtension>(Arc::new(settings::DeliveryConfiguration));

@@ -21,12 +21,13 @@ import { Pagination } from '@/components/ui/pagination'
 import {
   RUNS_PER_PAGE,
   usePolicyMutations,
+  usePrivacyCatalog,
   useRetentionPolicies,
   useRetentionRuns,
   type RetentionPolicy,
   type RetentionPreview,
 } from './api'
-import { usePrivacyErrors } from './lib/shared'
+import { localizedLabel, usePrivacyErrors } from './lib/shared'
 import { PolicyFormDialog } from './PolicyFormDialog'
 import { StatusBadge } from './StatusBadge'
 
@@ -190,7 +191,9 @@ interface PolicyRowProps {
 function PolicyRow({ policy, busy, onPreview, onEnable, onDisable, onRun, onEdit, onDelete }: PolicyRowProps) {
   const { t } = useTranslation('privacy')
   const formatting = useRecordFormatting()
-  const target = policy.record_type ? t(`recordTypesPlural.${policy.record_type as 'contact'}`) : null
+  const catalog = usePrivacyCatalog()
+  const { i18n } = useTranslation()
+  const target = policy.record_type ? localizedLabel(catalog.data?.entities.find((entity) => entity.record_type === policy.record_type)?.labels ?? {}, i18n.language, policy.record_type) : null
   return (
     <li className="flex min-w-0 flex-col gap-2 rounded-lg border bg-card p-3 sm:flex-row sm:items-center sm:justify-between">
       <div className="grid min-w-0 gap-1">

@@ -569,7 +569,7 @@ pub async fn on_action(
 
 pub async fn on_data_subject(
     plugin: &Arc<LoadedPlugin>,
-    request: &aphel_kernel::application::data_subject::DataSubjectRequest<'_>,
+    request: &aphel_sdk::privacy::DataSubjectRequest<'_>,
     input: &serde_json::Value,
 ) -> Result<serde_json::Value, AppError> {
     let scope = plugin_scope(plugin).await?;

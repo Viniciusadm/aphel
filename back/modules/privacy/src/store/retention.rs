@@ -5,18 +5,17 @@ use uuid::Uuid;
 
 use crate::domain::{
     RetentionAction, RetentionPolicy, RetentionRun, RetentionRunFilter, RetentionRunStatus,
-    RetentionTrigger, StoredFileRef, tracks_last_activity,
+    RetentionTrigger, StoredFileRef,
 };
 use crate::mysql::sql::{
-    file_reference_columns, instant, optional_instant, optional_uuid, record_title_sql,
-    unreferenced_file_predicate, user_reference, uuid_column,
+    file_reference_columns, instant, optional_instant, optional_uuid, unreferenced_file_predicate,
+    user_reference, uuid_column,
 };
 use aphel_kernel::Ctx;
-use aphel_kernel::application::fields::{EntityDefinition, is_sql_identifier};
+use aphel_kernel::application::fields::EntityDefinition;
 use aphel_kernel::application::organization_admin::{ListWindow, Listing};
 use aphel_kernel::database::transaction::MySqlTx;
 use aphel_kernel::errors::AppError;
-use aphel_kernel::infrastructure::query::compiler::push_partition;
 use aphel_kernel::infrastructure::repositories::mapper;
 
 const POLICY_SELECT: &str = "SELECT p.*, u.display_name AS created_by_name FROM retention_policies p \
@@ -70,75 +69,109 @@ fn run_from_row(row: &MySqlRow) -> Result<RetentionRun, AppError> {
     })
 }
 
-fn push_candidates(
-    builder: &mut QueryBuilder<MySql>,
+async fn candidates(
+    ctx: &Ctx<'_>,
     action: RetentionAction,
     definition: &EntityDefinition,
     threshold: DateTime<Utc>,
-) -> Result<(), AppError> {
-    let (Some(deleted), Some(archived)) = (
-        definition.deleted_column.as_deref(),
-        definition.archived_column.as_deref(),
-    ) else {
+    projection: aphel_kernel::infrastructure::query::compiler::Projection,
+) -> Result<QueryBuilder<MySql>, AppError> {
+    use aphel_kernel::{
+        application::query::{
+            ArchivedFilter, CompareOp, FieldTarget, PlanCondition, PlanNode, PlanValue, Predicate,
+            QueryPlan,
+        },
+        domain::{
+            access::{AccessScope, RecordScopeFilter},
+            fields::FieldType,
+        },
+    };
+    use aphel_sdk::privacy::PrivacyTraits;
+    if !crate::domain::supports_retention(definition) {
         return Err(AppError::validation_code(
             "retention_not_supported",
             "this record type cannot be archived",
         ));
-    };
-    if !is_sql_identifier(deleted) || !is_sql_identifier(archived) {
-        return Err(AppError::Internal("invalid record type columns".to_owned()));
     }
-    let threshold = mapper::naive(threshold);
-    let record_type = definition.record_type.as_str().to_owned();
-    builder.push(format!(
-        " FROM {} r WHERE r.{deleted} IS NULL",
-        definition.table
-    ));
-    push_partition(builder, definition, "r");
+    let condition = |column: &str, predicate: Predicate, negated: bool| {
+        PlanNode::Condition(PlanCondition {
+            target: FieldTarget::System {
+                column: column.to_owned(),
+            },
+            field_type: FieldType::DateTime,
+            predicate,
+            negated,
+        })
+    };
+    let mut filters = Vec::new();
     match action {
         RetentionAction::ArchiveInactive => {
-            builder
-                .push(format!(" AND r.{archived} IS NULL AND r.updated_at < "))
-                .push_bind(threshold);
-            if tracks_last_activity(definition) {
-                builder
-                    .push(" AND COALESCE(r.last_activity_at, r.updated_at) < ")
-                    .push_bind(threshold);
+            filters.push(condition(
+                "updated_at",
+                Predicate::Compare(CompareOp::Lt, PlanValue::DateTime(threshold)),
+                false,
+            ));
+            for key in definition
+                .capabilities
+                .retention_mapping_data()?
+                .recency_fields
+            {
+                let field = definition.system_field_by_key(&key).ok_or_else(|| {
+                    AppError::Configuration("unknown retention recency field".to_owned())
+                })?;
+                filters.push(PlanNode::Or(vec![
+                    condition(&field.column, Predicate::Present, true),
+                    condition(
+                        &field.column,
+                        Predicate::Compare(CompareOp::Lt, PlanValue::DateTime(threshold)),
+                        false,
+                    ),
+                ]));
             }
-            builder
-                .push(
-                    " AND NOT EXISTS (SELECT 1 FROM tasks a WHERE a.record_type = ",
-                )
-                .push_bind(record_type.clone())
-                .push(" AND a.record_id = r.id AND a.updated_at >= ")
-                .push_bind(threshold)
-                .push(
-                    ") AND NOT EXISTS (SELECT 1 FROM task_links l JOIN tasks a ON a.id = l.activity_id \
-                     WHERE l.record_type = ",
-                )
-                .push_bind(record_type.clone())
-                .push(" AND l.record_id = r.id AND a.updated_at >= ")
-                .push_bind(threshold)
-                .push(
-                    ") AND NOT EXISTS (SELECT 1 FROM notes n WHERE n.record_type = ",
-                )
-                .push_bind(record_type)
-                .push(" AND n.record_id = r.id AND n.updated_at >= ")
-                .push_bind(threshold)
-                .push(")");
         }
-        RetentionAction::PurgeArchived => {
-            builder
-                .push(format!(" AND r.{archived} IS NOT NULL AND r.{archived} < "))
-                .push_bind(threshold);
-        }
+        RetentionAction::PurgeArchived => filters.push(condition(
+            definition
+                .archived_column
+                .as_deref()
+                .ok_or_else(|| AppError::Configuration("missing archive column".to_owned()))?,
+            Predicate::Compare(CompareOp::Lt, PlanValue::DateTime(threshold)),
+            false,
+        )),
         _ => {
             return Err(AppError::Internal(
-                "record candidates requested for a log action".to_owned(),
+                "record candidates requested for a non-record action".to_owned(),
             ));
         }
     }
-    Ok(())
+    let plan = QueryPlan {
+        record_type: definition.clone(),
+        visibility: RecordScopeFilter::Organization,
+        filter: Some(PlanNode::And(filters)),
+        search: None,
+        sort: Vec::new(),
+        archived: if action == RetentionAction::PurgeArchived {
+            ArchivedFilter::Only
+        } else {
+            ArchivedFilter::Exclude
+        },
+        window: ListWindow {
+            offset: 0,
+            limit: 1,
+        },
+    };
+    let mut builder = aphel_kernel::infrastructure::query::compiler::build_query_unwindowed(
+        &AccessScope::system(),
+        &plan,
+        projection,
+    )?;
+    if action == RetentionAction::ArchiveInactive {
+        for source in crate::service::sources::available(ctx).await? {
+            source
+                .restrict_inactive(ctx, &mut builder, &definition.record_type, threshold)
+                .await?;
+        }
+    }
+    Ok(builder)
 }
 
 fn log_table(action: RetentionAction) -> Option<(&'static str, &'static str)> {
@@ -405,6 +438,7 @@ impl RetentionStore {
 
     pub(crate) async fn count_candidates(
         &self,
+        ctx: &Ctx<'_>,
         action: RetentionAction,
         definition: Option<&EntityDefinition>,
         threshold: DateTime<Utc>,
@@ -414,8 +448,14 @@ impl RetentionStore {
                 let definition = definition.ok_or_else(|| {
                     AppError::Internal("record type required for this action".to_owned())
                 })?;
-                let mut builder = QueryBuilder::new("SELECT COUNT(*)");
-                push_candidates(&mut builder, action, definition, threshold)?;
+                let mut builder = candidates(
+                    ctx,
+                    action,
+                    definition,
+                    threshold,
+                    aphel_kernel::infrastructure::query::compiler::Projection::Count,
+                )
+                .await?;
                 builder.build_query_scalar().fetch_one(&self.pool).await?
             }
             RetentionAction::PurgeOrphanFiles => {
@@ -447,54 +487,64 @@ impl RetentionStore {
 
     pub(crate) async fn record_candidates(
         &self,
+        ctx: &Ctx<'_>,
         action: RetentionAction,
         definition: &EntityDefinition,
         threshold: DateTime<Utc>,
         limit: u32,
     ) -> Result<Vec<(Uuid, String)>, AppError> {
-        let (title, _) = record_title_sql(definition);
-        let mut builder = QueryBuilder::new(format!("SELECT r.id, {title} AS title"));
-        push_candidates(&mut builder, action, definition, threshold)?;
+        let mut builder = candidates(
+            ctx,
+            action,
+            definition,
+            threshold,
+            aphel_kernel::infrastructure::query::compiler::Projection::Ids,
+        )
+        .await?;
         builder
             .push(" ORDER BY r.updated_at, r.id LIMIT ")
-            .push_bind(i64::from(limit));
-        let rows = builder.build().fetch_all(&self.pool).await?;
-        rows.iter()
-            .map(|row| {
-                Ok((
-                    uuid_column(row, "id")?,
-                    row.try_get::<Option<String>, _>("title")?
-                        .unwrap_or_default(),
-                ))
-            })
-            .collect()
+            .push_bind(limit);
+        let ids: Vec<String> = builder.build_query_scalar().fetch_all(&self.pool).await?;
+        let mut result = Vec::new();
+        for id in ids {
+            let id = Uuid::parse_str(&id)
+                .map_err(|_| AppError::Internal("invalid stored record id".to_owned()))?;
+            let record = aphel_kernel::application::shared::RecordRef::new(
+                definition.record_type.clone(),
+                id,
+            );
+            let snapshot =
+                aphel_sdk::records::inspect_entity(ctx.pool(), ctx.registry(), &record).await?;
+            let title = snapshot
+                .as_ref()
+                .and_then(|snapshot| {
+                    definition.title_field.as_deref().and_then(|key| {
+                        snapshot
+                            .get("values")
+                            .and_then(|values| values.get(key))
+                            .or_else(|| {
+                                snapshot
+                                    .get("custom_fields")
+                                    .and_then(|values| values.get(key))
+                            })
+                    })
+                })
+                .and_then(serde_json::Value::as_str)
+                .unwrap_or_default()
+                .to_owned();
+            result.push((id, title));
+        }
+        Ok(result)
     }
 
     pub(crate) async fn archive_record(
         &self,
         tx: &mut MySqlTx,
         definition: &EntityDefinition,
-        record_id: Uuid,
+        id: Uuid,
         now: DateTime<Utc>,
     ) -> Result<bool, AppError> {
-        let (Some(deleted), Some(archived)) = (
-            definition.deleted_column.as_deref(),
-            definition.archived_column.as_deref(),
-        ) else {
-            return Ok(false);
-        };
-        if !is_sql_identifier(deleted) || !is_sql_identifier(archived) {
-            return Ok(false);
-        }
-        let result = sqlx::query(sqlx::AssertSqlSafe(format!(
-            "UPDATE {} SET {archived} = ? WHERE id = ? AND {archived} IS NULL AND {deleted} IS NULL",
-            definition.table
-        )))
-        .bind(mapper::naive(now))
-        .bind(record_id.to_string())
-        .execute(&mut **tx)
-        .await?;
-        Ok(result.rows_affected() > 0)
+        aphel_sdk::records::archive_entity(tx, definition, id, now).await
     }
 
     pub(crate) async fn purge_log_batch(

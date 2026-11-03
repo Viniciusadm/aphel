@@ -5714,6 +5714,22 @@ export interface paths {
         patch?: never;
         trace?: never;
     };
+    "/api/v1/privacy/catalog": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        get: operations["privacy_catalog"];
+        put?: never;
+        post?: never;
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
     "/api/v1/privacy/requests": {
         parameters: {
             query?: never;
@@ -13092,12 +13108,18 @@ export interface components {
                 valid_to?: string | null;
             };
         };
+        Data_PrivacyCatalogResponse: {
+            data: {
+                entities: components["schemas"]["PrivacyEntityResponse"][];
+                sources: components["schemas"]["PrivacySourceResponse"][];
+            };
+        };
         Data_PrivacyRequestDetailResponse: {
             data: {
-                import_rows: components["schemas"]["PrivacyImportRowResponse"][];
-                notes: string[];
+                items: components["schemas"]["PrivacySourceTargetResponse"][];
                 records: components["schemas"]["PrivacyTargetRecordResponse"][];
                 request: components["schemas"]["PrivacyRequestResponse"];
+                sources: components["schemas"]["PrivacySourceResponse"][];
             };
         };
         Data_PrivacyRequestResponse: {
@@ -13805,14 +13827,11 @@ export interface components {
         Data_SubjectSearchResponse: {
             data: {
                 attachments: components["schemas"]["SubjectAttachmentResponse"][];
-                import_rows: components["schemas"]["SubjectImportRowResponse"][];
-                /** @example email */
+                items: components["schemas"]["PrivacySourceItemResponse"][];
                 kind: string;
-                /** @example m***@e***.com */
                 label: string;
-                notes: components["schemas"]["SubjectNoteResponse"][];
                 records: components["schemas"]["SubjectRecordResponse"][];
-                tasks: components["schemas"]["SubjectActivityResponse"][];
+                sources: components["schemas"]["PrivacySourceResponse"][];
             };
         };
         Data_SystemOverviewResponse: {
@@ -16252,11 +16271,6 @@ export interface components {
         };
         ImportPreviewRow: {
             cells: string[];
-            /** Format: int32 */
-            row_index: number;
-        };
-        ImportRowBody: {
-            import_job_id: string;
             /** Format: int32 */
             row_index: number;
         };
@@ -20049,10 +20063,17 @@ export interface components {
             /** @example 2026-12-31 */
             valid_to?: string | null;
         };
-        PrivacyImportRowResponse: {
-            import_job_id: string;
-            /** Format: int32 */
-            row_index: number;
+        PrivacyCatalogResponse: {
+            entities: components["schemas"]["PrivacyEntityResponse"][];
+            sources: components["schemas"]["PrivacySourceResponse"][];
+        };
+        PrivacyEntityResponse: {
+            labels: {
+                [key: string]: string;
+            };
+            personal_data: boolean;
+            record_type: string;
+            retention: boolean;
         };
         PrivacyReportResponse: {
             /** Format: int64 */
@@ -20066,21 +20087,18 @@ export interface components {
             /** Format: int64 */
             history_entries: number;
             /** Format: int64 */
-            import_rows: number;
-            /** Format: int64 */
-            notes: number;
-            /** Format: int64 */
             records: number;
             /** Format: int64 */
             skipped: number;
-            /** Format: int64 */
-            tasks: number;
+            source_items: {
+                [key: string]: number;
+            };
         };
         PrivacyRequestDetailResponse: {
-            import_rows: components["schemas"]["PrivacyImportRowResponse"][];
-            notes: string[];
+            items: components["schemas"]["PrivacySourceTargetResponse"][];
             records: components["schemas"]["PrivacyTargetRecordResponse"][];
             request: components["schemas"]["PrivacyRequestResponse"];
+            sources: components["schemas"]["PrivacySourceResponse"][];
         };
         PrivacyRequestResponse: {
             created_at: string;
@@ -20104,9 +20122,27 @@ export interface components {
             subject_label: string;
             targets: components["schemas"]["PrivacyTargetCountsResponse"];
         };
+        PrivacySourceItemResponse: {
+            excerpt?: string | null;
+            id: string;
+            metadata: Record<string, never>;
+            reason: string;
+            record?: null | components["schemas"]["RecordRefResponse"];
+            source: string;
+            title: string;
+        };
+        PrivacySourceResponse: {
+            key: string;
+            labels: {
+                [key: string]: string;
+            };
+        };
+        PrivacySourceTargetResponse: {
+            id: string;
+            source: string;
+        };
         PrivacyTargetCountsResponse: {
-            import_rows: number;
-            notes: number;
+            items: number;
             records: number;
         };
         PrivacyTargetRecordResponse: {
@@ -20117,8 +20153,7 @@ export interface components {
             title: string;
         };
         PrivacyTargetsBody: {
-            import_rows?: components["schemas"]["ImportRowBody"][];
-            notes?: string[];
+            items?: components["schemas"]["PrivacySourceTargetResponse"][];
             records?: components["schemas"]["RecordRefBody"][];
         };
         ProductBundleRequest: {
@@ -21788,14 +21823,6 @@ export interface components {
             message?: string | null;
             ok: boolean;
         };
-        SubjectActivityResponse: {
-            due_at?: string | null;
-            id: string;
-            reason: string;
-            record?: null | components["schemas"]["RecordRefResponse"];
-            status: string;
-            title: string;
-        };
         SubjectAttachmentResponse: {
             created_at: string;
             file_id: string;
@@ -21805,24 +21832,6 @@ export interface components {
             record: components["schemas"]["RecordRefResponse"];
             /** Format: int64 */
             size: number;
-        };
-        SubjectImportRowResponse: {
-            created_at: string;
-            file_name?: string | null;
-            import_job_id: string;
-            record_id?: string | null;
-            record_type: string;
-            /** Format: int32 */
-            row_index: number;
-            status: string;
-        };
-        SubjectNoteResponse: {
-            created_at: string;
-            excerpt: string;
-            id: string;
-            /** @example mention */
-            reason: string;
-            record: components["schemas"]["RecordRefResponse"];
         };
         SubjectRecordResponse: {
             archived: boolean;
@@ -21840,14 +21849,11 @@ export interface components {
         };
         SubjectSearchResponse: {
             attachments: components["schemas"]["SubjectAttachmentResponse"][];
-            import_rows: components["schemas"]["SubjectImportRowResponse"][];
-            /** @example email */
+            items: components["schemas"]["PrivacySourceItemResponse"][];
             kind: string;
-            /** @example m***@e***.com */
             label: string;
-            notes: components["schemas"]["SubjectNoteResponse"][];
             records: components["schemas"]["SubjectRecordResponse"][];
-            tasks: components["schemas"]["SubjectActivityResponse"][];
+            sources: components["schemas"]["PrivacySourceResponse"][];
         };
         SubmitQuoteRequest: {
             comment?: string | null;
@@ -52397,6 +52403,44 @@ export interface operations {
             };
             /** @description Invalid items (`validation_error` with `details.fields` as `items.<index>.<field>`) */
             422: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["ErrorEnvelope"];
+                };
+            };
+            /** @description API token rate limit exceeded (`rate_limited`); see `Retry-After` and `X-RateLimit-*` */
+            429: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["ErrorEnvelope"];
+                };
+            };
+        };
+    };
+    privacy_catalog: {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        requestBody?: never;
+        responses: {
+            /** @description Available privacy sources and entity policies */
+            200: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["Data_PrivacyCatalogResponse"];
+                };
+            };
+            /** @description Missing privacy.manage */
+            403: {
                 headers: {
                     [name: string]: unknown;
                 };

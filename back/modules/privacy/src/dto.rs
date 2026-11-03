@@ -5,10 +5,10 @@ use utoipa::{IntoParams, ToSchema};
 use uuid::Uuid;
 
 use crate::{
-    AttachmentData, CreatePrivacyRequestCommand, ImportRowTarget, PrivacyRequest,
-    PrivacyRequestDetail, PrivacyRequestFilter, PrivacyRequestStatus, PrivacyTargets,
-    RetentionPolicy, RetentionPolicyCommand, RetentionPreview, RetentionRun, RetentionRunFilter,
-    SubjectActivity, SubjectImportRow, SubjectNote, SubjectRecord, SubjectSearchResult,
+    AttachmentData, CreatePrivacyRequestCommand, PrivacyRequest, PrivacyRequestDetail,
+    PrivacyRequestFilter, PrivacyRequestStatus, PrivacyTargets, RetentionPolicy,
+    RetentionPolicyCommand, RetentionPreview, RetentionRun, RetentionRunFilter, SubjectRecord,
+    SubjectSearchResult,
 };
 use aphel_kernel::api::dto::common::{OwnerResponse, timestamp};
 use aphel_kernel::application::shared::RecordRef;
@@ -63,28 +63,6 @@ impl From<SubjectRecord> for SubjectRecordResponse {
 }
 
 #[derive(Debug, Serialize, ToSchema)]
-pub(crate) struct SubjectNoteResponse {
-    pub(crate) id: String,
-    pub(crate) record: RecordRefResponse,
-    pub(crate) excerpt: String,
-    pub(crate) created_at: String,
-    #[schema(example = "mention")]
-    pub(crate) reason: String,
-}
-
-impl From<SubjectNote> for SubjectNoteResponse {
-    fn from(note: SubjectNote) -> Self {
-        Self {
-            id: note.id.to_string(),
-            record: (&note.record).into(),
-            excerpt: note.excerpt,
-            created_at: timestamp(note.created_at),
-            reason: note.reason.as_str().to_owned(),
-        }
-    }
-}
-
-#[derive(Debug, Serialize, ToSchema)]
 pub(crate) struct SubjectAttachmentResponse {
     pub(crate) id: String,
     pub(crate) file_id: String,
@@ -110,76 +88,60 @@ impl From<AttachmentData> for SubjectAttachmentResponse {
 }
 
 #[derive(Debug, Serialize, ToSchema)]
-pub(crate) struct SubjectActivityResponse {
-    pub(crate) id: String,
-    pub(crate) title: String,
-    pub(crate) status: String,
-    pub(crate) record: Option<RecordRefResponse>,
-    pub(crate) due_at: Option<String>,
-    pub(crate) reason: String,
+pub(crate) struct PrivacySourceItemResponse {
+    source: String,
+    id: String,
+    record: Option<RecordRefResponse>,
+    title: String,
+    excerpt: Option<String>,
+    reason: String,
+    #[schema(value_type=Object)]
+    metadata: Value,
 }
-
-impl From<SubjectActivity> for SubjectActivityResponse {
-    fn from(activity: SubjectActivity) -> Self {
+impl From<aphel_sdk::privacy::PrivacyItem> for PrivacySourceItemResponse {
+    fn from(item: aphel_sdk::privacy::PrivacyItem) -> Self {
         Self {
-            id: activity.id.to_string(),
-            title: activity.title,
-            status: activity.status,
-            record: activity.record.as_ref().map(Into::into),
-            due_at: activity.due_at.map(timestamp),
-            reason: activity.reason.as_str().to_owned(),
+            source: item.target.source,
+            id: item.target.id,
+            record: item.record.as_ref().map(Into::into),
+            title: item.title,
+            excerpt: item.excerpt,
+            reason: item.reason,
+            metadata: item.metadata,
         }
     }
 }
-
 #[derive(Debug, Serialize, ToSchema)]
-pub(crate) struct SubjectImportRowResponse {
-    pub(crate) import_job_id: String,
-    pub(crate) row_index: u32,
-    pub(crate) record_type: String,
-    pub(crate) record_id: Option<String>,
-    pub(crate) status: String,
-    pub(crate) file_name: Option<String>,
-    pub(crate) created_at: String,
+pub(crate) struct PrivacySourceResponse {
+    key: String,
+    labels: std::collections::BTreeMap<String, String>,
 }
-
-impl From<SubjectImportRow> for SubjectImportRowResponse {
-    fn from(row: SubjectImportRow) -> Self {
+impl From<crate::domain::PrivacySourceInfo> for PrivacySourceResponse {
+    fn from(source: crate::domain::PrivacySourceInfo) -> Self {
         Self {
-            import_job_id: row.target.import_job_id.to_string(),
-            row_index: row.target.row_index,
-            record_type: row.record_type,
-            record_id: row.record_id.map(|id| id.to_string()),
-            status: row.status,
-            file_name: row.file_name,
-            created_at: timestamp(row.created_at),
+            key: source.key,
+            labels: source.labels,
         }
     }
 }
-
 #[derive(Debug, Serialize, ToSchema)]
 pub(crate) struct SubjectSearchResponse {
-    #[schema(example = "email")]
-    pub(crate) kind: String,
-    #[schema(example = "m***@e***.com")]
-    pub(crate) label: String,
-    pub(crate) records: Vec<SubjectRecordResponse>,
-    pub(crate) notes: Vec<SubjectNoteResponse>,
-    pub(crate) attachments: Vec<SubjectAttachmentResponse>,
-    pub(crate) tasks: Vec<SubjectActivityResponse>,
-    pub(crate) import_rows: Vec<SubjectImportRowResponse>,
+    kind: String,
+    label: String,
+    records: Vec<SubjectRecordResponse>,
+    items: Vec<PrivacySourceItemResponse>,
+    sources: Vec<PrivacySourceResponse>,
+    attachments: Vec<SubjectAttachmentResponse>,
 }
-
 impl From<SubjectSearchResult> for SubjectSearchResponse {
     fn from(result: SubjectSearchResult) -> Self {
         Self {
-            kind: result.kind.as_str().to_owned(),
+            kind: result.kind.as_str().into(),
             label: result.label,
             records: result.records.into_iter().map(Into::into).collect(),
-            notes: result.notes.into_iter().map(Into::into).collect(),
+            items: result.items.into_iter().map(Into::into).collect(),
+            sources: result.sources.into_iter().map(Into::into).collect(),
             attachments: result.attachments.into_iter().map(Into::into).collect(),
-            tasks: result.tasks.into_iter().map(Into::into).collect(),
-            import_rows: result.import_rows.into_iter().map(Into::into).collect(),
         }
     }
 }
@@ -191,20 +153,17 @@ pub(crate) struct RecordRefBody {
     pub(crate) id: String,
 }
 
-#[derive(Debug, Deserialize, ToSchema)]
-pub(crate) struct ImportRowBody {
-    pub(crate) import_job_id: String,
-    pub(crate) row_index: u32,
+#[derive(Debug, Serialize, Deserialize, ToSchema)]
+pub(crate) struct PrivacySourceTargetResponse {
+    source: String,
+    id: String,
 }
-
 #[derive(Debug, Default, Deserialize, ToSchema)]
 pub(crate) struct PrivacyTargetsBody {
     #[serde(default)]
-    pub(crate) records: Vec<RecordRefBody>,
+    records: Vec<RecordRefBody>,
     #[serde(default)]
-    pub(crate) notes: Vec<String>,
-    #[serde(default)]
-    pub(crate) import_rows: Vec<ImportRowBody>,
+    items: Vec<PrivacySourceTargetResponse>,
 }
 
 #[derive(Debug, Deserialize, ToSchema)]
@@ -243,23 +202,15 @@ impl CreatePrivacyRequestBody {
                     .map_err(|_| invalid("targets.records", "must reference valid records"))
             })
             .collect::<Result<Vec<_>, _>>()?;
-        let notes = self
+        let items = self
             .targets
-            .notes
-            .iter()
-            .map(|id| parse_uuid(id, "targets.notes"))
-            .collect::<Result<Vec<_>, _>>()?;
-        let import_rows = self
-            .targets
-            .import_rows
-            .iter()
-            .map(|row| {
-                Ok(ImportRowTarget {
-                    import_job_id: parse_uuid(&row.import_job_id, "targets.import_rows")?,
-                    row_index: row.row_index,
-                })
+            .items
+            .into_iter()
+            .map(|item| aphel_sdk::privacy::SourceTarget {
+                source: item.source,
+                id: item.id,
             })
-            .collect::<Result<Vec<_>, AppError>>()?;
+            .collect();
         let due_at = match self.due_at.as_deref().map(str::trim) {
             None | Some("") => None,
             Some(value) => Some(
@@ -271,11 +222,7 @@ impl CreatePrivacyRequestBody {
         Ok(CreatePrivacyRequestCommand {
             kind: self.kind,
             term: self.term,
-            targets: PrivacyTargets {
-                records,
-                notes,
-                import_rows,
-            },
+            targets: PrivacyTargets { records, items },
             due_at,
             ip,
         })
@@ -285,18 +232,15 @@ impl CreatePrivacyRequestBody {
 #[derive(Debug, Serialize, ToSchema)]
 pub(crate) struct PrivacyTargetCountsResponse {
     pub(crate) records: usize,
-    pub(crate) notes: usize,
-    pub(crate) import_rows: usize,
+    pub(crate) items: usize,
 }
 
 #[derive(Debug, Serialize, ToSchema)]
 pub(crate) struct PrivacyReportResponse {
     pub(crate) records: u64,
-    pub(crate) notes: u64,
     pub(crate) attachments: u64,
     pub(crate) files: u64,
-    pub(crate) tasks: u64,
-    pub(crate) import_rows: u64,
+    pub(crate) source_items: std::collections::BTreeMap<String, u64>,
     pub(crate) history_entries: u64,
     pub(crate) external_items: u64,
     pub(crate) skipped: u64,
@@ -308,11 +252,13 @@ impl From<&Value> for PrivacyReportResponse {
         let number = |key: &str| value.get(key).and_then(Value::as_u64).unwrap_or(0);
         Self {
             records: number("records"),
-            notes: number("notes"),
             attachments: number("attachments"),
             files: number("files"),
-            tasks: number("tasks"),
-            import_rows: number("import_rows"),
+            source_items: value
+                .get("source_items")
+                .cloned()
+                .and_then(|value| serde_json::from_value(value).ok())
+                .unwrap_or_default(),
             history_entries: number("history_entries"),
             external_items: number("external_items"),
             skipped: number("skipped"),
@@ -357,8 +303,7 @@ impl From<PrivacyRequest> for PrivacyRequestResponse {
             overdue: request.is_overdue(Utc::now()),
             targets: PrivacyTargetCountsResponse {
                 records: request.targets.records.len(),
-                notes: request.targets.notes.len(),
-                import_rows: request.targets.import_rows.len(),
+                items: request.targets.items.len(),
             },
             requested_by: request.requested_by.map(Into::into),
             executed_by: request.executed_by.map(Into::into),
@@ -383,38 +328,14 @@ pub(crate) struct PrivacyTargetRecordResponse {
 }
 
 #[derive(Debug, Serialize, ToSchema)]
-pub(crate) struct PrivacyImportRowResponse {
-    pub(crate) import_job_id: String,
-    pub(crate) row_index: u32,
-}
-
-#[derive(Debug, Serialize, ToSchema)]
 pub(crate) struct PrivacyRequestDetailResponse {
-    pub(crate) request: PrivacyRequestResponse,
-    pub(crate) records: Vec<PrivacyTargetRecordResponse>,
-    pub(crate) notes: Vec<String>,
-    pub(crate) import_rows: Vec<PrivacyImportRowResponse>,
+    request: PrivacyRequestResponse,
+    records: Vec<PrivacyTargetRecordResponse>,
+    items: Vec<PrivacySourceTargetResponse>,
+    sources: Vec<PrivacySourceResponse>,
 }
-
 impl From<PrivacyRequestDetail> for PrivacyRequestDetailResponse {
     fn from(detail: PrivacyRequestDetail) -> Self {
-        let notes = detail
-            .request
-            .targets
-            .notes
-            .iter()
-            .map(Uuid::to_string)
-            .collect();
-        let import_rows = detail
-            .request
-            .targets
-            .import_rows
-            .iter()
-            .map(|row| PrivacyImportRowResponse {
-                import_job_id: row.import_job_id.to_string(),
-                row_index: row.row_index,
-            })
-            .collect();
         Self {
             records: detail
                 .records
@@ -426,8 +347,17 @@ impl From<PrivacyRequestDetail> for PrivacyRequestDetailResponse {
                     exists: label.exists,
                 })
                 .collect(),
-            notes,
-            import_rows,
+            items: detail
+                .request
+                .targets
+                .items
+                .iter()
+                .map(|item| PrivacySourceTargetResponse {
+                    source: item.source.clone(),
+                    id: item.id.clone(),
+                })
+                .collect(),
+            sources: detail.sources.into_iter().map(Into::into).collect(),
             request: detail.request.into(),
         }
     }
@@ -612,4 +542,18 @@ impl RetentionRunListParams {
         };
         Ok(RetentionRunFilter { policy_id })
     }
+}
+
+#[derive(Debug, Serialize, ToSchema)]
+pub(crate) struct PrivacyEntityResponse {
+    pub(crate) record_type: String,
+    pub(crate) labels: std::collections::BTreeMap<String, String>,
+    pub(crate) personal_data: bool,
+    pub(crate) retention: bool,
+}
+
+#[derive(Debug, Serialize, ToSchema)]
+pub(crate) struct PrivacyCatalogResponse {
+    pub(crate) entities: Vec<PrivacyEntityResponse>,
+    pub(crate) sources: Vec<PrivacySourceResponse>,
 }

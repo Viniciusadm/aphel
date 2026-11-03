@@ -9,19 +9,18 @@ import {
 } from '@/components/ui/dialog'
 import { Input } from '@/components/ui/input'
 import { NativeSelect } from '@/features/records/filters/NativeSelect'
-import { useCustomObjectsAdmin } from '@/modules/objects/ui/api'
 import {
   MAX_THRESHOLD_DAYS,
   MIN_THRESHOLD_DAYS,
   RETENTION_ACTIONS,
-  RETENTION_RECORD_TYPES,
+  usePrivacyCatalog,
   isRetentionAction,
   needsRecordType,
   usePolicyMutations,
   type RetentionAction,
   type RetentionPolicy,
 } from './api'
-import { usePrivacyErrors } from './lib/shared'
+import { localizedLabel, usePrivacyErrors } from './lib/shared'
 import { Field } from '@/components/ui/field'
 
 interface PolicyFormDialogProps {
@@ -32,7 +31,7 @@ interface PolicyFormDialogProps {
 const NAME_MAX_LENGTH = 140
 
 export function PolicyFormDialog({ policy, onClose }: PolicyFormDialogProps) {
-  const { t } = useTranslation('privacy')
+  const { t, i18n } = useTranslation('privacy')
   const { create, update } = usePolicyMutations()
   const notifyFailure = usePrivacyErrors()
   const ids = { name: useId(), action: useId(), recordType: useId(), days: useId(), daysHint: useId(), error: useId() }
@@ -40,15 +39,12 @@ export function PolicyFormDialog({ policy, onClose }: PolicyFormDialogProps) {
   const [action, setAction] = useState<RetentionAction>(
     policy && isRetentionAction(policy.action) ? policy.action : 'archive_inactive',
   )
-  const [recordType, setRecordType] = useState(policy?.record_type ?? 'people.person')
-  const customObjects = useCustomObjectsAdmin()
-  const recordTypeOptions = [
-    ...RETENTION_RECORD_TYPES.map((value) => ({ value: value as string, label: t(`recordTypesPlural.${value}`) })),
-    ...(customObjects.data ?? [])
-      .filter((object) => object.is_active || object.record_type === recordType)
-      .map((object) => ({ value: object.record_type, label: object.label_plural })),
-  ]
-  if (!recordTypeOptions.some((option) => option.value === recordType)) {
+  const [selectedRecordType, setRecordType] = useState(policy?.record_type ?? '')
+  const catalog = usePrivacyCatalog()
+  const recordTypeOptions = (catalog.data?.entities ?? []).filter((entity) => entity.retention)
+    .map((entity) => ({ value: entity.record_type, label: localizedLabel(entity.labels, i18n.language, entity.record_type) }))
+  const recordType = selectedRecordType || recordTypeOptions[0]?.value || ''
+  if (recordType && !recordTypeOptions.some((option) => option.value === recordType)) {
     recordTypeOptions.push({ value: recordType, label: recordType })
   }
   const [days, setDays] = useState(String(policy?.threshold_days ?? 1095))
@@ -101,7 +97,7 @@ export function PolicyFormDialog({ policy, onClose }: PolicyFormDialogProps) {
           submitLabel={pending ? t('actions.saving') : t('actions.save')}
           onCancel={onClose}
           pending={pending}
-          submitDisabled={pending}
+          submitDisabled={pending || (needsRecordType(action) && !recordType)}
         >
           {error && (
             <SharedFieldError id={ids.error}>

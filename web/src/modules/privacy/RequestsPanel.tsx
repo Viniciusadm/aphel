@@ -100,7 +100,7 @@ interface RequestRowProps {
 
 function RequestRow({ request, dueLabel, onOpen }: RequestRowProps) {
   const { t } = useTranslation('privacy')
-  const items = request.targets.records + request.targets.notes + request.targets.import_rows
+  const items = request.targets.records + request.targets.items
   return (
     <li className="flex min-w-0 flex-col gap-2 rounded-lg border bg-card p-3 sm:flex-row sm:items-center sm:justify-between">
       <div className="grid min-w-0 gap-1">

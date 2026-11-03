@@ -110,7 +110,7 @@ pub(crate) async fn create_request(
     if command.targets.records.iter().any(|record| {
         !ctx.registry()
             .require(record.record_type.as_str())
-            .is_ok_and(trash::is_trashable)
+            .is_ok_and(|definition| definition.capabilities.has_trait("privacy.personal_data"))
     }) {
         violations.push(FieldViolation::new(
             "targets.records",
@@ -139,21 +139,24 @@ pub(crate) async fn create_request(
             violations,
         ));
     }
-    let mut targets = command.targets.clone();
+    let mut targets = super::sources::validate(ctx, &command.targets).await?;
+    if targets.len() > MAX_TARGETS {
+        return Err(AppError::Validation(format!(
+            "at most {MAX_TARGETS} items per request"
+        )));
+    }
     targets.records.sort_by(|a, b| {
         (a.record_type.as_str(), a.record_id).cmp(&(b.record_type.as_str(), b.record_id))
     });
     targets.records.dedup();
-    targets.notes.sort();
-    targets.notes.dedup();
-    targets.import_rows.sort();
-    targets.import_rows.dedup();
+    targets.items.sort();
+    targets.items.dedup();
     let store = PrivacyStore::of(ctx);
     let targets = store.existing_targets(&targets).await?;
     if targets.is_empty() {
         return Err(AppError::validation_code(
             PRIVACY_TARGETS_EMPTY,
-            "select at least one existing record, note or import row",
+            "select at least one existing record or source item",
         ));
     }
 
@@ -244,7 +247,19 @@ pub(crate) async fn get_request(
             exists: titles.contains_key(record),
         })
         .collect();
-    Ok(PrivacyRequestDetail { request, records })
+    let sources = super::sources::available(ctx)
+        .await?
+        .into_iter()
+        .map(|source| crate::domain::PrivacySourceInfo {
+            key: source.key().into(),
+            labels: source.labels().0,
+        })
+        .collect();
+    Ok(PrivacyRequestDetail {
+        request,
+        records,
+        sources,
+    })
 }
 
 fn not_pending() -> AppError {

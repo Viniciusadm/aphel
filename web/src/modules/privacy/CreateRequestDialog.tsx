@@ -13,8 +13,7 @@ import { Field } from '@/components/ui/field'
 
 export interface RequestSelection {
   records: { record_type: string; id: string }[]
-  notes: string[]
-  import_rows: { import_job_id: string; row_index: number }[]
+  items: { source: string; id: string }[]
 }
 
 interface CreateRequestDialogProps {
@@ -31,7 +30,7 @@ export function CreateRequestDialog({ term, selection, onClose, onCreated }: Cre
   const dueHintId = useId()
   const [kind, setKind] = useState<RequestKind>('export')
   const [dueDate, setDueDate] = useState(addDays(DEFAULT_DUE_DAYS))
-  const count = selection.records.length + selection.notes.length + selection.import_rows.length
+  const count = selection.records.length + selection.items.length
 
   const submit = (event: FormEvent) => {
     event.preventDefault()

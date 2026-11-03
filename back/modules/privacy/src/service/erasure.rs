@@ -1,12 +1,8 @@
-use aphel_contract_crm::CrmRecordTypes;
 use serde_json::{Value, json};
 use std::borrow::Cow;
 use uuid::Uuid;
 
-use crate::domain::{
-    ANONYMIZED_CONTACT_NAME, ANONYMIZED_TEXT, FieldSource, PRIVACY_REQUEST_RECORD_TYPE,
-    PersonalField, PrivacyRequest, PrivacyRequestKind, RunReport,
-};
+use crate::domain::{FieldSource, PersonalField, PrivacyRequest, PrivacyRequestKind, RunReport};
 use crate::service::requests::ExecutionOutcome;
 use crate::service::subject::Redaction;
 use crate::service::{
@@ -18,44 +14,29 @@ use aphel_kernel::application::fields::{
     CustomFieldPorts, CustomFieldReader, CustomFieldValueRepository, CustomFieldWriter,
     EntityDefinition, custom_field_path,
 };
-use aphel_kernel::application::shared::{Actor, FieldChange, FileStorage, RecordRef, RecordType};
+use aphel_kernel::application::shared::{Actor, FieldChange, FileStorage, RecordRef};
 use aphel_kernel::domain::access::AccessScope;
 use aphel_kernel::domain::fields::FieldType;
 use aphel_kernel::errors::AppError;
-use trash::{TrashStore, is_trashable, purged_event};
 
-pub(crate) const PRIVACY_REQUEST_ITEMS_ERASED: &str = "privacy_request.items_erased";
-
-const PROTECTED_KEYS: [&str; 11] = [
-    "created_at",
-    "updated_at",
-    "currency",
-    "status",
-    "priority",
-    "pipeline_id",
-    "stage_id",
-    "activity_type_id",
-    "stage_entered_at",
-    "owner_id",
-    "amount",
-];
-const GENERATED_COLUMNS: [&str; 1] = ["full_name"];
-const NAME_KEYS: [&str; 2] = ["name", "full_name"];
+use aphel_sdk::privacy::PrivacyTraits;
+fn protected(definition: &EntityDefinition, key: &str) -> bool {
+    definition
+        .capabilities
+        .privacy_policy_data()
+        .map(|policy| policy.protected_fields.iter().any(|field| field == key))
+        .unwrap_or(true)
+        || definition.system_field_by_key(key).is_some_and(|field| {
+            !field.writable || definition.owner_column.as_deref() == Some(field.column.as_str())
+        })
+}
 
 pub(crate) fn anonymized_event(record_type: &str) -> String {
     format!("{record_type}.anonymized")
 }
 
 pub(crate) fn erased_event(record_type: &str) -> String {
-    purged_event(record_type)
-}
-
-fn neutral_text(record_type: &str) -> &'static str {
-    if record_type == RecordType::CONTACT.as_str() {
-        ANONYMIZED_CONTACT_NAME
-    } else {
-        ANONYMIZED_TEXT
-    }
+    format!("{record_type}.purged")
 }
 
 pub(crate) fn anonymize_assignments(
@@ -67,16 +48,14 @@ pub(crate) fn anonymize_assignments(
         let FieldSource::Column(column) = &field.source else {
             continue;
         };
-        if PROTECTED_KEYS.contains(&field.key.as_str())
-            || GENERATED_COLUMNS.contains(&column.as_str())
-        {
+        if protected(definition, &field.key) {
             continue;
         }
         let value = if field.required {
             if !field.field_type.is_textual() {
                 continue;
             }
-            Some(neutral_text(definition.record_type.as_str()).to_owned())
+            Some(aphel_kernel::application::shared::REDACTED.to_owned())
         } else {
             None
         };
@@ -113,7 +92,6 @@ pub(crate) fn anonymize_assignments(
 
 #[derive(Default)]
 struct ErasedRecord {
-    notes: u64,
     attachments: u64,
     history: u64,
     storage_keys: Vec<String>,
@@ -126,14 +104,31 @@ pub(crate) async fn erase(
 ) -> Result<ExecutionOutcome, AppError> {
     let mut report = RunReport::default();
     run_external_sources(ctx, request, &mut report).await;
+    let mut combined = Redaction::new();
+    for record in &request.targets.records {
+        let definition = definition(ctx, record.record_type.as_str())?;
+        definition.capabilities.privacy_policy_data()?;
+        if let Some(snapshot) = PrivacyStore::of(ctx)
+            .record_snapshot(&definition, record.record_id)
+            .await?
+        {
+            let fields = personal_fields(ctx, &definition).await?;
+            combined.merge(&record_redaction(ctx, &definition, record, &snapshot, &fields).await?);
+        }
+    }
+    for source in super::sources::available(ctx).await? {
+        let ids = super::sources::item_ids(&request.targets, source.key());
+        let snapshot = source.snapshot(ctx, &request.targets.records, &ids).await?;
+        for identifier in snapshot.identifiers {
+            combined.add_json(&identifier);
+            combined.add_identifiers_json(&identifier);
+        }
+    }
+    super::sources::erase(ctx, storage, request, &combined, &mut report).await?;
     for record in &request.targets.records {
         match erase_record(ctx, request, record).await {
             Ok(Some(erased)) => {
                 report.records += 1;
-                if record.record_type == RecordType::ACTIVITY {
-                    report.tasks += 1;
-                }
-                report.notes += erased.notes;
                 report.attachments += erased.attachments;
                 report.history_entries += erased.history;
                 report.files += remove_stored_files(storage, &erased.storage_keys).await;
@@ -150,69 +145,6 @@ pub(crate) async fn erase(
         }
     }
 
-    let notes = &request.targets.notes;
-    let rows = &request.targets.import_rows;
-    if !notes.is_empty() || !rows.is_empty() {
-        let mut redaction = Redaction::new();
-        let privacy = PrivacyStore::of(ctx);
-        for row in privacy.import_rows(rows).await? {
-            redaction.add_json(&row.raw);
-            redaction.add_identifiers_json(&row.raw);
-        }
-        let now = ctx.now();
-        let mut tx = ctx.begin().await?;
-        if !privacy
-            .claim_item(
-                &mut tx,
-                request.id,
-                &RecordRef::new(PRIVACY_REQUEST_RECORD_TYPE, request.id),
-            )
-            .await?
-        {
-            return Ok(ExecutionOutcome { report, file: None });
-        }
-        let removed_notes = privacy.delete_notes(&mut tx, notes).await?;
-        let note_refs: Vec<RecordRef> = notes
-            .iter()
-            .map(|id| RecordRef::new(RecordType::NOTE, *id))
-            .collect();
-        let history = if redaction.is_empty() {
-            0
-        } else {
-            privacy
-                .redact_history(&mut tx, &note_refs, &redaction)
-                .await?
-        };
-        let redacted_rows = privacy
-            .redact_import_rows(&mut tx, rows, &redaction)
-            .await?;
-        let mentions = privacy.redact_mentions(&mut tx, &redaction).await?;
-        publish(
-            ctx,
-            &mut tx,
-            Mutation {
-                actor: Actor::System,
-                event_type: PRIVACY_REQUEST_ITEMS_ERASED.into(),
-                record: RecordRef::new(PRIVACY_REQUEST_RECORD_TYPE, request.id),
-                payload: json!({
-                    "request_id": request.id.to_string(),
-                    "notes": removed_notes,
-                    "import_rows": redacted_rows,
-                }),
-                changes: vec![
-                    FieldChange::new("notes_removed", Value::Null, json!(removed_notes)),
-                    FieldChange::new("import_rows_redacted", Value::Null, json!(redacted_rows)),
-                ],
-                now,
-                ip: None,
-            },
-        )
-        .await?;
-        tx.commit().await?;
-        report.notes += removed_notes;
-        report.import_rows += redacted_rows;
-        report.history_entries += history + mentions;
-    }
     Ok(ExecutionOutcome { report, file: None })
 }
 
@@ -229,23 +161,17 @@ fn add_mentions(redaction: &mut Redaction, field: &PersonalField, value: &Value)
     }
 }
 
-fn add_full_names(redaction: &mut Redaction, snapshot: &Value, fields: &[PersonalField]) {
-    let personal_text = |key: &str| {
-        fields
-            .iter()
-            .any(|field| field.key == key)
-            .then(|| snapshot.get(key).and_then(Value::as_str))
-            .flatten()
-            .map(str::trim)
-            .filter(|text| !text.is_empty())
-    };
-    for key in NAME_KEYS {
-        if let Some(name) = personal_text(key) {
-            redaction.add_full_name(name);
-        }
-    }
-    if let (Some(first), Some(last)) = (personal_text("first_name"), personal_text("last_name")) {
-        redaction.add_full_name(&format!("{first} {last}"));
+fn add_full_names(
+    redaction: &mut Redaction,
+    definition: &EntityDefinition,
+    snapshot: &Value,
+    fields: &[PersonalField],
+) {
+    if let Some(key) = &definition.title_field
+        && fields.iter().any(|field| field.key == *key)
+        && let Some(name) = snapshot.get(key).and_then(Value::as_str)
+    {
+        redaction.add_full_name(name);
     }
 }
 
@@ -270,7 +196,7 @@ async fn record_redaction(
     for field in fields {
         let value = match &field.source {
             FieldSource::Column(_) => {
-                if PROTECTED_KEYS.contains(&field.key.as_str()) {
+                if protected(definition, &field.key) {
                     continue;
                 }
                 redaction.add_field(field.key.clone());
@@ -287,7 +213,7 @@ async fn record_redaction(
             add_mentions(&mut redaction, field, value);
         }
     }
-    add_full_names(&mut redaction, snapshot, fields);
+    add_full_names(&mut redaction, definition, snapshot, fields);
     for column in free_text_columns(definition) {
         redaction.add_field(column.as_str());
         if let Some(value) = snapshot.get(column.as_str()) {
@@ -319,8 +245,6 @@ async fn erase_record(
     if !privacy.claim_item(&mut tx, request.id, record).await? {
         return Ok(Some(ErasedRecord::default()));
     }
-    let notes = privacy.delete_record_notes(&mut tx, record).await?;
-    privacy.delete_duplicate_candidates(&mut tx, record).await?;
     let history = privacy
         .redact_history(&mut tx, std::slice::from_ref(record), &redaction)
         .await?
@@ -369,16 +293,11 @@ async fn erase_record(
             let purged = CustomFieldWriter::new(&fields_ports)
                 .purge_record(&mut tx, scope, record)
                 .await?;
-            let removed = if is_trashable(&definition) {
-                privacy
-                    .mark_deleted(&mut tx, &definition, record.record_id, now)
-                    .await?;
-                TrashStore::of(ctx)
-                    .purge(&mut tx, &definition, record.record_id)
-                    .await?
-            } else {
-                privacy.delete_activity(&mut tx, record.record_id).await?
-            };
+            privacy
+                .mark_deleted(&mut tx, &definition, record.record_id, now)
+                .await?;
+            let removed =
+                aphel_sdk::records::purge_entity(&mut tx, &definition, record.record_id).await?;
             if !removed {
                 return Ok(None);
             }
@@ -407,7 +326,6 @@ async fn erase_record(
     .await?;
     tx.commit().await?;
     Ok(Some(ErasedRecord {
-        notes,
         attachments,
         history,
         storage_keys,

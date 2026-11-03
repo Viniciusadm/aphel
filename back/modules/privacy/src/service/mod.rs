@@ -3,6 +3,7 @@ pub(crate) mod package;
 pub(crate) mod requests;
 pub(crate) mod retention;
 pub(crate) mod search;
+pub(crate) mod sources;
 pub(crate) mod subject;
 
 use std::borrow::Cow;
@@ -13,9 +14,6 @@ use serde_json::Value;
 use crate::domain::{FieldSource, PersonalField, PrivacyRequest, PrivacyRequestKind, RunReport};
 use aphel_kernel::Ctx;
 use aphel_kernel::application::access::Authorizer;
-use aphel_kernel::application::data_subject::{
-    DataSubjectAction, DataSubjectRequest, DataSubjectSource, affected_items,
-};
 use aphel_kernel::application::fields::{
     CustomFieldPorts, EntityDefinition, FieldDefinitionRepository,
 };
@@ -26,6 +24,9 @@ use aphel_kernel::database::transaction::MySqlTx;
 use aphel_kernel::domain::UserId;
 use aphel_kernel::domain::access::{AccessScope, Permission, PermissionSet, RoleKey};
 use aphel_kernel::errors::AppError;
+use aphel_sdk::privacy::{
+    DataSubjectAction, DataSubjectRequest, DataSubjectSource, affected_items,
+};
 
 pub(crate) fn acting_scope(user_id: Option<UserId>) -> AccessScope {
     match user_id {

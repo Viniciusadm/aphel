@@ -33,7 +33,6 @@ impl Module for PrivacyModule {
             .description("Privacy (LGPD): personal data subjects, data subject requests and retention policies")
             .enabled_by_default()
             .depends_on(exports::KEY, "*")
-            .depends_on(trash::KEY, "*")
             .owned_tables(&["retention_policies", "retention_runs"])
             .migration(Migration::new(
                 1,
@@ -48,6 +47,7 @@ impl Module for PrivacyModule {
     }
 
     fn register(&self, app: &mut AppBuilder) -> Result<(), AppError> {
+        app.contract(aphel_sdk::privacy::DESCRIPTOR);
         app.contribute::<dyn aphel_kernel::modules::FileReferenceSource>(std::sync::Arc::new(
             points::PrivacyFiles,
         ));

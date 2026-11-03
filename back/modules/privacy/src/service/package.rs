@@ -6,9 +6,7 @@ use serde_json::{Value, json};
 use zip::ZipWriter;
 use zip::write::SimpleFileOptions;
 
-use crate::domain::{
-    ActivityData, MAX_EXPORT_ATTACHMENT_BYTES, NoteData, PrivacyRequest, RunReport,
-};
+use crate::domain::{MAX_EXPORT_ATTACHMENT_BYTES, PrivacyRequest, RunReport};
 use crate::service::requests::ExecutionOutcome;
 use crate::service::{definition, run_external_sources};
 use crate::store::PrivacyStore;
@@ -27,43 +25,6 @@ pub(crate) const ZIP_MIME_TYPE: &str = "application/zip";
 
 fn zip_error(error: impl std::fmt::Display) -> AppError {
     AppError::Internal(format!("cannot build the privacy export archive: {error}"))
-}
-
-fn record_json(record: &RecordRef) -> Value {
-    json!({ "record_type": record.record_type.as_str(), "id": record.record_id.to_string() })
-}
-
-fn note_json(note: &NoteData) -> Value {
-    json!({
-        "id": note.id.to_string(),
-        "record": record_json(&note.record),
-        "body": note.body,
-        "visibility": note.visibility,
-        "author": note.author,
-        "created_at": note.created_at.to_rfc3339(),
-        "updated_at": note.updated_at.to_rfc3339(),
-    })
-}
-
-fn activity_json(activity: &ActivityData) -> Value {
-    json!({
-        "id": activity.id.to_string(),
-        "title": activity.title,
-        "description": activity.description,
-        "type": activity.activity_type,
-        "status": activity.status,
-        "priority": activity.priority,
-        "due_at": activity.due_at.map(|at| at.to_rfc3339()),
-        "completed_at": activity.completed_at.map(|at| at.to_rfc3339()),
-        "record": activity.record.as_ref().map(record_json),
-        "location": activity.location.as_ref().map(|location| json!({
-            "latitude": location.latitude,
-            "longitude": location.longitude,
-            "accuracy_m": location.accuracy_m,
-            "captured_at": location.captured_at.map(|at| at.to_rfc3339()),
-        })),
-        "created_at": activity.created_at.to_rfc3339(),
-    })
 }
 
 struct Archive {
@@ -107,23 +68,14 @@ pub(crate) async fn build_export(
     let records = &request.targets.records;
     let privacy = PrivacyStore::of(ctx);
 
-    let mut notes_by_record: HashMap<RecordRef, Vec<Value>> = HashMap::new();
-    for note in privacy.record_notes(records).await? {
-        report.notes += 1;
-        notes_by_record
-            .entry(note.record.clone())
-            .or_default()
-            .push(note_json(&note));
-    }
-    let mut activities_by_record: HashMap<RecordRef, Vec<Value>> = HashMap::new();
-    for activity in privacy.record_activities(records).await? {
-        report.tasks += 1;
-        if let Some(record) = &activity.record {
-            activities_by_record
-                .entry(record.clone())
-                .or_default()
-                .push(activity_json(&activity));
-        }
+    let mut source_data = serde_json::Map::new();
+    for source in super::sources::available(ctx).await? {
+        let ids = super::sources::item_ids(&request.targets, source.key());
+        let snapshot = source.snapshot(ctx, records, &ids).await?;
+        report
+            .source_items
+            .insert(source.key().to_owned(), snapshot.data.len() as u64);
+        source_data.insert(source.key().to_owned(), json!(snapshot.data));
     }
     let mut attachments_by_record: HashMap<RecordRef, Vec<Value>> = HashMap::new();
     let mut archived_bytes = 0u64;
@@ -188,34 +140,9 @@ pub(crate) async fn build_export(
             "id": record.record_id.to_string(),
             "fields": fields,
             "custom_fields": custom,
-            "notes": notes_by_record.remove(record).unwrap_or_default(),
-            "tasks": activities_by_record.remove(record).unwrap_or_default(),
             "attachments": attachments_by_record.remove(record).unwrap_or_default(),
         }));
     }
-
-    let mentioned: Vec<Value> = privacy
-        .notes_by_id(&request.targets.notes)
-        .await?
-        .iter()
-        .map(note_json)
-        .collect();
-    report.notes += mentioned.len() as u64;
-    let import_rows: Vec<Value> = privacy
-        .import_rows(&request.targets.import_rows)
-        .await?
-        .into_iter()
-        .map(|row| {
-            json!({
-                "import_job_id": row.target.import_job_id.to_string(),
-                "row_index": row.target.row_index,
-                "status": row.status,
-                "record_id": row.record_id.map(|id| id.to_string()),
-                "raw": row.raw,
-            })
-        })
-        .collect();
-    report.import_rows = import_rows.len() as u64;
 
     let external: serde_json::Map<String, Value> = run_external_sources(ctx, request, &mut report)
         .await
@@ -232,8 +159,7 @@ pub(crate) async fn build_export(
             "label": request.subject_label,
         },
         "records": exported,
-        "mentioned_notes": mentioned,
-        "import_rows": import_rows,
+        "sources": source_data,
         "external": external,
     });
     let data = serde_json::to_vec_pretty(&document)

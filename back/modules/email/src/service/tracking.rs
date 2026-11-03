@@ -24,7 +24,7 @@ use aphel_kernel::database::transaction::MySqlTx;
 use aphel_kernel::domain::access::Permission;
 use aphel_kernel::domain::{Secret, UserId};
 use aphel_kernel::errors::{AppError, FieldViolation};
-use privacy::mask_email;
+use aphel_sdk::privacy::mask_email;
 
 pub(crate) async fn existing_tracking_key(ctx: &Ctx<'_>) -> Result<Option<Vec<u8>>, AppError> {
     Ok(ctx

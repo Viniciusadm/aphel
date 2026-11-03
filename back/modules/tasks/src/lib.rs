@@ -1,3 +1,5 @@
+use aphel_sdk::privacy::PrivacyTraits;
+mod privacy;
 mod timeline;
 use aphel_sdk::assignment::AssignmentTraits;
 mod calendar_source;
@@ -97,6 +99,13 @@ const NOTIFICATION_KINDS: [NotificationKindDefinition; 2] = [
 
 pub(crate) fn activity_capabilities() -> EntityTraits {
     EntityTraits::default()
+        .privacy_policy(aphel_sdk::privacy::EntityPrivacyPolicy {
+            protected_fields: vec![
+                "priority".to_owned(),
+                "status".to_owned(),
+                "activity_type_id".to_owned(),
+            ],
+        })
         .exportable()
         .workload(aphel_sdk::assignment::WorkloadMapping {
             state_field: "status".into(),
@@ -255,6 +264,9 @@ impl Module for TasksModule {
     }
 
     fn register(&self, app: &mut AppBuilder) -> Result<(), AppError> {
+        app.contribute::<dyn aphel_sdk::privacy::PrivacySource>(std::sync::Arc::new(
+            privacy::TasksPrivacy,
+        ));
         app.contribute::<dyn aphel_sdk::timeline::TimelineSource>(std::sync::Arc::new(
             timeline::TasksTimeline,
         ));

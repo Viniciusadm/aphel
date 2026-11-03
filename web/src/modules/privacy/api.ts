@@ -5,10 +5,7 @@ type Schemas = components['schemas']
 
 export type SubjectSearch = Schemas['SubjectSearchResponse']
 export type SubjectRecord = Schemas['SubjectRecordResponse']
-export type SubjectNote = Schemas['SubjectNoteResponse']
 export type SubjectAttachment = Schemas['SubjectAttachmentResponse']
-export type SubjectActivity = Schemas['SubjectActivityResponse']
-export type SubjectImportRow = Schemas['SubjectImportRowResponse']
 export type PrivacyRequest = Schemas['PrivacyRequestResponse']
 export type PrivacyRequestDetail = Schemas['PrivacyRequestDetailResponse']
 export type PrivacyRequestsPage = Schemas['Page_PrivacyRequestResponse']
@@ -36,10 +33,6 @@ export const RETENTION_ACTIONS = [
 ] as const
 export type RetentionAction = (typeof RETENTION_ACTIONS)[number]
 
-export const RETENTION_RECORD_TYPES = ['people.person', 'organizations.organization', 'deals.deal'] as const
-export const TARGET_RECORD_TYPES = ['people.person', 'organizations.organization', 'deals.deal', 'tasks.task'] as const
-export type TargetRecordType = (typeof TARGET_RECORD_TYPES)[number]
-
 export const REQUESTS_PER_PAGE = 20
 export const RUNS_PER_PAGE = 20
 export const MIN_THRESHOLD_DAYS = 1
@@ -56,10 +49,6 @@ export function isRequestStatus(value: string | null): value is RequestStatus {
 
 export function isRetentionAction(value: string): value is RetentionAction {
   return RETENTION_ACTIONS.includes(value as RetentionAction)
-}
-
-export function isTargetRecordType(value: string): value is TargetRecordType {
-  return TARGET_RECORD_TYPES.includes(value as TargetRecordType)
 }
 
 export function needsRecordType(action: RetentionAction): boolean {
@@ -178,4 +167,13 @@ export function usePolicyMutations() {
     disable: useMutation({ mutationFn: privacyApi.disablePolicy, onSuccess: refresh }),
     run: useMutation({ mutationFn: privacyApi.runPolicy, onSuccess: refreshAll }),
   }
+}
+
+export type PrivacyCatalog = Schemas['PrivacyCatalogResponse']
+
+export function usePrivacyCatalog() {
+  return useQuery({
+    queryKey: [...privacyKeys.all, 'catalog'],
+    queryFn: () => api.get<PrivacyCatalog>('/v1/privacy/catalog'),
+  })
 }

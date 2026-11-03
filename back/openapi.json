@@ -41675,6 +41675,54 @@
         ]
       }
     },
+    "/api/v1/privacy/catalog": {
+      "get": {
+        "tags": [
+          "privacy"
+        ],
+        "operationId": "privacy_catalog",
+        "responses": {
+          "200": {
+            "description": "Available privacy sources and entity policies",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/Data_PrivacyCatalogResponse"
+                }
+              }
+            }
+          },
+          "403": {
+            "description": "Missing privacy.manage",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ErrorEnvelope"
+                }
+              }
+            }
+          },
+          "429": {
+            "description": "API token rate limit exceeded (`rate_limited`); see `Retry-After` and `X-RateLimit-*`",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ErrorEnvelope"
+                }
+              }
+            }
+          }
+        },
+        "security": [
+          {
+            "session_cookie": []
+          },
+          {
+            "api_token": []
+          }
+        ]
+      }
+    },
     "/api/v1/privacy/requests": {
       "get": {
         "tags": [
@@ -82633,6 +82681,35 @@
           }
         }
       },
+      "Data_PrivacyCatalogResponse": {
+        "type": "object",
+        "required": [
+          "data"
+        ],
+        "properties": {
+          "data": {
+            "type": "object",
+            "required": [
+              "entities",
+              "sources"
+            ],
+            "properties": {
+              "entities": {
+                "type": "array",
+                "items": {
+                  "$ref": "#/components/schemas/PrivacyEntityResponse"
+                }
+              },
+              "sources": {
+                "type": "array",
+                "items": {
+                  "$ref": "#/components/schemas/PrivacySourceResponse"
+                }
+              }
+            }
+          }
+        }
+      },
       "Data_PrivacyRequestDetailResponse": {
         "type": "object",
         "required": [
@@ -82644,20 +82721,14 @@
             "required": [
               "request",
               "records",
-              "notes",
-              "import_rows"
+              "items",
+              "sources"
             ],
             "properties": {
-              "import_rows": {
+              "items": {
                 "type": "array",
                 "items": {
-                  "$ref": "#/components/schemas/PrivacyImportRowResponse"
-                }
-              },
-              "notes": {
-                "type": "array",
-                "items": {
-                  "type": "string"
+                  "$ref": "#/components/schemas/PrivacySourceTargetResponse"
                 }
               },
               "records": {
@@ -82668,6 +82739,12 @@
               },
               "request": {
                 "$ref": "#/components/schemas/PrivacyRequestResponse"
+              },
+              "sources": {
+                "type": "array",
+                "items": {
+                  "$ref": "#/components/schemas/PrivacySourceResponse"
+                }
               }
             }
           }
@@ -85446,10 +85523,9 @@
               "kind",
               "label",
               "records",
-              "notes",
-              "attachments",
-              "tasks",
-              "import_rows"
+              "items",
+              "sources",
+              "attachments"
             ],
             "properties": {
               "attachments": {
@@ -85458,25 +85534,17 @@
                   "$ref": "#/components/schemas/SubjectAttachmentResponse"
                 }
               },
-              "import_rows": {
+              "items": {
                 "type": "array",
                 "items": {
-                  "$ref": "#/components/schemas/SubjectImportRowResponse"
+                  "$ref": "#/components/schemas/PrivacySourceItemResponse"
                 }
               },
               "kind": {
-                "type": "string",
-                "example": "email"
+                "type": "string"
               },
               "label": {
-                "type": "string",
-                "example": "m***@e***.com"
-              },
-              "notes": {
-                "type": "array",
-                "items": {
-                  "$ref": "#/components/schemas/SubjectNoteResponse"
-                }
+                "type": "string"
               },
               "records": {
                 "type": "array",
@@ -85484,10 +85552,10 @@
                   "$ref": "#/components/schemas/SubjectRecordResponse"
                 }
               },
-              "tasks": {
+              "sources": {
                 "type": "array",
                 "items": {
-                  "$ref": "#/components/schemas/SubjectActivityResponse"
+                  "$ref": "#/components/schemas/PrivacySourceResponse"
                 }
               }
             }
@@ -94817,23 +94885,6 @@
             "items": {
               "type": "string"
             }
-          },
-          "row_index": {
-            "type": "integer",
-            "format": "int32",
-            "minimum": 0
-          }
-        }
-      },
-      "ImportRowBody": {
-        "type": "object",
-        "required": [
-          "import_job_id",
-          "row_index"
-        ],
-        "properties": {
-          "import_job_id": {
-            "type": "string"
           },
           "row_index": {
             "type": "integer",
@@ -109690,20 +109741,53 @@
           }
         }
       },
-      "PrivacyImportRowResponse": {
+      "PrivacyCatalogResponse": {
         "type": "object",
         "required": [
-          "import_job_id",
-          "row_index"
+          "entities",
+          "sources"
         ],
         "properties": {
-          "import_job_id": {
+          "entities": {
+            "type": "array",
+            "items": {
+              "$ref": "#/components/schemas/PrivacyEntityResponse"
+            }
+          },
+          "sources": {
+            "type": "array",
+            "items": {
+              "$ref": "#/components/schemas/PrivacySourceResponse"
+            }
+          }
+        }
+      },
+      "PrivacyEntityResponse": {
+        "type": "object",
+        "required": [
+          "record_type",
+          "labels",
+          "personal_data",
+          "retention"
+        ],
+        "properties": {
+          "labels": {
+            "type": "object",
+            "additionalProperties": {
+              "type": "string"
+            },
+            "propertyNames": {
+              "type": "string"
+            }
+          },
+          "personal_data": {
+            "type": "boolean"
+          },
+          "record_type": {
             "type": "string"
           },
-          "row_index": {
-            "type": "integer",
-            "format": "int32",
-            "minimum": 0
+          "retention": {
+            "type": "boolean"
           }
         }
       },
@@ -109711,11 +109795,9 @@
         "type": "object",
         "required": [
           "records",
-          "notes",
           "attachments",
           "files",
-          "tasks",
-          "import_rows",
+          "source_items",
           "history_entries",
           "external_items",
           "skipped",
@@ -109747,16 +109829,6 @@
             "format": "int64",
             "minimum": 0
           },
-          "import_rows": {
-            "type": "integer",
-            "format": "int64",
-            "minimum": 0
-          },
-          "notes": {
-            "type": "integer",
-            "format": "int64",
-            "minimum": 0
-          },
           "records": {
             "type": "integer",
             "format": "int64",
@@ -109767,10 +109839,16 @@
             "format": "int64",
             "minimum": 0
           },
-          "tasks": {
-            "type": "integer",
-            "format": "int64",
-            "minimum": 0
+          "source_items": {
+            "type": "object",
+            "additionalProperties": {
+              "type": "integer",
+              "format": "int64",
+              "minimum": 0
+            },
+            "propertyNames": {
+              "type": "string"
+            }
           }
         }
       },
@@ -109779,20 +109857,14 @@
         "required": [
           "request",
           "records",
-          "notes",
-          "import_rows"
+          "items",
+          "sources"
         ],
         "properties": {
-          "import_rows": {
+          "items": {
             "type": "array",
             "items": {
-              "$ref": "#/components/schemas/PrivacyImportRowResponse"
-            }
-          },
-          "notes": {
-            "type": "array",
-            "items": {
-              "type": "string"
+              "$ref": "#/components/schemas/PrivacySourceTargetResponse"
             }
           },
           "records": {
@@ -109803,6 +109875,12 @@
           },
           "request": {
             "$ref": "#/components/schemas/PrivacyRequestResponse"
+          },
+          "sources": {
+            "type": "array",
+            "items": {
+              "$ref": "#/components/schemas/PrivacySourceResponse"
+            }
           }
         }
       },
@@ -109905,19 +109983,93 @@
           }
         }
       },
+      "PrivacySourceItemResponse": {
+        "type": "object",
+        "required": [
+          "source",
+          "id",
+          "title",
+          "reason",
+          "metadata"
+        ],
+        "properties": {
+          "excerpt": {
+            "type": [
+              "string",
+              "null"
+            ]
+          },
+          "id": {
+            "type": "string"
+          },
+          "metadata": {
+            "type": "object"
+          },
+          "reason": {
+            "type": "string"
+          },
+          "record": {
+            "oneOf": [
+              {
+                "type": "null"
+              },
+              {
+                "$ref": "#/components/schemas/RecordRefResponse"
+              }
+            ]
+          },
+          "source": {
+            "type": "string"
+          },
+          "title": {
+            "type": "string"
+          }
+        }
+      },
+      "PrivacySourceResponse": {
+        "type": "object",
+        "required": [
+          "key",
+          "labels"
+        ],
+        "properties": {
+          "key": {
+            "type": "string"
+          },
+          "labels": {
+            "type": "object",
+            "additionalProperties": {
+              "type": "string"
+            },
+            "propertyNames": {
+              "type": "string"
+            }
+          }
+        }
+      },
+      "PrivacySourceTargetResponse": {
+        "type": "object",
+        "required": [
+          "source",
+          "id"
+        ],
+        "properties": {
+          "id": {
+            "type": "string"
+          },
+          "source": {
+            "type": "string"
+          }
+        }
+      },
       "PrivacyTargetCountsResponse": {
         "type": "object",
         "required": [
           "records",
-          "notes",
-          "import_rows"
+          "items"
         ],
         "properties": {
-          "import_rows": {
-            "type": "integer",
-            "minimum": 0
-          },
-          "notes": {
+          "items": {
             "type": "integer",
             "minimum": 0
           },
@@ -109954,16 +110106,10 @@
       "PrivacyTargetsBody": {
         "type": "object",
         "properties": {
-          "import_rows": {
+          "items": {
             "type": "array",
             "items": {
-              "$ref": "#/components/schemas/ImportRowBody"
-            }
-          },
-          "notes": {
-            "type": "array",
-            "items": {
-              "type": "string"
+              "$ref": "#/components/schemas/PrivacySourceTargetResponse"
             }
           },
           "records": {
@@ -116308,45 +116454,6 @@
           }
         }
       },
-      "SubjectActivityResponse": {
-        "type": "object",
-        "required": [
-          "id",
-          "title",
-          "status",
-          "reason"
-        ],
-        "properties": {
-          "due_at": {
-            "type": [
-              "string",
-              "null"
-            ]
-          },
-          "id": {
-            "type": "string"
-          },
-          "reason": {
-            "type": "string"
-          },
-          "record": {
-            "oneOf": [
-              {
-                "type": "null"
-              },
-              {
-                "$ref": "#/components/schemas/RecordRefResponse"
-              }
-            ]
-          },
-          "status": {
-            "type": "string"
-          },
-          "title": {
-            "type": "string"
-          }
-        }
-      },
       "SubjectAttachmentResponse": {
         "type": "object",
         "required": [
@@ -116381,75 +116488,6 @@
             "type": "integer",
             "format": "int64",
             "minimum": 0
-          }
-        }
-      },
-      "SubjectImportRowResponse": {
-        "type": "object",
-        "required": [
-          "import_job_id",
-          "row_index",
-          "record_type",
-          "status",
-          "created_at"
-        ],
-        "properties": {
-          "created_at": {
-            "type": "string"
-          },
-          "file_name": {
-            "type": [
-              "string",
-              "null"
-            ]
-          },
-          "import_job_id": {
-            "type": "string"
-          },
-          "record_id": {
-            "type": [
-              "string",
-              "null"
-            ]
-          },
-          "record_type": {
-            "type": "string"
-          },
-          "row_index": {
-            "type": "integer",
-            "format": "int32",
-            "minimum": 0
-          },
-          "status": {
-            "type": "string"
-          }
-        }
-      },
-      "SubjectNoteResponse": {
-        "type": "object",
-        "required": [
-          "id",
-          "record",
-          "excerpt",
-          "created_at",
-          "reason"
-        ],
-        "properties": {
-          "created_at": {
-            "type": "string"
-          },
-          "excerpt": {
-            "type": "string"
-          },
-          "id": {
-            "type": "string"
-          },
-          "reason": {
-            "type": "string",
-            "example": "mention"
-          },
-          "record": {
-            "$ref": "#/components/schemas/RecordRefResponse"
           }
         }
       },
@@ -116512,10 +116550,9 @@
           "kind",
           "label",
           "records",
-          "notes",
-          "attachments",
-          "tasks",
-          "import_rows"
+          "items",
+          "sources",
+          "attachments"
         ],
         "properties": {
           "attachments": {
@@ -116524,25 +116561,17 @@
               "$ref": "#/components/schemas/SubjectAttachmentResponse"
             }
           },
-          "import_rows": {
+          "items": {
             "type": "array",
             "items": {
-              "$ref": "#/components/schemas/SubjectImportRowResponse"
+              "$ref": "#/components/schemas/PrivacySourceItemResponse"
             }
           },
           "kind": {
-            "type": "string",
-            "example": "email"
+            "type": "string"
           },
           "label": {
-            "type": "string",
-            "example": "m***@e***.com"
-          },
-          "notes": {
-            "type": "array",
-            "items": {
-              "$ref": "#/components/schemas/SubjectNoteResponse"
-            }
+            "type": "string"
           },
           "records": {
             "type": "array",
@@ -116550,10 +116579,10 @@
               "$ref": "#/components/schemas/SubjectRecordResponse"
             }
           },
-          "tasks": {
+          "sources": {
             "type": "array",
             "items": {
-              "$ref": "#/components/schemas/SubjectActivityResponse"
+              "$ref": "#/components/schemas/PrivacySourceResponse"
             }
           }
         }
@@ -120186,6 +120215,10 @@
       "description": "Runtime plugins: install, enable, disable, configure and uninstall .aphelplugin packages, and call their routes"
     },
     {
+      "name": "privacy",
+      "description": "Privacy (LGPD): personal data subjects, data subject requests (export, anonymization, deletion) and retention policies"
+    },
+    {
       "name": "products",
       "description": "Catalog of products and services"
     },
@@ -120268,10 +120301,6 @@
     {
       "name": "duplicates",
       "description": "Duplicate detection rules, the duplicate queue and record merging"
-    },
-    {
-      "name": "privacy",
-      "description": "Privacy (LGPD): personal data subjects, data subject requests (export, anonymization, deletion) and retention policies"
     },
     {
       "name": "validation-rules",
