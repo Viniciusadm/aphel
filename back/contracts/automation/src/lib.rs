@@ -28,3 +28,6 @@ impl AutomationBuilder for aphel_kernel::modules::AppBuilder {
         self
     }
 }
+
+pub const MANAGE_PERMISSION: aphel_kernel::domain::access::Permission =
+    aphel_kernel::domain::access::Permission::from_static("automations.manage");

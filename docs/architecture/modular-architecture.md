@@ -86,7 +86,7 @@ web/src/
 **Modules** are everything else. Some are business modules:
 
 - `people`, `organizations`, `deals`, `workflow`, `tasks`, `notes`;
-- `leads` (the current `lifecycle`), `scoring`, `lead_distribution`;
+- `leads` (the current `lifecycle`), `scoring`, `assignment`;
 - `products`, `price_lists`, `quotes`, `approvals`, `deal_items`, `renewals`, `currencies`;
 - `email`, `sequences`, `scheduling`, `calls`.
 

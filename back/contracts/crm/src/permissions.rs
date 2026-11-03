@@ -44,7 +44,6 @@ pub trait CrmPermissions {
     const QUOTES_DELETE: Permission;
     const QUOTES_SEND: Permission;
     const AUTOMATIONS_MANAGE: Permission;
-    const LEAD_DISTRIBUTION_MANAGE: Permission;
     const SEQUENCES_MANAGE: Permission;
     const APPROVALS_MANAGE: Permission;
     const LIFECYCLE_MANAGE: Permission;
@@ -96,8 +95,6 @@ impl CrmPermissions for Permission {
     const QUOTES_DELETE: Permission = Permission::from_static("quotes.delete");
     const QUOTES_SEND: Permission = Permission::from_static("quotes.send");
     const AUTOMATIONS_MANAGE: Permission = Permission::from_static("automations.manage");
-    const LEAD_DISTRIBUTION_MANAGE: Permission =
-        Permission::from_static("lead_distribution.manage");
     const SEQUENCES_MANAGE: Permission = Permission::from_static("sequences.manage");
     const APPROVALS_MANAGE: Permission = Permission::from_static("approvals.manage");
     const LIFECYCLE_MANAGE: Permission = Permission::from_static("lifecycle.manage");

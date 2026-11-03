@@ -19,7 +19,7 @@ use aphel_kernel::application::shared::{
 use aphel_kernel::domain::access::Permission;
 use aphel_kernel::errors::{AppError, FieldViolation};
 use aphel_kernel::records::RecordCtx;
-use lead_distribution::{AssignRequest, AssignmentSource};
+use assignment::{AssignRequest, AssignmentSource};
 use leads::{Lead, LeadConversion, LeadConverting};
 
 pub(crate) const MAX_BODY_BYTES: usize = 64 * 1024;
@@ -544,7 +544,7 @@ async fn resolve_owner(
     let Some(rule_id) = &form.definition.distribution_rule_id else {
         return fixed;
     };
-    if !ctx.app().is_enabled(lead_distribution::KEY) {
+    if !ctx.app().is_enabled(assignment::KEY) {
         warnings.push((
             DISTRIBUTION_FAILED,
             "the lead distribution module is disabled".to_owned(),
@@ -560,9 +560,7 @@ async fn resolve_owner(
         source: AssignmentSource::LeadForm,
         idempotency_key: Some(format!("{KEY}:{submission_id}")),
     };
-    match lead_distribution::service::assign(ctx, request, &lead_distribution::service::PickOnly)
-        .await
-    {
+    match assignment::service::assign(ctx, request, &assignment::service::PickOnly).await {
         Ok(outcome) => match outcome.user_id() {
             Some(user_id) => Some(user_id.as_str().to_owned()),
             None => {

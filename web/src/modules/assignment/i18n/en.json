@@ -1,0 +1,184 @@
+{
+  "title": "Assignment",
+  "description": "Rules that pick the owner of new records by round robin, weight, least load or the value of a field. Use them in automations (\"Assign by rule\" action), incoming webhooks and imports.",
+  "create": "New rule",
+  "empty": "No distribution rules yet.",
+  "emptyDescription": "Create a rule to assign records to your team automatically.",
+  "columns": {
+    "name": "Rule",
+    "recordType": "Type",
+    "strategy": "Strategy",
+    "members": "Members",
+    "assignments": "Assignments",
+    "status": "Status",
+    "actions": "Actions"
+  },
+  "status": {
+    "active": "Active",
+    "inactive": "Inactive"
+  },
+  "membersSummary_one": "{{count}} member",
+  "membersSummary_other": "{{count}} members",
+  "awaySummary": "{{count}} away",
+  "routed": "Routed by {{field}}",
+  "lastAssigned": "Last: {{name}}",
+  "strategies": {
+    "round_robin": "Round robin",
+    "weighted": "Weighted round robin",
+    "least_loaded": "Least loaded"
+  },
+  "strategyHints": {
+    "round_robin": "Whoever waited longest gets the next one.",
+    "weighted": "Each member receives in proportion to their weight (weight 3 receives three times more than weight 1).",
+    "least_loaded": "Whoever has the fewest active records of this type gets the next one."
+  },
+  "actions": {
+    "edit": "Edit",
+    "delete": "Delete",
+    "simulate": "Simulate",
+    "cancel": "Cancel",
+    "save": "Save",
+    "saving": "Saving…",
+    "close": "Close",
+    "history": "History"
+  },
+  "editor": {
+    "createTitle": "New distribution rule",
+    "editTitle": "Edit distribution rule",
+    "description": "Choose who takes part, how the next owner is picked and, optionally, routes by field value.",
+    "name": "Name",
+    "key": "Key",
+    "keyHint": "Stable identifier (lowercase letters, digits and _). Leave empty to derive it from the name.",
+    "descriptionField": "Description",
+    "recordType": "Record type",
+    "strategy": "Strategy",
+    "isActive": "Rule active",
+    "members": "Members",
+    "membersHint": "Suspended users and users outside the organization are skipped automatically.",
+    "addMember": "Add member",
+    "removeMember": "Remove member",
+    "user": "User",
+    "selectUser": "Select a user",
+    "weight": "Weight",
+    "away": "Away",
+    "awayFrom": "Away from",
+    "awayUntil": "Until",
+    "awayHint": "Without dates, stays away until unchecked.",
+    "noMembers": "No members added.",
+    "routing": "Routing by field",
+    "routingHint": "Sends the record to a team or users according to a field value (e.g. region, source). The first matching route wins.",
+    "routingField": "Field",
+    "selectField": "Select a field",
+    "fallback": "When no route matches",
+    "fallbacks": {
+      "members": "Distribute among the rule members",
+      "none": "Leave without owner"
+    },
+    "routes": "Routes",
+    "addRoute": "Add route",
+    "removeRoute": "Remove route",
+    "routeValues": "Values",
+    "routeValuesHint": "Separate with commas. Case is ignored.",
+    "routeTeam": "Team",
+    "noTeam": "No team",
+    "routeUsers": "Users",
+    "routeLabel": "Route {{index}}",
+    "notFound": "Rule not found",
+    "selectRecordType": "Choose an entity"
+  },
+  "validation": {
+    "nameRequired": "Enter the name.",
+    "nameLength": "Use at most 140 characters.",
+    "key": "Use lowercase letters, digits and _, starting with a letter.",
+    "recordTypeRequired": "Choose the record type.",
+    "memberRequired": "Choose the user.",
+    "memberRepeated": "This user is already in the list.",
+    "membersRequired": "Add at least one member (or use routes without fallback distribution).",
+    "weight": "Weight goes from 1 to 100.",
+    "awayPeriod": "The end of the absence must be after its start.",
+    "routingField": "Choose the routing field.",
+    "routesRequired": "Add at least one route.",
+    "routeValues": "Enter at least one value.",
+    "routeTarget": "Choose a team or at least one user."
+  },
+  "simulation": {
+    "title": "Simulate: {{name}}",
+    "description": "See who would receive the next records from the current rotation state. Nothing is saved.",
+    "count": "Count",
+    "value": "Value of {{field}}",
+    "valuePlaceholder": "e.g. sp",
+    "run": "Simulate",
+    "running": "Simulating…",
+    "next": "The next {{count}} would go to",
+    "nobody": "Nobody would receive: no member is available.",
+    "unassigned": "No route matched and the rule leaves the record without owner.",
+    "selection": {
+      "members": "Using the rule members.",
+      "route": "Using route {{index}}.",
+      "fallback": "No route matched; using the rule members.",
+      "unassigned": "No owner."
+    },
+    "skipped": "Skipped",
+    "reasons": {
+      "away": "away",
+      "inactive": "inactive"
+    },
+    "inactiveRule": "The rule is inactive: the simulation shows what would happen if it were active."
+  },
+  "confirmDelete": {
+    "title": "Delete the rule \"{{name}}\"?",
+    "description": "The rotation state and the assignment history will be erased. Automations, webhooks and imports using the rule stop assigning."
+  },
+  "toast": {
+    "created": "Rule created.",
+    "updated": "Rule updated.",
+    "deleted": "Rule deleted."
+  },
+  "errors": {
+    "generic": "Could not finish. Try again.",
+    "keyTaken": "Another rule already uses this key.",
+    "versionConflict": "Someone else changed the rule. Reload and try again.",
+    "invalid": "Review the highlighted fields."
+  },
+  "history": {
+    "open": "Assignment history",
+    "title": "Assignment history",
+    "ruleTitle": "History: {{name}}",
+    "description": "Who received each distributed record, newest first.",
+    "empty": "No assignments recorded yet.",
+    "columns": {
+      "date": "Date",
+      "rule": "Rule",
+      "user": "Owner",
+      "record": "Record",
+      "source": "Source"
+    },
+    "removedUser": "Removed user",
+    "openRecord": "Open record",
+    "noRecord": "No record",
+    "sources": {
+      "automation": "Automation",
+      "incoming_webhook": "Incoming webhook",
+      "lead_form": "Lead form",
+      "import": "Import",
+      "scheduling": "Scheduling",
+      "plugin": "Plugin"
+    }
+  },
+  "ruleSelect": {
+    "label": "Distribution rule",
+    "none": "None (keep the given owner)",
+    "inactive": "{{name}} (inactive)",
+    "unknown": "Unavailable rule",
+    "hint": "When set, the rule picks the owner of each created record.",
+    "empty": "No active rule for this record type."
+  },
+  "placeholders": {
+    "weight": "E.g.: 1",
+    "routeValues": "E.g.: Website, Referral",
+    "name": "E.g.: Website leads",
+    "key": "E.g.: website_leads",
+    "description": "Describe when this rule applies",
+    "count": "E.g.: 10"
+  }
+}

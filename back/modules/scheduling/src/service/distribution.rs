@@ -9,8 +9,8 @@ use aphel_kernel::application::organization_admin::ListWindow;
 use aphel_kernel::database::transaction::MySqlTx;
 use aphel_kernel::domain::UserId;
 use aphel_kernel::errors::AppError;
-use lead_distribution::domain::{Candidate, DistributionStrategy, pick};
-use lead_distribution::{
+use assignment::domain::{Candidate, DistributionStrategy, pick};
+use assignment::{
     AssignmentSource, DistributionRule, DistributionStore, PickRecord, Pool, RuleListFilter,
     resolve_pool,
 };
@@ -80,7 +80,7 @@ pub(crate) async fn pick_user(
         .map(|counter| (counter.user_id, (counter.last_sequence, counter.credit)))
         .collect();
     let loads = if rule.strategy == DistributionStrategy::LeastLoaded {
-        rules.open_deals(&users).await?
+        assignment::workload_counts(ctx, &rule, &users).await?
     } else {
         HashMap::new()
     };

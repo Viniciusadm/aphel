@@ -72,7 +72,7 @@
         "sequences": { "type": "array", "maxItems": 100, "items": { "$ref": "#/$defs/sequence" } },
         "approval_policies": { "type": "array", "maxItems": 100, "items": { "$ref": "#/$defs/approvalPolicy" } },
         "scoring_models": { "type": "array", "maxItems": 50, "items": { "$ref": "#/$defs/scoringModel" } },
-        "lead_distribution_rules": { "type": "array", "maxItems": 100, "items": { "$ref": "#/$defs/leadDistributionRule" } },
+        "assignment_rules": { "type": "array", "maxItems": 100, "items": { "$ref": "#/$defs/leadDistributionRule" } },
         "proposals.templates": {
           "type": "object",
           "description": "Proposal templates of the proposals module, reconciled by key; installing creates or updates and never deletes templates",
@@ -100,7 +100,7 @@
     },
     "leadDistributionRule": {
       "type": "object",
-      "description": "Lead distribution rule reconciled by key; installing creates or updates (keeping the rotation state and the absences of members that remain) and never deletes. Members and route users by email, team by name. Emails and teams that do not exist in the organization become the resolvable conflict `lead_distribution_members_missing`: when applied, they are left out; with no members at all (and fallback `members`), the rule is installed inactive",
+      "description": "Lead distribution rule reconciled by key; installing creates or updates (keeping the rotation state and the absences of members that remain) and never deletes. Members and route users by email, team by name. Emails and teams that do not exist in the organization become the resolvable conflict `assignment_members_missing`: when applied, they are left out; with no members at all (and fallback `members`), the rule is installed inactive",
       "additionalProperties": false,
       "required": ["key", "name", "record_type", "strategy"],
       "properties": {

@@ -1,6 +1,6 @@
 # Scheduling links
 
-The `scheduling` module (`back/modules/scheduling`, depends on `tasks` and `people`, optional `lead_distribution`): use cases at the module root, `store/` (MySQL, CRM gateway, confirmation email), internal routes in `http.rs` and public ones in `public_http.rs`, the module migration `0001_create_scheduling.sql` (formerly `2330`–`2332`), the booking email worker and the `meeting.*` triggers registered in the module's `register`. Web: `web/src/modules/scheduling` (`/scheduling`, and the public pages `/book/:slug`, `/book/manage/:token`).
+The `scheduling` module (`back/modules/scheduling`, depends on `tasks` and `people`, optional `assignment`): use cases at the module root, `store/` (MySQL, CRM gateway, confirmation email), internal routes in `http.rs` and public ones in `public_http.rs`, the module migration `0001_create_scheduling.sql` (formerly `2330`–`2332`), the booking email worker and the `meeting.*` triggers registered in the module's `register`. Web: `web/src/modules/scheduling` (`/scheduling`, and the public pages `/book/:slug`, `/book/manage/:token`).
 
 ## Model
 
@@ -22,7 +22,7 @@ Per-record permission `scheduling.manage`: `own` manages one's own availability 
 
 If an external calendar fails, the host has no slots (fail closed). The public API only returns free `{ starts_at, ends_at }` pairs, never appointment data.
 
-Team link: the members come from `resolve_pool` of the `lead_distribution` rule (active, not absent); the slots are the union of each member's free slots; when booking, among those free at that time, the host is chosen by the rule's strategy (`pick`, counters and `record_pick` with origin `scheduling`).
+Team link: the members come from `resolve_pool` of the `assignment` rule (active, not absent); the slots are the union of each member's free slots; when booking, among those free at that time, the host is chosen by the rule's strategy (`pick`, counters and `record_pick` with origin `scheduling`).
 
 ## Booking, rescheduling, canceling
 

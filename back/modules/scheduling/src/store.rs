@@ -39,7 +39,7 @@ mt.slug, mt.name, mt.description, mt.duration_minutes, mt.slot_interval_minutes,
 mt.location_value, mt.questions, mt.spam_protection, mt.distribution_rule_id, r.name AS rule_name, \
 mt.is_active, mt.created_at, mt.updated_at \
 FROM meeting_types mt JOIN users u ON u.id = mt.owner_id \
-LEFT JOIN lead_distribution_rules r ON r.id = mt.distribution_rule_id ";
+LEFT JOIN assignment_rules r ON r.id = mt.distribution_rule_id ";
 
 const BOOKING_COLUMNS: &str = "SELECT b.id, b.meeting_type_id, mt.name AS meeting_type_name, b.host_user_id, \
 u.display_name AS host_name, b.contact_id, b.activity_id, b.status, b.starts_at, b.ends_at, b.guest_name, \

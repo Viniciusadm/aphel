@@ -76,3 +76,5 @@ pub mod workflow;
 pub mod calendar;
 
 pub mod messaging;
+
+pub mod assignment;

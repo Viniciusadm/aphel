@@ -1,3 +1,4 @@
+use aphel_sdk::assignment::AssignmentTraits;
 use aphel_sdk::workflow::WorkflowRecordTypes;
 mod workflow_source;
 use aphel_sdk::workflow::WorkflowTraits;
@@ -157,6 +158,10 @@ pub(crate) fn deal_capabilities() -> EntityTraits {
         .relatable()
         .importable()
         .exportable()
+        .workload(aphel_sdk::assignment::WorkloadMapping {
+            state_field: "status".into(),
+            active_states: vec!["open".into()],
+        })
         .staged(aphel_sdk::workflow::StagedMapping {
             state_field: Some("status".to_owned()),
             active_state: Some("open".to_owned()),

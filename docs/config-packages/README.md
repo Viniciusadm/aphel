@@ -177,12 +177,12 @@ Not portable: fixed users (`{ "type": "user", "user_id" }`), `incoming_webhook_i
 
 ## Lead distribution
 
-The `lead_distribution_rules` section (`modules/lead_distribution/section.rs`) reconciles each rule by key: installing creates or updates (keeping the round-robin state and the absences of members who remain) and never deletes rules. Members and route users go by **email** and the team by **name**, never by id. Conflicts:
+The `assignment_rules` section (`modules/assignment/section.rs`) reconciles each rule by key: installing creates or updates (keeping the round-robin state and the absences of members who remain) and never deletes rules. Members and route users go by **email** and the team by **name**, never by id. Conflicts:
 
 | Code | When | Can it be applied? |
 | --- | --- | --- |
-| `lead_distribution_members_missing` | There are emails or teams in the package that do not exist in the organization | Yes (the missing ones are left out; a rule left without any member and with the `members` fallback is installed **inactive**) |
-| `lead_distribution_record_type_unavailable` | The rule's record type does not exist or does not accept distribution in the organization | No |
+| `assignment_members_missing` | There are emails or teams in the package that do not exist in the organization | Yes (the missing ones are left out; a rule left without any member and with the `members` fallback is installed **inactive**) |
+| `assignment_record_type_unavailable` | The rule's record type does not exist or does not accept distribution in the organization | No |
 
 ## Sequences
 

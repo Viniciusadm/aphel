@@ -404,8 +404,8 @@ pub(crate) async fn validate_request(
     }
     let distribution_rule_id = clean(definition.distribution_rule_id);
     if let Some(rule_id) = &distribution_rule_id {
-        let usable = ctx.app().is_enabled(lead_distribution::KEY)
-            && lead_distribution::service::check(ctx, rule_id)
+        let usable = ctx.app().is_enabled(assignment::KEY)
+            && assignment::service::check(ctx, rule_id)
                 .await?
                 .is_some_and(|rule| {
                     rule.is_active && rule.record_type == RecordType::CONTACT.as_str()

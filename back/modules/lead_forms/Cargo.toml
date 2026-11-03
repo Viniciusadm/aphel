@@ -14,7 +14,7 @@ tasks = { package = "aphel-mod-tasks", path = "../tasks" }
 people = { package = "aphel-mod-people", path = "../people" }
 deals = { package = "aphel-mod-deals", path = "../deals" }
 leads = { package = "aphel-mod-leads", path = "../leads" }
-lead_distribution = { package = "aphel-mod-lead-distribution", path = "../lead_distribution" }
+assignment = { package = "aphel-mod-assignment", path = "../assignment" }
 workflow = { package = "aphel-mod-workflow", path = "../workflow" }
 tags = { package = "aphel-mod-tags", path = "../tags" }
 form_urlencoded.workspace = true

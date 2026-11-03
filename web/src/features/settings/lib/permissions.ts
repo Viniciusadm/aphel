@@ -6,7 +6,7 @@ export const AUDIT_READ = 'audit.read'
 export const SYSTEM_MANAGE = 'system.manage'
 export const PRIVACY_MANAGE = 'privacy.manage'
 export const AUTOMATIONS_MANAGE = 'automations.manage'
-export const LEAD_DISTRIBUTION_MANAGE = 'lead_distribution.manage'
+export const ASSIGNMENT_MANAGE = 'assignment.manage'
 export const ORGANIZATION_EXPORT = 'organization.export'
 export const EMAILS_READ = 'emails.read'
 export const EMAILS_SEND = 'emails.send'
@@ -48,7 +48,7 @@ const administrativeLabels: Record<string, SettingsKey> = {
   [SYSTEM_MANAGE]: 'permissions.administrative.systemManage',
   [PRIVACY_MANAGE]: 'permissions.administrative.privacyManage',
   [AUTOMATIONS_MANAGE]: 'permissions.administrative.automationsManage',
-  [LEAD_DISTRIBUTION_MANAGE]: 'permissions.administrative.leadDistributionManage',
+  [ASSIGNMENT_MANAGE]: 'permissions.administrative.leadDistributionManage',
   [ORGANIZATION_EXPORT]: 'permissions.administrative.organizationExport',
   [SEQUENCES_MANAGE]: 'permissions.administrative.sequencesManage',
   [RECORDS_SHARE]: 'permissions.administrative.recordsShare',

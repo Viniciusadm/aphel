@@ -30,7 +30,7 @@ Implementation note: P5.1 connects people and organizations as providers and dup
 
 **5.5 Supporting capabilities**
 
-- [ ] **P5.6** ⇄ `assignment`
+- [x] **P5.6** ⇄ `assignment`
 - [ ] **P5.7** ⇄ `money`
 - [ ] **P5.8** ⇄ `documents` (§6)
 - [ ] **P5.9** ⇄ `line-items` (§6)

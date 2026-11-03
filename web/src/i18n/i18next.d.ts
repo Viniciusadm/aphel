@@ -2,6 +2,7 @@ import 'i18next'
 import type aiNamespace from '../modules/ai/i18n/pt-BR.json'
 import type apiTokensNamespace from './pt-BR/api-tokens.json'
 import type approvalsNamespace from '../modules/approvals/i18n/pt-BR.json'
+import type assignmentNamespace from '../modules/assignment/i18n/pt-BR.json'
 import type auditNamespace from './pt-BR/audit.json'
 import type authNamespace from './pt-BR/auth.json'
 import type automationsNamespace from '../modules/automations/i18n/pt-BR.json'
@@ -38,7 +39,6 @@ import type integrationCardNamespace from './pt-BR/integration-card.json'
 import type integrationsNamespace from '../modules/integrations/i18n/pt-BR.json'
 import type layoutNamespace from './pt-BR/layout.json'
 import type layoutsNamespace from './pt-BR/layouts.json'
-import type leadDistributionNamespace from '../modules/lead_distribution/i18n/pt-BR.json'
 import type leadFormsNamespace from '../modules/lead_forms/i18n/pt-BR.json'
 import type leadProNamespace from '../modules/lead_pro/i18n/pt-BR.json'
 import type leadsNamespace from '../modules/leads/i18n/pt-BR.json'
@@ -99,6 +99,7 @@ declare module 'i18next' {
       ai: typeof aiNamespace
       'api-tokens': typeof apiTokensNamespace
       approvals: typeof approvalsNamespace
+      assignment: typeof assignmentNamespace
       audit: typeof auditNamespace
       auth: typeof authNamespace
       automations: typeof automationsNamespace
@@ -135,7 +136,6 @@ declare module 'i18next' {
       integrations: typeof integrationsNamespace
       layout: typeof layoutNamespace
       layouts: typeof layoutsNamespace
-      lead_distribution: typeof leadDistributionNamespace
       lead_forms: typeof leadFormsNamespace
       lead_pro: typeof leadProNamespace
       leads: typeof leadsNamespace

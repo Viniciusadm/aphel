@@ -118,7 +118,7 @@ impl Module for LeadFormsModule {
             .optional(leads::KEY)
             .optional(deals::KEY)
             .optional(tasks::KEY)
-            .optional(lead_distribution::KEY)
+            .optional(assignment::KEY)
             .migration(Migration::new(
                 1,
                 "create lead forms and submissions",

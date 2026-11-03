@@ -1,3 +1,4 @@
+use aphel_sdk::assignment::AssignmentTraits;
 mod calendar_source;
 use aphel_contract_automation::AutomationBuilder;
 pub(crate) mod automation;
@@ -96,6 +97,10 @@ const NOTIFICATION_KINDS: [NotificationKindDefinition; 2] = [
 pub(crate) fn activity_capabilities() -> EntityTraits {
     EntityTraits::default()
         .exportable()
+        .workload(aphel_sdk::assignment::WorkloadMapping {
+            state_field: "status".into(),
+            active_states: vec!["open".into()],
+        })
         .personal_data()
         .notifies()
         .automatable()

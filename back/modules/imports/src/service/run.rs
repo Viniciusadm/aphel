@@ -30,11 +30,11 @@ use aphel_kernel::errors::AppError;
 use aphel_kernel::infrastructure::repositories::mysql_access::build_requester_scope;
 use aphel_kernel::infrastructure::storage::MySqlFileRepository;
 use aphel_kernel::records::normalize_domain;
+use assignment::{self, AssignRequest, AssignmentSource, RULE_NOT_FOUND};
 use exports::{
     CSV_MIME_TYPE, ExportCell, GeneratedFile, discard_generated_file, encode_csv,
     store_generated_file, system_scope,
 };
-use lead_distribution::{self, AssignRequest, AssignmentSource, RULE_NOT_FOUND};
 
 const ERROR_COLUMN: &str = "Erros";
 const ERROR_REPORT_PAGE: u64 = 1000;
@@ -606,7 +606,7 @@ pub(super) async fn distribution_rule_usable(
     rule_id: &str,
     record_type: &str,
 ) -> Result<bool, AppError> {
-    Ok(lead_distribution::service::check(ctx, rule_id)
+    Ok(assignment::service::check(ctx, rule_id)
         .await?
         .is_some_and(|rule| rule.is_active && rule.record_type == record_type))
 }
@@ -628,9 +628,7 @@ async fn distribute_owner(
         source: AssignmentSource::Import,
         idempotency_key: Some(format!("import:{}:{row_index}", job.id)),
     };
-    match lead_distribution::service::assign(ctx, request, &lead_distribution::service::PickOnly)
-        .await
-    {
+    match assignment::service::assign(ctx, request, &assignment::service::PickOnly).await {
         Ok(outcome) => Ok(outcome.user_id().map(|user_id| user_id.as_str().to_owned())),
         Err(AppError::Coded { code, .. }) if code == RULE_NOT_FOUND => Ok(None),
         Err(error) => Err(error),

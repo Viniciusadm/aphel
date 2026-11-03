@@ -129,11 +129,11 @@ Every error comes out in the `{ "error": { "code", "message", "details" } }` env
 | `last_admin` | 409 | organization_admin |
 | `last_lost_reason` | 409 | workflow |
 | `layout_context_not_found` | 404 | layouts |
-| `lead_distribution_no_eligible_member` | 422 | lead_distribution (automation `assign_by_rule` step) |
-| `lead_distribution_record_type_mismatch` | 422 | lead_distribution |
-| `lead_distribution_rule_inactive` | 422 | lead_distribution (automation `assign_by_rule` step) |
-| `lead_distribution_rule_key_taken` | 409 | lead_distribution |
-| `lead_distribution_rule_not_found` | 404 | lead_distribution |
+| `assignment_no_eligible_member` | 422 | assignment (automation `assign_by_rule` step) |
+| `assignment_record_type_mismatch` | 422 | assignment |
+| `assignment_rule_inactive` | 422 | assignment (automation `assign_by_rule` step) |
+| `assignment_rule_key_taken` | 409 | assignment |
+| `assignment_rule_not_found` | 404 | assignment |
 | `link_not_found` | 404 | people |
 | `linked_record_not_found` | 404 | custom_objects |
 | `login_locked` | 429 | auth |

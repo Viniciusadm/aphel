@@ -81,7 +81,7 @@ pub fn compiled() -> Vec<Box<dyn Module>> {
         #[cfg(feature = "plugins")]
         Box::new(module_demo::DemoModule),
         #[cfg(feature = "plugins")]
-        Box::new(module_lead_distribution::LeadDistributionModule),
+        Box::new(module_assignment::AssignmentModule),
         #[cfg(feature = "plugins")]
         Box::new(module_tags::TagsModule),
         #[cfg(feature = "plugins")]

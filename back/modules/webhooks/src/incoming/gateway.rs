@@ -10,8 +10,8 @@ use aphel_kernel::domain::access::AccessScope;
 use aphel_kernel::domain::fields::FieldDefinition;
 use aphel_kernel::errors::AppError;
 use aphel_kernel::infrastructure::fields::MySqlFieldDefinitionRepository;
+use assignment::{AssignRequest, AssignmentSource, RULE_NOT_FOUND};
 use deals::domain::DealInput;
-use lead_distribution::{AssignRequest, AssignmentSource, RULE_NOT_FOUND};
 use people::domain::SaveContactCommand;
 use tasks::domain::CreateActivityCommand;
 
@@ -156,7 +156,7 @@ pub(crate) async fn distribution_rule_usable(
     rule_id: &str,
     record_type: &RecordType,
 ) -> Result<bool, AppError> {
-    Ok(lead_distribution::service::check(ctx, rule_id)
+    Ok(assignment::service::check(ctx, rule_id)
         .await?
         .is_some_and(|rule| rule.is_active && rule.record_type == record_type.as_str()))
 }
@@ -175,9 +175,7 @@ pub(crate) async fn distribute_owner(
         source: AssignmentSource::IncomingWebhook,
         idempotency_key: None,
     };
-    match lead_distribution::service::assign(ctx, request, &lead_distribution::service::PickOnly)
-        .await
-    {
+    match assignment::service::assign(ctx, request, &assignment::service::PickOnly).await {
         Ok(outcome) => Ok(outcome.user_id().map(|user_id| user_id.as_str().to_owned())),
         Err(AppError::Coded { code, .. }) if code == RULE_NOT_FOUND => Ok(None),
         Err(error) => Err(error),

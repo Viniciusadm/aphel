@@ -190,9 +190,9 @@ interface LeadRuleSummary {
 
 export function LeadRuleSelect(props: ReferenceSelectProps & { recordType: string }) {
   const rules = useQuery({
-    queryKey: ['automations', 'lead-distribution-rules', props.recordType],
+    queryKey: ['automations', 'assignment-rules', props.recordType],
     queryFn: () =>
-      api.get<{ data: LeadRuleSummary[] } | LeadRuleSummary[]>('/v1/lead-distribution/rules', {
+      api.get<{ data: LeadRuleSummary[] } | LeadRuleSummary[]>('/v1/assignment/rules', {
         query: { record_type: props.recordType, per_page: 100 },
       }),
     staleTime: 60_000,

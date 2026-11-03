@@ -31,7 +31,7 @@ dashboard = { path = "modules/dashboard" }
 reports = { path = "modules/reports" }
 onboarding = { path = "modules/onboarding" }
 demo = { path = "modules/demo" }
-lead_distribution = { path = "modules/lead_distribution" }
+assignment = { path = "modules/assignment" }
 tags = { path = "modules/tags", required = true }
 segments = { path = "modules/segments" }
 calls = { path = "modules/calls" }

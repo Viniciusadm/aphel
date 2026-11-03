@@ -58,7 +58,7 @@ impl Module for SchedulingModule {
             )
             .depends_on(tasks::KEY, "*")
             .depends_on(people::KEY, "*")
-            .optional("lead_distribution")
+            .optional("assignment")
             .enabled_by_default()
             .owned_tables(&["meeting_bookings", "meeting_types"])
             .migration(Migration::new(

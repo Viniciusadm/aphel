@@ -436,11 +436,11 @@ async fn list_submissions(
 async fn distribution_rules(
     ctx: &Ctx<'_>,
 ) -> Result<Vec<LeadFormDistributionRuleOption>, AppError> {
-    if !ctx.app().is_enabled(lead_distribution::KEY) {
+    if !ctx.app().is_enabled(assignment::KEY) {
         return Ok(Vec::new());
     }
-    let listing = lead_distribution::DistributionStore::of(ctx)
-        .list(&lead_distribution::RuleListFilter {
+    let listing = assignment::DistributionStore::of(ctx)
+        .list(&assignment::RuleListFilter {
             record_type: Some(RecordType::CONTACT.as_str().to_owned()),
             active: Some(true),
             window: ListWindow {
