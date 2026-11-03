@@ -8,7 +8,7 @@ pub(crate) struct IncomingWebhookRefs;
 #[async_trait]
 impl aphel_sdk::points::ReferenceProvider for IncomingWebhookRefs {
     fn kind(&self) -> aphel_sdk::ReferenceKind {
-        aphel_contract_crm::refs::INCOMING_WEBHOOK
+        aphel_contract_webhooks::INCOMING_WEBHOOK
     }
 
     async fn exists(&self, ctx: &Ctx<'_>, id: &str) -> Result<bool, AppError> {

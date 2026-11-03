@@ -32,7 +32,8 @@ use aphel_kernel::modules::builder::APHEL_VERSION;
 use aphel_kernel::modules::{AppBuilder, Manifest, Module};
 
 pub const CONTACT_RESOURCE: PublicResource =
-    PublicResource::new("people.person", "ContactResponse");
+    PublicResource::new("people.person", "ContactResponse")
+        .with_nested(&[("company", "organizations.organization")]);
 
 pub const KEY: &str = "people";
 

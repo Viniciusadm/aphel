@@ -229,7 +229,10 @@ impl AutomationValidator<'_> {
                 TriggerReference::IncomingWebhook { path, id } => (
                     path,
                     self.gateway
-                        .reference_exists(self.scope, Reference::new(refs::INCOMING_WEBHOOK, id))
+                        .reference_exists(
+                            self.scope,
+                            Reference::new(aphel_contract_webhooks::INCOMING_WEBHOOK, id),
+                        )
                         .await?,
                 ),
             };

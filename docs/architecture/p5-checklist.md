@@ -44,7 +44,7 @@ Implementation note: P5.1 connects people and organizations as providers and dup
 - [x] **P5.14** ⇄ `favorites`. Review and pending manual acceptance: [favorites sources](p5-favorites.md).
 - [x] **P5.15** ⇄ `followers`. Review and pending manual acceptance: [followed-event sources](p5-followers.md).
 - [x] **P5.16** ⇄ `imports`. Review and pending manual acceptance: [entity-driven imports](p5-imports.md).
-- [ ] **P5.17** ⇄ `webhooks`
+- [x] **P5.17** ⇄ `webhooks`. Review and pending manual acceptance: [entity-driven webhooks](p5-webhooks.md).
 - [ ] **P5.18** ⇄ `sso`, free of CRM dependencies
 
 **5.7 Thin domain plugins**

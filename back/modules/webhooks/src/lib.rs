@@ -55,6 +55,7 @@ impl Module for WebhooksModule {
     }
 
     fn register(&self, app: &mut AppBuilder) -> Result<(), AppError> {
+        app.contract(aphel_contract_webhooks::DESCRIPTOR);
         app.contribute::<dyn aphel_kernel::modules::HealthSource>(std::sync::Arc::new(
             points::WebhookFailures,
         ));

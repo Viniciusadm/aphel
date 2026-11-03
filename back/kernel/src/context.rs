@@ -128,6 +128,35 @@ impl<'a> Ctx<'a> {
             .await
     }
 
+    pub async fn create_record(
+        &self,
+        record_type: &str,
+        values: serde_json::Value,
+    ) -> Result<serde_json::Value, AppError> {
+        let state = self.state();
+        self.registry
+            .handler(record_type)?
+            .create(&crate::records::RecordCtx::new(self.scope, &state), values)
+            .await
+    }
+
+    pub async fn update_record(
+        &self,
+        record_type: &str,
+        id: uuid::Uuid,
+        values: serde_json::Value,
+    ) -> Result<serde_json::Value, AppError> {
+        let state = self.state();
+        self.registry
+            .handler(record_type)?
+            .update(
+                &crate::records::RecordCtx::new(self.scope, &state),
+                id,
+                values,
+            )
+            .await
+    }
+
     pub fn storage(&self) -> Result<SharedFileStorage, AppError> {
         self.storage.clone().ok_or_else(|| {
             AppError::Configuration("file storage is not available in this context".to_owned())

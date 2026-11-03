@@ -20,19 +20,13 @@ export type ActionOutcome = Schemas['IncomingActionOutcomeResponse']
 
 export interface ActionConfig {
   type: ActionType
-  match_by?: ContactMatch | null
+  record_type: string
   match_field?: string | null
-  pipeline_id?: string | null
-  stage_id?: string | null
-  activity_type_id?: string | null
-  distribution_rule_id?: string | null
+  assignment_rule_id?: string | null
   fields: Record<string, unknown>
 }
-
-export type ContactMatch = 'email' | 'phone' | 'field'
 export type MatchableField = MappableField & { is_unique?: boolean }
-
-export const ACTION_TYPES: ActionType[] = ['upsert_contact', 'create_deal', 'create_activity']
+export const ACTION_TYPES: ActionType[] = ['create_record', 'upsert_record']
 export const REQUEST_STATUSES: RequestStatus[] = ['succeeded', 'partial', 'failed', 'rejected']
 export const WEBHOOKS_PER_PAGE = 100
 export const REQUESTS_PER_PAGE = 20

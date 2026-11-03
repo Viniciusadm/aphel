@@ -14,39 +14,19 @@ const mappingSchema = z.object({
   expression: z.string(),
 })
 
-const actionSchema = z
-  .object({
-    type: z.enum(['upsert_contact', 'create_deal', 'create_activity']),
-    match_by: z.enum(['email', 'phone', 'field', 'none']),
-    match_field: z.string(),
-    pipeline_id: z.string(),
-    stage_id: z.string(),
-    activity_type_id: z.string(),
-    distribution_rule_id: z.string(),
-    fields: z.array(mappingSchema),
-  })
-  .superRefine((action, context) => {
-    if (action.type === 'create_deal') {
-      if (!action.pipeline_id)
-        context.addIssue({ code: 'custom', path: ['pipeline_id'], message: 'form.errors.pipelineRequired' })
-      if (!action.stage_id)
-        context.addIssue({ code: 'custom', path: ['stage_id'], message: 'form.errors.stageRequired' })
-    }
-    if (action.type === 'create_activity' && !action.activity_type_id) {
-      context.addIssue({ code: 'custom', path: ['activity_type_id'], message: 'form.errors.activityTypeRequired' })
-    }
-    const keys = action.fields.map((field) => field.key).filter(Boolean)
-    if (
-      action.type === 'upsert_contact' &&
-      action.match_by === 'field' &&
-      (!action.match_field || !keys.includes(action.match_field))
-    ) {
-      context.addIssue({ code: 'custom', path: ['match_field'], message: 'form.errors.matchFieldRequired' })
-    }
-    if (new Set(keys).size !== keys.length) {
-      context.addIssue({ code: 'custom', path: ['fields'], message: 'form.errors.duplicateField' })
-    }
-  })
+const actionSchema = z.object({
+  type: z.enum(['create_record', 'upsert_record']),
+  record_type: z.string().min(1, 'form.errors.entityRequired'),
+  match_field: z.string(),
+  assignment_rule_id: z.string(),
+  fields: z.array(mappingSchema),
+}).superRefine((action, context) => {
+  const keys = action.fields.map((field) => field.key).filter(Boolean)
+  if (action.type === 'upsert_record' && (!action.match_field || !keys.includes(action.match_field))) {
+    context.addIssue({ code: 'custom', path: ['match_field'], message: 'form.errors.matchFieldRequired' })
+  }
+  if (new Set(keys).size !== keys.length) context.addIssue({ code: 'custom', path: ['fields'], message: 'form.errors.duplicateField' })
+})
 
 export const webhookFormSchema = z.object({
   name: z.string().trim().min(1, 'form.errors.nameRequired').max(MAX_NAME_LENGTH, 'form.errors.nameTooLong'),
@@ -65,47 +45,8 @@ export type WebhookFormValues = z.infer<typeof webhookFormSchema>
 export type ActionFormValues = WebhookFormValues['actions'][number]
 export type MappingFormValues = ActionFormValues['fields'][number]
 
-export function emptyAction(type: ActionType): ActionFormValues {
-  const fields: MappingFormValues[] =
-    type === 'upsert_contact'
-      ? [
-          { key: 'first_name', expression: '$.name' },
-          { key: 'email', expression: '$.email' },
-        ]
-      : [{ key: 'title', expression: '' }]
-  return {
-    type,
-    match_by: type === 'upsert_contact' ? 'email' : 'none',
-    match_field: '',
-    pipeline_id: '',
-    stage_id: '',
-    activity_type_id: '',
-    distribution_rule_id: '',
-    fields,
-  }
-}
-
-export function siteFormTemplate(pipelineId: string, stageId: string): ActionFormValues[] {
-  return [
-    {
-      ...emptyAction('upsert_contact'),
-      fields: [
-        { key: 'first_name', expression: '$.nome' },
-        { key: 'email', expression: '$.email' },
-        { key: 'mobile', expression: '$.telefone' },
-        { key: 'source', expression: 'Site' },
-      ],
-    },
-    {
-      ...emptyAction('create_deal'),
-      pipeline_id: pipelineId,
-      stage_id: stageId,
-      fields: [
-        { key: 'title', expression: 'Site: {{ $.nome }}' },
-        { key: 'source', expression: 'Site' },
-      ],
-    },
-  ]
+export function emptyAction(type: ActionType, recordType = ''): ActionFormValues {
+  return { type, record_type: recordType, match_field: '', assignment_rule_id: '', fields: [] }
 }
 
 function expressionText(value: unknown): string {
@@ -133,12 +74,9 @@ export function toFormValues(webhook: IncomingWebhook | null): WebhookFormValues
     signature_tolerance_seconds: webhook.signature_tolerance_seconds,
     actions: webhookActions(webhook).map((action) => ({
       type: action.type,
-      match_by: action.match_by ?? 'none',
+      record_type: action.record_type,
       match_field: action.match_field ?? '',
-      pipeline_id: action.pipeline_id ?? '',
-      stage_id: action.stage_id ?? '',
-      activity_type_id: action.activity_type_id ?? '',
-      distribution_rule_id: action.distribution_rule_id ?? '',
+      assignment_rule_id: action.assignment_rule_id ?? '',
       fields: Object.entries(action.fields ?? {}).map(([key, value]) => ({ key, expression: expressionText(value) })),
     })),
   }
@@ -148,26 +86,7 @@ function toActionConfig(action: ActionFormValues): ActionConfig {
   const fields = Object.fromEntries(
     action.fields.filter((field) => field.key).map((field) => [field.key, field.expression]),
   )
-  switch (action.type) {
-    case 'upsert_contact':
-      return {
-        type: action.type,
-        match_by: action.match_by === 'none' ? null : action.match_by,
-        match_field: action.match_by === 'field' ? action.match_field : null,
-        distribution_rule_id: action.distribution_rule_id || null,
-        fields,
-      }
-    case 'create_deal':
-      return {
-        type: action.type,
-        pipeline_id: action.pipeline_id,
-        stage_id: action.stage_id,
-        distribution_rule_id: action.distribution_rule_id || null,
-        fields,
-      }
-    case 'create_activity':
-      return { type: action.type, activity_type_id: action.activity_type_id, fields }
-  }
+  return { type: action.type, record_type: action.record_type, match_field: action.type === 'upsert_record' ? action.match_field : null, assignment_rule_id: action.assignment_rule_id || null, fields }
 }
 
 export function toRequestBody(values: WebhookFormValues): CreateIncomingWebhookBody {

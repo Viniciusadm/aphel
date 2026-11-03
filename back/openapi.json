@@ -23204,7 +23204,7 @@
             }
           },
           "422": {
-            "description": "Invalid name, tolerance or actions: unknown type, unknown field for the record type, malformed `$.path`, missing required field (`title`, `first_name`), stage outside the pipeline or inactive activity type, with the offending `actions.<i>...` paths (`validation_error`), or too many webhooks (`too_many_incoming_webhooks`). `Idempotency-Key` already used with a different request (`idempotency_key_reused`) or longer than 255 characters (`validation_error`)",
+            "description": "Invalid name, tolerance or actions: unknown type, unknown field for the record type, malformed `$.path`, unavailable entity, inaccessible match field or invalid assignment rule, with the offending `actions.<i>...` paths (`validation_error`), or too many webhooks (`too_many_incoming_webhooks`). `Idempotency-Key` already used with a different request (`idempotency_key_reused`) or longer than 255 characters (`validation_error`)",
             "content": {
               "application/json": {
                 "schema": {
@@ -95448,67 +95448,32 @@
       "IncomingWebhookAction": {
         "type": "object",
         "required": [
-          "type"
+          "type",
+          "record_type",
+          "fields"
         ],
         "properties": {
-          "activity_type_id": {
-            "type": [
-              "string",
-              "null"
-            ]
-          },
-          "distribution_rule_id": {
+          "assignment_rule_id": {
             "type": [
               "string",
               "null"
             ]
           },
           "fields": {
-            "type": [
-              "object",
-              "null"
-            ],
+            "type": "object",
             "additionalProperties": {},
             "propertyNames": {
               "type": "string"
-            },
-            "example": {
-              "cpf": "$.document",
-              "email": "$.email",
-              "first_name": "$.name",
-              "source": "Website"
             }
-          },
-          "match_by": {
-            "oneOf": [
-              {
-                "type": "null"
-              },
-              {
-                "$ref": "#/components/schemas/IncomingWebhookContactMatch"
-              }
-            ]
           },
           "match_field": {
             "type": [
               "string",
               "null"
-            ],
-            "example": "cpf"
+            ]
           },
-          "pipeline_id": {
-            "type": [
-              "string",
-              "null"
-            ],
-            "example": "0192a1b2-0000-7000-8000-0000000000aa"
-          },
-          "stage_id": {
-            "type": [
-              "string",
-              "null"
-            ],
-            "example": "0192a1b2-0000-7000-8000-0000000000bb"
+          "record_type": {
+            "type": "string"
           },
           "type": {
             "$ref": "#/components/schemas/IncomingWebhookActionType"
@@ -95518,17 +95483,8 @@
       "IncomingWebhookActionType": {
         "type": "string",
         "enum": [
-          "upsert_contact",
-          "create_deal",
-          "create_activity"
-        ]
-      },
-      "IncomingWebhookContactMatch": {
-        "type": "string",
-        "enum": [
-          "email",
-          "phone",
-          "field"
+          "create_record",
+          "upsert_record"
         ]
       },
       "IncomingWebhookRequestDetailResponse": {

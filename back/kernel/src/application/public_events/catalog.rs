@@ -6,6 +6,7 @@ pub struct PublicResource {
     key: &'static str,
     schema_name: &'static str,
     record: bool,
+    nested: &'static [(&'static str, &'static str)],
 }
 
 pub const CUSTOM_RECORD_RESOURCE: RecordType = RecordType::from_static("custom_record");
@@ -18,6 +19,7 @@ impl PublicResource {
             key,
             schema_name,
             record: true,
+            nested: &[],
         }
     }
 
@@ -26,7 +28,17 @@ impl PublicResource {
             key,
             schema_name: "",
             record: false,
+            nested: &[],
         }
+    }
+
+    pub const fn with_nested(mut self, nested: &'static [(&'static str, &'static str)]) -> Self {
+        self.nested = nested;
+        self
+    }
+
+    pub fn nested(self) -> &'static [(&'static str, &'static str)] {
+        self.nested
     }
 
     pub fn has_record(self) -> bool {

@@ -7,16 +7,11 @@ license.workspace = true
 publish = false
 
 [dependencies]
+aphel-contract-webhooks.workspace = true
 aphel-contract-automation.workspace = true
 notifications = { package = "aphel-mod-notifications", path = "../notifications" }
-aphel-contract-crm.workspace = true
 aphel-kernel.workspace = true
 aphel-sdk.workspace = true
-tasks = { package = "aphel-mod-tasks", path = "../tasks" }
-people = { package = "aphel-mod-people", path = "../people" }
-deals = { package = "aphel-mod-deals", path = "../deals" }
-assignment = { package = "aphel-mod-assignment", path = "../assignment" }
-workflow = { package = "aphel-mod-workflow", path = "../workflow" }
 form_urlencoded.workspace = true
 axum.workspace = true
 async-trait.workspace = true

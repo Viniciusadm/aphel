@@ -1,6 +1,6 @@
 import { FieldError as SharedFieldError } from '@/components/ui/field-error'
 import { zodResolver } from '@hookform/resolvers/zod'
-import { Plus, Wand2 } from 'lucide-react'
+import { Plus } from 'lucide-react'
 import { useId, useState } from 'react'
 import { Controller, FormProvider, useFieldArray, useForm, useWatch } from 'react-hook-form'
 import { useTranslation } from 'react-i18next'
@@ -18,7 +18,6 @@ import {
 import { Input } from '@/components/ui/input'
 import { Skeleton } from '@/components/ui/skeleton'
 import { Textarea } from '@/components/ui/textarea'
-import { defaultPipeline, usePipelines } from '@/modules/workflow/api'
 import { NativeSelect } from '@/features/records/filters/NativeSelect'
 import { ActionEditor } from './ActionEditor'
 import {
@@ -36,7 +35,6 @@ import {
   MAX_TOLERANCE_SECONDS,
   MIN_TOLERANCE_SECONDS,
   emptyAction,
-  siteFormTemplate,
   toFormValues,
   toRequestBody,
   webhookFormSchema,
@@ -89,8 +87,7 @@ function EditorBody({ webhook, onCancel, onSaved }: EditorBodyProps) {
   const { t } = useTranslation('webhooks', { keyPrefix: 'incoming' })
   const formId = useId()
   const targets = useActionTargets()
-  const workflow = usePipelines()
-  const [newActionType, setNewActionType] = useState<ActionType>('upsert_contact')
+  const [newActionType, setNewActionType] = useState<ActionType>('create_record')
   const [serverErrors, setServerErrors] = useState<ServerFieldError[]>([])
   const form = useForm<WebhookFormValues>({
     resolver: zodResolver(webhookFormSchema),
@@ -100,12 +97,6 @@ function EditorBody({ webhook, onCancel, onSaved }: EditorBodyProps) {
   const actions = useFieldArray({ control, name: 'actions' })
   const generateSecret = useWatch({ control, name: 'generate_signing_secret' })
   const signed = webhook ? webhook.secret_configured : generateSecret
-
-  const applyTemplate = () => {
-    const pipeline = defaultPipeline(workflow.data)
-    const stage = pipeline?.stages.find((item) => item.is_active)
-    actions.replace(siteFormTemplate(pipeline?.id ?? '', stage?.id ?? ''))
-  }
 
   const submit = handleSubmit(async (values) => {
     setServerErrors([])
@@ -205,10 +196,7 @@ function EditorBody({ webhook, onCancel, onSaved }: EditorBodyProps) {
               <h3 id={`${formId}-actions`} className="text-sm font-semibold">
                 {t('form.actions')}
               </h3>
-              <Button type="button" size="sm" variant="outline" onClick={applyTemplate}>
-                <Wand2 aria-hidden="true" />
-                {t('form.useTemplate')}
-              </Button>
+
             </div>
             <p className="text-xs text-muted-foreground">{t('form.actionsHelp')}</p>
             {targets.isPending ? (
@@ -222,7 +210,6 @@ function EditorBody({ webhook, onCancel, onSaved }: EditorBodyProps) {
                     key={action.id}
                     index={index}
                     total={actions.fields.length}
-                    target={targets.data?.find((target) => target.type === action.type)}
                     onMove={(from, to) => actions.move(from, to)}
                     onRemove={() => actions.remove(index)}
                   />

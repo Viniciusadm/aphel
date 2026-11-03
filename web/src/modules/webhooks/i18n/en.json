@@ -134,11 +134,11 @@
   },
   "incoming": {
     "title": "Incoming webhooks",
-    "description": "Secret URLs that receive data from other systems (website forms, landing pages, automations) and create or update records in the CRM. Actions run with the permissions of the webhook's creator.",
+    "description": "Secret URLs receive external data and create or update records with the webhook creator’s permissions.",
     "new": "New webhook",
     "listLabel": "Incoming webhooks",
     "emptyTitle": "No incoming webhooks",
-    "emptyDescription": "Create a webhook to turn form submissions into people and deals.",
+    "emptyDescription": "Create a webhook to turn incoming data into records.",
     "active": "Active",
     "inactive": "Inactive",
     "signed": "Signed",
@@ -183,14 +183,12 @@
       }
     },
     "actionTypes": {
-      "upsert_contact": "Create or update contact",
-      "create_deal": "Create deal",
-      "create_activity": "Log activity"
+      "create_record": "Create record",
+      "upsert_record": "Create or update record"
     },
     "actionHelp": {
-      "upsert_contact": "Creates the contact or, if the email already exists, updates only the received fields. Name is required.",
-      "create_deal": "Creates the deal in the chosen stage, linked to the contact from the previous action. Title is required.",
-      "create_activity": "Logs the activity linked to the deal and contact created earlier. Title is required."
+      "create_record": "Creates a record in the selected entity.",
+      "upsert_record": "Matches a unique field and updates or creates the record."
     },
     "actionStatus": {
       "succeeded": "Completed",
@@ -217,7 +215,7 @@
       "matchPhone": "Update the contact with the same phone or mobile",
       "matchField": "Update the contact with the same value in a unique field",
       "matchNone": "Always create a new contact",
-      "matchFieldLabel": "Unique field used to find the contact",
+      "matchFieldLabel": "Unique field used to find the record",
       "noUniqueFields": "No unique custom contact field. Mark a field as unique in the field settings.",
       "pipeline": "Pipeline",
       "stage": "Stage",
@@ -225,19 +223,20 @@
       "choose": "Select…",
       "mappings": "Field mapping",
       "noMappings": "No fields mapped.",
-      "crmField": "CRM field",
-      "chooseField": "CRM field…",
+      "crmField": "Entity field",
+      "chooseField": "Entity field…",
       "custom": "custom",
       "expression": "Value",
       "expressionPlaceholder": "$.email, fixed text, or Hello {{template}}",
       "removeField": "Remove field",
       "addField": "Add field",
-      "expressionHelp": "Use $.path to read the received body ($.lead.email, $.items[0].name), {{template}} inside text, or a fixed value. Fields missing from the request are ignored. * = required."
+      "expressionHelp": "Use $.payload.path for incoming data and $.actions[0].id for an earlier action result.",
+      "entity": "Entity"
     },
     "form": {
       "createTitle": "New incoming webhook",
       "editTitle": "Edit {{name}}",
-      "description": "Define what happens with each received request. The configuration is validated against the CRM fields on save.",
+      "description": "Configure actions and mappings using available entity fields.",
       "name": "Name",
       "namePlaceholder": "Website form",
       "descriptionLabel": "Description",
@@ -247,7 +246,7 @@
       "actions": "Actions",
       "actionsHelp": "Run in order on every request. If one fails, the previous ones are kept and the partial result is logged.",
       "useTemplate": "Template: website form",
-      "noActions": "No actions. Add one or use the website form template (contact + deal).",
+      "noActions": "Add an action to process incoming data.",
       "newActionType": "New action type",
       "addAction": "Add action",
       "cancel": "Cancel",
@@ -259,12 +258,13 @@
         "descriptionTooLong": "Use at most 500 characters.",
         "tolerance": "Enter a value between 30 and 86400 seconds.",
         "tooManyActions": "Use at most 10 actions.",
-        "fieldRequired": "Choose the CRM field.",
+        "fieldRequired": "Choose a field.",
         "pipelineRequired": "Choose the pipeline.",
         "stageRequired": "Choose the stage.",
         "activityTypeRequired": "Choose the activity type.",
-        "duplicateField": "Each CRM field can only be mapped once.",
-        "matchFieldRequired": "Choose the unique field and map a value to it."
+        "duplicateField": "Each field can only be mapped once.",
+        "matchFieldRequired": "Choose the unique field and map a value to it.",
+        "entityRequired": "Choose an entity."
       }
     },
     "credentials": {

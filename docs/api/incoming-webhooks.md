@@ -1,6 +1,6 @@
 # Incoming webhooks
 
-An incoming webhook is a **secret URL** that receives `POST` requests from external systems (website form, landing page, automation tool, another CRM) and runs, in order, actions configured without code: create or update a contact, create a deal and log an activity. Every request received is kept in the log with the result of each action.
+An incoming webhook is a **secret URL** that receives `POST` requests from external systems (website form, landing page, automation tool, another CRM) and runs, in order, actions configured without code: create or update records in enabled entities. Every request received is kept in the log with the result of each action.
 
 Managed in **Settings → Incoming webhooks** or through the API at `/api/v1/incoming-webhooks` (permission `settings.manage`, session or API token with `settings:write`).
 
@@ -62,37 +62,24 @@ curl -X POST "https://crm.exemplo.com.br/api/v1/hooks/$TOKEN" \
 
 ## Actions
 
-`actions` is a list (up to 10) run in order, **as the user who created the webhook**: their permissions are reloaded on every request. If that user has been deactivated, the request fails with 403 `incoming_webhook_owner_unavailable`; if they lost the permission for an action, 403 `incoming_webhook_permission_denied`. The actions use the same use cases as the API, so they generate events (`contact.created`, `deal.created`, ...), audit entries and trigger outgoing webhooks normally.
+Actions run in order as the webhook creator, with current permissions reloaded for each request. The target must have an enabled owner and a registered writable handler. `GET /api/v1/incoming-webhooks/targets` returns available action/entity pairs and editable active fields.
 
-| `type` | Configuration | Behavior |
-| --- | --- | --- |
-| `upsert_contact` | `match_by`: `"email"`, `"phone"`, `"field"` or `null`; `match_field` (only with `"field"`); `fields` | Looks for an existing contact and, if found, updates only the fields that came in; otherwise creates one. `"email"`: same mapped email. `"phone"`: the mapped `phone` or `mobile` matches the contact's phone or mobile (normalized to E.164). `"field"`: same value in the contact's unique custom field `match_field`, which must be mapped in `fields`. `first_name` is required in the mapping |
-| `create_deal` | `pipeline_id`, `stage_id`, `fields` | Creates the deal in the stage; `title` is required. Links it to the contact from the previous action if `contact_id` is not mapped |
-| `create_activity` | `activity_type_id`, `fields` | Creates the activity; `title` is required. Links it to the deal created earlier (and to the contact) or only to the contact |
+- `create_record`: `record_type`, `fields`, optional `assignment_rule_id`.
+- `upsert_record`: the same fields plus `match_field`, which must identify a mapped editable, filterable, unique field. The creator needs read, create and update permissions. A scoped query finds the existing record; multiple visible matches fail instead of choosing an arbitrary record.
 
-`GET /api/v1/incoming-webhooks/targets` lists, per action type, the mappable fields: the system ones and the record type's **active custom fields** (by key). The configuration is validated on save: an unknown field, malformed path, missing required field, stage outside the pipeline or inactive activity type respond 422 pointing to `actions.<i>...`.
-
-Mappable system fields:
-
-- **Contact:** `first_name`, `last_name`, `email`, `phone`, `mobile`, `job_title`, `company_id`, `owner_id`, `source`, `notes`, `address_street`, `address_number`, `address_complement`, `address_district`, `address_city`, `address_state`, `address_postal_code`, `address_country`.
-- **Deal:** `title`, `amount`, `currency`, `probability`, `expected_close_date`, `company_id`, `contact_id`, `owner_id`, `source`.
-- **Activity:** `title`, `description`, `due_at`, `priority`, `duration_minutes`, `owner_id`.
+Writes use registered handlers, including owner validation, record scopes, custom fields, audit and events. Owner-specific required inputs, workflow stages and other references are ordinary mapped fields validated on execution. Assignment is optional and requires an available selector for the target entity and an editable owner field. There are no implicit links between business types or legacy action aliases.
 
 ### Mapping
 
-Each entry in `fields` is `"<CRM field key>": <expression>`:
+`fields` maps logical entity field keys to expressions. System and custom fields preserve their JSON value types. The mapping root contains `payload` (the received body) and `actions` (successful earlier action identities).
 
-| Expression | Result |
-| --- | --- |
-| `"$.email"`, `"$.lead.contato.email"` | Value at the path in the received body (`$` is the root) |
-| `"$.itens[0].nome"`, `"$['key with dot.x']"` | Array index and bracketed key |
-| `"Lead do site: {{ $.name }}"` | Text with `{{ $.path }}` snippets substituted (empty if missing) |
-| `"Site"`, `10`, `true` | Constant |
+- `$.payload.email`: incoming value.
+- `$.payload.items[0].name`: incoming array value.
+- `$.actions[0].id`: ID produced by the first action.
+- `Received: {{ $.payload.name }}`: text template.
+- Scalar strings, numbers and booleans: constants.
 
-- Nonexistent path or `null` → the field is ignored (it never erases an existing value).
-- System fields receive text; numbers and booleans become text, arrays become comma-separated items.
-- Custom fields receive the JSON value as it came and go through the type's normal validation (select option, number, date...).
-- A value rejected by the use case → 422 `webhook_mapping_failed` with `details.fields[].field` in the format `actions.<i>.<field>`. Previous actions are **not** undone (each one has its own transaction) and the log shows the partial result.
+Missing paths are ignored. Mapped values pass through the target's normal validation. Actions commit separately: earlier successful actions remain committed when a later one fails, and subsequent actions are skipped. Replay protection does not establish exactly-once writes across crashes or unrelated deliveries. Unique upserts remain scoped and use the owner's normal uniqueness constraints.
 
 ## Responses
 
@@ -108,7 +95,7 @@ Failure (the `request_id` also comes in `details` to locate it in the log):
 {
   "error": {
     "code": "webhook_mapping_failed",
-    "message": "action 1 (create_deal) failed: invalid deal",
+    "message": "action 1 (create_record) failed: invalid field values",
     "details": {
       "request_id": "0192a1b2-...",
       "fields": [{ "field": "actions.1.amount", "message": "must be a decimal number" }]
@@ -142,57 +129,19 @@ Failure (the `request_id` also comes in `details` to locate it in the log):
 | `failed` | No action ran (creator unavailable, first action failed, internal error) |
 | `rejected` | Refused before the actions (deactivated, signature, replay, invalid or oversized body) |
 
-## Example: website form → contact + deal
-
-Configuration (`POST /api/v1/incoming-webhooks`):
+## Example: create a record from a received payload
 
 ```json
 {
-  "name": "Formulário do site",
+  "name": "External intake",
   "actions": [
     {
-      "type": "upsert_contact",
-      "match_by": "email",
-      "fields": {
-        "first_name": "$.nome",
-        "email": "$.email",
-        "mobile": "$.telefone",
-        "source": "Site"
-      }
-    },
-    {
-      "type": "create_deal",
-      "pipeline_id": "<pipeline id>",
-      "stage_id": "<initial stage id>",
-      "fields": {
-        "title": "Site: {{ $.nome }}",
-        "source": "Site"
-      }
+      "type": "create_record",
+      "record_type": "custom.request",
+      "fields": { "title": "$.payload.subject" }
     }
   ]
 }
 ```
 
-Submitting a plain HTML form:
-
-```html
-<form method="post" action="https://crm.exemplo.com.br/api/v1/hooks/whk_...">
-  <input name="nome" required />
-  <input name="email" type="email" required />
-  <input name="telefone" />
-  <button>Enviar</button>
-</form>
-```
-
-Or with cURL:
-
-```bash
-curl -X POST "https://crm.exemplo.com.br/api/v1/hooks/$TOKEN" \
-  -H 'Content-Type: application/x-www-form-urlencoded' \
-  -H "X-Aphel-Delivery: form-$(date +%s%N)" \
-  --data-urlencode 'nome=Ana Souza' \
-  --data-urlencode 'email=ana@acme.com.br' \
-  --data-urlencode 'telefone=(11) 98888-7777'
-```
-
-The contact is created (or updated, if the email already exists), the deal is created linked to it and the `deal.created` event goes out through the signed outgoing webhooks like any other creation.
+The entity must already exist and allow the creator to create records. Use the targets catalog to choose its editable fields. A following action can map a reference field to `$.actions[0].id`.

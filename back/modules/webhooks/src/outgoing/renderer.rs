@@ -1,4 +1,3 @@
-use aphel_contract_crm::CrmRecordTypes;
 use std::sync::Arc;
 
 use async_trait::async_trait;
@@ -126,10 +125,10 @@ impl PublicEventRenderer for ApiPublicEventRenderer {
         let redaction = user_field_redaction(&pool, viewer, &record_type).await?;
         let mut restricted = event.clone();
         redaction.redact_value(&mut restricted.data);
-        if record_type == RecordType::CONTACT {
-            user_field_redaction(&pool, viewer, &RecordType::COMPANY)
+        for (field, entity) in definition.resource.nested() {
+            user_field_redaction(&pool, viewer, &RecordType::parse(*entity)?)
                 .await?
-                .redact_nested(&mut restricted.data, "company");
+                .redact_nested(&mut restricted.data, field);
         }
         if let Some(previous) = restricted.previous.as_mut() {
             redaction.redact_previous(previous);

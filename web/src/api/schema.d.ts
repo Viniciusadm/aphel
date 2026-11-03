@@ -16425,32 +16425,16 @@ export interface components {
             label: string;
         };
         IncomingWebhookAction: {
-            activity_type_id?: string | null;
-            distribution_rule_id?: string | null;
-            /**
-             * @example {
-             *       "cpf": "$.document",
-             *       "email": "$.email",
-             *       "first_name": "$.name",
-             *       "source": "Website"
-             *     }
-             */
-            fields?: {
+            assignment_rule_id?: string | null;
+            fields: {
                 [key: string]: unknown;
-            } | null;
-            match_by?: null | components["schemas"]["IncomingWebhookContactMatch"];
-            /** @example cpf */
+            };
             match_field?: string | null;
-            /** @example 0192a1b2-0000-7000-8000-0000000000aa */
-            pipeline_id?: string | null;
-            /** @example 0192a1b2-0000-7000-8000-0000000000bb */
-            stage_id?: string | null;
+            record_type: string;
             type: components["schemas"]["IncomingWebhookActionType"];
         };
         /** @enum {string} */
-        IncomingWebhookActionType: "upsert_contact" | "create_deal" | "create_activity";
-        /** @enum {string} */
-        IncomingWebhookContactMatch: "email" | "phone" | "field";
+        IncomingWebhookActionType: "create_record" | "upsert_record";
         IncomingWebhookRequestDetailResponse: components["schemas"]["IncomingWebhookRequestResponse"] & {
             body?: string | null;
             /**
@@ -39120,7 +39104,7 @@ export interface operations {
                     "application/json": components["schemas"]["ErrorEnvelope"];
                 };
             };
-            /** @description Invalid name, tolerance or actions: unknown type, unknown field for the record type, malformed `$.path`, missing required field (`title`, `first_name`), stage outside the pipeline or inactive activity type, with the offending `actions.<i>...` paths (`validation_error`), or too many webhooks (`too_many_incoming_webhooks`). `Idempotency-Key` already used with a different request (`idempotency_key_reused`) or longer than 255 characters (`validation_error`) */
+            /** @description Invalid name, tolerance or actions: unknown type, unknown field for the record type, malformed `$.path`, unavailable entity, inaccessible match field or invalid assignment rule, with the offending `actions.<i>...` paths (`validation_error`), or too many webhooks (`too_many_incoming_webhooks`). `Idempotency-Key` already used with a different request (`idempotency_key_reused`) or longer than 255 characters (`validation_error`) */
             422: {
                 headers: {
                     [name: string]: unknown;

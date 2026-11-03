@@ -4,9 +4,9 @@ use serde_json::{Map, Value};
 use utoipa::{IntoParams, ToSchema};
 
 use crate::incoming::{
-    ActionKind, ActionOutcome, ActionTarget, ContactMatch, CreateIncomingWebhookCommand,
-    HOOKS_PATH_PREFIX, IncomingRequestLog, IncomingWebhook, IssuedIncomingWebhook, MappableField,
-    ReceiveOutcome, RequestStatus, SaveIncomingWebhookCommand, WebhookAction,
+    ActionKind, ActionOutcome, ActionTarget, CreateIncomingWebhookCommand, HOOKS_PATH_PREFIX,
+    IncomingRequestLog, IncomingWebhook, IssuedIncomingWebhook, MappableField, ReceiveOutcome,
+    RequestStatus, SaveIncomingWebhookCommand, WebhookAction,
 };
 use aphel_kernel::api::dto::common::double_option;
 
@@ -18,96 +18,36 @@ fn timestamp(value: DateTime<Utc>) -> String {
 #[serde(rename_all = "snake_case")]
 #[schema(as = IncomingWebhookActionType)]
 pub(crate) enum IncomingWebhookActionTypeSchema {
-    UpsertContact,
-    CreateDeal,
-    CreateActivity,
+    CreateRecord,
+    UpsertRecord,
 }
-
 impl From<ActionKind> for IncomingWebhookActionTypeSchema {
     fn from(kind: ActionKind) -> Self {
         match kind {
-            ActionKind::UpsertContact => Self::UpsertContact,
-            ActionKind::CreateDeal => Self::CreateDeal,
-            ActionKind::CreateActivity => Self::CreateActivity,
+            ActionKind::CreateRecord => Self::CreateRecord,
+            ActionKind::UpsertRecord => Self::UpsertRecord,
         }
     }
 }
-
-#[derive(Debug, Serialize, ToSchema)]
-#[serde(rename_all = "snake_case")]
-#[schema(as = IncomingWebhookContactMatch)]
-pub(crate) enum IncomingWebhookContactMatchSchema {
-    Email,
-    Phone,
-    Field,
-}
-
-impl From<ContactMatch> for IncomingWebhookContactMatchSchema {
-    fn from(value: ContactMatch) -> Self {
-        match value {
-            ContactMatch::Email => Self::Email,
-            ContactMatch::Phone => Self::Phone,
-            ContactMatch::Field => Self::Field,
-        }
-    }
-}
-
 #[derive(Debug, Serialize, ToSchema)]
 #[schema(as = IncomingWebhookAction)]
 pub(crate) struct IncomingWebhookActionSchema {
     #[serde(rename = "type")]
     pub(crate) action_type: IncomingWebhookActionTypeSchema,
-    #[serde(skip_serializing_if = "Option::is_none")]
-    #[schema(nullable)]
-    pub(crate) match_by: Option<IncomingWebhookContactMatchSchema>,
-    #[serde(skip_serializing_if = "Option::is_none")]
-    #[schema(example = "cpf", nullable)]
+    pub(crate) record_type: String,
     pub(crate) match_field: Option<String>,
-    #[serde(skip_serializing_if = "Option::is_none")]
-    #[schema(example = "0192a1b2-0000-7000-8000-0000000000aa")]
-    pub(crate) pipeline_id: Option<String>,
-    #[serde(skip_serializing_if = "Option::is_none")]
-    #[schema(example = "0192a1b2-0000-7000-8000-0000000000bb")]
-    pub(crate) stage_id: Option<String>,
-    #[serde(skip_serializing_if = "Option::is_none")]
-    pub(crate) activity_type_id: Option<String>,
-    #[serde(skip_serializing_if = "Option::is_none")]
-    #[schema(value_type = Option<std::collections::HashMap<String, Value>>, example = json!({ "first_name": "$.name", "email": "$.email", "source": "Website", "cpf": "$.document" }))]
-    pub(crate) fields: Option<Map<String, Value>>,
-    #[serde(skip_serializing_if = "Option::is_none")]
-    #[schema(nullable)]
-    pub(crate) distribution_rule_id: Option<String>,
+    #[schema(value_type = std::collections::HashMap<String, Value>)]
+    pub(crate) fields: Map<String, Value>,
+    pub(crate) assignment_rule_id: Option<String>,
 }
-
 impl From<&WebhookAction> for IncomingWebhookActionSchema {
     fn from(action: &WebhookAction) -> Self {
-        let empty = Self {
+        Self {
             action_type: action.kind().into(),
-            match_by: None,
-            match_field: None,
-            pipeline_id: None,
-            stage_id: None,
-            activity_type_id: None,
-            fields: Some(action.fields().clone()),
-            distribution_rule_id: None,
-        };
-        match action {
-            WebhookAction::UpsertContact(contact) => Self {
-                match_by: contact.match_by.map(Into::into),
-                match_field: contact.match_field.clone(),
-                distribution_rule_id: contact.distribution_rule_id.clone(),
-                ..empty
-            },
-            WebhookAction::CreateDeal(deal) => Self {
-                pipeline_id: Some(deal.pipeline_id.clone()),
-                stage_id: Some(deal.stage_id.clone()),
-                distribution_rule_id: deal.distribution_rule_id.clone(),
-                ..empty
-            },
-            WebhookAction::CreateActivity(activity) => Self {
-                activity_type_id: Some(activity.activity_type_id.clone()),
-                ..empty
-            },
+            record_type: action.record_type.clone(),
+            match_field: action.match_field.clone(),
+            fields: action.fields.clone(),
+            assignment_rule_id: action.assignment_rule_id.clone(),
         }
     }
 }

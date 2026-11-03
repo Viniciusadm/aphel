@@ -108,7 +108,7 @@ async fn list_incoming_webhooks(
         (status = 201, description = "Incoming webhook created (`incoming_webhook.created`), needs `settings.manage`. `token` and `path` (`/api/v1/hooks/<token>`) are shown only in this response; with `generate_signing_secret`, `signing_secret` too, and every request must then carry `X-Aphel-Signature`. The actions run as the current user, with their permissions at the time of each request", body = Data<IssuedIncomingWebhookResponse>),
         (status = 401, description = "Missing or invalid credentials (`unauthorized`, `invalid_api_token`)", body = ErrorEnvelope),
         (status = 403, description = "Missing `settings.manage` (`permission_denied`, `insufficient_scope`)", body = ErrorEnvelope),
-        (status = 422, description = "Invalid name, tolerance or actions: unknown type, unknown field for the record type, malformed `$.path`, missing required field (`title`, `first_name`), stage outside the pipeline or inactive activity type, with the offending `actions.<i>...` paths (`validation_error`), or too many webhooks (`too_many_incoming_webhooks`)", body = ErrorEnvelope),
+        (status = 422, description = "Invalid name, tolerance or actions: unknown type, unknown field for the record type, malformed `$.path`, unavailable entity, inaccessible match field or invalid assignment rule, with the offending `actions.<i>...` paths (`validation_error`), or too many webhooks (`too_many_incoming_webhooks`)", body = ErrorEnvelope),
     )
 )]
 async fn create_incoming_webhook(

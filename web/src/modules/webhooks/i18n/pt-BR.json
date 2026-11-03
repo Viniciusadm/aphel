@@ -134,11 +134,11 @@
   },
   "incoming": {
     "title": "Webhooks de entrada",
-    "description": "URLs secretas que recebem dados de outros sistemas (formulário do site, landing pages, automações) e criam ou atualizam registros no CRM. As ações rodam com as permissões de quem criou o webhook.",
+    "description": "URLs secretas recebem dados de sistemas externos e criam ou atualizam registros com as permissões de quem criou o webhook.",
     "new": "Novo webhook",
     "listLabel": "Webhooks de entrada",
     "emptyTitle": "Nenhum webhook de entrada",
-    "emptyDescription": "Crie um webhook para transformar envios de formulário em contatos e oportunidades.",
+    "emptyDescription": "Crie um webhook para transformar dados recebidos em registros.",
     "active": "Ativo",
     "inactive": "Inativo",
     "signed": "Assinado",
@@ -183,14 +183,12 @@
       }
     },
     "actionTypes": {
-      "upsert_contact": "Criar ou atualizar contato",
-      "create_deal": "Criar oportunidade",
-      "create_activity": "Registrar atividade"
+      "create_record": "Criar registro",
+      "upsert_record": "Criar ou atualizar registro"
     },
     "actionHelp": {
-      "upsert_contact": "Cria o contato ou, se o e-mail já existir, atualiza só os campos recebidos. Nome é obrigatório.",
-      "create_deal": "Cria a oportunidade na etapa escolhida, vinculada ao contato da ação anterior. Título é obrigatório.",
-      "create_activity": "Registra a atividade vinculada à oportunidade e ao contato criados antes. Título é obrigatório."
+      "create_record": "Cria um registro na entidade selecionada.",
+      "upsert_record": "Busca por um campo único e atualiza ou cria o registro."
     },
     "actionStatus": {
       "succeeded": "Concluída",
@@ -217,7 +215,7 @@
       "matchPhone": "Atualizar o contato com o mesmo telefone ou celular",
       "matchField": "Atualizar o contato com o mesmo valor em um campo único",
       "matchNone": "Sempre criar um contato novo",
-      "matchFieldLabel": "Campo único usado para encontrar o contato",
+      "matchFieldLabel": "Campo único para localizar o registro",
       "noUniqueFields": "Nenhum campo personalizado único de contato. Marque um campo como único nas configurações de campos.",
       "pipeline": "Funil",
       "stage": "Etapa",
@@ -225,19 +223,20 @@
       "choose": "Selecione…",
       "mappings": "Mapeamento de campos",
       "noMappings": "Nenhum campo mapeado.",
-      "crmField": "Campo do CRM",
-      "chooseField": "Campo do CRM…",
+      "crmField": "Campo da entidade",
+      "chooseField": "Campo da entidade…",
       "custom": "personalizado",
       "expression": "Valor",
       "expressionPlaceholder": "$.email, texto fixo ou Olá {{template}}",
       "removeField": "Remover campo",
       "addField": "Adicionar campo",
-      "expressionHelp": "Use $.caminho para ler o corpo recebido ($.lead.email, $.itens[0].nome), {{template}} dentro de um texto ou um valor fixo. Campos ausentes no envio são ignorados. * = obrigatório."
+      "expressionHelp": "Use $.payload.caminho para dados recebidos e $.actions[0].id para o resultado de uma ação anterior.",
+      "entity": "Entidade"
     },
     "form": {
       "createTitle": "Novo webhook de entrada",
       "editTitle": "Editar {{name}}",
-      "description": "Defina o que acontece com cada requisição recebida. A configuração é validada contra os campos do CRM ao salvar.",
+      "description": "Configure ações e mapeamentos usando os campos das entidades disponíveis.",
       "name": "Nome",
       "namePlaceholder": "Formulário do site",
       "descriptionLabel": "Descrição",
@@ -247,7 +246,7 @@
       "actions": "Ações",
       "actionsHelp": "Executadas em ordem a cada requisição. Se uma falhar, as anteriores são mantidas e o resultado parcial fica no log.",
       "useTemplate": "Modelo: formulário do site",
-      "noActions": "Nenhuma ação. Adicione uma ou use o modelo de formulário do site (contato + oportunidade).",
+      "noActions": "Adicione uma ação para processar os dados recebidos.",
       "newActionType": "Tipo da nova ação",
       "addAction": "Adicionar ação",
       "cancel": "Cancelar",
@@ -259,12 +258,13 @@
         "descriptionTooLong": "Use no máximo 500 caracteres.",
         "tolerance": "Informe um valor entre 30 e 86400 segundos.",
         "tooManyActions": "Use no máximo 10 ações.",
-        "fieldRequired": "Escolha o campo do CRM.",
+        "fieldRequired": "Selecione um campo.",
         "pipelineRequired": "Escolha o funil.",
         "stageRequired": "Escolha a etapa.",
         "activityTypeRequired": "Escolha o tipo de atividade.",
-        "duplicateField": "Cada campo do CRM só pode ser mapeado uma vez.",
-        "matchFieldRequired": "Escolha o campo único e mapeie um valor para ele."
+        "duplicateField": "Cada campo pode ser mapeado uma única vez.",
+        "matchFieldRequired": "Escolha o campo único e mapeie um valor para ele.",
+        "entityRequired": "Selecione uma entidade."
       }
     },
     "credentials": {

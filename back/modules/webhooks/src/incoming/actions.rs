@@ -1,123 +1,31 @@
-use aphel_contract_crm::CrmRecordTypes;
-use serde_json::{Map, Value};
-use uuid::Uuid;
-
-use crate::incoming::gateway;
 use crate::incoming::{
-    ActionError, ActionFieldError, ActionKind, ActionOutcome, ActionStatus, ActivityAction,
-    ContactAction, ContactMatch, DealAction, FieldCatalog, MappingExpression, WebhookAction,
-    scalar_text,
+    ActionError, ActionFieldError, ActionKind, ActionOutcome, ActionStatus, MappingExpression,
+    WebhookAction,
 };
-use aphel_kernel::Ctx;
-use aphel_kernel::application::shared::RecordType;
-use aphel_kernel::errors::{AppError, CodedKind};
-use aphel_kernel::records::AddressInput;
-use deals::domain::DealInput;
-use people::domain::{ContactInput, SaveContactCommand};
-use tasks::domain::{CreateActivityCommand, RecordLinkInput};
-
+use aphel_kernel::{
+    Ctx,
+    application::shared::RecordType,
+    errors::{AppError, CodedKind},
+};
+use serde_json::{Map, Value, json};
+use uuid::Uuid;
 pub(crate) const CREATED: &str = "created";
 pub(crate) const UPDATED: &str = "updated";
-
 #[derive(Debug, Clone, Copy, PartialEq, Eq)]
 pub(crate) enum FailureKind {
     Mapping,
     Permission,
     Internal,
 }
-
 #[derive(Debug, Clone, PartialEq, Eq)]
 pub(crate) struct ActionFailure {
     pub(crate) kind: FailureKind,
     pub(crate) error: ActionError,
 }
-
 #[derive(Debug, Default)]
 pub(crate) struct ExecutionContext {
-    pub(crate) contact_id: Option<Uuid>,
-    pub(crate) deal_id: Option<Uuid>,
+    records: Vec<Value>,
 }
-
-struct ResolvedFields {
-    system: Map<String, Value>,
-    custom: Map<String, Value>,
-}
-
-impl ResolvedFields {
-    fn text(&self, key: &str) -> Option<String> {
-        self.system
-            .get(key)
-            .and_then(scalar_text)
-            .map(|text| text.trim().to_owned())
-            .filter(|text| !text.is_empty())
-    }
-
-    fn patch(&self, key: &str) -> Option<Option<String>> {
-        self.text(key).map(Some)
-    }
-
-    fn merged(&self) -> Map<String, Value> {
-        let mut values = self.custom.clone();
-        values.extend(self.system.clone());
-        values
-    }
-}
-
-fn mapping_failure(fields: Vec<ActionFieldError>) -> ActionFailure {
-    ActionFailure {
-        kind: FailureKind::Mapping,
-        error: ActionError {
-            code: "mapping_failed".to_owned(),
-            message: "the payload could not be mapped to the CRM fields".to_owned(),
-            fields,
-        },
-    }
-}
-
-fn resolve(
-    kind: ActionKind,
-    mapping: &Map<String, Value>,
-    payload: &Value,
-) -> Result<ResolvedFields, ActionFailure> {
-    let mut resolved = ResolvedFields {
-        system: Map::new(),
-        custom: Map::new(),
-    };
-    let mut errors = Vec::new();
-    for (key, raw) in mapping {
-        let expression = match MappingExpression::parse(raw) {
-            Ok(expression) => expression,
-            Err(message) => {
-                errors.push(ActionFieldError {
-                    field: key.clone(),
-                    message,
-                });
-                continue;
-            }
-        };
-        let Some(value) = expression.evaluate(payload) else {
-            continue;
-        };
-        if FieldCatalog::is_system(kind, key) {
-            if matches!(value, Value::Object(_)) {
-                errors.push(ActionFieldError {
-                    field: key.clone(),
-                    message: "the mapped value must be a text, number or boolean".to_owned(),
-                });
-                continue;
-            }
-            resolved.system.insert(key.clone(), value);
-        } else if !value.is_null() {
-            resolved.custom.insert(key.clone(), value);
-        }
-    }
-    if errors.is_empty() {
-        Ok(resolved)
-    } else {
-        Err(mapping_failure(errors))
-    }
-}
-
 pub(crate) fn failure_from_error(error: AppError) -> ActionFailure {
     let (kind, code, fields) = match &error {
         AppError::InvalidFields { fields, .. } => {
@@ -186,222 +94,123 @@ pub(crate) async fn run_action(
     action: &WebhookAction,
     payload: &Value,
     context: &mut ExecutionContext,
-    ip: Option<String>,
+    _ip: Option<String>,
 ) -> Result<(RecordType, Uuid, &'static str), ActionFailure> {
-    let fields = resolve(action.kind(), action.fields(), payload)?;
-    match action {
-        WebhookAction::UpsertContact(config) => {
-            upsert_contact(ctx, config, fields, context, ip).await
-        }
-        WebhookAction::CreateDeal(config) => create_deal(ctx, config, fields, context, ip).await,
-        WebhookAction::CreateActivity(config) => {
-            create_activity(ctx, config, fields, context, ip).await
-        }
-    }
-}
-
-async fn upsert_contact(
-    ctx: &Ctx<'_>,
-    config: &ContactAction,
-    fields: ResolvedFields,
-    context: &mut ExecutionContext,
-    ip: Option<String>,
-) -> Result<(RecordType, Uuid, &'static str), ActionFailure> {
-    let existing = existing_contact(ctx, config, &fields)
+    let catalog = super::FieldCatalog::load(ctx)
         .await
         .map_err(failure_from_error)?;
-    let mut command = SaveContactCommand {
-        input: ContactInput {
-            first_name: fields.patch("first_name"),
-            last_name: fields.patch("last_name"),
-            email: fields.patch("email"),
-            phone: fields.patch("phone"),
-            mobile: fields.patch("mobile"),
-            job_title: fields.patch("job_title"),
-            company_id: fields.patch("company_id"),
-            owner_id: fields.patch("owner_id"),
-            address: AddressInput {
-                street: fields.patch("address_street"),
-                number: fields.patch("address_number"),
-                complement: fields.patch("address_complement"),
-                district: fields.patch("address_district"),
-                city: fields.patch("address_city"),
-                state: fields.patch("address_state"),
-                postal_code: fields.patch("address_postal_code"),
-                country: fields.patch("address_country"),
+    let fields = catalog.fields.get(&action.record_type).ok_or_else(|| {
+        failure_from_error(AppError::Forbidden(
+            "the target entity is unavailable".into(),
+        ))
+    })?;
+    let input = json!({"payload": payload, "actions": context.records});
+    let mut body = Map::new();
+    let mut custom = Map::new();
+    for (key, raw) in action.fields() {
+        let field = fields
+            .active()
+            .find(|f| f.key() == key && f.is_editable())
+            .ok_or_else(|| {
+                failure_from_error(AppError::Forbidden(format!("field {key} is not editable")))
+            })?;
+        let expression = MappingExpression::parse(raw).map_err(|message| ActionFailure {
+            kind: FailureKind::Mapping,
+            error: ActionError {
+                code: "mapping_failed".into(),
+                message,
+                fields: vec![ActionFieldError {
+                    field: key.clone(),
+                    message: "invalid mapping".into(),
+                }],
             },
-            source: fields.patch("source"),
-            contributed: fields.system.clone(),
-            notes: fields.patch("notes"),
-        },
-        custom_fields: fields.custom.clone(),
-        ip,
-        expected_updated_at: None,
-    };
-    if existing.is_none()
-        && command.input.owner_id.is_none()
-        && let Some(rule_id) = &config.distribution_rule_id
-    {
-        command.input.owner_id =
-            gateway::distribute_owner(ctx, rule_id, &RecordType::CONTACT, &fields.merged())
-                .await
-                .map_err(failure_from_error)?
-                .map(Some);
-    }
-    let (id, operation) = match existing {
-        Some(contact_id) => (
-            gateway::update_contact(ctx, contact_id, command)
-                .await
-                .map_err(failure_from_error)?,
-            UPDATED,
-        ),
-        None => (
-            gateway::create_contact(ctx, command)
-                .await
-                .map_err(failure_from_error)?,
-            CREATED,
-        ),
-    };
-    context.contact_id = Some(id);
-    Ok((RecordType::CONTACT, id, operation))
-}
-
-async fn existing_contact(
-    ctx: &Ctx<'_>,
-    config: &ContactAction,
-    fields: &ResolvedFields,
-) -> Result<Option<Uuid>, AppError> {
-    match config.match_by {
-        Some(ContactMatch::Email) => match fields.text("email") {
-            Some(email) => gateway::find_contact_by_email(ctx, &email.to_lowercase()).await,
-            None => Ok(None),
-        },
-        Some(ContactMatch::Phone) => {
-            let numbers: Vec<String> = ["phone", "mobile"]
-                .into_iter()
-                .filter_map(|key| fields.text(key))
-                .collect();
-            gateway::find_contact_by_phone(ctx, &numbers).await
-        }
-        Some(ContactMatch::Field) => {
-            let Some(key) = config.match_field.as_deref().map(str::trim) else {
-                return Ok(None);
-            };
-            match fields.custom.get(key).filter(|value| !value.is_null()) {
-                Some(value) => gateway::find_contact_by_field(ctx, key, value.clone()).await,
-                None => Ok(None),
+        })?;
+        if let Some(value) = expression.evaluate(&input) {
+            if field.is_system() {
+                body.insert(key.clone(), value);
+            } else {
+                custom.insert(key.clone(), value);
             }
         }
-        None => Ok(None),
     }
-}
-
-fn integer(fields: &ResolvedFields, key: &str) -> Result<Option<i64>, ActionFailure> {
-    let Some(text) = fields.text(key) else {
-        return Ok(None);
+    let existing = if action.kind() == ActionKind::UpsertRecord {
+        let key = action.match_field.as_deref().ok_or_else(|| {
+            failure_from_error(AppError::Validation("upsert requires a match field".into()))
+        })?;
+        if !fields
+            .active()
+            .any(|f| f.key() == key && f.is_editable() && f.filterable() && f.definition.is_unique)
+        {
+            return Err(failure_from_error(AppError::Validation(
+                "upsert requires a unique editable match field".into(),
+            )));
+        }
+        let value = body
+            .get(key)
+            .or_else(|| custom.get(key))
+            .filter(|v| !v.is_null() && !v.as_str().is_some_and(|s| s.trim().is_empty()))
+            .ok_or_else(|| {
+                failure_from_error(AppError::Validation("the match value is required".into()))
+            })?;
+        super::gateway::find_record(ctx, &action.record_type, key, value.clone())
+            .await
+            .map_err(failure_from_error)?
+    } else {
+        None
     };
-    text.parse::<f64>()
-        .ok()
-        .filter(|value| value.is_finite() && value.fract() == 0.0)
-        .map(|value| Some(value as i64))
-        .ok_or_else(|| {
-            mapping_failure(vec![ActionFieldError {
-                field: key.to_owned(),
-                message: "must be an integer".to_owned(),
-            }])
-        })
-}
-
-async fn create_deal(
-    ctx: &Ctx<'_>,
-    config: &DealAction,
-    fields: ResolvedFields,
-    context: &mut ExecutionContext,
-    ip: Option<String>,
-) -> Result<(RecordType, Uuid, &'static str), ActionFailure> {
-    let probability = integer(&fields, "probability")?;
-    let owner_id = match (fields.patch("owner_id"), &config.distribution_rule_id) {
-        (None, Some(rule_id)) => {
-            gateway::distribute_owner(ctx, rule_id, &RecordType::DEAL, &fields.merged())
+    if existing.is_none()
+        && !body.contains_key("owner_id")
+        && let Some(rule) = &action.assignment_rule_id
+    {
+        if !fields
+            .active()
+            .any(|f| f.key() == "owner_id" && f.is_editable())
+        {
+            return Err(failure_from_error(AppError::Forbidden(
+                "the owner field is not editable".into(),
+            )));
+        }
+        let mut values = custom.clone();
+        values.extend(body.clone());
+        if let Some(owner) =
+            super::gateway::distribute_owner(ctx, rule, &action.record_type, &values)
                 .await
                 .map_err(failure_from_error)?
-                .map(Some)
+        {
+            body.insert("owner_id".into(), json!(owner));
         }
-        (owner_id, _) => owner_id,
+    }
+    if !custom.is_empty() {
+        body.insert("custom_fields".into(), Value::Object(custom));
+    }
+    let (saved, operation) = if let Some(id) = existing {
+        (
+            ctx.update_record(&action.record_type, id, Value::Object(body))
+                .await,
+            UPDATED,
+        )
+    } else {
+        (
+            ctx.create_record(&action.record_type, Value::Object(body))
+                .await,
+            CREATED,
+        )
     };
-    let contact_id = fields
-        .patch("contact_id")
-        .or_else(|| context.contact_id.map(|id| Some(id.to_string())));
-    let input = DealInput {
-        title: fields.text("title"),
-        amount: fields.patch("amount"),
-        currency: fields.text("currency").map(|code| code.to_uppercase()),
-        pipeline_id: Some(config.pipeline_id.clone()),
-        stage_id: Some(config.stage_id.clone()),
-        status: None,
-        probability: probability.map(Some),
-        expected_close_date: fields.patch("expected_close_date"),
-        contact_id,
-        company_id: fields.patch("company_id"),
-        owner_id,
-        source: fields.patch("source"),
-        lost_reason_id: None,
-        lost_reason_note: None,
-        contract_start: None,
-        contract_end: None,
-        custom_fields: fields.custom,
-        contributed: Default::default(),
-        expected_updated_at: None,
-        ip,
-    };
-    let id = gateway::create_deal(ctx, input)
-        .await
-        .map_err(failure_from_error)?;
-    context.deal_id = Some(id);
-    Ok((RecordType::DEAL, id, CREATED))
-}
-
-async fn create_activity(
-    ctx: &Ctx<'_>,
-    config: &ActivityAction,
-    fields: ResolvedFields,
-    context: &mut ExecutionContext,
-    ip: Option<String>,
-) -> Result<(RecordType, Uuid, &'static str), ActionFailure> {
-    let duration_minutes = integer(&fields, "duration_minutes")?;
-    let (record, links) = match (context.deal_id, context.contact_id) {
-        (Some(deal_id), contact_id) => (
-            Some((RecordType::DEAL, deal_id)),
-            contact_id
-                .map(|id| RecordLinkInput {
-                    record_type: RecordType::CONTACT.as_str().to_owned(),
-                    record_id: id.to_string(),
-                })
-                .into_iter()
-                .collect(),
-        ),
-        (None, Some(contact_id)) => (Some((RecordType::CONTACT, contact_id)), Vec::new()),
-        (None, None) => (None, Vec::new()),
-    };
-    let command = CreateActivityCommand {
-        title: fields.text("title").unwrap_or_default(),
-        activity_type_id: config.activity_type_id.clone(),
-        status: None,
-        priority: fields.text("priority"),
-        due_at: fields.text("due_at"),
-        completed_at: None,
-        owner_id: fields.text("owner_id"),
-        record_type: record.as_ref().map(|(kind, _)| kind.as_str().to_owned()),
-        record_id: record.map(|(_, id)| id.to_string()),
-        links,
-        duration_minutes,
-        description: fields.text("description"),
-        location: None,
-        custom_fields: fields.custom,
-        ip,
-    };
-    let id = gateway::create_activity(ctx, command)
-        .await
-        .map_err(failure_from_error)?;
-    Ok((RecordType::ACTIVITY, id, CREATED))
+    let saved = saved.map_err(failure_from_error)?;
+    let id = saved
+        .get("id")
+        .and_then(Value::as_str)
+        .and_then(|id| Uuid::parse_str(id).ok())
+        .ok_or_else(|| {
+            failure_from_error(AppError::Internal("the saved record has no id".into()))
+        })?;
+    context
+        .records
+        .push(json!({"id": id, "record_type": action.record_type, "operation": operation}));
+    Ok((
+        RecordType::parse(action.record_type.clone())
+            .map_err(|_| failure_from_error(AppError::Validation("invalid entity key".into())))?,
+        id,
+        operation,
+    ))
 }
