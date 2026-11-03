@@ -1,61 +1,10 @@
-use async_trait::async_trait;
-
 use aphel_kernel::errors::AppError;
-
+pub(crate) use aphel_sdk::documents::{
+    EnvelopeRequest, EnvelopeSigner, NoticeKind, SentEnvelope, SignatureProvider, WebhookNotice,
+};
 pub(crate) const PROVIDER_UNAVAILABLE: &str = "esign_provider_unavailable";
 pub(crate) const PROVIDER_UNAUTHORIZED: &str = "esign_provider_unauthorized";
 pub(crate) const PROVIDER_REJECTED: &str = "esign_provider_rejected";
-
-#[derive(Debug, Clone, PartialEq, Eq)]
-pub(crate) struct EnvelopeSigner {
-    pub(crate) name: String,
-    pub(crate) email: String,
-}
-
-#[derive(Debug, Clone, PartialEq, Eq)]
-pub(crate) struct EnvelopeRequest {
-    pub(crate) name: String,
-    pub(crate) file_name: String,
-    pub(crate) content: Vec<u8>,
-    pub(crate) signers: Vec<EnvelopeSigner>,
-    pub(crate) message: Option<String>,
-}
-
-#[derive(Debug, Clone, PartialEq, Eq)]
-pub(crate) struct SentEnvelope {
-    pub(crate) envelope_id: String,
-    pub(crate) document_id: String,
-    pub(crate) signer_ids: Vec<String>,
-}
-
-#[derive(Debug, Clone, Copy, PartialEq, Eq)]
-pub(crate) enum NoticeKind {
-    SignerSigned,
-    SignerRefused,
-    Completed,
-    Cancelled,
-    Expired,
-}
-
-#[derive(Debug, Clone, PartialEq, Eq)]
-pub(crate) struct WebhookNotice {
-    pub(crate) event_name: String,
-    pub(crate) kind: Option<NoticeKind>,
-    pub(crate) references: Vec<String>,
-    pub(crate) signer_email: Option<String>,
-}
-
-#[async_trait]
-pub(crate) trait SignatureProvider: Send + Sync {
-    fn key(&self) -> &'static str;
-    async fn send(&self, request: &EnvelopeRequest) -> Result<SentEnvelope, AppError>;
-    async fn cancel(&self, envelope_id: &str) -> Result<(), AppError>;
-    async fn signed_document(
-        &self,
-        envelope_id: &str,
-        document_id: &str,
-    ) -> Result<Option<Vec<u8>>, AppError>;
-}
 
 pub(crate) fn unavailable(message: impl Into<String>) -> AppError {
     AppError::unavailable_code(PROVIDER_UNAVAILABLE, message)
@@ -76,4 +25,25 @@ pub(crate) fn rejected(detail: impl Into<String>) -> AppError {
             detail.into()
         ),
     )
+}
+
+pub(crate) struct ClicksignFactory;
+#[async_trait::async_trait]
+impl aphel_sdk::documents::SignatureProviderFactory for ClicksignFactory {
+    fn key(&self) -> &'static str {
+        crate::clicksign::PROVIDER_KEY
+    }
+    async fn create(
+        &self,
+        ctx: &aphel_sdk::Ctx<'_>,
+        configuration: &serde_json::Value,
+    ) -> Result<std::sync::Arc<dyn SignatureProvider>, AppError> {
+        let environment = configuration
+            .get("environment")
+            .and_then(serde_json::Value::as_str)
+            .unwrap_or(crate::SANDBOX);
+        Ok(std::sync::Arc::new(
+            crate::service::build_provider(ctx, environment).await?,
+        ))
+    }
 }

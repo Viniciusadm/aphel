@@ -15,6 +15,7 @@ aphel-kernel = { path = "kernel" }
 aphel-contract = { path = "contract" }
 aphel-contract-messaging = { path = "contracts/messaging" }
 aphel-contract-assignment = { path = "contracts/assignment" }
+aphel-contract-documents = { path = "contracts/documents" }
 aphel-contract-money = { path = "contracts/money" }
 aphel-contract-calendar = { path = "contracts/calendar" }
 aphel-contract-workflow = { path = "contracts/workflow" }

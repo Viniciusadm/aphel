@@ -12,7 +12,7 @@ use aphel_kernel::errors::AppError;
 use aphel_kernel::infrastructure::deferred_authority::DeferredAuthority;
 use aphel_kernel::state::AppState;
 
-use crate::provider::{EnvelopeRequest, EnvelopeSigner, SignatureProvider};
+use crate::provider::{EnvelopeRequest, EnvelopeSigner};
 use crate::{service, store};
 
 pub(crate) struct Deliver {

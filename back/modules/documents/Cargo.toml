@@ -1,0 +1,10 @@
+[package]
+name = "aphel-mod-documents"
+version.workspace = true
+edition.workspace = true
+rust-version.workspace = true
+license.workspace = true
+publish = false
+[dependencies]
+aphel-sdk.workspace = true
+aphel-kernel.workspace = true

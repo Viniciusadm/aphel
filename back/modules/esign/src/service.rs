@@ -126,13 +126,28 @@ pub(crate) async fn is_configured(ctx: &Ctx<'_>) -> Result<bool, AppError> {
         .is_some_and(|token| !token.trim().is_empty()))
 }
 
-pub(crate) async fn provider(ctx: &Ctx<'_>, environment: &str) -> Result<Clicksign, AppError> {
+pub(crate) async fn build_provider(
+    ctx: &Ctx<'_>,
+    environment: &str,
+) -> Result<Clicksign, AppError> {
     let token = secret(ctx, ACCESS_TOKEN_SETTING)
         .await?
         .map(|token| token.trim().to_owned())
         .filter(|token| !token.is_empty())
         .ok_or_else(not_configured)?;
     Ok(Clicksign::new(environment == PRODUCTION, token))
+}
+
+pub(crate) async fn provider(
+    ctx: &Ctx<'_>,
+    environment: &str,
+) -> Result<std::sync::Arc<dyn SignatureProvider>, AppError> {
+    aphel_sdk::documents::signature_provider(
+        ctx,
+        crate::clicksign::PROVIDER_KEY,
+        &serde_json::json!({"environment":environment}),
+    )
+    .await
 }
 
 async fn load_record(

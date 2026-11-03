@@ -80,3 +80,5 @@ pub mod messaging;
 pub mod assignment;
 
 pub mod money;
+
+pub mod documents;

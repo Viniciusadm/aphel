@@ -161,6 +161,7 @@ dependencies = [
  "aphel-mod-deal-items",
  "aphel-mod-deals",
  "aphel-mod-demo",
+ "aphel-mod-documents",
  "aphel-mod-duplicates",
  "aphel-mod-email",
  "aphel-mod-enrichment",
@@ -283,6 +284,14 @@ version = "0.1.0"
 dependencies = [
  "aphel-contract",
  "aphel-kernel",
+]
+
+[[package]]
+name = "aphel-contract-documents"
+version = "0.1.0"
+dependencies = [
+ "aphel-contract",
+ "serde",
 ]
 
 [[package]]
@@ -688,6 +697,14 @@ dependencies = [
 ]
 
 [[package]]
+name = "aphel-mod-documents"
+version = "0.1.0"
+dependencies = [
+ "aphel-kernel",
+ "aphel-sdk",
+]
+
+[[package]]
 name = "aphel-mod-duplicates"
 version = "0.1.0"
 dependencies = [
@@ -784,6 +801,7 @@ dependencies = [
  "aphel-mod-deals",
  "aphel-mod-quotes",
  "aphel-mod-tasks",
+ "aphel-sdk",
  "async-trait",
  "axum",
  "base64 0.22.1",
@@ -1464,6 +1482,7 @@ dependencies = [
  "aphel-mod-deals",
  "aphel-mod-quotes",
  "aphel-mod-tasks",
+ "aphel-sdk",
  "async-trait",
  "axum",
  "bytes",
@@ -1492,6 +1511,7 @@ dependencies = [
  "aphel-mod-price-lists",
  "aphel-mod-products",
  "aphel-mod-scheduling",
+ "aphel-sdk",
  "async-trait",
  "axum",
  "base64 0.22.1",
@@ -1933,6 +1953,7 @@ dependencies = [
  "aphel-contract-assignment",
  "aphel-contract-automation",
  "aphel-contract-calendar",
+ "aphel-contract-documents",
  "aphel-contract-messaging",
  "aphel-contract-money",
  "aphel-contract-party",

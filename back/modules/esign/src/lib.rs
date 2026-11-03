@@ -225,6 +225,10 @@ impl Module for EsignModule {
     }
 
     fn register(&self, app: &mut AppBuilder) -> Result<(), AppError> {
+        app.contract(aphel_sdk::documents::DESCRIPTOR);
+        app.contribute::<dyn aphel_sdk::documents::SignatureProviderFactory>(std::sync::Arc::new(
+            provider::ClicksignFactory,
+        ));
         app.openapi_tag(
             TAG,
             "Sends PDFs attached to deals for electronic signature on Clicksign and tracks their status through webhooks",

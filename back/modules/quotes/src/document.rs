@@ -241,9 +241,29 @@ pub(crate) async fn render(ctx: &Ctx<'_>, quote_id: &str) -> Result<QuotePdf, Ap
         title: format!("Cotação nº {} (v{})", quote.number, quote.version),
         subtitle: date_text(today),
     };
-    let content = pdf::document(header, &blocks(&document, &visibility));
+    let content = pdf::document(header, &blocks(&document, &visibility))?;
     Ok(QuotePdf {
         file_name: file_name(quote.number, quote.version, &quote.title),
         content,
     })
+}
+
+pub(crate) struct QuoteDocumentSource;
+#[async_trait::async_trait]
+impl aphel_sdk::documents::DocumentSource for QuoteDocumentSource {
+    fn record_type(&self) -> aphel_kernel::application::shared::RecordType {
+        crate::QUOTE
+    }
+    async fn document(
+        &self,
+        ctx: &Ctx<'_>,
+        id: uuid::Uuid,
+    ) -> Result<aphel_sdk::documents::DocumentFile, AppError> {
+        let file = render(ctx, &id.to_string()).await?;
+        Ok(aphel_sdk::documents::DocumentFile {
+            file_name: file.file_name,
+            content_type: "application/pdf".into(),
+            content: file.content,
+        })
+    }
 }

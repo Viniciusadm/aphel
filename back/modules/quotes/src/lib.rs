@@ -274,6 +274,7 @@ pub struct QuotesModule;
 impl Module for QuotesModule {
     fn manifest(&self) -> Manifest {
         Manifest::new(KEY, "Quotes", APHEL_VERSION)
+            .depends_on(aphel_sdk::documents::KEY, "*")
             .description(
                 "Quotes of deals: versions, items, discounts and taxes, approval, sending, the signed public page and acceptance",
             )
@@ -298,6 +299,9 @@ impl Module for QuotesModule {
     }
 
     fn register(&self, app: &mut AppBuilder) -> Result<(), AppError> {
+        app.contribute::<dyn aphel_sdk::documents::DocumentSource>(Arc::new(
+            document::QuoteDocumentSource,
+        ));
         app.declare_hook(crate::hooks::QuoteAccepting, &[aphel_kernel::modules::HookUsage::Veto],
             "Before a quote is accepted (on its public page or manually by a user); an error blocks the acceptance",
         );

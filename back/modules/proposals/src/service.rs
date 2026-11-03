@@ -539,7 +539,7 @@ pub(crate) async fn generate(
             locale: data.locale,
         },
         &blocks,
-    );
+    )?;
     let attach_to = RecordRef::new(RecordType::DEAL, deal_id);
     let files = ctx.files().await?;
     let file = files

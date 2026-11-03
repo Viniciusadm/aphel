@@ -66,3 +66,5 @@ enrichment = { path = "modules/enrichment" }
 messaging = { path = "modules/messaging" }
 
 calendar = { path = "modules/calendar" }
+
+documents = { path = "modules/documents" }

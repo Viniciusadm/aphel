@@ -49,6 +49,7 @@ pub struct ProposalsModule;
 impl Module for ProposalsModule {
     fn manifest(&self) -> Manifest {
         let mut manifest = Manifest::new(KEY, "Proposals", VERSION)
+            .depends_on(aphel_sdk::documents::KEY, "*")
             .description("Document templates and PDF proposals generated from deals")
             .requires_aphel("0.1.0")
             .optional(deals::KEY)
