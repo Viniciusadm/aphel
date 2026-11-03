@@ -225,5 +225,143 @@
     "currency": "Deal currency",
     "converted": "≈ {{amount}} (rate {{rate}})",
     "notConverted": "No rate to {{base}}"
+  },
+  "reports": {
+    "conversion": {
+      "title": "Conversion report",
+      "cohort": "Deals of the {{pipeline}} pipeline created from {{range}}.",
+      "summary": {
+        "created": "Created in the period",
+        "won": "Won",
+        "lost": "Lost",
+        "open_one": "{{value}} still open",
+        "open_other": "{{value}} still open",
+        "conversionRate": "Conversion rate",
+        "winRate": "Win rate: {{value}}",
+        "averageCycle": "Average sales cycle",
+        "averageCycleHint": "From creation to closing of the won deals"
+      },
+      "funnel": {
+        "title": "Conversion funnel",
+        "description": "How many deals reached each stage (or beyond) and how many moved on to the next one.",
+        "chartLabel": "Deals that reached each stage of the pipeline",
+        "won": "Won",
+        "current": "Period",
+        "previous": "Previous period",
+        "deals_one": "{{count}} deal",
+        "deals_other": "{{count}} deals",
+        "previousDeals_one": "{{count}} in the previous period",
+        "previousDeals_other": "{{count}} in the previous period"
+      },
+      "stages": {
+        "caption": "Conversion and time per stage",
+        "stage": "Stage",
+        "reached": "Reached",
+        "passage": "Passage",
+        "advanced": "{{value}} moved on",
+        "lost": "Lost here",
+        "averageTime": "Average time",
+        "openNow": "In the stage now",
+        "visits_one": "{{count}} finished visit",
+        "visits_other": "{{count}} finished visits",
+        "openFor": "for {{value}} on average"
+      },
+      "losses": {
+        "byStage": "Where deals are lost",
+        "byStageHint": "Lost deals by the last open stage before the loss.",
+        "byReason": "Loss reasons",
+        "byReasonHint": "Lost deals of the period by reason.",
+        "unattributed": "No recorded stage",
+        "unknownStage": "Removed stage",
+        "noReason": "No reason",
+        "hiddenReason": "Reason not accessible",
+        "none": "No deal was lost in the period."
+      },
+      "noPipeline": {
+        "title": "No active pipeline",
+        "description": "Create or activate a pipeline to follow the conversion."
+      },
+      "empty": {
+        "title": "No deals in the period",
+        "description": "No deal of this pipeline was created in the selected period."
+      },
+      "footnote": "Stage times consider the visits that started in the period. Numbers follow what you can see."
+    },
+    "performance": {
+      "title": "Performance report",
+      "summary": "Results by {{dimension}} from {{range}}.",
+      "metrics": {
+        "created": "Created",
+        "won": "Won",
+        "wonAmount": "Won amount",
+        "lost": "Lost",
+        "lostHint": "{{value}} lost",
+        "conversion": "Conversion",
+        "cycle": "Average cycle",
+        "tasks": "Completed tasks"
+      },
+      "chart": {
+        "amountTitle": "Won amount",
+        "countTitle": "Won deals",
+        "amountLabel": "Won amount per group",
+        "countLabel": "Won deals per group",
+        "description_one": "The top group of the ranking.",
+        "description_other": "The top {{count}} of the ranking.",
+        "current": "Period",
+        "previous": "Previous period"
+      },
+      "table": {
+        "title": "Comparison",
+        "description": "Won, lost and cycle use the closing date; created uses the creation date.",
+        "caption": "Performance per group"
+      },
+      "empty": {
+        "owner": "No owner",
+        "team": "No team",
+        "source": "No source",
+        "pipeline": "No pipeline"
+      },
+      "hidden": "Not accessible",
+      "emptyState": {
+        "title": "No results in the period",
+        "description": "No deal was created or closed and no activity was completed in the period."
+      },
+      "truncated": "There are more groups than the ones shown."
+    },
+    "filters": {
+      "dimension": "Group by",
+      "pipeline": "Pipeline",
+      "allPipelines": "All workflow",
+      "defaultPipeline": "Default pipeline"
+    },
+    "dimensions": {
+      "owner": "Salesperson",
+      "team": "Team",
+      "source": "Source",
+      "pipeline": "Pipeline"
+    },
+    "duration": {
+      "minutes_one": "{{value}} minute",
+      "minutes_other": "{{value}} minutes",
+      "hours_one": "{{value}} hour",
+      "hours_other": "{{value}} hours",
+      "days_one": "{{value}} day",
+      "days_other": "{{value}} days"
+    },
+    "states": {
+      "noData": "—"
+    },
+    "periodRange": "{{from}} to {{to}}",
+    "comparedWith": "Compared with {{range}}."
+  },
+  "reportLibrary": {
+    "conversion": {
+      "title": "Conversion",
+      "description": "Understand funnel progression and where deals are lost."
+    },
+    "performance": {
+      "title": "Performance",
+      "description": "Track results and compare sales performance."
+    }
   }
 }

@@ -1,3 +1,4 @@
+import { useTranslation } from 'react-i18next'
 import { keepPreviousData, useMutation, useQuery, useQueryClient } from '@tanstack/react-query'
 import {
   API_BASE_URL,
@@ -216,4 +217,21 @@ export function useScheduleMutations(id: string) {
     onSuccess: invalidate,
   })
   return { create, update, remove }
+}
+
+export interface ReportEntity {
+  recordType: string
+  label: string
+}
+
+export function useReportEntities() {
+  const { i18n } = useTranslation()
+  return useQuery({
+    queryKey: ['reports', 'entities', i18n.language],
+    queryFn: async (): Promise<ReportEntity[]> => {
+      const entities = await api.get<Schemas['ReportEntityResponse'][]>('/v1/reports/entities')
+      return entities.map((entity) => ({ recordType: entity.record_type,
+        label: entity.labels[i18n.language] ?? entity.labels[i18n.language.split('-')[0]] ?? entity.labels.en ?? Object.values(entity.labels)[0] ?? entity.record_type }))
+    },
+  })
 }

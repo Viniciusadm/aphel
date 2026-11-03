@@ -36,6 +36,7 @@ export interface SlotPropsMap {
   'record.list.rowActions': { recordType: string; record: RecordItem }
   'record.list.bulkActions': BulkActionContext
   'record.form.sections': { recordType?: string; mode: RecordFormMode; record?: RecordItem }
+  'reports.library': Record<string, never>
   'dashboard.top': Record<string, never>
   'composer.tools': {
     context: ComposerContext

@@ -2,8 +2,8 @@ use chrono::{DateTime, Utc};
 use rust_decimal::Decimal;
 use uuid::Uuid;
 
-use ::dashboard::engine::PeriodQuery;
-use ::dashboard::engine_domain::ResolvedPeriod;
+use aphel_sdk::dashboard::PeriodQuery;
+use aphel_sdk::dashboard::ResolvedPeriod;
 use workflow::domain::StageKind;
 #[derive(Debug, Clone, Copy, PartialEq, Eq)]
 pub(crate) enum PerformanceDimension {

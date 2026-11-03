@@ -3,7 +3,6 @@ import { BarChart3, Building2, Plus, Users } from 'lucide-react'
 import { useState } from 'react'
 import { useTranslation } from 'react-i18next'
 import { Link } from 'react-router'
-import { useSession } from '@/app/session/session-context'
 import { Button } from '@/components/ui/button'
 import { Card } from '@/components/ui/card'
 import { EmptyState } from '@/components/ui/empty-state'
@@ -11,17 +10,16 @@ import { ErrorState } from '@/components/ui/error-state'
 import { Skeleton } from '@/components/ui/skeleton'
 import { NativeSelect } from '@/features/records/filters/NativeSelect'
 import { formatDateTime, useRecordFormatting } from '@/features/records/formatting'
-import { useReports } from './api'
-import { REPORT_RECORD_TYPES } from './model'
+import { useReports, useReportEntities } from './api'
 import { Field } from '@/components/ui/field'
 
 export function SavedReportsPage() {
   const { t } = useTranslation('reports', { keyPrefix: 'builder' })
-  const { hasPermission } = useSession()
+  const entities = useReportEntities()
   const formatting = useRecordFormatting()
   const reports = useReports()
   const [recordType, setRecordType] = useState('')
-  const allowedTypes = REPORT_RECORD_TYPES.filter((type) => hasPermission(type.permission))
+  const allowedTypes = entities.data ?? []
   const visible = (reports.data ?? []).filter((report) => !recordType || report.record_type === recordType)
 
   return (
@@ -32,7 +30,7 @@ export function SavedReportsPage() {
               <option value="">{t('list.allModules')}</option>
               {allowedTypes.map((type) => (
                 <option key={type.recordType} value={type.recordType}>
-                  {t(`modules.${type.recordType}`)}
+                  {type.label}
                 </option>
               ))}
             </NativeSelect>}
@@ -84,7 +82,7 @@ export function SavedReportsPage() {
                   {report.description && <p className="line-clamp-2 text-sm text-muted-foreground">{report.description}</p>}
                   <p className="mt-auto text-xs text-muted-foreground">
                     {t('list.meta', {
-                      module: t(`modules.${report.record_type}` as 'modules.deal'),
+                      module: allowedTypes.find((entity) => entity.recordType === report.record_type)?.label ?? report.record_type,
                       visualization: t(`visualizations.${report.visualization}`),
                       date: formatDateTime(report.updated_at, formatting),
                     })}

@@ -28,12 +28,14 @@ pub struct ReportsModule;
 impl Module for ReportsModule {
     fn manifest(&self) -> Manifest {
         Manifest::new(KEY, "Reports", APHEL_VERSION)
-            .description(
-                "Built-in conversion and sales reports, saved custom reports, exports and e-mail schedules",
-            )
-            .depends_on(dashboard::KEY, "*")
+            .description("Saved entity reports, exports and e-mail schedules")
             .enabled_by_default()
-            .owned_tables(&["report_deliveries", "report_schedule_recipients", "report_schedules", "reports"])
+            .owned_tables(&[
+                "report_deliveries",
+                "report_schedule_recipients",
+                "report_schedules",
+                "reports",
+            ])
             .migration(Migration::new(
                 1,
                 "create reports",
@@ -61,15 +63,13 @@ impl Module for ReportsModule {
             aphel_kernel::infrastructure::custom_objects::RecordTypeScopedTable("reports"),
         ));
         app.openapi_tag(
-            http::builtin::TAG,
-            "Built-in conversion and sales performance reports",
-        )
-        .openapi_tag(
             http::custom::TAG,
             "Saved custom reports, their results, exports and e-mail schedules",
         )
-        .routes(|_| http::builtin::router().merge(http::custom::router()))
-        .contribute::<dyn ::dashboard::engine::WidgetProvider<::dashboard::repository::MySqlDashboardPorts>>(Arc::new(SavedReportWidget))
+        .routes(|_| http::custom::router())
+        .contribute::<dyn aphel_sdk::dashboard::WidgetProvider<aphel_sdk::dashboard::WidgetPorts>>(
+            Arc::new(SavedReportWidget),
+        )
         .worker(worker);
         for operation in plugin_bridge::operations() {
             app.contribute::<aphel_kernel::modules::PluginOperation>(operation);

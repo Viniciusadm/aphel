@@ -20,7 +20,7 @@ import { Table, TableBody, TableHead, TableHeader, TableRow } from '@/components
 const CHART_LIMIT = 10
 
 function useFormatters(currency: string) {
-  const { t } = useTranslation('reports', { keyPrefix: 'builtin' })
+  const { t } = useTranslation('deals', { keyPrefix: 'reports' })
   const formatting = useRecordFormatting()
   return {
     count: (value: number) => formatNumber(value, formatting),
@@ -31,13 +31,13 @@ function useFormatters(currency: string) {
   }
 }
 
-function rowLabel(row: PerformanceRow, report: PerformanceReport, t: TFunction<'reports', 'builtin'>): string {
+function rowLabel(row: PerformanceRow, report: PerformanceReport, t: TFunction<'deals', 'reports'>): string {
   if (row.key === null || row.key === undefined) return t(`performance.empty.${report.dimension}`)
   return row.label ?? (report.dimension === 'source' ? row.key : t('performance.hidden'))
 }
 
 function Totals({ report }: { report: PerformanceReport }) {
-  const { t } = useTranslation('reports', { keyPrefix: 'builtin' })
+  const { t } = useTranslation('deals', { keyPrefix: 'reports' })
   const format = useFormatters(report.currency)
   const totals = report.totals
   const before = report.previous_totals ?? null
@@ -100,7 +100,7 @@ interface ChartPoint {
 }
 
 function PerformanceChart({ report }: { report: PerformanceReport }) {
-  const { t } = useTranslation('reports', { keyPrefix: 'builtin' })
+  const { t } = useTranslation('deals', { keyPrefix: 'reports' })
   const format = useFormatters(report.currency)
   const byAmount = report.amounts_visible
   const comparing = Boolean(report.previous_totals)
@@ -161,7 +161,7 @@ function Cell({ children, delta }: { children: ReactNode; delta?: ReactNode }) {
 }
 
 function PerformanceTable({ report }: { report: PerformanceReport }) {
-  const { t } = useTranslation('reports', { keyPrefix: 'builtin' })
+  const { t } = useTranslation('deals', { keyPrefix: 'reports' })
   const format = useFormatters(report.currency)
   const percent = (value: number) => format.percent(value)
   const duration = (value: number) => format.duration(value)
@@ -242,7 +242,7 @@ function PerformanceTable({ report }: { report: PerformanceReport }) {
 }
 
 function PerformanceContent({ report }: { report: PerformanceReport }) {
-  const { t } = useTranslation('reports', { keyPrefix: 'builtin' })
+  const { t } = useTranslation('deals', { keyPrefix: 'reports' })
   const formatting = useRecordFormatting()
   const range = (period: { from: string; to: string }) =>
     t('periodRange', { from: formatDate(period.from, formatting), to: formatDate(period.to, formatting) })

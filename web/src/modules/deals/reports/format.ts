@@ -7,7 +7,7 @@ const DAY = 86_400
 export function formatDuration(
   seconds: number | null | undefined,
   formatting: RecordFormatting,
-  t: TFunction<'reports', 'builtin'>,
+  t: TFunction<'deals', 'reports'>,
 ): string {
   if (seconds === null || seconds === undefined) return t('states.noData')
   const number = (value: number) => new Intl.NumberFormat(formatting.locale, { maximumFractionDigits: 1 }).format(value)

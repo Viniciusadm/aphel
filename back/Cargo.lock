@@ -1649,13 +1649,9 @@ dependencies = [
 name = "aphel-mod-reports"
 version = "0.1.0"
 dependencies = [
- "aphel-contract-crm",
  "aphel-kernel",
- "aphel-mod-dashboard",
- "aphel-mod-deals",
  "aphel-mod-exports",
  "aphel-mod-saved-views",
- "aphel-mod-workflow",
  "aphel-sdk",
  "async-trait",
  "axum",
@@ -2013,6 +2009,7 @@ dependencies = [
  "serde_json",
  "sha2 0.11.1",
  "sqlx",
+ "utoipa",
  "uuid",
 ]
 

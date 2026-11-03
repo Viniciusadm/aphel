@@ -30,6 +30,7 @@ pub(crate) const TAG: &str = "reports";
 pub(crate) fn router() -> OpenApiRouter<AppState> {
     OpenApiRouter::new()
         .routes(routes!(list_reports, create_report))
+        .routes(routes!(report_entities))
         .routes(routes!(get_report, update_report, delete_report))
         .routes(routes!(run_report))
         .routes(routes!(export_report))
@@ -452,4 +453,40 @@ async fn list_deliveries(
         listing.total,
         pagination,
     )))
+}
+
+#[derive(serde::Serialize, utoipa::ToSchema)]
+pub(crate) struct ReportEntityResponse {
+    record_type: String,
+    labels: std::collections::BTreeMap<String, String>,
+}
+
+#[utoipa::path(
+    get, path = "/reports/entities", tag = TAG, operation_id = "reports_entities",
+    security(("session_cookie" = [])),
+    responses((status = 200, description = "Readable entities offered by installed owners", body = Data<Vec<ReportEntityResponse>>))
+)]
+async fn report_entities(
+    State(state): State<AppState>,
+    tenant: AuthContext,
+) -> Result<Json<Data<Vec<ReportEntityResponse>>>, ApiError> {
+    let ctx = Ctx::from_state(&state, &tenant.scope).await?;
+    let mut entities = ctx
+        .registry()
+        .definitions()
+        .filter(|definition| {
+            ctx.scope.filter_for(&definition.read_permission).is_some()
+                && aphel_sdk::records::enabled(&ctx, &definition.record_type)
+        })
+        .map(|definition| ReportEntityResponse {
+            record_type: definition.record_type.as_str().into(),
+            labels: definition
+                .capabilities
+                .plural_labels_value()
+                .unwrap_or_else(|| definition.record_type.as_str().to_owned().into())
+                .0,
+        })
+        .collect::<Vec<_>>();
+    entities.sort_by(|left, right| left.record_type.cmp(&right.record_type));
+    Ok(Json(Data::new(entities)))
 }

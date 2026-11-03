@@ -16,15 +16,6 @@ export const MAX_REPORT_NAME_LENGTH = 140
 export const DEFAULT_LIMIT = 500
 export const MAX_LIMIT = 1000
 
-export const REPORT_RECORD_TYPES = [
-  { recordType: 'deals.deal', permission: 'deals.read' },
-  { recordType: 'people.person', permission: 'people.read' },
-  { recordType: 'organizations.organization', permission: 'organizations.read' },
-  { recordType: 'tasks.task', permission: 'tasks.read' },
-] as const
-
-export type ReportRecordType = (typeof REPORT_RECORD_TYPES)[number]['recordType']
-
 export const VISUALIZATIONS: ReportVisualization[] = ['table', 'bar', 'line', 'pie', 'number']
 
 export const PERIOD_PRESETS: PeriodPreset[] = [

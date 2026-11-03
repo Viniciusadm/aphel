@@ -14,7 +14,7 @@ export interface ReportFiltersProps {
 }
 
 export function ReportFilters({ state, allPipelines = false, withDimension = false }: ReportFiltersProps) {
-  const { t } = useTranslation('reports', { keyPrefix: 'builtin' })
+  const { t } = useTranslation('deals', { keyPrefix: 'reports' })
   const workflow = usePipelines()
   const { filters } = state
 

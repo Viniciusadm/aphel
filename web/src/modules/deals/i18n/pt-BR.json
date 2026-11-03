@@ -225,5 +225,143 @@
     "currency": "Moeda da oportunidade",
     "converted": "≈ {{amount}} (cotação {{rate}})",
     "notConverted": "Sem cotação para {{base}}"
+  },
+  "reports": {
+    "conversion": {
+      "title": "Relatório de conversão",
+      "cohort": "Oportunidades do funil {{pipeline}} criadas de {{range}}.",
+      "summary": {
+        "created": "Criadas no período",
+        "won": "Ganhas",
+        "lost": "Perdidas",
+        "open_one": "{{value}} ainda em aberto",
+        "open_other": "{{value}} ainda em aberto",
+        "conversionRate": "Taxa de conversão",
+        "winRate": "Taxa de ganho: {{value}}",
+        "averageCycle": "Ciclo médio de venda",
+        "averageCycleHint": "Da criação ao ganho das oportunidades ganhas"
+      },
+      "funnel": {
+        "title": "Funil de conversão",
+        "description": "Quantas oportunidades chegaram a cada etapa (ou além) e quantas avançaram para a seguinte.",
+        "chartLabel": "Oportunidades que chegaram a cada etapa do funil",
+        "won": "Ganhas",
+        "current": "Período",
+        "previous": "Período anterior",
+        "deals_one": "{{count}} oportunidade",
+        "deals_other": "{{count}} oportunidades",
+        "previousDeals_one": "{{count}} no período anterior",
+        "previousDeals_other": "{{count}} no período anterior"
+      },
+      "stages": {
+        "caption": "Conversão e tempo por etapa",
+        "stage": "Etapa",
+        "reached": "Chegaram",
+        "passage": "Passagem",
+        "advanced": "{{value}} avançaram",
+        "lost": "Perdidas aqui",
+        "averageTime": "Tempo médio",
+        "openNow": "Na etapa agora",
+        "visits_one": "{{count}} passagem concluída",
+        "visits_other": "{{count}} passagens concluídas",
+        "openFor": "há {{value}} em média"
+      },
+      "losses": {
+        "byStage": "Onde mais se perde",
+        "byStageHint": "Oportunidades perdidas pela última etapa em aberto antes da perda.",
+        "byReason": "Motivos de perda",
+        "byReasonHint": "Oportunidades perdidas do período por motivo.",
+        "unattributed": "Sem etapa registrada",
+        "unknownStage": "Etapa removida",
+        "noReason": "Sem motivo",
+        "hiddenReason": "Motivo sem acesso",
+        "none": "Nenhuma oportunidade perdida no período."
+      },
+      "noPipeline": {
+        "title": "Nenhum funil ativo",
+        "description": "Crie ou ative um funil para acompanhar a conversão."
+      },
+      "empty": {
+        "title": "Sem oportunidades no período",
+        "description": "Nenhuma oportunidade deste funil foi criada no período escolhido."
+      },
+      "footnote": "Os tempos por etapa consideram as passagens que começaram no período. Os números respeitam o que você pode ver."
+    },
+    "performance": {
+      "title": "Relatório de desempenho",
+      "summary": "Resultados por {{dimension}} de {{range}}.",
+      "metrics": {
+        "created": "Criadas",
+        "won": "Ganhas",
+        "wonAmount": "Valor ganho",
+        "lost": "Perdidas",
+        "lostHint": "{{value}} perdidas",
+        "conversion": "Conversão",
+        "cycle": "Ciclo médio",
+        "tasks": "Atividades realizadas"
+      },
+      "chart": {
+        "amountTitle": "Valor ganho",
+        "countTitle": "Oportunidades ganhas",
+        "amountLabel": "Valor ganho por grupo",
+        "countLabel": "Oportunidades ganhas por grupo",
+        "description_one": "O primeiro grupo do ranking.",
+        "description_other": "Os {{count}} primeiros do ranking.",
+        "current": "Período",
+        "previous": "Período anterior"
+      },
+      "table": {
+        "title": "Comparativo",
+        "description": "Ganhas, perdidas e ciclo consideram a data de fechamento; criadas, a data de criação.",
+        "caption": "Desempenho por grupo"
+      },
+      "empty": {
+        "owner": "Sem responsável",
+        "team": "Sem equipe",
+        "source": "Sem origem",
+        "pipeline": "Sem funil"
+      },
+      "hidden": "Sem acesso",
+      "emptyState": {
+        "title": "Sem resultados no período",
+        "description": "Nenhuma oportunidade criada ou fechada e nenhuma atividade concluída no período."
+      },
+      "truncated": "Há mais grupos do que os exibidos."
+    },
+    "filters": {
+      "dimension": "Agrupar por",
+      "pipeline": "Funil",
+      "allPipelines": "Todos os funis",
+      "defaultPipeline": "Funil padrão"
+    },
+    "dimensions": {
+      "owner": "Vendedor",
+      "team": "Equipe",
+      "source": "Origem",
+      "pipeline": "Funil"
+    },
+    "duration": {
+      "minutes_one": "{{value}} minuto",
+      "minutes_other": "{{value}} minutos",
+      "hours_one": "{{value}} hora",
+      "hours_other": "{{value}} horas",
+      "days_one": "{{value}} dia",
+      "days_other": "{{value}} dias"
+    },
+    "states": {
+      "noData": "—"
+    },
+    "periodRange": "{{from}} a {{to}}",
+    "comparedWith": "Comparado a {{range}}."
+  },
+  "reportLibrary": {
+    "conversion": {
+      "title": "Conversão",
+      "description": "Entenda a passagem dos negócios pelo funil e onde ocorrem perdas."
+    },
+    "performance": {
+      "title": "Desempenho",
+      "description": "Acompanhe resultados e compare o desempenho da operação."
+    }
   }
 }

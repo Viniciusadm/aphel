@@ -1,3 +1,4 @@
+mod reports;
 use aphel_sdk::privacy::PrivacyTraits;
 mod line_items;
 mod timeline;
@@ -519,7 +520,11 @@ impl Module for DealsModule {
                 deal.member_access(DEAL_MEMBERS_TABLE, "deal_id", "user_id");
             })
             .openapi_tag(http::TAG, "Deals, stage changes and the Kanban board")
-            .routes(|_| http::router())
+            .openapi_tag(
+                reports::http::TAG,
+                "Deal conversion and sales performance reports",
+            )
+            .routes(|_| http::router().merge(reports::http::router()))
             .consumer(|env| Arc::new(runtime::DealLastActivityConsumer::new(env.pool.clone())))
             .consumer(|env| Arc::new(runtime::DealStageHistoryConsumer::new(env.pool.clone())));
         app.contribute::<dyn aphel_sdk::money::MoneyRecalculationSource>(Arc::new(

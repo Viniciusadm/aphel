@@ -15,7 +15,6 @@ const reportsModule = defineModule({
       to: '/reports',
       label: 'nav.reports',
       icon: BarChart3,
-      permission: ['people.read', 'organizations.read', 'deals.read', 'tasks.read'],
       order: 130,
     })
     app.widget('saved_report', {

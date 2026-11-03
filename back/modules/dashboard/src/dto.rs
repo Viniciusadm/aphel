@@ -1,3 +1,4 @@
+pub use aphel_sdk::dashboard::dto::{DashboardPeriodResponse, PeriodPresetSchema};
 use chrono::{DateTime, SecondsFormat, Utc};
 use serde::{Deserialize, Serialize};
 use serde_json::Value;
@@ -7,7 +8,6 @@ use crate::engine::{
     LayoutSubject, PeriodQuery, SubjectKind, SubjectOptions, WidgetDescriptor, WidgetSize,
     WidgetSubject,
 };
-use crate::engine_domain::{PeriodPreset, PeriodSelection, ResolvedPeriod};
 use crate::layout::{
     DashboardLayout, LayoutPeriod, LayoutView, LayoutWidget, SubjectQuery, WidgetDataQuery,
 };
@@ -52,79 +52,6 @@ impl WidgetSizeSchema {
     fn stored(value: &str) -> Self {
         WidgetSize::parse(value)
             .unwrap_or(WidgetSize::Medium)
-            .into()
-    }
-}
-
-#[derive(Debug, Clone, Copy, Serialize, Deserialize, ToSchema)]
-#[serde(rename_all = "snake_case")]
-#[schema(as = DashboardPeriodPreset)]
-pub enum PeriodPresetSchema {
-    Today,
-    Yesterday,
-    #[serde(rename = "last_7_days")]
-    Last7Days,
-    #[serde(rename = "last_30_days")]
-    Last30Days,
-    Week,
-    LastWeek,
-    Month,
-    LastMonth,
-    Quarter,
-    LastQuarter,
-    Year,
-    LastYear,
-    Custom,
-}
-
-impl From<PeriodPreset> for PeriodPresetSchema {
-    fn from(preset: PeriodPreset) -> Self {
-        match preset {
-            PeriodPreset::Today => Self::Today,
-            PeriodPreset::Yesterday => Self::Yesterday,
-            PeriodPreset::Last7Days => Self::Last7Days,
-            PeriodPreset::Last30Days => Self::Last30Days,
-            PeriodPreset::Week => Self::Week,
-            PeriodPreset::LastWeek => Self::LastWeek,
-            PeriodPreset::Month => Self::Month,
-            PeriodPreset::LastMonth => Self::LastMonth,
-            PeriodPreset::Quarter => Self::Quarter,
-            PeriodPreset::LastQuarter => Self::LastQuarter,
-            PeriodPreset::Year => Self::Year,
-            PeriodPreset::LastYear => Self::LastYear,
-            PeriodPreset::Custom => Self::Custom,
-        }
-    }
-}
-
-impl From<PeriodPresetSchema> for PeriodPreset {
-    fn from(preset: PeriodPresetSchema) -> Self {
-        match preset {
-            PeriodPresetSchema::Today => Self::Today,
-            PeriodPresetSchema::Yesterday => Self::Yesterday,
-            PeriodPresetSchema::Last7Days => Self::Last7Days,
-            PeriodPresetSchema::Last30Days => Self::Last30Days,
-            PeriodPresetSchema::Week => Self::Week,
-            PeriodPresetSchema::LastWeek => Self::LastWeek,
-            PeriodPresetSchema::Month => Self::Month,
-            PeriodPresetSchema::LastMonth => Self::LastMonth,
-            PeriodPresetSchema::Quarter => Self::Quarter,
-            PeriodPresetSchema::LastQuarter => Self::LastQuarter,
-            PeriodPresetSchema::Year => Self::Year,
-            PeriodPresetSchema::LastYear => Self::LastYear,
-            PeriodPresetSchema::Custom => Self::Custom,
-        }
-    }
-}
-
-impl PeriodPresetSchema {
-    pub fn as_str(self) -> &'static str {
-        PeriodPreset::from(self).as_str()
-    }
-
-    fn stored(value: &str) -> Self {
-        PeriodPreset::parse(value)
-            .unwrap_or(PeriodSelection::default().preset)
             .into()
     }
 }
@@ -211,29 +138,6 @@ impl WidgetDataParams {
             },
             compare_to_previous: self.compare_to_previous.unwrap_or(false),
         })
-    }
-}
-
-#[derive(Debug, Serialize, ToSchema)]
-pub struct DashboardPeriodResponse {
-    pub(crate) preset: PeriodPresetSchema,
-    #[schema(example = "2026-04-01")]
-    pub(crate) from: String,
-    #[schema(example = "2026-04-30")]
-    pub(crate) to: String,
-    pub(crate) starts_at: String,
-    pub(crate) ends_at: String,
-}
-
-impl From<ResolvedPeriod> for DashboardPeriodResponse {
-    fn from(period: ResolvedPeriod) -> Self {
-        Self {
-            preset: period.preset.into(),
-            from: period.from.format("%Y-%m-%d").to_string(),
-            to: period.to.format("%Y-%m-%d").to_string(),
-            starts_at: instant(period.starts_at),
-            ends_at: instant(period.ends_at),
-        }
     }
 }
 

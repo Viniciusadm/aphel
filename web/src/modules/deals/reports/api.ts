@@ -38,16 +38,16 @@ function baseQuery(filters: ConversionFilters) {
 }
 
 export const builtinReportsKeys = {
-  all: ['reports-builtin'] as const,
+  all: ['deals-reports'] as const,
   conversion: (filters: ConversionFilters) => [...builtinReportsKeys.all, 'conversion', filters] as const,
   performance: (filters: PerformanceFilters) => [...builtinReportsKeys.all, 'performance', filters] as const,
 }
 
 export const builtinReportsApi = {
   conversion: (filters: ConversionFilters) =>
-    api.get<ConversionReport>('/v1/reports/builtin/conversion', { query: baseQuery(filters) }),
+    api.get<ConversionReport>('/v1/deals/reports/conversion', { query: baseQuery(filters) }),
   performance: (filters: PerformanceFilters) =>
-    api.get<PerformanceReport>('/v1/reports/builtin/performance', {
+    api.get<PerformanceReport>('/v1/deals/reports/performance', {
       query: { ...baseQuery(filters), dimension: filters.dimension },
     }),
 }

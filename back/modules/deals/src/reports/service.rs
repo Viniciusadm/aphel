@@ -6,15 +6,13 @@ use rust_decimal::prelude::ToPrimitive;
 use serde_json::Value;
 use uuid::Uuid;
 
-use crate::domain::builtin::{
+use crate::reports::domain::{
     ConversionQuery, ConversionReport, ConversionSnapshot, ConversionSummary, CycleTime,
     FunnelBucket, InstantRange, LostReasonTotal, PerformanceDimension, PerformanceMetrics,
     PerformanceQuery, PerformanceReport, PerformanceRow, ReportPipeline, StageDuration,
     StageFunnel, StageLoss,
 };
-use crate::store::BuiltinReportStore;
-use ::dashboard::engine::{PeriodQuery, instant_value, parse_period};
-use ::dashboard::engine_domain::{ResolvedPeriod, previous_period, resolve_period};
+use crate::reports::store::BuiltinReportStore;
 use aphel_kernel::Ctx;
 use aphel_kernel::application::access::Authorizer;
 use aphel_kernel::application::fields::FieldSet;
@@ -27,6 +25,8 @@ use aphel_kernel::application::query::{
 };
 use aphel_kernel::domain::access::{Permission, RecordScopeFilter};
 use aphel_kernel::errors::{AppError, FieldViolation};
+use aphel_sdk::dashboard::{PeriodQuery, instant_value, parse_period};
+use aphel_sdk::dashboard::{ResolvedPeriod, previous_period, resolve_period};
 use aphel_sdk::money::{BASE_AMOUNT_FIELD, BASE_AMOUNT_METRIC};
 use workflow::domain::PIPELINE_NOT_FOUND;
 use workflow::domain::StageKind;

@@ -3,7 +3,7 @@ use rust_decimal::Decimal;
 use sqlx::{MySql, MySqlPool, QueryBuilder};
 use uuid::Uuid;
 
-use crate::domain::builtin::{
+use crate::reports::domain::{
     CycleTime, FunnelBucket, InstantRange, PerformanceDimension, ReportPipeline, ReportStage,
     StageDuration, StageLoss,
 };

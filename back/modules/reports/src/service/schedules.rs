@@ -13,7 +13,6 @@ use crate::domain::custom::{
 use crate::domain::timing::next_run_after;
 use crate::service::reports::{can_read_type, require_report};
 use crate::store::ScheduleStore;
-use ::dashboard::engine_domain::PeriodPreset;
 use aphel_kernel::Ctx;
 use aphel_kernel::application::access::{AccessRepository, build_access_scope};
 use aphel_kernel::application::audit::{DiffOptions, diff_changes};
@@ -28,6 +27,7 @@ use aphel_kernel::domain::access::AccessScope;
 use aphel_kernel::errors::{AppError, FieldViolation};
 use aphel_kernel::infrastructure::repositories::mysql_access::MySqlAccessRepository;
 use aphel_kernel::records::{RecordMutation, lock_version, publish_mutation};
+use aphel_sdk::dashboard::PeriodPreset;
 
 #[derive(Serialize)]
 struct ScheduleSnapshot<'a> {

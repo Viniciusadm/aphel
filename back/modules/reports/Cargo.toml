@@ -9,12 +9,8 @@ publish = false
 [dependencies]
 aphel-sdk.workspace = true
 saved_views = { package = "aphel-mod-saved-views", path = "../saved_views" }
-aphel-contract-crm.workspace = true
 aphel-kernel.workspace = true
-dashboard = { package = "aphel-mod-dashboard", path = "../dashboard" }
-deals = { package = "aphel-mod-deals", path = "../deals" }
 exports = { package = "aphel-mod-exports", path = "../exports" }
-workflow = { package = "aphel-mod-workflow", path = "../workflow" }
 axum.workspace = true
 async-trait.workspace = true
 chrono.workspace = true

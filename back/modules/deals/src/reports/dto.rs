@@ -3,14 +3,14 @@ use rust_decimal::prelude::ToPrimitive;
 use serde::{Deserialize, Serialize};
 use utoipa::{IntoParams, ToSchema};
 
-use crate::domain::builtin::{
+use crate::http::money;
+use crate::reports::domain::{
     ConversionQuery, ConversionReport, ConversionSnapshot, ConversionSummary, LostReasonTotal,
     PerformanceDimension, PerformanceMetrics, PerformanceQuery, PerformanceReport, PerformanceRow,
     ReportPipeline, ReportStage, StageFunnel,
 };
-use ::dashboard::engine::PeriodQuery;
-use dashboard::dto::{DashboardPeriodResponse, PeriodPresetSchema};
-use deals::http::money;
+use aphel_sdk::dashboard::PeriodQuery;
+use aphel_sdk::dashboard::dto::{DashboardPeriodResponse, PeriodPresetSchema};
 use workflow::domain::StageKind;
 
 fn optional_money(value: Option<Decimal>) -> Option<String> {

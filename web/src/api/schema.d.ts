@@ -1767,6 +1767,40 @@ export interface paths {
         patch?: never;
         trace?: never;
     };
+    "/api/v1/deals/reports/conversion": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        /** @description Conversion of a pipeline (default: the default active pipeline) for the deals created in the period, under the read scope of `deals.read` (`own` sees only their deals) and the field permissions of the role, in the time zone of the organization. `summary`: created, open, won and lost deals of the cohort, `conversion_rate` (won / created), `win_rate` (won / (won + lost)) and `average_cycle_seconds` (creation to closing of the won ones). `stages` (open stages in order): `reached` counts the deals that got to the stage or beyond (won deals reached every stage), `advanced` those that got to the next stage (the last one advances to won) and `passage_rate` = advanced / reached; `lost` counts the lost deals whose last open stage was this one (deals without stage history fall into `unattributed_lost`). Times come from the stage history (`deal_stage_history`, fed by `deal.created`/`deal.stage_changed` and backfilled from the event log): `average_seconds` over the visits that entered the stage in the period and already left it, `open_visits`/`open_average_seconds` for the deals still there. `lost_reasons` groups the lost deals of the cohort by reason. With `compare_to_previous=true`, `previous` is the same snapshot for the period right before. Amounts are decimal strings (null when the role cannot see `amount`). */
+        get: operations["deals_reports_conversion"];
+        put?: never;
+        post?: never;
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
+    "/api/v1/deals/reports/performance": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        /** @description Sales performance grouped by `dimension` (`owner`, default; `team` of the owner, where an owner in two teams counts in both; `source`; `pipeline`), optionally limited to one pipeline, under the read scope of `deals.read` and `tasks.read` (`own` sees only their numbers) and the field permissions of the role. Per row and in `totals`: `created` (deals created in the period), `won`/`won_amount` and `lost` (closed in the period), `conversion_rate` (won / (won + lost)), `average_cycle_seconds` (creation to closing of the deals won in the period) and `activities_done` (tasks completed in the period, only for `owner`/`team` and with `tasks.read`; with `pipeline_id`, only tasks linked to deals of that pipeline). `key` is the user, team, source or pipeline id (null groups the deals without one) and `label` its name. Totals are computed apart, never by summing the rows. With `compare_to_previous=true`, every row and the totals carry `previous` for the period right before. */
+        get: operations["deals_reports_performance"];
+        put?: never;
+        post?: never;
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
     "/api/v1/deals/{deal_id}": {
         parameters: {
             query?: never;
@@ -6906,32 +6940,14 @@ export interface paths {
         patch?: never;
         trace?: never;
     };
-    "/api/v1/reports/builtin/conversion": {
+    "/api/v1/reports/entities": {
         parameters: {
             query?: never;
             header?: never;
             path?: never;
             cookie?: never;
         };
-        /** @description Conversion of a pipeline (default: the default active pipeline) for the deals created in the period, under the read scope of `deals.read` (`own` sees only their deals) and the field permissions of the role, in the time zone of the organization. `summary`: created, open, won and lost deals of the cohort, `conversion_rate` (won / created), `win_rate` (won / (won + lost)) and `average_cycle_seconds` (creation to closing of the won ones). `stages` (open stages in order): `reached` counts the deals that got to the stage or beyond (won deals reached every stage), `advanced` those that got to the next stage (the last one advances to won) and `passage_rate` = advanced / reached; `lost` counts the lost deals whose last open stage was this one (deals without stage history fall into `unattributed_lost`). Times come from the stage history (`deal_stage_history`, fed by `deal.created`/`deal.stage_changed` and backfilled from the event log): `average_seconds` over the visits that entered the stage in the period and already left it, `open_visits`/`open_average_seconds` for the deals still there. `lost_reasons` groups the lost deals of the cohort by reason. With `compare_to_previous=true`, `previous` is the same snapshot for the period right before. Amounts are decimal strings (null when the role cannot see `amount`). */
-        get: operations["reports_builtin_conversion"];
-        put?: never;
-        post?: never;
-        delete?: never;
-        options?: never;
-        head?: never;
-        patch?: never;
-        trace?: never;
-    };
-    "/api/v1/reports/builtin/performance": {
-        parameters: {
-            query?: never;
-            header?: never;
-            path?: never;
-            cookie?: never;
-        };
-        /** @description Sales performance grouped by `dimension` (`owner`, default; `team` of the owner, where an owner in two teams counts in both; `source`; `pipeline`), optionally limited to one pipeline, under the read scope of `deals.read` and `tasks.read` (`own` sees only their numbers) and the field permissions of the role. Per row and in `totals`: `created` (deals created in the period), `won`/`won_amount` and `lost` (closed in the period), `conversion_rate` (won / (won + lost)), `average_cycle_seconds` (creation to closing of the deals won in the period) and `activities_done` (tasks completed in the period, only for `owner`/`team` and with `tasks.read`; with `pipeline_id`, only tasks linked to deals of that pipeline). `key` is the user, team, source or pipeline id (null groups the deals without one) and `label` its name. Totals are computed apart, never by summing the rows. With `compare_to_previous=true`, every row and the totals carry `previous` for the period right before. */
-        get: operations["reports_builtin_performance"];
+        get: operations["reports_entities"];
         put?: never;
         post?: never;
         delete?: never;
@@ -14774,6 +14790,14 @@ export interface components {
                 updated_by?: string | null;
             }[];
         };
+        Data_Vec_ReportEntityResponse: {
+            data: {
+                labels: {
+                    [key: string]: string;
+                };
+                record_type: string;
+            }[];
+        };
         Data_Vec_RetentionPolicyResponse: {
             data: {
                 /** @example archive_inactive */
@@ -21017,6 +21041,12 @@ export interface components {
         };
         /** @enum {string} */
         ReportDeliveryStatus: "sending" | "sent" | "failed";
+        ReportEntityResponse: {
+            labels: {
+                [key: string]: string;
+            };
+            record_type: string;
+        };
         ReportPipelineResponse: {
             id: string;
             name: string;
@@ -31356,6 +31386,158 @@ export interface operations {
                 };
             };
             /** @description Invalid filter, sort, search, stage, `per_column` or `page` (`validation_error` with `details.fields`) */
+            422: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["ErrorEnvelope"];
+                };
+            };
+            /** @description API token rate limit exceeded (`rate_limited`); see `Retry-After` and `X-RateLimit-*` */
+            429: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["ErrorEnvelope"];
+                };
+            };
+        };
+    };
+    deals_reports_conversion: {
+        parameters: {
+            query?: {
+                /** @example 0190a1b2-0000-7000-8000-000000000010 */
+                pipeline_id?: string;
+                /** @example quarter */
+                period?: components["schemas"]["DashboardPeriodPreset"];
+                /** @example 2026-01-01 */
+                from?: string;
+                /** @example 2026-03-31 */
+                to?: string;
+                compare_to_previous?: boolean;
+            };
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        requestBody?: never;
+        responses: {
+            /** @description Conversion report; `pipeline`, `current` and `previous` are null when the organization has no active pipeline */
+            200: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["Data_ConversionReportResponse"];
+                };
+            };
+            /** @description Missing or invalid credentials (`unauthorized`, `invalid_api_token`) */
+            401: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["ErrorEnvelope"];
+                };
+            };
+            /** @description Missing `deals.read` (`permission_denied`, `insufficient_scope`) */
+            403: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["ErrorEnvelope"];
+                };
+            };
+            /** @description Unknown pipeline (`pipeline_not_found`) */
+            404: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["ErrorEnvelope"];
+                };
+            };
+            /** @description Invalid pipeline id or period (`validation_error` with `details.fields`), or a field used by the report is hidden for the role (`field_not_accessible`) */
+            422: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["ErrorEnvelope"];
+                };
+            };
+            /** @description API token rate limit exceeded (`rate_limited`); see `Retry-After` and `X-RateLimit-*` */
+            429: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["ErrorEnvelope"];
+                };
+            };
+        };
+    };
+    deals_reports_performance: {
+        parameters: {
+            query?: {
+                /** @example owner */
+                dimension?: components["schemas"]["PerformanceDimension"];
+                /** @example 0190a1b2-0000-7000-8000-000000000010 */
+                pipeline_id?: string;
+                /** @example month */
+                period?: components["schemas"]["DashboardPeriodPreset"];
+                /** @example 2026-01-01 */
+                from?: string;
+                /** @example 2026-01-31 */
+                to?: string;
+                compare_to_previous?: boolean;
+            };
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        requestBody?: never;
+        responses: {
+            /** @description Performance report */
+            200: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["Data_PerformanceReportResponse"];
+                };
+            };
+            /** @description Missing or invalid credentials (`unauthorized`, `invalid_api_token`) */
+            401: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["ErrorEnvelope"];
+                };
+            };
+            /** @description Missing `deals.read` (`permission_denied`, `insufficient_scope`) */
+            403: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["ErrorEnvelope"];
+                };
+            };
+            /** @description Unknown pipeline (`pipeline_not_found`) */
+            404: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["ErrorEnvelope"];
+                };
+            };
+            /** @description Invalid dimension, pipeline id or period (`validation_error` with `details.fields`), or a field used by the report is hidden for the role (`field_not_accessible`) */
             422: {
                 headers: {
                     [name: string]: unknown;
@@ -58763,145 +58945,22 @@ export interface operations {
             };
         };
     };
-    reports_builtin_conversion: {
+    reports_entities: {
         parameters: {
-            query?: {
-                /** @example 0190a1b2-0000-7000-8000-000000000010 */
-                pipeline_id?: string;
-                /** @example quarter */
-                period?: components["schemas"]["DashboardPeriodPreset"];
-                /** @example 2026-01-01 */
-                from?: string;
-                /** @example 2026-03-31 */
-                to?: string;
-                compare_to_previous?: boolean;
-            };
+            query?: never;
             header?: never;
             path?: never;
             cookie?: never;
         };
         requestBody?: never;
         responses: {
-            /** @description Conversion report; `pipeline`, `current` and `previous` are null when the organization has no active pipeline */
+            /** @description Readable entities offered by installed owners */
             200: {
                 headers: {
                     [name: string]: unknown;
                 };
                 content: {
-                    "application/json": components["schemas"]["Data_ConversionReportResponse"];
-                };
-            };
-            /** @description Missing or invalid credentials (`unauthorized`, `invalid_api_token`) */
-            401: {
-                headers: {
-                    [name: string]: unknown;
-                };
-                content: {
-                    "application/json": components["schemas"]["ErrorEnvelope"];
-                };
-            };
-            /** @description Missing `deals.read` (`permission_denied`, `insufficient_scope`) */
-            403: {
-                headers: {
-                    [name: string]: unknown;
-                };
-                content: {
-                    "application/json": components["schemas"]["ErrorEnvelope"];
-                };
-            };
-            /** @description Unknown pipeline (`pipeline_not_found`) */
-            404: {
-                headers: {
-                    [name: string]: unknown;
-                };
-                content: {
-                    "application/json": components["schemas"]["ErrorEnvelope"];
-                };
-            };
-            /** @description Invalid pipeline id or period (`validation_error` with `details.fields`), or a field used by the report is hidden for the role (`field_not_accessible`) */
-            422: {
-                headers: {
-                    [name: string]: unknown;
-                };
-                content: {
-                    "application/json": components["schemas"]["ErrorEnvelope"];
-                };
-            };
-            /** @description API token rate limit exceeded (`rate_limited`); see `Retry-After` and `X-RateLimit-*` */
-            429: {
-                headers: {
-                    [name: string]: unknown;
-                };
-                content: {
-                    "application/json": components["schemas"]["ErrorEnvelope"];
-                };
-            };
-        };
-    };
-    reports_builtin_performance: {
-        parameters: {
-            query?: {
-                /** @example owner */
-                dimension?: components["schemas"]["PerformanceDimension"];
-                /** @example 0190a1b2-0000-7000-8000-000000000010 */
-                pipeline_id?: string;
-                /** @example month */
-                period?: components["schemas"]["DashboardPeriodPreset"];
-                /** @example 2026-01-01 */
-                from?: string;
-                /** @example 2026-01-31 */
-                to?: string;
-                compare_to_previous?: boolean;
-            };
-            header?: never;
-            path?: never;
-            cookie?: never;
-        };
-        requestBody?: never;
-        responses: {
-            /** @description Performance report */
-            200: {
-                headers: {
-                    [name: string]: unknown;
-                };
-                content: {
-                    "application/json": components["schemas"]["Data_PerformanceReportResponse"];
-                };
-            };
-            /** @description Missing or invalid credentials (`unauthorized`, `invalid_api_token`) */
-            401: {
-                headers: {
-                    [name: string]: unknown;
-                };
-                content: {
-                    "application/json": components["schemas"]["ErrorEnvelope"];
-                };
-            };
-            /** @description Missing `deals.read` (`permission_denied`, `insufficient_scope`) */
-            403: {
-                headers: {
-                    [name: string]: unknown;
-                };
-                content: {
-                    "application/json": components["schemas"]["ErrorEnvelope"];
-                };
-            };
-            /** @description Unknown pipeline (`pipeline_not_found`) */
-            404: {
-                headers: {
-                    [name: string]: unknown;
-                };
-                content: {
-                    "application/json": components["schemas"]["ErrorEnvelope"];
-                };
-            };
-            /** @description Invalid dimension, pipeline id or period (`validation_error` with `details.fields`), or a field used by the report is hidden for the role (`field_not_accessible`) */
-            422: {
-                headers: {
-                    [name: string]: unknown;
-                };
-                content: {
-                    "application/json": components["schemas"]["ErrorEnvelope"];
+                    "application/json": components["schemas"]["Data_Vec_ReportEntityResponse"];
                 };
             };
             /** @description API token rate limit exceeded (`rate_limited`); see `Retry-After` and `X-RateLimit-*` */

@@ -1,3 +1,7 @@
+pub use aphel_kernel::domain::period::{
+    PeriodPreset, PeriodSelection, ResolvedPeriod, previous_period, resolve_period,
+};
+pub mod dto;
 pub mod period;
 pub mod ports;
 pub mod provider;

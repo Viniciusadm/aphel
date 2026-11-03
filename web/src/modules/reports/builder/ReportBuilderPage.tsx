@@ -28,7 +28,7 @@ import { serializeFilter, toDraft, useFilterSchema, type DraftGroup } from '@/fe
 import { NativeSelect } from '@/features/records/filters/NativeSelect'
 import { useViewTeams } from '@/modules/saved_views/ui'
 import { useAggregate, useAggregateSchema } from '@/features/records/aggregates'
-import { downloadReport, useReport, useReportMutations, type ExportFormat, type Report } from './api'
+import { downloadReport, useReportEntities, useReport, useReportMutations, type ExportFormat, type Report, type ReportEntity } from './api'
 import {
   FiltersSection,
   GroupsSection,
@@ -41,7 +41,6 @@ import {
 import { useGroupOptions } from './options'
 import {
   MAX_REPORT_NAME_LENGTH,
-  REPORT_RECORD_TYPES,
   draftFromReport,
   draftQuery,
   draftSettings,
@@ -71,8 +70,12 @@ export function ReportBuilderPage() {
   const { reportId } = useParams()
   const { t } = useTranslation('reports', { keyPrefix: 'builder' })
   const report = useReport(reportId ?? null)
+  const entities = useReportEntities()
+  if (entities.isPending) return <PageLoader />
+  if (entities.isError) return <ErrorState onRetry={() => void entities.refetch()} />
 
-  if (!reportId) return <ReportEditor key="new" report={null} />
+  if (!reportId && entities.data.length === 0) return <EmptyState title={t('builder.noModules.title')} description={t('builder.noModules.description')} />
+  if (!reportId) return <ReportEditor key="new" report={null} entities={entities.data} />
   if (report.isPending) return <PageLoader />
   if (report.isError) {
     if (isApiError(report.error) && report.error.status === 404) {
@@ -90,18 +93,18 @@ export function ReportBuilderPage() {
     }
     return <ErrorState onRetry={() => report.refetch()} />
   }
-  return <ReportEditor key={report.data.id} report={report.data} />
+  return <ReportEditor key={report.data.id} report={report.data} entities={entities.data} />
 }
 
-function ReportEditor({ report }: { report: Report | null }) {
+function ReportEditor({ report, entities }: { report: Report | null; entities: ReportEntity[] }) {
   const { t } = useTranslation('reports', { keyPrefix: 'builder' })
   const navigate = useNavigate()
   const queryClient = useQueryClient()
   const { me, hasPermission } = useSession()
   const canManage = hasPermission(SETTINGS_MANAGE)
-  const allowedTypes = REPORT_RECORD_TYPES.filter((type) => hasPermission(type.permission))
+  const allowedTypes = entities
   const [initial] = useState(() =>
-    report ? draftFromReport(report) : emptyDraft(allowedTypes[0]?.recordType ?? 'deals.deal'),
+    report ? draftFromReport(report) : emptyDraft(allowedTypes[0]?.recordType ?? ''),
   )
   const [draft, setDraft] = useState<ReportDraft>(initial)
   const [baseline, setBaseline] = useState(() => serializeDraft(initial))
@@ -359,7 +362,7 @@ function ReportEditor({ report }: { report: Report | null }) {
               <NativeSelect id={ids.module} value={draft.recordType} onChange={(event) => changeRecordType(event.target.value)}>
                 {allowedTypes.map((type) => (
                   <option key={type.recordType} value={type.recordType}>
-                    {t(`modules.${type.recordType}`)}
+                    {type.label}
                   </option>
                 ))}
               </NativeSelect>

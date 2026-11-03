@@ -30,3 +30,5 @@ serde_json.workspace = true
 aphel-contract-automation.workspace = true
 aphel-contract.workspace = true
 aphel-kernel.workspace = true
+
+utoipa.workspace = true

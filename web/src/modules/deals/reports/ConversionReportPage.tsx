@@ -29,7 +29,7 @@ interface Formatters {
 }
 
 function useFormatters(currency: string): Formatters {
-  const { t } = useTranslation('reports', { keyPrefix: 'builtin' })
+  const { t } = useTranslation('deals', { keyPrefix: 'reports' })
   const formatting = useRecordFormatting()
   return {
     count: (value) => formatNumber(value, formatting),
@@ -40,7 +40,7 @@ function useFormatters(currency: string): Formatters {
 }
 
 function Summary({ report, current, previous }: { report: ConversionReport; current: ConversionSnapshot; previous: ConversionSnapshot | null }) {
-  const { t } = useTranslation('reports', { keyPrefix: 'builtin' })
+  const { t } = useTranslation('deals', { keyPrefix: 'reports' })
   const format = useFormatters(report.currency)
   const summary = current.summary
   const before = previous?.summary
@@ -103,7 +103,7 @@ interface FunnelPoint {
 }
 
 function FunnelTooltip({ active, payload }: { active?: boolean; payload?: { payload: FunnelPoint }[] }) {
-  const { t } = useTranslation('reports', { keyPrefix: 'builtin' })
+  const { t } = useTranslation('deals', { keyPrefix: 'reports' })
   const point = active ? payload?.[0]?.payload : undefined
   if (!point) return null
   return (
@@ -118,7 +118,7 @@ function FunnelTooltip({ active, payload }: { active?: boolean; payload?: { payl
 }
 
 function FunnelChart({ points, comparing }: { points: FunnelPoint[]; comparing: boolean }) {
-  const { t } = useTranslation('reports', { keyPrefix: 'builtin' })
+  const { t } = useTranslation('deals', { keyPrefix: 'reports' })
   const height = Math.max(180, points.length * (comparing ? 52 : 40) + 48)
   return (
     <div role="img" aria-label={t('conversion.funnel.chartLabel')} style={{ height }} className="w-full min-w-0">
@@ -159,7 +159,7 @@ function StageTable({
   currency: string
   amountsVisible: boolean
 }) {
-  const { t } = useTranslation('reports', { keyPrefix: 'builtin' })
+  const { t } = useTranslation('deals', { keyPrefix: 'reports' })
   const format = useFormatters(currency)
   const byId = (snapshot: ConversionSnapshot | null) =>
     new Map<string, StageFunnel>((snapshot?.stages ?? []).map((stage) => [stage.stage_id, stage]))
@@ -221,7 +221,7 @@ function StageTable({
 }
 
 function Losses({ report, current }: { report: ConversionReport; current: ConversionSnapshot }) {
-  const { t } = useTranslation('reports', { keyPrefix: 'builtin' })
+  const { t } = useTranslation('deals', { keyPrefix: 'reports' })
   const format = useFormatters(report.currency)
   const stages = new Map((report.pipeline?.stages ?? []).map((stage) => [stage.id, stage.name]))
   const byStage = current.stages
@@ -283,7 +283,7 @@ function Losses({ report, current }: { report: ConversionReport; current: Conver
 }
 
 function ConversionContent({ report }: { report: ConversionReport }) {
-  const { t } = useTranslation('reports', { keyPrefix: 'builtin' })
+  const { t } = useTranslation('deals', { keyPrefix: 'reports' })
   const formatting = useRecordFormatting()
   const current = report.current
   const pipeline = report.pipeline

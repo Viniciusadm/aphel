@@ -1,3 +1,5 @@
+import { DealReportLibraryCards } from './reports/LibraryCards'
+import { dealReportRoutes } from './reports/routes'
 import { LineItemAmountLock } from './LineItemAmountLock'
 import { rottingOf } from '@/modules/workflow/rotting/lib'
 import { RottingDealBadge } from './RottingDealBadge'
@@ -40,6 +42,8 @@ const dealsModule = defineModule({
     app.slot('deals.detail.fieldLocks', { key: 'line-item-amount', render: LineItemAmountLock })
     app.slot('deals.badges', { key: 'rotting', render: RottingDealBadge })
     app.filter('deals.tone', (tone, { deal }) => (rottingOf(deal).isRotting ? 'warning' : tone))
+    app.routes(dealReportRoutes)
+    app.slot('reports.library', { key: 'sales', permission: 'deals.read', render: DealReportLibraryCards })
     app.routes(dealsRoutes)
     app.nav({ to: DEALS_PATH, label: 'nav.deals', icon: Briefcase, permission: ['deals.read'], order: 50 })
     app.createAction({
