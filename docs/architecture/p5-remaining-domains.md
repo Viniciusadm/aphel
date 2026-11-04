@@ -474,6 +474,14 @@ This phase is in progress. Completed entries describe static source validation; 
 - [x] Remove all six forms peer implementation dependencies and its hard people prerequisite. Full lint passes; OpenAPI is unchanged. Native peer-dependent plugins fall from eight to seven and layer violations from five to three.
 - [ ] Manual acceptance: optional owners, form options, restricted workflow teams, lead hooks, active rule choices, idempotent distribution and fixed-owner fallback/warnings.
 
+## Prospective formula evaluation interface
+
+- [x] Formulas owns boolean compilation, dependency resolution, proposed-record evaluation and preview execution behind an enabled native interface. Share commands, diagnostics and response snapshots only; no compiler, AST, evaluator or formula SQL moves to the SDK.
+- [x] Validation rules retains rule CRUD, limits, timing, field/message selection, invalid-rule warning/skip policy and ordered violations. Custom field values are read through the existing callback using the caller's transaction; scoped system values and aggregates retain their original sources.
+- [x] Unavailable formula execution fails explicitly when active rules need it; records without applicable rules do not require the capability.
+- [x] Remove the validation-rules formula implementation dependency. Full lint passes, OpenAPI is unchanged and native peer-dependent plugins fall from seven to six.
+- [ ] Manual acceptance: create/update timing, boolean/type diagnostics, formula dependencies/aggregates, custom values in the write transaction, invalid saved expressions, ordered field errors, preview scopes and disabled formulas.
+
 ## Outstanding scope
 
 The remaining identity changes, shared capability interfaces, owner-only SQL, deletion policies and per-plugin manual acceptance matrices are still pending. Existing architectural debt is not considered resolved by renaming packages.

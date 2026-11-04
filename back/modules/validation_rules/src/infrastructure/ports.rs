@@ -4,29 +4,23 @@ use sqlx::MySqlPool;
 
 use crate::application::{ValidationRuleGuard, ValidationRulePorts, ValidationRulesSection};
 use crate::infrastructure::{MySqlProposedFieldValues, MySqlValidationRuleRepository};
-use ::formulas::infrastructure::MySqlFormulaSource;
 use aphel_kernel::application::fields::RecordTypeRegistry;
 use aphel_kernel::infrastructure::auth::SystemClock;
 use aphel_kernel::infrastructure::fields::MySqlFieldDefinitionRepository;
 use aphel_kernel::infrastructure::platform::{SharedAuditLog, SharedEventPublisher};
 use aphel_kernel::infrastructure::transactions::MySqlTransactionManager;
 
-pub type MySqlValidationRuleGuard = ValidationRuleGuard<
-    MySqlValidationRuleRepository,
-    MySqlFieldDefinitionRepository,
-    MySqlFormulaSource,
-    MySqlProposedFieldValues,
->;
+pub type MySqlValidationRuleGuard =
+    ValidationRuleGuard<MySqlValidationRuleRepository, MySqlProposedFieldValues>;
 
 pub fn validation_rule_guard(
     pool: &MySqlPool,
     registry: &Arc<RecordTypeRegistry>,
 ) -> MySqlValidationRuleGuard {
     ValidationRuleGuard::new(
+        pool.clone(),
         registry.clone(),
         MySqlValidationRuleRepository::new(pool.clone()),
-        MySqlFieldDefinitionRepository::new(pool.clone()),
-        MySqlFormulaSource::new(pool.clone()),
         MySqlProposedFieldValues,
     )
 }

@@ -4,6 +4,8 @@ pub mod dto;
 mod http;
 pub mod infrastructure;
 mod predicates;
+mod prospective;
+mod prospective_values;
 
 use aphel_kernel::errors::AppError;
 use aphel_kernel::modules::{AppBuilder, Manifest, Module};
@@ -26,6 +28,9 @@ impl Module for FormulasModule {
         .owned_tables(&["formula_daily_runs"])
     }
     fn register(&self, app: &mut AppBuilder) -> Result<(), AppError> {
+        app.provide::<dyn aphel_sdk::formulas::ProspectivePredicates>(std::sync::Arc::new(
+            prospective::Predicates,
+        ));
         app.provide::<dyn aphel_sdk::formulas::FormulaDefinitionPlanner>(std::sync::Arc::new(
             definition_planner::DefinitionPlanner,
         ));

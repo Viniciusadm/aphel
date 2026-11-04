@@ -4,20 +4,19 @@ use axum::http::StatusCode;
 use utoipa_axum::router::OpenApiRouter;
 use utoipa_axum::routes;
 
-use crate::application::{RULE_PREVIEW_RESULT_TYPE, ValidationRuleUseCases, rule_preview};
+use crate::application::ValidationRuleUseCases;
 use crate::dto::{
     CreateValidationRuleRequest, ReorderValidationRulesRequest, UpdateValidationRuleRequest,
     ValidationRuleListParams, ValidationRulePreviewRequest, ValidationRulePreviewResponse,
     ValidationRuleResponse,
 };
 use crate::infrastructure::MySqlValidationRulePorts;
-use ::formulas::application::{FormulaUseCases, PreviewFormulaCommand};
-use ::formulas::infrastructure::MySqlFormulaPorts;
 use aphel_kernel::api::dto::common::{Data, ErrorEnvelope};
 use aphel_kernel::api::error::ApiError;
 use aphel_kernel::api::extractors::{AuthContext, ClientInfo, IfMatch, JsonBody};
 use aphel_kernel::api::state::AppState;
 use aphel_kernel::errors::AppError;
+use aphel_sdk::formulas::{PreviewFormulaCommand, prospective};
 
 pub const TAG: &str = "validation-rules";
 
@@ -154,24 +153,20 @@ async fn preview_validation_rule(
     tenant: AuthContext,
     JsonBody(request): JsonBody<ValidationRulePreviewRequest>,
 ) -> Result<Json<Data<ValidationRulePreviewResponse>>, ApiError> {
-    let formulas =
-        FormulaUseCases::new(MySqlFormulaPorts::new(state.db()?, state.registry().await?));
-    let formula = formulas
+    let preview = prospective()?
         .preview(
+            &state.db()?,
+            &state.registry().await?,
             &tenant.scope,
             PreviewFormulaCommand {
                 record_type: request.record_type,
-                expression: request.expression.clone(),
-                result_type: RULE_PREVIEW_RESULT_TYPE.to_owned(),
-                decimals: None,
+                expression: request.expression,
                 record_id: request.record_id,
-                field_key: None,
+                ..PreviewFormulaCommand::default()
             },
         )
         .await?;
-    Ok(Json(Data::new(
-        rule_preview(&request.expression, formula).into(),
-    )))
+    Ok(Json(Data::new(preview.into())))
 }
 
 #[utoipa::path(

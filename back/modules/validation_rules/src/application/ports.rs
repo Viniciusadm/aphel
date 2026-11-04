@@ -1,13 +1,10 @@
-use std::collections::HashMap;
-
 use async_trait::async_trait;
 use uuid::Uuid;
 
 use crate::application::ValidationRule;
 use aphel_kernel::application::fields::{FieldDefinitionRepository, RecordTypeRegistry};
 use aphel_kernel::application::security::Clock;
-use aphel_kernel::application::shared::{AuditLog, EventPublisher, RecordRef, TransactionManager};
-use aphel_kernel::domain::fields::{FieldDefinition, FieldValue};
+use aphel_kernel::application::shared::{AuditLog, EventPublisher, TransactionManager};
 use aphel_kernel::errors::AppError;
 
 #[async_trait]
@@ -28,17 +25,7 @@ pub trait ValidationRuleRepository: Send + Sync {
     ) -> Result<(), AppError>;
 }
 
-#[async_trait]
-pub trait ProposedFieldValues: Send + Sync {
-    type Tx: Send;
-
-    async fn load(
-        &self,
-        tx: &mut Self::Tx,
-        record: &RecordRef,
-        fields: &[FieldDefinition],
-    ) -> Result<HashMap<Uuid, FieldValue>, AppError>;
-}
+pub use aphel_sdk::formulas::ProposedFieldValues;
 
 pub type ValidationRulesTx<P> =
     <<P as ValidationRulePorts>::Transactions as TransactionManager>::Tx;

@@ -68,3 +68,99 @@ pub fn definition_planner() -> Result<std::sync::Arc<dyn FormulaDefinitionPlanne
             )
         })
 }
+
+pub mod dto;
+use aphel_kernel::application::fields::{FieldDefinitionReader, RecordWrite};
+use aphel_kernel::application::shared::{RecordRef, RecordType};
+use aphel_kernel::database::transaction::MySqlTx;
+use aphel_kernel::domain::fields::FieldValue;
+use async_trait::async_trait;
+use std::collections::HashMap;
+
+#[derive(Debug, Clone, PartialEq, Eq, Default)]
+pub struct PreviewFormulaCommand {
+    pub record_type: String,
+    pub expression: String,
+    pub result_type: String,
+    pub decimals: Option<u32>,
+    pub record_id: Option<String>,
+    pub field_key: Option<String>,
+}
+
+#[async_trait]
+pub trait ProposedFieldValues: Send + Sync {
+    type Tx: Send;
+
+    async fn load(
+        &self,
+        tx: &mut Self::Tx,
+        record: &RecordRef,
+        fields: &[FieldDefinition],
+    ) -> Result<HashMap<Uuid, FieldValue>, AppError>;
+}
+
+#[derive(Debug, Clone, PartialEq, Eq)]
+pub struct PredicateInput {
+    pub id: Uuid,
+    pub expression: String,
+    pub field: Option<String>,
+}
+#[derive(Debug, Clone, PartialEq, Eq)]
+pub struct PredicateOutcome {
+    pub id: Uuid,
+    pub matched: Option<bool>,
+    pub path: String,
+    pub error: Option<String>,
+}
+#[derive(Debug, Clone, PartialEq, Eq)]
+pub struct PredicateCheck {
+    pub errors: Vec<String>,
+    pub field_exists: bool,
+}
+#[derive(Debug)]
+pub struct BooleanFormulaPreview {
+    pub formula: dto::FormulaPreviewResponse,
+    pub matched: Option<bool>,
+}
+pub struct ProspectiveRequest<'a, 'w> {
+    pub pool: &'a MySqlPool,
+    pub registry: &'a Arc<RecordTypeRegistry>,
+    pub scope: &'a AccessScope,
+    pub write: &'a RecordWrite<'w>,
+    pub predicates: &'a [PredicateInput],
+}
+#[async_trait]
+pub trait ProspectivePredicates: Send + Sync {
+    async fn check(
+        &self,
+        registry: &RecordTypeRegistry,
+        definitions: &dyn FieldDefinitionReader,
+        record_type: &RecordType,
+        expression: &str,
+        field: Option<&str>,
+    ) -> Result<PredicateCheck, AppError>;
+    async fn evaluate(
+        &self,
+        request: ProspectiveRequest<'_, '_>,
+        tx: &mut MySqlTx,
+        values: &dyn ProposedFieldValues<Tx = MySqlTx>,
+    ) -> Result<Vec<PredicateOutcome>, AppError>;
+    async fn preview(
+        &self,
+        pool: &MySqlPool,
+        registry: &Arc<RecordTypeRegistry>,
+        scope: &AccessScope,
+        command: PreviewFormulaCommand,
+    ) -> Result<BooleanFormulaPreview, AppError>;
+}
+pub fn prospective() -> Result<Arc<dyn ProspectivePredicates>, AppError> {
+    aphel_kernel::modules::app()
+        .services()
+        .get::<dyn ProspectivePredicates>()
+        .ok_or_else(|| {
+            AppError::unavailable_code(
+                "prospective_predicates_unavailable",
+                "prospective formula evaluation is not enabled",
+            )
+        })
+}

@@ -7,10 +7,8 @@ use crate::application::{
     UpdateValidationRuleCommand, VALIDATION_RULE_CREATED, VALIDATION_RULE_DELETED,
     VALIDATION_RULE_NOT_FOUND, VALIDATION_RULE_RECORD, VALIDATION_RULE_UPDATED,
     VALIDATION_RULES_REORDERED, ValidationRule, ValidationRulePorts, ValidationRuleRepository,
-    compile_rule, is_validated_record_type,
+    is_validated_record_type,
 };
-use ::formulas::application::MAX_REPORTED_ERRORS;
-use ::formulas::application::{FormulaContext, FormulaWorkspace};
 use aphel_kernel::application::access::Authorizer;
 use aphel_kernel::application::audit::{DiffOptions, diff_values};
 use aphel_kernel::application::security::Clock;
@@ -22,6 +20,7 @@ use aphel_kernel::domain::fields::MAX_FORMULA_LENGTH;
 use aphel_kernel::errors::{AppError, FieldViolation};
 use aphel_kernel::records::{RecordMutation, changes_payload, publish_mutation};
 use aphel_sdk::configuration::{is_config_key, key_from_name};
+use aphel_sdk::formulas::{PredicateCheck, prospective};
 
 const INVALID_VALIDATION_RULE: &str = "invalid validation rule";
 
@@ -135,8 +134,16 @@ where
             created_at: now,
             updated_at: now,
         };
-        let context = self.context(&record_type).await?;
-        violations.extend(rule_violations(&rule, &context));
+        let check = prospective()?
+            .check(
+                self.ports.registry(),
+                self.ports.definitions(),
+                &record_type,
+                &rule.expression,
+                rule.field.as_deref(),
+            )
+            .await?;
+        violations.extend(rule_violations(&rule, &check));
         if !violations.is_empty() {
             return Err(AppError::invalid_fields(
                 INVALID_VALIDATION_RULE,
@@ -198,8 +205,16 @@ where
             rule.is_active = is_active;
         }
         let record_type = RecordType::parse(rule.record_type.clone())?;
-        let context = self.context(&record_type).await?;
-        violations.extend(rule_violations(&rule, &context));
+        let check = prospective()?
+            .check(
+                self.ports.registry(),
+                self.ports.definitions(),
+                &record_type,
+                &rule.expression,
+                rule.field.as_deref(),
+            )
+            .await?;
+        violations.extend(rule_violations(&rule, &check));
         if !violations.is_empty() {
             return Err(AppError::invalid_fields(
                 INVALID_VALIDATION_RULE,
@@ -365,12 +380,6 @@ where
         .await
     }
 
-    async fn context(&self, record_type: &RecordType) -> Result<FormulaContext, AppError> {
-        FormulaWorkspace::new(self.ports.registry(), self.ports.definitions())
-            .context(record_type)
-            .await
-    }
-
     async fn free_key(&self, base: &str) -> Result<String, AppError> {
         let base: String = base.chars().take(56).collect();
         let base = base.trim_end_matches('_').to_owned();
@@ -393,7 +402,7 @@ where
     }
 }
 
-pub fn rule_violations(rule: &ValidationRule, context: &FormulaContext) -> Vec<FieldViolation> {
+pub fn rule_violations(rule: &ValidationRule, check: &PredicateCheck) -> Vec<FieldViolation> {
     let mut violations = Vec::new();
     let name_length = rule.name.chars().count();
     if name_length == 0 || name_length > MAX_RULE_NAME_LENGTH {
@@ -414,17 +423,15 @@ pub fn rule_violations(rule: &ValidationRule, context: &FormulaContext) -> Vec<F
             "expression",
             format!("must have at most {MAX_FORMULA_LENGTH} characters"),
         ));
-    } else if let Err(errors) = compile_rule(&rule.expression, context) {
+    } else {
         violations.extend(
-            errors
+            check
+                .errors
                 .iter()
-                .take(MAX_REPORTED_ERRORS)
-                .map(|error| FieldViolation::new("expression", error.describe())),
+                .map(|error| FieldViolation::new("expression", error.clone())),
         );
     }
-    if let Some(field) = &rule.field
-        && context.field(field).is_none()
-    {
+    if rule.field.is_some() && !check.field_exists {
         violations.push(FieldViolation::new(
             "field",
             "must be an active field of the record type",

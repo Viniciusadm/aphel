@@ -1925,7 +1925,6 @@ name = "aphel-mod-validation-rules"
 version = "0.1.0"
 dependencies = [
  "aphel-kernel",
- "aphel-mod-formulas",
  "aphel-sdk",
  "async-trait",
  "axum",

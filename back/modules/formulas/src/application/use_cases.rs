@@ -18,15 +18,7 @@ use aphel_kernel::errors::{AppError, FieldViolation};
 pub const FORMULA_RECORD_NOT_FOUND: &str = "record_not_found";
 pub const PREVIEW_KEY: &str = "formula_preview";
 
-#[derive(Debug, Clone, PartialEq, Eq, Default)]
-pub struct PreviewFormulaCommand {
-    pub record_type: String,
-    pub expression: String,
-    pub result_type: String,
-    pub decimals: Option<u32>,
-    pub record_id: Option<String>,
-    pub field_key: Option<String>,
-}
+pub use aphel_sdk::formulas::PreviewFormulaCommand;
 
 #[derive(Debug, Clone, PartialEq)]
 pub struct FormulaPreview {

@@ -8,7 +8,7 @@ use crate::application::{
 };
 use aphel_kernel::api::dto::common::double_option;
 use aphel_kernel::api::dto::common::timestamp;
-use formulas::dto::FormulaPreviewResponse;
+use aphel_sdk::formulas::dto::FormulaPreviewResponse;
 
 #[derive(Deserialize, Serialize, ToSchema)]
 #[serde(rename_all = "snake_case")]
@@ -171,8 +171,8 @@ pub struct ValidationRulePreviewResponse {
 impl From<ValidationRulePreview> for ValidationRulePreviewResponse {
     fn from(preview: ValidationRulePreview) -> Self {
         Self {
-            fails: preview.fails,
-            formula: preview.formula.into(),
+            fails: preview.matched,
+            formula: preview.formula,
         }
     }
 }
