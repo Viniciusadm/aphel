@@ -1,7 +1,6 @@
 use crate::application::ConfigReferenceKind;
 
 use async_trait::async_trait;
-use chrono::{DateTime, Utc};
 use serde_json::Value;
 use uuid::Uuid;
 
@@ -9,25 +8,13 @@ use crate::application::ConfigSectionRegistry;
 use aphel_kernel::application::organization_admin::{ListWindow, Listing};
 use aphel_kernel::application::security::Clock;
 use aphel_kernel::application::shared::{AuditLog, EventPublisher, TransactionManager};
-use aphel_kernel::domain::UserId;
 use aphel_kernel::errors::AppError;
 
 pub const SAVED_VIEW_ITEM: ConfigReferenceKind = ConfigReferenceKind::new("views.view");
 
 pub use aphel_sdk::configuration::ConfigKeyRepository;
 
-#[derive(Debug, Clone, PartialEq)]
-pub struct ConfigPackageInstall {
-    pub id: Uuid,
-    pub name: String,
-    pub format_version: u32,
-    pub template_key: Option<String>,
-    pub package: Value,
-    pub summary: Value,
-    pub installed_by: Option<UserId>,
-    pub installed_by_name: Option<String>,
-    pub installed_at: DateTime<Utc>,
-}
+pub use aphel_sdk::configuration::ConfigPackageInstall;
 
 #[async_trait]
 pub trait ConfigInstallRepository: Send + Sync {

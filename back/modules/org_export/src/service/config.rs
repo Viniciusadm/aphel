@@ -2,27 +2,17 @@ use std::collections::HashMap;
 
 use serde_json::{Value, json};
 
-use ::config_packages::application::{
-    ApplyCommand, ConfigPackageUseCases, ConflictDecision, ExportCommand, INVALID_PACKAGE,
-    PackageSource, PlanAction,
-};
-use ::config_packages::infrastructure::MySqlConfigPackagePorts;
 use aphel_kernel::Ctx;
 use aphel_kernel::errors::{AppError, FieldViolation};
-
-fn packages(ctx: &Ctx<'_>) -> ConfigPackageUseCases<MySqlConfigPackagePorts> {
-    ConfigPackageUseCases::new(MySqlConfigPackagePorts::new(
-        ctx.pool().clone(),
-        ctx.registry().clone(),
-        ctx.events().clone(),
-        ctx.audit().clone(),
-    ))
-}
+use aphel_sdk::configuration::{
+    ApplyCommand, ConflictDecision, ExportCommand, INVALID_PACKAGE, PackageSource, PlanAction,
+    configuration_packages,
+};
 
 pub(crate) async fn export_config_package(ctx: &Ctx<'_>) -> Result<Value, AppError> {
-    let package = packages(ctx)
+    let package = configuration_packages(ctx)?
         .export(
-            ctx.scope,
+            ctx,
             ExportCommand {
                 name: Some("Configuração da exportação completa".to_owned()),
                 ..ExportCommand::default()
@@ -37,9 +27,9 @@ pub(crate) async fn install_config_package(
     ctx: &Ctx<'_>,
     package: Value,
 ) -> Result<Value, AppError> {
-    let packages = packages(ctx);
+    let packages = configuration_packages(ctx)?;
     let plan = packages
-        .plan(ctx.scope, PackageSource::Package(package.clone()))
+        .plan(ctx, PackageSource::Package(package.clone()))
         .await?;
     if !plan.valid {
         return Err(AppError::invalid_fields_code(
@@ -71,7 +61,7 @@ pub(crate) async fn install_config_package(
         .collect();
     let result = packages
         .apply(
-            ctx.scope,
+            ctx,
             ApplyCommand {
                 source: PackageSource::Package(package),
                 decisions,

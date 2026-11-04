@@ -804,7 +804,6 @@ dependencies = [
  "aphel-kernel",
  "aphel-mod-approvals",
  "aphel-mod-catalog-items",
- "aphel-mod-config-packages",
  "aphel-mod-deals",
  "aphel-mod-money",
  "aphel-mod-notes",
@@ -1417,7 +1416,6 @@ version = "0.1.0"
 dependencies = [
  "aphel-contract-crm",
  "aphel-kernel",
- "aphel-mod-config-packages",
  "aphel-mod-search",
  "aphel-mod-workflow",
  "aphel-sdk",

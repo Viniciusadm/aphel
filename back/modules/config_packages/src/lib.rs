@@ -4,6 +4,7 @@ pub mod dto;
 pub mod http;
 pub mod infrastructure;
 mod key_service;
+mod package_service;
 pub mod versions_dto;
 pub mod versions_http;
 
@@ -38,6 +39,9 @@ impl Module for ConfigPackagesModule {
     }
     fn register(&self, app: &mut AppBuilder) -> Result<(), AppError> {
         app.contract(aphel_contract_configuration::DESCRIPTOR);
+        app.provide::<dyn aphel_sdk::configuration::ConfigurationPackages>(std::sync::Arc::new(
+            package_service::Packages,
+        ));
         app.provide::<dyn aphel_sdk::configuration::ConfigurationCatalog>(std::sync::Arc::new(
             catalog_service::Catalog,
         ));

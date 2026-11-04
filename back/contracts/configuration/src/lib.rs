@@ -1,3 +1,5 @@
+mod commands;
+pub use commands::*;
 pub mod package;
 pub mod planning;
 pub use aphel_contract::ReferenceKind as ConfigReferenceKind;
@@ -8,6 +10,11 @@ pub const CONTRACT: Contract = contract!("configuration", "1.0.0");
 pub const DESCRIPTOR: ContractDescriptor = ContractDescriptor {
     contract: CONTRACT,
     entries: &[
+        KeyEntry::new(
+            "configuration.packages",
+            KeyKind::ExtensionPoint,
+            "Scoped configuration package execution",
+        ),
         KeyEntry::new(
             "configuration.catalog",
             KeyKind::ExtensionPoint,

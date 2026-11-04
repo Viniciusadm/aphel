@@ -83,7 +83,7 @@ This phase is in progress. Completed entries describe static source validation; 
 - [x] Share native schema projection, field metadata and configuration-key helpers used by section contributors. Field apply operations and formula checks stay in the host.
 - [x] Keep SQL key access, install/version repositories, installation planning/apply, template loading and version algorithms in `config_packages`.
 - [x] Replace implementation dependencies for configuration section contributors with the shared boundary.
-- [ ] Replace remaining direct install/version/template consumers in marketplace, demo and organization export.
+- [ ] Replace marketplace's remaining direct versioning consumers.
 - [ ] Manual acceptance: export/plan/apply for each contributed section, stable key resolution, conflicts and decisions, custom schema projections, formula validation, disabled sections, package versions and failed transactional writes.
 
 ## Export utility and job boundary
@@ -147,6 +147,14 @@ This phase is in progress. Completed entries describe static source validation; 
 - [x] Configuration packages retains template loading, install repository SQL and settings permission enforcement.
 - [x] Remove onboarding's configuration implementation dependency and foreign install-table SQL. Completion without a template remains available when configuration packages is absent.
 - [ ] Manual acceptance: selected templates, matching/mismatching installations, missing catalog, invalid identifiers, completion and reopening.
+
+## Configuration package execution boundary
+
+- [x] Share portable export/apply commands and plan metadata through the pure configuration contract, and installation snapshots through the SDK.
+- [x] Execute package export, planning and apply through an enabled SDK interface. The owner retains validation, fingerprints, decisions, transactions, repositories and section execution.
+- [x] Demo and organization export no longer construct the configuration implementation or depend on its crate. Missing package execution returns an explicit unavailable error.
+- [ ] Replace marketplace's direct versioning implementation dependency.
+- [ ] Manual acceptance: demo template setup, full configuration export/restore, conflict decisions, fingerprints, failed writes and disabled configuration packages.
 
 ## Outstanding scope
 

@@ -11,8 +11,6 @@ use crate::{
     DemoCatalog, DemoCleanup, DemoDataset, DemoDealOutcome, DemoRemovalReport, DemoResetReport,
     DemoSeedCommand, DemoSeedReport, DemoTarget, DemoVisitor, NewDemoVisitor, generate,
 };
-use ::config_packages::application::{ApplyCommand, ConfigPackageUseCases, PackageSource};
-use ::config_packages::infrastructure::MySqlConfigPackagePorts;
 use aphel_kernel::Ctx;
 use aphel_kernel::application::access::{AccessRepository, build_access_scope};
 use aphel_kernel::application::fields::{CreateFieldCommand, FieldOptionInput, FieldUseCases};
@@ -27,6 +25,7 @@ use aphel_kernel::infrastructure::auth::Argon2PasswordHasher;
 use aphel_kernel::infrastructure::fields::MySqlFieldPorts;
 use aphel_kernel::infrastructure::repositories::mysql_access::MySqlAccessRepository;
 use aphel_kernel::records::AddressInput;
+use aphel_sdk::configuration::{ApplyCommand, PackageSource, configuration_packages};
 use deals::domain::{DealInput, LoseDealCommand, MoveDealCommand};
 use notes::domain::CreateNoteCommand;
 use onboarding::domain::CompleteOnboardingCommand;
@@ -299,14 +298,9 @@ async fn admin_scope(ctx: &Ctx<'_>, user_id: &UserId) -> Result<AccessScope, App
 }
 
 async fn install_template(ctx: &Ctx<'_>, template_key: &str) -> Result<(), AppError> {
-    let packages = ConfigPackageUseCases::new(MySqlConfigPackagePorts::new(
-        ctx.pool().clone(),
-        ctx.registry().clone(),
-        ctx.events().clone(),
-        ctx.audit().clone(),
-    ));
+    let packages = configuration_packages(ctx)?;
     let source = PackageSource::Template(template_key.to_owned());
-    let plan = packages.plan(ctx.scope, source.clone()).await?;
+    let plan = packages.plan(ctx, source.clone()).await?;
     if !plan.valid {
         return Err(AppError::Configuration(format!(
             "template {template_key} is not valid: {:?}",
@@ -315,7 +309,7 @@ async fn install_template(ctx: &Ctx<'_>, template_key: &str) -> Result<(), AppEr
     }
     let result = packages
         .apply(
-            ctx.scope,
+            ctx,
             ApplyCommand {
                 source,
                 decisions: HashMap::new(),

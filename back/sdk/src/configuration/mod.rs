@@ -126,3 +126,60 @@ pub trait ConfigurationCatalog: Send + Sync {
         id: Uuid,
     ) -> Result<Option<InstallationReference>, AppError>;
 }
+
+use aphel_kernel::domain::UserId;
+use chrono::{DateTime, Utc};
+use serde_json::Value;
+
+#[derive(Debug, Clone, PartialEq)]
+pub struct ConfigPackageInstall {
+    pub id: Uuid,
+    pub name: String,
+    pub format_version: u32,
+    pub template_key: Option<String>,
+    pub package: Value,
+    pub summary: Value,
+    pub installed_by: Option<UserId>,
+    pub installed_by_name: Option<String>,
+    pub installed_at: DateTime<Utc>,
+}
+
+#[derive(Debug, Clone, PartialEq)]
+pub struct InstallResult {
+    pub install: ConfigPackageInstall,
+    pub applied: Vec<PlanItem>,
+    pub summary: PlanSummary,
+}
+
+#[async_trait]
+pub trait ConfigurationPackages: Send + Sync {
+    async fn export(
+        &self,
+        ctx: &crate::Ctx<'_>,
+        command: ExportCommand,
+        locale: &str,
+    ) -> Result<ConfigPackage, AppError>;
+    async fn plan(
+        &self,
+        ctx: &crate::Ctx<'_>,
+        source: PackageSource,
+    ) -> Result<PackagePlan, AppError>;
+    async fn apply(
+        &self,
+        ctx: &crate::Ctx<'_>,
+        command: ApplyCommand,
+    ) -> Result<InstallResult, AppError>;
+}
+
+pub fn configuration_packages(
+    ctx: &crate::Ctx<'_>,
+) -> Result<Arc<dyn ConfigurationPackages>, AppError> {
+    ctx.services()
+        .get::<dyn ConfigurationPackages>()
+        .ok_or_else(|| {
+            AppError::unavailable_code(
+                "configuration_packages_unavailable",
+                "configuration packages is not enabled",
+            )
+        })
+}
