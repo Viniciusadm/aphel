@@ -102,7 +102,7 @@ Records that stopped being visible before processing (e.g. private notes, record
 | `note.created` | Note | — |
 | `note.updated` | Note | — |
 | `note.deleted` | `{ id }` | — |
-| `meeting.booked` | Contact who booked through the scheduling link | — |
+| `meeting.booked` | Contact who booked through the booking link | — |
 | `meeting.rescheduled` | Contact of the rescheduled meeting | — |
 | `meeting.canceled` | Contact of the canceled meeting | — |
 | `sequence.enrolled` | Contact enrolled in the sequence | — |

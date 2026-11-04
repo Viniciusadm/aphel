@@ -10,7 +10,7 @@ The former oidc plugin is now sso. It owns corporate OpenID Connect login, the i
 - [x] Mailbox OAuth connection, credential refresh and MIME handling live with email in oauth.
 - [x] Google and Microsoft call the corresponding task/email owner operations. SSO does not import those plugins or know their business record types.
 - [x] Calendar busy intervals are pure calendar contract data; CalendarAvailability is a native SDK port consumed by booking and contributed by calendar connectors.
-- [x] Google, Microsoft and task synchronization no longer depend on the scheduling implementation for availability types.
+- [x] Google, Microsoft and task synchronization no longer depend on the booking implementation for availability types.
 - [x] Existing PKCE, state consumption, issuer/audience/nonce/time checks, verified-email policy, member lookup, domain restrictions, session creation and second-factor behavior remain in the identity flow.
 
 ## Manual acceptance pending

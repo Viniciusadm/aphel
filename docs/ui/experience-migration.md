@@ -14,7 +14,7 @@ Desktop navigation groups work, CRM, operations, insights and administration. Si
 - Deals: desktop board and a mobile stage overview with totals, grouped records and an optional horizontal board, including explicit stage and pipeline movement, validation and existing approval flows.
 - Tasks: related route views through AreaNavigation. Calendar keeps its purpose-specific representations and existing mobile agenda behavior.
 - Messaging: existing desktop list/conversation and mobile sequential conversation flow retained. Shared shell, controls and feedback apply.
-- Scheduling: bookings are the default destination; availability and meeting types have independent nested routes. Legacy tab query links redirect while preserving other parameters.
+- Booking: bookings are the default destination; availability and meeting types have independent nested routes. Legacy tab query links redirect while preserving other parameters.
 - Calls: sessions remain operational; reporting is independently discoverable under Insights; outcomes belong to organization settings. The previous outcomes URL redirects.
 - Reports: library entry, permission-filtered built-in destinations, saved reports and dedicated report builder.
 - Automations: flow, simulation, execution history and versions are contextual destinations; draft state and unsaved changes protection remain in the parent editor.
@@ -72,6 +72,6 @@ Static validation does not establish visual acceptance. The multi-resolution wal
 
 ## Coverage boundaries
 
-The route inventory covers core CRM records, custom objects, work queues, calendars, messaging, calls, scheduling, approvals, sales planning, reports, sequences, pricing, proposals, imports/exports, bulk history, duplicate resolution, privacy, themes, integrations, settings, authentication, installation and public pages. Shared changes apply to their actual consumers; specialized workflows are retained where their existing structure fits the task.
+The route inventory covers core CRM records, custom objects, work queues, calendars, messaging, calls, booking, approvals, sales planning, reports, sequences, pricing, proposals, imports/exports, bulk history, duplicate resolution, privacy, themes, integrations, settings, authentication, installation and public pages. Shared changes apply to their actual consumers; specialized workflows are retained where their existing structure fits the task.
 
-Source inspection and successful static checks are not interaction acceptance. No assertion is made that every route has been visually reviewed. Verify the route and permission matrix in a running demo once browser access exists, especially the new full-create transition, rule editor, legacy scheduling links, nested dialogs and keyboard behavior.
+Source inspection and successful static checks are not interaction acceptance. No assertion is made that every route has been visually reviewed. Verify the route and permission matrix in a running demo once browser access exists, especially the new full-create transition, rule editor, legacy booking links, nested dialogs and keyboard behavior.

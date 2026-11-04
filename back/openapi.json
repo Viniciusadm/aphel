@@ -3165,7 +3165,7 @@
         ],
         "responses": {
           "200": {
-            "description": "Assignment history of the distribution rules, newest first: who received which record, from which rule and source (`automation`, `incoming_webhook`, `import`, `scheduling`, `lead_form`). `user_id` is null when the user was removed and `record_type`/`record_id` are null for picks without a record. Entries of a deleted rule are deleted with it",
+            "description": "Assignment history of the distribution rules, newest first: who received which record, from which rule and source (`automation`, `incoming_webhook`, `import`, `booking`, `lead_form`). `user_id` is null when the user was removed and `record_type`/`record_id` are null for picks without a record. Entries of a deleted rule are deleted with it",
             "content": {
               "application/json": {
                 "schema": {
@@ -6409,6 +6409,993 @@
           },
           "404": {
             "description": "Unknown automation (`automation_not_found`)",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ErrorEnvelope"
+                }
+              }
+            }
+          },
+          "429": {
+            "description": "API token rate limit exceeded (`rate_limited`); see `Retry-After` and `X-RateLimit-*`",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ErrorEnvelope"
+                }
+              }
+            }
+          }
+        },
+        "security": [
+          {
+            "session_cookie": []
+          },
+          {
+            "api_token": []
+          }
+        ]
+      }
+    },
+    "/api/v1/booking/availability": {
+      "get": {
+        "tags": [
+          "booking"
+        ],
+        "operationId": "booking_availability_get",
+        "parameters": [
+          {
+            "name": "user_id",
+            "in": "query",
+            "required": false,
+            "schema": {
+              "type": "string"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "Weekly hours, time zone, minimum notice, daily limit, buffers and booking horizon used by the booking links of the user (yours, or `user_id` when your `booking.manage` scope covers that member). Defaults (Monday to Friday 09:00–18:00, 4 h notice, 60 days) with `configured: false` until saved",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/Data_BookingAvailabilityResponse"
+                }
+              }
+            }
+          },
+          "401": {
+            "description": "Missing or invalid credentials (`unauthorized`, `invalid_api_token`)",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ErrorEnvelope"
+                }
+              }
+            }
+          },
+          "403": {
+            "description": "Missing `booking.manage` or user outside your scope (`permission_denied`, `insufficient_scope`)",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ErrorEnvelope"
+                }
+              }
+            }
+          },
+          "429": {
+            "description": "API token rate limit exceeded (`rate_limited`); see `Retry-After` and `X-RateLimit-*`",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ErrorEnvelope"
+                }
+              }
+            }
+          }
+        },
+        "security": [
+          {
+            "session_cookie": []
+          },
+          {
+            "api_token": []
+          }
+        ]
+      },
+      "put": {
+        "tags": [
+          "booking"
+        ],
+        "operationId": "booking_availability_save",
+        "parameters": [
+          {
+            "name": "user_id",
+            "in": "query",
+            "required": false,
+            "schema": {
+              "type": "string"
+            }
+          },
+          {
+            "name": "If-Match",
+            "in": "header",
+            "description": "`updated_at` of the availability as read; fails with 409 when it changed since",
+            "required": false,
+            "schema": {
+              "type": [
+                "string",
+                "null"
+              ]
+            }
+          }
+        ],
+        "requestBody": {
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/BookingAvailabilityRequest"
+              }
+            }
+          },
+          "required": true
+        },
+        "responses": {
+          "200": {
+            "description": "Availability saved (`booking_availability.updated`); omitted properties stay unchanged and `weekly_hours` replaces the whole week (`weekday` 1 = Monday … 7 = Sunday, `HH:MM`, intervals of a day cannot overlap)",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/Data_BookingAvailabilityResponse"
+                }
+              }
+            }
+          },
+          "401": {
+            "description": "Missing or invalid credentials (`unauthorized`, `invalid_api_token`)",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ErrorEnvelope"
+                }
+              }
+            }
+          },
+          "403": {
+            "description": "Missing `booking.manage` or user outside your scope (`permission_denied`, `insufficient_scope`)",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ErrorEnvelope"
+                }
+              }
+            }
+          },
+          "409": {
+            "description": "Changed since the `If-Match` version (`version_conflict`)",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ErrorEnvelope"
+                }
+              }
+            }
+          },
+          "422": {
+            "description": "Invalid time zone, hours or limits (`validation_error`)",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ErrorEnvelope"
+                }
+              }
+            }
+          },
+          "429": {
+            "description": "API token rate limit exceeded (`rate_limited`); see `Retry-After` and `X-RateLimit-*`",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ErrorEnvelope"
+                }
+              }
+            }
+          }
+        },
+        "security": [
+          {
+            "session_cookie": []
+          },
+          {
+            "api_token": []
+          }
+        ]
+      }
+    },
+    "/api/v1/booking/bookings": {
+      "get": {
+        "tags": [
+          "booking"
+        ],
+        "operationId": "booking_bookings_list",
+        "parameters": [
+          {
+            "name": "status",
+            "in": "query",
+            "required": false,
+            "schema": {
+              "$ref": "#/components/schemas/MeetingBookingStatus"
+            }
+          },
+          {
+            "name": "meeting_type_id",
+            "in": "query",
+            "required": false,
+            "schema": {
+              "type": "string"
+            }
+          },
+          {
+            "name": "upcoming",
+            "in": "query",
+            "required": false,
+            "schema": {
+              "type": "boolean"
+            }
+          },
+          {
+            "name": "page",
+            "in": "query",
+            "required": false,
+            "schema": {
+              "type": "integer",
+              "format": "int32",
+              "default": 1,
+              "minimum": 1
+            }
+          },
+          {
+            "name": "per_page",
+            "in": "query",
+            "required": false,
+            "schema": {
+              "type": "integer",
+              "format": "int32",
+              "default": 25,
+              "maximum": 100,
+              "minimum": 1
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "Meetings booked through booking links whose host is within your `booking.manage` scope; `upcoming=true` lists the ones not finished yet in chronological order, otherwise newest first",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/Page_MeetingBookingResponse"
+                }
+              }
+            }
+          },
+          "401": {
+            "description": "Missing or invalid credentials (`unauthorized`, `invalid_api_token`)",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ErrorEnvelope"
+                }
+              }
+            }
+          },
+          "403": {
+            "description": "Missing `booking.manage` (`permission_denied`, `insufficient_scope`)",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ErrorEnvelope"
+                }
+              }
+            }
+          },
+          "422": {
+            "description": "Invalid filter or pagination (`validation_error`)",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ErrorEnvelope"
+                }
+              }
+            }
+          },
+          "429": {
+            "description": "API token rate limit exceeded (`rate_limited`); see `Retry-After` and `X-RateLimit-*`",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ErrorEnvelope"
+                }
+              }
+            }
+          }
+        },
+        "security": [
+          {
+            "session_cookie": []
+          },
+          {
+            "api_token": []
+          }
+        ]
+      }
+    },
+    "/api/v1/booking/bookings/{booking_id}/cancel": {
+      "post": {
+        "tags": [
+          "booking"
+        ],
+        "operationId": "booking_bookings_cancel",
+        "parameters": [
+          {
+            "name": "booking_id",
+            "in": "path",
+            "description": "Booking id",
+            "required": true,
+            "schema": {
+              "type": "string"
+            }
+          },
+          {
+            "name": "Idempotency-Key",
+            "in": "header",
+            "description": "Up to 255 printable ASCII characters. The same key with the same request (method, path and body) within 24 hours answers the stored response with the same status and body plus `Idempotent-Replayed: true`. Scoped to the credential (session cookie or API token); ignored without a credential. 5xx and 429 responses are not stored",
+            "required": false,
+            "schema": {
+              "type": "string",
+              "maxLength": 255
+            }
+          }
+        ],
+        "requestBody": {
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/MeetingBookingCancelRequest"
+              }
+            }
+          },
+          "required": true
+        },
+        "responses": {
+          "200": {
+            "description": "Booking canceled by the host (`meeting.canceled`): the meeting activity is canceled and the guest receives the cancellation with an `.ics` (`METHOD:CANCEL`)",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/Data_MeetingBookingResponse"
+                }
+              }
+            }
+          },
+          "401": {
+            "description": "Missing or invalid credentials (`unauthorized`, `invalid_api_token`)",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ErrorEnvelope"
+                }
+              }
+            }
+          },
+          "403": {
+            "description": "Missing `booking.manage` (`permission_denied`, `insufficient_scope`)",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ErrorEnvelope"
+                }
+              }
+            }
+          },
+          "404": {
+            "description": "Not found or outside your scope (`booking_not_found`)",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ErrorEnvelope"
+                }
+              }
+            }
+          },
+          "409": {
+            "description": "Already canceled or in the past (`booking_not_changeable`). The first request with this `Idempotency-Key` is still being processed (`idempotency_key_in_progress`)",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ErrorEnvelope"
+                }
+              }
+            }
+          },
+          "422": {
+            "description": "`Idempotency-Key` already used with a different request (`idempotency_key_reused`) or longer than 255 characters (`validation_error`)",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ErrorEnvelope"
+                }
+              }
+            }
+          },
+          "429": {
+            "description": "API token rate limit exceeded (`rate_limited`); see `Retry-After` and `X-RateLimit-*`",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ErrorEnvelope"
+                }
+              }
+            }
+          }
+        },
+        "security": [
+          {
+            "session_cookie": []
+          },
+          {
+            "api_token": []
+          }
+        ]
+      }
+    },
+    "/api/v1/booking/contact-fields": {
+      "get": {
+        "tags": [
+          "booking"
+        ],
+        "operationId": "booking_contact_fields",
+        "responses": {
+          "200": {
+            "description": "Contact fields that can receive the answer of a booking question (phone, mobile, job title, notes, city, state, country and active text-like custom fields). Answers fill the contact only when the booking creates it",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/Data_Vec_BookingContactFieldResponse"
+                }
+              }
+            }
+          },
+          "401": {
+            "description": "Missing or invalid credentials (`unauthorized`, `invalid_api_token`)",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ErrorEnvelope"
+                }
+              }
+            }
+          },
+          "403": {
+            "description": "Missing `booking.manage` (`permission_denied`, `insufficient_scope`)",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ErrorEnvelope"
+                }
+              }
+            }
+          },
+          "429": {
+            "description": "API token rate limit exceeded (`rate_limited`); see `Retry-After` and `X-RateLimit-*`",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ErrorEnvelope"
+                }
+              }
+            }
+          }
+        },
+        "security": [
+          {
+            "session_cookie": []
+          },
+          {
+            "api_token": []
+          }
+        ]
+      }
+    },
+    "/api/v1/booking/distribution-rules": {
+      "get": {
+        "tags": [
+          "booking"
+        ],
+        "operationId": "booking_distribution_rules",
+        "responses": {
+          "200": {
+            "description": "Active lead distribution rules that a team booking link can use to pick the host",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/Data_Vec_BookingReference"
+                }
+              }
+            }
+          },
+          "401": {
+            "description": "Missing or invalid credentials (`unauthorized`, `invalid_api_token`)",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ErrorEnvelope"
+                }
+              }
+            }
+          },
+          "403": {
+            "description": "Team links need `booking.manage` for the team or the organization (`permission_denied`, `insufficient_scope`)",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ErrorEnvelope"
+                }
+              }
+            }
+          },
+          "429": {
+            "description": "API token rate limit exceeded (`rate_limited`); see `Retry-After` and `X-RateLimit-*`",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ErrorEnvelope"
+                }
+              }
+            }
+          }
+        },
+        "security": [
+          {
+            "session_cookie": []
+          },
+          {
+            "api_token": []
+          }
+        ]
+      }
+    },
+    "/api/v1/booking/meeting-types": {
+      "get": {
+        "tags": [
+          "booking"
+        ],
+        "operationId": "booking_meeting_types_list",
+        "parameters": [
+          {
+            "name": "page",
+            "in": "query",
+            "required": false,
+            "schema": {
+              "type": "integer",
+              "format": "int32",
+              "default": 1,
+              "minimum": 1
+            }
+          },
+          {
+            "name": "per_page",
+            "in": "query",
+            "required": false,
+            "schema": {
+              "type": "integer",
+              "format": "int32",
+              "default": 25,
+              "maximum": 100,
+              "minimum": 1
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "Meeting types (booking links) whose owner is within your `booking.manage` scope, ordered by name",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/Page_MeetingTypeResponse"
+                }
+              }
+            }
+          },
+          "401": {
+            "description": "Missing or invalid credentials (`unauthorized`, `invalid_api_token`)",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ErrorEnvelope"
+                }
+              }
+            }
+          },
+          "403": {
+            "description": "Missing `booking.manage` (`permission_denied`, `insufficient_scope`)",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ErrorEnvelope"
+                }
+              }
+            }
+          },
+          "422": {
+            "description": "Invalid pagination (`validation_error`)",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ErrorEnvelope"
+                }
+              }
+            }
+          },
+          "429": {
+            "description": "API token rate limit exceeded (`rate_limited`); see `Retry-After` and `X-RateLimit-*`",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ErrorEnvelope"
+                }
+              }
+            }
+          }
+        },
+        "security": [
+          {
+            "session_cookie": []
+          },
+          {
+            "api_token": []
+          }
+        ]
+      },
+      "post": {
+        "tags": [
+          "booking"
+        ],
+        "operationId": "booking_meeting_types_create",
+        "parameters": [
+          {
+            "name": "Idempotency-Key",
+            "in": "header",
+            "description": "Up to 255 printable ASCII characters. The same key with the same request (method, path and body) within 24 hours answers the stored response with the same status and body plus `Idempotent-Replayed: true`. Scoped to the credential (session cookie or API token); ignored without a credential. 5xx and 429 responses are not stored",
+            "required": false,
+            "schema": {
+              "type": "string",
+              "maxLength": 255
+            }
+          }
+        ],
+        "requestBody": {
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/MeetingTypeRequest"
+              }
+            }
+          },
+          "required": true
+        },
+        "responses": {
+          "201": {
+            "description": "Meeting type created (`meeting_type.created`) and owned by you; its public page is `/book/{slug}` (`slug` derived from the name when omitted). `location_kind` is `none`, `video`, `address` or `phone` (value shown to the guest only after booking). `questions` (up to 10) may map the answer to a contact field (see `/booking/contact-fields`). `distribution_rule_id` turns it into a team link: the host is picked among the free members of the rule by its rotation. `spam_protection` enables the honeypot",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/Data_MeetingTypeResponse"
+                }
+              }
+            }
+          },
+          "401": {
+            "description": "Missing or invalid credentials (`unauthorized`, `invalid_api_token`)",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ErrorEnvelope"
+                }
+              }
+            }
+          },
+          "403": {
+            "description": "Missing `booking.manage`, or a team link without team/organization scope (`permission_denied`, `insufficient_scope`)",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ErrorEnvelope"
+                }
+              }
+            }
+          },
+          "409": {
+            "description": "Another link already uses the slug (`meeting_type_slug_taken`). The first request with this `Idempotency-Key` is still being processed (`idempotency_key_in_progress`)",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ErrorEnvelope"
+                }
+              }
+            }
+          },
+          "422": {
+            "description": "Invalid properties, questions or rule (`validation_error`). `Idempotency-Key` already used with a different request (`idempotency_key_reused`) or longer than 255 characters (`validation_error`)",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ErrorEnvelope"
+                }
+              }
+            }
+          },
+          "429": {
+            "description": "API token rate limit exceeded (`rate_limited`); see `Retry-After` and `X-RateLimit-*`",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ErrorEnvelope"
+                }
+              }
+            }
+          }
+        },
+        "security": [
+          {
+            "session_cookie": []
+          },
+          {
+            "api_token": []
+          }
+        ]
+      }
+    },
+    "/api/v1/booking/meeting-types/{meeting_type_id}": {
+      "get": {
+        "tags": [
+          "booking"
+        ],
+        "operationId": "booking_meeting_types_get",
+        "parameters": [
+          {
+            "name": "meeting_type_id",
+            "in": "path",
+            "description": "Meeting type id",
+            "required": true,
+            "schema": {
+              "type": "string"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "Meeting type",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/Data_MeetingTypeResponse"
+                }
+              }
+            }
+          },
+          "401": {
+            "description": "Missing or invalid credentials (`unauthorized`, `invalid_api_token`)",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ErrorEnvelope"
+                }
+              }
+            }
+          },
+          "403": {
+            "description": "Missing `booking.manage` (`permission_denied`, `insufficient_scope`)",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ErrorEnvelope"
+                }
+              }
+            }
+          },
+          "404": {
+            "description": "Not found or outside your scope (`meeting_type_not_found`)",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ErrorEnvelope"
+                }
+              }
+            }
+          },
+          "429": {
+            "description": "API token rate limit exceeded (`rate_limited`); see `Retry-After` and `X-RateLimit-*`",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ErrorEnvelope"
+                }
+              }
+            }
+          }
+        },
+        "security": [
+          {
+            "session_cookie": []
+          },
+          {
+            "api_token": []
+          }
+        ]
+      },
+      "delete": {
+        "tags": [
+          "booking"
+        ],
+        "operationId": "booking_meeting_types_delete",
+        "parameters": [
+          {
+            "name": "meeting_type_id",
+            "in": "path",
+            "description": "Meeting type id",
+            "required": true,
+            "schema": {
+              "type": "string"
+            }
+          }
+        ],
+        "responses": {
+          "204": {
+            "description": "Meeting type and its booking history deleted (`meeting_type.deleted`); the meeting tasks stay in the CRM"
+          },
+          "401": {
+            "description": "Missing or invalid credentials (`unauthorized`, `invalid_api_token`)",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ErrorEnvelope"
+                }
+              }
+            }
+          },
+          "403": {
+            "description": "Missing `booking.manage` (`permission_denied`, `insufficient_scope`)",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ErrorEnvelope"
+                }
+              }
+            }
+          },
+          "404": {
+            "description": "Not found or outside your scope (`meeting_type_not_found`)",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ErrorEnvelope"
+                }
+              }
+            }
+          },
+          "429": {
+            "description": "API token rate limit exceeded (`rate_limited`); see `Retry-After` and `X-RateLimit-*`",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ErrorEnvelope"
+                }
+              }
+            }
+          }
+        },
+        "security": [
+          {
+            "session_cookie": []
+          },
+          {
+            "api_token": []
+          }
+        ]
+      },
+      "patch": {
+        "tags": [
+          "booking"
+        ],
+        "operationId": "booking_meeting_types_update",
+        "parameters": [
+          {
+            "name": "meeting_type_id",
+            "in": "path",
+            "description": "Meeting type id",
+            "required": true,
+            "schema": {
+              "type": "string"
+            }
+          },
+          {
+            "name": "If-Match",
+            "in": "header",
+            "description": "`updated_at` of the meeting type as read; fails with 409 when it changed since",
+            "required": false,
+            "schema": {
+              "type": [
+                "string",
+                "null"
+              ]
+            }
+          }
+        ],
+        "requestBody": {
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/MeetingTypeRequest"
+              }
+            }
+          },
+          "required": true
+        },
+        "responses": {
+          "200": {
+            "description": "Meeting type updated (`meeting_type.updated`); omitted properties stay unchanged, `questions` replaces the list and `distribution_rule_id: null` turns a team link into a personal one. Existing bookings keep their time",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/Data_MeetingTypeResponse"
+                }
+              }
+            }
+          },
+          "401": {
+            "description": "Missing or invalid credentials (`unauthorized`, `invalid_api_token`)",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ErrorEnvelope"
+                }
+              }
+            }
+          },
+          "403": {
+            "description": "Missing `booking.manage` (`permission_denied`, `insufficient_scope`)",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ErrorEnvelope"
+                }
+              }
+            }
+          },
+          "404": {
+            "description": "Not found or outside your scope (`meeting_type_not_found`)",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ErrorEnvelope"
+                }
+              }
+            }
+          },
+          "409": {
+            "description": "Slug taken (`meeting_type_slug_taken`) or changed since the `If-Match` version (`version_conflict`)",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ErrorEnvelope"
+                }
+              }
+            }
+          },
+          "422": {
+            "description": "Invalid properties (`validation_error`)",
             "content": {
               "application/json": {
                 "schema": {
@@ -45179,10 +46166,10 @@
     "/api/v1/public/book/manage/{token}": {
       "get": {
         "tags": [
-          "scheduling"
+          "booking"
         ],
         "description": "Booking behind a signed management link (no session): meeting, time, host, location and status; `can_change` tells whether it can still be rescheduled or canceled.",
-        "operationId": "scheduling_public_booking",
+        "operationId": "booking_public_booking",
         "parameters": [
           {
             "name": "token",
@@ -45231,10 +46218,10 @@
     "/api/v1/public/book/manage/{token}/cancel": {
       "post": {
         "tags": [
-          "scheduling"
+          "booking"
         ],
         "description": "Cancels the booking (no session): cancels the meeting activity, sends the cancellation `.ics` (`METHOD:CANCEL`) to the guest and the host and publishes `meeting.canceled`.",
-        "operationId": "scheduling_public_cancel",
+        "operationId": "booking_public_cancel",
         "parameters": [
           {
             "name": "token",
@@ -45323,10 +46310,10 @@
     "/api/v1/public/book/manage/{token}/reschedule": {
       "post": {
         "tags": [
-          "scheduling"
+          "booking"
         ],
         "description": "Moves the booking to another free slot of the same host (no session): updates the meeting activity, sends the updated `.ics` to the guest and the host and publishes `meeting.rescheduled`.",
-        "operationId": "scheduling_public_reschedule",
+        "operationId": "booking_public_reschedule",
         "parameters": [
           {
             "name": "token",
@@ -45415,10 +46402,10 @@
     "/api/v1/public/book/manage/{token}/slots": {
       "get": {
         "tags": [
-          "scheduling"
+          "booking"
         ],
         "description": "Free slots of the same host to reschedule the booking (its own time counts as free). Same rules as the slots of the link.",
-        "operationId": "scheduling_public_booking_slots",
+        "operationId": "booking_public_booking_slots",
         "parameters": [
           {
             "name": "token",
@@ -45505,15 +46492,15 @@
     "/api/v1/public/book/{slug}": {
       "get": {
         "tags": [
-          "scheduling"
+          "booking"
         ],
-        "description": "Public data of an active scheduling link (no session): name, duration, kind of location, host name (null for team links), organization name, host time zone and the questions of the booking form.",
-        "operationId": "scheduling_public_meeting_type",
+        "description": "Public data of an active booking link (no session): name, duration, kind of location, host name (null for team links), organization name, host time zone and the questions of the booking form.",
+        "operationId": "booking_public_meeting_type",
         "parameters": [
           {
             "name": "slug",
             "in": "path",
-            "description": "Slug of the scheduling link",
+            "description": "Slug of the booking link",
             "required": true,
             "schema": {
               "type": "string"
@@ -45522,7 +46509,7 @@
         ],
         "responses": {
           "200": {
-            "description": "Scheduling link",
+            "description": "Booking link",
             "content": {
               "application/json": {
                 "schema": {
@@ -45555,15 +46542,15 @@
       },
       "post": {
         "tags": [
-          "scheduling"
+          "booking"
         ],
         "description": "Books a free slot (no session, no `X-Requested-With` needed). Finds the contact by e-mail or creates it (owned by the host, with the mapped answers), creates a `meeting` activity linked to it and assigned to the host, sends the confirmation with an `.ics` invitation to the guest and the host, and publishes `meeting.booked`. Team links pick the host among the free members by the rotation of the distribution rule. `website` is a honeypot that must stay empty when the link has spam protection. The answer carries `manage_token`, used to reschedule or cancel.",
-        "operationId": "scheduling_public_book",
+        "operationId": "booking_public_book",
         "parameters": [
           {
             "name": "slug",
             "in": "path",
-            "description": "Slug of the scheduling link",
+            "description": "Slug of the booking link",
             "required": true,
             "schema": {
               "type": "string"
@@ -45647,15 +46634,15 @@
     "/api/v1/public/book/{slug}/slots": {
       "get": {
         "tags": [
-          "scheduling"
+          "booking"
         ],
         "description": "Free start times of the link between `from` and `to` (RFC 3339, at most 42 days apart), no session. Only free slots are returned, never anything about the host's other commitments: open tasks with time and duration, other bookings, the connected Google/Microsoft calendars (busy times only), buffers, minimum notice, daily limit and horizon are applied before. For team links the slots of all eligible members are merged.",
-        "operationId": "scheduling_public_slots",
+        "operationId": "booking_public_slots",
         "parameters": [
           {
             "name": "slug",
             "in": "path",
-            "description": "Slug of the scheduling link",
+            "description": "Slug of the booking link",
             "required": true,
             "schema": {
               "type": "string"
@@ -52361,993 +53348,6 @@
           },
           "422": {
             "description": "Invalid fields (`validation_error`)",
-            "content": {
-              "application/json": {
-                "schema": {
-                  "$ref": "#/components/schemas/ErrorEnvelope"
-                }
-              }
-            }
-          },
-          "429": {
-            "description": "API token rate limit exceeded (`rate_limited`); see `Retry-After` and `X-RateLimit-*`",
-            "content": {
-              "application/json": {
-                "schema": {
-                  "$ref": "#/components/schemas/ErrorEnvelope"
-                }
-              }
-            }
-          }
-        },
-        "security": [
-          {
-            "session_cookie": []
-          },
-          {
-            "api_token": []
-          }
-        ]
-      }
-    },
-    "/api/v1/scheduling/availability": {
-      "get": {
-        "tags": [
-          "scheduling"
-        ],
-        "operationId": "scheduling_availability_get",
-        "parameters": [
-          {
-            "name": "user_id",
-            "in": "query",
-            "required": false,
-            "schema": {
-              "type": "string"
-            }
-          }
-        ],
-        "responses": {
-          "200": {
-            "description": "Weekly hours, time zone, minimum notice, daily limit, buffers and booking horizon used by the scheduling links of the user (yours, or `user_id` when your `scheduling.manage` scope covers that member). Defaults (Monday to Friday 09:00–18:00, 4 h notice, 60 days) with `configured: false` until saved",
-            "content": {
-              "application/json": {
-                "schema": {
-                  "$ref": "#/components/schemas/Data_SchedulingAvailabilityResponse"
-                }
-              }
-            }
-          },
-          "401": {
-            "description": "Missing or invalid credentials (`unauthorized`, `invalid_api_token`)",
-            "content": {
-              "application/json": {
-                "schema": {
-                  "$ref": "#/components/schemas/ErrorEnvelope"
-                }
-              }
-            }
-          },
-          "403": {
-            "description": "Missing `scheduling.manage` or user outside your scope (`permission_denied`, `insufficient_scope`)",
-            "content": {
-              "application/json": {
-                "schema": {
-                  "$ref": "#/components/schemas/ErrorEnvelope"
-                }
-              }
-            }
-          },
-          "429": {
-            "description": "API token rate limit exceeded (`rate_limited`); see `Retry-After` and `X-RateLimit-*`",
-            "content": {
-              "application/json": {
-                "schema": {
-                  "$ref": "#/components/schemas/ErrorEnvelope"
-                }
-              }
-            }
-          }
-        },
-        "security": [
-          {
-            "session_cookie": []
-          },
-          {
-            "api_token": []
-          }
-        ]
-      },
-      "put": {
-        "tags": [
-          "scheduling"
-        ],
-        "operationId": "scheduling_availability_save",
-        "parameters": [
-          {
-            "name": "user_id",
-            "in": "query",
-            "required": false,
-            "schema": {
-              "type": "string"
-            }
-          },
-          {
-            "name": "If-Match",
-            "in": "header",
-            "description": "`updated_at` of the availability as read; fails with 409 when it changed since",
-            "required": false,
-            "schema": {
-              "type": [
-                "string",
-                "null"
-              ]
-            }
-          }
-        ],
-        "requestBody": {
-          "content": {
-            "application/json": {
-              "schema": {
-                "$ref": "#/components/schemas/SchedulingAvailabilityRequest"
-              }
-            }
-          },
-          "required": true
-        },
-        "responses": {
-          "200": {
-            "description": "Availability saved (`scheduling_availability.updated`); omitted properties stay unchanged and `weekly_hours` replaces the whole week (`weekday` 1 = Monday … 7 = Sunday, `HH:MM`, intervals of a day cannot overlap)",
-            "content": {
-              "application/json": {
-                "schema": {
-                  "$ref": "#/components/schemas/Data_SchedulingAvailabilityResponse"
-                }
-              }
-            }
-          },
-          "401": {
-            "description": "Missing or invalid credentials (`unauthorized`, `invalid_api_token`)",
-            "content": {
-              "application/json": {
-                "schema": {
-                  "$ref": "#/components/schemas/ErrorEnvelope"
-                }
-              }
-            }
-          },
-          "403": {
-            "description": "Missing `scheduling.manage` or user outside your scope (`permission_denied`, `insufficient_scope`)",
-            "content": {
-              "application/json": {
-                "schema": {
-                  "$ref": "#/components/schemas/ErrorEnvelope"
-                }
-              }
-            }
-          },
-          "409": {
-            "description": "Changed since the `If-Match` version (`version_conflict`)",
-            "content": {
-              "application/json": {
-                "schema": {
-                  "$ref": "#/components/schemas/ErrorEnvelope"
-                }
-              }
-            }
-          },
-          "422": {
-            "description": "Invalid time zone, hours or limits (`validation_error`)",
-            "content": {
-              "application/json": {
-                "schema": {
-                  "$ref": "#/components/schemas/ErrorEnvelope"
-                }
-              }
-            }
-          },
-          "429": {
-            "description": "API token rate limit exceeded (`rate_limited`); see `Retry-After` and `X-RateLimit-*`",
-            "content": {
-              "application/json": {
-                "schema": {
-                  "$ref": "#/components/schemas/ErrorEnvelope"
-                }
-              }
-            }
-          }
-        },
-        "security": [
-          {
-            "session_cookie": []
-          },
-          {
-            "api_token": []
-          }
-        ]
-      }
-    },
-    "/api/v1/scheduling/bookings": {
-      "get": {
-        "tags": [
-          "scheduling"
-        ],
-        "operationId": "scheduling_bookings_list",
-        "parameters": [
-          {
-            "name": "status",
-            "in": "query",
-            "required": false,
-            "schema": {
-              "$ref": "#/components/schemas/MeetingBookingStatus"
-            }
-          },
-          {
-            "name": "meeting_type_id",
-            "in": "query",
-            "required": false,
-            "schema": {
-              "type": "string"
-            }
-          },
-          {
-            "name": "upcoming",
-            "in": "query",
-            "required": false,
-            "schema": {
-              "type": "boolean"
-            }
-          },
-          {
-            "name": "page",
-            "in": "query",
-            "required": false,
-            "schema": {
-              "type": "integer",
-              "format": "int32",
-              "default": 1,
-              "minimum": 1
-            }
-          },
-          {
-            "name": "per_page",
-            "in": "query",
-            "required": false,
-            "schema": {
-              "type": "integer",
-              "format": "int32",
-              "default": 25,
-              "maximum": 100,
-              "minimum": 1
-            }
-          }
-        ],
-        "responses": {
-          "200": {
-            "description": "Meetings booked through scheduling links whose host is within your `scheduling.manage` scope; `upcoming=true` lists the ones not finished yet in chronological order, otherwise newest first",
-            "content": {
-              "application/json": {
-                "schema": {
-                  "$ref": "#/components/schemas/Page_MeetingBookingResponse"
-                }
-              }
-            }
-          },
-          "401": {
-            "description": "Missing or invalid credentials (`unauthorized`, `invalid_api_token`)",
-            "content": {
-              "application/json": {
-                "schema": {
-                  "$ref": "#/components/schemas/ErrorEnvelope"
-                }
-              }
-            }
-          },
-          "403": {
-            "description": "Missing `scheduling.manage` (`permission_denied`, `insufficient_scope`)",
-            "content": {
-              "application/json": {
-                "schema": {
-                  "$ref": "#/components/schemas/ErrorEnvelope"
-                }
-              }
-            }
-          },
-          "422": {
-            "description": "Invalid filter or pagination (`validation_error`)",
-            "content": {
-              "application/json": {
-                "schema": {
-                  "$ref": "#/components/schemas/ErrorEnvelope"
-                }
-              }
-            }
-          },
-          "429": {
-            "description": "API token rate limit exceeded (`rate_limited`); see `Retry-After` and `X-RateLimit-*`",
-            "content": {
-              "application/json": {
-                "schema": {
-                  "$ref": "#/components/schemas/ErrorEnvelope"
-                }
-              }
-            }
-          }
-        },
-        "security": [
-          {
-            "session_cookie": []
-          },
-          {
-            "api_token": []
-          }
-        ]
-      }
-    },
-    "/api/v1/scheduling/bookings/{booking_id}/cancel": {
-      "post": {
-        "tags": [
-          "scheduling"
-        ],
-        "operationId": "scheduling_bookings_cancel",
-        "parameters": [
-          {
-            "name": "booking_id",
-            "in": "path",
-            "description": "Booking id",
-            "required": true,
-            "schema": {
-              "type": "string"
-            }
-          },
-          {
-            "name": "Idempotency-Key",
-            "in": "header",
-            "description": "Up to 255 printable ASCII characters. The same key with the same request (method, path and body) within 24 hours answers the stored response with the same status and body plus `Idempotent-Replayed: true`. Scoped to the credential (session cookie or API token); ignored without a credential. 5xx and 429 responses are not stored",
-            "required": false,
-            "schema": {
-              "type": "string",
-              "maxLength": 255
-            }
-          }
-        ],
-        "requestBody": {
-          "content": {
-            "application/json": {
-              "schema": {
-                "$ref": "#/components/schemas/MeetingBookingCancelRequest"
-              }
-            }
-          },
-          "required": true
-        },
-        "responses": {
-          "200": {
-            "description": "Booking canceled by the host (`meeting.canceled`): the meeting activity is canceled and the guest receives the cancellation with an `.ics` (`METHOD:CANCEL`)",
-            "content": {
-              "application/json": {
-                "schema": {
-                  "$ref": "#/components/schemas/Data_MeetingBookingResponse"
-                }
-              }
-            }
-          },
-          "401": {
-            "description": "Missing or invalid credentials (`unauthorized`, `invalid_api_token`)",
-            "content": {
-              "application/json": {
-                "schema": {
-                  "$ref": "#/components/schemas/ErrorEnvelope"
-                }
-              }
-            }
-          },
-          "403": {
-            "description": "Missing `scheduling.manage` (`permission_denied`, `insufficient_scope`)",
-            "content": {
-              "application/json": {
-                "schema": {
-                  "$ref": "#/components/schemas/ErrorEnvelope"
-                }
-              }
-            }
-          },
-          "404": {
-            "description": "Not found or outside your scope (`booking_not_found`)",
-            "content": {
-              "application/json": {
-                "schema": {
-                  "$ref": "#/components/schemas/ErrorEnvelope"
-                }
-              }
-            }
-          },
-          "409": {
-            "description": "Already canceled or in the past (`booking_not_changeable`). The first request with this `Idempotency-Key` is still being processed (`idempotency_key_in_progress`)",
-            "content": {
-              "application/json": {
-                "schema": {
-                  "$ref": "#/components/schemas/ErrorEnvelope"
-                }
-              }
-            }
-          },
-          "422": {
-            "description": "`Idempotency-Key` already used with a different request (`idempotency_key_reused`) or longer than 255 characters (`validation_error`)",
-            "content": {
-              "application/json": {
-                "schema": {
-                  "$ref": "#/components/schemas/ErrorEnvelope"
-                }
-              }
-            }
-          },
-          "429": {
-            "description": "API token rate limit exceeded (`rate_limited`); see `Retry-After` and `X-RateLimit-*`",
-            "content": {
-              "application/json": {
-                "schema": {
-                  "$ref": "#/components/schemas/ErrorEnvelope"
-                }
-              }
-            }
-          }
-        },
-        "security": [
-          {
-            "session_cookie": []
-          },
-          {
-            "api_token": []
-          }
-        ]
-      }
-    },
-    "/api/v1/scheduling/contact-fields": {
-      "get": {
-        "tags": [
-          "scheduling"
-        ],
-        "operationId": "scheduling_contact_fields",
-        "responses": {
-          "200": {
-            "description": "Contact fields that can receive the answer of a booking question (phone, mobile, job title, notes, city, state, country and active text-like custom fields). Answers fill the contact only when the booking creates it",
-            "content": {
-              "application/json": {
-                "schema": {
-                  "$ref": "#/components/schemas/Data_Vec_SchedulingContactFieldResponse"
-                }
-              }
-            }
-          },
-          "401": {
-            "description": "Missing or invalid credentials (`unauthorized`, `invalid_api_token`)",
-            "content": {
-              "application/json": {
-                "schema": {
-                  "$ref": "#/components/schemas/ErrorEnvelope"
-                }
-              }
-            }
-          },
-          "403": {
-            "description": "Missing `scheduling.manage` (`permission_denied`, `insufficient_scope`)",
-            "content": {
-              "application/json": {
-                "schema": {
-                  "$ref": "#/components/schemas/ErrorEnvelope"
-                }
-              }
-            }
-          },
-          "429": {
-            "description": "API token rate limit exceeded (`rate_limited`); see `Retry-After` and `X-RateLimit-*`",
-            "content": {
-              "application/json": {
-                "schema": {
-                  "$ref": "#/components/schemas/ErrorEnvelope"
-                }
-              }
-            }
-          }
-        },
-        "security": [
-          {
-            "session_cookie": []
-          },
-          {
-            "api_token": []
-          }
-        ]
-      }
-    },
-    "/api/v1/scheduling/distribution-rules": {
-      "get": {
-        "tags": [
-          "scheduling"
-        ],
-        "operationId": "scheduling_distribution_rules",
-        "responses": {
-          "200": {
-            "description": "Active lead distribution rules that a team scheduling link can use to pick the host",
-            "content": {
-              "application/json": {
-                "schema": {
-                  "$ref": "#/components/schemas/Data_Vec_SchedulingReference"
-                }
-              }
-            }
-          },
-          "401": {
-            "description": "Missing or invalid credentials (`unauthorized`, `invalid_api_token`)",
-            "content": {
-              "application/json": {
-                "schema": {
-                  "$ref": "#/components/schemas/ErrorEnvelope"
-                }
-              }
-            }
-          },
-          "403": {
-            "description": "Team links need `scheduling.manage` for the team or the organization (`permission_denied`, `insufficient_scope`)",
-            "content": {
-              "application/json": {
-                "schema": {
-                  "$ref": "#/components/schemas/ErrorEnvelope"
-                }
-              }
-            }
-          },
-          "429": {
-            "description": "API token rate limit exceeded (`rate_limited`); see `Retry-After` and `X-RateLimit-*`",
-            "content": {
-              "application/json": {
-                "schema": {
-                  "$ref": "#/components/schemas/ErrorEnvelope"
-                }
-              }
-            }
-          }
-        },
-        "security": [
-          {
-            "session_cookie": []
-          },
-          {
-            "api_token": []
-          }
-        ]
-      }
-    },
-    "/api/v1/scheduling/meeting-types": {
-      "get": {
-        "tags": [
-          "scheduling"
-        ],
-        "operationId": "scheduling_meeting_types_list",
-        "parameters": [
-          {
-            "name": "page",
-            "in": "query",
-            "required": false,
-            "schema": {
-              "type": "integer",
-              "format": "int32",
-              "default": 1,
-              "minimum": 1
-            }
-          },
-          {
-            "name": "per_page",
-            "in": "query",
-            "required": false,
-            "schema": {
-              "type": "integer",
-              "format": "int32",
-              "default": 25,
-              "maximum": 100,
-              "minimum": 1
-            }
-          }
-        ],
-        "responses": {
-          "200": {
-            "description": "Meeting types (scheduling links) whose owner is within your `scheduling.manage` scope, ordered by name",
-            "content": {
-              "application/json": {
-                "schema": {
-                  "$ref": "#/components/schemas/Page_MeetingTypeResponse"
-                }
-              }
-            }
-          },
-          "401": {
-            "description": "Missing or invalid credentials (`unauthorized`, `invalid_api_token`)",
-            "content": {
-              "application/json": {
-                "schema": {
-                  "$ref": "#/components/schemas/ErrorEnvelope"
-                }
-              }
-            }
-          },
-          "403": {
-            "description": "Missing `scheduling.manage` (`permission_denied`, `insufficient_scope`)",
-            "content": {
-              "application/json": {
-                "schema": {
-                  "$ref": "#/components/schemas/ErrorEnvelope"
-                }
-              }
-            }
-          },
-          "422": {
-            "description": "Invalid pagination (`validation_error`)",
-            "content": {
-              "application/json": {
-                "schema": {
-                  "$ref": "#/components/schemas/ErrorEnvelope"
-                }
-              }
-            }
-          },
-          "429": {
-            "description": "API token rate limit exceeded (`rate_limited`); see `Retry-After` and `X-RateLimit-*`",
-            "content": {
-              "application/json": {
-                "schema": {
-                  "$ref": "#/components/schemas/ErrorEnvelope"
-                }
-              }
-            }
-          }
-        },
-        "security": [
-          {
-            "session_cookie": []
-          },
-          {
-            "api_token": []
-          }
-        ]
-      },
-      "post": {
-        "tags": [
-          "scheduling"
-        ],
-        "operationId": "scheduling_meeting_types_create",
-        "parameters": [
-          {
-            "name": "Idempotency-Key",
-            "in": "header",
-            "description": "Up to 255 printable ASCII characters. The same key with the same request (method, path and body) within 24 hours answers the stored response with the same status and body plus `Idempotent-Replayed: true`. Scoped to the credential (session cookie or API token); ignored without a credential. 5xx and 429 responses are not stored",
-            "required": false,
-            "schema": {
-              "type": "string",
-              "maxLength": 255
-            }
-          }
-        ],
-        "requestBody": {
-          "content": {
-            "application/json": {
-              "schema": {
-                "$ref": "#/components/schemas/MeetingTypeRequest"
-              }
-            }
-          },
-          "required": true
-        },
-        "responses": {
-          "201": {
-            "description": "Meeting type created (`meeting_type.created`) and owned by you; its public page is `/book/{slug}` (`slug` derived from the name when omitted). `location_kind` is `none`, `video`, `address` or `phone` (value shown to the guest only after booking). `questions` (up to 10) may map the answer to a contact field (see `/scheduling/contact-fields`). `distribution_rule_id` turns it into a team link: the host is picked among the free members of the rule by its rotation. `spam_protection` enables the honeypot",
-            "content": {
-              "application/json": {
-                "schema": {
-                  "$ref": "#/components/schemas/Data_MeetingTypeResponse"
-                }
-              }
-            }
-          },
-          "401": {
-            "description": "Missing or invalid credentials (`unauthorized`, `invalid_api_token`)",
-            "content": {
-              "application/json": {
-                "schema": {
-                  "$ref": "#/components/schemas/ErrorEnvelope"
-                }
-              }
-            }
-          },
-          "403": {
-            "description": "Missing `scheduling.manage`, or a team link without team/organization scope (`permission_denied`, `insufficient_scope`)",
-            "content": {
-              "application/json": {
-                "schema": {
-                  "$ref": "#/components/schemas/ErrorEnvelope"
-                }
-              }
-            }
-          },
-          "409": {
-            "description": "Another link already uses the slug (`meeting_type_slug_taken`). The first request with this `Idempotency-Key` is still being processed (`idempotency_key_in_progress`)",
-            "content": {
-              "application/json": {
-                "schema": {
-                  "$ref": "#/components/schemas/ErrorEnvelope"
-                }
-              }
-            }
-          },
-          "422": {
-            "description": "Invalid properties, questions or rule (`validation_error`). `Idempotency-Key` already used with a different request (`idempotency_key_reused`) or longer than 255 characters (`validation_error`)",
-            "content": {
-              "application/json": {
-                "schema": {
-                  "$ref": "#/components/schemas/ErrorEnvelope"
-                }
-              }
-            }
-          },
-          "429": {
-            "description": "API token rate limit exceeded (`rate_limited`); see `Retry-After` and `X-RateLimit-*`",
-            "content": {
-              "application/json": {
-                "schema": {
-                  "$ref": "#/components/schemas/ErrorEnvelope"
-                }
-              }
-            }
-          }
-        },
-        "security": [
-          {
-            "session_cookie": []
-          },
-          {
-            "api_token": []
-          }
-        ]
-      }
-    },
-    "/api/v1/scheduling/meeting-types/{meeting_type_id}": {
-      "get": {
-        "tags": [
-          "scheduling"
-        ],
-        "operationId": "scheduling_meeting_types_get",
-        "parameters": [
-          {
-            "name": "meeting_type_id",
-            "in": "path",
-            "description": "Meeting type id",
-            "required": true,
-            "schema": {
-              "type": "string"
-            }
-          }
-        ],
-        "responses": {
-          "200": {
-            "description": "Meeting type",
-            "content": {
-              "application/json": {
-                "schema": {
-                  "$ref": "#/components/schemas/Data_MeetingTypeResponse"
-                }
-              }
-            }
-          },
-          "401": {
-            "description": "Missing or invalid credentials (`unauthorized`, `invalid_api_token`)",
-            "content": {
-              "application/json": {
-                "schema": {
-                  "$ref": "#/components/schemas/ErrorEnvelope"
-                }
-              }
-            }
-          },
-          "403": {
-            "description": "Missing `scheduling.manage` (`permission_denied`, `insufficient_scope`)",
-            "content": {
-              "application/json": {
-                "schema": {
-                  "$ref": "#/components/schemas/ErrorEnvelope"
-                }
-              }
-            }
-          },
-          "404": {
-            "description": "Not found or outside your scope (`meeting_type_not_found`)",
-            "content": {
-              "application/json": {
-                "schema": {
-                  "$ref": "#/components/schemas/ErrorEnvelope"
-                }
-              }
-            }
-          },
-          "429": {
-            "description": "API token rate limit exceeded (`rate_limited`); see `Retry-After` and `X-RateLimit-*`",
-            "content": {
-              "application/json": {
-                "schema": {
-                  "$ref": "#/components/schemas/ErrorEnvelope"
-                }
-              }
-            }
-          }
-        },
-        "security": [
-          {
-            "session_cookie": []
-          },
-          {
-            "api_token": []
-          }
-        ]
-      },
-      "delete": {
-        "tags": [
-          "scheduling"
-        ],
-        "operationId": "scheduling_meeting_types_delete",
-        "parameters": [
-          {
-            "name": "meeting_type_id",
-            "in": "path",
-            "description": "Meeting type id",
-            "required": true,
-            "schema": {
-              "type": "string"
-            }
-          }
-        ],
-        "responses": {
-          "204": {
-            "description": "Meeting type and its booking history deleted (`meeting_type.deleted`); the meeting tasks stay in the CRM"
-          },
-          "401": {
-            "description": "Missing or invalid credentials (`unauthorized`, `invalid_api_token`)",
-            "content": {
-              "application/json": {
-                "schema": {
-                  "$ref": "#/components/schemas/ErrorEnvelope"
-                }
-              }
-            }
-          },
-          "403": {
-            "description": "Missing `scheduling.manage` (`permission_denied`, `insufficient_scope`)",
-            "content": {
-              "application/json": {
-                "schema": {
-                  "$ref": "#/components/schemas/ErrorEnvelope"
-                }
-              }
-            }
-          },
-          "404": {
-            "description": "Not found or outside your scope (`meeting_type_not_found`)",
-            "content": {
-              "application/json": {
-                "schema": {
-                  "$ref": "#/components/schemas/ErrorEnvelope"
-                }
-              }
-            }
-          },
-          "429": {
-            "description": "API token rate limit exceeded (`rate_limited`); see `Retry-After` and `X-RateLimit-*`",
-            "content": {
-              "application/json": {
-                "schema": {
-                  "$ref": "#/components/schemas/ErrorEnvelope"
-                }
-              }
-            }
-          }
-        },
-        "security": [
-          {
-            "session_cookie": []
-          },
-          {
-            "api_token": []
-          }
-        ]
-      },
-      "patch": {
-        "tags": [
-          "scheduling"
-        ],
-        "operationId": "scheduling_meeting_types_update",
-        "parameters": [
-          {
-            "name": "meeting_type_id",
-            "in": "path",
-            "description": "Meeting type id",
-            "required": true,
-            "schema": {
-              "type": "string"
-            }
-          },
-          {
-            "name": "If-Match",
-            "in": "header",
-            "description": "`updated_at` of the meeting type as read; fails with 409 when it changed since",
-            "required": false,
-            "schema": {
-              "type": [
-                "string",
-                "null"
-              ]
-            }
-          }
-        ],
-        "requestBody": {
-          "content": {
-            "application/json": {
-              "schema": {
-                "$ref": "#/components/schemas/MeetingTypeRequest"
-              }
-            }
-          },
-          "required": true
-        },
-        "responses": {
-          "200": {
-            "description": "Meeting type updated (`meeting_type.updated`); omitted properties stay unchanged, `questions` replaces the list and `distribution_rule_id: null` turns a team link into a personal one. Existing bookings keep their time",
-            "content": {
-              "application/json": {
-                "schema": {
-                  "$ref": "#/components/schemas/Data_MeetingTypeResponse"
-                }
-              }
-            }
-          },
-          "401": {
-            "description": "Missing or invalid credentials (`unauthorized`, `invalid_api_token`)",
-            "content": {
-              "application/json": {
-                "schema": {
-                  "$ref": "#/components/schemas/ErrorEnvelope"
-                }
-              }
-            }
-          },
-          "403": {
-            "description": "Missing `scheduling.manage` (`permission_denied`, `insufficient_scope`)",
-            "content": {
-              "application/json": {
-                "schema": {
-                  "$ref": "#/components/schemas/ErrorEnvelope"
-                }
-              }
-            }
-          },
-          "404": {
-            "description": "Not found or outside your scope (`meeting_type_not_found`)",
-            "content": {
-              "application/json": {
-                "schema": {
-                  "$ref": "#/components/schemas/ErrorEnvelope"
-                }
-              }
-            }
-          },
-          "409": {
-            "description": "Slug taken (`meeting_type_slug_taken`) or changed since the `If-Match` version (`version_conflict`)",
-            "content": {
-              "application/json": {
-                "schema": {
-                  "$ref": "#/components/schemas/ErrorEnvelope"
-                }
-              }
-            }
-          },
-          "422": {
-            "description": "Invalid properties (`validation_error`)",
             "content": {
               "application/json": {
                 "schema": {
@@ -68240,6 +68240,200 @@
           }
         }
       },
+      "BookingAvailabilityRequest": {
+        "type": "object",
+        "properties": {
+          "buffer_after_minutes": {
+            "type": [
+              "integer",
+              "null"
+            ],
+            "format": "int32",
+            "example": 15,
+            "minimum": 0
+          },
+          "buffer_before_minutes": {
+            "type": [
+              "integer",
+              "null"
+            ],
+            "format": "int32",
+            "example": 0,
+            "minimum": 0
+          },
+          "horizon_days": {
+            "type": [
+              "integer",
+              "null"
+            ],
+            "format": "int32",
+            "example": 60,
+            "minimum": 0
+          },
+          "max_per_day": {
+            "type": [
+              "integer",
+              "null"
+            ],
+            "format": "int32",
+            "example": 6,
+            "minimum": 0
+          },
+          "min_notice_minutes": {
+            "type": [
+              "integer",
+              "null"
+            ],
+            "format": "int32",
+            "example": 240,
+            "minimum": 0
+          },
+          "timezone": {
+            "type": [
+              "string",
+              "null"
+            ],
+            "example": "America/Sao_Paulo"
+          },
+          "weekly_hours": {
+            "type": [
+              "array",
+              "null"
+            ],
+            "items": {
+              "$ref": "#/components/schemas/BookingWeeklyInterval"
+            }
+          }
+        },
+        "additionalProperties": false
+      },
+      "BookingAvailabilityResponse": {
+        "type": "object",
+        "required": [
+          "user_id",
+          "timezone",
+          "weekly_hours",
+          "min_notice_minutes",
+          "buffer_before_minutes",
+          "buffer_after_minutes",
+          "horizon_days",
+          "configured"
+        ],
+        "properties": {
+          "buffer_after_minutes": {
+            "type": "integer",
+            "format": "int32",
+            "minimum": 0
+          },
+          "buffer_before_minutes": {
+            "type": "integer",
+            "format": "int32",
+            "minimum": 0
+          },
+          "configured": {
+            "type": "boolean"
+          },
+          "horizon_days": {
+            "type": "integer",
+            "format": "int32",
+            "minimum": 0
+          },
+          "max_per_day": {
+            "type": [
+              "integer",
+              "null"
+            ],
+            "format": "int32",
+            "minimum": 0
+          },
+          "min_notice_minutes": {
+            "type": "integer",
+            "format": "int32",
+            "minimum": 0
+          },
+          "timezone": {
+            "type": "string",
+            "example": "America/Sao_Paulo"
+          },
+          "updated_at": {
+            "type": [
+              "string",
+              "null"
+            ]
+          },
+          "user_id": {
+            "type": "string"
+          },
+          "weekly_hours": {
+            "type": "array",
+            "items": {
+              "$ref": "#/components/schemas/BookingWeeklyInterval"
+            }
+          }
+        }
+      },
+      "BookingContactFieldResponse": {
+        "type": "object",
+        "required": [
+          "key",
+          "label",
+          "is_custom"
+        ],
+        "properties": {
+          "is_custom": {
+            "type": "boolean"
+          },
+          "key": {
+            "type": "string",
+            "example": "job_title"
+          },
+          "label": {
+            "type": "string",
+            "example": "Job title"
+          }
+        }
+      },
+      "BookingReference": {
+        "type": "object",
+        "required": [
+          "id",
+          "name"
+        ],
+        "properties": {
+          "id": {
+            "type": "string"
+          },
+          "name": {
+            "type": "string"
+          }
+        }
+      },
+      "BookingWeeklyInterval": {
+        "type": "object",
+        "required": [
+          "weekday",
+          "start",
+          "end"
+        ],
+        "properties": {
+          "end": {
+            "type": "string",
+            "example": "18:00"
+          },
+          "start": {
+            "type": "string",
+            "example": "09:00"
+          },
+          "weekday": {
+            "type": "integer",
+            "format": "int32",
+            "example": 1,
+            "maximum": 7,
+            "minimum": 1
+          }
+        },
+        "additionalProperties": false
+      },
       "BulkActionRequest": {
         "oneOf": [
           {
@@ -75206,6 +75400,79 @@
           }
         }
       },
+      "Data_BookingAvailabilityResponse": {
+        "type": "object",
+        "required": [
+          "data"
+        ],
+        "properties": {
+          "data": {
+            "type": "object",
+            "required": [
+              "user_id",
+              "timezone",
+              "weekly_hours",
+              "min_notice_minutes",
+              "buffer_before_minutes",
+              "buffer_after_minutes",
+              "horizon_days",
+              "configured"
+            ],
+            "properties": {
+              "buffer_after_minutes": {
+                "type": "integer",
+                "format": "int32",
+                "minimum": 0
+              },
+              "buffer_before_minutes": {
+                "type": "integer",
+                "format": "int32",
+                "minimum": 0
+              },
+              "configured": {
+                "type": "boolean"
+              },
+              "horizon_days": {
+                "type": "integer",
+                "format": "int32",
+                "minimum": 0
+              },
+              "max_per_day": {
+                "type": [
+                  "integer",
+                  "null"
+                ],
+                "format": "int32",
+                "minimum": 0
+              },
+              "min_notice_minutes": {
+                "type": "integer",
+                "format": "int32",
+                "minimum": 0
+              },
+              "timezone": {
+                "type": "string",
+                "example": "America/Sao_Paulo"
+              },
+              "updated_at": {
+                "type": [
+                  "string",
+                  "null"
+                ]
+              },
+              "user_id": {
+                "type": "string"
+              },
+              "weekly_hours": {
+                "type": "array",
+                "items": {
+                  "$ref": "#/components/schemas/BookingWeeklyInterval"
+                }
+              }
+            }
+          }
+        }
+      },
       "Data_BulkOperationResponse": {
         "type": "object",
         "required": [
@@ -80818,13 +81085,13 @@
                 ]
               },
               "host": {
-                "$ref": "#/components/schemas/SchedulingReference"
+                "$ref": "#/components/schemas/BookingReference"
               },
               "id": {
                 "type": "string"
               },
               "meeting_type": {
-                "$ref": "#/components/schemas/SchedulingReference"
+                "$ref": "#/components/schemas/BookingReference"
               },
               "starts_at": {
                 "type": "string"
@@ -80880,7 +81147,7 @@
                     "type": "null"
                   },
                   {
-                    "$ref": "#/components/schemas/SchedulingReference"
+                    "$ref": "#/components/schemas/BookingReference"
                   }
                 ]
               },
@@ -80912,7 +81179,7 @@
                 "type": "string"
               },
               "owner": {
-                "$ref": "#/components/schemas/SchedulingReference"
+                "$ref": "#/components/schemas/BookingReference"
               },
               "questions": {
                 "type": "array",
@@ -84902,79 +85169,6 @@
           }
         }
       },
-      "Data_SchedulingAvailabilityResponse": {
-        "type": "object",
-        "required": [
-          "data"
-        ],
-        "properties": {
-          "data": {
-            "type": "object",
-            "required": [
-              "user_id",
-              "timezone",
-              "weekly_hours",
-              "min_notice_minutes",
-              "buffer_before_minutes",
-              "buffer_after_minutes",
-              "horizon_days",
-              "configured"
-            ],
-            "properties": {
-              "buffer_after_minutes": {
-                "type": "integer",
-                "format": "int32",
-                "minimum": 0
-              },
-              "buffer_before_minutes": {
-                "type": "integer",
-                "format": "int32",
-                "minimum": 0
-              },
-              "configured": {
-                "type": "boolean"
-              },
-              "horizon_days": {
-                "type": "integer",
-                "format": "int32",
-                "minimum": 0
-              },
-              "max_per_day": {
-                "type": [
-                  "integer",
-                  "null"
-                ],
-                "format": "int32",
-                "minimum": 0
-              },
-              "min_notice_minutes": {
-                "type": "integer",
-                "format": "int32",
-                "minimum": 0
-              },
-              "timezone": {
-                "type": "string",
-                "example": "America/Sao_Paulo"
-              },
-              "updated_at": {
-                "type": [
-                  "string",
-                  "null"
-                ]
-              },
-              "user_id": {
-                "type": "string"
-              },
-              "weekly_hours": {
-                "type": "array",
-                "items": {
-                  "$ref": "#/components/schemas/SchedulingWeeklyInterval"
-                }
-              }
-            }
-          }
-        }
-      },
       "Data_ScoringModelResponse": {
         "type": "object",
         "required": [
@@ -86563,6 +86757,64 @@
                   "type": "integer",
                   "format": "int32",
                   "minimum": 0
+                }
+              }
+            }
+          }
+        }
+      },
+      "Data_Vec_BookingContactFieldResponse": {
+        "type": "object",
+        "required": [
+          "data"
+        ],
+        "properties": {
+          "data": {
+            "type": "array",
+            "items": {
+              "type": "object",
+              "required": [
+                "key",
+                "label",
+                "is_custom"
+              ],
+              "properties": {
+                "is_custom": {
+                  "type": "boolean"
+                },
+                "key": {
+                  "type": "string",
+                  "example": "job_title"
+                },
+                "label": {
+                  "type": "string",
+                  "example": "Job title"
+                }
+              }
+            }
+          }
+        }
+      },
+      "Data_Vec_BookingReference": {
+        "type": "object",
+        "required": [
+          "data"
+        ],
+        "properties": {
+          "data": {
+            "type": "array",
+            "items": {
+              "type": "object",
+              "required": [
+                "id",
+                "name"
+              ],
+              "properties": {
+                "id": {
+                  "type": "string"
+                },
+                "name": {
+                  "type": "string"
                 }
               }
             }
@@ -89305,64 +89557,6 @@
                   "minimum": 0
                 },
                 "updated_at": {
-                  "type": "string"
-                }
-              }
-            }
-          }
-        }
-      },
-      "Data_Vec_SchedulingContactFieldResponse": {
-        "type": "object",
-        "required": [
-          "data"
-        ],
-        "properties": {
-          "data": {
-            "type": "array",
-            "items": {
-              "type": "object",
-              "required": [
-                "key",
-                "label",
-                "is_custom"
-              ],
-              "properties": {
-                "is_custom": {
-                  "type": "boolean"
-                },
-                "key": {
-                  "type": "string",
-                  "example": "job_title"
-                },
-                "label": {
-                  "type": "string",
-                  "example": "Job title"
-                }
-              }
-            }
-          }
-        }
-      },
-      "Data_Vec_SchedulingReference": {
-        "type": "object",
-        "required": [
-          "data"
-        ],
-        "properties": {
-          "data": {
-            "type": "array",
-            "items": {
-              "type": "object",
-              "required": [
-                "id",
-                "name"
-              ],
-              "properties": {
-                "id": {
-                  "type": "string"
-                },
-                "name": {
                   "type": "string"
                 }
               }
@@ -96631,7 +96825,7 @@
           "automation",
           "incoming_webhook",
           "import",
-          "scheduling",
+          "booking",
           "lead_form",
           "plugin"
         ]
@@ -98988,7 +99182,7 @@
               "string",
               "null"
             ],
-            "example": "Scheduling conflict"
+            "example": "Booking conflict"
           }
         },
         "additionalProperties": false
@@ -99054,13 +99248,13 @@
             ]
           },
           "host": {
-            "$ref": "#/components/schemas/SchedulingReference"
+            "$ref": "#/components/schemas/BookingReference"
           },
           "id": {
             "type": "string"
           },
           "meeting_type": {
-            "$ref": "#/components/schemas/SchedulingReference"
+            "$ref": "#/components/schemas/BookingReference"
           },
           "starts_at": {
             "type": "string"
@@ -99288,7 +99482,7 @@
                 "type": "null"
               },
               {
-                "$ref": "#/components/schemas/SchedulingReference"
+                "$ref": "#/components/schemas/BookingReference"
               }
             ]
           },
@@ -99320,7 +99514,7 @@
             "type": "string"
           },
           "owner": {
-            "$ref": "#/components/schemas/SchedulingReference"
+            "$ref": "#/components/schemas/BookingReference"
           },
           "questions": {
             "type": "array",
@@ -105660,13 +105854,13 @@
                   ]
                 },
                 "host": {
-                  "$ref": "#/components/schemas/SchedulingReference"
+                  "$ref": "#/components/schemas/BookingReference"
                 },
                 "id": {
                   "type": "string"
                 },
                 "meeting_type": {
-                  "$ref": "#/components/schemas/SchedulingReference"
+                  "$ref": "#/components/schemas/BookingReference"
                 },
                 "starts_at": {
                   "type": "string"
@@ -105729,7 +105923,7 @@
                       "type": "null"
                     },
                     {
-                      "$ref": "#/components/schemas/SchedulingReference"
+                      "$ref": "#/components/schemas/BookingReference"
                     }
                   ]
                 },
@@ -105761,7 +105955,7 @@
                   "type": "string"
                 },
                 "owner": {
-                  "$ref": "#/components/schemas/SchedulingReference"
+                  "$ref": "#/components/schemas/BookingReference"
                 },
                 "questions": {
                   "type": "array",
@@ -114469,200 +114663,6 @@
           }
         }
       },
-      "SchedulingAvailabilityRequest": {
-        "type": "object",
-        "properties": {
-          "buffer_after_minutes": {
-            "type": [
-              "integer",
-              "null"
-            ],
-            "format": "int32",
-            "example": 15,
-            "minimum": 0
-          },
-          "buffer_before_minutes": {
-            "type": [
-              "integer",
-              "null"
-            ],
-            "format": "int32",
-            "example": 0,
-            "minimum": 0
-          },
-          "horizon_days": {
-            "type": [
-              "integer",
-              "null"
-            ],
-            "format": "int32",
-            "example": 60,
-            "minimum": 0
-          },
-          "max_per_day": {
-            "type": [
-              "integer",
-              "null"
-            ],
-            "format": "int32",
-            "example": 6,
-            "minimum": 0
-          },
-          "min_notice_minutes": {
-            "type": [
-              "integer",
-              "null"
-            ],
-            "format": "int32",
-            "example": 240,
-            "minimum": 0
-          },
-          "timezone": {
-            "type": [
-              "string",
-              "null"
-            ],
-            "example": "America/Sao_Paulo"
-          },
-          "weekly_hours": {
-            "type": [
-              "array",
-              "null"
-            ],
-            "items": {
-              "$ref": "#/components/schemas/SchedulingWeeklyInterval"
-            }
-          }
-        },
-        "additionalProperties": false
-      },
-      "SchedulingAvailabilityResponse": {
-        "type": "object",
-        "required": [
-          "user_id",
-          "timezone",
-          "weekly_hours",
-          "min_notice_minutes",
-          "buffer_before_minutes",
-          "buffer_after_minutes",
-          "horizon_days",
-          "configured"
-        ],
-        "properties": {
-          "buffer_after_minutes": {
-            "type": "integer",
-            "format": "int32",
-            "minimum": 0
-          },
-          "buffer_before_minutes": {
-            "type": "integer",
-            "format": "int32",
-            "minimum": 0
-          },
-          "configured": {
-            "type": "boolean"
-          },
-          "horizon_days": {
-            "type": "integer",
-            "format": "int32",
-            "minimum": 0
-          },
-          "max_per_day": {
-            "type": [
-              "integer",
-              "null"
-            ],
-            "format": "int32",
-            "minimum": 0
-          },
-          "min_notice_minutes": {
-            "type": "integer",
-            "format": "int32",
-            "minimum": 0
-          },
-          "timezone": {
-            "type": "string",
-            "example": "America/Sao_Paulo"
-          },
-          "updated_at": {
-            "type": [
-              "string",
-              "null"
-            ]
-          },
-          "user_id": {
-            "type": "string"
-          },
-          "weekly_hours": {
-            "type": "array",
-            "items": {
-              "$ref": "#/components/schemas/SchedulingWeeklyInterval"
-            }
-          }
-        }
-      },
-      "SchedulingContactFieldResponse": {
-        "type": "object",
-        "required": [
-          "key",
-          "label",
-          "is_custom"
-        ],
-        "properties": {
-          "is_custom": {
-            "type": "boolean"
-          },
-          "key": {
-            "type": "string",
-            "example": "job_title"
-          },
-          "label": {
-            "type": "string",
-            "example": "Job title"
-          }
-        }
-      },
-      "SchedulingReference": {
-        "type": "object",
-        "required": [
-          "id",
-          "name"
-        ],
-        "properties": {
-          "id": {
-            "type": "string"
-          },
-          "name": {
-            "type": "string"
-          }
-        }
-      },
-      "SchedulingWeeklyInterval": {
-        "type": "object",
-        "required": [
-          "weekday",
-          "start",
-          "end"
-        ],
-        "properties": {
-          "end": {
-            "type": "string",
-            "example": "18:00"
-          },
-          "start": {
-            "type": "string",
-            "example": "09:00"
-          },
-          "weekday": {
-            "type": "integer",
-            "format": "int32",
-            "example": 1,
-            "maximum": 7,
-            "minimum": 1
-          }
-        },
-        "additionalProperties": false
-      },
       "ScoreBand": {
         "type": "string",
         "enum": [
@@ -120283,7 +120283,7 @@
     },
     {
       "name": "emails",
-      "description": "Sending e-mail from records through the user's mailbox, scheduling, cancellation and rendered previews"
+      "description": "Sending e-mail from records through the user's mailbox, booking, cancellation and rendered previews"
     },
     {
       "name": "email templates",
@@ -120370,6 +120370,10 @@
       "description": "AI assistant: record summaries, next actions, writing help and natural language queries"
     },
     {
+      "name": "booking",
+      "description": "Booking links: availability, meeting types, team links and the public booking page"
+    },
+    {
       "name": "calls",
       "description": "Call logging as tasks, call outcomes, call sessions over saved views and the calls report"
     },
@@ -120400,10 +120404,6 @@
     {
       "name": "reminders",
       "description": "Reminders: before a task is due and standalone reminders linked to a record"
-    },
-    {
-      "name": "scheduling",
-      "description": "Scheduling links: availability, meeting types, team links and the public booking page"
     },
     {
       "name": "sequences",

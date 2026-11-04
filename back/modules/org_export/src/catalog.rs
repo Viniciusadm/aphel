@@ -63,7 +63,7 @@ pub(crate) const DATASETS: &[Dataset] = &[
     Dataset::new("goals", "data", true),
     Dataset::new("segments", "data", true),
     Dataset::new("reports", "data", true),
-    Dataset::new("scheduling_availability", "data", true),
+    Dataset::new("booking_availability", "data", true),
     Dataset::new("meeting_types", "data", true),
     Dataset::new(WEBHOOK_ENDPOINTS_DATASET, "data", true).warning(WEBHOOK_SECRET_WARNING),
     Dataset::new("task_recurrences", "data", true),

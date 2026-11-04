@@ -32,7 +32,7 @@ pub trait CrmPermissions {
     const EMAILS_SEND: Permission;
     const SEQUENCES_READ: Permission;
     const SEQUENCES_ENROLL: Permission;
-    const SCHEDULING_MANAGE: Permission;
+    const BOOKING_MANAGE: Permission;
     const GOALS_MANAGE: Permission;
     const PRODUCTS_READ: Permission;
     const PRODUCTS_CREATE: Permission;
@@ -83,7 +83,7 @@ impl CrmPermissions for Permission {
     const EMAILS_SEND: Permission = Permission::from_static("emails.send");
     const SEQUENCES_READ: Permission = Permission::from_static("sequences.read");
     const SEQUENCES_ENROLL: Permission = Permission::from_static("sequences.enroll");
-    const SCHEDULING_MANAGE: Permission = Permission::from_static("scheduling.manage");
+    const BOOKING_MANAGE: Permission = Permission::from_static("booking.manage");
     const GOALS_MANAGE: Permission = Permission::from_static("goals.manage");
     const PRODUCTS_READ: Permission = Permission::from_static("products.read");
     const PRODUCTS_CREATE: Permission = Permission::from_static("products.create");

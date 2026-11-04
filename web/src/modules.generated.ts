@@ -36,7 +36,7 @@ import segmentsModule from '@modules/segments'
 import callsModule from '@modules/calls'
 import emailModule from '@modules/email'
 import sequencesModule from '@modules/sequences'
-import schedulingModule from '@modules/scheduling'
+import bookingModule from '@modules/booking'
 import approvalsModule from '@modules/approvals'
 import automationsModule from '@modules/automations'
 import webhooksModule from '@modules/webhooks'
@@ -102,7 +102,7 @@ export const MODULES: WebModule[] = [
   callsModule,
   emailModule,
   sequencesModule,
-  schedulingModule,
+  bookingModule,
   approvalsModule,
   automationsModule,
   webhooksModule,

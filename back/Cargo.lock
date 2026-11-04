@@ -153,6 +153,7 @@ dependencies = [
  "aphel-mod-approvals",
  "aphel-mod-assignment",
  "aphel-mod-automations",
+ "aphel-mod-booking",
  "aphel-mod-bulk-actions",
  "aphel-mod-calendar",
  "aphel-mod-calls",
@@ -202,7 +203,6 @@ dependencies = [
  "aphel-mod-renewals",
  "aphel-mod-reports",
  "aphel-mod-saved-views",
- "aphel-mod-scheduling",
  "aphel-mod-scoring",
  "aphel-mod-search",
  "aphel-mod-segments",
@@ -586,6 +586,35 @@ dependencies = [
  "sha2 0.11.1",
  "sqlx",
  "tokio",
+ "tracing",
+ "utoipa",
+ "utoipa-axum",
+ "uuid",
+]
+
+[[package]]
+name = "aphel-mod-booking"
+version = "0.1.0"
+dependencies = [
+ "aphel-contract-automation",
+ "aphel-contract-crm",
+ "aphel-kernel",
+ "aphel-mod-assignment",
+ "aphel-mod-email",
+ "aphel-mod-people",
+ "aphel-mod-tasks",
+ "aphel-sdk",
+ "async-trait",
+ "axum",
+ "base64 0.22.1",
+ "chrono",
+ "chrono-tz",
+ "getrandom 0.4.3",
+ "hmac",
+ "serde",
+ "serde_json",
+ "sha2 0.11.1",
+ "sqlx",
  "tracing",
  "utoipa",
  "utoipa-axum",
@@ -1705,47 +1734,18 @@ dependencies = [
 ]
 
 [[package]]
-name = "aphel-mod-scheduling"
-version = "0.1.0"
-dependencies = [
- "aphel-contract-automation",
- "aphel-contract-crm",
- "aphel-kernel",
- "aphel-mod-assignment",
- "aphel-mod-email",
- "aphel-mod-people",
- "aphel-mod-tasks",
- "aphel-sdk",
- "async-trait",
- "axum",
- "base64 0.22.1",
- "chrono",
- "chrono-tz",
- "getrandom 0.4.3",
- "hmac",
- "serde",
- "serde_json",
- "sha2 0.11.1",
- "sqlx",
- "tracing",
- "utoipa",
- "utoipa-axum",
- "uuid",
-]
-
-[[package]]
 name = "aphel-mod-scoring"
 version = "0.1.0"
 dependencies = [
  "aphel-contract-automation",
  "aphel-contract-crm",
  "aphel-kernel",
+ "aphel-mod-booking",
  "aphel-mod-calls",
  "aphel-mod-config-packages",
  "aphel-mod-email",
  "aphel-mod-organizations",
  "aphel-mod-people",
- "aphel-mod-scheduling",
  "async-trait",
  "axum",
  "chrono",
@@ -1805,11 +1805,11 @@ dependencies = [
  "aphel-contract-automation",
  "aphel-contract-crm",
  "aphel-kernel",
+ "aphel-mod-booking",
  "aphel-mod-config-packages",
  "aphel-mod-deals",
  "aphel-mod-email",
  "aphel-mod-people",
- "aphel-mod-scheduling",
  "aphel-mod-tasks",
  "async-trait",
  "axum",

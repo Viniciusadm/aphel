@@ -55,7 +55,7 @@ Mailboxes publish `mailbox.connected|updated|disconnected` and manual links publ
 
 `emails.read` (view the records' threads) and `emails.send` (send from the record), granted to the system roles. The mailbox and personal preferences belong to the user. Organization settings (tracking, capture, blocklist, organization templates) require `settings.manage`.
 
-## Scheduling without a user scope
+## Booking without a user scope
 
 `MailboxStore::due_for_sync` is the only query without an `AccessScope`, like `ApiTokenRepository::find_by_hash`: it returns all pending mailboxes for the sync job, which builds the owner's scope before any other read.
 

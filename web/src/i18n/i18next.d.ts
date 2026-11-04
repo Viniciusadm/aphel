@@ -6,6 +6,7 @@ import type assignmentNamespace from '../modules/assignment/i18n/pt-BR.json'
 import type auditNamespace from './pt-BR/audit.json'
 import type authNamespace from './pt-BR/auth.json'
 import type automationsNamespace from '../modules/automations/i18n/pt-BR.json'
+import type bookingNamespace from '../modules/booking/i18n/pt-BR.json'
 import type bulkActionsNamespace from '../modules/bulk_actions/i18n/pt-BR.json'
 import type calendarNamespace from '../modules/calendar/i18n/pt-BR.json'
 import type callsNamespace from '../modules/calls/i18n/pt-BR.json'
@@ -71,7 +72,6 @@ import type recordsFormNamespace from './pt-BR/records-form.json'
 import type recordsTableNamespace from './pt-BR/records-table.json'
 import type renewalsNamespace from '../modules/renewals/i18n/pt-BR.json'
 import type reportsNamespace from '../modules/reports/i18n/pt-BR.json'
-import type schedulingNamespace from '../modules/scheduling/i18n/pt-BR.json'
 import type scoringNamespace from '../modules/scoring/i18n/pt-BR.json'
 import type searchNamespace from './pt-BR/search.json'
 import type securityNamespace from './pt-BR/security.json'
@@ -104,6 +104,7 @@ declare module 'i18next' {
       audit: typeof auditNamespace
       auth: typeof authNamespace
       automations: typeof automationsNamespace
+      booking: typeof bookingNamespace
       bulk_actions: typeof bulkActionsNamespace
       calendar: typeof calendarNamespace
       calls: typeof callsNamespace
@@ -169,7 +170,6 @@ declare module 'i18next' {
       'records-table': typeof recordsTableNamespace
       renewals: typeof renewalsNamespace
       reports: typeof reportsNamespace
-      scheduling: typeof schedulingNamespace
       scoring: typeof scoringNamespace
       search: typeof searchNamespace
       security: typeof securityNamespace

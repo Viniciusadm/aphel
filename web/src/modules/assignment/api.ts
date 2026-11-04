@@ -13,7 +13,7 @@ export type DistributionFallback = Schemas['LeadDistributionFallback']
 export type DistributionSimulation = Schemas['LeadDistributionSimulationResponse']
 export type DistributionSimulateRequest = Schemas['LeadDistributionSimulateRequest']
 
-export type AssignmentSource = 'automation' | 'incoming_webhook' | 'import' | 'scheduling' | 'lead_form'
+export type AssignmentSource = 'automation' | 'incoming_webhook' | 'import' | 'booking' | 'lead_form'
 
 export interface DistributionAssignment {
   id: string

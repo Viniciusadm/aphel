@@ -136,7 +136,7 @@ pub(crate) enum LeadDistributionAssignmentSourceSchema {
     Automation,
     IncomingWebhook,
     Import,
-    Scheduling,
+    Booking,
     LeadForm,
     Plugin,
 }
@@ -147,7 +147,7 @@ impl From<AssignmentSource> for LeadDistributionAssignmentSourceSchema {
             AssignmentSource::Automation => Self::Automation,
             AssignmentSource::IncomingWebhook => Self::IncomingWebhook,
             AssignmentSource::Import => Self::Import,
-            AssignmentSource::Scheduling => Self::Scheduling,
+            AssignmentSource::Booking => Self::Booking,
             AssignmentSource::LeadForm => Self::LeadForm,
             AssignmentSource::Plugin => Self::Plugin,
         }
@@ -160,7 +160,7 @@ impl From<LeadDistributionAssignmentSourceSchema> for AssignmentSource {
             LeadDistributionAssignmentSourceSchema::Automation => Self::Automation,
             LeadDistributionAssignmentSourceSchema::IncomingWebhook => Self::IncomingWebhook,
             LeadDistributionAssignmentSourceSchema::Import => Self::Import,
-            LeadDistributionAssignmentSourceSchema::Scheduling => Self::Scheduling,
+            LeadDistributionAssignmentSourceSchema::Booking => Self::Booking,
             LeadDistributionAssignmentSourceSchema::LeadForm => Self::LeadForm,
             LeadDistributionAssignmentSourceSchema::Plugin => Self::Plugin,
         }

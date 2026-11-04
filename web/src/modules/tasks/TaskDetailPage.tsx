@@ -21,7 +21,7 @@ function TaskActions({ record }: { record: RecordItem }) {
   const toggle = useToggleActivity()
   const remove = useDeleteActivity()
   const [confirming, setConfirming] = useState(false)
-  const [scheduling, setScheduling] = useState(false)
+  const [booking, setBooking] = useState(false)
   const done = record.status === 'done'
   const title = typeof record.title === 'string' ? record.title : ''
 
@@ -44,7 +44,7 @@ function TaskActions({ record }: { record: RecordItem }) {
         </Button>
       )}
       {hasPermission('tasks.update') && record.status === 'open' && (
-        <Button size="sm" variant="outline" onClick={() => setScheduling(true)}>
+        <Button size="sm" variant="outline" onClick={() => setBooking(true)}>
           <CalendarClock aria-hidden="true" />
           {t('schedule.open')}
         </Button>
@@ -57,8 +57,8 @@ function TaskActions({ record }: { record: RecordItem }) {
       )}
       <ActivityScheduleDialog
         activity={record as unknown as ScheduledActivity}
-        open={scheduling}
-        onOpenChange={setScheduling}
+        open={booking}
+        onOpenChange={setBooking}
       />
       <ConfirmDialog
         open={confirming}

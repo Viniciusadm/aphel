@@ -279,7 +279,7 @@ pub enum AssignmentSource {
     Automation,
     IncomingWebhook,
     Import,
-    Scheduling,
+    Booking,
     LeadForm,
     Plugin,
 }
@@ -289,7 +289,7 @@ impl AssignmentSource {
         Self::Automation,
         Self::IncomingWebhook,
         Self::Import,
-        Self::Scheduling,
+        Self::Booking,
         Self::LeadForm,
         Self::Plugin,
     ];
@@ -305,7 +305,7 @@ impl AssignmentSource {
             Self::Automation => "automation",
             Self::IncomingWebhook => "incoming_webhook",
             Self::Import => "import",
-            Self::Scheduling => "scheduling",
+            Self::Booking => "booking",
             Self::LeadForm => "lead_form",
             Self::Plugin => "plugin",
         }

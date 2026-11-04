@@ -52,7 +52,7 @@ Implementation note: P5.1 connects people and organizations as providers and dup
 - [x] **P5.19** ⇄ `deals`. Review and pending manual acceptance: [deal ownership](p5-deals.md).
 - [x] **P5.20** ⇄ `leads`. Review and pending manual acceptance: [lifecycle ownership](p5-leads.md).
 - [x] **P5.21** ⇄ `quotes`, `proposals`. Review and pending manual acceptance: [commerce capability interfaces](p5-quotes-proposals.md).
-- [ ] **P5.22** ⇄ Remaining domain plugins from §4.3
+- [ ] **P5.22** ⇄ Remaining domain plugins from §4.3. Work in progress: [remaining domains](p5-remaining-domains.md).
 - [ ] **P5.23** Bridge plugins, only where traits and contracts do not cover the need (§5.4).
 
 **5.8 Clean schema**

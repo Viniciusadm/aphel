@@ -70,7 +70,7 @@ Consecutive login failures for the same account (email) from the same IP block n
 
 ## Request limits
 
-Login, SSO discovery, password recovery, verification resend, password change, two-step verification, API tokens and the modules' public routes (incoming webhooks, capture forms, scheduling, messaging, e-signature, SSO, enrichment and AI, all with `SharedRateLimiter`) count requests in the `rate_limit_counters` table, so the limit applies to the whole installation even with several `aphel serve` processes behind a load balancer. There is no environment variable: the limits are fixed in code, except for the API token limit (Settings → API tokens → Limits).
+Login, SSO discovery, password recovery, verification resend, password change, two-step verification, API tokens and the modules' public routes (incoming webhooks, capture forms, booking, messaging, e-signature, SSO, enrichment and AI, all with `SharedRateLimiter`) count requests in the `rate_limit_counters` table, so the limit applies to the whole installation even with several `aphel serve` processes behind a load balancer. There is no environment variable: the limits are fixed in code, except for the API token limit (Settings → API tokens → Limits).
 
 | Limit | Value | Key |
 | --- | --- | --- |
@@ -184,7 +184,7 @@ Edited on screen by users with `settings.manage` (API: `GET`/`PATCH /api/v1/orga
 
 | Setting | Where | Default | Effect |
 | --- | --- | --- | --- |
-| Public address | General | the origin of the browser that performed the installation | Base for all links in emails (invitation, password reset, notifications, reports, scheduling, email tracking). With `https://`, the session cookie (`aphel_session`) gets the `Secure` flag. Links never use the request's `Host` header |
+| Public address | General | the origin of the browser that performed the installation | Base for all links in emails (invitation, password reset, notifications, reports, booking, email tracking). With `https://`, the session cookie (`aphel_session`) gets the `Secure` flag. Links never use the request's `Host` header |
 | Maximum upload size | General | 25 MB | Limit for each upload. Also adjust the reverse proxy limit |
 | Outgoing email (SMTP) | Email | not configured (in a development build the form is prefilled with Mailpit: `127.0.0.1:1025`, without TLS) | Server used for all system emails. The password is kept in the secret vault (requires `APP_ENCRYPTION_KEY`). The test button sends an email to the user themselves and shows the server error (authentication, TLS, connection) |
 | File storage | Storage | local disk at `./storage` (in the Docker image, `/app/storage`, volume `app-storage`) | Local disk or S3-compatible (bucket, region, endpoint for MinIO/SeaweedFS/R2/B2, access key, `http` only for local S3, path-style addressing). The secret key is kept in the vault. "Test connection" writes, reads and deletes an object. Changing the driver does not copy existing files |

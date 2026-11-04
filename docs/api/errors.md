@@ -286,12 +286,12 @@ Whoever creates a new code adds the row to this table and cites it in the respon
 | `sequence_contact_objected` | 422 | sequences (the contact's address objected to email tracking) |
 | `sequence_enrollment_not_found` | 404 | sequences (enrollment does not exist or is outside the enrolling user's scope) |
 | `sequence_enrollment_finished` | 409 | sequences (the enrollment is not in a state that allows pausing, resuming or removing) |
-| `meeting_type_not_found` | 404 | scheduling (meeting type does not exist, is inactive on the public page or is out of scope) |
-| `meeting_type_slug_taken` | 409 | scheduling (scheduling link address already in use) |
-| `booking_not_found` | 404 | scheduling (booking does not exist or invalid management token) |
-| `booking_slot_unavailable` | 409 | scheduling (the slot is no longer free) |
-| `booking_not_changeable` | 409 | scheduling (booking canceled or already past) |
-| `booking_rejected` | 422 | scheduling (submission rejected by spam protection) |
+| `meeting_type_not_found` | 404 | booking (meeting type does not exist, is inactive on the public page or is out of scope) |
+| `meeting_type_slug_taken` | 409 | booking (booking link address already in use) |
+| `booking_not_found` | 404 | booking (booking does not exist or invalid management token) |
+| `booking_slot_unavailable` | 409 | booking (the slot is no longer free) |
+| `booking_not_changeable` | 409 | booking (booking canceled or already past) |
+| `booking_rejected` | 422 | booking (submission rejected by spam protection) |
 | `call_not_found` | 404 | calls (the activity is not a logged call) |
 | `call_recording_not_found` | 404 | calls (call without a recording at the provider or a saved link) |
 | `call_activity_type_missing` | 422 | calls (the organization does not have the `call` activity type active) |

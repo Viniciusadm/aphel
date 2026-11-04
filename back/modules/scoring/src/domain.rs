@@ -9,9 +9,9 @@ use uuid::Uuid;
 use aphel_kernel::application::query::Filter;
 use aphel_kernel::application::shared::{DomainEvent, RecordRef, RecordType};
 use aphel_kernel::domain::UserId;
+use booking::MEETING_BOOKED;
 use calls::domain::{CALL_LOGGED, CALL_UPDATED};
 use email::{EMAIL_CLICKED, EMAIL_OPENED, EMAIL_RECEIVED};
-use scheduling::MEETING_BOOKED;
 
 pub(crate) const SCORING_MODEL_NOT_FOUND: &str = "scoring_model_not_found";
 pub(crate) const SCORING_RECORD_NOT_FOUND: &str = "record_not_found";

@@ -38,7 +38,7 @@ segments = { path = "modules/segments" }
 calls = { path = "modules/calls" }
 email = { path = "modules/email" }
 sequences = { path = "modules/sequences" }
-scheduling = { path = "modules/scheduling" }
+booking = { path = "modules/booking" }
 approvals = { path = "modules/approvals" }
 automations = { path = "modules/automations" }
 webhooks = { path = "modules/webhooks" }

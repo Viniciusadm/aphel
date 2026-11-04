@@ -8,7 +8,7 @@ The native SDK supplies `MessagingChannel`. Enabled providers contribute configu
 
 - [x] Channel identities are validated open strings rather than an email/WhatsApp enum.
 - [x] Active delivery and connection operations resolve enabled providers. Compiled provider metadata supports existing channel display, encrypted credential cleanup and export without invoking a disabled transport.
-- [x] Poll scheduling skips unavailable providers.
+- [x] Poll booking skips unavailable providers.
 - [x] Reply limits, reference threading and reply windows come from provider policy; the composer uses the same projected metadata.
 - [x] Party matching chooses contact-point fields by the provider's address classification and scoped field keys.
 - [x] The provider catalog exposes localized configuration fields, options, defaults and credential names, never credential values.

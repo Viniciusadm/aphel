@@ -34,7 +34,7 @@ export default leadProModule
 | Contribution | Effect |
 | --- | --- |
 | `routes(routes, { layout })` | Authenticated routes. `layout: 'app'` (default) sits inside the `AppLayout`; `'bare'` only requires a session |
-| `publicRoutes(routes)` | Routes without a session (installer, login, public scheduling, public quote) |
+| `publicRoutes(routes)` | Routes without a session (installer, login, public booking, public quote) |
 | `nav(item)` | Item in the sidebar, the palette and the `G` shortcuts. `order` sets the position (custom objects go in `NAV_ORDER.customObjects`, modules without `order` in `NAV_ORDER.modules`, administration in `NAV_ORDER.administration`) |
 | `settings(area, item)` | Settings item (`account`, `organization`, `integrations`, `data`) in the given group, with the page (`lazy`/`element`) and extra routes (`routes`). The area, the search, the card and the menu come from here |
 | `recordTab(type, tab)` | Tab on the record pages of the type, after the page's own tabs. `render` receives `{ recordType, recordId, readOnly }` |

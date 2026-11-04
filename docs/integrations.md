@@ -62,7 +62,7 @@ Fields: `host` (required), `port` (required, default 587), `security` (`none`, `
 - **Test:** opens the connection, negotiates TLS and authenticates (lettre's `test_connection`, 15 s timeout); with `send_test_email`, sends a test email to the user who asked.
 - **Activation:** runs the test first; if it fails, the activation is refused and the error goes into `recent_errors`.
 - **Resolution on every send:** the `SmtpMailerProvider` (`kernel/infrastructure/mail/provider.rs`) is the `Mailer` of `serve` and the worker. On every send it reads the `smtp` instance with status `active` or `error`, reveals the password from the vault and builds an `SmtpMailer`, cached until the instance changes (`updated_at`/status), so a change in the UI takes effect without restarting. Without an active integration, sending fails with `mail_not_configured` (recorded on the job, without bringing anything down); invitations and password resets done by an administrator return the link to copy. With `DEMO_MODE`, emails are discarded.
-- **Where it applies:** all system emails: account verification, password reset, invitations, notifications (`notification.email` job), scheduled reports and scheduling.
+- **Where it applies:** all system emails: account verification, password reset, invitations, notifications (`notification.email` job), scheduled reports and booking.
 - **Delivery failures:** the error goes into `recent_errors` (`source: delivery`) and the integration moves to `error`, but keeps being used; the notification job is retried by the queue. The first successful send after that sets the status back to `active`.
 
 Caution: the Aphel server opens connections to the host and port configured in the UI. If that is a risk, restrict the server's outbound network access.

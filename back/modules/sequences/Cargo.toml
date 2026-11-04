@@ -15,7 +15,7 @@ tasks = { package = "aphel-mod-tasks", path = "../tasks" }
 people = { package = "aphel-mod-people", path = "../people" }
 deals = { package = "aphel-mod-deals", path = "../deals" }
 email = { package = "aphel-mod-email", path = "../email" }
-scheduling = { package = "aphel-mod-scheduling", path = "../scheduling" }
+booking = { package = "aphel-mod-booking", path = "../booking" }
 axum.workspace = true
 async-trait.workspace = true
 chrono.workspace = true

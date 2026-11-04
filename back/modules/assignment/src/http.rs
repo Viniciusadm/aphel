@@ -40,7 +40,7 @@ pub(crate) fn router() -> OpenApiRouter<AppState> {
     security(("session_cookie" = [])),
     params(LeadDistributionAssignmentListParams, PaginationQuery),
     responses(
-        (status = 200, description = "Assignment history of the distribution rules, newest first: who received which record, from which rule and source (`automation`, `incoming_webhook`, `import`, `scheduling`, `lead_form`). `user_id` is null when the user was removed and `record_type`/`record_id` are null for picks without a record. Entries of a deleted rule are deleted with it", body = Page<LeadDistributionAssignmentResponse>),
+        (status = 200, description = "Assignment history of the distribution rules, newest first: who received which record, from which rule and source (`automation`, `incoming_webhook`, `import`, `booking`, `lead_form`). `user_id` is null when the user was removed and `record_type`/`record_id` are null for picks without a record. Entries of a deleted rule are deleted with it", body = Page<LeadDistributionAssignmentResponse>),
         (status = 401, description = "Missing or invalid credentials (`unauthorized`, `invalid_api_token`)", body = ErrorEnvelope),
         (status = 403, description = "Missing `assignment.manage` (`permission_denied`, `insufficient_scope`)", body = ErrorEnvelope),
         (status = 422, description = "Invalid filter or pagination (`validation_error`)", body = ErrorEnvelope),

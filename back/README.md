@@ -355,7 +355,7 @@ Taken from the build (`aphel modules doctor` lists the same contributions per mo
 | `reminders` | `reminders.deliver`, `reminders.tasks_due_today` | `reminders.deliver` (`0 * * * * *`), `reminders.tasks_due_today` (`0 */5 * * * *`) | |
 | `renewals` | `renewals.scan` | `renewals.scan` (`0 15 * * * *`) | `renewals.notifications` |
 | `reports` | `report_schedules.dispatch`, `report_schedule.deliver` | `report_schedules.dispatch` (`0 */5 * * * *`) | |
-| `scheduling` | `scheduling.booking_email` | | |
+| `booking` | `booking.booking_email` | | |
 | `scoring` | `scoring.recalculate`, `scoring.decay` | `scoring.decay` (`0 30 3 * * *`) | `scoring.events` |
 | `sequences` | `sequences.tick`, `sequence.step` | `sequences.tick` (`0 * * * * *`) | `sequences.exits` |
 | `trash` | `trash.purge` | `trash.purge` (`0 30 3 * * *`) | |

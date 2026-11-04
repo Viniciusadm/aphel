@@ -59,7 +59,7 @@ const TAGS: &[(&str, &str)] = &[
     ),
     (
         "emails",
-        "Sending e-mail from records through the user's mailbox, scheduling, cancellation and rendered previews",
+        "Sending e-mail from records through the user's mailbox, booking, cancellation and rendered previews",
     ),
     (
         "email templates",

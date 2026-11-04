@@ -23,7 +23,7 @@ const moduleLabels: Record<string, SettingsKey> = {
   notes: 'permissions.modules.notes',
   emails: 'permissions.modules.emails',
   sequences: 'permissions.modules.sequences',
-  scheduling: 'permissions.modules.scheduling',
+  booking: 'permissions.modules.booking',
   goals: 'permissions.modules.goals',
   products: 'permissions.modules.products',
   quotes: 'permissions.modules.quotes',

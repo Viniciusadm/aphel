@@ -9,7 +9,7 @@ Distribution rules choose the owner of a record (`contact`, `company`, `deal` or
 | Piece | Where it lives | What it does |
 | --- | --- | --- |
 | Strategy, members, routes, selection (`pick`, `simulate`) | `back/modules/assignment/src/domain.rs` | Pure rules: who is eligible, which route matches and who is next |
-| `service::{check, preview, assign, distribute, resolve_pool}` | `back/modules/assignment/src/service/distribution.rs` | Distribution over `&Ctx` (`assign` locks the state in the transaction); used by automation, incoming webhooks, imports and scheduling |
+| `service::{check, preview, assign, distribute, resolve_pool}` | `back/modules/assignment/src/service/distribution.rs` | Distribution over `&Ctx` (`assign` locks the state in the transaction); used by automation, incoming webhooks, imports and booking |
 | `service::{list, get, create, update, delete, simulate}` | `back/modules/assignment/src/service/mod.rs` | Rule CRUD (event + audit) and simulation |
 | `AssignByRule` | `back/modules/assignment/src/automation.rs` (registered with `app.action` in the module) | The automation engine's `assign_by_rule` action |
 | `DistributionStore` | `back/modules/assignment/src/store.rs` | SQL for the rules, the round-robin state (written over `&mut MySqlTx`) and the auxiliary queries (user status, teams, open deals) |

@@ -10,7 +10,7 @@
 - [x] Least-loaded selection queries the rule's target through the generic aggregate engine, groups by its owner field, limits candidates to the eligible users and excludes archived/deleted records.
 - [x] Entity owners declare active workload states through `assignment.workload`. Deals and tasks declare their own open states. Entities without that mapping count their non-archived records.
 - [x] Workload aggregation uses system scope for internal distribution statistics, preserving the previous global-load semantics. Counts do not expose records, and truncated aggregates fail rather than incorrectly assigning zero load.
-- [x] Scheduling uses the same workload calculation rather than a deal-specific store method.
+- [x] Booking uses the same workload calculation rather than a deal-specific store method.
 - [x] Round-robin, weights, routing, away periods, state/counter locking and atomic owner writes remain in the capability.
 - [x] Assignment automation supports automatable entities with owners, including tasks, and keeps target update permission checks.
 - [x] The assignment rule reference provider uses the canonical `assignment.rule` key.
