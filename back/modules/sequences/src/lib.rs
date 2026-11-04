@@ -1,4 +1,5 @@
 mod config_references;
+mod contacts;
 mod enrollment_service;
 use aphel_contract_automation::AutomationBuilder;
 pub(crate) mod automation;

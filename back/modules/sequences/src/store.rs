@@ -378,13 +378,12 @@ impl SequenceStore {
 }
 
 const ENROLLMENT_SELECT: &str = "SELECT e.id, e.sequence_id, s.name AS sequence_name, s.`key` AS sequence_key, \
-     e.contact_id, c.full_name AS contact_name, c.email AS contact_email, e.enrolled_by, \
+     e.contact_id, e.enrolled_by, \
      u.display_name AS enrolled_by_name, e.mailbox_id, e.source, e.status, e.current_position, \
      e.next_run_at, e.last_email_id, e.exit_reason, e.exit_position, e.paused_at, \
      e.completed_at, e.exited_at, e.created_at, e.updated_at \
      FROM sequence_enrollments e \
      JOIN sequences s ON s.id = e.sequence_id \
-     JOIN people c ON c.id = e.contact_id \
      LEFT JOIN users u ON u.id = e.enrolled_by \
      WHERE TRUE";
 
@@ -400,8 +399,8 @@ fn enrollment_from_row(row: &MySqlRow) -> Result<EnrollmentView, AppError> {
         sequence_key: row.try_get("sequence_key")?,
         sequence_name: row.try_get("sequence_name")?,
         contact_id: uuid(row.try_get("contact_id")?, "contact_id")?,
-        contact_name: row.try_get("contact_name")?,
-        contact_email: row.try_get("contact_email")?,
+        contact_name: String::new(),
+        contact_email: None,
         enrolled_by: mapper::typed_id(row.try_get("enrolled_by")?, UserId::new)?,
         enrolled_by_name: row.try_get("enrolled_by_name")?,
         mailbox_id: opt_uuid(row.try_get("mailbox_id")?, "mailbox_id")?,
@@ -659,23 +658,24 @@ impl EnrollmentStore {
             .collect()
     }
 
-    pub(crate) async fn live_contact_emails(&self) -> Result<Vec<(Uuid, String)>, AppError> {
-        let rows = sqlx::query(
-            "SELECT DISTINCT e.contact_id, c.email FROM sequence_enrollments e \
-             JOIN people c ON c.id = e.contact_id \
-             WHERE e.status IN ('active', 'paused') \
-             AND c.email IS NOT NULL",
+    pub(crate) async fn live_contact_emails(
+        &self,
+        ctx: &Ctx<'_>,
+    ) -> Result<Vec<(Uuid, String)>, AppError> {
+        let ids: Vec<String> = sqlx::query_scalar("SELECT DISTINCT contact_id FROM sequence_enrollments WHERE status IN ('active', 'paused')").fetch_all(&self.pool).await?;
+        let ids = ids
+            .into_iter()
+            .map(|id| uuid(id, "contact_id"))
+            .collect::<Result<Vec<_>, _>>()?;
+        Ok(crate::contacts::list(
+            ctx,
+            &ids,
+            aphel_kernel::application::query::ArchivedFilter::Include,
         )
-        .fetch_all(&self.pool)
-        .await?;
-        rows.iter()
-            .map(|row| {
-                Ok((
-                    uuid(row.try_get("contact_id")?, "contact_id")?,
-                    row.try_get("email")?,
-                ))
-            })
-            .collect()
+        .await?
+        .into_values()
+        .filter_map(|contact| contact.email.map(|email| (contact.id, email)))
+        .collect())
     }
 
     pub(crate) async fn counts(
@@ -973,28 +973,16 @@ impl DirectoryStore {
 
     pub(crate) async fn contact(
         &self,
+        ctx: &Ctx<'_>,
         contact_id: Uuid,
     ) -> Result<Option<ContactTarget>, AppError> {
-        let row = sqlx::query(
-            "SELECT id, full_name, email, deleted_at FROM people \
-             WHERE id = ?",
+        Ok(crate::contacts::list(
+            ctx,
+            &[contact_id],
+            aphel_kernel::application::query::ArchivedFilter::Exclude,
         )
-        .bind(contact_id.to_string())
-        .fetch_optional(&self.pool)
-        .await?;
-        let Some(row) = row else {
-            return Ok(None);
-        };
-        let deleted_at: Option<NaiveDateTime> = row.try_get("deleted_at")?;
-        let email: Option<String> = row.try_get("email")?;
-        Ok(Some(ContactTarget {
-            id: uuid(row.try_get("id")?, "id")?,
-            name: row.try_get("full_name")?,
-            email: email
-                .map(|email| email.trim().to_lowercase())
-                .filter(|email| !email.is_empty()),
-            deleted: deleted_at.is_some(),
-        }))
+        .await?
+        .remove(&contact_id))
     }
 
     pub(crate) async fn deal_contacts(&self, deal_id: Uuid) -> Result<Vec<Uuid>, AppError> {

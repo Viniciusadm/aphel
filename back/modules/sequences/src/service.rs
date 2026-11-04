@@ -679,7 +679,7 @@ pub async fn enroll(ctx: &Ctx<'_>, command: EnrollCommand) -> Result<EnrollmentV
     }
     let directory = DirectoryStore::of(ctx);
     let contact = directory
-        .contact(contact_id)
+        .contact(ctx, contact_id)
         .await?
         .filter(|contact| !contact.deleted)
         .ok_or_else(contact_not_found)?;
@@ -795,10 +795,12 @@ pub async fn enroll(ctx: &Ctx<'_>, command: EnrollCommand) -> Result<EnrollmentV
     )
     .await?;
     tx.commit().await?;
-    enrollments
+    let mut result = enrollments
         .find(enrollment.id)
         .await?
-        .ok_or_else(enrollment_not_found)
+        .ok_or_else(enrollment_not_found)?;
+    crate::contacts::hydrate(ctx, std::slice::from_mut(&mut result)).await?;
+    Ok(result)
 }
 
 pub(crate) async fn enroll_for_automation(
@@ -841,9 +843,11 @@ pub(crate) async fn list_enrollments(
             "missing permission to access this contact",
         ));
     }
-    EnrollmentStore::of(ctx)
+    let mut listing = EnrollmentStore::of(ctx)
         .list(&filter, &visibility, window)
-        .await
+        .await?;
+    crate::contacts::hydrate(ctx, &mut listing.items).await?;
+    Ok(listing)
 }
 
 pub(crate) async fn pause(
@@ -946,7 +950,12 @@ async fn transition(
     )
     .await?;
     tx.commit().await?;
-    enrollments.find(id).await?.ok_or_else(enrollment_not_found)
+    let mut result = enrollments
+        .find(id)
+        .await?
+        .ok_or_else(enrollment_not_found)?;
+    crate::contacts::hydrate(ctx, std::slice::from_mut(&mut result)).await?;
+    Ok(result)
 }
 
 fn not_live() -> AppError {

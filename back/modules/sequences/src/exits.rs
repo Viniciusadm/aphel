@@ -130,7 +130,7 @@ pub(crate) async fn handle(ctx: &Ctx<'_>, event: &DomainEvent) -> Result<(), App
                 return Ok(());
             };
             let people: Vec<Uuid> = enrollments
-                .live_contact_emails()
+                .live_contact_emails(ctx)
                 .await?
                 .into_iter()
                 .filter(|(_, email)| address_hash(email) == hash)

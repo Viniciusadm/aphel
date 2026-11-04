@@ -503,6 +503,13 @@ This phase is in progress. Completed entries describe static source validation; 
 - [x] Formatting and strict email/sequence Clippy pass; foreign SQL references fall from 43 to 38 without raising other ratchets.
 - [ ] Manual acceptance: template mapping/export/apply, unavailable catalogs, consent objections, mailbox ownership/status ordering and task-only sequences without email.
 
+## Scoped sequence person snapshots
+
+- [x] Remove people joins/raw reads from enrollment display, consent-event matching and sequence target resolution. Read bounded, deduplicated owner snapshots and preserve owner field masking.
+- [x] Enrollment responses hydrate only readable person names/emails; inaccessible labels remain empty. Worker target resolution uses the actual enroller context and treats unavailable/deleted targets as unavailable.
+- [x] Keep enrollment selection/counting/locking in sequences. Strict sequence Clippy passes and foreign SQL references fall from 38 to 35.
+- [ ] Manual acceptance: enrollment displays/counts, masked email/name fields, lost target permissions, deleted/disabled people, objection events and scheduled actor scopes.
+
 ## Outstanding scope
 
 The remaining identity changes, shared capability interfaces, owner-only SQL, deletion policies and per-plugin manual acceptance matrices are still pending. Existing architectural debt is not considered resolved by renaming packages.

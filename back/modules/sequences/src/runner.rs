@@ -136,7 +136,7 @@ pub(crate) async fn process(
     };
     let member_ctx = ctx.with_scope(&member);
     let Some(contact) = directory
-        .contact(enrollment.contact_id)
+        .contact(&member_ctx, enrollment.contact_id)
         .await?
         .filter(|contact| !contact.deleted)
     else {
