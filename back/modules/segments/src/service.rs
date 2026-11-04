@@ -298,7 +298,7 @@ fn readable<'c>(ctx: &'c Ctx<'_>, record_type: &str) -> Result<&'c EntityDefinit
     Ok(definition)
 }
 
-async fn visible(ctx: &Ctx<'_>, segment_id: &str) -> Result<Segment, AppError> {
+pub(crate) async fn visible(ctx: &Ctx<'_>, segment_id: &str) -> Result<Segment, AppError> {
     let id = Uuid::parse_str(segment_id.trim()).map_err(|_| segment_not_found())?;
     let segment = SegmentStore::of(ctx)
         .find(id)

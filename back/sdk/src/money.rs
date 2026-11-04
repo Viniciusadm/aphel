@@ -14,6 +14,7 @@ pub trait CurrencyConverter: Send + Sync {
 }
 #[async_trait]
 pub trait MoneyRates: Send + Sync {
+    async fn currency_enabled(&self, pool: &MySqlPool, currency: &str) -> Result<bool, AppError>;
     async fn context(&self, pool: &MySqlPool) -> Result<Option<CurrencyContext>, AppError>;
     async fn rate_on(
         &self,

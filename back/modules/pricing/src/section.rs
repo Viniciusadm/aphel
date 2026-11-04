@@ -92,6 +92,13 @@ fn parse<T: for<'de> Deserialize<'de>>(content: &Value) -> Result<T, AppError> {
 }
 
 fn package_currencies(package: &ConfigPackage) -> BTreeSet<String> {
+    if aphel_kernel::modules::app()
+        .services()
+        .get::<dyn aphel_sdk::money::MoneyRates>()
+        .is_none()
+    {
+        return BTreeSet::new();
+    }
     package
         .sections
         .get(CURRENCIES_SECTION)

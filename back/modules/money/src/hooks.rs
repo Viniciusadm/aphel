@@ -37,6 +37,13 @@ impl CurrencyConverter for RateCurrencyConverter {
 
 #[async_trait]
 impl aphel_sdk::money::MoneyRates for RateCurrencyConverter {
+    async fn currency_enabled(
+        &self,
+        pool: &sqlx::MySqlPool,
+        currency: &str,
+    ) -> Result<bool, AppError> {
+        CurrencyStore::new(pool.clone()).is_enabled(currency).await
+    }
     async fn context(
         &self,
         pool: &sqlx::MySqlPool,

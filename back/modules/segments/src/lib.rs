@@ -6,6 +6,7 @@ pub(crate) mod http;
 pub(crate) mod plugin_bridge;
 pub(crate) mod service;
 pub(crate) mod store;
+mod target_reader;
 
 use std::sync::Arc;
 
@@ -16,7 +17,7 @@ use aphel_kernel::errors::AppError;
 use aphel_kernel::modules::builder::APHEL_VERSION;
 use aphel_kernel::modules::{AppBuilder, Manifest, Module};
 
-pub const KEY: &str = "segments";
+pub use aphel_sdk::segments::KEY;
 
 pub struct SegmentsModule;
 
@@ -36,6 +37,10 @@ impl Module for SegmentsModule {
     }
 
     fn register(&self, app: &mut AppBuilder) -> Result<(), AppError> {
+        app.contract(aphel_sdk::segments::DESCRIPTOR);
+        app.provide::<dyn aphel_sdk::segments::SegmentTargetReader>(Arc::new(
+            target_reader::TargetReader,
+        ));
         app.contribute::<dyn aphel_sdk::configuration::ConfigurationReferences>(
             std::sync::Arc::new(config_references::References),
         );

@@ -620,11 +620,8 @@ async fn apply_segment(
     if let Some(value) = segment {
         list.segment_id = None;
         if let Some(segment_id) = validator.record_id("segment_id", value) {
-            match PriceListStore::of(ctx)
-                .segment_record_type(segment_id)
-                .await?
-            {
-                Some(record_type) if record_type == RecordType::COMPANY.as_str() => {
+            match aphel_sdk::segments::target(ctx, segment_id).await? {
+                Some(record_type) if record_type == RecordType::COMPANY => {
                     list.segment_id = Some(segment_id);
                 }
                 Some(_) => validator.violation("segment_id", "must be a segment of organizations"),

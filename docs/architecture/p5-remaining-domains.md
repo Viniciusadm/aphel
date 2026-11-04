@@ -259,6 +259,13 @@ This phase is in progress. Completed entries describe static source validation; 
 - [x] Remove pricing's remaining peer implementation dependencies. This does not remove its foreign SQL/FKs or runtime catalog prerequisite; those remain pending.
 - [ ] Manual acceptance: catalog/pricing permissions and scope, bundle errors, currency parsing, public schema tags and optional capabilities.
 
+## Pricing currency and segment owners
+
+- [x] Read enabled non-base currencies through the enabled money rates interface; base currency remains core organization metadata. Money retains its currency-table SQL.
+- [x] Publish saved-filter identity and a native readable target interface. Segments retains lookup, parent read authorization and enabled-parent checks.
+- [x] Pricing no longer queries money currency or segment tables directly. Disabled owners do not validate stale foreign metadata through raw SQL; staged currency declarations are considered only when the money provider is enabled.
+- [ ] Manual acceptance: base/foreign currency lists, disabled money, segment pricing, unreadable or disabled segment parents and saved filter deletion.
+
 ## Outstanding scope
 
 The remaining identity changes, shared capability interfaces, owner-only SQL, deletion policies and per-plugin manual acceptance matrices are still pending. Existing architectural debt is not considered resolved by renaming packages.

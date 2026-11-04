@@ -319,27 +319,22 @@ impl PriceListStore {
     }
 
     pub(crate) async fn currency_enabled(&self, currency: &str) -> Result<bool, AppError> {
-        let enabled: bool = sqlx::query_scalar(
-            "SELECT EXISTS(SELECT 1 FROM organization_settings WHERE id = 1 AND currency = ?) \
-             OR EXISTS(SELECT 1 FROM money_currencies WHERE currency = ?)",
+        let base: bool = sqlx::query_scalar(
+            "SELECT EXISTS(SELECT 1 FROM organization_settings WHERE id = 1 AND currency = ?)",
         )
-        .bind(currency)
         .bind(currency)
         .fetch_one(&self.pool)
         .await?;
-        Ok(enabled)
-    }
-
-    pub(crate) async fn segment_record_type(
-        &self,
-        segment_id: Uuid,
-    ) -> Result<Option<String>, AppError> {
-        Ok(
-            sqlx::query_scalar("SELECT record_type FROM segments WHERE id = ?")
-                .bind(segment_id.to_string())
-                .fetch_optional(&self.pool)
-                .await?,
-        )
+        if base {
+            return Ok(true);
+        }
+        let Some(rates) = aphel_kernel::modules::app()
+            .services()
+            .get::<dyn aphel_sdk::money::MoneyRates>()
+        else {
+            return Ok(false);
+        };
+        rates.currency_enabled(&self.pool, currency).await
     }
 
     pub(crate) async fn existing_companies(
