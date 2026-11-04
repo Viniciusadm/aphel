@@ -1,4 +1,4 @@
-use super::{Pipeline, PipelineStage, StageKind};
+use super::{Pipeline, PipelineStage, StageKind, StageView};
 use serde::{Deserialize, Serialize};
 use utoipa::ToSchema;
 fn instant(value: chrono::DateTime<chrono::Utc>) -> String {
@@ -91,6 +91,15 @@ impl From<Pipeline> for PipelineSummaryResponse {
             name: pipeline.name,
             is_default: pipeline.is_default,
             is_active: pipeline.is_active,
+        }
+    }
+}
+
+impl From<StageView> for PipelineStageResponse {
+    fn from(view: StageView) -> Self {
+        Self {
+            record_count: Some(view.record_count),
+            ..view.stage.into()
         }
     }
 }

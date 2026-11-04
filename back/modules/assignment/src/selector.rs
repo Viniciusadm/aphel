@@ -7,6 +7,35 @@ use serde_json::{Map, Value};
 pub(crate) struct NativeAssignmentSelector;
 #[async_trait]
 impl AssignmentSelector for NativeAssignmentSelector {
+    async fn options(
+        &self,
+        ctx: &Ctx<'_>,
+        record_type: &str,
+    ) -> Result<Vec<aphel_sdk::assignment::AssignmentRuleOption>, AppError> {
+        let definition = ctx.registry().require(record_type)?;
+        if !aphel_sdk::records::enabled(ctx, &definition.record_type) {
+            return Ok(Vec::new());
+        }
+        let listing = crate::DistributionStore::of(ctx)
+            .list(&crate::RuleListFilter {
+                record_type: Some(record_type.to_owned()),
+                active: Some(true),
+                window: aphel_kernel::application::organization_admin::ListWindow {
+                    offset: 0,
+                    limit: 100,
+                },
+            })
+            .await?;
+        Ok(listing
+            .items
+            .into_iter()
+            .map(|rule| aphel_sdk::assignment::AssignmentRuleOption {
+                id: rule.id,
+                name: rule.name,
+            })
+            .collect())
+    }
+
     async fn usable(&self, ctx: &Ctx<'_>, rule: &str, record_type: &str) -> Result<bool, AppError> {
         Ok(crate::service::check(ctx, rule)
             .await?

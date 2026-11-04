@@ -154,3 +154,31 @@ pub fn pipeline_restriction(scope: &AccessScope, workflow: &[Pipeline]) -> Optio
             .collect(),
     )
 }
+
+#[derive(Debug, Clone, PartialEq, Eq)]
+pub struct StageView {
+    pub stage: PipelineStage,
+    pub record_count: u64,
+}
+
+#[derive(Debug, Clone, PartialEq, Eq)]
+pub struct PipelineView {
+    pub pipeline: Pipeline,
+    pub stages: Vec<StageView>,
+}
+
+#[async_trait]
+pub trait WorkflowViews: Send + Sync {
+    async fn list_pipelines(&self, ctx: &Ctx<'_>) -> Result<Vec<PipelineView>, AppError>;
+}
+pub fn views() -> Result<std::sync::Arc<dyn WorkflowViews>, AppError> {
+    aphel_kernel::modules::app()
+        .services()
+        .get::<dyn WorkflowViews>()
+        .ok_or_else(|| {
+            AppError::unavailable_code(
+                "workflow_views_unavailable",
+                "workflow views are not enabled",
+            )
+        })
+}

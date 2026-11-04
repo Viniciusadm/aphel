@@ -32,6 +32,12 @@ impl AssignmentPermissions for crate::access::Permission {
 
 #[async_trait::async_trait]
 pub trait AssignmentSelector: Send + Sync {
+    async fn options(
+        &self,
+        ctx: &crate::Ctx<'_>,
+        record_type: &str,
+    ) -> Result<Vec<AssignmentRuleOption>, AppError>;
+
     async fn usable(
         &self,
         ctx: &crate::Ctx<'_>,
@@ -47,4 +53,21 @@ pub trait AssignmentSelector: Send + Sync {
         source: &str,
         idempotency_key: String,
     ) -> Result<Option<aphel_kernel::domain::UserId>, AppError>;
+}
+
+#[derive(Debug, Clone, PartialEq, Eq)]
+pub struct AssignmentRuleOption {
+    pub id: uuid::Uuid,
+    pub name: String,
+}
+pub fn selector(
+    ctx: &crate::Ctx<'_>,
+) -> Result<Option<std::sync::Arc<dyn AssignmentSelector>>, AppError> {
+    let sources = ctx.app().contributions::<dyn AssignmentSelector>();
+    if sources.len() > 1 {
+        return Err(AppError::Configuration(
+            "multiple assignment selectors".into(),
+        ));
+    }
+    Ok(sources.into_iter().next())
 }

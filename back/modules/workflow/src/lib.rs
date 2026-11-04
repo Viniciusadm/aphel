@@ -59,6 +59,9 @@ impl Module for WorkflowModule {
     }
 
     fn register(&self, app: &mut AppBuilder) -> Result<(), AppError> {
+        app.provide::<dyn aphel_sdk::workflow::WorkflowViews>(std::sync::Arc::new(
+            catalog::NativeWorkflowCatalog,
+        ));
         app.contribute::<dyn aphel_sdk::configuration::ConfigurationReferences>(
             std::sync::Arc::new(config_references::References),
         );

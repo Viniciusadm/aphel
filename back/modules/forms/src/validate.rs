@@ -76,7 +76,9 @@ pub(crate) async fn workflow(
     ctx: &Ctx<'_>,
     scope: &AccessScope,
 ) -> Result<Vec<LeadFormPipelineOption>, AppError> {
-    let workflow = workflow::service::list_pipelines(&ctx.with_scope(scope)).await?;
+    let workflow = aphel_sdk::workflow::views()?
+        .list_pipelines(&ctx.with_scope(scope))
+        .await?;
     Ok(workflow
         .into_iter()
         .filter(|view| view.pipeline.is_active)
@@ -409,12 +411,14 @@ pub(crate) async fn validate_request(
     }
     let distribution_rule_id = clean(definition.distribution_rule_id);
     if let Some(rule_id) = &distribution_rule_id {
-        let usable = ctx.app().is_enabled(assignment::KEY)
-            && assignment::service::check(ctx, rule_id)
-                .await?
-                .is_some_and(|rule| {
-                    rule.is_active && rule.record_type == RecordType::CONTACT.as_str()
-                });
+        let usable = match aphel_sdk::assignment::selector(ctx)? {
+            Some(selector) => {
+                selector
+                    .usable(ctx, rule_id, RecordType::CONTACT.as_str())
+                    .await?
+            }
+            None => false,
+        };
         if !usable {
             violations.push(FieldViolation::new(
                 "distribution_rule_id",

@@ -466,6 +466,14 @@ This phase is in progress. Completed entries describe static source validation; 
 - [x] Formatting and strict task/sequence/booking Clippy pass without tests.
 - [ ] Manual acceptance: task type permissions, active/inactive options, sequence fallback selection, booking meeting lookup and disabled task capabilities.
 
+## Forms capability interfaces
+
+- [x] Forms consumes shared people metadata and lead conversion hooks instead of peer implementation crates. Native entity actions retain owner handlers.
+- [x] Workflow owns scoped pipeline views, reader authorization, team visibility and stage snapshots. Forms only maps the returned choices.
+- [x] Assignment owns active rule options, rule usability and idempotent owner selection. Shared selector resolution rejects ambiguity; forms preserves fixed-owner fallback and warnings on unavailable/failed distribution.
+- [x] Remove all six forms peer implementation dependencies and its hard people prerequisite. Full lint passes; OpenAPI is unchanged. Native peer-dependent plugins fall from eight to seven and layer violations from five to three.
+- [ ] Manual acceptance: optional owners, form options, restricted workflow teams, lead hooks, active rule choices, idempotent distribution and fixed-owner fallback/warnings.
+
 ## Outstanding scope
 
 The remaining identity changes, shared capability interfaces, owner-only SQL, deletion policies and per-plugin manual acceptance matrices are still pending. Existing architectural debt is not considered resolved by renaming packages.

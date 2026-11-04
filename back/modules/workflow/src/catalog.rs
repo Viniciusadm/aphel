@@ -64,3 +64,13 @@ impl aphel_sdk::points::ReferenceProvider for StageRefs {
         aphel_sdk::points::lookup_exists(crate::service::get_stage(ctx, id).await)
     }
 }
+
+#[async_trait::async_trait]
+impl aphel_sdk::workflow::WorkflowViews for NativeWorkflowCatalog {
+    async fn list_pipelines(
+        &self,
+        ctx: &aphel_kernel::Ctx<'_>,
+    ) -> Result<Vec<aphel_sdk::workflow::PipelineView>, aphel_kernel::errors::AppError> {
+        crate::service::list_pipelines(ctx).await
+    }
+}

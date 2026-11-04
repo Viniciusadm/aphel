@@ -12,7 +12,7 @@ use utoipa_axum::routes;
 
 use crate::domain::{
     CreateLostReasonCommand, CreatePipelineCommand, CreateStageCommand, LostReason, NewStageInput,
-    PipelineRemovalCommand, PipelineView, ReorderCommand, StageRemovalCommand, StageView,
+    PipelineRemovalCommand, PipelineView, ReorderCommand, StageRemovalCommand,
     UpdateLostReasonCommand, UpdatePipelineCommand, UpdateStageCommand,
 };
 use crate::service;
@@ -730,15 +730,6 @@ fn instant(value: DateTime<Utc>) -> String {
 }
 
 pub use aphel_sdk::workflow::{PipelineStageResponse, PipelineSummaryResponse, StageKindSchema};
-
-impl From<StageView> for PipelineStageResponse {
-    fn from(view: StageView) -> Self {
-        Self {
-            record_count: Some(view.record_count),
-            ..view.stage.into()
-        }
-    }
-}
 
 #[derive(Debug, Serialize, ToSchema)]
 pub(crate) struct PipelineResponse {

@@ -180,17 +180,7 @@ pub(crate) struct UpdateLostReasonCommand {
     pub(crate) ip: Option<String>,
 }
 
-#[derive(Debug, Clone, PartialEq, Eq)]
-pub struct StageView {
-    pub stage: PipelineStage,
-    pub(crate) record_count: u64,
-}
-
-#[derive(Debug, Clone, PartialEq, Eq)]
-pub struct PipelineView {
-    pub pipeline: Pipeline,
-    pub stages: Vec<StageView>,
-}
+pub use aphel_sdk::workflow::{PipelineView, StageView};
 
 pub use aphel_sdk::workflow::StageUsage;
 

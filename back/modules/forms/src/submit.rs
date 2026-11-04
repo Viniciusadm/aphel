@@ -19,8 +19,7 @@ use aphel_kernel::application::shared::{
 use aphel_kernel::domain::access::Permission;
 use aphel_kernel::errors::{AppError, FieldViolation};
 use aphel_kernel::records::RecordCtx;
-use assignment::{AssignRequest, AssignmentSource};
-use leads::{Lead, LeadConversion, LeadConverting};
+use aphel_sdk::leads::{Lead, LeadConversion, LeadConverting};
 
 pub(crate) const MAX_BODY_BYTES: usize = 64 * 1024;
 pub(crate) const INVALID_PAYLOAD: &str = "lead_form_invalid_payload";
@@ -548,24 +547,32 @@ async fn resolve_owner(
     let Some(rule_id) = &form.definition.distribution_rule_id else {
         return fixed;
     };
-    if !ctx.app().is_enabled(assignment::KEY) {
-        warnings.push((
-            DISTRIBUTION_FAILED,
-            "the lead distribution module is disabled".to_owned(),
-        ));
-        return fixed;
-    }
-    let record_type = RecordType::CONTACT;
-    let request = AssignRequest {
-        rule_id,
-        record_type: record_type.as_str(),
-        record: None,
-        values,
-        source: AssignmentSource::LeadForm,
-        idempotency_key: Some(format!("{KEY}:{submission_id}")),
+    let selector = match aphel_sdk::assignment::selector(ctx) {
+        Ok(Some(selector)) => selector,
+        Ok(None) => {
+            warnings.push((
+                DISTRIBUTION_FAILED,
+                "the lead distribution module is disabled".to_owned(),
+            ));
+            return fixed;
+        }
+        Err(error) => {
+            warnings.push((DISTRIBUTION_FAILED, error_text(&error)));
+            return fixed;
+        }
     };
-    match assignment::service::assign(ctx, request, &assignment::service::PickOnly).await {
-        Ok(outcome) => match outcome.user_id() {
+    match selector
+        .select(
+            ctx,
+            rule_id,
+            RecordType::CONTACT.as_str(),
+            values,
+            "lead_form",
+            format!("{KEY}:{submission_id}"),
+        )
+        .await
+    {
+        Ok(outcome) => match outcome {
             Some(user_id) => Some(user_id.as_str().to_owned()),
             None => {
                 warnings.push((

@@ -31,7 +31,7 @@ pub(crate) const SUBMITTED: &str = "lead_form.submitted";
 
 const PUBLIC_EVENTS: &[PublicEventDefinition] = &[event(
     SUBMITTED,
-    people::CONTACT_RESOURCE,
+    aphel_sdk::people::RESOURCE,
     "A lead form was submitted, creating or updating the contact",
 )];
 pub(crate) const FORM_NOT_FOUND: &str = "lead_form_not_found";
@@ -114,11 +114,11 @@ impl Module for FormsModule {
     fn manifest(&self) -> Manifest {
         Manifest::new(KEY, "Lead forms", APHEL_VERSION)
             .description("Public forms that create people and deals")
-            .depends_on(people::KEY, "*")
-            .optional(leads::KEY)
-            .optional(deals::KEY)
-            .optional(tasks::KEY)
-            .optional(assignment::KEY)
+            .optional("people")
+            .optional("leads")
+            .optional("deals")
+            .optional("tasks")
+            .optional("assignment")
             .migration(Migration::new(
                 1,
                 "create lead forms and submissions",
