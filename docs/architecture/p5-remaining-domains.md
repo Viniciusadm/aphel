@@ -252,6 +252,13 @@ This phase is in progress. Completed entries describe static source validation; 
 - [x] Shared credit readers expose owner-calculated monthly totals. Probability snapshots enforce field visibility, including amount/base amount/date and returned title/currency/owner/stage labels.
 - [ ] Manual acceptance: forecast methods/categories/horizons, probability filters and pagination, split credit, scope and field masks, inactive stages and disabled owner catalogs.
 
+## Pricing metadata and codecs
+
+- [x] Publish catalog item identity/permission/tag/error metadata through a pure contract, with the native resource codec metadata in the SDK.
+- [x] Pricing consumes shared currency normalization and a generic organization-scope authorization helper. Catalog/pricing calls retain their permission arguments and access rule.
+- [x] Remove pricing's remaining peer implementation dependencies. This does not remove its foreign SQL/FKs or runtime catalog prerequisite; those remain pending.
+- [ ] Manual acceptance: catalog/pricing permissions and scope, bundle errors, currency parsing, public schema tags and optional capabilities.
+
 ## Outstanding scope
 
 The remaining identity changes, shared capability interfaces, owner-only SQL, deletion policies and per-plugin manual acceptance matrices are still pending. Existing architectural debt is not considered resolved by renaming packages.

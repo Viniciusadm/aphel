@@ -12,7 +12,7 @@ use aphel_kernel::modules::Migration;
 use aphel_kernel::application::fields::builtin::field;
 use aphel_kernel::application::fields::{EntityDefinition, EntityTraits, LabelNormalization};
 use aphel_kernel::application::public_events::{
-    PreviousValues, PublicEventDefinition, PublicResource, changed, deleted, event,
+    PreviousValues, PublicEventDefinition, changed, deleted, event,
 };
 use aphel_kernel::application::shared::RecordType;
 use aphel_kernel::domain::access::{Permission, PermissionDefinition};
@@ -21,12 +21,12 @@ use aphel_kernel::errors::AppError;
 use aphel_kernel::modules::builder::APHEL_VERSION;
 use aphel_kernel::modules::{AppBuilder, Manifest, Module};
 
-pub const KEY: &str = "catalog_items";
+pub use aphel_sdk::catalog_items::KEY;
 
-pub(crate) const PRODUCTS_EXPORT: Permission = Permission::from_static("catalog_items.export");
+pub(crate) const PRODUCTS_EXPORT: Permission =
+    Permission::from_static(aphel_sdk::catalog_items::EXPORT);
 
-pub const PRODUCT_RESOURCE: PublicResource =
-    PublicResource::new("catalog_items.item", "ProductResponse");
+pub use aphel_sdk::catalog_items::RESOURCE as PRODUCT_RESOURCE;
 
 const PRODUCT_BULK_FIELDS: &[&str] = &["price", "unit", "recurrence", "term_months", "description"];
 
@@ -140,6 +140,7 @@ impl Module for CatalogItemsModule {
     }
 
     fn register(&self, app: &mut AppBuilder) -> Result<(), AppError> {
+        app.contract(aphel_sdk::catalog_items::DESCRIPTOR);
         app.contribute::<dyn aphel_sdk::line_items::ItemCatalog>(std::sync::Arc::new(
             LineItemCatalog,
         ));

@@ -21,6 +21,16 @@ pub mod access {
     pub use aphel_kernel::domain::access::{
         AccessScope, Permission, PermissionDefinition, RecordScopeFilter,
     };
+    pub fn require_organization_record_scope(
+        scope: &AccessScope,
+        permission: &Permission,
+    ) -> Result<(), crate::AppError> {
+        use aphel_kernel::application::access::Authorizer;
+        match scope.record_filter(permission)? {
+            RecordScopeFilter::Organization => Ok(()),
+            _ => Err(aphel_kernel::records::permission_denied()),
+        }
+    }
 }
 
 pub mod shared {
@@ -159,3 +169,5 @@ pub mod sequences;
 pub mod organizations;
 pub mod people;
 pub use aphel_contract_booking as booking;
+
+pub mod catalog_items;

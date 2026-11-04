@@ -24,7 +24,7 @@ use aphel_sdk::configuration::{
     parse_section,
 };
 use aphel_sdk::line_items::parse_money;
-use catalog_items::domain::normalize_currency;
+use aphel_sdk::money::normalize_currency_code as normalize_currency;
 
 pub(crate) const PRICE_LISTS_SECTION: &str = "price_lists";
 pub(crate) const DISCOUNT_LIMITS_SECTION: &str = "discount_limits";

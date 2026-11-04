@@ -7,6 +7,7 @@ license.workspace = true
 publish = false
 
 [dependencies]
+aphel-contract-catalog-items.workspace = true
 aphel-contract-people.workspace = true
 aphel-contract-organizations.workspace = true
 aphel-contract-booking.workspace = true

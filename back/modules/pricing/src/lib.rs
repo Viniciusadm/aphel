@@ -54,13 +54,13 @@ const PUBLIC_EVENTS: &[PublicEventDefinition] = &[
     ),
     event(
         domain::PRODUCT_BUNDLE_UPDATED,
-        catalog_items::PRODUCT_RESOURCE,
+        aphel_sdk::catalog_items::RESOURCE,
         "The bundle of a product was saved (components at `GET /pricing/items/{id}/bundle`)",
     )
     .with_context(&["pricing", "components"]),
     event(
         domain::PRODUCT_BUNDLE_REMOVED,
-        catalog_items::PRODUCT_RESOURCE,
+        aphel_sdk::catalog_items::RESOURCE,
         "A product stopped being a bundle",
     ),
 ];
@@ -73,9 +73,9 @@ impl Module for PricingModule {
             .description(
                 "Price lists by currency, segment or company with validity periods and quantity tiers, product bundles and the maximum discount per role",
             )
-            .depends_on(catalog_items::KEY, "*")
-            .optional(organizations::KEY)
-            .optional(segments::KEY)
+            .depends_on(aphel_sdk::catalog_items::KEY, "*")
+            .optional(aphel_sdk::organizations::KEY)
+            .optional("segments")
             .enabled_by_default()
             .owned_tables(&["price_lists", "price_list_companies", "price_list_items", "product_bundle_components", "product_bundles", "role_discount_limits"])
             .migration(Migration::new(

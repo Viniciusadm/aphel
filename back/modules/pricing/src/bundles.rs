@@ -21,8 +21,9 @@ use aphel_kernel::application::shared::{
 use aphel_kernel::database::transaction::MySqlTx;
 use aphel_kernel::domain::access::Permission;
 use aphel_kernel::errors::{AppError, FieldViolation};
+use aphel_sdk::access::require_organization_record_scope as require_catalog;
+use aphel_sdk::catalog_items::product_not_found;
 use aphel_sdk::line_items::{QUANTITY_DECIMALS, normalize_quantity};
-use catalog_items::domain::{product_not_found, require_catalog};
 
 const INVALID_BUNDLE: &str = "invalid product bundle";
 

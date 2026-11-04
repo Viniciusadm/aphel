@@ -90,10 +90,13 @@ impl CrmPermissions for Permission {
     const SEQUENCES_ENROLL: Permission = Permission::from_static("sequences.enroll");
     const BOOKING_MANAGE: Permission = Permission::from_static("booking.manage");
     const GOALS_MANAGE: Permission = Permission::from_static("goals.manage");
-    const PRODUCTS_READ: Permission = Permission::from_static("catalog_items.read");
-    const PRODUCTS_CREATE: Permission = Permission::from_static("catalog_items.create");
-    const PRODUCTS_UPDATE: Permission = Permission::from_static("catalog_items.update");
-    const PRODUCTS_DELETE: Permission = Permission::from_static("catalog_items.delete");
+    const PRODUCTS_READ: Permission = Permission::from_static(aphel_contract_catalog_items::READ);
+    const PRODUCTS_CREATE: Permission =
+        Permission::from_static(aphel_contract_catalog_items::CREATE);
+    const PRODUCTS_UPDATE: Permission =
+        Permission::from_static(aphel_contract_catalog_items::UPDATE);
+    const PRODUCTS_DELETE: Permission =
+        Permission::from_static(aphel_contract_catalog_items::DELETE);
     const QUOTES_READ: Permission = Permission::from_static("quotes.read");
     const QUOTES_CREATE: Permission = Permission::from_static("quotes.create");
     const QUOTES_UPDATE: Permission = Permission::from_static("quotes.update");

@@ -10,18 +10,14 @@ use rust_decimal::Decimal;
 use serde_json::{Map, Value, json};
 use uuid::Uuid;
 
-use aphel_kernel::application::access::Authorizer;
 use aphel_kernel::application::fields::decimal_json;
 use aphel_kernel::application::fields::permissions::provided_key;
 use aphel_kernel::domain::UserId;
-use aphel_kernel::domain::access::{AccessScope, Permission, RecordScopeFilter};
-use aphel_kernel::errors::AppError;
 use aphel_kernel::records::{
-    InputValidator, MAX_LONG_TEXT_LENGTH, Patch, bool_patch, insert_text, permission_denied,
-    value_patch,
+    InputValidator, MAX_LONG_TEXT_LENGTH, Patch, bool_patch, insert_text, value_patch,
 };
 
-pub use aphel_kernel::application::shared::normalize_currency_code as normalize_currency;
+pub use aphel_sdk::money::normalize_currency_code as normalize_currency;
 
 pub(crate) const MAX_PRODUCT_NAME_LENGTH: usize = 255;
 pub(crate) const MAX_PRODUCT_CODE_LENGTH: usize = 64;
@@ -120,17 +116,13 @@ pub struct ProductDetails {
     pub(crate) custom_fields: Map<String, Value>,
 }
 
-pub(crate) const PRODUCT_NOT_FOUND: &str = "product_not_found";
-
 pub(crate) const PRODUCT_CREATED: &str = "product.created";
 pub(crate) const PRODUCT_UPDATED: &str = "product.updated";
 pub(crate) const PRODUCT_DELETED: &str = "product.deleted";
 
 pub(crate) const INVALID_PRODUCT: &str = "invalid product";
 
-pub fn product_not_found() -> AppError {
-    AppError::not_found_code(PRODUCT_NOT_FOUND, "product was not found")
-}
+pub use aphel_sdk::catalog_items::product_not_found;
 
 pub(crate) fn product_snapshot(data: &ProductData) -> Value {
     let mut map = Map::new();
@@ -219,9 +211,4 @@ pub(crate) fn apply_product_input(
     data
 }
 
-pub fn require_catalog(scope: &AccessScope, permission: &Permission) -> Result<(), AppError> {
-    match scope.record_filter(permission)? {
-        RecordScopeFilter::Organization => Ok(()),
-        _ => Err(permission_denied()),
-    }
-}
+pub use aphel_sdk::access::require_organization_record_scope as require_catalog;

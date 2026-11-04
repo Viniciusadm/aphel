@@ -29,7 +29,7 @@ use aphel_kernel::errors::AppError;
 use aphel_kernel::records::{RecordCtx, RecordTypeHandler, optional_record, values_request};
 use aphel_sdk::money::DecimalInputSchema;
 
-pub const TAG: &str = "catalog-items";
+pub use aphel_sdk::catalog_items::API_TAG as TAG;
 
 pub(crate) fn router() -> OpenApiRouter<AppState> {
     OpenApiRouter::new()
