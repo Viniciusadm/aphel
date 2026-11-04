@@ -161,15 +161,7 @@ pub(crate) struct EnrollmentFilter {
     pub(crate) status: Option<EnrollmentStatus>,
 }
 
-#[derive(Debug, Clone, PartialEq, Eq)]
-pub struct EnrollCommand {
-    pub sequence_id: String,
-    pub contact_id: String,
-    pub mailbox_id: Option<String>,
-    pub source: EnrollmentSource,
-    pub enroll_as: Option<UserId>,
-    pub ip: Option<String>,
-}
+pub use aphel_sdk::sequences::EnrollCommand;
 
 #[derive(Debug, Clone, PartialEq, Eq)]
 pub(crate) struct StepRun {

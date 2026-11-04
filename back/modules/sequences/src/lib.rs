@@ -1,4 +1,5 @@
 mod config_references;
+mod enrollment_service;
 use aphel_contract_automation::AutomationBuilder;
 pub(crate) mod automation;
 pub mod domain;
@@ -85,6 +86,10 @@ impl Module for SequencesModule {
     }
 
     fn register(&self, app: &mut AppBuilder) -> Result<(), AppError> {
+        app.contract(aphel_sdk::sequences::DESCRIPTOR);
+        app.provide::<dyn aphel_sdk::sequences::SequenceEnrollment>(std::sync::Arc::new(
+            enrollment_service::Enrollment,
+        ));
         app.contribute::<dyn aphel_sdk::configuration::ConfigurationReferences>(
             std::sync::Arc::new(config_references::References),
         );

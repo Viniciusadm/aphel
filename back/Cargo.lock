@@ -416,6 +416,13 @@ dependencies = [
 ]
 
 [[package]]
+name = "aphel-contract-sequences"
+version = "0.1.0"
+dependencies = [
+ "aphel-contract",
+]
+
+[[package]]
 name = "aphel-contract-tagging"
 version = "0.1.0"
 dependencies = [
@@ -664,7 +671,6 @@ dependencies = [
  "aphel-contract-crm",
  "aphel-contract-tagging",
  "aphel-kernel",
- "aphel-mod-sequences",
  "aphel-sdk",
  "async-trait",
  "axum",
@@ -2025,6 +2031,7 @@ dependencies = [
  "aphel-contract-party",
  "aphel-contract-pricing",
  "aphel-contract-privacy",
+ "aphel-contract-sequences",
  "aphel-contract-tagging",
  "aphel-contract-tasks",
  "aphel-contract-telephony",

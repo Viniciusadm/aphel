@@ -88,30 +88,7 @@ impl EnrollmentStatus {
     }
 }
 
-#[derive(Debug, Clone, Copy, PartialEq, Eq, Hash)]
-pub enum EnrollmentSource {
-    Manual,
-    Bulk,
-    Automation,
-}
-
-impl EnrollmentSource {
-    pub(crate) const ALL: [Self; 3] = [Self::Manual, Self::Bulk, Self::Automation];
-
-    pub(crate) fn as_str(&self) -> &'static str {
-        match self {
-            Self::Manual => "manual",
-            Self::Bulk => "bulk",
-            Self::Automation => "automation",
-        }
-    }
-
-    pub(crate) fn parse(value: &str) -> Option<Self> {
-        Self::ALL
-            .into_iter()
-            .find(|source| source.as_str() == value)
-    }
-}
+pub use aphel_sdk::sequences::EnrollmentSource;
 
 #[derive(Debug, Clone, Copy, PartialEq, Eq, Hash)]
 pub(crate) enum ExitReason {

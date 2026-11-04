@@ -441,6 +441,13 @@ async fn prepare_action(
             ))
         }
         BulkAction::EnrollInSequence { sequence_id } => {
+            if ctx
+                .services()
+                .get::<dyn aphel_sdk::sequences::SequenceEnrollment>()
+                .is_none()
+            {
+                return Err(aphel_sdk::sequences::unavailable());
+            }
             let sequence_id = sequence_id.trim().to_owned();
             if sequence_id.is_empty() {
                 return Err(invalid("sequence_id", "is required"));

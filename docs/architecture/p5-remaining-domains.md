@@ -213,6 +213,13 @@ This phase is in progress. Completed entries describe static source validation; 
 - [ ] Replace the remaining formulas implementation dependency.
 - [ ] Manual acceptance: stage-change policies, package stage overrides, portable target resolution, disabled workflow and request stage labels.
 
+## Bulk sequence enrollment
+
+- [x] Publish enrollment origin metadata in a pure sequences contract and the native command/enrollment interface in the SDK.
+- [x] Sequences retains actor permissions, recipient/mailbox checks, duplicate policy, persistence and jobs. Bulk actions calls the enabled service and rejects new enrollment jobs when it is absent.
+- [x] Remove bulk actions' last peer implementation dependency. Pending executions resolve provider availability again.
+- [ ] Manual acceptance: bulk enrollment permissions, duplicate recipients, inactive sequences, mailbox selection, disabled service and queued job retries.
+
 ## Outstanding scope
 
 The remaining identity changes, shared capability interfaces, owner-only SQL, deletion policies and per-plugin manual acceptance matrices are still pending. Existing architectural debt is not considered resolved by renaming packages.

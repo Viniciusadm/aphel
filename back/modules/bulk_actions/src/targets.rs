@@ -10,8 +10,7 @@ use aphel_kernel::Ctx;
 use aphel_kernel::application::fields::EntityTraits;
 use aphel_kernel::errors::{AppError, FieldViolation};
 use aphel_kernel::records::{RecordCtx, RecordTypeHandler};
-use sequences::EnrollCommand;
-use sequences::domain::EnrollmentSource;
+use aphel_sdk::sequences::{EnrollCommand, EnrollmentSource};
 
 fn unsupported_action(action: &BulkAction, record_type: &str) -> AppError {
     AppError::validation_code(
@@ -170,7 +169,7 @@ pub(crate) async fn apply(
             if !capabilities.has_trait(traits::SEQUENCEABLE) {
                 return Err(unsupported_action(action, record_type));
             }
-            sequences::service::enroll(
+            aphel_sdk::sequences::enroll(
                 ctx,
                 EnrollCommand {
                     sequence_id: sequence_id.clone(),
