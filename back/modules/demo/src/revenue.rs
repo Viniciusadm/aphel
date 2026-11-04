@@ -11,15 +11,14 @@ use aphel_kernel::errors::{AppError, CodedKind};
 use approvals::domain::{PolicyCommand, StepInput};
 use deals::team::domain::AddDealMemberCommand;
 use money::domain::{CreateExchangeRateCommand, SetCurrenciesCommand};
-use price_lists::domain::{PriceListItemInput, ReplacePriceListItemsCommand, SavePriceListCommand};
+use pricing::domain::{PriceListItemInput, ReplacePriceListItemsCommand, SavePriceListCommand};
 use products::domain::{ProductInput, SaveProductCommand};
 use quotes::domain::{CreateQuoteCommand, QuoteInput};
 use workflow::domain::UpdateStageCommand;
 
 pub(crate) const EXCHANGE_RATE_RECORD_TYPE: RecordType =
     RecordType::from_static("money.exchange_rate");
-pub(crate) const PRICE_LIST_RECORD_TYPE: RecordType =
-    RecordType::from_static("price_lists.price_list");
+pub(crate) const PRICE_LIST_RECORD_TYPE: RecordType = RecordType::from_static("pricing.price_list");
 pub(crate) const QUOTE_RECORD_TYPE: RecordType = RecordType::from_static("quotes.quote");
 pub(crate) const APPROVAL_POLICY_RECORD_TYPE: RecordType =
     RecordType::from_static("approvals.approval_policy");
@@ -227,12 +226,12 @@ pub(crate) async fn seed_price_list(
     products: &[DemoProduct],
 ) -> Result<Option<Uuid>, AppError> {
     if products.is_empty()
-        || !enabled(ctx, price_lists::KEY)
+        || !enabled(ctx, pricing::KEY)
         || store.key_exists("price_lists", DEMO_PRICE_LIST_KEY).await?
     {
         return Ok(None);
     }
-    let list = price_lists::service::create(
+    let list = pricing::service::create(
         ctx,
         SavePriceListCommand {
             key: Some(DEMO_PRICE_LIST_KEY.to_owned()),
@@ -263,7 +262,7 @@ pub(crate) async fn seed_price_list(
                 })
         })
         .collect();
-    price_lists::service::replace_items(
+    pricing::service::replace_items(
         ctx,
         &list.id.to_string(),
         ReplacePriceListItemsCommand {

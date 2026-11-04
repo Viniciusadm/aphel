@@ -1,4 +1,4 @@
-key = "price_lists"
+key = "pricing"
 name = "Price lists"
 version = "0.1.0"
 layer = "capability"

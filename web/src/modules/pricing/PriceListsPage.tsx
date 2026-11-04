@@ -23,7 +23,7 @@ import { SearchInput } from '@/components/ui/search-input'
 const PRODUCTS_PATH = '/products'
 
 export function PriceListsPage() {
-  const { t } = useTranslation('price_lists')
+  const { t } = useTranslation('pricing')
   const { hasPermission } = useSession()
   const canManageLimits = hasPermission(SETTINGS_MANAGE)
 
@@ -55,7 +55,7 @@ export function PriceListsPage() {
 }
 
 function PriceListsTable() {
-  const { t } = useTranslation('price_lists')
+  const { t } = useTranslation('pricing')
   const navigate = useNavigate()
   const { hasPermission } = useSession()
   const canEdit = hasPermission('products.update')

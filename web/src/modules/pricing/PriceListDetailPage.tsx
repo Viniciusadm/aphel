@@ -67,7 +67,7 @@ export function PriceListDetailPage() {
 }
 
 function PriceListDetail({ list }: { list: PriceList }) {
-  const { t } = useTranslation('price_lists')
+  const { t } = useTranslation('pricing')
   const navigate = useNavigate()
   const { hasPermission } = useSession()
   const canEdit = hasPermission('products.update')
@@ -148,7 +148,7 @@ function PriceListDetail({ list }: { list: PriceList }) {
 }
 
 function PriceListItemsEditor({ list, canEdit }: { list: PriceList; canEdit: boolean }) {
-  const { t } = useTranslation('price_lists')
+  const { t } = useTranslation('pricing')
   const items = usePriceListItems(list.id)
 
   if (items.isPending) return <PageLoader />
@@ -164,7 +164,7 @@ interface ItemsFormProps {
 }
 
 function ItemsForm({ list, items, canEdit, title }: ItemsFormProps) {
-  const { t } = useTranslation('price_lists')
+  const { t } = useTranslation('pricing')
   const formatting = useRecordFormatting()
   const invalidate = useInvalidatePriceLists()
   const initial = items.map(toDraft)

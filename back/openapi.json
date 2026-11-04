@@ -15182,140 +15182,6 @@
         }
       }
     },
-    "/api/v1/discount-limits": {
-      "get": {
-        "tags": [
-          "price-lists"
-        ],
-        "operationId": "discount_limits_get",
-        "responses": {
-          "200": {
-            "description": "Every role of the organization with its maximum discount in percent (`null` = no limit). A quote whose discount passes the limit of the role of its owner goes through the `quote_discount_limit` approval policy before it can be sent",
-            "content": {
-              "application/json": {
-                "schema": {
-                  "$ref": "#/components/schemas/Data_Vec_DiscountLimitResponse"
-                }
-              }
-            }
-          },
-          "401": {
-            "description": "Missing or invalid credentials (`unauthorized`, `invalid_api_token`)",
-            "content": {
-              "application/json": {
-                "schema": {
-                  "$ref": "#/components/schemas/ErrorEnvelope"
-                }
-              }
-            }
-          },
-          "403": {
-            "description": "Missing `settings.manage` (`permission_denied`, `insufficient_scope`)",
-            "content": {
-              "application/json": {
-                "schema": {
-                  "$ref": "#/components/schemas/ErrorEnvelope"
-                }
-              }
-            }
-          },
-          "429": {
-            "description": "API token rate limit exceeded (`rate_limited`); see `Retry-After` and `X-RateLimit-*`",
-            "content": {
-              "application/json": {
-                "schema": {
-                  "$ref": "#/components/schemas/ErrorEnvelope"
-                }
-              }
-            }
-          }
-        },
-        "security": [
-          {
-            "session_cookie": []
-          },
-          {
-            "api_token": []
-          }
-        ]
-      },
-      "put": {
-        "tags": [
-          "price-lists"
-        ],
-        "operationId": "discount_limits_set",
-        "requestBody": {
-          "content": {
-            "application/json": {
-              "schema": {
-                "$ref": "#/components/schemas/SetDiscountLimitsRequest"
-              }
-            }
-          },
-          "required": true
-        },
-        "responses": {
-          "200": {
-            "description": "Limits replaced (`discount_limits.updated` with the changes): roles left out or sent with `max_discount_percent: null` have no limit. Percent between 0 and 100 with up to 2 decimal places",
-            "content": {
-              "application/json": {
-                "schema": {
-                  "$ref": "#/components/schemas/Data_Vec_DiscountLimitResponse"
-                }
-              }
-            }
-          },
-          "401": {
-            "description": "Missing or invalid credentials (`unauthorized`, `invalid_api_token`)",
-            "content": {
-              "application/json": {
-                "schema": {
-                  "$ref": "#/components/schemas/ErrorEnvelope"
-                }
-              }
-            }
-          },
-          "403": {
-            "description": "Missing `settings.manage` (`permission_denied`, `insufficient_scope`)",
-            "content": {
-              "application/json": {
-                "schema": {
-                  "$ref": "#/components/schemas/ErrorEnvelope"
-                }
-              }
-            }
-          },
-          "422": {
-            "description": "Unknown role or invalid percent (`validation_error` with `details.fields`)",
-            "content": {
-              "application/json": {
-                "schema": {
-                  "$ref": "#/components/schemas/ErrorEnvelope"
-                }
-              }
-            }
-          },
-          "429": {
-            "description": "API token rate limit exceeded (`rate_limited`); see `Retry-After` and `X-RateLimit-*`",
-            "content": {
-              "application/json": {
-                "schema": {
-                  "$ref": "#/components/schemas/ErrorEnvelope"
-                }
-              }
-            }
-          }
-        },
-        "security": [
-          {
-            "session_cookie": []
-          },
-          {
-            "api_token": []
-          }
-        ]
-      }
-    },
     "/api/v1/duplicates": {
       "get": {
         "tags": [
@@ -42201,10 +42067,10 @@
         ]
       }
     },
-    "/api/v1/price-lists": {
+    "/api/v1/pricing": {
       "get": {
         "tags": [
-          "price-lists"
+          "pricing"
         ],
         "operationId": "price_lists_list",
         "parameters": [
@@ -42310,7 +42176,7 @@
       },
       "post": {
         "tags": [
-          "price-lists"
+          "pricing"
         ],
         "operationId": "price_lists_create",
         "parameters": [
@@ -42407,10 +42273,420 @@
         ]
       }
     },
-    "/api/v1/price-lists/{price_list_id}": {
+    "/api/v1/pricing/discount-limits": {
       "get": {
         "tags": [
-          "price-lists"
+          "pricing"
+        ],
+        "operationId": "discount_limits_get",
+        "responses": {
+          "200": {
+            "description": "Every role of the organization with its maximum discount in percent (`null` = no limit). A quote whose discount passes the limit of the role of its owner goes through the `quote_discount_limit` approval policy before it can be sent",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/Data_Vec_DiscountLimitResponse"
+                }
+              }
+            }
+          },
+          "401": {
+            "description": "Missing or invalid credentials (`unauthorized`, `invalid_api_token`)",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ErrorEnvelope"
+                }
+              }
+            }
+          },
+          "403": {
+            "description": "Missing `settings.manage` (`permission_denied`, `insufficient_scope`)",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ErrorEnvelope"
+                }
+              }
+            }
+          },
+          "429": {
+            "description": "API token rate limit exceeded (`rate_limited`); see `Retry-After` and `X-RateLimit-*`",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ErrorEnvelope"
+                }
+              }
+            }
+          }
+        },
+        "security": [
+          {
+            "session_cookie": []
+          },
+          {
+            "api_token": []
+          }
+        ]
+      },
+      "put": {
+        "tags": [
+          "pricing"
+        ],
+        "operationId": "discount_limits_set",
+        "requestBody": {
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/SetDiscountLimitsRequest"
+              }
+            }
+          },
+          "required": true
+        },
+        "responses": {
+          "200": {
+            "description": "Limits replaced (`discount_limits.updated` with the changes): roles left out or sent with `max_discount_percent: null` have no limit. Percent between 0 and 100 with up to 2 decimal places",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/Data_Vec_DiscountLimitResponse"
+                }
+              }
+            }
+          },
+          "401": {
+            "description": "Missing or invalid credentials (`unauthorized`, `invalid_api_token`)",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ErrorEnvelope"
+                }
+              }
+            }
+          },
+          "403": {
+            "description": "Missing `settings.manage` (`permission_denied`, `insufficient_scope`)",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ErrorEnvelope"
+                }
+              }
+            }
+          },
+          "422": {
+            "description": "Unknown role or invalid percent (`validation_error` with `details.fields`)",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ErrorEnvelope"
+                }
+              }
+            }
+          },
+          "429": {
+            "description": "API token rate limit exceeded (`rate_limited`); see `Retry-After` and `X-RateLimit-*`",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ErrorEnvelope"
+                }
+              }
+            }
+          }
+        },
+        "security": [
+          {
+            "session_cookie": []
+          },
+          {
+            "api_token": []
+          }
+        ]
+      }
+    },
+    "/api/v1/pricing/items/{product_id}/bundle": {
+      "get": {
+        "tags": [
+          "products"
+        ],
+        "operationId": "products_bundle_get",
+        "parameters": [
+          {
+            "name": "product_id",
+            "in": "path",
+            "description": "Product id",
+            "required": true,
+            "schema": {
+              "type": "string"
+            }
+          },
+          {
+            "name": "price_list_id",
+            "in": "query",
+            "required": false,
+            "schema": {
+              "type": "string"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "Bundle of the product expanded into its components (`data: null` when the product is not a bundle). `fixed` uses the price of the product itself; `sum` adds component price × quantity. With `price_list_id`, prices come from the list in effect today (falling back to the catalog price) and `currency` is the currency of the list",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/Data_Option_ProductBundleResponse"
+                }
+              }
+            }
+          },
+          "401": {
+            "description": "Missing or invalid credentials (`unauthorized`, `invalid_api_token`)",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ErrorEnvelope"
+                }
+              }
+            }
+          },
+          "403": {
+            "description": "Missing `products.read` with organization scope (`permission_denied`, `insufficient_scope`)",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ErrorEnvelope"
+                }
+              }
+            }
+          },
+          "404": {
+            "description": "Product or price list not found (`product_not_found`, `price_list_not_found`)",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ErrorEnvelope"
+                }
+              }
+            }
+          },
+          "429": {
+            "description": "API token rate limit exceeded (`rate_limited`); see `Retry-After` and `X-RateLimit-*`",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ErrorEnvelope"
+                }
+              }
+            }
+          }
+        },
+        "security": [
+          {
+            "session_cookie": []
+          },
+          {
+            "api_token": []
+          }
+        ]
+      },
+      "put": {
+        "tags": [
+          "products"
+        ],
+        "operationId": "products_bundle_save",
+        "parameters": [
+          {
+            "name": "product_id",
+            "in": "path",
+            "description": "Product id",
+            "required": true,
+            "schema": {
+              "type": "string"
+            }
+          },
+          {
+            "name": "If-Match",
+            "in": "header",
+            "description": "`updated_at` of the bundle as last read (ISO-8601); when it changed since, the update is refused with 409 `version_conflict`",
+            "required": false,
+            "schema": {
+              "type": [
+                "string",
+                "null"
+              ]
+            }
+          }
+        ],
+        "requestBody": {
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/ProductBundleRequest"
+              }
+            }
+          },
+          "required": true
+        },
+        "responses": {
+          "200": {
+            "description": "Product turned into a bundle, or its bundle replaced (`product_bundle.updated`). 1 to 50 components, each a different product with a positive quantity; bundles cannot contain bundles (one level only), and with `sum` every component must use the currency of the bundle",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/Data_ProductBundleResponse"
+                }
+              }
+            }
+          },
+          "401": {
+            "description": "Missing or invalid credentials (`unauthorized`, `invalid_api_token`)",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ErrorEnvelope"
+                }
+              }
+            }
+          },
+          "403": {
+            "description": "Missing `products.update` with organization scope (`permission_denied`, `insufficient_scope`)",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ErrorEnvelope"
+                }
+              }
+            }
+          },
+          "404": {
+            "description": "Product not found (`product_not_found`)",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ErrorEnvelope"
+                }
+              }
+            }
+          },
+          "409": {
+            "description": "The product is a component of another bundle (`product_bundle_nested`) or the bundle changed after the `If-Match` version (`version_conflict`)",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ErrorEnvelope"
+                }
+              }
+            }
+          },
+          "422": {
+            "description": "Invalid pricing or components (`validation_error` with `details.fields`)",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ErrorEnvelope"
+                }
+              }
+            }
+          },
+          "429": {
+            "description": "API token rate limit exceeded (`rate_limited`); see `Retry-After` and `X-RateLimit-*`",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ErrorEnvelope"
+                }
+              }
+            }
+          }
+        },
+        "security": [
+          {
+            "session_cookie": []
+          },
+          {
+            "api_token": []
+          }
+        ]
+      },
+      "delete": {
+        "tags": [
+          "products"
+        ],
+        "operationId": "products_bundle_delete",
+        "parameters": [
+          {
+            "name": "product_id",
+            "in": "path",
+            "description": "Product id",
+            "required": true,
+            "schema": {
+              "type": "string"
+            }
+          }
+        ],
+        "responses": {
+          "204": {
+            "description": "The product is no longer a bundle (`product_bundle.removed`); the product itself is kept"
+          },
+          "401": {
+            "description": "Missing or invalid credentials (`unauthorized`, `invalid_api_token`)",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ErrorEnvelope"
+                }
+              }
+            }
+          },
+          "403": {
+            "description": "Missing `products.update` with organization scope (`permission_denied`, `insufficient_scope`)",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ErrorEnvelope"
+                }
+              }
+            }
+          },
+          "404": {
+            "description": "Product not found or not a bundle (`product_not_found`, `product_bundle_not_found`)",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ErrorEnvelope"
+                }
+              }
+            }
+          },
+          "429": {
+            "description": "API token rate limit exceeded (`rate_limited`); see `Retry-After` and `X-RateLimit-*`",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ErrorEnvelope"
+                }
+              }
+            }
+          }
+        },
+        "security": [
+          {
+            "session_cookie": []
+          },
+          {
+            "api_token": []
+          }
+        ]
+      }
+    },
+    "/api/v1/pricing/{price_list_id}": {
+      "get": {
+        "tags": [
+          "pricing"
         ],
         "operationId": "price_lists_get",
         "parameters": [
@@ -42487,7 +42763,7 @@
       },
       "delete": {
         "tags": [
-          "price-lists"
+          "pricing"
         ],
         "operationId": "price_lists_delete",
         "parameters": [
@@ -42557,7 +42833,7 @@
       },
       "patch": {
         "tags": [
-          "price-lists"
+          "pricing"
         ],
         "operationId": "price_lists_update",
         "parameters": [
@@ -42675,10 +42951,10 @@
         ]
       }
     },
-    "/api/v1/price-lists/{price_list_id}/items": {
+    "/api/v1/pricing/{price_list_id}/items": {
       "get": {
         "tags": [
-          "price-lists"
+          "pricing"
         ],
         "operationId": "price_lists_items_list",
         "parameters": [
@@ -42755,7 +43031,7 @@
       },
       "put": {
         "tags": [
-          "price-lists"
+          "pricing"
         ],
         "operationId": "price_lists_items_replace",
         "parameters": [
@@ -44933,282 +45209,6 @@
           },
           "422": {
             "description": "Invalid system or custom fields or malformed `If-Match` (`validation_error`), or fields the role cannot write (`field_not_accessible`, `field_read_only`)",
-            "content": {
-              "application/json": {
-                "schema": {
-                  "$ref": "#/components/schemas/ErrorEnvelope"
-                }
-              }
-            }
-          },
-          "429": {
-            "description": "API token rate limit exceeded (`rate_limited`); see `Retry-After` and `X-RateLimit-*`",
-            "content": {
-              "application/json": {
-                "schema": {
-                  "$ref": "#/components/schemas/ErrorEnvelope"
-                }
-              }
-            }
-          }
-        },
-        "security": [
-          {
-            "session_cookie": []
-          },
-          {
-            "api_token": []
-          }
-        ]
-      }
-    },
-    "/api/v1/products/{product_id}/bundle": {
-      "get": {
-        "tags": [
-          "products"
-        ],
-        "operationId": "products_bundle_get",
-        "parameters": [
-          {
-            "name": "product_id",
-            "in": "path",
-            "description": "Product id",
-            "required": true,
-            "schema": {
-              "type": "string"
-            }
-          },
-          {
-            "name": "price_list_id",
-            "in": "query",
-            "required": false,
-            "schema": {
-              "type": "string"
-            }
-          }
-        ],
-        "responses": {
-          "200": {
-            "description": "Bundle of the product expanded into its components (`data: null` when the product is not a bundle). `fixed` uses the price of the product itself; `sum` adds component price × quantity. With `price_list_id`, prices come from the list in effect today (falling back to the catalog price) and `currency` is the currency of the list",
-            "content": {
-              "application/json": {
-                "schema": {
-                  "$ref": "#/components/schemas/Data_Option_ProductBundleResponse"
-                }
-              }
-            }
-          },
-          "401": {
-            "description": "Missing or invalid credentials (`unauthorized`, `invalid_api_token`)",
-            "content": {
-              "application/json": {
-                "schema": {
-                  "$ref": "#/components/schemas/ErrorEnvelope"
-                }
-              }
-            }
-          },
-          "403": {
-            "description": "Missing `products.read` with organization scope (`permission_denied`, `insufficient_scope`)",
-            "content": {
-              "application/json": {
-                "schema": {
-                  "$ref": "#/components/schemas/ErrorEnvelope"
-                }
-              }
-            }
-          },
-          "404": {
-            "description": "Product or price list not found (`product_not_found`, `price_list_not_found`)",
-            "content": {
-              "application/json": {
-                "schema": {
-                  "$ref": "#/components/schemas/ErrorEnvelope"
-                }
-              }
-            }
-          },
-          "429": {
-            "description": "API token rate limit exceeded (`rate_limited`); see `Retry-After` and `X-RateLimit-*`",
-            "content": {
-              "application/json": {
-                "schema": {
-                  "$ref": "#/components/schemas/ErrorEnvelope"
-                }
-              }
-            }
-          }
-        },
-        "security": [
-          {
-            "session_cookie": []
-          },
-          {
-            "api_token": []
-          }
-        ]
-      },
-      "put": {
-        "tags": [
-          "products"
-        ],
-        "operationId": "products_bundle_save",
-        "parameters": [
-          {
-            "name": "product_id",
-            "in": "path",
-            "description": "Product id",
-            "required": true,
-            "schema": {
-              "type": "string"
-            }
-          },
-          {
-            "name": "If-Match",
-            "in": "header",
-            "description": "`updated_at` of the bundle as last read (ISO-8601); when it changed since, the update is refused with 409 `version_conflict`",
-            "required": false,
-            "schema": {
-              "type": [
-                "string",
-                "null"
-              ]
-            }
-          }
-        ],
-        "requestBody": {
-          "content": {
-            "application/json": {
-              "schema": {
-                "$ref": "#/components/schemas/ProductBundleRequest"
-              }
-            }
-          },
-          "required": true
-        },
-        "responses": {
-          "200": {
-            "description": "Product turned into a bundle, or its bundle replaced (`product_bundle.updated`). 1 to 50 components, each a different product with a positive quantity; bundles cannot contain bundles (one level only), and with `sum` every component must use the currency of the bundle",
-            "content": {
-              "application/json": {
-                "schema": {
-                  "$ref": "#/components/schemas/Data_ProductBundleResponse"
-                }
-              }
-            }
-          },
-          "401": {
-            "description": "Missing or invalid credentials (`unauthorized`, `invalid_api_token`)",
-            "content": {
-              "application/json": {
-                "schema": {
-                  "$ref": "#/components/schemas/ErrorEnvelope"
-                }
-              }
-            }
-          },
-          "403": {
-            "description": "Missing `products.update` with organization scope (`permission_denied`, `insufficient_scope`)",
-            "content": {
-              "application/json": {
-                "schema": {
-                  "$ref": "#/components/schemas/ErrorEnvelope"
-                }
-              }
-            }
-          },
-          "404": {
-            "description": "Product not found (`product_not_found`)",
-            "content": {
-              "application/json": {
-                "schema": {
-                  "$ref": "#/components/schemas/ErrorEnvelope"
-                }
-              }
-            }
-          },
-          "409": {
-            "description": "The product is a component of another bundle (`product_bundle_nested`) or the bundle changed after the `If-Match` version (`version_conflict`)",
-            "content": {
-              "application/json": {
-                "schema": {
-                  "$ref": "#/components/schemas/ErrorEnvelope"
-                }
-              }
-            }
-          },
-          "422": {
-            "description": "Invalid pricing or components (`validation_error` with `details.fields`)",
-            "content": {
-              "application/json": {
-                "schema": {
-                  "$ref": "#/components/schemas/ErrorEnvelope"
-                }
-              }
-            }
-          },
-          "429": {
-            "description": "API token rate limit exceeded (`rate_limited`); see `Retry-After` and `X-RateLimit-*`",
-            "content": {
-              "application/json": {
-                "schema": {
-                  "$ref": "#/components/schemas/ErrorEnvelope"
-                }
-              }
-            }
-          }
-        },
-        "security": [
-          {
-            "session_cookie": []
-          },
-          {
-            "api_token": []
-          }
-        ]
-      },
-      "delete": {
-        "tags": [
-          "products"
-        ],
-        "operationId": "products_bundle_delete",
-        "parameters": [
-          {
-            "name": "product_id",
-            "in": "path",
-            "description": "Product id",
-            "required": true,
-            "schema": {
-              "type": "string"
-            }
-          }
-        ],
-        "responses": {
-          "204": {
-            "description": "The product is no longer a bundle (`product_bundle.removed`); the product itself is kept"
-          },
-          "401": {
-            "description": "Missing or invalid credentials (`unauthorized`, `invalid_api_token`)",
-            "content": {
-              "application/json": {
-                "schema": {
-                  "$ref": "#/components/schemas/ErrorEnvelope"
-                }
-              }
-            }
-          },
-          "403": {
-            "description": "Missing `products.update` with organization scope (`permission_denied`, `insufficient_scope`)",
-            "content": {
-              "application/json": {
-                "schema": {
-                  "$ref": "#/components/schemas/ErrorEnvelope"
-                }
-              }
-            }
-          },
-          "404": {
-            "description": "Product not found or not a bundle (`product_not_found`, `product_bundle_not_found`)",
             "content": {
               "application/json": {
                 "schema": {
@@ -120284,7 +120284,7 @@
       "description": "Segments: named dynamic filters with member count, usable as the `in_saved_filter` filter condition"
     },
     {
-      "name": "price-lists",
+      "name": "pricing",
       "description": "Price lists by currency, segment or company with validity periods and quantity tiers, and the maximum discount per role"
     },
     {

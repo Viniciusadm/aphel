@@ -31,7 +31,7 @@ impl Module for DemoModule {
             .optional(aphel_sdk::money::KEY)
             .optional(workflow::KEY)
             .optional(products::KEY)
-            .optional(price_lists::KEY)
+            .optional(pricing::KEY)
             .optional(aphel_sdk::line_items::KEY)
             .optional(quotes::KEY)
             .optional(approvals::KEY)

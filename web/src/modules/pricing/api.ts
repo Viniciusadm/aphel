@@ -11,7 +11,7 @@ import type {
 } from './types'
 
 export const PRICE_LISTS_PER_PAGE = 25
-export const PRICE_LISTS_PATH = '/products/price-lists'
+export const PRICE_LISTS_PATH = '/pricing'
 
 const id = encodeURIComponent
 
@@ -27,7 +27,7 @@ export interface PriceListFilter {
 }
 
 export const priceListsKeys = {
-  all: ['price-lists'] as const,
+  all: ['pricing'] as const,
   lists: () => [...priceListsKeys.all, 'list'] as const,
   list: (filter: PriceListFilter) => [...priceListsKeys.lists(), filter] as const,
   detail: (priceListId: string) => [...priceListsKeys.all, 'detail', priceListId] as const,
@@ -41,7 +41,7 @@ function ifMatch(version?: string | null): HeadersInit | undefined {
 
 export const priceListsApi = {
   list: (filter: PriceListFilter) =>
-    api.get<PriceListsPage>('/v1/price-lists', {
+    api.get<PriceListsPage>('/v1/pricing', {
       query: {
         page: filter.page,
         per_page: PRICE_LISTS_PER_PAGE,
@@ -50,16 +50,16 @@ export const priceListsApi = {
         active: filter.active,
       },
     }),
-  get: (priceListId: string) => api.get<PriceList>(`/v1/price-lists/${id(priceListId)}`),
-  create: (body: PriceListRequest) => api.post<PriceList>('/v1/price-lists', body),
+  get: (priceListId: string) => api.get<PriceList>(`/v1/pricing/${id(priceListId)}`),
+  create: (body: PriceListRequest) => api.post<PriceList>('/v1/pricing', body),
   update: (priceListId: string, body: PriceListRequest, version?: string | null) =>
-    api.patch<PriceList>(`/v1/price-lists/${id(priceListId)}`, body, { headers: ifMatch(version) }),
-  remove: (priceListId: string) => api.delete<void>(`/v1/price-lists/${id(priceListId)}`),
-  items: (priceListId: string) => api.get<PriceListItem[]>(`/v1/price-lists/${id(priceListId)}/items`),
+    api.patch<PriceList>(`/v1/pricing/${id(priceListId)}`, body, { headers: ifMatch(version) }),
+  remove: (priceListId: string) => api.delete<void>(`/v1/pricing/${id(priceListId)}`),
+  items: (priceListId: string) => api.get<PriceListItem[]>(`/v1/pricing/${id(priceListId)}/items`),
   replaceItems: (priceListId: string, items: PriceListItemRequest[], version?: string | null) =>
-    api.put<PriceListItem[]>(`/v1/price-lists/${id(priceListId)}/items`, { items }, { headers: ifMatch(version) }),
-  discountLimits: () => api.get<DiscountLimit[]>('/v1/discount-limits'),
-  setDiscountLimits: (limits: DiscountLimitRequest[]) => api.put<DiscountLimit[]>('/v1/discount-limits', { limits }),
+    api.put<PriceListItem[]>(`/v1/pricing/${id(priceListId)}/items`, { items }, { headers: ifMatch(version) }),
+  discountLimits: () => api.get<DiscountLimit[]>('/v1/pricing/discount-limits'),
+  setDiscountLimits: (limits: DiscountLimitRequest[]) => api.put<DiscountLimit[]>('/v1/pricing/discount-limits', { limits }),
 }
 
 export function usePriceLists(filter: PriceListFilter) {

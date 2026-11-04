@@ -193,7 +193,7 @@ dependencies = [
  "aphel-mod-organizations",
  "aphel-mod-people",
  "aphel-mod-plugins",
- "aphel-mod-price-lists",
+ "aphel-mod-pricing",
  "aphel-mod-privacy",
  "aphel-mod-products",
  "aphel-mod-proposals",
@@ -796,7 +796,7 @@ dependencies = [
  "aphel-mod-onboarding",
  "aphel-mod-organizations",
  "aphel-mod-people",
- "aphel-mod-price-lists",
+ "aphel-mod-pricing",
  "aphel-mod-privacy",
  "aphel-mod-products",
  "aphel-mod-quotes",
@@ -1498,7 +1498,7 @@ dependencies = [
 ]
 
 [[package]]
-name = "aphel-mod-price-lists"
+name = "aphel-mod-pricing"
 version = "0.1.0"
 dependencies = [
  "aphel-contract-crm",

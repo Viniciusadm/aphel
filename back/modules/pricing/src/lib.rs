@@ -25,10 +25,10 @@ pub use hooks::{
     PriceListResolver, RoleDiscountLimits, bundle_expander, discount_limits, price_list_resolver,
 };
 
-pub const KEY: &str = "price_lists";
+pub const KEY: &str = "pricing";
 
 pub(crate) const PRICE_LIST_RESOURCE: PublicResource =
-    PublicResource::new("price_lists.price_list", "PriceListResponse");
+    PublicResource::new("pricing.price_list", "PriceListResponse");
 
 const PUBLIC_EVENTS: &[PublicEventDefinition] = &[
     event(
@@ -50,12 +50,12 @@ const PUBLIC_EVENTS: &[PublicEventDefinition] = &[
     event(
         domain::PRICE_LIST_ITEMS_REPLACED,
         PRICE_LIST_RESOURCE,
-        "The prices of a price list were replaced (items at `GET /price-lists/{id}/items`)",
+        "The prices of a price list were replaced (items at `GET /pricing/{id}/items`)",
     ),
     event(
         domain::PRODUCT_BUNDLE_UPDATED,
         products::PRODUCT_RESOURCE,
-        "The bundle of a product was saved (components at `GET /products/{id}/bundle`)",
+        "The bundle of a product was saved (components at `GET /pricing/items/{id}/bundle`)",
     )
     .with_context(&["pricing", "components"]),
     event(
@@ -65,9 +65,9 @@ const PUBLIC_EVENTS: &[PublicEventDefinition] = &[
     ),
 ];
 
-pub struct PriceListsModule;
+pub struct PricingModule;
 
-impl Module for PriceListsModule {
+impl Module for PricingModule {
     fn manifest(&self) -> Manifest {
         Manifest::new(KEY, "Price lists", APHEL_VERSION)
             .description(

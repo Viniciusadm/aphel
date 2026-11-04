@@ -2111,22 +2111,6 @@ export interface paths {
         patch?: never;
         trace?: never;
     };
-    "/api/v1/discount-limits": {
-        parameters: {
-            query?: never;
-            header?: never;
-            path?: never;
-            cookie?: never;
-        };
-        get: operations["discount_limits_get"];
-        put: operations["discount_limits_set"];
-        post?: never;
-        delete?: never;
-        options?: never;
-        head?: never;
-        patch?: never;
-        trace?: never;
-    };
     "/api/v1/duplicates": {
         parameters: {
             query?: never;
@@ -5796,7 +5780,7 @@ export interface paths {
         patch: operations["preferences_update"];
         trace?: never;
     };
-    "/api/v1/price-lists": {
+    "/api/v1/pricing": {
         parameters: {
             query?: never;
             header?: never;
@@ -5812,7 +5796,39 @@ export interface paths {
         patch?: never;
         trace?: never;
     };
-    "/api/v1/price-lists/{price_list_id}": {
+    "/api/v1/pricing/discount-limits": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        get: operations["discount_limits_get"];
+        put: operations["discount_limits_set"];
+        post?: never;
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
+    "/api/v1/pricing/items/{product_id}/bundle": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        get: operations["products_bundle_get"];
+        put: operations["products_bundle_save"];
+        post?: never;
+        delete: operations["products_bundle_delete"];
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
+    "/api/v1/pricing/{price_list_id}": {
         parameters: {
             query?: never;
             header?: never;
@@ -5828,7 +5844,7 @@ export interface paths {
         patch: operations["price_lists_update"];
         trace?: never;
     };
-    "/api/v1/price-lists/{price_list_id}/items": {
+    "/api/v1/pricing/{price_list_id}/items": {
         parameters: {
             query?: never;
             header?: never;
@@ -6102,22 +6118,6 @@ export interface paths {
         head?: never;
         /** @description Partially updates a product (permission `products.update`) and publishes `product.updated` with the changes. Omitted properties stay unchanged and `null` clears an optional one (`price: null` means `0.00`). Deactivating a product (`is_active: false`) only hides it from new deal items; existing items keep their copied name, price and unit. Send `If-Match` with the `updated_at` you read to avoid overwriting someone else's change. */
         patch: operations["products_update"];
-        trace?: never;
-    };
-    "/api/v1/products/{product_id}/bundle": {
-        parameters: {
-            query?: never;
-            header?: never;
-            path?: never;
-            cookie?: never;
-        };
-        get: operations["products_bundle_get"];
-        put: operations["products_bundle_save"];
-        post?: never;
-        delete: operations["products_bundle_delete"];
-        options?: never;
-        head?: never;
-        patch?: never;
         trace?: never;
     };
     "/api/v1/proposals/deals/{deal_id}/documents": {
@@ -33388,113 +33388,6 @@ export interface operations {
             };
         };
     };
-    discount_limits_get: {
-        parameters: {
-            query?: never;
-            header?: never;
-            path?: never;
-            cookie?: never;
-        };
-        requestBody?: never;
-        responses: {
-            /** @description Every role of the organization with its maximum discount in percent (`null` = no limit). A quote whose discount passes the limit of the role of its owner goes through the `quote_discount_limit` approval policy before it can be sent */
-            200: {
-                headers: {
-                    [name: string]: unknown;
-                };
-                content: {
-                    "application/json": components["schemas"]["Data_Vec_DiscountLimitResponse"];
-                };
-            };
-            /** @description Missing or invalid credentials (`unauthorized`, `invalid_api_token`) */
-            401: {
-                headers: {
-                    [name: string]: unknown;
-                };
-                content: {
-                    "application/json": components["schemas"]["ErrorEnvelope"];
-                };
-            };
-            /** @description Missing `settings.manage` (`permission_denied`, `insufficient_scope`) */
-            403: {
-                headers: {
-                    [name: string]: unknown;
-                };
-                content: {
-                    "application/json": components["schemas"]["ErrorEnvelope"];
-                };
-            };
-            /** @description API token rate limit exceeded (`rate_limited`); see `Retry-After` and `X-RateLimit-*` */
-            429: {
-                headers: {
-                    [name: string]: unknown;
-                };
-                content: {
-                    "application/json": components["schemas"]["ErrorEnvelope"];
-                };
-            };
-        };
-    };
-    discount_limits_set: {
-        parameters: {
-            query?: never;
-            header?: never;
-            path?: never;
-            cookie?: never;
-        };
-        requestBody: {
-            content: {
-                "application/json": components["schemas"]["SetDiscountLimitsRequest"];
-            };
-        };
-        responses: {
-            /** @description Limits replaced (`discount_limits.updated` with the changes): roles left out or sent with `max_discount_percent: null` have no limit. Percent between 0 and 100 with up to 2 decimal places */
-            200: {
-                headers: {
-                    [name: string]: unknown;
-                };
-                content: {
-                    "application/json": components["schemas"]["Data_Vec_DiscountLimitResponse"];
-                };
-            };
-            /** @description Missing or invalid credentials (`unauthorized`, `invalid_api_token`) */
-            401: {
-                headers: {
-                    [name: string]: unknown;
-                };
-                content: {
-                    "application/json": components["schemas"]["ErrorEnvelope"];
-                };
-            };
-            /** @description Missing `settings.manage` (`permission_denied`, `insufficient_scope`) */
-            403: {
-                headers: {
-                    [name: string]: unknown;
-                };
-                content: {
-                    "application/json": components["schemas"]["ErrorEnvelope"];
-                };
-            };
-            /** @description Unknown role or invalid percent (`validation_error` with `details.fields`) */
-            422: {
-                headers: {
-                    [name: string]: unknown;
-                };
-                content: {
-                    "application/json": components["schemas"]["ErrorEnvelope"];
-                };
-            };
-            /** @description API token rate limit exceeded (`rate_limited`); see `Retry-After` and `X-RateLimit-*` */
-            429: {
-                headers: {
-                    [name: string]: unknown;
-                };
-                content: {
-                    "application/json": components["schemas"]["ErrorEnvelope"];
-                };
-            };
-        };
-    };
     duplicates_list: {
         parameters: {
             query?: {
@@ -52898,6 +52791,315 @@ export interface operations {
             };
         };
     };
+    discount_limits_get: {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        requestBody?: never;
+        responses: {
+            /** @description Every role of the organization with its maximum discount in percent (`null` = no limit). A quote whose discount passes the limit of the role of its owner goes through the `quote_discount_limit` approval policy before it can be sent */
+            200: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["Data_Vec_DiscountLimitResponse"];
+                };
+            };
+            /** @description Missing or invalid credentials (`unauthorized`, `invalid_api_token`) */
+            401: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["ErrorEnvelope"];
+                };
+            };
+            /** @description Missing `settings.manage` (`permission_denied`, `insufficient_scope`) */
+            403: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["ErrorEnvelope"];
+                };
+            };
+            /** @description API token rate limit exceeded (`rate_limited`); see `Retry-After` and `X-RateLimit-*` */
+            429: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["ErrorEnvelope"];
+                };
+            };
+        };
+    };
+    discount_limits_set: {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        requestBody: {
+            content: {
+                "application/json": components["schemas"]["SetDiscountLimitsRequest"];
+            };
+        };
+        responses: {
+            /** @description Limits replaced (`discount_limits.updated` with the changes): roles left out or sent with `max_discount_percent: null` have no limit. Percent between 0 and 100 with up to 2 decimal places */
+            200: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["Data_Vec_DiscountLimitResponse"];
+                };
+            };
+            /** @description Missing or invalid credentials (`unauthorized`, `invalid_api_token`) */
+            401: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["ErrorEnvelope"];
+                };
+            };
+            /** @description Missing `settings.manage` (`permission_denied`, `insufficient_scope`) */
+            403: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["ErrorEnvelope"];
+                };
+            };
+            /** @description Unknown role or invalid percent (`validation_error` with `details.fields`) */
+            422: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["ErrorEnvelope"];
+                };
+            };
+            /** @description API token rate limit exceeded (`rate_limited`); see `Retry-After` and `X-RateLimit-*` */
+            429: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["ErrorEnvelope"];
+                };
+            };
+        };
+    };
+    products_bundle_get: {
+        parameters: {
+            query?: {
+                price_list_id?: string;
+            };
+            header?: never;
+            path: {
+                /** @description Product id */
+                product_id: string;
+            };
+            cookie?: never;
+        };
+        requestBody?: never;
+        responses: {
+            /** @description Bundle of the product expanded into its components (`data: null` when the product is not a bundle). `fixed` uses the price of the product itself; `sum` adds component price × quantity. With `price_list_id`, prices come from the list in effect today (falling back to the catalog price) and `currency` is the currency of the list */
+            200: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["Data_Option_ProductBundleResponse"];
+                };
+            };
+            /** @description Missing or invalid credentials (`unauthorized`, `invalid_api_token`) */
+            401: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["ErrorEnvelope"];
+                };
+            };
+            /** @description Missing `products.read` with organization scope (`permission_denied`, `insufficient_scope`) */
+            403: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["ErrorEnvelope"];
+                };
+            };
+            /** @description Product or price list not found (`product_not_found`, `price_list_not_found`) */
+            404: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["ErrorEnvelope"];
+                };
+            };
+            /** @description API token rate limit exceeded (`rate_limited`); see `Retry-After` and `X-RateLimit-*` */
+            429: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["ErrorEnvelope"];
+                };
+            };
+        };
+    };
+    products_bundle_save: {
+        parameters: {
+            query?: never;
+            header?: {
+                /** @description `updated_at` of the bundle as last read (ISO-8601); when it changed since, the update is refused with 409 `version_conflict` */
+                "If-Match"?: string | null;
+            };
+            path: {
+                /** @description Product id */
+                product_id: string;
+            };
+            cookie?: never;
+        };
+        requestBody: {
+            content: {
+                "application/json": components["schemas"]["ProductBundleRequest"];
+            };
+        };
+        responses: {
+            /** @description Product turned into a bundle, or its bundle replaced (`product_bundle.updated`). 1 to 50 components, each a different product with a positive quantity; bundles cannot contain bundles (one level only), and with `sum` every component must use the currency of the bundle */
+            200: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["Data_ProductBundleResponse"];
+                };
+            };
+            /** @description Missing or invalid credentials (`unauthorized`, `invalid_api_token`) */
+            401: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["ErrorEnvelope"];
+                };
+            };
+            /** @description Missing `products.update` with organization scope (`permission_denied`, `insufficient_scope`) */
+            403: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["ErrorEnvelope"];
+                };
+            };
+            /** @description Product not found (`product_not_found`) */
+            404: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["ErrorEnvelope"];
+                };
+            };
+            /** @description The product is a component of another bundle (`product_bundle_nested`) or the bundle changed after the `If-Match` version (`version_conflict`) */
+            409: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["ErrorEnvelope"];
+                };
+            };
+            /** @description Invalid pricing or components (`validation_error` with `details.fields`) */
+            422: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["ErrorEnvelope"];
+                };
+            };
+            /** @description API token rate limit exceeded (`rate_limited`); see `Retry-After` and `X-RateLimit-*` */
+            429: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["ErrorEnvelope"];
+                };
+            };
+        };
+    };
+    products_bundle_delete: {
+        parameters: {
+            query?: never;
+            header?: never;
+            path: {
+                /** @description Product id */
+                product_id: string;
+            };
+            cookie?: never;
+        };
+        requestBody?: never;
+        responses: {
+            /** @description The product is no longer a bundle (`product_bundle.removed`); the product itself is kept */
+            204: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content?: never;
+            };
+            /** @description Missing or invalid credentials (`unauthorized`, `invalid_api_token`) */
+            401: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["ErrorEnvelope"];
+                };
+            };
+            /** @description Missing `products.update` with organization scope (`permission_denied`, `insufficient_scope`) */
+            403: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["ErrorEnvelope"];
+                };
+            };
+            /** @description Product not found or not a bundle (`product_not_found`, `product_bundle_not_found`) */
+            404: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["ErrorEnvelope"];
+                };
+            };
+            /** @description API token rate limit exceeded (`rate_limited`); see `Retry-After` and `X-RateLimit-*` */
+            429: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["ErrorEnvelope"];
+                };
+            };
+        };
+    };
     price_lists_get: {
         parameters: {
             query?: never;
@@ -54712,208 +54914,6 @@ export interface operations {
             };
             /** @description Invalid system or custom fields or malformed `If-Match` (`validation_error`), or fields the role cannot write (`field_not_accessible`, `field_read_only`) */
             422: {
-                headers: {
-                    [name: string]: unknown;
-                };
-                content: {
-                    "application/json": components["schemas"]["ErrorEnvelope"];
-                };
-            };
-            /** @description API token rate limit exceeded (`rate_limited`); see `Retry-After` and `X-RateLimit-*` */
-            429: {
-                headers: {
-                    [name: string]: unknown;
-                };
-                content: {
-                    "application/json": components["schemas"]["ErrorEnvelope"];
-                };
-            };
-        };
-    };
-    products_bundle_get: {
-        parameters: {
-            query?: {
-                price_list_id?: string;
-            };
-            header?: never;
-            path: {
-                /** @description Product id */
-                product_id: string;
-            };
-            cookie?: never;
-        };
-        requestBody?: never;
-        responses: {
-            /** @description Bundle of the product expanded into its components (`data: null` when the product is not a bundle). `fixed` uses the price of the product itself; `sum` adds component price × quantity. With `price_list_id`, prices come from the list in effect today (falling back to the catalog price) and `currency` is the currency of the list */
-            200: {
-                headers: {
-                    [name: string]: unknown;
-                };
-                content: {
-                    "application/json": components["schemas"]["Data_Option_ProductBundleResponse"];
-                };
-            };
-            /** @description Missing or invalid credentials (`unauthorized`, `invalid_api_token`) */
-            401: {
-                headers: {
-                    [name: string]: unknown;
-                };
-                content: {
-                    "application/json": components["schemas"]["ErrorEnvelope"];
-                };
-            };
-            /** @description Missing `products.read` with organization scope (`permission_denied`, `insufficient_scope`) */
-            403: {
-                headers: {
-                    [name: string]: unknown;
-                };
-                content: {
-                    "application/json": components["schemas"]["ErrorEnvelope"];
-                };
-            };
-            /** @description Product or price list not found (`product_not_found`, `price_list_not_found`) */
-            404: {
-                headers: {
-                    [name: string]: unknown;
-                };
-                content: {
-                    "application/json": components["schemas"]["ErrorEnvelope"];
-                };
-            };
-            /** @description API token rate limit exceeded (`rate_limited`); see `Retry-After` and `X-RateLimit-*` */
-            429: {
-                headers: {
-                    [name: string]: unknown;
-                };
-                content: {
-                    "application/json": components["schemas"]["ErrorEnvelope"];
-                };
-            };
-        };
-    };
-    products_bundle_save: {
-        parameters: {
-            query?: never;
-            header?: {
-                /** @description `updated_at` of the bundle as last read (ISO-8601); when it changed since, the update is refused with 409 `version_conflict` */
-                "If-Match"?: string | null;
-            };
-            path: {
-                /** @description Product id */
-                product_id: string;
-            };
-            cookie?: never;
-        };
-        requestBody: {
-            content: {
-                "application/json": components["schemas"]["ProductBundleRequest"];
-            };
-        };
-        responses: {
-            /** @description Product turned into a bundle, or its bundle replaced (`product_bundle.updated`). 1 to 50 components, each a different product with a positive quantity; bundles cannot contain bundles (one level only), and with `sum` every component must use the currency of the bundle */
-            200: {
-                headers: {
-                    [name: string]: unknown;
-                };
-                content: {
-                    "application/json": components["schemas"]["Data_ProductBundleResponse"];
-                };
-            };
-            /** @description Missing or invalid credentials (`unauthorized`, `invalid_api_token`) */
-            401: {
-                headers: {
-                    [name: string]: unknown;
-                };
-                content: {
-                    "application/json": components["schemas"]["ErrorEnvelope"];
-                };
-            };
-            /** @description Missing `products.update` with organization scope (`permission_denied`, `insufficient_scope`) */
-            403: {
-                headers: {
-                    [name: string]: unknown;
-                };
-                content: {
-                    "application/json": components["schemas"]["ErrorEnvelope"];
-                };
-            };
-            /** @description Product not found (`product_not_found`) */
-            404: {
-                headers: {
-                    [name: string]: unknown;
-                };
-                content: {
-                    "application/json": components["schemas"]["ErrorEnvelope"];
-                };
-            };
-            /** @description The product is a component of another bundle (`product_bundle_nested`) or the bundle changed after the `If-Match` version (`version_conflict`) */
-            409: {
-                headers: {
-                    [name: string]: unknown;
-                };
-                content: {
-                    "application/json": components["schemas"]["ErrorEnvelope"];
-                };
-            };
-            /** @description Invalid pricing or components (`validation_error` with `details.fields`) */
-            422: {
-                headers: {
-                    [name: string]: unknown;
-                };
-                content: {
-                    "application/json": components["schemas"]["ErrorEnvelope"];
-                };
-            };
-            /** @description API token rate limit exceeded (`rate_limited`); see `Retry-After` and `X-RateLimit-*` */
-            429: {
-                headers: {
-                    [name: string]: unknown;
-                };
-                content: {
-                    "application/json": components["schemas"]["ErrorEnvelope"];
-                };
-            };
-        };
-    };
-    products_bundle_delete: {
-        parameters: {
-            query?: never;
-            header?: never;
-            path: {
-                /** @description Product id */
-                product_id: string;
-            };
-            cookie?: never;
-        };
-        requestBody?: never;
-        responses: {
-            /** @description The product is no longer a bundle (`product_bundle.removed`); the product itself is kept */
-            204: {
-                headers: {
-                    [name: string]: unknown;
-                };
-                content?: never;
-            };
-            /** @description Missing or invalid credentials (`unauthorized`, `invalid_api_token`) */
-            401: {
-                headers: {
-                    [name: string]: unknown;
-                };
-                content: {
-                    "application/json": components["schemas"]["ErrorEnvelope"];
-                };
-            };
-            /** @description Missing `products.update` with organization scope (`permission_denied`, `insufficient_scope`) */
-            403: {
-                headers: {
-                    [name: string]: unknown;
-                };
-                content: {
-                    "application/json": components["schemas"]["ErrorEnvelope"];
-                };
-            };
-            /** @description Product not found or not a bundle (`product_not_found`, `product_bundle_not_found`) */
-            404: {
                 headers: {
                     [name: string]: unknown;
                 };

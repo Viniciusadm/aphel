@@ -35,7 +35,7 @@ export interface PriceListDialogProps {
 }
 
 export function PriceListDialog({ open, onOpenChange, list, onSaved }: PriceListDialogProps) {
-  const { t } = useTranslation('price_lists')
+  const { t } = useTranslation('pricing')
   return (
     <Dialog open={open} onOpenChange={onOpenChange}>
       <DialogContent size="lg">
@@ -63,7 +63,7 @@ interface PriceListFormProps {
 }
 
 function PriceListForm({ list, onClose, onSaved }: PriceListFormProps) {
-  const { t } = useTranslation('price_lists')
+  const { t } = useTranslation('pricing')
   const formId = useId()
   const invalidate = useInvalidatePriceLists()
   const currencies = useCurrencySettings()

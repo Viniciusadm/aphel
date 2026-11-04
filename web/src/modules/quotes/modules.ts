@@ -4,7 +4,7 @@ import type { ProposalDocument } from '@/modules/proposals/api'
 
 export const PROPOSALS_MODULE = 'proposals'
 export const ESIGN_MODULE = 'esign'
-export const PRICE_LISTS_MODULE = 'price_lists'
+export const PRICE_LISTS_MODULE = 'pricing'
 
 const id = encodeURIComponent
 

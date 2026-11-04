@@ -27,7 +27,7 @@ export function DiscountLimitsPanel() {
 }
 
 function DiscountLimitsForm({ limits }: { limits: DiscountLimit[] }) {
-  const { t } = useTranslation('price_lists')
+  const { t } = useTranslation('pricing')
   const invalidate = useInvalidatePriceLists()
   const initial = Object.fromEntries(limits.map((limit) => [limit.role_id, limit.max_discount_percent ?? '']))
   const [values, setValues] = useState<Record<string, string>>(initial)

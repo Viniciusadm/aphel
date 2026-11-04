@@ -5,7 +5,7 @@ import { Button } from '@/components/ui/button'
 import { PRICE_LISTS_PATH } from './api'
 
 export function PriceListsLink() {
-  const { t } = useTranslation('price_lists')
+  const { t } = useTranslation('pricing')
   return (
     <Button asChild size="sm" variant="outline">
       <Link to={PRICE_LISTS_PATH}>

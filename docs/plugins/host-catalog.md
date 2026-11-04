@@ -85,8 +85,8 @@ Writing operations are refused inside hooks (409 `plugin_write_in_hook`). Each o
 | `notes.list` | notes | read | — | Notes of a record visible to the actor: { record_type, record_id, page?, per_page? } -> { data, total } |
 | `notes.pin` | notes | write | yes | Pin or unpin a note: { id, pinned } |
 | `notes.update` | notes | write | yes | Edit a note: { id, body?, visibility?, pinned? } |
-| `price_lists.list` | price_lists | read | — | Price lists, the default of each currency first: { currency?, active?, search?, page?, per_page? } -> { data, total } |
-| `price_lists.resolve` | price_lists | read | — | Unit price of a product from a price list (quantity tiers applied): { product_id, price_list_id? , currency? (required without price_list_id; picks the list for the company or the currency default), company_id?, quantity? (default 1), on? (YYYY-MM-DD, default today) } -> { price_list: { id, name, currency } \| null, unit_price (string) \| null, currency, quantity, on } |
+| `pricing.list` | pricing | read | — | Price lists, the default of each currency first: { currency?, active?, search?, page?, per_page? } -> { data, total } |
+| `pricing.resolve` | pricing | read | — | Unit price of a product from a price list (quantity tiers applied): { product_id, price_list_id? , currency? (required without price_list_id; picks the list for the company or the currency default), company_id?, quantity? (default 1), on? (YYYY-MM-DD, default today) } -> { price_list: { id, name, currency } \| null, unit_price (string) \| null, currency, quantity, on } |
 | `proposals.generate` | proposals | write | yes | Generate a PDF proposal for a deal and attach it (needs proposals.generate and edit access to the deal; the default active template when none is given): { deal_id, template_id?, template_key?, quote_id? } |
 | `quotes.accept` | quotes | write | yes | Record the acceptance of a quote on behalf of the customer: { id, name?, email?, note? } |
 | `quotes.new_version` | quotes | write | yes | Create a new version of the current quote: { id } |

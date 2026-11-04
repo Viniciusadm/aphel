@@ -1,6 +1,6 @@
 # Price lists, bundles and discount limits
 
-Session 25, track B. Three pieces that the quote (track A) consumes through the contracts in `modules/price_lists/hooks.rs` and `modules/price_lists/bundles.rs`.
+Session 25, track B. Three pieces that the quote (track A) consumes through the contracts in `modules/pricing/hooks.rs` and `modules/pricing/bundles.rs`.
 
 ## Model
 
@@ -15,7 +15,7 @@ Session 25, track B. Three pieces that the quote (track A) consumes through the 
 
 ## Choosing the list (`PriceListResolver`)
 
-`MySqlPriceListResolver::new(pool)` delegates to `PriceListService` (`modules/price_lists/hooks.rs`).
+`MySqlPriceListResolver::new(pool)` delegates to `PriceListService` (`modules/pricing/hooks.rs`).
 
 - `default_for(currency, company_id, on)` only considers lists that are active, in the currency and valid on `on`, in this order:
   1. a `organizations` list that includes the company;
@@ -28,12 +28,12 @@ Session 25, track B. Three pieces that the quote (track A) consumes through the 
 
 ## Bundles (`BundleExpander`)
 
-`MySqlBundleExpander::new(pool)` delegates to `BundleExpansionService` (`modules/price_lists/bundles.rs`). `expand(product_id, price_list_id)` returns `None` if the product is not a bundle. With a list, each price comes from it (valid on today's date in the organization's time zone), falling back to the catalog price; the expansion's currency is the list's, otherwise the bundle's.
+`MySqlBundleExpander::new(pool)` delegates to `BundleExpansionService` (`modules/pricing/bundles.rs`). `expand(product_id, price_list_id)` returns `None` if the product is not a bundle. With a list, each price comes from it (valid on today's date in the organization's time zone), falling back to the catalog price; the expansion's currency is the list's, otherwise the bundle's.
 
 - `fixed`: price of the bundle product itself (or from the list).
 - `sum`: sum of component price × quantity, rounded to cents.
 
-Rules on save (`PUT /products/{id}/bundle`, `BundleUseCases::save`): 1 to 50 components, no repeats and not the product itself; **a single level only** — a component cannot be a bundle and a product that is a component of another bundle cannot become a bundle (409 `product_bundle_nested`), which also prevents cycles; with `sum`, all components in the bundle's currency. A deleted component disappears from the expansion.
+Rules on save (`PUT /pricing/items/{id}/bundle`, `BundleUseCases::save`): 1 to 50 components, no repeats and not the product itself; **a single level only** — a component cannot be a bundle and a product that is a component of another bundle cannot become a bundle (409 `product_bundle_nested`), which also prevents cycles; with `sum`, all components in the bundle's currency. A deleted component disappears from the expansion.
 
 ## Discount limit (`DiscountLimits`)
 
@@ -43,9 +43,9 @@ Rules on save (`PUT /products/{id}/bundle`, `BundleUseCases::save`): 1 to 50 com
 
 | Route | Permission |
 | --- | --- |
-| `GET /price-lists`, `GET /price-lists/{id}`, `GET /price-lists/{id}/items`, `GET /products/{id}/bundle` | `products.read` with organization scope |
-| `POST/PATCH/DELETE /price-lists…`, `PUT /price-lists/{id}/items`, `PUT/DELETE /products/{id}/bundle` | `products.update` with organization scope |
-| `GET/PUT /discount-limits` | `settings.manage` |
+| `GET /pricing`, `GET /pricing/{id}`, `GET /pricing/{id}/items`, `GET /pricing/items/{id}/bundle` | `products.read` with organization scope |
+| `POST/PATCH/DELETE /pricing…`, `PUT /pricing/{id}/items`, `PUT/DELETE /pricing/items/{id}/bundle` | `products.update` with organization scope |
+| `GET/PUT /pricing/discount-limits` | `settings.manage` |
 
 Price lists are a commercial catalog (like products), so they use the product permissions; discount limits affect approval policy, hence `settings.manage`.
 
@@ -57,4 +57,4 @@ Sections `price_lists` (only lists with `applies_to = all`, items by product cod
 
 ## Web
 
-`web/src/features/products/price-lists` (list and editing at `/products/price-lists`, with a discount limits tab) and `web/src/features/products/bundles` (bundle section on the product detail). Texts in the `price-lists` namespace.
+`web/src/modules/pricing` (list and editing at `/pricing`, with a discount limits tab) and `web/src/modules/pricing/bundles` (bundle section on the product detail). Texts in the `pricing` namespace.

@@ -37,6 +37,14 @@ This phase is in progress. Completed entries describe static source validation; 
 - [ ] Manual acceptance: custom and native opt-in entities, unknown includes, duplicate/colliding include sources, hidden/out-of-scope records, merged record IDs, disabled owners, schema-only administrators and metadata load failures.
 - [ ] Runtime/managed owner identity checks remain part of the final audit; the native enabled-owner guard does not establish runtime owner parity.
 
+## Pricing identity
+
+- [x] Replace the native module/package/feature, permission namespace, record identity and web namespace/routes with `pricing`.
+- [x] Serve price lists under `/pricing`, discount limits under `/pricing/discount-limits` and bundles under `/pricing/items/{product_id}/bundle`.
+- [x] Preserve the explicitly owned price-list/bundle tables and logical configuration section names; update all consumers and manifests without compatibility aliases.
+- [ ] Remove remaining peer implementations, foreign SQL and fixed party/catalog coupling.
+- [ ] Manual acceptance: lists/items, limits, bundle save/delete/expansion, settings links and quotation price resolution.
+
 ## Lead Pro fresh schema
 
 - [x] Remove the legacy temperature-copy migration. The initial schema already creates the owned extension directly.

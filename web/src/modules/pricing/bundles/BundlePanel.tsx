@@ -44,7 +44,7 @@ export interface BundlePanelProps {
 }
 
 export function BundlePanel({ productId, readOnly }: BundlePanelProps) {
-  const { t } = useTranslation('price_lists')
+  const { t } = useTranslation('pricing')
   const [priceListId, setPriceListId] = useState('')
   const [editing, setEditing] = useState(false)
   const bundle = useProductBundle(productId, priceListId)
@@ -93,7 +93,7 @@ interface BundleViewProps {
 }
 
 function BundleView({ productId, bundle, readOnly, priceListId, onPriceListChange, onEdit }: BundleViewProps) {
-  const { t } = useTranslation('price_lists')
+  const { t } = useTranslation('pricing')
   const formatting = useRecordFormatting()
   const priceLists = useActivePriceLists()
   const invalidate = useInvalidateBundle(productId)
@@ -206,7 +206,7 @@ interface BundleFormProps {
 }
 
 function BundleForm({ productId, bundle, onClose }: BundleFormProps) {
-  const { t } = useTranslation('price_lists')
+  const { t } = useTranslation('pricing')
   const formId = useId()
   const invalidate = useInvalidateBundle(productId)
   const [pricing, setPricing] = useState<BundlePricing>(bundle?.pricing ?? 'sum')

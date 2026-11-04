@@ -16,8 +16,7 @@ pub(crate) const DISCOUNT_LIMITS_UPDATED: &str = "discount_limits.updated";
 pub(crate) const PRICE_LIST_NOT_FOUND: &str = "price_list_not_found";
 pub(crate) const PRICE_LIST_KEY_TAKEN: &str = "price_list_key_taken";
 
-pub(crate) const PRICE_LIST_RECORD_TYPE: RecordType =
-    RecordType::from_static("price_lists.price_list");
+pub(crate) const PRICE_LIST_RECORD_TYPE: RecordType = RecordType::from_static("pricing.price_list");
 
 pub(crate) const MAX_PRICE_LISTS: u64 = 500;
 pub(crate) const MAX_PRICE_LIST_NAME_LENGTH: usize = 140;

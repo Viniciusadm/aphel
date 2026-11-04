@@ -53,7 +53,7 @@ privacy = { path = "modules/privacy" }
 org_export = { path = "modules/org_export", required = true }
 migrations_assistant = { path = "modules/migrations_assistant" }
 products = { path = "modules/products" }
-price_lists = { path = "modules/price_lists" }
+pricing = { path = "modules/pricing" }
 quotes = { path = "modules/quotes" }
 proposals = { path = "modules/proposals" }
 insights = { path = "modules/insights" }

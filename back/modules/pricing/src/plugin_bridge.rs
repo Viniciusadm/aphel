@@ -139,12 +139,12 @@ fn resolve<'a>(ctx: &'a Ctx<'_>, input: Value) -> OperationFuture<'a> {
 pub(crate) fn operations() -> Vec<Arc<PluginOperation>> {
     vec![
         Arc::new(PluginOperation::read(
-            "price_lists.list",
+            "pricing.list",
             "Price lists, the default of each currency first: { currency?, active?, search?, page?, per_page? } -> { data, total }",
             list,
         )),
         Arc::new(PluginOperation::read(
-            "price_lists.resolve",
+            "pricing.resolve",
             "Unit price of a product from a price list (quantity tiers applied): { product_id, price_list_id? , currency? (required without price_list_id; picks the list for the company or the currency default), company_id?, quantity? (default 1), on? (YYYY-MM-DD, default today) } -> { price_list: { id, name, currency } | null, unit_price (string) | null, currency, quantity, on }",
             resolve,
         )),

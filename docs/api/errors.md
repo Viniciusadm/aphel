@@ -318,8 +318,8 @@ Whoever creates a new code adds the row to this table and cites it in the respon
 | `exchange_rate_exists` | 409 | currencies (the currency already has an exchange rate on that date) |
 | `exchange_rate_provider_not_configured` | 422 | currencies (updating exchange rates now without a configured provider) |
 | `exchange_rate_provider_unavailable` | 503 | currencies (the exchange rate provider did not respond; in a batch update the currency goes to `failed`) |
-| `price_list_not_found` | 404 | price-lists, products (price list does not exist) |
-| `price_list_key_taken` | 409 | price-lists (price list key already used in the organization) |
+| `price_list_not_found` | 404 | pricing, products (price list does not exist) |
+| `price_list_key_taken` | 409 | pricing (price list key already used in the organization) |
 | `product_bundle_not_found` | 404 | products (the product is not a bundle) |
 | `product_bundle_nested` | 409 | products (the product is a component of another bundle and cannot become a bundle) |
 | `validation_rule_failed` | 422 | people, organizations, deals, tasks, products, quotes, objects (the write violates validation rules; `details.fields[]` carries `{ field, message }` for each violated rule: `field` is the highlighted field — `custom_fields.<key>` for a custom one — or `record`, and `message` is the rule's message) |

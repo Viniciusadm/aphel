@@ -11,7 +11,7 @@ export const bundlesKeys = {
 }
 
 function bundlePath(productId: string): string {
-  return `/v1/products/${id(productId)}/bundle`
+  return `/v1/pricing/items/${id(productId)}/bundle`
 }
 
 export const bundlesApi = {

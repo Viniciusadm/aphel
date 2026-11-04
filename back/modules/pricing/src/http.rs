@@ -30,7 +30,7 @@ use aphel_sdk::line_items::money;
 use deals::http::DecimalInputSchema;
 use products::http::TAG as PRODUCTS_TAG;
 
-pub(crate) const TAG: &str = "price-lists";
+pub(crate) const TAG: &str = "pricing";
 
 const UNAUTHORIZED: &str = "Missing or invalid credentials (`unauthorized`, `invalid_api_token`)";
 const FORBIDDEN_READ: &str =
@@ -55,7 +55,7 @@ pub(crate) fn router() -> OpenApiRouter<AppState> {
 
 #[utoipa::path(
     get,
-    path = "/price-lists",
+    path = "/pricing",
     tag = TAG,
     operation_id = "price_lists_list",
     security(("session_cookie" = [])),
@@ -87,7 +87,7 @@ async fn list_price_lists(
 
 #[utoipa::path(
     post,
-    path = "/price-lists",
+    path = "/pricing",
     tag = TAG,
     operation_id = "price_lists_create",
     security(("session_cookie" = [])),
@@ -116,7 +116,7 @@ async fn create_price_list(
 
 #[utoipa::path(
     get,
-    path = "/price-lists/{price_list_id}",
+    path = "/pricing/{price_list_id}",
     tag = TAG,
     operation_id = "price_lists_get",
     security(("session_cookie" = [])),
@@ -143,7 +143,7 @@ async fn get_price_list(
 
 #[utoipa::path(
     patch,
-    path = "/price-lists/{price_list_id}",
+    path = "/pricing/{price_list_id}",
     tag = TAG,
     operation_id = "price_lists_update",
     security(("session_cookie" = [])),
@@ -180,7 +180,7 @@ async fn update_price_list(
 
 #[utoipa::path(
     delete,
-    path = "/price-lists/{price_list_id}",
+    path = "/pricing/{price_list_id}",
     tag = TAG,
     operation_id = "price_lists_delete",
     security(("session_cookie" = [])),
@@ -209,7 +209,7 @@ async fn delete_price_list(
 
 #[utoipa::path(
     get,
-    path = "/price-lists/{price_list_id}/items",
+    path = "/pricing/{price_list_id}/items",
     tag = TAG,
     operation_id = "price_lists_items_list",
     security(("session_cookie" = [])),
@@ -236,7 +236,7 @@ async fn list_price_list_items(
 
 #[utoipa::path(
     put,
-    path = "/price-lists/{price_list_id}/items",
+    path = "/pricing/{price_list_id}/items",
     tag = TAG,
     operation_id = "price_lists_items_replace",
     security(("session_cookie" = [])),
@@ -273,7 +273,7 @@ async fn replace_price_list_items(
 
 #[utoipa::path(
     get,
-    path = "/discount-limits",
+    path = "/pricing/discount-limits",
     tag = TAG,
     operation_id = "discount_limits_get",
     security(("session_cookie" = [])),
@@ -295,7 +295,7 @@ async fn get_discount_limits(
 
 #[utoipa::path(
     put,
-    path = "/discount-limits",
+    path = "/pricing/discount-limits",
     tag = TAG,
     operation_id = "discount_limits_set",
     security(("session_cookie" = [])),
@@ -333,7 +333,7 @@ pub(crate) fn bundle_router() -> OpenApiRouter<AppState> {
 
 #[utoipa::path(
     get,
-    path = "/products/{product_id}/bundle",
+    path = "/pricing/items/{product_id}/bundle",
     tag = PRODUCTS_TAG,
     operation_id = "products_bundle_get",
     security(("session_cookie" = [])),
@@ -365,7 +365,7 @@ async fn get_product_bundle(
 
 #[utoipa::path(
     put,
-    path = "/products/{product_id}/bundle",
+    path = "/pricing/items/{product_id}/bundle",
     tag = PRODUCTS_TAG,
     operation_id = "products_bundle_save",
     security(("session_cookie" = [])),
@@ -402,7 +402,7 @@ async fn save_product_bundle(
 
 #[utoipa::path(
     delete,
-    path = "/products/{product_id}/bundle",
+    path = "/pricing/items/{product_id}/bundle",
     tag = PRODUCTS_TAG,
     operation_id = "products_bundle_delete",
     security(("session_cookie" = [])),

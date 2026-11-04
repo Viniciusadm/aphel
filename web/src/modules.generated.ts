@@ -50,7 +50,7 @@ import privacyModule from '@modules/privacy'
 import orgExportModule from '@modules/org_export'
 import migrationsAssistantModule from '@modules/migrations_assistant'
 import productsModule from '@modules/products'
-import priceListsModule from '@modules/price_lists'
+import pricingModule from '@modules/pricing'
 import quotesModule from '@modules/quotes'
 import proposalsModule from '@modules/proposals'
 import insightsModule from '@modules/insights'
@@ -116,7 +116,7 @@ export const MODULES: WebModule[] = [
   orgExportModule,
   migrationsAssistantModule,
   productsModule,
-  priceListsModule,
+  pricingModule,
   quotesModule,
   proposalsModule,
   insightsModule,

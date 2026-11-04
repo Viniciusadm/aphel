@@ -134,11 +134,11 @@ Records that stopped being visible before processing (e.g. private notes, record
 | `currency.enabled` | `{ currency, base }` (currency enabled in the organization) | — |
 | `currency.disabled` | `{ currency, base }` (currency disabled in the organization) | — |
 | `organization.updated` | `{ id, changed_fields, currency, previous_currency? }` (company data changed; `previous_currency` only when the base currency changed) | `{ currency: <previous base currency or null> }` |
-| `price_list.created` | Price list (`PriceListResponse`, the same as `GET /price-lists/{id}`) | — |
+| `price_list.created` | Price list (`PriceListResponse`, the same as `GET /pricing/{id}`) | — |
 | `price_list.updated` | Price list | `{ <field>: <old value> }` |
 | `price_list.deleted` | `{ id }` | — |
-| `price_list.items_replaced` | Price list whose prices were replaced (items at `GET /price-lists/{id}/items`) | — |
-| `product_bundle.updated` | Product whose bundle was saved (`context`: `pricing`, `components`; components at `GET /products/{id}/bundle`) | — |
+| `price_list.items_replaced` | Price list whose prices were replaced (items at `GET /pricing/{id}/items`) | — |
+| `product_bundle.updated` | Product whose bundle was saved (`context`: `pricing`, `components`; components at `GET /pricing/items/{id}/bundle`) | — |
 | `product_bundle.removed` | Product that is no longer a bundle | — |
 | `custom.<key>.created` | Custom object record | — |
 | `custom.<key>.updated` | Custom object record | `{ <field>: <old value> }` |
