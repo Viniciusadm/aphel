@@ -11,6 +11,13 @@ This phase is in progress. Completed entries describe static source validation; 
 - [ ] Remove remaining task, party, assignment and email implementation dependencies and foreign SQL.
 - [ ] Manual acceptance: availability editing, meeting types, public booking, host assignment, cancellation, rescheduling and email delivery with module/permission combinations.
 
+## Forms identity
+
+- [x] Replace the native module/package/feature, HTTP namespace, permission namespace and web module with `forms`.
+- [x] Rewrite fresh form/submission tables, every SQL consumer, manifests, profiles, documentation and generated registries without a legacy identity alias.
+- [ ] Replace remaining fixed CRM targets and peer implementation imports with owner interfaces and entity metadata.
+- [ ] Manual acceptance: settings/editor, publish/embed/public render, submission validation, spam controls, mapping and downstream actions.
+
 ## Lead Pro fresh schema
 
 - [x] Remove the legacy temperature-copy migration. The initial schema already creates the owned extension directly.

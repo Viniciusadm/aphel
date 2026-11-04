@@ -72,7 +72,7 @@ Other modules and plugins extend the lead inbox without editing `leads` (types i
 
 `Lead` carries an owner-produced scoped record snapshot, identity and precise version, with lifecycle helpers. An `Err` from an action or filter rolls back the operation. To replace the conversion: `app.provide::<dyn LeadConverter>(..)`; to wrap the default one: `app.decorate::<dyn LeadConverter>(|inner| ..)`.
 
-Lead sources: the `lead_forms` module sends `lifecycle_stage = lead` when creating the contact (when the field exists and the form did not map another value), and email capture creates people in `lead`.
+Lead sources: the `forms` module sends `lifecycle_stage = lead` when creating the contact (when the field exists and the form did not map another value), and email capture creates people in `lead`.
 
 ## Disqualification reasons
 

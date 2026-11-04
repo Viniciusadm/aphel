@@ -136,13 +136,13 @@ async fn save(
 
 #[utoipa::path(
     get,
-    path = "/lead-forms/forms",
+    path = "/forms/forms",
     tag = TAG,
-    operation_id = "lead_forms_list",
+    operation_id = "forms_list",
     security(("session_cookie" = [])),
     responses(
         (status = 200, description = "Lead forms, newest first, with submission counters", body = Page<LeadFormResponse>),
-        (status = 403, description = "Missing `lead_forms.manage` (`permission_denied`)", body = ErrorEnvelope),
+        (status = 403, description = "Missing `forms.manage` (`permission_denied`)", body = ErrorEnvelope),
         (status = 404, description = "Module disabled (`module_disabled`)", body = ErrorEnvelope),
     )
 )]
@@ -170,14 +170,14 @@ async fn list_forms(
 
 #[utoipa::path(
     post,
-    path = "/lead-forms/forms",
+    path = "/forms/forms",
     tag = TAG,
-    operation_id = "lead_forms_create",
+    operation_id = "forms_create",
     security(("session_cookie" = [])),
     request_body = LeadFormRequest,
     responses(
         (status = 201, description = "Form created with a new opaque public id. Publishes `lead_form.created`", body = Data<LeadFormResponse>),
-        (status = 403, description = "Missing `lead_forms.manage` (`permission_denied`)", body = ErrorEnvelope),
+        (status = 403, description = "Missing `forms.manage` (`permission_denied`)", body = ErrorEnvelope),
         (status = 409, description = "The installation reached 200 forms (`lead_form_limit_reached`)", body = ErrorEnvelope),
         (status = 422, description = "Invalid form (`lead_form_invalid` with `details.fields`) or body (`invalid_json`)", body = ErrorEnvelope),
     )
@@ -223,14 +223,14 @@ async fn create_form(
 
 #[utoipa::path(
     get,
-    path = "/lead-forms/forms/{form_id}",
+    path = "/forms/forms/{form_id}",
     tag = TAG,
-    operation_id = "lead_forms_get",
+    operation_id = "forms_get",
     security(("session_cookie" = [])),
     params(("form_id" = String, Path, description = "Form id")),
     responses(
         (status = 200, description = "The form", body = Data<LeadFormResponse>),
-        (status = 403, description = "Missing `lead_forms.manage` (`permission_denied`)", body = ErrorEnvelope),
+        (status = 403, description = "Missing `forms.manage` (`permission_denied`)", body = ErrorEnvelope),
         (status = 404, description = "Form not found (`lead_form_not_found`)", body = ErrorEnvelope),
     )
 )]
@@ -250,15 +250,15 @@ async fn get_form(
 
 #[utoipa::path(
     put,
-    path = "/lead-forms/forms/{form_id}",
+    path = "/forms/forms/{form_id}",
     tag = TAG,
-    operation_id = "lead_forms_update",
+    operation_id = "forms_update",
     security(("session_cookie" = [])),
     params(("form_id" = String, Path, description = "Form id")),
     request_body = LeadFormRequest,
     responses(
         (status = 200, description = "Form replaced (the public id is kept). Publishes `lead_form.updated`", body = Data<LeadFormResponse>),
-        (status = 403, description = "Missing `lead_forms.manage` (`permission_denied`)", body = ErrorEnvelope),
+        (status = 403, description = "Missing `forms.manage` (`permission_denied`)", body = ErrorEnvelope),
         (status = 404, description = "Form not found (`lead_form_not_found`)", body = ErrorEnvelope),
         (status = 422, description = "Invalid form (`lead_form_invalid` with `details.fields`) or body (`invalid_json`)", body = ErrorEnvelope),
     )
@@ -292,14 +292,14 @@ async fn update_form(
 
 #[utoipa::path(
     post,
-    path = "/lead-forms/forms/{form_id}/rotate-public-id",
+    path = "/forms/forms/{form_id}/rotate-public-id",
     tag = TAG,
-    operation_id = "lead_forms_rotate_public_id",
+    operation_id = "forms_rotate_public_id",
     security(("session_cookie" = [])),
     params(("form_id" = String, Path, description = "Form id")),
     responses(
         (status = 200, description = "New public id: the previous page, script and submission URLs stop working at once. Publishes `lead_form.updated`", body = Data<LeadFormResponse>),
-        (status = 403, description = "Missing `lead_forms.manage` (`permission_denied`)", body = ErrorEnvelope),
+        (status = 403, description = "Missing `forms.manage` (`permission_denied`)", body = ErrorEnvelope),
         (status = 404, description = "Form not found (`lead_form_not_found`)", body = ErrorEnvelope),
     )
 )]
@@ -327,14 +327,14 @@ async fn rotate_public_id(
 
 #[utoipa::path(
     delete,
-    path = "/lead-forms/forms/{form_id}",
+    path = "/forms/forms/{form_id}",
     tag = TAG,
-    operation_id = "lead_forms_delete",
+    operation_id = "forms_delete",
     security(("session_cookie" = [])),
     params(("form_id" = String, Path, description = "Form id")),
     responses(
         (status = 204, description = "Form and its submission history deleted (people and deals created by it stay). Publishes `lead_form.deleted`"),
-        (status = 403, description = "Missing `lead_forms.manage` (`permission_denied`)", body = ErrorEnvelope),
+        (status = 403, description = "Missing `forms.manage` (`permission_denied`)", body = ErrorEnvelope),
         (status = 404, description = "Form not found (`lead_form_not_found`)", body = ErrorEnvelope),
     )
 )]
@@ -379,9 +379,9 @@ fn page_param(params: &HashMap<String, String>, key: &str, default: u32) -> Resu
 
 #[utoipa::path(
     get,
-    path = "/lead-forms/forms/{form_id}/submissions",
+    path = "/forms/forms/{form_id}/submissions",
     tag = TAG,
-    operation_id = "lead_forms_submissions",
+    operation_id = "forms_submissions",
     security(("session_cookie" = [])),
     params(
         ("form_id" = String, Path, description = "Form id"),
@@ -391,7 +391,7 @@ fn page_param(params: &HashMap<String, String>, key: &str, default: u32) -> Resu
     ),
     responses(
         (status = 200, description = "Submission history of the form, newest first, including spam and failures", body = Page<LeadFormSubmission>),
-        (status = 403, description = "Missing `lead_forms.manage` (`permission_denied`)", body = ErrorEnvelope),
+        (status = 403, description = "Missing `forms.manage` (`permission_denied`)", body = ErrorEnvelope),
         (status = 404, description = "Form not found (`lead_form_not_found`)", body = ErrorEnvelope),
         (status = 422, description = "Invalid status or pagination (`lead_form_invalid_query`)", body = ErrorEnvelope),
     )
@@ -461,13 +461,13 @@ async fn distribution_rules(
 
 #[utoipa::path(
     get,
-    path = "/lead-forms/options",
+    path = "/forms/options",
     tag = TAG,
-    operation_id = "lead_forms_options",
+    operation_id = "forms_options",
     security(("session_cookie" = [])),
     responses(
         (status = 200, description = "What the form editor can pick: writable contact fields (system and custom), active workflow and stages, contact tags, active users and active lead distribution rules for people. Lists the current user cannot read come back empty", body = Data<LeadFormOptions>),
-        (status = 403, description = "Missing `lead_forms.manage` (`permission_denied`)", body = ErrorEnvelope),
+        (status = 403, description = "Missing `forms.manage` (`permission_denied`)", body = ErrorEnvelope),
     )
 )]
 async fn options(

@@ -3,7 +3,7 @@ import { notifyError, notifySuccess } from '@/components/feedback'
 import { Button } from '@/components/ui/button'
 import { Dialog, DialogContent, DialogDescription, DialogHeader, DialogTitle } from '@/components/ui/dialog'
 import { useModuleTranslation } from '@/kernel/modules/i18n'
-import { LEAD_FORMS_KEY, absoluteUrl, iframeSnippet, scriptSnippet, type LeadForm } from './api'
+import { FORMS_KEY, absoluteUrl, iframeSnippet, scriptSnippet, type LeadForm } from './api'
 
 interface SnippetsDialogProps {
   form: LeadForm | null
@@ -11,7 +11,7 @@ interface SnippetsDialogProps {
 }
 
 export function SnippetsDialog({ form, onClose }: SnippetsDialogProps) {
-  const t = useModuleTranslation(LEAD_FORMS_KEY)
+  const t = useModuleTranslation(FORMS_KEY)
   return (
     <Dialog open={form !== null} onOpenChange={(open) => !open && onClose()}>
       <DialogContent size="2xl">
@@ -62,7 +62,7 @@ interface SnippetProps {
 }
 
 function Snippet({ label, help, code }: SnippetProps) {
-  const t = useModuleTranslation(LEAD_FORMS_KEY)
+  const t = useModuleTranslation(FORMS_KEY)
   const copy = async () => {
     try {
       await navigator.clipboard.writeText(code)

@@ -96,7 +96,7 @@ Others are platform modules, generic over any record type:
 - `imports`, `exports`, `bulk_actions`, `privacy`, `org_export`;
 - `automations`, `webhooks`, `integrations`, `reports`, `dashboard`, `goals`, `forecast`, `config_packages`, `demo`.
 
-The 10 current extensions (`ai`, `esign`, `lead_forms`, etc.) become modules.
+The 10 current extensions (`ai`, `esign`, `forms`, etc.) become modules.
 
 ### 2.2 Module contract: a `register` function, `add_action` style
 
@@ -237,7 +237,7 @@ pub trait RecordTypeHandler: Send + Sync {
 This handler is then used by:
 
 - automations (`AutomationGateway`, which leaves `api/` and moves to the `automations` module);
-- import, export, bulk actions, privacy, `org_export`, notifications, `lead_forms` and incoming webhooks.
+- import, export, bulk actions, privacy, `org_export`, notifications, `forms` and incoming webhooks.
 
 The roughly 20 `match` blocks disappear. A new plugin type automatically gets import, export, bulk actions, automation, search, trash and webhooks. Custom objects use a generic handler.
 

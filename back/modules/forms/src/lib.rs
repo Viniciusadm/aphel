@@ -21,9 +21,9 @@ use aphel_kernel::infrastructure::repositories::mysql_access::MySqlAccessReposit
 use aphel_kernel::modules::builder::APHEL_VERSION;
 use aphel_kernel::modules::{AppBuilder, Manifest, Migration, Module};
 
-pub(crate) const KEY: &str = "lead_forms";
-pub(crate) const TAG: &str = "lead-forms";
-pub(crate) const MANAGE: Permission = Permission::from_static("lead_forms.manage");
+pub(crate) const KEY: &str = "forms";
+pub(crate) const TAG: &str = "forms";
+pub(crate) const MANAGE: Permission = Permission::from_static("forms.manage");
 pub(crate) const CREATED: &str = "lead_form.created";
 pub(crate) const UPDATED: &str = "lead_form.updated";
 pub(crate) const DELETED: &str = "lead_form.deleted";
@@ -35,7 +35,7 @@ const PUBLIC_EVENTS: &[PublicEventDefinition] = &[event(
     "A lead form was submitted, creating or updating the contact",
 )];
 pub(crate) const FORM_NOT_FOUND: &str = "lead_form_not_found";
-pub(crate) const PUBLIC_FORMS_PATH: &str = "/api/v1/public/lead-forms/forms";
+pub(crate) const PUBLIC_FORMS_PATH: &str = "/api/v1/public/forms/forms";
 
 pub(crate) fn form_not_found() -> AppError {
     AppError::not_found_code(FORM_NOT_FOUND, "lead form not found")
@@ -108,9 +108,9 @@ pub(crate) async fn scope_for_user(
     Ok(scope.module_enabled(KEY).then_some(scope))
 }
 
-pub struct LeadFormsModule;
+pub struct FormsModule;
 
-impl Module for LeadFormsModule {
+impl Module for FormsModule {
     fn manifest(&self) -> Manifest {
         Manifest::new(KEY, "Lead forms", APHEL_VERSION)
             .description("Public forms that create people and deals")
@@ -122,7 +122,7 @@ impl Module for LeadFormsModule {
             .migration(Migration::new(
                 1,
                 "create lead forms and submissions",
-                include_str!("../migrations/0001_lead_forms.sql"),
+                include_str!("../migrations/0001_forms.sql"),
             ))
     }
 

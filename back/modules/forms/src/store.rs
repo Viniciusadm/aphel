@@ -55,10 +55,10 @@ pub(crate) struct NewSubmission {
 
 const FORM_COLUMNS: &str = "f.id, f.public_id, f.name, f.is_active, f.acting_user_id, f.definition, f.created_by, f.created_at, f.updated_at";
 
-const STATS_COLUMNS: &str = "(SELECT COUNT(*) FROM lead_forms_submissions s WHERE s.form_id = f.id AND s.status = 'accepted') AS accepted_count, \
-     (SELECT COUNT(*) FROM lead_forms_submissions s WHERE s.form_id = f.id AND s.status = 'spam') AS spam_count, \
-     (SELECT COUNT(*) FROM lead_forms_submissions s WHERE s.form_id = f.id AND s.status = 'failed') AS failed_count, \
-     (SELECT MAX(s.created_at) FROM lead_forms_submissions s WHERE s.form_id = f.id AND s.status = 'accepted') AS last_submission_at";
+const STATS_COLUMNS: &str = "(SELECT COUNT(*) FROM forms_submissions s WHERE s.form_id = f.id AND s.status = 'accepted') AS accepted_count, \
+     (SELECT COUNT(*) FROM forms_submissions s WHERE s.form_id = f.id AND s.status = 'spam') AS spam_count, \
+     (SELECT COUNT(*) FROM forms_submissions s WHERE s.form_id = f.id AND s.status = 'failed') AS failed_count, \
+     (SELECT MAX(s.created_at) FROM forms_submissions s WHERE s.form_id = f.id AND s.status = 'accepted') AS last_submission_at";
 
 fn uuid_column(row: &MySqlRow, column: &str) -> Result<Uuid, AppError> {
     let value: String = row.try_get(column)?;
@@ -134,7 +134,7 @@ pub(crate) fn new_public_id() -> String {
 
 pub(crate) async fn list_forms(pool: &MySqlPool) -> Result<Vec<(StoredForm, FormStats)>, AppError> {
     let rows = sqlx::query(AssertSqlSafe(format!(
-        "SELECT {FORM_COLUMNS}, {STATS_COLUMNS} FROM lead_forms_forms f ORDER BY f.created_at DESC, f.id DESC"
+        "SELECT {FORM_COLUMNS}, {STATS_COLUMNS} FROM forms_forms f ORDER BY f.created_at DESC, f.id DESC"
     )))
     .fetch_all(pool)
     .await?;
@@ -148,7 +148,7 @@ pub(crate) async fn find_form(
     id: Uuid,
 ) -> Result<(StoredForm, FormStats), AppError> {
     let row = sqlx::query(AssertSqlSafe(format!(
-        "SELECT {FORM_COLUMNS}, {STATS_COLUMNS} FROM lead_forms_forms f WHERE f.id = ?"
+        "SELECT {FORM_COLUMNS}, {STATS_COLUMNS} FROM forms_forms f WHERE f.id = ?"
     )))
     .bind(id.to_string())
     .fetch_optional(pool)
@@ -169,7 +169,7 @@ pub(crate) async fn find_by_public_id(
         return Ok(None);
     }
     let row = sqlx::query(AssertSqlSafe(format!(
-        "SELECT {FORM_COLUMNS} FROM lead_forms_forms f WHERE f.public_id = ?"
+        "SELECT {FORM_COLUMNS} FROM forms_forms f WHERE f.public_id = ?"
     )))
     .bind(public_id)
     .fetch_optional(pool)
@@ -179,7 +179,7 @@ pub(crate) async fn find_by_public_id(
 
 pub(crate) async fn insert_form(tx: &mut MySqlTx, form: &StoredForm) -> Result<(), AppError> {
     sqlx::query(
-        "INSERT INTO lead_forms_forms (id, public_id, name, is_active, acting_user_id, definition, created_by, created_at, updated_at) VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?)",
+        "INSERT INTO forms_forms (id, public_id, name, is_active, acting_user_id, definition, created_by, created_at, updated_at) VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?)",
     )
     .bind(form.id.to_string())
     .bind(&form.public_id)
@@ -197,7 +197,7 @@ pub(crate) async fn insert_form(tx: &mut MySqlTx, form: &StoredForm) -> Result<(
 
 pub(crate) async fn update_form(tx: &mut MySqlTx, form: &StoredForm) -> Result<(), AppError> {
     sqlx::query(
-        "UPDATE lead_forms_forms SET public_id = ?, name = ?, is_active = ?, acting_user_id = ?, definition = ?, updated_at = ? WHERE id = ?",
+        "UPDATE forms_forms SET public_id = ?, name = ?, is_active = ?, acting_user_id = ?, definition = ?, updated_at = ? WHERE id = ?",
     )
     .bind(&form.public_id)
     .bind(&form.name)
@@ -212,11 +212,11 @@ pub(crate) async fn update_form(tx: &mut MySqlTx, form: &StoredForm) -> Result<(
 }
 
 pub(crate) async fn delete_form(tx: &mut MySqlTx, id: Uuid) -> Result<(), AppError> {
-    sqlx::query("DELETE FROM lead_forms_submissions WHERE form_id = ?")
+    sqlx::query("DELETE FROM forms_submissions WHERE form_id = ?")
         .bind(id.to_string())
         .execute(&mut **tx)
         .await?;
-    sqlx::query("DELETE FROM lead_forms_forms WHERE id = ?")
+    sqlx::query("DELETE FROM forms_forms WHERE id = ?")
         .bind(id.to_string())
         .execute(&mut **tx)
         .await?;
@@ -231,7 +231,7 @@ where
     E: sqlx::Executor<'e, Database = sqlx::MySql>,
 {
     sqlx::query(
-        "INSERT INTO lead_forms_submissions (id, form_id, status, contact_id, deal_id, contact_created, data, ip_address, origin, error_code, error_message) VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)",
+        "INSERT INTO forms_submissions (id, form_id, status, contact_id, deal_id, contact_created, data, ip_address, origin, error_code, error_message) VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)",
     )
     .bind(submission.id.to_string())
     .bind(submission.form_id.to_string())
@@ -262,7 +262,7 @@ pub(crate) async fn list_submissions(
         ""
     };
     let mut count = sqlx::query_scalar::<_, i64>(AssertSqlSafe(format!(
-        "SELECT COUNT(*) FROM lead_forms_submissions WHERE form_id = ?{status_filter}"
+        "SELECT COUNT(*) FROM forms_submissions WHERE form_id = ?{status_filter}"
     )))
     .bind(form_id.to_string());
     if let Some(status) = status {
@@ -270,7 +270,7 @@ pub(crate) async fn list_submissions(
     }
     let total = count.fetch_one(pool).await?;
     let sql = format!(
-        "SELECT id, form_id, status, contact_id, deal_id, contact_created, data, ip_address, origin, error_code, error_message, created_at FROM lead_forms_submissions WHERE form_id = ?{status_filter} ORDER BY created_at DESC, id DESC LIMIT ? OFFSET ?"
+        "SELECT id, form_id, status, contact_id, deal_id, contact_created, data, ip_address, origin, error_code, error_message, created_at FROM forms_submissions WHERE form_id = ?{status_filter} ORDER BY created_at DESC, id DESC LIMIT ? OFFSET ?"
     );
     let mut query = sqlx::query(AssertSqlSafe(sql)).bind(form_id.to_string());
     if let Some(status) = status {

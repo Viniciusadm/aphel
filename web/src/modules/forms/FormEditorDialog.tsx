@@ -12,7 +12,7 @@ import { Skeleton } from '@/components/ui/skeleton'
 import { Textarea } from '@/components/ui/textarea'
 import { NativeSelect } from '@/features/records/filters/NativeSelect'
 import { useModuleTranslation } from '@/kernel/modules/i18n'
-import { LEAD_FORMS_KEY, FIELD_KINDS, leadFormsApi, useLeadFormOptions, type LeadForm, type LeadFormFieldKind } from './api'
+import { FORMS_KEY, FIELD_KINDS, formsApi, useLeadFormOptions, type LeadForm, type LeadFormFieldKind } from './api'
 import { FieldEditor } from './FieldEditor'
 import {
   MAX_FIELDS,
@@ -66,7 +66,7 @@ interface EditorBodyProps {
 }
 
 function EditorBody({ form, onCancel, onSaved }: EditorBodyProps) {
-  const t = useModuleTranslation(LEAD_FORMS_KEY)
+  const t = useModuleTranslation(FORMS_KEY)
   const formId = useId()
   const options = useLeadFormOptions()
   const [newKind, setNewKind] = useState<LeadFormFieldKind>('text')
@@ -95,7 +95,7 @@ function EditorBody({ form, onCancel, onSaved }: EditorBodyProps) {
     setServerErrors([])
     try {
       const body = toRequestBody(formValues)
-      const saved = form ? await leadFormsApi.update(form.id, body) : await leadFormsApi.create(body)
+      const saved = form ? await formsApi.update(form.id, body) : await formsApi.create(body)
       onSaved(saved, form === null)
     } catch (error) {
       setServerErrors(serverFieldErrors(error))

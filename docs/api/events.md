@@ -126,7 +126,7 @@ Records that stopped being visible before processing (e.g. private notes, record
 | `esign.expired` | Deal whose signature request expired | — |
 | `esign.signed_file_attached` | Deal to which the signed file was attached | — |
 | `company.enriched` | Company whose fields were filled by the public CNPJ lookup (`enrichment` module) | — |
-| `lead_form.submitted` | Contact created or updated by the submission of a capture form (`lead_forms` module) | — |
+| `lead_form.submitted` | Contact created or updated by the submission of a capture form (`forms` module) | — |
 | `exchange_rate.created` | Exchange rate (`ExchangeRateResponse`, the same as `GET /currencies/rates/{id}`), entered by hand or fetched from the configured provider (`source` = `integration`) | — |
 | `exchange_rate.updated` | Exchange rate | `{ <field>: <old value> }` (`rate`, `effective_date`, `source`) |
 | `exchange_rate.deleted` | `{ id }` | — |

@@ -141,9 +141,9 @@ pub(crate) struct LeadFormResponse {
     pub(crate) spam_count: i64,
     pub(crate) failed_count: i64,
     pub(crate) last_submission_at: Option<String>,
-    #[schema(example = "/api/v1/public/lead-forms/forms/f_3b0d/page")]
+    #[schema(example = "/api/v1/public/forms/forms/f_3b0d/page")]
     pub(crate) page_path: String,
-    #[schema(example = "/api/v1/public/lead-forms/forms/f_3b0d/embed.js")]
+    #[schema(example = "/api/v1/public/forms/forms/f_3b0d/embed.js")]
     pub(crate) embed_path: String,
     pub(crate) created_at: String,
     pub(crate) updated_at: String,

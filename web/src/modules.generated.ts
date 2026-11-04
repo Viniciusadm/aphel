@@ -54,7 +54,7 @@ import priceListsModule from '@modules/price_lists'
 import quotesModule from '@modules/quotes'
 import proposalsModule from '@modules/proposals'
 import insightsModule from '@modules/insights'
-import leadFormsModule from '@modules/lead_forms'
+import formsModule from '@modules/forms'
 import aiModule from '@modules/ai'
 import ssoModule from '@modules/sso'
 import googleModule from '@modules/google'
@@ -120,7 +120,7 @@ export const MODULES: WebModule[] = [
   quotesModule,
   proposalsModule,
   insightsModule,
-  leadFormsModule,
+  formsModule,
   aiModule,
   ssoModule,
   googleModule,

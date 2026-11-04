@@ -30,6 +30,7 @@ import type fieldsNamespace from './pt-BR/fields.json'
 import type filesNamespace from './pt-BR/files.json'
 import type followersNamespace from '../modules/followers/i18n/pt-BR.json'
 import type forecastNamespace from '../modules/forecast/i18n/pt-BR.json'
+import type formsNamespace from '../modules/forms/i18n/pt-BR.json'
 import type formulasNamespace from './pt-BR/formulas.json'
 import type goalsNamespace from '../modules/goals/i18n/pt-BR.json'
 import type googleNamespace from '../modules/google/i18n/pt-BR.json'
@@ -39,7 +40,6 @@ import type integrationCardNamespace from './pt-BR/integration-card.json'
 import type integrationsNamespace from '../modules/integrations/i18n/pt-BR.json'
 import type layoutNamespace from './pt-BR/layout.json'
 import type layoutsNamespace from './pt-BR/layouts.json'
-import type leadFormsNamespace from '../modules/lead_forms/i18n/pt-BR.json'
 import type leadProNamespace from '../modules/lead_pro/i18n/pt-BR.json'
 import type leadsNamespace from '../modules/leads/i18n/pt-BR.json'
 import type lineItemsNamespace from '../modules/line_items/i18n/pt-BR.json'
@@ -128,6 +128,7 @@ declare module 'i18next' {
       files: typeof filesNamespace
       followers: typeof followersNamespace
       forecast: typeof forecastNamespace
+      forms: typeof formsNamespace
       formulas: typeof formulasNamespace
       goals: typeof goalsNamespace
       google: typeof googleNamespace
@@ -137,7 +138,6 @@ declare module 'i18next' {
       integrations: typeof integrationsNamespace
       layout: typeof layoutNamespace
       layouts: typeof layoutsNamespace
-      lead_forms: typeof leadFormsNamespace
       lead_pro: typeof leadProNamespace
       leads: typeof leadsNamespace
       line_items: typeof lineItemsNamespace

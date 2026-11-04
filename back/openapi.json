@@ -22246,6 +22246,625 @@
         ]
       }
     },
+    "/api/v1/forms/forms": {
+      "get": {
+        "tags": [
+          "forms"
+        ],
+        "operationId": "forms_list",
+        "responses": {
+          "200": {
+            "description": "Lead forms, newest first, with submission counters",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/Page_LeadFormResponse"
+                }
+              }
+            }
+          },
+          "403": {
+            "description": "Missing `forms.manage` (`permission_denied`)",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ErrorEnvelope"
+                }
+              }
+            }
+          },
+          "404": {
+            "description": "Module disabled (`module_disabled`)",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ErrorEnvelope"
+                }
+              }
+            }
+          },
+          "429": {
+            "description": "API token rate limit exceeded (`rate_limited`); see `Retry-After` and `X-RateLimit-*`",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ErrorEnvelope"
+                }
+              }
+            }
+          }
+        },
+        "security": [
+          {
+            "session_cookie": []
+          },
+          {
+            "api_token": []
+          }
+        ]
+      },
+      "post": {
+        "tags": [
+          "forms"
+        ],
+        "operationId": "forms_create",
+        "parameters": [
+          {
+            "name": "Idempotency-Key",
+            "in": "header",
+            "description": "Up to 255 printable ASCII characters. The same key with the same request (method, path and body) within 24 hours answers the stored response with the same status and body plus `Idempotent-Replayed: true`. Scoped to the credential (session cookie or API token); ignored without a credential. 5xx and 429 responses are not stored",
+            "required": false,
+            "schema": {
+              "type": "string",
+              "maxLength": 255
+            }
+          }
+        ],
+        "requestBody": {
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/LeadFormRequest"
+              }
+            }
+          },
+          "required": true
+        },
+        "responses": {
+          "201": {
+            "description": "Form created with a new opaque public id. Publishes `lead_form.created`",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/Data_LeadFormResponse"
+                }
+              }
+            }
+          },
+          "403": {
+            "description": "Missing `forms.manage` (`permission_denied`)",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ErrorEnvelope"
+                }
+              }
+            }
+          },
+          "409": {
+            "description": "The installation reached 200 forms (`lead_form_limit_reached`). The first request with this `Idempotency-Key` is still being processed (`idempotency_key_in_progress`)",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ErrorEnvelope"
+                }
+              }
+            }
+          },
+          "422": {
+            "description": "Invalid form (`lead_form_invalid` with `details.fields`) or body (`invalid_json`). `Idempotency-Key` already used with a different request (`idempotency_key_reused`) or longer than 255 characters (`validation_error`)",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ErrorEnvelope"
+                }
+              }
+            }
+          },
+          "429": {
+            "description": "API token rate limit exceeded (`rate_limited`); see `Retry-After` and `X-RateLimit-*`",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ErrorEnvelope"
+                }
+              }
+            }
+          }
+        },
+        "security": [
+          {
+            "session_cookie": []
+          },
+          {
+            "api_token": []
+          }
+        ]
+      }
+    },
+    "/api/v1/forms/forms/{form_id}": {
+      "get": {
+        "tags": [
+          "forms"
+        ],
+        "operationId": "forms_get",
+        "parameters": [
+          {
+            "name": "form_id",
+            "in": "path",
+            "description": "Form id",
+            "required": true,
+            "schema": {
+              "type": "string"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "The form",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/Data_LeadFormResponse"
+                }
+              }
+            }
+          },
+          "403": {
+            "description": "Missing `forms.manage` (`permission_denied`)",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ErrorEnvelope"
+                }
+              }
+            }
+          },
+          "404": {
+            "description": "Form not found (`lead_form_not_found`)",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ErrorEnvelope"
+                }
+              }
+            }
+          },
+          "429": {
+            "description": "API token rate limit exceeded (`rate_limited`); see `Retry-After` and `X-RateLimit-*`",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ErrorEnvelope"
+                }
+              }
+            }
+          }
+        },
+        "security": [
+          {
+            "session_cookie": []
+          },
+          {
+            "api_token": []
+          }
+        ]
+      },
+      "put": {
+        "tags": [
+          "forms"
+        ],
+        "operationId": "forms_update",
+        "parameters": [
+          {
+            "name": "form_id",
+            "in": "path",
+            "description": "Form id",
+            "required": true,
+            "schema": {
+              "type": "string"
+            }
+          }
+        ],
+        "requestBody": {
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/LeadFormRequest"
+              }
+            }
+          },
+          "required": true
+        },
+        "responses": {
+          "200": {
+            "description": "Form replaced (the public id is kept). Publishes `lead_form.updated`",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/Data_LeadFormResponse"
+                }
+              }
+            }
+          },
+          "403": {
+            "description": "Missing `forms.manage` (`permission_denied`)",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ErrorEnvelope"
+                }
+              }
+            }
+          },
+          "404": {
+            "description": "Form not found (`lead_form_not_found`)",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ErrorEnvelope"
+                }
+              }
+            }
+          },
+          "422": {
+            "description": "Invalid form (`lead_form_invalid` with `details.fields`) or body (`invalid_json`)",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ErrorEnvelope"
+                }
+              }
+            }
+          },
+          "429": {
+            "description": "API token rate limit exceeded (`rate_limited`); see `Retry-After` and `X-RateLimit-*`",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ErrorEnvelope"
+                }
+              }
+            }
+          }
+        },
+        "security": [
+          {
+            "session_cookie": []
+          },
+          {
+            "api_token": []
+          }
+        ]
+      },
+      "delete": {
+        "tags": [
+          "forms"
+        ],
+        "operationId": "forms_delete",
+        "parameters": [
+          {
+            "name": "form_id",
+            "in": "path",
+            "description": "Form id",
+            "required": true,
+            "schema": {
+              "type": "string"
+            }
+          }
+        ],
+        "responses": {
+          "204": {
+            "description": "Form and its submission history deleted (people and deals created by it stay). Publishes `lead_form.deleted`"
+          },
+          "403": {
+            "description": "Missing `forms.manage` (`permission_denied`)",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ErrorEnvelope"
+                }
+              }
+            }
+          },
+          "404": {
+            "description": "Form not found (`lead_form_not_found`)",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ErrorEnvelope"
+                }
+              }
+            }
+          },
+          "429": {
+            "description": "API token rate limit exceeded (`rate_limited`); see `Retry-After` and `X-RateLimit-*`",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ErrorEnvelope"
+                }
+              }
+            }
+          }
+        },
+        "security": [
+          {
+            "session_cookie": []
+          },
+          {
+            "api_token": []
+          }
+        ]
+      }
+    },
+    "/api/v1/forms/forms/{form_id}/rotate-public-id": {
+      "post": {
+        "tags": [
+          "forms"
+        ],
+        "operationId": "forms_rotate_public_id",
+        "parameters": [
+          {
+            "name": "form_id",
+            "in": "path",
+            "description": "Form id",
+            "required": true,
+            "schema": {
+              "type": "string"
+            }
+          },
+          {
+            "name": "Idempotency-Key",
+            "in": "header",
+            "description": "Up to 255 printable ASCII characters. The same key with the same request (method, path and body) within 24 hours answers the stored response with the same status and body plus `Idempotent-Replayed: true`. Scoped to the credential (session cookie or API token); ignored without a credential. 5xx and 429 responses are not stored",
+            "required": false,
+            "schema": {
+              "type": "string",
+              "maxLength": 255
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "New public id: the previous page, script and submission URLs stop working at once. Publishes `lead_form.updated`",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/Data_LeadFormResponse"
+                }
+              }
+            }
+          },
+          "403": {
+            "description": "Missing `forms.manage` (`permission_denied`)",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ErrorEnvelope"
+                }
+              }
+            }
+          },
+          "404": {
+            "description": "Form not found (`lead_form_not_found`)",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ErrorEnvelope"
+                }
+              }
+            }
+          },
+          "409": {
+            "description": "The first request with this `Idempotency-Key` is still being processed (`idempotency_key_in_progress`)",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ErrorEnvelope"
+                }
+              }
+            }
+          },
+          "422": {
+            "description": "`Idempotency-Key` already used with a different request (`idempotency_key_reused`) or longer than 255 characters (`validation_error`)",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ErrorEnvelope"
+                }
+              }
+            }
+          },
+          "429": {
+            "description": "API token rate limit exceeded (`rate_limited`); see `Retry-After` and `X-RateLimit-*`",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ErrorEnvelope"
+                }
+              }
+            }
+          }
+        },
+        "security": [
+          {
+            "session_cookie": []
+          },
+          {
+            "api_token": []
+          }
+        ]
+      }
+    },
+    "/api/v1/forms/forms/{form_id}/submissions": {
+      "get": {
+        "tags": [
+          "forms"
+        ],
+        "operationId": "forms_submissions",
+        "parameters": [
+          {
+            "name": "form_id",
+            "in": "path",
+            "description": "Form id",
+            "required": true,
+            "schema": {
+              "type": "string"
+            }
+          },
+          {
+            "name": "status",
+            "in": "query",
+            "description": "accepted, spam or failed",
+            "required": false,
+            "schema": {
+              "type": "string"
+            }
+          },
+          {
+            "name": "page",
+            "in": "query",
+            "description": "Page (from 1)",
+            "required": false,
+            "schema": {
+              "type": "integer",
+              "format": "int32",
+              "minimum": 0
+            }
+          },
+          {
+            "name": "per_page",
+            "in": "query",
+            "description": "Items per page (1 to 100, default 25)",
+            "required": false,
+            "schema": {
+              "type": "integer",
+              "format": "int32",
+              "minimum": 0
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "Submission history of the form, newest first, including spam and failures",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/Page_LeadFormSubmission"
+                }
+              }
+            }
+          },
+          "403": {
+            "description": "Missing `forms.manage` (`permission_denied`)",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ErrorEnvelope"
+                }
+              }
+            }
+          },
+          "404": {
+            "description": "Form not found (`lead_form_not_found`)",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ErrorEnvelope"
+                }
+              }
+            }
+          },
+          "422": {
+            "description": "Invalid status or pagination (`lead_form_invalid_query`)",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ErrorEnvelope"
+                }
+              }
+            }
+          },
+          "429": {
+            "description": "API token rate limit exceeded (`rate_limited`); see `Retry-After` and `X-RateLimit-*`",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ErrorEnvelope"
+                }
+              }
+            }
+          }
+        },
+        "security": [
+          {
+            "session_cookie": []
+          },
+          {
+            "api_token": []
+          }
+        ]
+      }
+    },
+    "/api/v1/forms/options": {
+      "get": {
+        "tags": [
+          "forms"
+        ],
+        "operationId": "forms_options",
+        "responses": {
+          "200": {
+            "description": "What the form editor can pick: writable contact fields (system and custom), active workflow and stages, contact tags, active users and active lead distribution rules for people. Lists the current user cannot read come back empty",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/Data_LeadFormOptions"
+                }
+              }
+            }
+          },
+          "403": {
+            "description": "Missing `forms.manage` (`permission_denied`)",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ErrorEnvelope"
+                }
+              }
+            }
+          },
+          "429": {
+            "description": "API token rate limit exceeded (`rate_limited`); see `Retry-After` and `X-RateLimit-*`",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ErrorEnvelope"
+                }
+              }
+            }
+          }
+        },
+        "security": [
+          {
+            "session_cookie": []
+          },
+          {
+            "api_token": []
+          }
+        ]
+      }
+    },
     "/api/v1/goals": {
       "get": {
         "tags": [
@@ -26670,625 +27289,6 @@
           },
           "422": {
             "description": "Invalid name (`validation_error`)",
-            "content": {
-              "application/json": {
-                "schema": {
-                  "$ref": "#/components/schemas/ErrorEnvelope"
-                }
-              }
-            }
-          },
-          "429": {
-            "description": "API token rate limit exceeded (`rate_limited`); see `Retry-After` and `X-RateLimit-*`",
-            "content": {
-              "application/json": {
-                "schema": {
-                  "$ref": "#/components/schemas/ErrorEnvelope"
-                }
-              }
-            }
-          }
-        },
-        "security": [
-          {
-            "session_cookie": []
-          },
-          {
-            "api_token": []
-          }
-        ]
-      }
-    },
-    "/api/v1/lead-forms/forms": {
-      "get": {
-        "tags": [
-          "lead-forms"
-        ],
-        "operationId": "lead_forms_list",
-        "responses": {
-          "200": {
-            "description": "Lead forms, newest first, with submission counters",
-            "content": {
-              "application/json": {
-                "schema": {
-                  "$ref": "#/components/schemas/Page_LeadFormResponse"
-                }
-              }
-            }
-          },
-          "403": {
-            "description": "Missing `lead_forms.manage` (`permission_denied`)",
-            "content": {
-              "application/json": {
-                "schema": {
-                  "$ref": "#/components/schemas/ErrorEnvelope"
-                }
-              }
-            }
-          },
-          "404": {
-            "description": "Module disabled (`module_disabled`)",
-            "content": {
-              "application/json": {
-                "schema": {
-                  "$ref": "#/components/schemas/ErrorEnvelope"
-                }
-              }
-            }
-          },
-          "429": {
-            "description": "API token rate limit exceeded (`rate_limited`); see `Retry-After` and `X-RateLimit-*`",
-            "content": {
-              "application/json": {
-                "schema": {
-                  "$ref": "#/components/schemas/ErrorEnvelope"
-                }
-              }
-            }
-          }
-        },
-        "security": [
-          {
-            "session_cookie": []
-          },
-          {
-            "api_token": []
-          }
-        ]
-      },
-      "post": {
-        "tags": [
-          "lead-forms"
-        ],
-        "operationId": "lead_forms_create",
-        "parameters": [
-          {
-            "name": "Idempotency-Key",
-            "in": "header",
-            "description": "Up to 255 printable ASCII characters. The same key with the same request (method, path and body) within 24 hours answers the stored response with the same status and body plus `Idempotent-Replayed: true`. Scoped to the credential (session cookie or API token); ignored without a credential. 5xx and 429 responses are not stored",
-            "required": false,
-            "schema": {
-              "type": "string",
-              "maxLength": 255
-            }
-          }
-        ],
-        "requestBody": {
-          "content": {
-            "application/json": {
-              "schema": {
-                "$ref": "#/components/schemas/LeadFormRequest"
-              }
-            }
-          },
-          "required": true
-        },
-        "responses": {
-          "201": {
-            "description": "Form created with a new opaque public id. Publishes `lead_form.created`",
-            "content": {
-              "application/json": {
-                "schema": {
-                  "$ref": "#/components/schemas/Data_LeadFormResponse"
-                }
-              }
-            }
-          },
-          "403": {
-            "description": "Missing `lead_forms.manage` (`permission_denied`)",
-            "content": {
-              "application/json": {
-                "schema": {
-                  "$ref": "#/components/schemas/ErrorEnvelope"
-                }
-              }
-            }
-          },
-          "409": {
-            "description": "The installation reached 200 forms (`lead_form_limit_reached`). The first request with this `Idempotency-Key` is still being processed (`idempotency_key_in_progress`)",
-            "content": {
-              "application/json": {
-                "schema": {
-                  "$ref": "#/components/schemas/ErrorEnvelope"
-                }
-              }
-            }
-          },
-          "422": {
-            "description": "Invalid form (`lead_form_invalid` with `details.fields`) or body (`invalid_json`). `Idempotency-Key` already used with a different request (`idempotency_key_reused`) or longer than 255 characters (`validation_error`)",
-            "content": {
-              "application/json": {
-                "schema": {
-                  "$ref": "#/components/schemas/ErrorEnvelope"
-                }
-              }
-            }
-          },
-          "429": {
-            "description": "API token rate limit exceeded (`rate_limited`); see `Retry-After` and `X-RateLimit-*`",
-            "content": {
-              "application/json": {
-                "schema": {
-                  "$ref": "#/components/schemas/ErrorEnvelope"
-                }
-              }
-            }
-          }
-        },
-        "security": [
-          {
-            "session_cookie": []
-          },
-          {
-            "api_token": []
-          }
-        ]
-      }
-    },
-    "/api/v1/lead-forms/forms/{form_id}": {
-      "get": {
-        "tags": [
-          "lead-forms"
-        ],
-        "operationId": "lead_forms_get",
-        "parameters": [
-          {
-            "name": "form_id",
-            "in": "path",
-            "description": "Form id",
-            "required": true,
-            "schema": {
-              "type": "string"
-            }
-          }
-        ],
-        "responses": {
-          "200": {
-            "description": "The form",
-            "content": {
-              "application/json": {
-                "schema": {
-                  "$ref": "#/components/schemas/Data_LeadFormResponse"
-                }
-              }
-            }
-          },
-          "403": {
-            "description": "Missing `lead_forms.manage` (`permission_denied`)",
-            "content": {
-              "application/json": {
-                "schema": {
-                  "$ref": "#/components/schemas/ErrorEnvelope"
-                }
-              }
-            }
-          },
-          "404": {
-            "description": "Form not found (`lead_form_not_found`)",
-            "content": {
-              "application/json": {
-                "schema": {
-                  "$ref": "#/components/schemas/ErrorEnvelope"
-                }
-              }
-            }
-          },
-          "429": {
-            "description": "API token rate limit exceeded (`rate_limited`); see `Retry-After` and `X-RateLimit-*`",
-            "content": {
-              "application/json": {
-                "schema": {
-                  "$ref": "#/components/schemas/ErrorEnvelope"
-                }
-              }
-            }
-          }
-        },
-        "security": [
-          {
-            "session_cookie": []
-          },
-          {
-            "api_token": []
-          }
-        ]
-      },
-      "put": {
-        "tags": [
-          "lead-forms"
-        ],
-        "operationId": "lead_forms_update",
-        "parameters": [
-          {
-            "name": "form_id",
-            "in": "path",
-            "description": "Form id",
-            "required": true,
-            "schema": {
-              "type": "string"
-            }
-          }
-        ],
-        "requestBody": {
-          "content": {
-            "application/json": {
-              "schema": {
-                "$ref": "#/components/schemas/LeadFormRequest"
-              }
-            }
-          },
-          "required": true
-        },
-        "responses": {
-          "200": {
-            "description": "Form replaced (the public id is kept). Publishes `lead_form.updated`",
-            "content": {
-              "application/json": {
-                "schema": {
-                  "$ref": "#/components/schemas/Data_LeadFormResponse"
-                }
-              }
-            }
-          },
-          "403": {
-            "description": "Missing `lead_forms.manage` (`permission_denied`)",
-            "content": {
-              "application/json": {
-                "schema": {
-                  "$ref": "#/components/schemas/ErrorEnvelope"
-                }
-              }
-            }
-          },
-          "404": {
-            "description": "Form not found (`lead_form_not_found`)",
-            "content": {
-              "application/json": {
-                "schema": {
-                  "$ref": "#/components/schemas/ErrorEnvelope"
-                }
-              }
-            }
-          },
-          "422": {
-            "description": "Invalid form (`lead_form_invalid` with `details.fields`) or body (`invalid_json`)",
-            "content": {
-              "application/json": {
-                "schema": {
-                  "$ref": "#/components/schemas/ErrorEnvelope"
-                }
-              }
-            }
-          },
-          "429": {
-            "description": "API token rate limit exceeded (`rate_limited`); see `Retry-After` and `X-RateLimit-*`",
-            "content": {
-              "application/json": {
-                "schema": {
-                  "$ref": "#/components/schemas/ErrorEnvelope"
-                }
-              }
-            }
-          }
-        },
-        "security": [
-          {
-            "session_cookie": []
-          },
-          {
-            "api_token": []
-          }
-        ]
-      },
-      "delete": {
-        "tags": [
-          "lead-forms"
-        ],
-        "operationId": "lead_forms_delete",
-        "parameters": [
-          {
-            "name": "form_id",
-            "in": "path",
-            "description": "Form id",
-            "required": true,
-            "schema": {
-              "type": "string"
-            }
-          }
-        ],
-        "responses": {
-          "204": {
-            "description": "Form and its submission history deleted (people and deals created by it stay). Publishes `lead_form.deleted`"
-          },
-          "403": {
-            "description": "Missing `lead_forms.manage` (`permission_denied`)",
-            "content": {
-              "application/json": {
-                "schema": {
-                  "$ref": "#/components/schemas/ErrorEnvelope"
-                }
-              }
-            }
-          },
-          "404": {
-            "description": "Form not found (`lead_form_not_found`)",
-            "content": {
-              "application/json": {
-                "schema": {
-                  "$ref": "#/components/schemas/ErrorEnvelope"
-                }
-              }
-            }
-          },
-          "429": {
-            "description": "API token rate limit exceeded (`rate_limited`); see `Retry-After` and `X-RateLimit-*`",
-            "content": {
-              "application/json": {
-                "schema": {
-                  "$ref": "#/components/schemas/ErrorEnvelope"
-                }
-              }
-            }
-          }
-        },
-        "security": [
-          {
-            "session_cookie": []
-          },
-          {
-            "api_token": []
-          }
-        ]
-      }
-    },
-    "/api/v1/lead-forms/forms/{form_id}/rotate-public-id": {
-      "post": {
-        "tags": [
-          "lead-forms"
-        ],
-        "operationId": "lead_forms_rotate_public_id",
-        "parameters": [
-          {
-            "name": "form_id",
-            "in": "path",
-            "description": "Form id",
-            "required": true,
-            "schema": {
-              "type": "string"
-            }
-          },
-          {
-            "name": "Idempotency-Key",
-            "in": "header",
-            "description": "Up to 255 printable ASCII characters. The same key with the same request (method, path and body) within 24 hours answers the stored response with the same status and body plus `Idempotent-Replayed: true`. Scoped to the credential (session cookie or API token); ignored without a credential. 5xx and 429 responses are not stored",
-            "required": false,
-            "schema": {
-              "type": "string",
-              "maxLength": 255
-            }
-          }
-        ],
-        "responses": {
-          "200": {
-            "description": "New public id: the previous page, script and submission URLs stop working at once. Publishes `lead_form.updated`",
-            "content": {
-              "application/json": {
-                "schema": {
-                  "$ref": "#/components/schemas/Data_LeadFormResponse"
-                }
-              }
-            }
-          },
-          "403": {
-            "description": "Missing `lead_forms.manage` (`permission_denied`)",
-            "content": {
-              "application/json": {
-                "schema": {
-                  "$ref": "#/components/schemas/ErrorEnvelope"
-                }
-              }
-            }
-          },
-          "404": {
-            "description": "Form not found (`lead_form_not_found`)",
-            "content": {
-              "application/json": {
-                "schema": {
-                  "$ref": "#/components/schemas/ErrorEnvelope"
-                }
-              }
-            }
-          },
-          "409": {
-            "description": "The first request with this `Idempotency-Key` is still being processed (`idempotency_key_in_progress`)",
-            "content": {
-              "application/json": {
-                "schema": {
-                  "$ref": "#/components/schemas/ErrorEnvelope"
-                }
-              }
-            }
-          },
-          "422": {
-            "description": "`Idempotency-Key` already used with a different request (`idempotency_key_reused`) or longer than 255 characters (`validation_error`)",
-            "content": {
-              "application/json": {
-                "schema": {
-                  "$ref": "#/components/schemas/ErrorEnvelope"
-                }
-              }
-            }
-          },
-          "429": {
-            "description": "API token rate limit exceeded (`rate_limited`); see `Retry-After` and `X-RateLimit-*`",
-            "content": {
-              "application/json": {
-                "schema": {
-                  "$ref": "#/components/schemas/ErrorEnvelope"
-                }
-              }
-            }
-          }
-        },
-        "security": [
-          {
-            "session_cookie": []
-          },
-          {
-            "api_token": []
-          }
-        ]
-      }
-    },
-    "/api/v1/lead-forms/forms/{form_id}/submissions": {
-      "get": {
-        "tags": [
-          "lead-forms"
-        ],
-        "operationId": "lead_forms_submissions",
-        "parameters": [
-          {
-            "name": "form_id",
-            "in": "path",
-            "description": "Form id",
-            "required": true,
-            "schema": {
-              "type": "string"
-            }
-          },
-          {
-            "name": "status",
-            "in": "query",
-            "description": "accepted, spam or failed",
-            "required": false,
-            "schema": {
-              "type": "string"
-            }
-          },
-          {
-            "name": "page",
-            "in": "query",
-            "description": "Page (from 1)",
-            "required": false,
-            "schema": {
-              "type": "integer",
-              "format": "int32",
-              "minimum": 0
-            }
-          },
-          {
-            "name": "per_page",
-            "in": "query",
-            "description": "Items per page (1 to 100, default 25)",
-            "required": false,
-            "schema": {
-              "type": "integer",
-              "format": "int32",
-              "minimum": 0
-            }
-          }
-        ],
-        "responses": {
-          "200": {
-            "description": "Submission history of the form, newest first, including spam and failures",
-            "content": {
-              "application/json": {
-                "schema": {
-                  "$ref": "#/components/schemas/Page_LeadFormSubmission"
-                }
-              }
-            }
-          },
-          "403": {
-            "description": "Missing `lead_forms.manage` (`permission_denied`)",
-            "content": {
-              "application/json": {
-                "schema": {
-                  "$ref": "#/components/schemas/ErrorEnvelope"
-                }
-              }
-            }
-          },
-          "404": {
-            "description": "Form not found (`lead_form_not_found`)",
-            "content": {
-              "application/json": {
-                "schema": {
-                  "$ref": "#/components/schemas/ErrorEnvelope"
-                }
-              }
-            }
-          },
-          "422": {
-            "description": "Invalid status or pagination (`lead_form_invalid_query`)",
-            "content": {
-              "application/json": {
-                "schema": {
-                  "$ref": "#/components/schemas/ErrorEnvelope"
-                }
-              }
-            }
-          },
-          "429": {
-            "description": "API token rate limit exceeded (`rate_limited`); see `Retry-After` and `X-RateLimit-*`",
-            "content": {
-              "application/json": {
-                "schema": {
-                  "$ref": "#/components/schemas/ErrorEnvelope"
-                }
-              }
-            }
-          }
-        },
-        "security": [
-          {
-            "session_cookie": []
-          },
-          {
-            "api_token": []
-          }
-        ]
-      }
-    },
-    "/api/v1/lead-forms/options": {
-      "get": {
-        "tags": [
-          "lead-forms"
-        ],
-        "operationId": "lead_forms_options",
-        "responses": {
-          "200": {
-            "description": "What the form editor can pick: writable contact fields (system and custom), active workflow and stages, contact tags, active users and active lead distribution rules for people. Lists the current user cannot read come back empty",
-            "content": {
-              "application/json": {
-                "schema": {
-                  "$ref": "#/components/schemas/Data_LeadFormOptions"
-                }
-              }
-            }
-          },
-          "403": {
-            "description": "Missing `lead_forms.manage` (`permission_denied`)",
             "content": {
               "application/json": {
                 "schema": {
@@ -46815,82 +46815,12 @@
         }
       }
     },
-    "/api/v1/public/google/callback": {
+    "/api/v1/public/forms/forms/{public_id}": {
       "get": {
         "tags": [
-          "google"
+          "forms"
         ],
-        "operationId": "google_public_callback",
-        "parameters": [
-          {
-            "name": "state",
-            "in": "query",
-            "required": false,
-            "schema": {
-              "type": "string"
-            }
-          },
-          {
-            "name": "code",
-            "in": "query",
-            "required": false,
-            "schema": {
-              "type": "string"
-            }
-          },
-          {
-            "name": "error",
-            "in": "query",
-            "required": false,
-            "schema": {
-              "type": "string"
-            }
-          }
-        ],
-        "responses": {
-          "302": {
-            "description": "OAuth callback for both login and calendar connection (register this URL at Google). Login: validates the single-use `state`, the id token (`iss`, `aud`, `exp`, `nonce`) and `email_verified`, signs in the active member and redirects with the session cookie (or to `/login/two-factor`); failures go to `/login?sso_error=<code>`. Calendar: stores the refresh token encrypted and redirects to `/google?calendar=connected` (or `?calendar_error=<code>`). Mailbox: creates the Gmail mailbox and redirects to `/account/mailboxes?connected=google.gmail` (or `?error=<code>`)"
-          }
-        }
-      }
-    },
-    "/api/v1/public/google/login": {
-      "get": {
-        "tags": [
-          "google"
-        ],
-        "operationId": "google_public_login",
-        "parameters": [
-          {
-            "name": "redirect",
-            "in": "query",
-            "required": false,
-            "schema": {
-              "type": "string"
-            }
-          },
-          {
-            "name": "login_hint",
-            "in": "query",
-            "required": false,
-            "schema": {
-              "type": "string"
-            }
-          }
-        ],
-        "responses": {
-          "302": {
-            "description": "Redirects to Google (authorization code + PKCE). `login_hint` (the e-mail typed on the login screen) is optional and forwarded to the provider; `redirect` is accepted only as a relative path. On failure redirects to `/login?sso_error=<code>` (`no_account`, `sso_disabled`, `sso_not_configured`, `domain_not_allowed`, `invalid_request`, `rate_limited`)"
-          }
-        }
-      }
-    },
-    "/api/v1/public/lead-forms/forms/{public_id}": {
-      "get": {
-        "tags": [
-          "lead-forms"
-        ],
-        "operationId": "lead_forms_public_definition",
+        "operationId": "forms_public_definition",
         "parameters": [
           {
             "name": "public_id",
@@ -46946,12 +46876,12 @@
         }
       }
     },
-    "/api/v1/public/lead-forms/forms/{public_id}/embed.js": {
+    "/api/v1/public/forms/forms/{public_id}/embed.js": {
       "get": {
         "tags": [
-          "lead-forms"
+          "forms"
         ],
-        "operationId": "lead_forms_public_embed",
+        "operationId": "forms_public_embed",
         "parameters": [
           {
             "name": "public_id",
@@ -46997,12 +46927,12 @@
         }
       }
     },
-    "/api/v1/public/lead-forms/forms/{public_id}/page": {
+    "/api/v1/public/forms/forms/{public_id}/page": {
       "get": {
         "tags": [
-          "lead-forms"
+          "forms"
         ],
-        "operationId": "lead_forms_public_page",
+        "operationId": "forms_public_page",
         "parameters": [
           {
             "name": "public_id",
@@ -47048,12 +46978,12 @@
         }
       }
     },
-    "/api/v1/public/lead-forms/forms/{public_id}/submissions": {
+    "/api/v1/public/forms/forms/{public_id}/submissions": {
       "post": {
         "tags": [
-          "lead-forms"
+          "forms"
         ],
-        "operationId": "lead_forms_public_submit",
+        "operationId": "forms_public_submit",
         "parameters": [
           {
             "name": "public_id",
@@ -47164,6 +47094,76 @@
                 }
               }
             }
+          }
+        }
+      }
+    },
+    "/api/v1/public/google/callback": {
+      "get": {
+        "tags": [
+          "google"
+        ],
+        "operationId": "google_public_callback",
+        "parameters": [
+          {
+            "name": "state",
+            "in": "query",
+            "required": false,
+            "schema": {
+              "type": "string"
+            }
+          },
+          {
+            "name": "code",
+            "in": "query",
+            "required": false,
+            "schema": {
+              "type": "string"
+            }
+          },
+          {
+            "name": "error",
+            "in": "query",
+            "required": false,
+            "schema": {
+              "type": "string"
+            }
+          }
+        ],
+        "responses": {
+          "302": {
+            "description": "OAuth callback for both login and calendar connection (register this URL at Google). Login: validates the single-use `state`, the id token (`iss`, `aud`, `exp`, `nonce`) and `email_verified`, signs in the active member and redirects with the session cookie (or to `/login/two-factor`); failures go to `/login?sso_error=<code>`. Calendar: stores the refresh token encrypted and redirects to `/google?calendar=connected` (or `?calendar_error=<code>`). Mailbox: creates the Gmail mailbox and redirects to `/account/mailboxes?connected=google.gmail` (or `?error=<code>`)"
+          }
+        }
+      }
+    },
+    "/api/v1/public/google/login": {
+      "get": {
+        "tags": [
+          "google"
+        ],
+        "operationId": "google_public_login",
+        "parameters": [
+          {
+            "name": "redirect",
+            "in": "query",
+            "required": false,
+            "schema": {
+              "type": "string"
+            }
+          },
+          {
+            "name": "login_hint",
+            "in": "query",
+            "required": false,
+            "schema": {
+              "type": "string"
+            }
+          }
+        ],
+        "responses": {
+          "302": {
+            "description": "Redirects to Google (authorization code + PKCE). `login_hint` (the e-mail typed on the login screen) is optional and forwarded to the provider; `redirect` is accepted only as a relative path. On failure redirects to `/login?sso_error=<code>` (`no_account`, `sso_disabled`, `sso_not_configured`, `domain_not_allowed`, `invalid_request`, `rate_limited`)"
           }
         }
       }
@@ -69738,7 +69738,7 @@
           },
           "key": {
             "type": "string",
-            "example": "lead_forms"
+            "example": "forms"
           },
           "repository": {
             "type": [
@@ -80451,7 +80451,7 @@
                   },
                   "embed_path": {
                     "type": "string",
-                    "example": "/api/v1/public/lead-forms/forms/f_3b0d/embed.js"
+                    "example": "/api/v1/public/forms/forms/f_3b0d/embed.js"
                   },
                   "failed_count": {
                     "type": "integer",
@@ -80474,7 +80474,7 @@
                   },
                   "page_path": {
                     "type": "string",
-                    "example": "/api/v1/public/lead-forms/forms/f_3b0d/page"
+                    "example": "/api/v1/public/forms/forms/f_3b0d/page"
                   },
                   "public_id": {
                     "type": "string",
@@ -97727,7 +97727,7 @@
               },
               "embed_path": {
                 "type": "string",
-                "example": "/api/v1/public/lead-forms/forms/f_3b0d/embed.js"
+                "example": "/api/v1/public/forms/forms/f_3b0d/embed.js"
               },
               "failed_count": {
                 "type": "integer",
@@ -97750,7 +97750,7 @@
               },
               "page_path": {
                 "type": "string",
-                "example": "/api/v1/public/lead-forms/forms/f_3b0d/page"
+                "example": "/api/v1/public/forms/forms/f_3b0d/page"
               },
               "public_id": {
                 "type": "string",
@@ -105608,7 +105608,7 @@
                     },
                     "embed_path": {
                       "type": "string",
-                      "example": "/api/v1/public/lead-forms/forms/f_3b0d/embed.js"
+                      "example": "/api/v1/public/forms/forms/f_3b0d/embed.js"
                     },
                     "failed_count": {
                       "type": "integer",
@@ -105631,7 +105631,7 @@
                     },
                     "page_path": {
                       "type": "string",
-                      "example": "/api/v1/public/lead-forms/forms/f_3b0d/page"
+                      "example": "/api/v1/public/forms/forms/f_3b0d/page"
                     },
                     "public_id": {
                       "type": "string",
@@ -120386,7 +120386,7 @@
       "description": "Sends PDFs attached to deals for electronic signature on Clicksign and tracks their status through webhooks"
     },
     {
-      "name": "lead-forms",
+      "name": "forms",
       "description": "Public forms that create people and deals"
     },
     {

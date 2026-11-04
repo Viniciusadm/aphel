@@ -6,7 +6,7 @@ import { Input } from '@/components/ui/input'
 import { Textarea } from '@/components/ui/textarea'
 import { NativeSelect } from '@/features/records/filters/NativeSelect'
 import { useModuleTranslation } from '@/kernel/modules/i18n'
-import { LEAD_FORMS_KEY, FIELD_KINDS, FULL_NAME_TARGET, type LeadFormOptions } from './api'
+import { FORMS_KEY, FIELD_KINDS, FULL_NAME_TARGET, type LeadFormOptions } from './api'
 import { slugify, type LeadFormValues } from './form'
 import { Checkbox } from '@/components/ui/checkbox'
 import { Field } from '@/components/ui/field'
@@ -20,7 +20,7 @@ interface FieldEditorProps {
 }
 
 export function FieldEditor({ index, total, targets, onMove, onRemove }: FieldEditorProps) {
-  const t = useModuleTranslation(LEAD_FORMS_KEY)
+  const t = useModuleTranslation(FORMS_KEY)
   const { register, control, getValues, setValue, formState } = useFormContext<LeadFormValues>()
   const kind = useWatch({ control, name: `fields.${index}.kind` })
   const errors = formState.errors.fields?.[index]

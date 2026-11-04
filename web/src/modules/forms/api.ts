@@ -13,21 +13,21 @@ export type LeadFormSubmission = Schemas['LeadFormSubmission']
 export type LeadFormSubmissionList = { data: LeadFormSubmission[]; meta: Schemas['PageMeta'] }
 export type LeadFormSubmissionStatus = Schemas['LeadFormSubmissionStatus']
 
-export const LEAD_FORMS_KEY = 'lead_forms'
-export const MANAGE_PERMISSION = 'lead_forms.manage'
+export const FORMS_KEY = 'forms'
+export const MANAGE_PERMISSION = 'forms.manage'
 export const FIELD_KINDS: LeadFormFieldKind[] = ['text', 'email', 'phone', 'textarea', 'select', 'checkbox']
 export const SUBMISSION_STATUSES: LeadFormSubmissionStatus[] = ['accepted', 'spam', 'failed']
 export const SUBMISSIONS_PER_PAGE = 20
 export const FULL_NAME_TARGET = 'name'
 
-const BASE = '/v1/lead-forms'
+const BASE = '/v1/forms'
 
-export const leadFormsKeys = {
-  all: [LEAD_FORMS_KEY] as const,
-  list: () => [...leadFormsKeys.all, 'forms'] as const,
-  options: () => [...leadFormsKeys.all, 'options'] as const,
+export const formsKeys = {
+  all: [FORMS_KEY] as const,
+  list: () => [...formsKeys.all, 'forms'] as const,
+  options: () => [...formsKeys.all, 'options'] as const,
   submissions: (id: string, status: LeadFormSubmissionStatus | null, page: number) =>
-    [...leadFormsKeys.all, 'submissions', id, status, page] as const,
+    [...formsKeys.all, 'submissions', id, status, page] as const,
 }
 
 function formPath(id: string, action?: string) {
@@ -35,7 +35,7 @@ function formPath(id: string, action?: string) {
   return action ? `${base}/${action}` : base
 }
 
-export const leadFormsApi = {
+export const formsApi = {
   list: () => api.get<LeadFormList>(`${BASE}/forms`),
   options: () => api.get<LeadFormOptions>(`${BASE}/options`),
   create: (body: LeadFormBody) => api.post<LeadForm>(`${BASE}/forms`, body),
@@ -48,26 +48,26 @@ export const leadFormsApi = {
     }),
 }
 
-export function useLeadForms() {
-  return useQuery({ queryKey: leadFormsKeys.list(), queryFn: leadFormsApi.list })
+export function useForms() {
+  return useQuery({ queryKey: formsKeys.list(), queryFn: formsApi.list })
 }
 
 export function useLeadFormOptions() {
-  return useQuery({ queryKey: leadFormsKeys.options(), queryFn: leadFormsApi.options, staleTime: 60_000 })
+  return useQuery({ queryKey: formsKeys.options(), queryFn: formsApi.options, staleTime: 60_000 })
 }
 
 export function useLeadFormSubmissions(id: string | null, status: LeadFormSubmissionStatus | null, page: number) {
   return useQuery({
-    queryKey: leadFormsKeys.submissions(id ?? '', status, page),
-    queryFn: () => leadFormsApi.submissions(id ?? '', status, page),
+    queryKey: formsKeys.submissions(id ?? '', status, page),
+    queryFn: () => formsApi.submissions(id ?? '', status, page),
     enabled: id !== null,
     placeholderData: keepPreviousData,
   })
 }
 
-export function useInvalidateLeadForms() {
+export function useInvalidateForms() {
   const queryClient = useQueryClient()
-  return () => queryClient.invalidateQueries({ queryKey: leadFormsKeys.all })
+  return () => queryClient.invalidateQueries({ queryKey: formsKeys.all })
 }
 
 export function absoluteUrl(path: string): string {

@@ -57,7 +57,7 @@ price_lists = { path = "modules/price_lists" }
 quotes = { path = "modules/quotes" }
 proposals = { path = "modules/proposals" }
 insights = { path = "modules/insights" }
-lead_forms = { path = "modules/lead_forms" }
+forms = { path = "modules/forms" }
 ai = { path = "modules/ai" }
 sso = { path = "modules/sso" }
 google = { path = "modules/google" }

@@ -12,7 +12,7 @@ import { formatDateTime, useRecordFormatting } from '@/features/records/formatti
 import { Pagination } from '@/components/ui/pagination'
 import { useModuleTranslation } from '@/kernel/modules/i18n'
 import {
-  LEAD_FORMS_KEY,
+  FORMS_KEY,
   SUBMISSIONS_PER_PAGE,
   SUBMISSION_STATUSES,
   useLeadFormSubmissions,
@@ -27,7 +27,7 @@ interface SubmissionsDialogProps {
 }
 
 export function SubmissionsDialog({ form, onClose }: SubmissionsDialogProps) {
-  const t = useModuleTranslation(LEAD_FORMS_KEY)
+  const t = useModuleTranslation(FORMS_KEY)
   return (
     <Dialog open={form !== null} onOpenChange={(open) => !open && onClose()}>
       <DialogContent size="2xl">
@@ -52,7 +52,7 @@ const STATUS_VARIANT = {
 } as const
 
 function SubmissionList({ form }: { form: LeadForm }) {
-  const t = useModuleTranslation(LEAD_FORMS_KEY)
+  const t = useModuleTranslation(FORMS_KEY)
   const [status, setStatus] = useState<LeadFormSubmissionStatus | null>(null)
   const [page, setPage] = useState(1)
   const submissions = useLeadFormSubmissions(form.id, status, page)
@@ -111,7 +111,7 @@ function displayValue(value: unknown, yes: string, no: string): string {
 }
 
 function SubmissionRow({ form, submission }: { form: LeadForm; submission: LeadFormSubmission }) {
-  const t = useModuleTranslation(LEAD_FORMS_KEY)
+  const t = useModuleTranslation(FORMS_KEY)
   const formatting = useRecordFormatting()
   const data = (submission.data ?? {}) as Record<string, unknown>
   const labels = new Map((form.fields ?? []).map((field) => [field.key, field.label]))

@@ -294,7 +294,7 @@
       }
     },
     {
-      "id": "aphel.module.lead-forms",
+      "id": "aphel.module.forms",
       "kind": "module",
       "name": "Lead forms",
       "description": "Public forms that create people and deals",
@@ -306,8 +306,8 @@
         "lead capture"
       ],
       "module": {
-        "key": "lead_forms",
-        "install_notes": "Já incluído no build padrão (back/aphel.modules.toml). Para um build enxuto, mantenha a linha `lead_forms` nesse arquivo, rode make modules, compile e habilite em Configurações > Módulos."
+        "key": "forms",
+        "install_notes": "Já incluído no build padrão (back/aphel.modules.toml). Para um build enxuto, mantenha a linha `forms` nesse arquivo, rode make modules, compile e habilite em Configurações > Módulos."
       }
     },
     {

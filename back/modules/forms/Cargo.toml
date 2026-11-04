@@ -1,5 +1,5 @@
 [package]
-name = "aphel-mod-lead-forms"
+name = "aphel-mod-forms"
 version.workspace = true
 edition.workspace = true
 rust-version.workspace = true

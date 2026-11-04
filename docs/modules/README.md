@@ -300,4 +300,4 @@ To turn it off in an installation, disable it in Integrations › Modules (`/int
 
 ## Module guides
 
-[`ai`](ai.md), [`enrichment`](enrichment.md), [`esign`](esign.md), [`google`](google.md), [`insights`](insights.md), [`lead_forms`](lead_forms.md), [`messaging`](messaging.md), [`microsoft`](microsoft.md), [`sso`](sso.md) and [`proposals`](proposals.md).
+[`ai`](ai.md), [`enrichment`](enrichment.md), [`esign`](esign.md), [`google`](google.md), [`insights`](insights.md), [`forms`](forms.md), [`messaging`](messaging.md), [`microsoft`](microsoft.md), [`sso`](sso.md) and [`proposals`](proposals.md).

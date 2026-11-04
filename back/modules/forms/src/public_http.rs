@@ -38,17 +38,13 @@ struct Limits {
 }
 
 static LIMITS: LazyLock<Limits> = LazyLock::new(|| Limits {
-    views: SharedRateLimiter::new("lead_forms.views", VIEW_LIMIT, MINUTE),
+    views: SharedRateLimiter::new("forms.views", VIEW_LIMIT, MINUTE),
     submits_per_address: SharedRateLimiter::new(
-        "lead_forms.submits_per_address",
+        "forms.submits_per_address",
         SUBMIT_PER_ADDRESS_LIMIT,
         MINUTE,
     ),
-    submits_per_form: SharedRateLimiter::new(
-        "lead_forms.submits_per_form",
-        SUBMIT_PER_FORM_LIMIT,
-        HOUR,
-    ),
+    submits_per_form: SharedRateLimiter::new("forms.submits_per_form", SUBMIT_PER_FORM_LIMIT, HOUR),
 });
 
 pub(crate) fn router() -> OpenApiRouter<AppState> {
@@ -152,9 +148,9 @@ fn html_response(status: StatusCode, body: String, ancestors: &str) -> Response 
 
 #[utoipa::path(
     get,
-    path = "/public/lead-forms/forms/{public_id}",
+    path = "/public/forms/forms/{public_id}",
     tag = TAG,
-    operation_id = "lead_forms_public_definition",
+    operation_id = "forms_public_definition",
     params(("public_id" = String, Path, description = "Public id of the form")),
     responses(
         (status = 200, description = "Public definition of an active form, used by `embed.js` to render it. No authentication", body = Data<LeadFormPublicDefinition>),
@@ -191,9 +187,9 @@ async fn definition(
 
 #[utoipa::path(
     get,
-    path = "/public/lead-forms/forms/{public_id}/page",
+    path = "/public/forms/forms/{public_id}/page",
     tag = TAG,
-    operation_id = "lead_forms_public_page",
+    operation_id = "forms_public_page",
     params(("public_id" = String, Path, description = "Public id of the form")),
     responses(
         (status = 200, description = "Self-contained HTML page with the form, suitable for an iframe. `Content-Security-Policy: frame-ancestors` follows the form allowed origins", content_type = "text/html", body = String),
@@ -226,9 +222,9 @@ async fn hosted_page(
 
 #[utoipa::path(
     get,
-    path = "/public/lead-forms/forms/{public_id}/embed.js",
+    path = "/public/forms/forms/{public_id}/embed.js",
     tag = TAG,
-    operation_id = "lead_forms_public_embed",
+    operation_id = "forms_public_embed",
     params(("public_id" = String, Path, description = "Public id of the form")),
     responses(
         (status = 200, description = "Script that renders the form inside `<div data-aphel-form=\"<public_id>\">` and submits it with `fetch`", content_type = "application/javascript", body = String),
@@ -360,9 +356,9 @@ fn html_message(error: &AppError) -> String {
 
 #[utoipa::path(
     post,
-    path = "/public/lead-forms/forms/{public_id}/submissions",
+    path = "/public/forms/forms/{public_id}/submissions",
     tag = TAG,
-    operation_id = "lead_forms_public_submit",
+    operation_id = "forms_public_submit",
     params(("public_id" = String, Path, description = "Public id of the form")),
     request_body(
         description = "Values by form field key (up to 64 KB). The honeypot field `_aphel_hp` must stay empty",

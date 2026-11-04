@@ -171,13 +171,13 @@ dependencies = [
  "aphel-mod-favorites",
  "aphel-mod-followers",
  "aphel-mod-forecast",
+ "aphel-mod-forms",
  "aphel-mod-formulas",
  "aphel-mod-goals",
  "aphel-mod-google",
  "aphel-mod-imports",
  "aphel-mod-insights",
  "aphel-mod-integrations",
- "aphel-mod-lead-forms",
  "aphel-mod-leads",
  "aphel-mod-line-items",
  "aphel-mod-marketplace",
@@ -1015,6 +1015,31 @@ dependencies = [
 ]
 
 [[package]]
+name = "aphel-mod-forms"
+version = "0.1.0"
+dependencies = [
+ "aphel-contract-automation",
+ "aphel-contract-crm",
+ "aphel-kernel",
+ "aphel-mod-assignment",
+ "aphel-mod-deals",
+ "aphel-mod-leads",
+ "aphel-mod-people",
+ "aphel-mod-tags",
+ "aphel-mod-tasks",
+ "aphel-mod-workflow",
+ "axum",
+ "chrono",
+ "form_urlencoded",
+ "serde",
+ "serde_json",
+ "sqlx",
+ "utoipa",
+ "utoipa-axum",
+ "uuid",
+]
+
+[[package]]
 name = "aphel-mod-formulas"
 version = "0.1.0"
 dependencies = [
@@ -1130,31 +1155,6 @@ dependencies = [
  "serde_json",
  "sqlx",
  "tracing",
- "utoipa",
- "utoipa-axum",
- "uuid",
-]
-
-[[package]]
-name = "aphel-mod-lead-forms"
-version = "0.1.0"
-dependencies = [
- "aphel-contract-automation",
- "aphel-contract-crm",
- "aphel-kernel",
- "aphel-mod-assignment",
- "aphel-mod-deals",
- "aphel-mod-leads",
- "aphel-mod-people",
- "aphel-mod-tags",
- "aphel-mod-tasks",
- "aphel-mod-workflow",
- "axum",
- "chrono",
- "form_urlencoded",
- "serde",
- "serde_json",
- "sqlx",
  "utoipa",
  "utoipa-axum",
  "uuid",

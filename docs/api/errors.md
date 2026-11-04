@@ -419,16 +419,16 @@ Whoever creates a new code adds the row to this table and cites it in the respon
 | `esign_request_closed` | 409 | esign (canceling a request that is already closed) |
 | `esign_request_not_found` | 404 | esign (request does not exist) |
 | `esign_webhook_not_configured` | 503 | esign (HMAC secret not configured) |
-| `lead_form_invalid` | 422 | lead_forms (invalid configuration (`details.fields` with `name`, `fields.<i>.<field>`, `deal.*`, `acting_user_id`, `tag_id`, `redirect_url`, `allowed_origins.<i>`...)) |
-| `lead_form_invalid_payload` | 422 | lead_forms (body that is neither a JSON object nor a urlencoded form) |
-| `lead_form_invalid_query` | 422 | lead_forms (invalid filter or pagination in the history) |
-| `lead_form_invalid_submission` | 422 | lead_forms (invalid answers (`details.fields[].field` = field identifier; messages in pt-BR to show to the visitor)) |
-| `lead_form_limit_reached` | 409 | lead_forms (200 forms in the installation) |
-| `lead_form_not_found` | 404 | lead_forms (form does not exist, is inactive or the module is disabled) |
-| `lead_form_origin_not_allowed` | 403 | lead_forms (`Origin` outside the authorized sites) |
-| `lead_form_owner_unavailable` | 503 | lead_forms (the acting user lost access or permission) |
-| `lead_form_payload_too_large` | 422 | lead_forms (body over 64 KB) |
-| `lead_form_submission_failed` | 503 | lead_forms (the CRM rejected the contact for another reason) |
+| `lead_form_invalid` | 422 | forms (invalid configuration (`details.fields` with `name`, `fields.<i>.<field>`, `deal.*`, `acting_user_id`, `tag_id`, `redirect_url`, `allowed_origins.<i>`...)) |
+| `lead_form_invalid_payload` | 422 | forms (body that is neither a JSON object nor a urlencoded form) |
+| `lead_form_invalid_query` | 422 | forms (invalid filter or pagination in the history) |
+| `lead_form_invalid_submission` | 422 | forms (invalid answers (`details.fields[].field` = field identifier; messages in pt-BR to show to the visitor)) |
+| `lead_form_limit_reached` | 409 | forms (200 forms in the installation) |
+| `lead_form_not_found` | 404 | forms (form does not exist, is inactive or the module is disabled) |
+| `lead_form_origin_not_allowed` | 403 | forms (`Origin` outside the authorized sites) |
+| `lead_form_owner_unavailable` | 503 | forms (the acting user lost access or permission) |
+| `lead_form_payload_too_large` | 422 | forms (body over 64 KB) |
+| `lead_form_submission_failed` | 503 | forms (the CRM rejected the contact for another reason) |
 | `messaging_channel_in_use` | 409 | messaging (deleting a channel with conversations) |
 | `messaging_channel_inactive` | 409 | messaging (replying through an inactive channel) |
 | `messaging_channel_invalid` | 422 | messaging (invalid channel, with `details.fields` (`config.*`, `secrets.*`, `name`, `kind`, `acting_user_id`)) |

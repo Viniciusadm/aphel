@@ -15,7 +15,7 @@ import { ErrorState } from '@/components/ui/error-state'
 import { Skeleton } from '@/components/ui/skeleton'
 import { formatDateTime, useRecordFormatting } from '@/features/records/formatting'
 import { useModuleTranslation } from '@/kernel/modules/i18n'
-import { LEAD_FORMS_KEY, leadFormsApi, useInvalidateLeadForms, useLeadForms, type LeadForm } from './api'
+import { FORMS_KEY, formsApi, useInvalidateForms, useForms, type LeadForm } from './api'
 import { FormEditorDialog } from './FormEditorDialog'
 import { SnippetsDialog } from './SnippetsDialog'
 import { SubmissionsDialog } from './SubmissionsDialog'
@@ -24,10 +24,10 @@ import { Page } from '@/components/ui/page'
 
 type PendingConfirmation = { kind: 'delete' | 'rotate'; form: LeadForm }
 
-export function LeadFormsPage() {
-  const t = useModuleTranslation(LEAD_FORMS_KEY)
-  const forms = useLeadForms()
-  const invalidate = useInvalidateLeadForms()
+export function FormsPage() {
+  const t = useModuleTranslation(FORMS_KEY)
+  const forms = useForms()
+  const invalidate = useInvalidateForms()
   const [editing, setEditing] = useState<LeadForm | null>(null)
   const [creating, setCreating] = useState(false)
   const [snippetsOf, setSnippetsOf] = useState<LeadForm | null>(null)
@@ -36,10 +36,10 @@ export function LeadFormsPage() {
 
   const confirm = async ({ kind, form }: PendingConfirmation) => {
     if (kind === 'delete') {
-      await leadFormsApi.remove(form.id)
+      await formsApi.remove(form.id)
       notifySuccess(t('page.deleted', { name: form.name }))
     } else {
-      const rotated = await leadFormsApi.rotatePublicId(form.id)
+      const rotated = await formsApi.rotatePublicId(form.id)
       notifySuccess(t('page.rotated', { name: form.name }))
       setSnippetsOf(rotated)
     }
@@ -131,7 +131,7 @@ interface FormRowProps {
 }
 
 function FormRow({ form, onEdit, onSnippets, onSubmissions, onConfirm }: FormRowProps) {
-  const t = useModuleTranslation(LEAD_FORMS_KEY)
+  const t = useModuleTranslation(FORMS_KEY)
   const formatting = useRecordFormatting()
   return (
     <li className="flex flex-col gap-2 rounded-md border bg-card px-3 py-2 sm:flex-row sm:items-start sm:justify-between">

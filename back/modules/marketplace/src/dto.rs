@@ -43,7 +43,7 @@ impl From<CatalogPackageRef> for CatalogPackageResponse {
 
 #[derive(Debug, Serialize, ToSchema)]
 pub struct CatalogModuleResponse {
-    #[schema(example = "lead_forms")]
+    #[schema(example = "forms")]
     pub key: String,
     pub repository: Option<String>,
     pub install_notes: Option<String>,

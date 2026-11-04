@@ -44,7 +44,7 @@ points × max(0, 1 − age_in_days / decay_days)
 | `email_clicked` | `email.clicked` | `email_id` | same |
 | `email_replied` | `email.received` with `direction = inbound` and `kind = message` | `email_id` | same |
 | `meeting_booked` | `meeting.booked` | `booking_id` | contact |
-| `form_submitted` | `lead_form.submitted` (`lead_forms` module) | `submission_id` | contact |
+| `form_submitted` | `lead_form.submitted` (`forms` module) | `submission_id` | contact |
 | `call_connected` | `call.logged`/`call.updated` with `is_connected = true` | `activity_id` (the call counts once even if the outcome is edited) | the call's record (`payload.records`) |
 
 Signals are stored per record (independent of models), so a new criterion or model starts counting the history within the decay window. Signals are only recorded when the organization has at least one model (active or not).

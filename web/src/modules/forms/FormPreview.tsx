@@ -5,7 +5,7 @@ import { NativeSelect } from '@/components/ui/native-select'
 import { Textarea } from '@/components/ui/textarea'
 import { ToggleField } from '@/components/ui/toggle-field'
 import { useModuleTranslation } from '@/kernel/modules/i18n'
-import { LEAD_FORMS_KEY } from './api'
+import { FORMS_KEY } from './api'
 import { parseOptions, type LeadFormValues } from './form'
 
 interface FormPreviewProps {
@@ -13,7 +13,7 @@ interface FormPreviewProps {
 }
 
 export function FormPreview({ values }: FormPreviewProps) {
-  const t = useModuleTranslation(LEAD_FORMS_KEY)
+  const t = useModuleTranslation(FORMS_KEY)
   return (
     <div className="grid gap-3 rounded-md border bg-background p-4" aria-label={t('preview.label')}>
       <p className="text-base font-semibold break-words">{values.name || t('preview.untitled')}</p>
