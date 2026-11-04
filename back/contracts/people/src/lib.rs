@@ -9,9 +9,12 @@ pub const EXPORT: &str = "people.export";
 pub const ARCHIVE: &str = "people.archive";
 pub const DESCRIPTOR: ContractDescriptor = ContractDescriptor {
     contract: contract!("people", "1.0.0"),
-    entries: &[KeyEntry::new(
-        RECORD_TYPE,
-        KeyKind::Reference,
-        "A person record",
-    )],
+    entries: &[
+        KeyEntry::new(RECORD_TYPE, KeyKind::Reference, "A person record"),
+        KeyEntry::new(
+            "people.primary_organizations",
+            KeyKind::ExtensionPoint,
+            "Bounded primary organization maintenance snapshots",
+        ),
+    ],
 };

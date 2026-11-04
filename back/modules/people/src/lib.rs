@@ -1,4 +1,5 @@
 mod context_source;
+mod primary_organizations;
 use aphel_sdk::imports::ImportTraits;
 mod dashboard;
 mod timeline;
@@ -209,6 +210,9 @@ impl Module for PeopleModule {
     }
 
     fn register(&self, app: &mut AppBuilder) -> Result<(), AppError> {
+        app.provide::<dyn aphel_sdk::people::PrimaryOrganizationReader>(Arc::new(
+            primary_organizations::Reader,
+        ));
         app.contract(aphel_sdk::people::DESCRIPTOR);
         app.contribute::<dyn aphel_sdk::record_context::RecordListSource>(std::sync::Arc::new(
             context_source::ContextSource,

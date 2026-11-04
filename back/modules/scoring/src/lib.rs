@@ -10,7 +10,7 @@ pub(crate) mod section;
 pub(crate) mod service;
 pub(crate) mod store;
 
-use aphel_contract_crm::{CrmPermissions, CrmRecordTypes};
+use aphel_contract_crm::CrmPermissions;
 use std::sync::Arc;
 
 use aphel_kernel::modules::Migration;
@@ -30,8 +30,6 @@ use aphel_kernel::modules::builder::APHEL_VERSION;
 use aphel_kernel::modules::{AppBuilder, Manifest, Module, WorkerParts};
 
 pub(crate) const KEY: &str = "scoring";
-
-const SCORED_TYPES: [RecordType; 2] = [RecordType::CONTACT, RecordType::COMPANY];
 
 const PUBLIC_EVENTS: &[PublicEventDefinition] = &[
     changed(
@@ -58,6 +56,23 @@ pub(crate) fn score_field(record_type: &RecordType) -> Result<SystemField, AppEr
     .computed(primary_score(record_type)))
 }
 
+fn extend_scored(
+    definition: &mut aphel_kernel::application::fields::EntityDefinition,
+) -> Result<(), AppError> {
+    if !definition.capabilities.has_trait("scoring.subject") {
+        return Ok(());
+    }
+    if definition.system_field_by_key(SCORE_FIELD).is_some() {
+        return Err(AppError::Configuration(
+            "the scoring field is already declared".into(),
+        ));
+    }
+    definition
+        .system_fields
+        .push(score_field(&definition.record_type)?);
+    Ok(())
+}
+
 fn primary_score(record_type: &RecordType) -> ComputedColumn {
     ComputedColumn::expression(format!(
         "SELECT COALESCE(sc_rs.score, 0) FROM scoring_models sc_m \
@@ -76,10 +91,8 @@ impl Module for ScoringModule {
             .description(
                 "Lead scoring models (profile and behavior criteria, decay, bands) and the scores of a record with their explanation",
             )
-            .depends_on(aphel_sdk::people::KEY, "*")
             .enabled_by_default()
-            .owned_tables(&["record_scores"])
-            .depends_on(aphel_sdk::organizations::KEY, "*")
+            .owned_tables(&["scoring_models", "scoring_criteria", "scoring_signals", "record_scores"])
             .migration(Migration::new(
                 1,
                 "create scoring",
@@ -95,14 +108,7 @@ impl Module for ScoringModule {
             }),
         ));
         app.triggers(automation::scoring_triggers());
-        for record_type in SCORED_TYPES {
-            let field = score_field(&record_type)?;
-            let mut outcome = Ok(());
-            app.extend(record_type.as_str(), |extension| {
-                outcome = extension.computed(field).map(|_| ());
-            });
-            outcome?;
-        }
+        app.transform_entities("scoring.subject", extend_scored);
         app.worker(|env| {
             let runtime = ScoringRuntime::new(env.pool.clone(), env.record_types.clone());
             WorkerParts::default()

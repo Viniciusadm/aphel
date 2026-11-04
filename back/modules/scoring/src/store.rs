@@ -1,4 +1,5 @@
 use aphel_contract_crm::CrmRecordTypes;
+use aphel_kernel::domain::access::AccessScope;
 use std::collections::HashMap;
 
 use chrono::{DateTime, NaiveDateTime, Utc};
@@ -400,27 +401,7 @@ impl ScoreStore {
             builder.push(" AND s.record_id IN ");
             push_ids(&mut builder, ids);
         }
-        if record_type == RecordType::COMPANY.as_str() {
-            builder.push(format!(
-                " UNION ALL SELECT c.company_id AS target_id, {columns} FROM scoring_signals s \
-                 JOIN people c ON c.id = s.record_id \
-                 WHERE "
-            ));
-            builder
-                .push("s.record_type = ")
-                .push_bind(RecordType::CONTACT.as_str())
-                .push(" AND c.deleted_at IS NULL AND c.company_id IS NOT NULL AND s.`signal` IN ");
-            push_signals(&mut builder, signals);
-            if let Some(since) = since {
-                builder
-                    .push(" AND s.occurred_at >= ")
-                    .push_bind(naive(since));
-            }
-            if let Some(ids) = record_ids {
-                builder.push(" AND c.company_id IN ");
-                push_ids(&mut builder, ids);
-            }
-        }
+
         builder
     }
 }
@@ -468,7 +449,7 @@ impl ScoreStore {
         Ok(result.rows_affected() > 0)
     }
 
-    pub(crate) async fn occurrences(
+    async fn own_occurrences(
         &self,
         record_type: &str,
         record_ids: &[Uuid],
@@ -502,7 +483,55 @@ impl ScoreStore {
             .collect()
     }
 
-    pub(crate) async fn signal_record_ids(
+    pub(crate) async fn occurrences(
+        &self,
+        record_type: &str,
+        record_ids: &[Uuid],
+        signals: &[BehaviorSignal],
+        since: Option<DateTime<Utc>>,
+    ) -> Result<Vec<SignalOccurrence>, AppError> {
+        let mut occurrences = self
+            .own_occurrences(record_type, record_ids, signals, since)
+            .await?;
+        if record_type != RecordType::COMPANY.as_str() || signals.is_empty() {
+            return Ok(occurrences);
+        }
+        let Some(source) = aphel_sdk::people::primary_organizations() else {
+            return Ok(occurrences);
+        };
+        for organizations in record_ids.chunks(1000) {
+            let mut after = None;
+            loop {
+                let links = source
+                    .people_page(&self.pool, &AccessScope::system(), organizations, after)
+                    .await?;
+                if links.is_empty() {
+                    break;
+                }
+                after = links.last().map(|link| link.person_id);
+                let ids: Vec<_> = links.iter().map(|link| link.person_id).collect();
+                let mapping: HashMap<_, _> = links
+                    .iter()
+                    .map(|link| (link.person_id, link.organization_id))
+                    .collect();
+                for mut occurrence in self
+                    .own_occurrences(RecordType::CONTACT.as_str(), &ids, signals, since)
+                    .await?
+                {
+                    if let Some(organization) = mapping.get(&occurrence.record_id) {
+                        occurrence.record_id = *organization;
+                        occurrences.push(occurrence);
+                    }
+                }
+                if links.len() < 1000 {
+                    break;
+                }
+            }
+        }
+        Ok(occurrences)
+    }
+
+    async fn own_signal_record_ids(
         &self,
         record_type: &str,
         signals: &[BehaviorSignal],
@@ -511,17 +540,56 @@ impl ScoreStore {
         if signals.is_empty() {
             return Ok(Vec::new());
         }
-        let mut builder = Self::rollup_query(record_type, signals, since, None, "1 AS one");
-        let rows = builder.build().fetch_all(&self.pool).await?;
-        let mut ids: Vec<Uuid> = rows
+        let mut query = QueryBuilder::<MySql>::new(
+            "SELECT DISTINCT record_id FROM scoring_signals WHERE record_type = ",
+        );
+        query
+            .push_bind(record_type.to_owned())
+            .push(" AND `signal` IN ");
+        push_signals(&mut query, signals);
+        if let Some(since) = since {
+            query.push(" AND occurred_at >= ").push_bind(naive(since));
+        }
+        query
+            .build()
+            .fetch_all(&self.pool)
+            .await?
             .iter()
             .map(|row| {
                 parse_uuid(
-                    &row.try_get::<String, _>("target_id")?,
+                    &row.try_get::<String, _>("record_id")?,
                     "scoring_signals.record_id",
                 )
             })
-            .collect::<Result<_, _>>()?;
+            .collect()
+    }
+
+    pub(crate) async fn signal_record_ids(
+        &self,
+        record_type: &str,
+        signals: &[BehaviorSignal],
+        since: Option<DateTime<Utc>>,
+    ) -> Result<Vec<Uuid>, AppError> {
+        let mut ids = self
+            .own_signal_record_ids(record_type, signals, since)
+            .await?;
+        if record_type == RecordType::COMPANY.as_str()
+            && !signals.is_empty()
+            && let Some(source) = aphel_sdk::people::primary_organizations()
+        {
+            let people = self
+                .own_signal_record_ids(RecordType::CONTACT.as_str(), signals, since)
+                .await?;
+            for batch in people.chunks(1000) {
+                ids.extend(
+                    source
+                        .by_people(&self.pool, &AccessScope::system(), batch, false)
+                        .await?
+                        .into_iter()
+                        .map(|link| link.organization_id),
+                );
+            }
+        }
         ids.sort();
         ids.dedup();
         Ok(ids)

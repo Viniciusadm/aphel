@@ -195,29 +195,19 @@ impl ScoringDirectory {
         &self,
         contact_ids: &[Uuid],
     ) -> Result<HashMap<Uuid, Uuid>, AppError> {
-        if contact_ids.is_empty() {
-            return Ok(HashMap::new());
+        let mut organizations = HashMap::new();
+        if let Some(source) = aphel_sdk::people::primary_organizations() {
+            for batch in contact_ids.chunks(1000) {
+                organizations.extend(
+                    source
+                        .by_people(&self.pool, &AccessScope::system(), batch, true)
+                        .await?
+                        .into_iter()
+                        .map(|link| (link.person_id, link.organization_id)),
+                );
+            }
         }
-        let mut builder = QueryBuilder::<MySql>::new(
-            "SELECT id, company_id FROM people WHERE company_id IS NOT NULL AND id IN (",
-        );
-        let mut separated = builder.separated(", ");
-        for id in contact_ids {
-            separated.push_bind(id.to_string());
-        }
-        builder.push(")");
-        let rows = builder.build().fetch_all(&self.pool).await?;
-        rows.iter()
-            .map(|row| {
-                Ok((
-                    parse_uuid(&row.try_get::<String, _>("id")?, "people.id")?,
-                    parse_uuid(
-                        &row.try_get::<String, _>("company_id")?,
-                        "people.company_id",
-                    )?,
-                ))
-            })
-            .collect()
+        Ok(organizations)
     }
 
     pub(crate) async fn record_visible(

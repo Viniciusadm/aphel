@@ -319,6 +319,15 @@ This phase is in progress. Completed entries describe static source validation; 
 - [x] Remove configuration packages' final peer implementation dependency. Packages without formula projections work without a formula provider; formula planning/application requires the enabled owner.
 - [ ] Manual acceptance: projected interdependent fields, cycles and type errors, recalculation enqueue, transactional rollback and disabled formula owner.
 
+## Scoring primary organization ownership
+
+- [x] People exposes bounded system-authorized primary organization snapshots, including explicit live/deleted selection and keyset-paged live people by organization.
+- [x] Scoring selects and rolls up only its own signals; organization contributions use owner snapshots with bounded signal queries. Deleted contacts remain excluded from rollups while lifecycle recalculation can identify their former organization.
+- [x] Remove all scoring foreign SQL and both hard party prerequisites. A trait-based registry transform supplies score fields to declared scoring subjects; missing optional people sources contribute no rollup.
+- [x] Declare every scoring-owned table in its manifest.
+- [ ] Manual acceptance: direct/people-derived organization scores, signal decay, deleted/restored/reassigned people, large paged organizations, disabled owners and custom scoring subjects.
+- [ ] Audit generic scoring query availability and policy constraints alongside managed entity availability.
+
 ## Outstanding scope
 
 The remaining identity changes, shared capability interfaces, owner-only SQL, deletion policies and per-plugin manual acceptance matrices are still pending. Existing architectural debt is not considered resolved by renaming packages.
