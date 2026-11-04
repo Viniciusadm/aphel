@@ -83,3 +83,36 @@ pub fn writer() -> Result<std::sync::Arc<dyn TaskWriter>, AppError> {
             AppError::unavailable_code("task_writer_unavailable", "task creation is not enabled")
         })
 }
+
+#[derive(Debug, Clone, PartialEq, Eq)]
+pub struct ActivityTypeView {
+    pub id: Uuid,
+    pub key: String,
+    pub name: String,
+    pub icon: Option<String>,
+    pub color: Option<String>,
+    pub is_system: bool,
+    pub is_active: bool,
+    pub position: i32,
+    pub created_at: DateTime<Utc>,
+    pub updated_at: DateTime<Utc>,
+}
+
+#[async_trait::async_trait]
+pub trait TaskTypes: Send + Sync {
+    async fn list(
+        &self,
+        ctx: &crate::Ctx<'_>,
+        include_inactive: bool,
+        window: aphel_kernel::application::organization_admin::ListWindow,
+    ) -> Result<aphel_kernel::application::organization_admin::Listing<ActivityTypeView>, AppError>;
+}
+
+pub fn types() -> Result<std::sync::Arc<dyn TaskTypes>, AppError> {
+    aphel_kernel::modules::app()
+        .services()
+        .get::<dyn TaskTypes>()
+        .ok_or_else(|| {
+            AppError::unavailable_code("task_types_unavailable", "task types are not enabled")
+        })
+}

@@ -24,12 +24,12 @@ use aphel_kernel::application::shared::{
 use aphel_kernel::domain::UserId;
 use aphel_kernel::domain::access::{AccessScope, PermissionSet, RoleKey};
 use aphel_kernel::errors::AppError;
+use aphel_sdk::tasks::CreateActivityCommand;
 use email::EmailAddress;
 use email::compose::{RecordInput, SendEmailCommand};
 use email::service::{sender, templates};
 use email::templates::PreviewCommand;
 use email::tracking::address_hash;
-use tasks::domain::CreateActivityCommand;
 
 pub(crate) const SEQUENCES_TICK_JOB: &str = "sequences.tick";
 pub(crate) const SEQUENCES_TICK_CRON: &str = "0 * * * * *";
@@ -316,16 +316,17 @@ async fn render_draft(ctx: &Ctx<'_>, email: &SequenceEmail) -> Result<RenderedDr
 }
 
 async fn create_activity(ctx: &Ctx<'_>, task: SequenceTask) -> Result<Uuid, AppError> {
-    let types = tasks::types::list(
-        ctx,
-        false,
-        ListWindow {
-            offset: 0,
-            limit: 200,
-        },
-    )
-    .await?
-    .items;
+    let types = aphel_sdk::tasks::types()?
+        .list(
+            ctx,
+            false,
+            ListWindow {
+                offset: 0,
+                limit: 200,
+            },
+        )
+        .await?
+        .items;
     let activity_type_id = types
         .iter()
         .find(|activity_type| activity_type.key == task.activity_type_key)
@@ -337,24 +338,25 @@ async fn create_activity(ctx: &Ctx<'_>, task: SequenceTask) -> Result<Uuid, AppE
         .or_else(|| types.first())
         .map(|activity_type| activity_type.id.to_string())
         .ok_or_else(|| AppError::Validation("there is no active activity type".to_owned()))?;
-    let record = tasks::service::create(
-        ctx,
-        CreateActivityCommand {
-            title: task.title,
-            activity_type_id,
-            due_at: Some(
-                task.due_at
-                    .to_rfc3339_opts(chrono::SecondsFormat::Secs, true),
-            ),
-            owner_id: Some(task.owner_id.into_inner()),
-            record_type: Some("people.person".to_owned()),
-            record_id: Some(task.contact_id.to_string()),
-            description: task.description,
-            ..CreateActivityCommand::default()
-        },
-    )
-    .await?;
-    Ok(record.activity.id)
+    let id = aphel_sdk::tasks::writer()?
+        .create(
+            ctx,
+            CreateActivityCommand {
+                title: task.title,
+                activity_type_id,
+                due_at: Some(
+                    task.due_at
+                        .to_rfc3339_opts(chrono::SecondsFormat::Secs, true),
+                ),
+                owner_id: Some(task.owner_id.into_inner()),
+                record_type: Some("people.person".to_owned()),
+                record_id: Some(task.contact_id.to_string()),
+                description: task.description,
+                ..CreateActivityCommand::default()
+            },
+        )
+        .await?;
+    Ok(id)
 }
 
 async fn step_running(ctx: &Ctx<'_>, step: RunningStep) -> Result<(), AppError> {

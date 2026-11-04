@@ -330,21 +330,7 @@ impl ActivityLocation {
     }
 }
 
-#[derive(Debug, Clone, PartialEq, Eq)]
-pub struct ActivityTypeView {
-    pub id: Uuid,
-    pub key: String,
-    pub(crate) name: String,
-    pub(crate) icon: Option<String>,
-    pub(crate) color: Option<String>,
-    pub(crate) is_system: bool,
-    pub is_active: bool,
-    pub(crate) position: i32,
-    pub(crate) created_at: DateTime<Utc>,
-    pub(crate) updated_at: DateTime<Utc>,
-}
-
-impl ActivityTypeView {}
+pub use aphel_sdk::tasks::ActivityTypeView;
 
 #[derive(Debug, Clone, PartialEq, Eq)]
 pub struct ActivityTypeSummary {

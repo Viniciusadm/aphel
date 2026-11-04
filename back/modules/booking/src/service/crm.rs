@@ -67,19 +67,20 @@ pub(crate) async fn meeting_activity_type(
     ctx: &Ctx<'_>,
     scope: &AccessScope,
 ) -> Result<Option<Uuid>, AppError> {
-    Ok(tasks::types::list(
-        &ctx.with_scope(scope),
-        false,
-        ListWindow {
-            offset: 0,
-            limit: 500,
-        },
-    )
-    .await?
-    .items
-    .into_iter()
-    .find(|activity_type| activity_type.key == ACTIVITY_TYPE_KEY && activity_type.is_active)
-    .map(|activity_type| activity_type.id))
+    Ok(aphel_sdk::tasks::types()?
+        .list(
+            &ctx.with_scope(scope),
+            false,
+            ListWindow {
+                offset: 0,
+                limit: 500,
+            },
+        )
+        .await?
+        .items
+        .into_iter()
+        .find(|activity_type| activity_type.key == ACTIVITY_TYPE_KEY && activity_type.is_active)
+        .map(|activity_type| activity_type.id))
 }
 
 pub(crate) async fn create_activity_in_tx(

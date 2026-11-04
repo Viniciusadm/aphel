@@ -16,3 +16,18 @@ impl TaskWriter for Writer {
         Ok(crate::service::create(ctx, command).await?.activity.id)
     }
 }
+
+#[async_trait::async_trait]
+impl aphel_sdk::tasks::TaskTypes for Writer {
+    async fn list(
+        &self,
+        ctx: &Ctx<'_>,
+        include_inactive: bool,
+        window: aphel_kernel::application::organization_admin::ListWindow,
+    ) -> Result<
+        aphel_kernel::application::organization_admin::Listing<aphel_sdk::tasks::ActivityTypeView>,
+        AppError,
+    > {
+        crate::types::list(ctx, include_inactive, window).await
+    }
+}

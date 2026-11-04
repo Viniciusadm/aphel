@@ -284,6 +284,7 @@ impl Module for TasksModule {
 
     fn register(&self, app: &mut AppBuilder) -> Result<(), AppError> {
         app.provide::<dyn aphel_sdk::tasks::TaskWriter>(Arc::new(writer::Writer));
+        app.provide::<dyn aphel_sdk::tasks::TaskTypes>(Arc::new(writer::Writer));
         app.provide::<dyn aphel_sdk::tasks::remote_calendar::RemoteCalendars>(Arc::new(
             remote_calendar::service::Calendars,
         ));

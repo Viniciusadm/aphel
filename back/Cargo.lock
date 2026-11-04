@@ -1773,7 +1773,6 @@ dependencies = [
  "aphel-kernel",
  "aphel-mod-email",
  "aphel-mod-people",
- "aphel-mod-tasks",
  "aphel-sdk",
  "async-trait",
  "axum",

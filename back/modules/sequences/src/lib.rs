@@ -75,7 +75,7 @@ impl Module for SequencesModule {
             )
             .depends_on(email::KEY, "*")
             .depends_on(people::KEY, "*")
-            .depends_on(tasks::KEY, "*")
+            .depends_on("tasks", "*")
             .enabled_by_default()
             .owned_tables(&["sequence_enrollments", "sequence_step_runs", "sequence_steps", "sequences"])
             .migration(Migration::new(

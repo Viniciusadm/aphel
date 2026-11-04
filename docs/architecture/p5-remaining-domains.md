@@ -459,6 +459,13 @@ This phase is in progress. Completed entries describe static source validation; 
 - [x] Full lint passes; lock the native peer-dependent plugin count from nine to eight without increasing other ratchets.
 - [ ] Manual acceptance: migrated task links/types/completion/ownership, note visibility/mentions, audit IP, unavailable writers and demo bookkeeping.
 
+## Task type catalog interface
+
+- [x] Share task-type snapshots and an enabled native catalog interface. Tasks retains reader permissions, active filtering, ordering, storage and pagination.
+- [x] Sequences creates tasks and reads types through owner services, removing its tasks implementation dependency; booking reads meeting types through the same catalog.
+- [x] Formatting and strict task/sequence/booking Clippy pass without tests.
+- [ ] Manual acceptance: task type permissions, active/inactive options, sequence fallback selection, booking meeting lookup and disabled task capabilities.
+
 ## Outstanding scope
 
 The remaining identity changes, shared capability interfaces, owner-only SQL, deletion policies and per-plugin manual acceptance matrices are still pending. Existing architectural debt is not considered resolved by renaming packages.
