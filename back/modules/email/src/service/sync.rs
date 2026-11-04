@@ -743,6 +743,12 @@ async fn capture_contact(
     name: Option<String>,
     direction: EmailDirection,
 ) -> Result<Option<Uuid>, AppError> {
+    let person_type = RecordType::parse(aphel_sdk::people::RECORD_TYPE)?;
+    if ctx.registry().get(&person_type).is_none() || !aphel_sdk::records::enabled(ctx, &person_type)
+    {
+        return Ok(None);
+    }
+    let organization_type = RecordType::parse(aphel_sdk::organizations::RECORD_TYPE)?;
     let directory = DirectoryStore::of(ctx);
     let opposite = match direction {
         EmailDirection::Inbound => EmailDirection::Outbound,
@@ -756,6 +762,8 @@ async fn capture_contact(
     }
     let mut company_id = None;
     if settings.create_companies
+        && ctx.registry().get(&organization_type).is_some()
+        && aphel_sdk::records::enabled(ctx, &organization_type)
         && let Some(domain) = address_domain(address)
         && !is_personal_domain(domain)
     {

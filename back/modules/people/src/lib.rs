@@ -1,5 +1,6 @@
 mod associations;
 mod context_source;
+mod email_engagement;
 mod primary_organizations;
 use aphel_sdk::imports::ImportTraits;
 mod dashboard;
@@ -211,6 +212,9 @@ impl Module for PeopleModule {
     }
 
     fn register(&self, app: &mut AppBuilder) -> Result<(), AppError> {
+        app.contribute::<dyn aphel_sdk::email::EmailEngagementProjection>(std::sync::Arc::new(
+            email_engagement::Projection,
+        ));
         app.contribute::<dyn aphel_sdk::party::PartyAssociationSource>(std::sync::Arc::new(
             associations::Associations,
         ));

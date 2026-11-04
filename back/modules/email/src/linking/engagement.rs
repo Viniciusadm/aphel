@@ -1,17 +1,12 @@
-use aphel_contract_crm::CrmRecordTypes;
 use async_trait::async_trait;
 
-use crate::store::settings::DirectoryStore;
+use crate::store::settings::EngagementReader;
 use crate::{EMAIL_RECEIVED, EMAIL_SENT, EMAIL_THREAD_LINKED, EMAIL_THREAD_UNLINKED};
-use aphel_kernel::application::shared::{DomainEvent, EventConsumer, RecordType};
+use aphel_kernel::application::shared::{DomainEvent, EventConsumer};
 use aphel_kernel::errors::AppError;
 use aphel_kernel::state::AppState;
 
 pub(crate) const EMAIL_ENGAGEMENT_CONSUMER: &str = "email.engagement";
-
-pub(crate) fn tracks_engagement(record_type: &RecordType) -> bool {
-    *record_type == RecordType::CONTACT || *record_type == RecordType::COMPANY
-}
 
 pub(crate) struct EmailEngagementConsumer {
     state: AppState,
@@ -40,11 +35,22 @@ impl EventConsumer for EmailEngagementConsumer {
         let Some(record) = &event.record else {
             return Ok(());
         };
-        if !tracks_engagement(&record.record_type) {
+        let sources = aphel_kernel::modules::app()
+            .all_contributions::<dyn aphel_sdk::email::EmailEngagementProjection>();
+        let mut matching = sources
+            .iter()
+            .filter(|(_, source)| source.record_type() == record.record_type.as_str());
+        let Some((_, source)) = matching.next() else {
             return Ok(());
+        };
+        if matching.next().is_some() {
+            return Err(AppError::Configuration(format!(
+                "multiple email engagement projections for {}",
+                record.record_type.as_str()
+            )));
         }
-        DirectoryStore::new(self.state.db()?)
-            .refresh_engagement(record)
+        source
+            .refresh(&self.state.db()?, record, &EngagementReader)
             .await
     }
 }

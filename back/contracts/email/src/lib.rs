@@ -43,11 +43,18 @@ pub struct SendEmailCommand {
 
 pub const DESCRIPTOR: aphel_contract::ContractDescriptor = aphel_contract::ContractDescriptor {
     contract: aphel_contract::contract!("email", "1.0.0"),
-    entries: &[aphel_contract::KeyEntry::new(
-        "email.sender",
-        aphel_contract::KeyKind::ExtensionPoint,
-        "Transactional scoped email enqueue",
-    )],
+    entries: &[
+        aphel_contract::KeyEntry::new(
+            "email.sender",
+            aphel_contract::KeyKind::ExtensionPoint,
+            "Transactional scoped email enqueue",
+        ),
+        aphel_contract::KeyEntry::new(
+            "email.engagement_projection",
+            aphel_contract::KeyKind::ExtensionPoint,
+            "Owner-controlled transactional email engagement maintenance",
+        ),
+    ],
 };
 
 pub const EMAIL_RECEIVED: &str = "email.received";

@@ -1,4 +1,3 @@
-use aphel_contract_crm::CrmRecordTypes;
 use chrono::{DateTime, NaiveDateTime, Utc};
 use sqlx::{MySql, MySqlPool, QueryBuilder, Row};
 use uuid::Uuid;
@@ -12,7 +11,7 @@ use crate::sync::{
 use aphel_kernel::Ctx;
 use aphel_kernel::application::files::NewFile;
 use aphel_kernel::application::organization_admin::{ListWindow, Listing};
-use aphel_kernel::application::shared::{RecordRef, RecordType};
+use aphel_kernel::application::shared::RecordRef;
 use aphel_kernel::database::transaction::MySqlTx;
 use aphel_kernel::domain::UserId;
 use aphel_kernel::domain::access::AccessScope;
@@ -451,45 +450,31 @@ impl DirectoryStore {
             .map(|row| uuid_column(row, "mailbox_id"))
             .collect()
     }
+}
 
-    pub(crate) async fn refresh_engagement(&self, record: &RecordRef) -> Result<(), AppError> {
-        let table = if record.record_type == RecordType::CONTACT {
-            "people"
-        } else if record.record_type == RecordType::COMPANY {
-            "organizations"
-        } else {
-            return Ok(());
-        };
+pub(crate) struct EngagementReader;
+#[async_trait::async_trait]
+impl aphel_sdk::email::EmailEngagementReader for EngagementReader {
+    async fn snapshot(
+        &self,
+        tx: &mut MySqlTx,
+        record: &RecordRef,
+    ) -> Result<aphel_sdk::email::EmailEngagement, AppError> {
         let instant = "COALESCE(e.sent_at, e.created_at)";
-        sqlx::query(sqlx::AssertSqlSafe(format!(
-            "UPDATE {table} r \
-             LEFT JOIN ( \
-               SELECT MAX({instant}) AS last_at, \
-                      MAX(CASE WHEN e.direction = 'inbound' THEN {instant} END) AS last_in, \
-                      MAX(CASE WHEN e.direction = 'outbound' THEN {instant} END) AS last_out, \
-                      COUNT(DISTINCT e.id) AS total \
-               FROM email_record_links l JOIN email_messages e ON e.thread_id = l.thread_id \
-               WHERE l.record_type = ? AND l.record_id = ? AND {ENGAGEMENT_DELIVERED} \
-             ) s ON TRUE \
-             LEFT JOIN ( \
-               SELECT m.user_id FROM email_record_links l \
-               JOIN email_messages e ON e.thread_id = l.thread_id \
-               JOIN mailboxes m ON m.id = e.mailbox_id \
-               WHERE l.record_type = ? AND l.record_id = ? AND {ENGAGEMENT_DELIVERED} \
-               ORDER BY {instant} DESC, e.id DESC LIMIT 1 \
-             ) w ON TRUE \
-             SET r.last_contacted_at = s.last_at, r.last_email_received_at = s.last_in, \
-                 r.last_email_sent_at = s.last_out, r.interaction_count = COALESCE(s.total, 0), \
-                 r.last_contacted_by = w.user_id, r.updated_at = r.updated_at \
-             WHERE r.id = ?"
+        let row = sqlx::query(sqlx::AssertSqlSafe(format!(
+            "SELECT MAX({instant}) AS last_at, MAX(CASE WHEN e.direction = 'inbound' THEN {instant} END) AS last_in, MAX(CASE WHEN e.direction = 'outbound' THEN {instant} END) AS last_out, COUNT(DISTINCT e.id) AS total, \
+             (SELECT m.user_id FROM email_record_links l JOIN email_messages e ON e.thread_id = l.thread_id JOIN mailboxes m ON m.id = e.mailbox_id WHERE l.record_type = ? AND l.record_id = ? AND {ENGAGEMENT_DELIVERED} ORDER BY {instant} DESC, e.id DESC LIMIT 1) AS user_id \
+             FROM email_record_links l JOIN email_messages e ON e.thread_id = l.thread_id WHERE l.record_type = ? AND l.record_id = ? AND {ENGAGEMENT_DELIVERED}"
         )))
-        .bind(record.record_type.as_str())
-        .bind(record.record_id.to_string())
-        .bind(record.record_type.as_str())
-        .bind(record.record_id.to_string())
-        .bind(record.record_id.to_string())
-        .execute(&self.pool)
-        .await?;
-        Ok(())
+        .bind(record.record_type.as_str()).bind(record.record_id.to_string())
+        .bind(record.record_type.as_str()).bind(record.record_id.to_string())
+        .fetch_one(&mut **tx).await?;
+        Ok(aphel_sdk::email::EmailEngagement {
+            last_contacted_at: optional_utc(&row, "last_at")?,
+            last_email_received_at: optional_utc(&row, "last_in")?,
+            last_email_sent_at: optional_utc(&row, "last_out")?,
+            interaction_count: row.try_get("total")?,
+            last_contacted_by: mapper::optional_user(&row, "user_id")?,
+        })
     }
 }

@@ -42,3 +42,22 @@ pub struct EmailEngagement {
     pub interaction_count: i64,
     pub last_contacted_by: Option<UserId>,
 }
+
+#[async_trait::async_trait]
+pub trait EmailEngagementReader: Send + Sync {
+    async fn snapshot(
+        &self,
+        tx: &mut MySqlTx,
+        record: &crate::shared::RecordRef,
+    ) -> Result<EmailEngagement, AppError>;
+}
+#[async_trait::async_trait]
+pub trait EmailEngagementProjection: Send + Sync {
+    fn record_type(&self) -> &'static str;
+    async fn refresh(
+        &self,
+        pool: &sqlx::MySqlPool,
+        record: &crate::shared::RecordRef,
+        reader: &dyn EmailEngagementReader,
+    ) -> Result<(), AppError>;
+}

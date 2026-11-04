@@ -1,4 +1,5 @@
 mod context_source;
+mod email_engagement;
 use aphel_sdk::imports::ImportTraits;
 use aphel_sdk::party::{
     ContactPoint, ContactPointKind, ContactPoints, PartyTraits, address_fields, phone_field,
@@ -213,6 +214,9 @@ impl Module for OrganizationsModule {
     }
 
     fn register(&self, app: &mut AppBuilder) -> Result<(), AppError> {
+        app.contribute::<dyn aphel_sdk::email::EmailEngagementProjection>(std::sync::Arc::new(
+            email_engagement::Projection,
+        ));
         app.contract(aphel_sdk::organizations::DESCRIPTOR);
         app.contribute::<dyn aphel_sdk::record_context::RecordListSource>(std::sync::Arc::new(
             context_source::ContextSource,

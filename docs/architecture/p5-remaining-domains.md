@@ -344,6 +344,15 @@ This phase is in progress. Completed entries describe static source validation; 
 - [x] Related organization/open-deal linking uses optional party association sources. People and deals select only their own links; bounded owner listings validate target availability, read scopes and archived/deleted state before email stores references.
 - [ ] Manual acceptance: primary/secondary company links, open deal contacts, hidden association fields and disabled association/target sources.
 
+## Email engagement owner projections
+
+- [x] Email aggregates delivered message engagement exclusively from email-owned tables through a transactional snapshot reader.
+- [x] People and organizations lock and update their own projection rows in the same transaction as the snapshot read, retaining unchanged record versions and serialized refreshes.
+- [x] Projection sinks explicitly opt into maintenance while compiled but disabled; event processing uses compiled sinks and rejects ambiguous target ownership instead of dropping refreshes.
+- [x] Remove email's formatted cross-owner UPDATE, which the literal SQL ratchet did not identify. Email has no remaining party SQL or hard party prerequisites; unavailable party capture is skipped, and unavailable organization capture does not prevent person capture.
+- [ ] Manual acceptance: received/sent/link/unlink refreshes, distinct message counts, latest sender, empty snapshots, concurrent refreshes, unchanged versions and disabled projection owners.
+- [ ] Email still depends on SSO OAuth implementation; that extraction remains pending.
+
 ## Outstanding scope
 
 The remaining identity changes, shared capability interfaces, owner-only SQL, deletion policies and per-plugin manual acceptance matrices are still pending. Existing architectural debt is not considered resolved by renaming packages.

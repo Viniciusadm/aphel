@@ -94,8 +94,6 @@ impl Module for EmailModule {
             .description(
                 "Personal mailboxes, synchronization, conversations linked to records, sending, templates and tracking",
             )
-            .depends_on(aphel_sdk::people::KEY, "*")
-            .depends_on(aphel_sdk::organizations::KEY, "*")
             .enabled_by_default()
             .owned_tables(&["mailboxes", "mailbox_sync_failures"])
             .migration(Migration::new(
