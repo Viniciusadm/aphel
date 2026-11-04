@@ -19,6 +19,7 @@ impl Module for DealsRevenueModule {
         .depends_on(aphel_sdk::line_items::KEY, "*")
     }
     fn register(&self, app: &mut AppBuilder) -> Result<(), AppError> {
+        app.provide::<dyn aphel_sdk::deals::RevenueSummary>(Arc::new(widgets::Summary));
         app.provide::<dyn aphel_sdk::deals::RevenueCalculator>(Arc::new(
             calculator::ItemsAmountCalculator,
         ))

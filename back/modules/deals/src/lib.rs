@@ -2,6 +2,7 @@ mod associations;
 mod context_source;
 mod lifecycle;
 mod probability;
+mod renewal_writer;
 use aphel_sdk::imports::ImportTraits;
 mod dashboard;
 mod followers;
@@ -363,6 +364,9 @@ impl Module for DealsModule {
     }
 
     fn register(&self, app: &mut AppBuilder) -> Result<(), AppError> {
+        app.provide::<dyn aphel_sdk::deals::RenewalDealWriter>(std::sync::Arc::new(
+            renewal_writer::Writer,
+        ));
         app.contribute::<dyn aphel_sdk::party::PartyAssociationSource>(std::sync::Arc::new(
             associations::Associations,
         ));

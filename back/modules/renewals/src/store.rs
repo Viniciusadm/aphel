@@ -11,9 +11,9 @@ use aphel_kernel::database::transaction::MySqlTx;
 use aphel_kernel::domain::UserId;
 use aphel_kernel::domain::access::AccessScope;
 use aphel_kernel::errors::AppError;
+use aphel_kernel::infrastructure::repositories::mapper::parse_uuid;
 use aphel_kernel::infrastructure::repositories::mapper::{invalid_column, naive, utc};
 use aphel_kernel::infrastructure::repositories::mysql_access::MySqlAccessRepository;
-use deals::store::parse_uuid;
 
 macro_rules! settings_select {
     ($condition:literal) => {

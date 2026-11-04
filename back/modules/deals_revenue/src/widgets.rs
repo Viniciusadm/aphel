@@ -20,11 +20,7 @@ use aphel_sdk::dashboard::{DashboardPorts, WidgetContext, WidgetProvider};
 pub(crate) const RECURRING_REVENUE_WIDGET: &str = "recurring_revenue";
 const EXCHANGE_RATE_FIELD: &str = "exchange_rate";
 
-pub fn money(value: Option<Decimal>) -> Value {
-    value
-        .map(|value| json!(format!("{:.2}", value.round_dp(2))))
-        .unwrap_or(Value::Null)
-}
+pub use aphel_sdk::deals::revenue_money as money;
 
 pub(crate) fn whole(value: Option<Decimal>) -> u64 {
     value.and_then(|value| value.to_u64()).unwrap_or_default()
@@ -68,17 +64,13 @@ fn revenue_metrics(visible: bool) -> Vec<MetricSpec> {
     metrics
 }
 
-#[derive(Debug, Clone, Copy, Default, PartialEq)]
-pub struct BaseRevenue {
-    pub count: u64,
-    pub mrr: Option<Decimal>,
-    pub arr: Option<Decimal>,
-    pub(crate) tcv: Option<Decimal>,
-    pub partial: bool,
-}
+pub use aphel_sdk::deals::RevenueTotals as BaseRevenue;
 
-impl BaseRevenue {
-    pub(crate) fn json(&self) -> Value {
+trait RevenueJson {
+    fn json(&self) -> Value;
+}
+impl RevenueJson for BaseRevenue {
+    fn json(&self) -> Value {
         json!({
             "won_count": self.count,
             "mrr": money(self.mrr),
@@ -221,5 +213,18 @@ where
                 .unwrap_or(Value::Null),
         );
         Ok(Value::Object(data))
+    }
+}
+
+pub(crate) struct Summary;
+#[async_trait]
+impl aphel_sdk::deals::RevenueSummary for Summary {
+    async fn summarize(
+        &self,
+        context: &WidgetContext<'_, aphel_sdk::dashboard::WidgetPorts>,
+        conditions: Vec<Filter>,
+        period: Option<AggregatePeriod>,
+    ) -> Result<BaseRevenue, AppError> {
+        base_revenue(context, conditions, period).await
     }
 }

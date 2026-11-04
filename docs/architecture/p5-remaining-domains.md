@@ -530,6 +530,13 @@ This phase is in progress. Completed entries describe static source validation; 
 - [x] Remove the workflow implementation dependency; scoped workflow/renewal compilation passes without warnings.
 - [ ] Manual acceptance: renewal pipeline/stage validation, portable keys, package planning and unavailable workflow.
 
+## Renewal deal and revenue interfaces
+
+- [x] Renewals consumes redacted owner deal snapshots and an owner creation interface; deals retains validation, workflow hooks, revenue initialization and persistence. Preserve the unassigned-owner retry.
+- [x] Revenue aggregation, field visibility, exchange-rate conversion and partial-result policy remain in deals_revenue behind a summary interface; shared values contain only totals and formatting codecs.
+- [x] Remove remaining renewal peer implementation dependencies; scoped deals/revenue/renewal compilation passes without warnings. Foreign SQL/FK cleanup remains pending.
+- [ ] Manual acceptance: original field visibility, owner fallback, renewal amounts/dates/links, recurring items, currency conversion, partial totals and unavailable owners.
+
 ## Outstanding scope
 
 The remaining identity changes, shared capability interfaces, owner-only SQL, deletion policies and per-plugin manual acceptance matrices are still pending. Existing architectural debt is not considered resolved by renaming packages.

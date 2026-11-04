@@ -10,8 +10,6 @@ publish = false
 aphel-sdk.workspace = true
 aphel-contract-crm.workspace = true
 aphel-kernel.workspace = true
-deals_revenue = { package = "aphel-mod-deals-revenue", path = "../deals_revenue" }
-deals = { package = "aphel-mod-deals", path = "../deals" }
 axum.workspace = true
 async-trait.workspace = true
 chrono.workspace = true

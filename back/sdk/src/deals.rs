@@ -212,3 +212,52 @@ pub fn credited_from_owner_filter(
         _ => None,
     }
 }
+
+pub const MAX_DEAL_TITLE_LENGTH: usize = 255;
+pub fn date(value: NaiveDate) -> String {
+    value.format("%Y-%m-%d").to_string()
+}
+pub struct RenewalDealCreation {
+    pub title: String,
+    pub amount: Option<Decimal>,
+    pub currency: String,
+    pub pipeline_id: Uuid,
+    pub stage_id: Uuid,
+    pub expected_close_date: Option<NaiveDate>,
+    pub contact_id: Option<Uuid>,
+    pub company_id: Option<Uuid>,
+    pub owner_id: Option<String>,
+    pub source: Option<String>,
+    pub contract_start: Option<NaiveDate>,
+    pub original_id: Uuid,
+}
+#[async_trait]
+pub trait RenewalDealWriter: Send + Sync {
+    async fn create(
+        &self,
+        ctx: &crate::Ctx<'_>,
+        creation: RenewalDealCreation,
+    ) -> Result<Uuid, AppError>;
+}
+#[derive(Debug, Clone, Copy, Default, PartialEq)]
+pub struct RevenueTotals {
+    pub count: u64,
+    pub mrr: Option<Decimal>,
+    pub arr: Option<Decimal>,
+    pub tcv: Option<Decimal>,
+    pub partial: bool,
+}
+#[async_trait]
+pub trait RevenueSummary: Send + Sync {
+    async fn summarize(
+        &self,
+        context: &crate::dashboard::WidgetContext<'_, crate::dashboard::WidgetPorts>,
+        conditions: Vec<aphel_kernel::application::query::Filter>,
+        period: Option<aphel_kernel::application::query::AggregatePeriod>,
+    ) -> Result<RevenueTotals, AppError>;
+}
+pub fn revenue_money(value: Option<Decimal>) -> serde_json::Value {
+    value
+        .map(|value| serde_json::json!(format!("{:.2}", value.round_dp(2))))
+        .unwrap_or(serde_json::Value::Null)
+}

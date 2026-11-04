@@ -34,7 +34,7 @@ pub(crate) const DEAL_UNARCHIVED: &str = "deal.unarchived";
 pub(crate) const DEFAULT_BOARD_PER_COLUMN: u64 = 20;
 pub(crate) const MAX_BOARD_PER_COLUMN: u64 = 100;
 
-pub const MAX_DEAL_TITLE_LENGTH: usize = 255;
+pub use aphel_sdk::deals::MAX_DEAL_TITLE_LENGTH;
 pub(crate) const MAX_DEAL_SOURCE_LENGTH: usize = 140;
 pub(crate) const MAX_LOST_REASON_NOTE_LENGTH: usize = 5000;
 pub(crate) const MAX_AMOUNT_DIGITS: u32 = 16;
@@ -461,9 +461,7 @@ pub(crate) fn instant(value: DateTime<Utc>) -> String {
     value.to_rfc3339_opts(SecondsFormat::Secs, true)
 }
 
-pub fn date(value: NaiveDate) -> String {
-    value.format("%Y-%m-%d").to_string()
-}
+pub use aphel_sdk::deals::date;
 
 pub(crate) fn amount_json(value: Option<Decimal>) -> Value {
     value.map(decimal_json).unwrap_or(Value::Null)

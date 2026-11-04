@@ -8,7 +8,7 @@ use serde_json::{Map, Value, json};
 use sqlx::{MySql, QueryBuilder, Row};
 use uuid::Uuid;
 
-use deals_revenue::widgets::{base_revenue, money};
+use aphel_sdk::deals::{RevenueSummary, revenue_money as money};
 
 use aphel_kernel::application::fields::permissions::{FieldAccess, FieldAccessPolicy};
 use aphel_kernel::application::query::{
@@ -23,7 +23,7 @@ use aphel_kernel::records::constrain_query;
 use aphel_kernel::state::runtime_pool;
 use aphel_sdk::dashboard::local_today;
 use aphel_sdk::dashboard::{DashboardPorts, SettingsReader, WidgetContext, WidgetProvider};
-use deals::domain::date;
+use aphel_sdk::deals::date;
 
 pub(crate) const RENEWALS_DUE_WIDGET: &str = "renewals_due";
 
@@ -132,10 +132,7 @@ fn renewals_json(settings: &RenewalsDueSettings) -> Value {
 }
 
 #[async_trait]
-impl<P> WidgetProvider<P> for RenewalsDueWidget
-where
-    P: DashboardPorts,
-{
+impl WidgetProvider<aphel_sdk::dashboard::WidgetPorts> for RenewalsDueWidget {
     fn key(&self) -> &str {
         RENEWALS_DUE_WIDGET
     }
@@ -170,7 +167,7 @@ where
 
     async fn data(
         &self,
-        context: &WidgetContext<'_, P>,
+        context: &WidgetContext<'_, aphel_sdk::dashboard::WidgetPorts>,
         settings: &Value,
     ) -> Result<Value, AppError> {
         let settings = renewals_settings(settings).map_err(|violations| {
@@ -195,7 +192,12 @@ where
                 json!("me"),
             ));
         }
-        let revenue = base_revenue(context, conditions.clone(), None).await?;
+        let revenue = context
+            .ports
+            .services()
+            .require::<dyn RevenueSummary>()?
+            .summarize(context, conditions.clone(), None)
+            .await?;
         let count = revenue.count;
         let items = if count == 0 {
             Vec::new()

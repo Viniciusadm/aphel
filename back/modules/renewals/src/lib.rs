@@ -24,7 +24,7 @@ pub(crate) const KEY: &str = "renewals";
 
 const PUBLIC_EVENTS: &[PublicEventDefinition] = &[event(
     "deal.renewal_created",
-    deals::DEAL_RESOURCE,
+    aphel_sdk::deals::RESOURCE,
     "A renewal deal was created for a won deal whose contract is ending (the body is the renewal; `renewal_of_deal_id` points to the original)",
 )];
 
@@ -37,7 +37,7 @@ impl Module for RenewalsModule {
                 "Automatic renewal of won deals whose contract is ending, configured per pipeline",
             )
             .enabled_by_default()
-            .depends_on(deals::KEY, "*")
+            .optional("deals")
             .optional("workflow")
             .optional(aphel_sdk::line_items::KEY)
             .owned_tables(&["deal_renewals", "pipeline_renewal_settings"])

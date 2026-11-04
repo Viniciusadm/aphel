@@ -20,14 +20,23 @@ use aphel_kernel::domain::access::Permission;
 use aphel_kernel::errors::{AppError, FieldViolation};
 use aphel_kernel::records::{RecordMutation, changes_payload, publish_mutation};
 use aphel_sdk::line_items::{LineItem, Recurrence};
-use deals::domain::Deal;
-use deals::domain::{DealInput, DealRevenue, MAX_DEAL_TITLE_LENGTH, date};
+#[derive(serde::Deserialize)]
+struct RenewalSource {
+    id: Uuid,
+    title: String,
+    amount: Option<rust_decimal::Decimal>,
+    currency: String,
+    contact_id: Option<Uuid>,
+    company_id: Option<Uuid>,
+    owner_id: Option<String>,
+    source: Option<String>,
+    contract_end: Option<chrono::NaiveDate>,
+}
+use aphel_sdk::deals::{MAX_DEAL_TITLE_LENGTH, RenewalDealCreation, RenewalDealWriter, date};
 
 use aphel_sdk::workflow::{
     Pipeline, StageKind, WorkflowReader, first_active_of_kind, parse_id, pipeline_not_found,
 };
-
-use aphel_kernel::application::shared::money_text;
 
 const INVALID_RENEWAL_SETTINGS: &str = "invalid renewal settings";
 
@@ -240,10 +249,12 @@ pub(crate) async fn renew(
     original_id: Uuid,
 ) -> Result<bool, AppError> {
     let store = RenewalStore::of(ctx);
-    let original = deals::service::get(ctx, &original_id.to_string())
-        .await?
-        .record
-        .deal;
+    let original: RenewalSource = serde_json::from_value(
+        ctx.load_record(aphel_sdk::deals::RECORD_TYPE, original_id)
+            .await?
+            .ok_or_else(|| AppError::NotFound("the original deal is unavailable".into()))?,
+    )
+    .map_err(|_| AppError::Forbidden("the original deal fields are not readable".into()))?;
     let recurring = recurring_items(ctx, original_id).await?;
     let existing = match store.find_renewal(original_id).await? {
         Some(existing) => existing,
@@ -287,7 +298,7 @@ async fn recurring_items(ctx: &Ctx<'_>, deal_id: Uuid) -> Result<Vec<LineItem>, 
 async fn create(
     ctx: &Ctx<'_>,
     settings: &RenewalSettings,
-    original: &Deal,
+    original: &RenewalSource,
     recurring: &[LineItem],
 ) -> Result<Uuid, AppError> {
     let amount = if recurring.is_empty() {
@@ -302,43 +313,31 @@ async fn create(
             .map(|owner| owner.as_str().to_owned()),
         RenewalOwnerMode::Unassigned => None,
     };
-    let input = |owner: Option<String>| DealInput {
-        title: Some(renewal_title(
+    let input = |owner: Option<String>| RenewalDealCreation {
+        title: renewal_title(
             &settings.title_prefix,
             &original.title,
             MAX_DEAL_TITLE_LENGTH,
-        )),
-        amount: Some(amount.map(money_text)),
-        currency: Some(original.currency.clone()),
-        pipeline_id: Some(settings.target_pipeline_id.to_string()),
-        stage_id: Some(settings.target_stage_id.to_string()),
-        expected_close_date: Some(original.revenue.contract_end.map(date)),
-        contact_id: Some(original.contact_id.map(|id| id.to_string())),
-        company_id: Some(original.company_id.map(|id| id.to_string())),
-        owner_id: Some(owner),
-        source: Some(original.source.clone()),
-        contract_start: Some(
-            original
-                .revenue
-                .contract_end
-                .and_then(|end| end.succ_opt())
-                .map(date),
         ),
-        ..DealInput::default()
+        amount,
+        currency: original.currency.clone(),
+        pipeline_id: settings.target_pipeline_id,
+        stage_id: settings.target_stage_id,
+        expected_close_date: original.contract_end,
+        contact_id: original.contact_id,
+        company_id: original.company_id,
+        owner_id: owner,
+        source: original.source.clone(),
+        contract_start: original.contract_end.and_then(|end| end.succ_opt()),
+        original_id: original.id,
     };
-    let revenue = DealRevenue {
-        renewal_of_deal_id: Some(original.id),
-        ..DealRevenue::default()
-    };
-    let created =
-        match deals::service::create_with_revenue(ctx, input(owner.clone()), revenue.clone()).await
-        {
-            Err(AppError::InvalidFields { .. }) if owner.is_some() => {
-                deals::service::create_with_revenue(ctx, input(None), revenue).await?
-            }
-            other => other?,
-        };
-    Ok(created.record.deal.id)
+    let writer = ctx.services().require::<dyn RenewalDealWriter>()?;
+    match writer.create(ctx, input(owner.clone())).await {
+        Err(AppError::InvalidFields { .. }) if owner.is_some() => {
+            writer.create(ctx, input(None)).await
+        }
+        other => other,
+    }
 }
 
 async fn copy_items(
@@ -366,7 +365,11 @@ async fn copy_items(
     Ok(())
 }
 
-async fn finish(ctx: &Ctx<'_>, original: &Deal, renewal_id: Uuid) -> Result<bool, AppError> {
+async fn finish(
+    ctx: &Ctx<'_>,
+    original: &RenewalSource,
+    renewal_id: Uuid,
+) -> Result<bool, AppError> {
     let now = ctx.now();
     let mut tx = ctx.begin().await?;
     let created = RenewalStore::of(ctx)
@@ -381,7 +384,7 @@ async fn finish(ctx: &Ctx<'_>, original: &Deal, renewal_id: Uuid) -> Result<bool
         "original_deal_id": original.id.to_string(),
         "original_title": original.title,
         "renewal_deal_id": renewal_id.to_string(),
-        "contract_end": original.revenue.contract_end.map(date),
+        "contract_end": original.contract_end.map(date),
         "owner_id": original.owner_id.as_ref().map(|owner| owner.as_str()),
         "requested_by": ctx.scope.user_id().as_str(),
     });
