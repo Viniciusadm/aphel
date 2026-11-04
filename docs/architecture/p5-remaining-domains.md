@@ -537,6 +537,13 @@ This phase is in progress. Completed entries describe static source validation; 
 - [x] Remove remaining renewal peer implementation dependencies; scoped deals/revenue/renewal compilation passes without warnings. Foreign SQL/FK cleanup remains pending.
 - [ ] Manual acceptance: original field visibility, owner fallback, renewal amounts/dates/links, recurring items, currency conversion, partial totals and unavailable owners.
 
+## Renewal candidate ownership
+
+- [x] Deals owns scoped, ordered candidate pages and existing-renewal lookup, including the existing deleted-renewal behavior.
+- [x] Renewals filters only its own completion receipts and continues through candidate pages until the original 500-item limit; completed rows cannot starve later candidates.
+- [x] Scoped deals/renewal compilation passes; two foreign SQL references are removed.
+- [ ] Manual acceptance: settings-author scope, date boundaries, pagination after completed rows, deleted renewals and concurrent renewal discovery.
+
 ## Outstanding scope
 
 The remaining identity changes, shared capability interfaces, owner-only SQL, deletion policies and per-plugin manual acceptance matrices are still pending. Existing architectural debt is not considered resolved by renaming packages.

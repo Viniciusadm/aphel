@@ -152,45 +152,72 @@ impl RenewalStore {
 
     pub(crate) async fn due_deals(
         &self,
+        ctx: &Ctx<'_>,
         settings: &RenewalSettings,
         today: NaiveDate,
     ) -> Result<Vec<Uuid>, AppError> {
-        let ids: Vec<String> = sqlx::query_scalar(
-            "SELECT d.id FROM deals d \
-             WHERE d.pipeline_id = ? AND d.status = 'won' \
-             AND d.deleted_at IS NULL AND d.contract_end IS NOT NULL AND d.contract_end >= ? \
-             AND DATE_SUB(d.contract_end, INTERVAL ? DAY) <= ? \
-             AND NOT EXISTS (SELECT 1 FROM deal_renewals r \
-             WHERE r.original_deal_id = d.id) \
-             ORDER BY d.contract_end, d.id LIMIT ?",
-        )
-        .bind(settings.pipeline_id.to_string())
-        .bind(today)
-        .bind(settings.days_before)
-        .bind(today)
-        .bind(MAX_DUE_DEALS)
-        .fetch_all(&self.pool)
-        .await?;
-        ids.iter().map(|id| parse_uuid(id, "deals.id")).collect()
+        let reader = ctx
+            .services()
+            .require::<dyn aphel_sdk::deals::DealRenewalReader>()?;
+        let mut after = None;
+        let mut due = Vec::new();
+        while due.len() < MAX_DUE_DEALS as usize {
+            let page = reader
+                .due(
+                    ctx,
+                    aphel_sdk::deals::RenewalDueQuery {
+                        pipeline_id: settings.pipeline_id,
+                        today,
+                        days_before: settings.days_before,
+                        after,
+                    },
+                )
+                .await?;
+            if page.is_empty() {
+                break;
+            }
+            after = page.last().copied();
+            let mut query = sqlx::QueryBuilder::<sqlx::MySql>::new(
+                "SELECT original_deal_id FROM deal_renewals WHERE original_deal_id IN (",
+            );
+            let mut list = query.separated(", ");
+            for candidate in &page {
+                list.push_bind(candidate.id.to_string());
+            }
+            query.push(")");
+            let processed: std::collections::HashSet<String> = query
+                .build_query_scalar()
+                .fetch_all(&self.pool)
+                .await?
+                .into_iter()
+                .collect();
+            due.extend(
+                page.iter()
+                    .filter(|candidate| !processed.contains(&candidate.id.to_string()))
+                    .map(|candidate| candidate.id)
+                    .take(MAX_DUE_DEALS as usize - due.len()),
+            );
+            if page.len() < 100 {
+                break;
+            }
+        }
+        Ok(due)
     }
 
     pub(crate) async fn find_renewal(
         &self,
+        ctx: &Ctx<'_>,
         original_deal_id: Uuid,
     ) -> Result<Option<ExistingRenewal>, AppError> {
-        let row = sqlx::query("SELECT id, deleted_at FROM deals WHERE renewal_of_deal_id = ?")
-            .bind(original_deal_id.to_string())
-            .fetch_optional(&self.pool)
-            .await?;
-        row.map(|row| {
-            Ok(ExistingRenewal {
-                deal_id: parse_uuid(&row.try_get::<String, _>("id")?, "deals.id")?,
-                deleted: row
-                    .try_get::<Option<NaiveDateTime>, _>("deleted_at")?
-                    .is_some(),
-            })
-        })
-        .transpose()
+        Ok(ctx
+            .services()
+            .require::<dyn aphel_sdk::deals::DealRenewalReader>()?
+            .existing(ctx, original_deal_id)
+            .await?
+            .map(|record| ExistingRenewal {
+                deal_id: record.deal_id,
+                deleted: record.deleted,
+            }))
     }
 
     pub(crate) async fn mark_renewed(

@@ -261,3 +261,32 @@ pub fn revenue_money(value: Option<Decimal>) -> serde_json::Value {
         .map(|value| serde_json::json!(format!("{:.2}", value.round_dp(2))))
         .unwrap_or(serde_json::Value::Null)
 }
+
+#[derive(Debug, Clone, Copy)]
+pub struct RenewalCandidate {
+    pub id: Uuid,
+    pub contract_end: NaiveDate,
+}
+pub struct RenewalDueQuery {
+    pub pipeline_id: Uuid,
+    pub today: NaiveDate,
+    pub days_before: u16,
+    pub after: Option<RenewalCandidate>,
+}
+pub struct ExistingDealRenewal {
+    pub deal_id: Uuid,
+    pub deleted: bool,
+}
+#[async_trait]
+pub trait DealRenewalReader: Send + Sync {
+    async fn due(
+        &self,
+        ctx: &crate::Ctx<'_>,
+        query: RenewalDueQuery,
+    ) -> Result<Vec<RenewalCandidate>, AppError>;
+    async fn existing(
+        &self,
+        ctx: &crate::Ctx<'_>,
+        original_id: Uuid,
+    ) -> Result<Option<ExistingDealRenewal>, AppError>;
+}

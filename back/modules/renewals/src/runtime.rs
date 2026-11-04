@@ -60,7 +60,7 @@ impl RenewalScanHandler {
                 events.clone(),
                 audit.clone(),
             );
-            for deal_id in store.due_deals(&setting, today).await? {
+            for deal_id in store.due_deals(&ctx, &setting, today).await? {
                 match service::renew(&ctx, &setting, deal_id).await {
                     Ok(true) => outcome.created += 1,
                     Ok(false) => {}

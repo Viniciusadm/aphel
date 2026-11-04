@@ -364,6 +364,9 @@ impl Module for DealsModule {
     }
 
     fn register(&self, app: &mut AppBuilder) -> Result<(), AppError> {
+        app.provide::<dyn aphel_sdk::deals::DealRenewalReader>(std::sync::Arc::new(
+            renewal_writer::Writer,
+        ));
         app.provide::<dyn aphel_sdk::deals::RenewalDealWriter>(std::sync::Arc::new(
             renewal_writer::Writer,
         ));

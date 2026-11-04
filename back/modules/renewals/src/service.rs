@@ -256,14 +256,14 @@ pub(crate) async fn renew(
     )
     .map_err(|_| AppError::Forbidden("the original deal fields are not readable".into()))?;
     let recurring = recurring_items(ctx, original_id).await?;
-    let existing = match store.find_renewal(original_id).await? {
+    let existing = match store.find_renewal(ctx, original_id).await? {
         Some(existing) => existing,
         None => match create(ctx, settings, &original, &recurring).await {
             Ok(deal_id) => ExistingRenewal {
                 deal_id,
                 deleted: false,
             },
-            Err(error) => match store.find_renewal(original_id).await? {
+            Err(error) => match store.find_renewal(ctx, original_id).await? {
                 Some(existing) => existing,
                 None => return Err(error),
             },
