@@ -1,4 +1,5 @@
 pub mod application;
+mod definition_planner;
 pub mod dto;
 mod http;
 pub mod infrastructure;
@@ -25,6 +26,9 @@ impl Module for FormulasModule {
         .owned_tables(&["formula_daily_runs"])
     }
     fn register(&self, app: &mut AppBuilder) -> Result<(), AppError> {
+        app.provide::<dyn aphel_sdk::formulas::FormulaDefinitionPlanner>(std::sync::Arc::new(
+            definition_planner::DefinitionPlanner,
+        ));
         app.provide::<dyn aphel_sdk::formulas::FormulaPredicates>(std::sync::Arc::new(
             predicates::Predicates,
         ));

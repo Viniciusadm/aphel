@@ -312,6 +312,13 @@ This phase is in progress. Completed entries describe static source validation; 
 - [x] Remove approvals' final peer implementation dependency; missing formula providers fail explicitly for formula conditions instead of executing disabled implementation code.
 - [ ] Manual acceptance: boolean conditions, invalid expressions, aggregate/custom dependencies, policy evaluation scope and disabled formulas.
 
+## Configuration formula planning
+
+- [x] Formula owner validates projected field expressions, result types and dependency cycles against the provided definition reader and all projected overrides.
+- [x] Configuration maps owner diagnostic snapshots to package paths and requests owner-produced recalculation job metadata while retaining its own apply transaction.
+- [x] Remove configuration packages' final peer implementation dependency. Packages without formula projections work without a formula provider; formula planning/application requires the enabled owner.
+- [ ] Manual acceptance: projected interdependent fields, cycles and type errors, recalculation enqueue, transactional rollback and disabled formula owner.
+
 ## Outstanding scope
 
 The remaining identity changes, shared capability interfaces, owner-only SQL, deletion policies and per-plugin manual acceptance matrices are still pending. Existing architectural debt is not considered resolved by renaming packages.

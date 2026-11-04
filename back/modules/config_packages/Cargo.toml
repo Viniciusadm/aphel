@@ -9,7 +9,6 @@ publish = false
 [dependencies]
 aphel-contract-configuration.workspace = true
 aphel-sdk.workspace = true
-formulas = { package = "aphel-mod-formulas", path = "../formulas" }
 aphel-kernel.workspace = true
 async-trait.workspace = true
 axum.workspace = true

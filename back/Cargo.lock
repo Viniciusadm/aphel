@@ -763,7 +763,6 @@ dependencies = [
  "aphel-contract",
  "aphel-contract-configuration",
  "aphel-kernel",
- "aphel-mod-formulas",
  "aphel-sdk",
  "async-trait",
  "axum",

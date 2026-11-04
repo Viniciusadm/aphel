@@ -9,10 +9,7 @@ use crate::application::sections::custom_objects::package_registry;
 use crate::application::{
     ApplyContext, ConfigPackage, ConfigSection, Decisions, PackageIssue, PlanChange, PlanItem,
 };
-use ::formulas::application::{
-    FormulaNode, FormulaWorkspace, MAX_REPORTED_ERRORS, ValueKind, compile_formula, find_cycle,
-    recalculate_job,
-};
+
 use aphel_kernel::application::fields::{
     CustomFieldValueRepository, EntityDefinition, FieldDefinitionRepository, MAX_CUSTOM_FIELDS,
     RecordTypeRegistry, config_to_json, field_definition_violations,
@@ -76,59 +73,24 @@ where
                 projected.push((index, definition));
             }
         }
-        let mut workspace = FormulaWorkspace::new(registry, &self.definitions);
-        for (_, definition) in &projected {
-            workspace = workspace.with_override(definition.clone());
+        if !projected
+            .iter()
+            .any(|(_, definition)| definition.formula().is_some())
+        {
+            return Ok(Vec::new());
         }
-        let mut issues = Vec::new();
-        for (index, definition) in &projected {
-            let Some(settings) = definition.formula() else {
-                continue;
-            };
-            let path = |property: &str| format!("{index}.config.{property}");
-            let record_type = RecordType::parse(definition.record_type.clone())?;
-            let context = workspace.context(&record_type).await?;
-            let compiled = match compile_formula(&settings.expression, &context) {
-                Ok(compiled) => compiled,
-                Err(errors) => {
-                    issues.extend(errors.iter().take(MAX_REPORTED_ERRORS).map(|error| {
-                        PackageIssue::new(path("expression"), "invalid_formula", error.describe())
-                    }));
-                    continue;
-                }
-            };
-            if !ValueKind::fits(compiled.kind, settings.result_type) {
-                issues.push(PackageIssue::new(
-                    path("result_type"),
-                    "invalid_formula",
-                    format!(
-                        "the expression results in {} and cannot be stored as {}",
-                        compiled.kind.map_or("null", |kind| kind.as_str()),
-                        settings.result_type.as_str()
-                    ),
-                ));
-                continue;
-            }
-            let start = FormulaNode {
-                record_type,
-                key: definition.key.as_str().to_owned(),
-            };
-            if let Some(cycle) = find_cycle(&mut workspace, start).await? {
-                issues.push(PackageIssue::new(
-                    path("expression"),
-                    "formula_cycle",
-                    format!(
-                        "the formula depends on itself: {}",
-                        cycle
-                            .iter()
-                            .map(FormulaNode::label)
-                            .collect::<Vec<_>>()
-                            .join(" → ")
-                    ),
-                ));
-            }
-        }
-        Ok(issues)
+        Ok(aphel_sdk::formulas::definition_planner()?
+            .projected_issues(registry, &self.definitions, &projected)
+            .await?
+            .into_iter()
+            .map(|issue| {
+                PackageIssue::new(
+                    format!("{}.config.{}", issue.index, issue.property),
+                    issue.code,
+                    issue.message,
+                )
+            })
+            .collect())
     }
 
     fn record_types(&self) -> Vec<RecordType> {
@@ -494,7 +456,8 @@ where
             self.jobs
                 .enqueue(
                     tx,
-                    recalculate_job(&RecordType::parse(record_type.as_str())?, true, 0),
+                    aphel_sdk::formulas::definition_planner()?
+                        .recalculate_job(&RecordType::parse(record_type.as_str())?),
                 )
                 .await?;
         }
