@@ -34,50 +34,15 @@ pub async fn visible_record_labels<D: FieldDefinitionRepository>(
     record_type: &RecordType,
     ids: &[Uuid],
 ) -> Result<HashMap<Uuid, VisibleRecordLabel>, AppError> {
-    if ids.is_empty() {
-        return Ok(HashMap::new());
-    }
     if ids.len() > 1000 {
         return Err(AppError::Validation(
             "at most 1000 record labels may be requested".into(),
         ));
     }
-    let app = aphel_kernel::modules::app();
-    if app
-        .record_contributions()
-        .iter()
-        .find(|entry| entry.registers.as_ref() == Some(record_type))
-        .is_some_and(|entry| !app.is_enabled(entry.module))
-    {
-        return Ok(HashMap::new());
-    }
+    let selected = visible_record_ids(pool, registry, scope, record_type, ids).await?;
     let Some(definition) = registry.get(record_type) else {
         return Ok(HashMap::new());
     };
-    if scope.scope_for(&definition.read_permission).is_none() {
-        return Ok(HashMap::new());
-    }
-    let ports = MySqlRecordQueryPorts::new(pool.clone(), registry.clone());
-    let selected = RecordQueryEngine::new(&ports)
-        .query(
-            scope,
-            record_type.as_str(),
-            RecordQuery {
-                filter: Some(Filter::condition(
-                    "id",
-                    FilterOperator::In,
-                    serde_json::json!(ids),
-                )),
-                archived: ArchivedFilter::Include,
-                window: ListWindow {
-                    offset: 0,
-                    limit: u64::try_from(ids.len()).expect("bounded labels"),
-                },
-                ..RecordQuery::default()
-            },
-        )
-        .await?
-        .items;
     let mut labels: HashMap<_, _> = selected
         .iter()
         .map(|id| (*id, VisibleRecordLabel { title: None }))
@@ -136,4 +101,58 @@ pub async fn visible_record_label<D: FieldDefinitionRepository>(
     )
     .await?
     .remove(&record.record_id))
+}
+
+pub async fn visible_record_ids(
+    pool: &MySqlPool,
+    registry: &Arc<RecordTypeRegistry>,
+    scope: &AccessScope,
+    record_type: &RecordType,
+    ids: &[Uuid],
+) -> Result<Vec<Uuid>, AppError> {
+    if ids.is_empty() {
+        return Ok(Vec::new());
+    }
+    if ids.len() > 1000 {
+        return Err(AppError::Validation(
+            "at most 1000 record identities may be requested".into(),
+        ));
+    }
+    let app = aphel_kernel::modules::app();
+    if app
+        .record_contributions()
+        .iter()
+        .find(|entry| entry.registers.as_ref() == Some(record_type))
+        .is_some_and(|entry| !app.is_enabled(entry.module))
+    {
+        return Ok(Vec::new());
+    }
+    let Some(definition) = registry.get(record_type) else {
+        return Ok(Vec::new());
+    };
+    if scope.scope_for(&definition.read_permission).is_none() {
+        return Ok(Vec::new());
+    }
+    let ports = MySqlRecordQueryPorts::new(pool.clone(), registry.clone());
+    let selected = RecordQueryEngine::new(&ports)
+        .query(
+            scope,
+            record_type.as_str(),
+            RecordQuery {
+                filter: Some(Filter::condition(
+                    "id",
+                    FilterOperator::In,
+                    serde_json::json!(ids),
+                )),
+                archived: ArchivedFilter::Include,
+                window: ListWindow {
+                    offset: 0,
+                    limit: u64::try_from(ids.len()).expect("bounded record identities"),
+                },
+                ..RecordQuery::default()
+            },
+        )
+        .await?
+        .items;
+    Ok(selected)
 }

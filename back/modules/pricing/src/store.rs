@@ -173,16 +173,26 @@ impl PriceListStore {
         }
     }
 
-    async fn existing_ids(&self, table: &str, ids: &[Uuid]) -> Result<Vec<Uuid>, AppError> {
-        if ids.is_empty() {
-            return Ok(Vec::new());
+    async fn existing_records(
+        &self,
+        ctx: &Ctx<'_>,
+        record_type: RecordType,
+        ids: &[Uuid],
+    ) -> Result<Vec<Uuid>, AppError> {
+        let mut existing = Vec::new();
+        for batch in ids.chunks(1000) {
+            existing.extend(
+                aphel_sdk::records::visible_record_ids(
+                    &self.pool,
+                    ctx.registry(),
+                    ctx.scope,
+                    &record_type,
+                    batch,
+                )
+                .await?,
+            );
         }
-        let mut builder =
-            QueryBuilder::new(format!("SELECT id FROM {table} WHERE deleted_at IS NULL"));
-        builder.push(" AND id");
-        push_uuid_list(&mut builder, ids);
-        let rows = builder.build().fetch_all(&self.pool).await?;
-        rows.iter().map(|row| uuid_column(row, "id")).collect()
+        Ok(existing)
     }
 }
 
@@ -339,16 +349,28 @@ impl PriceListStore {
 
     pub(crate) async fn existing_companies(
         &self,
+        ctx: &Ctx<'_>,
         company_ids: &[Uuid],
     ) -> Result<Vec<Uuid>, AppError> {
-        self.existing_ids("organizations", company_ids).await
+        self.existing_records(
+            ctx,
+            aphel_kernel::application::shared::RecordType::COMPANY,
+            company_ids,
+        )
+        .await
     }
 
     pub(crate) async fn existing_products(
         &self,
+        ctx: &Ctx<'_>,
         product_ids: &[Uuid],
     ) -> Result<Vec<Uuid>, AppError> {
-        self.existing_ids("products", product_ids).await
+        self.existing_records(
+            ctx,
+            aphel_kernel::application::shared::RecordType::PRODUCT,
+            product_ids,
+        )
+        .await
     }
 
     pub(crate) async fn products_by_code(

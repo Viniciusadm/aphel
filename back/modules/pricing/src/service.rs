@@ -340,7 +340,7 @@ pub async fn replace_items(
         .into_iter()
         .collect();
     let existing: BTreeSet<Uuid> = repository
-        .existing_products(&product_ids)
+        .existing_products(ctx, &product_ids)
         .await?
         .into_iter()
         .collect();
@@ -666,7 +666,7 @@ async fn apply_companies(
             );
         }
         let existing: BTreeSet<Uuid> = PriceListStore::of(ctx)
-            .existing_companies(&ids)
+            .existing_companies(ctx, &ids)
             .await?
             .into_iter()
             .collect();

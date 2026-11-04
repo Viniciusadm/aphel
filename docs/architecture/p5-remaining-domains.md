@@ -266,6 +266,13 @@ This phase is in progress. Completed entries describe static source validation; 
 - [x] Pricing no longer queries money currency or segment tables directly. Disabled owners do not validate stale foreign metadata through raw SQL; staged currency declarations are considered only when the money provider is enabled.
 - [ ] Manual acceptance: base/foreign currency lists, disabled money, segment pricing, unreadable or disabled segment parents and saved filter deletion.
 
+## Scoped pricing reference identities
+
+- [x] Share bounded scoped identity selection through the SDK's generic record query utility; label hydration uses the same selection path.
+- [x] Pricing validates company/product identities through registry definitions, read scope and enabled native owners instead of formatting foreign table names into SQL.
+- [x] Remove the two formatted cross-owner existence queries that the literal SQL ratchet did not identify.
+- [ ] Manual acceptance: pricing company/item selection, own/team/organization scopes, missing read permissions, hidden labels, deleted references and disabled owners.
+
 ## Outstanding scope
 
 The remaining identity changes, shared capability interfaces, owner-only SQL, deletion policies and per-plugin manual acceptance matrices are still pending. Existing architectural debt is not considered resolved by renaming packages.
