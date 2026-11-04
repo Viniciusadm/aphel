@@ -72,7 +72,6 @@ impl Module for LeadPro {
                 "lead temperature and touches",
                 include_str!("../migrations/0001_lead_pro.sql"),
             ))
-            .migration(Migration::new(2, "move temperature to owned extension", include_str!("../migrations/0002_move_temperature.sql")))
             .uninstall_sql(include_str!("../migrations/uninstall.sql"))
             .setting(
                 temperature_setting(

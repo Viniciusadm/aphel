@@ -11,6 +11,11 @@ This phase is in progress. Completed entries describe static source validation; 
 - [ ] Remove remaining task, party, assignment and email implementation dependencies and foreign SQL.
 - [ ] Manual acceptance: availability editing, meeting types, public booking, host assignment, cancellation, rescheduling and email delivery with module/permission combinations.
 
+## Lead Pro fresh schema
+
+- [x] Remove the legacy temperature-copy migration. The initial schema already creates the owned extension directly.
+- [ ] Remove peer implementations and foreign party SQL; review behavior and manual acceptance.
+
 ## Outstanding scope
 
 The remaining identity changes, shared capability interfaces, owner-only SQL, deletion policies and per-plugin manual acceptance matrices are still pending. Existing architectural debt is not considered resolved by renaming packages.
