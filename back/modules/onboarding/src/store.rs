@@ -6,8 +6,7 @@ use sqlx::{MySqlPool, Row};
 use uuid::Uuid;
 
 use crate::domain::{
-    BusinessType, InstallReference, Offering, OnboardingAnswers, OnboardingState, OnboardingStatus,
-    TeamSize,
+    BusinessType, Offering, OnboardingAnswers, OnboardingState, OnboardingStatus, TeamSize,
 };
 use aphel_kernel::Ctx;
 use aphel_kernel::database::transaction::MySqlTx;
@@ -207,20 +206,5 @@ impl OnboardingStore {
         };
         let stored: StoredAnswers = serde_json::from_value(document).unwrap_or_default();
         Ok(answers_from_stored(&stored))
-    }
-
-    pub(crate) async fn find_install(
-        &self,
-        install_id: Uuid,
-    ) -> Result<Option<InstallReference>, AppError> {
-        let template_key: Option<Option<String>> =
-            sqlx::query_scalar("SELECT template_key FROM config_package_installs WHERE id = ?")
-                .bind(install_id.to_string())
-                .fetch_optional(&self.pool)
-                .await?;
-        Ok(template_key.map(|template_key| InstallReference {
-            id: install_id,
-            template_key,
-        }))
     }
 }

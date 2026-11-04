@@ -6,8 +6,6 @@ use crate::domain::{
     Recommendation, SaveAnswersCommand, TeamSize, recommend,
 };
 use crate::store::OnboardingStore;
-use ::config_packages::application::TemplateCatalog;
-use ::config_packages::infrastructure::EmbeddedTemplates;
 use aphel_kernel::Ctx;
 use aphel_kernel::application::access::Authorizer;
 use aphel_kernel::application::shared::{
@@ -16,6 +14,7 @@ use aphel_kernel::application::shared::{
 use aphel_kernel::domain::access::Permission;
 use aphel_kernel::domain::organization_profile::DEFAULT_LOCALE;
 use aphel_kernel::errors::{AppError, FieldViolation};
+use aphel_sdk::configuration::ConfigurationCatalog;
 
 pub const ONBOARDING_NOT_PENDING: &str = "onboarding_not_pending";
 pub(crate) const ONBOARDING_COMPLETED: &str = "onboarding.completed";
@@ -151,6 +150,7 @@ async fn resolve_choice(
     ctx: &Ctx<'_>,
     command: &CompleteOnboardingCommand,
 ) -> Result<(Option<String>, Option<Uuid>), AppError> {
+    let catalog = ctx.services().get::<dyn ConfigurationCatalog>();
     let mut violations = Vec::new();
     let requested_key = command
         .template_key
@@ -158,7 +158,11 @@ async fn resolve_choice(
         .map(str::trim)
         .filter(|key| !key.is_empty());
     if let Some(key) = requested_key
-        && EmbeddedTemplates.template(key, DEFAULT_LOCALE).is_none()
+        && !catalog
+            .as_ref()
+            .map(|catalog| catalog.template_exists(ctx, key, DEFAULT_LOCALE))
+            .transpose()?
+            .unwrap_or(false)
     {
         violations.push(FieldViolation::new(
             "template_key",
@@ -173,7 +177,10 @@ async fn resolve_choice(
                 None
             }
             Ok(id) => {
-                let found = OnboardingStore::of(ctx).find_install(id).await?;
+                let found = match catalog.as_ref() {
+                    Some(catalog) => catalog.installation(ctx, id).await?,
+                    None => None,
+                };
                 if found.is_none() {
                     violations.push(FieldViolation::new(
                         "install_id",

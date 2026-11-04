@@ -1400,7 +1400,7 @@ name = "aphel-mod-onboarding"
 version = "0.1.0"
 dependencies = [
  "aphel-kernel",
- "aphel-mod-config-packages",
+ "aphel-sdk",
  "axum",
  "chrono",
  "serde",

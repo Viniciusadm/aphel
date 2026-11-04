@@ -83,7 +83,7 @@ This phase is in progress. Completed entries describe static source validation; 
 - [x] Share native schema projection, field metadata and configuration-key helpers used by section contributors. Field apply operations and formula checks stay in the host.
 - [x] Keep SQL key access, install/version repositories, installation planning/apply, template loading and version algorithms in `config_packages`.
 - [x] Replace implementation dependencies for configuration section contributors with the shared boundary.
-- [ ] Replace remaining direct install/version/template consumers in marketplace, demo, onboarding and organization export; onboarding's foreign install-table SQL is still pending.
+- [ ] Replace remaining direct install/version/template consumers in marketplace, demo and organization export.
 - [ ] Manual acceptance: export/plan/apply for each contributed section, stable key resolution, conflicts and decisions, custom schema projections, formula validation, disabled sections, package versions and failed transactional writes.
 
 ## Export utility and job boundary
@@ -140,6 +140,13 @@ This phase is in progress. Completed entries describe static source validation; 
 - [x] Goals resolves an enabled credit reader; an unavailable reader for this metric produces absent progress, matching other unavailable metrics.
 - [x] Remove goals' deals implementation dependency and make the capability optional.
 - [ ] Manual acceptance: user/team split credit, owner remainder, read scopes, hidden amount fields, date boundaries and disabled deals.
+
+## Onboarding configuration references
+
+- [x] Read template existence and installation references through an enabled configuration catalog interface in the SDK.
+- [x] Configuration packages retains template loading, install repository SQL and settings permission enforcement.
+- [x] Remove onboarding's configuration implementation dependency and foreign install-table SQL. Completion without a template remains available when configuration packages is absent.
+- [ ] Manual acceptance: selected templates, matching/mismatching installations, missing catalog, invalid identifiers, completion and reopening.
 
 ## Outstanding scope
 

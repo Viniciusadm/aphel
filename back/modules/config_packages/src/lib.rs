@@ -1,4 +1,5 @@
 pub mod application;
+mod catalog_service;
 pub mod dto;
 pub mod http;
 pub mod infrastructure;
@@ -37,6 +38,9 @@ impl Module for ConfigPackagesModule {
     }
     fn register(&self, app: &mut AppBuilder) -> Result<(), AppError> {
         app.contract(aphel_contract_configuration::DESCRIPTOR);
+        app.provide::<dyn aphel_sdk::configuration::ConfigurationCatalog>(std::sync::Arc::new(
+            catalog_service::Catalog,
+        ));
         app.provide::<dyn aphel_sdk::configuration::ConfigurationKeys>(std::sync::Arc::new(
             key_service::Keys,
         ));

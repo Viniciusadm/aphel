@@ -9,6 +9,11 @@ pub const DESCRIPTOR: ContractDescriptor = ContractDescriptor {
     contract: CONTRACT,
     entries: &[
         KeyEntry::new(
+            "configuration.catalog",
+            KeyKind::ExtensionPoint,
+            "Scoped configuration template and installation references",
+        ),
+        KeyEntry::new(
             "configuration.section",
             KeyKind::ExtensionPoint,
             "Owner-provided portable configuration sections",

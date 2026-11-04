@@ -159,12 +159,6 @@ pub(crate) struct OnboardingState {
     pub(crate) updated_at: Option<DateTime<Utc>>,
 }
 
-#[derive(Debug, Clone, PartialEq, Eq)]
-pub(crate) struct InstallReference {
-    pub(crate) id: Uuid,
-    pub(crate) template_key: Option<String>,
-}
-
 #[derive(Debug, Clone, PartialEq, Eq, Default)]
 pub(crate) struct SaveAnswersCommand {
     pub(crate) business_type: Option<BusinessType>,

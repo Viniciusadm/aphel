@@ -105,3 +105,24 @@ impl ConfigKeyRepository for ConfigKeyClient {
         key_service()?.assign(tx, kind, id, key).await
     }
 }
+
+#[derive(Debug, Clone, PartialEq, Eq)]
+pub struct InstallationReference {
+    pub id: Uuid,
+    pub template_key: Option<String>,
+}
+
+#[async_trait]
+pub trait ConfigurationCatalog: Send + Sync {
+    fn template_exists(
+        &self,
+        ctx: &crate::Ctx<'_>,
+        key: &str,
+        locale: &str,
+    ) -> Result<bool, AppError>;
+    async fn installation(
+        &self,
+        ctx: &crate::Ctx<'_>,
+        id: Uuid,
+    ) -> Result<Option<InstallationReference>, AppError>;
+}
