@@ -22,7 +22,7 @@ use aphel_kernel::records::RecordSerializing;
 
 pub(crate) use telephony::TelephonyRouter;
 
-pub(crate) const KEY: &str = "calls";
+pub(crate) const KEY: &str = "telephony";
 
 const PUBLIC_EVENTS: &[PublicEventDefinition] = &[
     event(
@@ -38,9 +38,9 @@ const PUBLIC_EVENTS: &[PublicEventDefinition] = &[
     ),
 ];
 
-pub struct CallsModule;
+pub struct TelephonyModule;
 
-impl Module for CallsModule {
+impl Module for TelephonyModule {
     fn manifest(&self) -> Manifest {
         Manifest::new(KEY, "Calls", APHEL_VERSION)
             .description("Call logging as tasks, call outcomes, call sessions, telephony providers and the calls report")

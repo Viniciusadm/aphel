@@ -260,9 +260,9 @@ Typed contributions the kernel already reads:
 | `dyn PersonalTextSource` | Text columns with personal data (above) |
 | `TimeTriggerPlanner` | Plan of an automation time trigger |
 | `dyn ModuleCommand` | CLI subcommand (`aphel demo`, `aphel org`) |
-| `dyn LoginProvider`, `dyn email::MailboxProvider`, `dyn booking::CalendarAvailability`, `dyn calls::telephony::TelephonyProvider`, `dyn timeline::domain::TimelineEventExtension` | Login providers, email mailboxes, calendar, telephony and timeline events |
+| `dyn LoginProvider`, `dyn email::MailboxProvider`, `dyn aphel_sdk::calendar::CalendarAvailability`, `dyn telephony::telephony::TelephonyProvider`, `dyn timeline::domain::TimelineEventExtension` | Login providers, email mailboxes, calendar, telephony and timeline events |
 
-`Services::get` returns the topmost layer of the provider → decorators chain whose modules are all enabled: disabling a decorator also turns off those that came after it; with the provider disabled, the previous replaced provider (if any) applies. Services that modules provide and a plugin can decorate: `leads::LeadConverter`, `deals::AmountCalculator`, `money::CurrencyConverter`, `people` `dyn DuplicateDetector`, `approvals::ApprovalGate`, `price_lists::{PriceListResolver, DiscountLimits, BundleExpander}`, `calls::TelephonyRouter`, `email::Sender` and the automation operations (`TagOperations`, `StageOperations`, `NoteOperations`, `ActivityTypeOperations`, `TaskOperations`, `IncomingWebhookOperations`). The build's list is shown by `aphel modules doctor`.
+`Services::get` returns the topmost layer of the provider → decorators chain whose modules are all enabled: disabling a decorator also turns off those that came after it; with the provider disabled, the previous replaced provider (if any) applies. Services that modules provide and a plugin can decorate: `leads::LeadConverter`, `deals::AmountCalculator`, `money::CurrencyConverter`, `people` `dyn DuplicateDetector`, `approvals::ApprovalGate`, `aphel_sdk::pricing::{PriceListResolver, DiscountLimits, BundleExpander}`, `telephony::TelephonyRouter`, `email::Sender` and the automation operations (`TagOperations`, `StageOperations`, `NoteOperations`, `ActivityTypeOperations`, `TaskOperations`, `IncomingWebhookOperations`). The build's list is shown by `aphel modules doctor`.
 
 ### 5. Web package
 

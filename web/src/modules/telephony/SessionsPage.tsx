@@ -45,7 +45,7 @@ function viewScript(settings: unknown): string {
 }
 
 function StartSessionCard() {
-  const { t } = useTranslation('calls')
+  const { t } = useTranslation('telephony')
   const formId = useId()
   const navigate = useNavigate()
   const views = useQuery({
@@ -151,7 +151,7 @@ function StartSessionCard() {
 }
 
 function SessionList() {
-  const { t } = useTranslation('calls')
+  const { t } = useTranslation('telephony')
   const formatting = useRecordFormatting()
   const sessions = useQuery({
     queryKey: callsKeys.sessions(),

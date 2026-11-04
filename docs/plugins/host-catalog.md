@@ -48,7 +48,6 @@ Writing operations are refused inside hooks (409 `plugin_write_in_hook`). Each o
 | `assignment.assign` | assignment | write | yes | Pick the next owner of a record with a lead distribution rule and set its owner_id (needs update access to the record): { record_type, record_id, rule? (rule id; optional when exactly one active rule distributes the type), idempotency_key? } -> { rule_id, user_id, user_name, selection, route_index, reused, skipped } |
 | `booking.bookings` | booking | read | — | Meeting bookings of the hosts within the actor's booking.manage scope: { status?: confirmed\|canceled, meeting_type_id?, upcoming?, page?, per_page? } -> { data, total } |
 | `booking.cancel` | booking | write | yes | Cancel a booking as the host (the guest receives the cancellation): { id, reason? } |
-| `calls.log` | calls | write | yes | Log a call as an activity: { outcome_key, record_type?, record_id?, direction?: inbound\|outbound, duration_seconds?, phone_number?, recording_url?, title?, notes?, occurred_at?, provider?, provider_call_id?, custom_fields? } -> the activity |
 | `currencies.convert` | money | read | — | Today's exchange rate of a currency to the base currency: { currency } -> { base, currency, enabled, rate }; or convert an amount: { amount, from, to? (default: base currency) } -> { amount, from, to, base, rate, converted } (decimals as strings, rate/converted null when a rate is missing) |
 | `deals.move_pipeline` | deals | write | yes | Move a deal to another pipeline: { id, pipeline_id, stage_id?, lost_reason_id?, lost_reason_note?, fields? } |
 | `deals.move_stage` | deals | write | yes | Move a deal to a stage (a won/lost stage wins/loses it): { id, stage_id, lost_reason_id?, lost_reason_note?, fields? } |
@@ -114,6 +113,7 @@ Writing operations are refused inside hooks (409 `plugin_write_in_hook`). Each o
 | `tagging.list` | tagging | read | — | Tags of the organization with their usage, optionally only those allowed on a record type: { record_type? } -> { data } |
 | `tagging.remove` | tagging | write | yes | Remove a tag from a record the actor can edit: { record_type, record_id, tag_id } -> { changed, tags } |
 | `tasks.complete` | tasks | write | yes | Mark an open activity as done now: { id } |
+| `telephony.log` | telephony | write | yes | Log a call as an activity: { outcome_key, record_type?, record_id?, direction?: inbound\|outbound, duration_seconds?, phone_number?, recording_url?, title?, notes?, occurred_at?, provider?, provider_call_id?, custom_fields? } -> the activity |
 | `timeline.kinds` | timeline | read | — | Available timeline kinds and localized labels: { record_type, record_id } |
 | `timeline.page` | timeline | read | — | Owner-authorized record timeline, newest first: { record_type, record_id, cursor?, kinds?: comma-separated contributed keys, per_page? } -> { data, meta: { next_cursor } } |
 | `workflow.list` | workflow | read | — | Pipelines visible to the actor with their stages: {} -> { data } |

@@ -5,6 +5,6 @@ import { RequirePermission } from '@/features/settings/components/RequirePermiss
 import { OutcomesPage } from './OutcomesPage'
 
 export function CallOutcomesSettingsPage() {
-  const { t } = useTranslation('calls')
+  const { t } = useTranslation('telephony')
   return <RequirePermission permission="settings.manage"><Page><PageHeader title={t('page.outcomes')} /><OutcomesPage /></Page></RequirePermission>
 }

@@ -16,7 +16,7 @@ function asText(value: unknown): string | null {
 }
 
 export function CallTimelineContent({ item }: { item: TimelineItem }) {
-  const { t } = useTranslation('calls')
+  const { t } = useTranslation('telephony')
   const formatting = useRecordFormatting()
   const call = asObject(item.metadata.call)
   const outcome = asObject(call.outcome)

@@ -1,4 +1,4 @@
-key = "calls"
+key = "telephony"
 name = "Calls"
 version = "0.1.0"
 layer = "capability"

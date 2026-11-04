@@ -4,7 +4,7 @@ import { PageHeader } from '@/components/ui/page-header'
 import { Page } from '@/components/ui/page'
 
 export function CallsLayout() {
-  const { t } = useTranslation('calls')
+  const { t } = useTranslation('telephony')
   return (
     <Page>
       <PageHeader title={t('page.title')} description={t('page.description')} />

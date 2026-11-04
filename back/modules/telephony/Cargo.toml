@@ -1,5 +1,5 @@
 [package]
-name = "aphel-mod-calls"
+name = "aphel-mod-telephony"
 version.workspace = true
 edition.workspace = true
 rust-version.workspace = true

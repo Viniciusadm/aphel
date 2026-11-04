@@ -23,7 +23,7 @@ export interface CallFormProps {
 }
 
 export function CallForm({ values, onChange, outcomes, outcomeError, disabled, autoStartTimer }: CallFormProps) {
-  const { t } = useTranslation('calls')
+  const { t } = useTranslation('telephony')
   const formId = useId()
   const [timerStart, setTimerStart] = useState<number | null>(() => (autoStartTimer ? Date.now() : null))
   const [elapsed, setElapsed] = useState(0)

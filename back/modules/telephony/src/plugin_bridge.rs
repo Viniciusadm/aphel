@@ -17,7 +17,7 @@ fn log<'a>(ctx: &'a Ctx<'_>, input: Value) -> OperationFuture<'a> {
 
 pub(crate) fn operations() -> Vec<Arc<PluginOperation>> {
     vec![Arc::new(PluginOperation::write(
-        "calls.log",
+        "telephony.log",
         "Log a call as an activity: { outcome_key, record_type?, record_id?, direction?: inbound|outbound, duration_seconds?, phone_number?, recording_url?, title?, notes?, occurred_at?, provider?, provider_call_id?, custom_fields? } -> the activity",
         log,
     )

@@ -16,7 +16,7 @@ function stop(event: SyntheticEvent) {
 export function PhoneLink({ value }: FieldDisplayProps) {
   const phone = String(value)
   const record = useDisplayRecord()
-  const { t } = useTranslation('calls')
+  const { t } = useTranslation('telephony')
   const session = useContext(SessionContext)
   const canLog = session?.hasPermission('tasks.create') ?? false
   const providers = useTelephonyProviders(canLog)

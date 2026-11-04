@@ -134,7 +134,7 @@ export function SidebarNav({ collapsed = false, onNavigate }: SidebarNavProps) {
   const categories = ['work', 'crm', 'operations', 'analysis', 'administration'] as const
   const category = (entry: SidebarEntry) => {
     if (entry.locked || /^\/(settings|system|sso|google|microsoft)(\/|$)/.test(entry.to)) return 'administration'
-    if (entry.to === '/calls/report') return 'analysis'
+    if (entry.to === '/telephony/report') return 'analysis'
     if (/^\/(reports|forecast|goals)(\/|$)/.test(entry.to)) return 'analysis'
     if (/^\/(people|organizations|leads|deals|objects)(\/|$)/.test(entry.to) || entry.key.startsWith('object:')) return 'crm'
     if (/^\/(today|tasks|calendar|inbox|messaging|following|search)(\/|$)/.test(entry.to) || entry.to === '/') return 'work'

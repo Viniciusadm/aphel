@@ -13,7 +13,7 @@ export interface CallSummaryProps {
 }
 
 export function CallSummary({ direction, outcomeName, outcomeKey, connected, durationSeconds }: CallSummaryProps) {
-  const { t } = useTranslation('calls')
+  const { t } = useTranslation('telephony')
   const duration = formatCallDuration(durationSeconds)
   const Icon = direction === 'inbound' ? PhoneIncoming : PhoneOutgoing
   return (

@@ -45,6 +45,13 @@ This phase is in progress. Completed entries describe static source validation; 
 - [ ] Remove remaining peer implementations, foreign SQL and fixed party/catalog coupling.
 - [ ] Manual acceptance: lists/items, limits, bundle save/delete/expansion, settings links and quotation price resolution.
 
+## Telephony identity
+
+- [x] Replace the native module/package/feature, API/web namespace and native outcome/session record identities with `telephony`.
+- [x] Keep explicitly owned call tables and call activity/event semantics. Update recording/event/session URLs, query-cache invalidation, providers, profiles and registries without an old module alias.
+- [ ] Replace remaining task implementation imports, owner-only SQL and foreign task/view foreign keys; shared provider interfaces are still pending.
+- [ ] Manual acceptance: call logging/update, recordings, provider events/start, outcomes, reports, sessions/queues and offline invalidation.
+
 ## Lead Pro fresh schema
 
 - [x] Remove the legacy temperature-copy migration. The initial schema already creates the owned extension directly.

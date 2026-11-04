@@ -812,7 +812,7 @@ pub(crate) const CALL_OUTCOME_NOT_FOUND: &str = "call_outcome_not_found";
 pub(crate) const CALL_OUTCOME_KEY_TAKEN: &str = "call_outcome_key_taken";
 pub(crate) const LAST_ACTIVE_CALL_OUTCOME: &str = "last_active_call_outcome";
 pub(crate) const CALL_OUTCOME_RECORD_TYPE: RecordType =
-    RecordType::from_static("calls.call_outcome");
+    RecordType::from_static("telephony.call_outcome");
 
 #[derive(Debug, Serialize)]
 struct OutcomeSnapshot<'a> {
@@ -1112,7 +1112,7 @@ pub(crate) const CALL_SESSION_EMPTY: &str = "call_session_empty";
 pub(crate) const CALL_SESSION_COMPLETED_CODE: &str = "call_session_completed";
 pub(crate) const CALL_SESSION_ITEM_NOT_FOUND: &str = "call_session_item_not_found";
 pub(crate) const CALL_SESSION_RECORD_TYPE: RecordType =
-    RecordType::from_static("calls.call_session");
+    RecordType::from_static("telephony.call_session");
 
 fn session_not_found() -> AppError {
     AppError::not_found_code(CALL_SESSION_NOT_FOUND, "call session was not found")

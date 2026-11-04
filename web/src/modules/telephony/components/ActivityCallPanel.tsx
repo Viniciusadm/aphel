@@ -10,7 +10,7 @@ function callOf(record: RecordSlotProps['record']): ActivityCall | null {
 }
 
 export function ActivityCallPanel({ record }: RecordSlotProps) {
-  const { t } = useTranslation('calls')
+  const { t } = useTranslation('telephony')
   const call = callOf(record)
   if (!call) return null
   return (

@@ -34,7 +34,7 @@ import { Page } from '@/components/ui/page'
 const CONTACT = 'people.person'
 
 export function SessionPage() {
-  const { t } = useTranslation('calls')
+  const { t } = useTranslation('telephony')
   const { id = '' } = useParams()
   const session = useQuery({
     queryKey: callsKeys.session(id),
@@ -62,7 +62,7 @@ export function SessionPage() {
 }
 
 function SessionWorkspace({ session }: { session: CallSession }) {
-  const { t } = useTranslation('calls')
+  const { t } = useTranslation('telephony')
   const client = useQueryClient()
   const invalidate = useInvalidateCalls()
   const [confirmFinish, setConfirmFinish] = useState(false)
@@ -177,7 +177,7 @@ function textValue(record: RecordItem | undefined, key: string): string | null {
 }
 
 function CurrentContact({ session, item, busy, onSkip, onBack, onLogged }: CurrentContactProps) {
-  const { t } = useTranslation('calls')
+  const { t } = useTranslation('telephony')
   const client = useQueryClient()
   const outcomes = useCallOutcomes()
   const providers = useTelephonyProviders()
@@ -358,7 +358,7 @@ function QueueList({
   disabled: boolean
   onPick: (position: number) => void
 }) {
-  const { t } = useTranslation('calls')
+  const { t } = useTranslation('telephony')
   const items = useQuery({
     queryKey: callsKeys.sessionItems(session.id),
     queryFn: () => callsApi.sessionItems(session.id),

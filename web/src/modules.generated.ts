@@ -33,7 +33,7 @@ import onboardingModule from '@modules/onboarding'
 import assignmentModule from '@modules/assignment'
 import taggingModule from '@modules/tagging'
 import segmentsModule from '@modules/segments'
-import callsModule from '@modules/calls'
+import telephonyModule from '@modules/telephony'
 import emailModule from '@modules/email'
 import sequencesModule from '@modules/sequences'
 import bookingModule from '@modules/booking'
@@ -99,7 +99,7 @@ export const MODULES: WebModule[] = [
   assignmentModule,
   taggingModule,
   segmentsModule,
-  callsModule,
+  telephonyModule,
   emailModule,
   sequencesModule,
   bookingModule,

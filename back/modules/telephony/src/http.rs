@@ -34,7 +34,7 @@ use aphel_kernel::errors::AppError;
 use tasks::domain::ActivityRecord;
 use tasks::http::ActivityResponse;
 
-pub(crate) const TAG: &str = "calls";
+pub(crate) const TAG: &str = "telephony";
 
 const UNAUTHORIZED: &str = "Missing or invalid credentials (`unauthorized`, `invalid_api_token`)";
 
@@ -153,7 +153,7 @@ pub(crate) struct CallActivityResponse {
 
 #[utoipa::path(
     post,
-    path = "/calls",
+    path = "/telephony",
     tag = TAG,
     operation_id = "calls_log",
     security(("session_cookie" = [])),
@@ -186,7 +186,7 @@ async fn log_call(
 
 #[utoipa::path(
     patch,
-    path = "/calls/{activity_id}",
+    path = "/telephony/{activity_id}",
     tag = TAG,
     operation_id = "calls_update",
     security(("session_cookie" = [])),
@@ -225,7 +225,7 @@ async fn update_call(
 
 #[utoipa::path(
     get,
-    path = "/calls/{activity_id}/recording",
+    path = "/telephony/{activity_id}/recording",
     tag = TAG,
     operation_id = "calls_recording",
     security(("session_cookie" = [])),
@@ -249,7 +249,7 @@ async fn call_recording(
 
 #[utoipa::path(
     post,
-    path = "/calls/events",
+    path = "/telephony/events",
     tag = TAG,
     operation_id = "calls_events",
     security(("session_cookie" = [])),
@@ -280,7 +280,7 @@ async fn call_event(
 
 #[utoipa::path(
     get,
-    path = "/calls/providers",
+    path = "/telephony/providers",
     tag = TAG,
     operation_id = "calls_providers",
     security(("session_cookie" = [])),
@@ -305,13 +305,13 @@ async fn list_providers(
 
 #[utoipa::path(
     post,
-    path = "/calls/start",
+    path = "/telephony/start",
     tag = TAG,
     operation_id = "calls_start",
     security(("session_cookie" = [])),
     request_body = StartCallRequest,
     responses(
-        (status = 200, description = "Call started by the telephony provider (click to call). Nothing is logged yet: the provider reports the call with `POST /calls/events` using the returned `provider_call_id`, or the user logs it with `POST /calls`", body = Data<StartedCallResponse>),
+        (status = 200, description = "Call started by the telephony provider (click to call). Nothing is logged yet: the provider reports the call with `POST /telephony/events` using the returned `provider_call_id`, or the user logs it with `POST /telephony`", body = Data<StartedCallResponse>),
         (status = 401, description = UNAUTHORIZED, body = ErrorEnvelope),
         (status = 403, description = "Missing `tasks.create` (`permission_denied`, `insufficient_scope`)", body = ErrorEnvelope),
         (status = 404, description = "Unknown or disabled telephony provider (`telephony_provider_not_found`)", body = ErrorEnvelope),
@@ -333,7 +333,7 @@ async fn start_call(
 
 #[utoipa::path(
     get,
-    path = "/calls/report",
+    path = "/telephony/report",
     tag = TAG,
     operation_id = "calls_report",
     security(("session_cookie" = [])),
@@ -360,7 +360,7 @@ async fn call_report(
 
 #[utoipa::path(
     get,
-    path = "/calls/outcomes",
+    path = "/telephony/outcomes",
     tag = TAG,
     operation_id = "calls_outcomes_list",
     security(("session_cookie" = [])),
@@ -388,7 +388,7 @@ async fn list_outcomes(
 
 #[utoipa::path(
     post,
-    path = "/calls/outcomes",
+    path = "/telephony/outcomes",
     tag = TAG,
     operation_id = "calls_outcomes_create",
     security(("session_cookie" = [])),
@@ -417,7 +417,7 @@ async fn create_outcome(
 
 #[utoipa::path(
     patch,
-    path = "/calls/outcomes/{outcome_id}",
+    path = "/telephony/outcomes/{outcome_id}",
     tag = TAG,
     operation_id = "calls_outcomes_update",
     security(("session_cookie" = [])),
@@ -454,7 +454,7 @@ async fn update_outcome(
 
 #[utoipa::path(
     put,
-    path = "/calls/outcomes/order",
+    path = "/telephony/outcomes/order",
     tag = TAG,
     operation_id = "calls_outcomes_reorder",
     security(("session_cookie" = [])),
@@ -485,7 +485,7 @@ async fn reorder_outcomes(
 
 #[utoipa::path(
     get,
-    path = "/calls/sessions",
+    path = "/telephony/sessions",
     tag = TAG,
     operation_id = "calls_sessions_list",
     security(("session_cookie" = [])),
@@ -517,7 +517,7 @@ async fn list_sessions(
 
 #[utoipa::path(
     post,
-    path = "/calls/sessions",
+    path = "/telephony/sessions",
     tag = TAG,
     operation_id = "calls_sessions_start",
     security(("session_cookie" = [])),
@@ -546,7 +546,7 @@ async fn start_session(
 
 #[utoipa::path(
     get,
-    path = "/calls/sessions/{session_id}",
+    path = "/telephony/sessions/{session_id}",
     tag = TAG,
     operation_id = "calls_sessions_get",
     security(("session_cookie" = [])),
@@ -570,7 +570,7 @@ async fn get_session(
 
 #[utoipa::path(
     get,
-    path = "/calls/sessions/{session_id}/items",
+    path = "/telephony/sessions/{session_id}/items",
     tag = TAG,
     operation_id = "calls_sessions_items",
     security(("session_cookie" = [])),
@@ -603,7 +603,7 @@ async fn session_items(
 
 #[utoipa::path(
     post,
-    path = "/calls/sessions/{session_id}/calls",
+    path = "/telephony/sessions/{session_id}/calls",
     tag = TAG,
     operation_id = "calls_sessions_log",
     security(("session_cookie" = [])),
@@ -642,7 +642,7 @@ async fn session_call(
 
 #[utoipa::path(
     post,
-    path = "/calls/sessions/{session_id}/skip",
+    path = "/telephony/sessions/{session_id}/skip",
     tag = TAG,
     operation_id = "calls_sessions_skip",
     security(("session_cookie" = [])),
@@ -675,7 +675,7 @@ async fn session_skip(
 
 #[utoipa::path(
     post,
-    path = "/calls/sessions/{session_id}/cursor",
+    path = "/telephony/sessions/{session_id}/cursor",
     tag = TAG,
     operation_id = "calls_sessions_cursor",
     security(("session_cookie" = [])),
@@ -707,7 +707,7 @@ async fn session_cursor(
 
 #[utoipa::path(
     post,
-    path = "/calls/sessions/{session_id}/finish",
+    path = "/telephony/sessions/{session_id}/finish",
     tag = TAG,
     operation_id = "calls_sessions_finish",
     security(("session_cookie" = [])),

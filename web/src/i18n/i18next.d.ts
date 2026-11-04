@@ -9,7 +9,6 @@ import type automationsNamespace from '../modules/automations/i18n/pt-BR.json'
 import type bookingNamespace from '../modules/booking/i18n/pt-BR.json'
 import type bulkActionsNamespace from '../modules/bulk_actions/i18n/pt-BR.json'
 import type calendarNamespace from '../modules/calendar/i18n/pt-BR.json'
-import type callsNamespace from '../modules/calls/i18n/pt-BR.json'
 import type catalogNamespace from './pt-BR/catalog.json'
 import type commandPaletteNamespace from './pt-BR/command-palette.json'
 import type commonNamespace from './pt-BR/common.json'
@@ -84,6 +83,7 @@ import type ssoNamespace from '../modules/sso/i18n/pt-BR.json'
 import type systemNamespace from './pt-BR/system.json'
 import type taggingNamespace from '../modules/tagging/i18n/pt-BR.json'
 import type tasksNamespace from '../modules/tasks/i18n/pt-BR.json'
+import type telephonyNamespace from '../modules/telephony/i18n/pt-BR.json'
 import type themesNamespace from '../modules/themes/i18n/pt-BR.json'
 import type timelineNamespace from '../modules/timeline/i18n/pt-BR.json'
 import type trashNamespace from '../modules/trash/i18n/pt-BR.json'
@@ -107,7 +107,6 @@ declare module 'i18next' {
       booking: typeof bookingNamespace
       bulk_actions: typeof bulkActionsNamespace
       calendar: typeof calendarNamespace
-      calls: typeof callsNamespace
       catalog: typeof catalogNamespace
       'command-palette': typeof commandPaletteNamespace
       common: typeof commonNamespace
@@ -182,6 +181,7 @@ declare module 'i18next' {
       system: typeof systemNamespace
       tagging: typeof taggingNamespace
       tasks: typeof tasksNamespace
+      telephony: typeof telephonyNamespace
       themes: typeof themesNamespace
       timeline: typeof timelineNamespace
       trash: typeof trashNamespace

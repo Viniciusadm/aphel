@@ -46,7 +46,7 @@ export function OutcomesPage() {
 }
 
 function OutcomesSection() {
-  const { t } = useTranslation('calls')
+  const { t } = useTranslation('telephony')
   const outcomes = useCallOutcomes(true)
   const invalidate = useInvalidateCalls()
   const [order, setOrder] = useState<PendingOrder | null>(null)
@@ -170,7 +170,7 @@ function OutcomeForm({
   onClose: () => void
   onSaved: () => void
 }) {
-  const { t } = useTranslation('calls')
+  const { t } = useTranslation('telephony')
   const formId = useId()
   const [name, setName] = useState(editing?.name ?? '')
   const [connected, setConnected] = useState(editing?.is_connected ?? false)

@@ -1,10 +1,10 @@
 import { Navigate, type RouteObject } from 'react-router'
 
 export const callsRoutes: RouteObject[] = [
-  { path: 'calls/report', lazy: async () => ({ Component: (await import('./CallsReportPage')).CallsReportPage }) },
-  { path: 'calls/outcomes', element: <Navigate to="/settings/call-outcomes" replace /> },
+  { path: 'telephony/report', lazy: async () => ({ Component: (await import('./CallsReportPage')).CallsReportPage }) },
+  { path: 'telephony/outcomes', element: <Navigate to="/settings/call-outcomes" replace /> },
   {
-    path: 'calls',
+    path: 'telephony',
     lazy: async () => ({ Component: (await import('./CallsLayout')).CallsLayout }),
     children: [
       { index: true, lazy: async () => ({ Component: (await import('./SessionsPage')).SessionsPage }) },
@@ -13,7 +13,7 @@ export const callsRoutes: RouteObject[] = [
     ],
   },
   {
-    path: 'calls/sessions/:id',
+    path: 'telephony/sessions/:id',
     lazy: async () => ({ Component: (await import('./SessionPage')).SessionPage }),
   },
 ]

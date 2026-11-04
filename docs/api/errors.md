@@ -384,7 +384,7 @@ Whoever creates a new code adds the row to this table and cites it in the respon
 | `mail_no_refresh_token` | 422 | google, microsoft (the provider did not grant offline access to the mailbox) |
 | `mail_api_failed` | 422 | google, microsoft (the email API rejected the request) |
 | `ai_feature_disabled` | 403 | ai (feature turned off in the settings) |
-| `ai_invalid_calls_query` | 422 | ai (invalid filter or pagination in `/calls`) |
+| `ai_invalid_calls_query` | 422 | ai (invalid filter or pagination in `/telephony`) |
 | `ai_invalid_instruction` | 422 | ai (invalid `/compose` body (`details.fields`)) |
 | `ai_invalid_response` | 503 | ai (next actions outside the expected JSON) |
 | `ai_limit_reached` | 429 | ai (installation's daily limit reached) |

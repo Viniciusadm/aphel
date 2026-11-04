@@ -57,7 +57,7 @@ The UI shows the filter in readable language (the same labels as the filter chip
 | Permission | Use |
 | --- | --- |
 | `ai.use` | Use summary, suggestions, writing and query; see `GET /status` |
-| `ai.view_usage` | See `GET /status` and the call log (`GET /calls`) |
+| `ai.view_usage` | See `GET /status` and the call log (`GET /telephony`) |
 
 Creating a task from a suggestion also requires `tasks.create`. Configuring the module requires `settings.manage` (the core modules screen, Settings → Integrations → Modules).
 
@@ -70,7 +70,7 @@ Creating a task from a suggestion also requires `tasks.create`. Configuring the 
 | `POST /next-actions` | Same body → `{ data: { suggestions: [{ title, due_in_days, reason }], sources, provider, model } }` |
 | `POST /compose` | `{ context: note\|email\|message, instruction, draft?, record_type?, record_id? }` → `{ data: { text, sources, provider, model } }` |
 | `POST /query` | `{ record_type, question }` → `{ data: { filter, total, explanation, provider, model } }` (any readable record type, including custom objects) |
-| `GET /calls` | `feature`, `status` (`success`/`error`), `page`, `per_page` (up to 100) → `{ data: [calls], meta: { total, page, per_page, used_today, daily_limit, last_30_days: { calls, errors, input_tokens, output_tokens } } }` |
+| `GET /telephony` | `feature`, `status` (`success`/`error`), `page`, `per_page` (up to 100) → `{ data: [calls], meta: { total, page, per_page, used_today, daily_limit, last_30_days: { calls, errors, input_tokens, output_tokens } } }` |
 
 `sources` lists the records used as context (`{ record_type, record_id, label }`: the record, notes, tasks, related deals and people).
 
@@ -95,7 +95,7 @@ Creating a task from a suggestion also requires `tasks.create`. Configuring the 
 | `ai_query_invalid` | 422 | Invalid `/query` body or invalid filter after correction |
 | `ai_query_no_fields` | 422 | No filterable field available to the user |
 | `ai_query_unanswerable` | 422 | The question cannot become a filter (message with the AI's reason) |
-| `ai_invalid_calls_query` | 422 | Invalid filter or pagination in `/calls` |
+| `ai_invalid_calls_query` | 422 | Invalid filter or pagination in `/telephony` |
 
 ## Limits, log and data
 

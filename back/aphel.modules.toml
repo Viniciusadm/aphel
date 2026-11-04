@@ -35,7 +35,7 @@ demo = { path = "modules/demo" }
 assignment = { path = "modules/assignment" }
 tagging = { path = "modules/tagging", required = true }
 segments = { path = "modules/segments" }
-calls = { path = "modules/calls" }
+telephony = { path = "modules/telephony" }
 email = { path = "modules/email" }
 sequences = { path = "modules/sequences" }
 booking = { path = "modules/booking" }

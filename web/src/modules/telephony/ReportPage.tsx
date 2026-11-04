@@ -33,7 +33,7 @@ function rate(connected: number, calls: number): string {
 }
 
 export function ReportPage() {
-  const { t } = useTranslation('calls')
+  const { t } = useTranslation('telephony')
   const [range, setRange] = useState(defaultRange)
   const [owner, setOwner] = useState<'all' | 'me'>('all')
   const query: CallReportQuery = useMemo(
@@ -92,7 +92,7 @@ export function ReportPage() {
 }
 
 function ReportContent({ report }: { report: CallReport }) {
-  const { t } = useTranslation('calls')
+  const { t } = useTranslation('telephony')
   const usedKeys = new Set(report.users.flatMap((user) => user.outcomes.map((outcome) => outcome.outcome_key)))
   const columns = report.outcomes.filter((outcome) => outcome.is_active || usedKeys.has(outcome.key))
   const stats = [

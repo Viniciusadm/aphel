@@ -25,7 +25,7 @@ export interface CallQuickFormProps extends QuickFormProps {
 }
 
 export function CallQuickForm({ onDone, initialRecord }: CallQuickFormProps) {
-  const { t } = useTranslation('calls', { keyPrefix: 'quickAdd' })
+  const { t } = useTranslation('telephony', { keyPrefix: 'quickAdd' })
   const queryClient = useQueryClient()
   const outcomes = useCallOutcomes()
   const activeOutcomes = (outcomes.data ?? []).filter((outcome) => outcome.is_active)
@@ -58,7 +58,7 @@ export function CallQuickForm({ onDone, initialRecord }: CallQuickFormProps) {
       }
       const result = await submitWithOutbox<CallActivity>({
         kind: 'call',
-        path: '/v1/calls',
+        path: '/v1/telephony',
         body: request,
         label: record ? t('call.outboxLabelFor', { title: record.title }) : t('call.outboxLabel'),
       })

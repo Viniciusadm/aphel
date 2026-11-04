@@ -33,7 +33,7 @@ export interface LogCallDialogProps {
 }
 
 export function LogCallDialog({ open, onOpenChange, record, phoneNumber, started, onLogged }: LogCallDialogProps) {
-  const { t } = useTranslation('calls')
+  const { t } = useTranslation('telephony')
   return (
     <Dialog open={open} onOpenChange={onOpenChange}>
       <DialogContent>
@@ -68,7 +68,7 @@ interface LogCallFormProps {
 }
 
 function LogCallForm({ record, phoneNumber, started, onClose, onLogged }: LogCallFormProps) {
-  const { t } = useTranslation('calls')
+  const { t } = useTranslation('telephony')
   const formId = useId()
   const client = useQueryClient()
   const invalidate = useInvalidateCalls()
