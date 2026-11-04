@@ -4,9 +4,7 @@ use chrono::{DateTime, Utc};
 use uuid::Uuid;
 
 use crate::compose::html::{append_pixel, rewrite_links};
-use crate::domain::normalize_address;
 use crate::tracking::TrackingToken;
-use aphel_kernel::application::files::sha256_hex;
 use aphel_kernel::application::secrets::SecretKey;
 use aphel_kernel::domain::UserId;
 use aphel_kernel::domain::access::{AccessScope, PermissionSet, RoleKey};
@@ -14,7 +12,7 @@ use aphel_kernel::errors::AppError;
 
 pub(crate) const TRACKING_KEY_NAME: &str = "email_tracking_key";
 pub(crate) const EMAIL_TRACKING_UPDATED: &str = "email_tracking.updated";
-pub const EMAIL_TRACKING_OBJECTION_ADDED: &str = "email_tracking.objection_added";
+pub use aphel_sdk::email::EMAIL_TRACKING_OBJECTION_ADDED;
 pub(crate) const EMAIL_TRACKING_OBJECTION_REMOVED: &str = "email_tracking.objection_removed";
 pub(crate) const EMAIL_TRACKING_OBJECTION_EXISTS: &str = "email_tracking_objection_exists";
 pub(crate) const EMAIL_TRACKING_OBJECTION_NOT_FOUND: &str = "email_tracking_objection_not_found";
@@ -59,10 +57,7 @@ pub(crate) enum TrackingKind {
     Click(u16),
 }
 
-pub fn address_hash(address: &str) -> String {
-    let normalized = normalize_address(address).unwrap_or_else(|_| address.trim().to_lowercase());
-    sha256_hex(normalized.as_bytes())
-}
+pub use aphel_sdk::email::address_hash;
 
 pub(crate) fn tracking_scope() -> AccessScope {
     AccessScope::new(

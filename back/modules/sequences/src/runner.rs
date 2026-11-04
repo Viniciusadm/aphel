@@ -24,12 +24,12 @@ use aphel_kernel::application::shared::{
 use aphel_kernel::domain::UserId;
 use aphel_kernel::domain::access::{AccessScope, PermissionSet, RoleKey};
 use aphel_kernel::errors::AppError;
+use aphel_sdk::email::EmailAddress;
+use aphel_sdk::email::address_hash;
 use aphel_sdk::tasks::CreateActivityCommand;
-use email::EmailAddress;
 use email::compose::{RecordInput, SendEmailCommand};
 use email::service::{sender, templates};
 use email::templates::PreviewCommand;
-use email::tracking::address_hash;
 
 pub(crate) const SEQUENCES_TICK_JOB: &str = "sequences.tick";
 pub(crate) const SEQUENCES_TICK_CRON: &str = "0 * * * * *";

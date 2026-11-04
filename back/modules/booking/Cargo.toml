@@ -13,7 +13,6 @@ aphel-contract-crm.workspace = true
 aphel-kernel.workspace = true
 tasks = { package = "aphel-mod-tasks", path = "../tasks" }
 people = { package = "aphel-mod-people", path = "../people" }
-email = { package = "aphel-mod-email", path = "../email" }
 assignment = { package = "aphel-mod-assignment", path = "../assignment" }
 axum.workspace = true
 async-trait.workspace = true

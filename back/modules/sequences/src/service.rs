@@ -37,8 +37,8 @@ use aphel_kernel::domain::access::{AccessScope, Permission, RecordScopeFilter};
 use aphel_kernel::errors::{AppError, FieldViolation};
 use aphel_kernel::infrastructure::records::MySqlRecordAccessChecker;
 use aphel_sdk::configuration::{is_config_key, key_from_name};
-use email::compose::html::sanitize_html;
-use email::tracking::address_hash;
+use aphel_sdk::email::address_hash;
+use aphel_sdk::email::html::sanitize_html;
 
 use aphel_kernel::application::shared::parse_uuid as parse_id;
 

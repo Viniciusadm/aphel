@@ -482,6 +482,13 @@ This phase is in progress. Completed entries describe static source validation; 
 - [x] Remove the validation-rules formula implementation dependency. Full lint passes, OpenAPI is unchanged and native peer-dependent plugins fall from seven to six.
 - [ ] Manual acceptance: create/update timing, boolean/type diagnostics, formula dependencies/aggregates, custom values in the write transaction, invalid saved expressions, ordered field errors, preview scopes and disabled formulas.
 
+## Shared mail content codecs
+
+- [x] Share the existing address normalization/length codec and objection event identity through the email contract; share normalized address hashing and generic HTML sanitization/text codecs through the SDK.
+- [x] Keep tracking URL selection, link rewriting and pixel insertion in email. No transport, template policy or plugin SQL moves to shared utilities.
+- [x] Booking no longer imports the email implementation; sequences consumes shared content codecs. Formatting and strict email/booking/sequence Clippy pass without tests.
+- [ ] Manual acceptance: address validation/hashing, dangerous HTML removal, HTML text conversion, booking addresses and sequence content.
+
 ## Outstanding scope
 
 The remaining identity changes, shared capability interfaces, owner-only SQL, deletion policies and per-plugin manual acceptance matrices are still pending. Existing architectural debt is not considered resolved by renaming packages.

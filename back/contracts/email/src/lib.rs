@@ -88,3 +88,36 @@ pub const MAIL_CONNECT_FAILED: &str = "mail_connect_failed";
 pub const ALREADY_CONNECTED: &str = "already_connected";
 
 pub const PURPOSE_MAIL: &str = "mail";
+
+pub const MAX_ADDRESS_LENGTH: usize = 320;
+pub fn normalize_address(value: &str) -> Result<String, &'static str> {
+    let address = value
+        .trim()
+        .trim_start_matches('<')
+        .trim_end_matches('>')
+        .trim()
+        .to_lowercase();
+    if address.is_empty() {
+        return Err("must not be empty");
+    }
+    if address.chars().count() > MAX_ADDRESS_LENGTH {
+        return Err("must have at most 320 characters");
+    }
+    let Some((local, domain)) = address.rsplit_once('@') else {
+        return Err("must be a valid e-mail address");
+    };
+    if local.is_empty()
+        || domain.is_empty()
+        || !domain.contains('.')
+        || domain.starts_with('.')
+        || domain.ends_with('.')
+        || address.chars().any(|character| {
+            character.is_whitespace() || matches!(character, '<' | '>' | ',' | ';')
+        })
+    {
+        return Err("must be a valid e-mail address");
+    }
+    Ok(address)
+}
+
+pub const EMAIL_TRACKING_OBJECTION_ADDED: &str = "email_tracking.objection_added";

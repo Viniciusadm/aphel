@@ -13,7 +13,7 @@ use aphel_kernel::errors::AppError;
 use aphel_sdk::booking::MEETING_BOOKED;
 use aphel_sdk::deals::{DEAL_LOST, DEAL_WON};
 use aphel_sdk::email::{EMAIL_BOUNCED, EMAIL_OPENED, EMAIL_RECEIVED};
-use email::tracking::{EMAIL_TRACKING_OBJECTION_ADDED, address_hash};
+use aphel_sdk::email::{EMAIL_TRACKING_OBJECTION_ADDED, address_hash};
 
 pub(crate) const SEQUENCE_EXITS_CONSUMER: &str = "sequences.exits";
 pub(crate) const CONTACT_DELETED: &str = "contact.deleted";

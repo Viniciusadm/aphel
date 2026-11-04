@@ -694,7 +694,6 @@ dependencies = [
  "aphel-contract-crm",
  "aphel-kernel",
  "aphel-mod-assignment",
- "aphel-mod-email",
  "aphel-mod-people",
  "aphel-mod-tasks",
  "aphel-sdk",

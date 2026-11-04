@@ -64,3 +64,9 @@ pub trait EmailEngagementProjection: Send + Sync {
         reader: &dyn EmailEngagementReader,
     ) -> Result<(), AppError>;
 }
+
+pub mod html;
+pub fn address_hash(address: &str) -> String {
+    let normalized = normalize_address(address).unwrap_or_else(|_| address.trim().to_lowercase());
+    aphel_kernel::application::files::sha256_hex(normalized.as_bytes())
+}

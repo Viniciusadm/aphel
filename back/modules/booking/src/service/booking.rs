@@ -30,7 +30,7 @@ use aphel_kernel::domain::organization_profile::ORGANIZATION_RECORD_ID;
 use aphel_kernel::domain::{Secret, UserId};
 use aphel_kernel::errors::{AppError, FieldViolation};
 use aphel_kernel::records::{AddressInput, PendingCommit};
-use email::domain::normalize_address;
+use aphel_sdk::email::normalize_address;
 use people::domain::{ContactInput, SaveContactCommand};
 use people::service::CreatedContact;
 use tasks::domain::{CreateActivityCommand, UpdateActivityCommand};
