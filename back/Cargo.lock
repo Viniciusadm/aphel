@@ -572,7 +572,6 @@ dependencies = [
  "aphel-contract-crm",
  "aphel-kernel",
  "aphel-mod-formulas",
- "aphel-mod-workflow",
  "aphel-sdk",
  "async-trait",
  "axum",

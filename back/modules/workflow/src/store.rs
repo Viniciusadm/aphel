@@ -197,6 +197,26 @@ impl PipelineStore {
         rows.iter().map(stage_from_row).collect()
     }
 
+    pub(crate) async fn stage_names(
+        &self,
+        ids: &[Uuid],
+    ) -> Result<HashMap<Uuid, String>, AppError> {
+        if ids.is_empty() {
+            return Ok(HashMap::new());
+        }
+        let mut builder =
+            QueryBuilder::<MySql>::new("SELECT id, name FROM workflow_stages WHERE id IN (");
+        let mut separated = builder.separated(", ");
+        for id in ids {
+            separated.push_bind(id.to_string());
+        }
+        separated.push_unseparated(")");
+        let rows: Vec<(String, String)> = builder.build_query_as().fetch_all(&self.pool).await?;
+        rows.into_iter()
+            .map(|(id, name)| Ok((parse_uuid(&id, "workflow_stages.id")?, name)))
+            .collect()
+    }
+
     pub async fn find_stage(&self, stage_id: Uuid) -> Result<Option<PipelineStage>, AppError> {
         let row = sqlx::query(sqlx::AssertSqlSafe(format!(
             "SELECT {STAGE_COLUMNS} FROM workflow_stages WHERE id = ?"

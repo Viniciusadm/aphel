@@ -1269,20 +1269,17 @@ impl ApprovalDirectory {
         &self,
         ids: &[Uuid],
     ) -> Result<HashMap<Uuid, String>, AppError> {
-        if ids.is_empty() {
+        let Some(catalog) = aphel_kernel::modules::app()
+            .services()
+            .get::<dyn aphel_sdk::workflow::WorkflowCatalog>()
+        else {
             return Ok(HashMap::new());
+        };
+        let mut names = HashMap::new();
+        for batch in ids.chunks(1000) {
+            names.extend(catalog.stage_names(&self.pool, batch).await?);
         }
-        let mut builder =
-            QueryBuilder::<MySql>::new("SELECT id, name FROM workflow_stages WHERE id IN (");
-        let mut separated = builder.separated(", ");
-        for id in ids {
-            separated.push_bind(id.to_string());
-        }
-        separated.push_unseparated(")");
-        let rows: Vec<(String, String)> = builder.build_query_as().fetch_all(&self.pool).await?;
-        rows.into_iter()
-            .map(|(id, name)| Ok((parse_uuid(&id, "workflow_stages.id")?, name)))
-            .collect()
+        Ok(names)
     }
 
     pub(crate) async fn role_exists(&self, id: Uuid) -> Result<bool, AppError> {

@@ -206,6 +206,13 @@ This phase is in progress. Completed entries describe static source validation; 
 - [x] Remove all AI peer implementation dependencies. Single-record loads use the generic context handler guard instead of invoking handlers directly.
 - [ ] Manual acceptance: AI context tools, related notes/private notes/tasks, user scopes and hidden fields, query filters, disabled owners and bounded source failures.
 
+## Approval workflow references
+
+- [x] Approval package export/planning uses owner-provided pipeline/stage keys and package metadata instead of workflow implementation types.
+- [x] Workflow owns bounded stage-name lookup; approval validation and presentation consume the enabled catalog. Remove approval's foreign stage SQL and workflow crate dependency.
+- [ ] Replace the remaining formulas implementation dependency.
+- [ ] Manual acceptance: stage-change policies, package stage overrides, portable target resolution, disabled workflow and request stage labels.
+
 ## Outstanding scope
 
 The remaining identity changes, shared capability interfaces, owner-only SQL, deletion policies and per-plugin manual acceptance matrices are still pending. Existing architectural debt is not considered resolved by renaming packages.

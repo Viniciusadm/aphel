@@ -12,7 +12,6 @@ aphel-contract-automation.workspace = true
 formulas = { package = "aphel-mod-formulas", path = "../formulas" }
 aphel-contract-crm.workspace = true
 aphel-kernel.workspace = true
-workflow = { package = "aphel-mod-workflow", path = "../workflow" }
 axum.workspace = true
 async-trait.workspace = true
 chrono.workspace = true

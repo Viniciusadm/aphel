@@ -22,11 +22,11 @@ use aphel_kernel::domain::access::AccessScope;
 use aphel_kernel::errors::AppError;
 use aphel_sdk::configuration::sections::common::{check_key, diff};
 use aphel_sdk::configuration::{
-    ApplyContext, ConfigKeyRepository, ConfigPackage, ConfigSection, Decisions, PackageIssue,
-    PlanAction, PlanChange, PlanItem, assign_keys, parse_section,
+    ApplyContext, ConfigPackage, ConfigSection, Decisions, PackageIssue, PlanAction, PlanChange,
+    PlanItem, parse_section,
 };
-use workflow::section::{PIPELINES_SECTION, keyed_pipelines, parse_pipelines, stage_item_key};
-use workflow::store::PipelineStore;
+use aphel_sdk::configuration::{package_reference_keys, reference_keys};
+use sqlx::MySqlPool;
 
 pub(crate) const APPROVAL_POLICIES_SECTION: &str = "approval_policies";
 const APPROVAL_POLICY_KIND: &str = "approval_policy";
@@ -200,57 +200,48 @@ fn split_stage(reference: &str) -> Option<(&str, &str)> {
         .filter(|(pipeline, stage)| !pipeline.is_empty() && !stage.is_empty())
 }
 
-pub(crate) struct ApprovalPoliciesSection<K> {
+pub(crate) struct ApprovalPoliciesSection {
     registry: Arc<RecordTypeRegistry>,
     repository: ApprovalStore,
     directory: ApprovalDirectory,
-    workflow: PipelineStore,
-    keys: K,
+    pool: MySqlPool,
 }
 
-impl<K> ApprovalPoliciesSection<K>
-where
-    K: ConfigKeyRepository,
-{
+impl ApprovalPoliciesSection {
     pub(crate) fn new(
         registry: Arc<RecordTypeRegistry>,
         repository: ApprovalStore,
         directory: ApprovalDirectory,
-        workflow: PipelineStore,
-        keys: K,
+        pool: MySqlPool,
     ) -> Self {
         Self {
             registry,
             repository,
             directory,
-            workflow,
-            keys,
+            pool,
         }
     }
 
     async fn index(&self) -> Result<Index, AppError> {
-        let stored_stages = self
-            .keys
-            .keys(ConfigReferenceKind::new("workflow.stage"))
-            .await?;
-        let mut workflow = Vec::new();
-        for (pipeline, keyed) in keyed_pipelines(&self.workflow, &self.keys).await? {
-            let stages = self.workflow.list_stages(pipeline.id).await?;
-            let ids: BTreeSet<Uuid> = stages.iter().map(|stage| stage.id).collect();
-            let stored: HashMap<Uuid, String> = stored_stages
-                .iter()
-                .filter(|(id, _)| ids.contains(id))
-                .map(|(id, key)| (*id, key.clone()))
-                .collect();
-            let keys = assign_keys(
-                stages.iter().map(|stage| (stage.id, stage.name.as_str())),
-                &stored,
-            );
-            workflow.push(KeyedPipeline {
-                key: keyed.key,
-                stages: keys.into_iter().map(|item| (item.id, item.key)).collect(),
-            });
-        }
+        let pipeline_keys =
+            reference_keys(&self.pool, ConfigReferenceKind::new("workflow.pipeline")).await?;
+        let stage_keys =
+            reference_keys(&self.pool, ConfigReferenceKind::new("workflow.stage")).await?;
+        let workflow = pipeline_keys
+            .into_values()
+            .map(|key| {
+                let prefix = format!("{key}/");
+                let stages = stage_keys
+                    .iter()
+                    .filter_map(|(id, value)| {
+                        value
+                            .strip_prefix(&prefix)
+                            .map(|stage| (*id, stage.to_owned()))
+                    })
+                    .collect();
+                KeyedPipeline { key, stages }
+            })
+            .collect();
         Ok(Index {
             workflow,
             roles: self.directory.role_keys().await?,
@@ -338,10 +329,7 @@ where
 }
 
 #[async_trait]
-impl<K> ConfigSection<MySqlTx> for ApprovalPoliciesSection<K>
-where
-    K: ConfigKeyRepository<Tx = MySqlTx>,
-{
+impl ConfigSection<MySqlTx> for ApprovalPoliciesSection {
     fn key(&self) -> &'static str {
         APPROVAL_POLICIES_SECTION
     }
@@ -382,18 +370,19 @@ where
                 ),
             ));
         }
-        let packaged_stages: HashMap<String, Vec<String>> = package
-            .section(PIPELINES_SECTION)
-            .and_then(|content| parse_pipelines(content).ok())
-            .unwrap_or_default()
-            .into_iter()
-            .map(|pipeline| {
-                (
-                    pipeline.key,
-                    pipeline.stages.into_iter().map(|stage| stage.key).collect(),
-                )
-            })
-            .collect();
+        let mut packaged_stages: HashMap<String, Vec<String>> =
+            package_reference_keys(package, ConfigReferenceKind::new("workflow.pipeline"))
+                .into_iter()
+                .map(|key| (key, Vec::new()))
+                .collect();
+        for key in package_reference_keys(package, ConfigReferenceKind::new("workflow.stage")) {
+            if let Some((pipeline, stage)) = key.split_once('/') {
+                packaged_stages
+                    .entry(pipeline.to_owned())
+                    .or_default()
+                    .push(stage.to_owned());
+            }
+        }
         let packaged_types: BTreeSet<String> = package
             .section(CUSTOM_OBJECTS_SECTION)
             .and_then(Value::as_array)
@@ -558,7 +547,7 @@ where
                 target_id = context
                     .resolved(
                         ConfigReferenceKind::new("workflow.stage"),
-                        &stage_item_key(pipeline_key, stage_key),
+                        &format!("{pipeline_key}/{stage_key}"),
                     )
                     .or_else(|| {
                         index.pipeline(pipeline_key).and_then(|pipeline| {

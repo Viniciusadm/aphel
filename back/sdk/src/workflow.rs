@@ -79,6 +79,11 @@ pub trait WorkflowCatalog: Send + Sync {
         ids: &[Uuid],
     ) -> Result<Vec<PipelineStage>, AppError>;
     async fn stage(&self, pool: &MySqlPool, id: Uuid) -> Result<Option<PipelineStage>, AppError>;
+    async fn stage_names(
+        &self,
+        pool: &MySqlPool,
+        ids: &[Uuid],
+    ) -> Result<HashMap<Uuid, String>, AppError>;
     async fn lost_reasons(&self, pool: &MySqlPool) -> Result<Vec<LostReason>, AppError>;
     async fn lost_reason(&self, pool: &MySqlPool, id: Uuid)
     -> Result<Option<LostReason>, AppError>;

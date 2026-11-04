@@ -27,6 +27,18 @@ impl WorkflowCatalog for NativeWorkflowCatalog {
             .stages_for_pipelines(ids)
             .await
     }
+    async fn stage_names(
+        &self,
+        pool: &MySqlPool,
+        ids: &[Uuid],
+    ) -> Result<std::collections::HashMap<Uuid, String>, AppError> {
+        if ids.len() > 1000 {
+            return Err(AppError::Validation(
+                "at most 1000 stage names may be requested".into(),
+            ));
+        }
+        PipelineStore::new(pool.clone()).stage_names(ids).await
+    }
     async fn stage(&self, pool: &MySqlPool, id: Uuid) -> Result<Option<PipelineStage>, AppError> {
         PipelineStore::new(pool.clone()).find_stage(id).await
     }
