@@ -50,14 +50,6 @@ pub(crate) struct Link {
     pub(crate) local_updated_at: Option<DateTime<Utc>>,
 }
 
-fn connections(key: &str) -> String {
-    format!("{key}_calendar_connections")
-}
-
-fn links(key: &str) -> String {
-    format!("{key}_calendar_links")
-}
-
 fn now() -> NaiveDateTime {
     Utc::now().naive_utc()
 }
@@ -102,9 +94,9 @@ pub(crate) async fn find_connection(
     user_id: Uuid,
 ) -> Result<Option<Connection>, AppError> {
     sqlx::query(AssertSqlSafe(format!(
-        "SELECT {CONNECTION_COLUMNS} FROM {} WHERE user_id = ?",
-        connections(key)
+        "SELECT {CONNECTION_COLUMNS} FROM task_calendar_connections WHERE provider_key = ? AND user_id = ?"
     )))
+    .bind(key)
     .bind(user_id.to_string())
     .fetch_optional(pool)
     .await?
@@ -117,9 +109,9 @@ pub(crate) async fn list_connections(
     key: &str,
 ) -> Result<Vec<Connection>, AppError> {
     sqlx::query(AssertSqlSafe(format!(
-        "SELECT {CONNECTION_COLUMNS} FROM {} WHERE status <> ? ORDER BY created_at LIMIT 1000",
-        connections(key)
+        "SELECT {CONNECTION_COLUMNS} FROM task_calendar_connections WHERE provider_key = ? AND status <> ? ORDER BY created_at LIMIT 1000"
     )))
+    .bind(key)
     .bind(STATUS_REVOKED)
     .fetch_all(pool)
     .await?
@@ -134,13 +126,13 @@ pub(crate) async fn upsert_connection(
     user_id: Uuid,
     account_email: Option<&str>,
 ) -> Result<(), AppError> {
-    sqlx::query(AssertSqlSafe(format!(
-        "INSERT INTO {} (id, user_id, account_email, status) VALUES (?, ?, ?, ?) \
+    sqlx::query(
+        "INSERT INTO task_calendar_connections (id, provider_key, user_id, account_email, status) VALUES (?, ?, ?, ?, ?) \
          ON DUPLICATE KEY UPDATE account_email = VALUES(account_email), status = VALUES(status), sync_cursor = NULL, \
-         last_error_code = NULL, last_error_message = NULL, updated_at = CURRENT_TIMESTAMP(6)",
-        connections(key)
-    )))
+         last_error_code = NULL, last_error_message = NULL, updated_at = CURRENT_TIMESTAMP(6)"
+    )
     .bind(Uuid::now_v7().to_string())
+    .bind(key)
     .bind(user_id.to_string())
     .bind(account_email.map(|email| truncate(email, 320)))
     .bind(STATUS_ACTIVE)
@@ -154,13 +146,12 @@ pub(crate) async fn delete_connection(
     key: &str,
     user_id: Uuid,
 ) -> Result<bool, AppError> {
-    let result = sqlx::query(AssertSqlSafe(format!(
-        "DELETE FROM {} WHERE user_id = ?",
-        connections(key)
-    )))
-    .bind(user_id.to_string())
-    .execute(&mut **tx)
-    .await?;
+    let result =
+        sqlx::query("DELETE FROM task_calendar_connections WHERE provider_key = ? AND user_id = ?")
+            .bind(key)
+            .bind(user_id.to_string())
+            .execute(&mut **tx)
+            .await?;
     Ok(result.rows_affected() > 0)
 }
 
@@ -182,17 +173,17 @@ pub(crate) async fn finish_sync(
         .as_ref()
         .map(|(code, message)| (Some(truncate(code, 64)), Some(truncate(message, 500))))
         .unwrap_or((None, None));
-    sqlx::query(AssertSqlSafe(format!(
-        "UPDATE {} SET sync_cursor = COALESCE(?, sync_cursor), last_synced_at = ?, last_error_code = ?, \
+    sqlx::query(
+        "UPDATE task_calendar_connections SET sync_cursor = COALESCE(?, sync_cursor), last_synced_at = ?, last_error_code = ?, \
          last_error_message = ?, imported_count = imported_count + ?, updated_at = CURRENT_TIMESTAMP(6) \
-         WHERE user_id = ?",
-        connections(key)
-    )))
+         WHERE provider_key = ? AND user_id = ?"
+    )
     .bind(outcome.cursor.as_deref())
     .bind(now())
     .bind(code)
     .bind(message)
     .bind(outcome.imported)
+    .bind(key)
     .bind(user_id.to_string())
     .execute(pool)
     .await?;
@@ -204,10 +195,10 @@ pub(crate) async fn reset_cursor(
     key: &str,
     user_id: Uuid,
 ) -> Result<(), AppError> {
-    sqlx::query(AssertSqlSafe(format!(
-        "UPDATE {} SET sync_cursor = NULL WHERE user_id = ?",
-        connections(key)
-    )))
+    sqlx::query(
+        "UPDATE task_calendar_connections SET sync_cursor = NULL WHERE provider_key = ? AND user_id = ?"
+    )
+    .bind(key)
     .bind(user_id.to_string())
     .execute(pool)
     .await?;
@@ -222,14 +213,14 @@ pub(crate) async fn mark_failure(
     code: &str,
     message: &str,
 ) -> Result<(), AppError> {
-    sqlx::query(AssertSqlSafe(format!(
-        "UPDATE {} SET status = ?, last_error_code = ?, last_error_message = ?, updated_at = CURRENT_TIMESTAMP(6) \
-         WHERE user_id = ?",
-        connections(key)
-    )))
+    sqlx::query(
+        "UPDATE task_calendar_connections SET status = ?, last_error_code = ?, last_error_message = ?, updated_at = CURRENT_TIMESTAMP(6) \
+         WHERE provider_key = ? AND user_id = ?"
+    )
     .bind(status)
     .bind(truncate(code, 64))
     .bind(truncate(message, 500))
+    .bind(key)
     .bind(user_id.to_string())
     .execute(pool)
     .await?;
@@ -241,11 +232,11 @@ pub(crate) async fn mark_healthy(
     key: &str,
     user_id: Uuid,
 ) -> Result<(), AppError> {
-    sqlx::query(AssertSqlSafe(format!(
-        "UPDATE {} SET status = ?, updated_at = CURRENT_TIMESTAMP(6) WHERE user_id = ? AND status <> ?",
-        connections(key)
-    )))
+    sqlx::query(
+        "UPDATE task_calendar_connections SET status = ?, updated_at = CURRENT_TIMESTAMP(6) WHERE provider_key = ? AND user_id = ? AND status <> ?"
+    )
     .bind(STATUS_ACTIVE)
+    .bind(key)
     .bind(user_id.to_string())
     .bind(STATUS_REVOKED)
     .execute(pool)
@@ -258,10 +249,10 @@ pub(crate) async fn count_export(
     key: &str,
     user_id: Uuid,
 ) -> Result<(), AppError> {
-    sqlx::query(AssertSqlSafe(format!(
-        "UPDATE {} SET exported_count = exported_count + 1 WHERE user_id = ?",
-        connections(key)
-    )))
+    sqlx::query(
+        "UPDATE task_calendar_connections SET exported_count = exported_count + 1 WHERE provider_key = ? AND user_id = ?"
+    )
+    .bind(key)
     .bind(user_id.to_string())
     .execute(pool)
     .await?;
@@ -286,9 +277,9 @@ pub(crate) async fn link_by_remote(
     remote_id: &str,
 ) -> Result<Option<Link>, AppError> {
     sqlx::query(AssertSqlSafe(format!(
-        "SELECT {LINK_COLUMNS} FROM {} WHERE user_id = ? AND remote_id = ?",
-        links(key)
+        "SELECT {LINK_COLUMNS} FROM task_calendar_links WHERE provider_key = ? AND user_id = ? AND remote_id = ?"
     )))
+    .bind(key)
     .bind(user_id.to_string())
     .bind(remote_id)
     .fetch_optional(pool)
@@ -303,9 +294,9 @@ pub(crate) async fn link_by_activity(
     activity_id: Uuid,
 ) -> Result<Option<(Uuid, Link)>, AppError> {
     let row = sqlx::query(AssertSqlSafe(format!(
-        "SELECT user_id, {LINK_COLUMNS} FROM {} WHERE activity_id = ?",
-        links(key)
+        "SELECT user_id, {LINK_COLUMNS} FROM task_calendar_links WHERE provider_key = ? AND activity_id = ?"
     )))
+    .bind(key)
     .bind(activity_id.to_string())
     .fetch_optional(pool)
     .await?;
@@ -333,15 +324,15 @@ pub(crate) async fn save_link(
     key: &str,
     write: &LinkWrite<'_>,
 ) -> Result<(), AppError> {
-    sqlx::query(AssertSqlSafe(format!(
-        "INSERT INTO {} (id, user_id, activity_id, remote_id, remote_etag, remote_updated_at, local_updated_at, last_synced_at) \
-         VALUES (?, ?, ?, ?, ?, ?, ?, ?) \
+    sqlx::query(
+        "INSERT INTO task_calendar_links (id, provider_key, user_id, activity_id, remote_id, remote_etag, remote_updated_at, local_updated_at, last_synced_at) \
+         VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?) \
          ON DUPLICATE KEY UPDATE user_id = VALUES(user_id), activity_id = VALUES(activity_id), remote_id = VALUES(remote_id), \
          remote_etag = VALUES(remote_etag), remote_updated_at = VALUES(remote_updated_at), \
-         local_updated_at = VALUES(local_updated_at), last_synced_at = VALUES(last_synced_at)",
-        links(key)
-    )))
+         local_updated_at = VALUES(local_updated_at), last_synced_at = VALUES(last_synced_at)"
+    )
     .bind(Uuid::now_v7().to_string())
+    .bind(key)
     .bind(write.user_id.to_string())
     .bind(write.activity_id.to_string())
     .bind(truncate(write.remote_id, 255))
@@ -359,12 +350,10 @@ pub(crate) async fn delete_link(
     key: &str,
     activity_id: Uuid,
 ) -> Result<(), AppError> {
-    sqlx::query(AssertSqlSafe(format!(
-        "DELETE FROM {} WHERE activity_id = ?",
-        links(key)
-    )))
-    .bind(activity_id.to_string())
-    .execute(pool)
-    .await?;
+    sqlx::query("DELETE FROM task_calendar_links WHERE provider_key = ? AND activity_id = ?")
+        .bind(key)
+        .bind(activity_id.to_string())
+        .execute(pool)
+        .await?;
     Ok(())
 }

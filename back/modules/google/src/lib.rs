@@ -11,7 +11,7 @@ use utoipa_axum::router::OpenApiRouter;
 use aphel_kernel::api::sso::LoginProvider;
 use aphel_kernel::domain::access::{Permission, PermissionDefinition};
 use aphel_kernel::errors::{AppError, FieldViolation};
-use aphel_kernel::modules::{AppBuilder, Manifest, Migration, Module};
+use aphel_kernel::modules::{AppBuilder, Manifest, Module};
 use aphel_sdk::calendar::CalendarAvailability;
 use aphel_sdk::sso::IdentityLogin;
 use aphel_sdk::sso::settings::{login_setting_fields, validate_login_settings};
@@ -45,11 +45,7 @@ impl Module for GoogleModule {
         {
             manifest = manifest.setting(field);
         }
-        manifest.migration(Migration::new(
-            1,
-            "create oauth states and calendar sync tables",
-            include_str!("../migrations/0001_sso_calendar.sql"),
-        ))
+        manifest
     }
 
     fn register(&self, app: &mut AppBuilder) -> Result<(), AppError> {

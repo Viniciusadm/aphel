@@ -393,6 +393,14 @@ This phase is in progress. Completed entries describe static source validation; 
 - [x] Remove SSO implementation dependencies from email, tasks, Google and Microsoft. Email and tasks now have no peer implementation dependencies; vendor providers still consume email/task implementations pending extraction.
 - [ ] Manual acceptance: account discovery, login domains, required SSO, provider-specific claims, state/purpose callbacks, session cookies, credential lookup, revoked access and disabled flow providers.
 
+## Task calendar persistence ownership
+
+- [x] Tasks owns provider-partitioned calendar connections and remote links in its own fresh schema; Google and Microsoft contribute no SQL schemas.
+- [x] Replace all provider-formatted calendar table SQL with fixed task-owned tables and bound provider keys. Preserve per-provider connection, remote-event and task-link uniqueness.
+- [x] Remove the provider-table dependency missed by the literal SQL ratchet without introducing adoption, copy or compatibility migrations.
+- [ ] Extract shared calendar provider interfaces and owner job orchestration; review provider removal/secret cleanup through owner maintenance policies.
+- [ ] Manual acceptance: fresh schema, provider isolation, connection reconnect/revoke, cursor/count updates, link upsert/delete, concurrent sync and provider export/removal behavior.
+
 ## Outstanding scope
 
 The remaining identity changes, shared capability interfaces, owner-only SQL, deletion policies and per-plugin manual acceptance matrices are still pending. Existing architectural debt is not considered resolved by renaming packages.

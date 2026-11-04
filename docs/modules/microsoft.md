@@ -84,7 +84,7 @@ The `outlook` provider is contributed as `dyn email::MailboxProvider` (core key 
 
 ## Tables and data
 
-- Migration 1: `microsoft_calendar_connections`, `microsoft_calendar_links`.
+- Calendar connection and remote-link schemas belong to tasks, partitioned by provider key. The provider contributes no SQL schema.
 - **Sent to Microsoft**: `client_id`/`client_secret` (token endpoint), the user's email as `login_hint`, and from CRM meetings: title, start, end and description. **Received**: id_token, tokens (refresh encrypted; access only in memory) and events from the default calendar.
 - No token or secret goes to logs, audit, events or responses.
 
@@ -95,4 +95,4 @@ The `outlook` provider is contributed as `dyn email::MailboxProvider` (core key 
 - Only the user's default calendar; no personal accounts unless `tenant = consumers`/`common`.
 - Same recurrence and precision limitations as the [`google`](google.md#limitations) module.
 
-OAuth nonce/PKCE states are owned by SSO in `sso_oauth_states`, partitioned by provider key. Provider migrations contain only provider-owned calendar data until calendar persistence is extracted.
+OAuth nonce/PKCE states are owned by SSO in `sso_oauth_states`, partitioned by provider key. Calendar connections and remote links are owned by tasks in `task_calendar_connections` and `task_calendar_links`.

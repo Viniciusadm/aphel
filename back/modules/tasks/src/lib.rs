@@ -256,7 +256,14 @@ impl Module for TasksModule {
     fn manifest(&self) -> Manifest {
         Manifest::new(KEY, "Tasks", APHEL_VERSION)
             .description("Tasks, logged tasks, activity types, calendar and activity inbox")
-            .owned_tables(&["tasks", "task_links", "task_recurrences", "task_types"])
+            .owned_tables(&[
+                "tasks",
+                "task_links",
+                "task_recurrences",
+                "task_types",
+                "task_calendar_connections",
+                "task_calendar_links",
+            ])
             .migration(Migration::new(
                 1,
                 "create activity types",
@@ -266,6 +273,11 @@ impl Module for TasksModule {
                 2,
                 "create tasks",
                 include_str!("../migrations/0002_create_activities.sql"),
+            ))
+            .migration(Migration::new(
+                3,
+                "create task calendar sync",
+                include_str!("../migrations/0003_calendar_sync.sql"),
             ))
     }
 

@@ -1,5 +1,6 @@
-CREATE TABLE microsoft_calendar_connections (
+CREATE TABLE task_calendar_connections (
   id CHAR(36) NOT NULL,
+  provider_key VARCHAR(64) NOT NULL,
   user_id CHAR(36) NOT NULL,
   account_email VARCHAR(320) NULL,
   status VARCHAR(16) NOT NULL,
@@ -12,12 +13,13 @@ CREATE TABLE microsoft_calendar_connections (
   created_at DATETIME(6) NOT NULL DEFAULT CURRENT_TIMESTAMP(6),
   updated_at DATETIME(6) NOT NULL DEFAULT CURRENT_TIMESTAMP(6),
   PRIMARY KEY (id),
-  UNIQUE KEY microsoft_calendar_connections_user_unique (user_id),
-  KEY microsoft_calendar_connections_status_index (status, last_synced_at)
+  UNIQUE KEY task_calendar_connections_user_unique (provider_key, user_id),
+  KEY task_calendar_connections_status_index (provider_key, status, last_synced_at)
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci;
 
-CREATE TABLE microsoft_calendar_links (
+CREATE TABLE task_calendar_links (
   id CHAR(36) NOT NULL,
+  provider_key VARCHAR(64) NOT NULL,
   user_id CHAR(36) NOT NULL,
   activity_id CHAR(36) NOT NULL,
   remote_id VARCHAR(255) NOT NULL,
@@ -27,6 +29,6 @@ CREATE TABLE microsoft_calendar_links (
   last_synced_at DATETIME(6) NOT NULL,
   created_at DATETIME(6) NOT NULL DEFAULT CURRENT_TIMESTAMP(6),
   PRIMARY KEY (id),
-  UNIQUE KEY microsoft_calendar_links_remote_unique (user_id, remote_id),
-  UNIQUE KEY microsoft_calendar_links_activity_unique (activity_id)
+  UNIQUE KEY task_calendar_links_remote_unique (provider_key, user_id, remote_id),
+  UNIQUE KEY task_calendar_links_activity_unique (provider_key, activity_id)
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci;
