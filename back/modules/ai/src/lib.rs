@@ -48,8 +48,8 @@ impl Module for AiModule {
                 "Summaries, next-step suggestions, a writing assistant and natural language queries with a configurable AI provider",
             )
             .requires_aphel("0.1.0")
-            .optional(deals::KEY)
-            .optional(tasks::KEY);
+            .optional("deals")
+            .optional("tasks");
         manifest.base = manifest
             .base
             .permission(USE_PERMISSION, "Usar o assistente de IA")

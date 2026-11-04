@@ -1,4 +1,5 @@
 mod config_references;
+mod context_source;
 mod dashboard;
 mod followers;
 mod reminders;
@@ -269,6 +270,9 @@ impl Module for TasksModule {
     }
 
     fn register(&self, app: &mut AppBuilder) -> Result<(), AppError> {
+        app.contribute::<dyn aphel_sdk::record_context::RelatedRecordSource>(std::sync::Arc::new(
+            context_source::ContextSource,
+        ));
         app.contract(aphel_sdk::tasks::DESCRIPTOR);
         app.provide::<dyn aphel_sdk::tasks::TaskReminderSource>(std::sync::Arc::new(
             reminders::Reminders,

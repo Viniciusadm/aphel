@@ -1,3 +1,4 @@
+mod context_source;
 use aphel_sdk::imports::ImportTraits;
 mod dashboard;
 mod timeline;
@@ -210,6 +211,9 @@ impl Module for PeopleModule {
     }
 
     fn register(&self, app: &mut AppBuilder) -> Result<(), AppError> {
+        app.contribute::<dyn aphel_sdk::record_context::RecordListSource>(std::sync::Arc::new(
+            context_source::ContextSource,
+        ));
         app.contribute::<dyn aphel_sdk::dashboard::DashboardSource>(std::sync::Arc::new(
             dashboard::PeopleSummarySource,
         ));

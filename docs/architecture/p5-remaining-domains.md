@@ -130,7 +130,7 @@ This phase is in progress. Completed entries describe static source validation; 
 
 - [x] Publish call event identifiers through a pure telephony contract and native provider/request/recording/router interfaces through the SDK.
 - [x] Remove scoring's telephony implementation dependency; its event matching uses shared identifiers.
-- [x] Keep provider selection in telephony. Resolve contributions on each lookup, filter by captured owner availability and actor scope, and retain provider-specific module restrictions.
+- [x] Keep provider selection in telephony. Resolve contributions on each lookup, filter by captured owner availability, and retain provider-specific module restrictions. System scopes do not carry installation module lists; captured owner availability comes from the application registry.
 - [x] Remove the one-time provider cache so replaced runtime contributions do not leave stale provider instances.
 - [ ] Remove remaining task implementation coupling and foreign SQL/FKs.
 - [ ] Manual acceptance: provider registration/replacement, owner disable/enable, provider restrictions, start/recording failures and call event processing.
@@ -198,6 +198,13 @@ This phase is in progress. Completed entries describe static source validation; 
 - [x] Remove reminders' task implementation dependency and foreign task SQL. Standalone reminders remain available without tasks.
 - [x] Load reminder linked titles in bounded scoped batches through registry metadata, respecting read permissions and hidden title fields instead of unscoped SQL title expressions.
 - [ ] Manual acceptance: task reminders and receipts, disabled task source, retry/dedupe, standalone reminder CRUD, unreadable/hidden linked titles and notification failures.
+
+## AI record context ownership
+
+- [x] Define bounded native listing and related-record sources in the SDK, selected by record type and captured enabled contribution owner; ambiguous providers fail explicitly.
+- [x] People/deals retain their list planners and batch projection; notes/tasks retain parent-link access, visibility and response policies. Owners supply the same response snapshots and masks to AI.
+- [x] Remove all AI peer implementation dependencies. Single-record loads use the generic context handler guard instead of invoking handlers directly.
+- [ ] Manual acceptance: AI context tools, related notes/private notes/tasks, user scopes and hidden fields, query filters, disabled owners and bounded source failures.
 
 ## Outstanding scope
 

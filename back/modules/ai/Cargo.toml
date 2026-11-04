@@ -7,12 +7,9 @@ license.workspace = true
 publish = false
 
 [dependencies]
+aphel-sdk.workspace = true
 aphel-contract-crm.workspace = true
 aphel-kernel.workspace = true
-tasks = { package = "aphel-mod-tasks", path = "../tasks" }
-people = { package = "aphel-mod-people", path = "../people" }
-deals = { package = "aphel-mod-deals", path = "../deals" }
-notes = { package = "aphel-mod-notes", path = "../notes" }
 axum.workspace = true
 async-trait.workspace = true
 chrono.workspace = true

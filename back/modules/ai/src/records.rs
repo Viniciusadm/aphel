@@ -6,16 +6,9 @@ use aphel_kernel::application::organization_admin::ListWindow;
 use aphel_kernel::application::query::{
     ArchivedFilter, Filter, FilterOperator, RecordQuery, RecordQueryEngine,
 };
-use aphel_kernel::application::shared::RecordType;
+use aphel_kernel::application::shared::{RecordRef, RecordType};
 use aphel_kernel::context::Ctx;
 use aphel_kernel::errors::{AppError, CodedKind};
-use aphel_kernel::records::RecordCtx;
-use deals::http::DealResponse;
-use notes::domain::ListNotesQuery;
-use notes::http::NoteResponse;
-use people::http::ContactResponse;
-use tasks::domain::ListActivitiesQuery;
-use tasks::http::ActivityResponse;
 
 pub(crate) struct FieldOption {
     pub(crate) value: String,
@@ -76,11 +69,7 @@ pub(crate) async fn load(
     record_type: &str,
     id: Uuid,
 ) -> Result<Option<Value>, AppError> {
-    let Ok(handler) = ctx.registry().handler(record_type) else {
-        return Ok(None);
-    };
-    let state = ctx.state();
-    match handler.load(&RecordCtx::new(ctx.scope, &state), id).await {
+    match ctx.load_record(record_type, id).await {
         Ok(value) => Ok(value),
         Err(error) if is_missing(&error) => Ok(None),
         Err(error) => Err(error),
@@ -134,26 +123,13 @@ pub(crate) async fn notes(
     record_id: Uuid,
     limit: u64,
 ) -> Result<Vec<Value>, AppError> {
-    if !ctx.app().is_enabled(notes::KEY) {
-        return Ok(Vec::new());
-    }
-    let listing = notes::service::list(
+    aphel_sdk::record_context::related(
         ctx,
-        ListNotesQuery {
-            record_type: record_type.to_owned(),
-            record_id: record_id.to_string(),
-        },
-        window(limit),
+        "notes.note",
+        &RecordRef::new(RecordType::parse(record_type)?, record_id),
+        limit,
     )
-    .await?;
-    listing
-        .items
-        .into_iter()
-        .map(|note| {
-            serde_json::to_value(NoteResponse::from(note))
-                .map_err(|error| AppError::Internal(error.to_string()))
-        })
-        .collect()
+    .await
 }
 
 pub(crate) async fn tasks(
@@ -162,22 +138,13 @@ pub(crate) async fn tasks(
     record_id: Uuid,
     limit: u64,
 ) -> Result<Vec<Value>, AppError> {
-    if !ctx.app().is_enabled(tasks::KEY) {
-        return Ok(Vec::new());
-    }
-    let listing = tasks::service::list(
+    aphel_sdk::record_context::related(
         ctx,
-        ListActivitiesQuery {
-            record_type: Some(record_type.to_owned()),
-            record_id: Some(record_id.to_string()),
-            my_open: false,
-            query: listing_query(None, limit),
-        },
+        RecordType::ACTIVITY.as_str(),
+        &RecordRef::new(RecordType::parse(record_type)?, record_id),
+        limit,
     )
-    .await?;
-    let items: Vec<ActivityResponse> = listing.items.into_iter().map(Into::into).collect();
-    ctx.redacted_items(ctx.scope, &RecordType::ACTIVITY, items)
-        .await
+    .await
 }
 
 fn link_filter(field: &str, record_id: Uuid) -> Option<Filter> {
@@ -194,17 +161,13 @@ pub(crate) async fn deals(
     record_id: Uuid,
     limit: u64,
 ) -> Result<Vec<Value>, AppError> {
-    if !ctx.app().is_enabled(deals::KEY) {
-        return Ok(Vec::new());
-    }
-    let listing = deals::service::list(
+    Ok(aphel_sdk::record_context::list(
         ctx,
+        RecordType::DEAL.as_str(),
         listing_query(link_filter(link_field, record_id), limit),
     )
-    .await?;
-    let items: Vec<DealResponse> = listing.items.into_iter().map(Into::into).collect();
-    ctx.redacted_items(ctx.scope, &RecordType::DEAL, items)
-        .await
+    .await?
+    .items)
 }
 
 pub(crate) async fn people(
@@ -213,15 +176,11 @@ pub(crate) async fn people(
     record_id: Uuid,
     limit: u64,
 ) -> Result<Vec<Value>, AppError> {
-    if !ctx.app().is_enabled(people::KEY) {
-        return Ok(Vec::new());
-    }
-    let listing = people::service::list(
+    Ok(aphel_sdk::record_context::list(
         ctx,
+        RecordType::CONTACT.as_str(),
         listing_query(link_filter(link_field, record_id), limit),
     )
-    .await?;
-    let items: Vec<ContactResponse> = listing.items.into_iter().map(Into::into).collect();
-    ctx.redacted_items(ctx.scope, &RecordType::CONTACT, items)
-        .await
+    .await?
+    .items)
 }

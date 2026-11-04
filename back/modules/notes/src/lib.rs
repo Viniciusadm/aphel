@@ -1,3 +1,4 @@
+mod context_source;
 mod dashboard;
 mod followers;
 mod privacy;
@@ -60,6 +61,9 @@ impl Module for NotesModule {
     }
 
     fn register(&self, app: &mut AppBuilder) -> Result<(), AppError> {
+        app.contribute::<dyn aphel_sdk::record_context::RelatedRecordSource>(std::sync::Arc::new(
+            context_source::ContextSource,
+        ));
         app.contribute::<dyn aphel_sdk::followers::FollowedEventSource>(std::sync::Arc::new(
             followers::NotesFollowedEvents,
         ));

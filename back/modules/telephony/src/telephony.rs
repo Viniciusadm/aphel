@@ -12,7 +12,7 @@ impl TelephonyRouter for RegistryTelephonyRouter {
         let app = aphel_kernel::modules::app();
         let mut providers: Vec<SharedTelephonyProvider> = Vec::new();
         for (owner, provider) in app.all_contributions::<dyn TelephonyProvider>() {
-            if !app.is_enabled(owner) || !scope.module_enabled(owner) {
+            if !app.is_enabled(owner) {
                 continue;
             }
             if provider
