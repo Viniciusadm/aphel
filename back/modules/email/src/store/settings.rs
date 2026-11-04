@@ -7,8 +7,7 @@ use crate::ParticipantView;
 use crate::domain::{EmailDirection, ParticipantRole};
 use crate::store::mailboxes::optional_utc;
 use crate::sync::{
-    BlockKind, BlockedEntry, CaptureSettings, ContactMatch, StoredMailboxFile, SyncFailure,
-    ThreadParticipant,
+    BlockKind, BlockedEntry, CaptureSettings, StoredMailboxFile, SyncFailure, ThreadParticipant,
 };
 use aphel_kernel::Ctx;
 use aphel_kernel::application::files::NewFile;
@@ -195,30 +194,6 @@ impl DirectoryStore {
         Ok(addresses)
     }
 
-    pub(crate) async fn contacts_by_address(
-        &self,
-        addresses: &[String],
-    ) -> Result<Vec<ContactMatch>, AppError> {
-        if addresses.is_empty() {
-            return Ok(Vec::new());
-        }
-        let mut builder = QueryBuilder::<MySql>::new(
-            "SELECT id, LOWER(email) AS email FROM people \
-             WHERE deleted_at IS NULL AND archived_at IS NULL AND LOWER(email) IN ",
-        );
-        push_ids(&mut builder, addresses.iter().cloned());
-        builder.push(" ORDER BY created_at, id");
-        let rows = builder.build().fetch_all(&self.pool).await?;
-        rows.iter()
-            .map(|row| {
-                Ok(ContactMatch {
-                    address: row.try_get("email")?,
-                    contact_id: uuid_column(row, "id")?,
-                })
-            })
-            .collect()
-    }
-
     pub(crate) async fn contact_records(
         &self,
         contact_ids: &[Uuid],
@@ -265,18 +240,6 @@ impl DirectoryStore {
                 Ok(RecordRef::new(record_type, uuid_column(row, "id")?))
             })
             .collect()
-    }
-
-    pub(crate) async fn company_by_domain(&self, domain: &str) -> Result<Option<Uuid>, AppError> {
-        let id: Option<String> = sqlx::query_scalar(
-            "SELECT id FROM organizations WHERE LOWER(domain) = ? \
-             AND deleted_at IS NULL ORDER BY archived_at IS NOT NULL, created_at LIMIT 1",
-        )
-        .bind(domain.to_lowercase())
-        .fetch_optional(&self.pool)
-        .await?;
-        id.map(|id| Uuid::parse_str(&id).map_err(|_| mapper::invalid_column("id", &id)))
-            .transpose()
     }
 
     pub(crate) async fn exchanged_with(

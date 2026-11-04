@@ -1,5 +1,3 @@
-use std::collections::HashMap;
-
 use chrono::{DateTime, Utc};
 use sqlx::{MySql, MySqlPool, QueryBuilder, Row};
 use uuid::Uuid;
@@ -10,7 +8,6 @@ use aphel_kernel::Ctx;
 use aphel_kernel::database::transaction::MySqlTx;
 use aphel_kernel::domain::UserId;
 use aphel_kernel::errors::AppError;
-use aphel_kernel::infrastructure::fields::mysql_definitions::uuid_column;
 use aphel_kernel::infrastructure::repositories::mapper;
 
 #[derive(Clone)]
@@ -48,30 +45,6 @@ impl OutboundStore {
         .execute(&mut **tx)
         .await?;
         Ok(result.rows_affected() == 1)
-    }
-
-    pub(crate) async fn contacts_by_address(
-        &self,
-        addresses: &[String],
-    ) -> Result<HashMap<String, Uuid>, AppError> {
-        if addresses.is_empty() {
-            return Ok(HashMap::new());
-        }
-        let mut builder = QueryBuilder::<MySql>::new(
-            "SELECT id, LOWER(email) AS email FROM people WHERE deleted_at IS NULL AND email IN (",
-        );
-        let mut separated = builder.separated(", ");
-        for address in addresses {
-            separated.push_bind(address.clone());
-        }
-        separated.push_unseparated(") ORDER BY created_at, id");
-        let rows = builder.build().fetch_all(&self.pool).await?;
-        let mut people = HashMap::new();
-        for row in &rows {
-            let email: String = row.try_get("email")?;
-            people.entry(email).or_insert(uuid_column(row, "id")?);
-        }
-        Ok(people)
     }
 
     pub(crate) async fn sender_profile(

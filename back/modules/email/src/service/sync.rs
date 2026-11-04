@@ -387,7 +387,7 @@ async fn import(
     );
     let external: Vec<String> = external.into_iter().collect();
     let mut people: BTreeMap<String, Uuid> = BTreeMap::new();
-    for found in directory.contacts_by_address(&external).await? {
+    for found in crate::party_directory::contacts(ctx, &external, false).await? {
         people.entry(found.address).or_insert(found.contact_id);
     }
     let mut captured: Vec<(String, Uuid)> = Vec::new();
@@ -756,7 +756,7 @@ async fn capture_contact(
         && let Some(domain) = address_domain(address)
         && !is_personal_domain(domain)
     {
-        company_id = match directory.company_by_domain(domain).await? {
+        company_id = match crate::party_directory::company_by_domain(ctx, domain).await? {
             Some(id) => Some(id),
             None => Some(create_company(ctx, &company_name_for_domain(domain), domain).await?),
         };

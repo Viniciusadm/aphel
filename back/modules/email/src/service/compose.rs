@@ -144,9 +144,10 @@ pub async fn enqueue_in_tx(
         .chain(&draft.bcc)
         .map(|recipient| recipient.address.clone())
         .collect();
-    let people = OutboundStore::of(ctx)
-        .contacts_by_address(&recipients)
-        .await?;
+    let mut people = std::collections::HashMap::new();
+    for found in crate::party_directory::contacts(ctx, &recipients, true).await? {
+        people.entry(found.address).or_insert(found.contact_id);
+    }
     let body_file = store_body(ctx, sender, &draft.body).await?;
     let id = Uuid::now_v7();
     persist_draft_in_tx(
@@ -349,9 +350,10 @@ async fn compose(
         .chain(&draft.bcc)
         .map(|recipient| recipient.address.clone())
         .collect();
-    let people = OutboundStore::of(ctx)
-        .contacts_by_address(&recipients)
-        .await?;
+    let mut people = std::collections::HashMap::new();
+    for found in crate::party_directory::contacts(ctx, &recipients, true).await? {
+        people.entry(found.address).or_insert(found.contact_id);
+    }
     let body_file = store_body(ctx, sender, &draft.body).await?;
     let email_id = Uuid::now_v7();
     let result = persist_draft_in_tx(

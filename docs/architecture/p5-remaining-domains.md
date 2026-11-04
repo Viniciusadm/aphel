@@ -335,6 +335,14 @@ This phase is in progress. Completed entries describe static source validation; 
 - [x] Remove email's people, organizations and leads implementation dependencies. Its remaining SSO dependency, foreign directory SQL and runtime party prerequisites remain pending.
 - [ ] Manual acceptance: reciprocal email capture, organization creation, lifecycle defaults, disabled leads/party owners, actor scopes and field-write permissions.
 
+## Scoped email party matching
+
+- [x] Match participant/recipient email addresses through paged owner record listings, preserving oldest-first selection and the separate archived policies for synchronization and outbound messages.
+- [x] Resolve capture organizations by domain through owner listings, preferring active over archived records. Read permission and lookup-field visibility are required before matching.
+- [x] Remove email's direct person address and organization domain SQL; unrelated owned email/core-user reads remain in email storage.
+- [ ] Manual acceptance: duplicate email addresses, archived matches, hidden email/domain fields, mailbox actor scopes, missing owner sources and domain capture ordering.
+- [ ] Related organization/open-deal linking still requires owner interfaces.
+
 ## Outstanding scope
 
 The remaining identity changes, shared capability interfaces, owner-only SQL, deletion policies and per-plugin manual acceptance matrices are still pending. Existing architectural debt is not considered resolved by renaming packages.
