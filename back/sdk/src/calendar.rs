@@ -1,6 +1,7 @@
 use crate::AppError;
 pub use aphel_contract_calendar::*;
 use async_trait::async_trait;
+use chrono::TimeZone;
 use chrono::{DateTime, Utc};
 #[async_trait]
 pub trait CalendarSource: Send + Sync {
@@ -32,4 +33,25 @@ pub trait CalendarAvailability: Send + Sync {
         from: DateTime<Utc>,
         to: DateTime<Utc>,
     ) -> Result<Option<Vec<BusyInterval>>, AppError>;
+}
+
+pub fn local_midnight(timezone: chrono_tz::Tz, date: chrono::NaiveDate) -> DateTime<Utc> {
+    (0..4)
+        .filter_map(|hour| date.and_hms_opt(hour, 0, 0))
+        .find_map(|naive| timezone.from_local_datetime(&naive).earliest())
+        .map(|local| local.with_timezone(&Utc))
+        .unwrap_or_else(|| Utc.from_utc_datetime(&date.and_hms_opt(0, 0, 0).unwrap_or_default()))
+}
+
+pub fn local_day(
+    timezone: chrono_tz::Tz,
+    now: DateTime<Utc>,
+) -> (chrono::NaiveDate, DateTime<Utc>, DateTime<Utc>) {
+    let date = now.with_timezone(&timezone).date_naive();
+    let start = local_midnight(timezone, date);
+    let end = date
+        .succ_opt()
+        .map(|next| local_midnight(timezone, next))
+        .unwrap_or(start + chrono::Duration::days(1));
+    (date, start, end)
 }

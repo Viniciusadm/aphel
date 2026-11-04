@@ -1,3 +1,4 @@
+use aphel_sdk::notifications::NotificationKindExt;
 use async_trait::async_trait;
 use chrono::{DateTime, Utc};
 use sqlx::{MySql, MySqlPool, QueryBuilder, Row};

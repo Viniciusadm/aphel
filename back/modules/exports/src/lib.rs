@@ -16,10 +16,10 @@ use std::sync::Arc;
 use aphel_kernel::application::files::{FileReferenceColumn, FileReferenceSource};
 use aphel_kernel::modules::Migration;
 
-use ::notifications::domain::{ALL_CHANNELS, NotificationKindDefinition};
 use aphel_kernel::errors::AppError;
 use aphel_kernel::modules::builder::APHEL_VERSION;
 use aphel_kernel::modules::{AppBuilder, Manifest, Module, WorkerParts};
+use aphel_sdk::notifications::{ALL_CHANNELS, NotificationKindDefinition};
 
 pub use encode::*;
 pub(crate) use format::*;
@@ -58,12 +58,12 @@ impl Module for ExportsModule {
         app.contribute::<dyn aphel_kernel::modules::FileReferenceSource>(std::sync::Arc::new(
             points::ExportFiles,
         ));
-        app.contribute::<dyn ::notifications::application::texts::NotificationTexts>(
-            std::sync::Arc::new(crate::notifications::ExportNotificationTexts),
-        );
-        app.contribute::<dyn ::notifications::application::NotificationSource>(
-            std::sync::Arc::new(notifications::ExportNotifications),
-        );
+        app.contribute::<dyn aphel_sdk::notifications::NotificationTexts>(std::sync::Arc::new(
+            crate::notifications::ExportNotificationTexts,
+        ));
+        app.contribute::<dyn aphel_sdk::notifications::NotificationSource>(std::sync::Arc::new(
+            notifications::ExportNotifications,
+        ));
         app.openapi_tag(http::TAG, "CSV and XLSX exports of filtered records")
             .routes(|_| http::router());
         app.contribute::<dyn FileReferenceSource>(Arc::new(ExportFileReferences));

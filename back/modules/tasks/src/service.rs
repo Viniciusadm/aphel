@@ -26,7 +26,6 @@ use crate::recurrence::{
     ActivityTemplate, ApplyTo, OccurrenceRef, RecurrenceSeries, parse_rule, to_local,
 };
 use crate::store::{ActivityStore, ActivityTypeStore, RecurrenceStore};
-use ::notifications::application::local_day;
 use aphel_kernel::Ctx;
 use aphel_kernel::application::access::{Authorizer, PERMISSION_DENIED};
 use aphel_kernel::application::audit::{DiffOptions, diff_changes};
@@ -52,6 +51,7 @@ use aphel_kernel::domain::fields::FieldType;
 use aphel_kernel::errors::{AppError, FieldViolation};
 use aphel_kernel::infrastructure::records::MySqlRecordAccessChecker;
 use aphel_kernel::records::PendingCommit;
+use aphel_sdk::calendar::local_day;
 
 pub fn record_access(ctx: &Ctx<'_>) -> MySqlRecordAccessChecker {
     MySqlRecordAccessChecker::new(ctx.pool().clone(), ctx.registry().clone())

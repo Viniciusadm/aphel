@@ -1,3 +1,4 @@
+use aphel_sdk::notifications::NotificationKindExt;
 use std::collections::BTreeMap;
 
 use uuid::Uuid;

@@ -58,9 +58,9 @@ impl Module for OrgExportModule {
         app.contribute::<dyn aphel_kernel::modules::FileReferenceSource>(std::sync::Arc::new(
             points::OrganizationExportFiles,
         ));
-        app.contribute::<dyn ::notifications::application::NotificationSource>(
-            std::sync::Arc::new(notifications::OrganizationExportNotifications),
-        );
+        app.contribute::<dyn aphel_sdk::notifications::NotificationSource>(std::sync::Arc::new(
+            notifications::OrganizationExportNotifications,
+        ));
         app.contribute::<dyn aphel_kernel::modules::ModuleCommand>(std::sync::Arc::new(
             cli::OrgCli,
         ));

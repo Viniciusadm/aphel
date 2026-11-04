@@ -51,9 +51,9 @@ impl Module for PrivacyModule {
         app.contribute::<dyn aphel_kernel::modules::FileReferenceSource>(std::sync::Arc::new(
             points::PrivacyFiles,
         ));
-        app.contribute::<dyn ::notifications::application::NotificationSource>(
-            std::sync::Arc::new(notifications::PrivacyExportNotifications),
-        );
+        app.contribute::<dyn aphel_sdk::notifications::NotificationSource>(std::sync::Arc::new(
+            notifications::PrivacyExportNotifications,
+        ));
         app.openapi_tag(http::TAG, "Privacy (LGPD): personal data subjects, data subject requests (export, anonymization, deletion) and retention policies")
             .routes(|_| http::router());
         app.permission(PermissionDefinition::administrative(

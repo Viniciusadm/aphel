@@ -1,4 +1,5 @@
 pub mod application;
+mod delivery;
 pub mod domain;
 pub mod dto;
 mod http;
@@ -6,27 +7,12 @@ pub mod infrastructure;
 pub mod intern;
 pub mod push_dto;
 mod push_http;
-use crate::application::DueTask;
 use crate::infrastructure::notification_worker_parts;
 use aphel_kernel::application::mail::GlobalMailerResolver;
-use aphel_kernel::domain::UserId;
 use aphel_kernel::errors::AppError;
-use async_trait::async_trait;
-use chrono::{DateTime, Utc};
-use sqlx::MySqlPool;
 use std::sync::Arc;
 pub const KEY: &str = "notifications";
-#[async_trait]
-pub trait DigestSource: Send + Sync {
-    async fn open_tasks_due(
-        &self,
-        pool: &MySqlPool,
-        owner: Option<&UserId>,
-        from: DateTime<Utc>,
-        to: DateTime<Utc>,
-        limit: u64,
-    ) -> Result<Vec<DueTask>, AppError>;
-}
+pub use aphel_sdk::notifications::DigestSource;
 
 pub struct NotificationsModule;
 impl aphel_kernel::modules::Module for NotificationsModule {
@@ -65,6 +51,10 @@ impl aphel_kernel::modules::Module for NotificationsModule {
         ])
     }
     fn register(&self, app: &mut aphel_kernel::modules::AppBuilder) -> Result<(), AppError> {
+        app.provide::<dyn aphel_sdk::notifications::NotificationDelivery>(Arc::new(
+            delivery::Delivery,
+        ));
+        app.contract(aphel_contract_notifications::DESCRIPTOR);
         app.openapi_tag("notifications", "Notifications and delivery preferences")
             .routes(|_| http::router().merge(push_http::router()))
             .worker(workers);

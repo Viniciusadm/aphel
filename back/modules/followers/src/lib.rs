@@ -10,11 +10,11 @@ use std::sync::Arc;
 
 use aphel_kernel::modules::Migration;
 
-use ::notifications::application::RecordFollowerSource;
-use ::notifications::domain::{ALL_CHANNELS, NotificationKindDefinition};
 use aphel_kernel::errors::AppError;
 use aphel_kernel::modules::builder::APHEL_VERSION;
 use aphel_kernel::modules::{AppBuilder, Manifest, Module};
+use aphel_sdk::notifications::RecordFollowerSource;
+use aphel_sdk::notifications::{ALL_CHANNELS, NotificationKindDefinition};
 
 pub(crate) const KEY: &str = "followers";
 
@@ -34,9 +34,9 @@ impl Module for FollowersModule {
     }
 
     fn register(&self, app: &mut AppBuilder) -> Result<(), AppError> {
-        app.contribute::<dyn ::notifications::application::texts::NotificationTexts>(
-            std::sync::Arc::new(crate::notifications::FollowerNotificationTexts),
-        );
+        app.contribute::<dyn aphel_sdk::notifications::NotificationTexts>(std::sync::Arc::new(
+            crate::notifications::FollowerNotificationTexts,
+        ));
         app.openapi_tag(
             http::TAG,
             "Following registered records and owner-provided events",
@@ -49,7 +49,7 @@ impl Module for FollowersModule {
             push_default: false,
         }));
         app.provide::<dyn RecordFollowerSource>(Arc::new(service::FollowerSource));
-        app.contribute::<dyn ::notifications::application::NotificationSource>(Arc::new(
+        app.contribute::<dyn aphel_sdk::notifications::NotificationSource>(Arc::new(
             notifications::FollowedRecordNotifications,
         ));
         app.consumer(|env| {

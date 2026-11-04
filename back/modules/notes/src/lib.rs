@@ -18,7 +18,6 @@ pub mod store;
 use aphel_contract_crm::CrmPermissions;
 use aphel_kernel::modules::Migration;
 
-use ::notifications::domain::{ALL_CHANNELS, NotificationKindDefinition};
 use aphel_kernel::application::public_events::{
     PublicEventDefinition, PublicResource, deleted, event,
 };
@@ -26,6 +25,7 @@ use aphel_kernel::domain::access::{Permission, PermissionDefinition};
 use aphel_kernel::errors::AppError;
 use aphel_kernel::modules::builder::APHEL_VERSION;
 use aphel_kernel::modules::{AppBuilder, Manifest, Module};
+use aphel_sdk::notifications::{ALL_CHANNELS, NotificationKindDefinition};
 
 pub(crate) const NOTE_RESOURCE: PublicResource = PublicResource::new("notes.note", "NoteResponse");
 
@@ -72,9 +72,9 @@ impl Module for NotesModule {
         app.contribute::<dyn aphel_sdk::timeline::TimelineSource>(std::sync::Arc::new(
             timeline::NotesTimeline,
         ));
-        app.contribute::<dyn ::notifications::application::texts::NotificationTexts>(
-            std::sync::Arc::new(crate::notifications::NoteNotificationTexts),
-        );
+        app.contribute::<dyn aphel_sdk::notifications::NotificationTexts>(std::sync::Arc::new(
+            crate::notifications::NoteNotificationTexts,
+        ));
         app.provide::<dyn aphel_contract_automation::application::NoteOperations>(
             std::sync::Arc::new(operations::AutomationNotes),
         );
@@ -84,9 +84,9 @@ impl Module for NotesModule {
         app.contribute::<dyn aphel_kernel::application::public_events::PublicResourceLoader>(
             std::sync::Arc::new(public::NotePublicResource),
         );
-        app.contribute::<dyn ::notifications::application::NotificationSource>(
-            std::sync::Arc::new(notifications::NoteMentionNotifications),
-        );
+        app.contribute::<dyn aphel_sdk::notifications::NotificationSource>(std::sync::Arc::new(
+            notifications::NoteMentionNotifications,
+        ));
         app.on(
             aphel_kernel::records::RecordPurged,
             aphel_kernel::modules::DEFAULT_PRIORITY,

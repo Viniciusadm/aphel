@@ -16,6 +16,16 @@ This phase is in progress. Completed entries describe static source validation; 
 - [x] Remove the legacy temperature-copy migration. The initial schema already creates the owned extension directly.
 - [ ] Remove peer implementations and foreign party SQL; review behavior and manual acceptance.
 
+## Notification extension boundary
+
+- [x] Publish kernel-free notification kinds/channel metadata through `aphel-contract-notifications`.
+- [x] Define native source, presentation, digest/follower, directory and delivery interfaces in the SDK. Owners contribute their own event policies and localized text.
+- [x] Keep notification inserts, preference evaluation, deduplication, email/push queuing and delivery in `notifications`.
+- [x] Replace peer implementation imports with SDK interfaces, including event/job consumers and the runtime notification adapter. Delivery resolves the enabled service at execution time; missing delivery is an explicit unavailable error.
+- [x] Move generic mention parsing to SDK messaging utilities; note limits remain with notes. Generic local-day calculations belong to SDK calendar utilities; reminder schedules remain with reminders.
+- [ ] Manual acceptance: source enable/disable, field/record visibility, recipient preferences, dedupe, actor suppression, localized mail, digest timezone/DST, reminders and runtime plugin notification capability checks.
+- [ ] Review pending jobs when notification delivery is disabled and storage/queue failures; static validation does not establish retry or delivery acceptance.
+
 ## Outstanding scope
 
 The remaining identity changes, shared capability interfaces, owner-only SQL, deletion policies and per-plugin manual acceptance matrices are still pending. Existing architectural debt is not considered resolved by renaming packages.

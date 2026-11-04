@@ -8,7 +8,6 @@ publish = false
 
 [dependencies]
 aphel-sdk.workspace = true
-notifications = { package = "aphel-mod-notifications", path = "../notifications" }
 aphel-kernel.workspace = true
 exports = { package = "aphel-mod-exports", path = "../exports" }
 axum.workspace = true

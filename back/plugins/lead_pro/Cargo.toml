@@ -11,7 +11,7 @@ module = "LeadPro"
 web = "../../../web/src/modules/lead_pro"
 
 [dependencies]
-notifications = { package = "aphel-mod-notifications", path = "../../modules/notifications" }
+aphel-sdk.workspace = true
 aphel-contract-crm.workspace = true
 aphel-kernel.workspace = true
 people = { package = "aphel-mod-people", path = "../../modules/people" }

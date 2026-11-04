@@ -14,10 +14,10 @@ use std::sync::Arc;
 
 use aphel_kernel::modules::Migration;
 
-use ::notifications::domain::{ALL_CHANNELS, NotificationKindDefinition};
 use aphel_kernel::errors::AppError;
 use aphel_kernel::modules::builder::APHEL_VERSION;
 use aphel_kernel::modules::{AppBuilder, Manifest, Module, WorkerParts};
+use aphel_sdk::notifications::{ALL_CHANNELS, NotificationKindDefinition};
 use incoming::{incoming_webhooks_purge_handler, incoming_webhooks_purge_schedule};
 use outgoing::outgoing_webhook_worker;
 
@@ -59,12 +59,12 @@ impl Module for WebhooksModule {
         app.contribute::<dyn aphel_kernel::modules::HealthSource>(std::sync::Arc::new(
             points::WebhookFailures,
         ));
-        app.contribute::<dyn ::notifications::application::texts::NotificationTexts>(
-            std::sync::Arc::new(crate::notifications::WebhookNotificationTexts),
-        );
-        app.contribute::<dyn ::notifications::application::NotificationSource>(
-            std::sync::Arc::new(notifications::WebhookDisabledNotifications),
-        );
+        app.contribute::<dyn aphel_sdk::notifications::NotificationTexts>(std::sync::Arc::new(
+            crate::notifications::WebhookNotificationTexts,
+        ));
+        app.contribute::<dyn aphel_sdk::notifications::NotificationSource>(std::sync::Arc::new(
+            notifications::WebhookDisabledNotifications,
+        ));
         app.contribute::<dyn aphel_sdk::points::ReferenceProvider>(std::sync::Arc::new(
             operations::IncomingWebhookRefs,
         ));

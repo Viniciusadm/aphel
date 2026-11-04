@@ -7,8 +7,6 @@ use serde_json::{Value, json};
 use sqlx::MySqlPool;
 use uuid::Uuid;
 
-use ::notifications::application::{NotificationIntent, dispatch};
-use ::notifications::infrastructure::MySqlNotificationPorts;
 use aphel_kernel::Ctx;
 use aphel_kernel::application::custom_objects::RecordTypeCatalog;
 use aphel_kernel::application::fields::RecordTypeRegistry;
@@ -22,6 +20,8 @@ use aphel_kernel::errors::AppError;
 use aphel_kernel::infrastructure::audit::MySqlAuditLog;
 use aphel_kernel::infrastructure::events::MySqlEventPublisher;
 use aphel_kernel::infrastructure::jobs::MySqlJobQueue;
+use aphel_sdk::notifications::NotificationClient;
+use aphel_sdk::notifications::{NotificationIntent, dispatch};
 
 use crate::domain::{LEAD_HOT, LeadProSettings, TEMPERATURE_CHANGED, heated};
 use crate::store;
@@ -130,7 +130,7 @@ impl TouchConsumer {
         let Ok(recipient) = UserId::new(owner) else {
             return Ok(());
         };
-        let ports = MySqlNotificationPorts::new(
+        let ports = NotificationClient::new(
             self.pool.clone(),
             Arc::new(RecordTypeRegistry::builtin()),
             Arc::new(MySqlJobQueue::new(self.pool.clone())),

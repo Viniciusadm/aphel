@@ -1,5 +1,5 @@
 use async_trait::async_trait;
-use chrono::{DateTime, Duration, NaiveDate, TimeZone, Timelike, Utc};
+use chrono::{DateTime, Timelike, Utc};
 use chrono_tz::Tz;
 use serde_json::{Value, json};
 
@@ -26,23 +26,7 @@ pub fn daily_digest_schedule() -> ScheduledJobDefinition {
         .with_max_attempts(1)
 }
 
-pub fn local_midnight(timezone: Tz, date: NaiveDate) -> DateTime<Utc> {
-    (0..4)
-        .filter_map(|hour| date.and_hms_opt(hour, 0, 0))
-        .find_map(|naive| timezone.from_local_datetime(&naive).earliest())
-        .map(|local| local.with_timezone(&Utc))
-        .unwrap_or_else(|| Utc.from_utc_datetime(&date.and_hms_opt(0, 0, 0).unwrap_or_default()))
-}
-
-pub fn local_day(timezone: Tz, now: DateTime<Utc>) -> (NaiveDate, DateTime<Utc>, DateTime<Utc>) {
-    let date = now.with_timezone(&timezone).date_naive();
-    let start = local_midnight(timezone, date);
-    let end = date
-        .succ_opt()
-        .map(|next| local_midnight(timezone, next))
-        .unwrap_or(start + Duration::days(1));
-    (date, start, end)
-}
+pub use aphel_sdk::calendar::{local_day, local_midnight};
 
 fn is_morning_or_later(timezone: Tz, now: DateTime<Utc>) -> bool {
     now.with_timezone(&timezone).hour() >= MORNING_HOUR
@@ -98,7 +82,8 @@ where
                 lines,
                 more: tasks.len().saturating_sub(MAX_DIGEST_LINES),
             };
-            let (title, body) = content.render(MailLocale::default());
+            let (title, body) =
+                crate::application::texts::render_localized(&content, MailLocale::default());
             let intent = NotificationIntent::new(
                 user_id,
                 NotificationKind::DAILY_DIGEST,

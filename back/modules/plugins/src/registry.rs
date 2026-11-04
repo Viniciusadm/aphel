@@ -9,8 +9,8 @@ use tokio::sync::Mutex;
 use crate::manifest::PluginManifest;
 use crate::widgets::PluginWidget;
 use crate::{notify, runtime, store};
-use ::notifications::intern;
 use aphel_kernel::errors::AppError;
+use aphel_sdk::notifications as intern;
 
 const CHECK_INTERVAL: Duration = Duration::from_secs(2);
 const REFRESH_INTERVAL: Duration = Duration::from_secs(5);

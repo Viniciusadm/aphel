@@ -9,7 +9,6 @@ publish = false
 [dependencies]
 sso = { package = "aphel-mod-sso", path = "../sso" }
 aphel-contract-automation.workspace = true
-notifications = { package = "aphel-mod-notifications", path = "../notifications" }
 config_packages = { package = "aphel-mod-config-packages", path = "../config_packages" }
 aphel-contract-crm.workspace = true
 aphel-kernel.workspace = true

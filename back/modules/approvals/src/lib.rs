@@ -17,13 +17,13 @@ use std::sync::Arc;
 
 use aphel_kernel::modules::Migration;
 
-use ::notifications::domain::{ALL_CHANNELS, NotificationKindDefinition};
 use aphel_kernel::application::public_events::{PublicEventDefinition, PublicResource, event};
 use aphel_kernel::domain::access::{Permission, PermissionDefinition};
 use aphel_kernel::errors::AppError;
 use aphel_kernel::modules::builder::APHEL_VERSION;
 use aphel_kernel::modules::{AppBuilder, Manifest, Module};
 use aphel_kernel::records::RecordValidating;
+use aphel_sdk::notifications::{ALL_CHANNELS, NotificationKindDefinition};
 
 pub use hooks::{ApprovalGate, EngineApprovalGate, approval_gate};
 
@@ -100,12 +100,12 @@ impl Module for ApprovalsModule {
                 Box::pin(defaults::seed_templates(connection))
             }),
         ));
-        app.contribute::<dyn ::notifications::application::texts::NotificationTexts>(
-            std::sync::Arc::new(crate::notifications::ApprovalNotificationTexts),
-        );
-        app.contribute::<dyn ::notifications::application::NotificationSource>(
-            std::sync::Arc::new(notifications::ApprovalNotifications),
-        );
+        app.contribute::<dyn aphel_sdk::notifications::NotificationTexts>(std::sync::Arc::new(
+            crate::notifications::ApprovalNotificationTexts,
+        ));
+        app.contribute::<dyn aphel_sdk::notifications::NotificationSource>(std::sync::Arc::new(
+            notifications::ApprovalNotifications,
+        ));
         app.contribute(std::sync::Arc::new(
             ::config_packages::infrastructure::ConfigSectionFactory::new(210, |pool, registry| {
                 let _ = registry;

@@ -9,7 +9,6 @@ use std::sync::Arc;
 
 use serde_json::json;
 
-use ::notifications::domain::NotificationKindDefinition;
 use aphel_kernel::application::fields::SystemField;
 use aphel_kernel::application::public_events::{PublicEventDefinition, event};
 use aphel_kernel::domain::access::PermissionDefinition;
@@ -19,6 +18,7 @@ use aphel_kernel::modules::{
     AppBuilder, Manifest, Migration, Module, SettingField, SettingKind, WorkerParts,
 };
 use aphel_kernel::records::{RecordSaving, RecordValidating};
+use aphel_sdk::notifications::NotificationKindDefinition;
 use leads::{LeadConverter, LeadConverting, LeadQualifying};
 
 use crate::domain::{

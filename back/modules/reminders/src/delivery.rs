@@ -1,3 +1,5 @@
+use aphel_sdk::calendar::local_day;
+const MORNING_HOUR: u32 = 8;
 use aphel_contract_crm::CrmRecordTypes;
 use std::sync::Arc;
 
@@ -8,17 +10,14 @@ use sqlx::MySqlPool;
 
 use crate::domain::{DueReminder, DueTaskReminder};
 use crate::store::ReminderStore;
-use ::notifications::application::texts::LocalizedContent;
-use ::notifications::application::{
-    MORNING_HOUR, NotificationDirectory, NotificationIntent, NotificationPorts, dispatch, local_day,
-};
-use ::notifications::infrastructure::MySqlNotificationPorts;
 use aphel_kernel::application::fields::RecordTypeRegistry;
 use aphel_kernel::application::jobs::ScheduledJobDefinition;
-use aphel_kernel::application::security::Clock;
 use aphel_kernel::application::shared::{JobContext, JobHandler, RecordRef, RecordType};
 use aphel_kernel::errors::AppError;
 use aphel_kernel::infrastructure::jobs::MySqlJobQueue;
+use aphel_sdk::notifications::LocalizedContent;
+use aphel_sdk::notifications::NotificationClient;
+use aphel_sdk::notifications::{NotificationIntent, dispatch};
 
 pub(crate) const REMINDERS_DELIVER_JOB: &str = "reminders.deliver";
 pub(crate) const REMINDERS_DELIVER_CRON: &str = "0 * * * * *";
@@ -28,7 +27,7 @@ pub(crate) const TASKS_DUE_TODAY_JOB: &str = "reminders.tasks_due_today";
 pub(crate) const TASKS_DUE_TODAY_CRON: &str = "0 */5 * * * *";
 
 pub(crate) fn reminder_delivery_handler(pool: MySqlPool) -> Arc<dyn JobHandler> {
-    let notifications = MySqlNotificationPorts::new(
+    let notifications = NotificationClient::new(
         pool.clone(),
         Arc::new(RecordTypeRegistry::builtin()),
         Arc::new(MySqlJobQueue::new(pool.clone())),
@@ -40,7 +39,7 @@ pub(crate) fn reminder_delivery_handler(pool: MySqlPool) -> Arc<dyn JobHandler> 
 }
 
 pub(crate) fn tasks_due_today_handler(pool: MySqlPool) -> Arc<dyn JobHandler> {
-    Arc::new(TasksDueTodayHandler::new(MySqlNotificationPorts::new(
+    Arc::new(TasksDueTodayHandler::new(NotificationClient::new(
         pool.clone(),
         Arc::new(RecordTypeRegistry::builtin()),
         Arc::new(MySqlJobQueue::new(pool)),
@@ -65,16 +64,13 @@ pub(crate) struct ReminderDeliveryRun {
     pub(crate) reminders: usize,
 }
 
-pub(crate) struct ReminderDeliveryHandler<N> {
-    notifications: N,
+pub(crate) struct ReminderDeliveryHandler {
+    notifications: NotificationClient,
     reminders: ReminderStore,
 }
 
-impl<N> ReminderDeliveryHandler<N>
-where
-    N: NotificationPorts,
-{
-    pub(crate) fn new(notifications: N, reminders: ReminderStore) -> Self {
+impl ReminderDeliveryHandler {
+    pub(crate) fn new(notifications: NotificationClient, reminders: ReminderStore) -> Self {
         Self {
             notifications,
             reminders,
@@ -82,7 +78,7 @@ where
     }
 
     pub(crate) async fn run(&self) -> Result<ReminderDeliveryRun, AppError> {
-        let now = self.notifications.clock().now();
+        let now = chrono::Utc::now();
         let since = now - Duration::hours(REMINDER_GRACE_HOURS);
         let mut run = ReminderDeliveryRun::default();
         for task in self.reminders.due_task_reminders(since, now).await? {
@@ -103,7 +99,7 @@ where
         &self,
         reminder: &DueReminder,
     ) -> Result<NotificationIntent, AppError> {
-        let directory = self.notifications.directory();
+        let directory = self.notifications.directory()?;
         let mut record = None;
         let mut record_title = None;
         if let Some(target) = &reminder.record
@@ -168,10 +164,7 @@ fn task_intent(task: &DueTaskReminder) -> NotificationIntent {
 }
 
 #[async_trait]
-impl<N> JobHandler for ReminderDeliveryHandler<N>
-where
-    N: NotificationPorts,
-{
+impl JobHandler for ReminderDeliveryHandler {
     fn kind(&self) -> &str {
         REMINDERS_DELIVER_JOB
     }
@@ -181,21 +174,18 @@ where
     }
 }
 
-pub(crate) struct TasksDueTodayHandler<N> {
-    notifications: N,
+pub(crate) struct TasksDueTodayHandler {
+    notifications: NotificationClient,
 }
 
-impl<N> TasksDueTodayHandler<N>
-where
-    N: NotificationPorts,
-{
-    pub(crate) fn new(notifications: N) -> Self {
+impl TasksDueTodayHandler {
+    pub(crate) fn new(notifications: NotificationClient) -> Self {
         Self { notifications }
     }
 
     pub(crate) async fn run(&self) -> Result<usize, AppError> {
-        let now = self.notifications.clock().now();
-        let directory = self.notifications.directory();
+        let now = chrono::Utc::now();
+        let directory = self.notifications.directory()?;
         let timezone = directory.organization_timezone().await?;
         if now.with_timezone(&timezone).hour() != MORNING_HOUR {
             return Ok(0);
@@ -222,10 +212,7 @@ where
 }
 
 #[async_trait]
-impl<N> JobHandler for TasksDueTodayHandler<N>
-where
-    N: NotificationPorts,
-{
+impl JobHandler for TasksDueTodayHandler {
     fn kind(&self) -> &str {
         TASKS_DUE_TODAY_JOB
     }

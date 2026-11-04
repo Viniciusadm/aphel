@@ -18,11 +18,11 @@ use std::sync::Arc;
 use aphel_kernel::application::files::{FileReferenceColumn, FileReferenceSource};
 use aphel_kernel::modules::Migration;
 
-use ::notifications::domain::{ALL_CHANNELS, NotificationKindDefinition};
 use aphel_kernel::errors::AppError;
 use aphel_kernel::modules::builder::APHEL_VERSION;
 use aphel_kernel::modules::{AppBuilder, DEFAULT_PRIORITY, Manifest, Module, WorkerParts};
 use aphel_kernel::records::RecordSaved;
+use aphel_sdk::notifications::{ALL_CHANNELS, NotificationKindDefinition};
 
 pub(crate) use coerce::*;
 pub use mapping::*;
@@ -72,15 +72,15 @@ impl Module for ImportsModule {
         app.contribute::<dyn aphel_sdk::privacy::PrivacySource>(std::sync::Arc::new(
             privacy::ImportPrivacy,
         ));
-        app.contribute::<dyn ::notifications::application::texts::NotificationTexts>(
-            std::sync::Arc::new(crate::notifications::ImportNotificationTexts),
-        );
+        app.contribute::<dyn aphel_sdk::notifications::NotificationTexts>(std::sync::Arc::new(
+            crate::notifications::ImportNotificationTexts,
+        ));
         app.contribute::<dyn aphel_sdk::dashboard::RecentEventExclusion>(Arc::new(
             dashboard::ImportedEventsExclusion,
         ));
-        app.contribute::<dyn ::notifications::application::NotificationSource>(
-            std::sync::Arc::new(notifications::ImportNotifications),
-        );
+        app.contribute::<dyn aphel_sdk::notifications::NotificationSource>(std::sync::Arc::new(
+            notifications::ImportNotifications,
+        ));
         app.contribute::<dyn FileReferenceSource>(Arc::new(ImportFileReferences));
         app.openapi_tag(
             http::TAG,

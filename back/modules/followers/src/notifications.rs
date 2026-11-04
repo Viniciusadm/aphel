@@ -1,15 +1,11 @@
-use ::notifications::application::NotificationView;
-use ::notifications::application::texts::NotificationTexts;
 use aphel_kernel::application::mail::MailLocale;
+use aphel_sdk::notifications::NotificationTexts;
+use aphel_sdk::notifications::NotificationView;
 use std::collections::HashMap;
 
 use async_trait::async_trait;
 use serde_json::{Map, Value, json};
 
-use ::notifications::application::{
-    NotificationIntent, NotificationSource, NotificationSourceContext, event_dedupe,
-};
-use ::notifications::domain::NotificationKind;
 use aphel_kernel::api::routes::v1::field_permissions::user_field_redaction;
 use aphel_kernel::application::fields::{CUSTOM_FIELDS_PREFIX, FieldDefinitionRepository};
 use aphel_kernel::application::shared::{DomainEvent, REDACTED, RecordRef};
@@ -18,6 +14,10 @@ use aphel_kernel::domain::fields::FieldDefinition;
 use aphel_kernel::errors::AppError;
 use aphel_kernel::infrastructure::fields::MySqlFieldDefinitionRepository;
 use aphel_kernel::state::runtime_pool;
+use aphel_sdk::notifications::NotificationKind;
+use aphel_sdk::notifications::{
+    NotificationIntent, NotificationSource, NotificationSourceContext, event_dedupe,
+};
 
 const MAX_BODY_CHANGES: usize = 3;
 const MAX_VALUE_LENGTH: usize = 80;

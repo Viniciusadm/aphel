@@ -1,5 +1,3 @@
-use serde_json::Value;
-
 use crate::application::{NotificationView, Recipient};
 use crate::domain::NotificationKind;
 use aphel_kernel::application::mail::{EmailMessage, MailLocale};
@@ -20,70 +18,43 @@ pub fn record_type_label(record_type: &str, locale: MailLocale) -> String {
         )
 }
 
-#[derive(Debug, Clone, PartialEq, Eq)]
-pub enum LocalizedContent {
-    RecordType(String),
-    DefaultReminder,
-    DailyDigest {
-        count: usize,
-        lines: Vec<String>,
-        more: usize,
-    },
-}
+pub use aphel_sdk::notifications::LocalizedContent;
 
-impl LocalizedContent {
-    pub fn render(&self, locale: MailLocale) -> (String, Option<String>) {
-        match self {
-            Self::RecordType(record_type) => (record_type_label(record_type, locale), None),
-            Self::DefaultReminder => match locale {
-                MailLocale::PtBr => ("Lembrete".to_owned(), None),
-                MailLocale::En => ("Reminder".to_owned(), None),
-            },
-            Self::DailyDigest { count, lines, more } => {
-                let title = match (locale, *count) {
-                    (MailLocale::PtBr, 1) => "1 tarefa para hoje".to_owned(),
-                    (MailLocale::PtBr, count) => format!("{count} tarefas para hoje"),
-                    (MailLocale::En, 1) => "1 task for today".to_owned(),
-                    (MailLocale::En, count) => format!("{count} tasks for today"),
-                };
-                let mut body = lines.clone();
-                if *more > 0 {
-                    body.push(match locale {
-                        MailLocale::PtBr => format!("e mais {more}"),
-                        MailLocale::En => format!("and {more} more"),
-                    });
-                }
-                (title, Some(body.join("\n")))
+pub fn render_localized(
+    content: &LocalizedContent,
+    locale: MailLocale,
+) -> (String, Option<String>) {
+    match content {
+        LocalizedContent::RecordType(record_type) => (record_type_label(record_type, locale), None),
+        LocalizedContent::DefaultReminder => match locale {
+            MailLocale::PtBr => ("Lembrete".to_owned(), None),
+            MailLocale::En => ("Reminder".to_owned(), None),
+        },
+        LocalizedContent::DailyDigest { count, lines, more } => {
+            let title = match (locale, *count) {
+                (MailLocale::PtBr, 1) => "1 tarefa para hoje".to_owned(),
+                (MailLocale::PtBr, count) => format!("{count} tarefas para hoje"),
+                (MailLocale::En, 1) => "1 task for today".to_owned(),
+                (MailLocale::En, count) => format!("{count} tasks for today"),
+            };
+            let mut body = lines.clone();
+            if *more > 0 {
+                body.push(match locale {
+                    MailLocale::PtBr => format!("e mais {more}"),
+                    MailLocale::En => format!("and {more} more"),
+                });
             }
+            (title, Some(body.join("\n")))
         }
     }
 }
-
-pub trait NotificationTexts: Send + Sync {
-    fn headline(&self, view: &NotificationView, actor: &str, locale: MailLocale) -> Option<String>;
-
-    fn notice(&self, _view: &NotificationView, _locale: MailLocale) -> Option<String> {
-        None
-    }
-
-    fn action_label(&self, _view: &NotificationView, _locale: MailLocale) -> Option<&'static str> {
-        None
-    }
-
-    fn default_path(&self, _view: &NotificationView) -> Option<&'static str> {
-        None
-    }
-}
+pub use aphel_sdk::notifications::{NotificationTexts, data_text};
 
 fn contributed<T>(pick: impl Fn(&dyn NotificationTexts) -> Option<T>) -> Option<T> {
     aphel_kernel::modules::try_app()?
         .all_contributions::<dyn NotificationTexts>()
         .into_iter()
         .find_map(|(_, texts)| pick(texts.as_ref()))
-}
-
-pub fn data_text<'a>(view: &'a NotificationView, key: &str) -> Option<&'a str> {
-    view.data.get(key).and_then(Value::as_str)
 }
 
 pub fn headline(view: &NotificationView, locale: MailLocale) -> String {

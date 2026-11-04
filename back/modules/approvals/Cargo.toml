@@ -9,7 +9,6 @@ publish = false
 [dependencies]
 aphel-sdk.workspace = true
 aphel-contract-automation.workspace = true
-notifications = { package = "aphel-mod-notifications", path = "../notifications" }
 config_packages = { package = "aphel-mod-config-packages", path = "../config_packages" }
 formulas = { package = "aphel-mod-formulas", path = "../formulas" }
 aphel-contract-crm.workspace = true

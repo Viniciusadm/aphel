@@ -6,14 +6,14 @@ use serde_json::{Value, json};
 use sqlx::MySqlPool;
 
 use crate::domain::DEAL_RENEWAL_CREATED;
-use ::notifications::application::{NotificationIntent, dispatch};
-use ::notifications::domain::{NotificationKind, NotificationKindDefinition};
-use ::notifications::infrastructure::MySqlNotificationPorts;
 use aphel_kernel::application::fields::RecordTypeRegistry;
 use aphel_kernel::application::shared::{DomainEvent, EventConsumer, RecordType};
 use aphel_kernel::domain::UserId;
 use aphel_kernel::errors::AppError;
 use aphel_kernel::infrastructure::jobs::MySqlJobQueue;
+use aphel_sdk::notifications::NotificationClient;
+use aphel_sdk::notifications::{NotificationIntent, dispatch};
+use aphel_sdk::notifications::{NotificationKind, NotificationKindDefinition};
 
 pub(crate) const RENEWAL_NOTIFICATIONS_CONSUMER: &str = "renewals.notifications";
 pub(crate) const RENEWAL_CREATED: NotificationKind =
@@ -23,13 +23,13 @@ pub(crate) const RENEWAL_NOTIFICATION_KIND: NotificationKindDefinition =
 
 pub(crate) struct RenewalNotificationConsumer {
     pool: MySqlPool,
-    ports: MySqlNotificationPorts,
+    ports: NotificationClient,
 }
 
 impl RenewalNotificationConsumer {
     pub(crate) fn shared(pool: MySqlPool) -> Arc<dyn EventConsumer> {
         Arc::new(Self {
-            ports: MySqlNotificationPorts::new(
+            ports: NotificationClient::new(
                 pool.clone(),
                 Arc::new(RecordTypeRegistry::builtin()),
                 Arc::new(MySqlJobQueue::new(pool.clone())),

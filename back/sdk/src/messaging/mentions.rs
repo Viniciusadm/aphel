@@ -2,8 +2,6 @@ use std::sync::LazyLock;
 
 use regex::Regex;
 
-pub const MAX_MENTIONS_PER_NOTE: usize = 50;
-
 static MENTION: LazyLock<Regex> = LazyLock::new(|| {
     Regex::new(r"@\[([^\[\]\n]{1,200})\]\(user:([0-9A-Fa-f]{8}-[0-9A-Fa-f]{4}-[0-9A-Fa-f]{4}-[0-9A-Fa-f]{4}-[0-9A-Fa-f]{12})\)")
         .expect("the mention pattern is valid")

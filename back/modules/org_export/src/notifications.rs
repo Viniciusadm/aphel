@@ -1,11 +1,11 @@
 use async_trait::async_trait;
 use serde_json::json;
 
-use ::notifications::application::{
-    NotificationIntent, NotificationSource, NotificationSourceContext, requested_job_intents,
-};
 use aphel_kernel::application::shared::DomainEvent;
 use aphel_kernel::errors::AppError;
+use aphel_sdk::notifications::{
+    NotificationIntent, NotificationSource, NotificationSourceContext, requested_job_intents,
+};
 
 use crate::model::{ORG_EXPORT_COMPLETED, ORG_EXPORT_FAILED};
 

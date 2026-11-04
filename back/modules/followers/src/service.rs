@@ -6,7 +6,6 @@ use uuid::Uuid;
 use crate::KEY;
 use crate::domain::{FollowOrigin, FollowedRecord, MAX_FOLLOWED_RECORDS, RecordFollowers};
 use crate::store::FollowerStore;
-use ::notifications::application::RecordFollowerSource;
 use aphel_kernel::Ctx;
 use aphel_kernel::application::access::Authorizer;
 use aphel_kernel::application::organization_admin::{ListWindow, Listing};
@@ -15,6 +14,7 @@ use aphel_kernel::application::shared::RecordRef;
 use aphel_kernel::domain::UserId;
 use aphel_kernel::errors::AppError;
 use aphel_kernel::infrastructure::record_sharing::MySqlRecordDirectory;
+use aphel_sdk::notifications::RecordFollowerSource;
 
 fn directory(ctx: &Ctx<'_>) -> MySqlRecordDirectory {
     MySqlRecordDirectory::new(ctx.pool().clone())

@@ -32,7 +32,6 @@ use std::sync::Arc;
 
 use aphel_kernel::modules::Migration;
 
-use ::notifications::domain::NotificationKindDefinition;
 use aphel_kernel::application::fields::builtin::{field, record_field, timestamps, with_fields};
 use aphel_kernel::application::fields::{EntityDefinition, EntityTraits, RecordRelation};
 use aphel_kernel::application::public_events::{
@@ -47,6 +46,7 @@ use aphel_kernel::modules::DEFAULT_PRIORITY;
 use aphel_kernel::modules::builder::APHEL_VERSION;
 use aphel_kernel::modules::{AppBuilder, Manifest, Module};
 use aphel_kernel::records::{RecordQueryFilter, SearchPlanFilter};
+use aphel_sdk::notifications::NotificationKindDefinition;
 
 pub use hooks::{
     ClosingDeal, DealLosing, DealLost, DealStageChanging, DealWinning, DealWon, StageChange,
@@ -432,12 +432,12 @@ impl Module for DealsModule {
             },
         ));
 
-        app.contribute::<dyn ::notifications::application::texts::NotificationTexts>(
-            std::sync::Arc::new(crate::notifications::DealNotificationTexts),
-        );
-        app.contribute::<dyn ::notifications::application::NotificationSource>(
-            std::sync::Arc::new(notifications::DealNotifications),
-        );
+        app.contribute::<dyn aphel_sdk::notifications::NotificationTexts>(std::sync::Arc::new(
+            crate::notifications::DealNotificationTexts,
+        ));
+        app.contribute::<dyn aphel_sdk::notifications::NotificationSource>(std::sync::Arc::new(
+            notifications::DealNotifications,
+        ));
         app.declare_hook(
             crate::hooks::DealStageChanging,
             &[aphel_kernel::modules::HookUsage::Veto],

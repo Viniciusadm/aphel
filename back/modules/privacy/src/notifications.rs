@@ -1,12 +1,12 @@
 use async_trait::async_trait;
 use serde_json::json;
 
-use ::notifications::application::{
+use aphel_kernel::application::shared::DomainEvent;
+use aphel_kernel::errors::AppError;
+use aphel_sdk::notifications::{
     NotificationIntent, NotificationSource, NotificationSourceContext, payload_text,
     requested_job_intents,
 };
-use aphel_kernel::application::shared::DomainEvent;
-use aphel_kernel::errors::AppError;
 
 use crate::domain::{PRIVACY_REQUEST_COMPLETED, PRIVACY_REQUEST_FAILED};
 

@@ -1,3 +1,4 @@
+use aphel_sdk::notifications::NotificationKindExt;
 use std::sync::Arc;
 
 use serde_json::Value;
@@ -5,17 +6,15 @@ use uuid::Uuid;
 
 use crate::registry::LoadedPlugin;
 use crate::runtime::wit;
-use ::notifications::application::{
-    NotificationDirectory, NotificationIntent, NotificationPorts, dispatch,
-};
-use ::notifications::domain::NotificationKind;
-use ::notifications::infrastructure::MySqlNotificationPorts;
 use aphel_kernel::application::shared::RecordRef;
 use aphel_kernel::domain::UserId;
 use aphel_kernel::domain::access::AccessScope;
 use aphel_kernel::errors::AppError;
 use aphel_kernel::infrastructure::jobs::MySqlJobQueue;
 use aphel_kernel::state::runtime_state;
+use aphel_sdk::notifications::NotificationClient;
+use aphel_sdk::notifications::NotificationKind;
+use aphel_sdk::notifications::{NotificationIntent, dispatch};
 
 const NOT_DECLARED: &str = "plugin_notification_not_declared";
 const INVALID_RECIPIENT: &str = "plugin_notification_recipient_invalid";
@@ -92,19 +91,19 @@ pub async fn notify(
         AppError::validation_code(INVALID_RECIPIENT, "the recipient must be a user id")
     })?;
     let state = runtime_state()?;
-    let ports = MySqlNotificationPorts::new(
+    let ports = NotificationClient::new(
         state.db()?,
         state.registry().await?,
         Arc::new(MySqlJobQueue::new(state.db()?)),
     );
-    if ports.directory().recipient(&recipient).await?.is_none() {
+    if ports.directory()?.recipient(&recipient).await?.is_none() {
         return Err(AppError::validation_code(
             INVALID_RECIPIENT,
             "the recipient is not an active user",
         ));
     }
     if let Some(record) = &record
-        && !ports.directory().can_read(&recipient, record).await?
+        && !ports.directory()?.can_read(&recipient, record).await?
     {
         return Err(AppError::forbidden_code(
             RECIPIENT_CANNOT_READ,

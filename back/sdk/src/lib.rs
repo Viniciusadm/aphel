@@ -126,3 +126,5 @@ pub mod email;
 pub mod pricing;
 
 pub mod tokens;
+
+pub mod notifications;

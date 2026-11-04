@@ -9,7 +9,6 @@ publish = false
 [dependencies]
 aphel-contract-webhooks.workspace = true
 aphel-contract-automation.workspace = true
-notifications = { package = "aphel-mod-notifications", path = "../notifications" }
 aphel-kernel.workspace = true
 aphel-sdk.workspace = true
 form_urlencoded.workspace = true

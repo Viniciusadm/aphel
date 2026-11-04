@@ -8,10 +8,10 @@ pub(crate) mod store;
 
 use aphel_kernel::modules::Migration;
 
-use ::notifications::domain::{ALL_CHANNELS, NotificationKindDefinition};
 use aphel_kernel::errors::AppError;
 use aphel_kernel::modules::builder::APHEL_VERSION;
 use aphel_kernel::modules::{AppBuilder, Manifest, Module, WorkerEnv, WorkerParts};
+use aphel_sdk::notifications::{ALL_CHANNELS, NotificationKindDefinition};
 
 pub(crate) const KEY: &str = "reminders";
 
@@ -42,9 +42,9 @@ impl Module for RemindersModule {
     }
 
     fn register(&self, app: &mut AppBuilder) -> Result<(), AppError> {
-        app.contribute::<dyn ::notifications::application::texts::NotificationTexts>(
-            std::sync::Arc::new(crate::notifications::ReminderNotificationTexts),
-        );
+        app.contribute::<dyn aphel_sdk::notifications::NotificationTexts>(std::sync::Arc::new(
+            crate::notifications::ReminderNotificationTexts,
+        ));
         app.openapi_tag(
             http::TAG,
             "Reminders: before a task is due and standalone reminders linked to a record",

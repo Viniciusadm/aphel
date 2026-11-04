@@ -34,14 +34,14 @@ pub(crate) use service::{
     CreateAutomationCommand, DryRunCommand, DryRunResult, UpdateAutomationCommand,
 };
 
-use ::notifications::domain::{
-    ALL_CHANNELS, EMAIL_ONLY, IN_APP_AND_PUSH, NotificationKind, NotificationKindDefinition,
-};
 use actions::{AssignOwner, CreateRelatedRecord, SendMessage, UpdateFields};
 use aphel_kernel::domain::access::{Permission, PermissionDefinition};
 use aphel_kernel::errors::AppError;
 use aphel_kernel::modules::builder::APHEL_VERSION;
 use aphel_kernel::modules::{AppBuilder, Manifest, Module, WorkerEnv, WorkerParts};
+use aphel_sdk::notifications::{
+    ALL_CHANNELS, EMAIL_ONLY, IN_APP_AND_PUSH, NotificationKind, NotificationKindDefinition,
+};
 use time::{
     TimeCatchUpConsumer, TimeTriggerSweep, WaitingRunsCanceller, WaitingRunsResumer,
     resume_waiting_schedule, time_sweep_schedule,

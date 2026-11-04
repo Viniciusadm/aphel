@@ -65,3 +65,5 @@ pub fn compiled_channel_provider(key: &str) -> Option<std::sync::Arc<dyn Messagi
         .map(|(_, provider)| provider)
         .find(|provider| provider.key() == key)
 }
+
+pub mod mentions;

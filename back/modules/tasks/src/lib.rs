@@ -27,7 +27,6 @@ use std::sync::Arc;
 
 use aphel_kernel::modules::Migration;
 
-use ::notifications::domain::{ALL_CHANNELS, NotificationKindDefinition};
 use aphel_kernel::application::fields::builtin::{field, record_field, timestamps, with_fields};
 use aphel_kernel::application::fields::{
     EntityDefinition, EntityTraits, RecordRelation, RelationPath, SystemField,
@@ -43,6 +42,7 @@ use aphel_kernel::infrastructure::defaults::{DefaultsProbe, DefaultsSeed};
 use aphel_kernel::infrastructure::query::aggregate::LookupTitleSource;
 use aphel_kernel::modules::builder::APHEL_VERSION;
 use aphel_kernel::modules::{AppBuilder, Manifest, Module};
+use aphel_sdk::notifications::{ALL_CHANNELS, NotificationKindDefinition};
 
 pub const ACTIVITY_RESOURCE: PublicResource = PublicResource::new("tasks.task", "ActivityResponse");
 
@@ -323,13 +323,15 @@ impl Module for TasksModule {
         app.contribute::<dyn aphel_sdk::calendar::CalendarSource>(Arc::new(
             calendar_source::TaskCalendar,
         ));
-        app.contribute::<dyn ::notifications::DigestSource>(std::sync::Arc::new(points::OpenTasks));
-        app.contribute::<dyn ::notifications::application::texts::NotificationTexts>(
-            std::sync::Arc::new(crate::notifications::ActivityNotificationTexts),
-        );
-        app.contribute::<dyn ::notifications::application::NotificationSource>(
-            std::sync::Arc::new(notifications::TaskAssignedNotifications),
-        );
+        app.contribute::<dyn aphel_sdk::notifications::DigestSource>(std::sync::Arc::new(
+            points::OpenTasks,
+        ));
+        app.contribute::<dyn aphel_sdk::notifications::NotificationTexts>(std::sync::Arc::new(
+            crate::notifications::ActivityNotificationTexts,
+        ));
+        app.contribute::<dyn aphel_sdk::notifications::NotificationSource>(std::sync::Arc::new(
+            notifications::TaskAssignedNotifications,
+        ));
         app.declare_hook(
             crate::hooks::ActivityCompleting,
             &[aphel_kernel::modules::HookUsage::Veto],
