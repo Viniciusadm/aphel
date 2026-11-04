@@ -31,8 +31,8 @@ use aphel_kernel::api::state::AppState;
 use aphel_kernel::application::shared::RecordType;
 use aphel_kernel::domain::access::AccessScope;
 use aphel_kernel::errors::AppError;
-use tasks::domain::ActivityRecord;
-use tasks::http::ActivityResponse;
+use aphel_sdk::tasks::TaskRecord;
+use aphel_sdk::tasks::dto::ActivityResponse;
 
 pub(crate) const TAG: &str = "telephony";
 
@@ -62,15 +62,9 @@ pub(crate) fn router() -> OpenApiRouter<AppState> {
 pub(crate) async fn activity_json(
     state: &AppState,
     scope: &AccessScope,
-    record: ActivityRecord,
+    record: TaskRecord,
 ) -> Result<Value, AppError> {
-    redacted(
-        state,
-        scope,
-        &RecordType::ACTIVITY,
-        ActivityResponse::from(record),
-    )
-    .await
+    redacted(state, scope, &RecordType::ACTIVITY, record.response).await
 }
 
 #[derive(Debug, Clone, Copy, Deserialize, Serialize, ToSchema)]

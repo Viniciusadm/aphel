@@ -26,10 +26,13 @@ use aphel_kernel::database::transaction::MySqlTx;
 use aphel_kernel::domain::UserId;
 use aphel_kernel::domain::access::{AccessScope, Permission};
 use aphel_kernel::errors::{AppError, FieldViolation};
+use aphel_kernel::infrastructure::records::MySqlRecordAccessChecker;
 use aphel_sdk::configuration::{is_config_key, key_from_name};
-use tasks::domain::{ActivityRecord, ActivityScheduleInput, CreateActivityCommand, instant};
-use tasks::service::{self as activity_service, PreparedActivity, record_access};
-use tasks::types::require_activity_type_reader;
+use aphel_sdk::tasks::{CreateActivityCommand, PreparedTask, TaskRecord, instant, transactions};
+
+fn record_access(ctx: &Ctx<'_>) -> MySqlRecordAccessChecker {
+    MySqlRecordAccessChecker::new(ctx.pool().clone(), ctx.registry().clone())
+}
 
 pub(crate) fn telephony(ctx: &Ctx<'_>) -> Result<Arc<dyn TelephonyRouter>, AppError> {
     ctx.services().require::<dyn TelephonyRouter>()
@@ -43,7 +46,7 @@ pub(crate) const MAX_REPORT_DAYS: i64 = 366;
 const DEFAULT_REPORT_DAYS: i64 = 30;
 
 pub(crate) struct PreparedCall {
-    pub(crate) activity: PreparedActivity,
+    pub(crate) activity: Box<dyn PreparedTask>,
     pub(crate) details: CallDetails,
     pub(crate) outcome: CallOutcome,
     pub(crate) record: Option<RecordRef>,
@@ -150,25 +153,22 @@ fn user_uuid(scope: &AccessScope) -> Result<Uuid, AppError> {
         .map_err(|_| AppError::Internal("user id is not a uuid".to_owned()))
 }
 
-pub(crate) async fn log(
-    ctx: &Ctx<'_>,
-    command: LogCallCommand,
-) -> Result<ActivityRecord, AppError> {
+pub(crate) async fn log(ctx: &Ctx<'_>, command: LogCallCommand) -> Result<TaskRecord, AppError> {
     let prepared = prepare_call(ctx, command, None, false).await?;
     let mut tx = ctx.begin().await?;
     insert_call(ctx, &mut tx, &prepared).await?;
     tx.commit().await?;
-    activity_service::find_record(ctx, prepared.activity.id).await
+    prepared.activity.response(ctx).await
 }
 
 pub(crate) async fn update(
     ctx: &Ctx<'_>,
     activity_id: &str,
     command: UpdateCallCommand,
-) -> Result<ActivityRecord, AppError> {
+) -> Result<TaskRecord, AppError> {
     ctx.scope.require(&Permission::TASKS_UPDATE)?;
-    let record = activity_service::get(ctx, activity_id).await?;
-    let id = record.activity.id;
+    let record = transactions()?.get(ctx, activity_id).await?;
+    let id = record.id;
     if !record_access(ctx)
         .can_update(ctx.scope, &RecordRef::new(RecordType::ACTIVITY, id))
         .await?
@@ -218,17 +218,17 @@ pub(crate) async fn update(
         &current.details(),
         details,
         outcome,
-        record.activity.record.as_ref().map(|linked| &linked.record),
+        record.record.as_ref(),
         command.ip,
     )
     .await?;
-    activity_service::find_record(ctx, id).await
+    transactions()?.get(ctx, &id.to_string()).await
 }
 
 pub(crate) async fn record_event(
     ctx: &Ctx<'_>,
     command: CallEventCommand,
-) -> Result<ActivityRecord, AppError> {
+) -> Result<TaskRecord, AppError> {
     ctx.scope.require(&Permission::TASKS_CREATE)?;
     let mut violations = Vec::new();
     let provider = optional_text(
@@ -290,7 +290,7 @@ pub(crate) async fn record_event(
             let mut tx = ctx.begin().await?;
             insert_call(ctx, &mut tx, &prepared).await?;
             tx.commit().await?;
-            activity_service::find_record(ctx, prepared.activity.id).await
+            prepared.activity.response(ctx).await
         }
     }
 }
@@ -359,9 +359,9 @@ pub(crate) async fn recording(
     ctx: &Ctx<'_>,
     activity_id: &str,
 ) -> Result<CallRecordingView, AppError> {
-    let record = activity_service::get(ctx, activity_id).await?;
+    let record = transactions()?.get(ctx, activity_id).await?;
     let call = CallStore::of(ctx)
-        .find(record.activity.id)
+        .find(record.id)
         .await?
         .ok_or_else(call_not_found)?;
     if let (Some(provider), Some(call_id)) = (&call.provider, &call.provider_call_id)
@@ -616,28 +616,25 @@ pub(crate) async fn prepare_call(
         .filter(|title| !title.is_empty())
         .map(str::to_owned)
         .unwrap_or_else(|| format!("{} · {}", activity_type.name, outcome.name));
-    let activity = activity_service::prepare_create(
-        ctx,
-        CreateActivityCommand {
-            title,
-            activity_type_id: activity_type.id.to_string(),
-            status: Some("done".to_owned()),
-            completed_at: command.occurred_at.clone(),
-            record_type: command.record_type.clone(),
-            record_id: command.record_id.clone(),
-            duration_minutes: duration_minutes(duration_seconds),
-            description: command.notes.clone(),
-            custom_fields: command.custom_fields.clone(),
-            ip: command.ip.clone(),
-            ..CreateActivityCommand::default()
-        },
-        ActivityScheduleInput {
-            reminder_minutes_before: Some(None),
-            recurrence: None,
-        },
-    )
-    .await?;
-    let record = activity.data.record.clone();
+    let activity = transactions()?
+        .prepare_completed(
+            ctx,
+            CreateActivityCommand {
+                title,
+                activity_type_id: activity_type.id.to_string(),
+                status: Some("done".to_owned()),
+                completed_at: command.occurred_at.clone(),
+                record_type: command.record_type.clone(),
+                record_id: command.record_id.clone(),
+                duration_minutes: duration_minutes(duration_seconds),
+                description: command.notes.clone(),
+                custom_fields: command.custom_fields.clone(),
+                ip: command.ip.clone(),
+                ..CreateActivityCommand::default()
+            },
+        )
+        .await?;
+    let record = activity.record();
     Ok(PreparedCall {
         details: CallDetails {
             direction,
@@ -661,9 +658,9 @@ pub(crate) async fn insert_call(
     prepared: &PreparedCall,
 ) -> Result<(), AppError> {
     let now = ctx.now();
-    activity_service::insert_prepared(ctx, tx, &prepared.activity).await?;
+    prepared.activity.insert(ctx, tx).await?;
     CallStore::of(ctx)
-        .insert(tx, prepared.activity.id, &prepared.details, now)
+        .insert(tx, prepared.activity.id(), &prepared.details, now)
         .await?;
     let changes = diff_changes(
         &Value::Null,
@@ -673,7 +670,7 @@ pub(crate) async fn insert_call(
     publish_call(
         ctx,
         tx,
-        prepared.activity.id,
+        prepared.activity.id(),
         &prepared.details,
         &prepared.outcome,
         prepared.record.as_ref(),
@@ -845,7 +842,7 @@ pub(crate) async fn list_outcomes(
     ctx: &Ctx<'_>,
     include_inactive: bool,
 ) -> Result<Vec<CallOutcome>, AppError> {
-    require_activity_type_reader(ctx.scope)?;
+    aphel_sdk::tasks::types()?.require_reader(ctx.scope)?;
     CallOutcomeStore::of(ctx).list(include_inactive).await
 }
 
@@ -1254,7 +1251,7 @@ pub(crate) async fn log_in_session(
     ctx: &Ctx<'_>,
     id: &str,
     command: SessionCallCommand,
-) -> Result<(ActivityRecord, CallSessionView), AppError> {
+) -> Result<(TaskRecord, CallSessionView), AppError> {
     ctx.scope.require(&Permission::TASKS_CREATE)?;
     let session = active_session(ctx, id).await?;
     let position = command.position.unwrap_or(session.position);
@@ -1293,13 +1290,13 @@ pub(crate) async fn log_in_session(
             session.id,
             position,
             SessionItemStatus::Logged,
-            Some((prepared.activity.id, prepared.outcome.key.as_str())),
+            Some((prepared.activity.id(), prepared.outcome.key.as_str())),
             now,
         )
         .await?;
     advance(ctx, &mut tx, &mut locked, position, command.ip).await?;
     tx.commit().await?;
-    let activity = activity_service::find_record(ctx, prepared.activity.id).await?;
+    let activity = prepared.activity.response(ctx).await?;
     Ok((activity, session_view(ctx, locked).await?))
 }
 

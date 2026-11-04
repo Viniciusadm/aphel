@@ -168,6 +168,8 @@ pub struct ActivityTypeView {
 
 #[async_trait::async_trait]
 pub trait TaskTypes: Send + Sync {
+    fn require_reader(&self, scope: &crate::access::AccessScope) -> Result<(), AppError>;
+
     async fn list(
         &self,
         ctx: &crate::Ctx<'_>,
@@ -182,5 +184,49 @@ pub fn types() -> Result<std::sync::Arc<dyn TaskTypes>, AppError> {
         .get::<dyn TaskTypes>()
         .ok_or_else(|| {
             AppError::unavailable_code("task_types_unavailable", "task types are not enabled")
+        })
+}
+
+pub mod dto;
+pub const RESOURCE: aphel_kernel::application::public_events::PublicResource =
+    aphel_kernel::application::public_events::PublicResource::new("tasks.task", "ActivityResponse");
+pub fn instant(value: DateTime<Utc>) -> String {
+    value.to_rfc3339_opts(chrono::SecondsFormat::Secs, true)
+}
+pub struct TaskRecord {
+    pub id: Uuid,
+    pub record: Option<aphel_kernel::application::shared::RecordRef>,
+    pub response: dto::ActivityResponse,
+}
+#[async_trait::async_trait]
+pub trait PreparedTask: Send + Sync {
+    fn id(&self) -> Uuid;
+    fn record(&self) -> Option<aphel_kernel::application::shared::RecordRef>;
+    fn ip(&self) -> Option<String>;
+    async fn insert(
+        &self,
+        ctx: &crate::Ctx<'_>,
+        tx: &mut aphel_kernel::database::transaction::MySqlTx,
+    ) -> Result<(), AppError>;
+    async fn response(&self, ctx: &crate::Ctx<'_>) -> Result<TaskRecord, AppError>;
+}
+#[async_trait::async_trait]
+pub trait TaskTransactions: Send + Sync {
+    async fn prepare_completed(
+        &self,
+        ctx: &crate::Ctx<'_>,
+        command: CreateActivityCommand,
+    ) -> Result<Box<dyn PreparedTask>, AppError>;
+    async fn get(&self, ctx: &crate::Ctx<'_>, id: &str) -> Result<TaskRecord, AppError>;
+}
+pub fn transactions() -> Result<std::sync::Arc<dyn TaskTransactions>, AppError> {
+    aphel_kernel::modules::app()
+        .services()
+        .get::<dyn TaskTransactions>()
+        .ok_or_else(|| {
+            AppError::unavailable_code(
+                "task_transactions_unavailable",
+                "task transactions are not enabled",
+            )
         })
 }

@@ -1,4 +1,9 @@
 use aphel_contract_crm::CrmRecordTypes;
+pub use aphel_sdk::tasks::dto::{
+    ActivityLocationResponse, ActivityPrioritySchema, ActivityRecurrenceResponse, ActivityResponse,
+    ActivityStatusSchema, ActivityTypeSummaryResponse, RecurrenceFrequencySchema,
+    RecurrenceWeekdaySchema,
+};
 use async_trait::async_trait;
 use axum::Json;
 use axum::extract::rejection::QueryRejection;
@@ -28,7 +33,6 @@ use aphel_kernel::Ctx;
 use aphel_kernel::api::dto::common::{
     Data, ErrorEnvelope, Page, double_option, timestamp as instant,
 };
-use aphel_kernel::api::dto::files::UserReferenceResponse;
 use aphel_kernel::api::dto::query::{RecordListQuery, RecordQueryParams};
 use aphel_kernel::api::error::ApiError;
 use aphel_kernel::api::extractors::{
@@ -40,7 +44,6 @@ use aphel_kernel::api::state::AppState;
 use aphel_kernel::application::shared::RecordType;
 use aphel_kernel::errors::AppError;
 use aphel_kernel::records::{RecordCtx, RecordTypeHandler, optional_record, values_request};
-use chrono::Weekday;
 
 pub(crate) fn router() -> OpenApiRouter<AppState> {
     OpenApiRouter::new()
@@ -589,15 +592,6 @@ async fn reorder_task_types(
     Ok(Json(Data::new(types.into_iter().map(Into::into).collect())))
 }
 
-#[derive(Debug, Clone, Copy, Deserialize, Serialize, ToSchema)]
-#[serde(rename_all = "snake_case")]
-#[schema(as = ActivityStatus)]
-pub(crate) enum ActivityStatusSchema {
-    Open,
-    Done,
-    Canceled,
-}
-
 impl From<ActivityStatus> for ActivityStatusSchema {
     fn from(value: ActivityStatus) -> Self {
         match value {
@@ -616,16 +610,6 @@ impl From<ActivityStatusSchema> for ActivityStatus {
             ActivityStatusSchema::Canceled => Self::Canceled,
         }
     }
-}
-
-#[derive(Debug, Clone, Copy, Deserialize, Serialize, ToSchema)]
-#[serde(rename_all = "snake_case")]
-#[schema(as = ActivityPriority)]
-pub(crate) enum ActivityPrioritySchema {
-    Low,
-    Normal,
-    High,
-    Urgent,
 }
 
 impl From<ActivityPriority> for ActivityPrioritySchema {
@@ -650,16 +634,6 @@ impl From<ActivityPrioritySchema> for ActivityPriority {
     }
 }
 
-#[derive(Debug, Clone, Copy, Deserialize, Serialize, ToSchema)]
-#[serde(rename_all = "snake_case")]
-#[schema(as = RecurrenceFrequency)]
-pub(crate) enum RecurrenceFrequencySchema {
-    Daily,
-    Weekly,
-    Monthly,
-    Yearly,
-}
-
 impl From<RecurrenceFrequency> for RecurrenceFrequencySchema {
     fn from(value: RecurrenceFrequency) -> Self {
         match value {
@@ -678,47 +652,6 @@ impl From<RecurrenceFrequencySchema> for RecurrenceFrequency {
             RecurrenceFrequencySchema::Weekly => Self::Weekly,
             RecurrenceFrequencySchema::Monthly => Self::Monthly,
             RecurrenceFrequencySchema::Yearly => Self::Yearly,
-        }
-    }
-}
-
-#[derive(Debug, Clone, Copy, Deserialize, Serialize, ToSchema)]
-#[serde(rename_all = "snake_case")]
-#[schema(as = RecurrenceWeekday)]
-pub(crate) enum RecurrenceWeekdaySchema {
-    Mo,
-    Tu,
-    We,
-    Th,
-    Fr,
-    Sa,
-    Su,
-}
-
-impl From<Weekday> for RecurrenceWeekdaySchema {
-    fn from(value: Weekday) -> Self {
-        match value {
-            Weekday::Mon => Self::Mo,
-            Weekday::Tue => Self::Tu,
-            Weekday::Wed => Self::We,
-            Weekday::Thu => Self::Th,
-            Weekday::Fri => Self::Fr,
-            Weekday::Sat => Self::Sa,
-            Weekday::Sun => Self::Su,
-        }
-    }
-}
-
-impl From<RecurrenceWeekdaySchema> for Weekday {
-    fn from(value: RecurrenceWeekdaySchema) -> Self {
-        match value {
-            RecurrenceWeekdaySchema::Mo => Self::Mon,
-            RecurrenceWeekdaySchema::Tu => Self::Tue,
-            RecurrenceWeekdaySchema::We => Self::Wed,
-            RecurrenceWeekdaySchema::Th => Self::Thu,
-            RecurrenceWeekdaySchema::Fr => Self::Fri,
-            RecurrenceWeekdaySchema::Sa => Self::Sat,
-            RecurrenceWeekdaySchema::Su => Self::Sun,
         }
     }
 }
@@ -772,21 +705,6 @@ impl From<RecurrenceRuleRequest> for RecurrenceRuleInput {
     }
 }
 
-#[derive(Debug, Serialize, ToSchema)]
-pub(crate) struct ActivityRecurrenceResponse {
-    pub(crate) series_id: String,
-    pub(crate) index: u32,
-    pub(crate) frequency: RecurrenceFrequencySchema,
-    pub(crate) interval: u32,
-    pub(crate) by_weekday: Vec<RecurrenceWeekdaySchema>,
-    pub(crate) month_day: Option<u32>,
-    pub(crate) until: Option<String>,
-    pub(crate) count: Option<u32>,
-    #[schema(example = "FREQ=MONTHLY;INTERVAL=1;BYMONTHDAY=31")]
-    pub(crate) rrule: String,
-    pub(crate) ended: bool,
-}
-
 impl From<ActivityRecurrenceView> for ActivityRecurrenceResponse {
     fn from(view: ActivityRecurrenceView) -> Self {
         Self {
@@ -805,21 +723,6 @@ impl From<ActivityRecurrenceView> for ActivityRecurrenceResponse {
 }
 
 pub use aphel_sdk::timeline::LinkedRecordResponse;
-
-#[derive(Debug, Serialize, ToSchema)]
-pub(crate) struct ActivityLocationResponse {
-    #[schema(example = -23.55052)]
-    pub(crate) latitude: f64,
-    #[schema(example = -46.633308)]
-    pub(crate) longitude: f64,
-    #[schema(example = 12)]
-    pub(crate) accuracy_m: Option<u32>,
-    pub(crate) captured_at: String,
-    #[schema(
-        example = "https://www.openstreetmap.org/?mlat=-23.55052&mlon=-46.633308#map=17/-23.55052/-46.633308"
-    )]
-    pub(crate) map_url: String,
-}
 
 impl From<ActivityLocation> for ActivityLocationResponse {
     fn from(location: ActivityLocation) -> Self {
@@ -855,41 +758,6 @@ impl From<ActivityLocationRequest> for ActivityLocationInput {
             captured_at: request.captured_at,
         }
     }
-}
-
-#[derive(Debug, Serialize, ToSchema)]
-pub struct ActivityResponse {
-    pub(crate) id: String,
-    pub(crate) title: String,
-    pub(crate) activity_type_id: String,
-    pub(crate) status: ActivityStatusSchema,
-    pub(crate) priority: ActivityPrioritySchema,
-    pub(crate) due_at: Option<String>,
-    pub(crate) completed_at: Option<String>,
-    pub(crate) owner_id: Option<String>,
-    pub(crate) created_by: Option<String>,
-    pub(crate) record_type: Option<String>,
-    pub(crate) record_id: Option<String>,
-    pub(crate) duration_minutes: Option<u32>,
-    pub(crate) description: Option<String>,
-    pub(crate) location: Option<ActivityLocationResponse>,
-    #[schema(example = -23.55052)]
-    pub(crate) location_latitude: Option<f64>,
-    #[schema(example = -46.633308)]
-    pub(crate) location_longitude: Option<f64>,
-    #[schema(example = 12)]
-    pub(crate) location_accuracy_m: Option<u32>,
-    pub(crate) location_captured_at: Option<String>,
-    pub(crate) reminder_minutes_before: Option<u32>,
-    pub(crate) recurrence: Option<ActivityRecurrenceResponse>,
-    pub(crate) created_at: String,
-    pub(crate) updated_at: String,
-    #[schema(value_type = Object)]
-    pub(crate) custom_fields: Map<String, Value>,
-    pub(crate) activity_type: ActivityTypeSummaryResponse,
-    pub(crate) owner: Option<UserReferenceResponse>,
-    pub(crate) record: Option<LinkedRecordResponse>,
-    pub(crate) links: Vec<LinkedRecordResponse>,
 }
 
 impl From<ActivityRecord> for ActivityResponse {
@@ -1250,15 +1118,6 @@ impl From<ActivityTypeView> for ActivityTypeResponse {
             updated_at: instant(view.updated_at),
         }
     }
-}
-
-#[derive(Debug, Serialize, ToSchema)]
-pub(crate) struct ActivityTypeSummaryResponse {
-    pub(crate) id: String,
-    pub(crate) key: String,
-    pub(crate) name: String,
-    pub(crate) icon: Option<String>,
-    pub(crate) color: Option<String>,
 }
 
 impl From<ActivityTypeSummary> for ActivityTypeSummaryResponse {

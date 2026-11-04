@@ -1,5 +1,5 @@
 use aphel_contract_crm::CrmRecordTypes;
-use chrono::{DateTime, SecondsFormat, Utc};
+use chrono::{DateTime, Utc};
 use rust_decimal::Decimal;
 use rust_decimal::prelude::FromPrimitive;
 use serde::Serialize;
@@ -607,9 +607,7 @@ pub(crate) const ACTIVITY_TYPE_REORDERED: &str = "activity_type.reordered";
 pub(crate) const ACTIVITY_TYPE_ACTIVATED: &str = "activity_type.activated";
 pub(crate) const ACTIVITY_TYPE_DEACTIVATED: &str = "activity_type.deactivated";
 
-pub fn instant(value: DateTime<Utc>) -> String {
-    value.to_rfc3339_opts(SecondsFormat::Secs, true)
-}
+pub use aphel_sdk::tasks::instant;
 
 fn optional_instant(value: Option<DateTime<Utc>>) -> Value {
     value.map(instant).map(Value::String).unwrap_or(Value::Null)

@@ -550,6 +550,13 @@ This phase is in progress. Completed entries describe static source validation; 
 - [x] Preserve item order and aggregate totals; hidden fields are omitted/empty and unavailable stage labels remain empty. Scoped deals/renewal compilation passes.
 - [ ] Manual acceptance: widget ordering/limits, hidden title/amount/currency/owner/stage fields, record constraints and disabled owners.
 
+## Telephony task transactions
+
+- [x] Tasks owns completed-task preparation and transaction insertion through opaque prepared-task handles. Each handle exposes only its identity, linked reference, audit IP and its own post-write response; owner availability is rechecked.
+- [x] Telephony uses owner-authorized task reads and shared response models/codecs; final responses retain field redaction. No task engine, query or storage implementation moves to the SDK.
+- [x] Remove telephony's tasks implementation dependency. Scoped tasks/telephony compilation passes without warnings; SQL/FK cleanup remains pending.
+- [ ] Manual acceptance: call logging/update/provider events, session calls, task hooks, rollback atomicity, audit IP, recurrence DTOs, scopes and disabled tasks.
+
 ## Outstanding scope
 
 The remaining identity changes, shared capability interfaces, owner-only SQL, deletion policies and per-plugin manual acceptance matrices are still pending. Existing architectural debt is not considered resolved by renaming packages.

@@ -27,12 +27,12 @@ pub(crate) const KEY: &str = "telephony";
 const PUBLIC_EVENTS: &[PublicEventDefinition] = &[
     event(
         "call.logged",
-        tasks::ACTIVITY_RESOURCE,
+        aphel_sdk::tasks::RESOURCE,
         "A call was logged as an activity (details in `call`: direction, outcome, duration)",
     ),
     changed(
         "call.updated",
-        tasks::ACTIVITY_RESOURCE,
+        aphel_sdk::tasks::RESOURCE,
         "The details of a logged call changed",
         PreviousValues::Changes,
     ),
@@ -44,7 +44,7 @@ impl Module for TelephonyModule {
     fn manifest(&self) -> Manifest {
         Manifest::new(KEY, "Calls", APHEL_VERSION)
             .description("Call logging as tasks, call outcomes, call sessions, telephony providers and the calls report")
-            .depends_on(tasks::KEY, "*")
+            .optional("tasks")
             .enabled_by_default()
             .owned_tables(&["activity_calls", "call_outcomes", "call_session_items", "call_sessions"])
             .migration(Migration::new(

@@ -19,6 +19,10 @@ impl TaskWriter for Writer {
 
 #[async_trait::async_trait]
 impl aphel_sdk::tasks::TaskTypes for Writer {
+    fn require_reader(&self, scope: &aphel_sdk::access::AccessScope) -> Result<(), AppError> {
+        crate::types::require_activity_type_reader(scope)
+    }
+
     async fn list(
         &self,
         ctx: &Ctx<'_>,
