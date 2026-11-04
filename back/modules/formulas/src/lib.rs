@@ -2,6 +2,7 @@ pub mod application;
 pub mod dto;
 mod http;
 pub mod infrastructure;
+mod predicates;
 
 use aphel_kernel::errors::AppError;
 use aphel_kernel::modules::{AppBuilder, Manifest, Module};
@@ -24,6 +25,9 @@ impl Module for FormulasModule {
         .owned_tables(&["formula_daily_runs"])
     }
     fn register(&self, app: &mut AppBuilder) -> Result<(), AppError> {
+        app.provide::<dyn aphel_sdk::formulas::FormulaPredicates>(std::sync::Arc::new(
+            predicates::Predicates,
+        ));
         app.openapi_tag(http::TAG, "Formulas")
             .routes(|_| http::router());
         app.contribute::<dyn aphel_kernel::application::fields::FieldDefinitionValidator>(

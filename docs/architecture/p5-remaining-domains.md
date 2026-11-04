@@ -305,6 +305,13 @@ This phase is in progress. Completed entries describe static source validation; 
 - [x] Remove marketplace's last peer implementation dependency. Public OpenAPI remains semantically unchanged after codec extraction.
 - [ ] Manual acceptance: catalog installed/update flags, disabled configuration packages, settings authorization and theme discovery.
 
+## Approval formula predicates
+
+- [x] Expose native formula predicate validation/evaluation through an enabled SDK service. Formula workspace compilation, source reads, dependency ordering and evaluation stay with formulas.
+- [x] Approvals retains its condition definition and existing elevated policy scope, and maps owner diagnostics to its own validation field.
+- [x] Remove approvals' final peer implementation dependency; missing formula providers fail explicitly for formula conditions instead of executing disabled implementation code.
+- [ ] Manual acceptance: boolean conditions, invalid expressions, aggregate/custom dependencies, policy evaluation scope and disabled formulas.
+
 ## Outstanding scope
 
 The remaining identity changes, shared capability interfaces, owner-only SQL, deletion policies and per-plugin manual acceptance matrices are still pending. Existing architectural debt is not considered resolved by renaming packages.

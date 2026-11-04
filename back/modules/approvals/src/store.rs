@@ -14,8 +14,6 @@ use crate::domain::{
     ApprovalRule, ApprovalStatus, ApproverKind, ConditionKind, DecisionEntry, PolicyCondition,
     PolicyListFilter, PolicyStep, RecordState, RequestApprover, RequestListFilter, StepSnapshot,
 };
-use ::formulas::application::{FormulaEngine, TypeFormulas, ValueKind, compile_formula};
-use ::formulas::infrastructure::MySqlFormulaPorts;
 use aphel_kernel::Ctx;
 use aphel_kernel::application::fields::{EntityDefinition, FieldSet, RecordTypeRegistry};
 use aphel_kernel::application::organization_admin::{ListWindow, Listing};
@@ -30,7 +28,7 @@ use aphel_kernel::database::transaction::MySqlTx;
 use aphel_kernel::domain::UserId;
 use aphel_kernel::domain::access::{AccessScope, PermissionSet, RecordScopeFilter, RoleKey};
 use aphel_kernel::domain::fields::{
-    FieldConfig, FieldDefinition, FieldKey, FieldValue, FormulaResultType, FormulaSettings,
+    FieldConfig, FieldDefinition, FieldKey, FormulaResultType, FormulaSettings,
 };
 use aphel_kernel::errors::{AppError, FieldViolation};
 use aphel_kernel::infrastructure::fields::MySqlFieldDefinitionRepository;
@@ -976,24 +974,15 @@ impl ApprovalDirectory {
         record_id: Uuid,
     ) -> Result<bool, AppError> {
         let elevated = condition_scope(scope);
-        let ports = MySqlFormulaPorts::new(self.pool.clone(), self.registry.clone());
-        let engine = FormulaEngine::new(&ports, &elevated);
-        let draft = condition_definition(definition, expression)?;
-        let mut workspace = engine.workspace().with_override(draft.clone());
-        let context = workspace.context(&definition.record_type).await?;
-        if compile_formula(expression, &context).is_err() {
-            return Ok(false);
-        }
-        let formulas = TypeFormulas::new(context);
-        let mut evaluated = engine.evaluate(&formulas, &[record_id]).await?;
-        let Some(record) = evaluated.remove(&record_id) else {
-            return Ok(false);
-        };
-        Ok(record
-            .results
-            .iter()
-            .find(|(field, _)| field.key == draft.key)
-            .is_some_and(|(_, value)| matches!(value, Some(FieldValue::Bool(true)))))
+        aphel_sdk::formulas::predicates()?
+            .matches(
+                &self.pool,
+                &self.registry,
+                &elevated,
+                condition_definition(definition, expression)?,
+                record_id,
+            )
+            .await
     }
 
     pub(crate) async fn users_where(
@@ -1127,26 +1116,17 @@ impl ApprovalDirectory {
                     &relations,
                 ))
             }
-            PolicyCondition::Formula(expression) => {
-                let ports = MySqlFormulaPorts::new(self.pool.clone(), self.registry.clone());
-                let engine = FormulaEngine::new(&ports, &elevated);
-                let draft = condition_definition(definition, expression)?;
-                let mut workspace = engine.workspace().with_override(draft);
-                let context = workspace.context(&definition.record_type).await?;
-                match compile_formula(expression, &context) {
-                    Err(errors) => Ok(errors
-                        .into_iter()
-                        .map(|error| FieldViolation::new("formula", error.describe()))
-                        .collect()),
-                    Ok(compiled) if compiled.kind != Some(ValueKind::Bool) => {
-                        Ok(vec![FieldViolation::new(
-                            "formula",
-                            "must result in a boolean (true or false)",
-                        )])
-                    }
-                    Ok(_) => Ok(Vec::new()),
-                }
-            }
+            PolicyCondition::Formula(expression) => Ok(aphel_sdk::formulas::predicates()?
+                .violations(
+                    &self.pool,
+                    &self.registry,
+                    &elevated,
+                    condition_definition(definition, expression)?,
+                )
+                .await?
+                .into_iter()
+                .map(|message| FieldViolation::new("formula", message))
+                .collect()),
         }
     }
 

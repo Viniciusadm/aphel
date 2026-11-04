@@ -619,7 +619,6 @@ dependencies = [
  "aphel-contract-automation",
  "aphel-contract-crm",
  "aphel-kernel",
- "aphel-mod-formulas",
  "aphel-sdk",
  "async-trait",
  "axum",
@@ -1098,6 +1097,7 @@ name = "aphel-mod-formulas"
 version = "0.1.0"
 dependencies = [
  "aphel-kernel",
+ "aphel-sdk",
  "async-trait",
  "axum",
  "chrono",

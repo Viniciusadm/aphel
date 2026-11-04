@@ -9,7 +9,6 @@ publish = false
 [dependencies]
 aphel-sdk.workspace = true
 aphel-contract-automation.workspace = true
-formulas = { package = "aphel-mod-formulas", path = "../formulas" }
 aphel-contract-crm.workspace = true
 aphel-kernel.workspace = true
 axum.workspace = true
