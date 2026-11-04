@@ -8,7 +8,7 @@ use aphel_kernel::application::access::{AccessRepository, build_access_scope};
 use aphel_kernel::application::fields::FieldDefinitionRepository;
 use aphel_kernel::application::organization_admin::ListWindow;
 use aphel_kernel::application::query::{Filter, FilterOperator, RecordQuery};
-use aphel_kernel::application::shared::{RecordRef, RecordType};
+use aphel_kernel::application::shared::RecordType;
 use aphel_kernel::database::transaction::MySqlTx;
 use aphel_kernel::domain::UserId;
 use aphel_kernel::domain::access::AccessScope;
@@ -17,7 +17,7 @@ use aphel_kernel::errors::AppError;
 use aphel_kernel::infrastructure::fields::MySqlFieldDefinitionRepository;
 use aphel_kernel::infrastructure::repositories::mysql_access::MySqlAccessRepository;
 use aphel_kernel::records::PendingCommit;
-use tasks::domain::{ActivityScheduleInput, CreateActivityCommand, UpdateActivityCommand};
+use aphel_sdk::tasks::{MeetingActivity, MeetingActivityMove};
 
 fn mappable_custom(field_type: FieldType) -> bool {
     matches!(
@@ -83,33 +83,38 @@ pub(crate) async fn meeting_activity_type(
         .map(|activity_type| activity_type.id))
 }
 
-pub(crate) async fn create_activity_in_tx(
+pub(crate) async fn schedule_meeting(
     ctx: &Ctx<'_>,
     tx: &mut MySqlTx,
-    command: CreateActivityCommand,
-    record: RecordRef,
+    meeting: MeetingActivity,
 ) -> Result<Uuid, AppError> {
-    let mut prepared =
-        tasks::service::prepare_create(ctx, command, ActivityScheduleInput::default()).await?;
-    prepared.data.record = Some(record);
-    tasks::service::insert_prepared(ctx, tx, &prepared).await?;
-    Ok(prepared.id)
+    aphel_sdk::tasks::meetings()?
+        .schedule(ctx, tx, meeting)
+        .await
 }
 
-pub(crate) async fn update_activity_in_tx(
+pub(crate) async fn move_meeting(
     ctx: &Ctx<'_>,
     tx: &mut MySqlTx,
     scope: &AccessScope,
     activity_id: Uuid,
-    command: UpdateActivityCommand,
+    change: MeetingActivityMove,
 ) -> Result<Option<PendingCommit>, AppError> {
-    tasks::service::update_in_tx(
-        &ctx.with_scope(scope),
-        tx,
-        &activity_id.to_string(),
-        command,
-    )
-    .await
+    aphel_sdk::tasks::meetings()?
+        .move_to(ctx, tx, scope, activity_id, change)
+        .await
+}
+
+pub(crate) async fn cancel_meeting(
+    ctx: &Ctx<'_>,
+    tx: &mut MySqlTx,
+    scope: &AccessScope,
+    activity_id: Uuid,
+    ip: Option<String>,
+) -> Result<Option<PendingCommit>, AppError> {
+    aphel_sdk::tasks::meetings()?
+        .cancel(ctx, tx, scope, activity_id, ip)
+        .await
 }
 
 pub(crate) async fn contact_fields(ctx: &Ctx<'_>) -> Result<Vec<ContactFieldOption>, AppError> {

@@ -26,6 +26,7 @@ use aphel_kernel::errors::AppError;
 use aphel_kernel::infrastructure::fields::mysql_definitions::uuid_column;
 use aphel_kernel::infrastructure::query::compiler::push_record_scope;
 use aphel_kernel::infrastructure::repositories::mapper::{self, user_reference};
+use aphel_sdk::calendar::BusyInterval;
 
 pub fn activity_select(alias: &str) -> String {
     format!(
@@ -458,6 +459,42 @@ impl<'a> ActivityStore<'a> {
         ids.into_iter()
             .map(|id| Uuid::parse_str(&id).map_err(|_| mapper::invalid_column("activity_id", &id)))
             .collect()
+    }
+
+    pub(crate) async fn busy_intervals(
+        &self,
+        owner: &UserId,
+        from: DateTime<Utc>,
+        to: DateTime<Utc>,
+        exclude: Option<Uuid>,
+    ) -> Result<Vec<BusyInterval>, AppError> {
+        let mut builder = QueryBuilder::<MySql>::new(
+            "SELECT due_at AS starts_at, DATE_ADD(due_at, INTERVAL duration_minutes MINUTE) AS ends_at \
+             FROM tasks WHERE owner_id = ",
+        );
+        builder
+            .push_bind(owner.as_str().to_owned())
+            .push(
+                " AND status = 'open' AND deleted_at IS NULL AND due_at IS NOT NULL \
+                 AND duration_minutes IS NOT NULL AND duration_minutes > 0 AND due_at < ",
+            )
+            .push_bind(mapper::naive(to))
+            .push(" AND due_at >= ")
+            .push_bind(mapper::naive(from - chrono::Duration::days(8)));
+        if let Some(exclude) = exclude {
+            builder.push(" AND id <> ").push_bind(exclude.to_string());
+        }
+        let rows = builder.build().fetch_all(&self.pool).await?;
+        let mut busy = Vec::new();
+        for row in rows {
+            let starts_at: NaiveDateTime = row.try_get("starts_at")?;
+            let ends_at: NaiveDateTime = row.try_get("ends_at")?;
+            let (starts_at, ends_at) = (mapper::utc(starts_at), mapper::utc(ends_at));
+            if ends_at > from {
+                busy.push(BusyInterval::new(starts_at, ends_at));
+            }
+        }
+        Ok(busy)
     }
 
     pub(crate) async fn within_scope(

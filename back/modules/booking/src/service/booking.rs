@@ -31,9 +31,9 @@ use aphel_kernel::domain::{Secret, UserId};
 use aphel_kernel::errors::{AppError, FieldViolation};
 use aphel_kernel::records::{AddressInput, PendingCommit};
 use aphel_sdk::email::normalize_address;
+use aphel_sdk::tasks::{MeetingActivity, MeetingActivityMove};
 use people::domain::{ContactInput, SaveContactCommand};
 use people::service::CreatedContact;
-use tasks::domain::{CreateActivityCommand, UpdateActivityCommand};
 
 const BUSY_MARGIN_DAYS: i64 = 1;
 
@@ -226,8 +226,9 @@ async fn host_busy(
     let from = from - Duration::days(BUSY_MARGIN_DAYS);
     let to = to + Duration::days(BUSY_MARGIN_DAYS);
     let repository = BookingStore::of(ctx);
-    let mut busy = repository
-        .busy_activities(
+    let mut busy = aphel_sdk::tasks::meetings()?
+        .busy(
+            ctx,
             host,
             from,
             to,
@@ -746,18 +747,9 @@ async fn cancel_activity(
         return Ok(None);
     };
     let acting = booking_scope(&host_scope);
-    let updated = update_activity_attempt(
-        ctx,
-        tx,
-        acting,
-        activity_id,
-        UpdateActivityCommand {
-            status: Some("canceled".to_owned()),
-            ip,
-            ..UpdateActivityCommand::default()
-        },
-    )
-    .await?;
+    let updated =
+        update_activity_attempt(ctx, tx, acting, activity_id, ActivityChange::Cancel { ip })
+            .await?;
     match updated {
         Ok(updated) => Ok(updated),
         Err(error) => {
@@ -783,11 +775,10 @@ async fn move_activity(
         tx,
         booking_scope(&host.scope),
         activity_id,
-        UpdateActivityCommand {
-            due_at: Some(Some(instant_text(booking.starts_at))),
-            duration_minutes: Some(Some(i64::from(duration_minutes))),
+        ActivityChange::Move {
+            starts_at: booking.starts_at,
+            duration_minutes,
             ip,
-            ..UpdateActivityCommand::default()
         },
     )
     .await?;
@@ -800,16 +791,50 @@ async fn move_activity(
     }
 }
 
+enum ActivityChange {
+    Move {
+        starts_at: DateTime<Utc>,
+        duration_minutes: u32,
+        ip: Option<String>,
+    },
+    Cancel {
+        ip: Option<String>,
+    },
+}
+
 async fn update_activity_attempt(
     ctx: &Ctx<'_>,
     tx: &mut MySqlTx,
     acting: AccessScope,
     activity_id: Uuid,
-    command: UpdateActivityCommand,
+    change: ActivityChange,
 ) -> Result<Result<Option<UpdatedActivity>, AppError>, AppError> {
     let record_states = tx.record_states.clone();
     savepoint(tx, ACTIVITY_SAVEPOINT).await?;
-    match crm::update_activity_in_tx(ctx, tx, &acting, activity_id, command).await {
+    let updated = match change {
+        ActivityChange::Move {
+            starts_at,
+            duration_minutes,
+            ip,
+        } => {
+            crm::move_meeting(
+                ctx,
+                tx,
+                &acting,
+                activity_id,
+                MeetingActivityMove {
+                    starts_at,
+                    duration_minutes,
+                    ip,
+                },
+            )
+            .await
+        }
+        ActivityChange::Cancel { ip } => {
+            crm::cancel_meeting(ctx, tx, &acting, activity_id, ip).await
+        }
+    };
+    match updated {
         Ok(pending) => Ok(Ok(pending.map(|pending| UpdatedActivity {
             scope: acting,
             pending,
@@ -907,20 +932,19 @@ async fn create_records(
                 "the organization has no active `{ACTIVITY_TYPE_KEY}` activity type"
             ))
         })?;
-    let activity_id = crm::create_activity_in_tx(
+    let activity_id = crm::schedule_meeting(
         ctx,
         tx,
-        CreateActivityCommand {
+        MeetingActivity {
+            activity_type_id,
             title: activity_title(meeting_type, booking),
-            activity_type_id: activity_type_id.to_string(),
-            due_at: Some(instant_text(booking.starts_at)),
-            owner_id: Some(host.user_id.as_str().to_owned()),
-            duration_minutes: Some(i64::from(meeting_type.duration_minutes)),
+            owner_id: host.user_id.clone(),
+            record: RecordRef::new(RecordType::CONTACT, contact_id),
+            starts_at: booking.starts_at,
+            duration_minutes: meeting_type.duration_minutes,
             description: Some(activity_description(meeting_type, booking)),
             ip,
-            ..CreateActivityCommand::default()
         },
-        RecordRef::new(RecordType::CONTACT, contact_id),
     )
     .await?;
     Ok(BookingRecords {

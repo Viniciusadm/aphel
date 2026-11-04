@@ -75,6 +75,74 @@ pub trait TaskWriter: Send + Sync {
     ) -> Result<Uuid, AppError>;
 }
 
+#[derive(Debug, Clone, PartialEq)]
+pub struct MeetingActivity {
+    pub activity_type_id: Uuid,
+    pub title: String,
+    pub owner_id: UserId,
+    pub record: crate::shared::RecordRef,
+    pub starts_at: DateTime<Utc>,
+    pub duration_minutes: u32,
+    pub description: Option<String>,
+    pub ip: Option<String>,
+}
+
+#[derive(Debug, Clone, PartialEq, Eq)]
+pub struct MeetingActivityMove {
+    pub starts_at: DateTime<Utc>,
+    pub duration_minutes: u32,
+    pub ip: Option<String>,
+}
+
+#[async_trait::async_trait]
+pub trait MeetingScheduler: Send + Sync {
+    async fn schedule(
+        &self,
+        ctx: &crate::Ctx<'_>,
+        tx: &mut aphel_kernel::database::transaction::MySqlTx,
+        meeting: MeetingActivity,
+    ) -> Result<Uuid, AppError>;
+
+    async fn move_to(
+        &self,
+        ctx: &crate::Ctx<'_>,
+        tx: &mut aphel_kernel::database::transaction::MySqlTx,
+        scope: &crate::access::AccessScope,
+        activity_id: Uuid,
+        change: MeetingActivityMove,
+    ) -> Result<Option<crate::records::PendingCommit>, AppError>;
+
+    async fn cancel(
+        &self,
+        ctx: &crate::Ctx<'_>,
+        tx: &mut aphel_kernel::database::transaction::MySqlTx,
+        scope: &crate::access::AccessScope,
+        activity_id: Uuid,
+        ip: Option<String>,
+    ) -> Result<Option<crate::records::PendingCommit>, AppError>;
+
+    async fn busy(
+        &self,
+        ctx: &crate::Ctx<'_>,
+        owner: &UserId,
+        from: DateTime<Utc>,
+        to: DateTime<Utc>,
+        exclude: Option<Uuid>,
+    ) -> Result<Vec<crate::calendar::BusyInterval>, AppError>;
+}
+
+pub fn meetings() -> Result<std::sync::Arc<dyn MeetingScheduler>, AppError> {
+    aphel_kernel::modules::app()
+        .services()
+        .get::<dyn MeetingScheduler>()
+        .ok_or_else(|| {
+            AppError::unavailable_code(
+                "meeting_scheduler_unavailable",
+                "meeting scheduling is not enabled",
+            )
+        })
+}
+
 pub fn writer() -> Result<std::sync::Arc<dyn TaskWriter>, AppError> {
     aphel_kernel::modules::app()
         .services()

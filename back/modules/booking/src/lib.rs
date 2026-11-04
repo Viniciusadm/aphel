@@ -56,7 +56,7 @@ impl Module for BookingModule {
             .description(
                 "Booking links: availability, meeting types, team links and the public booking page",
             )
-            .depends_on(tasks::KEY, "*")
+            .depends_on("tasks", "*")
             .depends_on(people::KEY, "*")
             .optional("assignment")
             .enabled_by_default()

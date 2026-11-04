@@ -8,7 +8,8 @@ This phase is in progress. Completed entries describe static source validation; 
 - [x] Use `/booking` for authenticated screens/API and preserve the intentional public `/book` experience.
 - [x] Rewrite the fresh availability schema and every consumer to use `booking_availability`; no copy migration or old identity alias.
 - [x] Update assignment source metadata, profiles, generated registries, translations and API consumers.
-- [ ] Remove remaining task, party, assignment and email implementation dependencies and foreign SQL.
+- [x] Remove the tasks implementation dependency and foreign SQL: meeting activities are scheduled, moved and canceled through the SDK `MeetingScheduler` capability, and owner busy intervals replace booking's `tasks` query.
+- [ ] Remove remaining party and assignment implementation dependencies and foreign SQL.
 - [ ] Manual acceptance: availability editing, meeting types, public booking, host assignment, cancellation, rescheduling and email delivery with module/permission combinations.
 
 ## Forms identity

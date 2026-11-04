@@ -695,7 +695,6 @@ dependencies = [
  "aphel-kernel",
  "aphel-mod-assignment",
  "aphel-mod-people",
- "aphel-mod-tasks",
  "aphel-sdk",
  "async-trait",
  "axum",

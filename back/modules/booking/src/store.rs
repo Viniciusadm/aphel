@@ -1,5 +1,5 @@
 use aphel_sdk::calendar::BusyInterval;
-use chrono::{DateTime, Duration, NaiveDateTime, Utc};
+use chrono::{DateTime, NaiveDateTime, Utc};
 use chrono_tz::Tz;
 use serde_json::{Map, Value, json};
 use sqlx::mysql::MySqlRow;
@@ -564,33 +564,6 @@ impl BookingStore {
             .execute(&mut **tx)
             .await?;
         Ok(())
-    }
-
-    pub(crate) async fn busy_activities(
-        &self,
-        user_id: &UserId,
-        from: DateTime<Utc>,
-        to: DateTime<Utc>,
-        exclude_activity: Option<Uuid>,
-    ) -> Result<Vec<BusyInterval>, AppError> {
-        let mut builder = QueryBuilder::<MySql>::new(
-            "SELECT due_at AS starts_at, DATE_ADD(due_at, INTERVAL duration_minutes MINUTE) AS ends_at \
-             FROM tasks WHERE owner_id = ",
-        );
-        builder
-            .push_bind(user_id.as_str().to_owned())
-            .push(
-                " AND status = 'open' AND deleted_at IS NULL AND due_at IS NOT NULL \
-                 AND duration_minutes IS NOT NULL AND duration_minutes > 0 AND due_at < ",
-            )
-            .push_bind(mapper::naive(to))
-            .push(" AND due_at >= ")
-            .push_bind(mapper::naive(from - Duration::days(8)));
-        if let Some(exclude) = exclude_activity {
-            builder.push(" AND id <> ").push_bind(exclude.to_string());
-        }
-        let rows = builder.build().fetch_all(&self.pool).await?;
-        intervals(rows, from)
     }
 
     pub(crate) async fn booked(
