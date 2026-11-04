@@ -297,22 +297,26 @@ pub trait MailboxProvider: Send + Sync {
 
     async fn connect(
         &self,
+        ctx: &crate::Ctx<'_>,
         request: MailboxConnectRequest,
     ) -> Result<ConnectedMailbox, MailProviderError>;
 
     async fn test(
         &self,
+        ctx: &crate::Ctx<'_>,
         account: &MailboxAccount,
     ) -> Result<Option<MailboxCredentials>, MailProviderError>;
 
     async fn sync_since(
         &self,
+        ctx: &crate::Ctx<'_>,
         account: &MailboxAccount,
         request: SyncRequest,
     ) -> Result<SyncBatch, MailProviderError>;
 
     async fn send(
         &self,
+        ctx: &crate::Ctx<'_>,
         account: &MailboxAccount,
         email: &ProviderEmail,
     ) -> Result<SentEmail, MailProviderError>;

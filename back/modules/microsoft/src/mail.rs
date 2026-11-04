@@ -10,14 +10,13 @@ use aphel_sdk::tasks::remote_calendar::encode_segment;
 use async_trait::async_trait;
 use chrono::{DateTime, SecondsFormat, Utc};
 
-use aphel_kernel::domain::access::AccessScope;
 use aphel_kernel::errors::AppError;
 use aphel_sdk::email::mailbox::{
     ConnectedMailbox, FetchedEmail, MailProviderError, MailboxAccount, MailboxConnectRequest,
     MailboxConnectionKind, MailboxCredentials, MailboxProvider, ProviderEmail, SentEmail,
     SyncBatch, SyncRequest,
 };
-use aphel_sdk::email::oauth::{provider_ctx, provider_error, provider_state};
+use aphel_sdk::email::oauth::provider_error;
 use aphel_sdk::sso::errors::error_code;
 use serde_json::{Map, Value, json};
 
@@ -290,13 +289,11 @@ impl MailboxProvider for OutlookProvider {
 
     async fn connect(
         &self,
+        ctx: &aphel_sdk::Ctx<'_>,
         request: MailboxConnectRequest,
     ) -> Result<ConnectedMailbox, MailProviderError> {
-        let state = provider_state()?;
-        let scope = AccessScope::system();
-        let ctx = provider_ctx(&state, &scope).await?;
         let (profile, refreshed) = with_access(
-            &ctx,
+            ctx,
             &MicrosoftProvider,
             &request.credentials,
             |token| async move { profile(&token).await },
@@ -313,13 +310,11 @@ impl MailboxProvider for OutlookProvider {
 
     async fn test(
         &self,
+        ctx: &aphel_sdk::Ctx<'_>,
         account: &MailboxAccount,
     ) -> Result<Option<MailboxCredentials>, MailProviderError> {
-        let state = provider_state()?;
-        let scope = AccessScope::system();
-        let ctx = provider_ctx(&state, &scope).await?;
         let (_, refreshed) =
-            with_account_access(&ctx, &MicrosoftProvider, account, |token| async move {
+            with_account_access(ctx, &MicrosoftProvider, account, |token| async move {
                 profile(&token).await
             })
             .await
@@ -329,15 +324,13 @@ impl MailboxProvider for OutlookProvider {
 
     async fn sync_since(
         &self,
+        ctx: &aphel_sdk::Ctx<'_>,
         account: &MailboxAccount,
         request: SyncRequest,
     ) -> Result<SyncBatch, MailProviderError> {
-        let state = provider_state()?;
-        let scope = AccessScope::system();
-        let ctx = provider_ctx(&state, &scope).await?;
         let request = &request;
         let (mut page, refreshed) =
-            with_account_access(&ctx, &MicrosoftProvider, account, |token| async move {
+            with_account_access(ctx, &MicrosoftProvider, account, |token| async move {
                 sync_page(&token, request).await
             })
             .await
@@ -348,16 +341,14 @@ impl MailboxProvider for OutlookProvider {
 
     async fn send(
         &self,
+        ctx: &aphel_sdk::Ctx<'_>,
         account: &MailboxAccount,
         mail: &ProviderEmail,
     ) -> Result<SentEmail, MailProviderError> {
-        let state = provider_state()?;
-        let scope = AccessScope::system();
-        let ctx = provider_ctx(&state, &scope).await?;
         let encoded = encode_base64(&build(mail).map_err(provider_error)?);
         let encoded = encoded.as_str();
         let (_, refreshed) =
-            with_account_access(&ctx, &MicrosoftProvider, account, |token| async move {
+            with_account_access(ctx, &MicrosoftProvider, account, |token| async move {
                 send_mime(&token, encoded).await
             })
             .await

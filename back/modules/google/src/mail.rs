@@ -9,14 +9,13 @@ use aphel_sdk::sso::oauth::http_client;
 use async_trait::async_trait;
 use chrono::{DateTime, Utc};
 
-use aphel_kernel::domain::access::AccessScope;
 use aphel_kernel::errors::AppError;
 use aphel_sdk::email::mailbox::{
     ConnectedMailbox, FetchedEmail, MailProviderError, MailboxAccount, MailboxConnectRequest,
     MailboxConnectionKind, MailboxCredentials, MailboxProvider, ProviderEmail, SentEmail,
     SyncBatch, SyncRequest,
 };
-use aphel_sdk::email::oauth::{provider_ctx, provider_error, provider_state};
+use aphel_sdk::email::oauth::provider_error;
 use aphel_sdk::sso::errors::error_code;
 use serde_json::{Value, json};
 
@@ -355,13 +354,11 @@ impl MailboxProvider for GmailProvider {
 
     async fn connect(
         &self,
+        ctx: &aphel_sdk::Ctx<'_>,
         request: MailboxConnectRequest,
     ) -> Result<ConnectedMailbox, MailProviderError> {
-        let state = provider_state()?;
-        let scope = AccessScope::system();
-        let ctx = provider_ctx(&state, &scope).await?;
         let (profile, refreshed) = with_access(
-            &ctx,
+            ctx,
             &GoogleProvider,
             &request.credentials,
             |token| async move { profile(&token).await },
@@ -378,13 +375,11 @@ impl MailboxProvider for GmailProvider {
 
     async fn test(
         &self,
+        ctx: &aphel_sdk::Ctx<'_>,
         account: &MailboxAccount,
     ) -> Result<Option<MailboxCredentials>, MailProviderError> {
-        let state = provider_state()?;
-        let scope = AccessScope::system();
-        let ctx = provider_ctx(&state, &scope).await?;
         let (_, refreshed) =
-            with_account_access(&ctx, &GoogleProvider, account, |token| async move {
+            with_account_access(ctx, &GoogleProvider, account, |token| async move {
                 profile(&token).await
             })
             .await
@@ -394,15 +389,13 @@ impl MailboxProvider for GmailProvider {
 
     async fn sync_since(
         &self,
+        ctx: &aphel_sdk::Ctx<'_>,
         account: &MailboxAccount,
         request: SyncRequest,
     ) -> Result<SyncBatch, MailProviderError> {
-        let state = provider_state()?;
-        let scope = AccessScope::system();
-        let ctx = provider_ctx(&state, &scope).await?;
         let request = &request;
         let (mut page, refreshed) =
-            with_account_access(&ctx, &GoogleProvider, account, |token| async move {
+            with_account_access(ctx, &GoogleProvider, account, |token| async move {
                 sync_page(&token, request).await
             })
             .await
@@ -413,17 +406,15 @@ impl MailboxProvider for GmailProvider {
 
     async fn send(
         &self,
+        ctx: &aphel_sdk::Ctx<'_>,
         account: &MailboxAccount,
         mail: &ProviderEmail,
     ) -> Result<SentEmail, MailProviderError> {
-        let state = provider_state()?;
-        let scope = AccessScope::system();
-        let ctx = provider_ctx(&state, &scope).await?;
         let raw = encode_base64url(&aphel_sdk::email::mime::build(mail).map_err(provider_error)?);
         let raw = raw.as_str();
         let in_reply_to = mail.in_reply_to.as_deref();
         let (sent, refreshed) =
-            with_account_access(&ctx, &GoogleProvider, account, |token| async move {
+            with_account_access(ctx, &GoogleProvider, account, |token| async move {
                 send_raw(&token, raw, in_reply_to).await
             })
             .await

@@ -215,6 +215,7 @@ pub(crate) async fn sync_mailbox(
     for _ in 0..settings.max_batches.max(1) {
         let batch = match provider
             .sync_since(
+                ctx,
                 &account,
                 SyncRequest {
                     cursor: cursor.clone(),

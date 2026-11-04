@@ -184,7 +184,11 @@ impl MessagingChannel for WhatsappChannel {
             .unwrap_or_default()
     }
 
-    async fn test(&self, context: &ChannelContext<'_>) -> Result<String, ChannelError> {
+    async fn test(
+        &self,
+        _ctx: &aphel_kernel::Ctx<'_>,
+        context: &ChannelContext<'_>,
+    ) -> Result<String, ChannelError> {
         let token = context.credentials.require(ACCESS_TOKEN)?;
         let id = phone_number_id(context.config)?;
         let response = client()?
@@ -212,6 +216,7 @@ impl MessagingChannel for WhatsappChannel {
 
     async fn send(
         &self,
+        _ctx: &aphel_kernel::Ctx<'_>,
         context: &ChannelContext<'_>,
         message: &OutgoingMessage,
     ) -> Result<SentMessage, ChannelError> {

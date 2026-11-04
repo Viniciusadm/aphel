@@ -273,7 +273,7 @@ pub(crate) async fn deliver(
         credentials: &credentials,
     };
     match channel_provider(channel.kind.as_str())?
-        .send(&context, &outgoing)
+        .send(&ctx.with_scope(&scope), &context, &outgoing)
         .await
     {
         Ok(sent) => {

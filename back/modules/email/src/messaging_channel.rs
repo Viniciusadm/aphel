@@ -332,14 +332,22 @@ impl MessagingChannel for EmailChannel {
         config_text(config, "address").unwrap_or_default()
     }
 
-    async fn test(&self, context: &ChannelContext<'_>) -> Result<String, ChannelError> {
+    async fn test(
+        &self,
+        ctx: &aphel_kernel::Ctx<'_>,
+        context: &ChannelContext<'_>,
+    ) -> Result<String, ChannelError> {
         let (_, account) = account(context)?;
-        provider()?.test(&account).await.map_err(channel_error)?;
+        provider()?
+            .test(ctx, &account)
+            .await
+            .map_err(channel_error)?;
         Ok("IMAP e SMTP conectados".to_owned())
     }
 
     async fn send(
         &self,
+        ctx: &aphel_kernel::Ctx<'_>,
         context: &ChannelContext<'_>,
         message: &OutgoingMessage,
     ) -> Result<SentMessage, ChannelError> {
@@ -372,7 +380,7 @@ impl MessagingChannel for EmailChannel {
             headers: Vec::new(),
         };
         provider()?
-            .send(&account, &outgoing)
+            .send(ctx, &account, &outgoing)
             .await
             .map_err(|error| match error.kind {
                 MailProviderErrorKind::Rejected if error.message.starts_with("invalid address") => {
@@ -387,6 +395,7 @@ impl MessagingChannel for EmailChannel {
 
     async fn fetch(
         &self,
+        ctx: &aphel_kernel::Ctx<'_>,
         context: &ChannelContext<'_>,
         state: FetchState,
         limit: usize,
@@ -394,6 +403,7 @@ impl MessagingChannel for EmailChannel {
         let (config, account) = account(context)?;
         let batch = provider()?
             .sync_since(
+                ctx,
                 &account,
                 SyncRequest {
                     cursor: Some(cursor_for(state)),

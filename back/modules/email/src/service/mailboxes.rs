@@ -33,16 +33,16 @@ use aphel_kernel::domain::access::AccessScope;
 use aphel_kernel::errors::AppError;
 use aphel_kernel::infrastructure::platform::SharedSecretVault;
 
-pub(crate) fn providers(ctx: &Ctx<'_>) -> Vec<MailProviderInfo> {
-    crate::store::mail_providers()
-        .available_for(ctx.scope)
+pub(crate) fn providers(ctx: &Ctx<'_>) -> Result<Vec<MailProviderInfo>, AppError> {
+    Ok(crate::store::mail_providers()
+        .available_for(ctx.scope)?
         .into_iter()
         .map(|provider| MailProviderInfo {
             key: provider.key().to_owned(),
             label: provider.label().to_owned(),
             connection: provider.connection(),
         })
-        .collect()
+        .collect())
 }
 
 pub(crate) async fn list(ctx: &Ctx<'_>) -> Result<Vec<MailboxDetails>, AppError> {
@@ -88,11 +88,14 @@ pub async fn create(
     };
     let user_id = scope_user_uuid(scope)?;
     let connected = provider
-        .connect(MailboxConnectRequest {
-            user_id,
-            settings,
-            credentials: MailboxCredentials(command.credentials),
-        })
+        .connect(
+            ctx,
+            MailboxConnectRequest {
+                user_id,
+                settings,
+                credentials: MailboxCredentials(command.credentials),
+            },
+        )
         .await
         .map_err(AppError::from)?;
     let address = normalize_address(&connected.address).map_err(|message| {
@@ -204,11 +207,14 @@ pub(crate) async fn update(
         }
         let user_id = scope_user_uuid(scope)?;
         let connected = provider
-            .connect(MailboxConnectRequest {
-                user_id,
-                settings: Value::Object(merged),
-                credentials: stored,
-            })
+            .connect(
+                ctx,
+                MailboxConnectRequest {
+                    user_id,
+                    settings: Value::Object(merged),
+                    credentials: stored,
+                },
+            )
             .await
             .map_err(AppError::from)?;
         let address = normalize_address(&connected.address).unwrap_or_default();
@@ -287,7 +293,7 @@ pub(crate) async fn test(ctx: &Ctx<'_>, id: &str) -> Result<MailboxDetails, AppE
     let mailbox = owned(ctx, id).await?;
     let provider = provider(ctx, &mailbox)?;
     let account = account(ctx, &mailbox).await?;
-    match provider.test(&account).await {
+    match provider.test(ctx, &account).await {
         Ok(refreshed) => {
             if let Some(credentials) = refreshed {
                 persist_credentials(ctx, mailbox.id, &credentials).await?;

@@ -624,7 +624,7 @@ async fn test_channel(
         credentials: &credentials,
     };
     let result = match channel_provider(channel.kind.as_str())?
-        .test(&context)
+        .test(&ctx, &context)
         .await
     {
         Ok(detail) => {

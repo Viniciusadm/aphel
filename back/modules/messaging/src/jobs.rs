@@ -145,9 +145,9 @@ impl PollChannelHandler {
 
 async fn poll_channel(ctx: &Ctx<'_>, channel: &StoredChannel) -> Result<Option<String>, AppError> {
     let pool = ctx.pool();
-    if actor::acting_scope(ctx, channel).await?.is_none() {
+    let Some(scope) = actor::acting_scope(ctx, channel).await? else {
         return Ok(Some("no active member can act for this channel".to_owned()));
-    }
+    };
     let credentials = channels::load_credentials(ctx, channel).await?;
     let context = ChannelContext {
         config: &channel.config,
@@ -158,7 +158,7 @@ async fn poll_channel(ctx: &Ctx<'_>, channel: &StoredChannel) -> Result<Option<S
         last_uid: channel.imap_last_uid,
     };
     let batch = match channel_provider(channel.kind.as_str())?
-        .fetch(&context, state, POLL_BATCH)
+        .fetch(&ctx.with_scope(&scope), &context, state, POLL_BATCH)
         .await
     {
         Ok(batch) => batch,

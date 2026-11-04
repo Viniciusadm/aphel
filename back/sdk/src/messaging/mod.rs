@@ -24,14 +24,20 @@ pub trait MessagingChannel: Send + Sync {
     fn validate_config(&self, config: &Value) -> ValidatedConfig;
     fn max_body_chars(&self) -> usize;
     fn address(&self, config: &Value) -> String;
-    async fn test(&self, context: &ChannelContext<'_>) -> Result<String, ChannelError>;
+    async fn test(
+        &self,
+        ctx: &crate::Ctx<'_>,
+        context: &ChannelContext<'_>,
+    ) -> Result<String, ChannelError>;
     async fn send(
         &self,
+        ctx: &crate::Ctx<'_>,
         context: &ChannelContext<'_>,
         message: &OutgoingMessage,
     ) -> Result<SentMessage, ChannelError>;
     async fn fetch(
         &self,
+        _ctx: &crate::Ctx<'_>,
         _context: &ChannelContext<'_>,
         state: FetchState,
         _limit: usize,

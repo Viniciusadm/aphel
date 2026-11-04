@@ -214,6 +214,7 @@ impl MailboxProvider for ImapMailboxProvider {
 
     async fn connect(
         &self,
+        _ctx: &aphel_kernel::Ctx<'_>,
         request: MailboxConnectRequest,
     ) -> Result<ConnectedMailbox, MailProviderError> {
         let settings = parse_settings(&request.settings)?;
@@ -236,6 +237,7 @@ impl MailboxProvider for ImapMailboxProvider {
 
     async fn test(
         &self,
+        _ctx: &aphel_kernel::Ctx<'_>,
         account: &MailboxAccount,
     ) -> Result<Option<MailboxCredentials>, MailProviderError> {
         let settings = parse_settings(&account.settings)?;
@@ -249,6 +251,7 @@ impl MailboxProvider for ImapMailboxProvider {
 
     async fn sync_since(
         &self,
+        _ctx: &aphel_kernel::Ctx<'_>,
         account: &MailboxAccount,
         request: SyncRequest,
     ) -> Result<SyncBatch, MailProviderError> {
@@ -309,6 +312,7 @@ impl MailboxProvider for ImapMailboxProvider {
 
     async fn send(
         &self,
+        _ctx: &aphel_kernel::Ctx<'_>,
         account: &MailboxAccount,
         email: &ProviderEmail,
     ) -> Result<SentEmail, MailProviderError> {

@@ -41,7 +41,7 @@ async fn list_mail_providers(
     tenant: AuthContext,
 ) -> Result<Json<Data<Vec<MailProviderResponse>>>, ApiError> {
     let ctx = Ctx::from_state(&state, &tenant.scope).await?;
-    let providers = service::providers(&ctx);
+    let providers = service::providers(&ctx)?;
     Ok(Json(Data::new(
         providers.into_iter().map(Into::into).collect(),
     )))

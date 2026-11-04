@@ -22,11 +22,11 @@ pub fn mail_providers() -> &'static Arc<MailboxProviderRegistry> {
 
 fn mail_provider_registry() -> Arc<MailboxProviderRegistry> {
     let mut registry = MailboxProviderRegistry::new();
-    registry.register(Arc::new(imap::ImapMailboxProvider::from_env()));
-    for (_, provider) in
+    registry.register(crate::KEY, Arc::new(imap::ImapMailboxProvider::from_env()));
+    for (owner, provider) in
         aphel_kernel::modules::app().all_contributions::<dyn crate::MailboxProvider>()
     {
-        registry.register(provider);
+        registry.register(owner, provider);
     }
     Arc::new(registry)
 }

@@ -957,7 +957,7 @@ pub(crate) async fn deliver(
         }
     };
     let (provider, account, outgoing) = outgoing;
-    match provider.send(&account, &outgoing).await {
+    match provider.send(ctx, &account, &outgoing).await {
         Ok(sent) => {
             let view = record_success(ctx, &message, &actor, requested_by.as_ref(), sent).await?;
             Ok(DeliveryOutcome::Sent(Box::new(view)))

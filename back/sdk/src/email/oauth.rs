@@ -11,9 +11,7 @@ use super::mailbox::{MailProviderError, MailProviderErrorKind};
 use crate::sso::IdentityProvider;
 use crate::sso::errors::{is_authentication, is_internal, is_too_many_requests, is_unavailable};
 use aphel_kernel::Ctx;
-use aphel_kernel::domain::access::AccessScope;
 use aphel_kernel::errors::AppError;
-use aphel_kernel::state::{AppState, runtime_state};
 
 pub(crate) const FETCH_CONCURRENCY: usize = 4;
 
@@ -27,17 +25,6 @@ pub trait MailOAuth: IdentityProvider {
     fn mail_refresh_scopes(&self) -> Option<&'static str> {
         None
     }
-}
-
-pub fn provider_state() -> Result<AppState, MailProviderError> {
-    runtime_state().map_err(provider_error)
-}
-
-pub async fn provider_ctx<'a>(
-    state: &AppState,
-    scope: &'a AccessScope,
-) -> Result<Ctx<'a>, MailProviderError> {
-    Ctx::from_state(state, scope).await.map_err(provider_error)
 }
 
 pub fn provider_error(error: AppError) -> MailProviderError {

@@ -424,6 +424,14 @@ This phase is in progress. Completed entries describe static source validation; 
 - [ ] Manual acceptance: MIME round trips, initial/expired/rejected/revoked tokens, refresh persistence failures, single retry, callbacks and disabled/ambiguous providers.
 - [ ] Manual acceptance: IMAP/vendor providers, callback persistence, redacted debug output, provider errors and message/sync codecs.
 
+## Scoped mailbox and messaging execution
+
+- [x] Native mailbox and messaging providers receive the actual caller context. Vendor adapters no longer reconstruct global application state or replace caller scope with a system scope.
+- [x] Messaging delivery/polling passes the selected acting-member scope; IMAP and WhatsApp retain their existing transport behavior.
+- [x] Cached mailbox registrations retain owner identity and check current owner/module availability at lookup. Reject ambiguous provider keys instead of silently replacing implementations; preserve explicit member module restrictions and system scopes without module claims.
+- [x] Remove obsolete global provider context helpers from the SDK surface.
+- [ ] Manual acceptance: native/vendor mailbox operations, scheduled/user delivery, messaging actor selection, disabled cached providers, duplicate providers and restricted/system module scopes.
+
 ## Outstanding scope
 
 The remaining identity changes, shared capability interfaces, owner-only SQL, deletion policies and per-plugin manual acceptance matrices are still pending. Existing architectural debt is not considered resolved by renaming packages.
