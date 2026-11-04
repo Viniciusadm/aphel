@@ -134,6 +134,13 @@ This phase is in progress. Completed entries describe static source validation; 
 - [ ] Remove remaining task implementation coupling and foreign SQL/FKs.
 - [ ] Manual acceptance: provider registration/replacement, owner disable/enable, provider restrictions, start/recording failures and call event processing.
 
+## Split-credit goal metrics
+
+- [x] Share credit target/total snapshot data and a scoped read interface in the native SDK. Deals retains query planning, field visibility, credit arithmetic and all SQL.
+- [x] Goals resolves an enabled credit reader; an unavailable reader for this metric produces absent progress, matching other unavailable metrics.
+- [x] Remove goals' deals implementation dependency and make the capability optional.
+- [ ] Manual acceptance: user/team split credit, owner remainder, read scopes, hidden amount fields, date boundaries and disabled deals.
+
 ## Outstanding scope
 
 The remaining identity changes, shared capability interfaces, owner-only SQL, deletion policies and per-plugin manual acceptance matrices are still pending. Existing architectural debt is not considered resolved by renaming packages.

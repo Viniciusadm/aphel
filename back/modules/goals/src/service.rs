@@ -31,9 +31,8 @@ use aphel_kernel::domain::{TeamId, UserId};
 use aphel_kernel::errors::{AppError, FieldViolation};
 use aphel_kernel::records::{RecordMutation, publish_mutation};
 use aphel_sdk::dashboard::local_today;
+use aphel_sdk::deals::{CreditedUsers, credited_won_total};
 use aphel_sdk::money::BASE_AMOUNT_FIELD;
-use deals::team::domain::CreditedUsers;
-use deals::team::service::credited_won_total;
 
 use aphel_kernel::application::shared::is_access_denied as is_unavailable;
 
@@ -171,7 +170,8 @@ pub(crate) async fn goal_progress(
         return match credited_won_total(ctx, &credited, &amount_key, goal.starts_on, goal.ends_on)
             .await
         {
-            Ok(totals) => Ok(Some(progress_of(goal, totals.amount, today))),
+            Ok(Some(totals)) => Ok(Some(progress_of(goal, totals.amount, today))),
+            Ok(None) => Ok(None),
             Err(error) if is_unavailable(&error) => Ok(None),
             Err(error) => Err(error),
         };

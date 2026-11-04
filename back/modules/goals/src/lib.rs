@@ -30,7 +30,7 @@ impl Module for GoalsModule {
             .description(
                 "Sales goals per user, team or organization (won amount, won deals, completed tasks, new people) and their progress",
             )
-            .depends_on(deals::KEY, "*")
+            .optional("deals")
             .enabled_by_default()
             .owned_tables(&["goals"])
             .migration(Migration::new(

@@ -8,7 +8,7 @@ use uuid::Uuid;
 use crate::domain::OwnerRef;
 use aphel_kernel::application::files::UserReference;
 use aphel_kernel::application::shared::RecordType;
-use aphel_kernel::domain::{TeamId, UserId};
+use aphel_kernel::domain::UserId;
 use aphel_kernel::errors::{AppError, CodedKind, FieldViolation};
 
 pub use aphel_kernel::application::shared::parse_uuid as parse_id;
@@ -178,17 +178,7 @@ pub(crate) struct UpdateDealMemberRoleCommand {
     pub(crate) ip: Option<String>,
 }
 
-#[derive(Debug, Clone, PartialEq, Eq)]
-pub enum CreditedUsers {
-    User(UserId),
-    Team(TeamId),
-}
-
-#[derive(Debug, Clone, Copy, PartialEq, Eq, Default)]
-pub struct CreditTotals {
-    pub count: u64,
-    pub amount: Decimal,
-}
+pub use aphel_sdk::deals::{CreditTotals, CreditedUsers};
 
 pub(crate) fn allocated(members: &[DealMember]) -> Decimal {
     members.iter().map(|member| member.credit_percent).sum()

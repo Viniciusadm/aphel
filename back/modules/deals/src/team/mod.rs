@@ -18,3 +18,5 @@ pub(crate) fn register(app: &mut AppBuilder) -> Result<(), AppError> {
     .consumer(|env| notifications::DealTeamNotificationConsumer::shared(env.pool.clone()));
     Ok(())
 }
+
+pub(crate) mod credit_reader;

@@ -360,6 +360,9 @@ impl Module for DealsModule {
     }
 
     fn register(&self, app: &mut AppBuilder) -> Result<(), AppError> {
+        app.provide::<dyn aphel_sdk::deals::DealCreditReader>(Arc::new(
+            team::credit_reader::CreditReader,
+        ));
         app.provide::<dyn aphel_sdk::deals::DealLifecycle>(Arc::new(lifecycle::Lifecycle));
         app.contribute::<dyn aphel_sdk::followers::FollowedEventSource>(std::sync::Arc::new(
             followers::DealsFollowedEvents,

@@ -66,3 +66,43 @@ pub trait DealLifecycle: Send + Sync {
         id: Uuid,
     ) -> Result<DealOutcomes, AppError>;
 }
+
+#[derive(Debug, Clone, PartialEq, Eq)]
+pub enum CreditedUsers {
+    User(aphel_kernel::domain::UserId),
+    Team(aphel_kernel::domain::TeamId),
+}
+
+#[derive(Debug, Clone, Copy, PartialEq, Eq, Default)]
+pub struct CreditTotals {
+    pub count: u64,
+    pub amount: Decimal,
+}
+
+#[async_trait]
+pub trait DealCreditReader: Send + Sync {
+    async fn won_total(
+        &self,
+        ctx: &crate::Ctx<'_>,
+        credited: &CreditedUsers,
+        amount_key: &str,
+        from: NaiveDate,
+        to: NaiveDate,
+    ) -> Result<CreditTotals, AppError>;
+}
+
+pub async fn credited_won_total(
+    ctx: &crate::Ctx<'_>,
+    credited: &CreditedUsers,
+    amount_key: &str,
+    from: NaiveDate,
+    to: NaiveDate,
+) -> Result<Option<CreditTotals>, AppError> {
+    let Some(reader) = ctx.services().get::<dyn DealCreditReader>() else {
+        return Ok(None);
+    };
+    reader
+        .won_total(ctx, credited, amount_key, from, to)
+        .await
+        .map(Some)
+}
