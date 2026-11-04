@@ -7,9 +7,7 @@ use crate::application::{
     CatalogEntry, CatalogEntryKind, CatalogFetchError, CatalogFetcher, CatalogPorts,
     MAX_CATALOG_INDEX_BYTES, RejectedEntry, parse_index, resolve_package_url,
 };
-use ::config_packages::application::versioning::{
-    ConfigVersionRepository, compare_versions, sha256_hex,
-};
+use ::config_packages::application::versioning::{compare_versions, sha256_hex};
 use ::config_packages::application::{APHEL_VERSION, MAX_PACKAGE_BYTES, parse_version};
 use aphel_kernel::application::access::Authorizer;
 use aphel_kernel::domain::access::{AccessScope, Permission};
@@ -82,7 +80,7 @@ where
             });
         };
         let index = self.index(&source).await?;
-        let installed = self.installed_versions().await?;
+        let installed = self.installed_versions(scope).await?;
         let entries = index
             .entries
             .into_iter()
@@ -224,12 +222,13 @@ where
             .map_err(|message| AppError::validation_code(CATALOG_UNAVAILABLE, message))
     }
 
-    async fn installed_versions(&self) -> Result<HashMap<String, String>, AppError> {
+    async fn installed_versions(
+        &self,
+        scope: &AccessScope,
+    ) -> Result<HashMap<String, String>, AppError> {
         let mut installed = HashMap::new();
-        for version in self.ports.versions().list().await? {
-            installed
-                .entry(version.package_id)
-                .or_insert(version.version);
+        for (package_id, version) in self.ports.installed_versions(scope).await? {
+            installed.entry(package_id).or_insert(version);
         }
         Ok(installed)
     }

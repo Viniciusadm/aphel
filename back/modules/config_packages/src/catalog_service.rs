@@ -10,6 +10,23 @@ pub(crate) struct Catalog;
 
 #[async_trait::async_trait]
 impl ConfigurationCatalog for Catalog {
+    async fn installed_versions(
+        &self,
+        pool: &sqlx::MySqlPool,
+        scope: &aphel_sdk::access::AccessScope,
+    ) -> Result<Vec<(String, String)>, AppError> {
+        use crate::application::versioning::ConfigVersionRepository;
+        scope.require(&Permission::SETTINGS_MANAGE)?;
+        Ok(
+            crate::infrastructure::versioning::MySqlConfigVersionRepository::new(pool.clone())
+                .list()
+                .await?
+                .into_iter()
+                .map(|version| (version.package_id, version.version))
+                .collect(),
+        )
+    }
+
     fn template_exists(&self, ctx: &Ctx<'_>, key: &str, locale: &str) -> Result<bool, AppError> {
         ctx.scope.require(&Permission::SETTINGS_MANAGE)?;
         Ok(EmbeddedTemplates.template(key, locale).is_some())

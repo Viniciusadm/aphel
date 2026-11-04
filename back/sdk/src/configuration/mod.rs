@@ -114,6 +114,12 @@ pub struct InstallationReference {
 
 #[async_trait]
 pub trait ConfigurationCatalog: Send + Sync {
+    async fn installed_versions(
+        &self,
+        pool: &MySqlPool,
+        scope: &crate::access::AccessScope,
+    ) -> Result<Vec<(String, String)>, AppError>;
+
     fn template_exists(
         &self,
         ctx: &crate::Ctx<'_>,

@@ -297,6 +297,13 @@ This phase is in progress. Completed entries describe static source validation; 
 - [x] Preserve primary-link precedence and highest readable amount for secondary links, with deterministic identity ties; disabled deals yield no projection.
 - [ ] Manual acceptance: inbox deal sorting, archived/deleted deals, primary/secondary links, hidden amounts/currencies/titles and disabled deal sources.
 
+## Marketplace installed package catalog
+
+- [x] Configuration packages exposes settings-authorized installed package/version summaries through its enabled catalog service.
+- [x] Marketplace no longer instantiates or imports the configuration version repository. A missing catalog provider yields no installed template versions while theme and module discovery remain available.
+- [ ] Move remaining version compare/apply execution and shared version metadata behind contracts.
+- [ ] Manual acceptance: catalog installed/update flags, disabled configuration packages, settings authorization and theme discovery.
+
 ## Outstanding scope
 
 The remaining identity changes, shared capability interfaces, owner-only SQL, deletion policies and per-plugin manual acceptance matrices are still pending. Existing architectural debt is not considered resolved by renaming packages.

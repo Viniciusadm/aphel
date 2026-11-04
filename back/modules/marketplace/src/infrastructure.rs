@@ -9,7 +9,6 @@ use crate::application::{
     CatalogPorts, CatalogSettings, is_allowed_url,
 };
 use ::config_packages::application::APHEL_VERSION;
-use ::config_packages::infrastructure::versioning::MySqlConfigVersionRepository;
 
 const MAX_REDIRECTS: usize = 5;
 const BUILTIN_INDEX: &[u8] = include_bytes!("../../../../catalog/index.json");
@@ -107,7 +106,7 @@ impl CatalogFetcher for HttpCatalogFetcher {
 pub(crate) struct MySqlCatalogPorts {
     settings: CatalogSettings,
     fetcher: HttpCatalogFetcher,
-    versions: MySqlConfigVersionRepository,
+    pool: MySqlPool,
 }
 
 impl MySqlCatalogPorts {
@@ -115,14 +114,14 @@ impl MySqlCatalogPorts {
         Self {
             settings,
             fetcher: HttpCatalogFetcher,
-            versions: MySqlConfigVersionRepository::new(pool),
+            pool,
         }
     }
 }
 
+#[async_trait]
 impl CatalogPorts for MySqlCatalogPorts {
     type Fetcher = HttpCatalogFetcher;
-    type Versions = MySqlConfigVersionRepository;
 
     fn settings(&self) -> &CatalogSettings {
         &self.settings
@@ -132,7 +131,16 @@ impl CatalogPorts for MySqlCatalogPorts {
         &self.fetcher
     }
 
-    fn versions(&self) -> &Self::Versions {
-        &self.versions
+    async fn installed_versions(
+        &self,
+        scope: &aphel_sdk::access::AccessScope,
+    ) -> Result<Vec<(String, String)>, aphel_sdk::AppError> {
+        let Some(source) = aphel_kernel::modules::app()
+            .services()
+            .get::<dyn aphel_sdk::configuration::ConfigurationCatalog>()
+        else {
+            return Ok(Vec::new());
+        };
+        source.installed_versions(&self.pool, scope).await
     }
 }

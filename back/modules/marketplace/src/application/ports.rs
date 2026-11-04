@@ -2,8 +2,6 @@ use std::time::Duration;
 
 use async_trait::async_trait;
 
-use ::config_packages::application::versioning::ConfigVersionRepository;
-
 pub const DEFAULT_CATALOG_TIMEOUT: Duration = Duration::from_secs(10);
 pub const MAX_CATALOG_INDEX_BYTES: usize = 1024 * 1024;
 pub const BUILTIN_CATALOG_SCHEME: &str = "builtin:";
@@ -52,11 +50,14 @@ pub trait CatalogFetcher: Send + Sync {
     ) -> Result<Vec<u8>, CatalogFetchError>;
 }
 
+#[async_trait]
 pub trait CatalogPorts: Send + Sync {
     type Fetcher: CatalogFetcher;
-    type Versions: ConfigVersionRepository;
 
     fn settings(&self) -> &CatalogSettings;
     fn fetcher(&self) -> &Self::Fetcher;
-    fn versions(&self) -> &Self::Versions;
+    async fn installed_versions(
+        &self,
+        scope: &aphel_sdk::access::AccessScope,
+    ) -> Result<Vec<(String, String)>, aphel_sdk::AppError>;
 }
