@@ -1,5 +1,4 @@
 use crate::application::ConfigReferenceKind;
-use std::collections::HashMap;
 
 use async_trait::async_trait;
 use chrono::{DateTime, Utc};
@@ -15,20 +14,7 @@ use aphel_kernel::errors::AppError;
 
 pub const SAVED_VIEW_ITEM: ConfigReferenceKind = ConfigReferenceKind::new("views.view");
 
-#[async_trait]
-pub trait ConfigKeyRepository: Send + Sync {
-    type Tx: Send;
-
-    async fn keys(&self, item_type: ConfigReferenceKind)
-    -> Result<HashMap<Uuid, String>, AppError>;
-    async fn assign(
-        &self,
-        tx: &mut Self::Tx,
-        item_type: ConfigReferenceKind,
-        item_id: Uuid,
-        key: &str,
-    ) -> Result<(), AppError>;
-}
+pub use aphel_sdk::configuration::ConfigKeyRepository;
 
 #[derive(Debug, Clone, PartialEq)]
 pub struct ConfigPackageInstall {

@@ -107,14 +107,14 @@ impl Module for ApprovalsModule {
             notifications::ApprovalNotifications,
         ));
         app.contribute(std::sync::Arc::new(
-            ::config_packages::infrastructure::ConfigSectionFactory::new(210, |pool, registry| {
+            aphel_sdk::configuration::ConfigSectionFactory::new(210, |pool, registry| {
                 let _ = registry;
                 std::sync::Arc::new(crate::section::ApprovalPoliciesSection::new(
                     registry.clone(),
                     crate::store::ApprovalStore::new(pool.clone()),
                     crate::store::ApprovalDirectory::new(pool.clone(), registry.clone()),
                     workflow::store::PipelineStore::new(pool.clone()),
-                    ::config_packages::infrastructure::MySqlConfigKeyRepository::new(pool.clone()),
+                    aphel_sdk::configuration::ConfigKeyClient::new(pool.clone()),
                 ))
             }),
         ));

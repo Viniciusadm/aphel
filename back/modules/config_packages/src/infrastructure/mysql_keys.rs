@@ -51,15 +51,24 @@ impl ConfigKeyRepository for MySqlConfigKeyRepository {
         item_id: Uuid,
         key: &str,
     ) -> Result<(), AppError> {
-        sqlx::query(
-            "INSERT INTO config_item_keys (item_type, item_id, `key`) \
-             VALUES (?, ?, ?) ON DUPLICATE KEY UPDATE `key` = VALUES(`key`)",
-        )
-        .bind(item_type.key())
-        .bind(item_id.to_string())
-        .bind(key)
-        .execute(&mut **tx)
-        .await?;
-        Ok(())
+        assign_key(tx, item_type, item_id, key).await
     }
+}
+
+pub(crate) async fn assign_key(
+    tx: &mut MySqlTx,
+    item_type: ConfigReferenceKind,
+    item_id: Uuid,
+    key: &str,
+) -> Result<(), AppError> {
+    sqlx::query(
+        "INSERT INTO config_item_keys (item_type, item_id, `key`) \
+             VALUES (?, ?, ?) ON DUPLICATE KEY UPDATE `key` = VALUES(`key`)",
+    )
+    .bind(item_type.key())
+    .bind(item_id.to_string())
+    .bind(key)
+    .execute(&mut **tx)
+    .await?;
+    Ok(())
 }

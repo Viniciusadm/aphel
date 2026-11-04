@@ -8,7 +8,6 @@ publish = false
 
 [dependencies]
 aphel-sdk.workspace = true
-config_packages = { package = "aphel-mod-config-packages", path = "../config_packages" }
 aphel-kernel.workspace = true
 async-trait.workspace = true
 axum.workspace = true

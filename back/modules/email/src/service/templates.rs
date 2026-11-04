@@ -15,7 +15,6 @@ use crate::templates::{
     VariableField, VariableValues, is_email_record_type, related_record_types, related_records,
     render_email, template_not_found,
 };
-use ::config_packages::application::{is_config_key, key_from_name};
 use aphel_kernel::Ctx;
 use aphel_kernel::application::access::Authorizer;
 use aphel_kernel::application::audit::{DiffOptions, diff_changes};
@@ -26,6 +25,7 @@ use aphel_kernel::database::transaction::MySqlTx;
 use aphel_kernel::domain::UserId;
 use aphel_kernel::domain::access::{AccessScope, Permission};
 use aphel_kernel::errors::{AppError, FieldViolation};
+use aphel_sdk::configuration::{is_config_key, key_from_name};
 
 const MAX_KEY_ATTEMPTS: usize = 50;
 

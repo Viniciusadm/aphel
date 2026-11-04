@@ -6,9 +6,9 @@ use serde::Serialize;
 use serde_json::{Value, json};
 use uuid::Uuid;
 
-use ::config_packages::application::{is_config_key, key_from_name};
 use aphel_kernel::application::access::Authorizer;
 use aphel_kernel::application::audit::{DiffOptions, diff_changes};
+use aphel_sdk::configuration::{is_config_key, key_from_name};
 use std::sync::Arc;
 
 use async_trait::async_trait;

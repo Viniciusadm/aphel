@@ -10,7 +10,6 @@ use crate::engine::{
     self, RequestEvent, acting_user, clean_comment, record_not_found, status_change,
 };
 use crate::store::{ApprovalDirectory, ApprovalStore};
-use ::config_packages::application::is_config_key;
 use aphel_kernel::Ctx;
 use aphel_kernel::application::access::Authorizer;
 use aphel_kernel::application::audit::{DiffOptions, diff_values};
@@ -22,6 +21,7 @@ use aphel_kernel::domain::UserId;
 use aphel_kernel::domain::access::{AccessScope, Permission};
 use aphel_kernel::errors::{AppError, FieldViolation};
 use aphel_kernel::records::{RecordMutation, changes_payload, publish_mutation};
+use aphel_sdk::configuration::is_config_key;
 
 pub(crate) const QUOTE_RECORD_TYPE: &str = "quotes.quote";
 pub(crate) const STAGE_FIELD: &str = "stage_id";

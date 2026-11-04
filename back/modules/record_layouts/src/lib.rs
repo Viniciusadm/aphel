@@ -26,10 +26,10 @@ impl Module for RecordLayoutsModule {
     }
     fn register(&self, app: &mut AppBuilder) -> Result<(), AppError> {
         app.contribute(std::sync::Arc::new(
-            ::config_packages::application::versioning::fragments::SectionFragmentLayout {
+            aphel_sdk::configuration::versioning::fragments::SectionFragmentLayout {
                 section: "layouts",
                 collections: vec![
-                    ::config_packages::application::versioning::fragments::FragmentCollection {
+                    aphel_sdk::configuration::versioning::fragments::FragmentCollection {
                         path: None,
                         kind: "layout",
                         key_fields: &["record_type", "context"],
@@ -44,7 +44,7 @@ impl Module for RecordLayoutsModule {
         app.openapi_tag(http::TAG, "RecordLayouts")
             .routes(|_| http::router());
         app.contribute(std::sync::Arc::new(
-            ::config_packages::infrastructure::ConfigSectionFactory::new(110, |pool, registry| {
+            aphel_sdk::configuration::ConfigSectionFactory::new(110, |pool, registry| {
                 std::sync::Arc::new(section::LayoutsSection::new(
                     registry.clone(),
                     infrastructure::MySqlFormLayoutRepository::new(pool.clone()),

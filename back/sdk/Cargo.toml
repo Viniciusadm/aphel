@@ -7,6 +7,7 @@ license.workspace = true
 publish = false
 
 [dependencies]
+aphel-contract-configuration.workspace = true
 regex.workspace = true
 aphel-contract-notifications.workspace = true
 aphel-contract-email.workspace = true

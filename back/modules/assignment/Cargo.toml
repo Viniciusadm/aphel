@@ -10,7 +10,6 @@ publish = false
 aphel-sdk.workspace = true
 rust_decimal.workspace = true
 aphel-contract-automation.workspace = true
-config_packages = { package = "aphel-mod-config-packages", path = "../config_packages" }
 aphel-kernel.workspace = true
 axum.workspace = true
 async-trait.workspace = true

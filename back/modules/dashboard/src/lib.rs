@@ -46,10 +46,10 @@ impl Module for DashboardModule {
 
     fn register(&self, app: &mut AppBuilder) -> Result<(), AppError> {
         app.contribute(std::sync::Arc::new(
-            ::config_packages::application::versioning::fragments::SectionFragmentLayout {
+            aphel_sdk::configuration::versioning::fragments::SectionFragmentLayout {
                 section: "dashboard",
                 collections: vec![
-                    ::config_packages::application::versioning::fragments::FragmentCollection {
+                    aphel_sdk::configuration::versioning::fragments::FragmentCollection {
                         path: None,
                         kind: "dashboard_layout",
                         key_fields: &[],
@@ -58,7 +58,7 @@ impl Module for DashboardModule {
             },
         ));
 
-        app.contribute(std::sync::Arc::new(::config_packages::infrastructure::ConfigSectionFactory::new(
+        app.contribute(std::sync::Arc::new(aphel_sdk::configuration::ConfigSectionFactory::new(
             130,
             |pool, registry| {
                 let _ = registry;

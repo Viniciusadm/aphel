@@ -3,13 +3,13 @@ use serde::Deserialize;
 use serde_json::{Value, json};
 
 use crate::store::LineItemStore;
-use ::config_packages::application::{
-    ApplyContext, ConfigPackage, ConfigSection, Decisions, PackageIssue, PlanChange, PlanItem,
-    parse_section,
-};
 use aphel_kernel::database::transaction::MySqlTx;
 use aphel_kernel::domain::access::AccessScope;
 use aphel_kernel::errors::AppError;
+use aphel_sdk::configuration::{
+    ApplyContext, ConfigPackage, ConfigSection, Decisions, PackageIssue, PlanChange, PlanItem,
+    parse_section,
+};
 use aphel_sdk::line_items::AmountMode;
 
 pub(crate) const LINE_ITEMS_SECTION: &str = "line_items";

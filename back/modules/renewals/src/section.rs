@@ -1,4 +1,4 @@
-use ::config_packages::application::ConfigReferenceKind;
+use aphel_sdk::configuration::ConfigReferenceKind;
 use std::collections::{BTreeSet, HashMap};
 
 use async_trait::async_trait;
@@ -12,15 +12,15 @@ use crate::domain::{
     MAX_RENEWAL_TITLE_PREFIX_LENGTH, RenewalOwnerMode, RenewalSettings,
 };
 use crate::store::RenewalStore;
-use ::config_packages::application::sections::common::diff;
-use ::config_packages::application::{
-    ApplyContext, ConfigKeyRepository, ConfigPackage, ConfigSection, Decisions, PackageIssue,
-    PlanChange, PlanItem, assign_keys, parse_section,
-};
-use ::config_packages::infrastructure::MySqlConfigKeyRepository;
 use aphel_kernel::database::transaction::MySqlTx;
 use aphel_kernel::domain::access::AccessScope;
 use aphel_kernel::errors::AppError;
+use aphel_sdk::configuration::ConfigKeyClient;
+use aphel_sdk::configuration::sections::common::diff;
+use aphel_sdk::configuration::{
+    ApplyContext, ConfigKeyRepository, ConfigPackage, ConfigSection, Decisions, PackageIssue,
+    PlanChange, PlanItem, assign_keys, parse_section,
+};
 use workflow::domain::{Pipeline, StageKind};
 use workflow::section::{PIPELINES_SECTION, keyed_pipelines, parse_pipelines, stage_item_key};
 use workflow::store::PipelineStore;
@@ -107,14 +107,14 @@ fn parse(content: &Value) -> Result<Vec<PackagePipelineRenewal>, AppError> {
 pub(crate) struct PipelineRenewalsSection {
     renewals: RenewalStore,
     workflow: PipelineStore,
-    keys: MySqlConfigKeyRepository,
+    keys: ConfigKeyClient,
 }
 
 pub(crate) fn pipeline_renewals_section(pool: &MySqlPool) -> PipelineRenewalsSection {
     PipelineRenewalsSection {
         renewals: RenewalStore::new(pool.clone()),
         workflow: PipelineStore::new(pool.clone()),
-        keys: MySqlConfigKeyRepository::new(pool.clone()),
+        keys: ConfigKeyClient::new(pool.clone()),
     }
 }
 

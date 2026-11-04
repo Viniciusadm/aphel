@@ -171,7 +171,7 @@ impl Module for LeadsModule {
             |ctx, converted| Box::pin(plugin_bridge::converted(ctx, converted)),
         );
         app.contribute(std::sync::Arc::new(
-            ::config_packages::infrastructure::ConfigSectionFactory::new(180, |pool, registry| {
+            aphel_sdk::configuration::ConfigSectionFactory::new(180, |pool, registry| {
                 let _ = registry;
                 std::sync::Arc::new(crate::section::lifecycle_section(pool))
             }),

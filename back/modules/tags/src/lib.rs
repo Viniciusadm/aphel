@@ -46,10 +46,10 @@ impl Module for TagsModule {
             },
         ));
         app.contribute(std::sync::Arc::new(
-            ::config_packages::application::versioning::fragments::SectionFragmentLayout {
+            aphel_sdk::configuration::versioning::fragments::SectionFragmentLayout {
                 section: "tags",
                 collections: vec![
-                    ::config_packages::application::versioning::fragments::FragmentCollection {
+                    aphel_sdk::configuration::versioning::fragments::FragmentCollection {
                         path: None,
                         kind: "tag",
                         key_fields: &["key"],
@@ -60,11 +60,11 @@ impl Module for TagsModule {
 
         contract::register(app);
         app.contribute(std::sync::Arc::new(
-            ::config_packages::infrastructure::ConfigSectionFactory::new(100, |pool, registry| {
+            aphel_sdk::configuration::ConfigSectionFactory::new(100, |pool, registry| {
                 let _ = registry;
                 std::sync::Arc::new(crate::section::TagsSection::new(
                     crate::TagStore::new(pool.clone()),
-                    ::config_packages::infrastructure::MySqlConfigKeyRepository::new(pool.clone()),
+                    aphel_sdk::configuration::ConfigKeyClient::new(pool.clone()),
                 ))
             }),
         ));

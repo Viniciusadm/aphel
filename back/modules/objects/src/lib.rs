@@ -19,15 +19,15 @@ impl Module for ObjectsModule {
     }
     fn register(&self, app: &mut AppBuilder) -> Result<(), AppError> {
         app.contribute(std::sync::Arc::new(
-            ::config_packages::application::versioning::fragments::SectionFragmentLayout {
+            aphel_sdk::configuration::versioning::fragments::SectionFragmentLayout {
                 section: "custom_objects",
                 collections: vec![
-                    ::config_packages::application::versioning::fragments::FragmentCollection {
+                    aphel_sdk::configuration::versioning::fragments::FragmentCollection {
                         path: Some("objects"),
                         kind: "custom_object",
                         key_fields: &["key"],
                     },
-                    ::config_packages::application::versioning::fragments::FragmentCollection {
+                    aphel_sdk::configuration::versioning::fragments::FragmentCollection {
                         path: Some("relationships"),
                         kind: "relationship",
                         key_fields: &["key"],
@@ -37,7 +37,7 @@ impl Module for ObjectsModule {
         ));
 
         app.contribute(std::sync::Arc::new(
-            ::config_packages::infrastructure::ConfigSectionFactory::new(10, |pool, registry| {
+            aphel_sdk::configuration::ConfigSectionFactory::new(10, |pool, registry| {
                 std::sync::Arc::new(section::CustomObjectsSection::new(
                     registry.clone(),
                     aphel_kernel::infrastructure::custom_objects::MySqlCustomObjectRepository::new(

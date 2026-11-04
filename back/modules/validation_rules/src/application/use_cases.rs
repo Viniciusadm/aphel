@@ -9,7 +9,6 @@ use crate::application::{
     VALIDATION_RULES_REORDERED, ValidationRule, ValidationRulePorts, ValidationRuleRepository,
     compile_rule, is_validated_record_type,
 };
-use ::config_packages::application::{is_config_key, key_from_name};
 use ::formulas::application::MAX_REPORTED_ERRORS;
 use ::formulas::application::{FormulaContext, FormulaWorkspace};
 use aphel_kernel::application::access::Authorizer;
@@ -22,6 +21,7 @@ use aphel_kernel::domain::access::{AccessScope, Permission};
 use aphel_kernel::domain::fields::MAX_FORMULA_LENGTH;
 use aphel_kernel::errors::{AppError, FieldViolation};
 use aphel_kernel::records::{RecordMutation, changes_payload, publish_mutation};
+use aphel_sdk::configuration::{is_config_key, key_from_name};
 
 const INVALID_VALIDATION_RULE: &str = "invalid validation rule";
 

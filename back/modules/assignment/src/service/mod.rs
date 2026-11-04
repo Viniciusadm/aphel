@@ -12,7 +12,6 @@ use crate::domain::{
     RuleMember, RuleStats, UserStatus,
 };
 use crate::store::{self, AssignmentFilter, DistributionStore, RuleListFilter, TargetInfo};
-use ::config_packages::application::{MAX_CONFIG_KEY_LENGTH, is_config_key, key_from_name};
 use aphel_kernel::Ctx;
 use aphel_kernel::application::access::Authorizer;
 use aphel_kernel::application::audit::{DiffOptions, diff_values};
@@ -23,6 +22,7 @@ use aphel_kernel::domain::access::{AccessScope, Permission};
 use aphel_kernel::domain::{TeamId, UserId};
 use aphel_kernel::errors::{AppError, FieldViolation};
 use aphel_kernel::records::{RecordMutation, publish_mutation};
+use aphel_sdk::configuration::{MAX_CONFIG_KEY_LENGTH, is_config_key, key_from_name};
 
 mod distribution;
 

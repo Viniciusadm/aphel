@@ -14,7 +14,6 @@ use crate::guidance::domain::{
 };
 use crate::guidance::store::GuidanceStore;
 use crate::store::PipelineStore;
-use ::config_packages::application::{is_config_key, key_from_name};
 use aphel_kernel::Ctx;
 use aphel_kernel::application::access::Authorizer;
 use aphel_kernel::application::audit::{DiffOptions, diff_values};
@@ -23,6 +22,7 @@ use aphel_kernel::application::shared::{FieldChange, RecordRef, RecordType, ensu
 use aphel_kernel::domain::access::{Permission, RecordScopeFilter};
 use aphel_kernel::errors::{AppError, FieldViolation};
 use aphel_kernel::records::{RecordMutation, changes_payload, publish_mutation};
+use aphel_sdk::configuration::{is_config_key, key_from_name};
 
 const INVALID_STAGE_GUIDANCE: &str = "invalid stage guidance";
 

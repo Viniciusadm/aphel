@@ -5,13 +5,13 @@ use serde_json::{Value, json};
 
 use crate::domain::{MAX_ENABLED_CURRENCIES, normalize_currency_code};
 use crate::store::CurrencyStore;
-use ::config_packages::application::{
-    ApplyContext, ConfigPackage, ConfigSection, Decisions, PackageIssue, PlanChange, PlanItem,
-    parse_section,
-};
 use aphel_kernel::database::transaction::MySqlTx;
 use aphel_kernel::domain::access::AccessScope;
 use aphel_kernel::errors::AppError;
+use aphel_sdk::configuration::{
+    ApplyContext, ConfigPackage, ConfigSection, Decisions, PackageIssue, PlanChange, PlanItem,
+    parse_section,
+};
 
 pub(crate) const CURRENCIES_SECTION: &str = "currencies";
 const CURRENCY_KIND: &str = "currency";

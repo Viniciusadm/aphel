@@ -86,10 +86,10 @@ impl Module for WorkflowModule {
         }));
 
         app.contribute(std::sync::Arc::new(
-            ::config_packages::application::versioning::fragments::SectionFragmentLayout {
+            aphel_sdk::configuration::versioning::fragments::SectionFragmentLayout {
                 section: "lost_reasons",
                 collections: vec![
-                    ::config_packages::application::versioning::fragments::FragmentCollection {
+                    aphel_sdk::configuration::versioning::fragments::FragmentCollection {
                         path: None,
                         kind: "lost_reason",
                         key_fields: &["key"],
@@ -171,7 +171,7 @@ impl Module for WorkflowModule {
         ));
 
         app.contribute(std::sync::Arc::new(
-            ::config_packages::application::versioning::fragments::NestedFragmentLayout {
+            aphel_sdk::configuration::versioning::fragments::NestedFragmentLayout {
                 section: "workflow",
                 parent_kind: "pipeline",
                 child_kind: "stage",
@@ -192,12 +192,12 @@ impl Module for WorkflowModule {
             ));
         }
         app.contribute(std::sync::Arc::new(
-            ::config_packages::infrastructure::ConfigSectionFactory::new(30, |pool, registry| {
+            aphel_sdk::configuration::ConfigSectionFactory::new(30, |pool, registry| {
                 let _ = registry;
                 std::sync::Arc::new(crate::section::PipelinesSection::new(
                     registry.clone(),
                     crate::store::PipelineStore::new(pool.clone()),
-                    ::config_packages::infrastructure::MySqlConfigKeyRepository::new(pool.clone()),
+                    aphel_sdk::configuration::ConfigKeyClient::new(pool.clone()),
                     aphel_kernel::infrastructure::fields::MySqlFieldDefinitionRepository::new(
                         pool.clone(),
                     ),
@@ -205,16 +205,16 @@ impl Module for WorkflowModule {
             }),
         ));
         app.contribute(std::sync::Arc::new(
-            ::config_packages::infrastructure::ConfigSectionFactory::new(40, |pool, registry| {
+            aphel_sdk::configuration::ConfigSectionFactory::new(40, |pool, registry| {
                 let _ = registry;
                 std::sync::Arc::new(crate::lost_reason_section::LostReasonsSection::new(
                     crate::store::PipelineStore::new(pool.clone()),
-                    ::config_packages::infrastructure::MySqlConfigKeyRepository::new(pool.clone()),
+                    aphel_sdk::configuration::ConfigKeyClient::new(pool.clone()),
                 ))
             }),
         ));
         app.contribute(std::sync::Arc::new(
-            ::config_packages::infrastructure::ConfigSectionFactory::new(200, |pool, registry| {
+            aphel_sdk::configuration::ConfigSectionFactory::new(200, |pool, registry| {
                 let _ = registry;
                 std::sync::Arc::new(crate::guidance::section::stage_guidance_section(pool))
             }),

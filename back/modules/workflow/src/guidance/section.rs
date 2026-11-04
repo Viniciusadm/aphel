@@ -1,4 +1,4 @@
-use ::config_packages::application::ConfigReferenceKind;
+use aphel_sdk::configuration::ConfigReferenceKind;
 use std::collections::{BTreeSet, HashMap};
 
 use async_trait::async_trait;
@@ -13,15 +13,15 @@ use crate::guidance::domain::{
 use crate::guidance::store::GuidanceStore;
 use crate::section::{PIPELINES_SECTION, keyed_pipelines, parse_pipelines, stage_item_key};
 use crate::store::PipelineStore;
-use ::config_packages::application::sections::common::{check_key, diff};
-use ::config_packages::application::{
-    ApplyContext, ConfigKeyRepository, ConfigPackage, ConfigSection, Decisions, PackageIssue,
-    PlanChange, PlanItem, assign_keys, parse_section,
-};
-use ::config_packages::infrastructure::MySqlConfigKeyRepository;
 use aphel_kernel::database::transaction::MySqlTx;
 use aphel_kernel::domain::access::AccessScope;
 use aphel_kernel::errors::AppError;
+use aphel_sdk::configuration::ConfigKeyClient;
+use aphel_sdk::configuration::sections::common::{check_key, diff};
+use aphel_sdk::configuration::{
+    ApplyContext, ConfigKeyRepository, ConfigPackage, ConfigSection, Decisions, PackageIssue,
+    PlanChange, PlanItem, assign_keys, parse_section,
+};
 
 pub(crate) const STAGE_GUIDANCE_SECTION: &str = "stage_guidance";
 const STAGE_GUIDANCE_KIND: &str = "stage_guidance";
@@ -88,14 +88,14 @@ fn parse(content: &Value) -> Result<Vec<PackageStageGuidance>, AppError> {
 pub(crate) struct StageGuidanceSection {
     guidance: GuidanceStore,
     workflow: PipelineStore,
-    keys: MySqlConfigKeyRepository,
+    keys: ConfigKeyClient,
 }
 
 pub(crate) fn stage_guidance_section(pool: &sqlx::MySqlPool) -> StageGuidanceSection {
     StageGuidanceSection {
         guidance: GuidanceStore::new(pool.clone()),
         workflow: PipelineStore::new(pool.clone()),
-        keys: MySqlConfigKeyRepository::new(pool.clone()),
+        keys: ConfigKeyClient::new(pool.clone()),
     }
 }
 

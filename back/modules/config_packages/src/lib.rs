@@ -2,6 +2,7 @@ pub mod application;
 pub mod dto;
 pub mod http;
 pub mod infrastructure;
+mod key_service;
 pub mod versions_dto;
 pub mod versions_http;
 
@@ -35,6 +36,10 @@ impl Module for ConfigPackagesModule {
         ])
     }
     fn register(&self, app: &mut AppBuilder) -> Result<(), AppError> {
+        app.contract(aphel_contract_configuration::DESCRIPTOR);
+        app.provide::<dyn aphel_sdk::configuration::ConfigurationKeys>(std::sync::Arc::new(
+            key_service::Keys,
+        ));
         app.contribute(std::sync::Arc::new(
             crate::application::versioning::fragments::SectionFragmentLayout {
                 section: "fields",

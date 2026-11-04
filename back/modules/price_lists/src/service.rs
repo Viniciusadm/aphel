@@ -18,7 +18,6 @@ use crate::domain::{
     price_list_not_found,
 };
 use crate::store::{DiscountLimitStore, PriceListStore};
-use ::config_packages::application::{is_config_key, key_from_name};
 use aphel_kernel::Ctx;
 use aphel_kernel::application::access::Authorizer;
 use aphel_kernel::application::audit::{DiffOptions, diff_changes};
@@ -31,6 +30,7 @@ use aphel_kernel::database::transaction::MySqlTx;
 use aphel_kernel::domain::access::Permission;
 use aphel_kernel::errors::{AppError, FieldViolation};
 use aphel_kernel::records::{InputValidator, MAX_LONG_TEXT_LENGTH, Patch, changes_payload};
+use aphel_sdk::configuration::{is_config_key, key_from_name};
 use aphel_sdk::line_items::{MONEY_DECIMALS, QUANTITY_DECIMALS, normalize_quantity, parse_money};
 use products::domain::{normalize_currency, require_catalog};
 const INVALID_PRICE_LIST: &str = "invalid price list";

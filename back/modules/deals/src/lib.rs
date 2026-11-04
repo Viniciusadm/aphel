@@ -499,7 +499,7 @@ impl Module for DealsModule {
             std::sync::Arc::new(operations::AutomationStages),
         );
         app.contribute(std::sync::Arc::new(
-            ::config_packages::infrastructure::ConfigSectionFactory::new(170, |pool, registry| {
+            aphel_sdk::configuration::ConfigSectionFactory::new(170, |pool, registry| {
                 let _ = registry;
                 std::sync::Arc::new(crate::team::section::DealMemberRolesSection::new(
                     pool.clone(),

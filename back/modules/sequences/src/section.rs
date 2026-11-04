@@ -1,4 +1,4 @@
-use ::config_packages::application::ConfigReferenceKind;
+use aphel_sdk::configuration::ConfigReferenceKind;
 use std::collections::{BTreeSet, HashMap};
 
 use async_trait::async_trait;
@@ -12,14 +12,14 @@ use crate::domain::{
 };
 use crate::store::SequenceStore;
 use crate::{SequenceStep, SequenceView, StepInput, parse_window, validate_steps};
-use ::config_packages::application::sections::common::{check_key, diff};
-use ::config_packages::application::{
-    ApplyContext, ConfigPackage, ConfigSection, Decisions, PackageIssue, PlanAction, PlanChange,
-    PlanItem, parse_section,
-};
 use aphel_kernel::database::transaction::MySqlTx;
 use aphel_kernel::domain::access::AccessScope;
 use aphel_kernel::errors::{AppError, FieldViolation};
+use aphel_sdk::configuration::sections::common::{check_key, diff};
+use aphel_sdk::configuration::{
+    ApplyContext, ConfigPackage, ConfigSection, Decisions, PackageIssue, PlanAction, PlanChange,
+    PlanItem, parse_section,
+};
 
 pub(crate) const SEQUENCES_SECTION: &str = "sequences";
 const SEQUENCE_KIND: &str = "sequence";

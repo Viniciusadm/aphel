@@ -183,7 +183,8 @@ where
                 .filter(|author| !author.is_empty()),
             locale: command.locale.unwrap_or_else(|| default_locale.to_owned()),
         });
-        let issues = package.header_issues();
+        let issues = package
+            .header_issues(&aphel_kernel::application::organization_profile::SUPPORTED_LOCALES);
         if !issues.is_empty() {
             return Err(AppError::invalid_fields(
                 "invalid export",
@@ -457,7 +458,8 @@ where
             Err(issues) => return Ok((None, issues, Vec::new())),
         };
         let skipped_fields = self.prune(&mut package);
-        let mut issues = package.header_issues();
+        let mut issues = package
+            .header_issues(&aphel_kernel::application::organization_profile::SUPPORTED_LOCALES);
         let known: BTreeSet<&str> = self.ports.sections().keys().into_iter().collect();
         for key in package.sections.keys() {
             if !known.contains(key.as_str()) {

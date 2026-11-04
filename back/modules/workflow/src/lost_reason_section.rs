@@ -1,4 +1,4 @@
-use ::config_packages::application::ConfigReferenceKind;
+use aphel_sdk::configuration::ConfigReferenceKind;
 use std::collections::BTreeSet;
 
 use async_trait::async_trait;
@@ -9,14 +9,14 @@ use uuid::Uuid;
 
 use crate::domain::{LostReason, normalize_name};
 use crate::store::PipelineStore;
-use ::config_packages::application::sections::common::{check_key, diff};
-use ::config_packages::application::{
-    ApplyContext, ConfigKeyRepository, ConfigPackage, ConfigSection, Decisions, PackageIssue,
-    PlanChange, PlanItem, assign_keys, parse_section,
-};
 use aphel_kernel::database::transaction::MySqlTx;
 use aphel_kernel::domain::access::AccessScope;
 use aphel_kernel::errors::AppError;
+use aphel_sdk::configuration::sections::common::{check_key, diff};
+use aphel_sdk::configuration::{
+    ApplyContext, ConfigKeyRepository, ConfigPackage, ConfigSection, Decisions, PackageIssue,
+    PlanChange, PlanItem, assign_keys, parse_section,
+};
 
 pub(crate) const LOST_REASONS_SECTION: &str = "lost_reasons";
 const LOST_REASON_KIND: &str = "lost_reason";
@@ -51,7 +51,7 @@ where
 
     async fn keyed(
         &self,
-    ) -> Result<Vec<(LostReason, ::config_packages::application::KeyedItem)>, AppError> {
+    ) -> Result<Vec<(LostReason, aphel_sdk::configuration::KeyedItem)>, AppError> {
         let reasons = self.workflow.list_lost_reasons().await?;
         let stored = self
             .keys

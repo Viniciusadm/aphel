@@ -138,7 +138,7 @@ impl Module for EmailModule {
             store::timeline::EmailTimeline,
         ));
         app.contribute(std::sync::Arc::new(
-            ::config_packages::infrastructure::ConfigSectionFactory::new(150, |pool, registry| {
+            aphel_sdk::configuration::ConfigSectionFactory::new(150, |pool, registry| {
                 let _ = registry;
                 std::sync::Arc::new(crate::templates::EmailTemplatesSection::new(
                     crate::store::sending::TemplateStore::new(pool.clone()),

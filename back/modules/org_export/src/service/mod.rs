@@ -19,7 +19,6 @@ use crate::{
     TempFile, ZIP_MIME_TYPE, file_stream, org_export_not_found, record_path, record_priority,
     sha256_file,
 };
-use ::config_packages::application::APHEL_VERSION;
 use aphel_kernel::Ctx;
 use aphel_kernel::application::access::{AccessRepository, Authorizer, build_access_scope};
 use aphel_kernel::application::fields::{CustomFieldReader, EntityDefinition, RecordTypeRegistry};
@@ -34,6 +33,7 @@ use aphel_kernel::domain::access::{AccessScope, Permission};
 use aphel_kernel::errors::AppError;
 use aphel_kernel::infrastructure::repositories::mysql_access::MySqlAccessRepository;
 use aphel_kernel::infrastructure::storage::MySqlFileRepository;
+use aphel_sdk::configuration::APHEL_VERSION;
 
 pub(crate) use config::{export_config_package, install_config_package};
 pub(crate) use restore::{IdStrategy, RestoreCommand, RestoreEnv, inspect, restore_installation};

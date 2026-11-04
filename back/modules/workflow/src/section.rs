@@ -1,4 +1,4 @@
-use ::config_packages::application::ConfigReferenceKind;
+use aphel_sdk::configuration::ConfigReferenceKind;
 use std::collections::{BTreeSet, HashMap};
 use std::sync::Arc;
 
@@ -13,16 +13,16 @@ use crate::domain::{
 };
 use crate::rotting::{rotting_days_message, valid_rotting_days};
 use crate::store::PipelineStore;
-use ::config_packages::application::sections::common::{check_key, diff};
-use ::config_packages::application::sections::fields::{package_fields, projected_field_set};
-use ::config_packages::application::{
-    ApplyContext, ConfigKeyRepository, ConfigPackage, ConfigSection, Decisions, KeyedItem,
-    PackageIssue, PlanAction, PlanChange, PlanItem, UnavailableFields, assign_keys, parse_section,
-};
 use aphel_kernel::application::fields::{FieldDefinitionRepository, RecordTypeRegistry};
 use aphel_kernel::database::transaction::MySqlTx;
 use aphel_kernel::domain::access::AccessScope;
 use aphel_kernel::errors::AppError;
+use aphel_sdk::configuration::sections::common::{check_key, diff};
+use aphel_sdk::configuration::sections::fields::{package_fields, projected_field_set};
+use aphel_sdk::configuration::{
+    ApplyContext, ConfigKeyRepository, ConfigPackage, ConfigSection, Decisions, KeyedItem,
+    PackageIssue, PlanAction, PlanChange, PlanItem, UnavailableFields, assign_keys, parse_section,
+};
 
 pub fn stage_item_key(pipeline_key: &str, stage_key: &str) -> String {
     format!("{pipeline_key}/{stage_key}")

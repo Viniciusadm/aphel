@@ -22,7 +22,6 @@ use crate::{
     SEQUENCE_UPDATED, SaveSequenceCommand, SequenceEnrollmentRequest, SequenceListQuery,
     SequenceMetrics, SequenceStep, SequenceSummary, SequenceView, StepInput, StepMetrics,
 };
-use ::config_packages::application::{is_config_key, key_from_name};
 use aphel_kernel::Ctx;
 use aphel_kernel::application::access::{Authorizer, PERMISSION_DENIED};
 use aphel_kernel::application::audit::{DiffOptions, diff_values};
@@ -37,6 +36,7 @@ use aphel_kernel::domain::UserId;
 use aphel_kernel::domain::access::{AccessScope, Permission, RecordScopeFilter};
 use aphel_kernel::errors::{AppError, FieldViolation};
 use aphel_kernel::infrastructure::records::MySqlRecordAccessChecker;
+use aphel_sdk::configuration::{is_config_key, key_from_name};
 use email::compose::html::sanitize_html;
 use email::tracking::address_hash;
 

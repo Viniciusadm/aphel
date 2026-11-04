@@ -688,7 +688,8 @@ where
             Ok(package) => package,
             Err(issues) => return Ok((None, issues)),
         };
-        let mut issues = package.header_issues();
+        let mut issues = package
+            .header_issues(&aphel_kernel::application::organization_profile::SUPPORTED_LOCALES);
         issues.extend(identity_issues(&package));
         let registry = self.ports.packages().sections();
         let known: BTreeSet<&str> = registry.keys().into_iter().collect();

@@ -1,4 +1,4 @@
-use ::config_packages::application::ConfigReferenceKind;
+use aphel_sdk::configuration::ConfigReferenceKind;
 use std::collections::{BTreeSet, HashMap};
 use std::sync::Arc;
 
@@ -15,17 +15,17 @@ use crate::domain::{
 };
 use crate::service::{MAX_DESCRIPTION_LENGTH, MAX_NAME_LENGTH};
 use crate::store::{DirectoryTeam, DirectoryUser, DistributionStore};
-use ::config_packages::application::sections::common::{check_key, diff};
-use ::config_packages::application::{
-    ApplyContext, ConfigPackage, ConfigSection, Decisions, PackageIssue, PlanAction, PlanChange,
-    PlanItem, parse_section,
-};
 use aphel_kernel::application::fields::RecordTypeRegistry;
 use aphel_kernel::database::transaction::MySqlTx;
 use aphel_kernel::domain::access::AccessScope;
 use aphel_kernel::domain::custom_objects::is_custom_record_type;
 use aphel_kernel::domain::{TeamId, UserId};
 use aphel_kernel::errors::AppError;
+use aphel_sdk::configuration::sections::common::{check_key, diff};
+use aphel_sdk::configuration::{
+    ApplyContext, ConfigPackage, ConfigSection, Decisions, PackageIssue, PlanAction, PlanChange,
+    PlanItem, parse_section,
+};
 
 pub(crate) const LEAD_DISTRIBUTION_SECTION: &str = "assignment_rules";
 const RULE_KIND: &str = "assignment.rule";

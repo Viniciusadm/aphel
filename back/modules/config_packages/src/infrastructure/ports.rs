@@ -17,29 +17,7 @@ use aphel_kernel::infrastructure::jobs::MySqlJobQueue;
 use aphel_kernel::infrastructure::platform::{SharedAuditLog, SharedEventPublisher};
 use aphel_kernel::infrastructure::transactions::MySqlTransactionManager;
 
-pub type ConfigSectionBuild = Arc<
-    dyn Fn(&MySqlPool, &Arc<RecordTypeRegistry>) -> Arc<dyn ConfigSection<MySqlTx>> + Send + Sync,
->;
-
-pub struct ConfigSectionFactory {
-    pub order: u16,
-    pub build: ConfigSectionBuild,
-}
-
-impl ConfigSectionFactory {
-    pub fn new<F>(order: u16, build: F) -> Self
-    where
-        F: Fn(&MySqlPool, &Arc<RecordTypeRegistry>) -> Arc<dyn ConfigSection<MySqlTx>>
-            + Send
-            + Sync
-            + 'static,
-    {
-        Self {
-            order,
-            build: Arc::new(build),
-        }
-    }
-}
+pub use aphel_sdk::configuration::{ConfigSectionBuild, ConfigSectionFactory};
 
 pub fn builtin_sections(
     pool: &MySqlPool,

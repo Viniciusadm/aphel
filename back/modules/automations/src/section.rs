@@ -1,4 +1,4 @@
-use ::config_packages::application::ConfigReferenceKind;
+use aphel_sdk::configuration::ConfigReferenceKind;
 use std::collections::{BTreeMap, BTreeSet, HashMap};
 use std::sync::Arc;
 
@@ -10,12 +10,6 @@ use uuid::Uuid;
 use crate::model::{Automation, MAX_AUTOMATIONS, MAX_DESCRIPTION_LENGTH, MAX_NAME_LENGTH};
 use crate::service::valid_key;
 use crate::store::AutomationStore;
-use ::config_packages::application::sections::common::diff;
-use ::config_packages::application::sections::custom_objects::package_registry;
-use ::config_packages::application::{
-    ApplyContext, ConfigKeyRepository, ConfigPackage, ConfigSection, Decisions, PackageIssue,
-    PlanChange, PlanItem, assign_keys, parse_section,
-};
 use aphel_contract_automation::application::actions::{ActionRegistry, configured_flag};
 use aphel_contract_automation::application::definition::{
     AutomationDefinition, MAX_DEFINITION_BYTES, TriggerSpec, parse_definition, parse_trigger,
@@ -26,6 +20,12 @@ use aphel_kernel::application::fields::RecordTypeRegistry;
 use aphel_kernel::database::transaction::MySqlTx;
 use aphel_kernel::domain::access::AccessScope;
 use aphel_kernel::errors::AppError;
+use aphel_sdk::configuration::sections::common::diff;
+use aphel_sdk::configuration::sections::custom_objects::package_registry;
+use aphel_sdk::configuration::{
+    ApplyContext, ConfigKeyRepository, ConfigPackage, ConfigSection, Decisions, PackageIssue,
+    PlanChange, PlanItem, assign_keys, parse_section,
+};
 use tags::TagStore;
 use tags::section::{PackageTag, TAGS_SECTION};
 use tasks::section::{ACTIVITY_TYPES_SECTION, PackageActivityType};

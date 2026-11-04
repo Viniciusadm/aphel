@@ -93,10 +93,10 @@ impl Module for AutomationsModule {
             timeline::AutomationActors,
         ));
         app.contribute(std::sync::Arc::new(
-            ::config_packages::application::versioning::fragments::SectionFragmentLayout {
+            aphel_sdk::configuration::versioning::fragments::SectionFragmentLayout {
                 section: "automations",
                 collections: vec![
-                    ::config_packages::application::versioning::fragments::FragmentCollection {
+                    aphel_sdk::configuration::versioning::fragments::FragmentCollection {
                         path: None,
                         kind: "automation",
                         key_fields: &["key"],
@@ -117,14 +117,14 @@ impl Module for AutomationsModule {
             |ctx, running| Box::pin(plugin_bridge::action_running(ctx, running)),
         );
         app.contribute(std::sync::Arc::new(
-            ::config_packages::infrastructure::ConfigSectionFactory::new(165, |pool, registry| {
+            aphel_sdk::configuration::ConfigSectionFactory::new(165, |pool, registry| {
                 let _ = registry;
                 std::sync::Arc::new(crate::section::AutomationsSection::new(
                     registry.clone(),
                     crate::store::AutomationStore::new(pool.clone()),
                     tags::TagStore::new(pool.clone()),
                     workflow::store::PipelineStore::new(pool.clone()),
-                    ::config_packages::infrastructure::MySqlConfigKeyRepository::new(pool.clone()),
+                    aphel_sdk::configuration::ConfigKeyClient::new(pool.clone()),
                     tasks::store::ActivityTypeStore::new(pool.clone()),
                 ))
             }),

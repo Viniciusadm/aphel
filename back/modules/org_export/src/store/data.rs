@@ -1,4 +1,4 @@
-use ::config_packages::application::ConfigReferenceKind;
+use aphel_sdk::configuration::ConfigReferenceKind;
 use std::collections::{BTreeMap, HashMap};
 use std::sync::{Arc, Mutex};
 
@@ -9,8 +9,6 @@ use sqlx::{AssertSqlSafe, MySql, MySqlPool, QueryBuilder, Row};
 use uuid::Uuid;
 
 use crate::{ColumnInfo, ColumnKind, ConfigKind, DataRow, MemberRow, OrganizationProfile};
-use ::config_packages::application::{ConfigKeyRepository, assign_keys};
-use ::config_packages::infrastructure::MySqlConfigKeyRepository;
 use aphel_kernel::Ctx;
 use aphel_kernel::application::fields::{RecordTypeRegistry, is_sql_identifier};
 use aphel_kernel::application::organization_admin::ListWindow;
@@ -22,6 +20,8 @@ use aphel_kernel::errors::AppError;
 use aphel_kernel::infrastructure::query::compiler::quoted;
 use aphel_kernel::infrastructure::repositories::mapper;
 use aphel_kernel::infrastructure::repositories::mysql_organization_profile::insert_registration;
+use aphel_sdk::configuration::ConfigKeyClient;
+use aphel_sdk::configuration::{ConfigKeyRepository, assign_keys};
 use workflow::store::PipelineStore;
 
 pub(crate) type ConfigKeyMap = BTreeMap<ConfigKind, BTreeMap<Uuid, String>>;
@@ -331,7 +331,7 @@ impl OrgDataStore {
 
     pub(crate) async fn config_keys(&self) -> Result<ConfigKeyMap, AppError> {
         let workflow = PipelineStore::new(self.pool.clone());
-        let keys = MySqlConfigKeyRepository::new(self.pool.clone());
+        let keys = ConfigKeyClient::new(self.pool.clone());
         let mut map: ConfigKeyMap = BTreeMap::new();
 
         let all_pipelines = workflow.list_pipelines().await?;

@@ -1,4 +1,4 @@
-use ::config_packages::application::ConfigReferenceKind;
+use aphel_sdk::configuration::ConfigReferenceKind;
 use std::collections::{BTreeSet, HashMap};
 use std::sync::Arc;
 
@@ -14,17 +14,17 @@ use crate::domain::{
 use crate::engine::acting_user;
 use crate::service::{PolicyDraft, check_shape};
 use crate::store::{ApprovalDirectory, ApprovalStore};
-use ::config_packages::application::sections::common::{check_key, diff};
-use ::config_packages::application::{
-    ApplyContext, ConfigKeyRepository, ConfigPackage, ConfigSection, Decisions, PackageIssue,
-    PlanAction, PlanChange, PlanItem, assign_keys, parse_section,
-};
 use aphel_kernel::application::fields::RecordTypeRegistry;
 use aphel_kernel::application::shared::RecordType;
 use aphel_kernel::database::transaction::MySqlTx;
 use aphel_kernel::domain::UserId;
 use aphel_kernel::domain::access::AccessScope;
 use aphel_kernel::errors::AppError;
+use aphel_sdk::configuration::sections::common::{check_key, diff};
+use aphel_sdk::configuration::{
+    ApplyContext, ConfigKeyRepository, ConfigPackage, ConfigSection, Decisions, PackageIssue,
+    PlanAction, PlanChange, PlanItem, assign_keys, parse_section,
+};
 use workflow::section::{PIPELINES_SECTION, keyed_pipelines, parse_pipelines, stage_item_key};
 use workflow::store::PipelineStore;
 

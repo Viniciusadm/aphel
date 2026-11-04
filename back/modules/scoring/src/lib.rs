@@ -89,7 +89,7 @@ impl Module for ScoringModule {
 
     fn register(&self, app: &mut AppBuilder) -> Result<(), AppError> {
         app.contribute(std::sync::Arc::new(
-            ::config_packages::infrastructure::ConfigSectionFactory::new(220, |pool, registry| {
+            aphel_sdk::configuration::ConfigSectionFactory::new(220, |pool, registry| {
                 let _ = registry;
                 std::sync::Arc::new(crate::section::scoring_models_section(pool))
             }),

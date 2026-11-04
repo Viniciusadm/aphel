@@ -88,13 +88,13 @@ impl Module for PriceListsModule {
     fn register(&self, app: &mut AppBuilder) -> Result<(), AppError> {
         app.contract(aphel_sdk::pricing::DESCRIPTOR);
         app.contribute(std::sync::Arc::new(
-            ::config_packages::infrastructure::ConfigSectionFactory::new(60, |pool, registry| {
+            aphel_sdk::configuration::ConfigSectionFactory::new(60, |pool, registry| {
                 let _ = registry;
                 std::sync::Arc::new(crate::section::PriceListsSection::new(pool.clone()))
             }),
         ));
         app.contribute(std::sync::Arc::new(
-            ::config_packages::infrastructure::ConfigSectionFactory::new(70, |pool, registry| {
+            aphel_sdk::configuration::ConfigSectionFactory::new(70, |pool, registry| {
                 let _ = registry;
                 std::sync::Arc::new(crate::section::DiscountLimitsSection::new(pool.clone()))
             }),

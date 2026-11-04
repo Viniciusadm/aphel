@@ -14,13 +14,13 @@ use crate::layout::{
     MAX_WIDGET_SETTINGS_BYTES,
 };
 use crate::store::LayoutStore;
-use ::config_packages::application::{
-    ApplyContext, ConfigPackage, ConfigSection, Decisions, PackageIssue, PlanChange, PlanItem,
-    parse_section,
-};
 use aphel_kernel::database::transaction::MySqlTx;
 use aphel_kernel::domain::access::AccessScope;
 use aphel_kernel::errors::AppError;
+use aphel_sdk::configuration::{
+    ApplyContext, ConfigPackage, ConfigSection, Decisions, PackageIssue, PlanChange, PlanItem,
+    parse_section,
+};
 
 pub(crate) const DASHBOARD_SECTION: &str = "dashboard";
 const DASHBOARD_KIND: &str = "dashboard_layout";

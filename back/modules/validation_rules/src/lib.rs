@@ -34,7 +34,7 @@ impl Module for ValidationRulesModule {
             })
         });
         app.contribute(std::sync::Arc::new(
-            ::config_packages::infrastructure::ConfigSectionFactory::new(190, |pool, _| {
+            aphel_sdk::configuration::ConfigSectionFactory::new(190, |pool, _| {
                 std::sync::Arc::new(infrastructure::validation_rules_section(pool))
             }),
         ));

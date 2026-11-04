@@ -128,3 +128,5 @@ pub mod pricing;
 pub mod tokens;
 
 pub mod notifications;
+
+pub mod configuration;

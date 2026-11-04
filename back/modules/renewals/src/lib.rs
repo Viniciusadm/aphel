@@ -50,7 +50,7 @@ impl Module for RenewalsModule {
 
     fn register(&self, app: &mut AppBuilder) -> Result<(), AppError> {
         app.contribute(std::sync::Arc::new(
-            ::config_packages::infrastructure::ConfigSectionFactory::new(80, |pool, registry| {
+            aphel_sdk::configuration::ConfigSectionFactory::new(80, |pool, registry| {
                 let _ = registry;
                 std::sync::Arc::new(crate::section::pipeline_renewals_section(pool))
             }),

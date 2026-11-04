@@ -1,4 +1,4 @@
-use ::config_packages::application::ConfigReferenceKind;
+use aphel_sdk::configuration::ConfigReferenceKind;
 use std::collections::{BTreeMap, BTreeSet};
 use std::sync::Arc;
 
@@ -8,12 +8,6 @@ use serde_json::{Value, json};
 use uuid::Uuid;
 
 use crate::application::{is_relatable_core_type, is_title_field_type};
-use ::config_packages::application::sections::common::diff;
-use ::config_packages::application::sections::fields::{PackageField, package_fields};
-use ::config_packages::application::{
-    ApplyContext, ConfigPackage, ConfigSection, Decisions, PackageIssue, PlanChange, PlanItem,
-    parse_section,
-};
 use aphel_kernel::application::custom_objects::{
     CustomObjectRepository, RelationshipRepository, custom_record_definition,
 };
@@ -30,13 +24,19 @@ use aphel_kernel::domain::custom_objects::{
 };
 use aphel_kernel::domain::fields::{FieldConfig, FieldDefinition, FieldKey, FieldType};
 use aphel_kernel::errors::AppError;
+use aphel_sdk::configuration::sections::common::diff;
+use aphel_sdk::configuration::sections::fields::{PackageField, package_fields};
+use aphel_sdk::configuration::{
+    ApplyContext, ConfigPackage, ConfigSection, Decisions, PackageIssue, PlanChange, PlanItem,
+    parse_section,
+};
 
 const OBJECT_KIND: &str = "custom_object";
 const RELATIONSHIP_KIND: &str = "relationship";
 const RELATIONSHIP_INCOMPATIBLE: &str = "relationship_incompatible";
 const RELATIONSHIP_KEY_COLLISION: &str = "relationship_key_collision";
 
-use ::config_packages::application::sections::custom_objects::*;
+use aphel_sdk::configuration::sections::custom_objects::*;
 
 fn object_snapshot(object: &CustomObjectData) -> Vec<(String, Value)> {
     vec![

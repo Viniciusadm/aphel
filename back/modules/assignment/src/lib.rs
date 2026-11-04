@@ -58,7 +58,7 @@ impl Module for AssignmentModule {
         .grant_to(["admin"]);
         app.action(Arc::new(automation::AssignByRule));
         app.contribute(Arc::new(
-            ::config_packages::infrastructure::ConfigSectionFactory::new(135, |pool, registry| {
+            aphel_sdk::configuration::ConfigSectionFactory::new(135, |pool, registry| {
                 Arc::new(section::LeadDistributionSection::new(
                     registry.clone(),
                     store::DistributionStore::new(pool.clone()),

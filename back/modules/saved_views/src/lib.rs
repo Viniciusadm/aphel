@@ -35,10 +35,10 @@ impl Module for SavedViewsModule {
             favorites::SavedViewFavorites,
         ));
         app.contribute(std::sync::Arc::new(
-            ::config_packages::application::versioning::fragments::SectionFragmentLayout {
+            aphel_sdk::configuration::versioning::fragments::SectionFragmentLayout {
                 section: "views",
                 collections: vec![
-                    ::config_packages::application::versioning::fragments::FragmentCollection {
+                    aphel_sdk::configuration::versioning::fragments::FragmentCollection {
                         path: None,
                         kind: "view",
                         key_fields: &["record_type", "key"],
@@ -53,11 +53,11 @@ impl Module for SavedViewsModule {
         app.openapi_tag(http::TAG, "SavedViews")
             .routes(|_| http::router());
         app.contribute(std::sync::Arc::new(
-            ::config_packages::infrastructure::ConfigSectionFactory::new(120, |pool, registry| {
+            aphel_sdk::configuration::ConfigSectionFactory::new(120, |pool, registry| {
                 std::sync::Arc::new(section::ViewsSection::new(
                     registry.clone(),
                     infrastructure::MySqlSavedViewRepository::new(pool.clone()),
-                    ::config_packages::infrastructure::MySqlConfigKeyRepository::new(pool.clone()),
+                    aphel_sdk::configuration::ConfigKeyClient::new(pool.clone()),
                     aphel_kernel::infrastructure::fields::MySqlFieldDefinitionRepository::new(
                         pool.clone(),
                     ),

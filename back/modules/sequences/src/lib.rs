@@ -93,7 +93,7 @@ impl Module for SequencesModule {
             |ctx, step| Box::pin(plugin_bridge::step_running(ctx, step)),
         );
         app.contribute(std::sync::Arc::new(
-            ::config_packages::infrastructure::ConfigSectionFactory::new(160, |pool, registry| {
+            aphel_sdk::configuration::ConfigSectionFactory::new(160, |pool, registry| {
                 let _ = registry;
                 std::sync::Arc::new(crate::section::SequencesSection::new(
                     crate::store::SequenceStore::new(pool.clone()),

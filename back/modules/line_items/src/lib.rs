@@ -12,11 +12,11 @@ use std::sync::Arc;
 
 use aphel_kernel::modules::Migration;
 
-use ::config_packages::infrastructure::ConfigSectionFactory;
 use aphel_kernel::errors::AppError;
 use aphel_kernel::modules::builder::APHEL_VERSION;
 use aphel_kernel::modules::{AppBuilder, Manifest, Module};
 use aphel_kernel::records::RecordValidating;
+use aphel_sdk::configuration::ConfigSectionFactory;
 
 pub const KEY: &str = "line_items";
 

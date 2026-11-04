@@ -1,4 +1,4 @@
-use ::config_packages::application::ConfigReferenceKind;
+use aphel_sdk::configuration::ConfigReferenceKind;
 use std::collections::BTreeSet;
 
 use async_trait::async_trait;
@@ -10,14 +10,14 @@ use uuid::Uuid;
 use crate::domain::{Tag, normalize_tag_color, normalize_tag_name};
 use crate::store::TagStore;
 use crate::taggable_record_type;
-use ::config_packages::application::sections::common::{check_key, diff};
-use ::config_packages::application::{
-    ApplyContext, ConfigKeyRepository, ConfigPackage, ConfigSection, Decisions, KeyedItem,
-    PackageIssue, PlanChange, PlanItem, assign_keys, parse_section,
-};
 use aphel_kernel::database::transaction::MySqlTx;
 use aphel_kernel::domain::access::AccessScope;
 use aphel_kernel::errors::AppError;
+use aphel_sdk::configuration::sections::common::{check_key, diff};
+use aphel_sdk::configuration::{
+    ApplyContext, ConfigKeyRepository, ConfigPackage, ConfigSection, Decisions, KeyedItem,
+    PackageIssue, PlanChange, PlanItem, assign_keys, parse_section,
+};
 
 pub const TAGS_SECTION: &str = "tags";
 const TAG_KIND: &str = "tag";
@@ -276,7 +276,7 @@ where
     ) -> Result<(), AppError> {
         for plan in self.reconcile(scope, &parse(content)?, context.at).await? {
             if !decisions.executes(&plan.item)
-                && plan.item.action != ::config_packages::application::PlanAction::Unchanged
+                && plan.item.action != aphel_sdk::configuration::PlanAction::Unchanged
             {
                 continue;
             }

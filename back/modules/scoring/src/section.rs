@@ -1,4 +1,4 @@
-use ::config_packages::application::ConfigReferenceKind;
+use aphel_sdk::configuration::ConfigReferenceKind;
 use std::collections::BTreeSet;
 
 use async_trait::async_trait;
@@ -14,16 +14,16 @@ use crate::domain::{
 use crate::engine::is_scored_record_type;
 use crate::service::{CriteriaDraft, build_criteria, recalculate_job};
 use crate::store::ModelStore;
-use ::config_packages::application::sections::common::{check_key, diff};
-use ::config_packages::application::{
-    ApplyContext, ConfigPackage, ConfigSection, Decisions, PackageIssue, PlanChange, PlanItem,
-    parse_section,
-};
 use aphel_kernel::application::shared::JobQueue;
 use aphel_kernel::database::transaction::MySqlTx;
 use aphel_kernel::domain::access::AccessScope;
 use aphel_kernel::errors::AppError;
 use aphel_kernel::infrastructure::jobs::MySqlJobQueue;
+use aphel_sdk::configuration::sections::common::{check_key, diff};
+use aphel_sdk::configuration::{
+    ApplyContext, ConfigPackage, ConfigSection, Decisions, PackageIssue, PlanChange, PlanItem,
+    parse_section,
+};
 
 pub(crate) const SCORING_MODELS_SECTION: &str = "scoring_models";
 pub(crate) const SCORING_MODEL_ITEM: &str = "scoring_model";

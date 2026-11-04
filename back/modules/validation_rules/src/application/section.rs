@@ -1,4 +1,4 @@
-use ::config_packages::application::ConfigReferenceKind;
+use aphel_sdk::configuration::ConfigReferenceKind;
 use std::collections::BTreeSet;
 
 use async_trait::async_trait;
@@ -11,14 +11,14 @@ use crate::application::{
     MAX_RULE_MESSAGE_LENGTH, MAX_RULE_NAME_LENGTH, RuleTiming, ValidationRule,
     ValidationRuleRepository, is_validated_record_type,
 };
-use ::config_packages::application::sections::common::{check_key, diff};
-use ::config_packages::application::{
-    ApplyContext, ConfigPackage, ConfigSection, Decisions, PackageIssue, PlanChange, PlanItem,
-    parse_section,
-};
 use aphel_kernel::domain::access::AccessScope;
 use aphel_kernel::domain::fields::MAX_FORMULA_LENGTH;
 use aphel_kernel::errors::AppError;
+use aphel_sdk::configuration::sections::common::{check_key, diff};
+use aphel_sdk::configuration::{
+    ApplyContext, ConfigPackage, ConfigSection, Decisions, PackageIssue, PlanChange, PlanItem,
+    parse_section,
+};
 
 pub const VALIDATION_RULES_SECTION: &str = "validation_rules";
 pub const VALIDATION_RULE_ITEM: &str = "validation_rule";

@@ -11,16 +11,16 @@ use crate::application::{
     FormLayout, FormLayoutRepository, LayoutContext, StoredFormLayout, validate_layout,
     with_required_fields,
 };
-use ::config_packages::application::sections::custom_objects::package_registry;
-use ::config_packages::application::sections::fields::{package_fields, projected_field_set};
-use ::config_packages::application::{
-    ApplyContext, ConfigPackage, ConfigSection, Decisions, PackageIssue, PlanChange, PlanItem,
-    UnavailableFields, field_reference, parse_section,
-};
 use aphel_kernel::application::fields::{FieldDefinitionRepository, FieldSet, RecordTypeRegistry};
 use aphel_kernel::application::query::ResolveContext;
 use aphel_kernel::domain::access::AccessScope;
 use aphel_kernel::errors::AppError;
+use aphel_sdk::configuration::sections::custom_objects::package_registry;
+use aphel_sdk::configuration::sections::fields::{package_fields, projected_field_set};
+use aphel_sdk::configuration::{
+    ApplyContext, ConfigPackage, ConfigSection, Decisions, PackageIssue, PlanChange, PlanItem,
+    UnavailableFields, field_reference, parse_section,
+};
 
 pub const LAYOUTS_SECTION: &str = "layouts";
 const LAYOUT_KIND: &str = "layout";

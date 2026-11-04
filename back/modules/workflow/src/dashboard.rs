@@ -24,7 +24,7 @@ impl DashboardReferenceCatalog for WorkflowDashboardReferences {
     async fn keys(&self, pool: &MySqlPool) -> Result<HashMap<Uuid, String>, AppError> {
         Ok(crate::section::keyed_pipelines(
             &crate::store::PipelineStore::new(pool.clone()),
-            &config_packages::infrastructure::MySqlConfigKeyRepository::new(pool.clone()),
+            &aphel_sdk::configuration::ConfigKeyClient::new(pool.clone()),
         )
         .await?
         .into_iter()

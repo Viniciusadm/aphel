@@ -283,10 +283,10 @@ impl Module for TasksModule {
             timeline::TasksTimeline,
         ));
         app.contribute(std::sync::Arc::new(
-            ::config_packages::application::versioning::fragments::SectionFragmentLayout {
+            aphel_sdk::configuration::versioning::fragments::SectionFragmentLayout {
                 section: "task_types",
                 collections: vec![
-                    ::config_packages::application::versioning::fragments::FragmentCollection {
+                    aphel_sdk::configuration::versioning::fragments::FragmentCollection {
                         path: None,
                         kind: "activity_type",
                         key_fields: &["key"],
@@ -358,7 +358,7 @@ impl Module for TasksModule {
             std::sync::Arc::new(operations::AutomationTasks),
         );
         app.contribute(std::sync::Arc::new(
-            ::config_packages::infrastructure::ConfigSectionFactory::new(90, |pool, registry| {
+            aphel_sdk::configuration::ConfigSectionFactory::new(90, |pool, registry| {
                 let _ = registry;
                 std::sync::Arc::new(crate::section::task_types_section(pool.clone()))
             }),

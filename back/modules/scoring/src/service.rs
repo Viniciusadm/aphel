@@ -15,7 +15,6 @@ use crate::domain::{
 };
 use crate::engine::is_scored_record_type;
 use crate::store::{ModelStore, ScoreStore};
-use ::config_packages::application::{is_config_key, key_from_name};
 use aphel_kernel::Ctx;
 use aphel_kernel::application::access::Authorizer;
 use aphel_kernel::application::audit::{DiffOptions, diff_values};
@@ -26,6 +25,7 @@ use aphel_kernel::database::transaction::MySqlTx;
 use aphel_kernel::domain::access::Permission;
 use aphel_kernel::errors::{AppError, FieldViolation};
 use aphel_kernel::records::{RecordMutation, changes_payload, publish_mutation};
+use aphel_sdk::configuration::{is_config_key, key_from_name};
 
 const INVALID_SCORING_MODEL: &str = "invalid scoring model";
 const KEY_MESSAGE: &str = "must be snake_case: lowercase letters, digits and single underscores, starting with a letter (max 64)";
