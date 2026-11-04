@@ -282,6 +282,14 @@ This phase is in progress. Completed entries describe static source validation; 
 - [ ] Replace pricing's foreign FKs and runtime catalog prerequisite with explicit removal policies.
 - [ ] Manual acceptance: price tiers, labels/field masks, bundle nesting, live/deleted products, code-less products, configuration round trips, replacement of orphaned owned rows, ordering and disabled sources.
 
+## Scoped task link titles
+
+- [x] Remove dynamic foreign-table title subqueries from task and timeline reads. Task storage selects only owned links and core user metadata.
+- [x] Hydrate primary and secondary linked titles through bounded scoped record labels, including target read permission, field visibility and enabled native owners.
+- [x] Keep unreadable linked titles empty without changing stored relationships or task write semantics.
+- [ ] Manual acceptance: task lists/details and timeline links, hidden title fields, own/team scopes, deleted targets and disabled owners.
+- [ ] Remaining task deal-value projection and calendar persistence must still move behind owner interfaces.
+
 ## Outstanding scope
 
 The remaining identity changes, shared capability interfaces, owner-only SQL, deletion policies and per-plugin manual acceptance matrices are still pending. Existing architectural debt is not considered resolved by renaming packages.

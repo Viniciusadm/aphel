@@ -27,47 +27,13 @@ use aphel_kernel::infrastructure::fields::mysql_definitions::uuid_column;
 use aphel_kernel::infrastructure::query::compiler::push_record_scope;
 use aphel_kernel::infrastructure::repositories::mapper::{self, user_reference};
 
-pub fn record_title_sql(alias: &str, registry: &RecordTypeRegistry) -> String {
-    let mut expression = format!("CASE {alias}.record_type");
-    let mut count = 0;
-    for entity in registry.definitions() {
-        let Some(title) = entity
-            .title_field
-            .as_deref()
-            .and_then(|key| entity.system_field_by_key(key))
-        else {
-            continue;
-        };
-        if !title.is_available() {
-            continue;
-        }
-        count += 1;
-        expression.push_str(&format!(" WHEN '{}' THEN (SELECT {} FROM `{}` title_record WHERE title_record.id = {alias}.record_id", entity.record_type.as_str(), aphel_kernel::infrastructure::query::computed::system_expression(title, "title_record"), entity.table));
-        if let Some(column) = &entity.deleted_column {
-            expression.push_str(&format!(" AND title_record.`{column}` IS NULL"));
-        }
-        if let Some(partition) = &entity.partition {
-            expression.push_str(&format!(
-                " AND title_record.`{}` = '{}'",
-                partition.column, partition.value
-            ));
-        }
-        expression.push(')');
-    }
-    if count == 0 {
-        return "NULL".to_owned();
-    }
-    expression.push_str(" ELSE NULL END");
-    expression
-}
-
-pub fn activity_select(alias: &str, registry: &RecordTypeRegistry) -> String {
+pub fn activity_select(alias: &str) -> String {
     format!(
         "SELECT {alias}.id, {alias}.title, {alias}.activity_type_id, t.`key` AS type_key, t.name AS type_name, \
          t.icon AS type_icon, t.color AS type_color, {alias}.status, {alias}.priority, {alias}.due_at, \
          {alias}.completed_at, {alias}.owner_id, ou.display_name AS owner_name, {alias}.created_by, \
          cu.display_name AS created_by_name, {alias}.record_type, {alias}.record_id, \
-         {title} AS record_title, {alias}.duration_minutes, {alias}.description, {alias}.created_at, \
+         NULL AS record_title, {alias}.duration_minutes, {alias}.description, {alias}.created_at, \
          {alias}.location_latitude, {alias}.location_longitude, {alias}.location_accuracy_m, \
          {alias}.location_captured_at, \
          {alias}.updated_at, COALESCE({alias}.completed_at, {alias}.created_at) AS occurred_at, \
@@ -81,7 +47,6 @@ pub fn activity_select(alias: &str, registry: &RecordTypeRegistry) -> String {
          LEFT JOIN task_recurrences rr ON rr.id = {alias}.recurrence_id \
          LEFT JOIN users ou ON ou.id = {alias}.owner_id \
          LEFT JOIN users cu ON cu.id = {alias}.created_by ",
-        title = record_title_sql(alias, registry),
     )
 }
 
@@ -224,18 +189,19 @@ fn reminder_at(data: &ActivityData) -> Option<NaiveDateTime> {
 }
 
 #[derive(Clone)]
-pub(crate) struct ActivityStore {
+pub(crate) struct ActivityStore<'a> {
+    ctx: Ctx<'a>,
     pool: MySqlPool,
     registry: Arc<RecordTypeRegistry>,
 }
 
-impl ActivityStore {
-    pub(crate) fn new(pool: MySqlPool, registry: Arc<RecordTypeRegistry>) -> Self {
-        Self { pool, registry }
-    }
-
-    pub(crate) fn of(ctx: &Ctx<'_>) -> Self {
-        Self::new(ctx.pool().clone(), ctx.registry().clone())
+impl<'a> ActivityStore<'a> {
+    pub(crate) fn of(ctx: &Ctx<'a>) -> Self {
+        Self {
+            ctx: ctx.clone(),
+            pool: ctx.pool().clone(),
+            registry: ctx.registry().clone(),
+        }
     }
 
     pub(crate) async fn links_of(
@@ -246,11 +212,9 @@ impl ActivityStore {
         if ids.is_empty() {
             return Ok(links);
         }
-        let mut builder = QueryBuilder::<MySql>::new(format!(
-            "SELECT l.activity_id, l.record_type, l.record_id, {} AS record_title \
-             FROM task_links l WHERE ",
-            record_title_sql("l", &self.registry)
-        ));
+        let mut builder = QueryBuilder::<MySql>::new(
+            "SELECT l.activity_id, l.record_type, l.record_id, NULL AS record_title FROM task_links l WHERE ",
+        );
         builder.push("l.activity_id IN (");
         let mut separated = builder.separated(", ");
         for id in ids {
@@ -296,7 +260,7 @@ impl ActivityStore {
     }
 }
 
-impl ActivityStore {
+impl<'a> ActivityStore<'a> {
     pub(crate) async fn insert(
         &self,
         tx: &mut MySqlTx,
@@ -446,7 +410,7 @@ impl ActivityStore {
         if ids.is_empty() {
             return Ok(Vec::new());
         }
-        let mut builder = QueryBuilder::<MySql>::new(activity_select("a", &self.registry));
+        let mut builder = QueryBuilder::<MySql>::new(activity_select("a"));
         builder
             .push("WHERE ")
             .push("a.deleted_at IS NULL AND a.id IN (");
@@ -465,6 +429,14 @@ impl ActivityStore {
         for activity in &mut tasks {
             activity.links = links.remove(&activity.id).unwrap_or_default();
         }
+        hydrate_link_titles(
+            &self.ctx,
+            tasks
+                .iter_mut()
+                .flat_map(|task| task.record.iter_mut().chain(task.links.iter_mut()))
+                .collect(),
+        )
+        .await?;
         Ok(tasks)
     }
 
@@ -856,4 +828,43 @@ impl ActivityTypeStore {
         }
         Ok(())
     }
+}
+
+pub(crate) async fn hydrate_link_titles(
+    ctx: &Ctx<'_>,
+    mut links: Vec<&mut LinkedRecord>,
+) -> Result<(), AppError> {
+    use aphel_kernel::application::query::RecordQueryPorts;
+    let mut groups: HashMap<RecordType, std::collections::BTreeSet<Uuid>> = HashMap::new();
+    for link in &links {
+        groups
+            .entry(link.record.record_type.clone())
+            .or_default()
+            .insert(link.record.record_id);
+    }
+    for (record_type, ids) in groups {
+        let ids: Vec<_> = ids.into_iter().collect();
+        let mut labels = HashMap::new();
+        for batch in ids.chunks(1000) {
+            labels.extend(
+                aphel_sdk::records::visible_record_labels(
+                    ctx.pool(),
+                    ctx.registry(),
+                    ctx.query().definitions(),
+                    ctx.scope,
+                    &record_type,
+                    batch,
+                )
+                .await?,
+            );
+        }
+        for link in &mut links {
+            if link.record.record_type == record_type {
+                link.title = labels
+                    .get(&link.record.record_id)
+                    .and_then(|label| label.title.clone());
+            }
+        }
+    }
+    Ok(())
 }

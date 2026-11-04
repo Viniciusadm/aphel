@@ -87,7 +87,7 @@ impl SourceStore {
         visibility: &RecordScopeFilter,
     ) -> Result<Vec<TimelineEntry>, AppError> {
         let subject = &request.subject;
-        let mut builder = QueryBuilder::<MySql>::new(activity_select("r", &self.registry));
+        let mut builder = QueryBuilder::<MySql>::new(activity_select("r"));
         builder
             .push("WHERE ")
             .push("r.deleted_at IS NULL AND ((r.record_type = ")
@@ -179,6 +179,14 @@ impl TimelineSource for TasksTimeline {
             registry: ctx.registry().clone(),
         }
         .load(ctx.scope, request, &visibility)
+        .await?;
+        crate::store::hydrate_link_titles(
+            ctx,
+            entries
+                .iter_mut()
+                .filter_map(|entry| entry.record.as_mut())
+                .collect(),
+        )
         .await?;
         attach_contributions(ctx, &mut entries).await?;
         let policy =
