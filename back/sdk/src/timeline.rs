@@ -138,3 +138,20 @@ pub trait TimelineEventScope: Send + Sync {
         subject: &RecordRef,
     ) -> Result<(), AppError>;
 }
+
+#[derive(Debug, serde::Serialize, utoipa::ToSchema)]
+pub struct LinkedRecordResponse {
+    pub record_type: String,
+    pub record_id: String,
+    pub title: Option<String>,
+}
+
+impl From<LinkedRecord> for LinkedRecordResponse {
+    fn from(linked: LinkedRecord) -> Self {
+        Self {
+            record_type: linked.record.record_type.as_str().to_owned(),
+            record_id: linked.record.record_id.to_string(),
+            title: linked.title,
+        }
+    }
+}

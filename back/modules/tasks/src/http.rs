@@ -17,8 +17,8 @@ use crate::domain::{
     ActivityLocation, ActivityLocationInput, ActivityPriority, ActivityRecord,
     ActivityScheduleInput, ActivityStatus, ActivityTypeSummary, ActivityTypeView,
     CreateActivityCommand, CreateActivityTypeCommand, InboxGroup, InboxGroupKey, InboxListing,
-    InboxQuery, LinkedDealValue, LinkedRecord, ListActivitiesQuery, RecordLinkInput,
-    UpdateActivityCommand, UpdateActivityTypeCommand,
+    InboxQuery, LinkedDealValue, ListActivitiesQuery, RecordLinkInput, UpdateActivityCommand,
+    UpdateActivityTypeCommand,
 };
 use crate::recurrence::{
     ActivityRecurrenceView, ApplyTo, RecurrenceFrequency, RecurrenceRuleInput,
@@ -804,23 +804,7 @@ impl From<ActivityRecurrenceView> for ActivityRecurrenceResponse {
     }
 }
 
-#[derive(Debug, Serialize, ToSchema)]
-pub struct LinkedRecordResponse {
-    #[schema(example = "deals.deal")]
-    pub(crate) record_type: String,
-    pub(crate) record_id: String,
-    pub(crate) title: Option<String>,
-}
-
-impl From<LinkedRecord> for LinkedRecordResponse {
-    fn from(linked: LinkedRecord) -> Self {
-        Self {
-            record_type: linked.record.record_type.as_str().to_owned(),
-            record_id: linked.record.record_id.to_string(),
-            title: linked.title,
-        }
-    }
-}
+pub use aphel_sdk::timeline::LinkedRecordResponse;
 
 #[derive(Debug, Serialize, ToSchema)]
 pub(crate) struct ActivityLocationResponse {

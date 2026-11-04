@@ -67,7 +67,7 @@ impl NotificationSource for TaskAssignedNotifications {
 
 pub(crate) const TASK_ASSIGNED_NOTIFICATION: NotificationKind =
     NotificationKind::from_static("task_assigned");
-pub const TASK_DUE_NOTIFICATION: NotificationKind = NotificationKind::from_static("task_due");
+pub use aphel_sdk::tasks::TASK_DUE_NOTIFICATION;
 
 pub(crate) struct ActivityNotificationTexts;
 

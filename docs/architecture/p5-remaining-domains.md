@@ -191,6 +191,14 @@ This phase is in progress. Completed entries describe static source validation; 
 - [x] Layouts and automation trigger conditions use the same utility without an implementation dependency.
 - [ ] Manual acceptance: typed comparisons, empty values/groups, current user, relative dates/DST, layout rules and automation trigger conditions.
 
+## Reminder task ownership and linked labels
+
+- [x] Tasks owns due-reminder selection and conditional sent receipts through a bounded native SDK source; reminders keeps scheduling and delivery orchestration.
+- [x] Share task notification metadata through a pure tasks contract and the linked-record response codec through the SDK.
+- [x] Remove reminders' task implementation dependency and foreign task SQL. Standalone reminders remain available without tasks.
+- [x] Load reminder linked titles in bounded scoped batches through registry metadata, respecting read permissions and hidden title fields instead of unscoped SQL title expressions.
+- [ ] Manual acceptance: task reminders and receipts, disabled task source, retry/dedupe, standalone reminder CRUD, unreadable/hidden linked titles and notification failures.
+
 ## Outstanding scope
 
 The remaining identity changes, shared capability interfaces, owner-only SQL, deletion policies and per-plugin manual acceptance matrices are still pending. Existing architectural debt is not considered resolved by renaming packages.

@@ -98661,8 +98661,7 @@
             "type": "string"
           },
           "record_type": {
-            "type": "string",
-            "example": "deals.deal"
+            "type": "string"
           },
           "title": {
             "type": [

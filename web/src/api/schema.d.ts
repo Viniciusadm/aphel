@@ -17298,7 +17298,6 @@ export interface components {
         };
         LinkedRecordResponse: {
             record_id: string;
-            /** @example deals.deal */
             record_type: string;
             title?: string | null;
         };

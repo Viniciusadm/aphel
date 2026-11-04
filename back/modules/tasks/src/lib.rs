@@ -1,6 +1,7 @@
 mod config_references;
 mod dashboard;
 mod followers;
+mod reminders;
 pub mod remote_calendar;
 use aphel_sdk::privacy::PrivacyTraits;
 mod privacy;
@@ -268,6 +269,10 @@ impl Module for TasksModule {
     }
 
     fn register(&self, app: &mut AppBuilder) -> Result<(), AppError> {
+        app.contract(aphel_sdk::tasks::DESCRIPTOR);
+        app.provide::<dyn aphel_sdk::tasks::TaskReminderSource>(std::sync::Arc::new(
+            reminders::Reminders,
+        ));
         app.contribute::<dyn aphel_sdk::configuration::ConfigurationReferences>(
             std::sync::Arc::new(config_references::References),
         );

@@ -65,9 +65,11 @@ pub(crate) async fn list(
             ));
         }
     };
-    ReminderStore::of(ctx)
+    let mut listing = ReminderStore::of(ctx)
         .list(ctx.scope, &ReminderFilter { status, record }, query.window)
-        .await
+        .await?;
+    hydrate_titles(ctx, &mut listing.items).await?;
+    Ok(listing)
 }
 
 pub(crate) async fn get(ctx: &Ctx<'_>, id: &str) -> Result<ReminderView, AppError> {
@@ -198,10 +200,12 @@ pub(crate) async fn delete(ctx: &Ctx<'_>, id: &str) -> Result<(), AppError> {
 
 async fn find(ctx: &Ctx<'_>, id: &str) -> Result<ReminderView, AppError> {
     let id = Uuid::parse_str(id.trim()).map_err(|_| reminder_not_found())?;
-    ReminderStore::of(ctx)
+    let mut reminder = ReminderStore::of(ctx)
         .find(ctx.scope, id)
         .await?
-        .ok_or_else(reminder_not_found)
+        .ok_or_else(reminder_not_found)?;
+    hydrate_titles(ctx, std::slice::from_mut(&mut reminder)).await?;
+    Ok(reminder)
 }
 
 async fn resolve_record(
@@ -260,4 +264,46 @@ async fn resolve_record(
         }
         Err(error) => Err(error),
     }
+}
+
+async fn hydrate_titles(ctx: &Ctx<'_>, reminders: &mut [ReminderView]) -> Result<(), AppError> {
+    let mut by_type = std::collections::BTreeMap::<String, std::collections::BTreeSet<Uuid>>::new();
+    for reminder in reminders.iter() {
+        if let Some(link) = &reminder.record {
+            by_type
+                .entry(link.record.record_type.as_str().to_owned())
+                .or_default()
+                .insert(link.record.record_id);
+        }
+    }
+    let definitions = aphel_kernel::infrastructure::fields::MySqlFieldDefinitionRepository::new(
+        ctx.pool().clone(),
+    );
+    for (record_type, ids) in by_type {
+        let record_type = RecordType::parse(&record_type)?;
+        let mut labels = std::collections::HashMap::new();
+        for batch in ids.into_iter().collect::<Vec<_>>().chunks(1000) {
+            labels.extend(
+                aphel_sdk::records::visible_record_labels(
+                    ctx.pool(),
+                    ctx.registry(),
+                    &definitions,
+                    ctx.scope,
+                    &record_type,
+                    batch,
+                )
+                .await?,
+            );
+        }
+        for reminder in reminders.iter_mut() {
+            if let Some(link) = &mut reminder.record
+                && link.record.record_type == record_type
+            {
+                link.title = labels
+                    .get(&link.record.record_id)
+                    .and_then(|label| label.title.clone());
+            }
+        }
+    }
+    Ok(())
 }

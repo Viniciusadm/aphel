@@ -31,7 +31,7 @@ impl Module for RemindersModule {
             .description(
                 "Reminders before a task is due, the morning notice of tasks due today and standalone reminders linked to a record",
             )
-            .depends_on(tasks::KEY, "*")
+            .optional("tasks")
             .enabled_by_default()
             .owned_tables(&["reminders"])
             .migration(Migration::new(

@@ -1,8 +1,7 @@
-use aphel_kernel::application::fields::RecordTypeRegistry;
+use aphel_kernel::domain::users::UserStatus;
 use chrono::{DateTime, NaiveDateTime, Utc};
 use sqlx::mysql::MySqlRow;
 use sqlx::{MySql, MySqlPool, QueryBuilder, Row};
-use std::sync::Arc;
 use uuid::Uuid;
 
 use crate::domain::{
@@ -14,36 +13,48 @@ use aphel_kernel::application::shared::RecordRef;
 use aphel_kernel::database::transaction::MySqlTx;
 use aphel_kernel::domain::UserId;
 use aphel_kernel::domain::access::AccessScope;
-use aphel_kernel::domain::users::UserStatus;
 use aphel_kernel::errors::AppError;
 use aphel_kernel::infrastructure::fields::mysql_definitions::uuid_column;
 use aphel_kernel::infrastructure::repositories::mapper;
-use tasks::store::{linked_record, record_title_sql};
+use aphel_sdk::timeline::LinkedRecord;
 
 pub(crate) const MAX_DUE_REMINDERS_PER_RUN: u32 = 1000;
 
 #[derive(Clone)]
 pub(crate) struct ReminderStore {
     pool: MySqlPool,
-    registry: Arc<RecordTypeRegistry>,
 }
 
 impl ReminderStore {
-    pub(crate) fn new(pool: MySqlPool, registry: Arc<RecordTypeRegistry>) -> Self {
-        Self { pool, registry }
+    pub(crate) fn new(pool: MySqlPool) -> Self {
+        Self { pool }
     }
 
     pub(crate) fn of(ctx: &Ctx<'_>) -> Self {
-        Self::new(ctx.pool().clone(), ctx.registry().clone())
+        Self::new(ctx.pool().clone())
     }
 }
 
-fn reminder_select(registry: &RecordTypeRegistry) -> String {
-    format!(
-        "SELECT r.id, r.record_type, r.record_id, {} AS record_title, r.remind_at, r.note, r.status, \
-         r.sent_at, r.created_at, r.updated_at FROM reminders r ",
-        record_title_sql("r", registry)
-    )
+fn reminder_select() -> &'static str {
+    "SELECT r.id, r.record_type, r.record_id, NULL AS record_title, r.remind_at, r.note, r.status, r.sent_at, r.created_at, r.updated_at FROM reminders r "
+}
+
+fn linked_record(
+    row: &MySqlRow,
+    type_column: &str,
+    id_column: &str,
+    title_column: &str,
+) -> Result<Option<LinkedRecord>, AppError> {
+    let record_type: Option<String> = row.try_get(type_column)?;
+    let record_id: Option<String> = row.try_get(id_column)?;
+    let (Some(record_type), Some(record_id)) = (record_type, record_id) else {
+        return Ok(None);
+    };
+    Ok(Some(LinkedRecord {
+        record: RecordRef::parse(&record_type, &record_id)
+            .map_err(|_| mapper::invalid_column(type_column, &record_type))?,
+        title: row.try_get(title_column)?,
+    }))
 }
 
 fn optional_instant(row: &MySqlRow, column: &str) -> Result<Option<DateTime<Utc>>, AppError> {
@@ -103,7 +114,7 @@ impl ReminderStore {
         push_owner(&mut count, scope);
         push_filter(&mut count, filter);
         let total: i64 = count.build_query_scalar().fetch_one(&self.pool).await?;
-        let mut builder = QueryBuilder::<MySql>::new(reminder_select(&self.registry));
+        let mut builder = QueryBuilder::<MySql>::new(reminder_select());
         push_owner(&mut builder, scope);
         push_filter(&mut builder, filter);
         builder
@@ -126,7 +137,7 @@ impl ReminderStore {
         scope: &AccessScope,
         id: Uuid,
     ) -> Result<Option<ReminderView>, AppError> {
-        let mut builder = QueryBuilder::<MySql>::new(reminder_select(&self.registry));
+        let mut builder = QueryBuilder::<MySql>::new(reminder_select());
         push_owner(&mut builder, scope);
         builder.push(" AND r.id = ").push_bind(id.to_string());
         let row = builder.build().fetch_optional(&self.pool).await?;
@@ -215,50 +226,31 @@ impl ReminderStore {
         since: DateTime<Utc>,
         now: DateTime<Utc>,
     ) -> Result<Vec<DueTaskReminder>, AppError> {
-        let rows = sqlx::query(
-            "SELECT a.id, a.owner_id, a.title, a.due_at, a.reminder_at, a.reminder_minutes_before \
-             FROM tasks a \
-             JOIN users m ON m.id = a.owner_id \
-             WHERE a.status = 'open' AND a.reminder_sent_at IS NULL AND a.reminder_at > ? AND a.reminder_at <= ? \
-             AND a.deleted_at IS NULL AND a.due_at IS NOT NULL AND m.status = ? \
-             ORDER BY a.reminder_at, a.id LIMIT ?",
-        )
-        .bind(mapper::naive(since))
-        .bind(mapper::naive(now))
-        .bind(UserStatus::Active.as_str())
-        .bind(MAX_DUE_REMINDERS_PER_RUN)
-        .fetch_all(&self.pool)
-        .await?;
-        rows.iter()
-            .map(|row| {
-                let minutes: Option<u32> = row.try_get("reminder_minutes_before")?;
-                Ok(DueTaskReminder {
-                    id: uuid_column(row, "id")?,
-                    owner_id: mapper::typed_id(row.try_get("owner_id")?, UserId::new)?,
-                    title: row.try_get("title")?,
-                    due_at: instant(row, "due_at")?,
-                    reminder_at: instant(row, "reminder_at")?,
-                    minutes_before: minutes.unwrap_or_default(),
-                })
-            })
-            .collect()
+        let Some(source) = aphel_kernel::modules::app()
+            .services()
+            .get::<dyn aphel_sdk::tasks::TaskReminderSource>()
+        else {
+            return Ok(Vec::new());
+        };
+        source
+            .due(&self.pool, since, now, MAX_DUE_REMINDERS_PER_RUN)
+            .await
     }
-
     pub(crate) async fn mark_task_reminder_sent(
         &self,
         reminder: &DueTaskReminder,
         now: DateTime<Utc>,
     ) -> Result<(), AppError> {
-        sqlx::query(
-            "UPDATE tasks SET reminder_sent_at = ?, updated_at = updated_at \
-             WHERE id = ? AND reminder_at = ? AND reminder_sent_at IS NULL",
-        )
-        .bind(mapper::naive(now))
-        .bind(reminder.id.to_string())
-        .bind(mapper::naive(reminder.reminder_at))
-        .execute(&self.pool)
-        .await?;
-        Ok(())
+        let source = aphel_kernel::modules::app()
+            .services()
+            .get::<dyn aphel_sdk::tasks::TaskReminderSource>()
+            .ok_or_else(|| {
+                AppError::unavailable_code(
+                    "task_reminders_unavailable",
+                    "task reminders are not enabled",
+                )
+            })?;
+        source.mark_sent(&self.pool, reminder, now).await
     }
 
     pub(crate) async fn due_reminders(

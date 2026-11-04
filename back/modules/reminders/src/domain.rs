@@ -5,7 +5,7 @@ use aphel_kernel::application::organization_admin::ListWindow;
 use aphel_kernel::application::shared::RecordRef;
 use aphel_kernel::domain::UserId;
 use aphel_kernel::errors::AppError;
-use tasks::domain::LinkedRecord;
+use aphel_sdk::timeline::LinkedRecord;
 
 pub(crate) const MAX_REMINDER_NOTE_LENGTH: usize = 500;
 
@@ -70,15 +70,7 @@ pub(crate) struct ReminderFilter {
     pub(crate) record: Option<RecordRef>,
 }
 
-#[derive(Debug, Clone, PartialEq, Eq)]
-pub(crate) struct DueTaskReminder {
-    pub(crate) id: Uuid,
-    pub(crate) owner_id: UserId,
-    pub(crate) title: String,
-    pub(crate) due_at: DateTime<Utc>,
-    pub(crate) reminder_at: DateTime<Utc>,
-    pub(crate) minutes_before: u32,
-}
+pub(crate) use aphel_sdk::tasks::DueTaskReminder;
 
 #[derive(Debug, Clone, PartialEq, Eq)]
 pub(crate) struct DueReminder {

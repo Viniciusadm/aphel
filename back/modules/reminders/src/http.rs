@@ -21,7 +21,7 @@ use aphel_kernel::api::extractors::{AuthContext, IfMatch, JsonBody, Pagination, 
 use aphel_kernel::api::state::AppState;
 use aphel_kernel::application::organization_admin::ListWindow;
 use aphel_kernel::errors::AppError;
-use tasks::http::LinkedRecordResponse;
+use aphel_sdk::timeline::LinkedRecordResponse;
 
 pub(crate) const TAG: &str = "reminders";
 

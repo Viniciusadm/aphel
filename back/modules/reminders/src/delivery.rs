@@ -34,7 +34,7 @@ pub(crate) fn reminder_delivery_handler(pool: MySqlPool) -> Arc<dyn JobHandler> 
     );
     Arc::new(ReminderDeliveryHandler::new(
         notifications,
-        ReminderStore::new(pool, Arc::new(RecordTypeRegistry::builtin())),
+        ReminderStore::new(pool),
     ))
 }
 
@@ -151,7 +151,7 @@ impl ReminderDeliveryHandler {
 fn task_intent(task: &DueTaskReminder) -> NotificationIntent {
     NotificationIntent::new(
         task.owner_id.clone(),
-        tasks::notifications::TASK_DUE_NOTIFICATION,
+        aphel_sdk::tasks::TASK_DUE_NOTIFICATION,
         task.title.clone(),
         format!("task_reminder:{}:{}", task.id, task.reminder_at.timestamp()),
     )
@@ -195,7 +195,7 @@ impl TasksDueTodayHandler {
         for task in directory.open_tasks_due(None, now, end).await? {
             let intent = NotificationIntent::new(
                 task.owner_id.clone(),
-                tasks::notifications::TASK_DUE_NOTIFICATION,
+                aphel_sdk::tasks::TASK_DUE_NOTIFICATION,
                 task.title.clone(),
                 format!("task_due_today:{}:{date}", task.id),
             )
