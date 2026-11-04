@@ -113,6 +113,24 @@ fn snapshot(sequence: &SequenceView, keys: &HashMap<Uuid, String>) -> Vec<(Strin
     ]
 }
 
+fn require_template_keys(
+    sequences: &[SequenceView],
+    keys: &HashMap<Uuid, String>,
+) -> Result<(), AppError> {
+    if sequences
+        .iter()
+        .flat_map(|sequence| &sequence.steps)
+        .filter_map(|step| step.template_id)
+        .any(|id| !keys.contains_key(&id))
+    {
+        return Err(AppError::unavailable_code(
+            "email_template_catalog_unavailable",
+            "a referenced email template is unavailable",
+        ));
+    }
+    Ok(())
+}
+
 fn package_step(step: &SequenceStep, keys: &HashMap<Uuid, String>) -> PackageSequenceStep {
     PackageSequenceStep {
         kind: step.kind.as_str().to_owned(),
@@ -238,6 +256,7 @@ impl SequencesSection {
     ) -> Result<Vec<SequencePlan>, AppError> {
         let existing = self.sequences.all().await?;
         let ids: HashMap<Uuid, String> = self.sequences.template_keys().await?;
+        require_template_keys(&existing, &ids)?;
         let mut plans = Vec::new();
         for entry in package {
             let item = PlanItem::new(
@@ -305,10 +324,9 @@ impl ConfigSection<MySqlTx> for SequencesSection {
 
     async fn export(&self, _scope: &AccessScope) -> Result<Option<Value>, AppError> {
         let keys = self.sequences.template_keys().await?;
-        let sequences: Vec<PackageSequence> = self
-            .sequences
-            .all()
-            .await?
+        let stored = self.sequences.all().await?;
+        require_template_keys(&stored, &keys)?;
+        let sequences: Vec<PackageSequence> = stored
             .into_iter()
             .map(|sequence| PackageSequence {
                 key: sequence.key.clone(),

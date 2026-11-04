@@ -360,30 +360,20 @@ impl SequenceStore {
     }
 
     pub(crate) async fn template_keys(&self) -> Result<HashMap<Uuid, String>, AppError> {
-        let rows =
-            sqlx::query("SELECT id, `key` FROM email_templates WHERE scope = 'organization'")
-                .fetch_all(&self.pool)
-                .await?;
-        let mut keys = HashMap::new();
-        for row in rows {
-            keys.insert(uuid(row.try_get("id")?, "id")?, row.try_get("key")?);
+        match aphel_sdk::email::automation_reader() {
+            Some(reader) => reader.organization_template_keys(&self.pool).await,
+            None => Ok(HashMap::new()),
         }
-        Ok(keys)
     }
 
     pub(crate) async fn template_ids_in(
         &self,
         tx: &mut MySqlTx,
     ) -> Result<HashMap<String, Uuid>, AppError> {
-        let rows =
-            sqlx::query("SELECT id, `key` FROM email_templates WHERE scope = 'organization'")
-                .fetch_all(&mut **tx)
-                .await?;
-        let mut ids = HashMap::new();
-        for row in rows {
-            ids.insert(row.try_get("key")?, uuid(row.try_get("id")?, "id")?);
+        match aphel_sdk::email::automation_reader() {
+            Some(reader) => reader.organization_template_ids_in(tx).await,
+            None => Ok(HashMap::new()),
         }
-        Ok(ids)
     }
 }
 
@@ -1026,24 +1016,20 @@ impl DirectoryStore {
         &self,
         objection_id: Uuid,
     ) -> Result<Option<String>, AppError> {
-        Ok(sqlx::query_scalar(
-            "SELECT address_hash FROM email_tracking_objections \
-             WHERE id = ?",
-        )
-        .bind(objection_id.to_string())
-        .fetch_optional(&self.pool)
-        .await?)
+        match aphel_sdk::email::automation_reader() {
+            Some(reader) => reader.objection_hash(&self.pool, objection_id).await,
+            None => Ok(None),
+        }
     }
 
     pub(crate) async fn has_objection(&self, address_hash: &str) -> Result<bool, AppError> {
-        let exists: bool = sqlx::query_scalar(
-            "SELECT EXISTS(SELECT 1 FROM email_tracking_objections \
-             WHERE address_hash = ?)",
-        )
-        .bind(address_hash)
-        .fetch_one(&self.pool)
-        .await?;
-        Ok(exists)
+        match aphel_sdk::email::automation_reader() {
+            Some(reader) => reader.has_objection(&self.pool, address_hash).await,
+            None => Err(AppError::unavailable_code(
+                "email_consent_unavailable",
+                "email consent checks are not enabled",
+            )),
+        }
     }
 
     pub(crate) async fn sendable_mailbox(
@@ -1051,19 +1037,10 @@ impl DirectoryStore {
         owner: &UserId,
         mailbox_id: Option<Uuid>,
     ) -> Result<Option<Uuid>, AppError> {
-        let mut builder = QueryBuilder::<MySql>::new("SELECT id FROM mailboxes WHERE user_id = ");
-        builder
-            .push_bind(owner.as_str().to_owned())
-            .push(" AND status <> 'disconnected'");
-        if let Some(mailbox_id) = mailbox_id {
-            builder.push(" AND id = ").push_bind(mailbox_id.to_string());
+        match aphel_sdk::email::automation_reader() {
+            Some(reader) => reader.sendable_mailbox(&self.pool, owner, mailbox_id).await,
+            None => Ok(None),
         }
-        builder.push(" ORDER BY (status = 'active') DESC, created_at LIMIT 1");
-        let id: Option<String> = builder
-            .build_query_scalar()
-            .fetch_optional(&self.pool)
-            .await?;
-        opt_uuid(id, "id")
     }
 
     pub(crate) async fn is_active_member(&self, user: &UserId) -> Result<bool, AppError> {

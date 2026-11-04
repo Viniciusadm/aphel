@@ -109,3 +109,36 @@ pub fn sender() -> Result<std::sync::Arc<dyn EmailSender>, AppError> {
             AppError::unavailable_code("email_sender_unavailable", "email sending is not enabled")
         })
 }
+
+#[async_trait::async_trait]
+pub trait EmailAutomationReader: Send + Sync {
+    async fn organization_template_keys(
+        &self,
+        pool: &sqlx::MySqlPool,
+    ) -> Result<std::collections::HashMap<uuid::Uuid, String>, AppError>;
+    async fn organization_template_ids_in(
+        &self,
+        tx: &mut MySqlTx,
+    ) -> Result<std::collections::HashMap<String, uuid::Uuid>, AppError>;
+    async fn objection_hash(
+        &self,
+        pool: &sqlx::MySqlPool,
+        id: uuid::Uuid,
+    ) -> Result<Option<String>, AppError>;
+    async fn has_objection(
+        &self,
+        pool: &sqlx::MySqlPool,
+        address_hash: &str,
+    ) -> Result<bool, AppError>;
+    async fn sendable_mailbox(
+        &self,
+        pool: &sqlx::MySqlPool,
+        owner: &UserId,
+        id: Option<uuid::Uuid>,
+    ) -> Result<Option<uuid::Uuid>, AppError>;
+}
+pub fn automation_reader() -> Option<std::sync::Arc<dyn EmailAutomationReader>> {
+    aphel_kernel::modules::app()
+        .services()
+        .get::<dyn EmailAutomationReader>()
+}

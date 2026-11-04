@@ -1,3 +1,4 @@
+mod automation_source;
 mod followers;
 mod messaging_channel;
 pub mod oauth;
@@ -114,6 +115,9 @@ impl Module for EmailModule {
     }
 
     fn register(&self, app: &mut AppBuilder) -> Result<(), AppError> {
+        app.provide::<dyn aphel_sdk::email::EmailAutomationReader>(std::sync::Arc::new(
+            automation_source::Reader,
+        ));
         app.provide::<dyn aphel_sdk::email::oauth::MailboxOAuth>(Arc::new(
             oauth::execution::Execution,
         ));

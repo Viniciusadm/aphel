@@ -496,6 +496,13 @@ This phase is in progress. Completed entries describe static source validation; 
 - [x] Full lint passes and native peer-dependent plugins fall from six to five. Foreign SQL and FK cleanup for sequences remains pending.
 - [ ] Manual acceptance: sequence sends, threaded replies, template variables, manual drafts, task-only steps, sender scopes and unavailable email/people owners.
 
+## Sequence mail data ownership
+
+- [x] Email executes organization-template key lookups, tracking-objection lookups and owner-filtered mailbox selection through a native automation reader. All five foreign SQL references are removed from sequences; transaction-local template lookup still uses the caller's transaction.
+- [x] Missing email yields no template choices/mailboxes; required consent checks fail explicitly. Configuration export/planning refuses unresolved stored template identities instead of silently dropping references.
+- [x] Formatting and strict email/sequence Clippy pass; foreign SQL references fall from 43 to 38 without raising other ratchets.
+- [ ] Manual acceptance: template mapping/export/apply, unavailable catalogs, consent objections, mailbox ownership/status ordering and task-only sequences without email.
+
 ## Outstanding scope
 
 The remaining identity changes, shared capability interfaces, owner-only SQL, deletion policies and per-plugin manual acceptance matrices are still pending. Existing architectural debt is not considered resolved by renaming packages.
