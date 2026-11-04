@@ -4,37 +4,7 @@ use crate::ImportTarget;
 
 type TargetMatcher = fn(&ImportTarget, &str) -> bool;
 
-pub fn normalize_label(text: &str) -> String {
-    let mut normalized = String::with_capacity(text.len());
-    let mut pending_space = false;
-    for character in text.chars().flat_map(char::to_lowercase) {
-        let folded = fold_accent(character);
-        if folded.is_ascii_alphanumeric() {
-            if pending_space && !normalized.is_empty() {
-                normalized.push(' ');
-            }
-            pending_space = false;
-            normalized.push(folded);
-        } else {
-            pending_space = true;
-        }
-    }
-    normalized
-}
-
-fn fold_accent(character: char) -> char {
-    match character {
-        'á' | 'à' | 'â' | 'ã' | 'ä' | 'å' => 'a',
-        'é' | 'è' | 'ê' | 'ë' => 'e',
-        'í' | 'ì' | 'î' | 'ï' => 'i',
-        'ó' | 'ò' | 'ô' | 'õ' | 'ö' => 'o',
-        'ú' | 'ù' | 'û' | 'ü' => 'u',
-        'ç' => 'c',
-        'ñ' => 'n',
-        'ý' | 'ÿ' => 'y',
-        other => other,
-    }
-}
+pub use aphel_sdk::imports::normalize_label;
 
 pub(crate) fn suggest_mapping(headers: &[String], targets: &[ImportTarget]) -> Vec<Option<String>> {
     let normalized: Vec<String> = headers

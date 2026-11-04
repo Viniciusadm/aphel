@@ -14,7 +14,7 @@ use aphel_kernel::domain::access::Permission;
 use aphel_kernel::errors::AppError;
 use imports::{
     ConfigureImportCommand, CreateImportCommand, DuplicateStrategy, ImportDetails, ImportOptions,
-    create_permission, parse_source,
+    create_permission,
 };
 
 pub(crate) const MIGRATION_SOURCE_NOT_FOUND: &str = "migration_source_not_found";
@@ -81,7 +81,7 @@ pub(crate) async fn preview(
     let (tool, step) = resolve_step(&command.source, &command.step)?;
     let permission = step_permission(ctx, step).ok_or_else(source_not_found)?;
     ctx.scope.require(&permission)?;
-    let parsed = parse_source(&command.content)?;
+    let parsed = aphel_sdk::imports::sources()?.parse(&command.content)?;
     let members = MemberStore::of(ctx).active_members().await?;
     let file = normalize(
         tool,

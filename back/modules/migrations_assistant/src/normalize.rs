@@ -4,7 +4,7 @@ use bytes::Bytes;
 
 use crate::{ColumnRule, DateOrder, DecimalStyle, SourceStep, SourceTool, Transform};
 use aphel_kernel::errors::AppError;
-use imports::{ParsedSource, normalize_label};
+use aphel_sdk::imports::{ParsedSource, normalize_label};
 
 const MAX_DISTINCT_VALUES: usize = 200;
 const DERIVED_STATUS_HEADER: &str = "Aphel - Status";

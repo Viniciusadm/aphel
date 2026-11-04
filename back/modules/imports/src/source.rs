@@ -29,42 +29,7 @@ const ZIP_SIGNATURE: &[u8] = &[0x50, 0x4B, 0x03, 0x04];
 const OLE_SIGNATURE: &[u8] = &[0xD0, 0xCF, 0x11, 0xE0];
 const DETECTION_SAMPLE_LINES: usize = 50;
 
-#[derive(Debug, Clone, Copy, PartialEq, Eq)]
-pub(crate) enum TextEncoding {
-    Utf8,
-    Windows1252,
-}
-
-impl TextEncoding {
-    pub(crate) fn as_str(&self) -> &'static str {
-        match self {
-            Self::Utf8 => "utf-8",
-            Self::Windows1252 => "windows-1252",
-        }
-    }
-
-    pub(crate) fn parse(value: &str) -> Option<Self> {
-        match value {
-            "utf-8" => Some(Self::Utf8),
-            "windows-1252" => Some(Self::Windows1252),
-            _ => None,
-        }
-    }
-}
-
-#[derive(Debug, Clone, PartialEq, Eq)]
-pub struct SourceRow {
-    pub(crate) row_index: u32,
-    pub cells: Vec<String>,
-}
-
-#[derive(Debug, Clone, PartialEq, Eq)]
-pub struct ParsedSource {
-    pub(crate) encoding: TextEncoding,
-    pub(crate) delimiter: u8,
-    pub headers: Vec<String>,
-    pub rows: Vec<SourceRow>,
-}
+pub use aphel_sdk::imports::{ParsedSource, SourceRow, TextEncoding};
 
 pub(crate) fn decode(bytes: &[u8]) -> (Cow<'_, str>, TextEncoding) {
     let content = bytes.strip_prefix(UTF8_BOM).unwrap_or(bytes);

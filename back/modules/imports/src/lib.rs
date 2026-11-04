@@ -10,6 +10,7 @@ mod privacy;
 pub(crate) mod runtime;
 pub mod service;
 pub(crate) mod source;
+mod source_service;
 pub mod store;
 pub(crate) mod writer;
 
@@ -69,6 +70,7 @@ impl Module for ImportsModule {
 
     fn register(&self, app: &mut AppBuilder) -> Result<(), AppError> {
         app.contract(aphel_sdk::imports::DESCRIPTOR);
+        app.provide::<dyn aphel_sdk::imports::ImportSources>(Arc::new(source_service::Sources));
         app.contribute::<dyn aphel_sdk::privacy::PrivacySource>(std::sync::Arc::new(
             privacy::ImportPrivacy,
         ));

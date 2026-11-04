@@ -438,6 +438,13 @@ This phase is in progress. Completed entries describe static source validation; 
 - [x] Validate formatting and strict email Clippy without running tests.
 - [ ] Manual acceptance: exact-limit bodies, oversized/chunked bodies, misleading lengths and interrupted streams.
 
+## Import source and reference interface
+
+- [x] Share parsed source snapshots and the pure header normalization codec through contracts/SDK. Keep CSV/spreadsheet parsing, bounds and reference lookup execution in imports.
+- [x] The migration assistant requests source parsing and scoped record/member lookups through an enabled owner service; unavailable native entity owners return no lookup.
+- [x] Formatting and strict imports/migration-assistant Clippy pass without tests.
+- [ ] Manual acceptance: CSV encodings/delimiters, spreadsheet dates, parser limits, scoped label aliases, inactive members and unavailable providers.
+
 ## Outstanding scope
 
 The remaining identity changes, shared capability interfaces, owner-only SQL, deletion policies and per-plugin manual acceptance matrices are still pending. Existing architectural debt is not considered resolved by renaming packages.

@@ -15,7 +15,8 @@ use aphel_kernel::application::query::{RecordQueryExecutor, RecordQueryPorts};
 use aphel_kernel::application::shared::RecordType;
 use aphel_kernel::context::Ctx;
 use aphel_kernel::errors::AppError;
-use imports::store::RecordLookups;
+use aphel_sdk::imports::{ImportSources, sources};
+use std::sync::Arc;
 use tasks::domain::{CreateActivityCommand, RecordLinkInput};
 
 pub(crate) const MAX_HISTORY_ROWS: usize = 5_000;
@@ -82,19 +83,19 @@ impl<'a> Row<'a> {
 
 struct Resolver<'c, 'a> {
     ctx: &'c Ctx<'a>,
-    lookups: RecordLookups,
+    lookups: Arc<dyn ImportSources>,
     cache: HashMap<(&'static str, String), Option<Uuid>>,
     users: HashMap<String, Option<String>>,
 }
 
 impl<'c, 'a> Resolver<'c, 'a> {
-    fn new(ctx: &'c Ctx<'a>) -> Self {
-        Self {
+    fn new(ctx: &'c Ctx<'a>) -> Result<Self, AppError> {
+        Ok(Self {
             ctx,
-            lookups: RecordLookups::of(ctx),
+            lookups: sources()?,
             cache: HashMap::new(),
             users: HashMap::new(),
-        }
+        })
     }
 
     async fn record(
@@ -108,7 +109,7 @@ impl<'c, 'a> Resolver<'c, 'a> {
         }
         let found = self
             .lookups
-            .find_record_by_label(self.ctx.scope, record_type, label)
+            .record_by_label(self.ctx, record_type, label)
             .await?;
         self.cache.insert(key, found);
         Ok(found)
@@ -118,11 +119,7 @@ impl<'c, 'a> Resolver<'c, 'a> {
         if let Some(found) = self.users.get(email) {
             return Ok(found.clone());
         }
-        let found = self
-            .lookups
-            .find_member_by_email(email)
-            .await?
-            .map(|user| user.as_str().to_owned());
+        let found = self.lookups.member_by_email(self.ctx, email).await?;
         self.users.insert(email.to_owned(), found.clone());
         Ok(found)
     }
@@ -185,7 +182,7 @@ pub(crate) async fn run(
         ));
     }
     let timezone = ctx.query().executor().timezone().await?;
-    let mut resolver = Resolver::new(ctx);
+    let mut resolver = Resolver::new(ctx)?;
     let mut report = HistoryReport {
         total: file.rows.len() as u64,
         ..HistoryReport::default()

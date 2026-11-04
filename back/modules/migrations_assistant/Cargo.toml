@@ -9,6 +9,7 @@ publish = false
 [dependencies]
 aphel-contract-crm.workspace = true
 aphel-kernel.workspace = true
+aphel-sdk.workspace = true
 imports = { package = "aphel-mod-imports", path = "../imports" }
 tasks = { package = "aphel-mod-tasks", path = "../tasks" }
 notes = { package = "aphel-mod-notes", path = "../notes" }
