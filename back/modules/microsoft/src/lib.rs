@@ -15,10 +15,10 @@ use aphel_kernel::modules::{AppBuilder, Manifest, Module, SettingField, SettingK
 use aphel_sdk::calendar::CalendarAvailability;
 use aphel_sdk::sso::IdentityLogin;
 use aphel_sdk::sso::settings::{self, login_setting_fields, validate_login_settings};
+use aphel_sdk::tasks::remote_calendar::calendar_setting_fields;
 use email::MailboxProvider;
 use tasks::remote_calendar::availability::CalendarBusy;
 use tasks::remote_calendar::jobs;
-use tasks::remote_calendar::model::calendar_setting_fields;
 
 pub(crate) use mail::OutlookProvider;
 pub(crate) use provider::MicrosoftProvider;
@@ -54,6 +54,10 @@ impl Module for MicrosoftModule {
     }
 
     fn register(&self, app: &mut AppBuilder) -> Result<(), AppError> {
+        app.contribute::<dyn aphel_sdk::tasks::remote_calendar::CalendarApi>(Arc::new(
+            MicrosoftProvider,
+        ));
+
         app.permission(PermissionDefinition::record(Permission::from_static(
             CALENDAR_SYNC,
         )));

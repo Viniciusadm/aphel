@@ -57,12 +57,7 @@ fn truncate(value: &str, max: usize) -> String {
     value.chars().take(max).collect()
 }
 
-pub fn parse_instant(value: Option<&Value>) -> Option<DateTime<Utc>> {
-    value
-        .and_then(Value::as_str)
-        .and_then(|text| DateTime::parse_from_rfc3339(text).ok())
-        .map(|instant| instant.with_timezone(&Utc))
-}
+pub use aphel_sdk::tasks::remote_calendar::parse_instant;
 
 fn instant(value: DateTime<Utc>) -> String {
     value.to_rfc3339_opts(SecondsFormat::Secs, true)

@@ -4,18 +4,7 @@ use super::model::{CALENDAR_API_FAILED, CURSOR_EXPIRED, REMOTE_NOT_FOUND};
 use aphel_kernel::errors::AppError;
 use aphel_sdk::sso::errors::unavailable;
 
-pub fn encode_segment(value: &str) -> String {
-    value
-        .bytes()
-        .map(|byte| {
-            if byte.is_ascii_alphanumeric() || matches!(byte, b'-' | b'_' | b'.' | b'~') {
-                (byte as char).to_string()
-            } else {
-                format!("%{byte:02X}")
-            }
-        })
-        .collect()
-}
+pub use aphel_sdk::tasks::remote_calendar::encode_segment;
 
 pub(crate) fn status_error(status: reqwest::StatusCode, cursor_request: bool) -> AppError {
     let code = status.as_u16();

@@ -2,16 +2,17 @@ use aphel_sdk::sso::errors::internal;
 use aphel_sdk::sso::login::{EMAIL_NOT_VERIFIED, failure};
 use aphel_sdk::sso::oauth::http_client;
 use aphel_sdk::sso::{IdTokenClaims, IdentityProvider, ProviderEndpoints, StoredState};
+use aphel_sdk::tasks::remote_calendar::encode_segment;
+use aphel_sdk::tasks::remote_calendar::parse_instant;
+use aphel_sdk::tasks::remote_calendar::{
+    CalendarApi, CalendarSpec, LocalEvent, RemoteChanges, RemoteEvent, SyncWindow,
+};
 use async_trait::async_trait;
 use axum::response::Response;
 use chrono::{DateTime, NaiveDate, SecondsFormat, Utc};
 use email::oauth::connect::PURPOSE_MAIL;
 use tasks::remote_calendar::connect::complete_connection;
-use tasks::remote_calendar::engine::parse_instant;
-use tasks::remote_calendar::http::{encode_segment, send};
-use tasks::remote_calendar::{
-    CalendarApi, CalendarSpec, LocalEvent, RemoteChanges, RemoteEvent, SyncWindow,
-};
+use tasks::remote_calendar::http::send;
 
 use aphel_kernel::Ctx;
 use aphel_kernel::errors::AppError;

@@ -1,4 +1,5 @@
 use aphel_sdk::sso::oauth::http_client;
+use aphel_sdk::tasks::remote_calendar::encode_segment;
 use async_trait::async_trait;
 use chrono::{DateTime, SecondsFormat, Utc};
 use email::oauth::connect::connect_path;
@@ -8,7 +9,6 @@ use email::oauth::tokens::{with_access, with_account_access};
 use email::oauth::{
     MAIL_API_FAILED, MAIL_CURSOR_EXPIRED, MAIL_NOT_FOUND, MailOAuth, fetch_concurrently,
 };
-use tasks::remote_calendar::http::encode_segment;
 
 use aphel_kernel::domain::access::AccessScope;
 use aphel_kernel::errors::AppError;

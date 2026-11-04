@@ -1,3 +1,4 @@
+pub mod remote_calendar;
 use crate::AppError;
 pub use aphel_contract_tasks::*;
 use aphel_kernel::domain::UserId;

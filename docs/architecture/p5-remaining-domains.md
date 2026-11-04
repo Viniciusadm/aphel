@@ -401,6 +401,14 @@ This phase is in progress. Completed entries describe static source validation; 
 - [ ] Extract shared calendar provider interfaces and owner job orchestration; review provider removal/secret cleanup through owner maintenance policies.
 - [ ] Manual acceptance: fresh schema, provider isolation, connection reconnect/revoke, cursor/count updates, link upsert/delete, concurrent sync and provider export/removal behavior.
 
+## Shared remote calendar provider data
+
+- [x] Publish native calendar adapter interfaces, event/change snapshots, connection DTOs and configuration metadata through the task SDK surface.
+- [x] Share only timestamp/URL codecs alongside those models. Task synchronization, network request handling, connection/token policy and persistence remain with existing owners.
+- [x] Google and Microsoft contribute calendar adapters through a declared capability; they use shared provider data instead of task implementation models.
+- [ ] Replace remaining task-owned execution/worker imports with enabled owner interfaces and dynamic provider dispatch.
+- [ ] Manual acceptance: calendar adapter payloads, settings metadata, timestamp/segment codecs, event windows and public response schemas.
+
 ## Outstanding scope
 
 The remaining identity changes, shared capability interfaces, owner-only SQL, deletion policies and per-plugin manual acceptance matrices are still pending. Existing architectural debt is not considered resolved by renaming packages.
