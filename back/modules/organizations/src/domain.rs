@@ -59,14 +59,7 @@ pub struct CompanyData {
     pub parent_company_id: Option<Uuid>,
 }
 
-#[derive(Debug, Clone, Default, PartialEq, Eq)]
-pub struct EmailEngagement {
-    pub last_contacted_at: Option<DateTime<Utc>>,
-    pub last_email_received_at: Option<DateTime<Utc>>,
-    pub last_email_sent_at: Option<DateTime<Utc>>,
-    pub interaction_count: i64,
-    pub last_contacted_by: Option<UserId>,
-}
+pub use aphel_sdk::email::EmailEngagement;
 
 #[derive(Debug, Clone, PartialEq, Eq)]
 pub struct Company {

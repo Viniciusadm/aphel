@@ -6,6 +6,7 @@ use sqlx::mysql::MySqlRow;
 use sqlx::{MySql, MySqlPool, QueryBuilder, Row};
 use uuid::Uuid;
 
+use crate::domain::EmailEngagement;
 use crate::domain::{
     CompanyContactLink, CompanyReference, Contact, ContactCompanyLink, ContactCompanyRole,
     ContactData, ContactSummary, ContactView, NewContactCompanyLink,
@@ -25,12 +26,10 @@ use aphel_kernel::infrastructure::repositories::mapper::{
     optional_uuid, owner_reference, push_ids,
 };
 use aphel_kernel::records::load_contributed;
-use organizations::store::engagement_from_row;
 
 const CONTACT_COLUMNS: &str = "r.id, r.owner_id, r.company_id, r.first_name, r.last_name, r.email, \
      r.phone, r.mobile, r.job_title, r.source, r.notes, r.created_by, r.archived_at, r.created_at, \
-     r.updated_at, u.display_name AS owner_display_name, co.name AS company_name, \
-     co.domain AS company_domain, r.last_contacted_at, r.last_email_received_at, \
+     r.updated_at, u.display_name AS owner_display_name, r.last_contacted_at, r.last_email_received_at, \
      r.last_email_sent_at, r.interaction_count, r.last_contacted_by";
 
 fn role_column(row: &MySqlRow) -> Result<Option<ContactCompanyRole>, AppError> {
@@ -40,7 +39,6 @@ fn role_column(row: &MySqlRow) -> Result<Option<ContactCompanyRole>, AppError> {
 
 fn contact_from_row(row: &MySqlRow) -> Result<ContactView, AppError> {
     let company_id = optional_uuid(row, "company_id")?;
-    let company_name: Option<String> = row.try_get("company_name")?;
     Ok(ContactView {
         contact: Contact {
             id: uuid_column(row, "id")?,
@@ -65,16 +63,7 @@ fn contact_from_row(row: &MySqlRow) -> Result<ContactView, AppError> {
         },
         owner: owner_reference(row)?,
         contributed: Default::default(),
-        company: company_id
-            .zip(company_name)
-            .map(|(id, name)| -> Result<CompanyReference, AppError> {
-                Ok(CompanyReference {
-                    id,
-                    name,
-                    domain: row.try_get("company_domain")?,
-                })
-            })
-            .transpose()?,
+        company: None,
     })
 }
 
@@ -84,7 +73,9 @@ fn company_link_from_row(row: &MySqlRow) -> Result<ContactCompanyLink, AppError>
         link_id: optional_uuid(row, "link_id")?,
         company: CompanyReference {
             id: uuid_column(row, "company_id")?,
-            name: row.try_get("company_name")?,
+            name: row
+                .try_get::<Option<String>, _>("company_name")?
+                .unwrap_or_default(),
             domain: row.try_get("company_domain")?,
         },
         role: role_column(row)?,
@@ -111,18 +102,19 @@ fn company_contact_from_row(row: &MySqlRow) -> Result<CompanyContactLink, AppErr
 }
 
 #[derive(Clone)]
-pub struct ContactStore {
+pub struct ContactStore<'a> {
     pool: MySqlPool,
     registry: Arc<RecordTypeRegistry>,
+    ctx: Ctx<'a>,
 }
 
-impl ContactStore {
-    pub(crate) fn new(pool: MySqlPool, registry: Arc<RecordTypeRegistry>) -> Self {
-        Self { pool, registry }
-    }
-
-    pub fn of(ctx: &Ctx<'_>) -> Self {
-        Self::new(ctx.pool().clone(), ctx.registry().clone())
+impl<'a> ContactStore<'a> {
+    pub fn of(ctx: &Ctx<'a>) -> Self {
+        Self {
+            pool: ctx.pool().clone(),
+            registry: ctx.registry().clone(),
+            ctx: ctx.clone(),
+        }
     }
 
     pub(crate) async fn with_contributed(
@@ -132,8 +124,21 @@ impl ContactStore {
         let ids: Vec<Uuid> = views.iter().map(|view| view.contact.id).collect();
         let mut values =
             load_contributed(&self.pool, self.definition(&RecordType::CONTACT)?, &ids).await?;
+        let companies = self
+            .company_references(
+                &views
+                    .iter()
+                    .filter_map(|view| view.contact.data.company_id)
+                    .collect::<Vec<_>>(),
+            )
+            .await?;
         for view in &mut views {
             view.contributed = values.remove(&view.contact.id).unwrap_or_default();
+            view.company = view
+                .contact
+                .data
+                .company_id
+                .and_then(|id| companies.get(&id).cloned());
         }
         Ok(views)
     }
@@ -146,52 +151,96 @@ impl ContactStore {
         QueryBuilder::new(format!(
             "SELECT {CONTACT_COLUMNS}, {ADDRESS_COLUMNS} FROM people r \
              LEFT JOIN users u ON u.id = r.owner_id \
-             LEFT JOIN organizations co ON co.id = r.company_id \
-             AND co.deleted_at IS NULL \
              WHERE r.deleted_at IS NULL"
         ))
     }
 
-    fn company_links_query(
-        &self,
-        scope: &AccessScope,
-        company_visibility: &RecordScopeFilter,
-        contact_id: Uuid,
-        only_company: Option<Uuid>,
-    ) -> Result<QueryBuilder<MySql>, AppError> {
-        let definition = self.definition(&RecordType::COMPANY)?;
+    fn company_links_query(contact_id: Uuid, only_company: Option<Uuid>) -> QueryBuilder<MySql> {
         let mut builder = QueryBuilder::new(
-            "SELECT * FROM (SELECT NULL AS link_id, r.id AS company_id, r.name AS company_name, \
-             r.domain AS company_domain, NULL AS role, CAST(1 AS SIGNED) AS is_primary, NULL AS linked_at \
-             FROM people c JOIN organizations r ON r.id = c.company_id \
-             WHERE r.deleted_at IS NULL AND c.deleted_at IS NULL",
+            "SELECT * FROM (SELECT NULL AS link_id, c.company_id, NULL AS company_name, NULL AS company_domain, NULL AS role, CAST(1 AS SIGNED) AS is_primary, NULL AS linked_at FROM people c WHERE c.deleted_at IS NULL AND c.company_id IS NOT NULL AND c.id = ",
         );
-        builder
-            .push(" AND c.id = ")
-            .push_bind(contact_id.to_string());
-        if let Some(company_id) = only_company {
-            builder
-                .push(" AND 1 = 0 AND r.id = ")
-                .push_bind(company_id.to_string());
+        builder.push_bind(contact_id.to_string());
+        if only_company.is_some() {
+            builder.push(" AND FALSE");
         }
-        push_record_scope(&mut builder, scope, definition, company_visibility);
-        builder.push(
-            " UNION ALL SELECT l.id AS link_id, r.id AS company_id, r.name AS company_name, \
-             r.domain AS company_domain, l.role AS role, CAST(0 AS SIGNED) AS is_primary, l.created_at AS linked_at \
-             FROM people_organizations l JOIN organizations r ON r.id = l.company_id \
-             WHERE r.deleted_at IS NULL",
-        );
-        builder
-            .push(" AND l.contact_id = ")
-            .push_bind(contact_id.to_string());
-        if let Some(company_id) = only_company {
+        builder.push(" UNION ALL SELECT l.id AS link_id, l.company_id, NULL AS company_name, NULL AS company_domain, l.role, CAST(0 AS SIGNED) AS is_primary, l.created_at AS linked_at FROM people_organizations l WHERE l.contact_id = ").push_bind(contact_id.to_string());
+        if let Some(id) = only_company {
             builder
-                .push(" AND r.id = ")
-                .push_bind(company_id.to_string());
+                .push(" AND l.company_id = ")
+                .push_bind(id.to_string());
         }
-        push_record_scope(&mut builder, scope, definition, company_visibility);
-        builder.push(") links ORDER BY is_primary DESC, company_name, company_id");
-        Ok(builder)
+        builder.push(") links ORDER BY is_primary DESC, company_id");
+        builder
+    }
+
+    async fn company_references(
+        &self,
+        ids: &[Uuid],
+    ) -> Result<std::collections::HashMap<Uuid, CompanyReference>, AppError> {
+        let mut references = std::collections::HashMap::new();
+        let Some(definition) = self.registry.get(&RecordType::COMPANY) else {
+            return Ok(references);
+        };
+        if self
+            .ctx
+            .scope
+            .scope_for(&definition.read_permission)
+            .is_none()
+        {
+            return Ok(references);
+        }
+        let ids: Vec<_> = ids
+            .iter()
+            .copied()
+            .collect::<std::collections::BTreeSet<_>>()
+            .into_iter()
+            .collect();
+        for batch in ids.chunks(1000) {
+            let listing = aphel_sdk::record_context::list(
+                &self.ctx,
+                RecordType::COMPANY.as_str(),
+                aphel_kernel::application::query::RecordQuery {
+                    filter: Some(aphel_kernel::application::query::Filter::condition(
+                        "id",
+                        aphel_kernel::application::query::FilterOperator::In,
+                        serde_json::json!(batch),
+                    )),
+                    archived: aphel_kernel::application::query::ArchivedFilter::Include,
+                    window: ListWindow {
+                        offset: 0,
+                        limit: batch.len() as u64,
+                    },
+                    ..Default::default()
+                },
+            )
+            .await?;
+            for value in listing.items {
+                let id = value
+                    .get("id")
+                    .and_then(serde_json::Value::as_str)
+                    .and_then(|id| Uuid::parse_str(id).ok())
+                    .filter(|id| batch.contains(id))
+                    .ok_or_else(|| {
+                        AppError::Internal("invalid organization reference snapshot".into())
+                    })?;
+                references.insert(
+                    id,
+                    CompanyReference {
+                        id,
+                        name: value
+                            .get("name")
+                            .and_then(serde_json::Value::as_str)
+                            .unwrap_or_default()
+                            .to_owned(),
+                        domain: value
+                            .get("domain")
+                            .and_then(serde_json::Value::as_str)
+                            .map(str::to_owned),
+                    },
+                );
+            }
+        }
+        Ok(references)
     }
 
     pub async fn find(
@@ -348,48 +397,71 @@ impl ContactStore {
 
     pub(crate) async fn list_companies(
         &self,
-        scope: &AccessScope,
-        company_visibility: &RecordScopeFilter,
         contact_id: Uuid,
         window: ListWindow,
     ) -> Result<Listing<ContactCompanyLink>, AppError> {
-        let rows = self
-            .company_links_query(scope, company_visibility, contact_id, None)?
+        let rows = Self::company_links_query(contact_id, None)
             .build()
             .fetch_all(&self.pool)
             .await?;
-        let links: Vec<ContactCompanyLink> = rows
-            .iter()
-            .map(company_link_from_row)
-            .collect::<Result<_, _>>()?;
-        let total = links.len() as u64;
+        let references = self
+            .company_references(
+                &rows
+                    .iter()
+                    .map(|row| uuid_column(row, "company_id"))
+                    .collect::<Result<Vec<_>, _>>()?,
+            )
+            .await?;
+        let mut links = Vec::new();
+        for row in &rows {
+            let mut link = company_link_from_row(row)?;
+            if let Some(company) = references.get(&link.company.id) {
+                link.company = company.clone();
+                links.push(link);
+            }
+        }
+        links.sort_by(|left, right| {
+            right
+                .is_primary
+                .cmp(&left.is_primary)
+                .then_with(|| {
+                    left.company
+                        .name
+                        .to_lowercase()
+                        .cmp(&right.company.name.to_lowercase())
+                })
+                .then(left.company.id.cmp(&right.company.id))
+        });
         Ok(Listing {
+            total: links.len() as u64,
             items: links
                 .into_iter()
                 .skip(window.offset as usize)
                 .take(window.limit as usize)
                 .collect(),
-            total,
         })
     }
 
     pub async fn find_link(
         &self,
-        scope: &AccessScope,
         contact_id: Uuid,
         company_id: Uuid,
     ) -> Result<Option<ContactCompanyLink>, AppError> {
-        let row = self
-            .company_links_query(
-                scope,
-                &RecordScopeFilter::Organization,
-                contact_id,
-                Some(company_id),
-            )?
+        let row = Self::company_links_query(contact_id, Some(company_id))
             .build()
             .fetch_optional(&self.pool)
             .await?;
-        row.as_ref().map(company_link_from_row).transpose()
+        let Some(mut link) = row.as_ref().map(company_link_from_row).transpose()? else {
+            return Ok(None);
+        };
+        if let Some(company) = self
+            .company_references(&[company_id])
+            .await?
+            .remove(&company_id)
+        {
+            link.company = company;
+        }
+        Ok(Some(link))
     }
 
     pub async fn insert_link(
@@ -474,4 +546,14 @@ impl ContactStore {
             total: total.max(0) as u64,
         })
     }
+}
+
+fn engagement_from_row(row: &MySqlRow) -> Result<EmailEngagement, AppError> {
+    Ok(EmailEngagement {
+        last_contacted_at: optional_instant(row, "last_contacted_at")?,
+        last_email_received_at: optional_instant(row, "last_email_received_at")?,
+        last_email_sent_at: optional_instant(row, "last_email_sent_at")?,
+        interaction_count: i64::from(row.try_get::<i32, _>("interaction_count")?),
+        last_contacted_by: optional_user(row, "last_contacted_by")?,
+    })
 }

@@ -220,6 +220,14 @@ This phase is in progress. Completed entries describe static source validation; 
 - [x] Remove bulk actions' last peer implementation dependency. Pending executions resolve provider availability again.
 - [ ] Manual acceptance: bulk enrollment permissions, duplicate recipients, inactive sequences, mailbox selection, disabled service and queued job retries.
 
+## People organization snapshots
+
+- [x] Organizations supplies scoped, masked list snapshots through the shared record context interface. People batches organization references through that source instead of joining organization tables.
+- [x] People queries only its owned primary/secondary link rows and keeps owned link existence separate from the visibility of organization labels.
+- [x] Share email engagement snapshot data in the SDK; each owner decodes its own persisted columns. People has no organization implementation dependency.
+- [ ] Replace the remaining runtime organization prerequisite and foreign organization FKs with explicit soft-reference/deletion policies.
+- [ ] Manual acceptance: primary/secondary company links, hidden name/domain fields, missing/unreadable/disabled organizations, link existence during merging and label ordering/pagination (now sorted in memory).
+
 ## Outstanding scope
 
 The remaining identity changes, shared capability interfaces, owner-only SQL, deletion policies and per-plugin manual acceptance matrices are still pending. Existing architectural debt is not considered resolved by renaming packages.

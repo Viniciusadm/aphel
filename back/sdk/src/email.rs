@@ -30,3 +30,15 @@ pub trait EmailSender: Send + Sync {
         command: SendEmailCommand,
     ) -> Result<uuid::Uuid, AppError>;
 }
+
+use aphel_kernel::domain::UserId;
+use chrono::{DateTime, Utc};
+
+#[derive(Debug, Clone, Default, PartialEq, Eq)]
+pub struct EmailEngagement {
+    pub last_contacted_at: Option<DateTime<Utc>>,
+    pub last_email_received_at: Option<DateTime<Utc>>,
+    pub last_email_sent_at: Option<DateTime<Utc>>,
+    pub interaction_count: i64,
+    pub last_contacted_by: Option<UserId>,
+}

@@ -10,7 +10,7 @@ use aphel_kernel::records::{
     Address, AddressInput, InputValidator, MAX_LONG_TEXT_LENGTH, Patch, insert_address,
     insert_text, value_patch,
 };
-pub(crate) use organizations::domain::EmailEngagement;
+pub(crate) use aphel_sdk::email::EmailEngagement;
 
 pub(crate) const CONTACT_NOT_FOUND: &str = "contact_not_found";
 pub(crate) const LINK_NOT_FOUND: &str = "link_not_found";

@@ -31,7 +31,9 @@ use aphel_kernel::records::{
     normalize_search_term, parse_record_id, permission_denied, publish_mutation, with_contributed,
     write_contributed,
 };
-use organizations::domain::company_not_found;
+fn company_not_found() -> AppError {
+    AppError::not_found_code("company_not_found", "company was not found")
+}
 
 pub fn contact_values(data: &ContactData, contributed: &Map<String, Value>) -> Value {
     with_contributed(contact_snapshot(data), contributed)
@@ -469,14 +471,14 @@ pub(crate) async fn list_companies(
     window: ListWindow,
 ) -> Result<Listing<ContactCompanyLink>, AppError> {
     let contact = visible(ctx, contact_id).await?;
-    let Ok(visibility) = ctx.scope.record_filter(&Permission::COMPANIES_READ) else {
+    let Ok(_) = ctx.scope.record_filter(&Permission::COMPANIES_READ) else {
         return Ok(Listing {
             items: Vec::new(),
             total: 0,
         });
     };
     ContactStore::of(ctx)
-        .list_companies(ctx.scope, &visibility, contact.contact.id, window)
+        .list_companies(contact.contact.id, window)
         .await
 }
 
@@ -508,10 +510,7 @@ pub(crate) async fn link_company(
     let contact_id = contact.contact.id;
     let store = ContactStore::of(ctx);
     if contact.contact.data.company_id == Some(company_id)
-        || store
-            .find_link(scope, contact_id, company_id)
-            .await?
-            .is_some()
+        || store.find_link(contact_id, company_id).await?.is_some()
     {
         return Err(already_linked());
     }
@@ -552,7 +551,7 @@ pub(crate) async fn link_company(
     .await?;
     tx.commit().await?;
     store
-        .find_link(scope, contact_id, company_id)
+        .find_link(contact_id, company_id)
         .await?
         .ok_or_else(link_not_found)
 }
@@ -569,7 +568,7 @@ pub(crate) async fn unlink_company(
     let company_id = parse_record_id(company_id, link_not_found)?;
     let store = ContactStore::of(ctx);
     let link = store
-        .find_link(scope, contact_id, company_id)
+        .find_link(contact_id, company_id)
         .await?
         .ok_or_else(link_not_found)?;
 

@@ -308,7 +308,7 @@ async fn load_custom(
 
 async fn contact_for(
     ctx: &Ctx<'_>,
-    people: &ContactStore,
+    people: &ContactStore<'_>,
     id: Uuid,
     permission: &Permission,
 ) -> Result<ContactView, AppError> {
@@ -604,7 +604,6 @@ async fn merge_contacts(
     command: MergeCommand,
 ) -> Result<MergeOutcome, AppError> {
     let fields = read.fields;
-    let scope = ctx.scope;
     let people = ContactStore::of(ctx);
     let primary = contact_for(ctx, &people, primary_id, &Permission::CONTACTS_UPDATE).await?;
     let duplicate = contact_for(ctx, &people, duplicate_id, &Permission::CONTACTS_DELETE).await?;
@@ -640,10 +639,7 @@ async fn merge_contacts(
     for company_id in [old.company_id, source.company_id].into_iter().flatten() {
         if merged.company_id != Some(company_id)
             && !extra_companies.contains(&company_id)
-            && people
-                .find_link(scope, primary_id, company_id)
-                .await?
-                .is_none()
+            && people.find_link(primary_id, company_id).await?.is_none()
         {
             extra_companies.push(company_id);
         }
