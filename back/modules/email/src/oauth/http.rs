@@ -40,21 +40,31 @@ async fn checked(request: reqwest::RequestBuilder) -> Result<reqwest::Response, 
 }
 
 pub async fn bytes(request: reqwest::RequestBuilder) -> Result<Vec<u8>, AppError> {
-    let response = checked(request).await?;
+    let mut response = checked(request).await?;
     if response
         .content_length()
-        .is_some_and(|length| length as usize > MAX_MESSAGE_BYTES)
+        .is_some_and(|length| length > MAX_MESSAGE_BYTES as u64)
     {
         return Err(AppError::validation_code(
             MAIL_API_FAILED,
             "the mail provider answered with a body that is too large",
         ));
     }
-    let body = response
-        .bytes()
+    let mut body = Vec::new();
+    while let Some(chunk) = response
+        .chunk()
         .await
-        .map_err(|_| unavailable("the mail provider answered with an unreadable body"))?;
-    Ok(body.to_vec())
+        .map_err(|_| unavailable("the mail provider answered with an unreadable body"))?
+    {
+        if chunk.len() > MAX_MESSAGE_BYTES - body.len() {
+            return Err(AppError::validation_code(
+                MAIL_API_FAILED,
+                "the mail provider answered with a body that is too large",
+            ));
+        }
+        body.extend_from_slice(&chunk);
+    }
+    Ok(body)
 }
 
 pub async fn json(request: reqwest::RequestBuilder) -> Result<Value, AppError> {

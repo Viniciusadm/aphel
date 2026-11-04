@@ -432,6 +432,12 @@ This phase is in progress. Completed entries describe static source validation; 
 - [x] Remove obsolete global provider context helpers from the SDK surface.
 - [ ] Manual acceptance: native/vendor mailbox operations, scheduled/user delivery, messaging actor selection, disabled cached providers, duplicate providers and restricted/system module scopes.
 
+## Bounded mail provider responses
+
+- [x] Enforce the existing 40 MiB response limit while reading actual provider chunks, including responses with absent or misleading content lengths. Keep transport execution in email.
+- [x] Validate formatting and strict email Clippy without running tests.
+- [ ] Manual acceptance: exact-limit bodies, oversized/chunked bodies, misleading lengths and interrupted streams.
+
 ## Outstanding scope
 
 The remaining identity changes, shared capability interfaces, owner-only SQL, deletion policies and per-plugin manual acceptance matrices are still pending. Existing architectural debt is not considered resolved by renaming packages.
