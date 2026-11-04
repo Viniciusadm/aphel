@@ -471,6 +471,13 @@ dependencies = [
 ]
 
 [[package]]
+name = "aphel-contract-sso"
+version = "0.1.0"
+dependencies = [
+ "aphel-contract",
+]
+
+[[package]]
 name = "aphel-contract-tagging"
 version = "0.1.0"
 dependencies = [
@@ -1797,6 +1804,7 @@ name = "aphel-mod-sso"
 version = "0.1.0"
 dependencies = [
  "aphel-kernel",
+ "aphel-sdk",
  "async-trait",
  "axum",
  "base64 0.22.1",
@@ -2058,6 +2066,7 @@ dependencies = [
  "aphel-contract-privacy",
  "aphel-contract-segments",
  "aphel-contract-sequences",
+ "aphel-contract-sso",
  "aphel-contract-tagging",
  "aphel-contract-tasks",
  "aphel-contract-telephony",
@@ -2071,9 +2080,11 @@ dependencies = [
  "chrono",
  "chrono-tz",
  "csv",
+ "form_urlencoded",
  "futures",
  "getrandom 0.4.3",
  "regex",
+ "reqwest",
  "rust_decimal",
  "rust_xlsxwriter",
  "serde",

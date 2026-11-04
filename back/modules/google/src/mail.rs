@@ -1,5 +1,6 @@
 use std::collections::HashSet;
 
+use aphel_sdk::sso::oauth::http_client;
 use async_trait::async_trait;
 use chrono::{DateTime, Utc};
 use email::oauth::connect::connect_path;
@@ -7,7 +8,6 @@ use email::oauth::http::{json, text};
 use email::oauth::mime::{decode_base64url, encode_base64url, parse_remote};
 use email::oauth::tokens::{with_access, with_account_access};
 use email::oauth::{MAIL_API_FAILED, MAIL_NOT_FOUND, MailOAuth, fetch_concurrently};
-use sso::sso::oauth::http_client;
 
 use aphel_kernel::domain::access::AccessScope;
 use aphel_kernel::errors::AppError;

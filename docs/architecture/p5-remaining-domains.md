@@ -371,6 +371,14 @@ This phase is in progress. Completed entries describe static source validation; 
 - [ ] Shared OAuth interfaces, provider-owned calendar persistence and removal of remaining peer implementations are pending.
 - [ ] Manual acceptance: provider isolation, expired/replayed state, concurrent callbacks, login/calendar/mail purpose dispatch and fresh installation schemas.
 
+## Shared OAuth protocol interface
+
+- [x] Publish the SSO identity/protocol capability descriptor through a kernel-free contract and native protocol/data interfaces through the SDK.
+- [x] Share only OAuth data, token/claim codecs, PKCE and URL construction. SSO retains the configured HTTP transport, token requests, error responses and cached endpoint discovery.
+- [x] Email, tasks, Google and Microsoft request protocol operations through an enabled service rather than importing SSO protocol execution code.
+- [ ] Extract identity flow/state interfaces and generic integration helpers to remove the remaining SSO implementation dependencies.
+- [ ] Manual acceptance: authorization URLs, PKCE, token exchange/refresh, provider errors, claims, discovery caching and absent/disabled protocol providers.
+
 ## Outstanding scope
 
 The remaining identity changes, shared capability interfaces, owner-only SQL, deletion policies and per-plugin manual acceptance matrices are still pending. Existing architectural debt is not considered resolved by renaming packages.

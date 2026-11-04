@@ -22,9 +22,9 @@ use aphel_kernel::application::query::{Filter, FilterOperator, RecordQuery, Reco
 use aphel_kernel::application::shared::{Job, JobQueue, RecordType};
 use aphel_kernel::domain::access::AccessScope;
 use aphel_kernel::errors::AppError;
+use aphel_sdk::sso::oauth::{self, INVALID_GRANT};
 use sso::errors::{error_code, internal, is_internal, is_not_found};
 use sso::sso::login::credentials;
-use sso::sso::oauth::{self, INVALID_GRANT};
 use sso::sso::settings;
 use sso::support;
 

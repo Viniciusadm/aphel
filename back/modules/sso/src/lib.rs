@@ -1,5 +1,6 @@
 pub mod errors;
 pub mod http;
+mod protocol;
 pub(crate) mod provider;
 pub mod sso;
 pub mod support;
@@ -16,7 +17,7 @@ use aphel_kernel::modules::{AppBuilder, Manifest, Migration, Module, SettingFiel
 
 pub use provider::{IdentityLogin, OidcProvider};
 
-pub const KEY: &str = "sso";
+pub use aphel_sdk::sso::KEY;
 pub(crate) const DISCOVERY_URL: &str = "discovery_url";
 pub(crate) const BUTTON_LABEL: &str = "button_label";
 pub(crate) const DEFAULT_LABEL: &str = "Login corporativo";
@@ -54,6 +55,8 @@ impl Module for SsoModule {
     }
 
     fn register(&self, app: &mut AppBuilder) -> Result<(), AppError> {
+        app.contract(aphel_sdk::sso::DESCRIPTOR);
+        app.provide::<dyn aphel_sdk::sso::oauth::OAuthProtocol>(Arc::new(protocol::Protocol));
         app.openapi_tag(
             http::TAG,
             "Single sign-on with any corporate OpenID Connect provider",

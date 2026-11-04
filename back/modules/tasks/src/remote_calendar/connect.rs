@@ -10,13 +10,13 @@ use aphel_kernel::Ctx;
 use aphel_kernel::application::access::Authorizer;
 use aphel_kernel::application::shared::{Actor, AuditEntry, DomainEvent, FieldChange};
 use aphel_kernel::errors::AppError;
+use aphel_sdk::sso::oauth::{self, AuthorizationRequest};
 use sso::errors::error_code;
 use sso::sso::IdTokenClaims;
 use sso::sso::login::{
     ACCESS_DENIED, INVALID_STATE, NOT_CONFIGURED, callback_url, credentials, exchange,
     failure_code, redirect_to,
 };
-use sso::sso::oauth::{self, AuthorizationRequest};
 use sso::sso::settings;
 use sso::sso::states::{self, StoredState};
 const PURPOSE_CALENDAR: &str = "calendar";
