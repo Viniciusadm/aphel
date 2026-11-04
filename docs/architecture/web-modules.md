@@ -72,7 +72,7 @@ Labels (`label`, `description`) are i18n keys in the module's namespace; use `ns
 | `deals.badges` | Deal badges on the Kanban card and in the table | `{ deal, placement: 'card' \| 'list' }` |
 | `deals.detail.fieldLocks` | Deal page (no UI; locks fields, e.g. amount managed by the items) | `{ dealId, lockFields }` |
 | `workflow.settings.sections` | End of a pipeline's settings (e.g. renewal) | `{ pipeline, workflow }` |
-| `products.list.header` | Product list header (e.g. link to the price lists) | `{}` |
+| `catalog_items.list.header` | Product list header (e.g. link to the price lists) | `{}` |
 | `quotes.editor.sidebar` | Side column of the quote editor (e.g. approvals) | `{ recordType, recordId }` |
 
 Render a new point with `<Slot name="..." props={..} />` (`kernel/modules/Slot.tsx`) or `useSlot`/`useSlotEntries`, and declare the props in `SlotPropsMap` (`kernel/modules/slots.ts`).

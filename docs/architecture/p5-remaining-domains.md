@@ -52,6 +52,14 @@ This phase is in progress. Completed entries describe static source validation; 
 - [ ] Replace remaining task implementation imports, owner-only SQL and foreign task/view foreign keys; shared provider interfaces are still pending.
 - [ ] Manual acceptance: call logging/update, recordings, provider events/start, outcomes, reports, sessions/queues and offline invalidation.
 
+## Catalog item identity
+
+- [x] Replace the native module/package/feature and web namespace with `catalog_items` (`catalog-items` for Cargo/HTTP paths).
+- [x] Use `catalog_items.item` as record identity and `catalog_items.*` permissions; update registered handlers, import/export/bulk metadata, relationships, profiles, labels and consumers.
+- [x] Keep the explicitly owned `products` table and product payload semantics, with no legacy record/permission/transport alias.
+- [ ] Remove remaining deal implementation coupling and foreign reference policies.
+- [ ] Manual acceptance: item create/edit/delete, picker and detail paths, role permissions, fields/settings labels, import/export/bulk, pricing/bundles and quote catalog selection.
+
 ## Lead Pro fresh schema
 
 - [x] Remove the legacy temperature-copy migration. The initial schema already creates the owned extension directly.

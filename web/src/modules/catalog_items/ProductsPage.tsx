@@ -13,13 +13,13 @@ import { PageHeader } from '@/components/ui/page-header'
 import { Page } from '@/components/ui/page'
 
 export function ProductsPage() {
-  const { t } = useTranslation('products')
+  const { t } = useTranslation('catalog_items')
   const navigate = useNavigate()
   const { hasPermission } = useSession()
   const [creating, setCreating] = useState(false)
   const { currency } = useRecordFormatting()
   const defaults = useMemo(() => ({ currency, recurrence: 'none', is_active: true }), [currency])
-  const canCreate = hasPermission('products.create')
+  const canCreate = hasPermission('catalog_items.create')
   const newButton = canCreate ? (
     <Button size="sm" onClick={() => setCreating(true)}>
       <Plus aria-hidden="true" />
@@ -30,7 +30,7 @@ export function ProductsPage() {
   return (
     <Page>
 <PageHeader title={t('list.title')} actions={<>
-        <Slot name="products.list.header" props={{}} />
+        <Slot name="catalog_items.list.header" props={{}} />
       
       </>} />
       <RecordListView

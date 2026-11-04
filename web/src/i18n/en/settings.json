@@ -204,11 +204,11 @@
       "notes": "Notes",
       "administration": "Administration",
       "goals": "Goals",
-      "products": "Products and services",
       "quotes": "Quotes",
       "emails": "Emails",
       "sequences": "Sequences",
-      "booking": "Booking"
+      "booking": "Booking",
+      "catalog_items": "Products and services"
     },
     "actions": {
       "read": "View",

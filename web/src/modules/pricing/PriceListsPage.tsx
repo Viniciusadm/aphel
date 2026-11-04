@@ -20,7 +20,7 @@ import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from '@
 import { Page } from '@/components/ui/page'
 import { SearchInput } from '@/components/ui/search-input'
 
-const PRODUCTS_PATH = '/products'
+const PRODUCTS_PATH = '/catalog-items'
 
 export function PriceListsPage() {
   const { t } = useTranslation('pricing')
@@ -58,7 +58,7 @@ function PriceListsTable() {
   const { t } = useTranslation('pricing')
   const navigate = useNavigate()
   const { hasPermission } = useSession()
-  const canEdit = hasPermission('products.update')
+  const canEdit = hasPermission('catalog_items.update')
   const [page, setPage] = useState(1)
   const [search, setSearch] = useState('')
   const [currency, setCurrency] = useState('')

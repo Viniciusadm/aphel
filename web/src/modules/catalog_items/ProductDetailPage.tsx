@@ -10,11 +10,11 @@ import { PRODUCT_READ_ONLY_KEYS, PRODUCT_RECORD_TYPE, PRODUCTS_PATH } from './re
 const PRODUCT_TABS = ['timeline', 'notes', 'files']
 
 export function ProductDetailPage() {
-  const { t } = useTranslation('products')
+  const { t } = useTranslation('catalog_items')
   const { id = '' } = useParams()
   const { hasPermission } = useSession()
   const timeline = useMemo(() => recordTimelineSource(PRODUCT_RECORD_TYPE, id), [id])
-  const readOnly = !hasPermission('products.update')
+  const readOnly = !hasPermission('catalog_items.update')
 
   const tabs = useCallback(
     (defaults: RecordTab[]): RecordTab[] => defaults.filter((tab) => PRODUCT_TABS.includes(tab.key)),

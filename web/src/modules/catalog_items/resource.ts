@@ -1,8 +1,8 @@
 import { Package } from 'lucide-react'
 import { registerRecordResource } from '@/features/records/resources'
 
-export const PRODUCT_RECORD_TYPE = 'products.product'
-export const PRODUCTS_PATH = '/products'
+export const PRODUCT_RECORD_TYPE = 'catalog_items.item'
+export const PRODUCTS_PATH = '/catalog-items'
 
 export function productPath(id: string) {
   return `${PRODUCTS_PATH}/${encodeURIComponent(id)}`
@@ -12,9 +12,9 @@ export const productResource = registerRecordResource({
   relatable: true,
   icon: Package,
   recordType: PRODUCT_RECORD_TYPE,
-  createPermission: 'products.create',
-  updatePermission: 'products.update',
-  basePath: '/v1/products',
+  createPermission: 'catalog_items.create',
+  updatePermission: 'catalog_items.update',
+  basePath: '/v1/catalog-items',
   summaryFields: ['code', 'price', 'currency', 'unit', 'recurrence', 'is_active'],
   titleField: 'name',
   subtitleField: 'code',

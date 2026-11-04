@@ -143,8 +143,8 @@
       "deals": {
         "deal": "Deals"
       },
-      "products": {
-        "product": "Products"
+      "catalog_items": {
+        "item": "Products"
       }
     },
     "counts": "{{succeeded}} changed, {{issues}} not changed of {{total}}",

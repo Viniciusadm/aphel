@@ -21,12 +21,12 @@ use aphel_kernel::errors::AppError;
 use aphel_kernel::modules::builder::APHEL_VERSION;
 use aphel_kernel::modules::{AppBuilder, Manifest, Module};
 
-pub const KEY: &str = "products";
+pub const KEY: &str = "catalog_items";
 
-pub(crate) const PRODUCTS_EXPORT: Permission = Permission::from_static("products.export");
+pub(crate) const PRODUCTS_EXPORT: Permission = Permission::from_static("catalog_items.export");
 
 pub const PRODUCT_RESOURCE: PublicResource =
-    PublicResource::new("products.product", "ProductResponse");
+    PublicResource::new("catalog_items.item", "ProductResponse");
 
 const PRODUCT_BULK_FIELDS: &[&str] = &["price", "unit", "recurrence", "term_months", "description"];
 
@@ -63,7 +63,7 @@ pub(crate) fn product_definition() -> Result<EntityDefinition, AppError> {
                     .exportable()
                     .validation_rules()
                     .bulk_fields(PRODUCT_BULK_FIELDS)
-                    .web_path("products")
+                    .web_path("catalog-items")
                     .localized_labels(crate::labels("Products"))
                     .label_alias("code", LabelNormalization::Exact)
                     .restore_order(2),
@@ -124,9 +124,9 @@ pub(crate) fn product_definition() -> Result<EntityDefinition, AppError> {
     )
 }
 
-pub struct ProductsModule;
+pub struct CatalogItemsModule;
 
-impl Module for ProductsModule {
+impl Module for CatalogItemsModule {
     fn manifest(&self) -> Manifest {
         Manifest::new(KEY, "Products", APHEL_VERSION)
             .description("Catalog of products and services")
@@ -176,7 +176,7 @@ struct LineItemCatalog;
 #[async_trait::async_trait]
 impl aphel_sdk::line_items::ItemCatalog for LineItemCatalog {
     fn record_type(&self) -> aphel_kernel::application::shared::RecordType {
-        aphel_kernel::application::shared::RecordType::from_static("products.product")
+        aphel_kernel::application::shared::RecordType::from_static("catalog_items.item")
     }
     async fn item(
         &self,
@@ -199,7 +199,7 @@ impl aphel_sdk::line_items::ItemCatalog for LineItemCatalog {
         {
             return Ok(Vec::new());
         }
-        let fields = ctx.field_set(ctx.scope, "products.product").await?;
+        let fields = ctx.field_set(ctx.scope, "catalog_items.item").await?;
         if [
             "name",
             "unit",

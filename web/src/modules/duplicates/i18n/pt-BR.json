@@ -13,8 +13,8 @@
     "deals": {
       "deal": "Oportunidades"
     },
-    "products": {
-      "product": "Produtos"
+    "catalog_items": {
+      "item": "Produtos"
     }
   },
   "recordType": {

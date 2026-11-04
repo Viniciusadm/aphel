@@ -56,11 +56,11 @@
     "tasks": {
       "task": "Activities"
     },
-    "products": {
-      "product": "Products"
-    },
     "quotes": {
       "quote": "Quotes"
+    },
+    "catalog_items": {
+      "item": "Products"
     }
   },
   "placeholders": {

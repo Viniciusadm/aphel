@@ -26,7 +26,7 @@ export const CORE_RECORD_TYPES = [
   "organizations.organization",
   "deals.deal",
   "tasks.task",
-  "products.product",
+  "catalog_items.item",
 ] as const;
 
 export const APPROVAL_STATUSES: ApprovalStatus[] = [

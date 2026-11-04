@@ -9,7 +9,7 @@ const RECORD_PATHS: Record<string, string> = {
   'organizations.organization': "/organizations",
   'deals.deal': "/deals",
   'tasks.task': "/tasks",
-  'products.product': "/products",
+  'catalog_items.item': "/catalog-items",
   'quotes.quote': "/quotes",
 };
 

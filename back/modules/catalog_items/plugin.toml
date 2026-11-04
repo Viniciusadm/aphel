@@ -1,4 +1,4 @@
-key = "products"
+key = "catalog_items"
 name = "Products"
 version = "0.1.0"
 layer = "capability"

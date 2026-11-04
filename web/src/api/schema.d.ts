@@ -1150,6 +1150,42 @@ export interface paths {
         patch?: never;
         trace?: never;
     };
+    "/api/v1/catalog-items": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        /** @description Lists the product and service catalog of the organization (permission `catalog_items.read` with organization scope; the catalog has no owner, so narrower scopes see nothing). Filters accept the JSON AST in `filter` or `filter[field][operator]=value` (`filter[is_active][eq]=true`, `filter[recurrence][in]=monthly,yearly`, `filter[price][gte]=100`). `sort=field,-other` (up to 3); without `sort`, newest first. `search` (or its alias `q`) matches name and code. */
+        get: operations["products_list"];
+        put?: never;
+        /** @description Creates a product or service (permission `catalog_items.create`) and publishes `product.created`. `price` is a decimal with two places (default `0.00`), `currency` defaults to the organization currency, `recurrence` (`none`, `monthly`, `quarterly`, `yearly`) is informative only (no billing) and `is_active` defaults to `true`. `code` is optional and unique among the products of the organization. Custom fields go in `custom_fields`. */
+        post: operations["products_create"];
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
+    "/api/v1/catalog-items/{product_id}": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        /** @description Returns a product with its custom fields (permission `catalog_items.read`). Inactive products are still returned. */
+        get: operations["products_get"];
+        put?: never;
+        post?: never;
+        delete: operations["products_delete"];
+        options?: never;
+        head?: never;
+        /** @description Partially updates a product (permission `catalog_items.update`) and publishes `product.updated` with the changes. Omitted properties stay unchanged and `null` clears an optional one (`price: null` means `0.00`). Deactivating a product (`is_active: false`) only hides it from new deal items; existing items keep their copied name, price and unit. Send `If-Match` with the `updated_at` you read to avoid overwriting someone else's change. */
+        patch: operations["products_update"];
+        trace?: never;
+    };
     "/api/v1/catalog/templates/{id}/apply": {
         parameters: {
             query?: never;
@@ -5810,42 +5846,6 @@ export interface paths {
         options?: never;
         head?: never;
         patch?: never;
-        trace?: never;
-    };
-    "/api/v1/products": {
-        parameters: {
-            query?: never;
-            header?: never;
-            path?: never;
-            cookie?: never;
-        };
-        /** @description Lists the product and service catalog of the organization (permission `products.read` with organization scope; the catalog has no owner, so narrower scopes see nothing). Filters accept the JSON AST in `filter` or `filter[field][operator]=value` (`filter[is_active][eq]=true`, `filter[recurrence][in]=monthly,yearly`, `filter[price][gte]=100`). `sort=field,-other` (up to 3); without `sort`, newest first. `search` (or its alias `q`) matches name and code. */
-        get: operations["products_list"];
-        put?: never;
-        /** @description Creates a product or service (permission `products.create`) and publishes `product.created`. `price` is a decimal with two places (default `0.00`), `currency` defaults to the organization currency, `recurrence` (`none`, `monthly`, `quarterly`, `yearly`) is informative only (no billing) and `is_active` defaults to `true`. `code` is optional and unique among the products of the organization. Custom fields go in `custom_fields`. */
-        post: operations["products_create"];
-        delete?: never;
-        options?: never;
-        head?: never;
-        patch?: never;
-        trace?: never;
-    };
-    "/api/v1/products/{product_id}": {
-        parameters: {
-            query?: never;
-            header?: never;
-            path?: never;
-            cookie?: never;
-        };
-        /** @description Returns a product with its custom fields (permission `products.read`). Inactive products are still returned. */
-        get: operations["products_get"];
-        put?: never;
-        post?: never;
-        delete: operations["products_delete"];
-        options?: never;
-        head?: never;
-        /** @description Partially updates a product (permission `products.update`) and publishes `product.updated` with the changes. Omitted properties stay unchanged and `null` clears an optional one (`price: null` means `0.00`). Deactivating a product (`is_active: false`) only hides it from new deal items; existing items keep their copied name, price and unit. Send `If-Match` with the `updated_at` you read to avoid overwriting someone else's change. */
-        patch: operations["products_update"];
         trace?: never;
     };
     "/api/v1/proposals/deals/{deal_id}/documents": {
@@ -28406,6 +28406,346 @@ export interface operations {
                 };
             };
             /** @description The index could not be read or is not a valid `aphel-catalog` (`catalog_unavailable`) */
+            422: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["ErrorEnvelope"];
+                };
+            };
+            /** @description API token rate limit exceeded (`rate_limited`); see `Retry-After` and `X-RateLimit-*` */
+            429: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["ErrorEnvelope"];
+                };
+            };
+        };
+    };
+    products_list: {
+        parameters: {
+            query?: {
+                /** @example {"op":"and","conditions":[{"field":"name","operator":"contains","value":"ana"}]} */
+                filter?: string;
+                /** @example -created_at,name */
+                sort?: string;
+                search?: string;
+                /** @example exclude */
+                archived?: string;
+                /** @example acme */
+                q?: string;
+                page?: number;
+                per_page?: number;
+            };
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        requestBody?: never;
+        responses: {
+            /** @description Page of products with their custom fields */
+            200: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["Page_ProductResponse"];
+                };
+            };
+            /** @description Missing or invalid credentials (`unauthorized`, `invalid_api_token`) */
+            401: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["ErrorEnvelope"];
+                };
+            };
+            /** @description Missing `catalog_items.read` (`permission_denied`, `insufficient_scope`) */
+            403: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["ErrorEnvelope"];
+                };
+            };
+            /** @description Invalid filter, sort, search or pagination (`validation_error` with `details.fields`, `field_not_accessible`) */
+            422: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["ErrorEnvelope"];
+                };
+            };
+            /** @description API token rate limit exceeded (`rate_limited`); see `Retry-After` and `X-RateLimit-*` */
+            429: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["ErrorEnvelope"];
+                };
+            };
+        };
+    };
+    products_create: {
+        parameters: {
+            query?: never;
+            header?: {
+                /** @description Up to 255 printable ASCII characters. The same key with the same request (method, path and body) within 24 hours answers the stored response with the same status and body plus `Idempotent-Replayed: true`. Scoped to the credential (session cookie or API token); ignored without a credential. 5xx and 429 responses are not stored */
+                "Idempotency-Key"?: string;
+            };
+            path?: never;
+            cookie?: never;
+        };
+        requestBody: {
+            content: {
+                "application/json": components["schemas"]["ProductRequest"];
+            };
+        };
+        responses: {
+            /** @description Product created */
+            201: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["Data_ProductResponse"];
+                };
+            };
+            /** @description Missing or invalid credentials (`unauthorized`, `invalid_api_token`) */
+            401: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["ErrorEnvelope"];
+                };
+            };
+            /** @description Missing `catalog_items.create` (`permission_denied`, `insufficient_scope`) */
+            403: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["ErrorEnvelope"];
+                };
+            };
+            /** @description The first request with this `Idempotency-Key` is still being processed (`idempotency_key_in_progress`) */
+            409: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["ErrorEnvelope"];
+                };
+            };
+            /** @description Invalid system or custom fields, such as a repeated `code` (`validation_error`, fields such as `name`, `price` or `custom_fields.<key>`), or fields the role cannot write (`field_not_accessible`, `field_read_only`). `Idempotency-Key` already used with a different request (`idempotency_key_reused`) or longer than 255 characters (`validation_error`) */
+            422: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["ErrorEnvelope"];
+                };
+            };
+            /** @description API token rate limit exceeded (`rate_limited`); see `Retry-After` and `X-RateLimit-*` */
+            429: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["ErrorEnvelope"];
+                };
+            };
+        };
+    };
+    products_get: {
+        parameters: {
+            query?: never;
+            header?: never;
+            path: {
+                /** @description Product id */
+                product_id: string;
+            };
+            cookie?: never;
+        };
+        requestBody?: never;
+        responses: {
+            /** @description The product */
+            200: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["Data_ProductResponse"];
+                };
+            };
+            /** @description Missing or invalid credentials (`unauthorized`, `invalid_api_token`) */
+            401: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["ErrorEnvelope"];
+                };
+            };
+            /** @description Missing `catalog_items.read` (`permission_denied`, `insufficient_scope`) */
+            403: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["ErrorEnvelope"];
+                };
+            };
+            /** @description Product not found or deleted (`product_not_found`) */
+            404: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["ErrorEnvelope"];
+                };
+            };
+            /** @description API token rate limit exceeded (`rate_limited`); see `Retry-After` and `X-RateLimit-*` */
+            429: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["ErrorEnvelope"];
+                };
+            };
+        };
+    };
+    products_delete: {
+        parameters: {
+            query?: never;
+            header?: never;
+            path: {
+                /** @description Product id */
+                product_id: string;
+            };
+            cookie?: never;
+        };
+        requestBody?: never;
+        responses: {
+            /** @description Product deleted (soft delete, it does not go to the trash); publishes `product.deleted`. Deal items created from it keep their copied name, price and unit */
+            204: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content?: never;
+            };
+            /** @description Missing or invalid credentials (`unauthorized`, `invalid_api_token`) */
+            401: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["ErrorEnvelope"];
+                };
+            };
+            /** @description Missing `catalog_items.delete` (`permission_denied`, `insufficient_scope`) */
+            403: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["ErrorEnvelope"];
+                };
+            };
+            /** @description Product not found or already deleted (`product_not_found`) */
+            404: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["ErrorEnvelope"];
+                };
+            };
+            /** @description API token rate limit exceeded (`rate_limited`); see `Retry-After` and `X-RateLimit-*` */
+            429: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["ErrorEnvelope"];
+                };
+            };
+        };
+    };
+    products_update: {
+        parameters: {
+            query?: never;
+            header?: {
+                /** @description `updated_at` of the product as read (ISO-8601, quotes optional); the update fails with 409 when it changed since */
+                "If-Match"?: string | null;
+            };
+            path: {
+                /** @description Product id */
+                product_id: string;
+            };
+            cookie?: never;
+        };
+        requestBody: {
+            content: {
+                "application/json": components["schemas"]["ProductRequest"];
+            };
+        };
+        responses: {
+            /** @description Product updated */
+            200: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["Data_ProductResponse"];
+                };
+            };
+            /** @description Missing or invalid credentials (`unauthorized`, `invalid_api_token`) */
+            401: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["ErrorEnvelope"];
+                };
+            };
+            /** @description Missing `catalog_items.update` (`permission_denied`, `insufficient_scope`) */
+            403: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["ErrorEnvelope"];
+                };
+            };
+            /** @description Product not found or deleted (`product_not_found`) */
+            404: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["ErrorEnvelope"];
+                };
+            };
+            /** @description The product changed since the `If-Match` version (`version_conflict`) */
+            409: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["ErrorEnvelope"];
+                };
+            };
+            /** @description Invalid system or custom fields or malformed `If-Match` (`validation_error`), or fields the role cannot write (`field_not_accessible`, `field_read_only`) */
             422: {
                 headers: {
                     [name: string]: unknown;
@@ -51362,7 +51702,7 @@ export interface operations {
                     "application/json": components["schemas"]["ErrorEnvelope"];
                 };
             };
-            /** @description Missing `products.read` with organization scope (`permission_denied`, `insufficient_scope`) */
+            /** @description Missing `catalog_items.read` with organization scope (`permission_denied`, `insufficient_scope`) */
             403: {
                 headers: {
                     [name: string]: unknown;
@@ -51416,7 +51756,7 @@ export interface operations {
                     "application/json": components["schemas"]["ErrorEnvelope"];
                 };
             };
-            /** @description Missing `products.update` with organization scope (`permission_denied`, `insufficient_scope`) */
+            /** @description Missing `catalog_items.update` with organization scope (`permission_denied`, `insufficient_scope`) */
             403: {
                 headers: {
                     [name: string]: unknown;
@@ -51593,7 +51933,7 @@ export interface operations {
                     "application/json": components["schemas"]["ErrorEnvelope"];
                 };
             };
-            /** @description Missing `products.read` with organization scope (`permission_denied`, `insufficient_scope`) */
+            /** @description Missing `catalog_items.read` with organization scope (`permission_denied`, `insufficient_scope`) */
             403: {
                 headers: {
                     [name: string]: unknown;
@@ -51659,7 +51999,7 @@ export interface operations {
                     "application/json": components["schemas"]["ErrorEnvelope"];
                 };
             };
-            /** @description Missing `products.update` with organization scope (`permission_denied`, `insufficient_scope`) */
+            /** @description Missing `catalog_items.update` with organization scope (`permission_denied`, `insufficient_scope`) */
             403: {
                 headers: {
                     [name: string]: unknown;
@@ -51734,7 +52074,7 @@ export interface operations {
                     "application/json": components["schemas"]["ErrorEnvelope"];
                 };
             };
-            /** @description Missing `products.update` with organization scope (`permission_denied`, `insufficient_scope`) */
+            /** @description Missing `catalog_items.update` with organization scope (`permission_denied`, `insufficient_scope`) */
             403: {
                 headers: {
                     [name: string]: unknown;
@@ -51793,7 +52133,7 @@ export interface operations {
                     "application/json": components["schemas"]["ErrorEnvelope"];
                 };
             };
-            /** @description Missing `products.read` with organization scope (`permission_denied`, `insufficient_scope`) */
+            /** @description Missing `catalog_items.read` with organization scope (`permission_denied`, `insufficient_scope`) */
             403: {
                 headers: {
                     [name: string]: unknown;
@@ -51850,7 +52190,7 @@ export interface operations {
                     "application/json": components["schemas"]["ErrorEnvelope"];
                 };
             };
-            /** @description Missing `products.update` with organization scope (`permission_denied`, `insufficient_scope`) */
+            /** @description Missing `catalog_items.update` with organization scope (`permission_denied`, `insufficient_scope`) */
             403: {
                 headers: {
                     [name: string]: unknown;
@@ -51916,7 +52256,7 @@ export interface operations {
                     "application/json": components["schemas"]["ErrorEnvelope"];
                 };
             };
-            /** @description Missing `products.update` with organization scope (`permission_denied`, `insufficient_scope`) */
+            /** @description Missing `catalog_items.update` with organization scope (`permission_denied`, `insufficient_scope`) */
             403: {
                 headers: {
                     [name: string]: unknown;
@@ -51993,7 +52333,7 @@ export interface operations {
                     "application/json": components["schemas"]["ErrorEnvelope"];
                 };
             };
-            /** @description Missing `products.read` with organization scope (`permission_denied`, `insufficient_scope`) */
+            /** @description Missing `catalog_items.read` with organization scope (`permission_denied`, `insufficient_scope`) */
             403: {
                 headers: {
                     [name: string]: unknown;
@@ -52059,7 +52399,7 @@ export interface operations {
                     "application/json": components["schemas"]["ErrorEnvelope"];
                 };
             };
-            /** @description Missing `products.update` with organization scope (`permission_denied`, `insufficient_scope`) */
+            /** @description Missing `catalog_items.update` with organization scope (`permission_denied`, `insufficient_scope`) */
             403: {
                 headers: {
                     [name: string]: unknown;
@@ -53236,346 +53576,6 @@ export interface operations {
                 };
             };
             /** @description Term shorter than 3 or longer than 255 characters (`invalid_subject_term`). `Idempotency-Key` already used with a different request (`idempotency_key_reused`) or longer than 255 characters (`validation_error`) */
-            422: {
-                headers: {
-                    [name: string]: unknown;
-                };
-                content: {
-                    "application/json": components["schemas"]["ErrorEnvelope"];
-                };
-            };
-            /** @description API token rate limit exceeded (`rate_limited`); see `Retry-After` and `X-RateLimit-*` */
-            429: {
-                headers: {
-                    [name: string]: unknown;
-                };
-                content: {
-                    "application/json": components["schemas"]["ErrorEnvelope"];
-                };
-            };
-        };
-    };
-    products_list: {
-        parameters: {
-            query?: {
-                /** @example {"op":"and","conditions":[{"field":"name","operator":"contains","value":"ana"}]} */
-                filter?: string;
-                /** @example -created_at,name */
-                sort?: string;
-                search?: string;
-                /** @example exclude */
-                archived?: string;
-                /** @example acme */
-                q?: string;
-                page?: number;
-                per_page?: number;
-            };
-            header?: never;
-            path?: never;
-            cookie?: never;
-        };
-        requestBody?: never;
-        responses: {
-            /** @description Page of products with their custom fields */
-            200: {
-                headers: {
-                    [name: string]: unknown;
-                };
-                content: {
-                    "application/json": components["schemas"]["Page_ProductResponse"];
-                };
-            };
-            /** @description Missing or invalid credentials (`unauthorized`, `invalid_api_token`) */
-            401: {
-                headers: {
-                    [name: string]: unknown;
-                };
-                content: {
-                    "application/json": components["schemas"]["ErrorEnvelope"];
-                };
-            };
-            /** @description Missing `products.read` (`permission_denied`, `insufficient_scope`) */
-            403: {
-                headers: {
-                    [name: string]: unknown;
-                };
-                content: {
-                    "application/json": components["schemas"]["ErrorEnvelope"];
-                };
-            };
-            /** @description Invalid filter, sort, search or pagination (`validation_error` with `details.fields`, `field_not_accessible`) */
-            422: {
-                headers: {
-                    [name: string]: unknown;
-                };
-                content: {
-                    "application/json": components["schemas"]["ErrorEnvelope"];
-                };
-            };
-            /** @description API token rate limit exceeded (`rate_limited`); see `Retry-After` and `X-RateLimit-*` */
-            429: {
-                headers: {
-                    [name: string]: unknown;
-                };
-                content: {
-                    "application/json": components["schemas"]["ErrorEnvelope"];
-                };
-            };
-        };
-    };
-    products_create: {
-        parameters: {
-            query?: never;
-            header?: {
-                /** @description Up to 255 printable ASCII characters. The same key with the same request (method, path and body) within 24 hours answers the stored response with the same status and body plus `Idempotent-Replayed: true`. Scoped to the credential (session cookie or API token); ignored without a credential. 5xx and 429 responses are not stored */
-                "Idempotency-Key"?: string;
-            };
-            path?: never;
-            cookie?: never;
-        };
-        requestBody: {
-            content: {
-                "application/json": components["schemas"]["ProductRequest"];
-            };
-        };
-        responses: {
-            /** @description Product created */
-            201: {
-                headers: {
-                    [name: string]: unknown;
-                };
-                content: {
-                    "application/json": components["schemas"]["Data_ProductResponse"];
-                };
-            };
-            /** @description Missing or invalid credentials (`unauthorized`, `invalid_api_token`) */
-            401: {
-                headers: {
-                    [name: string]: unknown;
-                };
-                content: {
-                    "application/json": components["schemas"]["ErrorEnvelope"];
-                };
-            };
-            /** @description Missing `products.create` (`permission_denied`, `insufficient_scope`) */
-            403: {
-                headers: {
-                    [name: string]: unknown;
-                };
-                content: {
-                    "application/json": components["schemas"]["ErrorEnvelope"];
-                };
-            };
-            /** @description The first request with this `Idempotency-Key` is still being processed (`idempotency_key_in_progress`) */
-            409: {
-                headers: {
-                    [name: string]: unknown;
-                };
-                content: {
-                    "application/json": components["schemas"]["ErrorEnvelope"];
-                };
-            };
-            /** @description Invalid system or custom fields, such as a repeated `code` (`validation_error`, fields such as `name`, `price` or `custom_fields.<key>`), or fields the role cannot write (`field_not_accessible`, `field_read_only`). `Idempotency-Key` already used with a different request (`idempotency_key_reused`) or longer than 255 characters (`validation_error`) */
-            422: {
-                headers: {
-                    [name: string]: unknown;
-                };
-                content: {
-                    "application/json": components["schemas"]["ErrorEnvelope"];
-                };
-            };
-            /** @description API token rate limit exceeded (`rate_limited`); see `Retry-After` and `X-RateLimit-*` */
-            429: {
-                headers: {
-                    [name: string]: unknown;
-                };
-                content: {
-                    "application/json": components["schemas"]["ErrorEnvelope"];
-                };
-            };
-        };
-    };
-    products_get: {
-        parameters: {
-            query?: never;
-            header?: never;
-            path: {
-                /** @description Product id */
-                product_id: string;
-            };
-            cookie?: never;
-        };
-        requestBody?: never;
-        responses: {
-            /** @description The product */
-            200: {
-                headers: {
-                    [name: string]: unknown;
-                };
-                content: {
-                    "application/json": components["schemas"]["Data_ProductResponse"];
-                };
-            };
-            /** @description Missing or invalid credentials (`unauthorized`, `invalid_api_token`) */
-            401: {
-                headers: {
-                    [name: string]: unknown;
-                };
-                content: {
-                    "application/json": components["schemas"]["ErrorEnvelope"];
-                };
-            };
-            /** @description Missing `products.read` (`permission_denied`, `insufficient_scope`) */
-            403: {
-                headers: {
-                    [name: string]: unknown;
-                };
-                content: {
-                    "application/json": components["schemas"]["ErrorEnvelope"];
-                };
-            };
-            /** @description Product not found or deleted (`product_not_found`) */
-            404: {
-                headers: {
-                    [name: string]: unknown;
-                };
-                content: {
-                    "application/json": components["schemas"]["ErrorEnvelope"];
-                };
-            };
-            /** @description API token rate limit exceeded (`rate_limited`); see `Retry-After` and `X-RateLimit-*` */
-            429: {
-                headers: {
-                    [name: string]: unknown;
-                };
-                content: {
-                    "application/json": components["schemas"]["ErrorEnvelope"];
-                };
-            };
-        };
-    };
-    products_delete: {
-        parameters: {
-            query?: never;
-            header?: never;
-            path: {
-                /** @description Product id */
-                product_id: string;
-            };
-            cookie?: never;
-        };
-        requestBody?: never;
-        responses: {
-            /** @description Product deleted (soft delete, it does not go to the trash); publishes `product.deleted`. Deal items created from it keep their copied name, price and unit */
-            204: {
-                headers: {
-                    [name: string]: unknown;
-                };
-                content?: never;
-            };
-            /** @description Missing or invalid credentials (`unauthorized`, `invalid_api_token`) */
-            401: {
-                headers: {
-                    [name: string]: unknown;
-                };
-                content: {
-                    "application/json": components["schemas"]["ErrorEnvelope"];
-                };
-            };
-            /** @description Missing `products.delete` (`permission_denied`, `insufficient_scope`) */
-            403: {
-                headers: {
-                    [name: string]: unknown;
-                };
-                content: {
-                    "application/json": components["schemas"]["ErrorEnvelope"];
-                };
-            };
-            /** @description Product not found or already deleted (`product_not_found`) */
-            404: {
-                headers: {
-                    [name: string]: unknown;
-                };
-                content: {
-                    "application/json": components["schemas"]["ErrorEnvelope"];
-                };
-            };
-            /** @description API token rate limit exceeded (`rate_limited`); see `Retry-After` and `X-RateLimit-*` */
-            429: {
-                headers: {
-                    [name: string]: unknown;
-                };
-                content: {
-                    "application/json": components["schemas"]["ErrorEnvelope"];
-                };
-            };
-        };
-    };
-    products_update: {
-        parameters: {
-            query?: never;
-            header?: {
-                /** @description `updated_at` of the product as read (ISO-8601, quotes optional); the update fails with 409 when it changed since */
-                "If-Match"?: string | null;
-            };
-            path: {
-                /** @description Product id */
-                product_id: string;
-            };
-            cookie?: never;
-        };
-        requestBody: {
-            content: {
-                "application/json": components["schemas"]["ProductRequest"];
-            };
-        };
-        responses: {
-            /** @description Product updated */
-            200: {
-                headers: {
-                    [name: string]: unknown;
-                };
-                content: {
-                    "application/json": components["schemas"]["Data_ProductResponse"];
-                };
-            };
-            /** @description Missing or invalid credentials (`unauthorized`, `invalid_api_token`) */
-            401: {
-                headers: {
-                    [name: string]: unknown;
-                };
-                content: {
-                    "application/json": components["schemas"]["ErrorEnvelope"];
-                };
-            };
-            /** @description Missing `products.update` (`permission_denied`, `insufficient_scope`) */
-            403: {
-                headers: {
-                    [name: string]: unknown;
-                };
-                content: {
-                    "application/json": components["schemas"]["ErrorEnvelope"];
-                };
-            };
-            /** @description Product not found or deleted (`product_not_found`) */
-            404: {
-                headers: {
-                    [name: string]: unknown;
-                };
-                content: {
-                    "application/json": components["schemas"]["ErrorEnvelope"];
-                };
-            };
-            /** @description The product changed since the `If-Match` version (`version_conflict`) */
-            409: {
-                headers: {
-                    [name: string]: unknown;
-                };
-                content: {
-                    "application/json": components["schemas"]["ErrorEnvelope"];
-                };
-            };
-            /** @description Invalid system or custom fields or malformed `If-Match` (`validation_error`), or fields the role cannot write (`field_not_accessible`, `field_read_only`) */
             422: {
                 headers: {
                     [name: string]: unknown;

@@ -14,7 +14,7 @@ export const GO_SHORTCUTS: GoShortcut[] = [
   { key: 'c', to: '/people' },
   { key: 'e', to: '/organizations' },
   { key: 'd', to: '/deals' },
-  { key: 'p', to: '/products' },
+  { key: 'p', to: '/catalog-items' },
   { key: 't', to: '/tasks' },
   { key: 'i', to: '/inbox' },
   { key: 'a', to: '/calendar' },

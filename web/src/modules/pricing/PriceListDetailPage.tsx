@@ -20,7 +20,7 @@ import { Page } from '@/components/ui/page'
 import { PageHeader } from '@/components/ui/page-header'
 import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from '@/components/ui/table'
 
-const PRODUCT_RECORD_TYPE = 'products.product'
+const PRODUCT_RECORD_TYPE = 'catalog_items.item'
 const MONEY_PATTERN = /^\d+([.,]\d{1,2})?$/
 const QUANTITY_PATTERN = /^\d+([.,]\d{1,4})?$/
 
@@ -70,7 +70,7 @@ function PriceListDetail({ list }: { list: PriceList }) {
   const { t } = useTranslation('pricing')
   const navigate = useNavigate()
   const { hasPermission } = useSession()
-  const canEdit = hasPermission('products.update')
+  const canEdit = hasPermission('catalog_items.update')
   const invalidate = useInvalidatePriceLists()
   const [editing, setEditing] = useState(false)
   const [removing, setRemoving] = useState(false)

@@ -49,11 +49,11 @@
     "tasks": {
       "task": "Tasks"
     },
-    "products": {
-      "product": "Products"
-    },
     "notes": {
       "note": "Notes"
+    },
+    "catalog_items": {
+      "item": "Products"
     }
   },
   "create": {

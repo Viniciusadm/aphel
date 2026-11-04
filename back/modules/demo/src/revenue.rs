@@ -9,10 +9,10 @@ use aphel_kernel::Ctx;
 use aphel_kernel::application::shared::RecordType;
 use aphel_kernel::errors::{AppError, CodedKind};
 use approvals::domain::{PolicyCommand, StepInput};
+use catalog_items::domain::{ProductInput, SaveProductCommand};
 use deals::team::domain::AddDealMemberCommand;
 use money::domain::{CreateExchangeRateCommand, SetCurrenciesCommand};
 use pricing::domain::{PriceListItemInput, ReplacePriceListItemsCommand, SavePriceListCommand};
-use products::domain::{ProductInput, SaveProductCommand};
 use quotes::domain::{CreateQuoteCommand, QuoteInput};
 use workflow::domain::UpdateStageCommand;
 
@@ -153,7 +153,7 @@ pub(crate) async fn seed_rotting(ctx: &Ctx<'_>, open_stages: &[&str]) -> Result<
 }
 
 pub(crate) async fn seed_products(ctx: &Ctx<'_>) -> Result<Vec<DemoProduct>, AppError> {
-    if !enabled(ctx, products::KEY) {
+    if !enabled(ctx, catalog_items::KEY) {
         return Ok(Vec::new());
     }
     let catalog = [
@@ -196,7 +196,7 @@ pub(crate) async fn seed_products(ctx: &Ctx<'_>) -> Result<Vec<DemoProduct>, App
     ];
     let mut products = Vec::new();
     for (kind, name, description, price, unit, recurrence, term) in catalog {
-        let id = products::service::create(
+        let id = catalog_items::service::create(
             ctx,
             SaveProductCommand {
                 input: ProductInput {

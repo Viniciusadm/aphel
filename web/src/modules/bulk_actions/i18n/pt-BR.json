@@ -143,8 +143,8 @@
       "deals": {
         "deal": "Oportunidades"
       },
-      "products": {
-        "product": "Produtos"
+      "catalog_items": {
+        "item": "Produtos"
       }
     },
     "counts": "{{succeeded}} alterados, {{issues}} não alterados de {{total}}",

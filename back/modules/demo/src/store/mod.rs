@@ -89,7 +89,7 @@ const MODULE_CLEANUP_BEFORE_RECORDS: [(&str, &str); 6] = [
     ("price_lists", "price_list"),
     ("money_exchange_rates", "exchange_rate"),
 ];
-const MODULE_CLEANUP_AFTER_RECORDS: [(&str, &str); 1] = [("products", "products.product")];
+const MODULE_CLEANUP_AFTER_RECORDS: [(&str, &str); 1] = [("products", "catalog_items.item")];
 
 async fn table_exists(tx: &mut MySqlTx, table: &str) -> Result<bool, AppError> {
     let found: Option<i64> = sqlx::query_scalar(

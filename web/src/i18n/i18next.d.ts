@@ -10,6 +10,7 @@ import type bookingNamespace from '../modules/booking/i18n/pt-BR.json'
 import type bulkActionsNamespace from '../modules/bulk_actions/i18n/pt-BR.json'
 import type calendarNamespace from '../modules/calendar/i18n/pt-BR.json'
 import type catalogNamespace from './pt-BR/catalog.json'
+import type catalogItemsNamespace from '../modules/catalog_items/i18n/pt-BR.json'
 import type commandPaletteNamespace from './pt-BR/command-palette.json'
 import type commonNamespace from './pt-BR/common.json'
 import type configPackageVersioningNamespace from './pt-BR/config-package-versioning.json'
@@ -60,7 +61,6 @@ import type organizationsNamespace from '../modules/organizations/i18n/pt-BR.jso
 import type peopleNamespace from '../modules/people/i18n/pt-BR.json'
 import type pricingNamespace from '../modules/pricing/i18n/pt-BR.json'
 import type privacyNamespace from '../modules/privacy/i18n/pt-BR.json'
-import type productsNamespace from '../modules/products/i18n/pt-BR.json'
 import type proposalsNamespace from '../modules/proposals/i18n/pt-BR.json'
 import type pwaNamespace from './pt-BR/pwa.json'
 import type quotesNamespace from '../modules/quotes/i18n/pt-BR.json'
@@ -108,6 +108,7 @@ declare module 'i18next' {
       bulk_actions: typeof bulkActionsNamespace
       calendar: typeof calendarNamespace
       catalog: typeof catalogNamespace
+      catalog_items: typeof catalogItemsNamespace
       'command-palette': typeof commandPaletteNamespace
       common: typeof commonNamespace
       'config-package-versioning': typeof configPackageVersioningNamespace
@@ -158,7 +159,6 @@ declare module 'i18next' {
       people: typeof peopleNamespace
       pricing: typeof pricingNamespace
       privacy: typeof privacyNamespace
-      products: typeof productsNamespace
       proposals: typeof proposalsNamespace
       pwa: typeof pwaNamespace
       quotes: typeof quotesNamespace

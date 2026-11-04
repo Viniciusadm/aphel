@@ -13,13 +13,13 @@ export type Recurrence = Schemas['Recurrence']
 export const PRODUCT_PICKER_PAGE_SIZE = 20
 
 export const productsKeys = {
-  all: ['products'] as const,
+  all: ['catalog_items'] as const,
   picker: (search: string) => [...recordsKeys.lookup(PRODUCT_RECORD_TYPE), 'picker', search] as const,
 }
 
 export const productsApi = {
   searchActive: (search: string) =>
-    api.get<ProductsPage>('/v1/products', {
+    api.get<ProductsPage>('/v1/catalog-items', {
       query: {
         search: search.trim() || undefined,
         'filter[is_active][eq]': 'true',

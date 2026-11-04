@@ -32,7 +32,7 @@ use aphel_kernel::errors::{AppError, FieldViolation};
 use aphel_kernel::records::{InputValidator, MAX_LONG_TEXT_LENGTH, Patch, changes_payload};
 use aphel_sdk::configuration::{is_config_key, key_from_name};
 use aphel_sdk::line_items::{MONEY_DECIMALS, QUANTITY_DECIMALS, normalize_quantity, parse_money};
-use products::domain::{normalize_currency, require_catalog};
+use catalog_items::domain::{normalize_currency, require_catalog};
 const INVALID_PRICE_LIST: &str = "invalid price list";
 const INVALID_ITEMS: &str = "invalid price list items";
 const INVALID_LIMITS: &str = "invalid discount limits";

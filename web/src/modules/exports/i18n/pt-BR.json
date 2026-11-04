@@ -17,8 +17,8 @@
     "tasks": {
       "task": "atividades"
     },
-    "products": {
-      "product": "produtos"
+    "catalog_items": {
+      "item": "produtos"
     }
   },
   "action": "Exportar",

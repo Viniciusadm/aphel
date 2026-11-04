@@ -49,11 +49,11 @@
     "tasks": {
       "task": "Tarefas"
     },
-    "products": {
-      "product": "Produtos"
-    },
     "notes": {
       "note": "Notas"
+    },
+    "catalog_items": {
+      "item": "Produtos"
     }
   },
   "create": {

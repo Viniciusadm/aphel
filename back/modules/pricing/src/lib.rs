@@ -54,13 +54,13 @@ const PUBLIC_EVENTS: &[PublicEventDefinition] = &[
     ),
     event(
         domain::PRODUCT_BUNDLE_UPDATED,
-        products::PRODUCT_RESOURCE,
+        catalog_items::PRODUCT_RESOURCE,
         "The bundle of a product was saved (components at `GET /pricing/items/{id}/bundle`)",
     )
     .with_context(&["pricing", "components"]),
     event(
         domain::PRODUCT_BUNDLE_REMOVED,
-        products::PRODUCT_RESOURCE,
+        catalog_items::PRODUCT_RESOURCE,
         "A product stopped being a bundle",
     ),
 ];
@@ -73,7 +73,7 @@ impl Module for PricingModule {
             .description(
                 "Price lists by currency, segment or company with validity periods and quantity tiers, product bundles and the maximum discount per role",
             )
-            .depends_on(products::KEY, "*")
+            .depends_on(catalog_items::KEY, "*")
             .optional(organizations::KEY)
             .optional(segments::KEY)
             .enabled_by_default()

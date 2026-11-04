@@ -23,11 +23,11 @@
     "tasks": {
       "task": "Activity"
     },
-    "products": {
-      "product": "Product"
-    },
     "quotes": {
       "quote": "Quote"
+    },
+    "catalog_items": {
+      "item": "Product"
     }
   },
   "status": {

@@ -111,7 +111,7 @@ Performance reference (local MySQL 8, debug build): 10 thousand records with 5 c
 
 1. Declare the type in the registry. The native types (`company`, `contact`, `deal`, `activity`) live in `back/kernel/src/application/fields/builtin.rs`, used by `RecordTypeRegistry::builtin()`:
 
-   The product catalog (`product`, table `products`, no owner column: only organization scope sees the catalog) is declared in `back/modules/products/src/mod.rs` and goes into the same `builtin_record_types()`.
+   The product catalog (`product`, table `products`, no owner column: only organization scope sees the catalog) is declared in `back/modules/catalog_items/src/mod.rs` and goes into the same `builtin_record_types()`.
 
 ```rust
 EntityDefinition::new(RecordType::CONTACT, "people", Permission::CONTACTS_READ)

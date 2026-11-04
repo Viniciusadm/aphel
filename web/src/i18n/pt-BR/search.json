@@ -37,8 +37,8 @@
     "tasks": {
       "task": "Atividade"
     },
-    "products": {
-      "product": "Produto"
+    "catalog_items": {
+      "item": "Produto"
     }
   },
   "recordTypesPlural": {
@@ -59,8 +59,8 @@
     "tasks": {
       "task": "Atividades"
     },
-    "products": {
-      "product": "Produtos"
+    "catalog_items": {
+      "item": "Produtos"
     }
   }
 }

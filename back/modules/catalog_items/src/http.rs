@@ -29,7 +29,7 @@ use aphel_kernel::errors::AppError;
 use aphel_kernel::records::{RecordCtx, RecordTypeHandler, optional_record, values_request};
 use deals::http::DecimalInputSchema;
 
-pub const TAG: &str = "products";
+pub const TAG: &str = "catalog-items";
 
 pub(crate) fn router() -> OpenApiRouter<AppState> {
     OpenApiRouter::new()
@@ -39,16 +39,16 @@ pub(crate) fn router() -> OpenApiRouter<AppState> {
 
 #[utoipa::path(
     get,
-    path = "/products",
+    path = "/catalog-items",
     tag = TAG,
     operation_id = "products_list",
     security(("session_cookie" = [])),
-    description = "Lists the product and service catalog of the organization (permission `products.read` with organization scope; the catalog has no owner, so narrower scopes see nothing). Filters accept the JSON AST in `filter` or `filter[field][operator]=value` (`filter[is_active][eq]=true`, `filter[recurrence][in]=monthly,yearly`, `filter[price][gte]=100`). `sort=field,-other` (up to 3); without `sort`, newest first. `search` (or its alias `q`) matches name and code.",
+    description = "Lists the product and service catalog of the organization (permission `catalog_items.read` with organization scope; the catalog has no owner, so narrower scopes see nothing). Filters accept the JSON AST in `filter` or `filter[field][operator]=value` (`filter[is_active][eq]=true`, `filter[recurrence][in]=monthly,yearly`, `filter[price][gte]=100`). `sort=field,-other` (up to 3); without `sort`, newest first. `search` (or its alias `q`) matches name and code.",
     params(RecordQueryParams, QuickSearchParams, PaginationQuery),
     responses(
         (status = 200, description = "Page of products with their custom fields", body = Page<ProductResponse>),
         (status = 401, description = "Missing or invalid credentials (`unauthorized`, `invalid_api_token`)", body = ErrorEnvelope),
-        (status = 403, description = "Missing `products.read` (`permission_denied`, `insufficient_scope`)", body = ErrorEnvelope),
+        (status = 403, description = "Missing `catalog_items.read` (`permission_denied`, `insufficient_scope`)", body = ErrorEnvelope),
         (status = 422, description = "Invalid filter, sort, search or pagination (`validation_error` with `details.fields`, `field_not_accessible`)", body = ErrorEnvelope),
     )
 )]
@@ -71,16 +71,16 @@ async fn list_products(
 
 #[utoipa::path(
     post,
-    path = "/products",
+    path = "/catalog-items",
     tag = TAG,
     operation_id = "products_create",
     security(("session_cookie" = [])),
-    description = "Creates a product or service (permission `products.create`) and publishes `product.created`. `price` is a decimal with two places (default `0.00`), `currency` defaults to the organization currency, `recurrence` (`none`, `monthly`, `quarterly`, `yearly`) is informative only (no billing) and `is_active` defaults to `true`. `code` is optional and unique among the products of the organization. Custom fields go in `custom_fields`.",
+    description = "Creates a product or service (permission `catalog_items.create`) and publishes `product.created`. `price` is a decimal with two places (default `0.00`), `currency` defaults to the organization currency, `recurrence` (`none`, `monthly`, `quarterly`, `yearly`) is informative only (no billing) and `is_active` defaults to `true`. `code` is optional and unique among the products of the organization. Custom fields go in `custom_fields`.",
     request_body = ProductRequest,
     responses(
         (status = 201, description = "Product created", body = Data<ProductResponse>),
         (status = 401, description = "Missing or invalid credentials (`unauthorized`, `invalid_api_token`)", body = ErrorEnvelope),
-        (status = 403, description = "Missing `products.create` (`permission_denied`, `insufficient_scope`)", body = ErrorEnvelope),
+        (status = 403, description = "Missing `catalog_items.create` (`permission_denied`, `insufficient_scope`)", body = ErrorEnvelope),
         (status = 422, description = "Invalid system or custom fields, such as a repeated `code` (`validation_error`, fields such as `name`, `price` or `custom_fields.<key>`), or fields the role cannot write (`field_not_accessible`, `field_read_only`)", body = ErrorEnvelope),
     )
 )]
@@ -111,16 +111,16 @@ async fn create_product(
 
 #[utoipa::path(
     get,
-    path = "/products/{product_id}",
+    path = "/catalog-items/{product_id}",
     tag = TAG,
     operation_id = "products_get",
     security(("session_cookie" = [])),
-    description = "Returns a product with its custom fields (permission `products.read`). Inactive products are still returned.",
+    description = "Returns a product with its custom fields (permission `catalog_items.read`). Inactive products are still returned.",
     params(("product_id" = String, Path, description = "Product id")),
     responses(
         (status = 200, description = "The product", body = Data<ProductResponse>),
         (status = 401, description = "Missing or invalid credentials (`unauthorized`, `invalid_api_token`)", body = ErrorEnvelope),
-        (status = 403, description = "Missing `products.read` (`permission_denied`, `insufficient_scope`)", body = ErrorEnvelope),
+        (status = 403, description = "Missing `catalog_items.read` (`permission_denied`, `insufficient_scope`)", body = ErrorEnvelope),
         (status = 404, description = "Product not found or deleted (`product_not_found`)", body = ErrorEnvelope),
     )
 )]
@@ -143,11 +143,11 @@ async fn get_product(
 
 #[utoipa::path(
     patch,
-    path = "/products/{product_id}",
+    path = "/catalog-items/{product_id}",
     tag = TAG,
     operation_id = "products_update",
     security(("session_cookie" = [])),
-    description = "Partially updates a product (permission `products.update`) and publishes `product.updated` with the changes. Omitted properties stay unchanged and `null` clears an optional one (`price: null` means `0.00`). Deactivating a product (`is_active: false`) only hides it from new deal items; existing items keep their copied name, price and unit. Send `If-Match` with the `updated_at` you read to avoid overwriting someone else's change.",
+    description = "Partially updates a product (permission `catalog_items.update`) and publishes `product.updated` with the changes. Omitted properties stay unchanged and `null` clears an optional one (`price: null` means `0.00`). Deactivating a product (`is_active: false`) only hides it from new deal items; existing items keep their copied name, price and unit. Send `If-Match` with the `updated_at` you read to avoid overwriting someone else's change.",
     params(
         ("product_id" = String, Path, description = "Product id"),
         ("If-Match" = Option<String>, Header, description = "`updated_at` of the product as read (ISO-8601, quotes optional); the update fails with 409 when it changed since"),
@@ -156,7 +156,7 @@ async fn get_product(
     responses(
         (status = 200, description = "Product updated", body = Data<ProductResponse>),
         (status = 401, description = "Missing or invalid credentials (`unauthorized`, `invalid_api_token`)", body = ErrorEnvelope),
-        (status = 403, description = "Missing `products.update` (`permission_denied`, `insufficient_scope`)", body = ErrorEnvelope),
+        (status = 403, description = "Missing `catalog_items.update` (`permission_denied`, `insufficient_scope`)", body = ErrorEnvelope),
         (status = 404, description = "Product not found or deleted (`product_not_found`)", body = ErrorEnvelope),
         (status = 409, description = "The product changed since the `If-Match` version (`version_conflict`)", body = ErrorEnvelope),
         (status = 422, description = "Invalid system or custom fields or malformed `If-Match` (`validation_error`), or fields the role cannot write (`field_not_accessible`, `field_read_only`)", body = ErrorEnvelope),
@@ -189,7 +189,7 @@ async fn update_product(
 
 #[utoipa::path(
     delete,
-    path = "/products/{product_id}",
+    path = "/catalog-items/{product_id}",
     tag = TAG,
     operation_id = "products_delete",
     security(("session_cookie" = [])),
@@ -197,7 +197,7 @@ async fn update_product(
     responses(
         (status = 204, description = "Product deleted (soft delete, it does not go to the trash); publishes `product.deleted`. Deal items created from it keep their copied name, price and unit"),
         (status = 401, description = "Missing or invalid credentials (`unauthorized`, `invalid_api_token`)", body = ErrorEnvelope),
-        (status = 403, description = "Missing `products.delete` (`permission_denied`, `insufficient_scope`)", body = ErrorEnvelope),
+        (status = 403, description = "Missing `catalog_items.delete` (`permission_denied`, `insufficient_scope`)", body = ErrorEnvelope),
         (status = 404, description = "Product not found or already deleted (`product_not_found`)", body = ErrorEnvelope),
     )
 )]
@@ -365,7 +365,7 @@ impl RecordTypeHandler for ProductHandler {
     }
 
     fn record_type(&self) -> &str {
-        "products.product"
+        "catalog_items.item"
     }
 
     async fn create(&self, ctx: &RecordCtx<'_>, values: Value) -> Result<Value, AppError> {

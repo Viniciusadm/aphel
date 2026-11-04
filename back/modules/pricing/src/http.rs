@@ -27,16 +27,14 @@ use aphel_kernel::api::extractors::{
 use aphel_kernel::api::routes::v1::members::window;
 use aphel_kernel::api::state::AppState;
 use aphel_sdk::line_items::money;
+use catalog_items::http::TAG as PRODUCTS_TAG;
 use deals::http::DecimalInputSchema;
-use products::http::TAG as PRODUCTS_TAG;
 
 pub(crate) const TAG: &str = "pricing";
 
 const UNAUTHORIZED: &str = "Missing or invalid credentials (`unauthorized`, `invalid_api_token`)";
-const FORBIDDEN_READ: &str =
-    "Missing `products.read` with organization scope (`permission_denied`, `insufficient_scope`)";
-const FORBIDDEN_WRITE: &str =
-    "Missing `products.update` with organization scope (`permission_denied`, `insufficient_scope`)";
+const FORBIDDEN_READ: &str = "Missing `catalog_items.read` with organization scope (`permission_denied`, `insufficient_scope`)";
+const FORBIDDEN_WRITE: &str = "Missing `catalog_items.update` with organization scope (`permission_denied`, `insufficient_scope`)";
 const FORBIDDEN_MANAGE: &str =
     "Missing `settings.manage` (`permission_denied`, `insufficient_scope`)";
 const NOT_FOUND: &str = "Price list not found (`price_list_not_found`)";
@@ -344,7 +342,7 @@ pub(crate) fn bundle_router() -> OpenApiRouter<AppState> {
     responses(
         (status = 200, description = "Bundle of the product expanded into its components (`data: null` when the product is not a bundle). `fixed` uses the price of the product itself; `sum` adds component price × quantity. With `price_list_id`, prices come from the list in effect today (falling back to the catalog price) and `currency` is the currency of the list", body = Data<Option<ProductBundleResponse>>),
         (status = 401, description = UNAUTHORIZED, body = ErrorEnvelope),
-        (status = 403, description = "Missing `products.read` with organization scope (`permission_denied`, `insufficient_scope`)", body = ErrorEnvelope),
+        (status = 403, description = "Missing `catalog_items.read` with organization scope (`permission_denied`, `insufficient_scope`)", body = ErrorEnvelope),
         (status = 404, description = "Product or price list not found (`product_not_found`, `price_list_not_found`)", body = ErrorEnvelope),
     )
 )]
@@ -377,7 +375,7 @@ async fn get_product_bundle(
     responses(
         (status = 200, description = "Product turned into a bundle, or its bundle replaced (`product_bundle.updated`). 1 to 50 components, each a different product with a positive quantity; bundles cannot contain bundles (one level only), and with `sum` every component must use the currency of the bundle", body = Data<ProductBundleResponse>),
         (status = 401, description = UNAUTHORIZED, body = ErrorEnvelope),
-        (status = 403, description = "Missing `products.update` with organization scope (`permission_denied`, `insufficient_scope`)", body = ErrorEnvelope),
+        (status = 403, description = "Missing `catalog_items.update` with organization scope (`permission_denied`, `insufficient_scope`)", body = ErrorEnvelope),
         (status = 404, description = "Product not found (`product_not_found`)", body = ErrorEnvelope),
         (status = 409, description = "The product is a component of another bundle (`product_bundle_nested`) or the bundle changed after the `If-Match` version (`version_conflict`)", body = ErrorEnvelope),
         (status = 422, description = "Invalid pricing or components (`validation_error` with `details.fields`)", body = ErrorEnvelope),
@@ -410,7 +408,7 @@ async fn save_product_bundle(
     responses(
         (status = 204, description = "The product is no longer a bundle (`product_bundle.removed`); the product itself is kept"),
         (status = 401, description = UNAUTHORIZED, body = ErrorEnvelope),
-        (status = 403, description = "Missing `products.update` with organization scope (`permission_denied`, `insufficient_scope`)", body = ErrorEnvelope),
+        (status = 403, description = "Missing `catalog_items.update` with organization scope (`permission_denied`, `insufficient_scope`)", body = ErrorEnvelope),
         (status = 404, description = "Product not found or not a bundle (`product_not_found`, `product_bundle_not_found`)", body = ErrorEnvelope),
     )
 )]

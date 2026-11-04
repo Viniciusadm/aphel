@@ -19,7 +19,7 @@ export interface ProductActionsProps {
 }
 
 export function ProductActions({ record }: ProductActionsProps) {
-  const { t } = useTranslation('products')
+  const { t } = useTranslation('catalog_items')
   const { hasPermission } = useSession()
   const navigate = useNavigate()
   const queryClient = useQueryClient()
@@ -37,7 +37,7 @@ export function ProductActions({ record }: ProductActionsProps) {
   return (
     <div className="flex flex-wrap items-center gap-2">
       {inactive && <Badge variant="secondary">{t('detail.inactive')}</Badge>}
-      {hasPermission('products.delete') && (
+      {hasPermission('catalog_items.delete') && (
         <Button size="sm" variant="outline" onClick={() => setConfirming(true)}>
           <Trash2 aria-hidden="true" />
           {t('detail.delete')}

@@ -12,7 +12,7 @@ aphel-contract-crm.workspace = true
 aphel-kernel.workspace = true
 organizations = { package = "aphel-mod-organizations", path = "../organizations" }
 deals = { package = "aphel-mod-deals", path = "../deals" }
-products = { package = "aphel-mod-products", path = "../products" }
+catalog_items = { package = "aphel-mod-catalog-items", path = "../catalog_items" }
 segments = { package = "aphel-mod-segments", path = "../segments" }
 axum.workspace = true
 async-trait.workspace = true

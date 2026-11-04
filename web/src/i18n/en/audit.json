@@ -56,11 +56,11 @@
     "tasks": {
       "task": "Activity"
     },
-    "products": {
-      "product": "Product"
-    },
     "notes": {
       "note": "Note"
+    },
+    "catalog_items": {
+      "item": "Product"
     }
   },
   "changes": {

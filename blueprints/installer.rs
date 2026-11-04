@@ -2,7 +2,7 @@ use serde::{Deserialize, Serialize};
 
 use aphel_kernel::errors::FieldViolation;
 
-pub const OFFERINGS: [&str; 3] = ["products.product", "service", "recurring"];
+pub const OFFERINGS: [&str; 3] = ["catalog_items.item", "service", "recurring"];
 pub const TEAM_SIZES: [&str; 4] = ["solo", "small", "medium", "large"];
 
 #[derive(Debug, Clone, Default, PartialEq, Eq, Deserialize, Serialize)]

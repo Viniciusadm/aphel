@@ -49,7 +49,7 @@ import trashModule from '@modules/trash'
 import privacyModule from '@modules/privacy'
 import orgExportModule from '@modules/org_export'
 import migrationsAssistantModule from '@modules/migrations_assistant'
-import productsModule from '@modules/products'
+import catalogItemsModule from '@modules/catalog_items'
 import pricingModule from '@modules/pricing'
 import quotesModule from '@modules/quotes'
 import proposalsModule from '@modules/proposals'
@@ -115,7 +115,7 @@ export const MODULES: WebModule[] = [
   privacyModule,
   orgExportModule,
   migrationsAssistantModule,
-  productsModule,
+  catalogItemsModule,
   pricingModule,
   quotesModule,
   proposalsModule,

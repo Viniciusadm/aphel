@@ -3,7 +3,7 @@ import './resource'
 
 export const productsRoutes: RouteObject[] = [
   {
-    path: 'products',
+    path: 'catalog-items',
     children: [
       { index: true, lazy: async () => ({ Component: (await import('./ProductsPage')).ProductsPage }) },
       { path: ':id', lazy: async () => ({ Component: (await import('./ProductDetailPage')).ProductDetailPage }) },

@@ -21,7 +21,7 @@ import { getRecordResource, recordTitle, type RecordResource } from '@/features/
 import type { FieldSchema, RecordItem } from '@/features/records/types'
 import '@/modules/organizations/resource'
 import '@/modules/people/resource'
-import '@/modules/products/resource'
+import '@/modules/catalog_items/resource'
 import { cn } from '@/lib/utils'
 import { useDuplicateTypes, useMergeRecords, type DuplicateTypeInfo } from './api'
 import { defaultChoices, mergeableFields, mergeRows, movedTotal, type MergeRow, type MergeSide } from './lib/merge'

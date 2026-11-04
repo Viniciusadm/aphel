@@ -17,7 +17,7 @@ use aphel_kernel::modules::{
     OperationFuture, OperationPage, PluginOperation, operation_input, operation_output,
 };
 use aphel_sdk::line_items::{normalize_quantity, parse_money};
-use products::domain::{normalize_currency, require_catalog};
+use catalog_items::domain::{normalize_currency, require_catalog};
 
 #[derive(Deserialize)]
 struct ListInput {

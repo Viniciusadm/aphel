@@ -20,8 +20,8 @@
     "tasks": {
       "task": "Tarefas"
     },
-    "products": {
-      "product": "Produtos"
+    "catalog_items": {
+      "item": "Produtos"
     }
   },
   "contexts": {

@@ -43,8 +43,8 @@ Rules on save (`PUT /pricing/items/{id}/bundle`, `BundleUseCases::save`): 1 to 5
 
 | Route | Permission |
 | --- | --- |
-| `GET /pricing`, `GET /pricing/{id}`, `GET /pricing/{id}/items`, `GET /pricing/items/{id}/bundle` | `products.read` with organization scope |
-| `POST/PATCH/DELETE /pricing…`, `PUT /pricing/{id}/items`, `PUT/DELETE /pricing/items/{id}/bundle` | `products.update` with organization scope |
+| `GET /pricing`, `GET /pricing/{id}`, `GET /pricing/{id}/items`, `GET /pricing/items/{id}/bundle` | `catalog_items.read` with organization scope |
+| `POST/PATCH/DELETE /pricing…`, `PUT /pricing/{id}/items`, `PUT/DELETE /pricing/items/{id}/bundle` | `catalog_items.update` with organization scope |
 | `GET/PUT /pricing/discount-limits` | `settings.manage` |
 
 Price lists are a commercial catalog (like products), so they use the product permissions; discount limits affect approval policy, hence `settings.manage`.

@@ -17,7 +17,7 @@ approvals = { package = "aphel-mod-approvals", path = "../approvals" }
 money = { package = "aphel-mod-money", path = "../money" }
 workflow = { package = "aphel-mod-workflow", path = "../workflow" }
 pricing = { package = "aphel-mod-pricing", path = "../pricing" }
-products = { package = "aphel-mod-products", path = "../products" }
+catalog_items = { package = "aphel-mod-catalog-items", path = "../catalog_items" }
 quotes = { package = "aphel-mod-quotes", path = "../quotes" }
 organizations = { package = "aphel-mod-organizations", path = "../organizations" }
 people = { package = "aphel-mod-people", path = "../people" }

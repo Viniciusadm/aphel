@@ -20,7 +20,7 @@ export const FIELD_TYPES = [
   'formula',
 ] as const satisfies readonly FieldType[]
 
-export const RECORD_TYPES = ['people.person', 'organizations.organization', 'deals.deal', 'tasks.task', 'products.product'] as const
+export const RECORD_TYPES = ['people.person', 'organizations.organization', 'deals.deal', 'tasks.task', 'catalog_items.item'] as const
 
 export type KnownRecordType = (typeof RECORD_TYPES)[number]
 

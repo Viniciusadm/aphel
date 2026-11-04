@@ -16,7 +16,7 @@ export interface ProductPickerProps {
 }
 
 export function ProductPicker({ currency, disabled, onSelect }: ProductPickerProps) {
-  const { t } = useTranslation('products')
+  const { t } = useTranslation('catalog_items')
   const formatting = useRecordFormatting()
   const searchId = useId()
   const [open, setOpen] = useState(false)

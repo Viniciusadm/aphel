@@ -22,7 +22,7 @@ export function SearchRecordTypeIcon({ recordType, className }: SearchRecordType
       return <Handshake {...props} />
     case 'tasks.task':
       return <CalendarCheck {...props} />
-    case 'products.product':
+    case 'catalog_items.item':
       return <Package {...props} />
     default:
       return <FileText {...props} />

@@ -30,7 +30,7 @@ impl Module for DemoModule {
             .depends_on(onboarding::KEY, "*")
             .optional(aphel_sdk::money::KEY)
             .optional(workflow::KEY)
-            .optional(products::KEY)
+            .optional(catalog_items::KEY)
             .optional(pricing::KEY)
             .optional(aphel_sdk::line_items::KEY)
             .optional(quotes::KEY)

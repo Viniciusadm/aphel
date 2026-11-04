@@ -20,8 +20,8 @@
     "tasks": {
       "task": "Tasks"
     },
-    "products": {
-      "product": "Products"
+    "catalog_items": {
+      "item": "Products"
     }
   },
   "contexts": {
