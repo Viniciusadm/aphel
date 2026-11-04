@@ -27,8 +27,8 @@ use aphel_kernel::api::extractors::{
 use aphel_kernel::api::routes::v1::members::window;
 use aphel_kernel::api::state::AppState;
 use aphel_sdk::line_items::money;
+use aphel_sdk::money::DecimalInputSchema;
 use catalog_items::http::TAG as PRODUCTS_TAG;
-use deals::http::DecimalInputSchema;
 
 pub(crate) const TAG: &str = "pricing";
 

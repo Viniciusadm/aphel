@@ -57,7 +57,8 @@ This phase is in progress. Completed entries describe static source validation; 
 - [x] Replace the native module/package/feature and web namespace with `catalog_items` (`catalog-items` for Cargo/HTTP paths).
 - [x] Use `catalog_items.item` as record identity and `catalog_items.*` permissions; update registered handlers, import/export/bulk metadata, relationships, profiles, labels and consumers.
 - [x] Keep the explicitly owned `products` table and product payload semantics, with no legacy record/permission/transport alias.
-- [ ] Remove remaining deal implementation coupling and foreign reference policies.
+- [x] Catalog items consumes the shared money input codec directly and has no peer implementation dependency.
+- [ ] Complete foreign reference policies in the owning consumers.
 - [ ] Manual acceptance: item create/edit/delete, picker and detail paths, role permissions, fields/settings labels, import/export/bulk, pricing/bundles and quote catalog selection.
 
 ## Lead Pro fresh schema
@@ -110,6 +111,11 @@ This phase is in progress. Completed entries describe static source validation; 
 - [x] Keep saved-view filters, sorting and settings as snapshot data; query execution and call-session behavior remain in their respective owners.
 - [ ] Remove telephony's remaining task dependency, foreign SQL and foreign view/task foreign keys.
 - [ ] Manual acceptance: report sharing, view schema compatibility, private/team/organization views, disabled parent owners, call-session selection/sorting/settings and hidden or deleted views.
+
+## Shared money input consumers
+
+- [x] Catalog items, pricing and goals use the SDK money input codec directly; no DTO is imported through deals. Monetary parsing and endpoint schemas are unchanged.
+- [ ] Manual acceptance: numeric/string inputs, invalid precision and amount validation on these screens.
 
 ## Outstanding scope
 

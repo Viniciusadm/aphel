@@ -26,7 +26,7 @@ use aphel_kernel::api::routes::v1::members::window;
 use aphel_kernel::api::state::AppState;
 use aphel_kernel::domain::UserId;
 use aphel_kernel::errors::AppError;
-use deals::http::DecimalInputSchema;
+use aphel_sdk::money::DecimalInputSchema;
 
 pub(crate) const TAG: &str = "goals";
 

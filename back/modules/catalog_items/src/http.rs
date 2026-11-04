@@ -27,7 +27,7 @@ use aphel_kernel::api::state::AppState;
 use aphel_kernel::application::shared::RecordType;
 use aphel_kernel::errors::AppError;
 use aphel_kernel::records::{RecordCtx, RecordTypeHandler, optional_record, values_request};
-use deals::http::DecimalInputSchema;
+use aphel_sdk::money::DecimalInputSchema;
 
 pub const TAG: &str = "catalog-items";
 
