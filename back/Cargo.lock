@@ -281,6 +281,13 @@ dependencies = [
 ]
 
 [[package]]
+name = "aphel-contract-booking"
+version = "0.1.0"
+dependencies = [
+ "aphel-contract",
+]
+
+[[package]]
 name = "aphel-contract-calendar"
 version = "0.1.0"
 dependencies = [
@@ -306,6 +313,8 @@ name = "aphel-contract-crm"
 version = "0.1.0"
 dependencies = [
  "aphel-contract",
+ "aphel-contract-organizations",
+ "aphel-contract-people",
  "aphel-kernel",
 ]
 
@@ -389,11 +398,25 @@ dependencies = [
 ]
 
 [[package]]
+name = "aphel-contract-organizations"
+version = "0.1.0"
+dependencies = [
+ "aphel-contract",
+]
+
+[[package]]
 name = "aphel-contract-party"
 version = "0.1.0"
 dependencies = [
  "aphel-contract",
  "serde",
+]
+
+[[package]]
+name = "aphel-contract-people"
+version = "0.1.0"
+dependencies = [
+ "aphel-contract",
 ]
 
 [[package]]
@@ -915,9 +938,7 @@ dependencies = [
  "aphel-contract-automation",
  "aphel-contract-crm",
  "aphel-kernel",
- "aphel-mod-deals",
- "aphel-mod-organizations",
- "aphel-mod-tasks",
+ "aphel-sdk",
  "async-trait",
  "axum",
  "chrono",
@@ -1686,10 +1707,6 @@ dependencies = [
  "aphel-contract-automation",
  "aphel-contract-crm",
  "aphel-kernel",
- "aphel-mod-booking",
- "aphel-mod-email",
- "aphel-mod-organizations",
- "aphel-mod-people",
  "aphel-sdk",
  "async-trait",
  "axum",
@@ -1752,7 +1769,6 @@ dependencies = [
  "aphel-contract-automation",
  "aphel-contract-crm",
  "aphel-kernel",
- "aphel-mod-booking",
  "aphel-mod-deals",
  "aphel-mod-email",
  "aphel-mod-people",
@@ -2016,6 +2032,7 @@ dependencies = [
  "aphel-contract-approvals",
  "aphel-contract-assignment",
  "aphel-contract-automation",
+ "aphel-contract-booking",
  "aphel-contract-calendar",
  "aphel-contract-configuration",
  "aphel-contract-deals",
@@ -2027,7 +2044,9 @@ dependencies = [
  "aphel-contract-messaging",
  "aphel-contract-money",
  "aphel-contract-notifications",
+ "aphel-contract-organizations",
  "aphel-contract-party",
+ "aphel-contract-people",
  "aphel-contract-pricing",
  "aphel-contract-privacy",
  "aphel-contract-sequences",

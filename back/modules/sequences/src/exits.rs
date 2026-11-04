@@ -10,10 +10,10 @@ use crate::store::{DirectoryStore, EnrollmentStore};
 use aphel_kernel::Ctx;
 use aphel_kernel::application::shared::{DomainEvent, RecordType};
 use aphel_kernel::errors::AppError;
-use booking::MEETING_BOOKED;
+use aphel_sdk::booking::MEETING_BOOKED;
+use aphel_sdk::email::{EMAIL_BOUNCED, EMAIL_OPENED, EMAIL_RECEIVED};
 use deals::domain::{DEAL_LOST, DEAL_WON};
 use email::tracking::{EMAIL_TRACKING_OBJECTION_ADDED, address_hash};
-use email::{EMAIL_BOUNCED, EMAIL_OPENED, EMAIL_RECEIVED};
 
 pub(crate) const SEQUENCE_EXITS_CONSUMER: &str = "sequences.exits";
 pub(crate) const CONTACT_DELETED: &str = "contact.deleted";

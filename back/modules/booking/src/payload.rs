@@ -4,7 +4,7 @@ use uuid::Uuid;
 
 use aphel_kernel::domain::UserId;
 
-pub const MEETING_BOOKED: &str = "meeting.booked";
+pub use aphel_sdk::booking::MEETING_BOOKED;
 pub(crate) const MEETING_RESCHEDULED: &str = "meeting.rescheduled";
 pub(crate) const MEETING_CANCELED: &str = "meeting.canceled";
 

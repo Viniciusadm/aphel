@@ -29,7 +29,7 @@ pub(crate) const COMPANY_ENRICHED: &str = "company.enriched";
 
 const PUBLIC_EVENTS: &[PublicEventDefinition] = &[event(
     COMPANY_ENRICHED,
-    organizations::COMPANY_RESOURCE,
+    aphel_sdk::organizations::RESOURCE,
     "Fields of the company were filled from a public CNPJ lookup",
 )];
 pub(crate) const SOURCE_SETTING: &str = "source";
@@ -244,8 +244,8 @@ impl Module for EnrichmentModule {
                 "Looks up public company data by CNPJ (BrasilAPI and ReceitaWS) and fills the chosen fields, recording the source of each value. Always triggered manually unless the automation is enabled",
             )
             .requires_aphel("0.1.0")
-            .optional(deals::KEY)
-            .optional(tasks::KEY);
+            .optional("deals")
+            .optional("tasks");
         manifest.base = manifest
             .base
             .permission(

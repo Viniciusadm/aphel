@@ -69,6 +69,7 @@ impl Module for BookingModule {
     }
 
     fn register(&self, app: &mut AppBuilder) -> Result<(), AppError> {
+        app.contract(aphel_sdk::booking::DESCRIPTOR);
         app.openapi_tag(
             http::TAG,
             "Booking links: availability, meeting types, team links and the public booking page",

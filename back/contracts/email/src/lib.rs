@@ -49,3 +49,11 @@ pub const DESCRIPTOR: aphel_contract::ContractDescriptor = aphel_contract::Contr
         "Transactional scoped email enqueue",
     )],
 };
+
+pub const EMAIL_RECEIVED: &str = "email.received";
+
+pub const EMAIL_OPENED: &str = "email.opened";
+
+pub const EMAIL_CLICKED: &str = "email.clicked";
+
+pub const EMAIL_BOUNCED: &str = "email.bounced";

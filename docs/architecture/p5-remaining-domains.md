@@ -228,6 +228,14 @@ This phase is in progress. Completed entries describe static source validation; 
 - [ ] Replace the remaining runtime organization prerequisite and foreign organization FKs with explicit soft-reference/deletion policies.
 - [ ] Manual acceptance: primary/secondary company links, hidden name/domain fields, missing/unreadable/disabled organizations, link existence during merging and label ordering/pagination (now sorted in memory).
 
+## Shared party identities and event identifiers
+
+- [x] Publish people/organization identities and permission IDs through kernel-free capability contracts, with native public resource metadata in the SDK. CRM metadata delegates to those identifiers; codecs and storage remain owned.
+- [x] Share booking/email event identifiers through pure contracts without changing logical event names or adding aliases.
+- [x] Remove scoring and enrichment's remaining implementation dependencies, and sequences' booking dependency, when they only consumed public metadata.
+- [ ] Review scoring's remaining runtime target prerequisites and party SQL; shared identifiers do not resolve those policies.
+- [ ] Manual acceptance: public event envelopes/schema resources, scoring and sequence event subscriptions, owner registration, enrichment and capability combinations.
+
 ## Outstanding scope
 
 The remaining identity changes, shared capability interfaces, owner-only SQL, deletion policies and per-plugin manual acceptance matrices are still pending. Existing architectural debt is not considered resolved by renaming packages.

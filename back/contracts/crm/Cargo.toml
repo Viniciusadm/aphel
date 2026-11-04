@@ -7,5 +7,7 @@ license.workspace = true
 publish = false
 
 [dependencies]
+aphel-contract-people.workspace = true
+aphel-contract-organizations.workspace = true
 aphel-contract.workspace = true
 aphel-kernel.workspace = true

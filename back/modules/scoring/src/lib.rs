@@ -36,13 +36,13 @@ const SCORED_TYPES: [RecordType; 2] = [RecordType::CONTACT, RecordType::COMPANY]
 const PUBLIC_EVENTS: &[PublicEventDefinition] = &[
     changed(
         domain::SCORE_BAND_CHANGED,
-        people::CONTACT_RESOURCE,
+        aphel_sdk::people::RESOURCE,
         "The score of the contact crossed into another band (cold, warm, hot) of a scoring model",
         PreviousValues::Changes,
     ),
     changed(
         domain::COMPANY_SCORE_BAND_CHANGED,
-        organizations::COMPANY_RESOURCE,
+        aphel_sdk::organizations::RESOURCE,
         "The score of the company crossed into another band (cold, warm, hot) of a scoring model",
         PreviousValues::Changes,
     ),
@@ -76,10 +76,10 @@ impl Module for ScoringModule {
             .description(
                 "Lead scoring models (profile and behavior criteria, decay, bands) and the scores of a record with their explanation",
             )
-            .depends_on(people::KEY, "*")
+            .depends_on(aphel_sdk::people::KEY, "*")
             .enabled_by_default()
             .owned_tables(&["record_scores"])
-            .depends_on(organizations::KEY, "*")
+            .depends_on(aphel_sdk::organizations::KEY, "*")
             .migration(Migration::new(
                 1,
                 "create scoring",

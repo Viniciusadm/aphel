@@ -155,3 +155,7 @@ pub mod tasks;
 pub mod record_context;
 
 pub mod sequences;
+
+pub mod organizations;
+pub mod people;
+pub use aphel_contract_booking as booking;

@@ -23,7 +23,7 @@ use aphel_kernel::application::fields::{
     EntityDefinition, EntityTraits, LabelNormalization, RecordRelation, SystemField,
 };
 use aphel_kernel::application::public_events::{
-    PreviousValues, PublicEventDefinition, PublicResource, changed, deleted, event,
+    PreviousValues, PublicEventDefinition, changed, deleted, event,
 };
 use aphel_kernel::application::shared::RecordType;
 use aphel_kernel::domain::access::{Permission, PermissionDefinition};
@@ -32,11 +32,9 @@ use aphel_kernel::errors::AppError;
 use aphel_kernel::modules::builder::APHEL_VERSION;
 use aphel_kernel::modules::{AppBuilder, Manifest, Module};
 
-pub const CONTACT_RESOURCE: PublicResource =
-    PublicResource::new("people.person", "ContactResponse")
-        .with_nested(&[("company", "organizations.organization")]);
+pub use aphel_sdk::people::RESOURCE as CONTACT_RESOURCE;
 
-pub const KEY: &str = "people";
+pub use aphel_sdk::people::KEY;
 
 const CONTACT_BULK_FIELDS: &[&str] = &[
     "first_name",
@@ -211,6 +209,7 @@ impl Module for PeopleModule {
     }
 
     fn register(&self, app: &mut AppBuilder) -> Result<(), AppError> {
+        app.contract(aphel_sdk::people::DESCRIPTOR);
         app.contribute::<dyn aphel_sdk::record_context::RecordListSource>(std::sync::Arc::new(
             context_source::ContextSource,
         ));

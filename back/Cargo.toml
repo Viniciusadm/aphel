@@ -10,6 +10,9 @@ rust-version = "1.94"
 license = "AGPL-3.0-only"
 
 [workspace.dependencies]
+aphel-contract-people = { path = "contracts/people" }
+aphel-contract-organizations = { path = "contracts/organizations" }
+aphel-contract-booking = { path = "contracts/booking" }
 aphel-contract-sequences = { path = "contracts/sequences" }
 aphel-contract-tasks = { path = "contracts/tasks" }
 aphel-contract-telephony = { path = "contracts/telephony" }

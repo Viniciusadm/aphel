@@ -5,11 +5,11 @@ use crate::domain::{EmailDirection, EmailKind, EmailVisibility};
 use aphel_kernel::application::shared::RecordRef;
 use aphel_kernel::domain::UserId;
 
-pub const EMAIL_RECEIVED: &str = "email.received";
+pub use aphel_sdk::email::EMAIL_RECEIVED;
 pub(crate) const EMAIL_SENT: &str = "email.sent";
-pub const EMAIL_OPENED: &str = "email.opened";
-pub const EMAIL_CLICKED: &str = "email.clicked";
-pub const EMAIL_BOUNCED: &str = "email.bounced";
+pub use aphel_sdk::email::EMAIL_BOUNCED;
+pub use aphel_sdk::email::EMAIL_CLICKED;
+pub use aphel_sdk::email::EMAIL_OPENED;
 pub(crate) const MAILBOX_CONNECTED: &str = "mailbox.connected";
 pub(crate) const MAILBOX_UPDATED: &str = "mailbox.updated";
 pub(crate) const MAILBOX_DISCONNECTED: &str = "mailbox.disconnected";
