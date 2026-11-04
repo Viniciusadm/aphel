@@ -1147,7 +1147,6 @@ version = "0.1.0"
 dependencies = [
  "aphel-kernel",
  "aphel-mod-email",
- "aphel-mod-tasks",
  "aphel-sdk",
  "async-trait",
  "axum",
@@ -1303,7 +1302,6 @@ version = "0.1.0"
 dependencies = [
  "aphel-kernel",
  "aphel-mod-email",
- "aphel-mod-tasks",
  "aphel-sdk",
  "async-trait",
  "axum",

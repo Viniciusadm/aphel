@@ -167,6 +167,9 @@ pub async fn complete_connection(
     state: &StoredState,
     code: &str,
 ) -> Response {
+    if state.purpose != PURPOSE_CALENDAR {
+        return error_page(api, INVALID_STATE);
+    }
     if code.is_empty() {
         return error_page(api, ACCESS_DENIED);
     }

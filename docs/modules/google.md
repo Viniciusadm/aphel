@@ -38,13 +38,13 @@ Same flow as [`sso`](sso.md#flow), with Google's fixed endpoints (`accounts.goog
 
 ### Sync
 
-- The scheduled job `google.calendar_sync_all` runs every 5 minutes and enqueues `google.calendar_sync` per connection (also triggered by **Sync now**).
+- The scheduled job `tasks.calendar_sync_all` runs every 5 minutes and enqueues `tasks.calendar_sync` per connection (also triggered by **Sync now**).
 - **Calendar → CRM**: `events.list` of the primary calendar (`singleEvents=true`, `showDeleted=true`); the first load covers from 30 days ago to 90 days ahead and then uses the incremental `syncToken` (410 → full load again). For each timed event (all-day events are ignored):
   - new and within the window → creates an activity of type `meeting_type`, owner = the user, with the event's title, start, duration and description, status `done` if it has already ended; attendees whose email belongs to an **existing contact** become links of the activity (unknown emails do **not** create people; with `import_scope = with_contacts` an event without a contact is ignored);
   - already linked and changed → updates the title, time, duration, description and adds contact links (existing links remain);
   - cancelled/deleted → deletes the activity (it goes to the core's trash) and the link.
   Changes go through the core's use cases (`/v1/tasks`) with the user's permissions: regular events, audit, automations and notifications.
-- **CRM → calendar**: the `google.calendar_export` consumer receives `activity.created|updated|deleted` for meetings (type `meeting_type`) of connected users and schedules the `google.calendar_push` job 15 s later (grouping consecutive edits). It creates/updates (`sendUpdates=none`) or deletes the event in the primary calendar with title, start, end (duration; 30 min if empty) and description. **Attendees are not sent**, so invitations are never sent to customers.
+- **CRM → calendar**: the `tasks.calendar_export` consumer receives `activity.created|updated|deleted` for meetings (type `meeting_type`) of connected users and schedules the `tasks.calendar_push` job 15 s later (grouping consecutive edits). It creates/updates (`sendUpdates=none`) or deletes the event in the primary calendar with title, start, end (duration; 30 min if empty) and description. **Attendees are not sent**, so invitations are never sent to customers.
 - **Mapping** in `google_calendar_links` (`activity_id`, `remote_id`, `remote_etag`, `remote_updated_at`, `local_updated_at`, `last_synced_at`). Loops are avoided like this: after each write the module stores the resulting local `updated_at`; the export ignores an activity whose `updated_at` is not newer than the stored one (it is the sync itself).
 - **Conflict**: if both sides changed since the last sync, it compares Google's `updated` with the CRM's `updated_at` and the most recent change wins (if the CRM won, the change is sent to the calendar again).
 - Errors are stored on the connection (`last_error_code`/`last_error_message`, visible in `/google`): `calendar_authorization_revoked` (refresh token revoked/expired → status `revoked`, ask the user to reconnect), `calendar_permission_revoked`, `calendar_member_unavailable`, `calendar_meeting_type_not_found`, `calendar_api_failed`.
@@ -104,3 +104,5 @@ Same flow as [`sso`](sso.md#flow), with Google's fixed endpoints (`accounts.goog
 - Conflict comparison with second precision.
 
 OAuth nonce/PKCE states are owned by SSO in `sso_oauth_states`, partitioned by provider key. Calendar connections and remote links are owned by tasks in `task_calendar_connections` and `task_calendar_links`.
+
+Tasks owns calendar workers and resolves enabled provider contributions for each job and event. Provider identity travels in the job payload; disabled or removed adapters are skipped.

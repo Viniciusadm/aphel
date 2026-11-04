@@ -4,6 +4,7 @@ pub mod engine;
 pub mod http;
 pub mod jobs;
 pub mod model;
+pub(crate) mod service;
 pub mod store;
 
 pub use model::{

@@ -15,10 +15,9 @@ use aphel_kernel::modules::{AppBuilder, Manifest, Module, SettingField, SettingK
 use aphel_sdk::calendar::CalendarAvailability;
 use aphel_sdk::sso::IdentityLogin;
 use aphel_sdk::sso::settings::{self, login_setting_fields, validate_login_settings};
+use aphel_sdk::tasks::remote_calendar::CalendarBusy;
 use aphel_sdk::tasks::remote_calendar::calendar_setting_fields;
 use email::MailboxProvider;
-use tasks::remote_calendar::availability::CalendarBusy;
-use tasks::remote_calendar::jobs;
 
 pub(crate) use mail::OutlookProvider;
 pub(crate) use provider::MicrosoftProvider;
@@ -71,9 +70,7 @@ impl Module for MicrosoftModule {
         .contribute::<dyn MailboxProvider>(Arc::new(OutlookProvider))
         .contribute::<dyn CalendarAvailability>(Arc::new(CalendarBusy::new(Arc::new(
             MicrosoftProvider,
-        ))))
-        .schedule(jobs::schedule(KEY)?)
-        .worker(|env| jobs::worker(Arc::new(MicrosoftProvider), env));
+        ))));
         Ok(())
     }
 

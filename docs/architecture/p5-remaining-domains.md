@@ -406,7 +406,10 @@ This phase is in progress. Completed entries describe static source validation; 
 - [x] Publish native calendar adapter interfaces, event/change snapshots, connection DTOs and configuration metadata through the task SDK surface.
 - [x] Share only timestamp/URL codecs alongside those models. Task synchronization, network request handling, connection/token policy and persistence remain with existing owners.
 - [x] Google and Microsoft contribute calendar adapters through a declared capability; they use shared provider data instead of task implementation models.
-- [ ] Replace remaining task-owned execution/worker imports with enabled owner interfaces and dynamic provider dispatch.
+- [x] Expose remote calendar connection/status/sync/availability execution through enabled task services; keep HTTP response handling, token policy, synchronization and persistence in tasks.
+- [x] Tasks owns one scheduler and sync/push handlers, with provider identity in payloads and fresh enabled-provider resolution per execution. Vendor adapters register only their capability; ambiguous keys fail explicitly.
+- [x] Remove Google/Microsoft task implementation dependencies. Optional task absence produces unavailable connection actions, empty availability and a non-connectable status; calendar callbacks reject wrong state purposes.
+- [ ] Manual acceptance: both providers, job dispatch/deduplication/retries, disabled owners/adapters before queued work, new provider activation, callback purposes and event fanout failures.
 - [ ] Manual acceptance: calendar adapter payloads, settings metadata, timestamp/segment codecs, event windows and public response schemas.
 
 ## Outstanding scope

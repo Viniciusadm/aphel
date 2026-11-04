@@ -282,6 +282,12 @@ impl Module for TasksModule {
     }
 
     fn register(&self, app: &mut AppBuilder) -> Result<(), AppError> {
+        app.provide::<dyn aphel_sdk::tasks::remote_calendar::RemoteCalendars>(Arc::new(
+            remote_calendar::service::Calendars,
+        ));
+        app.worker(remote_calendar::jobs::worker)
+            .schedule(remote_calendar::jobs::schedule()?);
+
         app.contribute::<dyn aphel_sdk::record_context::RelatedRecordSource>(std::sync::Arc::new(
             context_source::ContextSource,
         ));

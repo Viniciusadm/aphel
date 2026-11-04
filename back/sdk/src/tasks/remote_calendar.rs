@@ -204,3 +204,125 @@ pub fn encode_segment(value: &str) -> String {
         })
         .collect()
 }
+
+#[async_trait]
+pub trait RemoteCalendars: Send + Sync {
+    async fn status(
+        &self,
+        ctx: &crate::Ctx<'_>,
+        provider: &str,
+    ) -> Result<CalendarStatus, AppError>;
+    async fn connect_url(
+        &self,
+        ctx: &crate::Ctx<'_>,
+        provider: &str,
+    ) -> Result<CalendarConnectUrl, AppError>;
+    async fn complete(
+        &self,
+        ctx: &crate::Ctx<'_>,
+        provider: &str,
+        state: &crate::sso::StoredState,
+        code: &str,
+    ) -> axum::response::Response;
+    async fn disconnect(&self, ctx: &crate::Ctx<'_>, provider: &str) -> Result<(), AppError>;
+    async fn sync_now(&self, ctx: &crate::Ctx<'_>, provider: &str) -> Result<(), AppError>;
+    async fn busy(
+        &self,
+        ctx: &crate::Ctx<'_>,
+        provider: &str,
+        user: &aphel_kernel::domain::UserId,
+        from: DateTime<Utc>,
+        to: DateTime<Utc>,
+    ) -> Result<Option<Vec<BusyInterval>>, AppError>;
+    async fn send(
+        &self,
+        request: reqwest::RequestBuilder,
+        cursor_request: bool,
+    ) -> Result<Value, AppError>;
+}
+fn service() -> Result<std::sync::Arc<dyn RemoteCalendars>, AppError> {
+    aphel_kernel::modules::app()
+        .services()
+        .get::<dyn RemoteCalendars>()
+        .ok_or_else(|| {
+            AppError::unavailable_code(
+                "remote_calendars_unavailable",
+                "remote task calendars are not enabled",
+            )
+        })
+}
+pub async fn status(
+    ctx: &crate::Ctx<'_>,
+    api: &dyn CalendarApi,
+) -> Result<CalendarStatus, AppError> {
+    let Ok(service) = service() else {
+        return Ok(CalendarStatus {
+            can_connect: false,
+            configured: false,
+            connection: None,
+        });
+    };
+    service.status(ctx, api.spec().key).await
+}
+pub async fn connect_url(
+    ctx: &crate::Ctx<'_>,
+    api: &dyn CalendarApi,
+) -> Result<CalendarConnectUrl, AppError> {
+    service()?.connect_url(ctx, api.spec().key).await
+}
+pub async fn complete_connection(
+    ctx: &crate::Ctx<'_>,
+    api: &dyn CalendarApi,
+    state: &crate::sso::StoredState,
+    code: &str,
+) -> axum::response::Response {
+    match service() {
+        Ok(service) => service.complete(ctx, api.spec().key, state, code).await,
+        Err(_) => crate::sso::login::redirect_to(&format!(
+            "/{}?calendar_error=remote_calendars_unavailable",
+            api.spec().key
+        )),
+    }
+}
+pub async fn disconnect(ctx: &crate::Ctx<'_>, api: &dyn CalendarApi) -> Result<(), AppError> {
+    service()?.disconnect(ctx, api.spec().key).await
+}
+pub async fn sync_now(ctx: &crate::Ctx<'_>, api: &dyn CalendarApi) -> Result<(), AppError> {
+    service()?.sync_now(ctx, api.spec().key).await
+}
+pub async fn send(
+    request: reqwest::RequestBuilder,
+    cursor_request: bool,
+) -> Result<Value, AppError> {
+    service()?.send(request, cursor_request).await
+}
+pub struct CalendarBusy<A: CalendarApi> {
+    api: std::sync::Arc<A>,
+    key: String,
+}
+impl<A: CalendarApi> CalendarBusy<A> {
+    pub fn new(api: std::sync::Arc<A>) -> Self {
+        Self {
+            key: format!("{}.calendar", api.spec().key),
+            api,
+        }
+    }
+}
+#[async_trait]
+impl<A: CalendarApi + 'static> crate::calendar::CalendarAvailability for CalendarBusy<A> {
+    fn key(&self) -> &str {
+        &self.key
+    }
+    async fn busy(
+        &self,
+        ctx: &crate::Ctx<'_>,
+        user: &aphel_kernel::domain::UserId,
+        from: DateTime<Utc>,
+        to: DateTime<Utc>,
+    ) -> Result<Option<Vec<BusyInterval>>, AppError> {
+        let Ok(service) = service() else {
+            return Ok(None);
+        };
+        service.busy(ctx, self.api.spec().key, user, from, to).await
+    }
+}

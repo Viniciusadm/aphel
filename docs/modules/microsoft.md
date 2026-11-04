@@ -41,7 +41,7 @@ The issuer must be `https://login.microsoftonline.com/{tid}/v2.0`; with `tenant`
 - Consent with `offline_access` and `Calendars.ReadWrite` (`prompt=consent`); the refresh token is stored encrypted in `user:<id>:refresh_token`. Microsoft rotates the refresh token on every refresh: the new value replaces the previous one in the `SecretVault`.
 - Reading: `GET /me/calendarView/delta` over the -30/+90 day window, with `Prefer: outlook.timezone="UTC"` and a text body; the `@odata.deltaLink` is the incremental cursor (only links from `https://graph.microsoft.com/` are followed; 410 → full load). `@removed` or `isCancelled` events delete the linked activity; `isAllDay` is ignored; rooms (`type = resource`) do not count as attendees.
 - Writing: `POST/PATCH/DELETE /me/events` with title, text body, start and end in UTC. **Attendees are not sent** (Outlook would send invitations automatically).
-- Jobs `microsoft.calendar_sync_all` (every 5 min), `microsoft.calendar_sync`, `microsoft.calendar_push`; consumer `microsoft.calendar_export`; events `microsoft.calendar_connected` / `microsoft.calendar_disconnected` (payload `user_id`, `account_email`).
+- Jobs `tasks.calendar_sync_all` (every 5 min), `tasks.calendar_sync`, `tasks.calendar_push`; consumer `tasks.calendar_export`; events `microsoft.calendar_connected` / `microsoft.calendar_disconnected` (payload `user_id`, `account_email`).
 
 ## Mailbox (Outlook)
 
@@ -96,3 +96,5 @@ The `outlook` provider is contributed as `dyn email::MailboxProvider` (core key 
 - Same recurrence and precision limitations as the [`google`](google.md#limitations) module.
 
 OAuth nonce/PKCE states are owned by SSO in `sso_oauth_states`, partitioned by provider key. Calendar connections and remote links are owned by tasks in `task_calendar_connections` and `task_calendar_links`.
+
+Tasks owns calendar workers and resolves enabled provider contributions for each job and event. Provider identity travels in the job payload; disabled or removed adapters are skipped.

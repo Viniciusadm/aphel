@@ -8,7 +8,6 @@ publish = false
 
 [dependencies]
 aphel-sdk.workspace = true
-tasks = { package = "aphel-mod-tasks", path = "../tasks" }
 aphel-kernel.workspace = true
 email = { package = "aphel-mod-email", path = "../email" }
 form_urlencoded.workspace = true

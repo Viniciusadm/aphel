@@ -63,10 +63,6 @@ fn instant(value: DateTime<Utc>) -> String {
     value.to_rfc3339_opts(SecondsFormat::Secs, true)
 }
 
-pub(crate) fn qualified_kind(key: &str, kind: &str) -> String {
-    format!("{key}.{kind}")
-}
-
 pub(crate) async fn access_token(
     ctx: &Ctx<'_>,
     api: &dyn CalendarApi,
@@ -550,8 +546,8 @@ pub(crate) async fn schedule_push(
     ctx.jobs()
         .enqueue_now(
             Job::new(
-                qualified_kind(key, super::jobs::PUSH_KIND),
-                json!({ "activity_id": activity_id, "owner_id": owner_id, "deleted": deleted }),
+                super::jobs::PUSH_KIND,
+                json!({ "provider": key, "activity_id": activity_id, "owner_id": owner_id, "deleted": deleted }),
             )
             .run_at(Utc::now() + Duration::seconds(PUSH_DELAY_SECONDS))
             .with_unique_key(format!("{key}.push:{activity_id}")),

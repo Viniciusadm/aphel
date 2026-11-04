@@ -5,6 +5,11 @@ pub const DESCRIPTOR: ContractDescriptor = ContractDescriptor {
     contract: contract!("tasks", "1.0.0"),
     entries: &[
         KeyEntry::new(
+            "tasks.remote_calendars",
+            KeyKind::ExtensionPoint,
+            "Owner remote calendar connection, availability and synchronization execution",
+        ),
+        KeyEntry::new(
             "tasks.reminder_source",
             KeyKind::ExtensionPoint,
             "Owned task reminder selection and delivery receipts",

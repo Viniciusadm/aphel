@@ -15,10 +15,9 @@ use aphel_kernel::modules::{AppBuilder, Manifest, Module};
 use aphel_sdk::calendar::CalendarAvailability;
 use aphel_sdk::sso::IdentityLogin;
 use aphel_sdk::sso::settings::{login_setting_fields, validate_login_settings};
+use aphel_sdk::tasks::remote_calendar::CalendarBusy;
 use aphel_sdk::tasks::remote_calendar::calendar_setting_fields;
 use email::MailboxProvider;
-use tasks::remote_calendar::availability::CalendarBusy;
-use tasks::remote_calendar::jobs;
 
 pub(crate) use mail::GmailProvider;
 pub(crate) use provider::GoogleProvider;
@@ -66,9 +65,7 @@ impl Module for GoogleModule {
         .contribute::<dyn MailboxProvider>(Arc::new(GmailProvider))
         .contribute::<dyn CalendarAvailability>(Arc::new(CalendarBusy::new(Arc::new(
             GoogleProvider,
-        ))))
-        .schedule(jobs::schedule(KEY)?)
-        .worker(|env| jobs::worker(Arc::new(GoogleProvider), env));
+        ))));
         Ok(())
     }
 
