@@ -1874,18 +1874,19 @@ async fn deal_values(
     ctx: &Ctx<'_>,
     ids: &[Uuid],
 ) -> Result<(HashMap<Uuid, LinkedDealValue>, bool), AppError> {
-    let Ok(filter) = ctx.scope.record_filter(&Permission::DEALS_READ) else {
+    let Ok(_) = ctx.scope.record_filter(&Permission::DEALS_READ) else {
         return Ok((HashMap::new(), false));
     };
     if ids.is_empty() {
         return Ok((HashMap::new(), true));
     }
+    if !aphel_sdk::records::enabled(ctx, &RecordType::DEAL) {
+        return Ok((HashMap::new(), false));
+    }
     let definition = ctx.registry().require(RecordType::DEAL.as_str())?;
     let fields = FieldSet::for_scope(ctx.fields().definitions(), definition, ctx.scope).await?;
     let amount_visible = !fields.is_hidden(DEAL_AMOUNT_FIELD);
-    let mut values = ActivityStore::of(ctx)
-        .linked_deal_values(ctx.scope, ids, &filter)
-        .await?;
+    let mut values = ActivityStore::of(ctx).linked_deal_values(ids).await?;
     if !amount_visible {
         for value in values.values_mut() {
             value.amount = None;

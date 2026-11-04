@@ -288,7 +288,14 @@ This phase is in progress. Completed entries describe static source validation; 
 - [x] Hydrate primary and secondary linked titles through bounded scoped record labels, including target read permission, field visibility and enabled native owners.
 - [x] Keep unreadable linked titles empty without changing stored relationships or task write semantics.
 - [ ] Manual acceptance: task lists/details and timeline links, hidden title fields, own/team scopes, deleted targets and disabled owners.
-- [ ] Remaining task deal-value projection and calendar persistence must still move behind owner interfaces.
+- [ ] Remaining task calendar persistence must still move behind owner interfaces.
+
+## Task inbox deal snapshots
+
+- [x] Select task-to-deal links exclusively from task-owned tables, then request bounded scoped deal listings from the enabled owner.
+- [x] Remove the remaining literal task foreign SQL. Owner snapshots apply record constraints and field masks before inbox selection and sorting.
+- [x] Preserve primary-link precedence and highest readable amount for secondary links, with deterministic identity ties; disabled deals yield no projection.
+- [ ] Manual acceptance: inbox deal sorting, archived/deleted deals, primary/secondary links, hidden amounts/currencies/titles and disabled deal sources.
 
 ## Outstanding scope
 

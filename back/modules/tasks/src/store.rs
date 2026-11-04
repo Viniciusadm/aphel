@@ -482,56 +482,105 @@ impl<'a> ActivityStore<'a> {
 
     pub(crate) async fn linked_deal_values(
         &self,
-        scope: &AccessScope,
         ids: &[Uuid],
-        deal_filter: &RecordScopeFilter,
     ) -> Result<HashMap<Uuid, LinkedDealValue>, AppError> {
         let mut values = HashMap::new();
         if ids.is_empty() {
             return Ok(values);
         }
-        let definition = self.registry.get(&RecordType::DEAL).ok_or_else(|| {
-            AppError::Configuration("the deal record type is not registered".to_owned())
-        })?;
         let mut builder = QueryBuilder::<MySql>::new(
-            "SELECT x.activity_id, r.id AS deal_id, r.title, r.amount, r.currency FROM ( \
-             SELECT a.id AS activity_id, a.record_id AS deal_id, 0 AS position FROM tasks a \
-             WHERE ",
+            "SELECT a.id AS activity_id, a.record_id AS deal_id, 0 AS position FROM tasks a WHERE ",
         );
         builder.push("a.record_type = 'deals.deal' AND a.id IN (");
         let mut separated = builder.separated(", ");
         for id in ids {
             separated.push_bind(id.to_string());
         }
-        builder.push(
-            ") UNION ALL SELECT l.activity_id, l.record_id AS deal_id, 1 AS position FROM task_links l \
-             WHERE ",
-        );
-        builder.push("l.record_type = 'deals.deal' AND l.activity_id IN (");
+        builder.push(") UNION ALL SELECT l.activity_id, l.record_id AS deal_id, 1 AS position FROM task_links l WHERE l.record_type = 'deals.deal' AND l.activity_id IN (");
         let mut separated = builder.separated(", ");
         for id in ids {
             separated.push_bind(id.to_string());
         }
-        builder
-            .push(")) x JOIN deals r ON r.id = x.deal_id")
-            .push(" WHERE r.deleted_at IS NULL");
-        push_record_scope(&mut builder, scope, definition, deal_filter);
-        builder.push(" ORDER BY x.activity_id, x.position, r.amount DESC");
+        builder.push(")");
         let rows = builder.build().fetch_all(&self.pool).await?;
+        let mut links = Vec::new();
+        let mut deal_ids = std::collections::BTreeSet::new();
         for row in &rows {
-            let activity_id = uuid_column(row, "activity_id")?;
-            if values.contains_key(&activity_id) {
-                continue;
-            }
-            values.insert(
-                activity_id,
-                LinkedDealValue {
-                    deal_id: uuid_column(row, "deal_id")?,
-                    title: row.try_get("title")?,
-                    amount: row.try_get("amount")?,
-                    currency: row.try_get("currency")?,
+            let deal_id = uuid_column(row, "deal_id")?;
+            deal_ids.insert(deal_id);
+            links.push((
+                uuid_column(row, "activity_id")?,
+                deal_id,
+                row.try_get::<i32, _>("position")?,
+            ));
+        }
+        let deal_ids: Vec<_> = deal_ids.into_iter().collect();
+        let mut deals = HashMap::new();
+        for batch in deal_ids.chunks(100) {
+            use aphel_kernel::application::query::{
+                ArchivedFilter, Filter, FilterOperator, RecordQuery,
+            };
+            let listing = aphel_sdk::record_context::list(
+                &self.ctx,
+                "deals.deal",
+                RecordQuery {
+                    filter: Some(Filter::condition(
+                        "id",
+                        FilterOperator::In,
+                        serde_json::json!(batch),
+                    )),
+                    archived: ArchivedFilter::Include,
+                    window: aphel_kernel::application::organization_admin::ListWindow {
+                        offset: 0,
+                        limit: 100,
+                    },
+                    ..Default::default()
                 },
-            );
+            )
+            .await?;
+            for item in listing.items {
+                #[derive(serde::Deserialize)]
+                struct Snapshot {
+                    id: Uuid,
+                    #[serde(default)]
+                    title: String,
+                    #[serde(default)]
+                    amount: Option<Decimal>,
+                    #[serde(default)]
+                    currency: String,
+                }
+                let item: Snapshot = serde_json::from_value(item).map_err(|error| {
+                    AppError::Internal(format!("invalid deal snapshot: {error}"))
+                })?;
+                if batch.contains(&item.id) {
+                    deals.insert(
+                        item.id,
+                        LinkedDealValue {
+                            deal_id: item.id,
+                            title: item.title,
+                            amount: item.amount,
+                            currency: item.currency,
+                        },
+                    );
+                }
+            }
+        }
+        links.sort_by(|left, right| {
+            left.0
+                .cmp(&right.0)
+                .then(left.2.cmp(&right.2))
+                .then_with(|| {
+                    deals
+                        .get(&right.1)
+                        .and_then(|deal| deal.amount)
+                        .cmp(&deals.get(&left.1).and_then(|deal| deal.amount))
+                })
+                .then(left.1.cmp(&right.1))
+        });
+        for (activity_id, deal_id, _) in links {
+            if let Some(deal) = deals.get(&deal_id) {
+                values.entry(activity_id).or_insert_with(|| deal.clone());
+            }
         }
         Ok(values)
     }
