@@ -38,10 +38,6 @@ use aphel_kernel::database::transaction::MySqlTx;
 use aphel_kernel::domain::UserId;
 use aphel_kernel::errors::AppError;
 use aphel_kernel::infrastructure::repositories::mysql_access::MySqlAccessRepository;
-use leads::domain::{LEAD_STAGE, LIFECYCLE_STAGE_FIELD};
-use leads::store::LeadRecords;
-use organizations::domain::{CompanyInput, SaveCompanyCommand};
-use people::domain::{ContactInput, SaveContactCommand};
 
 const MAX_BACKOFF_MINUTES: i64 = 360;
 const BODY_FILE_NAME: &str = "message.json";
@@ -776,50 +772,46 @@ async fn create_contact(
     company_id: Option<Uuid>,
 ) -> Result<Uuid, AppError> {
     let (first_name, last_name) = split_display_name(name, address);
-    let mut input = ContactInput {
-        first_name: Some(Some(first_name)),
-        last_name: last_name.map(Some),
-        email: Some(Some(address.to_owned())),
-        company_id: company_id.map(|id| Some(id.to_string())),
-        source: Some(Some("email".to_owned())),
-        ..ContactInput::default()
-    };
-    if lead_stage_active(ctx).await? {
-        input = input.contributed(LIFECYCLE_STAGE_FIELD, json!(LEAD_STAGE));
+    let mut values = serde_json::Map::new();
+    values.insert("first_name".into(), json!(first_name));
+    values.insert("email".into(), json!(address));
+    values.insert("source".into(), json!("email"));
+    if let Some(last_name) = last_name {
+        values.insert("last_name".into(), json!(last_name));
     }
-    let created = people::service::create(
-        ctx,
-        SaveContactCommand {
-            input,
-            ..SaveContactCommand::default()
-        },
+    if let Some(company_id) = company_id {
+        values.insert("company_id".into(), json!(company_id));
+    }
+    for (key, value) in
+        aphel_sdk::party::capture_defaults(ctx, &RecordType::parse(aphel_sdk::people::RECORD_TYPE)?)
+            .await?
+    {
+        if values.insert(key.clone(), value).is_some() {
+            return Err(AppError::Configuration(format!(
+                "party capture default conflicts with {key}"
+            )));
+        }
+    }
+    created_id(
+        ctx.create_record(aphel_sdk::people::RECORD_TYPE, Value::Object(values))
+            .await?,
     )
-    .await?;
-    Ok(created.view.contact.id)
-}
-
-async fn lead_stage_active(ctx: &Ctx<'_>) -> Result<bool, AppError> {
-    let options = LeadRecords::of(ctx)
-        .stage_options(&RecordType::CONTACT)
-        .await?;
-    Ok(options
-        .iter()
-        .any(|option| option.is_active && option.value == LEAD_STAGE))
 }
 
 async fn create_company(ctx: &Ctx<'_>, name: &str, domain: &str) -> Result<Uuid, AppError> {
-    let created = organizations::service::create(
-        ctx,
-        SaveCompanyCommand {
-            input: CompanyInput {
-                name: Some(Some(name.to_owned())),
-                domain: Some(Some(domain.to_owned())),
-                source: Some(Some("email".to_owned())),
-                ..CompanyInput::default()
-            },
-            ..SaveCompanyCommand::default()
-        },
+    created_id(
+        ctx.create_record(
+            aphel_sdk::organizations::RECORD_TYPE,
+            json!({ "name": name, "domain": domain, "source": "email" }),
+        )
+        .await?,
     )
-    .await?;
-    Ok(created.view.company.id)
+}
+
+fn created_id(record: Value) -> Result<Uuid, AppError> {
+    record
+        .get("id")
+        .and_then(Value::as_str)
+        .and_then(|id| Uuid::parse_str(id).ok())
+        .ok_or_else(|| AppError::Internal("created capture record has no identity".into()))
 }

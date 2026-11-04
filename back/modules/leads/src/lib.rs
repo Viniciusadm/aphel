@@ -1,3 +1,4 @@
+mod capture_defaults;
 pub mod domain;
 pub mod hooks;
 pub(crate) mod http;
@@ -117,6 +118,9 @@ impl Module for LeadsModule {
     }
 
     fn register(&self, app: &mut AppBuilder) -> Result<(), AppError> {
+        app.contribute::<dyn aphel_sdk::party::PartyCaptureDefaults>(Arc::new(
+            capture_defaults::CaptureDefaults,
+        ));
         app.on(
             aphel_kernel::records::RecordPurged,
             LIFECYCLE_STAGE_PRIORITY,

@@ -328,6 +328,13 @@ This phase is in progress. Completed entries describe static source validation; 
 - [ ] Manual acceptance: direct/people-derived organization scores, signal decay, deleted/restored/reassigned people, large paged organizations, disabled owners and custom scoring subjects.
 - [ ] Audit generic scoring query availability and policy constraints alongside managed entity availability.
 
+## Email party capture ownership
+
+- [x] Email creates people and organizations through enabled, authorized generic record handlers, preserving owner normalization, validation, audit and event execution.
+- [x] Party capture defaults are optional owner contributions with explicit collision rejection. Leads supplies the existing active lead-stage default for captured people; email no longer imports lifecycle implementation or constants.
+- [x] Remove email's people, organizations and leads implementation dependencies. Its remaining SSO dependency, foreign directory SQL and runtime party prerequisites remain pending.
+- [ ] Manual acceptance: reciprocal email capture, organization creation, lifecycle defaults, disabled leads/party owners, actor scopes and field-write permissions.
+
 ## Outstanding scope
 
 The remaining identity changes, shared capability interfaces, owner-only SQL, deletion policies and per-plugin manual acceptance matrices are still pending. Existing architectural debt is not considered resolved by renaming packages.

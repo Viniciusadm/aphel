@@ -64,3 +64,28 @@ pub fn address_fields() -> Result<Vec<SystemField>, AppError> {
     .map(|(key, label)| field(key, labels(label), FieldType::Text))
     .collect()
 }
+
+#[async_trait::async_trait]
+pub trait PartyCaptureDefaults: Send + Sync {
+    async fn values(
+        &self,
+        ctx: &crate::Ctx<'_>,
+        record_type: &crate::shared::RecordType,
+    ) -> Result<serde_json::Map<String, serde_json::Value>, AppError>;
+}
+pub async fn capture_defaults(
+    ctx: &crate::Ctx<'_>,
+    record_type: &crate::shared::RecordType,
+) -> Result<serde_json::Map<String, serde_json::Value>, AppError> {
+    let mut values = serde_json::Map::new();
+    for source in ctx.app().contributions::<dyn PartyCaptureDefaults>() {
+        for (key, value) in source.values(ctx, record_type).await? {
+            if values.insert(key.clone(), value).is_some() {
+                return Err(AppError::Configuration(format!(
+                    "multiple party capture defaults for {key}"
+                )));
+            }
+        }
+    }
+    Ok(values)
+}

@@ -7,11 +7,18 @@ pub const CONTRACT: Contract = contract!("party", "1.0.0");
 pub const CONTACT_POINTS: ExtensionPoint<ContactPoints> = extension_point!("party.contact_points");
 pub const DESCRIPTOR: ContractDescriptor = ContractDescriptor {
     contract: CONTRACT,
-    entries: &[KeyEntry::new(
-        "party.contact_points",
-        KeyKind::ExtensionPoint,
-        "Entity field mappings for party email, phone and web contact points",
-    )],
+    entries: &[
+        KeyEntry::new(
+            "party.contact_points",
+            KeyKind::ExtensionPoint,
+            "Entity field mappings for party email, phone and web contact points",
+        ),
+        KeyEntry::new(
+            "party.capture_defaults",
+            KeyKind::ExtensionPoint,
+            "Optional owner-provided initial fields for captured parties",
+        ),
+    ],
 };
 
 #[derive(Debug, Clone, Copy, PartialEq, Eq, Serialize, Deserialize)]
