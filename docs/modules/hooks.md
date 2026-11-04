@@ -29,9 +29,9 @@ Usage: `veto` and `action` are registered with `app.on(Hook, priority, handler)`
 | `email::hooks::InboundLinking` | `email` | filter | `LinkingEmail` | The records an incoming e-mail is linked to automatically by the mailbox synchronization | - |
 | `email::hooks::OutgoingEmail` | `email` | filter | `OutgoingMessage` | An e-mail before it is saved and sent; without recipients or subject the send fails with 422 | email (filter 50) |
 | `leads::hooks::LeadConverted` | `leads` | action | `ConvertedLead` | After a lead was converted, inside the conversion transaction | leads (action 50) |
-| `leads::hooks::LeadConverting` | `leads` | filter | `LeadConversion` | Values of the deal (and optional company) created by the lead conversion; return them changed to enrich the conversion | leads (filter 50) |
 | `leads::hooks::LeadDisqualifying` | `leads` | veto | `DisqualifyingLead` | Before a lead is disqualified with a reason; an error blocks it | leads (action 50) |
-| `leads::hooks::LeadQualifying` | `leads` | veto | `Lead` | Before a lead is qualified in the lead inbox; an error blocks the qualification | leads (action 50) |
+| `leads.converting` | `leads` | filter | `LeadConversion` | Values of the deal (and optional company) created by the lead conversion; return them changed to enrich the conversion | leads (filter 50) |
+| `leads.qualifying` | `leads` | veto | `Lead` | Before a lead is qualified in the lead inbox; an error blocks the qualification | leads (action 50) |
 | `quotes::hooks::QuoteAccepting` | `quotes` | veto | `AcceptingQuote` | Before a quote is accepted (on its public page or manually by a user); an error blocks the acceptance | quotes (action 50) |
 | `quotes::hooks::QuoteTotals` | `quotes` | filter | `PricedQuote` | Totals of a quote (items, discounts and taxes) before they are saved | - |
 | `sequences::hooks::StepRunning` | `sequences` | veto | `RunningStep` | Before a sequence step runs; a definitive error removes the contact from the sequence, a transient one retries the job | sequences (action 50) |

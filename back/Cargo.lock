@@ -372,6 +372,13 @@ dependencies = [
 ]
 
 [[package]]
+name = "aphel-contract-leads"
+version = "0.1.0"
+dependencies = [
+ "aphel-contract",
+]
+
+[[package]]
 name = "aphel-contract-line-items"
 version = "0.1.0"
 dependencies = [
@@ -576,8 +583,6 @@ version = "1.0.0"
 dependencies = [
  "aphel-contract-crm",
  "aphel-kernel",
- "aphel-mod-deals",
- "aphel-mod-leads",
  "aphel-mod-people",
  "aphel-sdk",
  "async-trait",
@@ -2042,6 +2047,7 @@ dependencies = [
  "aphel-contract-email",
  "aphel-contract-exports",
  "aphel-contract-imports",
+ "aphel-contract-leads",
  "aphel-contract-line-items",
  "aphel-contract-messaging",
  "aphel-contract-money",

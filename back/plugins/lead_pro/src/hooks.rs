@@ -6,7 +6,7 @@ use aphel_kernel::application::shared::RecordType;
 use aphel_kernel::errors::{AppError, FieldViolation};
 use aphel_kernel::modules::HookCtx;
 use aphel_kernel::records::{ChangedRecord, SavingRecord};
-use leads::{Lead, LeadConversion};
+use aphel_sdk::leads::{Lead, LeadConversion};
 
 use crate::domain::{LEAD_NOT_HOT_ENOUGH, LeadProSettings, MAX_TEMPERATURE, TEMPERATURE_FIELD};
 use crate::store;

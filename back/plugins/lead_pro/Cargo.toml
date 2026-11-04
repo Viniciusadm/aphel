@@ -15,8 +15,6 @@ aphel-sdk.workspace = true
 aphel-contract-crm.workspace = true
 aphel-kernel.workspace = true
 people = { package = "aphel-mod-people", path = "../../modules/people" }
-leads = { package = "aphel-mod-leads", path = "../../modules/leads" }
-deals = { package = "aphel-mod-deals", path = "../../modules/deals" }
 async-trait.workspace = true
 axum.workspace = true
 chrono.workspace = true

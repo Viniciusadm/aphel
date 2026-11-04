@@ -28,7 +28,7 @@ pub use hooks::{
     LeadConverter, LeadConverting, LeadDisqualifying, LeadQualifying,
 };
 
-pub const KEY: &str = "leads";
+pub use aphel_sdk::leads::KEY;
 pub(crate) const LIFECYCLE_STAGE_PRIORITY: i32 = 40;
 
 const PUBLIC_EVENTS: &[PublicEventDefinition] = &[
@@ -118,6 +118,7 @@ impl Module for LeadsModule {
     }
 
     fn register(&self, app: &mut AppBuilder) -> Result<(), AppError> {
+        app.contract(aphel_sdk::leads::DESCRIPTOR);
         app.contribute::<dyn aphel_sdk::party::PartyCaptureDefaults>(Arc::new(
             capture_defaults::CaptureDefaults,
         ));

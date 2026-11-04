@@ -120131,6 +120131,30 @@
       "description": "Dashboard widgets, their data and the per-user layout"
     },
     {
+      "name": "mailboxes",
+      "description": "Personal mailboxes (IMAP/SMTP and module providers), connection test and synchronization"
+    },
+    {
+      "name": "email threads",
+      "description": "E-mail conversations linked to records, visibility, manual links and attachments"
+    },
+    {
+      "name": "email settings",
+      "description": "Organization e-mail settings: relationship capture and blocklist"
+    },
+    {
+      "name": "emails",
+      "description": "Sending e-mail from records through the user's mailbox, booking, cancellation and rendered previews"
+    },
+    {
+      "name": "email templates",
+      "description": "Organization and personal e-mail templates with record variables"
+    },
+    {
+      "name": "email tracking",
+      "description": "Open and click tracking settings, objections and the public tracking endpoints"
+    },
+    {
       "name": "exports",
       "description": "CSV and XLSX exports of filtered records"
     },
@@ -120217,30 +120241,6 @@
     {
       "name": "people",
       "description": "Contacts and their organizations"
-    },
-    {
-      "name": "mailboxes",
-      "description": "Personal mailboxes (IMAP/SMTP and module providers), connection test and synchronization"
-    },
-    {
-      "name": "email threads",
-      "description": "E-mail conversations linked to records, visibility, manual links and attachments"
-    },
-    {
-      "name": "email settings",
-      "description": "Organization e-mail settings: relationship capture and blocklist"
-    },
-    {
-      "name": "emails",
-      "description": "Sending e-mail from records through the user's mailbox, booking, cancellation and rendered previews"
-    },
-    {
-      "name": "email templates",
-      "description": "Organization and personal e-mail templates with record variables"
-    },
-    {
-      "name": "email tracking",
-      "description": "Open and click tracking settings, objections and the public tracking endpoints"
     },
     {
       "name": "privacy",

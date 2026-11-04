@@ -13,70 +13,34 @@ use aphel_kernel::application::shared::{Actor, RecordType};
 use aphel_kernel::database::transaction::MySqlTx;
 use aphel_kernel::errors::{AppError, FieldViolation};
 use aphel_kernel::modules::{Hook, HookCtx};
-use aphel_kernel::records::PendingCommit;
 use aphel_kernel::records::{ChangedRecord, RemovedRecord};
 
-#[derive(Debug, Clone, PartialEq)]
-pub struct Lead {
-    pub values: Map<String, Value>,
-    id: Uuid,
-    pub(crate) updated_at: chrono::DateTime<chrono::Utc>,
+pub use aphel_sdk::leads::{
+    Conversion, ConvertLeadCommand, Lead, LeadConversion, LeadConverter, LeadConverting,
+    LeadQualifying,
+};
+pub(crate) trait LeadState {
+    fn name(&self) -> String;
+    fn stage(&self) -> Option<&str>;
+    fn is_open(&self) -> bool;
 }
-impl Lead {
-    pub fn from_record(value: Value) -> Result<Self, AppError> {
-        let values = value
-            .as_object()
-            .cloned()
-            .ok_or_else(|| AppError::Internal("the lead record is not an object".into()))?;
-        let id = values
-            .get("id")
-            .and_then(Value::as_str)
-            .and_then(|v| Uuid::parse_str(v).ok())
-            .ok_or_else(|| AppError::Internal("the lead has no identity".into()))?;
-        let updated_at = values
-            .get("updated_at")
-            .and_then(Value::as_str)
-            .and_then(|v| chrono::DateTime::parse_from_rfc3339(v).ok())
-            .map(|v| v.with_timezone(&chrono::Utc))
-            .ok_or_else(|| AppError::Forbidden("the lead record version is not readable".into()))?;
-        Ok(Self {
-            values,
-            id,
-            updated_at,
-        })
-    }
-    pub fn id(&self) -> Uuid {
-        self.id
-    }
-    pub fn company_id(&self) -> Option<Uuid> {
-        self.values
-            .get("company_id")
-            .and_then(Value::as_str)
-            .and_then(|id| Uuid::parse_str(id).ok())
-    }
-    pub(crate) fn name(&self) -> String {
+impl LeadState for Lead {
+    fn name(&self) -> String {
         self.values
             .get("full_name")
             .and_then(Value::as_str)
             .filter(|name| !name.trim().is_empty())
             .map(str::to_owned)
-            .unwrap_or_else(|| self.id.to_string())
+            .unwrap_or_else(|| self.id().to_string())
     }
-    pub(crate) fn stage(&self) -> Option<&str> {
+    fn stage(&self) -> Option<&str> {
         self.values
             .get(LIFECYCLE_STAGE_FIELD)
             .and_then(Value::as_str)
     }
-    pub(crate) fn is_open(&self) -> bool {
+    fn is_open(&self) -> bool {
         matches!(self.stage(), Some(LEAD_STAGE) | Some(QUALIFIED_STAGE))
     }
-}
-
-#[derive(Debug, Clone, Copy)]
-pub struct LeadQualifying;
-
-impl Hook for LeadQualifying {
-    type Args = Lead;
 }
 
 #[derive(Debug, Clone, PartialEq)]
@@ -108,20 +72,6 @@ impl Hook for LeadDisqualifying {
 }
 
 #[derive(Debug, Clone, PartialEq)]
-pub struct LeadConversion {
-    pub lead: Lead,
-    pub deal: Map<String, Value>,
-    pub company: Option<Map<String, Value>>,
-}
-
-#[derive(Debug, Clone, Copy)]
-pub struct LeadConverting;
-
-impl Hook for LeadConverting {
-    type Args = LeadConversion;
-}
-
-#[derive(Debug, Clone, PartialEq)]
 pub struct ConvertedLead {
     pub(crate) lead: Lead,
     pub(crate) deal_id: Uuid,
@@ -147,34 +97,6 @@ pub struct LeadConverted;
 
 impl Hook for LeadConverted {
     type Args = ConvertedLead;
-}
-
-#[derive(Debug, Clone, PartialEq, Eq)]
-pub struct ConvertLeadCommand {
-    pub(crate) pipeline_id: String,
-    pub(crate) stage_id: Option<String>,
-    pub(crate) title: Option<String>,
-    pub(crate) amount: Option<String>,
-    pub(crate) currency: Option<String>,
-    pub(crate) ip: Option<String>,
-}
-
-#[derive(Debug, Clone, PartialEq)]
-pub struct Conversion {
-    pub(crate) deal_id: Uuid,
-    pub(crate) company_id: Option<Uuid>,
-    pub(crate) pending: Vec<PendingCommit>,
-}
-
-#[async_trait]
-pub trait LeadConverter: Send + Sync {
-    async fn convert(
-        &self,
-        ctx: &Ctx<'_>,
-        tx: &mut MySqlTx,
-        lead: &Lead,
-        command: &ConvertLeadCommand,
-    ) -> Result<Conversion, AppError>;
 }
 
 pub struct DealLeadConverter;

@@ -18,8 +18,8 @@ use aphel_kernel::modules::{
     AppBuilder, Manifest, Migration, Module, SettingField, SettingKind, WorkerParts,
 };
 use aphel_kernel::records::{RecordSaving, RecordValidating};
+use aphel_sdk::leads::{LeadConverter, LeadConverting, LeadQualifying};
 use aphel_sdk::notifications::NotificationKindDefinition;
-use leads::{LeadConverter, LeadConverting, LeadQualifying};
 
 use crate::domain::{
     COOLDOWN_DAYS_SETTING, COOLDOWN_POINTS_SETTING, DEFAULT_COOLDOWN_DAYS, DEFAULT_COOLDOWN_POINTS,
@@ -38,7 +38,7 @@ const CONVERTING_PRIORITY: i32 = 10;
 
 const PUBLIC_EVENTS: &[PublicEventDefinition] = &[event(
     TEMPERATURE_CHANGED,
-    people::CONTACT_RESOURCE,
+    aphel_sdk::people::RESOURCE,
     "The lead temperature of the contact changed after a touch (activity, note, e-mail, meeting or manual)",
 )];
 
@@ -63,9 +63,9 @@ impl Module for LeadPro {
                 "Lead temperature: interactions warm up the contact, qualification requires a hot lead and conversion carries the temperature over to the deal",
             )
             .requires_aphel("0.1.0")
-            .depends_on(people::KEY, "*")
-            .depends_on(leads::KEY, "*")
-            .depends_on(deals::KEY, "*")
+            .depends_on(aphel_sdk::people::KEY, "*")
+            .depends_on(aphel_sdk::leads::KEY, "*")
+            .depends_on(aphel_sdk::deals::KEY, "*")
             .enabled_by_default().owned_tables(&["lead_pro_touches", "lead_pro_contact_extension"])
             .migration(Migration::new(
                 1,

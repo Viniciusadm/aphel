@@ -353,6 +353,14 @@ This phase is in progress. Completed entries describe static source validation; 
 - [ ] Manual acceptance: received/sent/link/unlink refreshes, distinct message counts, latest sender, empty snapshots, concurrent refreshes, unchanged versions and disabled projection owners.
 - [ ] Email still depends on SSO OAuth implementation; that extraction remains pending.
 
+## Shared lead conversion extension points
+
+- [x] Publish leads identity and canonical native qualification/conversion hook metadata through a kernel-free contract.
+- [x] Share lead snapshots, conversion commands/results, pending commits and the transactional converter interface through the native SDK. Lead state rules, default conversion mapping and actual writes stay in leads.
+- [x] Lead Pro decorates the shared converter and consumes shared hook types; remove its leads/deals implementation dependencies and use owner resource metadata.
+- [ ] Lead Pro's remaining people implementation calls and direct people SQL still require extraction.
+- [ ] Manual acceptance: qualification veto, conversion enrichment, decorator touch insertion in the same transaction, rollback/pending commits and optional converter owners.
+
 ## Outstanding scope
 
 The remaining identity changes, shared capability interfaces, owner-only SQL, deletion policies and per-plugin manual acceptance matrices are still pending. Existing architectural debt is not considered resolved by renaming packages.

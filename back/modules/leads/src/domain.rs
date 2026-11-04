@@ -6,8 +6,7 @@ use uuid::Uuid;
 
 use aphel_kernel::application::shared::RecordType;
 
-pub const LIFECYCLE_STAGE_FIELD: &str = "lifecycle_stage";
-pub const LEAD_STAGE: &str = "lead";
+pub use aphel_sdk::leads::{LEAD_STAGE, LIFECYCLE_STAGE_FIELD};
 pub(crate) const QUALIFIED_STAGE: &str = "qualified";
 pub(crate) const OPPORTUNITY_STAGE: &str = "opportunity";
 pub(crate) const CUSTOMER_STAGE: &str = "customer";

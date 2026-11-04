@@ -24,7 +24,7 @@ use crate::domain::{
 };
 use crate::hooks::{
     ConvertLeadCommand, ConvertedLead, DisqualifyingLead, Lead, LeadConverted, LeadConverter,
-    LeadDisqualifying, LeadQualifying,
+    LeadDisqualifying, LeadQualifying, LeadState,
 };
 use crate::store::{HistoryStore, LeadRecords, ReasonStore, SettingsStore};
 use aphel_kernel::Ctx;

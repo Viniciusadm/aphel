@@ -10,6 +10,7 @@ rust-version = "1.94"
 license = "AGPL-3.0-only"
 
 [workspace.dependencies]
+aphel-contract-leads = { path = "contracts/leads" }
 aphel-contract-segments = { path = "contracts/segments" }
 aphel-contract-catalog-items = { path = "contracts/catalog_items" }
 aphel-contract-people = { path = "contracts/people" }
