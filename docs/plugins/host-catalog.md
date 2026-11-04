@@ -1,20 +1,11 @@
 # Host catalog
 
-What this Aphel offers to runtime plugins besides records: the hooks a manifest can subscribe to in `[[hooks]]` and the operations its backend can call with `invoke` after listing them in `operations`. The live list, including whether each module is enabled, is `GET /api/v1/plugins/host-catalog`. How they work: [README](README.md#module-operations-and-domain-hooks).
+What this Aphel offers to runtime plugins besides records: the hooks a manifest can subscribe to in `[[hooks]]` and the operations its backend can call with `invoke` after listing them in `operations`. The live list, including whether each module is enabled, is `GET /api/v1/wasm-runtime/host-catalog`. How they work: [README](README.md#module-operations-and-domain-hooks).
 
 ## Hooks
 
 | Hook | Module | Record type | Kind | Values |
 | --- | --- | --- | --- | --- |
-| `record.archiving` | plugins | any | veto | The custom record or company being archived |
-| `record.committed` | plugins | any | action | `values` and `changes`, after the commit (errors only logged) |
-| `record.deleted` | plugins | any | action | The deleted record, inside the transaction |
-| `record.deleting` | plugins | any | veto | The record being deleted |
-| `record.purged` | plugins | any | action | The purged record, inside the transaction |
-| `record.restored` | plugins | any | action | The restored record, inside the transaction |
-| `record.saved` | plugins | any | action | `values` and `changes`, inside the transaction |
-| `record.saving` | plugins | any | filter | The draft `values`/`custom_fields`; return changes |
-| `record.validating` | plugins | any | veto | `values` and `changes` of the write |
 | `activity.completing` | tasks | `tasks.task` | veto | Before an activity is completed; values: { activity, previous, type_key }. An error blocks it |
 | `automation.action_running` | automations | any | veto | Before an automation action runs on a record (dry run and execution), for the record's type; values: { automation_id, run_id, step_id, action, record: { record_type, record_id }, config, dry_run }. An error skips the action |
 | `deal.losing` | deals | `deals.deal` | veto | Before a deal is lost; values: { deal, previous, stage, lost_reason }. An error blocks it |
@@ -28,6 +19,15 @@ What this Aphel offers to runtime plugins besides records: the hooks a manifest 
 | `lead.disqualifying` | leads | `people.person` | veto | Before a lead is disqualified; values: { lead, reason: { id, key, name }, note }. An error blocks it |
 | `lead.qualifying` | leads | `people.person` | veto | Before a lead is qualified in the lead inbox; values: { lead }. An error blocks the qualification |
 | `quote.accepting` | quotes | `quotes.quote` | veto | Before a quote is accepted (public page or manually); values: { quote, deal_id, acceptor: { name, email }, manual }. An error blocks the acceptance |
+| `record.archiving` | wasm_runtime | any | veto | The custom record or company being archived |
+| `record.committed` | wasm_runtime | any | action | `values` and `changes`, after the commit (errors only logged) |
+| `record.deleted` | wasm_runtime | any | action | The deleted record, inside the transaction |
+| `record.deleting` | wasm_runtime | any | veto | The record being deleted |
+| `record.purged` | wasm_runtime | any | action | The purged record, inside the transaction |
+| `record.restored` | wasm_runtime | any | action | The restored record, inside the transaction |
+| `record.saved` | wasm_runtime | any | action | `values` and `changes`, inside the transaction |
+| `record.saving` | wasm_runtime | any | filter | The draft `values`/`custom_fields`; return changes |
+| `record.validating` | wasm_runtime | any | veto | `values` and `changes` of the write |
 | `sequence.step_running` | sequences | `people.person` | veto | Before a sequence step runs for an enrolled contact; values: { enrollment_id, sequence_id, contact_id, enrolled_by, position, kind, template_id }. A definitive error removes the contact from the sequence, a transient one retries the step |
 
 ## Operations
@@ -91,8 +91,8 @@ Writing operations are refused inside hooks (409 `plugin_write_in_hook`). Each o
 | `quotes.new_version` | quotes | write | yes | Create a new version of the current quote: { id } |
 | `quotes.send` | quotes | write | yes | Queue the quote link e-mail to the customer: { id, to?: [{ address, name? }], cc?: [{ address, name? }], subject?, body_html?, mailbox_id? } |
 | `quotes.submit` | quotes | write | yes | Send a draft quote for approval (approved right away when no policy applies): { id, comment? } |
-| `records.archive` | plugins | write | yes | Archive a record (hides it from default lists; not a deletion): { record_type, id }. Supported by contact, company, deal and custom object (custom.*) records; other types fail with 422 record_operation_not_supported |
-| `records.restore` | plugins | write | yes | Unarchive an archived record (not a trash restore): { record_type, id }. Supported by contact, company, deal and custom object (custom.*) records; other types fail with 422 record_operation_not_supported |
+| `records.archive` | wasm_runtime | write | yes | Archive a record (hides it from default lists; not a deletion): { record_type, id }. Supported by contact, company, deal and custom object (custom.*) records; other types fail with 422 record_operation_not_supported |
+| `records.restore` | wasm_runtime | write | yes | Unarchive an archived record (not a trash restore): { record_type, id }. Supported by contact, company, deal and custom object (custom.*) records; other types fail with 422 record_operation_not_supported |
 | `reminders.create` | reminders | write | yes | Create a reminder for the acting user (needs a user actor): { remind_at, note?, record_type?, record_id? } |
 | `reminders.delete` | reminders | write | yes | Delete a reminder of the acting user (needs a user actor): { id } |
 | `reminders.list` | reminders | read | — | Reminders of the acting user sorted by remind_at (needs a user actor): { status?: pending\|sent\|dismissed, record_type?, record_id?, page?, per_page? } -> { data, total } |

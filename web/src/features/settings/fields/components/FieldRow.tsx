@@ -1,4 +1,4 @@
-import { pluginDisplayName } from '@/kernel/modules/plugins'
+import { pluginDisplayName } from '@/kernel/modules/wasm_runtime'
 import { ArrowDown, ArrowUp, MoreHorizontal, Pencil, Power, PowerOff } from 'lucide-react'
 import type { ReactNode } from 'react'
 import { useTranslation } from 'react-i18next'

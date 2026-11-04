@@ -8,7 +8,6 @@ pub const REQUIRED: &[&str] = &[
     "notes",
     "tagging",
     "integrations",
-    "plugins",
     "exports",
     "org_export",
 ];
@@ -103,7 +102,7 @@ pub fn compiled() -> Vec<Box<dyn Module>> {
         #[cfg(feature = "plugins")]
         Box::new(module_integrations::IntegrationsModule),
         #[cfg(feature = "plugins")]
-        Box::new(module_plugins::PluginsModule),
+        Box::new(module_wasm_runtime::WasmRuntimeModule),
         #[cfg(feature = "plugins")]
         Box::new(module_imports::ImportsModule),
         #[cfg(feature = "plugins")]

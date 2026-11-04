@@ -14,7 +14,7 @@ use aphel_kernel::domain::access::AccessScope;
 use aphel_kernel::errors::AppError;
 use aphel_kernel::state::runtime_state;
 
-pub(crate) const CHANGES_CONSUMER: &str = "plugins.changes";
+pub(crate) const CHANGES_CONSUMER: &str = "wasm_runtime.changes";
 pub(crate) const MAX_PAGE: u32 = 500;
 pub(crate) const RETENTION_HOURS: i64 = 24;
 pub(crate) const STREAM_POLL: Duration = Duration::from_secs(1);

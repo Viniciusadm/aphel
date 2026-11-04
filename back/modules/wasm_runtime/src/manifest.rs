@@ -643,7 +643,7 @@ impl PluginManifest {
             if !catalog.hooks.contains(&hook.hook.as_str()) {
                 violations.push(FieldViolation::new(
                     format!("hooks[{index}].hook"),
-                    "must be a hook offered by this Aphel (see GET /api/v1/plugins/host-catalog)",
+                    "must be a hook offered by this Aphel (see GET /api/v1/wasm-runtime/host-catalog)",
                 ));
             }
             if hook.record_types.is_empty() {
@@ -872,7 +872,7 @@ impl PluginManifest {
             {
                 violations.push(FieldViolation::new(
                     format!("operations[{index}]"),
-                    "must be a unique operation offered by this Aphel (see GET /api/v1/plugins/host-catalog)",
+                    "must be a unique operation offered by this Aphel (see GET /api/v1/wasm-runtime/host-catalog)",
                 ));
             }
         }

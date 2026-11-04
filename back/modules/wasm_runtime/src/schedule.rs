@@ -14,7 +14,7 @@ use aphel_kernel::application::shared::{Job, JobContext, JobHandler, JobQueue};
 use aphel_kernel::errors::AppError;
 use aphel_kernel::infrastructure::jobs::MySqlJobQueue;
 
-pub(crate) const TICK_JOB: &str = "plugins.tick";
+pub(crate) const TICK_JOB: &str = "wasm_runtime.tick";
 pub(crate) const RUN_JOB: &str = "plugin.schedule";
 const TICK_CRON: &str = "0 * * * * *";
 const LOOKBACK_MINUTES: i64 = 5;

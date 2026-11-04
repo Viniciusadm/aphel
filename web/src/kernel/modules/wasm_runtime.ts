@@ -22,7 +22,7 @@ interface WebPluginEntry {
   style: string | null
 }
 
-const PLUGINS_URL = '/api/v1/public/plugins'
+const PLUGINS_URL = '/api/v1/public/wasm-runtime'
 
 let loaded: WebModule[] = []
 let failedNames: string[] = []

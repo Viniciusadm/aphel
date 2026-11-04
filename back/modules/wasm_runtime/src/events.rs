@@ -9,7 +9,7 @@ use aphel_kernel::errors::AppError;
 use sqlx::{Row, types::Json};
 use std::sync::Arc;
 
-pub(crate) const EVENTS_CONSUMER: &str = "plugins.events";
+pub(crate) const EVENTS_CONSUMER: &str = "wasm_runtime.events";
 
 pub(crate) struct PluginEventsConsumer {
     pool: MySqlPool,

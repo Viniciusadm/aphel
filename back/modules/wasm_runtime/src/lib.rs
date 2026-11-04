@@ -38,15 +38,15 @@ use aphel_kernel::records::{
     RecordSaving, RecordValidating,
 };
 
-pub const KEY: &str = "plugins";
+pub const KEY: &str = "wasm_runtime";
 
 const HOOK_PRIORITY: i32 = 50;
 
-pub struct PluginsModule;
+pub struct WasmRuntimeModule;
 
-impl Module for PluginsModule {
+impl Module for WasmRuntimeModule {
     fn manifest(&self) -> Manifest {
-        Manifest::new(KEY, "Plugins", APHEL_VERSION)
+        Manifest::new(KEY, "WebAssembly runtime", APHEL_VERSION)
             .description(
                 "Runtime plugins: install .aphelplugin packages (WebAssembly backend and web bundle) without rebuilding or restarting Aphel",
             )

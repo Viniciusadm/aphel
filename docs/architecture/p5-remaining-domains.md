@@ -117,6 +117,14 @@ This phase is in progress. Completed entries describe static source validation; 
 - [x] Catalog items, pricing and goals use the SDK money input codec directly; no DTO is imported through deals. Monetary parsing and endpoint schemas are unchanged.
 - [ ] Manual acceptance: numeric/string inputs, invalid precision and amount validation on these screens.
 
+## Optional WebAssembly host identity
+
+- [x] Rename the native host to `wasm_runtime`, its crate to `aphel-mod-wasm-runtime` and its HTTP/settings paths to `wasm-runtime`, without legacy transport aliases.
+- [x] Remove the host's required flag. Installer profiles explicitly select it; the generic optional-module Cargo feature remains unchanged.
+- [x] Register runtime management settings through the host's own web module. Keep generic plugin package protocols, owned storage and application routes unchanged.
+- [ ] Replace the remaining objects implementation dependency and review managed entity availability when the host is disabled or absent.
+- [ ] Manual acceptance: installation, grants, settings, bundles, public routes, change streams, queued effects, module disabling and host-free composition.
+
 ## Outstanding scope
 
 The remaining identity changes, shared capability interfaces, owner-only SQL, deletion policies and per-plugin manual acceptance matrices are still pending. Existing architectural debt is not considered resolved by renaming packages.

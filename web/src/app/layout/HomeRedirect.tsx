@@ -3,7 +3,7 @@ import { useLocation, useNavigate } from 'react-router'
 import { useSession } from '@/app/session/session-context'
 import { mobileHomePath } from '@/features/mobile/lib/home'
 import { usePersonalPreferences } from '@/features/settings/navigation/api'
-import { pluginRoleHome } from '@/kernel/modules/plugins'
+import { pluginRoleHome } from '@/kernel/modules/wasm_runtime'
 
 const HOME_REDIRECT_KEY = 'aphel.home.redirected'
 

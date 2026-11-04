@@ -43,7 +43,7 @@ approvals = { path = "modules/approvals" }
 automations = { path = "modules/automations" }
 webhooks = { path = "modules/webhooks" }
 integrations = { path = "modules/integrations", required = true }
-plugins = { path = "modules/plugins", required = true }
+wasm_runtime = { path = "modules/wasm_runtime" }
 imports = { path = "modules/imports" }
 exports = { path = "modules/exports", required = true }
 bulk_actions = { path = "modules/bulk_actions" }

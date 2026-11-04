@@ -116,5 +116,5 @@ export interface PluginConsent extends PluginDeclarations {
   module_conflicts: ModuleConflictPlan[]
 }
 
-export const PLUGINS_PATH = '/v1/plugins'
+export const PLUGINS_PATH = '/v1/wasm-runtime'
 export const pluginsKey = ['plugins'] as const

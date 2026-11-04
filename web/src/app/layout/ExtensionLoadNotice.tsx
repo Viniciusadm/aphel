@@ -1,7 +1,7 @@
 import { useEffect } from 'react'
 import { useTranslation } from 'react-i18next'
 import { notifyError } from '@/components/feedback'
-import { failedWebPlugins } from '@/kernel/modules/plugins'
+import { failedWebPlugins } from '@/kernel/modules/wasm_runtime'
 
 let announced = false
 

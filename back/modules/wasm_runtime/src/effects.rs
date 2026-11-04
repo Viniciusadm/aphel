@@ -111,7 +111,7 @@ const HTTP_EFFECT_TIMEOUT: std::time::Duration = std::time::Duration::from_secs(
 static EMAIL_LIMIT: std::sync::LazyLock<aphel_kernel::api::rate_limit::SharedRateLimiter> =
     std::sync::LazyLock::new(|| {
         aphel_kernel::api::rate_limit::SharedRateLimiter::new(
-            "plugins.email",
+            "wasm_runtime.email",
             EMAIL_PER_MINUTE,
             std::time::Duration::from_secs(60),
         )

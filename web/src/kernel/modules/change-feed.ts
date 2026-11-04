@@ -27,7 +27,7 @@ export function useChangeFeed(
   })
   useEffect(() => {
     if (!enabled || typeof EventSource === 'undefined') return
-    const url = `${API_BASE_URL}/v1/plugins/${encodeURIComponent(pluginKey)}/changes/stream?since=${since}`
+    const url = `${API_BASE_URL}/v1/wasm-runtime/${encodeURIComponent(pluginKey)}/changes/stream?since=${since}`
     const source = new EventSource(url, { withCredentials: true })
     const handleChange = (event: MessageEvent<string>) => {
       try {

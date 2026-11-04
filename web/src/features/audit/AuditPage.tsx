@@ -1,5 +1,5 @@
 import { PaginationSummary } from '@/components/ui/pagination-summary'
-import { pluginDisplayName } from '@/kernel/modules/plugins'
+import { pluginDisplayName } from '@/kernel/modules/wasm_runtime'
 import { History } from 'lucide-react'
 import { useMemo } from 'react'
 import { useTranslation } from 'react-i18next'

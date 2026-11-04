@@ -35,7 +35,8 @@
       "tasks",
       "workflow",
       "money",
-      "documents"
+      "documents",
+      "wasm_runtime"
     ]
   },
   {
@@ -84,7 +85,8 @@
       "tasks",
       "workflow",
       "money",
-      "documents"
+      "documents",
+      "wasm_runtime"
     ]
   },
   {
@@ -127,7 +129,8 @@
       "tasks",
       "workflow",
       "money",
-      "documents"
+      "documents",
+      "wasm_runtime"
     ]
   },
   {
@@ -171,7 +174,8 @@
       "tasks",
       "workflow",
       "money",
-      "documents"
+      "documents",
+      "wasm_runtime"
     ]
   },
   {
@@ -218,7 +222,8 @@
       "tasks",
       "workflow",
       "money",
-      "documents"
+      "documents",
+      "wasm_runtime"
     ]
   },
   {
@@ -266,7 +271,8 @@
       "tasks",
       "workflow",
       "money",
-      "documents"
+      "documents",
+      "wasm_runtime"
     ]
   },
   {
@@ -303,7 +309,8 @@
       "tasks",
       "workflow",
       "money",
-      "documents"
+      "documents",
+      "wasm_runtime"
     ]
   }
 ]

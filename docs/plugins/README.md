@@ -1,6 +1,6 @@
 # Runtime plugins
 
-A runtime plugin is a `.aphelplugin` package that an administrator uploads in **Settings › Integrations › Modules › Plugins** (or `POST /api/v1/plugins`). Installing, upgrading, enabling, disabling and uninstalling a plugin needs **no rebuild, no restart and no change to the Aphel repository**: the plugin lives in its own repository, and the running server (and every worker) picks it up within a few seconds.
+A runtime plugin is a `.aphelplugin` package that an administrator uploads in **Settings › Integrations › Modules › Plugins** (or `POST /api/v1/wasm-runtime`). Installing, upgrading, enabling, disabling and uninstalling a plugin needs **no rebuild, no restart and no change to the Aphel repository**: the plugin lives in its own repository, and the running server (and every worker) picks it up within a few seconds.
 
 | | Compiled modules ([`docs/modules`](../modules/README.md)) | Runtime plugins (this guide) |
 | --- | --- | --- |
@@ -188,7 +188,7 @@ What the declarations become:
 | `routes` | `GET/POST/PUT/PATCH/DELETE /api/v1/p/<key>/…` with the caller's session or API token and the declared permission. Public routes (see below) |
 | `http` | Outbound HTTP allowed only to these hosts (see Outbound HTTP) |
 | `schedules` | The worker calls `on-schedule(name, slot)` once per due slot (see Schedules) |
-| `settings` | Shown in the plugin settings dialog; `GET`/`PUT /api/v1/plugins/<key>/settings`. `type = "select"` takes `options` (`value` and `label`), `group` sorts settings under a heading. `settings_permission` (a permission the plugin declares) lets people who hold it read and write the settings without `system.manage`, so the plugin can offer them in its own screens |
+| `settings` | Shown in the plugin settings dialog; `GET`/`PUT /api/v1/wasm-runtime/<key>/settings`. `type = "select"` takes `options` (`value` and `label`), `group` sorts settings under a heading. `settings_permission` (a permission the plugin declares) lets people who hold it read and write the settings without `system.manage`, so the plugin can offer them in its own screens |
 | `actions` | Automation actions `plugin.<key>.<action>` in the automation editor, with a form built from `inputs` (see Automations) |
 | `emits` | Events `plugin.<key>.<name>` the backend publishes with `emit`, available as automation triggers |
 | `notifications` | Notification kinds `<key>_<name>` in the preferences, sent with `notify` (see Notifications) |
@@ -253,7 +253,7 @@ Referencing a record counts as reading it. Writing a `record` field (for example
 
 ## Consent
 
-`POST /api/v1/plugins?dry_run=true` with the package returns what the plugin declares and installs nothing:
+`POST /api/v1/wasm-runtime?dry_run=true` with the package returns what the plugin declares and installs nothing:
 - entities and extended record types;
 - hooks, events and routes, including public routes;
 - the module operations it calls;
@@ -267,7 +267,7 @@ Referencing a record counts as reading it. Writing a `record` field (for example
 
 The web app shows this as a consent dialog, with warnings for public routes and outbound HTTP and an unchecked checklist of role presets, before the real install.
 
-Installing never claims the setup is complete: `GET /api/v1/plugins` returns `grants` (per role: `role_exists`, `expected`, `granted`, `missing`) and `ungranted_roles`, and the plugin screen shows "role: 14 of 18 permissions granted". After creating a missing role in Settings › Roles, `POST /api/v1/plugins/{key}/grants` reapplies the declared grants to the roles that exist now (it never creates roles). Install and reapply publish `plugin.installed` / `plugin.grants_reapplied` with the created roles and the number of grants in the audit, in the same transaction as the permission writes.
+Installing never claims the setup is complete: `GET /api/v1/wasm-runtime` returns `grants` (per role: `role_exists`, `expected`, `granted`, `missing`) and `ungranted_roles`, and the plugin screen shows "role: 14 of 18 permissions granted". After creating a missing role in Settings › Roles, `POST /api/v1/wasm-runtime/{key}/grants` reapplies the declared grants to the roles that exist now (it never creates roles). Install and reapply publish `plugin.installed` / `plugin.grants_reapplied` with the created roles and the number of grants in the audit, in the same transaction as the permission writes.
 
 Plugin entities are managed custom objects: they are created with `module_key` already set and do not count against the 50 custom objects an organization can create.
 
@@ -301,7 +301,7 @@ Generic record hooks:
 
 Read-path hooks (serialization, query filters, schema and search) are not offered: they run on every list and response, where WebAssembly would cost too much.
 
-`GET /api/v1/plugins/host-catalog` lists every hook and operation, with its input shape, its kind and whether its module is enabled. The full list is in [host-catalog.md](host-catalog.md).
+`GET /api/v1/wasm-runtime/host-catalog` lists every hook and operation, with its input shape, its kind and whether its module is enabled. The full list is in [host-catalog.md](host-catalog.md).
 
 ## Backend in Rust
 
@@ -407,12 +407,12 @@ Codes are lowercase snake case. Errors from host calls keep their HTTP status wh
 
 **Secrets** are `[[settings]]` of `type = "secret"`:
 - Stored in the `SecretVault` (`owner_type = "plugin"`, `owner_id = <key>`).
-- In `PUT /api/v1/plugins/<key>/settings`, a string sets the secret, `null` removes it and an absent key keeps it.
-- `GET /api/v1/plugins` only reports `settings[].configured`, and the audit writes `[redacted]`.
+- In `PUT /api/v1/wasm-runtime/<key>/settings`, a string sets the secret, `null` removes it and an absent key keeps it.
+- `GET /api/v1/wasm-runtime` only reports `settings[].configured`, and the audit writes `[redacted]`.
 - Removed on uninstall.
 
 **Schedules.**
-- Every minute, the job `plugins.tick` enqueues one `plugin.schedule` job per due slot of each enabled plugin. It looks back 5 minutes and caps at 60 slots per tick.
+- Every minute, the job `wasm_runtime.tick` enqueues one `plugin.schedule` job per due slot of each enabled plugin. It looks back 5 minutes and caps at 60 slots per tick.
 - The job's unique key is `plugin.schedule:<key>:<name>:<slot>`, so a slot runs once even with several workers.
 - `slot` is the RFC 3339 fire time in UTC. Use it to make the work idempotent.
 
@@ -473,7 +473,7 @@ A veto is never silently bypassed.
 - Email needs `emails.send` in `requires` and the `email` module. It goes through the installation's SMTP and is skipped when the recipient is on the opt-out list (`/api/v1/communication/opt-outs`, scopes `all` and `marketing`).
 - HTTP follows the `allowed_hosts` and the SSRF policy of `http-fetch`.
 
-**Sub-minute schedules.** A `cron` with seconds runs at each second slot: `plugins.tick` enqueues the slots of the next 60 seconds, up to 12 per schedule, so the shortest useful period is 5 seconds.
+**Sub-minute schedules.** A `cron` with seconds runs at each second slot: `wasm_runtime.tick` enqueues the slots of the next 60 seconds, up to 12 per schedule, so the shortest useful period is 5 seconds.
 
 **Data subject requests.** With `[privacy] subject_data = true`, each privacy request calls `on-action` with the name `privacy.export`, `privacy.anonymize` or `privacy.delete`:
 - The input is `{ request_id, action, records: [{ record_type, id }] }`, and the call runs as the plugin, before the core erases the records, with a 60 s limit.
@@ -492,7 +492,7 @@ A veto is never silently bypassed.
 ### The contract (WIT)
 
 The backend is a [WebAssembly component](https://component-model.bytecodealliance.org) of the world `aphel:plugin@1.0.0`:
-- It is defined in [`back/modules/plugins/wit/plugin.wit`](../../back/modules/plugins/wit/plugin.wit) and shipped inside the SDK crate as `sdk/rust/aphel-plugin-sdk/wit/plugin.wit`. The copies are kept in sync by `make modules` and checked by `make lint`.
+- It is defined in [`back/modules/wasm_runtime/wit/plugin.wit`](../../back/modules/wasm_runtime/wit/plugin.wit) and shipped inside the SDK crate as `sdk/rust/aphel-plugin-sdk/wit/plugin.wit`. The copies are kept in sync by `make modules` and checked by `make lint`.
 - It is also copied to `sdk/js/aphel-plugin-sdk/wit/plugin.wit` for the JavaScript SDK.
 - It exports `on-hook`, `on-event`, `on-route`, `on-schedule`, `on-action` and `on-widget`.
 - It imports the `host` interface: `get-record`, `list-records`, `create-record`, `update-record`, `delete-record`, `update-record-if`, `apply-records`, `can`, `permissions`, `kv-get`, `kv-set`, `kv-delete`, `kv-list`, `kv-increment`, `kv-set-if-absent`, `next-number`, `aggregate-records`, `iterate-records`, `upload-file`, `read-file`, `respond-bytes`, `set-audit-reason`, `organization-json`, `list-users`, `list-roles`, `list-teams`, `defer-effect`, `hook-state-json`, `execution-context-json`, `http-fetch`, `notify`, `emit`, `invoke`, `settings-json`, `secret`, `now` and `log`.
@@ -564,7 +564,7 @@ The bundle is an ES module that default-exports a `defineModule` (same API as th
 | --- | --- |
 | `react`, `react/jsx-runtime`, `react-dom`, `react-dom/client`, `react-router`, `@tanstack/react-query`, `react-i18next` | The instances used by Aphel |
 | `@aphel/ui` | The UI components and tokens, without session, records or i18n dependencies; also usable in public web apps. See [`docs/ui`](../ui/README.md) |
-| `@aphel/web-sdk` | Stable API: `defineModule`, `NAV_ORDER`, `useModuleTranslation`, `Slot`, `api`, `useSession`, `RecordListView`, `RecordDetailPage`, `RecordFormDialog`, `RecordForm`, `useRecord`, `registerRecordResource`, formatting helpers, `customObjectPath`/`customRecordPath`, `useChangeFeed` (live changes of the plugin's records from `GET /api/v1/plugins/<key>/changes/stream`, with `GET /api/v1/plugins/<key>/changes?since=<seq>` for catching up; kept for 24 hours, and `reset` means the client must reload), feedback (`ConfirmDialog`, `notifySuccess`, `notifyError`) and UI components (`Button`, `Badge`, `Card`, `EmptyState`, `ErrorState`, `Skeleton`, `Input`, `Label`, `Tooltip`, `Avatar`, `cn`) — [`web/src/sdk/index.ts`](../../web/src/sdk/index.ts) |
+| `@aphel/web-sdk` | Stable API: `defineModule`, `NAV_ORDER`, `useModuleTranslation`, `Slot`, `api`, `useSession`, `RecordListView`, `RecordDetailPage`, `RecordFormDialog`, `RecordForm`, `useRecord`, `registerRecordResource`, formatting helpers, `customObjectPath`/`customRecordPath`, `useChangeFeed` (live changes of the plugin's records from `GET /api/v1/wasm-runtime/<key>/changes/stream`, with `GET /api/v1/wasm-runtime/<key>/changes?since=<seq>` for catching up; kept for 24 hours, and `reset` means the client must reload), feedback (`ConfirmDialog`, `notifySuccess`, `notifyError`) and UI components (`Button`, `Badge`, `Card`, `EmptyState`, `ErrorState`, `Skeleton`, `Input`, `Label`, `Tooltip`, `Avatar`, `cn`) — [`web/src/sdk/index.ts`](../../web/src/sdk/index.ts) |
 
 ```js
 // vite.config.js
@@ -636,7 +636,7 @@ export default defineModule({
 })
 ```
 
-The web app loads `GET /api/v1/public/plugins` before it builds its routes, and imports each enabled bundle from `/api/v1/public/plugins/<key>/web/…` (public, cached by version). Installing, enabling or disabling a plugin reloads the page.
+The web app loads `GET /api/v1/public/wasm-runtime` before it builds its routes, and imports each enabled bundle from `/api/v1/public/wasm-runtime/<key>/web/…` (public, cached by version). Installing, enabling or disabling a plugin reloads the page.
 
 ## Tools
 
@@ -651,22 +651,22 @@ The web app loads `GET /api/v1/public/plugins` before it builds its routes, and 
 Install from the command line with an API token that has `system.manage`:
 
 ```bash
-curl -H "Authorization: Bearer $TOKEN" -F package=@equine-2.0.0.aphelplugin "https://crm.example.com/api/v1/plugins?dry_run=true"   # what it asks for
-curl -H "Authorization: Bearer $TOKEN" -F package=@equine-2.0.0.aphelplugin https://crm.example.com/api/v1/plugins                # install
+curl -H "Authorization: Bearer $TOKEN" -F package=@equine-2.0.0.aphelplugin "https://crm.example.com/api/v1/wasm-runtime?dry_run=true"   # what it asks for
+curl -H "Authorization: Bearer $TOKEN" -F package=@equine-2.0.0.aphelplugin https://crm.example.com/api/v1/wasm-runtime                # install
 ```
 
 ## Administration API
 
 | Route | Permission | |
 | --- | --- | --- |
-| `GET /api/v1/plugins` | `system.manage` | Installed plugins, what each declares, `backend_error` and `settings[].configured` |
-| `POST /api/v1/plugins` (multipart `package`) | `system.manage` | Install or upgrade; `?dry_run=true` only returns the consent payload |
-| `POST /api/v1/plugins/{key}/enable` · `/disable` | `system.manage` | Disabling hides entities, fields and permissions and stops hooks, events, schedules, routes and the web bundle; nothing is deleted |
-| `PUT /api/v1/plugins/{key}/settings` | `system.manage` | Validated against the declared settings; secrets set, removed (`null`) or kept (absent) |
-| `POST /api/v1/plugins/{key}/grants` | `system.manage` | Reapplies declared, preset and entity default grants to the roles that exist; never creates roles |
-| `DELETE /api/v1/plugins/{key}?purge=true` | `system.manage` | Removes the plugin, its key-value data, secrets and permissions; with `purge` also its entities, records and fields |
-| `GET /api/v1/plugins/host-catalog` | `system.manage` | Hooks and operations this Aphel offers to plugins, with the owning module and whether it is enabled |
-| `GET /api/v1/public/plugins` | public | Web bundles of the enabled plugins |
+| `GET /api/v1/wasm-runtime` | `system.manage` | Installed plugins, what each declares, `backend_error` and `settings[].configured` |
+| `POST /api/v1/wasm-runtime` (multipart `package`) | `system.manage` | Install or upgrade; `?dry_run=true` only returns the consent payload |
+| `POST /api/v1/wasm-runtime/{key}/enable` · `/disable` | `system.manage` | Disabling hides entities, fields and permissions and stops hooks, events, schedules, routes and the web bundle; nothing is deleted |
+| `PUT /api/v1/wasm-runtime/{key}/settings` | `system.manage` | Validated against the declared settings; secrets set, removed (`null`) or kept (absent) |
+| `POST /api/v1/wasm-runtime/{key}/grants` | `system.manage` | Reapplies declared, preset and entity default grants to the roles that exist; never creates roles |
+| `DELETE /api/v1/wasm-runtime/{key}?purge=true` | `system.manage` | Removes the plugin, its key-value data, secrets and permissions; with `purge` also its entities, records and fields |
+| `GET /api/v1/wasm-runtime/host-catalog` | `system.manage` | Hooks and operations this Aphel offers to plugins, with the owning module and whether it is enabled |
+| `GET /api/v1/public/wasm-runtime` | public | Web bundles of the enabled plugins |
 | `ANY /api/v1/p/{key}/{path}` | declared per route | Plugin routes |
 | `ANY /api/v1/public/p/{key}/{path}` | public, rate limited | Public plugin routes |
 
@@ -674,7 +674,7 @@ Every change publishes `plugin.installed|enabled|disabled|settings_updated|grant
 
 ## How it works
 
-The compiled module `plugins` ([`back/modules/plugins`](../../back/modules/plugins)) is the host:
+The compiled module `plugins` ([`back/modules/wasm_runtime`](../../back/modules/wasm_runtime)) is the host:
 
 - **Storage.** The tables are `plugins_installed` (with `installed_by`), `plugins_files` (package files), `plugins_data` (key-value), `plugins_compiled` and `plugins_state.version`. Declared permissions live in the kernel table `runtime_permissions` (owner `plugin:<key>`). The version is bumped on every change, and every `serve` and `worker` process rechecks it at most every 2 s. Only the plugins whose checksum changed are recompiled.
 - **Runtime.** [`wasmtime`](https://wasmtime.dev) with the Component Model, Cranelift, epoch interruption and per-instance memory limits.
@@ -683,8 +683,8 @@ The compiled module `plugins` ([`back/modules/plugins`](../../back/modules/plugi
   - Compiled code is cached by the SHA-256 of `backend.wasm`: in the process (so install and load share one compile) and in `plugins_compiled`, keyed also by the engine's compatibility hash. Other processes and restarts deserialize it instead of compiling. Artifacts of backends no longer installed are pruned on install and uninstall, and freed compile memory is returned to the OS.
   - WASI comes from `wasmtime-wasi` with an empty sandbox.
 - **Hooks.** The host registers one handler per record hook (`RecordSaving`, `RecordValidating`, `RecordSaved`, `RecordDeleting`). It forwards to the enabled plugins that subscribed to that hook and record type, flagging the call as in-transaction.
-- **Events.** The consumer `plugins.events` accepts the event types that some enabled plugin consumes. It skips events whose actor is the plugin itself.
-- **Schedules.** The jobs `plugins.tick` and `plugin.schedule` live in `schedule.rs`.
+- **Events.** The consumer `wasm_runtime.events` accepts the event types that some enabled plugin consumes. It skips events whose actor is the plugin itself.
+- **Schedules.** The jobs `wasm_runtime.tick` and `plugin.schedule` live in `schedule.rs`.
 - **Automations, notifications and widgets.** `automation.rs` contributes the plugin actions and triggers to the automation registries (`AutomationActionSource`/`AutomationTriggerSource`). Notification kinds and widgets are published to the kernel's runtime contributions (`App::replace_runtime`) (`kernel/modules/builder.rs`, `App::replace_runtime`), which the notification catalog and `WidgetRegistry::builtin()` read next to the compiled ones (`notify.rs`, `widgets.rs`).
 - **Routes.** Two generic routes dispatch `/api/v1/p/{key}/…` and `/api/v1/public/p/{key}/…` to the plugin, after matching the declared route and checking its permission or rate limit.
 - **Schema.** Entities are created through the custom object use cases and locked with `custom_objects.module_key`. Fields are written to `field_definitions` with `module_key`, and the boot sync only releases fields of compiled modules. `schema.rs` reconciles upgrades as described in [Upgrades](#upgrades).

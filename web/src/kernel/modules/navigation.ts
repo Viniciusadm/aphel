@@ -3,7 +3,7 @@ import { useMemo, type ComponentType } from 'react'
 import type { NavContribution } from './define'
 import { NO_FILTER_CONTEXT, useFilters } from './filters'
 import { useLabelTranslator } from './i18n'
-import { pluginMenus, type PluginMenu } from './plugins'
+import { pluginMenus, type PluginMenu } from './wasm_runtime'
 import { useActiveContributions, usePermissionCheck } from './registry'
 import { ADMIN_AREAS, ORGANIZATION_AREA, useAllowedSettingsAreas } from './settings'
 

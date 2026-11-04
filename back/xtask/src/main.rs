@@ -17,7 +17,7 @@ const WEB_ALIASES: &str = "modules.aliases.json";
 const WEB_TSCONFIG: &str = "tsconfig.modules.json";
 const DEPENDENCY_PREFIX: &str = "module-";
 const KERNEL_MODULE: &str = "kernel";
-const PLUGIN_WIT: &str = "modules/plugins/wit/plugin.wit";
+const PLUGIN_WIT: &str = "modules/wasm_runtime/wit/plugin.wit";
 const SDK_PLUGIN_WITS: [&str; 2] = [
     "../sdk/rust/aphel-plugin-sdk/wit/plugin.wit",
     "../sdk/js/aphel-plugin-sdk/wit/plugin.wit",

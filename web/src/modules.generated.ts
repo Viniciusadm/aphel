@@ -41,6 +41,7 @@ import approvalsModule from '@modules/approvals'
 import automationsModule from '@modules/automations'
 import webhooksModule from '@modules/webhooks'
 import integrationsModule from '@modules/integrations'
+import wasmRuntimeModule from '@modules/wasm_runtime'
 import importsModule from '@modules/imports'
 import exportsModule from '@modules/exports'
 import bulkActionsModule from '@modules/bulk_actions'
@@ -107,6 +108,7 @@ export const MODULES: WebModule[] = [
   automationsModule,
   webhooksModule,
   integrationsModule,
+  wasmRuntimeModule,
   importsModule,
   exportsModule,
   bulkActionsModule,

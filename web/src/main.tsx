@@ -2,7 +2,7 @@ import { StrictMode } from 'react'
 import { createRoot } from 'react-dom/client'
 import './index.css'
 import '@/i18n'
-import { loadWebPlugins } from '@/kernel/modules/plugins'
+import { loadWebPlugins } from '@/kernel/modules/wasm_runtime'
 import { APP_THEME, applyResolvedTheme } from '@/lib/theme'
 import { registerPwa } from '@/pwa/register'
 

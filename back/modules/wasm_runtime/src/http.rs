@@ -79,7 +79,7 @@ pub(crate) fn router() -> OpenApiRouter<AppState> {
 pub(crate) fn public_router() -> OpenApiRouter<AppState> {
     OpenApiRouter::new()
         .routes(routes!(web_plugins))
-        .route("/public/plugins/{key}/{*path}", get(web_asset))
+        .route("/public/wasm-runtime/{key}/{*path}", get(web_asset))
         .route("/public/p/{key}/{*path}", any(public_dispatch))
 }
 
@@ -505,7 +505,7 @@ async fn sync_permissions(
 
 #[utoipa::path(
     get,
-    path = "/plugins",
+    path = "/wasm-runtime",
     tag = TAG,
     operation_id = "plugins_list",
     security(("session_cookie" = [])),
@@ -530,7 +530,7 @@ async fn list_plugins(
 
 #[utoipa::path(
     get,
-    path = "/plugins/readiness",
+    path = "/wasm-runtime/readiness",
     tag = TAG,
     operation_id = "plugins_readiness",
     security(("session_cookie" = [])),
@@ -562,7 +562,7 @@ async fn catalog_readiness(
 
 #[utoipa::path(
     get,
-    path = "/plugins/host-catalog",
+    path = "/wasm-runtime/host-catalog",
     tag = TAG,
     operation_id = "plugins_host_catalog",
     security(("session_cookie" = [])),
@@ -582,7 +582,7 @@ async fn host_catalog(
 
 #[utoipa::path(
     post,
-    path = "/plugins",
+    path = "/wasm-runtime",
     tag = TAG,
     operation_id = "plugins_install",
     security(("session_cookie" = [])),
@@ -771,7 +771,7 @@ async fn package_bytes(
 
 #[utoipa::path(
     post,
-    path = "/plugins/{key}/grants",
+    path = "/wasm-runtime/{key}/grants",
     tag = TAG,
     operation_id = "plugins_reapply_grants",
     security(("session_cookie" = [])),
@@ -828,7 +828,7 @@ async fn enabled_plugin(state: &AppState, key: &str) -> Result<(), AppError> {
 
 #[utoipa::path(
     get,
-    path = "/plugins/{key}/changes",
+    path = "/wasm-runtime/{key}/changes",
     tag = TAG,
     operation_id = "plugins_changes",
     security(("session_cookie" = [])),
@@ -859,11 +859,11 @@ async fn plugin_changes(
 
 #[utoipa::path(
     get,
-    path = "/plugins/{key}/changes/stream",
+    path = "/wasm-runtime/{key}/changes/stream",
     tag = TAG,
     operation_id = "plugins_change_stream",
     security(("session_cookie" = [])),
-    description = "The change feed as Server-Sent Events: each entry is an event `change` with the JSON of `GET /plugins/{key}/changes` and `id` = `seq`; `reset` asks the client to reload. Resumes from `since` or the `Last-Event-ID` header. The server closes the stream after 5 minutes; `EventSource` reconnects with `Last-Event-ID`.",
+    description = "The change feed as Server-Sent Events: each entry is an event `change` with the JSON of `GET /wasm-runtime/{key}/changes` and `id` = `seq`; `reset` asks the client to reload. Resumes from `since` or the `Last-Event-ID` header. The server closes the stream after 5 minutes; `EventSource` reconnects with `Last-Event-ID`.",
     params(("key" = String, Path, description = "Plugin key"), ChangesParams),
     responses(
         (status = 200, description = "text/event-stream of changes"),
@@ -938,7 +938,7 @@ pub(crate) struct UninstallParams {
 
 #[utoipa::path(
     delete,
-    path = "/plugins/{key}",
+    path = "/wasm-runtime/{key}",
     tag = TAG,
     operation_id = "plugins_uninstall",
     security(("session_cookie" = [])),
@@ -1044,7 +1044,7 @@ async fn toggle(
 
 #[utoipa::path(
     post,
-    path = "/plugins/{key}/enable",
+    path = "/wasm-runtime/{key}/enable",
     tag = TAG,
     operation_id = "plugins_enable",
     security(("session_cookie" = [])),
@@ -1079,7 +1079,7 @@ async fn enable_plugin(
 
 #[utoipa::path(
     post,
-    path = "/plugins/{key}/disable",
+    path = "/wasm-runtime/{key}/disable",
     tag = TAG,
     operation_id = "plugins_disable",
     security(("session_cookie" = [])),
@@ -1164,7 +1164,7 @@ fn require_settings_access(tenant: &AuthContext, plugin: &InstalledPlugin) -> Re
 
 #[utoipa::path(
     get,
-    path = "/plugins/{key}/settings",
+    path = "/wasm-runtime/{key}/settings",
     tag = TAG,
     operation_id = "plugins_settings",
     security(("session_cookie" = [])),
@@ -1188,7 +1188,7 @@ async fn list_plugin_settings(
 
 #[utoipa::path(
     put,
-    path = "/plugins/{key}/settings",
+    path = "/wasm-runtime/{key}/settings",
     tag = TAG,
     operation_id = "plugins_update_settings",
     security(("session_cookie" = [])),
@@ -1295,7 +1295,7 @@ pub(crate) struct WebPluginResponse {
 
 #[utoipa::path(
     get,
-    path = "/public/plugins",
+    path = "/public/wasm-runtime",
     tag = TAG,
     operation_id = "plugins_web",
     description = "Lists the web bundles of the enabled plugins, loaded by the Aphel web app before it builds its routes. Public: plugin bundles are code, not data.",
@@ -1309,7 +1309,7 @@ async fn web_plugins(
     let plugins = store::list(&state.db()?).await?;
     let asset = |plugin: &InstalledPlugin, path: &str| {
         format!(
-            "/api/v1/public/plugins/{}/{path}?v={}",
+            "/api/v1/public/wasm-runtime/{}/{path}?v={}",
             plugin.key,
             &plugin.checksum[..12]
         )
@@ -1583,11 +1583,15 @@ async fn dispatch(
 static PUBLIC_LIMITS: LazyLock<(SharedRateLimiter, SharedRateLimiter)> = LazyLock::new(|| {
     (
         SharedRateLimiter::new(
-            "plugins.public_per_address",
+            "wasm_runtime.public_per_address",
             PUBLIC_PER_ADDRESS_LIMIT,
             MINUTE,
         ),
-        SharedRateLimiter::new("plugins.public_per_plugin", PUBLIC_PER_PLUGIN_LIMIT, MINUTE),
+        SharedRateLimiter::new(
+            "wasm_runtime.public_per_plugin",
+            PUBLIC_PER_PLUGIN_LIMIT,
+            MINUTE,
+        ),
     )
 });
 

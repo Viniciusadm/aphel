@@ -5,7 +5,6 @@ import {
   History,
   KeyRound,
   Languages,
-  Plug,
   Puzzle,
   Server,
   Send,
@@ -193,14 +192,6 @@ function registerSettings(app: ModuleApp) {
       icon: Puzzle,
       permission: SETTINGS_MANAGE,
       lazy: page(() => import('@/features/settings/modules/ModulesPage'), 'ModulesPage'),
-    },
-    {
-      group: 'connections',
-      path: 'plugins',
-      label: 'plugins',
-      icon: Plug,
-      permission: SYSTEM_MANAGE,
-      lazy: page(() => import('@/features/settings/modules/PluginsPanel'), 'PluginsPanel'),
     },
   ])
 

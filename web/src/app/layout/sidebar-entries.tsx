@@ -4,7 +4,7 @@ import type { NavigationPreferences } from '@/features/settings/navigation/types
 import { NAV_ORDER } from '@/kernel/modules/define'
 import { NO_FILTER_CONTEXT, useFilters } from '@/kernel/modules/filters'
 import { useNavigationEntries, type NavigationEntry } from '@/kernel/modules/navigation'
-import { pluginMenus } from '@/kernel/modules/plugins'
+import { pluginMenus } from '@/kernel/modules/wasm_runtime'
 
 export interface SidebarEntry {
   key: string

@@ -90,7 +90,7 @@ The contract requires exactly one committing transaction using `Ctx::begin()` or
 
 Metadata loads independently of WASM compilation. The host publishes a complete metadata generation and compiles each backend lazily on first execution. Async module contexts ensure catalog readiness before consuming dynamic contributions. A loading or failed catalog is not represented as an authoritative empty list.
 
-`GET /api/v1/plugins/readiness` requires `system.manage` and reports `loading`, `ready`, or `degraded`, the metadata version, and plugin keys with known backend errors. Catalog loading failures return 503 `plugin_catalog_unavailable`. Plugin settings displays loading and retryable errors. A broken backend remains subscribed to validation hooks and fails closed; it is not silently omitted.
+`GET /api/v1/wasm-runtime/readiness` requires `system.manage` and reports `loading`, `ready`, or `degraded`, the metadata version, and plugin keys with known backend errors. Catalog loading failures return 503 `plugin_catalog_unavailable`. Plugin settings displays loading and retryable errors. A broken backend remains subscribed to validation hooks and fails closed; it is not silently omitted.
 
 Metadata refreshes are serialized. A generation changed during loading is rejected and retried rather than published. Notification kinds, widgets, and public events are replaced together. Transient database failures while loading a backend are retryable; a compilation failure is cached for that package version.
 

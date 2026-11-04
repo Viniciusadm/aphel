@@ -192,7 +192,6 @@ dependencies = [
  "aphel-mod-org-export",
  "aphel-mod-organizations",
  "aphel-mod-people",
- "aphel-mod-plugins",
  "aphel-mod-pricing",
  "aphel-mod-privacy",
  "aphel-mod-proposals",
@@ -214,6 +213,7 @@ dependencies = [
  "aphel-mod-timeline",
  "aphel-mod-trash",
  "aphel-mod-validation-rules",
+ "aphel-mod-wasm-runtime",
  "aphel-mod-webhooks",
  "aphel-mod-workflow",
  "axum",
@@ -1472,39 +1472,6 @@ dependencies = [
 ]
 
 [[package]]
-name = "aphel-mod-plugins"
-version = "0.1.0"
-dependencies = [
- "aphel-contract-automation",
- "aphel-contract-crm",
- "aphel-kernel",
- "aphel-mod-objects",
- "aphel-sdk",
- "async-trait",
- "axum",
- "bytes",
- "chrono",
- "form_urlencoded",
- "futures",
- "libc",
- "reqwest",
- "semver",
- "serde",
- "serde_json",
- "sha2 0.11.1",
- "sqlx",
- "tokio",
- "toml",
- "tracing",
- "utoipa",
- "utoipa-axum",
- "uuid",
- "wasmtime",
- "wasmtime-wasi",
- "zip",
-]
-
-[[package]]
 name = "aphel-mod-pricing"
 version = "0.1.0"
 dependencies = [
@@ -1960,6 +1927,39 @@ dependencies = [
  "utoipa",
  "utoipa-axum",
  "uuid",
+]
+
+[[package]]
+name = "aphel-mod-wasm-runtime"
+version = "0.1.0"
+dependencies = [
+ "aphel-contract-automation",
+ "aphel-contract-crm",
+ "aphel-kernel",
+ "aphel-mod-objects",
+ "aphel-sdk",
+ "async-trait",
+ "axum",
+ "bytes",
+ "chrono",
+ "form_urlencoded",
+ "futures",
+ "libc",
+ "reqwest",
+ "semver",
+ "serde",
+ "serde_json",
+ "sha2 0.11.1",
+ "sqlx",
+ "tokio",
+ "toml",
+ "tracing",
+ "utoipa",
+ "utoipa-axum",
+ "uuid",
+ "wasmtime",
+ "wasmtime-wasi",
+ "zip",
 ]
 
 [[package]]

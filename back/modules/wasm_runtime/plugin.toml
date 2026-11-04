@@ -1,4 +1,4 @@
-key = "plugins"
+key = "wasm_runtime"
 name = "Plugins"
 version = "0.1.0"
 layer = "capability"
