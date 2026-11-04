@@ -101,7 +101,7 @@ This phase is in progress. Completed entries describe static source validation; 
 - [x] Define native search content source/refresh interfaces in the SDK. Notes and tagging retain their owned content queries; the search host retains indexing, source aggregation and permission filtering.
 - [x] Share the existing pure name-normalization helper without moving search query validation or indexing policy.
 - [x] Remove replaced and stale implementation dependencies, including privacy's unused search dependency, workflow's configuration dependency and renewals' unused catalog dependency.
-- [ ] Replace organization export's remaining direct search maintenance calls.
+- [x] Organization export consumes enabled SDK search maintenance for rebuilding or scheduling the index after restore; search retains the index engine and job protocol.
 - [ ] Manual acceptance: widget registration/filtering/settings, runtime widgets, note/tag index refresh, source permission filtering, accent normalization and owner enable/disable.
 
 ## Saved view sharing and read boundary
@@ -162,6 +162,12 @@ This phase is in progress. Completed entries describe static source validation; 
 - [x] Share managed creation commands and a writer interface in the native SDK. Objects retains administrative validation, transactions and publication.
 - [x] WebAssembly schema apply resolves the enabled writer before changing entity schemas; no object implementation is constructed by the host.
 - [ ] Manual acceptance: managed entity installation, required title fields, permissions, metadata conflicts, schema failures and disabled object administration.
+
+## Search maintenance boundary
+
+- [x] Expose native rebuild results and maintenance interface through the SDK; index queries and the reindex job protocol remain with search.
+- [x] Remove organization export's search implementation dependency. Restores do not queue unavailable search handlers when the capability is disabled.
+- [ ] Manual acceptance: CLI restore rebuild, installer queued rebuild, disabled search, indexing failure and queue failure after restore.
 
 ## Outstanding scope
 

@@ -13,7 +13,6 @@ use utoipa_axum::routes;
 
 use crate::service::restore_installation;
 use crate::{IdStrategy, RestoreCommand, RestoreEnv, TempFile};
-use ::search::application::reindex_job;
 use aphel_kernel::api::dto::common::{Data, ErrorEnvelope};
 use aphel_kernel::api::error::ApiError;
 use aphel_kernel::api::extractors::ClientInfo;
@@ -24,6 +23,7 @@ use aphel_kernel::application::installer::InstallerUseCases;
 use aphel_kernel::application::shared::JobQueue;
 use aphel_kernel::errors::AppError;
 use aphel_kernel::infrastructure::installer::MySqlInstallerPorts;
+use aphel_sdk::search::SearchMaintenance;
 
 pub(crate) const TAG: &str = "installer";
 const FILE_FIELD: &str = "file";
@@ -103,7 +103,9 @@ async fn restore_backup(
         export_id = %report.export_id,
         "installation restored from a backup"
     );
-    if let Err(error) = state.jobs.enqueue_now(reindex_job(None, None)).await {
+    if let Some(search) = state.app.services().get::<dyn SearchMaintenance>()
+        && let Err(error) = state.jobs.enqueue_now(search.reindex_job()).await
+    {
         tracing::warn!(%error, "failed to queue the search reindex after a restore");
     }
     Ok((

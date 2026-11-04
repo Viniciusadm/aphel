@@ -36,3 +36,19 @@ pub trait SearchContentSource: Send + Sync {
         event: &DomainEvent,
     ) -> Result<Vec<SearchRefresh>, AppError>;
 }
+
+#[derive(Debug, Clone, Copy, PartialEq, Eq, Default)]
+pub struct SearchReindexSummary {
+    pub indexed: u64,
+    pub removed: u64,
+}
+
+#[async_trait]
+pub trait SearchMaintenance: Send + Sync {
+    fn reindex_job(&self) -> aphel_kernel::application::shared::Job;
+    async fn rebuild(
+        &self,
+        pool: &MySqlPool,
+        registry: &std::sync::Arc<aphel_kernel::application::fields::RecordTypeRegistry>,
+    ) -> Result<SearchReindexSummary, AppError>;
+}

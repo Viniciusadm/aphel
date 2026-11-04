@@ -9,8 +9,6 @@ use uuid::Uuid;
 use crate::service::{inspect, restore_installation};
 use crate::store::OrgDataStore;
 use crate::{IdStrategy, RestoreCommand, RestoreEnv, build_archive};
-use ::search::application::{ReindexOutcome, SearchUseCases};
-use ::search::infrastructure::MySqlSearchPorts;
 use aphel_kernel::Ctx;
 use aphel_kernel::application::access::{AccessRepository, build_access_scope};
 use aphel_kernel::application::custom_objects::RecordTypeCatalog;
@@ -27,6 +25,7 @@ use aphel_kernel::infrastructure::repositories::mysql_access::MySqlAccessReposit
 use aphel_kernel::infrastructure::secrets::build_secret_vault;
 use aphel_kernel::infrastructure::storage::DynamicFileStorage;
 use aphel_kernel::modules::{CommandResult, ModuleCommand, connect_with_modules};
+use aphel_sdk::search::SearchMaintenance;
 
 #[derive(Debug, Clone, PartialEq, Eq, Subcommand)]
 pub(crate) enum OrgCommand {
@@ -188,11 +187,13 @@ async fn import(config: &AppConfig, pool: sqlx::MySqlPool, args: OrgImportArgs) 
     .await?;
     catalog.invalidate();
     let registry = catalog.registry().await?;
-    let outcome = SearchUseCases::new(MySqlSearchPorts::new(pool.clone(), registry))
-        .reindex_organization(None, None, None)
-        .await?;
-    let (ReindexOutcome::Finished(summary) | ReindexOutcome::Paused(summary, _)) = outcome;
-    info!(indexed = summary.indexed, "search index rebuilt");
+    if let Some(search) = aphel_kernel::modules::app()
+        .services()
+        .get::<dyn SearchMaintenance>()
+    {
+        let summary = search.rebuild(&pool, &registry).await?;
+        info!(indexed = summary.indexed, "search index rebuilt");
+    }
     println!(
         "{}",
         serde_json::to_string_pretty(&report).unwrap_or_default()

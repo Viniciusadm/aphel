@@ -3,6 +3,7 @@ mod cli;
 pub mod dto;
 mod http;
 pub mod infrastructure;
+mod maintenance;
 
 use aphel_kernel::errors::AppError;
 use aphel_kernel::modules::{AppBuilder, Manifest, Module};
@@ -26,6 +27,9 @@ impl Module for SearchModule {
             .owned_tables(&["search_index", "search_index_terms"])
     }
     fn register(&self, app: &mut AppBuilder) -> Result<(), AppError> {
+        app.provide::<dyn aphel_sdk::search::SearchMaintenance>(std::sync::Arc::new(
+            maintenance::Maintenance,
+        ));
         app.contribute(std::sync::Arc::new(
             aphel_kernel::infrastructure::custom_objects::RecordTypeScopedTable("search_index"),
         ));
