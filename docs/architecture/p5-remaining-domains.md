@@ -511,6 +511,12 @@ This phase is in progress. Completed entries describe static source validation; 
 - [x] Keep enrollment selection/counting/locking in sequences. Strict sequence Clippy passes and foreign SQL references fall from 38 to 35.
 - [ ] Manual acceptance: enrollment displays/counts, masked email/name fields, lost target permissions, deleted/disabled people, objection events and scheduled actor scopes.
 
+## Sequence deal lifecycle ownership
+
+- [x] Deals owns primary/secondary person lookup for lifecycle consumers through a system-only native interface; sequences no longer reads deal tables.
+- [x] Scoped deals/sequence compilation passes. Foreign SQL and cleanup policies remain tracked separately.
+- [ ] Manual acceptance: won/lost exits, secondary people, unavailable owners and rejection of non-system maintenance.
+
 ## Outstanding scope
 
 The remaining identity changes, shared capability interfaces, owner-only SQL, deletion policies and per-plugin manual acceptance matrices are still pending. Existing architectural debt is not considered resolved by renaming packages.

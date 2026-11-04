@@ -985,19 +985,15 @@ impl DirectoryStore {
         .remove(&contact_id))
     }
 
-    pub(crate) async fn deal_contacts(&self, deal_id: Uuid) -> Result<Vec<Uuid>, AppError> {
-        let rows: Vec<String> = sqlx::query_scalar(
-            "SELECT contact_id FROM deals WHERE id = ? \
-             AND contact_id IS NOT NULL \
-             UNION SELECT contact_id FROM deal_contacts WHERE deal_id = ?",
-        )
-        .bind(deal_id.to_string())
-        .bind(deal_id.to_string())
-        .fetch_all(&self.pool)
-        .await?;
-        rows.into_iter()
-            .map(|value| uuid(value, "contact_id"))
-            .collect()
+    pub(crate) async fn deal_contacts(
+        &self,
+        ctx: &Ctx<'_>,
+        deal_id: Uuid,
+    ) -> Result<Vec<Uuid>, AppError> {
+        match ctx.services().get::<dyn aphel_sdk::deals::DealLifecycle>() {
+            Some(source) => source.lifecycle_people(ctx, deal_id).await,
+            None => Ok(Vec::new()),
+        }
     }
 
     pub(crate) async fn objection_hash(

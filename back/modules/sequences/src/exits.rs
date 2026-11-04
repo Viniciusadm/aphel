@@ -106,7 +106,7 @@ pub(crate) async fn handle(ctx: &Ctx<'_>, event: &DomainEvent) -> Result<(), App
             let Some(deal_id) = event_record(event, &RecordType::DEAL) else {
                 return Ok(());
             };
-            let people = DirectoryStore::of(ctx).deal_contacts(deal_id).await?;
+            let people = DirectoryStore::of(ctx).deal_contacts(ctx, deal_id).await?;
             let live_enrollments = live(&enrollments, &people).await?;
             let reason = if event.event_type == DEAL_WON {
                 ExitReason::DealWon

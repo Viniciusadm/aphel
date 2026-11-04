@@ -54,6 +54,9 @@ pub trait RevenueCalculator: Send + Sync {
 
 #[async_trait]
 pub trait DealLifecycle: Send + Sync {
+    async fn lifecycle_people(&self, ctx: &crate::Ctx<'_>, id: Uuid)
+    -> Result<Vec<Uuid>, AppError>;
+
     async fn parties(
         &self,
         pool: &sqlx::MySqlPool,

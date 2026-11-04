@@ -5,6 +5,26 @@ use uuid::Uuid;
 pub(crate) struct Lifecycle;
 #[async_trait::async_trait]
 impl DealLifecycle for Lifecycle {
+    async fn lifecycle_people(
+        &self,
+        ctx: &aphel_kernel::Ctx<'_>,
+        id: Uuid,
+    ) -> Result<Vec<Uuid>, AppError> {
+        if !ctx.scope.is_system() {
+            return Err(AppError::Forbidden(
+                "deal lifecycle maintenance requires system scope".into(),
+            ));
+        }
+        let rows: Vec<String> = sqlx::query_scalar(
+            "SELECT contact_id FROM deals WHERE id = ? AND contact_id IS NOT NULL UNION SELECT contact_id FROM deal_contacts WHERE deal_id = ?",
+        ).bind(id.to_string()).bind(id.to_string()).fetch_all(ctx.pool()).await?;
+        rows.into_iter()
+            .map(|value| {
+                aphel_kernel::infrastructure::repositories::mapper::parse_uuid(&value, "contact_id")
+            })
+            .collect()
+    }
+
     async fn parties(&self, pool: &MySqlPool, id: Uuid) -> Result<Option<DealParties>, AppError> {
         let row = sqlx::query("SELECT contact_id,company_id FROM deals WHERE id = ?")
             .bind(id.to_string())
