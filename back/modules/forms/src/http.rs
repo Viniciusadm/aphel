@@ -479,19 +479,30 @@ async fn options(
     let ctx = Ctx::from_state(&state, scope).await?;
     let contact_fields = validate::target_fields(&ctx, scope).await?;
     let workflow = validate::workflow(&ctx, scope).await.unwrap_or_default();
-    let tags = tagging::service::list(&ctx, Some("people.person"))
-        .await
-        .map(|tags| {
-            tags.into_iter()
-                .take(100)
-                .map(|view| LeadFormTagOption {
-                    id: view.tag.id.to_string(),
-                    name: view.tag.name,
-                    color: view.tag.color,
-                })
-                .collect()
+    let tags = if ctx
+        .app()
+        .operation(aphel_sdk::tagging::LIST.key())
+        .is_some()
+    {
+        ctx.call(
+            aphel_sdk::tagging::LIST,
+            aphel_sdk::tagging::ListTags {
+                record_type: Some("people.person".to_owned()),
+            },
+        )
+        .await?
+        .data
+        .into_iter()
+        .take(100)
+        .map(|tag| LeadFormTagOption {
+            id: tag.id,
+            name: tag.name,
+            color: tag.color,
         })
-        .unwrap_or_default();
+        .collect()
+    } else {
+        Vec::new()
+    };
     let users = DirectoryUseCases::new(MySqlUserDirectory::new(ctx.pool().clone()))
         .list_users(
             None,

@@ -386,7 +386,12 @@ pub(crate) async fn validate_request(
     let tag_id = clean(definition.tag_id);
     if let (Some(tag_id), Some(actor)) = (&tag_id, &actor) {
         let valid = Uuid::parse_str(tag_id).is_ok()
-            && tagging::service::get(&ctx.with_scope(actor), tag_id)
+            && ctx
+                .with_scope(actor)
+                .call(
+                    aphel_sdk::tagging::GET,
+                    aphel_sdk::tagging::GetTag { id: tag_id.clone() },
+                )
                 .await
                 .is_ok();
         if !valid {

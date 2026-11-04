@@ -15,6 +15,7 @@ This phase is in progress. Completed entries describe static source validation; 
 
 - [x] Replace the native module/package/feature, HTTP namespace, permission namespace and web module with `forms`.
 - [x] Rewrite fresh form/submission tables, every SQL consumer, manifests, profiles, documentation and generated registries without a legacy identity alias.
+- [x] Forms uses enabled tagging contract operations for options, validation and assignment; provider failures propagate instead of appearing as an empty option catalog.
 - [ ] Replace remaining fixed CRM targets and peer implementation imports with owner interfaces and entity metadata.
 - [ ] Manual acceptance: settings/editor, publish/embed/public render, submission validation, spam controls, mapping and downstream actions.
 

@@ -654,14 +654,16 @@ pub(crate) async fn accept(
         }
     };
     if let Some(tag_id) = &form.definition.tag_id
-        && let Err(error) = tagging::service::tag_record(
-            &ctx,
-            RecordType::CONTACT.as_str(),
-            &contact_id.to_string(),
-            tag_id,
-            None,
-        )
-        .await
+        && let Err(error) = ctx
+            .call(
+                aphel_sdk::tagging::APPLY,
+                aphel_sdk::tagging::TagRecord {
+                    record_type: RecordType::CONTACT.as_str().to_owned(),
+                    record_id: contact_id.to_string(),
+                    tag_id: tag_id.clone(),
+                },
+            )
+            .await
     {
         warnings.push((TAG_FAILED, error_text(&error)));
     }
