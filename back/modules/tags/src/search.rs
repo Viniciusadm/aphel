@@ -4,10 +4,10 @@ use async_trait::async_trait;
 use sqlx::{MySqlPool, Row};
 use uuid::Uuid;
 
-use ::search::application::{SearchContentSource, SearchRefresh};
 use aphel_kernel::application::shared::{DomainEvent, RecordType};
 use aphel_kernel::domain::access::Permission;
 use aphel_kernel::errors::AppError;
+use aphel_sdk::search::{SearchContentSource, SearchRefresh};
 
 use crate::service::{
     RECORD_TAGGED, RECORD_UNTAGGED, TAG_DELETED, TAG_RECORD_TYPE, TAG_UPDATED, taggable_record_type,

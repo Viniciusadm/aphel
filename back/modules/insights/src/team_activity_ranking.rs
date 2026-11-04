@@ -5,9 +5,9 @@ use serde_json::{Value, json};
 use crate::CATEGORY;
 use crate::aggregate::{combine, condition, count_at, period, run, with_subject};
 use crate::settings::{SettingsReader, invalid_settings};
-use ::dashboard::engine::{DashboardPorts, WidgetContext, WidgetProvider, WidgetSize};
 use aphel_kernel::domain::access::Permission;
 use aphel_kernel::errors::{AppError, FieldViolation};
+use aphel_sdk::dashboard::{DashboardPorts, WidgetContext, WidgetProvider, WidgetSize};
 
 const OWNER_FIELD: &str = "owner_id";
 const TYPE_FIELD: &str = "activity_type_id";

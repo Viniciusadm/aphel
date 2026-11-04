@@ -1,5 +1,5 @@
 pub use aphel_kernel::domain::period::{
-    PeriodPreset, PeriodSelection, ResolvedPeriod, previous_period, resolve_period,
+    PeriodPreset, PeriodSelection, ResolvedPeriod, local_today, previous_period, resolve_period,
 };
 pub mod dto;
 pub mod period;
@@ -52,3 +52,5 @@ impl DashboardPorts for WidgetPorts {
 
 pub mod source;
 pub use source::*;
+
+pub type DashboardWidget = Arc<dyn WidgetProvider<WidgetPorts>>;

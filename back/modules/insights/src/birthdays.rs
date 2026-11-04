@@ -11,7 +11,6 @@ use crate::aggregate::{
 };
 use crate::settings::{SettingsReader, invalid_settings};
 use crate::{CATEGORY, KEY};
-use ::dashboard::engine::{DashboardPorts, WidgetContext, WidgetProvider, WidgetSize};
 use aphel_kernel::application::organization_admin::ListWindow;
 use aphel_kernel::application::query::{
     ArchivedFilter, Filter, RecordQuery, RecordQueryEngine, SortSpec,
@@ -21,6 +20,7 @@ use aphel_kernel::errors::{AppError, CodedKind, FieldViolation};
 use aphel_kernel::modules::module_settings;
 use aphel_kernel::records::RecordCtx;
 use aphel_kernel::state::runtime_state;
+use aphel_sdk::dashboard::{DashboardPorts, WidgetContext, WidgetProvider, WidgetSize};
 
 pub(crate) const BIRTHDAY_FIELD_SETTING: &str = "birthday_field";
 

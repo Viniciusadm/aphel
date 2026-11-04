@@ -78,7 +78,7 @@ impl Module for TagsModule {
             aphel_kernel::modules::DEFAULT_PRIORITY,
             |ctx, removed| Box::pin(crate::hooks::purge_record_taggings(ctx, removed)),
         );
-        app.contribute::<dyn ::search::application::SearchContentSource>(Arc::new(
+        app.contribute::<dyn aphel_sdk::search::SearchContentSource>(Arc::new(
             search::TagSearchContent,
         ));
         app.contribute(Arc::new(

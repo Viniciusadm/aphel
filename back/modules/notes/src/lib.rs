@@ -78,7 +78,7 @@ impl Module for NotesModule {
         app.provide::<dyn aphel_contract_automation::application::NoteOperations>(
             std::sync::Arc::new(operations::AutomationNotes),
         );
-        app.contribute::<dyn ::search::application::SearchContentSource>(std::sync::Arc::new(
+        app.contribute::<dyn aphel_sdk::search::SearchContentSource>(std::sync::Arc::new(
             search::NoteSearchContent,
         ));
         app.contribute::<dyn aphel_kernel::application::public_events::PublicResourceLoader>(

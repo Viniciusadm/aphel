@@ -51,7 +51,9 @@ impl Module for GoalsModule {
             "Sales goals per user, team or organization and their progress",
         )
         .routes(|_| http::router())
-        .contribute::<dyn ::dashboard::engine::WidgetProvider<::dashboard::repository::MySqlDashboardPorts>>(Arc::new(GoalsProgressWidget))
+        .contribute::<dyn aphel_sdk::dashboard::WidgetProvider<aphel_sdk::dashboard::WidgetPorts>>(
+            Arc::new(GoalsProgressWidget),
+        )
         .worker(worker);
         app.permission(PermissionDefinition::record(Permission::GOALS_MANAGE))
             .grant_to(["admin", "manager", "member"]);

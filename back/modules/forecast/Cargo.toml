@@ -8,7 +8,6 @@ publish = false
 
 [dependencies]
 aphel-sdk.workspace = true
-dashboard = { package = "aphel-mod-dashboard", path = "../dashboard" }
 aphel-kernel.workspace = true
 deals = { package = "aphel-mod-deals", path = "../deals" }
 axum.workspace = true

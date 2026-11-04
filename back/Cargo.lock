@@ -834,7 +834,6 @@ dependencies = [
  "aphel-mod-leads",
  "aphel-mod-organizations",
  "aphel-mod-people",
- "aphel-mod-search",
  "aphel-mod-trash",
  "aphel-sdk",
  "async-trait",
@@ -1001,7 +1000,6 @@ name = "aphel-mod-forecast"
 version = "0.1.0"
 dependencies = [
  "aphel-kernel",
- "aphel-mod-dashboard",
  "aphel-mod-deals",
  "aphel-sdk",
  "async-trait",
@@ -1045,7 +1043,6 @@ version = "0.1.0"
 dependencies = [
  "aphel-contract-crm",
  "aphel-kernel",
- "aphel-mod-dashboard",
  "aphel-mod-deals",
  "aphel-sdk",
  "async-trait",
@@ -1110,9 +1107,9 @@ version = "0.1.0"
 dependencies = [
  "aphel-contract-crm",
  "aphel-kernel",
- "aphel-mod-dashboard",
  "aphel-mod-deals",
  "aphel-mod-tasks",
+ "aphel-sdk",
  "async-trait",
  "chrono",
  "rust_decimal",
@@ -1318,7 +1315,6 @@ dependencies = [
  "aphel-contract-automation",
  "aphel-contract-crm",
  "aphel-kernel",
- "aphel-mod-search",
  "aphel-sdk",
  "async-trait",
  "axum",
@@ -1477,7 +1473,6 @@ dependencies = [
  "aphel-contract-automation",
  "aphel-contract-crm",
  "aphel-kernel",
- "aphel-mod-dashboard",
  "aphel-mod-objects",
  "aphel-sdk",
  "async-trait",
@@ -1532,7 +1527,6 @@ name = "aphel-mod-privacy"
 version = "0.1.0"
 dependencies = [
  "aphel-kernel",
- "aphel-mod-search",
  "aphel-sdk",
  "async-trait",
  "axum",
@@ -1665,10 +1659,8 @@ version = "0.1.0"
 dependencies = [
  "aphel-contract-crm",
  "aphel-kernel",
- "aphel-mod-dashboard",
  "aphel-mod-deals",
  "aphel-mod-deals-revenue",
- "aphel-mod-products",
  "aphel-mod-workflow",
  "aphel-sdk",
  "async-trait",
@@ -1761,6 +1753,7 @@ name = "aphel-mod-search"
 version = "0.1.0"
 dependencies = [
  "aphel-kernel",
+ "aphel-sdk",
  "async-trait",
  "axum",
  "chrono",
@@ -1851,7 +1844,6 @@ dependencies = [
  "aphel-contract-crm",
  "aphel-contract-tagging",
  "aphel-kernel",
- "aphel-mod-search",
  "aphel-sdk",
  "async-trait",
  "axum",
@@ -1998,7 +1990,6 @@ name = "aphel-mod-workflow"
 version = "0.1.0"
 dependencies = [
  "aphel-kernel",
- "aphel-mod-config-packages",
  "aphel-sdk",
  "async-trait",
  "axum",

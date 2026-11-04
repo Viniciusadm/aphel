@@ -134,3 +134,6 @@ pub mod notifications;
 pub mod configuration;
 
 pub mod exports;
+
+pub mod search;
+pub mod text;

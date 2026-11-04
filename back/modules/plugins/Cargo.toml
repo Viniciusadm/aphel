@@ -9,7 +9,6 @@ publish = false
 [dependencies]
 aphel-contract-automation.workspace = true
 objects = { package = "aphel-mod-objects", path = "../objects" }
-dashboard = { package = "aphel-mod-dashboard", path = "../dashboard" }
 aphel-contract-crm.workspace = true
 aphel-kernel.workspace = true
 aphel-sdk.workspace = true

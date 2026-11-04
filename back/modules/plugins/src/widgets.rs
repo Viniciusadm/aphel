@@ -6,11 +6,11 @@ use serde_json::Value;
 use crate::manifest::WidgetSpec;
 use crate::registry::LoadedPlugin;
 use crate::runtime::{self, scope_actor, wit};
-use ::dashboard::DashboardWidget;
-use ::dashboard::engine::{WidgetContext, WidgetProvider, WidgetSize};
-use ::dashboard::repository::MySqlDashboardPorts;
 use aphel_kernel::domain::access::Permission;
 use aphel_kernel::errors::{AppError, FieldViolation};
+use aphel_sdk::dashboard::DashboardWidget;
+use aphel_sdk::dashboard::WidgetPorts;
+use aphel_sdk::dashboard::{WidgetContext, WidgetProvider, WidgetSize};
 
 const DEFAULT_CATEGORY: &str = "plugins";
 const MAX_SETTINGS_BYTES: usize = 16 * 1024;
@@ -56,7 +56,7 @@ impl PluginWidget {
 }
 
 #[async_trait]
-impl WidgetProvider<MySqlDashboardPorts> for PluginWidget {
+impl WidgetProvider<WidgetPorts> for PluginWidget {
     fn key(&self) -> &str {
         &self.key
     }
@@ -101,7 +101,7 @@ impl WidgetProvider<MySqlDashboardPorts> for PluginWidget {
 
     async fn data(
         &self,
-        context: &WidgetContext<'_, MySqlDashboardPorts>,
+        context: &WidgetContext<'_, WidgetPorts>,
         settings: &Value,
     ) -> Result<Value, AppError> {
         let request = wit::WidgetRequest {

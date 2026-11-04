@@ -8,13 +8,11 @@ publish = false
 
 [dependencies]
 aphel-sdk.workspace = true
-dashboard = { package = "aphel-mod-dashboard", path = "../dashboard" }
 aphel-contract-crm.workspace = true
 aphel-kernel.workspace = true
 deals_revenue = { package = "aphel-mod-deals-revenue", path = "../deals_revenue" }
 deals = { package = "aphel-mod-deals", path = "../deals" }
 workflow = { package = "aphel-mod-workflow", path = "../workflow" }
-products = { package = "aphel-mod-products", path = "../products" }
 axum.workspace = true
 async-trait.workspace = true
 chrono.workspace = true

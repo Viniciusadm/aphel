@@ -1,8 +1,7 @@
 pub mod engine;
 pub mod engine_domain;
 pub mod repository;
-pub type DashboardWidget =
-    std::sync::Arc<dyn engine::WidgetProvider<repository::MySqlDashboardPorts>>;
+pub use aphel_sdk::dashboard::DashboardWidget;
 pub mod dto;
 pub(crate) mod http;
 pub(crate) mod layout;

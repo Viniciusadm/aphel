@@ -314,9 +314,9 @@ fn publish_extensions(snapshot: &Snapshot) {
         batch.add(std::sync::Arc::new(kind));
     }
     for widget in widgets {
-        batch.add::<dyn ::dashboard::engine::WidgetProvider<
-                ::dashboard::repository::MySqlDashboardPorts,
-            >>(widget);
+        batch.add::<dyn aphel_sdk::dashboard::WidgetProvider<aphel_sdk::dashboard::WidgetPorts>>(
+            widget,
+        );
     }
     for event in events {
         batch.add(std::sync::Arc::new(event));

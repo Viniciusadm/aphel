@@ -71,8 +71,12 @@ impl Module for RenewalsModule {
             ))
         })
         .schedule(runtime::renewals_scan_schedule())
-        .contribute::<dyn ::dashboard::engine::WidgetProvider<::dashboard::repository::MySqlDashboardPorts>>(Arc::new(widget::RenewalsDueWidget))
-        .contribute(std::sync::Arc::new(notifications::RENEWAL_NOTIFICATION_KIND))
+        .contribute::<dyn aphel_sdk::dashboard::WidgetProvider<aphel_sdk::dashboard::WidgetPorts>>(
+            Arc::new(widget::RenewalsDueWidget),
+        )
+        .contribute(std::sync::Arc::new(
+            notifications::RENEWAL_NOTIFICATION_KIND,
+        ))
         .consumer(|env| notifications::RenewalNotificationConsumer::shared(env.pool.clone()));
         for definition in PUBLIC_EVENTS {
             app.public_event(*definition);

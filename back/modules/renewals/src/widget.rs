@@ -10,8 +10,6 @@ use uuid::Uuid;
 
 use deals_revenue::widgets::{base_revenue, money};
 
-use ::dashboard::engine::{DashboardPorts, SettingsReader, WidgetContext, WidgetProvider};
-use ::dashboard::engine_domain::local_today;
 use aphel_kernel::application::fields::permissions::{FieldAccess, FieldAccessPolicy};
 use aphel_kernel::application::query::{
     Filter, FilterOperator, QueryPlan, RecordQueryPorts, SortSpec,
@@ -23,6 +21,8 @@ use aphel_kernel::infrastructure::query::compiler::{Projection, build_query};
 use aphel_kernel::infrastructure::repositories::mapper::invalid_column;
 use aphel_kernel::records::constrain_query;
 use aphel_kernel::state::runtime_pool;
+use aphel_sdk::dashboard::local_today;
+use aphel_sdk::dashboard::{DashboardPorts, SettingsReader, WidgetContext, WidgetProvider};
 use deals::domain::date;
 
 pub(crate) const RENEWALS_DUE_WIDGET: &str = "renewals_due";

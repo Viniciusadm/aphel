@@ -7,7 +7,7 @@ license.workspace = true
 publish = false
 
 [dependencies]
-dashboard = { package = "aphel-mod-dashboard", path = "../dashboard" }
+aphel-sdk.workspace = true
 aphel-contract-crm.workspace = true
 aphel-kernel.workspace = true
 tasks = { package = "aphel-mod-tasks", path = "../tasks" }
