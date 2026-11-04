@@ -449,9 +449,12 @@ async fn import(
         .collect();
     if !contact_ids.is_empty() {
         new_links.extend(
-            directory
-                .contact_records(&contact_ids, context.capture.link_open_deals)
-                .await?,
+            crate::party_directory::contact_records(
+                ctx,
+                &contact_ids,
+                context.capture.link_open_deals,
+            )
+            .await?,
         );
     }
     let linking = apply_linking(

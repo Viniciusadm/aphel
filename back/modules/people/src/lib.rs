@@ -1,3 +1,4 @@
+mod associations;
 mod context_source;
 mod primary_organizations;
 use aphel_sdk::imports::ImportTraits;
@@ -210,6 +211,9 @@ impl Module for PeopleModule {
     }
 
     fn register(&self, app: &mut AppBuilder) -> Result<(), AppError> {
+        app.contribute::<dyn aphel_sdk::party::PartyAssociationSource>(std::sync::Arc::new(
+            associations::Associations,
+        ));
         app.provide::<dyn aphel_sdk::people::PrimaryOrganizationReader>(Arc::new(
             primary_organizations::Reader,
         ));

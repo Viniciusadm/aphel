@@ -124,3 +124,71 @@ pub(crate) async fn company_by_domain(
     }
     Ok(None)
 }
+
+pub(crate) async fn contact_records(
+    ctx: &Ctx<'_>,
+    ids: &[Uuid],
+    include_open_deals: bool,
+) -> Result<Vec<aphel_sdk::shared::RecordRef>, AppError> {
+    let mut records = std::collections::HashSet::new();
+    let party_type = RecordType::parse(aphel_sdk::people::RECORD_TYPE)?;
+    for source in ctx
+        .app()
+        .contributions::<dyn aphel_sdk::party::PartyAssociationSource>()
+    {
+        let target = source.target_type();
+        if target != aphel_sdk::organizations::RECORD_TYPE
+            && !(include_open_deals && target == aphel_sdk::deals::RECORD_TYPE)
+        {
+            continue;
+        }
+        let Some(definition) = ctx.registry().get(&RecordType::parse(target)?) else {
+            continue;
+        };
+        if ctx.scope.scope_for(&definition.read_permission).is_none() {
+            continue;
+        }
+        let mut candidates = std::collections::BTreeSet::new();
+        for batch in ids.chunks(1000) {
+            candidates.extend(source.linked_ids(ctx, &party_type, batch).await?);
+        }
+        let candidates: Vec<_> = candidates.into_iter().collect();
+        for batch in candidates.chunks(100) {
+            let listing = aphel_sdk::record_context::list(
+                ctx,
+                target,
+                RecordQuery {
+                    filter: Some(Filter::condition("id", FilterOperator::In, json!(batch))),
+                    archived: ArchivedFilter::Exclude,
+                    window: ListWindow {
+                        offset: 0,
+                        limit: 100,
+                    },
+                    ..Default::default()
+                },
+            )
+            .await?;
+            for record in listing.items {
+                if let Some(id) = record
+                    .get("id")
+                    .and_then(Value::as_str)
+                    .and_then(|id| Uuid::parse_str(id).ok())
+                    && batch.contains(&id)
+                {
+                    records.insert(aphel_sdk::shared::RecordRef::new(
+                        RecordType::parse(target)?,
+                        id,
+                    ));
+                }
+            }
+        }
+    }
+    let mut records: Vec<_> = records.into_iter().collect();
+    records.sort_by(|left, right| {
+        left.record_type
+            .as_str()
+            .cmp(right.record_type.as_str())
+            .then(left.record_id.cmp(&right.record_id))
+    });
+    Ok(records)
+}

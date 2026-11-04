@@ -341,7 +341,8 @@ This phase is in progress. Completed entries describe static source validation; 
 - [x] Resolve capture organizations by domain through owner listings, preferring active over archived records. Read permission and lookup-field visibility are required before matching.
 - [x] Remove email's direct person address and organization domain SQL; unrelated owned email/core-user reads remain in email storage.
 - [ ] Manual acceptance: duplicate email addresses, archived matches, hidden email/domain fields, mailbox actor scopes, missing owner sources and domain capture ordering.
-- [ ] Related organization/open-deal linking still requires owner interfaces.
+- [x] Related organization/open-deal linking uses optional party association sources. People and deals select only their own links; bounded owner listings validate target availability, read scopes and archived/deleted state before email stores references.
+- [ ] Manual acceptance: primary/secondary company links, open deal contacts, hidden association fields and disabled association/target sources.
 
 ## Outstanding scope
 

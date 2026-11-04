@@ -9,6 +9,11 @@ pub const DESCRIPTOR: ContractDescriptor = ContractDescriptor {
     contract: CONTRACT,
     entries: &[
         KeyEntry::new(
+            "party.associations",
+            KeyKind::ExtensionPoint,
+            "Owner-provided associated record identities for parties",
+        ),
+        KeyEntry::new(
             "party.contact_points",
             KeyKind::ExtensionPoint,
             "Entity field mappings for party email, phone and web contact points",

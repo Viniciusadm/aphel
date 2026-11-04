@@ -194,54 +194,6 @@ impl DirectoryStore {
         Ok(addresses)
     }
 
-    pub(crate) async fn contact_records(
-        &self,
-        contact_ids: &[Uuid],
-        include_open_deals: bool,
-    ) -> Result<Vec<RecordRef>, AppError> {
-        if contact_ids.is_empty() {
-            return Ok(Vec::new());
-        }
-        let ids: Vec<String> = contact_ids.iter().map(Uuid::to_string).collect();
-        let mut builder = QueryBuilder::<MySql>::new(
-            "SELECT 'organizations.organization' AS record_type, co.id FROM people c JOIN organizations co \
-             ON co.id = c.company_id \
-             WHERE co.deleted_at IS NULL AND co.archived_at IS NULL AND c.id IN ",
-        );
-        push_ids(&mut builder, ids.clone());
-        builder.push(
-            " UNION SELECT 'organizations.organization', co.id FROM people_organizations cc JOIN organizations co \
-             ON co.id = cc.company_id \
-             WHERE co.deleted_at IS NULL AND co.archived_at IS NULL AND cc.contact_id IN ",
-        );
-        push_ids(&mut builder, ids.clone());
-        if include_open_deals {
-            builder.push(
-                " UNION SELECT 'deals.deal', d.id FROM deals d \
-                 WHERE d.status = 'open' AND d.deleted_at IS NULL AND d.archived_at IS NULL \
-                 AND (d.contact_id IN ",
-            );
-            push_ids(&mut builder, ids.clone());
-            builder.push(
-                " OR d.id IN (SELECT dc.deal_id FROM deal_contacts dc WHERE dc.contact_id IN ",
-            );
-            push_ids(&mut builder, ids);
-            builder.push("))");
-        }
-        let rows = builder.build().fetch_all(&self.pool).await?;
-        rows.iter()
-            .map(|row| {
-                let record_type: String = row.try_get("record_type")?;
-                let record_type = if record_type == "deals.deal" {
-                    RecordType::DEAL
-                } else {
-                    RecordType::COMPANY
-                };
-                Ok(RecordRef::new(record_type, uuid_column(row, "id")?))
-            })
-            .collect()
-    }
-
     pub(crate) async fn exchanged_with(
         &self,
         mailbox_id: Uuid,

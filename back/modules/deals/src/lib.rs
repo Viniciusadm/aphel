@@ -1,3 +1,4 @@
+mod associations;
 mod context_source;
 mod lifecycle;
 mod probability;
@@ -362,6 +363,9 @@ impl Module for DealsModule {
     }
 
     fn register(&self, app: &mut AppBuilder) -> Result<(), AppError> {
+        app.contribute::<dyn aphel_sdk::party::PartyAssociationSource>(std::sync::Arc::new(
+            associations::Associations,
+        ));
         app.provide::<dyn aphel_sdk::deals::DealProbabilityReader>(Arc::new(
             probability::ProbabilityReader,
         ));

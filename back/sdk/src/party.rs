@@ -89,3 +89,14 @@ pub async fn capture_defaults(
     }
     Ok(values)
 }
+
+#[async_trait::async_trait]
+pub trait PartyAssociationSource: Send + Sync {
+    fn target_type(&self) -> &'static str;
+    async fn linked_ids(
+        &self,
+        ctx: &crate::Ctx<'_>,
+        party_type: &crate::shared::RecordType,
+        ids: &[uuid::Uuid],
+    ) -> Result<Vec<uuid::Uuid>, AppError>;
+}
