@@ -139,7 +139,10 @@ impl Module for LeadPro {
                     env.pool.clone(),
                     env.record_types.clone(),
                 )))
-                .handler(Arc::new(Cooldown::new(env.pool.clone())))
+                .handler(Arc::new(Cooldown::new(
+                    env.pool.clone(),
+                    env.record_types.clone(),
+                )))
                 .schedule(cooldown_schedule())
         });
         for definition in PUBLIC_EVENTS {

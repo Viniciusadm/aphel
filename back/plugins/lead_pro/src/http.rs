@@ -78,7 +78,7 @@ fn contact_id(raw: &str) -> Result<Uuid, AppError> {
 }
 
 async fn temperature_of(ctx: &Ctx<'_>, id: Uuid) -> Result<LeadTemperatureResponse, AppError> {
-    people::service::get(ctx, &id.to_string()).await?;
+    readable_contact(ctx, id).await?;
     let settings = LeadProSettings::load(ctx.pool()).await?;
     let mut connection = ctx.pool().acquire().await?;
     let temperature = store::temperature(&mut connection, id).await?;
@@ -120,8 +120,9 @@ async fn board(
     let ctx = Ctx::from_state(&state, &tenant.scope).await?;
     ctx.scope.require(&READ)?;
     let settings = LeadProSettings::load(ctx.pool()).await?;
-    let listing = people::service::list(
+    let listing = aphel_sdk::record_context::list(
         &ctx,
+        aphel_sdk::people::RECORD_TYPE,
         RecordQuery {
             filter: Some(Filter::condition(
                 TEMPERATURE_FIELD,
@@ -144,18 +145,21 @@ async fn board(
         data: listing
             .items
             .into_iter()
-            .map(|details| {
-                let contact = &details.view.contact;
-                HotLeadResponse {
-                    contact_id: contact.id.to_string(),
-                    name: contact.full_name(),
-                    email: contact.data.email.clone(),
-                    temperature: details
-                        .view
-                        .contributed
-                        .get(TEMPERATURE_FIELD)
-                        .and_then(Value::as_i64),
-                }
+            .filter_map(|record| {
+                let id = record.get("id")?.as_str()?;
+                Some(HotLeadResponse {
+                    contact_id: id.to_owned(),
+                    name: record
+                        .get("full_name")
+                        .and_then(Value::as_str)
+                        .unwrap_or_default()
+                        .to_owned(),
+                    email: record
+                        .get("email")
+                        .and_then(Value::as_str)
+                        .map(str::to_owned),
+                    temperature: record.get(TEMPERATURE_FIELD).and_then(Value::as_i64),
+                })
             })
             .collect(),
         hot_threshold: settings.hot_threshold,
@@ -212,9 +216,16 @@ async fn register_touch(
     let ctx = Ctx::from_state(&state, &tenant.scope).await?;
     ctx.scope.require(&READ)?;
     let id = contact_id(&contact)?;
-    people::service::get(&ctx, &id.to_string()).await?;
+    readable_contact(&ctx, id).await?;
     heat(&ctx, id, MANUAL_TOUCH, None).await?;
     Ok(Json(LeadTemperatureEnvelope {
         data: temperature_of(&ctx, id).await?,
     }))
+}
+
+async fn readable_contact(ctx: &Ctx<'_>, id: Uuid) -> Result<(), AppError> {
+    ctx.load_record(aphel_sdk::people::RECORD_TYPE, id)
+        .await?
+        .ok_or_else(|| AppError::NotFound("contact not found".into()))?;
+    Ok(())
 }

@@ -358,7 +358,9 @@ This phase is in progress. Completed entries describe static source validation; 
 - [x] Publish leads identity and canonical native qualification/conversion hook metadata through a kernel-free contract.
 - [x] Share lead snapshots, conversion commands/results, pending commits and the transactional converter interface through the native SDK. Lead state rules, default conversion mapping and actual writes stay in leads.
 - [x] Lead Pro decorates the shared converter and consumes shared hook types; remove its leads/deals implementation dependencies and use owner resource metadata.
-- [ ] Lead Pro's remaining people implementation calls and direct people SQL still require extraction.
+- [x] Lead Pro reads authorized people through owner handlers/listings, respecting returned field masks. Owner notifications read the owner's scoped record snapshot.
+- [x] Heat/cooldown update only Lead Pro tables; generic target version locks preserve live-parent checks and serialize touches against bounded cooldown batches. Remove all three remaining foreign people queries and the final peer implementation dependency.
+- [ ] Manual acceptance: hot board masks/scopes, touch idempotency, cooldown pagination, concurrent touches/deletion, owner notifications and disabled people.
 - [ ] Manual acceptance: qualification veto, conversion enrichment, decorator touch insertion in the same transaction, rollback/pending commits and optional converter owners.
 
 ## Outstanding scope

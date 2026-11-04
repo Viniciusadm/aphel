@@ -52,8 +52,17 @@ pub(crate) async fn heat(
 ) -> Result<Option<Heating>, AppError> {
     let settings = LeadProSettings::load(ctx.pool()).await?;
     let now = ctx.now();
+    if !aphel_sdk::records::enabled(ctx, &RecordType::CONTACT) {
+        return Ok(None);
+    }
+    let Some(definition) = ctx.registry().get(&RecordType::CONTACT) else {
+        return Ok(None);
+    };
     let mut tx = ctx.begin().await?;
-    if !contact_exists(&mut tx, contact_id).await? {
+    if aphel_sdk::records::lock_entity_version(&mut tx, definition, contact_id)
+        .await?
+        .is_none()
+    {
         return Ok(None);
     }
     if !store::insert_touch(&mut tx, contact_id, kind, event_id, now).await? {
@@ -87,18 +96,6 @@ pub(crate) async fn heat(
     }))
 }
 
-async fn contact_exists(
-    connection: &mut sqlx::MySqlConnection,
-    contact_id: Uuid,
-) -> Result<bool, AppError> {
-    Ok(sqlx::query_scalar(
-        "SELECT EXISTS(SELECT 1 FROM people WHERE id = ? AND deleted_at IS NULL)",
-    )
-    .bind(contact_id.to_string())
-    .fetch_one(connection)
-    .await?)
-}
-
 fn touched_contact(event: &DomainEvent) -> Option<Uuid> {
     if let Some(record) = &event.record
         && record.record_type == RecordType::CONTACT
@@ -122,9 +119,19 @@ impl TouchConsumer {
         Self { pool, catalog }
     }
 
-    async fn notify_owner(&self, contact_id: Uuid, heating: Heating) -> Result<(), AppError> {
-        let mut connection = self.pool.acquire().await?;
-        let Some(owner) = store::owner(&mut connection, contact_id).await? else {
+    async fn notify_owner(
+        &self,
+        ctx: &Ctx<'_>,
+        contact_id: Uuid,
+        heating: Heating,
+    ) -> Result<(), AppError> {
+        let Some(record) = ctx
+            .load_record(aphel_sdk::people::RECORD_TYPE, contact_id)
+            .await?
+        else {
+            return Ok(());
+        };
+        let Some(owner) = record.get("owner_id").and_then(Value::as_str) else {
             return Ok(());
         };
         let Ok(recipient) = UserId::new(owner) else {
@@ -175,7 +182,7 @@ impl EventConsumer for TouchConsumer {
             return Ok(());
         };
         if heating.became_hot {
-            self.notify_owner(contact_id, heating).await?;
+            self.notify_owner(&ctx, contact_id, heating).await?;
         }
         Ok(())
     }
@@ -189,11 +196,12 @@ pub(crate) fn cooldown_schedule() -> ScheduledJobDefinition {
 
 pub(crate) struct Cooldown {
     pool: MySqlPool,
+    catalog: Arc<RecordTypeCatalog>,
 }
 
 impl Cooldown {
-    pub(crate) fn new(pool: MySqlPool) -> Self {
-        Self { pool }
+    pub(crate) fn new(pool: MySqlPool, catalog: Arc<RecordTypeCatalog>) -> Self {
+        Self { pool, catalog }
     }
 }
 
@@ -209,7 +217,15 @@ impl JobHandler for Cooldown {
             return Ok(());
         }
         let idle_since = chrono::Utc::now() - Duration::days(settings.cooldown_days.max(1));
-        let cooled = store::cool_down(&self.pool, settings.cooldown_points, idle_since).await?;
+        let scope = AccessScope::system();
+        let ctx = Ctx::from_parts(
+            &scope,
+            self.pool.clone(),
+            self.catalog.registry().await?,
+            Arc::new(MySqlEventPublisher::new()),
+            Arc::new(MySqlAuditLog::new()),
+        );
+        let cooled = store::cool_down(&ctx, settings.cooldown_points, idle_since).await?;
         tracing::debug!(people = cooled, "lead_pro cooldown applied");
         Ok(())
     }

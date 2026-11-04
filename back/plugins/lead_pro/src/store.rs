@@ -36,18 +36,6 @@ pub(crate) async fn set_temperature(
     Ok(())
 }
 
-pub(crate) async fn owner(
-    connection: &mut MySqlConnection,
-    contact_id: Uuid,
-) -> Result<Option<String>, AppError> {
-    let owner: Option<Option<String>> =
-        sqlx::query_scalar("SELECT owner_id FROM people WHERE id = ? AND deleted_at IS NULL")
-            .bind(contact_id.to_string())
-            .fetch_optional(connection)
-            .await?;
-    Ok(owner.flatten())
-}
-
 pub(crate) async fn insert_touch(
     connection: &mut MySqlConnection,
     contact_id: Uuid,
@@ -99,18 +87,56 @@ pub(crate) async fn touches(
 }
 
 pub(crate) async fn cool_down(
-    pool: &MySqlPool,
+    ctx: &aphel_kernel::Ctx<'_>,
     points: i64,
     idle_since: DateTime<Utc>,
 ) -> Result<u64, AppError> {
-    Ok(sqlx::query(
-        "UPDATE lead_pro_contact_extension e JOIN people c ON c.id = e.record_id SET e.lead_temperature = GREATEST(CAST(e.lead_temperature AS SIGNED) - ?, 0) \
-         WHERE e.lead_temperature > 0 AND c.deleted_at IS NULL AND NOT EXISTS \
-         (SELECT 1 FROM lead_pro_touches t WHERE t.contact_id = c.id AND t.created_at >= ?)",
-    )
-    .bind(points)
-    .bind(idle_since.naive_utc())
-    .execute(pool)
-    .await?
-    .rows_affected())
+    let record_type = aphel_sdk::shared::RecordType::parse(aphel_sdk::people::RECORD_TYPE)?;
+    if !aphel_sdk::records::enabled(ctx, &record_type) {
+        return Ok(0);
+    }
+    let Some(definition) = ctx.registry().get(&record_type) else {
+        return Ok(0);
+    };
+    let mut after = String::new();
+    let mut cooled = 0;
+    loop {
+        let ids: Vec<String> = sqlx::query_scalar("SELECT record_id FROM lead_pro_contact_extension e WHERE record_id > ? AND lead_temperature > 0 AND NOT EXISTS (SELECT 1 FROM lead_pro_touches t WHERE t.contact_id = e.record_id AND t.created_at >= ?) ORDER BY record_id LIMIT 200")
+            .bind(&after).bind(idle_since.naive_utc()).fetch_all(ctx.pool()).await?;
+        if ids.is_empty() {
+            break;
+        }
+        after = ids.last().cloned().unwrap_or_default();
+        let mut tx = ctx.begin().await?;
+        let mut live = Vec::new();
+        for id in &ids {
+            let id = Uuid::parse_str(id)
+                .map_err(|_| AppError::Internal("invalid lead temperature identity".into()))?;
+            if aphel_sdk::records::lock_entity_version(&mut tx, definition, id)
+                .await?
+                .is_some()
+            {
+                live.push(id);
+            }
+        }
+        if !live.is_empty() {
+            let mut query = sqlx::QueryBuilder::<sqlx::MySql>::new(
+                "UPDATE lead_pro_contact_extension e SET lead_temperature = GREATEST(CAST(lead_temperature AS SIGNED) - ",
+            );
+            query
+                .push_bind(points)
+                .push(", 0) WHERE lead_temperature > 0 AND record_id IN (");
+            let mut separated = query.separated(", ");
+            for id in &live {
+                separated.push_bind(id.to_string());
+            }
+            query.push(") AND NOT EXISTS (SELECT 1 FROM lead_pro_touches t WHERE t.contact_id = e.record_id AND t.created_at >= ").push_bind(idle_since.naive_utc()).push(")");
+            cooled += query.build().execute(&mut *tx).await?.rows_affected();
+        }
+        tx.commit().await?;
+        if ids.len() < 200 {
+            break;
+        }
+    }
+    Ok(cooled)
 }
