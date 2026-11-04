@@ -3,7 +3,6 @@ use chrono_tz::Tz;
 use serde_json::{Map, Value, json};
 use uuid::Uuid;
 
-use ::saved_views::application::ViewVisibility;
 use aphel_kernel::application::access::{Authorizer, PERMISSION_DENIED};
 use aphel_kernel::application::files::UserReference;
 use aphel_kernel::application::query::{AggregatePeriod, AggregateQuery};
@@ -11,6 +10,7 @@ use aphel_kernel::application::shared::RecordType;
 use aphel_kernel::domain::access::{AccessScope, Permission};
 use aphel_kernel::domain::{TeamId, UserId};
 use aphel_kernel::errors::{AppError, FieldViolation};
+use aphel_sdk::views::ViewVisibility;
 
 pub(crate) const REPORT_NOT_FOUND: &str = "report_not_found";
 pub(crate) const REPORT_PERIOD_REQUIRED: &str = "report_period_required";

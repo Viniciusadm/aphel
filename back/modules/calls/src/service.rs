@@ -10,8 +10,6 @@ use uuid::Uuid;
 use crate::domain::*;
 use crate::store::{CallOutcomeStore, CallSessionStore, CallStore};
 use crate::telephony::{TelephonyRecordingRequest, TelephonyRouter, TelephonyStartRequest};
-use ::saved_views::application::{SavedViewRepository, is_visible};
-use ::saved_views::infrastructure::MySqlSavedViewRepository;
 use aphel_kernel::Ctx;
 use aphel_kernel::application::access::{Authorizer, PERMISSION_DENIED};
 use aphel_kernel::application::audit::{DiffOptions, diff_changes};
@@ -1146,10 +1144,9 @@ pub(crate) async fn start_session(
         )
     };
     let view_id = Uuid::parse_str(command.view_id.trim()).map_err(|_| view_not_found())?;
-    let view = MySqlSavedViewRepository::new(ctx.pool().clone())
-        .find(view_id)
+    let view = aphel_sdk::views::visible_view(ctx, view_id)
         .await?
-        .filter(|view| view.record_type == RecordType::CONTACT && is_visible(ctx.scope, view))
+        .filter(|view| view.record_type == RecordType::CONTACT)
         .ok_or_else(view_not_found)?;
     let mut violations = Vec::new();
     let name = optional_text(

@@ -10,7 +10,6 @@ use crate::domain::custom::{
 };
 use crate::store::ReportStore;
 use crate::table::report_table;
-use ::saved_views::application::ViewVisibility;
 use aphel_kernel::Ctx;
 use aphel_kernel::application::access::{Authorizer, PERMISSION_DENIED};
 use aphel_kernel::application::audit::{DiffOptions, diff_changes};
@@ -24,6 +23,7 @@ use aphel_kernel::domain::access::{AccessScope, Permission};
 use aphel_kernel::errors::{AppError, FieldViolation};
 use aphel_kernel::records::{RecordMutation, lock_version, publish_mutation};
 use aphel_sdk::exports::{CSV_MIME_TYPE, ExportFormat, XLSX_MIME_TYPE, encode_csv, encode_xlsx};
+use aphel_sdk::views::ViewVisibility;
 
 #[derive(Serialize)]
 struct ReportSnapshot<'a> {

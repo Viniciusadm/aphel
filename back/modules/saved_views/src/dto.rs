@@ -8,23 +8,7 @@ use aphel_kernel::api::dto::common::double_option;
 use aphel_kernel::api::dto::query::{FilterNodeSchema, SortSpecSchema};
 use aphel_kernel::application::query::{Filter, SortSpec};
 
-#[derive(Deserialize, ToSchema)]
-#[serde(rename_all = "snake_case")]
-#[schema(as = ViewVisibility)]
-pub enum ViewVisibilitySchema {
-    Private,
-    Team,
-    Organization,
-}
-
-#[derive(Deserialize, ToSchema)]
-#[serde(rename_all = "snake_case")]
-#[schema(as = ViewType)]
-pub enum ViewTypeSchema {
-    Table,
-    Kanban,
-    Calendar,
-}
+pub use aphel_sdk::views::{ViewTypeSchema, ViewVisibilitySchema};
 
 #[derive(Debug, Deserialize, ToSchema)]
 pub struct CreateViewRequest {

@@ -432,6 +432,14 @@ dependencies = [
 ]
 
 [[package]]
+name = "aphel-contract-views"
+version = "0.1.0"
+dependencies = [
+ "aphel-contract",
+ "serde",
+]
+
+[[package]]
 name = "aphel-contract-webhooks"
 version = "0.1.0"
 dependencies = [
@@ -682,7 +690,6 @@ version = "0.1.0"
 dependencies = [
  "aphel-contract-crm",
  "aphel-kernel",
- "aphel-mod-saved-views",
  "aphel-mod-tasks",
  "aphel-sdk",
  "async-trait",
@@ -1680,7 +1687,6 @@ name = "aphel-mod-reports"
 version = "0.1.0"
 dependencies = [
  "aphel-kernel",
- "aphel-mod-saved-views",
  "aphel-sdk",
  "async-trait",
  "axum",
@@ -2023,6 +2029,7 @@ dependencies = [
  "aphel-contract-privacy",
  "aphel-contract-tagging",
  "aphel-contract-timeline",
+ "aphel-contract-views",
  "aphel-contract-workflow",
  "aphel-kernel",
  "async-trait",

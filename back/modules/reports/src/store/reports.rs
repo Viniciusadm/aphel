@@ -6,7 +6,6 @@ use sqlx::{MySqlPool, QueryBuilder, Row};
 use uuid::Uuid;
 
 use crate::domain::custom::{ReportVisualization, SavedReport};
-use ::saved_views::application::ViewVisibility;
 use aphel_kernel::Ctx;
 use aphel_kernel::application::query::AggregateQuery;
 use aphel_kernel::application::shared::RecordType;
@@ -16,6 +15,7 @@ use aphel_kernel::domain::{TeamId, UserId};
 use aphel_kernel::errors::AppError;
 use aphel_kernel::infrastructure::fields::mysql_definitions::uuid_column;
 use aphel_kernel::infrastructure::repositories::mapper;
+use aphel_sdk::views::ViewVisibility;
 
 const REPORT_COLUMNS: &str = "id, record_type, name, description, owner_id, visibility, team_id, \
      visualization, definition, settings, created_at, updated_at";

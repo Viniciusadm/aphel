@@ -3,6 +3,7 @@ pub mod dto;
 mod favorites;
 mod http;
 pub mod infrastructure;
+mod reader;
 pub mod section;
 
 use aphel_kernel::errors::AppError;
@@ -31,6 +32,8 @@ impl Module for SavedViewsModule {
         .owned_tables(&["saved_views", "saved_view_user_defaults"])
     }
     fn register(&self, app: &mut AppBuilder) -> Result<(), AppError> {
+        app.contract(aphel_sdk::views::DESCRIPTOR);
+        app.provide::<dyn aphel_sdk::views::SavedViewReader>(std::sync::Arc::new(reader::Reader));
         app.contribute::<dyn aphel_sdk::favorites::FavoriteViewSource>(std::sync::Arc::new(
             favorites::SavedViewFavorites,
         ));

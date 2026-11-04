@@ -141,3 +141,5 @@ pub mod search;
 pub mod text;
 
 pub use aphel_contract_tagging as tagging;
+
+pub mod views;

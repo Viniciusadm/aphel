@@ -11,57 +11,7 @@ use aphel_kernel::domain::access::AccessScope;
 use aphel_kernel::domain::{TeamId, UserId};
 use aphel_kernel::errors::AppError;
 
-#[derive(Debug, Clone, Copy, PartialEq, Eq)]
-pub enum ViewVisibility {
-    Private,
-    Team,
-    Organization,
-}
-
-impl ViewVisibility {
-    pub fn as_str(&self) -> &'static str {
-        match self {
-            Self::Private => "private",
-            Self::Team => "team",
-            Self::Organization => "organization",
-        }
-    }
-
-    pub fn parse(value: &str) -> Option<Self> {
-        match value {
-            "private" => Some(Self::Private),
-            "team" => Some(Self::Team),
-            "organization" => Some(Self::Organization),
-            _ => None,
-        }
-    }
-}
-
-#[derive(Debug, Clone, Copy, PartialEq, Eq)]
-pub enum ViewType {
-    Table,
-    Kanban,
-    Calendar,
-}
-
-impl ViewType {
-    pub fn as_str(&self) -> &'static str {
-        match self {
-            Self::Table => "table",
-            Self::Kanban => "kanban",
-            Self::Calendar => "calendar",
-        }
-    }
-
-    pub fn parse(value: &str) -> Option<Self> {
-        match value {
-            "table" => Some(Self::Table),
-            "kanban" => Some(Self::Kanban),
-            "calendar" => Some(Self::Calendar),
-            _ => None,
-        }
-    }
-}
+pub use aphel_sdk::views::{ViewType, ViewVisibility};
 
 #[derive(Debug, Clone, PartialEq)]
 pub struct SavedView {
