@@ -9,7 +9,6 @@ publish = false
 [dependencies]
 aphel-contract-webhooks.workspace = true
 aphel-contract-automation.workspace = true
-record_layouts = { package = "aphel-mod-record-layouts", path = "../record_layouts" }
 aphel-contract-crm.workspace = true
 aphel-kernel.workspace = true
 aphel-sdk.workspace = true

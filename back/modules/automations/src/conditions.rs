@@ -4,13 +4,13 @@ use chrono::{DateTime, Utc};
 use chrono_tz::Tz;
 use serde_json::{Map, Value};
 
-use ::record_layouts::application::{ConditionContext, condition_matches};
 use aphel_contract_automation::application::context::lookup;
 use aphel_contract_automation::application::templates::TRIGGER_PATHS;
 use aphel_kernel::application::fields::FieldSet;
 use aphel_kernel::application::query::{Filter, FilterCondition, FilterGroup, LogicalOperator};
 use aphel_kernel::domain::fields::FieldType;
 use aphel_kernel::errors::FieldViolation;
+use aphel_sdk::conditions::{ConditionContext, condition_matches};
 
 pub(crate) const TRIGGER_FIELD_PREFIX: &str = "trigger.";
 

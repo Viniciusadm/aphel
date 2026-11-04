@@ -182,8 +182,14 @@ This phase is in progress. Completed entries describe static source validation; 
 - [x] Owners publish package reference keys alongside stored keys. Sequences and segments provide their own metadata queries.
 - [x] Automation package planning/export uses contributed tag, task-type, workflow, sequence and segment keys. Owners parse their package sections; automations retains trigger/action rewrites and conflict policy.
 - [x] Remove automation's workflow/task/tagging implementation dependencies and foreign sequence/segment SQL, including the old missing-table fallback.
-- [ ] Remove the remaining record-layout condition implementation dependency.
+- [x] Share the generic in-memory typed condition evaluator through the SDK. Layout rules, repositories and execution remain in record layouts; automations has no peer implementation dependency.
 - [ ] Manual acceptance: automation package references, compound stage rewrites, sequence enrollment, segment conditions, absent owners and invalid package sections.
+
+## Shared condition evaluation
+
+- [x] Move the generic typed in-memory filter evaluator and explicit evaluation context to the SDK. Existing comparison, accent/phone normalization, current-user and timezone/date semantics are unchanged.
+- [x] Layouts and automation trigger conditions use the same utility without an implementation dependency.
+- [ ] Manual acceptance: typed comparisons, empty values/groups, current user, relative dates/DST, layout rules and automation trigger conditions.
 
 ## Outstanding scope
 

@@ -608,7 +608,6 @@ dependencies = [
  "aphel-contract-crm",
  "aphel-contract-webhooks",
  "aphel-kernel",
- "aphel-mod-record-layouts",
  "aphel-sdk",
  "async-trait",
  "axum",
