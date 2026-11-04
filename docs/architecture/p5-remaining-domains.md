@@ -452,6 +452,13 @@ This phase is in progress. Completed entries describe static source validation; 
 - [x] Remove the assistant's imports implementation dependency and make imports an optional capability. Full lint passes and generated OpenAPI is unchanged.
 - [ ] Manual acceptance: recognized/suggested mappings, unsupported duplicate keys, actor ownership, unavailable imports and file/storage failures.
 
+## Task and note creation interfaces
+
+- [x] Publish task/note creation commands and enabled writer interfaces through the SDK; share data only. Task field-access policy, reference validation, hooks, transactions, events and audit remain with their owners.
+- [x] Migration history and demo seeding pass their real actor context and audit IP to owner writers. The migration assistant now has no peer implementation dependencies; demo no longer imports task/note implementations.
+- [x] Full lint passes; lock the native peer-dependent plugin count from nine to eight without increasing other ratchets.
+- [ ] Manual acceptance: migrated task links/types/completion/ownership, note visibility/mentions, audit IP, unavailable writers and demo bookkeeping.
+
 ## Outstanding scope
 
 The remaining identity changes, shared capability interfaces, owner-only SQL, deletion policies and per-plugin manual acceptance matrices are still pending. Existing architectural debt is not considered resolved by renaming packages.

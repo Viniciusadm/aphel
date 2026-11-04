@@ -13,12 +13,13 @@ use crate::domain::{
     ACTIVITY_DELETED, ACTIVITY_REOPENED, ACTIVITY_UPDATED, ActivityData, ActivityLocation,
     ActivityLocationInput, ActivityPriority, ActivityRecord, ActivityScheduleInput,
     ActivitySnapshot, ActivityStatus, ActivityTypeView, ActivityView, CalendarListing,
-    CalendarQuery, CreateActivityCommand, DEAL_AMOUNT_FIELD, DEFAULT_REMINDER_MINUTES_BEFORE,
-    InboxGroup, InboxGroupKey, InboxItem, InboxListing, InboxQuery, InboxSort, LinkedDealValue,
-    ListActivitiesQuery, MAX_ACTIVITY_LINKS, MAX_CALENDAR_ITEMS, MAX_CALENDAR_RANGE_DAYS,
-    MAX_INBOX_ITEMS, MAX_LINKED_ACTIVITY_IDS, RecordLinkInput, UpdateActivityCommand,
-    activity_not_found, activity_payload, normalize_activity_description, normalize_activity_title,
-    validate_duration_minutes, validate_reminder_minutes_before,
+    CalendarQuery, CreateActivityCommand, CreateActivityFields, DEAL_AMOUNT_FIELD,
+    DEFAULT_REMINDER_MINUTES_BEFORE, InboxGroup, InboxGroupKey, InboxItem, InboxListing,
+    InboxQuery, InboxSort, LinkedDealValue, ListActivitiesQuery, MAX_ACTIVITY_LINKS,
+    MAX_CALENDAR_ITEMS, MAX_CALENDAR_RANGE_DAYS, MAX_INBOX_ITEMS, MAX_LINKED_ACTIVITY_IDS,
+    RecordLinkInput, UpdateActivityCommand, activity_not_found, activity_payload,
+    normalize_activity_description, normalize_activity_title, validate_duration_minutes,
+    validate_reminder_minutes_before,
 };
 use crate::hooks::{ActivityCompleting, CompletingActivity};
 use crate::operations::DEFAULT_TASK_TYPE;

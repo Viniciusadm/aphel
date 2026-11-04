@@ -172,8 +172,8 @@ pub(crate) async fn migrate_history(
         ));
     }
     let module = match preview.step.kind {
-        StepKind::Notes => notes::KEY,
-        _ => tasks::KEY,
+        StepKind::Notes => "notes",
+        _ => "tasks",
     };
     if !ctx.app().is_enabled(module) {
         return Err(source_not_found());

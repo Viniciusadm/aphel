@@ -16,8 +16,8 @@ use aphel_kernel::application::shared::RecordType;
 use aphel_kernel::context::Ctx;
 use aphel_kernel::errors::AppError;
 use aphel_sdk::imports::{ImportSources, sources};
+use aphel_sdk::tasks::{CreateActivityCommand, RecordLinkInput};
 use std::sync::Arc;
-use tasks::domain::{CreateActivityCommand, RecordLinkInput};
 
 pub(crate) const MAX_HISTORY_ROWS: usize = 5_000;
 pub(crate) const MAX_REPORTED_ERRORS: usize = 100;
@@ -242,34 +242,35 @@ async fn create_activity(
     };
     let mut links = links.into_iter();
     let primary = links.next();
-    tasks::service::create(
-        ctx,
-        CreateActivityCommand {
-            title: title.unwrap_or(DEFAULT_ACTIVITY_TITLE).to_owned(),
-            activity_type_id,
-            status: Some(if done { "done" } else { "open" }.to_owned()),
-            priority: None,
-            due_at,
-            completed_at,
-            owner_id,
-            record_type: primary
-                .as_ref()
-                .map(|(record_type, _)| record_type.as_str().to_owned()),
-            record_id: primary.as_ref().map(|(_, id)| id.to_string()),
-            links: links
-                .map(|(record_type, id)| RecordLinkInput {
-                    record_type: record_type.as_str().to_owned(),
-                    record_id: id.to_string(),
-                })
-                .collect(),
-            duration_minutes: None,
-            description: row.get(DESCRIPTION_COLUMN).map(str::to_owned),
-            location: None,
-            custom_fields: Map::new(),
-            ip,
-        },
-    )
-    .await?;
+    aphel_sdk::tasks::writer()?
+        .create(
+            ctx,
+            CreateActivityCommand {
+                title: title.unwrap_or(DEFAULT_ACTIVITY_TITLE).to_owned(),
+                activity_type_id,
+                status: Some(if done { "done" } else { "open" }.to_owned()),
+                priority: None,
+                due_at,
+                completed_at,
+                owner_id,
+                record_type: primary
+                    .as_ref()
+                    .map(|(record_type, _)| record_type.as_str().to_owned()),
+                record_id: primary.as_ref().map(|(_, id)| id.to_string()),
+                links: links
+                    .map(|(record_type, id)| RecordLinkInput {
+                        record_type: record_type.as_str().to_owned(),
+                        record_id: id.to_string(),
+                    })
+                    .collect(),
+                duration_minutes: None,
+                description: row.get(DESCRIPTION_COLUMN).map(str::to_owned),
+                location: None,
+                custom_fields: Map::new(),
+                ip,
+            },
+        )
+        .await?;
     Ok(true)
 }
 
@@ -287,17 +288,18 @@ async fn create_notes(
             "the note is not linked to a deal, contact or company found in Aphel".to_owned(),
         ));
     };
-    notes::service::create(
-        ctx,
-        notes::domain::CreateNoteCommand {
-            record_type: record_type.as_str().to_owned(),
-            record_id: record_id.to_string(),
-            body: body.to_owned(),
-            visibility: None,
-            pinned: None,
-            ip,
-        },
-    )
-    .await?;
+    aphel_sdk::notes::writer()?
+        .create(
+            ctx,
+            aphel_sdk::notes::CreateNoteCommand {
+                record_type: record_type.as_str().to_owned(),
+                record_id: record_id.to_string(),
+                body: body.to_owned(),
+                visibility: None,
+                pinned: None,
+                ip,
+            },
+        )
+        .await?;
     Ok(true)
 }

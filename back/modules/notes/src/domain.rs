@@ -97,15 +97,7 @@ fn strip_block_markers(line: &str) -> &str {
     }
 }
 
-#[derive(Debug, Clone, PartialEq, Eq, Default)]
-pub struct CreateNoteCommand {
-    pub record_type: String,
-    pub record_id: String,
-    pub body: String,
-    pub visibility: Option<String>,
-    pub pinned: Option<bool>,
-    pub ip: Option<String>,
-}
+pub use aphel_sdk::notes::CreateNoteCommand;
 
 #[derive(Debug, Clone, PartialEq, Eq, Default)]
 pub(crate) struct UpdateNoteCommand {

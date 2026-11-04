@@ -3,6 +3,7 @@ mod dashboard;
 mod followers;
 mod privacy;
 mod timeline;
+mod writer;
 use aphel_contract_automation::AutomationBuilder;
 pub(crate) mod automation;
 pub mod domain;
@@ -61,6 +62,7 @@ impl Module for NotesModule {
     }
 
     fn register(&self, app: &mut AppBuilder) -> Result<(), AppError> {
+        app.provide::<dyn aphel_sdk::notes::NoteWriter>(std::sync::Arc::new(writer::Writer));
         app.contribute::<dyn aphel_sdk::record_context::RelatedRecordSource>(std::sync::Arc::new(
             context_source::ContextSource,
         ));

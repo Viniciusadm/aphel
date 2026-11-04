@@ -4,6 +4,7 @@ mod dashboard;
 mod followers;
 mod reminders;
 pub mod remote_calendar;
+mod writer;
 use aphel_sdk::privacy::PrivacyTraits;
 mod privacy;
 mod timeline;
@@ -282,6 +283,7 @@ impl Module for TasksModule {
     }
 
     fn register(&self, app: &mut AppBuilder) -> Result<(), AppError> {
+        app.provide::<dyn aphel_sdk::tasks::TaskWriter>(Arc::new(writer::Writer));
         app.provide::<dyn aphel_sdk::tasks::remote_calendar::RemoteCalendars>(Arc::new(
             remote_calendar::service::Calendars,
         ));

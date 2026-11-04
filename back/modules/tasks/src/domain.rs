@@ -464,38 +464,7 @@ pub struct UpdateActivityTypeCommand {
     pub(crate) ip: Option<String>,
 }
 
-#[derive(Debug, Clone, PartialEq, Eq)]
-pub struct RecordLinkInput {
-    pub record_type: String,
-    pub record_id: String,
-}
-
-#[derive(Debug, Clone, PartialEq)]
-pub struct ActivityLocationInput {
-    pub(crate) latitude: f64,
-    pub(crate) longitude: f64,
-    pub(crate) accuracy_m: Option<f64>,
-    pub(crate) captured_at: Option<String>,
-}
-
-#[derive(Debug, Clone, PartialEq, Default)]
-pub struct CreateActivityCommand {
-    pub title: String,
-    pub activity_type_id: String,
-    pub status: Option<String>,
-    pub priority: Option<String>,
-    pub due_at: Option<String>,
-    pub completed_at: Option<String>,
-    pub owner_id: Option<String>,
-    pub record_type: Option<String>,
-    pub record_id: Option<String>,
-    pub links: Vec<RecordLinkInput>,
-    pub duration_minutes: Option<i64>,
-    pub description: Option<String>,
-    pub location: Option<ActivityLocationInput>,
-    pub custom_fields: Map<String, Value>,
-    pub ip: Option<String>,
-}
+pub use aphel_sdk::tasks::{ActivityLocationInput, CreateActivityCommand, RecordLinkInput};
 
 #[derive(Debug, Clone, PartialEq, Default)]
 pub struct UpdateActivityCommand {
@@ -570,8 +539,12 @@ pub struct ListActivitiesQuery {
     pub query: RecordQuery,
 }
 
-impl CreateActivityCommand {
-    pub(crate) fn provided_keys(&self) -> Vec<&'static str> {
+pub(crate) trait CreateActivityFields {
+    fn provided_keys(&self) -> Vec<&'static str>;
+}
+
+impl CreateActivityFields for CreateActivityCommand {
+    fn provided_keys(&self) -> Vec<&'static str> {
         let mut keys = vec!["title"];
         provided_key(
             &mut keys,

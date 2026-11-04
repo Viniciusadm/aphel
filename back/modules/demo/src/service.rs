@@ -26,13 +26,13 @@ use aphel_kernel::infrastructure::fields::MySqlFieldPorts;
 use aphel_kernel::infrastructure::repositories::mysql_access::MySqlAccessRepository;
 use aphel_kernel::records::AddressInput;
 use aphel_sdk::configuration::{ApplyCommand, PackageSource, configuration_packages};
+use aphel_sdk::notes::CreateNoteCommand;
+use aphel_sdk::tasks::CreateActivityCommand;
 use deals::domain::{DealInput, LoseDealCommand, MoveDealCommand};
-use notes::domain::CreateNoteCommand;
 use onboarding::domain::CompleteOnboardingCommand;
 use onboarding::service::ONBOARDING_NOT_PENDING;
 use organizations::domain::{CompanyInput, SaveCompanyCommand};
 use people::domain::{ContactInput, SaveContactCommand};
-use tasks::domain::CreateActivityCommand;
 use workflow::seed::{STAGE_KIND_LOST, STAGE_KIND_OPEN, STAGE_KIND_WON};
 
 pub(crate) const DEMO_SEEDED: &str = "demo.seeded";
@@ -558,30 +558,29 @@ async fn seed_activities(
             ));
         };
         let (record_type, record_id) = state.target(activity.target);
-        let id = tasks::service::create(
-            ctx,
-            CreateActivityCommand {
-                title: activity.title.clone(),
-                activity_type_id,
-                status: Some(
-                    if activity.completed_at.is_some() {
-                        "done"
-                    } else {
-                        "open"
-                    }
-                    .to_owned(),
-                ),
-                priority: Some(activity.priority.clone()),
-                due_at: Some(rfc3339(activity.due_at)),
-                completed_at: activity.completed_at.map(rfc3339),
-                record_type: Some(record_type.as_str().to_owned()),
-                record_id: Some(record_id.to_string()),
-                ..CreateActivityCommand::default()
-            },
-        )
-        .await?
-        .activity
-        .id;
+        let id = aphel_sdk::tasks::writer()?
+            .create(
+                ctx,
+                CreateActivityCommand {
+                    title: activity.title.clone(),
+                    activity_type_id,
+                    status: Some(
+                        if activity.completed_at.is_some() {
+                            "done"
+                        } else {
+                            "open"
+                        }
+                        .to_owned(),
+                    ),
+                    priority: Some(activity.priority.clone()),
+                    due_at: Some(rfc3339(activity.due_at)),
+                    completed_at: activity.completed_at.map(rfc3339),
+                    record_type: Some(record_type.as_str().to_owned()),
+                    record_id: Some(record_id.to_string()),
+                    ..CreateActivityCommand::default()
+                },
+            )
+            .await?;
         let record = track(store, state, RecordType::ACTIVITY, id).await?;
         let changed_at = activity.completed_at.unwrap_or(activity.created_at);
         store
@@ -599,19 +598,19 @@ async fn seed_notes(
 ) -> Result<(), AppError> {
     for note in &dataset.notes {
         let (record_type, record_id) = state.target(note.target);
-        let id = notes::service::create(
-            ctx,
-            CreateNoteCommand {
-                record_type: record_type.as_str().to_owned(),
-                record_id: record_id.to_string(),
-                body: note.body.clone(),
-                visibility: Some("team".to_owned()),
-                pinned: Some(note.pinned),
-                ip: None,
-            },
-        )
-        .await?
-        .id;
+        let id = aphel_sdk::notes::writer()?
+            .create(
+                ctx,
+                CreateNoteCommand {
+                    record_type: record_type.as_str().to_owned(),
+                    record_id: record_id.to_string(),
+                    body: note.body.clone(),
+                    visibility: Some("team".to_owned()),
+                    pinned: Some(note.pinned),
+                    ip: None,
+                },
+            )
+            .await?;
         let record = track(store, state, RecordType::NOTE, id).await?;
         store
             .backdate(&record, note.created_at, note.created_at)

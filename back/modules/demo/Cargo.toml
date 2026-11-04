@@ -11,7 +11,6 @@ aphel-sdk.workspace = true
 validation_rules = { package = "aphel-mod-validation-rules", path = "../validation_rules" }
 aphel-contract-crm.workspace = true
 aphel-kernel.workspace = true
-tasks = { package = "aphel-mod-tasks", path = "../tasks" }
 approvals = { package = "aphel-mod-approvals", path = "../approvals" }
 money = { package = "aphel-mod-money", path = "../money" }
 workflow = { package = "aphel-mod-workflow", path = "../workflow" }
@@ -21,7 +20,6 @@ quotes = { package = "aphel-mod-quotes", path = "../quotes" }
 organizations = { package = "aphel-mod-organizations", path = "../organizations" }
 people = { package = "aphel-mod-people", path = "../people" }
 deals = { package = "aphel-mod-deals", path = "../deals" }
-notes = { package = "aphel-mod-notes", path = "../notes" }
 onboarding = { package = "aphel-mod-onboarding", path = "../onboarding" }
 privacy = { package = "aphel-mod-privacy", path = "../privacy" }
 axum.workspace = true
