@@ -11,8 +11,6 @@ aphel-sdk.workspace = true
 aphel-contract-automation.workspace = true
 aphel-contract-crm.workspace = true
 aphel-kernel.workspace = true
-people = { package = "aphel-mod-people", path = "../people" }
-email = { package = "aphel-mod-email", path = "../email" }
 axum.workspace = true
 async-trait.workspace = true
 chrono.workspace = true

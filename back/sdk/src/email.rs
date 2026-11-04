@@ -26,6 +26,13 @@ impl From<EmailAddressDto> for EmailAddress {
 
 #[async_trait::async_trait]
 pub trait EmailSender: Send + Sync {
+    async fn send(&self, ctx: &Ctx<'_>, command: SendEmailCommand) -> Result<SentEmail, AppError>;
+    async fn preview(
+        &self,
+        ctx: &Ctx<'_>,
+        command: EmailPreviewCommand,
+    ) -> Result<RenderedEmail, AppError>;
+
     async fn enqueue_in_tx(
         &self,
         ctx: &Ctx<'_>,
@@ -69,4 +76,36 @@ pub mod html;
 pub fn address_hash(address: &str) -> String {
     let normalized = normalize_address(address).unwrap_or_else(|_| address.trim().to_lowercase());
     aphel_kernel::application::files::sha256_hex(normalized.as_bytes())
+}
+
+#[derive(Debug, Clone, PartialEq, Eq, Default)]
+pub struct EmailPreviewCommand {
+    pub template_id: Option<String>,
+    pub subject: Option<String>,
+    pub body_html: Option<String>,
+    pub record_type: Option<String>,
+    pub record_id: Option<String>,
+}
+
+#[derive(Debug, Clone, PartialEq, Eq)]
+pub struct RenderedEmail {
+    pub subject: String,
+    pub html: String,
+    pub text: String,
+    pub missing_variables: Vec<String>,
+}
+
+#[derive(Debug, Clone, PartialEq, Eq)]
+pub struct SentEmail {
+    pub email_id: uuid::Uuid,
+    pub thread_id: uuid::Uuid,
+    pub mailbox_id: uuid::Uuid,
+}
+pub fn sender() -> Result<std::sync::Arc<dyn EmailSender>, AppError> {
+    aphel_kernel::modules::app()
+        .services()
+        .get::<dyn EmailSender>()
+        .ok_or_else(|| {
+            AppError::unavailable_code("email_sender_unavailable", "email sending is not enabled")
+        })
 }

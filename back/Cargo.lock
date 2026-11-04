@@ -1764,8 +1764,6 @@ dependencies = [
  "aphel-contract-automation",
  "aphel-contract-crm",
  "aphel-kernel",
- "aphel-mod-email",
- "aphel-mod-people",
  "aphel-sdk",
  "async-trait",
  "axum",

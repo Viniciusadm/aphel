@@ -489,6 +489,13 @@ This phase is in progress. Completed entries describe static source validation; 
 - [x] Booking no longer imports the email implementation; sequences consumes shared content codecs. Formatting and strict email/booking/sequence Clippy pass without tests.
 - [ ] Manual acceptance: address validation/hashing, dangerous HTML removal, HTML text conversion, booking addresses and sequence content.
 
+## Sequence mail execution interfaces
+
+- [x] Extend the enabled email sender interface with owner-executed sending and template preview; publish preview commands/results and sent-message identity snapshots. Email retains template resolution, mailbox/transport policy, permissions, delivery and persistence.
+- [x] Sequences consumes shared email commands and people event metadata. Remove its last email/people implementation dependencies and use optional owner capabilities with explicit unavailable errors.
+- [x] Full lint passes and native peer-dependent plugins fall from six to five. Foreign SQL and FK cleanup for sequences remains pending.
+- [ ] Manual acceptance: sequence sends, threaded replies, template variables, manual drafts, task-only steps, sender scopes and unavailable email/people owners.
+
 ## Outstanding scope
 
 The remaining identity changes, shared capability interfaces, owner-only SQL, deletion policies and per-plugin manual acceptance matrices are still pending. Existing architectural debt is not considered resolved by renaming packages.

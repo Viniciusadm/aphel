@@ -25,11 +25,11 @@ use aphel_kernel::domain::UserId;
 use aphel_kernel::domain::access::{AccessScope, PermissionSet, RoleKey};
 use aphel_kernel::errors::AppError;
 use aphel_sdk::email::EmailAddress;
+use aphel_sdk::email::EmailPreviewCommand as PreviewCommand;
 use aphel_sdk::email::address_hash;
+use aphel_sdk::email::sender;
+use aphel_sdk::email::{RecordInput, SendEmailCommand};
 use aphel_sdk::tasks::CreateActivityCommand;
-use email::compose::{RecordInput, SendEmailCommand};
-use email::service::{sender, templates};
-use email::templates::PreviewCommand;
 
 pub(crate) const SEQUENCES_TICK_JOB: &str = "sequences.tick";
 pub(crate) const SEQUENCES_TICK_CRON: &str = "0 * * * * *";
@@ -272,7 +272,7 @@ pub(crate) async fn dispatch(ctx: &Ctx<'_>) -> Result<u32, AppError> {
 }
 
 async fn send_email(ctx: &Ctx<'_>, email: SequenceEmail) -> Result<SentSequenceEmail, AppError> {
-    let composed = sender()
+    let composed = sender()?
         .send(
             ctx,
             SendEmailCommand {
@@ -291,24 +291,25 @@ async fn send_email(ctx: &Ctx<'_>, email: SequenceEmail) -> Result<SentSequenceE
         )
         .await?;
     Ok(SentSequenceEmail {
-        email_id: composed.message.id,
-        thread_id: composed.message.thread_id,
-        mailbox_id: composed.message.mailbox_id,
+        email_id: composed.email_id,
+        thread_id: composed.thread_id,
+        mailbox_id: composed.mailbox_id,
     })
 }
 
 async fn render_draft(ctx: &Ctx<'_>, email: &SequenceEmail) -> Result<RenderedDraft, AppError> {
-    let rendered = templates::preview(
-        ctx,
-        PreviewCommand {
-            template_id: email.template_id.map(|id| id.to_string()),
-            subject: Some(email.subject.clone()).filter(|subject| !subject.is_empty()),
-            body_html: email.body_html.clone(),
-            record_type: Some("people.person".to_owned()),
-            record_id: Some(email.contact_id.to_string()),
-        },
-    )
-    .await?;
+    let rendered = sender()?
+        .preview(
+            ctx,
+            PreviewCommand {
+                template_id: email.template_id.map(|id| id.to_string()),
+                subject: Some(email.subject.clone()).filter(|subject| !subject.is_empty()),
+                body_html: email.body_html.clone(),
+                record_type: Some("people.person".to_owned()),
+                record_id: Some(email.contact_id.to_string()),
+            },
+        )
+        .await?;
     Ok(RenderedDraft {
         subject: rendered.subject,
         body_text: rendered.text,

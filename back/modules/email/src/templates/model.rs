@@ -140,22 +140,7 @@ pub(crate) struct TemplateVariable {
     pub(crate) record_type: String,
 }
 
-#[derive(Debug, Clone, PartialEq, Eq, Default)]
-pub struct PreviewCommand {
-    pub template_id: Option<String>,
-    pub subject: Option<String>,
-    pub body_html: Option<String>,
-    pub record_type: Option<String>,
-    pub record_id: Option<String>,
-}
-
-#[derive(Debug, Clone, PartialEq, Eq)]
-pub struct RenderedEmail {
-    pub subject: String,
-    pub(crate) html: String,
-    pub text: String,
-    pub(crate) missing_variables: Vec<String>,
-}
+pub use aphel_sdk::email::{EmailPreviewCommand as PreviewCommand, RenderedEmail};
 
 pub(crate) fn is_email_record_type(record_type: &str) -> bool {
     matches!(
