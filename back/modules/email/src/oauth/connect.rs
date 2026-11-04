@@ -17,13 +17,11 @@ use aphel_sdk::sso::settings;
 use aphel_sdk::sso::states::{self, StoredState};
 use aphel_sdk::sso::support;
 
-pub const PURPOSE_MAIL: &str = "mail";
+pub use aphel_sdk::email::PURPOSE_MAIL;
 pub(crate) const MAILBOXES_PAGE: &str = "/account/mailboxes";
 pub(crate) const PERMISSION_DENIED: &str = "permission_denied";
 
-pub fn connect_path(module: &str) -> String {
-    format!("{}/mail/connect", support::api_path(module))
-}
+pub use aphel_sdk::email::oauth::connect_path;
 
 fn page_with(key: &str, value: &str) -> String {
     format!(
@@ -145,6 +143,9 @@ pub async fn complete(
     state: &StoredState,
     code: &str,
 ) -> Response {
+    if state.purpose != PURPOSE_MAIL {
+        return error_page(INVALID_STATE);
+    }
     if code.is_empty() {
         return error_page(ACCESS_DENIED);
     }

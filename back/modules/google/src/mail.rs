@@ -1,13 +1,13 @@
 use std::collections::HashSet;
 
+use aphel_sdk::email::mime::{decode_base64url, encode_base64url, parse_remote};
+use aphel_sdk::email::oauth::connect_path;
+use aphel_sdk::email::oauth::{MAIL_API_FAILED, MAIL_NOT_FOUND, MailOAuth, fetch_concurrently};
+use aphel_sdk::email::oauth::{json, text};
+use aphel_sdk::email::oauth::{with_access, with_account_access};
 use aphel_sdk::sso::oauth::http_client;
 use async_trait::async_trait;
 use chrono::{DateTime, Utc};
-use email::oauth::connect::connect_path;
-use email::oauth::http::{json, text};
-use email::oauth::mime::{decode_base64url, encode_base64url, parse_remote};
-use email::oauth::tokens::{with_access, with_account_access};
-use email::oauth::{MAIL_API_FAILED, MAIL_NOT_FOUND, MailOAuth, fetch_concurrently};
 
 use aphel_kernel::domain::access::AccessScope;
 use aphel_kernel::errors::AppError;
@@ -16,8 +16,8 @@ use aphel_sdk::email::mailbox::{
     MailboxConnectionKind, MailboxCredentials, MailboxProvider, ProviderEmail, SentEmail,
     SyncBatch, SyncRequest,
 };
+use aphel_sdk::email::oauth::{provider_ctx, provider_error, provider_state};
 use aphel_sdk::sso::errors::error_code;
-use email::oauth::{provider_ctx, provider_error, provider_state};
 use serde_json::{Value, json};
 
 use crate::KEY;
@@ -419,7 +419,7 @@ impl MailboxProvider for GmailProvider {
         let state = provider_state()?;
         let scope = AccessScope::system();
         let ctx = provider_ctx(&state, &scope).await?;
-        let raw = encode_base64url(&email::oauth::mime::build(mail).map_err(provider_error)?);
+        let raw = encode_base64url(&aphel_sdk::email::mime::build(mail).map_err(provider_error)?);
         let raw = raw.as_str();
         let in_reply_to = mail.in_reply_to.as_deref();
         let (sent, refreshed) =

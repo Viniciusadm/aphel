@@ -1,4 +1,6 @@
 pub mod mailbox;
+pub mod mime;
+pub mod oauth;
 use crate::{AppError, Ctx};
 pub use aphel_contract_email::*;
 use aphel_kernel::database::transaction::MySqlTx;

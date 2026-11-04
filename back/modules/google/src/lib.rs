@@ -48,6 +48,8 @@ impl Module for GoogleModule {
     }
 
     fn register(&self, app: &mut AppBuilder) -> Result<(), AppError> {
+        app.contribute::<dyn aphel_sdk::email::oauth::MailOAuth>(Arc::new(GoogleProvider));
+
         app.contribute::<dyn aphel_sdk::tasks::remote_calendar::CalendarApi>(Arc::new(
             GoogleProvider,
         ));

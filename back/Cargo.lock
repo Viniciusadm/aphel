@@ -1146,7 +1146,6 @@ name = "aphel-mod-google"
 version = "0.1.0"
 dependencies = [
  "aphel-kernel",
- "aphel-mod-email",
  "aphel-sdk",
  "async-trait",
  "axum",
@@ -1301,7 +1300,6 @@ name = "aphel-mod-microsoft"
 version = "0.1.0"
 dependencies = [
  "aphel-kernel",
- "aphel-mod-email",
  "aphel-sdk",
  "async-trait",
  "axum",
@@ -2078,6 +2076,8 @@ dependencies = [
  "form_urlencoded",
  "futures",
  "getrandom 0.4.3",
+ "lettre",
+ "mail-parser",
  "regex",
  "reqwest",
  "rust_decimal",

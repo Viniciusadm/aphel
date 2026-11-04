@@ -45,6 +45,11 @@ pub const DESCRIPTOR: aphel_contract::ContractDescriptor = aphel_contract::Contr
     contract: aphel_contract::contract!("email", "1.0.0"),
     entries: &[
         aphel_contract::KeyEntry::new(
+            "email.mailbox_oauth",
+            aphel_contract::KeyKind::ExtensionPoint,
+            "Owner-managed mailbox OAuth connection, token acquisition and recovery",
+        ),
+        aphel_contract::KeyEntry::new(
             "email.mailbox_provider",
             aphel_contract::KeyKind::ExtensionPoint,
             "Native mailbox provider operations and credential persistence callbacks",
@@ -69,3 +74,17 @@ pub const EMAIL_OPENED: &str = "email.opened";
 pub const EMAIL_CLICKED: &str = "email.clicked";
 
 pub const EMAIL_BOUNCED: &str = "email.bounced";
+
+pub const MAIL_API_FAILED: &str = "mail_api_failed";
+pub const MAIL_TOKEN_REJECTED: &str = "mail_token_rejected";
+pub const MAIL_ACCESS_DENIED: &str = "mail_access_denied";
+pub const MAIL_NOT_FOUND: &str = "mail_not_found";
+pub const MAIL_CURSOR_EXPIRED: &str = "mail_cursor_expired";
+pub const MAIL_NOT_AUTHORIZED: &str = "mail_not_authorized";
+pub const MAIL_AUTHORIZATION_REVOKED: &str = "mail_authorization_revoked";
+pub const MAIL_NO_REFRESH_TOKEN: &str = "mail_no_refresh_token";
+pub const MAIL_INVALID_MESSAGE: &str = "mail_invalid_message";
+pub const MAIL_CONNECT_FAILED: &str = "mail_connect_failed";
+pub const ALREADY_CONNECTED: &str = "already_connected";
+
+pub const PURPOSE_MAIL: &str = "mail";

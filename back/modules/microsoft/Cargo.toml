@@ -9,7 +9,6 @@ publish = false
 [dependencies]
 aphel-sdk.workspace = true
 aphel-kernel.workspace = true
-email = { package = "aphel-mod-email", path = "../email" }
 form_urlencoded.workspace = true
 axum.workspace = true
 async-trait.workspace = true

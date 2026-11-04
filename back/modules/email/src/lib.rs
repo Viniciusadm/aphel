@@ -114,6 +114,10 @@ impl Module for EmailModule {
     }
 
     fn register(&self, app: &mut AppBuilder) -> Result<(), AppError> {
+        app.provide::<dyn aphel_sdk::email::oauth::MailboxOAuth>(Arc::new(
+            oauth::execution::Execution,
+        ));
+
         app.contract(aphel_sdk::email::DESCRIPTOR);
         app.provide::<dyn aphel_sdk::email::EmailSender>(std::sync::Arc::new(sender::Sender));
         app.contribute::<dyn aphel_sdk::followers::FollowedEventSource>(std::sync::Arc::new(

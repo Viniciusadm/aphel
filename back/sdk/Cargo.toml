@@ -7,6 +7,8 @@ license.workspace = true
 publish = false
 
 [dependencies]
+lettre.workspace = true
+mail-parser.workspace = true
 axum.workspace = true
 aphel-contract-sso.workspace = true
 reqwest.workspace = true

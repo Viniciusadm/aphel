@@ -119,39 +119,6 @@ pub(crate) async fn refresh(
     Ok(credentials_from(&tokens, Some(credentials)))
 }
 
-pub async fn with_access<T, F, Fut>(
-    ctx: &Ctx<'_>,
-    provider: &dyn MailOAuth,
-    credentials: &MailboxCredentials,
-    operation: F,
-) -> Result<(T, Option<MailboxCredentials>), AppError>
-where
-    F: Fn(String) -> Fut,
-    Fut: Future<Output = Result<T, AppError>>,
-{
-    run_with_access(ctx, provider, credentials, None, operation).await
-}
-
-pub async fn with_account_access<T, F, Fut>(
-    ctx: &Ctx<'_>,
-    provider: &dyn MailOAuth,
-    account: &MailboxAccount,
-    operation: F,
-) -> Result<(T, Option<MailboxCredentials>), AppError>
-where
-    F: Fn(String) -> Fut,
-    Fut: Future<Output = Result<T, AppError>>,
-{
-    run_with_access(
-        ctx,
-        provider,
-        &account.credentials,
-        Some(account),
-        operation,
-    )
-    .await
-}
-
 async fn refresh_and_persist(
     ctx: &Ctx<'_>,
     provider: &dyn MailOAuth,
@@ -170,17 +137,12 @@ async fn refresh_and_persist(
     Ok(fresh)
 }
 
-async fn run_with_access<T, F, Fut>(
+pub(crate) async fn acquire(
     ctx: &Ctx<'_>,
     provider: &dyn MailOAuth,
     credentials: &MailboxCredentials,
     account: Option<&MailboxAccount>,
-    operation: F,
-) -> Result<(T, Option<MailboxCredentials>), AppError>
-where
-    F: Fn(String) -> Fut,
-    Fut: Future<Output = Result<T, AppError>>,
-{
+) -> Result<aphel_sdk::email::oauth::MailAccess, AppError> {
     let (token, refreshed) = match usable_access_token(credentials) {
         Some(token) => (token, None),
         None => {
@@ -188,12 +150,22 @@ where
             (access_token_of(&fresh)?, Some(fresh))
         }
     };
-    match operation(token).await {
-        Err(error) if error_code(&error) == MAIL_TOKEN_REJECTED && refreshed.is_none() => {
-            let fresh = refresh_and_persist(ctx, provider, credentials, account).await?;
-            let value = operation(access_token_of(&fresh)?).await?;
-            Ok((value, Some(fresh)))
-        }
-        result => result.map(|value| (value, refreshed)),
+    Ok(aphel_sdk::email::oauth::MailAccess { token, refreshed })
+}
+pub(crate) async fn recover(
+    ctx: &Ctx<'_>,
+    provider: &dyn MailOAuth,
+    credentials: &MailboxCredentials,
+    account: Option<&MailboxAccount>,
+    prior: &aphel_sdk::email::oauth::MailAccess,
+    error: AppError,
+) -> Result<aphel_sdk::email::oauth::MailAccess, AppError> {
+    if error_code(&error) != MAIL_TOKEN_REJECTED || prior.refreshed.is_some() {
+        return Err(error);
     }
+    let fresh = refresh_and_persist(ctx, provider, credentials, account).await?;
+    Ok(aphel_sdk::email::oauth::MailAccess {
+        token: access_token_of(&fresh)?,
+        refreshed: Some(fresh),
+    })
 }

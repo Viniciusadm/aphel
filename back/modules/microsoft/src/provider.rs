@@ -1,3 +1,4 @@
+use aphel_sdk::email::oauth::PURPOSE_MAIL;
 use aphel_sdk::sso::errors::internal;
 use aphel_sdk::sso::login::{EMAIL_NOT_VERIFIED, failure};
 use aphel_sdk::sso::oauth::http_client;
@@ -13,7 +14,6 @@ use aphel_sdk::tasks::remote_calendar::{
 use async_trait::async_trait;
 use axum::response::Response;
 use chrono::{DateTime, NaiveDateTime, Utc};
-use email::oauth::connect::PURPOSE_MAIL;
 
 use aphel_kernel::Ctx;
 use aphel_kernel::errors::AppError;
@@ -131,7 +131,7 @@ impl IdentityProvider for MicrosoftProvider {
 
     async fn complete_purpose(&self, ctx: &Ctx<'_>, state: &StoredState, code: &str) -> Response {
         if state.purpose == PURPOSE_MAIL {
-            return email::oauth::connect::complete(ctx, self, state, code).await;
+            return aphel_sdk::email::oauth::complete(ctx, self, state, code).await;
         }
         complete_connection(ctx, self, state, code).await
     }

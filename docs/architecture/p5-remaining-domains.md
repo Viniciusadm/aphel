@@ -417,7 +417,11 @@ This phase is in progress. Completed entries describe static source validation; 
 - [x] Publish mailbox provider interfaces, account/credential callbacks, message/attachment/sync snapshots and provider error codecs through the native email SDK.
 - [x] Keep provider selection, mailbox storage, vault writes and best-effort refreshed-credential persistence policy in email. Shared persistence handles only forward to the owner's callback.
 - [x] Google/Microsoft consume shared provider models without importing email implementation types.
-- [ ] Extract remaining MIME/OAuth protocol helpers and owner token/connection execution interfaces; vendor email implementation dependencies remain pending.
+- [x] Share MIME/base64 wire codecs, OAuth provider metadata and generic callback adapters. Keep token expiry/refresh/revocation, persistence, recovery decisions, HTTP response handling and mailbox connection execution in email.
+- [x] Resolve enabled OAuth contributors by their mailbox provider identity; ambiguous sources fail. Owner services decide whether a failed operation can receive one refreshed-token retry.
+- [x] Remove Google/Microsoft's last email implementation dependencies. Both vendor plugins now depend only on shared contracts/SDK and the kernel.
+- [x] Reject wrong-purpose mailbox OAuth callback states; absent mailbox execution fails explicitly.
+- [ ] Manual acceptance: MIME round trips, initial/expired/rejected/revoked tokens, refresh persistence failures, single retry, callbacks and disabled/ambiguous providers.
 - [ ] Manual acceptance: IMAP/vendor providers, callback persistence, redacted debug output, provider errors and message/sync codecs.
 
 ## Outstanding scope

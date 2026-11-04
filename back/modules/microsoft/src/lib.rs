@@ -53,6 +53,8 @@ impl Module for MicrosoftModule {
     }
 
     fn register(&self, app: &mut AppBuilder) -> Result<(), AppError> {
+        app.contribute::<dyn aphel_sdk::email::oauth::MailOAuth>(Arc::new(MicrosoftProvider));
+
         app.contribute::<dyn aphel_sdk::tasks::remote_calendar::CalendarApi>(Arc::new(
             MicrosoftProvider,
         ));

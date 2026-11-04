@@ -1,14 +1,14 @@
+use aphel_sdk::email::mime::{build, encode_base64, parse_remote};
+use aphel_sdk::email::oauth::connect_path;
+use aphel_sdk::email::oauth::{
+    MAIL_API_FAILED, MAIL_CURSOR_EXPIRED, MAIL_NOT_FOUND, MailOAuth, fetch_concurrently,
+};
+use aphel_sdk::email::oauth::{bytes, json, text};
+use aphel_sdk::email::oauth::{with_access, with_account_access};
 use aphel_sdk::sso::oauth::http_client;
 use aphel_sdk::tasks::remote_calendar::encode_segment;
 use async_trait::async_trait;
 use chrono::{DateTime, SecondsFormat, Utc};
-use email::oauth::connect::connect_path;
-use email::oauth::http::{bytes, json, text};
-use email::oauth::mime::{build, encode_base64, parse_remote};
-use email::oauth::tokens::{with_access, with_account_access};
-use email::oauth::{
-    MAIL_API_FAILED, MAIL_CURSOR_EXPIRED, MAIL_NOT_FOUND, MailOAuth, fetch_concurrently,
-};
 
 use aphel_kernel::domain::access::AccessScope;
 use aphel_kernel::errors::AppError;
@@ -17,8 +17,8 @@ use aphel_sdk::email::mailbox::{
     MailboxConnectionKind, MailboxCredentials, MailboxProvider, ProviderEmail, SentEmail,
     SyncBatch, SyncRequest,
 };
+use aphel_sdk::email::oauth::{provider_ctx, provider_error, provider_state};
 use aphel_sdk::sso::errors::error_code;
-use email::oauth::{provider_ctx, provider_error, provider_state};
 use serde_json::{Map, Value, json};
 
 use crate::KEY;
