@@ -7,7 +7,7 @@ use aphel_kernel::application::query::{
     TimeGranularity,
 };
 use aphel_kernel::domain::fields::FieldType;
-use exports::ExportCell;
+use aphel_sdk::exports::ExportCell;
 
 pub(crate) const EMPTY_GROUP_LABEL: &str = "(vazio)";
 pub(crate) const TOTAL_LABEL: &str = "Total";

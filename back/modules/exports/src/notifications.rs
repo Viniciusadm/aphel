@@ -6,7 +6,6 @@ use serde_json::json;
 
 use aphel_kernel::application::shared::DomainEvent;
 use aphel_kernel::errors::AppError;
-use aphel_sdk::notifications::NotificationKind;
 use aphel_sdk::notifications::{
     NotificationIntent, NotificationSource, NotificationSourceContext, payload_text,
     requested_job_intents,
@@ -56,10 +55,7 @@ impl NotificationSource for ExportNotifications {
     }
 }
 
-pub const EXPORT_READY_NOTIFICATION: NotificationKind =
-    NotificationKind::from_static("export_ready");
-pub const EXPORT_FAILED_NOTIFICATION: NotificationKind =
-    NotificationKind::from_static("export_failed");
+pub use aphel_sdk::exports::{EXPORT_FAILED_NOTIFICATION, EXPORT_READY_NOTIFICATION};
 
 pub(crate) struct ExportNotificationTexts;
 
@@ -70,6 +66,13 @@ impl NotificationTexts for ExportNotificationTexts {
         _actor: &str,
         locale: MailLocale,
     ) -> Option<String> {
+        if !view
+            .data
+            .get("export_id")
+            .is_some_and(|value| !value.is_null())
+        {
+            return None;
+        }
         let text = match view.kind {
             EXPORT_READY_NOTIFICATION => {
                 locale.pick("Sua exportação está pronta", "Your export is ready")
@@ -83,7 +86,11 @@ impl NotificationTexts for ExportNotificationTexts {
     }
 
     fn action_label(&self, view: &NotificationView, locale: MailLocale) -> Option<&'static str> {
-        (view.kind == EXPORT_READY_NOTIFICATION)
+        (view
+            .data
+            .get("export_id")
+            .is_some_and(|value| !value.is_null())
+            && view.kind == EXPORT_READY_NOTIFICATION)
             .then(|| locale.pick("Baixar arquivo", "Download file"))
     }
 }

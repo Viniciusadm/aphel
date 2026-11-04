@@ -30,7 +30,7 @@ use aphel_kernel::errors::AppError;
 use aphel_kernel::infrastructure::repositories::mysql_access::build_requester_scope;
 use aphel_kernel::infrastructure::storage::MySqlFileRepository;
 use aphel_kernel::records::normalize_domain;
-use exports::{
+use aphel_sdk::exports::{
     CSV_MIME_TYPE, ExportCell, GeneratedFile, discard_generated_file, encode_csv,
     store_generated_file, system_scope,
 };

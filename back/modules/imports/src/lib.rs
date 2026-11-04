@@ -58,7 +58,7 @@ impl Module for ImportsModule {
         Manifest::new(KEY, "Imports", APHEL_VERSION)
             .description("CSV and XLSX imports with mapping, dry run, execution and retry of failed rows over the record type handlers")
             .enabled_by_default()
-            .depends_on(exports::KEY, "*")
+
             .owned_tables(&["import_jobs", "import_rows"])
             .migration(Migration::new(
                 1,

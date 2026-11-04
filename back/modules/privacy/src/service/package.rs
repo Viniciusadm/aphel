@@ -16,7 +16,7 @@ use aphel_kernel::application::files::sanitize_file_name;
 use aphel_kernel::application::shared::{FileStorage, RecordRef};
 use aphel_kernel::domain::access::AccessScope;
 use aphel_kernel::errors::AppError;
-use exports::{GeneratedFile, read_file_content};
+use aphel_sdk::exports::{GeneratedFile, read_file_content};
 
 pub(crate) const EXPORT_FORMAT: &str = "aphel.privacy_export.v1";
 pub(crate) const EXPORT_DATA_FILE: &str = "dados.json";

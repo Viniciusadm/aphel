@@ -9,7 +9,6 @@ publish = false
 [dependencies]
 aphel-sdk.workspace = true
 aphel-kernel.workspace = true
-exports = { package = "aphel-mod-exports", path = "../exports" }
 axum.workspace = true
 async-trait.workspace = true
 chrono.workspace = true

@@ -117,7 +117,9 @@ pub mod followers;
 
 pub mod imports;
 
+mod generated_files;
 pub mod files {
+    pub use crate::generated_files::*;
     pub use aphel_kernel::infrastructure::storage::references::delete_unreferenced_files;
 }
 
@@ -130,3 +132,5 @@ pub mod tokens;
 pub mod notifications;
 
 pub mod configuration;
+
+pub mod exports;

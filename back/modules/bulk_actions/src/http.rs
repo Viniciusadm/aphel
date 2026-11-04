@@ -16,7 +16,7 @@ use aphel_kernel::api::extractors::{
 };
 use aphel_kernel::api::routes::v1::members::window;
 use aphel_kernel::api::state::AppState;
-use exports::dto::ExportJobResponse;
+use aphel_sdk::exports::ExportJobResponse;
 
 pub(crate) const TAG: &str = "bulk";
 
@@ -110,7 +110,7 @@ async fn export_bulk_selection(
     let command = request.into_command(client.0.ip)?;
     let ctx = Ctx::from_state(&state, &tenant.scope).await?;
     let job = service::export(&ctx, command).await?;
-    Ok((StatusCode::ACCEPTED, Json(Data::new(job.into()))))
+    Ok((StatusCode::ACCEPTED, Json(Data::new(job))))
 }
 
 #[utoipa::path(

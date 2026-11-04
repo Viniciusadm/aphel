@@ -10,6 +10,7 @@ rust-version = "1.94"
 license = "AGPL-3.0-only"
 
 [workspace.dependencies]
+aphel-contract-exports = { path = "contracts/exports" }
 aphel-contract-configuration = { path = "contracts/configuration" }
 aphel-contract-notifications = { path = "contracts/notifications" }
 aphel-contract-email = { path = "contracts/email" }

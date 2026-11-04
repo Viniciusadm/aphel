@@ -33,9 +33,9 @@ impl NotificationSource for PrivacyExportNotifications {
             return Ok(Vec::new());
         }
         let kind = if event.event_type == PRIVACY_REQUEST_COMPLETED {
-            exports::notifications::EXPORT_READY_NOTIFICATION
+            aphel_sdk::exports::EXPORT_READY_NOTIFICATION
         } else {
-            exports::notifications::EXPORT_FAILED_NOTIFICATION
+            aphel_sdk::exports::EXPORT_FAILED_NOTIFICATION
         };
         Ok(requested_job_intents(
             event,
@@ -43,5 +43,40 @@ impl NotificationSource for PrivacyExportNotifications {
             Some(PRIVACY_REQUESTS_LINK.to_owned()),
             json!({ "privacy_request_id": event.payload.get("request_id") }),
         ))
+    }
+}
+
+pub(crate) struct ExportNotificationTexts;
+impl aphel_sdk::notifications::NotificationTexts for ExportNotificationTexts {
+    fn headline(
+        &self,
+        view: &aphel_sdk::notifications::NotificationView,
+        _actor: &str,
+        locale: aphel_kernel::application::mail::MailLocale,
+    ) -> Option<String> {
+        view.data.get("privacy_request_id")?;
+        let text = match view.kind {
+            aphel_sdk::exports::EXPORT_READY_NOTIFICATION => {
+                locale.pick("Sua exportação está pronta", "Your export is ready")
+            }
+            aphel_sdk::exports::EXPORT_FAILED_NOTIFICATION => {
+                locale.pick("Sua exportação falhou", "Your export failed")
+            }
+            _ => return None,
+        };
+        Some(text.to_owned())
+    }
+    fn action_label(
+        &self,
+        view: &aphel_sdk::notifications::NotificationView,
+        locale: aphel_kernel::application::mail::MailLocale,
+    ) -> Option<&'static str> {
+        (view.data.get("privacy_request_id").is_some()
+            && matches!(
+                view.kind,
+                aphel_sdk::exports::EXPORT_READY_NOTIFICATION
+                    | aphel_sdk::exports::EXPORT_FAILED_NOTIFICATION
+            ))
+        .then(|| locale.pick("Ver solicitações", "View requests"))
     }
 }

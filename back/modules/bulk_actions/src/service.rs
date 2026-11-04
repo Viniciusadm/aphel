@@ -29,7 +29,9 @@ use aphel_kernel::application::shared::{
 use aphel_kernel::errors::{AppError, FieldViolation};
 use aphel_kernel::infrastructure::repositories::mysql_access::build_requester_scope;
 use aphel_kernel::records::RecordCtx;
-use exports::{self, ExportJob, ExportQuery, RequestExportCommand, system_scope};
+use aphel_sdk::exports::{
+    ExportJobResponse, ExportQuery, RequestExportCommand, request_export, system_scope,
+};
 
 fn require_bulk_type(ctx: &Ctx<'_>, record_type: &str) -> Result<(), AppError> {
     if bulk_capabilities(ctx.registry(), record_type).is_some() {
@@ -159,7 +161,7 @@ pub(crate) async fn start(
 pub(crate) async fn export(
     ctx: &Ctx<'_>,
     command: BulkExportCommand,
-) -> Result<ExportJob, AppError> {
+) -> Result<ExportJobResponse, AppError> {
     let record_type = command.record_type.trim().to_owned();
     require_bulk_type(ctx, &record_type)?;
     let query = match command.selection {
@@ -194,7 +196,7 @@ pub(crate) async fn export(
             }
         }
     };
-    exports::service::request(
+    request_export(
         ctx,
         RequestExportCommand {
             record_type,

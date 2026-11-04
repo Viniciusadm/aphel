@@ -11,7 +11,7 @@ use crate::{
 use aphel_kernel::api::dto::query::FilterNodeSchema;
 use aphel_kernel::application::query::{ArchivedFilter, Filter};
 use aphel_kernel::errors::{AppError, FieldViolation};
-use exports::dto::ExportFormatDto;
+use aphel_sdk::exports::ExportFormatDto;
 
 fn timestamp(value: DateTime<Utc>) -> String {
     value.to_rfc3339_opts(SecondsFormat::Secs, true)

@@ -45,7 +45,7 @@ impl Module for OrgExportModule {
         ModuleManifest::new(KEY, "Organization backup", APHEL_VERSION)
             .description("Full export of the organization (zip with records, relationships, files, configuration and manifest) and its restoration")
             .required()
-            .depends_on(exports::KEY, "*")
+
             .owned_tables(&["organization_exports"])
             .migration(Migration::new(
                 1,
@@ -57,6 +57,17 @@ impl Module for OrgExportModule {
     fn register(&self, app: &mut AppBuilder) -> Result<(), AppError> {
         app.contribute::<dyn aphel_kernel::modules::FileReferenceSource>(std::sync::Arc::new(
             points::OrganizationExportFiles,
+        ));
+        for kind in [
+            aphel_sdk::exports::EXPORT_READY_NOTIFICATION,
+            aphel_sdk::exports::EXPORT_FAILED_NOTIFICATION,
+        ] {
+            app.contribute(std::sync::Arc::new(
+                aphel_sdk::notifications::NotificationKindDefinition::new(kind),
+            ));
+        }
+        app.contribute::<dyn aphel_sdk::notifications::NotificationTexts>(std::sync::Arc::new(
+            notifications::ExportNotificationTexts,
         ));
         app.contribute::<dyn aphel_sdk::notifications::NotificationSource>(std::sync::Arc::new(
             notifications::OrganizationExportNotifications,

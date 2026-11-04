@@ -4,21 +4,12 @@ use serde_json::Value;
 use crate::{EXPORT_RUN_JOB, RunExportRequest, service};
 use aphel_kernel::Ctx;
 use aphel_kernel::application::shared::{JobContext, JobHandler};
-use aphel_kernel::domain::UserId;
-use aphel_kernel::domain::access::{AccessScope, PermissionSet, RoleKey};
 use aphel_kernel::errors::AppError;
 use aphel_kernel::state::AppState;
 
 const GENERIC_FAILURE: &str = "the export could not be completed";
 
-pub fn system_scope(user_id: UserId) -> Result<AccessScope, AppError> {
-    Ok(AccessScope::new(
-        user_id,
-        RoleKey::new("system")?,
-        Vec::new(),
-        PermissionSet::default(),
-    ))
-}
+pub use aphel_sdk::exports::system_scope;
 
 pub struct ExportRunHandler {
     state: AppState,

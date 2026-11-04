@@ -23,7 +23,7 @@ use aphel_kernel::domain::TeamId;
 use aphel_kernel::domain::access::{AccessScope, Permission};
 use aphel_kernel::errors::{AppError, FieldViolation};
 use aphel_kernel::records::{RecordMutation, lock_version, publish_mutation};
-use exports::{CSV_MIME_TYPE, ExportFormat, XLSX_MIME_TYPE, encode_csv, encode_xlsx};
+use aphel_sdk::exports::{CSV_MIME_TYPE, ExportFormat, XLSX_MIME_TYPE, encode_csv, encode_xlsx};
 
 #[derive(Serialize)]
 struct ReportSnapshot<'a> {

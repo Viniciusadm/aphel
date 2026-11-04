@@ -3,6 +3,7 @@ pub(crate) mod encode;
 pub(crate) mod format;
 pub(crate) mod generated;
 pub(crate) mod http;
+mod jobs;
 pub(crate) mod model;
 pub mod notifications;
 pub(crate) mod plugin_bridge;
@@ -64,6 +65,8 @@ impl Module for ExportsModule {
         app.contribute::<dyn aphel_sdk::notifications::NotificationSource>(std::sync::Arc::new(
             notifications::ExportNotifications,
         ));
+        app.contract(aphel_contract_exports::DESCRIPTOR);
+        app.provide::<dyn aphel_sdk::exports::ExportJobs>(Arc::new(jobs::Jobs));
         app.openapi_tag(http::TAG, "CSV and XLSX exports of filtered records")
             .routes(|_| http::router());
         app.contribute::<dyn FileReferenceSource>(Arc::new(ExportFileReferences));

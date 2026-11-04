@@ -28,7 +28,7 @@ use aphel_kernel::domain::access::AccessScope;
 use aphel_kernel::errors::{AppError, FieldViolation};
 use aphel_kernel::infrastructure::repositories::mysql_access::MySqlAccessRepository;
 use aphel_kernel::infrastructure::storage::MySqlFileRepository;
-use exports::{GeneratedFile, discard_generated_file, store_generated_file};
+use aphel_sdk::exports::{GeneratedFile, discard_generated_file, store_generated_file};
 
 pub(crate) const REQUESTER_INACTIVE: &str =
     "the requester is no longer an active member of the organization";

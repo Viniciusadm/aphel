@@ -11,7 +11,7 @@ use aphel_kernel::application::shared::RecordType;
 use aphel_kernel::domain::UserId;
 use aphel_kernel::domain::access::Permission;
 use aphel_kernel::errors::AppError;
-use exports::ExportFormat;
+use aphel_sdk::exports::ExportFormat;
 
 pub(crate) const BULK_RUN_JOB: &str = "bulk.run";
 pub(crate) const BULK_INLINE_LIMIT: usize = 200;

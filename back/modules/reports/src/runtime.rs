@@ -19,7 +19,7 @@ use aphel_kernel::domain::access::AccessScope;
 use aphel_kernel::errors::AppError;
 use aphel_kernel::infrastructure::audit::MySqlAuditLog;
 use aphel_kernel::infrastructure::events::MySqlEventPublisher;
-use exports::system_scope;
+use aphel_sdk::exports::system_scope;
 
 pub(crate) fn report_schedules_dispatch_schedule() -> ScheduledJobDefinition {
     ScheduledJobDefinition::new(

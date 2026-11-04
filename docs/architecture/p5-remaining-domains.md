@@ -36,6 +36,15 @@ This phase is in progress. Completed entries describe static source validation; 
 - [ ] Replace remaining direct install/version/template consumers in marketplace, demo, onboarding and organization export; onboarding's foreign install-table SQL is still pending.
 - [ ] Manual acceptance: export/plan/apply for each contributed section, stable key resolution, conflicts and decisions, custom schema projections, formula validation, disabled sections, package versions and failed transactional writes.
 
+## Export utility and job boundary
+
+- [x] Publish export format and outcome notification identifiers through a pure contract.
+- [x] Share generic CSV/XLSX encoding and generated-file storage helpers through the SDK. Export record selection, column policy, limits and job persistence remain in `exports`.
+- [x] Queue bulk record exports through the enabled `ExportJobs` service, retaining the owner's authorization and validation.
+- [x] Remove export implementation imports from imports, privacy, reports, bulk actions and organization export. Imports/privacy/organization exports no longer require the queued record-export plugin.
+- [x] Privacy and organization export contribute their own outcome text and kind metadata. Notification text adapters distinguish their data from a record-export job and use the appropriate action label.
+- [ ] Manual acceptance: export scopes and hidden columns, queued job progress/download, CSV formula neutralization and round-trip imports, XLSX limits, error reports, generated-file failures and privacy/organization notifications with record exports disabled.
+
 ## Outstanding scope
 
 The remaining identity changes, shared capability interfaces, owner-only SQL, deletion policies and per-plugin manual acceptance matrices are still pending. Existing architectural debt is not considered resolved by renaming packages.

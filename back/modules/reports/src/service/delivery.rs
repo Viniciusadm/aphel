@@ -20,7 +20,7 @@ use aphel_kernel::application::shared::{
     Actor, AuditEntry, AuditLog, DomainEvent, EventPublisher, Job, JobQueue, RecordRef,
 };
 use aphel_kernel::errors::AppError;
-use exports::ExportFormat;
+use aphel_sdk::exports::ExportFormat;
 
 fn is_access_error(error: &AppError) -> bool {
     matches!(

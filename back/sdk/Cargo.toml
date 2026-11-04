@@ -7,6 +7,12 @@ license.workspace = true
 publish = false
 
 [dependencies]
+futures.workspace = true
+tracing.workspace = true
+aphel-contract-exports.workspace = true
+bytes.workspace = true
+csv.workspace = true
+rust_xlsxwriter.workspace = true
 aphel-contract-configuration.workspace = true
 regex.workspace = true
 aphel-contract-notifications.workspace = true

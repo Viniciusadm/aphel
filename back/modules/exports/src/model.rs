@@ -1,9 +1,7 @@
 use chrono::{DateTime, Utc};
-use serde::{Deserialize, Serialize};
 use serde_json::{Value, json};
 use uuid::Uuid;
 
-use aphel_kernel::application::query::{ArchivedFilter, Filter, SortSpec};
 use aphel_kernel::application::shared::RecordType;
 use aphel_kernel::domain::UserId;
 use aphel_kernel::domain::access::Permission;
@@ -40,28 +38,7 @@ pub(crate) fn is_exportable(record_type: &str) -> bool {
             .is_some_and(|capabilities| capabilities.has_trait("exports.exportable"))
 }
 
-#[derive(Debug, Clone, Copy, PartialEq, Eq)]
-pub enum ExportFormat {
-    Csv,
-    Xlsx,
-}
-
-impl ExportFormat {
-    pub fn as_str(&self) -> &'static str {
-        match self {
-            Self::Csv => "csv",
-            Self::Xlsx => "xlsx",
-        }
-    }
-
-    pub fn parse(value: &str) -> Option<Self> {
-        match value {
-            "csv" => Some(Self::Csv),
-            "xlsx" => Some(Self::Xlsx),
-            _ => None,
-        }
-    }
-}
+pub use aphel_sdk::exports::ExportFormat;
 
 #[derive(Debug, Clone, Copy, PartialEq, Eq)]
 pub(crate) enum ExportStatus {
@@ -96,16 +73,7 @@ impl ExportStatus {
     }
 }
 
-#[derive(Debug, Clone, PartialEq, Default, Serialize, Deserialize)]
-#[serde(default)]
-pub struct ExportQuery {
-    #[serde(skip_serializing_if = "Option::is_none")]
-    pub filter: Option<Filter>,
-    pub sort: Vec<SortSpec>,
-    #[serde(skip_serializing_if = "Option::is_none")]
-    pub search: Option<String>,
-    pub archived: ArchivedFilter,
-}
+pub use aphel_sdk::exports::{ExportQuery, RequestExportCommand};
 
 #[derive(Debug, Clone, PartialEq)]
 pub struct ExportJob {
@@ -122,15 +90,6 @@ pub struct ExportJob {
     pub(crate) created_at: DateTime<Utc>,
     pub(crate) updated_at: DateTime<Utc>,
     pub(crate) finished_at: Option<DateTime<Utc>>,
-}
-
-#[derive(Debug, Clone, PartialEq)]
-pub struct RequestExportCommand {
-    pub record_type: String,
-    pub format: ExportFormat,
-    pub query: ExportQuery,
-    pub columns: Vec<String>,
-    pub ip: Option<String>,
 }
 
 #[derive(Debug, Clone, PartialEq, Eq)]

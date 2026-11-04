@@ -34,7 +34,7 @@ use aphel_kernel::domain::UserId;
 use aphel_kernel::domain::access::{AccessScope, Permission};
 use aphel_kernel::errors::{AppError, FieldViolation};
 use aphel_kernel::infrastructure::storage::MySqlFileRepository;
-use exports::{CSV_MIME_TYPE, discard_generated_file, read_file_content};
+use aphel_sdk::exports::{CSV_MIME_TYPE, discard_generated_file, read_file_content};
 
 use evaluate::{ResolutionCache, ResolveMode, RowEvaluator};
 

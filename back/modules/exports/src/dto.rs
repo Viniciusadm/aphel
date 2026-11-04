@@ -1,9 +1,9 @@
 use chrono::{DateTime, SecondsFormat, Utc};
-use serde::{Deserialize, Serialize};
+use serde::Deserialize;
 use serde_json::Value;
 use utoipa::ToSchema;
 
-use crate::{ExportFormat, ExportJob, ExportQuery, RequestExportCommand};
+use crate::{ExportJob, ExportQuery, RequestExportCommand};
 use aphel_kernel::api::dto::query::FilterNodeSchema;
 use aphel_kernel::application::query::{ArchivedFilter, Filter, parse_sort};
 use aphel_kernel::errors::{AppError, FieldViolation};
@@ -12,21 +12,7 @@ fn timestamp(value: DateTime<Utc>) -> String {
     value.to_rfc3339_opts(SecondsFormat::Secs, true)
 }
 
-#[derive(Debug, Clone, Copy, Serialize, Deserialize, ToSchema)]
-#[serde(rename_all = "snake_case")]
-pub enum ExportFormatDto {
-    Csv,
-    Xlsx,
-}
-
-impl From<ExportFormatDto> for ExportFormat {
-    fn from(format: ExportFormatDto) -> Self {
-        match format {
-            ExportFormatDto::Csv => Self::Csv,
-            ExportFormatDto::Xlsx => Self::Xlsx,
-        }
-    }
-}
+pub use aphel_sdk::exports::{ExportFormatDto, ExportJobResponse};
 
 #[derive(Debug, Deserialize, ToSchema)]
 #[serde(deny_unknown_fields)]
@@ -91,25 +77,6 @@ impl ExportRequest {
             ip,
         })
     }
-}
-
-#[derive(Debug, Serialize, ToSchema)]
-pub struct ExportJobResponse {
-    pub(crate) id: String,
-    #[schema(example = "people.person")]
-    pub(crate) record_type: String,
-    #[schema(example = "xlsx")]
-    pub(crate) format: String,
-    #[schema(example = "queued")]
-    pub(crate) status: String,
-    pub(crate) columns: Vec<String>,
-    pub(crate) file_id: Option<String>,
-    pub(crate) row_count: Option<u64>,
-    pub(crate) failure_reason: Option<String>,
-    pub(crate) requested_by: String,
-    pub(crate) created_at: String,
-    pub(crate) updated_at: String,
-    pub(crate) finished_at: Option<String>,
 }
 
 impl From<ExportJob> for ExportJobResponse {

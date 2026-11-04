@@ -10,7 +10,6 @@ publish = false
 aphel-sdk.workspace = true
 saved_views = { package = "aphel-mod-saved-views", path = "../saved_views" }
 aphel-kernel.workspace = true
-exports = { package = "aphel-mod-exports", path = "../exports" }
 axum.workspace = true
 async-trait.workspace = true
 chrono.workspace = true

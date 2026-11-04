@@ -32,7 +32,7 @@ impl Module for PrivacyModule {
         Manifest::new(KEY, "Privacy", APHEL_VERSION)
             .description("Privacy (LGPD): personal data subjects, data subject requests and retention policies")
             .enabled_by_default()
-            .depends_on(exports::KEY, "*")
+
             .owned_tables(&["retention_policies", "retention_runs"])
             .migration(Migration::new(
                 1,
@@ -50,6 +50,17 @@ impl Module for PrivacyModule {
         app.contract(aphel_sdk::privacy::DESCRIPTOR);
         app.contribute::<dyn aphel_kernel::modules::FileReferenceSource>(std::sync::Arc::new(
             points::PrivacyFiles,
+        ));
+        for kind in [
+            aphel_sdk::exports::EXPORT_READY_NOTIFICATION,
+            aphel_sdk::exports::EXPORT_FAILED_NOTIFICATION,
+        ] {
+            app.contribute(std::sync::Arc::new(
+                aphel_sdk::notifications::NotificationKindDefinition::new(kind),
+            ));
+        }
+        app.contribute::<dyn aphel_sdk::notifications::NotificationTexts>(std::sync::Arc::new(
+            notifications::ExportNotificationTexts,
         ));
         app.contribute::<dyn aphel_sdk::notifications::NotificationSource>(std::sync::Arc::new(
             notifications::PrivacyExportNotifications,
