@@ -6,7 +6,6 @@ use uuid::Uuid;
 
 use aphel_kernel::errors::AppError;
 
-pub(crate) const TOKEN_KEY_BYTES: usize = 32;
 const PAYLOAD_BYTES: usize = 16;
 const SIGNATURE_BYTES: usize = 16;
 pub(crate) const MANAGE_PATH: &str = "/book/manage";
@@ -78,16 +77,4 @@ impl SignedManageToken {
     }
 }
 
-pub fn generate_key() -> Result<String, AppError> {
-    let mut bytes = [0u8; TOKEN_KEY_BYTES];
-    getrandom::fill(&mut bytes)
-        .map_err(|error| AppError::Internal(format!("random generator failed: {error}")))?;
-    Ok(URL_SAFE_NO_PAD.encode(bytes))
-}
-
-pub fn decode_key(value: &str) -> Option<Vec<u8>> {
-    URL_SAFE_NO_PAD
-        .decode(value.trim())
-        .ok()
-        .filter(|bytes| bytes.len() == TOKEN_KEY_BYTES)
-}
+pub use aphel_sdk::tokens::{decode_key, generate_key};

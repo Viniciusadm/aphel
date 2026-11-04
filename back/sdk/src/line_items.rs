@@ -45,6 +45,7 @@ pub fn items_total(items: &[LineItem]) -> Decimal {
 }
 #[derive(Debug, Clone)]
 pub struct CatalogItem {
+    pub code: Option<String>,
     pub id: Uuid,
     pub name: String,
     pub unit: Option<String>,
@@ -58,6 +59,15 @@ pub struct CatalogItem {
 pub trait ItemCatalog: Send + Sync {
     fn record_type(&self) -> crate::shared::RecordType;
     async fn item(&self, ctx: &Ctx<'_>, id: Uuid) -> Result<Option<CatalogItem>, AppError>;
+    async fn items(&self, ctx: &Ctx<'_>, ids: &[Uuid]) -> Result<Vec<CatalogItem>, AppError> {
+        let mut items = Vec::new();
+        for id in ids {
+            if let Some(item) = self.item(ctx, *id).await? {
+                items.push(item);
+            }
+        }
+        Ok(items)
+    }
 }
 #[derive(Debug, Clone)]
 pub struct TotalsChanged {
@@ -103,19 +113,39 @@ pub trait LineItemsPort: Send + Sync {
     ) -> Result<bool, AppError>;
 }
 
-pub async fn catalog_item(ctx: &Ctx<'_>, id: Uuid) -> Result<Option<CatalogItem>, AppError> {
-    let mut found = None;
-    for source in aphel_kernel::modules::app().contributions::<dyn ItemCatalog>() {
-        if let Some(item) = source.item(ctx, id).await? {
-            if found.is_some() {
+pub async fn catalog_items(
+    ctx: &Ctx<'_>,
+    ids: &[Uuid],
+) -> Result<std::collections::HashMap<Uuid, CatalogItem>, AppError> {
+    if ids.len() > 1000 {
+        return Err(AppError::Validation(
+            "at most 1000 catalog items may be requested".into(),
+        ));
+    }
+    let requested: std::collections::BTreeSet<_> = ids.iter().copied().collect();
+    if requested.is_empty() {
+        return Ok(std::collections::HashMap::new());
+    }
+    let ids: Vec<_> = requested.iter().copied().collect();
+    let mut found = std::collections::HashMap::new();
+    for source in ctx.app().contributions::<dyn ItemCatalog>() {
+        for item in source.items(ctx, &ids).await? {
+            if !requested.contains(&item.id) {
                 return Err(AppError::Configuration(
-                    "catalog item identity is ambiguous".to_owned(),
+                    "catalog returned an unrequested identity".into(),
                 ));
             }
-            found = Some(item);
+            if found.insert(item.id, item).is_some() {
+                return Err(AppError::Configuration(
+                    "catalog item identity is ambiguous".into(),
+                ));
+            }
         }
     }
     Ok(found)
+}
+pub async fn catalog_item(ctx: &Ctx<'_>, id: Uuid) -> Result<Option<CatalogItem>, AppError> {
+    Ok(catalog_items(ctx, &[id]).await?.remove(&id))
 }
 
 pub fn monthly_amount(item: &LineItem) -> Option<Decimal> {

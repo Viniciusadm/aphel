@@ -155,7 +155,7 @@ pub(crate) async fn save_bundle(
     }
     let mut ids = vec![product_id];
     ids.extend(items.iter().map(|(_, item)| item.product_id));
-    let products = repository.products(&ids).await?;
+    let products = repository.products(ctx, &ids).await?;
     let bundled: BTreeSet<Uuid> = repository.bundled(&ids[1..]).await?.into_iter().collect();
     let kit = products
         .iter()
@@ -282,7 +282,7 @@ async fn details(
 
 async fn existing_product(ctx: &Ctx<'_>, product_id: &str) -> Result<Uuid, AppError> {
     let id = Uuid::parse_str(product_id.trim()).map_err(|_| product_not_found())?;
-    let found = BundleStore::of(ctx).products(&[id]).await?;
+    let found = BundleStore::of(ctx).products(ctx, &[id]).await?;
     if found.is_empty() {
         return Err(product_not_found());
     }

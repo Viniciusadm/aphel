@@ -32,7 +32,6 @@ use aphel_kernel::application::shared::RecordType;
 use aphel_kernel::domain::access::{Permission, PermissionDefinition};
 use aphel_kernel::domain::fields::FieldType;
 use aphel_kernel::errors::AppError;
-use aphel_kernel::infrastructure::defaults::seed::DefaultsSeed;
 use aphel_kernel::modules::builder::APHEL_VERSION;
 use aphel_kernel::modules::{AppBuilder, Manifest, Module};
 
@@ -278,14 +277,8 @@ impl Module for QuotesModule {
             .description(
                 "Quotes of deals: versions, items, discounts and taxes, approval, sending, the signed public page and acceptance",
             )
-            .depends_on(deals::KEY, "*")
-            .depends_on(products::KEY, "*")
             .enabled_by_default()
             .owned_tables(&["quotes", "quote_counters", "quote_items", "quote_settings"])
-            .optional(price_lists::KEY)
-            .optional(approvals::KEY)
-            .optional(organizations::KEY)
-            .optional(people::KEY)
             .migration(Migration::new(
                 1,
                 "create quotes",
@@ -315,9 +308,7 @@ impl Module for QuotesModule {
             &[aphel_kernel::modules::HookUsage::Filter],
             "Totals of a quote (items, discounts and taxes) before they are saved",
         );
-        app.contribute(Arc::new(DefaultsSeed(|connection| {
-            Box::pin(store::seed_quote_discount_policy(connection))
-        })));
+        app.contribute(Arc::new(store::discount_policy_template()));
         app.entity(quote_definition()?.handler(Arc::new(http::QuoteHandler)))
             .openapi_tag(
                 http::TAG,

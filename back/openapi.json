@@ -120306,6 +120306,14 @@
       "description": "Catalog of products and services"
     },
     {
+      "name": "proposals",
+      "description": "Proposal templates and PDF proposals generated from deals"
+    },
+    {
+      "name": "quotes",
+      "description": "Quotes of deals: versions, items, discounts and taxes, approval, sending, the signed public page and acceptance"
+    },
+    {
       "name": "layouts",
       "description": "RecordLayouts"
     },
@@ -120332,10 +120340,6 @@
     {
       "name": "price-lists",
       "description": "Price lists by currency, segment or company with validity periods and quantity tiers, and the maximum discount per role"
-    },
-    {
-      "name": "quotes",
-      "description": "Quotes of deals: versions, items, discounts and taxes, approval, sending, the signed public page and acceptance"
     },
     {
       "name": "sso",
@@ -120392,10 +120396,6 @@
     {
       "name": "migration-assistant",
       "description": "Assisted migration from other CRMs (Pipedrive, HubSpot, RD Station CRM, Agendor): recognized columns, conversion of their CSV exports and pre-filled imports"
-    },
-    {
-      "name": "proposals",
-      "description": "Proposal templates and PDF proposals generated from deals"
     },
     {
       "name": "reminders",

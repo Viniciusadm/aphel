@@ -47,11 +47,11 @@ use aphel_kernel::records::{
     InputValidator, RecordMutation, changes_payload, merge_violations, parse_record_id,
     publish_mutation, value_patch,
 };
+use aphel_sdk::approvals::APPROVAL_PENDING;
 use aphel_sdk::line_items::{DiscountKind, parse_money};
-use approvals::domain::APPROVAL_PENDING;
-use price_lists::domain::PriceListSelection;
+use aphel_sdk::pricing::PriceListSelection;
 
-use scheduling::token::{decode_key, generate_key};
+use aphel_sdk::tokens::{decode_key, generate_key};
 
 use aphel_kernel::application::shared::money_text;
 pub(crate) use aphel_kernel::application::shared::parse_uuid as parse_id;
@@ -851,9 +851,10 @@ pub(crate) async fn update_settings(
             };
             match parse_id(&stage) {
                 Some(stage_id)
-                    if QuoteStore::of(ctx)
-                        .stage_in_pipeline(pipeline_id, stage_id)
-                        .await? =>
+                    if aphel_sdk::workflow::WorkflowReader::of(ctx)?
+                        .find_stage(stage_id)
+                        .await?
+                        .is_some_and(|stage| stage.pipeline_id == pipeline_id) =>
                 {
                     parsed.insert(pipeline_id, stage_id);
                 }

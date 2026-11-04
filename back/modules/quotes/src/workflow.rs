@@ -25,12 +25,12 @@ use aphel_kernel::domain::access::{AccessScope, Permission};
 use aphel_kernel::domain::fields::normalize_email;
 use aphel_kernel::errors::{AppError, FieldViolation};
 use aphel_kernel::records::{RecordMutation, publish_mutation};
-use approvals::domain::{
+use aphel_sdk::approvals::{
     APPROVAL_APPROVED, APPROVAL_CANCELLED, APPROVAL_PENDING, APPROVAL_REJECTED, ApprovalCheckpoint,
     ApprovalMoment, ApprovalStatus, ApprovalSubmission, SubmissionOutcome,
 };
-use email::EmailAddress;
-use email::compose::html::escape_html;
+use aphel_sdk::email::EmailAddress;
+use aphel_sdk::messaging::text::escape_html;
 
 const MAX_COMMENT_LENGTH: usize = 2_000;
 
@@ -327,7 +327,7 @@ pub(crate) async fn accept(
     let mut violations = Vec::new();
     let name = match optional_text(command.name) {
         Some(name) => Some(name),
-        None => QuoteStore::of(ctx).people(&quote).await?.contact_name,
+        None => QuoteStore::of(ctx).people(ctx, &quote).await?.contact_name,
     };
     let name = name.unwrap_or_default();
     if name.is_empty() || name.chars().count() > MAX_ACCEPTANCE_NAME_LENGTH {

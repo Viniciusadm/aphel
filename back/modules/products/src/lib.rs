@@ -183,6 +183,13 @@ impl aphel_sdk::line_items::ItemCatalog for LineItemCatalog {
         ctx: &aphel_sdk::Ctx<'_>,
         id: uuid::Uuid,
     ) -> Result<Option<aphel_sdk::line_items::CatalogItem>, AppError> {
+        Ok(self.items(ctx, &[id]).await?.pop())
+    }
+    async fn items(
+        &self,
+        ctx: &aphel_sdk::Ctx<'_>,
+        ids: &[uuid::Uuid],
+    ) -> Result<Vec<aphel_sdk::line_items::CatalogItem>, AppError> {
         use aphel_kernel::application::access::Authorizer;
         if ctx.scope.require(&Permission::PRODUCTS_READ).is_err()
             && ctx
@@ -190,10 +197,30 @@ impl aphel_sdk::line_items::ItemCatalog for LineItemCatalog {
                 .require(&aphel_kernel::domain::access::Permission::SETTINGS_MANAGE)
                 .is_err()
         {
-            return Ok(None);
+            return Ok(Vec::new());
         }
-        Ok(store::ProductStore::of(ctx).find(id).await?.map(|item| {
-            aphel_sdk::line_items::CatalogItem {
+        let fields = ctx.field_set(ctx.scope, "products.product").await?;
+        if [
+            "name",
+            "unit",
+            "currency",
+            "price",
+            "recurrence",
+            "term_months",
+        ]
+        .into_iter()
+        .any(|key| fields.is_hidden(key))
+        {
+            return Ok(Vec::new());
+        }
+        Ok(store::ProductStore::of(ctx)
+            .find_many(ids)
+            .await?
+            .into_iter()
+            .map(|item| aphel_sdk::line_items::CatalogItem {
+                code: (!fields.is_hidden("code"))
+                    .then_some(item.data.code)
+                    .flatten(),
                 id: item.id,
                 name: item.data.name,
                 unit: item.data.unit,
@@ -202,7 +229,7 @@ impl aphel_sdk::line_items::ItemCatalog for LineItemCatalog {
                 recurrence: item.data.recurrence,
                 term_months: item.data.term_months,
                 active: item.data.is_active,
-            }
-        }))
+            })
+            .collect())
     }
 }

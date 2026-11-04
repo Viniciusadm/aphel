@@ -141,6 +141,8 @@ Aphel is moving from a CRM to a system composition platform; the CRM becomes a b
 - **Themes (session 38):** the `themes` module (`back/modules/themes`, `web/src/modules/themes`) installs `aphel-theme` JSON packages (tokens + woff2 fonts) that change every design token of the installation, public pages and plugins that use `@aphel/ui` included. Tokens come from `back/modules/themes/tokens.json` (generated into `web/src/sdk/tokens.css`, `tokens.generated.ts` and `docs/ui/tokens.md` by `cargo run -p xtask -- themes sync`, run by `make modules`, checked by `make lint`). The active theme is served as CSS at `/api/v1/public/themes/active.css` (linked in `web/index.html`; `html:root` selectors; primary tokens keep `var(--org-primary…, …)`), values are validated per token kind and never stored as free text. Catalog entries of `kind: "theme"`; the web catalog renders them through the `catalog.sections` slot. Guide: [`docs/themes`](docs/themes/README.md).
 - Record screens use the generic building blocks from `web/src/features/records` (without knowing about modules): the module calls `registerRecordResource` and assembles `RecordListView` (`table/`), `RecordFormDialog`/`RecordForm`/`InlineFieldEditor` (`form/`, inputs in `components/fields`) and `RecordDetailPage` (`detail/`, `timeline/`). Confirmation dialogs, toasts, error boundaries and the unsaved-changes guard come from `web/src/components/feedback`.
 
+- **Quotes and proposals (P5.21):** scoped owner handlers and commerce SDK interfaces replace peer implementation imports. Approvals owns policy seeding; catalogs provide bounded item snapshots. Review: [`docs/architecture/p5-quotes-proposals.md`](docs/architecture/p5-quotes-proposals.md).
+
 ## Commands
 
 ```bash

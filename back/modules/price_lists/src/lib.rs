@@ -86,6 +86,7 @@ impl Module for PriceListsModule {
     }
 
     fn register(&self, app: &mut AppBuilder) -> Result<(), AppError> {
+        app.contract(aphel_sdk::pricing::DESCRIPTOR);
         app.contribute(std::sync::Arc::new(
             ::config_packages::infrastructure::ConfigSectionFactory::new(60, |pool, registry| {
                 let _ = registry;

@@ -120,3 +120,9 @@ pub mod imports;
 pub mod files {
     pub use aphel_kernel::infrastructure::storage::references::delete_unreferenced_files;
 }
+
+pub mod approvals;
+pub mod email;
+pub mod pricing;
+
+pub mod tokens;

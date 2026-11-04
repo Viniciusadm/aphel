@@ -1,6 +1,7 @@
 mod followers;
 mod messaging_channel;
 pub mod oauth;
+mod sender;
 use aphel_contract_automation::AutomationBuilder;
 pub(crate) mod capture;
 pub mod compose;
@@ -114,6 +115,8 @@ impl Module for EmailModule {
     }
 
     fn register(&self, app: &mut AppBuilder) -> Result<(), AppError> {
+        app.contract(aphel_sdk::email::DESCRIPTOR);
+        app.provide::<dyn aphel_sdk::email::EmailSender>(std::sync::Arc::new(sender::Sender));
         app.contribute::<dyn aphel_sdk::followers::FollowedEventSource>(std::sync::Arc::new(
             followers::EmailFollowedEvents,
         ));

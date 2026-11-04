@@ -14,14 +14,13 @@ use aphel_kernel::Ctx;
 use aphel_kernel::domain::access::AccessScope;
 use aphel_kernel::errors::AppError;
 use aphel_kernel::records::InputValidator;
+use aphel_sdk::line_items::CatalogItem;
 use aphel_sdk::line_items::{
     DiscountKind, LineData, MAX_ITEM_NAME_LENGTH, MAX_UNIT_LENGTH, MONEY_DECIMALS,
     QUANTITY_DECIMALS, Recurrence, normalize_quantity, parse_money, parse_term_months,
     term_violation,
 };
-use price_lists::domain::PriceRequest;
-use products::domain::Product;
-use products::store::ProductStore;
+use aphel_sdk::pricing::PriceRequest;
 
 pub(crate) struct PricingContext<'a> {
     pub(crate) currency: &'a str,
@@ -107,17 +106,19 @@ async fn resolve_item(
                 validator.violation(&path("product_id"), "must be a valid id");
                 None
             }
-            Some(id) => match ProductStore::of(ctx).find(id).await? {
-                None => {
-                    validator.violation(&path("product_id"), "product was not found");
-                    None
+            Some(id) => {
+                match aphel_sdk::line_items::catalog_item(&ctx.with_scope(scope), id).await? {
+                    None => {
+                        validator.violation(&path("product_id"), "product was not found");
+                        None
+                    }
+                    Some(found) if !found.active => {
+                        validator.violation(&path("product_id"), "product is inactive");
+                        None
+                    }
+                    Some(found) => Some(found),
                 }
-                Some(found) if !found.data.is_active => {
-                    validator.violation(&path("product_id"), "product is inactive");
-                    None
-                }
-                Some(found) => Some(found),
-            },
+            }
         },
     };
     if let Some(text) = input
@@ -150,10 +151,10 @@ async fn resolve_item(
     }
     if let Some(product) = &product {
         data.product_id = Some(product.id);
-        data.name = product.data.name.clone();
-        data.unit = product.data.unit.clone();
-        data.recurrence = product.data.recurrence;
-        data.term_months = product.data.term_months;
+        data.name = product.name.clone();
+        data.unit = product.unit.clone();
+        data.recurrence = product.recurrence;
+        data.term_months = product.term_months;
         let price = product_price(ctx, scope, product, data.quantity, context).await?;
         if let Some(expansion) = QuoteCatalog::of(ctx)
             .expand(scope, product.id, context.price_list_id)
@@ -180,9 +181,7 @@ async fn resolve_item(
         } else if !explicit_price {
             match price {
                 Some(price) => data.unit_price = price,
-                None => {
-                    currency_violation(validator, index, &product.data.currency, context.currency)
-                }
+                None => currency_violation(validator, index, &product.currency, context.currency),
             }
         }
     }
@@ -277,7 +276,7 @@ fn currency_violation(validator: &mut InputValidator, index: usize, found: &str,
 async fn product_price(
     ctx: &Ctx<'_>,
     scope: &AccessScope,
-    product: &Product,
+    product: &CatalogItem,
     quantity: Decimal,
     context: &PricingContext<'_>,
 ) -> Result<Option<Decimal>, AppError> {
@@ -297,7 +296,7 @@ async fn product_price(
     {
         return Ok(Some(resolved.unit_price));
     }
-    Ok((product.data.currency == context.currency).then_some(product.data.price))
+    Ok((product.currency == context.currency).then_some(product.price))
 }
 
 pub(crate) fn deal_item_from_quote(item: &QuoteItem, with_product: bool) -> LineData {

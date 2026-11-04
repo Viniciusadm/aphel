@@ -717,29 +717,21 @@ impl BundleStore {
 
     pub(crate) async fn products(
         &self,
+        ctx: &Ctx<'_>,
         product_ids: &[Uuid],
     ) -> Result<Vec<CatalogProduct>, AppError> {
-        if product_ids.is_empty() {
-            return Ok(Vec::new());
-        }
-        let mut builder = QueryBuilder::new(
-            "SELECT id, name, code, price, currency, is_active FROM products \
-             WHERE deleted_at IS NULL AND id",
-        );
-        push_uuid_list(&mut builder, product_ids);
-        let rows = builder.build().fetch_all(&self.pool).await?;
-        rows.iter()
-            .map(|row| {
-                Ok(CatalogProduct {
-                    id: uuid_column(row, "id")?,
-                    name: row.try_get("name")?,
-                    code: row.try_get("code")?,
-                    price: row.try_get::<Decimal, _>("price")?,
-                    currency: row.try_get("currency")?,
-                    is_active: row.try_get("is_active")?,
-                })
+        Ok(aphel_sdk::line_items::catalog_items(ctx, product_ids)
+            .await?
+            .into_values()
+            .map(|item| CatalogProduct {
+                id: item.id,
+                name: item.name,
+                code: item.code,
+                price: item.price,
+                currency: item.currency,
+                is_active: item.active,
             })
-            .collect()
+            .collect())
     }
 
     pub(crate) async fn bundled(&self, product_ids: &[Uuid]) -> Result<Vec<Uuid>, AppError> {

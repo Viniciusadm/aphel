@@ -75,3 +75,11 @@ pub fn base_currency_fields() -> Result<Vec<crate::fields::SystemField>, AppErro
         )?,
     ])
 }
+
+#[derive(serde::Deserialize, utoipa::ToSchema)]
+#[serde(untagged)]
+#[schema(as = DecimalInput, example = "15000.00")]
+pub enum DecimalInputSchema {
+    Text(String),
+    Number(f64),
+}

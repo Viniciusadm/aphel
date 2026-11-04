@@ -1,12 +1,10 @@
 use std::cmp::Ordering;
-use std::sync::Arc;
 
 use async_trait::async_trait;
 use chrono::NaiveDate;
 use rust_decimal::Decimal;
 use uuid::Uuid;
 
-use crate::KEY;
 use crate::domain::{
     BundleComponent, BundleExpansion, BundlePricing, CatalogProduct, PriceList, PriceListAppliesTo,
     PriceListCandidate, PriceListSelection, PriceListSummary, PriceRequest, ResolvedPrice,
@@ -19,67 +17,10 @@ use aphel_kernel::errors::AppError;
 use aphel_sdk::line_items::round_money;
 use aphel_sdk::money::organization_today;
 
-#[async_trait]
-pub trait PriceListResolver: Send + Sync {
-    async fn find(
-        &self,
-        ctx: &Ctx<'_>,
-        price_list_id: Uuid,
-    ) -> Result<Option<PriceListSummary>, AppError>;
-
-    async fn default_for(
-        &self,
-        ctx: &Ctx<'_>,
-        selection: &PriceListSelection,
-    ) -> Result<Option<PriceListSummary>, AppError>;
-
-    async fn price(
-        &self,
-        ctx: &Ctx<'_>,
-        request: &PriceRequest,
-    ) -> Result<Option<ResolvedPrice>, AppError>;
-}
-
-#[async_trait]
-pub trait DiscountLimits: Send + Sync {
-    async fn max_discount_percent(
-        &self,
-        ctx: &Ctx<'_>,
-        user_id: &UserId,
-    ) -> Result<Option<Decimal>, AppError>;
-}
-
-#[async_trait]
-pub trait BundleExpander: Send + Sync {
-    async fn expand(
-        &self,
-        ctx: &Ctx<'_>,
-        product_id: Uuid,
-        price_list_id: Option<Uuid>,
-    ) -> Result<Option<BundleExpansion>, AppError>;
-}
-
-fn enabled_service<T>(ctx: &Ctx<'_>) -> Option<Arc<T>>
-where
-    T: ?Sized + Send + Sync + 'static,
-{
-    if !ctx.app().is_enabled(KEY) {
-        return None;
-    }
-    ctx.services().get::<T>()
-}
-
-pub fn price_list_resolver(ctx: &Ctx<'_>) -> Option<Arc<dyn PriceListResolver>> {
-    enabled_service::<dyn PriceListResolver>(ctx)
-}
-
-pub fn discount_limits(ctx: &Ctx<'_>) -> Option<Arc<dyn DiscountLimits>> {
-    enabled_service::<dyn DiscountLimits>(ctx)
-}
-
-pub fn bundle_expander(ctx: &Ctx<'_>) -> Option<Arc<dyn BundleExpander>> {
-    enabled_service::<dyn BundleExpander>(ctx)
-}
+pub use aphel_sdk::pricing::{
+    BundleExpander, DiscountLimits, PriceListResolver, bundle_expander, discount_limits,
+    price_list_resolver,
+};
 
 pub(crate) fn summary(list: &PriceList) -> PriceListSummary {
     PriceListSummary {
@@ -250,7 +191,7 @@ impl BundleExpander for CatalogBundleExpander {
         };
         let mut ids = vec![product_id];
         ids.extend(bundle.components.iter().map(|item| item.product_id));
-        let products = bundles.products(&ids).await?;
+        let products = bundles.products(ctx, &ids).await?;
         let Some(kit) = products.iter().find(|product| product.id == product_id) else {
             return Ok(None);
         };

@@ -12,19 +12,18 @@ use aphel_kernel::domain::UserId;
 use aphel_kernel::domain::access::AccessScope;
 use aphel_kernel::errors::{AppError, CodedKind};
 use aphel_kernel::infrastructure::repositories::mysql_access::MySqlAccessRepository;
-use aphel_kernel::records::RecordCtx;
-use aphel_sdk::line_items::LineData;
-use aphel_sdk::line_items::LineItemsPort;
-use approvals::approval_gate;
-use approvals::domain::{
+use aphel_sdk::approvals::approval_gate;
+use aphel_sdk::approvals::{
     ApprovalCheckpoint, ApprovalRequestSummary, ApprovalSubmission, SubmissionOutcome,
 };
-use email::EmailAddress;
-use email::compose::{RecordInput, SendEmailCommand};
-use price_lists::domain::{
+use aphel_sdk::email::EmailAddress;
+use aphel_sdk::email::{RecordInput, SendEmailCommand};
+use aphel_sdk::line_items::LineData;
+use aphel_sdk::line_items::LineItemsPort;
+use aphel_sdk::pricing::{
     BundleExpansion, PriceListSelection, PriceListSummary, PriceRequest, ResolvedPrice,
 };
-use price_lists::{bundle_expander, discount_limits, price_list_resolver};
+use aphel_sdk::pricing::{bundle_expander, discount_limits, price_list_resolver};
 
 use aphel_kernel::application::shared::money_text;
 
@@ -77,9 +76,10 @@ impl<'a, 'b> QuoteGateway<'a, 'b> {
         record_type: &RecordType,
         id: Uuid,
     ) -> Result<Option<Value>, AppError> {
-        let state = self.ctx.state();
-        let handler = self.ctx.registry().handler(record_type.as_str())?;
-        handler.load(&RecordCtx::new(scope, &state), id).await
+        self.ctx
+            .with_scope(scope)
+            .load_record(record_type.as_str(), id)
+            .await
     }
 
     async fn update_deal(
@@ -88,10 +88,9 @@ impl<'a, 'b> QuoteGateway<'a, 'b> {
         deal_id: Uuid,
         values: Value,
     ) -> Result<(), AppError> {
-        let state = self.ctx.state();
-        let handler = self.ctx.registry().handler(RecordType::DEAL.as_str())?;
-        handler
-            .update(&RecordCtx::new(scope, &state), deal_id, values)
+        self.ctx
+            .with_scope(scope)
+            .update_record(RecordType::DEAL.as_str(), deal_id, values)
             .await
             .map(|_| ())
     }
@@ -174,25 +173,27 @@ impl<'a, 'b> QuoteGateway<'a, 'b> {
         email: QuoteEmail,
     ) -> Result<(), AppError> {
         let ctx = self.ctx.with_scope(scope);
-        email::service::compose::enqueue_in_tx(
-            &ctx,
-            tx,
-            SendEmailCommand {
-                mailbox_id: email.mailbox_id,
-                to: email.to,
-                cc: email.cc,
-                subject: Some(email.subject),
-                body_html: Some(email.body_html),
-                record: Some(RecordInput {
-                    record_type: RecordType::DEAL.as_str().to_owned(),
-                    record_id: email.deal_id.to_string(),
-                }),
-                ip: email.ip,
-                ..SendEmailCommand::default()
-            },
-        )
-        .await
-        .map(|_| ())
+        ctx.services()
+            .require::<dyn aphel_sdk::email::EmailSender>()?
+            .enqueue_in_tx(
+                &ctx,
+                tx,
+                SendEmailCommand {
+                    mailbox_id: email.mailbox_id,
+                    to: email.to,
+                    cc: email.cc,
+                    subject: Some(email.subject),
+                    body_html: Some(email.body_html),
+                    record: Some(RecordInput {
+                        record_type: RecordType::DEAL.as_str().to_owned(),
+                        record_id: email.deal_id.to_string(),
+                    }),
+                    ip: email.ip,
+                    ..SendEmailCommand::default()
+                },
+            )
+            .await
+            .map(|_| ())
     }
 
     pub(crate) async fn replace_line_items(

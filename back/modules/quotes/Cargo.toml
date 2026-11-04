@@ -10,14 +10,6 @@ publish = false
 aphel-sdk.workspace = true
 aphel-contract-crm.workspace = true
 aphel-kernel.workspace = true
-approvals = { package = "aphel-mod-approvals", path = "../approvals" }
-organizations = { package = "aphel-mod-organizations", path = "../organizations" }
-people = { package = "aphel-mod-people", path = "../people" }
-deals = { package = "aphel-mod-deals", path = "../deals" }
-email = { package = "aphel-mod-email", path = "../email" }
-price_lists = { package = "aphel-mod-price-lists", path = "../price_lists" }
-products = { package = "aphel-mod-products", path = "../products" }
-scheduling = { package = "aphel-mod-scheduling", path = "../scheduling" }
 axum.workspace = true
 async-trait.workspace = true
 chrono.workspace = true

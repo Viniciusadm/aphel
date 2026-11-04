@@ -2,7 +2,6 @@ use chrono::{DateTime, Utc};
 use serde::{Deserialize, Serialize};
 use utoipa::{IntoParams, ToSchema};
 
-use crate::EmailAddress;
 use crate::compose::{RecordInput, SendEmailCommand};
 use crate::templates::{
     CreateTemplateCommand, EmailTemplateView, PreviewCommand, RenderedEmail, TemplateVariable,
@@ -12,23 +11,7 @@ use crate::tracking::{TrackingObjection, TrackingSettings};
 use aphel_kernel::api::dto::common::double_option;
 use aphel_kernel::api::dto::common::timestamp as instant;
 
-#[derive(Debug, Clone, Serialize, Deserialize, ToSchema)]
-#[schema(as = EmailAddressInput)]
-pub struct EmailAddressDto {
-    #[schema(example = "maria@customer.com")]
-    pub(crate) address: String,
-    #[serde(default)]
-    pub(crate) name: Option<String>,
-}
-
-impl From<EmailAddressDto> for EmailAddress {
-    fn from(value: EmailAddressDto) -> Self {
-        Self {
-            address: value.address,
-            name: value.name,
-        }
-    }
-}
+pub use aphel_sdk::email::EmailAddressDto;
 
 #[derive(Debug, Clone, Serialize, Deserialize, ToSchema)]
 pub(crate) struct EmailRecordInput {

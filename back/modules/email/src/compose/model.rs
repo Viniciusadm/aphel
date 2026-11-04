@@ -1,4 +1,3 @@
-use chrono::{DateTime, Utc};
 use uuid::Uuid;
 
 use crate::domain::address_domain;
@@ -26,29 +25,7 @@ pub(crate) const SEND_SCHEDULED_JOB: &str = "email.send_scheduled";
 pub(crate) const BODY_FILE_NAME: &str = "email-body.json";
 const DEFAULT_MESSAGE_DOMAIN: &str = "aphel.local";
 
-#[derive(Debug, Clone, PartialEq, Eq, Default)]
-pub struct RecordInput {
-    pub record_type: String,
-    pub record_id: String,
-}
-
-#[derive(Debug, Clone, PartialEq, Default)]
-pub struct SendEmailCommand {
-    pub mailbox_id: Option<String>,
-    pub to: Vec<EmailAddress>,
-    pub cc: Vec<EmailAddress>,
-    pub bcc: Vec<EmailAddress>,
-    pub subject: Option<String>,
-    pub body_html: Option<String>,
-    pub body_text: Option<String>,
-    pub template_id: Option<String>,
-    pub record: Option<RecordInput>,
-    pub reply_to_message_id: Option<String>,
-    pub attachment_file_ids: Vec<String>,
-    pub scheduled_at: Option<DateTime<Utc>>,
-    pub tracking: Option<bool>,
-    pub ip: Option<String>,
-}
+pub use aphel_sdk::email::{RecordInput, SendEmailCommand};
 
 #[derive(Debug, Clone, PartialEq)]
 pub struct ComposedEmail {

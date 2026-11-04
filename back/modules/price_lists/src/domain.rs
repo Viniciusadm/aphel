@@ -198,76 +198,10 @@ pub(crate) fn select_tier(
         .copied()
 }
 
-#[derive(Debug, Clone, PartialEq, Eq)]
-pub struct PriceListSelection {
-    pub currency: String,
-    pub company_id: Option<Uuid>,
-    pub on: NaiveDate,
-}
-
-#[derive(Debug, Clone, PartialEq, Eq)]
-pub struct PriceRequest {
-    pub price_list_id: Uuid,
-    pub product_id: Uuid,
-    pub quantity: Decimal,
-    pub on: NaiveDate,
-}
-
-#[derive(Debug, Clone, PartialEq, Eq)]
-pub struct ResolvedPrice {
-    pub(crate) price_list_id: Uuid,
-    pub(crate) product_id: Uuid,
-    pub unit_price: Decimal,
-    pub currency: String,
-}
-
-#[derive(Debug, Clone, PartialEq, Eq)]
-pub struct PriceListSummary {
-    pub id: Uuid,
-    pub(crate) name: String,
-    pub currency: String,
-}
-
-#[derive(Debug, Clone, Copy, PartialEq, Eq)]
-pub(crate) enum BundlePricing {
-    Fixed,
-    Sum,
-}
-
-impl BundlePricing {
-    pub(crate) fn as_str(&self) -> &'static str {
-        match self {
-            Self::Fixed => "fixed",
-            Self::Sum => "sum",
-        }
-    }
-
-    pub(crate) fn parse(value: &str) -> Option<Self> {
-        match value {
-            "fixed" => Some(Self::Fixed),
-            "sum" => Some(Self::Sum),
-            _ => None,
-        }
-    }
-}
-
-#[derive(Debug, Clone, PartialEq, Eq)]
-pub struct BundleComponent {
-    pub product_id: Uuid,
-    pub name: String,
-    pub code: Option<String>,
-    pub quantity: Decimal,
-    pub unit_price: Decimal,
-}
-
-#[derive(Debug, Clone, PartialEq, Eq)]
-pub struct BundleExpansion {
-    pub(crate) product_id: Uuid,
-    pub(crate) pricing: BundlePricing,
-    pub unit_price: Decimal,
-    pub currency: String,
-    pub components: Vec<BundleComponent>,
-}
+pub use aphel_sdk::pricing::{
+    BundleComponent, BundleExpansion, BundlePricing, PriceListSelection, PriceListSummary,
+    PriceRequest, ResolvedPrice,
+};
 
 pub(crate) const PRODUCT_BUNDLE_UPDATED: &str = "product_bundle.updated";
 pub(crate) const PRODUCT_BUNDLE_REMOVED: &str = "product_bundle.removed";

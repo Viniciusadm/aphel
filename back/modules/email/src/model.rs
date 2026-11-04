@@ -121,21 +121,7 @@ pub struct ConnectedMailbox {
     pub credentials: MailboxCredentials,
 }
 
-#[derive(Debug, Clone, PartialEq, Eq, Serialize, Deserialize)]
-pub struct EmailAddress {
-    pub address: String,
-    #[serde(default, skip_serializing_if = "Option::is_none")]
-    pub name: Option<String>,
-}
-
-impl EmailAddress {
-    pub fn new(address: impl Into<String>) -> Self {
-        Self {
-            address: address.into(),
-            name: None,
-        }
-    }
-}
+pub use aphel_sdk::email::EmailAddress;
 
 #[derive(Clone, PartialEq, Eq)]
 pub struct EmailAttachmentContent {

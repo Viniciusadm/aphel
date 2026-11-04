@@ -1,3 +1,5 @@
+use aphel_contract_crm::CrmRecordTypes;
+use aphel_kernel::application::shared::RecordType;
 use std::collections::BTreeMap;
 use std::sync::Arc;
 
@@ -6,7 +8,7 @@ use rust_decimal::Decimal;
 use serde_json::{Value, json};
 use sqlx::mysql::MySqlRow;
 use sqlx::types::Json;
-use sqlx::{MySql, MySqlConnection, MySqlPool, QueryBuilder, Row};
+use sqlx::{MySql, MySqlPool, QueryBuilder, Row};
 use uuid::Uuid;
 
 use crate::QUOTE;
@@ -575,25 +577,46 @@ impl QuoteStore {
         })
     }
 
-    pub(crate) async fn people(&self, quote: &Quote) -> Result<QuotePeople, AppError> {
-        let row = sqlx::query(
-            "SELECT u.display_name AS owner_name, u.email AS owner_email, \
-             c.full_name AS contact_name, co.name AS company_name \
-             FROM (SELECT 1 AS anchor) x \
-             LEFT JOIN users u ON u.id = ? \
-             LEFT JOIN people c ON c.id = ? \
-             LEFT JOIN organizations co ON co.id = ?",
-        )
-        .bind(quote.owner_id.as_ref().map(UserId::as_str))
-        .bind(quote.contact_id.map(|id| id.to_string()))
-        .bind(quote.company_id.map(|id| id.to_string()))
-        .fetch_one(&self.pool)
-        .await?;
+    pub(crate) async fn people(
+        &self,
+        ctx: &Ctx<'_>,
+        quote: &Quote,
+    ) -> Result<QuotePeople, AppError> {
+        let owner: Option<(String, String)> = match &quote.owner_id {
+            Some(id) => {
+                sqlx::query_as("SELECT display_name,email FROM users WHERE id = ?")
+                    .bind(id.as_str())
+                    .fetch_optional(&self.pool)
+                    .await?
+            }
+            None => None,
+        };
+        let query = ctx.query();
+        use aphel_kernel::application::query::RecordQueryPorts;
+        let mut names = Vec::new();
+        for (entity, id) in [
+            (RecordType::CONTACT, quote.contact_id),
+            (RecordType::COMPANY, quote.company_id),
+        ] {
+            let label = match id {
+                Some(id) => aphel_sdk::records::visible_record_label(
+                    &self.pool,
+                    ctx.registry(),
+                    query.definitions(),
+                    ctx.scope,
+                    &aphel_kernel::application::shared::RecordRef::new(entity, id),
+                )
+                .await?
+                .map(|label| label.title.unwrap_or_else(|| id.to_string())),
+                None => None,
+            };
+            names.push(label);
+        }
         Ok(QuotePeople {
-            owner_name: row.try_get("owner_name")?,
-            owner_email: row.try_get("owner_email")?,
-            contact_name: row.try_get("contact_name")?,
-            company_name: row.try_get("company_name")?,
+            owner_name: owner.as_ref().map(|row| row.0.clone()),
+            owner_email: owner.map(|row| row.1),
+            contact_name: names.remove(0),
+            company_name: names.remove(0),
         })
     }
 
@@ -657,21 +680,6 @@ impl QuoteStore {
         Ok(())
     }
 
-    pub(crate) async fn stage_in_pipeline(
-        &self,
-        pipeline_id: Uuid,
-        stage_id: Uuid,
-    ) -> Result<bool, AppError> {
-        let exists: bool = sqlx::query_scalar(
-            "SELECT EXISTS(SELECT 1 FROM workflow_stages WHERE pipeline_id = ? AND id = ?)",
-        )
-        .bind(pipeline_id.to_string())
-        .bind(stage_id.to_string())
-        .fetch_one(&self.pool)
-        .await?;
-        Ok(exists)
-    }
-
     pub(crate) async fn expiring(&self, today: NaiveDate) -> Result<Vec<Uuid>, AppError> {
         let ids: Vec<String> = sqlx::query_scalar(
             "SELECT id FROM quotes WHERE status = 'sent' \
@@ -692,33 +700,22 @@ const QUOTE_DISCOUNT_POLICY_DESCRIPTION: &str = "Cotações com desconto acima d
 const QUOTE_DISCOUNT_POLICY_FILTER: &str =
     r#"{"field": "exceeds_discount_limit", "operator": "eq", "value": true}"#;
 
-pub(crate) async fn seed_quote_discount_policy(
-    connection: &mut MySqlConnection,
-) -> Result<(), AppError> {
-    sqlx::query(
-        "INSERT IGNORE INTO approval_policies (id, `key`, name, description, \
-         record_type, moment, target_id, condition_kind, condition_filter, condition_formula, \
-         locked_fields, due_hours, is_active, position) \
-         VALUES (?, ?, ?, ?, 'quotes.quote', 'quote_send', NULL, 'filter', CAST(? AS JSON), NULL, \
-         JSON_ARRAY(), NULL, TRUE, 0)",
-    )
-    .bind(Uuid::now_v7().to_string())
-    .bind(QUOTE_DISCOUNT_POLICY_KEY)
-    .bind(QUOTE_DISCOUNT_POLICY_NAME)
-    .bind(QUOTE_DISCOUNT_POLICY_DESCRIPTION)
-    .bind(QUOTE_DISCOUNT_POLICY_FILTER)
-    .execute(&mut *connection)
-    .await?;
-    sqlx::query(
-        "INSERT INTO approval_policy_steps (id, policy_id, position, name, \
-         approver_kind, approver_user_id, approver_role_id, rule) \
-         SELECT ?, p.id, 0, NULL, 'owner_team_manager', NULL, NULL, 'any' \
-         FROM approval_policies p WHERE p.`key` = ? \
-         AND NOT EXISTS (SELECT 1 FROM approval_policy_steps s WHERE s.policy_id = p.id)",
-    )
-    .bind(Uuid::now_v7().to_string())
-    .bind(QUOTE_DISCOUNT_POLICY_KEY)
-    .execute(&mut *connection)
-    .await?;
-    Ok(())
+pub(crate) fn discount_policy_template() -> aphel_sdk::approvals::ApprovalPolicyTemplate {
+    aphel_sdk::approvals::ApprovalPolicyTemplate {
+        key: QUOTE_DISCOUNT_POLICY_KEY.into(),
+        name: QUOTE_DISCOUNT_POLICY_NAME.into(),
+        description: Some(QUOTE_DISCOUNT_POLICY_DESCRIPTION.into()),
+        record_type: "quotes.quote".into(),
+        moment: aphel_sdk::approvals::ApprovalMoment::QuoteSend,
+        filter: serde_json::from_str(QUOTE_DISCOUNT_POLICY_FILTER)
+            .expect("quote discount policy filter"),
+        locked_fields: Vec::new(),
+        steps: vec![aphel_sdk::approvals::ApprovalStepTemplate {
+            name: None,
+            approver_kind: "owner_team_manager".into(),
+            approver_user_id: None,
+            approver_role_id: None,
+            rule: "any".into(),
+        }],
+    }
 }

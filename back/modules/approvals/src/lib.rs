@@ -1,3 +1,4 @@
+mod defaults;
 use aphel_contract_automation::AutomationBuilder;
 pub(crate) mod automation;
 pub mod domain;
@@ -93,6 +94,12 @@ impl Module for ApprovalsModule {
     }
 
     fn register(&self, app: &mut AppBuilder) -> Result<(), AppError> {
+        app.contract(aphel_sdk::approvals::DESCRIPTOR);
+        app.contribute(std::sync::Arc::new(
+            aphel_kernel::infrastructure::defaults::seed::DefaultsSeed(|connection| {
+                Box::pin(defaults::seed_templates(connection))
+            }),
+        ));
         app.contribute::<dyn ::notifications::application::texts::NotificationTexts>(
             std::sync::Arc::new(crate::notifications::ApprovalNotificationTexts),
         );

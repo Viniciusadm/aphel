@@ -15,7 +15,7 @@ use aphel_kernel::domain::access::AccessScope;
 use aphel_kernel::errors::AppError;
 use aphel_kernel::modules::{WorkerEnv, WorkerParts};
 use aphel_kernel::state::AppState;
-use approvals::domain::{APPROVAL_APPROVED, APPROVAL_CANCELLED, APPROVAL_REJECTED};
+use aphel_sdk::approvals::{APPROVAL_APPROVED, APPROVAL_CANCELLED, APPROVAL_REJECTED};
 
 pub(crate) fn quotes_expire_schedule() -> ScheduledJobDefinition {
     ScheduledJobDefinition::new(QUOTES_EXPIRE_JOB, QUOTES_EXPIRE_CRON)

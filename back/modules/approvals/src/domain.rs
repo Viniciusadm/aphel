@@ -8,11 +8,11 @@ use aphel_kernel::application::shared::RecordRef;
 use aphel_kernel::domain::UserId;
 
 pub(crate) const APPROVAL_REQUESTED: &str = "approval.requested";
-pub const APPROVAL_APPROVED: &str = "approval.approved";
-pub const APPROVAL_REJECTED: &str = "approval.rejected";
-pub const APPROVAL_CANCELLED: &str = "approval.cancelled";
+pub use aphel_sdk::approvals::APPROVAL_APPROVED;
+pub use aphel_sdk::approvals::APPROVAL_CANCELLED;
+pub use aphel_sdk::approvals::APPROVAL_REJECTED;
 
-pub const APPROVAL_PENDING: &str = "approval_pending";
+pub use aphel_sdk::approvals::APPROVAL_PENDING;
 pub(crate) const APPROVAL_REQUIRED: &str = "approval_required";
 pub(crate) const APPROVAL_NO_APPROVER: &str = "approval_no_approver";
 
@@ -373,66 +373,7 @@ pub(crate) const MAX_POLICY_NAME_LENGTH: usize = 140;
 pub(crate) const MAX_DECISION_COMMENT_LENGTH: usize = 2_000;
 pub(crate) const MAX_DUE_HOURS: u32 = 24 * 90;
 
-#[derive(Debug, Clone, Copy, PartialEq, Eq, Hash)]
-pub enum ApprovalMoment {
-    StageChange,
-    QuoteSend,
-    OnDemand,
-}
-
-impl ApprovalMoment {
-    pub(crate) const ALL: [Self; 3] = [Self::StageChange, Self::QuoteSend, Self::OnDemand];
-
-    pub fn as_str(&self) -> &'static str {
-        match self {
-            Self::StageChange => "stage_change",
-            Self::QuoteSend => "quote_send",
-            Self::OnDemand => "on_demand",
-        }
-    }
-
-    pub(crate) fn parse(value: &str) -> Option<Self> {
-        Self::ALL
-            .into_iter()
-            .find(|moment| moment.as_str() == value)
-    }
-
-    pub(crate) fn requires_target(&self) -> bool {
-        matches!(self, Self::StageChange)
-    }
-}
-
-#[derive(Debug, Clone, Copy, PartialEq, Eq, Hash)]
-pub enum ApprovalStatus {
-    Pending,
-    Approved,
-    Rejected,
-    Cancelled,
-}
-
-impl ApprovalStatus {
-    pub(crate) const ALL: [Self; 4] = [
-        Self::Pending,
-        Self::Approved,
-        Self::Rejected,
-        Self::Cancelled,
-    ];
-
-    pub(crate) fn as_str(&self) -> &'static str {
-        match self {
-            Self::Pending => "pending",
-            Self::Approved => "approved",
-            Self::Rejected => "rejected",
-            Self::Cancelled => "cancelled",
-        }
-    }
-
-    pub(crate) fn parse(value: &str) -> Option<Self> {
-        Self::ALL
-            .into_iter()
-            .find(|status| status.as_str() == value)
-    }
-}
+pub use aphel_sdk::approvals::{ApprovalMoment, ApprovalStatus};
 
 #[derive(Debug, Clone, Copy, PartialEq, Eq, Hash)]
 pub(crate) enum ApproverKind {
@@ -541,57 +482,9 @@ pub(crate) fn locks_field(locked_fields: &[String], field: &str) -> bool {
         })
 }
 
-#[derive(Debug, Clone, PartialEq, Eq)]
-pub struct ApprovalCheckpoint {
-    pub(crate) record: RecordRef,
-    pub(crate) moment: ApprovalMoment,
-    pub(crate) target_id: Option<Uuid>,
-}
-
-impl ApprovalCheckpoint {
-    pub(crate) fn stage_change(record: RecordRef, stage_id: Uuid) -> Self {
-        Self {
-            record,
-            moment: ApprovalMoment::StageChange,
-            target_id: Some(stage_id),
-        }
-    }
-
-    pub fn quote_send(record: RecordRef) -> Self {
-        Self {
-            record,
-            moment: ApprovalMoment::QuoteSend,
-            target_id: None,
-        }
-    }
-}
-
-#[derive(Debug, Clone, PartialEq, Eq)]
-pub struct ApprovalSubmission {
-    pub checkpoint: ApprovalCheckpoint,
-    pub comment: Option<String>,
-    pub ip: Option<String>,
-}
-
-#[derive(Debug, Clone, PartialEq, Eq)]
-pub struct ApprovalRequestSummary {
-    pub id: Uuid,
-    pub(crate) policy_id: Uuid,
-    pub(crate) policy_name: String,
-    pub(crate) record: RecordRef,
-    pub moment: ApprovalMoment,
-    pub(crate) target_id: Option<Uuid>,
-    pub status: ApprovalStatus,
-    pub(crate) current_step: u32,
-    pub(crate) locked_fields: Vec<String>,
-}
-
-#[derive(Debug, Clone, PartialEq, Eq)]
-pub enum SubmissionOutcome {
-    NotRequired,
-    Pending(Vec<ApprovalRequestSummary>),
-    Approved(Vec<ApprovalRequestSummary>),
-}
+pub use aphel_sdk::approvals::{
+    ApprovalCheckpoint, ApprovalRequestSummary, ApprovalSubmission, SubmissionOutcome,
+};
 
 #[derive(Debug, Clone, Copy)]
 pub(crate) struct DecisionEntry<'a> {

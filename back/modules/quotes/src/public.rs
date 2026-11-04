@@ -91,7 +91,7 @@ pub(crate) async fn public_quote(
 ) -> Result<PublicQuote, AppError> {
     let organization = QuoteStore::of(ctx).organization().await?;
     let items = QuoteStore::of(ctx).items(quote.id).await?;
-    let people = QuoteStore::of(ctx).people(&quote).await?;
+    let people = QuoteStore::of(ctx).people(ctx, &quote).await?;
     let totals = compute_totals(
         &items
             .iter()

@@ -12,9 +12,6 @@ aphel-contract-automation.workspace = true
 config_packages = { package = "aphel-mod-config-packages", path = "../config_packages" }
 aphel-contract-crm.workspace = true
 aphel-kernel.workspace = true
-tasks = { package = "aphel-mod-tasks", path = "../tasks" }
-deals = { package = "aphel-mod-deals", path = "../deals" }
-quotes = { package = "aphel-mod-quotes", path = "../quotes" }
 axum.workspace = true
 async-trait.workspace = true
 chrono.workspace = true

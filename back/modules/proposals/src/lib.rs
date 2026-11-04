@@ -52,8 +52,6 @@ impl Module for ProposalsModule {
             .depends_on(aphel_sdk::documents::KEY, "*")
             .description("Document templates and PDF proposals generated from deals")
             .requires_aphel("0.1.0")
-            .optional(deals::KEY)
-            .optional(tasks::KEY)
             .migration(Migration::new(
                 1,
                 "create proposal templates, counters and documents",
@@ -86,7 +84,10 @@ impl Module for ProposalsModule {
         app.permission(PermissionDefinition::administrative(MANAGE));
         app.public_event(event(
             service::PROPOSAL_GENERATED,
-            deals::DEAL_RESOURCE,
+            aphel_kernel::application::public_events::PublicResource::new(
+                "deals.deal",
+                "DealDetailResponse",
+            ),
             "A proposal PDF was generated and attached to the deal",
         ));
         app.permission(PermissionDefinition::administrative(GENERATE));

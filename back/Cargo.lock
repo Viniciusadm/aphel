@@ -237,6 +237,16 @@ name = "aphel-contract"
 version = "0.1.0"
 
 [[package]]
+name = "aphel-contract-approvals"
+version = "0.1.0"
+dependencies = [
+ "aphel-contract",
+ "serde",
+ "serde_json",
+ "uuid",
+]
+
+[[package]]
 name = "aphel-contract-assignment"
 version = "0.1.0"
 dependencies = [
@@ -306,6 +316,15 @@ dependencies = [
 ]
 
 [[package]]
+name = "aphel-contract-email"
+version = "0.1.0"
+dependencies = [
+ "aphel-contract",
+ "chrono",
+ "serde",
+]
+
+[[package]]
 name = "aphel-contract-imports"
 version = "0.1.0"
 dependencies = [
@@ -349,6 +368,17 @@ version = "0.1.0"
 dependencies = [
  "aphel-contract",
  "serde",
+]
+
+[[package]]
+name = "aphel-contract-pricing"
+version = "0.1.0"
+dependencies = [
+ "aphel-contract",
+ "chrono",
+ "rust_decimal",
+ "serde",
+ "uuid",
 ]
 
 [[package]]
@@ -499,6 +529,7 @@ dependencies = [
  "aphel-mod-formulas",
  "aphel-mod-notifications",
  "aphel-mod-workflow",
+ "aphel-sdk",
  "async-trait",
  "axum",
  "chrono",
@@ -1514,9 +1545,6 @@ dependencies = [
  "aphel-contract-crm",
  "aphel-kernel",
  "aphel-mod-config-packages",
- "aphel-mod-deals",
- "aphel-mod-quotes",
- "aphel-mod-tasks",
  "aphel-sdk",
  "async-trait",
  "axum",
@@ -1538,14 +1566,6 @@ version = "0.1.0"
 dependencies = [
  "aphel-contract-crm",
  "aphel-kernel",
- "aphel-mod-approvals",
- "aphel-mod-deals",
- "aphel-mod-email",
- "aphel-mod-organizations",
- "aphel-mod-people",
- "aphel-mod-price-lists",
- "aphel-mod-products",
- "aphel-mod-scheduling",
  "aphel-sdk",
  "async-trait",
  "axum",
@@ -2002,23 +2022,28 @@ name = "aphel-sdk"
 version = "0.1.0"
 dependencies = [
  "aphel-contract",
+ "aphel-contract-approvals",
  "aphel-contract-assignment",
  "aphel-contract-automation",
  "aphel-contract-calendar",
  "aphel-contract-deals",
  "aphel-contract-documents",
+ "aphel-contract-email",
  "aphel-contract-imports",
  "aphel-contract-line-items",
  "aphel-contract-messaging",
  "aphel-contract-money",
  "aphel-contract-party",
+ "aphel-contract-pricing",
  "aphel-contract-privacy",
  "aphel-contract-timeline",
  "aphel-contract-workflow",
  "aphel-kernel",
  "async-trait",
+ "base64 0.22.1",
  "chrono",
  "chrono-tz",
+ "getrandom 0.4.3",
  "rust_decimal",
  "serde",
  "serde_json",

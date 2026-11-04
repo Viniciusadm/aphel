@@ -12,7 +12,6 @@ use aphel_kernel::domain::access::AccessScope;
 use aphel_kernel::errors::{AppError, CodedKind};
 use aphel_kernel::infrastructure::repositories::mysql_organization_profile::find_organization;
 use aphel_kernel::infrastructure::repositories::mysql_users::MySqlUserRepository;
-use aphel_kernel::records::RecordCtx;
 
 use crate::format::Locale;
 
@@ -90,11 +89,7 @@ pub(crate) async fn load(
     record_type: &str,
     id: Uuid,
 ) -> Result<Option<Value>, AppError> {
-    let Ok(handler) = ctx.registry().handler(record_type) else {
-        return Ok(None);
-    };
-    let state = ctx.state();
-    match handler.load(&RecordCtx::new(ctx.scope, &state), id).await {
+    match ctx.load_record(record_type, id).await {
         Ok(value) => Ok(value),
         Err(error) if is_tolerated(&error) => Ok(None),
         Err(error) => Err(error),
@@ -133,11 +128,9 @@ pub(crate) async fn user_identity(ctx: &Ctx<'_>) -> (Option<String>, Option<Stri
 }
 
 pub(crate) async fn quote(ctx: &Ctx<'_>, quote_id: Uuid) -> Result<Value, AppError> {
-    if !ctx.app().is_enabled(quotes::KEY) {
-        return Err(aphel_kernel::modules::module_disabled());
-    }
-    let details = quotes::service::get(ctx, &quote_id.to_string()).await?;
-    quotes::http::quote_detail(&ctx.state(), ctx.scope, details).await
+    ctx.load_record("quotes.quote", quote_id)
+        .await?
+        .ok_or_else(|| AppError::not_found_code("quote_not_found", "quote was not found"))
 }
 
 pub(crate) async fn line_items(

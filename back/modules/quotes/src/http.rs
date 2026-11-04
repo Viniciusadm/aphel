@@ -42,9 +42,9 @@ use aphel_kernel::domain::UserId;
 use aphel_kernel::domain::access::AccessScope;
 use aphel_kernel::errors::AppError;
 use aphel_kernel::records::{RecordCtx, RecordTypeHandler, optional_record, values_request};
+use aphel_sdk::email::EmailAddressDto;
 use aphel_sdk::line_items::{DiscountKind, money};
-use deals::http::DecimalInputSchema;
-use email::dto::email_outbound::EmailAddressDto;
+use aphel_sdk::money::DecimalInputSchema;
 
 pub(crate) const TAG: &str = "quotes";
 

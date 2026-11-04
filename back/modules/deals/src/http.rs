@@ -621,13 +621,7 @@ pub fn money(value: Decimal) -> String {
     format!("{:.2}", value.round_dp(2))
 }
 
-#[derive(Deserialize, ToSchema)]
-#[serde(untagged)]
-#[schema(as = DecimalInput, example = "15000.00")]
-pub enum DecimalInputSchema {
-    Text(String),
-    Number(f64),
-}
+pub use aphel_sdk::money::DecimalInputSchema;
 
 #[derive(Debug, Serialize, ToSchema)]
 pub(crate) struct DealStageResponse {

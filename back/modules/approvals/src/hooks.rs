@@ -2,7 +2,6 @@ use std::sync::Arc;
 
 use async_trait::async_trait;
 
-use crate::KEY;
 use crate::domain::{
     ApprovalCheckpoint, ApprovalRequestSummary, ApprovalSubmission, SubmissionOutcome,
 };
@@ -18,36 +17,7 @@ use aphel_kernel::infrastructure::events::MySqlEventPublisher;
 use aphel_kernel::modules::HookCtx;
 use aphel_kernel::records::ChangedRecord;
 
-#[async_trait]
-pub trait ApprovalGate: Send + Sync {
-    async fn checkpoint(
-        &self,
-        ctx: &Ctx<'_>,
-        tx: &mut MySqlTx,
-        checkpoint: &ApprovalCheckpoint,
-    ) -> Result<(), AppError>;
-
-    async fn submit(
-        &self,
-        ctx: &Ctx<'_>,
-        tx: &mut MySqlTx,
-        submission: &ApprovalSubmission,
-    ) -> Result<SubmissionOutcome, AppError>;
-
-    async fn cancel_open(
-        &self,
-        ctx: &Ctx<'_>,
-        tx: &mut MySqlTx,
-        record: &RecordRef,
-        reason: &str,
-    ) -> Result<u32, AppError>;
-
-    async fn requests_for(
-        &self,
-        ctx: &Ctx<'_>,
-        record: &RecordRef,
-    ) -> Result<Vec<ApprovalRequestSummary>, AppError>;
-}
+pub use aphel_sdk::approvals::{ApprovalGate, approval_gate};
 
 pub struct EngineApprovalGate;
 
@@ -102,13 +72,6 @@ impl ApprovalGate for EngineApprovalGate {
             .map(|request| request.summary())
             .collect())
     }
-}
-
-pub fn approval_gate(ctx: &Ctx<'_>) -> Option<Arc<dyn ApprovalGate>> {
-    if !ctx.app().is_enabled(KEY) {
-        return None;
-    }
-    ctx.services().get::<dyn ApprovalGate>()
 }
 
 pub(crate) async fn guard_write(
