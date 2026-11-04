@@ -269,9 +269,18 @@ This phase is in progress. Completed entries describe static source validation; 
 ## Scoped pricing reference identities
 
 - [x] Share bounded scoped identity selection through the SDK's generic record query utility; label hydration uses the same selection path.
-- [x] Pricing validates company/product identities through registry definitions, read scope and enabled native owners instead of formatting foreign table names into SQL.
+- [x] Pricing validates company identities through scoped registry definitions; catalog identity validation delegates to its owner, including the existing settings-administrator access path. Neither formats foreign table names into SQL.
 - [x] Remove the two formatted cross-owner existence queries that the literal SQL ratchet did not identify.
 - [ ] Manual acceptance: pricing company/item selection, own/team/organization scopes, missing read permissions, hidden labels, deleted references and disabled owners.
+
+## Pricing catalog data ownership
+
+- [x] Separate owned price-list entries from catalog presentation snapshots. Pricing reads only its own item rows; bounded catalog sources provide visible labels, codes, base prices and currencies.
+- [x] Catalog items owns portable code lookup through a settings-authorized native interface. Configuration plans retain live/null-code distinctions and the existing active-code lookup semantics.
+- [x] Bundle component checks and price tier resolution validate target identities through the enabled catalog reference service, enforcing organization read scope or settings administration instead of joining catalog tables.
+- [x] Remove all remaining pricing foreign SQL, including product code lookups and bundle joins. Catalog snapshot reads enforce organization scope or the existing settings-administrator path.
+- [ ] Replace pricing's foreign FKs and runtime catalog prerequisite with explicit removal policies.
+- [ ] Manual acceptance: price tiers, labels/field masks, bundle nesting, live/deleted products, code-less products, configuration round trips, replacement of orphaned owned rows, ordering and disabled sources.
 
 ## Outstanding scope
 

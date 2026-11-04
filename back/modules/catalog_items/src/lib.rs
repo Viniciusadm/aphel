@@ -1,3 +1,4 @@
+mod references;
 use aphel_sdk::imports::ImportTraits;
 pub mod domain;
 pub mod http;
@@ -140,6 +141,9 @@ impl Module for CatalogItemsModule {
     }
 
     fn register(&self, app: &mut AppBuilder) -> Result<(), AppError> {
+        app.provide::<dyn aphel_sdk::catalog_items::CatalogReferences>(Arc::new(
+            references::ReferenceReader,
+        ));
         app.contract(aphel_sdk::catalog_items::DESCRIPTOR);
         app.contribute::<dyn aphel_sdk::line_items::ItemCatalog>(std::sync::Arc::new(
             LineItemCatalog,
@@ -192,7 +196,11 @@ impl aphel_sdk::line_items::ItemCatalog for LineItemCatalog {
         ids: &[uuid::Uuid],
     ) -> Result<Vec<aphel_sdk::line_items::CatalogItem>, AppError> {
         use aphel_kernel::application::access::Authorizer;
-        if ctx.scope.require(&Permission::PRODUCTS_READ).is_err()
+        if aphel_sdk::access::require_organization_record_scope(
+            ctx.scope,
+            &Permission::PRODUCTS_READ,
+        )
+        .is_err()
             && ctx
                 .scope
                 .require(&aphel_kernel::domain::access::Permission::SETTINGS_MANAGE)

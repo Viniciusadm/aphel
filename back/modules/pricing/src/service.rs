@@ -13,9 +13,9 @@ use crate::domain::{
     MAX_PRICE_LIST_DESCRIPTION_LENGTH, MAX_PRICE_LIST_ITEMS, MAX_PRICE_LIST_NAME_LENGTH,
     MAX_PRICE_LISTS, NewPriceListItem, PRICE_LIST_CREATED, PRICE_LIST_DELETED,
     PRICE_LIST_ITEMS_REPLACED, PRICE_LIST_RECORD_TYPE, PRICE_LIST_UPDATED, PriceList,
-    PriceListAppliesTo, PriceListFilter, PriceListItem, ReplacePriceListItemsCommand,
-    RoleDiscountLimit, SavePriceListCommand, SetDiscountLimitsCommand, price_list_key_taken,
-    price_list_not_found,
+    PriceListAppliesTo, PriceListEntry, PriceListFilter, PriceListItem,
+    ReplacePriceListItemsCommand, RoleDiscountLimit, SavePriceListCommand,
+    SetDiscountLimitsCommand, price_list_key_taken, price_list_not_found,
 };
 use crate::store::{DiscountLimitStore, PriceListStore};
 use aphel_kernel::Ctx;
@@ -158,7 +158,7 @@ pub(crate) async fn items(ctx: &Ctx<'_>, id: &str) -> Result<Vec<PriceListItem>,
     let scope = ctx.scope;
     require_catalog(scope, &Permission::PRODUCTS_READ)?;
     let list = existing(ctx, id).await?;
-    PriceListStore::of(ctx).items(list.id).await
+    hydrate_items(ctx, PriceListStore::of(ctx).entries(list.id).await?).await
 }
 
 pub async fn create(ctx: &Ctx<'_>, command: SavePriceListCommand) -> Result<PriceList, AppError> {
@@ -367,7 +367,7 @@ pub async fn replace_items(
             },
         )
         .collect();
-    let current = repository.items(list.id).await?;
+    let current = repository.entries(list.id).await?;
     let before: BTreeSet<String> = current
         .iter()
         .map(|item| item_entry(item.product_id, item.min_quantity, item.unit_price))
@@ -377,7 +377,7 @@ pub async fn replace_items(
         .map(|item| item_entry(item.product_id, item.min_quantity, item.unit_price))
         .collect();
     if before == after {
-        return Ok(current);
+        return hydrate_items(ctx, current).await;
     }
     let removed: Vec<&String> = before.difference(&after).collect();
     let added: Vec<&String> = after.difference(&before).collect();
@@ -416,7 +416,7 @@ pub async fn replace_items(
         )
         .await?;
     tx.commit().await?;
-    repository.items(list.id).await
+    hydrate_items(ctx, repository.entries(list.id).await?).await
 }
 
 pub async fn discount_limits(ctx: &Ctx<'_>) -> Result<Vec<RoleDiscountLimit>, AppError> {
@@ -758,4 +758,49 @@ async fn publish(
                 .with_ip(ip),
         )
         .await
+}
+
+async fn hydrate_items(
+    ctx: &Ctx<'_>,
+    entries: Vec<PriceListEntry>,
+) -> Result<Vec<PriceListItem>, AppError> {
+    let ids: Vec<_> = entries
+        .iter()
+        .map(|entry| entry.product_id)
+        .collect::<BTreeSet<_>>()
+        .into_iter()
+        .collect();
+    let mut products = std::collections::HashMap::new();
+    for batch in ids.chunks(1000) {
+        products.extend(aphel_sdk::line_items::catalog_items(ctx, batch).await?);
+    }
+    let mut items: Vec<_> = entries
+        .into_iter()
+        .filter_map(|entry| {
+            products
+                .get(&entry.product_id)
+                .map(|product| PriceListItem {
+                    id: entry.id,
+                    product_id: entry.product_id,
+                    product_name: product.name.clone(),
+                    product_code: product.code.clone(),
+                    product_price: product.price,
+                    product_currency: product.currency.clone(),
+                    min_quantity: entry.min_quantity,
+                    unit_price: entry.unit_price,
+                    position: entry.position,
+                })
+        })
+        .collect();
+    items.sort_by(|left, right| {
+        left.position
+            .cmp(&right.position)
+            .then_with(|| {
+                left.product_name
+                    .to_lowercase()
+                    .cmp(&right.product_name.to_lowercase())
+            })
+            .then(left.min_quantity.cmp(&right.min_quantity))
+    });
+    Ok(items)
 }

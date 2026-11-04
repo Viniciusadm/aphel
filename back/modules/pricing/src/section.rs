@@ -169,7 +169,7 @@ impl PriceListsSection {
             .collect();
         let products: BTreeMap<String, Uuid> = self
             .lists
-            .products_by_code(&codes)
+            .products_by_code(scope, &codes)
             .await?
             .into_iter()
             .collect();
@@ -245,14 +245,12 @@ impl PriceListsSection {
                 None => BTreeSet::new(),
                 Some(current) => self
                     .lists
-                    .items(current.id)
+                    .configuration_items(scope, current.id)
                     .await?
                     .iter()
-                    .map(|item| {
+                    .map(|(item, code)| {
                         item_signature(
-                            item.product_code
-                                .as_deref()
-                                .unwrap_or(&item.product_id.to_string()),
+                            code.as_deref().unwrap_or(&item.product_id.to_string()),
                             item.min_quantity,
                             item.unit_price,
                         )
@@ -311,7 +309,7 @@ impl ConfigSection<MySqlTx> for PriceListsSection {
         PRICE_LISTS_SECTION
     }
 
-    async fn export(&self, _scope: &AccessScope) -> Result<Option<Value>, AppError> {
+    async fn export(&self, scope: &AccessScope) -> Result<Option<Value>, AppError> {
         let mut exported = Vec::new();
         for list in self.lists.all().await? {
             if list.applies_to != PriceListAppliesTo::All {
@@ -319,11 +317,11 @@ impl ConfigSection<MySqlTx> for PriceListsSection {
             }
             let items = self
                 .lists
-                .items(list.id)
+                .configuration_items(scope, list.id)
                 .await?
                 .into_iter()
-                .filter_map(|item| {
-                    item.product_code.map(|code| PackagePriceListItem {
+                .filter_map(|(item, code)| {
+                    code.map(|code| PackagePriceListItem {
                         product_code: code,
                         unit_price: item.unit_price.to_string(),
                         min_quantity: (item.min_quantity != Decimal::ONE)

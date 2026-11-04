@@ -192,7 +192,7 @@ pub(crate) async fn save_bundle(
     if !violations.is_empty() {
         return Err(AppError::invalid_fields(INVALID_BUNDLE, violations));
     }
-    if current.is_none() && repository.is_component(product_id).await? {
+    if current.is_none() && repository.is_component(ctx, product_id).await? {
         return Err(product_bundle_nested());
     }
     let now = ctx.now();

@@ -124,7 +124,14 @@ impl PriceListResolver for CatalogPriceListResolver {
         if !list.is_valid_on(request.on) {
             return Ok(None);
         }
-        let items = store.product_items(list.id, request.product_id).await?;
+        if aphel_sdk::catalog_items::references()?
+            .existing(ctx.pool(), ctx.scope, &[request.product_id])
+            .await?
+            .is_empty()
+        {
+            return Ok(None);
+        }
+        let items = store.product_entries(list.id, request.product_id).await?;
         Ok(
             select_tier(&items, request.product_id, request.quantity).map(|item| ResolvedPrice {
                 price_list_id: list.id,

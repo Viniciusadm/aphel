@@ -10,9 +10,12 @@ pub const DELETE: &str = "catalog_items.delete";
 pub const EXPORT: &str = "catalog_items.export";
 pub const DESCRIPTOR: ContractDescriptor = ContractDescriptor {
     contract: contract!("catalog_items", "1.0.0"),
-    entries: &[KeyEntry::new(
-        RECORD_TYPE,
-        KeyKind::Reference,
-        "A catalog item record",
-    )],
+    entries: &[
+        KeyEntry::new(RECORD_TYPE, KeyKind::Reference, "A catalog item record"),
+        KeyEntry::new(
+            "catalog_items.references",
+            KeyKind::ExtensionPoint,
+            "Authorized catalog identities and portable code references",
+        ),
+    ],
 };

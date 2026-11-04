@@ -91,6 +91,15 @@ impl PriceList {
 }
 
 #[derive(Debug, Clone, PartialEq, Eq)]
+pub(crate) struct PriceListEntry {
+    pub(crate) id: Uuid,
+    pub(crate) product_id: Uuid,
+    pub(crate) min_quantity: Decimal,
+    pub(crate) unit_price: Decimal,
+    pub(crate) position: i32,
+}
+
+#[derive(Debug, Clone, PartialEq, Eq)]
 pub struct PriceListItem {
     pub(crate) id: Uuid,
     pub(crate) product_id: Uuid,
@@ -177,11 +186,11 @@ pub(crate) struct SetDiscountLimitsCommand {
 }
 
 pub(crate) fn select_tier(
-    items: &[PriceListItem],
+    items: &[PriceListEntry],
     product_id: Uuid,
     quantity: Decimal,
-) -> Option<&PriceListItem> {
-    let tiers: Vec<&PriceListItem> = items
+) -> Option<&PriceListEntry> {
+    let tiers: Vec<&PriceListEntry> = items
         .iter()
         .filter(|item| item.product_id == product_id)
         .collect();

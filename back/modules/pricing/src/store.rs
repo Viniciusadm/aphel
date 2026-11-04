@@ -11,7 +11,7 @@ use uuid::Uuid;
 
 use crate::domain::{
     BundleItem, BundlePricing, CatalogProduct, NewPriceListItem, PriceList, PriceListAppliesTo,
-    PriceListCandidate, PriceListFilter, PriceListItem, ProductBundle, RoleDiscountLimit,
+    PriceListCandidate, PriceListEntry, PriceListFilter, ProductBundle, RoleDiscountLimit,
 };
 use aphel_kernel::Ctx;
 use aphel_kernel::application::organization_admin::{ListWindow, Listing};
@@ -33,12 +33,7 @@ const LIST_COLUMNS: &str = "l.id, l.`key`, l.name, l.description, l.currency, l.
      l.created_at, l.updated_at, \
      (SELECT COUNT(*) FROM price_list_items i WHERE i.price_list_id = l.id) AS item_count";
 
-const ITEM_SELECT: &str = "SELECT i.id, i.product_id, i.min_quantity, i.unit_price, i.position, \
-     p.name AS product_name, p.code AS product_code, p.price AS product_price, \
-     p.currency AS product_currency \
-     FROM price_list_items i JOIN products p ON p.id = i.product_id \
-     AND p.deleted_at IS NULL \
-     WHERE TRUE";
+const ENTRY_SELECT: &str = "SELECT i.id, i.product_id, i.min_quantity, i.unit_price, i.position FROM price_list_items i WHERE TRUE";
 
 pub(crate) fn push_uuid_list(builder: &mut QueryBuilder<MySql>, ids: &[Uuid]) {
     builder.push(" IN (");
@@ -83,14 +78,10 @@ fn list_from_row(row: &MySqlRow) -> Result<PriceList, AppError> {
     })
 }
 
-fn item_from_row(row: &MySqlRow) -> Result<PriceListItem, AppError> {
-    Ok(PriceListItem {
+fn entry_from_row(row: &MySqlRow) -> Result<PriceListEntry, AppError> {
+    Ok(PriceListEntry {
         id: uuid_column(row, "id")?,
         product_id: uuid_column(row, "product_id")?,
-        product_name: row.try_get("product_name")?,
-        product_code: row.try_get("product_code")?,
-        product_price: row.try_get::<Decimal, _>("product_price")?,
-        product_currency: row.try_get("product_currency")?,
         min_quantity: row.try_get::<Decimal, _>("min_quantity")?.normalize(),
         unit_price: row.try_get::<Decimal, _>("unit_price")?,
         position: row.try_get("position")?,
@@ -292,22 +283,25 @@ impl PriceListStore {
             .collect()
     }
 
-    pub(crate) async fn items(&self, price_list_id: Uuid) -> Result<Vec<PriceListItem>, AppError> {
-        let mut builder = QueryBuilder::new(ITEM_SELECT);
+    pub(crate) async fn entries(
+        &self,
+        price_list_id: Uuid,
+    ) -> Result<Vec<PriceListEntry>, AppError> {
+        let mut builder = QueryBuilder::new(ENTRY_SELECT);
         builder
             .push(" AND i.price_list_id = ")
             .push_bind(price_list_id.to_string())
-            .push(" ORDER BY i.position, p.name, i.min_quantity");
+            .push(" ORDER BY i.position, i.product_id, i.min_quantity");
         let rows = builder.build().fetch_all(&self.pool).await?;
-        rows.iter().map(item_from_row).collect()
+        rows.iter().map(entry_from_row).collect()
     }
 
-    pub(crate) async fn product_items(
+    pub(crate) async fn product_entries(
         &self,
         price_list_id: Uuid,
         product_id: Uuid,
-    ) -> Result<Vec<PriceListItem>, AppError> {
-        let mut builder = QueryBuilder::new(ITEM_SELECT);
+    ) -> Result<Vec<PriceListEntry>, AppError> {
+        let mut builder = QueryBuilder::new(ENTRY_SELECT);
         builder
             .push(" AND i.price_list_id = ")
             .push_bind(price_list_id.to_string())
@@ -315,7 +309,7 @@ impl PriceListStore {
             .push_bind(product_id.to_string())
             .push(" ORDER BY i.min_quantity");
         let rows = builder.build().fetch_all(&self.pool).await?;
-        rows.iter().map(item_from_row).collect()
+        rows.iter().map(entry_from_row).collect()
     }
 
     pub(crate) async fn organization_currency(&self) -> Result<String, AppError> {
@@ -365,33 +359,45 @@ impl PriceListStore {
         ctx: &Ctx<'_>,
         product_ids: &[Uuid],
     ) -> Result<Vec<Uuid>, AppError> {
-        self.existing_records(
-            ctx,
-            aphel_kernel::application::shared::RecordType::PRODUCT,
-            product_ids,
-        )
-        .await
+        aphel_sdk::catalog_items::references()?
+            .existing(&self.pool, ctx.scope, product_ids)
+            .await
     }
 
     pub(crate) async fn products_by_code(
         &self,
+        scope: &AccessScope,
         codes: &[String],
     ) -> Result<Vec<(String, Uuid)>, AppError> {
-        if codes.is_empty() {
-            return Ok(Vec::new());
-        }
-        let mut builder = QueryBuilder::new(
-            "SELECT active_code, id FROM products WHERE deleted_at IS NULL AND active_code IN (",
-        );
-        let mut separated = builder.separated(", ");
-        for code in codes {
-            separated.push_bind(code.clone());
-        }
-        builder.push(")");
-        let rows = builder.build().fetch_all(&self.pool).await?;
-        rows.iter()
-            .map(|row| Ok((row.try_get("active_code")?, uuid_column(row, "id")?)))
-            .collect()
+        aphel_sdk::catalog_items::references()?
+            .by_codes(&self.pool, scope, codes)
+            .await
+    }
+    pub(crate) async fn configuration_items(
+        &self,
+        scope: &AccessScope,
+        price_list_id: Uuid,
+    ) -> Result<Vec<(PriceListEntry, Option<String>)>, AppError> {
+        let entries = self.entries(price_list_id).await?;
+        let codes = aphel_sdk::catalog_items::references()?
+            .codes(
+                &self.pool,
+                scope,
+                &entries
+                    .iter()
+                    .map(|entry| entry.product_id)
+                    .collect::<Vec<_>>(),
+            )
+            .await?;
+        Ok(entries
+            .into_iter()
+            .filter_map(|entry| {
+                codes
+                    .get(&entry.product_id)
+                    .cloned()
+                    .map(|code| (entry, code))
+            })
+            .collect())
     }
 
     pub(crate) async fn insert(&self, tx: &mut MySqlTx, list: &PriceList) -> Result<(), AppError> {
@@ -764,16 +770,24 @@ impl BundleStore {
             .collect()
     }
 
-    pub(crate) async fn is_component(&self, product_id: Uuid) -> Result<bool, AppError> {
-        let used: bool = sqlx::query_scalar(
-            "SELECT EXISTS(SELECT 1 FROM product_bundle_components c \
-             JOIN products p ON p.id = c.bundle_product_id AND p.deleted_at IS NULL \
-             WHERE c.component_product_id = ?)",
-        )
-        .bind(product_id.to_string())
-        .fetch_one(&self.pool)
-        .await?;
-        Ok(used)
+    pub(crate) async fn is_component(
+        &self,
+        ctx: &Ctx<'_>,
+        product_id: Uuid,
+    ) -> Result<bool, AppError> {
+        let ids: Vec<String> = sqlx::query_scalar("SELECT DISTINCT bundle_product_id FROM product_bundle_components WHERE component_product_id = ?").bind(product_id.to_string()).fetch_all(&self.pool).await?;
+        let ids = ids
+            .into_iter()
+            .map(|id| {
+                Uuid::parse_str(&id).map_err(|_| {
+                    AppError::Internal("invalid stored bundle product identity".into())
+                })
+            })
+            .collect::<Result<Vec<_>, _>>()?;
+        Ok(!aphel_sdk::catalog_items::references()?
+            .existing(&self.pool, ctx.scope, &ids)
+            .await?
+            .is_empty())
     }
 
     pub(crate) async fn timezone(&self) -> Result<String, AppError> {
