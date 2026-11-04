@@ -1,26 +1,16 @@
 use aphel_contract_crm::{CrmPermissions, CrmRecordTypes};
-use std::collections::HashMap;
 
 use async_trait::async_trait;
-use chrono::{Days, NaiveDate};
-use rust_decimal::Decimal;
+use chrono::Days;
 use serde_json::{Map, Value, json};
-use sqlx::{MySql, QueryBuilder, Row};
-use uuid::Uuid;
 
 use aphel_sdk::deals::{RevenueSummary, revenue_money as money};
 
 use aphel_kernel::application::fields::permissions::{FieldAccess, FieldAccessPolicy};
-use aphel_kernel::application::query::{
-    Filter, FilterOperator, QueryPlan, RecordQueryPorts, SortSpec,
-};
+use aphel_kernel::application::query::{Filter, FilterOperator, RecordQueryPorts, SortSpec};
 use aphel_kernel::application::shared::RecordType;
-use aphel_kernel::domain::access::{AccessScope, Permission};
+use aphel_kernel::domain::access::Permission;
 use aphel_kernel::errors::{AppError, FieldViolation};
-use aphel_kernel::infrastructure::query::compiler::{Projection, build_query};
-use aphel_kernel::infrastructure::repositories::mapper::invalid_column;
-use aphel_kernel::records::constrain_query;
-use aphel_kernel::state::runtime_pool;
 use aphel_sdk::dashboard::local_today;
 use aphel_sdk::dashboard::{DashboardPorts, SettingsReader, WidgetContext, WidgetProvider};
 use aphel_sdk::deals::date;
@@ -48,60 +38,6 @@ async fn deal_field_visible<P: DashboardPorts>(
     )
     .await?;
     Ok(policy.key_access(key) != FieldAccess::Hidden)
-}
-
-struct RenewalDeal {
-    id: Uuid,
-    title: String,
-    amount: Option<Decimal>,
-    currency: String,
-    stage_name: String,
-    contract_end: Option<NaiveDate>,
-    owner_id: Option<String>,
-    owner_name: Option<String>,
-}
-
-async fn renewal_deals(
-    scope: &AccessScope,
-    plan: &QueryPlan,
-) -> Result<Vec<RenewalDeal>, AppError> {
-    let pool = runtime_pool()?;
-    let constrained = constrain_query(&pool, scope, plan).await?;
-    let plan = constrained.as_ref().unwrap_or(plan);
-    let ids: Vec<String> = build_query(scope, plan, Projection::Ids)?
-        .build_query_scalar()
-        .fetch_all(&pool)
-        .await?;
-    if ids.is_empty() {
-        return Ok(Vec::new());
-    }
-    let mut builder: QueryBuilder<MySql> = QueryBuilder::new(
-        "SELECT d.id, d.title, d.amount, d.currency, s.name AS stage_name, d.contract_end, \
-         d.owner_id, u.display_name AS owner_name FROM deals d \
-         JOIN workflow_stages s ON s.id = d.stage_id \
-         LEFT JOIN users u ON u.id = d.owner_id WHERE d.id IN (",
-    );
-    let mut separated = builder.separated(", ");
-    for id in &ids {
-        separated.push_bind(id.clone());
-    }
-    builder.push(")");
-    let mut rows: HashMap<String, RenewalDeal> = HashMap::new();
-    for row in builder.build().fetch_all(&pool).await? {
-        let id: String = row.try_get("id")?;
-        let deal = RenewalDeal {
-            id: Uuid::parse_str(&id).map_err(|_| invalid_column("deals.id", &id))?,
-            title: row.try_get("title")?,
-            amount: row.try_get("amount")?,
-            currency: row.try_get("currency")?,
-            stage_name: row.try_get("stage_name")?,
-            contract_end: row.try_get("contract_end")?,
-            owner_id: row.try_get("owner_id")?,
-            owner_name: row.try_get("owner_name")?,
-        };
-        rows.insert(id, deal);
-    }
-    Ok(ids.iter().filter_map(|id| rows.remove(id)).collect())
 }
 
 pub(crate) struct RenewalsDueWidget;
@@ -207,7 +143,12 @@ impl WidgetProvider<aphel_sdk::dashboard::WidgetPorts> for RenewalsDueWidget {
                 vec![SortSpec::asc("contract_end")],
                 u64::try_from(settings.limit).unwrap_or(1),
             )?;
-            renewal_deals(context.scope, &plan).await?
+            context
+                .ports
+                .services()
+                .require::<dyn aphel_sdk::deals::DealRenewalReader>()?
+                .widget_rows(context, &plan)
+                .await?
         };
         let amount_visible = deal_field_visible(context, "amount").await?;
         let contract_end_visible = deal_field_visible(context, "contract_end").await?;

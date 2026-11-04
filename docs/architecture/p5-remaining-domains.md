@@ -544,6 +544,12 @@ This phase is in progress. Completed entries describe static source validation; 
 - [x] Scoped deals/renewal compilation passes; two foreign SQL references are removed.
 - [ ] Manual acceptance: settings-author scope, date boundaries, pagination after completed rows, deleted renewals and concurrent renewal discovery.
 
+## Renewal widget ownership
+
+- [x] Deals executes bounded widget queries, record constraints and field masking. Workflow supplies stage labels through its owner catalog; no foreign SQL or global pool reconstruction remains in renewals.
+- [x] Preserve item order and aggregate totals; hidden fields are omitted/empty and unavailable stage labels remain empty. Scoped deals/renewal compilation passes.
+- [ ] Manual acceptance: widget ordering/limits, hidden title/amount/currency/owner/stage fields, record constraints and disabled owners.
+
 ## Outstanding scope
 
 The remaining identity changes, shared capability interfaces, owner-only SQL, deletion policies and per-plugin manual acceptance matrices are still pending. Existing architectural debt is not considered resolved by renaming packages.

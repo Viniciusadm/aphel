@@ -37,6 +37,14 @@ impl RenewalDealWriter for Writer {
 
 #[async_trait::async_trait]
 impl aphel_sdk::deals::DealRenewalReader for Writer {
+    async fn widget_rows(
+        &self,
+        context: &aphel_sdk::dashboard::WidgetContext<'_, aphel_sdk::dashboard::WidgetPorts>,
+        plan: &aphel_kernel::application::query::QueryPlan,
+    ) -> Result<Vec<aphel_sdk::deals::RenewalDealRow>, AppError> {
+        widget_rows(context, plan).await
+    }
+
     async fn due(
         &self,
         ctx: &Ctx<'_>,
@@ -145,4 +153,116 @@ impl aphel_sdk::deals::DealRenewalReader for Writer {
         })
         .transpose()
     }
+}
+
+async fn widget_rows(
+    context: &aphel_sdk::dashboard::WidgetContext<'_, aphel_sdk::dashboard::WidgetPorts>,
+    plan: &aphel_kernel::application::query::QueryPlan,
+) -> Result<Vec<aphel_sdk::deals::RenewalDealRow>, AppError> {
+    use aphel_kernel::application::fields::FieldSet;
+    use aphel_kernel::application::query::RecordQueryPorts;
+    use aphel_kernel::infrastructure::query::compiler::{Projection, build_query};
+    use aphel_sdk::dashboard::DashboardPorts;
+    use sqlx::Row;
+    if plan.record_type.record_type.as_str() != aphel_sdk::deals::RECORD_TYPE
+        || !(1..=1000).contains(&plan.window.limit)
+    {
+        return Err(AppError::Validation(
+            "a bounded deal query is required".into(),
+        ));
+    }
+    let pool = context.ports.pool();
+    let constrained = aphel_kernel::records::constrain_query(pool, context.scope, plan).await?;
+    let plan = constrained.as_ref().unwrap_or(plan);
+    let ids: Vec<String> = build_query(context.scope, plan, Projection::Ids)?
+        .build_query_scalar()
+        .fetch_all(pool)
+        .await?;
+    if ids.is_empty() {
+        return Ok(Vec::new());
+    }
+    let fields = FieldSet::for_scope(
+        context.ports.query().definitions(),
+        &plan.record_type,
+        context.scope,
+    )
+    .await?;
+    let mut query = sqlx::QueryBuilder::<sqlx::MySql>::new(
+        "SELECT d.id, d.title, d.amount, d.currency, d.stage_id, d.contract_end, d.owner_id, u.display_name AS owner_name FROM deals d LEFT JOIN users u ON u.id = d.owner_id WHERE d.id IN (",
+    );
+    let mut list = query.separated(", ");
+    for id in &ids {
+        list.push_bind(id.clone());
+    }
+    query.push(")");
+    let rows = query.build().fetch_all(pool).await?;
+    let mut stages = std::collections::HashMap::new();
+    if !fields.is_hidden("stage_id") {
+        if let Some(source) = context
+            .ports
+            .services()
+            .get::<dyn aphel_sdk::workflow::WorkflowCatalog>()
+        {
+            let stage_ids = rows
+                .iter()
+                .map(|row| {
+                    let id: String = row.try_get("stage_id")?;
+                    aphel_kernel::infrastructure::repositories::mapper::parse_uuid(
+                        &id,
+                        "deals.stage_id",
+                    )
+                })
+                .collect::<Result<Vec<_>, AppError>>()?;
+            stages = source.stage_names(pool, &stage_ids).await?;
+        }
+    }
+    let mut values = std::collections::HashMap::new();
+    for row in rows {
+        let raw_id: String = row.try_get("id")?;
+        let stage_id: String = row.try_get("stage_id")?;
+        let stage_id = aphel_kernel::infrastructure::repositories::mapper::parse_uuid(
+            &stage_id,
+            "deals.stage_id",
+        )?;
+        let id =
+            aphel_kernel::infrastructure::repositories::mapper::parse_uuid(&raw_id, "deals.id")?;
+        values.insert(
+            raw_id,
+            aphel_sdk::deals::RenewalDealRow {
+                id,
+                title: if fields.is_hidden("title") {
+                    String::new()
+                } else {
+                    row.try_get("title")?
+                },
+                amount: if fields.is_hidden("amount") {
+                    None
+                } else {
+                    row.try_get("amount")?
+                },
+                currency: if fields.is_hidden("currency") {
+                    String::new()
+                } else {
+                    row.try_get("currency")?
+                },
+                stage_name: stages.get(&stage_id).cloned().unwrap_or_default(),
+                contract_end: if fields.is_hidden("contract_end") {
+                    None
+                } else {
+                    row.try_get("contract_end")?
+                },
+                owner_id: if fields.is_hidden("owner_id") {
+                    None
+                } else {
+                    row.try_get("owner_id")?
+                },
+                owner_name: if fields.is_hidden("owner_id") {
+                    None
+                } else {
+                    row.try_get("owner_name")?
+                },
+            },
+        );
+    }
+    Ok(ids.iter().filter_map(|id| values.remove(id)).collect())
 }

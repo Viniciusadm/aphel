@@ -279,6 +279,12 @@ pub struct ExistingDealRenewal {
 }
 #[async_trait]
 pub trait DealRenewalReader: Send + Sync {
+    async fn widget_rows(
+        &self,
+        context: &crate::dashboard::WidgetContext<'_, crate::dashboard::WidgetPorts>,
+        plan: &aphel_kernel::application::query::QueryPlan,
+    ) -> Result<Vec<RenewalDealRow>, AppError>;
+
     async fn due(
         &self,
         ctx: &crate::Ctx<'_>,
@@ -289,4 +295,15 @@ pub trait DealRenewalReader: Send + Sync {
         ctx: &crate::Ctx<'_>,
         original_id: Uuid,
     ) -> Result<Option<ExistingDealRenewal>, AppError>;
+}
+
+pub struct RenewalDealRow {
+    pub id: Uuid,
+    pub title: String,
+    pub amount: Option<Decimal>,
+    pub currency: String,
+    pub stage_name: String,
+    pub contract_end: Option<NaiveDate>,
+    pub owner_id: Option<String>,
+    pub owner_name: Option<String>,
 }
