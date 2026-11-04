@@ -7,6 +7,7 @@ license.workspace = true
 publish = false
 
 [dependencies]
+aphel-contract-telephony.workspace = true
 aphel-contract-views.workspace = true
 aphel-contract-tagging.workspace = true
 futures.workspace = true

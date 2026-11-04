@@ -7,8 +7,7 @@ use aphel_kernel::domain::UserId;
 
 pub(crate) use crate::call::{ActivityCallView, CallDetails, CallDirection};
 
-pub const CALL_LOGGED: &str = "call.logged";
-pub const CALL_UPDATED: &str = "call.updated";
+pub use aphel_sdk::telephony::{CALL_LOGGED, CALL_UPDATED};
 pub(crate) const CALL_OUTCOME_CREATED: &str = "call_outcome.created";
 pub(crate) const CALL_OUTCOME_UPDATED: &str = "call_outcome.updated";
 pub(crate) const CALL_OUTCOME_REORDERED: &str = "call_outcome.reordered";

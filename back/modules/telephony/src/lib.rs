@@ -65,6 +65,7 @@ impl Module for TelephonyModule {
     }
 
     fn register(&self, app: &mut AppBuilder) -> Result<(), AppError> {
+        app.contract(aphel_sdk::telephony::DESCRIPTOR);
         app.contribute(Arc::new(DefaultsSeed(|connection| {
             Box::pin(store::seed_call_outcomes(connection))
         })));

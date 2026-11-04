@@ -28,6 +28,6 @@ Permissions: `tasks.create` logs calls and runs sessions, `tasks.update` edits a
 
 ## Telephony via modules
 
-VoIP providers implement `telephony::telephony::TelephonyProvider` and come in as a typed contribution (`app.contribute::<dyn TelephonyProvider>(..)`); the `telephony` module's `dyn TelephonyRouter` service picks the provider (only enabled modules). To report the call (answered, ended, recording ready), the provider calls `POST /v1/telephony/events`, which logs or updates the call by `provider_call_id`.
+VoIP providers implement `aphel_sdk::telephony::TelephonyProvider` and come in as a typed contribution (`app.contribute::<dyn TelephonyProvider>(..)`); the `telephony` module's `dyn TelephonyRouter` service picks the provider (only enabled contribution owners, refreshed for each lookup). To report the call (answered, ended, recording ready), the provider calls `POST /v1/telephony/events`, which logs or updates the call by `provider_call_id`.
 
 On the web, the records' phone (`PhoneValue` in `features/records/display`) uses the renderer registered by `features/calls`: it opens `tel:` (or starts through the first available provider) and opens the call logging dialog already linked to the record.

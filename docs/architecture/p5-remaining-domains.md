@@ -125,6 +125,15 @@ This phase is in progress. Completed entries describe static source validation; 
 - [ ] Replace the remaining objects implementation dependency and review managed entity availability when the host is disabled or absent.
 - [ ] Manual acceptance: installation, grants, settings, bundles, public routes, change streams, queued effects, module disabling and host-free composition.
 
+## Telephony provider boundary
+
+- [x] Publish call event identifiers through a pure telephony contract and native provider/request/recording/router interfaces through the SDK.
+- [x] Remove scoring's telephony implementation dependency; its event matching uses shared identifiers.
+- [x] Keep provider selection in telephony. Resolve contributions on each lookup, filter by captured owner availability and actor scope, and retain provider-specific module restrictions.
+- [x] Remove the one-time provider cache so replaced runtime contributions do not leave stale provider instances.
+- [ ] Remove remaining task implementation coupling and foreign SQL/FKs.
+- [ ] Manual acceptance: provider registration/replacement, owner disable/enable, provider restrictions, start/recording failures and call event processing.
+
 ## Outstanding scope
 
 The remaining identity changes, shared capability interfaces, owner-only SQL, deletion policies and per-plugin manual acceptance matrices are still pending. Existing architectural debt is not considered resolved by renaming packages.

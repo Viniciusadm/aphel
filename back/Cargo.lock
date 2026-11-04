@@ -424,6 +424,13 @@ dependencies = [
 ]
 
 [[package]]
+name = "aphel-contract-telephony"
+version = "0.1.0"
+dependencies = [
+ "aphel-contract",
+]
+
+[[package]]
 name = "aphel-contract-timeline"
 version = "0.1.0"
 dependencies = [
@@ -1684,7 +1691,6 @@ dependencies = [
  "aphel-mod-email",
  "aphel-mod-organizations",
  "aphel-mod-people",
- "aphel-mod-telephony",
  "aphel-sdk",
  "async-trait",
  "axum",
@@ -2026,6 +2032,7 @@ dependencies = [
  "aphel-contract-pricing",
  "aphel-contract-privacy",
  "aphel-contract-tagging",
+ "aphel-contract-telephony",
  "aphel-contract-timeline",
  "aphel-contract-views",
  "aphel-contract-workflow",
