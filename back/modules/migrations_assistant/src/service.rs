@@ -12,10 +12,7 @@ use aphel_kernel::application::access::Authorizer;
 use aphel_kernel::context::Ctx;
 use aphel_kernel::domain::access::Permission;
 use aphel_kernel::errors::AppError;
-use imports::{
-    ConfigureImportCommand, CreateImportCommand, DuplicateStrategy, ImportDetails, ImportOptions,
-    create_permission,
-};
+use aphel_sdk::imports::{CreateImportCommand, drafts, dto::ImportJobResponse};
 
 pub(crate) const MIGRATION_SOURCE_NOT_FOUND: &str = "migration_source_not_found";
 pub(crate) const MIGRATION_HISTORY_STEP: &str = "migration_history_step";
@@ -28,7 +25,7 @@ pub(crate) struct MigrationHistory {
 
 fn step_permission(ctx: &Ctx<'_>, step: &SourceStep) -> Option<Permission> {
     match step.kind {
-        StepKind::Import => create_permission(ctx, step.record_type),
+        StepKind::Import => drafts().ok()?.create_permission(ctx, step.record_type),
         StepKind::Activities => Some(Permission::TASKS_CREATE),
         StepKind::Notes => Some(Permission::NOTES_CREATE),
     }
@@ -55,7 +52,7 @@ pub(crate) struct MigrationPreview {
 #[derive(Debug, Clone, PartialEq)]
 pub(crate) struct MigrationImport {
     pub(crate) preview: MigrationPreview,
-    pub(crate) import: ImportDetails,
+    pub(crate) import: ImportJobResponse,
 }
 
 fn source_not_found() -> AppError {
@@ -114,24 +111,25 @@ pub(crate) async fn create_import(
         .file_name
         .rsplit_once('.')
         .map_or(command.file_name.as_str(), |(stem, _)| stem);
-    let created = imports::service::create(
-        ctx,
-        CreateImportCommand {
-            record_type: preview.step.record_type.to_owned(),
-            file_name: format!("{}-{stem}.csv", preview.tool.key),
-            content,
-            retry_of: None,
-            ip: command.ip.clone(),
-        },
-    )
-    .await?;
+    let created = drafts()?
+        .create(
+            ctx,
+            CreateImportCommand {
+                record_type: preview.step.record_type.to_owned(),
+                file_name: format!("{}-{stem}.csv", preview.tool.key),
+                content,
+                retry_of: None,
+                ip: command.ip.clone(),
+            },
+        )
+        .await?;
     let targets: BTreeSet<&str> = created
         .targets
         .iter()
         .map(|target| target.key.as_str())
         .collect();
     let mut used = BTreeSet::new();
-    let mut mapping: Vec<Option<String>> = vec![None; created.job.headers.len()];
+    let mut mapping: Vec<Option<String>> = vec![None; created.headers.len()];
     for column in &preview.file.recognized {
         if column.index < mapping.len()
             && targets.contains(column.target.as_str())
@@ -140,7 +138,7 @@ pub(crate) async fn create_import(
             mapping[column.index] = Some(column.target.clone());
         }
     }
-    for (index, suggestion) in created.job.mapping.iter().enumerate() {
+    for (index, suggestion) in created.mapping.iter().enumerate() {
         if mapping[index].is_some()
             || preview
                 .file
@@ -156,30 +154,9 @@ pub(crate) async fn create_import(
             mapping[index] = Some(key.clone());
         }
     }
-    let record_type = preview.step.record_type;
-    let duplicate_key = if ctx
-        .registry()
-        .require(record_type)
-        .is_ok_and(|definition| preview.step.duplicate_key.supported_by(definition))
-    {
-        preview.step.duplicate_key
-    } else {
-        ImportOptions::default_for(record_type).duplicate_key
-    };
-    let import = imports::service::configure(
-        ctx,
-        &created.job.id.to_string(),
-        ConfigureImportCommand {
-            mapping,
-            options: ImportOptions {
-                duplicate_key,
-                duplicate_strategy: DuplicateStrategy::Skip,
-                create_missing_references: true,
-                distribution_rule_id: None,
-            },
-        },
-    )
-    .await?;
+    let import = drafts()?
+        .configure(ctx, &created.id, mapping, preview.step.duplicate_key)
+        .await?;
     Ok(MigrationImport { preview, import })
 }
 

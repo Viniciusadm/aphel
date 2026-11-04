@@ -445,6 +445,13 @@ This phase is in progress. Completed entries describe static source validation; 
 - [x] Formatting and strict imports/migration-assistant Clippy pass without tests.
 - [ ] Manual acceptance: CSV encodings/delimiters, spreadsheet dates, parser limits, scoped label aliases, inactive members and unavailable providers.
 
+## Import draft owner service
+
+- [x] Publish import draft commands and response data through the SDK; native DTO conversions remain in imports.
+- [x] The migration assistant creates/configures drafts through an enabled owner service. Imports retains permissions, supported/default duplicate-key selection, draft ownership, mapping validation, storage and persistence.
+- [x] Remove the assistant's imports implementation dependency and make imports an optional capability. Full lint passes and generated OpenAPI is unchanged.
+- [ ] Manual acceptance: recognized/suggested mappings, unsupported duplicate keys, actor ownership, unavailable imports and file/storage failures.
+
 ## Outstanding scope
 
 The remaining identity changes, shared capability interfaces, owner-only SQL, deletion policies and per-plugin manual acceptance matrices are still pending. Existing architectural debt is not considered resolved by renaming packages.

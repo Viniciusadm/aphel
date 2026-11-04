@@ -1,5 +1,6 @@
 pub(crate) mod coerce;
 pub(crate) mod dashboard;
+mod drafts;
 pub mod dto;
 pub(crate) mod hooks;
 pub(crate) mod http;
@@ -70,6 +71,7 @@ impl Module for ImportsModule {
 
     fn register(&self, app: &mut AppBuilder) -> Result<(), AppError> {
         app.contract(aphel_sdk::imports::DESCRIPTOR);
+        app.provide::<dyn aphel_sdk::imports::ImportDrafts>(Arc::new(drafts::Drafts));
         app.provide::<dyn aphel_sdk::imports::ImportSources>(Arc::new(source_service::Sources));
         app.contribute::<dyn aphel_sdk::privacy::PrivacySource>(std::sync::Arc::new(
             privacy::ImportPrivacy,

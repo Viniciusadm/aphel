@@ -8,7 +8,7 @@ use crate::{
     SourceTool, ValueMaps,
 };
 use aphel_kernel::api::dto::files::FormFile;
-use imports::dto::ImportJobResponse;
+use aphel_sdk::imports::dto::ImportJobResponse;
 
 pub(crate) const SOURCE_FIELD: &str = "source";
 pub(crate) const STEP_FIELD: &str = "step";
@@ -196,7 +196,7 @@ pub(crate) struct MigrationImportResponse {
 impl From<MigrationImport> for MigrationImportResponse {
     fn from(result: MigrationImport) -> Self {
         Self {
-            import: result.import.into(),
+            import: result.import,
             preview: result.preview.into(),
         }
     }

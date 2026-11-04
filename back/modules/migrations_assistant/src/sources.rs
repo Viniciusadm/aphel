@@ -1,4 +1,4 @@
-use imports::DuplicateKey;
+use aphel_sdk::imports::dto::DuplicateKeyDto as DuplicateKey;
 
 #[derive(Debug, Clone, Copy, PartialEq, Eq)]
 pub(crate) enum DateOrder {

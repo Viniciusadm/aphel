@@ -1,3 +1,7 @@
+pub use aphel_sdk::imports::dto::{
+    DuplicateKeyDto, DuplicateStrategyDto, ImportJobResponse, ImportOptionsDto, ImportPreviewRow,
+    ImportTargetResponse, ImportTotalsResponse,
+};
 use chrono::{DateTime, SecondsFormat, Utc};
 use serde::{Deserialize, Serialize};
 use utoipa::{IntoParams, ToSchema};
@@ -27,16 +31,6 @@ pub(crate) struct ImportUploadForm {
     pub(crate) retry_of: Option<String>,
 }
 
-#[derive(Debug, Clone, Copy, Serialize, Deserialize, ToSchema)]
-#[serde(rename_all = "snake_case")]
-pub(crate) enum DuplicateKeyDto {
-    None,
-    Email,
-    Phone,
-    Domain,
-    Name,
-}
-
 impl From<DuplicateKey> for DuplicateKeyDto {
     fn from(key: DuplicateKey) -> Self {
         match key {
@@ -61,14 +55,6 @@ impl From<DuplicateKeyDto> for DuplicateKey {
     }
 }
 
-#[derive(Debug, Clone, Copy, Serialize, Deserialize, ToSchema)]
-#[serde(rename_all = "snake_case")]
-pub(crate) enum DuplicateStrategyDto {
-    Skip,
-    Update,
-    Create,
-}
-
 impl From<DuplicateStrategy> for DuplicateStrategyDto {
     fn from(strategy: DuplicateStrategy) -> Self {
         match strategy {
@@ -87,15 +73,6 @@ impl From<DuplicateStrategyDto> for DuplicateStrategy {
             DuplicateStrategyDto::Create => Self::Create,
         }
     }
-}
-
-#[derive(Debug, Clone, Serialize, Deserialize, ToSchema)]
-pub(crate) struct ImportOptionsDto {
-    pub(crate) duplicate_key: DuplicateKeyDto,
-    pub(crate) duplicate_strategy: DuplicateStrategyDto,
-    pub(crate) create_missing_references: bool,
-    #[serde(default)]
-    pub(crate) distribution_rule_id: Option<String>,
 }
 
 impl From<ImportOptions> for ImportOptionsDto {
@@ -123,16 +100,6 @@ impl From<ImportOptionsDto> for ImportOptions {
     }
 }
 
-#[derive(Debug, Serialize, ToSchema)]
-pub(crate) struct ImportTotalsResponse {
-    pub(crate) total: u64,
-    pub(crate) pending: u64,
-    pub(crate) imported: u64,
-    pub(crate) updated: u64,
-    pub(crate) skipped: u64,
-    pub(crate) failed: u64,
-}
-
 impl From<ImportTotals> for ImportTotalsResponse {
     fn from(totals: ImportTotals) -> Self {
         Self {
@@ -144,24 +111,6 @@ impl From<ImportTotals> for ImportTotalsResponse {
             failed: totals.failed,
         }
     }
-}
-
-#[derive(Debug, Serialize, ToSchema)]
-pub(crate) struct ImportTargetResponse {
-    pub(crate) can_create_reference: bool,
-    #[schema(example = "email")]
-    pub(crate) key: String,
-    #[schema(example = "Email")]
-    pub(crate) label: String,
-    #[schema(example = "email")]
-    pub(crate) field_type: String,
-    pub(crate) required: bool,
-    pub(crate) is_custom: bool,
-    #[schema(example = "organizations.organization")]
-    pub(crate) relation_target: Option<String>,
-    pub(crate) multiple: bool,
-    #[schema(example = "name")]
-    pub(crate) satisfied_by: Option<String>,
 }
 
 impl From<ImportTarget> for ImportTargetResponse {
@@ -178,44 +127,6 @@ impl From<ImportTarget> for ImportTargetResponse {
             satisfied_by: target.satisfied_by,
         }
     }
-}
-
-#[derive(Debug, Serialize, ToSchema)]
-pub(crate) struct ImportPreviewRow {
-    pub(crate) row_index: u32,
-    pub(crate) cells: Vec<String>,
-}
-
-#[derive(Debug, Serialize, ToSchema)]
-pub struct ImportJobResponse {
-    pub(crate) id: String,
-    #[schema(example = "people.person")]
-    pub(crate) record_type: String,
-    #[schema(example = "draft")]
-    pub(crate) status: String,
-    pub(crate) file_id: Option<String>,
-    pub(crate) privacy_redacted_at: Option<String>,
-    pub(crate) file_name: String,
-    #[schema(example = "utf-8")]
-    pub(crate) encoding: String,
-    #[schema(example = ";")]
-    pub(crate) delimiter: String,
-    pub(crate) headers: Vec<String>,
-    pub(crate) preview: Vec<ImportPreviewRow>,
-    pub(crate) row_count: u32,
-    pub(crate) mapping: Vec<Option<String>>,
-    pub(crate) options: ImportOptionsDto,
-    pub(crate) totals: ImportTotalsResponse,
-    pub(crate) error_file_id: Option<String>,
-    pub(crate) retry_of: Option<String>,
-    pub(crate) failure_reason: Option<String>,
-    pub(crate) created_by: String,
-    pub(crate) created_at: String,
-    pub(crate) updated_at: String,
-    pub(crate) started_at: Option<String>,
-    pub(crate) finished_at: Option<String>,
-    pub(crate) targets: Vec<ImportTargetResponse>,
-    pub(crate) duplicate_keys: Vec<DuplicateKeyDto>,
 }
 
 impl From<ImportJob> for ImportJobResponse {

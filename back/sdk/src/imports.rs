@@ -88,3 +88,44 @@ pub fn sources() -> Result<std::sync::Arc<dyn ImportSources>, AppError> {
             )
         })
 }
+
+pub mod dto;
+use bytes::Bytes;
+#[derive(Debug, Clone, PartialEq)]
+pub struct CreateImportCommand {
+    pub record_type: String,
+    pub file_name: String,
+    pub content: Bytes,
+    pub retry_of: Option<String>,
+    pub ip: Option<String>,
+}
+
+#[async_trait::async_trait]
+pub trait ImportDrafts: Send + Sync {
+    fn create_permission(
+        &self,
+        ctx: &crate::Ctx<'_>,
+        record_type: &str,
+    ) -> Option<crate::access::Permission>;
+    async fn create(
+        &self,
+        ctx: &crate::Ctx<'_>,
+        command: CreateImportCommand,
+    ) -> Result<dto::ImportJobResponse, AppError>;
+    async fn configure(
+        &self,
+        ctx: &crate::Ctx<'_>,
+        id: &str,
+        mapping: Vec<Option<String>>,
+        preferred_duplicate_key: dto::DuplicateKeyDto,
+    ) -> Result<dto::ImportJobResponse, AppError>;
+}
+
+pub fn drafts() -> Result<std::sync::Arc<dyn ImportDrafts>, AppError> {
+    aphel_kernel::modules::app()
+        .services()
+        .get::<dyn ImportDrafts>()
+        .ok_or_else(|| {
+            AppError::unavailable_code("import_drafts_unavailable", "import drafts are not enabled")
+        })
+}

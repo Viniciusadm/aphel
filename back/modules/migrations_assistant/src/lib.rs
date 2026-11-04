@@ -26,7 +26,7 @@ impl Module for MigrationsAssistantModule {
         Manifest::new(KEY, "Migration assistant", APHEL_VERSION)
             .description("Assisted migration from other CRMs: recognized columns, conversion of their CSV exports and pre-filled imports")
             .enabled_by_default()
-            .depends_on(imports::KEY, "*")
+            .optional("imports")
             .optional(tasks::KEY)
             .optional(notes::KEY)
     }

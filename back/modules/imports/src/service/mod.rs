@@ -103,14 +103,7 @@ pub fn is_row_error(error: &AppError) -> bool {
     )
 }
 
-#[derive(Debug, Clone, PartialEq)]
-pub struct CreateImportCommand {
-    pub record_type: String,
-    pub file_name: String,
-    pub content: Bytes,
-    pub retry_of: Option<String>,
-    pub ip: Option<String>,
-}
+pub use aphel_sdk::imports::CreateImportCommand;
 
 #[derive(Debug, Clone, PartialEq)]
 pub struct ConfigureImportCommand {
